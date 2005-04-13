@@ -333,7 +333,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     QDesignerSettings settings;
     QDesignerToolWindow *mw = new QDesignerToolWindow(this); // Just to have a copy of
     mw->setSaveSettingsOnClose(true);
-    mw->setObjectName("MDIWindow");
+    mw->setObjectName(QLatin1String("MDIWindow"));
     mw->setWindowTitle(tr("Qt Designer"));
     m_workspace = new QWorkspace(mw);
     m_workspace->setScrollBarsEnabled(true);

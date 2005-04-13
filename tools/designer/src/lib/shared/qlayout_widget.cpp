@@ -71,8 +71,8 @@ QLayoutSupport::QLayoutSupport(QDesignerFormWindowInterface *formWindow, QWidget
     m_indicatorBottom->hide();
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(formWindow->core()->extensionManager(), m_widget)) {
-        sheet->setChanged(sheet->indexOf("margin"), true);
-        sheet->setChanged(sheet->indexOf("spacing"), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String("margin")), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String("spacing")), true);
     }
 }
 

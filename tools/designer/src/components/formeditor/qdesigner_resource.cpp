@@ -60,13 +60,13 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
     m_topLevelSpacerCount = 0;
     m_copyWidget = false;
 
-    m_internal_to_qt.insert("QDesignerWidget", "QWidget");
-    m_internal_to_qt.insert("QDesignerStackedWidget", "QStackedWidget");
-    m_internal_to_qt.insert("QLayoutWidget", "QWidget");
-    m_internal_to_qt.insert("QDesignerTabWidget", "QTabWidget");
-    m_internal_to_qt.insert("QDesignerDialog", "QDialog");
-    m_internal_to_qt.insert("QDesignerLabel", "QLabel");
-    m_internal_to_qt.insert("QDesignerToolBox", "QToolBox");
+    m_internal_to_qt.insert(QLatin1String("QDesignerWidget"), QLatin1String("QWidget"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerStackedWidget"), QLatin1String("QStackedWidget"));
+    m_internal_to_qt.insert(QLatin1String("QLayoutWidget"), QLatin1String("QWidget"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerTabWidget"), QLatin1String("QTabWidget"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerDialog"), QLatin1String("QDialog"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerLabel"), QLatin1String("QLabel"));
+    m_internal_to_qt.insert(QLatin1String("QDesignerToolBox"), QLatin1String("QToolBox"));
 
     // invert
     QHashIterator<QString, QString> it(m_internal_to_qt);
@@ -116,7 +116,7 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 {
     QString version = ui->attributeVersion();
-    if (version != "4.0") {
+    if (version != QLatin1String("4.0")) {
         QMessageBox::warning(parentWidget->window(), QObject::tr("Qt Designer"),
                QObject::tr("This file was created using designer from Qt-%1 and "
                            "could not be read. "
@@ -182,28 +182,28 @@ static DomAction *createDomAction(const ActionListElt &elt)
     QList<DomProperty*> prop_list;
 
     DomProperty *prop = new DomProperty;
-    prop->setAttributeName("objectName");
+    prop->setAttributeName(QLatin1String("objectName"));
     DomString *string = new DomString;
     string->setText(elt.objectName);
     prop->setElementString(string);
     prop_list.append(prop);
 
     prop = new DomProperty;
-    prop->setAttributeName("icon");
+    prop->setAttributeName(QLatin1String("icon"));
     DomResourcePixmap *pixmap = new DomResourcePixmap;
     pixmap->setText(elt.icon);
     prop->setElementIconSet(pixmap);
     prop_list.append(prop);
 
     prop = new DomProperty;
-    prop->setAttributeName("iconText");
+    prop->setAttributeName(QLatin1String("iconText"));
     string = new DomString;
     string->setText(elt.iconText);
     prop->setElementString(string);
     prop_list.append(prop);
 
     prop = new DomProperty;
-    prop->setAttributeName("shortcut");
+    prop->setAttributeName(QLatin1String("shortcut"));
     string = new DomString;
     string->setText(elt.shortcut);
     prop->setElementString(string);
@@ -227,7 +227,7 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 
         if (container == 0) {
             // generate a QLayoutWidget iff the parent is not an QDesignerContainerExtension.
-            ui_widget->setAttributeClass("QLayoutWidget");
+            ui_widget->setAttributeClass(QLatin1String("QLayoutWidget"));
         }
     }
 
@@ -279,7 +279,7 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
     if (ui_layoutItem->kind() == DomLayoutItem::Spacer) {
         QHash<QString, DomProperty*> properties = propertyMap(ui_layoutItem->elementSpacer()->elementProperty());
 
-        Spacer *spacer = (Spacer*) m_core->widgetFactory()->createWidget("Spacer", parentWidget);
+        Spacer *spacer = (Spacer*) m_core->widgetFactory()->createWidget(QLatin1String("Spacer"), parentWidget);
 
         spacer->setInteraciveMode(false);
         applyProperties(spacer, ui_layoutItem->elementSpacer()->elementProperty());
@@ -288,7 +288,7 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
         if (m_formWindow) {
             m_formWindow->manageWidget(spacer);
             if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), spacer))
-                sheet->setChanged(sheet->indexOf("orientation"), true);
+                sheet->setChanged(sheet->indexOf(QLatin1String("orientation")), true);
         }
 
         return new QWidgetItem(spacer);
@@ -708,7 +708,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerTabWidget *widget, DomWidget *
 
             // attribute `title'
             DomProperty *p = new DomProperty();
-            p->setAttributeName("title");
+            p->setAttributeName(QLatin1String("title"));
             DomString *str = new DomString();
             str->setText(widget->tabText(i));
             p->setElementString(str);
@@ -742,7 +742,7 @@ DomWidget *QDesignerResource::saveWidget(QDesignerToolBox *widget, DomWidget *ui
 
             // attribute `label'
             DomProperty *p = new DomProperty();
-            p->setAttributeName("label");
+            p->setAttributeName(QLatin1String("label"));
             DomString *str = new DomString();
             str->setText(widget->itemText(i));
             p->setElementString(str); // ### check f tb->indexOf(page) == i ??
@@ -791,7 +791,7 @@ bool QDesignerResource::checkProperty(QLayoutWidget *widget, const QString &prop
     if (!widget)
         return true;
 
-    return widget->QWidget::metaObject()->indexOfProperty(prop.toLatin1()) != -1;
+    return widget->QWidget::metaObject()->indexOfProperty(prop.toUtf8()) != -1;
 }
 
 bool QDesignerResource::checkProperty(QDesignerTabWidget *widget, const QString &prop) const
@@ -799,7 +799,7 @@ bool QDesignerResource::checkProperty(QDesignerTabWidget *widget, const QString 
     if (!widget)
         return true;
 
-    return widget->QTabWidget::metaObject()->indexOfProperty(prop.toLatin1()) != -1;
+    return widget->QTabWidget::metaObject()->indexOfProperty(prop.toUtf8()) != -1;
 }
 
 bool QDesignerResource::checkProperty(QDesignerToolBox *widget, const QString &prop) const
@@ -807,7 +807,7 @@ bool QDesignerResource::checkProperty(QDesignerToolBox *widget, const QString &p
     if (!widget)
         return true;
 
-    return widget->QToolBox::metaObject()->indexOfProperty(prop.toLatin1()) != -1;
+    return widget->QToolBox::metaObject()->indexOfProperty(prop.toUtf8()) != -1;
 }
 
 bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
@@ -867,7 +867,7 @@ DomUI *QDesignerResource::copy(const QList<QWidget*> &selection)
 
     DomWidget *ui_widget = new DomWidget();
     QList<DomWidget*> ui_widget_list;
-    ui_widget->setAttributeName("__qt_fake_top_level");
+    ui_widget->setAttributeName(QLatin1String("__qt_fake_top_level"));
 
     for (int i=0; i<selection.size(); ++i) {
         QWidget *w = selection.at(i);

@@ -46,7 +46,7 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
     ui.lblPreview->setBackgroundRole(QPalette::Base);
     ui.chkShowOnStartup->setChecked(QDesignerSettings().showNewFormOnStartup());
 
-    loadFrom(":/trolltech/designer/templates/forms");
+    loadFrom(QLatin1String(":/trolltech/designer/templates/forms"));
 
     QDesignerSettings settings;
     foreach(QString path, settings.formTemplatePaths())
@@ -84,7 +84,7 @@ void NewForm::on_createButton_clicked()
         int maxUntitled = 0;
         int totalWindows = m_workbench->formWindowCount();
         // This will cause some problems with i18n, but for now I need the string to be "static"
-        QRegExp rx("Untitled( (\\d+))*");
+        QRegExp rx(QLatin1String("Untitled( (\\d+))*"));
         for (int i = 0; i < totalWindows; ++i) {
             if (rx.exactMatch(m_workbench->formWindow(i)->windowTitle())) {
                 if (maxUntitled == 0)
@@ -108,9 +108,9 @@ void NewForm::on_createButton_clicked()
             if (QWidget *container = editor->mainContainer())
                 formWindow->resize(container->size());
         }
-        QString newTitle = QString::fromLatin1("Untitled");
+        QString newTitle = QString::fromUtf8("Untitled");
         if (maxUntitled)
-            newTitle += QString::fromLatin1(" ") + QString::number(maxUntitled + 1);
+            newTitle += QString::fromUtf8(" ") + QString::number(maxUntitled + 1);
         formWindow->setWindowTitle(newTitle);
     }
 }

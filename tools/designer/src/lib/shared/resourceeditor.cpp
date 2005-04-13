@@ -384,14 +384,14 @@ ResourceEditor::ResourceEditor(QDesignerFormWindowInterface *form, QWidget *pare
     connect(m_qrc_combo, SIGNAL(activated(int)),
             this, SLOT(setCurrentIndex(int)));
 
-    m_remove_qrc_button->setIcon(createIconSet("editdelete.png"));
+    m_remove_qrc_button->setIcon(createIconSet(QLatin1String("editdelete.png")));
     connect(m_remove_qrc_button, SIGNAL(clicked()), this, SLOT(removeCurrentView()));
 
-    m_add_button->setIcon(createIconSet("plus.png"));
+    m_add_button->setIcon(createIconSet(QLatin1String("plus.png")));
     connect(m_add_button, SIGNAL(clicked()), this, SLOT(addPrefix()));
-    m_remove_button->setIcon(createIconSet("minus.png"));
+    m_remove_button->setIcon(createIconSet(QLatin1String("minus.png")));
     connect(m_remove_button, SIGNAL(clicked()), this, SLOT(deleteItem()));
-    m_add_files_button->setIcon(createIconSet("fileopen.png"));
+    m_add_files_button->setIcon(createIconSet(QLatin1String("fileopen.png")));
     connect(m_add_files_button, SIGNAL(clicked()), this, SLOT(addFiles()));
 
     updateQrcStack();

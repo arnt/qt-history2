@@ -25,7 +25,7 @@ ListWidgetEditor::ListWidgetEditor(QDesignerFormWindowInterface *form, QWidget *
 {
     ui.setupUi(this);
     m_form = form;
-    ui.deleteButton->setIcon(createIconSet("editdelete.png"));
+    ui.deleteButton->setIcon(createIconSet(QString::fromUtf8("editdelete.png")));
     ui.deleteButton->setEnabled(false);
 }
 

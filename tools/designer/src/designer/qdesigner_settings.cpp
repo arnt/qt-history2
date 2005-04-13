@@ -180,42 +180,42 @@ void QDesignerSettings::saveHeaderSizesForHelper(const QHeaderView *hv, const QS
 
 QStringList QDesignerSettings::recentFilesList() const
 {
-    return value("recentFilesList").toStringList();
+    return value(QLatin1String("recentFilesList")).toStringList();
 }
 
 void QDesignerSettings::setRecentFilesList(const QStringList &sl)
 {
-    setValue("recentFilesList", sl);
+    setValue(QLatin1String("recentFilesList"), sl);
 }
 
 void QDesignerSettings::setShowNewFormOnStartup(bool showIt)
 {
-    setValue("newFormDialog/ShowOnStartup", showIt);
+    setValue(QLatin1String("newFormDialog/ShowOnStartup"), showIt);
 }
 
 bool QDesignerSettings::showNewFormOnStartup() const
 {
-    return value("newFormDialog/ShowOnStartup", true).toBool();
+    return value(QLatin1String("newFormDialog/ShowOnStartup"), true).toBool();
 }
 
 void QDesignerSettings::setUIMode(int mode)
 {
-    setValue("UI/currentMode", mode);
+    setValue(QLatin1String("UI/currentMode"), mode);
 }
 
 int QDesignerSettings::uiMode() const
 {
-    return value("UI/currentMode", QDesignerWorkbench::TopLevelMode).toInt();
+    return value(QLatin1String("UI/currentMode"), QDesignerWorkbench::TopLevelMode).toInt();
 }
 
 void QDesignerSettings::setUseBigIcons(bool useBig)
 {
-    setValue("UI/useBigIcons", useBig);
+    setValue(QLatin1String("UI/useBigIcons"), useBig);
 }
 
 bool QDesignerSettings::useBigIcons() const
 {
-    return value("UI/useBigIcons",
+    return value(QLatin1String("UI/useBigIcons"),
 #ifdef Q_WS_MAC
                  true
 #else

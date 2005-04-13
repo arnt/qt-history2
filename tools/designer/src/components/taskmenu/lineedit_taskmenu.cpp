@@ -59,7 +59,7 @@ void LineEditTaskMenu::editText()
         Q_ASSERT(m_lineEdit->parentWidget() != 0);
 
         m_editor = new InPlaceEditor(m_lineEdit, m_formWindow);
-        m_editor->setObjectName("__qt__passive_m_editor");
+        m_editor->setObjectName(QLatin1String("__qt__passive_m_editor"));
 
         m_editor->setFrame(false);
         m_editor->setText(m_lineEdit->text());

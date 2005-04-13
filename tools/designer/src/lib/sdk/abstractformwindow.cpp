@@ -51,7 +51,7 @@ static bool isPassiveInteractor(QWidget *o)
         return true;
     else if (o->objectName() == QLatin1String("designer_wizardstack_button"))
         return true;
-    else if (o->objectName().startsWith("__qt__passive_"))
+    else if (o->objectName().startsWith(QLatin1String("__qt__passive_")))
         return true;
 
     return false;

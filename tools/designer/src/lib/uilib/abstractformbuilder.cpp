@@ -203,12 +203,12 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
     QHash<QString, DomProperty*> attributes = propertyMap(ui_widget->elementAttribute());
 
     QString title = QLatin1String("Page");
-    if (attributes.contains("title"))
-        title = toString(attributes.value("title")->elementString());
+    if (attributes.contains(QLatin1String("title")))
+        title = toString(attributes.value(QLatin1String("title"))->elementString());
 
-    QString label = QLatin1String("Page");
-    if (attributes.contains("label"))
-        label = toString(attributes.value("label")->elementString());
+    QString label = QLatin1String(QLatin1String("Page"));
+    if (attributes.contains(QLatin1String("label")))
+        label = toString(attributes.value(QLatin1String("label"))->elementString());
 
     if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(parentWidget)) {
         tabWidget->addTab(widget, title);
@@ -264,13 +264,13 @@ void QAbstractFormBuilder::layoutInfo(DomLayout *ui_layout, QObject *parent, int
     QHash<QString, DomProperty*> properties = propertyMap(ui_layout->elementProperty());
 
     if (margin)
-        *margin = properties.contains("margin")
-            ? properties.value("margin")->elementNumber()
+        *margin = properties.contains(QLatin1String("margin"))
+            ? properties.value(QLatin1String("margin"))->elementNumber()
             : m_defaultMargin;
 
     if (spacing)
-        *spacing = properties.contains("spacing")
-            ? properties.value("spacing")->elementNumber()
+        *spacing = properties.contains(QLatin1String("spacing"))
+            ? properties.value(QLatin1String("spacing"))->elementNumber()
             : m_defaultSpacing;
 
     if (margin && m_defaultMargin == INT_MIN) {
@@ -286,7 +286,7 @@ QLayout *QAbstractFormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWi
             ? static_cast<QObject*>(layout)
             : static_cast<QObject*>(parentWidget);
 
-    QLayout *lay = createLayout(ui_layout->attributeClass(), p, 0);
+    QLayout *lay = createLayout(ui_layout->attributeClass(), p, QString());
     if (lay == 0)
         return 0;
 
@@ -370,9 +370,9 @@ QLayoutItem *QAbstractFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout 
             if (p->attributeName() == QLatin1String("sizeHint") && p->kind() == DomProperty::Size) {
                 size = v.toSize();  // ###  remove me
             } else if (p->attributeName() == QLatin1String("sizeType") && p->kind() == DomProperty::Enum) {
-                sizeType = static_cast<QSizePolicy::Policy>(sizePolicy_enum.keyToValue(p->elementEnum().toLatin1()));
+                sizeType = static_cast<QSizePolicy::Policy>(sizePolicy_enum.keyToValue(p->elementEnum().toUtf8()));
             } else if (p->attributeName() == QLatin1String("orientation") && p->kind() == DomProperty::Enum) {
-                Qt::Orientation o = static_cast<Qt::Orientation>(orientation_enum.keyToValue(p->elementEnum().toLatin1()));
+                Qt::Orientation o = static_cast<Qt::Orientation>(orientation_enum.keyToValue(p->elementEnum().toUtf8()));
                 isVspacer = (o == Qt::Vertical);
             }
         }
@@ -399,7 +399,7 @@ void QAbstractFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
     foreach (DomProperty *p, properties) {
         QVariant v = toVariant(o->metaObject(), p);
         if (!v.isNull())
-            o->setProperty(p->attributeName().toLatin1(), v);
+            o->setProperty(p->attributeName().toUtf8(), v);
     }
 }
 
@@ -435,7 +435,7 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
     } break;
 
     case DomProperty::String: {
-        int index = meta->indexOfProperty(p->attributeName().toLatin1());
+        int index = meta->indexOfProperty(p->attributeName().toUtf8());
         if (index != -1 && meta->property(index).type() == QVariant::KeySequence)
             v = qVariantFromValue(QKeySequence(p->elementString()->text()));
         else
@@ -544,23 +544,23 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
     } break;
 
     case DomProperty::Set: {
-        QByteArray pname = p->attributeName().toLatin1();
+        QByteArray pname = p->attributeName().toUtf8();
         int index = meta->indexOfProperty(pname);
         Q_ASSERT(index != -1);
 
         QMetaEnum e = meta->property(index).enumerator();
         Q_ASSERT(e.isFlag() == true);
 
-        v = e.keysToValue(p->elementSet().toLatin1());
+        v = e.keysToValue(p->elementSet().toUtf8());
     } break;
 
     case DomProperty::Enum: {
-        QByteArray pname = p->attributeName().toLatin1();
+        QByteArray pname = p->attributeName().toUtf8();
         int index = meta->indexOfProperty(pname);
         Q_ASSERT(index != -1);
 
         QMetaEnum e = meta->property(index).enumerator();
-        v = e.keyToValue(p->elementEnum().toLatin1());
+        v = e.keyToValue(p->elementEnum().toUtf8());
     } break;
 
     case DomProperty::SizePolicy: {
@@ -694,7 +694,7 @@ QString QAbstractFormBuilder::saveComment()
 DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)
 {
     DomWidget *ui_widget = new DomWidget();
-    ui_widget->setAttributeClass(widget->metaObject()->className());
+    ui_widget->setAttributeClass(QLatin1String(widget->metaObject()->className()));
     ui_widget->setElementProperty(computeProperties(widget));
 
     if (!recursive)
@@ -742,7 +742,7 @@ DomLayout *QAbstractFormBuilder::createDom(QLayout *layout, DomLayout *ui_layout
 {
     Q_UNUSED(ui_layout)
     DomLayout *lay = new DomLayout();
-    lay->setAttributeClass(layout->metaObject()->className());
+    lay->setAttributeClass(QLatin1String(layout->metaObject()->className()));
     lay->setElementProperty(computeProperties(layout));
 
     QList<DomLayoutItem*> ui_items;
@@ -788,7 +788,7 @@ DomSpacer *QAbstractFormBuilder::createDom(QSpacerItem *spacer, DomLayout *ui_la
 
     // sizeHint property
     prop = new DomProperty();
-    prop->setAttributeName("sizeHint");
+    prop->setAttributeName(QLatin1String("sizeHint"));
     prop->setElementSize(new DomSize());
     prop->elementSize()->setElementWidth(spacer->sizeHint().width());
     prop->elementSize()->setElementHeight(spacer->sizeHint().height());
@@ -796,7 +796,7 @@ DomSpacer *QAbstractFormBuilder::createDom(QSpacerItem *spacer, DomLayout *ui_la
 
     // orientation property
     prop = new DomProperty(); // ### we don't implemented the case where expandingDirections() is both Vertical and Horizontal
-    prop->setAttributeName("orientation");
+    prop->setAttributeName(QLatin1String("orientation"));
     prop->setElementEnum((spacer->expandingDirections() & Qt::Horizontal) ? QLatin1String("Qt::Horizontal") : QLatin1String("Qt::Vertical"));
     properties.append(prop);
 
@@ -818,13 +818,13 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             str->setText(v.toString());
 
             if (pname == QLatin1String("objectName"))
-                str->setAttributeNotr("true");
+                str->setAttributeNotr(QLatin1String("true"));
 
             dom_prop->setElementString(str);
         } break;
 
         case QVariant::ByteArray: {
-            dom_prop->setElementCstring(v.toByteArray());
+            dom_prop->setElementCstring(QString::fromUtf8(v.toByteArray()));
         } break;
 
         case QVariant::Int: {
@@ -962,7 +962,7 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
         default: {
             qWarning("support for property `%s' of type `%d' not implemented yet!!",
-                pname.toLatin1().data(), v.type());
+                pname.toUtf8().data(), v.type());
         } break;
     }
 
@@ -990,10 +990,10 @@ QList<DomProperty*> QAbstractFormBuilder::computeProperties(QObject *obj)
     QList<QByteArray> propertyNames = properties.keys();
 
     for(int i=0; i<propertyNames.size(); ++i) {
-        QString pname = propertyNames.at(i);
-        QMetaProperty prop = meta->property(meta->indexOfProperty(pname.toLatin1()));
+        QString pname = QString::fromUtf8(propertyNames.at(i));
+        QMetaProperty prop = meta->property(meta->indexOfProperty(pname.toUtf8()));
 
-        if (!prop.isWritable() || !checkProperty(obj, prop.name()))
+        if (!prop.isWritable() || !checkProperty(obj, QLatin1String(prop.name())))
             continue;
 
         QVariant v = prop.read(obj);
@@ -1009,7 +1009,7 @@ QList<DomProperty*> QAbstractFormBuilder::computeProperties(QObject *obj)
                 QString scope = QString::fromUtf8(prop.enumerator().scope());
                 if (scope.size())
                     scope += QString::fromUtf8("::");
-                QString e = prop.enumerator().valueToKey(v.toInt());
+                QString e = QString::fromUtf8(prop.enumerator().valueToKey(v.toInt()));
                 if (e.size())
                     dom_prop->setElementEnum(scope + e);
             } else
@@ -1069,7 +1069,7 @@ void QAbstractFormBuilder::applyTabStops(QWidget *widget, DomTabStops *tabStops)
 
         QWidget *child = qFindChild<QWidget*>(widget, name);
         if (!child) {
-            qWarning("'%s' isn't a valid widget\n", name.toLatin1().data());
+            qWarning("'%s' isn't a valid widget\n", name.toUtf8().data());
             continue;
         }
 

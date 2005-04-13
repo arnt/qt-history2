@@ -624,7 +624,7 @@ bool QDesignerActions::writeOutForm(QDesignerFormWindowInterface *fw, const QStr
                 break;
                 case QMessageBox::No: {
                     QString fileName = QFileDialog::getSaveFileName(fw, tr("Save form as"),
-                            QDir::current().absolutePath(), QString("*.ui"));
+                            QDir::current().absolutePath(), QLatin1String("*.ui"));
                     if (fileName.isEmpty())
                         return false;
                     f.setFileName(fileName);
@@ -776,12 +776,12 @@ QAction *QDesignerActions::bringAllToFront() const
 
 void QDesignerActions::showDesignerHelp()
 {
-    showHelp("designer-manual.html");
+    showHelp(QLatin1String("designer-manual.html"));
 }
 
 void QDesignerActions::showWhatsNew()
 {
-    showHelp("qt4-designer.html");
+    showHelp(QLatin1String("qt4-designer.html"));
 }
 
 void QDesignerActions::showHelp(const QString &url)
@@ -790,7 +790,7 @@ void QDesignerActions::showHelp(const QString &url)
         m_assistantClient
             = new QAssistantClient(QLibraryInfo::location(QLibraryInfo::BinariesPath), this);
     m_assistantClient->showPage(QLibraryInfo::location(QLibraryInfo::DocumentationPath)
-                                + "/html/" + url);
+                                + QLatin1String("/html/") + url);
 }
 
 void QDesignerActions::aboutDesigner()
@@ -803,11 +803,11 @@ void QDesignerActions::aboutDesigner()
             "<br/><br/>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
             " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
             " PARTICULAR PURPOSE.<br/> ")
-        .arg(tr("Qt Designer")).arg(QT_VERSION_STR);
+        .arg(tr("Qt Designer")).arg(QString::fromUtf8(QT_VERSION_STR));
     QMessageBox mb(core()->topLevel());
     mb.setWindowTitle(tr("About Qt Designer"));
     mb.setText(text);
-    mb.setIconPixmap(QPixmap(":/trolltech/designer/images/designer.png"));
+    mb.setIconPixmap(QPixmap(QLatin1String(":/trolltech/designer/images/designer.png")));
     mb.exec();
 
 }

@@ -111,15 +111,15 @@ static DomWidget *xmlToUi(QString xml)
     int err_line, err_col;
     if (!doc.setContent(xml, &err_msg, &err_line, &err_col)) {
         qWarning("xmlToUi: parse failed:\n%s\n:%d:%d: %s",
-                    xml.toLatin1().constData(),
+                    xml.toUtf8().constData(),
                     err_line, err_col,
-                    err_msg.toLatin1().constData());
+                    err_msg.toUtf8().constData());
         return 0;
     }
 
     QDomElement dom_elt = doc.firstChildElement();
     if (dom_elt.nodeName() != QLatin1String("widget")) {
-        qWarning("xmlToUi: invalid root element:\n%s", xml.toLatin1().constData());
+        qWarning("xmlToUi: invalid root element:\n%s", xml.toUtf8().constData());
         return 0;
     }
 
@@ -150,8 +150,7 @@ QWidget *WidgetBoxItemDelegate::createEditor(QWidget *parent,
     QLineEdit *line_edit = qobject_cast<QLineEdit*>(result);
     if (line_edit == 0)
         return result;
-    line_edit->setValidator(new QRegExpValidator(QRegExp("[_a-zA-Z][_a-zA-Z0-9]*"),
-                                                    line_edit));
+    line_edit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("[_a-zA-Z][_a-zA-Z0-9]*")), line_edit));
     return result;
 }
 
@@ -239,7 +238,7 @@ WidgetBoxTreeView::WidgetBoxTreeView(QDesignerFormEditorInterface *core, QWidget
 WidgetBoxTreeView::~WidgetBoxTreeView()
 {
     QSettings settings;
-    settings.beginGroup("WidgetBox");
+    settings.beginGroup(QLatin1String("WidgetBox"));
 
     QStringList open_cat;
     for (int i = 0; i < categoryCount(); ++i) {
@@ -247,7 +246,7 @@ WidgetBoxTreeView::~WidgetBoxTreeView()
         if (isItemExpanded(cat_item))
             open_cat.append(cat_item->text(0));
     }
-    settings.setValue("open categories", open_cat);
+    settings.setValue(QLatin1String("open categories"), open_cat);
 
     settings.endGroup();
 }
@@ -328,7 +327,7 @@ bool WidgetBoxTreeView::load()
 
     QFile f(name);
     if (!f.open(QIODevice::ReadOnly)) {
-        qWarning("WidgetBox: failed to open \"%s\"", name.toLatin1().constData());
+        qWarning("WidgetBox: failed to open \"%s\"", name.toUtf8().constData());
         return false;
     }
 
@@ -337,7 +336,7 @@ bool WidgetBoxTreeView::load()
     QDomDocument doc;
     if (!doc.setContent(&f, &error_msg, &line, &col)) {
         qWarning("WidgetBox: failed to parse \"%s\": on line %d: %s",
-                    name.toLatin1().constData(), line, error_msg.toLatin1().constData());
+                    name.toUtf8().constData(), line, error_msg.toUtf8().constData());
         return false;
     }
 
@@ -370,7 +369,7 @@ bool WidgetBoxTreeView::load()
     // Restore which items are expanded
 
     QSettings settings;
-    settings.beginGroup("WidgetBox");
+    settings.beginGroup(QLatin1String("WidgetBox"));
 
     QStringList open_cat;
     for (int i = 0; i < topLevelItemCount(); ++i) {
@@ -379,7 +378,7 @@ bool WidgetBoxTreeView::load()
             open_cat.append(item->text(0));
     }
 
-    open_cat = settings.value("open categories", open_cat).toStringList();
+    open_cat = settings.value(QLatin1String("open categories"), open_cat).toStringList();
     for (int i = 0; i < open_cat.size(); ++i) {
         int cat_idx = indexOfCategory(open_cat[i]);
         if (cat_idx == -1)
@@ -437,7 +436,7 @@ WidgetBoxTreeView::CategoryList
     QDomElement cat_elt = root.firstChildElement();
     for (; !cat_elt.isNull(); cat_elt = cat_elt.nextSiblingElement()) {
         if (cat_elt.nodeName() != QLatin1String("category")) {
-            qWarning("WidgetCollectionModel::xmlToModel(): bad child of widgetbox: \"%s\"", cat_elt.nodeName().toLatin1().constData());
+            qWarning("WidgetCollectionModel::xmlToModel(): bad child of widgetbox: \"%s\"", cat_elt.nodeName().toUtf8().constData());
             return result;
         }
 

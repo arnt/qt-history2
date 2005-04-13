@@ -1138,7 +1138,7 @@ void AdjustWidgetSizeCommand::redo()
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
         if (propertyEditor->object() == m_widget)
-            propertyEditor->setPropertyValue("geometry", m_widget->geometry(), true);
+            propertyEditor->setPropertyValue(QLatin1String("geometry"), m_widget->geometry(), true);
     }
 }
 

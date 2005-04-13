@@ -53,7 +53,7 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, Q
 
     updateWindowTitle(m_editor->fileName());
 
-    setWindowIcon(QIcon(QPixmap(":/trolltech/designer/images/designer.png")));
+    setWindowIcon(QIcon(QString::fromUtf8(":/trolltech/designer/images/designer.png")));
 
     connect(m_editor->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(updateChanged()));
     connect(m_editor, SIGNAL(fileNameChanged(QString)), this, SLOT(updateWindowTitle(QString)));

@@ -1236,7 +1236,7 @@ void QtUndoManager::updateActions()
     bool undo_enabled = stack != 0 && stack->canUndo();
     QString undo_description = tr("Undo");
     if (undo_enabled)
-        undo_description += " " + stack->undoDescription();
+        undo_description += QLatin1String(" ") + stack->undoDescription();
 
     if (undo_enabled != m_can_undo) {
         m_can_undo = undo_enabled;
@@ -1251,7 +1251,7 @@ void QtUndoManager::updateActions()
     bool redo_enabled = stack != 0 && stack->canRedo();
     QString redo_description = tr("Redo");
     if (redo_enabled)
-        redo_description += " " + stack->redoDescription();
+        redo_description += QLatin1String(" ") + stack->redoDescription();
 
     if (redo_enabled != m_can_redo) {
         m_can_redo = redo_enabled;

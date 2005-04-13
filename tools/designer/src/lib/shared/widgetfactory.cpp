@@ -233,9 +233,9 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type)
     }
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), l)) {
-        sheet->setChanged(sheet->indexOf("margin"), true);
-        sheet->setChanged(sheet->indexOf("spacing"), true);
-        sheet->setChanged(sheet->indexOf("alignment"), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String("margin")), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String("spacing")), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String("alignment")), true);
     }
 
     return l;
@@ -309,13 +309,13 @@ void WidgetFactory::initialize(QObject *object) const
     if (!sheet)
         return;
 
-    sheet->setChanged(sheet->indexOf("objectName"), true);
-    sheet->setChanged(sheet->indexOf("geometry"), true);
+    sheet->setChanged(sheet->indexOf(QLatin1String("objectName")), true);
+    sheet->setChanged(sheet->indexOf(QLatin1String("geometry")), true);
 
     if (qobject_cast<Spacer*>(object))
-        sheet->setChanged(sheet->indexOf("sizeHint"), true);
+        sheet->setChanged(sheet->indexOf(QLatin1String("sizeHint")), true);
 
-    int o = sheet->indexOf("orientation");
+    int o = sheet->indexOf(QLatin1String("orientation"));
     if (o != -1)
         sheet->setChanged(o, true);
 }

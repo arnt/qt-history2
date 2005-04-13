@@ -67,7 +67,7 @@ void GroupBoxTaskMenu::editTitle()
         m_editor->setText(m_groupbox->title());
         m_editor->selectAll();
         m_editor->setBackgroundRole(m_groupbox->backgroundRole());
-        m_editor->setObjectName("__qt__passive_m_editor");
+        m_editor->setObjectName(QLatin1String("__qt__passive_m_editor"));
         connect(m_editor, SIGNAL(returnPressed()), m_editor, SLOT(deleteLater()));
         connect(m_editor, SIGNAL(textChanged(QString)), this, SLOT(updateText(QString)));
         m_editor->installEventFilter(this); // ### we need this??

@@ -18,22 +18,22 @@
 
 #include <QtDesigner/qextensionmanager.h>
 
-#include <QLayout>
-#include <QMetaObject>
-#include <QMetaProperty>
+#include <QtGui/QLayout>
+#include <QtCore/QMetaObject>
+#include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
 
 SpacerPropertySheet::SpacerPropertySheet(Spacer *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {
     m_fakeProperties.clear();
-    
+
     for (int i=0; i<count(); ++i)
         setVisible(i, false);
 
-    setVisible(indexOf("orientation"), true);
-    setVisible(indexOf("sizeType"), true);
-    setVisible(indexOf("sizeHint"), true);
+    setVisible(indexOf(QLatin1String("orientation")), true);
+    setVisible(indexOf(QLatin1String("sizeType")), true);
+    setVisible(indexOf(QLatin1String("sizeHint")), true);
 }
 
 SpacerPropertySheet::~SpacerPropertySheet()

@@ -34,12 +34,12 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
 
     // ### disable the overrided properties
 
-    createFakeProperty("focusPolicy");
-    createFakeProperty("cursor");
-    createFakeProperty("toolTip");
-    createFakeProperty("whatsThis");
-    createFakeProperty("acceptDrops");
-    createFakeProperty("dragEnabled");
+    createFakeProperty(QLatin1String("focusPolicy"));
+    createFakeProperty(QLatin1String("cursor"));
+    createFakeProperty(QLatin1String("toolTip"));
+    createFakeProperty(QLatin1String("whatsThis"));
+    createFakeProperty(QLatin1String("acceptDrops"));
+    createFakeProperty(QLatin1String("dragEnabled"));
 }
 
 QDesignerPropertySheet::~QDesignerPropertySheet()
@@ -49,7 +49,7 @@ QDesignerPropertySheet::~QDesignerPropertySheet()
 void QDesignerPropertySheet::createFakeProperty(const QString &propertyName, const QVariant &value)
 {
     // fake properties
-    int index = meta->indexOfProperty(propertyName.toLatin1());
+    int index = meta->indexOfProperty(propertyName.toUtf8());
     if (index != -1) {
         setVisible(index, false);
         QVariant v = value.isValid() ? value : metaProperty(index);
@@ -79,7 +79,7 @@ int QDesignerPropertySheet::count() const
 
 int QDesignerPropertySheet::indexOf(const QString &name) const
 {
-    int index = meta->indexOfProperty(name.toLatin1());
+    int index = meta->indexOfProperty(name.toUtf8());
 
     if (index == -1)
         index = m_addIndex.value(name, -1);
@@ -92,15 +92,15 @@ QString QDesignerPropertySheet::propertyName(int index) const
     if (isAdditionalProperty(index))
         return m_addIndex.key(index);
 
-    return QString::fromLatin1(meta->property(index).name());
+    return QString::fromUtf8(meta->property(index).name());
 }
 
 QString QDesignerPropertySheet::propertyGroup(int index) const
 {
     QString g = m_info.value(index).group;
 
-    if (g.isEmpty() && propertyName(index).startsWith("accessible"))
-        return QString::fromLatin1("Accessibility");
+    if (g.isEmpty() && propertyName(index).startsWith(QLatin1String("accessible")))
+        return QString::fromUtf8("Accessibility");
 
     return g;
 }
@@ -131,10 +131,10 @@ QVariant QDesignerPropertySheet::property(int index) const
         e.value = v;
         QMetaEnum me = p.enumerator();
         for (int i=0; i<me.keyCount(); ++i) {
-            QString k = QString::fromLatin1(me.scope());
-            k += QString::fromLatin1("::");
-            k += me.key(i);
-            e.items.insert(k, me.keyToValue(k.toLatin1()));
+            QString k = QString::fromUtf8(me.scope());
+            k += QString::fromUtf8("::");
+            k += QLatin1String(me.key(i));
+            e.items.insert(k, me.keyToValue(k.toUtf8()));
         }
 
         qVariantSetValue(v, e);
@@ -143,10 +143,10 @@ QVariant QDesignerPropertySheet::property(int index) const
         e.value = v;
         QMetaEnum me = p.enumerator();
         for (int i=0; i<me.keyCount(); ++i) {
-            QString k = QString::fromLatin1(me.scope());
-            k += QString::fromLatin1("::");
-            k += me.key(i);
-            e.items.insert(k, me.keyToValue(k.toLatin1()));
+            QString k = QString::fromUtf8(me.scope());
+            k += QString::fromUtf8("::");
+            k += QLatin1String(me.key(i));
+            e.items.insert(k, me.keyToValue(k.toUtf8()));
         }
 
         qVariantSetValue(v, e);
@@ -172,7 +172,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
             key += QLatin1String("::");
             key += QLatin1String(me.key(i));
 
-            e.items.insert(key, me.keyToValue(key.toLatin1()));
+            e.items.insert(key, me.keyToValue(key.toUtf8()));
         }
 
         qVariantSetValue(v, e);
@@ -186,7 +186,7 @@ QVariant QDesignerPropertySheet::metaProperty(int index) const
             key += QLatin1String("::");
             key += QLatin1String(me.key(i));
 
-            e.items.insert(key, me.keyToValue(key.toLatin1()));
+            e.items.insert(key, me.keyToValue(key.toUtf8()));
         }
 
         qVariantSetValue(v, e);

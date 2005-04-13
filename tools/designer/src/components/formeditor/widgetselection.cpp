@@ -370,7 +370,7 @@ void WidgetHandle::mouseReleaseEvent(QMouseEvent *e)
         widget->parentWidget()->resize(size);
     } else if (geom != widget->geometry()) {
         SetPropertyCommand *cmd = new SetPropertyCommand(formWindow);
-        cmd->init(widget, "geometry", widget->geometry());
+        cmd->init(widget, QLatin1String("geometry"), widget->geometry());
         cmd->setOldValue(origGeom);
         formWindow->commandHistory()->push(cmd);
         formWindow->emitSelectionChanged();

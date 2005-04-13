@@ -39,12 +39,12 @@ int QDesignerMemberSheet::count() const
 
 int QDesignerMemberSheet::indexOf(const QString &name) const
 {
-    return meta->indexOfMember(name.toLatin1());
+    return meta->indexOfMember(name.toUtf8());
 }
 
 QString QDesignerMemberSheet::memberName(int index) const
 {
-    return QString::fromLatin1(meta->member(index).tag());
+    return QString::fromUtf8(meta->member(index).tag());
 }
 
 QString QDesignerMemberSheet::memberGroup(int index) const
@@ -62,7 +62,7 @@ void QDesignerMemberSheet::setMemberGroup(int index, const QString &group)
 
 QString QDesignerMemberSheet::signature(int index) const
 {
-    return QString::fromLatin1(meta->member(index).signature());
+    return QString::fromUtf8(meta->member(index).signature());
 }
 
 bool QDesignerMemberSheet::isVisible(int index) const

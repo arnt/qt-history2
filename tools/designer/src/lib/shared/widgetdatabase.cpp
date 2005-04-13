@@ -198,24 +198,24 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerDialog")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QDesignerCompatWidget")));
 
-// ### remove me
+    // ### remove me
     // ### check the casts
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QTabWidget")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QGroupBox")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QStackedWidget")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QToolBox")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QFrame")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QLayoutWidget")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDesignerWidget")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDesignerDialog")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QSplitter")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QMainWindow")))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QTabWidget"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QGroupBox"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QStackedWidget"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QToolBox"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QFrame"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QLayoutWidget"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerWidget"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDesignerDialog"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QSplitter"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QMainWindow"))))->setContainer(true);
 
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QWidget")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QWidget")))->setForm(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QWidget"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QWidget"))))->setForm(true);
 
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDialog")))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName("QDialog")))->setForm(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDialog"))))->setContainer(true);
+    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDialog"))))->setForm(true);
 }
 
 WidgetDataBase::~WidgetDataBase()
@@ -232,7 +232,7 @@ int WidgetDataBase::indexOfObject(QObject *object, bool /*resolveName*/) const
     bool resolveName = true; // ### resolveName = false is ignored
 
     if (resolveName)
-        return QDesignerWidgetDataBaseInterface::indexOfClassName(WidgetFactory::classNameOf(object));
+        return QDesignerWidgetDataBaseInterface::indexOfClassName(QLatin1String(WidgetFactory::classNameOf(object)));
 
     return QDesignerWidgetDataBaseInterface::indexOfObject(object, resolveName);
 }
@@ -291,13 +291,13 @@ QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
     WidgetFactory factory(m_core);
     QWidget *w = factory.createWidget(name, 0);
     if (w == 0) {
-        //### qWarning("WidgetDataBase::defaultPropertyValues(): failed to create \"%s\"", name.toLatin1().constData());
+        //### qWarning("WidgetDataBase::defaultPropertyValues(): failed to create \"%s\"", name.toUtf8().constData());
         return result;
     }
 
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), w);
     if (sheet == 0) {
-        // ### qWarning("WidgetDataBase::defaultPropertyValues(): failed to create property sheet for \"%s\"", name.toLatin1().constData());
+        // ### qWarning("WidgetDataBase::defaultPropertyValues(): failed to create property sheet for \"%s\"", name.toUtf8().constData());
         delete w;
         return result;
     }

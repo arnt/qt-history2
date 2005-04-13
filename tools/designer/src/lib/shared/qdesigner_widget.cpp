@@ -86,7 +86,7 @@ void QDesignerLabel::updateBuddy()
     if (myBuddy.isEmpty())
         return;
 
-    if (QWidget *widget = qFindChild<QWidget*>(topLevelWidget(), myBuddy))
+    if (QWidget *widget = qFindChild<QWidget*>(topLevelWidget(), QString::fromUtf8(myBuddy)))
         QLabel::setBuddy(widget);
 }
 

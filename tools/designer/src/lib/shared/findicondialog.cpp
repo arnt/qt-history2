@@ -92,7 +92,11 @@ void FindIconDialog::updateBoxes()
         }
         QDir dir(dir_path);
         if (dir.exists()) {
-            QStringList file_list = dir.entryList(QStringList() << "*.jpg" << "*.gif" << "*.png");
+            QStringList file_list = dir.entryList(QStringList()
+                    << QString::fromUtf8("*.jpg")
+                    << QString::fromUtf8("*.gif")
+                    << QString::fromUtf8("*.png"));
+
             foreach (QString file, file_list) {
                 QListWidgetItem *item = new QListWidgetItem(m_file_image_list);
                 item->setText(file);

@@ -137,7 +137,7 @@ QDesignerPromotedWidget::QDesignerPromotedWidget(QDesignerWidgetDataBaseItemInte
 
     m_child = child;
     m_item = item;
-    m_custom_class_name = item->name().toLatin1();
+    m_custom_class_name = item->name().toUtf8();
 
     setSizePolicy(m_child->sizePolicy());
     m_child->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));

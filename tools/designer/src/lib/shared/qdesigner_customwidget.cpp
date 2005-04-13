@@ -36,7 +36,7 @@ QDesignerWidgetDataBaseItemInterface *QDesignerCustomWidget::widgetItem() const
     if (index != -1)
         return core->widgetDataBase()->item(index);
 
-    qWarning("no widget item for %s", widgetClassName().toLatin1().constData());
+    qWarning("no widget item for %s", widgetClassName().toUtf8().constData());
     return 0;
 }
 

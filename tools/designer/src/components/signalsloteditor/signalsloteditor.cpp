@@ -71,7 +71,7 @@ static QString realObjectName(QDesignerFormEditorInterface *core, QWidget *widge
 
 static QString realClassName(QDesignerFormEditorInterface *core, QWidget *widget)
 {
-    QString class_name = widget->metaObject()->className();
+    QString class_name = QLatin1String(widget->metaObject()->className());
     QDesignerWidgetDataBaseInterface *wdb = core->widgetDataBase();
     int idx = wdb->indexOfObject(widget);
     if (idx != -1)
@@ -81,7 +81,7 @@ static QString realClassName(QDesignerFormEditorInterface *core, QWidget *widget
 
 static QString widgetLabel(QDesignerFormEditorInterface *core, QWidget *widget)
 {
-    return QString("%1 (%2)")
+    return QString::fromUtf8("%1 (%2)")
             .arg(realObjectName(core, widget))
             .arg(realClassName(core, widget));
 }
@@ -506,19 +506,19 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
         return;
 
     setBackground(parent);
-        
+
     QList<DomConnection*> list = connections->elementConnection();
     foreach (DomConnection *dom_con, list) {
         QWidget *source = widgetByName(parent, dom_con->elementSender());
         if (source == 0) {
             qWarning("SignalSlotEditor::fromUi(): no source widget called \"%s\"",
-                        dom_con->elementSender().toLatin1().constData());
+                        dom_con->elementSender().toUtf8().constData());
             continue;
         }
         QWidget *destination = widgetByName(parent, dom_con->elementReceiver());
         if (destination == 0) {
             qWarning("SignalSlotEditor::fromUi(): no destination widget called \"%s\"",
-                        dom_con->elementReceiver().toLatin1().constData());
+                        dom_con->elementReceiver().toUtf8().constData());
             continue;
         }
 
@@ -552,7 +552,7 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
 
 static bool skipWidget(QWidget *w)
 {
-    QString name = w->metaObject()->className();
+    QString name = QLatin1String(w->metaObject()->className());
     if (name == QLatin1String("QDesignerWidget"))
         return true;
     if (name == QLatin1String("QLayoutWidget"))
@@ -570,7 +570,7 @@ QWidget *SignalSlotEditor::widgetAt(const QPoint &pos) const
 
     if (widget == m_form_window->mainContainer())
         return widget;
-    
+
     for (; widget != 0; widget = widget->parentWidget()) {
         QDesignerMetaDataBaseItemInterface *item = m_form_window->core()->metaDataBase()->item(widget);
         if (item == 0)

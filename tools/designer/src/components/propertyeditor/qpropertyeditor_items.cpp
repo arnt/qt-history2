@@ -102,7 +102,7 @@ QWidget *BoolProperty::createEditor(QWidget *parent, const QObject *target, cons
 {
     QComboBox *combo = new QComboBox(parent);
     combo->setFrame(0);
-    combo->insertItems(-1, QStringList() << "false" << "true");
+    combo->insertItems(-1, QStringList() << QString::fromUtf8("false") << QString::fromUtf8("true"));
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
 
     return combo;
@@ -259,7 +259,7 @@ QWidget *StringProperty::createEditor(QWidget *parent, const QObject *target, co
     lineEdit->setFrame(0);
 
     if (propertyName() == QLatin1String("objectName")) {
-        lineEdit->setValidator(new QRegExpValidator(QRegExp("[_a-zA-Z][_a-zA-Z0-9]*"), lineEdit));
+        lineEdit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("[_a-zA-Z][_a-zA-Z0-9]*")), lineEdit));
     }
 
     QObject::connect(lineEdit, SIGNAL(textChanged(QString)), target, receiver);
@@ -761,7 +761,13 @@ SizePolicyProperty::SizePolicyProperty(const QSizePolicy &value, const QString &
     : AbstractPropertyGroup(name)
 {
     QStringList lst;
-    lst << "Fixed" << "Minimum" << "Maximum" << "Preferred" << "MinimumExpanding" << "Expanding" << "Ignored";
+    lst << QString::fromUtf8("Fixed")
+        << QString::fromUtf8("Minimum")
+        << QString::fromUtf8("Maximum")
+        << QString::fromUtf8("Preferred")
+        << QString::fromUtf8("MinimumExpanding")
+        << QString::fromUtf8("Expanding")
+        << QString::fromUtf8("Ignored");
 
     IProperty *i = 0;
     i = new ListProperty(lst, size_type_to_int(value.horizontalPolicy()), QLatin1String("hSizeType"));
@@ -1013,23 +1019,23 @@ void CursorProperty::updateValue(QWidget *editor)
 QString CursorProperty::cursorName(int shape)
 {
     switch (shape) {
-    case Qt::ArrowCursor: return QString::fromLatin1("Arrow");
-    case Qt::UpArrowCursor: return QString::fromLatin1("Up-Arrow");
-    case Qt::CrossCursor: return QString::fromLatin1("Cross");
-    case Qt::WaitCursor: return QString::fromLatin1("Waiting");
-    case Qt::IBeamCursor: return QString::fromLatin1("IBeam");
-    case Qt::SizeVerCursor: return QString::fromLatin1("Size Vertical");
-    case Qt::SizeHorCursor: return QString::fromLatin1("Size Horizontal");
-    case Qt::SizeBDiagCursor: return QString::fromLatin1("Size Slash");
-    case Qt::SizeFDiagCursor: return QString::fromLatin1("Size Backslash");
-    case Qt::SizeAllCursor: return QString::fromLatin1("Size All");
-    case Qt::BlankCursor: return QString::fromLatin1("Blank");
-    case Qt::SplitVCursor: return QString::fromLatin1("Split Vertical");
-    case Qt::SplitHCursor: return QString::fromLatin1("Split Horizontal");
-    case Qt::PointingHandCursor: return QString::fromLatin1("Pointing Hand");
-    case Qt::ForbiddenCursor: return QString::fromLatin1("Forbidden");
-    case Qt::WhatsThisCursor: return QString::fromLatin1("Whats This");
-    case Qt::BusyCursor: return QString::fromLatin1("Busy");
+    case Qt::ArrowCursor: return QString::fromUtf8("Arrow");
+    case Qt::UpArrowCursor: return QString::fromUtf8("Up-Arrow");
+    case Qt::CrossCursor: return QString::fromUtf8("Cross");
+    case Qt::WaitCursor: return QString::fromUtf8("Waiting");
+    case Qt::IBeamCursor: return QString::fromUtf8("IBeam");
+    case Qt::SizeVerCursor: return QString::fromUtf8("Size Vertical");
+    case Qt::SizeHorCursor: return QString::fromUtf8("Size Horizontal");
+    case Qt::SizeBDiagCursor: return QString::fromUtf8("Size Slash");
+    case Qt::SizeFDiagCursor: return QString::fromUtf8("Size Backslash");
+    case Qt::SizeAllCursor: return QString::fromUtf8("Size All");
+    case Qt::BlankCursor: return QString::fromUtf8("Blank");
+    case Qt::SplitVCursor: return QString::fromUtf8("Split Vertical");
+    case Qt::SplitHCursor: return QString::fromUtf8("Split Horizontal");
+    case Qt::PointingHandCursor: return QString::fromUtf8("Pointing Hand");
+    case Qt::ForbiddenCursor: return QString::fromUtf8("Forbidden");
+    case Qt::WhatsThisCursor: return QString::fromUtf8("Whats This");
+    case Qt::BusyCursor: return QString::fromUtf8("Busy");
     default: return QString();
     }
 }
@@ -1037,28 +1043,28 @@ QString CursorProperty::cursorName(int shape)
 QPixmap CursorProperty::cursorPixmap(int shape)
 {
     switch (shape) {
-    case Qt::ArrowCursor: return QPixmap(":/trolltech/formeditor/images/cursors/arrow.png");
-    case Qt::UpArrowCursor: return QPixmap(":/trolltech/formeditor/images/cursors/uparrow.png");
-    case Qt::CrossCursor: return QPixmap(":/trolltech/formeditor/images/cursors/cross.png");
-    case Qt::WaitCursor: return QPixmap(":/trolltech/formeditor/images/cursors/wait.png");
-    case Qt::IBeamCursor: return QPixmap(":/trolltech/formeditor/images/cursors/ibeam.png");
-    case Qt::SizeVerCursor: return QPixmap(":/trolltech/formeditor/images/cursors/sizev.png");
-    case Qt::SizeHorCursor: return QPixmap(":/trolltech/formeditor/images/cursors/sizeh.png");
-    case Qt::SizeBDiagCursor: return QPixmap(":/trolltech/formeditor/images/cursors/sizef.png");
-    case Qt::SizeFDiagCursor: return QPixmap(":/trolltech/formeditor/images/cursors/sizeb.png");
-    case Qt::SizeAllCursor: return QPixmap(":/trolltech/formeditor/images/cursors/sizeall.png");
+    case Qt::ArrowCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/arrow.png"));
+    case Qt::UpArrowCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/uparrow.png"));
+    case Qt::CrossCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/cross.png"));
+    case Qt::WaitCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/wait.png"));
+    case Qt::IBeamCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/ibeam.png"));
+    case Qt::SizeVerCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/sizev.png"));
+    case Qt::SizeHorCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/sizeh.png"));
+    case Qt::SizeBDiagCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/sizef.png"));
+    case Qt::SizeFDiagCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/sizeb.png"));
+    case Qt::SizeAllCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/sizeall.png"));
     case Qt::BlankCursor:
     {
         QBitmap cur = QBitmap(25, 25);
         cur.clear();
         return cur;
     }
-    case Qt::SplitVCursor: return QPixmap(":/trolltech/formeditor/images/cursors/vsplit.png");
-    case Qt::SplitHCursor: return QPixmap(":/trolltech/formeditor/images/cursors/hsplit.png");
-    case Qt::PointingHandCursor: return QPixmap(":/trolltech/formeditor/images/cursors/hand.png");
-    case Qt::ForbiddenCursor: return QPixmap(":/trolltech/formeditor/images/cursors/no.png");
-    case Qt::WhatsThisCursor: return QPixmap(":/trolltech/formeditor/images/cursors/whatsthis.png");
-    case Qt::BusyCursor: return QPixmap(":/trolltech/formeditor/images/cursors/busy.png");
+    case Qt::SplitVCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/vsplit.png"));
+    case Qt::SplitHCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/hsplit.png"));
+    case Qt::PointingHandCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/hand.png"));
+    case Qt::ForbiddenCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/no.png"));
+    case Qt::WhatsThisCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/whatsthis.png"));
+    case Qt::BusyCursor: return QPixmap(QString::fromUtf8(":/trolltech/formeditor/images/cursors/busy.png"));
     default: return QPixmap();
     }
 }
@@ -1117,8 +1123,8 @@ AlignmentProperty::AlignmentProperty(const QMap<QString, QVariant> &items, Qt::A
     : AbstractPropertyGroup(name)
 {
     QStringList horz_keys = QStringList()
-        << "Qt::AlignLeft" << "Qt::AlignRight"
-        << "Qt::AlignHCenter" << "Qt::AlignJustify"; // << "Qt::AlignAbsolute"
+        << QString::fromUtf8("Qt::AlignLeft") << QString::fromUtf8("Qt::AlignRight")
+        << QString::fromUtf8("Qt::AlignHCenter") << QString::fromUtf8("Qt::AlignJustify"); // << "Qt::AlignAbsolute"
 
     QMap<QString, QVariant> horz_map;
     foreach (QString h, horz_keys) {
@@ -1131,10 +1137,8 @@ AlignmentProperty::AlignmentProperty(const QMap<QString, QVariant> &items, Qt::A
     m_properties << ph;
 
 
-
-
     QStringList vert_keys = QStringList()
-        << "Qt::AlignTop" << "Qt::AlignBottom" << "Qt::AlignVCenter";
+        << QString::fromUtf8("Qt::AlignTop") << QString::fromUtf8("Qt::AlignBottom") << QString::fromUtf8("Qt::AlignVCenter");
 
     QMap<QString, QVariant> vert_map;
     foreach (QString h, vert_keys) {

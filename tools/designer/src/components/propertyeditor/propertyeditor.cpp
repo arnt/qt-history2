@@ -656,7 +656,7 @@ void PropertyEditor::setObject(QObject *object)
     m_prop_sheet = 0;
 
     if (m_object) {
-        PropertyCollection *collection = new PropertyCollection("<root>");
+        PropertyCollection *collection = new PropertyCollection(QLatin1String("<root>"));
         createPropertySheet(collection, object);
         m_properties = collection;
     }
@@ -670,7 +670,7 @@ void PropertyEditor::resetProperty(const QString &prop_name)
 
     if (idx == -1) {
         qWarning("PropertyEditor::resetProperty(): no property \"%s\"",
-                    prop_name.toLatin1().constData());
+                    prop_name.toUtf8().constData());
         return;
     }
 

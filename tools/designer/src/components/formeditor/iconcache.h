@@ -50,8 +50,8 @@ Item ResourceCache<Item>::keyToItem(const QString &filePath, const QString &qrcP
             real_path = rf.resolvePath(filePath);
         } else {
             qWarning("IconCache::nameToIcon(): failed to open \"%s\": %s",
-                        qrcPath.toLatin1().constData(),
-                        rf.errorMessage().toLatin1().constData());
+                        qrcPath.toUtf8().constData(),
+                        rf.errorMessage().toUtf8().constData());
         }
     } else {
        real_path = filePath;

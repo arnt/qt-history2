@@ -314,7 +314,7 @@ void FormWindow::setMainContainer(QWidget *w)
     manageWidget(m_mainContainer);
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), m_mainContainer)) {
-        sheet->setVisible(sheet->indexOf("windowTitle"), true);
+        sheet->setVisible(sheet->indexOf(QLatin1String("windowTitle")), true);
         // ### generalize
     }
 
@@ -739,7 +739,7 @@ void FormWindow::insertWidget(QWidget *w, const QRect &rect, QWidget *container)
 {
     clearSelection(false);
 
-    beginCommand(tr("Insert widget '%1").arg(w->metaObject()->className())); // ### use the WidgetDatabaseItem
+    beginCommand(tr("Insert widget '%1").arg(QString::fromUtf8(w->metaObject()->className()))); // ### use the WidgetDatabaseItem
 
     if (w->parentWidget() != container) {
         ReparentWidgetCommand *cmd = new ReparentWidgetCommand(this);
@@ -752,7 +752,7 @@ void FormWindow::insertWidget(QWidget *w, const QRect &rect, QWidget *container)
     r.moveTopLeft(gridPoint(container->mapFromGlobal(r.topLeft())));
 
     SetPropertyCommand *geom_cmd = new SetPropertyCommand(this);
-    geom_cmd->init(w, "geometry", r); // ### use rc.size()
+    geom_cmd->init(w, QLatin1String("geometry"), r); // ### use rc.size()
     m_commandHistory->push(geom_cmd);
 
     InsertWidgetCommand *cmd = new InsertWidgetCommand(this);
@@ -799,7 +799,7 @@ void FormWindow::resizeWidget(QWidget *widget, const QRect &geometry)
     QRect r = geometry;
     r.moveTopLeft(gridPoint(geometry.topLeft()));
     SetPropertyCommand *cmd = new SetPropertyCommand(this);
-    cmd->init(widget, "geometry", r);
+    cmd->init(widget, QLatin1String("geometry"), r);
     cmd->setDescription(tr("Resize"));
     m_commandHistory->push(cmd);
 }
@@ -1011,7 +1011,7 @@ QString FormWindow::contents() const
     QDesignerResource resource(const_cast<FormWindow*>(this));
     resource.save(&b, mainContainer());
 
-    return b.buffer();
+    return QString::fromUtf8(b.buffer());
 }
 
 void FormWindow::copy()
@@ -1025,7 +1025,7 @@ void FormWindow::copy()
     simplifySelection(&sel);
     resource.copy(&b, sel);
 
-    qApp->clipboard()->setText(b.buffer(), QClipboard::Clipboard);
+    qApp->clipboard()->setText(QString::fromUtf8(b.buffer()), QClipboard::Clipboard);
 }
 
 void FormWindow::cut()
@@ -1330,7 +1330,7 @@ void FormWindow::setContents(QIODevice *dev)
     QDesignerResource r(this);
     QWidget *w = r.load(dev, this);
     if (w == 0) {
-        w = core()->widgetFactory()->createWidget("QWidget", this);
+        w = core()->widgetFactory()->createWidget(QLatin1String("QWidget"), this);
     }
 
     setMainContainer(w);
@@ -1566,7 +1566,7 @@ QPoint FormWindow::mapToForm(const QWidget *w, const QPoint &pos) const
 bool FormWindow::canBeBuddy(QWidget *w) const // ### rename me.
 {
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), w)) {
-        int index = sheet->indexOf("focusPolicy");
+        int index = sheet->indexOf(QLatin1String("focusPolicy"));
         if (index != -1) {
             bool ok = false;
             Qt::FocusPolicy q = (Qt::FocusPolicy) Utils::valueOf(sheet->property(index), &ok);

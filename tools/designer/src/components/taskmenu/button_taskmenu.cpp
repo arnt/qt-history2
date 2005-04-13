@@ -59,7 +59,7 @@ void ButtonTaskMenu::editText()
         Q_ASSERT(m_button->parentWidget() != 0);
 
         m_editor = new InPlaceEditor(m_button, m_formWindow);
-        m_editor->setObjectName("__qt__passive_m_editor");
+        m_editor->setObjectName(QLatin1String("__qt__passive_m_editor"));
 
         m_editor->setFrame(false);
         m_editor->setText(m_button->text());

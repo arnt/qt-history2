@@ -100,7 +100,7 @@ void QDesignerTaskMenu::changeObjectName()
             tr("Object Name"), QLineEdit::Normal, widget()->objectName());
 
     if (!newObjectName.isEmpty()) {
-        formWindow()->cursor()->setProperty("objectName", newObjectName);
+        formWindow()->cursor()->setProperty(QLatin1String("objectName"), newObjectName);
     }
 }
 
@@ -169,7 +169,7 @@ void QDesignerTaskMenu::promoteToCustomWidget()
 
     Q_ASSERT(qobject_cast<QDesignerPromotedWidget*>(wgt) == 0);
 
-    QString base_class_name = factory->classNameOf(wgt);
+    QString base_class_name = QLatin1String(factory->classNameOf(wgt));
 
     PromoteToCustomWidgetDialog dialog(db, base_class_name);
     if (!dialog.exec())

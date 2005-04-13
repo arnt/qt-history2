@@ -71,7 +71,7 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
     if (w) {
         w->setObjectName(name);
     } else {
-        qWarning("widget `%s' not supported", widgetName.toLatin1().data());
+        qWarning("widget `%s' not supported", widgetName.toUtf8().data());
     }
 
     if (qobject_cast<QDialog *>(w))
@@ -108,7 +108,7 @@ QLayout *QFormBuilder::createLayout(const QString &layoutName, QObject *parent, 
     if (l) {
         l->setObjectName(name);
     } else {
-        qWarning("layout `%s' not supported", layoutName.toLatin1().data());
+        qWarning("layout `%s' not supported", layoutName.toUtf8().data());
     }
 
     return l;
@@ -147,9 +147,9 @@ void QFormBuilder::createConnections(DomConnections *ui_connections, QWidget *wi
         if (!sender || !receiver)
             continue;
 
-        QByteArray sig = c->elementSignal().toLatin1();
+        QByteArray sig = c->elementSignal().toUtf8();
         sig.prepend("2");
-        QByteArray sl = c->elementSlot().toLatin1();
+        QByteArray sl = c->elementSlot().toUtf8();
         sl.prepend("1");
 
         QObject::connect(sender, sig, receiver, sl);

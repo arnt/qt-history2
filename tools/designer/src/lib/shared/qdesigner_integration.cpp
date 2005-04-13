@@ -64,7 +64,7 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
                         ? QString::fromUtf8("Untitled")
                         : formWindow->fileName();
 
-                formWindow->setWindowTitle(QString::fromLatin1("%1 - (%2)")
+                formWindow->setWindowTitle(QString::fromUtf8("%1 - (%2)")
                                            .arg(value.toString())
                                            .arg(filename));
 

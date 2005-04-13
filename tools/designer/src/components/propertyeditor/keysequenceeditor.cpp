@@ -31,7 +31,7 @@ KeySequenceEditor::KeySequenceEditor(QWidget *parent)
     m_lineEdit->installEventFilter(this);
     m_resetButton = new QToolButton(this);
     hbox->addWidget(m_resetButton);
-    m_resetButton->setIcon(QPixmap(":/trolltech/formeditor/images/resetproperty.png"));
+    m_resetButton->setIcon(QIcon(QString::fromUtf8(":/trolltech/formeditor/images/resetproperty.png")));
 
     setFocusProxy(m_lineEdit);
     m_resetButton->setFocusPolicy(Qt::NoFocus);

@@ -35,24 +35,24 @@ int size_type_to_int( QSizePolicy::Policy t )
 QString size_type_to_string( QSizePolicy::Policy t )
 {
     if ( t == QSizePolicy::Fixed )
-	return "Fixed";
+	return QString::fromUtf8("Fixed");
     if ( t == QSizePolicy::Minimum )
-	return "Minimum";
+	return QString::fromUtf8("Minimum");
     if ( t == QSizePolicy::Maximum )
-	return "Maximum";
+	return QString::fromUtf8("Maximum");
     if ( t == QSizePolicy::Preferred )
-	return "Preferred";
+	return QString::fromUtf8("Preferred");
     if ( t == QSizePolicy::MinimumExpanding )
-	return "MinimumExpanding";
+	return QString::fromUtf8("MinimumExpanding");
     if ( t == QSizePolicy::Expanding )
-	return "Expanding";
+	return QString::fromUtf8("Expanding");
     if ( t == QSizePolicy::Ignored )
-	return "Ignored";
+	return QString::fromUtf8("Ignored");
     return QString();
 }
 
 QSizePolicy::Policy int_to_size_type( int i )
-{	
+{
     if ( i == 0 )
 	return QSizePolicy::Fixed;
     if ( i == 1 )

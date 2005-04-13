@@ -41,7 +41,7 @@ PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(QDesignerWidgetDataBase
         m_class_name_input->addItem(item->name());
     }
 
-    m_class_name_input->setValidator(new QRegExpValidator(QRegExp("[_a-zA-Z][_a-zA-Z0-9]*"), m_class_name_input));
+    m_class_name_input->setValidator(new QRegExpValidator(QRegExp(QLatin1String("[_a-zA-Z][_a-zA-Z0-9]*")), m_class_name_input));
     m_base_class_name_label->setText(base_class_name);
     connect(m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
     connect(m_cancel_button, SIGNAL(clicked()), this, SLOT(reject()));

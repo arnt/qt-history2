@@ -157,9 +157,9 @@ void PluginManager::registerPlugin(const QString &plugin)
 bool PluginManager::syncSettings()
 {
     QSettings settings;
-    settings.beginGroup("PluginManager");
-    settings.setValue("PluginPaths", m_pluginPaths);
-    settings.setValue("DisabledPlugins", m_disabledPlugins);
+    settings.beginGroup(QLatin1String("PluginManager"));
+    settings.setValue(QLatin1String("PluginPaths"), m_pluginPaths);
+    settings.setValue(QLatin1String("DisabledPlugins"), m_disabledPlugins);
     settings.endGroup();
     return settings.status() == QSettings::NoError;
 }

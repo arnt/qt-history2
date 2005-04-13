@@ -34,7 +34,7 @@ QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
     prev->setAttribute(Qt::WA_NoChildEventsForParent, true);
     prev->setParent(this);
 
-    prev->setObjectName("designer_wizardstack_button");
+    prev->setObjectName(QLatin1String("designer_wizardstack_button"));
     prev->setArrowType(Qt::LeftArrow);
     prev->setAutoRaise(true);
     prev->setAutoRepeat(true);
@@ -44,7 +44,7 @@ QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
     next = new QToolButton();
     next->setAttribute(Qt::WA_NoChildEventsForParent, true);
     next->setParent(this);
-    next->setObjectName("designer_wizardstack_button");
+    next->setObjectName(QLatin1String("designer_wizardstack_button"));
     next->setArrowType(Qt::RightArrow);
     next->setAutoRaise(true);
     next->setAutoRepeat(true);
@@ -115,7 +115,7 @@ void QDesignerStackedWidget::prevPage()
             newIndex = count() - 1;
 
         SetPropertyCommand *cmd = new SetPropertyCommand(fw);
-        cmd->init(this, "currentIndex", newIndex);
+        cmd->init(this, QLatin1String("currentIndex"), newIndex);
         fw->commandHistory()->push(cmd);
         updateButtons();
     }
@@ -130,7 +130,7 @@ void QDesignerStackedWidget::nextPage()
 
     if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
         SetPropertyCommand *cmd = new SetPropertyCommand(fw);
-        cmd->init(this, "currentIndex", (currentIndex() + 1) % count());
+        cmd->init(this, QLatin1String("currentIndex"), (currentIndex() + 1) % count());
         fw->commandHistory()->push(cmd);
         updateButtons();
     }
