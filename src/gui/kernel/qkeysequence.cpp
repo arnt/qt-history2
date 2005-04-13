@@ -397,34 +397,39 @@ int QKeySequence::decodeString(const QString &str)
     int ret = 0;
     QString accel = str.toLower();
 
-    QList<ModifKeyName> *modifs = globalModifs();
-    if (!modifs) return ret;
+    QList<ModifKeyName> *gmodifs = globalModifs();
+    if (!gmodifs) return ret;
 
-    if (modifs->isEmpty()) {
+    if (gmodifs->isEmpty()) {
 #ifdef QMAC_CTRL
-        *modifs << ModifKeyName(Qt::CTRL, QMAC_CTRL);
+        *gmodifs << ModifKeyName(Qt::CTRL, QMAC_CTRL);
 #endif
 #ifdef QMAC_ALT
-        *modifs << ModifKeyName(Qt::ALT, QMAC_ALT);
+        *gmodifs << ModifKeyName(Qt::ALT, QMAC_ALT);
 #endif
 #ifdef QMAC_META
-        *modifs << ModifKeyName(Qt::META, QMAC_META);
+        *gmodifs << ModifKeyName(Qt::META, QMAC_META);
 #endif
 #ifdef QMAC_SHIFT
-        *modifs << ModifKeyName(Qt::SHIFT, QMAC_SHIFT);
+        *gmodifs << ModifKeyName(Qt::SHIFT, QMAC_SHIFT);
 #endif
-        *modifs << ModifKeyName(Qt::CTRL, "ctrl+")
-                << ModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append('+'))
-                << ModifKeyName(Qt::SHIFT, "shift+")
-                << ModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append('+'))
-                << ModifKeyName(Qt::ALT, "alt+")
-                << ModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append('+'))
-                << ModifKeyName(Qt::META, "meta+")
-                << ModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append('+'));
+        *gmodifs << ModifKeyName(Qt::CTRL, "ctrl+")
+                 << ModifKeyName(Qt::SHIFT, "shift+")
+                 << ModifKeyName(Qt::ALT, "alt+")
+                 << ModifKeyName(Qt::META, "meta+");
     }
+
+    QList<ModifKeyName> modifs = *gmodifs;
+    modifs << ModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append('+'))
+           << ModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append('+'))
+           << ModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append('+'))
+           << ModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append('+'));
+
+
+
     QString sl = accel;
-    for (int i = 0; i < modifs->size(); ++i) {
-        const ModifKeyName &mkf = modifs->at(i);
+    for (int i = 0; i < modifs.size(); ++i) {
+        const ModifKeyName &mkf = modifs.at(i);
         if (sl.contains(mkf.name)) {
             ret |= mkf.qt_key;
             accel.remove(mkf.name);
