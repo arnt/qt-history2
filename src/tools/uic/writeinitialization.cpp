@@ -561,8 +561,8 @@ void WriteInitialization::writeProperties(const QString &varName,
             DomFont *f = p->elementFont();
             QString fontName = driver->unique(QLatin1String("font"));
             output << option.indent << "QFont " << fontName << ";\n";
-            output << option.indent << fontName << ".setFamily(" << fixString(f->elementFamily())
-                << ");\n";
+            output << option.indent << fontName << ".setFamily(QString::fromUtf8(" << fixString(f->elementFamily())
+                << "));\n";
             output << option.indent << fontName << ".setPointSize(" << f->elementPointSize()
                 << ");\n";
             output << option.indent << fontName << ".setBold("
