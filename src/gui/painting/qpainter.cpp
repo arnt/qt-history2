@@ -3122,7 +3122,7 @@ void QPainter::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
         && !d->engine->hasFeature(QPaintEngine::PixmapTransform)) {
         QPixmap source;
         if(sx != 0 || sy != 0 || sw != pm.width() || sh != pm.height()) {
-            source = pm.copy(sx, sy, sw, sh);
+            source = pm.copy(qRound(sx), qRound(sy), qRound(sw), qRound(sh));
         } else {
             source = pm;
         }
