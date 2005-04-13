@@ -19,7 +19,7 @@ SOURCES		+= ../../../../src/corelib/global/qglobal.cpp \
                ../../../../src/corelib/tools/qchar.cpp \
                ../../../../src/corelib/tools/qdatetime.cpp \
                ../../../../src/corelib/tools/qhash.cpp \
-               ../../../../src/corelib/tools/qlist.cpp \
+               ../../../../src/corelib/tools/qlistdata.cpp \
                ../../../../src/corelib/tools/qlocale.cpp \
                ../../../../src/corelib/tools/qstring.cpp \
                ../../../../src/corelib/tools/qstringlist.cpp \
