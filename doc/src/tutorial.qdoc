@@ -302,16 +302,16 @@
 
     \section1 Line by Line Walkthrough
 
-    \skipto <QVBoxWidget>
-    \printline QVBoxWidget
+    \skipto <QVBoxLayout>
+    \printline QVBoxLayout
 
-    We add an include of <QVBoxWidget> to get the layout class we'll
+    We add an include of <QVBoxLayout> to get the layout class we'll
     use.
 
-    \skipto QVBoxWidget vbox
+    \skipto QVBoxLayout vbox
     \printline vbox
 
-    Here we simply create a vertical box container. The QVBoxWidget
+    Here we simply create a vertical box container. The QVBoxLayout
     arranges its child widgets in a vertical row, one above the
     other, handing out space according to each child's
     size policy (QWidget::sizePolicy()) and size hint (QWidget::sizeHint()).
@@ -329,9 +329,9 @@
     child widget is always displayed within its parent's area. When
     displayed, it is clipped by its parent's bounds.
 
-    The parent widget, the QVBoxWidget, automatically adds the child
+    The parent widget's layout, a QVBoxLayout, automatically adds the child
     centered in its box. Because nothing else is added, the button
-    gets all the space the parent has. Since the QVBoxWidget has no
+    gets all the space the parent has. Since the parent widget has no
     parent, it is a top-level window, with its own window frame and
     taskbar entry.
 
@@ -478,9 +478,8 @@
     \target constructor
     \printuntil {
 
-    \c MyWidget now derives from QVBoxWidget instead of QWidget. That
-    way we use the QVBoxWidget's layout capabilities (which places
-    all of its children vertically inside itself).
+    \c MyWidget now uses a QVBoxLayout to place all of its children
+    vertically inside itself.
 
     \skipto lcd
     \printline lcd
@@ -582,10 +581,10 @@
 
     \printline grid
 
-    We create a QGridWidget object with four columns. The QGridWidget
-    automatically arranges its children in rows and columns; you can
-    specify the number of rows or of columns, and QGridWidget will
-    discover its new children and fit them into the grid.
+    We create a QWidget with a QGridLayout that will contain four columns.
+    The QGridLayout automatically arranges its widgets in rows and columns;
+    you can specify the row and column numbers when adding widgets to the
+    layout, and QGridLayout will fit them into the grid.
 
     \printline for
     \printline for
@@ -594,7 +593,7 @@
     \printline }
 
     We create 16 \c LCDRange widgets, all of which are children of
-    the grid object. The QGridWidget will arrange them in four
+    the grid object. The QGridLayout will arrange them in four
     columns.
 
     \printline }
@@ -610,10 +609,6 @@
     \section1 Exercises
 
     Initialize each slider with a different/random value on startup.
-
-    The source contains three occurrences of "4". What happens if you
-    change the one in the QGridWidget constructor call? What about
-    the other two? Why is this?
 */
 
 /*! \example tutorial/t7
@@ -650,10 +645,10 @@
 
     \printline include
 
-    \c <QVBoxWidget> is included. Our \c LCDRange class inherits
-    QVBoxWidget, and the header file of a parent class must always be
-    included. We cheated a bit in the previous chapters, and we let
-    \c <QWidget> be included indirectly via other header files.
+    \c <QVBoxLayout> is included. Our \c LCDRange class uses
+    QVBoxLayout to manage its children. The header file of a parent class
+    must always be included - we cheated a bit in the previous chapters,
+    and we let \c <QWidget> be included indirectly via other header files.
 
     \printline QSlider
 
@@ -987,11 +982,11 @@
 
     \printline QGridLayout
 
-    So far, we have used QVBoxWidget and QGridWidget for geometry
-    management. Now, however, we want to have a little more control
-    over the layout, and we switch to the more powerful QGridLayout
-    class. QGridLayout isn't a widget; it is a different class that
-    can manage the children of \e any widget.
+    So far, we have used QVBoxLayout for geometry management. Now,
+    however, we want to have a little more control over the layout,
+    and we switch to the more powerful QGridLayout class. QGridLayout
+    isn't a widget; it is a different class that can manage the
+    children of \e any widget.
 
     We don't need to specify any dimensions to the QGridLayout
     constructor. The QGridLayout will determine the number of rows
@@ -1783,7 +1778,7 @@
     \section1 Running the Application
 
     The \c LCDRange widgets look a bit strange: The built-in layout
-    management in QVBoxWidget gives the labels too much space and the
+    management in QVBoxLayout gives the labels too much space and the
     rest not enough. We'll fix that in the next chapter.
 
     \section1 Exercises
@@ -2247,15 +2242,15 @@
     \quotefromfile tutorial/t14/gameboard.cpp
 
     \skipto ::GameBoard
-    \skipto QVBoxWidget
-    \printline QVBoxWidget
+    \skipto QVBoxLayout
+    \printline QVBoxLayout
     \printline setFrameStyle
     \printline cannonField
 
-    We create and set up a QVBoxWidget, set its frame style, and then
+    We create and set up a QFrame, set its frame style, and then
     create \c CannonField as a child of that box. Because nothing
-    else is in the box, the effect is that the QVBoxWidget will put a
-    frame around the \c CannonField.
+    else is in the box, the effect is that the QVBoxLayout will put
+    a frame around the \c CannonField.
 
     \skipto QShortcut
     \printline QShortcut
@@ -2283,8 +2278,8 @@
     \skipto addWidget(cannonBox
     \printline addWidget
 
-    We put \c cannonBox (the QVBoxWidget), not \c cannonField, in the
-    grid layout.
+    We put \c cannonBox (with its own QVBoxLayout), not \c cannonField, in
+    the grid layout.
 
     \section1 Running the Application
 

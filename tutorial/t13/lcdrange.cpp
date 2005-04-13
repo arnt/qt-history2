@@ -7,17 +7,18 @@
 #include <QLCDNumber>
 #include <QLabel>
 #include <QSlider>
+#include <QVBoxLayout>
 
 #include "lcdrange.h"
 
 LCDRange::LCDRange(QWidget *parent)
-    : QVBoxWidget(parent)
+    : QWidget(parent)
 {
     init();
 }
 
 LCDRange::LCDRange(const QString &text, QWidget *parent)
-    : QVBoxWidget(parent)
+    : QWidget(parent)
 {
     init();
     setText(text);
@@ -25,15 +26,21 @@ LCDRange::LCDRange(const QString &text, QWidget *parent)
 
 void LCDRange::init()
 {
-    QLCDNumber *lcd = new QLCDNumber(2, this);
+    QVBoxLayout *layout = new QVBoxLayout;
+    setLayout(layout);
+
+    QLCDNumber *lcd = new QLCDNumber(2);
+    layout->addWidget(lcd);
 
     slider = new QSlider(Qt::Horizontal, this);
     slider->setRange(0, 99);
     slider->setValue(0);
+    layout->addWidget(slider);
 
     label = new QLabel(this);
     label->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
     label->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
+    layout->addWidget(label);
 
     connect(slider, SIGNAL(valueChanged(int)),
             lcd, SLOT(display(int)));

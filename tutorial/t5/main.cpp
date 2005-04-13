@@ -9,27 +9,34 @@
 #include <QLCDNumber>
 #include <QPushButton>
 #include <QSlider>
-#include <QVBoxWidget>
+#include <QVBoxLayout>
+#include <QWidget>
 
-class MyWidget : public QVBoxWidget
+class MyWidget : public QWidget
 {
 public:
     MyWidget(QWidget *parent = 0);
 };
 
 MyWidget::MyWidget(QWidget *parent)
-    : QVBoxWidget(parent)
+    : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton("Quit", this);
+    QVBoxLayout *layout = new QVBoxLayout;
+    setLayout(layout);
+
+    QPushButton *quit = new QPushButton("Quit");
     quit->setFont(QFont("Times", 18, QFont::Bold));
+    layout->addWidget(quit);
 
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    QLCDNumber *lcd = new QLCDNumber(2, this);
+    QLCDNumber *lcd = new QLCDNumber(2);
+    layout->addWidget(lcd);
 
-    QSlider *slider = new QSlider(Qt::Horizontal, this);
+    QSlider *slider = new QSlider(Qt::Horizontal);
     slider->setRange(0, 99);
     slider->setValue(0);
+    layout->addWidget(slider);
 
     connect(slider, SIGNAL(valueChanged(int)),
             lcd, SLOT(display(int)));

@@ -6,47 +6,59 @@
 
 #include <QApplication>
 #include <QFont>
-#include <QGridWidget>
+#include <QGridLayout>
 #include <QLCDNumber>
 #include <QPushButton>
 #include <QSlider>
-#include <QVBoxWidget>
+#include <QVBoxLayout>
+#include <QWidget>
 
-class LCDRange : public QVBoxWidget
+class LCDRange : public QWidget
 {
 public:
     LCDRange(QWidget *parent = 0);
 };
 
 LCDRange::LCDRange(QWidget *parent)
-    : QVBoxWidget(parent)
+    : QWidget(parent)
 {
-    QLCDNumber *lcd = new QLCDNumber(2, this);
+    QVBoxLayout *layout = new QVBoxLayout;
+    setLayout(layout);
+
+    QLCDNumber *lcd = new QLCDNumber(2);
     QSlider *slider = new QSlider(Qt::Horizontal, this);
     slider->setRange(0, 99);
     slider->setValue(0);
     connect(slider, SIGNAL(valueChanged(int)),
             lcd, SLOT(display(int)));
+
+    layout->addWidget(lcd);
+    layout->addWidget(slider);
 }
 
-class MyWidget : public QVBoxWidget
+class MyWidget : public QWidget
 {
 public:
     MyWidget(QWidget *parent = 0);
 };
 
 MyWidget::MyWidget(QWidget *parent)
-    : QVBoxWidget(parent)
+    : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton("Quit", this);
+    QVBoxLayout *layout = new QVBoxLayout;
+    setLayout(layout);
+
+    QPushButton *quit = new QPushButton("Quit");
     quit->setFont(QFont("Times", 18, QFont::Bold));
+    layout->addWidget(quit);
 
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    QGridWidget *grid = new QGridWidget(4, this);
+    QGridLayout *grid = new QGridLayout;
+    layout->addLayout(grid);
     for (int row = 0; row < 4; ++row) {
         for (int column = 0; column < 4; ++column) {
-            (void) new LCDRange(grid);
+            grid->addWidget(new LCDRange, row, column);
         }
     }
 }

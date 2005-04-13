@@ -7,11 +7,11 @@
 #ifndef LCDRANGE_H
 #define LCDRANGE_H
 
-#include <QVBoxWidget>
+#include <QWidget>
 
 class QSlider;
 
-class LCDRange : public QVBoxWidget
+class LCDRange : public QWidget
 {
     Q_OBJECT
 

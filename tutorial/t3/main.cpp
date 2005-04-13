@@ -7,17 +7,22 @@
 #include <QApplication>
 #include <QFont>
 #include <QPushButton>
-#include <QVBoxWidget>
+#include <QVBoxLayout>
+#include <QWidget>
 
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QVBoxWidget vbox;
+    QWidget vbox;
     vbox.resize(200, 120);
 
-    QPushButton quit("Quit", &vbox);
+    QVBoxLayout layout;
+    vbox.setLayout(&layout);
+
+    QPushButton quit("Quit");
     quit.setFont(QFont("Times", 18, QFont::Bold));
+    layout.addWidget(&quit);
 
     QObject::connect(&quit, SIGNAL(clicked()), &app, SLOT(quit()));
 
