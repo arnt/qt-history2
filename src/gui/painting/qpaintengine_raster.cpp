@@ -1208,6 +1208,12 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     Q_D(QRasterPaintEngine);
 #if defined(Q_WS_WIN)
 
+
+    if (d->txop >= QPainterPrivate::TxScale) {
+        QPaintEngine::drawTextItem(p, textItem);
+        return;
+    }
+
     QRectF logRect(p.x(), p.y() - ti.ascent, ti.width, ti.ascent + ti.descent);
     QRect devRect = d->matrix.mapRect(logRect).toRect();
 
@@ -2702,7 +2708,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                 glyphs++;
             }
         } else {
-            bool haveOffsets = true;
+            bool haveOffsets = false;
             qreal w = 0;
             for(int i = 0; i < ti.num_glyphs; i++) {
                 if (glyphs[i].offset.x() != 0 || glyphs[i].offset.y() != 0 || glyphs[i].space_18d6 != 0) {
