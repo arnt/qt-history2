@@ -28,6 +28,7 @@
 #include "qcursor.h"
 #include "qvariant.h"
 #include "qvector.h"
+#include "qurl.h"
 
 #include "qdnd_p.h"
 #include "qt_x11_p.h"
@@ -1369,6 +1370,10 @@ QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) c
                       : xdndObtainData(mimetype.toLatin1().data());
     if (type == QVariant::String)
         return QString::fromUtf8(data);
+    if (type == QVariant::Url) { // ### handle uri list
+        QByteArray d = data.left(data.indexOf('\r'));
+        return QUrl::fromEncoded(d);
+    }
     return data;
 }
 
@@ -1392,6 +1397,12 @@ QStringList QDropData::formats() const
         while ((qt_xdnd_types[i])) {
             formats.append(QLatin1String(X11->xdndAtomToString(qt_xdnd_types[i])));
             ++i;
+        }
+    }
+    for (int i = 0; i < formats.count(); ++i) {
+        if (formats.at(i).startsWith("image/")) {
+            formats.append("application/x-qt-image");
+            break;
         }
     }
     return formats;
