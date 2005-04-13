@@ -2147,41 +2147,40 @@ qreal QWidget::windowOpacity() const
     return isWindow() ? ((QWidget*)this)->d->topData()->opacity / 255.0 : 0.0;
 }
 
-#ifdef QT_RASTER_PAINTENGINE
-static QSingleCleanupHandler<QRasterPaintEngine> qt_paintengine_cleanup_handler;
-static QRasterPaintEngine *qt_widget_paintengine = 0;
+struct QPaintEngineCleanupHandler
+{
+    inline QPaintEngineCleanupHandler() : engine(0) {}
+    inline ~QPaintEngineCleanupHandler() { delete engine; }
+    QPaintEngine *engine;
+};
+
+Q_GLOBAL_STATIC(QPaintEngineCleanupHandler, engineHandler)
+
 QPaintEngine *QWidget::paintEngine() const
 {
-    if (!qt_widget_paintengine) {
-        qt_widget_paintengine = new QRasterPaintEngine();
-        qt_widget_paintengine->setFlushOnEnd(false);
-        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
+    QPaintEngine *&pe = engineHandler()->engine;
+#ifdef QT_RASTER_PAINTENGINE
+    if (!pe) {
+        pe = new QRasterPaintEngine();
+        pe->setFlushOnEnd(false);
     }
 
-    if (qt_widget_paintengine->isActive()) {
+    if (pe->isActive()) {
         QRasterPaintEngine *extraEngine = new QRasterPaintEngine();
         extraEngine->setAutoDestruct(true);
         extraEngine->setFlushOnEnd(false);
         return extraEngine;
     }
-
-    return qt_widget_paintengine;
-}
 #else
-static QSingleCleanupHandler<QPaintEngine> qt_paintengine_cleanup_handler;
-static QPaintEngine *qt_widget_paintengine = 0;
-QPaintEngine *QWidget::paintEngine() const
-{
-    if (!qt_widget_paintengine) {
+    if (!pe) {
 #if !defined(QMAC_NO_COREGRAPHICS)
         if(!qgetenv("QT_MAC_USE_QUICKDRAW"))
-            qt_widget_paintengine = new QCoreGraphicsPaintEngine();
+            pe = new QCoreGraphicsPaintEngine();
         else
 #endif
-            qt_widget_paintengine = new QQuickDrawPaintEngine();
-        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
+            pe = new QQuickDrawPaintEngine();
     }
-    if (qt_widget_paintengine->isActive()) {
+    if (pe->isActive()) {
         QPaintEngine *engine =
 #if !defined(QMAC_NO_COREGRAPHICS)
         !qgetenv("QT_MAC_USE_QUICKDRAW")
@@ -2191,7 +2190,7 @@ QPaintEngine *QWidget::paintEngine() const
         engine->setAutoDestruct(true);
         return engine;
     }
-    return qt_widget_paintengine;
-}
 #endif
+    return pe;
+}
 
