@@ -1550,10 +1550,9 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
         QMakeProject proj(place);
         if(proj.doProjectInclude("default_pre", IncludeFlagFeature, place) == IncludeNoExist)
             proj.doProjectInclude("default", IncludeFlagFeature, place);
-        parsed = proj.read(file.toLatin1().constData(), ReadProFile);
-        place = proj.variables();
+        parsed = proj.read(file, place);
     } else {
-        parsed = read(file.toLatin1().constData(), place);
+        parsed = read(file, place);
     }
     if(parsed)
         place["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
