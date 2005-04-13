@@ -1,0 +1,264 @@
+/*!
+    \example widgets/imageviewer
+    \title ImageViewer Example
+
+    The example shows how to use QScrollArea and QLabel to display an
+    image. It also demonstrates how QPixmap can be manipulated to
+    facilitate zooming and scaling features. In addition the example
+    shows how to use QPainter to print an image.
+
+    \image imageviewer-example.png Screenshot of the ImageViewer example
+
+    With the \c ImageViewer application the users can view an image of
+    their choice. The \gui File menu gives the user the possibility
+    to:
+
+    \list
+    \o \gui Open an image file
+    \o \gui Print an image
+    \o \gui Exit the application
+    \endlist
+
+    Once an image is loaded, the \gui View menu allows the users to:
+
+    \list
+    \o \gui {Zoom in}
+    \o \gui {Zoom out}
+    \o show the image in its \gui {Normal size}
+    \o \gui Fit (the image) \gui {to the window}
+    \endlist
+
+    \section1 ImageViewer Class Definition
+
+    \quotefromfile widgets/imageviewer/imageviewer.h
+    \skipto class ImageViewer
+    \printuntil /^\};/
+
+    The \c ImageViewer class inherits from QMainWindow. We reimplement
+    the constructor, and create several private slots to facilitate
+    the menu entries.  In addition we create four private functions:
+
+    We use \c createActions() and \c createMenus() when constructing
+    the \c ImageViewer widget. We use the \c enableActions() function to
+    make all the menu entries available to the users once an
+    image is loaded (before any image is loaded into the application,
+    only the \gui open and \gui exit actions are enabled). The zoom
+    slots use \c scalePixmap() when responding to a zoom action. And
+    in turn the \c scalePixmap() function use the \c adjustScrollBar()
+    function to preserve the focal point after scaling the pixmap.
+
+    We display an image using a label which is contained within a
+    scroll area. In addition we keep the factor to which the currently
+    displayed image is scaled.
+
+    \section1 ImageViewer Class Implementation
+
+    \quotefromfile widgets/imageviewer/imageviewer.cpp
+    \skipto ImageViewer
+    \printuntil /^\}/
+
+    In the constructor we first create the label and the scroll area.
+    QLabel is used for displaying a text or an image. No user
+    interaction functionality is provided. QScrollArea provides a
+    scrolling view onto another widget (its child widget). If the
+    child widget exceeds the size of the frame, the view can provide
+    scroll bars so that the entire area of the widget can be viewed.
+
+    We set \c {imageLabel}'s size policy to \l
+    {QSizePolicy::Ignored}{ignored}, making the users able to scale
+    the image to whatever size they want when the \gui {Fit to Window}
+    option is turned on. Otherwise, the default size polizy (\l
+    {QSizePolicy::Preferred}{preferred}) will make scroll bars appear
+    when the scroll area becomes smaller than the label's size hint.
+
+    In order to make the image scale properly when zooming, we ensure
+    that the label will scale its contents to fill all available space
+    with \c {imageLabel}'s \l
+    {QLabel::setScaledContents()}{setScaledContents()} function. The
+    result of omitting to set the scaled contents property is that a
+    \gui {Zoom In} action will cause the label to be larger, but leave
+    its pixmap at its original size exposing the label's background.
+
+    We make \c imageLabel the scroll area's child widget, and we make
+    the \c scrollArea the central widget of the \c ImageWiewer
+    widget. At the end we create the associated actions and menus, and
+    customize the \c {ImageViewer}'s appearance.
+
+    \printline open
+    \printto imageLabel
+
+    With the \c open() slot we show a file dialog to the user.
+    QFileDialog enables the user to traverse the file system. The
+    easiest way to create a QFileDialog is to use the static
+    functions; QFileDialog::getOpenFileName() returns an existing file
+    selected by the user. If the user presses Cancel, it returns a
+    null string.
+
+    Unless the file name is a null string, we check if the file's
+    format is an image format by constructing a QImage from the file
+    name. If the constructor returns a null image the file doesn't
+    have a supported format or some error occured when loading the
+    image, and we use QMessageBox to alert the user.
+
+    The QMessageBox class provides a modal dialog with a short
+    message, an icon, and some buttons. As with QFileDialog the
+    easiest way to create a QMessageBox is to use its static
+    functions. QMessageBox provides a range of different messages
+    arranged along two axes: severity (question, information, warning
+    and critical) and complexity (the number of necessary response
+    buttons). In this particular example an information message with
+    an OK button (the default) is sufficient, since the message is
+    part of a normal operation.
+
+    \printline imageLabel
+    \printuntil /^\}/
+
+    If the format is supported, we display the image in \c imageLabel
+    by setting the label's pixmap. Then we enable all the menu entries
+    by calling the \c enableActions() function.
+
+    If the \gui {Fit to window} option is not turned on, we call \c
+    {imageLabel}'s \l {QLabel::adjustSize()}{adjustSize()}. When using
+    a scroll area, it is important to ensure that the contents of the
+    child widget are shown correctly. Adjusting the size of the \c
+    imageLabel widget to fit its contents takes care of
+    this. Adjusting the size of a label is necessary whenever the
+    content changes, but another reason for doing it here is that a
+    scroll area doesn't take the responsibility of resizing its child
+    widgets unless it is explicitly told to (which is exactly what we
+    do when we turn on the \gui {Fit to window} option).
+
+    \printline print
+    \printuntil /^\}/
+
+    In the \c print() slot, we present a print dialog allowing the
+    user to choose a printer and to set a few options. Then we
+    construct a painter with a QPrinter as the paint device. We set
+    the painter's window to be the enclosing rectangle of \c
+    {imageLabel}'s pixmap, and the painter's viewport to a rectangle
+    with the same \l{Qt::KeepAspectRatio}{aspect ratio}. Then we draw
+    the \c {imageLabel}'s pixmap at position (0, 0).
+
+    \printline zoomIn
+    \printto normalSize
+
+    We implement the zooming slots using the private \c scalePixmap()
+    function. We set the scaling factors to 1.25 and 0.8,
+    respectively. These factor values ensure that a \gui {Zoom In}
+    action and a \gui {Zoom Out} action will cancel each other (1.25 *
+    0.8 = 1), and in that way the original image size can be restored
+    using the zooming features.
+
+    The screen-shots below show an image in its original size, and the
+    same image after zooming in first once, and then twice.
+
+    \table
+    \row
+    \o \inlineimage imageviewer-original_size.png
+    \o \inlineimage imageviewer-zoom_in_1.png
+    \o \inlineimage imageviewer-zoom_in_2.png
+    \endtable
+
+    \printline normalSize
+    \printuntil /^\}/
+
+    In the \c normalSize() slot we simply restore the currently
+    displayed image to its original size by adjusting the label's size
+    to the size of its content.
+
+    \printline fitToWindow
+    \printuntil /^\}/
+
+    The \c fitToWindow() slot is called each time the user turn on or
+    off the \gui {Fit to window} option. If the slot is called to turn
+    on the option, we tell the scroll area to resize its child widget
+    with the \l
+    {QScrollArea::setWidgetResizable()}{setWidgetResizable()}
+    function. Then we disable the \gui {Zoom In}, \gui {Zoom Out} and
+    \gui {NormalSize} menu entries.
+
+    If a scroll area's \l {QScrollArea::widgetResizable}{widget
+    resizable property} is set to false (the default), the view honors
+    the size of its child widget. If this property is set to true, the
+    view will automatically resize the widget in order to avoid scroll
+    bars where they can be avoided, or to take advantage of extra
+    space.
+
+    The screen-shots below shows an image in its original size, and
+    the same image with the \gui {Fit to window} option turned
+    on. Enlarging the window will stretch the image further (as shown
+    in the third screen-shot).
+
+    \table
+    \row
+    \o \inlineimage imageviewer-original_size.png
+    \o \inlineimage imageviewer-fit_to_window_1.png
+    \o \inlineimage imageviewer-fit_to_window_2.png
+    \endtable
+
+    If the slot is called to turn off the option, \c
+    {scrollArea}'s \l {QScrollArea::setWidgetResizable}{widget
+    resizable property} is set to false. We enable the \gui {Zoom In},
+    \gui {Zoom Out} and \gui {NormalSize} menu entries. And in the end
+    we also restore the image pixmap to its original size by adjusting
+    the \c {imageLabel}'s size to its content.
+
+    \printline createActions
+    \printuntil /^\}/
+
+    In the private \c createAction() function we create the
+    actions providing the application features.
+
+    We assign a short-cut key to each action and connect them to the
+    appropiate slots. We only enable the \c openAct and \c exitAxt at
+    the time of creation, the others are enabled once an image has
+    been loaded into the application. We also make the \c
+    fitToWindowAct \l {QAction::checkable}{checkable}.
+
+    \printline createMenus
+    \printuntil /^\}/
+
+    In the private \c createMenu function we add the previously
+    created actions to the \gui File menu and \gui View menu.
+
+    The QMenu class provides a menu widget for use in menu bars,
+    context menus, and other popup menus. A menu widget is a selection
+    menu. It can be either a pull-down menu in a menu bar, like in
+    this example, or a standalone context menu.
+
+    The QMenuBar class provides a horizontal menu bar that consists of
+    a list of pull-down menu items. So at the end we put the menus
+    in the \c {Imageviewer}'s menu bar which we retrieve with the
+    \l{QMainWindow::menuBar()}{menuBar()} function.
+
+    \printline enableActions
+    \printuntil /^\}/
+
+    The private \c enableActions() function enables the \gui print,
+    \gui {Zoom In}, \gui {Zoom Out}, \gui {Normal Size} and \gui {Fit
+    to Window} menu entries.
+
+    \printline scalePixmap
+    \printuntil /^\}/
+
+    In the private \c scalePixmap() function we first use the \c
+    factor argument to calculate the new scaling factor for the
+    displayed image. Then we resize \c imageLabel to the label's old
+    size times the scale factor. We also adjust the \c {scrollArea}'s
+    scroll bars to preserve the focal point of the image.
+
+    At the end, if the scale factor is less than 0.333 or larger than
+    3, we disable the respective menu entry to prevent the image
+    pixmap from becoming too large consuming too much resources.
+
+    \printline adjustScrollBar
+    \printuntil /^\}/
+
+    Adjusting the scroll bar, we first calculate the current value of
+    the scroll bar times \c factor. Leaving it there, the focal point
+    would still be slightly wrong since \c value() defines the point
+    where the scroll bar's handle \e starts. Therefore we need to add
+    the corresponding percentage of the handle's size divided by two
+    to obtain what we want: the focal point centered in the middle of
+    the scroll area.
+*/

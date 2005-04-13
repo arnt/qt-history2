@@ -4,6 +4,7 @@ SUBDIRS       = analogclock \
                 charactermap \
                 digitalclock \
                 groupbox \
+                imageviewer \
                 lineedits \
                 scribble \
                 sliders \

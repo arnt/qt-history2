@@ -42,6 +42,24 @@ void MainWindow::save()
     saveFile(fileFormat);
 }
 
+void MainWindow::penColor()
+{
+    QColor newColor = QColorDialog::getColor(scribbleArea->getPenColor());
+    if (newColor.isValid())
+        scribbleArea->setPenColor(newColor);
+}
+
+void MainWindow::penWidth()
+{
+    bool ok;
+    int newWidth = QInputDialog::getInteger(this, tr("Select Pen Width"),
+                                            tr("Select pen width:"),
+                                            scribbleArea->getPenWidth(),
+                                            1, 50, 1, &ok);
+    if (ok)
+        scribbleArea->setPenWidth(newWidth);
+}
+
 void MainWindow::createActions()
 {
     openAct = new QAction(tr("&Open..."), this);
@@ -74,7 +92,7 @@ void MainWindow::createActions()
 
 void MainWindow::createMenus()
 {
-    saveAsMenu = new QMenu(tr("&Save As"));
+    saveAsMenu = new QMenu(tr("&Save As..."));
     foreach (QAction *action, saveAsActs)
         saveAsMenu->addAction(action);
 
@@ -127,22 +145,4 @@ bool MainWindow::saveFile(const QString &fileFormat)
     } else {
         return scribbleArea->saveImage(fileName, fileFormat.toAscii());
     }
-}
-
-void MainWindow::penColor()
-{
-    QColor newColor = QColorDialog::getColor(scribbleArea->getPenColor());
-    if (newColor.isValid())
-        scribbleArea->setPenColor(newColor);
-}
-
-void MainWindow::penWidth()
-{
-    bool ok;
-    int newWidth = QInputDialog::getInteger(this, tr("Select Pen Width"),
-                                            tr("Select pen width:"),
-                                            scribbleArea->getPenWidth(),
-                                            1, 50, 1, &ok);
-    if (ok)
-        scribbleArea->setPenWidth(newWidth);
 }

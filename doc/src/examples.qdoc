@@ -28,9 +28,10 @@
     \o \l{widgets/charactermap}{Character Map}\raisedaster
     \o \l{widgets/digitalclock}{Digital Clock}\raisedaster
     \o \l{widgets/groupbox}{Group Box}\raisedaster
+    \o \l{widgets/imageviewer}{Image Viewer}\raisedaster
     \o \l{widgets/lineedits}{Line Edits}
     \o \l{widgets/scribble}{Scribble}
-    \o \l{widgets/sliders}{Sliders}
+    \o \l{widgets/sliders}{Sliders}\raisedaster
     \o \l{widgets/spinboxes}{Spin Boxes}
     \o \l{widgets/styles}{Styles}\raisedaster
     \o \l{widgets/tetrix}{Tetrix}
@@ -96,7 +97,9 @@
     \section1 Tool Examples
 
     \list
-    \o \l{tools/regexp}{Regexp}
+    \o \l{tools/i18n}{I18N}
+    \o \l{tools/launcher}{Launcher}
+    \o \l{tools/regexp}{RegExp}
     \endlist
 
     \section1 Thread Examples

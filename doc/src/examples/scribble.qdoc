@@ -1,4 +1,276 @@
 /*!
     \example widgets/scribble
     \title Scribble Example
+
+    The example shows how to...
+
+    \image scribble-example.png Screenshot of the Scribble example
+
+    With the Scribble application the users can draw an image.  The
+    \gui File menu gives the users the possibility to open an existing
+    image file, save an image in a format they can choose from the
+    format menu displayed by the \gui {Save As} menu entry and exit the
+    application.
+
+    While drawing, the \gui Options menu allows the users to to choose
+    the pen color and pen width, as well as clear the screen.
+
+    The example consists of two classes:
+
+    \list
+    \o \c ScribbleArea is a custom widget displaying a QImage.
+    \o \c MainWindow is the main widget containing a \c ScribbleArea
+    \endlist
+
+    We will start by reviewing the \c MainWindow class, then we will
+    take a look at the \c ScribbleArea class.
+
+    \section1 MainWindow Class Definition
+
+    \quotefromfile widgets/scribble/mainwindow.h
+    \skipto class MainWindow
+    \printuntil /^\};/
+
+    The \c MainWindow class inherits from QMainWindow. We reimplement
+    the constructor and the event handler
+    \l{QWidget::closeEvent()}{closeEvent()}. We create the private
+    \gui open(), \gui save(), \gui penColor() and \gui penWidth()
+    slots to facilitate the some of the menu entries. In addition we
+    create four private functions:
+
+    We use \c createActions() and \c createMenus() when constructing
+    the \c MainWindow widget. We use the boolean \c mayBeSave()
+    function to check if there are any unsaved changes. If there are,
+    we give the user the opportunity to save these changes. The
+    function returns true if the the scribble area is not modified or
+    the user successfully saves the modifications, otherwise it
+    returns false. And we use the boolean \c saveFile() function to
+    retrieve a filename from the user, and to save the image currently
+    displayed in the scribble area, in that file. It returns true if
+    the image was successfully saved, otherwise false.
+
+    The \c MainWindow contains a scribble area. It also has the \c
+    modified property that is true if there are any unsaved changes to
+    the image displayed in the scribble area, otherwise false.
+
+    \section1 MainWindow Class Implementation
+
+    \quotefromfile widgets/scribble/mainwindow.cpp
+    \skipto MainWindow
+    \printuntil /^\}/
+
+    In the constructor we create a new scribble area which we make the
+    central widget of the \c MainWindow widget. Then we create the
+    associated actions and menus, and customize the \c {ImageViewer}'s
+    appearance.
+
+    \printline closeEvent
+    \printuntil /^\}/
+
+    The event handler receives the \c {MainWindow}'s close
+    events. Close events are sent to widgets that the user wants to
+    close, usually by choosing "Close" from the window menu, or by
+    clicking the `X' title bar button. By reimplementing the event
+    handler, we can intercept attempts to close the application. This
+    is particular useful in this example, because the users may have
+    modified the image after the last time they saved.
+
+    By calling the \c maybeSave() function we ensure that the users
+    get the opportunity to save any modifications, before \c
+    MainWindow is closed and the application is terminated. If the
+    user clicks \gui cancel, the call to the event's ignore() function
+    leave the application unaffected by the event. Otherwise we accept
+    the event, and the application is terminated.
+
+    \printline open
+    \printuntil /^\}/
+
+    In the \c open() slot we first give the users the opportunity to
+    save any modifications, before a new image is loaded into the
+    scribble area. Then we show a file dialog to the user.
+    QFileDialog enables the user to traverse the file system. The
+    easiest way to create a QFileDialog is to use the static
+    functions; QFileDialog::getOpenFileName() returns an existing file
+    selected by the user. If the user presses Cancel, it returns a
+    null string.
+
+    Unless the file name is a null string, we load the image into the
+    scribble area.
+
+    \printline save
+    \printuntil /^\}/
+
+    The \c save() slot is called when the users choose the \gui {Save
+    As} menu entry, an then choose an entry from the format menu. The
+    first thing we need to do is to find out which action sent the
+    signal using QObject::sender(). This function returns the sender
+    as a QObject pointer. Since we know that the sender is an action
+    object, we can safely cast the QObject. We could have used a
+    C-style cast or a C++ static_cast<>(), but as a defensive
+    programming technique we use a qobject_cast(). The advantage is
+    that if the object has the wrong type, a null pointer is
+    returned. Crashes due to null pointers are much easier to diagnose
+    than crashes due to unsafe casts. Once we have the action, we
+    extract the chosen format using QAction::iconText().
+
+    Now that we know the format, we call the private \c savefile()
+    function to save the currently displayed image.
+
+    \printline penColor
+    \printuntil /^\}/
+
+    We use the \c penColor() slot to retrieve a new color from the
+    user, using QColorDialog. As with QFileDialog the easiest way to
+    create a QColorDialog is to use its static functions;
+    QColorDialog::getColor() pops up a modal color dialog, lets the
+    user choose a color, and returns that color. We set the dialog's
+    initial color to be the scribble area's current color. Then, if
+    the new color is valid, we set the scribble area's color.
+
+    \printline penWidth
+    \printuntil /^\}/
+
+    To retrieve a new pen width in the \c penWidth() slot, we use
+    QInputDialog. The QInputDialog class provides a simple convenience
+    dialog to get a single value from the user. We use the static \l
+    {QInputDialog::getInteger()}{getInteger()} function that
+    initialize the current value the dialog's spin box to the scribble
+    area's current pen width, the minimum value to 1 and the maximum
+    value to 50.
+
+    The boolean \c ok variable will be set to true if the user pressed
+    OK and to false if the user pressed Cancel.  If \c ok is true, we
+    set the scribble area's penwidth to the new value.
+
+    \printline createActions
+    \printuntil /^\}/
+
+    In the \c createAction() function we create the actions
+    representing the application's menu entries, and connect them to
+    the appropiate slots. In particular we create the actions found in
+    the \gui {Save As} entry's sub menu. We use the QImageWriter's
+    static supportedImageFormats() function to get a list of the
+    supported formats. Then we iterate through the list; creating an
+    action for each list item.
+
+    \printline createMenus
+    \printuntil /^\}/
+
+    In the \c createMenu function we add the previously
+    created format actions to the \c saveAsMenu. Then we add the rest
+    of the previously created actions as well as the \c saveAsMenu sub
+    menu to the \gui File and \gui Options menus.
+
+    The QMenu class provides a menu widget for use in menu bars,
+    context menus, and other popup menus. A menu widget is a selection
+    menu. It can be either a pull-down menu in a menu bar, like in
+    this example, or a standalone context menu.
+
+    The QMenuBar class provides a horizontal menu bar that consists of
+    a list of pull-down menu items. So at the end we put the \gui File
+    and \gui Options menus in the \c {MainWindow}'s menu bar which we
+    retrieve with the \l{QMainWindow::menuBar()}{menuBar()} function.
+
+    \printline maybeSave
+    \printuntil /^\}/
+
+    With the \c mayBeSave() function we check if there are any
+    unsaved changes. And if there are, we use QMessageBox to give the
+    user a warning that the image has been modified and the
+    opportunity to save the changes.
+
+    Again the easiest way to create a QMessageBox is to use its static
+    functions. QMessageBox provides a range of different messages
+    arranged along two axes: severity (question, information, warning
+    and critical) and complexity (the number of necessary response
+    buttons). Here we use the \c warning() function sice the message
+    is rather severe: If the user doesn't save the modifications, the
+    data will be lost.
+
+    If the user choose to save, we call the private saveFile()
+    function. The default format is set to png. The \c mayBeSave()
+    function returns true if the the scribble area is not modified or
+    the user successfully saves the modifications, otherwise it
+    returns false.
+
+    \printline saveFile
+    \printuntil /^\}/
+
+    In the \c saveFile function we show a file dialog to the user. We
+    want the file dialog's initial directory to be the same as the one
+    the progam is run from. Therefore we first construct this initial
+    path.  The easiest way to create a QFileDialog is to use the
+    static functions; QFileDialog::getSaveFileName() returns a file
+    name selected by the user. The file does not have to exist. If the
+    user presses Cancel, it returns a null string.
+
+    The \c saveFile function returns true if the file name is valid
+    and the scribble area's \c saveImage() function complete
+    successfully, otherwise it returns false.
+
+    \section1 ScribbleArea Class Definition
+
+    \quotefromfile widgets/scribble/scribblearea.h
+    \skipto class ScribbleArea
+    \printuntil /^\};/
+
+    The \c ScribbleArea class inherits from QWidget and displays a
+    QImage. We reimplement the constructor along with several of the
+    event handlers: ...
+
+    We need several public functions...
+
+    In addition we need one public slot..
+
+    We also need the private \c drawLineTo() function...
+
+    The \c ScribbleArea widget has several properties...
+
+    \section1 ScribbleArea Class Implementation
+
+    \quotefromfile widgets/scribble/scribblearea.cpp
+    \skipto ScribbleArea
+    \printuntil /^\}/
+
+    ...
+
+    \printline openImage
+    \printuntil /^\}/
+
+    ...
+
+    \printline saveImage
+    \printuntil /^\}/
+
+    ...
+
+    \printline getPenColor
+    \printto clearImage
+
+    ...
+
+    \printline clearImage
+    \printuntil /^\}/
+
+    ...
+
+    \printline mousePressEvent
+    \printto paintEvent
+
+    ...
+
+    \printline paintEvent
+    \printuntil /^\}/
+
+    ...
+
+    \printline resizeEvent
+    \printuntil /^\}/
+
+    ...
+
+    \printline drawLineTo
+    \printuntil /^\}/
+
+    ...
 */
