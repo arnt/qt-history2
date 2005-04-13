@@ -33,9 +33,6 @@
 
 #include <ctype.h>
 
-#define d d_func()
-#define q q_func()
-
 //#define QSPLITTER_DEBUG
 
 const uint Default = 2;
@@ -146,6 +143,7 @@ public:
 QSplitterHandle::QSplitterHandle(Qt::Orientation orientation, QSplitter *parent)
     : QWidget(*new QSplitterHandlePrivate, parent, 0)
 {
+    Q_D(QSplitterHandle);
     d->s = parent;
     setOrientation(orientation);
 }
@@ -158,6 +156,7 @@ QSplitterHandle::QSplitterHandle(Qt::Orientation orientation, QSplitter *parent)
 */
 void QSplitterHandle::setOrientation(Qt::Orientation orientation)
 {
+    Q_D(QSplitterHandle);
     d->orient = orientation;
 #ifndef QT_NO_CURSOR
     setCursor(orientation == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor);
@@ -171,6 +170,7 @@ void QSplitterHandle::setOrientation(Qt::Orientation orientation)
 */
 Qt::Orientation QSplitterHandle::orientation() const
 {
+    Q_D(const QSplitterHandle);
     return d->orient;
 }
 
@@ -184,6 +184,7 @@ Qt::Orientation QSplitterHandle::orientation() const
 */
 bool QSplitterHandle::opaqueResize() const
 {
+    Q_D(const QSplitterHandle);
     return d->s->opaqueResize();
 }
 
@@ -195,7 +196,7 @@ bool QSplitterHandle::opaqueResize() const
 */
 QSplitter *QSplitterHandle::splitter() const
 {
-    return d->s;
+    return d_func()->s;
 }
 
 /*!
@@ -210,6 +211,7 @@ QSplitter *QSplitterHandle::splitter() const
 */
 void QSplitterHandle::moveSplitter(int pos)
 {
+    Q_D(QSplitterHandle);
     if (d->s->isRightToLeft() && d->orient == Qt::Horizontal)
         pos = d->s->contentsRect().width() - pos;
     d->s->moveSplitter(pos, d->s->indexOf(this));
@@ -225,6 +227,7 @@ void QSplitterHandle::moveSplitter(int pos)
 
 int QSplitterHandle::closestLegalPosition(int pos)
 {
+    Q_D(QSplitterHandle);
     QSplitter *s = d->s;
     if (s->isRightToLeft() && d->orient == Qt::Horizontal) {
         int w = s->contentsRect().width();
@@ -238,6 +241,7 @@ int QSplitterHandle::closestLegalPosition(int pos)
 */
 QSize QSplitterHandle::sizeHint() const
 {
+    Q_D(const QSplitterHandle);
     int hw = d->s->handleWidth();
     QStyleOption opt(0);
     opt.init(d->s);
@@ -251,6 +255,7 @@ QSize QSplitterHandle::sizeHint() const
 */
 void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
 {
+    Q_D(QSplitterHandle);
     if (!(e->buttons() & Qt::LeftButton))
         return;
     int pos = d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
@@ -267,6 +272,7 @@ void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
 */
 void QSplitterHandle::mousePressEvent(QMouseEvent *e)
 {
+    Q_D(QSplitterHandle);
     if (e->button() == Qt::LeftButton)
         mouseOffset = d->pick(e->pos());
 }
@@ -276,6 +282,7 @@ void QSplitterHandle::mousePressEvent(QMouseEvent *e)
 */
 void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
 {
+    Q_D(QSplitterHandle);
     if (!opaqueResize() && e->button() == Qt::LeftButton) {
         int pos = d->pick(parentWidget()->mapFromGlobal(e->globalPos()))
                      - mouseOffset;
@@ -289,6 +296,7 @@ void QSplitterHandle::mouseReleaseEvent(QMouseEvent *e)
 */
 void QSplitterHandle::paintEvent(QPaintEvent *)
 {
+    Q_D(QSplitterHandle);
     QPainter p(this);
     QStyleOption opt(0);
     opt.rect = rect();
@@ -327,6 +335,7 @@ int QSplitterLayoutStruct::getHandleSize(Qt::Orientation orient)
 
 void QSplitterPrivate::init()
 {
+    Q_Q(QSplitter);
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Preferred);
     if (orient == Qt::Vertical)
         sp.transpose();
@@ -336,6 +345,7 @@ void QSplitterPrivate::init()
 
 void QSplitterPrivate::recalc(bool update)
 {
+    Q_Q(QSplitter);
     int n = list.count();
     /*
       Splitter handles before the first visible widget or right
@@ -371,7 +381,7 @@ void QSplitterPrivate::recalc(bool update)
             QSize minS = qSmartMinSize(s->widget);
             minl += pick(minS);
             maxl += pick(s->widget->maximumSize());
-            mint = qMax(mint, d->trans(minS));
+            mint = qMax(mint, trans(minS));
             int tm = trans(s->widget->maximumSize());
             if (tm > 0)
                 maxt = qMin(maxt, tm);
@@ -410,6 +420,7 @@ void QSplitterPrivate::recalc(bool update)
 
 void QSplitterPrivate::doResize()
 {
+    Q_Q(QSplitter);
     QRect r = q->contentsRect();
     int n = list.count();
     QVector<QLayoutStruct> a(n*2);
@@ -536,6 +547,7 @@ int QSplitterPrivate::findWidgetJustBeforeOrJustAfter(int index, int delta, int 
 */
 void QSplitterPrivate::getRange(int index, int *farMin, int *min, int *max, int *farMax) const
 {
+    Q_Q(const QSplitter);
     int n = list.count();
     if (index <= 0 || index >= n)
         return;
@@ -628,11 +640,13 @@ bool QSplitterPrivate::collapsible(QSplitterLayoutStruct *s) const
 
 void QSplitterPrivate::updateHandles()
 {
+    Q_Q(QSplitter);
     recalc(q->isVisible());
 }
 
 void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s)
 {
+    Q_Q(QSplitter);
     QWidget *w = sls->widget;
     QRect r;
     QRect contents = q->contentsRect();
@@ -690,7 +704,7 @@ void QSplitterPrivate::doMove(bool backwards, int hPos, int index, int delta, bo
     if (w->isExplicitlyHidden()) {
         doMove(backwards, hPos, nextId, delta, true, positions, widths);
     } else {
-        int hs =s->handle->isExplicitlyHidden() ? 0 : s->getHandleSize(d->orient);
+        int hs =s->handle->isExplicitlyHidden() ? 0 : s->getHandleSize(orient);
 
         int  ws = backwards ? hPos - pick(s->rect.topLeft())
                  : pick(s->rect.bottomRight()) - hPos -hs + 1;
@@ -757,6 +771,7 @@ void QSplitter::setResizeMode(QWidget *w, ResizeMode mode)
         only occurs as a result of calling a \c QT3_SUPPORT function.
     */
 
+    Q_D(QSplitter);
     bool metWidget = false;
     if (!d->compatMode) {
         d->compatMode = true;
@@ -783,6 +798,7 @@ void QSplitter::setResizeMode(QWidget *w, ResizeMode mode)
 QSplitter::QSplitter(QWidget *parent, const char *name)
     : QFrame(*new QSplitterPrivate, parent)
 {
+    Q_D(QSplitter);
     setObjectName(name);
     d->orient = Qt::Horizontal;
     d->init();
@@ -796,6 +812,7 @@ QSplitter::QSplitter(QWidget *parent, const char *name)
 QSplitter::QSplitter(Qt::Orientation orientation, QWidget *parent, const char *name)
     : QFrame(*new QSplitterPrivate, parent)
 {
+    Q_D(QSplitter);
     setObjectName(name);
     d->orient = orientation;
     d->init();
@@ -810,11 +827,12 @@ QSplitter::QSplitter(Qt::Orientation orientation, QWidget *parent, const char *n
 
 QSplitterLayoutStruct *QSplitterPrivate::insertWidget(int index, QWidget *w)
 {
+    Q_Q(QSplitter);
     QSplitterLayoutStruct *sls = 0;
     int i;
     int last = list.count();
     for (i = 0; i < list.size(); ++i) {
-        QSplitterLayoutStruct *s = d->list.at(i);
+        QSplitterLayoutStruct *s = list.at(i);
         if (s->widget == w) {
             sls = s;
             --last;
@@ -914,6 +932,7 @@ QSplitterLayoutStruct *QSplitterPrivate::insertWidget(int index, QWidget *w)
 QSplitter::QSplitter(QWidget *parent)
     : QFrame(*new QSplitterPrivate, parent)
 {
+    Q_D(QSplitter);
     d->orient = Qt::Horizontal;
     d->init();
 }
@@ -927,6 +946,7 @@ QSplitter::QSplitter(QWidget *parent)
 QSplitter::QSplitter(Qt::Orientation orientation, QWidget *parent)
     : QFrame(*new QSplitterPrivate, parent)
 {
+    Q_D(QSplitter);
     d->orient = orientation;
     d->init();
 }
@@ -938,6 +958,7 @@ QSplitter::QSplitter(Qt::Orientation orientation, QWidget *parent)
 
 QSplitter::~QSplitter()
 {
+    Q_D(QSplitter);
     while (!d->list.isEmpty())
         delete d->list.takeFirst();
 }
@@ -948,6 +969,7 @@ QSplitter::~QSplitter()
 */
 void QSplitter::refresh()
 {
+    Q_D(QSplitter);
     d->recalc(true);
 }
 
@@ -964,6 +986,7 @@ void QSplitter::refresh()
 
 void QSplitter::setOrientation(Qt::Orientation orientation)
 {
+    Q_D(QSplitter);
     if (d->orient == orientation)
         return;
 
@@ -985,6 +1008,7 @@ void QSplitter::setOrientation(Qt::Orientation orientation)
 
 Qt::Orientation QSplitter::orientation() const
 {
+    Q_D(const QSplitter);
     return d->orient;
 }
 
@@ -1001,11 +1025,13 @@ Qt::Orientation QSplitter::orientation() const
 
 void QSplitter::setChildrenCollapsible(bool collapse)
 {
+    Q_D(QSplitter);
     d->childrenCollapsible = collapse;
 }
 
 bool QSplitter::childrenCollapsible() const
 {
+    Q_D(const QSplitter);
     return d->childrenCollapsible;
 }
 
@@ -1024,6 +1050,7 @@ bool QSplitter::childrenCollapsible() const
 
 void QSplitter::setCollapsible(int index, bool collapse)
 {
+    Q_D(QSplitter);
 
     if (index < 0 || index >= d->list.size()) {
         qWarning() << "QSplitter::setCollapsible() index" << index << "out of range";
@@ -1037,6 +1064,7 @@ void QSplitter::setCollapsible(int index, bool collapse)
 */
 bool QSplitter::isCollapsible(int index) const
 {
+    Q_D(const QSplitter);
     if (index < 0 || index >= d->list.size()) {
         qWarning() << "QSplitter::isCollapsible() index" << index << "out of range";
         return false;
@@ -1049,6 +1077,7 @@ bool QSplitter::isCollapsible(int index) const
 */
 void QSplitter::resizeEvent(QResizeEvent *)
 {
+    Q_D(QSplitter);
     d->doResize();
 }
 
@@ -1062,6 +1091,7 @@ void QSplitter::resizeEvent(QResizeEvent *)
 */
 void QSplitter::addWidget(QWidget *widget)
 {
+    Q_D(QSplitter);
     insertWidget(d->list.count(), widget);
 }
 
@@ -1077,6 +1107,7 @@ void QSplitter::addWidget(QWidget *widget)
 */
 void QSplitter::insertWidget(int index, QWidget *widget)
 {
+    Q_D(QSplitter);
     QBoolBlocker b(d->blockChildAdd);
     bool needShow = isVisible() &&
                     !(widget->isExplicitlyHidden()&&widget->testAttribute(Qt::WA_WState_ExplicitShowHide));
@@ -1102,6 +1133,7 @@ void QSplitter::insertWidget(int index, QWidget *widget)
 */
 int QSplitter::indexOf(QWidget *w) const
 {
+    Q_D(const QSplitter);
     for (int i = 0; i < d->list.size(); ++i) {
         QSplitterLayoutStruct *s = d->list.at(i);
         if (s->widget == w || s->handle == w)
@@ -1119,6 +1151,7 @@ int QSplitter::indexOf(QWidget *w) const
 */
 QSplitterHandle *QSplitter::createHandle()
 {
+    Q_D(QSplitter);
     return new QSplitterHandle(d->orient, this);
 }
 
@@ -1135,6 +1168,7 @@ QSplitterHandle *QSplitter::createHandle()
 */
 QSplitterHandle *QSplitter::handle(int index) const
 {
+    Q_D(const QSplitter);
     if (index < 0 || index >= d->list.size())
         return 0;
     return d->list.at(index)->handle;
@@ -1147,6 +1181,7 @@ QSplitterHandle *QSplitter::handle(int index) const
 */
 QWidget *QSplitter::widget(int index) const
 {
+    Q_D(const QSplitter);
     if (index < 0 || index >= d->list.size())
         return 0;
     return d->list.at(index)->widget;
@@ -1159,6 +1194,7 @@ QWidget *QSplitter::widget(int index) const
 */
 int QSplitter::count() const
 {
+    Q_D(const QSplitter);
     return d->list.count();
 }
 
@@ -1179,6 +1215,7 @@ int QSplitter::count() const
 
 void QSplitter::childEvent(QChildEvent *c)
 {
+    Q_D(QSplitter);
     if (!c->child()->isWidgetType())
         return;
     QWidget *w = static_cast<QWidget*>(c->child());
@@ -1206,6 +1243,7 @@ void QSplitter::childEvent(QChildEvent *c)
 
 void QSplitter::setRubberBand(int pos)
 {
+    Q_D(QSplitter);
     if (pos < 0) {
         if (d->rubberBand)
             d->rubberBand->hide();
@@ -1232,6 +1270,7 @@ void QSplitter::setRubberBand(int pos)
 
 bool QSplitter::event(QEvent *e)
 {
+    Q_D(QSplitter);
     switch (e->type()) {
     case QEvent::Show:
         if (!d->firstShow)
@@ -1276,6 +1315,7 @@ bool QSplitter::event(QEvent *e)
 */
 void QSplitter::moveSplitter(int pos, int index)
 {
+    Q_D(QSplitter);
     QSplitterLayoutStruct *s = d->list.at(index);
     int farMin;
     int min;
@@ -1326,6 +1366,7 @@ void QSplitter::moveSplitter(int pos, int index)
 
 void QSplitter::getRange(int index, int *min, int *max) const
 {
+    Q_D(const QSplitter);
     d->getRange(index, min, 0, 0, max);
 }
 
@@ -1343,6 +1384,7 @@ void QSplitter::getRange(int index, int *min, int *max) const
 
 int QSplitter::closestLegalPosition(int pos, int index)
 {
+    Q_D(QSplitter);
     int x, i, n, u;
     return d->adjustPos(pos, index, &u, &n, &i, &x);
 }
@@ -1356,12 +1398,14 @@ int QSplitter::closestLegalPosition(int pos, int index)
 
 bool QSplitter::opaqueResize() const
 {
+    Q_D(const QSplitter);
     return d->opaque;
 }
 
 
 void QSplitter::setOpaqueResize(bool on)
 {
+    Q_D(QSplitter);
     d->opaque = on;
 }
 
@@ -1420,6 +1464,7 @@ void QSplitter::setOpaqueResize(bool on)
 */
 QSize QSplitter::sizeHint() const
 {
+    Q_D(const QSplitter);
     ensurePolished();
     int l = 0;
     int t = 0;
@@ -1445,6 +1490,7 @@ QSize QSplitter::sizeHint() const
 
 QSize QSplitter::minimumSizeHint() const
 {
+    Q_D(const QSplitter);
     ensurePolished();
     int l = 0;
     int t = 0;
@@ -1486,6 +1532,7 @@ QSize QSplitter::minimumSizeHint() const
 
 QList<int> QSplitter::sizes() const
 {
+    Q_D(const QSplitter);
     ensurePolished();
 
     QList<int> list;
@@ -1514,6 +1561,7 @@ QList<int> QSplitter::sizes() const
 
 void QSplitter::setSizes(const QList<int> &list)
 {
+    Q_D(QSplitter);
     int j = 0;
 
     for (int i = 0; i < d->list.size(); ++i) {
@@ -1545,6 +1593,7 @@ void QSplitter::setSizes(const QList<int> &list)
 
 int QSplitter::handleWidth() const
 {
+    Q_D(const QSplitter);
     if (d->handleWidth > 0) {
         return d->handleWidth;
     } else {
@@ -1554,6 +1603,7 @@ int QSplitter::handleWidth() const
 
 void QSplitter::setHandleWidth(int width)
 {
+    Q_D(QSplitter);
     d->handleWidth = width;
     d->updateHandles();
 }
@@ -1563,6 +1613,7 @@ void QSplitter::setHandleWidth(int width)
 */
 void QSplitter::changeEvent(QEvent *ev)
 {
+    Q_D(QSplitter);
     if(ev->type() == QEvent::StyleChange)
         d->updateHandles();
     QFrame::changeEvent(ev);
@@ -1616,6 +1667,7 @@ QByteArray QSplitter::saveState(int version) const
 */
 bool QSplitter::restoreState(const QByteArray &state, int version)
 {
+    Q_D(QSplitter);
     QByteArray sd = state;
     QDataStream stream(&sd, QIODevice::ReadOnly);
     QList<int> list;
@@ -1666,6 +1718,7 @@ bool QSplitter::restoreState(const QByteArray &state, int version)
 */
 void QSplitter::setStretchFactor(int index, int stretch)
 {
+    Q_D(QSplitter);
     if (index <= -1 || index >= d->list.count())
         return;
 
