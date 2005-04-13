@@ -14,7 +14,7 @@
 #ifndef Q3VBOX_H
 #define Q3VBOX_H
 
-#include "q3hbox.h"
+#include "Qt3Support/q3hbox.h"
 
 class Q_COMPAT_EXPORT Q3VBox : public Q3HBox
 {

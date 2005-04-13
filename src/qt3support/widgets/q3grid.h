@@ -15,7 +15,7 @@
 #ifndef Q3GRID_H
 #define Q3GRID_H
 
-#include "q3frame.h"
+#include "Qt3Support/q3frame.h"
 
 class QGridLayout;
 

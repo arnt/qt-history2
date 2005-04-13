@@ -14,7 +14,7 @@
 #ifndef Q3HBOX_H
 #define Q3HBOX_H
 
-#include "q3frame.h"
+#include "Qt3Support/q3frame.h"
 
 class QBoxLayout;
 
