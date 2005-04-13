@@ -27,9 +27,6 @@
 #include <private/qwidget_p.h>
 #include "qtoolbar_p.h"
 
-#define d d_func()
-
-
 class QMainWindowPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QMainWindow)
@@ -244,7 +241,7 @@ void QMainWindowPrivate::init()
 QMainWindow::QMainWindow(QWidget *parent, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::Window)
 {
-    d->init();
+    d_func()->init();
 }
 
 #ifdef QT3_SUPPORT
@@ -257,7 +254,7 @@ QMainWindow::QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags)
     : QWidget(*(new QMainWindowPrivate()), parent, flags | Qt::WType_TopLevel)
 {
     setObjectName(name);
-    d->init();
+    d_func()->init();
 }
 #endif
 
@@ -274,10 +271,11 @@ QMainWindow::~QMainWindow()
 */
 
 QSize QMainWindow::iconSize() const
-{ return d->iconSize; }
+{ return d_func()->iconSize; }
 
 void QMainWindow::setIconSize(const QSize &iconSize)
 {
+    Q_D(QMainWindow);
     QSize sz = iconSize;
     if (!sz.isValid()) {
         const int metric = style()->pixelMetric(QStyle::PM_ToolBarIconSize);
@@ -297,10 +295,11 @@ void QMainWindow::setIconSize(const QSize &iconSize)
 */
 
 Qt::ToolButtonStyle QMainWindow::toolButtonStyle() const
-{ return d->toolButtonStyle; }
+{ return d_func()->toolButtonStyle; }
 
 void QMainWindow::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 {
+    Q_D(QMainWindow);
     if (d->toolButtonStyle == toolButtonStyle)
         return;
     d->toolButtonStyle = toolButtonStyle;
@@ -315,7 +314,7 @@ void QMainWindow::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
 */
 QMenuBar *QMainWindow::menuBar() const
 {
-    QMenuBar *menuBar = qobject_cast<QMenuBar *>(d->layout->menuBar());
+    QMenuBar *menuBar = qobject_cast<QMenuBar *>(d_func()->layout->menuBar());
     if (!menuBar) {
 	QMainWindow *self = const_cast<QMainWindow *>(this);
 	menuBar = new QMenuBar(self);
@@ -334,6 +333,7 @@ QMenuBar *QMainWindow::menuBar() const
 */
 void QMainWindow::setMenuBar(QMenuBar *menuBar)
 {
+    Q_D(QMainWindow);
     if (d->layout->menuBar())
         delete d->layout->menuBar();
     d->layout->setMenuBar(menuBar);
@@ -347,7 +347,7 @@ void QMainWindow::setMenuBar(QMenuBar *menuBar)
 */
 QStatusBar *QMainWindow::statusBar() const
 {
-    QStatusBar *statusbar = d->layout->statusBar();
+    QStatusBar *statusbar = d_func()->layout->statusBar();
     if (!statusbar) {
 	QMainWindow *self = const_cast<QMainWindow *>(this);
 	statusbar = new QStatusBar(self);
@@ -366,6 +366,7 @@ QStatusBar *QMainWindow::statusBar() const
 */
 void QMainWindow::setStatusBar(QStatusBar *statusbar)
 {
+    Q_D(QMainWindow);
     if (d->layout->statusBar())
         delete d->layout->statusBar();
     d->layout->setStatusBar(statusbar);
@@ -378,7 +379,7 @@ void QMainWindow::setStatusBar(QStatusBar *statusbar)
     \sa setCentralWidget()
 */
 QWidget *QMainWindow::centralWidget() const
-{ return d->layout->centralWidget(); }
+{ return d_func()->layout->centralWidget(); }
 
 /*!
     Sets the given \a widget to be the main window's central widget.
@@ -392,7 +393,7 @@ QWidget *QMainWindow::centralWidget() const
     \sa centralWidget()
 */
 void QMainWindow::setCentralWidget(QWidget *widget)
-{ d->layout->setCentralWidget(widget); }
+{ d_func()->layout->setCentralWidget(widget); }
 
 /*!
     Sets the given dock widget \a area to occupy the specified \a
@@ -419,7 +420,7 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWidgetArea area)
     }
     Q_ASSERT_X(valid, "QMainWindow::setCorner", "'area' is not valid for 'corner'");
     if (valid)
-        d->layout->corners[corner] = area;
+        d_func()->layout->corners[corner] = area;
 }
 
 /*!
@@ -429,20 +430,20 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWidgetArea area)
     \sa setCorner()
 */
 Qt::DockWidgetArea QMainWindow::corner(Qt::Corner corner) const
-{ return d->layout->corners[corner]; }
+{ return d_func()->layout->corners[corner]; }
 
 /*!
     Adds a toolbar break to the given \a area after all the other
     objects that are present.
 */
 void QMainWindow::addToolBarBreak(Qt::ToolBarArea area)
-{ d->layout->addToolBarBreak(area); }
+{ d_func()->layout->addToolBarBreak(area); }
 
 /*!
     Inserts a toolbar break before the toolbar specified by \a before.
 */
 void QMainWindow::insertToolBarBreak(QToolBar *before)
-{ d->layout->insertToolBarBreak(before); }
+{ d_func()->layout->insertToolBarBreak(before); }
 
 /*!
     Adds the \a toolbar into the specified \a area in this main
@@ -453,11 +454,12 @@ void QMainWindow::insertToolBarBreak(QToolBar *before)
 */
 void QMainWindow::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 {
+    Q_D(QMainWindow);
     Q_ASSERT_X(toolbar->isAreaAllowed(area),
                "QMainWIndow::addToolBar", "specified 'area' is not an allowed area");
 
-    toolbar->d->updateIconSize(d->iconSize);
-    toolbar->d->updateToolButtonStyle(d->toolButtonStyle);
+    toolbar->d_func()->updateIconSize(d->iconSize);
+    toolbar->d_func()->updateToolButtonStyle(d->toolButtonStyle);
     connect(this, SIGNAL(iconSizeChanged(QSize)),
             toolbar, SLOT(updateIconSize(QSize)));
     connect(this, SIGNAL(toolButtonStyleChanged(ToolButtonStyle)),
@@ -501,11 +503,12 @@ QToolBar *QMainWindow::addToolBar(const QString &title)
 */
 void QMainWindow::insertToolBar(QToolBar *before, QToolBar *toolbar)
 {
+    Q_D(QMainWindow);
     Q_ASSERT_X(toolbar->isAreaAllowed(toolBarArea(before)),
                "QMainWIndow::insertToolBar", "specified 'area' is not an allowed area");
 
-    toolbar->d->updateIconSize(d->iconSize);
-    toolbar->d->updateToolButtonStyle(d->toolButtonStyle);
+    toolbar->d_func()->updateIconSize(d->iconSize);
+    toolbar->d_func()->updateToolButtonStyle(d->toolButtonStyle);
     connect(this, SIGNAL(iconSizeChanged(QSize)),
             toolbar, SLOT(updateIconSize(QSize)));
     connect(this, SIGNAL(toolButtonStyleChanged(ToolButtonStyle)),
@@ -527,7 +530,7 @@ void QMainWindow::removeToolBar(QToolBar *toolbar)
     disconnect(this, SIGNAL(toolButtonStyleChanged(ToolButtonStyle)),
                toolbar, SLOT(updateToolButtonStyle(ToolButtonStyle)));
 
-    d->layout->removeWidget(toolbar);
+    d_func()->layout->removeWidget(toolbar);
 }
 
 /*!
@@ -536,7 +539,7 @@ void QMainWindow::removeToolBar(QToolBar *toolbar)
     \sa addToolBar() addToolBarBreak() Qt::ToolBarArea
 */
 Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
-{ return d->layout->toolBarArea(toolbar); }
+{ return d_func()->layout->toolBarArea(toolbar); }
 
 /*!
     Adds the given \a dockwidget to the specified \a area.
@@ -579,9 +582,9 @@ void QMainWindow::addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget
     // add a window to an area, placing done relative to the previous
     Q_ASSERT_X(dockwidget->isAreaAllowed(area),
                "QMainWindow::addDockWidget", "specified 'area' is not an allowed area");
-    d->layout->addDockWidget(area, dockwidget, orientation);
+    d_func()->layout->addDockWidget(area, dockwidget, orientation);
     if (isVisible())
-        d->layout->relayout();
+        d_func()->layout->relayout();
 }
 
 /*!
@@ -606,16 +609,16 @@ void QMainWindow::splitDockWidget(QDockWidget *after, QDockWidget *dockwidget,
     Q_UNUSED(area);
     Q_ASSERT_X(dockwidget->isAreaAllowed(area),
                "QMainWindow::splitDockWidget", "specified 'area' is not an allowed area");
-    d->layout->splitDockWidget(after, dockwidget, orientation);
+    d_func()->layout->splitDockWidget(after, dockwidget, orientation);
     if (isVisible())
-        d->layout->relayout();
+        d_func()->layout->relayout();
 }
 
 /*!
     Removes the \a dockwidget from the main window.
 */
 void QMainWindow::removeDockWidget(QDockWidget *dockwidget)
-{ d->layout->removeRecursive(dockwidget); }
+{ d_func()->layout->removeRecursive(dockwidget); }
 
 /*!
     Returns the \c Qt::DockWidgetArea for \a dockwidget.
@@ -623,7 +626,7 @@ void QMainWindow::removeDockWidget(QDockWidget *dockwidget)
     \sa addDockWidget() splitDockWidget() Qt::DockWidgetArea
 */
 Qt::DockWidgetArea QMainWindow::dockWidgetArea(QDockWidget *dockwidget) const
-{ return d->layout->dockWidgetArea(dockwidget); }
+{ return d_func()->layout->dockWidgetArea(dockwidget); }
 
 /*!
     Saves the current state of this mainwindow's toolbars and
@@ -640,7 +643,7 @@ QByteArray QMainWindow::saveState(int version) const
     QDataStream stream(&data, QIODevice::WriteOnly);
     stream << QMainWindowLayout::VersionMarker;
     stream << version;
-    d->layout->saveState(stream);
+    d_func()->layout->saveState(stream);
     return data;
 }
 
@@ -662,15 +665,16 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
     stream >> v;
     if (marker != QMainWindowLayout::VersionMarker || v != version)
         return false;
-    bool restored = d->layout->restoreState(stream);
+    bool restored = d_func()->layout->restoreState(stream);
     if (isVisible())
-        d->layout->relayout();
+        d_func()->layout->relayout();
     return restored;
 }
 
 /*! \reimp */
 bool QMainWindow::event(QEvent *event)
 {
+    Q_D(QMainWindow);
     if (event->type() == QEvent::ToolBarChange) {
         QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
         QSize minimumSize = d->layout->minimumSize();

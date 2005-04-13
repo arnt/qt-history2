@@ -13,8 +13,6 @@
 
 #include "qitemselectionmodel.h"
 #include <private/qitemselectionmodel_p.h>
-#define d d_func()
-#define q q_func()
 
 /*!
     \class QItemSelectionRange
@@ -512,7 +510,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
 QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model)
     : QObject(*new QItemSelectionModelPrivate, model)
 {
-    d->model = model;
+    d_func()->model = model;
 }
 
 /*!
@@ -521,7 +519,7 @@ QItemSelectionModel::QItemSelectionModel(QAbstractItemModel *model)
 QItemSelectionModel::QItemSelectionModel(QItemSelectionModelPrivate &dd, QAbstractItemModel *model)
     : QObject(dd, model)
 {
-    d->model = model;
+    d_func()->model = model;
 }
 
 /*!
@@ -613,6 +611,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
 */
 void QItemSelectionModel::select(const QItemSelection &selection, SelectionFlags command)
 {
+    Q_D(QItemSelectionModel);
     if (command == NoUpdate)
         return;
 
@@ -655,6 +654,7 @@ void QItemSelectionModel::select(const QItemSelection &selection, SelectionFlags
 */
 void QItemSelectionModel::clear()
 {
+    Q_D(QItemSelectionModel);
     if (d->ranges.count() == 0 && d->currentSelection.count() == 0)
         return;
     QItemSelection selection = d->ranges;
@@ -694,6 +694,7 @@ void QItemSelectionModel::reset()
 */
 void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFlags command)
 {
+    Q_D(QItemSelectionModel);
     if (index == d->currentIndex) {
         if (command != NoUpdate)
             select(index, command); // select item
@@ -716,7 +717,7 @@ void QItemSelectionModel::setCurrentIndex(const QModelIndex &index, SelectionFla
 */
 QModelIndex QItemSelectionModel::currentIndex() const
 {
-    return static_cast<QModelIndex>(d->currentIndex);
+    return static_cast<QModelIndex>(d_func()->currentIndex);
 }
 
 /*!
@@ -724,6 +725,7 @@ QModelIndex QItemSelectionModel::currentIndex() const
 */
 bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 {
+    Q_D(const QItemSelectionModel);
     if (model() != index.model()
         || (model()->flags(index) & Qt::ItemIsSelectable) == 0)
         return false;
@@ -755,6 +757,7 @@ bool QItemSelectionModel::isSelected(const QModelIndex &index) const
 */
 bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) const
 {
+    Q_D(const QItemSelectionModel);
     if (parent.isValid() && model() != parent.model())
         return false;
 
@@ -808,6 +811,7 @@ bool QItemSelectionModel::isRowSelected(int row, const QModelIndex &parent) cons
 */
 bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent) const
 {
+    Q_D(const QItemSelectionModel);
     if (parent.isValid() && model() != parent.model())
         return false;
 
@@ -862,6 +866,7 @@ bool QItemSelectionModel::isColumnSelected(int column, const QModelIndex &parent
 */
 bool QItemSelectionModel::rowIntersectsSelection(int row, const QModelIndex &parent) const
 {
+    Q_D(const QItemSelectionModel);
     if (parent.isValid() && model() != parent.model())
          return false;
     // check current selection
@@ -883,6 +888,7 @@ bool QItemSelectionModel::rowIntersectsSelection(int row, const QModelIndex &par
 */
 bool QItemSelectionModel::columnIntersectsSelection(int column, const QModelIndex &parent) const
 {
+    Q_D(const QItemSelectionModel);
     if (parent.isValid() && model() != parent.model())
         return false;
     // check current selection
@@ -904,6 +910,7 @@ bool QItemSelectionModel::columnIntersectsSelection(int column, const QModelInde
 */
 QModelIndexList QItemSelectionModel::selectedIndexes() const
 {
+    Q_D(const QItemSelectionModel);
     QItemSelection selected = d->ranges;
     selected.merge(d->currentSelection, d->currentCommand);
     return selected.indexes();
@@ -914,6 +921,7 @@ QModelIndexList QItemSelectionModel::selectedIndexes() const
 */
 const QItemSelection QItemSelectionModel::selection() const
 {
+    Q_D(const QItemSelectionModel);
     QItemSelection selected = d->ranges;
     selected.merge(d->currentSelection, d->currentCommand);
     int i = 0;
@@ -933,7 +941,7 @@ const QItemSelection QItemSelectionModel::selection() const
 */
 const QAbstractItemModel *QItemSelectionModel::model() const
 {
-    return d->model;
+    return d_func()->model;
 }
 
 /*!
