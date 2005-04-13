@@ -174,6 +174,10 @@ void QTextDocumentPrivate::init()
 
 void QTextDocumentPrivate::clear()
 {
+    for (int i = 0; i < cursors.count(); ++i)
+        cursors.at(i)->setPosition(0);
+    QList<QTextCursorPrivate *>oldCursors = cursors;
+    cursors.clear();
     changedCursors.clear();
     objects.clear();
     docConfig = QTextDocumentConfig();
@@ -191,8 +195,7 @@ void QTextDocumentPrivate::clear()
     lout->documentChanged(0, len, 0);
     delete frame;
     init();
-    for (int i = 0; i < cursors.count(); ++i)
-        cursors.at(i)->setPosition(0);
+    cursors = oldCursors;
 }
 
 QTextDocumentPrivate::~QTextDocumentPrivate()
