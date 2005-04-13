@@ -125,6 +125,8 @@ inline int qt_div_255(int x) { return (x + (x>>8) + 0x80) >> 8; }
         | (qt_div_255(qGreen(src) * a) << 8)    \
         | (qt_div_255(qBlue(src) * a))
 #else
+
+#if 1
 inline uint INTERPOLATE_PIXEL_256(uint x, uint a, uint y, uint b) {
     uint t = (x & 0xff00ff) * a + (y & 0xff00ff) * b;
     t >>= 8;
@@ -136,7 +138,6 @@ inline uint INTERPOLATE_PIXEL_256(uint x, uint a, uint y, uint b) {
     return x;
 }
 
-#if 1
 inline uint INTERPOLATE_PIXEL_255(uint x, uint a, uint y, uint b) {
     uint t = (x & 0xff00ff) * a + (y & 0xff00ff) * b;
     t = (t + ((t >> 8) & 0xff00ff) + 0x800080) >> 8;
@@ -148,21 +149,6 @@ inline uint INTERPOLATE_PIXEL_255(uint x, uint a, uint y, uint b) {
     x |= t;
     return x;
 }
-
-#else
-// possible implementation for 64 bit
-inline uint INTERPOLATE_PIXEL_255(uint x, uint a, uint y, uint b) {
-    ulong xl = x;
-    ulong yl = y;
-    xl = (xl & 0xff00ff) | ((xl & 0xff00ff00) << 24);
-    yl = (yl & 0xff00ff) | ((yl & 0xff00ff00) << 24);
-    ulong t = xl*a + yl*b;
-    t = (t + ((t >> 8) & 0xff00ff00ff00ff) + 0x80008000800080) >> 8;
-    t &= 0xff00ff00ff00ff;
-    x = (t & 0xff00ff) | ((t>>24) & 0xff00ff00);
-    return x;
-}
-#endif
 
 inline uint BYTE_MUL(uint x, uint a) {
     uint t = (x & 0xff00ff) * a;
@@ -188,6 +174,41 @@ inline uint PREMUL(uint x) {
     x |= t | (a << 24);
     return x;
 }
+#else
+// possible implementation for 64 bit
+inline uint INTERPOLATE_PIXEL_256(uint x, uint a, uint y, uint b) {
+    ulong t = (((ulong(x)) | ((ulong(x)) << 24)) & 0x00ff00ff00ff00ff) * a;
+    t += (((ulong(y)) | ((ulong(y)) << 24)) & 0x00ff00ff00ff00ff) * b;
+    t >>= 8;
+    t &= 0x00ff00ff00ff00ff;
+    return (uint(t)) | (uint(t >> 24));
+}
+
+inline uint INTERPOLATE_PIXEL_255(uint x, uint a, uint y, uint b) {
+    ulong t = (((ulong(x)) | ((ulong(x)) << 24)) & 0x00ff00ff00ff00ff) * a;
+    t += (((ulong(y)) | ((ulong(y)) << 24)) & 0x00ff00ff00ff00ff) * b;
+    t = (t + ((t >> 8) & 0xff00ff00ff00ff) + 0x80008000800080);
+    t &= 0x00ff00ff00ff00ff;
+    return (uint(t)) | (uint(t >> 24));
+}
+
+inline uint BYTE_MUL(uint x, uint a) {
+    ulong t = (((ulong(x)) | ((ulong(x)) << 24)) & 0x00ff00ff00ff00ff) * a;
+    t = (t + ((t >> 8) & 0xff00ff00ff00ff) + 0x80008000800080);
+    t &= 0x00ff00ff00ff00ff;
+    return (uint(t)) | (uint(t >> 24));
+}
+
+inline uint PREMUL(uint x) {
+    uint a = x >> 24;
+    ulong t = (((ulong(x)) | ((ulong(x)) << 24)) & 0x00ff00ff00ff00ff) * a;
+    t = (t + ((t >> 8) & 0xff00ff00ff00ff) + 0x80008000800080);
+    t &= 0x00ff00ff00ff00ff;
+    return (uint(t)) | (uint(t >> 24)) | 0xff000000;
+}
+
+#endif
+
 #endif
 
 #define INV_PREMUL(p)                                   \
