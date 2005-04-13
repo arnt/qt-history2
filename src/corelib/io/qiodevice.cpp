@@ -701,6 +701,7 @@ QByteArray QIODevice::readAll()
         }
         totalRead += readBytes;
     }
+    return tmp;
 }
 
 /*!
