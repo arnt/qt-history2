@@ -884,7 +884,7 @@ QVariant QODBCResult::data(int field)
                             &lengthIndicator);
             if ((r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO) && (lengthIndicator != SQL_NULL_DATA))
                 d->fieldCache[i] = QVariant(QDateTime(QDate(dtbuf.year, dtbuf.month, dtbuf.day),
-                                                QTime(dtbuf.hour, dtbuf.minute, dtbuf.second)));
+                       QTime(dtbuf.hour, dtbuf.minute, dtbuf.second, dtbuf.fraction / 1000000)));
             else
                 d->fieldCache[i] = QVariant(QVariant::DateTime);
             break;
@@ -1079,7 +1079,7 @@ bool QODBCResult::exec()
                 dt->hour = qdt.time().hour();
                 dt->minute = qdt.time().minute();
                 dt->second = qdt.time().second();
-                dt->fraction = 0;
+                dt->fraction = qdt.time().msec() * 1000000;
                 r = SQLBindParameter(d->hStmt,
                                       i + 1,
                                       qParamType[(QFlag)(bindValueType(i)) & QSql::InOut],
@@ -1232,7 +1232,7 @@ bool QODBCResult::exec()
                 TIMESTAMP_STRUCT dt = *((TIMESTAMP_STRUCT*)
                                         tmpStorage.takeFirst().constData());
                 values[i] = QVariant(QDateTime(QDate(dt.year, dt.month, dt.day),
-                                         QTime(dt.hour, dt.minute, dt.second)));
+                               QTime(dt.hour, dt.minute, dt.second, dt.fraction / 1000000)));
                 break; }
             case QVariant::Int:
             case QVariant::Double:

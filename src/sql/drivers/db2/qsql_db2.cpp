@@ -795,7 +795,7 @@ bool QDB2Result::exec()
             case QVariant::DateTime: {
                 TIMESTAMP_STRUCT dt = *((TIMESTAMP_STRUCT *)tmpStorage.takeFirst().constData());
                 values[i] = QVariant(QDateTime(QDate(dt.year, dt.month, dt.day),
-                                                   QTime(dt.hour, dt.minute, dt.second)));
+                              QTime(dt.hour, dt.minute, dt.second, dt.fraction / 1000000)));
                 break; }
             case QVariant::Int:
             case QVariant::Double:
