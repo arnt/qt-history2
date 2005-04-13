@@ -140,7 +140,7 @@ typedef struct _SHARE_INFO_1_NT {
     LPWSTR shi1_netname;
     DWORD shi1_type;
     LPWSTR shi1_remark;
-} SHARE_INFO_1_NT; 
+} SHARE_INFO_1_NT;
 
 static bool resolveUNCLibs_NT()
 {
@@ -177,7 +177,7 @@ typedef struct _SHARE_INFO_1_9x {
   char shi1_pad1;
   unsigned short shi1_type;
   char FAR* shi1_remark;
-} SHARE_INFO_1_9x; 
+} SHARE_INFO_1_9x;
 
 static bool resolveUNCLibs_9x()
 {
@@ -442,7 +442,7 @@ QFSFileEngine::mkdir(const QString &name, bool createParentDirectories) const
                             return false;
 			}
                     } else if(::_wmkdir((TCHAR*)chunk.utf16()) == -1) {
-                        if (errno != EEXIST) {
+                        if (errno == ENOENT) {
                             return false;
 			}
                     }
@@ -452,7 +452,7 @@ QFSFileEngine::mkdir(const QString &name, bool createParentDirectories) const
                             return false;
 			}
 		    } else if(_mkdir(QFSFileEnginePrivate::win95Name(chunk)) == -1) {
-			if (errno != EEXIST) {
+			if (errno == ENOENT) {
 			    return false;
 			}
 		    }
@@ -812,18 +812,18 @@ bool QFSFileEnginePrivate::doStat() const
     if (!tried_stat) {
         tried_stat = true;
         could_stat = false;
-        
+
         if (file.isEmpty())
             return could_stat;
-        
+
 #ifdef Q_CC_BOR
         // Borland can stat dir/* which is not what we would expect
         if (file.contains("*") || file.contains("?"))
             return could_stat;
-#endif	
-        
+#endif
+
         UINT oldmode = SetErrorMode(SEM_FAILCRITICALERRORS|SEM_NOOPENFILEERRORBOX);
-    
+
         if (fd != -1) {
             could_stat = (QT_FSTAT(fd, &st) != -1);
         } else {
@@ -831,14 +831,14 @@ bool QFSFileEnginePrivate::doStat() const
             // Stat on windows doesn't accept d: without \ so append \ it if this is the case.
             // It also does not accept c:\dir\ so remove it unless if is drive c:\
             // but it does want just \
-            
+
             if ((statName.length() == 2 || statName.length() == 3) && statName.at(1) == ':') {
                 if (statName.length() == 2)
                     statName += '\\';
             } else if (statName.length() >= 2 && statName.at(statName.length() - 1) == '\\') {
                 statName.truncate(statName.length() - 1);
             }
-            
+
             QT_WA({
                 could_stat = (QT_TSTAT((TCHAR*)statName.utf16(), (QT_STATBUF4TSTAT*)&st) != -1);
             } , {
@@ -1226,7 +1226,7 @@ QFSFileEngine::fileName(FileName file) const
             ret = d->file;
         else
             ret = QDir::cleanPath(QDir::currentPath() + QLatin1Char('/') + d->file);
-        
+
         // The path should be absolute at this point.
         // From the docs :
         // Absolute paths begin with the directory separator "/"
@@ -1235,11 +1235,11 @@ QFSFileEngine::fileName(FileName file) const
             Q_ASSERT(ret.length() >= 2);
             Q_ASSERT(ret.at(0).isLetter());
             Q_ASSERT(ret.at(1) == QLatin1Char(':'));
-            
+
             // Force uppercase drive letters.
             ret[0] = ret.at(0).toUpper();
         }
-        
+
         if (file == AbsolutePathName) {
             int slash = ret.lastIndexOf(QLatin1Char('/'));
             Q_ASSERT(slash < 0 || slash >= 2);
