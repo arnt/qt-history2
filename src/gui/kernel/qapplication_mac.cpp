@@ -734,6 +734,15 @@ void qt_mac_event_release(QWidget *w)
     }
 }
 
+/* watched apple events */
+struct QMacAppleEventTypeSpec {
+    AEEventClass mac_class;
+    AEEventID mac_id;
+} app_apple_events[] = {
+    { kCoreEventClass, kAEQuitApplication },
+    { kCoreEventClass, kAEOpenDocuments }
+};
+
 /* watched events */
 static EventTypeSpec app_events[] = {
     { kEventClassQt, kEventQtRequestTimer },
@@ -900,7 +909,9 @@ void qt_init(QApplicationPrivate *priv, int)
 
         if(!app_proc_ae_handlerUPP) {
             app_proc_ae_handlerUPP = AEEventHandlerUPP(QApplicationPrivate::globalAppleEventProcessor);
-            AEInstallEventHandler(typeWildCard, typeWildCard, app_proc_ae_handlerUPP, (long)qApp, true);
+            for(uint i = 0; i < sizeof(app_apple_events) / sizeof(QMacAppleEventTypeSpec); ++i)
+                AEInstallEventHandler(app_apple_events[i].mac_class, app_apple_events[i].mac_id,
+                                      app_proc_ae_handlerUPP, (long)qApp, true);
         }
 
         if(QApplicationPrivate::app_style) {
@@ -924,7 +935,9 @@ void qt_cleanup()
         app_proc_handlerUPP = 0;
     }
     if(app_proc_ae_handlerUPP) {
-        AERemoveEventHandler(typeWildCard, typeWildCard, app_proc_ae_handlerUPP, true);
+        for(uint i = 0; i < sizeof(app_apple_events) / sizeof(QMacAppleEventTypeSpec); ++i)
+            AERemoveEventHandler(app_apple_events[i].mac_class, app_apple_events[i].mac_id,
+                                 app_proc_ae_handlerUPP, true);
         DisposeAEEventHandlerUPP(app_proc_ae_handlerUPP);
         app_proc_ae_handlerUPP = NULL;
     }
