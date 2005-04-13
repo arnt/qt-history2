@@ -1,7 +1,6 @@
 #include <QtGui>
 
 #include "configdialog.h"
-#include "optionbutton.h"
 #include "pages.h"
 
 ConfigDialog::ConfigDialog()
@@ -47,16 +46,19 @@ void ConfigDialog::createIcons()
     QListWidgetItem *configButton = new QListWidgetItem(contentsWidget);
     configButton->setIcon(QIcon(":/images/config.png"));
     configButton->setText(tr("Configuration"));
+    configButton->setTextAlignment(Qt::AlignHCenter);
     configButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     QListWidgetItem *updateButton = new QListWidgetItem(contentsWidget);
     updateButton->setIcon(QIcon(":/images/update.png"));
     updateButton->setText(tr("Update"));
+    updateButton->setTextAlignment(Qt::AlignHCenter);
     updateButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     QListWidgetItem *queryButton = new QListWidgetItem(contentsWidget);
     queryButton->setIcon(QIcon(":/images/query.png"));
     queryButton->setText(tr("Query"));
+    queryButton->setTextAlignment(Qt::AlignHCenter);
     queryButton->setFlags(Qt::ItemIsSelectable | Qt::ItemIsEnabled);
 
     connect(contentsWidget,
