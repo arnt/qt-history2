@@ -153,7 +153,6 @@ QTextDocumentPrivate::QTextDocumentPrivate()
     docChangeFrom = -1;
 
     undoState = 0;
-    framesDirty = false;
 
     lout = 0;
 
@@ -171,6 +170,29 @@ void QTextDocumentPrivate::init()
     undoEnabled = true;
     modified = false;
     modifiedState = 0;
+}
+
+void QTextDocumentPrivate::clear()
+{
+    for (int i = 0; i < cursors.count(); ++i)
+        cursors.at(i)->setPosition(0);
+    cursors.clear();
+    changedCursors.clear();
+    objects.clear();
+    docConfig = QTextDocumentConfig();
+    undoState = 0;
+    truncateUndoStack();
+    text = QString();
+    modifiedState = 0;
+    modified = false;
+    formats = QTextFormatCollection();
+    int len = fragments.length();
+    fragments.clear();
+    blocks.clear();
+    q->contentsChange(0, len, 0);
+    lout->documentChanged(0, len, 0);
+    delete frame;
+    init();
 }
 
 QTextDocumentPrivate::~QTextDocumentPrivate()

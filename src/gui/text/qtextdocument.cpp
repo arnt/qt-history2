@@ -309,6 +309,15 @@ bool QTextDocument::isEmpty() const
 }
 
 /*!
+  Clears the document.
+*/
+void QTextDocument::clear()
+{
+    Q_D(QTextDocument);
+    d->clear();
+}
+
+/*!
     Undoes the last editing operation on the document if
     \link QTextDocument::isUndoAvailable() undo is available\endlink.
 */

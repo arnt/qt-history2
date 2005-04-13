@@ -84,6 +84,7 @@ public:
     QTextDocument *clone(QObject *parent = 0) const;
 
     bool isEmpty() const;
+    virtual void clear();
 
     void setUndoRedoEnabled(bool enable);
     bool isUndoRedoEnabled() const;

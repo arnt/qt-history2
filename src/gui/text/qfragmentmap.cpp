@@ -64,7 +64,11 @@ inline void check() {}
 QFragmentMapData::QFragmentMapData(uint fs)
 {
     fragmentSize = qMax<uint>(fs, sizeof(Header));
+    init();
+}
 
+void QFragmentMapData::init()
+{
     fragments = (char *)malloc(64*fragmentSize);
     head->tag = TAG('p', 'm', 'a', 'p');
     head->root = 0;
@@ -73,7 +77,7 @@ QFragmentMapData::QFragmentMapData(uint fs)
     head->allocated = 64;
     // mark all items to the right as unused
     F(head->freelist).right = 0;
-#ifndef NDEBUG
+#ifndef QT_NO_DEBUG
     for (uint i = 1; i < head->allocated; ++i)
         F(i).parent = 0xdeadbeef;
 #endif
@@ -96,7 +100,7 @@ uint QFragmentMapData::createFragment()
         fragments = (char *)realloc(fragments, needed);
         head->allocated = needed/fragmentSize;
         F(freePos).right = 0;
-#ifndef NDEBUG
+#ifndef QT_NO_DEBUG
         for (uint i = freePos; i < head->allocated; ++i)
             F(i).parent = 0xdeadbeef;
 #endif
@@ -111,7 +115,7 @@ uint QFragmentMapData::createFragment()
 
     head->freelist = nextPos;
 
-#ifndef NDEBUG
+#ifndef QT_NO_DEBUG
     Q_ASSERT(F(freePos).parent == 0xdeadbeef);
     F(freePos).parent = 0;
     if (nextPos < head->allocated) {
@@ -128,7 +132,7 @@ uint QFragmentMapData::createFragment()
 void QFragmentMapData::freeFragment(uint i)
 {
     PMDEBUG("===> freeFragment at %d", i);
-#ifndef NDEBUG
+#ifndef QT_NO_DEBUG
     Q_ASSERT(F(i).parent != 0xdeadbeef);
     if (head->freelist < head->allocated) {
         Q_ASSERT(F(head->freelist).parent == 0xdeadbeef);

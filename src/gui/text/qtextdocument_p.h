@@ -134,6 +134,7 @@ public:
     ~QTextDocumentPrivate();
 
     void init();
+    void clear();
 
     void setLayout(QAbstractTextDocumentLayout *layout);
 

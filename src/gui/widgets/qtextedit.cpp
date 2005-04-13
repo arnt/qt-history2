@@ -375,7 +375,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
     q->setAttribute(Qt::WA_InputMethodEnabled);
 
     if (clearDocument) {
-        q->clear();
+        doc->clear();
 
         QTextCharFormat fmt;
         fmt.setFont(q->font());
@@ -1264,8 +1264,7 @@ void QTextEdit::paste()
 void QTextEdit::clear()
 {
     Q_D(QTextEdit);
-    selectAll();
-    d->cursor.removeSelectedText();
+    d->doc->clear();
 }
 
 

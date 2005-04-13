@@ -47,6 +47,8 @@ public:
     QFragmentMapData(uint fs);
     ~QFragmentMapData();
 
+    void init();
+
     class Header
     {
     public:
@@ -259,6 +261,11 @@ public:
     {
         for (Iterator it = begin(); !it.atEnd(); ++it)
             it.value()->free();
+    }
+
+    inline void clear() {
+        free(data.head);
+        data.init();
     }
 
     inline Iterator begin() { return Iterator(this, data.minimum(data.root())); }
