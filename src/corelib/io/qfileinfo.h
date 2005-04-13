@@ -65,7 +65,7 @@ public:
     bool isReadable() const;
     bool isWritable() const;
     bool isExecutable() const;
-    bool isExplicitlyHidden() const;
+    bool isHidden() const;
 
     bool isRelative() const;
     inline bool isAbsolute() const { return !isRelative(); }

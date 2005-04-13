@@ -817,8 +817,11 @@ QFileInfo::isExecutable() const
     return d->getFileFlags(QFileEngine::ExeUserPerm);
 }
 
+/*!
+    Returns true if this is a `hidden' file; otherwise returns false.
+*/
 bool
-QFileInfo::isExplicitlyHidden() const
+QFileInfo::isHidden() const
 {
     Q_D(const QFileInfo);
     if(!d->data->fileEngine)
