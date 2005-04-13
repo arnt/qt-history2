@@ -507,17 +507,18 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
 
 DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_layout, DomWidget *ui_parentWidget)
 {
-    if (!m_core->metaDataBase()->item(layout)) {
+    if (m_core->metaDataBase()->item(layout) == 0)
         return 0;
-    }
 
     m_chain.push(layout);
 
     DomLayout *l = QAbstractFormBuilder::createDom(layout, ui_layout, ui_parentWidget);
+    Q_ASSERT(l != 0);
 
     QString className = l->attributeClass();
     if (m_internal_to_qlayout.contains(className))
         l->setAttributeClass(m_internal_to_qlayout.value(className));
+
     m_chain.pop();
 
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), layout)) {
@@ -986,6 +987,11 @@ QList<DomProperty*> QDesignerResource::computeProperties(QObject *object)
         for (int index = 0; index < sheet->count(); ++index) {
             QString propertyName = sheet->propertyName(index);
             QVariant value = sheet->property(index);
+
+            if (qobject_cast<QLayout*>(object)) {
+                if (propertyName == QLatin1String("margin"))
+                    value = value.toInt() - 1;
+            }
 
             if (!sheet->isChanged(index))
                 continue;
