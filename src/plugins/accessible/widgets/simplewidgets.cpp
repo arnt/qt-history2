@@ -243,7 +243,7 @@ QRect QAccessibleToolButton::rect(int child) const
 
     QStyleOptionToolButton opt;
     opt.init(widget());
-    QRect subRect = widget()->style()->subControlRect(QStyle::CC_ToolButton, &opt,
+    QRect subrect = widget()->style()->subControlRect(QStyle::CC_ToolButton, &opt,
                                                       QStyle::SC_ToolButtonMenu, toolButton());
 
     if (child == ButtonExecute)
