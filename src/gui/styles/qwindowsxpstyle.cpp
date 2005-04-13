@@ -1410,7 +1410,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
                 theme.drawBackground();
                 if (!cmb->editable) {
-                    QRect re = visualRect(option->direction, option->rect, subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget));
+                    QRect re = subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget);
                     if (widget->hasFocus()) {
                         p->fillRect(re, option->palette.highlight());
                         p->setPen(option->palette.highlightedText().color());
@@ -1425,7 +1425,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
 
             if (sub & SC_ComboBoxArrow) {
                 XPThemeData theme(widget, p, "COMBOBOX");
-                theme.rec = visualRect(option->direction, option->rect, subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget));
+                theme.rec = subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget);
                 partId = CP_DROPDOWNBUTTON;
 
                 if (!(flags & State_Enabled))
@@ -2180,13 +2180,13 @@ QRect QWindowsXPStyle::subControlRect(ComplexControl cc, const QStyleOptionCompl
 
             switch (sc) {
             case SC_ComboBoxFrame:
-                return cmb->rect;
+                return visualRect(cmb->direction, cmb->rect, cmb->rect);
             case SC_ComboBoxArrow:
-                return QRect(xpos, y+1, 16, he-2);
+                return visualRect(cmb->direction, cmb->rect, QRect(xpos, y+1, 16, he-2));
             case SC_ComboBoxEditField:
-                return QRect(x+2, y+2, wi-3-16, he-4);
+                return visualRect(cmb->direction, cmb->rect, QRect(x+2, y+2, wi-3-16, he-4));
             case SC_ComboBoxListBoxPopup:
-                return cmb->popupRect;
+                return visualRect(cmb->direction, cmb->rect, cmb->popupRect);
             default:
                 break;
             }
