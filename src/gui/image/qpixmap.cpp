@@ -181,8 +181,12 @@ QPixmap::QPixmap(const char * const xpm[])
     init(0, 0);
 
     QImage image(xpm);
-    if (!image.isNull())
-        *this = fromImage(image);
+    if (!image.isNull()) {
+        if (data->type == BitmapType)
+            *this =  QBitmap::fromImage(image);
+        else
+            *this = fromImage(image);
+    }
 }
 
 
@@ -228,7 +232,12 @@ int QPixmap::devType() const
 QPixmap QPixmap::copy(const QRect &rect) const
 {
     // ### This could be sped up by platform specific implementation.
-    return QPixmap::fromImage(toImage().copy(rect));
+    QPixmap pm;
+    if (data->type == BitmapType)
+        pm = QBitmap::fromImage(toImage().copy(rect));
+    else
+        pm = fromImage(toImage().copy(rect));
+    return pm;
 }
 
 
@@ -480,7 +489,7 @@ void QPixmap::resize_helper(const QSize &s)
 */
 QBitmap QPixmap::createHeuristicMask(bool clipTight) const
 {
-    QBitmap m = fromImage(toImage().createHeuristicMask(clipTight));
+    QBitmap m = QBitmap::fromImage(toImage().createHeuristicMask(clipTight));
     return m;
 }
 #endif
@@ -506,7 +515,7 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
                 maskImage.setPixel(w, h, Qt::color0);
         }
     }
-    QBitmap m = fromImage(maskImage);
+    QBitmap m = QBitmap::fromImage(maskImage);
     return m;
 }
 
@@ -539,12 +548,17 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConversionFlags flags)
 {
     QFileInfo info(fileName);
-    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString();
+    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString()
+                  + QString::number(data->type);
 
     if (QPixmapCache::find(key, *this))
             return true;
     QImage image = QImageReader(fileName, format).read();
-    QPixmap pm = fromImage(image, flags);
+    QPixmap pm;
+    if (data->type == BitmapType)
+        pm = QBitmap::fromImage(image, flags);
+    else
+        pm = fromImage(image, flags);
     if (!pm.isNull()) {
         *this = pm;
         QPixmapCache::insert(key, *this);
@@ -579,7 +593,11 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Qt::I
     b.open(QIODevice::ReadOnly);
 
     QImage image = QImageReader(&b, format).read();
-    QPixmap pm = fromImage(image, flags);
+    QPixmap pm;
+    if (data->type == BitmapType)
+        pm = QBitmap::fromImage(image, flags);
+    else
+        pm = fromImage(image, flags);
     if (!pm.isNull()) {
         *this = pm;
         return true;
@@ -846,7 +864,10 @@ QPixmap::QPixmap(const QImage& image)
     : QPaintDevice()
 {
     init(0, 0);
-    *this = fromImage(image);
+    if (data->type == BitmapType)
+        *this = QBitmap::fromImage(image);
+    else
+        *this = fromImage(image);
 }
 
 /*!
@@ -860,7 +881,10 @@ QPixmap::QPixmap(const QImage& image)
 
 QPixmap &QPixmap::operator=(const QImage &image)
 {
-    *this = fromImage(image);
+    if (data->type == BitmapType)
+        *this = QBitmap::fromImage(image);
+    else
+        *this = fromImage(image);
     return *this;
 }
 
@@ -892,7 +916,10 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Color
 */
 bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
 {
-    *this = fromImage(image, colorModeToFlags(mode));
+    if (data->type == BitmapType)
+        *this = QBitmap::fromImage(image, colorModeToFlags(mode));
+    else
+        *this = fromImage(image, colorModeToFlags(mode));
     return !isNull();
 }
 
