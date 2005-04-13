@@ -967,6 +967,11 @@ void QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBru
                   background, QBrush(qt_mix_colors(button.color(), light.color())),
                   text, QBrush(Qt::black), QBrush(Qt::darkBlue), QBrush(Qt::white),
                   QBrush(Qt::blue), QBrush(Qt::magenta));
+
+    resolve_mask &= ~(1 << Highlight);
+    resolve_mask &= ~(1 << HighlightedText);
+    resolve_mask &= ~(1 << LinkVisited);
+    resolve_mask &= ~(1 << Link);
 }
 
 

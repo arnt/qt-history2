@@ -435,9 +435,8 @@ void qt_mac_update_os_settings()
             { 0, 0, 0 } };
         QColor qc;
         RGBColor c;
-        QPalette apppal = QApplication::palette();
         for(int i = 0; mac_widget_colors[i].qt_class; i++) {
-            QPalette pal = apppal;
+            QPalette pal;
             if(!GetThemeTextColor(mac_widget_colors[i].active, 32, true, &c)) {
                 qc = QColor(c.red / 256, c.green / 256, c.blue / 256);
                 pal.setColor(QPalette::Active, QPalette::Text, qc);
@@ -480,10 +479,10 @@ void qt_mac_update_os_settings()
                 if (it != phash->constEnd())
                     set_palette = (pal != *it);
             }
-            if(set_palette && pal != apppal) {
+            if(set_palette) {
                 QApplication::setPalette(pal, mac_widget_colors[i].qt_class);
 #ifdef DEBUG_PLATFORM_SETTINGS
-                qt_mac_debug_palette(pal, apppal, QString("Palette for ") + mac_widget_colors[i].qt_class);
+                qt_mac_debug_palette(pal, QApplication::palette(), QString("Palette for ") + mac_widget_colors[i].qt_class);
 #endif
             }
         }
