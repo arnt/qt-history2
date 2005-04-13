@@ -6,11 +6,7 @@
 void qInitDrawhelperAsm() {}
 #endif
 
-#define MASK(src, a)                            \
-    src = (qt_div_255(qAlpha(src) * a) << 24)   \
-        | (qt_div_255(qRed(src) * a) << 16)     \
-        | (qt_div_255(qGreen(src) * a) << 8)    \
-        | (qt_div_255(qBlue(src) * a))
+#define MASK(src, a) src = BYTE_MUL(src, a)
 
 typedef uint QT_FASTCALL (*CompositionFunction)(uint dest, uint src);
 
@@ -42,12 +38,7 @@ Da'  = Sa.Da + Sa.(1 - Da) + Da.(1 - Sa)
 */
 static inline uint QT_FASTCALL comp_func_SourceOver(uint dest, uint src)
 {
-    int src_ia = 255 - qAlpha(src);
-
-    return src + ((qt_div_255(qRed(dest) * src_ia) << 16)
-                  | (qt_div_255(qGreen(dest) * src_ia) << 8)
-                  | (qt_div_255(qBlue(dest) * src_ia))
-                  | (qt_div_255(qAlpha(dest) * src_ia)) << 24);
+    return src + BYTE_MUL(dest, 255 - qAlpha(src));
 }
 
 static inline uint QT_FASTCALL comp_func_DestinationOver(uint dest, uint src)
@@ -63,10 +54,7 @@ static inline uint QT_FASTCALL comp_func_SourceIn(uint dest, uint src)
 {
     int dest_a = qAlpha(dest);
 
-    return (qt_div_255(qAlpha(src) * dest_a) << 24)
-        | (qt_div_255(qRed(src) * dest_a) << 16)
-        | (qt_div_255(qGreen(src) * dest_a) << 8)
-        | (qt_div_255(qBlue(src) * dest_a));
+    return BYTE_MUL(src, dest_a);
 }
 
 static inline uint QT_FASTCALL comp_func_DestinationIn(uint dest, uint src)
@@ -82,10 +70,7 @@ static inline uint QT_FASTCALL comp_func_SourceOut(uint dest, uint src)
 {
     int dest_ia  = (255 - qAlpha(dest));
 
-    return (qt_div_255(qAlpha(src) * dest_ia) << 24)
-        | (qt_div_255(qRed(src) * dest_ia) << 16)
-        | (qt_div_255(qGreen(src) * dest_ia) << 8)
-        | qt_div_255(qBlue(src) * dest_ia);
+    return BYTE_MUL(src, dest_ia);
 }
 
 
@@ -105,10 +90,7 @@ static inline uint QT_FASTCALL comp_func_SourceAtop(uint dest, uint src)
     int dest_a = qAlpha(dest);
     int src_ia = 255 - qAlpha(src);
 
-    return (qt_div_255(qRed(src) * dest_a + qRed(dest) * src_ia) << 16)
-        | (qt_div_255(qGreen(src) * dest_a + qGreen(dest) * src_ia) << 8)
-        | qt_div_255(qBlue(src) * dest_a + qBlue(dest) * src_ia)
-        | (dest_a << 24);
+    return INTERPOLATE_PIXEL_255(src, dest_a, dest, src_ia);
 }
 
 
@@ -125,15 +107,10 @@ static inline uint QT_FASTCALL comp_func_DestinationAtop(uint dest, uint src)
 static inline uint QT_FASTCALL comp_func_XOR(uint dest, uint src)
 {
     // X = 0; Y = 1; Z = 1;
-    int src_a = qAlpha(src);
-    int dest_a = qAlpha(dest);
-    int src_ia = (255 - src_a);
-    int dest_ia = (255 - dest_a);
+    int src_ia = (255 - qAlpha(src));
+    int dest_ia = (255 - qAlpha(dest));
 
-    return (qt_div_255(dest_ia * qRed(src) + src_ia * qRed(dest)) << 16)
-        | (qt_div_255(dest_ia * qGreen(src) + src_ia * qGreen(dest)) << 8)
-        | qt_div_255(dest_ia * qBlue(src) + src_ia * qBlue(dest))
-        | (qt_div_255(src_a*dest_ia + dest_a*src_ia) << 24);
+    return INTERPOLATE_PIXEL_255(src, dest_ia, dest, src_ia);
 }
 
 
