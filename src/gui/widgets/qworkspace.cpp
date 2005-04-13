@@ -1062,8 +1062,10 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
     else
         flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint;
 
+#if 0
     bool wasMaximized = w->isMaximized();
     bool wasMinimized = w->isMinimized();
+#endif
     bool hasBeenHidden = w->isExplicitlyHidden();
     bool hasSize = w->testAttribute(Qt::WA_Resized);
     int x = w->x();
@@ -1098,6 +1100,7 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
     w->setHidden(hasBeenHidden);
     return child;
 
+#if 0
     if (wasMaximized)
         w->showMaximized();
     else if (wasMinimized)
@@ -1107,6 +1110,7 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
 
     d->updateWorkspace();
     return child;
+#endif
 }
 
 /*! \reimp */
