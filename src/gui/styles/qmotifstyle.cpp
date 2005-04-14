@@ -891,8 +891,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 int x = unit_width * nu;
                 QRect left(opt->rect.x(), opt->rect.y(), x, opt->rect.height());
                 QRect right(opt->rect.x() + x, opt->rect.y(), opt->rect.width() - x, opt->rect.height());
-                const QRect &highlighted = opt->direction == Qt::LeftToRight ? left : right;
-                const QRect &background = opt->direction == Qt::LeftToRight ? right : left;
+                const QRect &highlighted = visualRect(pb->direction, pb->rect, left);
+                const QRect &background = visualRect(pb->direction, pb->rect, right);
                 p->setPen(opt->palette.highlightedText().color());
                 p->setClipRect(highlighted);
                 p->drawText(opt->rect, Qt::AlignCenter | Qt::TextSingleLine, pb->text);
@@ -1817,6 +1817,7 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
                     rect.setCoords(opt->rect.left(), opt->rect.top(),
                                    opt->rect.right() - textw, opt->rect.bottom());
             }
+            rect = visualRect(pb->direction, pb->rect, rect);
         }
         break;
     case SE_CheckBoxContents: {

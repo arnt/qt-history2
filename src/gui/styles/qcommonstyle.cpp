@@ -689,17 +689,15 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             p->eraseRect(opt->rect);
         break;
     case CE_ProgressBar:
-        if (const QStyleOptionProgressBar *pb = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
+        if (const QStyleOptionProgressBar *pb
+                = qstyleoption_cast<const QStyleOptionProgressBar *>(opt)) {
             QStyleOptionProgressBar subopt = *pb;
-            subopt.rect = QStyle::visualRect(pb->direction, pb->rect,
-                                             subElementRect(SE_ProgressBarGroove, pb, widget));
+            subopt.rect = subElementRect(SE_ProgressBarGroove, pb, widget);
             drawControl(CE_ProgressBarGroove, &subopt, p, widget);
-            subopt.rect = QStyle::visualRect(pb->direction, pb->rect,
-                                             subElementRect(SE_ProgressBarContents, pb, widget));
+            subopt.rect = subElementRect(SE_ProgressBarContents, pb, widget);
             drawControl(CE_ProgressBarContents, &subopt, p, widget);
             if (pb->textVisible) {
-                subopt.rect = QStyle::visualRect(pb->direction, pb->rect,
-                                                 subElementRect(SE_ProgressBarLabel, pb, widget));
+                subopt.rect = subElementRect(SE_ProgressBarLabel, pb, widget);
                 drawControl(CE_ProgressBarLabel, &subopt, p, widget);
             }
         }
@@ -1308,6 +1306,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             } else {
                 r = pb->rect;
             }
+            r = visualRect(pb->direction, pb->rect, r);
         }
         break;
     case SE_Q3DockWindowHandleRect:
