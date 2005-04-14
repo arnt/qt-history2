@@ -54,10 +54,10 @@ MainWindow::MainWindow()
 
 void MainWindow::insertCalendar()
 {
-    QTextCursor cursor(editor->textCursor());
-    cursor.movePosition(QTextCursor::Start); 
-    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-    cursor.removeSelectedText();
+    editor->clear();
+    QTextCursor cursor = editor->textCursor();
+
+    QDate date(selectedDate.year(), selectedDate.month(), 1);
 
     QTextTableFormat tableFormat;
     tableFormat.setAlignment(Qt::AlignHCenter);
@@ -83,38 +83,40 @@ void MainWindow::insertCalendar()
 
     QTextCharFormat format = cursor.charFormat();
     format.setFontPointSize(fontSize);
+
     QTextCharFormat boldFormat = format;
     boldFormat.setFontWeight(QFont::Bold);
 
+    QTextCharFormat highlightedFormat = boldFormat;
+    highlightedFormat.setBackground(Qt::yellow);
+
     for (int weekDay = 1; weekDay <= 7; ++weekDay) {
         QTextTableCell cell = table->cellAt(0, weekDay-1);
-        cursor.setPosition(cell.firstCursorPosition().position());
-        cursor.insertText(QString("%1").arg(QDate::longDayName(weekDay)),
-                          boldFormat);
+        QTextCursor cellCursor = cell.firstCursorPosition();
+        cellCursor.insertText(QString("%1").arg(QDate::longDayName(weekDay)),
+                              boldFormat);
     }
 
-    QDate date(selectedDate.year(), selectedDate.month(), 1);
-    boldFormat.setBackground(Qt::yellow);
     table->insertRows(table->rows(), 1);
 
     while (date.month() == selectedDate.month()) {
         int weekDay = date.dayOfWeek();
         QTextTableCell cell = table->cellAt(table->rows()-1, weekDay-1);
-        cursor.setPosition(cell.firstCursorPosition().position());
+        QTextCursor cellCursor = cell.firstCursorPosition();
 
         if (date == QDate::currentDate())
-            cursor.insertText(QString("%1").arg(date.day()), boldFormat);
+            cellCursor.insertText(QString("%1").arg(date.day()), highlightedFormat);
         else
-            cursor.insertText(QString("%1").arg(date.day()), format);
+            cellCursor.insertText(QString("%1").arg(date.day()), format);
 
         date = date.addDays(1);
         if (weekDay == 7 && date.month() == selectedDate.month())
             table->insertRows(table->rows(), 1);
     }
 
-    setWindowTitle(tr("Calendar for %1 %2").arg(
-        QDate::longMonthName(selectedDate.month())).arg(
-        selectedDate.year()));
+    setWindowTitle(tr("Calendar for %1 %2"
+        ).arg(QDate::longMonthName(selectedDate.month())
+        ).arg(selectedDate.year()));
 }
 
 void MainWindow::setFontSize(int size)
