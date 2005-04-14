@@ -1707,7 +1707,9 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
             textureFillData->compositionMode = compositionMode;
-            textureFillData->init(rasterBuffer, &tempImage, matrix,
+            QMatrix m = matrix;
+            m.translate(bounds.x(), bounds.y());
+            textureFillData->init(rasterBuffer, &tempImage, m,
                                   drawHelper->blendTiled,
                                   drawHelper->blendTransformedBilinearTiled);
         }
@@ -1723,7 +1725,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
             conicalGradientData->center =
                 static_cast<const QConicalGradient *>(brush.gradient())->center();
             conicalGradientData->angle =
-                static_cast<const QConicalGradient *>(brush.gradient())->angle();
+                static_cast<const QConicalGradient *>(brush.gradient())->angle() * Q_PI * 2 / 360.0;
             conicalGradientData->alphaColor = !brush.isOpaque();
             conicalGradientData->initColorTable();
             QRectF bounds = path ? path->boundingRect() : QRectF(deviceRect);
@@ -1734,7 +1736,9 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
             textureFillData->compositionMode = compositionMode;
-            textureFillData->init(rasterBuffer, &tempImage, matrix,
+            QMatrix m = matrix;
+            m.translate(bounds.x(), bounds.y());
+            textureFillData->init(rasterBuffer, &tempImage, m,
                                   drawHelper->blendTiled,
                                   drawHelper->blendTransformedBilinearTiled);
         }

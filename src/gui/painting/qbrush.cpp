@@ -1093,7 +1093,7 @@ QPointF QRadialGradient::focalPoint() const
 
 /*!
     Constructs a conical centered at \a center and starting at
-    \a angle.
+    \a angle. The angle is specified in degrees between 0 and 360.
 */
 
 QConicalGradient::QConicalGradient(const QPointF &center, qreal angle)
@@ -1108,7 +1108,7 @@ QConicalGradient::QConicalGradient(const QPointF &center, qreal angle)
 
 /*!
     Constructs a conical centered at \a cx, \a cy and starting at
-    \a angle.
+    \a angle. The angle is specified in degrees between 0 and 360.
 */
 
 QConicalGradient::QConicalGradient(qreal cx, qreal cy, qreal angle)
