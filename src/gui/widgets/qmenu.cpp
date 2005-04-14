@@ -79,8 +79,8 @@ void QMenuPrivate::calcActionRects(QMap<QAction*, QRect> &actionRects, QList<QAc
 {
     Q_Q(const QMenu);
     if (!itemsDirty) {
-        actionRects = actionRects;
-        actionList = actionList;
+        actionRects = this->actionRects;
+        actionList = this->actionList;
         return;
     }
 
