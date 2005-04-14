@@ -2838,7 +2838,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
     case UnmapNotify:                                // window hidden
         if (widget->isWindow() && !(widget->windowType() == Qt::Popup)) {
             widget->setAttribute(Qt::WA_Mapped, false);
-            if (!widget->isExplicitlyHidden()) {
+            if (widget->isVisible()) {
                 widget->d->topData()->spont_unmapped = 1;
                 QHideEvent e;
                 QApplication::sendSpontaneousEvent(widget, &e);

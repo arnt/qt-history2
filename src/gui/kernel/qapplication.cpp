@@ -1594,7 +1594,7 @@ void QApplication::setWindowIcon(const QIcon &icon)
   \code
     // Show all hidden top level widgets.
     foreach(QWidget *w, QApplication::topLevelWidgets()) {
-        if (w->isExplicitlyHidden())
+        if (!w->isVisible())
             w->show();
     }
   \endcode
@@ -1734,14 +1734,14 @@ void QApplication::closeAllWindows()
     bool did_close = true;
     QWidget *w;
     while((w = activeModalWidget()) && did_close) {
-        if(w->isExplicitlyHidden())
+        if(!w->isVisible())
             break;
         did_close = w->close();
     }
     QWidgetList list = QApplication::topLevelWidgets();
     for (int i = 0; i < list.size(); ++i) {
         w = list.at(i);
-        if (!w->isExplicitlyHidden()) {
+        if (w->isVisible()) {
             did_close = w->close();
             list = QApplication::topLevelWidgets();
             i = -1;
@@ -1828,7 +1828,7 @@ bool QApplication::event(QEvent *e)
         QWidgetList list = topLevelWidgets();
         for (int i = 0; i < list.size(); ++i) {
             QWidget *w = list.at(i);
-            if (!w->isExplicitlyHidden() && !(w->windowType() == Qt::Desktop) && !(w->windowType() == Qt::Popup) &&
+            if (w->isVisible() && !(w->windowType() == Qt::Desktop) && !(w->windowType() == Qt::Popup) &&
                  (!(w->windowType() == Qt::Dialog) || !w->parentWidget())) {
                 ce->ignore();
                 break;
@@ -2358,7 +2358,7 @@ void QApplication::commitData(QSessionManager& sm )
         bool cancelled = false;
         for (int i = 0; !cancelled && i < list.size(); ++i) {
             QWidget* w = list.at(i);
-            if (!w->isExplicitlyHidden()) {
+            if (w->isVisible()) {
                 QCloseEvent e;
                 sendEvent(w, &e);
                 cancelled = !e.isAccepted();

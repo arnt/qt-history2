@@ -543,7 +543,7 @@ void QWidgetPrivate::reparentChildren()
             if ((w->windowType() == Qt::Popup)) {
                 ;
             } else if (w->isWindow()) {
-                bool showIt = !w->isExplicitlyHidden();
+                bool showIt = w->isVisible();
                 QPoint old_pos = w->pos();
                 w->setParent(q, w->windowFlags());
                 w->move(old_pos);

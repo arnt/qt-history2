@@ -870,7 +870,7 @@ QWidget::~QWidget()
 
     clearFocus();
 
-    if (isWindow() && !isExplicitlyHidden() && winId())
+    if (isWindow() && isVisible() && winId())
         hide();
 
     // A parent widget must destroy all its children before destroying itself
@@ -2069,7 +2069,7 @@ QRect QWidget::childrenRect() const
     QRect r(0, 0, 0, 0);
     for (int i = 0; i < d->children.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
-        if (w && !w->isExplicitlyHidden())
+        if (w && !w->isWindow() && !w->isExplicitlyHidden())
             r |= w->geometry();
     }
     return r;
@@ -2090,7 +2090,7 @@ QRegion QWidget::childrenRegion() const
     QRegion r;
     for (int i = 0; i < d->children.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
-        if (w && !w->isExplicitlyHidden()) {
+        if (w && !w->isWindow() && !w->isExplicitlyHidden()) {
             QRegion mask = w->mask();
             if (mask.isEmpty())
                 r |= w->geometry();
@@ -4123,7 +4123,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
         bool lastWindowClosed = true;
         for (int i = 0; i < list.size(); ++i) {
             QWidget *w = list.at(i);
-            if (w->isExplicitlyHidden() || !w->testAttribute(Qt::WA_QuitOnClose))
+            if (!w->isVisible() || !w->testAttribute(Qt::WA_QuitOnClose))
                 continue;
             lastWindowClosed = false;
             break;
