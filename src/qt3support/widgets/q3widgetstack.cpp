@@ -23,15 +23,18 @@ public:
     class Invisible: public QWidget
     {
     public:
-	Invisible(Q3WidgetStack * parent): QWidget(parent, "qt_invisible_widgetstack")
-	{
-	    setBackgroundMode(NoBackground);
-	}
-	const char * className() const
-	{
-	    return "Q3WidgetStackPrivate::Invisible";
-	}
+	    Invisible(Q3WidgetStack * parent): QWidget(parent, "qt_invisible_widgetstack")
+	    {
+	        setBackgroundMode(NoBackground);
+	    }
+	    const char * className() const
+	    {
+	        return "Q3WidgetStackPrivate::Invisible";
+	    }
     };
+
+    int nextNegativeID;
+    int nextPositiveID;
 };
 
 
@@ -84,10 +87,13 @@ Q3WidgetStack::Q3WidgetStack(QWidget * parent, const char *name, Qt::WFlags f)
 
 void Q3WidgetStack::init()
 {
-   d = 0;
+   d = new Q3WidgetStackPrivate();
+   d->nextNegativeID = -2;
+   d->nextPositiveID = 0;
    dict = new Q3IntDict<QWidget>;
    focusWidgets = 0;
    topWidget = 0;
+   invisible = 0;
    invisible = new Q3WidgetStackPrivate::Invisible(this);
    invisible->hide();
 }
@@ -123,10 +129,7 @@ Q3WidgetStack::~Q3WidgetStack()
 
 int Q3WidgetStack::addWidget(QWidget * w, int id)
 {
-    static int nseq_no = -2;
-    static int pseq_no = 0;
-
-    if (!w || w == invisible)
+    if (!w || w == invisible || invisible == 0)
         return -1;
 
     // prevent duplicates
@@ -135,11 +138,11 @@ int Q3WidgetStack::addWidget(QWidget * w, int id)
     if (id >= 0 && dict->find(id))
         id = -2;
     if (id < -1)
-        id = nseq_no--;
+        id = d->nextNegativeID--;
     else if (id == -1)
-        id = pseq_no++;
+        id = d->nextPositiveID++;
     else
-        pseq_no = QMAX(pseq_no, id + 1);
+        d->nextPositiveID = qMax(d->nextPositiveID, id + 1);
         // use id >= 0 as-is
 
     dict->insert(id, w);
@@ -173,12 +176,11 @@ int Q3WidgetStack::addWidget(QWidget * w, int id)
 
 void Q3WidgetStack::removeWidget(QWidget * w)
 {
-    if (!w)
-        return;
-    int i = id(w);
-    if (i != -1)
-        dict->take(i);
+    int i;
+    if (!w || (i = id(w)) == -1)
+        return ;
 
+    dict->take(i);
     if (w == topWidget)
         topWidget = 0;
     if (dict->isEmpty())
@@ -511,10 +513,12 @@ QSize Q3WidgetStack::minimumSizeHint() const
 /*!
     \reimp
 */
-void Q3WidgetStack::childEvent(QChildEvent * e)
+void Q3WidgetStack::childEvent(QChildEvent *e)
 {
     if (e->child()->isWidgetType() && e->removed())
-        removeWidget((QWidget*) e->child());
+        removeWidget((QWidget *) e->child());
+    else if (e->child()->isWidgetType() && e->added())
+        addWidget(static_cast<QWidget *>(e->child()));
 }
 
 
