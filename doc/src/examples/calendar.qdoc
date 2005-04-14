@@ -91,13 +91,11 @@
     month and year.
 
     \skipto insertCalendar(
-    \printuntil removeSelectedText
+    \printuntil QDate
 
-    We begin by obtaining a \l{QTextCursor}{text cursor} to use with the document
-    used by the editor. The existing contents of the document is deleted by
-    first selecting it then removing it. Alternatively, we could have cleared
-    the text using \l QTextEdit::clear() or \l QTextDocument::clear(), but we
-    will continue to use the cursor.
+    We begin by clearing the editor's rich text document, and obtain a text
+    cursor from the editor that we will use to add content. We also create a
+    QDate object based on the currently selected date.
 
     The calendar is made up of a table with a gray background color that contains
     seven columns: one for each day of the week. It is placed in the center of the
@@ -105,7 +103,7 @@
     set in a QTextTableFormat object:
 
     \skipto QTextTableFormat
-    \printuntil tableFormat
+    \printuntil tableFormat.setCellSpacing
 
     Each cell in the table will be padded and spaced to make the text easier to
     read.
@@ -129,5 +127,91 @@
     this approach means that we do not need to perform any date calculations
     until we add cells to the table.
 
+    When inserting objects into a document with the cursor's insertion functions,
+    the cursor is automatically moved inside the newly inserted object. This means
+    that we can immediately start modifying the table from within:
 
+    \skipto QTextFrame
+    \printuntil setFrameFormat
+
+    Since the table has an outer frame, we obtain the frame and its format so that
+    we can customize it. After making the changes we want, we set the frame's format
+    using the modified format object. We have given the table an outer border one
+    pixel wide.
+
+    \skipto QTextCharFormat
+    \printuntil Qt::yellow
+
+    In a similar way, we obtain the cursor's current character format and
+    create customized formats based on it.
+
+    We do not set the format on the cursor because this would change the default
+    character format; instead, we use the customized formats explicitly when we
+    insert text. The following loop inserts the days of the week into the table
+    as bold text:
+
+    \skipto for
+    \printuntil QTextTableCell
+
+    For each day of the week, we obtain an existing table cell in the first row
+    (row 0) using the table's \l{QTextTable::cellAt()}{cellAt()} function. Since
+    we start counting the days of the week at day 1 (Monday), we subtract 1 from
+    \c weekDay to ensure that we obtain the cell for the correct column of the
+    table.
+
+    Before text can be inserted into a cell, we must obtain a cursor with the
+    correct position in the document. The cell provides a function for this
+    purpose, and we use this cursor to insert text using the \c boldFormat
+    character format that we created earlier:
+
+    \skipto firstCursorPosition
+    \printuntil }
+
+    Inserting text into document objects usually follows the same pattern.
+    Each object can provide a new cursor that corresponds to the first valid
+    position within itself, and this can be used to insert new content. We
+    continue to use this pattern as we insert the days of the month into the
+    table.
+
+    Since every month has more than seven days, we insert a single row to begin
+    and add days until we reach the end of the month. If the current date is
+    encountered, it is inserted with a special format (created earlier) that
+    makes it stand out:
+
+    \skipto insertRow
+    \printuntil insertRow
+
+    We add a new row to the table at the end of each week only if the next week
+    falls within the currently selected month.
+
+    For each calendar that we create, we change the window title to reflect the
+    currently selected month and year:
+
+    \skipto setWindowTitle
+    \printuntil /^\}/
+
+    The \c insertCalendar() function relies on up-to-date values for the month,
+    year, and font size. These are set in the following slots:
+
+    \skipto setFontSize
+    \printuntil /^\}/
+
+    The \c setFontSize() function simply changes the private \c fontSize variable
+    before updating the calendar.
+
+    \skipto setMonth
+    \printuntil /^\}/
+
+    The \c setMonth slot is called when the QComboBox used to select the month is
+    updated. The value supplied is the currently selected row in the combobox.
+    We add 1 to this value to obtain a valid month number, and create a new QDate
+    based on the existing one. The calendar is then updated to use this new date.
+
+    \skipto setYear
+    \printuntil /^\}/
+
+    The \c setYear() slot is called when the QDateTimeEdit used to select the
+    year is updated. The value supplied is a QDate object; this makes
+    the construction of a new value for \c selectedDate simple. We update the
+    calendar afterwards to use this new date.
 */
