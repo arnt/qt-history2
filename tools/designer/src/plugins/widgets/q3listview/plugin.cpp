@@ -30,53 +30,53 @@ class Q3ListViewPlugin: public QObject, public QDesignerCustomWidgetInterface
 public:
     inline Q3ListViewPlugin(QObject *parent = 0)
         : QObject(parent), m_initialized(false) {}
-        
+
     virtual QString name() const
     { return QLatin1String("Q3ListView"); }
-    
+
     virtual QString group() const
     { return QLatin1String("Compat"); }
-    
+
     virtual QString toolTip() const
     { return QString(); }
-    
+
     virtual QString whatsThis() const
     { return QString(); }
-    
+
     virtual QString includeFile() const
     { return QLatin1String("q3listview.h"); }
-    
+
     virtual QIcon icon() const
     { return QIcon(); }
 
     virtual bool isContainer() const
     { return false; }
-    
+
     virtual bool isForm() const
     { return false; }
 
     virtual QWidget *createWidget(QWidget *parent)
     { return new Q3ListView(parent); }
-    
-    virtual bool isInitialized() const 
+
+    virtual bool isInitialized() const
     { return m_initialized; }
-    
-    virtual void initialize(QDesignerFormEditorInterface *core) 
-    { 
+
+    virtual void initialize(QDesignerFormEditorInterface *core)
+    {
         Q_UNUSED(core);
-        
-        if (m_initialized) 
+
+        if (m_initialized)
             return;
-            
+
         m_initialized = true;
     }
-    
+
     virtual QString codeTemplate() const
     { return QString(); }
 
     virtual QString domXml() const
     { return QLatin1String("\
-        <widget class=\"Q3ListView\" name=\"Q3ListView\">\
+        <widget class=\"Q3ListView\" name=\"listView\">\
             <property name=\"geometry\">\
                 <rect>\
                     <x>0</x>\
@@ -87,7 +87,7 @@ public:
             </property>\
         </widget>\
       "); }
-    
+
 private:
     bool m_initialized;
 };

@@ -29,7 +29,7 @@ public:
 
     virtual QString domXml() const
     { return QLatin1String("\
-        <widget class=\"Q3ButtonGroup\" name=\"Q3ButtonGroup\">\
+        <widget class=\"Q3ButtonGroup\" name=\"buttonGroup\">\
             <property name=\"geometry\">\
                 <rect>\
                     <x>0</x>\

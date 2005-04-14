@@ -177,68 +177,61 @@ const char *WidgetFactory::classNameOf(QObject* o)
   which can be \c HBox, \c VBox or \c Grid.
 */
 
-QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *layout, int type) const // ### (sizepolicy)
+QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int type) const // ### (sizepolicy)
 {
     QDesignerMetaDataBaseInterface *metaDataBase = core()->metaDataBase();
 
-    if (!layout)
+    if (parentLayout == 0) {
         widget = containerOfWidget(widget);
-
-    metaDataBase->add(widget);
-    QLayout *l = 0;
-    if (layout) {
-        switch (type) {
-        case LayoutInfo::HBox:
-            l = new QHBoxLayout();
-            break;
-        case LayoutInfo::VBox:
-            l = new QVBoxLayout();
-            break;
-        case LayoutInfo::Grid:
-            l = new QGridLayout();
-            break;
-        case LayoutInfo::Stacked:
-            l = new QStackedLayout();
-            break;
-        case LayoutInfo::NoLayout:
-            return 0;
-        default:
-            Q_ASSERT( 0 );
-        }
-        metaDataBase->add(l);
-    } else {
-        switch (type) {
-        case LayoutInfo::HBox:
-            l = new QHBoxLayout(widget);
-            break;
-        case LayoutInfo::VBox:
-            l = new QVBoxLayout(widget);
-            break;
-        case LayoutInfo::Grid:
-            l = new QGridLayout(widget);
-            break;
-        case LayoutInfo::Stacked:
-            l = new QStackedLayout(widget);
-            break;
-        case LayoutInfo::NoLayout:
-            return 0;
-        default:
-            Q_ASSERT( 0 );
-        }
-        core()->metaDataBase()->add(l);
     }
 
-    if (QLayoutWidget *l = qobject_cast<QLayoutWidget*>(widget)) {
-        l->setLayoutMargin(0);
+    Q_ASSERT(metaDataBase->item(widget) != 0); // ensure the widget is managed
+
+    if (parentLayout == 0 && metaDataBase->item(widget->layout()) == 0) {
+        parentLayout = widget->layout();
     }
 
-    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), l)) {
+    QWidget *parentWidget = parentLayout != 0 ? 0 : widget;
+
+    QLayout *layout = 0;
+    switch (type) {
+    case LayoutInfo::HBox:
+        layout = new QHBoxLayout(parentWidget);
+        break;
+    case LayoutInfo::VBox:
+        layout = new QVBoxLayout(parentWidget);
+        break;
+    case LayoutInfo::Grid:
+        layout = new QGridLayout(parentWidget);
+        break;
+    case LayoutInfo::Stacked:
+        layout = new QStackedLayout(parentWidget);
+        break;
+    default:
+        Q_ASSERT(0);
+        return 0;
+    } // end switch
+
+    metaDataBase->add(layout); // add the layout in the MetaDataBase
+
+    if (QLayoutWidget *layoutWidget = qobject_cast<QLayoutWidget*>(widget)) {
+        layoutWidget->setLayoutMargin(0);
+    }
+
+    if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), layout)) {
         sheet->setChanged(sheet->indexOf(QLatin1String("margin")), true);
         sheet->setChanged(sheet->indexOf(QLatin1String("spacing")), true);
         sheet->setChanged(sheet->indexOf(QLatin1String("alignment")), true);
     }
 
-    return l;
+    if (widget && metaDataBase->item(widget->layout()) == 0) {
+        Q_ASSERT(layout->parent() == 0);
+        QBoxLayout *box = qobject_cast<QBoxLayout*>(widget->layout());
+        Q_ASSERT(box != 0); // we support only unmanaged box layouts
+        box->addLayout(layout);
+    }
+
+    return layout;
 }
 
 /*!  Returns the widget into which children should be inserted when \a

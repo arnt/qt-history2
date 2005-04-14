@@ -709,7 +709,7 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
             || ui_widget->attributeClass() == QLatin1String("Q3GroupBox");
 
     if (isQ3GroupBox) {
-        qWarning() << "the support for Q3GroupBox based widgets is not yet implemented!";
+        // ### qWarning() << "the support for Q3GroupBox based widgets is not yet implemented!";
     }
 
     if (widget->layout() && isQ3GroupBox == false) {

@@ -16,12 +16,13 @@
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/container.h>
 #include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/abstractmetadatabase.h>
+
+#include <QtGui/QHBoxLayout>
+#include <QtGui/QSplitter>
 
 #include <QtCore/QMap>
-#include <QLayout>
-#include <QHBoxLayout>
-#include <QSplitter>
-#include <QGroupBox>
+#include <QtCore/qdebug.h>
 
 LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QWidget *w, QLayout *&layout)
 {
@@ -35,14 +36,15 @@ LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QWid
 
     if (!w || !w->layout())
         return NoLayout;
+
     QLayout *lay = w->layout();
 
-    if (qobject_cast<QGroupBox*>(w)) {
-        QList<QLayout*> l = qFindChildren<QLayout*>(lay);
-        if (l.size())
-            lay = l.first();
+    if (lay && core->metaDataBase()->item(lay) == 0) {
+        lay = qFindChild<QLayout*>(lay);
     }
     layout = lay;
+
+    Q_ASSERT(lay == 0 || core->metaDataBase()->item(lay) != 0);
 
     return layoutType(core, lay);
 }
@@ -72,7 +74,6 @@ LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QWid
     return layoutType(core, w, l);
 }
 
-
 QWidget *LayoutInfo::layoutParent(QDesignerFormEditorInterface *core, QLayout *layout)
 {
     Q_UNUSED(core)
@@ -88,13 +89,19 @@ QWidget *LayoutInfo::layoutParent(QDesignerFormEditorInterface *core, QLayout *l
 
 void LayoutInfo::deleteLayout(QDesignerFormEditorInterface *core, QWidget *widget)
 {
-    if (!widget)
-        return;
-
     if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core->extensionManager(), widget))
         widget = container->widget(container->currentIndex());
 
-    delete widget->layout();
+    Q_ASSERT(widget != 0);
+
+    QLayout *layout = widget->layout();
+
+    if (layout == 0 || core->metaDataBase()->item(layout) != 0) {
+        delete layout;
+        return;
+    }
+
+    qWarning() << "trying to delete an unmanaged layout:" << "widget:" << widget << "layout:" << layout;
 }
 
 void LayoutInfo::cells(QLayout *layout, IntervalList *rows, IntervalList *columns)

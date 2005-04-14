@@ -148,7 +148,8 @@ void Layout::setup()
     foreach (QWidget *w, widgets) {
         QWidget *p = w->parentWidget();
 
-        if (p && LayoutInfo::layoutType(formWindow->core(), p) != LayoutInfo::NoLayout)
+        if (p && LayoutInfo::layoutType(formWindow->core(), p) != LayoutInfo::NoLayout
+                && formWindow->core()->metaDataBase()->item(p->layout()) != 0)
             continue;
 
         lists.insert(p, w);
@@ -182,17 +183,17 @@ void Layout::setup()
     // to layout
     widgets = lastList;
     // Also use the only correct parent later, so store it
+
+    Q_ASSERT(widgets.isEmpty() == false);
+
     m_parentWidget = formWindow->core()->widgetFactory()->widgetOfContainer(widgets.first()->parentWidget());
     // Now calculate the position where the layout-meta-widget should
     // be placed and connect to widgetDestroyed() signals of the
     // widgets to get informed if one gets deleted to be able to
     // handle that and do not crash in this case
-    for (int i = 0; i < widgets.size(); ++i) {
-        QWidget *w = widgets.at(i);
-        connect(w, SIGNAL(destroyed()),
-                 this, SLOT(widgetDestroyed()));
-        startPoint = QPoint(qMin(startPoint.x(), w->x()),
-                             qMin(startPoint.y(), w->y()));
+    foreach (QWidget *w, widgets) {
+        connect(w, SIGNAL(destroyed()), this, SLOT(widgetDestroyed()));
+        startPoint = QPoint(qMin(startPoint.x(), w->x()), qMin(startPoint.y(), w->y()));
         QRect rc(w->geometry());
         geometries.insert(w, rc);
         // Change the Z-order, as saving/loading uses the Z-order for
@@ -215,9 +216,8 @@ bool Layout::prepareLayout(bool &needMove, bool &needReparent)
     if (!widgets.count())
         return false;
 
-    for (int i = 0; i < widgets.size(); ++i) {
-        QWidget *w = widgets.at(i);
-        w->raise();
+    foreach (QWidget *widget, widgets) {
+        widget->raise();
     }
 
     needMove = !layoutBase;
@@ -226,20 +226,20 @@ bool Layout::prepareLayout(bool &needMove, bool &needReparent)
     QDesignerWidgetFactoryInterface *widgetFactory = formWindow->core()->widgetFactory();
     QDesignerMetaDataBaseInterface *metaDataBase = formWindow->core()->metaDataBase();
 
-    if (!layoutBase) {
-        if (!useSplitter) {
-            layoutBase = widgetFactory->createWidget(QString::fromUtf8("QLayoutWidget"),
-                    widgetFactory->containerOfWidget(m_parentWidget));
-        } else {
-            layoutBase = widgetFactory->createWidget(QString::fromUtf8("QSplitter"),
-                    widgetFactory->containerOfWidget(m_parentWidget));
-        }
+    if (layoutBase == 0) {
+        QString baseWidgetClassName = QLatin1String("QLayoutWidget");
 
+        if (useSplitter)
+            baseWidgetClassName = QLatin1String("QSplitter");
+
+        layoutBase = widgetFactory->createWidget(baseWidgetClassName, widgetFactory->containerOfWidget(m_parentWidget));
     } else {
         LayoutInfo::deleteLayout(formWindow->core(), layoutBase);
     }
 
     metaDataBase->add(layoutBase);
+
+    Q_ASSERT(layoutBase->layout() == 0 || metaDataBase->item(layoutBase->layout()) == 0);
 
     return true;
 }
@@ -443,13 +443,11 @@ void VerticalLayout::doLayout()
         return;
 
     QDesignerWidgetFactoryInterface *widgetFactory = formWindow->core()->widgetFactory();
+
     QVBoxLayout *layout = (QVBoxLayout*) widgetFactory->createLayout(layoutBase, 0, LayoutInfo::VBox);
-    Q_ASSERT(layout);
+    Q_ASSERT(layout != 0);
 
-    QListIterator<QWidget*> it(widgets);
-    while (it.hasNext()) {
-        QWidget *w = it.next();
-
+    foreach (QWidget *w, widgets) {
         if (needReparent && w->parent() != layoutBase) {
             w->setParent(layoutBase, 0);
             w->move(QPoint(0,0));
@@ -464,8 +462,9 @@ void VerticalLayout::doLayout()
         w->show();
     }
 
-    if (qobject_cast<QSplitter*>(layoutBase))
-        static_cast<QSplitter*>(layoutBase)->setOrientation(Qt::Vertical);
+    if (QSplitter *splitter = qobject_cast<QSplitter*>(layoutBase)) { // ### useSplitter??
+        splitter->setOrientation(Qt::Vertical);
+    }
 
     finishLayout(needMove, layout);
 }

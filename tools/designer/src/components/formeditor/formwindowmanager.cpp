@@ -495,9 +495,8 @@ void FormWindowManager::slotUpdateActions()
     bool layoutAvailable = false;
     bool breakAvailable = false;
 
-    QList<QWidget*> simplifiedSelection;
     if (m_activeFormWindow != 0 && m_activeFormWindow->currentTool() == 0) {
-        simplifiedSelection = m_activeFormWindow->selectedWidgets();
+        QList<QWidget*> simplifiedSelection = m_activeFormWindow->selectedWidgets();
         selectedWidgetCount = simplifiedSelection.count();
         pasteAvailable = qApp->clipboard()->mimeData() && qApp->clipboard()->mimeData()->hasText();
 
@@ -518,7 +517,8 @@ void FormWindowManager::slotUpdateActions()
             QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget));
             Q_ASSERT(item != 0);
 
-            bool laidOut = widget->layout() != 0; // LayoutInfo::isWidgetLaidout(m_core, widget);
+            bool laidOut = LayoutInfo::layoutType(core(), widget) != LayoutInfo::NoLayout
+                    && core()->metaDataBase()->item(widget->layout()) != 0;
 
             layoutAvailable = (item->isContainer() || m_activeFormWindow->isMainContainer(widget))
                                 && m_activeFormWindow->hasInsertedChildren(widget)
