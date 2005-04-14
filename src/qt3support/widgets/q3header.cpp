@@ -1441,25 +1441,14 @@ void Q3Header::paintSection(QPainter *p, int index, const QRect& fr)
         return;
 
     opt.state = (orient == Qt::Horizontal ? QStyle::State_Horizontal : QStyle::State_None);
-    //pass in some hint about the sort indicator if it is used
     if (d->sortSection == section)
-        opt.sortIndicator = d->sortSection ? QStyleOptionHeader::SortDown : QStyleOptionHeader::SortUp;
-    else
-        opt.sortIndicator = QStyleOptionHeader::None;
+        opt.sortIndicator = d->sortDirection ? QStyleOptionHeader::SortDown : QStyleOptionHeader::SortUp;
 
-    if (d->sortSection != section)
-        opt.state |= QStyle::State_Off;
-    else if (!d->sortDirection)
-        opt.state |= QStyle::State_UpArrow;
     if (isEnabled())
         opt.state |= QStyle::State_Enabled;
-    if (isClickEnabled(section)) {
-        if (index == oldHandleIdx)
-            opt.state |= QStyle::State_Sunken; //currently selected
-        if ((state == Pressed || state == Moving) && index == handleIdx)
-            opt.state |= QStyle::State_Sunken; //currently pressed
-    }
-    if(!(opt.state & QStyle::State_Sunken))
+    if (isClickEnabled(section) && (state == Pressed || state == Moving) && index == handleIdx)
+        opt.state |= QStyle::State_Sunken; //currently pressed
+    if (!(opt.state & QStyle::State_Sunken))
         opt.state |= QStyle::State_Raised;
     p->setBrushOrigin(fr.topLeft());
     if (d->clicks[section]) {
@@ -1523,6 +1512,8 @@ void Q3Header::paintSectionLabel(QPainter *p, int index, const QRect& fr)
 
     int dx = 0, dy = 0;
     QStyleOptionHeader opt = getStyleOption(this, section);
+    if (d->sortSection == section)
+        opt.sortIndicator = d->sortDirection ? QStyleOptionHeader::SortDown : QStyleOptionHeader::SortUp;
     if (index == handleIdx && (state == Pressed || state == Moving)) {
         dx = style()->pixelMetric(QStyle::PM_ButtonShiftHorizontal, &opt, this);
         dy = style()->pixelMetric(QStyle::PM_ButtonShiftVertical, &opt, this);
