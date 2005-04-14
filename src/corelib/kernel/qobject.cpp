@@ -2266,7 +2266,7 @@ void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
         c.receiver->qt_metacall(QMetaObject::InvokeMetaMember, member, argv ? argv : empty_argv);
 #else
         try {
-            c.receiver->qt_metacall(QMetaObject::InvokeMetaMember, member, argv ? : empty_argv);
+            c.receiver->qt_metacall(QMetaObject::InvokeMetaMember, member, argv ? argv : empty_argv);
         } catch (...) {
             list->lock.lockForRead();
             if (c.receiver) {
