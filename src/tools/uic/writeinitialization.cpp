@@ -641,7 +641,7 @@ void WriteInitialization::writeProperties(const QString &varName,
                 if (v == varName)
                     break;
 
-                qWarning("Deprecated: the property `objectName' is different from the variable name");
+                // ### qWarning("Deprecated: the property `objectName' is different from the variable name");
             }
 
             if (p->elementString()->hasAttributeNotr()
