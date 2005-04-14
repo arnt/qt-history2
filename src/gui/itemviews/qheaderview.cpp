@@ -1111,19 +1111,18 @@ void QHeaderView::initializeSections(int start, int end)
 void QHeaderView::currentChanged(const QModelIndex &old, const QModelIndex &current)
 {
     Q_D(QHeaderView);
-    QRect oldRect, currentRect;
     if (d->orientation == Qt::Horizontal) {
-        oldRect = QRect(sectionViewportPosition(old.column()), 0,
-                        sectionSize(old.column()), d->viewport->height());
-        currentRect = QRect(sectionViewportPosition(current.column()), 0,
-                            sectionSize(current.column()), d->viewport->height());
+        d->setDirtyRect(QRect(sectionViewportPosition(old.column()), 0,
+                              sectionSize(old.column()), d->viewport->height()));
+        d->setDirtyRect(QRect(sectionViewportPosition(current.column()), 0,
+                              sectionSize(current.column()), d->viewport->height()));
     } else {
-        oldRect = QRect(0, sectionViewportPosition(old.row()),
-                        d->viewport->width(), sectionSize(old.row()));
-        currentRect = QRect(0, sectionViewportPosition(current.row()),
-                            d->viewport->width(), sectionSize(current.row()));
+        d->setDirtyRect(QRect(0, sectionViewportPosition(old.row()),
+                              d->viewport->width(), sectionSize(old.row())));
+        d->setDirtyRect(QRect(0, sectionViewportPosition(current.row()),
+                              d->viewport->width(), sectionSize(current.row())));
     }
-    d->setDirtyRect(oldRect|currentRect);
+    d->repaintDirtyRect(); // FIXME
 }
 
 
@@ -1167,7 +1166,9 @@ void QHeaderView::paintEvent(QPaintEvent *e)
 {
     Q_D(QHeaderView);
     QPainter painter(d->viewport);
+    const QPoint offset = d->scrollDelayOffset;
     QRect area = e->rect();
+    area.translate(offset);
 
     int start, end;
     if (orientation() == Qt::Horizontal) {
@@ -1214,6 +1215,7 @@ void QHeaderView::paintEvent(QPaintEvent *e)
             rect.setRect(0, sectionViewportPosition(logical), width, sectionSize(logical));
             highlight = d->selectionModel->rowIntersectsSelection(logical, rootIndex());
         }
+        rect.translate(offset);
         if (d->highlightSelected && highlight && active) {
             QFont bf(fnt);
             bf.setBold(true);
@@ -1389,7 +1391,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
         if (logicalIndex == d->pressed)
             state |= QStyle::State_Sunken;
         else if (d->highlightSelected && d->isSectionSelected(logicalIndex))
-            state |= QStyle::State_On;
+            state |= QStyle::State_On | QStyle::State_Sunken;
     }
     if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {
         opt.sortIndicator = (sortIndicatorOrder() == Qt::AscendingOrder)

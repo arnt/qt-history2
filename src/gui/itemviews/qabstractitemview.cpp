@@ -820,8 +820,10 @@ QSize QAbstractItemView::iconSize() const
 
 void QAbstractItemView::scrollContentsBy(int dx, int dy)
 {
-    if (d_func()->updateRect.isValid())
-        d_func()->updateRect.translate(dx, dy);
+    Q_D(QAbstractItemView);
+    d->scrollDelayOffset = QPoint(-dx, -dy);
+    d->repaintDirtyRect();
+    d->scrollDelayOffset = QPoint(0, 0);
 }
 
 /*!
@@ -1317,13 +1319,10 @@ void QAbstractItemView::resizeEvent(QResizeEvent *e)
 void QAbstractItemView::timerEvent(QTimerEvent *e)
 {
     Q_D(QAbstractItemView);
-    if (e->timerId() == d->autoScrollTimer.timerId()) {
+    if (e->timerId() == d->autoScrollTimer.timerId())
         doAutoScroll();
-    } else if (e->timerId() == d->updateTimer.timerId()) {
-        d->updateTimer.stop();
-        d->viewport->repaint(d->updateRect);
-        d->updateRect = QRect();
-    }
+    else if (e->timerId() == d->updateTimer.timerId())
+        d->repaintDirtyRect();
 }
 
 /*!
@@ -1781,9 +1780,8 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &, int, int)
 void QAbstractItemView::selectionChanged(const QItemSelection &selected,
                                          const QItemSelection &deselected)
 {
-    QRect deselectedRect = visualRectForSelection(deselected);
-    QRect selectedRect = visualRectForSelection(selected);
-    d_func()->setDirtyRect(deselectedRect.unite(selectedRect));
+    d_func()->setDirtyRect(visualRectForSelection(deselected));
+    d_func()->setDirtyRect(visualRectForSelection(selected));
 }
 
 /*!
@@ -1798,29 +1796,16 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
 {
     Q_D(QAbstractItemView);
     if (previous.isValid()) {
-        // repaint the previous item; if it is not selected, this is the only place to do this
-        int behavior = selectionBehavior();
-        QRect rect = visualRect(previous);
-        if (behavior & SelectRows) {
-            rect.setLeft(0);
-            rect.setRight(d->viewport->width());
-        }
-        if (behavior & SelectColumns) {
-            rect.setTop(0);
-            rect.setBottom(d->viewport->height());
-        }
-        // painting in the next paint event is too late (because of scrolling)
-        d->setDirtyRect(rect);
-        // if we are editing, commit the data and close the editor
         QModelIndex buddy = model()->buddy(previous);
         QWidget *editor = d->editors.value(buddy);
         if (editor) {
             commitData(editor);
             closeEditor(editor, QAbstractItemDelegate::NoHint);
         }
+        d->setDirtyRect(visualRect(previous));
+        d->repaintDirtyRect(); // FIXME
     }
-
-    if (current.isValid()) {
+    if (current.isValid() && !d->autoScrollTimer.isActive()) {
         scrollTo(current);
         edit(current, CurrentChanged, 0);
     }

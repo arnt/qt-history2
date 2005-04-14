@@ -591,9 +591,8 @@ void QListView::scrollContentsBy(int dx, int dy)
     d->viewport->scroll(dx, dy);
 
     // update the dragged items
-    if (d->draggedItems.isEmpty())
-        return;
-    d->setDirtyRect(d->draggedItemsRect().translated(dx, dy));
+    if (!d->draggedItems.isEmpty())
+        d->setDirtyRect(d->draggedItemsRect().translated(dx, dy));
 }
 
 /*!
@@ -658,7 +657,7 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
     QAbstractItemView::mouseReleaseEvent(e);
     if (d->elasticBand.isValid()) {
         d->setDirtyRect(d->mapToViewport(d->elasticBand));
-        d->elasticBand = QRect();
+        d->elasticBand = QRect();?
     }
 }
 
@@ -853,8 +852,9 @@ void QListView::paintEvent(QPaintEvent *e)
     QPainter painter(d->viewport);
     QRect area = e->rect();
     painter.fillRect(area, option.palette.base());
+    const QPoint offset = d->scrollDelayOffset;
     area.translate(horizontalOffset(), verticalOffset());
-    d->intersectingSet(area);
+    d->intersectingSet(area.translated(offset));
 
     const QModelIndex current = currentIndex();
     const QAbstractItemDelegate *delegate = itemDelegate();
@@ -867,7 +867,7 @@ void QListView::paintEvent(QPaintEvent *e)
     QVector<QModelIndex>::iterator it = d->intersectVector.begin();
     for (; it != d->intersectVector.end(); ++it) {
         Q_ASSERT((*it).isValid());
-        option.rect = visualRect(*it);
+        option.rect = visualRect(*it).translated(offset);
         option.state = state;
         if (selections && selections->isSelected(*it))
             option.state |= QStyle::State_Selected;
@@ -924,9 +924,7 @@ QModelIndex QListView::indexAt(const QPoint &p) const
 */
 int QListView::horizontalOffset() const
 {
-    return isRightToLeft()
-        ? -horizontalScrollBar()->value()
-        : horizontalScrollBar()->value();
+    return isRightToLeft() ? -horizontalScrollBar()->value() : horizontalScrollBar()->value();
 }
 
 /*!

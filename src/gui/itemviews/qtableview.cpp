@@ -314,8 +314,10 @@ void QTableView::scrollContentsBy(int dx, int dy)
 void QTableView::paintEvent(QPaintEvent *e)
 {
     QStyleOptionViewItem option = viewOptions();
-    QBrush base = option.palette.base();
+    const QBrush base = option.palette.base();
+    const QPoint offset = d->scrollDelayOffset;
     QRect area = e->rect();
+    area.translate(offset);
 
     // if there's nothing to do, clear the area and return
 
@@ -343,7 +345,6 @@ void QTableView::paintEvent(QPaintEvent *e)
     right = qMax(tmp, right);
 
     // get the vertical start and end sections (visual indexes)
-
     int top = d->verticalHeader->visualIndexAt(area.top());
     int bottom = d->verticalHeader->visualIndexAt(area.bottom());
 
@@ -379,13 +380,13 @@ void QTableView::paintEvent(QPaintEvent *e)
             continue;
         if (alternate)
             option.palette.setColor(QPalette::Base, v & 1 ? oddColor : evenColor);
-        int rowp = rowViewportPosition(row);
+        int rowp = rowViewportPosition(row) + offset.y();
         int rowh = rowHeight(row) - gridSize;
         for (int h = left; h <= right; ++h) {
             int col = horizontalHeader->logicalIndex(h);
             if (horizontalHeader->isSectionHidden(col))
                 continue;
-            int colp = columnViewportPosition(col);
+            int colp = columnViewportPosition(col) + offset.x();
             int colw = columnWidth(col) - gridSize;
             QModelIndex index = model()->index(row, col, rootIndex());
             if (index.isValid()) {

@@ -560,13 +560,16 @@ void QTreeView::paintEvent(QPaintEvent *e)
     Q_D(QTreeView);
     QStyleOptionViewItem option = viewOptions();
     const QBrush base = option.palette.base();
-    const QRect area = e->rect();
+    QRect area = e->rect();
 
     if (d->viewItems.isEmpty() || d->header->count() == 0) {
         QPainter painter(d->viewport);
         painter.fillRect(area, base);
         return;
     }
+
+    const QPoint offset = d->scrollDelayOffset;
+    area.translate(offset);
 
     QPainter painter(d->viewport);
 
@@ -642,9 +645,10 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
                         const QModelIndex &index) const
 {
     Q_D(const QTreeView);
+    const QPoint offset = d->scrollDelayOffset;
     QStyleOptionViewItem opt = option;
     const QBrush base = option.palette.base();
-    const int y = option.rect.y();
+    const int y = option.rect.y() + offset.y();
     const QModelIndex parent = index.parent();
     const QHeaderView *header = d->header;
     const QModelIndex current = currentIndex();
@@ -662,7 +666,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         headerSection = d->header->logicalIndex(headerIndex);
         if (header->isSectionHidden(headerSection))
             continue;
-        position = columnViewportPosition(headerSection);
+        position = columnViewportPosition(headerSection) + offset.x();
         width = header->sectionSize(headerSection);
         modelIndex = d->model->index(index.row(), headerSection, parent);
         if (!modelIndex.isValid())

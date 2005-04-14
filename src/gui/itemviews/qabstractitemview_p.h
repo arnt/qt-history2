@@ -28,6 +28,7 @@
 class QRubberBand;
 
 #include <private/qabstractscrollarea_p.h>
+#include <qapplication.h>
 #include <qdatetime.h>
 #include <qevent.h>
 #include <qmime.h>
@@ -111,6 +112,13 @@ public:
             updateTimer.start(0, q_func());
     }
 
+    inline void repaintDirtyRect() {
+        updateTimer.stop();
+        viewport->repaint(updateRect);
+        QApplication::syncX();
+        updateRect = QRect();
+    }
+
     void removeSelectedRows();
 
     QPointer<QAbstractItemModel> model;
@@ -160,6 +168,8 @@ public:
 
     QRect updateRect; // used for the internal update system
     QBasicTimer updateTimer;
+
+    QPoint scrollDelayOffset;
 };
 
 /*
