@@ -2977,23 +2977,8 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                 if (!uch.isNull())
                     text += uch;
                 char a = uch.row() ? 0 : uch.cell();
+                store_key_rec( msg.wParam, a, state, text );
                 k0 = sendKeyEvent(QEvent::KeyPress, code, state, grab, text);
-
-                bool store = true;
-                // Alt+<alphanumerical> go to the Win32 menu system if unhandled by Qt
-                if (msg.message == WM_SYSKEYDOWN && !k0 && a) {
-                    HWND parent = GetParent(winId());
-                    while (parent) {
-                        parent = GetParent(parent);
-                        if (GetMenu(parent)) {
-                            SendMessage(winId(), WM_SYSCOMMAND, SC_KEYMENU, a);
-                            store = false;
-                            k0 = true;
-                        }
-                    }
-                }
-                if (store)
-                    store_key_rec( msg.wParam, a, state, text );
             }
         } else {
             // Must be KEYUP
@@ -3010,17 +2995,8 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                 k0 = sendKeyEvent(QEvent::KeyRelease, code, state, grab, rec->text);
 
                 // don't pass Alt to Windows unless we are embedded in a non-Qt window
-                if ( code == Qt::Key_Alt ) {
+                if ( code == Qt::Key_Alt )
                     k0 = true;
-                    HWND parent = GetParent(winId());
-                    while (parent) {
-                        if (!QWidget::find(parent) && GetMenu(parent)) {
-                            k0 = false;
-                            break;
-                        }
-                        parent = GetParent(parent);
-                    }
-                }
             }
         }
     }
