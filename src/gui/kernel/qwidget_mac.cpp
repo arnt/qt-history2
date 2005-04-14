@@ -1290,8 +1290,8 @@ void QWidgetPrivate::setWindowTitle_helper(const QString &caption)
     if (i != -1)
         cap.replace(i, 3, "");
 
-    if(isWindow())
-        SetWindowTitleWithCFString(qt_mac_window_for(this), QCFString(cap));
+    if(q->isWindow())
+        SetWindowTitleWithCFString(qt_mac_window_for(q), QCFString(cap));
 }
 
 void QWidget::setWindowModified(bool mod)
