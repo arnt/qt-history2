@@ -40,11 +40,12 @@
     To provide custom editing, there are two approaches that can be
     used. The first approach is to create an editor widget and display
     it directly on top of the item. To do this you must reimplement
-    editor() to provide an editor widget, setEditorData() to populate the
-    editor with the data from the model setModelData() so that the delegate
-    can update the model with data from the editor, and releaseEditor() to
-    destroy your editor when it is no longer needed. The second approach is to
-    handle user events directly. To do this you could reimplement editorEvent().
+    createEditor() to provide an editor widget, setEditorData() to populate
+    the editor with the data from the model, and setModelData() so that the
+    delegate can update the model with data from the editor.
+
+    The second approach is to handle user events directly by reimplementing
+    editorEvent().
 
     \sa \link model-view-programming.html Model/View Programming\endlink QItemDelegate
 */
@@ -183,7 +184,7 @@ QWidget *QAbstractItemDelegate::createEditor(QWidget *,
     The base implementation does nothing. If you want custom editing
     you will need to reimplement this function.
 
-    \sa editor() setModelData() releaseEditor()
+    \sa setModelData()
 */
 void QAbstractItemDelegate::setEditorData(QWidget *,
                                           const QModelIndex &) const
@@ -198,7 +199,7 @@ void QAbstractItemDelegate::setEditorData(QWidget *,
     The base implementation does nothing. If you want custom editing
     you will need to reimplement this function.
 
-    \sa editor() setEditorData() releaseEditor()
+    \sa setEditorData()
 */
 void QAbstractItemDelegate::setModelData(QWidget *,
                                          QAbstractItemModel *,
@@ -216,9 +217,7 @@ void QAbstractItemDelegate::setModelData(QWidget *,
 
     The base implementation does nothing. If you want custom editing
     you must reimplement this function.
-
-    \sa editor() releaseEditor()
- */
+*/
 void QAbstractItemDelegate::updateEditorGeometry(QWidget *,
                                                  const QStyleOptionViewItem &,
                                                  const QModelIndex &) const

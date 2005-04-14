@@ -301,7 +301,7 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn QModelIndex QAbstractItemView::moveCursor(QAbstractItemView::CursorAction cursorAction, Qt::KeyboardModifiers modifiers) = 0
+    \fn QModelIndex QAbstractItemView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers) = 0
 
     Moves the cursor in the view according to the given \a cursorAction and
     keyboard modifiers specified by \a modifiers.
@@ -1346,7 +1346,7 @@ QModelIndexList QAbstractItemView::selectedIndexes() const
     The action that caused the editing process is described by
     \a trigger, and the associated event is specified by \a event.
 
-    \sa endEdit()
+    \sa closeEditor()
 */
 bool QAbstractItemView::edit(const QModelIndex &index,
                              EditTrigger trigger,
@@ -1538,7 +1538,10 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
 // ###DOC: this value is used by the "scroll in item units" algorithm to
 // enable the scrolling in fractions of item units (one step == itemHeight / verticalFraction)
 /*!
-    Sets the horizontal scrollbar's stepping factor to \a factor.
+    Sets the horizontal scrollbar's steps per item to \a steps.
+
+    This is the number of steps used by the horizontal scrollbar to represent
+    the width of an item.
 
     \sa horizontalStepsPerItem() setVerticalStepsPerItem()
 */
@@ -1559,7 +1562,10 @@ int QAbstractItemView::horizontalStepsPerItem() const
 }
 
 /*!
-    Sets the vertical scrollbar's \a steps per item.
+    Sets the vertical scrollbar's steps per item to \a steps.
+
+    This is the number of steps used by the vertical scrollbar to represent
+    the height of an item.
 
     \sa verticalStepsPerItem() setHorizontalStepsPerItem()
 */

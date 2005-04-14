@@ -42,6 +42,13 @@
   \value File
 */
 
+/*!
+    \enum QDirModel::Roles
+    \value FileIconRole
+    \value FilePathRole
+    \value FileNameRole
+*/
+
 class QFileIconProviderPrivate
 {
     Q_DECLARE_PUBLIC(QFileIconProvider)
@@ -88,7 +95,6 @@ QFileIconProviderPrivate::QFileIconProviderPrivate()
 
 /*!
   Constructs a file icon provider.
-
 */
 
 QFileIconProvider::QFileIconProvider()
@@ -588,7 +594,7 @@ bool QDirModel::hasChildren(const QModelIndex &parent) const
 /*!
   Returns the item flags for the given \a index in the model.
 
-  \sa Qt::flags() Qt::ItemFlags
+  \sa Qt::ItemFlags
 */
 Qt::ItemFlags QDirModel::flags(const QModelIndex &index) const
 {
