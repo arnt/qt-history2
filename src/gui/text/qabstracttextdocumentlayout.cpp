@@ -46,6 +46,18 @@
 */
 
 /*!
+    \fn void QAbstractTextDocumentLayout::documentSizeChanged(const QSizeF &newSize)
+
+    This signal is emitted when the size of the document changes. The new
+    size is specified by \a newSize.
+
+    This information is useful to widgets that display text documents
+    since it enables them to update their scroll bars correctly.
+
+    \sa documentSize()
+*/
+
+/*!
     \fn void QAbstractTextDocumentLayout::pageCountChanged(int newPages)
 
     This signal is emitted when the number of pages in the layout
@@ -68,10 +80,10 @@
 /*!
     \fn QSizeF QAbstractTextDocumentLayout::documentSize() const
 
-    Returns the total size of the document. This is useful for display widgets,
-    so they can adjust their scrollbars correctly
+    Returns the total size of the document. This is useful to display widgets
+    since they can use to information to update their scroll bars correctly
 
-    \sa QTextDocument::pageSize
+    \sa documentSizeChanged(), QTextDocument::pageSize
 */
 
 /*!

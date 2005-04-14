@@ -1402,7 +1402,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextBlockFormat::setTextIdent(qreal indent)
+    \fn void QTextBlockFormat::setTextIndent(qreal indent)
 
     Sets the \a indent for the first line in the block. This allows the first
     line of a paragraph to be indented differently to the other lines,
@@ -1417,7 +1417,7 @@ QFont QTextCharFormat::font() const
 
     Returns the paragraph's text indent.
 
-    \sa setTextIdent()
+    \sa setTextIndent()
 */
 
 
@@ -1803,7 +1803,7 @@ QTextTableFormat::QTextTableFormat()
 */
 
 /*!
-    \fn void QTextTableFormat::setCellSpacing(int spacing)
+    \fn void QTextTableFormat::setCellSpacing(qreal spacing)
 
     Sets the cell \a spacing for the table. This determines the distance
     between adjacent cells.
@@ -1817,7 +1817,7 @@ QTextTableFormat::QTextTableFormat()
 */
 
 /*!
-    \fn void QTextTableFormat::setCellPadding(int padding)
+    \fn void QTextTableFormat::setCellPadding(qreal padding)
 
     Sets the cell \a padding for the table. This determines the distance
     between the border of a cell and its contents.

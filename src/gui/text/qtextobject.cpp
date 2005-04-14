@@ -95,6 +95,12 @@ QTextFormat QTextObject::format() const
     return d->pieceTable->formatCollection()->objectFormat(d->objectIndex);
 }
 
+/*!
+    Returns the index of the object's format in the document's internal
+    list of formats.
+
+    \sa QTextDocument::object()
+*/
 int QTextObject::formatIndex() const
 {
     Q_D(const QTextObject);
@@ -340,19 +346,19 @@ QTextFrameLayoutData::~QTextFrameLayoutData()
 */
 
 /*!
-    \fn void QTextFrame::setFormat(const QTextFrameFormat &format)
+    \fn void QTextFrame::setFrameFormat(const QTextFrameFormat &format)
 
     Sets the frame's \a format.
 
-    \sa format()
+    \sa frameFormat()
 */
 
 /*!
-    \fn QTextFrameFormat QTextFrame::format() const
+    \fn QTextFrameFormat QTextFrame::frameFormat() const
 
     Returns the frame's format.
 
-    \sa setFormat()
+    \sa setFrameFormat()
 */
 
 /*!
@@ -973,6 +979,12 @@ QTextBlockFormat QTextBlock::blockFormat() const
     return p->formatCollection()->blockFormat(p->blockMap().fragment(n)->format);
 }
 
+/*!
+    Returns an index into the document's internal list of block formats
+    for the text block's format.
+
+    \sa QTextDocument::object()
+*/
 int QTextBlock::blockFormatIndex() const
 {
     if (!p || !n)
@@ -1000,6 +1012,12 @@ QTextCharFormat QTextBlock::charFormat() const
     return p->formatCollection()->charFormat(fm.find(pos)->format);
 }
 
+/*!
+    Returns an index into the document's internal list of character formats
+    for the text block's character format.
+
+    \sa QTextDocument::object()
+*/
 int QTextBlock::charFormatIndex() const
 {
     if (!p || !n)
@@ -1327,6 +1345,12 @@ QTextCharFormat QTextFragment::charFormat() const
     return p->formatCollection()->charFormat(data->format);
 }
 
+/*!
+    Returns an index into the document's internal list of character formats
+    for the text fragment's character format.
+
+    \sa QTextDocument::object()
+*/
 int QTextFragment::charFormatIndex() const
 {
     if (!p || !n)

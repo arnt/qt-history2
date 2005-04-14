@@ -257,6 +257,11 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
 */
 
 /*!
+    \property QTextDocument::defaultFont
+    \brief the default font used to display the document's text
+*/
+
+/*!
     Constructs an empty QTextDocument with the given \a parent.
 */
 QTextDocument::QTextDocument(QObject *parent)
@@ -370,7 +375,7 @@ bool QTextDocument::isUndoRedoEnabled() const
 /*!
     \fn void QTextDocument::markContentsDirty(int position, int length)
 
-    Marks the contents specified by the given \a position and \l length
+    Marks the contents specified by the given \a position and \a length
     as "dirty", informing the document that it needs to be layed out
     again.
 */
@@ -403,7 +408,7 @@ void QTextDocument::markContentsDirty(int from, int length)
     about the change. This hook allows you to implement syntax highlighting
     for the document.
 
-    \sa QAbstractTextDocumentLayout::documentModified()
+    \sa QAbstractTextDocumentLayout::documentChanged(), contentsChanged()
 */
 
 
@@ -474,6 +479,8 @@ QAbstractTextDocumentLayout *QTextDocument::documentLayout() const
 /*!
     Returns meta information about the document of the type specified by
     \a info.
+
+    \sa setMetaInformation()
 */
 QString QTextDocument::metaInformation(MetaInformation info) const
 {
@@ -483,6 +490,12 @@ QString QTextDocument::metaInformation(MetaInformation info) const
     return d->config()->title;
 }
 
+/*!
+    Sets the document's meta information of the type specified by \a info
+    to the given \a string.
+
+    \sa metaInformation()
+*/
 void QTextDocument::setMetaInformation(MetaInformation info, const QString &string)
 {
     if (info != DocumentTitle)
@@ -551,6 +564,17 @@ void QTextDocument::setHtml(const QString &html)
     \value FindCaseSensitively By default find works case insensitive. Specifying this option
     changes the behaviour to a case sensitive find operation.
     \value FindWholeWords Makes find match only complete words.
+*/
+
+/*!
+    \enum QTextDocument::MetaInformation
+
+    This enum describes the different types of meta information that can be
+    added to a document.
+
+    \value DocumentTitle    The title of the document.
+
+    \sa metaInformation(), setMetaInformation()
 */
 
 static bool findInBlock(const QTextBlock &block, const QString &text, const QString &expression, int offset,
@@ -893,6 +917,8 @@ void QTextDocument::print(QPrinter *printer) const
 
     \value HtmlResource  The resource contains HTML.
     \value ImageResource The resource contains image data.
+    \value UserResource  The first available value for user defined
+                         resource types.
 
     \sa loadResource()
 */
@@ -1577,6 +1603,9 @@ QString QTextDocument::toHtml(const QByteArray &encoding) const
     return QTextHtmlExporter(this).toHtml(encoding);
 }
 
+/*!
+    Returns a vector of text formats for all the formats used in the document.
+*/
 QVector<QTextFormat> QTextDocument::allFormats() const
 {
     Q_D(const QTextDocument);

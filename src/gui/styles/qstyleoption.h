@@ -58,6 +58,8 @@ public:
 
     QDOC_PROPERTY(int version)
     QDOC_PROPERTY(int type)
+    QDOC_PROPERTY(Qt::LayoutDirection direction)
+    QDOC_PROPERTY(QFontMetrics fontMetrics)
     QDOC_PROPERTY(QStyle::State state)
     QDOC_PROPERTY(QRect rect)
     QDOC_PROPERTY(QPalette palette)
@@ -672,6 +674,9 @@ public:
 
     int version;
     int type;
+
+    QDOC_PROPERTY(int version)
+    QDOC_PROPERTY(int type)
 };
 
 class Q_GUI_EXPORT QStyleHintReturnMask : public QStyleHintReturn {

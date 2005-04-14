@@ -207,7 +207,17 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 
 /*!
     \property QStyleOption::palette
-    \brief the palette that should be used in when painting the control
+    \brief the palette that should be used when painting the control
+*/
+
+/*!
+    \property QStyleOption::direction
+    \brief the text layout direction that should be used when drawing text in the control
+*/
+
+/*!
+    \property QStyleOption::fontMetrics
+    \brief the font metrics that should be used when drawing text in the control
 */
 
 /*!
@@ -272,6 +282,12 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
 }
 
 /*!
+  \fn QStyleOptionFocusRect::QStyleOptionFocusRect(const QStyleOptionFocusRect &other)
+
+  Constructs a copy of the \a other style option.
+*/
+
+/*!
     \property QStyleOptionFocusRect::backgroundColor
     \brief The background color on which the focus rectangle is being drawn.
 */
@@ -302,6 +318,12 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
     : QStyleOption(version, SO_Frame), lineWidth(0), midLineWidth(0)
 {
 }
+
+/*!
+  \fn QStyleOptionFrame::QStyleOptionFrame(const QStyleOptionFrame &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \property QStyleOptionFrame::lineWidth
@@ -347,6 +369,11 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 {
 }
 
+/*!
+  \fn QStyleOptionHeader::QStyleOptionHeader(const QStyleOptionHeader &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \property QStyleOptionHeader::section
@@ -395,7 +422,7 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 
     \value NotAdjacent Not adjacent to the selected section
     \value NextIsSelected The next section is selected
-    \value Previous The previous section is selected
+    \value PreviousIsSelected The previous section is selected
     \value NextAndPreviousAreSelected Both the next and previous section are selected
 */
 
@@ -452,6 +479,12 @@ QStyleOptionButton::QStyleOptionButton(int version)
 }
 
 /*!
+  \fn QStyleOptionButton::QStyleOptionButton(const QStyleOptionButton &other)
+
+  Constructs a copy of the \a other style option.
+*/
+
+/*!
     \property QStyleOptionButton::features
     \brief The features for the button
 
@@ -504,6 +537,12 @@ QStyleOptionTab::QStyleOptionTab(int version)
       selectedPosition(NotAdjacent), cornerWidgets(QStyleOptionTab::NoCornerWidgets)
 {
 }
+
+/*!
+  \fn QStyleOptionTab::QStyleOptionTab(const QStyleOptionTab &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*! \enum QStyleOptionTab::TabPosition
 
@@ -611,6 +650,11 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 {
 }
 
+/*!
+  \fn QStyleOptionProgressBar::QStyleOptionProgressBar(const QStyleOptionProgressBar &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \property QStyleOptionProgressBar::minimum
@@ -694,6 +738,11 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 {
 }
 
+/*!
+  \fn QStyleOptionMenuItem::QStyleOptionMenuItem(const QStyleOptionMenuItem &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \enum QStyleOptionMenuItem::MenuItemType
@@ -720,7 +769,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
     \value Exclusive The item is an exclusive check item (like a radio button).
     \value NonExclusive The item is a non-exclusive check item (like a check box).
 
-    \sa QAction::checkable QAction::checked QActionGroup::isExculsive
+    \sa QAction::checkable, QAction::checked, QActionGroup::exclusive
 */
 
 /*!
@@ -823,6 +872,12 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 }
 
 /*!
+  \fn QStyleOptionComplex::QStyleOptionComplex(const QStyleOptionComplex &other)
+
+  Constructs a copy of the \a other style option.
+*/
+
+/*!
     \property QStyleOptionComplex::subControls
     \brief The sub-controls that need to be painted.
 
@@ -872,6 +927,12 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
       dialWrapping(false)
 {
 }
+
+/*!
+  \fn QStyleOptionSlider::QStyleOptionSlider(const QStyleOptionSlider &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \property QStyleOptionSlider::orientation
@@ -994,6 +1055,11 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 {
 }
 
+/*!
+  \fn QStyleOptionSpinBox::QStyleOptionSpinBox(const QStyleOptionSpinBox &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \property QStyleOptionSpinBox::buttonSymbols
@@ -1061,6 +1127,11 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 {
 }
 
+/*!
+  \fn QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(const QStyleOptionQ3ListViewItem &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \property QStyleOptionQ3ListViewItem::features
@@ -1128,6 +1199,11 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 {
 }
 
+/*!
+  \fn QStyleOptionQ3ListView::QStyleOptionQ3ListView(const QStyleOptionQ3ListView &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \property QStyleOptionQ3ListView::items
@@ -1209,6 +1285,12 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
 }
 
 /*!
+  \fn QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(const QStyleOptionQ3DockWindow &other)
+
+  Constructs a copy of the \a other style option.
+*/
+
+/*!
     \property QStyleOptionQ3DockWindow::docked
     \brief Indicates that the dock window is currently docked.
 */
@@ -1242,6 +1324,12 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
       moveable(false), floatable(false)
 {
 }
+
+/*!
+  \fn QStyleOptionDockWidget::QStyleOptionDockWidget(const QStyleOptionDockWidget &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \property QStyleOptionDockWidget::title
@@ -1304,6 +1392,11 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 {
 }
 
+/*!
+  \fn QStyleOptionToolButton::QStyleOptionToolButton(const QStyleOptionToolButton &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \property QStyleOptionToolButton::features
@@ -1388,6 +1481,12 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 }
 
 /*!
+  \fn QStyleOptionComboBox::QStyleOptionComboBox(const QStyleOptionComboBox &other)
+
+  Constructs a copy of the \a other style option.
+*/
+
+/*!
     \property QStyleOptionComboBox::editable
     \brief whether or not the combobox is editable or not.
 
@@ -1447,6 +1546,12 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 }
 
 /*!
+  \fn QStyleOptionToolBox::QStyleOptionToolBox(const QStyleOptionToolBox &other)
+
+  Constructs a copy of the \a other style option.
+*/
+
+/*!
     \property QStyleOptionToolBox::icon
     \brief The icon for the tool box tab.
 */
@@ -1484,6 +1589,12 @@ QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
 }
 
 /*!
+  \fn QStyleOptionRubberBand::QStyleOptionRubberBand(const QStyleOptionRubberBand &other)
+
+  Constructs a copy of the \a other style option.
+*/
+
+/*!
     \property QStyleOptionRubberBand::shape
     \brief The shape of the rubber band.
 */
@@ -1511,6 +1622,12 @@ QStyleOptionTitleBar::QStyleOptionTitleBar()
     : QStyleOptionComplex(Version, SO_TitleBar), titleBarState(0), titleBarFlags(0)
 {
 }
+
+/*!
+  \fn QStyleOptionTitleBar::QStyleOptionTitleBar(const QStyleOptionTitleBar &other)
+
+  Constructs a copy of the \a other style option.
+*/
 
 /*!
     \internal
@@ -1592,6 +1709,12 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
 }
 
 /*!
+  \fn QStyleOptionViewItem::QStyleOptionViewItem(const QStyleOptionViewItem &other)
+
+  Constructs a copy of the \a other style option.
+*/
+
+/*!
     \property QStyleOptionViewItem::displayAlignment
     \brief The alignment of the display value for the item.
 */
@@ -1606,6 +1729,13 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
     \brief The position of the decoration for the item.
 
     \sa Position
+*/
+
+/*!
+    \property QStyleOptionViewItem::decorationSize
+    \brief The size of the decoration for the item.
+
+    \sa decorationAlignment, decorationPosition
 */
 
 /*!
@@ -1678,23 +1808,26 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 
 /*!
     \class QStyleHintReturn
-    \brief The QStyleHintReturn is used for style hints that return more than a simple int.
+    \brief The QStyleHintReturn class provides style hints that return more
+    than basic data types.
 
     \ingroup appearance
 
     QStyleHintReturn and its subclasses are used to pass information
-    from a style back to the querying widget. This is most usefull
-    when the return value from QStyle::styleHint() is not enough
-    detail (for example when a mask is to be returned).
+    from a style back to the querying widget. This is most useful
+    when the return value from QStyle::styleHint() does not provide enough
+    detail; for example, when a mask is to be returned.
 
+    \omit
     ### --Sam
+    \endomit
 */
 
 /*!
-    \enum QStyleOption::HitReturnType
+    \enum QStyleHintReturn::HintReturnType
 
     \value SH_Default QStyleHintReturn
-    \value SH_Mask \l SH_RubberBand_Mask SH_FocusFrame_Mask
+    \value SH_Mask \l QStyle::SH_RubberBand_Mask QStyle::SH_FocusFrame_Mask
 */
 
 /*!
@@ -1721,13 +1854,17 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
     used by subclasses to distinguish between different version of
     the same hint type.
 
-    \sa version, type
+    \sa QStyleOption::version, QStyleOption::type
 */
 
 QStyleHintReturn::QStyleHintReturn(int version, int type)
     : version(version), type(type)
 {
 }
+
+/*!
+    \internal
+*/
 
 QStyleHintReturn::~QStyleHintReturn()
 {

@@ -475,8 +475,8 @@ QFont::QFont()
     "Cronyx-Helvetica", is also supported.) If the \a family is
     available from more than one foundry and the foundry isn't
     specified, an arbitrary foundry is chosen. If the family isn't
-    available a family will be set using the \link #fontmatching font
-    matching\endlink algorithm.
+    available a family will be set using the \l{QFont}{font matching}
+    algorithm.
 
     \sa Weight, setFamily(), setPointSize(), setWeight(), setItalic(),
     setStyleHint() QApplication::font()
@@ -554,8 +554,8 @@ QString QFont::family() const
     "Cronyx-Helvetica", is also supported.) If the \a family is
     available from more than one foundry and the foundry isn't
     specified, an arbitrary foundry is chosen. If the family isn't
-    available a family will be set using the \link #fontmatching font
-    matching\endlink algorithm.
+    available a family will be set using the \l{QFont}{font matching}
+    algorithm.
 
     \sa family(), setStyleHint(), QFontInfo
 */
@@ -908,9 +908,8 @@ void QFont::setKerning(bool enable) { detach();
 /*!
     Returns the StyleStrategy.
 
-    The style strategy affects the \link #fontmatching font
-    matching\endlink algorithm. See \l QFont::StyleStrategy for the
-    list of strategies.
+    The style strategy affects the \l{QFont}{font matching} algorithm.
+    See \l QFont::StyleStrategy for the list of available strategies.
 
     \sa setStyleHint() QFont::StyleHint
 */
@@ -922,9 +921,8 @@ QFont::StyleStrategy QFont::styleStrategy() const
 /*!
     Returns the StyleHint.
 
-    The style hint affects the \link #fontmatching font
-    matching\endlink algorithm. See \l QFont::StyleHint for the list
-    of strategies.
+    The style hint affects the \l{QFont}{font matching} algorithm.
+    See \l QFont::StyleHint for the list of available hints.
 
     \sa setStyleHint(), QFont::StyleStrategy QFontInfo::styleHint()
 */
@@ -936,9 +934,9 @@ QFont::StyleHint QFont::styleHint() const
 /*!
     \enum QFont::StyleHint
 
-    Style hints are used by the \link #fontmatching font
-    matching\endlink algorithm to find an appropriate default family
-    if a selected font family is not available.
+    Style hints are used by the \l{QFont}{font matching} algorithm to
+    find an appropriate default family if a selected font family is
+    not available.
 
     \value AnyStyle leaves the font matching algorithm to choose the
            family. This is the default.
@@ -961,9 +959,9 @@ QFont::StyleHint QFont::styleHint() const
 /*!
     \enum QFont::StyleStrategy
 
-    The style strategy tells the \link #fontmatching font
-    matching\endlink algorithm what type of fonts should be used to
-    find an appropriate default family.
+    The style strategy tells the \l{QFont}{font matching} algorithm
+    what type of fonts should be used to find an appropriate default
+    family.
 
     The following strategies are available:
 
