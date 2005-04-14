@@ -1,8 +1,7 @@
-
-!debug_and_release|build_pass {
-   CONFIG(debug, debug|release) {
-      LIBS -= -lQtAssistantClient
+debug {
       unix:LIBS += -lQtAssistantClient_debug
       else:LIBS += -lQtAssistantClientd
-   }
+} else {
+      LIBS += -lQtAssistantClient
+
 }
