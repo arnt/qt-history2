@@ -503,7 +503,7 @@ struct QWSQCopSendCommand : public QWSCommand
         channel = QString(cd,simpleData.clen); cd += simpleData.clen;
         message = QString(cd,simpleData.mlen);
         d += simpleData.clen*sizeof(QChar) + simpleData.mlen*sizeof(QChar);
-        data = QByteArray::fromRawData(d, simpleData.dlen);
+        data = QByteArray(d, simpleData.dlen);
     }
 
     void setMessage(const QString &c, const QString &m,
