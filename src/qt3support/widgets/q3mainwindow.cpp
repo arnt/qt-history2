@@ -1962,6 +1962,7 @@ Q3PopupMenu *Q3MainWindow::createDockWindowMenu(DockWindows dockWindows) const
                 QString label = tb->label();
                 if (!label.isEmpty()) {
                     QAction *act = menu->addAction(label);
+                    act->setCheckable(true);
                     act->setChecked(tb->isVisible());
                     QObject::connect(act, SIGNAL(triggered()), tb, SLOT(toggleVisible()));
                     empty = false;
