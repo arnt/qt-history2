@@ -264,7 +264,7 @@ public:
     }
 
     inline void clear() {
-        free(data.head);
+        ::free(data.head);
         data.init();
     }
 
