@@ -97,6 +97,7 @@
     \section1 Tool Examples
 
     \list
+    \o \l{tools/codecs}{Codecs}
     \o \l{tools/i18n}{I18N}
     \o \l{tools/launcher}{Launcher}
     \o \l{tools/regexp}{RegExp}
