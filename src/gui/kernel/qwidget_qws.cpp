@@ -416,9 +416,31 @@ void QWidget::unsetCursor()
 }
 #endif //QT_NO_CURSOR
 
+#ifndef QT_NO_WIDGET_TOPEXTRA
+void QWidgetPrivate::setWindowTitle_helper(const QString &caption)
+{
+    QString cap = caption;
+
+    int i = cap.lastIndexOf("[*]");
+    if (i != -1) {
+        if (q->isWindowModified())
+            cap.replace(i, 3, '*');
+        else
+            cap.replace(i, 3, "");
+    }
+
+    qwsDisplay()->setWindowCaption(this, caption);
+}
+#endif
+
 void QWidget::setWindowModified(bool mod)
 {
     setAttribute(Qt::WA_WindowModified, mod);
+
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    d->setWindowTitle_helper(windowTitle());
+#endif
+
     QEvent e(QEvent::ModifiedChange);
     QApplication::sendEvent(this, &e);
 }
@@ -435,7 +457,7 @@ void QWidget::setWindowTitle(const QString &caption)
         return; // for less flicker
     d->createTLExtra();
     d->extra->topextra->caption = caption;
-    qwsDisplay()->setWindowCaption(this, caption);
+    
     QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);
 }

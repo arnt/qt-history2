@@ -233,6 +233,7 @@ public:
     void hide_helper();
     void setEnabled_helper(bool);
     void updateFrameStrut() const;
+    void setWindowTitle_helper(const QString &cap);
 
 #if defined(Q_WS_QWS)
 //    void updateRequestedRegion(const QPoint &gpos);

@@ -999,9 +999,30 @@ qstring_to_xtp(const QString& s)
     return &tp;
 }
 
+void QWidgetPrivate::setWindowTitle_helper(const QString &caption)
+{
+    QString cap = caption;
+
+    int i = cap.lastIndexOf("[*]");
+    if (i != -1) {
+        if (q->isWindowModified())
+            cap.replace(i, 3, '*');
+        else
+            cap.replace(i, 3, "");
+    }
+
+    XSetWMName(X11->display, winId(), qstring_to_xtp(cap));
+
+    QByteArray net_wm_name = cap.toUtf8();
+    XChangeProperty(X11->display, winId(), ATOM(_NET_WM_NAME), ATOM(UTF8_STRING), 8,
+                    PropModeReplace, (unsigned char *)net_wm_name.data(), net_wm_name.size());
+}
+
 void QWidget::setWindowModified(bool mod)
 {
     setAttribute(Qt::WA_WindowModified, mod);
+    d->setWindowTitle_helper(windowTitle());
+
     QEvent e(QEvent::ModifiedChange);
     QApplication::sendEvent(this, &e);
 }
@@ -1018,11 +1039,7 @@ void QWidget::setWindowTitle(const QString &caption)
         return;
 
     d->topData()->caption = caption;
-    XSetWMName(X11->display, winId(), qstring_to_xtp(caption));
-
-    QByteArray net_wm_name = caption.toUtf8();
-    XChangeProperty(X11->display, winId(), ATOM(_NET_WM_NAME), ATOM(UTF8_STRING), 8,
-                    PropModeReplace, (unsigned char *)net_wm_name.data(), net_wm_name.size());
+    d->setWindowTitle_helper(caption);
 
     QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);

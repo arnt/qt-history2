@@ -1282,11 +1282,24 @@ void QWidget::unsetCursor()
     }
 }
 
+void QWidgetPrivate::setWindowTitle_helper(const QString &caption)
+{
+    QString cap = caption;
+
+    int i =  cap.lastIndexOf("[*]");
+    if (i != -1)
+        cap.replace(i, 3, "");
+
+    if(isWindow())
+        SetWindowTitleWithCFString(qt_mac_window_for(this), QCFString(cap));
+}
+
 void QWidget::setWindowModified(bool mod)
 {
     setAttribute(Qt::WA_WindowModified, mod);
     if(isWindow())
         SetWindowModified(qt_mac_window_for(this), mod);
+
     QEvent e(QEvent::ModifiedChange);
     QApplication::sendEvent(this, &e);
 }
@@ -1301,8 +1314,8 @@ void QWidget::setWindowTitle(const QString &cap)
     if(d->topData() && d->topData()->caption == cap)
         return; // for less flicker
     d->topData()->caption = cap;
-    if(isWindow())
-        SetWindowTitleWithCFString(qt_mac_window_for(this), QCFString(cap));
+    d->setWindowTitle_helper(cap);
+
     QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);
 }
