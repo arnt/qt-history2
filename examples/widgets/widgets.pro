@@ -4,11 +4,12 @@ SUBDIRS       = analogclock \
                 charactermap \
                 digitalclock \
                 groupbox \
+                icons \
                 imageviewer \
                 lineedits \
                 scribble \
                 sliders \
                 spinboxes \
-		styles \
+                styles \
                 tetrix \
                 wiggly
