@@ -649,7 +649,7 @@ QByteArray::Data QByteArray::shared_empty = { Q_ATOMIC_INIT(1), 0, 0, shared_emp
     and QByteArray() compares equal to QByteArray(""). We recommend
     that you always use isEmpty() and avoid isNull().
 
-    \section1 Note on 9-bit Character Comparisons
+    \section1 Note on 8-bit Character Comparisons
 
     In QByteArray, the notion of uppercase and lowercase and of which
     character is greater than or less than another character is
