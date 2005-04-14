@@ -1954,8 +1954,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                     t = QEvent::TabletRelease;
             tablet_button_state = new_tablet_button_state;
             if (widget) {
-                int tiltX = ((int)tabletPointRec.tiltX)/(32767/60); // 32K -> 60
-                int tiltY = ((int)tabletPointRec.tiltY)/(32767/60); // 32K -> 60
+                int tiltX = ((int)tabletPointRec.tiltX)/(32767/64); // 32K -> 60
+                int tiltY = ((int)tabletPointRec.tiltY)/(-32767/64); // 32K -> 60
                 HIPoint hiPoint;
                 GetEventParameter(event, kEventParamMouseLocation, typeHIPoint, 0, sizeof(HIPoint), 0, &hiPoint);
                 QPointF hiRes(hiPoint.x, hiPoint.y);
