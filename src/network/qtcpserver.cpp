@@ -74,9 +74,6 @@
 #include "qtcpserver.h"
 #include "qtcpsocket.h"
 
-#define d d_func()
-#define q q_func()
-
 class QTcpServerPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QTcpServer)
@@ -122,13 +119,14 @@ QTcpServerPrivate::~QTcpServerPrivate()
 */
 void QTcpServerPrivate::processIncomingConnection(int)
 {
+    Q_Q(QTcpServer);
     for (;;) {
         if (pendingConnections.count() >= maxConnections) {
 #if defined (QTCPSERVER_DEBUG)
             qDebug("QTcpServerPrivate::processIncomingConnection() too many connections");
 #endif
-            if (d->readSocketNotifier && d->readSocketNotifier->isEnabled())
-                d->readSocketNotifier->setEnabled(false);
+            if (readSocketNotifier && readSocketNotifier->isEnabled())
+                readSocketNotifier->setEnabled(false);
             return;
         }
 
@@ -157,7 +155,7 @@ void QTcpServerPrivate::processIncomingConnection(int)
 QTcpServer::QTcpServer(QObject *parent)
     : QObject(*new QTcpServerPrivate, parent)
 {
-    d->state = QAbstractSocket::UnconnectedState;
+    d_func()->state = QAbstractSocket::UnconnectedState;
 }
 
 /*!
@@ -186,6 +184,7 @@ QTcpServer::~QTcpServer()
 */
 bool QTcpServer::listen(const QHostAddress &address, quint16 port)
 {
+    Q_D(QTcpServer);
     if (d->state == QAbstractSocket::ListeningState) {
         qWarning("QTcpServer::listen() called when already listening");
         return false;
@@ -253,7 +252,7 @@ bool QTcpServer::listen(quint16 port)
 */
 bool QTcpServer::isListening() const
 {
-    return d->socketLayer.state() == QAbstractSocket::ListeningState;
+    return d_func()->socketLayer.state() == QAbstractSocket::ListeningState;
 }
 
 /*!
@@ -264,6 +263,7 @@ bool QTcpServer::isListening() const
 */
 void QTcpServer::close()
 {
+    Q_D(QTcpServer);
     if (d->readSocketNotifier && d->readSocketNotifier->isEnabled())
         d->readSocketNotifier->setEnabled(false);
     delete d->readSocketNotifier;
@@ -286,7 +286,7 @@ void QTcpServer::close()
 */
 int QTcpServer::socketDescriptor() const
 {
-    return d->socketLayer.socketDescriptor();
+    return d_func()->socketLayer.socketDescriptor();
 }
 
 /*!
@@ -299,6 +299,7 @@ int QTcpServer::socketDescriptor() const
 */
 bool QTcpServer::setSocketDescriptor(int socketDescriptor)
 {
+    Q_D(QTcpServer);
     if (isListening()) {
         qWarning("QTcpServer::setSocketDescriptor() called when already listening");
         return false;
@@ -336,7 +337,7 @@ bool QTcpServer::setSocketDescriptor(int socketDescriptor)
 */
 quint16 QTcpServer::serverPort() const
 {
-    return d->socketLayer.localPort();
+    return d_func()->socketLayer.localPort();
 }
 
 /*!
@@ -347,7 +348,7 @@ quint16 QTcpServer::serverPort() const
 */
 QHostAddress QTcpServer::serverAddress() const
 {
-    return d->socketLayer.localAddress();
+    return d_func()->socketLayer.localAddress();
 }
 
 /*!
@@ -369,6 +370,7 @@ QHostAddress QTcpServer::serverAddress() const
 */
 bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
 {
+    Q_D(QTcpServer);
     if (d->state != QAbstractSocket::ListeningState)
         return false;
 
@@ -395,7 +397,7 @@ bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
 */
 bool QTcpServer::hasPendingConnections() const
 {
-    return !d->pendingConnections.isEmpty();
+    return !d_func()->pendingConnections.isEmpty();
 }
 
 /*!
@@ -411,6 +413,7 @@ bool QTcpServer::hasPendingConnections() const
 */
 QTcpSocket *QTcpServer::nextPendingConnection()
 {
+    Q_D(QTcpServer);
     if (d->pendingConnections.isEmpty())
         return 0;
 
@@ -442,7 +445,7 @@ void QTcpServer::incomingConnection(int socketDescriptor)
 
     QTcpSocket *socket = new QTcpSocket(this);
     socket->setSocketDescriptor(socketDescriptor);
-    d->pendingConnections.append(socket);
+    d_func()->pendingConnections.append(socket);
 }
 
 /*!
@@ -460,7 +463,7 @@ void QTcpServer::incomingConnection(int socketDescriptor)
 */
 void QTcpServer::setMaxPendingConnections(int numConnections)
 {
-    d->maxConnections = numConnections;
+    d_func()->maxConnections = numConnections;
 }
 
 /*!
@@ -471,7 +474,7 @@ void QTcpServer::setMaxPendingConnections(int numConnections)
 */
 int QTcpServer::maxPendingConnections() const
 {
-    return d->maxConnections;
+    return d_func()->maxConnections;
 }
 
 /*!
@@ -481,7 +484,7 @@ int QTcpServer::maxPendingConnections() const
 */
 QAbstractSocket::SocketError QTcpServer::serverError() const
 {
-    return d->serverSocketError;
+    return d_func()->serverSocketError;
 }
 
 /*!
@@ -492,8 +495,9 @@ QAbstractSocket::SocketError QTcpServer::serverError() const
 */
 QString QTcpServer::errorString() const
 {
-    return d->serverSocketErrorString;
+    return d_func()->serverSocketErrorString;
 }
 
+#define d d_func()
 #include "moc_qtcpserver.cpp"
 

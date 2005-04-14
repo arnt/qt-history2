@@ -43,9 +43,6 @@
 #include "qtcpsocket.h"
 #include "qhostaddress.h"
 
-#define d d_func()
-#define q q_func()
-
 class QTcpSocketPrivate : public QAbstractSocketPrivate
 {
     Q_DECLARE_PUBLIC(QTcpSocket)
@@ -64,7 +61,7 @@ QTcpSocket::QTcpSocket(QObject *parent)
 #if defined(QTCPSOCKET_DEBUG)
     qDebug("QTcpSocket::QTcpSocket()");
 #endif
-    d->isBuffered = true;
+    d_func()->isBuffered = true;
 }
 
 /*!

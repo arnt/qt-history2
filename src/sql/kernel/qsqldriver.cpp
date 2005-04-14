@@ -20,9 +20,6 @@
 #include "qstringlist.h"
 #include "private/qobject_p.h"
 
-#define d d_func()
-#define q q_func()
-
 class QSqlDriverPrivate : public QObjectPrivate
 {
 public:
@@ -30,7 +27,8 @@ public:
     virtual ~QSqlDriverPrivate();
 
 public:
-    QSqlDriver *q;
+    // @CHECK: this member is never used. It was named q, which expanded to q_func().
+    QSqlDriver *q_func();
     uint isOpen : 1;
     uint isOpenError : 1;
     QSqlError error;
@@ -119,7 +117,7 @@ QSqlDriver::~QSqlDriver()
 
 bool QSqlDriver::isOpen() const
 {
-    return d->isOpen;
+    return d_func()->isOpen;
 }
 
 /*!
@@ -129,7 +127,7 @@ bool QSqlDriver::isOpen() const
 
 bool QSqlDriver::isOpenError() const
 {
-    return d->isOpenError;
+    return d_func()->isOpenError;
 }
 
 /*!
@@ -203,7 +201,7 @@ bool QSqlDriver::isOpenError() const
 
 void QSqlDriver::setOpen(bool open)
 {
-    d->isOpen = open;
+    d_func()->isOpen = open;
 }
 
 /*!
@@ -217,9 +215,9 @@ void QSqlDriver::setOpen(bool open)
 
 void QSqlDriver::setOpenError(bool error)
 {
-    d->isOpenError = error;
+    d_func()->isOpenError = error;
     if (error)
-        d->isOpen = false;
+        d_func()->isOpen = false;
 }
 
 /*!
@@ -270,7 +268,7 @@ bool QSqlDriver::rollbackTransaction()
 
 void QSqlDriver::setLastError(const QSqlError &error)
 {
-    d->error = error;
+    d_func()->error = error;
 }
 
 /*!
@@ -280,7 +278,7 @@ void QSqlDriver::setLastError(const QSqlError &error)
 
 QSqlError QSqlDriver::lastError() const
 {
-    return d->error;
+    return d_func()->error;
 }
 
 /*!
