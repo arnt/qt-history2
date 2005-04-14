@@ -92,7 +92,6 @@ public:
     \row \i Receiving information \i
 	x11FilterEvent(),
 	filterEvent(),
-	setMicroFocus(),
 	mouseHandler()
 
     \row \i Sending back composed text \i
@@ -258,7 +257,7 @@ public:
 
 
 /*!
-    Constructs an input context.
+    Constructs an input context with the given \a parent.
 */
 QInputContext::QInputContext(QObject* parent)
     : QObject(*new QInputContextPrivate, parent)
@@ -355,7 +354,7 @@ bool QInputContext::filterEvent(const QEvent * /*event*/)
 }
 
 /*!
-  Sends an input method event to the current focus
+  Sends an input method event specified by \a event to the current focus
   widget. Implementations of QInputContext should call this method to
   send the generated input method events and not
   QApplication::sendEvent(), as the events might have to get dispatched
@@ -367,7 +366,7 @@ bool QInputContext::filterEvent(const QEvent * /*event*/)
   yes, it will call the parents sendEvent() implementation instead of
   sending the event directly.
 
-  \sa QInputMethodEvent, setMicroFocus()
+  \sa QInputMethodEvent
 */
 void QInputContext::sendEvent(const QInputMethodEvent &event)
 {
@@ -397,10 +396,10 @@ void QInputContext::sendEvent(const QInputMethodEvent &event)
     with the InputMethodCompose event. The alteration boundary of \a x is
     ensured as character boundary of preedit string accurately.
 
-    \a type is either \c QEvent::MouseButtonPress or \c
-    QEvent::MouseButtonRelease or \c QEvent::MouseButtonDblClick or \c
-    QEvent::MouseButtonMove. Refer \a button and \a state to determine
-    what operation has performed.
+    The event type is \c QEvent::MouseButtonPress,
+    \c QEvent::MouseButtonRelease, \c QEvent::MouseButtonDblClick or \c
+    QEvent::MouseButtonMove. The event's button and state indicate
+    the kind of operation that was performed.
 
     The method interface is imported from
     QWSInputMethod::mouseHandler() of Qt/Embedded 2.3.7 and extended
