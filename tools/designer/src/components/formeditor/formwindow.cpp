@@ -422,7 +422,8 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
     foreach (QWidget *child, sel) {
         QWidget *current = child;
 
-        while (LayoutInfo::isWidgetLaidout(core(), current) == true) {
+        while (LayoutInfo::isWidgetLaidout(core(), current) == true
+                || qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), current->parentWidget()) != 0) {
             current = current->parentWidget();
         }
 
