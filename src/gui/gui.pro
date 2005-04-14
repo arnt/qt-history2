@@ -27,8 +27,6 @@ include(accessible/accessible.pri)
 include(itemviews/itemviews.pri)
 include(inputmethod/inputmethod.pri)
 
-qrasterpaintengine:include(raster.pri)
-
 embedded: INCLUDEPATH *= $$QMAKE_INCDIR_QT/QtNetwork
 
 QMAKE_LIBS += $$QMAKE_LIBS_GUI
