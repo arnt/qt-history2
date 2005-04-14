@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     QString locale = QLocale::system().name();
 
     QTranslator translator;
-    translator.load(QString("arrowpad_") + locale, ".");
+    translator.load(QString("arrowpad_") + locale);
     app.installTranslator(&translator);
 
     MainWindow *mainWin = new MainWindow;

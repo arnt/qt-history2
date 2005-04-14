@@ -3,4 +3,4 @@ HEADERS       = mainwindow.h \
 SOURCES       = main.cpp \
                 mainwindow.cpp \
                 printpanel.cpp
-TRANSLATIONS  = tt3_pt.ts
+TRANSLATIONS  = trollprint_pt.ts
