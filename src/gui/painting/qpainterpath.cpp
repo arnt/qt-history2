@@ -250,6 +250,7 @@ void QPainterPath::ensureData_helper()
     data = qAtomicSetPtr(&d_ptr, data);
     if (data && !data->ref.deref())
         delete (QPainterPathData *) data;
+    Q_ASSERT(d_ptr != 0);
 }
 
 /*!
@@ -314,11 +315,6 @@ void QPainterPath::closeSubpath()
 */
 void QPainterPath::moveTo(const QPointF &p)
 {
-    // QPainterPathData inherits from QPainterPathPrivate
-    // To me this does not seem to be in line with the rest of the
-    // QObject/QObjectPrivate scheme.
-    QPainterPathData *d = d_func();
-
 #ifdef QPP_DEBUG
     printf("QPainterPath::moveTo() (%.2f,%.2f)\n", p.x(), p.y());
 #endif
@@ -328,6 +324,8 @@ void QPainterPath::moveTo(const QPointF &p)
 #endif
     ensureData();
     detach();
+
+    QPainterPathData *d = d_func();
     Q_ASSERT(!d->elements.isEmpty());
     if (d->elements.last().type == MoveToElement) {
         d->elements.last().x = p.x();
@@ -360,7 +358,6 @@ void QPainterPath::moveTo(const QPointF &p)
  */
 void QPainterPath::lineTo(const QPointF &p)
 {
-    QPainterPathData *d = d_func();
 #ifdef QPP_DEBUG
     printf("QPainterPath::lineTo() (%.2f,%.2f)\n", p.x(), p.y());
 #endif
@@ -371,6 +368,7 @@ void QPainterPath::lineTo(const QPointF &p)
     ensureData();
     detach();
 
+    QPainterPathData *d = d_func();
     Q_ASSERT(!d->elements.isEmpty());
     if (p == QPointF(d->elements.last()))
         return;
@@ -402,7 +400,6 @@ void QPainterPath::lineTo(const QPointF &p)
 */
 void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &e)
 {
-    QPainterPathData *d = d_func();
 #ifdef QPP_DEBUG
     printf("QPainterPath::cubicTo() (%.2f,%.2f), (%.2f,%.2f), (%.2f,%.2f)\n",
            c1.x(), c1.y(), c2.x(), c2.y(), e.x(), e.y());
@@ -415,6 +412,7 @@ void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &
     ensureData();
     detach();
 
+    QPainterPathData *d = d_func();
     Q_ASSERT(!d->elements.isEmpty());
     Element ce1 = { c1.x(), c1.y(), CurveToElement };
     Element ce2 = { c2.x(), c2.y(), CurveToDataElement };
@@ -446,7 +444,6 @@ void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &
 */
 void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
 {
-    Q_D(QPainterPath);
 #ifdef QPP_DEBUG
     printf("QPainterPath::quadTo() (%.2f,%.2f), (%.2f,%.2f)\n",
            c.x(), c.y(), e.x(), e.y());
@@ -458,6 +455,7 @@ void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
     ensureData();
     detach();
 
+    Q_D(QPainterPath);
     Q_ASSERT(!d->elements.isEmpty());
     const QPainterPath::Element &elm = d->elements.at(elementCount()-1);
     QPointF prev(elm.x, elm.y);
@@ -499,7 +497,6 @@ void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
 */
 void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength)
 {
-    Q_D(QPainterPath);
 #ifdef QPP_DEBUG
     printf("QPainterPath::arcTo() (%.2f, %.2f, %.2f, %.2f, angle=%.2f, sweep=%.2f\n",
            rect.x(), rect.y(), rect.width(), rect.height(), startAngle, sweepLength);
@@ -512,6 +509,7 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
     ensureData();
     detach();
 
+    Q_D(QPainterPath);
     Q_ASSERT(!d->elements.isEmpty());
 //     printf("   -> arcTo: rect=(%.1f,%.1f,%.1f,%.1f), angle=%.1f, len=%.1f\n",
 //            rect.x(), rect.y(), rect.width(), rect.height(),
@@ -604,7 +602,6 @@ void QPainterPath::addRect(const QRectF &r)
     detach();
 
     d_func()->elements.reserve(d_func()->elements.size() + 5);
-
     moveTo(r.x(), r.y());
 
     Element l1 = { r.x() + r.width(), r.y(), LineToElement };
@@ -613,7 +610,6 @@ void QPainterPath::addRect(const QRectF &r)
     Element l4 = { r.x(), r.y(), LineToElement };
 
     d_func()->elements << l1 << l2 << l3 << l4;
-
 }
 
 /*!
@@ -647,7 +643,6 @@ void QPainterPath::addPolygon(const QPolygonF &polygon)
 */
 void QPainterPath::addEllipse(const QRectF &boundingRect)
 {
-    Q_D(QPainterPath);
 #ifndef QT_NO_DEBUG
     if (qIsNan(boundingRect.x()) || qIsNan(boundingRect.y())
         || qIsNan(boundingRect.width()) || qIsNan(boundingRect.height()))
@@ -659,6 +654,7 @@ void QPainterPath::addEllipse(const QRectF &boundingRect)
     ensureData();
     detach();
 
+    Q_D(QPainterPath);
     d->elements.reserve(d->elements.size() + 13);
 
     qreal x = boundingRect.x();
@@ -698,8 +694,6 @@ void QPainterPath::addEllipse(const QRectF &boundingRect)
     Element end4 = { x + w, y + h2, CurveToDataElement };
     d->elements << cp14 << cp24 << end4;
 }
-
-#undef d
 
 /*!
     \fn void QPainterPath::addText(const QPointF &point, const QFont &font, const QString &text)
@@ -761,13 +755,13 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
 */
 void QPainterPath::addPath(const QPainterPath &other)
 {
-    QPainterPathData *d = reinterpret_cast<QPainterPathData *>(d_func());
     if (other.isEmpty())
         return;
 
     ensureData();
     detach();
 
+    QPainterPathData *d = reinterpret_cast<QPainterPathData *>(d_func());
     // Remove last moveto so we don't get multiple moveto's
     if (d->elements.last().type == MoveToElement)
         d->elements.remove(d->elements.size()-1);
@@ -787,13 +781,13 @@ void QPainterPath::addPath(const QPainterPath &other)
 */
 void QPainterPath::connectPath(const QPainterPath &other)
 {
-    QPainterPathData *d = reinterpret_cast<QPainterPathData *>(d_func());
     if (other.isEmpty())
         return;
 
     ensureData();
     detach();
 
+    QPainterPathData *d = reinterpret_cast<QPainterPathData *>(d_func());
     // Remove last moveto so we don't get multiple moveto's
     if (d->elements.last().type == MoveToElement)
         d->elements.remove(d->elements.size()-1);
