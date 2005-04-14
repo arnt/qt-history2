@@ -703,8 +703,14 @@ void QWidget::setWindowTitle(const QString &caption)
 #else
     QString cap = caption;
 #endif
-    if(isWindowModified())
-        cap += " *";
+
+    if (cap.contains("[\\*.]")) {
+        if(isWindowModified())
+            cap.replace("[*]", "*");
+        else
+            cap.replace("[*]", "");
+    }
+
     QT_WA({
         SetWindowText(winId(), (TCHAR*)cap.utf16());
     } , {
