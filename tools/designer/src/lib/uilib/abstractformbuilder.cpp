@@ -546,7 +546,10 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
     case DomProperty::Set: {
         QByteArray pname = p->attributeName().toUtf8();
         int index = meta->indexOfProperty(pname);
-        Q_ASSERT(index != -1);
+        if (index == -1) {
+            qWarning() << "property" << pname << "is not suppoerted";
+            break;
+        }
 
         QMetaEnum e = meta->property(index).enumerator();
         Q_ASSERT(e.isFlag() == true);
@@ -557,7 +560,10 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
     case DomProperty::Enum: {
         QByteArray pname = p->attributeName().toUtf8();
         int index = meta->indexOfProperty(pname);
-        Q_ASSERT(index != -1);
+        if (index == -1) {
+            qWarning() << "property" << pname << "is not suppoerted";
+            break;
+        }
 
         QMetaEnum e = meta->property(index).enumerator();
         v = e.keyToValue(p->elementEnum().toUtf8());
