@@ -24,6 +24,7 @@
 #include <qdebug.h>
 #include <qhash.h>
 #include <qreadwritelock.h>
+#include <qvarlengtharray.h>
 
 #include <new>
 
@@ -2208,107 +2209,93 @@ static void queued_activate(QObject *obj, const QConnection &c, void **argv)
     QCoreApplication::postEvent(c.receiver, new QMetaCallEvent(c.member, nargs, types, args));
 }
 
-class QPublicObject : public QObject
-{
-public:
-    Q_DECLARE_PRIVATE(QObject)
-};
-
-static void activate(QPublicObject * const sender, int signal_index, void **argv,
-                     int currentQThreadId,
-                     QConnectionList::Hash::const_iterator it,
-                     const QConnectionList::Hash::const_iterator end)
-{
-    const int at = it.value();
-    if (++it != end && it.key() == sender)
-        activate(sender, signal_index, argv, currentQThreadId, it, end);
-
-    QConnectionList * const list = ::connectionList();
-    const QConnection &c = list->connections.at(at);
-    if (!c.receiver || c.signal != signal_index)
-        return;
-
-    QPublicObject *receiver = static_cast<QPublicObject *>(c.receiver);
-
-    // determine if this connection should be sent immediately or
-    // put into the event queue
-    if ((c.type == Qt::AutoConnection
-         && (currentQThreadId != sender->d_func()->thread
-             || receiver->d_func()->thread != sender->d_func()->thread))
-         || (c.type == Qt::QueuedConnection)) {
-        ::queued_activate(sender, c, argv);
-        return;
-    }
-
-    const int member = c.member;
-    QObject * const previousSender = receiver->d_func()->currentSender;
-    receiver->d_func()->currentSender = sender;
-    list->lock.unlock();
-
-    if (qt_signal_spy_callback_set.slot_begin_callback != 0)
-        qt_signal_spy_callback_set.slot_begin_callback(receiver, member, argv);
-
-#if defined(QT_NO_EXCEPTIONS)
-    receiver->qt_metacall(QMetaObject::InvokeMetaMember, member, argv);
-#else
-    try {
-        receiver->qt_metacall(QMetaObject::InvokeMetaMember, member, argv);
-    } catch (...) {
-        list->lock.lockForRead();
-        if (c.receiver) {
-            receiver = static_cast<QPublicObject *>(c.receiver);
-            receiver->d_func()->currentSender = previousSender;
-            throw;
-        }
-    }
-#endif
-
-    if (qt_signal_spy_callback_set.slot_end_callback != 0)
-        qt_signal_spy_callback_set.slot_end_callback(receiver, member);
-
-    list->lock.lockForRead();
-    if (c.receiver) {
-        receiver = static_cast<QPublicObject *>(c.receiver);
-        receiver->d_func()->currentSender = previousSender;
-    }
-}
-
-
 /*!\internal
  */
-void QMetaObject::activate(QObject *obj, int signal_index, void **argv)
+void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
 {
-    if (obj->d_func()->blockSig)
+    if (sender->d_func()->blockSig)
         return;
     QConnectionList * const list = ::connectionList();
     if (!list)
         return;
     QReadLocker locker(&list->lock);
-    QConnectionList::Hash::const_iterator it = list->sendersHash.find(obj);
-    if (it == list->sendersHash.end())
+    QConnectionList::Hash::const_iterator it = list->sendersHash.find(sender);
+    const QConnectionList::Hash::const_iterator end = list->sendersHash.constEnd();
+    if (it == end)
         return;
-    void *empty_argv[] = { 0 };
-
-    if (qt_signal_spy_callback_set.signal_begin_callback != 0)
-        qt_signal_spy_callback_set.signal_begin_callback(obj, signal_index, argv ? argv : empty_argv);
 
     list->invariant.ref();
-    QThread *currentThread = QThread::currentThread();
-    ::activate(static_cast<QPublicObject *>(obj), signal_index, argv ? argv : empty_argv,
-               currentThread ? QThreadData::get(currentThread)->id : -1,
-               it, list->sendersHash.end());
+
+    void *empty_argv[] = { 0 };
+    QThread * const currentThread = QThread::currentThread();
+    const int currentQThreadId = currentThread ? QThreadData::get(currentThread)->id : -1;
+
+    if (qt_signal_spy_callback_set.signal_begin_callback != 0)
+        qt_signal_spy_callback_set.signal_begin_callback(sender, signal_index,
+                                                         argv ? argv : empty_argv);
+
+    QVarLengthArray<int> connections;
+    for (; it != end && it.key() == sender; ++it)
+        connections.append(it.value());
+    for (int i = 0; i < connections.size(); ++i) {
+        const int at = connections.constData()[connections.size() - (i + 1)];
+        QConnectionList * const list = ::connectionList();
+        const QConnection &c = list->connections.at(at);
+        if (!c.receiver || c.signal != signal_index)
+            continue;
+
+        // determine if this connection should be sent immediately or
+        // put into the event queue
+        if ((c.type == Qt::AutoConnection
+             && (currentQThreadId != sender->d_func()->thread
+                 || c.receiver->d_func()->thread != sender->d_func()->thread))
+            || (c.type == Qt::QueuedConnection)) {
+            ::queued_activate(sender, c, argv);
+            continue;
+        }
+
+        const int member = c.member;
+        QObject * const previousSender = c.receiver->d_func()->currentSender;
+        c.receiver->d_func()->currentSender = sender;
+        list->lock.unlock();
+
+        if (qt_signal_spy_callback_set.slot_begin_callback != 0)
+            qt_signal_spy_callback_set.slot_begin_callback(c.receiver, member, argv);
+
+#if defined(QT_NO_EXCEPTIONS)
+        c.receiver->qt_metacall(QMetaObject::InvokeMetaMember, member, argv);
+#else
+        try {
+            c.receiver->qt_metacall(QMetaObject::InvokeMetaMember, member, argv);
+        } catch (...) {
+            list->lock.lockForRead();
+            if (c.receiver) {
+                c.receiver->d_func()->currentSender = previousSender;
+                throw;
+            }
+        }
+#endif
+
+        if (qt_signal_spy_callback_set.slot_end_callback != 0)
+            qt_signal_spy_callback_set.slot_end_callback(c.receiver, member);
+
+        list->lock.lockForRead();
+        if (c.receiver)
+            c.receiver->d_func()->currentSender = previousSender;
+    }
 
     if (qt_signal_spy_callback_set.signal_end_callback != 0)
-        qt_signal_spy_callback_set.signal_end_callback(obj, signal_index);
+        qt_signal_spy_callback_set.signal_end_callback(sender, signal_index);
 
     list->invariant.deref();
 }
 
 /*!\internal
  */
-void QMetaObject::activate(QObject *obj, const QMetaObject *m, int local_signal_index, void **argv)
+void QMetaObject::activate(QObject *sender, const QMetaObject *m, int local_signal_index,
+                           void **argv)
 {
-    activate(obj, m->memberOffset() + local_signal_index, argv);
+    activate(sender, m->memberOffset() + local_signal_index, argv);
 }
 
 /*****************************************************************************
@@ -2318,7 +2305,7 @@ void QMetaObject::activate(QObject *obj, const QMetaObject *m, int local_signal_
 #ifndef QT_NO_PROPERTIES
 
 /*!
-  Sets the value of the object's \a name property to \a value.
+  Sets the value of the obj1ect's \a name property to \a value.
 
   Returns true if the operation was successful; otherwise returns
   false.
