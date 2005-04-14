@@ -41,10 +41,10 @@ Function SetEnvPage
   !insertmacro MUI_HEADER_TEXT "$(EnvTitle)" "$(EnvTitleDescription)"
   
   strcmp $SET_ENV_VARS "1" 0 envCheckNo
-    !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 1" "State" "1"
+    !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 3" "State" "1"
     goto showEnvPage
   envCheckNo:
-    !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 1" "State" "0"
+    !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 3" "State" "0"
 
   showEnvPage:
   
@@ -59,7 +59,7 @@ Function SetEnvPage
 FunctionEnd
 
 Function SetEnvVariables
-  !insertmacro MUI_INSTALLOPTIONS_READ $SET_ENV_VARS "${TT_ENV_INI_FILE}" "Field 1" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $SET_ENV_VARS "${TT_ENV_INI_FILE}" "Field 3" "State"
   !insertmacro MUI_INSTALLOPTIONS_READ $REGISTER_UI_EXT_STATE "${TT_ENV_INI_FILE}" "Field 6" "State"
   WriteRegDWORD ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "QtEnvSet" $SET_ENV_VARS
 FunctionEnd
@@ -99,7 +99,6 @@ Function un.UnregisterUIExtension
   ; just delete it since nobody else is supposed to use it
   DeleteRegKey HKCR "${UI_FILE_INTERNAL_DESC}"
 
-  nouiextension:
   pop $1
 FunctionEnd
 
@@ -171,9 +170,9 @@ FunctionEnd
 Function GetMkSpec
   push $0
   
-  StrCmp $FORCE_MAKESPEC "VS2003" win32-msvc.net
-  StrCmp $FORCE_MAKESPEC "VS2002" win32-msvc.net
-  StrCmp $FORCE_MAKESPEC "VS60" win32-msvc
+  StrCmp ${FORCE_MAKESPEC} "vs2003" win32-msvc.net
+  StrCmp ${FORCE_MAKESPEC} "vs2002" win32-msvc.net
+  StrCmp ${FORCE_MAKESPEC} "vc60" win32-msvc
 
   ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\8.0" "InstallDir"
   StrCmp $0 "" +1 win32-msvc.net ; found msvc.net 2005
@@ -270,9 +269,9 @@ FunctionEnd
 Function GetVSVarsFile
   push $0
 
-  StrCmp $FORCE_MAKESPEC "VS2003" VS2003
-  StrCmp $FORCE_MAKESPEC "VS2002" VS2002
-  StrCmp $FORCE_MAKESPEC "VS60" VS60
+  StrCmp ${FORCE_MAKESPEC} "vs2003" VS2003
+  StrCmp ${FORCE_MAKESPEC} "vs2002" VS2002
+  StrCmp ${FORCE_MAKESPEC} "vc60" VS60
 
   ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\8.0\Setup\VS" "ProductDir"
   StrCmp $0 "" +1 foundVSDir ; found msvc.net 2005

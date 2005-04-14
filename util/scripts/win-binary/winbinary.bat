@@ -6,21 +6,21 @@ rem %1 = working directory
 rem %2 = package name (without extension)
 rem %3 = version
 rem %4 = options (release|full, default release)
-rem %5 = compiler (VS2003, optional, default VS2003)
-rem %6 = build directory (optional, default compile)
-rem %7 = NSIS directory (optional)
+rem %5 = compiler (vs2003, optional, default vs2003)
+rem %6 = NSIS directory (optional)
 rem ***********************************************
 
 set TMP_QTVERSION=%3
 set TMP_QTCONFIG=%4
 set TMP_COMPILER=%5
-set TMP_BUILDDIR=%6
-set TMP_NSISDIR=%7
+set TMP_NSISDIR=%6
+
+rem We need to compile qt in a long directory, since we want to patch the pdb files.
+set TMP_BUILDDIR=__________________________________________________PADDING__________________________________________________
 
 if "%4"=="" set TMP_QTCONFIG=release
-if "%5"=="" set TMP_COMPILER=VS2003
-if "%6"=="" set TMP_BUILDDIR=compile
-if "%7"=="" set TMP_NSISDIR=C:\Program Files\NSIS
+if "%5"=="" set TMP_COMPILER=vs2003
+if "%6"=="" set TMP_NSISDIR=C:\Program Files\NSIS
 
 call :ExtractAndCopy %1 %2
 call :Compile %1
@@ -43,7 +43,7 @@ cd %1\clean
 if "%TMP_QTCONFIG%"=="release" goto ReleaseConfig
 echo - Copying symbols
 xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.pdb %1\clean\bin >> %1\log.txt
-xcopy /Q /I %1\%TMP_BUILDDIR%\src\winmain\*.pdb %1\clean\bin >> %1\log.txt
+xcopy /Q /I %1\%TMP_BUILDDIR%\src\winmain\*.pdb %1\clean\lib >> %1\log.txt
 goto CopyFiles
 
 :ReleaseConfig
@@ -116,7 +116,7 @@ if not %errorlevel%==0 goto FAILED
 
 if "%TMP_QTCONFIG%"=="release" goto ReleaseNSIS
 echo - Running makensis (full)
-"%TMP_NSISDIR%\makensis.exe" /DQTBUILDDIR="%1\%TMP_BUILDDIR%" /DFORCE_MAKESPEC="%TMP_COMPILER%" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2" installscriptwin.nsi >> %1\log.txt
+"%TMP_NSISDIR%\makensis.exe" /DQTBUILDDIR="%1\%TMP_BUILDDIR%" /DFORCE_MAKESPEC="%TMP_COMPILER%" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2-%TMP_COMPILER%" installscriptwin.nsi >> %1\log.txt
 if not %errorlevel%==0 goto FAILED
 goto EndNSIS
 
@@ -135,7 +135,7 @@ rem Compile
 rem %1 = working directory
 rem ***********************************************
 :Compile
-echo Compiling in %1\%TMP_BUILDDIR% (%TMP_COMPILER%)...
+echo Compiling (%TMP_COMPILER%)...
 call :SetEnv %1
 cd %QTDIR%
 
@@ -213,7 +213,8 @@ set OLD_LIB=%LIB%
 set PATH=%1\%TMP_BUILDDIR%\bin;%PATH%
 set QTDIR=%1\%TMP_BUILDDIR%
 
-if "%TMP_COMPILER%"=="VS2003" goto VS2003Env
+if "%TMP_COMPILER%"=="vs2003" goto VS2003Env
+if "%TMP_COMPILER%"=="vs2002" goto VS2002Env
 goto :EOF
 
 :VS2003Env
@@ -221,7 +222,10 @@ set QMAKESPEC=win32-msvc.net
 call "%VS71COMNTOOLS%vsvars32.bat" >> %1\log.txt
 goto :EOF
 
-
+:VS2002Env
+set QMAKESPEC=win32-msvc.net
+call "%VS70COMNTOOLS%vsvars32.bat" >> %1\log.txt
+goto :EOF
 
 rem ***********************************************
 rem Reset environment after compiling

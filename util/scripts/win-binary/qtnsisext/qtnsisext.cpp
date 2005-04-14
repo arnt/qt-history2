@@ -2,6 +2,7 @@
 #include "exdll.h"
 #include "keycheck.h"
 #include "licensefinder.h"
+#include "binpatch.h"
 
 HINSTANCE g_hInstance;
 HWND g_hwndParent;
@@ -90,4 +91,27 @@ EXPORT_NSIS_FUNCTION(GetLicenseKey)
     pushstring(key3);
     pushstring(key2);
     pushstring(key1);
+}
+
+EXPORT_NSIS_FUNCTION(PatchBinary)
+{
+    g_hwndParent = hwndParent;
+    EXDLL_INIT();
+    
+    char *fileName = (char *)LocalAlloc(LPTR, g_stringsize);
+    char *oldStr = (char *)LocalAlloc(LPTR, g_stringsize);
+    char *newStr = (char *)LocalAlloc(LPTR, g_stringsize);
+    char *endsWith = (char *)LocalAlloc(LPTR, g_stringsize);
+
+    popstring(fileName);
+    popstring(oldStr);
+    popstring(newStr);
+    popstring(endsWith);
+
+    BinPatch::patchFile(fileName, oldStr, newStr, endsWith);
+
+    LocalFree(endsWith);
+    LocalFree(newStr);
+    LocalFree(oldStr);
+    LocalFree(fileName);
 }
