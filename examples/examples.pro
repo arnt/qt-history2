@@ -4,6 +4,7 @@ SUBDIRS       = designer \
                 draganddrop \
                 itemviews \
                 layouts \
+                linguist \
                 mainwindows \
                 network \
                 opengl \
@@ -12,5 +13,6 @@ SUBDIRS       = designer \
                 sql \
                 threads \
                 tools \
+                tutorial \
                 widgets \
                 xml
