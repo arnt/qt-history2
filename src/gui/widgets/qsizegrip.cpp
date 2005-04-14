@@ -174,13 +174,12 @@ QSize QSizeGrip::sizeHint() const
     diagonal textured lines in the lower-right corner. The event is in
     \a e.
 */
-void QSizeGrip::paintEvent(QPaintEvent *e)
+void QSizeGrip::paintEvent(QPaintEvent *)
 {
     QPainter painter(this);
     QStyleOption opt(0);
     opt.init(this);
     style()->drawControl(QStyle::CE_SizeGrip, &opt, &painter, this);
-    painter.fillRect(rect(), Qt::black);
 }
 
 /*!
