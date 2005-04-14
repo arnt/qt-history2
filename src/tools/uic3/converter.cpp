@@ -263,9 +263,9 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
         if (customClass.endsWith(QLatin1String("ListView")))
             baseClass = QLatin1String("Q3ListView");
         else if (customClass.endsWith(QLatin1String("ListBox")))
-            baseClass = QLatin1String("QListBox");
+            baseClass = QLatin1String("Q3ListBox");
         else if (customClass.endsWith(QLatin1String("IconView")))
-            baseClass = QLatin1String("QIconView");
+            baseClass = QLatin1String("Q3IconView");
         else if (customClass.endsWith(QLatin1String("ComboBox")))
             baseClass = QLatin1String("QComboBox");
 
@@ -398,9 +398,9 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     className = fixClassName(className);
 
     if ((className.endsWith(QLatin1String("ListView")) && className != QLatin1String("Q3ListView"))
-            || (className.endsWith(QLatin1String("ListBox")) && className != QLatin1String("QListBox"))
+            || (className.endsWith(QLatin1String("ListBox")) && className != QLatin1String("Q3ListBox"))
             || (className.endsWith(QLatin1String("ComboBox")) && className != QLatin1String("QComboBox"))
-            || (className.endsWith(QLatin1String("IconView")) && className != QLatin1String("QIconView")))
+            || (className.endsWith(QLatin1String("IconView")) && className != QLatin1String("Q3IconView")))
         candidateCustomWidgets.insert(className, true);
 
     bool isMenu = (className == QLatin1String("QMenuBar") || className == QLatin1String("QMenu"));
