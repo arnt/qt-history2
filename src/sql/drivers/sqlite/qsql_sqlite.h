@@ -60,11 +60,6 @@ public:
                    const QString & host,
                    int port,
                    const QString & connOpts);
-    bool open(const QString & db,
-            const QString & user,
-            const QString & password,
-            const QString & host,
-            int port) { return open (db, user, password, host, port, QString()); }
     void close();
     QSqlResult *createResult() const;
     bool beginTransaction();

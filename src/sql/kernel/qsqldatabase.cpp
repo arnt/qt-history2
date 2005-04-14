@@ -49,6 +49,7 @@
 
 #include "qdebug.h"
 #include "qcoreapplication.h"
+#include "qreadwritelock.h"
 #include "qsqlresult.h"
 #include "qsqldriver.h"
 #include "qsqldriverplugin.h"
@@ -66,7 +67,23 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 QT_STATIC_CONST_IMPL char *QSqlDatabase::defaultConnection = "qt_sql_default_connection";
 
 typedef QHash<QString, QSqlDriverCreatorBase*> DriverDict;
-typedef QHash<QString, QSqlDatabase> ConnectionDict;
+
+class ConnectionDict: public QHash<QString, QSqlDatabase>
+{
+public:
+    inline bool contains_ts(const QString &key)
+    {
+        QReadLocker locker(&lock);
+        return contains(key);
+    }
+    inline QStringList keys_ts() const
+    {
+        QReadLocker locker(&lock);
+        return keys();
+    }
+
+    mutable QReadWriteLock lock;
+};
 
 class QSqlDatabasePrivate
 {
@@ -97,8 +114,9 @@ public:
     static QSqlDatabase database(const QString& name, bool open);
     static void addDatabase(const QSqlDatabase &db, const QString & name);
     static void removeDatabase(const QString& name);
+    static void invalidateDb(const QSqlDatabase &db, const QString &name);
     static DriverDict &driverDict();
-    static ConnectionDict &dbDict();
+    Q_GLOBAL_STATIC(ConnectionDict, dbDict)
     static void cleanConnections();
 };
 
@@ -123,9 +141,16 @@ QSqlDatabasePrivate::~QSqlDatabasePrivate()
 
 void QSqlDatabasePrivate::cleanConnections()
 {
-    ConnectionDict &dict = dbDict();
-    while (!dict.isEmpty())
-        removeDatabase(dict.constBegin().key());
+    ConnectionDict *dict = dbDict();
+    Q_ASSERT(dict);
+    QWriteLocker locker(&dict->lock);
+
+    ConnectionDict::iterator it = dict->begin();
+    while (it != dict->end()) {
+        invalidateDb(it.value(), it.key());
+        ++it;
+    }
+    dict->clear();
 }
 
 static bool qDriverDictInit = false;
@@ -147,16 +172,6 @@ DriverDict &QSqlDatabasePrivate::driverDict()
     return dict;
 }
 
-ConnectionDict &QSqlDatabasePrivate::dbDict()
-{
-    static ConnectionDict dict;
-    if (!qDriverDictInit) {
-        qDriverDictInit = true;
-        qAddPostRoutine(cleanDriverDict);
-    }
-    return dict;
-}
-
 QSqlDatabasePrivate *QSqlDatabasePrivate::shared_null()
 {
     static QSqlNullDriver dr;
@@ -164,34 +179,51 @@ QSqlDatabasePrivate *QSqlDatabasePrivate::shared_null()
     return &n;
 }
 
-void QSqlDatabasePrivate::removeDatabase(const QString& name)
+void QSqlDatabasePrivate::invalidateDb(const QSqlDatabase &db, const QString &name)
 {
-    if (!dbDict().contains(name))
-        return;
-
-    QSqlDatabase db = dbDict().take(name);
     if (db.d->ref != 1) {
         qWarning("QSqlDatabasePrivate::removeDatabase: connection '%s' is still in use, "
-                 "all queries will cease to work.", name.toLocal8Bit().data());
+                 "all queries will cease to work.", name.toLocal8Bit().constData());
         db.d->disable();
     }
 }
 
-void QSqlDatabasePrivate::addDatabase(const QSqlDatabase &db, const QString & name)
+void QSqlDatabasePrivate::removeDatabase(const QString &name)
 {
-    if (dbDict().contains(name)) {
-        removeDatabase(name);
+    ConnectionDict *dict = dbDict();
+    Q_ASSERT(dict);
+    QWriteLocker locker(&dict->lock);
+
+    if (!dict->contains(name))
+        return;
+
+    invalidateDb(dict->take(name), name);
+}
+
+void QSqlDatabasePrivate::addDatabase(const QSqlDatabase &db, const QString &name)
+{
+    ConnectionDict *dict = dbDict();
+    Q_ASSERT(dict);
+    QWriteLocker locker(&dict->lock);
+
+    if (dict->contains(name)) {
+        invalidateDb(dict->take(name), name);
         qWarning("QSqlDatabasePrivate::addDatabase: duplicate connection name '%s', old "
                  "connection removed.", name.toLocal8Bit().data());
     }
-    dbDict().insert(name, db);
+    dict->insert(name, db);
 }
 
 /*! \internal
 */
 QSqlDatabase QSqlDatabasePrivate::database(const QString& name, bool open)
 {
-    QSqlDatabase db = dbDict().value(name);
+    const ConnectionDict *dict = dbDict();
+    Q_ASSERT(dict);
+
+    dict->lock.lockForRead();
+    QSqlDatabase db = dict->value(name);
+    dict->lock.unlock();
     if (db.isValid() && !db.isOpen() && open) {
         db.open();
         if (!db.isOpen())
@@ -511,7 +543,7 @@ void QSqlDatabase::registerSqlDriver(const QString& name, QSqlDriverCreatorBase 
 
 bool QSqlDatabase::contains(const QString& connectionName)
 {
-    return QSqlDatabasePrivate::dbDict().contains(connectionName);
+    return QSqlDatabasePrivate::dbDict()->contains_ts(connectionName);
 }
 
 /*!
@@ -521,7 +553,7 @@ bool QSqlDatabase::contains(const QString& connectionName)
 */
 QStringList QSqlDatabase::connectionNames()
 {
-    return QSqlDatabasePrivate::dbDict().keys();
+    return QSqlDatabasePrivate::dbDict()->keys_ts();
 }
 
 /*!

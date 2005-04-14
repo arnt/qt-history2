@@ -151,15 +151,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
     if (!stmt)
         return false;
 
-    // keep trying while busy, wish I could implement this better.
-    while ((res = sqlite3_step(stmt)) == SQLITE_BUSY) {
-        // sleep instead requesting result again immidiately.
-#if defined Q_OS_WIN
-        Sleep(1000);
-#else
-        sleep(1);
-#endif
-    }
+    res = sqlite3_step(stmt);
 
     switch(res) {
     case SQLITE_ROW:
@@ -170,7 +162,6 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
         if (idx < 0 && !initialFetch)
             return true;
         for (i = 0; i < rInf.count(); ++i)
-            // todo - handle other types
             switch (rInf.field(i).typeID()) {
             case SQLITE_BLOB:
                 values[i + idx] = QByteArray(static_cast<const char *>(
@@ -201,6 +192,7 @@ bool QSQLiteResultPrivate::fetchNext(QSqlCachedResult::ValueCache &values, int i
         return false;
     case SQLITE_ERROR:
     case SQLITE_MISUSE:
+    case SQLITE_BUSY:
     default:
         // something wrong, don't get col info, but still return false
         q->setLastError(qMakeError(access, QCoreApplication::translate("QSQLiteResult",
@@ -405,6 +397,7 @@ bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, c
         return false;
 
     if (sqlite3_open16(db.constData(), &d->access) == SQLITE_OK) {
+        sqlite3_busy_timeout(d->access, 5000);
         setOpen(true);
         setOpenError(false);
         return true;
@@ -508,7 +501,7 @@ QStringList QSQLiteDriver::tables(QSql::TableType type) const
 
 QSqlIndex QSQLiteDriver::primaryIndex(const QString &tblname) const
 {
-    QSqlRecord rec(record(tblname)); // expensive :(
+    QSqlRecord rec(record(tblname));
 
     if (!isOpen())
         return QSqlIndex();
