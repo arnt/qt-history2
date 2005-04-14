@@ -10,10 +10,11 @@
 **
 ****************************************************************************/
 
-/*! \page tutorial.html
+/*!
+    \page tutorial.html
 
-    \startpage index.html Qt Reference Documentation
-    \nextpage tutorial-t1.html Chapter 1
+    \startpage Qt Reference Documentation
+    \nextpage {tutorial/t1}{Chapter 1}
 
     \title Qt Tutorial
 
@@ -28,9 +29,8 @@
     "Hello world" program from Chapter 1 will have turned into a
     650-line game.
 
-    If you're completely new to Qt, please read
-    \l{how-to-learn-qt.html}{How to Learn Qt} if you haven't already
-    done so.
+    If you're completely new to Qt, please read \l{How to Learn Qt}
+    if you haven't already done so.
 
     Tutorial chapters:
 
@@ -61,9 +61,9 @@
 
 /*! \example tutorial/t1
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial.html Qt Tutorial
-    \nextpage tutorial-t2.html Chapter 2
+    \contentspage Qt Tutorial
+    \previouspage Qt Tutorial
+    \nextpage {tutorial/t2}{Chapter 2}
 
     \title Qt Tutorial 1 - Hello World!
 
@@ -171,20 +171,20 @@
     If you have typed in the source code manually, you will need to
     follow these instructions: To compile a C++ application, you need
     to create a makefile. The easiest way to create a makefile for Qt
-    is to use the \l{qmake-manual.html}{qmake} build tool supplied
-    with Qt. If you've saved \c main.cpp in its own otherwise empty
-    directory, all you need to do is:
+    is to use the \l{qmake} build tool supplied with Qt. If you've
+    saved \c main.cpp in its own otherwise empty directory, all you
+    need to do is:
 
     \code
         qmake -project
         qmake
     \endcode
 
-    The first command tells \l{qmake-manual.html}{qmake} to create a
-    project file (a \c .pro file). The second command tells it to
-    create a platform-specific makefile based on the project file.
-    You should now be able to type \c make (or \c nmake if you're
-    using Visual Studio) and then run your first Qt application!
+    The first command tells \c qmake to create a project file (a \c
+    .pro file). The second command tells it to create a
+    platform-specific makefile based on the project file. You should
+    now be able to type \c make (or \c nmake if you're using Visual
+    Studio) and then run your first Qt application!
 
     \section1 Running the Application
 
@@ -201,9 +201,9 @@
 
 /*! \example tutorial/t2
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t1.html Chapter 1
-    \nextpage tutorial-t3.html Chapter 3
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t1}{Chapter 1}
+    \nextpage {tutorial/t3}{Chapter 3}
 
     \title Qt Tutorial 2 - Calling it Quits
 
@@ -261,8 +261,8 @@
     is connected to the \l{QCoreApplication::quit()}{quit()} slot of \c
     app, so that when the button is clicked, the application quits.
 
-    The \l{signalsandslots.html}{Signals and Slots} documentation
-    describes this topic in detail.
+    The \l{Signals and Slots} documentation describes this topic in
+    detail.
 
     \section1 Running the Application
 
@@ -285,9 +285,9 @@
 
 /*! \example tutorial/t3
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t2.html Chapter 2
-    \nextpage tutorial-t4.html Chapter 4
+    \contentspage Qt Tutorial
+    \previouspage {Qt Tutorial 2 - Calling it Quits}{Chapter 2}
+    \nextpage {tutorial/t4}{Chapter 4}
 
     \title Qt Tutorial 3 - Family Values
 
@@ -360,9 +360,9 @@
 
 /*! \example tutorial/t4
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t3.html Chapter 3
-    \nextpage tutorial-t5.html Chapter 5
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t3}{Chapter 3}
+    \nextpage {tutorial/t5}{Chapter 5}
 
     \title Qt Tutorial 4 - Let There Be Widgets
 
@@ -456,9 +456,9 @@
 
 /*! \example tutorial/t5
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t4.html Chapter 4
-    \nextpage tutorial-t6.html Chapter 6
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t4}{Chapter 4}
+    \nextpage {tutorial/t6}{Chapter 6}
 
     \title Qt Tutorial 5 - Building Blocks
 
@@ -499,10 +499,9 @@
     \printline connect
     \printline SLOT
 
-    Here we use the \l{signalsandslots.html}{signals and slots
-    mechanism} to connect the slider's
-    \l{QSlider::valueChanged()}{valueChanged()} signal to the LCD
-    number's \l{QLCDNumber::display()}{display()} slot.
+    Here we use the \l{signals and slots} mechanism to connect the
+    slider's \l{QSlider::valueChanged()}{valueChanged()} signal to
+    the LCD number's \l{QLCDNumber::display()}{display()} slot.
 
     Whenever the slider's value changes it broadcasts the new value
     by emitting the \l{QSlider::valueChanged()}{valueChanged()}
@@ -536,9 +535,9 @@
 
 /*! \example tutorial/t6
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t5.html Chapter 5
-    \nextpage tutorial-t7.html Chapter 7
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t5}{Chapter 5}
+    \nextpage {tutorial/t7}{Chapter 7}
 
     \title Qt Tutorial 6 - Building Blocks Galore!
 
@@ -613,9 +612,9 @@
 
 /*! \example tutorial/t7
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t6.html Chapter 6
-    \nextpage tutorial-t8.html Chapter 8
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t6}{Chapter 6}
+    \nextpage {tutorial/t8}{Chapter 8}
 
     \title Qt Tutorial 7 - One Thing Leads to Another
 
@@ -668,8 +667,8 @@
 
     Note the \c Q_OBJECT. This macro must be included in \e all
     classes that contain signals and/or slots. If you are curious, it
-    defines the functions that are implemented in the
-    \l{metaobjects.html}{meta-object file}.
+    defines the functions that are implemented in the \l{Meta-Object
+    System}{meta-object file}.
 
     \printline value
     \printuntil valueChanged
@@ -684,10 +683,9 @@
 
     Slots must be implemented in the normal way (a slot is also a C++
     member function). Signals are automatically implemented in the
-    \l{metaobjects.html}{meta-object file}. Signals follow the
-    access rules of protected C++ functions (i.e., they can be
-    emitted only by the class they are defined in or by classes
-    inheriting from it).
+    meta-object file. Signals follow the access rules of protected
+    C++ functions (i.e., they can be emitted only by the class they
+    are defined in or by classes inheriting from it).
 
     The \c valueChanged() signal is used when the \c{LCDRange}'s
     value has changed.
@@ -757,12 +755,11 @@
 
     All of \c main.cpp is copied from the previous chapter except in
     the constructor for \c MyWidget. When we create the 16 \c
-    LCDRange objects, we now connect them using the
-    \l{signalsandslots.html}{signals and slots mechanism}. Each has
-    its \c valueChanged() signal connected to the previous one's \c
-    setValue() slot. Because \c LCDRange emits the \c valueChanged()
-    signal when its value changes, we are here creating a chain of
-    signals and slots.
+    LCDRange objects, we now connect them using the \l{signals and
+    slots} mechanism. Each has its \c valueChanged() signal connected
+    to the previous one's \c setValue() slot. Because \c LCDRange
+    emits the \c valueChanged() signal when its value changes, we are
+    here creating a chain of signals and slots.
 
     \target compiling
     \section1 Compiling the Application
@@ -776,11 +773,11 @@
         qmake
     \endcode
 
-    The first command tells \l{qmake-manual.html}{qmake} to create a
-    \c .pro file. The second command tells it to create a
-    (platform-specific) makefile based on the project file. You
-    should now be able to type \c make (or \c nmake if you're using
-    Visual Studio) to build your application.
+    The first command tells \l{qmake} to create a \c .pro file. The
+    second command tells it to create a (platform-specific) makefile
+    based on the project file. You should now be able to type \c make
+    (or \c nmake if you're using Visual Studio) to build your
+    application.
 
     \section1 Running the Application
 
@@ -800,9 +797,9 @@
 
 /*! \example tutorial/t8
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t7.html Chapter 7
-    \nextpage tutorial-t9.html Chapter 9
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t7}{Chapter 7}
+    \nextpage {tutorial/t9}{Chapter 9}
 
     \title Qt Tutorial 8 - Preparing for Battle
 
@@ -1084,9 +1081,9 @@
 
 /*! \example tutorial/t9
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t8.html Chapter 8
-    \nextpage tutorial-t10.html Chapter 10
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t8}{Chapter 8}
+    \nextpage {tutorial/t10}{Chapter 10}
 
     \title Qt Tutorial 9 - With Cannon You Can
 
@@ -1128,9 +1125,9 @@
     system of the QPainter (i.e., it moves it by an offset). Here we
     set the (0, 0) point to the bottom-left corner of the widget. The
     \e x and \e y directions remain unchanged, i.e., all the \e y
-    coordinates inside the widget are now negative. (See
-    \l{coordsys.html}{The Coordinate System} for more information
-    about Qt's coordinate system.)
+    coordinates inside the widget are now negative. (See \l{The
+    Coordinate System} for more information about Qt's coordinate
+    system.)
 
     \printline drawPie
 
@@ -1191,9 +1188,9 @@
 
 /*! \example tutorial/t10
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t9.html Chapter 9
-    \nextpage tutorial-t11.html Chapter 11
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t9}{Chapter 9}
+    \nextpage {tutorial/t11}{Chapter 11}
 
     \title Qt Tutorial 10 - Smooth as Silk
 
@@ -1330,9 +1327,9 @@
 
 /*! \example tutorial/t11
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t10.html Chapter 10
-    \nextpage tutorial-t12.html Chapter 12
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t10}{Chapter 10}
+    \nextpage {tutorial/t12}{Chapter 12}
 
     \title Qt Tutorial 11 - Giving It a Shot
 
@@ -1476,8 +1473,8 @@
     coordinates increase upward. After we have calculated the center
     point, we construct a QRect with size 6 x 6 and move its center
     point to the point calculated above. In the same operation we
-    convert the point into the widget's coordinate system (see
-    \l{coordsys.html}{The Coordinate System}).
+    convert the point into the widget's coordinate system (see \l{The
+    Coordinate System}).
 
     The qRound() function is an inline function defined in \c
     <QtGlobal> (included by all other Qt header files). qRound()
@@ -1519,9 +1516,9 @@
 
 /*! \example tutorial/t12
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t11.html Chapter 11
-    \nextpage tutorial-t13.html Chapter 13
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t11}{Chapter 11}
+    \nextpage {tutorial/t13}{Chapter 13}
 
     \title Qt Tutorial 12 - Hanging in the Air the Way Bricks Don't
 
@@ -1803,9 +1800,9 @@
 
 /*! \example tutorial/t13
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t12.html Chapter 12
-    \nextpage tutorial-t14.html Chapter 14
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t12}{Chapter 12}
+    \nextpage {tutorial/t14}{Chapter 14}
 
     \title Qt Tutorial 13 - Game Over
 
@@ -2080,8 +2077,8 @@
 
 /*! \example tutorial/t14
 
-    \contentspage tutorial.html Qt Tutorial
-    \previouspage tutorial-t13.html Chapter 13
+    \contentspage Qt Tutorial
+    \previouspage {tutorial/t13}{Chapter 13}
 
     \title Qt Tutorial 14 - Facing the Wall
 
