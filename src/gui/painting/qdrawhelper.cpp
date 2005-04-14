@@ -498,10 +498,7 @@ static inline uint qt_blend_pixel_rgb32(uint dest, uint src, uint coverage)
     if (!rev_alpha)
         return src;
 
-    return (src + ((qt_div_255(qRed(dest) * rev_alpha) << 16)
-                   | (qt_div_255(qGreen(dest) * rev_alpha) << 8)
-                   | (qt_div_255(qBlue(dest) * rev_alpha))))
-        | 0xff000000;
+    return (src + BYTE_MUL(dest, rev_alpha)) | 0xff000000;
 }
 
 static void blend_color_rgb32(void *t, const QSpan *span, uint color, QPainter::CompositionMode)
@@ -517,10 +514,7 @@ static void blend_color_rgb32(void *t, const QSpan *span, uint color, QPainter::
         const uint *end = target + span->len;
         while (target < end) {
             uint dest = *target;
-            *target = (color + ((qt_div_255(qRed(dest) * rev_alpha) << 16)
-                              | (qt_div_255(qGreen(dest) * rev_alpha) << 8)
-                              | (qt_div_255(qBlue(dest) * rev_alpha))))
-                      | 0xff000000;
+            *target = (color + BYTE_MUL(dest, rev_alpha)) | 0xff000000;
             ++target;
         }
     } else {
