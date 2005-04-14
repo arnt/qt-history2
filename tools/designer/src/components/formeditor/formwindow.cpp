@@ -345,8 +345,7 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
     if (e->buttons() != Qt::LeftButton)
         return true;
 
-    bool inLayout = LayoutInfo::layoutType(m_core, managedWidget->parentWidget()) != LayoutInfo::NoLayout
-            && managedWidget->parentWidget()->layout()->indexOf(managedWidget) != -1;
+    bool inLayout = LayoutInfo::isWidgetLaidout(m_core, managedWidget);
 
     // if the dragged widget is not in a layout, raise it
     if (inLayout == false)
@@ -422,9 +421,14 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
 
     foreach (QWidget *child, sel) {
         QWidget *current = child;
+
         while (LayoutInfo::isWidgetLaidout(core(), current) == true) {
             current = current->parentWidget();
         }
+
+        if (current == mainContainer())
+            continue;
+
         widget_set.insert(current);
     }
 

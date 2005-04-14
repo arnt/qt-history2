@@ -129,6 +129,15 @@ bool LayoutInfo::isWidgetLaidout(QDesignerFormEditorInterface *core, QWidget *wi
 {
     Q_UNUSED(core);
 
-    return widget->parentWidget() && widget->parentWidget()->layout()
-            && widget->parentWidget()->layout()->indexOf(widget) != -1;
+    QWidget *parent = widget->parentWidget();
+
+    if (qobject_cast<QSplitter*>(parent)) { // ### generalize
+        return true;
+    }
+
+    if (parent && parent->layout()) {
+        return parent->layout()->indexOf(widget) != -1;
+    }
+
+    return false;
 }
