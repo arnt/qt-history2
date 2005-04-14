@@ -1393,12 +1393,9 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
         else if (d->highlightSelected && d->isSectionSelected(logicalIndex))
             state |= QStyle::State_On | QStyle::State_Sunken;
     }
-    if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex) {
+    if (isSortIndicatorShown() && sortIndicatorSection() == logicalIndex)
         opt.sortIndicator = (sortIndicatorOrder() == Qt::AscendingOrder)
                             ? QStyleOptionHeader::SortDown : QStyleOptionHeader::SortUp;
-    } else {
-        opt.sortIndicator = QStyleOptionHeader::None;
-    }
 
     // setup the style options structure
     int textAlignment = d->model->headerData(logicalIndex, orientation(),

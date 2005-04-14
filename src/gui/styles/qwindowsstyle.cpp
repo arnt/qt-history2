@@ -1734,14 +1734,13 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
         break;
     case CE_HeaderSection: {
         QBrush fill;
-        if (!(opt->state & State_Sunken) && (opt->state & State_On))
+        if (opt->state & State_On)
             fill = QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
         else
             fill = opt->palette.brush(QPalette::Button);
 
         if (opt->state & (State_Raised | State_Sunken)) {
-            qDrawWinButton(p, opt->rect, opt->palette, opt->state & State_Sunken,
-                           &fill);
+            qDrawWinButton(p, opt->rect, opt->palette, opt->state & State_Sunken, &fill);
         } else {
             p->fillRect(opt->rect, fill);
         }
