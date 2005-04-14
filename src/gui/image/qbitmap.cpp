@@ -227,8 +227,8 @@ QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
     uchar *tmp_bits;
     int w = img.width();
     int h = img.height();
-    int    bpl = (w+7)/8;
-    int    ibpl = image.bytesPerLine();
+    int bpl = (w+7)/8;
+    int ibpl = img.bytesPerLine();
     if (img.format() == QImage::Format_Mono || bpl != ibpl) {
         tmp_bits = new uchar[bpl*h];
         bits = (char *)tmp_bits;
@@ -265,13 +265,13 @@ QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
         tmp_bits = 0;
     }
     bm.data->hd = (Qt::HANDLE)XCreateBitmapFromData(bm.data->xinfo.display(),
-                                                        RootWindow(bm.data->xinfo.display(), bm.data->xinfo.screen()),
-                                                        bits, w, h);
+                                                    RootWindow(bm.data->xinfo.display(), bm.data->xinfo.screen()),
+                                                    bits, w, h);
 
 #ifndef QT_NO_XRENDER
     if (X11->use_xrender)
         bm.data->picture = XRenderCreatePicture(X11->display, bm.data->hd,
-                                                    XRenderFindStandardFormat(X11->display, PictStandardA1), 0, 0);
+                                                XRenderFindStandardFormat(X11->display, PictStandardA1), 0, 0);
 #endif // QT_NO_XRENDER
 
     if (tmp_bits)                                // Avoid purify complaint

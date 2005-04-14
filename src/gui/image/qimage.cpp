@@ -1907,12 +1907,13 @@ static void dither_to_Mono(QImageData *dst, const QImageData *src,
     }
 
     if (dst->format == QImage::Format_MonoLSB) {
-        // need to swap bit order
-        uchar *dst_data = dst->data;
-        const uchar *end = dst->data + dst->nbytes;
-        while (dst_data < end) {
-            *dst_data = bitflip[*dst_data];
-            ++dst_data;
+        // need to swap bit order        uchar *sl = dst->data;
+        int bpl = (dst->width + 7) * dst->depth / 8;
+        int pad = dst->bytes_per_line - bpl;
+        for (int y=0; y<dst->height; ++y) {
+            for (int x=0; x<bpl; ++x)
+                *sl++ = bitflip[*sl];
+            sl += pad;
         }
     }
 }
