@@ -4,14 +4,14 @@
 #include <QList>
 #include <QMainWindow>
 
-#include "scribblearea.h"
+class ScribbleArea;
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = 0);
+    MainWindow();
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -31,11 +31,11 @@ private:
     ScribbleArea *scribbleArea;
     bool modified;
 
-    QAction *openAct;
-    QList<QAction *> saveAsActs;
     QMenu *fileMenu;
     QMenu *optionMenu;
     QMenu *saveAsMenu;
+    QAction *openAct;
+    QList<QAction *> saveAsActs;
     QAction *exitAct;
     QAction *penColorAct;
     QAction *penWidthAct;

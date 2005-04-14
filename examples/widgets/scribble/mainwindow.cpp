@@ -3,10 +3,9 @@
 #include "mainwindow.h"
 #include "scribblearea.h"
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow()
 {
-    scribbleArea = new ScribbleArea(this);
+    scribbleArea = new ScribbleArea;
     setCentralWidget(scribbleArea);
 
     createActions();
