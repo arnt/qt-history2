@@ -338,8 +338,8 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
     {
         int fd;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-        if (_sopen_s(fixPathForFile(file->file, true).local().toLatin1().constData(),
-            _O_RDONLY, _SH_DENYRW, _S_IREAD, &fd) != 0)
+        if (_sopen_s(&fd, fixPathForFile(file->file, true).local().toLatin1().constData(),
+            _O_RDONLY, _SH_DENYRW, _S_IREAD) != 0)
             fd = -1;
 #else
         fd = open(fixPathForFile(file->file, true).local().toLatin1().constData(), O_RDONLY);
@@ -566,8 +566,8 @@ bool QMakeSourceFileInfo::findMocs(SourceFile *file)
         struct stat fst;
         int fd;
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-        if (_sopen_s(fixPathForFile(file->file, true).local().toLocal8Bit().constData(),
-            _O_RDONLY, _SH_DENYRW, _S_IREAD, &fd) != 0)
+        if (_sopen_s(&fd, fixPathForFile(file->file, true).local().toLocal8Bit().constData(),
+            _O_RDONLY, _SH_DENYRW, _S_IREAD) != 0)
             fd = -1;
 #else
         fd = open(fixPathForFile(file->file, true).local().toLocal8Bit().constData(), O_RDONLY);
