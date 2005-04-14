@@ -26,6 +26,7 @@
 //
 
 #include <qglobal.h>
+#include <stdlib.h>
 
 template <class T> class QFragmentMap;
 
