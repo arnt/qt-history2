@@ -22,6 +22,7 @@
 #include <qtextstream.h>
 #include <qalgorithms.h>
 #include <qurl.h>
+#include <qtextcodec.h>
 
 struct Term {
     Term() : frequency(-1) {}
@@ -137,6 +138,29 @@ void Index::insertInDict( const QString &str, int docNum )
     }
 }
 
+QString Index::getCharsetForDocument(QFile *file)
+{
+    QTextStream s(file);
+    QString contents = s.readAll();
+
+    QString encoding;
+    int start = contents.indexOf("<meta", 0, Qt::CaseInsensitive);
+    if (start > 0) {
+        int end = contents.indexOf(">", start);
+        QString meta = contents.mid(start+5, end-start);
+        meta = meta.toLower();
+        QRegExp r("charset=([^\"\\s]+)");
+        if (r.indexIn(meta) != -1) {
+            encoding = r.cap(1);        
+        }
+    }
+
+    file->seek(0);
+    if (encoding.isEmpty())
+        return "utf-8";
+    return encoding;
+}
+
 void Index::parseDocument( const QString &filename, int docNum )
 {
     QFile file( filename );
@@ -145,10 +169,9 @@ void Index::parseDocument( const QString &filename, int docNum )
         return;
     }
 
-    QTextStream s( &file );
-#if 0 // ### port me
-    s.setEncoding(QTextStream::Latin1);
-#endif
+    QTextStream s(&file);
+    QString en = getCharsetForDocument(&file);
+    s.setCodec(QTextCodec::codecForName(en.toLatin1().constData()));
 
     QString text = s.readAll();
     if (text.isNull())
@@ -367,6 +390,9 @@ QStringList Index::split( const QString &str )
     QStringList lst;
     int j = 0;
     int i = str.indexOf(QLatin1Char('*'), j );
+
+    if (str.startsWith(QLatin1String("*")))
+        lst << QLatin1String("*");
 
     while ( i != -1 ) {
         if ( i > j && i <= (int)str.length() ) {

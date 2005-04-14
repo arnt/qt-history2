@@ -19,6 +19,7 @@
 #include <qdatastream.h>
 #include <qobject.h>
 #include <qlist.h>
+#include <qfile.h>
 
 struct Document {
     Document( int d, int f ) : docNumber( d ), frequency( f ) {}
@@ -83,6 +84,7 @@ private:
     QList<Document> setupDummyTerm( const QStringList& );
     bool searchForPattern( const QStringList&, const QStringList&, const QString& );
     void buildMiniDict( const QString& );
+    QString getCharsetForDocument(QFile *);
     QStringList docList;
     QHash<QString, Entry*> dict;
     QHash<QString, PosEntry*> miniDict;
