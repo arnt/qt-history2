@@ -132,6 +132,9 @@ unsigned long qAxLock()
 
 unsigned long qAxUnlock()
 {
+    if (!initCount) // cleaned up already
+        return 0;
+
     EnterCriticalSection(&qAxModuleSection);
     unsigned long ref = --qAxModuleRef;
     LeaveCriticalSection(&qAxModuleSection);
