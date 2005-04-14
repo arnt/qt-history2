@@ -41,9 +41,6 @@ public:
     bool repaintRequired() const;
 };
 
-#define d d_func()
-#define q q_func()
-
 QProgressBarPrivate::QProgressBarPrivate()
     : minimum(0), maximum(100), value(-1), alignment(Qt::AlignLeft), textVisible(true),
       lastPaintedValue(-1)
@@ -52,26 +49,27 @@ QProgressBarPrivate::QProgressBarPrivate()
 
 void QProgressBarPrivate::init()
 {
-    q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
+    q_func()->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
 }
 
 QStyleOptionProgressBar QProgressBarPrivate::getStyleOption() const
 {
     QStyleOptionProgressBar opt;
-    opt.init(q);
+    opt.init(q_func());
 
     opt.minimum = minimum;
     opt.maximum = maximum;
     opt.progress = value;
     opt.textAlignment = alignment;
     opt.textVisible = textVisible;
-    opt.text = q->text();
+    opt.text = q_func()->text();
 
     return opt;
 }
 
 bool QProgressBarPrivate::repaintRequired() const
 {
+    Q_Q(const QProgressBar);
     if (value == lastPaintedValue)
         return false;
 
@@ -145,7 +143,7 @@ bool QProgressBarPrivate::repaintRequired() const
 QProgressBar::QProgressBar(QWidget *parent)
     : QWidget(*(new QProgressBarPrivate), parent, 0)
 {
-    d->init();
+    d_func()->init();
 }
 
 /*!
@@ -155,6 +153,7 @@ QProgressBar::QProgressBar(QWidget *parent)
 
 void QProgressBar::reset()
 {
+    Q_D(QProgressBar);
     d->value = d->minimum - 1;
     if (d->minimum == INT_MIN)
         d->value = INT_MIN;
@@ -172,12 +171,12 @@ void QProgressBar::reset()
 */
 void QProgressBar::setMinimum(int minimum)
 {
-    setRange(minimum, qMax(d->maximum, minimum));
+    setRange(minimum, qMax(d_func()->maximum, minimum));
 }
 
 int QProgressBar::minimum() const
 {
-    return d->minimum;
+    return d_func()->minimum;
 }
 
 
@@ -193,12 +192,12 @@ int QProgressBar::minimum() const
 
 void QProgressBar::setMaximum(int maximum)
 {
-    setRange(qMin(d->minimum, maximum), maximum);
+    setRange(qMin(d_func()->minimum, maximum), maximum);
 }
 
 int QProgressBar::maximum() const
 {
-    return d->maximum;
+    return d_func()->maximum;
 }
 
 /*!
@@ -210,6 +209,7 @@ int QProgressBar::maximum() const
 */
 void QProgressBar::setValue(int value)
 {
+    Q_D(QProgressBar);
     if (d->value == value
             || ((value > d->maximum || value < d->minimum)
                 && (d->maximum != 0 || d->minimum != 0)))
@@ -225,7 +225,7 @@ void QProgressBar::setValue(int value)
 
 int QProgressBar::value() const
 {
-    return d->value;
+    return d_func()->value;
 }
 
 /*!
@@ -242,6 +242,7 @@ int QProgressBar::value() const
 */
 void QProgressBar::setRange(int minimum, int maximum)
 {
+    Q_D(QProgressBar);
     d->minimum = minimum;
     d->maximum = qMax(minimum, maximum);
     if ( d->value <(d->minimum-1) || d->value > d->maximum)
@@ -253,6 +254,7 @@ void QProgressBar::setRange(int minimum, int maximum)
 */
 void QProgressBar::setTextVisible(bool visible)
 {
+    Q_D(QProgressBar);
     if (d->textVisible != visible) {
         d->textVisible = visible;
         repaint();
@@ -261,7 +263,7 @@ void QProgressBar::setTextVisible(bool visible)
 
 bool QProgressBar::isTextVisible() const
 {
-    return d->textVisible;
+    return d_func()->textVisible;
 }
 
 /*!
@@ -270,15 +272,15 @@ bool QProgressBar::isTextVisible() const
 */
 void QProgressBar::setAlignment(Qt::Alignment alignment)
 {
-    if (d->alignment != alignment) {
-        d->alignment = alignment;
+    if (d_func()->alignment != alignment) {
+        d_func()->alignment = alignment;
         repaint();
     }
 }
 
 Qt::Alignment QProgressBar::alignment() const
 {
-    return d->alignment;
+    return d_func()->alignment;
 }
 
 /*!
@@ -287,9 +289,9 @@ Qt::Alignment QProgressBar::alignment() const
 void QProgressBar::paintEvent(QPaintEvent *)
 {
     QStylePainter paint(this);
-    QStyleOptionProgressBar opt = d->getStyleOption();
+    QStyleOptionProgressBar opt = d_func()->getStyleOption();
     paint.drawControl(QStyle::CE_ProgressBar, opt);
-    d->lastPaintedValue = d->value;
+    d_func()->lastPaintedValue = d_func()->value;
 }
 
 /*!
@@ -299,7 +301,7 @@ QSize QProgressBar::sizeHint() const
 {
     ensurePolished();
     QFontMetrics fm = fontMetrics();
-    QStyleOptionProgressBar opt = d->getStyleOption();
+    QStyleOptionProgressBar opt = d_func()->getStyleOption();
     int cw = style()->pixelMetric(QStyle::PM_ProgressBarChunkWidth, &opt, this);
     return style()->sizeFromContents(QStyle::CT_ProgressBar, &opt,
                                     QSize(cw * 7 + fm.width('0') * 4, fm.height() + 8), this);
@@ -330,6 +332,7 @@ QSize QProgressBar::minimumSizeHint() const
 */
 QString QProgressBar::text() const
 {
+    Q_D(const QProgressBar);
     if (d->maximum == 0 || d->value < d->minimum
             || (d->value == INT_MIN && d->minimum == INT_MIN))
         return QString();

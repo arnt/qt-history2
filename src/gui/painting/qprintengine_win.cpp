@@ -28,7 +28,12 @@
 
 #define d d_func()
 #define q q_func()
+/*
+// This should force people not to use the d or q macro...
 
+#pragma deprecated("d")
+#pragma deprecated("q")
+*/
 // #define QT_DEBUG_DRAW
 
 static const struct {

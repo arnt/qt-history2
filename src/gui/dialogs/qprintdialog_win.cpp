@@ -49,6 +49,10 @@ public:
 };
 
 #define d d_func()
+/*
+// This should force people not to use the d macro...
+#pragma deprecated("d")
+*/
 
 QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPrintDialog( *(new QPrintDialogPrivate), printer, parent)

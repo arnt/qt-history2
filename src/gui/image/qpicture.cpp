@@ -81,9 +81,6 @@ const char  *qt_mfhdr_tag = "QPIC"; // header tag
 const quint16 mfhdr_maj = 7; // major version #
 const quint16 mfhdr_min = 0; // minor version #
 
-#define d d_func()
-#define q q_func()
-
 /*!
     Constructs an empty picture.
 
@@ -103,6 +100,7 @@ QPicture::QPicture(int formatVersion)
     : QPaintDevice(),
       d_ptr(new QPicturePrivate)
 {
+    Q_D(QPicture);
     d_ptr->q_ptr = this;
     d->paintEngine = 0;
 
@@ -127,7 +125,7 @@ QPicture::QPicture(int formatVersion)
 QPicture::QPicture(const QPicture &pic)
     : QPaintDevice(), d_ptr(pic.d_ptr)
 {
-    d->ref.ref();
+    d_func()->ref.ref();
 }
 
 /*! \internal */
@@ -143,8 +141,8 @@ QPicture::QPicture(QPicturePrivate &dptr)
 */
 QPicture::~QPicture()
 {
-    if (!d->ref.deref())
-        delete d;
+    if (!d_func()->ref.deref())
+        delete d_func();
 }
 
 /*!
@@ -183,28 +181,28 @@ int QPicture::devType() const
 
 bool QPicture::isNull() const
 {
-    return d->pictb.buffer().isNull();
+    return d_func()->pictb.buffer().isNull();
 }
 
 uint QPicture::size() const
 {
-    return d->pictb.buffer().size();
+    return d_func()->pictb.buffer().size();
 }
 
 const char* QPicture::data() const
 {
-    return d->pictb.buffer();
+    return d_func()->pictb.buffer();
 }
 
 void QPicture::detach()
 {
-    if (d->ref != 1)
+    if (d_func()->ref != 1)
         detach_helper();
 }
 
 bool QPicture::isDetached() const
 {
-    return d->ref == 1;
+    return d_func()->ref == 1;
 }
 
 /*!
@@ -217,8 +215,8 @@ bool QPicture::isDetached() const
 void QPicture::setData(const char* data, uint size)
 {
     detach();
-    d->pictb.setData(data, size);
-    d->resetFormat();                                // we'll have to check
+    d_func()->pictb.setData(data, size);
+    d_func()->resetFormat();                                // we'll have to check
 }
 
 
@@ -270,8 +268,8 @@ bool QPicture::load(QIODevice *dev, const char *format)
     detach();
     QByteArray a = dev->readAll();
 
-    d->pictb.setData(a);                        // set byte array in buffer
-    return d->checkFormat();
+    d_func()->pictb.setData(a);                        // set byte array in buffer
+    return d_func()->checkFormat();
 }
 
 /*!
@@ -345,7 +343,7 @@ bool QPicture::save(QIODevice *dev, const char *format)
         return result;
     }
 
-    dev->write(d->pictb.buffer(), d->pictb.buffer().size());
+    dev->write(d_func()->pictb.buffer(), d_func()->pictb.buffer().size());
     return true;
 }
 
@@ -356,9 +354,9 @@ bool QPicture::save(QIODevice *dev, const char *format)
 
 QRect QPicture::boundingRect() const
 {
-    if (!d->formatOk)
+    if (!d_func()->formatOk)
         d_ptr->checkFormat();
-    return d->brect;
+    return d_func()->brect;
 }
 
 /*!
@@ -368,9 +366,9 @@ QRect QPicture::boundingRect() const
 
 void QPicture::setBoundingRect(const QRect &r)
 {
-    if (!d->formatOk)
-        d->checkFormat();
-    d->brect = r;
+    if (!d_func()->formatOk)
+        d_func()->checkFormat();
+    d_func()->brect = r;
 }
 
 /*!
@@ -383,6 +381,8 @@ void QPicture::setBoundingRect(const QRect &r)
 
 bool QPicture::play(QPainter *painter)
 {
+    Q_D(QPicture);
+
     if (d->pictb.size() == 0)                        // nothing recorded
         return true;
 
@@ -423,6 +423,7 @@ bool QPicture::play(QPainter *painter)
 
 bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 {
+    Q_D(QPicture);
 #if defined(QT_DEBUG)
     int                strm_pos;
 #endif
@@ -713,6 +714,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 
 int QPicture::metric(PaintDeviceMetric m) const
 {
+    Q_D(const QPicture);
     int val;
     switch (m) {
         case PdmWidth:
@@ -764,6 +766,7 @@ int QPicture::metric(PaintDeviceMetric m) const
 */
 void QPicture::detach_helper()
 {
+    Q_D(QPicture);
     QPicturePrivate *x = new QPicturePrivate;
     int pictsize = size();
     x->pictb.setData(data(), pictsize);
@@ -879,9 +882,9 @@ bool QPicturePrivate::checkFormat()
 /*! \internal */
 QPaintEngine *QPicture::paintEngine() const
 {
-    if (!d->paintEngine)
-        const_cast<QPicture*>(this)->d->paintEngine = new QPicturePaintEngine;
-    return d->paintEngine;
+    if (!d_func()->paintEngine)
+        const_cast<QPicture*>(this)->d_func()->paintEngine = new QPicturePaintEngine;
+    return d_func()->paintEngine;
 }
 
 /*****************************************************************************
@@ -897,13 +900,13 @@ QPaintEngine *QPicture::paintEngine() const
 
 QDataStream &operator<<(QDataStream &s, const QPicture &r)
 {
-    quint32 size = r.d->pictb.buffer().size();
+    quint32 size = r.d_func()->pictb.buffer().size();
     s << size;
     // null picture ?
     if (size == 0)
         return s;
     // just write the whole buffer to the stream
-    s.writeRawData (r.d->pictb.buffer(), r.d->pictb.buffer().size());
+    s.writeRawData (r.d_func()->pictb.buffer(), r.d_func()->pictb.buffer().size());
     return s;
 }
 
@@ -919,8 +922,8 @@ QDataStream &operator>>(QDataStream &s, QPicture &r)
     QDataStream sr;
 
     // "init"; this code is similar to the beginning of QPicture::cmd()
-    sr.setDevice(&r.d->pictb);
-    sr.setVersion(r.d->formatMajor);
+    sr.setDevice(&r.d_func()->pictb);
+    sr.setVersion(r.d_func()->formatMajor);
     quint32 len;
     s >> len;
     QByteArray data;
@@ -929,13 +932,11 @@ QDataStream &operator>>(QDataStream &s, QPicture &r)
         s.readRawData(data.data(), len);
     }
 
-    r.d->pictb.setData(data);
-    r.d->resetFormat();
+    r.d_func()->pictb.setData(data);
+    r.d_func()->resetFormat();
     return s;
 }
 
-#undef d
-#undef q
 
 #ifndef QT_NO_PICTUREIO
 #include "qregexp.h"

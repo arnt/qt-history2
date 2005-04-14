@@ -32,9 +32,6 @@ public:
     void drawContents();
 };
 
-#define d d_func()
-#define q q_func()
-
 /*!
    \class QSplashScreen qsplashscreen.h
    \brief The QSplashScreen widget provides a splash screen that can
@@ -113,8 +110,8 @@ public:
 QSplashScreen::QSplashScreen(const QPixmap &pixmap, Qt::WFlags f)
     : QWidget(*(new QSplashScreenPrivate()), 0, Qt::SplashScreen | f)
 {
-    d->pixmap = pixmap;
-    setPixmap(d->pixmap);  // Does an implicit repaint
+    d_func()->pixmap = pixmap;
+    setPixmap(d_func()->pixmap);  // Does an implicit repaint
 }
 
 /*!
@@ -140,7 +137,7 @@ void QSplashScreen::mousePressEvent(QMouseEvent *)
 */
 void QSplashScreen::repaint()
 {
-    d->drawContents();
+    d_func()->drawContents();
     QWidget::repaint();
     QApplication::flush();
 }
@@ -166,6 +163,7 @@ void QSplashScreen::repaint()
 void QSplashScreen::showMessage(const QString &message, int alignment,
                              const QColor &color)
 {
+    Q_D(QSplashScreen);
     d->currStatus = message;
     d->currAlign = alignment;
     d->currColor = color;
@@ -180,8 +178,8 @@ void QSplashScreen::showMessage(const QString &message, int alignment,
  */
 void QSplashScreen::clearMessage()
 {
-    d->currStatus = QString::null;
-    emit messageChanged(d->currStatus);
+    d_func()->currStatus = QString::null;
+    emit messageChanged(d_func()->currStatus);
     repaint();
 }
 
@@ -206,6 +204,7 @@ void QSplashScreen::finish(QWidget *mainWin)
 */
 void QSplashScreen::setPixmap(const QPixmap &pixmap)
 {
+    Q_D(QSplashScreen);
     d->pixmap = pixmap;
     QRect r(0, 0, d->pixmap.size().width(), d->pixmap.size().height());
     resize(d->pixmap.size());
@@ -222,7 +221,7 @@ void QSplashScreen::setPixmap(const QPixmap &pixmap)
 */
 const QPixmap QSplashScreen::pixmap() const
 {
-    return d->pixmap;
+    return d_func()->pixmap;
 }
 
 /*!
@@ -230,7 +229,8 @@ const QPixmap QSplashScreen::pixmap() const
 */
 void QSplashScreenPrivate::drawContents()
 {
-    QPixmap textPix = d->pixmap;
+    Q_Q(QSplashScreen);
+    QPixmap textPix = pixmap;
     QPainter painter(&textPix);
     q->drawContents(&painter);
     QPalette p = q->palette();
@@ -246,10 +246,10 @@ void QSplashScreenPrivate::drawContents()
 */
 void QSplashScreen::drawContents(QPainter *painter)
 {
-    painter->setPen(d->currColor);
+    painter->setPen(d_func()->currColor);
     QRect r = rect();
     r.setRect(r.x() + 5, r.y() + 5, r.width() - 10, r.height() - 10);
-    painter->drawText(r, d->currAlign, d->currStatus);
+    painter->drawText(r, d_func()->currAlign, d_func()->currStatus);
 }
 
 /*!

@@ -47,11 +47,9 @@ public:
     QRect hoverRect;
 };
 
-#define d d_func()
-#define q q_func()
-
 void QSliderPrivate::init()
 {
+    Q_Q(QSlider);
     pressedControl = QStyle::SC_None;
     tickInterval = 0;
     tickPosition = QSlider::NoTicks;
@@ -67,6 +65,8 @@ void QSliderPrivate::init()
 
 int QSliderPrivate::pixelPosToRangeValue(int pos) const
 {
+    Q_Q(const QSlider);
+    Q_D(const QSlider);
     QStyleOptionSlider opt = getStyleOption();
     QRect gr = q->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove, q);
     QRect sr = q->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, q);
@@ -93,6 +93,7 @@ inline int QSliderPrivate::pick(const QPoint &pt) const
 
 QStyleOptionSlider QSliderPrivate::getStyleOption() const
 {
+    Q_Q(const QSlider);
     QStyleOptionSlider opt;
     opt.init(q);
     opt.subControls = QStyle::SC_None;
@@ -117,6 +118,8 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
 
 bool QSliderPrivate::updateHoverControl(const QPoint &pos)
 {
+    Q_Q(QSlider);
+    Q_D(QSlider);
     QRect lastHoverRect = hoverRect;
     QStyle::SubControl lastHoverControl = hoverControl;
     bool doesHover = q->testAttribute(Qt::WA_Hover);
@@ -130,6 +133,7 @@ bool QSliderPrivate::updateHoverControl(const QPoint &pos)
 
 QStyle::SubControl QSliderPrivate::newHoverControl(const QPoint &pos)
 {
+    Q_Q(QSlider);
     QStyleOptionSlider opt = getStyleOption();
     opt.subControls = QStyle::SC_All;
     QRect handleRect = q->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, q);
@@ -246,8 +250,8 @@ QStyle::SubControl QSliderPrivate::newHoverControl(const QPoint &pos)
 QSlider::QSlider(QWidget *parent)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
-    d->orientation = Qt::Vertical;
-    d->init();
+    d_func()->orientation = Qt::Vertical;
+    d_func()->init();
 }
 
 /*!
@@ -262,8 +266,8 @@ QSlider::QSlider(QWidget *parent)
 QSlider::QSlider(Qt::Orientation orientation, QWidget *parent)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
-    d->orientation = orientation;
-    d->init();
+    d_func()->orientation = orientation;
+    d_func()->init();
 }
 
 #ifdef QT3_SUPPORT
@@ -275,8 +279,8 @@ QSlider::QSlider(QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
     setObjectName(name);
-    d->orientation = Qt::Vertical;
-    d->init();
+    d_func()->orientation = Qt::Vertical;
+    d_func()->init();
 }
 
 /*!
@@ -287,8 +291,8 @@ QSlider::QSlider(Qt::Orientation orientation, QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
     setObjectName(name);
-    d->orientation = orientation;
-    d->init();
+    d_func()->orientation = orientation;
+    d_func()->init();
 }
 
 /*!
@@ -299,6 +303,7 @@ QSlider::QSlider(int minValue, int maxValue, int pageStep, int value, Qt::Orient
                  QWidget *parent, const char *name)
     : QAbstractSlider(*new QSliderPrivate, parent)
 {
+    Q_D(QSlider);
     setObjectName(name);
     d->minimum = minValue;
     d->maximum = maxValue;
@@ -321,6 +326,7 @@ QSlider::~QSlider()
 */
 void QSlider::paintEvent(QPaintEvent *)
 {
+    Q_D(QSlider);
     QPainter p(this);
     QStyleOptionSlider opt = d->getStyleOption();
 
@@ -348,7 +354,7 @@ bool QSlider::event(QEvent *event)
     case QEvent::HoverLeave:
     case QEvent::HoverMove:
     if (const QHoverEvent *he = static_cast<const QHoverEvent *>(event))
-        d->updateHoverControl(he->pos());
+        d_func()->updateHoverControl(he->pos());
         break;
     default:
         break;
@@ -361,6 +367,7 @@ bool QSlider::event(QEvent *event)
 */
 void QSlider::mousePressEvent(QMouseEvent *ev)
 {
+    Q_D(QSlider);
     if (d->maximum == d->minimum
         || (ev->buttons() ^ ev->button())
         || (ev->button() != Qt::LeftButton)) {
@@ -395,6 +402,7 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
 */
 void QSlider::mouseMoveEvent(QMouseEvent *ev)
 {
+    Q_D(QSlider);
     if (d->pressedControl != QStyle::SC_SliderHandle || !(ev->buttons() & Qt::LeftButton)) {
         ev->ignore();
         return;
@@ -418,6 +426,7 @@ void QSlider::mouseMoveEvent(QMouseEvent *ev)
 */
 void QSlider::mouseReleaseEvent(QMouseEvent *ev)
 {
+    Q_D(QSlider);
     if (d->pressedControl == QStyle::SC_None || ev->buttons()) {
         ev->ignore();
         return;
@@ -438,6 +447,7 @@ void QSlider::mouseReleaseEvent(QMouseEvent *ev)
 */
 QSize QSlider::sizeHint() const
 {
+    Q_D(const QSlider);
     ensurePolished();
     const int SliderLength = 84, TickSpace = 5;
     QStyleOptionSlider opt = d->getStyleOption();
@@ -459,6 +469,7 @@ QSize QSlider::sizeHint() const
 */
 QSize QSlider::minimumSizeHint() const
 {
+    Q_D(const QSlider);
     QSize s = sizeHint();
     QStyleOptionSlider opt = d->getStyleOption();
     int length = style()->pixelMetric(QStyle::PM_SliderLength, &opt, this);
@@ -481,13 +492,13 @@ QSize QSlider::minimumSizeHint() const
 
 void QSlider::setTickPosition(TickPosition position)
 {
-    d->tickPosition = position;
+    d_func()->tickPosition = position;
     update();
 }
 
 QSlider::TickPosition QSlider::tickPosition() const
 {
-    return d->tickPosition;
+    return d_func()->tickPosition;
 }
 
 /*!
@@ -517,13 +528,13 @@ QSlider::TickPosition QSlider::tickPosition() const
 
 void QSlider::setTickInterval(int ts)
 {
-    d->tickInterval = qMax(0, ts);
+    d_func()->tickInterval = qMax(0, ts);
     update();
 }
 
 int QSlider::tickInterval() const
 {
-    return d->tickInterval;
+    return d_func()->tickInterval;
 }
 
 

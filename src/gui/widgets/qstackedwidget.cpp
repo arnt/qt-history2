@@ -17,9 +17,6 @@
 #include <qevent.h>
 #include <private/qframe_p.h>
 
-#define d d_func()
-#define q q_func()
-
 class QStackedWidgetPrivate : public QFramePrivate
 {
     Q_DECLARE_PUBLIC(QStackedWidget)
@@ -109,6 +106,7 @@ public:
 QStackedWidget::QStackedWidget(QWidget *parent)
     : QFrame(*new QStackedWidgetPrivate, parent)
 {
+    Q_D(QStackedWidget);
     d->layout = new QStackedLayout(this);
     connect(d->layout, SIGNAL(widgetRemoved(int)), this, SIGNAL(widgetRemoved(int)));
     connect(d->layout, SIGNAL(currentChanged(int)), this, SIGNAL(currentChanged(int)));
@@ -132,7 +130,7 @@ QStackedWidget::~QStackedWidget()
 */
 int QStackedWidget::addWidget(QWidget *widget)
 {
-    return d->layout->addWidget(widget);
+    return d_func()->layout->addWidget(widget);
 }
 
 /*!
@@ -147,7 +145,7 @@ int QStackedWidget::addWidget(QWidget *widget)
 */
 int QStackedWidget::insertWidget(int index, QWidget *widget)
 {
-    return d->layout->insertWidget(index, widget);
+    return d_func()->layout->insertWidget(index, widget);
 }
 
 /*!
@@ -158,7 +156,7 @@ int QStackedWidget::insertWidget(int index, QWidget *widget)
 */
 void QStackedWidget::removeWidget(QWidget *widget)
 {
-    d->layout->removeWidget(widget);
+    d_func()->layout->removeWidget(widget);
 }
 
 /*!
@@ -172,12 +170,12 @@ void QStackedWidget::removeWidget(QWidget *widget)
 
 void QStackedWidget::setCurrentIndex(int index)
 {
-    d->layout->setCurrentIndex(index);
+    d_func()->layout->setCurrentIndex(index);
 }
 
 int QStackedWidget::currentIndex() const
 {
-    return d->layout->currentIndex();
+    return d_func()->layout->currentIndex();
 }
 
 /*!
@@ -189,7 +187,7 @@ int QStackedWidget::currentIndex() const
 */
 QWidget *QStackedWidget::currentWidget() const
 {
-    return d->layout->currentWidget();
+    return d_func()->layout->currentWidget();
 }
 
 
@@ -207,7 +205,7 @@ QWidget *QStackedWidget::currentWidget() const
  */
 void QStackedWidget::setCurrentWidget(QWidget *w)
 {
-    d->layout->setCurrentWidget(w);
+    d_func()->layout->setCurrentWidget(w);
 }
 
 /*!
@@ -218,7 +216,7 @@ void QStackedWidget::setCurrentWidget(QWidget *w)
 */
 int QStackedWidget::indexOf(QWidget *widget) const
 {
-    return d->layout->indexOf(widget);
+    return d_func()->layout->indexOf(widget);
 }
 
 /*!
@@ -229,7 +227,7 @@ int QStackedWidget::indexOf(QWidget *widget) const
 */
 QWidget *QStackedWidget::widget(int index) const
 {
-    return d->layout->widget(index);
+    return d_func()->layout->widget(index);
 }
 
 /*!
@@ -240,6 +238,6 @@ QWidget *QStackedWidget::widget(int index) const
 */
 int QStackedWidget::count() const
 {
-    return d->layout->count();
+    return d_func()->layout->count();
 }
 
