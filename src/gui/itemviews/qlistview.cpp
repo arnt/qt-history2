@@ -657,7 +657,7 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
     QAbstractItemView::mouseReleaseEvent(e);
     if (d->elasticBand.isValid()) {
         d->setDirtyRect(d->mapToViewport(d->elasticBand));
-        d->elasticBand = QRect();?
+        d->elasticBand = QRect();
     }
 }
 
