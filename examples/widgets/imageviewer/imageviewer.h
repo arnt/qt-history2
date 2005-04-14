@@ -28,8 +28,8 @@ private slots:
 private:
     void createActions();
     void createMenus();
-    void enableActions();
-    void scalePixmap(double factor);
+    void updateActions();
+    void scaleImage(double factor);
     void adjustScrollBar(QScrollBar *scrollBar, double factor);
 
     QLabel *imageLabel;

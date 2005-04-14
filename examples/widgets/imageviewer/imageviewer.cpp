@@ -4,12 +4,12 @@
 
 ImageViewer::ImageViewer()
 {
-    imageLabel = new QLabel(this);
+    imageLabel = new QLabel;
     imageLabel->setBackgroundRole(QPalette::Base);
     imageLabel->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     imageLabel->setScaledContents(true);
 
-    scrollArea = new QScrollArea(this);
+    scrollArea = new QScrollArea;
     scrollArea->setBackgroundRole(QPalette::Dark);
     scrollArea->setWidget(imageLabel);
     setCentralWidget(scrollArea);
@@ -35,7 +35,9 @@ void ImageViewer::open()
         imageLabel->setPixmap(QPixmap::fromImage(image));
         scaleFactor = 1.0;
 
-        enableActions();
+        printAct->setEnabled(true);
+        fitToWindowAct->setEnabled(true);
+        updateActions();
 
         if (!fitToWindowAct->isChecked())
             imageLabel->adjustSize();
@@ -59,12 +61,12 @@ void ImageViewer::print()
 
 void ImageViewer::zoomIn()
 {
-    scalePixmap(1.25);
+    scaleImage(1.25);
 }
 
 void ImageViewer::zoomOut()
 {
-    scalePixmap(0.8);
+    scaleImage(0.8);
 }
 
 void ImageViewer::normalSize()
@@ -76,11 +78,10 @@ void ImageViewer::fitToWindow()
 {
     bool fitToWindow = fitToWindowAct->isChecked();
     scrollArea->setWidgetResizable(fitToWindow);
-    zoomInAct->setEnabled(!fitToWindow);
-    zoomOutAct->setEnabled(!fitToWindow);
-    normalSizeAct->setEnabled(!fitToWindow);
     if (!fitToWindow)
         imageLabel->adjustSize();
+
+    updateActions();
 }
 
 void ImageViewer::createActions()
@@ -139,16 +140,14 @@ void ImageViewer::createMenus()
     menuBar()->addMenu(viewMenu);
 }
 
-void ImageViewer::enableActions()
+void ImageViewer::updateActions()
 {
-    printAct->setEnabled(true);
-    zoomInAct->setEnabled(true);
-    zoomOutAct->setEnabled(true);
-    normalSizeAct->setEnabled(true);
-    fitToWindowAct->setEnabled(true);
+    zoomInAct->setEnabled(!fitToWindowAct->isChecked());
+    zoomOutAct->setEnabled(!fitToWindowAct->isChecked());
+    normalSizeAct->setEnabled(!fitToWindowAct->isChecked());
 }
 
-void ImageViewer::scalePixmap(double factor)
+void ImageViewer::scaleImage(double factor)
 {
     Q_ASSERT(imageLabel->pixmap());
     scaleFactor *= factor;
