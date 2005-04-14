@@ -812,16 +812,21 @@ bool QDesignerResource::checkProperty(QDesignerToolBox *widget, const QString &p
 
 bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
 {
+    if (item->widget() == 0) {
+        qWarning() << "========> expected a widget here?!?" << item->layout() << item->spacerItem();
+        return false;
+    }
+
     QGridLayout *grid = qobject_cast<QGridLayout*>(layout);
     QBoxLayout *box = qobject_cast<QBoxLayout*>(layout);
 
-    if (grid && item->widget()) {
+    if (grid != 0) {
         int rowSpan = ui_item->hasAttributeRowSpan() ? ui_item->attributeRowSpan() : 1;
         int colSpan = ui_item->hasAttributeColSpan() ? ui_item->attributeColSpan() : 1;
         add_to_grid_layout(grid, item->widget(), ui_item->attributeRow(), ui_item->attributeColumn(),
                         rowSpan, colSpan, item->alignment());
         return true;
-    } else if (box && item->widget()) {
+    } else if (box != 0) {
         add_to_box_layout(box, item->widget());
         return true;
     }
@@ -833,9 +838,7 @@ bool QDesignerResource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *
 {
     if (QAbstractFormBuilder::addItem(ui_widget, widget, parentWidget)) {
         return true;
-    }
-
-    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) {
+    } else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) {
         container->addWidget(widget);
         return true;
     }

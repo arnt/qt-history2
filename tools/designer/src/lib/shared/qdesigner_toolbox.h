@@ -23,7 +23,6 @@ class QAction;
 class QT_SHARED_EXPORT QDesignerToolBox : public QToolBox
 {
     Q_OBJECT
-    Q_OVERRIDE(int currentIndex READ currentIndex DESIGNABLE true)
     Q_PROPERTY(QString currentItemText READ currentItemText WRITE setCurrentItemText STORED false DESIGNABLE true)
     Q_PROPERTY(QString currentItemName READ currentItemName WRITE setCurrentItemName STORED false DESIGNABLE true)
     Q_PROPERTY(QIcon currentItemIcon READ currentItemIcon WRITE setCurrentItemIcon STORED false DESIGNABLE true)
