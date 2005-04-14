@@ -258,11 +258,6 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
     qt_polygon_recursion = 0;
 }
 
-
-
-#define d d_func()
-#define q q_func()
-
 /*!
     \enum QPaintEngine::Type
 
@@ -784,7 +779,7 @@ void QPaintEngine::drawRects(const QRectF *rects, int rectCount)
 */
 void QPaintEngine::setPaintDevice(QPaintDevice *device)
 {
-    d->pdev = device;
+    d_func()->pdev = device;
 }
 
 /*!
@@ -793,7 +788,7 @@ void QPaintEngine::setPaintDevice(QPaintDevice *device)
 */
 QPaintDevice *QPaintEngine::paintDevice() const
 {
-    return d->pdev;
+    return d_func()->pdev;
 }
 
 #ifdef Q_WS_WIN
@@ -850,7 +845,7 @@ void QPaintEngine::setSystemClip(const QRegion &region)
         qWarning("QPaintEngine::setSystemClip(), should not be changed while engine is active");
         return;
     }
-    d->systemClip = region;
+    d_func()->systemClip = region;
 }
 
 
@@ -864,5 +859,5 @@ void QPaintEngine::setSystemClip(const QRegion &region)
 
 QRegion QPaintEngine::systemClip() const
 {
-    return d->systemClip;
+    return d_func()->systemClip;
 }
