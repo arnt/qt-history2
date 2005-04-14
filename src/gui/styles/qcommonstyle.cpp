@@ -2297,7 +2297,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             // calculate slider length
             if (scrollbar->maximum != scrollbar->minimum) {
                 uint range = scrollbar->maximum - scrollbar->minimum;
-                sliderlen = double(scrollbar->pageStep) / double(range + scrollbar->pageStep) * (double)maxlen;
+                sliderlen = (qint64(scrollbar->pageStep) * maxlen) / (range + scrollbar->pageStep);
 
                 int slidermin = pixelMetric(PM_ScrollBarSliderMin, scrollbar, widget);
                 if (sliderlen < slidermin || range > INT_MAX / 2)
