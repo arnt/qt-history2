@@ -231,13 +231,7 @@ bool QCheckBox::hitButton(const QPoint &pos) const
 {
     Q_D(const QCheckBox);
     QStyleOptionButton opt = d->getStyleOption();
-    QRect r = QStyle::visualRect(opt.direction, opt.rect, style()->subElementRect(QStyle::SE_CheckBoxClickRect, &opt, this));
-    if (qApp->layoutDirection() == Qt::RightToLeft) {
-        r.setRight(width());
-    } else {
-        r.setLeft(0);
-    }
-    return r.contains(pos);
+    return style()->subElementRect(QStyle::SE_CheckBoxClickRect, &opt, this).contains(pos);
 }
 
 /*!\reimp*/

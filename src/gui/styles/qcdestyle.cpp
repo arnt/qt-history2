@@ -190,6 +190,8 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             bool on = opt->state & State_On;
             QPolygon a(INTARRLEN(pts1), pts1);
             a.translate(r.x(), r.y());
+            QPen oldPen = p->pen();
+            QBrush oldBrush = p->brush();
             p->setPen((down || on) ? opt->palette.dark().color() : opt->palette.light().color());
             p->drawPolyline(a);
             a.setPoints(INTARRLEN(pts4), pts4);
@@ -205,6 +207,8 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             p->drawPolygon(a);
             if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
                 p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
+            p->setPen(oldPen);
+            p->setBrush(oldBrush);
         } break;
 
     default:

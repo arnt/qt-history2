@@ -370,6 +370,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         bool on = opt->state & State_On;
         bool down = opt->state & State_Sunken;
         bool showUp = !(down ^ on);
+        QPen oldPen = p->pen();
+        QBrush oldBrush = p->brush();
         QPolygon a(INTARRLEN(inner_pts), inner_pts);
         p->setPen(Qt::NoPen);
         p->setBrush(opt->palette.brush(showUp ? QPalette::Button : QPalette::Mid));
@@ -386,6 +388,8 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         p->drawPolyline(a);
         if (!(opt->state & State_Enabled) && styleHint(SH_DitherDisabledText))
             p->fillRect(opt->rect, QBrush(p->background().color(), Qt::Dense5Pattern));
+        p->setPen(oldPen);
+        p->setBrush(oldBrush);
         break; }
 
     case PE_IndicatorSpinUp:
@@ -711,21 +715,18 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             bool isRadio = (element == CE_RadioButton);
             QStyleOptionButton subopt = *btn;
-            subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subElementRect(isRadio ? QStyle::SE_RadioButtonIndicator
-                                                     : SE_CheckBoxIndicator, btn, widget));
+            subopt.rect = subElementRect(isRadio ? SE_RadioButtonIndicator
+                                                 : SE_CheckBoxIndicator, btn, widget);
             drawPrimitive(isRadio ? PE_IndicatorRadioButton : PE_IndicatorCheckBox,
                           &subopt, p, widget);
-            subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subElementRect(isRadio ? QStyle::SE_RadioButtonContents
-                                                     : SE_CheckBoxContents, btn, widget));
+            subopt.rect = subElementRect(isRadio ? SE_RadioButtonContents
+                                                 : SE_CheckBoxContents, btn, widget);
             drawControl(isRadio ? CE_RadioButtonLabel : CE_CheckBoxLabel, &subopt, p, widget);
             if ((btn->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                 QStyleOptionFocusRect fropt;
                 fropt.QStyleOption::operator=(*btn);
-                fropt.rect = visualRect(btn->direction, btn->rect,
-                                        subElementRect(isRadio ? QStyle::SE_RadioButtonFocusRect
-                                                : SE_CheckBoxFocusRect, btn, widget));
+                fropt.rect = subElementRect(isRadio ? SE_RadioButtonFocusRect
+                                                    : SE_CheckBoxFocusRect, btn, widget);
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -1769,8 +1770,10 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
     case SE_CheckBoxIndicator:
     case SE_RadioButtonIndicator:
         {
-            rect = QCommonStyle::subElementRect(sr, opt, widget);
+            rect = visualRect(opt->direction, opt->rect,
+                              QCommonStyle::subElementRect(sr, opt, widget));
             rect.adjust(motifItemFrame,0, motifItemFrame,0);
+            rect = visualRect(opt->direction, opt->rect, rect);
         }
         break;
 
@@ -1820,21 +1823,19 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
             rect = visualRect(pb->direction, pb->rect, rect);
         }
         break;
-    case SE_CheckBoxContents: {
-        QRect ir = subElementRect(SE_CheckBoxIndicator, opt, widget);
-        rect.setRect(ir.right() + 10, opt->rect.y(),
-                     opt->rect.width() - ir.width() - 10, opt->rect.height());
-        break; }
-
+    case SE_CheckBoxContents:
     case SE_RadioButtonContents: {
-        QRect ir = subElementRect(SE_RadioButtonIndicator, opt, widget);
+        QRect ir = visualRect(opt->direction, opt->rect,
+                              subElementRect(sr == SE_CheckBoxContents ? SE_CheckBoxIndicator
+                                                                       : SE_RadioButtonIndicator,
+                                             opt, widget));
         rect.setRect(ir.right() + 10, opt->rect.y(),
                      opt->rect.width() - ir.width() - 10, opt->rect.height());
+        rect = visualRect(opt->direction, opt->rect, rect);
         break; }
-
     case SE_CheckBoxClickRect:
     case SE_RadioButtonClickRect:
-        rect = opt->rect;
+        rect = visualRect(opt->direction, opt->rect, opt->rect);
         break;
 
     default:

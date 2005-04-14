@@ -5476,10 +5476,13 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
     case SE_RadioButtonContents:
     case SE_CheckBoxContents:
         {
-            QRect ir = subElementRect(sr == SE_RadioButtonContents ? SE_RadioButtonIndicator
-                                                            : SE_CheckBoxIndicator, opt, w);
+            QRect ir = visualRect(opt->direction, opt->rect,
+                                  subElementRect(sr == SE_RadioButtonContents
+                                                        ? SE_RadioButtonIndicator
+                                                        : SE_CheckBoxIndicator, opt, w));
             rect.setRect(ir.right() + 2, opt->rect.y(),
                          opt->rect.width() - ir.width() - 2, opt->rect.height());
+            rect = visualRect(opt->direction, opt->rect, rect);
             break;
         }
         break;
