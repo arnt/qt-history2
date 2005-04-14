@@ -160,11 +160,13 @@ protected:
 
     void	frameChanged();
 
+public:
     virtual void setMargins(int left, int top, int right, int bottom);
     int leftMargin() const;
     int topMargin() const;
     int rightMargin() const;
     int bottomMargin() const;
+protected:
 
     bool focusNextPrevChild( bool next );
 
