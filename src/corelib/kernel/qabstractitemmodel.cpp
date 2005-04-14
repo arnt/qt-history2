@@ -723,9 +723,12 @@ void QPersistentModelIndexManager::reset()
 
     The model emits signals to indicate changes. For example,
     dataChanged() is emitted whenever the contents of the model are
-    changed; rowsInserted(), columnsInserted(), rowsAboutToBeRemoved(),
-    and columnsAboutToBeRemoved() are emitted when the model's dimensions
-    are changed.
+    changed. Other components are made aware of changes to the number of
+    rows in the model via the rowsAboutToBeInserted(), rowsInserted(),
+    rowsAboutToBeRemoved(), and rowsRemoved() signals. Changes to the
+    number of columns are sent via the columnsAboutToBeInserted(),
+    columnsInserted(), columnsAboutToBeRemoved(), and columnsRemoved()
+    signals.
 
     The items available through the model can be searched for particular
     data using the match() function.
@@ -749,23 +752,31 @@ void QPersistentModelIndexManager::reset()
     Models that provide interfaces to resizable data structures can
     provide implementations of insertRows(), removeRows(), insertColumns(),
     and removeColumns(). When implementing these functions, it is
-    important to emit the appropriate signals so that all connected views
-    are aware of any changes:
+    important to emit all the appropriate signals so that connected views
+    are aware of any changes both \e before and \e after they occur:
 
     \list
-    \o An insertRows() implementation must emit rowsInserted() after the
-       new rows have been inserted into the data structure.
-    \o An insertColumns() implementation must emit columnsInserted() after
-       the new columns have been inserted into the data structure.
+    \o An insertRows() implementation must emit rowsAboutToBeInserted()
+       \e before inserting new rows into the data structure, and it must emit
+       rowsInserted() \e{immediately afterwards}.
+    \o An insertColumns() implementation must emit columnsAboutToBeInserted()
+       \e before inserting new columns into the data structure, and it must emit
+       columnsInserted() \e{immediately afterwards}.
     \o A removeRows() implementation must emit rowsAboutToBeRemoved()
-       \e before the rows are removed from the data structure. This gives
-       attached components the chance to take action before any data
-       becomes unavailable.
-    \o A removeColumns() implementation must emit columnsAboutToBeRemoved().
-       \e before the columns are removed from the data structure. This gives
-       attached components the chance to take action before any data
-       becomes unavailable.
+       \e before the rows are removed from the data structure, and it must
+       emit rowsRemoved() \e{immediately afterwards}.
+    \o A removeColumns() implementation must emit columnsAboutToBeRemoved()
+       \e before the columns are removed from the data structure, and it must
+       emit columnsRemoved() \e{immediately afterwards}.
     \endlist
+
+    The signals that are emitted by the model before data is inserted or
+    removed give attached components the chance to take action before any
+    data becomes unavailable. The encapsulation of the insert and remove
+    operations with signals also enable the model to manage
+    \l{QPersistentModelIndex}{persistent model indexes} correctly. If you
+    want selections to be handled properly, you must ensure that these
+    signals are emitted.
 
     \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemView
 
@@ -910,10 +921,30 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
+    \fn void QAbstractItemModel::rowsAboutToBeInserted(const QModelIndex &parent, int start, int end)
+
+    This signal is emitted just before rows are inserted into the
+    model. The new items will be positioned between \a start and \a end
+    inclusive, under the given \a parent item.
+
+    \sa insertRows()
+*/
+
+/*!
+    \fn void QAbstractItemModel::rowsRemoved(const QModelIndex &parent, int start, int end)
+
+    This signal is emitted after rows have been removed from the
+    model. The removed items are those between \a start and \a end
+    inclusive, under the given \a parent item.
+
+    \sa removeRows()
+*/
+
+/*!
     \fn void QAbstractItemModel::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 
     This signal is emitted just before rows are removed from the
-    model. The removed items are those between \a start and \a end
+    model. The items that will be removed are those between \a start and \a end
     inclusive, under the given \a parent item.
 
     \sa removeRows()
@@ -930,13 +961,33 @@ QAbstractItemModel::~QAbstractItemModel()
 */
 
 /*!
+    \fn void QAbstractItemModel::columnsAboutToBeInserted(const QModelIndex &parent, int start, int end)
+
+    This signal is emitted just before columns are inserted into the
+    model. The new items will be positioned between \a start and \a end
+    inclusive, under the given \a parent item.
+
+    \sa insertColumns()
+*/
+
+/*!
+    \fn void QAbstractItemModel::columnsRemoved(const QModelIndex &parent, int start, int end)
+
+    This signal is emitted after columns have been removed from the
+    model. The removed items are those between \a start and \a end
+    inclusive, under the given \a parent item.
+
+    \sa removeColumns()
+*/
+
+/*!
     \fn void QAbstractItemModel::columnsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
 
     This signal is emitted just before columns are removed
-    from the model. The removed items are those between \a start and
+    from the model. The items to be removed are those between \a start and
     \a end inclusive, under the given \a parent item.
 
-    \sa removeRows()
+    \sa removeColumns()
 */
 
 /*!
