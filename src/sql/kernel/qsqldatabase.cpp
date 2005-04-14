@@ -366,6 +366,8 @@ void QSqlDatabasePrivate::disable()
 */
 
 /*!
+    \threadsafe
+
     Adds a database to the list of database connections using the
     driver \a type and the connection name \a connectionName.
 
@@ -395,6 +397,8 @@ QSqlDatabase QSqlDatabase::addDatabase(const QString &type, const QString &conne
 }
 
 /*!
+    \threadsafe
+
     Returns the database connection called \a connectionName. The
     database connection must have been previously added with
     addDatabase(). If \a open is true (the default) and the database
@@ -412,6 +416,8 @@ QSqlDatabase QSqlDatabase::database(const QString& connectionName, bool open)
 }
 
 /*!
+    \threadsafe
+
     Removes the database connection \a connectionName from the list of
     database connections.
 
@@ -535,6 +541,8 @@ void QSqlDatabase::registerSqlDriver(const QString& name, QSqlDriverCreatorBase 
 }
 
 /*!
+    \threadsafe
+
     Returns true if the list of database connections contains \a
     connectionName; otherwise returns false.
 
@@ -547,6 +555,8 @@ bool QSqlDatabase::contains(const QString& connectionName)
 }
 
 /*!
+    \threadsafe
+
     Returns a list containing the names of all connections.
 
     \sa contains(), database()
