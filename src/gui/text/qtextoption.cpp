@@ -20,6 +20,9 @@ struct QTextOptionPrivate
     QList<qreal> tabStops;
 };
 
+/*!
+    Constructs a text option with default properties for text.
+*/
 QTextOption::QTextOption()
     : align(Qt::AlignLeft),
       wordWrap(QTextOption::WordWrap),
@@ -32,6 +35,9 @@ QTextOption::QTextOption()
     direction = QApplication::layoutDirection();
 }
 
+/*!
+    Constructs a text option with the given \a alignment for text.
+*/
 QTextOption::QTextOption(Qt::Alignment alignment)
     : align(alignment),
       wordWrap(QTextOption::WordWrap),
@@ -44,11 +50,19 @@ QTextOption::QTextOption(Qt::Alignment alignment)
     direction = QApplication::layoutDirection();
 }
 
+/*!
+    Destroys the text option.
+*/
 QTextOption::~QTextOption()
 {
     delete d;
 }
 
+/*!
+    \fn QTextOption::QTextOption(const QTextOption &other)
+
+    Construct a copy of the \a other text option.
+*/
 QTextOption::QTextOption(const QTextOption &o)
     : align(o.align),
       wordWrap(o.wordWrap),
@@ -63,6 +77,12 @@ QTextOption::QTextOption(const QTextOption &o)
         d = new QTextOptionPrivate(*o.d);
 }
 
+/*!
+    \fn QTextOption &QTextOption::operator=(const QTextOption &other)
+
+    Returns true if the text option is the same as the \a other text option;
+    otherwise returns false.
+*/
 QTextOption &QTextOption::operator=(const QTextOption &o)
 {
     if (this == &o)
@@ -80,6 +100,12 @@ QTextOption &QTextOption::operator=(const QTextOption &o)
     return *this;
 }
 
+/*!
+    Sets the tab positions for the text layout to those specified by
+    \a tabStops.
+
+    \sa tabArray(), setTabStop()
+*/
 void QTextOption::setTabArray(QList<qreal> tabStops)
 {
     if (!d)
@@ -87,6 +113,11 @@ void QTextOption::setTabArray(QList<qreal> tabStops)
     d->tabStops = tabStops;
 }
 
+/*!
+    Returns a list of tab positions defined for the text layout.
+
+    \sa setTabArray(), tabStop()
+*/
 QList<qreal> QTextOption::tabArray() const
 {
     if (d)
@@ -124,20 +155,106 @@ QList<qreal> QTextOption::tabArray() const
 */
 
 /*!
-  \fn void QTextOption::useDesignMetrics(bool b)
+  \fn void QTextOption::setUseDesignMetrics(bool enable)
 
-    If \a b is true then the layouting will use design metrics;
+    If \a enable is true then the layout will use design metrics;
     otherwise it will use the metrics of the paint device (which is
     the default behavior).
 
-    \sa usesDesignMetrics()
+    \sa useDesignMetrics()
 */
 
 /*!
-  \fn bool QTextOption::usesDesignMetrics() const
+  \fn bool QTextOption::useDesignMetrics() const
 
-    Returns true if this layouting uses design rather than device
-    metrics; otherwise returns false.
+    Returns true if the layout uses design rather than device metrics;
+    otherwise returns false.
 
-    \sa useDesignMetrics()
+    \sa setUseDesignMetrics()
+*/
+
+/*!
+  \fn Qt::Alignment QTextOption::alignment() const
+
+  Returns the text alignment defined by the option.
+
+  \sa setAlignment()
+*/
+
+/*!
+  \fn void QTextOption::setAlignment(Qt::Alignment alignment);
+
+  Sets the option's text alignment to the specified \a alignment.
+
+  \sa alignment()
+*/
+
+/*!
+  \fn Qt::LayoutDirection QTextOption::textDirection() const
+
+  Returns the direction of the text layout defined by the option.
+
+  \sa setTextDirection()
+*/
+
+/*!
+  \fn void QTextOption::setTextDirection(Qt::LayoutDirection direction)
+
+  Sets the direction of the text layout defined by the option to the
+  given \a direction.
+
+  \sa textDirection()
+*/
+
+/*!
+  \fn WrapMode QTextOption::wrapMode() const
+
+  Returns the text wrap mode defined by the option.
+
+  \sa setWrapMode()
+*/
+
+/*!
+  \fn void QTextOption::setWrapMode(WrapMode mode)
+
+  Sets the option's text wrap mode to the given \a mode.
+*/
+
+/*!
+  \enum QTextOption::Flag
+
+  \value IncludeTrailingSpaces  
+*/
+
+/*!
+  \fn Flags QTextOption::flags() const
+
+  Returns the flags associated with the option.
+
+  \sa setFlags()
+*/
+
+/*!
+  \fn void QTextOption::setFlags(Flags flags)
+
+  Sets the flags associated with the option to the given \a flags.
+
+  \sa flags()
+*/
+
+/*!
+  \fn qreal QTextOption::tabStop() const
+
+  Returns the distance in device units between tab stops.
+
+  \sa setTabStop(), tabArray()
+*/
+
+/*!
+  \fn void QTextOption::setTabStop(qreal tabStop)
+
+  Sets the distance in device units between tab stops to the value specified
+  by \a tabStop.
+
+  \sa tabStop(), setTabArray()
 */

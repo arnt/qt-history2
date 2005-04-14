@@ -39,29 +39,35 @@
 */
 
 /*!
-    \fn void QAbstractTextDocumentLayout::update(const QRect &rect)
+    \fn void QAbstractTextDocumentLayout::update(const QRectF &rect)
 
     This signal is emitted when the rectangle \a rect has been
     updated.
 */
 
 /*!
-    \fn void QAbstractTextDocumentLayout::setPageSize(const QSize &size)
+    \fn void QAbstractTextDocumentLayout::pageCountChanged(int newPages)
 
-    Sets the page \a size.
+    This signal is emitted when the number of pages in the layout
+    changes; \a newPages is the updated page count.
 
-    \sa pageSize() numPages()
+    Changes to the page count are due to the changes to the layout or
+    the document content itself.
+
+    \sa pageCount()
 */
 
 /*!
-    \fn QSize QAbstractTextDocumentLayout::pageSize() const
+    \fn int QAbstractTextDocumentLayout::pageCount() const
 
-    Returns the page size.
+    Returns the number of pages required by the layout.
 
-    \sa setPageSize() numPages()
+    \sa pageCountChanged()
 */
 
 /*!
+    \fn QSizeF QAbstractTextDocumentLayout::documentSize() const
+
     Returns the total size of the document. This is useful for display widgets,
     so they can adjust their scrollbars correctly
 
@@ -76,7 +82,7 @@
 */
 
 /*!
-    \fn int QAbstractTextDocumentLayout::hitTest(const QPointF &point, QText::HitTestAccuracy accuracy) const
+    \fn int QAbstractTextDocumentLayout::hitTest(const QPointF &point, Qt::HitTestAccuracy accuracy) const
 
     \internal
 
@@ -86,32 +92,22 @@
 */
 
 /*!
-    \fn void QAbstractTextDocumentLayout::documentChange(int from, int oldLength, int length)
+    \fn void QAbstractTextDocumentLayout::documentChanged(int position, int charsRemoved, int charsAdded)
 
     This function is called whenever the contents of the document change.
-    A change is an insertion of text, text removal, or the combination of
-    both. The \a from argument defines the beginning of the change in the
-    document. The \a oldLength argument specifies the length of the area that
-    was modified \bold{before} the actual change, and \a length is the
-    length \bold{afterwards}.
+    A change occurs when text is inserted, removed, or a combination of
+    the two types of operation. The change is specified by \a position,
+    \a charsRemoved, and \a charsAdded corresponding to the starting
+    character position of the change, the number of character removed from
+    the document, and the number of characters added.
 
-    For example when simply inserting the text "Hello", \a oldLength would
-    be 0 and \a length would equal 5 (the length of the string).
-
-    If for example 3 characters get removed, then \a oldLength would be
-    equal to 3 while \a length would be 0, as before the change there were 3
-    characters and afterwards none.
+    For example, when inserting the text "Hello" into an empty document,
+    \a charsRemoved would be 0 and \a charsAdded would be 5 (the length of
+    the string).
 
     Replacing text is the combination of removal and insertion. For example,
-    if the text "Hello" gets replaced by "Hi", \a oldLength would be 5 and
-    \a length would be 2.
-*/
-
-/*!
-    \fn int QAbstractTextDocumentLayout::numPages() const
-
-    Returns the number of pages required by this layout; this depends
-    in part on the pageSize().
+    if the text "Hello" gets replaced by "Hi", \a charsRemoved would be 5
+    and \a charsAdded would be 2.
 */
 
 /*!
@@ -135,7 +131,9 @@ QAbstractTextDocumentLayout::QAbstractTextDocumentLayout(QAbstractTextDocumentLa
 {
 }
 
-
+/*!
+    \internal
+*/
 QAbstractTextDocumentLayout::~QAbstractTextDocumentLayout()
 {
 }
@@ -202,7 +200,7 @@ void QAbstractTextDocumentLayout::resizeInlineObject(QTextInlineObject item, con
     Lays out the inline object \a item using the given text \a format.
     The base class implementation does nothing.
 
-    \sa drawObject()
+    \sa drawInlineObject()
 */
 void QAbstractTextDocumentLayout::positionInlineObject(QTextInlineObject item, const QTextFormat &format)
 {
@@ -211,13 +209,13 @@ void QAbstractTextDocumentLayout::positionInlineObject(QTextInlineObject item, c
 }
 
 /*!
-    \fn void QAbstractTextDocumentLayout::drawObject(QPainter *painter, const QRect &rect, QTextInlineObject item, const QTextFormat &format, QTextLayout::SelectionType selType)
+    \fn void QAbstractTextDocumentLayout::drawInlineObject(QPainter *painter, const QRectF &rect, QTextInlineObject item, const QTextFormat &format)
 
     Called to draw the inline object \a item on the given \a painter within
-    the rectangle specified by \a rect using the given text \a format and
-    selection type \a selType.
+    the rectangle specified by \a rect using the text format specified by
+    \a format.
 
-    \sa layoutObject()
+    \sa draw()
 */
 void QAbstractTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
                                                    const QTextFormat &format)
@@ -302,9 +300,8 @@ QTextDocument *QAbstractTextDocumentLayout::document() const
     return qobject_cast<QTextDocument *>(parent());
 }
 
-
 /*!
-    \fn QString QAbstractTextDocumentLayout::anchorAt(const QPoint &position) const
+    \fn QString QAbstractTextDocumentLayout::anchorAt(const QPointF &position) const
 
     Returns the reference of the anchor at the given \a position, or an empty
     string if no anchor exists at that point.
@@ -322,7 +319,7 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPointF& pos) const
 }
 
 /*!
-    Returns the bounding rectacle of \a frame .
+    Returns the bounding rectacle of \a frame.
 */
 QRectF QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 {
@@ -330,12 +327,23 @@ QRectF QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
     return QRectF();
 }
 
+/*!
+    Sets the paint device used for rendering the document's layout to the
+    given \a device.
+
+    \sa paintDevice()
+*/
 void QAbstractTextDocumentLayout::setPaintDevice(QPaintDevice *device)
 {
     Q_D(QAbstractTextDocumentLayout);
     d->paintDevice = device;
 }
 
+/*!
+    Returns the paint device used to render the document's layout.
+
+    \sa setPaintDevice()
+*/
 QPaintDevice *QAbstractTextDocumentLayout::paintDevice() const
 {
     Q_D(const QAbstractTextDocumentLayout);

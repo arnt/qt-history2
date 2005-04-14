@@ -95,63 +95,30 @@ QFont QTextItem::font() const
   This enum is used to describe the features or capabilities that the
   paint engine has. If a feature is not supported by the engine,
   QPainter will do a best effort to emulate that feature through other
-  means. The features that are currently emulated are: \c
-  CoordTransform, \c PixmapTransform, \c LinearGradientFill, \c
-  PixmapScale, \c AlphaFill and \c ClipTransform.
+  means. The features that are currently emulated are \c PixmapTransform
+  and \c LinearGradientFill.
 
-  \value CoordTransform The engine can transform the points in a
-  drawing operation.
-
-  \value PenWidthTransform The engine has support for transforming pen
-  widths.
-
-  \value PatternTransform The engine has support for transforming brush
-  patterns.
-
-  \value PixmapTransform The engine can transform pixmaps, including
-  rotation and shearing.
-
-  \value LinearGradientFill The engine can fill with linear gradients
-
-  \value LinearGradientFillPolygon The engine is capable of gradient
-  fills in polygons only. Engines that support this feature and not
-  regular gradient filling will have all primitives converted to
-  polygons first so that this feature can be used instead.
-
-  \value PixmapScale The engine can scale pixmaps.
-
-  \value AlphaPixmap The engine can draw alpha pixmaps.
-
-  \value AlphaFill The engine can fill with alpha colors. If this
-  feature is not specified, alpha filling can be emulated using alpha
-  pixmaps.
-
-  \value AlphaFillPolygon The engine can fill polygons with alpha
-  colors. Engines that specify this feature and not AlphaFill will
-  have all primitives converted to polygons first, so that this
-  feature can be used instead.
-
-  \value AlphaStroke The engine can draw outlines with alpha
-  colors. Engines that do not support alphastroke can emulate it using
-  AlphaFill, AlphaFillPolygon or AlphaPixmap.
-
-  \value PainterPaths The engine has path support.
-
-  \value ClipTransform The engine is capable of transforming clip regions.
-
-  \value PaintOutsidePaintEvent The engine is capable of painting
-  outside of paint events.
-
-  \value PatternBrush The engine is capable of rendering brushes with
-  the brush patterns specified in Qt::BrushStyle.
-
-  \value LineAntialiasing The engine is capable of line antialiasing.
-
-  \value FillAntialiasing The engine is capable of fill
-  antialiasing. If an engine is capable of fill, but not line
-  antialiasing, line antialiasing will be emulated using a filled
-  polygon that has the shape of the line.
-
+  \value PrimitiveTransform The engine has support for transforming
+                            drawing primitives.
+  \value PatternTransform   The engine has support for transforming brush
+                            patterns.
+  \value PixmapTransform    The engine can transform pixmaps, including
+                            rotation and shearing.
+  \value PatternBrush       The engine is capable of rendering brushes with
+                            the brush patterns specified in Qt::BrushStyle.
+  \value LinearGradientFill Linear gradient fills are supported.
+  \value RadialGradientFill Radial gradient fills are supported.
+  \value ConicalGradientFill Conical gradient fills are supported.
+  \value AlphaBlend         The engine can alpha blend primitives.
+  \value PorterDuff
+  \value PainterPaths       The engine has path support.
+  \value Antialiasing       Antialising can be used to improve the appearance
+                            of rendered primitives.
+  \value BrushStroke
+  \value UsesFontEngine
+  \value PaintOutsidePaintEvent The engine is capable of painting outside of
+                                paint events.
+  \value AllFeatures
   \omitvalue UsesFontEngine
 */
 
