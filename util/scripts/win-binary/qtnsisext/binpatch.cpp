@@ -43,14 +43,15 @@ bool endsWithTokens(const char *data, const char *tokens)
     return false; //no matching tokens
 }
 
-long replaceString(char *data, const char *oldstr, const char *newstr, const char *endsWith, ulong len)
+long replaceString(char *data, const char *oldstr, const char *newstr, const char *endsWith, ulong len, ulong *offset)
 {
-    long changed = -1;
+    bool changed = false;
     char nc1 = *oldstr++;
     char nc2;
     char hc;
     char tmp[1024];
     ulong nlen = ulong(strlen(oldstr));
+    *offset = 0;
 
     isupper(nc1) ? nc2 = tolower(nc1) : nc2 = toupper(nc1);
 
@@ -58,8 +59,10 @@ long replaceString(char *data, const char *oldstr, const char *newstr, const cha
         hc = *data++;
         if((hc == nc1) || (hc == nc2)) {
             if(strnicmp(data, oldstr, nlen) == 0) {
-                if(!terminatesInBufferScope(data-1, len))
-                    return len;
+                if(!terminatesInBufferScope(data-1, len)) {
+                    *offset = len;
+                    return changed;
+                }
                 
                 // replace
                 if (strlen(data+nlen) >= sizeof(tmp)) break; //buffer to small, don't care :|
@@ -71,7 +74,7 @@ long replaceString(char *data, const char *oldstr, const char *newstr, const cha
                     strncpy(data-1, newstr, slen); //copy new string into buffer
                     strcpy((data-1)+slen, tmp); //append tmp
                     memset((data-1)+slen+tlen, '\0', (nlen+1)-slen); //pad rest with null
-                    changed = 0;
+                    changed = true;
                 }
             }
         }
@@ -101,25 +104,25 @@ bool BinPatch::patchFile(const char *fileName, const char *oldstr, const char *n
 
     char data[60000];
     ulong offset = 0;
+    ulong stroffset = 0;
 
     while (!feof(input)) {
         ulong len = ulong(fread(data, sizeof(char), sizeof(data), input));
         if (len < olen)
             break;
         
-        int res = replaceString(data, oldstr, newstr, endsWith, len);
-        if (res > 0) { //entire string was not in buffer
-            offset += len - res;
-            fseek(input, offset, 0);
-            continue;
-        } else if (res == 0) { //write buffer
+        if(replaceString(data, oldstr, newstr, endsWith, len, &stroffset)) {
             fseek(input, offset, 0);
             fwrite(data, sizeof(char), len, input);
         }
 
-        // move to the new read position (back up a bit to get everything)
-        offset += (len - olen) + 1;
-        fseek(input, offset, 0);        
+        if (stroffset > 0) { //entire string was not in buffer
+            offset += len - stroffset;
+            fseek(input, offset, 0);
+        } else { // move to the new read position (back up a bit to get everything)
+            offset += (len - olen) + 1;
+            fseek(input, offset, 0);
+        }
     }
 
     fclose(input);
