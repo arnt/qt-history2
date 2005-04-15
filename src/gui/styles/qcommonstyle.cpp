@@ -1859,10 +1859,8 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
         if (const QStyleOptionToolButton *toolbutton
                 = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
             QRect button, menuarea;
-            button = visualRect(opt->direction, opt->rect,
-                                subControlRect(cc, toolbutton, SC_ToolButton, widget));
-            menuarea = visualRect(opt->direction, opt->rect,
-                                  subControlRect(cc, toolbutton, SC_ToolButtonMenu, widget));
+            button = subControlRect(cc, toolbutton, SC_ToolButton, widget);
+            menuarea = subControlRect(cc, toolbutton, SC_ToolButtonMenu, widget);
 
             State bflags = toolbutton->state;
 
@@ -2437,6 +2435,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             default:
                 break;
             }
+            ret = visualRect(tb->direction, tb->rect, ret);
         }
         break;
     case CC_ComboBox:

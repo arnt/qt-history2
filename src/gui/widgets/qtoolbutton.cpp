@@ -552,9 +552,8 @@ void QToolButton::mousePressEvent(QMouseEvent *e)
     Q_D(QToolButton);
     QStyleOptionToolButton opt = d->getStyleOption();
     if (e->button() == Qt::LeftButton && d->popupMode == MenuButtonPopup) {
-        QRect popupr = QStyle::visualRect(opt.direction, opt.rect,
-                                          style()->subControlRect(QStyle::CC_ToolButton, &opt,
-                                                                  QStyle::SC_ToolButtonMenu, this));
+        QRect popupr = style()->subControlRect(QStyle::CC_ToolButton, &opt,
+                                               QStyle::SC_ToolButtonMenu, this);
         if (popupr.isValid() && popupr.contains(e->pos())) {
             showMenu();
             return;
