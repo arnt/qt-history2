@@ -1616,7 +1616,7 @@ void Q3DataTable::loadNextPage()
     SelectionMode m = selectionMode();
     clearSelection();
     setSelectionMode( NoSelection );
-    setNumRows( endIdx + 1 );
+    setNumRows( endIdx );
     sqlCursor()->seek( currentRow() );
     setSelectionMode( m );
 }
