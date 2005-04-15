@@ -271,22 +271,29 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
                         || s->brush.style() == Qt::TexturePattern;
     }
 
+    if (s->state() & QPaintEngine::DirtyHints) {
+        skip = false;
+    }
+
     if (skip)
         return;
 
 #if 0
-    printf("QPainterPrivate::updateEmulationSpecifier\n"
+    printf("QPainterPrivate::updateEmulationSpecifier, state=%p\n"
            " - alpha: %d\n"
            " - linearGradient: %d\n"
            " - radialGradient: %d\n"
            " - conicalGradient: %d\n"
            " - patternBrush: %d\n"
+           " - hints: %x\n"
            " - xform: %d\n",
+           s,
            alpha,
            linearGradient,
            radialGradient,
            conicalGradient,
            patternBrush,
+           uint(s->renderHints),
            xform);
 #endif
 
