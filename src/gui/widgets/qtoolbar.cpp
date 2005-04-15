@@ -143,6 +143,7 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
         button->setAutoRaise(true);
         button->setFocusPolicy(Qt::NoFocus);
         button->setIconSize(iconSize);
+        button->setToolButtonStyle(toolButtonStyle);
         QObject::connect(q, SIGNAL(iconSizeChanged(QSize)),
                          button, SLOT(setIconSize(QSize)));
         QObject::connect(q, SIGNAL(toolButtonStyleChanged(ToolButtonStyle)),
