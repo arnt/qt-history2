@@ -517,8 +517,6 @@ void Q3WidgetStack::childEvent(QChildEvent *e)
 {
     if (e->child()->isWidgetType() && e->removed())
         removeWidget((QWidget *) e->child());
-    else if (e->child()->isWidgetType() && e->added())
-        addWidget(static_cast<QWidget *>(e->child()));
 }
 
 
