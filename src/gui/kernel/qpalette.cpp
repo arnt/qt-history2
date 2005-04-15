@@ -30,7 +30,7 @@ public:
 static QColor qt_mix_colors(QColor a, QColor b)
 {
     return QColor((a.red() + b.red()) / 2, (a.green() + b.green()) / 2,
-                   (a.blue() + b.blue()) / 2);
+                  (a.blue() + b.blue()) / 2, (a.alpha() + b.alpha()) / 2);
 }
 
 #ifdef QT3_SUPPORT
