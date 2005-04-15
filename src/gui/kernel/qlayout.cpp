@@ -744,8 +744,7 @@ void QLayout::addChildWidget(QWidget *w)
         qWarning("QLayout::addChildWidget: %s in wrong parent; moved to correct parent", w->metaObject()->className());
         pw = 0;
     }
-    bool needShow = mw && mw->isVisible() &&
-                    !(w->isExplicitlyHidden()&&w->testAttribute(Qt::WA_WState_ExplicitShowHide));
+    bool needShow = mw && mw->isVisible() && !w->isExplicitlyHidden();
     if (!pw && mw)
         w->setParent(mw);
     w->setAttribute(Qt::WA_LaidOut);

@@ -1110,7 +1110,7 @@ void QSplitter::insertWidget(int index, QWidget *widget)
     Q_D(QSplitter);
     QBoolBlocker b(d->blockChildAdd);
     bool needShow = isVisible() &&
-                    !(widget->isExplicitlyHidden()&&widget->testAttribute(Qt::WA_WState_ExplicitShowHide));
+                    !(widget->isExplicitlyHidden());
     if (widget->parentWidget() != this)
         widget->setParent(this);
     if (needShow)

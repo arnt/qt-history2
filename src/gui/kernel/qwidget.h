@@ -681,8 +681,8 @@ public:
     inline QT3_SUPPORT void setInputMethodEnabled(bool b) { setAttribute(Qt::WA_InputMethodEnabled, b); }
     inline QT3_SUPPORT bool isInputMethodEnabled() const { return testAttribute(Qt::WA_InputMethodEnabled); }
     inline QT3_SUPPORT void setActiveWindow() { activateWindow(); }
-    inline QT3_SUPPORT bool isHidden() const { return isExplicitlyHidden(); }
-    inline QT3_SUPPORT bool isShown() const { return !isExplicitlyHidden(); }
+    inline QT3_SUPPORT bool isHidden() const { return testAttribute(Qt::WA_WState_Hidden); }
+    inline QT3_SUPPORT bool isShown() const { return !testAttribute(Qt::WA_WState_Hidden); }
     inline QT3_SUPPORT bool isDialog() const { return windowType() == Qt::Dialog; }
     inline QT3_SUPPORT bool isPopup() const { return windowType() == Qt::Popup; }
     inline QT3_SUPPORT bool isDesktop() const { return windowType() == Qt::Desktop; }
@@ -799,7 +799,7 @@ inline bool QWidget::isVisible() const
 { return testAttribute(Qt::WA_WState_Visible); }
 
 inline bool QWidget::isExplicitlyHidden() const
-{ return testAttribute(Qt::WA_WState_Hidden); }
+{ return testAttribute(Qt::WA_WState_Hidden) && testAttribute(Qt::WA_WState_ExplicitShowHide); }
 
 inline void QWidget::move(int ax, int ay)
 { move(QPoint(ax, ay)); }

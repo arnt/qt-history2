@@ -583,6 +583,10 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     return naturalpalette;
 }
 
+static inline bool isPersonallyHidden(const QWidget *w)
+{ return w->testAttribute(Qt::WA_WState_Hidden); }
+
+
 
 /*****************************************************************************
   QWidget member functions
@@ -3106,8 +3110,8 @@ void QWidget::setFocus(Qt::FocusReason reason)
 
 
     QWidget *w = f;
-    if (isExplicitlyHidden()) {
-        while (w && w->isExplicitlyHidden()) {
+    if (isPersonallyHidden(this)) {
+        while (w && isPersonallyHidden(w)) {
             w->d_func()->focus_child = f;
             w = w->isWindow() ? 0 : w->parentWidget();
         }
@@ -3943,8 +3947,7 @@ void QWidgetPrivate::hide_helper()
     Returns true if the widget is explicity hidden, otherwise returns
     false.
 
-    Widgets are explicitly hidden if they were created as independent
-    windows, or if hide() or setVisible(false) was called.
+    Widgets are explicitly hidden after hide() or setVisible(false) is called.
 
     \sa setVisible(), hide()
 */
@@ -4108,7 +4111,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
         }
     }
 
-    if (!that.isNull() && !q->isExplicitlyHidden())
+    if (!that.isNull() && !isPersonallyHidden(q))
         q->hide();
 
 #ifdef QT3_SUPPORT
@@ -4239,7 +4242,7 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
             && w->parentWidget()
             && w->parentWidget() != ancestor)
         w = w->parentWidget();
-    return !w->isExplicitlyHidden();
+    return !isPersonallyHidden(w);
 }
 
 #ifdef QT3_SUPPORT
@@ -4626,7 +4629,7 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::ShowWindowRequest:
-        if (!isExplicitlyHidden())
+        if (isVisible())
             d->show_sys();
         break;
 
