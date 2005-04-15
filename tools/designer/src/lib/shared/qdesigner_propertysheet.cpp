@@ -21,15 +21,42 @@
 #include <QtGui/QPixmap>
 #include <QtCore/qdebug.h>
 
+static const QMetaObject *introducedBy(const QMetaObject *meta, int index)
+{
+    if (index >= meta->propertyOffset())
+        return meta;
+
+    if (meta->superClass())
+        return introducedBy(meta->superClass(), index);
+
+    return 0;
+}
+
 QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     : QObject(parent),
       m_object(object),
       meta(object->metaObject())
 {
+
+    const QMetaObject *baseMeta = meta;
+
+    while (baseMeta && QString::fromUtf8(baseMeta->className()).startsWith(QLatin1String("QDesigner"))) {
+        baseMeta = baseMeta->superClass();
+    }
+    Q_ASSERT(baseMeta != 0);
+
     // ### hack
     for (int index=0; index<count(); ++index) {
         QMetaProperty p = meta->property(index);
         setVisible(index, p.isDesignable(m_object));
+
+        QString pgroup = QString::fromUtf8(meta->className());
+
+        if (const QMetaObject *pmeta = introducedBy(meta, index)) {
+            pgroup = QString::fromUtf8(pmeta->className());
+        }
+
+        setPropertyGroup(index, pgroup);
     }
 
     // ### disable the overrided properties
@@ -99,8 +126,14 @@ QString QDesignerPropertySheet::propertyGroup(int index) const
 {
     QString g = m_info.value(index).group;
 
-    if (g.isEmpty() && propertyName(index).startsWith(QLatin1String("accessible")))
+    if (!g.isEmpty())
+        return g;
+
+    if (propertyName(index).startsWith(QLatin1String("accessible")))
         return QString::fromUtf8("Accessibility");
+
+    if (isAdditionalProperty(index))
+        return QString::fromUtf8(meta->className());
 
     return g;
 }

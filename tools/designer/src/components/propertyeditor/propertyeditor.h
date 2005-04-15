@@ -15,11 +15,11 @@
 #define PROPERTYEDITOR_H
 
 #include "propertyeditor_global.h"
+#include "qpropertyeditor.h"
 
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstractpropertyeditor.h>
 
-#include <qpropertyeditor.h>
 #include <QtCore/QPointer>
 
 class DomProperty;
@@ -49,11 +49,8 @@ private slots:
 private:
     IProperty *propertyByName(IProperty *p, const QString &name);
     void clearDirty(IProperty *p);
-
     void createPropertySheet(PropertyCollection *root, QObject *object);
-
-    static IProperty *createSpecialProperty(const QVariant &value,
-            const QString &name);
+    static IProperty *createSpecialProperty(const QVariant &value, const QString &name);
 
 private:
     QDesignerFormEditorInterface *m_core;

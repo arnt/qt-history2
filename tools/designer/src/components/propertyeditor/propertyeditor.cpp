@@ -444,6 +444,7 @@ void PixmapProperty::updateValue(QWidget *editor)
 
 // -------------------------------------------------------------------------------------
 
+#if 0
 void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *object)
 {
     QExtensionManager *m = m_core->extensionManager();
@@ -558,6 +559,140 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
         root->addProperty(it.next().value());
     }
 }
+#else
+
+struct Group
+{
+    QString name;
+    QList<IProperty*> properties;
+
+    inline Group() {}
+    inline Group(const QString &n): name(n) {}
+
+    inline bool operator == (const Group &other) const
+    { return name == other.name; }
+};
+
+void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *object)
+{
+    QList<Group> groups;
+
+    QExtensionManager *m = m_core->extensionManager();
+    m_prop_sheet = qobject_cast<QDesignerPropertySheetExtension*>(m->extension(object, Q_TYPEID(QDesignerPropertySheetExtension)));
+    for (int i=0; i<m_prop_sheet->count(); ++i) {
+        if (!m_prop_sheet->isVisible(i))
+            continue;
+
+        QString pname = m_prop_sheet->propertyName(i);
+        QVariant value = m_prop_sheet->property(i);
+
+        IProperty *p = 0;
+        if (qVariantCanConvert<FlagType>(value)) {
+            FlagType f = qvariant_cast<FlagType>(value);
+            if (pname == QLatin1String("alignment"))
+                p = new AlignmentProperty(f.items, Qt::Alignment(f.value.toInt()), pname);
+            else
+                p = new FlagsProperty(f.items, f.value.toInt(), pname);
+        } else if (qVariantCanConvert<EnumType>(value)) {
+            EnumType e = qvariant_cast<EnumType>(value);
+            p = new MapProperty(e.items, e.value, pname);
+        }
+
+        if (!p) {
+            switch (value.type()) {
+            case 0:
+                p = createSpecialProperty(value, pname);
+                break;
+            case QVariant::Int:
+                p = new IntProperty(value.toInt(), pname);
+                break;
+            case QVariant::UInt:
+                p = new IntProperty(value.toUInt(), pname);
+                break;
+            case QVariant::Double:
+                p = new DoubleProperty(value.toDouble(), pname);
+                break;
+            case QVariant::Bool:
+                p = new BoolProperty(value.toBool(), pname);
+                break;
+            case QVariant::String:
+                p = new StringProperty(value.toString(), pname);
+                break;
+            case QVariant::Size:
+                p = new SizeProperty(value.toSize(), pname);
+                break;
+            case QVariant::Point:
+                p = new PointProperty(value.toPoint(), pname);
+                break;
+            case QVariant::Rect:
+                p = new RectProperty(value.toRect(), pname);
+                break;
+            case QVariant::Icon:
+                p = new IconProperty(m_core, qvariant_cast<QIcon>(value), pname);
+                break;
+            case QVariant::Pixmap:
+                p = new PixmapProperty(m_core, qvariant_cast<QPixmap>(value), pname);
+                break;
+            case QVariant::Font:
+                p = new FontProperty(qvariant_cast<QFont>(value), pname);
+                break;
+            case QVariant::Color:
+                p = new ColorProperty(qvariant_cast<QColor>(value), pname);
+                break;
+            case QVariant::SizePolicy:
+                p = new SizePolicyProperty(qvariant_cast<QSizePolicy>(value), pname);
+                break;
+            case QVariant::DateTime:
+                p = new DateTimeProperty(value.toDateTime(), pname);
+                break;
+            case QVariant::Date:
+                p = new DateProperty(value.toDate(), pname);
+                break;
+            case QVariant::Time:
+                p = new TimeProperty(value.toTime(), pname);
+                break;
+            case QVariant::Cursor:
+                p = new CursorProperty(qvariant_cast<QCursor>(value), pname);
+                break;
+#if 0 // ### disabled for now
+            case QVariant::KeySequence:
+                p = new KeySequenceProperty(value.toKeySequence(), pname);
+                break;
+#endif
+            case QVariant::Palette:
+                p = new PaletteProperty(qvariant_cast<QPalette>(value), pname);
+                break;
+            default:
+                // ### qWarning() << "property" << pname << "with type" << value.type() << "not supported yet!";
+                break;
+            } // end switch
+        }
+
+        if (p != 0) {
+            p->setHasReset(m_prop_sheet->hasReset(i));
+            p->setChanged(m_prop_sheet->isChanged(i));
+            p->setDirty(false);
+
+            QString pgroup = m_prop_sheet->propertyGroup(i);
+            int groupIndex = groups.indexOf(pgroup);
+            if (groupIndex == -1) {
+                groupIndex = groups.count();
+                groups.append(Group(pgroup));
+            }
+
+            QList<IProperty*> &groupProperties = groups[groupIndex].properties;
+            groupProperties.append(p);
+        }
+    }
+
+    foreach (Group g, groups) {
+        root->addProperty(new SeparatorProperty(QString(), g.name));
+        foreach (IProperty *p, g.properties) {
+            root->addProperty(p);
+        }
+    }
+}
+#endif
 
 PropertyEditor::PropertyEditor(QDesignerFormEditorInterface *core,
             QWidget *parent, Qt::WindowFlags flags)

@@ -63,6 +63,7 @@ public:
 
     virtual IProperty::Kind kind() const = 0;
 
+    virtual bool isSeparator() const { return false; }
     virtual IProperty *parent() const { return m_parent; }
     virtual void setParent(IProperty *parent) { m_parent = parent; }
 
@@ -280,6 +281,18 @@ public:
     void setValue(const QVariant &value);
     QString toString() const;
 
+    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
+    void updateEditorContents(QWidget *editor);
+    void updateValue(QWidget *editor);
+};
+
+class QT_PROPERTYEDITOR_EXPORT SeparatorProperty: public StringProperty
+{
+public:
+    SeparatorProperty(const QString &value, const QString &name);
+
+    bool isSeparator() const { return true; }
+    bool hasEditor() const;
     QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
     void updateEditorContents(QWidget *editor);
     void updateValue(QWidget *editor);

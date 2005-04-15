@@ -119,8 +119,7 @@ bool QPropertyEditorDelegate::eventFilter(QObject *object, QEvent *event)
     return QItemDelegate::eventFilter(editor, event);
 }
 
-void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt,
-                     const QModelIndex &index) const
+void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opt, const QModelIndex &index) const
 {
     QStyleOptionViewItem option = opt;
 
@@ -130,22 +129,29 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         option.font.setBold(true);
     }
 
+    if (property && property->isSeparator()) {
+        option.palette.setColor(QPalette::Text, option.palette.color(QPalette::Link));
+        option.font.setBold(true);
+    }
+
     option.state &= ~(QStyle::State_Selected | QStyle::State_HasFocus);
 
-    if (opt.state & QStyle::State_Selected)
+    if (opt.state & QStyle::State_Selected) {
         painter->fillRect(option.rect, QColor(230, 230, 230));
+    }
 
     painter->drawLine(option.rect.x(), option.rect.bottom(),
-                      option.rect.right(), option.rect.bottom());
+            option.rect.right(), option.rect.bottom());
 
-    painter->drawLine(option.rect.right(), option.rect.y(),
-                      option.rect.right(), option.rect.bottom());
+    // ### if (index.column() == 1 || !property->isSeparator()) {
+        painter->drawLine(option.rect.right(), option.rect.y(),
+                option.rect.right(), option.rect.bottom());
+    // }
 
     QItemDelegate::paint(painter, option, index);
 }
 
-QSize QPropertyEditorDelegate::sizeHint(const QStyleOptionViewItem &opt,
-                         const QModelIndex &index) const
+QSize QPropertyEditorDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const
 {
     QStyleOptionViewItem option = opt;
 

@@ -1223,7 +1223,7 @@ void PaletteProperty::setValue(const QVariant &value)
 
 QString PaletteProperty::toString() const
 {
-    return QString::null; // ### implement me
+    return QString(); // ### implement me
 }
 
 QWidget *PaletteProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
@@ -1252,3 +1252,25 @@ void PaletteProperty::updateValue(QWidget *editor)
     }
 }
 
+// -------------------------------------------------------------------------
+SeparatorProperty::SeparatorProperty(const QString &value, const QString &name)
+    : StringProperty(value, name)
+{
+}
+
+QWidget *SeparatorProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
+{
+    Q_UNUSED(parent);
+    Q_UNUSED(target);
+    Q_UNUSED(receiver);
+    return 0;
+}
+
+bool SeparatorProperty::hasEditor() const
+{ return false; }
+
+void SeparatorProperty::updateEditorContents(QWidget *editor)
+{ Q_UNUSED(editor); }
+
+void SeparatorProperty::updateValue(QWidget *editor)
+{ Q_UNUSED(editor); }
