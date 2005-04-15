@@ -26,14 +26,6 @@
 #include <qdebug.h>
 #include <qvector.h>
 
-#define d d_func()
-#define q q_func()
-/*
-// This should force people not to use the d or q macro...
-
-#pragma deprecated("d")
-#pragma deprecated("q")
-*/
 // #define QT_DEBUG_DRAW
 
 static const struct {
@@ -192,6 +184,7 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
                                                                              | AlphaBlend
                                                                              | PainterPaths))
 {
+    Q_D(QWin32PrintEngine);
     d->docName = "document1";
     d->mode = mode;
     d->queryDefault();
@@ -201,6 +194,7 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
 
 void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation operation)
 {
+    Q_D(QWin32PrintEngine);
     qreal xscale = ((float)metric(QPaintDevice::PdmPhysicalDpiX)) /
                    ((float)metric(QPaintDevice::PdmDpiX));
     qreal yscale = ((float)metric(QPaintDevice::PdmPhysicalDpiY)) /
@@ -217,6 +211,7 @@ void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOper
 
 bool QWin32PrintEngine::begin(QPaintDevice *dev)
 {
+    Q_D(QWin32PrintEngine);
     if (d->reinit) {
         d->resetDC();
     }
@@ -281,6 +276,7 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 
 bool QWin32PrintEngine::end()
 {
+    Q_D(QWin32PrintEngine);
     if (d->hdc) {
 	if (d->state == QPrinter::Aborted) {
 	    AbortDoc(d->hdc);
@@ -295,6 +291,7 @@ bool QWin32PrintEngine::end()
 
 bool QWin32PrintEngine::newPage()
 {
+    Q_D(QWin32PrintEngine);
     Q_ASSERT(isActive());
 
     Q_ASSERT(d->hdc);
@@ -373,6 +370,7 @@ bool QWin32PrintEngine::abort()
 
 int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
 {
+    Q_D(const QWin32PrintEngine);
     Q_ASSERT(d->hdc);
     int val;
     int res = d->resolution;
@@ -443,6 +441,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
                                    const QPixmap &originalPixmap,
                                    const QRectF &sr)
 {
+    Q_D(QWin32PrintEngine);
 #if defined QT_DEBUG_DRAW
     printf(" - QWin32PrintEngine::drawPixmap(), [%.2f,%.2f,%.2f,%.2f], size=[%d,%d], "
            "sr=[%.2f,%.2f,%.2f,%.2f], mode=%d\n",
@@ -700,9 +699,9 @@ void QWin32PrintEnginePrivate::queryDefault()
 	}
     });
     QStringList info = output.split(',');
-    d->name = info.at(0);
-    d->program = info.at(1);
-    d->port = info.at(2);
+    name = info.at(0);
+    program = info.at(1);
+    port = info.at(2);
 }
 
 void QWin32PrintEnginePrivate::initialize()
@@ -733,14 +732,14 @@ void QWin32PrintEnginePrivate::initialize()
     // printer settings.
     DWORD infoSize, numBytes;
     QT_WA( {
-        GetPrinterW(d->hPrinter, 2, NULL, 0, &infoSize);
+        GetPrinterW(hPrinter, 2, NULL, 0, &infoSize);
         pInfo = malloc(infoSize);
         if (!GetPrinterW(hPrinter, 2, (LPBYTE)pInfo, infoSize, &numBytes)) {
             qErrnoWarning("QWin32PrintEngine::initialize: GetPrinter failed");
             return;
         }
     }, {
-        GetPrinterA(d->hPrinter, 2, NULL, 0, &infoSize);
+        GetPrinterA(hPrinter, 2, NULL, 0, &infoSize);
         pInfo = malloc(infoSize);
         if (!GetPrinterA(hPrinter, 2, (LPBYTE)pInfo, infoSize, &numBytes)) {
             qErrnoWarning("QWin32PrintEngine::initialize: GetPrinter failed");
@@ -768,10 +767,10 @@ void QWin32PrintEnginePrivate::initialize()
 
     switch(mode) {
     case QPrinter::ScreenResolution:
-	d->resolution = GetDeviceCaps(qt_win_display_dc(), LOGPIXELSY);
+	resolution = GetDeviceCaps(qt_win_display_dc(), LOGPIXELSY);
 	break;
     case QPrinter::HighResolution:
-	d->resolution = GetDeviceCaps(hdc, LOGPIXELSY);
+	resolution = GetDeviceCaps(hdc, LOGPIXELSY);
 	break;
     default:
         break;
@@ -840,6 +839,7 @@ void QWin32PrintEnginePrivate::doReinit()
 
 void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
 {
+    Q_D(QWin32PrintEngine);
     switch (key) {
     case PPK_CollateCopies:
         d->doReinit();
@@ -990,6 +990,7 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
 QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
 {
+    Q_D(const QWin32PrintEngine);
     QVariant value;
     switch (key) {
 
@@ -1109,12 +1110,12 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
 
 QPrinter::PrinterState QWin32PrintEngine::printerState() const
 {
-    return d->state;
+    return d_func()->state;
 }
 
 HDC QWin32PrintEngine::getDC() const
 {
-    return d->hdc;
+    return d_func()->hdc;
 }
 
 void QWin32PrintEngine::releaseDC(HDC) const

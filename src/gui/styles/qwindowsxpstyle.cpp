@@ -74,10 +74,6 @@
 
 #include <limits.h>
 
-#define d d_func()
-#define q q_func()
-
-
 /* XPM */
 static char * dockCloseXPM[] = {
 "8 8 2 1",

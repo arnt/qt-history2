@@ -53,9 +53,6 @@
 
 // #define QT_DEBUG_DRAW
 
-#define d d_func()
-#define q q_func()
-
 // For alpha blending, we must load the AlphaBlend() function at run time.
 #if !defined (AC_SRC_ALPHA)
 #define AC_SRC_ALPHA 0x01
@@ -160,6 +157,7 @@ QWin32PaintEngine::~QWin32PaintEngine()
 
 bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 {
+    Q_D(QWin32PaintEngine);
     if (isActive()) {                                // already active painting
         qWarning("QWin32PaintEngine::begin: Painter is already active."
                "\n\tYou must end() the painter before a second begin()\n");
@@ -200,7 +198,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
                 } else {
                     d->hdc = GetDC((w->windowType() == Qt::Desktop) ? 0 : w->winId());
                 }
-                const_cast<QWidgetPrivate *>(w->d)->hd = (Qt::HANDLE)d->hdc;
+                const_cast<QWidgetPrivate *>(w->d_func())->hd = (Qt::HANDLE)d->hdc;
             }
         }
         Q_ASSERT(d->hdc);
@@ -236,6 +234,7 @@ bool QWin32PaintEngine::begin(QPaintDevice *pdev)
 
 bool QWin32PaintEngine::end()
 {
+    Q_D(QWin32PaintEngine);
     if (!isActive()) {
         qWarning("QWin32PaintEngine::end: Missing begin() or begin() failed");
         return false;
@@ -266,7 +265,7 @@ bool QWin32PaintEngine::end()
     if (d->pdev->devType() == QInternal::Widget && !d->usesWidgetDC) {
         QWidget *w = static_cast<QWidget*>(d->pdev);
         ReleaseDC((w->windowType() == Qt::Desktop) ? 0 : w->winId(), d->hdc);
-        const_cast<QWidgetPrivate*>(w->d)->hd = 0;
+        const_cast<QWidgetPrivate*>(w->d_func())->hd = 0;
     } else {
         d->pdev->releaseDC(d->hdc);
     }
@@ -288,6 +287,7 @@ bool QWin32PaintEngine::end()
 
 void QWin32PaintEngine::drawPath(const QPainterPath &p)
 {
+    Q_D(QWin32PaintEngine);
 #ifdef QT_NO_NATIVE_PATH
     Q_ASSERT(!"QWin32PaintEngine::drawPath(), QT_NO_NATIVE_PATH is defined...\n");
     return;
@@ -430,6 +430,7 @@ void QWin32PaintEngine::drawTextItemMulti(const QPointF &p, const QTextItem &tex
 
 void QWin32PaintEngine::drawTextItemWin(const QPointF &pos, const QTextItem &textItem)
 {
+    Q_D(QWin32PaintEngine);
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
 #ifdef QT_DEBUG_DRAW
@@ -629,6 +630,7 @@ void QWin32PaintEngine::updateState(const QPaintEngineState &state)
 
 void QWin32PaintEngine::updatePen(const QPen &pen)
 {
+    Q_D(QWin32PaintEngine);
 #ifdef QT_DEBUG_DRAW
     static int counter = 0;
     printf(" - QWin32PaintEngine::updatePen(), style=%d, color=%p, calls=%d\n",
@@ -714,6 +716,8 @@ void QWin32PaintEngine::updatePen(const QPen &pen)
 
 void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin)
 {
+    Q_D(QWin32PaintEngine);
+
 #ifdef QT_DEBUG_DRAW
     static int counter = 0;
     printf(" - QWin32PaintEngine::updateBrush(), style=%d, color=%p, calls=%d\n",
@@ -865,6 +869,7 @@ void QWin32PaintEngine::updateBrush(const QBrush &brush, const QPointF &bgOrigin
 
 void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
+    Q_D(QWin32PaintEngine);
     Q_ASSERT(isActive());
     d->bgMode = mode;
 
@@ -875,6 +880,7 @@ void QWin32PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 
 void QWin32PaintEngine::updateMatrix(const QMatrix &mtx)
 {
+    Q_D(QWin32PaintEngine);
 #ifdef QT_DEBUG_DRAW
     static int counter = 0;
     printf(" - QWin32PaintEngine::updateMatrix(), [%.1f %.1f %.1f %.1f %.1f %.1f], calls=%d\n",
@@ -916,6 +922,7 @@ static const char *qt_clip_operation_names[] = {
 
 void QWin32PaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 {
+    Q_D(QWin32PaintEngine);
 #ifdef QT_DEBUG_DRAW
     static int counter = 0;
     printf(" - QWin32PaintEngine::updateClipRegion, size=%d, [%d %d %d %d], %s, calls=%d\n",
@@ -947,6 +954,8 @@ void QWin32PaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperatio
 
 void QWin32PaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
 {
+    Q_D(QWin32PaintEngine);
+
 #ifdef QT_DEBUG_DRAW
     QRectF bounds = path.boundingRect();
     printf(" - QWin32PaintEngine::updateClipPath, size=%d, [%.2f %.2f %.2f %.2f], %s\n",
@@ -980,9 +989,7 @@ void QWin32PaintEngine::updateFont(const QFont & /*font*/)
 {
 //     if (state->pfont)
 //         delete state->pfont;
-// #undef d
 //     state->pfont = new QFont(font.d, d_func()->pdev);
-// #define d d_func()
 }
 
 void QWin32PaintEngine::updateRenderHints(QPainter::RenderHints hints)
@@ -1001,7 +1008,7 @@ QPainter::RenderHints QWin32PaintEngine::supportedRenderHints() const
 
 HDC QWin32PaintEngine::getDC() const
 {
-    return d->hdc;
+    return d_func()->hdc;
 }
 
 void QWin32PaintEngine::releaseDC(HDC) const
@@ -1260,6 +1267,7 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPath &path)
 
 void QWin32PaintEnginePrivate::setNativeMatrix(const QMatrix &mtx)
 {
+    Q_D(QWin32PaintEngine);
     QT_WA( {
         XFORM m;
         if (d->txop > QPainterPrivate::TxNone) {

@@ -48,16 +48,10 @@ public:
     QWin32PrintEnginePrivate *ep;
 };
 
-#define d d_func()
-/*
-// This should force people not to use the d macro...
-#pragma deprecated("d")
-*/
-
 QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPrintDialog( *(new QPrintDialogPrivate), printer, parent)
 {
-    d->ep = static_cast<QWin32PrintEngine *>(printer->paintEngine())->d;
+    d_func()->ep = static_cast<QWin32PrintEngine *>(printer->paintEngine())->d_func();
 }
 
 QPrintDialog::~QPrintDialog()
@@ -67,6 +61,7 @@ QPrintDialog::~QPrintDialog()
 
 int QPrintDialog::exec()
 {
+    Q_D(QPrintDialog);
     if (!d->ep->devMode) {
         qWarning("QPrintDialog::exec(), printer not initialized");
         return false;
@@ -169,4 +164,5 @@ int QPrintDialog::exec()
     return result;
 }
 
+#define d d_func()
 #include "moc_qprintdialog.cpp"
