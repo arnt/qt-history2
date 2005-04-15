@@ -2,10 +2,12 @@
 #define PREVIEWFORM_H
 
 #include <QDialog>
+#include <QList>
 
 class QComboBox;
 class QLabel;
 class QPushButton;
+class QTextCodec;
 class QTextEdit;
 
 class PreviewForm : public QDialog
@@ -15,6 +17,7 @@ class PreviewForm : public QDialog
 public:
     PreviewForm(QWidget *parent = 0);
 
+    void setCodecList(const QList<QTextCodec *> &list);
     void setEncodedData(const QByteArray &data);
     QString decodedString() const { return decodedStr; }
 
@@ -22,8 +25,6 @@ private slots:
     void updateTextEdit();
 
 private:
-    void populateEncodingComboBox();
-
     QByteArray encodedData;
     QString decodedStr;
 

@@ -6,6 +6,7 @@
 
 class QAction;
 class QMenu;
+class QTextCodec;
 class QTextEdit;
 class PreviewForm;
 
@@ -23,11 +24,13 @@ private slots:
     void aboutToShowSaveAsMenu();
 
 private:
+    void findCodecs();
     void createActions();
     void createMenus();
 
     QTextEdit *textEdit;
     PreviewForm *previewForm;
+    QList<QTextCodec *> codecs;
 
     QMenu *fileMenu;
     QMenu *helpMenu;

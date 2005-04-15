@@ -9,7 +9,10 @@ MainWindow::MainWindow()
     textEdit->setLineWrapMode(QTextEdit::NoWrap);
     setCentralWidget(textEdit);
 
+    findCodecs();
+
     previewForm = new PreviewForm(this);
+    previewForm->setCodecList(codecs);
 
     createActions();
     createMenus();
@@ -77,14 +80,43 @@ void MainWindow::aboutToShowSaveAsMenu()
     }
 }
 
+void MainWindow::findCodecs()
+{
+    QMap<QString, QTextCodec *> codecMap;
+    QRegExp iso8859RegExp("ISO[- ]8859-([0-9]+).*");
+
+    foreach (int mib, QTextCodec::availableMibs()) {
+        QTextCodec *codec = QTextCodec::codecForMib(mib);
+
+        QString sortKey = codec->name().toUpper();
+        int rank;
+
+        if (sortKey.startsWith("UTF-8")) {
+            rank = 1;
+        } else if (sortKey.startsWith("UTF-16")) {
+            rank = 2;
+        } else if (iso8859RegExp.exactMatch(sortKey)) {
+            if (iso8859RegExp.cap(1).size() == 1)
+                rank = 3;
+            else
+                rank = 4;
+        } else {
+            rank = 5;
+        }
+        sortKey.prepend(QChar('0' + rank));
+
+        codecMap.insert(sortKey, codec);
+    }
+    codecs = codecMap.values();
+}
+
 void MainWindow::createActions()
 {
     openAct = new QAction(tr("&Open..."), this);
     openAct->setShortcut(tr("Ctrl+O"));
     connect(openAct, SIGNAL(triggered()), this, SLOT(open()));
 
-    foreach (int mib, QTextCodec::availableMibs()) {
-        QTextCodec *codec = QTextCodec::codecForMib(mib);
+    foreach (QTextCodec *codec, codecs) {
         QString text = tr("%1...").arg(QString(codec->name()));
 
         QAction *action = new QAction(text, this);

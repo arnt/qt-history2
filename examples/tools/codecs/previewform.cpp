@@ -6,7 +6,6 @@ PreviewForm::PreviewForm(QWidget *parent)
     : QDialog(parent)
 {
     encodingComboBox = new QComboBox;
-    populateEncodingComboBox();
 
     encodingLabel = new QLabel(tr("&Encoding:"));
     encodingLabel->setBuddy(encodingComboBox);
@@ -40,6 +39,13 @@ PreviewForm::PreviewForm(QWidget *parent)
     resize(400, 300);
 }
 
+void PreviewForm::setCodecList(const QList<QTextCodec *> &list)
+{
+    encodingComboBox->clear();
+    foreach (QTextCodec *codec, list)
+        encodingComboBox->addItem(codec->name(), codec->mibEnum());
+}
+
 void PreviewForm::setEncodedData(const QByteArray &data)
 {
     encodedData = data;
@@ -53,12 +59,4 @@ void PreviewForm::updateTextEdit()
     QTextCodec *codec = QTextCodec::codecForMib(mib);
     decodedStr = codec->toUnicode(encodedData);
     textEdit->setPlainText(decodedStr);
-}
-
-void PreviewForm::populateEncodingComboBox()
-{
-    foreach (int mib, QTextCodec::availableMibs()) {
-        QTextCodec *codec = QTextCodec::codecForMib(mib);
-        encodingComboBox->addItem(codec->name(), mib);
-    }
 }
