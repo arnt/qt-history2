@@ -37,8 +37,6 @@ private:
     void createIconSizeGroupBox();
     void checkCurrentStyle();
 
-    enum { PixmapRole = Qt::UserRole + 1 };
-
     QWidget *centralWidget;
 
     QGroupBox *previewGroupBox;

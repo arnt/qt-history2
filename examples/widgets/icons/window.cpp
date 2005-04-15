@@ -2,6 +2,7 @@
 
 #include "iconpreviewarea.h"
 #include "iconsizespinbox.h"
+#include "imagedelegate.h"
 #include "window.h"
 
 Window::Window()
@@ -91,9 +92,26 @@ void Window::changeIcon()
         QTableWidgetItem *item1 = imagesTable->item(row, 1);
         QTableWidgetItem *item2 = imagesTable->item(row, 2);
 
-        icon.addPixmap(qvariant_cast<QPixmap>(item0->data(PixmapRole)),
-                       (item1->checkState() == Qt::Checked) ? QIcon::Disabled : QIcon::Normal,
-                       (item2->checkState() == Qt::Checked) ? QIcon::On : QIcon::Off);
+        QIcon::Mode mode;
+        if (item1->text() == tr("Normal")) {
+            mode = QIcon::Normal;
+        } else if (item1->text() == tr("Active")) {
+            mode = QIcon::Active;
+        } else {
+            mode = QIcon::Disabled;
+        }
+
+        QIcon::State state;
+        if (item2->text() == tr("On")) {
+            state = QIcon::On;
+        } else {
+            state = QIcon::Off;
+        }
+
+        QString fileName = item0->data(Qt::UserRole).toString();
+        QImage image(fileName);
+        if (!image.isNull())
+            icon.addPixmap(QPixmap::fromImage(image), mode, state);
     }
 
     previewArea->setIcon(icon);
@@ -103,31 +121,22 @@ void Window::addImage()
 {
     QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"));
     if (!fileName.isEmpty()) {
-        QImage image;
-        if (image.load(fileName)) {
-            int row = imagesTable->rowCount();
-            imagesTable->setRowCount(row + 1);
+        int row = imagesTable->rowCount();
+        imagesTable->setRowCount(row + 1);
 
+        QString strippedFileName = QFileInfo(fileName).fileName();
+        QTableWidgetItem *item0 = new QTableWidgetItem(strippedFileName);
+        item0->setData(Qt::UserRole, fileName);
+        item0->setFlags(item0->flags() & ~Qt::ItemIsEditable);
 
-            QString strippedFileName = QFileInfo(fileName).fileName();
-            QTableWidgetItem *item0 = new QTableWidgetItem(strippedFileName);
-            item0->setData(PixmapRole, QPixmap::fromImage(image));
-            item0->setFlags(item0->flags() & ~Qt::ItemIsEditable);
+        QTableWidgetItem *item1 = new QTableWidgetItem(tr("Normal"));
+        QTableWidgetItem *item2 = new QTableWidgetItem(tr("Off"));
 
-            QTableWidgetItem *item1 = new QTableWidgetItem(tr("Disabled"));
-            item1->setCheckState(Qt::Unchecked);
-            item1->setFlags(item1->flags() & ~Qt::ItemIsEditable);
+        imagesTable->setItem(row, 0, item0);
+        imagesTable->setItem(row, 1, item1);
+        imagesTable->setItem(row, 2, item2);
 
-            QTableWidgetItem *item2 = new QTableWidgetItem(tr("On"));
-            item2->setCheckState(Qt::Unchecked);
-            item2->setFlags(item2->flags() & ~Qt::ItemIsEditable);
-
-            imagesTable->setItem(row, 0, item0);
-            imagesTable->setItem(row, 1, item1);
-            imagesTable->setItem(row, 2, item2);
-
-            changeIcon();
-        }
+        changeIcon();
     }
 }
 
@@ -160,9 +169,11 @@ void Window::createImagesGroupBox()
     imagesTable = new QTableWidget;
     imagesTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
     imagesTable->setSelectionMode(QAbstractItemView::NoSelection);
-    imagesTable->setSelectionBehavior(QAbstractItemView::SelectRows);
+    imagesTable->setEditTriggers(QAbstractItemView::AllEditTriggers);
     imagesTable->setColumnCount(3);
     imagesTable->setHorizontalHeaderLabels(labels);
+    imagesTable->setItemDelegate(new ImageDelegate(this));
+    imagesTable->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 
     addButton = new QPushButton(tr("&Add..."));
     resetButton = new QPushButton(tr("&Reset"));

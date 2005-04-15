@@ -5,6 +5,7 @@
 #include <QWidget>
 
 class QLabel;
+class QLabel;
 
 class IconPreviewArea : public QWidget
 {
@@ -19,7 +20,7 @@ public:
 private:
     QLabel *createHeaderLabel(const QString &text);
     QLabel *createPixmapLabel();
-    void updatePixmaps();
+    void updatePixmapLabels();
 
     enum { NumModes = 3, NumStates = 2 };
 

@@ -8,12 +8,12 @@ IconPreviewArea::IconPreviewArea(QWidget *parent)
     QGridLayout *mainLayout = new QGridLayout;
     setLayout(mainLayout);
 
-    stateLabels[0] = createHeaderLabel(tr("On"));
-    stateLabels[1] = createHeaderLabel(tr("Off"));
+    stateLabels[0] = createHeaderLabel(tr("Off"));
+    stateLabels[1] = createHeaderLabel(tr("On"));
     Q_ASSERT(NumStates == 2);
 
-    modeLabels[0] = createHeaderLabel(tr("Active"));
-    modeLabels[1] = createHeaderLabel(tr("Normal"));
+    modeLabels[0] = createHeaderLabel(tr("Normal"));
+    modeLabels[1] = createHeaderLabel(tr("Active"));
     modeLabels[2] = createHeaderLabel(tr("Disabled"));
     Q_ASSERT(NumModes == 3);
 
@@ -33,14 +33,14 @@ IconPreviewArea::IconPreviewArea(QWidget *parent)
 void IconPreviewArea::setIcon(const QIcon &icon)
 {
     this->icon = icon;
-    updatePixmaps();
+    updatePixmapLabels();
 }
 
 void IconPreviewArea::setSize(const QSize &size)
 {
     if (size != this->size) {
         this->size = size;
-        updatePixmaps();
+        updatePixmapLabels();
     }
 }
 
@@ -54,6 +54,7 @@ QLabel *IconPreviewArea::createHeaderLabel(const QString &text)
 QLabel *IconPreviewArea::createPixmapLabel()
 {
     QLabel *label = new QLabel;
+    label->setEnabled(false);
     label->setAlignment(Qt::AlignCenter);
     label->setFrameShape(QFrame::Box);
     label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
@@ -62,21 +63,23 @@ QLabel *IconPreviewArea::createPixmapLabel()
     return label;
 }
 
-void IconPreviewArea::updatePixmaps()
+void IconPreviewArea::updatePixmapLabels()
 {
     for (int i = 0; i < NumModes; ++i) {
         QIcon::Mode mode;
         if (i == 0) {
-            mode = QIcon::Active;
-        } else if (i == 1) {
             mode = QIcon::Normal;
+        } else if (i == 1) {
+            mode = QIcon::Active;
         } else {
             mode = QIcon::Disabled;
         }
 
         for (int j = 0; j < NumStates; ++j) {
-            QIcon::State state = (j == 0) ? QIcon::On : QIcon::Off;
-            pixmapLabels[i][j]->setPixmap(icon.pixmap(size, mode, state));
+            QIcon::State state = (j == 0) ? QIcon::Off : QIcon::On;
+            QPixmap pixmap = icon.pixmap(size, mode, state);
+            pixmapLabels[i][j]->setPixmap(pixmap);
+            pixmapLabels[i][j]->setEnabled(!pixmap.isNull());
         }
     }
 }
