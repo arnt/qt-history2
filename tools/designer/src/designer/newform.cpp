@@ -112,6 +112,7 @@ void NewForm::on_createButton_clicked()
         if (maxUntitled)
             newTitle += QString::fromUtf8(" ") + QString::number(maxUntitled + 1);
         formWindow->setWindowTitle(newTitle);
+        formWindow->show();
     }
 }
 
