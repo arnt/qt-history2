@@ -282,6 +282,22 @@
             </widget>
         </widget>
 
+        <widget class="QStackedWidget" name="Stacked Widget" icon="widgets/widgetstack.png">
+            <property name="geometry">
+                <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>120</width>
+                    <height>80</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">stackedWidget</string>
+            </property>
+            <widget class="QWidget" />
+            <widget class="QWidget" />
+        </widget>
+
         <widget class="QFrame" name="Frame" icon="widgets/frame.png">
             <property name="frameShadow" >
                 <enum>QFrame::Raised</enum>
@@ -301,95 +317,10 @@
                 <string notr="true">frame</string>
             </property>
         </widget>
-
-        <widget class="QStackedWidget" name="Stacked Widget" icon="widgets/widgetstack.png">
-            <property name="geometry">
-                <rect>
-                    <x>0</x>
-                    <y>0</y>
-                    <width>120</width>
-                    <height>80</height>
-                </rect>
-            </property>
-            <property name="objectName">
-                <string notr="true">stackedWidget</string>
-            </property>
-            <widget class="QWidget" />
-            <widget class="QWidget" />
-        </widget>
     </category>
 
     <category name="Input Widgets">
 
-        <widget class="QTimeEdit" name="Time Edit" icon="widgets/datetimeedit.png">
-            <property name="geometry" >
-                <rect>
-                    <x>0</x>
-                    <y>28</y>
-                    <width>118</width>
-                    <height>22</height>
-                </rect>
-            </property>
-            <property name="objectName">
-                <string notr="true">timeEdit</string>
-            </property>
-        </widget>
-
-        <widget class="QDateEdit" name="Date Edit" icon="widgets/datetimeedit.png">
-            <property name="geometry" >
-                <rect>
-                    <x>0</x>
-                    <y>28</y>
-                    <width>110</width>
-                    <height>22</height>
-                </rect>
-            </property>
-            <property name="objectName">
-                <string notr="true">dateEdit</string>
-            </property>
-        </widget>
-
-        <widget class="QDateTimeEdit" name="Date/Time Edit" icon="widgets/datetimeedit.png">
-            <property name="geometry" >
-                <rect>
-                    <x>0</x>
-                    <y>28</y>
-                    <width>194</width>
-                    <height>22</height>
-                </rect>
-            </property>
-            <property name="objectName">
-                <string notr="true">dateTimeEdit</string>
-            </property>
-        </widget>
-
-        <widget class="QSpinBox" name="Spin Box" icon="widgets/spinbox.png">
-            <property name="geometry" >
-                <rect>
-                    <x>119</x>
-                    <y>0</y>
-                    <width>42</width>
-                    <height>22</height>
-                </rect>
-            </property>
-            <property name="objectName">
-                <string notr="true">spinBox</string>
-            </property>
-        </widget>
-
-        <widget class="QDoubleSpinBox" name="Double Spin Box" icon="widgets/spinbox.png">
-            <property name="geometry" >
-                <rect>
-                    <x>119</x>
-                    <y>0</y>
-                    <width>62</width>
-                    <height>22</height>
-                </rect>
-            </property>
-            <property name="objectName">
-                <string notr="true">doubleSpinBox</string>
-            </property>
-        </widget>
 
         <widget class="QComboBox" name="Combo Box" icon="widgets/combobox.png">
             <property name="geometry" >
@@ -430,6 +361,76 @@
                     <width>104</width>
                     <height>64</height>
                 </rect>
+            </property>
+        </widget>
+
+        <widget class="QSpinBox" name="Spin Box" icon="widgets/spinbox.png">
+            <property name="geometry" >
+                <rect>
+                    <x>119</x>
+                    <y>0</y>
+                    <width>42</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">spinBox</string>
+            </property>
+        </widget>
+
+        <widget class="QDoubleSpinBox" name="Double Spin Box" icon="widgets/spinbox.png">
+            <property name="geometry" >
+                <rect>
+                    <x>119</x>
+                    <y>0</y>
+                    <width>62</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">doubleSpinBox</string>
+            </property>
+        </widget>
+
+        <widget class="QTimeEdit" name="Time Edit" icon="widgets/datetimeedit.png">
+            <property name="geometry" >
+                <rect>
+                    <x>0</x>
+                    <y>28</y>
+                    <width>118</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">timeEdit</string>
+            </property>
+        </widget>
+
+        <widget class="QDateEdit" name="Date Edit" icon="widgets/datetimeedit.png">
+            <property name="geometry" >
+                <rect>
+                    <x>0</x>
+                    <y>28</y>
+                    <width>110</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">dateEdit</string>
+            </property>
+        </widget>
+
+        <widget class="QDateTimeEdit" name="Date/Time Edit" icon="widgets/datetimeedit.png">
+            <property name="geometry" >
+                <rect>
+                    <x>0</x>
+                    <y>28</y>
+                    <width>194</width>
+                    <height>22</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">dateTimeEdit</string>
             </property>
         </widget>
 
@@ -526,6 +527,12 @@
             </property>
             <property name="objectName">
                 <string notr="true">label</string>
+            </property>
+        </widget>
+
+        <widget class="QTextBrowser" name="Text Browser" icon="widgets/textedit.png">
+            <property name="objectName">
+                <string notr="true">textBrowser</string>
             </property>
         </widget>
 
