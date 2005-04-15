@@ -48,6 +48,7 @@ class Q_GUI_EXPORT QTextEdit : public QAbstractScrollArea
     QDOC_PROPERTY(QTextOption::WrapMode wordWrapMode READ wordWrapMode WRITE setWordWrapMode)
     Q_PROPERTY(int lineWrapColumnOrWidth READ lineWrapColumnOrWidth WRITE setLineWrapColumnOrWidth)
     Q_PROPERTY(bool readOnly READ isReadOnly WRITE setReadOnly)
+    Q_PROPERTY(QString html READ toHtml WRITE setHtml)
 public:
     enum LineWrapMode {
         NoWrap,

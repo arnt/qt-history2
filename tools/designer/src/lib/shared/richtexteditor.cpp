@@ -84,18 +84,19 @@ RichTextEditorToolBar::RichTextEditorToolBar(RichTextEditor *editor,
 {
     m_editor = editor;
 
-    m_bold_action
-        = createCheckableAction(createIconSet(QLatin1String("textbold.png")),
-                                tr("Bold"), editor, SLOT(setFontBold(bool)), this);
+    m_bold_action = createCheckableAction(createIconSet(QLatin1String("textbold.png")),
+            tr("Bold"), editor, SLOT(setFontBold(bool)), this);
+    m_bold_action->setShortcut(tr("CTRL+b"));
     addAction(m_bold_action);
-    m_italic_action
-        = createCheckableAction(createIconSet(QLatin1String("textitalic.png")),
-                                tr("Italic"), editor, SLOT(setFontItalic(bool)), this);
+
+    m_italic_action = createCheckableAction(createIconSet(QLatin1String("textitalic.png")),
+            tr("Italic"), editor, SLOT(setFontItalic(bool)), this);
+    m_italic_action->setShortcut(tr("CTRL+I"));
+
     addAction(m_italic_action);
-    m_underline_action
-        = createCheckableAction(createIconSet(QLatin1String("textunder.png")),
-                                tr("Underline"), editor,
-                                SLOT(setFontUnderline(bool)), this);
+    m_underline_action = createCheckableAction(createIconSet(QLatin1String("textunder.png")),
+            tr("Underline"), editor, SLOT(setFontUnderline(bool)), this);
+    m_underline_action->setShortcut(tr("CTRL+U"));
     addAction(m_underline_action);
 
     m_font_size_input = new QComboBox(this);

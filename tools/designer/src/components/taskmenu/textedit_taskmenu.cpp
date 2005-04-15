@@ -11,7 +11,8 @@
 **
 ****************************************************************************/
 
-#include "label_taskmenu.h"
+#include "textedit_taskmenu.h"
+#include "inplace_editor.h"
 
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstractformwindow.h>
@@ -27,74 +28,74 @@
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
-LabelTaskMenu::LabelTaskMenu(QLabel *label, QObject *parent)
-    : QDesignerTaskMenu(label, parent),
-      m_label(label)
+TextEditTaskMenu::TextEditTaskMenu(QTextEdit *textEdit, QObject *parent)
+    : QDesignerTaskMenu(textEdit, parent),
+      m_textEdit(textEdit)
 {
     m_editTextAction= new QAction(this);
-    m_editTextAction->setText(tr("Edit Label Text"));
+    m_editTextAction->setText(tr("Edit Html"));
     connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_editTextAction);
 }
 
-LabelTaskMenu::~LabelTaskMenu()
+TextEditTaskMenu::~TextEditTaskMenu()
 {
 }
 
-QAction *LabelTaskMenu::preferredEditAction() const
+QAction *TextEditTaskMenu::preferredEditAction() const
 {
     return m_editTextAction;
 }
 
-QList<QAction*> LabelTaskMenu::taskActions() const
+QList<QAction*> TextEditTaskMenu::taskActions() const
 {
     return QDesignerTaskMenu::taskActions() + m_taskActions;
 }
 
-void LabelTaskMenu::editText()
+void TextEditTaskMenu::editText()
 {
-    m_formWindow = QDesignerFormWindowInterface::findFormWindow(m_label);
+    m_formWindow = QDesignerFormWindowInterface::findFormWindow(m_textEdit);
     if (!m_formWindow.isNull()) {
         RichTextEditorDialog *dlg = new RichTextEditorDialog(m_formWindow);
-        Q_ASSERT(m_label->parentWidget() != 0);
+        Q_ASSERT(m_textEdit->parentWidget() != 0);
         RichTextEditor *editor = dlg->editor();
 
-        editor->setDefaultFont(m_label->font());
-        editor->setText(m_label->text());
+        editor->setDefaultFont(m_textEdit->font());
+        editor->setText(m_textEdit->toHtml());
         editor->selectAll();
 
         if (dlg->exec()) {
-            QString text = editor->text(m_label->textFormat());
-            m_formWindow->cursor()->setWidgetProperty(m_label, QLatin1String("text"), QVariant(text));
+            QString text = editor->text(Qt::RichText);
+            m_formWindow->cursor()->setWidgetProperty(m_textEdit, QLatin1String("html"), QVariant(text));
         }
 
         delete dlg;
     }
 }
 
-void LabelTaskMenu::editIcon()
+void TextEditTaskMenu::editIcon()
 {
     qDebug() << "edit icon";
 }
 
-LabelTaskMenuFactory::LabelTaskMenuFactory(QExtensionManager *extensionManager)
+TextEditTaskMenuFactory::TextEditTaskMenuFactory(QExtensionManager *extensionManager)
     : QExtensionFactory(extensionManager)
 {
 }
 
-QObject *LabelTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
+QObject *TextEditTaskMenuFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
-    if (QLabel *label = qobject_cast<QLabel*>(object)) {
+    if (QTextEdit *textEdit = qobject_cast<QTextEdit*>(object)) {
         if (iid == Q_TYPEID(QDesignerTaskMenuExtension)) {
-            return new LabelTaskMenu(label, parent);
+            return new TextEditTaskMenu(textEdit, parent);
         }
     }
 
     return 0;
 }
 
-void LabelTaskMenu::updateText(const QString &text)
+void TextEditTaskMenu::updateText(const QString &text)
 {
-    m_formWindow->cursor()->setWidgetProperty(m_label, QLatin1String("text"), QVariant(text));
+    m_formWindow->cursor()->setWidgetProperty(m_textEdit, QLatin1String("html"), QVariant(text));
 }
 

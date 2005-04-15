@@ -18,6 +18,7 @@
 #include "lineedit_taskmenu.h"
 #include "listwidget_taskmenu.h"
 #include "combobox_taskmenu.h"
+#include "textedit_taskmenu.h"
 
 #include <QtDesigner/abstractformeditor.h>
 
@@ -49,6 +50,9 @@ TaskMenuComponent::TaskMenuComponent(QDesignerFormEditorInterface *core, QObject
 
     ComboBoxTaskMenuFactory *comboBox_factory = new ComboBoxTaskMenuFactory(mgr);
     mgr->registerExtensions(comboBox_factory, Q_TYPEID(QDesignerTaskMenuExtension));
+
+    TextEditTaskMenuFactory *textEdit_factory = new TextEditTaskMenuFactory(mgr);
+    mgr->registerExtensions(textEdit_factory, Q_TYPEID(QDesignerTaskMenuExtension));
 }
 
 TaskMenuComponent::~TaskMenuComponent()
