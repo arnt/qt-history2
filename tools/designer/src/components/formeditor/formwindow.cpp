@@ -1521,8 +1521,8 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
     popup->addSeparator();
     QMenu *menu = popup->addMenu(tr("Lay out"));
     menu->addAction(manager->actionAdjustSize());
-    menu->addAction(manager->actionVerticalLayout());
     menu->addAction(manager->actionHorizontalLayout());
+    menu->addAction(manager->actionVerticalLayout());
     menu->addAction(manager->actionGridLayout());
 
     if (!isFormWindow) {
