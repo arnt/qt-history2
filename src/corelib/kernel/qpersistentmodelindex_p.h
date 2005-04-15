@@ -49,8 +49,7 @@ public:
     QPersistentModelIndexManager(QAbstractItemModel *parent);
     ~QPersistentModelIndexManager();
 
-    void invalidateIndex(const QModelIndex &index);
-    void invalidateChildren(const QModelIndex &parent);
+    void invalidate(int position);
 
 public slots:
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
@@ -65,7 +64,8 @@ public slots:
     
 public:
     QList<QPersistentModelIndexData*> indexes;
-    QList<int> affected;
+    QList<int> changed;
+    QList<int> invalidated;
     QAbstractItemModel *model;
 };
 
