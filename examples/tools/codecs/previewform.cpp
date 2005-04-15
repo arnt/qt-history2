@@ -57,6 +57,8 @@ void PreviewForm::updateTextEdit()
     int mib = encodingComboBox->itemData(
                       encodingComboBox->currentIndex()).toInt();
     QTextCodec *codec = QTextCodec::codecForMib(mib);
-    decodedStr = codec->toUnicode(encodedData);
+    QTextStream in(&encodedData);
+    in.setCodec(codec);
+    decodedStr = in.readAll();
     textEdit->setPlainText(decodedStr);
 }

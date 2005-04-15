@@ -57,8 +57,10 @@ void MainWindow::save()
 
         QAction *action = qobject_cast<QAction *>(sender());
         QByteArray codecName = action->iconText().toAscii();
-	QTextCodec *codec = QTextCodec::codecForName(codecName);
-        file.write(codec->fromUnicode(textEdit->toPlainText()));
+
+        QTextStream out(&file);
+        out.setCodec(codecName);
+        out << textEdit->toPlainText();
     }
 }
 
