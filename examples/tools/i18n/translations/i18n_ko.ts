@@ -19,7 +19,7 @@
     </message>
     <message>
         <source>Isometric</source>
-        <translation type="unfinished">Isometric</translation>
+        <translation>등측도</translation>
     </message>
     <message>
         <source>Language: %1</source>
@@ -31,11 +31,11 @@
     </message>
     <message>
         <source>Oblique</source>
-        <translation type="unfinished">Oblique</translation>
+        <translation>빗각</translation>
     </message>
     <message>
         <source>Perspective</source>
-        <translation type="unfinished">Perspective</translation>
+        <translation>원근화법</translation>
     </message>
     <message>
         <source>Second</source>

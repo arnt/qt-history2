@@ -43,11 +43,11 @@
     </message>
     <message>
         <source>E&amp;xit</source>
-        <translation type="unfinished"></translation>
+        <translation>أخرج</translation>
     </message>
     <message>
         <source>&amp;File</source>
-        <translation type="unfinished"></translation>
+        <translation>الملف</translation>
     </message>
     <message>
         <source>LTR</source>
