@@ -105,12 +105,7 @@ private:
 class QT_SHARED_EXPORT Line : public QFrame
 {
     Q_OBJECT
-
     Q_PROPERTY(Qt::Orientation orientation READ orientation WRITE setOrientation)
-    Q_OVERRIDE(int frameWidth DESIGNABLE false)
-    Q_OVERRIDE(Shape frameShape DESIGNABLE false)
-    Q_OVERRIDE(QRect frameRect DESIGNABLE false)
-    Q_OVERRIDE(QRect contentsRect DESIGNABLE false)
 public:
     Line(QWidget *parent) : QFrame(parent)
     { setAttribute(Qt::WA_MouseNoMask); setFrameStyle(HLine | Sunken); }

@@ -86,7 +86,7 @@ void WriteDeclaration::acceptWidget(DomWidget *node)
     if (node->hasAttributeClass())
         className = node->attributeClass();
 
-    output << option.indent << className << " *" << driver->findOrInsertWidget(node) << ";\n";
+    output << option.indent << uic->customWidgetsInfo()->realClassName(className) << " *" << driver->findOrInsertWidget(node) << ";\n";
 
     TreeWalker::acceptWidget(node);
 }

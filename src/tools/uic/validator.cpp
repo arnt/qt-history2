@@ -33,11 +33,6 @@ void Validator::acceptWidget(DomWidget *node)
 {
     (void) driver->findOrInsertWidget(node);
 
-    QString widgetClass = node->attributeClass();
-
-    if (widgetClass == QLatin1String("Line"))
-        node->setAttributeClass(QLatin1String("QFrame"));
-
     TreeWalker::acceptWidget(node);
 }
 

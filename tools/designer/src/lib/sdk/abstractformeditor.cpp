@@ -72,7 +72,7 @@ void QDesignerFormEditorInterface::setFormManager(QDesignerFormWindowManagerInte
 QExtensionManager *QDesignerFormEditorInterface::extensionManager() const
 { return m_extensionManager; }
 
-void QDesignerFormEditorInterface::setQAbstractExtensionManager(QExtensionManager *extensionManager)
+void QDesignerFormEditorInterface::setExtensionManager(QExtensionManager *extensionManager)
 { m_extensionManager = extensionManager; }
 
 QDesignerMetaDataBaseInterface *QDesignerFormEditorInterface::metaDataBase() const

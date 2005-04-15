@@ -14,13 +14,18 @@
 #include "qdesigner_formbuilder.h"
 #include "qdesigner_widget.h"
 
+// sdk
 #include <QtDesigner/container.h>
 #include <QtDesigner/customwidget.h>
-#include <pluginmanager.h>
+#include <QtDesigner/propertysheet.h>
 #include <QtDesigner/qextensionmanager.h>
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstracticoncache.h>
+#include <QtDesigner/ui4.h>
+
+// shared
 #include <resourcefile.h>
+#include <pluginmanager.h>
 
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
@@ -69,10 +74,14 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
         QLabel *label = new QDesignerLabel(parentWidget);
         label->setObjectName(name);
         return label;
+    } else if (widgetName == QLatin1String("Line")) {
+        Line *line = new Line(parentWidget);
+        line->setObjectName(name);
+        return line;
     }
 
     QWidget *widget = QFormBuilder::createWidget(widgetName, parentWidget, name);
-    if (!widget) {
+    if (widget == 0) {
         // ### qWarning("failed to create a widget for type %s", widgetName.toUtf8().constData());
         widget = new QWidget(parentWidget);
         widget->setObjectName(name);
@@ -124,5 +133,17 @@ QIcon QDesignerFormBuilder::nameToIcon(const QString &filePath, const QString &q
 QPixmap QDesignerFormBuilder::nameToPixmap(const QString &filePath, const QString &qrcPath)
 {
     return QPixmap(resolveQrcPath(filePath, qrcPath));
+}
+
+void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)
+{
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o);
+    Q_ASSERT(sheet != 0);
+
+    foreach (DomProperty *p, properties) {
+        QVariant v = toVariant(o->metaObject(), p);
+        if (!v.isNull())
+            sheet->setProperty(sheet->indexOf(p->attributeName()), v);
+    }
 }
 

@@ -31,6 +31,7 @@ HEADERS += \
            formeditor_global.h \
            qlayoutwidget_propertysheet.h \
            spacer_propertysheet.h \
+           line_propertysheet.h \
            default_container.h \
            default_layoutdecoration.h \
            iconcache.h \
@@ -47,6 +48,7 @@ SOURCES += \
            formeditor.cpp \
            qlayoutwidget_propertysheet.cpp \
            spacer_propertysheet.cpp \
+           line_propertysheet.cpp \
            default_container.cpp \
            default_layoutdecoration.cpp \
            tool_widgeteditor.cpp

@@ -138,7 +138,7 @@ void WriteInitialization::acceptWidget(DomWidget *node)
         parentWidget.clear();
 
     if (m_widgetChain.size() != 1)
-        output << option.indent << varName << " = new " << className << "(" << parentWidget << ");\n";
+        output << option.indent << varName << " = new " << uic->customWidgetsInfo()->realClassName(className) << "(" << parentWidget << ");\n";
 
     parentWidget = savedParentWidget;
 
@@ -515,6 +515,15 @@ void WriteInitialization::writeProperties(const QString &varName,
         } else if (propertyName == QLatin1String("frameworkCode")
                     && p->kind() == DomProperty::Bool) {
             // Sql support
+            continue;
+        } else if (propertyName == QLatin1String("orientation")
+                    && uic->customWidgetsInfo()->extends(className, QLatin1String("Line"))) {
+            // Line support
+            QString shape = QLatin1String("QFrame::HLine");
+            if (p->elementEnum() == QLatin1String("Qt::Vertical"))
+                shape = QLatin1String("QFrame::VLine");
+
+            output << option.indent << varName << "->setFrameShape(" << shape << ");\n";
             continue;
         }
 

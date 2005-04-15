@@ -78,7 +78,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     if (QDesignerCustomWidgetInterface *f = m_customFactory.value(widgetName)) {
         return f->createWidget(parentWidget);
     } else if (widgetName == QLatin1String("Line")) {
-        w = new QFrame(parentWidget);
+        w = new Line(parentWidget);
     } else if (widgetName == QLatin1String("QLabel")) {
         w = new QDesignerLabel(parentWidget);
     } else if (widgetName == QLatin1String("QTabWidget")) {

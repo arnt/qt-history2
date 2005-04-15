@@ -191,6 +191,7 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
 #undef DECLARE_LAYOUT
 #undef DECLARE_WIDGET
 
+    append(new WidgetDataBaseItem(QString::fromUtf8("Line")));
     append(new WidgetDataBaseItem(QString::fromUtf8("Spacer")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QSplitter")));
     append(new WidgetDataBaseItem(QString::fromUtf8("QLayoutWidget")));

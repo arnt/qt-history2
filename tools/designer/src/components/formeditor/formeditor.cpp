@@ -20,6 +20,7 @@
 #include "default_layoutdecoration.h"
 #include "qlayoutwidget_propertysheet.h"
 #include "spacer_propertysheet.h"
+#include "line_propertysheet.h"
 #include "iconcache.h"
 
 #include <signalsloteditor.h>
@@ -49,16 +50,17 @@ FormEditor::FormEditor(QObject *parent)
     setFormManager(formWindowManager);
 
     QExtensionManager *mgr = new QExtensionManager(this);
+
     mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new QDesignerContainerFactory(mgr),             Q_TYPEID(QDesignerContainerExtension));
     mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(QDesignerLayoutDecorationExtension));
     mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(QDesignerPropertySheetExtension));
+    mgr->registerExtensions(new LinePropertySheetFactory(mgr),              Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new PromotedWidgetPropertySheetFactory(mgr),    Q_TYPEID(QDesignerPropertySheetExtension));
-
     mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(QDesignerTaskMenuExtension));
 
-    setQAbstractExtensionManager(mgr);
+    setExtensionManager(mgr);
 
     SignalSlotEditor::registerExtensions(this);
 

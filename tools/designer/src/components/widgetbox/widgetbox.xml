@@ -552,9 +552,12 @@
             </property>
         </widget>
 
-        <widget class="QFrame" name="Horizontal Line" icon="widgets/line.png">
-            <property name="frameShadow" >
-                <enum>QFrame::Sunken</enum>
+        <widget class="Line" name="Horizontal Line" icon="widgets/line.png">
+            <property name="orientation" >
+                <enum>Qt::Horizontal</enum>
+            </property>
+            <property name="objectName">
+                <string notr="true">line</string>
             </property>
             <property name="geometry" >
                 <rect>
@@ -564,20 +567,14 @@
                     <height>3</height>
                 </rect>
             </property>
-            <property name="frameShape" >
-                <enum>QFrame::HLine</enum>
-            </property>
-            <property name="objectName">
-                <string notr="true">horizontalLine</string>
-            </property>
         </widget>
 
-        <widget class="QFrame" name="Vertical Line" icon="widgets/line.png">
-            <property name="frameShadow" >
-                <enum>QFrame::Sunken</enum>
+        <widget class="Line" name="Vertical Line" icon="widgets/line.png">
+            <property name="orientation" >
+                <enum>Qt::Vertical</enum>
             </property>
             <property name="objectName">
-                <string notr="true">verticalLine</string>
+                <string notr="true">line</string>
             </property>
             <property name="geometry" >
                 <rect>
@@ -586,12 +583,6 @@
                     <width>3</width>
                     <height>61</height>
                 </rect>
-            </property>
-            <property name="frameShape" >
-                <enum>QFrame::VLine</enum>
-            </property>
-            <property name="objectName">
-                <string notr="true">verticalLine</string>
             </property>
         </widget>
     </category>

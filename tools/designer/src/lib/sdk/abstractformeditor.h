@@ -66,7 +66,7 @@ protected:
     void setMetaDataBase(QDesignerMetaDataBaseInterface *metaDataBase);
     void setWidgetDataBase(QDesignerWidgetDataBaseInterface *widgetDataBase);
     void setWidgetFactory(QDesignerWidgetFactoryInterface *widgetFactory);
-    void setQAbstractExtensionManager(QExtensionManager *extensionManager);
+    void setExtensionManager(QExtensionManager *extensionManager);
     void setIconCache(QDesignerIconCacheInterface *cache);
 
 private:
