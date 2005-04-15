@@ -590,11 +590,9 @@ static QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     return fmt;
 }
 
-#define d d_func()
-#define q q_func()
-
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
+    Q_D(QGLContext);
     // workaround for matrox driver:
     // make a cheap call to opengl to force loading of DLL
     if (!opengl32dll) {
@@ -624,7 +622,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     }
 
     if (d->glFormat.plane()) {
-        d->pixelFormatId = ((QGLWidget*)d->paintDevice)->context()->d->pixelFormatId;
+        d->pixelFormatId = ((QGLWidget*)d->paintDevice)->context()->d_func()->pixelFormatId;
         if (!d->pixelFormatId) {                // I.e. the glwidget is invalid
             qWarning("QGLContext::chooseContext(): Cannot create overlay context for invalid widget");
             result = false;
@@ -676,8 +674,8 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         }
 
         if (shareContext && shareContext->isValid()) {
-            d->sharing = (wglShareLists(shareContext->d->rc, d->rc) != 0);
-            const_cast<QGLContext *>(shareContext)->d->sharing = d->sharing;
+            d->sharing = (wglShareLists(shareContext->d_func()->rc, d->rc) != 0);
+            const_cast<QGLContext *>(shareContext)->d_func()->sharing = d->sharing;
         }
 
         goto end;
@@ -727,8 +725,8 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         }
 
         if (shareContext && shareContext->isValid()) {
-            d->sharing = (wglShareLists(shareContext->d->rc, d->rc) != 0);
-            const_cast<QGLContext *>(shareContext)->d->sharing = d->sharing;
+            d->sharing = (wglShareLists(shareContext->d_func()->rc, d->rc) != 0);
+            const_cast<QGLContext *>(shareContext)->d_func()->sharing = d->sharing;
 	}
 
         if(!deviceIsPixmap()) {
@@ -772,6 +770,7 @@ static bool qLogEq(bool a, bool b)
 
 int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 {
+    Q_D(QGLContext);
     // workaround for matrox driver:
     // make a cheap call to opengl to force loading of DLL
     if (!opengl32dll) {
@@ -962,6 +961,7 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 
 void QGLContext::reset()
 {
+    Q_D(QGLContext);
     // workaround for matrox driver:
     // make a cheap call to opengl to force loading of DLL
     if (!opengl32dll) {
@@ -999,6 +999,7 @@ void QGLContext::reset()
 
 void QGLContext::makeCurrent()
 {
+    Q_D(QGLContext);
     if (d->rc == wglGetCurrentContext() || !d->valid)        // already current
         return;
     if (d->win)
@@ -1022,6 +1023,7 @@ void QGLContext::makeCurrent()
 
 void QGLContext::doneCurrent()
 {
+    Q_D(QGLContext);
     if (currentCtx != this)
         return;
     currentCtx = 0;
@@ -1035,6 +1037,7 @@ void QGLContext::doneCurrent()
 
 void QGLContext::swapBuffers() const
 {
+    Q_D(const QGLContext);
     if (d->dc && d->glFormat.doubleBuffer() && !deviceIsPixmap()) {
         if (d->glFormat.plane())
             wglSwapLayerBuffers(d->dc, WGL_SWAP_OVERLAY1);
@@ -1050,12 +1053,13 @@ void QGLContext::swapBuffers() const
 
 QColor QGLContext::overlayTransparentColor() const
 {
-    return d->transpColor;
+    return d_func()->transpColor;
 }
 
 
 uint QGLContext::colorIndex(const QColor& c) const
 {
+    Q_D(const QGLContext);
     if (!isValid())
         return 0;
     if (d->cmap) {
@@ -1079,6 +1083,7 @@ uint QGLContext::colorIndex(const QColor& c) const
 
 void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
 {
+    Q_D(QGLContext);
     WId winId;
     HDC glHdc;
     if (!isValid())
@@ -1110,6 +1115,8 @@ void *QGLContext::getProcAddress(const QString &proc) const
 
 void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
 {
+    Q_Q(QGLWidget);
+
     QGLExtensions::init();
     glcx = 0;
     autoSwap = true;
@@ -1129,7 +1136,7 @@ void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
         if (!olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
             delete olcx;
             olcx = 0;
-            glcx->d->glFormat.setOverlay(false);
+            glcx->d_func()->glFormat.setOverlay(false);
         }
     } else {
         olcx = 0;
@@ -1139,6 +1146,7 @@ void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
 
 bool QGLWidget::event(QEvent *e)
 {
+    Q_D(QGLWidget);
     if (e->type() == QEvent::ParentChange)
         setContext(new QGLContext(d->glcx->requestedFormat(), this));
     return QWidget::event(e);
@@ -1153,6 +1161,7 @@ void QGLWidget::setMouseTracking(bool enable)
 
 void QGLWidget::resizeEvent(QResizeEvent *)
 {
+    Q_D(QGLWidget);
     if (!isValid())
         return;
     makeCurrent();
@@ -1168,12 +1177,13 @@ void QGLWidget::resizeEvent(QResizeEvent *)
 
 const QGLContext* QGLWidget::overlayContext() const
 {
-    return d->olcx;
+    return d_func()->olcx;
 }
 
 
 void QGLWidget::makeOverlayCurrent()
 {
+    Q_D(QGLWidget);
     if (d->olcx) {
         d->olcx->makeCurrent();
         if (!d->olcx->initialized()) {
@@ -1186,6 +1196,7 @@ void QGLWidget::makeOverlayCurrent()
 
 void QGLWidget::updateOverlayGL()
 {
+    Q_D(QGLWidget);
     if (d->olcx) {
         makeOverlayCurrent();
         paintOverlayGL();
@@ -1204,6 +1215,7 @@ void QGLWidget::setContext(QGLContext *context,
                             const QGLContext* shareContext,
                             bool deleteOldContext)
 {
+    Q_D(QGLWidget);
     if (context == 0) {
         qWarning("QGLWidget::setContext: Cannot set null context");
         return;
@@ -1219,7 +1231,7 @@ void QGLWidget::setContext(QGLContext *context,
     d->glcx = context;
 
     bool doShow = false;
-    if (oldcx && oldcx->d->win == winId() && !d->glcx->deviceIsPixmap()) {
+    if (oldcx && oldcx->d_func()->win == winId() && !d->glcx->deviceIsPixmap()) {
         // We already have a context and must therefore create a new
         // window since Windows does not permit setting a new OpenGL
         // context for a window that already has one set.
@@ -1248,6 +1260,7 @@ bool QGLWidgetPrivate::renderCxPm(QPixmap*)
 
 void QGLWidgetPrivate::cleanupColormaps()
 {
+    Q_Q(QGLWidget);
     if (cmap.handle()) {
         HDC hdc = GetDC(q->winId());
         SelectPalette(hdc, (HPALETTE) GetStockObject(DEFAULT_PALETTE), false);
@@ -1260,7 +1273,7 @@ void QGLWidgetPrivate::cleanupColormaps()
 
 const QGLColormap & QGLWidget::colormap() const
 {
-    return d->cmap;
+    return d_func()->cmap;
 }
 
 /*\internal
@@ -1284,6 +1297,7 @@ static void qStoreColors(HPALETTE cmap, const QGLColormap & cols)
 
 void QGLWidget::setColormap(const QGLColormap & c)
 {
+    Q_D(QGLWidget);
     d->cmap = c;
     if (!d->cmap.handle())
         return;

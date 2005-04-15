@@ -67,10 +67,7 @@ public:
 
 static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush);
 
-#define d d_func()
-#define q q_func()
-
-#define dgl ((QGLWidget *)(d->pdev))
+#define dgl ((QGLWidget *)(d_func()->pdev))
 
 QOpenGLPaintEngine::QOpenGLPaintEngine()
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
@@ -85,6 +82,7 @@ QOpenGLPaintEngine::~QOpenGLPaintEngine()
 
 bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 {
+    Q_D(QOpenGLPaintEngine);
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
     d->pdev = pdev;
     dgl->setAutoBufferSwap(false);
@@ -134,6 +132,7 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
 
 void QOpenGLPaintEngine::updatePen(const QPen &pen)
 {
+    Q_D(QOpenGLPaintEngine);
     dgl->makeCurrent();
     dgl->qglColor(pen.color());
     d->cpen = pen;
@@ -391,6 +390,7 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
         dense6_pat, dense7_pat, hor_pat, ver_pat, cross_pat, bdiag_pat,
         fdiag_pat, dcross_pat };
 
+    Q_D(QOpenGLPaintEngine);
     dgl->makeCurrent();
     d->cbrush = brush;
     if (brush.color().alpha() != 255) {
@@ -413,6 +413,7 @@ void QOpenGLPaintEngine::updateFont(const QFont &)
 
 void QOpenGLPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
+    Q_D(QOpenGLPaintEngine);
     dgl->makeCurrent();
     dgl->qglClearColor(bgBrush.color());
     d->bgmode = bgMode;
@@ -450,6 +451,7 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
 
 void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
+    Q_D(QOpenGLPaintEngine);
     bool useStencilBuffer = dgl->format().stencil();
     bool useDepthBuffer = dgl->format().depth() && !useStencilBuffer;
 
@@ -524,6 +526,7 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 
 void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
+    Q_D(QOpenGLPaintEngine);
     dgl->makeCurrent();
 
     // ### this could be done faster I'm sure...
@@ -676,6 +679,7 @@ static void qgl_draw_poly(const QPointF *points, int pointCount)
 
 void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
+    Q_D(QOpenGLPaintEngine);
     if(!pointCount)
         return;
     dgl->makeCurrent();
@@ -702,6 +706,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 
 void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
 {
+    Q_D(QOpenGLPaintEngine);
     if (path.isEmpty())
         return;
 
@@ -748,6 +753,7 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
 
 void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
+    Q_D(QOpenGLPaintEngine);
     if (pm.depth() == 1) {
 	QPixmap tpx(pm.size());
 	tpx.fill(d->bgbrush.color());
