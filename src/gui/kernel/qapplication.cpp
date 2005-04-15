@@ -1741,7 +1741,7 @@ void QApplication::closeAllWindows()
     QWidgetList list = QApplication::topLevelWidgets();
     for (int i = 0; i < list.size(); ++i) {
         w = list.at(i);
-        if (w->isVisible()) {
+        if (w->isVisible() && w->windowType() != Qt::Desktop) {
             did_close = w->close();
             list = QApplication::topLevelWidgets();
             i = -1;
