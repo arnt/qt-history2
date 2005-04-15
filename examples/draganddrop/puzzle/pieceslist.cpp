@@ -55,7 +55,7 @@ void PiecesList::startDrag(Qt::DropActions supportedActions)
 
     QByteArray itemData;
     QDataStream dataStream(&itemData, QIODevice::WriteOnly);
-    QPixmap pixmap = item->data(Qt::UserRole).value<QPixmap>();
+    QPixmap pixmap = qVariantValue<QPixmap>(item->data(Qt::UserRole));
     QPoint location = item->data(Qt::UserRole+1).toPoint();
 
     dataStream << pixmap << location;
