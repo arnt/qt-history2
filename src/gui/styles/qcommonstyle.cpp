@@ -1390,7 +1390,9 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                                          - twf->rightCornerWidgetSize.width(), 0));
                     break;
                 }
-                r.setWidth(qMin(r.width(), twf->rect.width()));
+                r.setWidth(qMin(r.width(), twf->rect.width()
+                                            - twf->leftCornerWidgetSize.width()
+                                            - twf->rightCornerWidgetSize.width()));
                 r = visualRect(twf->direction, twf->rect, r);
                 break;
             case QTabBar::RoundedSouth:
@@ -1411,9 +1413,9 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                                          twf->rect.height() - twf->tabBarSize.height()));
                     break;
                 }
-                r.setWidth(qMin(r.width(), twf->rect.width()));
-                r = visualRect(twf->direction, twf->rect, r);
-                break;
+                r.setWidth(qMin(r.width(), twf->rect.width()
+                                            - twf->leftCornerWidgetSize.width()
+                                            - twf->rightCornerWidgetSize.width()));
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
                 switch (styleHint(SH_TabBar_Alignment, twf, widget)) {
@@ -1432,7 +1434,9 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                                          - twf->rightCornerWidgetSize.height()));
                     break;
                 }
-                r.setHeight(qMin(r.height(), twf->rect.height()));
+                r.setHeight(qMin(r.height(), twf->rect.height()
+                                            - twf->leftCornerWidgetSize.height()
+                                            - twf->rightCornerWidgetSize.height()));
                 break;
             case QTabBar::RoundedWest:
             case QTabBar::TriangularWest:
@@ -1449,7 +1453,9 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                                          - twf->rightCornerWidgetSize.height()));
                     break;
                 }
-                r.setHeight(qMin(r.height(), twf->rect.height()));
+                r.setHeight(qMin(r.height(), twf->rect.height())
+                                             - twf->leftCornerWidgetSize.height()
+                                             - twf->rightCornerWidgetSize.height());
                 break;
             }
         }
