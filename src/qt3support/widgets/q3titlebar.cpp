@@ -69,8 +69,6 @@ inline int Q3TitleBarPrivate::titleBarState() const
     return (int)state;
 }
 
-#define d d_func()
-
 QStyleOptionTitleBar Q3TitleBarPrivate::getStyleOption() const
 {
     Q_Q(const Q3TitleBar);
@@ -91,6 +89,7 @@ QStyleOptionTitleBar Q3TitleBarPrivate::getStyleOption() const
 Q3TitleBar::Q3TitleBar(QWidget *w, QWidget *parent, Qt::WFlags f)
     : QWidget(*new Q3TitleBarPrivate, parent, Qt::WStyle_Customize | Qt::WStyle_NoBorder)
 {
+    Q_D(Q3TitleBar);
     if (f == 0 && w)
         f = w->windowFlags();
     d->flags = f;
@@ -115,7 +114,7 @@ Q3TitleBar::~Q3TitleBar()
 
 QStyleOptionTitleBar Q3TitleBar::getStyleOption() const
 {
-    return d->getStyleOption();
+    return d_func()->getStyleOption();
 }
 
 #ifdef Q_WS_WIN
@@ -179,7 +178,7 @@ void Q3TitleBarPrivate::readColors()
     }
 
     q->setPalette(pal);
-    q->setActive(d->act);
+    q->setActive(act);
 }
 
 void Q3TitleBar::changeEvent(QEvent *ev)
@@ -191,6 +190,7 @@ void Q3TitleBar::changeEvent(QEvent *ev)
 
 void Q3TitleBar::mousePressEvent(QMouseEvent *e)
 {
+    Q_D(Q3TitleBar);
     if (!d->act)
         emit doActivate();
     if (e->button() == Qt::LeftButton) {
@@ -260,6 +260,7 @@ void Q3TitleBar::mousePressEvent(QMouseEvent *e)
 
 void Q3TitleBar::contextMenuEvent(QContextMenuEvent *e)
 {
+    Q_D(Q3TitleBar);
     QStyleOptionTitleBar opt = d->getStyleOption();
     QStyle::SubControl ctrl = style()->hitTestComplexControl(QStyle::CC_TitleBar, &opt, e->pos(),
                                                              this);
@@ -273,6 +274,7 @@ void Q3TitleBar::contextMenuEvent(QContextMenuEvent *e)
 
 void Q3TitleBar::mouseReleaseEvent(QMouseEvent *e)
 {
+    Q_D(Q3TitleBar);
     if (e->button() == Qt::LeftButton && d->pressed) {
         e->accept();
         QStyleOptionTitleBar opt = d->getStyleOption();
@@ -332,6 +334,7 @@ void Q3TitleBar::mouseReleaseEvent(QMouseEvent *e)
 
 void Q3TitleBar::mouseMoveEvent(QMouseEvent *e)
 {
+    Q_D(Q3TitleBar);
     e->accept();
     switch (d->buttonDown) {
     case QStyle::SC_None:
@@ -400,11 +403,12 @@ void Q3TitleBar::resizeEvent(QResizeEvent *r)
 
 bool Q3TitleBar::isTool() const
 {
-    return (d->flags & Qt::WindowType_Mask) == Qt::Tool;
+    return (d_func()->flags & Qt::WindowType_Mask) == Qt::Tool;
 }
 
 void Q3TitleBar::paintEvent(QPaintEvent *)
 {
+    Q_D(Q3TitleBar);
     QStyleOptionTitleBar opt = d->getStyleOption();
     opt.subControls = QStyle::SC_TitleBarLabel;
     opt.activeSubControls = d->buttonDown;
@@ -441,6 +445,7 @@ void Q3TitleBar::paintEvent(QPaintEvent *)
 
 void Q3TitleBar::mouseDoubleClickEvent(QMouseEvent *e)
 {
+    Q_D(Q3TitleBar);
     if (e->button() != Qt::LeftButton) {
         e->ignore();
         return;
@@ -464,6 +469,7 @@ void Q3TitleBar::mouseDoubleClickEvent(QMouseEvent *e)
 
 void Q3TitleBar::cutText()
 {
+    Q_D(Q3TitleBar);
     QFontMetrics fm(font());
     QStyleOptionTitleBar opt = d->getStyleOption();
     int maxw = style()->subControlRect(QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarLabel,
@@ -492,13 +498,13 @@ void Q3TitleBar::cutText()
 
 void Q3TitleBar::leaveEvent(QEvent *)
 {
-    if(autoRaise() && !d->pressed)
+    if(autoRaise() && !d_func()->pressed)
         repaint();
 }
 
 void Q3TitleBar::enterEvent(QEvent *)
 {
-    if(autoRaise() && !d->pressed)
+    if(autoRaise() && !d_func()->pressed)
         repaint();
     QEvent e(QEvent::Leave);
     QApplication::sendEvent(parentWidget(), &e);
@@ -506,6 +512,7 @@ void Q3TitleBar::enterEvent(QEvent *)
 
 void Q3TitleBar::setActive(bool active)
 {
+    Q_D(Q3TitleBar);
     if (d->act == active)
         return ;
 
@@ -515,7 +522,7 @@ void Q3TitleBar::setActive(bool active)
 
 bool Q3TitleBar::isActive() const
 {
-    return d->act;
+    return d_func()->act;
 }
 
 bool Q3TitleBar::usesActiveColor() const
@@ -526,11 +533,12 @@ bool Q3TitleBar::usesActiveColor() const
 
 QWidget *Q3TitleBar::window() const
 {
-    return d->window;
+    return d_func()->window;
 }
 
 bool Q3TitleBar::event(QEvent *e)
 {
+    Q_D(Q3TitleBar);
     if (d->inevent)
         return QWidget::event(e);
     d->inevent = true;
@@ -556,28 +564,28 @@ bool Q3TitleBar::event(QEvent *e)
 
 void Q3TitleBar::setMovable(bool b)
 {
-    d->movable = b;
+    d_func()->movable = b;
 }
 
 bool Q3TitleBar::isMovable() const
 {
-    return d->movable;
+    return d_func()->movable;
 }
 
 void Q3TitleBar::setAutoRaise(bool b)
 {
-    d->autoraise = b;
+    d_func()->autoraise = b;
 }
 
 bool Q3TitleBar::autoRaise() const
 {
-    return d->autoraise;
+    return d_func()->autoraise;
 }
 
 QSize Q3TitleBar::sizeHint() const
 {
     ensurePolished();
-    QStyleOptionTitleBar opt = d->getStyleOption();
+    QStyleOptionTitleBar opt = d_func()->getStyleOption();
     QRect menur = style()->subControlRect(QStyle::CC_TitleBar, &opt,
                                           QStyle::SC_TitleBarSysMenu, this);
     return QSize(menur.width(), style()->pixelMetric(QStyle::PM_TitleBarHeight, &opt, this));

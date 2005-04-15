@@ -86,9 +86,6 @@ public:
     QList<QByteArray> ofmts;
 };
 
-#define d d_func()
-#define q q_func()
-
 class QDragMime : public QMimeData
 {
 public:
@@ -150,6 +147,7 @@ Q3DragObjectPrivate::~Q3DragObjectPrivate()
 Q3DragObject::Q3DragObject(QWidget * dragSource, const char * name)
     : QObject(*(new Q3DragObjectPrivate), dragSource)
 {
+    Q_D(Q3DragObject);
     setObjectName(QLatin1String(name));
     d->data = new QDragMime(this);
 }
@@ -158,6 +156,7 @@ Q3DragObject::Q3DragObject(QWidget * dragSource, const char * name)
 Q3DragObject::Q3DragObject(Q3DragObjectPrivate &dd, QWidget *dragSource)
     : QObject(dd, dragSource)
 {
+    Q_D(Q3DragObject);
     d->pm_cursor = 0;
     d->data = new QDragMime(this);
 }
@@ -190,6 +189,7 @@ Q3DragObject::~Q3DragObject()
 */
 void Q3DragObject::setPixmap(QPixmap pm, const QPoint& hotspot)
 {
+    Q_D(Q3DragObject);
     d->pixmap = pm;
     d->hot = hotspot;
 #if 0
@@ -218,7 +218,7 @@ void Q3DragObject::setPixmap(QPixmap pm)
 */
 QPixmap Q3DragObject::pixmap() const
 {
-    return d->pixmap;
+    return d_func()->pixmap;
 }
 
 /*!
@@ -228,7 +228,7 @@ QPixmap Q3DragObject::pixmap() const
 */
 QPoint Q3DragObject::pixmapHotSpot() const
 {
-    return d->hot;
+    return d_func()->hot;
 }
 
 /*!
@@ -341,6 +341,7 @@ void Q3DragObject::dragLink()
 */
 bool Q3DragObject::drag(DragMode mode)
 {
+    Q_D(Q3DragObject);
     d->data->clear();
     int i = 0;
     const char *fmt;
@@ -498,7 +499,7 @@ Q3TextDrag::~Q3TextDrag()
 */
 void Q3TextDrag::setSubtype(const QString & st)
 {
-    d->setSubType(st);
+    d_func()->setSubType(st);
 }
 
 /*!
@@ -507,7 +508,7 @@ void Q3TextDrag::setSubtype(const QString & st)
 */
 void Q3TextDrag::setText(const QString &text)
 {
-    d->txt = text;
+    d_func()->txt = text;
 }
 
 
@@ -518,7 +519,7 @@ const char * Q3TextDrag::format(int i) const
 {
     if (i > 0)
         return 0;
-    return d->fmt.constData();
+    return d_func()->fmt.constData();
 }
 
 QTextCodec* qt_findcharset(const QByteArray& mimetype)
@@ -607,6 +608,7 @@ QTextCodec* findcodec(const QMimeSource* e)
 */
 QByteArray Q3TextDrag::encodedData(const char* mime) const
 {
+    Q_D(const Q3TextDrag);
     if (mime != d->fmt)
         return QByteArray();
     return d->txt.toUtf8();
@@ -776,6 +778,7 @@ Q3ImageDrag::~Q3ImageDrag()
 */
 void Q3ImageDrag::setImage(QImage image)
 {
+    Q_D(Q3ImageDrag);
     d->img = image;
     QList<QByteArray> formats = QImageWriter::supportedImageFormats();
     formats.removeAll("PBM"); // remove non-raw PPM
@@ -803,6 +806,7 @@ void Q3ImageDrag::setImage(QImage image)
 */
 const char * Q3ImageDrag::format(int i) const
 {
+    Q_D(const Q3ImageDrag);
     return i < d->ofmts.count() ? d->ofmts.at(i).data() : 0;
 }
 
@@ -811,6 +815,7 @@ const char * Q3ImageDrag::format(int i) const
 */
 QByteArray Q3ImageDrag::encodedData(const char* fmt) const
 {
+    Q_D(const Q3ImageDrag);
     if (qstrnicmp(fmt, "image/", 6)==0) {
         QByteArray f(fmt+6);
         QByteArray dat;
@@ -945,6 +950,7 @@ bool Q3ImageDrag::decode(const QMimeSource* e, QPixmap& pm)
 Q3StoredDrag::Q3StoredDrag(const char* mimeType, QWidget * dragSource, const char * name) :
     Q3DragObject(*new Q3StoredDragPrivate, dragSource)
 {
+    Q_D(Q3StoredDrag);
     setObjectName(QLatin1String(name));
     d->fmt = qstrdup(mimeType);
 }
@@ -953,7 +959,7 @@ Q3StoredDrag::Q3StoredDrag(const char* mimeType, QWidget * dragSource, const cha
 Q3StoredDrag::Q3StoredDrag(Q3StoredDragPrivate &dd,  const char* mimeType, QWidget * dragSource)
     : Q3DragObject(dd, dragSource)
 {
-    d->fmt = qstrdup(mimeType);
+    d_func()->fmt = qstrdup(mimeType);
 }
 
 /*!
@@ -961,7 +967,7 @@ Q3StoredDrag::Q3StoredDrag(Q3StoredDragPrivate &dd,  const char* mimeType, QWidg
 */
 Q3StoredDrag::~Q3StoredDrag()
 {
-    delete [] (char*)d->fmt;
+    delete [] (char*)d_func()->fmt;
 }
 
 /*!
@@ -970,7 +976,7 @@ Q3StoredDrag::~Q3StoredDrag()
 const char * Q3StoredDrag::format(int i) const
 {
     if (i==0)
-        return d->fmt;
+        return d_func()->fmt;
     else
         return 0;
 }
@@ -989,7 +995,7 @@ const char * Q3StoredDrag::format(int i) const
 
 void Q3StoredDrag::setEncodedData(const QByteArray & encodedData)
 {
-    d->enc = encodedData;
+    d_func()->enc = encodedData;
 }
 
 /*!
@@ -1001,8 +1007,8 @@ void Q3StoredDrag::setEncodedData(const QByteArray & encodedData)
 */
 QByteArray Q3StoredDrag::encodedData(const char* m) const
 {
-    if (!qstricmp(m, d->fmt))
-        return d->enc;
+    if (!qstricmp(m, d_func()->fmt))
+        return d_func()->enc;
     else
         return QByteArray();
 }

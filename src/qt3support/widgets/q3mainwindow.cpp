@@ -41,8 +41,6 @@
 class QHideDock;
 
 #include <private/q3mainwindow_p.h>
-#define d d_func()
-#define q q_func()
 
 /* Q3MainWindowLayout, respects widthForHeight layouts (like the left
   and right docks are)
@@ -183,9 +181,9 @@ int Q3MainWindowLayout::layoutItems(const QRect &r, bool testonly)
 
 int Q3MainWindowLayout::extraPixels() const
 {
-    if (mainWindow->d->topDock->isEmpty() &&
-         !(mainWindow->d->leftDock->isEmpty() &&
-           mainWindow->d->rightDock->isEmpty())) {
+    if (mainWindow->d_func()->topDock->isEmpty() &&
+         !(mainWindow->d_func()->leftDock->isEmpty() &&
+           mainWindow->d_func()->rightDock->isEmpty())) {
         return 2;
     } else {
         return 0;
@@ -688,6 +686,7 @@ void QHideToolTip::maybeTip(const QPoint &pos)
 Q3MainWindow::Q3MainWindow(QWidget * parent, const char * name, Qt::WFlags f)
     : QWidget(*new Q3MainWindowPrivate, parent, f)
 {
+    Q_D(Q3MainWindow);
     setObjectName(name);
     setAttribute(Qt::WA_PaintOnScreen); // disable double buffering
 #ifdef Q_WS_MAC
@@ -728,6 +727,7 @@ Q3MainWindow::~Q3MainWindow()
 
 void Q3MainWindow::setMenuBar(QMenuBar * newMenuBar)
 {
+    Q_D(Q3MainWindow);
     if (!newMenuBar)
         return;
     if (d->mb)
@@ -748,6 +748,7 @@ void Q3MainWindow::setMenuBar(QMenuBar * newMenuBar)
 
 QMenuBar * Q3MainWindow::menuBar() const
 {
+    Q_D(const Q3MainWindow);
     if (d->mb)
         return d->mb;
 
@@ -783,6 +784,7 @@ QMenuBar * Q3MainWindow::menuBar() const
 
 void Q3MainWindow::setStatusBar(QStatusBar * newStatusBar)
 {
+    Q_D(Q3MainWindow);
     if (!newStatusBar || newStatusBar == d->sb)
         return;
     if (d->sb)
@@ -810,6 +812,7 @@ void Q3MainWindow::setStatusBar(QStatusBar * newStatusBar)
 
 QStatusBar * Q3MainWindow::statusBar() const
 {
+    Q_D(const Q3MainWindow);
     if (d->sb)
         return d->sb;
 
@@ -841,6 +844,7 @@ QStatusBar * Q3MainWindow::statusBar() const
 
 void Q3MainWindow::setToolTipGroup(QToolTipGroup * newToolTipGroup)
 {
+    Q_D(Q3MainWindow);
     if (!newToolTipGroup || newToolTipGroup == d->ttg)
         return;
     if (d->ttg)
@@ -862,6 +866,7 @@ void Q3MainWindow::setToolTipGroup(QToolTipGroup * newToolTipGroup)
 */
 QToolTipGroup * Q3MainWindow::toolTipGroup() const
 {
+    Q_D(const Q3MainWindow);
     if (d->ttg)
         return d->ttg;
 
@@ -883,7 +888,7 @@ QToolTipGroup * Q3MainWindow::toolTipGroup() const
 
 void Q3MainWindow::setDockEnabled(Qt::Dock dock, bool enable)
 {
-    d->docks.insert(dock, enable);
+    d_func()->docks.insert(dock, enable);
 }
 
 
@@ -896,7 +901,7 @@ void Q3MainWindow::setDockEnabled(Qt::Dock dock, bool enable)
 
 bool Q3MainWindow::isDockEnabled(Qt::Dock dock) const
 {
-    return d->docks[dock];
+    return d_func()->docks[dock];
 }
 
 /*!
@@ -910,7 +915,7 @@ bool Q3MainWindow::isDockEnabled(Qt::Dock dock) const
 
 bool Q3MainWindow::isDockEnabled(Q3DockArea *area) const
 {
-
+    Q_D(const Q3MainWindow);
     if (area == d->leftDock)
         return d->docks[Qt::DockLeft];
     if (area == d->rightDock)
@@ -938,6 +943,7 @@ bool Q3MainWindow::isDockEnabled(Q3DockArea *area) const
 
 void Q3MainWindow::setDockEnabled(Q3DockWindow *dw, Qt::Dock dock, bool enable)
 {
+    Q_D(Q3MainWindow);
     if (d->dockWindows.contains(dw)) {
         d->dockWindows.append(dw);
         connect(dw, SIGNAL(placeChanged(Q3DockWindow::Place)),
@@ -978,6 +984,7 @@ void Q3MainWindow::setDockEnabled(Q3DockWindow *dw, Qt::Dock dock, bool enable)
 
 bool Q3MainWindow::isDockEnabled(Q3DockWindow *dw, Q3DockArea *area) const
 {
+    Q_D(const Q3MainWindow);
     if (!isDockEnabled(area))
         return false;
     Qt::Dock dock;
@@ -1009,7 +1016,7 @@ bool Q3MainWindow::isDockEnabled(Q3DockWindow *tb, Qt::Dock dock) const
         return false;
     QString s;
     s.sprintf("%p_%d", (void*)tb, (int)dock);
-    return !d->disabledDocks.contains(s);
+    return !d_func()->disabledDocks.contains(s);
 }
 
 
@@ -1031,6 +1038,7 @@ bool Q3MainWindow::isDockEnabled(Q3DockWindow *tb, Qt::Dock dock) const
 void Q3MainWindow::addDockWindow(Q3DockWindow *dockWindow,
                               Qt::Dock edge, bool newLine)
 {
+    Q_D(Q3MainWindow);
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
     if(isWindow() && edge == Qt::DockTop)
@@ -1087,6 +1095,7 @@ void Q3MainWindow::addDockWindow(Q3DockWindow * dockWindow, const QString &label
 
 void Q3MainWindow::moveDockWindow(Q3DockWindow * dockWindow, Qt::Dock edge)
 {
+    Q_D(Q3MainWindow);
     Qt::Orientation oo = dockWindow->orientation();
     switch (edge) {
     case Qt::DockTop:
@@ -1153,6 +1162,7 @@ void Q3MainWindow::moveDockWindow(Q3DockWindow * dockWindow, Qt::Dock edge)
 
 void Q3MainWindow::moveDockWindow(Q3DockWindow * dockWindow, Qt::Dock edge, bool nl, int index, int extraOffset)
 {
+    Q_D(Q3MainWindow);
     Qt::Orientation oo = dockWindow->orientation();
 
     dockWindow->setNewLine(nl);
@@ -1200,6 +1210,8 @@ void Q3MainWindow::moveDockWindow(Q3DockWindow * dockWindow, Qt::Dock edge, bool
 
 void Q3MainWindow::removeDockWindow(Q3DockWindow * dockWindow)
 {
+    Q_D(Q3MainWindow);
+
 #ifdef Q_WS_MAC
     extern WindowPtr qt_mac_window_for(const QWidget*); //qwidget_mac.cpp
     if(isWindow() && dockWindow->area() == topDock() && !dockWindows(Qt::DockTop).count())
@@ -1220,6 +1232,7 @@ void Q3MainWindow::removeDockWindow(Q3DockWindow * dockWindow)
 
 void Q3MainWindow::setUpLayout()
 {
+    Q_D(Q3MainWindow);
 #ifndef QT_NO_MENUBAR
     if (!d->mb) {
         // slightly evil hack here.  reconsider this
@@ -1281,6 +1294,7 @@ void Q3MainWindow::setUpLayout()
 /*! \reimp */
 void Q3MainWindow::setVisible(bool visible)
 {
+    Q_D(Q3MainWindow);
     if (visible) {
         if (!d->tll)
             setUpLayout();
@@ -1316,14 +1330,15 @@ QSize Q3MainWindow::sizeHint() const
     // totalSizeHint->polish->sendPostedEvents->childEvent->triggerLayout
     // [eg. canvas example on Qt/Embedded]
     QApplication::sendPostedEvents(that, QEvent::ChildInserted);
-    if (!that->d->tll)
+    if (!that->d_func()->tll)
         that->setUpLayout();
-    return that->d->tll->totalSizeHint();
+    return that->d_func()->tll->totalSizeHint();
 }
 
 /*!  \reimp */
 QSize Q3MainWindow::minimumSizeHint() const
 {
+    Q_D(const Q3MainWindow);
     if (!d->tll) {
         Q3MainWindow* that = (Q3MainWindow*) this;
         that->setUpLayout();
@@ -1342,6 +1357,7 @@ QSize Q3MainWindow::minimumSizeHint() const
 
 void Q3MainWindow::setCentralWidget(QWidget * w)
 {
+    Q_D(Q3MainWindow);
     if (d->mc)
         d->mc->removeEventFilter(this);
     d->mc = w;
@@ -1362,7 +1378,7 @@ void Q3MainWindow::setCentralWidget(QWidget * w)
 
 QWidget * Q3MainWindow::centralWidget() const
 {
-    return d->mc;
+    return d_func()->mc;
 }
 
 
@@ -1370,6 +1386,7 @@ QWidget * Q3MainWindow::centralWidget() const
 
 void Q3MainWindow::paintEvent(QPaintEvent *)
 {
+    Q_D(Q3MainWindow);
     if (d->mb &&
         style()->styleHint(QStyle::SH_MainWindow_SpaceBelowMenuBar, 0, this)) {
         QPainter p(this);
@@ -1402,6 +1419,7 @@ bool Q3MainWindow::dockMainWindow(QObject *dock) const
 
 bool Q3MainWindow::eventFilter(QObject* o, QEvent *e)
 {
+    Q_D(Q3MainWindow);
     if (e->type() == QEvent::Show && o == this) {
         if (!d->tll)
             setUpLayout();
@@ -1423,6 +1441,7 @@ bool Q3MainWindow::eventFilter(QObject* o, QEvent *e)
 */
 void Q3MainWindow::childEvent(QChildEvent* e)
 {
+    Q_D(Q3MainWindow);
     if (e->type() == QEvent::ChildRemoved) {
         if (e->child() == 0 ||
              !e->child()->isWidgetType() ||
@@ -1462,6 +1481,7 @@ void Q3MainWindow::childEvent(QChildEvent* e)
 
 bool Q3MainWindow::event(QEvent * e)
 {
+    Q_D(Q3MainWindow);
     if (e->type() == QEvent::StatusTip) {
         if (d->sb) {
             d->sb->showMessage(static_cast<QStatusTipEvent*>(e)->tip());
@@ -1514,11 +1534,12 @@ bool Q3MainWindow::event(QEvent * e)
 
 bool Q3MainWindow::usesBigPixmaps() const
 {
-    return d->ubp;
+    return d_func()->ubp;
 }
 
 void Q3MainWindow::setUsesBigPixmaps(bool enable)
 {
+    Q_D(Q3MainWindow);
     if (enable == (bool)d->ubp)
         return;
 
@@ -1547,12 +1568,13 @@ void Q3MainWindow::setUsesBigPixmaps(bool enable)
 
 bool Q3MainWindow::usesTextLabel() const
 {
-    return d->utl;
+    return d_func()->utl;
 }
 
 
 void Q3MainWindow::setUsesTextLabel(bool enable)
 {
+    Q_D(Q3MainWindow);
     if (enable == (bool)d->utl)
         return;
 
@@ -1596,6 +1618,7 @@ void Q3MainWindow::setUsesTextLabel(bool enable)
 
 void Q3MainWindow::setRightJustification(bool enable)
 {
+    Q_D(Q3MainWindow);
     if (enable == (bool)d->justify)
         return;
     d->justify = enable;
@@ -1619,7 +1642,7 @@ void Q3MainWindow::setRightJustification(bool enable)
 
 bool Q3MainWindow::rightJustification() const
 {
-    return d->justify;
+    return d_func()->justify;
 }
 
 /*! \internal
@@ -1627,6 +1650,7 @@ bool Q3MainWindow::rightJustification() const
 
 void Q3MainWindow::triggerLayout(bool deleteLayout)
 {
+    Q_D(Q3MainWindow);
     if (deleteLayout || !d->tll)
         setUpLayout();
     QApplication::postEvent(this, new QEvent(QEvent::LayoutHint));
@@ -1672,6 +1696,7 @@ void Q3MainWindow::whatsThis()
 
 bool Q3MainWindow::getLocation(Q3DockWindow *dw, Qt::Dock &dock, int &index, bool &nl, int &extraOffset) const
 {
+    Q_D(const Q3MainWindow);
     dock = Qt::DockTornOff;
     if (d->topDock->hasDockWindow(dw, &index))
         dock = Qt::DockTop;
@@ -1727,6 +1752,7 @@ QList<Q3ToolBar *> Q3MainWindow::toolBars(Qt::Dock dock) const
 
 QList<Q3DockWindow *> Q3MainWindow::dockWindows(Qt::Dock dock) const
 {
+    Q_D(const Q3MainWindow);
     QList<Q3DockWindow *> lst;
     switch (dock) {
     case Qt::DockTop:
@@ -1770,11 +1796,12 @@ QList<Q3DockWindow *> Q3MainWindow::dockWindows(Qt::Dock dock) const
 
 QList<Q3DockWindow *> Q3MainWindow::dockWindows() const
 {
-    return d->dockWindows;
+    return d_func()->dockWindows;
 }
 
 void Q3MainWindow::setDockWindowsMovable(bool enable)
 {
+    Q_D(Q3MainWindow);
     d->movable = enable;
     QObjectList l = queryList("Q3DockWindow");
     for (int i = 0; i < l.size(); ++i)
@@ -1804,11 +1831,12 @@ void Q3MainWindow::setDockWindowsMovable(bool enable)
 
 bool Q3MainWindow::dockWindowsMovable() const
 {
-    return d->movable;
+    return d_func()->movable;
 }
 
 void Q3MainWindow::setOpaqueMoving(bool b)
 {
+    Q_D(Q3MainWindow);
     d->opaque = b;
     QObjectList l = queryList("Q3DockWindow");
     for (int i = 0; i < l.size(); ++i)
@@ -1832,7 +1860,7 @@ void Q3MainWindow::setOpaqueMoving(bool b)
 
 bool Q3MainWindow::opaqueMoving() const
 {
-    return d->opaque;
+    return d_func()->opaque;
 }
 
 /*!
@@ -1849,6 +1877,7 @@ bool Q3MainWindow::opaqueMoving() const
 
 void Q3MainWindow::lineUpDockWindows(bool keepNewLines)
 {
+    Q_D(const Q3MainWindow);
     if (!dockWindowsMovable())
         return;
     d->topDock->lineUp(keepNewLines);
@@ -1872,7 +1901,7 @@ void Q3MainWindow::lineUpDockWindows(bool keepNewLines)
 
 bool Q3MainWindow::isDockMenuEnabled() const
 {
-    return d->dockMenu;
+    return d_func()->dockMenu;
 }
 
 /*!
@@ -1890,7 +1919,7 @@ bool Q3MainWindow::isDockMenuEnabled() const
 
 void Q3MainWindow::setDockMenuEnabled(bool b)
 {
-    d->dockMenu = b;
+    d_func()->dockMenu = b;
 }
 
 /*!
@@ -2001,6 +2030,7 @@ Q3PopupMenu *Q3MainWindow::createDockWindowMenu(DockWindows dockWindows) const
 
 bool Q3MainWindow::showDockMenu(const QPoint &globalPos)
 {
+    Q_D(Q3MainWindow);
     if (!d->dockMenu)
         return false;
 
@@ -2032,6 +2062,7 @@ void Q3MainWindow::slotPlaceChanged()
 
 Q3DockArea *Q3MainWindow::dockingArea(const QPoint &p)
 {
+    Q_D(Q3MainWindow);
     int mh = d->mb ? d->mb->height() : 0;
     int sh = d->sb ? d->sb->height() : 0;
     if (p.x() >= -5 && p.x() <= 100 && p.y() > mh && p.y() - height() - sh)
@@ -2052,7 +2083,7 @@ Q3DockArea *Q3MainWindow::dockingArea(const QPoint &p)
 
 bool Q3MainWindow::hasDockWindow(Q3DockWindow *dw)
 {
-    return d->dockWindows.contains(dw);
+    return d_func()->dockWindows.contains(dw);
 }
 
 /*!
@@ -2063,7 +2094,7 @@ bool Q3MainWindow::hasDockWindow(Q3DockWindow *dw)
 
 Q3DockArea *Q3MainWindow::leftDock() const
 {
-    return d->leftDock;
+    return d_func()->leftDock;
 }
 
 /*!
@@ -2074,7 +2105,7 @@ Q3DockArea *Q3MainWindow::leftDock() const
 
 Q3DockArea *Q3MainWindow::rightDock() const
 {
-    return d->rightDock;
+    return d_func()->rightDock;
 }
 
 /*!
@@ -2085,7 +2116,7 @@ Q3DockArea *Q3MainWindow::rightDock() const
 
 Q3DockArea *Q3MainWindow::topDock() const
 {
-    return d->topDock;
+    return d_func()->topDock;
 }
 
 /*!
@@ -2096,7 +2127,7 @@ Q3DockArea *Q3MainWindow::topDock() const
 
 Q3DockArea *Q3MainWindow::bottomDock() const
 {
-    return d->bottomDock;
+    return d_func()->bottomDock;
 }
 
 /*!
@@ -2154,6 +2185,7 @@ bool Q3MainWindow::isCustomizable() const
 
 bool Q3MainWindow::appropriate(Q3DockWindow *dw) const
 {
+    Q_D(const Q3MainWindow);
     QMap<Q3DockWindow*, bool>::ConstIterator it = d->appropriate.find(dw);
     if (it == d->appropriate.end())
         return true;
@@ -2177,7 +2209,7 @@ bool Q3MainWindow::appropriate(Q3DockWindow *dw) const
 
 void Q3MainWindow::setAppropriate(Q3DockWindow *dw, bool a)
 {
-    d->appropriate.insert(dw, a);
+    d_func()->appropriate.insert(dw, a);
 }
 
 #ifndef QT_NO_TEXTSTREAM

@@ -71,9 +71,6 @@ int Q3SvgDevice::metric(PaintDeviceMetric m) const
         return val;
 }
 
-#define d d_func()
-#define q q_func()
-
 /*!
     \class Q3Picture
     \brief The Q3Picture class is a paint device that records and
@@ -132,7 +129,7 @@ bool Q3Picture::load(QIODevice *dev, const char *format)
         QPainter p(this);
         p.setRenderHint(QPainter::Antialiasing);
 	bool b = svg.play(&p);
-	d->brect = svg.boundingRect();
+	d_func()->brect = svg.boundingRect();
 	return b;
     }
     return QPicture::load(dev, format);
