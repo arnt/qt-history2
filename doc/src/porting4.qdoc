@@ -15,10 +15,6 @@
 
     \title Porting to Qt 4
 
-    This document describes porting applications from Qt 3 to Qt 4.
-    The document isn't entirely finished yet; it is expected to be
-    more complete in Qt 4.0 beta 2 and in the final release.
-
 \omit
     ### QFileInfo::PermissionSpec -> QFile::Permission(s?)
     ### refer to porting4-renamedfunctions.qdoc
@@ -53,9 +49,13 @@
     ### QWSDecoration
 \endomit
 
+    This document describes porting applications from Qt 3 to Qt 4.
     If you haven't yet made the decision about porting, or are unsure
     about whether it is worth it, take a look at the \link
-    qt4-intro.html key features\endlink offered by Qt 4.
+    qt4-intro.html key features\endlink offered by Qt 4. See also
+    \l{http://www.trolltech.com/products/qt/readyforqt4.html}{Getting
+    Ready for Qt 4} for tips on how to write Qt 3 code that is easy
+    to port to Qt 4.
 
     The Qt 4 series is not binary compatible with the 3 series. This
     means programs compiled for Qt 3 must be recompiled to work with
