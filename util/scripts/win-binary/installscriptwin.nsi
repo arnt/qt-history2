@@ -1,7 +1,7 @@
 !define PRODUCT_NAME "Qt"
 !define PRODUCT_PUBLISHER "Trolltech"
 !define PRODUCT_WEB_SITE "http://www.trolltech.com"
-!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME}"
+!define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${PRODUCT_VERSION}"
 !define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
 !include "MUI.nsh"
@@ -149,13 +149,15 @@ Function PatchPdbFiles
     StrCmp $1 "" done
     DetailPrint "Patching $1..."
     
-    ;Patch only source files (.cpp files) Maybe add .c files???
-    qtnsisext::PatchBinary "$INSTDIR\bin\$1" ${QTBUILDDIR} $INSTDIR ".cpp"
+    qtnsisext::PatchBinary "$INSTDIR\bin\$1" ${QTBUILDDIR} $INSTDIR ".cpp;.h;.c"
     FindNext $0 $1
     Goto loop
   done:
   pop $1
   pop $0
+
+  DetailPrint "Patching qtmaind.lib..."
+  qtnsisext::PatchBinary "$INSTDIR\lib\qtmaind.lib" ${QTBUILDDIR} $INSTDIR ".cpp;.pdb"
 FunctionEnd
 
 Function CheckDirectory

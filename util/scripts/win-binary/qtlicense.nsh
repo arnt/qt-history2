@@ -10,6 +10,21 @@ LangString LicenseTitleDescription ${LANG_ENGLISH} "Enter your Qt License key."
 
 !macro TT_LICENSE_PAGE_INIT
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "${TT_QTKEY_INI_FILE}"
+  
+  push $0
+  push $1
+  push $2
+  qtnsisext::GetLicenseKey
+  pop $0
+  pop $1
+  pop $2
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 2" "State" "$0"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 3" "State" "$1"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 4" "State" "$2"
+  pop $2
+  pop $1
+  pop $0
+
   strcpy $DISPLAY_US_LICENSE "1"
 !macroend
 
@@ -26,22 +41,8 @@ LangString LicenseTitleDescription ${LANG_ENGLISH} "Enter your Qt License key."
 !macroend
 
 Function CheckQtLicense
-  push $0
-  push $1
-  push $2
-  qtnsisext::GetLicenseKey
-  pop $0
-  pop $1
-  pop $2
-  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 2" "State" "$0"
-  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 3" "State" "$1"
-  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 4" "State" "$2"
-
   !insertmacro MUI_HEADER_TEXT "$(LicenseTitle)" "$(LicenseTitleDescription)"
   !insertmacro MUI_INSTALLOPTIONS_DISPLAY "${TT_QTKEY_INI_FILE}"
-  pop $2
-  pop $1
-  pop $0
 FunctionEnd
 
 Function ValidateKey

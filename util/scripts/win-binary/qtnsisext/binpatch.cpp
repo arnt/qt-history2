@@ -5,7 +5,7 @@
 #include "binpatch.h"
 
 // returns true if it finds a null termination inside the buffer
-bool TerminatesInBufferScope(char *data, ulong len)
+bool terminatesInBufferScope(char *data, ulong len)
 {
     while(len > 0) {
         if (*data == '\0')
@@ -15,6 +15,32 @@ bool TerminatesInBufferScope(char *data, ulong len)
     }
 
     return false;
+}
+
+// returns true if data ends with one of the tokens. (Sep. with ;)
+bool endsWithTokens(const char *data, const char *tokens)
+{
+    if(strlen(tokens) > 0) {
+        char endstmp[1024];
+        ulong tlen = ulong(strlen(data));
+
+        if(strlen(tokens) >= sizeof(endstmp)) return false;
+        strcpy(endstmp, tokens);
+
+        char *token = strtok(endstmp, ";");
+        while(token != NULL)
+        {
+            // check if it ends with the token
+            if ((tlen >= strlen(token)) 
+                && (stricmp((data+tlen)-strlen(token), token) == 0))
+                return true;
+            token = strtok(NULL, ";");
+        }
+    } else {
+        return true; //true if no tokens
+    }
+
+    return false; //no matching tokens
 }
 
 long replaceString(char *data, const char *oldstr, const char *newstr, const char *endsWith, ulong len)
@@ -32,19 +58,19 @@ long replaceString(char *data, const char *oldstr, const char *newstr, const cha
         hc = *data++;
         if((hc == nc1) || (hc == nc2)) {
             if(strnicmp(data, oldstr, nlen) == 0) {
-                if(!TerminatesInBufferScope(data-1, len))
+                if(!terminatesInBufferScope(data-1, len))
                     return len;
-
+                
                 // replace
+                if (strlen(data+nlen) >= sizeof(tmp)) break; //buffer to small, don't care :|
                 strcpy(tmp, data+nlen); //copy rest of string into tmp
                 ulong tlen = ulong(strlen(tmp)); //get length of tmp
 
-                if ((strlen(endsWith) == 0) || 
-                    ((tlen >= strlen(endsWith)) && (stricmp((tmp+tlen)-4, endsWith) == 0))) {
+                if (endsWithTokens(tmp, endsWith)) {
                     ulong slen = ulong(strlen(newstr)); //get length of newstr
                     strncpy(data-1, newstr, slen); //copy new string into buffer
                     strcpy((data-1)+slen, tmp); //append tmp
-                    memset((data-1)+slen+tlen, '\0', (nlen+1)-slen); //pad with null terminations
+                    memset((data-1)+slen+tlen, '\0', (nlen+1)-slen); //pad rest with null
                     changed = 0;
                 }
             }

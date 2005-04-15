@@ -43,7 +43,13 @@ cd %1\clean
 if "%TMP_QTCONFIG%"=="release" goto ReleaseConfig
 echo - Copying symbols
 xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.pdb %1\clean\bin >> %1\log.txt
-xcopy /Q /I %1\%TMP_BUILDDIR%\src\winmain\*.pdb %1\clean\lib >> %1\log.txt
+xcopy /Q /I %1\%TMP_BUILDDIR%\src\winmain\*.pdb %1\clean\src\winmain\ >> %1\log.txt
+echo - Copying .moc files
+echo release_shared > %1\moc_exclude
+cd %1\%TMP_BUILDDIR%\src
+xcopy /Q /S /I /EXCLUDE:%1\moc_exclude moc_*.cpp %1\clean\src\ >> %1\log.txt
+xcopy /Q /S /I /EXCLUDE:%1\moc_exclude *.moc %1\clean\src\ >> %1\log.txt
+cd %1\clean
 goto CopyFiles
 
 :ReleaseConfig
@@ -143,7 +149,7 @@ echo - Creating license file
 type LICENSE.TROLL > LICENSE.TROLL
 
 echo - Running configure...
-configure -release -qt-sql-sqlite -no-style-windowsxp -qt-zlib -qt-png -qt-jpeg 1>>log.txt >> %1\log.txt 2>&1
+configure -release -qt-sql-sqlite -plugin-style-windowsxp -qt-zlib -qt-png -qt-jpeg 1>>log.txt >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 echo - Building...
@@ -268,7 +274,7 @@ if not %errorlevel%==0 goto FAILED
 rename %2 %TMP_BUILDDIR%
 
 echo - Copying directories
-xcopy /E /Q %TMP_BUILDDIR% clean >> %1\log.txt
+xcopy /S /Q %TMP_BUILDDIR% clean >> %1\log.txt
 if not %errorlevel%==0 goto FAILED
 goto :EOF
 
