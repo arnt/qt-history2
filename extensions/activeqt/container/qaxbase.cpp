@@ -734,12 +734,12 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     \i QPixmap&
     \row
     \i IDispatch*
-    \i QAxObject* (read-only)
+    \i QAxObject*
     \i \c QAxBase::asVariant()
     \i QAxObject* (return value)
     \row
     \i IUnknown*
-    \i QAxObject* (read-only)
+    \i QAxObject*
     \i \c QAxBase::asVariant()
     \i QAxObject* (return value)
     \row
