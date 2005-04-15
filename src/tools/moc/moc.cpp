@@ -36,7 +36,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
              && !is_ident_char(t[i-1])
             ) {
             constbuf = QByteArray(t, len);
-            if (t[i-1] == ' ')
+            if (is_space(t[i-1]))
                 constbuf.remove(i-1, 6);
             else
                 constbuf.remove(i, 5);
@@ -209,8 +209,14 @@ QByteArray Moc::lexemUntil(Token target)
     int from = index;
     until(target);
     QByteArray s;
-    while (from <= index)
-        s += symbols.at(from++-1).lexem();
+    while (from <= index) {
+        QByteArray n = symbols.at(from++-1).lexem();
+        if (s.size() && n.size()
+            && is_ident_char(s.at(s.size()-1))
+            && is_ident_char(n.at(0)))
+            s += ' ';
+        s += n;
+    }
     return s;
 }
 
@@ -544,10 +550,7 @@ void Moc::parse()
                         error("Template classes not supported by Q_GADGET");
                     break;
                 case Q_PROPERTY_TOKEN:
-                    parseProperty(&def, false);
-                    break;
-                case Q_OVERRIDE_TOKEN:
-                    parseProperty(&def, true);
+                    parseProperty(&def);
                     break;
                 case Q_ENUMS_TOKEN:
                     parseEnumOrFlag(&def, false);
@@ -728,16 +731,14 @@ void Moc::parseSignals(ClassDef *def)
 }
 
 
-void Moc::parseProperty(ClassDef *def, bool override)
+void Moc::parseProperty(ClassDef *def)
 {
     next(LPAREN);
     PropertyDef propDef;
-    propDef.override = override;
     QByteArray type = parseType();
     if (type.isEmpty())
         error();
-    if (!override)
-        propDef.designable = propDef.scriptable = propDef.stored = "true";
+    propDef.designable = propDef.scriptable = propDef.stored = "true";
     /*
       The Q_PROPERTY construct cannot contain any commas, since
       commas separate macro arguments. We therefore expect users

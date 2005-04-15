@@ -58,11 +58,10 @@ struct FunctionDef
 
 struct PropertyDef
 {
-    PropertyDef():gspec(ValueSpec), override(false){}
+    PropertyDef():gspec(ValueSpec){}
     QByteArray name, type, read, write, reset, designable, scriptable, editable, stored;
     enum Specification  { ValueSpec, ReferenceSpec, PointerSpec };
     Specification gspec;
-    bool override;
     bool stdCppSet() const {
         QByteArray s("set");
         s += toupper(name[0]);
@@ -167,7 +166,7 @@ public:
 
     void parseSlots(ClassDef *def, FunctionDef::Access access);
     void parseSignals(ClassDef *def);
-    void parseProperty(ClassDef *def, bool override);
+    void parseProperty(ClassDef *def);
     void parseEnumOrFlag(ClassDef *def, bool isFlag);
     void parseFlag(ClassDef *def);
     void parseClassInfo(ClassDef *def);

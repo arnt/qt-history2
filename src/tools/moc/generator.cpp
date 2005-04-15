@@ -24,7 +24,7 @@ enum ProperyFlags  {
     Resetable = 0x00000004,
     EnumOrFlag = 0x00000008,
     StdCppSet = 0x00000100,
-    Override = 0x00000200,
+//     Override = 0x00000200,
     Designable = 0x00001000,
     ResolveDesignable = 0x00002000,
     Scriptable = 0x00004000,
@@ -487,8 +487,8 @@ void Generator::generateProperties()
         if (!p.reset.isEmpty())
             flags |= Resetable;
 
-        if (p.override)
-            flags |= Override;
+//         if (p.override)
+//             flags |= Override;
 
         if (p.designable.isEmpty())
             flags |= ResolveDesignable;

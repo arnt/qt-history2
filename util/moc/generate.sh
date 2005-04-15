@@ -1,8 +1,8 @@
 #!/bin/sh
-p4 edit ../../src/moc/keywords.cpp
-p4 edit ../../src/moc/ppkeywords.cpp
+p4 edit ../../src/tools/moc/keywords.cpp
+p4 edit ../../src/tools/moc/ppkeywords.cpp
 make
-./generate_keywords > ../../src/moc/keywords.cpp
-./generate_keywords preprocessor > ../../src/moc/ppkeywords.cpp
-p4 revert -a ../../src/moc/keywords.cpp
-p4 revert -a ../../src/moc/ppkeywords.cpp
+./generate_keywords > ../../src/tools/moc/keywords.cpp
+./generate_keywords preprocessor > ../../src/tools/moc/ppkeywords.cpp
+p4 revert -a ../../src/tools/moc/keywords.cpp
+p4 revert -a ../../src/tools/moc/ppkeywords.cpp

@@ -31,7 +31,6 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
     Q_PROPERTY(Qt::ArrowType arrowType READ arrowType WRITE setArrowType)
-    Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
 
 public:
     enum ToolButtonPopupMode {

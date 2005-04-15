@@ -21,11 +21,6 @@
 class Q_COMPAT_EXPORT Q3TextView : public Q3TextEdit
 {
     Q_OBJECT
-    Q_OVERRIDE(int undoDepth DESIGNABLE false SCRIPTABLE false)
-    Q_OVERRIDE(bool overwriteMode DESIGNABLE false SCRIPTABLE false)
-    Q_OVERRIDE(bool modified SCRIPTABLE false)
-    Q_OVERRIDE(bool readOnly DESIGNABLE false SCRIPTABLE false)
-    Q_OVERRIDE(bool undoRedoEnabled DESIGNABLE false SCRIPTABLE false)
 
 public:
     Q3TextView(const QString& text, const QString& context = QString::null,

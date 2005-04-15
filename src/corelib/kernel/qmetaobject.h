@@ -99,8 +99,9 @@ public:
     inline bool isValid() const { return isReadable(); }
 
 private:
-    const QMetaObject *mobj[10];
-    int idx[10];
+    const QMetaObject *mobj;
+    uint handle;
+    int idx;
     QMetaEnum menum;
     friend struct QMetaObject;
 };

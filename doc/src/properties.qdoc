@@ -12,9 +12,7 @@
     through \link signalsandslots.html signals and slots\endlink.
 
     The \c Q_PROPERTY macro in a class declaration declares a property.
-    Properties can only be declared in classes that inherit \l QObject. A
-    second macro, \l{#override}{Q_OVERRIDE}, can be used to override some
-    aspects of an inherited property in a subclass.
+    Properties can only be declared in classes that inherit \l QObject. 
 
     To the outer world, a property appears to be similar to a data member.
     But properties have several features that distinguish them from
@@ -201,44 +199,4 @@
     Like other meta data, class information is accessible at runtime
     through the meta object, see \l QMetaObject::classInfo() for details.
 
-    \target override
-    \section1 Q_OVERRIDE
-
-    When you inherit a QObject subclass you may wish to override some
-    aspects of some of the class's properties.
-
-    For example, in QWidget we have the autoMask property defined like
-    this:
-    \code
-        Q_PROPERTY(bool autoMask READ autoMask WRITE setAutoMask DESIGNABLE false SCRIPTABLE false)
-    \endcode
-
-    But we need to make the auto mask property designable in some QWidget
-    subclasses. Similarly some classes will need this property to be
-    scriptable (e.g., for QSA). This is achieved by overriding these
-    features of the property in a subclass. In QCheckBox, for example, we
-    achieve this using the following code:
-    \code
-        Q_OVERRIDE(bool autoMask DESIGNABLE true SCRIPTABLE true)
-    \endcode
-
-    Another example is QToolButton. By default QToolButton has a
-    read-only \c toggleButton property, because that's what it
-    inherits from QButton:
-
-    \code
-        Q_PROPERTY(bool toggleButton READ isToggleButton)
-    \endcode
-
-    But we want to make our tool buttons able to be toggled, so we write a
-    WRITE function in QToolButton, and use the following property override
-    to make it acessible:
-
-    \code
-        Q_OVERRIDE(bool toggleButton WRITE setToggleButton)
-    \endcode
-
-    The result is read-write (and scriptable and designable, since we
-    now have a "write" function) boolean property \c toggleButton
-    for tool buttons.
 */

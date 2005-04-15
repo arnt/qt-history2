@@ -59,8 +59,7 @@
     \skipto class
     \printuntil /^\};$/
 
-    Properties can be modified in subclasses with the \c Q_OVERRIDE()
-    macro. The \c Q_FLAGS() macro declares enums that are to be used
+    The \c Q_FLAGS() macro declares enums that are to be used
     as flags, i.e. OR'd together. Another macro, \c Q_CLASSINFO(),
     allows you to attach additional name/value pairs to the class'
     meta-object:

@@ -31,7 +31,6 @@ class Q_GUI_EXPORT QLabel : public QFrame
     Q_PROPERTY(bool wordWrap READ wordWrap WRITE setWordWrap)
     Q_PROPERTY(int margin READ margin WRITE setMargin)
     Q_PROPERTY(int indent READ indent WRITE setIndent)
-    Q_OVERRIDE(Qt::BackgroundMode backgroundMode DESIGNABLE true)
 
 public:
     explicit QLabel(QWidget *parent=0, Qt::WFlags f=0);

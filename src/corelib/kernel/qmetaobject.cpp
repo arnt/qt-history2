@@ -101,7 +101,7 @@ enum ProperyFlags  {
     Resetable = 0x00000004,
     EnumOrFlag = 0x00000008,
     StdCppSet = 0x00000100,
-    Override = 0x00000200,
+//    Override = 0x00000200,
     Designable = 0x00001000,
     ResolveDesignable = 0x00002000,
     Scriptable = 0x00004000,
@@ -578,43 +578,13 @@ QMetaProperty QMetaObject::property(int index) const
     if (i >= 0 && i <= priv(d.data)->propertyCount) {
         int handle = priv(d.data)->propertyData + 3*i;
         int flags = d.data[handle + 2];
-        const char *name = d.stringdata + d.data[handle];
         const char *type = d.stringdata + d.data[handle + 1];
-        if ((flags & Override) && d.superdata){
-            result = property(d.superdata->indexOfProperty(name));
-            if (qstrcmp(result.typeName(), type)) // type missmatch, no override
-                ::memset(&result, 0, sizeof(QMetaProperty));
-        }
+        result.mobj = this;
+        result.handle = handle;
+        result.idx = i;
+
         if (flags & EnumOrFlag) {
             result.menum = enumerator(indexOfEnumerator(type));
-        }
-        if (flags & Readable) {
-            result.mobj[ReadProperty] = this;
-            result.idx[ReadProperty] = i;
-        }
-        if (flags & Writable) {
-            result.mobj[WriteProperty] = this;
-            result.idx[WriteProperty] = i;
-        }
-        if (flags & Resetable) {
-            result.mobj[ResetProperty] = this;
-            result.idx[ResetProperty] = i;
-        }
-        if ((flags & ResolveDesignable) == 0) {
-            result.mobj[QueryPropertyDesignable] = this;
-            result.idx[QueryPropertyDesignable] = i;
-        }
-        if ((flags & ResolveScriptable) == 0) {
-            result.mobj[QueryPropertyScriptable] = this;
-            result.idx[QueryPropertyScriptable] = i;
-        }
-        if ((flags & ResolveStored) == 0) {
-            result.mobj[QueryPropertyStored] = this;
-            result.idx[QueryPropertyStored] = i;
-        }
-        if ((flags & ResolveEditable) == 0) {
-            result.mobj[QueryPropertyEditable] = this;
-            result.idx[QueryPropertyEditable] = i;
         }
     }
     return result;
@@ -1461,8 +1431,8 @@ QByteArray QMetaEnum::valueToKeys(int value) const
     \internal
 */
 QMetaProperty::QMetaProperty()
+    : mobj(0),handle(0), idx(0)
 {
-    ::memset(this, 0, sizeof(QMetaProperty));
 }
 
 
@@ -1471,10 +1441,10 @@ QMetaProperty::QMetaProperty()
  */
 const char *QMetaProperty::name() const
 {
-    if (!mobj[QMetaObject::ReadProperty])
+    if (!mobj)
         return 0;
-    int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
-    return mobj[QMetaObject::ReadProperty]->d.stringdata + mobj[QMetaObject::ReadProperty]->d.data[handle];
+    int handle = priv(mobj->d.data)->propertyData + 3*idx;
+    return mobj->d.stringdata + mobj->d.data[handle];
 }
 
 /*!
@@ -1482,10 +1452,10 @@ const char *QMetaProperty::name() const
  */
 const char *QMetaProperty::typeName() const
 {
-    if (!mobj[QMetaObject::ReadProperty])
+    if (!mobj)
         return 0;
-    int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
-    return mobj[QMetaObject::ReadProperty]->d.stringdata + mobj[QMetaObject::ReadProperty]->d.data[handle + 1];
+    int handle = priv(mobj->d.data)->propertyData + 3*idx;
+    return mobj->d.stringdata + mobj->d.data[handle + 1];
 }
 
 /*!
@@ -1494,11 +1464,10 @@ const char *QMetaProperty::typeName() const
 */
 QVariant::Type QMetaProperty::type() const
 {
-    if (!mobj[QMetaObject::ReadProperty])
+    if (!mobj)
         return QVariant::Invalid;
-
-    int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
-    int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
+    int handle = priv(mobj->d.data)->propertyData + 3*idx;
+    int flags = mobj->d.data[handle + 2];
 
     QVariant::Type type = QVariant::Type(flags >> 24);
     if (type)
@@ -1533,10 +1502,10 @@ bool QMetaProperty::isFlagType() const
 */
 bool QMetaProperty::isEnumType() const
 {
-    if (!mobj[QMetaObject::ReadProperty])
-        return 0;
-    int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
-    int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
+    if (!mobj)
+        return false;
+    int handle = priv(mobj->d.data)->propertyData + 3*idx;
+    int flags = mobj->d.data[handle + 2];
     return (flags & EnumOrFlag) && menum.name();
 }
 
@@ -1551,10 +1520,10 @@ bool QMetaProperty::isEnumType() const
 */
 bool QMetaProperty::hasStdCppSet() const
 {
-    if (!mobj[QMetaObject::ReadProperty])
-        return 0;
-    int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
-    int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
+    if (!mobj)
+        return false;
+    int handle = priv(mobj->d.data)->propertyData + 3*idx;
+    int flags = mobj->d.data[handle + 2];
     return (flags & StdCppSet);
 }
 
@@ -1580,14 +1549,14 @@ QMetaEnum QMetaProperty::enumerator() const
 */
 QVariant QMetaProperty::read(const QObject *obj) const
 {
-    if (!obj || !mobj[QMetaObject::ReadProperty])
+    if (!obj || !mobj)
         return QVariant();
 
     int  t = QVariant::Int;
     if (!isEnumType()) {
-        int handle = priv(mobj[QMetaObject::ReadProperty]->d.data)->propertyData + 3*idx[QMetaObject::ReadProperty];
-        int flags = mobj[QMetaObject::ReadProperty]->d.data[handle + 2];
-        const char *typeName = mobj[QMetaObject::ReadProperty]->d.stringdata + mobj[QMetaObject::ReadProperty]->d.data[handle + 1];
+    int handle = priv(mobj->d.data)->propertyData + 3*idx;
+    int flags = mobj->d.data[handle + 2];
+        const char *typeName = mobj->d.stringdata + mobj->d.data[handle + 1];
         t = (flags >> 24);
         if (t == QVariant::Invalid)
             t = QMetaType::type(typeName);
@@ -1605,7 +1574,7 @@ QVariant QMetaProperty::read(const QObject *obj) const
         argv[0] = value.data();
     }
     const_cast<QObject*>(obj)->qt_metacall(QMetaObject::ReadProperty,
-                     idx[QMetaObject::ReadProperty] + mobj[QMetaObject::ReadProperty]->propertyOffset(),
+                     idx + mobj->propertyOffset(),
                      argv);
     if (t != int(QVariant::LastType) && argv[0] != value.data())
         return QVariant((QVariant::Type)t, argv[0]);
@@ -1642,9 +1611,9 @@ bool QMetaProperty::write(QObject *obj, const QVariant &value) const
         }
         v.convert(QVariant::Int);
     } else {
-        int handle = priv(mobj[QMetaObject::WriteProperty]->d.data)->propertyData + 3*idx[QMetaObject::WriteProperty];
-        int flags = mobj[QMetaObject::WriteProperty]->d.data[handle + 2];
-        const char *typeName = mobj[QMetaObject::WriteProperty]->d.stringdata + mobj[QMetaObject::WriteProperty]->d.data[handle + 1];
+        int handle = priv(mobj->d.data)->propertyData + 3*idx;
+        int flags = mobj->d.data[handle + 2];
+        const char *typeName = mobj->d.stringdata + mobj->d.data[handle + 1];
         t = flags >> 24;
         if (t == QVariant::Invalid) {
             const char *vtypeName = value.typeName();
@@ -1665,7 +1634,7 @@ bool QMetaProperty::write(QObject *obj, const QVariant &value) const
     else
         argv[0] = v.data();
     obj->qt_metacall(QMetaObject::WriteProperty,
-                     idx[QMetaObject::WriteProperty] + mobj[QMetaObject::WriteProperty]->propertyOffset(),
+                     idx + mobj->propertyOffset(),
                      argv);
     return true;
 }
@@ -1680,11 +1649,11 @@ bool QMetaProperty::write(QObject *obj, const QVariant &value) const
 */
 bool QMetaProperty::reset(QObject *obj) const
 {
-    if (!obj || !mobj[QMetaObject::ResetProperty])
+    if (!obj || !mobj)
         return false;
     void *argv[] = { 0 };
     obj->qt_metacall(QMetaObject::ResetProperty,
-                     idx[QMetaObject::ResetProperty] + mobj[QMetaObject::ResetProperty]->propertyOffset(),
+                     idx + mobj->propertyOffset(),
                      argv);
     return true;
 }
@@ -1697,7 +1666,10 @@ bool QMetaProperty::reset(QObject *obj) const
  */
 bool QMetaProperty::isReadable() const
 {
-    return mobj[QMetaObject::ReadProperty] != 0;
+    if (!mobj)
+        return false;
+    int flags = mobj->d.data[handle + 2];
+    return flags & Readable;
 }
 
 /*!
@@ -1708,27 +1680,12 @@ bool QMetaProperty::isReadable() const
  */
 bool QMetaProperty::isWritable() const
 {
-    return mobj[QMetaObject::WriteProperty] != 0;
-}
-
-
-static bool qt_query_property(const QMetaObject*const*mobj,const int *idx, uint flag,
-                              QMetaObject::Call call, const QObject* obj)
-{
-    if (!mobj[call])
+    if (!mobj)
         return false;
-    int handle = priv(mobj[call]->d.data)->propertyData + 3*idx[call];
-    int flags = mobj[call]->d.data[handle + 2];
-    bool b = (flags & flag);
-    if (obj) {
-        void *argv[] = { &b };
-        const_cast<QObject*>(obj)->qt_metacall(call,
-                                               idx[call]
-                                               + mobj[call]->propertyOffset(),
-                                               argv);
-    }
-    return b;
+    int flags = mobj->d.data[handle + 2];
+    return flags & Writable;
 }
+
 
 /*!
     \fn bool QMetaProperty::isDesignable(const QObject *object) const
@@ -1742,11 +1699,16 @@ static bool qt_query_property(const QMetaObject*const*mobj,const int *idx, uint 
  */
 bool QMetaProperty::isDesignable(const QObject *obj) const
 {
-    if (!mobj[QMetaObject::WriteProperty])
+    if (!mobj)
         return false;
-    return qt_query_property(mobj, idx, Designable,
-                              QMetaObject::QueryPropertyDesignable,
-                              obj);
+    int flags = mobj->d.data[handle + 2];
+    bool b = flags & Designable;
+    void *argv[] = { &b };
+    const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyDesignable,
+                                           idx + mobj->propertyOffset(), argv);
+    return b;
+
+
 }
 
 /*!
@@ -1761,9 +1723,14 @@ bool QMetaProperty::isDesignable(const QObject *obj) const
  */
 bool QMetaProperty::isScriptable(const QObject *obj) const
 {
-    return qt_query_property(mobj, idx, Scriptable,
-                              QMetaObject::QueryPropertyScriptable,
-                              obj);
+    if (!mobj)
+        return false;
+    int flags = mobj->d.data[handle + 2];
+    bool b = flags & Scriptable;
+    void *argv[] = { &b };
+    const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyScriptable,
+                                           idx + mobj->propertyOffset(), argv);
+    return b;
 }
 
 /*!
@@ -1778,9 +1745,14 @@ bool QMetaProperty::isScriptable(const QObject *obj) const
  */
 bool QMetaProperty::isStored(const QObject *obj) const
 {
-    return qt_query_property(mobj, idx, Stored,
-                              QMetaObject::QueryPropertyStored,
-                              obj);
+    if (!mobj)
+        return false;
+    int flags = mobj->d.data[handle + 2];
+    bool b = flags & Stored;
+    void *argv[] = { &b };
+    const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyStored,
+                                           idx + mobj->propertyOffset(), argv);
+    return b;
 }
 
 /*!
@@ -1795,9 +1767,14 @@ bool QMetaProperty::isStored(const QObject *obj) const
  */
 bool QMetaProperty::isEditable(const QObject *obj) const
 {
-    return qt_query_property(mobj, idx, Editable,
-                              QMetaObject::QueryPropertyEditable,
-                              obj);
+    if (!mobj)
+        return false;
+    int flags = mobj->d.data[handle + 2];
+    bool b = flags & Editable;
+    void *argv[] = { &b };
+    const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyEditable,
+                                           idx + mobj->propertyOffset(), argv);
+    return b;
 }
 
 
