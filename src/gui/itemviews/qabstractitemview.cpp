@@ -827,14 +827,14 @@ void QAbstractItemView::scrollContentsBy(int dx, int dy)
 }
 
 /*!
-    \fn bool QAbstractItemView::event(QEvent *event)
+    \fn bool QAbstractItemView::viewportEvent(QEvent *event)
 
     This function is used to handle tool tips, status tips, and What's
     This? mode, if the given \a event is a QEvent::ToolTip, a
     QEvent::WhatsThis, or a QEvent::StatusTip. It passes all other
-    events on to its base class event() handler.
+    events on to its base class viewportEvent() handler.
 */
-bool QAbstractItemView::event(QEvent *e)
+bool QAbstractItemView::viewportEvent(QEvent *e)
 {
     Q_D(QAbstractItemView);
     switch (e->type()) {
@@ -844,8 +844,7 @@ bool QAbstractItemView::event(QEvent *e)
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         if (!he)
             break;
-        QPoint margins = d->viewport->geometry().topLeft();
-        QModelIndex index = indexAt(he->pos() - margins);
+        QModelIndex index = indexAt(he->pos());
         if (index.isValid()) {
             QString tooltip = model()->data(index, Qt::ToolTipRole).toString();
             QToolTip::showText(he->globalPos(), tooltip, this);
@@ -853,8 +852,7 @@ bool QAbstractItemView::event(QEvent *e)
         return true; }
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
-        QPoint margins = d->viewport->geometry().topLeft();
-        QModelIndex index = indexAt(he->pos() - margins);
+        QModelIndex index = indexAt(he->pos());
         if (index.isValid()) {
             QString whatsthis = model()->data(index, Qt::WhatsThisRole).toString();
             QWhatsThis::showText(he->globalPos(), whatsthis, this);
@@ -862,8 +860,7 @@ bool QAbstractItemView::event(QEvent *e)
         return true; }
     case QEvent::StatusTip: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
-        QPoint margins = d->viewport->geometry().topLeft();
-        QModelIndex index = indexAt(he->pos() - margins);
+        QModelIndex index = indexAt(he->pos());
         if (index.isValid()) {
             QString statustip = model()->data(index, Qt::StatusTipRole).toString();
             if (!statustip.isEmpty())
@@ -887,7 +884,7 @@ bool QAbstractItemView::event(QEvent *e)
     default:
         break;
     }
-    return QAbstractScrollArea::event(e);
+    return QAbstractScrollArea::viewportEvent(e);
 }
 
 /*!

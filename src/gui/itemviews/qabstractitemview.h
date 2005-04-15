@@ -219,7 +219,7 @@ protected:
 
     void scrollContentsBy(int dx, int dy);
 
-    bool event(QEvent *e);
+    bool viewportEvent(QEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
