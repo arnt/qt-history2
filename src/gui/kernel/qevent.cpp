@@ -1527,7 +1527,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
   is usually given by a wheel on 4D mouse. If the device does not support a
   Z-axis, pass zero here.
 
-  The \a tangentalPressure paramater contins the tangential pressure of an air
+  The \a tangentialPressure paramater contins the tangential pressure of an air
   brush. If the device does not support tangential pressure, pass 0 here.
 
   \a rotation contains the device's rotation in degrees. 4D mice support
@@ -1538,7 +1538,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
 
 QTabletEvent::QTabletEvent(Type type, const QPoint &pos,  const QPoint &globalPos,
                            const QPointF &hiResGlobalPos, int device, int pointerType,
-                           qreal pressure, int xTilt, int yTilt, qreal tangentalPressure,
+                           qreal pressure, int xTilt, int yTilt, qreal tangentialPressure,
                            qreal rotation, int z, Qt::KeyboardModifiers keyState, qint64 uniqueID)
     : QInputEvent(type, keyState),
       mPos(pos),
@@ -1550,7 +1550,7 @@ QTabletEvent::QTabletEvent(Type type, const QPoint &pos,  const QPoint &globalPo
       mYT(yTilt),
       mZ(z),
       mPress(pressure),
-      mTangental(tangentalPressure),
+      mTangential(tangentialPressure),
       mRot(rotation),
       mUnique(uniqueID),
       mExtra(0)
@@ -1576,7 +1576,7 @@ QTabletEvent::~QTabletEvent()
 */
 
 /*!
-    \fn qreal QTabletEvent::tangentalPressure() const
+    \fn qreal QTabletEvent::tangentialPressure() const
 
     Returns the tangental pressure for the device.  This is typically given by a finger
     wheel on an airbrush tool.  The range is from -1.0 to 1.0. 0.0 indicates a

@@ -133,7 +133,7 @@ public:
     enum PointerType { UnknownPointer, Pen, Cursor, Eraser };
     QTabletEvent(Type t, const QPoint &pos,  const QPoint &globalPos, const QPointF &hiResGlobalPos,
                  int device, int pointerType, qreal pressure, int xTilt, int yTilt,
-                 qreal tangentalPressure, qreal rotation, int z,
+                 qreal tangentialPressure, qreal rotation, int z,
                  Qt::KeyboardModifiers keyState, qint64 uniqueID);
     ~QTabletEvent();
 
@@ -151,7 +151,7 @@ public:
     inline qint64 uniqueId() const { return mUnique; }
     inline qreal pressure() const { return mPress; }
     inline int z() const { return mZ; }
-    inline qreal tangentalPressure() const { return mTangental; }
+    inline qreal tangentialPressure() const { return mTangential; }
     inline qreal rotation() const { return mRot; }
     inline int xTilt() const { return mXT; }
     inline int yTilt() const { return mYT; }
@@ -160,7 +160,7 @@ protected:
     QPoint mPos, mGPos;
     QPointF mHiResGlobalPos;
     int mDev, mPointerType, mXT, mYT, mZ;
-    qreal mPress, mTangental, mRot;
+    qreal mPress, mTangential, mRot;
     qint64 mUnique;
 
     // I don't know what the future holds for tablets but there could be some

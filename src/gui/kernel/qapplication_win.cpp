@@ -3178,7 +3178,7 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
     QEvent::Type t;
     int z = 0;
     qreal rotation = 0.0;
-    qreal tangentalPressure;
+    qreal tangentialPressure;
 
     // the most common event that we get...
     t = QEvent::TabletMove;
@@ -3262,10 +3262,10 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
             w = this;
         QPoint localPos = w->mapFromGlobal(globalPos);
         if (dev == QTabletEvent::Airbrush) {
-            tangentalPressure = localPacketBuf[i].pkTangentPressure
+            tangentialPressure = localPacketBuf[i].pkTangentPressure
                                 / qreal(tdd.maxTanPressure - tdd.minTanPressure);
         } else {
-            tangentalPressure = 0.0;
+            tangentialPressure = 0.0;
         }
 
         if (!qt_tablet_tilt_support) {
@@ -3293,7 +3293,7 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         }
 
         QTabletEvent e(t, localPos, globalPos, hiResGlobal, dev, pointerType,
-                       prsNew, tiltX, tiltY, tangentalPressure,
+                       prsNew, tiltX, tiltY, tangentialPressure,
                        rotation, z, 0, llId);
         sendEvent = QApplication::sendSpontaneousEvent(w, &e);
     }

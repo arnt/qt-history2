@@ -3616,7 +3616,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     int xTilt = 0,
         yTilt = 0,
         z = 0;
-    qreal tangentalPressure = 0;
+    qreal tangentialPressure = 0;
     qreal rotation;
     int deviceType = QTabletEvent::NoDevice;
     int pointerType = QTabletEvent::UnknownPointer;
@@ -3714,7 +3714,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
                 rotation = vs->valuators[WAC_ROTATION_I] / 64.0;
                 z = vs->valuators[WAC_ZCOORD_I];
             } else if (deviceType == QTabletEvent::Airbrush) {
-                tangentalPressure = vs->valuators[WAC_TAN_PRESSURE_I]
+                tangentialPressure = vs->valuators[WAC_TAN_PRESSURE_I]
                                         / qreal(tablet->maxTanPressure - tablet->minTanPressure);
             }
 
@@ -3765,7 +3765,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
     QTabletEvent e(t, curr, global, hiRes,
                    deviceType, pointerType,
                    qreal(pressure / qreal(tablet->maxPressure - tablet->minPressure)),
-                   xTilt, yTilt, tangentalPressure, rotation, z, modifiers, uid);
+                   xTilt, yTilt, tangentialPressure, rotation, z, modifiers, uid);
     QApplication::sendSpontaneousEvent(w, &e);
     return true;
 }
