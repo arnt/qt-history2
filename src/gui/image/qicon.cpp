@@ -94,6 +94,7 @@ public:
     void addPixmap(const QPixmap &pixmap, QIcon::Mode mode, QIcon::State state);
     void addFile(const QString &fileName, const QSize &size, QIcon::Mode mode, QIcon::State state);
 private:
+    QPixmapIconEngineEntry *tryMatch(const QSize &size, QIcon::Mode mode, QIcon::State state);
     QVector<QPixmapIconEngineEntry> pixmaps;
 };
 
@@ -112,7 +113,7 @@ void QPixmapIconEngine::paint(QPainter *painter, const QRect &rect, QIcon::Mode 
 
 static inline int area(const QSize &s) { return s.width() * s.height(); }
 
-// returns the largest of the two that is still smaller than size.
+// returns the smallest of the two that is still larger than or equal to size.
 static QPixmapIconEngineEntry *bestSizeMatch( const QSize &size, QPixmapIconEngineEntry *pa, QPixmapIconEngineEntry *pb)
 {
     int s = area(size);
@@ -127,21 +128,18 @@ static QPixmapIconEngineEntry *bestSizeMatch( const QSize &size, QPixmapIconEngi
     }
     int b = area(pb->size);
     int res = a;
-    if (qMax(a,b) <= s)
-        res = qMax(a,b);
-    else
+    if (qMin(a,b) >= s)
         res = qMin(a,b);
+    else
+        res = qMax(a,b);
     if (res == a)
         return pa;
     return pb;
 }
 
-
-QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::Mode mode, QIcon::State state, bool sizeOnly)
+QPixmapIconEngineEntry *QPixmapIconEngine::tryMatch(const QSize &size, QIcon::Mode mode, QIcon::State state)
 {
     QPixmapIconEngineEntry *pe = 0;
-
-    // look for right mode and right state
     for (int i = 0; i < pixmaps.count(); ++i)
         if (pixmaps.at(i).mode == mode && pixmaps.at(i).state == state) {
             if (pe)
@@ -149,50 +147,43 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::M
             else
                 pe = &pixmaps[i];
         }
-    if (!pe) {
-        // look for right mode, ignore state
-        for (int i = 0; i < pixmaps.count(); ++i)
-            if (pixmaps.at(i).mode == mode) {
-                if (pe)
-                    pe = bestSizeMatch(size, &pixmaps[i], pe);
-                else
-                    pe = &pixmaps[i];
-            }
-    }
-    if (!pe) {
-        // merge active and normal mode, and look for right state
-        for (int i = 0; i < pixmaps.count(); ++i)
-            if (pixmaps.at(i).mode == (mode == QIcon::Disabled ? QIcon::Disabled : QIcon::Normal) && pixmaps.at(i).state == state) {
-                if (pe)
-                    pe = bestSizeMatch(size, &pixmaps[i], pe);
-                else
-                    pe = &pixmaps[i];
-            }
-    }
-    if (!pe) {
-        // merge active and normal mode,  ignore state
-        for (int i = 0; i < pixmaps.count(); ++i)
-            if (pixmaps.at(i).mode == (mode == QIcon::Disabled ? QIcon::Disabled : QIcon::Normal)) {
-                if (pe)
-                    pe = bestSizeMatch(size, &pixmaps[i], pe);
-                else
-                    pe = &pixmaps[i];
-            }
-    }
+    return pe;
+}
 
-    if (!pe) {
-        // fallback: look for a normal one
-        for (int i = 0; i < pixmaps.count(); ++i)
-            if (pixmaps.at(i).mode == QIcon::Normal) {
-                if (pe)
-                    pe = bestSizeMatch(size, &pixmaps[i], pe);
-                else
-                    pe = &pixmaps[i];
-            }
-    }
 
-    if (!pe)
-        return pe;
+QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::Mode mode, QIcon::State state, bool sizeOnly)
+{
+    QPixmapIconEngineEntry *pe = tryMatch(size, mode, state);
+    while (!pe){
+        QIcon::State oppositeState = (state == QIcon::On) ? QIcon::Off : QIcon::On;
+        if (mode == QIcon::Disabled) {
+            if ((pe = tryMatch(size, QIcon::Normal, state)))
+                break;
+            if ((pe = tryMatch(size, QIcon::Active, state)))
+                break;
+            if ((pe = tryMatch(size, QIcon::Disabled, oppositeState)))
+                break;
+            if ((pe = tryMatch(size, QIcon::Normal, oppositeState)))
+                break;
+            if ((pe = tryMatch(size, QIcon::Active, oppositeState)))
+                break;
+        } else {
+            QIcon::Mode oppositeMode = (mode == QIcon::Normal) ? QIcon::Active : QIcon::Normal;
+            if ((pe = tryMatch(size, oppositeMode, state)))
+                break;
+            if ((pe = tryMatch(size, mode, oppositeState)))
+                break;
+            if ((pe = tryMatch(size, oppositeMode, oppositeState)))
+                break;
+            if ((pe = tryMatch(size, QIcon::Disabled, state)))
+                break;
+            if ((pe = tryMatch(size, QIcon::Disabled, oppositeState)))
+                break;
+        }
+
+        if (!pe)
+            return pe;
+    }
 
     if (sizeOnly ? pe->size.isNull() : pe->pixmap.isNull()) {
         pe->pixmap = QPixmap(pe->fileName);
@@ -222,8 +213,6 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
                   + QString::number(actualSize.width())
                   + QLatin1Char('_')
                   + QString::number(actualSize.height())
-                  + QLatin1Char('_')
-                  + QString::number(pe->state)
                   + QLatin1Char('_');
 
 
@@ -240,18 +229,16 @@ QPixmap QPixmapIconEngine::pixmap(const QSize &size, QIcon::Mode mode, QIcon::St
     }
 
     if (!QPixmapCache::find(key + QString::number(mode), pm)) {
-        if (pe->mode == QIcon::Normal && pe->mode != mode) {
+        if (pe->mode != mode && mode != QIcon::Normal && pe->mode != QIcon::Disabled) {
             QStyleOption opt(0);
             opt.palette = QApplication::palette();
             QPixmap generated = QApplication::style()->generatedIconPixmap(mode, pm, &opt);
-            if (generated.isNull())
-                return pm;
-            pm = generated;
+            if (!generated.isNull())
+                pm = generated;
         }
         if (pm.size() != actualSize)
             pm = pm.scaled(actualSize, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        if (pm.isDetached())
-            QPixmapCache::insert(key + QString::number(mode), pm);
+        QPixmapCache::insert(key + QString::number(mode), pm);
     }
     return pm;
 }
