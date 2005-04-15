@@ -1600,7 +1600,7 @@ QColor QColor::light(int factor) const
     brightness.
 
     Returns a lighter color if \a factor is less than 100. We
-    recommend using lighter() for this purpose. If \a factor is 0 or
+    recommend using light() for this purpose. If \a factor is 0 or
     negative, the return value is unspecified.
 
     (This function converts the current RGB color to HSV, divides V by
