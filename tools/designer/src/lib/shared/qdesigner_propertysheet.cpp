@@ -50,9 +50,9 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         QMetaProperty p = meta->property(index);
         setVisible(index, p.isDesignable(m_object));
 
-        QString pgroup = QString::fromUtf8(meta->className());
+        QString pgroup = QString::fromUtf8(baseMeta->className());
 
-        if (const QMetaObject *pmeta = introducedBy(meta, index)) {
+        if (const QMetaObject *pmeta = introducedBy(baseMeta, index)) {
             pgroup = QString::fromUtf8(pmeta->className());
         }
 
