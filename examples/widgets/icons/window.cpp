@@ -9,14 +9,13 @@ Window::Window()
     centralWidget = new QWidget;
     setCentralWidget(centralWidget);
 
-    previewArea = new IconPreviewArea;
-
+    createPreviewGroupBox();
     createImagesGroupBox();
     createIconSizeGroupBox();
     createMenus();
 
     QGridLayout *mainLayout = new QGridLayout;
-    mainLayout->addWidget(previewArea, 0, 0, 2, 1);
+    mainLayout->addWidget(previewGroupBox, 0, 0, 2, 1);
     mainLayout->addWidget(imagesGroupBox, 0, 1);
     mainLayout->addWidget(iconSizeGroupBox, 1, 1);
     centralWidget->setLayout(mainLayout);
@@ -34,8 +33,11 @@ void Window::about()
                "and off)."));
 }
 
-void Window::changeStyle()
+void Window::changeStyle(bool checked)
 {
+    if (!checked)
+        return;
+
     QAction *action = qobject_cast<QAction *>(sender());
     QStyle *style = QStyleFactory::create(action->text());
     QApplication::setStyle(style);
@@ -135,6 +137,17 @@ void Window::resetImages()
     changeIcon();
 }
 
+void Window::createPreviewGroupBox()
+{
+    previewGroupBox = new QGroupBox(tr("Preview"));
+
+    previewArea = new IconPreviewArea;
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(previewArea);
+    previewGroupBox->setLayout(layout);
+}
+
 void Window::createImagesGroupBox()
 {
     imagesGroupBox = new QGroupBox(tr("Images"));
@@ -159,11 +172,11 @@ void Window::createImagesGroupBox()
     connect(addButton, SIGNAL(clicked()), this, SLOT(addImage()));
     connect(resetButton, SIGNAL(clicked()), this, SLOT(resetImages()));
 
-    QGridLayout *pageLayout = new QGridLayout;
-    pageLayout->addWidget(imagesTable, 0, 0, 3, 1);
-    pageLayout->addWidget(addButton, 0, 1);
-    pageLayout->addWidget(resetButton, 1, 1);
-    imagesGroupBox->setLayout(pageLayout);
+    QGridLayout *layout = new QGridLayout;
+    layout->addWidget(imagesTable, 0, 0, 3, 1);
+    layout->addWidget(addButton, 0, 1);
+    layout->addWidget(resetButton, 1, 1);
+    imagesGroupBox->setLayout(layout);
 }
 
 void Window::createIconSizeGroupBox()
@@ -196,14 +209,14 @@ void Window::createIconSizeGroupBox()
     otherSizeLayout->addWidget(otherRadioButton);
     otherSizeLayout->addWidget(otherSpinBox);
 
-    QGridLayout *pageLayout = new QGridLayout;
-    pageLayout->addWidget(smallRadioButton, 0, 0);
-    pageLayout->addWidget(largeRadioButton, 1, 0);
-    pageLayout->addWidget(toolBarRadioButton, 2, 0);
-    pageLayout->addWidget(listViewRadioButton, 0, 1);
-    pageLayout->addWidget(iconViewRadioButton, 1, 1);
-    pageLayout->addLayout(otherSizeLayout, 2, 1);
-    iconSizeGroupBox->setLayout(pageLayout);
+    QGridLayout *layout = new QGridLayout;
+    layout->addWidget(smallRadioButton, 0, 0);
+    layout->addWidget(largeRadioButton, 1, 0);
+    layout->addWidget(toolBarRadioButton, 2, 0);
+    layout->addWidget(listViewRadioButton, 0, 1);
+    layout->addWidget(iconViewRadioButton, 1, 1);
+    layout->addLayout(otherSizeLayout, 2, 1);
+    iconSizeGroupBox->setLayout(layout);
 }
 
 void Window::createMenus()
@@ -212,7 +225,7 @@ void Window::createMenus()
     foreach (QString styleName, QStyleFactory::keys()) {
         QAction *action = new QAction(styleName, styleActionGroup);
         action->setCheckable(true);
-        connect(action, SIGNAL(triggered()), this, SLOT(changeStyle()));
+        connect(action, SIGNAL(checked(bool)), this, SLOT(changeStyle(bool)));
     }
 
     aboutAct = new QAction(tr("&About"), this);

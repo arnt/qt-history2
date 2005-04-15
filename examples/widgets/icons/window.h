@@ -7,6 +7,7 @@
 #include <QPixmap>
 
 class QActionGroup;
+class QGroupBox;
 class QMenu;
 class QPushButton;
 class QRadioButton;
@@ -23,7 +24,7 @@ public:
 
 private slots:
     void about();
-    void changeStyle();
+    void changeStyle(bool checked);
     void changeSize();
     void changeIcon();
     void addImage();
@@ -31,6 +32,7 @@ private slots:
 
 private:
     void createMenus();
+    void createPreviewGroupBox();
     void createImagesGroupBox();
     void createIconSizeGroupBox();
     void checkCurrentStyle();
@@ -38,14 +40,16 @@ private:
     enum { PixmapRole = Qt::UserRole + 1 };
 
     QWidget *centralWidget;
+
+    QGroupBox *previewGroupBox;
     IconPreviewArea *previewArea;
 
-    QWidget *imagesGroupBox;
+    QGroupBox *imagesGroupBox;
     QTableWidget *imagesTable;
     QPushButton *addButton;
     QPushButton *resetButton;
 
-    QWidget *iconSizeGroupBox;
+    QGroupBox *iconSizeGroupBox;
     QRadioButton *smallRadioButton;
     QRadioButton *largeRadioButton;
     QRadioButton *toolBarRadioButton;
