@@ -16,9 +16,9 @@ Window::Window()
     createMenus();
 
     QGridLayout *mainLayout = new QGridLayout;
-    mainLayout->addWidget(previewGroupBox, 0, 0, 2, 1);
-    mainLayout->addWidget(imagesGroupBox, 0, 1);
-    mainLayout->addWidget(iconSizeGroupBox, 1, 1);
+    mainLayout->addWidget(imagesGroupBox, 0, 0);
+    mainLayout->addWidget(iconSizeGroupBox, 1, 0);
+    mainLayout->addWidget(previewGroupBox, 0, 1, 2, 1);
     centralWidget->setLayout(mainLayout);
 
     setWindowTitle(tr("Icons"));
@@ -131,8 +131,21 @@ void Window::addImage()
             item0->setData(Qt::UserRole, fileName);
             item0->setFlags(item0->flags() & ~Qt::ItemIsEditable);
 
-            QTableWidgetItem *item1 = new QTableWidgetItem(tr("Normal"));
-            QTableWidgetItem *item2 = new QTableWidgetItem(tr("Off"));
+            QTableWidgetItem *item1 = new QTableWidgetItem;
+            if (fileName.contains("_active")) {
+                item1->setText(tr("Active"));
+            } else if (fileName.contains("_disabled")) {
+                item1->setText(tr("Disabled"));
+            } else {
+                item1->setText(tr("Normal"));
+            }
+
+            QTableWidgetItem *item2 = new QTableWidgetItem;
+            if (fileName.contains("_on")) {
+                item2->setText(tr("On"));
+            } else {
+                item2->setText(tr("Off"));
+            }
 
             imagesTable->setItem(row, 0, item0);
             imagesTable->setItem(row, 1, item1);
@@ -206,7 +219,7 @@ void Window::createIconSizeGroupBox()
 
     otherSpinBox = new IconSizeSpinBox;
     otherSpinBox->setRange(8, 128);
-    otherSpinBox->setValue(24);
+    otherSpinBox->setValue(64);
 
     connect(toolBarRadioButton, SIGNAL(toggled(bool)),
             this, SLOT(changeSize()));
