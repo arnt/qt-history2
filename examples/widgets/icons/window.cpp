@@ -119,24 +119,27 @@ void Window::changeIcon()
 
 void Window::addImage()
 {
-    QString fileName = QFileDialog::getOpenFileName(this, tr("Open Image"));
-    if (!fileName.isEmpty()) {
-        int row = imagesTable->rowCount();
-        imagesTable->setRowCount(row + 1);
+    QStringList fileNames = QFileDialog::getOpenFileNames(this,
+                                                          tr("Open Images"));
+    if (!fileNames.isEmpty()) {
+        foreach (QString fileName, fileNames) {
+            int row = imagesTable->rowCount();
+            imagesTable->setRowCount(row + 1);
 
-        QString strippedFileName = QFileInfo(fileName).fileName();
-        QTableWidgetItem *item0 = new QTableWidgetItem(strippedFileName);
-        item0->setData(Qt::UserRole, fileName);
-        item0->setFlags(item0->flags() & ~Qt::ItemIsEditable);
+            QString strippedFileName = QFileInfo(fileName).fileName();
+            QTableWidgetItem *item0 = new QTableWidgetItem(strippedFileName);
+            item0->setData(Qt::UserRole, fileName);
+            item0->setFlags(item0->flags() & ~Qt::ItemIsEditable);
 
-        QTableWidgetItem *item1 = new QTableWidgetItem(tr("Normal"));
-        QTableWidgetItem *item2 = new QTableWidgetItem(tr("Off"));
+            QTableWidgetItem *item1 = new QTableWidgetItem(tr("Normal"));
+            QTableWidgetItem *item2 = new QTableWidgetItem(tr("Off"));
 
-        imagesTable->setItem(row, 0, item0);
-        imagesTable->setItem(row, 1, item1);
-        imagesTable->setItem(row, 2, item2);
+            imagesTable->setItem(row, 0, item0);
+            imagesTable->setItem(row, 1, item1);
+            imagesTable->setItem(row, 2, item2);
 
-        changeIcon();
+            changeIcon();
+        }
     }
 }
 
