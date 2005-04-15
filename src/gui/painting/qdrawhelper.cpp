@@ -8,6 +8,9 @@ void qInitDrawhelperAsm() {}
 
 #define MASK(src, a) src = BYTE_MUL(src, a)
 
+static const int fixed_scale = 1 << 16;
+static const int half_point = 1 << 15;
+
 typedef uint QT_FASTCALL (*CompositionFunction)(uint dest, uint src);
 
 static uint QT_FASTCALL comp_func_Clear(uint, uint)
@@ -271,9 +274,8 @@ static void blend_transformed_bilinear_argb(void *t, const QSpan *span,
 {
     uint *target = (uint *)t;
     uint *image_bits = (uint *)ibits;
-    const int fixed_scale = 1 << 16;
-    int x = int((ix + dx * span->x) * fixed_scale);
-    int y = int((iy + dy * span->x) * fixed_scale);
+    int x = int((ix + dx * span->x) * fixed_scale) - half_point;
+    int y = int((iy + dy * span->x) * fixed_scale) - half_point;
 
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
@@ -324,9 +326,8 @@ static void blend_transformed_bilinear_tiled_argb(void *t, const QSpan *span,
 {
     uint *target = (uint *)t;
     uint *image_bits = (uint *)ibits;
-    const int fixed_scale = 1 << 16;
-    int x = int((ix + dx * span->x) * fixed_scale);
-    int y = int((iy + dy * span->x) * fixed_scale);
+    int x = int((ix + dx * span->x) * fixed_scale) - half_point;
+    int y = int((iy + dy * span->x) * fixed_scale) - half_point;
 
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
@@ -387,8 +388,6 @@ static void blend_transformed_argb(void *t, const QSpan *span,
 {
     uint *target = (uint *)t;
     uint *image_bits = (uint *)ibits;
-    const int fixed_scale = 1 << 16;
-    const int half_point = 1 << 15;
 
     int x = int((ix + dx * span->x) * fixed_scale);
     int y = int((iy + dy * span->x) * fixed_scale);
@@ -400,8 +399,8 @@ static void blend_transformed_argb(void *t, const QSpan *span,
     int icov = 255 - span->coverage;
     const uint *end = target + span->len;
     while (target < end) {
-        int px = (x + half_point) >> 16;
-        int py = (y + half_point) >> 16;
+        int px = x >> 16;
+        int py = y >> 16;
 
         bool out = (px < 0) | (px >= image_width)
                    | (py < 0) | (py >= image_height);
@@ -423,8 +422,6 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span,
 {
     uint *target = (uint *)t;
     uint *image_bits = (uint *)ibits;
-    const int fixed_scale = 1 << 16;
-    const int half_point = 1 << 15;
 
     int x = int((ix + dx * span->x) * fixed_scale);
     int y = int((iy + dy * span->x) * fixed_scale);
@@ -436,8 +433,8 @@ static void blend_transformed_tiled_argb(void *t, const QSpan *span,
     int icov = 255 - span->coverage;
     const uint *end = target + span->len;
     while (target < end) {
-        int px = (x + half_point) >> 16;
-        int py = (y + half_point) >> 16;
+        int px = x >> 16;
+        int py = y >> 16;
         px %= image_width;
         py %= image_height;
         if (px < 0) px += image_width;
@@ -590,9 +587,8 @@ static void blend_transformed_bilinear_rgb32(void *t, const QSpan *span,
 {
     uint *target = (uint *)t;
     uint *image_bits = (uint *)ibits;
-    const int fixed_scale = 1 << 16;
-    int x = int((ix + dx * span->x) * fixed_scale);
-    int y = int((iy + dy * span->x) * fixed_scale);
+    int x = int((ix + dx * span->x) * fixed_scale) - half_point;
+    int y = int((iy + dy * span->x) * fixed_scale) - half_point;
 
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
@@ -639,9 +635,8 @@ static void blend_transformed_bilinear_tiled_rgb32(void *t, const QSpan *span,
 {
     uint *target = (uint *)t;
     uint *image_bits = (uint *)ibits;
-    const int fixed_scale = 1 << 16;
-    int x = int((ix + dx * span->x) * fixed_scale);
-    int y = int((iy + dy * span->x) * fixed_scale);
+    int x = int((ix + dx * span->x) * fixed_scale) - half_point;
+    int y = int((iy + dy * span->x) * fixed_scale) - half_point;
 
     int fdx = (int)(dx * fixed_scale);
     int fdy = (int)(dy * fixed_scale);
@@ -698,8 +693,6 @@ static void blend_transformed_rgb32(void *t, const QSpan *span,
 {
     uint *target = (uint *)t;
     uint *image_bits = (uint *)ibits;
-    const int fixed_scale = 1 << 16;
-    const int half_point = 1 << 15;
 
     int x = int((ix + dx * span->x) * fixed_scale);
     int y = int((iy + dy * span->x) * fixed_scale);
@@ -709,8 +702,8 @@ static void blend_transformed_rgb32(void *t, const QSpan *span,
 
     const uint *end = target + span->len;
         while (target < end) {
-        int px = (x + half_point) >> 16;
-        int py = (y + half_point) >> 16;
+        int px = x >> 16;
+        int py = y >> 16;
 
         bool out = (px < 0) | (px >= image_width)
                    | (py < 0) | (py >= image_height);
@@ -732,8 +725,6 @@ static void blend_transformed_tiled_rgb32(void *t, const QSpan *span,
 {
     uint *target = (uint *)t;
     uint *image_bits = (uint *)ibits;
-    const int fixed_scale = 1 << 16;
-    const int half_point = 1 << 15;
 
     int x = int((ix + dx * span->x) * fixed_scale);
     int y = int((iy + dy * span->x) * fixed_scale);
@@ -743,8 +734,8 @@ static void blend_transformed_tiled_rgb32(void *t, const QSpan *span,
 
     const uint *end = target + span->len;
     while (target < end) {
-        int px = (x + half_point) >> 16;
-        int py = (y + half_point) >> 16;
+        int px = x >> 16;
+        int py = y >> 16;
         px %= image_width;
         py %= image_height;
         if (px < 0) px += image_width;

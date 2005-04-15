@@ -943,7 +943,13 @@ void QRasterPaintEngine::drawImage(const QRectF &r, const QImage &img, const QRe
     path.addRect(r);
 
     FillData clippedFill = d->clipForFill(&fillData);
+
+    bool wasAntialiased = d->antialiased;
+    d->antialiased = d->bilinear;
+
     fillPath(path, &clippedFill);
+
+    d->antialiased = wasAntialiased;
 }
 
 void QRasterPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &sr)
@@ -2179,9 +2185,11 @@ void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userDa
     int image_height = data->height;
     uint *baseTarget = rb->scanLine(y);
 
+    // Base point for the inversed transform
     qreal ix = data->m21 * y + data->dx;
     qreal iy = data->m22 * y + data->dy;
 
+    // The increment pr x in the scanline
     qreal dx = data->m11;
     qreal dy = data->m12;
 
