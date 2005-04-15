@@ -543,7 +543,13 @@ void qt_message_output(QtMsgType msgType, const char *buf)
         || (msgType == QtWarningMsg && (qgetenv("QT_FATAL_WARNINGS") != 0)) ) {
 
 #if defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
-        if (_CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf) == 1)
+        // get the current report mode
+        int reportMode = _CrtSetReportMode(_CRT_ERROR, _CRTDBG_MODE_WNDW);
+        _CrtSetReportMode(_CRT_ERROR, reportMode);
+        int ret = _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, buf);
+        if (ret == 0  && reportMode & _CRTDBG_MODE_WNDW)
+            return; // ignore
+        else if (ret == 1)
             _CrtDbgBreak();
 #endif
 

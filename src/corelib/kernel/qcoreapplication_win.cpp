@@ -35,8 +35,6 @@ Q_CORE_EXPORT HINSTANCE qWinAppPrevInst()                // get Windows prev app
     return appPrevInst;
 }
 
-static void        msgHandler(QtMsgType, const char*);
-
 void set_winapp_name()
 {
     static bool already_set = false;
@@ -71,12 +69,7 @@ Q_CORE_EXPORT QString qAppName()                        // get application name
     return appName;
 }
 
-
-#if defined(Q_CC_MSVC) && !defined(Q_OS_TEMP)
-#include <crtdbg.h>
-#endif
-
-static void msgHandler(QtMsgType t, const char* str)
+Q_CORE_EXPORT void qWinMsgHandler(QtMsgType t, const char* str)
 {
     // OutputDebugString is not threadsafe.
     static QMutex staticMutex;
@@ -95,16 +88,6 @@ static void msgHandler(QtMsgType t, const char* str)
         OutputDebugStringA(s.data());
     })
     staticMutex.unlock();
-    if (t == QtFatalMsg)
-#ifndef Q_OS_TEMP
-#if defined(Q_CC_MSVC) && defined(_DEBUG) && defined(_CRT_ERROR)
-        _CrtDbgReport(_CRT_ERROR, __FILE__, __LINE__, QT_VERSION_STR, str);
-#else
-        ExitProcess(1);
-#endif
-#else
-        exit(1);
-#endif
 }
 
 
@@ -131,7 +114,7 @@ void qWinMain(HINSTANCE instance, HINSTANCE prevInstance, LPSTR cmdParam,
 
   // Install default debug handler
 
-    qInstallMsgHandler(msgHandler);
+    qInstallMsgHandler(qWinMsgHandler);
 
   // Create command line
 
