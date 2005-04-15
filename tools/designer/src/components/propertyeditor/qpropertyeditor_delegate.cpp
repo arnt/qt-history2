@@ -130,23 +130,27 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
     }
 
     if (property && property->isSeparator()) {
-        option.palette.setColor(QPalette::Text, option.palette.color(QPalette::Link));
+        option.palette.setColor(QPalette::Text, option.palette.color(QPalette::BrightText));
         option.font.setBold(true);
     }
 
     option.state &= ~(QStyle::State_Selected | QStyle::State_HasFocus);
 
-    if (opt.state & QStyle::State_Selected) {
+    if (property->isSeparator()) {
+        QBrush bg = option.palette.dark();
+        // ### bg.setStyle(Qt::LinearGradientPattern);
+        painter->fillRect(option.rect, bg);
+    } else if (opt.state & QStyle::State_Selected) {
         painter->fillRect(option.rect, QColor(230, 230, 230));
     }
 
     painter->drawLine(option.rect.x(), option.rect.bottom(),
             option.rect.right(), option.rect.bottom());
 
-    // ### if (index.column() == 1 || !property->isSeparator()) {
+    if (index.column() == 1 || !property->isSeparator()) {
         painter->drawLine(option.rect.right(), option.rect.y(),
                 option.rect.right(), option.rect.bottom());
-    // }
+    }
 
     QItemDelegate::paint(painter, option, index);
 }

@@ -92,11 +92,13 @@ void QPropertyEditor::drawBranches(QPainter *painter, const QRect &rect, const Q
         option.font.setBold(true);
     }
 
-    if (selectionModel()->isSelected(index))
+    if (property && property->isSeparator()) {
+        painter->fillRect(rect, option.palette.dark());
+    } else if (selectionModel()->isSelected(index)) {
         painter->fillRect(rect, QColor(230, 230, 230));
+    }
 
-    painter->drawLine(rect.x(), rect.bottom(),
-                      rect.right(), rect.bottom());
+    painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());
 
     if (model()->hasChildren(index)) {
         static const int size = 9;
