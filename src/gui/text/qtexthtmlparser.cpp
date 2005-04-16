@@ -732,13 +732,6 @@ void QTextHtmlParser::parseCloseTag()
             break;
     }
 
-    // in the case of <img></img> (where img may not have children) we don't need
-    // to do anything, as in parseTag() of the opening img tag we created an empty
-    // follow-up node with the right parent already.
-    if (last() > 1 && at(last()).text.isEmpty()
-        && at(last() - 1).tag == tag)
-        return;
-
     // find corresponding open node
     int p = last();
     while (p && at(p).tag != tag)
