@@ -1,9 +1,9 @@
 HEADERS       = iconpreviewarea.h \
                 iconsizespinbox.h \
                 imagedelegate.h \
-                window.h
+                mainwindow.h
 SOURCES       = iconpreviewarea.cpp \
                 iconsizespinbox.cpp \
                 imagedelegate.cpp \
                 main.cpp \
-                window.cpp
+                mainwindow.cpp
