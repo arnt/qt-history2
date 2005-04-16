@@ -98,8 +98,8 @@ public:
     virtual bool canConvert(const QString &mime, int flav)=0;
     virtual QString mimeFor(int flav)=0;
     virtual int flavorFor(const QString &mime)=0;
-    virtual QByteArray convertToMime(QList<QByteArray> data, const QString &mime, int flav)=0;
-    virtual QList<QByteArray> convertFromMime(QByteArray data, const QString &mime, int flav)=0;
+    virtual QVariant convertToMime(const QString &mime, QList<QByteArray> data, int flav)=0;
+    virtual QList<QByteArray> convertFromMime(const QString &mime, QVariant data, int flav)=0;
 };
 
 #endif // Q_WS_MAC

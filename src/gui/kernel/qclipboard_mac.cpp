@@ -55,6 +55,14 @@ void setupOwner()
     qAddPostRoutine(cleanup);
 }
 
+class QMacMimeData : public QMimeData
+{
+public:
+    QVariant variantData(const QString &mime) { return retrieveData(mime, QVariant::Invalid); }
+private:
+    QMacMimeData();
+};
+
 class QClipboardWatcher : public QMimeData {
 public:
     QClipboardWatcher();
@@ -166,11 +174,11 @@ QVariant QClipboardWatcher::retrieveData(const QString &format, QVariant::Type) 
                 char *buffer = (char *)malloc(flavorsize);
                 GetScrapFlavorData(scrap, flav, &flavorsize, buffer);
                 QByteArray r = QByteArray::fromRawData(buffer, flavorsize);
-                QByteArray tr;
+                QVariant tr;
                 {
                     QList<QByteArray> lst;
                     lst.append(r);
-                    tr = c->convertToMime(lst, format, flav);
+                    tr = c->convertToMime(format, lst, flav);
                 }
                 tr.detach();
                 free(buffer);
@@ -261,7 +269,8 @@ void QClipboard::setMimeData(QMimeData *src, Mode mode)
                 for (int j = 0; j < c->countFlavors(); j++) {
                     uint flav = c->flavor(j);
                     if(c->canConvert(mime, flav)) {
-                        QList<QByteArray> md = c->convertFromMime(src->data(mime), mime, flav);
+                        QList<QByteArray> md = c->convertFromMime(mime,
+                                                  static_cast<QMacMimeData*>(src)->variantData(mime), flav);
                         if(md.count() > 1)
                             qWarning("QClipBoard: cannot handle multiple byte array conversions..");
                         PutScrapFlavor(scrap, (ScrapFlavorType)flav, 0, md.first().size(), md.first().data());

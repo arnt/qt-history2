@@ -56,11 +56,23 @@ extern uint qGlobalPostedEventsCount(); //qapplication.cpp
 //promise keeper
 static DragSendDataUPP qt_mac_send_handlerUPP = 0;
 
+class QMacMimeData : public QMimeData
+{
+public:
+    QVariant variantData(const QString &mime) { return retrieveData(mime, QVariant::Invalid); }
+private:
+    QMacMimeData();
+};
+
 /*!
   \internal
 */
 OSErr QDragManager::qt_mac_send_handler(FlavorType flav, void *data, DragItemRef, DragRef dragRef)
 {
+#if 0
+    qDebug("asked to send %c%c%c%c", (flav >> 24) & 0xFF, (flav >> 16) & 0xFF, (flav >> 8) & 0xFF,
+           flav & 0xFF);
+#endif
     QDragPrivate *o = (QDragPrivate *)data;
     QDragManager *manager = QDragManager::self();
     if(!manager || !manager->object || manager->object->d != o || manager->beingCancelled)
@@ -82,7 +94,8 @@ OSErr QDragManager::qt_mac_send_handler(FlavorType flav, void *data, DragItemRef
             QMacMime *c = (*it);
             QString mime = c->mimeFor(flav);
             if(!mime.isNull()) {
-                QList<QByteArray> md = c->convertFromMime(o->data->data(mime), mime, flav);
+                QList<QByteArray> md = c->convertFromMime(mime,
+                                            static_cast<QMacMimeData*>(o->data)->variantData(mime), flav);
                 int item_ref = 1;
                 for(QList<QByteArray>::Iterator it = md.begin(); it != md.end(); ++it)
                     SetDragItemFlavorData(dragRef, (ItemReference)item_ref++, flav, (*it).data(), (*it).size(), 0);
@@ -225,7 +238,7 @@ bool QDropData::hasFormat(const QString &mime) const
     return false;
 }
 
-QVariant QDropData::retrieveData(const QString &mime, QVariant::Type type) const
+QVariant QDropData::retrieveData(const QString &mime, QVariant::Type) const
 {
     Size flavorsize=0;
     QVariant ret;
@@ -260,11 +273,7 @@ QVariant QDropData::retrieveData(const QString &mime, QVariant::Type type) const
                 }
             }
             if(!arrs.isEmpty()) {
-                QByteArray mime_data = c->convertToMime(arrs, mime, flav);
-                if(type == QVariant::String)
-                    ret = QString::fromUtf8(mime_data);
-                else
-                    ret = mime_data;
+                ret = c->convertToMime(mime, arrs, flav);
                 break;
             }
         }
@@ -516,7 +525,13 @@ Qt::DropAction QDragManager::drag(QDrag *o)
             QMacMime *c = (*it);
             if(c->flavorFor(fmts.at(i))) {
                 for (int j = 0; j < c->countFlavors(); j++) {
-                    uint flav = c->flavor(j);
+                    const uint flav = c->flavor(j);
+#if 0
+                    qDebug("%d) trying to append (%s) '%s' -> %d[%c%c%c%c] (%d)",
+                           i, c->convertorName().toLatin1().constData(), fmts.at(i).toLatin1().constData(),
+                           flav, (flav >> 24) & 0xFF, (flav >> 16) & 0xFF, (flav >> 8) & 0xFF, flav & 0xFF,
+                           c->canConvert(fmts.at(i), flav));
+#endif
                     if(c->canConvert(fmts.at(i), flav))
                         AddDragItemFlavor(dragRef, 1, flav, 0, 0, 0); //promised for later
                 }
