@@ -6,10 +6,10 @@
 #include <QMainWindow>
 #include <QPixmap>
 
+class QAction;
 class QActionGroup;
 class QGroupBox;
 class QMenu;
-class QPushButton;
 class QRadioButton;
 class QTableWidget;
 class IconPreviewArea;
@@ -28,13 +28,15 @@ private slots:
     void changeSize();
     void changeIcon();
     void addImage();
-    void resetImages();
+    void removeAllImages();
 
 private:
-    void createMenus();
     void createPreviewGroupBox();
     void createImagesGroupBox();
     void createIconSizeGroupBox();
+    void createActions();
+    void createMenus();
+    void createContextMenu();
     void checkCurrentStyle();
 
     QWidget *centralWidget;
@@ -44,8 +46,6 @@ private:
 
     QGroupBox *imagesGroupBox;
     QTableWidget *imagesTable;
-    QPushButton *addButton;
-    QPushButton *resetButton;
 
     QGroupBox *iconSizeGroupBox;
     QRadioButton *smallRadioButton;
@@ -56,8 +56,13 @@ private:
     QRadioButton *otherRadioButton;
     IconSizeSpinBox *otherSpinBox;
 
-    QMenu *styleMenu;
+    QMenu *fileMenu;
+    QMenu *viewMenu;
     QMenu *helpMenu;
+    QAction *addImageAct;
+    QAction *removeAllImagesAct;
+    QAction *exitAct;
+    QAction *guessModeStateAct;
     QActionGroup *styleActionGroup;
     QAction *aboutAct;
     QAction *aboutQtAct;

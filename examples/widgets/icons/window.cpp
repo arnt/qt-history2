@@ -13,7 +13,10 @@ Window::Window()
     createPreviewGroupBox();
     createImagesGroupBox();
     createIconSizeGroupBox();
+
+    createActions();
     createMenus();
+    createContextMenu();
 
     QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addWidget(imagesGroupBox, 0, 0);
@@ -23,7 +26,9 @@ Window::Window()
 
     setWindowTitle(tr("Icons"));
     checkCurrentStyle();
-    largeRadioButton->toggle();
+    otherRadioButton->toggle();
+
+    resize(860, 400);
 }
 
 void Window::about()
@@ -31,7 +36,7 @@ void Window::about()
     QMessageBox::about(this, tr("About Icons"),
             tr("The <b>Icons</b> example illustrates how Qt renders an icon in "
                "different modes (active, normal, and disabled) and states (on "
-               "and off)."));
+               "and off) based on a set of images."));
 }
 
 void Window::changeStyle(bool checked)
@@ -40,7 +45,8 @@ void Window::changeStyle(bool checked)
         return;
 
     QAction *action = qobject_cast<QAction *>(sender());
-    QStyle *style = QStyleFactory::create(action->text());
+    QStyle *style = QStyleFactory::create(action->iconText());
+    Q_ASSERT(style);
     QApplication::setStyle(style);
 
     smallRadioButton->setText(tr("Small (%1 × %1)")
@@ -92,26 +98,28 @@ void Window::changeIcon()
         QTableWidgetItem *item1 = imagesTable->item(row, 1);
         QTableWidgetItem *item2 = imagesTable->item(row, 2);
 
-        QIcon::Mode mode;
-        if (item1->text() == tr("Normal")) {
-            mode = QIcon::Normal;
-        } else if (item1->text() == tr("Active")) {
-            mode = QIcon::Active;
-        } else {
-            mode = QIcon::Disabled;
-        }
+        if (item0->checkState() == Qt::Checked) {
+            QIcon::Mode mode;
+            if (item1->text() == tr("Normal")) {
+                mode = QIcon::Normal;
+            } else if (item1->text() == tr("Active")) {
+                mode = QIcon::Active;
+            } else {
+                mode = QIcon::Disabled;
+            }
 
-        QIcon::State state;
-        if (item2->text() == tr("On")) {
-            state = QIcon::On;
-        } else {
-            state = QIcon::Off;
-        }
+            QIcon::State state;
+            if (item2->text() == tr("On")) {
+                state = QIcon::On;
+            } else {
+                state = QIcon::Off;
+            }
 
-        QString fileName = item0->data(Qt::UserRole).toString();
-        QImage image(fileName);
-        if (!image.isNull())
-            icon.addPixmap(QPixmap::fromImage(image), mode, state);
+            QString fileName = item0->data(Qt::UserRole).toString();
+            QImage image(fileName);
+            if (!image.isNull())
+                icon.addPixmap(QPixmap::fromImage(image), mode, state);
+        }
     }
 
     previewArea->setIcon(icon);
@@ -126,37 +134,38 @@ void Window::addImage()
             int row = imagesTable->rowCount();
             imagesTable->setRowCount(row + 1);
 
-            QString strippedFileName = QFileInfo(fileName).fileName();
-            QTableWidgetItem *item0 = new QTableWidgetItem(strippedFileName);
+            QString imageName = QFileInfo(fileName).baseName();
+            QTableWidgetItem *item0 = new QTableWidgetItem(imageName);
+            item0->setCheckState(Qt::Checked);
             item0->setData(Qt::UserRole, fileName);
             item0->setFlags(item0->flags() & ~Qt::ItemIsEditable);
 
-            QTableWidgetItem *item1 = new QTableWidgetItem;
-            if (fileName.contains("_active")) {
-                item1->setText(tr("Active"));
-            } else if (fileName.contains("_disabled")) {
-                item1->setText(tr("Disabled"));
-            } else {
-                item1->setText(tr("Normal"));
-            }
+            QTableWidgetItem *item1 = new QTableWidgetItem(tr("Normal"));
+            QTableWidgetItem *item2 = new QTableWidgetItem(tr("Off"));
 
-            QTableWidgetItem *item2 = new QTableWidgetItem;
-            if (fileName.contains("_on")) {
-                item2->setText(tr("On"));
-            } else {
-                item2->setText(tr("Off"));
+            if (guessModeStateAct->isChecked()) {
+                if (fileName.contains("_act")) {
+                    item1->setText(tr("Active"));
+                } else if (fileName.contains("_dis")) {
+                    item1->setText(tr("Disabled"));
+                }
+
+                if (fileName.contains("_on"))
+                    item2->setText(tr("On"));
             }
 
             imagesTable->setItem(row, 0, item0);
             imagesTable->setItem(row, 1, item1);
             imagesTable->setItem(row, 2, item2);
+            imagesTable->openPersistentEditor(item1);
+            imagesTable->openPersistentEditor(item2);
 
-            changeIcon();
+            changeIcon();;
         }
     }
 }
 
-void Window::resetImages()
+void Window::removeAllImages()
 {
     imagesTable->setRowCount(0);
     changeIcon();
@@ -189,26 +198,23 @@ void Window::createImagesGroupBox()
     imagesTable->setColumnCount(3);
     imagesTable->setHorizontalHeaderLabels(labels);
     imagesTable->setItemDelegate(new ImageDelegate(this));
-    imagesTable->horizontalHeader()->setResizeMode(QHeaderView::Stretch);
 
-    addButton = new QPushButton(tr("&Add..."));
-    resetButton = new QPushButton(tr("&Reset"));
+    imagesTable->horizontalHeader()->resizeSection(0, 160);
+    imagesTable->horizontalHeader()->resizeSection(1, 80);
+    imagesTable->horizontalHeader()->resizeSection(2, 80);
+    imagesTable->verticalHeader()->hide();
 
     connect(imagesTable, SIGNAL(itemChanged(QTableWidgetItem *)),
             this, SLOT(changeIcon()));
-    connect(addButton, SIGNAL(clicked()), this, SLOT(addImage()));
-    connect(resetButton, SIGNAL(clicked()), this, SLOT(resetImages()));
 
-    QGridLayout *layout = new QGridLayout;
-    layout->addWidget(imagesTable, 0, 0, 3, 1);
-    layout->addWidget(addButton, 0, 1);
-    layout->addWidget(resetButton, 1, 1);
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(imagesTable);
     imagesGroupBox->setLayout(layout);
 }
 
 void Window::createIconSizeGroupBox()
 {
-    iconSizeGroupBox = new QGroupBox(tr("&Icon Size"));
+    iconSizeGroupBox = new QGroupBox(tr("Icon Size"));
 
     smallRadioButton = new QRadioButton;
     largeRadioButton = new QRadioButton;
@@ -246,24 +252,54 @@ void Window::createIconSizeGroupBox()
     iconSizeGroupBox->setLayout(layout);
 }
 
-void Window::createMenus()
+void Window::createActions()
 {
+    addImageAct = new QAction(tr("&Add Image..."), this);
+    addImageAct->setShortcut(tr("Ctrl+A"));
+    connect(addImageAct, SIGNAL(triggered()), this, SLOT(addImage()));
+
+    removeAllImagesAct = new QAction(tr("&Remove All Images"), this);
+    removeAllImagesAct->setShortcut(tr("Ctrl+R"));
+    connect(removeAllImagesAct, SIGNAL(triggered()),
+            this, SLOT(removeAllImages()));
+
+    exitAct = new QAction(tr("&Exit"), this);
+    exitAct->setShortcut(tr("Ctrl+Q"));
+    connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+
     styleActionGroup = new QActionGroup(this);
     foreach (QString styleName, QStyleFactory::keys()) {
-        QAction *action = new QAction(styleName, styleActionGroup);
+        QAction *action = new QAction(styleActionGroup);
+        action->setText(tr("%1 Style").arg(styleName));
+        action->setIconText(styleName);
         action->setCheckable(true);
         connect(action, SIGNAL(checked(bool)), this, SLOT(changeStyle(bool)));
     }
+
+    guessModeStateAct = new QAction(tr("&Guess Image Mode/State"), this);
+    guessModeStateAct->setCheckable(true);
+    guessModeStateAct->setChecked(true);
 
     aboutAct = new QAction(tr("&About"), this);
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 
     aboutQtAct = new QAction(tr("About &Qt"), this);
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+}
 
-    styleMenu = menuBar()->addMenu(tr("&Style"));
+void Window::createMenus()
+{
+    fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(addImageAct);
+    fileMenu->addAction(removeAllImagesAct);
+    fileMenu->addSeparator();
+    fileMenu->addAction(exitAct);
+
+    viewMenu = menuBar()->addMenu(tr("&View"));
     foreach (QAction *action, styleActionGroup->actions())
-        styleMenu->addAction(action);
+        viewMenu->addAction(action);
+    viewMenu->addSeparator();
+    viewMenu->addAction(guessModeStateAct);
 
     menuBar()->addSeparator();
 
@@ -272,11 +308,19 @@ void Window::createMenus()
     helpMenu->addAction(aboutQtAct);
 }
 
+void Window::createContextMenu()
+{
+    imagesTable->setContextMenuPolicy(Qt::ActionsContextMenu);
+    imagesTable->addAction(addImageAct);
+    imagesTable->addAction(removeAllImagesAct);
+}
+
 void Window::checkCurrentStyle()
 {
     foreach (QAction *action, styleActionGroup->actions()) {
-        QString styleName = action->text();
+        QString styleName = action->iconText();
         QStyle *candidate = QStyleFactory::create(styleName);
+        Q_ASSERT(candidate);
         if (candidate->metaObject()->className()
                 == QApplication::style()->metaObject()->className()) {
             action->setChecked(true);

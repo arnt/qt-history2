@@ -59,7 +59,7 @@ QLabel *IconPreviewArea::createPixmapLabel()
     label->setFrameShape(QFrame::Box);
     label->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     label->setBackgroundRole(QPalette::Base);
-    label->setMinimumSize(100, 100);
+    label->setMinimumSize(132, 132);
     return label;
 }
 
