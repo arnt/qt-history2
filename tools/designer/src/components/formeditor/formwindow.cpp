@@ -342,6 +342,8 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
 {
     e->accept();
 
+    startPos = QPoint();
+
     if (e->buttons() != Qt::LeftButton)
         return true;
 
@@ -393,7 +395,7 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
 {
     e->accept();
 
-    if (e->buttons() != Qt::LeftButton)
+    if (e->buttons() != Qt::LeftButton || startPos.isNull())
         return true;
 
     if (drawRubber == true) {
@@ -402,9 +404,6 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
     }
 
     QPoint pos = mapFromGlobal(e->globalPos());
-    if (startPos.isNull())
-        return true;
-
     bool canStartDrag = (startPos - pos).manhattanLength() > QApplication::startDragDistance();
 
     if (canStartDrag == false) {
@@ -449,12 +448,10 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
         }
     }
 
-    if (sel.count())
-        core()->formWindowManager()->dragItems(item_list);
-
     blockSelectionChanged(blocked);
 
-    emitSelectionChanged(); // ensure the selection is updated!
+    if (sel.count())
+        core()->formWindowManager()->dragItems(item_list);
 
     return true;
 }
@@ -474,6 +471,7 @@ bool FormWindow::handleMouseReleaseEvent(QWidget *, QWidget *, QMouseEvent *e)
     }
 
     startPos = QPoint();
+
     emitSelectionChanged(); // inform about selection changes
 
     return true;

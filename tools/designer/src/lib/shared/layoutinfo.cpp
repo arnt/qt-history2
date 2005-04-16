@@ -136,7 +136,14 @@ bool LayoutInfo::isWidgetLaidout(QDesignerFormEditorInterface *core, QWidget *wi
     }
 
     if (parent && parent->layout()) {
-        return parent->layout()->indexOf(widget) != -1;
+        if (parent->layout()->indexOf(widget) != -1)
+            return true;
+
+        QList<QLayout*> childLayouts = qFindChildren<QLayout*>(parent->layout());
+        foreach (QLayout *childLayout, childLayouts) {
+            if (childLayout->indexOf(widget) != -1)
+                return true;
+        }
     }
 
     return false;
