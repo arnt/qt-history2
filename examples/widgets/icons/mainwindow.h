@@ -1,5 +1,5 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <QIcon>
 #include <QList>
@@ -15,12 +15,12 @@ class QTableWidget;
 class IconPreviewArea;
 class IconSizeSpinBox;
 
-class Window : public QMainWindow
+class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    Window();
+    MainWindow();
 
 private slots:
     void about();

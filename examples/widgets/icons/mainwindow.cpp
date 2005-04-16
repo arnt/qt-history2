@@ -3,9 +3,9 @@
 #include "iconpreviewarea.h"
 #include "iconsizespinbox.h"
 #include "imagedelegate.h"
-#include "window.h"
+#include "mainwindow.h"
 
-Window::Window()
+MainWindow::MainWindow()
 {
     centralWidget = new QWidget;
     setCentralWidget(centralWidget);
@@ -31,7 +31,7 @@ Window::Window()
     resize(860, 400);
 }
 
-void Window::about()
+void MainWindow::about()
 {
     QMessageBox::about(this, tr("About Icons"),
             tr("The <b>Icons</b> example illustrates how Qt renders an icon in "
@@ -39,7 +39,7 @@ void Window::about()
                "and off) based on a set of images."));
 }
 
-void Window::changeStyle(bool checked)
+void MainWindow::changeStyle(bool checked)
 {
     if (!checked)
         return;
@@ -63,7 +63,7 @@ void Window::changeStyle(bool checked)
     changeSize();
 }
 
-void Window::changeSize()
+void MainWindow::changeSize()
 {
     int extent;
 
@@ -89,7 +89,7 @@ void Window::changeSize()
     otherSpinBox->setEnabled(otherRadioButton->isChecked());
 }
 
-void Window::changeIcon()
+void MainWindow::changeIcon()
 {
     QIcon icon;
 
@@ -125,7 +125,7 @@ void Window::changeIcon()
     previewArea->setIcon(icon);
 }
 
-void Window::addImage()
+void MainWindow::addImage()
 {
     QStringList fileNames = QFileDialog::getOpenFileNames(this,
                                                           tr("Open Images"));
@@ -165,13 +165,13 @@ void Window::addImage()
     }
 }
 
-void Window::removeAllImages()
+void MainWindow::removeAllImages()
 {
     imagesTable->setRowCount(0);
     changeIcon();
 }
 
-void Window::createPreviewGroupBox()
+void MainWindow::createPreviewGroupBox()
 {
     previewGroupBox = new QGroupBox(tr("Preview"));
 
@@ -182,7 +182,7 @@ void Window::createPreviewGroupBox()
     previewGroupBox->setLayout(layout);
 }
 
-void Window::createImagesGroupBox()
+void MainWindow::createImagesGroupBox()
 {
     imagesGroupBox = new QGroupBox(tr("Images"));
     imagesGroupBox->setSizePolicy(QSizePolicy::Expanding,
@@ -212,7 +212,7 @@ void Window::createImagesGroupBox()
     imagesGroupBox->setLayout(layout);
 }
 
-void Window::createIconSizeGroupBox()
+void MainWindow::createIconSizeGroupBox()
 {
     iconSizeGroupBox = new QGroupBox(tr("Icon Size"));
 
@@ -252,7 +252,7 @@ void Window::createIconSizeGroupBox()
     iconSizeGroupBox->setLayout(layout);
 }
 
-void Window::createActions()
+void MainWindow::createActions()
 {
     addImageAct = new QAction(tr("&Add Image..."), this);
     addImageAct->setShortcut(tr("Ctrl+A"));
@@ -287,7 +287,7 @@ void Window::createActions()
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 
-void Window::createMenus()
+void MainWindow::createMenus()
 {
     fileMenu = menuBar()->addMenu(tr("&File"));
     fileMenu->addAction(addImageAct);
@@ -308,14 +308,14 @@ void Window::createMenus()
     helpMenu->addAction(aboutQtAct);
 }
 
-void Window::createContextMenu()
+void MainWindow::createContextMenu()
 {
     imagesTable->setContextMenuPolicy(Qt::ActionsContextMenu);
     imagesTable->addAction(addImageAct);
     imagesTable->addAction(removeAllImagesAct);
 }
 
-void Window::checkCurrentStyle()
+void MainWindow::checkCurrentStyle()
 {
     foreach (QAction *action, styleActionGroup->actions()) {
         QString styleName = action->iconText();
