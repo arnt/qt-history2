@@ -30,6 +30,7 @@ public:
     const uchar *data() const;
 
     bool isContainer() const;
+    QResource *child(const QString &name) const;
     QList<QResource *> children() const;
     const QResource *parent() const;
 

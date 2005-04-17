@@ -13,6 +13,7 @@
 
 #include "qresource.h"
 #include <qdir.h>
+#include <qhash.h>
 #include <qlocale.h>
 #include <qbytearray.h>
 #include <qreadwritelock.h>
@@ -59,7 +60,7 @@ struct QResourceNode
 
     uint container : 1;
     QResourceNode *parent;
-    QList<QResourceNode*> children;
+    QHash<QString, QResourceNode*> children;
 
     inline QResourceNode() : container(0), parent(0) { }
     inline ~QResourceNode() {
@@ -137,14 +138,7 @@ QResource *QResourcePrivate::locateResource(const QString &resource)
     QStringList chunks = QDir::cleanPath(resource).split(QLatin1Char('/'), QString::SkipEmptyParts);
     for(int i = 0; i < chunks.size(); i++) {
         QResourceNode *parent = ret;
-        ret = 0;
-        for(int subi = 0; subi < parent->children.size(); subi++) {
-            QResourceNode *child = parent->children.at(subi);
-            if(child->name == chunks[i]) {
-                ret = child;
-                break;
-            }
-        }
+        ret = parent->children.value(chunks[i]);
         if(!ret)
             break;
     }
@@ -178,7 +172,7 @@ QResource::~QResource()
 {
     Q_D(QResource);
     if(d->node->parent) {
-        d->node->parent->children.removeAll(d->node);
+        d->node->parent->children.remove(d->node->name);
         if(d->node->parent->children.isEmpty())
             delete d->node->parent;
     }
@@ -276,10 +270,27 @@ QList<QResource *> QResource::children() const
     Q_D(const QResource);
     QList<QResource *> ret;
     if(d->node->container) {
-        for(int i = 0; i < d->node->children.count(); i++)
-            ret.append(d->node->children.at(i)->localeResource());
+        for(QHash<QString, QResourceNode*>::iterator it = d->node->children.begin();
+            it != d->node->children.end(); ++it)
+            ret.append(it.value()->localeResource());
     }
     return ret;
+}
+
+/*!
+    Returns the child with name \a name if the child does not exist or
+    isContainer() returns false, 0 is returned.
+
+    \sa isContainer()
+*/
+QResource *QResource::child(const QString &name) const
+{
+    Q_D(const QResource);
+    if(d->node->container) {
+        if(QResourceNode *node = d->node->children[name])
+            return node->localeResource();
+    }
+    return 0;
 }
 
 /*!
@@ -424,21 +435,15 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
         for(int i = 0; i < chunks.size(); i++) {
             QResourceNode *parent = node;
             node = 0;
-            if(!creation_path) {
-                for(int subi = 0; subi < parent->children.size(); subi++) {
-                    if(parent->children.at(subi)->name == chunks[i]) {
-                        node = parent->children.at(subi);
-                        break;
-                    }
-                }
-            }
+            if(!creation_path)
+                node = parent->children.value(chunks[i]);
             if(!node) {
                 creation_path = true;
                 node = new QResourceNode;
                 node->name = chunks[i];
                 node->container = (i != (chunks.size()-1));
                 node->parent = parent;
-                parent->children.append(node);
+                parent->children.insert(chunks[i], node);
             }
         }
 
