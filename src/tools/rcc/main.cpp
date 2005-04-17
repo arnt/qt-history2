@@ -203,7 +203,7 @@ processResourceFile(const QString &file, FILE *out_fd, QStringList *created)
             //name
             fprintf(out_fd, "\n\t//name");
             for(int i = 0; i < location.length(); i++) {
-                if(!(i % 10))
+                if(!(i % 5))
                     fprintf(out_fd, "\n\t");
                 QChar c = location[i];
                 if(c == QDir::separator())
@@ -222,12 +222,14 @@ processResourceFile(const QString &file, FILE *out_fd, QStringList *created)
             for(int i = bytesNeeded; i; i--)
                 fprintf(out_fd, "0x%02x, ", ((input_length >> ((i-1)*8)) & 0xFF));
             fprintf(out_fd, "//length");
+            const char *data = input.constData();
             for(int i = 0; i < input_length; i++) {
                 if(!(i % 10))
                     fprintf(out_fd, "\n\t");
-                fprintf(out_fd, "0x%02x", (uchar)input.at(i));
                 if(i != input_length-1)
-                    fprintf(out_fd, ", ");
+                    fprintf(out_fd, "0x%02x, ", (uchar)*(data+i));
+                else
+                    fprintf(out_fd, "0x%02x, ", (uchar)*(data+i));
             }
 
             //footer
@@ -424,10 +426,10 @@ main(int argc, char **argv)
         init_name.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
         if(no_name)
             fprintf(out_fd, "static ");
-        fprintf(out_fd, "int qInitResources_%s()\n{", init_name.toLatin1().constData());
+        fprintf(out_fd, "int qInitResources_%s()\n{\n", init_name.toLatin1().constData());
         for(int resource = 0; resource < all_resources.count(); resource++)
             fprintf(out_fd, "\t(void)%s();\n", all_resources[resource].toLatin1().constData());
-        fprintf(out_fd, "\treturn %d;\n}", all_resources.count());
+        fprintf(out_fd, "\treturn %d;\n}\n", all_resources.count());
         fprintf(out_fd, "static int %s_static_init = qInitResources_%s();\n",
                 init_name.toLatin1().constData(), init_name.toLatin1().constData());
     }
