@@ -16,7 +16,6 @@
 #include <qfile.h>
 #include <qdir.h>
 #include <qregexp.h>
-#include <qtextstream.h>
 #include <qdom.h>
 #include <qlocale.h>
 #include <qtemporaryfile.h>
@@ -137,7 +136,7 @@ listResourceFile(const QString &file)
 }
 
 bool
-processResourceFile(const QString &file, QTextStream &out, QStringList *created)
+processResourceFile(const QString &file, FILE *out_fd, QStringList *created)
 {
     QList<RCCResource> resources = listResourceFile(file);
     for(int resource = 0; resource < resources.size(); ++resource) {
@@ -193,57 +192,57 @@ processResourceFile(const QString &file, QTextStream &out, QStringList *created)
             uchar flags = 0;
             if(compressRatio)
                 flags |= Compressed;
-            out << endl;
-            out << "//Generated from '" << inputQFile.fileName().toLatin1().data() << "'" << endl;
-            out << "static uchar " << resource_name << "[] = {" << endl;
-            out << "\t0x12, 0x15, 0x19, 0x78, //header" << endl;
-            out << "\t0x01, //version" << endl;
-            out << "\t" << (uchar) r.lang.language() << ", "
-                << (uchar) r.lang.country() << ", //lang" << endl;
-            out << "\t" << flags << ", //flags" << endl;
+            fprintf(out_fd, "\n");
+            fprintf(out_fd, "//Generated from '%s'\n", inputQFile.fileName().toLatin1().constData());
+            fprintf(out_fd, "static uchar %s[] = {\n", resource_name.constData());
+            fprintf(out_fd, "\t0x12, 0x15, 0x19, 0x78, //header\n");
+            fprintf(out_fd, "\t0x01, //version\n");
+            fprintf(out_fd, "\t0x%02x, 0x%02x, //lang\n", (uchar)r.lang.language(), (uchar)r.lang.country());
+            fprintf(out_fd, "\t0x%02x, //flags\n", flags);
 
             //name
-            out << endl;
-            out << "\t//name";
+            fprintf(out_fd, "\n\t//name");
             for(int i = 0; i < location.length(); i++) {
                 if(!(i % 10))
-                    out << "\n\t";
+                    fprintf(out_fd, "\n\t");
                 QChar c = location[i];
                 if(c == QDir::separator())
                     c = '/';
-                out << c.row() << ", " << c.cell() << ", ";
+                fprintf(out_fd, "0x%02x, 0x%02x, ", c.row(), c.cell());
             }
-            out << "\n\t0x00, 0x00, " << endl;
+            fprintf(out_fd, "\n\t0x00, 0x00, \n");
 
             //bits
-            out << "\n\t//bits" << endl;
+            fprintf(out_fd, "\n\t//bits\n");
             uchar bytesNeeded = 0;
             const int input_length = input.length();
             for(int length = input_length; length > 0; length >>= 8)
                 bytesNeeded++;
-            out << "\t" << bytesNeeded << ", //bytes in len\n\t";
+            fprintf(out_fd, "\t0x%02x, //bytes in len\n\t", bytesNeeded);
             for(int i = bytesNeeded; i; i--)
-                out << ((input_length >> ((i-1)*8)) & 0xFF) << ", ";
-            out << "//length";
+                fprintf(out_fd, "0x%02x, ", ((input_length >> ((i-1)*8)) & 0xFF));
+            fprintf(out_fd, "//length");
             for(int i = 0; i < input_length; i++) {
                 if(!(i % 10))
-                    out << "\n\t";
-                out << (uchar)input[i];
+                    fprintf(out_fd, "\n\t");
+                fprintf(out_fd, "0x%02x", (uchar)input.at(i));
                 if(i != input_length-1)
-                    out << ", ";
+                    fprintf(out_fd, ", ");
             }
 
             //footer
-            out << "\n};" << endl;
+            fprintf(out_fd, "\n};\n");
 
             //QMetaResource
-            out << "Q_GLOBAL_STATIC_WITH_ARGS(QMetaResource, resource_"
-                << resource_name << ", (" << resource_name << "))" << endl;
+            fprintf(out_fd, "Q_GLOBAL_STATIC_WITH_ARGS(QMetaResource, resource_%s, (%s))\n",
+                    resource_name.constData(), resource_name.constData());
             if(created) {
                 QString rc = "resource_" + resource_name;
+#if 0
                 if(created->contains(rc))
                     fprintf(stderr, "Warning: duplicate symbol %s[%s]!\n",
                             rc.toLatin1().constData(), inputQFile.fileName().toLatin1().constData());
+#endif
                 created->append(rc);
             }
         }
@@ -274,7 +273,7 @@ showHelp(const char *argv0, const QString &error)
 int
 main(int argc, char **argv)
 {
-    QString init_name, output_file;
+    QString init_name, out_filename;
     bool show_help = false;
     QStringList files, display;
 
@@ -288,7 +287,7 @@ main(int argc, char **argv)
                     error_msg = QLatin1String("Missing output name");
                     break;
                 }
-                output_file = argv[++i];
+                out_filename = argv[++i];
             } else if(opt == "list") {
                 if (!(i < argc-1)) {
                     error_msg = QLatin1String("Missing list description");
@@ -345,30 +344,17 @@ main(int argc, char **argv)
         return showHelp(argv[0], error_msg);
 
     //open output
-    bool asTempFile = false;
-    QIODevice *out_dev = 0;
-    if (!output_file.isEmpty() && output_file != "-") {
-        out_dev = new QTemporaryFile;
-        if(!out_dev->open(QFile::ReadWrite)) {
-            delete out_dev;
-            out_dev = new QFile(output_file);
-            if(!out_dev->open(QIODevice::WriteOnly)) {
-                qWarning("%s: Could not open output file '%s'", argv[0], output_file.toLocal8Bit().data());
-                return 1;
-            }
-        } else {
-            asTempFile = true;
-        }
-    } else {
-        QFile *file = new QFile;
-        out_dev = file;
-        if(!file->open(QFile::WriteOnly, stdout)) {
-            delete file;
+    FILE *out_fd = stdout;
+    if (!out_filename.isEmpty() && out_filename != "-") {
+        out_fd = fopen(out_filename.toLocal8Bit().constData(), "w");
+        if(!out_fd) {
+            qWarning("%s: Could not open output file '%s'", argv[0], out_filename.toLocal8Bit().data());
             return 1;
         }
     }
+
+    //render the display
     if(!display.isEmpty()) {
-        QTextStream out(out_dev);
         for(int file = 0; file < files.count(); file++) {
             QList<RCCResource> resources = listResourceFile(files[file]);
             for(int resource = 0; resource < resources.size(); ++resource) {
@@ -377,89 +363,77 @@ main(int argc, char **argv)
                     for(int f = 0; f < r.files.size(); ++f) {
                         for(int d = 0; d < display.size(); ++d) {
                             if(d)
-                                out << ",";
+                                fprintf(out_fd, ",");
                             if(display.at(d) == "files")
-                                out << r.files.at(f).fileinfo.filePath();
+                                fprintf(out_fd, "%s", r.files.at(f).fileinfo.filePath().toLatin1().constData());
                             else if(display.at(d) == "names")
-                                out << ":" + QDir::cleanPath(resource_root + "/" + r.prefix + "/" + r.files.at(f).name);
+                                fprintf(out_fd, ":%s",
+                                        QDir::cleanPath(resource_root + "/" +
+                                                        r.prefix + "/" +
+                                                        r.files.at(f).name).toLatin1().constData());
                             else if(display.at(d) == "langs")
-                                out << r.lang.name();
+                                fprintf(out_fd, "%s", r.lang.name().toLatin1().constData());
                         }
-                        out << endl;
+                        fprintf(out_fd, "\n");
                     }
                 } else {
                     for(int d = 0; d < display.size(); ++d) {
                         if(d)
-                            out << ",";
+                            fprintf(out_fd, ",");
                         if(display.at(d) == "langs")
-                            out << r.lang.name();
+                            fprintf(out_fd, "%s", r.lang.name().toLatin1().constData());
                     }
-                    out << endl;
+                    fprintf(out_fd, "\n");
                 }
             }
         }
 
         //close
-        out.flush();
-        out_dev->close();
-        if(asTempFile) {
-            QTemporaryFile *temp = static_cast<QTemporaryFile*>(out_dev);
-            temp->rename(output_file);
-        }
-        delete out_dev;
-        out_dev = 0;
+        fclose(out_fd);
         return 0;
     }
 
     bool write_error = false;
-    QTextStream out(out_dev);
-    out << hex << showbase;
-    out <<  "/****************************************************************************" << endl;
-    out << "** Resource object code" << endl;
-    out << "**" << endl;
-    out << "** Created: " << QDateTime::currentDateTime().toString().toLatin1().data() << endl;
-    out << "**      by: The Resource Compiler for Qt version " << QT_VERSION_STR << endl;
-    out << "**" << endl;
-    out << "** WARNING! All changes made in this file will be lost!" << endl;
-    out << "*****************************************************************************/" << endl << endl;
-    out << "#include <qresource.h>" << endl;
+    fprintf(out_fd, "/****************************************************************************\n");
+    fprintf(out_fd, "** Resource object code\n");
+    fprintf(out_fd, "**\n");
+    fprintf(out_fd, "** Created: %s\n", QDateTime::currentDateTime().toString().toLatin1().data());
+    fprintf(out_fd, "**      by: The Resource Compiler for Qt version %s\n", QT_VERSION_STR);
+    fprintf(out_fd, "**\n");
+    fprintf(out_fd, "** WARNING! All changes made in this file will be lost!\n");
+    fprintf(out_fd, "*****************************************************************************/\n\n");
+    fprintf(out_fd, "#include <qresource.h>\n");
 
     //process files
     QStringList all_resources;
     for(int file = 0; file < files.count(); file++) {
-        if(!processResourceFile(files[file], out, &all_resources)) {
+        if(!processResourceFile(files[file], out_fd, &all_resources)) {
             write_error = true;
             break;
         }
     }
     if(!write_error) {
         //initialization functions
-        out << "//resource initialization function" << endl;
+        fprintf(out_fd, "//resource initialization function\n");
         bool no_name = init_name.isEmpty();
         if(no_name) { //need to make up one..
-            init_name = output_file;
+            init_name = out_filename;
             if(QDir::isRelativePath(init_name))
                 init_name.prepend(QDir::currentPath() + "_");
         }
         init_name.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
         if(no_name)
-            out << "static ";
-        out << "int qInitResources_" << init_name << "()" << endl << "{" << endl;
+            fprintf(out_fd, "static ");
+        fprintf(out_fd, "int qInitResources_%s()\n{", init_name.toLatin1().constData());
         for(int resource = 0; resource < all_resources.count(); resource++)
-            out << "\t(void)" << all_resources[resource] << "();" << endl;
-        out << "\treturn " << all_resources.count() << ";" << endl << "}" << endl;
-        out << "static int " << init_name << "_static_init = qInitResources_" << init_name << "();" << endl;
+            fprintf(out_fd, "\t(void)%s();\n", all_resources[resource].toLatin1().constData());
+        fprintf(out_fd, "\treturn %d;\n}", all_resources.count());
+        fprintf(out_fd, "static int %s_static_init = qInitResources_%s();\n",
+                init_name.toLatin1().constData(), init_name.toLatin1().constData());
     }
 
     //close
-    out.flush();
-    out_dev->close();
-    if(!write_error && asTempFile) {
-        QTemporaryFile *temp = static_cast<QTemporaryFile*>(out_dev);
-        temp->rename(output_file);
-    }
-    delete out_dev;
-    out_dev = 0;
+    fclose(out_fd);
 
     //done
     return write_error ? 11 : 0;
