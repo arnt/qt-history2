@@ -58,11 +58,12 @@ struct QResourceNode
     QList<QResource*> resources;
     QResource *localeResource(); //find the resource for locale
 
+    uint autoCreated : 1;
     uint container : 1;
     QResourceNode *parent;
     QHash<QString, QResourceNode*> children;
 
-    inline QResourceNode() : container(0), parent(0) { }
+    inline QResourceNode() : autoCreated(0), container(0), parent(0) { }
     inline ~QResourceNode() {
         qDeleteAll(children);
         children.clear();
@@ -173,7 +174,7 @@ QResource::~QResource()
     Q_D(QResource);
     if(d->node->parent) {
         d->node->parent->children.remove(d->node->name);
-        if(d->node->parent->children.isEmpty())
+        if(d->node->parent->autoCreated && d->node->parent->children.isEmpty())
             delete d->node->parent;
     }
     delete d_ptr;
@@ -387,6 +388,7 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
     QWriteLocker locker(::resourceLock());
     if(!qt_resource_root) {
         qt_resource_root = new QResourceNode;
+        qt_resource_root->autoCreated = true;
         qt_resource_root->container = true;
         qt_resource_root->name = QLatin1Char('/');
     }
@@ -440,6 +442,7 @@ QMetaResource::QMetaResource(const uchar *resource) : d_ptr(new QMetaResourcePri
             if(!node) {
                 creation_path = true;
                 node = new QResourceNode;
+                node->autoCreated = true;
                 node->name = chunks[i];
                 node->container = (i != (chunks.size()-1));
                 node->parent = parent;
