@@ -1505,7 +1505,7 @@ for (QForeachContainer<__typeof__(container)> _container_(container); \
      ({ ++_container_.brk; ++_container_.i; }))                       \
     for (variable = *_container_.i;;({--_container_.brk; break;}))
 
-#elif (defined Q_CC_MSVC && _MSC_VER < 1300) || (defined Q_CC_HPACC) || (defined Q_CC_BOR)
+#elif (defined Q_CC_MSVC && _MSC_VER < 1300) || (defined Q_CC_HPACC) || (defined Q_CC_BOR) || (defined Q_CC_XLC)
 
 template <typename T>
 class QForeachContainer  {
@@ -1516,6 +1516,13 @@ public:
     typename T::const_iterator i, e;
 #ifdef Q_CC_BOR
     inline bool condition() const { if (!brk++ && i != e) return true; this->~QForeachContainer<T>(); return false; }
+#elif defined(Q_CC_XLC)
+    bool condition() const {
+        // force the optimizer to not optimize these out
+        volatile T::const_iterator ii = i;
+        volatile T::const_iterator ee = e;
+        if (!brk++ && (T::const_iterator)ii != (T::const_iterator)ee) return true; this->~QForeachContainer<T>(); return false;
+    }
 #else
     inline bool condition() const { if (!brk++ && i != e) return true; this->~QForeachContainer(); return false; }
 #endif
@@ -1606,16 +1613,7 @@ public:
     const T c;
     mutable int brk;
     typename T::const_iterator i, e;
-#ifdef Q_CC_XLC
-    bool condition() const {
-        // force the optimizer to not optimize these out
-        volatile T::const_iterator ii = i;
-        volatile T::const_iterator ee = e;
-        if (!brk++ && (T::const_iterator)ii != (T::const_iterator)ee) return true; this->~QForeachContainer<T>(); return false;
-    }
-#else
     inline bool condition() const { if (!brk++ && i != e) return true; this->~QForeachContainer(); return false; }
-#endif
 };
 
 template <int size>
