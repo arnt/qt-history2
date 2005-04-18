@@ -827,7 +827,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
       (or 0) as a very special case.  The fudge variable unifies this
       case with the general case.
     */
-    int dot = pen.width();                     // width of a dot
+    int dot = qRound(pen.widthF());
     int fudge = 1;
     bool allow_zero_lw = true;
     if (dot <= 1) {
@@ -922,7 +922,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
             d->adapted_pen_origin = true;
         }
     }
-    vals.line_width = (! allow_zero_lw && pen.width() == 0) ? 1 : pen.width();
+    vals.line_width = (! allow_zero_lw && pen.widthF() == 0) ? 1 : qRound(pen.widthF());
     vals.cap_style = cp;
     vals.join_style = jn;
     if (dash_len) {
@@ -1216,9 +1216,9 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     }
 
     if (d->cpen.style() != Qt::NoPen
-        && (d->cpen.color().alpha() != 255
-            || (d->cpen.widthF() > 0)
-            || (d->render_hints & QPainter::Antialiasing))) {
+        && ((X11->use_xrender && (d->cpen.color().alpha() != 255
+                                  || (d->render_hints & QPainter::Antialiasing)))
+            || (d->cpen.widthF() > 0 && d->txop > QPainterPrivate::TxTranslate))) {
         QPainterPathStroker stroker;
         stroker.setDashPattern(d->cpen.style());
         stroker.setCapStyle(d->cpen.capStyle());

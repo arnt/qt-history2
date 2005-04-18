@@ -300,13 +300,13 @@ bool QSizeGrip::event(QEvent *e)
     case QEvent::Resize: {
         QPolygon pa(3);
         if (isLeftToRight()) {
-            pa.setPoint(0, width() + 1, 0);
-            pa.setPoint(1, width() + 1, height() + 1);
-            pa.setPoint(2, 0, height());
+            pa.setPoint(0, width(), -1);
+            pa.setPoint(1, width(), height());
+            pa.setPoint(2, -1, height());
         } else {
-            pa.setPoint(0, 0, 0);
-            pa.setPoint(1, width() + 1, height() + 1);
-            pa.setPoint(2, 0, height() + 1);
+            pa.setPoint(0, 0, -1);
+            pa.setPoint(1, width() + 1, height());
+            pa.setPoint(2, 0, height());
         }
         clearMask();
         setMask(QRegion(pa));
