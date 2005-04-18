@@ -107,8 +107,8 @@ QInputEvent::~QInputEvent()
     the \l Qt::ButtonState enum. If the event \a type is
     \c MouseMove, the appropriate button for this event is
     \c Qt::NoButton (0).
-    The \a state is the \link Qt::ButtonState Qt::ButtonState \endlink
-    at the time of the event.
+    The mouse and keyboard states at the time of the event are specified by
+    \a buttons and \a modifiers.
 
     The globalPos() is initialized to QCursor::pos(), which may not
     be appropriate. Use the other constructor to specify the global
@@ -1028,6 +1028,7 @@ QIconDragEvent::QIconDragEvent()
     : QEvent(IconDrag)
 { ignore(); }
 
+/*! \internal */
 QIconDragEvent::~QIconDragEvent()
 {
 }
@@ -1071,12 +1072,18 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPo
 {}
 
 #ifdef QT3_SUPPORT
+/*!
+    Constructs a context menu event with the given \a reason for the
+    position specified by \a pos in widget coordinates and \a globalPos
+    in global screen coordinates.
+*/
 QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos,
                                      int)
     : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason)
 {}
 #endif
 
+/*! \internal */
 QContextMenuEvent::~QContextMenuEvent()
 {
 }
@@ -1101,6 +1108,10 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
 }
 
 #ifdef QT3_SUPPORT
+/*!
+    Constructs a context menu event with the given \a reason for the
+    position specified by \a pos in widget coordinates.
+*/
 QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int)
     : QInputEvent(ContextMenu), p(pos), reas(reason)
 {
@@ -1492,8 +1503,9 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     \value Puck    A Puck (a device that is similar to a flat mouse with
     a transparent circle with cross-hairs).
     \value Stylus  A Stylus.
-    \value AirBrush An airbrush
+    \value Airbrush An airbrush
     \value FourDMouse A 4D Mouse.
+    \omitvalue XFreeEraser
 */
 
 /*!
@@ -1512,8 +1524,12 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
 
   The \a pos parameter indicates where the event occurred in the
   widget; \a globalPos is the corresponding position in absolute
-  coordinates. The \a hiResGlobalPos contains high resolution \a
-  pressure contains the pressure exerted on the \a device.
+  coordinates. The \a hiResGlobalPos contains a high resolution
+  measurement of the position.
+
+  \a pressure contains the pressure exerted on the \a device.
+
+  \a pointerType describes the type of pen that is being used.
 
   \a xTilt and \a yTilt contain the device's degree of tilt from the
   x and y axes respectively.
@@ -1538,7 +1554,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
 
 QTabletEvent::QTabletEvent(Type type, const QPoint &pos,  const QPoint &globalPos,
                            const QPointF &hiResGlobalPos, int device, int pointerType,
-                           qreal pressure, int xTilt, int yTilt, qreal tangentialPressure,
+                           qreal pressure, int xTilt, int yTilt, qreal tangentalPressure,
                            qreal rotation, int z, Qt::KeyboardModifiers keyState, qint64 uniqueID)
     : QInputEvent(type, keyState),
       mPos(pos),
@@ -1550,7 +1566,7 @@ QTabletEvent::QTabletEvent(Type type, const QPoint &pos,  const QPoint &globalPo
       mYT(yTilt),
       mZ(z),
       mPress(pressure),
-      mTangential(tangentialPressure),
+      mTangental(tangentalPressure),
       mRot(rotation),
       mUnique(uniqueID),
       mExtra(0)
@@ -1576,7 +1592,7 @@ QTabletEvent::~QTabletEvent()
 */
 
 /*!
-    \fn qreal QTabletEvent::tangentialPressure() const
+    \fn qreal QTabletEvent::tangentalPressure() const
 
     Returns the tangental pressure for the device.  This is typically given by a finger
     wheel on an airbrush tool.  The range is from -1.0 to 1.0. 0.0 indicates a
@@ -1736,6 +1752,10 @@ QTabletEvent::~QTabletEvent()
     Creates a QDragMoveEvent of the required \a type indicating
     that the mouse is at position \a pos given within a widget.
 
+    The mouse and keyboard states are specified by \a buttons and
+    \a modifiers.
+    The drag data is passed as MIME-encoded information in \a data.
+
     \warning Do not attempt to create a QDragMoveEvent yourself.
     These objects rely on Qt's internal state.
 */
@@ -1835,8 +1855,10 @@ QDragMoveEvent::~QDragMoveEvent()
 
 /*!
     Constructs a drop event of a certain \a type corresponding to a
-    drop at the given \a point in a widget. The drag data is stored
-    in \a data.
+    drop at the given \a point in the destination widget's coordinate
+    system.
+
+    The drag data is stored as MIME-encoded data in \a data.
 */ // ### pos is in which coordinate system?
 QDropEvent::QDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data,
                        Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Type type)
@@ -1849,6 +1871,7 @@ QDropEvent::QDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeDa
     ignore();
 }
 
+/*! \internal */
 QDropEvent::~QDropEvent()
 {
 }
@@ -2079,7 +2102,10 @@ QT3_SUPPORT QDropEvent::Action QDropEvent::action() const
 
 /*!
     Constructs a QDragEnterEvent that represents a drag entering a
-    widget at the given \a point. The drag data is passed as \a data.
+    widget at the given \a point with mouse and keyboard states specified by
+    \a buttons and \a modifiers.
+
+    The drag data is passed as MIME-encoded information in \a data.
 
     \warning Do not create a QDragEnterEvent yourself since these
     objects rely on Qt's internal state.
@@ -2509,7 +2535,8 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     \class QClipboardEvent
     \ingroup events
 
-    \brief The QClipboard class contains the parameters for a clipboard event
+    \brief The QClipboard class provides the parameters used in a clipboard
+    event.
 
     This class is for internal use only, and exists to aid the clipboard on various
     platforms to get all the information it needs.  Use QEvent::Clipboard instead.
@@ -2527,7 +2554,8 @@ QClipboardEvent::~QClipboardEvent()
     \class QWindowStateChangeEvent
     \ingroup events
 
-    \brief The QWindowStateChangeEvent provides the window state before the change.
+    \brief The QWindowStateChangeEvent class provides the window state before a
+    window state change.
 */
 
 /*! \fn Qt::WindowStates QWindowStateChangeEvent::oldState() const

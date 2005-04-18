@@ -185,7 +185,7 @@ void QWidget::setInputContext(QInputContext *context)
     'Preedit preservation' section of the class description of
     QInputContext for further information.
 
-    \sa QInputContext, unfocusInputContext(), QInputContext::unsetFocus()
+    \sa QInputContext, QInputContext::reset()
 */
 void QWidget::resetInputContext()
 {
@@ -619,8 +619,9 @@ static inline bool isPersonallyHidden(const QWidget *w)
 
     The widget flags argument, \a f, is normally 0, but it can be set
     to customize the frame of a window (i.e. \a
-    parent must be 0). To customize the frame, set the \c
-    Qt::WStyle_Customize flag OR'ed with any of the \l{Qt::WFlag}s.
+    parent must be 0). To customize the frame, use a value composed
+    from the bitwise OR of \c Qt::WStyle_Customize flag and any of the
+    other \l{Qt::WindowFlags}{window flags}.
 
     If you add a child widget to an already visible widget you must
     explicitly show the child to make it visible.
@@ -659,7 +660,9 @@ QWidget::QWidget(QWidgetPrivate &dd, QWidget* parent, Qt::WFlags f)
     d_func()->init(f);
 }
 
-
+/*!
+    \internal
+*/
 int QWidget::devType() const
 {
     return QInternal::Widget;
@@ -1749,7 +1752,7 @@ QList<QAction*> QWidget::actions() const
     respectively enables all child widgets unless they have been
     explicitly disabled.
 
-    \sa isEnabled(), isEnabledTo(), QKeyEvent, QMouseEvent, changeEvent()
+    \sa isEnabledTo(), QKeyEvent, QMouseEvent, changeEvent()
 */
 void QWidget::setEnabled(bool enable)
 {
@@ -2657,7 +2660,7 @@ QPalette::ColorRole QWidget::foregroundRole() const
   If \a role is \c QPalette::NoRole, the widget uses a foreground role
   that contrasts with the background role.
 
-  \sa backgroundRole(), setForegroundRole()
+  \sa foregroundRole(), backgroundRole()
  */
 void QWidget::setForegroundRole(QPalette::ColorRole role)
 {
@@ -3157,6 +3160,15 @@ void QWidget::setFocus(Qt::FocusReason reason)
 #endif
     }
 }
+
+/*!
+    \fn void QWidget::setFocus()
+    \overload
+
+    Gives the keyboard input focus to this widget (or its focus
+    proxy) if this widget or one of its parents is the
+    \l{isActiveWindow()}{active window}.
+*/
 
 /*!
     Takes keyboard input focus from the widget.
@@ -3703,8 +3715,7 @@ void QWidget::setContextMenuPolicy(Qt::ContextMenuPolicy policy)
     constructor. For instance, the QLineEdit constructor calls
     setFocusPolicy(Qt::StrongFocus).
 
-    \sa focusEnabled, focusInEvent(), focusOutEvent(), keyPressEvent(),
-        keyReleaseEvent(), enabled
+    \sa focusInEvent(), focusOutEvent(), keyPressEvent(), keyReleaseEvent(), enabled
 */
 
 
@@ -5237,7 +5248,7 @@ void QWidget::inputMethodEvent(QInputMethodEvent *e)
 
     \a query specifies which property is queried.
 
-    \sa Qt::ImQueryProperty QInputMethodEvent QInputContext
+    \sa inputMethodEvent(), QInputMethodEvent, QInputContext
 */
 QVariant QWidget::inputMethodQuery(Qt::InputMethodQuery query) const
 {
@@ -5498,7 +5509,7 @@ bool QWidget::qwsEvent(QWSEvent *)
     If you need to change some settings when a widget is polished,
     use the Polish event delivered to event().
 
-    \sa event(), QApplication::polish()
+    \sa event()
 */
 void QWidget::ensurePolished() const
 {
@@ -5661,9 +5672,11 @@ int QWidget::heightForWidth(int w) const
 }
 
 /*!
-    Returns the visible child widget at pixel position (\a{x}, \a{y})
-    in the widget's own coordinate system. If there is no visible
-    child widget at the specified position, returns 0.
+    \fn QWidget *QWidget::childAt(int x, int y) const
+
+    Returns the visible child widget at the position (\a{x}, \a{y})
+    in the widget's coordinate system. If there is no visible child
+    widget at the specified position, the function returns 0.
 */
 
 /*!
@@ -5736,12 +5749,16 @@ void QWidget::setWindowFlags(Qt::WindowFlags f)
         setParent(parentWidget(), f);
 }
 
+/*!
+    Overrides the window flags for the widget with \a f.
+*/
 void QWidget::overrideWindowFlags(Qt::WindowFlags f)
 {
     data->window_flags = f;
 }
 
-/*! \fn Qt::WindowType windowType() const
+/*!
+    \fn Qt::WindowType QWidget::windowType() const
 
     Returns the window type of this widget. This is identical to
     windowFlags() & Qt::WindowType_Mask.
@@ -5786,7 +5803,7 @@ void QWidget::setParent(QWidget *parent)
 
     This function also takes widget flags, \a f as an argument.
 
-    \sa getWFlags()
+    \sa windowFlags()
 */
 
 void QWidget::setParent(QWidget *parent, Qt::WFlags f)
@@ -6264,6 +6281,11 @@ void QWidget::setShortcutEnabled(int id, bool enable)
 }
 
 
+/*!
+    Updates the widget's micro focus.
+
+    \sa QInputContext
+*/
 void QWidget::updateMicroFocus()
 {
 #if defined(Q_WS_X11) || defined(Q_WS_QWS)
@@ -6827,6 +6849,20 @@ void QWidget::languageChange() { }  // compat
         if (widget->rect().contains(x, y))
             return widget;
     \endcode
+*/
+
+/*!
+    \fn void QWidget::setSizePolicy(QSizePolicy::Policy hor, QSizePolicy::Policy ver, bool hfw)
+    \compat
+
+    Use the \l sizePolicy property and heightForWidth() function instead.
+*/
+
+/*!
+    \fn bool QWidget::isUpdatesEnabled() const
+    \compat
+
+    Use the \l updatesEnabled property instead.
 */
 
 #include "moc_qwidget.cpp"
