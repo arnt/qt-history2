@@ -1,6 +1,7 @@
 #ifndef CONNECTION_H
 #define CONNECTION_H
 
+#include <QMessageBox>
 #include <QSqlDatabase>
 #include <QSqlError>
 #include <QSqlQuery>
@@ -18,8 +19,11 @@ static bool createConnection()
     QSqlDatabase db = QSqlDatabase::addDatabase("QSQLITE");
     db.setDatabaseName(":memory:");
     if (!db.open()) {
-        qCritical("Cannot open database: %s (%s)", db.lastError().text().toLatin1().data(),
-                  qt_error_string().toLocal8Bit().data());
+        QMessageBox::critical(0, qApp->tr("Cannot open database"),
+            qApp->tr("Unable to establish a database connection.\n"
+                     "Perhaps Qt was built without database support.\n\n"
+                     "Click Cancel to exit."), QMessageBox::Cancel,
+                     QMessageBox::NoButton);
         return false;
     }
 
