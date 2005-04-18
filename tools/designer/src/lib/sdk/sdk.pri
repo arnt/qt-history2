@@ -20,7 +20,6 @@ HEADERS += $$PWD/abstractformeditor.h \
     $$PWD/taskmenu.h \
     $$PWD/abstractwidgetbox.h \
     $$PWD/layoutdecoration.h \
-    $$PWD/extrainfo.h \
     $$PWD/abstractdnditem.h
 
 SOURCES += $$PWD/abstractformeditor.cpp \

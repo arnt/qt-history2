@@ -30,6 +30,7 @@ class QDesignerToolBox;
 class QDesignerContainerExtension;
 class QDesignerWidgetDataBaseItemInterface;
 class QDesignerFormEditorInterface;
+class QDesignerCustomWidgetInterface;
 
 namespace qdesigner { namespace components { namespace formeditor {
 
@@ -117,6 +118,7 @@ private:
     QHash<QString, QString> m_qt_to_internal;
     QHash<QString, QString> m_internal_to_qlayout;
     QHash<QString, QString> m_qlayout_to_internal;
+    QHash<QString, QDesignerCustomWidgetInterface*> m_customFactory;
     QStack<QLayout*> m_chain;
     QHash<QDesignerWidgetDataBaseItemInterface*, bool> m_usedCustomWidgets;
     int m_topLevelSpacerCount;

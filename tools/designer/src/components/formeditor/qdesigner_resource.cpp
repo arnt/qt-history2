@@ -27,11 +27,12 @@
 #include <resourcefile.h>
 #include <qdesigner_promotedwidget.h>
 #include <qdesigner_utils.h>
+#include <pluginmanager.h>
 
 // sdk
 #include <QtDesigner/container.h>
 #include <QtDesigner/propertysheet.h>
-#include <QtDesigner/extrainfo.h>
+#include <QtDesigner/customwidget.h>
 #include <QtDesigner/qextensionmanager.h>
 #include <QtDesigner/abstractwidgetfactory.h>
 #include <QtDesigner/abstractmetadatabase.h>
@@ -80,6 +81,20 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
 
         m_qt_to_internal.insert(it.value(), it.key());
     }
+
+
+    QStringList plugins = m_core->pluginManager()->registeredPlugins();
+
+    foreach (QString plugin, plugins) {
+        QObject *o = m_core->pluginManager()->instance(plugin);
+
+        if (QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o)) {
+            if (!c->isInitialized())
+                c->initialize(m_core);
+
+            m_customFactory.insert(c->name(), c);
+        }
+    }
 }
 
 QDesignerResource::~QDesignerResource()
@@ -125,10 +140,6 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
                            "it to Qt4's ui format.").arg(version),
                                QMessageBox::Ok, 0);
         return 0;
-    }
-
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), m_formWindow)) {
-        extra->saveExtraInfo(ui, m_formWindow);
     }
 
     m_isMainWidget = true;
@@ -248,8 +259,8 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     foreach (DomAction *action, action_list)
         m_formWindow->actionList().append(createActionListElt(action));
 
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), m_formWindow)) {
-        extra->loadExtraInfo(w, ui_widget);
+    if (QDesignerCustomWidgetInterface *plugin = m_customFactory.value(ui_widget->attributeClass())) {
+        plugin->loadExtraInfo(w, ui_widget);
     }
 
     return w;
@@ -264,10 +275,6 @@ QLayout *QDesignerResource::create(DomLayout *ui_layout, QLayout *layout, QWidge
 
     if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(l))
         QLayoutSupport::createEmptyCells(gridLayout);
-
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), layout)) {
-        extra->loadExtraInfo(layout, ui_layout);
-    }
 
     return l;
 }
@@ -494,9 +501,8 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
             w->setElementAction(dom_action_list);
     }
 
-
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), widget)) {
-        extra->saveExtraInfo(w, widget);
+    if (QDesignerCustomWidgetInterface *plugin = m_customFactory.value(w->attributeClass())) {
+        plugin->saveExtraInfo(widget, w);
     }
 
     return w;
@@ -517,10 +523,6 @@ DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_layout, D
         l->setAttributeClass(m_internal_to_qlayout.value(className));
 
     m_chain.pop();
-
-    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), layout)) {
-        extra->saveExtraInfo(l, layout);
-    }
 
     return l;
 }

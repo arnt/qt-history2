@@ -305,6 +305,7 @@ void FormWindow::setMainContainer(QWidget *w)
 
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), m_mainContainer)) {
         sheet->setVisible(sheet->indexOf(QLatin1String("windowTitle")), true);
+        sheet->setVisible(sheet->indexOf(QLatin1String("windowIcon")), true);
         // ### generalize
     }
 

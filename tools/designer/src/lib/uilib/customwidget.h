@@ -21,6 +21,7 @@
 
 class QWidget;
 class QDesignerFormEditorInterface;
+class DomWidget;
 
 class QDesignerCustomWidgetInterface
 {
@@ -39,19 +40,14 @@ public:
 
     virtual QWidget *createWidget(QWidget *parent) = 0;
 
-//
-// IDesignerCustomWidget
-//
-    virtual bool isInitialized() const
-    { return false; }
+    virtual bool isInitialized() const { return false; }
+    virtual void initialize(QDesignerFormEditorInterface *core) { Q_UNUSED(core); }
 
-    virtual void initialize(QDesignerFormEditorInterface *core)
-    { Q_UNUSED(core); }
-
-    virtual QString codeTemplate() const
-    { return QString(); }
-
+    virtual QString codeTemplate() const { return QString(); }
     virtual QString domXml() const { return QString(); }
+
+    virtual bool saveExtraInfo(QWidget *widget, DomWidget *ui_widget) { Q_UNUSED(widget); Q_UNUSED(ui_widget); return false; }
+    virtual bool loadExtraInfo(QWidget *widget, DomWidget *ui_widget) { Q_UNUSED(widget); Q_UNUSED(ui_widget); return false; }
 };
 
 Q_DECLARE_INTERFACE(QDesignerCustomWidgetInterface, "http://trolltech.com/Qt/IDE/CustomWidget")
