@@ -1,6 +1,4 @@
-HEADERS     = dragicon.h \
-              dragwidget.h
+HEADERS     = dragwidget.h
 RESOURCES   = draggableicons.qrc
-SOURCES     = dragicon.cpp \
-              dragwidget.cpp \
+SOURCES     = dragwidget.cpp \
               main.cpp
