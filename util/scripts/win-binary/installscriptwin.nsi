@@ -106,7 +106,7 @@ Section -Post
   call MakeQtVarsFile
   
   #setting the qt version for the integration
-  WriteRegStr HKCU "SOFTWARE\trolltech.com\Versions\${PRODUCT_VERSION}\" "InstallDir" "$INSTDIR"
+  WriteRegStr HKCU "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\" "InstallDir" "$INSTDIR"
 
   call PatchPrlFiles
   call PatchPdbFiles
@@ -219,7 +219,7 @@ Section Uninstall
   
   #removing the qt version for the integration
   DetailPrint "Removing registry entries"
-  DeleteRegKey HKCU "SOFTWARE\trolltech.com\Versions\${PRODUCT_VERSION}\"
+  DeleteRegKey HKCU "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\"
   
   DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
   SetAutoClose true
