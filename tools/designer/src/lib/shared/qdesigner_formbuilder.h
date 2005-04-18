@@ -46,7 +46,6 @@ protected:
     virtual void applyProperties(QObject *o, const QList<DomProperty*> &properties);
 
 private:
-    QString resolveQrcPath(const QString &filePath, const QString &qrcPath) const;
     QDesignerFormEditorInterface *m_core;
     QMap<QString, QDesignerCustomWidgetInterface*> m_customFactory;
 };

@@ -115,25 +115,19 @@ class QT_FORMEDITOR_EXPORT IconCache : public QDesignerIconCacheInterface
 {
     Q_OBJECT
 public:
-    IconCache(QObject *parent)
-        : QDesignerIconCacheInterface(parent) {}
-    virtual QIcon nameToIcon(const QString &path, const QString &resourcePath = QString())
-        { return m_icon_cache.keyToItem(path, resourcePath); }
-    virtual QString iconToFilePath(const QIcon &pm) const
-        { return m_icon_cache.itemToFilePath(pm); }
-    virtual QString iconToQrcPath(const QIcon &pm) const
-        { return m_icon_cache.itemToQrcPath(pm); }
-    virtual QPixmap nameToPixmap(const QString &path, const QString &resourcePath = QString())
-        { return m_pixmap_cache.keyToItem(path, resourcePath); }
-    virtual QString pixmapToFilePath(const QPixmap &pm) const
-        { return m_pixmap_cache.itemToFilePath(pm); }
-    virtual QString pixmapToQrcPath(const QPixmap &pm) const
-        { return m_pixmap_cache.itemToQrcPath(pm); }
+    IconCache(QObject *parent);
 
-    QList<QPixmap> pixmapList() const
-        { return m_pixmap_cache.itemList(); }
-    QList<QIcon> iconList() const
-        { return m_icon_cache.itemList(); }
+    virtual QIcon nameToIcon(const QString &path, const QString &resourcePath = QString());
+    virtual QString iconToFilePath(const QIcon &pm) const;
+    virtual QString iconToQrcPath(const QIcon &pm) const;
+    virtual QPixmap nameToPixmap(const QString &path, const QString &resourcePath = QString());
+    virtual QString pixmapToFilePath(const QPixmap &pm) const;
+    virtual QString pixmapToQrcPath(const QPixmap &pm) const;
+
+    virtual QList<QPixmap> pixmapList() const;
+    virtual QList<QIcon> iconList() const;
+
+    virtual QString resolveQrcPath(const QString &filePath, const QString &qrcPath, const QString &workingDirectory = QString()) const;
 
 private:
     ResourceCache<QIcon> m_icon_cache;

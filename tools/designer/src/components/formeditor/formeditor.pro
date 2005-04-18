@@ -51,7 +51,8 @@ SOURCES += \
            line_propertysheet.cpp \
            default_container.cpp \
            default_layoutdecoration.cpp \
-           tool_widgeteditor.cpp
+           tool_widgeteditor.cpp \
+           iconcache.cpp
 
 MOCABLE += formwindow.cpp
 

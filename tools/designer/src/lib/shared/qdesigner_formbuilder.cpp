@@ -108,31 +108,14 @@ bool QDesignerFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QL
     return QFormBuilder::addItem(ui_item, item, layout);
 }
 
-QString QDesignerFormBuilder::resolveQrcPath(const QString &filePath, const QString &qrcPath) const
-{
-    QString icon_path = filePath;
-    QString qrc_path = qrcPath;
-
-    if (!qrc_path.isEmpty()) {
-        qrc_path = QFileInfo(QDir(workingDirectory()), qrcPath).absoluteFilePath();
-        ResourceFile rf(qrc_path);
-        if (rf.load())
-            return rf.resolvePath(filePath);
-    } else {
-        return QFileInfo(QDir(workingDirectory()), filePath).absoluteFilePath();
-    }
-
-    return QString();
-}
-
 QIcon QDesignerFormBuilder::nameToIcon(const QString &filePath, const QString &qrcPath)
 {
-    return QIcon(resolveQrcPath(filePath, qrcPath));
+    return QIcon(core()->iconCache()->resolveQrcPath(filePath, qrcPath, workingDirectory()));
 }
 
 QPixmap QDesignerFormBuilder::nameToPixmap(const QString &filePath, const QString &qrcPath)
 {
-    return QPixmap(resolveQrcPath(filePath, qrcPath));
+    return QPixmap(core()->iconCache()->resolveQrcPath(filePath, qrcPath, workingDirectory()));
 }
 
 void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)

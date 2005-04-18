@@ -40,6 +40,8 @@ public:
 
     virtual QList<QPixmap> pixmapList() const = 0;
     virtual QList<QIcon> iconList() const = 0;
+
+    virtual QString resolveQrcPath(const QString &filePath, const QString &qrcPath, const QString &workingDirectory = QString()) const = 0;
 };
 
 #endif // ABSTRACTICONCACHE_H
