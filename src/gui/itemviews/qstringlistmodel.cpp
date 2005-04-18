@@ -124,12 +124,12 @@ bool QStringListModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     Q_UNUSED(parent);
 
-    emit rowsAboutToBeInserted(QModelIndex(), row, row + count - 1);
+    beginInsertRows(QModelIndex(), row, row + count - 1);
     
     for (int r = 0; r < count; ++r)
         lst.insert(row, QString());
 
-    emit rowsInserted(QModelIndex(), row, row + count - 1);
+    endInsertRows();
 
     return true;
 }
@@ -149,12 +149,12 @@ bool QStringListModel::removeRows(int row, int count, const QModelIndex &parent)
 {
     Q_UNUSED(parent);
 
-    emit rowsAboutToBeRemoved(QModelIndex(), row, row + count - 1);
+    beginRemoveRows(QModelIndex(), row, row + count - 1);
 
     for (int r = 0; r < count; ++r)
         lst.removeAt(row);
 
-    emit rowsRemoved(QModelIndex(), row, row + count - 1);
+    endRemoveRows();
         
     return true;
 }
@@ -167,5 +167,5 @@ QStringList QStringListModel::stringList() const
 void QStringListModel::setStringList(const QStringList &strings)
 {
     lst = strings;
-    emit reset();
+    reset();
 }

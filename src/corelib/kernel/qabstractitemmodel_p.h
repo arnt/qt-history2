@@ -28,13 +28,47 @@
 
 #include <private/qobject_p.h>
 
-class QPersistentModelIndexManager;
+
+class Q_CORE_EXPORT QPersistentModelIndexData
+{
+public:
+    QPersistentModelIndexData() : model (0) { ref = 0; }
+    QModelIndex index;
+    QAtomic ref;
+    const QAbstractItemModel *model;
+    static QPersistentModelIndexData shared_null;
+    static QPersistentModelIndexData *create(const QModelIndex &index);
+    static void destroy(QPersistentModelIndexData *data);
+};
 
 class Q_CORE_EXPORT QAbstractItemModelPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractItemModel)
+
 public:
-    QPersistentModelIndexManager *manager;
+    ~QAbstractItemModelPrivate();
+
+    void invalidate(int position);
+    void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
+    void rowsInserted(const QModelIndex &parent, int first, int last);
+    void rowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
+    void rowsRemoved(const QModelIndex &parent, int first, int last);
+    void columnsAboutToBeInserted(const QModelIndex &parent, int first, int last);
+    void columnsInserted(const QModelIndex &parent, int first, int last);
+    void columnsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
+    void columnsRemoved(const QModelIndex &parent, int first, int last);
+    void reset();
+    
+    struct {
+        QModelIndex parent;
+        int first, last;
+    } change;
+
+    struct {
+        QList<QPersistentModelIndexData*> indexes;
+        QList<int> changed;
+        QList<int> invalidated;
+    } persistent;
 };
 
 #endif // QABSTRACTITEMMODEL_P_H

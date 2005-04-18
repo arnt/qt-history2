@@ -44,9 +44,9 @@ void QSqlQueryModelPrivate::prefetch(int limit)
         atEnd = true; // this is the end.
     }
     if (newBottom.row() > oldBottom.row()) {
-        emit q->rowsAboutToBeInserted(QModelIndex(), oldBottom.row(), newBottom.row());
+        emit q->beginInsertRows(QModelIndex(), oldBottom.row(), newBottom.row());
         bottom = newBottom;
-        emit q->rowsInserted(QModelIndex(), oldBottom.row(), bottom.row());
+        emit q->endInsertRows();
     } else {
         bottom = newBottom;
     }
@@ -241,9 +241,9 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     bool hasQuerySize = d->query.driver()->hasFeature(QSqlDriver::QuerySize);
 
     if (d->bottom.isValid()) {
-        emit rowsAboutToBeRemoved(QModelIndex(), 0, d->bottom.row());
+        beginRemoveColumns(QModelIndex(), 0, d->bottom.row());
         if (columnsChanged)
-            emit columnsAboutToBeRemoved(QModelIndex(), 0, d->bottom.column());
+            endRemoveColumns();
     }
 
     if (d->colOffsets.size() != newRec.count() || columnsChanged) {
@@ -270,25 +270,25 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     QModelIndex newBottom;
     if (hasQuerySize) {
         newBottom = createIndex(d->query.size() - 1, d->rec.count() - 1);
-        emit rowsAboutToBeInserted(QModelIndex(), 0, newBottom.row());
+        beginInsertRows(QModelIndex(), 0, newBottom.row());
         d->atEnd = true;
     } else {
         newBottom = createIndex(0, d->rec.count() - 1);
     }
     if (columnsChanged)
-        emit columnsAboutToBeInserted(QModelIndex(), 0, newBottom.column());
+        beginInsertColumns(QModelIndex(), 0, newBottom.column());
     d->bottom = newBottom;
 
     queryChange();
 
     if (hasQuerySize) {
-        emit rowsInserted(QModelIndex(), 0, d->bottom.row());
+        endInsertRows();
     } else {
         // fetchMore does the rowsInserted stuff
         fetchMore();
     }
     if (columnsChanged)
-        emit columnsInserted(QModelIndex(), 0, d->bottom.column());
+        endInsertColumns();
 }
 
 /*! \overload
@@ -440,7 +440,7 @@ bool QSqlQueryModel::insertColumns(int column, int count, const QModelIndex &par
     if (count <= 0 || parent.isValid() || column < 0 || column > d->rec.count())
         return false;
 
-    emit columnsAboutToBeInserted(parent, column, column + count - 1);
+    beginInsertColumns(parent, column, column + count - 1);
     for (int c = 0; c < count; ++c) {
         QSqlField field;
         field.setReadOnly(true);
@@ -454,7 +454,7 @@ bool QSqlQueryModel::insertColumns(int column, int count, const QModelIndex &par
         for (int i = column + 1; i < d->colOffsets.count(); ++i)
             ++d->colOffsets[i];
     }
-    emit columnsInserted(parent, column, column + count - 1);
+    endInsertColumns();
     return true;
 }
 
@@ -475,14 +475,15 @@ bool QSqlQueryModel::removeColumns(int column, int count, const QModelIndex &par
     if (count <= 0 || parent.isValid() || column < 0 || column >= d->rec.count())
         return false;
 
-    emit columnsAboutToBeRemoved(parent, column, column + count - 1);
+    beginRemoveColumns(parent, column, column + count - 1);
 
     int i;
     for (i = 0; i < count; ++i)
         d->rec.remove(column);
     for (i = column; i < d->colOffsets.count(); ++i)
         d->colOffsets[i] -= count;
-    emit columnsRemoved(parent, column, column + count - 1);
+
+    endRemoveColumns();
     return true;
 }
 

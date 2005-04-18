@@ -69,17 +69,19 @@ bool PimModel::setData(const QModelIndex &index, const QVariant &value, int role
 
 bool PimModel::insertRows(int row, int count, const QModelIndex &)
 {
+    beginInsertRows(QModelIndex(), row, row + count - 1);
     while (count--)
         entries.insert(row, PimEntry());
-    emit rowsInserted(QModelIndex(), row, row + count - 1);
+    endInsertRows();
     return true;
 }
 
 bool PimModel::removeRows(int row, int count, const QModelIndex &)
 {
-    emit rowsAboutToBeRemoved(QModelIndex(), row, row + count - 1);
+    beginRemoveRows(QModelIndex(), row, row + count - 1);
     while (count--)
         entries.removeAt(row);
+    endRemoveRows();
     return true;
 }
 
@@ -90,9 +92,10 @@ const PimEntry &PimModel::entry(int row) const
 
 bool PimModel::appendEntry(const PimEntry &entry)
 {
+    int row = entries.count();
+    beginInsertRows(QModelIndex(), row, row);
     entries.append(entry);
-    int row = entries.count() - 1;
-    emit rowsInserted(QModelIndex(), row, row);
+    endInsertRows();
     return true;
 }
 
@@ -106,7 +109,8 @@ bool PimModel::setEntry(int row, const PimEntry &entry)
 
 bool PimModel::removeEntry(int row)
 {
-    emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+    beginRemoveRows(QModelIndex(), row, row);
     entries.removeAt(row);
+    endRemoveRows();
     return true;
 }

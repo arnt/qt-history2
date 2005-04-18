@@ -78,7 +78,7 @@ void QListModel::clear()
         }
     }
     lst.clear();
-    emit reset();
+    reset();
 }
 
 QListWidgetItem *QListModel::at(int row) const
@@ -93,10 +93,10 @@ void QListModel::remove(QListWidgetItem *item)
     Q_ASSERT(item);
     int row = lst.indexOf(item);
     Q_ASSERT(row != -1);
-    emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+    beginRemoveRows(QModelIndex(), row, row);
     lst.at(row)->model = 0;
     lst.removeAt(row);
-    emit rowsRemoved(QModelIndex(), row, row);
+    endRemoveRows();
 }
 
 void QListModel::insert(int row, QListWidgetItem *item)
@@ -104,18 +104,18 @@ void QListModel::insert(int row, QListWidgetItem *item)
     Q_ASSERT(item);
     item->model = this;
     Q_ASSERT(row >= 0 && row <= lst.count());
-    emit rowsAboutToBeInserted(QModelIndex(), row, row);
+    beginInsertRows(QModelIndex(), row, row);
     lst.insert(row, item);
-    emit rowsInserted(QModelIndex(), row, row);
+    endInsertRows();
 }
 
 QListWidgetItem *QListModel::take(int row)
 {
     Q_ASSERT(row >= 0 && row < lst.count());
-    emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+    beginRemoveRows(QModelIndex(), row, row);
     lst.at(row)->model = 0;
     QListWidgetItem *item = lst.takeAt(row);
-    emit rowsRemoved(QModelIndex(), row, row);
+    endRemoveRows();
     return item;
 }
 
@@ -157,8 +157,7 @@ bool QListModel::setData(const QModelIndex &index, const QVariant &value, int ro
 
 bool QListModel::insertRows(int row, int count, const QModelIndex &)
 {
-    // insert rows
-    emit rowsAboutToBeInserted(QModelIndex(), row, row + count - 1);
+    beginInsertRows(QModelIndex(), row, row + count - 1);
     QListWidget *view = ::qobject_cast<QListWidget*>(QObject::parent());
     QListWidgetItem *itm = 0;
     if (row < rowCount()) {
@@ -176,15 +175,14 @@ bool QListModel::insertRows(int row, int count, const QModelIndex &)
             lst.append(itm);
         }
     }
-    emit rowsInserted(QModelIndex(), row, row + count - 1);
+    endInsertRows();
     return true;
 }
 
 bool QListModel::removeRows(int row, int count, const QModelIndex &)
 {
     if (row >= 0 && row < rowCount()) {
-        // remove items
-        emit rowsAboutToBeRemoved(QModelIndex(), row, row + count - 1);
+        beginRemoveRows(QModelIndex(), row, row + count - 1);
         QListWidgetItem *itm = 0;
         for (int r = row; r < row + count; ++r) {
             itm = lst.takeAt(row);
@@ -192,7 +190,7 @@ bool QListModel::removeRows(int row, int count, const QModelIndex &)
             itm->model = 0;
             delete itm;
         }
-        emit rowsRemoved(QModelIndex(), row, row + count - 1);
+        endRemoveRows();
         return true;
     }
     return false;

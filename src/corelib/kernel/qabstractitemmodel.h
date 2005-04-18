@@ -174,15 +174,23 @@ public:
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void headerDataChanged(Qt::Orientation orientation, int first, int last);
+
+#ifndef Q_MOC_RUN
+private: // can only be emitted by QAbstractItemModel
+#endif
     void rowsAboutToBeInserted(const QModelIndex &parent, int first, int last);
     void rowsInserted(const QModelIndex &parent, int first, int last);
+
     void rowsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
     void rowsRemoved(const QModelIndex &parent, int first, int last);
+
     void columnsAboutToBeInserted(const QModelIndex &parent, int first, int last);
     void columnsInserted(const QModelIndex &parent, int first, int last);
+
     void columnsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
     void columnsRemoved(const QModelIndex &parent, int first, int last);
-    void reset();
+
+    void modelReset();
 
 public slots:
     virtual bool submit();
@@ -198,6 +206,20 @@ protected:
     void encodeData(const QModelIndex &parent, QDataStream &stream) const;
     bool decodeData(int row, const QModelIndex &parent, QDataStream &stream);
 
+    void beginInsertRows(const QModelIndex &parent, int first, int last);
+    void endInsertRows();
+
+    void beginRemoveRows(const QModelIndex &parent, int first, int last);
+    void endRemoveRows();
+
+    void beginInsertColumns(const QModelIndex &parent, int first, int last);
+    void endInsertColumns();
+
+    void beginRemoveColumns(const QModelIndex &parent, int first, int last);
+    void endRemoveColumns();
+
+    void reset();
+    
 private:
     Q_DECLARE_PRIVATE(QAbstractItemModel)
     Q_DISABLE_COPY(QAbstractItemModel)

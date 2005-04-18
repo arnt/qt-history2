@@ -22,7 +22,6 @@
 #include <qstyle.h>
 #include <qapplication.h>
 #include <private/qabstractitemmodel_p.h>
-#include <private/qpersistentmodelindex_p.h>
 #include <qdebug.h>
 
 /*!
@@ -706,7 +705,7 @@ bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     QList<QUrl>::const_iterator it = urls.begin();
 
     int last = row + urls.count() - 1;
-    emit rowsAboutToBeInserted(parent, row, last);
+    beginInsertRows(parent, row, last);
 
     switch (action) {
     case Qt::CopyAction:
@@ -733,7 +732,7 @@ bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     }
 
     d->populate(p);
-    emit rowsInserted(parent, row, last);
+    endInsertRows();
 
     return success;
 }
@@ -779,13 +778,12 @@ void QDirModel::setNameFilters(const QStringList &filters)
     Q_D(QDirModel);
 
     d->savePersistentIndexes();
-    int last = rowCount(QModelIndex()) - 1;
-    emit rowsAboutToBeRemoved(QModelIndex(), 0, last);
+    beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
     
     d->nameFilters = filters;
     d->clear(&d->root); // clear model
 
-    emit rowsRemoved(QModelIndex(), 0, last);
+    endRemoveRows();
     d->restorePersistentIndexes();
 }
 
@@ -810,13 +808,12 @@ void QDirModel::setFilter(QDir::Filters filters)
     Q_D(QDirModel);
     
     d->savePersistentIndexes();
-    int last = rowCount(QModelIndex()) - 1;
-    emit rowsAboutToBeRemoved(QModelIndex(), 0, last);
+    beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
 
     d->filters = filters;
     d->clear(&d->root); // clear model
 
-    emit rowsRemoved(QModelIndex(), 0, last);
+    endRemoveRows();
     d->restorePersistentIndexes();
 }
 
@@ -843,13 +840,12 @@ void QDirModel::setSorting(QDir::SortFlags sort)
     Q_D(QDirModel);
 
     d->savePersistentIndexes();
-    int last = rowCount(QModelIndex()) - 1;
-    emit rowsAboutToBeRemoved(QModelIndex(), 0, last);
+    beginRemoveRows(QModelIndex(), 0, rowCount(QModelIndex()) - 1);
 
     d->sort = sort;
     d->clear(&d->root); // clear model
 
-    emit rowsRemoved(QModelIndex(), 0, last);
+    endRemoveRows();
     d->restorePersistentIndexes();
 }
 
@@ -942,14 +938,12 @@ void QDirModel::refresh(const QModelIndex &parent)
         static_cast<QDirModelPrivate::QDirNode*>(parent.internalPointer());
     QDirModelPrivate::QDirNode *n = (p ? p : &(d->root));
 
-    // FIXME !!!!
-
     d->savePersistentIndexes();
-    emit rowsAboutToBeRemoved(parent, 0, n->children.count() - 1);
+    beginRemoveRows(parent, 0, n->children.count() - 1);
 
     d->refresh(p); // if (p == 0) it reads the drives
 
-    emit rowsRemoved(parent, 0, n->children.count() - 1);
+    endRemoveRows();
     d->restorePersistentIndexes();
 }
 
@@ -1320,24 +1314,24 @@ void QDirModelPrivate::savePersistentIndexes()
 {
     Q_Q(QDirModel);
     saved.clear();
-    const QList<QPersistentModelIndexData*> indexes = manager->indexes;
+    const QList<QPersistentModelIndexData*> indexes = persistent.indexes;
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex idx = indexes.at(i)->index;
         QString path = q->filePath(idx);
         saved.append(qMakePair(path, idx.column()));
-        manager->indexes.at(i)->ref.ref(); // save
-        manager->indexes[i]->index = QModelIndex(); // invalidated
+        persistent.indexes.at(i)->ref.ref(); // save
+        persistent.indexes[i]->index = QModelIndex(); // invalidated
     }
 }
 
 void QDirModelPrivate::restorePersistentIndexes()
 {
     Q_Q(QDirModel);
-    const QList<QPersistentModelIndexData*> indexes = manager->indexes;
+    const QList<QPersistentModelIndexData*> indexes = persistent.indexes;
     QList<QPersistentModelIndexData*> deleteList;
     for (int i = 0; i < indexes.count(); ++i) {
-        manager->indexes[i]->index = q->index(saved.at(i).first, saved.at(i).second);
-        if (!manager->indexes.at(i)->ref.deref()) // if we have no other references
+        persistent.indexes[i]->index = q->index(saved.at(i).first, saved.at(i).second);
+        if (!persistent.indexes.at(i)->ref.deref()) // if we have no other references
             deleteList.append(indexes.at(i)); // make sure we delete it
     }
     saved.clear();

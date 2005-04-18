@@ -63,17 +63,8 @@ void MessageModel::setContextItem(ContextItem *ctxtI)
 {
     if (ctxtI == cntxtItem)
         return;
-
-    if (cntxtItem != 0) {
-        int r = cntxtItem->messageItemsInList();
-        emit rowsAboutToBeRemoved(QModelIndex(), 0, r-1);
-        cntxtItem = 0;
-    }
-
     cntxtItem = ctxtI;
-
-    if (cntxtItem != 0)
-        emit rowsInserted(QModelIndex(), 0, cntxtItem->messageItemsInList()-1);
+    reset();
 }
 
 void MessageModel::updateItem(QModelIndex indx)

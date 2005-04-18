@@ -541,9 +541,10 @@ QModelIndex ResourceModel::addNewPrefix()
     do prefix = tr("/new/prefix%1").arg(i++);
     while (m_resource_file.contains(prefix));
 
+    beginInsertRows(QModelIndex(), i, i);
     m_resource_file.addPrefix(prefix);
     i = m_resource_file.indexOfPrefix(prefix);
-    emit rowsInserted(QModelIndex(), i, i);
+    endInsertRows();
 
     setDirty(true);
 
@@ -557,21 +558,24 @@ QModelIndex ResourceModel::addFiles(const QModelIndex &model_idx, const QStringL
     QModelIndex prefix_model_idx = prefixIndex(model_idx);
     int prefix_idx = prefix_model_idx.row();
 
-    int added = 0;
+    QStringList unique_list;
     foreach (QString file, file_list) {
-        if (!m_resource_file.contains(prefix_idx, file)) {
-            m_resource_file.addFile(prefix_idx, file);
-            ++added;
-        }
+        if (!m_resource_file.contains(prefix_idx, file) && !unique_list.contains(file))
+            unique_list.append(file);
     }
 
+    if (unique_list.isEmpty())
+        return QModelIndex();
+    
     int cnt = m_resource_file.fileCount(prefix_idx);
-    if (added > 0) {
-        emit rowsInserted(prefix_model_idx, cnt - added, cnt - 1);
-        setDirty(true);
-    }
+    beginInsertRows(prefix_model_idx, cnt, cnt + unique_list.count() - 1); // ### FIXME
 
-    return index(cnt - 1, 0, prefix_model_idx);
+    foreach (QString file, file_list)
+        m_resource_file.addFile(prefix_idx, file);
+    
+    endInsertRows();
+
+    return index(cnt + unique_list.count() - 1, 0, prefix_model_idx);
 }
 
 void ResourceModel::changePrefix(const QModelIndex &model_idx, const QString &prefix)
@@ -600,7 +604,7 @@ QModelIndex ResourceModel::deleteItem(const QModelIndex &idx)
     int prefix_idx = m_resource_file.indexOfPrefix(prefix);
     int file_idx = m_resource_file.indexOfFile(prefix_idx, file);
 
-    emit rowsAboutToBeRemoved(parent(idx), idx.row(), idx.row());
+    beginRemoveRows(parent(idx), idx.row(), idx.row());
 
     if (file.isEmpty()) {
         m_resource_file.removePrefix(prefix_idx);
@@ -612,6 +616,7 @@ QModelIndex ResourceModel::deleteItem(const QModelIndex &idx)
             --file_idx;
     }
 
+    endRemoveRows();
     setDirty(true);
 
     if (prefix_idx == -1)

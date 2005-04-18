@@ -30,7 +30,7 @@ void QPropertyEditorModel::setInitialInput(IProperty *initialInput)
     Q_ASSERT(initialInput);
 
     m_initialInput = initialInput;
-    emit reset();
+    reset();
 }
 
 QModelIndex QPropertyEditorModel::index(int row, int column, const QModelIndex &parent) const

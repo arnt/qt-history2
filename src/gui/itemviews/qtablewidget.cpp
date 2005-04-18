@@ -107,8 +107,7 @@ QTableModel::~QTableModel()
 
 bool QTableModel::insertRows(int row, int count, const QModelIndex &)
 {
-    emit rowsAboutToBeInserted(QModelIndex(), row, row + count - 1);
-    // insert rows
+    beginInsertRows(QModelIndex(), row, row + count - 1);
     int rc = vertical.count();
     int cc = horizontal.count();
     vertical.insert(row, count, 0);
@@ -116,14 +115,13 @@ bool QTableModel::insertRows(int row, int count, const QModelIndex &)
         table.resize(cc * count);
     else
         table.insert(tableIndex(row, 0), cc * count, 0);
-    emit rowsInserted(QModelIndex(), row, row + count - 1);
+    endInsertRows();
     return true;
 }
 
 bool QTableModel::insertColumns(int column, int count, const QModelIndex &)
 {
-    emit columnsAboutToBeInserted(QModelIndex(), column, column + count - 1);
-    // insert columns
+    beginInsertColumns(QModelIndex(), column, column + count - 1);
     int rc = vertical.count();
     int cc = horizontal.count();
     horizontal.insert(column, count, 0);
@@ -132,21 +130,19 @@ bool QTableModel::insertColumns(int column, int count, const QModelIndex &)
     else
         for (int row = 0; row < rc; ++row)
             table.insert(tableIndex(row, column), count, 0);
-
-    emit columnsInserted(QModelIndex(), column, column + count - 1);
+    endInsertColumns();
     return true;
 }
 
 bool QTableModel::removeRows(int row, int count, const QModelIndex &)
 {
     if (row >= 0 && row < vertical.count()) {
-        // remove rows
-        emit rowsAboutToBeRemoved(QModelIndex(), row, row + count - 1);
+        beginRemoveRows(QModelIndex(), row, row + count - 1);
         int i = tableIndex(row, 0);
         int n = count * columnCount();
         table.remove(qMax(i, 0), n);
         vertical.remove(row, count);
-        emit rowsRemoved(QModelIndex(), row, row + count - 1);
+        endRemoveRows();
         return true;
     }
     return false;
@@ -155,12 +151,11 @@ bool QTableModel::removeRows(int row, int count, const QModelIndex &)
 bool QTableModel::removeColumns(int column, int count, const QModelIndex &)
 {
     if (column >= 0 && column < horizontal.count()) {
-        // remove columns
-        emit columnsAboutToBeRemoved(QModelIndex(), column, column + count - 1);
+        beginRemoveColumns(QModelIndex(), column, column + count - 1);
         for (int row = rowCount() - 1; row >= 0; --row)
             table.remove(tableIndex(row, column), count);
         horizontal.remove(column, count);
-        emit columnsRemoved(QModelIndex(), column, column + count - 1);
+        endRemoveColumns();
         return true;
     }
     return false;
@@ -178,7 +173,6 @@ void QTableModel::setItem(const QModelIndex &index, QTableWidgetItem *item)
 {
     if (!isValid(index))
         return;
-
     long i = tableIndex(index.row(), index.column());
     delete table.at(i);
     table[i] = item;
@@ -218,12 +212,12 @@ void QTableModel::removeItem(QTableWidgetItem *item)
     }
 
     i = vertical.indexOf(item);
+
     if (i != -1) {
         vertical[i] = 0;
         emit headerDataChanged(Qt::Vertical, i, i);
         return;
     }
-
     i = horizontal.indexOf(item);
     if (i != -1) {
         horizontal[i] = 0;
@@ -437,7 +431,7 @@ void QTableModel::clear()
             horizontal[k] = 0;
         }
     }
-    emit reset();
+    reset();
 }
 
 void QTableModel::itemChanged(QTableWidgetItem *item)

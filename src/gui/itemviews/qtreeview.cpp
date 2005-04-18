@@ -1121,7 +1121,7 @@ void QTreeView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int e
         d->collapse(p);
         // reexpamd parent using a delayed function call
         d->reexpand = p; // p is safe because all the changes happens after this one
-        int slot = metaObject()->indexOfSlot("rexpand()");
+        int slot = metaObject()->indexOfSlot("reexpand()");
         QApplication::postEvent(this, new QMetaCallEvent(slot));
     } else {
         d->viewItems.clear();

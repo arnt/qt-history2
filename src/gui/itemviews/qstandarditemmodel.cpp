@@ -272,11 +272,11 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
     if (!parent.isValid() && d->verticalHeader.size() > row)
         d->verticalHeader.insert(row, count, 0);
 
-    emit rowsAboutToBeInserted(parent, row, row + count - 1);
+    beginInsertRows(parent, row, row + count - 1);
 
     rows.insert(row, count, 0);
 
-    emit rowsInserted(parent, row, row + count - 1);
+    endInsertRows();
     
     return true;
 }
@@ -301,7 +301,7 @@ bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex 
     if (count < 0 || column < 0 || column > columnCount(parent))
         return false;
 
-    emit columnsAboutToBeInserted(parent, column, column + count - 1);
+    beginInsertColumns(parent, column, column + count - 1);
 
     QVector<QStdModelRow*> *rows = &d->topLevelRows;
     // update the column counters
@@ -324,7 +324,7 @@ bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex 
             modelRow->items.insert(column, count, 0);
     }
 
-    emit columnsInserted(parent, column, column + count - 1);
+    endInsertColumns();
 
     return true;
 }
@@ -344,7 +344,7 @@ bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &paren
     if (count < 1 || row < 0 || (row + count) > rowCount(parent))
         return false;
 
-    emit rowsAboutToBeRemoved(parent, row, row + count - 1);
+    beginRemoveRows(parent, row, row + count - 1);
 
     QVector<QStdModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, false)->childrenRows
                                : d->topLevelRows;
@@ -362,7 +362,7 @@ bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &paren
     // resize row vector
     rows.remove(row, count);
 
-    emit rowsRemoved(parent, row, row + count - 1);
+    endRemoveRows();
 
     return true;
 }
@@ -382,7 +382,7 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
     if (count < 1 || column < 0 || (column + count) > columnCount(parent))
         return false;
 
-    emit columnsAboutToBeRemoved(parent, column, column + count - 1);
+    beginRemoveColumns(parent, column, column + count - 1);
 
     QVector<QStdModelRow*> *rows = &d->topLevelRows;
     // update the column counters
@@ -412,7 +412,7 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
         }
     }
 
-    emit columnsRemoved(parent, column, column + count - 1);
+    endRemoveColumns();
 
     return true;
 }

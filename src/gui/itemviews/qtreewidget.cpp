@@ -71,10 +71,8 @@ public:
 
 protected:
     void emitDataChanged(QTreeWidgetItem *item, int column);
-    void emitRowsAboutToBeInserted(QTreeWidgetItem *parent, int row);
-    void emitRowsInserted(QTreeWidgetItem *parent, int row);
-    void emitRowsAboutToBeRemoved(QTreeWidgetItem *parent, int row);
-    void emitRowsRemoved(QTreeWidgetItem *parent, int row);
+    void beginInsertItem(QTreeWidgetItem *parent, int row);
+    void beginRemoveItem(QTreeWidgetItem *parent, int row);
 
 private:
     QList<QTreeWidgetItem*> tree;
@@ -133,7 +131,7 @@ void QTreeModel::clear()
         delete item;
     }
     tree.clear();
-    emit reset();
+    reset();
 }
 
 /*!
@@ -154,18 +152,18 @@ void QTreeModel::setColumnCount(int columns)
     int last = qMax(c - 1, 0);
 
     if (c < _c)
-        emit columnsAboutToBeRemoved(QModelIndex(), first, last);
+        beginRemoveColumns(QModelIndex(), first, last);
     else
-        emit columnsAboutToBeInserted(QModelIndex(), first, last);
+        beginInsertColumns(QModelIndex(), first, last);
     
     header->values.resize(c);
     for (int i = _c; i < c; ++i)
         header->setText(i, QString::number(i)); // FIXME: shouldn't save anything
 
     if (c < _c)
-        emit columnsRemoved(QModelIndex(), first, last);
+        endRemoveColumns();
     else
-        emit columnsInserted(QModelIndex(), first, last);
+        endInsertColumns();
 }
 
 /*!
@@ -386,7 +384,7 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
 
 bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    emit rowsAboutToBeInserted(parent, row, row + count - 1);
+    beginInsertRows(parent, row, row + count - 1);
     
     QTreeWidgetItem *c = 0;
     if (parent.isValid()) {
@@ -412,7 +410,7 @@ bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
         }
     }
 
-    emit rowsInserted(parent, row, row + count - 1);
+    endInsertRows();
     return true;
 }
 
@@ -425,7 +423,7 @@ bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 
 bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent)
 {
-    emit rowsAboutToBeRemoved(parent, row, row + count - 1);
+    beginRemoveRows(parent, row, row + count - 1);
 
     QTreeWidgetItem *c = 0;
     if (parent.isValid()) {
@@ -449,8 +447,7 @@ bool QTreeModel::removeRows(int row, int count, const QModelIndex &parent)
         }
     }
 
-    emit rowsRemoved(parent, row, row + count - 1);
-
+    endRemoveRows();
     return true;
 }
 
@@ -489,7 +486,7 @@ void QTreeModel::sort(int column, Qt::SortOrder order)
         (*it)->sortChildren(column, order, true);
 
     // everything has changed
-    emit reset();
+    reset();
 }
 
 /*!
@@ -548,9 +545,9 @@ QList<QTreeWidgetItem*> QTreeModel::find(const QRegExp &rx, int column) const
 void QTreeModel::appendToTopLevel(QTreeWidgetItem *item)
 {
     int r = tree.count();
-    emit rowsAboutToBeInserted(QModelIndex(), r, r);
+    beginInsertRows(QModelIndex(), r, r);
     tree.append(item);
-    emit rowsInserted(QModelIndex(), r, r);
+    endInsertRows();
 }
 
 
@@ -562,9 +559,9 @@ void QTreeModel::appendToTopLevel(QTreeWidgetItem *item)
 
 void QTreeModel::insertInTopLevel(int row, QTreeWidgetItem *item)
 {
-    emit rowsAboutToBeInserted(QModelIndex(), row, row);
+    beginInsertRows(QModelIndex(), row, row);
     tree.insert(row, item);
-    emit rowsInserted(QModelIndex(), row, row);
+    endInsertRows();
 }
 
 /*!
@@ -577,9 +574,9 @@ void QTreeModel::removeFromTopLevel(QTreeWidgetItem *item)
 {
     int row = tree.indexOf(item);
     Q_ASSERT(row != -1);
-    emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+    beginRemoveRows(QModelIndex(), row, row);
     tree.removeAt(row);
-    emit rowsRemoved(QModelIndex(), row, row);
+    endRemoveRows();
 }
 
 /*!
@@ -591,12 +588,12 @@ void QTreeModel::removeFromTopLevel(QTreeWidgetItem *item)
 QTreeWidgetItem *QTreeModel::takeFromTopLevel(int row)
 {
     Q_ASSERT(row != -1);
-    emit rowsAboutToBeRemoved(QModelIndex(), row, row);
+    beginRemoveRows(QModelIndex(), row, row);
     QTreeWidgetItem *item = tree.takeAt(row);
     item->model = 0;
     item->view = 0;
     item->par = 0;
-    emit rowsRemoved(QModelIndex(), row, row);
+    endRemoveRows();
     return item;
 }
 
@@ -613,24 +610,14 @@ void QTreeModel::emitDataChanged(QTreeWidgetItem *item, int column)
     emit dataChanged(tl, br);
 }
 
-void QTreeModel::emitRowsAboutToBeInserted(QTreeWidgetItem *parent, int row)
+void QTreeModel::beginInsertItem(QTreeWidgetItem *parent, int row)
 {
-    emit rowsAboutToBeInserted(index(parent, 0), row, row);
+    beginInsertRows(index(parent, 0), row, row);
 }
 
-void QTreeModel::emitRowsInserted(QTreeWidgetItem *parent, int row)
+void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
 {
-    emit rowsInserted(index(parent, 0), row, row);
-}
-
-void QTreeModel::emitRowsAboutToBeRemoved(QTreeWidgetItem *parent, int row)
-{
-    emit rowsAboutToBeRemoved(index(parent, 0), row, row);
-}
-
-void QTreeModel::emitRowsRemoved(QTreeWidgetItem *parent, int row)
-{
-    emit rowsRemoved(index(parent, 0), row, row);
+    beginRemoveRows(index(parent, 0), row, row);
 }
 
 /*!
@@ -1138,13 +1125,11 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 {
     // FIXME: here we have a problem;
     // the user could build up a tree and then insert the root in the view
-    if (model)
-        model->emitRowsAboutToBeInserted(this, index);
+    if (model) model->beginInsertItem(this, index);
     children.insert(index, child);
     child->view = view;
     child->model = model;
-    if (model)
-        model->emitRowsInserted(this, index);
+    if (model) model->endInsertRows();
 }
 
 /*!
@@ -1153,14 +1138,12 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
     if (index >= 0 && index < children.count()) {
-        if (model)
-            model->emitRowsAboutToBeRemoved(this, index);
+        if (model) model->beginRemoveItem(this, index);
         QTreeWidgetItem *item = children.takeAt(index);
         item->model = 0;
         item->view = 0;
         item->par = 0;
-        if (model)
-            model->emitRowsRemoved(this, index);
+        if (model) model->endRemoveRows();
         return item;
     }
     return 0;

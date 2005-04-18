@@ -1534,6 +1534,7 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
     listView->setResizeMode(QListView::Adjust);
     listView->setEditTriggers(QAbstractItemView::EditKeyPressed);
     listView->setContextMenuPolicy(Qt::CustomContextMenu);
+    listView->setDragEnabled(true);
 
     grid->addWidget(listView, 1, 0, 1, 6);
 
