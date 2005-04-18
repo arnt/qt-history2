@@ -2313,9 +2313,13 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         return;
     bool valid_rect = r.isValid();
     bool just_update = qAbs(dx) > width() || qAbs(dy) > height();
-    if (just_update)
-        update();
     QRect sr = valid_rect ? r : visibleRegion().boundingRect();
+    if (just_update) {
+        update();
+    } else if (!valid_rect){
+        d->invalidated_region.translate(dx, dy);
+    }
+
     int x1, y1, x2, y2, w = sr.width(), h = sr.height();
     if (dx > 0) {
         x1 = sr.x();
