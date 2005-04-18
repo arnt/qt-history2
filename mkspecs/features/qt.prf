@@ -74,7 +74,9 @@ for(QTLIB, $$list($$lower($$unique(QT)))) {
                }
             }
 	 }
-         isEmpty(QT_LINKAGE) {
+	 false {
+	    QT_LINKAGE = -l$${qlib}
+	 } else:isEmpty(QT_LINKAGE) {
 	    CONFIG(debug, debug|release) {
 	       win32:QT_LINKAGE = -l$${qlib}d
 	       else:QT_LINKAGE  = -l$${qlib}_debug

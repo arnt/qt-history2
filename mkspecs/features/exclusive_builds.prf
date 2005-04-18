@@ -49,6 +49,9 @@ defineTest(addExclusiveBuilds) {
             # IDE name
             eval($${firstBuildName}$${permutation}.name    = $${firstBuildName}$${permutationName})
 	    export($${firstBuildName}$${permuation}.name)
+	    # prl import CONFIG option
+            eval($${firstBuildName}$${permutation}.PRL_CONFIG  = $${firstBuild}$${permutation})
+            export($${firstBuildName}$${permuation}.PRL_CONFIG)
             # Individual CONFIG option
             eval($${firstBuildName}$${permutation}.CONFIG  = $${firstBuild} $${firstBuildName}Build $$eval($${permutation}.CONFIG))
 	    export($${firstBuildName}$${permuation}.CONFIG)
@@ -57,6 +60,8 @@ defineTest(addExclusiveBuilds) {
 	    export($${secondBuildName}$${permuation}.target)
             eval($${secondBuildName}$${permutation}.name   = $${secondBuildName}$${permutationName})
 	    export($${secondBuildName}$${permuation}.name)
+	    eval($${secondBuildName}$${permutation}.PRL_CONFIG  = $${secondBuild}$${permutation})
+	    export($${secondBuildName}$${permuation}.PRL_CONFIG)
             eval($${secondBuildName}$${permutation}.CONFIG = $${secondBuild} $${secondBuildName}Build $$eval($${permutation}.CONFIG))
 	    export($${secondBuildName}$${permuation}.CONFIG)
  
