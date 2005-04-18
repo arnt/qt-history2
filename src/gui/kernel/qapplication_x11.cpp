@@ -66,8 +66,6 @@
 #include <locale.h>
 
 #include "qwidget_p.h"
-#define d d_func()
-#define q q_func()
 
 //#define X_NOT_BROKEN
 #ifdef X_NOT_BROKEN
@@ -375,6 +373,7 @@ public:
 
 void QApplicationPrivate::createEventDispatcher()
 {
+    Q_Q(QApplication);
     eventDispatcher = (q->type() != QApplication::Tty
                        ? new QEventDispatcherX11(q)
                        : new QEventDispatcherUNIX(q));
@@ -2132,7 +2131,7 @@ void QApplicationPrivate::applyX11SpecificCommandLineArguments(QWidget *main_wid
     if (beenHereDoneThat)
         return;
     beenHereDoneThat = true;
-    XSetWMProperties(X11->display, main_widget->winId(), 0, 0, qApp->d->argv, qApp->d->argc, 0, 0, 0);
+    XSetWMProperties(X11->display, main_widget->winId(), 0, 0, qApp->d_func()->argv, qApp->d_func()->argc, 0, 0, 0);
     if (mwTitle) {
         XStoreName(X11->display, main_widget->winId(), (char*)mwTitle);
         QByteArray net_wm_name = QString::fromLocal8Bit(mwTitle).toUtf8();
@@ -2206,7 +2205,7 @@ extern void qt_x11_enforce_cursor(QWidget * w);
 
 void QApplication::setOverrideCursor(const QCursor &cursor)
 {
-    qApp->d->cursor_list.prepend(cursor);
+    qApp->d_func()->cursor_list.prepend(cursor);
 
     for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin(); it != QWidgetPrivate::mapper->constEnd(); ++it) {
         register QWidget *w = *it;
@@ -2229,9 +2228,9 @@ void QApplication::setOverrideCursor(const QCursor &cursor)
 
 void QApplication::restoreOverrideCursor()
 {
-    if (qApp->d->cursor_list.isEmpty())
+    if (qApp->d_func()->cursor_list.isEmpty())
         return;
-    qApp->d->cursor_list.removeFirst();
+    qApp->d_func()->cursor_list.removeFirst();
 
     if (QWidgetPrivate::mapper != 0 && !closingDown()) {
         for (QWidgetMapper::ConstIterator it = QWidgetPrivate::mapper->constBegin();
@@ -2484,6 +2483,7 @@ int QApplication::x11ClientMessage(QWidget* w, XEvent* event, bool passive_only)
 */
 int QApplication::x11ProcessEvent(XEvent* event)
 {
+    Q_D(QApplication);
     switch (event->type) {
     case ButtonPress:
         pressed_window = event->xbutton.window;
@@ -2839,10 +2839,10 @@ int QApplication::x11ProcessEvent(XEvent* event)
         if (widget->isWindow() && !(widget->windowType() == Qt::Popup)) {
             widget->setAttribute(Qt::WA_Mapped, false);
             if (widget->isVisible()) {
-                widget->d->topData()->spont_unmapped = 1;
+                widget->d_func()->topData()->spont_unmapped = 1;
                 QHideEvent e;
                 QApplication::sendSpontaneousEvent(widget, &e);
-                widget->d->hideChildren(true);
+                widget->d_func()->hideChildren(true);
             }
         }
         break;
@@ -2850,9 +2850,9 @@ int QApplication::x11ProcessEvent(XEvent* event)
     case MapNotify:                                // window shown
         if (widget->isWindow() && !(widget->windowType() == Qt::Popup)) {
             widget->setAttribute(Qt::WA_Mapped);
-            if (widget->d->topData()->spont_unmapped) {
-                widget->d->topData()->spont_unmapped = 0;
-                widget->d->showChildren(true);
+            if (widget->d_func()->topData()->spont_unmapped) {
+                widget->d_func()->topData()->spont_unmapped = 0;
+                widget->d_func()->showChildren(true);
                 QShowEvent e;
                 QApplication::sendSpontaneousEvent(widget, &e);
             }
@@ -2870,7 +2870,7 @@ int QApplication::x11ProcessEvent(XEvent* event)
             ;        // skip old reparent events
         if (event->xreparent.parent == QX11Info::appRootWindow()) {
             if (widget->isWindow()) {
-                widget->d->topData()->parentWinId = event->xreparent.parent;
+                widget->d_func()->topData()->parentWinId = event->xreparent.parent;
                 int idx = X11->deferred_map.indexOf(widget);
                 if (idx != -1) {
                     X11->deferred_map.removeAt(idx);
@@ -2879,11 +2879,11 @@ int QApplication::x11ProcessEvent(XEvent* event)
             }
         } else
             // store the parent. Useful for many things, embedding for instance.
-            widget->d->topData()->parentWinId = event->xreparent.parent;
+            widget->d_func()->topData()->parentWinId = event->xreparent.parent;
         if (widget->isWindow()) {
             // the widget frame strut should also be invalidated
-            widget->d->topData()->fleft = widget->d->topData()->fright =
-             widget->d->topData()->ftop = widget->d->topData()->fbottom = 0;
+            widget->d_func()->topData()->fleft = widget->d_func()->topData()->fright =
+             widget->d_func()->topData()->ftop = widget->d_func()->topData()->fbottom = 0;
 
             if (X11->focus_model != QX11Data::FM_Unknown) {
                 // toplevel reparented...
@@ -3127,6 +3127,7 @@ bool qt_try_modal(QWidget *widget, XEvent *event)
 static int openPopupCount = 0;
 void QApplicationPrivate::openPopup(QWidget *popup)
 {
+    Q_Q(QApplication);
     openPopupCount++;
     if (!QApplicationPrivate::popupWidgets) {                        // create list
         QApplicationPrivate::popupWidgets = new QWidgetList;
@@ -3161,6 +3162,7 @@ void QApplicationPrivate::openPopup(QWidget *popup)
 
 void QApplicationPrivate::closePopup(QWidget *popup)
 {
+    Q_Q(QApplication);
     if (!QApplicationPrivate::popupWidgets)
         return;
     QApplicationPrivate::popupWidgets->removeAll(popup);
@@ -3260,6 +3262,7 @@ static Qt::KeyboardModifiers translateModifiers(int s)
 
 bool QETWidget::translateMouseEvent(const XEvent *event)
 {
+    Q_D(QWidget);
     static bool manualGrab = false;
     QEvent::Type type;                                // event parameters
     QPoint pos;
@@ -3439,7 +3442,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
     if (type == 0)                                // don't send event
         return false;
 
-    if (qApp->d->inPopupMode()) {                        // in popup mode
+    if (qApp->d_func()->inPopupMode()) {                        // in popup mode
         QWidget *activePopupWidget = qApp->activePopupWidget();
         QWidget *popup = qApp->activePopupWidget();
         if (popup != this) {
@@ -3513,7 +3516,7 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             qt_button_down = 0;
             qt_popup_down = 0;
         }
-        if (!qApp->d->inPopupMode()) {
+        if (!qApp->d_func()->inPopupMode()) {
              if (type != QEvent::MouseButtonRelease && !buttons &&
                  QWidget::find((WId)mouseActWindow)) {
                  manualGrab = true;                // need to manually grab
@@ -3773,6 +3776,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
 
 bool QETWidget::translatePropertyEvent(const XEvent *event)
 {
+    Q_D(QWidget);
     if (!isWindow()) return true;
 
     Atom ret;
@@ -4882,6 +4886,7 @@ bool translateBySips(QWidget* that, QRect& paintRect)
 
 void QWidgetPrivate::removePendingPaintEvents()
 {
+    Q_Q(QWidget);
     XEvent xevent;
     while (XCheckTypedWindowEvent(X11->display, q->winId(), Expose, &xevent) &&
             ! qt_x11EventFilter(&xevent)  &&
@@ -4893,6 +4898,7 @@ void QWidgetPrivate::removePendingPaintEvents()
 
 void QETWidget::translatePaintEvent(const XEvent *event)
 {
+    Q_D(QWidget);
     QRect  paintRect(event->xexpose.x, event->xexpose.y,
                      event->xexpose.width, event->xexpose.height);
     XEvent xevent;
@@ -4960,6 +4966,7 @@ bool QETWidget::translateScrollDoneEvent(const XEvent *event)
 
 bool QETWidget::translateConfigEvent(const XEvent *event)
 {
+    Q_D(QWidget);
     setAttribute(Qt::WA_WState_ConfigPending, false);
 
     if (isWindow()) {
@@ -5056,6 +5063,7 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
 //
 bool QETWidget::translateCloseEvent(const XEvent *)
 {
+    Q_D(QWidget);
     return d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
 }
 
@@ -5544,6 +5552,7 @@ void QSmSocketReceiver::socketActivated(int)
 QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
     : QObject(*new QSessionManagerPrivate(this, id, key), app)
 {
+    Q_D(QSessionManager);
     d->restartHint = RestartIfRunning;
 
     resetSmState();
@@ -5599,11 +5608,13 @@ QSessionManager::~QSessionManager()
 
 QString QSessionManager::sessionId() const
 {
+    Q_D(const QSessionManager);
     return d->sessionId;
 }
 
 QString QSessionManager::sessionKey() const
 {
+    Q_D(const QSessionManager);
     return d->sessionKey;
 }
 
@@ -5616,6 +5627,7 @@ void* QSessionManager::handle() const
 
 bool QSessionManager::allowsInteraction()
 {
+    Q_D(QSessionManager);
     if (sm_interactionActive)
         return true;
 
@@ -5644,6 +5656,7 @@ bool QSessionManager::allowsInteraction()
 
 bool QSessionManager::allowsErrorInteraction()
 {
+    Q_D(QSessionManager);
     if (sm_interactionActive)
         return true;
 
@@ -5687,31 +5700,37 @@ void QSessionManager::cancel()
 
 void QSessionManager::setRestartHint(QSessionManager::RestartHint hint)
 {
+    Q_D(QSessionManager);
     d->restartHint = hint;
 }
 
 QSessionManager::RestartHint QSessionManager::restartHint() const
 {
+    Q_D(const QSessionManager);
     return d->restartHint;
 }
 
 void QSessionManager::setRestartCommand(const QStringList& command)
 {
+    Q_D(QSessionManager);
     d->restartCommand = command;
 }
 
 QStringList QSessionManager::restartCommand() const
 {
+    Q_D(const QSessionManager);
     return d->restartCommand;
 }
 
 void QSessionManager::setDiscardCommand(const QStringList& command)
 {
+    Q_D(QSessionManager);
     d->discardCommand = command;
 }
 
 QStringList QSessionManager::discardCommand() const
 {
+    Q_D(const QSessionManager);
     return d->discardCommand;
 }
 

@@ -74,7 +74,7 @@ public:
     int frameCount() const;
     int nextFrameDelay() const;
     int currentFrameNumber() const;
-    
+
     void setSpeed(int percentSpeed);
     int speed() const;
 
@@ -94,7 +94,7 @@ public slots:
 
 private:
     Q_DISABLE_COPY(QMovie)
-    Q_PRIVATE_SLOT(d, void loadNextFrame())
+    Q_PRIVATE_SLOT(d_func(), void loadNextFrame())
 
 #ifdef QT3_SUPPORT
 public:

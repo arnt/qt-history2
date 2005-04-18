@@ -1738,7 +1738,5 @@ double operator/(const QVariant &arg1, const QVariant &arg2)
     return (a1 != 0 && a2 != 0) ? (a1 / a2) : 0.0;
 }
 
-#define d d_func()
 #include "moc_qabstractspinbox.cpp"
-#undef d
 

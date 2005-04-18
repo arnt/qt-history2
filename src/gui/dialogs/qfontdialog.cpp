@@ -810,7 +810,6 @@ QFont QFontDialog::font() const
 }
 
 #include "qfontdialog.moc"
-#define d d_func()
 #include "moc_qfontdialog.cpp"
 
 #endif

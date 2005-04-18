@@ -1201,6 +1201,4 @@ void QListWidget::setModel(QAbstractItemModel *model)
     QListView::setModel(model);
 }
 
-#define d d_func()
 #include "moc_qlistwidget.cpp"
-#undef d

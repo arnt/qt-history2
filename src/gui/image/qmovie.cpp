@@ -611,6 +611,4 @@ void QMovie::stop()
     d->nextImageTimer.stop();
 }
 
-#define d d_func()
 #include "moc_qmovie.cpp"
-#undef d

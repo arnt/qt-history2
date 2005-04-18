@@ -1610,7 +1610,6 @@ bool QColorDialog::selectColor(const QColor& col)
 }
 
 #include "qcolordialog.moc"
-#define d d_func()
 #include "moc_qcolordialog.cpp"
 
 #endif

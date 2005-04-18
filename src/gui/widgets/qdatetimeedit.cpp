@@ -2724,6 +2724,5 @@ QString QDateTimeEditPrivate::stateName(int s) const
     default: return "Unknown state " + QString::number(s);
     }
 }
-#define d d_func()
+
 #include "moc_qdatetimeedit.cpp"
-#undef d

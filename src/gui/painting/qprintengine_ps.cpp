@@ -3473,10 +3473,9 @@ static void closeAllOpenFds()
 	::close( i );
 }
 
-#define d d_func()
-
 bool QPSPrintEngine::begin(QPaintDevice *pdev)
 {
+    Q_D(QPSPrintEngine);
     d->pdev = pdev;
     d->printer = static_cast<QPrinter*>(pdev);
     if (!d->outputFileName.isEmpty()) {
@@ -3609,6 +3608,7 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
 
 bool QPSPrintEngine::end()
 {
+    Q_D(QPSPrintEngine);
     bool pageCountAtEnd = (d->buffer != 0);
 
     // we're writing to lp/lpr through a pipe, we don't want to crash with SIGPIPE
@@ -3658,6 +3658,7 @@ void QPSPrintEngine::updateState(const QPaintEngineState &state)
 
 void QPSPrintEngine::updatePen(const QPen &pen)
 {
+    Q_D(QPSPrintEngine);
     d->cpen = pen;
     // we special-case for narrow solid lines with the default
     // cap and join styles
@@ -3674,6 +3675,7 @@ void QPSPrintEngine::updatePen(const QPen &pen)
 
 void QPSPrintEngine::updateBrush(const QBrush &brush, const QPointF &/*origin*/)
 {
+    Q_D(QPSPrintEngine);
     // ### use brush origin!
     if (brush.style() == Qt::TexturePattern) {
 #if defined(CHECK_RANGE)
@@ -3704,6 +3706,7 @@ void QPSPrintEngine::updateFont(const QFont &)
 
 void QPSPrintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
+    Q_D(QPSPrintEngine);
     d->bkColor = bgBrush.color();
     d->bkMode = bgMode;
 
@@ -3717,6 +3720,7 @@ void QPSPrintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 
 void QPSPrintEngine::updateMatrix(const QMatrix &matrix)
 {
+    Q_D(QPSPrintEngine);
     d->pageStream << "["
                   << matrix.m11() << ' ' << matrix.m12() << ' '
                   << matrix.m21() << ' ' << matrix.m22() << ' '
@@ -3726,6 +3730,7 @@ void QPSPrintEngine::updateMatrix(const QMatrix &matrix)
 
 void QPSPrintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation /*op*/)
 {
+    Q_D(QPSPrintEngine);
     bool clipEnabled = !region.isEmpty();
     if (!d->clipOn && !clipEnabled)
         return;
@@ -3764,27 +3769,32 @@ void QPSPrintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation /
 
 void QPSPrintEngine::drawLine(const QLineF &line)
 {
+    Q_D(QPSPrintEngine);
     d->pageStream << POINT(line.p2())
                   << POINT(line.p1()) << "DL\n";
 }
 
 void QPSPrintEngine::drawRect(const QRectF &r)
 {
+    Q_D(QPSPrintEngine);
     d->pageStream << RECT(r) << "R\n";
 }
 
 void QPSPrintEngine::drawPoint(const QPointF &p)
 {
+    Q_D(QPSPrintEngine);
     d->pageStream << POINT(p) << "P\n";
 }
 
 void QPSPrintEngine::drawEllipse(const QRectF &r)
 {
+    Q_D(QPSPrintEngine);
     d->pageStream << RECT(r) << "E\n";
 }
 
 void QPSPrintEngine::drawLines(const QLineF *lines, int lineCount)
 {
+    Q_D(QPSPrintEngine);
     d->pageStream << "NP\n";
     for (int i = 0; i < lineCount; ++i) {
         d->pageStream << POINT(lines[i].p1()) << "MT "
@@ -3795,6 +3805,7 @@ void QPSPrintEngine::drawLines(const QLineF *lines, int lineCount)
 
 void QPSPrintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
+    Q_D(QPSPrintEngine);
 
     if (mode == WindingMode)
         d->pageStream << "/WFi true d\n";
@@ -3822,6 +3833,7 @@ void QPSPrintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDr
 
 void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
+    Q_D(QPSPrintEngine);
     QImage img = pm.toImage();
     QImage mask;
     if (pm.hasAlphaChannel())
@@ -3831,6 +3843,7 @@ void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF
 
 void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
+    Q_D(QPSPrintEngine);
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
     d->setFont(ti.fontEngine);
     Q_ASSERT(d->currentPSFont);
@@ -3869,6 +3882,7 @@ void QPSPrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, con
 
 void QPSPrintEngine::drawPath(const QPainterPath &p)
 {
+    Q_D(QPSPrintEngine);
     bool winding = (p.fillRule() == Qt::WindingFill);
 
     if (winding)
@@ -3917,6 +3931,7 @@ void QPSPrintEngine::drawPath(const QPainterPath &p)
 
 bool QPSPrintEngine::newPage()
 {
+    Q_D(QPSPrintEngine);
     // we're writing to lp/lpr through a pipe, we don't want to crash with SIGPIPE
     // if lp/lpr dies
     ignoreSigPipe(true);
@@ -3980,6 +3995,7 @@ QRect QPSPrintEnginePrivate::pageRect() const
 
 int  QPSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
 {
+    Q_D(const QPSPrintEngine);
     int val;
     QRect r = d->paperRect();
     switch (metricType) {
@@ -4020,11 +4036,13 @@ int  QPSPrintEngine::metric(QPaintDevice::PaintDeviceMetric metricType) const
 
 QPrinter::PrinterState QPSPrintEngine::printerState() const
 {
+    Q_D(const QPSPrintEngine);
     return d->printerState;
 }
 
 void QPSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
 {
+    Q_D(QPSPrintEngine);
     switch (key) {
     case PPK_CollateCopies:
         d->collate = value.toBool();
@@ -4078,6 +4096,7 @@ void QPSPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &val
 
 QVariant QPSPrintEngine::property(PrintEnginePropertyKey key) const
 {
+    Q_D(const QPSPrintEngine);
     QVariant ret;
     switch (key) {
     case PPK_CollateCopies:

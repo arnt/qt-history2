@@ -58,12 +58,12 @@ private:
 private:
     Q_DISABLE_COPY(QColorDialog)
 
-    Q_PRIVATE_SLOT(d, void addCustom())
+    Q_PRIVATE_SLOT(d_func(), void addCustom())
 
-    Q_PRIVATE_SLOT(d, void newHsv(int h, int s, int v))
-    Q_PRIVATE_SLOT(d, void newColorTypedIn(QRgb rgb))
-    Q_PRIVATE_SLOT(d, void newCustom(int, int))
-    Q_PRIVATE_SLOT(d, void newStandard(int, int))
+    Q_PRIVATE_SLOT(d_func(), void newHsv(int h, int s, int v))
+    Q_PRIVATE_SLOT(d_func(), void newColorTypedIn(QRgb rgb))
+    Q_PRIVATE_SLOT(d_func(), void newCustom(int, int))
+    Q_PRIVATE_SLOT(d_func(), void newStandard(int, int))
 
     friend class QColorShower;
 };

@@ -87,8 +87,8 @@ protected:
 private:
     Q_DISABLE_COPY(QToolButton)
     Q_DECLARE_PRIVATE(QToolButton)
-    Q_PRIVATE_SLOT(d, void buttonPressed())
-    Q_PRIVATE_SLOT(d, void actionTriggered())
+    Q_PRIVATE_SLOT(d_func(), void buttonPressed())
+    Q_PRIVATE_SLOT(d_func(), void actionTriggered())
 
 #ifdef QT3_SUPPORT
 public:

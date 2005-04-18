@@ -887,13 +887,10 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
     with the given \a parent.
 */
 
-#define d d_func()
-#define q q_func()
-
 QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPrintDialog(*(new QPrintDialogPrivate), printer, parent)
 {
-    d->init();
+    d_func()->init();
 }
 
 
@@ -908,6 +905,7 @@ QPrintDialog::~QPrintDialog()
 
 QGroupBox *QPrintDialogPrivate::setupPrinterSettings()
 {
+    Q_Q(QPrintDialog);
     QGroupBox *g = new QGroupBox(q->tr("Printer settings"), q);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
@@ -929,6 +927,7 @@ QGroupBox *QPrintDialogPrivate::setupPrinterSettings()
 
 QGroupBox *QPrintDialogPrivate::setupDestination()
 {
+    Q_Q(QPrintDialog);
     QGroupBox *g = new QGroupBox(q->tr("Print destination"), q);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
@@ -1086,6 +1085,7 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
 
 QGroupBox *QPrintDialogPrivate::setupOptions()
 {
+    Q_Q(QPrintDialog);
     QGroupBox *g = new QGroupBox(q->tr("Options"), q);
 
     QBoxLayout *lay = new QBoxLayout(QBoxLayout::LeftToRight, g);
@@ -1192,6 +1192,7 @@ void isc(QPrintDialogPrivate *ptr, const QString & text, QPrinter::PageSize ps)
 
 QGroupBox *QPrintDialogPrivate::setupPaper()
 {
+    Q_Q(QPrintDialog);
     QGroupBox *g = new QGroupBox(q->tr("Paper format"), q);
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, g);
@@ -1216,36 +1217,36 @@ QGroupBox *QPrintDialogPrivate::setupPaper()
     for(n=0; n<QPrinter::NPageSize; n++)
         indexToPageSize[n] = QPrinter::A4;
 
-    isc(d, q->tr("A0 (841 x 1189 mm)"), QPrinter::A0);
-    isc(d, q->tr("A1 (594 x 841 mm)"), QPrinter::A1);
-    isc(d, q->tr("A2 (420 x 594 mm)"), QPrinter::A2);
-    isc(d, q->tr("A3 (297 x 420 mm)"), QPrinter::A3);
-    isc(d, q->tr("A4 (210x297 mm, 8.26x11.7 inches)"), QPrinter::A4);
-    isc(d, q->tr("A5 (148 x 210 mm)"), QPrinter::A5);
-    isc(d, q->tr("A6 (105 x 148 mm)"), QPrinter::A6);
-    isc(d, q->tr("A7 (74 x 105 mm)"), QPrinter::A7);
-    isc(d, q->tr("A8 (52 x 74 mm)"), QPrinter::A8);
-    isc(d, q->tr("A9 (37 x 52 mm)"), QPrinter::A9);
-    isc(d, q->tr("B0 (1000 x 1414 mm)"), QPrinter::B0);
-    isc(d, q->tr("B1 (707 x 1000 mm)"), QPrinter::B1);
-    isc(d, q->tr("B2 (500 x 707 mm)"), QPrinter::B2);
-    isc(d, q->tr("B3 (353 x 500 mm)"), QPrinter::B3);
-    isc(d, q->tr("B4 (250 x 353 mm)"), QPrinter::B4);
-    isc(d, q->tr("B5 (176 x 250 mm, 6.93x9.84 inches)"), QPrinter::B5);
-    isc(d, q->tr("B6 (125 x 176 mm)"), QPrinter::B6);
-    isc(d, q->tr("B7 (88 x 125 mm)"), QPrinter::B7);
-    isc(d, q->tr("B8 (62 x 88 mm)"), QPrinter::B8);
-    isc(d, q->tr("B9 (44 x 62 mm)"), QPrinter::B9);
-    isc(d, q->tr("B10 (31 x 44 mm)"), QPrinter::B10);
-    isc(d, q->tr("C5E (163 x 229 mm)"), QPrinter::C5E);
-    isc(d, q->tr("DLE (110 x 220 mm)"), QPrinter::DLE);
-    isc(d, q->tr("Executive (7.5x10 inches, 191x254 mm)"), QPrinter::Executive);
-    isc(d, q->tr("Folio (210 x 330 mm)"), QPrinter::Folio);
-    isc(d, q->tr("Ledger (432 x 279 mm)"), QPrinter::Ledger);
-    isc(d, q->tr("Legal (8.5x14 inches, 216x356 mm)"), QPrinter::Legal);
-    isc(d, q->tr("Letter (8.5x11 inches, 216x279 mm)"), QPrinter::Letter);
-    isc(d, q->tr("Tabloid (279 x 432 mm)"), QPrinter::Tabloid);
-    isc(d, q->tr("US Common #10 Envelope (105 x 241 mm)"), QPrinter::Comm10E);
+    isc(this, q->tr("A0 (841 x 1189 mm)"), QPrinter::A0);
+    isc(this, q->tr("A1 (594 x 841 mm)"), QPrinter::A1);
+    isc(this, q->tr("A2 (420 x 594 mm)"), QPrinter::A2);
+    isc(this, q->tr("A3 (297 x 420 mm)"), QPrinter::A3);
+    isc(this, q->tr("A4 (210x297 mm, 8.26x11.7 inches)"), QPrinter::A4);
+    isc(this, q->tr("A5 (148 x 210 mm)"), QPrinter::A5);
+    isc(this, q->tr("A6 (105 x 148 mm)"), QPrinter::A6);
+    isc(this, q->tr("A7 (74 x 105 mm)"), QPrinter::A7);
+    isc(this, q->tr("A8 (52 x 74 mm)"), QPrinter::A8);
+    isc(this, q->tr("A9 (37 x 52 mm)"), QPrinter::A9);
+    isc(this, q->tr("B0 (1000 x 1414 mm)"), QPrinter::B0);
+    isc(this, q->tr("B1 (707 x 1000 mm)"), QPrinter::B1);
+    isc(this, q->tr("B2 (500 x 707 mm)"), QPrinter::B2);
+    isc(this, q->tr("B3 (353 x 500 mm)"), QPrinter::B3);
+    isc(this, q->tr("B4 (250 x 353 mm)"), QPrinter::B4);
+    isc(this, q->tr("B5 (176 x 250 mm, 6.93x9.84 inches)"), QPrinter::B5);
+    isc(this, q->tr("B6 (125 x 176 mm)"), QPrinter::B6);
+    isc(this, q->tr("B7 (88 x 125 mm)"), QPrinter::B7);
+    isc(this, q->tr("B8 (62 x 88 mm)"), QPrinter::B8);
+    isc(this, q->tr("B9 (44 x 62 mm)"), QPrinter::B9);
+    isc(this, q->tr("B10 (31 x 44 mm)"), QPrinter::B10);
+    isc(this, q->tr("C5E (163 x 229 mm)"), QPrinter::C5E);
+    isc(this, q->tr("DLE (110 x 220 mm)"), QPrinter::DLE);
+    isc(this, q->tr("Executive (7.5x10 inches, 191x254 mm)"), QPrinter::Executive);
+    isc(this, q->tr("Folio (210 x 330 mm)"), QPrinter::Folio);
+    isc(this, q->tr("Ledger (432 x 279 mm)"), QPrinter::Ledger);
+    isc(this, q->tr("Legal (8.5x14 inches, 216x356 mm)"), QPrinter::Legal);
+    isc(this, q->tr("Letter (8.5x11 inches, 216x279 mm)"), QPrinter::Letter);
+    isc(this, q->tr("Tabloid (279 x 432 mm)"), QPrinter::Tabloid);
+    isc(this, q->tr("US Common #10 Envelope (105 x 241 mm)"), QPrinter::Comm10E);
 
     QObject::connect(sizeCombo, SIGNAL(activated(int)),
              q, SLOT(paperSizeSelected(int)));
@@ -1324,6 +1325,7 @@ void QPrintDialogPrivate::setNumCopies(int copies)
 
 void QPrintDialogPrivate::browseClicked()
 {
+    Q_Q(QPrintDialog);
     QString fn = QFileDialog::getSaveFileName(q, QString(), fileName->text(),
                                               q->tr("PostScript Files (*.ps);;All Files (*)"));
     if (!fn.isNull())
@@ -1333,6 +1335,7 @@ void QPrintDialogPrivate::browseClicked()
 
 void QPrintDialogPrivate::okClicked()
 {
+    Q_Q(QPrintDialog);
     lastPage->interpretText();
     firstPage->interpretText();
     copies->interpretText();
@@ -1378,6 +1381,7 @@ void QPrintDialogPrivate::printRangeSelected(QAbstractButton *b)
 
 void QPrintDialogPrivate::setFirstPage(int fp)
 {
+    Q_Q(QPrintDialog);
     if (printer) {
         lastPage->setMinimum(fp);
         lastPage->setMaximum(qMax(fp, q->maxPage()));
@@ -1387,6 +1391,7 @@ void QPrintDialogPrivate::setFirstPage(int fp)
 
 void QPrintDialogPrivate::setLastPage(int lp)
 {
+    Q_Q(QPrintDialog);
     if (printer) {
         firstPage->setMinimum(qMin(lp, q->minPage()));
         firstPage->setMaximum(lp);
@@ -1402,6 +1407,7 @@ void QPrintDialogPrivate::setLastPage(int lp)
 */
 void QPrintDialog::addButton(QPushButton *but)
 {
+    Q_D(QPrintDialog);
     d->customLayout->addWidget(but);
 }
 
@@ -1409,6 +1415,7 @@ void QPrintDialog::addButton(QPushButton *but)
   this dialog does not operate on any printer. */
 QPrinter *QPrintDialog::printer() const
 {
+    Q_D(const QPrintDialog);
     return d->printer;
 }
 
@@ -1421,12 +1428,14 @@ QPrinter *QPrintDialog::printer() const
 
 void QPrintDialog::setPrinter(QPrinter *p, bool pickUpSettings)
 {
+    Q_D(QPrintDialog);
     d->setPrinter(p, pickUpSettings);
 }
 #endif
 
 void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
 {
+    Q_Q(QPrintDialog);
     printer = p;
 
     if (p && pickUpSettings) {
@@ -1469,13 +1478,13 @@ void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
         // New stuff (Options)
 
         // page order
-        d->pageOrder2 = p->pageOrder();
-        if (d->pageOrder2 == QPrinter::LastPageFirst)
+        pageOrder2 = p->pageOrder();
+        if (pageOrder2 == QPrinter::LastPageFirst)
             lastPageFirst->setChecked(true);
 
         // color mode
-        d->colorMode2 = p->colorMode();
-        if (d->colorMode2 == QPrinter::Color)
+        colorMode2 = p->colorMode();
+        if (colorMode2 == QPrinter::Color)
             printColor->setChecked(true);
 
         // number of copies
@@ -1533,6 +1542,7 @@ int QPrintDialog::exec()
 
 void QPrintDialogPrivate::init()
 {
+    Q_Q(QPrintDialog);
     numCopies = 1;
 
     QBoxLayout *tll = new QBoxLayout(QBoxLayout::Down, q);

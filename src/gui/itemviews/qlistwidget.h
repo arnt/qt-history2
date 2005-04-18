@@ -201,13 +201,13 @@ private:
     Q_DECLARE_PRIVATE(QListWidget)
     Q_DISABLE_COPY(QListWidget)
 
-    Q_PRIVATE_SLOT(d, void emitItemPressed(const QModelIndex &index))
-    Q_PRIVATE_SLOT(d, void emitItemClicked(const QModelIndex &index))
-    Q_PRIVATE_SLOT(d, void emitItemDoubleClicked(const QModelIndex &index))
-    Q_PRIVATE_SLOT(d, void emitItemActivated(const QModelIndex &index))
-    Q_PRIVATE_SLOT(d, void emitItemEntered(const QModelIndex &index))
-    Q_PRIVATE_SLOT(d, void emitItemChanged(const QModelIndex &index))
-    Q_PRIVATE_SLOT(d, void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
+    Q_PRIVATE_SLOT(d_func(), void emitItemPressed(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d_func(), void emitItemClicked(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d_func(), void emitItemDoubleClicked(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d_func(), void emitItemActivated(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d_func(), void emitItemEntered(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d_func(), void emitItemChanged(const QModelIndex &index))
+    Q_PRIVATE_SLOT(d_func(), void emitCurrentItemChanged(const QModelIndex &previous, const QModelIndex &current))
 };
 
 inline void QListWidget::addItem(QListWidgetItem *aitem)

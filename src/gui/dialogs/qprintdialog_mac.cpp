@@ -40,11 +40,10 @@ public:
     QMacPrintEnginePrivate *ep;
 };
 
-#define d d_func()
-
 QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPrintDialog(*(new QPrintDialogPrivate), printer, parent)
 {
+    Q_D(QPrintDialog);
     d->ep = static_cast<QMacPrintEngine *>(printer->paintEngine())->d;
 }
 
@@ -55,6 +54,7 @@ QPrintDialog::~QPrintDialog()
 
 int QPrintDialog::exec()
 {
+    Q_D(QPrintDialog);
     QMacBlockingFunction func;
     Boolean result;
     // Carbon's documentation lies.

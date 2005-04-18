@@ -40,9 +40,6 @@
 
 #include <math.h>
 #include <limits.h>
-#define d d_func()
-#define q q_func()
-
 
 QFontEngine::~QFontEngine()
 {

@@ -1619,6 +1619,4 @@ void QTableWidget::setModel(QAbstractItemModel *model)
     QTableView::setModel(model);
 }
 
-#define d d_func()
 #include "moc_qtablewidget.cpp"
-#undef d

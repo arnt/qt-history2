@@ -61,9 +61,9 @@ signals:
 
 private:
     Q_DISABLE_COPY(QActionGroup)
-    Q_PRIVATE_SLOT(d, void actionTriggered())
-    Q_PRIVATE_SLOT(d, void actionChanged())
-    Q_PRIVATE_SLOT(d, void actionHovered())
+    Q_PRIVATE_SLOT(d_func(), void actionTriggered())
+    Q_PRIVATE_SLOT(d_func(), void actionChanged())
+    Q_PRIVATE_SLOT(d_func(), void actionHovered())
 };
 
 #endif

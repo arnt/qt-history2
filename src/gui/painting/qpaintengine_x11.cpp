@@ -47,9 +47,6 @@
 
 #include "qdebug.h"
 
-#define d d_func()
-#define q q_func()
-
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
 
@@ -107,7 +104,7 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
 void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, bool fill)
 {
     QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
-    QMatrix matrix = p->d->matrix;
+    QMatrix matrix = p->d_func()->matrix;
 
     XPoint points[5];
     int xp = x,  yp = y;
@@ -129,9 +126,10 @@ void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, boo
     points[4] = points[0];
 
     if (fill)
-        XFillPolygon(p->d->dpy, p->d->hd, p->d->gc, points, 4, Convex, CoordModeOrigin);
+        XFillPolygon(p->d_func()->dpy, p->d_func()->hd, p->d_func()->gc, points,
+                     4, Convex, CoordModeOrigin);
     else
-        XDrawLines(p->d->dpy, p->d->hd, p->d->gc, points, 5, CoordModeOrigin);
+        XDrawLines(p->d_func()->dpy, p->d_func()->hd, p->d_func()->gc, points, 5, CoordModeOrigin);
 }
 
 
@@ -537,13 +535,13 @@ static QPaintEngine::PaintEngineFeatures qt_decide_features()
 QX11PaintEngine::QX11PaintEngine()
     : QPaintEngine(*(new QX11PaintEnginePrivate), qt_decide_features())
 {
-    d->init();
+    d_func()->init();
 }
 
 QX11PaintEngine::QX11PaintEngine(QX11PaintEnginePrivate &dptr)
     : QPaintEngine(dptr, qt_decide_features())
 {
-    d->init();
+    d_func()->init();
 }
 
 QX11PaintEngine::~QX11PaintEngine()
@@ -552,6 +550,7 @@ QX11PaintEngine::~QX11PaintEngine()
 
 bool QX11PaintEngine::begin(QPaintDevice *pdev)
 {
+    Q_D(QX11PaintEngine);
     d->pdev = pdev;
     d->xinfo = qt_x11Info(pdev);
     d->hd = qt_x11Handle(pdev);
@@ -633,6 +632,7 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 
 bool QX11PaintEngine::end()
 {
+    Q_D(QX11PaintEngine);
     setActive(false);
 
 #if !defined(QT_NO_XRENDER)
@@ -661,6 +661,7 @@ void QX11PaintEngine::drawLines(const QLine *lines, int lineCount)
 {
     Q_ASSERT(lines);
     Q_ASSERT(lineCount);
+    Q_D(QX11PaintEngine);
     if (d->use_path_fallback) {
         for (int i = 0; i < lineCount; ++i) {
             QPainterPath path(lines[i].p1());
@@ -681,6 +682,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
 {
     Q_ASSERT(rects);
     Q_ASSERT(rectCount);
+    Q_D(QX11PaintEngine);
 
 
     if (d->use_path_fallback) {
@@ -754,6 +756,7 @@ void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     Q_ASSERT(points);
     Q_ASSERT(pointCount);
+    Q_D(QX11PaintEngine);
 
     for (int i = 0; i < pointCount; ++i) {
         QPointF xformed = d->matrix.map(points[i]);
@@ -791,6 +794,7 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
 
 void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
+    Q_D(QX11PaintEngine);
     d->render_hints = hints;
     if ((d->txop > QPainterPrivate::TxNone)
         || (hints & QPainter::Antialiasing))
@@ -809,6 +813,7 @@ void QX11PaintEngine::updateRenderHints(QPainter::RenderHints hints)
 
 void QX11PaintEngine::updatePen(const QPen &pen)
 {
+    Q_D(QX11PaintEngine);
     d->cpen = pen;
     int ps = pen.style();
     char dashes[10];                            // custom pen dashes
@@ -940,6 +945,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
 
 void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 {
+    Q_D(QX11PaintEngine);
     d->cbrush = brush;
     d->bg_origin = origin;
     d->adapted_brush_origin = false;
@@ -986,6 +992,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 
 void QX11PaintEngine::drawEllipse(const QRect &rect)
 {
+    Q_D(QX11PaintEngine);
     if (d->use_path_fallback) {
         QPainterPath path;
         path.addEllipse(rect);
@@ -1086,6 +1093,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
                                          QX11PaintEnginePrivate::GCMode gcMode,
                                          QPaintEngine::PolygonDrawMode mode)
 {
+    Q_D(QX11PaintEngine);
     int clippedCount = 0;
     qt_XPoint *clippedPoints = 0;
 
@@ -1158,7 +1166,8 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
 
 void QX11PaintEnginePrivate::strokePolygon(const QPointF *polygonPoints, int pointCount)
 {
-   if (cpen.style() != Qt::NoPen) {
+    Q_D(QX11PaintEngine);
+    if (cpen.style() != Qt::NoPen) {
        int clippedCount = 0;
        qt_XPoint *clippedPoints = 0;
        d->polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
@@ -1170,6 +1179,7 @@ void QX11PaintEnginePrivate::strokePolygon(const QPointF *polygonPoints, int poi
 
 void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, PolygonDrawMode mode)
 {
+    Q_D(QX11PaintEngine);
     if (d->use_path_fallback) {
         QPainterPath path(polygonPoints[0]);
         for (int i = 1; i < pointCount; ++i)
@@ -1196,6 +1206,7 @@ void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, 
 
 void QX11PaintEngine::drawPath(const QPainterPath &path)
 {
+    Q_D(QX11PaintEngine);
     if (path.isEmpty())
         return;
     if (d->cbrush.style() != Qt::NoBrush) {
@@ -1240,6 +1251,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
 
 void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &_sr)
 {
+    Q_D(QX11PaintEngine);
     QPixmap pixmap = pm;
     QRectF sr = _sr;
     if (r.size() != sr.size()) {
@@ -1364,6 +1376,7 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRect
 void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
     Q_ASSERT(isActive());
+    Q_D(QX11PaintEngine);
     d->bg_mode = mode;
     d->bg_brush = bgBrush;
     d->bg_col = bgBrush.color();
@@ -1373,6 +1386,7 @@ void QX11PaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 
 void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
 {
+    Q_D(QX11PaintEngine);
     d->matrix = mtx;
     if (mtx.m12() != 0 || mtx.m21() != 0)
         d->txop = QPainterPrivate::TxRotShear;
@@ -1392,6 +1406,7 @@ void QX11PaintEngine::updateMatrix(const QMatrix &mtx)
 
 void QX11PaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
+    Q_D(QX11PaintEngine);
     QRegion sysClip = systemClip();
     if (op == Qt::NoClip) {
         d->has_clipping = false;
@@ -1436,6 +1451,7 @@ void QX11PaintEngine::updateFont(const QFont &)
 
 Qt::HANDLE QX11PaintEngine::handle() const
 {
+    Q_D(const QX11PaintEngine);
     Q_ASSERT(isActive());
     Q_ASSERT(d->hd);
     return d->hd;
@@ -1453,6 +1469,7 @@ void QX11PaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, co
     int sx = qRound(p.x());
     int sy = qRound(p.y());
 
+    Q_D(QX11PaintEngine);
 #if !defined(QT_NO_XRENDER)
     if (X11->use_xrender && d->picture && pixmap.x11PictureHandle()) {
         // this is essentially qt_draw_tile(), inlined for
@@ -1610,6 +1627,7 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
     int y = qRound(p.y());
     int s = size - 3;
 
+    Q_D(QX11PaintEngine);
     if (d->txop > QPainterPrivate::TxTranslate) {
         for (int k = 0; k < ti.num_glyphs; k++) {
             qt_draw_transformed_rect(this, x, y, s, s, false);
@@ -1646,6 +1664,7 @@ void QX11PaintEngine::drawBox(const QPointF &p, const QTextItemInt &ti)
 
 void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &si)
 {
+    Q_D(QX11PaintEngine);
 
     QFontEngineXLFD *xlfd = static_cast<QFontEngineXLFD *>(si.fontEngine);
     Qt::HANDLE font_id = xlfd->fontStruct()->fid;
@@ -1758,6 +1777,7 @@ void QX11PaintEngine::drawXLFD(const QPointF &p, const QTextItemInt &si)
 #ifndef QT_NO_FONTCONFIG
 void QX11PaintEngine::core_render_glyph(QFontEngineFT *fe, int xp, int yp, uint g)
 {
+    Q_D(QX11PaintEngine);
     if (xp < SHRT_MIN || xp > SHRT_MAX || d->cpen.style() == Qt::NoPen)
         return;
 
@@ -1808,6 +1828,7 @@ void QX11PaintEngine::core_render_glyph(QFontEngineFT *fe, int xp, int yp, uint 
 
 void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
 {
+    Q_D(QX11PaintEngine);
     qreal xpos = p.x();
     qreal ypos = p.y();
 

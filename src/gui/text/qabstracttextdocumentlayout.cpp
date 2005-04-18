@@ -362,7 +362,5 @@ QPaintDevice *QAbstractTextDocumentLayout::paintDevice() const
     return d->paintDevice;
 }
 
-#define d d_func()
-#define q q_func()
 #include "moc_qabstracttextdocumentlayout.cpp"
 

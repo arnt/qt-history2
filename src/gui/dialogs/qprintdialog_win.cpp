@@ -164,5 +164,4 @@ int QPrintDialog::exec()
     return result;
 }
 
-#define d d_func()
 #include "moc_qprintdialog.cpp"

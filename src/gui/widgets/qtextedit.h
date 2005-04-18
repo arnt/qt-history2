@@ -307,10 +307,10 @@ public slots:
 
 private:
     Q_DISABLE_COPY(QTextEdit)
-    Q_PRIVATE_SLOT(d, void repaintContents(const QRectF &r))
-    Q_PRIVATE_SLOT(d, void updateCurrentCharFormatAndSelection())
-    Q_PRIVATE_SLOT(d, void adjustScrollbars())
-    Q_PRIVATE_SLOT(d, void emitCursorPosChanged(const QTextCursor &))
+    Q_PRIVATE_SLOT(d_func(), void repaintContents(const QRectF &r))
+    Q_PRIVATE_SLOT(d_func(), void updateCurrentCharFormatAndSelection())
+    Q_PRIVATE_SLOT(d_func(), void adjustScrollbars())
+    Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
 };
 
 #endif // QTEXTEDIT_H

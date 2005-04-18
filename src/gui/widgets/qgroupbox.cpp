@@ -594,8 +594,6 @@ QGroupBox::QGroupBox(const QString &title, QWidget *parent, const char *name)
 }
 #endif // QT3_SUPPORT
 
-#define d d_func()
 #include "moc_qgroupbox.cpp"
-#undef d
 
 #endif //QT_NO_GROUPBOX

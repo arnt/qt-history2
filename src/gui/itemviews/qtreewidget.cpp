@@ -1922,6 +1922,4 @@ void QTreeWidget::setModel(QAbstractItemModel *model)
     QTreeView::setModel(model);
 }
 
-#define d d_func()
 #include "moc_qtreewidget.cpp"
-#undef d

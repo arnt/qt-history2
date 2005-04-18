@@ -91,7 +91,7 @@ private:
     friend class QTextEngine;
     friend class QTextLayout;
     friend class QTextLine;
-    Q_PRIVATE_SLOT(d, void handlerDestroyed(QObject *obj))
+    Q_PRIVATE_SLOT(d_func(), void handlerDestroyed(QObject *obj))
 };
 
 class QTextObjectInterface

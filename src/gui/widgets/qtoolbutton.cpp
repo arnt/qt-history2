@@ -1018,8 +1018,6 @@ QToolButton::QToolButton(QToolButtonPrivate &dd, QWidget *parent)
 
     Use setToolButtonStyle() instead.
 */
-#define d d_func()
 #include "moc_qtoolbutton.cpp"
-#undef d
 
 #endif

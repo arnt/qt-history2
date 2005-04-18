@@ -154,7 +154,7 @@ protected:
     void        changeEvent(QEvent *);
 
 private:
-    Q_PRIVATE_SLOT(d, void buttonClicked())
+    Q_PRIVATE_SLOT(d_func(), void buttonClicked())
 
     Q_DISABLE_COPY(QMessageBox)
     Q_DECLARE_PRIVATE(QMessageBox)

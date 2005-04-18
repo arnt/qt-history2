@@ -374,6 +374,4 @@ bool QActionGroup::isVisible() const
 
 */
 
-#define d d_func()
 #include "moc_qactiongroup.cpp"
-#undef d
