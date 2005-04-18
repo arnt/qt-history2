@@ -1,6 +1,8 @@
 
 INCLUDEPATH += $$PWD
 
+UI_DIR = $$PWD
+
 # Input
 FORMS += \
     $$PWD/promotetocustomwidgetdialog.ui \
