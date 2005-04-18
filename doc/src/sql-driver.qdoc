@@ -481,10 +481,11 @@
     SQLite has some restrictions regarding multiple users and
     multiple transactions. If you try to read/write on a resource from different
     transactions, your application might freeze until one transaction commits
-    or rolls back.
+    or rolls back. The Qt SQLite driver will retry to write to a locked resource
+    until it runs into a timeout (see \c{QSQLITE_BUSY_TIMEOUT} 
+    at QSqlDatabase::setConnectOptions()).
 
     SQLite has no support for types, every value is treated as character data.
-    BLOBs are therefore not supported.
 
     You can find information about SQLite on \l{http://www.sqlite.org}.
 
