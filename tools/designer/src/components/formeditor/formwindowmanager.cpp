@@ -542,6 +542,7 @@ void FormWindowManager::slotUpdateActions()
     m_actionPaste->setEnabled(pasteAvailable);
 
     m_actionSelectAll->setEnabled(m_activeFormWindow != 0);
+    m_actionShowResourceEditor->setEnabled(m_activeFormWindow != 0);
 
     m_actionAdjustSize->setEnabled(unlaidoutWidgetCount > 0);
 

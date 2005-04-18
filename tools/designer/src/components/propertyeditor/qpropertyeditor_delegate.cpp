@@ -138,7 +138,6 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
     if (property->isSeparator()) {
         QBrush bg = option.palette.dark();
-        // ### bg.setStyle(Qt::LinearGradientPattern);
         painter->fillRect(option.rect, bg);
     } else if (opt.state & QStyle::State_Selected) {
         painter->fillRect(option.rect, QColor(230, 230, 230));
