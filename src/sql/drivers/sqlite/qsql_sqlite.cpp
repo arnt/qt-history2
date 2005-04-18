@@ -384,11 +384,25 @@ bool QSQLiteDriver::hasFeature(DriverFeature f) const
     return false;
 }
 
+static int qGetSqliteTimeout(QString opts)
+{
+    enum { DefaultTimeout = 5000 };
+
+    opts.remove(QLatin1Char(' '));
+    if (opts.startsWith(QLatin1String("QSQLITE_BUSY_TIMEOUT="))) {
+        bool ok;
+        int nt = opts.mid(21).toInt(&ok);
+        if (ok)
+            return nt;
+    }
+    return DefaultTimeout;
+}
+
 /*
    SQLite dbs have no user name, passwords, hosts or ports.
    just file names.
 */
-bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, const QString &, int, const QString &)
+bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, const QString &, int, const QString &conOpts)
 {
     if (isOpen())
         close();
@@ -397,7 +411,7 @@ bool QSQLiteDriver::open(const QString & db, const QString &, const QString &, c
         return false;
 
     if (sqlite3_open16(db.constData(), &d->access) == SQLITE_OK) {
-        sqlite3_busy_timeout(d->access, 5000);
+        sqlite3_busy_timeout(d->access, qGetSqliteTimeout(conOpts));
         setOpen(true);
         setOpenError(false);
         return true;
