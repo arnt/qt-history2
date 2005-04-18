@@ -53,6 +53,7 @@
     \o \l{widgets/groupbox}{Group Box}\raisedaster
     \o \l{widgets/imageviewer}{Image Viewer}\raisedaster
     \o \l{widgets/lineedits}{Line Edits}
+    \o \l{widgets/screenshot}{Screenshot}
     \o \l{widgets/scribble}{Scribble}
     \o \l{widgets/sliders}{Sliders}\raisedaster
     \o \l{widgets/spinboxes}{Spin Boxes}

@@ -7,6 +7,7 @@ SUBDIRS       = analogclock \
                 icons \
                 imageviewer \
                 lineedits \
+                screenshot \
                 scribble \
                 sliders \
                 spinboxes \
