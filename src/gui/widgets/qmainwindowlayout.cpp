@@ -1855,6 +1855,7 @@ void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
         QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());
         Q_ASSERT(l);
         l->drop(dockwidget, r, mouse);
+        relayout();
         DEBUG() << "END of QMainWindowLayout::dropDockWidget (forwarded)";
         return;
     }
