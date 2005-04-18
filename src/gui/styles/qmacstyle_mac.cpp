@@ -4976,24 +4976,34 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_FocusFrame_Mask: {
         ret = true;
         if(QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask*>(hret)) {
-            const QRgb fillColor = qRgb(192, 191, 190);
+            const uchar fillR = 192, fillG = 191, fillB = 190;
             QImage img;
             {
                 QPixmap pix(opt->rect.size());
-                pix.fill(fillColor);
+                pix.fill(QColor(fillR, fillG, fillB));
                 QPainter pix_paint(&pix);
                 drawControl(CE_FocusFrame, opt, &pix_paint, w);
                 pix_paint.end();
                 img = pix.toImage();
             }
-            QImage img_mask(img.width(), img.height(), 1, 2, QImage::LittleEndian);
-            for (int y = 0; y < img.height(); y++) {
-                for (int x = 0; x < img.width(); x++) {
-                    QRgb clr = img.pixel(x, y);
-                    int diff = (((qRed(clr)-qRed(fillColor))*((qRed(clr)-qRed(fillColor)))) +
-                                ((qGreen(clr)-qGreen(fillColor))*((qGreen(clr)-qGreen(fillColor)))) +
-                                ((qBlue(clr)-qBlue(fillColor))*((qBlue(clr)-qBlue(fillColor)))));
-                    img_mask.setPixel(x, y, diff > 100);
+
+            const QRgb *sptr = (QRgb*)img.bits(), *srow;
+            const int sbpl = img.bytesPerLine();
+            const int w = sbpl/4, h = img.height();
+
+            QImage img_mask(img.width(), img.height(), 32);
+            QRgb *dptr = (QRgb*)img_mask.bits(), *drow;
+            const int dbpl = img_mask.bytesPerLine();
+
+            for (int y = 0; y < h; ++y) {
+                srow = sptr+((y*sbpl)/4);
+                drow = dptr+((y*dbpl)/4);
+                for (int x = 0; x < w; ++x) {
+                    ++srow;
+                    const int diff = (((qRed(*srow)-qRed(fillR))*(qRed(*srow)-qRed(fillR))) +
+                                      ((qGreen(*srow)-qGreen(fillG))*((qGreen(*srow)-qGreen(fillG)))) +
+                                      ((qBlue(*srow)-qBlue(fillB))*((qBlue(*srow)-qBlue(fillB)))));
+                    (*drow++) = (diff < 100) ? Qt::black : Qt::white;
                 }
             }
             QBitmap qmask = QBitmap::fromImage(img_mask);
@@ -5769,9 +5779,11 @@ bool QMacStyle::event(QEvent *e)
                 f = 0;
         }
         if (f) {
+#if 1
             if(!d->focusWidget)
                 d->focusWidget = new QFocusFrame(QApplication::focusWidget());
             d->focusWidget->setWidget(QApplication::focusWidget());
+#endif
         } else if(d->focusWidget) {
             d->focusWidget->setWidget(0);
         }

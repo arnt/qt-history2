@@ -53,6 +53,8 @@ void QFocusFramePrivate::updateSize()
         hmargin = q->style()->pixelMetric(QStyle::PM_FocusFrameHMargin);
     QRect geom(widget->x()-hmargin, widget->y()-vmargin,
                widget->width()+(hmargin*2), widget->height()+(vmargin*2));
+    if(q->geometry() == geom)
+        return;
     q->setGeometry(geom);
     QStyleHintReturnMask mask;
     QStyleOption opt = getStyleOption();
