@@ -192,8 +192,7 @@ void QWidget::resetInputContext()
     if (!hasFocus())
         return;
 #ifndef QT_NO_IM
-    Q_Q(QWidget);
-    QInputContext *qic = q->inputContext();
+    QInputContext *qic = this->inputContext();
     if( qic )
 	qic->reset();
 #endif // QT_NO_IM

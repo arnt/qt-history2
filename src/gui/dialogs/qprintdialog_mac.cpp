@@ -44,7 +44,7 @@ QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPrintDialog(*(new QPrintDialogPrivate), printer, parent)
 {
     Q_D(QPrintDialog);
-    d->ep = static_cast<QMacPrintEngine *>(printer->paintEngine())->d;
+    d->ep = static_cast<QMacPrintEngine *>(printer->paintEngine())->d_func();
 }
 
 QPrintDialog::~QPrintDialog()

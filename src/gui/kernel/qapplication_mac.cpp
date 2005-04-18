@@ -64,8 +64,6 @@
 
 
 #include <string.h>
-#define d d_func()
-#define q q_func()
 
 /*****************************************************************************
   QApplication debug facilities
@@ -137,8 +135,8 @@ public:
     inline QWExtra* extraData();
     inline QTLWExtra* topData();
 };
-inline QWExtra* QETWidget::extraData() { return d->extraData(); }
-inline QTLWExtra* QETWidget::topData() { return d->topData(); }
+inline QWExtra* QETWidget::extraData() { return d_func()->extraData(); }
+inline QTLWExtra* QETWidget::topData() { return d_func()->topData(); }
 
 /*****************************************************************************
   External functions
@@ -684,6 +682,7 @@ static EventRef request_context_hold_pending = 0;
 
 void QApplicationPrivate::createEventDispatcher()
 {
+    Q_Q(QApplication);
     if (q->type() != QApplication::Tty)
         eventDispatcher = new QEventDispatcherMac(q);
     else
@@ -992,21 +991,21 @@ void QApplication::setMainWidget(QWidget *mainWidget)
  *****************************************************************************/
 void QApplication::setOverrideCursor(const QCursor &cursor)
 {
-    qApp->d->cursor_list.prepend(cursor);
+    qApp->d_func()->cursor_list.prepend(cursor);
 
     if(qApp && qApp->activeWindow())
-        qt_mac_set_cursor(&qApp->d->cursor_list.first(), QCursor::pos());
+        qt_mac_set_cursor(&qApp->d_func()->cursor_list.first(), QCursor::pos());
 }
 
 void QApplication::restoreOverrideCursor()
 {
-    if (qApp->d->cursor_list.isEmpty())
+    if (qApp->d_func()->cursor_list.isEmpty())
         return;
-    qApp->d->cursor_list.removeFirst();
+    qApp->d_func()->cursor_list.removeFirst();
 
     if(qApp && qApp->activeWindow()) {
         const QCursor def(Qt::ArrowCursor);
-        qt_mac_set_cursor(qApp->d->cursor_list.isEmpty() ? &def : &qApp->d->cursor_list.first(), QCursor::pos());
+        qt_mac_set_cursor(qApp->d_func()->cursor_list.isEmpty() ? &def : &qApp->d_func()->cursor_list.first(), QCursor::pos());
     }
 }
 #endif
@@ -1326,6 +1325,7 @@ static int get_key(int modif, int key, int scan)
 */
 bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhandled)
 {
+    Q_Q(QApplication);
     //find the widget/part
     QWidget *widget = 0;
     short windowPart = qt_mac_window_at(pt.x(), pt.y(), &widget);
@@ -1399,7 +1399,7 @@ bool QApplicationPrivate::do_mouse_down(const QPoint &pt, bool *mouse_down_unhan
     case inDesk:
         break;
     case inGoAway:
-        widget->d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
+        widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
         break;
     case inToolbarButton: {
         QToolBarChangeEvent ev(!(GetCurrentKeyModifiers() & cmdKey));
@@ -1664,7 +1664,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             GetEventParameter(event, kEventParamQEventDispatcherMac, typeQEventDispatcherMac, 0, sizeof(l), 0, &l);
             timeval tm;
             memset(&tm, '\0', sizeof(tm));
-            l->d->doSelect(QEventLoop::AllEvents, &tm);
+            l->d_func()->doSelect(QEventLoop::AllEvents, &tm);
         } else if(ekind == kEventQtRequestSocketAct) {
             qt_mac_event_release(request_sockact_pending);
             QEventDispatcherMac *l = 0;
@@ -1853,7 +1853,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             break;
         }
         //figure out which widget to send it to
-        if(app->d->inPopupMode()) {
+        if(app->d_func()->inPopupMode()) {
             QWidget *popup = qApp->activePopupWidget();
             if (qt_button_down && qt_button_down->window() == popup) {
                 widget = qt_button_down;
@@ -1913,8 +1913,8 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             if(cursor_widget && cursor_widget == qt_button_down && ekind == kEventMouseUp)
                 cursor_widget = QApplication::widgetAt(where.h, where.v);
             if(cursor_widget) { //only over the app, do we set a cursor..
-                if(!qApp->d->cursor_list.isEmpty()) {
-                    cursor = qApp->d->cursor_list.first();
+                if(!qApp->d_func()->cursor_list.isEmpty()) {
+                    cursor = qApp->d_func()->cursor_list.first();
                 } else {
                     for(; cursor_widget; cursor_widget = cursor_widget->parentWidget()) {
                         QWExtra *extra = ((QETWidget*)cursor_widget)->extraData();
@@ -1933,7 +1933,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
         if(widget && app_do_modal && !qt_try_modal(widget, event)) {
             if(ekind == kEventMouseDown && qt_mac_is_macsheet(QApplication::activeModalWidget())) {
                 QApplication::activeModalWidget()->parentWidget()->activateWindow(); //sheets have a parent
-                app->d->do_mouse_down(QPoint(where.h, where.v), 0);
+                app->d_func()->do_mouse_down(QPoint(where.h, where.v), 0);
             }
             break;
         }
@@ -1985,7 +1985,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         if(ekind == kEventMouseDown) {
             bool mouse_down_unhandled;
-            if(!app->d->do_mouse_down(QPoint(where.h, where.v), &mouse_down_unhandled)) {
+            if(!app->d_func()->do_mouse_down(QPoint(where.h, where.v), &mouse_down_unhandled)) {
                 if(mouse_down_unhandled) {
                     handled_event = false;
                     break;
@@ -2104,7 +2104,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             //find which widget to send to
             if(mac_keyboard_grabber)
                 widget = mac_keyboard_grabber;
-            else if (app->d->inPopupMode())
+            else if (app->d_func()->inPopupMode())
                 widget = (app->activePopupWidget()->focusWidget() ?
                           app->activePopupWidget()->focusWidget() : app->activePopupWidget());
             else if(QApplicationPrivate::focus_widget)
@@ -2192,7 +2192,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
 
         if(mac_keyboard_grabber)
             widget = mac_keyboard_grabber;
-        else if (app->d->inPopupMode())
+        else if (app->d_func()->inPopupMode())
             widget = (app->activePopupWidget()->focusWidget() ?
                       app->activePopupWidget()->focusWidget() : app->activePopupWidget());
         else if(QApplicationPrivate::focus_widget)
@@ -2397,7 +2397,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             }
             QMenuBar::macUpdateMenuBar();
         } else if(ekind == kEventAppDeactivated) {
-            while(app->d->inPopupMode())
+            while(app->d_func()->inPopupMode())
                 app->activePopupWidget()->close();
             app->clipboard()->saveScrap();
             if(app) {
@@ -2569,6 +2569,7 @@ bool QApplication::macEventFilter(EventHandlerCallRef, EventRef)
 */
 void QApplicationPrivate::openPopup(QWidget *popup)
 {
+    Q_Q(QApplication);
     if(!QApplicationPrivate::popupWidgets)                        // create list
         QApplicationPrivate::popupWidgets = new QWidgetList;
     QApplicationPrivate::popupWidgets->append(popup);                // add to end of list
@@ -2591,6 +2592,7 @@ void QApplicationPrivate::openPopup(QWidget *popup)
 */
 void QApplicationPrivate::closePopup(QWidget *popup)
 {
+    Q_Q(QApplication);
     if(!QApplicationPrivate::popupWidgets)
         return;
 

@@ -774,10 +774,9 @@ bool QAction::isVisible() const
 bool
 QAction::event(QEvent *e)
 {
-    Q_D(QAction);
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
-        Q_ASSERT_X(se->key() == d->shortcut,
+        Q_ASSERT_X(se->key() == d_func()->shortcut,
                    "QAction::event",
                    "Received shortcut event from incorrect shortcut");
         if (se->isAmbiguous())
