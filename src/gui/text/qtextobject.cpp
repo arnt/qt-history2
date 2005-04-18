@@ -223,10 +223,9 @@ void QTextBlockGroup::blockInserted(const QTextBlock &block)
 void QTextBlockGroup::blockRemoved(const QTextBlock &block)
 {
     Q_D(QTextBlockGroup);
-    Q_Q(QTextBlockGroup);
     d->blocks.removeAll(block);
     if (d->blocks.isEmpty()) {
-        q->document()->docHandle()->deleteObject(q);
+        document()->docHandle()->deleteObject(this);
         return;
     }
 }

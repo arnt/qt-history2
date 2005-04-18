@@ -1093,7 +1093,6 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
                                          QX11PaintEnginePrivate::GCMode gcMode,
                                          QPaintEngine::PolygonDrawMode mode)
 {
-    Q_D(QX11PaintEngine);
     int clippedCount = 0;
     qt_XPoint *clippedPoints = 0;
 
@@ -1108,7 +1107,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
     }
 
 #if !defined(QT_NO_XRENDER)
-    bool antialias = d->render_hints & QPainter::Antialiasing;
+    bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
         (antialias || fill.color().alpha() != 255))
     {
@@ -1126,9 +1125,9 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
         color.red   = (R | R << 8) * color.alpha / 0x10000;
         color.green = (B | G << 8) * color.alpha / 0x10000;
         color.blue  = (B | B << 8) * color.alpha / 0x10000;
-        ::Picture src = getSolidFill(d->scrn, color);
+        ::Picture src = getSolidFill(scrn, color);
 
-        if (src && d->picture) {
+        if (src && picture) {
             int cCount;
             qt_float_point *cPoints;
             floatClipper.clipPolygon((qt_float_point *)polygonPoints, pointCount, &cPoints, &cCount);
@@ -1140,8 +1139,8 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
 
                 XRenderPictureAttributes attrs;
                 attrs.poly_edge = antialias ? PolyEdgeSmooth : PolyEdgeSharp;
-                XRenderChangePicture(dpy, d->picture, CPPolyEdge, &attrs);
-                XRenderCompositeTrapezoids(dpy, PictOpOver, src, d->picture,
+                XRenderChangePicture(dpy, picture, CPPolyEdge, &attrs);
+                XRenderCompositeTrapezoids(dpy, PictOpOver, src, picture,
                                            antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
                                            x_offset, 0, traps.constData(), traps.size());
             }
@@ -1155,7 +1154,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
                                        &clippedPoints, &clippedCount);
             setupAdaptedOrigin(QPoint(clippedPoints->x, clippedPoints->y));
             if (clippedCount > 0)
-                XFillPolygon(dpy, d->hd, fill_gc,
+                XFillPolygon(dpy, hd, fill_gc,
                              (XPoint *) clippedPoints, clippedCount,
                              mode == QPaintEngine::ConvexMode ? Convex : Complex, CoordModeOrigin);
             resetAdaptedOrigin();
@@ -1166,11 +1165,10 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
 
 void QX11PaintEnginePrivate::strokePolygon(const QPointF *polygonPoints, int pointCount)
 {
-    Q_D(QX11PaintEngine);
     if (cpen.style() != Qt::NoPen) {
        int clippedCount = 0;
        qt_XPoint *clippedPoints = 0;
-       d->polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
+       polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
                                      &clippedPoints, &clippedCount, false);
        if (clippedCount > 0)
            XDrawLines(dpy, hd, gc, (XPoint *) clippedPoints, clippedCount, CoordModeOrigin);

@@ -1113,8 +1113,6 @@ QVariant QSpinBoxPrivate::valueFromText(const QString &f) const
 QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
                                                QValidator::State &state) const
 {
-    Q_D(const QSpinBox);
-
     if (cachedtext == input) {
 	state = cachedstate;
 	QSBDEBUG() << "cachedtext was" << "'" + cachedtext + "'" << "state was "
@@ -1126,7 +1124,7 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
     const int b = minimum.toInt();
 
     QString copy = input;
-    d->strip(&copy);
+    strip(&copy);
     QSBDEBUG() << "input" << input << "copy" << copy;
     state = QValidator::Acceptable;
     int num;

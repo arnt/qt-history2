@@ -1123,7 +1123,6 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
 
 void QTextDocumentLayoutPrivate::positionFloat(QTextFrame *frame, QTextLine *currentLine)
 {
-    Q_D(QTextDocumentLayout);
     QTextFrameData *fd = data(frame);
 
     QTextFrame *parent = frame->parentFrame();
@@ -1140,7 +1139,7 @@ void QTextDocumentLayoutPrivate::positionFloat(QTextFrame *frame, QTextLine *cur
     qreal y = pd->currentLayoutStruct->y;
     if (currentLine) {
         qreal left, right;
-        d->floatMargins(y, pd->currentLayoutStruct, &left, &right);
+        floatMargins(y, pd->currentLayoutStruct, &left, &right);
 //         qDebug() << "have line: right=" << right << "left=" << left << "textWidth=" << currentLine->textWidth();
         if (right - left < currentLine->naturalTextWidth() + fd->size.width()) {
             pd->currentLayoutStruct->pendingFloats.append(frame);
@@ -1151,7 +1150,7 @@ void QTextDocumentLayoutPrivate::positionFloat(QTextFrame *frame, QTextLine *cur
     y = findY(y, pd->currentLayoutStruct, fd->size.width());
 
     qreal left, right;
-    d->floatMargins(y, pd->currentLayoutStruct, &left, &right);
+    floatMargins(y, pd->currentLayoutStruct, &left, &right);
 
     if (fd->flow_position == QTextFrameFormat::FloatLeft)
         fd->position = QPointF(left, y);
@@ -1327,28 +1326,27 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
 void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct *layoutStruct,
                                              int layoutFrom, int layoutTo)
 {
-    Q_D(QTextDocumentLayout);
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
 
     LDEBUG << "layoutBlock from=" << layoutFrom << "to=" << layoutTo;
 
     Qt::LayoutDirection dir = blockFormat.layoutDirection();
-    if (d->blockTextFlags & ((int)QTextDocumentLayout::LTR|(int)QTextDocumentLayout::RTL)) {
+    if (blockTextFlags & ((int)QTextDocumentLayout::LTR|(int)QTextDocumentLayout::RTL)) {
         if (!blockFormat.hasProperty(QTextFormat::LayoutDirection))
-            dir = d->blockTextFlags & QTextDocumentLayout::LTR ? Qt::LeftToRight : Qt::RightToLeft;
+            dir = blockTextFlags & QTextDocumentLayout::LTR ? Qt::LeftToRight : Qt::RightToLeft;
     }
     Qt::Alignment align = QStyle::visualAlignment(dir, blockFormat.alignment());
-    if (d->blockTextFlags & Qt::AlignHorizontal_Mask) {
+    if (blockTextFlags & Qt::AlignHorizontal_Mask) {
         if (!blockFormat.hasProperty(QTextFormat::BlockAlignment))
-            align = (Qt::Alignment)(d->blockTextFlags & Qt::AlignHorizontal_Mask);
+            align = (Qt::Alignment)(blockTextFlags & Qt::AlignHorizontal_Mask);
     }
     QTextOption option(align);
     option.setTextDirection(dir);
-    if (d->blockTextFlags & Qt::TextSingleLine || blockFormat.nonBreakableLines())
+    if (blockTextFlags & Qt::TextSingleLine || blockFormat.nonBreakableLines())
         option.setWrapMode(QTextOption::ManualWrap);
     else
-        option.setWrapMode(d->wordWrapMode);
+        option.setWrapMode(wordWrapMode);
     tl->setTextOption(option);
 
     const bool haveWordOrAnyWrapMode = (option.wrapMode() == QTextOption::WrapAtWordBoundaryOrAnywhere);
@@ -1398,8 +1396,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
             }
 //         qDebug() << "layout line y=" << currentYPos << "left=" << left << "right=" <<right;
 
-            if (d->fixedColumnWidth != -1)
-                line.setNumColumns(d->fixedColumnWidth);
+            if (fixedColumnWidth != -1)
+                line.setNumColumns(fixedColumnWidth);
             else
                 line.setLineWidth(right - left);
 
@@ -1412,7 +1410,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
             else
                 right -= text_indent;
 
-            if (d->fixedColumnWidth == -1 && line.naturalTextWidth() > right-left) {
+            if (fixedColumnWidth == -1 && line.naturalTextWidth() > right-left) {
                 // float has been added in the meantime, redo
                 layoutStruct->pendingFloats.clear();
 
@@ -1692,8 +1690,7 @@ int QTextDocumentLayout::pageCount() const
 
 QSizeF QTextDocumentLayout::documentSize() const
 {
-    Q_Q(const QTextDocumentLayout);
-    return data(q->document()->rootFrame())->size;
+    return data(document()->rootFrame())->size;
 }
 
 // Pull this private function in from qglobal.cpp

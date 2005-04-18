@@ -593,7 +593,6 @@ void QScrollBar::mouseMoveEvent(QMouseEvent *e)
 int QScrollBarPrivate::pixelPosToRangeValue(int pos) const
 {
     Q_Q(const QScrollBar);
-    Q_D(const QScrollBar);
     QStyleOptionSlider opt = getStyleOption();
     QRect gr = q->style()->subControlRect(QStyle::CC_ScrollBar, &opt,
                                           QStyle::SC_ScrollBarGroove, q);
@@ -601,7 +600,7 @@ int QScrollBarPrivate::pixelPosToRangeValue(int pos) const
                                           QStyle::SC_ScrollBarSlider, q);
     int sliderMin, sliderMax, sliderLength;
 
-    if (HORIZONTAL) {
+    if (orientation == Qt::Horizontal) {
         sliderLength = sr.width();
         sliderMin = gr.x();
         sliderMax = gr.right() - sliderLength + 1;
@@ -611,7 +610,7 @@ int QScrollBarPrivate::pixelPosToRangeValue(int pos) const
         sliderMax = gr.bottom() - sliderLength + 1;
     }
 
-    return  QStyle::sliderValueFromPosition(d->minimum, d->maximum, pos - sliderMin,
+    return  QStyle::sliderValueFromPosition(minimum, maximum, pos - sliderMin,
                                             sliderMax - sliderMin, opt.upsideDown);
 }
 

@@ -1247,12 +1247,11 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::parent(QDirNode *child) const
 
 QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent) const
 {
-    Q_D(const QDirModel);
     QFileInfoList info;
     if (!parent) {
         info = QDir::drives();
     } else if (parent->info.isDir()) {
-        if (d->resolveSymlinks && parent->info.isSymLink()) {
+        if (resolveSymlinks && parent->info.isSymLink()) {
             QString link = parent->info.readLink();
             if (link.at(link.size() - 1) == QDir::separator())
                 link.chop(1);

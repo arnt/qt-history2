@@ -1403,7 +1403,7 @@ void QWorkspacePrivate::insertIcon(QWidget* w)
 
 void QWorkspacePrivate::removeIcon(QWidget* w)
 {
-    if (d_func()->icons.removeAll(w))
+    if (icons.removeAll(w))
         w->hide();
 }
 
@@ -1457,12 +1457,11 @@ void QWorkspace::hideEvent(QHideEvent *)
 void QWorkspace::paintEvent(QPaintEvent *)
 {
     Q_D(QWorkspace);
-    Q_Q(QWorkspace);
     QPainter p(this);
 
     QBrush bg = d->background;
     if (bg.style() == Qt::NoBrush)
-        bg = q->palette().dark();
+        bg = palette().dark();
 
     p.fillRect(0, 0, width(), height(), bg);
 }

@@ -425,7 +425,7 @@ void QMenuPrivate::scrollMenu(QAction *action, QMenuScroller::ScrollLocation loc
     const int desktopFrame = q->style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, q);
     if (q->height() < screen.height()-(desktopFrame*2)-1) {
         QRect geom = q->geometry();
-        if (newOffset > d_func()->scroll->scrollOffset) { //scroll up
+        if (newOffset > scroll->scrollOffset) { //scroll up
             geom.setHeight(geom.height()-(newOffset-scroll->scrollOffset));
         } else {
             geom.setTop(geom.top() + (newOffset-scroll->scrollOffset));
@@ -654,7 +654,7 @@ void QMenuPrivate::activateAction(QAction *action, QAction::ActionEvent action_e
         QAccessible::updateAccessibility(q, actionID, QAccessible::Focus);
         QAccessible::updateAccessibility(q, actionID, QAccessible::Selection);
 #endif
-        QWidget *w = d_func()->causedPopup;
+        QWidget *w = causedPopup;
         while (QMenu *m = qobject_cast<QMenu*>(w))
             w = m->d_func()->causedPopup;
         action->showStatusText(w);
@@ -1699,7 +1699,6 @@ QMenu::event(QEvent *e)
 void QMenu::keyPressEvent(QKeyEvent *e)
 {
     Q_D(QMenu);
-    Q_Q(QMenu);
     int key = e->key();
     if (isRightToLeft()) {  // in reverse mode open/close key for submenues are reversed
         if (key == Qt::Key_Left)
@@ -1791,7 +1790,7 @@ void QMenu::keyPressEvent(QKeyEvent *e)
                                 if (d->scroll->scrollFlags & QMenuPrivate::QMenuScroller::ScrollUp)
                                     bottomVisible -= scrollerHeight;
                                 if (d->tearoff)
-                                    bottomVisible -= style()->pixelMetric(QStyle::PM_MenuTearoffHeight, 0, q);
+                                    bottomVisible -= style()->pixelMetric(QStyle::PM_MenuTearoffHeight, 0, this);
                                 if ((y + d->scroll->scrollOffset + d->actionRects.value(nextAction).height()) > bottomVisible)
                                     scroll_loc = QMenuPrivate::QMenuScroller::ScrollBottom;
                             }
@@ -1981,7 +1980,7 @@ void QMenu::mouseMoveEvent(QMouseEvent *e)
             sloppyDelayTimer = new QTimer(qApp);
         sloppyDelayTimer->disconnect(SIGNAL(timeout()));
         QObject::connect(sloppyDelayTimer, SIGNAL(timeout()),
-                         q_func(), SLOT(internalSetSloppyAction()));
+                         this, SLOT(internalSetSloppyAction()));
         sloppyDelayTimer->setSingleShot(true);
         sloppyDelayTimer->start(style()->styleHint(QStyle::SH_Menu_SubMenuPopupDelay, 0, this)*6);
         d->sloppyAction = action;

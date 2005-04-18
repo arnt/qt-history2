@@ -66,7 +66,6 @@ void QSliderPrivate::init()
 int QSliderPrivate::pixelPosToRangeValue(int pos) const
 {
     Q_Q(const QSlider);
-    Q_D(const QSlider);
     QStyleOptionSlider opt = getStyleOption();
     QRect gr = q->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderGroove, q);
     QRect sr = q->style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, q);
@@ -81,7 +80,7 @@ int QSliderPrivate::pixelPosToRangeValue(int pos) const
         sliderMin = gr.y();
         sliderMax = gr.bottom() - sliderLength + 1;
     }
-    return QStyle::sliderValueFromPosition(d->minimum, d->maximum, pos - sliderMin,
+    return QStyle::sliderValueFromPosition(minimum, maximum, pos - sliderMin,
                                            sliderMax - sliderMin, opt.upsideDown);
 }
 
@@ -119,13 +118,12 @@ QStyleOptionSlider QSliderPrivate::getStyleOption() const
 bool QSliderPrivate::updateHoverControl(const QPoint &pos)
 {
     Q_Q(QSlider);
-    Q_D(QSlider);
     QRect lastHoverRect = hoverRect;
     QStyle::SubControl lastHoverControl = hoverControl;
     bool doesHover = q->testAttribute(Qt::WA_Hover);
-    if (lastHoverControl != d->newHoverControl(pos) && doesHover) {
+    if (lastHoverControl != newHoverControl(pos) && doesHover) {
         q->update(lastHoverRect);
-        q->update(d->hoverRect);
+        q->update(hoverRect);
         return true;
     }
     return !doesHover;
