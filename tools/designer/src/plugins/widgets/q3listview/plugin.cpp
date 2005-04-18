@@ -15,12 +15,26 @@
 #include <QtDesigner/customwidget.h>
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/ui4.h>
 
-#include <qplugin.h>
-
+#include <QtCore/qplugin.h>
 #include <QtCore/QObject>
-#include <QIcon>
-#include <Q3ListView>
+
+#include <QtGui/QIcon>
+#include <Qt3Support/Q3ListView>
+#include <Qt3Support/Q3Header>
+
+inline QHash<QString, DomProperty *> propertyMap(const QList<DomProperty *> &properties)
+{
+    QHash<QString, DomProperty *> map;
+
+    for (int i=0; i<properties.size(); ++i) {
+        DomProperty *p = properties.at(i);
+        map.insert(p->attributeName(), p);
+    }
+
+    return map;
+}
 
 
 class Q3ListViewPlugin: public QObject, public QDesignerCustomWidgetInterface
@@ -88,9 +102,58 @@ public:
         </widget>\
       "); }
 
+    virtual bool saveExtraInfo(QWidget *widget, DomWidget *ui_widget);
+    virtual bool loadExtraInfo(QWidget *widget, DomWidget *ui_widget);
+
 private:
     bool m_initialized;
 };
+
+bool Q3ListViewPlugin::saveExtraInfo(QWidget *widget, DomWidget *ui_widget)
+{
+    return true;
+}
+
+bool Q3ListViewPlugin::loadExtraInfo(QWidget *widget, DomWidget *ui_widget)
+{
+    Q3ListView *listView = qobject_cast<Q3ListView*>(widget);
+    Q_ASSERT(listView != 0);
+
+    QList<DomColumn*> columns = ui_widget->elementColumn();
+    for (int i=0; i<columns.size(); ++i) {
+        DomColumn *column = columns.at(i);
+
+        QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
+        DomProperty *text = properties.value(QLatin1String("text"));
+        DomProperty *pixmap = properties.value(QLatin1String("pixmap"));
+        DomProperty *clickable = properties.value(QLatin1String("clickable"));
+        DomProperty *resizable = properties.value(QLatin1String("resizable"));
+
+        QString txt = text->elementString()->text();
+        listView->addColumn(txt);
+
+        if (pixmap) {
+            DomResourcePixmap *pix = pixmap->elementIconSet();
+            QIcon icon; // ###
+            listView->header()->setLabel(listView->header()->count() - 1, icon, txt);
+        }
+
+        if (!clickable) {
+            listView->header()->setClickEnabled(false, listView->header()->count() - 1);
+        }
+
+        if (!resizable) {
+            listView->header()->setResizeEnabled(false, listView->header()->count() - 1);
+        }
+    }
+
+    if (ui_widget->elementItem().size()) {
+        // ### initializeQ3ListViewItems(className, varName, w->elementItem());
+    }
+
+    return true;
+}
+
 
 Q_EXPORT_PLUGIN(Q3ListViewPlugin)
 
