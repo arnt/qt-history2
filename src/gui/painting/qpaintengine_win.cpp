@@ -1267,30 +1267,29 @@ void QWin32PaintEnginePrivate::composeGdiPath(const QPainterPath &path)
 
 void QWin32PaintEnginePrivate::setNativeMatrix(const QMatrix &mtx)
 {
-    Q_D(QWin32PaintEngine);
     QT_WA( {
         XFORM m;
-        if (d->txop > QPainterPrivate::TxNone) {
+        if (txop > QPainterPrivate::TxNone) {
             m.eM11 = mtx.m11();
             m.eM12 = mtx.m12();
             m.eM21 = mtx.m21();
             m.eM22 = mtx.m22();
             m.eDx  = mtx.dx();
             m.eDy  = mtx.dy();
-            if (!qSetGraphicsMode(d->hdc, GM_ADVANCED))
+            if (!qSetGraphicsMode(hdc, GM_ADVANCED))
                 qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetGraphicsMode failed");
-            if (!SetWorldTransform(d->hdc, &m))
+            if (!SetWorldTransform(hdc, &m))
                 qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetWorldTransformation failed");
-            d->advancedMode = true;
+            advancedMode = true;
         } else {
             m.eM11 = m.eM22 = 1.0;
             m.eM12 = m.eM21 = m.eDx = m.eDy = 0.0;
-            if (!qSetGraphicsMode(d->hdc, GM_ADVANCED))
+            if (!qSetGraphicsMode(hdc, GM_ADVANCED))
                 qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetGraphicsMode failed");
-            qModifyWorldTransform(d->hdc, &m, MWT_IDENTITY);
-            if (!qSetGraphicsMode(d->hdc, GM_COMPATIBLE))
+            qModifyWorldTransform(hdc, &m, MWT_IDENTITY);
+            if (!qSetGraphicsMode(hdc, GM_COMPATIBLE))
                 qErrnoWarning("QWin32PaintEngine::setNativeMatrix(), SetGraphicsMode failed");
-            d->advancedMode = false;
+            advancedMode = false;
         }
     }, {
     } );
