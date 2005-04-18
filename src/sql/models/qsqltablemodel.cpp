@@ -24,8 +24,6 @@
 
 #include <qdebug.h>
 
-#define q q_func()
-
 /*! \internal
     Populates our record with values.
 */
@@ -53,6 +51,7 @@ void QSqlTableModelPrivate::clear()
 
 void QSqlTableModelPrivate::revertInsertedRow()
 {
+    Q_Q(QSqlTableModel);
     if (insertIndex == -1)
         return;
 
@@ -69,6 +68,7 @@ void QSqlTableModelPrivate::clearEditBuffer()
 
 void QSqlTableModelPrivate::revertCachedRow(int row)
 {
+    Q_Q(QSqlTableModel);
     ModifiedRow r = cache.value(row);
     switch (r.op) {
     case QSqlTableModelPrivate::None:
