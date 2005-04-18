@@ -427,17 +427,26 @@ QPixmap QPixmap::alphaChannel() const
 {
     if (!hasAlphaChannel())
         return QPixmap();
-    // ################### PIXMAP
-    return QPixmap();
+    QImage im(toImage());
+    return fromImage(im.alphaChannel(), Qt::OrderedDither);
 }
 
 /*!
-  Sets the alpha channel of this pixmap to \a alpha. Overwrites any previous
-  alpha channel that was set on the pixmap.
+    Sets the alpha channel of this pixmap to \a alpha. If the pixmap
+    already contains an alpha channel, it is merged with \a alpha.
  */
 void QPixmap::setAlphaChannel(const QPixmap &alpha)
 {
-    // ############ PIXMAP
+    if (alpha.isNull())
+        return;
+
+    if (width() != alpha.width() && height() != alpha.height()) {
+        qWarning("QPixmap::setAlphaChannel: The pixmap and the alpha channel pixmap must have the same size");
+        return;
+    }
+    QImage im(toImage());
+    im.setAlphaChannel(alpha.toImage());
+    *this = fromImage(im, Qt::OrderedDither | Qt::OrderedAlphaDither);
 }
 
 
