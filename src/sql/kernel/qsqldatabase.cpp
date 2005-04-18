@@ -584,6 +584,7 @@ QStringList QSqlDatabase::connectionNames()
     \row \i QODBC    \i ODBC Driver (includes Microsoft SQL Server)
     \row \i QPSQL    \i PostgreSQL v6.x and v7.x Driver
     \row \i QSQLITE  \i SQLite version 3 or above
+    \row \i QSQLITE2 \i SQLite version 2
     \row \i QTDS     \i Sybase Adaptive Server
     \endtable
 
@@ -1158,6 +1159,14 @@ QSqlRecord QSqlDatabase::record(const QString& tablename) const
     \i
     \e none
 
+    \header \i SQLite
+    \row
+
+    \i
+    \list
+    \i QSQLITE_BUSY_TIMEOUT
+    \endlist
+
     \endtable
 
     Examples:
@@ -1286,7 +1295,7 @@ bool QSqlDatabase::isDriverAvailable(const QString& name)
     \row
     \i QOCI
     \i QOCIDriver
-    \i OCIEnv *environment, OCIError *error, OCISvcCtx *serviceContext
+    \i OCIEnv *environment, OCISvcCtx *serviceContext
     \i \c qsql_oci.cpp
     \row
     \i QODBC
