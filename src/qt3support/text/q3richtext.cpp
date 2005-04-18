@@ -8016,9 +8016,9 @@ Q3TextTableCell::Q3TextTableCell(Q3TextTable* table,
     richtext->setTableCell(this);
 
     QMap<QString,QString>::ConstIterator it, end = attr.end();
-    int align = style->alignment();
-    if (align != Q3StyleSheetItem::Undefined)
-        richtext->setAlignment(align);
+    int halign = style->alignment();
+    if (halign != Q3StyleSheetItem::Undefined)
+        richtext->setAlignment(halign);
     it = attr.find("align");
     if (it != end && ! (*it).isEmpty()) {
         QString a = (*it).toLower();
