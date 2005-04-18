@@ -29,6 +29,10 @@
 #include <QtCore/qdebug.h>
 #include <limits.h>
 
+#ifndef Q_MOC_RUN
+using namespace qdesigner::components::propertyeditor;
+#endif
+
 class EditorWithReset : public QWidget
 {
     Q_OBJECT

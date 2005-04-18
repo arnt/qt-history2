@@ -29,6 +29,8 @@
 #include "previewframe.h"
 #include "previewwidget.h"
 
+using namespace qdesigner::components::propertyeditor;
+
 PreviewFrame::PreviewFrame(QWidget *parent)
     : QFrame(parent)
 {

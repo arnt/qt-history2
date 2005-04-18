@@ -27,6 +27,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::taskmenu;
+
 GroupBoxTaskMenu::GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent)
     : QDesignerTaskMenu(groupbox, parent),
       m_groupbox(groupbox)

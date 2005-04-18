@@ -27,6 +27,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::taskmenu;
+
 ButtonTaskMenu::ButtonTaskMenu(QAbstractButton *button, QObject *parent)
     : QDesignerTaskMenu(button, parent),
       m_button(button)

@@ -46,6 +46,8 @@
 
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::formeditor;
+
 static QString whatsThisFrom(const QString &str)
 {
     Q_UNUSED(str); /// ### implement me!

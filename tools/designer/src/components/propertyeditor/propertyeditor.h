@@ -25,6 +25,8 @@
 class DomProperty;
 class QDesignerPropertySheetExtension;
 
+namespace qdesigner { namespace components { namespace propertyeditor {
+
 class QT_PROPERTYEDITOR_EXPORT PropertyEditor: public QDesignerPropertyEditorInterface
 {
     Q_OBJECT
@@ -59,5 +61,7 @@ private:
     QDesignerPropertySheetExtension *m_prop_sheet;
     QPointer<QObject> m_object;
 };
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif // PROPERTYEDITOR_H

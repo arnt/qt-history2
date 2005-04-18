@@ -19,6 +19,8 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QDockWidget>
 
+using namespace qdesigner::components::formeditor;
+
 QDesignerContainer::QDesignerContainer(QWidget *widget, QObject *parent)
     : QObject(parent),
       m_widget(widget)

@@ -22,8 +22,11 @@
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
-class BuddyEditor;
 class QAction;
+
+namespace qdesigner { namespace components { namespace buddyeditor {
+
+class BuddyEditor;
 
 class QT_BUDDYEDITOR_EXPORT BuddyEditorTool: public QDesignerFormWindowToolInterface
 {
@@ -48,5 +51,7 @@ private:
     mutable QPointer<BuddyEditor> m_editor;
     QAction *m_action;
 };
+
+} } } // namespace qdesigner::components::buddyeditor
 
 #endif // BUDDYEDITOR_TOOL_H

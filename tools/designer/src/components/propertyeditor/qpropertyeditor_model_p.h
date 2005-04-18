@@ -17,6 +17,8 @@
 #include "qpropertyeditor_items_p.h"
 #include <qabstractitemmodel.h>
 
+namespace qdesigner { namespace components { namespace propertyeditor {
+
 class QPropertyEditorModel: public QAbstractItemModel
 {
     Q_OBJECT
@@ -103,5 +105,7 @@ private:
     void refreshHelper(IProperty *property);
     IProperty *m_initialInput;
 };
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif // QPROPERTYEDITOR_MODEL_P_H

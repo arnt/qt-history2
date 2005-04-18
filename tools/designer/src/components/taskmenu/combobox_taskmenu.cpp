@@ -28,6 +28,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::taskmenu;
+
 ComboBoxTaskMenu::ComboBoxTaskMenu(QComboBox *button, QObject *parent)
     : QDesignerTaskMenu(button, parent),
       m_comboBox(button)

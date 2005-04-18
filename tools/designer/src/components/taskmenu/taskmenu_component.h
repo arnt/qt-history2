@@ -21,6 +21,8 @@
 
 class QDesignerFormEditorInterface;
 
+namespace qdesigner { namespace components { namespace taskmenu {
+
 class QT_TASKMENU_EXPORT TaskMenuComponent: public QObject
 {
     Q_OBJECT
@@ -33,5 +35,7 @@ public:
 private:
     QDesignerFormEditorInterface *m_core;
 };
+
+} } } // namespace qdesigner::components::taskmenu
 
 #endif // TASKMENU_COMPONENT_H

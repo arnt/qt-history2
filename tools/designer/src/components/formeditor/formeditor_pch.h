@@ -17,7 +17,6 @@
 #include "formeditor_global.h"
 #include <QtDesigner/qextensionmanager.h>
 #include <layoutinfo.h>
-//#include <qdesigner_promotedwidget.h>  // Causes problems...
 #include <qdesigner_command.h>
 #include <QtDesigner/abstractwidgetfactory.h>
 #include <QtDesigner/abstractformeditor.h>

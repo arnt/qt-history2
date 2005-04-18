@@ -26,6 +26,8 @@
 #include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::formeditor;
+
 LinePropertySheet::LinePropertySheet(Line *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {

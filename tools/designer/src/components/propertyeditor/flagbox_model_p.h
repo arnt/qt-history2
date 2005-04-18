@@ -18,6 +18,8 @@
 #include <QtCore/QAbstractItemModel>
 #include <QtCore/QList>
 
+namespace qdesigner { namespace components { namespace propertyeditor {
+
 class QT_PROPERTYEDITOR_EXPORT FlagBoxModelItem
 {
 public:
@@ -67,5 +69,7 @@ public:
 private:
     QList<FlagBoxModelItem> m_items;
 };
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif // FLAGBOX_MODEL_P_H

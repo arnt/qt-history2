@@ -21,6 +21,8 @@
 
 class QDesignerFormWindowInterface;
 
+namespace qdesigner { namespace components { namespace buddyeditor {
+
 class QT_BUDDYEDITOR_EXPORT BuddyEditor : public ConnectionEdit
 {
     Q_OBJECT
@@ -38,5 +40,7 @@ protected:
 private:
     QPointer<QDesignerFormWindowInterface> m_formWindow;
 };
+
+} } } // namespace qdesigner::components::buddyeditor
 
 #endif

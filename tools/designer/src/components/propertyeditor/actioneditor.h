@@ -18,6 +18,8 @@
 
 #include "ui_actioneditor.h"
 
+namespace qdesigner { namespace components { namespace propertyeditor {
+
 class ActionEditor: public QDialog
 {
     Q_OBJECT
@@ -28,5 +30,7 @@ public:
 private:
     Ui::ActionEditor ui;
 };
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif // ACTIONEDITOR_H

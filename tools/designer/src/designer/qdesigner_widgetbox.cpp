@@ -23,6 +23,8 @@
 
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::widgetbox;
+
 QDesignerWidgetBox::QDesignerWidgetBox(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {

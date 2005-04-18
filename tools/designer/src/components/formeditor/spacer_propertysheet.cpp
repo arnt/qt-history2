@@ -23,6 +23,8 @@
 #include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::formeditor;
+
 SpacerPropertySheet::SpacerPropertySheet(Spacer *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {

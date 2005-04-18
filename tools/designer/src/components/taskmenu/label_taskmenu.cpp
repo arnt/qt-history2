@@ -27,6 +27,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::taskmenu;
+
 LabelTaskMenu::LabelTaskMenu(QLabel *label, QObject *parent)
     : QDesignerTaskMenu(label, parent),
       m_label(label)

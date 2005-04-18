@@ -16,6 +16,8 @@
 
 #include <QtGui/QPushButton>
 
+namespace qdesigner { namespace components { namespace propertyeditor {
+
 class StyledButton : public QPushButton
 {
     Q_OBJECT
@@ -51,5 +53,7 @@ private:
     QString pixFile;
     QBrush mBrush;
 };
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif // STYLEBUTTON_H

@@ -21,9 +21,12 @@
 #include <QtCore/QPointer>
 #include <QtCore/QHash>
 
-class TabOrderEditorTool;
 class QDesignerFormWindowInterface;
 class QAction;
+
+namespace qdesigner { namespace components { namespace tabordereditor {
+
+class TabOrderEditorTool;
 
 class QT_TABORDEREDITOR_EXPORT TabOrderEditorPlugin: public QObject, public QDesignerFormEditorPluginInterface
 {
@@ -41,7 +44,7 @@ public:
 
 public slots:
     void activeFormWindowChanged(QDesignerFormWindowInterface *formWindow);
-    
+
 private slots:
     void addFormWindow(QDesignerFormWindowInterface *formWindow);
     void removeFormWindow(QDesignerFormWindowInterface *formWindow);
@@ -52,5 +55,7 @@ private:
     bool m_initialized;
     QAction *m_action;
 };
+
+} } } // namespace qdesigner::components::tabordereditor
 
 #endif // TABORDEREDITOR_PLUGIN_H

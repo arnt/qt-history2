@@ -26,6 +26,8 @@
 class QtUndoStack;
 class QDesignerFormWindowInterface;
 
+namespace qdesigner { namespace components { namespace tabordereditor {
+
 class QT_TABORDEREDITOR_EXPORT TabOrderEditor : public QWidget
 {
     Q_OBJECT
@@ -65,5 +67,7 @@ private:
     QFontMetrics m_font_metrics;
     int m_current_index;
 };
+
+} } } // namespace qdesigner::components::tabordereditor
 
 #endif

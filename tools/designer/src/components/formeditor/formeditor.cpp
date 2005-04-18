@@ -31,6 +31,8 @@
 #include <qdesigner_propertysheet.h>
 #include <qdesigner_promotedwidget.h>
 
+using namespace qdesigner::components::formeditor;
+
 FormEditor::FormEditor(QObject *parent)
     : QDesignerFormEditorInterface(parent)
 {

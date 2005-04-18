@@ -23,16 +23,17 @@
 
 class DomCustomWidgets;
 
-class FormWindow;
-class QDesignerFormEditorInterface;
-
+class QLayoutWidget;
 class QDesignerTabWidget;
 class QDesignerStackedWidget;
 class QDesignerToolBox;
-class QLayoutWidget;
-
 class QDesignerContainerExtension;
 class QDesignerWidgetDataBaseItemInterface;
+class QDesignerFormEditorInterface;
+
+namespace qdesigner { namespace components { namespace formeditor {
+
+class FormWindow;
 
 class QT_FORMEDITOR_EXPORT QDesignerResource : public QAbstractFormBuilder
 {
@@ -121,5 +122,7 @@ private:
     int m_topLevelSpacerCount;
     bool m_copyWidget;
 };
+
+} } } // namespace qdesigner::components::formeditor
 
 #endif // QDESIGNER_RESOURCE_H

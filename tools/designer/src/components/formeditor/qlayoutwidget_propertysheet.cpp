@@ -24,6 +24,8 @@
 #include <QMetaProperty>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::formeditor;
+
 QLayoutWidgetPropertySheet::QLayoutWidgetPropertySheet(QLayoutWidget *object, QObject *parent)
     : QDesignerPropertySheet(object, parent)
 {

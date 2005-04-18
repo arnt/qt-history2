@@ -16,12 +16,15 @@
 
 #include "objectinspector_global.h"
 #include <QtDesigner/abstractobjectinspector.h>
-#include <QPointer>
+#include <QtCore/QPointer>
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
-class ObjectItem;
 class TreeWidget;
+
+namespace qdesigner { namespace components { namespace objectinspector {
+
+class ObjectItem;
 
 class QT_OBJECTINSPECTOR_EXPORT ObjectInspector: public QDesignerObjectInspectorInterface
 {
@@ -51,5 +54,6 @@ private:
     bool m_ignoreUpdate;
 };
 
+} } } // namespace qdesigner::components::objectinspector
 
 #endif // OBJECTINSPECTOR_H

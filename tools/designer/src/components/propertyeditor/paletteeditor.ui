@@ -103,7 +103,7 @@
        </widget>
       </item>
       <item>
-       <widget class="StyledButton" name="buttonMainColor" >
+        <widget class="qdesigner::components::propertyeditor::StyledButton" name="buttonMainColor" >
         <property name="geometry" >
          <rect>
           <x>89</x>
@@ -173,7 +173,7 @@
        </widget>
       </item>
       <item>
-       <widget class="StyledButton" name="buttonMainColor2" >
+        <widget class="qdesigner::components::propertyeditor::StyledButton" name="buttonMainColor2" >
         <property name="geometry" >
          <rect>
           <x>178</x>
@@ -327,7 +327,7 @@
        </layout>
       </item>
       <item>
-       <widget class="PreviewFrame" name="previewFrame" >
+        <widget class="qdesigner::components::propertyeditor::PreviewFrame" name="previewFrame" >
         <property name="geometry" >
          <rect>
           <x>13</x>
@@ -451,14 +451,14 @@
  <pixmapfunction></pixmapfunction>
  <customwidgets>
   <customwidget>
-   <class>StyledButton</class>
+   <class>qdesigner::components::propertyeditor::StyledButton</class>
    <extends></extends>
    <header>styledbutton.h</header>
    <container>0</container>
    <pixmap></pixmap>
   </customwidget>
   <customwidget>
-   <class>PreviewFrame</class>
+   <class>qdesigner::components::propertyeditor::PreviewFrame</class>
    <extends></extends>
    <header>previewframe.h</header>
    <container>0</container>

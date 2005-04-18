@@ -39,8 +39,6 @@ class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class QDesignerFormWindowManagerInterface;
 
-class TaskMenuComponent;
-
 class QDesignerWorkbench: public QObject
 {
     Q_OBJECT
@@ -158,8 +156,6 @@ private:
 
     QHash<QDesignerToolWindow*, ToolWindowExtra> m_toolWindowExtras;
     QHash<QDesignerFormWindow*, FormWindowExtra> m_formWindowExtras;
-
-    TaskMenuComponent *m_taskMenuComponent;
 };
 
 #endif // QDESIGNER_WORKBENCH_H

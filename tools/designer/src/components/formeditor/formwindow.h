@@ -30,7 +30,6 @@
 #include <QtGui/QWidget>
 #include <QtGui/QPixmap>
 
-class FormWindowCursor;
 class DomConnections;
 class Connection;
 
@@ -40,13 +39,18 @@ class QAction;
 class QMenu;
 class QtUndoStack;
 class QRubberBand;
-class WidgetSelection;
 class BreakLayoutCommand;
-class FormWindowManager;
+
+namespace qdesigner { namespace components { namespace formeditor {
+
 class FormEditor;
-class FormWindowDnDItem;
-class FormWindowWidgetStack;
+class FormWindowCursor;
+class WidgetSelection;
 class WidgetEditorTool;
+class FormWindowWidgetStack;
+class FormWindowManager;
+class FormWindowDnDItem;
+
 
 // ### fake - remove when actions are implemented
 class QT_FORMEDITOR_EXPORT WidgetToActionMap
@@ -356,5 +360,7 @@ private:
     friend class QDesignerWidget;
     friend class WidgetEditorTool;
 };
+
+} } } // namespace qdesigner::components::formeditor
 
 #endif // FORMWINDOW_H

@@ -23,6 +23,8 @@
 class QLineEdit;
 class QDesignerFormWindowInterface;
 
+namespace qdesigner { namespace components { namespace taskmenu {
+
 class GroupBoxTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
@@ -55,5 +57,7 @@ public:
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
+
+} } } // namespace qdesigner::components::taskmenu
 
 #endif // GROUPBOX_TASKMENU_H

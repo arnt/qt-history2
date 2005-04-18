@@ -46,6 +46,9 @@
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::formeditor;
+using namespace qdesigner::components::taskmenu;
+
 QDesignerWorkbench::QDesignerWorkbench()
     : m_mode(QDesignerWorkbench::NeutralMode), m_workspace(0)
 {
@@ -191,7 +194,7 @@ void QDesignerWorkbench::initialize()
     connect(m_integration, SIGNAL(propertyChanged(QDesignerFormWindowInterface*,QString,QVariant)),
             this, SLOT(updateWorkbench(QDesignerFormWindowInterface*,QString,QVariant)));
 
-    m_taskMenuComponent = new TaskMenuComponent(core(), this);
+    (void) new TaskMenuComponent(core(), this);
 
     // create the toolbars
     m_editToolBar = new QToolBar;

@@ -30,10 +30,13 @@ class QEvent;
 class QMenu;
 class QAction;
 class QActionGroup;
+class DomWidget;
+
+namespace qdesigner { namespace components { namespace widgetbox {
+
+class WidgetBoxTreeView;
 class WidgetCollectionModel;
 class Scratchpad;
-class WidgetBoxTreeView;
-class DomWidget;
 
 class QT_WIDGETBOX_EXPORT WidgetBox : public QDesignerWidgetBoxInterface
 {
@@ -68,5 +71,7 @@ private:
     QDesignerFormEditorInterface *m_core;
     WidgetBoxTreeView *m_view;
 };
+
+} } } // namespace qdesigner::components::widgetbox
 
 #endif // WIDGETBOX_H

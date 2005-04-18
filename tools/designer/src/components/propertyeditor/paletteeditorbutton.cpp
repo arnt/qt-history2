@@ -16,6 +16,8 @@
 
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::propertyeditor;
+
 PaletteEditorButton::PaletteEditorButton(const QPalette &palette, QWidget *parent)
     : QToolButton(parent),
       m_palette(palette)

@@ -20,6 +20,8 @@
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
 
+using namespace qdesigner::components::propertyeditor;
+
 Q_GLOBAL_STATIC_WITH_ARGS(PropertyCollection, dummy_collection, (QLatin1String("<empty>")))
 
 QPropertyEditor::QPropertyEditor(QWidget *parent)

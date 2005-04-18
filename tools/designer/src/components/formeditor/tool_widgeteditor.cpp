@@ -23,6 +23,8 @@
 #include <QtGui/QAction>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::formeditor;
+
 WidgetEditorTool::WidgetEditorTool(FormWindow *formWindow)
     : QDesignerFormWindowToolInterface(formWindow),
       m_formWindow(formWindow)

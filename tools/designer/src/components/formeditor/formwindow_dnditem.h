@@ -16,6 +16,8 @@
 
 #include <qdesigner_dnditem.h>
 
+namespace qdesigner { namespace components { namespace formeditor {
+
 class FormWindow;
 
 class FormWindowDnDItem : public QDesignerDnDItem
@@ -25,5 +27,7 @@ public:
                         QWidget *widget, const QPoint &global_mouse_pos);
     virtual DomUI *domUi() const;
 };
+
+} } } // namespace qdesigner::components::formeditor
 
 #endif // FORMWINDOW_DNDITEM_H

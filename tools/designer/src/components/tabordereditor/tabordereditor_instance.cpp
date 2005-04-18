@@ -15,5 +15,7 @@
 
 #include "tabordereditor_plugin.h"
 
+using namespace qdesigner::components::tabordereditor;
+
 Q_EXPORT_STATIC_PLUGIN(TabOrderEditorPlugin)
 

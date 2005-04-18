@@ -37,6 +37,8 @@
 #define VBOX_MARGIN             1
 #define HBOX_MARGIN             4
 
+using namespace qdesigner::components::tabordereditor;
+
 static QRect fixRect(const QRect &r)
 {
     return QRect(r.x(), r.y(), r.width() - 1, r.height() - 1);

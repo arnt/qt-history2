@@ -14,6 +14,8 @@
 #include "flagbox_model_p.h"
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::propertyeditor;
+
 FlagBoxModel::FlagBoxModel(QObject *parent)
     : QAbstractItemModel(parent)
 {

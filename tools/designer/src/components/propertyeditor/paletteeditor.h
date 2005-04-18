@@ -3,6 +3,8 @@
 
 #include "ui_paletteeditor.h"
 
+namespace qdesigner { namespace components { namespace propertyeditor {
+
 class PaletteEditor: public QDialog
 {
     Q_OBJECT
@@ -39,5 +41,7 @@ private:
     Ui::PaletteEditor ui;
     QPalette m_editPalette;
 };
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif // PALETTEEDITOR_H

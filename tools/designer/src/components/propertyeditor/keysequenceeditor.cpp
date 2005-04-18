@@ -13,12 +13,14 @@
 
 #include "keysequenceeditor.h"
 
-#include <QKeyEvent>
-#include <QLineEdit>
-#include <QToolButton>
-#include <QPixmap>
-#include <QIconSet>
-#include <QHBoxLayout>
+#include <QtGui/QKeyEvent>
+#include <QtGui/QLineEdit>
+#include <QtGui/QToolButton>
+#include <QtGui/QPixmap>
+#include <QtGui/QIconSet>
+#include <QtGui/QHBoxLayout>
+
+using namespace qdesigner::components::propertyeditor;
 
 KeySequenceEditor::KeySequenceEditor(QWidget *parent)
     : QWidget(parent),

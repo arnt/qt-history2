@@ -20,6 +20,8 @@
 
 class QDesignerFormWindowToolInterface;
 
+namespace qdesigner { namespace components { namespace formeditor {
+
 class QT_FORMEDITOR_EXPORT FormWindowWidgetStack: public QWidget
 {
     Q_OBJECT
@@ -49,5 +51,7 @@ private:
     QList<QDesignerFormWindowToolInterface*> m_tools;
     int m_current_index;
 };
+
+} } } // namespace qdesigner::components::formeditor
 
 #endif // FORMWINDOW_WIDGETSTACK_H

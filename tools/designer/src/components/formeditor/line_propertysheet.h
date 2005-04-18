@@ -18,6 +18,8 @@
 
 class Line;
 
+namespace qdesigner { namespace components { namespace formeditor {
+
 class LinePropertySheet: public QDesignerPropertySheet
 {
     Q_OBJECT
@@ -39,5 +41,7 @@ public:
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
+
+} } } // namespace qdesigner::components::formeditor
 
 #endif // LINE_PROPERTYSHEET_H

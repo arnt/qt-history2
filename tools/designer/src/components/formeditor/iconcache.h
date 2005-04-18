@@ -1,16 +1,34 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #ifndef ICONCACHE_H
 #define ICONCACHE_H
 
-#include <QtCore/QMap>
-#include <QtCore/QVariant>
-#include <QString>
-#include <QPair>
-#include <QPixmap>
-#include <QIcon>
+#include "formeditor_global.h"
+
+#include <QtDesigner/abstracticoncache.h>
 
 #include <resourcefile.h>
-#include <QtDesigner/abstracticoncache.h>
-#include "formeditor_global.h"
+
+#include <QtCore/QMap>
+#include <QtCore/QVariant>
+#include <QtCore/QString>
+#include <QtCore/QPair>
+
+#include <QtGui/QPixmap>
+#include <QtGui/QIcon>
+
+namespace qdesigner { namespace components { namespace formeditor {
 
 /*
     We need two caches - one for icons and one for pixmaps - which are in all
@@ -121,5 +139,7 @@ private:
     ResourceCache<QIcon> m_icon_cache;
     ResourceCache<QPixmap> m_pixmap_cache;
 };
+
+} } } // namespace qdesigner::components::formeditor
 
 #endif // ICONCACHE_H

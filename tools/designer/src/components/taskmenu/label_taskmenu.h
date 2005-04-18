@@ -22,6 +22,8 @@
 
 class QDesignerFormWindowInterface;
 
+namespace qdesigner { namespace components { namespace taskmenu {
+
 class LabelTaskMenu: public QDesignerTaskMenu
 {
     Q_OBJECT
@@ -53,5 +55,7 @@ public:
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
+
+} } } // namespace qdesigner::components::taskmenu
 
 #endif // LABEL_TASKMENU_H

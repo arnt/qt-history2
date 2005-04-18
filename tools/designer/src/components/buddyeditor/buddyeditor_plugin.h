@@ -21,9 +21,12 @@
 #include <QtCore/QPointer>
 #include <QtCore/QHash>
 
-class BuddyEditorTool;
 class QDesignerFormWindowInterface;
 class QAction;
+
+namespace qdesigner { namespace components { namespace buddyeditor {
+
+class BuddyEditorTool;
 
 class QT_BUDDYEDITOR_EXPORT BuddyEditorPlugin: public QObject, public QDesignerFormEditorPluginInterface
 {
@@ -36,7 +39,7 @@ public:
     virtual bool isInitialized() const;
     virtual void initialize(QDesignerFormEditorInterface *core);
     QAction *action() const;
-    
+
     virtual QDesignerFormEditorInterface *core() const;
 
 public slots:
@@ -52,5 +55,7 @@ private:
     bool m_initialized;
     QAction *m_action;
 };
+
+} } } // namespace qdesigner::components::buddyeditor
 
 #endif // BUDDYEDITOR_PLUGIN_H

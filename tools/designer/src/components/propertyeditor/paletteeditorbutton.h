@@ -19,6 +19,8 @@
 #include <QtGui/QPalette>
 #include <QtGui/QToolButton>
 
+namespace qdesigner { namespace components { namespace propertyeditor {
+
 class QT_PROPERTYEDITOR_EXPORT PaletteEditorButton: public QToolButton
 {
     Q_OBJECT
@@ -41,5 +43,7 @@ private slots:
 private:
     QPalette m_palette;
 };
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif // PALETTEEDITORBUTTON_H

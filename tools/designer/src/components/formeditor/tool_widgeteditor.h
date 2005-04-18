@@ -18,8 +18,11 @@
 
 #include <QtGui/qevent.h>
 
-class FormWindow;
 class QAction;
+
+namespace qdesigner { namespace components { namespace formeditor {
+
+class FormWindow;
 
 class WidgetEditorTool: public QDesignerFormWindowToolInterface
 {
@@ -51,5 +54,7 @@ private:
     FormWindow *m_formWindow;
     QAction *m_action;
 };
+
+} } } // namespace qdesigner::components::formeditor
 
 #endif // TOOL_WIDGETEDITOR_H

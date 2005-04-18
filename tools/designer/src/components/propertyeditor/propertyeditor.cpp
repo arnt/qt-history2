@@ -37,6 +37,10 @@
 
 #include <QtCore/qsignal.h>
 
+#ifndef Q_MOC_RUN
+using namespace qdesigner::components::propertyeditor;
+#endif
+
 IProperty *PropertyEditor::createSpecialProperty(const QVariant &value, const QString &name)
 {
     Q_UNUSED(value);

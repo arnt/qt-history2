@@ -24,16 +24,18 @@
 #include <qdesigner_promotedwidget.h>
 
 // Qt
-#include <QApplication>
-#include <QHeaderView>
-#include <QStack>
-#include <QScrollBar>
-#include <QItemDelegate>
-#include <QPair>
-#include <QPainter>
-#include <QVBoxLayout>
+#include <QtGui/QApplication>
+#include <QtGui/QHeaderView>
+#include <QtGui/QScrollBar>
+#include <QtGui/QItemDelegate>
+#include <QtGui/QPainter>
+#include <QtGui/QVBoxLayout>
 
+#include <QtCore/QStack>
+#include <QtCore/QPair>
 #include <QtCore/qdebug.h>
+
+using namespace qdesigner::components::objectinspector;
 
 Q_DECLARE_METATYPE(QObject *)
 

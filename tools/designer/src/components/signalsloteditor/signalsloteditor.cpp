@@ -557,7 +557,7 @@ static bool skipWidget(QWidget *w)
         return true;
     if (name == QLatin1String("QLayoutWidget"))
         return true;
-    if (name == QLatin1String("FormWindow"))
+    if (name == QLatin1String("qdesigner::components::formeditor::FormWindow"))
         return true;
     if (name == QLatin1String("Spacer"))
         return true;

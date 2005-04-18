@@ -16,11 +16,13 @@
 
 #include "propertyeditor_global.h"
 
-#include <QWidget>
-#include <QKeySequence>
+#include <QtGui/QWidget>
+#include <QtGui/QKeySequence>
 
 class QLineEdit;
 class QToolButton;
+
+namespace qdesigner { namespace components { namespace propertyeditor {
 
 class QT_PROPERTYEDITOR_EXPORT KeySequenceEditor: public QWidget
 {
@@ -54,5 +56,7 @@ private:
     int num;
     int k1, k2, k3, k4;
 };
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif // KEYSEQUENCEEDITOR_H

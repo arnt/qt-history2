@@ -50,6 +50,10 @@
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>
 
+#ifndef Q_MOC_RUN
+using namespace qdesigner::components::formeditor;
+#endif
+
 class FriendlyWidget: public QWidget
 {
 public:
@@ -58,20 +62,6 @@ public:
     friend class FormWindow;
 };
 
-class DropLine : public QWidget
-{
-    Q_OBJECT
-public:
-    DropLine(QWidget *parent);
-};
-
-DropLine::DropLine(QWidget *parent)
-    : QWidget(parent)
-{
-    QPalette p = palette();
-    p.setColor(QPalette::Background, Qt::red);
-    setPalette(p);
-}
 
 FormWindow::FormWindow(FormEditor *core, QWidget *parent, Qt::WindowFlags flags)
     : QDesignerFormWindowInterface(parent, flags),
@@ -1669,8 +1659,6 @@ static QWidget *childAt_SkipDropLine(QWidget *w, QPoint pos)
         QObject *child_obj = child_list[i];
         if (!child_obj->isWidgetType())
             continue;
-        if (qobject_cast<DropLine*>(child_obj) != 0)
-            continue;
         if (qobject_cast<WidgetHandle*>(child_obj) != 0)
             continue;
         QWidget *child = static_cast<QWidget*>(child_obj);
@@ -1690,7 +1678,7 @@ static QWidget *childAt_SkipDropLine(QWidget *w, QPoint pos)
 QWidget *FormWindow::widgetAt(const QPoint &pos)
 {
     QWidget *w = childAt(pos);
-    if (qobject_cast<DropLine*>(w) != 0 || qobject_cast<WidgetHandle*>(w) != 0)
+    if (qobject_cast<WidgetHandle*>(w) != 0)
         w = childAt_SkipDropLine(this, pos);
     return w == 0 ? this : w;
 }
@@ -1992,5 +1980,3 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
 
     endCommand();
 }
-
-#include "formwindow.moc"

@@ -17,7 +17,9 @@
 #include "propertyeditor_global.h"
 #include "flagbox_model_p.h"
 
-#include <QComboBox>
+#include <QtGui/QComboBox>
+
+namespace qdesigner { namespace components { namespace propertyeditor {
 
 class QT_PROPERTYEDITOR_EXPORT FlagBox: public QComboBox
 {
@@ -46,5 +48,7 @@ private slots:
 private:
     FlagBoxModel *m_model;
 };
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif // FLAGBOX_P_H

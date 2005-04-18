@@ -30,6 +30,8 @@
 #include <QtGui/QWorkspace>
 #include <QtGui/QFrame>
 
+namespace qdesigner { namespace components { namespace propertyeditor {
+
 class PreviewWidget;
 
 class PreviewWorkspace: public QWorkspace
@@ -56,5 +58,7 @@ public:
 private:
     PreviewWidget *previewWidget;
 };
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif

@@ -14,11 +14,15 @@
 #ifndef DEFS_H
 #define DEFS_H
 
-#include <QSizePolicy>
-#include <QString>
+#include <QtGui/QSizePolicy>
+#include <QtCore/QString>
+
+namespace qdesigner { namespace components { namespace propertyeditor {
 
 int size_type_to_int(QSizePolicy::Policy t);
 QString size_type_to_string(QSizePolicy::Policy t);
 QSizePolicy::Policy int_to_size_type(int i);
+
+} } } // namespace qdesigner::components::propertyeditor
 
 #endif // DEFS_H

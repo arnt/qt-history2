@@ -20,6 +20,8 @@
 #include "formwindow_dnditem.h"
 #include "formwindow.h"
 
+using namespace qdesigner::components::formeditor;
+
 static QWidget *decorationFromWidget(QWidget *w)
 {
     QLabel *label = new QLabel(0, Qt::ToolTip);

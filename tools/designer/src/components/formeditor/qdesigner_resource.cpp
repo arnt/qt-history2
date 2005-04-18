@@ -51,6 +51,8 @@
 
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::formeditor;
+
 QDesignerResource::QDesignerResource(FormWindow *formWindow)
    : m_formWindow(formWindow), m_core(formWindow->core())
 {

@@ -20,11 +20,14 @@
 #include <QtCore/QHash>
 
 class QDesignerTaskMenuExtension;
-class QMouseEvent;
-class FormWindow;
 class QDesignerFormEditorInterface;
-class WidgetSelection;
+class QMouseEvent;
 class QPaintEvent;
+
+namespace qdesigner { namespace components { namespace formeditor {
+
+class FormWindow;
+class WidgetSelection;
 
 class QT_FORMEDITOR_EXPORT WidgetHandle: public InvisibleWidget
 {
@@ -103,5 +106,8 @@ protected:
     QHash<QWidget *, WidgetSelection *> *selectionDict;
     QDesignerTaskMenuExtension *taskMenu;
 };
+
+} } } // namespace qdesigner::components::formeditor
+
 
 #endif // WIDGETHANDLE_H

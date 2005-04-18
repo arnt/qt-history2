@@ -32,6 +32,10 @@
 #define SCRATCHPAD_ITEM 1
 #define CUSTOM_ITEM     2
 
+#ifndef Q_MOC_RUN
+using namespace qdesigner::components::widgetbox;
+#endif
+
 /*******************************************************************************
 ** Tools
 */
@@ -132,6 +136,8 @@ static DomWidget *xmlToUi(QString xml)
 ** WidgetBoxItemDelegate
 */
 
+namespace qdesigner { namespace components { namespace widgetbox {
+
 class WidgetBoxItemDelegate : public SheetDelegate
 {
 public:
@@ -141,18 +147,6 @@ public:
                           const QStyleOptionViewItem &option,
                           const QModelIndex &index) const;
 };
-
-QWidget *WidgetBoxItemDelegate::createEditor(QWidget *parent,
-                                                const QStyleOptionViewItem &option,
-                                                const QModelIndex &index) const
-{
-    QWidget *result = SheetDelegate::createEditor(parent, option, index);
-    QLineEdit *line_edit = qobject_cast<QLineEdit*>(result);
-    if (line_edit == 0)
-        return result;
-    line_edit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("[_a-zA-Z][_a-zA-Z0-9]*")), line_edit));
-    return result;
-}
 
 /*******************************************************************************
 ** WidgetBoxTreeView
@@ -215,6 +209,20 @@ private:
     int indexOfCategory(const QString &name) const;
     int indexOfScratchpad();
 };
+
+} } } // namespace qdesigner::components::widgetbox
+
+QWidget *WidgetBoxItemDelegate::createEditor(QWidget *parent,
+                                                const QStyleOptionViewItem &option,
+                                                const QModelIndex &index) const
+{
+    QWidget *result = SheetDelegate::createEditor(parent, option, index);
+    QLineEdit *line_edit = qobject_cast<QLineEdit*>(result);
+    if (line_edit == 0)
+        return result;
+    line_edit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("[_a-zA-Z][_a-zA-Z0-9]*")), line_edit));
+    return result;
+}
 
 WidgetBoxTreeView::WidgetBoxTreeView(QDesignerFormEditorInterface *core, QWidget *parent)
     : QTreeWidget(parent)

@@ -18,6 +18,8 @@
 #include <QtDesigner/extension.h>
 #include <QtDesigner/default_extensionfactory.h>
 
+namespace qdesigner { namespace components { namespace formeditor {
+
 class QDesignerContainer: public QObject, public QDesignerContainerExtension
 {
     Q_OBJECT
@@ -49,5 +51,7 @@ public:
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
+
+} } } // namespace qdesigner::components::formeditor
 
 #endif // DEFAULT_CONTAINER_H

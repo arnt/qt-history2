@@ -28,6 +28,8 @@
 #include <QtCore/QVariant>
 #include <QtCore/qdebug.h>
 
+using namespace qdesigner::components::taskmenu;
+
 TextEditTaskMenu::TextEditTaskMenu(QTextEdit *textEdit, QObject *parent)
     : QDesignerTaskMenu(textEdit, parent),
       m_textEdit(textEdit)

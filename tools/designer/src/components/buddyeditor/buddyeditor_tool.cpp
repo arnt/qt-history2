@@ -19,6 +19,8 @@
 
 #include <QtGui/QAction>
 
+using namespace qdesigner::components::buddyeditor;
+
 BuddyEditorTool::BuddyEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent)
     : QDesignerFormWindowToolInterface(parent),
       m_formWindow(formWindow)
