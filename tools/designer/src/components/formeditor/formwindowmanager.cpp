@@ -494,6 +494,7 @@ void FormWindowManager::slotUpdateActions()
     bool pasteAvailable = false;
     bool layoutAvailable = false;
     bool breakAvailable = false;
+    bool layoutContainer = false;
 
     if (m_activeFormWindow != 0 && m_activeFormWindow->currentTool() == 0) {
         QList<QWidget*> simplifiedSelection = m_activeFormWindow->selectedWidgets();
@@ -520,7 +521,9 @@ void FormWindowManager::slotUpdateActions()
             bool laidOut = LayoutInfo::layoutType(core(), widget) != LayoutInfo::NoLayout
                     && core()->metaDataBase()->item(widget->layout()) != 0;
 
-            layoutAvailable = (item->isContainer() || m_activeFormWindow->isMainContainer(widget))
+            layoutContainer = (item->isContainer() || m_activeFormWindow->isMainContainer(widget));
+
+            layoutAvailable = layoutContainer
                                 && m_activeFormWindow->hasInsertedChildren(widget)
                                 && !laidOut;
 
@@ -548,8 +551,8 @@ void FormWindowManager::slotUpdateActions()
 
     m_actionHorizontalLayout->setEnabled(layoutAvailable);
     m_actionVerticalLayout->setEnabled(layoutAvailable);
-    m_actionSplitHorizontal->setEnabled(layoutAvailable);
-    m_actionSplitVertical->setEnabled(layoutAvailable);
+    m_actionSplitHorizontal->setEnabled(layoutAvailable && !layoutContainer);
+    m_actionSplitVertical->setEnabled(layoutAvailable && !layoutContainer);
     m_actionGridLayout->setEnabled(layoutAvailable);
 
     m_actionBreakLayout->setEnabled(breakAvailable);
