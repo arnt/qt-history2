@@ -3,10 +3,6 @@
 
 #include <QLabel>
 
-class QDragEnterEvent;
-class QDragMoveEvent;
-class QFrame;
-
 class DragIcon : public QLabel
 {
 public:

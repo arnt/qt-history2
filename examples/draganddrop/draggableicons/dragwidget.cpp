@@ -61,8 +61,6 @@ void DragWidget::dropEvent(QDropEvent *event)
         } else {
             event->acceptProposedAction();
         }
-        
-        update();
     } else {
         event->ignore();
     }

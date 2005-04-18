@@ -1,5 +1,5 @@
 #include <QApplication>
-#include <QVBoxLayout>
+#include <QHBoxLayout>
 #include "dragwidget.h"
 
 int main(int argc, char *argv[])
@@ -7,11 +7,12 @@ int main(int argc, char *argv[])
     QApplication app(argc, argv);
 
     QWidget *mainWidget = new QWidget;
-    QVBoxLayout *vbox = new QVBoxLayout(mainWidget);
-    vbox->addWidget(new DragWidget);
-    vbox->addWidget(new DragWidget);
-    mainWidget->setWindowTitle("Draggable Icons");
+    QHBoxLayout *horizontalLayout = new QHBoxLayout;
+    horizontalLayout->addWidget(new DragWidget);
+    horizontalLayout->addWidget(new DragWidget);
 
+    mainWidget->setLayout(horizontalLayout);
+    mainWidget->setWindowTitle("Draggable Icons");
     mainWidget->show();
 
     return app.exec();
