@@ -334,12 +334,12 @@ void InnerNode::removeChild( Node *child )
 const QString Node::moduleName() const
 {
     QString path = location().filePath();
-    int start = path.lastIndexOf("src/");
+    int start = path.lastIndexOf("src" + QDir::separator());
     if (start == -1)
         return "";
 
     QString moduleDir = path.mid(start + 4);
-    int finish = moduleDir.indexOf("/");
+    int finish = moduleDir.indexOf(QDir::separator());
 
     if (start == -1)
         return "";

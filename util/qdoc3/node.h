@@ -5,6 +5,7 @@
 #ifndef NODE_H
 #define NODE_H
 
+#include <qdir.h>
 #include <qmap.h>
 #include <qpair.h>
 #include <qstringlist.h>
