@@ -584,7 +584,8 @@ void Configure::parseCmdLine()
 
     if( dictionary[ "QMAKESPEC" ].endsWith( "-msvc" ) ||
 	dictionary[ "QMAKESPEC" ].endsWith( ".net" ) ||
-	dictionary[ "QMAKESPEC" ].endsWith( "-icc" ) ) {
+	dictionary[ "QMAKESPEC" ].endsWith( "-icc" ) ||
+    dictionary[ "QMAKESPEC" ] == QString( "win32-msvc2005" )) {
 		dictionary[ "MAKE" ] = "nmake";
  		dictionary[ "QMAKEMAKEFILE" ] = "Makefile";
     } else if ( dictionary[ "QMAKESPEC" ] == QString( "win32-g++" ) ) {
@@ -1616,7 +1617,7 @@ void Configure::generateMakefiles()
 	if( !spec.startsWith( "wince-" ) )
 	    dictionary[ "VCPFILES" ] = "no";
 
-	if( spec != "win32-msvc.net" )
+	if( spec != "win32-msvc.net" && spec != "win32-msvc2005" )
 	    dictionary[ "VCPROJFILES" ] = "no";
 
 	int i = 0;
