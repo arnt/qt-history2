@@ -27,7 +27,6 @@ HEADERS += \
     $$PWD/tree_widget.h \
     $$PWD/sheet_delegate.h \
     $$PWD/qdesigner_promotedwidget.h \
-    $$PWD/qdesigner_customwidget.h \
     $$PWD/qdesigner_stackedbox.h \
     $$PWD/qdesigner_tabwidget.h \
     $$PWD/qdesigner_toolbox.h \
@@ -62,7 +61,6 @@ SOURCES += \
     $$PWD/sheet_delegate.cpp \
     $$PWD/metadatabase.cpp \
     $$PWD/qdesigner_promotedwidget.cpp \
-    $$PWD/qdesigner_customwidget.cpp \
     $$PWD/qdesigner_stackedbox.cpp \
     $$PWD/qdesigner_tabwidget.cpp \
     $$PWD/qdesigner_toolbox.cpp \

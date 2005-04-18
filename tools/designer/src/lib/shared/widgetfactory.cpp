@@ -18,7 +18,6 @@
 #include "qdesigner_tabwidget.h"
 #include "qdesigner_toolbox.h"
 #include "qdesigner_stackedbox.h"
-#include "qdesigner_customwidget.h"
 #include "qdesigner_promotedwidget.h"
 #include "abstractformwindow.h"
 #include "layout.h"

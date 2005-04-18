@@ -20,7 +20,6 @@
 #include "qdesigner_tabwidget.h"
 #include "qdesigner_toolbox.h"
 #include "qdesigner_stackedbox.h"
-#include "qdesigner_customwidget.h"
 
 // shared
 #include <layoutinfo.h>
@@ -454,11 +453,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     Q_ASSERT( w != 0 );
 
     QString className = w->attributeClass();
-    if (QDesignerCustomWidget *customWidget = qobject_cast<QDesignerCustomWidget*>(widget))
-        w->setAttributeClass(customWidget->widgetClassName());
-    else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget))
-        w->setAttributeClass(promoted->item()->name());
-    else if (m_internal_to_qt.contains(className))
+    if (m_internal_to_qt.contains(className))
         w->setAttributeClass(m_internal_to_qt.value(className));
 
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget)) {
