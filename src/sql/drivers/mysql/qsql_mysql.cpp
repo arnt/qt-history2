@@ -205,7 +205,7 @@ void QMYSQLResultPrivate::bindBlobs()
         if (qIsBlob(inBinds[i].buffer_type) && meta && fieldInfo) {
             bind = &inBinds[i];
             bind->buffer_length = fieldInfo->max_length;
-            delete static_cast<char*>(bind->buffer); // ### use a vector...?
+            delete static_cast<char*>(bind->buffer);
             bind->buffer = new char[fieldInfo->max_length];
             fields[i].outField = static_cast<char*>(bind->buffer);
             bind->buffer_type = MYSQL_TYPE_STRING;

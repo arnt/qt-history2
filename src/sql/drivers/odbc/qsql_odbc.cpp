@@ -902,7 +902,6 @@ QVariant QODBCResult::data(int field)
             else
                 d->fieldCache[i] = qGetDoubleData(d->hStmt, i);
             break;
-        // ###        case QVariant::CString:
         default:
             d->fieldCache[i] = QVariant(qGetStringData(d->hStmt, i,
                                                            info.length(), false));
