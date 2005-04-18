@@ -69,23 +69,4 @@ public:
     inline void reset() { object = 0; }
 };
 
-
-// ###### remove before release!
-template<class T>
-class QSharedCleanupHandler
-{
-    T **object;
-public:
-    inline QSharedCleanupHandler() : object(0) {}
-    inline ~QSharedCleanupHandler()
-    {
-        if (object) {
-            if ((*object)->deref()) delete *object;
-            *object = 0;
-        }
-    }
-    inline T* set(T **o) { object = o; return *object; }
-    inline void reset() { object = 0; }
-};
-
 #endif //QCLEANUPHANDLER_H
