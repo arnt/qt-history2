@@ -438,12 +438,11 @@ bool QEventDispatcherMac::processEvents(QEventLoop::ProcessEventsFlags flags)
 
 int QEventDispatcherMacPrivate::activateTimers()
 {
-    Q_D(QEventDispatcherMac);
-    if(!d->zero_timer_count)
+    if(!zero_timer_count)
         return 0;
     int ret = 0;
-    for (int i = 0; i < d->macTimerList->size(); ++i) {
-        const MacTimerInfo &t = d->macTimerList->at(i);
+    for (int i = 0; i < macTimerList->size(); ++i) {
+        const MacTimerInfo &t = macTimerList->at(i);
         if(!t.interval) {
             ret++;
             QTimerEvent e(t.id);
