@@ -1,4 +1,5 @@
 TEMPLATE    = subdirs
 SUBDIRS     = draggableicons \
               draggabletext \
-              fridgemagnets
+              fridgemagnets \
+              puzzle
