@@ -260,11 +260,10 @@ bool QGLFormat::hasOpenGLOverlays()
 /*****************************************************************************
   QGLContext UNIX/GLX-specific code
  *****************************************************************************/
-#define d d_func()
-#define q q_func()
 
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
+    Q_D(QGLContext);
     const QX11Info *xinfo = qt_x11Info(d->paintDevice);
 
     Display* disp = xinfo->display();
@@ -326,7 +325,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     Bool direct = format().directRendering() ? True : False;
 
     if (shareContext &&
-         (!shareContext->isValid() || !shareContext->d->cx)) {
+         (!shareContext->isValid() || !shareContext->d_func()->cx)) {
             qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
             shareContext = 0;
     }
@@ -336,16 +335,16 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     // 3. Pixmaps cannot share contexts that are set up for direct rendering.
     if (shareContext && (format().rgba() != shareContext->format().rgba() ||
                           (deviceIsPixmap() &&
-                           glXIsDirect(disp, (GLXContext)shareContext->d->cx))))
+                           glXIsDirect(disp, (GLXContext)shareContext->d_func()->cx))))
         shareContext = 0;
 
     d->cx = 0;
     if (shareContext) {
         d->cx = glXCreateContext(disp, (XVisualInfo *)d->vi,
-                               (GLXContext)shareContext->d->cx, direct);
+                               (GLXContext)shareContext->d_func()->cx, direct);
         if (d->cx) {
             d->sharing = true;
-            const_cast<QGLContext *>(shareContext)->d->sharing = true;
+            const_cast<QGLContext *>(shareContext)->d_func()->sharing = true;
         }
     }
     if (!d->cx)
@@ -383,6 +382,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
 void *QGLContext::chooseVisual()
 {
+    Q_D(QGLContext);
     static int bufDepths[] = { 8, 4, 2, 1 };        // Try 16, 12 also?
     //todo: if pixmap, also make sure that vi->depth == pixmap->depth
     void* vis = 0;
@@ -458,6 +458,7 @@ void *QGLContext::chooseVisual()
 
 void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
 {
+    Q_D(QGLContext);
     int spec[40];
     int i = 0;
     spec[i++] = GLX_LEVEL;
@@ -553,6 +554,7 @@ void *QGLContext::tryVisual(const QGLFormat& f, int bufDepth)
 
 void QGLContext::reset()
 {
+    Q_D(QGLContext);
     if (!d->valid)
         return;
     const QX11Info *xinfo = qt_x11Info(d->paintDevice);
@@ -575,6 +577,7 @@ void QGLContext::reset()
 
 void QGLContext::makeCurrent()
 {
+    Q_D(QGLContext);
     if (!d->valid) {
         qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
         return;
@@ -595,6 +598,7 @@ void QGLContext::makeCurrent()
 
 void QGLContext::doneCurrent()
 {
+    Q_D(QGLContext);
     glXMakeCurrent(qt_x11Info(d->paintDevice)->display(), 0, 0);
     currentCtx = 0;
 }
@@ -602,6 +606,7 @@ void QGLContext::doneCurrent()
 
 void QGLContext::swapBuffers() const
 {
+    Q_D(const QGLContext);
     if (!d->valid)
         return;
     if (!deviceIsPixmap())
@@ -611,6 +616,7 @@ void QGLContext::swapBuffers() const
 
 QColor QGLContext::overlayTransparentColor() const
 {
+    Q_D(const QGLContext);
     if (isValid()) {
         if (!trans_colors_init)
             find_trans_colors();
@@ -641,6 +647,7 @@ QColor QGLContext::overlayTransparentColor() const
 
 uint QGLContext::colorIndex(const QColor& c) const
 {
+    Q_D(const QGLContext);
     int screen = ((XVisualInfo *)d->vi)->screen;
     QColormap colmap = QColormap::instance(screen);
     if (isValid()) {
@@ -825,7 +832,6 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     if (f.handle() && engine->type() == QFontEngine::XLFD)
         glXUseXFont(static_cast<Font>(f.handle()), 0, 256, listBase);
 }
-#define d d_func()
 
 /*!
     Returns a function pointer to the GL extension function passed in
@@ -874,7 +880,7 @@ private:
 
 QGLOverlayWidget::QGLOverlayWidget(const QGLFormat& format, QGLWidget* parent,
                                    const QGLWidget* shareWidget)
-    : QGLWidget(format, parent, shareWidget ? shareWidget->d->olw : 0)
+    : QGLWidget(format, parent, shareWidget ? shareWidget->d_func()->olw : 0)
 {
     realWidget = parent;
 }
@@ -912,6 +918,7 @@ void QGLOverlayWidget::paintGL()
  *****************************************************************************/
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget *shareWidget)
 {
+    Q_Q(QGLWidget);
     QGLExtensions::init();
     glcx = 0;
     olw = 0;
@@ -937,14 +944,15 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget *shareWidget)
         else {
             delete olw;
             olw = 0;
-            glcx->d->glFormat.setOverlay(false);
+            glcx->d_func()->glFormat.setOverlay(false);
         }
     }
 }
 
 bool QGLWidgetPrivate::renderCxPm(QPixmap* pm)
 {
-    if (((XVisualInfo*)glcx->d->vi)->depth != pm->depth())
+    Q_Q(QGLWidget);
+    if (((XVisualInfo*)glcx->d_func()->vi)->depth != pm->depth())
         return false;
 
     GLXPixmap glPm;
@@ -956,11 +964,11 @@ bool QGLWidgetPrivate::renderCxPm(QPixmap* pm)
                                                 (XVisualInfo*)glcx->vi));
 #else
     glPm = (quint32)glXCreateGLXPixmap(X11->display,
-                                         (XVisualInfo*)glcx->d->vi,
+                                         (XVisualInfo*)glcx->d_func()->vi,
                                          (Pixmap)pm->handle());
 #endif
 
-    if (!glXMakeCurrent(X11->display, glPm, (GLXContext)glcx->d->cx)) {
+    if (!glXMakeCurrent(X11->display, glPm, (GLXContext)glcx->d_func()->cx)) {
         glXDestroyGLXPixmap(X11->display, glPm);
         return false;
     }
@@ -1000,6 +1008,7 @@ bool QGLWidget::event(QEvent *e)
 
 void QGLWidget::setMouseTracking(bool enable)
 {
+    Q_D(QGLWidget);
     if (d->olw)
         d->olw->setMouseTracking(enable);
     QWidget::setMouseTracking(enable);
@@ -1008,6 +1017,7 @@ void QGLWidget::setMouseTracking(bool enable)
 
 void QGLWidget::resizeEvent(QResizeEvent *)
 {
+    Q_D(QGLWidget);
     if (!isValid())
         return;
     makeCurrent();
@@ -1021,6 +1031,7 @@ void QGLWidget::resizeEvent(QResizeEvent *)
 
 const QGLContext* QGLWidget::overlayContext() const
 {
+    Q_D(const QGLWidget);
     if (d->olw)
         return d->olw->context();
     else
@@ -1030,6 +1041,7 @@ const QGLContext* QGLWidget::overlayContext() const
 
 void QGLWidget::makeOverlayCurrent()
 {
+    Q_D(QGLWidget);
     if (d->olw)
         d->olw->makeCurrent();
 }
@@ -1037,6 +1049,7 @@ void QGLWidget::makeOverlayCurrent()
 
 void QGLWidget::updateOverlayGL()
 {
+    Q_D(QGLWidget);
     if (d->olw)
         d->olw->updateGL();
 }
@@ -1053,6 +1066,7 @@ void QGLWidget::setContext(QGLContext *context,
                             const QGLContext* shareContext,
                             bool deleteOldContext)
 {
+    Q_D(QGLWidget);
     if (context == 0) {
         qWarning("QGLWidget::setContext: Cannot set null context");
         return;
@@ -1088,7 +1102,7 @@ void QGLWidget::setContext(QGLContext *context,
     if (visible)
         hide();
 
-    XVisualInfo *vi = (XVisualInfo*)d->glcx->d->vi;
+    XVisualInfo *vi = (XVisualInfo*)d->glcx->d_func()->vi;
     XSetWindowAttributes a;
 
     QColormap colmap = QColormap::instance(vi->screen);
@@ -1152,6 +1166,7 @@ void QGLWidget::setContext(QGLContext *context,
 
 const QGLColormap & QGLWidget::colormap() const
 {
+    Q_D(const QGLWidget);
     return d->cmap;
 }
 
@@ -1219,6 +1234,7 @@ static bool qCanAllocColors(QWidget * w)
 
 void QGLWidget::setColormap(const QGLColormap & c)
 {
+    Q_D(QGLWidget);
     QWidget * tlw = window(); // must return a valid widget
 
     d->cmap = c;
