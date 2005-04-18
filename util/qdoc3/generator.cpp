@@ -414,10 +414,9 @@ void Generator::generateModuleName(const ClassNode *classe, CodeMarker *marker)
     if (!classe->moduleName().isEmpty()) {
         Text text;
 	text << Atom::ParaLeft << "Part of the "
-             << Atom(Atom::Link, QString("%1 Classes").arg(
-                classe->moduleName()))
+             << Atom(Atom::Link, classe->moduleName().toLower() + ".html")
              << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
-             << QString("%1 Classes").arg(classe->moduleName())
+             << classe->moduleName()
              << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
              << " module."
              << Atom::ParaRight;
