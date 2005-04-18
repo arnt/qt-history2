@@ -1554,7 +1554,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
 
 QTabletEvent::QTabletEvent(Type type, const QPoint &pos,  const QPoint &globalPos,
                            const QPointF &hiResGlobalPos, int device, int pointerType,
-                           qreal pressure, int xTilt, int yTilt, qreal tangentalPressure,
+                           qreal pressure, int xTilt, int yTilt, qreal tangentialPressure,
                            qreal rotation, int z, Qt::KeyboardModifiers keyState, qint64 uniqueID)
     : QInputEvent(type, keyState),
       mPos(pos),
@@ -1566,7 +1566,7 @@ QTabletEvent::QTabletEvent(Type type, const QPoint &pos,  const QPoint &globalPo
       mYT(yTilt),
       mZ(z),
       mPress(pressure),
-      mTangental(tangentalPressure),
+      mTangential(tangentialPressure),
       mRot(rotation),
       mUnique(uniqueID),
       mExtra(0)
@@ -1592,13 +1592,13 @@ QTabletEvent::~QTabletEvent()
 */
 
 /*!
-    \fn qreal QTabletEvent::tangentalPressure() const
+    \fn qreal QTabletEvent::tangentialPressure() const
 
-    Returns the tangental pressure for the device.  This is typically given by a finger
+    Returns the tangential pressure for the device.  This is typically given by a finger
     wheel on an airbrush tool.  The range is from -1.0 to 1.0. 0.0 indicates a
     neutral position.  Current airbrushes can only move in the positive
     direction from the neutrual position. If the device does not support
-    tangental pressure, this value is always 0.0.
+    tangential pressure, this value is always 0.0.
 
     \sa pressure()
 */
