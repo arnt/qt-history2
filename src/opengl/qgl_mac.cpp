@@ -70,14 +70,12 @@ bool QGLFormat::hasOpenGLOverlays()
 }
 
 
-#define d d_func()
-#define q q_func()
-
 /*****************************************************************************
   QGLContext AGL-specific code
  *****************************************************************************/
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
+    Q_D(QGLContext);
     d->cx = NULL;
     d->vi = chooseMacVisual(GetMainDevice());
     if(!d->vi)
@@ -119,7 +117,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->glFormat.setSamples(res);
     }
 
-    if(shareContext && (!shareContext->isValid() || !shareContext->d->cx)) {
+    if(shareContext && (!shareContext->isValid() || !shareContext->d_func()->cx)) {
         qWarning("QGLContext::chooseContext(): Cannot share with invalid context");
         shareContext = 0;
     }
@@ -127,11 +125,11 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     // sharing between rgba and color-index will give wrong colors
     if(shareContext && (format().rgba() != shareContext->format().rgba()))
         shareContext = 0;
-    AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->d->cx : NULL));
+    AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->d_func()->cx : NULL));
     if(!ctx) {
         GLenum err = aglGetError();
         if(err == AGL_BAD_MATCH || err == AGL_BAD_CONTEXT) {
-            if(shareContext && shareContext->d->cx) {
+            if(shareContext && shareContext->d_func()->cx) {
                 qWarning("QOpenGL: context sharing mismatch!");
                 if(!(ctx = aglCreateContext(fmt, NULL)))
                     return false;
@@ -144,9 +142,9 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         }
     }
     d->cx = ctx;
-    if (shareContext && shareContext->d->cx) {
+    if (shareContext && shareContext->d_func()->cx) {
         d->sharing = true;
-        const_cast<QGLContext *>(shareContext)->d->sharing = true;
+        const_cast<QGLContext *>(shareContext)->d_func()->sharing = true;
     }
     return true;
 }
@@ -166,6 +164,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
 void *QGLContext::chooseMacVisual(GDHandle device)
 {
+    Q_D(QGLContext);
     GLint attribs[40], cnt=0;
     if(deviceIsPixmap()) {
         attribs[cnt++] = AGL_PIXEL_SIZE;
@@ -250,6 +249,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 
 void QGLContext::reset()
 {
+    Q_D(QGLContext);
     if(!d->valid)
         return;
     if(d->cx)
@@ -267,6 +267,7 @@ void QGLContext::reset()
 
 void QGLContext::makeCurrent()
 {
+    Q_D(QGLContext);
     if(!d->valid) {
         qWarning("QGLContext::makeCurrent(): Cannot make invalid context current.");
         return;
@@ -310,6 +311,7 @@ static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
 
 void QGLContext::updatePaintDevice()
 {
+    Q_D(QGLContext);
     if(d->paintDevice->devType() == QInternal::Widget) {
         //get control information
         QWidget *w = (QWidget *)d->paintDevice;
@@ -369,7 +371,8 @@ void QGLContext::updatePaintDevice()
 
 void QGLContext::doneCurrent()
 {
-    if(aglGetCurrentContext() != (AGLContext) d->cx)
+    if(aglGetCurrentContext() != (AGLContext) d_func()->cx)
+
         return;
     currentCtx = 0;
     aglSetCurrentContext(NULL);
@@ -378,6 +381,7 @@ void QGLContext::doneCurrent()
 
 void QGLContext::swapBuffers() const
 {
+    Q_D(const QGLContext);
     if(!d->valid)
         return;
     aglSwapBuffers((AGLContext)d->cx);
@@ -420,7 +424,7 @@ uint QGLContext::colorIndex(const QColor&c) const
             vals[1] = c.red();
             vals[2] = c.green();
             vals[3] = c.blue();
-            aglSetInteger((AGLContext)d->cx, AGL_COLORMAP_ENTRY, vals);
+            aglSetInteger((AGLContext)d_func()->cx, AGL_COLORMAP_ENTRY, vals);
         }
     }
     return (uint)(ret == -1 ? 0 : ret);
@@ -439,7 +443,7 @@ void QGLContext::generateFontDisplayLists(const QFont & fnt, int listBase)
     FMGetFontFamilyName((FMFontFamily)((UInt32)fnt.handle()), name);
     short fnum;
     GetFNum(name, &fnum);
-    aglUseFont((AGLContext)d->cx, (int)fnum, fstyle, QFontInfo(fnt).pointSize(), 0, 256, listBase);
+    aglUseFont((AGLContext)d_func()->cx, (int)fnum, fstyle, QFontInfo(fnt).pointSize(), 0, 256, listBase);
 }
 
 static CFBundleRef qt_getOpenGLBundle()
@@ -512,7 +516,7 @@ public:
     }
 protected:
     static OSStatus globalEventProcessor(EventHandlerCallRef, EventRef, void *);
-    void windowChanged() { context->d->updatePaintDevice(); }
+    void windowChanged() { context->d_func()->updatePaintDevice(); }
 };
 
 OSStatus QMacGLWindowChangeEvent::globalEventProcessor(EventHandlerCallRef er, EventRef event, void *)
@@ -552,12 +556,13 @@ void QGLWidget::setMouseTracking(bool enable)
 
 void QGLWidget::resizeEvent(QResizeEvent *)
 {
+    Q_D(QGLWidget);
     if(!isValid())
         return;
     makeCurrent();
     if(!d->glcx->initialized())
         glInit();
-    aglUpdateContext((AGLContext)d->glcx->d->cx);
+    aglUpdateContext((AGLContext)d->glcx->d_func()->cx);
     resizeGL(width(), height());
 
     if(d->olcx) {
@@ -569,11 +574,12 @@ void QGLWidget::resizeEvent(QResizeEvent *)
 
 const QGLContext* QGLWidget::overlayContext() const
 {
-    return d->olcx;
+    return d_func()->olcx;
 }
 
 void QGLWidget::makeOverlayCurrent()
 {
+    Q_D(QGLWidget);
     if(d->olcx) {
         d->olcx->makeCurrent();
         if(!d->olcx->initialized()) {
@@ -585,6 +591,7 @@ void QGLWidget::makeOverlayCurrent()
 
 void QGLWidget::updateOverlayGL()
 {
+    Q_D(QGLWidget);
     if(d->olcx) {
         makeOverlayCurrent();
         paintOverlayGL();
@@ -600,6 +607,7 @@ void QGLWidget::updateOverlayGL()
 
 void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, bool deleteOldContext)
 {
+    Q_D(QGLWidget);
     if(context == 0) {
         qWarning("QGLWidget::setContext: Cannot set null context");
         return;
@@ -617,9 +625,10 @@ void QGLWidget::setContext(QGLContext *context, const QGLContext* shareContext, 
 
 void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
 {
+    Q_Q(QGLWidget);
     QGLExtensions::init();
     watcher = new QMacGLWindowChangeEvent(q);
-    glcx = d->olcx = 0;
+    glcx = olcx = 0;
     autoSwap = true;
 
     q->setAttribute(Qt::WA_NoBackground);
@@ -630,7 +639,7 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
         if(!olcx->create(shareWidget ? shareWidget->overlayContext() : 0)) {
             delete olcx;
             olcx = 0;
-            glcx->d->glFormat.setOverlay(false);
+            glcx->d_func()->glFormat.setOverlay(false);
         }
     }
 }
@@ -646,7 +655,7 @@ void QGLWidgetPrivate::cleanupColormaps()
 
 const QGLColormap & QGLWidget::colormap() const
 {
-    return d->cmap;
+    return d_func()->cmap;
 }
 
 void QGLWidget::setColormap(const QGLColormap &)

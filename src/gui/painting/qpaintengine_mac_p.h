@@ -188,7 +188,7 @@ public:
  *****************************************************************************/
 class QCoreGraphicsPaintEnginePrivate : public QQuickDrawPaintEnginePrivate
 {
-    Q_DECLARE_PUBLIC(QQuickDrawPaintEngine)
+    Q_DECLARE_PUBLIC(QCoreGraphicsPaintEngine)
 public:
     QCoreGraphicsPaintEnginePrivate()
     {

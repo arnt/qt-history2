@@ -33,9 +33,6 @@
 
 #include <string.h>
 
-#define d d_func()
-#define q q_func()
-
 /*****************************************************************************
   Internal variables and functions
  *****************************************************************************/
@@ -90,6 +87,7 @@ QQuickDrawPaintEngine::~QQuickDrawPaintEngine()
 bool
 QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
 {
+    Q_D(QQuickDrawPaintEngine);
     if(isActive()) {                         // already active painting
         qWarning("QQuickDrawPaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()");
@@ -155,6 +153,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
 bool
 QQuickDrawPaintEngine::end()
 {
+    Q_D(QQuickDrawPaintEngine);
     setActive(false);
 
     if(d->locked) {
@@ -186,6 +185,7 @@ void QQuickDrawPaintEngine::updateState(const QPaintEngineState &state)
 void
 QQuickDrawPaintEngine::updatePen(const QPen &pen)
 {
+    Q_D(QQuickDrawPaintEngine);
     d->current.pen = pen;
 }
 
@@ -193,6 +193,7 @@ QQuickDrawPaintEngine::updatePen(const QPen &pen)
 void
 QQuickDrawPaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 {
+    Q_D(QQuickDrawPaintEngine);
     d->current.brush = brush;
     d->current.bg.origin = origin;
 }
@@ -200,12 +201,14 @@ QQuickDrawPaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 void
 QQuickDrawPaintEngine::updateFont(const QFont &)
 {
+    Q_D(QQuickDrawPaintEngine);
     updatePen(d->current.pen);
 }
 
 void
 QQuickDrawPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 {
+    Q_D(QQuickDrawPaintEngine);
     Q_ASSERT(isActive());
     d->current.bg.mode = mode;
     d->current.bg.brush = bgBrush;
@@ -214,12 +217,14 @@ QQuickDrawPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &bgBrush)
 void
 QQuickDrawPaintEngine::updateMatrix(const QMatrix &matrix)
 {
+    Q_D(QQuickDrawPaintEngine);
     d->current.matrix = matrix;
 }
 
 void
 QQuickDrawPaintEngine::setClippedRegionInternal(QRegion *rgn)
 {
+    Q_D(QQuickDrawPaintEngine);
     if(rgn) {
         d->current.clip = *rgn;
         d->has_clipping = true;
@@ -233,6 +238,7 @@ QQuickDrawPaintEngine::setClippedRegionInternal(QRegion *rgn)
 void
 QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 {
+    Q_D(QQuickDrawPaintEngine);
     Q_ASSERT(isActive());
     if(op == Qt::NoClip) {
         setClippedRegionInternal(0);
@@ -250,6 +256,7 @@ QQuickDrawPaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation
 
 void QQuickDrawPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
+    Q_D(QQuickDrawPaintEngine);
     Q_ASSERT(isActive());
     setupQDPort();
     if(d->clip.paintable.isEmpty())
@@ -308,6 +315,7 @@ void QQuickDrawPaintEngine::drawRects(const QRectF *rects, int rectCount)
 void
 QQuickDrawPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
+    Q_D(QQuickDrawPaintEngine);
     Q_ASSERT(isActive());
 
     if(d->current.pen.style() != Qt::NoPen) {
@@ -326,6 +334,7 @@ void
 QQuickDrawPaintEngine::drawEllipse(const QRectF &in_r)
 {
     Q_ASSERT(isActive());
+    Q_D(QQuickDrawPaintEngine);
 
     QRect r = in_r.toRect().intersect(d->polygonClipper.boundingRect()).normalized();
 
@@ -383,6 +392,7 @@ QQuickDrawPaintEngine::drawEllipse(const QRectF &in_r)
 void
 QQuickDrawPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
+    Q_D(QQuickDrawPaintEngine);
     Q_ASSERT(isActive());
 
     setupQDPort();
@@ -400,6 +410,7 @@ QQuickDrawPaintEngine::drawLines(const QLineF *lines, int lineCount)
 void
 QQuickDrawPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
+    Q_D(QQuickDrawPaintEngine);
     Q_ASSERT(isActive());
 
     // clip and round
@@ -534,6 +545,7 @@ QQuickDrawPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, c
 void
 QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
+    Q_D(QQuickDrawPaintEngine);
     Q_ASSERT(isActive());
     if(pm.isNull())
         return;
@@ -625,6 +637,7 @@ QQuickDrawPaintEngine::cleanup()
 void
 QQuickDrawPaintEngine::setupQDPen()
 {
+    Q_D(QQuickDrawPaintEngine);
     //pen size
     int dot = d->current.pen.width();
     if(dot < 1)
@@ -658,6 +671,7 @@ QQuickDrawPaintEngine::setupQDPen()
 void
 QQuickDrawPaintEngine::setupQDBrush()
 {
+    Q_D(QQuickDrawPaintEngine);
     //pattern
     delete d->brush_style_pix;
     d->brush_style_pix = 0;
@@ -710,6 +724,7 @@ QQuickDrawPaintEngine::setupQDFont()
 */
 void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
 {
+    Q_D(QQuickDrawPaintEngine);
     bool remade_clip = false;
     if(d->pdev->devType() == QInternal::Printer) {
         if(force) {
@@ -1002,6 +1017,7 @@ QCoreGraphicsPaintEngine::~QCoreGraphicsPaintEngine()
 bool
 QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     if(isActive()) {                         // already active painting
         qWarning("QCoreGraphicsPaintEngine::begin: Painter is already active."
                   "\n\tYou must end() the painter before a second begin()");
@@ -1059,6 +1075,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
 bool
 QCoreGraphicsPaintEngine::end()
 {
+    Q_D(QCoreGraphicsPaintEngine);
     setActive(false);
     if(d->pdev->devType() == QInternal::Widget && static_cast<QWidget*>(d->pdev)->windowType() == Qt::Desktop)
         HideWindow(qt_mac_window_for(static_cast<QWidget*>(d->pdev)));
@@ -1091,6 +1108,7 @@ void QCoreGraphicsPaintEngine::updateState(const QPaintEngineState &state)
 void
 QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     d->current.pen = pen;
 
@@ -1146,6 +1164,7 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
 void
 QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushOrigin)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     d->current.brush = brush;
     d->current.bg.origin = brushOrigin;
@@ -1233,6 +1252,7 @@ QCoreGraphicsPaintEngine::updateBrush(const QBrush &brush, const QPointF &brushO
 void
 QCoreGraphicsPaintEngine::updateFont(const QFont &)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     updatePen(d->current.pen);
 }
@@ -1240,6 +1260,7 @@ QCoreGraphicsPaintEngine::updateFont(const QFont &)
 void
 QCoreGraphicsPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &brush)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     d->current.bg.mode = mode;
     d->current.bg.brush = brush;
@@ -1248,6 +1269,7 @@ QCoreGraphicsPaintEngine::updateBackground(Qt::BGMode mode, const QBrush &brush)
 void
 QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     d->setTransform(matrix.isIdentity() ? 0 : &matrix);
 }
@@ -1255,6 +1277,7 @@ QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
 void
 QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperation op)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     if(op == Qt::NoClip) {
         d->has_clipping = false;
@@ -1287,6 +1310,7 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
 void
 QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     if(op == Qt::NoClip) {
         d->has_clipping = false;
@@ -1309,6 +1333,7 @@ QCoreGraphicsPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOp
 void
 QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     CGMutablePathRef path = qt_mac_compose_path(p, d->penOffset() ? .5 : 0);
     uchar ops = QCoreGraphicsPaintEnginePrivate::CGStroke;
     if(p.fillRule() == Qt::WindingFill)
@@ -1323,6 +1348,7 @@ QCoreGraphicsPaintEngine::drawPath(const QPainterPath &p)
 void
 QCoreGraphicsPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
 
     for (int i=0; i<rectCount; ++i) {
@@ -1346,6 +1372,7 @@ QCoreGraphicsPaintEngine::drawRects(const QRectF *rects, int rectCount)
 void
 QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
 
     CGContextBeginPath(d->hd);
@@ -1360,6 +1387,7 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
 void
 QCoreGraphicsPaintEngine::drawEllipse(const QRectF &r)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
 
     //setup a clip
@@ -1383,6 +1411,7 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &r)
 void
 QCoreGraphicsPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
 
     if (mode == PolylineMode) {
@@ -1406,6 +1435,7 @@ QCoreGraphicsPaintEngine::drawPolygon(const QPointF *points, int pointCount, Pol
 void
 QCoreGraphicsPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
 
     CGContextBeginPath(d->hd);
@@ -1420,6 +1450,7 @@ QCoreGraphicsPaintEngine::drawLines(const QLineF *lines, int lineCount)
 void
 QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     if(pm.isNull())
         return;
@@ -1456,13 +1487,14 @@ QCoreGraphicsPaintEngine::cleanup()
 CGContextRef
 QCoreGraphicsPaintEngine::handle() const
 {
-    return d->hd;
+    return d_func()->hd;
 }
 
 void
 QCoreGraphicsPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap,
 					  const QPointF &p)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
 
     //save the old state
@@ -1506,6 +1538,7 @@ QCoreGraphicsPaintEngine::supportedRenderHints() const
 void
 QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
+    Q_D(QCoreGraphicsPaintEngine);
     CGContextSetShouldAntialias(d->hd, hints & QPainter::Antialiasing);
     CGContextSetShouldSmoothFonts(d->hd, hints & QPainter::TextAntialiasing);
 }
@@ -1526,13 +1559,14 @@ QCoreGraphicsPaintEnginePrivate::penOffset()
 void
 QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
 {
+    Q_Q(QCoreGraphicsPaintEngine);
     if(hd) {
         qt_mac_clip_cg_reset(hd);
         QPoint mp(0, 0);
-        if(d->pdev->devType() == QInternal::Widget) {
+        if(pdev->devType() == QInternal::Widget) {
             QWidget *w = static_cast<QWidget*>(pdev);
             mp = posInWindow(w);
-            qt_mac_clip_cg(hd, w->d->clippedRegion(), &mp, &orig_xform);
+            qt_mac_clip_cg(hd, w->d_func()->clippedRegion(), &mp, &orig_xform);
         }
         QRegion sysClip = q->systemClip();
         if(!sysClip.isEmpty())

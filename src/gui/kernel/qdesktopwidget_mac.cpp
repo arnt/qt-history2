@@ -52,9 +52,6 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     }
 }
 
-#define d d_func()
-
-
 QDesktopWidget::QDesktopWidget()
 : QWidget(*new QDesktopWidgetPrivate, 0, Qt::WType_Desktop)
 {
@@ -73,12 +70,12 @@ bool QDesktopWidget::isVirtualDesktop() const
 
 int QDesktopWidget::primaryScreen() const
 {
-    return d->appScreen;
+    return d_func()->appScreen;
 }
 
 int QDesktopWidget::numScreens() const
 {
-    return d->screenCount;
+    return d_func()->screenCount;
 }
 
 QWidget *QDesktopWidget::screen(int)
@@ -88,6 +85,7 @@ QWidget *QDesktopWidget::screen(int)
 
 const QRect QDesktopWidget::availableGeometry(int screen) const
 {
+    Q_D(const QDesktopWidget);
     if(screen < 0 || screen >= d->screenCount)
         screen = d->appScreen;
     Rect r;
@@ -97,6 +95,7 @@ const QRect QDesktopWidget::availableGeometry(int screen) const
 
 const QRect QDesktopWidget::screenGeometry(int screen) const
 {
+    Q_D(const QDesktopWidget);
     if(screen < 0 || screen >= d->screenCount)
         screen = d->appScreen;
     return d->rects[screen];
@@ -104,6 +103,7 @@ const QRect QDesktopWidget::screenGeometry(int screen) const
 
 int QDesktopWidget::screenNumber(const QWidget *widget) const
 {
+    Q_D(const QDesktopWidget);
     if(!widget)
         return d->appScreen;
     QRect frame = widget->frameGeometry();
@@ -123,6 +123,7 @@ int QDesktopWidget::screenNumber(const QWidget *widget) const
 
 int QDesktopWidget::screenNumber(const QPoint &point) const
 {
+    Q_D(const QDesktopWidget);
     int closestScreen = -1;
     int shortestDistance = INT_MAX;
     for (int i = 0; i < d->screenCount; ++i) {
@@ -137,6 +138,7 @@ int QDesktopWidget::screenNumber(const QPoint &point) const
 
 void QDesktopWidget::resizeEvent(QResizeEvent *)
 {
+    Q_D(QDesktopWidget);
     QDesktopWidgetPrivate *old_d = d;
     d_ptr = new QDesktopWidgetPrivate;
     for(int i = 0; i < d->screenCount; i++) {

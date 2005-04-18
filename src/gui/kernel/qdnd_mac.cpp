@@ -30,9 +30,6 @@
 #include <private/qdnd_p.h>
 #include <private/qt_mac_p.h>
 
-#define d d_func()
-#define q q_func()
-
 /*****************************************************************************
   QDnD debug facilities
  *****************************************************************************/
@@ -75,7 +72,7 @@ OSErr QDragManager::qt_mac_send_handler(FlavorType flav, void *data, DragItemRef
 #endif
     QDragPrivate *o = (QDragPrivate *)data;
     QDragManager *manager = QDragManager::self();
-    if(!manager || !manager->object || manager->object->d != o || manager->beingCancelled)
+    if(!manager || !manager->object || manager->object->d_func() != o || manager->beingCancelled)
         return cantGetFlavorErr;
 
     QMacMime::QMacMimeType qmt = QMacMime::MIME_DND;
@@ -346,6 +343,7 @@ void QDragManager::drop()
 
 bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
 {
+    Q_Q(QWidget);
     qt_mac_current_dragRef = dragRef;
     qt_mac_dnd_update_action(dragRef);
 
@@ -492,13 +490,13 @@ Qt::DropAction QDragManager::drag(QDrag *o)
         return Qt::IgnoreAction;
 
     if(object) {
-        o->d->source->removeEventFilter(this);
+        o->d_func()->source->removeEventFilter(this);
         cancel();
         beingCancelled = false;
     }
 
     object = o;
-    o->d->target = 0;
+    o->d_func()->target = 0;
 
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
@@ -508,18 +506,18 @@ Qt::DropAction QDragManager::drag(QDrag *o)
     DragRef dragRef;
     if((result = NewDrag(&dragRef)))
         return Qt::IgnoreAction;
-    SetDragSendProc(dragRef, make_sendUPP(), o->d); //fullfills the promise!
+    SetDragSendProc(dragRef, make_sendUPP(), o->d_func()); //fullfills the promise!
     //setup the actions
     SetDragAllowableActions(dragRef, //local
-                            qt_mac_dnd_map_qt_actions(o->d->possible_actions),
+                            qt_mac_dnd_map_qt_actions(o->d_func()->possible_actions),
                             true);
     SetDragAllowableActions(dragRef, //remote (same as local)
-                            qt_mac_dnd_map_qt_actions(o->d->possible_actions),
+                            qt_mac_dnd_map_qt_actions(o->d_func()->possible_actions),
                             false);
 
     //encode the data
     QList<QMacMime*> all = QMacMime::all(QMacMime::MIME_DND);
-    QStringList fmts = o->d->data->formats();
+    QStringList fmts = o->d_func()->data->formats();
     for(int i = 0; i < fmts.size(); ++i) {
         for(QList<QMacMime *>::Iterator it = all.begin(); it != all.end(); ++it) {
             QMacMime *c = (*it);
@@ -545,11 +543,11 @@ Qt::DropAction QDragManager::drag(QDrag *o)
     }
 
     QPoint hotspot;
-    QPixmap pix = o->d->pixmap;
+    QPixmap pix = o->d_func()->pixmap;
     if(pix.isNull()) {
-        if(!o->d->data->text().isNull()) {
+        if(!o->d_func()->data->text().isNull()) {
             //get the string
-            QString s = o->d->data->text();
+            QString s = o->d_func()->data->text();
             if(s.length() > 13)
                 s = s.left(13) + "...";
             if(!s.isEmpty()) {
@@ -574,7 +572,7 @@ Qt::DropAction QDragManager::drag(QDrag *o)
             hotspot = QPoint(default_pm_hotx, default_pm_hoty);
         }
     } else {
-        hotspot = o->d->hotspot;
+        hotspot = o->d_func()->hotspot;
     }
 
     //so we must fake an event

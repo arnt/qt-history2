@@ -13,25 +13,23 @@
 
 #include <private/qprintengine_mac_p.h>
 
-
-#define d d_func()
-#define q q_func()
-
 QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode) : QPaintEngine(*(new QMacPrintEnginePrivate))
 {
+    Q_D(QMacPrintEngine);
     d->mode = mode;
     d->initialize();
 }
 
 bool QMacPrintEngine::begin(QPaintDevice *dev)
 {
+    Q_D(QMacPrintEngine);
     d->paintEngine->state = state;
     d->paintEngine->begin(dev);
     Q_ASSERT_X(d->state == QPrinter::Idle, "QMacPrintEngine", "printer already active");
 
     if (PMSessionValidatePrintSettings(d->session, d->settings, kPMDontWantBoolean) != noErr
         || PMSessionValidatePageFormat(d->session, d->format, kPMDontWantBoolean) != noErr) {
-        d->state == QPrinter::Error;
+        d->state = QPrinter::Error;
         return false;
     }
 
@@ -48,7 +46,7 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
     }
 
     if (PMSessionBeginDocument(d->session, d->settings, d->format) != noErr) {
-        d->state == QPrinter::Error;
+        d->state = QPrinter::Error;
         return false;
     }
 
@@ -60,8 +58,9 @@ bool QMacPrintEngine::begin(QPaintDevice *dev)
 
 bool QMacPrintEngine::end()
 {
+    Q_D(QMacPrintEngine);
     if(d->paintEngine->type() == QPaintEngine::CoreGraphics)
-        static_cast<QCoreGraphicsPaintEngine*>(d->paintEngine)->d->hd = 0;
+        static_cast<QCoreGraphicsPaintEngine*>(d->paintEngine)->d_func()->hd = 0;
     d->paintEngine->end();
     if (d->state != QPrinter::Idle) {
         PMSessionEndPage(d->session);
@@ -75,12 +74,12 @@ bool QMacPrintEngine::end()
 QPaintEngine *
 QMacPrintEngine::paintEngine() const
 {
-    return d->paintEngine;
+    return d_func()->paintEngine;
 }
 
 Qt::HANDLE QMacPrintEngine::handle() const
 {
-    return d->qdHandle;
+    return d_func()->qdHandle;
 }
 
 struct PaperSize
@@ -124,12 +123,13 @@ static const PaperSize sizes[] = {
 
 void QMacPrintEnginePrivate::setPageSize(QPrinter::PageSize ps)
 {
+    Q_Q(QMacPrintEngine);
     PaperSize newSize = sizes[ps];
     QCFType<CFArrayRef> formats;
     PMPrinter printer;
 
-    if (PMSessionGetCurrentPrinter(d->session, &printer) == noErr
-        && PMSessionCreatePageFormatList(d->session, printer, &formats) == noErr) {
+    if (PMSessionGetCurrentPrinter(session, &printer) == noErr
+        && PMSessionCreatePageFormatList(session, printer, &formats) == noErr) {
         CFIndex total = CFArrayGetCount(formats);
         PMPageFormat tmp;
         PMRect paper;
@@ -140,10 +140,10 @@ void QMacPrintEnginePrivate::setPageSize(QPrinter::PageSize ps)
             int wMM = int((paper.right - paper.left) / 72 * 25.4 + 0.5);
             int hMM = int((paper.bottom - paper.top) / 72 * 25.4 + 0.5);
             if (newSize.w == wMM && newSize.h == hMM) {
-                PMCopyPageFormat(tmp, d->format);
+                PMCopyPageFormat(tmp, format);
                 // reset the orientation and resolution as they are lost in the copy.
-                q->setProperty(QPrintEngine::PPK_Orientation, d->orient);
-                PMSetResolution(d->format, &d->resolution);
+                q->setProperty(QPrintEngine::PPK_Orientation, orient);
+                PMSetResolution(format, &resolution);
                 break;
             }
         }
@@ -153,7 +153,7 @@ void QMacPrintEnginePrivate::setPageSize(QPrinter::PageSize ps)
 QPrinter::PageSize QMacPrintEnginePrivate::pageSize() const
 {
     PMRect paper;
-    PMGetUnadjustedPaperRect(d->format, &paper);
+    PMGetUnadjustedPaperRect(format, &paper);
     int wMM = int((paper.right - paper.left) / 72 * 25.4 + 0.5);
     int hMM = int((paper.bottom - paper.top) / 72 * 25.4 + 0.5);
     for (int i = QPrinter::A4; i < QPrinter::NPageSize; ++i) {
@@ -165,12 +165,12 @@ QPrinter::PageSize QMacPrintEnginePrivate::pageSize() const
 
 QList<QVariant> QMacPrintEnginePrivate::supportedResolutions() const
 {
-    Q_ASSERT_X(d->session, "QMacPrinterEngine::supporterdResolutions",
+    Q_ASSERT_X(session, "QMacPrinterEngine::supporterdResolutions",
                "must have a valid printer session");
     UInt32 resCount;
     QList<QVariant> resolutions;
     PMPrinter printer;
-    if (PMSessionGetCurrentPrinter(d->session, &printer) == noErr) {
+    if (PMSessionGetCurrentPrinter(session, &printer) == noErr) {
         PMResolution res;
         OSStatus status = PMPrinterGetPrinterResolutionCount(printer, &resCount);
         if (status  == kPMNotImplemented) {
@@ -202,11 +202,12 @@ QList<QVariant> QMacPrintEnginePrivate::supportedResolutions() const
 
 QPrinter::PrinterState QMacPrintEngine::printerState() const
 {
-    return d->state;
+    return d_func()->state;
 }
 
 bool QMacPrintEngine::newPage()
 {
+    Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
     OSStatus err = PMSessionEndPage(d->session);
     if (err != noErr)  {
@@ -219,6 +220,7 @@ bool QMacPrintEngine::newPage()
 
 bool QMacPrintEngine::abort()
 {
+    Q_D(QMacPrintEngine);
     if (d->state == QPrinter::Active)
         return false;
     bool ret = end();
@@ -257,6 +259,7 @@ static inline int qt_get_PDMHeight(PMPageFormat pformat, bool fullPage)
 
 int QMacPrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
 {
+    Q_D(const QMacPrintEngine);
     int val = 1;
     switch (m) {
     case QPaintDevice::PdmWidth:
@@ -316,6 +319,8 @@ void QMacPrintEnginePrivate::initialize()
     Q_ASSERT(!format);
     Q_ASSERT(!settings);
     Q_ASSERT(!session);
+
+    Q_Q(QMacPrintEngine);
 
 #if 0 //always use coregraphics for now until the bugs are kicked out
 #if !defined(QMAC_NO_COREGRAPHICS)
@@ -378,7 +383,8 @@ void QMacPrintEnginePrivate::initialize()
 
 bool QMacPrintEnginePrivate::newPage_helper()
 {
-    Q_ASSERT(d->state == QPrinter::Active);
+    Q_Q(QMacPrintEngine);
+    Q_ASSERT(state == QPrinter::Active);
 
     if (PMSessionError(session) != noErr) {
         abort();
@@ -400,14 +406,14 @@ bool QMacPrintEnginePrivate::newPage_helper()
             state = QPrinter::Error;
             return false;
         }
-        QCoreGraphicsPaintEngine *cgEngine = static_cast<QCoreGraphicsPaintEngine*>(d->paintEngine);
-        cgEngine->d->hd = cgContext;
+        QCoreGraphicsPaintEngine *cgEngine = static_cast<QCoreGraphicsPaintEngine*>(paintEngine);
+        cgEngine->d_func()->hd = cgContext;
         CGContextScaleCTM(cgContext, 1, -1);
         CGContextTranslateCTM(cgContext, 0, -paper.height());
         if (!fullPage)
             CGContextTranslateCTM(cgContext, page.x() - paper.x(), page.y() - paper.y());
-        cgEngine->d->orig_xform = CGContextGetCTM(cgContext);
-        cgEngine->d->setClip(0);
+        cgEngine->d_func()->orig_xform = CGContextGetCTM(cgContext);
+        cgEngine->d_func()->setClip(0);
     } else {
         OSStatus err = PMSessionGetGraphicsContext(session, kPMGraphicsContextQuickdraw,
                                                    reinterpret_cast<void **>(&qdHandle));
@@ -416,7 +422,7 @@ bool QMacPrintEnginePrivate::newPage_helper()
             state = QPrinter::Error;
             return false;
         }
-        QMacSavedPortInfo mp(d->pdev);
+        QMacSavedPortInfo mp(pdev);
         SetOrigin(page.x() - paper.x(), page.y() - paper.y());
     }
     return true;
@@ -425,59 +431,68 @@ bool QMacPrintEnginePrivate::newPage_helper()
 
 void QMacPrintEngine::updateState(const QPaintEngineState &state)
 {
-    d->paintEngine->updateState(state);
+    d_func()->paintEngine->updateState(state);
 }
 
 void QMacPrintEngine::drawRects(const QRectF *r, int num)
 {
+    Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawRects(r, num);
 }
 
 void QMacPrintEngine::drawPoints(const QPointF *points, int pointCount)
 {
+    Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawPoints(points, pointCount);
 }
 
 void QMacPrintEngine::drawEllipse(const QRectF &r)
 {
+    Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawEllipse(r);
 }
 
 void QMacPrintEngine::drawLines(const QLineF *lines, int lineCount)
 {
+    Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawLines(lines, lineCount);
 }
 
 void QMacPrintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
+    Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawPolygon(points, pointCount, mode);
 }
 
 void QMacPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
+    Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawPixmap(r, pm, sr);
 }
 
 void QMacPrintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
+    Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawTextItem(p, ti);
 }
 
 void QMacPrintEngine::drawTiledPixmap(const QRectF &dr, const QPixmap &pixmap, const QPointF &sr)
 {
+    Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawTiledPixmap(dr, pixmap, sr);
 }
 
 void QMacPrintEngine::drawPath(const QPainterPath &path)
 {
+    Q_D(QMacPrintEngine);
     Q_ASSERT(d->state == QPrinter::Active);
     d->paintEngine->drawPath(path);
 }
@@ -485,6 +500,7 @@ void QMacPrintEngine::drawPath(const QPainterPath &path)
 
 void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
 {
+    Q_D(QMacPrintEngine);
     switch (key) {
     case PPK_CollateCopies:
         break;
@@ -532,6 +548,7 @@ void QMacPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &va
 
 QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
 {
+    Q_D(const QMacPrintEngine);
     QVariant ret;
 
     switch (key) {

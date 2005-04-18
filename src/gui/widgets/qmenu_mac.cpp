@@ -24,8 +24,6 @@
 #include <private/qapplication_p.h>
 #include <private/qmenu_p.h>
 #include <private/qmenubar_p.h>
-#define d d_func()
-#define q q_func()
 
 /*****************************************************************************
   QMenu debug facilities
@@ -597,6 +595,7 @@ QMenuPrivate::QMacMenuPrivate::removeAction(QMacMenuAction *action)
 MenuRef
 QMenuPrivate::macMenu(MenuRef merge)
 {
+    Q_Q(QMenu);
     if(mac_menu && mac_menu->menu)
         return mac_menu->menu;
     if(!mac_menu)
@@ -622,7 +621,7 @@ QMenuPrivate::macMenu(MenuRef merge)
 
     \sa QMenuBar::macMenu()
 */
-MenuRef QMenu::macMenu(MenuRef merge) { return d->macMenu(merge); }
+MenuRef QMenu::macMenu(MenuRef merge) { return d_func()->macMenu(merge); }
 
 /*****************************************************************************
   QMenuBar bindings
@@ -755,6 +754,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::removeAction(QMacMenuAction *action)
 void
 QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
 {
+    Q_Q(QMenuBar);
     if(qgetenv("QT_MAC_NO_NATIVE_MENUBAR"))
         qt_mac_no_native_menubar = true;
     if(!qt_mac_no_native_menubar) {
@@ -770,6 +770,7 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
 
 void QMenuBarPrivate::macDestroyMenuBar()
 {
+    Q_Q(QMenuBar);
     if (fallback == q)
         fallback = 0;
     delete mac_menubar;
@@ -780,6 +781,7 @@ void QMenuBarPrivate::macDestroyMenuBar()
 
 MenuRef QMenuBarPrivate::macMenu()
 {
+    Q_Q(QMenuBar);
     if(!mac_menubar) {
         return 0;
     } else if(!mac_menubar->menu) {
@@ -803,7 +805,7 @@ MenuRef QMenuBarPrivate::macMenu()
 
     \sa QMenu::macMenu()
 */
-MenuRef QMenuBar::macMenu() {  return d->macMenu(); }
+MenuRef QMenuBar::macMenu() {  return d_func()->macMenu(); }
 
 /*!
   \internal
