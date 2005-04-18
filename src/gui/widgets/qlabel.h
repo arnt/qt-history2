@@ -108,8 +108,8 @@ private:
     Q_DISABLE_COPY(QLabel)
     Q_DECLARE_PRIVATE(QLabel)
 #ifndef QT_NO_MOVIE
-    Q_PRIVATE_SLOT(d, void movieUpdated(const QRect&))
-    Q_PRIVATE_SLOT(d, void movieResized(const QSize&))
+    Q_PRIVATE_SLOT(d_func(), void movieUpdated(const QRect&))
+    Q_PRIVATE_SLOT(d_func(), void movieResized(const QSize&))
 #endif
 
     friend class QTipLabel;

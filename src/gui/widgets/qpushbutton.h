@@ -69,7 +69,7 @@ public:
 private:
     Q_DISABLE_COPY(QPushButton)
     Q_DECLARE_PRIVATE(QPushButton)
-    Q_PRIVATE_SLOT(d, void popupPressed())
+    Q_PRIVATE_SLOT(d_func(), void popupPressed())
 };
 
 #endif // QPUSHBUTTON_H

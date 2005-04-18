@@ -1857,5 +1857,5 @@ void QAbstractSocket::setSocketError(SocketError socketError)
 */
 #endif
 
-#define d d_func()
+
 #include "moc_qabstractsocket.cpp"

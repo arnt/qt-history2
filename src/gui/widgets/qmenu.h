@@ -321,8 +321,8 @@ signals:
     QT_MOC_COMPAT void highlighted(int itemId);
 
 private:
-    Q_PRIVATE_SLOT(d, void actionTriggered())
-    Q_PRIVATE_SLOT(d, void actionHovered())
+    Q_PRIVATE_SLOT(d_func(), void actionTriggered())
+    Q_PRIVATE_SLOT(d_func(), void actionHovered())
 
     int insertAny(const QIcon *icon, const QString *text, const QObject *receiver, const char *member,
                   const QKeySequence *shorcut, const QMenu *popup, int id, int index);

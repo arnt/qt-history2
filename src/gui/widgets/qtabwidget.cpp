@@ -1027,7 +1027,7 @@ void QTabWidget::paintEvent(QPaintEvent *)
     Use currentChanged(int) instead.
 */
 
-#define d d_func()
+
 #include "moc_qtabwidget.cpp"
-#undef d
-#endif
+
+#endif //QT_NO_TABWIDGET

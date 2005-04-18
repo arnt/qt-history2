@@ -498,6 +498,6 @@ QString QTcpServer::errorString() const
     return d_func()->serverSocketErrorString;
 }
 
-#define d d_func()
+
 #include "moc_qtcpserver.cpp"
 

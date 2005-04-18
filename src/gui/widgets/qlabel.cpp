@@ -1190,8 +1190,7 @@ void QLabel::setScaledContents(bool enable)
     rather than setAlignment(Qt::Alignment).
 */
 
-#define d d_func()
+
 #include "moc_qlabel.cpp"
-#undef d
 
 #endif // QT_NO_LABEL

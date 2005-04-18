@@ -2075,7 +2075,6 @@ void QComboBox::setModelColumn(int visibleColumn)
         lv->setModelColumn(visibleColumn);
 }
 
-#define d d_func()
+
 #include "moc_qcombobox.cpp"
-#undef d
 

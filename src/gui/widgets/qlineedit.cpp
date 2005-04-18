@@ -2841,7 +2841,7 @@ void QLineEditPrivate::redo() {
     Use selectedText() instead.
 */
 
-#define d d_func()
+
 #include "moc_qlineedit.cpp"
-#undef d
+
 #endif // QT_NO_LINEEDIT

@@ -1677,6 +1677,6 @@ int QMenuBar::findIdForAction(QAction *act) const
 */
 
 // for private slots
-#define d d_func()
+
 #include <moc_qmenubar.cpp>
-#undef d
+

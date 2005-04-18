@@ -75,9 +75,9 @@ protected:
 private:
     Q_DECLARE_PRIVATE(QAbstractScrollArea)
     Q_DISABLE_COPY(QAbstractScrollArea)
-    Q_PRIVATE_SLOT(d, void hslide(int))
-    Q_PRIVATE_SLOT(d, void vslide(int))
-    Q_PRIVATE_SLOT(d,void showOrHideScrollBars())
+    Q_PRIVATE_SLOT(d_func(), void hslide(int))
+    Q_PRIVATE_SLOT(d_func(), void vslide(int))
+    Q_PRIVATE_SLOT(d_func(),void showOrHideScrollBars())
 
 };
 

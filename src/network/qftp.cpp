@@ -2337,7 +2337,6 @@ QFtp::~QFtp()
 
 #include "qftp.moc"
 
-#define d d_func()
 #include "moc_qftp.cpp"
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP

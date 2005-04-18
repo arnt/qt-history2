@@ -754,7 +754,7 @@ void QToolBox::itemRemoved(int index)
     Use widget() instead.
 */
 
-#define d d_func()
+
 #include "moc_qtoolbox.cpp"
 
 #endif //QT_NO_TOOLBOX

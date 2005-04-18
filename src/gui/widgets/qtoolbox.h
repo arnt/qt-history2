@@ -86,8 +86,8 @@ public:
 private:
     Q_DECLARE_PRIVATE(QToolBox)
     Q_DISABLE_COPY(QToolBox)
-    Q_PRIVATE_SLOT(d, void buttonClicked())
-    Q_PRIVATE_SLOT(d, void widgetDestroyed(QObject*))
+    Q_PRIVATE_SLOT(d_func(), void buttonClicked())
+    Q_PRIVATE_SLOT(d_func(), void widgetDestroyed(QObject*))
 };
 
 

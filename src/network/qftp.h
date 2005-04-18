@@ -130,11 +130,11 @@ private:
     Q_DISABLE_COPY(QFtp)
     Q_DECLARE_PRIVATE(QFtp)
 
-    Q_PRIVATE_SLOT(d, void startNextCommand())
-    Q_PRIVATE_SLOT(d, void piFinished(const QString&))
-    Q_PRIVATE_SLOT(d, void piError(int, const QString&))
-    Q_PRIVATE_SLOT(d, void piConnectState(int))
-    Q_PRIVATE_SLOT(d, void piFtpReply(int, const QString&))
+    Q_PRIVATE_SLOT(d_func(), void startNextCommand())
+    Q_PRIVATE_SLOT(d_func(), void piFinished(const QString&))
+    Q_PRIVATE_SLOT(d_func(), void piError(int, const QString&))
+    Q_PRIVATE_SLOT(d_func(), void piConnectState(int))
+    Q_PRIVATE_SLOT(d_func(), void piFtpReply(int, const QString&))
 };
 
 #endif // QT_NO_NETWORKPROTOCOL_FTP

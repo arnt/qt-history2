@@ -183,7 +183,7 @@ public:
 private:
     Q_DISABLE_COPY(QLineEdit)
     Q_DECLARE_PRIVATE(QLineEdit)
-    Q_PRIVATE_SLOT(d, void clipboardChanged())
+    Q_PRIVATE_SLOT(d_func(), void clipboardChanged())
 };
 
 #endif // QT_NO_LINEEDIT

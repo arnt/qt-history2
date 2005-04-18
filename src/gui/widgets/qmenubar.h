@@ -262,10 +262,10 @@ private:
 private:
     Q_DECLARE_PRIVATE(QMenuBar)
     Q_DISABLE_COPY(QMenuBar)
-    Q_PRIVATE_SLOT(d, void actionTriggered())
-    Q_PRIVATE_SLOT(d, void actionHovered())
-    Q_PRIVATE_SLOT(d, void internalShortcutActivated(int))
-    Q_PRIVATE_SLOT(d, void updateLayout())
+    Q_PRIVATE_SLOT(d_func(), void actionTriggered())
+    Q_PRIVATE_SLOT(d_func(), void actionHovered())
+    Q_PRIVATE_SLOT(d_func(), void internalShortcutActivated(int))
+    Q_PRIVATE_SLOT(d_func(), void updateLayout())
 
     friend class QMenu;
     friend class QMenuPrivate;

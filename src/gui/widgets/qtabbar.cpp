@@ -1071,6 +1071,6 @@ void QTabBar::changeEvent(QEvent *e)
     Use currentChanged() instead.
 */
 
-#define d d_func()
+
 #include "moc_qtabbar.cpp"
-#undef d
+

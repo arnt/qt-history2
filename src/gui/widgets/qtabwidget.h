@@ -143,8 +143,8 @@ signals:
 private:
     Q_DECLARE_PRIVATE(QTabWidget)
     Q_DISABLE_COPY(QTabWidget)
-    Q_PRIVATE_SLOT(d, void showTab(int))
-    Q_PRIVATE_SLOT(d, void removeTab(int))
+    Q_PRIVATE_SLOT(d_func(), void showTab(int))
+    Q_PRIVATE_SLOT(d_func(), void removeTab(int))
 
     void setUpLayout(bool = false);
     friend class Q3TabDialog;

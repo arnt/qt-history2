@@ -237,14 +237,14 @@ signals:
 private:
     Q_DECLARE_PRIVATE(QComboBox)
     Q_DISABLE_COPY(QComboBox)
-    Q_PRIVATE_SLOT(d, void itemSelected(const QModelIndex &item))
-    Q_PRIVATE_SLOT(d, void emitHighlighted(const QModelIndex &))
-    Q_PRIVATE_SLOT(d, void returnPressed())
-    Q_PRIVATE_SLOT(d, void complete())
-    Q_PRIVATE_SLOT(d, void resetButton())
-    Q_PRIVATE_SLOT(d, void dataChanged(const QModelIndex &, const QModelIndex &))
-    Q_PRIVATE_SLOT(d, void rowsInserted(const QModelIndex & parent, int start, int end))
-    Q_PRIVATE_SLOT(d, void rowsAboutToBeRemoved(const QModelIndex & parent, int start, int end))
+    Q_PRIVATE_SLOT(d_func(), void itemSelected(const QModelIndex &item))
+    Q_PRIVATE_SLOT(d_func(), void emitHighlighted(const QModelIndex &))
+    Q_PRIVATE_SLOT(d_func(), void returnPressed())
+    Q_PRIVATE_SLOT(d_func(), void complete())
+    Q_PRIVATE_SLOT(d_func(), void resetButton())
+    Q_PRIVATE_SLOT(d_func(), void dataChanged(const QModelIndex &, const QModelIndex &))
+    Q_PRIVATE_SLOT(d_func(), void rowsInserted(const QModelIndex & parent, int start, int end))
+    Q_PRIVATE_SLOT(d_func(), void rowsAboutToBeRemoved(const QModelIndex & parent, int start, int end))
 };
 
 inline void QComboBox::addItem(const QString &atext, const QVariant &auserData)

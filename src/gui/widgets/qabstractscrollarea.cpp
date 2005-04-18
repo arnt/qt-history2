@@ -642,6 +642,5 @@ QSize QAbstractScrollArea::sizeHint() const
 #endif
 }
 
-#define d d_func()
 #include "moc_qabstractscrollarea.cpp"
-#undef d
+

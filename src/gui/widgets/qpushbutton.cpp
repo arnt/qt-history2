@@ -591,6 +591,6 @@ QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent
     Use menu() instead.
 */
 
-#define d d_func()
+
 #include "moc_qpushbutton.cpp"
-#undef d
+

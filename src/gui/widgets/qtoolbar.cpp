@@ -940,6 +940,5 @@ QAction *QToolBar::toggleViewAction() const
     Use windowTitle() instead.
 */
 
-#define d d_func()
+
 #include "moc_qtoolbar.cpp"
-#undef d

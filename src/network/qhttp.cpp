@@ -2550,7 +2550,7 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
                      q, SLOT(slotBytesWritten(qint64)));
 }
 
-#define d d_func()
+
 #include "moc_qhttp.cpp"
 
 #endif

@@ -133,12 +133,12 @@ private:
     Q_DECLARE_PRIVATE(QAbstractSocket)
     Q_DISABLE_COPY(QAbstractSocket)
 
-    Q_PRIVATE_SLOT(d, void connectToNextAddress())
-    Q_PRIVATE_SLOT(d, void startConnecting(const QHostInfo &))
-    Q_PRIVATE_SLOT(d, void abortConnectionAttempt())
-    Q_PRIVATE_SLOT(d, void testConnection())
-    Q_PRIVATE_SLOT(d, bool canReadNotification(int))
-    Q_PRIVATE_SLOT(d, bool canWriteNotification(int))
+    Q_PRIVATE_SLOT(d_func(), void connectToNextAddress())
+    Q_PRIVATE_SLOT(d_func(), void startConnecting(const QHostInfo &))
+    Q_PRIVATE_SLOT(d_func(), void abortConnectionAttempt())
+    Q_PRIVATE_SLOT(d_func(), void testConnection())
+    Q_PRIVATE_SLOT(d_func(), bool canReadNotification(int))
+    Q_PRIVATE_SLOT(d_func(), bool canWriteNotification(int))
 
 #ifdef QT3_SUPPORT
 public:

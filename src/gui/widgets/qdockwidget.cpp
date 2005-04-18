@@ -803,8 +803,4 @@ QAction * QDockWidget::toggleViewAction() const
 }
 
 #include "qdockwidget.moc"
-
-// for private slots
-#define d d_func()
-
 #include "moc_qdockwidget.cpp"

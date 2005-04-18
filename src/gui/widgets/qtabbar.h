@@ -110,7 +110,7 @@ signals:
 private:
     Q_DISABLE_COPY(QTabBar)
     Q_DECLARE_PRIVATE(QTabBar)
-    Q_PRIVATE_SLOT(d, void scrollTabs())
+    Q_PRIVATE_SLOT(d_func(), void scrollTabs())
 };
 
 #endif // QTABBAR_H
