@@ -4999,11 +4999,11 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
                 srow = sptr+((y*sbpl)/4);
                 drow = dptr+((y*dbpl)/4);
                 for (int x = 0; x < w; ++x) {
-                    ++srow;
                     const int diff = (((qRed(*srow)-qRed(fillR))*(qRed(*srow)-qRed(fillR))) +
                                       ((qGreen(*srow)-qGreen(fillG))*((qGreen(*srow)-qGreen(fillG)))) +
                                       ((qBlue(*srow)-qBlue(fillB))*((qBlue(*srow)-qBlue(fillB)))));
                     (*drow++) = (diff < 100) ? Qt::black : Qt::white;
+                    ++srow;
                 }
             }
             QBitmap qmask = QBitmap::fromImage(img_mask);
