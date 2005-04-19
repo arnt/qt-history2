@@ -59,6 +59,8 @@ public:
     virtual bool saveWidgetExtraInfo(DomWidget *ui_widget);
     virtual bool loadWidgetExtraInfo(DomWidget *ui_widget);
 
+    void initializeQ3ListViewItems(const QList<DomItem *> &items, Q3ListViewItem *parentItem = 0);
+
 private:
     QPointer<Q3ListView> m_widget;
     QPointer<QDesignerFormEditorInterface> m_core;
@@ -201,12 +203,43 @@ bool Q3ListViewExtraInfo::loadWidgetExtraInfo(DomWidget *ui_widget)
     }
 
     if (ui_widget->elementItem().size()) {
-        // ### initializeQ3ListViewItems(className, varName, w->elementItem());
+        initializeQ3ListViewItems(ui_widget->elementItem());
     }
 
     return true;
 }
 
+void Q3ListViewExtraInfo::initializeQ3ListViewItems(const QList<DomItem *> &items, Q3ListViewItem *parentItem)
+{
+    for (int i=0; i<items.size(); ++i) {
+        DomItem *item = items.at(i);
+
+        Q3ListViewItem *__item = 0;
+        if (parentItem != 0)
+            __item = new Q3ListViewItem(parentItem);
+        else
+            __item = new Q3ListViewItem(static_cast<Q3ListView*>(widget()));
+
+        int textCount = 0, pixCount = 0;
+        QList<DomProperty*> properties = item->elementProperty();
+        for (int i=0; i<properties.size(); ++i) {
+            DomProperty *p = properties.at(i);
+            if (p->attributeName() == QLatin1String("text"))
+                __item->setText(textCount++, p->elementString()->text());
+
+            if (p->attributeName() == QLatin1String("pixmap")) {
+                DomResourcePixmap *pix = p->elementPixmap();
+                QPixmap pixmap(core()->iconCache()->resolveQrcPath(pix->text(), pix->attributeResource(), workingDirectory()));
+                __item->setPixmap(pixCount++, pixmap);
+            }
+        }
+
+        if (item->elementItem().size()) {
+            __item->setOpen(true);
+            initializeQ3ListViewItems(item->elementItem(), __item);
+        }
+    }
+}
 
 Q_EXPORT_PLUGIN(Q3ListViewPlugin)
 
