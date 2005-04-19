@@ -299,7 +299,8 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
     : view(view), model(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
-                |Qt::ItemIsEnabled)
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled)
 {
     if (view)
         model = ::qobject_cast<QListModel*>(view->model());
@@ -318,7 +319,8 @@ QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
     : view(view), model(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
-                |Qt::ItemIsEnabled)
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled)
 {
     setData(Qt::DisplayRole, text);
     if (view)

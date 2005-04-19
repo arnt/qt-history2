@@ -652,7 +652,7 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     const QModelIndex parent = index.parent();
     const QHeaderView *header = d->header;
     const QModelIndex current = currentIndex();
-    const bool focus = hasFocus() && current.isValid();
+    const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const bool reverse = isRightToLeft();
     const QStyle::State state = opt.state;
 

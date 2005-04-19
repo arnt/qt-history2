@@ -381,7 +381,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     const QHeaderView *verticalHeader = d->verticalHeader;
     const QHeaderView *horizontalHeader = d->horizontalHeader;
     const QModelIndex current = currentIndex();
-    const bool focus = hasFocus() && current.isValid();
+    const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
     const QColor oddColor = d->oddRowColor();

@@ -1097,7 +1097,7 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
     \sa supportedDropActions()
 */
 bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
-                                      int row, const QModelIndex &parent)
+                                      int row, int column, const QModelIndex &parent)
 {
     // check if the action is supported
     if (action != Qt::CopyAction)
@@ -1112,7 +1112,7 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     // decode and insert
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);
-    return decodeData(row, parent, stream);
+    return decodeData(row, column, parent, stream);
 }
 
 /*!
@@ -1451,7 +1451,7 @@ void QAbstractItemModel::encodeData(const QModelIndexList &indexes, QDataStream 
             stream << it2.key();
             stream << it2.value();
         }
-//         if (hasChildren(*it)) { // encode children FIXME: disabled for now
+//        if (hasChildren(*it)) { // encode children FIXME: disabled for now
 //             stream << rowCount(*it);
 //             stream << columnCount(*it);
 //             encodeData(*it, stream);
@@ -1477,14 +1477,14 @@ void QAbstractItemModel::encodeData(const QModelIndex &parent, QDataStream &stre
                 stream << it2.key();
                 stream << it2.value();
             }
-//             if (hasChildren(idx)) { // encode children FIXME: disabled for now
-//                 stream << rowCount(idx);
-//                 stream << columnCount(idx);
-//                 encodeData(idx, stream);
-//             } else { // no children
+            if (hasChildren(idx)) { // encode children
+                stream << rowCount(idx);
+                stream << columnCount(idx);
+                encodeData(idx, stream);
+            } else { // no children
                 stream << 0;
                 stream << 0;
-//            }
+            }
         }
     }
 }
@@ -1492,7 +1492,8 @@ void QAbstractItemModel::encodeData(const QModelIndex &parent, QDataStream &stre
 /*!
   \internal
 */
-bool QAbstractItemModel::decodeData(int row, const QModelIndex &parent, QDataStream &stream)
+bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &parent,
+                                    QDataStream &stream)
 {
     int count, role, rows, columns;
     QVariant value;
@@ -1500,7 +1501,7 @@ bool QAbstractItemModel::decodeData(int row, const QModelIndex &parent, QDataStr
     QVector<QModelIndex> parents;
     while (!stream.atEnd()) {
         insertRows(row, 1, parent);
-        int column = 0;
+        column = 0; // NOTE: the argument is ignored; we insert a new row per data item
         while (!stream.atEnd() && column < columnCount(parent)) {
             idx = index(row, column, parent); // only insert in col 0
             stream >> count; // roles
@@ -1512,7 +1513,7 @@ bool QAbstractItemModel::decodeData(int row, const QModelIndex &parent, QDataStr
             stream >> rows;
             stream >> columns;
             if (rows && columns) // decode children
-                decodeData(0, idx, stream);
+                decodeData(0, 0, idx, stream);
             ++column;
         }
         ++row;

@@ -148,7 +148,7 @@ public:
     virtual QStringList mimeTypes() const;
     virtual QMimeData *mimeData(const QModelIndexList &indexes) const;
     virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action,
-                              int row, const QModelIndex &parent);
+                              int row, int column, const QModelIndex &parent);
     virtual Qt::DropActions supportedDropActions() const;
 
     virtual bool insertRows(int row, int count, const QModelIndex &parent = QModelIndex());
@@ -204,7 +204,7 @@ protected:
 
     void encodeData(const QModelIndexList &indexes, QDataStream &stream) const;
     void encodeData(const QModelIndex &parent, QDataStream &stream) const;
-    bool decodeData(int row, const QModelIndex &parent, QDataStream &stream);
+    bool decodeData(int row, int column, const QModelIndex &parent, QDataStream &stream);
 
     void beginInsertRows(const QModelIndex &parent, int first, int last);
     void endInsertRows();

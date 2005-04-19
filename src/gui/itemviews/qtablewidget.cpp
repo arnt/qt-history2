@@ -72,7 +72,7 @@ public:
 
     bool isValid(const QModelIndex &index) const;
     inline long tableIndex(int row, int column) const
-        {  return (row * horizontal.count()) + column; }
+        { return (row * horizontal.count()) + column; }
 
     void clear();
     void itemChanged(QTableWidgetItem *item);
@@ -440,7 +440,6 @@ void QTableModel::itemChanged(QTableWidgetItem *item)
     emit dataChanged(idx, idx);
 }
 
-
 /*!
   \class QTableWidgetSelectionRange
 
@@ -736,7 +735,8 @@ QTableWidgetItem::QTableWidgetItem()
       itemFlags(Qt::ItemIsEditable
                 |Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
-                |Qt::ItemIsEnabled)
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled)
 {
 }
 
@@ -748,7 +748,8 @@ QTableWidgetItem::QTableWidgetItem(const QString &text)
       itemFlags(Qt::ItemIsEditable
                 |Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
-                |Qt::ItemIsEnabled)
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled)
 {
     setData(Qt::DisplayRole, text);
 }

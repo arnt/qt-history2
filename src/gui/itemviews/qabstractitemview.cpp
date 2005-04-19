@@ -1135,6 +1135,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
     if (model()->supportedDropActions() & e->proposedAction()) {
         // find the parent index and the row to drop after
         int row = -1; // prepend
+        int col = index.column();
         if (model()->flags(index) & Qt::ItemIsDropEnabled
             || model()->flags(index.parent()) & Qt::ItemIsDropEnabled) {
             switch(d->position(pos, visualRect(index), 2)) {
@@ -1151,7 +1152,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
                 break;
             }
         }
-        if (model()->dropMimeData(e->mimeData(), e->proposedAction(), row, index))
+        if (model()->dropMimeData(e->mimeData(), e->proposedAction(), row, col, index))
             e->acceptProposedAction();
     }
     stopAutoScroll();

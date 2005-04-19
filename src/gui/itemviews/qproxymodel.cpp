@@ -241,10 +241,10 @@ QMimeData *QProxyModel::mimeData(const QModelIndexList &indexes) const
 }
 
 bool QProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
-                               int row, const QModelIndex &parent)
+                               int row, int column, const QModelIndex &parent)
 {
     Q_D(const QProxyModel);
-    return d->model->dropMimeData(data, action, row, parent);
+    return d->model->dropMimeData(data, action, row, column, parent);
 }
 
 Qt::DropActions QProxyModel::supportedDropActions() const

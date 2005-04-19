@@ -898,7 +898,8 @@ QTreeWidgetItem::QTreeWidgetItem()
     : view(0), model(0), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
-                |Qt::ItemIsEnabled)
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled)
 {
 }
 
@@ -913,7 +914,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
     : view(view), model(0), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
-                |Qt::ItemIsEnabled)
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
 {
     if (view) {
         model = ::qobject_cast<QTreeModel*>(view->model());
@@ -933,7 +936,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
     : view(view), model(0), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
-                |Qt::ItemIsEnabled)
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
 {
     if (view) {
         model = ::qobject_cast<QTreeModel*>(view->model());
@@ -952,7 +957,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
     : view(0), model(0), par(parent),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
-                |Qt::ItemIsEnabled)
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
 {
     if (parent)
         parent->addChild(this);
@@ -969,7 +976,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after
     : view(0), model(0), par(parent),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
-                |Qt::ItemIsEnabled)
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
 {
     if (parent) {
         int i = parent->indexOfChild(after) + 1;

@@ -192,6 +192,12 @@ signals:
     void itemSelectionChanged();
 
 protected:
+//     virtual QStringList mimeTypes() const;
+//     virtual QMimeData *mimeData(const QList<QListWidgetItem*> items) const;
+//     virtual bool dropMimeData(const QMimeData *data, Qt::DropAction action, QListWidgetItem *item);
+//     virtual Qt::DropActions supportedDropActions() const;
+
+
     QModelIndex indexFromItem(QListWidgetItem *item) const;
     QListWidgetItem *itemFromIndex(const QModelIndex &index) const;
 

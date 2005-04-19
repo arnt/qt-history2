@@ -215,8 +215,6 @@ void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
 QListView::QListView(QWidget *parent)
     : QAbstractItemView(*new QListViewPrivate, parent)
 {
-    Q_D(QListView);
-    d->init();
     setViewMode(ListMode);
     setSelectionMode(SingleSelection);
 }
@@ -227,8 +225,6 @@ QListView::QListView(QWidget *parent)
 QListView::QListView(QListViewPrivate &dd, QWidget *parent)
     : QAbstractItemView(dd, parent)
 {
-    Q_D(QListView);
-    d->init();
     setViewMode(ListMode);
     setSelectionMode(SingleSelection);
 }
@@ -262,7 +258,11 @@ void QListView::setMovement(Movement movement)
     Q_D(QListView);
     d->modeProperties |= uint(QListViewPrivate::Movement);
     d->movement = movement;
-    setDragEnabled(true);
+
+    bool movable = (movement != QListView::Static);
+    setDragEnabled(movable);
+    d->viewport->setAcceptDrops(movable);
+
     d->doDelayedItemsLayout();
 }
 
@@ -460,7 +460,10 @@ void QListView::setViewMode(ViewMode mode)
             d->resizeMode = Fixed;
     }
 
-    setDragEnabled(d->movement == Free);
+    bool movable = (d->movement != QListView::Static);
+    setDragEnabled(movable);
+    d->viewport->setAcceptDrops(movable);
+
     d->doDelayedItemsLayout();
 }
 
@@ -859,7 +862,7 @@ void QListView::paintEvent(QPaintEvent *e)
     const QModelIndex current = currentIndex();
     const QAbstractItemDelegate *delegate = itemDelegate();
     const QItemSelectionModel *selections = selectionModel();
-    const bool focus = hasFocus() && current.isValid();
+    const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const bool alternate = d->alternatingColors;
     const QColor oddColor = d->oddRowColor();
     const QColor evenColor = d->evenRowColor();
@@ -1197,11 +1200,6 @@ QListViewPrivate::QListViewPrivate()
       rubberBand(0),
       column(0)
 {}
-
-void QListViewPrivate::init()
-{
-    viewport->setAcceptDrops(true);
-}
 
 void QListViewPrivate::prepareItemsLayout()
 {
