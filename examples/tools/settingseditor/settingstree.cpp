@@ -122,13 +122,14 @@ void SettingsTree::updateChildItems(QTreeWidgetItem *parent)
         int childIndex = findChild(parent, group, dividerIndex);
         if (childIndex != -1) {
             child = childAt(parent, childIndex);
-            // ### remove other fields
+            child->setText(1, "");
+            child->setText(2, "");
+            child->setData(2, Qt::UserRole, QVariant());
+            moveItemForward(parent, childIndex, dividerIndex);
         } else {
-            childIndex = childCount(parent);
-            child = createItem(group, parent);
+            child = createItem(group, parent, dividerIndex);
         }
         child->setIcon(0, groupIcon);
-        moveItemForward(parent, childIndex, dividerIndex);
         ++dividerIndex;
 
         settings->beginGroup(group);
@@ -143,13 +144,13 @@ void SettingsTree::updateChildItems(QTreeWidgetItem *parent)
         if (childIndex == -1 || childIndex >= dividerIndex) {
             if (childIndex != -1) {
                 child = childAt(parent, childIndex);
-                // ### delete children
+                for (int i = 0; i < child->childCount(); ++i)
+                    delete childAt(child, i);
+                moveItemForward(parent, childIndex, dividerIndex);
             } else {
-                childIndex = childCount(parent);
-                child = createItem(key, parent);
+                child = createItem(key, parent, dividerIndex);
             }
             child->setIcon(0, keyIcon);
-            moveItemForward(parent, childIndex, dividerIndex);
             ++dividerIndex;
         } else {
             child = childAt(parent, childIndex);
@@ -161,7 +162,7 @@ void SettingsTree::updateChildItems(QTreeWidgetItem *parent)
         } else {
             child->setText(1, value.typeName());
         }
-        child->setData(2, Qt::DisplayRole, VariantDelegate::displayText(value));
+        child->setText(2, VariantDelegate::displayText(value));
         child->setData(2, Qt::UserRole, value);
     }
 
@@ -170,13 +171,17 @@ void SettingsTree::updateChildItems(QTreeWidgetItem *parent)
 }
 
 QTreeWidgetItem *SettingsTree::createItem(const QString &text,
-                                          QTreeWidgetItem *parent)
+                                          QTreeWidgetItem *parent, int index)
 {
+    QTreeWidgetItem *after = 0;
+    if (index != 0)
+        after = childAt(parent, index - 1);
+
     QTreeWidgetItem *item;
     if (parent)
-        item = new QTreeWidgetItem(parent);
+        item = new QTreeWidgetItem(parent, after);
     else
-        item = new QTreeWidgetItem(this);
+        item = new QTreeWidgetItem(this, after);
 
     item->setText(0, text);
     item->setFlags(item->flags() | Qt::ItemIsEditable);
@@ -212,14 +217,6 @@ int SettingsTree::findChild(QTreeWidgetItem *parent, const QString &text,
 void SettingsTree::moveItemForward(QTreeWidgetItem *parent, int oldIndex,
                                    int newIndex)
 {
-    if (newIndex == oldIndex) // ###
-        return;
-
-    Q_ASSERT(newIndex <= oldIndex);
-
-    if (parent) {
-        parent->insertChild(newIndex, parent->takeChild(oldIndex));
-    } else {
-        insertTopLevelItem(newIndex, takeTopLevelItem(oldIndex));
-    }
+    for (int i = 0; i < oldIndex - newIndex; ++i)
+        delete childAt(parent, newIndex);
 }

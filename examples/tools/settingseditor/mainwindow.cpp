@@ -29,6 +29,7 @@ void MainWindow::openSettings()
                                             locationDialog->organization(),
                                             locationDialog->application());
         setSettingsObject(settings);
+        fallbacksAct->setEnabled(true);
     }
 }
 
@@ -39,6 +40,7 @@ void MainWindow::openIniFile()
     if (!fileName.isEmpty()) {
         QSettings *settings = new QSettings(fileName, QSettings::IniFormat);
         setSettingsObject(settings);
+        fallbacksAct->setEnabled(false);
     }
 }
 
@@ -50,6 +52,7 @@ void MainWindow::openPropertyList()
     if (!fileName.isEmpty()) {
         QSettings *settings = new QSettings(fileName, QSettings::NativeFormat);
         setSettingsObject(settings);
+        fallbacksAct->setEnabled(false);
     }
 }
 
@@ -61,6 +64,7 @@ void MainWindow::openRegistryPath()
     if (!path.isEmpty()) {
         QSettings *settings = new QSettings(path, QSettings::NativeFormat);
         setSettingsObject(settings);
+        fallbacksAct->setEnabled(false);
     }
 }
 
@@ -103,6 +107,7 @@ void MainWindow::createActions()
 
     autoRefreshAct = new QAction(tr("&Auto-Refresh"), this);
     autoRefreshAct->setCheckable(true);
+    autoRefreshAct->setEnabled(false);
     connect(autoRefreshAct, SIGNAL(checked(bool)),
             settingsTree, SLOT(setAutoRefresh(bool)));
     connect(autoRefreshAct, SIGNAL(checked(bool)),
@@ -111,6 +116,7 @@ void MainWindow::createActions()
     fallbacksAct = new QAction(tr("&Fallbacks"), this);
     fallbacksAct->setCheckable(true);
     fallbacksAct->setChecked(true);
+    fallbacksAct->setEnabled(false);
     connect(fallbacksAct, SIGNAL(checked(bool)),
             settingsTree, SLOT(setFallbacksEnabled(bool)));
 
@@ -155,7 +161,9 @@ void MainWindow::setSettingsObject(QSettings *settings)
 {
     settings->setFallbacksEnabled(fallbacksAct->isChecked());
     settingsTree->setSettingsObject(settings);
+
     refreshAct->setEnabled(true);
+    autoRefreshAct->setEnabled(true);
 
     QString niceName = settings->fileName();
     niceName.replace("\\", "/");

@@ -32,6 +32,9 @@
     If you're completely new to Qt, please read \l{How to Learn Qt}
     if you haven't already done so.
 
+    The tutorial's source code is located in Qt's \c examples/tutorial
+    directory.
+
     Tutorial chapters:
 
     \list 1
@@ -53,10 +56,9 @@
 
     This little game doesn't look much like a modern GUI application.
     It uses a some GUI techniques, but after you've worked through
-    it, we recommend checking out the \l mainwindows/application
+    it, we recommend checking out the \l{mainwindows/application}{Application}
     example, which presents a small GUI application, with menus, tool
     bars, a status bar, and so on.
-
 */
 
 /*! \example tutorial/t1
@@ -165,7 +167,7 @@
 
     You should now try to compile and run this program.
 
-    The tutorial examples are located in Qt's \c tutorial directory.
+    The tutorial examples are located in Qt's \c examples/tutorial directory.
     They are automatically built when you build Qt.
 
     If you have typed in the source code manually, you will need to
@@ -623,7 +625,7 @@
     This example shows how to create custom widgets with signals and
     slots, and how to connect them together in more complex ways. For the
     first time, the source is split among several files which we've placed
-    in the \c tutorial/t7 directory.
+    in the \c examples/tutorial/t7 directory.
 
     \section1 Line by Line Walkthrough
 

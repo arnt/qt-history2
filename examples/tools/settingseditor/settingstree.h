@@ -31,7 +31,8 @@ private slots:
 
 private:
     void updateChildItems(QTreeWidgetItem *parent);
-    QTreeWidgetItem *createItem(const QString &text, QTreeWidgetItem *parent);
+    QTreeWidgetItem *createItem(const QString &text, QTreeWidgetItem *parent,
+                                int index);
     QTreeWidgetItem *childAt(QTreeWidgetItem *parent, int index);
     int childCount(QTreeWidgetItem *parent);
     int findChild(QTreeWidgetItem *parent, const QString &text, int startIndex);

@@ -51,6 +51,7 @@
     \o \l{widgets/charactermap}{Character Map}\raisedaster
     \o \l{widgets/digitalclock}{Digital Clock}\raisedaster
     \o \l{widgets/groupbox}{Group Box}\raisedaster
+    \o \l{widgets/icons}{Icons}
     \o \l{widgets/imageviewer}{Image Viewer}\raisedaster
     \o \l{widgets/lineedits}{Line Edits}
     \o \l{widgets/screenshot}{Screenshot}
@@ -125,6 +126,7 @@
     \o \l{tools/i18n}{I18N}
     \o \l{tools/launcher}{Launcher}
     \o \l{tools/regexp}{RegExp}
+    \o \l{tools/settingseditor}{Settings Editor}
     \endlist
 
     \section1 Thread Examples
