@@ -2628,8 +2628,9 @@ void QWidget::setBackgroundRole(QPalette::ColorRole role)
 QPalette::ColorRole QWidget::foregroundRole() const
 {
     Q_D(const QWidget);
-    if (QPalette::ColorRole(d->fg_role) != QPalette::NoRole)
-        return d->fg_role;
+    QPalette::ColorRole rl = QPalette::ColorRole(d->fg_role);
+    if (rl != QPalette::NoRole)
+        return rl;
     QPalette::ColorRole role = QPalette::Foreground;
     switch (backgroundRole()) {
     case QPalette::Button:
