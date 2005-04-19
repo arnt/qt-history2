@@ -2249,7 +2249,7 @@ void QWSServer::lowerWindow(QWSWindow *changingw, int /*alt*/)
         return;
 
     int i = windows.indexOf(changingw);
-    windows.move(i,windows.size());
+    windows.move(i,windows.size()-1);
 
     QRegion exposed = changingw->requestedRegion(); //### exposes too much, including what was already visible
     exposeRegion(exposed, i);
