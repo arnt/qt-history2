@@ -1694,9 +1694,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
 
             if (scrollbar->subControls & SC_ScrollBarSubLine) {
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect,
-                                               subControlRect(cc, &newScrollbar,
-                                                                      SC_ScrollBarSubLine, widget));
+                newScrollbar.rect = subControlRect(cc, &newScrollbar, SC_ScrollBarSubLine, widget);
                 if (newScrollbar.rect.isValid()) {
                     if (!(scrollbar->activeSubControls & SC_ScrollBarSubLine))
                         newScrollbar.state &= ~(State_Sunken | State_MouseOver);
@@ -1706,9 +1704,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarAddLine) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect,
-                                               subControlRect(cc, &newScrollbar,
-                                                                      SC_ScrollBarAddLine, widget));
+                newScrollbar.rect = subControlRect(cc, &newScrollbar, SC_ScrollBarAddLine, widget);
                 if (newScrollbar.rect.isValid()) {
                     if (!(scrollbar->activeSubControls & SC_ScrollBarAddLine))
                         newScrollbar.state &= ~(State_Sunken | State_MouseOver);
@@ -1718,9 +1714,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarSubPage) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect,
-                                               subControlRect(cc, &newScrollbar,
-                                                                      SC_ScrollBarSubPage, widget));
+                newScrollbar.rect = subControlRect(cc, &newScrollbar, SC_ScrollBarSubPage, widget);
                 if (newScrollbar.rect.isValid()) {
                     if (!(scrollbar->activeSubControls & SC_ScrollBarSubPage))
                         newScrollbar.state &= ~(State_Sunken | State_MouseOver);
@@ -1730,9 +1724,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarAddPage) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect,
-                                               subControlRect(cc, &newScrollbar,
-                                                                      SC_ScrollBarAddPage, widget));
+                newScrollbar.rect = subControlRect(cc, &newScrollbar, SC_ScrollBarAddPage, widget);
                 if (newScrollbar.rect.isValid()) {
                     if (!(scrollbar->activeSubControls & SC_ScrollBarAddPage))
                         newScrollbar.state &= ~(State_Sunken | State_MouseOver);
@@ -1742,9 +1734,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarFirst) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect,
-                                               subControlRect(cc, &newScrollbar,
-                                                                      SC_ScrollBarFirst, widget));
+                newScrollbar.rect = subControlRect(cc, &newScrollbar, SC_ScrollBarFirst, widget);
                 if (newScrollbar.rect.isValid()) {
                     if (!(scrollbar->activeSubControls & SC_ScrollBarFirst))
                         newScrollbar.state &= ~(State_Sunken | State_MouseOver);
@@ -1754,9 +1744,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarLast) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect,
-                                               subControlRect(cc, &newScrollbar,
-                                                                      SC_ScrollBarLast, widget));
+                newScrollbar.rect = subControlRect(cc, &newScrollbar, SC_ScrollBarLast, widget);
                 if (newScrollbar.rect.isValid()) {
                     if (!(scrollbar->activeSubControls & SC_ScrollBarLast))
                         newScrollbar.state &= ~(State_Sunken | State_MouseOver);
@@ -1766,9 +1754,7 @@ void QCommonStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCompl
             if (scrollbar->subControls & SC_ScrollBarSlider) {
                 newScrollbar.rect = scrollbar->rect;
                 newScrollbar.state = saveFlags;
-                newScrollbar.rect = visualRect(opt->direction, opt->rect,
-                                               subControlRect(cc, &newScrollbar,
-                                                                      SC_ScrollBarSlider, widget));
+                newScrollbar.rect = subControlRect(cc, &newScrollbar, SC_ScrollBarSlider, widget);
                 if (newScrollbar.rect.isValid()) {
                     if (!(scrollbar->activeSubControls & SC_ScrollBarSlider))
                         newScrollbar.state &= ~(State_Sunken | State_MouseOver);
@@ -2199,9 +2185,7 @@ QStyle::SubControl QCommonStyle::hitTestComplexControl(ComplexControl cc, const 
             QRect r;
             uint ctrl = SC_ScrollBarAddLine;
             while (ctrl <= SC_ScrollBarGroove) {
-                r = visualRect(opt->direction, opt->rect,
-                               subControlRect(cc, scrollbar, QStyle::SubControl(ctrl),
-                                                      widget));
+                r = subControlRect(cc, scrollbar, QStyle::SubControl(ctrl), widget);
                 if (r.isValid() && r.contains(pt)) {
                     sc = QStyle::SubControl(ctrl);
                     break;
@@ -2382,6 +2366,7 @@ QRect QCommonStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex 
             default:
                 break;
             }
+            ret = visualRect(scrollbar->direction, scrollbar->rect, ret);
         }
         break;
     case CC_SpinBox:

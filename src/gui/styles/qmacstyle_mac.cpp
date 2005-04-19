@@ -745,10 +745,17 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
     tdi->max = slider->maximum;
     tdi->value = slider->sliderPosition;
     tdi->attributes = kThemeTrackShowThumb;
-    if (slider->orientation == Qt::Horizontal)
-        tdi->attributes |= kThemeTrackHorizontal;
     if (slider->upsideDown)
         tdi->attributes |= kThemeTrackRightToLeft;
+    if (slider->orientation == Qt::Horizontal) {
+        tdi->attributes |= kThemeTrackHorizontal;
+        if (isScrollbar && slider->direction == Qt::RightToLeft) {
+            if (!slider->upsideDown)
+                tdi->attributes |= kThemeTrackRightToLeft;
+            else
+                tdi->attributes &= ~kThemeTrackRightToLeft;
+        }
+    }
     tdi->enableState = slider->state & QStyle::State_Enabled ? kThemeTrackActive
                                                              : kThemeTrackDisabled;
     if (!(slider->state & QStyle::State_Active))
@@ -811,10 +818,17 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
     tdi->attributes = kThemeTrackShowThumb;
     if (slider->state & QStyle::State_HasFocus)
         tdi->attributes |= kThemeTrackHasFocus;
-    if (slider->orientation == Qt::Horizontal)
-        tdi->attributes |= kThemeTrackHorizontal;
     if (slider->upsideDown)
         tdi->attributes |= kThemeTrackRightToLeft;
+    if (slider->orientation == Qt::Horizontal) {
+        tdi->attributes |= kThemeTrackHorizontal;
+        if (isScrollbar && slider->direction == Qt::RightToLeft) {
+            if (!slider->upsideDown)
+                tdi->attributes |= kThemeTrackRightToLeft;
+            else
+                tdi->attributes &= ~kThemeTrackRightToLeft;
+        }
+    }
     tdi->enableState = slider->state & QStyle::State_Enabled ? kThemeTrackActive
                                                              : kThemeTrackDisabled;
     if (!(slider->state & QStyle::State_Active))
@@ -2222,24 +2236,36 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             HIThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, &tdi, widget);
-            if (cc == QStyle::CC_Slider) {
-                if (slider->activeSubControls == QStyle::SC_SliderHandle)
-                    tdi.trackInfo.slider.pressState = kThemeThumbPressed;
-                else if (slider->activeSubControls == QStyle::SC_SliderGroove)
-                    tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
-            } else {
-                if (slider->activeSubControls == QStyle::SC_ScrollBarSubLine)
-                    tdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed
-                                                         | kThemeLeftOutsideArrowPressed;
-                else if (slider->activeSubControls == QStyle::SC_ScrollBarAddLine)
-                    tdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed
-                                                         | kThemeRightOutsideArrowPressed;
-                else if (slider->activeSubControls == QStyle::SC_ScrollBarAddPage)
-                    tdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
-                else if (slider->activeSubControls == QStyle::SC_ScrollBarSubPage)
-                    tdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
-                else if (slider->activeSubControls == QStyle::SC_ScrollBarSlider)
-                    tdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
+            if (slider->state & QStyle::State_Sunken) {
+                if (cc == QStyle::CC_Slider) {
+                    if (slider->activeSubControls == QStyle::SC_SliderHandle)
+                        tdi.trackInfo.slider.pressState = kThemeThumbPressed;
+                    else if (slider->activeSubControls == QStyle::SC_SliderGroove)
+                        tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
+                } else {
+                    if (slider->activeSubControls == QStyle::SC_ScrollBarSubLine
+                        || slider->activeSubControls == QStyle::SC_ScrollBarAddLine) {
+                        bool reverseHorizontal = (slider->direction == Qt::RightToLeft
+                                                  && slider->orientation == Qt::Horizontal
+                                                  && !slider->upsideDown);
+                        if ((reverseHorizontal
+                             && slider->activeSubControls == QStyle::SC_ScrollBarAddLine)
+                            || (!reverseHorizontal
+                                && slider->activeSubControls == QStyle::SC_ScrollBarSubLine)) {
+                            tdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed
+                                                                 | kThemeLeftOutsideArrowPressed;
+                        } else {
+                            tdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed
+                                                                 | kThemeRightOutsideArrowPressed;
+                        }
+                    } else if (slider->activeSubControls == QStyle::SC_ScrollBarAddPage) {
+                        tdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
+                    } else if (slider->activeSubControls == QStyle::SC_ScrollBarSubPage) {
+                        tdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
+                    } else if (slider->activeSubControls == QStyle::SC_ScrollBarSlider) {
+                        tdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
+                    }
+                }
             }
             HIRect macRect;
             bool tracking = slider->sliderPosition == slider->sliderValue;
@@ -2669,10 +2695,12 @@ QStyle::SubControl QMacStylePrivate::HIThemeHitTestComplexControl(QStyle::Comple
             ControlPartCode part;
             if (HIThemeHitTestScrollBarArrows(&macSBRect, &sbi, sb->orientation == Qt::Horizontal,
                         &pos, 0, &part)) {
+                bool reverseHorizontal = (sb->direction == Qt::RightToLeft
+                                          && sb->orientation == Qt::Horizontal && !sb->upsideDown);
                 if (part == kControlUpButtonPart)
-                    sc = QStyle::SC_ScrollBarSubLine;
+                    sc = reverseHorizontal ? QStyle::SC_ScrollBarAddLine : QStyle::SC_ScrollBarSubLine;
                 else if (part == kControlDownButtonPart)
-                    sc = QStyle::SC_ScrollBarAddLine;
+                    sc = reverseHorizontal ? QStyle::SC_ScrollBarSubLine : QStyle::SC_ScrollBarAddLine;
             } else {
                 HIThemeTrackDrawInfo tdi;
                 getSliderInfo(cc, sb, &tdi, widget);
@@ -2767,12 +2795,20 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
                 HIThemeGetTrackDragRect(&tdi, &macRect);
             } else {
                 ControlPartCode cpc;
-                if (sc == QStyle::SC_ScrollBarSubPage || sc == QStyle::SC_ScrollBarAddPage)
+                if (sc == QStyle::SC_ScrollBarSubPage || sc == QStyle::SC_ScrollBarAddPage) {
                     cpc = sc == QStyle::SC_ScrollBarSubPage ? kControlPageDownPart
                                                             : kControlPageUpPart;
-                else
+                } else {
                     cpc = sc == QStyle::SC_ScrollBarSubLine ? kControlUpButtonPart
                                                             : kControlDownButtonPart;
+                    if (slider->direction == Qt::RightToLeft && !slider->upsideDown
+                        && slider->orientation == Qt::Horizontal) {
+                        if (cpc == kControlDownButtonPart)
+                            cpc = kControlUpButtonPart;
+                        else if (cpc == kControlUpButtonPart)
+                            cpc = kControlDownButtonPart;
+                    }
+                }
                 HIThemeGetTrackPartBounds(&tdi, cpc, &macRect);
             }
             ret = qt_qrectForHIRect(macRect);
@@ -3790,24 +3826,36 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             ThemeTrackDrawInfo tdi;
             getSliderInfo(cc, slider, p, &tdi, widget);
-            if (cc == QStyle::CC_Slider) {
-                if (slider->activeSubControls == QStyle::SC_SliderGroove)
-                    tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
-                else if (slider->activeSubControls == QStyle::SC_SliderHandle)
-                    tdi.trackInfo.slider.pressState = kThemeThumbPressed;
-            } else {
-                if (slider->activeSubControls == QStyle::SC_ScrollBarSubLine)
-                    tdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed
-                                                         | kThemeLeftOutsideArrowPressed;
-                else if (slider->activeSubControls == QStyle::SC_ScrollBarAddLine)
-                    tdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed
-                                                         | kThemeRightOutsideArrowPressed;
-                else if (slider->activeSubControls == QStyle::SC_ScrollBarAddPage)
-                    tdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
-                else if (slider->activeSubControls == QStyle::SC_ScrollBarSubPage)
-                    tdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
-                else if (slider->activeSubControls == QStyle::SC_ScrollBarSlider)
-                    tdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
+            if (slider->state & QStyle::State_Sunken) {
+                if (cc == QStyle::CC_Slider) {
+                    if (slider->activeSubControls == QStyle::SC_SliderGroove)
+                        tdi.trackInfo.slider.pressState = kThemeLeftTrackPressed;
+                    else if (slider->activeSubControls == QStyle::SC_SliderHandle)
+                        tdi.trackInfo.slider.pressState = kThemeThumbPressed;
+                } else {
+                    if (slider->activeSubControls == QStyle::SC_ScrollBarSubLine
+                        || slider->activeSubControls == QStyle::SC_ScrollBarAddLine) {
+                        bool reverseHorizontal = (slider->direction == Qt::RightToLeft
+                                && slider->orientation == Qt::Horizontal
+                                && !slider->upsideDown);
+                        if ((reverseHorizontal
+                             && slider->activeSubControls == QStyle::SC_ScrollBarAddLine)
+                            || (!reverseHorizontal
+                                && slider->activeSubControls == QStyle::SC_ScrollBarSubLine)) {
+                            tdi.trackInfo.scrollbar.pressState = kThemeRightInsideArrowPressed
+                                                                 | kThemeLeftOutsideArrowPressed;
+                        } else {
+                            tdi.trackInfo.scrollbar.pressState = kThemeLeftInsideArrowPressed
+                                                                 | kThemeRightOutsideArrowPressed;
+                        }
+                    } else if (slider->activeSubControls == QStyle::SC_ScrollBarAddPage) {
+                        tdi.trackInfo.scrollbar.pressState = kThemeRightTrackPressed;
+                    } else if (slider->activeSubControls == QStyle::SC_ScrollBarSubPage) {
+                        tdi.trackInfo.scrollbar.pressState = kThemeLeftTrackPressed;
+                    } else if (slider->activeSubControls == QStyle::SC_ScrollBarSlider) {
+                        tdi.trackInfo.scrollbar.pressState = kThemeThumbPressed;
+                    }
+                }
             }
 
             //The AppManager draws outside my rectangle, so account for that difference..
@@ -4202,10 +4250,13 @@ QStyle::SubControl QMacStylePrivate::AppManHitTestComplexControl(QStyle::Complex
             if (HitTestThemeScrollBarArrows(&tdi.bounds, tdi.enableState,
                                             0, scrollbar->orientation == Qt::Horizontal,
                                             pos, &mrect, &cpc)) {
+                bool reverseHorizontal = (scrollbar->direction == Qt::RightToLeft
+                                          && scrollbar->orientation == Qt::Horizontal
+                                          && !scrollbar->upsideDown);
                 if (cpc == kControlUpButtonPart)
-                    sc = QStyle::SC_ScrollBarSubLine;
+                    sc = reverseHorizontal ? QStyle::SC_ScrollBarAddLine : QStyle::SC_ScrollBarSubLine;
                 else if (cpc == kControlDownButtonPart)
-                    sc = QStyle::SC_ScrollBarAddLine;
+                    sc = reverseHorizontal ? QStyle::SC_ScrollBarSubLine : QStyle::SC_ScrollBarAddLine;
             } else if (HitTestThemeTrack(&tdi, pos, &cpc)) {
                 if (cpc == kControlPageUpPart)
                     sc = QStyle::SC_ScrollBarSubPage;

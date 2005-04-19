@@ -1633,7 +1633,8 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
     case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollbar = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             int dfw = pixelMetric(PM_DefaultFrameWidth);
-            QRect rect =  QCommonStyle::subControlRect(cc, scrollbar, sc, widget);
+            QRect rect =  visualRect(scrollbar->direction, scrollbar->rect,
+                                     QCommonStyle::subControlRect(cc, scrollbar, sc, widget));
             if (sc == SC_ScrollBarSlider) {
                 if (scrollbar->orientation == Qt::Horizontal)
                     rect.adjust(-dfw, dfw, dfw, -dfw);
@@ -1644,7 +1645,7 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                     rect.adjust(0, dfw, 0, -dfw);
                 else
                     rect.adjust(dfw, 0, -dfw, 0);
-            return rect;
+            return visualRect(scrollbar->direction, scrollbar->rect, rect);
         }
         break;
 
