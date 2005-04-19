@@ -1514,7 +1514,8 @@ void qt_init(QApplicationPrivate *priv, int,
             int major = 0;
             int minor = 0;
             XRenderQueryVersion(X11->display, &major, &minor);
-            X11->use_xrender = (major >= 0 && minor >= 5) && (format != 0);
+            if (qgetenv("QT_X11_USE_RENDER"))
+                X11->use_xrender = (major >= 0 && minor >= 5) && (format != 0);
         }
 #endif // QT_NO_XRENDER
 
