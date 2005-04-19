@@ -13,7 +13,8 @@
     do not have schedule constraints. You can also start porting your
     Qt 3 based projects over to Qt 4. The \l{porting4.html}{Porting
     Guide} and the \l{qt3to4.html}{qt3to4 porting tool} will help you
-    with the process.
+    with the process. See the \l{Installation} document for
+    instructions on compiling and installing this release.
 
     We suggest that you write new small programs to experience what
     the next generation of Qt programming will be like. In

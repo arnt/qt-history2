@@ -370,4 +370,10 @@
 
     Some irrelevant member functions have been omitted from this
     example.
+
+    \section1 Notes
+
+    Other libraries that define variables called \c signals or \c slots
+    may cause compiler warnings and errors when compiled alongside a
+    Qt-based application.
 */
