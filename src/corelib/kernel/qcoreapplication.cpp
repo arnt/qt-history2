@@ -825,10 +825,12 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
             continue;
 
         if (pe.event->type() == QEvent::DeferredDelete) {
+            const QEventLoop *const savedEventLoop = reinterpret_cast<QEventLoop *>(pe.event->d);
             const QEventLoop *const currentEventLoop =
                 data->eventLoops.isEmpty() ? 0 : data->eventLoops.top();
             if (!allowDeferredDelete
-                || reinterpret_cast<QEventLoop *>(pe.event->d) != currentEventLoop) {
+                || (savedEventLoop != 0 && savedEventLoop != currentEventLoop)) {
+                // cannot send deferred delete
                 if (!event_type && !receiver) {
                     // don't lose the event
                     data->postEventList.append(pe);
