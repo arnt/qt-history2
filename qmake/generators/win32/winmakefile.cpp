@@ -525,11 +525,9 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     // Makefiles, while not interpreting a trailing-slash as a linebreak
     t << "DESTDIR       = " << var("DESTDIR") << " #avoid trailing-slash linebreak" << endl;
     t << "TARGET        = ";
-    if(!project->isEmpty("DESTDIR"))
-        t << project->first("DESTDIR")
-	  << project->first("TARGET") << project->first("TARGET_EXT");
-    else
-        t << project->first("TARGET") << project->first("TARGET_EXT");
+    QString target = var("DESTDIR") + project->first("TARGET") + project->first("TARGET_EXT");
+    target.remove('"');
+    t << "\"" << target << "\"";
     t << endl << endl;
 
     t << "####### Implicit rules" << endl << endl;
