@@ -247,7 +247,7 @@ LRESULT CALLBACK qt_internal_proc(HWND hwnd, UINT message, WPARAM wp, LPARAM lp)
         QCoreApplication *app = QCoreApplication::instance();
         Q_ASSERT_X(app, "qt_interal_proc", "Timer fired, but no QCoreApplication");
         if (!app) {
-            KillTimer(0, wp);
+            KillTimer(hwnd, wp);
             return 0;
         }
         
@@ -592,7 +592,7 @@ bool QEventDispatcherWin32::unregisterTimer(int timerId)
         LeaveCriticalSection(&d->fastTimerCriticalSection);
         break;
     case ::TimerInfo::Normal:
-        KillTimer(0, t->ind);
+        KillTimer(d->internalHwnd, t->ind);
         delete t;
         break;
     }
@@ -617,7 +617,7 @@ bool QEventDispatcherWin32::unregisterTimers(QObject *object)
                 LeaveCriticalSection(&d->fastTimerCriticalSection);
                 break;
             case ::TimerInfo::Normal:
-                KillTimer(0, t->ind);
+                KillTimer(d->internalHwnd, t->ind);
                 delete t;
                 break;
             }
