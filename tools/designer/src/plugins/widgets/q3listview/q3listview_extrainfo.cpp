@@ -51,7 +51,32 @@ bool Q3ListViewExtraInfo::loadUiExtraInfo(DomUi *ui)
 
 bool Q3ListViewExtraInfo::saveWidgetExtraInfo(DomWidget *ui_widget)
 {
-    Q_UNUSED(ui_widget);
+    // ### finish me
+    Q3ListView *listView = qobject_cast<Q3ListView*>(widget());
+    Q_ASSERT(listView != 0);
+
+    QList<DomColumn*> columns;
+    Q3Header *header = listView->header();
+    for (int i=0; i<header->count(); ++i) {
+        DomColumn *c = new DomColumn();
+
+        QList<DomProperty*> properties;
+
+        DomString *str = new DomString();
+        str->setText(header->label(i));
+
+        DomProperty *ptext = new DomProperty();
+        ptext->setAttributeName(QLatin1String("text"));
+        ptext->setElementString(str);
+
+        properties.append(ptext);
+
+        c->setElementProperty(properties);
+        columns.append(c);
+    }
+
+    ui_widget->setElementColumn(columns);
+
     return true;
 }
 
