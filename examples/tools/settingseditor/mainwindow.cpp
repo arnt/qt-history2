@@ -15,6 +15,7 @@ MainWindow::MainWindow()
     createMenus();
 
     setWindowTitle(tr("Settings Editor"));
+    resize(500, 400);
 }
 
 void MainWindow::openSettings()
