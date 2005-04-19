@@ -44,7 +44,15 @@ bool QBufferedFSFileEngine::close()
 void QBufferedFSFileEngine::flush()
 {
     Q_D(QBufferedFSFileEngine);
+#ifdef Q_OS_WIN
+    fpos_t pos;
+    int gotPos = fgetpos(d->fh, &pos);
+#endif
     fflush(d->fh);
+#ifdef Q_OS_WIN
+    if (gotPos == 0)
+        fsetpos(d->fh, &pos);
+#endif
 }
 
 qint64 QBufferedFSFileEngine::at() const
@@ -63,7 +71,7 @@ qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
 {
     Q_D(QBufferedFSFileEngine);
     if (feof(d->fh))
-	return -1;
+	    return -1;
     return fread(data, 1, size_t(maxlen), d->fh);
 }
 
