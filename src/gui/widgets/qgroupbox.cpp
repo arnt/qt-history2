@@ -387,7 +387,10 @@ void QGroupBox::focusInEvent(QFocusEvent *)
 QSize QGroupBox::minimumSizeHint() const
 {
     Q_D(const QGroupBox);
-    QSize sh(d->leftmargin + d->rightmargin + 2, d->topmargin + d->bottommargin + 2);
+    QSize sh = QWidget::minimumSizeHint();
+    if (!sh.isValid())
+        sh = QSize(d->leftmargin + d->rightmargin, d->topmargin + d->bottommargin);
+    sh += QSize(2,2);
     QSize m((d->bFlat ? 0 : 2*8), 0);
     if (d->checkbox) {
         if (!d->bFlat)
