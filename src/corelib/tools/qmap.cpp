@@ -1546,7 +1546,13 @@ void QMapData::dump()
 /*!
     \fn iterator QMap::remove(iterator it)
 
-    Use erase() instead.
+    Use erase(\a it) instead.
+*/
+
+/*!
+    \fn void QMap::erase(const Key &key)
+
+    Use remove(\a key) instead.
 */
 
 /*!

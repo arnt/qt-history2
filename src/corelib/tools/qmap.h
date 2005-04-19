@@ -277,6 +277,7 @@ public:
     iterator erase(iterator it);
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT iterator remove(iterator it) { return erase(it); }
+    inline QT3_SUPPORT void erase(const Key &key) { remove(key); }
 #endif
 
     // more Qt
