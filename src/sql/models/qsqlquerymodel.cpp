@@ -241,7 +241,7 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     bool hasQuerySize = d->query.driver()->hasFeature(QSqlDriver::QuerySize);
 
     if (d->bottom.isValid()) {
-        beginRemoveColumns(QModelIndex(), 0, d->bottom.row());
+        beginRemoveColumns(QModelIndex(), 0, d->bottom.column());
         if (columnsChanged)
             endRemoveColumns();
     }
