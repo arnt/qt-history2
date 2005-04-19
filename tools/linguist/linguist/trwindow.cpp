@@ -199,7 +199,7 @@ TrWindow::TrWindow()
     addDockWidget(Qt::LeftDockWidgetArea, dwScope);
 
     QFontMetrics fm(font());
-    tv->header()->setResizeMode(QHeaderView::Stretch, 1);
+    tv->header()->setResizeMode(1, QHeaderView::Stretch);
     tv->header()->resizeSection(0, fm.width(ContextModel::tr("Done")) + 20);
     tv->header()->resizeSection(2, 55);
     tv->header()->setClickable(true);

@@ -465,7 +465,7 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
 	srcTextView->setUniformRowHeights(true);
 
     QFontMetrics fm(font());
-    srcTextView->header()->setResizeMode(QHeaderView::Stretch, 1);
+    srcTextView->header()->setResizeMode(1, QHeaderView::Stretch);
     srcTextView->header()->resizeSection(0, fm.width(MessageModel::tr("Done")) + 20);
     srcTextView->header()->resizeSection(2, 300);
     srcTextView->header()->setClickable(true);
