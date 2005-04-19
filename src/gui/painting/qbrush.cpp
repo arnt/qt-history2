@@ -129,9 +129,12 @@ struct QGradientBrushData : public QBrushData
     \sa QPainter, QPainter::setBrush(), QPainter::setBrushOrigin()
 */
 
-
-
-QBrushData *QBrush::shared_default = 0;
+struct QNullBrushData: public QBrushData
+{
+    inline QNullBrushData()
+    { ref = 1; style = Qt::BrushStyle(0); color = Qt::black; }
+    Q_GLOBAL_STATIC(QNullBrushData, instance)
+};
 
 /*!
   \internal
@@ -166,15 +169,8 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
 
 QBrush::QBrush()
 {
-    if (!shared_default) {
-        static QCleanupHandler<QBrushData> shared_default_cleanup;
-        shared_default = new QBrushData;
-        shared_default->ref = 1;
-        shared_default->style = (Qt::BrushStyle)0;
-        shared_default->color = Qt::black;
-        shared_default_cleanup.add(&shared_default);
-    }
-    d = shared_default;
+    d = QNullBrushData::instance();
+    Q_ASSERT(d);
     d->ref.ref();
 }
 
