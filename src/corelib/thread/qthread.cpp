@@ -242,7 +242,7 @@ QThread::QThread(QObject *parent)
 
     Note that deleting a QThread object will not stop the execution
     of the thread it represents. Deleting a running QThread (i.e.
-    finished() returns false) will probably result in a program
+    isFinished() returns false) will probably result in a program
     crash. You can wait() on a thread to make sure that it has
     finished.
 */
