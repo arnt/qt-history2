@@ -5,6 +5,8 @@
 
 class QAction;
 class QMenu;
+class QSettings;
+class LocationDialog;
 class SettingsTree;
 
 class MainWindow : public QMainWindow
@@ -24,8 +26,10 @@ private slots:
 private:
     void createActions();
     void createMenus();
+    void setSettingsObject(QSettings *settings);
 
     SettingsTree *settingsTree;
+    LocationDialog *locationDialog;
 
     QMenu *fileMenu;
     QMenu *optionsMenu;
@@ -37,6 +41,7 @@ private:
     QAction *refreshAct;
     QAction *exitAct;
     QAction *autoRefreshAct;
+    QAction *fallbacksAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
 };

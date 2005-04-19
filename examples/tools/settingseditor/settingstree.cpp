@@ -13,6 +13,7 @@ SettingsTree::SettingsTree(QWidget *parent)
     setHeaderLabels(labels);
 
     settings = 0;
+    refreshTimer.setInterval(2000);
     autoRefresh = false;
 
     groupIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirClosedIcon),
@@ -24,14 +25,19 @@ SettingsTree::SettingsTree(QWidget *parent)
     connect(&refreshTimer, SIGNAL(timeout()), this, SLOT(maybeRefresh()));
 }
 
-void SettingsTree::setSettings(QSettings *settings)
+void SettingsTree::setSettingsObject(QSettings *settings)
 {
     delete this->settings;
     this->settings = settings;
     clear();
+
     if (settings) {
         settings->setParent(this);
         refresh();
+        if (autoRefresh)
+            refreshTimer.start();
+    } else {
+        refreshTimer.stop();
     }
 }
 
@@ -43,11 +49,21 @@ QSize SettingsTree::sizeHint() const
 void SettingsTree::setAutoRefresh(bool autoRefresh)
 {
     this->autoRefresh = autoRefresh;
-    if (autoRefresh) {
-        maybeRefresh();
-        refreshTimer.start(2000);
-    } else {
-        refreshTimer.stop();
+    if (settings) {
+        if (autoRefresh) {
+            maybeRefresh();
+            refreshTimer.start();
+        } else {
+            refreshTimer.stop();
+        }
+    }
+}
+
+void SettingsTree::setFallbacksEnabled(bool enabled)
+{
+    if (settings) {
+        settings->setFallbacksEnabled(enabled);
+        refresh();
     }
 }
 

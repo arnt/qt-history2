@@ -1,5 +1,6 @@
 #include <QtGui>
 
+#include "locationdialog.h"
 #include "mainwindow.h"
 #include "settingstree.h"
 
@@ -7,6 +8,8 @@ MainWindow::MainWindow()
 {
     settingsTree = new SettingsTree;
     setCentralWidget(settingsTree);
+
+    locationDialog = 0;
 
     createActions();
     createMenus();
@@ -16,6 +19,16 @@ MainWindow::MainWindow()
 
 void MainWindow::openSettings()
 {
+    if (!locationDialog)
+        locationDialog = new LocationDialog(this);
+
+    if (locationDialog->exec()) {
+        QSettings *settings = new QSettings(locationDialog->format(),
+                                            locationDialog->scope(),
+                                            locationDialog->organization(),
+                                            locationDialog->application());
+        setSettingsObject(settings);
+    }
 }
 
 void MainWindow::openIniFile()
@@ -24,8 +37,7 @@ void MainWindow::openIniFile()
                                "", tr("INI Files (*.ini *.conf)"));
     if (!fileName.isEmpty()) {
         QSettings *settings = new QSettings(fileName, QSettings::IniFormat);
-        settingsTree->setSettings(settings);
-        refreshAct->setEnabled(true);
+        setSettingsObject(settings);
     }
 }
 
@@ -36,19 +48,18 @@ void MainWindow::openPropertyList()
                                "", tr("Property List Files (*.plist)"));
     if (!fileName.isEmpty()) {
         QSettings *settings = new QSettings(fileName, QSettings::NativeFormat);
-        settingsTree->setSettings(settings);
-        refreshAct->setEnabled(true);
+        setSettingsObject(settings);
     }
 }
 
 void MainWindow::openRegistryPath()
 {
     QString path = QInputDialog::getText(this, tr("Open Registry Path"),
-                           tr("Enter the path in the Windows registry:"));
+                           tr("Enter the path in the Windows registry:"),
+                           QLineEdit::Normal, "HKEY_CURRENT_USER\\");
     if (!path.isEmpty()) {
         QSettings *settings = new QSettings(path, QSettings::NativeFormat);
-        settingsTree->setSettings(settings);
-        refreshAct->setEnabled(true);
+        setSettingsObject(settings);
     }
 }
 
@@ -61,7 +72,7 @@ void MainWindow::about()
 
 void MainWindow::createActions()
 {
-    openSettingsAct = new QAction(tr("&Open Settings..."), this);
+    openSettingsAct = new QAction(tr("&Open Application Settings..."), this);
     openSettingsAct->setShortcut(tr("Ctrl+O"));
     connect(openSettingsAct, SIGNAL(triggered()), this, SLOT(openSettings()));
 
@@ -96,6 +107,12 @@ void MainWindow::createActions()
     connect(autoRefreshAct, SIGNAL(checked(bool)),
             refreshAct, SLOT(setDisabled(bool)));
 
+    fallbacksAct = new QAction(tr("&Fallbacks"), this);
+    fallbacksAct->setCheckable(true);
+    fallbacksAct->setChecked(true);
+    connect(fallbacksAct, SIGNAL(checked(bool)),
+            settingsTree, SLOT(setFallbacksEnabled(bool)));
+
     aboutAct = new QAction(tr("&About"), this);
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
 
@@ -124,10 +141,29 @@ void MainWindow::createMenus()
 
     optionsMenu = menuBar()->addMenu(tr("&Options"));
     optionsMenu->addAction(autoRefreshAct);
+    optionsMenu->addAction(fallbacksAct);
 
     menuBar()->addSeparator();
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
+}
+
+void MainWindow::setSettingsObject(QSettings *settings)
+{
+    settings->setFallbacksEnabled(fallbacksAct->isChecked());
+    settingsTree->setSettingsObject(settings);
+    refreshAct->setEnabled(true);
+
+    QString niceName = settings->fileName();
+    niceName.replace("\\", "/");
+    int pos = niceName.lastIndexOf("/");
+    if (pos != -1)
+        niceName.remove(0, pos + 1);
+
+    if (!settings->isWritable())
+        niceName = tr("%1 (read only)").arg(niceName);
+
+    setWindowTitle(tr("%1 - %2").arg(niceName).arg(tr("Settings Editor")));
 }

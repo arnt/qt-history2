@@ -14,11 +14,12 @@ class SettingsTree : public QTreeWidget
 public:
     SettingsTree(QWidget *parent = 0);
 
-    void setSettings(QSettings *settings);
+    void setSettingsObject(QSettings *settings);
     QSize sizeHint() const;
 
 public slots:
     void setAutoRefresh(bool autoRefresh);
+    void setFallbacksEnabled(bool enabled);
     void maybeRefresh();
     void refresh();
 

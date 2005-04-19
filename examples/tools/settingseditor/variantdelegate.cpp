@@ -2,14 +2,6 @@
 
 #include "variantdelegate.h"
 
-/*
-    QVariant::Double
-    QVariant::Int
-    QVariant::LongLong
-    QVariant::UInt
-    QVariant::ULongLong
-*/
-
 VariantDelegate::VariantDelegate(QObject *parent)
     : QItemDelegate(parent)
 {
@@ -284,7 +276,6 @@ QString VariantDelegate::displayText(const QVariant &value)
 void VariantDelegate::commitAndCloseEditor()
 {
     QWidget *editor = qobject_cast<QWidget *>(sender());
-    // ### validator
     emit commitData(editor);
     emit closeEditor(editor);
 }
