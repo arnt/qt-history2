@@ -76,7 +76,6 @@ private:
     void init(const QColor &color, Qt::BrushStyle bs);
     QBrushData *d;
     void cleanUp(QBrushData *x);
-    static QBrushData *shared_default;
 };
 
 inline void QBrush::setColor(Qt::GlobalColor acolor)

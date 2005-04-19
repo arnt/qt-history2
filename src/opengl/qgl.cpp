@@ -23,8 +23,18 @@
 #include "qcache.h"
 #include "qfile.h"
 
-static QGLFormat* qgl_default_format = 0;
-static QGLFormat* qgl_default_overlay_format = 0;
+Q_GLOBAL_STATIC(QGLFormat, qgl_default_format)
+
+class QGLDefaultOverlayFormat: public QGLFormat
+{
+public:
+    inline QGLDefaultOverlayFormat()
+    {
+        setOption(QGL::DirectRendering);
+        setPlane(1);
+    }
+    Q_GLOBAL_STATIC(QGLDefaultOverlayFormat, instance)
+};
 
 QGLExtensions::Extensions QGLExtensions::glExtensions = 0;
 #ifndef APIENTRY
@@ -48,8 +58,6 @@ static void *gl_pixmap_visual = 0;
 #endif
 
 #include <stdlib.h> // malloc
-
-Q_GLOBAL_STATIC(QCleanupHandler<QGLFormat>, qgl_cleanup_format)
 
 #ifndef APIENTRY
 #define APIENTRY
@@ -758,11 +766,7 @@ int QGLFormat::stencilBufferSize() const
 
 QGLFormat QGLFormat::defaultFormat()
 {
-    if (!qgl_default_format) {
-        qgl_default_format = new QGLFormat;
-        qgl_cleanup_format()->add(&qgl_default_format);
-    }
-    return *qgl_default_format;
+    return *qgl_default_format();
 }
 
 /*!
@@ -781,11 +785,7 @@ QGLFormat QGLFormat::defaultFormat()
 
 void QGLFormat::setDefaultFormat(const QGLFormat &f)
 {
-    if (!qgl_default_format) {
-        qgl_default_format = new QGLFormat;
-        qgl_cleanup_format()->add(&qgl_default_format);
-    }
-    *qgl_default_format = f;
+    *qgl_default_format() = f;
 }
 
 
@@ -811,13 +811,7 @@ void QGLFormat::setDefaultFormat(const QGLFormat &f)
 
 QGLFormat QGLFormat::defaultOverlayFormat()
 {
-    if (!qgl_default_overlay_format) {
-        qgl_default_overlay_format = new QGLFormat;
-        qgl_default_overlay_format->d->opts = QGL::DirectRendering;
-        qgl_default_overlay_format->d->pln = 1;
-        qgl_cleanup_format()->add(&qgl_default_overlay_format);
-    }
-    return *qgl_default_overlay_format;
+    return *QGLDefaultOverlayFormat::instance();
 }
 
 /*!
@@ -856,15 +850,12 @@ QGLFormat QGLFormat::defaultOverlayFormat()
 
 void QGLFormat::setDefaultOverlayFormat(const QGLFormat &f)
 {
-    if (!qgl_default_overlay_format) {
-        qgl_default_overlay_format = new QGLFormat;
-        qgl_cleanup_format()->add(&qgl_default_overlay_format);
-    }
-    *qgl_default_overlay_format = f;
+    QGLFormat *defaultFormat = QGLDefaultOverlayFormat::instance();
+    *defaultFormat = f;
     // Make sure the user doesn't request that the overlays themselves
     // have overlays, since it is unlikely that the system supports
     // infinitely many planes...
-    qgl_default_overlay_format->setOverlay(false);
+    defaultFormat->setOverlay(false);
 }
 
 
