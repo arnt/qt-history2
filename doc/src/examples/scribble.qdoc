@@ -2,13 +2,13 @@
     \example widgets/scribble
     \title Scribble Example
 
-    The Scribble example shows how to use QMainWindow as the basis for
-    an application, and how to reimplement some of QWidget's event
-    handlers to receive the events generated for the application's
-    widgets:
+    The Scribble example shows how to use QMainWindow as the base
+    widget for an application, and how to reimplement some of
+    QWidget's event handlers to receive the events generated for the
+    application's widgets:
 
     We reimplement the mouse event handlers to facilitate drawing, the
-    paint event handler to repaint widgets and the resize event
+    paint event handler to update the application and the resize event
     handler to optimize the application's appearance. In addition we
     reimplement the close event handler to intercept the close events
     before terminating the application.
@@ -20,11 +20,9 @@
 
     With the Scribble application the users can draw an image.  The
     \gui File menu gives the users the possibility to open and edit an
-    existing image file, save an image in a format they can choose
-    from the format menu displayed by the \gui {Save As} menu entry
-    and exit the application. While drawing, the \gui Options menu
-    allows the users to to choose the pen color and pen width, as well
-    as clear the screen.
+    existing image file, save an image and exit the application. While
+    drawing, the \gui Options menu allows the users to to choose the
+    pen color and pen width, as well as clear the screen.
 
     The example consists of two classes:
 
@@ -53,16 +51,16 @@
     the \c MainWindow widget. We use the boolean \c mayBeSave()
     function to check if there are any unsaved changes. If there are,
     we give the user the opportunity to save these changes. The
-    function returns true if the scribble area is not modified or the
+    function returns true if the scribble area isn't modified or the
     user successfully saves the modifications, otherwise it returns
     false. We use the boolean \c saveFile() function to retrieve a
     filename from the user, and to save the image currently displayed
-    in the scribble area, in that file. It returns true if the image
-    was successfully saved, otherwise false.
+    in the scribble area in that file. It returns true if the image
+    was successfully saved; otherwise false.
 
     The \c MainWindow contains a scribble area. It also has the \c
     modified property that is true if there are any unsaved changes to
-    the image displayed in the scribble area, otherwise false.
+    the image displayed in the scribble area, otherwise it is false.
 
     \section1 MainWindow Class Implementation
 
@@ -78,11 +76,12 @@
     \printline closeEvent
     \printuntil /^\}/
 
-    The \c closeEvent() event handler receives the \c {MainWindow}'s
-    close events. Close events are sent to widgets that the users want
-    to close, usually by choosing "Close" from the window menu, or by
-    clicking the 'X' title bar button. By reimplementing the event
-    handler, we can intercept attempts to close the application.
+    The reimplemented \l{QWidget::closeEvent()}{closeEvent()} event
+    handler receives the \c {MainWindow}'s close events. Close events
+    are sent to widgets that the users want to close, usually by
+    choosing "Close" from the window menu, or by clicking the 'X'
+    title bar button. By reimplementing the event handler, we can
+    intercept attempts to close the application.
 
     This is particularly useful in this example, because the users may
     have modified the image after the last time they saved. By calling
@@ -98,12 +97,13 @@
     \printuntil /^\}/
 
     In the \c open() slot we first give the user the opportunity to
-    save any modifications before a new image is loaded into the
-    scribble area. Then we show a file dialog. QFileDialog enables
-    the user to traverse the file system. The easiest way to create a
-    QFileDialog is to use the static functions;
-    QFileDialog::getOpenFileName() returns an existing file selected
-    by the user. If the user presses Cancel, it returns a null string.
+    save any modifications to the currently displayed image, before a
+    new image is loaded into the scribble area. Then we show a file
+    dialog. QFileDialog enables the user to traverse the file
+    system. The easiest way to create a QFileDialog is to use the
+    static functions; QFileDialog::getOpenFileName() returns an
+    existing file selected by the user. If the user presses Cancel, it
+    returns a null string.
 
     Unless the file name is a null string, we load the file's image
     into the scribble area.
@@ -136,7 +136,7 @@
     QColorDialog::getColor() pops up a modal color dialog, lets the
     user choose a color, and returns that color. We set the dialog's
     initial color to be the scribble area's current color. Then, if
-    the use choose a valid new color, we make it the scribble area's
+    the user choose a valid new color, we make it the scribble area's
     color.
 
     \printline penWidth
@@ -152,7 +152,7 @@
 
     The boolean \c ok variable will be set to true if the user pressed
     OK and to false if the user pressed Cancel. Then we set the
-    scribble area's penwidth to the new value.
+    scribble area's pen width to the new value.
 
     \printline createActions
     \printuntil /^\}/
@@ -229,7 +229,7 @@
     The \c ScribbleArea class inherits from QWidget and displays the
     image the user draws. We reimplement the constructor along with
     several of the event handlers: We reimplement the \c
-    mousePressEvent(), \c mouseMoveEvent() \c mouseReleaseEvent()
+    mousePressEvent(), \c mouseMoveEvent() and \c mouseReleaseEvent()
     functions to facilitate the drawing. We reimplement the \c
     paintEvent() function to update the scribble area, and the \c
     resizeEvent() function to optimize the application's appearance.
@@ -253,8 +253,9 @@
     In addition to the scribble area's image, we keep a QPoint \c
     startPoint holding the point from where any drawing should start.
     It can be the position where the users first press the left mouse
-    button, or if they move the mouse with the button pressed, the end
-    point of the line they then draw.
+    button, or the end point of the lines they draw between the
+    positions if they move the mouse around with the left button
+    pressed.
 
     \section1 ScribbleArea Class Implementation
 
@@ -265,21 +266,23 @@
     In the constructor we initialize the scribble area's
     properties. But more important, we set the Qt::WA_StaticContents
     attribute for the widget, indicating that the widget contents are
-    north-west aligned and static. On resize, such a widget will
-    receive paint events only for the newly visible part of itself.
+    north-west aligned and static. This is an optimization of the
+    widget's behavior. On resize, such a widget will receive paint
+    events only for the newly visible part of itself.
 
     \printline openImage
     \printuntil /^\}/
 
-    In the \c openImage() function we load the image from the file
+    In the \c openImage() function we load the image, from the file
     given by the \c fileName parameter, into a new QImage. Then we
-    create a painter and draws the new image onto the scroll area's
-    image. To actually display the image in the scroll area we need to
-    call the \l{QWidget::update()}{update()} function which schedules
-    a paint event for processing when Qt returns to the main event
-    loop. The paint event is in the end handled by the reimplemented
-    \c paintEvent() function. The \c openImage() function returns true
-    if the image was successfully loaded from file; otherwise false.
+    create a painter and draws the new image onto the scribble area's
+    image. To actually display the image in the scribble area we need
+    to call the \l{QWidget::update()}{update()} function which
+    schedules a paint event for processing when Qt returns to the main
+    event loop. The paint event is in the end handled by the
+    reimplemented \c paintEvent() function. The \c openImage()
+    function returns true if the image was successfully loaded from
+    file; otherwise false.
 
     \printline saveImage
     \printuntil /^\}/
@@ -295,9 +298,9 @@
 
     The QImage::save() function takes the \c fileName and \c
     fileFormat parameters as arguments, and returns true if the image
-    was successfully saved; otherwise it returns false. If \c
-    visibleImage is successfully saved, we set the scribble area's
-    modified property to false.
+    was successfully saved; otherwise false. If \c visibleImage is
+    successfully saved, we set the scribble area's modified property
+    to false.
 
     The \c saveImage function returns true if the image was
     successfully saved; otherwise false.
@@ -326,14 +329,13 @@
     {QWidget::mouseReleaseEvent()}{mouseReleaseEvent()} functions are
     reimplemented to facilitate the drawing. In case of a mouse press
     or a mouse release event, we use the QMouseEvent::button()
-    function to find out which buttons that caused the event. While we
+    function to find out which buttons that caused the event, while we
     use the QMouseEvent::buttons() function to find out if the event
     is a mouse move event. The difference is that \c button() returns
     the button that caused the event. While \c buttons() returns the
     button state when the event was generated. The button state is a
     combination of Qt::LeftButton, Qt::RightButton, Qt::MidButton
-    using the OR operator. For mouse move events, this is all buttons
-    that are pressed down.
+    using the OR operator.
 
     If the users press the left mouse button, we store the position of
     the mouse cursor when the event was generated as the starting
@@ -395,8 +397,8 @@
 
     We make a remark that the image has been modified before we call
     the \c update() function with a rectangle enclosing the modified
-    part of the image, as an argument. This will update that specific
-    rectangle inside the scroll area, avoiding a complete repaint of
-    the widget. Finally we make the end point of the line we drawed
-    the new start point.
+    part of the image, as an argument. This is an optimization
+    updating that specific rectangle inside the scribble area,
+    avoiding a complete repaint of the widget. Finally we make the end
+    point of the line we drawed the new start point.
 */
