@@ -381,8 +381,8 @@ Q_GUI_EXPORT void qt_qws_set_max_window_rect(const QRect& r)
     for (int i = 0; i < l.size(); ++i) {
         QWidget *w = l.at(i);
         if (w->isVisible() && w->isMaximized()) {
-            w->showMaximized();
             w->showNormal(); //#### flicker
+            w->showMaximized();
         }
     }
 }
