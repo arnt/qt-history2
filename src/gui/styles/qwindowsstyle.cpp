@@ -1765,6 +1765,9 @@ QRect QWindowsStyle::subElementRect(SubElement sr, const QStyleOption *opt, cons
     return r;
 }
 
+Q_GLOBAL_STATIC_WITH_ARGS(QBitmap, globalVerticalLine, (1, 129))
+Q_GLOBAL_STATIC_WITH_ARGS(QBitmap, globalHorizontalLine, (128, 1))
+
 /*! \reimp */
 void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComplex *opt,
                                        QPainter *p, const QWidget *widget) const
@@ -2060,15 +2063,14 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     }
                 }
                 p->setPen(lv->palette.text().color());
-
-                static QBitmap *verticalLine = 0, *horizontalLine = 0;
-                static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
-                if (!verticalLine) {
+                QBitmap *verticalLine = globalVerticalLine();
+                QBitmap *horizontalLine = globalHorizontalLine();
+                static bool isInit = false;
+                if (!isInit) {
+                    isInit = true;
                     // make 128*1 and 1*128 bitmaps that can be used for
                     // drawing the right sort of lines.
-                    verticalLine = new QBitmap(1, 129);
                     verticalLine->clear();
-                    horizontalLine = new QBitmap(128, 1);
                     horizontalLine->clear();
                     QPolygon a(64);
                     QPainter p;
@@ -2088,8 +2090,6 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                     p.end();
                     QApplication::flush();
                     horizontalLine->setMask(*horizontalLine);
-                    qlv_cleanup_bitmap.add(&verticalLine);
-                    qlv_cleanup_bitmap.add(&horizontalLine);
                 }
 
                 int line; // index into dotlines
