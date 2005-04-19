@@ -349,8 +349,7 @@ QProcessPrivate::~QProcessPrivate()
 void QProcessPrivate::cleanup()
 {
     Q_Q(QProcess);
-
-    q->setOpenMode(QIODevice::ReadOnly);
+    
     processState = QProcess::NotRunning;
 #ifdef Q_OS_WIN
     if (pid) {
@@ -365,8 +364,7 @@ void QProcessPrivate::cleanup()
 #endif
     pid = 0;
     sequenceNumber = 0;
-    // exitCode = 0; // We deliberately do not reset the exit code.
-    crashed = false;
+    
     if (standardReadSocketNotifier) {
         standardReadSocketNotifier->setEnabled(false);
         delete standardReadSocketNotifier;
