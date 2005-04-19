@@ -63,6 +63,8 @@ public:
     QBrush bgbrush;
     Qt::BGMode bgmode;
     QRegion crgn;
+    bool has_clipping : 1;
+    QMatrix matrix;
 };
 
 static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush);
@@ -85,6 +87,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     Q_D(QOpenGLPaintEngine);
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
     d->pdev = pdev;
+    d->has_clipping = false;
     dgl->setAutoBufferSwap(false);
     setActive(true);
     dgl->makeCurrent();
@@ -128,6 +131,7 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
                          state.clipOperation());
     }
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+    if (flags & DirtyHints) updateRenderHints(state.renderHints());
 }
 
 void QOpenGLPaintEngine::updatePen(const QPen &pen)
@@ -422,6 +426,9 @@ void QOpenGLPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBru
 
 void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
 {
+    Q_D(QOpenGLPaintEngine);
+
+    d->matrix = mtx;
     GLdouble mat[4][4];
 
     mat[0][0] = qToDouble(mtx.m11());
@@ -462,9 +469,28 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
 
     dgl->makeCurrent();
     if (op == Qt::NoClip) {
+        d->has_clipping = false;
         d->crgn = QRegion();
         glDisable(useStencilBuffer ? GL_STENCIL_TEST : GL_DEPTH_TEST);
         return;
+    }
+
+    QRegion region = clipRegion * d->matrix;
+    switch (op) {
+    case Qt::IntersectClip:
+        if (d->has_clipping) {
+            d->crgn &= region;
+            break;
+        }
+        // fall through
+    case Qt::ReplaceClip:
+        d->crgn = region;
+        break;
+    case Qt::UniteClip:
+        d->crgn |= region;
+        break;
+    default:
+        break;
     }
 
     if (useStencilBuffer) {
@@ -476,23 +502,6 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
         glClear(GL_DEPTH_BUFFER_BIT);
         glDepthMask(true);
         glClearDepth(0x1);
-    }
-
-    switch (op) {
-    case Qt::ReplaceClip:
-        d->crgn = clipRegion;
-        break;
-    case Qt::IntersectClip:
-        if (!d->crgn.isEmpty())
-            d->crgn &= clipRegion;
-        else
-            d->crgn = clipRegion;
-        break;
-    case Qt::UniteClip:
-        d->crgn |= clipRegion;
-        break;
-    case Qt::NoClip:
-        break;
     }
 
     const QVector<QRect> rects = d->crgn.rects();
@@ -511,6 +520,7 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
         glDepthFunc(GL_LEQUAL);
         glEnable(GL_DEPTH_TEST);
     }
+    d->has_clipping = true;
 }
 
 void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
@@ -688,10 +698,10 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         qgl_draw_poly(points, pointCount);
     if (d->cpen.style() != Qt::NoPen) {
         dgl->qglColor(d->cpen.color());
-        double x1 = qToDouble(points[pointCount - 1].x());
-        double y1 = qToDouble(points[pointCount - 1].y());
-        double x2 = qToDouble(points[0].x());
-        double y2 = qToDouble(points[0].y());
+        double x1 = qToDouble(points[0].x());
+        double y1 = qToDouble(points[0].y());
+        double x2 = qToDouble(points[pointCount - 1].x());
+        double y2 = qToDouble(points[pointCount - 1].y());
 
         glBegin(GL_LINE_STRIP);
         {
