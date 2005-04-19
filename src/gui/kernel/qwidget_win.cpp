@@ -1715,7 +1715,7 @@ qreal QWidget::windowOpacity() const
 class QGlobalRasterPaintEngine: public QRasterPaintEngine
 {
 public:
-    inline QGLobalRasterPaintEngine() : QRasterPaintEngine() { setFlushOnEnd(false); }
+    inline QGlobalRasterPaintEngine() : QRasterPaintEngine() { setFlushOnEnd(false); }
     Q_GLOBAL_STATIC(QGlobalRasterPaintEngine, instance)
 };
 
