@@ -361,8 +361,83 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
     for(int x = 0; x < buffer_len; ++x) {
         bool try_local = true;
         char *inc = 0;
-        if(file->type == QMakeSourceFileInfo::TYPE_QRC) {
-	   // nothing to do
+        if(file->type == QMakeSourceFileInfo::TYPE_UI) {
+            // skip whitespaces
+            while(x < buffer_len && (*(buffer+x) == ' ' || *(buffer+x) == '\t'))
+                ++x;
+            if(*(buffer + x) == '<') {
+                ++x;
+                if(buffer_len >= x + 12 && !strncmp(buffer + x, "includehint", 11) &&
+                   (*(buffer + x + 11) == ' ' || *(buffer + x + 11) == '>')) {
+                    for(x += 11; *(buffer + x) != '>'; ++x);
+                    int inc_len = 0;
+                    for(x += 1 ; *(buffer + x + inc_len) != '<'; ++inc_len);
+                    *(buffer + x + inc_len) = '\0';
+                    inc = buffer + x;
+                } else if(buffer_len >= x + 13 && !strncmp(buffer + x, "customwidget", 12) &&
+                          (*(buffer + x + 12) == ' ' || *(buffer + x + 12) == '>')) {
+                    for(x += 13; *(buffer + x) != '>'; ++x); //skip up to >
+                    while(x < buffer_len) {
+                        for(x++; *(buffer + x) != '<'; ++x); //skip up to <
+                        x++;
+                        if(buffer_len >= x + 7 && !strncmp(buffer+x, "header", 6) &&
+                           (*(buffer + x + 6) == ' ' || *(buffer + x + 6) == '>')) {
+                            for(x += 7; *(buffer + x) != '>'; ++x); //skip up to >
+                            int inc_len = 0;
+                            for(x += 1 ; *(buffer + x + inc_len) != '<'; ++inc_len);
+                            *(buffer + x + inc_len) = '\0';
+                            inc = buffer + x;
+                            break;
+                        } else if(buffer_len >= x + 14 && !strncmp(buffer+x, "/customwidget", 13) &&
+                                  (*(buffer + x + 13) == ' ' || *(buffer + x + 13) == '>')) {
+                            x += 14;
+                            break;
+                        }
+                    }
+                } else if(buffer_len >= x + 8 && !strncmp(buffer + x, "include", 7) &&
+                          (*(buffer + x + 7) == ' ' || *(buffer + x + 7) == '>')) {
+                    bool inImpl = false;
+                    for(x += 8; *(buffer + x) != '>'; ++x) {
+                        if(buffer_len >= x + 9 && *(buffer + x) == 'i' &&
+                           !strncmp(buffer + x, "impldecl", 8)) {
+                            for(x += 8; *(buffer + x) != '='; ++x);
+                            if(*(buffer + x) != '=')
+                                continue;
+                            for(++x; *(buffer+x) == '\t' || *(buffer+x) == ' '; ++x);
+                            char quote = 0;
+                            if(*(buffer+x) == '\'' || *(buffer+x) == '"') {
+                                quote = *(buffer + x);
+                                ++x;
+                            }
+                            int val_len;
+                            for(val_len = 0; true; ++val_len) {
+                                if(quote) {
+                                    if(*(buffer+x+val_len) == quote)
+                                        break;
+                                } else if(*(buffer + x + val_len) == '>' ||
+                                          *(buffer + x + val_len) == ' ') {
+                                    break;
+                                }
+                            }
+//?                            char saved = *(buffer + x + val_len);
+                            *(buffer + x + val_len) = '\0';
+                            if(!strcmp(buffer+x, "in implementation")) {
+                                inImpl = true;
+                                //### do this
+                            }
+                        }
+                    }
+                    int inc_len = 0;
+                    for(x += 1 ; *(buffer + x + inc_len) != '<'; ++inc_len);
+                    *(buffer + x + inc_len) = '\0';
+                    if (!inImpl)
+                        inc = buffer + x;
+                }
+            }
+            //read past new line now..
+            for(; x < buffer_len && !qmake_endOfLine(*(buffer + x)); ++x);
+            ++line_count;
+        } else if(file->type == QMakeSourceFileInfo::TYPE_QRC) {
         } else if(file->type == QMakeSourceFileInfo::TYPE_C) {
             for(int beginning=1; x < buffer_len; ++x) {
                 if(*(buffer+x) == '/') {

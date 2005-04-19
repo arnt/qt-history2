@@ -480,8 +480,12 @@ MakefileGenerator::init()
                     QString dep_type;
                     if(!project->isEmpty((*it) + ".dependency_type"))
                         dep_type = project->first((*it) + ".dependency_type");
-
-                    compiler.type = QMakeSourceFileInfo::TYPE_C;
+                    if (dep_type.isEmpty())
+                        compiler.type = QMakeSourceFileInfo::TYPE_UNKNOWN;
+                    else if(dep_type == "TYPE_UI")
+                        compiler.type = QMakeSourceFileInfo::TYPE_UI;
+                    else
+                        compiler.type = QMakeSourceFileInfo::TYPE_C;
                     compilers.append(compiler);
                 }
             }

@@ -10,6 +10,7 @@ isEmpty(QMAKE_EXT_CPP_MOC):QMAKE_EXT_CPP_MOC = .moc
 
 #moc headers
 moc_header.CONFIG = moc_verify
+moc_header.dependency_type = TYPE_C
 moc_header.commands = $$QMAKE_MOC $(DEFINES) $(INCPATH) $$join(QMAKE_COMPILER_DEFINES, " -D", -D) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
 moc_header.output = $$MOC_DIR/$${QMAKE_H_MOD_MOC}${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
 moc_header.input = HEADERS
@@ -19,6 +20,7 @@ QMAKE_EXTRA_COMPILERS += moc_header
 
 #moc sources
 moc_source.CONFIG = no_link moc_verify
+moc_source.dependency_type = TYPE_C
 moc_source.commands = $$QMAKE_MOC $(DEFINES) $(INCPATH) $$join(QMAKE_COMPILER_DEFINES, " -D", -D) ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
 moc_source.output = $$MOC_DIR/$${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}$${QMAKE_EXT_CPP_MOC}
 moc_source.input = SOURCES
