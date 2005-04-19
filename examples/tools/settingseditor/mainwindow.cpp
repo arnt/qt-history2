@@ -25,7 +25,7 @@ void MainWindow::openIniFile()
     if (!fileName.isEmpty()) {
         QSettings *settings = new QSettings(fileName, QSettings::IniFormat);
         settingsTree->setSettings(settings);
-        synchronizeAct->setEnabled(true);
+        refreshAct->setEnabled(true);
     }
 }
 
@@ -37,7 +37,7 @@ void MainWindow::openPropertyList()
     if (!fileName.isEmpty()) {
         QSettings *settings = new QSettings(fileName, QSettings::NativeFormat);
         settingsTree->setSettings(settings);
-        synchronizeAct->setEnabled(true);
+        refreshAct->setEnabled(true);
     }
 }
 
@@ -48,7 +48,7 @@ void MainWindow::openRegistryPath()
     if (!path.isEmpty()) {
         QSettings *settings = new QSettings(path, QSettings::NativeFormat);
         settingsTree->setSettings(settings);
-        synchronizeAct->setEnabled(true);
+        refreshAct->setEnabled(true);
     }
 }
 
@@ -76,18 +76,25 @@ void MainWindow::createActions()
 
     openRegistryPathAct = new QAction(tr("Open Windows &Registry Path..."),
                                       this);
-    openRegistryPathAct->setShortcut(tr("Ctrl+R"));
+    openRegistryPathAct->setShortcut(tr("Ctrl+G"));
     connect(openRegistryPathAct, SIGNAL(triggered()),
             this, SLOT(openRegistryPath()));
 
-    synchronizeAct = new QAction(tr("&Synchronize (Refresh/Commit)"), this);
-    synchronizeAct->setShortcut(tr("Ctrl+S"));
-    synchronizeAct->setEnabled(false);
-    connect(synchronizeAct, SIGNAL(triggered()), settingsTree, SLOT(sync()));
+    refreshAct = new QAction(tr("&Refresh"), this);
+    refreshAct->setShortcut(tr("Ctrl+R"));
+    refreshAct->setEnabled(false);
+    connect(refreshAct, SIGNAL(triggered()), settingsTree, SLOT(refresh()));
 
     exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
+
+    autoRefreshAct = new QAction(tr("&Auto-Refresh"), this);
+    autoRefreshAct->setCheckable(true);
+    connect(autoRefreshAct, SIGNAL(checked(bool)),
+            settingsTree, SLOT(setAutoRefresh(bool)));
+    connect(autoRefreshAct, SIGNAL(checked(bool)),
+            refreshAct, SLOT(setDisabled(bool)));
 
     aboutAct = new QAction(tr("&About"), this);
     connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
@@ -111,9 +118,12 @@ void MainWindow::createMenus()
     fileMenu->addAction(openPropertyListAct);
     fileMenu->addAction(openRegistryPathAct);
     fileMenu->addSeparator();
-    fileMenu->addAction(synchronizeAct);
+    fileMenu->addAction(refreshAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
+
+    optionsMenu = menuBar()->addMenu(tr("&Options"));
+    optionsMenu->addAction(autoRefreshAct);
 
     menuBar()->addSeparator();
 

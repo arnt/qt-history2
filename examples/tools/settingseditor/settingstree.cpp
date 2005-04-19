@@ -6,19 +6,22 @@
 SettingsTree::SettingsTree(QWidget *parent)
     : QTreeWidget(parent)
 {
-    QStringList labels;
-    labels << tr("Setting") << tr("Value");
-    setHeaderLabels(labels);
-
     setItemDelegate(new VariantDelegate(this));
 
+    QStringList labels;
+    labels << tr("Setting") << tr("Type") << tr("Value");
+    setHeaderLabels(labels);
+
     settings = 0;
+    autoRefresh = false;
 
     groupIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirClosedIcon),
                         QIcon::Normal, QIcon::Off);
     groupIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirOpenIcon),
                         QIcon::Normal, QIcon::On);
     keyIcon.addPixmap(style()->standardPixmap(QStyle::SP_FileIcon));
+
+    connect(&refreshTimer, SIGNAL(timeout()), this, SLOT(maybeRefresh()));
 }
 
 void SettingsTree::setSettings(QSettings *settings)
@@ -26,11 +29,10 @@ void SettingsTree::setSettings(QSettings *settings)
     delete this->settings;
     this->settings = settings;
     clear();
-    if (!settings)
-        return;
-
-    settings->setParent(this);
-    updateChildItems(0);
+    if (settings) {
+        settings->setParent(this);
+        refresh();
+    }
 }
 
 QSize SettingsTree::sizeHint() const
@@ -38,12 +40,59 @@ QSize SettingsTree::sizeHint() const
     return QSize(500, 400);
 }
 
-void SettingsTree::sync()
+void SettingsTree::setAutoRefresh(bool autoRefresh)
 {
-    if (settings) {
-        settings->sync();
-        updateChildItems(0);
+    this->autoRefresh = autoRefresh;
+    if (autoRefresh) {
+        maybeRefresh();
+        refreshTimer.start(2000);
+    } else {
+        refreshTimer.stop();
     }
+}
+
+void SettingsTree::maybeRefresh()
+{
+    if (state() != EditingState)
+        refresh();
+}
+
+void SettingsTree::refresh()
+{
+    if (!settings)
+        return;
+
+    disconnect(this, SIGNAL(itemChanged(QTreeWidgetItem *, int)),
+               this, SLOT(updateSetting(QTreeWidgetItem *)));
+
+    settings->sync();
+    updateChildItems(0);
+
+    connect(this, SIGNAL(itemChanged(QTreeWidgetItem *, int)),
+            this, SLOT(updateSetting(QTreeWidgetItem *)));
+}
+
+bool SettingsTree::event(QEvent *event)
+{
+    if (event->type() == QEvent::WindowActivate) {
+        if (isActiveWindow() && autoRefresh)
+            maybeRefresh();
+    }
+    return QTreeWidget::event(event);
+}
+
+void SettingsTree::updateSetting(QTreeWidgetItem *item)
+{
+    QString key = item->text(0);
+    QTreeWidgetItem *ancestor = item->parent();
+    while (ancestor) {
+        key.prepend(ancestor->text(0) + "/");
+        ancestor = ancestor->parent();
+    }
+
+    settings->setValue(key, item->data(2, Qt::UserRole));
+    if (autoRefresh)
+        refresh();
 }
 
 void SettingsTree::updateChildItems(QTreeWidgetItem *parent)
@@ -89,7 +138,13 @@ void SettingsTree::updateChildItems(QTreeWidgetItem *parent)
         }
 
         QVariant value = settings->value(key);
-        child->setData(1, Qt::DisplayRole, value);
+        if (value.type() == QVariant::Invalid) {
+            child->setText(1, "Invalid");
+        } else {
+            child->setText(1, value.typeName());
+        }
+        child->setData(2, Qt::DisplayRole, VariantDelegate::displayText(value));
+        child->setData(2, Qt::UserRole, value);
     }
 
     while (dividerIndex < childCount(parent))
@@ -144,11 +199,9 @@ void SettingsTree::moveItemForward(QTreeWidgetItem *parent, int oldIndex,
 
     Q_ASSERT(newIndex <= oldIndex);
 
-qDebug("insertChild(%d, takeChild(%d)), childCount = %d", newIndex, oldIndex, childCount(parent));
     if (parent) {
         parent->insertChild(newIndex, parent->takeChild(oldIndex));
     } else {
         insertTopLevelItem(newIndex, takeTopLevelItem(oldIndex));
     }
-qDebug("OK");
 }

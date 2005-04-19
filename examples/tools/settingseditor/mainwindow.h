@@ -28,13 +28,15 @@ private:
     SettingsTree *settingsTree;
 
     QMenu *fileMenu;
+    QMenu *optionsMenu;
     QMenu *helpMenu;
     QAction *openSettingsAct;
     QAction *openIniFileAct;
     QAction *openPropertyListAct;
     QAction *openRegistryPathAct;
-    QAction *synchronizeAct;
+    QAction *refreshAct;
     QAction *exitAct;
+    QAction *autoRefreshAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
 };

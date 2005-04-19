@@ -2,6 +2,7 @@
 #define SETTINGSTREE_H
 
 #include <QIcon>
+#include <QTimer>
 #include <QTreeWidget>
 
 class QSettings;
@@ -17,7 +18,15 @@ public:
     QSize sizeHint() const;
 
 public slots:
-    void sync();
+    void setAutoRefresh(bool autoRefresh);
+    void maybeRefresh();
+    void refresh();
+
+protected:
+    bool event(QEvent *event);
+
+private slots:
+    void updateSetting(QTreeWidgetItem *item);
 
 private:
     void updateChildItems(QTreeWidgetItem *parent);
@@ -28,6 +37,8 @@ private:
     void moveItemForward(QTreeWidgetItem *parent, int oldIndex, int newIndex);
 
     QSettings *settings;
+    QTimer refreshTimer;
+    bool autoRefresh;
     QIcon groupIcon;
     QIcon keyIcon;
 };
