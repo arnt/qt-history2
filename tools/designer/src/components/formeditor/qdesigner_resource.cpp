@@ -33,6 +33,7 @@
 #include <QtDesigner/container.h>
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/customwidget.h>
+#include <QtDesigner/extrainfo.h>
 #include <QtDesigner/qextensionmanager.h>
 #include <QtDesigner/abstractwidgetfactory.h>
 #include <QtDesigner/abstractmetadatabase.h>
@@ -259,8 +260,8 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     foreach (DomAction *action, action_list)
         m_formWindow->actionList().append(createActionListElt(action));
 
-    if (QDesignerCustomWidgetInterface *plugin = m_customFactory.value(ui_widget->attributeClass())) {
-        plugin->loadExtraInfo(w, ui_widget);
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), w)) {
+        extra->loadWidgetExtraInfo(ui_widget);
     }
 
     return w;
@@ -501,8 +502,8 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
             w->setElementAction(dom_action_list);
     }
 
-    if (QDesignerCustomWidgetInterface *plugin = m_customFactory.value(w->attributeClass())) {
-        plugin->saveExtraInfo(widget, w);
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), widget)) {
+        extra->saveWidgetExtraInfo(w);
     }
 
     return w;
