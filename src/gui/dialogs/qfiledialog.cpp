@@ -1561,7 +1561,7 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     treeView->viewport()->setAcceptDrops(true);
     treeView->setRootIsDecorated(false);
     treeView->setItemsExpandable(false);
-    treeView->header()->setResizeMode(QHeaderView::Stretch, treeView->header()->count() - 1);
+    treeView->header()->setStretchLastSection(true);
     treeView->header()->setSortIndicator(0, Qt::AscendingOrder);
     treeView->header()->setSortIndicatorShown(true);
     treeView->header()->setClickable(true);

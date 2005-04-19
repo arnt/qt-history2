@@ -79,7 +79,7 @@ public:
     bool highlightSections() const;
 
     void setResizeMode(ResizeMode mode);
-    void setResizeMode(ResizeMode mode, int logicalIndex);
+    void setResizeMode(int logicalIndex, ResizeMode mode);
     ResizeMode resizeMode(int logicalIndex) const;
     int stretchSectionCount() const;
 

@@ -726,7 +726,7 @@ void QHeaderView::setResizeMode(ResizeMode mode)
     \sa QLayout::ResizeMode
 */
 
-void QHeaderView::setResizeMode(ResizeMode mode, int logicalIndex)
+void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
 {
     Q_D(QHeaderView);
     initializeSections();

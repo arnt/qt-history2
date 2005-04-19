@@ -1012,7 +1012,7 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
     view = new QTreeView(g);
     view->setModel(model);
     view->setRootIsDecorated(false);
-    view->header()->setResizeMode(QHeaderView::Stretch, 2);
+    view->header()->setResizeMode(2, QHeaderView::Stretch);
 
     // bang the best default into the listview
     int quality = 0;
