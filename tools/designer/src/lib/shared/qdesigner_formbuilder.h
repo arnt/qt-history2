@@ -36,6 +36,12 @@ public:
     { return m_core; }
 
 protected:
+    using QFormBuilder::createDom; // ### fixme
+    using QFormBuilder::create;
+
+    virtual DomWidget *createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive = true);
+    virtual QWidget *create(DomWidget *ui_widget, QWidget *parentWidget);
+
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
     virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
     virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);

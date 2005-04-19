@@ -15,6 +15,7 @@
 #include "qdesigner_widget.h"
 
 // sdk
+#include <QtDesigner/extrainfo.h>
 #include <QtDesigner/container.h>
 #include <QtDesigner/customwidget.h>
 #include <QtDesigner/propertysheet.h>
@@ -27,10 +28,10 @@
 #include <resourcefile.h>
 #include <pluginmanager.h>
 
-#include <QtCore/QBuffer>
-#include <QtCore/QDir>
-#include <QtCore/QFileInfo>
 #include <QtGui/QWidget>
+
+#include <QtCore/QBuffer>
+#include <QtCore/qdebug.h>
 
 QDesignerFormBuilder::QDesignerFormBuilder(QDesignerFormEditorInterface *core)
     : m_core(core)
@@ -128,5 +129,27 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
         if (!v.isNull())
             sheet->setProperty(sheet->indexOf(p->attributeName()), v);
     }
+}
+
+DomWidget *QDesignerFormBuilder::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)
+{
+    DomWidget *ui_widget = QFormBuilder::createDom(widget, ui_parentWidget, recursive);
+
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(m_core->extensionManager(), widget)) {
+        extra->saveWidgetExtraInfo(ui_widget);
+    }
+
+    return ui_widget;
+}
+
+QWidget *QDesignerFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
+{
+    QWidget *widget = QFormBuilder::create(ui_widget, parentWidget);
+
+    if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(m_core->extensionManager(), widget)) {
+        extra->loadWidgetExtraInfo(ui_widget);
+    }
+
+    return widget;
 }
 
