@@ -39,11 +39,6 @@
 
 #include <qdebug.h>
 
-#define d d_func()
-#define q q_func()
-
-
-
 QWidget *QWSManagerPrivate::active = 0;
 QPoint QWSManagerPrivate::mousePos;
 
@@ -57,23 +52,20 @@ QWSManagerPrivate::QWSManagerPrivate()
 
 QRegion &QWSManager::cachedRegion()
 {
-    return d->cached_region.region;
+    return d_func()->cached_region.region;
 }
-
-
-#define d d_func()
-#define q q_func()
 
 
 QWSManager::QWSManager(QWidget *w)
     : QObject(*new QWSManagerPrivate, (QObject*)0)
 {
-    d->managed = w;
+    d_func()->managed = w;
 
 }
 
 QWSManager::~QWSManager()
 {
+    Q_D(QWSManager);
 #ifndef QT_NO_POPUPMENU
     if (d->popup)
         delete d->popup;
@@ -84,6 +76,7 @@ QWSManager::~QWSManager()
 
 QWidget *QWSManager::widget()
 {
+    Q_D(QWSManager);
     return d->managed;
 }
 
@@ -94,6 +87,7 @@ QWidget *QWSManager::grabbedMouse()
 
 QRegion QWSManager::region()
 {
+    Q_D(QWSManager);
     return QApplication::qwsDecoration().region(d->managed, d->managed->geometry());
 }
 
@@ -133,6 +127,7 @@ bool QWSManager::event(QEvent *e)
 
 void QWSManager::mousePressEvent(QMouseEvent *e)
 {
+    Q_D(QWSManager);
     d->mousePos = e->globalPos();
     d->activeRegion = QApplication::qwsDecoration().regionAt(d->managed, d->mousePos);
     if(d->cached_region.regionType)
@@ -159,6 +154,7 @@ void QWSManager::mousePressEvent(QMouseEvent *e)
 
 void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 {
+    Q_D(QWSManager);
     d->managed->releaseMouse();
     if (d->cached_region.regionType && d->previousRegionRepainted && QApplication::mouseButtons() == 0) {
         bool doesHover = repaintRegion(d->cached_region.regionType, QDecoration::Hover);
@@ -183,6 +179,7 @@ void QWSManager::mouseReleaseEvent(QMouseEvent *e)
 
 void QWSManager::mouseDoubleClickEvent(QMouseEvent *e)
 {
+    Q_D(QWSManager);
     if (e->button() == Qt::LeftButton)
         QApplication::qwsDecoration().regionDoubleClicked(d->managed,
             QApplication::qwsDecoration().regionAt(d->managed, e->globalPos()));
@@ -216,6 +213,7 @@ static inline Qt::CursorShape regionToShape(int region)
 
 void QWSManager::mouseMoveEvent(QMouseEvent *e)
 {
+    Q_D(QWSManager);
     if (d->newCachedRegion(e->globalPos())) {
         if(d->previousRegionType && d->previousRegionRepainted)
             repaintRegion(d->previousRegionType, QDecoration::Normal);
@@ -236,6 +234,7 @@ void QWSManager::mouseMoveEvent(QMouseEvent *e)
 
 void QWSManager::handleMove(QPoint g)
 {
+    Q_D(QWSManager);
     // don't allow dragging to where the user probably cannot click!
     extern QRect qt_maxWindowRect;
     if (qt_maxWindowRect.isValid()) {
@@ -345,23 +344,23 @@ void QWSManager::paintEvent(QPaintEvent *)
 bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationState state)
 {
     bool result = false;
-    if (!d->managed->isVisible())
+    if (!managed->isVisible())
         return result;
     QDecoration &dec = QApplication::qwsDecoration();
-    if (d->managed->testAttribute(Qt::WA_WState_InPaintEvent))
+    if (managed->testAttribute(Qt::WA_WState_InPaintEvent))
         qWarning("QWSManager::paintEvent() recursive paint event detected");
 //    d->managed->setAttribute(Qt::WA_WState_InPaintEvent);
 
-    QTLWExtra *topextra = d->managed->d->extra->topextra;
+    QTLWExtra *topextra = managed->d_func()->extra->topextra;
     QPixmap *buf = topextra->backingStore->pixmap();
     if (buf->isNull()) {
         qDebug("QWSManager::doPaint empty buf");
-        d->managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
+        managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
         return false;
     }
     QPainter painter;
     painter.begin(buf);
-    QRegion clipRgn = dec.region(d->managed, d->managed->rect().translated(-topextra->backingStoreOffset ));
+    QRegion clipRgn = dec.region(managed, managed->rect().translated(-topextra->backingStoreOffset ));
 #if 0
     qDebug() << "QWSManagerPrivate::doPaint"
              << "rect" << d->managed->rect()
@@ -371,22 +370,23 @@ bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationSta
     painter.setClipRegion(clipRgn);
     painter.translate(-topextra->backingStoreOffset);
 
-    result = dec.paint(&painter, d->managed, decorationRegion, state);
+    result = dec.paint(&painter, managed, decorationRegion, state);
     painter.end();
 
-    d->managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
+    managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
     return result;
 }
 
 bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)
 {
+    Q_D(QWSManager);
     bool result = d->doPaint(decorationRegion, state);
 
-    QTLWExtra *topextra = d->managed->d->extra->topextra;
+    QTLWExtra *topextra = d->managed->d_func()->extra->topextra;
     QDecoration &dec = QApplication::qwsDecoration();
     //### copies too much, but we don't know here what has actually been changed
     if (result) {
-        d->managed->d->bltToScreen(dec.region(d->managed, d->managed->geometry()));
+        d->managed->d_func()->bltToScreen(dec.region(d->managed, d->managed->geometry()));
     }
     return result;
 }
@@ -394,6 +394,7 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
 void QWSManager::menu(const QPoint &pos)
 {
 #ifndef QT_NO_POPUPMENU
+    Q_D(QWSManager);
     if (d->popup)
         delete d->popup;
 
@@ -408,6 +409,7 @@ void QWSManager::menu(const QPoint &pos)
 
 void QWSManager::menuTriggered(QAction *action)
 {
+    Q_D(QWSManager);
     QApplication::qwsDecoration().menuTriggered(d->managed, action);
     d->popup->deleteLater();
     d->popup = 0;
@@ -415,6 +417,7 @@ void QWSManager::menuTriggered(QAction *action)
 
 void QWSManager::startMove()
 {
+    Q_D(QWSManager);
     d->mousePos = QCursor::pos();
     d->activeRegion = QDecoration::Title;
     d->active = d->managed;
@@ -423,6 +426,7 @@ void QWSManager::startMove()
 
 void QWSManager::startResize()
 {
+    Q_D(QWSManager);
     d->activeRegion = QDecoration::BottomRight;
     d->active = d->managed;
     d->managed->grabMouse();
@@ -430,6 +434,7 @@ void QWSManager::startResize()
 
 void QWSManager::maximize()
 {
+    Q_D(QWSManager);
     // find out how much space the decoration needs
     extern QRect qt_maxWindowRect;
     QRect desk = qt_maxWindowRect;
@@ -456,13 +461,13 @@ bool QWSManagerPrivate::newCachedRegion(const QPoint &pos)
         return false;
 
     // Update the cached region
-    int reg = QApplication::qwsDecoration().regionAt(d->managed, pos);
+    int reg = QApplication::qwsDecoration().regionAt(managed, pos);
     if (QWidget::mouseGrabber())
         reg = QDecoration::None;
 
     previousRegionType = cached_region.regionType;
     cached_region.regionType = reg;
-    cached_region.region = QApplication::qwsDecoration().region(d->managed, d->managed->geometry(),
+    cached_region.region = QApplication::qwsDecoration().region(managed, managed->geometry(),
                                                                 reg);
     cached_region.windowFlags = managed->windowFlags();
     cached_region.windowGeometry = managed->geometry();

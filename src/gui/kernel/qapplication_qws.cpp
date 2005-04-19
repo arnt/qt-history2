@@ -78,8 +78,6 @@
 #include <sys/time.h>
 
 #include "private/qwidget_p.h"
-#define d d_func()
-#define q q_func()
 
 const int qwsSharedRamSize = 100 * 1024;
                           //Small amount to fit on small devices.
@@ -250,6 +248,7 @@ public:
 
 void QApplicationPrivate::createEventDispatcher()
 {
+    Q_Q(QApplication);
     eventDispatcher = (q->type() != QApplication::Tty
                        ? new QEventDispatcherQWS(q)
                        : new QEventDispatcherUNIX(q));
@@ -829,39 +828,39 @@ void QWSDisplay::Data::waitForQCopResponse()
 
 QWSDisplay::QWSDisplay()
 {
-    dd = new Data(0, qws_single_process);
+    d = new Data(0, qws_single_process);
 }
 
 QWSDisplay::~QWSDisplay()
 {
-    delete dd;
+    delete d;
     delete lock;
     lock = 0;
 }
 #if 0
 QWSRegionManager *QWSDisplay::regionManager() const
 {
-    return dd->rgnMan;
+    return d->rgnMan;
 }
 #endif
 
 bool QWSDisplay::eventPending() const
 {
 #ifndef QT_NO_QWS_MULTIPROCESS
-    dd->flush();
+    d->flush();
 #endif
-    dd->fillQueue();
-    return dd->queueNotEmpty();
+    d->fillQueue();
+    return d->queueNotEmpty();
 }
 
 
 /*
   Caller must delete return value!
  */
-QWSEvent*  QWSDisplay::getEvent()
+QWSEvent *QWSDisplay::getEvent()
 {
     d->fillQueue();
-    Q_ASSERT(dd->queueNotEmpty());
+    Q_ASSERT(d->queueNotEmpty());
     QWSEvent* e = d->dequeue();
 
     return e;
@@ -1359,7 +1358,7 @@ void QWSDisplay::setTransformation(int t)
     qws_setScreenTransformation(t);
     qws_mapPixmaps(false);
 
-    if (qt_fbdpy->d->directServerConnection()) {
+    if (qt_fbdpy->d_func()->directServerConnection()) {
         qwsServer->resetEngine();
         qwsServer->refresh();
     }
@@ -2061,21 +2060,21 @@ void QApplication::setMainWidget(QWidget *mainWidget)
 #ifndef QT_NO_CURSOR
 void QApplication::setOverrideCursor(const QCursor &cursor)
 {
-    qApp->d->cursor_list.prepend(cursor);
+    qApp->d_func()->cursor_list.prepend(cursor);
 
     QWidget *w = QWidget::mouseGrabber();
     if (!w && qt_last_x)
         w = topLevelAt(*qt_last_x, *qt_last_y);
     if (!w)
         w = desktop();
-    QPaintDevice::qwsDisplay()->selectCursor(w, qApp->d->cursor_list.first().handle());
+    QPaintDevice::qwsDisplay()->selectCursor(w, qApp->d_func()->cursor_list.first().handle());
 }
 
 void QApplication::restoreOverrideCursor()
 {
-    if (qApp->d->cursor_list.isEmpty())
+    if (qApp->d_func()->cursor_list.isEmpty())
         return;
-    qApp->d->cursor_list.removeFirst();
+    qApp->d_func()->cursor_list.removeFirst();
 
     QWidget *w = QWidget::mouseGrabber();
     if (!w && qt_last_x)
@@ -2084,13 +2083,13 @@ void QApplication::restoreOverrideCursor()
         w = desktop();
 
     int cursor_handle = Qt::ArrowCursor;
-    if (qApp->d->cursor_list.isEmpty()) {
+    if (qApp->d_func()->cursor_list.isEmpty()) {
         qws_overrideCursor = false;
         QWidget *upw = QApplicationPrivate::widgetAt_sys(*qt_last_x, *qt_last_y);
         if (upw)
             cursor_handle = upw->cursor().handle();
     } else {
-        cursor_handle = qApp->d->cursor_list.first().handle();
+        cursor_handle = qApp->d_func()->cursor_list.first().handle();
     }
     QPaintDevice::qwsDisplay()->selectCursor(w, cursor_handle);
 }
@@ -2114,7 +2113,7 @@ QWidget *QApplicationPrivate::findWidget(const QObjectList& list,
         if (list.at(i)->isWidgetType()) {
           w = static_cast<QWidget*>(list.at(i));
             if (w->isVisible() && !w->testAttribute(Qt::WA_TransparentForMouseEvents) &&  w->geometry().contains(pos)
-                && (!w->d->extra || w->d->extra->mask.isEmpty() ||  w->d->extra->mask.contains(pos - w->geometry().topLeft()) )) {
+                && (!w->d_func()->extra || w->d_func()->extra->mask.isEmpty() ||  w->d_func()->extra->mask.contains(pos - w->geometry().topLeft()) )) {
                 if (!rec)
                     return w;
                 QWidget *c = findChildWidget(w, w->mapFromParent(pos));
@@ -2144,7 +2143,7 @@ QWidget *QApplication::topLevelAt(const QPoint &pos)
         QWidget *w = list[i];
         if (w != QApplication::desktop() &&
              w->isVisible() && w->geometry().contains(pos)
-            // && w->d->allocatedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height())))
+            // && w->d_func()->allocatedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height())))
             )
             return w;
     }
@@ -2171,6 +2170,7 @@ void QApplication::beep()
 */
 int QApplication::qwsProcessEvent(QWSEvent* event)
 {
+    Q_D(QApplication);
     int oldstate = -1;
     bool isMove = false;
     if (event->type == QWSEvent::Mouse) {
@@ -2289,18 +2289,18 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 // Update Cursor.
                 if (!gw || gw != w || qt_last_cursor == 0xffffffff) {
                     QCursor *curs = 0;
-                    if (!qApp->d->cursor_list.isEmpty())
-                        curs = &qApp->d->cursor_list.first();
-                    else if (w->d->extraData())
-                        curs = w->d->extraData()->curs;
+                    if (!qApp->d_func()->cursor_list.isEmpty())
+                        curs = &qApp->d_func()->cursor_list.first();
+                    else if (w->d_func()->extraData())
+                        curs = w->d_func()->extraData()->curs;
                     QWidget *pw = w;
                     // If this widget has no cursor set, try parent.
                     while (!curs) {
                         pw = pw->parentWidget();
                         if (!pw)
                             break;
-                        if (pw->d->extraData())
-                            curs = pw->d->extraData()->curs;
+                        if (pw->d_func()->extraData())
+                            curs = pw->d_func()->extraData()->curs;
                     }
                     if (!qws_overrideCursor) {
                         if (curs)
@@ -2493,7 +2493,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
                 widget->showNormal();
                 break;
             case QWSWindowOperationEvent::Close:
-                widget->d->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
+                widget->d_func()->close_helper(QWidgetPrivate::CloseWithSpontaneousEvent);
                 break;
         }
         break;
@@ -2894,7 +2894,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
         return false; //EXIT in the normal case
     }
 
-    if (qApp->d->inPopupMode()) {                        // in popup mode
+    if (qApp->d_func()->inPopupMode()) {                        // in popup mode
         QWidget *popup = qApp->activePopupWidget();
         // in X11, this would be the window we are over.
         // in QWS this is the top level popup.  to allow mouse
@@ -2903,7 +2903,7 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
         for (int i = 0; i < QApplicationPrivate::popupWidgets->size(); ++i) {
             QWidget *w = QApplicationPrivate::popupWidgets->at(i);
 #warning "even more alloc_region trouble"
-            if ((w->windowType() == Qt::Popup) && w->d->localRequestedRegion().contains(globalPos - w->geometry().topLeft())) { //was alloc_region
+            if ((w->windowType() == Qt::Popup) && w->d_func()->localRequestedRegion().contains(globalPos - w->geometry().topLeft())) { //was alloc_region
                 popup = w;
                 break;
             }
@@ -2994,15 +2994,15 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
 
         QMouseEvent e(type, pos, globalPos, Qt::MouseButton(button), buttonstate, keystate);
 #ifndef QT_NO_QWS_MANAGER
-        if (widget->isWindow() && widget->d->topData()->qwsManager
-            && (widget->d->topData()->qwsManager->region().contains(globalPos)
+        if (widget->isWindow() && widget->d_func()->topData()->qwsManager
+            && (widget->d_func()->topData()->qwsManager->region().contains(globalPos)
                 || QWSManager::grabbedMouse() )) {
             if ((*mouseInWidget)) {
                 QApplicationPrivate::dispatchEnterLeave(0, *mouseInWidget);
                 (*mouseInWidget) = 0;
             }
-            QApplication::sendSpontaneousEvent(widget->d->topData()->qwsManager, &e);
-            qApp->d->last_manager = widget->d->topData()->qwsManager;
+            QApplication::sendSpontaneousEvent(widget->d_func()->topData()->qwsManager, &e);
+            qApp->d_func()->last_manager = widget->d_func()->topData()->qwsManager;
         } else
 #endif
         {
@@ -3074,6 +3074,7 @@ void QETWidget::repaintDecoration(QRegion r, bool post)
     //therefore, normal ways of painting do not work.
     // However, it does listen to paint events.
 
+    Q_D(QWidget);
     if (isWindow() && d->topData()->qwsManager) {
         r &= d->topData()->qwsManager->region();
         if (!r.isEmpty()) {
@@ -3261,6 +3262,7 @@ bool QApplication::isEffectEnabled(Qt::UIEffect effect)
 
 void QApplication::setArgs(int c, char **v)
 {
+    Q_D(QApplication);
     d->argc = c;
     d->argv = v;
 }

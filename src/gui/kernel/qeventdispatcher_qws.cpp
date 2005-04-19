@@ -27,9 +27,6 @@
 
 #include <errno.h>
 
-//#define d d_func()
-//#define q q_func()
-
 class QEventDispatcherQWSPrivate : public QEventDispatcherUNIXPrivate
 {
     Q_DECLARE_PUBLIC(QEventDispatcherQWS)

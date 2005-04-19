@@ -35,8 +35,6 @@ QDesktopWidgetPrivate::QDesktopWidgetPrivate()
     //### Get the rects for the different screens and put them into rects
 }
 
-#define d d_func()
-
 QDesktopWidget::QDesktopWidget()
 : QWidget(*new QDesktopWidgetPrivate, 0, Qt::WType_Desktop)
 {
@@ -54,12 +52,12 @@ bool QDesktopWidget::isVirtualDesktop() const
 
 int QDesktopWidget::primaryScreen() const
 {
-    return d->appScreen;
+    return d_func()->appScreen;
 }
 
 int QDesktopWidget::numScreens() const
 {
-    return d->screenCount;
+    return d_func()->screenCount;
 }
 
 QWidget *QDesktopWidget::screen(int)
@@ -86,12 +84,12 @@ const QRect QDesktopWidget::screenGeometry(int) const
 
 int QDesktopWidget::screenNumber(const QWidget *) const
 {
-    return d->appScreen;
+    return d_func()->appScreen;
 }
 
 int QDesktopWidget::screenNumber(const QPoint &) const
 {
-    return d->appScreen;
+    return d_func()->appScreen;
 }
 
 void QDesktopWidget::resizeEvent(QResizeEvent *)
