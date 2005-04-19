@@ -789,6 +789,34 @@ QAction::event(QEvent *e)
 }
 
 /*!
+  Returns the user data as set in QAction::setData.
+
+  \sa setData(const QVariant &d)
+*/
+QVariant
+QAction::data() const
+{
+    Q_D(const QAction);
+    return d->userData;
+}
+
+/*!
+  Sets internal data to \a data. This can be used for user data to store anything that a
+  QVariant can store. The ownership of anything the the user data will remain with the
+  variant and thus be referenced counted as appropriate.
+
+  \sa data()
+*/
+void
+QAction::setData(const QVariant &data)
+{
+    Q_D(QAction);
+    d->userData = data;
+    d->sendDataChanged();
+}
+
+
+/*!
   Updates the status bar for \a widget. If widget is an appropriate
   QStatusBar found for for this action based on the parent heirarchy will be used.
 

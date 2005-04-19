@@ -50,6 +50,7 @@ public:
     QString statustip;
     QString whatsthis;
     QKeySequence shortcut;
+    QVariant userData;
     int shortcutId;
     Qt::ShortcutContext shortcutContext;
     QFont font;

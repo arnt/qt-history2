@@ -18,6 +18,7 @@
 #include "QtGui/qkeysequence.h"
 #include "QtCore/qstring.h"
 #include "QtGui/qwidget.h"
+#include "QtCore/qvariant.h"
 
 class QMenu;
 class QActionGroup;
@@ -92,6 +93,9 @@ public:
     void setCheckable(bool);
     bool isCheckable() const;
 
+    QVariant data() const;
+    void setData(const QVariant &var);
+
     bool isChecked() const;
 
     bool isEnabled() const;
@@ -106,7 +110,6 @@ public:
     inline QT3_SUPPORT void setMenuText(const QString &text) { setText(text); }
     inline QT3_SUPPORT QString menuText() const { return text(); }
     inline QT3_SUPPORT bool isOn() const { return isChecked(); }
-    inline QT3_SUPPORT void setOn(bool b) { setChecked(b); }
     inline QT3_SUPPORT bool isToggleAction() const { return isCheckable(); }
     inline QT3_SUPPORT void setToggleAction(bool b) { setCheckable(b); }
     inline QT3_SUPPORT void setIconSet(const QIcon &i) { setIcon(i); }
@@ -123,6 +126,9 @@ protected:
     bool event(QEvent *);
 
 public slots:
+#ifdef QT3_SUPPORT
+    inline QT3_SUPPORT void setOn(bool b) { setChecked(b); }
+#endif
     inline void toggle() { setChecked(!isChecked()); }
     void trigger() { activate(Trigger); }
     void hover() { activate(Hover); }
