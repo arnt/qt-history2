@@ -58,13 +58,13 @@ public:
     void columnsAboutToBeRemoved(const QModelIndex &parent, int first, int last);
     void columnsRemoved(const QModelIndex &parent, int first, int last);
     void reset();
-    
-    struct {
+
+    struct Change {
         QModelIndex parent;
         int first, last;
     } change;
 
-    struct {
+    struct Persistent {
         QList<QPersistentModelIndexData*> indexes;
         QList<int> changed;
         QList<int> invalidated;

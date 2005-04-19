@@ -1995,6 +1995,7 @@ bool Q3DockWindow::event(QEvent *e)
         if (place() == OutsideDock && isWindow() && parentWidget()
              && parentWidget()->isActiveWindow())
             return true;
+        break;        
     case QEvent::HideToParent:
         emit visibilityChanged(false);
         break;
@@ -2007,6 +2008,7 @@ bool Q3DockWindow::event(QEvent *e)
         titleBar->setWindowTitle(s);
         horHandle->setToolTip(s);
         verHandle->setToolTip(s);
+        break;
     }
     default:
         break;

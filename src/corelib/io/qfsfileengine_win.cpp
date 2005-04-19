@@ -191,7 +191,7 @@ static bool resolveUNCLibs_9x()
         }
 #endif
         triedResolve = true;
-        HINSTANCE hLib = LoadLibraryW(L"Svrapi");
+        HINSTANCE hLib = LoadLibraryA("Svrapi");
         if (hLib)
             ptrNetShareEnum_9x = (PtrNetShareEnum_9x)GetProcAddress(hLib, "NetShareEnum");
     }
@@ -842,7 +842,7 @@ bool QFSFileEnginePrivate::doStat() const
             QT_WA({
                 could_stat = (QT_TSTAT((TCHAR*)statName.utf16(), (QT_STATBUF4TSTAT*)&st) != -1);
             } , {
-                could_stat = (QT_STAT(QFSFileEnginePrivate::win95Name(statName), &st) != -1);
+                could_stat = (QT_STAT(QFSFileEnginePrivate::win95Name(QFileInfo(statName).absoluteFilePath()), &st) != -1);
             });
             if (!could_stat) {
                 bool is_dir = false;
@@ -946,7 +946,7 @@ QFSFileEnginePrivate::getLink() const
             IPersistFile *ppf;
             hres = psl->QueryInterface(IID_IPersistFile, (LPVOID *)&ppf);
             if(SUCCEEDED(hres))  {
-                hres = ppf->Load((LPOLESTR)file.utf16(), STGM_READ);
+                hres = ppf->Load((LPOLESTR)QFileInfo(file).absoluteFilePath().utf16(), STGM_READ);
                 if(SUCCEEDED(hres)) {        // Resolve the link.
 
                     hres = psl->Resolve(0, SLR_ANY_MATCH);
