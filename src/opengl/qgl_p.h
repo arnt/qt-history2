@@ -78,7 +78,7 @@ class QGLContextPrivate
 public:
     explicit QGLContextPrivate(QGLContext *context) : q_ptr(context) {}
     ~QGLContextPrivate() {}
-    GLuint bindTexture(const QImage &image, GLenum target, GLint format, int key);
+    GLuint bindTexture(const QImage &image, GLenum target, GLint format, const QString &key);
     void init(QPaintDevice *dev, const QGLFormat &format);
 
 #if defined(Q_WS_WIN)

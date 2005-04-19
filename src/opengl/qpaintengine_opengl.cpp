@@ -767,6 +767,8 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
     GLenum target = QGLExtensions::glExtensions & QGLExtensions::TextureRectangle
 		    ? GL_TEXTURE_RECTANGLE_NV
 		    : GL_TEXTURE_2D;
+    if (r.size() != pm.size())
+        target = GL_TEXTURE_2D;
     dgl->makeCurrent();
     dgl->bindTexture(pm, target);
 
@@ -823,6 +825,8 @@ void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const Q
     GLenum target = QGLExtensions::glExtensions & QGLExtensions::TextureRectangle
 		    ? GL_TEXTURE_RECTANGLE_NV
 		    : GL_TEXTURE_2D;
+    if (r.size() != image.size())
+        target = GL_TEXTURE_2D;
     dgl->makeCurrent();
     dgl->bindTexture(image, target);
     drawTextureRect(image.width(), image.height(), r, sr, target);
@@ -844,8 +848,8 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
 	if (target == GL_TEXTURE_2D) {
 	    x1 = sr.x() / tx_width;
 	    x2 = x1 + sr.width() / tx_width;
-	    y1 = sr.y() / tx_height;
-	    y2 = y1 + sr.height() / tx_height;
+	    y1 = 1.0 - ((sr.y() / tx_height) + (sr.height() / tx_height));
+	    y2 = 1.0 - (sr.y() / tx_height);
 	} else {
 	    x1 = sr.x();
 	    x2 = sr.width();

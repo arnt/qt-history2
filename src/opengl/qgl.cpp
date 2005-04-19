@@ -945,7 +945,7 @@ public:
     GLuint id;
 };
 
-typedef QCache<int, QGLTexture> QGLTextureCache;
+typedef QCache<QString, QGLTexture> QGLTextureCache;
 static int qt_tex_cache_limit = 64*1024; // cache ~64 MB worth of textures - this is not accurate though
 static QGLTextureCache *qt_tex_cache = 0;
 
@@ -1066,9 +1066,9 @@ QGLContext::~QGLContext()
     Q_D(QGLContext);
     // remove any textures cached in this context
     if (qt_tex_cache) {
-	QList<int> keys = qt_tex_cache->keys();
+	QList<QString> keys = qt_tex_cache->keys();
 	for (int i = 0; i < keys.size(); ++i) {
-	    int key = keys.at(i);
+	    const QString &key = keys.at(i);
 	    if (qt_tex_cache->object(key)->context == this)
 		qt_tex_cache->remove(key);
 	}
@@ -1081,15 +1081,6 @@ QGLContext::~QGLContext()
 
     reset();
     delete d;
-}
-
-// generate a cache key from a filename
-static int scramble(const QString &str)
-{
-    int scrambled = 0;
-    for (int i = 0; i < str.length(); ++i)
-	scrambled += (int)(str.at(i).toLatin1()) * (i+1);
-    return scrambled;
 }
 
 /*! \overload
@@ -1116,7 +1107,7 @@ GLuint QGLContext::bindTexture(const QString &fileName)
     if (!qt_tex_cache)
 	qt_tex_cache = new QGLTextureCache(qt_tex_cache_limit);
 
-    int key = scramble(fileName);
+    QString key(fileName);
     QGLTexture *texture = qt_tex_cache->object(key);
 
     if (texture && texture->context == this) {
@@ -1206,7 +1197,7 @@ GLuint QGLContext::bindTexture(const QString &fileName)
     return tx_id;
 }
 
-GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint format, int key)
+GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint format, const QString &key)
 {
     Q_Q(QGLContext);
 
@@ -1271,14 +1262,15 @@ GLuint QGLContextPrivate::bindTexture(const QImage &image, GLenum target, GLint 
 GLuint QGLContext::bindTexture(const QImage &image, GLenum target, GLint format)
 {
     Q_D(QGLContext);
+    const QString key = QString("%1_%2_%3").arg(image.serialNumber()).arg(target).arg(format);
     if (qt_tex_cache) {
-        QGLTexture *texture = qt_tex_cache->object(image.serialNumber());
+        QGLTexture *texture = qt_tex_cache->object(key);
         if (texture && texture->context == this) {
             glBindTexture(target, texture->id);
             return texture->id;
         }
     }
-    return d->bindTexture(image, target, format, image.serialNumber());
+    return d->bindTexture(image, target, format, key);
 }
 
 /*! \overload
@@ -1288,14 +1280,16 @@ GLuint QGLContext::bindTexture(const QImage &image, GLenum target, GLint format)
 GLuint QGLContext::bindTexture(const QPixmap &pixmap, GLenum target, GLint format)
 {
     Q_D(QGLContext);
+    const QString key = QString("%1_%2_%3").arg(pixmap.serialNumber()).arg(target).arg(format);
+
     if (qt_tex_cache) {
-        QGLTexture *texture = qt_tex_cache->object(pixmap.serialNumber());
+        QGLTexture *texture = qt_tex_cache->object(key);
         if (texture && texture->context == this) {
             glBindTexture(target, texture->id);
             return texture->id;
         }
     }
-    return d->bindTexture(pixmap.toImage(), target, format, pixmap.serialNumber());
+    return d->bindTexture(pixmap.toImage(), target, format, key);
 }
 
 /*!
@@ -1311,7 +1305,7 @@ void QGLContext::deleteTexture(GLuint id)
     if (!qt_tex_cache)
 	return;
 
-    QList<int> keys = qt_tex_cache->keys();
+    QList<QString> keys = qt_tex_cache->keys();
     for (int i = 0; i < keys.size(); ++i) {
 	QGLTexture *tex = qt_tex_cache->object(keys.at(i));
 	if (tex->id == id && tex->context == this) {
