@@ -319,7 +319,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
 
         QString rawName = familyName;
         familyName.replace('-', ' ');
-        QtFontFamily *family = db->family(familyName, true);
+        QtFontFamily *family = privateDb()->family(familyName, true);
         family->rawName = rawName;
 
         if(ttf && localizedName(familyName) && family->english_name.isEmpty())
@@ -457,7 +457,7 @@ void populate_database(const QString& fam)
         lf.lfPitchAndFamily = 0;
 
         EnumFontFamiliesEx(dummy, &lf,
-            (FONTENUMPROC)storeFont, (LPARAM)db, 0);
+            (FONTENUMPROC)storeFont, (LPARAM)privateDb(), 0);
     } , {
         LOGFONTA lf;
         lf.lfCharSet = DEFAULT_CHARSET;
@@ -471,7 +471,7 @@ void populate_database(const QString& fam)
         lf.lfPitchAndFamily = 0;
 
         EnumFontFamiliesExA(dummy, &lf,
-            (FONTENUMPROCA)storeFont, (LPARAM)db, 0);
+            (FONTENUMPROCA)storeFont, (LPARAM)privateDb(), 0);
     });
 #else
         LOGFONT lf;
