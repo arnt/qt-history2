@@ -36,18 +36,18 @@ QReadWriteLock::~QReadWriteLock()
 
 void QReadWriteLock::lockForRead()
 {
+    d->waitingReaders.ref();
     for(;;){
         int localAccessCount(d->accessCount);
         if(d->waitingWriters == 0 && localAccessCount != -1 && localAccessCount < INT_MAX) {
             if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1))
                 break;
         } else {
-            ++d->waitingReaders;
             WaitForSingleObject(d->readerWait, INFINITE);
-            --d->waitingReaders;
             continue;
         }
     }
+    d->waitingReaders.deref();
 }
 
 bool QReadWriteLock::tryLockForRead()
