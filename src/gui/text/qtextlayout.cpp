@@ -393,6 +393,10 @@ QTextOption QTextLayout::textOption() const
     return d->option;
 }
 
+/*!
+    Sets the \a position and \a text of the area in the layout that is
+    processed before editing occurs.
+*/
 void QTextLayout::setPreeditArea(int position, const QString &text)
 {
     if (text.isEmpty()) {
@@ -414,17 +418,29 @@ void QTextLayout::setPreeditArea(int position, const QString &text)
     d->invalidate();
 }
 
+/*!
+    Returns the position of the area in the text layout that will be
+    processed before editing occurs.
+*/
 int QTextLayout::preeditAreaPosition() const
 {
     return d->specialData ? d->specialData->preeditPosition : -1;
 }
 
+/*!
+    Returns the text that is inserted in the layout before editing occurs.
+*/
 QString QTextLayout::preeditAreaText() const
 {
     return d->specialData ? d->specialData->preeditText : QString();
 }
 
 
+/*!
+    Sets the additional formats supported by the text layout.
+
+    \sa additionalFormats(), clearAdditionalFormats()
+*/
 void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
 {
     if (formatList.isEmpty()) {
@@ -443,11 +459,21 @@ void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
     d->specialData->addFormats = formatList;
 }
 
+/*!
+    Returns the list of additional formats supported by the text layout.
+
+    \sa setAdditionalFormats(), clearAdditionalFormats()
+*/
 QList<QTextLayout::FormatRange> QTextLayout::additionalFormats() const
 {
     return d->specialData ? d->specialData->addFormats : QList<FormatRange>();
 }
 
+/*!
+    Clears the list of additional formats supported by the text layout.
+
+    \sa additionalFormats(), setAdditionalFormats()
+*/
 void QTextLayout::clearAdditionalFormats()
 {
     setAdditionalFormats(QList<FormatRange>());
@@ -601,18 +627,20 @@ bool QTextLayout::isValidCursorPosition(int pos) const
 // ### DOC: Don't know what this really does.
 // added a bit more description
 /*!
-    Creates a new text line to be laid out.
+    Returns a new text line to be laid out if there is text to be
+    inserted into the layout; otherwise returns an invalid text line.
 
     The text layout creates a new line object that starts after the
-    last layouted line (or at the beginning of the contained text if
-    no line has been layouted up to now).
+    last line in the layout, or at the beginning if the layout is empty.
+    The layout maintains an internal cursor, and each line is filled
+    with text from the cursor position onwards when the
+    QTextLine::setLineWidth() function is called.
 
-    The line is still empty and you need to call layout() on the line
-    to fill it with text. After the layout() call a new line can be
-    created and filled again. Repeating this process will layout the
-    whole block of text contained in the QTextLayout. If there is no
-    text left to be layouted, the retuned QTextLine will not be valid
-    (ie. isValid() will return false).
+    Once QTextLine::setLineWidth() is called, a new line can be created and
+    filled with text. Repeating this process will lay out the whole block
+    of text contained in the QTextLayout. If there is no text left to be
+    inserted into the layout, the QTextLine returned will not be valid
+    (isValid() will return false).
 */
 QTextLine QTextLayout::createLine()
 {
@@ -746,11 +774,14 @@ qreal QTextLayout::maximumWidth() const
 }
 
 /*!
-    \fn void QTextLayout::draw(QPainter *painter, const QPointF &position, const QVector<QTextLayout::FormatRange> &selections, const QRectF &clipRect) const
+    \omit
+    \fn void QTextLayout::draw(QPainter *painter, const QPointF &position, const QVector &selections, const QRectF &clipRect) const
+    \endomit
 
-    Draws the whole layout on the \a painter at the given \a position.
+    Draws the whole layout on the painter \a p at the position specified by
+    \a pos.
     The rendered layout includes the given \a selections and is clipped within
-    the rectangle specified by \a clipRect.
+    the rectangle specified by \a clip.
 */
 void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<QTextLayout::FormatRange> &selections, const QRectF &clip) const
 {
