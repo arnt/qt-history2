@@ -632,13 +632,15 @@ static void qgl_cleanup_tesselator()
     gluDeleteTess(qgl_tess);
 }
 
-static void qgl_draw_poly(const QPointF *points, int pointCount)
+static void qgl_draw_poly(const QPointF *points, int pointCount, bool winding = false)
 {
 #ifndef QT_GL_NO_CONCAVE_POLYGONS
     if (!qgl_tess) {
 	qgl_tess = gluNewTess();
 	qAddPostRoutine(qgl_cleanup_tesselator);
     }
+    gluTessProperty(qgl_tess, GLU_TESS_WINDING_RULE,
+                    winding ? GLU_TESS_WINDING_NONZERO : GLU_TESS_WINDING_ODD);
     QVarLengthArray<GLdouble> v(pointCount*3);
 #ifdef Q_WS_MAC  // This removes warnings.
     gluTessCallback(qgl_tess, GLU_TESS_BEGIN, reinterpret_cast<GLvoid (CALLBACK *)(...)>(&glBegin));
@@ -695,7 +697,7 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
     dgl->makeCurrent();
     dgl->qglColor(d->cbrush.color());
     if (d->cbrush.style() != Qt::NoBrush && mode != PolylineMode)
-        qgl_draw_poly(points, pointCount);
+        qgl_draw_poly(points, pointCount, mode == QPaintEngine::WindingMode);
     if (d->cpen.style() != Qt::NoPen) {
         dgl->qglColor(d->cpen.color());
         double x1 = qToDouble(points[0].x());
