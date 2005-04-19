@@ -1635,8 +1635,9 @@ static const qint32 SplitterMagic = 0xff;
 
     \sa restoreState()
 */
-QByteArray QSplitter::saveState(int version) const
+QByteArray QSplitter::saveState() const
 {
+    int version = 0;
     QByteArray data;
     QDataStream stream(&data, QIODevice::WriteOnly);
 
@@ -1665,9 +1666,10 @@ QByteArray QSplitter::saveState(int version) const
 
     \sa saveState()
 */
-bool QSplitter::restoreState(const QByteArray &state, int version)
+bool QSplitter::restoreState(const QByteArray &state)
 {
     Q_D(QSplitter);
+    int version = 0;    
     QByteArray sd = state;
     QDataStream stream(&sd, QIODevice::ReadOnly);
     QList<int> list;

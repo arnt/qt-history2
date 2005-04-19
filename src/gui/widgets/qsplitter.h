@@ -60,8 +60,8 @@ public:
     QList<int> sizes() const;
     void setSizes(const QList<int> &list);
 
-    QByteArray saveState(int version = 0) const;
-    bool restoreState(const QByteArray &state, int version = 0);
+    QByteArray saveState() const;
+    bool restoreState(const QByteArray &state);
 
     int handleWidth() const;
     void setHandleWidth(int);
