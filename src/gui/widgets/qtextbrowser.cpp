@@ -731,7 +731,9 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
     Q_D(QTextBrowser);
 
     QByteArray data;
-    QUrl resolved = source().resolved(name);
+    QUrl resolved = name;
+    if (!isAbsoluteFileName(name.toLocalFile()))
+        resolved = source().resolved(name);    
     QString fileName = d->findFile(resolved);
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
