@@ -31,6 +31,9 @@
 class QFileEngine;
 class QFileEnginePrivate
 {
+public:
+    QFileEnginePrivate() { }
+    virtual ~QFileEnginePrivate() { }
 protected:
     QFileEngine *q_ptr;
     Q_DECLARE_PUBLIC(QFileEngine)
