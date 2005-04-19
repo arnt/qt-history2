@@ -928,6 +928,7 @@ void HelpDialog::setIndexingProgress(int prog)
 void HelpDialog::startSearch()
 {
     QString str = ui.termsEdit->text();
+    str = str.simplified();
     str = str.replace(QLatin1String("\'"), QLatin1String("\""));
     str = str.replace(QLatin1String("`"), QLatin1String("\""));
     QString buf = str;

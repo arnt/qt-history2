@@ -20,6 +20,7 @@
 #include <qobject.h>
 #include <qlist.h>
 #include <qfile.h>
+#include <qvector.h>
 
 struct Document {
     Document( int d, int f ) : docNumber( d ), frequency( f ) {}
@@ -48,13 +49,13 @@ class Index : public QObject
     Q_OBJECT
 public:
     struct Entry {
-	Entry( int d ) { documents.append( Document( d, 1 ) ); }
-	Entry( QList<Document> l ) : documents( l ) {}
-	QList<Document> documents;
+	    Entry( int d ) { documents.append( Document( d, 1 ) ); }
+	    Entry( QVector<Document> l ) : documents( l ) {}
+	    QVector<Document> documents;
     };
     struct PosEntry {
-	PosEntry( int p ) { positions.append( p ); }
-	QList<uint> positions;
+	    PosEntry( int p ) { positions.append( p ); }
+	    QList<uint> positions;
     };
 
     Index( const QString &dp, const QString &hp );
@@ -81,7 +82,7 @@ private:
     void readDocumentList();
     QStringList getWildcardTerms( const QString& );
     QStringList split( const QString& );
-    QList<Document> setupDummyTerm( const QStringList& );
+    QVector<Document> setupDummyTerm( const QStringList& );
     bool searchForPattern( const QStringList&, const QStringList&, const QString& );
     void buildMiniDict( const QString& );
     QString getCharsetForDocument(QFile *);
