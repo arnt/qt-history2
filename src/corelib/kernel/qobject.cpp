@@ -1615,7 +1615,31 @@ static void err_info_about_objects(const char * func,
 */
 
 QObject *QObject::sender() const
-{ return d_func()->currentSender; }
+{     
+    Q_D(const QObject);
+    QConnectionList * const list = ::connectionList();
+    if (!list)
+        return 0;
+
+    QReadLocker locker(&list->lock);
+    QConnectionList::Hash::const_iterator it = list->sendersHash.find(d->currentSender);
+    const QConnectionList::Hash::const_iterator end = list->sendersHash.constEnd();
+
+    // Return 0 if d->currentSender isn't in the senders hash (it has been destroyed?)
+    if (it == end)
+        return 0;
+
+    // Only return d->currentSender if it's actually connected to "this" 
+    for (; it != end && it.key() == d->currentSender; ++it) {
+        const int at = it.value();
+        const QConnection &c = list->connections.at(at);
+
+        if (c.receiver == this) 
+            return d->currentSender;
+    }
+
+    return 0; 
+}
 
 /*!
     Returns the number of receivers connect to the \a signal.
@@ -2279,8 +2303,8 @@ void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
         if (qt_signal_spy_callback_set.slot_end_callback != 0)
             qt_signal_spy_callback_set.slot_end_callback(c.receiver, member);
 
-        list->lock.lockForRead();
-        if (c.receiver)
+        list->lock.lockForRead();        
+        if (c.receiver) 
             c.receiver->d_func()->currentSender = previousSender;
     }
 
