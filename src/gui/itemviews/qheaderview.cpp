@@ -1339,10 +1339,10 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
     case QHeaderViewPrivate::NoState:
         if (d->clickableSections) {
             int section = logicalIndexAt(pos);
-            if (section == d->pressed) {
-                updateSection(d->pressed);
+            if (section == d->pressed)
                 emit sectionClicked(logicalIndexAt(pos));
-            }
+            if (d->pressed != -1)
+                updateSection(d->pressed);
         }
         break;
     case QHeaderViewPrivate::ResizeSection:
