@@ -55,7 +55,7 @@ ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *pa
     m_treeWidget->headerItem()->setText(1, tr("Class"));
 
     m_treeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    m_treeWidget->header()->setResizeMode(QHeaderView::Stretch, 1);
+    m_treeWidget->header()->setResizeMode(1, QHeaderView::Stretch);
 
     connect(m_treeWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
             this, SLOT(slotSelectionChanged()));

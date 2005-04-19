@@ -74,7 +74,7 @@ void QPropertyEditor::setInitialInput(IProperty *initialInput)
     setEditTriggers(QAbstractItemView::CurrentChanged|QAbstractItemView::SelectedClicked);
     setRootIndex(m_model->indexOf(initialInput));
 
-    header()->setResizeMode(QHeaderView::Stretch, 1);
+    header()->setResizeMode(1, QHeaderView::Stretch);
     resizeColumnToContents(0);
 }
 
