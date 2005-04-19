@@ -49,7 +49,7 @@ static void *gl_pixmap_visual = 0;
 
 #include <stdlib.h> // malloc
 
-static QCleanupHandler<QGLFormat> qgl_cleanup_format;
+Q_GLOBAL_STATIC(QCleanupHandler<QGLFormat>, qgl_cleanup_format)
 
 #ifndef APIENTRY
 #define APIENTRY
@@ -760,7 +760,7 @@ QGLFormat QGLFormat::defaultFormat()
 {
     if (!qgl_default_format) {
         qgl_default_format = new QGLFormat;
-        qgl_cleanup_format.add(&qgl_default_format);
+        qgl_cleanup_format()->add(&qgl_default_format);
     }
     return *qgl_default_format;
 }
@@ -783,7 +783,7 @@ void QGLFormat::setDefaultFormat(const QGLFormat &f)
 {
     if (!qgl_default_format) {
         qgl_default_format = new QGLFormat;
-        qgl_cleanup_format.add(&qgl_default_format);
+        qgl_cleanup_format()->add(&qgl_default_format);
     }
     *qgl_default_format = f;
 }
@@ -815,7 +815,7 @@ QGLFormat QGLFormat::defaultOverlayFormat()
         qgl_default_overlay_format = new QGLFormat;
         qgl_default_overlay_format->d->opts = QGL::DirectRendering;
         qgl_default_overlay_format->d->pln = 1;
-        qgl_cleanup_format.add(&qgl_default_overlay_format);
+        qgl_cleanup_format()->add(&qgl_default_overlay_format);
     }
     return *qgl_default_overlay_format;
 }
@@ -858,7 +858,7 @@ void QGLFormat::setDefaultOverlayFormat(const QGLFormat &f)
 {
     if (!qgl_default_overlay_format) {
         qgl_default_overlay_format = new QGLFormat;
-        qgl_cleanup_format.add(&qgl_default_overlay_format);
+        qgl_cleanup_format()->add(&qgl_default_overlay_format);
     }
     *qgl_default_overlay_format = f;
     // Make sure the user doesn't request that the overlays themselves
