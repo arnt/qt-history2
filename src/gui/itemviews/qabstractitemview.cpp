@@ -822,7 +822,7 @@ void QAbstractItemView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QAbstractItemView);
     d->scrollDelayOffset = QPoint(-dx, -dy);
-    d->repaintDirtyRect();
+    d->updateDirtyRect();
     d->scrollDelayOffset = QPoint(0, 0);
 }
 
@@ -1319,7 +1319,7 @@ void QAbstractItemView::timerEvent(QTimerEvent *e)
     if (e->timerId() == d->autoScrollTimer.timerId())
         doAutoScroll();
     else if (e->timerId() == d->updateTimer.timerId())
-        d->repaintDirtyRect();
+        d->updateDirtyRect();
 }
 
 /*!
@@ -1800,7 +1800,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
             closeEditor(editor, QAbstractItemDelegate::NoHint);
         }
         d->setDirtyRect(visualRect(previous));
-        d->repaintDirtyRect(); // FIXME
+        d->updateDirtyRect();
     }
     if (current.isValid() && !d->autoScrollTimer.isActive()) {
         scrollTo(current);

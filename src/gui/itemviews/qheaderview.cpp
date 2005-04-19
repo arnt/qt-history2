@@ -1122,7 +1122,7 @@ void QHeaderView::currentChanged(const QModelIndex &old, const QModelIndex &curr
         d->setDirtyRect(QRect(0, sectionViewportPosition(current.row()),
                               d->viewport->width(), sectionSize(current.row())));
     }
-    d->repaintDirtyRect(); // FIXME
+    d->updateDirtyRect();
 }
 
 

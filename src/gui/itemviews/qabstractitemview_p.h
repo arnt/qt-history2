@@ -112,10 +112,9 @@ public:
             updateTimer.start(0, q_func());
     }
 
-    inline void repaintDirtyRect() {
+    void updateDirtyRect() {
         updateTimer.stop();
-        viewport->repaint(updateRect);
-        QApplication::syncX();
+        viewport->update(updateRect);
         updateRect = QRect();
     }
 
