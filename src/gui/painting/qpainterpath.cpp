@@ -506,6 +506,9 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
         || qIsNan(startAngle) || qIsNan(sweepLength))
         qWarning("QPainterPath::arcTo(): adding arc where a parameter is nan, results are undefined.");
 #endif
+    if (rect.isEmpty())
+        return;
+
     ensureData();
     detach();
 
