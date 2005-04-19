@@ -167,6 +167,9 @@ void Q3GroupBox::init()
 
 void Q3GroupBox::setTextSpacer()
 {
+    if (!d->spacer)
+        return;
+
     if (d->spacer->sizeHint().height() != contentsRect().top()) {
         d->spacer->changeSize(1, contentsRect().top(), QSizePolicy::Minimum, QSizePolicy::Fixed);
         if (layout())
