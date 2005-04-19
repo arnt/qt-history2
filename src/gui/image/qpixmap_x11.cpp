@@ -1980,9 +1980,9 @@ Qt::HANDLE QPixmapData::x11ConvertToDefaultDepth()
         hd2 = XCreatePixmap(xinfo.display(), hd, w, h, xinfo.depth());
         XRenderPictFormat *format = XRenderFindVisualFormat(xinfo.display(),
                                                             (Visual*) xinfo.visual());
-        Picture picture = XRenderCreatePicture(xinfo.display(), hd2, format, 0, 0);
+        Picture pic = XRenderCreatePicture(xinfo.display(), hd2, format, 0, 0);
         XRenderComposite(xinfo.display(), PictOpSrc, picture,
-                         XNone, picture, 0, 0, 0, 0, 0, 0, w, h);
+                         XNone, pic, 0, 0, 0, 0, 0, 0, w, h);
         XRenderFreePicture(xinfo.display(), picture);
     }
     return hd2;
