@@ -429,7 +429,7 @@ void QWidgetPrivate::setWindowTitle_helper(const QString &caption)
             cap.replace(i, 3, "");
     }
 
-    qwsDisplay()->setWindowCaption(this, caption);
+    q->qwsDisplay()->setWindowCaption(q, cap);
 }
 #endif
 
@@ -457,7 +457,7 @@ void QWidget::setWindowTitle(const QString &caption)
         return; // for less flicker
     d->createTLExtra();
     d->extra->topextra->caption = caption;
-    
+
     QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);
 }
