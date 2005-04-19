@@ -22,7 +22,9 @@ LauncherPanel::LauncherPanel()
     showDocumentationCheckBox = new QCheckBox(tr("Show documentation"));
     popupButtonLayout->addWidget(showDocumentationCheckBox);
 
+#if 0
     assistantClient = new QAssistantClient("", this);
+#endif
 
     setWindowTitle(tr("Launcher"));
 }
@@ -32,8 +34,10 @@ void LauncherPanel::launchExample(QAction *action)
     QString program = programForActionMap.value(action);
     QProcess::startDetached(program);
 
+#if 0
     if (showDocumentationCheckBox->isChecked())
         assistantClient->showPage(helpPageForActionMap.value(action));
+#endif
 }
     
 void LauncherPanel::findAllExamples()

@@ -1,2 +1,5 @@
 TEMPLATE      = subdirs
-SUBDIRS       = regexp
+SUBDIRS       = codecs \
+                i18n \
+                launcher \
+                regexp
