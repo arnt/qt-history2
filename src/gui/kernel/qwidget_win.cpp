@@ -1712,17 +1712,18 @@ qreal QWidget::windowOpacity() const
     return isWindow() ? (d_func()->topData()->opacity / 255.0) : 0.0;
 }
 
-static QSingleCleanupHandler<QRasterPaintEngine> qt_paintengine_cleanup_handler;
-static QRasterPaintEngine *qt_widget_paintengine = 0;
+class QGlobalRasterPaintEngine: public QRasterPaintEngine
+{
+public:
+    inline QGLobalRasterPaintEngine() : QRasterPaintEngine() { setFlushOnEnd(false); }
+    Q_GLOBAL_STATIC(QGlobalRasterPaintEngine, instance)
+};
+
 QPaintEngine *QWidget::paintEngine() const
 {
     Q_D(const QWidget);
-    if (!qt_widget_paintengine) {
-        qt_widget_paintengine = new QRasterPaintEngine();
-        qt_widget_paintengine->setFlushOnEnd(false);
-        qt_paintengine_cleanup_handler.set(&qt_widget_paintengine);
-    }
-    if (qt_widget_paintengine->isActive()) {
+    QPaintEngine *globalEngine = QGlobalRasterPaintEngine::instance();
+    if (globalEngine->isActive()) {
         if (d->extraPaintEngine)
             return d->extraPaintEngine;
         QRasterPaintEngine *engine = new QRasterPaintEngine();
@@ -1730,5 +1731,5 @@ QPaintEngine *QWidget::paintEngine() const
         const_cast<QWidget *>(this)->d_func()->extraPaintEngine = engine;
         return d->extraPaintEngine;
     }
-    return qt_widget_paintengine;
+    return globalEngine;
 }
