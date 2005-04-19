@@ -131,7 +131,7 @@ void QPMCache::timerEvent(QTimerEvent *)
 
 QPixmap *QPMCache::object(const QString &key) const
 {
-    return  QCache<int,QPixmap>::object(serialNumbers.value(key, -1));
+    return QCache<int,QPixmap>::object(serialNumbers.value(key, -1));
 }
 
 
@@ -160,8 +160,7 @@ bool QPMCache::remove(const QString &key)
     return QCache<int, QPixmap>::remove(serialNumber);
 }
 
-static QPMCache *pm_cache = 0;
-static QSingleCleanupHandler<QPMCache> qpm_cleanup_cache;
+Q_GLOBAL_STATIC(QPMCache, pm_cache)
 
 /*!
   \obsolete
@@ -191,9 +190,7 @@ static QSingleCleanupHandler<QPMCache> qpm_cleanup_cache;
 
 QPixmap *QPixmapCache::find(const QString &key)
 {
-    if (!pm_cache)
-        return 0;
-    return pm_cache->object(key);
+    return pm_cache()->object(key);
 }
 
 
@@ -215,9 +212,7 @@ QPixmap *QPixmapCache::find(const QString &key)
 
 bool QPixmapCache::find(const QString &key, QPixmap& pm)
 {
-    if (!pm_cache)
-        return false;
-    QPixmap *ptr = pm_cache->object(key);
+    QPixmap *ptr = pm_cache()->object(key);
     if (ptr)
         pm = *ptr;
     return ptr != 0;
@@ -246,11 +241,7 @@ bool QPixmapCache::find(const QString &key, QPixmap& pm)
 
 bool QPixmapCache::insert(const QString &key, const QPixmap &pm)
 {
-    if (!pm_cache) {
-        pm_cache = new QPMCache;
-        qpm_cleanup_cache.set(&pm_cache);
-    }
-    return pm_cache->insert(key, pm, pm.width() * pm.height() * pm.depth() / 8);
+    return pm_cache()->insert(key, pm, pm.width() * pm.height() * pm.depth() / 8);
 }
 
 /*!
@@ -277,8 +268,7 @@ int QPixmapCache::cacheLimit()
 void QPixmapCache::setCacheLimit(int n)
 {
     cache_limit = n;
-    if (pm_cache)
-        pm_cache->setMaxCost(1024 * cache_limit);
+    pm_cache()->setMaxCost(1024 * cache_limit);
 }
 
 /*!
@@ -286,8 +276,7 @@ void QPixmapCache::setCacheLimit(int n)
 */
 void QPixmapCache::remove(const QString &key)
 {
-    if (pm_cache)
-        pm_cache->remove(key);
+    pm_cache()->remove(key);
 }
 
 
@@ -297,7 +286,6 @@ void QPixmapCache::remove(const QString &key)
 
 void QPixmapCache::clear()
 {
-    if (pm_cache)
-        pm_cache->clear();
+    pm_cache()->clear();
 }
 
