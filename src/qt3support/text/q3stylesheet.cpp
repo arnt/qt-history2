@@ -17,7 +17,7 @@
 
 #include "qlayout.h"
 #include "qpainter.h"
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include <qtextdocument.h>
 
 #include <stdio.h>
@@ -1241,7 +1241,7 @@ void Q3StyleSheet::init()
 
 
 static Q3StyleSheet* defaultsheet = 0;
-static QSingleCleanupHandler<Q3StyleSheet> qt_cleanup_stylesheet;
+static Q3SingleCleanupHandler<Q3StyleSheet> qt_cleanup_stylesheet;
 
 /*!
     Returns the application-wide default style sheet. This style sheet

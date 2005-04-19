@@ -17,7 +17,6 @@
 
 #include "qfont.h"
 #include "qapplication.h"
-#include "qcleanuphandler.h"
 #include "qfontinfo.h"
 #include "qfontdatabase.h"
 #include "qfontmetrics.h"

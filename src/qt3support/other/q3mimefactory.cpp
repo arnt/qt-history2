@@ -23,11 +23,11 @@
 #include "q3dragobject.h"
 #include "qpixmap.h"
 #include "qimagereader.h"
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include "private/qtextimagehandler_p.h"
 
 static Q3MimeSourceFactory* defaultfactory = 0;
-static QSingleCleanupHandler<Q3MimeSourceFactory> qmime_cleanup_factory;
+static Q3SingleCleanupHandler<Q3MimeSourceFactory> qmime_cleanup_factory;
 
 class Q3MimeSourceFactoryData {
 public:

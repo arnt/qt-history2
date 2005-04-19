@@ -14,7 +14,6 @@
 #include "qabstracteventdispatcher.h"
 #include "qaccessible.h"
 #include "qapplication.h"
-#include "qcleanuphandler.h"
 #include "qclipboard.h"
 #include "qcursor.h"
 #include "qdesktopwidget.h"

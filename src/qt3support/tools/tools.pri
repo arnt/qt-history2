@@ -3,6 +3,7 @@
 HEADERS +=      tools/q3asciicache.h \
                 tools/q3asciidict.h \
                 tools/q3signal.h \
+                tools/q3cleanuphandler.h \
                 tools/q3cstring.h \
                 tools/q3deepcopy.h \
                 tools/q3dict.h \

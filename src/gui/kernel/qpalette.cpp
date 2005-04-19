@@ -15,7 +15,6 @@
 #include "qapplication.h"
 #ifndef QT_NO_PALETTE
 #include "qdatastream.h"
-#include "qcleanuphandler.h"
 #include "qvariant.h"
 
 static int qt_palette_count = 1;

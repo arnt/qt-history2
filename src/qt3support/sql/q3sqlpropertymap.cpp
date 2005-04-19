@@ -16,7 +16,7 @@
 #ifndef QT_NO_SQL_FORM
 
 #include "qwidget.h"
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include "qmetaobject.h"
 #include "qmap.h"
 
@@ -240,7 +240,7 @@ void Q3SqlPropertyMap::remove(const QString & classname)
 }
 
 static Q3SqlPropertyMap * defaultmap = 0;
-static QCleanupHandler< Q3SqlPropertyMap > qsql_cleanup_property_map;
+static Q3CleanupHandler< Q3SqlPropertyMap > qsql_cleanup_property_map;
 
 /*!
     Returns the application global Q3SqlPropertyMap.

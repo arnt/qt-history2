@@ -17,7 +17,7 @@
 #include "q3tl.h"
 #include "qapplication.h"
 #include "qbitmap.h"
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include "qcursor.h"
 #include "qdatetime.h"
 #include "q3dragobject.h"
@@ -40,7 +40,7 @@
 
 const int Unsorted = 16383;
 
-static QCleanupHandler<QBitmap> qlv_cleanup_bitmap;
+static Q3CleanupHandler<QBitmap> qlv_cleanup_bitmap;
 
 
 struct Q3ListViewPrivate

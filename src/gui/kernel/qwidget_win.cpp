@@ -14,7 +14,6 @@
 #include "qapplication.h"
 #include "qapplication_p.h"
 #include "qbitmap.h"
-#include "qcleanuphandler.h"
 #include "qcursor.h"
 #include "qdesktopwidget.h"
 #include "qevent.h"

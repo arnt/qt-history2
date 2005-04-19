@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "private/qinternal_p.h"
-#include "qcleanuphandler.h"
 
 /*! \internal
 

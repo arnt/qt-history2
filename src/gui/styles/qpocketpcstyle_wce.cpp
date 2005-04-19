@@ -43,7 +43,6 @@
 // Private headerfiles
 #include "private/qtitlebar_p.h"
 #include "private/qdialogbuttons_p.h"
-#include "qcleanuphandler.h"
 
 /*!
     \class QPocketPCStyle

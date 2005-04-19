@@ -17,7 +17,7 @@
 
 #include "qbitmap.h"
 #include "qapplication.h"
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include "qcursor.h"
 #include "qdatastream.h"
 #include "q3dragobject.h"
@@ -6653,7 +6653,7 @@ void Q3TextImage::adjustToPainter(QPainter* p)
 
 #if !defined(Q_WS_X11)
 static QPixmap *qrt_selection = 0;
-static QSingleCleanupHandler<QPixmap> qrt_cleanup_pixmap;
+static Q3SingleCleanupHandler<QPixmap> qrt_cleanup_pixmap;
 static void qrt_createSelectionPixmap(const QPalette &pal)
 {
     qrt_selection = new QPixmap(2, 2);

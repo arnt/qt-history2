@@ -24,7 +24,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qcheckbox.h"
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include "qcombobox.h"
 #include "q3cstring.h"
 #include "qcursor.h"
@@ -439,8 +439,8 @@ static int sortFilesBy = (int)QDir::Name;
 static bool sortAscending = true;
 static bool detailViewMode = false;
 
-static QCleanupHandler<QPixmap> qfd_cleanup_pixmap;
-static QCleanupHandler<QString> qfd_cleanup_string;
+static Q3CleanupHandler<QPixmap> qfd_cleanup_pixmap;
+static Q3CleanupHandler<QString> qfd_cleanup_string;
 
 static QString toRootIfNotExists( const QString &path )
 {

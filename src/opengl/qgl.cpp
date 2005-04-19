@@ -18,7 +18,6 @@
 #include "qimage.h"
 #include "qgl_p.h"
 #include <private/qpaintengine_opengl_p.h>
-#include "qcleanuphandler.h"
 #include "qcolormap.h"
 #include "qcache.h"
 #include "qfile.h"

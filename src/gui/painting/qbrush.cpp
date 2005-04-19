@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qbrush.h"
-#include "qcleanuphandler.h"
 #include "qpixmap.h"
 #include "qbitmap.h"
 #include "qpixmapcache.h"

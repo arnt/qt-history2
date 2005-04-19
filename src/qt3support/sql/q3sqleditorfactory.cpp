@@ -16,7 +16,7 @@
 #ifndef QT_NO_SQL_EDIT_WIDGETS
 
 #include "qsqlfield.h"
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include "qlabel.h"
 #include "qlineedit.h"
 #include "qspinbox.h"
@@ -64,7 +64,7 @@ Q3SqlEditorFactory::~Q3SqlEditorFactory()
 }
 
 static Q3SqlEditorFactory * defaultfactory = 0;
-static QCleanupHandler< Q3SqlEditorFactory > qsql_cleanup_editor_factory;
+static Q3CleanupHandler< Q3SqlEditorFactory > qsql_cleanup_editor_factory;
 
 /*!
     Returns an instance of a default editor factory.

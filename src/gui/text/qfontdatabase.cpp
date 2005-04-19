@@ -22,8 +22,6 @@
 #include "qfontengine_p.h"
 #include "qopentype_p.h"
 
-#include <qcleanuphandler.h>
-
 #ifdef Q_WS_X11
 #include <locale.h>
 #endif

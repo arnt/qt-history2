@@ -23,7 +23,6 @@
 #include "qtextcodec.h"
 #include "qinputcontext.h"
 #include "qdesktopwidget.h"
-#include "qcleanuphandler.h"
 
 #include "qwsdisplay_qws.h"
 #include "qscreen_qws.h"

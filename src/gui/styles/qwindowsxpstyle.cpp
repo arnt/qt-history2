@@ -39,7 +39,6 @@
 #include <qradiobutton.h>
 #include <qcombobox.h>
 #include <qlistview.h>
-#include <qcleanuphandler.h>
 #include <qbitmap.h>
 #include <qlibrary.h>
 #include <qdesktopwidget.h>

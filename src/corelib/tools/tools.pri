@@ -7,7 +7,6 @@ HEADERS +=  \
 	tools/qbytearraymatcher.h \
 	tools/qcache.h \
 	tools/qchar.h \
-	tools/qcleanuphandler.h \
 	tools/qdatetime.h \
 	tools/qdatetime_p.h \
 	tools/qhash.h \

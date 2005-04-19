@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include "qlabel.h"
 #include "qlineedit.h"
 #include "qspinbox.h"
@@ -60,7 +60,7 @@ Q3EditorFactory::~Q3EditorFactory()
 }
 
 static Q3EditorFactory * defaultfactory = 0;
-static QCleanupHandler< Q3EditorFactory > q_cleanup_editor_factory;
+static Q3CleanupHandler< Q3EditorFactory > q_cleanup_editor_factory;
 
 /*!
     Returns an instance of a default editor factory.

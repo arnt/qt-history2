@@ -17,7 +17,6 @@
 
 #include "qapplication.h"
 #include "qbitmap.h"
-#include "qcleanuphandler.h"
 #include "qdrawutil.h" // for now
 #include "qevent.h"
 #include "qmenu.h"

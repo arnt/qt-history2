@@ -11,19 +11,19 @@
 **
 ****************************************************************************/
 
-#ifndef QCLEANUPHANDLER_H
-#define QCLEANUPHANDLER_H
+#ifndef Q3CLEANUPHANDLER_H
+#define Q3CLEANUPHANDLER_H
 
 #include <QtCore/qlist.h>
 
 template<class T>
-class QCleanupHandler
+class Q3CleanupHandler
 {
     QListData p;
 public:
-    inline QCleanupHandler()
+    inline Q3CleanupHandler()
     { p.d = 0; }
-    ~QCleanupHandler()
+    ~Q3CleanupHandler()
     {
         if (p.d) {
             for (int i = 0; i < p.size(); ++i) {
@@ -56,17 +56,17 @@ public:
 };
 
 template<class T>
-class QSingleCleanupHandler
+class Q3SingleCleanupHandler
 {
     T **object;
 public:
-    inline QSingleCleanupHandler()
+    inline Q3SingleCleanupHandler()
     : object(0) {}
-    inline ~QSingleCleanupHandler()
+    inline ~Q3SingleCleanupHandler()
     { if (object) { delete *object; *object = 0; } }
     inline T* set(T **o)
     { object = o; return *object; }
     inline void reset() { object = 0; }
 };
 
-#endif //QCLEANUPHANDLER_H
+#endif //Q3CLEANUPHANDLER_H

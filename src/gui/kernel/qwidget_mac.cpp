@@ -31,7 +31,6 @@
 #include "qstyle.h"
 #include "qtextcodec.h"
 #include "qtimer.h"
-#include "qcleanuphandler.h"
 
 #include <ApplicationServices/ApplicationServices.h>
 #include <limits.h>

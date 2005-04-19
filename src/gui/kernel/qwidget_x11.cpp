@@ -24,7 +24,6 @@
 #include "qdatetime.h"
 #include "qcursor.h"
 #include "qstack.h"
-#include "qcleanuphandler.h"
 #include "qcolormap.h"
 #include "qdebug.h"
 

@@ -26,7 +26,7 @@
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qbrush.h"
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include "qcursor.h"
 #include "qevent.h"
 #include "qfontmetrics.h"
@@ -102,7 +102,7 @@ static QPixmap *qiv_selection = 0;
 #endif
 static bool optimize_layout = false;
 
-static QCleanupHandler<QPixmap> qiv_cleanup_pixmap;
+static Q3CleanupHandler<QPixmap> qiv_cleanup_pixmap;
 
 #if !defined(Q_WS_X11)
 static void createSelectionPixmap(const QPalette &cg)

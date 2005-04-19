@@ -13,7 +13,6 @@
 
 #include "qpixmapcache.h"
 #include "qcache.h"
-#include "qcleanuphandler.h"
 #include "qobject.h"
 #include "qdebug.h"
 

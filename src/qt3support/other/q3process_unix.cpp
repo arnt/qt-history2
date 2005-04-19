@@ -28,7 +28,7 @@
 #include "q3ptrlist.h"
 #include "qsocketnotifier.h"
 #include "qtimer.h"
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include "qregexp.h"
 #include "private/q3membuf_p.h"
 

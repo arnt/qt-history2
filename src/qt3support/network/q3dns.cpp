@@ -59,7 +59,7 @@ extern "C" int res_init();
 #include "qfile.h"
 #include "qtextstream.h"
 #include "q3socketdevice.h"
-#include "qcleanuphandler.h"
+#include "q3cleanuphandler.h"
 #include <limits.h>
 #ifdef Q_OS_MAC
 #include "../3rdparty/dlcompat/dlfcn.h"
@@ -72,7 +72,7 @@ static Q_UINT16 id; // ### seeded started by now()
 
 static QDateTime * originOfTime = 0;
 
-static QCleanupHandler<QDateTime> q3dns_cleanup_time;
+static Q3CleanupHandler<QDateTime> q3dns_cleanup_time;
 
 static Q_UINT32 now()
 {
