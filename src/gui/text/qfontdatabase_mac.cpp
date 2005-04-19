@@ -20,10 +20,9 @@ int qt_mac_pointsize(const QFontDef &def, int dpi); //qfont_mac.cpp
 
 static void initializeDb()
 {
-    if(db)
+    QFontDatabasePrivate *db = privateDb();
+    if (!db || db->count)
         return;
-    db = new QFontDatabasePrivate;
-    qfontdatabase_cleanup.set(&db);
 
     FMFontFamilyIterator it;
     QString foundry_name = "ATSUI";

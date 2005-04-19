@@ -562,6 +562,7 @@ static unsigned char encodingLoaded[numEncodings];
 
 static void loadXlfds(const char *reqFamily, int encoding_id)
 {
+    QFontDatabasePrivate *db = privateDb();
     QtFontFamily *fontFamily = reqFamily ? db->family(reqFamily) : 0;
 
     // make sure we don't load twice
@@ -848,6 +849,7 @@ static void loadFontConfig()
     Q_ASSERT_X((QFontDatabase::WritingSystemsCount - 1) == LanguageCount,
                "QFontDatabase", "New writing systems have been added.");
 
+    QFontDatabasePrivate *db = privateDb();
     FcFontSet  *fonts;
 
     QString familyName;
@@ -1050,7 +1052,7 @@ static void load(const QString &family = QString::null, int script = -1)
                 }
             }
         } else {
-            QtFontFamily *f = db->family(family, true);
+            QtFontFamily *f = privateDb()->family(family, true);
             // could reduce this further with some more magic:
             // would need to remember the encodings loaded for the family.
             if (!f->xlfdLoaded)
@@ -1066,10 +1068,9 @@ static void load(const QString &family = QString::null, int script = -1)
 
 static void initializeDb()
 {
-    if (db)
+    QFontDatabasePrivate *db = privateDb();
+    if (!db || db->count)
         return;
-    db = new QFontDatabasePrivate;
-    qfontdatabase_cleanup.set(&db);
 
     QTime t;
     t.start();

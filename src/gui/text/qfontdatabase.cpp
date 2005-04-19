@@ -397,7 +397,8 @@ QtFontFoundry *QtFontFamily::foundry(const QString &f, bool create)
     return foundries[count++];
 }
 
-class QFontDatabasePrivate {
+class QFontDatabasePrivate
+{
 public:
     QFontDatabasePrivate() : count(0), families(0) { }
     ~QFontDatabasePrivate() {
@@ -505,9 +506,8 @@ static inline bool scriptRequiresOpenType(int script)
 }
 #endif
 
+Q_GLOBAL_STATIC(QFontDatabasePrivate, privateDb);
 
-static QSingleCleanupHandler<QFontDatabasePrivate> qfontdatabase_cleanup;
-static QFontDatabasePrivate *db=0;
 #define SMOOTH_SCALABLE 0xffff
 
 #if defined(Q_WS_X11)
@@ -794,7 +794,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
     Q_UNUSED(force_encoding_id);
 #endif
 
-    if (!db)
+    if (!privateDb()->count)
         initializeDb();
 
     QFontEngine *fe = 0;
@@ -868,6 +868,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
 
         load(family_name, script);
 
+        QFontDatabasePrivate *db = privateDb();
         for (int x = 0; x < db->count; ++x) {
             QtFontFamily *try_family = db->families[x];
 
@@ -1175,7 +1176,7 @@ QFontDatabase::QFontDatabase()
 {
     createDatabase();
 
-    d = db;
+    d = privateDb();
 }
 
 /*!

@@ -493,10 +493,9 @@ void populate_database(const QString& fam)
 
 static void initializeDb()
 {
-    if (db) return;
-
-    db = new QFontDatabasePrivate;
-    qfontdatabase_cleanup.set(&db);
+    QFontDatabasePrivate *db = privateDb();
+    if (!db || db->count)
+        return;
 
     populate_database(QString::null);
 

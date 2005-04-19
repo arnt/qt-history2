@@ -22,7 +22,7 @@ static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bo
     QtFontStyle::Key styleKey;
     styleKey.style = italic ? QFont::StyleItalic : QFont::StyleNormal;
     styleKey.weight = weight;
-    QtFontFamily *f = db->family(familyname, true);
+    QtFontFamily *f = privateDb()->family(familyname, true);
     //### get lang info from freetype
     for (int ws = 1; ws < QFontDatabase::WritingSystemsCount; ++ws)
         f->writingSystems[ws] = QtFontFamily::Supported;
@@ -39,10 +39,9 @@ static void addFont(QFontDatabasePrivate *db, const char *family, int weight, bo
 */
 static void initializeDb()
 {
-    if (db) return;
-    db = new QFontDatabasePrivate;
-    qfontdatabase_cleanup.set(&db);
-
+    QFontDatabasePrivate *db = privateDb();
+    if (!db || db->count)
+        return;
     // initialize Freetype
     FT_Error err;
     err = FT_Init_FreeType(&QFontEngineFT::ft_library);
