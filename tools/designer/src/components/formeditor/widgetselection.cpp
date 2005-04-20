@@ -446,7 +446,6 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
     m_topWidget = 0;
 #endif
 
-
     if (w == 0) {
         hide();
         if (updateDict)
@@ -457,11 +456,8 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 
     wid = w;
 
-    LayoutInfo::Type layoutType = wid->parentWidget()
-            ? LayoutInfo::layoutType(formWindow->core(), wid->parentWidget())
-            : LayoutInfo::NoLayout;
-
-    bool active = (layoutType == LayoutInfo::NoLayout);
+    QLayout *layout = LayoutInfo::managedLayout(formWindow->core(), wid->parentWidget());
+    bool active = (layout != 0);
 
     for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
         if (WidgetHandle *h = handles[i]) {
@@ -470,8 +466,7 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
         }
     }
 
-    if (layoutType == LayoutInfo::Grid) {
-        QGridLayout *grid = static_cast<QGridLayout*>(wid->parentWidget()->layout());
+    if (QGridLayout *grid = qobject_cast<QGridLayout*>(layout)) {
         int index = grid->indexOf(wid);
         if (index == -1) {
             qWarning("unexpected call to WidgetSelection::setWidget()");
@@ -482,31 +477,23 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
         Q_ASSERT(index != -1);
 
         QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), wid->parentWidget());
-        Q_ASSERT(deco != 0);
+        if (deco == 0) {
+            // try with the actual layout
+            deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), layout);
+        }
 
-        QRect info = deco->itemInfo(index);
-
-        int item = -1;
-
-        // bottom cell
-        item = deco->findItemAt(info.bottom() + 1, info.left());
-//        if (item != -1 && grid->itemAt(item)->spacerItem() != 0)
+        if (deco != 0) {
+            // bottom cell
             handles[WidgetHandle::Bottom]->setActive(true);
-
-        // top cell
-        item = deco->findItemAt(info.top() - 1, info.left());
-//        if (item != -1 && grid->itemAt(item)->spacerItem() != 0)
+            // top cell
             handles[WidgetHandle::Top]->setActive(true);
-
-        // left cell
-        item = deco->findItemAt(info.top(), info.left() - 1);
-//        if (item != -1 && grid->itemAt(item)->spacerItem() != 0)
+            // left cell
             handles[WidgetHandle::Left]->setActive(true);
-
-        // right cell
-        item = deco->findItemAt(info.top(), info.right() + 1);
-//        if (item != -1 && grid->itemAt(item)->spacerItem() != 0)
+            // right cell
             handles[WidgetHandle::Right]->setActive(true);
+        } else {
+            qWarning() << "no QDesignerLayoutDecorationExtension for widget:" << wid;
+        }
     }
 
 #ifndef NO_TOPWIDGET
