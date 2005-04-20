@@ -66,11 +66,7 @@ QPixmap::QPixmap()
 /*!
     Constructs a pixmap with \a w width, \a h height.
 
-    The contents of the pixmap is uninitialized.
-
-    The \a depth can be either 1 (monochrome) or the depth of the
-    current video mode. If \a depth is negative, then the hardware
-    depth of the current video mode will be used.
+    The content of the pixmap is uninitialized.
 
     If either \a w or \a h is zero, a null pixmap is constructed.
 
@@ -125,7 +121,8 @@ QPixmap::QPixmap(const QSize &s, Type type)
     result (e.g. converting from 32-bit to 8-bit), use the \a
     flags to specify how you'd prefer this to happen.
 
-    \sa Qt::ImageConversionFlags isNull() load() loadFromData() save() imageFormat()
+    \sa Qt::ImageConversionFlags, isNull(), load(), loadFromData(), save(),
+    QImageReader::imageFormat()
 */
 
 QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversionFlags flags)
@@ -302,7 +299,7 @@ QPixmap::operator QVariant() const
     This function returns the modified matrix, which maps points
     correctly from the original pixmap into the new pixmap.
 
-    \sa transform(), QMatrix
+    \sa transformed(), QMatrix
 */
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
@@ -541,7 +538,7 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
     to embed images and other resource files in the application's
     executable.
 
-    \sa loadFromData(), save(), imageFormat(), QImage::load(),
+    \sa loadFromData(), save(), QImageReader::imageFormat(), QImage::load(),
     QImageReader
 */
 
@@ -582,7 +579,7 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
     The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
-    \sa load(), save(), imageFormat(), QImage::loadFromData(),
+    \sa load(), save(), QImageReader::imageFormat(), QImage::loadFromData(),
     QImageReader
 */
 
@@ -619,7 +616,7 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Qt::I
     the default settings. Returns true if successful; otherwise
     returns false.
 
-    \sa load(), loadFromData(), imageFormat(), QImage::save(),
+    \sa load(), loadFromData(), QImageReader::imageFormat(), QImage::save(),
     QImageReader
 */
 
@@ -876,7 +873,7 @@ QPixmap::QPixmap(const QImage& image)
     Converts the image \a image to a pixmap that is assigned to this
     pixmap. Returns a reference to the pixmap.
 
-    \sa fromImage().
+    \sa fromImage()
 */
 
 QPixmap &QPixmap::operator=(const QImage &image)
@@ -1038,7 +1035,7 @@ void QPixmap::deref()
     If either the width \a w or the height \a h is zero or negative,
     this function returns a \l{isNull()}{null} pixmap.
 
-    \sa scaleWidth() scaleHeight() transform()
+    \sa scaledToWidth(), scaledToHeight(), transformed()
 */
 
 /*!
@@ -1071,14 +1068,15 @@ QPixmap QPixmap::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Tran
 }
 
 /*!
-    Returns a scaled copy of the pixmap. The returned pixmap has a width
-    of \a w pixels. This function automatically calculates the height
-    of the pixmap so that the ratio of the pixmap is preserved.
+    Returns a scaled copy of the pixmap using a transformation specified
+    by \a mode. The returned pixmap has a width of \a w pixels. This
+    function automatically calculates the height of the pixmap so that the
+    ratio of the pixmap is preserved.
 
     If \a w is 0 or negative a \link isNull() null\endlink pixmap is
     returned.
 
-    \sa scale() scaleHeight() transform()
+    \sa scaled(), scaledToHeight(), transformed()
 */
 QPixmap QPixmap::scaledToWidth(int w, Qt::TransformationMode mode) const
 {
@@ -1096,14 +1094,15 @@ QPixmap QPixmap::scaledToWidth(int w, Qt::TransformationMode mode) const
 }
 
 /*!
-    Returns a scaled copy of the pixmap. The returned pixmap has a
-    height of \a h pixels. This function automatically calculates the
-    width of the pixmap so that the ratio of the pixmap is preserved.
+    Returns a scaled copy of the pixmap using a transformation specified
+    by \a mode. The returned pixmap has a height of \a h pixels. This
+    function automatically calculates the width of the pixmap so that the
+    ratio of the pixmap is preserved.
 
     If \a h is 0 or negative a \link isNull() null\endlink pixmap is
     returned.
 
-    \sa scale() scaleWidth() transform()
+    \sa scaled(), scaledToWidth(), transformed()
 */
 QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
 {

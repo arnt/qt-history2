@@ -1123,6 +1123,10 @@ const uchar * const *QImage::jumpTable() const
 }
 #endif
 
+/*!
+    Sets the color table used to translate color indexes to RGB values
+    to the specified \a colors.
+*/
 void QImage::setColorTable(const QVector<QRgb> colors)
 {
     if (!d)
@@ -2391,8 +2395,10 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
 };
 
 /*!
-    Converts the image to \a format and returns the
-    converted image. The original image is not changed.
+    Returns a copy of the image in the given \a format.
+
+    The image conversion flags specified by \a flags control how the image
+    data is handled during the conversion process.
 */
 QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) const
 {
@@ -2408,6 +2414,13 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
     return image;
 }
 
+/*!
+    Returns a copy of the image converted to the given \a format, using
+    a color table specified by \a colorTable.
+
+    The image conversion flags specified by \a flags control how the image
+    data is handled during the conversion process.
+*/
 QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Qt::ImageConversionFlags flags) const
 {
     if (d->format == format)
@@ -2744,7 +2757,7 @@ QImage QImage::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transf
     If \a w is 0 or negative a \link isNull() null\endlink image is
     returned.
 
-    \sa scale() scaleHeight() transform()
+    \sa scaled(), scaleHeight(), transformed()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
@@ -2764,14 +2777,15 @@ QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
 #endif
 
 /*!
-    Returns a scaled copy of the image. The returned image has a
-    height of \a h pixels. This function automatically calculates the
-    width of the image so that the ratio of the image is preserved.
+    Returns a scaled copy of the image with a height of \a h pixels
+    using a transformation specified by \a mode.
+    This function automatically calculates the width of the image so that
+    the ratio of the image is preserved.
 
     If \a h is 0 or negative a \link isNull() null\endlink image is
     returned.
 
-    \sa scale() scaleWidth() transform()
+    \sa scaled(), scaleWidth(), transformed()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
@@ -2795,15 +2809,15 @@ QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
     Returns the actual matrix used for transforming a image with \a w
     width and \a h height and matrix \a matrix.
 
-    When transforming a image with transform(), the transformation matrix
+    When transforming a image with transformed(), the transformation matrix
     is internally adjusted to compensate for unwanted translation,
-    i.e. transform() returns the smallest image containing all
+    i.e. transformed() returns the smallest image containing all
     transformed points of the original image.
 
     This function returns the modified matrix, which maps points
     correctly from the original image into the new image.
 
-    \sa transform(), QMatrix
+    \sa transformed(), QMatrix
 */
 #ifndef QT_NO_PIXMAP_TRANSFORMATION
 QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
@@ -2857,7 +2871,7 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
     for unwanted translation; i.e. the image produced is the smallest image
     that contains all the transformed points of the original image.
 
-    \sa scale() QPixmap::transform() QPixmap::trueMatrix() QMatrix
+    \sa scaled(), QPixmap::transform(), QPixmap::trueMatrix(), QMatrix
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
@@ -3111,7 +3125,7 @@ QImage QImage::createHeuristicMask(bool clipTight) const
     vertical are set to true or false. The original image is not
     changed.
 
-    \sa scale()
+    \sa scaled()
 */
 
 /*!
@@ -3122,7 +3136,7 @@ QImage QImage::createHeuristicMask(bool clipTight) const
     vertical are set to true or false. The original image is not
     changed.
 
-    \sa scale()
+    \sa scaled()
 */
 QImage QImage::mirrored(bool horizontal, bool vertical) const
 {
@@ -3202,13 +3216,6 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
 
     return result;
 }
-
-/*!
-  \fn QImage QImage::mirror() const
-
-    Returns a QImage which is a vertically mirrored copy of this
-    image. The original QImage is not changed.
-*/
 #endif //QT_NO_IMAGE_MIRROR
 
 /*!
@@ -3271,7 +3278,8 @@ QImage QImage::rgbSwapped() const
     to embed images and other resource files in the application's
     executable.
 
-    \sa loadFromData() save() imageFormat() QPixmap::load() QImageReader
+    \sa loadFromData(), save(), QImageReader::imageFormat(), QPixmap::load(),
+    QImageReader
 */
 
 bool QImage::load(const QString &fileName, const char* format)
@@ -3297,7 +3305,8 @@ bool QImage::load(const QString &fileName, const char* format)
     The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
-    \sa load() save() imageFormat() QPixmap::loadFromData() QImageReader
+    \sa load(), save(), QImageReader::imageFormat(), QPixmap::loadFromData(),
+    QImageReader
 */
 
 bool QImage::loadFromData(const uchar *data, int len, const char *format)
@@ -3333,7 +3342,8 @@ bool QImage::loadFromData(const uchar *data, int len, const char *format)
     The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
-    \sa load() save() imageFormat() QPixmap::loadFromData() QImageReader
+    \sa load(), save(), QImageReader::imageFormat(), QPixmap::loadFromData(),
+    QImageReader
 */
 QImage QImage::fromData(const uchar *data, int size, const char *format)
 {
@@ -3362,7 +3372,8 @@ QImage QImage::fromData(const uchar *data, int size, const char *format)
     Returns true if the image was successfully saved; otherwise
     returns false.
 
-    \sa load() loadFromData() imageFormat() QPixmap::save() QImageReader
+    \sa load(), loadFromData(), QImageReader::imageFormat(), QPixmap::save(),
+    QImageReader
 */
 bool QImage::save(const QString &fileName, const char *format, int quality) const
 {
@@ -3795,6 +3806,9 @@ QPaintEngine *QImage::paintEngine() const
 }
 
 
+/*!
+    Returns the size for the specified \a metric on the device.
+*/
 int QImage::metric(PaintDeviceMetric metric) const
 {
     if (!d)
@@ -4223,3 +4237,31 @@ inline QImage::Endian QImage::systemBitOrder()
 #endif
 }
 #endif
+
+/*!
+    \fn QImage QImage::copy(const QRect &rect, Qt::ImageConversionFlags) const
+    \compat
+
+    Use copy() and convertToFormat() instead.
+*/
+
+/*!
+    \fn QImage QImage::copy(int x, int y, int w, int h, Qt::ImageConversionFlags) const
+    \compat
+
+    Use copy() and convertToFormat() instead.
+*/
+
+/*!
+    \fn QImage QImage::scaleWidth(int w) const
+    \compat
+
+    Use scaledToWidth() instead.
+*/
+
+/*!
+    \fn QImage scaleHeight(int h) const
+    \compat
+
+    Use scaledToHeight() instead.
+*/
