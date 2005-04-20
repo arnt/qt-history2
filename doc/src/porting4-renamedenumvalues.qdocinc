@@ -24,12 +24,16 @@
 \row \o QComboBox::NoInsertion \o QComboBox::NoInsert
 \row \o QDir::DefaultFilter \o QDir::NoFilter
 \row \o QDir::DefaultSort \o QDir::NoSort
+\row \o QEvent::Accel \o QEvent::Shortcut
 \row \o QEvent::AccelOverride \o QEvent::ShortcutOverride
 \row \o QEvent::CaptionChange \o QEvent::WindowTitleChange
+\row \o QEvent::ChildInserted \o QEvent::ChildAdded
 \row \o QEvent::IMCompose \o QEvent::InputMethodCompose
 \row \o QEvent::IMEnd \o QEvent::InputMethodEnd
 \row \o QEvent::IMStart \o QEvent::InputMethodStart
 \row \o QEvent::IconChange \o QEvent::WindowIconChange
+\row \o QEvent::LayoutHint \o QEvent::LayoutRequest
+\row \o QEvent::Reparent \o QEvent::ParentChange
 \row \o QFileInfo::ExeGroup \o QFile::ExeGroup
 \row \o QFileInfo::ExeOther \o QFile::ExeOther
 \row \o QFileInfo::ExeOwner \o QFile::ExeOwner
