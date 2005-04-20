@@ -369,10 +369,8 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
 
 QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
 {
-    QPixmap res, buf;
-
     if (!widget)
-        return res;
+        return QPixmap();
 
     QRect r(rect);
     if (r.width() < 0)
@@ -381,10 +379,11 @@ QPixmap QPixmap::grabWidget(QWidget *widget, const QRect &rect)
         r.setHeight(widget->height() - rect.y());
 
     if (!r.intersects(widget->rect()))
-        return res;
+        return QPixmap();
 
-    res.resize_helper(r.size());
-    buf.resize_helper(r.size());
+    QPixmap res = QPixmap(r.size());
+    QPixmap buf = QPixmap(r.size());
+
     if(!res || !buf)
         return res;
 
@@ -572,7 +571,11 @@ void QPixmap::init(int w, int h, Type type)
 {
     data = new QPixmapData;
     data->type = type;
-    data->image = QImage(w, h, type == PixmapType ? QImage::Format_RGB32 : QImage::Format_MonoLSB);
+    if (type == PixmapType) {
+        data->image = QImage(w, h, QImage::Format_RGB32);
+    } else {
+        data->image = data->createBitmapImage(w, h);
+    }
 }
 
 void QPixmap::deref()
@@ -627,6 +630,8 @@ QPixmap QPixmap::alphaChannel() const
 QImage QPixmapData::createBitmapImage(int w, int h)
 {
     QImage bitmap(w, h, QImage::Format_MonoLSB);
+    if (bitmap.isNull())
+        return bitmap;
     bitmap.setNumColors(2);
     bitmap.setColor(0, QColor(Qt::color0).rgba());
     bitmap.setColor(1, QColor(Qt::color1).rgba());
