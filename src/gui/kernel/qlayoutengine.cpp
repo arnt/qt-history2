@@ -96,7 +96,7 @@ void qGeomCalc(QVector<QLayoutStruct> &chain, int start, int count,
         int space_used=0;
         int current = 0;
         while (idx < count && space_used < space_left) {
-            current = list.at(start + idx);
+            current = list.at(idx);
             space_used = sum + current * (count - idx);
             sum += current;
             ++idx;
