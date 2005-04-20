@@ -2070,7 +2070,8 @@ void QWidgetPrivate::updateFrameStrut() const
 
 bool QWidgetPrivate::setAcceptDrops_sys(bool on)
 {
-    SetControlDragTrackingEnabled((HIViewRef)winId(), on);
+    Q_Q(QWidget);
+    SetControlDragTrackingEnabled((HIViewRef)q->winId(), on);
     return true;
 }
 
