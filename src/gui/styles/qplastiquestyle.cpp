@@ -13,24 +13,24 @@
 
 #include "qplastiquestyle.h"
 
-#include <QDebug>
+#include <qdebug.h>
 
-#include <QApplication>
-#include <QAbstractItemView>
-#include <QCheckBox>
-#include <QComboBox>
-#include <QImage>
-#include <QPainter>
-#include <QPaintEngine>
-#include <QPainterPath>
-#include <QPalette>
-#include <QPen>
-#include <QPushButton>
-#include <QRadioButton>
-#include <QStyleOption>
-#include <QBitmap>
-#include <QPixmap>
-#include <QLineEdit>
+#include <qapplication.h>
+#include <qbitmap.h>
+#include <qabstractitemview.h>
+#include <qcheckbox.h>
+#include <qcombobox.h>
+#include <qimage.h>
+#include <qlineedit.h>
+#include <qpainter.h>
+#include <qpaintengine.h>
+#include <qpainterpath.h>
+#include <qpalette.h>
+#include <qpen.h>
+#include <qpixmap.h>
+#include <qpushbutton.h>
+#include <qradiobutton.h>
+#include <qstyleoption.h>
 
 // checkbox, on
 static const char * const qt_plastique_check[] = {
@@ -509,7 +509,6 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
 QPlastiqueStyle::QPlastiqueStyle()
     : QWindowsStyle()
 {
-    qDebug() << "QPlastiqueStyle::QPlastiqueStyle()";
 }
 
 void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,

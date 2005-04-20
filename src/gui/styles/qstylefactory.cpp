@@ -23,6 +23,9 @@
 #ifndef QT_NO_STYLE_MOTIFPLUS
 #include "qmotifplusstyle.h"
 #endif
+#ifndef QT_NO_STYLE_PLASTIQUE
+#include "qplastiquestyle.h"
+#endif
 #ifndef QT_NO_STYLE_PLATINUM
 #include "qplatinumstyle.h"
 #endif
@@ -101,6 +104,11 @@ QStyle *QStyleFactory::create(const QString& key)
         ret = new QMotifPlusStyle;
     else
 #endif
+#ifndef QT_NO_STYLE_PLASTIQUE
+    if (style == "plastique")
+        ret = new QPlastiqueStyle;
+    else
+#endif
 #ifndef QT_NO_STYLE_PLATINUM
     if (style == "platinum")
         ret = new QPlatinumStyle;
@@ -169,6 +177,10 @@ QStringList QStyleFactory::keys()
 #ifndef QT_NO_STYLE_MOTIFPLUS
     if (!list.contains("MotifPlus"))
         list << "MotifPlus";
+#endif
+#ifndef QT_NO_STYLE_PLASTIQUE
+    if (!list.contains("Plastique"))
+        list << "Plastique";
 #endif
 #ifndef QT_NO_STYLE_PLATINUM
     if (!list.contains("Platinum"))

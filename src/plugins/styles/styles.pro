@@ -1,6 +1,7 @@
 TEMPLATE = subdirs
 contains(style-plugins, windows)	:SUBDIRS += windows
 contains(style-plugins, motif)		:SUBDIRS += motif
+contains(style-plugins, plastique)	:SUBDIRS += plastique
 contains(style-plugins, platinum)	:SUBDIRS += platinum
 contains(style-plugins, motifplus)	:SUBDIRS += motifplus
 contains(style-plugins, cde)		:SUBDIRS += cde

@@ -213,7 +213,7 @@ else
     exit 1
 fi
 
-QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif motifplus platinum pocketpc sgi windows windowsxp\""
+QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif motifplus plastique platinum pocketpc sgi windows windowsxp\""
 QMAKE_VARS="$QMAKE_VARS \"decorations += default windows styled\""
 QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\"" # adjust below as well
 QMAKE_VARS="$QMAKE_VARS \"styles -= pocketpc\""  # experimental

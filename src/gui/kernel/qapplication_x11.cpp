@@ -1898,14 +1898,14 @@ void QApplicationPrivate::x11_initialize_style()
         if (data) XFree((char *)data);
         // kwin is there. check if KDE's styles are available,
         // otherwise use windows style
-        QApplicationPrivate::app_style = QStyleFactory::create("windows");
+        QApplicationPrivate::app_style = QStyleFactory::create("plastique");
     }
     if (!QApplicationPrivate::app_style &&
          XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(KWM_RUNNING),
                              0, 1, False, AnyPropertyType, &type, &format, &length,
                              &after, &data) == Success && length) {
         if (data) XFree((char *)data);
-        QApplicationPrivate::app_style = QStyleFactory::create("windows");
+        QApplicationPrivate::app_style = QStyleFactory::create("plastique");
     }
     if (!QApplicationPrivate::app_style &&
          XGetWindowProperty(X11->display, QX11Info::appRootWindow(), ATOM(DTWM_IS_RUNNING),
@@ -1923,7 +1923,7 @@ void QApplicationPrivate::x11_initialize_style()
          length) {
         if (data) XFree((char *)data);
         // default to MotifPlus with hovering
-        QApplicationPrivate::app_style = QStyleFactory::create("motifplus");
+        QApplicationPrivate::app_style = QStyleFactory::create("plastique");
     }
 }
 #endif

@@ -118,6 +118,16 @@ contains( styles, pocketpc ) {
 		DEFINES+= QT_STYLE_WINDOWS
 	}
 }
+
+contains( styles, plastique ) {
+	HEADERS += styles/qplastiquestyle.h
+	SOURCES += styles/qplastiquestyle.cpp
+	!contains( styles, windows ) {
+		message( plastique requires windows )
+		styles += windows
+		DEFINES+= QT_STYLE_WINDOWS
+	}
+}
 				
 contains( styles, windows ) {
 	HEADERS += styles/qwindowsstyle.h
