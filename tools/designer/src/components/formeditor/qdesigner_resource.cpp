@@ -509,14 +509,24 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     return w;
 }
 
-DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_layout, DomWidget *ui_parentWidget)
+DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_parentLayout, DomWidget *ui_parentWidget)
 {
-    if (m_core->metaDataBase()->item(layout) == 0)
+    QDesignerMetaDataBaseItemInterface *item = m_core->metaDataBase()->item(layout);
+
+    if (item == 0) {
+        layout = qFindChild<QLayout*>(layout);
+        // refresh the meta database item
+        item = m_core->metaDataBase()->item(layout);
+    }
+
+    if (item == 0) {
+        // nothing to do.
         return 0;
+    }
 
     m_chain.push(layout);
 
-    DomLayout *l = QAbstractFormBuilder::createDom(layout, ui_layout, ui_parentWidget);
+    DomLayout *l = QAbstractFormBuilder::createDom(layout, ui_parentLayout, ui_parentWidget);
     Q_ASSERT(l != 0);
 
     QString className = l->attributeClass();

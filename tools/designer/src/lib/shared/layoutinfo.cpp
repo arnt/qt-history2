@@ -80,8 +80,9 @@ QWidget *LayoutInfo::layoutParent(QDesignerFormEditorInterface *core, QLayout *l
 
     QObject *o = layout;
     while (o) {
-        if (o->isWidgetType())
-            return static_cast<QWidget*>(o);
+        if (QWidget *widget = qobject_cast<QWidget*>(o))
+            return widget;
+
         o = o->parent();
     }
     return 0;
@@ -94,7 +95,7 @@ void LayoutInfo::deleteLayout(QDesignerFormEditorInterface *core, QWidget *widge
 
     Q_ASSERT(widget != 0);
 
-    QLayout *layout = widget->layout();
+    QLayout *layout = managedLayout(core, widget);
 
     if (layout == 0 || core->metaDataBase()->item(layout) != 0) {
         delete layout;
@@ -148,3 +149,19 @@ bool LayoutInfo::isWidgetLaidout(QDesignerFormEditorInterface *core, QWidget *wi
 
     return false;
 }
+
+QLayout *LayoutInfo::managedLayout(QDesignerFormEditorInterface *core, QWidget *widget)
+{
+    if (widget == 0)
+        return 0;
+
+    QLayout *layout = widget->layout();
+    QDesignerMetaDataBaseItemInterface *item = core->metaDataBase()->item(layout);
+    if (layout != 0 && item == 0) {
+        layout = qFindChild<QLayout*>(layout);
+        item = core->metaDataBase()->item(layout);
+    }
+
+    return item != 0 ? layout : 0;
+}
+

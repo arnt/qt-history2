@@ -280,43 +280,51 @@ void QAbstractFormBuilder::layoutInfo(DomLayout *ui_layout, QObject *parent, int
     }
 }
 
-QLayout *QAbstractFormBuilder::create(DomLayout *ui_layout, QLayout *layout, QWidget *parentWidget)
+QLayout *QAbstractFormBuilder::create(DomLayout *ui_layout, QLayout *parentLayout, QWidget *parentWidget)
 {
-    QObject *p = layout
-            ? static_cast<QObject*>(layout)
-            : static_cast<QObject*>(parentWidget);
+    QObject *p = parentLayout;
 
-    QLayout *lay = createLayout(ui_layout->attributeClass(), p, QString());
-    if (lay == 0)
+    if (p == 0)
+        p = parentWidget;
+
+    Q_ASSERT(p != 0);
+
+    bool tracking = false;
+
+    if (p == parentWidget && parentWidget->layout()) {
+        tracking = true;
+        p = parentWidget->layout();
+    }
+
+    QLayout *layout = createLayout(ui_layout->attributeClass(), p, QString());
+
+    if (layout == 0)
         return 0;
 
-    QObject *parent = parentWidget;
-    if (!parent)
-        parent = layout;
-
-    int margin, spacing;
-    layoutInfo(ui_layout, parent, &margin, &spacing);
-
-    if (margin != INT_MIN) {
-        // qDebug() << "setMargin:" << margin;
-        lay->setMargin(margin);
+    if (tracking && layout->parent() == 0) {
+        QBoxLayout *box = qobject_cast<QBoxLayout*>(parentWidget->layout());
+        Q_ASSERT(box != 0); // only QBoxLayout is supported
+        box->addLayout(layout);
     }
 
-    if (spacing != INT_MIN) {
-        // qDebug() << "setSpacing:" << spacing;
-        lay->setSpacing(spacing);
-    }
+    int margin = INT_MIN, spacing = INT_MIN;
+    layoutInfo(ui_layout, p, &margin, &spacing);
 
-    applyProperties(lay, ui_layout->elementProperty());
+    if (margin != INT_MIN)
+       layout->setMargin(margin);
+
+    if (spacing != INT_MIN)
+        layout->setSpacing(spacing);
+
+    applyProperties(layout, ui_layout->elementProperty());
 
     foreach (DomLayoutItem *ui_item, ui_layout->elementItem()) {
-        QLayoutItem *item = create(ui_item, lay, parentWidget);
-
-        if (item)
-            addItem(ui_item, item, lay);
+        if (QLayoutItem *item = create(ui_item, layout, parentWidget)) {
+            addItem(ui_item, item, layout);
+        }
     }
 
-    return lay;
+    return layout;
 }
 
 bool QAbstractFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
@@ -706,37 +714,27 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
     if (!recursive)
         return ui_widget;
 
-    QList<QObject*> children = widget->children();
-
     // widgets
     QList<DomWidget*> ui_widgets;
+    if (QLayout *layout = widget->layout()) {
+        if (DomLayout *ui_layout = createDom(layout, 0, ui_parentWidget)) {
+            QList<DomLayout*> ui_layouts;
+            ui_layouts.append(ui_layout);
 
-    bool isQ3GroupBox = ui_widget->attributeClass() == QLatin1String("Q3ButtonGroup")
-            || ui_widget->attributeClass() == QLatin1String("Q3GroupBox");
-
-    if (isQ3GroupBox) {
-        // ### qWarning() << "the support for Q3GroupBox based widgets is not yet implemented!";
+            ui_widget->setElementLayout(ui_layouts);
+        }
     }
 
-    if (widget->layout() && isQ3GroupBox == false) {
-        DomLayout *ui_layout = createDom(widget->layout(), 0, ui_parentWidget);
-        Q_ASSERT(ui_layout != 0);
+    QList<QObject*> children = widget->children();
+    foreach (QObject *obj, children) {
+        if (QWidget *childWidget = qobject_cast<QWidget*>(obj)) {
+            if (m_laidout.contains(childWidget))
+                continue;
 
-        QList<DomLayout*> ui_layouts;
-        ui_layouts.append(ui_layout);
-
-        ui_widget->setElementLayout(ui_layouts);
-    }
-
-    QListIterator<QObject*> it(children);
-    while (it.hasNext()) {
-        QObject *obj = it.next();
-        if (!obj->isWidgetType() || m_laidout.contains(obj))
-            continue;
-
-        DomWidget *ui_child = createDom(static_cast<QWidget*>(obj), ui_widget);
-        if (ui_child)
-            ui_widgets.append(ui_child);
+            if (DomWidget *ui_child = createDom(childWidget, ui_widget)) {
+                ui_widgets.append(ui_child);
+            }
+        }
     }
     ui_widget->setElementWidget(ui_widgets);
 

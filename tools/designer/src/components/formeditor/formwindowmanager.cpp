@@ -520,18 +520,16 @@ void FormWindowManager::slotUpdateActions()
             QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget));
             Q_ASSERT(item != 0);
 
-            bool laidOut = LayoutInfo::layoutType(core(), widget) != LayoutInfo::NoLayout
-                    && core()->metaDataBase()->item(widget->layout()) != 0;
-
+            QLayout *layout = LayoutInfo::managedLayout(m_core, widget);
             layoutContainer = (item->isContainer() || m_activeFormWindow->isMainContainer(widget));
 
             layoutAvailable = layoutContainer
                                 && m_activeFormWindow->hasInsertedChildren(widget)
-                                && !laidOut;
+                                && layout == 0;
 
             m_layoutChilds = layoutAvailable;
 
-            breakAvailable = laidOut || LayoutInfo::isWidgetLaidout(m_core, widget);
+            breakAvailable = layout != 0 || LayoutInfo::isWidgetLaidout(m_core, widget);
         } else {
             layoutAvailable = unlaidoutWidgetCount > 1;
             breakAvailable = false;

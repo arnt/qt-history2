@@ -321,13 +321,10 @@ void Layout::undoLayout()
 void Layout::breakLayout()
 {
     QMap<QWidget*, QRect> rects;
-    if (!widgets.isEmpty()) {
-        QListIterator<QWidget*> it(widgets);
-        while (it.hasNext()) {
-            QWidget *w = it.next();
-            rects.insert(w, w->geometry());
-        }
+    foreach (QWidget *w, widgets) {
+        rects.insert(w, w->geometry());
     }
+
     QPoint layoutBasePos = layoutBase->pos();
     QDesignerWidgetDataBaseInterface *widgetDataBase = formWindow->core()->widgetDataBase();
 
