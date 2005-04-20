@@ -2344,8 +2344,8 @@ void QWidget::setMaximumSize(int maxw, int maxh)
                 "The largest allowed size is (%d,%d)",
                  objectName().toLocal8Bit().data(), metaObject()->className(), QWIDGETSIZE_MAX,
                 QWIDGETSIZE_MAX);
-        maxw = qMin(maxw, QWIDGETSIZE_MAX);
-        maxh = qMin(maxh, QWIDGETSIZE_MAX);
+        maxw = qMin<int>(maxw, QWIDGETSIZE_MAX);
+        maxh = qMin<int>(maxh, QWIDGETSIZE_MAX);
     }
     if (maxw < 0 || maxh < 0) {
         qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
