@@ -828,11 +828,11 @@ private:
 };
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMultiMap<Key, T>::replace(const Key &akey, const T &avalue)
+Q_INLINE_TEMPLATE Q_TYPENAME QMap<Key, T>::iterator QMultiMap<Key, T>::replace(const Key &akey, const T &avalue)
 { return QMap<Key, T>::insert(akey, avalue); }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QMap<Key, T>::iterator QMultiMap<Key, T>::insert(const Key &akey, const T &avalue)
+Q_INLINE_TEMPLATE Q_TYPENAME QMap<Key, T>::iterator QMultiMap<Key, T>::insert(const Key &akey, const T &avalue)
 { return QMap<Key, T>::insertMulti(akey, avalue); }
 
 

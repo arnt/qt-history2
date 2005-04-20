@@ -764,11 +764,11 @@ private:
 };
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QHash<Key, T>::iterator QMultiHash<Key, T>::replace(const Key &akey, const T &avalue)
+Q_INLINE_TEMPLATE Q_TYPENAME QHash<Key, T>::iterator QMultiHash<Key, T>::replace(const Key &akey, const T &avalue)
 { return QHash<Key, T>::insert(akey, avalue); }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE typename QHash<Key, T>::iterator QMultiHash<Key, T>::insert(const Key &akey, const T &avalue)
+Q_INLINE_TEMPLATE Q_TYPENAME QHash<Key, T>::iterator QMultiHash<Key, T>::insert(const Key &akey, const T &avalue)
 { return QHash<Key, T>::insertMulti(akey, avalue); }
 
 
