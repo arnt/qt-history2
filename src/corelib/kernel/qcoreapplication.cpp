@@ -200,6 +200,9 @@ void QCoreApplicationPrivate::moveToMainThread(QObject *o)
     o->d_func()->thread = QThreadData::get(mainThread())->id;
 }
 
+QThread *QCoreApplicationPrivate::mainThread()
+{ return ::mainThread(); }
+
 #ifdef QT3_SUPPORT
 void QCoreApplicationPrivate::removePostedChildInsertedEvents(QObject *receiver, QObject *child)
 {
