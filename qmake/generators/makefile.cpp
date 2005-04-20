@@ -1645,8 +1645,15 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         QStringList tmp_dep = project->variables()[(*it) + ".depends"];
         QString tmp_dep_cmd = project->variables()[(*it) + ".depend_command"].join(" ");
         if(!tmp_dep_cmd.isEmpty()) {
-            QString argv0 = Option::fixPathToLocalOS(tmp_dep_cmd.split(' ').first());
-            if(!exists(argv0))
+	    QString argv0;
+	    QStringList cmdline = tmp_dep_cmd.split(' ');
+	    for(int i = 0; i < cmdline.isEmpty(); ++i) {
+	    	if(!cmdline.at(i).contains('=')) {
+		   argv0 = cmdline.at(i);
+		   break;
+	        }
+	    }
+            if(!exists(Option::fixPathToLocalOS(argv0, true)))
                 tmp_dep_cmd = QString();
         }
         QStringList &vars = project->variables()[(*it) + ".variables"];
@@ -1754,7 +1761,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                         }
                         fclose(proc);
                         if(!indeps.isEmpty()) {
-                            QStringList dep_cmd_deps = indeps.replace('\n', ' ').simplified().split(' ');
+		            QStringList dep_cmd_deps = indeps.replace('\n', ' ').simplified().split(' ');
                             for(int i = 0; i < dep_cmd_deps.count(); ++i) {
                                 QString &file = dep_cmd_deps[i];
                                 if(!exists(file)) {
@@ -2825,6 +2832,7 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
                     QStringList &inputs = project->variables()[(*it2)];
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                         QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
+
                         if(out == dep.real() || out.endsWith("/" + dep.real())) {
                             ret = QMakeLocalFileName(fileFixify(out, qmake_getpwd(), Option::output_dir));
                             goto found_dep_from_heuristic;

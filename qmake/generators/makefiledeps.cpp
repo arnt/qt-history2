@@ -327,7 +327,7 @@ QFileInfo QMakeSourceFileInfo::findFileInfo(const QMakeLocalFileName &dep)
 
 bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 {
-    if(file->dep_checked)
+    if(file->dep_checked || file->type == TYPE_UNKNOWN)
         return true;
     files_changed = true;
     file->dep_checked = true;
@@ -358,6 +358,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
         file->deps = new SourceDependChildren;
 
     int line_count = 1;
+
     for(int x = 0; x < buffer_len; ++x) {
         bool try_local = true;
         char *inc = 0;
