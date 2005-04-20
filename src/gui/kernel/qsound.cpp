@@ -160,7 +160,9 @@ QSound::QSound(const QString& filename, QObject* parent, const char* name)
 #endif
 
 /*!
-    Destroys the sound object.
+    Destroys the sound object. If the sound is not finished playing stop() is called on it.
+
+    \sa stop() isFinished()
 */
 QSound::~QSound()
 {
