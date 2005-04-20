@@ -1983,7 +1983,7 @@ Qt::HANDLE QPixmapData::x11ConvertToDefaultDepth()
         Picture pic = XRenderCreatePicture(xinfo.display(), hd2, format, 0, 0);
         XRenderComposite(xinfo.display(), PictOpSrc, picture,
                          XNone, pic, 0, 0, 0, 0, 0, 0, w, h);
-        XRenderFreePicture(xinfo.display(), picture);
+        XRenderFreePicture(xinfo.display(), pic);
     }
     return hd2;
 #else
