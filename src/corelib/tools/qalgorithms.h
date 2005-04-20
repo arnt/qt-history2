@@ -87,9 +87,15 @@ inline void qCount(InputIterator first, InputIterator last, const T &value, Size
 template <typename T>
 inline void qSwap(T &value1, T &value2)
 {
-    T tmp = value1;
-    value1 = value2;
-    value2 = tmp;
+    if (!QTypeInfo<T>::isComplex || QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) {
+        T t = value1;
+        value1 = value2;
+        value2 = t;
+    } else {
+        const void *t = (const void *&)value1;
+        (const void *&)value1 = (const void *&)value2;
+        (const void *&)value2 = t;
+    }
 }
 
 template <typename T>
@@ -242,42 +248,54 @@ namespace QAlgorithmsPrivate {
 template <typename BiIterator, typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE void qSortHelper(BiIterator start, BiIterator end, const T &t, LessThan lessThan)
 {
-    --end;
-    if (end - start < 1)
+top:
+    int span = end - start;
+    if (span < 2)
         return;
 
-    BiIterator pivot = start + (end - start) / 2;
+    --end;
+    BiIterator low = start, high = end - 1;
+    BiIterator pivot = start + span / 2;
 
-    T pivot_val = *pivot;
-    *pivot = *end;
-    *end = pivot_val;
+    if (lessThan(*end, *start))
+        qSwap(*end, *start);
+    if (span == 2)
+        return;
 
-    BiIterator low = start, high = end-1;
+    if (lessThan(*pivot, *start))
+        qSwap(*pivot, *start);
+    if (lessThan(*end, *pivot))
+        qSwap(*end, *pivot);
+    if (span == 3)
+        return;
+
+    qSwap(*pivot, *end);
 
     while (low < high) {
-        while (low < high && lessThan(*low, pivot_val))
+        while (low < high && lessThan(*low, *end))
             ++low;
 
-        while (high > low && lessThan(pivot_val, *high))
+        while (high > low && lessThan(*end, *high))
             --high;
 
-        if(low < high) {
-            T tmp = *low;
-            *low = *high;
-            *high = tmp;
+        if (low < high) {
+            qSwap(*low, *high);
             ++low;
             --high;
+        } else {
+            break;
         }
     }
 
-    if (lessThan(*low, pivot_val))
+    if (lessThan(*low, *end))
         ++low;
 
-    *end = *low;
-    *low = pivot_val;
-
+    qSwap(*end, *low);
     qSortHelper(start, low, t, lessThan);
-    qSortHelper(low + 1, end + 1, t, lessThan);
+
+    start = low + 1;
+    ++end;
+    goto top;
 }
 
 template <typename BiIterator, typename T>
@@ -290,7 +308,7 @@ inline void qSortHelper(BiIterator begin, BiIterator end, const T &dummy)
 template <typename BiIterator, typename T, typename LessThan>
 Q_OUTOFLINE_TEMPLATE void qStableSortHelper2(BiIterator start, BiIterator end, LessThan lessThan, T * buf)
 {
-    if(end - start < 2)
+    if (end - start < 2)
        return;
 
     BiIterator middle = start + (end - start) / 2;
@@ -299,9 +317,9 @@ Q_OUTOFLINE_TEMPLATE void qStableSortHelper2(BiIterator start, BiIterator end, L
 
     BiIterator pos = start;
     T *bufPos = buf;
-    while(pos != (end)) {
+    while (pos != end) {
         *bufPos++ = *pos++;
-    };
+    }
 
     T *bufEnd = bufPos;
     T *bufMiddle = buf  + (bufEnd - buf) /2;
@@ -316,9 +334,9 @@ Q_OUTOFLINE_TEMPLATE void qStableSortHelper2(BiIterator start, BiIterator end, L
             *pos++ = *b1++;
     }
 
-    while(b1 < bufMiddle )
+    while (b1 < bufMiddle)
         *pos++ = *b1++;
-    while(b2 < bufEnd)
+    while (b2 < bufEnd)
         *pos++ = *b2++;
 }
 
