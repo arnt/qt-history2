@@ -148,7 +148,7 @@ public:
         return str.split(separator);
     }
     inline QT3_SUPPORT QString readEntry(const QString &key, const QString &defaultValue = QString(),
-                                       bool *ok = 0)
+                                         bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
@@ -160,15 +160,15 @@ public:
             *ok = contains(key);
         return value(key, defaultValue).toInt();
     }
-     inline QT3_SUPPORT double readDoubleEntry(const QString &key, double defaultValue = 0,
-                                            bool *ok = 0)
+    inline QT3_SUPPORT double readDoubleEntry(const QString &key, double defaultValue = 0,
+                                              bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
         return value(key, defaultValue).toDouble();
     }
     inline QT3_SUPPORT bool readBoolEntry(const QString &key, bool defaultValue = false,
-                                        bool *ok = 0)
+                                          bool *ok = 0)
     {
         if (ok)
             *ok = contains(key);
@@ -182,7 +182,7 @@ public:
     inline QT3_SUPPORT void removeSearchPath(System, const QString &) {}
 
     inline QT3_SUPPORT void setPath(const QString &organization, const QString &application,
-                                  Scope scope = Global)
+                                    Scope scope = Global)
     {
         QObject *parent = this->parent();
         this->~QSettings();
@@ -215,8 +215,7 @@ public:
         return result;
     }
 #endif
-   
-    
+
 protected:
 #ifndef QT_NO_QOBJECT
     bool event(QEvent *event);

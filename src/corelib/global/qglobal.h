@@ -1016,7 +1016,7 @@ inline void qUnused(T &x) { (void)x; }
 #endif
 
 #ifndef qPrintable
-#  define qPrintable(string) string.toLocal8Bit().constData()
+#  define qPrintable(string) (string).toLocal8Bit().constData()
 #endif
 
 Q_CORE_EXPORT void qDebug(const char *, ...) // print debug message

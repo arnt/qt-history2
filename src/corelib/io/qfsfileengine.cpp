@@ -78,14 +78,14 @@ QFSFileEngine::open(int flags)
     }
 
     if (flags & QFile::Append) {
-         oflags |= QT_OPEN_APPEND;
+        oflags |= QT_OPEN_APPEND;
     } else if (flags & QFile::WriteOnly) {
         if ((flags & QFile::Truncate) || !(flags & QFile::ReadOnly))
             oflags |= QT_OPEN_TRUNC;
     }
 
 #if defined(Q_OS_MSDOS) || defined(Q_OS_WIN32) || defined(Q_OS_OS2)
-        oflags |= QT_OPEN_BINARY; // we handle all text translations our self.
+    oflags |= QT_OPEN_BINARY; // we handle all text translations our self.
 #endif
 
     d->external_file = 0;

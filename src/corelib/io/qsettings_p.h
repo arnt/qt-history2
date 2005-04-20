@@ -161,7 +161,7 @@ public:
 
     // Variant streaming functions
     QStringList variantListToStringList(const QVariantList &l) const;
-    QVariantList stringListToVariantList(const QStringList &l) const;
+    QVariant stringListToVariantList(const QStringList &l) const;
 
     // parser functions
     static QString &escapedLeadingAt(QString &s);
@@ -221,7 +221,6 @@ public:
     void init();
 
 private:
-
     bool readFile(QConfFile *confFile);
     bool writeFile(QConfFile *confFile);
 

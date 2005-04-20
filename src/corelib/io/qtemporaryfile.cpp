@@ -123,8 +123,6 @@ QTemporaryFilePrivate::~QTemporaryFilePrivate()
     will be placed into the temporary path as returned by
     QDir::tempPath().
 
-    FILL IN MORE HERE**
-
     \sa QDir::tempPath(), QFile
 */
 
@@ -213,7 +211,7 @@ QTemporaryFile::~QTemporaryFile()
 {
     Q_D(QTemporaryFile);
     close();
-    if(d->autoRemove)
+    if (!d->fileName.isEmpty() && d->autoRemove)
         remove();
 }
 

@@ -25,6 +25,7 @@
 #include "qrect.h"
 #include "qmutex.h"
 #include "qlibraryinfo.h"
+#include "qtemporaryfile.h"
 
 #ifndef QT_NO_QOBJECT
 #include "qcoreapplication.h"
@@ -273,13 +274,30 @@ QStringList QSettingsPrivate::variantListToStringList(const QVariantList &l) con
     return result;
 }
 
-QVariantList QSettingsPrivate::stringListToVariantList(const QStringList &l) const
+QVariant QSettingsPrivate::stringListToVariantList(const QStringList &l) const
 {
-    QVariantList result;
+    QVariantList variantList;
+    bool foundNonStringItem = false;
+    bool foundEscapedStringItem = false;
+
     QStringList::const_iterator it = l.constBegin();
-    for (; it != l.constEnd(); ++it)
-        result.append(stringToVariant(*it));
-    return result;
+    for (; it != l.constEnd(); ++it) {
+        QVariant variant = stringToVariant(*it);
+        variantList.append(variant);
+
+        if (variant.type() != QVariant::String)
+            foundNonStringItem = true;
+        else if (variant.toString() != *it)
+            foundEscapedStringItem = true;
+    }
+
+    if (foundNonStringItem) {
+        return variantList;
+    } else if (foundEscapedStringItem) {
+        return QVariant(variantList).toStringList();
+    } else {
+        return l;
+    }
 }
 
 QString &QSettingsPrivate::escapedLeadingAt(QString &s)
@@ -291,9 +309,7 @@ QString &QSettingsPrivate::escapedLeadingAt(QString &s)
 
 QString &QSettingsPrivate::unescapedLeadingAt(QString &s)
 {
-    if (s.length() >= 2
-        && s.at(0) == QLatin1Char('@')
-        && s.at(1) == QLatin1Char('@'))
+    if (s.startsWith(QLatin1String("@@")))
         s.remove(0, 1);
     return s;
 }
@@ -328,25 +344,33 @@ QString QSettingsPrivate::variantToString(const QVariant &v)
         }
         case QVariant::Rect: {
             QRect r = qvariant_cast<QRect>(v);
-            result += "@Rect("
-                        + QString::number(r.x()) + ", "
-                        + QString::number(r.y()) + ", "
-                        + QString::number(r.width()) + ", "
-                        + QString::number(r.height()) + ")";
+            result += QLatin1String("@Rect(");
+            result += QString::number(r.x());
+            result += QLatin1Char(' ');
+            result += QString::number(r.y());
+            result += QLatin1Char(' ');
+            result += QString::number(r.width());
+            result += QLatin1Char(' ');
+            result += QString::number(r.height());
+            result += QLatin1Char(')');
             break;
         }
         case QVariant::Size: {
             QSize s = qvariant_cast<QSize>(v);
-            result += "@Size("
-                        + QString::number(s.width()) + ", "
-                        + QString::number(s.height()) + ")";
+            result += QLatin1String("@Size(");
+            result += QString::number(s.width());
+            result += QLatin1Char(' ');
+            result += QString::number(s.height());
+            result += QLatin1Char(')');
             break;
         }
         case QVariant::Point: {
             QPoint p = qvariant_cast<QPoint>(v);
-            result += "@Point("
-                        + QString::number(p.x()) + ", "
-                        + QString::number(p.y()) + ")";
+            result += QLatin1String("@Point(");
+            result += QString::number(p.x());
+            result += QLatin1Char(' ');
+            result += QString::number(p.y());
+            result += QLatin1Char(')');
             break;
         }
 
@@ -443,8 +467,7 @@ void QSettingsPrivate::iniEscapedKey(const QString &key, QByteArray &result)
     }
 }
 
-bool QSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int to,
-                                            QString &result)
+bool QSettingsPrivate::iniUnescapedKey(const QByteArray &key, int from, int to, QString &result)
 {
     bool lowerCaseOnly = true;
     int i = from;
@@ -586,8 +609,8 @@ void QSettingsPrivate::iniEscapedStringList(const QStringList &strs, QByteArray 
     }
 }
 
-QStringList *QSettingsPrivate::iniUnescapedStringList(const QByteArray &str, int from,
-                                                            int to, QString &result)
+QStringList *QSettingsPrivate::iniUnescapedStringList(const QByteArray &str, int from, int to,
+                                                      QString &result)
 {
     static const char escapeCodes[][2] =
     {
@@ -732,7 +755,7 @@ QStringList QSettingsPrivate::splitArgs(const QString &s, int idx)
         if (c == QLatin1Char(')')) {
             Q_ASSERT(idx == l - 1);
             result.append(item);
-        } else if (c == QLatin1Char(',')) {
+        } else if (c == QLatin1Char(' ')) {
             result.append(item);
             item.clear();
         } else {
@@ -748,38 +771,48 @@ QStringList QSettingsPrivate::splitArgs(const QString &s, int idx)
 
 static void checkAccess(const QString &name, bool *read, bool *write)
 {
-    /*
-        The best way to check that a file is writable is to open it for
-        writing. This will also work if the file doesn't already exist
-        but can be created.
-    */
-    QDir dir;
-    if (QDir::isRelativePath(name))
-        dir = QDir::current();
-    else
-        dir = QDir::root();
+    QFileInfo fileInfo(name);
 
-#if 1
-    // Create the directories
-    // ### bloat + slow down; we need something simpler
-    QStringList pathElements = name.split(QLatin1Char('/'), QString::SkipEmptyParts);
-    for (int i = 0; i < pathElements.size() - 1; ++i) {
-        QString elt = pathElements[i];
-        if (dir.cd(elt))
-            continue;
+    if (fileInfo.exists()) {
+        /*
+            The best way to check that an existing file is
+            writable is to open it for writing.
+        */
+        QFile file(name);
+        *read = file.open(QIODevice::ReadOnly);
+        file.close();
 
-        if (!dir.mkdir(elt) || !dir.cd(elt))
-            break;
+        *write = file.open(QIODevice::Append);
+    } else {
+        // files that don't exist are considered readable
+        *read = true;
+
+        QDir dir;
+        if (QDir::isRelativePath(name))
+            dir = QDir::current();
+        else
+            dir = QDir::root();
+
+        /*
+            Create the directories to the file.
+        */
+        QStringList pathElements = name.split(QLatin1Char('/'), QString::SkipEmptyParts);
+        for (int i = 0; i < pathElements.size() - 1; ++i) {
+            QString elt = pathElements[i];
+            if (dir.cd(elt))
+                continue;
+
+            if (!dir.mkdir(elt) || !dir.cd(elt))
+                break;
+        }
+
+        /*
+            The best way to check if we can create the file is to
+            try to create a temporary file.
+        */
+        QTemporaryFile file(name + QLatin1String(".XXXXXX"));
+        *write = file.open();
     }
-#endif
-
-    // check if we can open or create the file
-    QFile file(name);
-    *write = file.open(QIODevice::Append);
-
-    // check if we can read from the file
-    file.close();
-    *read = file.open(QIODevice::ReadOnly);
 }
 
 void QConfFileSettingsPrivate::init()
@@ -792,6 +825,7 @@ void QConfFileSettingsPrivate::init()
     }
     if (!readAccess)
         setStatus(QSettings::AccessError);
+
     cs = Qt::CaseInsensitive;
     sync();       // loads the files the first time
 }
@@ -925,7 +959,6 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(const QString &fileName,
     for (int i = 1; i < NumConfFiles; ++i)
         confFiles[i] = 0;
     this->format = format;
-    readAccess = writeAccess = false;
     cs = Qt::CaseSensitive;
 }
 
@@ -1125,7 +1158,6 @@ static const int WriteFlags = 2;
 const char SemNamePrefix[] = "QSettings semaphore ";
 #endif
 
-
 static bool openFile(QFile &file, QConfFile &confFile, int flags)
 {
 #ifdef Q_OS_UNIX
@@ -1147,9 +1179,8 @@ static bool openFile(QFile &file, QConfFile &confFile, int flags)
     return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Text
                      : QIODevice::OpenMode(QIODevice::ReadOnly),
                      fd);
-
 #else
-    // on windows we use a named semaphore
+    // on Windows we use a named semaphore
     if (confFile.semHandle == 0) {
         QString semName = QString::fromAscii(SemNamePrefix);
         semName.append(file.fileName());
@@ -1311,12 +1342,12 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
         case '\n':
         case '\r':
         process_newline:
-#if 0
             /*
                 According to the specs, a line ends with CF, LF,
                 CR+LF, or LF+CR. In practice, this is irrelevant and
                 the ungetch() call is expensive, so let's not do it.
             */
+#if 0
             if (!device.getChar(&ch2))
                 goto end;
             if ((ch2 != '\n' && ch2 != '\r') || ch == ch2)
@@ -1367,8 +1398,9 @@ end:
 }
 
 /*
-    Returns false parse error. However, as many keys are read as possible, so if
-    the user doesn't check the status he will get the most out of the file anyway.
+    Returns false on parse error. However, as many keys are read as
+    possible, so if the user doesn't check the status he will get the
+    most out of the file anyway.
 */
 bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *map)
 {
@@ -1402,8 +1434,7 @@ bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *ma
                 currentSection += QLatin1Char('/');
             } else {
                 currentSection.clear();
-                currentSectionIsLowerCase
-                    = iniUnescapedKey(iniSection, 0, iniSection.size(),
+                currentSectionIsLowerCase = iniUnescapedKey(iniSection, 0, iniSection.size(),
                                                             currentSection);
                 currentSection += QLatin1Char('/');
             }
@@ -1414,14 +1445,12 @@ bool QConfFileSettingsPrivate::readIniFile(QIODevice &device, SettingsKeyMap *ma
             }
 
             QString key = currentSection;
-            bool keyIsLowerCase
-                    = (iniUnescapedKey(line, 0, equalsCharPos, key)
+            bool keyIsLowerCase = (iniUnescapedKey(line, 0, equalsCharPos, key)
                                    && currentSectionIsLowerCase);
 
             QString strValue;
             strValue.reserve(len - equalsCharPos);
-            QStringList *strListValue
-                    = iniUnescapedStringList(line, equalsCharPos + 1, len,
+            QStringList *strListValue = iniUnescapedStringList(line, equalsCharPos + 1, len,
                                                                strValue);
             QVariant variant;
             if (strListValue) {
@@ -1496,7 +1525,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
                 iniEscapedString(variantToString(value), block);
             }
             block += '\n';
-            if(device.write(block) == -1) {
+            if (device.write(block) == -1) {
                 writeError = true;
                 break;
             }
