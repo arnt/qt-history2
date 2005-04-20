@@ -5,6 +5,12 @@
 XbelTree::XbelTree(QWidget *parent)
     : QTreeWidget(parent)
 {
+    QStringList labels;
+    labels << tr("Title") << tr("Location");
+
+    header()->setResizeMode(QHeaderView::Stretch);
+    setHeaderLabels(labels);
+
     folderIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirClosedIcon),
                          QIcon::Normal, QIcon::Off);
     folderIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirOpenIcon),

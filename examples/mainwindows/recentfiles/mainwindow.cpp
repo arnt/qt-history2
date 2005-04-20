@@ -188,7 +188,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
         setWindowTitle(tr("%1 - %2").arg(strippedName(curFile))
                                     .arg(tr("Recent Files")));
 
-    QSettings settings("doc.trolltech.com", "Recent Files");
+    QSettings settings("Qt Examples", "Recent Files");
     QStringList files = settings.value("recentFileList").toStringList();
     files.removeAll(fileName);
     files.prepend(fileName);
@@ -206,7 +206,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
 
 void MainWindow::updateRecentFileActions()
 {
-    QSettings settings("doc.trolltech.com", "Recent Files");
+    QSettings settings("Qt Examples", "Recent Files");
     QStringList files = settings.value("recentFileList").toStringList();
 
     int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);

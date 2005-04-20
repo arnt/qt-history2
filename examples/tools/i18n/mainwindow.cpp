@@ -28,6 +28,7 @@ MainWindow::MainWindow()
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
 
     fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->setPalette(QPalette(Qt::red));
     fileMenu->addAction(exitAction);
 
     setWindowTitle(tr("Language: %1").arg(tr("English")));

@@ -291,7 +291,7 @@ void MainWindow::createStatusBar()
 
 void MainWindow::readSettings()
 {
-    QSettings settings("doc.trolltech.com", "MDI");
+    QSettings settings("Qt Examples", "MDI");
     QPoint pos = settings.value("pos", QPoint(200, 200)).toPoint();
     QSize size = settings.value("size", QSize(400, 400)).toSize();
     move(pos);
@@ -300,7 +300,7 @@ void MainWindow::readSettings()
 
 void MainWindow::writeSettings()
 {
-    QSettings settings("doc.trolltech.com", "MDI");
+    QSettings settings("Qt Examples", "MDI");
     settings.setValue("pos", pos());
     settings.setValue("size", size());
 }

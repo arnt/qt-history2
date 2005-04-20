@@ -36,7 +36,7 @@ void MainWindow::openFile(const QString &path)
 
     if (fileName.isNull())
         fileName = QFileDialog::getOpenFileName(this,
-            tr("Open File"), "", "qmake files (*.pro *.prf *.pri)");
+            tr("Open File"), "", "qmake Files (*.pro *.prf *.pri)");
 
     if (!fileName.isEmpty()) {
         QFile file(fileName);

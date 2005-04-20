@@ -5,12 +5,7 @@
 
 MainWindow::MainWindow()
 {
-    QStringList labels;
-    labels << QObject::tr("Title") << QObject::tr("Location");
-
-    xbelTree = new XbelTree(this);
-    xbelTree->header()->setResizeMode(QHeaderView::Stretch);
-    xbelTree->setHeaderLabels(labels);
+    xbelTree = new XbelTree;
     setCentralWidget(xbelTree);
 
     createActions();
@@ -27,7 +22,7 @@ void MainWindow::open()
     QString fileName =
             QFileDialog::getOpenFileName(this, tr("Open Bookmark File"),
                                          QDir::currentPath(),
-                                         tr("XBEL files (*.xbel *.xml)"));
+                                         tr("XBEL Files (*.xbel *.xml)"));
     if (fileName.isEmpty())
         return;
 
@@ -49,7 +44,7 @@ void MainWindow::saveAs()
     QString fileName =
             QFileDialog::getSaveFileName(this, tr("Save Bookmark File"),
                                          QDir::currentPath(),
-                                         tr("XBEL files (*.xbel *.xml)"));
+                                         tr("XBEL Files (*.xbel *.xml)"));
     if (fileName.isEmpty())
         return;
 
@@ -101,6 +96,8 @@ void MainWindow::createMenus()
     fileMenu->addAction(openAct);
     fileMenu->addAction(saveAsAct);
     fileMenu->addAction(exitAct);
+
+    menuBar()->addSeparator();
 
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);

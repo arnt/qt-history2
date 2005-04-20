@@ -219,7 +219,7 @@ void Dialog::setOpenFileName()
     QString fileName = QFileDialog::getOpenFileName(this,
                                 tr("QFileDialog::getOpenFileName()"),
                                 openFileNameLabel->text(),
-                                tr("All (*);;Text files (*.txt)"));
+                                tr("All Files (*);;Text Files (*.txt)"));
     if (!fileName.isEmpty())
         openFileNameLabel->setText(fileName);
 }
@@ -229,7 +229,7 @@ void Dialog::setOpenFileNames()
     QStringList files = QFileDialog::getOpenFileNames(
                                 this, tr("QFileDialog::getOpenFileNames()"),
                                 openFilesPath,
-                                tr("All (*);;Text files (*.txt)"));
+                                tr("All Files (*);;Text Files (*.txt)"));
     if (files.count()) {
         openFilesPath = files[0];
         openFileNamesLabel->setText(QString("[%1]").arg(files.join(", ")));
@@ -241,7 +241,7 @@ void Dialog::setSaveFileName()
     QString fileName = QFileDialog::getSaveFileName(this,
                                 tr("QFileDialog::getSaveFileName()"),
                                 saveFileNameLabel->text(),
-                                tr("All (*);;Text files (*.txt)"));
+                                tr("All Files (*);;Text Files (*.txt)"));
     if (!fileName.isEmpty())
         saveFileNameLabel->setText(fileName);
 }

@@ -1,7 +1,7 @@
 #ifndef XBELHANDLER_H
 #define XBELHANDLER_H
 
-#include <QPixmap>
+#include <QIcon>
 #include <QXmlDefaultHandler>
 
 class QTreeWidget;

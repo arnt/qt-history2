@@ -21,7 +21,7 @@ void MainWindow::openImage(const QString &path)
 
     if (fileName.isNull())
         fileName = QFileDialog::getOpenFileName(this,
-            tr("Open Image"), "", "Image files (*.png *.jpg *.bmp)");
+            tr("Open Image"), "", "Image Files (*.png *.jpg *.bmp)");
 
     if (!fileName.isEmpty()) {
         QPixmap newImage;
