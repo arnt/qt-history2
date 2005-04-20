@@ -866,7 +866,13 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn void QAbstractItemModel::reset()
 
-    \internal
+    This signal is emitted when the model has been reset. When a model
+    is reset it means that any previous data reported from the model
+    is now invalid and has to be queried for again.
+
+    When a model radically changes its data it can sometimes be easier
+    to just emit this signal rather than using rowsRemoved(),
+    dataChanged(), etc.
 */
 
 /*!
@@ -957,18 +963,6 @@ QAbstractItemModel::~QAbstractItemModel()
     \a end inclusive, under the given \a parent item.
 
     \sa removeColumns()
-*/
-
-/*!
-    \fn void QAbstractItemModel::reset()
-
-    This signal is emitted when the model has been reset. When a model
-    is reset it means that any previous data reported from the model
-    is now invalid and has to be queried for again.
-
-    When a model radically changes its data it can sometimes be easier
-    to just emit this signal rather than using rowsRemoved(),
-    dataChanged() etc.
 */
 
 /*!
@@ -1091,8 +1085,8 @@ QMimeData *QAbstractItemModel::mimeData(const QModelIndexList &indexes) const
 
 /*!
     Handles the \a data supplied by a drag and drop operation that ended with
-    the given \a action over the row in the model specified by the \a row
-    and the \a parent index.
+    the given \a action over the row in the model specified by the \a row,
+    \a column, and the \a parent index.
 
     \sa supportedDropActions()
 */
@@ -1240,7 +1234,7 @@ bool QAbstractItemModel::canFetchMore(const QModelIndex &) const
     enables the item (\c ItemIsEnabled) and allows it to be
     selected (\c ItemIsSelectable).
 
-    \sa ItemFlag
+    \sa Qt::ItemFlags
 */
 Qt::ItemFlags QAbstractItemModel::flags(const QModelIndex &index) const
 {

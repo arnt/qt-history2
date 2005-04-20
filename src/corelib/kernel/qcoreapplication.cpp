@@ -1500,6 +1500,19 @@ void QCoreApplication::removeLibraryPath(const QString &path)
 #endif //QT_NO_COMPONENT
 
 /*!
+    \typedef QCoreApplication::EventFilter
+
+    A function with the following signature that can be used as an
+    event filter:
+
+    \code
+    bool (*EventFilter)(void *message, long *result);
+    \endcode
+*/
+
+/*!
+    \fn EventFilter QCoreApplication::setEventFilter(EventFilter filter)
+
     Sets the event filter \a filter. Returns a pointer to the filter
     function previously defined.
 

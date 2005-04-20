@@ -98,7 +98,11 @@
     \value FontChange Widget's font has changed
     \value Hide  Widget was hidden, \l{QHideEvent}.
     \value HideToParent  A child widget has been hidden.
+    \value HoverEnter The mouse cursor enters a hover widget.
+    \value HoverLeave The mouse cursor leaves a hover widget.
+    \value HoverMove  The mouse cursor moves inside a hover widget.
     \value IconTextChange Widget's icon text has been changed
+    \value InputMethod  An input method is being used.
     \value KeyPress  Key press (including Shift, for example), \l{QKeyEvent}.
     \value KeyRelease  Key release, \l{QKeyEvent}.
     \value LanguageChange  The application translation changed, \l{QTranslator}
@@ -152,18 +156,27 @@
     \value WindowStateChange The window's state, i.e. minimized, maximized or full-screen, has changed, \l{QWindowStateChangeEvent}. See also \l{QWidget::windowState()}.
     \value WindowTitleChange
     \value WindowUnblocked
+    \value WinEventAct  A Windows-specific activation event has occurred.
     \value ZOrderChange The widget's z-order has changed. This event is never sent to top level windows.
 
     \value User  User-defined event.
     \value MaxUser  Last user event id.
 
+    \omitvalue Accel
+    \omitvalue AccelAvailable
+    \omitvalue AccelOverride
     \omitvalue ActivateControl
+    \omitvalue CaptionChange
+    \omitvalue ChildInserted
     \omitvalue DeactivateControl
     \omitvalue DragResponse
     \omitvalue EmbeddingControl
     \omitvalue HelpRequest
+    \omitvalue IconChange
     \omitvalue IconDrag
+    \omitvalue LayoutHint
     \omitvalue OkRequest
+    \omitvalue Reparent
     \omitvalue Style
 
     User events should have values between User and MaxUser inclusive.
