@@ -577,8 +577,7 @@ void QAbstractItemView::reset()
     d->editors.clear();
     d->persistent.clear();
     setState(NoState);
-    if (isVisible())
-        doItemsLayout();
+    d->doDelayedItemsLayout();
     // the view will be updated later
 }
 
@@ -592,8 +591,8 @@ void QAbstractItemView::setRootIndex(const QModelIndex &index)
     Q_D(QAbstractItemView);
     QModelIndex old = d->root;
     d->root = index;
-    if (d->model != 0 && isVisible())
-        doItemsLayout();
+    if (d->model != 0)
+        d->doDelayedItemsLayout();
 }
 
 /*!
@@ -805,8 +804,7 @@ QColor QAbstractItemView::evenRowColor() const
 void QAbstractItemView::setIconSize(const QSize &size)
 {
     d_func()->iconSize = size;
-    if (isVisible())
-        doItemsLayout();
+    d_func()->doDelayedItemsLayout();
 }
 
 QSize QAbstractItemView::iconSize() const
