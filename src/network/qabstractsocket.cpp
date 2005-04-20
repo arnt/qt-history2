@@ -329,7 +329,7 @@ QAbstractSocketPrivate::QAbstractSocketPrivate()
 QAbstractSocketPrivate::~QAbstractSocketPrivate()
 {
     if (socketLayer.isValid())
-        resetSocketLayer();
+        socketLayer.close();
 }
 
 /*! \internal
