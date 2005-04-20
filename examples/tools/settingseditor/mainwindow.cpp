@@ -14,8 +14,11 @@ MainWindow::MainWindow()
     createActions();
     createMenus();
 
+    autoRefreshAct->setChecked(true);
+    fallbacksAct->setChecked(true);
+
     setWindowTitle(tr("Settings Editor"));
-    resize(500, 400);
+    resize(500, 600);
 }
 
 void MainWindow::openSettings()
@@ -106,6 +109,7 @@ void MainWindow::createActions()
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 
     autoRefreshAct = new QAction(tr("&Auto-Refresh"), this);
+    autoRefreshAct->setShortcut(tr("Ctrl+A"));
     autoRefreshAct->setCheckable(true);
     autoRefreshAct->setEnabled(false);
     connect(autoRefreshAct, SIGNAL(checked(bool)),
@@ -114,8 +118,8 @@ void MainWindow::createActions()
             refreshAct, SLOT(setDisabled(bool)));
 
     fallbacksAct = new QAction(tr("&Fallbacks"), this);
+    fallbacksAct->setShortcut(tr("Ctrl+F"));
     fallbacksAct->setCheckable(true);
-    fallbacksAct->setChecked(true);
     fallbacksAct->setEnabled(false);
     connect(fallbacksAct, SIGNAL(checked(bool)),
             settingsTree, SLOT(setFallbacksEnabled(bool)));

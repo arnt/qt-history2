@@ -118,7 +118,7 @@ QString LocationDialog::organization() const
 
 QString LocationDialog::application() const
 {
-    if (applicationComboBox->currentIndex() == 0)
+    if (applicationComboBox->currentText() == tr("Any"))
         return "";
     else
         return applicationComboBox->currentText();
@@ -128,6 +128,10 @@ void LocationDialog::updateLocationsTable()
 {
     locationsTable->setUpdatesEnabled(false);
     locationsTable->setRowCount(0);
+#ifdef Q_WS_WIN
+    locationsTable->horizontalHeader()->setSectionHidden(1,
+            format() == QSettings::NativeFormat);
+#endif
 
     for (int i = 0; i < 2; ++i) {
         if (i == 0 && scope() == QSettings::SystemScope)
@@ -148,15 +152,14 @@ void LocationDialog::updateLocationsTable()
             int row = locationsTable->rowCount();
             locationsTable->setRowCount(row + 1);
 
-            QFileInfo fileInfo(settings.fileName());
-
             QTableWidgetItem *headerItem = new QTableWidgetItem;
             headerItem->setText(QString::number(row + 1));
 
             QTableWidgetItem *item0 = new QTableWidgetItem;
-            item0->setText(fileInfo.absoluteFilePath());
+            item0->setText(settings.fileName());
 
             QTableWidgetItem *item1 = new QTableWidgetItem;
+            QFileInfo fileInfo(settings.fileName());
             item1->setText(tr("%1 KB").arg((fileInfo.size() + 1023) / 1024));
 
             QTableWidgetItem *item2 = new QTableWidgetItem;
