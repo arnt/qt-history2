@@ -165,7 +165,8 @@ MakefileGenerator::initOutPaths()
             debug_msg(3, "Fixed output_dir %s (%s) into %s", dirs[x].toLatin1().constData(),
                       orig_path.toLatin1().constData(), path.toLatin1().constData());
             if(!createDir(path))
-                warn_msg(WarnLogic, "%s: Cannot access directory '%s'", dirs[x].toLatin1().constData(), path.toLatin1().constData());
+                warn_msg(WarnLogic, "%s: Cannot access directory '%s'", dirs[x].toLatin1().constData(),
+                         path.toLatin1().constData());
         }
     }
 
@@ -177,8 +178,9 @@ MakefileGenerator::initOutPaths()
             continue;
         const QStringList &tmp = project->variables()[(*it) + ".input"];
         for(QStringList::ConstIterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
-            const QStringList &inputs = project->variables()[(*it2)];
-            for(QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
+            QStringList &inputs = project->variables()[(*it2)];
+            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
+                (*input) = fileFixify((*input), Option::output_dir, Option::output_dir);
                 QString path = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
                 path = Option::fixPathToLocalOS(path);
                 int slash = path.lastIndexOf(Option::dir_sep);
@@ -588,7 +590,7 @@ MakefileGenerator::init()
                 for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                     if((*input).isEmpty())
                         continue;
-                    QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
+                    QString in = Option::fixPathToTargetOS((*input), false);
                     if(!verifyExtraCompiler((*it), in)) //verify
                         continue;
                     QStringList *out_list = 0;
