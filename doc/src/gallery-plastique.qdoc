@@ -1,0 +1,125 @@
+/*!
+  \page gallery-plastique.html
+
+  \title Plastique Style Widget Gallery
+
+  This page shows some of the widgets available in Qt
+  when configured to use the "plastique" style.
+
+
+  \section1 Display Widgets
+
+  \table 100%
+    \row \i \inlineimage plastique-progressbar.png
+    \i QProgressBar
+
+    The QProgressBar widget provides a horizontal progress bar.
+    \row \i \inlineimage plastique-lcdnumber.png
+    \i QLCDNumber
+
+    The QLCDNumber widget displays a number with LCD-like digits.
+    \row \i \inlineimage plastique-label.png
+    \i QLabel
+
+    The QLabel widget provides a text or image display.
+  \endtable
+
+  \section1 Buttons
+
+  \table 100%
+    \row \i \inlineimage plastique-pushbutton.png
+    \i QPushButton
+
+    The QPushButton widget provides a command button.
+    \row \i \inlineimage plastique-toolbutton.png
+    \i QToolButton
+
+    The QToolButton class provides a quick-access button to commands
+       or options, usually used inside a QToolBar.
+    \row \i \inlineimage plastique-checkbox.png
+    \i QCheckBox
+
+    The QCheckBox widget provides a checkbox with a text label.
+    \row \i \inlineimage plastique-radiobutton.png
+    \i QRadioButton
+
+    The QRadioButton widget provides a radio button with a text or pixmap label.
+  \endtable
+
+  \section1 Input Widgets
+
+  \table 100%
+    \row \i \inlineimage plastique-datetimeedit.png
+    \i QDateTimeEdit
+
+    The QDateTimeEdit class provides a widget for editing dates and times.
+    \row \i \inlineimage plastique-spinbox.png
+    \i QSpinBox
+
+    The QSpinBox class provides a spin box widget.
+    \row \i \inlineimage plastique-combobox.png
+    \i QComboBox
+
+    The QComboBox widget is a combined button and popup list.
+    \row \i \inlineimage plastique-lineedit.png
+    \i QLineEdit
+
+    The QLineEdit widget is a one-line text editor.
+    \row \i \inlineimage plastique-slider.png
+    \i QSlider
+
+    The QSlider widget provides a vertical or horizontal slider.
+    \row \i \inlineimage plastique-dial.png
+    \i QDial
+
+    The QDial class provides a rounded range control (like a
+       speedometer or potentiometer).
+    \row \i \inlineimage plastique-textedit.png
+    \i QTextEdit
+
+    The QTextEdit class provides a widget that is used to edit and
+     display both plain and rich text.
+    \row \i \inlineimage plastique-horizontalscrollbar.png
+    \i QScrollBar
+
+    The QScrollBar widget provides a vertical or horizontal scroll bar. Here, we show a scroll bar with horizontal orientation.
+  \endtable
+
+  \section1 Containers
+
+  \table 100%
+    \row \i \inlineimage plastique-toolbox.png
+    \i QToolBox
+
+    The QToolBox class provides a column of tabbed widget items.
+    \row \i \inlineimage plastique-groupbox.png
+    \i QGroupBox
+
+    The QGroupBox widget provides a group box frame with a title.
+    \row \i \inlineimage plastique-frame.png
+    \i QFrame
+
+    The QFrame widget provides a simple decorated container for other widgets.
+    \row \i \inlineimage plastique-tabwidget.png
+    \i QTabWidget
+
+    The QTabWidget class provides a stack of tabbed widgets.
+  \endtable
+
+  \section1 Item Views
+
+  \table 100%
+    \row \i \inlineimage plastique-listview.png
+    \i QListView
+
+    The QListView class provides a default model/view implementation of a list/icon view. The QListWidget class provides a classic item-based list/icon view.
+    \row \i \inlineimage plastique-treeview.png
+    \i QTreeView
+
+    The QTreeView class provides a default model/view implementation of a tree view. The QTreeWidget class provides a classic item-based tree view.
+    \row \i \inlineimage plastique-tableview.png
+    \i QTableView
+
+    The QTableView class provides a default model/view implementation of a table view. The QTableWidget class provides a classic item-based table view.
+  \endtable
+*/
