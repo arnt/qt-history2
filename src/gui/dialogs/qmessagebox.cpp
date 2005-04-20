@@ -1579,7 +1579,7 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
         logo.setColor(11, 0xffcccc99);
     }
     QPixmap pm = QPixmap::fromImage(logo);
-    if (pm.isNull())
+    if (!pm.isNull())
         mb.setIconPixmap(pm);
 #endif
     mb.setButtonText(0, tr("OK"));
