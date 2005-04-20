@@ -26,7 +26,7 @@
 #include <qdebug.h>
 #include <qvector.h>
 
-// #define QT_DEBUG_DRAW
+#define QT_DEBUG_DRAW
 
 static const struct {
     int winSizeName;
@@ -179,10 +179,7 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
 }
 
 QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
-    : QWin32PaintEngine(*(new QWin32PrintEnginePrivate), PaintEngineFeatures(PixmapTransform
-                                                                             | UsesFontEngine
-                                                                             | AlphaBlend
-                                                                             | PainterPaths))
+    : QPaintEngine(*(new QWin32PrintEnginePrivate), PaintEngineFeatures(AllFeatures))
 {
     Q_D(QWin32PrintEngine);
     d->docName = "document1";
@@ -191,35 +188,14 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
     d->initialize();
 }
 
-
-void QWin32PrintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation operation)
-{
-    Q_D(QWin32PrintEngine);
-    qreal xscale = ((float)metric(QPaintDevice::PdmPhysicalDpiX)) /
-                   ((float)metric(QPaintDevice::PdmDpiX));
-    qreal yscale = ((float)metric(QPaintDevice::PdmPhysicalDpiY)) /
-                   ((float)metric(QPaintDevice::PdmDpiY));
-    qreal xoff = 0;
-    qreal yoff = 0;
-    if (d->fullPage) {	// must adjust for margins
-        xoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETX);
-        yoff = - GetDeviceCaps(d->hdc, PHYSICALOFFSETY);
-    }
-    QRegion rgn = clipRegion * QMatrix(xscale, 0, 0, yscale, xoff, yoff);
-    QWin32PaintEngine::updateClipRegion(clipRegion, operation);
-}
-
-bool QWin32PrintEngine::begin(QPaintDevice *dev)
+bool QWin32PrintEngine::begin(QPaintDevice *)
 {
     Q_D(QWin32PrintEngine);
     if (d->reinit) {
         d->resetDC();
     }
 
-    if (!QWin32PaintEngine::begin(dev)) {
-	qWarning("QWin32PaintEngine::begin() failed...");
-	return false;
-    }
+    // ### set default colors and stuff...
 
     bool ok = d->state == QPrinter::Idle;
     Q_ASSERT(d->hdc);
@@ -256,8 +232,6 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 
     if (QSysInfo::WindowsVersion & Qt::WV_DOS_based) {
 	// StartPage resets DC on Win95/98
-        d->setupPrinterMapping();
-        d->setupOriginMapping();
     }
 
     if (!ok) {
@@ -270,8 +244,14 @@ bool QWin32PrintEngine::begin(QPaintDevice *dev)
 	d->state = QPrinter::Active;
     }
 
-    return ok;
+    d->matrix = QMatrix();
+    d->has_pen = true;
+    d->pen = QColor(Qt::black);
+    d->has_brush = false;
 
+    updateMatrix(d->matrix);
+
+    return ok;
 }
 
 bool QWin32PrintEngine::end()
@@ -318,9 +298,8 @@ bool QWin32PrintEngine::newPage()
     SetTextAlign(d->hdc, TA_BASELINE);
     if (transparent)
         SetBkMode(d->hdc, TRANSPARENT);
-    d->setupPrinterMapping();
-    d->setupOriginMapping();
 
+    // ###
     return true;
 
     bool success = false;
@@ -354,9 +333,6 @@ bool QWin32PrintEngine::newPage()
 
         if (!success)
             return false;
-        //d->setupPrinterMapping();
-        //d->setupOriginMapping();
-        //SetTextAlign(d->hdc, TA_BASELINE);
     }
     return true;
 }
@@ -437,239 +413,218 @@ int QWin32PrintEngine::metric(QPaintDevice::PaintDeviceMetric m) const
     return val;
 }
 
+void QWin32PrintEngine::updateState(const QPaintEngineState &state)
+{
+    Q_D(QWin32PrintEngine);
+
+    if (state.state() & DirtyTransform) {
+        updateMatrix(state.matrix());
+    }
+
+    if (state.state() & DirtyPen) {
+        d->pen = state.pen();
+        d->has_pen = d->pen.style() != Qt::NoPen && d->pen.isSolid() && d->pen.brush().isOpaque();
+    }
+
+    if (state.state() & DirtyBrush) {
+        QBrush brush = state.brush();
+        d->has_brush = brush.style() == Qt::SolidPattern && brush.isOpaque();
+        d->brush_color = brush.color();
+    }
+
+}
+
+void QWin32PrintEngine::updateMatrix(const QMatrix &matrix)
+{
+    Q_D(QWin32PrintEngine);
+
+    QMatrix stretch(d->stretch_x, 0, 0, d->stretch_y,
+                    d->fullPage ? -d->devPageRect.x() : 0,
+                    d->fullPage ? -d->devPageRect.y() : 0);
+    d->painterMatrix = matrix;
+    d->matrix = d->painterMatrix * stretch;
+}
+
 void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
                                    const QPixmap &originalPixmap,
                                    const QRectF &sr)
 {
-    Q_D(QWin32PrintEngine);
+    return;
+
+//     Q_D(QWin32PrintEngine);
 #if defined QT_DEBUG_DRAW
-    printf(" - QWin32PrintEngine::drawPixmap(), [%.2f,%.2f,%.2f,%.2f], size=[%d,%d], "
-           "sr=[%.2f,%.2f,%.2f,%.2f], mode=%d\n",
+    printf(" - QWin32PrintEngine::drawPixmap(), "
+           "[%.2f,%.2f,%.2f,%.2f], "
+           "size=[%d,%d], "
+           "sr=[%.2f,%.2f,%.2f,%.2f]\n",
            targetRect.x(), targetRect.y(), targetRect.width(), targetRect.height(),
            originalPixmap.width(), originalPixmap.height(),
-           sr.x(), sr.y(), sr.width(), sr.height(),
-           mode);
+           sr.x(), sr.y(), sr.width(), sr.height());
 #endif
 
-    QPixmap pixmap = originalPixmap;
-    if (sr.x()!=0 || sr.y() != 0 || sr.size() != originalPixmap.size()) {
-        QPixmap newPixmap(sr.size().toSize());
-        newPixmap.fill(QColor(0, 0, 0, 0));
-        QPainter p(&newPixmap);
-        p.drawPixmap(QPointF(0, 0), originalPixmap, sr);
-        p.end();
-        pixmap = newPixmap;
-    }
+    HBITMAP hbitmap = originalPixmap.toWinHBITMAP();
+    HDC hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
+    HGDIOBJ null_bitmap = SelectObject(hbitmap_hdc, hbitmap);
 
-    // Turn of native transformations...
-    QRectF rect(targetRect);
-    QPainter *paint = painter();
-    QPointF pos( rect.x(), rect.y() );
-    QImage  image = pixmap.toImage();
+//     int tx = qRound(targetRect.x() + d->matrix.dx());
+//     int ty = qRound(targetRect.y() + d->matrix.dy());
+//     int tw = qRound(targetRect.width());
+//     int th = qRound(targetRect.height());
 
-    float w = pixmap.width();
-    float h = pixmap.height();
+//     int sx = qRound(sr.x());
+//     int sy = qRound(sr.y());
+//     int sw = qRound(sr.width());
+//     int sh = qRound(sr.height());
 
-    if ( pixmap.isQBitmap() ) {
-        QColor bg = paint->background().color();
-        QColor fg = paint->pen().color();
-        image.convertDepth( 8 );
-        if( image.color( 0 ) == QColor(Qt::black).rgb() &&
-            image.color( 1 ) == QColor(Qt::white).rgb() ) {
-            image.setColor( 1, bg.rgb() );
-            image.setColor( 0, fg.rgb() );
-        } else {
-            image.setColor( 0, bg.rgb() );
-            image.setColor( 1, fg.rgb() );
-        }
-    }
+//     const BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
+//                                0,                 // BlendFlags, must be zero
+//                                255,               // SourceConstantAlpha, we use pr pixel
+//                                AC_SRC_ALPHA       // AlphaFormat
+//     };
 
-    qreal xs = 1.0;                    // x stretch
-    qreal ys = 1.0;                    // y stretch
-    if ( paint ) {
-        bool wxf = paint->matrixEnabled();
-        bool vxf = paint->viewTransformEnabled();
-#ifndef QT_NO_IMAGE_TRANSFORMATION
-        bool complexWxf = false;
-#endif
-        if ( wxf ) {
-            QMatrix m = paint->matrix();
-#ifndef QT_NO_IMAGE_TRANSFORMATION
-            complexWxf = m.m12() != 0 || m.m21() != 0;
-            if ( complexWxf ) {
-                image.setAlphaBuffer( true );
+//     if (!qAlphaBlend(d->hdc, tx, ty, tw, th, hbitmap_hdc, sx, sy, sw, sh, bf)) {
+//         qWarning("AlphaBlending didn't see too successful...");
+//     }
 
-                // When have to scale the image according to the rectangle before
-                // the rotation takes place to avoid shearing the image.
-                if (rect.width() != image.width() || rect.height() != image.height()) {
-                    m = QMatrix( rect.width()/(qreal)image.width(), 0,
-                                  0, rect.height()/(qreal)image.height(),
-                                  0, 0 ) * m;
-                }
+    SelectObject(hbitmap_hdc, null_bitmap);
+    DeleteObject(hbitmap);
+    DeleteDC(hbitmap_hdc);
 
-                int origW = image.width();
-                int origH = image.height();
-                image = image.transformed( m );
-                w = image.width();
-                h = image.height();
-                rect.setWidth(w);
-                rect.setHeight(h);
-
-                // The image is already transformed. For the transformation
-                // of pos, we need a modified world matrix:
-                //   Let M be the original world matrix and T its true
-                //   matrix of image transformation. The resulting new
-                //   world matrix we are looking for has only the
-                //   translation
-                //     v = pos' - pos
-                //       = M*pos - T*0 - pos
-                //   whith pos' being the desired upper left corner of the
-                //   transformed image.
-                paint->save();
-                QPointF p1 = QPointF(0,0) * QPixmap::trueMatrix( m, origW, origH );
-                QPointF p2 = pos * paint->matrix();
-                p1 = p2 - p1 - pos;
-                paint->setMatrix( QMatrix( 1, 0, 0, 1, p1.x(), p1.y() ) );
-            } else
-#endif
-                {
-                    xs = m.m11();
-                    ys = m.m22();
-                }
-        }
-        if ( vxf ) {
-            QRect vr = paint->viewport();
-            QRect wr = paint->window();
-            xs = xs * vr.width() / wr.width();
-            ys = ys * vr.height() / wr.height();
-        }
-        if ( wxf || vxf ) {             // map position
-            pos = pos * paint->matrix();
-        }
-#ifndef QT_NO_IMAGE_TRANSFORMATION
-        if ( complexWxf )
-            paint->restore();
-#endif
-    }
-
-    float dw = xs * rect.width();
-    float dh = ys * rect.height();
-    BITMAPINFO *bmi = getWindowsBITMAPINFO( image );
-    BITMAPINFOHEADER *bmh = (BITMAPINFOHEADER*)bmi;
-    uchar *bits;
-
-    QRegion oldClip;
-
-    // Since we scale the image in the StretchXXX below, we scale the
-    // bitmask to make the transparency clip region correct.
-    if ( paint && image.hasAlphaBuffer() ) {
-        QImage mask = image.createAlphaMask();
-        QBitmap bm;
-        bm = mask;
-        xs = dw/(qreal)image.width();
-        ys = dh/(qreal)image.height();
-        if( xs!=1 || ys!=1 )
-            bm = bm.transformed( QMatrix( xs, 0, 0, ys, 0, 0 ) );
-        QRegion r( bm );
-        r.translate(qRound(pos.x()), qRound(pos.y()) );
-        if ( paint->hasClipping() )
-            r &= paint->clipRegion();
-        paint->save();
-        oldClip = paint->clipRegion();
-        updateClipRegion(r, Qt::ReplaceClip);
-    }
-
-    bits = new uchar[bmh->biSizeImage];
-    if ( bmh->biBitCount == 24 ) {
-        int width = image.width();
-        uchar *b = bits;
-        uint lineFill = (3*width+3)/4*4 - 3*width;
-        for( int y=image.height()-1; y >= 0 ; y-- ) {
-            QRgb *s = (QRgb*)(image.scanLine( y ));
-            for( int x=0; x < width; x++ ) {
-                *b++ = qBlue( *s );
-                *b++ = qGreen( *s );
-                *b++ = qRed( *s );
-                s++;
-            }
-            b += lineFill;
-        }
-
-    } else {
-        uchar *b = bits;
-        int w = (image.width()*image.depth() + 7)/8;
-        int incr = w + ( (4-w) & 3 );
-        for( int y=image.height()-1; y >= 0 ; y-- ) {
-            memcpy( b, image.scanLine( y ), w );
-            b += incr;
-        }
-    }
-
-    int rc = GetDeviceCaps(d->hdc,RASTERCAPS);
-    if ( (rc & RC_STRETCHDIB) != 0 ) {
-        // StretchDIBits supported
-        StretchDIBits( d->hdc,
-                       qRound(pos.x()), qRound(pos.y()), qRound(dw), qRound(dh),
-                       0, 0, qRound(w), qRound(h),
-                       bits, bmi, DIB_RGB_COLORS, SRCCOPY );
-    } else if ( (rc & RC_STRETCHBLT) != 0 ) {
-        // StretchBlt supported
-        HDC     hdcPrn = CreateCompatibleDC( d->hdc );
-        HBITMAP hbm    = CreateDIBitmap( d->hdc, bmh, CBM_INIT,
-                                         bits, bmi, DIB_RGB_COLORS );
-        HBITMAP oldHbm = (HBITMAP)SelectObject( hdcPrn, hbm );
-        StretchBlt( d->hdc, qRound(pos.x()), qRound(pos.y()), qRound(dw), qRound(dh),
-                    hdcPrn, qRound(0), qRound(0), qRound(w), qRound(h),
-                    SRCCOPY );
-        SelectObject( hdcPrn, oldHbm );
-        DeleteObject( hbm );
-        DeleteObject( hdcPrn );
-    }
-    delete [] bits;
-    free( bmi );
-
-    if ( paint && image.hasAlphaBuffer() ) {
-        updateClipRegion(oldClip, oldClip.isEmpty() ? Qt::NoClip : Qt::ReplaceClip);
-        paint->restore();
-    }
+//     SelectObject(mask_hdc, null_mask);
+//     DeleteObject(mask);
+//     DeleteDC(mask_hdc);
 }
 
-void QWin32PrintEnginePrivate::setupOriginMapping()
+
+void QWin32PrintEnginePrivate::fillPath_dev(const QPainterPath &path, const QColor &color)
 {
-    if (fullPage) {
-	POINT p;
-	GetViewportOrgEx(hdc, &p);
-	OffsetViewportOrgEx(hdc,
-			    -p.x - GetDeviceCaps(hdc, PHYSICALOFFSETX),
-			    -p.y - GetDeviceCaps(hdc, PHYSICALOFFSETY),
-			    0);
-    } else {
-	POINT p;
-	GetViewportOrgEx(hdc, &p);
-	OffsetViewportOrgEx(hdc, -p.x, -p.y, 0);
+#ifdef QT_DEBUG_DRAW
+    qDebug() << " --- QWin32PrintEnginePrivate::fillPath() bound:" << path.boundingRect() << color;
+#endif
+
+    if (!BeginPath(hdc))
+        qErrnoWarning("QWin32PrintEnginePrivate::drawPath: BeginPath failed");
+
+    // Drawing the subpaths
+    int start = -1;
+    for (int i=0; i<path.elementCount(); ++i) {
+        const QPainterPath::Element &elm = path.elementAt(i);
+        switch (elm.type) {
+        case QPainterPath::MoveToElement:
+            if (start >= 0
+                && path.elementAt(start).x == path.elementAt(i-1).x
+                && path.elementAt(start).y == path.elementAt(i-1).y)
+                CloseFigure(hdc);
+            start = i;
+            MoveToEx(hdc, qRound(elm.x), qRound(elm.y), 0);
+            break;
+        case QPainterPath::LineToElement:
+            LineTo(hdc, qRound(elm.x), qRound(elm.y));
+            break;
+        case QPainterPath::CurveToElement: {
+            POINT pts[3] = {
+                { qRound(elm.x), qRound(elm.y) },
+                { qRound(path.elementAt(i+1).x), qRound(path.elementAt(i+1).y) },
+                { qRound(path.elementAt(i+2).x), qRound(path.elementAt(i+2).y) }
+            };
+            i+=2;
+            PolyBezierTo(hdc, pts, 3);
+            break;
+        }
+        default:
+            qFatal("QWin32PaintEngine::drawPath: Unhandled type: %d", elm.type);
+        }
     }
+
+    if (start >= 0
+        && path.elementAt(start).x == path.elementAt(path.elementCount()-1).x
+        && path.elementAt(start).y == path.elementAt(path.elementCount()-1).y)
+        CloseFigure(hdc);
+
+    if (!EndPath(hdc))
+        qErrnoWarning("QWin32PaintEngine::drawPath: EndPath failed");
+
+
+    SetPolyFillMode(hdc, path.fillRule() == Qt::WindingFill ? WINDING : ALTERNATE);
+    HBRUSH brush = CreateSolidBrush(RGB(color.red(), color.green(), color.blue()));
+    HGDIOBJ old_brush = SelectObject(hdc, brush);
+    FillPath(hdc);
+    DeleteObject(SelectObject(hdc, old_brush));
 }
 
-void QWin32PrintEnginePrivate::setupPrinterMapping()
+
+void QWin32PrintEnginePrivate::fillPath(const QPainterPath &path, const QColor &color)
 {
-    int mapMode = MM_ANISOTROPIC;
-    if (GetDeviceCaps(hdc, LOGPIXELSX) == GetDeviceCaps(hdc, LOGPIXELSY))
-	mapMode = MM_ISOTROPIC;
+    fillPath_dev(path * matrix, color);
+}
 
-    int result;
+void QWin32PrintEnginePrivate::strokePath(const QPainterPath &path, const QColor &color)
+{
+    QPainterPathStroker stroker;
+    stroker.setDashPattern(pen.style());
+    stroker.setCapStyle(pen.capStyle());
+    stroker.setJoinStyle(pen.joinStyle());
 
-    result = SetMapMode(hdc, mapMode);
-    Q_ASSERT(result);
+    QPainterPath stroke;
 
-    // The following two lines are the cause of problems on Windows 9x,
-    // for some reason, either one of these functions or both don't
-    // have an effect.  This appears to be a bug with the Windows API
-    // and as of yet I can't find a workaround.
-    result = SetWindowExtEx(hdc, resolution, resolution, 0);
-    Q_ASSERT(result);
+    qreal width = pen.widthF();
+    if (width == 0) {
+        stroker.setWidth(1);
+        stroke = stroker.createStroke(path * matrix);
+    } else {
+        stroker.setWidth(width);
+        stroker.setCurveThreshold(1 / (10 * matrix.m11() * matrix.m22()));
+        stroke = stroker.createStroke(path) * matrix;
+    }
 
-    result = SetViewportExtEx(hdc, GetDeviceCaps(hdc, LOGPIXELSX), GetDeviceCaps(hdc, LOGPIXELSY), 0);
-    Q_ASSERT(result);
+    if (stroke.isEmpty())
+        return;
+
+    fillPath_dev(stroke, color);
+}
+
+
+void QWin32PrintEngine::drawPath(const QPainterPath &path)
+{
+#ifdef QT_DEBUG_DRAW
+    qDebug() << " - QWin32PrintEngine::drawPath(), bounds: " << path.boundingRect();
+#endif
+
+    Q_D(QWin32PrintEngine);
+
+    if (d->has_brush)
+        d->fillPath(path, d->brush_color);
+
+    if (d->has_pen)
+        d->strokePath(path, d->pen.color());
+}
+
+
+void QWin32PrintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
+{
+#ifdef QT_DEBUG_DRAW
+    qDebug() << " - QWin32PrintEngine::drawPolygon(), pointCount: " << pointCount;
+#endif
+
+    Q_ASSERT(pointCount > 1);
+
+    QPainterPath path(points[0]);
+
+    for (int i=1; i<pointCount; ++i) {
+        path.lineTo(points[i]);
+    }
+
+    Q_D(QWin32PrintEngine);
+
+    bool has_brush = d->has_brush;
+
+    if (mode == PolylineMode)
+        d->has_brush = false; // No brush for polylines
+    else
+        path.closeSubpath(); // polygons are should always be closed.
+
+    drawPath(path);
+    d->has_brush = has_brush;
 }
 
 void QWin32PrintEnginePrivate::queryDefault()
@@ -765,17 +720,39 @@ void QWin32PrintEnginePrivate::initialize()
     Q_ASSERT(devMode);
     Q_ASSERT(pInfo);
 
+    dpi_x = GetDeviceCaps(hdc, LOGPIXELSX);
+    dpi_y = GetDeviceCaps(hdc, LOGPIXELSY);
+    dpi_display = GetDeviceCaps(qt_win_display_dc(), LOGPIXELSY);
+
     switch(mode) {
     case QPrinter::ScreenResolution:
-	resolution = GetDeviceCaps(qt_win_display_dc(), LOGPIXELSY);
+        resolution = dpi_display;
+        stretch_x = dpi_x / double(dpi_display);
+        stretch_y = dpi_y / double(dpi_display);
 	break;
     case QPrinter::HighResolution:
-	resolution = GetDeviceCaps(hdc, LOGPIXELSY);
+        resolution = dpi_y;
+        stretch_x = 1;
+        stretch_y = 1;
 	break;
     default:
         break;
     }
-    setupPrinterMapping();
+
+    devPaperRect = QRect(0, 0,
+                         GetDeviceCaps(hdc, PHYSICALWIDTH),
+                         GetDeviceCaps(hdc, PHYSICALHEIGHT));
+
+    devPageRect = QRect(GetDeviceCaps(hdc, PHYSICALOFFSETX),
+                        GetDeviceCaps(hdc, PHYSICALOFFSETY),
+                        GetDeviceCaps(hdc, HORZRES),
+                        GetDeviceCaps(hdc, VERTRES));
+
+    qDebug() << "QWin32PrintEngine::initialize()" << endl
+             << " - paperRect" << devPaperRect << endl
+             << " - pageRect" << devPageRect << endl
+             << " - stretch_x" << stretch_x << endl
+             << " - stretch_y" << stretch_y << endl;
 }
 
 void QWin32PrintEnginePrivate::release()
@@ -869,7 +846,6 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
     case PPK_FullPage:
         d->fullPage = value.toBool();
-        d->setupOriginMapping();
         break;
 
     case PPK_NumberOfCopies:
@@ -959,7 +935,9 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
     case PPK_Resolution:
         d->resolution = value.toInt();
-        d->setupPrinterMapping();
+        d->stretch_x = d->resolution / double(d->dpi_display);
+        d->stretch_y = d->resolution / double(d->dpi_display);
+        // ### matrix update?
         break;
 
     case PPK_SelectionOption:
@@ -1040,13 +1018,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
 
     case PPK_PageRect:
         {
-            qreal scale = d->resolution / (qreal) GetDeviceCaps(d->hdc, LOGPIXELSY);
-            int pagex = GetDeviceCaps(d->hdc, PHYSICALOFFSETX);
-            int pagey = GetDeviceCaps(d->hdc, PHYSICALOFFSETY);
-            int pagew = GetDeviceCaps(d->hdc, HORZRES) - pagex;
-            int pageh = GetDeviceCaps(d->hdc, VERTRES) - pagey;
-            value = QRect(qRound(pagex*scale), qRound(pagey*scale),
-                          qRound(pagew*scale), qRound(pageh*scale));
+            value = QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPageRect);
         }
         break;
 
@@ -1062,10 +1034,7 @@ QVariant QWin32PrintEngine::property(PrintEnginePropertyKey key) const
 
     case PPK_PaperRect:
         {
-            qreal scale = d->resolution / (qreal) GetDeviceCaps(d->hdc, LOGPIXELSY);
-            value = QRect(0, 0,
-                          qRound(GetDeviceCaps(d->hdc, PHYSICALWIDTH) * scale),
-                          qRound(GetDeviceCaps(d->hdc, PHYSICALHEIGHT) * scale));
+            value = QMatrix(1/d->stretch_x, 0, 0, 1/d->stretch_y, 0, 0).mapRect(d->devPaperRect);
         }
         break;
 
@@ -1216,7 +1185,6 @@ void QWin32PrintEnginePrivate::readDevmode(HGLOBAL globalDevmode)
             devMode = dm;
             hdc = CreateDCA(program.toLatin1(), name.toLatin1(), 0, dm);
         } );
-        setupPrinterMapping();
     }
 }
 

@@ -34,7 +34,7 @@
 class QWin32PrintEnginePrivate;
 class QPrinterPrivate;
 
-class QWin32PrintEngine : public QWin32PaintEngine, public QPrintEngine
+class QWin32PrintEngine : public QPaintEngine, public QPrintEngine
 {
     Q_DECLARE_PRIVATE(QWin32PrintEngine)
 public:
@@ -43,7 +43,13 @@ public:
     // override QWin32PaintEngine
     bool begin(QPaintDevice *dev);
     bool end();
-    void updateClipRegion(const QRegion &clip, Qt::ClipOperation operation);
+
+    void updateState(const QPaintEngineState &state);
+
+    void updateMatrix(const QMatrix &matrix);
+
+    void drawPath(const QPainterPath &path);
+    void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
     void setProperty(PrintEnginePropertyKey key, const QVariant &value);
@@ -54,6 +60,8 @@ public:
     int metric(QPaintDevice::PaintDeviceMetric) const;
 
     QPrinter::PrinterState printerState() const;
+
+    QPaintEngine::Type type() const { return Windows; }
 
     HDC getDC() const;
     void releaseDC(HDC) const;
@@ -98,14 +106,6 @@ public:
        etc and resets the corresponding members to 0. */
     void release();
 
-    /* Adjusts the viewport / viewport mapping to match the resolution
-       specified by either ScreenResolution or HighResolution */
-    void setupPrinterMapping();
-
-    /* Adjusts the origin of the printer to the top left corner of the page
-       when printing in full screen mode. */
-    void setupOriginMapping();
-
     /* Queries the resolutions for the current printer, and returns them
        in a list. */
     QList<QVariant> queryResolutions() const;
@@ -136,6 +136,12 @@ public:
         return hdc != 0;
     }
 
+    void strokePath(const QPainterPath &path, const QColor &color);
+    void fillPath(const QPainterPath &path, const QColor &color);
+
+    void fillPath_dev(const QPainterPath &path, const QColor &color);
+
+
     // Windows GDI printer references.
     HANDLE hPrinter;
 
@@ -157,14 +163,30 @@ public:
     QPrinter::PrinterState state;
     int resolution;
 
-    QRect pageRect;
-    QRect paperRect;
+    QRect devPageRect;
+    QRect devPaperRect;
+    qreal stretch_x;
+    qreal stretch_y;
+
+    int dpi_x;
+    int dpi_y;
+    int dpi_display;
 
     QFont pfont;
 
     uint printToFile : 1;
     uint fullPage : 1;
     uint reinit : 1;
+
+    uint has_pen : 1;
+    uint has_brush : 1;
+
+    QColor brush_color;
+    QPen pen;
+    QColor pen_color;
+
+    QMatrix painterMatrix;
+    QMatrix matrix;
 };
 
 #endif // QT_NO_PRINTER
