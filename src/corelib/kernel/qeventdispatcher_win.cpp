@@ -50,7 +50,7 @@ struct TimerInfo {                              // internal timer info
 typedef QList<TimerInfo*>  TimerVec;            // vector of TimerInfo structs
 typedef QHash<int,TimerInfo*> TimerDict;        // fast dict of timers
 
-#ifndef DWORD_PTR
+#if !defined(DWORD_PTR) && !defined(Q_WS_WIN64)
 #define DWORD_PTR DWORD
 #endif
 
@@ -150,7 +150,7 @@ Q_CORE_EXPORT bool winGetMessage(MSG* msg, HWND hWnd, UINT wMsgFilterMin,
 }
 
 // This function is called by a workerthread
-void WINAPI CALLBACK qt_fast_timer_proc(uint timerId, uint /*reserved*/, DWORD_PTR user, ulong /*reserved*/, ulong /*reserved*/)
+void WINAPI CALLBACK qt_fast_timer_proc(uint timerId, uint /*reserved*/, DWORD_PTR user, DWORD_PTR /*reserved*/, DWORD_PTR /*reserved*/)
 {
     if (!timerId) // sanity check
         return;
