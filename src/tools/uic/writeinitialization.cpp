@@ -482,6 +482,8 @@ void WriteInitialization::writeProperties(const QString &varName,
         }
     }
 
+    DomWidget *buttonGroupWidget = findWidget(QLatin1String("Q3ButtonGroup"));
+
     output << option.indent << varName << "->setObjectName(QString::fromUtf8(" << fixString(varName) << "));\n";
 
     for (int i=0; i<lst.size(); ++i) {
@@ -499,9 +501,8 @@ void WriteInitialization::writeProperties(const QString &varName,
             continue;
         } else if (propertyName == QLatin1String("buttonGroupId") // Q3ButtonGroup support
                     && p->elementNumber()
-                    && m_widgetChain.top()
-                    && uic->customWidgetsInfo()->extends(m_widgetChain.top()->attributeClass(), QLatin1String("Q3ButtonGroup"))) {
-            output << option.indent << driver->findOrInsertWidget(m_widgetChain.top()) << "->insert("
+                    && buttonGroupWidget) {
+            output << option.indent << driver->findOrInsertWidget(buttonGroupWidget) << "->insert("
                    << varName << ", " << p->elementNumber() << ");\n";
             continue;
         } else if (propertyName == QLatin1String("control") // ActiveQt support
@@ -1305,3 +1306,16 @@ void WriteInitialization::acceptConnection(DomConnection *connection)
         << "SLOT(" << connection->elementSlot() << ")"
         << ");\n";
 }
+
+DomWidget *WriteInitialization::findWidget(const QString &widgetClass)
+{
+    for (int i = m_widgetChain.count() - 1; i >= 0; --i) {
+        DomWidget *widget = m_widgetChain.at(i);
+
+        if (widget && uic->customWidgetsInfo()->extends(widget->attributeClass(), widgetClass))
+            return widget;
+    }
+
+    return 0;
+}
+

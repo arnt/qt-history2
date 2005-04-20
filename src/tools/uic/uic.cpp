@@ -84,9 +84,15 @@ bool Uic::printDependencies()
             fprintf(stderr, "Couldn't start uic3: %s\n", uic3.errorString().toLocal8Bit().data());
             return false;
         }
-        QString contents = uic3.readAll();
+
+        QString contents = QString::fromUtf8(uic3.readAllStandardOutput());
         if (!doc.setContent(contents))
             return false;
+
+        QByteArray errors = uic3.readAllStandardError();
+        if (errors.count()) {
+            fprintf(stderr, "%s\n", errors.constData());
+        }
 
         ui = new DomUI();
         QDomElement root = doc.firstChild().toElement();

@@ -105,6 +105,8 @@ private:
     void initializeSqlDataTable(DomWidget *w);
     void initializeSqlDataBrowser(DomWidget *w);
 
+    DomWidget *findWidget(const QString &widgetClass);
+
 private:
     Uic *uic;
     Driver *driver;
