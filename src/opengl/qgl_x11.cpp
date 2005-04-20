@@ -404,10 +404,14 @@ void *QGLContext::chooseVisual()
             tryDouble = false;
             triedDouble = true;
             continue;
-        }
-        else if (triedDouble) {
+        } else if (triedDouble) {
             fmt.setDoubleBuffer(false);
             triedDouble = false;
+        }
+        if (!triedSample && fmt.sampleBuffers()) {
+            fmt.setSampleBuffers(false);
+            triedSample = true;
+            continue;
         }
         if (fmt.stereo()) {
             fmt.setStereo(false);
@@ -431,11 +435,6 @@ void *QGLContext::chooseVisual()
         }
         if (fmt.doubleBuffer()) {
             fmt.setDoubleBuffer(false);
-            continue;
-        }
-        if (!triedSample && fmt.sampleBuffers()) {
-            fmt.setSampleBuffers(false);
-            triedSample = true;
             continue;
         }
         fail = true;
