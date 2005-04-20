@@ -244,10 +244,10 @@ void NmakeMakefileGenerator::writeBuildRulesPart(QTextStream &t)
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << "$(TARGET)" << endl << endl;
     t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
     if(project->isActiveConfig("staticlib")) {
-        t << "\n\t" << "$(LIB) /OUT:$(TARGET) @<<" << "\n\t  "
+        t << "\n\t" << "$(LIB) /OUT:\"$(TARGET)\" @<<" << "\n\t  "
           << "$(OBJECTS)";
     } else {
-        t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:$(TARGET) @<< " << "\n\t  "
+        t << "\n\t" << "$(LINK) $(LFLAGS) /OUT:\"$(TARGET)\" @<< " << "\n\t  "
           << "$(OBJECTS) $(LIBS)";
     }
     t << endl << "<<" << endl;

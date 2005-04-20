@@ -209,9 +209,9 @@ void MingwMakefileGenerator::writeBuildRulesPart(QTextStream &t)
     t << "all: " << fileFixify(Option::output.fileName()) << " " << varGlue("ALL_DEPS"," "," "," ") << " $(TARGET)" << endl << endl;
     t << "$(TARGET): " << var("PRE_TARGETDEPS") << " $(OBJECTS) " << var("POST_TARGETDEPS");
     if(project->isActiveConfig("staticlib")) {
-        t << "\n\t" << "$(LIB) $(TARGET) " << objectsLinkLine << " " ;
+        t << "\n\t" << "$(LIB) \"$(TARGET)\" " << objectsLinkLine << " " ;
     } else {
-        t << "\n\t" << "$(LINK) $(LFLAGS) -o $(TARGET) " << objectsLinkLine << " " << " $(LIBS)";
+        t << "\n\t" << "$(LINK) $(LFLAGS) -o \"$(TARGET)\" " << objectsLinkLine << " " << " $(LIBS)";
     }
 }
 

@@ -446,7 +446,7 @@ void Win32MakefileGenerator::writeCleanParts(QTextStream &t)
     t << endl << endl;
 
     t << "distclean: clean"
-      << "\n\t-$(DEL_FILE) $(TARGET)" << endl;
+      << "\n\t-$(DEL_FILE) \"$(TARGET)\"" << endl;
     {
         QString ofile = Option::fixPathToTargetOS(fileFixify(Option::output.fileName()));
         if(!ofile.isEmpty())
@@ -527,7 +527,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     t << "TARGET        = ";
     QString target = var("DESTDIR") + project->first("TARGET") + project->first("TARGET_EXT");
     target.remove('"');
-    t << "\"" << target << "\"";
+    t << target;
     t << endl << endl;
 
     t << "####### Implicit rules" << endl << endl;
