@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef WORDHIGHLIGHTER_H
-#define WORDHIGHLIGHTER_H
+#ifndef HIGHLIGHTER_H
+#define HIGHLIGHTER_H
 
 #include <QHash>
 #include <QString>

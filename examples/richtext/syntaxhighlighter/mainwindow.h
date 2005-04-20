@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef TEXTEDIT_H
-#define TEXTEDIT_H
+#ifndef MAINWINDOW_H
+#define MAINWINDOW_H
 
 #include <QMainWindow>
 
