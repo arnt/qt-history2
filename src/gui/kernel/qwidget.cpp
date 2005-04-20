@@ -603,7 +603,7 @@ static inline bool isPersonallyHidden(const QWidget *w)
   \i Qt::WA_WState_InPaintEvent Currently processing a paint event.
   \i Qt::WA_WState_Reparented The widget has been reparented.
   \i Qt::WA_WState_ConfigPending A configuration (resize/move) event is pending.
-  \i Qt::WA_WState_DND The widget supports drag and drop, see setAcceptDrops().
+  \i Qt::WA_WState_DND The widget supports drag and drop, see setAcceptDrops(). ### depricated
   \endlist
 */
 
@@ -1801,6 +1801,54 @@ void QWidgetPrivate::setEnabled_helper(bool enable)
 #ifdef QT3_SUPPORT
     q->enabledChange(!enable); // compatibility
 #endif
+}
+
+/*!
+    \property QWidget::acceptDrops
+    \brief whether drop events are enabled for this widget
+
+    Setting this property to true announces to the system that this
+    widget \e may be able to accept drop events.
+
+    If the widget is the desktop (QWidget::(windowType() == Qt::Desktop)), this may
+    fail if another application is using the desktop; you can call
+    acceptDrops() to test if this occurs.
+
+    \warning
+    Do not modify this property in a Drag&Drop event handler.
+*/
+bool QWidget::acceptDrops() const
+{
+    return testAttribute(Qt::WA_AcceptDrops);
+}
+
+void QWidget::setAcceptDrops(bool on)
+{
+    setAttribute(Qt::WA_ForceAcceptDrops, on);
+    d_func()->setAcceptDrops_helper(on);
+}
+
+void QWidgetPrivate::setAcceptDrops_helper(bool on)
+{
+    Q_Q(QWidget);
+
+    if (!on && !q->isWindow() && q->parentWidget() && q->parentWidget()->acceptDrops())
+        return; // nothing we can do
+
+    if (on == q->testAttribute(Qt::WA_AcceptDrops))
+        return; // nothing to do
+    
+    if (!setAcceptDrops_sys(on))
+        return; // nothing was changed
+
+    q->setAttribute(Qt::WA_AcceptDrops, on);
+
+    Qt::WidgetAttribute attribute = on ? Qt::WA_AcceptDrops : Qt::WA_ForceAcceptDrops;
+    for (int i = 0; i < children.size(); ++i) {
+        QWidget *w = qobject_cast<QWidget *>(children.at(i));
+        if (w && !w->testAttribute(attribute))
+            w->d_func()->setAcceptDrops_helper(on);
+    }
 }
 
 /*!

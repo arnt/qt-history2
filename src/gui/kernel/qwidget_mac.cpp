@@ -1086,7 +1086,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         }
     }
 
-    macDropEnabled = false;
     if(HIViewRef destroy_hiview = (HIViewRef)destroyid) {
         WindowPtr window = q->isWindow() ? qt_mac_window_for(destroy_hiview) : 0;
         CFRelease(destroy_hiview);
@@ -2040,12 +2039,6 @@ void QWidgetPrivate::deleteTLSysExtra()
         qt_mac_release_window_group(extra->topextra->group);
 }
 
-bool QWidget::acceptDrops() const
-{
-    Q_D(const QWidget);
-    return d->macDropEnabled;
-}
-
 void QWidgetPrivate::updateFrameStrut() const
 {
     Q_Q(const QWidget);
@@ -2075,13 +2068,10 @@ void QWidgetPrivate::updateFrameStrut() const
     }
 }
 
-void QWidget::setAcceptDrops(bool on)
+bool QWidgetPrivate::setAcceptDrops_sys(bool on)
 {
-    Q_D(QWidget);
-    if(on == d->macDropEnabled)
-        return;
-    d->macDropEnabled = on;
     SetControlDragTrackingEnabled((HIViewRef)winId(), on);
+    return true;
 }
 
 void QWidget::setMask(const QRegion &region)

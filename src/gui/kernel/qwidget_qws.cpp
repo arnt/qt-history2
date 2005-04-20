@@ -1318,21 +1318,10 @@ void QWidgetPrivate::deleteTLSysExtra()
 {
 }
 
-bool QWidget::acceptDrops() const
+bool QWidgetPrivate::setAcceptDrops_sys(bool on)
 {
-    return testAttribute(Qt::WA_WState_DND);
-}
-
-void QWidget::setAcceptDrops(bool on)
-{
-    if (!!testAttribute(Qt::WA_WState_DND) != on) {
-        if (1/*XXX qt_xdnd_enable(this, on)*/) {
-            if (on)
-                setAttribute(Qt::WA_WState_DND);
-            else
-                setAttribute(Qt::WA_WState_DND, false);
-        }
-    }
+    Q_UNUSED(on);
+    return true;
 }
 
 QRegion QWidgetPrivate::localRequestedRegion() const

@@ -174,11 +174,9 @@ static void qt_tablet_cleanup()
     qt_tablet_widget = 0;
 }
 
-
 const QString qt_reg_winclass(Qt::WFlags flags);                // defined in qapplication_win.cpp
 void            qt_olednd_unregister(QWidget* widget, QOleDropTarget *dst); // dnd_win
 QOleDropTarget* qt_olednd_register(QWidget* widget);
-
 
 extern bool qt_nograb();
 extern HRGN qt_win_bitmapToRegion(const QBitmap& bitmap);
@@ -1523,14 +1521,7 @@ void QWidgetPrivate::deleteTLSysExtra()
         DestroyIcon(extra->topextra->winIconBig);
 }
 
-
-bool QWidget::acceptDrops() const
-{
-    Q_D(const QWidget);
-    return (d->extra && d->extra->dropTarget);
-}
-
-void QWidget::setAcceptDrops(bool on)
+bool QWidgetPrivate::setAcceptDrops_sys(bool on)
 {
     Q_D(QWidget);
     // Enablement is defined by d->extra->dropTarget != 0.
@@ -1549,6 +1540,8 @@ void QWidget::setAcceptDrops(bool on)
             extra->dropTarget = 0;
         }
     }
+
+    return true;
 }
 
 void QWidget::setMask(const QRegion &region)

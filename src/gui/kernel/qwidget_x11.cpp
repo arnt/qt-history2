@@ -2387,38 +2387,11 @@ void QWidgetPrivate::checkChildrenDnd()
     }
 }
 
-/*!
-    \property QWidget::acceptDrops
-    \brief whether drop events are enabled for this widget
-
-    Setting this property to true announces to the system that this
-    widget \e may be able to accept drop events.
-
-    If the widget is the desktop (QWidget::(windowType() == Qt::Desktop)), this may
-    fail if another application is using the desktop; you can call
-    acceptDrops() to test if this occurs.
-
-    \warning
-    Do not modify this property in a Drag&Drop event handler.
-*/
-bool QWidget::acceptDrops() const
+bool QWidgetPrivate::setAcceptDrops_sys(bool on)
 {
-    return testAttribute(Qt::WA_WState_DND);
-}
-
-void QWidget::setAcceptDrops(bool on)
-{
-    Q_D(QWidget);
-    if ((bool)testAttribute(Qt::WA_WState_DND) != on) {
-        if (X11->dndEnable(this, on)) {
-            if (on)
-                setAttribute(Qt::WA_WState_DND);
-            else
-                setAttribute(Qt::WA_WState_DND, false);
-        }
-
-        d->checkChildrenDnd();
-    }
+    bool ok = X11->dndEnable(q_func(), on);
+    checkChildrenDnd(); // ## ???
+    return ok;
 }
 
 /*!

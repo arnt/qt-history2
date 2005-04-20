@@ -316,7 +316,7 @@ public:
         WA_WState_Reparented = 63,
         WA_WState_ConfigPending = 64,
         WA_WState_Polished = 66,
-        WA_WState_DND = 67,
+        WA_WState_DND = 67, // ## depricated
         WA_WState_OwnSizePolicy = 68,
         WA_WState_ExplicitShowHide = 69,
 
@@ -329,6 +329,9 @@ public:
         WA_QuitOnClose = 76,
 
         WA_KeyboardFocusChange = 77,
+
+        WA_AcceptDrops = 78,
+        WA_ForceAcceptDrops = 79,
 
         // Add new attributes above this
         WA_AttributeCount

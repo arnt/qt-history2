@@ -232,6 +232,8 @@ public:
     void hide_sys();
     void hide_helper();
     void setEnabled_helper(bool);
+    bool setAcceptDrops_sys(bool);
+    void setAcceptDrops_helper(bool);
     void updateFrameStrut() const;
     void setWindowTitle_helper(const QString &cap);
 
@@ -295,7 +297,6 @@ public:
         PC_NoPaint = 0x04,
         PC_Later = 0x10
     };
-    uint    macDropEnabled : 1;
     EventHandlerRef window_event;
     bool qt_mac_dnd_event(uint, DragRef);
     void toggleDrawers(bool);
