@@ -119,7 +119,7 @@ void *QHashData::allocateNode()
 
 void QHashData::freeNode(void *node)
 {
-    return ::free(node);
+    ::free(node);
 }
 
 QHashData *QHashData::detach_helper(void (*node_duplicate)(Node *, void *), int nodeSize)
