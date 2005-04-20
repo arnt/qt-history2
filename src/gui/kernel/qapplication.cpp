@@ -1081,6 +1081,7 @@ QStyle *QApplication::style()
         }
         if (!(QApplicationPrivate::app_style = QStyleFactory::create(style)) // platform default style not available, try alternatives
             && !(QApplicationPrivate::app_style = QStyleFactory::create("Windows"))
+            && !(QApplicationPrivate::app_style = QStyleFactory::create("Plastique"))
             && !(QApplicationPrivate::app_style = QStyleFactory::create("Platinum"))
             && !(QApplicationPrivate::app_style = QStyleFactory::create("MotifPlus"))
             && !(QApplicationPrivate::app_style = QStyleFactory::create("Motif"))
