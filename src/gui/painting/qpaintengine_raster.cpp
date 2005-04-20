@@ -33,6 +33,10 @@
 #  include <private/qt_mac_p.h>
 #endif
 
+#if defined(Q_WS_WIN64)
+#  include <malloc.h>
+#endif
+
 
 #define qreal_to_fixed(f) (int(f * 64))
 #define qt_swap(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
@@ -53,7 +57,12 @@ static void qt_initialize_ft()
     }
 
     unsigned long poolSize = 128 * 128;
+
+#if defined(Q_WS_WIN64)
+    unsigned char *poolBase = (unsigned char *) _aligned_malloc(poolSize, __alignof(void*));
+#else
     unsigned char *poolBase = (unsigned char *) malloc(poolSize);
+#endif
 
     qt_ft_grays_raster.raster_reset(qt_gray_raster, poolBase, poolSize);
 

@@ -29,8 +29,15 @@ typedef long QT_FT_F26Dot6;
 typedef int QT_FT_Error;
 typedef int QT_FT_Int;
 typedef unsigned int QT_FT_UInt;
-typedef long QT_FT_Long;
-typedef unsigned long QT_FT_ULong;
+
+#if defined(Q_WS_WIN64)
+typedef __int64          QT_FT_Long;
+typedef unsigned __int64 QT_FT_ULong;
+#else
+typedef long             QT_FT_Long;
+typedef unsigned long    QT_FT_ULong;
+#endif
+
 #define QT_FT_Int64  qint64
 #define QT_FT_Byte uchar
 
@@ -264,8 +271,14 @@ typedef int             Int;
 typedef unsigned int    UInt;
 typedef short           Short;
 typedef unsigned short  UShort, *PUShort;
-typedef long            Long, *PLong;
-typedef unsigned long   ULong;
+
+#if defined(Q_WS_WIN64)
+typedef __int64          Long, *PLong;
+typedef unsigned __int64 ULong;
+#else
+typedef long             Long, *PLong;
+typedef unsigned long    ULong;
+#endif
 
 typedef unsigned char   Byte, *PByte;
 typedef char            Bool;
@@ -339,7 +352,7 @@ typedef struct  TBand_
 
 
 #define AlignProfileSize                                                \
-    ( ( sizeof ( TProfile ) + sizeof ( Alignment ) - 1 ) / sizeof ( long ) )
+    ( ( sizeof ( TProfile ) + ( sizeof ( TProfile ) % sizeof ( Alignment ) ) ) / sizeof ( Long ) )
 
 
 #ifdef TT_STATIC_RASTER
@@ -620,8 +633,7 @@ End_Profile( RAS_ARG )
 {
     Long      h;
     PProfile  oldProfile;
-
-
+    
     h = (Long)( ras.top - ras.cProfile->offset );
 
     if ( h < 0 )
@@ -988,6 +1000,7 @@ Line_Up( RAS_ARGS Long  x1,
     }
 
     ras.top = top;
+
     return SUCCESS;
 }
 
