@@ -3548,8 +3548,8 @@ QMAKE_MOC        = \$\$QT_BUILD_TREE/bin/moc
 # poor man's rpath, set the dynamic loader path to avoid a security
 # issue and the "set this environment variable before building qt"
 # requirement
-QMAKE_UIC        = ${CFG_LOADER_PATH}=\"\$\$QMAKE_LIBDIR_QT:\\\$\\\$${CFG_LOADER_PATH}\" \$\$QT_BUILD_TREE/bin/uic
-QMAKE_UIC3       = ${CFG_LOADER_PATH}=\"\$\$QMAKE_LIBDIR_QT:\\\$\\\$${CFG_LOADER_PATH}\" \$\$QT_BUILD_TREE/bin/uic3
+QMAKE_UIC        = ${CFG_LOADER_PATH}="\$\$QMAKE_LIBDIR_QT:\\\$\\\$${CFG_LOADER_PATH}" \$\$QT_BUILD_TREE/bin/uic
+QMAKE_UIC3       = ${CFG_LOADER_PATH}="\$\$QMAKE_LIBDIR_QT:\\\$\\\$${CFG_LOADER_PATH}" \$\$QT_BUILD_TREE/bin/uic3
 QMAKE_RCC        = \$\$QT_BUILD_TREE/bin/rcc
 
 EOF
