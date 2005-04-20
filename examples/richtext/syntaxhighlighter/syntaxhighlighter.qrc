@@ -1,5 +1,5 @@
 <!DOCTYPE RCC><RCC version="1.0">
-<qresource prefix="/projects" >
-   <file>example.pro</file>
+<qresource prefix="/" >
+   <file>examples/example.pro</file>
 </qresource>
 </RCC>
