@@ -55,7 +55,7 @@ QWidget *SignalSlotEditorTool::editor() const
 {
     if (!m_editor) {
         Q_ASSERT(formWindow() != 0);
-        m_editor = new SignalSlotEditor(formWindow(), 0);
+        m_editor = new qdesigner::components::signalsloteditor::SignalSlotEditor(formWindow(), 0);
         connect(formWindow(), SIGNAL(mainContainerChanged(QWidget*)), m_editor, SLOT(setBackground(QWidget*)));
     }
 
@@ -72,14 +72,12 @@ void SignalSlotEditorTool::activated()
     connect(formWindow(), SIGNAL(changed()),
                 m_editor, SLOT(updateBackground()));
     m_editor->updateBackground();
-    m_editor->showSignalSlotDialog(true);
 }
 
 void SignalSlotEditorTool::deactivated()
 {
     disconnect(formWindow(), SIGNAL(changed()),
                 m_editor, SLOT(updateBackground()));
-    m_editor->showSignalSlotDialog(false);
 }
 
 void SignalSlotEditorTool::saveToDom(DomUI *ui, QWidget*)

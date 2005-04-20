@@ -19,13 +19,16 @@ HEADERS += \
     signalsloteditor.h \
     signalsloteditor_tool.h \
     signalsloteditor_plugin.h \
-    signalsloteditor_global.h
+    signalsloteditor_global.h \
+    signalsloteditor_p.h \
+    signalsloteditorwindow.h
 
 SOURCES += \
     default_membersheet.cpp \
     signalsloteditor.cpp \
     signalsloteditor_tool.cpp \
     signalsloteditor_plugin.cpp \
-    signalsloteditor_instance.cpp
+    signalsloteditor_instance.cpp \
+    signalsloteditorwindow.cpp
 
 include(../component.pri)

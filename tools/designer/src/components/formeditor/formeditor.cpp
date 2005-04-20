@@ -64,7 +64,7 @@ FormEditor::FormEditor(QObject *parent)
 
     setExtensionManager(mgr);
 
-    SignalSlotEditor::registerExtensions(this);
+    qdesigner::components::signalsloteditor::SignalSlotEditor::registerExtensions(this);
 
     // load the plugins
     widgetDatabase->loadPlugins();

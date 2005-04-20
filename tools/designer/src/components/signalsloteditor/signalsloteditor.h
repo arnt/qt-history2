@@ -25,28 +25,12 @@
 
 class DomConnections;
 class DomConnection;
+class QAbstractItemModel;
+
+namespace qdesigner { namespace components { namespace signalsloteditor {
+
 class SignalSlotDialog;
-
-class SignalSlotConnection : public Connection
-{
-public:
-    SignalSlotConnection(ConnectionEdit *edit, QWidget *source = 0, QWidget *target = 0);
-
-    void setSignal(const QString &signal);
-    void setSlot(const QString &slot);
-
-    QString sender() const;
-    QString receiver() const;
-    inline QString signal() const { return m_signal; }
-    inline QString slot() const { return m_slot; }
-
-    DomConnection *toUi() const;
-
-    virtual void updateVisibility();
-
-private:
-    QString m_signal, m_slot;
-};
+class SignalSlotConnection;
 
 class QT_SIGNALSLOTEDITOR_EXPORT SignalSlotEditor : public ConnectionEdit
 {
@@ -58,6 +42,8 @@ public:
 
     virtual void setSignal(SignalSlotConnection *con, const QString &member);
     virtual void setSlot(SignalSlotConnection *con, const QString &member);
+    virtual void setSource(Connection *con, const QString &obj_name);
+    virtual void setTarget(Connection *con, const QString &obj_name);
 
     DomConnections *toUi() const;
     void fromUi(DomConnections *connections, QWidget *parent);
@@ -66,7 +52,7 @@ public:
 
     static QWidget *widgetByName(QWidget *topLevel, const QString &name);
 
-    void showSignalSlotDialog(bool show);
+    QAbstractItemModel *model() const;
 
 protected:
     virtual QWidget *widgetAt(const QPoint &pos) const;
@@ -76,9 +62,13 @@ private:
     virtual void modifyConnection(Connection *con);
 
     QDesignerFormWindowInterface *m_form_window;
-    SignalSlotDialog *m_dialog;
+    QAbstractItemModel *m_model;
 
     friend class SetMemberCommand;
 };
+
+} // namespace signalsloteditor
+} // namespace components
+} // namespace qdesigner
 
 #endif // SIGNALSLOTEDITOR_H

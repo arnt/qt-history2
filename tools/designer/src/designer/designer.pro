@@ -46,7 +46,8 @@ HEADERS += \
     qdesigner_actions.h \
     preferenceinterface.h \
     saveformastemplate.h \
-    newform.h
+    newform.h \
+    qdesigner_signalsloteditor.h
 
 SOURCES += main.cpp \
     qdesigner.cpp \
@@ -62,7 +63,8 @@ SOURCES += main.cpp \
     qdesigner_actions.cpp \
     qdesigner_plugins.cpp \
     saveformastemplate.cpp \
-    newform.cpp
+    newform.cpp \
+    qdesigner_signalsloteditor.cpp
 
 PRECOMPILED_HEADER=qdesigner_pch.h
 

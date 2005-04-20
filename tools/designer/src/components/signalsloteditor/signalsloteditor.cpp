@@ -14,6 +14,7 @@
 #include <qtundo.h>
 #include "signalsloteditor.h"
 #include "default_membersheet.h"
+#include "signalsloteditor_p.h"
 
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstractmetadatabase.h>
@@ -40,11 +41,13 @@
 
 #include <QtCore/qdebug.h>
 
+namespace qdesigner { namespace components { namespace signalsloteditor {
+
 /*******************************************************************************
 ** Tools
 */
 
-static QStringList objectNameList(QDesignerFormWindowInterface *form)
+QStringList objectNameList(QDesignerFormWindowInterface *form)
 {
     QDesignerFormWindowCursorInterface *cursor = form->cursor();
     QStringList result;
@@ -54,20 +57,7 @@ static QStringList objectNameList(QDesignerFormWindowInterface *form)
     return result;
 }
 
-struct ClassInfo
-{
-    ClassInfo(const QString &_class_name = QString(),
-                const QStringList &_member_list = QStringList())
-        : class_name(_class_name), member_list(_member_list) {}
-    QString class_name;
-    QStringList member_list;
-};
-
-typedef QList<ClassInfo> ClassList;
-
-enum MemberType { SignalMember, SlotMember };
-
-static QStringList memberList(QDesignerFormWindowInterface *form, QWidget *widget, MemberType member_type)
+QStringList memberList(QDesignerFormWindowInterface *form, QWidget *widget, MemberType member_type)
 {
     QStringList result;
 
@@ -95,8 +85,45 @@ static QStringList memberList(QDesignerFormWindowInterface *form, QWidget *widge
     return result;
 }
 
-static ClassList classList(const QString &obj_name, MemberType member_type,
-                            QDesignerFormWindowInterface *form)
+bool signalMatchesSlot(const QString &signal, const QString &slot)
+{
+    bool result = true;
+
+    do {
+        int signal_idx = signal.indexOf(QLatin1Char('('));
+        int slot_idx = slot.indexOf(QLatin1Char('('));
+        if (signal_idx == -1 || slot_idx == -1)
+            break;
+
+        ++signal_idx; ++slot_idx;
+
+        if (slot.at(slot_idx) == QLatin1Char(')'))
+            break;
+
+        while (signal_idx < signal.size() && slot_idx < slot.size()) {
+            QChar signal_c = signal.at(signal_idx);
+            QChar slot_c = slot.at(slot_idx);
+
+            if (signal_c == QLatin1Char(',') && slot_c == QLatin1Char(')'))
+                break;
+
+            if (signal_c == QLatin1Char(')') && slot_c == QLatin1Char(')'))
+                break;
+
+            if (signal_c != slot_c) {
+                result = false;
+                break;
+            }
+
+            ++signal_idx; ++slot_idx;
+        }
+    } while (false);
+
+    return result;
+}
+
+ClassList classList(const QString &obj_name, MemberType member_type,
+                            const QString &peer, QDesignerFormWindowInterface *form)
 {
     ClassList result;
 
@@ -119,511 +146,24 @@ static ClassList classList(const QString &obj_name, MemberType member_type,
         if (member_type == SlotMember && !members->isSlot(i))
             continue;
 
+        QString signal = member_type == SignalMember ? members->signature(i) : peer;
+        QString slot = member_type == SignalMember ? peer : members->signature(i);
+        if (!signalMatchesSlot(signal, slot))
+            continue;
+
         QString s = members->declaredInClass(i);
         if (s != class_name) {
-            if (!class_name.isEmpty())
+            if (!member_list.isEmpty())
                 result.append(ClassInfo(class_name, member_list));
             class_name = s;
             member_list.clear();
         }
         member_list.append(members->signature(i));
     }
+    if (!member_list.isEmpty())
+        result.append(ClassInfo(class_name, member_list));
 
     return result;
-}
-
-/*******************************************************************************
-** ConnectionModel
-*/
-
-class ConnectionModel : public QAbstractItemModel
-{
-    Q_OBJECT
-public:
-    ConnectionModel(SignalSlotEditor *editor, QObject *parent = 0);
-
-    virtual QModelIndex index(int row, int column,
-                              const QModelIndex &parent = QModelIndex()) const;
-    virtual QModelIndex parent(const QModelIndex &child) const;
-    virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const;
-    virtual bool setData(const QModelIndex &index, const QVariant &data, int role = Qt::DisplayRole);
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-
-    QModelIndex connectionToIndex(Connection *con) const;
-    Connection *indexToConnection(const QModelIndex &index) const;
-
-private slots:
-    void connectionAdded(Connection *con);
-    void connectionRemoved(int idx);
-    void aboutToRemoveConnection(Connection *con);
-    void aboutToAddConnection(Connection *con);
-    void connectionChanged(Connection *con);
-
-private:
-    SignalSlotEditor *m_editor;
-};
-
-ConnectionModel::ConnectionModel(SignalSlotEditor *editor, QObject *parent)
-    : QAbstractItemModel(parent)
-{
-    m_editor = editor;
-
-    connect(m_editor, SIGNAL(connectionAdded(Connection*)),
-            this, SLOT(connectionAdded(Connection*)));
-    connect(m_editor, SIGNAL(connectionRemoved(int)),
-            this, SLOT(connectionRemoved(int)));
-    connect(m_editor, SIGNAL(aboutToRemoveConnection(Connection*)),
-            this, SLOT(aboutToRemoveConnection(Connection*)));
-    connect(m_editor, SIGNAL(aboutToAddConnection(Connection*)),
-            this, SLOT(aboutToAddConnection(Connection*)));
-    connect(m_editor, SIGNAL(connectionChanged(Connection*)),
-            this, SLOT(connectionChanged(Connection*)));
-}
-
-QModelIndex ConnectionModel::index(int row, int column,
-                                    const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return QModelIndex();
-    if (row < 0 || row >= m_editor->connectionCount())
-        return QModelIndex();
-    return createIndex(row, column);
-}
-
-Connection *ConnectionModel::indexToConnection(const QModelIndex &index) const
-{
-    if (!index.isValid())
-        return 0;
-    if (index.row() < 0 || index.row() >= m_editor->connectionCount())
-        return 0;
-    return m_editor->connection(index.row());
-}
-
-QModelIndex ConnectionModel::connectionToIndex(Connection *con) const
-{
-    return createIndex(m_editor->indexOfConnection(con), 0);
-}
-
-QModelIndex ConnectionModel::parent(const QModelIndex&) const
-{
-    return QModelIndex();
-}
-
-int ConnectionModel::rowCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-    return m_editor->connectionCount();
-}
-
-int ConnectionModel::columnCount(const QModelIndex &parent) const
-{
-    if (parent.isValid())
-        return 0;
-    return 4;
-}
-
-QVariant ConnectionModel::data(const QModelIndex &index, int role) const
-{
-    if (role != Qt::DisplayRole && role != Qt::EditRole)
-        return QVariant();
-
-    if (index.row() < 0 || index.row() >= m_editor->connectionCount())
-        return QVariant();
-
-    SignalSlotConnection *con
-        = static_cast<SignalSlotConnection*>(m_editor->connection(index.row()));
-    Q_ASSERT(con != 0);
-
-    switch (index.column()) {
-        case 0: {
-            QString sender = con->sender();
-            if (sender.isEmpty())
-                sender = tr("<sender>");
-            return sender;
-        }
-        case 1: {
-            QString signal = con->signal();
-            if (signal.isEmpty())
-                signal = tr("<signal>");
-            return signal;
-        }
-        case 2: {
-            QString receiver = con->receiver();
-            if (receiver.isEmpty())
-                receiver = tr("<receiver>");
-            return receiver;
-        }
-        case 3: {
-            QString slot = con->slot();
-            if (slot.isEmpty())
-                slot = tr("<slot>");
-            return slot;
-        }
-    }
-
-    return QVariant();
-}
-
-bool ConnectionModel::setData(const QModelIndex &index, const QVariant &data, int role)
-{
-    if (!index.isValid())
-        return false;
-    if (data.type() != QVariant::String)
-        return false;
-
-    SignalSlotConnection *con = static_cast<SignalSlotConnection*>(m_editor->connection(index.row()));
-    QDesignerFormWindowInterface *form = m_editor->formWindow();
-
-    QString s = data.toString();
-    switch (index.column()) {
-        case 0: {
-            if (!s.isEmpty() && !objectNameList(form).contains(s))
-                s.clear();
-            m_editor->setSource(con, s);
-            break;
-        }
-        case 1: {
-            if (!memberList(form, con->widget(CETypes::EndPoint::Source), SignalMember).contains(s))
-                s.clear();
-            m_editor->setSignal(con, s);
-            break;
-        }
-        case 2: {
-            if (!s.isEmpty() && !objectNameList(form).contains(s))
-                s.clear();
-            m_editor->setTarget(con, s);
-            break;
-        }
-        case 3: {
-            if (!memberList(form, con->widget(CETypes::EndPoint::Target), SlotMember).contains(s))
-                s.clear();
-            m_editor->setSlot(con, s);
-            break;
-        }
-    }
-
-    return true;
-}
-
-void ConnectionModel::connectionAdded(Connection*)
-{
-    endInsertRows();
-}
-
-void ConnectionModel::connectionRemoved(int idx)
-{
-    endRemoveRows();
-}
-
-void ConnectionModel::aboutToRemoveConnection(Connection *con)
-{
-    int idx = m_editor->indexOfConnection(con);
-    beginRemoveRows(QModelIndex(), idx, idx);
-}
-
-void ConnectionModel::aboutToAddConnection(Connection *)
-{
-    int idx = m_editor->connectionCount();
-    beginInsertRows(QModelIndex(), idx, idx);
-}
-
-Qt::ItemFlags ConnectionModel::flags(const QModelIndex&) const
-{
-    return Qt::ItemIsSelectable | Qt::ItemIsEditable | Qt::ItemIsEnabled;
-}
-
-void ConnectionModel::connectionChanged(Connection *con)
-{
-    int idx = m_editor->indexOfConnection(con);
-    emit dataChanged(createIndex(idx, 0), createIndex(idx, 3));
-}
-
-/*******************************************************************************
-** InlineEditor
-*/
-
-#define TITLE_ITEM 1
-
-class InlineEditorModel : public QStandardItemModel
-{
-public:
-    InlineEditorModel(int rows, int cols, QObject *parent = 0);
-
-    void addTitle(const QString &title);
-    void addTextList(const QStringList &text_list);
-    void addText(const QString &text);
-    bool isTitle(int idx) const;
-
-    int findText(const QString &text) const;
-
-    virtual Qt::ItemFlags flags(const QModelIndex &index) const;
-};
-
-class InlineEditor : public QComboBox
-{
-    Q_OBJECT
-    Q_PROPERTY(QString text READ text WRITE setText)
-public:
-    InlineEditor(QWidget *parent = 0);
-
-    QString text() const;
-    void setText(const QString &text);
-
-    void addTitle(const QString &title);
-    void addText(const QString &text);
-    void addTextList(const QStringList &text_list);
-
-private slots:
-    void checkSelection();
-
-private:
-    InlineEditorModel *m_model;
-    int m_idx;
-};
-
-InlineEditorModel::InlineEditorModel(int rows, int cols, QObject *parent)
-    : QStandardItemModel(rows, cols, parent)
-{
-}
-
-void InlineEditorModel::addTitle(const QString &title)
-{
-    int cnt = rowCount();
-    insertRows(cnt, 1);
-    QModelIndex cat_idx = index(cnt, 0);
-    setData(cat_idx, title + QLatin1Char(':'), Qt::DisplayRole);
-    setData(cat_idx, TITLE_ITEM, Qt::UserRole);
-    QFont font = QApplication::font();
-    font.setBold(true);
-    setData(cat_idx, font, Qt::FontRole);
-}
-
-bool InlineEditorModel::isTitle(int idx) const
-{
-    if (idx == -1)
-        return false;
-
-    return data(index(idx, 0), Qt::UserRole).toInt() == TITLE_ITEM;
-}
-
-void InlineEditorModel::addText(const QString &text)
-{
-    int cnt = rowCount();
-    insertRows(cnt, 1);
-    setData(index(cnt, 0), text, Qt::DisplayRole);
-}
-
-void InlineEditorModel::addTextList(const QStringList &text_list)
-{
-    int cnt = rowCount();
-    insertRows(cnt, text_list.size());
-    foreach (QString text, text_list) {
-        QModelIndex text_idx = index(cnt++, 0);
-        setData(text_idx, text, Qt::DisplayRole);
-    }
-}
-
-Qt::ItemFlags InlineEditorModel::flags(const QModelIndex &index) const
-{
-    if (isTitle(index.row()))
-        return Qt::ItemIsEnabled;
-    else
-        return Qt::ItemIsSelectable | Qt::ItemIsEnabled;
-}
-
-int InlineEditorModel::findText(const QString &text) const
-{
-    int cnt = rowCount();
-    for (int i = 0; i < cnt; ++i) {
-        QModelIndex idx = index(i, 0);
-        if (data(idx, Qt::UserRole).toInt() == TITLE_ITEM)
-            continue;
-        if (data(idx, Qt::DisplayRole).toString() == text)
-            return i;
-    }
-    return -1;
-}
-
-InlineEditor::InlineEditor(QWidget *parent)
-    : QComboBox(parent)
-{
-    setModel(m_model = new InlineEditorModel(0, 4, this));
-    setFrame(false);
-    m_idx = -1;
-
-    connect(this, SIGNAL(activated(int)), this, SLOT(checkSelection()));
-}
-
-void InlineEditor::checkSelection()
-{
-    int idx = currentIndex();
-
-    if (idx == -1)
-        return;
-    if (m_model->isTitle(idx)) {
-        if (m_idx != -1)
-            setCurrentIndex(m_idx);
-        return;
-    }
-
-    m_idx = idx;
-}
-
-void InlineEditor::addTitle(const QString &title)
-{
-    m_model->addTitle(title);
-}
-
-void InlineEditor::addTextList(const QStringList &text_list)
-{
-    m_model->addTextList(text_list);
-}
-
-void InlineEditor::addText(const QString &text)
-{
-    m_model->addText(text);
-}
-
-QString InlineEditor::text() const
-{
-    return currentText();
-}
-
-void InlineEditor::setText(const QString &text)
-{
-    int idx = m_model->findText(text);
-    setCurrentIndex(idx == -1 ? 0 : idx);
-}
-
-/*******************************************************************************
-** ConnectionDelegate
-*/
-
-class ConnectionDelegate : public QItemDelegate
-{
-    Q_OBJECT
-public:
-    ConnectionDelegate(SignalSlotEditor *editor, QWidget *parent = 0);
-
-    virtual QWidget *createEditor(QWidget *parent,
-                                    const QStyleOptionViewItem &option,
-                                    const QModelIndex &index) const;
-
-private slots:
-    void emitCommitData();
-
-private:
-    SignalSlotEditor *m_sigslot_editor;
-};
-
-ConnectionDelegate::ConnectionDelegate(SignalSlotEditor *editor,
-                                                QWidget *parent)
-    : QItemDelegate(parent)
-{
-    m_sigslot_editor = editor;
-
-    static QItemEditorFactory *factory = 0;
-    if (factory == 0) {
-        factory = new QItemEditorFactory;
-        QItemEditorCreatorBase *creator
-            = new QItemEditorCreator<InlineEditor>("text");
-        factory->registerEditor(QVariant::String, creator);
-    }
-
-    setItemEditorFactory(factory);
-}
-
-QWidget *ConnectionDelegate::createEditor(QWidget *parent,
-                                                const QStyleOptionViewItem &option,
-                                                const QModelIndex &index) const
-{
-    QWidget *w = QItemDelegate::createEditor(parent, option, index);
-    InlineEditor *inline_editor = qobject_cast<InlineEditor*>(w);
-    Q_ASSERT(inline_editor != 0);
-    QDesignerFormWindowInterface *form = m_sigslot_editor->formWindow();
-    const QAbstractItemModel *model = index.model();
-
-    QModelIndex obj_name_idx = model->index(index.row(), index.column() <= 1 ? 0 : 2);
-    QString obj_name = model->data(obj_name_idx, Qt::DisplayRole).toString();
-
-    if (index.column() == 0 || index.column() == 2) { // object names
-        QStringList obj_name_list = objectNameList(form);
-        obj_name_list.prepend(tr("<object>"));
-        inline_editor->addTextList(obj_name_list);
-    } else { // signals, slots
-        MemberType type = index.column() == 1 ? SignalMember : SlotMember;
-        ClassList class_list = classList(obj_name, type, form);
-
-        inline_editor->addText(type == SignalMember ? tr("<signal>") : tr("<slot>"));
-        foreach (const ClassInfo &class_info, class_list) {
-            inline_editor->addTitle(class_info.class_name);
-            inline_editor->addTextList(class_info.member_list);
-        }
-    }
-
-    connect(inline_editor, SIGNAL(activated(int)), this, SLOT(emitCommitData()));
-
-    return inline_editor;
-}
-
-void ConnectionDelegate::emitCommitData()
-{
-    InlineEditor *editor = qobject_cast<InlineEditor*>(sender());
-    emit commitData(editor);
-}
-
-/*******************************************************************************
-** SignalSlotDialog
-*/
-
-class SignalSlotDialog : public QDialog
-{
-    Q_OBJECT
-public:
-    SignalSlotDialog(SignalSlotEditor *editor, QWidget *parent = 0);
-
-private slots:
-    void updateDialogSelection(Connection *con);
-    void updateEditorSelection(const QModelIndex &index);
-
-private:
-    QTreeView *m_view;
-    ConnectionModel *m_model;
-    SignalSlotEditor *m_editor;
-};
-
-SignalSlotDialog::SignalSlotDialog(SignalSlotEditor *editor,
-                                    QWidget *parent)
-    : QDialog(parent)
-{
-    m_editor = editor;
-
-    m_model = new ConnectionModel(editor, this);
-    m_view = new QTreeView(this);
-    m_view->setItemDelegate(new ConnectionDelegate(editor, this));
-    m_view->setModel(m_model);
-
-    connect(m_view->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-            this, SLOT(updateEditorSelection(const QModelIndex&)));
-    connect(editor, SIGNAL(connectionSelected(Connection*)),
-            this, SLOT(updateDialogSelection(Connection*)));
-
-    QVBoxLayout *layout = new QVBoxLayout(this);
-    layout->addWidget(m_view);
-}
-
-void SignalSlotDialog::updateDialogSelection(Connection *con)
-{
-    m_view->setCurrentIndex(m_model->connectionToIndex(con));
-}
-
-void SignalSlotDialog::updateEditorSelection(const QModelIndex &index)
-{
-    m_editor->selectNone();
-    m_editor->setSelected(m_model->indexToConnection(index), true);
 }
 
 /*******************************************************************************
@@ -685,37 +225,6 @@ static QString widgetLabel(QDesignerFormEditorInterface *core, QWidget *widget)
             .arg(realClassName(core, widget));
 }
 
-static bool signalMatchesSlot(const QString &signal, const QString &slot)
-{
-    int signal_idx = signal.indexOf(QLatin1Char('('));
-    int slot_idx = slot.indexOf(QLatin1Char('('));
-    Q_ASSERT(signal_idx != -1);
-    Q_ASSERT(slot_idx != -1);
-
-    ++signal_idx; ++slot_idx;
-
-    if (slot.at(slot_idx) == QLatin1Char(')'))
-        return true;
-
-    while (signal_idx < signal.size() && slot_idx < slot.size()) {
-        QChar signal_c = signal.at(signal_idx);
-        QChar slot_c = slot.at(slot_idx);
-
-        if (signal_c == QLatin1Char(',') && slot_c == QLatin1Char(')'))
-            return true;
-
-        if (signal_c == QLatin1Char(')') && slot_c == QLatin1Char(')'))
-            return true;
-
-        if (signal_c != slot_c)
-            return false;
-
-        ++signal_idx; ++slot_idx;
-    }
-
-    return false;
-}
-
 void OldSignalSlotDialog::populateSlotList(const QString &signal)
 {
     QString selectedName;
@@ -741,7 +250,7 @@ void OldSignalSlotDialog::populateSlotList(const QString &signal)
                 continue;
 
             if (members->isSlot(i)) {
-                if (!signal.isEmpty() && !signalMatchesSlot(signal, members->signature(i)))
+                if (!signalMatchesSlot(signal, members->signature(i)))
                     continue;
 
                 signatures.append(members->signature(i));
@@ -1098,13 +607,12 @@ SignalSlotEditor::SignalSlotEditor(QDesignerFormWindowInterface *form_window, QW
     : ConnectionEdit(parent, form_window)
 {
     m_form_window = form_window;
-    m_dialog = new SignalSlotDialog(this, this);
-    m_dialog->hide();
+    m_model = new ConnectionModel(this, this);
 }
 
-void SignalSlotEditor::showSignalSlotDialog(bool show)
+QAbstractItemModel *SignalSlotEditor::model() const
 {
-    m_dialog->setVisible(show);
+    return m_model;
 }
 
 void SignalSlotEditor::modifyConnection(Connection *con)
@@ -1257,14 +765,66 @@ void SignalSlotEditor::setSignal(SignalSlotConnection *con, const QString &membe
 {
     if (member == con->signal())
         return;
+
+    m_form_window->beginCommand(tr("Change signal"));
     undoStack()->push(new SetMemberCommand(con, EndPoint::Source, member, this));
+    if (!signalMatchesSlot(member, con->slot()))
+        undoStack()->push(new SetMemberCommand(con, EndPoint::Target, QString(), this));
+    m_form_window->endCommand();
 }
 
 void SignalSlotEditor::setSlot(SignalSlotConnection *con, const QString &member)
 {
     if (member == con->slot())
         return;
+
+    m_form_window->beginCommand(tr("Change slot"));
     undoStack()->push(new SetMemberCommand(con, EndPoint::Target, member, this));
+    if (!signalMatchesSlot(con->signal(), member))
+        undoStack()->push(new SetMemberCommand(con, EndPoint::Source, QString(), this));
+    m_form_window->endCommand();
 }
+
+void SignalSlotEditor::setSource(Connection *_con, const QString &obj_name)
+{
+    SignalSlotConnection *con = static_cast<SignalSlotConnection*>(_con);
+
+    if (con->sender() == obj_name)
+        return;
+
+    m_form_window->beginCommand(tr("Change sender"));
+    ConnectionEdit::setSource(con, obj_name);
+
+    QWidget *w = con->widget(EndPoint::Source);
+    QStringList member_list = memberList(m_form_window, w, SignalMember);
+
+    if (!member_list.contains(con->signal()))
+        undoStack()->push(new SetMemberCommand(con, EndPoint::Source, QString(), this));
+
+    m_form_window->endCommand();
+}
+
+void SignalSlotEditor::setTarget(Connection *_con, const QString &obj_name)
+{
+    SignalSlotConnection *con = static_cast<SignalSlotConnection*>(_con);
+
+    if (con->receiver() == obj_name)
+        return;
+
+    m_form_window->beginCommand(tr("Change receiver"));
+    ConnectionEdit::setTarget(con, obj_name);
+
+    QWidget *w = con->widget(EndPoint::Target);
+    QStringList member_list = memberList(m_form_window, w, SlotMember);
+
+    if (!member_list.contains(con->slot()))
+        undoStack()->push(new SetMemberCommand(con, EndPoint::Target, QString(), this));
+
+    m_form_window->endCommand();
+}
+
+} // namespace signalsloteditor
+} // namespace components
+} // namespace qdesigner
 
 #include "signalsloteditor.moc"

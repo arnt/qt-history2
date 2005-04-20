@@ -15,6 +15,7 @@
 #define SIGNALSLOTEDITOR_TOOL_H
 
 #include "signalsloteditor_global.h"
+#include "signalsloteditor.h"
 
 #include <QtCore/QPointer>
 
@@ -46,10 +47,10 @@ public:
 
     virtual void saveToDom(DomUI *ui, QWidget *mainContainer);
     virtual void loadFromDom(DomUI *ui, QWidget *mainContainer);
-    
+
 private:
     QDesignerFormWindowInterface *m_formWindow;
-    mutable QPointer<SignalSlotEditor> m_editor;
+    mutable QPointer<qdesigner::components::signalsloteditor::SignalSlotEditor> m_editor;
     QAction *m_action;
 };
 
