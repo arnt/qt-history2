@@ -70,16 +70,19 @@ struct Q_CORE_EXPORT QHashData
     Node **buckets;
     QBasicAtomic ref;
     int size;
+    int nodeSize;
     short userNumBits;
     short numBits;
     int numBuckets;
     uint sharable : 1;
 
-    QHashData *detach_helper(Node *(*node_duplicate)(Node *));
+    void *allocateNode();
+    void freeNode(void *node);
+    QHashData *detach_helper(void (*node_duplicate)(Node *, void *), int nodeSize);
     void mightGrow();
     void hasShrunk();
     void rehash(int hint);
-    void free();
+    void destroyAndFree();
     Node *firstNode();
     static Node *nextNode(Node *node);
     static Node *previousNode(Node *node);
@@ -342,25 +345,10 @@ private:
     void freeData(QHashData *d);
     Node **findNode(const Key &key, uint *hp = 0) const;
     Node *createNode(uint h, const Key &key, const T &value, Node **nextNode);
+    void deleteNode(Node *node);
 
-    static void *allocateNode();
-    static void deleteNode(Node *node);
-    static QHashData::Node *duplicateNode(QHashData::Node *node);
+    static void duplicateNode(QHashData::Node *originalNode, void *newNode);
 };
-
-template <class Key, class T>
-Q_INLINE_TEMPLATE void *QHash<Key, T>::allocateNode()
-{
-    size_t size;
-
-    if (QTypeInfo<T>::isDummy) {
-        size = reinterpret_cast<char *>(&reinterpret_cast<Node *>(&QHashData::shared_null)->value)
-               - reinterpret_cast<char *>(&QHashData::shared_null);
-    } else {
-        size = sizeof(Node);
-    }
-    return qMalloc(size);
-}
 
 template <class Key, class T>
 Q_INLINE_TEMPLATE void QHash<Key, T>::deleteNode(Node *node)
@@ -372,19 +360,17 @@ Q_INLINE_TEMPLATE void QHash<Key, T>::deleteNode(Node *node)
 #else
     node->~Node();
 #endif
-    qFree(node);
+    d->freeNode(node);
 }
 
 template <class Key, class T>
-Q_INLINE_TEMPLATE QHashData::Node *QHash<Key, T>::duplicateNode(QHashData::Node *node)
+Q_INLINE_TEMPLATE void QHash<Key, T>::duplicateNode(QHashData::Node *node, void *newNode)
 {
     Node *concreteNode = concrete(node);
     if (QTypeInfo<T>::isDummy) {
-        return reinterpret_cast<QHashData::Node *>(
-                new (allocateNode()) Node(concreteNode->key));
+        (void) new (newNode) Node(concreteNode->key);
     } else {
-        return reinterpret_cast<QHashData::Node *>(
-                new (allocateNode()) Node(concreteNode->key, concreteNode->value));
+        (void) new (newNode) Node(concreteNode->key, concreteNode->value);
     }
 }
 
@@ -395,9 +381,9 @@ QHash<Key, T>::createNode(uint ah, const Key &akey, const T &avalue, Node **anex
     Node *node;
 
     if (QTypeInfo<T>::isDummy) {
-        node = new (allocateNode()) Node(akey);
+        node = new (d->allocateNode()) Node(akey);
     } else {
-        node = new (allocateNode()) Node(akey, avalue);
+        node = new (d->allocateNode()) Node(akey, avalue);
     }
 
     node->h = ah;
@@ -433,7 +419,7 @@ Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::freeData(QHashData *x)
             cur = next;
         }
     }
-    x->free();
+    x->destroyAndFree();
 }
 
 template <class Key, class T>
@@ -445,7 +431,15 @@ Q_INLINE_TEMPLATE void QHash<Key, T>::clear()
 template <class Key, class T>
 Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::detach_helper()
 {
-    QHashData *x = d->detach_helper(duplicateNode);
+    size_t size;
+    if (QTypeInfo<T>::isDummy) {
+        size = reinterpret_cast<char *>(&reinterpret_cast<Node *>(&QHashData::shared_null)->value)
+               - reinterpret_cast<char *>(&QHashData::shared_null);
+    } else {
+        size = sizeof(Node);
+    }
+
+    QHashData *x = d->detach_helper(duplicateNode, (int)size);
     x = qAtomicSetPtr(&d, x);
     if (!x->ref.deref())
         freeData(x);

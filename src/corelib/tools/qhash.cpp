@@ -108,10 +108,20 @@ static int countBits(int hint)
 const int MinNumBits = 4;
 
 QHashData QHashData::shared_null = {
-    0, 0, Q_ATOMIC_INIT(1), 0, MinNumBits, 0, 0, true
+    0, 0, Q_ATOMIC_INIT(1), 0, 0, MinNumBits, 0, 0, true
 };
 
-QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
+void *QHashData::allocateNode()
+{
+    return ::malloc(nodeSize);
+}
+
+void QHashData::freeNode(void *node)
+{
+    return ::free(node);
+}
+
+QHashData *QHashData::detach_helper(void (*node_duplicate)(Node *, void *), int nodeSize)
 {
     union {
         QHashData *d;
@@ -122,6 +132,7 @@ QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
     d->buckets = 0;
     d->ref.init(1);
     d->size = size;
+    d->nodeSize = nodeSize;
     d->userNumBits = userNumBits;
     d->numBits = numBits;
     d->numBuckets = numBuckets;
@@ -134,7 +145,8 @@ QHashData *QHashData::detach_helper(Node *(*node_duplicate)(Node *))
             Node **nextNode = &d->buckets[i];
             Node *oldNode = buckets[i];
             while (oldNode != this_e) {
-                Node *dup = node_duplicate(oldNode);
+                Node *dup = static_cast<Node *>(allocateNode());
+                node_duplicate(oldNode, dup);
                 dup->h = oldNode->h;
                 *nextNode = dup;
                 nextNode = &dup->next;
@@ -248,7 +260,7 @@ void QHashData::rehash(int hint)
     }
 }
 
-void QHashData::free()
+void QHashData::destroyAndFree()
 {
     delete [] buckets;
     delete this;
