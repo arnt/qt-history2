@@ -109,7 +109,7 @@ embedded:DEPENDPATH += ;$$EMBEDDED_H
 include(qt_install.pri)
 
 unix {
-   CONFIG     += create_libtool create_pc
+   CONFIG     += create_libtool create_pc explicitlib
    QMAKE_PKGCONFIG_LIBDIR = $$[QT_INSTALL_LIBS]
    QMAKE_PKGCONFIG_INCDIR = $$[QT_INSTALL_HEADERS]
 }

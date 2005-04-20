@@ -292,6 +292,7 @@ CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
 CFG_FRAMEWORK=no
+CFG_LOADER_PATH=LD_LIBRARY_PATH
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -1321,6 +1322,7 @@ if [ "$CFG_EMBEDDED" != "no" ]; then
 	    [ "$CFG_EMBEDDED" = "auto" ] && CFG_EMBEDDED=generic
 	    XPLATFORM="qws/macx-$CFG_EMBEDDED-g++"
 	fi
+	CFG_LOADER_PATH=DYLD_LIBRARY_PATH
 	;;
     FreeBSD:*)
 	[ -z "$PLATFORM" ] && PLATFORM=qws/freebsd-generic-g++
@@ -3539,12 +3541,16 @@ QMAKE_ABSOLUTE_SOURCE_ROOT = \$\$QT_SOURCE_TREE
 QMAKE_MOC_SRC    = \$\$QT_BUILD_TREE/src/moc
 
 #local paths that cannot be queried from the QT_INSTALL_* properties while building QTDIR
-QMAKE_MOC        = \$\$QT_BUILD_TREE/bin/moc
-QMAKE_UIC        = \$\$QT_BUILD_TREE/bin/uic
-QMAKE_UIC3       = \$\$QT_BUILD_TREE/bin/uic3
-QMAKE_RCC        = \$\$QT_BUILD_TREE/bin/rcc
 QMAKE_INCDIR_QT	 = \$\$QT_BUILD_TREE/include
 QMAKE_LIBDIR_QT	 = \$\$QT_BUILD_TREE/lib
+QMAKE_MOC        = \$\$QT_BUILD_TREE/bin/moc
+
+# poor man's rpath, set the dynamic loader path to avoid a security
+# issue and the "set this environment variable before building qt"
+# requirement
+QMAKE_UIC        = ${CFG_LOADER_PATH}=\"\$\$QMAKE_LIBDIR_QT:\\\$\\\$${CFG_LOADER_PATH}\" \$\$QT_BUILD_TREE/bin/uic
+QMAKE_UIC3       = ${CFG_LOADER_PATH}=\"\$\$QMAKE_LIBDIR_QT:\\\$\\\$${CFG_LOADER_PATH}\" \$\$QT_BUILD_TREE/bin/uic3
+QMAKE_RCC        = \$\$QT_BUILD_TREE/bin/rcc
 
 EOF
 
