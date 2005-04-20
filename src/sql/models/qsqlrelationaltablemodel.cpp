@@ -266,6 +266,8 @@ bool QSqlRelationalTableModel::setData(const QModelIndex &index, const QVariant 
 void QSqlRelationalTableModel::setRelation(int column, const QSqlRelation &relation)
 {
     Q_D(QSqlRelationalTableModel);
+    if (column < 0)
+        return;
     if (d->relations.size() <= column)
         d->relations.resize(column + 1);
     d->relations[column].rel = relation;
