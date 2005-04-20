@@ -61,9 +61,19 @@ public:
     inline QBufferedFSFileEnginePrivate()
     {
         fh = 0;
+        lastIOCommand = IOFlushCommand;
     }
 
     FILE *fh;
+    
+    enum LastIOCommand
+    {
+        IOFlushCommand,
+        IOReadCommand,
+        IOWriteCommand
+    };
+    LastIOCommand  lastIOCommand;
+
 };
 
 #endif

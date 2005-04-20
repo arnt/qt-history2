@@ -53,6 +53,7 @@ void QBufferedFSFileEngine::flush()
     if (gotPos == 0)
         fsetpos(d->fh, &pos);
 #endif
+    d->lastIOCommand = QBufferedFSFileEnginePrivate::IOFlushCommand;
 }
 
 qint64 QBufferedFSFileEngine::at() const
@@ -70,6 +71,10 @@ bool QBufferedFSFileEngine::seek(qint64 offset)
 qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
 {
     Q_D(QBufferedFSFileEngine);
+    if (d->lastIOCommand != QBufferedFSFileEnginePrivate::IOReadCommand) {
+        flush();
+        d->lastIOCommand = QBufferedFSFileEnginePrivate::IOReadCommand;
+    }
     if (feof(d->fh))
 	    return -1;
     return fread(data, 1, size_t(maxlen), d->fh);
@@ -78,6 +83,10 @@ qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
 qint64 QBufferedFSFileEngine::write(const char *data, qint64 len)
 {
     Q_D(QBufferedFSFileEngine);
+    if (d->lastIOCommand != QBufferedFSFileEnginePrivate::IOWriteCommand) {
+        flush();
+        d->lastIOCommand = QBufferedFSFileEnginePrivate::IOWriteCommand;
+    }
     return fwrite(data, 1, size_t(len), d->fh);
 }
 
