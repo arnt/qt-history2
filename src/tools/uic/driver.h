@@ -18,6 +18,7 @@
 #include <qhash.h>
 #include <qstring.h>
 #include <qstringlist.h>
+#include <qtextstream.h>
 
 class QTextStream;
 class DomUI;
@@ -83,6 +84,7 @@ public:
 
 private:
     Option m_option;
+    QTextStream m_stdout;
     QTextStream *m_output;
 
     QStringList m_problems;

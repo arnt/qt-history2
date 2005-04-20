@@ -15,6 +15,7 @@
 #include "domtool.h"
 
 // uic4
+#include "uic.h"
 #include "ui4.h"
 #include "driver.h"
 #include "option.h"
@@ -70,6 +71,8 @@ QByteArray combinePath(const char *infile, const char *outfile)
 */
 void Ui3Reader::createFormDecl(const QDomElement &e)
 {
+    QDomElement body = e;
+
     QDomElement n;
     QDomNodeList nl;
     int i;
@@ -131,9 +134,6 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     out << endl;
 
     out << "#include <qvariant.h>" << endl; // for broken HP-UX compilers
-
-    if (uiHeaderFile.size())
-        out << "#include \"" << uiHeaderFile << "\"" << endl;
 
     QStringList globalIncludes, localIncludes;
 
@@ -224,15 +224,14 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
 
     out << endl;
 
-    if (uiHeaderFile.isEmpty()) {
-        Driver d;
-        d.option().headerProtection = false;
-        if (trmacro.size())
-            d.option().translateFunction = trmacro;
-        DomUI *ui = generateUi4(e);
-        d.uic(fileName, ui, &out);
-        delete ui;
-    }
+    Driver d;
+    d.option().headerProtection = false;
+    d.option().copyrightHeader = false;
+    if (trmacro.size())
+        d.option().translateFunction = trmacro;
+    DomUI *ui = generateUi4(e);
+    d.uic(fileName, ui, &out);
+    delete ui;
 
     QStringList::ConstIterator ns = namespaces.begin();
     while (ns != namespaces.end()) {

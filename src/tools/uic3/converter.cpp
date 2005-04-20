@@ -325,7 +325,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
         } else if (isActionGroup && name == QLatin1String("exclusive")) {
             // continue
         } else if (isActionGroup) {
-            fprintf(stderr, "property %s not supported\n", name.latin1());
+            errorInvalidProperty(name, objectName, isActionGroup ? QLatin1String("QActionGroup") : QLatin1String("QAction"));
             delete prop;
             it.remove();
         } else if (name == QLatin1String("menuText")) {
@@ -342,7 +342,7 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
         } else if (name == QLatin1String("on")) {
             prop->setAttributeName(QLatin1String("checked"));
         } else if (!WidgetInfo::isValidProperty(QLatin1String("QAction"), name)) {
-            fprintf(stderr, "property %s not supported\n", name.latin1());
+            errorInvalidProperty(name, objectName, isActionGroup ? QLatin1String("QActionGroup") : QLatin1String("QAction"));
             delete prop;
             it.remove();
         }
@@ -708,6 +708,8 @@ DomLayoutItem *Ui3Reader::createLayoutItem(const QDomElement &e)
 void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *properties,
                                  const QString &className)
 {
+    QString objectName;
+
     for (QDomElement e=n.firstChild().toElement(); !e.isNull(); e = e.nextSibling().toElement()) {
         if (e.tagName().toLower() == QLatin1String("property")) {
             QString name = e.attribute(QLatin1String("name"));
@@ -720,20 +722,20 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                     || name == QLatin1String("backgroundOrigin")
                     || name == QLatin1String("paletteBackgroundPixmap")
                     || name == QLatin1String("backgroundBrush")) {
-                fprintf(stderr, "property '%s' not supported\n", name.latin1());
+                errorInvalidProperty(name, objectName, className);
                 continue;
             }
 
             // changes in QFrame
             if (name == QLatin1String("contentsRect")) {
-                fprintf(stderr, "property '%s' not supported\n", name.latin1());
+                errorInvalidProperty(name, objectName, className);
                 continue;
             }
 
             // changes in QWidget
             if (name == QLatin1String("underMouse")
                     || name == QLatin1String("ownFont")) {
-                fprintf(stderr, "property '%s' not supported\n", name.latin1());
+                errorInvalidProperty(name, objectName, className);
                 continue;
             }
 
@@ -802,7 +804,7 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 QString e = WidgetInfo::resolveEnumerator(className, prop->elementEnum());
 
                 if (e.isEmpty()) {
-                    fprintf(stderr, "enumerator '%s' for widget '%s' is not supported\n",
+                    fprintf(stderr, "uic3: enumerator '%s' for widget '%s' is not supported\n",
                             prop->elementEnum().latin1(), className.latin1());
 
                     delete prop;
@@ -817,8 +819,7 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                     && !(name == QLatin1String("frameworkCode"))
                     && !(name == QLatin1String("database"))) {
                 if (!WidgetInfo::isValidProperty(className, name)) {
-                    fprintf(stderr, "property '%s' for widget '%s' is not supported\n",
-                            name.latin1(), className.latin1());
+                    errorInvalidProperty(name, objectName, className);
                     delete prop;
                 } else {
                     properties->append(prop);

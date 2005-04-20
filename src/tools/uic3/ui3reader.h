@@ -43,7 +43,7 @@ public:
 
     void generateUi4(const QString &fn, const QString &outputFn, QDomDocument doc);
 
-    void generate(const QString &uiHeaderFile, const QString &fn, const QString &outputFn,
+    void generate(const QString &fn, const QString &outputFn,
          QDomDocument doc, bool decl, bool subcl, const QString &trm,
          const QString& subclname, bool omitForwardDecls);
 
@@ -80,6 +80,8 @@ public:
 
 private:
     void init();
+
+    void errorInvalidProperty(const QString &propertyName, const QString &widgetName, const QString &widgetClass);
 
     DomUI *generateUi4(const QDomElement &e);
     DomWidget *createWidget(const QDomElement &w, const QString &widgetClass = QString::null);
@@ -166,7 +168,6 @@ private:
     static QString getComment(const QDomNode& n);
     QVariant defSpacing, defMargin;
     QString fileName;
-    QString uiHeaderFile;
     bool writeFunctImpl;
 
     QDomElement root;

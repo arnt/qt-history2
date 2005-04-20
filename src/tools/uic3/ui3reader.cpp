@@ -29,6 +29,12 @@
 
 bool Ui3Reader::isMainWindow = false;
 
+void Ui3Reader::errorInvalidProperty(const QString &propertyName, const QString &widgetName, const QString &widgetClass)
+{
+    fprintf(stderr, "uic3: property `%s' for widget `%s' of type `%s' is not supported\n",
+        propertyName.toLatin1().constData(), widgetName.toLatin1().constData(), widgetClass.toLatin1().constData());
+}
+
 QString Ui3Reader::getComment(const QDomNode& n)
 {
     QDomNode child = n.firstChild();
@@ -187,13 +193,12 @@ Ui3Reader::~Ui3Reader()
     delete m_porting;
 }
 
-void Ui3Reader::generate(const QString &uiHeaderFn, const QString &fn, const QString &outputFn,
+void Ui3Reader::generate(const QString &fn, const QString &outputFn,
           QDomDocument doc, bool decl, bool subcl, const QString &trm,
           const QString& subClass, bool omitForwardDecls)
 {
     init();
 
-    uiHeaderFile = uiHeaderFn;
     fileName = fn;
     outputFileName = outputFn;
     trmacro = trm;

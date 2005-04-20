@@ -13,13 +13,8 @@ isEmpty(UI_DIR):UI_DIR = .
 isEmpty(UI_SOURCES_DIR):UI_SOURCES_DIR = $$UI_DIR
 isEmpty(UI_HEADERS_DIR):UI_HEADERS_DIR = $$UI_DIR
 
-uic3 {
-    uic.commands = $$QMAKE_UIC -3 $$QMAKE_UIC3 ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-    uic.depend_command = $$QMAKE_UIC -3 $$QMAKE_UIC3 -d ${QMAKE_FILE_IN}
-} else {
-    uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
-    uic.depend_command = $$QMAKE_UIC -d ${QMAKE_FILE_IN}
-}
+uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+!uic3:uic.depend_command = $$QMAKE_UIC -d ${QMAKE_FILE_IN}
 
 uic.output = $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
 uic.input = FORMS
@@ -31,10 +26,9 @@ QMAKE_EXTRA_COMPILERS += uic
 INCLUDEPATH += $$UI_HEADERS_DIR
 
 uic3 {
-    uic3_decl.commands = $$QMAKE_UIC3 -decl ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)} ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
+    uic3_decl.commands = $$QMAKE_UIC3 ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
     uic3_decl.dependency_type = TYPE_UI
     uic3_decl.output = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
-    uic3_decl.depends = $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
     uic3_decl.input = FORMS
     uic3_decl.CONFIG += no_link
     uic3_decl.variable_out = HEADERS UIC3_HEADERS

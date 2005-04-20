@@ -40,7 +40,6 @@ int main(int argc, char * argv[])
     const char* fileName = 0;
     const char* className = 0;
     const char* headerFile = 0;
-    const char* uiHeaderFile = 0;
     QByteArray outputFile;
     QByteArray image_tmpfile;
     const char* projectName = 0;
@@ -63,15 +62,6 @@ int main(int argc, char * argv[])
                     outputFile = argv[++n];
                 } else
                     outputFile = opt.data() + 1;
-            } else if (opt[0] == 'd' || opt == "decl") {
-                if (opt == "decl" || opt[1] == '\0') {
-                    if (!(n < argc-1)) {
-                        error = "Missing name of ui header file";
-                        break;
-                    }
-                    uiHeaderFile = argv[++n];
-                } else
-                    uiHeaderFile = opt.data() + 1;
             } else if (opt[0] == 'i' || opt == "impl") {
                 impl = true;
                 if (opt == "impl" || opt[1] == '\0') {
@@ -302,12 +292,7 @@ int main(int argc, char * argv[])
         out << "#include \"" << headerFile << "\"" << endl << endl;
     }
 
-    QString uiData;
-    if (uiHeaderFile)
-        uiData = QFile::decodeName(uiHeaderFile);
-
-    ui3.generate(uiData,
-        QFile::decodeName(fileName),
+    ui3.generate(QFile::decodeName(fileName),
         QFile::decodeName(outputFile),
         doc,
         !impl,

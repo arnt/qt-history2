@@ -20,8 +20,9 @@
 #include <qdebug.h>
 
 Driver::Driver()
+    : m_stdout(stdout, QFile::WriteOnly)
 {
-    m_output = 0;
+    m_output = &m_stdout;
 }
 
 Driver::~Driver()
@@ -167,20 +168,11 @@ bool Driver::uic(const QString &fileName, DomUI *ui, QTextStream *out)
     m_option.inputFile = fileName;
 
     QTextStream *oldOutput = m_output;
-    bool deleteOutput = false;
 
-    if (out) {
-        m_output = out;
-    } else {
-        m_output = new QTextStream(stdout, QIODevice::WriteOnly);
-        deleteOutput = true;
-    }
+    m_output = out != 0 ? out : &m_stdout;
 
     Uic tool(this);
     bool rtn = tool.write(ui);
-
-    if (deleteOutput)
-        delete m_output;
 
     m_output = oldOutput;
 
