@@ -1409,68 +1409,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 }
 
 
-void QWidget::setMinimumSize(int minw, int minh)
-{
-    Q_D(QWidget);
-    if (minw < 0 || minh < 0)
-        qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
-    d->createExtra();
-    if (d->extra->minw == minw && d->extra->minh == minh)
-        return;
-    d->extra->minw = minw;
-    d->extra->minh = minh;
-    if (minw > width() || minh > height()) {
-        bool resized = testAttribute(Qt::WA_Resized);
-        resize(qMax(minw,width()), qMax(minh,height()));
-        setAttribute(Qt::WA_Resized, resized); //not a user resize
-    }
-    updateGeometry();
-}
 
-void QWidget::setMaximumSize(int maxw, int maxh)
+void QWidgetPrivate::setConstraints_sys()
 {
-    Q_D(QWidget);
-    if (maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
-        qWarning("QWidget::setMaximumSize: The largest allowed size is (%d,%d)",
-                 QWIDGETSIZE_MAX, QWIDGETSIZE_MAX);
-        maxw = qMin<int>(maxw, QWIDGETSIZE_MAX);
-        maxh = qMin<int>(maxh, QWIDGETSIZE_MAX);
-    }
-    if (maxw < 0 || maxh < 0) {
-        qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
-                "are not possible",
-                 objectName().isEmpty() ? "unnamed" : objectName().toLatin1().constData(),
-                 metaObject()->className(), maxw, maxh);
-        maxw = qMax(maxw, 0);
-        maxh = qMax(maxh, 0);
-    }
-    d->createExtra();
-    if (d->extra->maxw == maxw && d->extra->maxh == maxh)
-        return;
-    d->extra->maxw = maxw;
-    d->extra->maxh = maxh;
-    if (maxw < width() || maxh < height()) {
-        bool resized = testAttribute(Qt::WA_Resized);
-        resize(qMin(maxw,width()), qMin(maxh,height()));
-        setAttribute(Qt::WA_Resized, resized); //not a user resize
-    }
-    updateGeometry();
-}
-
-void QWidget::setSizeIncrement(int w, int h)
-{
-    Q_D(QWidget);
-    d->createTLExtra();
-    d->extra->topextra->incw = w;
-    d->extra->topextra->inch = h;
-}
-
-void QWidget::setBaseSize(int w, int h)
-{
-    Q_D(QWidget);
-    d->createTLExtra();
-    d->extra->topextra->basew = w;
-    d->extra->topextra->baseh = h;
 }
 
 void QWidget::scroll(int dx, int dy)

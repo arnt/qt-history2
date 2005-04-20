@@ -1943,68 +1943,8 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     }
 }
 
-void QWidget::setMinimumSize(int minw, int minh)
+void QWidgetPrivate::setConstraints_sys()
 {
-    Q_D(QWidget);
-    if(minw < 0 || minh < 0)
-        qWarning("Qt: QWidget::setMinimumSize: The smallest allowed size is (0,0)");
-    d->createExtra();
-    if(d->extraData()->minw == minw && d->extraData()->minh == minh)
-        return;
-    d->extraData()->minw = minw;
-    d->extraData()->minh = minh;
-    if(minw > width() || minh > height()) {
-        bool resized = testAttribute(Qt::WA_Resized);
-        resize(qMax(minw,width()), qMax(minh,height()));
-        setAttribute(Qt::WA_Resized, resized); //not a user resize
-    }
-    updateGeometry();
-}
-
-void QWidget::setMaximumSize(int maxw, int maxh)
-{
-    Q_D(QWidget);
-    if(maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
-        qWarning("Qt: QWidget::setMaximumSize: (%s/%s) "
-                "The largest allowed size is (%d,%d)",
-                 objectName().toLocal8Bit().constData(), metaObject()->className(), QWIDGETSIZE_MAX,
-                QWIDGETSIZE_MAX);
-        maxw = qMin(maxw, QWIDGETSIZE_MAX);
-        maxh = qMin(maxh, QWIDGETSIZE_MAX);
-    }
-    if(maxw < 0 || maxh < 0) {
-        qWarning("Qt: QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
-                "are not possible",
-                 objectName().toLocal8Bit().constData(), metaObject()->className(), maxw, maxh);
-        maxw = qMax(maxw, 0);
-        maxh = qMax(maxh, 0);
-    }
-    d->createExtra();
-    if(d->extraData()->maxw == maxw && d->extraData()->maxh == maxh)
-        return;
-    d->extraData()->maxw = maxw;
-    d->extraData()->maxh = maxh;
-    if(maxw < width() || maxh < height()) {
-        bool resized = testAttribute(Qt::WA_Resized);
-        resize(qMin(maxw,width()), qMin(maxh,height()));
-        setAttribute(Qt::WA_Resized, resized); //not a user resize
-    }
-    updateGeometry();
-}
-
-
-void QWidget::setSizeIncrement(int w, int h)
-{
-    Q_D(QWidget);
-    d->topData()->incw = w;
-    d->topData()->inch = h;
-}
-
-void QWidget::setBaseSize(int w, int h)
-{
-    Q_D(QWidget);
-    d->topData()->basew = w;
-    d->topData()->baseh = h;
 }
 
 void QWidget::scroll(int dx, int dy)

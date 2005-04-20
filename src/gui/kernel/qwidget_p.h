@@ -235,6 +235,8 @@ public:
     void updateFrameStrut() const;
     void setWindowTitle_helper(const QString &cap);
 
+    void setConstraints_sys();
+
 #if defined(Q_WS_QWS)
 //    void updateRequestedRegion(const QPoint &gpos);
 //    QRegion requestedRegion() const;

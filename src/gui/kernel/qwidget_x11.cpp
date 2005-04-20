@@ -2167,114 +2167,13 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     }
 }
 
-
-/*!
-    \overload
-
-    This function corresponds to setMinimumSize(QSize(minw, minh)).
-    Sets the minimum width to \a minw and the minimum height to \a
-    minh.
-*/
-
-void QWidget::setMinimumSize(int minw, int minh)
+void QWidgetPrivate::setConstraints_sys()
 {
-    Q_D(QWidget);
-    if (minw < 0 || minh < 0)
-        qWarning("QWidget::setMinimumSize: The smallest allowed size is (0,0)");
-    d->createExtra();
-    if (d->extra->minw == minw && d->extra->minh == minh)
-        return;
-    d->extra->minw = minw;
-    d->extra->minh = minh;
-    if (minw > width() || minh > height()) {
-        bool resized = testAttribute(Qt::WA_Resized);
-        bool maximized = isMaximized();
-        resize(qMax(minw,width()), qMax(minh,height()));
-        setAttribute(Qt::WA_Resized, resized); //not a user resize
-        if (maximized)
-            data->window_state = data->window_state | Qt::WindowMaximized;
-    }
-    if (isWindow())
-        do_size_hints(this, d->extra);
-    updateGeometry();
+    Q_Q(QWidget);
+    do_size_hints(q, extra);
 }
 
-/*!
-    \overload
 
-    This function corresponds to setMaximumSize(QSize(\a maxw, \a
-    maxh)). Sets the maximum width to \a maxw and the maximum height
-    to \a maxh.
-*/
-void QWidget::setMaximumSize(int maxw, int maxh)
-{
-    Q_D(QWidget);
-    if (maxw > QWIDGETSIZE_MAX || maxh > QWIDGETSIZE_MAX) {
-        qWarning("QWidget::setMaximumSize: (%s/%s) "
-                "The largest allowed size is (%d,%d)",
-                 objectName().toLocal8Bit().data(), metaObject()->className(), QWIDGETSIZE_MAX,
-                QWIDGETSIZE_MAX);
-        maxw = qMin(maxw, QWIDGETSIZE_MAX);
-        maxh = qMin(maxh, QWIDGETSIZE_MAX);
-    }
-    if (maxw < 0 || maxh < 0) {
-        qWarning("QWidget::setMaximumSize: (%s/%s) Negative sizes (%d,%d) "
-                "are not possible",
-                objectName().toLocal8Bit().data(), metaObject()->className(), maxw, maxh);
-        maxw = qMax(maxw, 0);
-        maxh = qMax(maxh, 0);
-    }
-    d->createExtra();
-    if (d->extra->maxw == maxw && d->extra->maxh == maxh)
-        return;
-    d->extra->maxw = maxw;
-    d->extra->maxh = maxh;
-    if (maxw < width() || maxh < height()) {
-        bool resized = testAttribute(Qt::WA_Resized);
-        resize(qMin(maxw,width()), qMin(maxh,height()));
-        setAttribute(Qt::WA_Resized, resized); //not a user resize
-    }
-    if (isWindow())
-        do_size_hints(this, d->extra);
-    updateGeometry();
-}
-
-/*!
-    \overload
-
-    Sets the x (width) size increment to \a w and the y (height) size
-    increment to \a h.
-*/
-void QWidget::setSizeIncrement(int w, int h)
-{
-    Q_D(QWidget);
-    QTLWExtra* x = d->topData();
-    if (x->incw == w && x->inch == h)
-        return;
-    x->incw = w;
-    x->inch = h;
-    if (isWindow())
-        do_size_hints(this, d->extra);
-}
-
-/*!
-    \overload
-
-    This corresponds to setBaseSize(QSize(\a basew, \a baseh)). Sets
-    the widgets base size to width \a basew and height \a baseh.
-*/
-void QWidget::setBaseSize(int basew, int baseh)
-{
-    Q_D(QWidget);
-    d->createTLExtra();
-    QTLWExtra* x = d->topData();
-    if (x->basew == basew && x->baseh == baseh)
-        return;
-    x->basew = basew;
-    x->baseh = baseh;
-    if (isWindow())
-        do_size_hints(this, d->extra);
-}
 /*!
     Scrolls the widget including its children \a dx pixels to the
     right and \a dy downwards. Both \a dx and \a dy may be negative.
