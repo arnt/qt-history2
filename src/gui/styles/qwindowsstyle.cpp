@@ -1756,7 +1756,7 @@ QRect QWindowsStyle::subElementRect(SubElement sr, const QStyleOption *opt, cons
     switch (sr) {
     case SE_SliderFocusRect:
     case SE_ToolBoxTabContents:
-        r = opt->rect;
+        r = visualRect(opt->direction, opt->rect, opt->rect);
         break;
     default:
         r = QCommonStyle::subElementRect(sr, opt, w);

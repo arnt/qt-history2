@@ -735,14 +735,12 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
             drawControl(CE_PushButtonBevel, btn, p, widget);
             QStyleOptionButton subopt = *btn;
-            subopt.rect = QStyle::visualRect(btn->direction, btn->rect,
-                                             subElementRect(SE_PushButtonContents, btn, widget));
+            subopt.rect = subElementRect(SE_PushButtonContents, btn, widget);
             drawControl(CE_PushButtonLabel, &subopt, p, widget);
             if ((btn->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                 QStyleOptionFocusRect fropt;
                 fropt.QStyleOption::operator=(*btn);
-                fropt.rect = visualRect(opt->direction, opt->rect,
-                                        subElementRect(SE_PushButtonFocusRect, btn, widget));
+                fropt.rect = subElementRect(SE_PushButtonFocusRect, btn, widget);
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -957,7 +955,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             }
 
             QRect vrect = visualRect(opt->direction, opt->rect,
-                                     QRect(x+motifItemFrame, y+motifItemFrame, maxpmw, h-2*motifItemFrame));
+                                     QRect(x+motifItemFrame, y+motifItemFrame, maxpmw,
+                                           h-2*motifItemFrame));
             int xvis = vrect.x();
             if (menuitem->checked) {
                 if(!menuitem->icon.isNull())
@@ -1011,7 +1010,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             int xm = motifItemFrame + maxpmw + motifItemHMargin;
 
             vrect = visualRect(opt->direction, opt->rect,
-                               QRect(x+xm, y+motifItemVMargin, w-xm-menuitem->tabWidth, h-2*motifItemVMargin));
+                               QRect(x+xm, y+motifItemVMargin, w-xm-menuitem->tabWidth,
+                                     h-2*motifItemVMargin));
             xvis = vrect.x();
 
             QString s = menuitem->text;
@@ -1023,7 +1023,8 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                 if (t >= 0) {                         // draw tab text
                     QRect vr = visualRect(opt->direction, opt->rect,
                                           QRect(x+w-menuitem->tabWidth-motifItemHMargin-motifItemFrame,
-                                                y+motifItemVMargin, menuitem->tabWidth, h-2*motifItemVMargin));
+                                                y+motifItemVMargin, menuitem->tabWidth,
+                                                h-2*motifItemVMargin));
                     int xv = vr.x();
                     QRect tr(xv, y+m, menuitem->tabWidth, h-2*m);
                     p->drawText(tr, text_flags, s.mid(t+1));
@@ -1135,11 +1136,8 @@ void QMotifStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComple
         if (const QStyleOptionToolButton *toolbutton
             = qstyleoption_cast<const QStyleOptionToolButton *>(opt)) {
             QRect button, menuarea;
-            button = visualRect(opt->direction, opt->rect,
-                                subControlRect(cc, toolbutton, SC_ToolButton, widget));
-            menuarea = visualRect(opt->direction, opt->rect,
-                                  subControlRect(cc, toolbutton, SC_ToolButtonMenu,
-                                                 widget));
+            button = subControlRect(cc, toolbutton, SC_ToolButton, widget);
+            menuarea = subControlRect(cc, toolbutton, SC_ToolButtonMenu, widget);
 
             State bflags = toolbutton->state;
 
@@ -1622,10 +1620,12 @@ QMotifStyle::subControlRect(ComplexControl cc, const QStyleOptionComplex *opt,
                                                         : slider->rect.height() - len - 2 * motifBorder,
                                                         slider->upsideDown);
                 if (horizontal)
-                    return QRect(sliderPos + motifBorder, tickOffset + motifBorder, len,
-                                 thickness - 2 * motifBorder);
-                return QRect(tickOffset + motifBorder, sliderPos + motifBorder,
-                             thickness - 2 * motifBorder, len);
+                    return visualRect(slider->direction, slider->rect,
+                                      QRect(sliderPos + motifBorder, tickOffset + motifBorder, len,
+                                            thickness - 2 * motifBorder));
+                return visualRect(slider->direction, slider->rect,
+                                  QRect(tickOffset + motifBorder, sliderPos + motifBorder,
+                                        thickness - 2 * motifBorder, len));
             }
         }
         break;
@@ -1800,6 +1800,7 @@ QMotifStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QWidge
                 else
                     rect.setRect(0, 2, opt->rect.width() - 15, opt->rect.height() - 2);
             }
+            rect = visualRect(dw->direction, dw->rect, rect);
         }
         break;
 
