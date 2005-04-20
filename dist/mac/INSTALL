@@ -105,14 +105,15 @@ if something doesn't work here.
     ln -sf $QTDIR/lib/libQtSql.4.dylib /usr/lib
     ln -sf $QTDIR/lib/libQtOpenGL.4.dylib /usr/lib
     ln -sf $QTDIR/lib/libQtXml.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQt3Compat.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQt3Support.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQtDesigner.1.dylib /usr/lib
     ln -sf $QTDIR/lib/libQtCore_debug.4.dylib /usr/lib
     ln -sf $QTDIR/lib/libQtGui_debug.4.dylib /usr/lib
     ln -sf $QTDIR/lib/libQtNetwork_debug.4.dylib /usr/lib
     ln -sf $QTDIR/lib/libQtSql_debug.4.dylib /usr/lib
     ln -sf $QTDIR/lib/libQtOpenGL_debug.4.dylib /usr/lib
     ln -sf $QTDIR/lib/libQtXml_debug.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQt3Compat_debug.4.dylib /usr/lib
+    ln -sf $QTDIR/lib/libQt3Support_debug.4.dylib /usr/lib
     ln -sf $QTDIR/lib/libQtDesigner_debug.1.dylib /usr/lib
 
     You may need to have 'administrator' access to do this, (in which
@@ -129,14 +130,15 @@ if something doesn't work here.
     ln -sf $QTDIR/lib/libQtSql.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtOpenGL.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtXml.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQt3Compat.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQt3Support.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQtDesigner.1.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtCore_debug.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtGui_debug.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtNetwork_debug.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtSql_debug.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtOpenGL_debug.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtXml_debug.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQt3Compat_debug.4.dylib $HOME/lib
+    ln -sf $QTDIR/lib/libQt3Support_debug.4.dylib $HOME/lib
     ln -sf $QTDIR/lib/libQtDesigner_debug.1.dylib $HOME/lib
 
     Note: you can also achieve similar functionality by adding your
