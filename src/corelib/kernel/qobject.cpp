@@ -16,6 +16,7 @@
 
 #include "qabstracteventdispatcher.h"
 #include "qcoreapplication.h"
+#include "qcoreapplication_p.h"
 #include "qvariant.h"
 #include "qmetaobject.h"
 #include <qregexp.h>
@@ -23,6 +24,7 @@
 #include <private/qthread_p.h>
 #include <qdebug.h>
 #include <qhash.h>
+#include <qpair.h>
 #include <qreadwritelock.h>
 #include <qvarlengtharray.h>
 
@@ -810,6 +812,21 @@ bool QObject::event(QEvent *e)
         break;
     }
 
+    case QEvent::ThreadChange: {
+        QThread *objectThread = thread();
+        if (objectThread) {
+            QThreadData *threadData = QThreadData::get(objectThread);
+            QAbstractEventDispatcher *eventDispatcher = threadData->eventDispatcher;
+            QList<QPair<int, int> > timers = eventDispatcher->registeredTimers(this);
+            if (!timers.isEmpty()) {
+                eventDispatcher->unregisterTimers(this);
+                QMetaObject::invokeMember(this, "reregisterTimers", Qt::QueuedConnection,
+                                          Q_ARG(void*, (new QList<QPair<int, int> >(timers))));
+            }
+        }
+        break;
+    }
+
     default:
         if (e->type() >= QEvent::User) {
             customEvent(e);
@@ -981,9 +998,127 @@ bool QObject::blockSignals(bool block)
 }
 
 /*!
+    Returns the object's thread affinity.
+
+    \sa moveToThread()
  */
 QThread *QObject::thread() const
 { return QThreadPrivate::threadForId(d_func()->thread); }
+
+/*!
+    Changes this object's thread affinity.  Event processing for this
+    object will continue in the \a targetThread.  If \a targetThread
+    is zero, only \link QCoreApplication::postEvent() posted
+    events\link are processed by the main thread; all other event
+    processing for this object stops.
+
+    Note that this function is \e not thread-safe; the current thread
+    must be same as the current thread affinity. In other words, this
+    function can only "push" an object from the current thread to
+    another thread, it cannot "pull" an object from any arbitrary
+    thread to the current thread.
+
+    \sa thread()
+ */
+void QObject::moveToThread(QThread *targetThread)
+{
+    Q_D(QObject);
+    Q_ASSERT_X(d->parent == 0, "QObject::moveToThread",
+               "Cannot move objects with a parent");
+    if (d->parent != 0)
+        return;
+    Q_ASSERT_X(!d->isWidget, "QObject::moveToThread",
+               "Widgets cannot be moved to a new thread");
+    if (d->isWidget)
+        return;
+    QThread *objectThread = thread();
+    QThread *currentThread = QThread::currentThread();
+    Q_ASSERT_X(d->thread == -1 || objectThread == currentThread, "QObject::moveToThread",
+               "Current thread is not the object's thread");
+    if (d->thread != -1 && objectThread != currentThread)
+        return;
+    if (objectThread == targetThread)
+        return;
+
+    d->moveToThread_helper(targetThread);
+
+    QThreadData *currentData = QThreadData::get(currentThread);
+    QThreadData *targetData =
+        QThreadData::get(targetThread ? targetThread : QCoreApplicationPrivate::mainThread());
+    if (currentData != targetData) {
+        targetData->postEventList.mutex.lock();
+        while (!currentData->postEventList.mutex.tryLock()) {
+            targetData->postEventList.mutex.unlock();
+            targetData->postEventList.mutex.lock();
+        }
+    }
+    d_func()->setThreadId_helper(currentData, targetData,
+                                 targetThread ? QThreadData::get(targetThread)->id : -1);
+    if (currentData != targetData) {
+        targetData->postEventList.mutex.unlock();
+        currentData->postEventList.mutex.unlock();
+    }
+}
+
+void QObjectPrivate::moveToThread_helper(QThread *targetThread)
+{
+    Q_Q(QObject);
+    QEvent e(QEvent::ThreadChange);
+    QCoreApplication::sendEvent(q, &e);
+    for (int i = 0; i < children.size(); ++i) {
+        QObject *child = children.at(i);
+        child->d_func()->moveToThread_helper(targetThread);
+    }
+}
+
+void QObjectPrivate::setThreadId_helper(QThreadData *currentData, QThreadData *targetData,
+                                      int newThreadId)
+{
+    Q_Q(QObject);
+
+    if (currentData != targetData) {
+        // move posted events
+        int eventsMoved = 0;
+        for (int i = 0; i < currentData->postEventList.size(); ++i) {
+            const QPostEvent &pe = currentData->postEventList.at(i);
+            if (!pe.event)
+                continue;
+            if (pe.receiver == q) {
+                // move this post event to the targetList
+                targetData->postEventList.append(pe);
+                const_cast<QPostEvent &>(pe).event = 0;
+                ++eventsMoved;
+            }
+        }
+        if (eventsMoved > 0 && targetData->eventDispatcher)
+            targetData->eventDispatcher->wakeUp();
+    }
+
+    // set new thread id
+    thread = newThreadId;
+    for (int i = 0; i < children.size(); ++i) {
+        QObject *child = children.at(i);
+        child->d_func()->setThreadId_helper(currentData, targetData, newThreadId);
+    }
+}
+
+void QObjectPrivate::reregisterTimers(void *pointer)
+{
+    Q_Q(QObject);
+    QThread *objectThread = q->thread();
+    QList<QPair<int, int> > *timerList =
+        reinterpret_cast<QList<QPair<int, int> > *>(pointer);
+    if (objectThread) {
+        QThreadData *threadData = QThreadData::get(objectThread);
+        QAbstractEventDispatcher *eventDispatcher = threadData->eventDispatcher;
+        for (int i = 0; i < timerList->size(); ++i) {
+            const QPair<int, int> &pair = timerList->at(i);
+            eventDispatcher->registerTimer(pair.first, pair.second, q);
+        }
+    }
+    delete timerList;
+}
+
 
 //
 // The timer flag hasTimer is set when startTimer is called.
@@ -1615,7 +1750,7 @@ static void err_info_about_objects(const char * func,
 */
 
 QObject *QObject::sender() const
-{     
+{
     Q_D(const QObject);
     QConnectionList * const list = ::connectionList();
     if (!list)
@@ -1629,16 +1764,16 @@ QObject *QObject::sender() const
     if (it == end)
         return 0;
 
-    // Only return d->currentSender if it's actually connected to "this" 
+    // Only return d->currentSender if it's actually connected to "this"
     for (; it != end && it.key() == d->currentSender; ++it) {
         const int at = it.value();
         const QConnection &c = list->connections.at(at);
 
-        if (c.receiver == this) 
+        if (c.receiver == this)
             return d->currentSender;
     }
 
-    return 0; 
+    return 0;
 }
 
 /*!
@@ -2303,8 +2438,8 @@ void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
         if (qt_signal_spy_callback_set.slot_end_callback != 0)
             qt_signal_spy_callback_set.slot_end_callback(c.receiver, member);
 
-        list->lock.lockForRead();        
-        if (c.receiver) 
+        list->lock.lockForRead();
+        if (c.receiver)
             c.receiver->d_func()->currentSender = previousSender;
     }
 
@@ -2572,3 +2707,4 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
   \internal
 */
 
+#include "moc_qobject.cpp"

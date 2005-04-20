@@ -25,7 +25,7 @@
     The QWinEventNotifier class makes it possible to use the wait
     functions on windows in a asynchronous manor. With this class
     you can register a HANDLE to an event and get notification when
-    that event becomes signalled. The state of the event is not modified 
+    that event becomes signalled. The state of the event is not modified
     in the process so if it is a manual reset event you will need to
     reset it after the notification.
 */
@@ -84,6 +84,13 @@ void QWinEventNotifier::setEnabled(bool enable)
 
 bool QWinEventNotifier::event(QEvent * e)
 {
+    if (e->type() == QEvent::ThreadChange) {
+        if (enabled) {
+            QMetaObject::invokeMember(this, "setEnabled", Qt::QueuedConnection,
+                                      Q_ARG(bool, enabled));
+            setEnabled(false);
+        }
+    }
     QObject::event(e);                        // will activate filters
     if (e->type() == QEvent::WinEventAct) {
         emit activated(handleToEvent);

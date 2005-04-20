@@ -118,6 +118,7 @@ public:
     bool blockSignals(bool b);
 
     QThread *thread() const;
+    void moveToThread(QThread *thread);
 
     int startTimer(int interval);
     void killTimer(int id);
@@ -258,6 +259,7 @@ protected:
 
 private:
     Q_DISABLE_COPY(QObject)
+    Q_PRIVATE_SLOT(d_func(), void reregisterTimers(void *))
 };
 
 inline bool QObject::connect(const QObject *asender, const char *asignal,

@@ -41,6 +41,8 @@ public:
     HANDLE handle() const;
 
     bool isEnabled() const;
+
+public slots:
     void setEnabled(bool enable);
 
 signals:

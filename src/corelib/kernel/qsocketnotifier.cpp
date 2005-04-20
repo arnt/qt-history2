@@ -238,6 +238,13 @@ bool QSocketNotifier::event(QEvent *e)
 {
     // Emits the activated() signal when a \c QEvent::SockAct is
     // received.
+    if (e->type() == QEvent::ThreadChange) {
+        if (snenabled) {
+            QMetaObject::invokeMember(this, "setEnabled", Qt::QueuedConnection,
+                                      Q_ARG(bool, snenabled));
+            setEnabled(false);
+        }
+    }
     QObject::event(e);                        // will activate filters
     if (e->type() == QEvent::SockAct) {
         emit activated(sockfd);

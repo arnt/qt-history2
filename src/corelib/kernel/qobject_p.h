@@ -57,6 +57,9 @@ public:
 
     // id of the thread that owns the object
     int thread;
+    void moveToThread_helper(QThread *targetThread);
+    void setThreadId_helper(QThreadData *currentData, QThreadData *targetData, int id);
+    void reregisterTimers(void *pointer);
 
     // object currently activating the object
     QObject *currentSender;

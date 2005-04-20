@@ -33,6 +33,8 @@ public:
     inline Type type() const { return sntype; }
 
     inline bool isEnabled() const { return snenabled; }
+
+public slots:
     void setEnabled(bool);
 
 signals:
