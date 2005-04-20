@@ -14,16 +14,19 @@
 #ifndef QGFX_QWS_H
 #define QGFX_QWS_H
 
-#include "QtGui/qwidget.h"
 #include "QtCore/qnamespace.h"
-#include "QtGui/qimage.h"
-#include "QtGui/qmemorymanager_qws.h"
 #include "QtCore/qpoint.h"
+#include "QtGui/qcolor.h"
 
-#include <QtGui/private/qtextengine_p.h>
 
+class QImage;
 class QScreen;
 class QScreenCursor;
+class QPen;
+class QBrush;
+class QRegion;
+class QPolygon;
+class QPaintDevice;
 
 class Q_GUI_EXPORT QGfx {
 

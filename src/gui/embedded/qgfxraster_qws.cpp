@@ -19,6 +19,8 @@
 #include "qwsdisplay_qws.h"
 #include "qgfxdriverfactory_qws.h"
 #include "qpixmap.h"
+#include "qwidget.h"
+
 
 #include <stdlib.h>
 #include <math.h>

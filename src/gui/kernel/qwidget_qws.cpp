@@ -29,6 +29,7 @@
 #include "qwsmanager_qws.h"
 #include <private/qwsmanager_p.h>
 //#include "qwsregionmanager_qws.h"
+#include "qpaintengine.h"
 
 #include <qgfxraster_qws.h>
 

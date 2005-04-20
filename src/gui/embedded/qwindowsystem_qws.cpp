@@ -35,6 +35,8 @@
 #include "qdesktopwidget.h"
 #include "qevent.h"
 #include "qinputcontext.h"
+#include "qpainter.h"
+
 
 #include <unistd.h>
 #include <stdlib.h>

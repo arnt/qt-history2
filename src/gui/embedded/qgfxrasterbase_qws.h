@@ -21,6 +21,7 @@
 #include "QtGui/qwsdisplay_qws.h"
 #include "QtGui/qpolygonscanner_qws.h"
 #include "QtGui/qregion.h"
+#include "QtGui/qpixmap.h"
 
 //===========================================================================
 // Utility macros and functions [start]
