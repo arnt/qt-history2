@@ -367,9 +367,9 @@ void QAbstractSocketPrivate::setupSocketNotifiers()
 {
     Q_Q(QAbstractSocket);
     readSocketNotifier = new QSocketNotifier(socketLayer.socketDescriptor(),
-                                             QSocketNotifier::Read);
+                                             QSocketNotifier::Read, q);
     writeSocketNotifier = new QSocketNotifier(socketLayer.socketDescriptor(),
-                                              QSocketNotifier::Write);
+                                              QSocketNotifier::Write, q);
     readSocketNotifier->setEnabled(false);
     writeSocketNotifier->setEnabled(false);
 
