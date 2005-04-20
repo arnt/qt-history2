@@ -3505,14 +3505,14 @@ void Q3ListView::updateGeometries()
 void Q3ListView::handleSizeChange(int section, int os, int ns)
 {
     bool upe = viewport()->updatesEnabled();
-    viewport()->setUpdatesEnabled(false);
+    viewport()->setAttribute(Qt::WA_UpdatesDisabled, true);
     int sx = horizontalScrollBar()->value();
     bool sv = horizontalScrollBar()->isVisible();
     updateGeometries();
     bool fullRepaint = d->fullRepaintOnComlumnChange || sx != horizontalScrollBar()->value()
                        || sv != horizontalScrollBar()->isVisible();
     d->fullRepaintOnComlumnChange = false;
-    viewport()->setUpdatesEnabled(upe);
+    viewport()->setAttribute(Qt::WA_UpdatesDisabled, !upe);
 
     if (fullRepaint) {
         viewport()->repaint();
