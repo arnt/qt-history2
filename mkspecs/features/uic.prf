@@ -34,7 +34,7 @@ uic3 {
     uic3_decl.commands = $$QMAKE_UIC3 -decl ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)} ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
     uic3_decl.dependency_type = TYPE_UI
     uic3_decl.output = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
-    uic3_decl.depends = $$first(QMAKE_UIC3) $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
+    uic3_decl.depends = $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
     uic3_decl.input = FORMS
     uic3_decl.CONFIG += no_link
     uic3_decl.variable_out = HEADERS UIC3_HEADERS
@@ -44,7 +44,7 @@ uic3 {
     uic3_impl.commands = $$QMAKE_UIC3 -impl ${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)} ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
     uic3_impl.dependency_type = TYPE_UI
     uic3_impl.output = $$UI_SOURCES_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_CPP)}
-    uic3_impl.depends = $$first(QMAKE_UIC3) $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
+    uic3_impl.depends = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
     uic3_impl.input = FORMS
     uic3_impl.variable_out = SOURCES
     uic3_impl.name = UIC3 Impl ${QMAKE_FILE_IN}
@@ -66,7 +66,6 @@ image_collection.variable_out = SOURCES
 image_collection.input = IMAGES
 image_collection.CONFIG += combine
 image_collection.name = UIC3 Image collection in ${QMAKE_FILE_OUT}
-image_collection.depends = $$first(QMAKE_UIC3)
 image_collection.commands = $$QMAKE_UIC3 -embed $$TARGET ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
 QMAKE_EXTRA_COMPILERS += image_collection
 
