@@ -74,7 +74,11 @@ static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush);
 QOpenGLPaintEngine::QOpenGLPaintEngine()
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
                    PaintEngineFeatures(AllFeatures
-                                       & (~UsesFontEngine)))
+                                       & ~(UsesFontEngine
+                                           | LinearGradientFill
+                                           | RadialGradientFill
+                                           | ConicalGradientFill
+                                           | PatternBrush)))
 {
 }
 
@@ -152,6 +156,15 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
 
 void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
+    Q_D(QOpenGLPaintEngine);
+    dgl->makeCurrent();
+    d->cbrush = brush;
+    if (!brush.isOpaque()) {
+ 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glEnable(GL_BLEND);
+    }
+
+#if 0 // doesnt work very well yet - use fallback for now
     // all GL polygon stipple patterns needs to be specified as a
     // 32x32 bit mask
     static const GLubyte dense1_pat[] = {
@@ -394,14 +407,6 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
         dense6_pat, dense7_pat, hor_pat, ver_pat, cross_pat, bdiag_pat,
         fdiag_pat, dcross_pat };
 
-    Q_D(QOpenGLPaintEngine);
-    dgl->makeCurrent();
-    d->cbrush = brush;
-    if (brush.color().alpha() != 255) {
- 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-    }
-
     int bs = d->cbrush.style();
     if (bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern) {
         glEnable(GL_POLYGON_STIPPLE);
@@ -409,6 +414,7 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     } else {
         glDisable(GL_POLYGON_STIPPLE);
     }
+#endif
 }
 
 void QOpenGLPaintEngine::updateFont(const QFont &)
