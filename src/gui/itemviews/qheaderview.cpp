@@ -1165,6 +1165,10 @@ bool QHeaderView::event(QEvent *e)
 void QHeaderView::paintEvent(QPaintEvent *e)
 {
     Q_D(QHeaderView);
+
+    if (d->model == 0)
+        return;
+
     QPainter painter(d->viewport);
     const QPoint offset = d->scrollDelayOffset;
     QRect area = e->rect();
@@ -1378,6 +1382,7 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
 void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
 {
     Q_D(const QHeaderView);
+
     // get the state of the section
     QStyleOptionHeader opt = d->getStyleOption();
     QStyle::State state = QStyle::State_None;
