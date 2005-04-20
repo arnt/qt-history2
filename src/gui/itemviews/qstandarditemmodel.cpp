@@ -263,11 +263,16 @@ Returns true if the rows were successfully inserted; otherwise returns false.
 bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     Q_D(QStandardItemModel);
-    if (count < 1 || row < 0 || row > rowCount(parent))
+    if (count < 1)
         return false;
 
     QVector<QStdModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, true)->childrenRows
                                : d->topLevelRows;
+
+    if (row < 0)
+        row = 0;
+    else if (row > rows.count())
+        row = rows.count();
 
     if (!parent.isValid() && d->verticalHeader.size() > row)
         d->verticalHeader.insert(row, count, 0);
@@ -277,7 +282,7 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
     rows.insert(row, count, 0);
 
     endInsertRows();
-    
+
     return true;
 }
 
@@ -298,8 +303,13 @@ bool QStandardItemModel::insertRows(int row, int count, const QModelIndex &paren
 bool QStandardItemModel::insertColumns(int column, int count, const QModelIndex &parent)
 {
     Q_D(QStandardItemModel);
-    if (count < 0 || column < 0 || column > columnCount(parent))
+    if (count < 1)
         return false;
+
+    if (column < 0)
+        column = 0;
+    else if (column > columnCount(parent))
+        column = columnCount(parent);
 
     beginInsertColumns(parent, column, column + count - 1);
 

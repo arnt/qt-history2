@@ -103,7 +103,10 @@ void QListModel::insert(int row, QListWidgetItem *item)
 {
     Q_ASSERT(item);
     item->model = this;
-    Q_ASSERT(row >= 0 && row <= lst.count());
+    if (row < 0)
+        row = 0;
+    else if (row > lst.count())
+        row = lst.count();
     beginInsertRows(QModelIndex(), row, row);
     lst.insert(row, item);
     endInsertRows();

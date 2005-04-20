@@ -16,7 +16,7 @@
 #include <qheaderview.h>
 #include <qpainter.h>
 #include <qitemdelegate.h>
-#include <qvector.h>
+#include <qstack.h>
 #include <qdebug.h>
 #include <private/qtreeview_p.h>
 #include <private/qwidgetitemdata_p.h>
@@ -64,7 +64,6 @@ public:
 
     QList<QTreeWidgetItem*> find(const QRegExp &rx, int column) const;
 
-    void appendToTopLevel(QTreeWidgetItem *item);
     void insertInTopLevel(int row, QTreeWidgetItem *item);
     void removeFromTopLevel(QTreeWidgetItem *item);
     QTreeWidgetItem *takeFromTopLevel(int row);
@@ -155,7 +154,7 @@ void QTreeModel::setColumnCount(int columns)
         beginRemoveColumns(QModelIndex(), first, last);
     else
         beginInsertColumns(QModelIndex(), first, last);
-    
+
     header->values.resize(c);
     for (int i = _c; i < c; ++i)
         header->setText(i, QString::number(i)); // FIXME: shouldn't save anything
@@ -385,7 +384,7 @@ bool QTreeModel::setHeaderData(int section, Qt::Orientation orientation,
 bool QTreeModel::insertRows(int row, int count, const QModelIndex &parent)
 {
     beginInsertRows(parent, row, row + count - 1);
-    
+
     QTreeWidgetItem *c = 0;
     if (parent.isValid()) {
         // add items
@@ -535,21 +534,6 @@ QList<QTreeWidgetItem*> QTreeModel::find(const QRegExp &rx, int column) const
     }
     return result;
 }
-
-/*!
-  \internal
-
-  Appends the tree view \a item to the tree model as a toplevel item.
-*/
-
-void QTreeModel::appendToTopLevel(QTreeWidgetItem *item)
-{
-    int r = tree.count();
-    beginInsertRows(QModelIndex(), r, r);
-    tree.append(item);
-    endInsertRows();
-}
-
 
 /*!
   \internal
@@ -891,7 +875,6 @@ void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
   \internal
   Constructs a tree widget item. The item must be inserted into a tree view.
 
-  \sa QTreeModel::appendToTopLevel() QTreeWidget::append()
 */
 
 QTreeWidgetItem::QTreeWidgetItem()
@@ -918,11 +901,8 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
                 |Qt::ItemIsDragEnabled
                 |Qt::ItemIsDropEnabled)
 {
-    if (view) {
-        model = ::qobject_cast<QTreeModel*>(view->model());
-        if (model)
-            model->appendToTopLevel(this);
-    }
+    if (view)
+        view->addTopLevelItem(this);
 }
 
 /*!
@@ -1134,10 +1114,21 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 {
     // FIXME: here we have a problem;
     // the user could build up a tree and then insert the root in the view
+    Q_ASSERT(!child->view || !child->model || !child->par);
     if (model) model->beginInsertItem(this, index);
+    if (view && model) {
+        QStack<QTreeWidgetItem*> stack;
+        stack.push(child);
+        child->par = this;
+        while (!stack.isEmpty()) {
+            QTreeWidgetItem *i = stack.pop();
+            i->view = view;
+            i->model = model;
+            for (int c = 0; c < i->children.count(); ++c)
+                stack.push(i->children.at(c));
+        }
+    }
     children.insert(index, child);
-    child->view = view;
-    child->model = model;
     if (model) model->endInsertRows();
 }
 
@@ -1149,9 +1140,16 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
     if (index >= 0 && index < children.count()) {
         if (model) model->beginRemoveItem(this, index);
         QTreeWidgetItem *item = children.takeAt(index);
-        item->model = 0;
-        item->view = 0;
         item->par = 0;
+        QStack<QTreeWidgetItem*> stack;
+        stack.push(item);
+        while (!stack.isEmpty()) {
+            QTreeWidgetItem *i = stack.pop();
+            i->view = 0;
+            i->model = 0;
+            for (int c = 0; c < i->children.count(); ++c)
+                stack.push(i->children.at(c));
+        }
         if (model) model->endRemoveRows();
         return item;
     }
@@ -1514,25 +1512,34 @@ int QTreeWidget::topLevelItemCount() const
 /*!
   Inserts the \a item at \a index in the top level in the view.
 
-  \sa addToplevelItem()
+  \sa addTopLevelItem()
 */
 
 void QTreeWidget::insertTopLevelItem(int index, QTreeWidgetItem *item)
 {
     Q_D(QTreeWidget);
+    Q_ASSERT(!item->view || !item->model || !item->par);
+    QStack<QTreeWidgetItem*> stack;
+    stack.push(item);
+    while (!stack.isEmpty()) {
+        QTreeWidgetItem *i = stack.pop();
+        i->view = this;
+        i->model = d->model();
+        for (int c = 0; c < i->children.count(); ++c)
+            stack.push(i->children.at(c));
+    }
     d->model()->insertInTopLevel(index, item);
 }
 
 /*!
   Appends the \a item as a top-level item in the widget.
 
-  \sa insertToplevelItem()
+  \sa insertTopLevelItem()
 */
 
 void QTreeWidget::addTopLevelItem(QTreeWidgetItem *item)
 {
-    Q_D(QTreeWidget);
-    d->model()->appendToTopLevel(item);
+    insertTopLevelItem(topLevelItemCount(), item);
 }
 
 /*!
@@ -1543,8 +1550,19 @@ void QTreeWidget::addTopLevelItem(QTreeWidgetItem *item)
 QTreeWidgetItem *QTreeWidget::takeTopLevelItem(int index)
 {
     Q_D(QTreeWidget);
-    if (index >= 0 && index < d->model()->tree.count())
-        return d->model()->takeFromTopLevel(index);
+    if (index >= 0 && index < d->model()->tree.count()) {
+        QTreeWidgetItem *item = d->model()->takeFromTopLevel(index);
+        QStack<QTreeWidgetItem*> stack;
+        stack.push(item);
+        while (!stack.isEmpty()) {
+            QTreeWidgetItem *i = stack.pop();
+            i->view = 0;
+            i->model = 0;
+            for (int c = 0; c < i->children.count(); ++c)
+                stack.push(i->children.at(c));
+        }
+        return item;
+    }
     return 0;
 }
 

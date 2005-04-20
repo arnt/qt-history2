@@ -25,6 +25,7 @@ class QWidgetItemData;
 class Q_GUI_EXPORT QTreeWidgetItem
 {
     friend class QTreeModel;
+    friend class QTreeWidget;
 public:
     explicit QTreeWidgetItem(QTreeWidget *view);
     QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after);

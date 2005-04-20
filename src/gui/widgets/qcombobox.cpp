@@ -1359,6 +1359,8 @@ void QComboBox::insertItem(int index, const QIcon &icon, const QString &text, co
     if (!(count() < d->maxCount))
         return;
     if (index < 0)
+        index = 0;
+    else if (index > count())
         index = count();
     QModelIndex item;
     if (model()->insertRows(index, 1, rootModelIndex())) {

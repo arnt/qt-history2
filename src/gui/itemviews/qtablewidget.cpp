@@ -107,6 +107,10 @@ QTableModel::~QTableModel()
 
 bool QTableModel::insertRows(int row, int count, const QModelIndex &)
 {
+    if (row < 0)
+        row = 0;
+    else if (row > vertical.count())
+        row = vertical.count();
     beginInsertRows(QModelIndex(), row, row + count - 1);
     int rc = vertical.count();
     int cc = horizontal.count();
@@ -121,6 +125,10 @@ bool QTableModel::insertRows(int row, int count, const QModelIndex &)
 
 bool QTableModel::insertColumns(int column, int count, const QModelIndex &)
 {
+    if (column < 0)
+        column = 0;
+    else if (column > horizontal.count())
+        column = horizontal.count();
     beginInsertColumns(QModelIndex(), column, column + count - 1);
     int rc = vertical.count();
     int cc = horizontal.count();
