@@ -65,6 +65,7 @@ public:
 
     bool isVisible() const;
     virtual void updateVisibility();
+    void setVisible(bool b);
 
     virtual QRegion region() const;
     bool contains(const QPoint &pos) const;
@@ -120,8 +121,23 @@ public:
 
     int connectionCount() const { return m_con_list.size(); }
     Connection *connection(int i) const { return m_con_list.at(i); }
+    int indexOfConnection(Connection *con) const { return m_con_list.indexOf(con); }
+
+    virtual void setSource(Connection *con, const QString &obj_name);
+    virtual void setTarget(Connection *con, const QString &obj_name);
+
+    QtUndoStack *undoStack() const { return m_undo_stack; }
 
     void clear();
+
+signals:
+    void aboutToAddConnection(Connection *con);
+    void connectionAdded(Connection *con);
+    void aboutToRemoveConnection(Connection *con);
+    void connectionRemoved(int idx);
+    void connectionSelected(Connection *con);
+    void widgetActivated(QWidget *wgt);
+    void connectionChanged(Connection *con);
 
 public slots:
     virtual void setBackground(QWidget *background);
@@ -189,6 +205,7 @@ private:
     friend class Connection;
     friend class AddConnectionCommand;
     friend class DeleteConnectionsCommand;
+    friend class SetEndPointCommand;
 };
 
 #endif // CONNECTIONEDIT_H

@@ -53,8 +53,6 @@ signals:
 
 public slots:
     void setInitialInput(IProperty *initialInput);
-    void propertyAdded(IProperty *property);
-    void propertyRemoved(const QModelIndex &index);
     void refresh(IProperty *property);
     void refresh();
 

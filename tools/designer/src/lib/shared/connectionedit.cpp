@@ -133,17 +133,22 @@ AddConnectionCommand::AddConnectionCommand(ConnectionEdit *edit, Connection *con
 void AddConnectionCommand::redo()
 {
     edit()->selectNone();
+    emit edit()->aboutToAddConnection(m_con);
     edit()->m_con_list.append(m_con);
     m_con->inserted();
     edit()->setSelected(m_con, true);
+    emit edit()->connectionAdded(m_con);
 }
 
 void AddConnectionCommand::undo()
 {
+    int idx = edit()->indexOfConnection(m_con);
+    emit edit()->aboutToRemoveConnection(m_con);
     edit()->setSelected(m_con, false);
     m_con->update();
     m_con->removed();
     edit()->m_con_list.removeAll(m_con);
+    emit edit()->connectionRemoved(idx);
 }
 
 class AdjustConnectionCommand : public CECommand
@@ -210,23 +215,68 @@ DeleteConnectionsCommand::DeleteConnectionsCommand(ConnectionEdit *edit,
 void DeleteConnectionsCommand::redo()
 {
     foreach (Connection *con, m_con_list) {
+        int idx = edit()->indexOfConnection(con);
+        emit edit()->aboutToRemoveConnection(con);
         Q_ASSERT(edit()->m_con_list.contains(con));
         edit()->setSelected(con, false);
         con->update();
         con->removed();
         edit()->m_con_list.removeAll(con);
+        emit edit()->connectionRemoved(idx);
     }
 }
 
 void DeleteConnectionsCommand::undo()
 {
     foreach (Connection *con, m_con_list) {
+        emit edit()->aboutToAddConnection(con);
         Q_ASSERT(!edit()->m_con_list.contains(con));
         edit()->m_con_list.append(con);
         edit()->setSelected(con, true);
         con->update();
         con->inserted();
+        emit edit()->connectionAdded(con);
     }
+}
+
+class SetEndPointCommand : public CECommand
+{
+    Q_OBJECT
+public:
+    SetEndPointCommand(ConnectionEdit *edit, Connection *con, EndPoint::Type type, QWidget *widget);
+    virtual void redo();
+    virtual void undo();
+private:
+    Connection *m_con;
+    EndPoint::Type m_type;
+    QWidget *m_old_widget, *m_new_widget;
+    QPoint m_old_pos, m_new_pos;
+};
+
+SetEndPointCommand::SetEndPointCommand(ConnectionEdit *edit, Connection *con,
+                                        EndPoint::Type type, QWidget *widget)
+    : CECommand(edit)
+{
+    m_con = con;
+    m_type = type;
+    m_old_widget = con->widget(type);
+    m_old_pos = con->endPointPos(type);
+    m_new_widget = widget;
+    m_new_pos = edit->widgetRect(m_new_widget).center();
+
+    setDescription(tr("Change %1").arg(m_type == EndPoint::Source ? tr("source") : tr("target")));
+}
+
+void SetEndPointCommand::redo()
+{
+    m_con->setEndPoint(m_type, m_new_widget, m_new_pos);
+    emit edit()->connectionChanged(m_con);
+}
+
+void SetEndPointCommand::undo()
+{
+    m_con->setEndPoint(m_type, m_old_widget, m_old_pos);
+    emit edit()->connectionChanged(m_con);
 }
 
 /*******************************************************************************
@@ -255,16 +305,25 @@ Connection::Connection(ConnectionEdit *edit, QWidget *source, QWidget *target)
     m_target_pos = QPoint(-1, -1);
 }
 
+void Connection::setVisible(bool b)
+{
+    m_visible = b;
+}
+
 void Connection::updateVisibility()
 {
     QWidget *source = widget(EndPoint::Source);
     QWidget *target = widget(EndPoint::Target);
 
+    if (source == 0 || target == 0) {
+        setVisible(false);
+        return;
+    }
+
     QWidget *w = source;
     while (w && w->parentWidget()) {
         if (!w->isVisibleTo(w->parentWidget())) {
-            // qDebug() << source << "is not visible to:" << w->parentWidget();
-            m_visible = false;
+            setVisible(false);
             return;
         }
         w = w->parentWidget();
@@ -274,13 +333,13 @@ void Connection::updateVisibility()
     while (w && w->parentWidget()) {
         if (!w->isVisibleTo(w->parentWidget())) {
             // qDebug() << target << "is not visible to:" << w->parentWidget();
-            m_visible = false;
+            setVisible(false);
             return;
         }
         w = w->parentWidget();
     }
 
-    m_visible = true;
+    setVisible(true);
 }
 
 bool Connection::isVisible() const
@@ -1124,7 +1183,9 @@ void ConnectionEdit::mouseDoubleClickEvent(QMouseEvent *e)
         case Dragging:
             break;
         case Editing:
-            if (m_sel_con_set.size() == 1) {
+            if (!m_widget_under_mouse.isNull()) {
+                emit widgetActivated(m_widget_under_mouse);
+            } else if (m_sel_con_set.size() == 1) {
                 Connection *con = m_sel_con_set.keys().first();
                 modifyConnection(con);
             }
@@ -1294,10 +1355,12 @@ void ConnectionEdit::setSelected(Connection *con, bool sel)
     if (sel == m_sel_con_set.contains(con))
         return;
 
-    if (sel)
+    if (sel) {
         m_sel_con_set.insert(con, con);
-    else
+        emit connectionSelected(con);
+    } else {
         m_sel_con_set.remove(con);
+    }
 
     con->update();
 }
@@ -1395,6 +1458,30 @@ void ConnectionEdit::resizeEvent(QResizeEvent *e)
 {
     updateBackground();
     QWidget::resizeEvent(e);
+}
+
+void ConnectionEdit::setSource(Connection *con, const QString &obj_name)
+{
+    QWidget *w = qFindChild<QWidget*>(m_bg_widget, obj_name);
+    if (w == 0 && m_bg_widget->objectName() == obj_name)
+        w = m_bg_widget;
+
+    if (w == con->widget(EndPoint::Source))
+        return;
+
+    m_undo_stack->push(new SetEndPointCommand(this, con, EndPoint::Source, w));
+}
+
+void ConnectionEdit::setTarget(Connection *con, const QString &obj_name)
+{
+    QWidget *w = qFindChild<QWidget*>(m_bg_widget, obj_name);
+    if (w == 0 && m_bg_widget->objectName() == obj_name)
+        w = m_bg_widget;
+
+    if (w == con->widget(EndPoint::Target))
+        return;
+
+    m_undo_stack->push(new SetEndPointCommand(this, con, EndPoint::Target, w));
 }
 
 #include "connectionedit.moc"

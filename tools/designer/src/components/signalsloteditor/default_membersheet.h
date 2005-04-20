@@ -40,6 +40,8 @@ public:
     virtual bool isSlot(int index) const;
     virtual bool inheritedFromWidget(int index) const;
 
+    virtual QString declaredInClass(int index) const;
+
     virtual QString signature(int index) const;
     virtual QList<QByteArray> parameterTypes(int index) const;
     virtual QList<QByteArray> parameterNames(int index) const;

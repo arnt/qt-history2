@@ -179,19 +179,6 @@ void QPropertyEditorModel::refresh(IProperty *property)
     }
 }
 
-void QPropertyEditorModel::propertyAdded(IProperty *property)
-{
-    QModelIndex p = parent(indexOf(property));
-    int r = rowCount(p);
-
-    emit rowsInserted(p, r - 1, r);
-}
-
-void QPropertyEditorModel::propertyRemoved(const QModelIndex &index)
-{
-    emit rowsAboutToBeRemoved(parent(index), index.row(), index.row() + 1);
-}
-
 void QPropertyEditorModel::refresh()
 {
     refresh(m_initialInput);

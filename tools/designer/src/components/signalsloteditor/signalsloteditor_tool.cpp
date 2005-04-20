@@ -72,17 +72,19 @@ void SignalSlotEditorTool::activated()
     connect(formWindow(), SIGNAL(changed()),
                 m_editor, SLOT(updateBackground()));
     m_editor->updateBackground();
+    m_editor->showSignalSlotDialog(true);
 }
 
 void SignalSlotEditorTool::deactivated()
 {
     disconnect(formWindow(), SIGNAL(changed()),
                 m_editor, SLOT(updateBackground()));
+    m_editor->showSignalSlotDialog(false);
 }
 
 void SignalSlotEditorTool::saveToDom(DomUI *ui, QWidget*)
 {
-    ui->setElementConnections(m_editor->toUi());    
+    ui->setElementConnections(m_editor->toUi());
 }
 
 void SignalSlotEditorTool::loadFromDom(DomUI *ui, QWidget *mainContainer)

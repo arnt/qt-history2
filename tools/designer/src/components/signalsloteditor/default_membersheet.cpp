@@ -47,6 +47,24 @@ QString QDesignerMemberSheet::memberName(int index) const
     return QString::fromUtf8(meta->member(index).tag());
 }
 
+QString QDesignerMemberSheet::declaredInClass(int index) const
+{
+    const char *member = meta->member(index).signature();
+
+    const QMetaObject *meta_obj = meta;
+
+    for (;;) {
+        const QMetaObject *tmp = meta_obj->superClass();
+        if (tmp == 0)
+            break;
+        if (tmp->indexOfMember(member) == -1)
+            break;
+        meta_obj = tmp;
+    }
+
+    return QLatin1String(meta_obj->className());
+}
+
 QString QDesignerMemberSheet::memberGroup(int index) const
 {
     return m_info.value(index).group;
@@ -121,3 +139,5 @@ QObject *QDesignerMemberSheetFactory::createExtension(QObject *object, const QSt
 
     return 0;
 }
+
+
