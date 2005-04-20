@@ -145,11 +145,10 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     q->setMatrix(QMatrix(1, 0, 0, 1, -redirection_offset.x(), -redirection_offset.y()));
     updateState(state);
 
-    QPixmap pm;
-    pm = QPixmap::fromImage(image, Qt::OrderedDither | Qt::OrderedAlphaDither);
-    engine->drawPixmap(QRectF(devMinX, devMinY, devWidth, devHeight),
-                       pm,
-                       QRectF(0, 0, devWidth, devHeight));
+    engine->drawImage(QRectF(devMinX, devMinY, devWidth, devHeight),
+                      image,
+                      QRectF(0, 0, devWidth, devHeight),
+                      Qt::OrderedDither | Qt::OrderedAlphaDither);
 
     q->restore();
 }
@@ -906,9 +905,12 @@ bool QPainter::begin(QPaintDevice *pd)
 
     d->engine->setPaintDevice(pd);
 
-    if (!d->engine->begin(pd)) {
+    bool begun = d->engine->begin(pd);
+    if (!begun) {
         qWarning("QPainter::begin(), QPaintEngine::begin() returned false\n");
         return false;
+    } else {
+        d->engine->setActive(begun);
     }
 
     d->redirection_offset += d->engine->coordinateOffset();
