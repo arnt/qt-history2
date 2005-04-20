@@ -452,7 +452,7 @@ QList<SymbolRename> generateSymbolRenames(QStringList qt3Symbols, QStringList qt
         foreach(QString qt4Symbol, qt4Symbols) {
             if(qt3Symbol==qt4Symbol) {
                 SymbolRename rename;
-           //     printf("Found Qt class/namespace symbol: %s\n", qt3Symbol.latin1());
+                //printf("Found Qt class/namespace symbol: %s\n", qt3Symbol.latin1());
                 rename.from = "Qt::" + qt3Symbol;
                 rename.to = "Qt::" + qt4Symbol;
                 matchList.append(rename);
@@ -596,7 +596,7 @@ void generateRemovedVirtualRules()
 }
 
 /*
-    Convinience function for adding a renamed header rule.
+    Convenience function for adding a renamed header rule.
 */
 void addRenamedHeaderRule(QString qt3header, QString qt4header)
 {
@@ -607,7 +607,7 @@ void addRenamedHeaderRule(QString qt3header, QString qt4header)
 }
 
 /*
-    Convinience function for adding a renamed class rule.
+    Convenience function for adding a renamed class rule.
 */
 void addRenamedClassRule(QString qt3class, QString qt4class)
 {
@@ -618,7 +618,18 @@ void addRenamedClassRule(QString qt3class, QString qt4class)
 }
 
 /*
-    Convinience function for adding a need header rule.
+    Convenience function for adding a renamed token
+*/
+void addRenamedTokenRule(QString qt3token, QString qt4token)
+{
+    xml["Rules"][ruleIndex].setAttribute("Type", "RenamedToken");
+    xml["Rules"][ruleIndex]["Qt4"]=qt4token;
+    xml["Rules"][ruleIndex]["Qt3"]=qt3token;
+    ++ruleIndex;
+}
+
+/*
+    Convenience function for adding a need header rule.
 */
 void addNeedHeaderRule(QString klass, QString header)
 {
@@ -629,7 +640,7 @@ void addNeedHeaderRule(QString klass, QString header)
 }
 
 /*
-    Convinience function for adding a need header rule.
+    Convenience function for adding a need header rule.
 */
 void addNeedHeaderRule(QString name)
 {
@@ -741,12 +752,11 @@ void generateManualRules()
     addRenamedHeaderRule("qwidgetlist.h", "qwidget.h");
 
     // corresponds to the renamed classes
-    addRenamedHeaderRule("qgrid.h", "qgridwidget.h");
-    addRenamedHeaderRule("qvbox.h", "qvboxwidget.h");
-    addRenamedHeaderRule("qhbox.h", "qhboxwidget.h");
     addRenamedHeaderRule("qiconset.h", "qicon.h");
     addRenamedHeaderRule("qwmatrix.h", "qmatrix.h");
     addRenamedHeaderRule("qguardedptr.h", "qpointer.h");
+
+    addRenamedTokenRule("qInitNetworkProtocol", "q3InitNetworkProtocol");
 
     xml["Rules"]["Count"] = QString("%1").arg(ruleIndex);
 }
