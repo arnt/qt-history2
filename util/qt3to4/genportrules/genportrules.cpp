@@ -101,7 +101,7 @@ struct ClassNameLibrary
 QString getBaseDir()
 {
     QString basedir = QLibraryInfo::location(QLibraryInfo::PrefixPath);
-    basedir = QFileInfo(basedir + "/..").canonicalPath();
+    basedir = QFileInfo(basedir + "/..").canonicalFilePath();
     return basedir;
 }
 
@@ -116,7 +116,7 @@ QString getQtDir()
 inline QByteArray gccPreprocess(const QString &fileName, QStringList args = QStringList())
 {
     args += fileName;
-/*    
+/*
     cout << "starting process" << endl;
     cout << "FileName " << fileName.toLatin1().constData() << endl;
     cout << "Args" << endl;
@@ -714,7 +714,7 @@ void generateManualRules()
     addNeedHeaderRule("QTimerEvent");
     addNeedHeaderRule("QEventLoop");
     addNeedHeaderRule("QCustomEvent");
-    
+
     addNeedHeaderRule("Q3PtrList");
     addNeedHeaderRule("Q3ValueList");
     addNeedHeaderRule("Q3MemArray");
@@ -747,7 +747,7 @@ void generateManualRules()
     addRenamedHeaderRule("qiconset.h", "qicon.h");
     addRenamedHeaderRule("qwmatrix.h", "qmatrix.h");
     addRenamedHeaderRule("qguardedptr.h", "qpointer.h");
-   
+
     xml["Rules"]["Count"] = QString("%1").arg(ruleIndex);
 }
 
@@ -790,11 +790,11 @@ void writeXmlFile()
 int main()
 {
     QString baseDir = getBaseDir();
-    QString qtDir = getQtDir();  
-    
+    QString qtDir = getQtDir();
+
     cout << "basedir: " << qPrintable(baseDir) << endl;
     cout << "qtdir:   " << qPrintable(qtDir) << endl;
-    
+
     // Paths to qdoc files
     baseDocDir = qtDir + "/doc/src/";
     renamedClassesFileName =     baseDocDir + "porting4-renamedclasses.qdocinc";
@@ -812,12 +812,12 @@ int main()
     qt4IncludeDir =       qtDir + "/include/";
     qt4QtIncludeDir =     qtDir + "/include/Qt/";
 
-    // Look at headers in qt3/include qnd qt4/include/qt-3support/, 
-    // genereate header rename rules 
+    // Look at headers in qt3/include qnd qt4/include/qt-3support/,
+    // genereate header rename rules
     cout << "Generating header rename rules" << endl;
     processHeaderFileNames();
-    
-    // Parse the qt3 headers and qt4 compat headers, get the names for classes that 
+
+    // Parse the qt3 headers and qt4 compat headers, get the names for classes that
     // has been renamed.
     cout << "Parsing qt3 headers and qt4 compat headers. Generating class rename rules." << endl;
     generateClassRenameRules();
@@ -834,7 +834,7 @@ int main()
 
     // generate list of all clases that inherits qt
     generateQtClassAncestorRules();
-    
+
     // Generate rename rules for stuff in the old qt class / new qt namespace
     generateQtClassRenameRules();
 
@@ -843,7 +843,7 @@ int main()
 //    generateRemovedEnumvalueRules();
 //    generateRemovedTypeRules();
 //    generateRemovedVirtualRules();
-    
+
     generateManualRules();
 
    // Write xml file;
