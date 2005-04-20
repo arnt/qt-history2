@@ -34,6 +34,7 @@ private:
     int step;
     GLuint cubeList;
     GLuint cubeTextureId;
+    QImage bg;
 };
 
 extern void drawPrimitives(DemoWidget *dw, QPainter *p, int count, double distance, int step);
@@ -49,6 +50,15 @@ GLWidget::GLWidget(QWidget *parent)
 
 void GLWidget::initializeGL()
 {
+    bg = QImage(800, 600, QImage::Format_ARGB32);
+    QPainter p(&bg);
+    QLinearGradient lg(0, 0, 800, 600);
+    lg.setColorAt(0, Qt::white);
+    lg.setColorAt(1, Qt::black);
+    p.setBrush(lg);
+    p.drawRect(0, 0, bg.width(), bg.height());
+    p.end();
+
     // cubeList
     QImage tex;
     tex.load(":/res/cubelogo.png");
@@ -137,11 +147,8 @@ void GLWidget::paintEvent(QPaintEvent *)
 
     if (dw->attribs()->antialias)
         p.setRenderHint(QPainter::Antialiasing);
-    QLinearGradient lg(0, 0, width(), height());
-    lg.setColorAt(0, Qt::white);
-    lg.setColorAt(1, Qt::black);
-    p.setBrush(lg);
-    p.drawRect(0, 0, width(), height());
+
+    p.drawImage(rect(), bg);
     p.translate(width()/2, height()/2);
     p.rotate(step % 360);
     p.shear(dw->xfunc(step*0.8), dw->yfunc(step*0.8));

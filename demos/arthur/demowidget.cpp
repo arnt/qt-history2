@@ -113,7 +113,7 @@ void DemoWidget::fillBackground(QPainter *p)
 
     p->setPen(Qt::black);
     p->setBrush(Qt::NoBrush);
-    p->drawRect(0, 0, width(), height());
+    p->drawRect(0, 0, width()-1, height()-1);
 }
 
 /*!
