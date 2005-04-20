@@ -39,15 +39,15 @@ LocationDialog::LocationDialog(QWidget *parent)
     applicationLabel = new QLabel(tr("&Application:"));
     applicationLabel->setBuddy(applicationComboBox);
 
-    locationsGroupBox = new QGroupBox(tr("Locations"));
+    locationsGroupBox = new QGroupBox(tr("Setting Locations"));
 
     QStringList labels;
-    labels << tr("Path") << tr("Size") << tr("Access");
+    labels << tr("Location") << tr("Access");
 
     locationsTable = new QTableWidget;
     locationsTable->setSelectionMode(QAbstractItemView::NoSelection);
     locationsTable->setEditTriggers(QAbstractItemView::NoEditTriggers);
-    locationsTable->setColumnCount(3);
+    locationsTable->setColumnCount(2);
     locationsTable->setHorizontalHeaderLabels(labels);
     locationsTable->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
     locationsTable->horizontalHeader()->resizeSection(2, 180);
@@ -128,10 +128,6 @@ void LocationDialog::updateLocationsTable()
 {
     locationsTable->setUpdatesEnabled(false);
     locationsTable->setRowCount(0);
-#ifdef Q_WS_WIN
-    locationsTable->horizontalHeader()->setSectionHidden(1,
-            format() == QSettings::NativeFormat);
-#endif
 
     for (int i = 0; i < 2; ++i) {
         if (i == 0 && scope() == QSettings::SystemScope)
@@ -159,34 +155,29 @@ void LocationDialog::updateLocationsTable()
             item0->setText(settings.fileName());
 
             QTableWidgetItem *item1 = new QTableWidgetItem;
-            QFileInfo fileInfo(settings.fileName());
-            item1->setText(tr("%1 KB").arg((fileInfo.size() + 1023) / 1024));
-
-            QTableWidgetItem *item2 = new QTableWidgetItem;
-            bool disable = (fileInfo.size() == 0);
+            bool disable = (settings.childKeys().isEmpty()
+                            && settings.childGroups().isEmpty());
 
             if (row == 0) {
                 if (settings.isWritable()) {
-                    item2->setText(tr("Read-write"));
+                    item1->setText(tr("Read-write"));
                     disable = false;
                 } else {
-                    item2->setText(tr("Read-only"));
+                    item1->setText(tr("Read-only"));
                 }
                 okButton->setDisabled(disable);
             } else {
-                item2->setText(tr("Read-only fallback"));
+                item1->setText(tr("Read-only fallback"));
             }
 
             if (disable) {
                 item0->setFlags(item0->flags() & ~Qt::ItemIsEnabled);
                 item1->setFlags(item1->flags() & ~Qt::ItemIsEnabled);
-                item2->setFlags(item2->flags() & ~Qt::ItemIsEnabled);
             }
 
             locationsTable->setVerticalHeaderItem(row, headerItem);
             locationsTable->setItem(row, 0, item0);
             locationsTable->setItem(row, 1, item1);
-            locationsTable->setItem(row, 2, item2);
         }
     }
     locationsTable->setUpdatesEnabled(true);
