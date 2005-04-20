@@ -54,6 +54,7 @@ public:
 #ifdef QT3_SUPPORT
         Reparent = ParentChange,
 #endif
+        ThreadChange = 22,                      // object has changed threads
         WindowActivate = 24,                    // window was activated
         WindowDeactivate = 25,                  // window was deactivated
         ShowToParent = 26,                      // widget is shown to parent

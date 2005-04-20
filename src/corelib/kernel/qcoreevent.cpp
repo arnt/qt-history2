@@ -121,6 +121,7 @@
     \omitvalue QWSUpdate
     \value Quit  Reserved.
     \value ParentChange  Reserved.
+    \value ThreadChange Reserved.
     \value Resize  Widget's size changed, \l{QResizeEvent}.
     \value Shortcut Key press in child for shortcut key handling, \l{QKeyEvent}.
     \value ShortcutOverride  Key press in child, for overriding shortcut key handling, \l{QKeyEvent}.
