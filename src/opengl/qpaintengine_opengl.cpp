@@ -747,23 +747,29 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
         QPolygonF poly;
         if (width == 0) {
             stroker.setWidth(1);
-            stroke = stroker.createStroke(path);
+            stroke = stroker.createStroke(path * d->matrix);
             if (stroke.isEmpty())
                 return;
             poly = stroke.toFillPolygon();
         } else {
             stroker.setWidth(width);
-            // stroker.setCurveThreshold(width / (2 * 10 * d->matrix.m11() * d->matrix.m22())); // ## fix
+            stroker.setCurveThreshold( 1 / (2 * 10 * d->matrix.m11() * d->matrix.m22()));
             stroke = stroker.createStroke(path);
             if (stroke.isEmpty())
                 return;
-            poly = stroke.toFillPolygon();
+            poly = stroke.toFillPolygon(d->matrix);
         }
         QPen oldPen = d->cpen;
         QBrush oldBrush = d->cbrush;
         d->cpen.setStyle(Qt::NoPen);
-        d->cbrush.setColor(d->cpen.color());
+        d->cbrush = d->cpen.brush();
+
+        glMatrixMode(GL_MODELVIEW);
+        glPushMatrix();
+        glLoadIdentity();
         drawPolygon(poly.data(), poly.size(), WindingMode);
+        glPopMatrix();
+
         d->cpen = oldPen;
         d->cbrush = oldBrush;
     }
