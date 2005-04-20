@@ -19,6 +19,7 @@
 
 #include <qbytearray.h>
 #include <qstring.h>
+#include <stdlib.h>
 
 /*
     These functions are based on Peter J. Weinberger's hash function
