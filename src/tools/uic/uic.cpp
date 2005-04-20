@@ -89,10 +89,12 @@ bool Uic::printDependencies()
         if (!doc.setContent(contents))
             return false;
 
+#if 0
         QByteArray errors = uic3.readAllStandardError();
         if (errors.count()) {
             fprintf(stderr, "%s\n", errors.constData());
         }
+#endif
 
         ui = new DomUI();
         QDomElement root = doc.firstChild().toElement();
