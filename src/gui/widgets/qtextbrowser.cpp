@@ -509,7 +509,7 @@ void QTextBrowser::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QTextBrowser);
     QTextEdit::mouseReleaseEvent(e);
 
-    if (!(e->button() & Qt::LeftButton))
+    if (!(e->button() & Qt::LeftButton) || d->cursor.hasSelection())
         return;
 
     const QString anchor = anchorAt(e->pos());
