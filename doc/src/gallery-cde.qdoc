@@ -46,6 +46,44 @@
     The QRadioButton widget provides a radio button with a text or pixmap label.
   \endtable
 
+  \section1 Containers
+
+  \table 100%
+    \row \i \inlineimage cde-toolbox.png
+    \i QToolBox
+
+    The QToolBox class provides a column of tabbed widget items.
+    \row \i \inlineimage cde-groupbox.png
+    \i QGroupBox
+
+    The QGroupBox widget provides a group box frame with a title.
+    \row \i \inlineimage cde-frame.png
+    \i QFrame
+
+    The QFrame widget provides a simple decorated container for other widgets.
+    \row \i \inlineimage cde-tabwidget.png
+    \i QTabWidget
+
+    The QTabWidget class provides a stack of tabbed widgets.
+  \endtable
+
+  \section1 Item Views
+
+  \table 100%
+    \row \i \inlineimage cde-listview.png
+    \i QListView
+
+    The QListView class provides a default model/view implementation of a list/icon view. The QListWidget class provides a classic item-based list/icon view.
+    \row \i \inlineimage cde-treeview.png
+    \i QTreeView
+
+    The QTreeView class provides a default model/view implementation of a tree view. The QTreeWidget class provides a classic item-based tree view.
+    \row \i \inlineimage cde-tableview.png
+    \i QTableView
+
+    The QTableView class provides a default model/view implementation of a table view. The QTableWidget class provides a classic item-based table view.
+  \endtable
+
   \section1 Input Widgets
 
   \table 100%
@@ -53,10 +91,22 @@
     \i QDateTimeEdit
 
     The QDateTimeEdit class provides a widget for editing dates and times.
+    \row \i \inlineimage cde-dateedit.png
+    \i QDateEdit
+
+    The QDateEdit class provides a widget for editing dates.
+    \row \i \inlineimage cde-timeedit.png
+    \i QTimeEdit
+
+    The QTimeEdit class provides a widget for editing times.
     \row \i \inlineimage cde-spinbox.png
     \i QSpinBox
 
     The QSpinBox class provides a spin box widget.
+    \row \i \inlineimage cde-doublespinbox.png
+    \i QDoubleSpinBox
+
+    The QDoubleSpinBox class provides a spin box widget that allows double precision floating point numbers to be entered.
     \row \i \inlineimage cde-combobox.png
     \i QComboBox
 
@@ -83,43 +133,5 @@
     \i QScrollBar
 
     The QScrollBar widget provides a vertical or horizontal scroll bar. Here, we show a scroll bar with horizontal orientation.
-  \endtable
-
-  \section1 Containers
-
-  \table 100%
-    \row \i \inlineimage cde-toolbox.png
-    \i QToolBox
-
-    The QToolBox class provides a column of tabbed widget items.
-    \row \i \inlineimage cde-groupbox.png
-    \i QGroupBox
-
-    The QGroupBox widget provides a group box frame with a title.
-    \row \i \inlineimage cde-tabwidget.png
-    \i QTabWidget
-
-    The QTabWidget class provides a stack of tabbed widgets.
-    \row \i \inlineimage cde-frame.png
-    \i QFrame
-
-    The QFrame widget provides a simple decorated container for other widgets.
-  \endtable
-
-  \section1 Item Views
-
-  \table 100%
-    \row \i \inlineimage cde-listview.png
-    \i QListView
-
-    The QListView class provides a default model/view implementation of a list/icon view. The QListWidget class provides a classic item-based list/icon view.
-    \row \i \inlineimage cde-treeview.png
-    \i QTreeView
-
-    The QTreeView class provides a default model/view implementation of a tree view. The QTreeWidget class provides a classic item-based tree view.
-    \row \i \inlineimage cde-tableview.png
-    \i QTableView
-
-    The QTableView class provides a default model/view implementation of a table view. The QTableWidget class provides a classic item-based table view.
   \endtable
 */
