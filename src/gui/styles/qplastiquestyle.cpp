@@ -22,6 +22,7 @@
 #include <qcombobox.h>
 #include <qimage.h>
 #include <qlineedit.h>
+#include <qmenu.h>
 #include <qpainter.h>
 #include <qpaintengine.h>
 #include <qpainterpath.h>
@@ -685,8 +686,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                               alphaLineEnds);
             painter->fillRect(QRect(frame->rect.right() - lw + 1, frame->rect.bottom() - lw - mlw + 1, lw, mlw),
                               alphaLineEnds);
-                                                                                                                      
-            
+
             // Only show inner frame for raised and sunken states
             if ((frame->state & State_Raised) || (frame->state & State_Sunken)) {
                 if (frame->state & State_Raised) {
@@ -733,9 +733,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                                   lineEndColor);
                 painter->fillRect(QRect(frame->rect.right() - lw - mlw + 1, frame->rect.top() + lw, mlw, mlw),
                                   lineEndColor);
-                                        
             }
-                                                   
             painter->restore();
         }
         break ;
@@ -2190,19 +2188,23 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                   scrollBarSlider.right() - 1, scrollBarSlider.bottom() - 1);
                 painter->drawLine(scrollBarSlider.right() - 1, scrollBarSlider.top() + 2,
                                   scrollBarSlider.right() - 1, scrollBarSlider.bottom() - 1);
+
+                int sliderMinLength = pixelMetric(PM_ScrollBarSliderMin, scrollBar, widget);
+                if ((horizontal && scrollBar->rect.width() > (16 * 3 + sliderMinLength))
+                    || (!horizontal && scrollBar->rect.height() > (16 * 3 + sliderMinLength))) {
+                    QImage pattern(qt_scrollbar_slider_pattern);
+                    pattern.setColor(1, alphaCornerColor.rgba());
+                    pattern.setColor(2, gradientStartColor.rgba());
                 
-                QImage pattern(qt_scrollbar_slider_pattern);
-                pattern.setColor(1, alphaCornerColor.rgba());
-                pattern.setColor(2, gradientStartColor.rgba());
-                
-                if (horizontal) {
-                    painter->drawImage(scrollBarSlider.center().x() - pattern.width() / 2 + 1,
-                                       scrollBarSlider.center().y() - 4,
-                                       pattern);
-                } else {
-                    painter->drawImage(scrollBarSlider.center().x() - 4,
-                                       scrollBarSlider.center().y() - pattern.width() / 2 + 1,
-                                       pattern);
+                    if (horizontal) {
+                        painter->drawImage(scrollBarSlider.center().x() - pattern.width() / 2 + 1,
+                                           scrollBarSlider.center().y() - 4,
+                                           pattern);
+                    } else {
+                        painter->drawImage(scrollBarSlider.center().x() - 4,
+                                           scrollBarSlider.center().y() - pattern.width() / 2 + 1,
+                                           pattern);
+                    }
                 }
             }
 
@@ -2497,7 +2499,7 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
         }
         break;
     case CT_SpinBox:
-        newSize.rheight() -= 3;
+        newSize.rheight() -= 2;
         break;
     case CT_ToolButton:
         newSize.rwidth() += 3;
@@ -2809,7 +2811,9 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     case PM_DockWidgetHandleExtent:
         return 20;
     case PM_DefaultFrameWidth:
-        return 1;
+        if (qobject_cast<const QMenu *>(widget))
+            return 1;
+        return 2;
     default:
         break;
     }
