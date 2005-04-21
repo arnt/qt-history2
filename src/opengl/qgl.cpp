@@ -2345,15 +2345,17 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
     QSize sz = size();
     if ((w > 0) && (h > 0))
         sz = QSize(w, h);
-    QPixmap pm(sz);
 
 #if defined(Q_WS_X11)
-    // If we are using OpenGL widgets we HAVE to make sure that
-    // the default visual is GL enabled, otherwise it will wreck
-    // havock when e.g trying to render to GLXPixmaps via
-    // QPixmap. This is because QPixmap is always created with a
-    // QPaintDevice that uses x_appvisual per default. Preferably,
-    // use a visual that has depth and stencil buffers.
+    // If we are using OpenGL widgets under X11 we HAVE to make sure
+    // that the default visual is GL enabled, and that the Pixmap has
+    // the same depth as the GL window.
+
+    extern int qt_x11_preferred_pixmap_depth;
+    int old_depth = qt_x11_preferred_pixmap_depth;
+    qt_x11_preferred_pixmap_depth = x11Info().depth();
+    QPixmap pm(sz);
+    qt_x11_preferred_pixmap_depth = old_depth;
 
     if (!gl_pixmap_visual) {
         int nvis;
@@ -2414,6 +2416,8 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
         }
     }
 
+#else
+    QPixmap pm(sz);
 #endif
 
     d->glcx->doneCurrent();

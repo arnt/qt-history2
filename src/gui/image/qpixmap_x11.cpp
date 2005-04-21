@@ -253,6 +253,7 @@ static int defaultScreen = -1;
  *****************************************************************************/
 
 static int qt_pixmap_serial = 0;
+int qt_x11_preferred_pixmap_depth = 0;
 
 /*!
   \internal
@@ -288,6 +289,9 @@ void QPixmap::init(int w, int h, Type type)
 
     int dd = ((X11->use_xrender) ? 32 : data->xinfo.depth());
 
+    if (qt_x11_preferred_pixmap_depth)
+        dd = qt_x11_preferred_pixmap_depth;
+
     bool make_null = w == 0 || h == 0;                // create null pixmap
     data->d = (type == PixmapType) ? dd : 1;
     if (make_null || w < 0 || h < 0 || data->d == 0) {
@@ -305,10 +309,15 @@ void QPixmap::init(int w, int h, Type type)
                                          w, h, data->d);
 
 #ifndef QT_NO_XRENDER
-    if (X11->use_xrender)
-        data->picture = XRenderCreatePicture(X11->display, data->hd,
-                                             XRenderFindStandardFormat(X11->display, data->d == 1
-                                                                       ? PictStandardA1 : PictStandardARGB32), 0, 0);
+    if (X11->use_xrender) {
+        if (qt_x11_preferred_pixmap_depth)
+            data->picture = XRenderCreatePicture(X11->display, data->hd,
+                                                 XRenderFindVisualFormat(X11->display, (Visual *) data->xinfo.visual()), 0, 0);
+        else
+            data->picture = XRenderCreatePicture(X11->display, data->hd,
+                                                 XRenderFindStandardFormat(X11->display, data->d == 1
+                                                                           ? PictStandardA1 : PictStandardARGB32), 0, 0);
+    }
 #endif // QT_NO_XRENDER
 }
 
