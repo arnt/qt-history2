@@ -1048,10 +1048,8 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
     Q_D(QListView);
     if (!selectionModel())
         return;
-    QRect crect(rect.left() + horizontalOffset(),
-                rect.top() + verticalOffset(),
-                rect.width(), rect.height());
-    d->intersectingSet(crect);
+
+    d->intersectingSet(rect.translated(horizontalOffset(), verticalOffset()));
 
     QItemSelection selection;
     QModelIndex tl;

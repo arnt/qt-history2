@@ -955,8 +955,6 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         else
             emit viewportEntered();
         d->enteredIndex = index;
-    } else if (state() == DragSelectingState) {
-        return; // we haven't moved over another item yet
     }
 
     if (!(e->buttons() & Qt::LeftButton))
@@ -970,6 +968,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
             return;
         }
     }
+
     setState(DragSelectingState);
     if (selectionModel())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
