@@ -22,6 +22,8 @@
 #include <private/qsharedmemory_p.h>
 #include <stdlib.h>
 #include <qdebug.h>
+#include <qpolygon.h>
+
 extern QString qws_qtePipeFilename();
 
 #define MAP_TILE_SIZE            16
