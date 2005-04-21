@@ -8,6 +8,11 @@
   widget styles that are supplied with Qt 4.
 
   \table
+  \row \i \inlineimage plastique-treeview.png
+  \i \bold{\l{gallery-plastique.html}{Plastique Style Widget Gallery}}
+
+  The Plastique style is provided by QPlastiqueStyle.
+
   \row \i \inlineimage macintosh-tabwidget.png
   \i \bold{\l{gallery-macintosh.html}{Macintosh Style Widget Gallery}}
 
