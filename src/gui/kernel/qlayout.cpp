@@ -1061,14 +1061,20 @@ int QLayout::indexOf(QWidget *w) const
 
     The possible values are:
 
-    \value SetDefaultConstraint  If the main widget is a top-level widget with no
-                 height-for-width (hasHeightForWidth()), this is
-                 the same as \c SetMinimumSize; otherwise, this is the
-                 same as \c SetNoConstraint.
+    \value SetDefaultConstraint The default. (not yet documented)
+
     \value SetFixedSize The main widget's size is set to sizeHint(); it
                   cannot be resized at all.
     \value SetMinimumSize  The main widget's minimum size is set to
                     minimumSize(); it cannot be smaller.
+
+    \value SetMaximumSize  The main widget's maximum size is set to
+                    maximumSize(); it cannot be larger.
+
+    \value SetMinAndMaxSize  The main widget's minimum size is set to
+                    minimumSize() and its maximum size is set to
+                    maximumSize().
+
     \value SetNoConstraint  The widget is not constrained.
 */
 

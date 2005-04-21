@@ -1838,7 +1838,7 @@ void QWidgetPrivate::setAcceptDrops_helper(bool on)
 
     if (on == q->testAttribute(Qt::WA_AcceptDrops))
         return; // nothing to do
-    
+
     if (!setAcceptDrops_sys(on))
         return; // nothing was changed
 
@@ -2164,9 +2164,7 @@ QRegion QWidget::childrenRegion() const
     widget size. The widget's size is forced to the minimum size if
     the current size is smaller.
 
-    If the widget has a layout, the minimum size will be set by the
-    layout and not by setMinimumSize(). If you want to set the minimum
-    size yourself, you must first call QLayout::setResizeMode(QLayout::Fixed).
+    The minimum size set by this function will override the minimum size defined by QLayout.
 
     \sa minimumWidth, minimumHeight, maximumSize, sizeIncrement,
     QLayout::resizeMode
@@ -2184,10 +2182,6 @@ QSize QWidget::minimumSize() const
 
     The widget cannot be resized to a larger size than the maximum
     widget size.
-
-    If the widget has a layout, the maximum size will be set by the
-    layout and not by setMaximumSize(). If you want to set the maximum
-    size yourself, you must first call QLayout::setResizeMode(QLayout::Fixed).
 
     \sa maximumWidth, maximumHeight, minimumSize, sizeIncrement,
     QLayout::resizeMode
@@ -2414,19 +2408,11 @@ void QWidget::setBaseSize(int basew, int baseh)
     Sets both the minimum and maximum sizes of the widget to \a s,
     thereby preventing it from ever growing or shrinking.
 
+    This will override the default size constraints set by QLayout.
 
-    If the widget has a layout, the minimum and maximum sizes will automatically be set by the
-    layout. If you want to set the minimum
-    size yourself, you must first call QLayout::setResizeMode(QLayout::Fixed).
-
-
-    If the widget has a layout, the layout automatically sets the
-    widget's minimum and maximum sizes based on its contents. If you
-    want to manually set a fixed size, you must call
-    QLayout::setResizeMode(QLayout::FreeResize) before calling
-    setFixedSize(). Alternatively, if you want the dialog to have a
-    fixed size based on its contents, call
-    QLayout::setResizeMode(QLayout::Fixed).
+    Alternatively, if you want the widget to have a
+    fixed size based on its contents, you can call
+    QLayout::setSizeConstraint(QLayout::SetFixedSize);
 
     \sa maximumSize, minimumSize, QLayout::resizeMode
 */
