@@ -1,16 +1,8 @@
-SDK = $(QTDIR)/tools/designer/src/lib
-
-# Designer SDK
-INCLUDEPATH += \
-    $$SDK/extension \
-    $$SDK/sdk \
-    $$SDK/uilib
-
 CONFIG      += designer
 QT          += xml
 TEMPLATE    = lib
 
-DESTDIR     = $(QTDIR)/plugins/designer   
+DESTDIR     = $$[QT_INSTALL_PLUGINS]/designer
 HEADERS     = worldtimeclock.h \
               worldtimeclockplugin.h
 SOURCES     = worldtimeclock.cpp \
