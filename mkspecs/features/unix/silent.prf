@@ -1,0 +1,4 @@
+QMAKE_CC = @echo "$$QMAKE_CC -c $<" && $$QMAKE_CC
+QMAKE_CXX = @echo "$$QMAKE_CXX -c $<" && $$QMAKE_CXX
+QMAKE_LINK = @echo "$$QMAKE_LINK -o $@" && $$QMAKE_LINK
+QMAKE_LINK_SHLIB = @echo "$$QMAKE_LINK_SHLIB -o $@" && $$QMAKE_LINK_SHLIB

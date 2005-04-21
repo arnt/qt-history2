@@ -16,6 +16,7 @@ moc_header.output = $$MOC_DIR/$${QMAKE_H_MOD_MOC}${QMAKE_FILE_BASE}$${first(QMAK
 moc_header.input = HEADERS
 moc_header.variable_out = SOURCES
 moc_header.name = MOC ${QMAKE_FILE_IN}
+unix:silent:moc_header.commands = @echo $$moc_header.name && $$moc_header.commands
 QMAKE_EXTRA_COMPILERS += moc_header
 
 #moc sources
@@ -25,6 +26,7 @@ moc_source.commands = $$QMAKE_MOC $(DEFINES) $(INCPATH) $$join(QMAKE_COMPILER_DE
 moc_source.output = $$MOC_DIR/$${QMAKE_CPP_MOD_MOC}${QMAKE_FILE_BASE}$${QMAKE_EXT_CPP_MOC}
 moc_source.input = SOURCES
 moc_source.name = MOC ${QMAKE_FILE_IN}
+unix:silent:moc_source.commands = @echo $$moc_source.name && $$moc_source.commands
 QMAKE_EXTRA_COMPILERS += moc_source
 
 #make sure we can include these files
