@@ -208,6 +208,10 @@ private:
 
     int indexOfCategory(const QString &name) const;
     int indexOfScratchpad();
+
+    QString widgetDomXml(const Widget &widget) const;
+
+    QString qtify(const QString &name) const;
 };
 
 } } } // namespace qdesigner::components::widgetbox
@@ -223,6 +227,7 @@ QWidget *WidgetBoxItemDelegate::createEditor(QWidget *parent,
     line_edit->setValidator(new QRegExpValidator(QRegExp(QLatin1String("[_a-zA-Z][_a-zA-Z0-9]*")), line_edit));
     return result;
 }
+
 
 WidgetBoxTreeView::WidgetBoxTreeView(QDesignerFormEditorInterface *core, QWidget *parent)
     : QTreeWidget(parent)
@@ -257,6 +262,43 @@ WidgetBoxTreeView::~WidgetBoxTreeView()
     settings.setValue(QLatin1String("open categories"), open_cat);
 
     settings.endGroup();
+}
+
+QString WidgetBoxTreeView::qtify(const QString &name) const
+{
+    QString qname = name;
+
+    Q_ASSERT(name.isEmpty() == false);
+
+    if (qname.count() > 1 && qname.at(1).toUpper() == qname.at(1) && (qname.at(0) == QLatin1Char('Q') || qname.at(0) == QLatin1Char('K')))
+        qname = qname.mid(1);
+
+    int i=0;
+    while (i < qname.length()) {
+        if (qname.at(i).toLower() != qname.at(i))
+            qname[i] = qname.at(i).toLower();
+        else
+            break;
+
+        ++i;
+    }
+
+    return qname;
+}
+
+QString WidgetBoxTreeView::widgetDomXml(const Widget &widget) const
+{
+    QString domXml = widget.domXml();
+
+    if (domXml.isEmpty()) {
+        QString defaultVarName = qtify(widget.name());
+
+        domXml = QString::fromUtf8("<widget class=\"%1\" name=\"%2\" />")
+            .arg(widget.name())
+            .arg(defaultVarName);
+    }
+
+    return domXml;
 }
 
 void WidgetBoxTreeView::setFileName(const QString &file_name)
@@ -303,7 +345,7 @@ void WidgetBoxTreeView::handleMousePress(QTreeWidgetItem *item)
     if (wgt.isNull())
         return;
 
-    emit pressed(wgt.domXml(), QCursor::pos());
+    emit pressed(widgetDomXml(wgt), QCursor::pos());
 }
 
 int WidgetBoxTreeView::indexOfScratchpad()
@@ -419,7 +461,7 @@ QDomDocument WidgetBoxTreeView::categoryListToDom(const CategoryList &cat_list) 
             cat_elt.setAttribute(QLatin1String("type"), QLatin1String("scratchpad"));
         for (int i = 0; i < cat.widgetCount(); ++i) {
             Widget wgt = cat.widget(i);
-            DomWidget *dom_wgt = xmlToUi(wgt.domXml());
+            DomWidget *dom_wgt = xmlToUi(widgetDomXml(wgt));
             QDomElement wgt_elt = dom_wgt->write(doc);
             wgt_elt.setAttribute(QLatin1String("name"), wgt.name());
             wgt_elt.setAttribute(QLatin1String("icon"), wgt.iconName());
@@ -682,7 +724,7 @@ void WidgetBoxTreeView::updateItemData(QTreeWidgetItem *item)
     }
 
     widget.setName(item->text(0));
-    QDomDocument doc = stringToDom(widget.domXml());
+    QDomDocument doc = stringToDom(widgetDomXml(widget));
     QDomElement widget_elt = doc.firstChildElement(QLatin1String("widget"));
     if (!widget_elt.isNull()) {
         widget_elt.setAttribute(QLatin1String("name"), item->text(0));
