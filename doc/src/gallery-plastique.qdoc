@@ -46,45 +46,6 @@
     The QRadioButton widget provides a radio button with a text or pixmap label.
   \endtable
 
-  \section1 Input Widgets
-
-  \table 100%
-    \row \i \inlineimage plastique-datetimeedit.png
-    \i QDateTimeEdit
-
-    The QDateTimeEdit class provides a widget for editing dates and times.
-    \row \i \inlineimage plastique-spinbox.png
-    \i QSpinBox
-
-    The QSpinBox class provides a spin box widget.
-    \row \i \inlineimage plastique-combobox.png
-    \i QComboBox
-
-    The QComboBox widget is a combined button and popup list.
-    \row \i \inlineimage plastique-lineedit.png
-    \i QLineEdit
-
-    The QLineEdit widget is a one-line text editor.
-    \row \i \inlineimage plastique-slider.png
-    \i QSlider
-
-    The QSlider widget provides a vertical or horizontal slider.
-    \row \i \inlineimage plastique-dial.png
-    \i QDial
-
-    The QDial class provides a rounded range control (like a
-       speedometer or potentiometer).
-    \row \i \inlineimage plastique-textedit.png
-    \i QTextEdit
-
-    The QTextEdit class provides a widget that is used to edit and
-     display both plain and rich text.
-    \row \i \inlineimage plastique-horizontalscrollbar.png
-    \i QScrollBar
-
-    The QScrollBar widget provides a vertical or horizontal scroll bar. Here, we show a scroll bar with horizontal orientation.
-  \endtable
-
   \section1 Containers
 
   \table 100%
@@ -121,5 +82,56 @@
     \i QTableView
 
     The QTableView class provides a default model/view implementation of a table view. The QTableWidget class provides a classic item-based table view.
+  \endtable
+
+  \section1 Input Widgets
+
+  \table 100%
+    \row \i \inlineimage plastique-datetimeedit.png
+    \i QDateTimeEdit
+
+    The QDateTimeEdit class provides a widget for editing dates and times.
+    \row \i \inlineimage plastique-dateedit.png
+    \i QDateEdit
+
+    The QDateEdit class provides a widget for editing dates.
+    \row \i \inlineimage plastique-timeedit.png
+    \i QTimeEdit
+
+    The QTimeEdit class provides a widget for editing times.
+    \row \i \inlineimage plastique-spinbox.png
+    \i QSpinBox
+
+    The QSpinBox class provides a spin box widget.
+    \row \i \inlineimage plastique-doublespinbox.png
+    \i QDoubleSpinBox
+
+    The QDoubleSpinBox class provides a spin box widget that allows double precision floating point numbers to be entered.
+    \row \i \inlineimage plastique-combobox.png
+    \i QComboBox
+
+    The QComboBox widget is a combined button and popup list.
+    \row \i \inlineimage plastique-lineedit.png
+    \i QLineEdit
+
+    The QLineEdit widget is a one-line text editor.
+    \row \i \inlineimage plastique-slider.png
+    \i QSlider
+
+    The QSlider widget provides a vertical or horizontal slider.
+    \row \i \inlineimage plastique-dial.png
+    \i QDial
+
+    The QDial class provides a rounded range control (like a
+       speedometer or potentiometer).
+    \row \i \inlineimage plastique-textedit.png
+    \i QTextEdit
+
+    The QTextEdit class provides a widget that is used to edit and
+     display both plain and rich text.
+    \row \i \inlineimage plastique-horizontalscrollbar.png
+    \i QScrollBar
+
+    The QScrollBar widget provides a vertical or horizontal scroll bar. Here, we show a scroll bar with horizontal orientation.
   \endtable
 */
