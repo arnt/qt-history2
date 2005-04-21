@@ -602,7 +602,7 @@ void HelpDialog::searchInIndex(const QString &s)
         QString t = i->text();
         if (t.length() >= sl.length() && i->text().left(s.length()).toLower() == sl) {
             ui.listIndex->setCurrentItem(i);
-            ui.listIndex->scrollToItem(i);
+            ui.listIndex->scrollToItem(i, QListWidget::PositionAtTop);
             break;
         }
     }
