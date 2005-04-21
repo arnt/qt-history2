@@ -415,8 +415,8 @@ static const char * const qt_scrollbar_slider_pattern[] = {
     ".+  .+  .+"};
 
 
-static const char * const qt_toolbarhandle_horizontal[] = {
-    "6 27 4 1",
+static const char * const qt_toolbarhandle[] = {
+    "6 6 4 1",
     "       c None",
     ".      c #C5C5C5",
     "+      c #EEEEEE",
@@ -426,28 +426,7 @@ static const char * const qt_toolbarhandle_horizontal[] = {
     " @@   ",
     "   .. ",
     "   .+@",
-    "    @@",
-    "..    ",
-    ".+@   ",
-    " @@   ",
-    "   .. ",
-    "   .+@",
-    "    @@",
-    "..    ",
-    ".+@   ",
-    " @@   ",
-    "   .. ",
-    "   .+@",
-    "    @@",
-    "..    ",
-    ".+@   ",
-    " @@   ",
-    "   .. ",
-    "   .+@",
-    "    @@",
-    "..    ",
-    ".+@   ",
-    "+@@   "};
+    "    @@"};
 
 static QColor qt_plastique_mergedColors(const QColor &colorA, const QColor &colorB)
 {
@@ -765,11 +744,11 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_PanelToolBar: {
         painter->save();
         painter->setPen(alphaCornerColor);
-        painter->drawLine(option->rect.left() + 2, option->rect.bottom(),
-                          option->rect.right() - 2, option->rect.bottom());
+        painter->drawLine(option->rect.left(), option->rect.bottom(),
+                          option->rect.right(), option->rect.bottom());
         painter->setPen(option->palette.background().color().light(104));
-        painter->drawLine(option->rect.left() + 2, option->rect.top(),
-                          option->rect.right() - 2, option->rect.top());
+        painter->drawLine(option->rect.left(), option->rect.top(),
+                          option->rect.right(), option->rect.top());
         painter->restore();
         break;
     }
@@ -783,11 +762,22 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_IndicatorToolBarHandle: {
         painter->save();
 
-        QImage handle(qt_toolbarhandle_horizontal);
+        QImage handle(qt_toolbarhandle);
         handle.setColor(1, alphaCornerColor.rgba());
         handle.setColor(2, qt_plastique_mergedColors(alphaCornerColor, option->palette.base().color()).rgba());
         handle.setColor(3, option->palette.base().color().rgba());
-        painter->drawImage(QPoint(option->rect.left() + 3, option->rect.top()), handle);
+
+        if (option->state & State_Horizontal) {
+            int nchunks = option->rect.height() / handle.height();
+            int indent = (option->rect.height() - (nchunks * handle.height())) / 2;
+            for (int i = 0; i < nchunks; ++i)
+                painter->drawImage(QPoint(option->rect.left() + 3, option->rect.top() + indent + i * handle.height()), handle);
+        } else {
+            int nchunks = option->rect.width() / handle.width();
+            int indent = (option->rect.width() - (nchunks * handle.width())) / 2;
+            for (int i = 0; i < nchunks; ++i)
+                painter->drawImage(QPoint(option->rect.left() + indent + i * handle.width(), option->rect.top() + 3), handle);
+        }
         
         painter->restore();
         break;
