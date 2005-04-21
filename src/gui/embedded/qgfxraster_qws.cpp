@@ -330,7 +330,7 @@ static QPolygon convertThickPolylineToPolygon(const QPolygon &points,int index, 
 extern bool qws_sw_cursor;
 static QGfx * graphicsContext(QImage *img)
 {
-    qWarning("graphicsContext(QImage*) should not be called");
+//####    qWarning("graphicsContext(QImage*) should not be called");
     QGfx * ret=0;
 #if 1
 
