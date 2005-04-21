@@ -1175,6 +1175,11 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 #endif
 */
 
+void QWidgetPrivate::setConstraints_sys()
+{
+}
+
+
 void QWidget::scroll(int dx, int dy)
 {
     scroll(dx, dy, QRect());
