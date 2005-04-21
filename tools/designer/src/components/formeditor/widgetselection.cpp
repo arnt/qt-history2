@@ -15,13 +15,16 @@
 #include "formwindow.h"
 #include "formwindowmanager.h"
 
+// sdk
 #include <QtDesigner/qextensionmanager.h>
 #include <QtDesigner/abstractwidgetfactory.h>
+#include <QtDesigner/taskmenu.h>
+#include <QtDesigner/layoutdecoration.h>
+
+// shared
 #include <qdesigner_command.h>
 #include <layout.h>
 #include <layoutinfo.h>
-#include <QtDesigner/taskmenu.h>
-#include <QtDesigner/layoutdecoration.h>
 
 #include <QtGui/QMenu>
 #include <QtGui/QWidget>
@@ -456,8 +459,7 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
 
     wid = w;
 
-    QLayout *layout = LayoutInfo::managedLayout(formWindow->core(), wid->parentWidget());
-    bool active = (layout != 0);
+    bool active = LayoutInfo::isWidgetLaidout(formWindow->core(), wid) == false;
 
     for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
         if (WidgetHandle *h = handles[i]) {
@@ -466,6 +468,7 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
         }
     }
 
+    QLayout *layout = LayoutInfo::managedLayout(formWindow->core(), wid->parentWidget());
     if (QGridLayout *grid = qobject_cast<QGridLayout*>(layout)) {
         int index = grid->indexOf(wid);
         if (index == -1) {
