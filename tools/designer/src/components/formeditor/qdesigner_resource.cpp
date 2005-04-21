@@ -13,21 +13,22 @@
 
 #include "qdesigner_resource.h"
 #include "formwindow.h"
-#include "widgetdatabase.h"
-#include "layout.h"
-#include "qlayout_widget.h"
-#include "qdesigner_widget.h"
 #include "qdesigner_tabwidget.h"
 #include "qdesigner_toolbox.h"
 #include "qdesigner_stackedbox.h"
 
 // shared
+#include <widgetdatabase.h>
+#include <layout.h>
 #include <layoutinfo.h>
 #include <spacer_widget.h>
 #include <resourcefile.h>
+#include <pluginmanager.h>
+
+#include <qdesigner_widget.h>
+#include <qlayout_widget.h>
 #include <qdesigner_promotedwidget.h>
 #include <qdesigner_utils.h>
-#include <pluginmanager.h>
 
 // sdk
 #include <QtDesigner/container.h>
@@ -42,6 +43,7 @@
 #include <QtDesigner/abstractformwindowtool.h>
 #include <QtDesigner/ui4.h>
 
+#include <QtGui/QMenu>
 #include <QtGui/QMessageBox>
 #include <QtGui/QLayout>
 #include <QtGui/QTabWidget>
@@ -764,9 +766,11 @@ bool QDesignerResource::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayo
 
 bool QDesignerResource::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
+    core()->metaDataBase()->add(widget); // ensure the widget is managed
+
     if (QAbstractFormBuilder::addItem(ui_widget, widget, parentWidget)) {
         return true;
-    } else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) {
+    } else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) { // ### it should be first case!?
         container->addWidget(widget);
         return true;
     }

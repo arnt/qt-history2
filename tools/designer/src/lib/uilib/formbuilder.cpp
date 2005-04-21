@@ -22,25 +22,7 @@ QFormBuilder::QFormBuilder()
 
 QWidget *QFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
-    QList<DomAction*> actions = ui_widget->elementAction();
-    for (int i=0; i<actions.size(); ++i) {
-        QAction *action = new QAction(/*widget*/);
-        applyProperties(action, actions.at(i)->elementProperty());
-        m_actions.insert(actions.at(i)->attributeName(), action);
-    }
-
-    if (QWidget *w = QAbstractFormBuilder::create(ui_widget, parentWidget)) {
-        //if (QMenu *menu = qobject_cast<QMenu*>(w)) {
-            QList<DomActionRef*> refs = ui_widget->elementAddAction();
-            for (int i=0; i<refs.size(); ++i) {
-                if (QAction *a = m_actions.value(refs.at(i)->attributeName()))
-                    w->addAction(a);
-            }
-        //}
-        return w;
-    }
-
-    return 0;
+    return QAbstractFormBuilder::create(ui_widget, parentWidget);
 }
 
 

@@ -17,9 +17,6 @@
 #include <QtDesigner/uilib_global.h>
 #include <QtDesigner/abstractformbuilder.h>
 
-#include <QtCore/QMap>
-
-class QAction;
 class QListWidget;
 class QComboBox;
 
@@ -45,9 +42,6 @@ protected:
     virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
 
     static QWidget *widgetByName(QWidget *topLevel, const QString &name);
-
-private:
-    QMap<QString, QAction*> m_actions;
 };
 
 #endif // FORMBUILDER_H

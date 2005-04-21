@@ -29,8 +29,6 @@
 #include <pluginmanager.h>
 
 #include <QtGui/QWidget>
-#include <QtGui/QAction>
-#include <QtGui/QActionGroup>
 
 #include <QtCore/QBuffer>
 #include <QtCore/qdebug.h>
@@ -95,12 +93,14 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
 
 bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) {
+    if (QFormBuilder::addItem(ui_widget, widget, parentWidget)) {
+        return true;
+    } else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) {
         container->addWidget(widget);
         return true;
     }
 
-    return QFormBuilder::addItem(ui_widget, widget, parentWidget);
+    return false;
 }
 
 bool QDesignerFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)
