@@ -2792,6 +2792,7 @@ QWidget* QWorkspaceChild::iconWidget() const
 
         QFrame* frame = new QFrame(that, Qt::Window);
         QVBoxLayout *vbox = new QVBoxLayout(frame);
+        vbox->setMargin(0);
         QWorkspaceTitleBar *tb = new QWorkspaceTitleBar(windowWidget(), frame);
         vbox->addWidget(tb);
         tb->setObjectName("_workspacechild_icon_");
