@@ -1523,20 +1523,19 @@ void QWidgetPrivate::deleteTLSysExtra()
 
 bool QWidgetPrivate::setAcceptDrops_sys(bool on)
 {
-    Q_D(QWidget);
+    Q_Q(QWidget);
     // Enablement is defined by d->extra->dropTarget != 0.
-
     if (on) {
         // Turn on.
-        d->createExtra();
-        QWExtra *extra = d->extraData();
+        createExtra();
+        QWExtra *extra = extraData();
         if (!extra->dropTarget)
-            extra->dropTarget = qt_olednd_register(this);
+            extra->dropTarget = qt_olednd_register(q);
     } else {
         // Turn off.
-        QWExtra *extra = d->extraData();
+        QWExtra *extra = extraData();
         if (extra && extra->dropTarget) {
-            qt_olednd_unregister(this, extra->dropTarget);
+            qt_olednd_unregister(q, extra->dropTarget);
             extra->dropTarget = 0;
         }
     }
