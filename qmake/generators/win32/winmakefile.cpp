@@ -200,9 +200,14 @@ Win32MakefileGenerator::processPrlFiles()
                 if(processPrlFile(opt)) {
                     processed.insert(opt, true);
                     ret = true;
-                } else if(QDir::isRelativePath(opt)) {
+                } else if(QDir::isRelativePath(opt) || opt.startsWith("-l")) {
+                    QString tmp;
+                    if (opt.startsWith("-l"))
+                        tmp = opt.mid(2);
+                    else
+                        tmp = opt;
                     for(QList<QMakeLocalFileName>::Iterator it = libdirs.begin(); it != libdirs.end(); ++it) {
-                        QString prl = (*it).local() + Option::dir_sep + opt;
+                        QString prl = (*it).local() + Option::dir_sep + tmp;
                         if(processed.contains(prl)) {
                             break;
                         } else if(processPrlFile(prl)) {

@@ -44,17 +44,17 @@ bool MingwMakefileGenerator::findLibraries()
             QString suffix;
             if (!project->isEmpty("QMAKE_" + steam.toUpper() + "_SUFFIX"))
                 suffix = project->first("QMAKE_" + steam.toUpper() + "_SUFFIX");
-	    QString extension;
-	    for (QList<QMakeLocalFileName>::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
-	        int ver = findHighestVersion((*dir_it).local(), steam);
+            QString extension;
+            for (QList<QMakeLocalFileName>::Iterator dir_it = dirs.begin(); dir_it != dirs.end(); ++dir_it) {
+                int ver = findHighestVersion((*dir_it).local(), steam);
                 if (ver != -1) {
-		    extension += QString::number(ver);
-	            break;
-	    	}
+                    extension += QString::number(ver);
+                    break;
+                }
+            }
+	        extension += suffix;
+	        (*it) += extension;
 	    }
-	    extension += suffix;
-	    (*it) += extension;
-	}
         ++it;
     }
     return true;
@@ -127,6 +127,8 @@ void MingwMakefileGenerator::init()
             project->variables()["QMAKE_QMAKE"].append("qmake");
         return;
     }
+
+    project->variables()["TARGET_PRL"].append(project->first("TARGET"));
 
     processVars();
 
