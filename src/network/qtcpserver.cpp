@@ -234,16 +234,6 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
     return true;
 }
 
-/*! \overload
-
-    Listens for connections on all network interfaces. Equivalent to
-    calling listen(QHostAddress::Any, \a port).
-*/
-bool QTcpServer::listen(quint16 port)
-{
-    return listen(QHostAddress::Any, port);
-}
-
 /*!
     Returns true if the server is currently listening for incoming
     connections; otherwise returns false.

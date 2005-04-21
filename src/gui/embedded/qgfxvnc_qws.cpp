@@ -485,7 +485,7 @@ void QVNCServer::init(uint port)
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(checkUpdate()));
     serverSocket = new QTcpServer(this);
-    if (!serverSocket->listen(port))
+    if (!serverSocket->listen(QHostAddress::Any, port))
         qDebug() << "QVNCServer could not connect:" << serverSocket->errorString();
     else
         qDebug("QVNCServer created on port %d", port);

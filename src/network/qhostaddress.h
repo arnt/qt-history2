@@ -42,9 +42,9 @@ public:
     };
 
     QHostAddress();
-    QHostAddress(quint32 ip4Addr);
-    QHostAddress(quint8 *ip6Addr);
-    QHostAddress(const Q_IPV6ADDR &ip6Addr);
+    explicit QHostAddress(quint32 ip4Addr);
+    explicit QHostAddress(quint8 *ip6Addr);
+    explicit QHostAddress(const Q_IPV6ADDR &ip6Addr);
     explicit QHostAddress(const QString &address);
     QHostAddress(const QHostAddress &copy);
     QHostAddress(SpecialAddress address);

@@ -28,8 +28,7 @@ public:
     explicit QTcpServer(QObject *parent = 0);
     virtual ~QTcpServer();
 
-    bool listen(const QHostAddress &address, quint16 port);
-    bool listen(quint16 port = 0);
+    bool listen(const QHostAddress &address = QHostAddress::Any, quint16 port = 0);
     void close();
 
     bool isListening() const;

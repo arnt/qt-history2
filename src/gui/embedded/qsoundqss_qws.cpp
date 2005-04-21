@@ -225,7 +225,7 @@ private:
 QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent) :
     QTcpServer(parent)
 {
-    listen(sound_port);
+    listen(QHostAddress::Any, sound_port);
 }
 
 
@@ -235,7 +235,7 @@ QWSSoundServerSocket::QWSSoundServerSocket(QObject *parent, const char *name) :
 {
     if (name)
         setObjectName(name);
-    listen(sound_port);
+    listen(QHostAddress::Any, sound_port);
 }
 #endif
 
