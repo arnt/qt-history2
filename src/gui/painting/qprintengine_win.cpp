@@ -26,7 +26,7 @@
 #include <qdebug.h>
 #include <qvector.h>
 
-#define QT_DEBUG_DRAW
+// #define QT_DEBUG_DRAW
 
 static const struct {
     int winSizeName;
@@ -179,7 +179,11 @@ static BITMAPINFO *getWindowsBITMAPINFO( const QImage &image )
 }
 
 QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
-    : QPaintEngine(*(new QWin32PrintEnginePrivate), PaintEngineFeatures(AllFeatures))
+    : QPaintEngine(*(new QWin32PrintEnginePrivate),
+                   PaintEngineFeatures(AllFeatures
+                                       & ~(LinearGradientFill
+                                           | RadialGradientFill
+                                           | ConicalGradientFill)))
 {
     Q_D(QWin32PrintEngine);
     d->docName = "document1";
@@ -248,6 +252,8 @@ bool QWin32PrintEngine::begin(QPaintDevice *)
     d->has_pen = true;
     d->pen = QColor(Qt::black);
     d->has_brush = false;
+
+    d->complex_xform = false;
 
     updateMatrix(d->matrix);
 
@@ -434,47 +440,92 @@ void QWin32PrintEngine::updateState(const QPaintEngineState &state)
 
 }
 
-void QWin32PrintEngine::updateMatrix(const QMatrix &matrix)
+void QWin32PrintEngine::updateMatrix(const QMatrix &m)
 {
     Q_D(QWin32PrintEngine);
 
-    QMatrix stretch(d->stretch_x, 0, 0, d->stretch_y,
-                    d->fullPage ? -d->devPageRect.x() : 0,
-                    d->fullPage ? -d->devPageRect.y() : 0);
-    d->painterMatrix = matrix;
+    QMatrix stretch(d->stretch_x, 0, 0, d->stretch_y, d->origin_x, d->origin_y);
+    d->painterMatrix = m;
     d->matrix = d->painterMatrix * stretch;
+
+    d->complex_xform = m.m11() != 1 || m.m22() != 1 || m.m12() != 0 || m.m21() != 0;
 }
 
 void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
                                    const QPixmap &originalPixmap,
-                                   const QRectF &sr)
+                                   const QRectF &sourceRect)
 {
-    return;
-
-//     Q_D(QWin32PrintEngine);
+    Q_D(QWin32PrintEngine);
 #if defined QT_DEBUG_DRAW
-    printf(" - QWin32PrintEngine::drawPixmap(), "
+    printf("\n - QWin32PrintEngine::drawPixmap(), "
            "[%.2f,%.2f,%.2f,%.2f], "
            "size=[%d,%d], "
            "sr=[%.2f,%.2f,%.2f,%.2f]\n",
            targetRect.x(), targetRect.y(), targetRect.width(), targetRect.height(),
            originalPixmap.width(), originalPixmap.height(),
-           sr.x(), sr.y(), sr.width(), sr.height());
+           sourceRect.x(), sourceRect.y(), sourceRect.width(), sourceRect.height());
 #endif
 
-    HBITMAP hbitmap = originalPixmap.toWinHBITMAP();
+    QRectF r = targetRect;
+    QRectF sr = sourceRect;
+
+
+    QPixmap pixmap = originalPixmap;
+    bool stretched = sr.width() != pixmap.width() || sr.height() != pixmap.height();
+
+    if (stretched) {
+        pixmap = pixmap.copy(sr.toRect());
+        pixmap = pixmap.scaled(r.size().toSize(), Qt::IgnoreAspectRatio);
+    }
+
+    qreal xform_offset_x = 0;
+    qreal xform_offset_y = 0;
+    if (d->complex_xform) {
+        QMatrix adapted = QPixmap::trueMatrix(d->painterMatrix, pixmap.width(), pixmap.height());
+        pixmap = pixmap.transformed(adapted);
+        xform_offset_x = adapted.dx();
+        xform_offset_y = adapted.dy();
+    }
+
+    HBITMAP hbitmap = pixmap.toWinHBITMAP(QPixmap::NoAlpha);
     HDC hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
     HGDIOBJ null_bitmap = SelectObject(hbitmap_hdc, hbitmap);
 
-//     int tx = qRound(targetRect.x() + d->matrix.dx());
-//     int ty = qRound(targetRect.y() + d->matrix.dy());
-//     int tw = qRound(targetRect.width());
-//     int th = qRound(targetRect.height());
+    int tx = qRound((targetRect.x() + d->origin_x) * d->stretch_x);
+    int ty = qRound((targetRect.y() + d->origin_y) * d->stretch_y);
+    int tw = qRound(pixmap.width() * d->stretch_x);
+    int th = qRound(pixmap.height() * d->stretch_y);
 
-//     int sx = qRound(sr.x());
-//     int sy = qRound(sr.y());
-//     int sw = qRound(sr.width());
-//     int sh = qRound(sr.height());
+    tx += d->painterMatrix.dx() * d->stretch_x;
+    ty += d->painterMatrix.dy() * d->stretch_y;
+
+    xform_offset_x *= d->stretch_x;
+    xform_offset_y *= d->stretch_y;
+
+    HRGN old_region = 0;
+    bool clip_was_changed = false;
+    if (pixmap.hasAlpha()) {
+        QRegion mask = pixmap.mask();
+        mask = mask * QMatrix(d->stretch_x, 0, 0, d->stretch_y,
+                              tx - xform_offset_x, ty - xform_offset_y);
+        if (!mask.isEmpty()) {
+            int get_clip = GetClipRgn(d->hdc, old_region);
+            if (get_clip == -1) {
+                qErrnoWarning("QWin32PrintEngine::drawPixmap(), failed to get old clip");
+            } else {
+                clip_was_changed = true;
+                int clip_op = get_clip == 0 ? RGN_COPY : RGN_AND;
+                ExtSelectClipRgn(d->hdc, mask.handle(), clip_op);
+            }
+        }
+    }
+
+//     printf(" - drawing target=[%d, %d, %d, %d]\n", tx, ty, tw, th);
+
+    if (!StretchBlt(d->hdc, qRound(tx - xform_offset_x), qRound(ty - xform_offset_y), tw, th,
+                    hbitmap_hdc, 0, 0, pixmap.width(), pixmap.height(), SRCCOPY))
+        qErrnoWarning("QWin32PrintEngine::drawPixmap, StretchBlt failed");
+
 
 //     const BLENDFUNCTION bf = { AC_SRC_OVER,       // BlendOp
 //                                0,                 // BlendFlags, must be zero
@@ -490,11 +541,28 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     DeleteObject(hbitmap);
     DeleteDC(hbitmap_hdc);
 
+    if (clip_was_changed) {
+        // Restore the old region, note that a null region in GDI means no clip,
+        // so if we did change, but didn't have a region this will just work
+        ExtSelectClipRgn(d->hdc, old_region, RGN_COPY);
+    }
+
 //     SelectObject(mask_hdc, null_mask);
 //     DeleteObject(mask);
 //     DeleteDC(mask_hdc);
 }
 
+
+void QWin32PrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &pos)
+{
+    QRectF rectAtOrigin(0, 0, r.width(), r.height());
+    QImage image(rectAtOrigin.size().toSize(), QImage::Format_ARGB32_Premultiplied);
+    QPainter p(&image);
+    p.drawTiledPixmap(rectAtOrigin, pm, pos);
+    p.end();
+    drawPixmap(r, QPixmap::fromImage(image), rectAtOrigin);
+
+}
 
 void QWin32PrintEnginePrivate::fillPath_dev(const QPainterPath &path, const QColor &color)
 {
@@ -748,11 +816,17 @@ void QWin32PrintEnginePrivate::initialize()
                         GetDeviceCaps(hdc, HORZRES),
                         GetDeviceCaps(hdc, VERTRES));
 
+    updateOrigin();
+
+#ifdef QT_DEBUG_DRAW
     qDebug() << "QWin32PrintEngine::initialize()" << endl
              << " - paperRect" << devPaperRect << endl
              << " - pageRect" << devPageRect << endl
              << " - stretch_x" << stretch_x << endl
-             << " - stretch_y" << stretch_y << endl;
+             << " - stretch_y" << stretch_y << endl
+             << " - origin_x" << origin_x << endl
+             << " - origin_y" << origin_y << endl;
+#endif
 }
 
 void QWin32PrintEnginePrivate::release()
@@ -814,6 +888,20 @@ void QWin32PrintEnginePrivate::doReinit()
         resetDC();
 }
 
+void QWin32PrintEnginePrivate::updateOrigin()
+{
+    int o_x = devPageRect.x();
+    int o_y = devPageRect.y();
+
+    if (fullPage) {
+        origin_x = qRound(-o_x * stretch_x);
+        origin_y = qRound(-o_y * stretch_y);
+    } else {
+        origin_x = 0;
+        origin_y = 0;
+    }
+}
+
 void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
 {
     Q_D(QWin32PrintEngine);
@@ -846,6 +934,7 @@ void QWin32PrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &
 
     case PPK_FullPage:
         d->fullPage = value.toBool();
+        d->updateOrigin();
         break;
 
     case PPK_NumberOfCopies:

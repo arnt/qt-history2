@@ -52,6 +52,7 @@ public:
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
+    void drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &p);
     void setProperty(PrintEnginePropertyKey key, const QVariant &value);
     QVariant property(PrintEnginePropertyKey key) const;
 
@@ -141,6 +142,8 @@ public:
 
     void fillPath_dev(const QPainterPath &path, const QColor &color);
 
+    void updateOrigin();
+
 
     // Windows GDI printer references.
     HANDLE hPrinter;
@@ -167,6 +170,8 @@ public:
     QRect devPaperRect;
     qreal stretch_x;
     qreal stretch_y;
+    int origin_x;
+    int origin_y;
 
     int dpi_x;
     int dpi_y;
@@ -178,6 +183,7 @@ public:
     uint fullPage : 1;
     uint reinit : 1;
 
+    uint complex_xform : 1;
     uint has_pen : 1;
     uint has_brush : 1;
 
