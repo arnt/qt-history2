@@ -1804,6 +1804,7 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
     if(d->echoMode == Password || d->echoMode == NoEcho)
         qt_mac_secure_keyboard(true);
 #endif
+    update();
 }
 
 /*!\reimp
