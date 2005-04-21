@@ -21,19 +21,19 @@ TitlePage::TitlePage(LicenseWizard *wizard)
     : LicenseWizardPage(wizard)
 {
     topLabel = new QLabel(tr("<center><font color=\"blue\" size=\"5\"><b><i>"
-                             "Super Product One</i></b></font></center>"),
-                          this);
+                             "Super Product One</i></b></font></center>"));
 
-    registerRadioButton = new QRadioButton(tr("&Register your copy"), this);
-    evaluateRadioButton = new QRadioButton(tr("&Evaluate our product"), this);
+    registerRadioButton = new QRadioButton(tr("&Register your copy"));
+    evaluateRadioButton = new QRadioButton(tr("&Evaluate our product"));
     setFocusProxy(registerRadioButton);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(topLabel);
     layout->addSpacing(10);
     layout->addWidget(registerRadioButton);
     layout->addWidget(evaluateRadioButton);
     layout->addStretch(1);
+    setLayout(layout);
 }
 
 void TitlePage::resetPage()
@@ -53,27 +53,26 @@ EvaluatePage::EvaluatePage(LicenseWizard *wizard)
     : LicenseWizardPage(wizard)
 {
     topLabel = new QLabel(tr("<center><b>Evaluate Super Product One"
-                             "</b></center>"), this);
+                             "</b></center>"));
 
-    nameLabel = new QLabel(tr("&Name:"), this);
-    nameLineEdit = new QLineEdit(this);
+    nameLabel = new QLabel(tr("&Name:"));
+    nameLineEdit = new QLineEdit;
     nameLabel->setBuddy(nameLineEdit);
     setFocusProxy(nameLineEdit);
 
-    emailLabel = new QLabel(tr("&Email address:"), this);
-    emailLineEdit = new QLineEdit(this);
+    emailLabel = new QLabel(tr("&Email address:"));
+    emailLineEdit = new QLineEdit;
     emailLabel->setBuddy(emailLineEdit);
 
     bottomLabel = new QLabel(tr("Please fill in both fields.\nThis will "
-                                "entitle you to a 30-day evaluation."),
-                             this);
+                                "entitle you to a 30-day evaluation."));
 
     connect(nameLineEdit, SIGNAL(textChanged(QString)),
             this, SIGNAL(completeStateChanged()));
     connect(emailLineEdit, SIGNAL(textChanged(QString)),
             this, SIGNAL(completeStateChanged()));
 
-    QGridLayout *layout = new QGridLayout(this);
+    QGridLayout *layout = new QGridLayout;
     layout->addWidget(topLabel, 0, 0, 1, 2);
     layout->setRowMinimumHeight(1, 10);
     layout->addWidget(nameLabel, 2, 0);
@@ -83,6 +82,7 @@ EvaluatePage::EvaluatePage(LicenseWizard *wizard)
     layout->setRowMinimumHeight(4, 10);
     layout->addWidget(bottomLabel, 5, 0, 1, 2);
     layout->setRowStretch(6, 1);
+    setLayout(layout);
 }
 
 void EvaluatePage::resetPage()
@@ -105,24 +105,24 @@ RegisterPage::RegisterPage(LicenseWizard *wizard)
     : LicenseWizardPage(wizard)
 {
     topLabel = new QLabel(tr("<center><b>Register your copy of Super Product "
-                             "One</b></center>"), this);
+                             "One</b></center>"));
 
-    nameLabel = new QLabel(tr("&Name:"), this);
-    nameLineEdit = new QLineEdit(this);
+    nameLabel = new QLabel(tr("&Name:"));
+    nameLineEdit = new QLineEdit;
     nameLabel->setBuddy(nameLineEdit);
     setFocusProxy(nameLineEdit);
 
-    upgradeKeyLabel = new QLabel(tr("&Upgrade key:"), this);
-    upgradeKeyLineEdit = new QLineEdit(this);
+    upgradeKeyLabel = new QLabel(tr("&Upgrade key:"));
+    upgradeKeyLineEdit = new QLineEdit;
     upgradeKeyLabel->setBuddy(upgradeKeyLineEdit);
 
     bottomLabel = new QLabel(tr("If you have an upgrade key, please fill in "
-                                "the appropriate field."), this);
+                                "the appropriate field."));
 
     connect(nameLineEdit, SIGNAL(textChanged(QString)),
             this, SIGNAL(completeStateChanged()));
 
-    QGridLayout *layout = new QGridLayout(this);
+    QGridLayout *layout = new QGridLayout;
     layout->addWidget(topLabel, 0, 0, 1, 2);
     layout->setRowMinimumHeight(1, 10);
     layout->addWidget(nameLabel, 2, 0);
@@ -132,6 +132,7 @@ RegisterPage::RegisterPage(LicenseWizard *wizard)
     layout->setRowMinimumHeight(4, 10);
     layout->addWidget(bottomLabel, 5, 0, 1, 2);
     layout->setRowStretch(6, 1);
+    setLayout(layout);
 }
 
 void RegisterPage::resetPage()
@@ -156,20 +157,19 @@ bool RegisterPage::isComplete()
 DetailsPage::DetailsPage(LicenseWizard *wizard)
     : LicenseWizardPage(wizard)
 {
-    topLabel = new QLabel(tr("<center><b>Fill in your details</b></center>"),
-                          this);
+    topLabel = new QLabel(tr("<center><b>Fill in your details</b></center>"));
 
-    companyLabel = new QLabel(tr("&Company name:"), this);
-    companyLineEdit = new QLineEdit(this);
+    companyLabel = new QLabel(tr("&Company name:"));
+    companyLineEdit = new QLineEdit;
     companyLabel->setBuddy(companyLineEdit);
     setFocusProxy(companyLineEdit);
 
-    emailLabel = new QLabel(tr("&Email address:"), this);
-    emailLineEdit = new QLineEdit(this);
+    emailLabel = new QLabel(tr("&Email address:"));
+    emailLineEdit = new QLineEdit;
     emailLabel->setBuddy(emailLineEdit);
 
-    postalLabel = new QLabel(tr("&Postal address:"), this);
-    postalLineEdit = new QLineEdit(this);
+    postalLabel = new QLabel(tr("&Postal address:"));
+    postalLineEdit = new QLineEdit;
     postalLabel->setBuddy(postalLineEdit);
 
     connect(companyLineEdit, SIGNAL(textChanged(QString)),
@@ -179,7 +179,7 @@ DetailsPage::DetailsPage(LicenseWizard *wizard)
     connect(postalLineEdit, SIGNAL(textChanged(QString)),
             this, SIGNAL(completeStateChanged()));
 
-    QGridLayout *layout = new QGridLayout(this);
+    QGridLayout *layout = new QGridLayout;
     layout->addWidget(topLabel, 0, 0, 1, 2);
     layout->setRowMinimumHeight(1, 10);
     layout->addWidget(companyLabel, 2, 0);
@@ -189,6 +189,7 @@ DetailsPage::DetailsPage(LicenseWizard *wizard)
     layout->addWidget(postalLabel, 4, 0);
     layout->addWidget(postalLineEdit, 4, 1);
     layout->setRowStretch(5, 1);
+    setLayout(layout);
 }
 
 void DetailsPage::resetPage()
@@ -214,24 +215,25 @@ FinishPage::FinishPage(LicenseWizard *wizard)
     : LicenseWizardPage(wizard)
 {
     topLabel = new QLabel(tr("<center><b>Complete your registration"
-                             "</b></center>"), this);
+                             "</b></center>"));
 
-    bottomLabel = new QLabel(this);
+    bottomLabel = new QLabel;
     bottomLabel->setWordWrap(true);
 
     agreeCheckBox = new QCheckBox(tr("I agree to the terms and conditions of "
-                                     "the license"), this);
+                                     "the license"));
     setFocusProxy(agreeCheckBox);
 
     connect(agreeCheckBox, SIGNAL(toggled(bool)),
             this, SIGNAL(completeStateChanged()));
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(topLabel);
     layout->addSpacing(10);
     layout->addWidget(bottomLabel);
     layout->addWidget(agreeCheckBox);
     layout->addStretch(1);
+    setLayout(layout);
 }
 
 void FinishPage::resetPage()
