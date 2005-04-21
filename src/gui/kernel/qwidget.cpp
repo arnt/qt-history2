@@ -3081,6 +3081,57 @@ QString QWidget::windowTitle() const
         : QString();
 }
 
+#ifndef QT_NO_WIDGET_TOPEXTRA
+void QWidgetPrivate::setWindowTitle_helper(const QString &title)
+{
+    Q_Q(QWidget);
+    QString cap = title;
+
+    QString placeHolder(QLatin1String("[*]"));
+
+    int index = cap.indexOf(placeHolder);
+
+    while (index != -1) {
+        index += placeHolder.length();
+        int count = 1;
+        while (cap.indexOf(placeHolder, index) == index) {
+            ++count;
+            index += placeHolder.length();
+        }
+
+        if (count%2) { // odd number of [*] -> replace last one
+            int lastIndex = cap.lastIndexOf(placeHolder, index - 1);
+#ifndef Q_WS_MAC
+            if (q->isWindowModified())
+                cap.replace(lastIndex, 3, QWidget::tr("*"));
+            else
+#endif
+                cap.replace(lastIndex, 3, QLatin1String(""));
+        }
+
+        index = cap.indexOf(placeHolder, index);
+    }
+
+    cap.replace(QLatin1String("[*][*]"), QLatin1String("[*]"));
+    setWindowTitle_sys(cap);
+}
+#endif
+
+void QWidget::setWindowTitle(const QString &title)
+{
+    if (QWidget::windowTitle() == title)
+        return;
+
+    Q_D(QWidget);
+#ifndef QT_NO_WIDGET_TOPEXTRA
+    d->topData()->caption = title;
+    d->setWindowTitle_helper(title);
+#endif
+
+    QEvent e(QEvent::WindowTitleChange);
+    QApplication::sendEvent(this, &e);
+}
+
 /*!
     \property QWidget::windowIcon
     \brief the widget's icon
@@ -6285,6 +6336,25 @@ bool QWidget::testAttribute_helper(Qt::WidgetAttribute attribute) const
 
   This feature is only present on Mac OS X and Windows.
 */
+bool QWidget::isWindowModified() const
+{
+    return testAttribute(Qt::WA_WindowModified);
+}
+
+#ifndef Q_WS_MAC
+void QWidget::setWindowModified(bool mod)
+{
+    Q_D(QWidget);
+    setAttribute(Qt::WA_WindowModified, mod);
+
+    if (!windowTitle().contains("[*]"))
+        qWarning("QWidget::setWindowModified: The window title does not contain a '[*]' placeholder!");
+    d->setWindowTitle_helper(windowTitle());
+
+    QEvent e(QEvent::ModifiedChange);
+    QApplication::sendEvent(this, &e);
+}
+#endif
 
 /*!
   \property QWidget::toolTip

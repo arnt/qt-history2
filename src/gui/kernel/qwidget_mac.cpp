@@ -1284,43 +1284,23 @@ void QWidget::unsetCursor()
     }
 }
 
-void QWidgetPrivate::setWindowTitle_helper(const QString &caption)
+void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
 {
     Q_Q(QWidget);
-    QString cap = caption;
-
-    int i =  cap.lastIndexOf("[*]");
-    if (i != -1)
-        cap.replace(i, 3, "");
-
     if(q->isWindow())
-        SetWindowTitleWithCFString(qt_mac_window_for(q), QCFString(cap));
+        SetWindowTitleWithCFString(qt_mac_window_for(q), QCFString(caption));
 }
 
 void QWidget::setWindowModified(bool mod)
 {
     setAttribute(Qt::WA_WindowModified, mod);
+
+    if (!windowTitle().contains("[*]"))
+        qWarning("QWidget::setWindowModified: The window title does not contain a '[*]' placeholder!");
     if(isWindow())
         SetWindowModified(qt_mac_window_for(this), mod);
 
     QEvent e(QEvent::ModifiedChange);
-    QApplication::sendEvent(this, &e);
-}
-
-bool QWidget::isWindowModified() const
-{
-    return testAttribute(Qt::WA_WindowModified);
-}
-
-void QWidget::setWindowTitle(const QString &cap)
-{
-    Q_D(QWidget);
-    if(d->topData() && d->topData()->caption == cap)
-        return; // for less flicker
-    d->topData()->caption = cap;
-    d->setWindowTitle_helper(cap);
-
-    QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);
 }
 

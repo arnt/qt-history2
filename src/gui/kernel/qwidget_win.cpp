@@ -667,58 +667,14 @@ void QWidget::unsetCursor()
     qt_win_set_cursor(this, cursor());
 }
 
-void QWidgetPrivate::setWindowTitle_helper(const QString &caption)
+void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
 {
     Q_Q(QWidget);
-
-#if defined(QT_NON_COMMERCIAL)
-    QT_NC_CAPTION
-#else
-    QString cap = caption;
-#endif
-
-    int i = cap.lastIndexOf("[*]");
-    if (i != -1) {
-        if (q->isWindowModified())
-            cap.replace(i, 3, '*');
-        else
-            cap.replace(i, 3, "");
-    }
-
     QT_WA({
-        SetWindowText(q->winId(), (TCHAR*)cap.utf16());
+        SetWindowText(q->winId(), (TCHAR*)caption.utf16());
     } , {
-        SetWindowTextA(q->winId(), cap.toLocal8Bit());
+        SetWindowTextA(q->winId(), caption.toLocal8Bit());
     });
-
-}
-
-void QWidget::setWindowModified(bool mod)
-{
-    Q_D(QWidget);
-    setAttribute(Qt::WA_WindowModified, mod);
-    d->setWindowTitle_helper(windowTitle());
-
-    QEvent e(QEvent::ModifiedChange);
-    QApplication::sendEvent(this, &e);
-}
-
-bool QWidget::isWindowModified() const
-{
-    return testAttribute(Qt::WA_WindowModified);
-}
-
-void QWidget::setWindowTitle(const QString &caption)
-{
-    Q_D(QWidget);
-    if (QWidget::windowTitle() == caption)
-        return; // for less flicker
-
-    d->topData()->caption = caption;
-    d->setWindowTitle_helper(caption);
-
-    QEvent e(QEvent::WindowTitleChange);
-    QApplication::sendEvent(this, &e);
 }
 
 /*

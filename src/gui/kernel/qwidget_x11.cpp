@@ -998,53 +998,14 @@ qstring_to_xtp(const QString& s)
     return &tp;
 }
 
-void QWidgetPrivate::setWindowTitle_helper(const QString &caption)
-{
+void QWidgetPrivate::setWindowTitle_sys(const QString &caption);
+
     Q_Q(QWidget);
+    XSetWMName(X11->display, q->winId(), qstring_to_xtp(caption));
 
-    QString cap = caption;
-
-    int i = cap.lastIndexOf("[*]");
-    if (i != -1) {
-        if (q->isWindowModified())
-            cap.replace(i, 3, '*');
-        else
-            cap.replace(i, 3, "");
-    }
-
-    XSetWMName(X11->display, q->winId(), qstring_to_xtp(cap));
-
-    QByteArray net_wm_name = cap.toUtf8();
+    QByteArray net_wm_name = caption.toUtf8();
     XChangeProperty(X11->display, q->winId(), ATOM(_NET_WM_NAME), ATOM(UTF8_STRING), 8,
                     PropModeReplace, (unsigned char *)net_wm_name.data(), net_wm_name.size());
-}
-
-void QWidget::setWindowModified(bool mod)
-{
-    Q_D(QWidget);
-    setAttribute(Qt::WA_WindowModified, mod);
-    d->setWindowTitle_helper(windowTitle());
-
-    QEvent e(QEvent::ModifiedChange);
-    QApplication::sendEvent(this, &e);
-}
-
-bool QWidget::isWindowModified() const
-{
-    return testAttribute(Qt::WA_WindowModified);
-}
-
-void QWidget::setWindowTitle(const QString &caption)
-{
-    Q_D(QWidget);
-    if (QWidget::windowTitle() == caption)
-        return;
-
-    d->topData()->caption = caption;
-    d->setWindowTitle_helper(caption);
-
-    QEvent e(QEvent::WindowTitleChange);
-    QApplication::sendEvent(this, &e);
 }
 
 void QWidgetPrivate::setWindowIcon_sys()
