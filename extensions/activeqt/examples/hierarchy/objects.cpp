@@ -18,13 +18,15 @@
 
 /* Implementation of QParentWidget */
 QParentWidget::QParentWidget(QWidget *parent)
-: QVBoxWidget(parent)
+: QWidget(parent)
 {
+    vbox = new QVBoxLayout(this);    
 }
 
 void QParentWidget::createSubWidget(const QString &name)
 {
     QSubWidget *sw = new QSubWidget(this, name);
+    vbox->addWidget(sw);
     sw->setLabel(name);
     sw->show();
 }

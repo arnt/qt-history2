@@ -14,12 +14,12 @@
 #ifndef OBJECTS_H
 #define OBJECTS_H
 
-#include <qvboxwidget.h>
+#include <qwidget.h>
 
 class QVBoxLayout;
 class QSubWidget;
 
-class QParentWidget : public QVBoxWidget
+class QParentWidget : public QWidget
 {
     Q_OBJECT
     Q_CLASSINFO("ClassID", "{d574a747-8016-46db-a07c-b2b4854ee75c}");
