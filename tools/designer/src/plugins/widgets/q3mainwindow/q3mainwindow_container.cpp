@@ -12,19 +12,22 @@
 ****************************************************************************/
 
 #include "q3mainwindow_container.h"
+
 #include <Qt3Support/Q3MainWindow>
 
 #include <QtCore/qdebug.h>
-#include <QtGui/QtGui>
+#include <QtGui/QMenuBar>
+#include <QtGui/QToolBar>
+#include <QtGui/QStatusBar>
 
 Q3MainWindowContainer::Q3MainWindowContainer(Q3MainWindow *widget, QObject *parent)
     : QObject(parent),
-      m_widget(widget)
+      m_mainWindow(widget)
 {}
 
 int Q3MainWindowContainer::count() const
 {
-    return m_widget->centralWidget() ? 1 : 0;
+    return m_mainWindow->centralWidget() ? 1 : 0;
 }
 
 QWidget *Q3MainWindowContainer::widget(int index) const
@@ -32,12 +35,12 @@ QWidget *Q3MainWindowContainer::widget(int index) const
     if (index == -1)
         return 0;
 
-    return m_widget->centralWidget();
+    return m_mainWindow->centralWidget();
 }
 
 int Q3MainWindowContainer::currentIndex() const
 {
-    return m_widget->centralWidget() ? 0 : -1;
+    return m_mainWindow->centralWidget() ? 0 : -1;
 }
 
 void Q3MainWindowContainer::setCurrentIndex(int index)
@@ -45,47 +48,25 @@ void Q3MainWindowContainer::setCurrentIndex(int index)
     Q_UNUSED(index);
 }
 
-namespace Friendly {
-
-class MainWindow: public Q3MainWindow
-{
-public:
-    MainWindow() { Q_ASSERT(0); }
-
-    friend class Q3MainWindowContainer;
-};
-
-}
-
 void Q3MainWindowContainer::addWidget(QWidget *widget)
 {
-    qDebug() << "added widget:" << widget << "parentWidget:" << widget->parentWidget();
-
-    Friendly::MainWindow *mw = static_cast<Friendly::MainWindow*>(m_widget);
-
-    widget->setParent(m_widget);
-
-    if (QToolBar *toolBar = qobject_cast<QToolBar*>(widget)) {
-        qDebug() << "added toolBar:" << toolBar;
-        // mw->addToolBar(toolBar);
-    } else if (QMenuBar *menuBar = qobject_cast<QMenuBar*>(widget)) {
-        qDebug() << "added menuBar:" << menuBar;
-        // mw->setMenuBar(menuBar);
-    } else if (QStatusBar *statusBar = qobject_cast<QStatusBar*>(widget)) {
-        qDebug() << "added statusBar" << statusBar;
-        // mw->setStatusBar(statusBar);
+    if (qobject_cast<QToolBar*>(widget)) {
+        // ### add the toolbar
+    } else if (qobject_cast<QMenuBar*>(widget)) {
+        (void) m_mainWindow->menuBar();
+    } else if (qobject_cast<QStatusBar*>(widget)) {
+        (void) m_mainWindow->statusBar();
     } else {
-        qDebug() << "added centralWidget" << widget;
-        Q_ASSERT(m_widget->centralWidget() == 0);
-
-        m_widget->setCentralWidget(widget);
+        Q_ASSERT(m_mainWindow->centralWidget() == 0);
+        widget->setParent(m_mainWindow);
+        m_mainWindow->setCentralWidget(widget);
     }
 }
 
 void Q3MainWindowContainer::insertWidget(int index, QWidget *widget)
 {
     Q_UNUSED(index);
-    Q_ASSERT(m_widget->centralWidget() == 0);
+    Q_ASSERT(m_mainWindow->centralWidget() == 0);
 
     addWidget(widget);
 }

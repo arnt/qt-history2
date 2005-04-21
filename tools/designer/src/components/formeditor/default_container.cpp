@@ -33,16 +33,17 @@ QDesignerContainer::~QDesignerContainer()
 
 int QDesignerContainer::count() const
 {
-    if (qobject_cast<QDesignerStackedWidget*>(m_widget))
-        return static_cast<QDesignerStackedWidget*>(m_widget)->count();
-    else if (qobject_cast<QDesignerTabWidget*>(m_widget))
-        return static_cast<QDesignerTabWidget*>(m_widget)->count();
-    else if (qobject_cast<QDesignerToolBox*>(m_widget))
-        return static_cast<QDesignerToolBox*>(m_widget)->count();
-    else if (qobject_cast<QMainWindow*>(m_widget))
-        return 1;
-    else if (qobject_cast<QDockWidget*>(m_widget))
-        return 1;
+    if (QDesignerStackedWidget *stackedWidget = qobject_cast<QDesignerStackedWidget*>(m_widget)) {
+        return stackedWidget->count();
+    } else if (QDesignerTabWidget *tabWidget = qobject_cast<QDesignerTabWidget*>(m_widget)) {
+        return tabWidget->count();
+    } else if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(m_widget)) {
+        return toolBox->count();
+    } else if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(m_widget)) {
+        return mainWindow->centralWidget() ? 1 : 0;
+    } else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(m_widget)) {
+        return dockWidget->widget() ? 1 : 0;
+    }
 
     Q_ASSERT(0);
     return 0;
@@ -73,10 +74,11 @@ int QDesignerContainer::currentIndex() const
         return static_cast<QDesignerTabWidget*>(m_widget)->currentIndex();
     else if (qobject_cast<QDesignerToolBox*>(m_widget))
         return static_cast<QDesignerToolBox*>(m_widget)->currentIndex();
-    else if (qobject_cast<QMainWindow*>(m_widget))
-        return 0;
-    else if (qobject_cast<QDockWidget*>(m_widget))
-        return 0;
+    else if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(m_widget)) {
+        return mainWindow->centralWidget() ? 0 : -1;
+    } else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(m_widget)) {
+        return dockWidget->widget() ? 0 : -1;
+    }
 
     Q_ASSERT(0);
     return -1;
@@ -112,7 +114,7 @@ void QDesignerContainer::addWidget(QWidget *widget)
     else if (qobject_cast<QMainWindow*>(m_widget)) {
         static_cast<QMainWindow*>(m_widget)->setCentralWidget(widget);
     } else if (qobject_cast<QDockWidget*>(m_widget)) {
-        /* ignore */
+        static_cast<QDockWidget*>(m_widget)->setWidget(widget);
     } else
         Q_ASSERT(0);
 }
@@ -131,7 +133,7 @@ void QDesignerContainer::insertWidget(int index, QWidget *widget)
     else if (qobject_cast<QMainWindow*>(m_widget)) {
         Q_ASSERT(0);
     } else if (qobject_cast<QDockWidget*>(m_widget)) {
-        /* ignore */
+        Q_ASSERT(0);
     } else
         Q_ASSERT(0);
 }
@@ -146,8 +148,10 @@ void QDesignerContainer::remove(int index)
         static_cast<QDesignerToolBox*>(m_widget)->removeItem(index);
     else if (qobject_cast<QMainWindow*>(m_widget)) {
         /* ignore */
+        Q_ASSERT(0);
     } else if (qobject_cast<QDockWidget*>(m_widget)) {
         /* ignore */
+        Q_ASSERT(0);
     } else
         Q_ASSERT(0);
 }

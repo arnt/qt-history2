@@ -35,7 +35,7 @@ public:
     virtual void remove(int index);
 
 private:
-    Q3MainWindow *m_widget;
+    Q3MainWindow *m_mainWindow;
 };
 
 class Q3MainWindowContainerFactory: public QExtensionFactory

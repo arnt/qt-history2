@@ -144,8 +144,7 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         }
     }
 
-    if (w) {
-        w->setParent(w->parentWidget(), 0);
+    if (w != 0) {
         initialize(w);
     }
 
