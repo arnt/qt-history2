@@ -297,7 +297,9 @@ int QHeaderView::length() const
 
 QSize QHeaderView::sizeHint() const
 {
-    if (count() < 1)
+    Q_D(const QHeaderView);
+
+    if (d->model == 0 || count() < 1)
         return QSize();
     // FIXME: we should check all sections (slow)
     QSize firstHint = sectionSizeFromContents(logicalIndex(0));
@@ -315,6 +317,9 @@ QSize QHeaderView::sizeHint() const
 
 int QHeaderView::sectionSizeHint(int logicalIndex) const
 {
+    Q_D(const QHeaderView);
+    if (d->model == 0)
+        return -1;
     QSize size = sectionSizeFromContents(logicalIndex);
     return orientation() == Qt::Horizontal ? size.width() : size.height();
 }
