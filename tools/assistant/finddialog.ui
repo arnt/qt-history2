@@ -14,13 +14,13 @@
  *********************************************************************</comment>
  <exportmacro></exportmacro>
  <class>FindDialog</class>
- <widget class="QDialog" name="FindDialog" >
+ <widget class="QWidget" name="FindDialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
     <width>388</width>
-    <height>164</height>
+    <height>131</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -28,7 +28,7 @@
   </property>
   <layout class="QGridLayout" >
    <property name="margin" >
-    <number>9</number>
+    <number>11</number>
    </property>
    <property name="spacing" >
     <number>6</number>
@@ -37,10 +37,10 @@
     <spacer>
      <property name="geometry" >
       <rect>
-       <x>27</x>
-       <y>133</y>
-       <width>110</width>
-       <height>22</height>
+       <x>9</x>
+       <y>102</y>
+       <width>126</width>
+       <height>20</height>
       </rect>
      </property>
      <property name="orientation" >
@@ -51,8 +51,8 @@
      </property>
      <property name="sizeHint" >
       <size>
-       <width>110</width>
-       <height>31</height>
+       <width>20</width>
+       <height>1</height>
       </size>
      </property>
     </spacer>
@@ -62,9 +62,9 @@
      <property name="geometry" >
       <rect>
        <x>269</x>
-       <y>75</y>
+       <y>65</y>
        <width>110</width>
-       <height>52</height>
+       <height>33</height>
       </rect>
      </property>
      <property name="orientation" >
@@ -88,7 +88,7 @@
        <x>269</x>
        <y>9</y>
        <width>110</width>
-       <height>28</height>
+       <height>25</height>
       </rect>
      </property>
      <property name="text" >
@@ -107,9 +107,9 @@
      <property name="geometry" >
       <rect>
        <x>269</x>
-       <y>43</y>
+       <y>38</y>
        <width>110</width>
-       <height>26</height>
+       <height>23</height>
       </rect>
      </property>
      <property name="text" >
@@ -125,9 +125,9 @@
      <property name="geometry" >
       <rect>
        <x>9</x>
-       <y>43</y>
-       <width>146</width>
-       <height>84</height>
+       <y>38</y>
+       <width>126</width>
+       <height>60</height>
       </rect>
      </property>
      <property name="title" >
@@ -144,10 +144,10 @@
        <widget class="QCheckBox" name="checkWords" >
         <property name="geometry" >
          <rect>
-          <x>13</x>
-          <y>23</y>
-          <width>120</width>
-          <height>21</height>
+          <x>11</x>
+          <y>20</y>
+          <width>104</width>
+          <height>13</height>
          </rect>
         </property>
         <property name="text" >
@@ -159,10 +159,10 @@
        <widget class="QCheckBox" name="checkCase" >
         <property name="geometry" >
          <rect>
-          <x>13</x>
-          <y>50</y>
-          <width>120</width>
-          <height>21</height>
+          <x>11</x>
+          <y>37</y>
+          <width>104</width>
+          <height>13</height>
          </rect>
         </property>
         <property name="text" >
@@ -177,10 +177,10 @@
     <widget class="QGroupBox" name="ButtonGroup2" >
      <property name="geometry" >
       <rect>
-       <x>161</x>
-       <y>43</y>
-       <width>102</width>
-       <height>84</height>
+       <x>139</x>
+       <y>38</y>
+       <width>126</width>
+       <height>60</height>
       </rect>
      </property>
      <property name="title" >
@@ -197,10 +197,10 @@
        <widget class="QRadioButton" name="radioForward" >
         <property name="geometry" >
          <rect>
-          <x>13</x>
-          <y>23</y>
-          <width>76</width>
-          <height>21</height>
+          <x>11</x>
+          <y>20</y>
+          <width>104</width>
+          <height>13</height>
          </rect>
         </property>
         <property name="text" >
@@ -215,10 +215,10 @@
        <widget class="QRadioButton" name="radioBackward" >
         <property name="geometry" >
          <rect>
-          <x>13</x>
-          <y>50</y>
-          <width>76</width>
-          <height>21</height>
+          <x>11</x>
+          <y>37</y>
+          <width>104</width>
+          <height>13</height>
          </rect>
         </property>
         <property name="text" >
@@ -241,10 +241,10 @@
       <widget class="QLabel" name="TextLabel1" >
        <property name="geometry" >
         <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>27</width>
-         <height>28</height>
+         <x>1</x>
+         <y>1</y>
+         <width>23</width>
+         <height>23</height>
         </rect>
        </property>
        <property name="text" >
@@ -259,10 +259,10 @@
       <widget class="QComboBox" name="comboFind" >
        <property name="geometry" >
         <rect>
-         <x>33</x>
-         <y>1</y>
-         <width>221</width>
-         <height>25</height>
+         <x>24</x>
+         <y>2</y>
+         <width>231</width>
+         <height>20</height>
         </rect>
        </property>
        <property name="sizePolicy" >

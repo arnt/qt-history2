@@ -14,6 +14,8 @@
 #ifndef FINDDIALOG_H
 #define FINDDIALOG_H
 
+#include <qdialog.h>
+
 #include "ui_finddialog.h"
 
 class MainWindow;
@@ -36,11 +38,11 @@ public slots:
     void statusMessage(const QString &message);
 
 private slots:
-    void on_findButton_clicked();
-    void on_closeButton_clicked();
+    void findButtonClicked();    
 
 private:
     Ui::FindDialog ui;
+    QWidget *contentsWidget;
 
     QStatusBar *sb;
     bool onceFound;

@@ -22,36 +22,40 @@
 #include <qstatusbar.h>
 #include <qlineedit.h>
 #include <qdatetime.h>
+#include <qgridlayout.h>
 #include <qdebug.h>
 
 FindDialog::FindDialog(MainWindow *parent)
     : QDialog(parent)
 {
-    ui.setupUi(this);
+    contentsWidget = new QWidget(this);
+    ui.setupUi(contentsWidget);
+
+    QVBoxLayout *l = new QVBoxLayout(this);
+    l->setMargin(0);
+    l->setSpacing(0);
+    l->addWidget(contentsWidget);
 
     lastBrowser = 0;
     onceFound = false;
     findExpr.clear();
+
     sb = new QStatusBar(this);
-
-    if (layout())
-        layout()->addWidget(sb);
-
+    l->addWidget(sb);
+    
     sb->showMessage(tr("Enter the text you are looking for."));
+
+    connect(ui.findButton, SIGNAL(clicked()), this, SLOT(findButtonClicked()));
+    connect(ui.closeButton, SIGNAL(clicked()), this, SLOT(reject()));
 }
 
 FindDialog::~FindDialog()
 {
 }
 
-void FindDialog::on_findButton_clicked()
+void FindDialog::findButtonClicked()
 {
     doFind(ui.radioForward->isChecked());
-}
-
-void FindDialog::on_closeButton_clicked()
-{
-    reject();
 }
 
 void FindDialog::doFind(bool forward)
