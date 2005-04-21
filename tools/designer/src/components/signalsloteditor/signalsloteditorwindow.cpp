@@ -1,4 +1,5 @@
 #include <QtCore/QAbstractItemModel>
+#include <QtCore/QDebug>
 #include <QtGui/QStandardItemModel>
 #include <QtGui/QComboBox>
 #include <QtGui/QApplication>
@@ -6,7 +7,9 @@
 #include <QtGui/QItemEditorFactory>
 #include <QtGui/QTreeView>
 #include <QtGui/QVBoxLayout>
-#include <QtCore/QDebug>
+#include <QtGui/QToolButton>
+
+#include <iconloader.h>
 
 #include "signalsloteditorwindow.h"
 #include "signalsloteditor_p.h"
@@ -29,8 +32,8 @@ ConnectionModel::ConnectionModel(SignalSlotEditor *editor, QObject *parent)
             this, SLOT(connectionRemoved(int)));
     connect(m_editor, SIGNAL(aboutToRemoveConnection(Connection*)),
             this, SLOT(aboutToRemoveConnection(Connection*)));
-    connect(m_editor, SIGNAL(aboutToAddConnection(Connection*)),
-            this, SLOT(aboutToAddConnection(Connection*)));
+    connect(m_editor, SIGNAL(aboutToAddConnection(int)),
+            this, SLOT(aboutToAddConnection(int)));
     connect(m_editor, SIGNAL(connectionChanged(Connection*)),
             this, SLOT(connectionChanged(Connection*)));
 }
@@ -205,9 +208,8 @@ void ConnectionModel::aboutToRemoveConnection(Connection *con)
     beginRemoveRows(QModelIndex(), idx, idx);
 }
 
-void ConnectionModel::aboutToAddConnection(Connection *)
+void ConnectionModel::aboutToAddConnection(int idx)
 {
-    int idx = m_editor->connectionCount();
     beginInsertRows(QModelIndex(), idx, idx);
 }
 
@@ -485,10 +487,27 @@ SignalSlotEditorWindow::SignalSlotEditorWindow(QWidget *parent)
     m_view->setItemDelegate(new ConnectionDelegate(this));
     m_view->setEditTriggers(QAbstractItemView::SelectedClicked
                                 | QAbstractItemView::EditKeyPressed);
-
+    m_view->setRootIsDecorated(false);
+    connect(m_view, SIGNAL(activated(const QModelIndex&)), this, SLOT(updateUi()));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->addWidget(m_view);
+
+    QHBoxLayout *layout2 = new QHBoxLayout;
+    layout->addLayout(layout2);
+    layout2->addStretch();
+
+    m_remove_button = new QToolButton(this);
+    m_remove_button->setIcon(createIconSet(QLatin1String("minus.png")));
+    connect(m_remove_button, SIGNAL(clicked()), this, SLOT(removeConnection()));
+    layout2->addWidget(m_remove_button);
+
+    m_add_button = new QToolButton(this);
+    m_add_button->setIcon(createIconSet(QLatin1String("plus.png")));
+    connect(m_add_button, SIGNAL(clicked()), this, SLOT(addConnection()));
+    layout2->addWidget(m_add_button);
+
+    updateUi();
 }
 
 void SignalSlotEditorWindow::setActiveFormWindow(QDesignerFormWindowInterface *form)
@@ -518,6 +537,8 @@ void SignalSlotEditorWindow::setActiveFormWindow(QDesignerFormWindowInterface *f
         connect(m_editor, SIGNAL(connectionSelected(Connection*)),
                 this, SLOT(updateDialogSelection(Connection*)));
     }
+
+    updateUi();
 }
 
 void SignalSlotEditorWindow::updateDialogSelection(Connection *con)
@@ -533,6 +554,8 @@ void SignalSlotEditorWindow::updateDialogSelection(Connection *con)
     m_handling_selection_change = true;
     m_view->setCurrentIndex(index);
     m_handling_selection_change = false;
+
+    updateUi();
 }
 
 void SignalSlotEditorWindow::updateEditorSelection(const QModelIndex &index)
@@ -552,6 +575,32 @@ void SignalSlotEditorWindow::updateEditorSelection(const QModelIndex &index)
     m_editor->selectNone();
     m_editor->setSelected(con, true);
     m_handling_selection_change = false;
+
+    updateUi();
+}
+
+void SignalSlotEditorWindow::addConnection()
+{
+    if (m_editor.isNull())
+        return;
+
+    m_editor->addEmptyConnection();
+    updateUi();
+}
+
+void SignalSlotEditorWindow::removeConnection()
+{
+    if (m_editor.isNull())
+        return;
+
+    m_editor->deleteSelected();
+    updateUi();
+}
+
+void SignalSlotEditorWindow::updateUi()
+{
+    m_add_button->setEnabled(!m_editor.isNull());
+    m_remove_button->setEnabled(!m_editor.isNull() && m_view->currentIndex().isValid());
 }
 
 } // namespace signalsloteditor

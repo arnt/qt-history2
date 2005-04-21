@@ -8,6 +8,7 @@ class Connection;
 class QDesignerFormWindowInterface;
 class QModelIndex;
 class QTreeView;
+class QToolButton;
 
 namespace qdesigner { namespace components { namespace signalsloteditor {
 
@@ -27,9 +28,14 @@ private slots:
     void updateDialogSelection(Connection *con);
     void updateEditorSelection(const QModelIndex &index);
 
+    void addConnection();
+    void removeConnection();
+    void updateUi();
+
 private:
     QTreeView *m_view;
     QPointer<SignalSlotEditor> m_editor;
+    QToolButton *m_add_button, *m_remove_button;
 
     bool m_handling_selection_change;
 };

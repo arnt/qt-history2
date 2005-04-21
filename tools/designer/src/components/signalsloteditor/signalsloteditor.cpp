@@ -128,7 +128,10 @@ ClassList classList(const QString &obj_name, MemberType member_type,
     ClassList result;
 
     QWidget *w = qFindChild<QWidget*>(form, obj_name);
-    Q_ASSERT(w != 0);
+
+    if (w == 0)
+        return result;
+
     QDesignerMemberSheetExtension *members
         = qt_extension<QDesignerMemberSheetExtension*>
                 (form->core()->extensionManager(), w);;
@@ -818,6 +821,12 @@ void SignalSlotEditor::setTarget(Connection *_con, const QString &obj_name)
         undoStack()->push(new SetMemberCommand(con, EndPoint::Target, QString(), this));
 
     m_form_window->endCommand();
+}
+
+void SignalSlotEditor::addEmptyConnection()
+{
+    SignalSlotConnection *con = new SignalSlotConnection(this);
+    undoStack()->push(new AddConnectionCommand(this, con));
 }
 
 } // namespace signalsloteditor

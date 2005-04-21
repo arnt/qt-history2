@@ -22,6 +22,7 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QPolygonF>
 
+#include "qtundo.h"
 #include "shared_global.h"
 
 class QDesignerFormWindowInterface;
@@ -123,6 +124,8 @@ public:
     Connection *connection(int i) const { return m_con_list.at(i); }
     int indexOfConnection(Connection *con) const { return m_con_list.indexOf(con); }
 
+    void deleteSelected();
+
     virtual void setSource(Connection *con, const QString &obj_name);
     virtual void setTarget(Connection *con, const QString &obj_name);
 
@@ -131,7 +134,7 @@ public:
     void clear();
 
 signals:
-    void aboutToAddConnection(Connection *con);
+    void aboutToAddConnection(int idx);
     void connectionAdded(Connection *con);
     void aboutToRemoveConnection(Connection *con);
     void connectionRemoved(int idx);
@@ -188,8 +191,6 @@ private:
     void endDrag(const QPoint &pos);
     void adjustHotSopt(const EndPoint &end_point, const QPoint &pos);
 
-    void deleteSelected();
-
     Connection *connectionAt(const QPoint &pos) const;
     EndPoint endPointAt(const QPoint &pos) const;
     ConnectionSet m_sel_con_set;
@@ -207,5 +208,38 @@ private:
     friend class DeleteConnectionsCommand;
     friend class SetEndPointCommand;
 };
+
+class CECommand : public QtCommand, public CETypes
+{
+    Q_OBJECT
+public:
+    CECommand(ConnectionEdit *edit)
+        : m_edit(edit) { setCanMerge(false); }
+    ConnectionEdit *edit() const { return m_edit; }
+private:
+    ConnectionEdit *m_edit;
+};
+
+class AddConnectionCommand : public CECommand
+{
+    Q_OBJECT
+public:
+    AddConnectionCommand(ConnectionEdit *edit, Connection *con);
+    virtual void redo();
+    virtual void undo();
+private:
+    Connection *m_con;
+};
+
+class DeleteConnectionsCommand : public CECommand
+{
+public:
+    DeleteConnectionsCommand(ConnectionEdit *edit, const ConnectionList &con_list);
+    virtual void redo();
+    virtual void undo();
+private:
+    ConnectionList m_con_list;
+};
+
 
 #endif // CONNECTIONEDIT_H

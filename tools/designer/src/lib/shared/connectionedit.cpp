@@ -23,7 +23,6 @@
 #include <QtDesigner/abstractformwindow.h>
 
 #include "connectionedit.h"
-#include "qtundo.h"
 
 #define BG_ALPHA                32
 #define LINE_PROXIMITY_RADIUS   3
@@ -102,28 +101,6 @@ static QPoint pointInsideRect(const QRect &r, QPoint p)
 ** Commands
 */
 
-class CECommand : public QtCommand, public CETypes
-{
-    Q_OBJECT
-public:
-    CECommand(ConnectionEdit *edit)
-        : m_edit(edit) { setCanMerge(false); }
-    ConnectionEdit *edit() const { return m_edit; }
-private:
-    ConnectionEdit *m_edit;
-};
-
-class AddConnectionCommand : public CECommand
-{
-    Q_OBJECT
-public:
-    AddConnectionCommand(ConnectionEdit *edit, Connection *con);
-    virtual void redo();
-    virtual void undo();
-private:
-    Connection *m_con;
-};
-
 AddConnectionCommand::AddConnectionCommand(ConnectionEdit *edit, Connection *con)
     : CECommand(edit), m_con(con)
 {
@@ -133,7 +110,7 @@ AddConnectionCommand::AddConnectionCommand(ConnectionEdit *edit, Connection *con
 void AddConnectionCommand::redo()
 {
     edit()->selectNone();
-    emit edit()->aboutToAddConnection(m_con);
+    emit edit()->aboutToAddConnection(edit()->m_con_list.size());
     edit()->m_con_list.append(m_con);
     m_con->inserted();
     edit()->setSelected(m_con, true);
@@ -195,16 +172,6 @@ void AdjustConnectionCommand::redo()
     m_con->setEndPoint(EndPoint::Target, m_con->widget(EndPoint::Target), m_new_target_pos);
 }
 
-class DeleteConnectionsCommand : public CECommand
-{
-public:
-    DeleteConnectionsCommand(ConnectionEdit *edit, const ConnectionList &con_list);
-    virtual void redo();
-    virtual void undo();
-private:
-    ConnectionList m_con_list;
-};
-
 DeleteConnectionsCommand::DeleteConnectionsCommand(ConnectionEdit *edit,
                                                     const ConnectionList &con_list)
     : CECommand(edit), m_con_list(con_list)
@@ -229,8 +196,8 @@ void DeleteConnectionsCommand::redo()
 void DeleteConnectionsCommand::undo()
 {
     foreach (Connection *con, m_con_list) {
-        emit edit()->aboutToAddConnection(con);
         Q_ASSERT(!edit()->m_con_list.contains(con));
+        emit edit()->aboutToAddConnection(edit()->m_con_list.size());
         edit()->m_con_list.append(con);
         edit()->setSelected(con, true);
         con->update();
@@ -1440,6 +1407,8 @@ void ConnectionEdit::adjustHotSopt(const EndPoint &end_point, const QPoint &pos)
 
 void ConnectionEdit::deleteSelected()
 {
+    if (m_sel_con_set.isEmpty())
+        return;
     m_undo_stack->push(new DeleteConnectionsCommand(this, m_sel_con_set.keys()));
 }
 

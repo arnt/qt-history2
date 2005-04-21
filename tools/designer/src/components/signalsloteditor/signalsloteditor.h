@@ -53,6 +53,8 @@ public:
 
     QAbstractItemModel *model() const;
 
+    void addEmptyConnection();
+
 protected:
     virtual QWidget *widgetAt(const QPoint &pos) const;
 

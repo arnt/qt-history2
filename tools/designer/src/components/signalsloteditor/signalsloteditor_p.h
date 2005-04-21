@@ -91,7 +91,7 @@ private slots:
     void connectionAdded(Connection *con);
     void connectionRemoved(int idx);
     void aboutToRemoveConnection(Connection *con);
-    void aboutToAddConnection(Connection *con);
+    void aboutToAddConnection(int idx);
     void connectionChanged(Connection *con);
 
 private:
