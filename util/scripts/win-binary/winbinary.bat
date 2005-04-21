@@ -65,9 +65,9 @@ echo - Removing source dir in clean
 rd /S /Q src
 
 :CopyFiles
-echo - Copying binaries
+echo - Copying all .exe files
 del /S /Q bin\*.exe >> %1\log.txt
-xcopy /Q /I %1\%TMP_BUILDDIR%\bin\*.exe %1\clean\bin >> %1\log.txt
+xcopy /Q /I /S %1\%TMP_BUILDDIR%\*.exe %1\clean\ >> %1\log.txt
 
 echo - Copying dlls
 xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.dll %1\clean\bin >> %1\log.txt
@@ -79,18 +79,6 @@ echo - Copying plugins
 cd %1\%TMP_BUILDDIR%\plugins
 xcopy /Q /I /S *.dll %1\clean\plugins\ >> %1\log.txt
 
-echo - Copying demos
-cd %1\%TMP_BUILDDIR%\demos
-xcopy /Q /I /S *.exe %1\clean\demos\ >> %1\log.txt
-
-echo - Copying examples
-cd %1\%TMP_BUILDDIR%\examples
-xcopy /Q /I /S *.exe %1\clean\examples\ >> %1\log.txt
-
-echo - Copying tutorial
-cd %1\%TMP_BUILDDIR%\tutorial
-xcopy /Q /I /S *.exe %1\clean\tutorial\ >> %1\log.txt
-
 echo - Copying .prl files
 cd %1\%TMP_BUILDDIR%\lib
 xcopy /Q /I *.prl %1\clean\lib\ >> %1\log.txt
@@ -98,9 +86,13 @@ xcopy /Q /I *.prl %1\clean\lib\ >> %1\log.txt
 cd %1\%TMP_BUILDDIR%
 
 echo - Copying additional files
+echo   * qconfig.h
 xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\include\QtCore\ >> %1\log.txt
 mkdir %1\clean\include\QtCore\arch
+echo   * qatomic.h
 xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\arch\windows\arch\qatomic.h %1\clean\include\QtCore\arch\ >> %1\log.txt
+echo   * qconfig.pri
+xcopy /Q %1\%TMP_BUILDDIR%\mkspecs\qconfig.pri %1\clean\mkspecs\ >> %1\log.txt
 
 goto :EOF
 
@@ -220,7 +212,8 @@ set PATH=%1\%TMP_BUILDDIR%\bin;%PATH%
 set QTDIR=%1\%TMP_BUILDDIR%
 
 if "%TMP_COMPILER%"=="vs2003" goto VS2003Env
-if "%TMP_COMPILER%"=="vs2002" goto VS2002Env
+if "%TMP_COMPILER%"=="vs2003" goto VS2003Env
+if "%TMP_COMPILER%"=="vc60" goto VC60Env
 goto :EOF
 
 :VS2003Env
@@ -231,6 +224,12 @@ goto :EOF
 :VS2002Env
 set QMAKESPEC=win32-msvc.net
 call "%VS70COMNTOOLS%vsvars32.bat" >> %1\log.txt
+goto :EOF
+
+:VC60Env
+set QMAKESPEC=win32-msvc
+rem Hardcoded :(
+call "%ProgramFiles%\Microsoft Visual Studio\VC98\Bin\vcvars32.bat" >> %1\log.txt
 goto :EOF
 
 rem ***********************************************

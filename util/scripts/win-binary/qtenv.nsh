@@ -3,14 +3,16 @@
 
 !define TT_ENV_INI_FILE "setenvpage.ini"
 
-!define UI_FILE_INTERNAL_DESC "TrolltechDesignerUI"
+!define UI_FILE_INTERNAL_DESC "Trolltech.DesignerForm"
 !define UI_FILE_OPEN_DESC "Open with Qt Designer"
 !define DESIGNER_DESC "Qt Designer"
+!define DESIGNER_FILE_DESC "Qt Designer File"
 !define DESIGNER_CMD "bin\designer.exe $\"%1$\""
 !define DESIGNER_CMD_SHORT "designer.exe"
 
 var SET_ENV_VARS
 var REGISTER_UI_EXT_STATE
+var RUNNING_AS_ADMIN
 
 LangString EnvTitle ${LANG_ENGLISH} "Configure Environment"
 LangString EnvTitleDescription ${LANG_ENGLISH} "Configure the environment variables for ${PRODUCT_NAME} ${PRODUCT_VERSION}"
@@ -48,6 +50,12 @@ Function SetEnvPage
 
   showEnvPage:
   
+  strcmp $RUNNING_AS_ADMIN "true" handleUiCheck
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 1" "Flags" "DISABLED"
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 6" "Flags" "DISABLED"
+  goto uiCheckNo
+  
+  handleUiCheck:
   strcmp $REGISTER_UI_EXT_STATE "1" 0 uiCheckNo
     !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_ENV_INI_FILE}" "Field 6" "State" "1"
     goto showUiPage
@@ -61,18 +69,21 @@ FunctionEnd
 Function SetEnvVariables
   !insertmacro MUI_INSTALLOPTIONS_READ $SET_ENV_VARS "${TT_ENV_INI_FILE}" "Field 3" "State"
   !insertmacro MUI_INSTALLOPTIONS_READ $REGISTER_UI_EXT_STATE "${TT_ENV_INI_FILE}" "Field 6" "State"
-  WriteRegDWORD ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "QtEnvSet" $SET_ENV_VARS
+
+  StrCmp $RUNNING_AS_ADMIN "true" +3
+  WriteRegDWORD "HKCU" "${PRODUCT_UNINST_KEY}" "QtEnvSet" $SET_ENV_VARS
+  Goto +2
+  WriteRegDWORD "HKLM" "${PRODUCT_UNINST_KEY}" "QtEnvSet" $SET_ENV_VARS
+  
 FunctionEnd
 
 Function RegisterUIExtension
   strcmp $REGISTER_UI_EXT_STATE "1" 0 end
-    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}" "" ""
-    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}\DefaultIcon" "" "$INSTDIR\${DESIGNER_CMD_SHORT}"
-    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}\shell\${UI_FILE_OPEN_DESC}\command" "" "$INSTDIR\${DESIGNER_CMD}"
-
-    WriteRegStr HKCR "Applications\${DESIGNER_CMD_SHORT}" "" ""
-    WriteRegStr HKCR "Applications\${DESIGNER_CMD_SHORT}\shell\" "FriendlyCache" "${DESIGNER_DESC}"
-    WriteRegStr HKCR "Applications\${DESIGNER_CMD_SHORT}\shell\open\command" "" "$INSTDIR\${DESIGNER_CMD} "
+    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}" "" "${DESIGNER_FILE_DESC}"
+    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}\shell" "" "open"
+    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}\shell\open" "" "${UI_FILE_OPEN_DESC}"
+    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}\shell\open\command" "" "$INSTDIR\${DESIGNER_CMD}"
+    WriteRegStr HKCR "${UI_FILE_INTERNAL_DESC}\DefaultIcon" "" "$INSTDIR\bin\${DESIGNER_CMD_SHORT},0"
 
     ; Overwrite it silently...
     WriteRegStr HKCR ".ui" "" "${UI_FILE_INTERNAL_DESC}"
@@ -87,15 +98,6 @@ Function un.UnregisterUIExtension
     ; or open withprogid may exist
     WriteRegStr HKCR ".ui" "" ""
   continue:
-  ; be very carefull of what we delete
-  DetailPrint "Unregistering .ui extention"
-  DeleteRegValue HKCR "Applications\${DESIGNER_CMD_SHORT}\shell\open\command" ""
-  DeleteRegKey /ifempty HKCR "Applications\${DESIGNER_CMD_SHORT}\shell\open\command"
-  DeleteRegKey /ifempty HKCR "Applications\${DESIGNER_CMD_SHORT}\shell\open"
-  DeleteRegValue HKCR "Applications\${DESIGNER_CMD_SHORT}\shell" "FriendlyCache"
-  DeleteRegKey /ifempty HKCR "Applications\${DESIGNER_CMD_SHORT}\shell"
-  DeleteRegKey /ifempty HKCR "Applications\${DESIGNER_CMD_SHORT}"
-
   ; just delete it since nobody else is supposed to use it
   DeleteRegKey HKCR "${UI_FILE_INTERNAL_DESC}"
 
@@ -144,7 +146,11 @@ FunctionEnd
 Function un.UnRegisterQtEnvVariables
   exch $0 ; QTDIR
 
-  ReadRegDWORD $SET_ENV_VARS ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "QtEnvSet"
+  ClearErrors
+  ReadRegDWORD $SET_ENV_VARS "HKCU" "${PRODUCT_UNINST_KEY}" "QtEnvSet"
+  IfErrors 0 +2
+  ReadRegDWORD $SET_ENV_VARS "HKLM" "${PRODUCT_UNINST_KEY}" "QtEnvSet"
+
   intcmp $SET_ENV_VARS 0 noenv
 
   DetailPrint "Removing QTDIR"

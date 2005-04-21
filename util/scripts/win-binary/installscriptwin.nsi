@@ -2,7 +2,6 @@
 !define PRODUCT_PUBLISHER "Trolltech"
 !define PRODUCT_WEB_SITE "http://www.trolltech.com"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${PRODUCT_VERSION}"
-!define PRODUCT_UNINST_ROOT_KEY "HKLM"
 
 !include "MUI.nsh"
 !include "qtlicense.nsh"
@@ -88,11 +87,23 @@ SectionEnd
 
 Section -Post
   WriteUninstaller "$INSTDIR\uninst.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
-  WriteRegStr ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
+  
+  StrCmp $RUNNING_AS_ADMIN "false" NoAdmin
+  WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
+  WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
+  WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
+  WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
+  WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
+  WriteRegStr HKLM "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\" "InstallDir" "$INSTDIR"
+  Goto DoneWriteReg
+  NoAdmin:
+  WriteRegStr HKCU "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
+  WriteRegStr HKCU "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
+  WriteRegStr HKCU "${PRODUCT_UNINST_KEY}" "DisplayVersion" "${PRODUCT_VERSION}"
+  WriteRegStr HKCU "${PRODUCT_UNINST_KEY}" "URLInfoAbout" "${PRODUCT_WEB_SITE}"
+  WriteRegStr HKCU "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
+  WriteRegStr HKCU "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\" "InstallDir" "$INSTDIR"
+  DoneWriteReg:
   
   #setting the environment variables
   !insertmacro TT_QTENV_REGISTER
@@ -104,17 +115,30 @@ Section -Post
   #creating the qtvars.bat file
   push "$INSTDIR"
   call MakeQtVarsFile
-  
-  #setting the qt version for the integration
-  WriteRegStr HKCU "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\" "InstallDir" "$INSTDIR"
 
   call PatchPrlFiles
   call PatchPdbFiles
 SectionEnd
 
 Function .onInit
+  push $0
+  ClearErrors
+  UserInfo::GetAccountType
+  IfErrors Admin ;It's probably Win95
+  pop $0
+  StrCmp $0 "Admin" Admin
+
+  NoAdmin:
+  StrCpy $RUNNING_AS_ADMIN "false"
+  goto Done
+
+  Admin:
+  StrCpy $RUNNING_AS_ADMIN "true"
+  Done:
+  
   !insertmacro TT_LICENSE_PAGE_INIT
   !insertmacro TT_QTENV_PAGE_INIT
+  pop $0
 FunctionEnd
 
 Function PatchPrlFiles
@@ -220,7 +244,10 @@ Section Uninstall
   #removing the qt version for the integration
   DetailPrint "Removing registry entries"
   DeleteRegKey HKCU "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\"
+  DeleteRegKey HKLM "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\"
   
-  DeleteRegKey ${PRODUCT_UNINST_ROOT_KEY} "${PRODUCT_UNINST_KEY}"
+  DeleteRegKey HKCU "${PRODUCT_UNINST_KEY}"
+  DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
+  
   SetAutoClose true
 SectionEnd
