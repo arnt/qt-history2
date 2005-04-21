@@ -102,7 +102,7 @@ protected:
     int verticalOffset() const;
 
     void setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command);
-    QRect visualRectForSelection(const QItemSelection &selection) const;
+    QRegion visualRegionForSelection(const QItemSelection &selection) const;
     QModelIndexList selectedIndexes() const;
 
     void paintEvent(QPaintEvent *e);

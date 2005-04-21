@@ -1112,17 +1112,17 @@ void QHeaderView::currentChanged(const QModelIndex &old, const QModelIndex &curr
 {
     Q_D(QHeaderView);
     if (d->orientation == Qt::Horizontal) {
-        d->setDirtyRect(QRect(sectionViewportPosition(old.column()), 0,
-                              sectionSize(old.column()), d->viewport->height()));
-        d->setDirtyRect(QRect(sectionViewportPosition(current.column()), 0,
-                              sectionSize(current.column()), d->viewport->height()));
+        d->setDirtyRegion(QRect(sectionViewportPosition(old.column()), 0,
+                                sectionSize(old.column()), d->viewport->height()));
+        d->setDirtyRegion(QRect(sectionViewportPosition(current.column()), 0,
+                                sectionSize(current.column()), d->viewport->height()));
     } else {
-        d->setDirtyRect(QRect(0, sectionViewportPosition(old.row()),
-                              d->viewport->width(), sectionSize(old.row())));
-        d->setDirtyRect(QRect(0, sectionViewportPosition(current.row()),
-                              d->viewport->width(), sectionSize(current.row())));
+        d->setDirtyRegion(QRect(0, sectionViewportPosition(old.row()),
+                                d->viewport->width(), sectionSize(old.row())));
+        d->setDirtyRegion(QRect(0, sectionViewportPosition(current.row()),
+                                d->viewport->width(), sectionSize(current.row())));
     }
-    d->updateDirtyRect();
+    d->updateDirtyRegion();
 }
 
 
@@ -1612,7 +1612,7 @@ void QHeaderView::setSelection(const QRect&, QItemSelectionModel::SelectionFlags
     Empty implementation because the header doesn't have selections.
 */
 
-QRect QHeaderView::visualRectForSelection(const QItemSelection &selection) const
+QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) const
 {
     Q_D(const QHeaderView);
     if (orientation() == Qt::Horizontal) {

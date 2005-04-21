@@ -342,9 +342,9 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-    \fn QRect QAbstractItemView::visualRectForSelection(const QItemSelection &selection) const = 0
+    \fn QRegion QAbstractItemView::visualRegionForSelection(const QItemSelection &selection) const = 0
 
-    Returns the rectangle from the viewport of the items in the given
+    Returns the region from the viewport of the items in the given
     \a selection.
 */
 
@@ -405,7 +405,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
     }
 
     setSelectionModel(new QItemSelectionModel(d->model));
-    setRootIndex(QModelIndex());// triggers layout
+    reset(); // kill editors, set new root and do layout
 }
 
 /*!
@@ -577,8 +577,7 @@ void QAbstractItemView::reset()
     d->editors.clear();
     d->persistent.clear();
     setState(NoState);
-    d->doDelayedItemsLayout();
-    // the view will be updated later
+    setRootIndex(QModelIndex());
 }
 
 /*!
@@ -589,10 +588,8 @@ void QAbstractItemView::reset()
 void QAbstractItemView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QAbstractItemView);
-    QModelIndex old = d->root;
     d->root = index;
-    if (d->model != 0)
-        d->doDelayedItemsLayout();
+    d->doDelayedItemsLayout();
 }
 
 /*!
@@ -820,7 +817,7 @@ void QAbstractItemView::scrollContentsBy(int dx, int dy)
 {
     Q_D(QAbstractItemView);
     d->scrollDelayOffset = QPoint(-dx, -dy);
-    d->updateDirtyRect();
+    d->updateDirtyRegion();
     d->scrollDelayOffset = QPoint(0, 0);
 }
 
@@ -1318,7 +1315,7 @@ void QAbstractItemView::timerEvent(QTimerEvent *e)
     if (e->timerId() == d->autoScrollTimer.timerId())
         doAutoScroll();
     else if (e->timerId() == d->updateTimer.timerId())
-        d->updateDirtyRect();
+        d->updateDirtyRegion();
 }
 
 /*!
@@ -1776,8 +1773,8 @@ void QAbstractItemView::rowsAboutToBeRemoved(const QModelIndex &, int, int)
 void QAbstractItemView::selectionChanged(const QItemSelection &selected,
                                          const QItemSelection &deselected)
 {
-    d_func()->setDirtyRect(visualRectForSelection(deselected));
-    d_func()->setDirtyRect(visualRectForSelection(selected));
+    d_func()->setDirtyRegion(visualRegionForSelection(deselected));
+    d_func()->setDirtyRegion(visualRegionForSelection(selected));
 }
 
 /*!
@@ -1798,8 +1795,8 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
             commitData(editor);
             closeEditor(editor, QAbstractItemDelegate::NoHint);
         }
-        d->setDirtyRect(visualRect(previous));
-        d->updateDirtyRect();
+        d->setDirtyRegion(visualRect(previous));
+        d->updateDirtyRegion();
     }
     if (current.isValid() && !d->autoScrollTimer.isActive()) {
         scrollTo(current);

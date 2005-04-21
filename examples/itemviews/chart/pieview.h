@@ -42,7 +42,7 @@ protected:
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
                            Qt::KeyboardModifiers modifiers);
 
-    QRect visualRectForSelection(const QItemSelection &selection) const;
+    QRegion visualRegionForSelection(const QItemSelection &selection) const;
 
     int horizontalOffset() const;
     int verticalOffset() const;

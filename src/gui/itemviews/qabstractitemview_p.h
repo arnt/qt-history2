@@ -34,6 +34,7 @@ class QRubberBand;
 #include <qmime.h>
 #include <qmap.h>
 #include <qtimer.h>
+#include <qregion.h>
 #include <qdebug.h>
 
 class Q_GUI_EXPORT QAbstractItemViewPrivate : public QAbstractScrollAreaPrivate
@@ -106,16 +107,16 @@ public:
         if (layoutPosted) const_cast<QAbstractItemView*>(q_func())->doItemsLayout();
     }
 
-    inline void setDirtyRect(const QRect &visualRect) {
-        updateRect |= visualRect;
+    inline void setDirtyRegion(const QRegion &visualRegion) {
+        updateRegion += visualRegion;
         if (!updateTimer.isActive())
             updateTimer.start(0, q_func());
     }
 
-    void updateDirtyRect() {
+    void updateDirtyRegion() {
         updateTimer.stop();
-        viewport->update(updateRect);
-        updateRect = QRect();
+        viewport->update(updateRegion);
+        updateRegion = QRegion();
     }
 
     void removeSelectedRows();
@@ -165,7 +166,7 @@ public:
 
     QRubberBand *dropIndicator;
 
-    QRect updateRect; // used for the internal update system
+    QRegion updateRegion; // used for the internal update system
     QBasicTimer updateTimer;
 
     QPoint scrollDelayOffset;

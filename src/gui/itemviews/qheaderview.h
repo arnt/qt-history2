@@ -148,7 +148,7 @@ protected:
 
     QModelIndex moveCursor(CursorAction, Qt::KeyboardModifiers);
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags);
-    QRect visualRectForSelection(const QItemSelection &selection) const;
+    QRegion visualRegionForSelection(const QItemSelection &selection) const;
 
 private:
     Q_DECLARE_PRIVATE(QHeaderView)

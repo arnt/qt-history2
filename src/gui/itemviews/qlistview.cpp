@@ -40,38 +40,31 @@ template <class T>
 void QBinTree<T>::destroy()
 {
     leafVector.clear();
-    nodeVector.resize(0);
-    itemVector.resize(0);
+    nodeVector.clear();
+    itemVector.clear();
 }
 
 template <class T>
 void QBinTree<T>::insert(QVector<int> &leaf, const QRect &, uint, QBinTreeData data)
 {
-    leaf.push_back(data.i);
+    leaf.append(data.i);
 }
 
 template <class T>
 void QBinTree<T>::remove(QVector<int> &leaf, const QRect &, uint, QBinTreeData data)
 {
-    int idx = data.i;
-    for (int i = 0; i < leaf.count(); ++i) {
-        if (leaf[i] == idx) {
-            for (; i < leaf.count() - 1; ++i)
-                leaf[i] = leaf[i + 1];
-            leaf.pop_back();
-            return;
-        }
-    }
+    int i = leaf.indexOf(data.i);
+    if (i != -1)
+        leaf.remove(i);
 }
 
 template <class T>
 void QBinTree<T>::climbTree(const QRect &area, callback *function, QBinTreeData data, int index)
 {
-    int tvs = nodeCount();
-    if (index >= tvs) { // leaf
-        int idx = index - tvs;
-        if (tvs) // tvs == 0 means that leaf is empty
-            function(leaf(idx), area, visited, data);
+    int tvs = nodeCount(); // the number of non-leaf-nodes
+    if (index >= tvs) { // the index points to a leaf
+        if (tvs > 0)
+            function(leaf(index - tvs), area, visited, data);
         return;
     }
 
@@ -529,7 +522,7 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
     QRect area = d->viewport->rect();
     QRect rect = visualRect(index);
     if (hint == EnsureVisible && area.contains(rect)) {
-        d->setDirtyRect(rect);
+        d->setDirtyRegion(rect);
         return;
     }
 
@@ -595,7 +588,7 @@ void QListView::scrollContentsBy(int dx, int dy)
 
     // update the dragged items
     if (!d->draggedItems.isEmpty())
-        d->setDirtyRect(d->draggedItemsRect().translated(dx, dy));
+        d->setDirtyRegion(d->draggedItemsRect().translated(dx, dy));
 }
 
 /*!
@@ -646,7 +639,7 @@ void QListView::mouseMoveEvent(QMouseEvent *e)
         && state() == DragSelectingState && d->selectionMode != SingleSelection) {
         QRect rect(d->pressedPosition, e->pos() + QPoint(horizontalOffset(), verticalOffset()));
         rect = rect.normalized();
-        d->setDirtyRect(d->mapToViewport(rect.unite(d->elasticBand)));
+        d->setDirtyRegion(d->mapToViewport(rect.unite(d->elasticBand)));
         d->elasticBand = rect;
     }
 }
@@ -659,7 +652,7 @@ void QListView::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QListView);
     QAbstractItemView::mouseReleaseEvent(e);
     if (d->elasticBand.isValid()) {
-        d->setDirtyRect(d->mapToViewport(d->elasticBand));
+        d->setDirtyRegion(d->mapToViewport(d->elasticBand));
         d->elasticBand = QRect();
     }
 }
@@ -712,14 +705,11 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
         if (d->canDecode(e)) {
             // get old dragged items rect
             QRect itemsRect = d->itemsRect(d->draggedItems);
-            QRect oldRect = itemsRect;
-            oldRect.translate(d->draggedItemsDelta());
+            d->setDirtyRegion(itemsRect.translated(d->draggedItemsDelta()));
             // update position
             d->draggedItemsPos = e->pos();
             // get new items rect
-            QRect newRect = itemsRect;
-            newRect.translate(d->draggedItemsDelta());
-            d->setDirtyRect(oldRect|newRect);
+            d->setDirtyRegion(itemsRect.translated(d->draggedItemsDelta()));
             // set the item under the cursor to current
             QModelIndex index = indexAt(e->pos());
             // check if we allow drops here
@@ -788,12 +778,12 @@ void QListView::internalDrop(QDropEvent *e)
     for (int i = 0; i < indexes.count(); ++i) {
         QModelIndex index = indexes.at(i);
         QRect rect = rectForIndex(index);
-        d->viewport->update(d->mapToViewport(rect));
+        d->setDirtyRegion(d->mapToViewport(rect));
         QPoint dest = rect.topLeft() + delta;
         if (isRightToLeft())
             dest.setX(d->flipX(dest.x()) - rect.width());
         d->moveItem(index.row(), dest);
-        d->viewport->update(visualRect(index));
+        d->setDirtyRegion(visualRect(index));
     }
     stopAutoScroll();
     d->draggedItems.clear();
@@ -855,10 +845,17 @@ void QListView::paintEvent(QPaintEvent *e)
     QPainter painter(d->viewport);
     QRect area = e->rect();
     painter.fillRect(area, option.palette.base());
-    const QPoint offset = d->scrollDelayOffset;
-    area.translate(horizontalOffset(), verticalOffset());
-    d->intersectingSet(area.translated(offset));
 
+    QVector<QModelIndex> toBeRendered;
+//     QVector<QRect> rects = e->region().rects();
+//     for (int i = 0; i < rects.size(); ++i) {
+//         d->intersectingSet(rects.at(i).translated(horizontalOffset(), verticalOffset()));
+//         toBeRendered += d->intersectVector;
+//     }
+    d->intersectingSet(e->rect().translated(horizontalOffset(), verticalOffset()));
+    toBeRendered = d->intersectVector;
+
+    const QPoint offset = d->scrollDelayOffset;
     const QModelIndex current = currentIndex();
     const QAbstractItemDelegate *delegate = itemDelegate();
     const QItemSelectionModel *selections = selectionModel();
@@ -867,8 +864,8 @@ void QListView::paintEvent(QPaintEvent *e)
     const QColor oddColor = d->oddRowColor();
     const QColor evenColor = d->evenRowColor();
     const QStyle::State state = option.state;
-    QVector<QModelIndex>::iterator it = d->intersectVector.begin();
-    for (; it != d->intersectVector.end(); ++it) {
+    QVector<QModelIndex>::iterator it = toBeRendered.begin();
+    for (; it != toBeRendered.end(); ++it) {
         Q_ASSERT((*it).isValid());
         option.rect = visualRect(*it).translated(offset);
         option.state = state;
@@ -898,7 +895,8 @@ void QListView::paintEvent(QPaintEvent *e)
         opt.init(this);
         opt.shape = QRubberBand::Rectangle;
         opt.opaque = false;
-        opt.rect = d->mapToViewport(d->elasticBand).intersect(d->viewport->rect().adjusted(-16, -16, 16, 16));
+        opt.rect = d->mapToViewport(d->elasticBand).intersect(
+            d->viewport->rect().adjusted(-16, -16, 16, 16));
         painter.save();
         if (style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, this, &mask))
             painter.setClipRegion(mask.region);
@@ -1080,21 +1078,29 @@ void QListView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
 /*!
   \reimp
 */
-QRect QListView::visualRectForSelection(const QItemSelection &selection) const
+QRegion QListView::visualRegionForSelection(const QItemSelection &selection) const
 {
-    QRect selectionRect;
-    for (int i = 0; i<selection.count(); ++i) {
+    Q_D(const QListView);
+    // ### NOTE: this is a potential bottleneck in non-static mode
+    int c = d->column;
+    QRegion selectionRegion;
+    for (int i = 0; i < selection.count(); ++i) {
         if (!selection.at(i).isValid())
             continue;
-        QModelIndex tl = selection.at(i).topLeft();
-        QModelIndex br = selection.at(i).bottomRight();
-        QRect rangeRect;
-        for (int r=tl.row(); r<=br.row(); ++r)
-            for (int c=tl.column(); c<=br.column(); ++c)
-                rangeRect = rangeRect.unite(visualRect(model()->index(r, c, tl.parent())));
-        selectionRect = selectionRect.unite(rangeRect);
+        QModelIndex parent = selection.at(i).topLeft().parent();
+        int t = selection.at(i).topLeft().row();
+        int b = selection.at(i).bottomRight().row();
+        if (d->movement != Static || d->wrap) { // in non-static mode, we have to go through all selected items
+            for (int r = t; r <= b; ++r)
+                selectionRegion += QRegion(visualRect(d->model->index(r, c, parent)));
+        } else { // in static mode, we can optimize a bit
+            QRect rect(visualRect(d->model->index(t, c, parent)).topLeft(),
+                       visualRect(d->model->index(b, c, parent)).bottomRight());
+            selectionRegion += QRegion(rect);
+        }
     }
-    return selectionRect;
+
+    return selectionRegion;
 }
 
 /*!
@@ -1105,10 +1111,9 @@ QModelIndexList QListView::selectedIndexes() const
     Q_D(const QListView);
     QModelIndexList viewSelected;
     QModelIndexList modelSelected = selectionModel()->selectedIndexes();
-    for (int i=0; i<modelSelected.count(); ++i) {
+    for (int i = 0; i < modelSelected.count(); ++i) {
         QModelIndex index = modelSelected.at(i);
-        if (!isIndexHidden(index) && index.parent() == rootIndex()
-            && index.column() == d->column)
+        if (!isIndexHidden(index) && index.parent() == rootIndex() && index.column() == d->column)
             viewSelected.append(index);
     }
     return viewSelected;

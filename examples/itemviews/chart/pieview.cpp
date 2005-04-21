@@ -286,10 +286,10 @@ int PieView::verticalOffset() const
 }
 
 /*
-    Returns a rectangle corresponding to the selection in viewport coordinates.
+    Returns a region corresponding to the selection in viewport coordinates.
 */
 
-QRect PieView::visualRectForSelection(const QItemSelection &selection) const
+QRegion PieView::visualRegionForSelection(const QItemSelection &selection) const
 {
     int ranges = selection.count();
 

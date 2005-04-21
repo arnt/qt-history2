@@ -506,7 +506,7 @@ void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
         return;
     QRect area = d->viewport->rect();
     if (hint == EnsureVisible && area.contains(rect)) {
-        d->setDirtyRect(rect);
+        d->setDirtyRegion(rect);
         return;
     }
 
@@ -560,78 +560,80 @@ void QTreeView::paintEvent(QPaintEvent *e)
     Q_D(QTreeView);
     QStyleOptionViewItem option = viewOptions();
     const QBrush base = option.palette.base();
-    QRect area = e->rect();
-
-    if (d->viewItems.isEmpty() || d->header->count() == 0) {
-        QPainter painter(d->viewport);
-        painter.fillRect(area, base);
-        return;
-    }
-
-    const QPoint offset = d->scrollDelayOffset;
-    area.translate(offset);
-
-    QPainter painter(d->viewport);
-
-    d->left = d->header->visualIndexAt(area.left());
-    d->right = d->header->visualIndexAt(area.right());
-
-    if (isRightToLeft()) {
-        d->left = (d->left == -1 ? d->header->count() - 1 : d->left);
-        d->right = (d->right == -1 ? 0 : d->right);
-    } else {
-        d->left = (d->left == -1 ? 0 : d->left);
-        d->right = (d->right == -1 ? d->header->count() - 1 : d->right);
-    }
-
-    int tmp = d->left;
-    d->left = qMin(d->left, d->right);
-    d->right = qMax(tmp, d->right);
-
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
     const QColor oddColor = d->oddRowColor();
     const QColor evenColor = d->evenRowColor();
-    const int t = area.top();
-    const int b = area.bottom() + 1;
     const int v = verticalScrollBar()->value();
     const int c = d->viewItems.count();
     const QVector<QTreeViewItem> viewItems = d->viewItems;
+    const QPoint offset = d->scrollDelayOffset;
 
-    int i = d->itemAt(v); // first item
-    if (i < 0) // couldn't find the first item
+    QPainter painter(d->viewport);
+    if (c == 0 || d->header->count() == 0) {
+        painter.fillRect(e->rect(), base);
         return;
-    int y = d->topItemDelta(v, d->height(i));
+    }
 
-    while (y < b && i < c) {
-        int h = d->height(i); // actual height
-        if (y + h >= t) { // we are in the update area
-            option.rect.setRect(0, y, 0, h);
-            option.state = state | (viewItems.at(i).expanded ? QStyle::State_Open : QStyle::State_None);
-            if (alternate)
-                option.palette.setColor(QPalette::Base, i & 1 ? oddColor : evenColor);
-            d->current = i;
-            drawRow(&painter, option, viewItems.at(i).index);
+    QVector<QRect> rects = e->region().rects();
+    for (int i = 0; i < rects.size(); ++i) {
+    
+        QRect area = rects.at(i);
+        area.translate(offset);
+
+        const int t = area.top();
+        const int b = area.bottom() + 1;
+
+        d->left = d->header->visualIndexAt(area.left());
+        d->right = d->header->visualIndexAt(area.right());
+
+        if (isRightToLeft()) {
+            d->left = (d->left == -1 ? d->header->count() - 1 : d->left);
+            d->right = (d->right == -1 ? 0 : d->right);
+        } else {
+            d->left = (d->left == -1 ? 0 : d->left);
+            d->right = (d->right == -1 ? d->header->count() - 1 : d->right);
         }
-        y += h;
-        ++i;
-    }
 
-    int w = d->viewport->width();
-    int x = d->header->length();
-    QRect bottom(0, y, w, b - y);
-    if (y < b && area.intersects(bottom))
-        painter.fillRect(bottom, base);
-    if (isRightToLeft()) {
-        QRect right(0, 0, w - x, b);
-        if (x > 0 && area.intersects(right))
-            painter.fillRect(right, base);
-    } else {
-        QRect left(x, 0, w - x, b);
-        if (x < w && area.intersects(left))
-            painter.fillRect(left, base);
-    }
+        int tmp = d->left;
+        d->left = qMin(d->left, d->right);
+        d->right = qMax(tmp, d->right);
 
+        int i = d->itemAt(v); // first item
+        if (i < 0) // couldn't find the first item
+            return;
+        int y = d->topItemDelta(v, d->height(i));
+
+        while (y < b && i < c) {
+            int h = d->height(i); // actual height
+            if (y + h >= t) { // we are in the update area
+                option.rect.setRect(0, y, 0, h);
+                option.state = state | (viewItems.at(i).expanded
+                                        ? QStyle::State_Open : QStyle::State_None);
+                if (alternate)
+                    option.palette.setColor(QPalette::Base, i & 1 ? oddColor : evenColor);
+                d->current = i;
+                drawRow(&painter, option, viewItems.at(i).index);
+            }
+            y += h;
+            ++i;
+        }
+
+        int w = d->viewport->width();
+        int x = d->header->length();
+        QRect bottom(0, y, w, b - y);
+        if (y < b && area.intersects(bottom))
+            painter.fillRect(bottom, base);
+        if (isRightToLeft()) {
+            QRect right(0, 0, w - x, b);
+            if (x > 0 && area.intersects(right))
+                painter.fillRect(right, base);
+        } else {
+            QRect left(x, 0, w - x, b);
+            if (x < w && area.intersects(left))
+                painter.fillRect(left, base);
+        }
+    }
 }
 
 /*!
@@ -955,39 +957,19 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
   Returns the rectangle from the viewport of the items in the given
   \a selection.
 */
-QRect QTreeView::visualRectForSelection(const QItemSelection &selection) const
+QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) const
 {
-    Q_D(const QTreeView);
-    if (selection.isEmpty() || d->viewItems.isEmpty())
-        return QRect();
+    if (selection.isEmpty())
+        return QRegion();
 
-    d->executePostedLayout();
-
-    int top = d->viewItems.count();
-    int left = d->header->count();
-    int bottom = 0;
-    int right = 0;
-    QItemSelectionRange r;
-
+    QRegion selectionRegion;
     for (int i = 0; i < selection.count(); ++i) {
-        r = selection.at(i);
-        top = qMin(d->viewIndex(r.topLeft()), top);
-        bottom = qMax(d->viewIndex(r.bottomRight()), bottom);
-        left = qMin(r.left(), left);
-        right = qMax(r.right(), right);
+        QItemSelectionRange r = selection.at(i);
+        QRect rect(visualRect(r.topLeft()).topLeft(), visualRect(r.bottomRight()).bottomRight());
+        selectionRegion += QRegion(rect);
     }
 
-    QModelIndex tl = d->modelIndex(top);
-    QModelIndex br = d->modelIndex(bottom);
-    if (!(tl.isValid() && br.isValid()))
-        return QRect();
-
-    int bottomHeight = d->height(bottom);
-    int bottomPos = d->coordinate(bottom) + bottomHeight;
-    int topPos = d->coordinate(top);
-
-    QRect rect(0, topPos, d->viewport->width(), bottomPos - topPos); // always the width of a row
-    return rect.normalized();
+    return selectionRegion;
 }
 
 /*!
