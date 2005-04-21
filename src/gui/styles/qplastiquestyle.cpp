@@ -1702,6 +1702,10 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
     QColor alphaCornerColor = qt_plastique_mergedColors(borderColor, option->palette.background().color());
     QColor gradientStartColor = option->palette.button().color().dark(90);
     QColor gradientStopColor = option->palette.button().color().dark(108);
+    QColor highlightedGradientStartColor = option->palette.highlight().color().light(200);
+    QColor highlightedGradientStopColor = option->palette.highlight().color().light(190);
+    QColor highlightedDarkInnerBorderColor = option->palette.highlight().color().light(143);
+    QColor highlightedLightInnerBorderColor = option->palette.highlight().color().light(163);
     
     switch (control) {
     case CC_Slider:
@@ -2200,7 +2204,9 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
     case CC_ComboBox:
         if (const QStyleOptionComboBox *comboBox = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
             painter->save();
-           
+
+            bool focus = (comboBox->state & State_Enabled) && (comboBox->state & State_HasFocus);
+            
             QRect rect = comboBox->rect;
             QRect downArrowRect = subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget);
             if (comboBox->direction == Qt::RightToLeft)
@@ -2209,55 +2215,99 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 downArrowRect.setRect(downArrowRect.right() - 16, downArrowRect.top(), 16, downArrowRect.height());
 
             // Draw a push button
-            QStyleOptionButton buttonOption;
-            buttonOption.rect = rect;
+            const QComboBox *box = qobject_cast<const QComboBox *>(widget);
+            if (box && box->isEditable()) {
+                // Draw a line edit
+                QStyleOptionFrame lineEdit;
+                lineEdit.rect = rect;
+                lineEdit.state = comboBox->state;
+                lineEdit.state |= State_Sunken;
+                drawPrimitive(PE_FrameLineEdit, &lineEdit, painter, widget);
 
-            if (comboBox->state & State_Enabled)
-                buttonOption.state |= State_Enabled;
-            if (comboBox->state & State_MouseOver)
-                buttonOption.state |= State_MouseOver;
+                // Add the button
+                painter->setPen(gradientStartColor);
+                painter->drawLine(downArrowRect.left() + 1, downArrowRect.top() + 1,
+                                  downArrowRect.right() - 1, downArrowRect.top() + 1);
+                painter->setPen(option->palette.button().color().light(91));
+                painter->drawLine(downArrowRect.left() + 1, downArrowRect.bottom() - 1,
+                                  downArrowRect.right() - 1, downArrowRect.bottom() - 1);
+                
+                QLinearGradient gradient(downArrowRect.center().x(), downArrowRect.top(),
+                                         downArrowRect.center().x(), downArrowRect.bottom());
+                if (focus) {
+                    gradient.setColorAt(0, highlightedGradientStartColor);
+                    gradient.setColorAt(1, highlightedGradientStopColor);
+                } else {
+                    gradient.setColorAt(0, gradientStartColor);
+                    gradient.setColorAt(1, gradientStopColor);
+                }
+                painter->fillRect(downArrowRect.adjusted(1, 2, -1, -2), gradient);
+            } else {
+                QStyleOptionButton buttonOption;
+                buttonOption.rect = rect;
+                buttonOption.state = comboBox->state & (State_Enabled | State_MouseOver);
+                drawPrimitive(PE_PanelButtonCommand, &buttonOption, painter, widget);
+            }
+
+            // Outline the button
+            if (focus && box && box->isEditable()) {
+                painter->setPen(option->palette.highlight().color().dark(130));
+                if (comboBox->direction == Qt::RightToLeft) {
+                    painter->drawLine(downArrowRect.right(), downArrowRect.top() + 1,
+                                      downArrowRect.right(), downArrowRect.bottom() - 1);
+                } else {
+                    painter->drawLine(downArrowRect.left(), downArrowRect.top() + 1,
+                                      downArrowRect.left(), downArrowRect.bottom() - 1);
+                    painter->drawLine(downArrowRect.left() + 1, downArrowRect.top() + 1,
+                                      downArrowRect.right() - 1, downArrowRect.top() + 1);
+                }
+                painter->setPen(highlightedDarkInnerBorderColor);
+                if (comboBox->direction == Qt::RightToLeft) {
+                    painter->drawLine(downArrowRect.right() + 1, downArrowRect.top() + 2,
+                                      downArrowRect.right() + 1, downArrowRect.bottom() - 2);
+                } else {
+                    painter->drawLine(downArrowRect.left() - 1, downArrowRect.top() + 2,
+                                      downArrowRect.left() - 1, downArrowRect.bottom() - 2);
+
+                    painter->setPen(option->palette.highlight().color().light(101));
+                    painter->drawLine(downArrowRect.left() + 1, downArrowRect.bottom() - 1,
+                                      downArrowRect.right() - 1, downArrowRect.bottom() - 1);
+                }
+            } else {
+                painter->setPen(borderColor);
+                if (comboBox->direction == Qt::RightToLeft) {
+                    painter->drawLine(downArrowRect.right(), downArrowRect.top() + 1,
+                                      downArrowRect.right(), downArrowRect.bottom() - 1);
+                } else {
+                    painter->drawLine(downArrowRect.left(), downArrowRect.top() + 1,
+                                      downArrowRect.left(), downArrowRect.bottom() - 1);
+                }
+            }
             
-            buttonOption.state = comboBox->state;
-            drawPrimitive(PE_PanelButtonCommand, &buttonOption, painter, widget);
-
-            // Draw the little arrow
-            painter->setPen(borderColor);
+            // Draw the little arrow          
             QImage downArrow(qt_scrollbar_button_arrow_down);
             downArrow.setColor(1, comboBox->palette.text().color().rgba());
-
-            if (comboBox->direction == Qt::RightToLeft) {
-                painter->drawLine(downArrowRect.topRight(), downArrowRect.bottomRight());
-            } else {
-                painter->drawLine(downArrowRect.topLeft(), downArrowRect.bottomLeft());
-            }
-
             painter->drawImage(downArrowRect.center().x() - downArrow.width() / 2,
                                downArrowRect.center().y() - downArrow.height() / 2, downArrow);
-
-            if (widget->hasFocus()) {
-                QStyleOptionFocusRect focus;
-                focus.rect = subControlRect(CC_ComboBox, option, SC_ComboBoxEditField, widget);
-                drawPrimitive(PE_FrameFocusRect, &focus, painter, widget);
-            }
             
             painter->restore();
         }
         break;
         /*
-    case CC_TitleBar:
-        if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
-            painter->save();
-            QRect rect = titleBar->rect;
-            QLinearGradient gradient(rect.center().x(), rect.top(), rect.center().x(), rect.bottom());
-            gradient.setColorAt(0, qt_plastique_mergedColors(titleBar->palette.highlight().color(), Qt::black));
-            gradient.setColorAt(1, qt_plastique_mergedColors(titleBar->palette.highlight().color(), Qt::black).light(110));
-            painter->fillRect(rect.adjusted(0, 0, -1, -1), gradient);
+          case CC_TitleBar:
+          if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
+          painter->save();
+          QRect rect = titleBar->rect;
+          QLinearGradient gradient(rect.center().x(), rect.top(), rect.center().x(), rect.bottom());
+          gradient.setColorAt(0, qt_plastique_mergedColors(titleBar->palette.highlight().color(), Qt::black));
+          gradient.setColorAt(1, qt_plastique_mergedColors(titleBar->palette.highlight().color(), Qt::black).light(110));
+          painter->fillRect(rect.adjusted(0, 0, -1, -1), gradient);
 
-            painter->setPen(titleBar->palette.base().color());
-            painter->drawText(subControlRect(CC_TitleBar, option, SC_TitleBarLabel, widget), titleBar->text);
-            painter->restore();
-        }
-        break;
+          painter->setPen(titleBar->palette.base().color());
+          painter->drawText(subControlRect(CC_TitleBar, option, SC_TitleBarLabel, widget), titleBar->text);
+          painter->restore();
+          }
+          break;
         */
     default:
         QWindowsStyle::drawComplexControl(control, option, painter, widget);
@@ -2315,6 +2365,9 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
     case CT_ToolButton:
         newSize.rwidth() += 3;
         newSize.rheight() += 3;
+        break;
+    case CT_ComboBox:
+        ++newSize.rheight();
         break;
     default:
         break;
@@ -2518,8 +2571,12 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
         }
         break;
     case CC_ComboBox:
-        if (subControl == SC_ComboBoxArrow)
+        if (subControl == SC_ComboBoxArrow) {
             rect = option->rect;
+        } else if (subControl == SC_ComboBoxEditField) {
+            rect.setRect(option->rect.left() + 2, option->rect.top() + 2,
+                         option->rect.width() - 20, option->rect.height() - 4);            
+        }
         break;
     default:
         break;
