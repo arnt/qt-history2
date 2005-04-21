@@ -1688,8 +1688,6 @@ bool QMetaProperty::isWritable() const
 
 
 /*!
-    \fn bool QMetaProperty::isDesignable(const QObject *object) const
-
     Returns true if this property is designable for the given \a object;
     otherwise returns false.
 
@@ -1703,17 +1701,17 @@ bool QMetaProperty::isDesignable(const QObject *obj) const
         return false;
     int flags = mobj->d.data[handle + 2];
     bool b = flags & Designable;
-    void *argv[] = { &b };
-    const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyDesignable,
-                                           idx + mobj->propertyOffset(), argv);
+    if (obj) {
+        void *argv[] = { &b };
+        const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyDesignable,
+                                               idx + mobj->propertyOffset(), argv);
+    }
     return b;
 
 
 }
 
 /*!
-    \fn bool QMetaProperty::isScriptable(const QObject *object) const
-
     Returns true if the property is scriptable for the given \a object;
     otherwise returns false.
 
@@ -1727,15 +1725,15 @@ bool QMetaProperty::isScriptable(const QObject *obj) const
         return false;
     int flags = mobj->d.data[handle + 2];
     bool b = flags & Scriptable;
-    void *argv[] = { &b };
-    const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyScriptable,
-                                           idx + mobj->propertyOffset(), argv);
+    if (obj) {
+        void *argv[] = { &b };
+        const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyScriptable,
+                                               idx + mobj->propertyOffset(), argv);
+    }
     return b;
 }
 
 /*!
-    \fn bool QMetaProperty::isStored(const QObject *object) const
-
     Returns true if the property is stored for \a object; otherwise returns
     false.
 
@@ -1749,15 +1747,15 @@ bool QMetaProperty::isStored(const QObject *obj) const
         return false;
     int flags = mobj->d.data[handle + 2];
     bool b = flags & Stored;
-    void *argv[] = { &b };
-    const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyStored,
-                                           idx + mobj->propertyOffset(), argv);
+    if (obj) {
+        void *argv[] = { &b };
+        const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyStored,
+                                               idx + mobj->propertyOffset(), argv);
+    }
     return b;
 }
 
 /*!
-    \fn bool QMetaProperty::isEditable(const QObject *object) const
-
     Returns true if the property is editable for the given \a object;
     otherwise returns false.
 
@@ -1771,9 +1769,11 @@ bool QMetaProperty::isEditable(const QObject *obj) const
         return false;
     int flags = mobj->d.data[handle + 2];
     bool b = flags & Editable;
-    void *argv[] = { &b };
-    const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyEditable,
-                                           idx + mobj->propertyOffset(), argv);
+    if (obj) {
+        void *argv[] = { &b };
+        const_cast<QObject*>(obj)->qt_metacall(QMetaObject::QueryPropertyEditable,
+                                               idx + mobj->propertyOffset(), argv);
+    }
     return b;
 }
 
