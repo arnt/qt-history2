@@ -21,8 +21,23 @@
 #include <qregexp.h>
 #include <qvector.h>
 #include <qresource.h>
-
 #include <stdlib.h>
+
+static QString driveSpec(const QString &path)
+{
+#ifdef Q_OS_WIN
+    if (path.size() < 2)
+        return QString();
+    char c = path.at(0).toAscii();
+    if (c < 'a' && c > 'z' && c < 'A' && c > 'Z')
+        return QString();
+    if (path.at(1).toAscii() != ':')
+        return QString();
+    return path.mid(0, 2);
+#else
+    return QString();
+#endif
+}
 
 //************* QDirPrivate
 class QDirPrivate
@@ -607,7 +622,7 @@ QString QDir::filePath(const QString &fileName) const
     exists(). Redundant multiple separators or "." and ".."
     directories in \a fileName are not removed (see cleanPath()).
 
-    \sa filePath() canonicalPath()
+    \sa relativeFilePath() filePath() canonicalPath()
 */
 
 QString QDir::absoluteFilePath(const QString &fileName) const
@@ -632,6 +647,64 @@ QString QDir::absoluteFilePath(const QString &fileName) const
         ret += fileName;
     }
     return ret;
+}
+
+/*!
+    Returns the path to \a fileName relative to the directory.
+
+    \code
+    QDir dir("/home/bob");
+    QString s;
+
+    s = dir.relativePath("images/file.jpg");     // s is "images/file.jpg"
+    s = dir.relativePath("/home/mary/file.txt"); // s is "../mary/file.txt"
+    \endcode
+
+    \sa absoluteFilePath() filePath() canonicalPath()
+*/
+
+QString QDir::relativeFilePath(const QString &fileName) const
+{
+    QString dir = absolutePath();
+    QString file = cleanPath(fileName);
+
+    if (isRelativePath(file) || isRelativePath(dir))
+        return convertSeparators(file);
+
+    QString dirDrive = driveSpec(dir);
+    QString fileDrive = driveSpec(file);
+
+    bool fileDriveMissing = false;
+    if (fileDrive.isEmpty()) {
+        fileDrive = dirDrive;
+        fileDriveMissing = true;
+    }
+
+    if (fileDrive != dirDrive)
+        return convertSeparators(file);
+
+    dir.remove(0, dirDrive.size());
+    if (!fileDriveMissing)
+        file.remove(0, fileDrive.size());
+
+    QString result;
+    QStringList dirElts = dir.split(QLatin1Char('/'), QString::SkipEmptyParts);
+    QStringList fileElts = file.split(QLatin1Char('/'), QString::SkipEmptyParts);
+
+    int i = 0;
+    while (i < dirElts.size() && i < fileElts.size() && dirElts.at(i) == fileElts.at(i))
+        ++i;
+
+    for (int j = 0; j < dirElts.size() - i; ++j)
+        result += QLatin1String("../");
+
+    for (int j = i; j < fileElts.size(); ++j) {
+        result += fileElts.at(j);
+        if (j < fileElts.size() - 1)
+            result += QLatin1Char('/');
+    }
+
+    return convertSeparators(result);
 }
 
 /*!

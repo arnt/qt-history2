@@ -96,6 +96,7 @@ public:
     QString dirName() const;
     QString filePath(const QString &fileName) const;
     QString absoluteFilePath(const QString &fileName) const;
+    QString relativeFilePath(const QString &fileName) const;
 
     static QString convertSeparators(const QString &pathName);
 
