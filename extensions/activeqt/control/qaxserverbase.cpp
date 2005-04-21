@@ -940,7 +940,7 @@ public:
 
     HRESULT WINAPI CreateInstanceLic(IUnknown *pUnkOuter, IUnknown *pUnkReserved, REFIID iid, BSTR bKey, PVOID *ppObject)
     {
-        QString licenseKey = QString::fromUtf16(bKey);
+        QString licenseKey = QString::fromUtf16((const ushort *)bKey);
 	if (!qAxFactory()->validateLicenseKey(className, licenseKey))
 	    return CLASS_E_NOTLICENSED;
 	return CreateInstanceHelper(pUnkOuter, iid, ppObject);
@@ -2278,7 +2278,7 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 	if (!cname)
 	    return res;
 
-        name = QString::fromUtf16(bname).toLatin1();
+        name = QString::fromUtf16((const ushort *)bname).toLatin1();
 	SysFreeString(bname);
     }
 
@@ -3080,7 +3080,7 @@ HRESULT WINAPI QAxServerBase::OnAmbientPropertyChange(DISPID dispID)
     case DISPID_AMBIENT_DISPLAYNAME:
 	if (var.vt != VT_BSTR || !isWidget)
 	    break;
-	qt.widget->setWindowTitle(QString::fromUtf16(var.bstrVal));
+	qt.widget->setWindowTitle(QString::fromUtf16((const ushort *)var.bstrVal));
 	break;
     case DISPID_AMBIENT_FONT:
 	if (var.vt != VT_DISPATCH || !isWidget)

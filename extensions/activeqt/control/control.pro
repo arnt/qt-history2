@@ -14,7 +14,7 @@ win32-g++:DEFINES += QT_NEEDS_QMAIN
 win32-borland:DEFINES += QT_NEEDS_QMAIN
 
 LIBS    += -luser32 -lole32 -loleaut32 -lgdi32
-win32-g++ += -luuid
+win32-g++:LIBS += -luuid
 
 !contains( QT_PRODUCT, qt-(enterprise|internal) ) {
     message( "ActiveQt requires a Qt/Enterprise license." )

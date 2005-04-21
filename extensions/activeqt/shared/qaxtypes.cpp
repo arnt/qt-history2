@@ -80,7 +80,7 @@ static QFont IFontToQFont(IFont *f)
     f->get_Strikethrough(&strike);
     f->get_Underline(&underline);
     f->get_Weight(&weight);
-    QFont font(QString::fromUtf16(name), size.Lo/9750, weight / 97, italic);
+    QFont font(QString::fromUtf16((const ushort *)name), size.Lo/9750, weight / 97, italic);
     font.setBold(bold);
     font.setStrikeOut(strike);
     font.setUnderline(underline);
@@ -685,10 +685,10 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
     QVariant var;
     switch(arg.vt) {
     case VT_BSTR:
-        var = QString::fromUtf16(arg.bstrVal);
+        var = QString::fromUtf16((const ushort *)arg.bstrVal);
         break;
     case VT_BSTR|VT_BYREF:
-        var = QString::fromUtf16(*arg.pbstrVal);
+        var = QString::fromUtf16((const ushort *)*arg.pbstrVal);
         break;
     case VT_BOOL:
         var = QVariant((bool)arg.boolVal);
@@ -973,7 +973,7 @@ QVariant VARIANTToQVariant(const VARIANT &arg, const QByteArray &typeName, uint 
             for (long i = lBound; i <= uBound; ++i) {
                 BSTR bstr;
                 SafeArrayGetElement(array, &i, &bstr);
-                strings << QString::fromUtf16(bstr);
+                strings << QString::fromUtf16((const ushort *)bstr);
             }
             
             var = strings;

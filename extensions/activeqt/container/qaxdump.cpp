@@ -33,8 +33,8 @@ QString qax_docuFromName(ITypeInfo *typeInfo, const QString &name)
         BSTR docStringBstr, helpFileBstr;
         ulong helpContext;
         HRESULT hres = typeInfo->GetDocumentation(memId, 0, &docStringBstr, &helpContext, &helpFileBstr);
-        QString docString = QString::fromUtf16(docStringBstr);
-        QString helpFile = QString::fromUtf16(helpFileBstr);
+        QString docString = QString::fromUtf16((const ushort *)docStringBstr);
+        QString helpFile = QString::fromUtf16((const ushort *)helpFileBstr);
         SysFreeString(docStringBstr);
         SysFreeString(helpFileBstr);
         if (hres == S_OK) {

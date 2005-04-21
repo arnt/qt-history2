@@ -175,7 +175,7 @@ EXTERN_C int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR,
     QByteArray cmdParam;
     QT_WA({
         LPTSTR cmdline = GetCommandLineW();
-        cmdParam = QString::fromUtf16(cmdline).toLocal8Bit();
+        cmdParam = QString::fromUtf16((const ushort *)cmdline).toLocal8Bit();
     }, {
         cmdParam = GetCommandLineA();
     });

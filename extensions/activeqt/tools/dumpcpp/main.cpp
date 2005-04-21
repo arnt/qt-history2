@@ -672,7 +672,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
     if (!nameSpace.isEmpty() && !(category & NoDeclaration)) {
         QFile outfile(nameSpace.toLower() + ".h");
 		if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().toLatin1());
+            qWarning("dumpcpp: Could not open output file '%s'", qPrintable(outfile.fileName()));
             return false;
         }
         QTextStream out(&outfile);
@@ -698,7 +698,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
     if (!(category & NoDeclaration)) {
         QFile outfile(outname + ".h");
         if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().toLatin1());
+            qWarning("dumpcpp: Could not open output file '%s'", qPrintable(outfile.fileName()));
             return false;
         }
         QTextStream out(&outfile);
@@ -737,7 +737,7 @@ bool generateClass(QAxObject *object, const QByteArray &className, const QByteAr
     if (!(category & (NoMetaObject|NoImplementation))) {
         QFile outfile(outname + ".cpp");
         if (!outfile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            qWarning("dumpcpp: Could not open output file '%s'", outfile.fileName().toLatin1());
+            qWarning("dumpcpp: Could not open output file '%s'", qPrintable(outfile.fileName()));
             return false;
         }
         QTextStream out(&outfile);
@@ -766,14 +766,14 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     ITypeLib *typelib;
     LoadTypeLibEx(reinterpret_cast<const wchar_t *>(typeLibFile.utf16()), REGKIND_NONE, &typelib);
     if (!typelib) {
-        qWarning("dumpcpp: loading '%s' as a type library failed", typeLibFile.toLatin1());
+        qWarning("dumpcpp: loading '%s' as a type library failed", qPrintable(typeLibFile));
         return false;
     }
 
     QString libName;
     BSTR nameString;
     HRESULT hasDocu = typelib->GetDocumentation(-1, &nameString, 0, 0, 0);
-    libName = QString::fromUtf16(nameString);
+    libName = QString::fromUtf16((const ushort *)nameString);
     SysFreeString(nameString);
 
     QString libVersion("1.0");
@@ -799,7 +799,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
     QTextStream implOut(&implFile);
     if (!(category & (NoMetaObject|NoImplementation))) {
         if (!implFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            qWarning("dumpcpp: Could not open output file '%s'", implFile.fileName().toLatin1());
+            qWarning("dumpcpp: Could not open output file '%s'", qPrintable(implFile.fileName()));
             return false;
         }
 
@@ -830,7 +830,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
     if(!(category & NoDeclaration)) {
         if (!declFile.open(QIODevice::WriteOnly | QIODevice::Text)) {
-            qWarning("dumpcpp: Could not open output file '%s'", declFile.fileName().toLatin1());
+            qWarning("dumpcpp: Could not open output file '%s'", qPrintable(declFile.fileName()));
             return false;
         }
 
