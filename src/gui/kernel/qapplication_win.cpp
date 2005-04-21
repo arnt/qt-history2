@@ -3424,17 +3424,9 @@ bool QETWidget::translateConfigEvent(const MSG &msg)
             txt = windowIconText();
         else
 #endif
-            if (!windowTitle().isNull())
-                txt = windowTitle();
-        if(isWindowModified())
-            txt += " *";
-        if (txt.size()) {
-            QT_WA({
-                    SetWindowText(winId(), (TCHAR*)txt.utf16());
-                } , {
-                      SetWindowTextA(winId(), txt.toLocal8Bit());
-                  });
-        }
+        txt = windowTitle();
+        if (!txt.isEmpty())
+            d_func()->setWindowTitle_helper(txt);
     }
     if (msg.wParam != SIZE_MINIMIZED && oldSize != newSize) {
         if (isVisible()) {
