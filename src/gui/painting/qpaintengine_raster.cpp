@@ -2616,7 +2616,29 @@ void GradientData::initColorTable()
     }
 }
 
-
+/**
+ * Initialzes the xincr and yincr delta values that is used to interpolate the Linear Gradient
+ * 
+ * The deltas are found by projecting the gradientline down to a horizontal (xincr) or vertical (yincr)
+ * line that covers the whole gradient (from 0 to 1.0).
+ * Given that the gradient line is d, the transformed normal vector is n, we use this formula to
+ * find the length of the side in the triangle is supposed to interpolate over the gradient:
+ * _     _                _             _
+ * d + a*n = [l,0],       where d = [dx, dy], n = [nx, ny], l is the length of the line
+ *
+ * rearranging, we get the length of line like this:
+ *
+ * l = dx - dy*nx/ny;  =>  xincr = 1.0/l
+ *
+ * We calculate yincr similarly:
+ * l = dy - dx*ny/nx;  =>  yincr = 1.0/l
+ *
+ *
+ * We then find the length of that line, and divides the length of the gradient (1.0) by the length
+ * of the line (in pixels)
+ *
+ *
+ */
 void LinearGradientData::init()
 {
     qreal x1 = origin.x();
@@ -2651,13 +2673,15 @@ void LinearGradientData::init()
 
     qreal nx = n.dx();
     qreal ny = n.dy();
-    qreal b = dx - dy*nx/ny;
+
+    // Find the length of the projection
+    qreal l = dx - dy*nx/ny;
 
     // qDebug() << "b: " << b << "dx: " << dx << "dy: " << dy << "nx: " << nx;
-    xincr = 1.0/b;
+    xincr = 1.0/l;
 
-    b = dy - dx*ny/nx;
-    yincr = 1.0/b;
+    l = dy - dx*ny/nx;
+    yincr = 1.0/l;
 
     // qDebug() << "inc: " << xincr << "," << yincr;
 
