@@ -716,8 +716,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
          \o Set if the menu item is down
          (i.e., if the mouse button or the space bar is pressed)
     \row \o \l State_HasFocus \o Set if the menubar has input focus
-    \row \o{1,6} \l CE_PushButton, \l CE_PushButtonLabel
-         \o{1,6} \l QStyleOptionButton
+    \row \o{1,5} \l CE_PushButton, \l CE_PushButtonLabel
+         \o{1,5} \l QStyleOptionButton
          \o \l State_Enabled \o Set if the button is enabled
     \row \o \l State_HasFocus \o Set if the button has input focus
     \row \o \l State_Raised \o Set if the button is not down, not on and not flat
