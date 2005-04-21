@@ -36,6 +36,7 @@ public:
 
 private:
     Q3MainWindow *m_mainWindow;
+    QList<QWidget*> m_widgets;
 };
 
 class Q3MainWindowContainerFactory: public QExtensionFactory

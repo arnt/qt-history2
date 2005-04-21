@@ -93,15 +93,12 @@ QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *
 
 bool QDesignerFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget)
 {
-    if (QFormBuilder::addItem(ui_widget, widget, parentWidget))
-        return true;
-
     if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(m_core->extensionManager(), parentWidget)) {
         container->addWidget(widget);
         return true;
     }
 
-    return false;
+    return QFormBuilder::addItem(ui_widget, widget, parentWidget);
 }
 
 bool QDesignerFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout)

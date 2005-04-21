@@ -27,7 +27,7 @@ Q3MainWindowContainer::Q3MainWindowContainer(Q3MainWindow *widget, QObject *pare
 
 int Q3MainWindowContainer::count() const
 {
-    return m_mainWindow->centralWidget() ? 1 : 0;
+    return m_widgets.count();
 }
 
 QWidget *Q3MainWindowContainer::widget(int index) const
@@ -35,7 +35,7 @@ QWidget *Q3MainWindowContainer::widget(int index) const
     if (index == -1)
         return 0;
 
-    return m_mainWindow->centralWidget();
+    return m_widgets.at(index);
 }
 
 int Q3MainWindowContainer::currentIndex() const
@@ -51,30 +51,29 @@ void Q3MainWindowContainer::setCurrentIndex(int index)
 void Q3MainWindowContainer::addWidget(QWidget *widget)
 {
     if (qobject_cast<QToolBar*>(widget)) {
-        // ### add the toolbar
+        m_widgets.append(widget);
     } else if (qobject_cast<QMenuBar*>(widget)) {
         (void) m_mainWindow->menuBar();
+        m_widgets.append(widget);
     } else if (qobject_cast<QStatusBar*>(widget)) {
         (void) m_mainWindow->statusBar();
+        m_widgets.append(widget);
     } else {
         Q_ASSERT(m_mainWindow->centralWidget() == 0);
         widget->setParent(m_mainWindow);
         m_mainWindow->setCentralWidget(widget);
+        m_widgets.prepend(widget);
     }
 }
 
 void Q3MainWindowContainer::insertWidget(int index, QWidget *widget)
 {
-    Q_UNUSED(index);
-    Q_ASSERT(m_mainWindow->centralWidget() == 0);
-
-    addWidget(widget);
+    m_widgets.insert(index, widget);
 }
 
 void Q3MainWindowContainer::remove(int index)
 {
-    Q_UNUSED(index);
-    Q_ASSERT(0);
+    m_widgets.removeAt(index);
 }
 
 Q3MainWindowContainerFactory::Q3MainWindowContainerFactory(QExtensionManager *parent)
