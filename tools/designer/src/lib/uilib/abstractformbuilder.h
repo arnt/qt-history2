@@ -78,6 +78,7 @@ protected:
 
     virtual QAction *create(DomAction *ui_action, QObject *parent);
     virtual QActionGroup *create(DomActionGroup *ui_action_group, QObject *parent);
+    virtual void addMenuAction(QAction *action);
 
     virtual void applyProperties(QObject *o, const QList<DomProperty*> &properties);
     virtual void applyTabStops(QWidget *widget, DomTabStops *tabStops);

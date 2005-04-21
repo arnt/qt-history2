@@ -82,6 +82,7 @@ protected:
 
     virtual QAction *create(DomAction *ui_action, QObject *parent);
     virtual QActionGroup *create(DomActionGroup *ui_action_group, QObject *parent);
+    virtual void addMenuAction(QAction *action);
 
     virtual DomAction *createDom(QAction *action);
     virtual DomActionGroup *createDom(QActionGroup *actionGroup);

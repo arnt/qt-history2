@@ -158,6 +158,23 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
             foreach (QAction *a, g->actions()) {
                 w->addAction(a);
             }
+        } else if (QMenu *menu = qFindChild<QMenu*>(w, name)) {
+            QMenu *parentMenu = qobject_cast<QMenu*>(w);
+            QMenuBar *parentMenuBar = qobject_cast<QMenuBar*>(w);
+
+            menu->setParent(w, Qt::Popup);
+
+            QAction *menuAction = 0;
+
+            if (parentMenuBar)
+                menuAction = parentMenuBar->addMenu(menu);
+            else if (parentMenu)
+                menuAction = parentMenu->addMenu(menu);
+
+            if (menuAction) {
+                menuAction->setObjectName(menu->objectName() + QLatin1String("Action"));
+                addMenuAction(menuAction);
+            }
         }
     }
 
@@ -226,6 +243,7 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
         return true;
     }
 
+#if 0 // ### remove me
     if (QMenu *menu = qobject_cast<QMenu*>(widget)){
         QMenuBar *parentMenuBar = qobject_cast<QMenuBar*>(parentWidget);
         QMenu *parentMenu = qobject_cast<QMenu*>(parentWidget);
@@ -243,6 +261,7 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
             return true;
         }
     }
+#endif
 
     return false;
 }
@@ -787,8 +806,13 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
 
 DomActionRef *QAbstractFormBuilder::createActionRefDom(QAction *action)
 {
+    QString name = action->objectName();
+
+    if (action->menu() != 0 && name.endsWith(QLatin1String("Action")))
+        name = name.left(name.count() - 6);
+
     DomActionRef *ui_action_ref = new DomActionRef();
-    ui_action_ref->setAttributeName(action->objectName());
+    ui_action_ref->setAttributeName(name);
     return ui_action_ref;
 }
 
@@ -1512,6 +1536,9 @@ QString QAbstractFormBuilder::relativeToDir(const QString &_dir, const QString &
 
 DomAction *QAbstractFormBuilder::createDom(QAction *action)
 {
+    if (action->parentWidget() == action->menu())
+        return 0;
+
     DomAction *ui_action = new DomAction;
     ui_action->setAttributeName(action->objectName());
 
@@ -1542,5 +1569,9 @@ DomActionGroup *QAbstractFormBuilder::createDom(QActionGroup *actionGroup)
     return ui_action_group;
 }
 
+void QAbstractFormBuilder::addMenuAction(QAction *action)
+{
+    Q_UNUSED(action);
+}
 
 #include "abstractformbuilder.moc"

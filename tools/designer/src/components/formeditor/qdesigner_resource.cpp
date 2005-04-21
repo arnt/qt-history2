@@ -1070,8 +1070,6 @@ DomAction *QDesignerResource::createDom(QAction *action)
         return QAbstractFormBuilder::createDom(action);
     }
 
-    qDebug() << "unknown action:" << action;
-
     return 0;
 }
 
@@ -1080,8 +1078,6 @@ DomActionGroup *QDesignerResource::createDom(QActionGroup *actionGroup)
     if (core()->metaDataBase()->item(actionGroup) != 0) {
         return QAbstractFormBuilder::createDom(actionGroup);
     }
-
-    qDebug() << "unknown action group:" << actionGroup;
 
     return 0;
 }
@@ -1112,5 +1108,10 @@ DomActionRef *QDesignerResource::createActionRefDom(QAction *action)
         return QAbstractFormBuilder::createActionRefDom(action);
 
     return 0;
+}
+
+void QDesignerResource::addMenuAction(QAction *action)
+{
+    core()->metaDataBase()->add(action);
 }
 
