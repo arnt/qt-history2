@@ -85,6 +85,7 @@ protected:
 
     virtual DomAction *createDom(QAction *action);
     virtual DomActionGroup *createDom(QActionGroup *actionGroup);
+    virtual DomActionRef *createActionRefDom(QAction *action);
 
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath);
     virtual QString iconToFilePath(const QIcon &pm) const;
@@ -105,8 +106,8 @@ protected:
     DomWidget *saveWidget(QDesignerToolBox *widget, DomWidget *ui_parentWidget);
     DomWidget *saveWidget(QWidget *widget, QDesignerContainerExtension *container, DomWidget *ui_parentWidget);
 
-    DomCustomWidgets *saveCustomWidgets();
-    DomTabStops *saveTabStops();
+    virtual DomCustomWidgets *saveCustomWidgets();
+    virtual DomTabStops *saveTabStops();
     virtual QString saveAuthor();
     virtual QString saveComment();
     virtual DomResources *saveResources();

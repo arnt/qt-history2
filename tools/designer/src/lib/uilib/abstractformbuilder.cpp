@@ -764,15 +764,32 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
         }
     }
 
+    // add-action
+    QList<DomActionRef*> ui_action_refs;
+    foreach (QAction *action, widget->actions()) {
+        if (DomActionRef *ui_action_ref = createActionRefDom(action)) {
+            ui_action_refs.append(ui_action_ref);
+        }
+    }
+
     if (recursive)
         ui_widget->setElementWidget(ui_widgets);
 
     ui_widget->setElementAction(ui_actions);
     ui_widget->setElementActionGroup(ui_action_groups);
+    ui_widget->setElementAddAction(ui_action_refs);
 
     saveExtraInfo(widget, ui_widget, ui_parentWidget);
 
     return ui_widget;
+}
+
+
+DomActionRef *QAbstractFormBuilder::createActionRefDom(QAction *action)
+{
+    DomActionRef *ui_action_ref = new DomActionRef();
+    ui_action_ref->setAttributeName(action->objectName());
+    return ui_action_ref;
 }
 
 DomLayout *QAbstractFormBuilder::createDom(QLayout *layout, DomLayout *ui_layout, DomWidget *ui_parentWidget)

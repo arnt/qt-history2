@@ -103,6 +103,8 @@ protected:
 
     virtual void saveDom(DomUI *ui, QWidget *widget);
 
+    virtual DomActionRef *createActionRefDom(QAction *action);
+
     virtual DomWidget *createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive = true);
     virtual DomLayout *createDom(QLayout *layout, DomLayout *ui_layout, DomWidget *ui_parentWidget);
     virtual DomLayoutItem *createDom(QLayoutItem *item, DomLayout *ui_parentLayout, DomWidget *ui_parentWidget);
