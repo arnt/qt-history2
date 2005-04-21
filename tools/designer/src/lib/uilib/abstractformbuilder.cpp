@@ -682,12 +682,32 @@ void QAbstractFormBuilder::save(QIODevice *dev, QWidget *widget)
 void QAbstractFormBuilder::saveDom(DomUI *ui, QWidget *widget)
 {
     ui->setElementClass(widget->objectName());
-    ui->setElementConnections(saveConnections());
-    ui->setElementCustomWidgets(saveCustomWidgets());
-    ui->setElementTabStops(saveTabStops());
-    ui->setElementAuthor(saveAuthor());
-    ui->setElementComment(saveComment());
-    ui->setElementResources(saveResources());
+
+    if (DomConnections *ui_connections = saveConnections()) {
+        ui->setElementConnections(ui_connections);
+    }
+
+    if (DomCustomWidgets *ui_customWidgets = saveCustomWidgets()) {
+        ui->setElementCustomWidgets(ui_customWidgets);
+    }
+
+    if (DomTabStops *ui_tabStops = saveTabStops()) {
+        ui->setElementTabStops(ui_tabStops);
+    }
+
+    QString author = saveAuthor();
+    if (!author.isEmpty()) {
+        ui->setElementAuthor(author);
+    }
+
+    QString comment = saveComment();
+    if (!comment.isEmpty()) {
+        ui->setElementComment(comment);
+    }
+
+    if (DomResources *ui_resources = saveResources()) {
+        ui->setElementResources(ui_resources);
+    }
 }
 
 DomConnections *QAbstractFormBuilder::saveConnections()

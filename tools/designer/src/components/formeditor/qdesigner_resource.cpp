@@ -978,12 +978,15 @@ DomCustomWidgets *QDesignerResource::saveCustomWidgets()
     foreach (QDesignerWidgetDataBaseItemInterface *item, m_usedCustomWidgets.keys()) {
         DomCustomWidget *custom_widget = new DomCustomWidget;
         custom_widget->setElementClass(item->name());
-        custom_widget->setElementContainer(item->isContainer());
+        if (item->isContainer())
+            custom_widget->setElementContainer(item->isContainer());
 
-        DomHeader *header = new DomHeader;
-        header->setText(item->includeFile());
-        custom_widget->setElementHeader(header);
-        custom_widget->setElementExtends(item->extends());
+        if (!item->includeFile().isEmpty()) {
+            DomHeader *header = new DomHeader;
+            header->setText(item->includeFile());
+            custom_widget->setElementHeader(header);
+            custom_widget->setElementExtends(item->extends());
+        }
 
         custom_widget_list.append(custom_widget);
     }
