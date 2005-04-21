@@ -82,6 +82,7 @@ struct LinearGradientData : public GradientData
     BlendLinearGradient blendFunc;
 
     QPainter::CompositionMode compositionMode;
+    QMatrix brushMatrix;
 };
 
 struct RadialGradientData : public GradientData

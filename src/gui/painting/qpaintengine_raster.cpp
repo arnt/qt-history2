@@ -1687,9 +1687,11 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
         linearGradientData->stopPoints = gradientStopPoints(brush.gradient());
         linearGradientData->stopColors = gradientStopColors(brush.gradient());
         linearGradientData->origin =
-            static_cast<const QLinearGradient *>(brush.gradient())->start() * brushMatrix;
+            static_cast<const QLinearGradient *>(brush.gradient())->start();// * brushMatrix;
         linearGradientData->end =
-            static_cast<const QLinearGradient *>(brush.gradient())->finalStop() * brushMatrix;
+            static_cast<const QLinearGradient *>(brush.gradient())->finalStop();// * brushMatrix;
+
+        linearGradientData->brushMatrix = brushMatrix;
         linearGradientData->alphaColor = !brush.isOpaque();
         linearGradientData->init();
         linearGradientData->initColorTable();
@@ -2629,17 +2631,39 @@ void LinearGradientData::init()
         qDebug(" - %d, pos=%f, color=%x", i, stopPoints[i], stopColors[i]);
     }
 #endif
+    
+    // Calculate the normalvector and transform it.
+    QLineF n = brushMatrix.map(QLineF(x1, y1, x2, y2).normalVector() );
+
+    origin = brushMatrix.map(origin);
+    end = brushMatrix.map(end);
+
+    x1 = origin.x();
+    y1 = origin.y();
+    x2 = end.x();
+    y2 = end.y();
 
     qreal dx = x2 - x1;
     qreal dy = y2 - y1;
-    qreal len = sqrt(dx * dx + dy * dy);
 
-    dx /= (len * len);
-    dy /= (len * len);
+    // qDebug() << "(" << x1 << "," << y1 << ")";
+    // qDebug() << "(" << x2 << "," << y2 << ")";
 
-    xincr = dx;
-    yincr = dy;
+    qreal nx = n.dx();
+    qreal ny = n.dy();
+    qreal b = dx - dy*nx/ny;
+
+    // qDebug() << "b: " << b << "dx: " << dx << "dy: " << dy << "nx: " << nx;
+    xincr = 1.0/b;
+
+    b = dy - dx*ny/nx;
+    yincr = 1.0/b;
+
+    // qDebug() << "inc: " << xincr << "," << yincr;
+
 }
+
+
 
 #ifdef Q_WS_WIN
 static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
