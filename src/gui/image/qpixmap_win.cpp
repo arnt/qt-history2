@@ -61,7 +61,7 @@ QPixmap QPixmap::grabWindow(WId winId, int x, int y, int w, int h )
 }
 
 
-HBITMAP QPixmap::toWinHBITMAP() const
+HBITMAP QPixmap::toWinHBITMAP(HBitmapFormat format) const
 {
     int w = data->image.width();
     int h = data->image.height();
@@ -92,7 +92,10 @@ HBITMAP QPixmap::toWinHBITMAP() const
     }
 
     // Copy over the data
-    const QImage image = data->image.depth() == 32 ? data->image : data->image.convertDepth(32);
+    QImage::Format imageFormat = format == NoAlpha
+                                 ? QImage::Format_RGB32
+                                 : QImage::Format_ARGB32_Premultiplied;
+    const QImage image = data->image.convertToFormat(imageFormat);
     int bytes_per_line = w * 4;
     for (int y=0; y<h; ++y)
         memcpy(pixels + y * bytes_per_line, image.scanLine(y), bytes_per_line);
@@ -101,7 +104,7 @@ HBITMAP QPixmap::toWinHBITMAP() const
 }
 
 
-QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap)
+QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap, HBitmapFormat format)
 {
     // Verify size
     BITMAP bitmap_info;
@@ -127,14 +130,22 @@ QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap)
     // Get bitmap bits
     uchar *data = (uchar *) qMalloc(bmi.bmiHeader.biSizeImage);
     if (GetDIBits(qt_win_display_dc(), hbitmap, 0, h, data, &bmi, DIB_RGB_COLORS)) {
+
+        QImage::Format imageFormat = QImage::Format_ARGB32_Premultiplied;
+        uint mask = 0;
+        if (format == NoAlpha) {
+            imageFormat = QImage::Format_RGB32;
+            mask = 0xff000000;
+        }
+
         // Create image and copy data into image.
-        QImage image(w, h, 32);
+        QImage image(w, h, imageFormat);
         int bytes_per_line = w * sizeof(QRgb);
         for (int y=0; y<h; ++y) {
             QRgb *dest = (QRgb *) image.scanLine(y);
             const QRgb *src = (const QRgb *) (data + y * bytes_per_line);
             for (int x=0; x<w; ++x) {
-                dest[x] = src[x] | 0xff000000;
+                dest[x] = src[x] | mask;
             }
         }
         result = image;

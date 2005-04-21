@@ -103,8 +103,13 @@ public:
 #endif
 
 #if defined(Q_WS_WIN)
-    HBITMAP toWinHBITMAP() const;
-    static QPixmap fromWinHBITMAP(HBITMAP hbitmap);
+    enum HBitmapFormat {
+        NoAlpha,
+        PremultipliedAlpha
+    };
+
+    HBITMAP toWinHBITMAP(HBitmapFormat format = NoAlpha) const;
+    static QPixmap fromWinHBITMAP(HBITMAP hbitmap, HBitmapFormat format = NoAlpha);
 #endif
 
     inline QPixmap copy(int x, int y, int width, int height) const;
