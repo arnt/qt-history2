@@ -168,7 +168,6 @@ public:
     QTableWidgetItem *item(int row, int column) const;
     void setItem(int row, int column, QTableWidgetItem *item);
     QTableWidgetItem *takeItem(int row, int column);
-    void removeItem(QTableWidgetItem *item);
 
     QTableWidgetItem *verticalHeaderItem(int row) const;
     void setVerticalHeaderItem(int row, QTableWidgetItem *item);

@@ -37,7 +37,6 @@ public:
     bool removeColumns(int column, int count = 1, const QModelIndex &parent = QModelIndex());
 
     void setItem(int row, int column, QTableWidgetItem *item);
-    void setItem(const QModelIndex &index, QTableWidgetItem *item);
     QTableWidgetItem *takeItem(int row, int column);
     QTableWidgetItem *item(int row, int column) const;
     QTableWidgetItem *item(const QModelIndex &index) const;
@@ -148,7 +147,20 @@ bool QTableModel::removeRows(int row, int count, const QModelIndex &)
         beginRemoveRows(QModelIndex(), row, row + count - 1);
         int i = tableIndex(row, 0);
         int n = count * columnCount();
+        QTableWidgetItem *oldItem = 0;
+        for (int j=i; j<n+i; ++j) {
+            oldItem = table.at(j);
+            if (oldItem)
+                oldItem->model = 0;
+            delete oldItem;
+        }
         table.remove(qMax(i, 0), n);
+        for (int v=row; v<row+count; ++v) {
+            oldItem = vertical.at(v);
+            if (oldItem)
+                oldItem->model = 0;
+            delete oldItem;
+        }
         vertical.remove(row, count);
         endRemoveRows();
         return true;
@@ -160,8 +172,23 @@ bool QTableModel::removeColumns(int column, int count, const QModelIndex &)
 {
     if (column >= 0 && column < horizontal.count()) {
         beginRemoveColumns(QModelIndex(), column, column + count - 1);
-        for (int row = rowCount() - 1; row >= 0; --row)
-            table.remove(tableIndex(row, column), count);
+        QTableWidgetItem *oldItem = 0;
+        for (int row = rowCount() - 1; row >= 0; --row) {
+            int i = tableIndex(row, column);
+            for (int j=i; j<i+count; ++j) {
+                oldItem = table.at(j);
+                if (oldItem)
+                    oldItem->model = 0;
+                delete oldItem;
+            }
+            table.remove(i, count);
+        }
+        for (int h=column; h<column+count; ++h) {
+            oldItem = horizontal.at(h);
+            if (oldItem)
+                oldItem->model = 0;
+            delete oldItem;
+        }
         horizontal.remove(column, count);
         endRemoveColumns();
         return true;
@@ -171,19 +198,24 @@ bool QTableModel::removeColumns(int column, int count, const QModelIndex &)
 
 void QTableModel::setItem(int row, int column, QTableWidgetItem *item)
 {
-    item->model = this;
     int i = tableIndex(row, column);
-    if (i >= 0 && i < table.count())
-        table[i] = item;
-}
-
-void QTableModel::setItem(const QModelIndex &index, QTableWidgetItem *item)
-{
-    if (!isValid(index))
+    if (i < 0 || i >= table.count())
         return;
-    long i = tableIndex(index.row(), index.column());
+    QTableWidgetItem *oldItem = table.at(i);
+    if (item == oldItem)
+        return;
+
+    // remove old
+    if (oldItem)
+        oldItem->model = 0;
     delete table.at(i);
+
+    // set new
+    if (item)
+        item->model = this;
     table[i] = item;
+    QModelIndex idx = index(row, column);
+    emit dataChanged(idx, idx);
 }
 
 QTableWidgetItem *QTableModel::takeItem(int row, int column)
@@ -236,17 +268,38 @@ void QTableModel::removeItem(QTableWidgetItem *item)
 
 void QTableModel::setHorizontalHeaderItem(int section, QTableWidgetItem *item)
 {
-    Q_ASSERT(item);
-    item->model = this;
-    vertical[section] = item;
-}
+    if (section < 0 || section >= horizontal.count())
+        return;
+    QTableWidgetItem *oldItem = horizontal.at(section);
+    if (item == oldItem)
+        return;
 
+    if (oldItem)
+        oldItem->model = 0;
+    delete oldItem;
+
+    if (item)
+        item->model = this;
+    horizontal[section] = item;
+    emit headerDataChanged(Qt::Horizontal, section, section);
+}
 
 void QTableModel::setVerticalHeaderItem(int section, QTableWidgetItem *item)
 {
-    Q_ASSERT(item);
-    item->model = this;
-    horizontal[section] = item;
+    if (section < 0 || section >= vertical.count())
+        return;
+    QTableWidgetItem *oldItem = vertical.at(section);
+    if (item == oldItem)
+        return;
+
+    if (oldItem)
+        oldItem->model = 0;
+    delete oldItem;
+
+    if (item)
+        item->model = this;
+    vertical[section] = item;
+    emit headerDataChanged(Qt::Vertical, section, section);
 }
 
 QTableWidgetItem *QTableModel::horizontalHeaderItem(int section)
@@ -1209,16 +1262,6 @@ QTableWidgetItem *QTableWidget::takeItem(int row, int column)
 }
 
 /*!
-  Removes item \a item from the table.
-*/
-void QTableWidget::removeItem(QTableWidgetItem *item)
-{
-    Q_ASSERT(item);
-    Q_D(QTableWidget);
-    d->model()->removeItem(item);
-}
-
-/*!
   Returns the vertical header item for row \a row.
 */
 QTableWidgetItem *QTableWidget::verticalHeaderItem(int row) const
@@ -1234,7 +1277,7 @@ void QTableWidget::setVerticalHeaderItem(int row, QTableWidgetItem *item)
 {
     Q_D(QTableWidget);
     item->view = this;
-    d->model()->setHorizontalHeaderItem(row, item);
+    d->model()->setVerticalHeaderItem(row, item);
 }
 
 /*!
@@ -1253,7 +1296,7 @@ void QTableWidget::setHorizontalHeaderItem(int column, QTableWidgetItem *item)
 {
     Q_D(QTableWidget);
     item->view = this;
-    d->model()->setVerticalHeaderItem(column, item);
+    d->model()->setHorizontalHeaderItem(column, item);
 }
 
 /*!
