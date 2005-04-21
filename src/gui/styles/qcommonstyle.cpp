@@ -3061,6 +3061,14 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = opt->direction;
         break;
 
+    case SH_ItemView_EllipsesLocation:
+        ret = Qt::AlignTrailing;
+        break;
+
+    case SH_ItemView_SelectEntireRow:
+        ret = false;
+        break;
+
     default:
         ret = 0;
         break;

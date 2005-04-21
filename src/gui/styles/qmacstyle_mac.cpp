@@ -4933,7 +4933,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
                          QStyleHintReturn *hret) const
 {
     SInt32 ret = 0;
-    switch(sh) {
+    switch (sh) {
     case SH_TitleBar_AutoRaise:
         ret = true;
         break;
@@ -5066,6 +5066,12 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         break;
     case SH_ComboBox_LayoutDirection:
         ret = Qt::LeftToRight;
+        break;
+    case SH_ItemView_EllipsesLocation:
+        ret = Qt::AlignHCenter;
+        break;
+    case SH_ItemView_SelectEntireRow:
+        ret = true;
         break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);

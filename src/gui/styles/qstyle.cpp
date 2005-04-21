@@ -1454,6 +1454,12 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
      By default it should be the same value as the QStyleOption's
      \c{direction}.
 
+    \value SH_ItemView_EllipsesLocation The location where ellipses should be
+    added for item text that is too long to fit in an view item.
+
+    \value SH_ItemView_SelectWholeRow Allows the whole row row to be selected,
+    including the area behind the item.
+
      \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()
@@ -1463,10 +1469,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \fn int QStyle::styleHint(StyleHint hint, const QStyleOption *option, \
                               const QWidget *widget, QStyleHintReturn *returnData) const
 
-    Returns the style hint \a hint for \a widget described in the
-    QStyleOption \a option. Currently \a returnData and \a widget are
-    not used; they are provided for future enhancement. The \a option
-    parameter is used only in SH_ComboBox_Popup and SH_GroupBox_TextLabelColor.
+    Returns the style hint \a hint for \a widget described in the QStyleOption
+    \a option. Currently \a returnData and \a widget are not used; they are
+    provided for future enhancement. The \a option parameter is used only in
+    SH_ComboBox_Popup, SH_ComboBox_LayoutDirection, and
+    SH_GroupBox_TextLabelColor.
 
     For an explanation of the return value, see \l StyleHint.
 */

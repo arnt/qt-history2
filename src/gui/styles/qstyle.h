@@ -534,6 +534,8 @@ public:
         SH_SpinControls_DisableOnBounds,
         SH_Dial_BackgroundRole,
         SH_ComboBox_LayoutDirection,
+        SH_ItemView_EllipsesLocation,
+        SH_ItemView_SelectEntireRow,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT
