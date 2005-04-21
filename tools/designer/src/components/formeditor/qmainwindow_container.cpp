@@ -20,6 +20,8 @@
 #include <QtGui/QToolBar>
 #include <QtGui/QStatusBar>
 
+using namespace qdesigner::components::formeditor;
+
 QMainWindowContainer::QMainWindowContainer(QMainWindow *widget, QObject *parent)
     : QObject(parent),
       m_mainWindow(widget)
