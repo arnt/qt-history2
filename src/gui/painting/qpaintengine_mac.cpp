@@ -1037,6 +1037,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
         }
         d->setClip(0);  //clear the context's clipping
     }
+    d->saved = new QMacSavedPortInfo;     //save the gworld now, we'll reset it in end()
 
     setActive(true);
 
@@ -1083,6 +1084,8 @@ QCoreGraphicsPaintEngine::end()
         CGShadingRelease(d->shading);
         d->shading = 0;
     }
+    delete d->saved;
+    d->saved = 0;
     d->pdev = 0;
     if(d->hd) {
         CGContextSynchronize(d->hd);
