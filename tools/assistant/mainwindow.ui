@@ -115,6 +115,7 @@
         <addaction name="actionHelpWhatsThis" />
       </widget>
       <addaction name="fileMenu" />
+      <addaction name="viewMenu" />
       <addaction name="editMenu" />
       <addaction name="PopupMenu" />
       <addaction name="goMenu" />
