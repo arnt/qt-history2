@@ -681,6 +681,18 @@ inline void QRectF::translate(const QPointF &p)
     yp += p.y();
 }
 
+inline void QRectF::moveTo(qreal x, qreal y)
+{
+    xp = x;
+    yp = y;
+}
+
+inline void QRectF::moveTo(const QPointF &p)
+{
+    xp = p.x();
+    yp = p.y();
+}
+
 inline QRectF QRectF::translated(qreal dx, qreal dy) const
 { return QRectF(xp + dx, yp + dy, w, h); }
 
