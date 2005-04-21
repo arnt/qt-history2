@@ -588,16 +588,61 @@ void QTableView::setSelection(const QRect &rect, QItemSelectionModel::SelectionF
 */
 QRegion QTableView::visualRegionForSelection(const QItemSelection &selection) const
 {
+    Q_D(const QTableView);
+
     if (selection.isEmpty())
         return QRegion();
 
     QRegion selectionRegion;
-    for (int i = 0; i < selection.count(); ++i) {
-        QItemSelectionRange r = selection.at(i);
-        if (r.parent() != rootIndex() || !r.isValid())
-            continue;
-        QRect rect(visualRect(r.topLeft()).topLeft(), visualRect(r.bottomRight()).bottomRight());
-        selectionRegion += QRegion(rect);
+    bool verticalMoved = verticalHeader()->sectionsMoved();
+    bool horizontalMoved = horizontalHeader()->sectionsMoved();
+
+    if (verticalMoved && horizontalMoved) {
+        for (int i = 0; i < selection.count(); ++i) {
+            QItemSelectionRange range = selection.at(i);
+            if (range.parent() != rootIndex() || !range.isValid())
+                continue; 
+            for (int r = range.top(); r <= range.bottom(); ++r)
+                for (int c = range.left(); c <= range.right(); ++c)
+                    selectionRegion += QRegion(visualRect(d->model->index(r, c, rootIndex())));
+        }
+    } else if (horizontalMoved) {
+        for (int i = 0; i < selection.count(); ++i) {
+            QItemSelectionRange range = selection.at(i);
+            if (range.parent() != rootIndex() || !range.isValid())
+                continue;
+            int top = rowViewportPosition(range.top());
+            int bottom = rowViewportPosition(range.bottom()) + rowHeight(range.bottom());
+            if (top > bottom)
+                qSwap<int>(top, bottom);
+            int height = bottom - top;
+            for (int c = range.left(); c <= range.right(); ++c)
+                selectionRegion += QRegion(QRect(columnViewportPosition(c), top,
+                                                 columnWidth(c), height));
+        }
+    } else if (verticalMoved) {
+        for (int i = 0; i < selection.count(); ++i) {            
+            QItemSelectionRange range = selection.at(i);
+            if (range.parent() != rootIndex() || !range.isValid())
+                continue;
+            int left = columnViewportPosition(range.left());
+            int right = columnViewportPosition(range.right()) + columnWidth(range.right());
+            if (left > right)
+                qSwap<int>(left, right);
+            int width = right - left;
+            for (int r = range.top(); r <= range.bottom(); ++r)
+                selectionRegion += QRegion(QRect(left, rowViewportPosition(r),
+                                                 width, rowHeight(r)));
+        }
+    } else { // nothing moved
+        for (int i = 0; i < selection.count(); ++i) {
+            QItemSelectionRange range = selection.at(i);
+            if (range.parent() != rootIndex() || !range.isValid())
+                continue;
+            QPoint tl = visualRect(range.topLeft()).topLeft();
+            QPoint br = visualRect(range.bottomRight()).bottomRight();
+            selectionRegion += QRegion(QRect(tl, br));
+        }
     }
 
     return selectionRegion;

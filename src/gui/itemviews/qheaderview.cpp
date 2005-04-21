@@ -863,13 +863,20 @@ void QHeaderView::setStretchLastSection(bool stretch)
     d->stretchLastSection = stretch;
 }
 
-/*!
-    \internal
-*/
 void QHeaderView::doItemsLayout()
 {
     initializeSections();
     QAbstractItemView::doItemsLayout();
+}
+
+/*!
+  Returns true if sections in the header has been moved;
+  otherwise returns false;
+*/
+bool QHeaderView::sectionsMoved() const
+{
+    Q_D(const QHeaderView);
+    return !d->visualIndices.isEmpty();
 }
 
 /*!
@@ -983,7 +990,7 @@ void QHeaderView::resizeSections()
 void QHeaderView::sectionsInserted(const QModelIndex &parent, int logicalFirst, int)
 {
     Q_D(QHeaderView);
-    if (parent != rootIndex())
+    if (parent != rootIndex() || !d->model)
         return; // we only handle changes in the top level
     if (d->orientation == Qt::Horizontal)
         initializeSections(logicalFirst, d->model->columnCount(rootIndex()) - 1);
@@ -1002,7 +1009,7 @@ void QHeaderView::sectionsAboutToBeRemoved(const QModelIndex &parent,
                                            int logicalFirst, int logicalLast)
 {
     Q_D(QHeaderView);
-    if (parent != rootIndex())
+    if (parent != rootIndex() || !d->model)
         return; // we only handle changes in the top level
     // the sections have not been removed from the model yet
     int count = logicalLast - logicalFirst + 1;
@@ -1387,7 +1394,8 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
 void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
 {
     Q_D(const QHeaderView);
-
+    if (!d->model)
+        return;
     // get the state of the section
     QStyleOptionHeader opt = d->getStyleOption();
     QStyle::State state = QStyle::State_None;
@@ -1451,6 +1459,8 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
 QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
 {
     Q_D(const QHeaderView);
+    if (!d->model)
+        return QSize();
     QSize size(100, 30);
     QStyleOptionHeader opt = d->getStyleOption();
     QFont fnt = font();
@@ -1469,7 +1479,6 @@ QSize QHeaderView::sectionSizeFromContents(int logicalIndex) const
         else
             size.rheight() += size.width() + margin;
     }
-
     return size;
 }
 
@@ -1620,6 +1629,8 @@ void QHeaderView::setSelection(const QRect&, QItemSelectionModel::SelectionFlags
 QRegion QHeaderView::visualRegionForSelection(const QItemSelection &selection) const
 {
     Q_D(const QHeaderView);
+    if (!d->model)
+        return QRegion();
     if (orientation() == Qt::Horizontal) {
         int left = d->model->columnCount(rootIndex()) - 1;
         int right = 0;

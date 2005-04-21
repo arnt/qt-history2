@@ -304,8 +304,16 @@ void QItemSelection::select(const QModelIndex &topLeft, const QModelIndex &botto
         qWarning("Can't select indexes from different model or with different parents");
         return;
     }
-    if (topLeft.row() > bottomRight.row() || topLeft.column() > bottomRight.column())
-        qWarning("topLeft and bottomRight are swapped!");
+    if (topLeft.row() > bottomRight.row() || topLeft.column() > bottomRight.column()) {
+        int top = qMin(topLeft.row(), bottomRight.row());
+        int bottom = qMax(topLeft.row(), bottomRight.row());
+        int left = qMin(topLeft.column(), bottomRight.column());
+        int right = qMax(topLeft.column(), bottomRight.column());
+        QModelIndex tl = topLeft.sibling(top, left);
+        QModelIndex br = bottomRight.sibling(bottom, right);
+        append(QItemSelectionRange(tl, br));
+        return;
+    }
     append(QItemSelectionRange(topLeft, bottomRight));
 }
 

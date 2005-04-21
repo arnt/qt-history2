@@ -963,10 +963,24 @@ QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) con
         return QRegion();
 
     QRegion selectionRegion;
-    for (int i = 0; i < selection.count(); ++i) {
-        QItemSelectionRange r = selection.at(i);
-        QRect rect(visualRect(r.topLeft()).topLeft(), visualRect(r.bottomRight()).bottomRight());
-        selectionRegion += QRegion(rect);
+    if (header()->sectionsMoved()) {
+        for (int i = 0; i < selection.count(); ++i) {
+            QItemSelectionRange range = selection.at(i);
+            int top = visualRect(range.topLeft()).top();
+            int bottom = visualRect(range.bottomRight()).bottom();
+            if (top > bottom)
+                qSwap<int>(top, bottom);
+            int height = bottom - top;
+            for (int c = range.left(); c <= range.right(); ++c)
+                selectionRegion += QRegion(QRect(columnViewportPosition(c), top,
+                                                 columnWidth(c), height));
+        }
+    } else {
+        for (int i = 0; i < selection.count(); ++i) {
+            QItemSelectionRange range = selection.at(i);
+            selectionRegion += QRegion(QRect(visualRect(range.topLeft()).topLeft(),
+                                             visualRect(range.bottomRight()).bottomRight()));
+        }
     }
 
     return selectionRegion;

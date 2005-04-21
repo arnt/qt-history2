@@ -94,6 +94,7 @@ public:
     void setStretchLastSection(bool stretch);
 
     void doItemsLayout();
+    bool sectionsMoved() const;
 
 public slots:
     void setOffset(int offset);
