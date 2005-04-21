@@ -1061,9 +1061,10 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             }
 
             // draw check mark when on
-            if (button->state & State_On) {
-                QImage image((button->state & State_Sunken) ? qt_plastique_check_sunken : qt_plastique_check);
-                if ((button->state & State_Sunken)) {
+            if ((button->state & (State_On | State_NoChange))) {
+                QImage image((button->state & (State_NoChange | State_Sunken)
+                              ? qt_plastique_check_sunken : qt_plastique_check));
+                if ((button->state & (State_Sunken | State_NoChange))) {
                     image.setColor(0, alphaLightTextColor.rgba());
                     image.setColor(1, alphaLightTextColor.light(130).rgba());
                     image.setColor(2, alphaLightTextColor.light(110).rgba());
