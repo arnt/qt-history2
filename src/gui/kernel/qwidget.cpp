@@ -959,6 +959,7 @@ void QWidgetPrivate::createExtra()
         extra = new QWExtra;
         extra->minw = extra->minh = 0;
         extra->maxw = extra->maxh = QWIDGETSIZE_MAX;
+        extra->explicitMinSize = 0;
 #ifndef QT_NO_CURSOR
         extra->curs = 0;
 #endif
@@ -2316,6 +2317,8 @@ void QWidget::setMinimumSize(int minw, int minh)
         return;
     d->extra->minw = minw;
     d->extra->minh = minh;
+    d->extra->explicitMinSize = (minw ? Qt::Horizontal : 0) | (minh ? Qt::Vertical : 0);
+
     if (minw > width() || minh > height()) {
         bool resized = testAttribute(Qt::WA_Resized);
         bool maximized = isMaximized();
@@ -2452,12 +2455,20 @@ void QWidget::setFixedSize(int w, int h)
 
 void QWidget::setMinimumWidth(int w)
 {
+    Q_D(QWidget);
+    d->createExtra();
+    uint expl = d->extra->explicitMinSize | (w ? Qt::Horizontal : 0);
     setMinimumSize(w, minimumSize().height());
+    d->extra->explicitMinSize = expl;
 }
 
 void QWidget::setMinimumHeight(int h)
 {
+    Q_D(QWidget);
+    d->createExtra();
+    uint expl = d->extra->explicitMinSize | (h ? Qt::Vertical : 0);
     setMinimumSize(minimumSize().width(), h);
+    d->extra->explicitMinSize = expl;
 }
 
 void QWidget::setMaximumWidth(int w)
@@ -2479,8 +2490,12 @@ void QWidget::setMaximumHeight(int h)
 
 void QWidget::setFixedWidth(int w)
 {
+    Q_D(QWidget);
+    d->createExtra();
+    uint expl = d->extra->explicitMinSize | Qt::Horizontal;
     setMinimumSize(w, minimumSize().height());
     setMaximumSize(w, maximumSize().height());
+    d->extra->explicitMinSize = expl;
 }
 
 
@@ -2493,8 +2508,12 @@ void QWidget::setFixedWidth(int w)
 
 void QWidget::setFixedHeight(int h)
 {
+    Q_D(QWidget);
+    d->createExtra();
+    uint expl = d->extra->explicitMinSize | Qt::Vertical;
     setMinimumSize(minimumSize().width(), h);
     setMaximumSize(maximumSize().width(), h);
+    d->extra->explicitMinSize = expl;
 }
 
 

@@ -923,6 +923,9 @@ bool QLayout::activate()
     activateRecursiveHelper(this);
     d->doResize(mw->size());
 
+    QWidgetPrivate *md = mw->d_func();
+    uint explMin = md->extra ? md->extra->explicitMinSize : 0;
+
     switch (d->constraint) {
     case SetFixedSize:
         // will trigger resize
@@ -940,11 +943,21 @@ bool QLayout::activate()
         break;
     case SetDefaultConstraint:
         if (mw->isWindow()) {
+            bool widthSet = explMin & Qt::Horizontal;
+            bool heightSet = explMin & Qt::Vertical;
             QSize ms = totalMinimumSize();
-            if (hasHeightForWidth()) {
+            if (widthSet)
+                ms.setWidth(mw->minimumSize().width());
+            if (heightSet)
+                ms.setHeight(mw->minimumSize().height());
+            if ((!heightSet || !widthSet) && hasHeightForWidth()) {
                 int h = minimumHeightForWidth(ms.width());
-                if (h > ms.height())
-                    ms = QSize(0, 0);
+                if (h > ms.height()) {
+                    if (!heightSet)
+                        ms.setHeight(0);
+                    if (!widthSet)
+                        ms.setWidth(0);
+                }
             }
             mw->setMinimumSize(ms);
         }
@@ -952,7 +965,8 @@ bool QLayout::activate()
     case SetNoConstraint:
         break;
     }
-
+    if (md->extra)
+        md->extra->explicitMinSize = explMin;
     // ideally only if sizeHint() or sizePolicy() has changed
     mw->updateGeometry();
     return true;

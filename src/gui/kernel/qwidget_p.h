@@ -115,9 +115,6 @@ struct QTLWExtra {
     QRect normalGeometry; // used by showMin/maximized/FullScreen
 };
 
-
-// dear user: you can see this struct, but it is internal. do not touch.
-
 struct QWExtra {
     qint32 minw, minh; // minimum size
     qint32 maxw, maxh; // maximum size
@@ -128,18 +125,25 @@ struct QWExtra {
     QTLWExtra *topextra; // only useful for TLWs
 #if defined(Q_WS_WIN)
     QOleDropTarget *dropTarget; // drop target
-    uint shown_mode : 8; // widget show mode
 #endif
 #if defined(Q_WS_X11)
     WId xDndProxy; // XDND forwarding to embedded windows
-    uint children_use_dnd : 1;
-    uint compress_events : 1;
 #endif
     QRegion mask; // widget mask
 #ifndef QT_NO_STYLE
     QStyle* style;
 #endif
     QSizePolicy size_policy;
+
+//bit flags at the end to improve packing
+#if defined(Q_WS_WIN)
+    uint shown_mode : 8; // widget show mode
+#endif
+#if defined(Q_WS_X11)
+    uint children_use_dnd : 1;
+    uint compress_events : 1;
+#endif
+    uint explicitMinSize : 2;
 };
 
 class Q_GUI_EXPORT QWidgetPrivate : public QObjectPrivate
