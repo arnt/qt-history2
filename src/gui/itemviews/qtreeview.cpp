@@ -576,9 +576,9 @@ void QTreeView::paintEvent(QPaintEvent *e)
     }
 
     QVector<QRect> rects = e->region().rects();
-    for (int i = 0; i < rects.size(); ++i) {
+    for (int ii = 0; ii < rects.size(); ++ii) {
     
-        QRect area = rects.at(i);
+        QRect area = rects.at(ii);
         area.translate(offset);
 
         const int t = area.top();
