@@ -1721,7 +1721,11 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             }
 
             // Text, ripped from windows style
-            painter->setPen(menuItem->palette.text().color());
+            if (selected) {
+                painter->setPen(menuItem->palette.highlightedText().color());
+            } else {
+                painter->setPen(menuItem->palette.text().color());
+            }
             const QStyleOptionMenuItem *menuitem = menuItem;
             const QStyleOption *opt = option;
             QPainter *p = painter;
