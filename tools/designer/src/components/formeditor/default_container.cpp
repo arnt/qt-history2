@@ -16,7 +16,6 @@
 #include "qdesigner_tabwidget.h"
 #include "qdesigner_toolbox.h"
 
-#include <QtGui/QMainWindow>
 #include <QtGui/QDockWidget>
 
 using namespace qdesigner::components::formeditor;
@@ -39,8 +38,6 @@ int QDesignerContainer::count() const
         return tabWidget->count();
     } else if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(m_widget)) {
         return toolBox->count();
-    } else if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(m_widget)) {
-        return mainWindow->centralWidget() ? 1 : 0;
     } else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(m_widget)) {
         return dockWidget->widget() ? 1 : 0;
     }
@@ -57,8 +54,6 @@ QWidget *QDesignerContainer::widget(int index) const
         return tabWidget->widget(index);
     else if (QDesignerToolBox *toolBox = qobject_cast<QDesignerToolBox*>(m_widget))
         return toolBox->widget(index);
-    else if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(m_widget))
-        return mainWindow->centralWidget();
     else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(m_widget))
         return dockWidget->widget();
 
@@ -74,11 +69,8 @@ int QDesignerContainer::currentIndex() const
         return static_cast<QDesignerTabWidget*>(m_widget)->currentIndex();
     else if (qobject_cast<QDesignerToolBox*>(m_widget))
         return static_cast<QDesignerToolBox*>(m_widget)->currentIndex();
-    else if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(m_widget)) {
-        return mainWindow->centralWidget() ? 0 : -1;
-    } else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(m_widget)) {
+    else if (QDockWidget *dockWidget = qobject_cast<QDockWidget*>(m_widget))
         return dockWidget->widget() ? 0 : -1;
-    }
 
     Q_ASSERT(0);
     return -1;
@@ -92,9 +84,7 @@ void QDesignerContainer::setCurrentIndex(int index)
         static_cast<QDesignerTabWidget*>(m_widget)->setCurrentIndex(index);
     else if (qobject_cast<QDesignerToolBox*>(m_widget))
         static_cast<QDesignerToolBox*>(m_widget)->setCurrentIndex(index);
-    else if (qobject_cast<QMainWindow*>(m_widget)) {
-        /* ignore */
-    } else if (qobject_cast<QDockWidget*>(m_widget)) {
+    else if (qobject_cast<QDockWidget*>(m_widget)) {
         /* ignore */
     } else
         Q_ASSERT(0);
@@ -111,9 +101,7 @@ void QDesignerContainer::addWidget(QWidget *widget)
         static_cast<QDesignerTabWidget*>(m_widget)->addTab(widget, QString::fromUtf8("Page"));
     else if (qobject_cast<QDesignerToolBox*>(m_widget))
         static_cast<QDesignerToolBox*>(m_widget)->addItem(widget, QString::fromUtf8("Page"));
-    else if (qobject_cast<QMainWindow*>(m_widget)) {
-        static_cast<QMainWindow*>(m_widget)->setCentralWidget(widget);
-    } else if (qobject_cast<QDockWidget*>(m_widget)) {
+    else if (qobject_cast<QDockWidget*>(m_widget)) {
         static_cast<QDockWidget*>(m_widget)->setWidget(widget);
     } else
         Q_ASSERT(0);
@@ -130,9 +118,7 @@ void QDesignerContainer::insertWidget(int index, QWidget *widget)
         static_cast<QDesignerTabWidget*>(m_widget)->insertTab(index, widget, QString::fromUtf8("Page"));
     else if (qobject_cast<QDesignerToolBox*>(m_widget))
         static_cast<QDesignerToolBox*>(m_widget)->insertItem(index, widget, QString::fromUtf8("Page"));
-    else if (qobject_cast<QMainWindow*>(m_widget)) {
-        Q_ASSERT(0);
-    } else if (qobject_cast<QDockWidget*>(m_widget)) {
+    else if (qobject_cast<QDockWidget*>(m_widget)) {
         Q_ASSERT(0);
     } else
         Q_ASSERT(0);
@@ -146,10 +132,7 @@ void QDesignerContainer::remove(int index)
         static_cast<QDesignerTabWidget*>(m_widget)->removeTab(index);
     else if (qobject_cast<QDesignerToolBox*>(m_widget))
         static_cast<QDesignerToolBox*>(m_widget)->removeItem(index);
-    else if (qobject_cast<QMainWindow*>(m_widget)) {
-        /* ignore */
-        Q_ASSERT(0);
-    } else if (qobject_cast<QDockWidget*>(m_widget)) {
+    else if (qobject_cast<QDockWidget*>(m_widget)) {
         /* ignore */
         Q_ASSERT(0);
     } else
@@ -167,7 +150,6 @@ QObject *QDesignerContainerFactory::createExtension(QObject *object, const QStri
         && (qobject_cast<QDesignerStackedWidget*>(object)
                 || qobject_cast<QDesignerTabWidget*>(object)
                 || qobject_cast<QDesignerToolBox*>(object)
-                || qobject_cast<QMainWindow*>(object)
                 || qobject_cast<QDockWidget*>(object)))
                 return new QDesignerContainer(static_cast<QWidget*>(object), parent);
 

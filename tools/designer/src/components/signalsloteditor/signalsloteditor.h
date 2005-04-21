@@ -38,7 +38,6 @@ class QT_SIGNALSLOTEDITOR_EXPORT SignalSlotEditor : public ConnectionEdit
 
 public:
     SignalSlotEditor(QDesignerFormWindowInterface *form_window, QWidget *parent);
-    static void registerExtensions(QDesignerFormEditorInterface *core);
 
     virtual void setSignal(SignalSlotConnection *con, const QString &member);
     virtual void setSlot(SignalSlotConnection *con, const QString &member);

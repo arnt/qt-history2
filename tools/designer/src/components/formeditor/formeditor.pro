@@ -12,11 +12,7 @@ INCLUDEPATH += ../../lib/sdk \
     ../../lib/shared \
     ../../lib/uilib \
     ../../lib/extension \
-    ../propertyeditor \
-    ../signalsloteditor \
-    ../buddyeditor \
-    $$QT_BUILD_TREE/tools/designer/src/lib \
-    ../../lib
+    $$QT_BUILD_TREE/tools/designer/src/lib        ## ??
 
 PRECOMPILED_HEADER=formeditor_pch.h
 HEADERS += \
@@ -33,6 +29,7 @@ HEADERS += \
            spacer_propertysheet.h \
            line_propertysheet.h \
            default_container.h \
+           qmainwindow_container.h \
            default_layoutdecoration.h \
            iconcache.h \
            tool_widgeteditor.h
@@ -49,6 +46,7 @@ SOURCES += \
            qlayoutwidget_propertysheet.cpp \
            spacer_propertysheet.cpp \
            line_propertysheet.cpp \
+           qmainwindow_container.cpp \
            default_container.cpp \
            default_layoutdecoration.cpp \
            tool_widgeteditor.cpp \

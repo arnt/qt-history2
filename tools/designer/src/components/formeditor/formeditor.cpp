@@ -16,6 +16,7 @@
 #include "widgetdatabase.h"
 #include "widgetfactory.h"
 #include "formwindowmanager.h"
+#include "qmainwindow_container.h"
 #include "default_container.h"
 #include "default_layoutdecoration.h"
 #include "qlayoutwidget_propertysheet.h"
@@ -23,10 +24,11 @@
 #include "line_propertysheet.h"
 #include "iconcache.h"
 
-#include <signalsloteditor.h>
-
-#include <pluginmanager.h>
+// sdk
 #include <QtDesigner/qextensionmanager.h>
+
+// shared
+#include <pluginmanager.h>
 #include <qdesigner_taskmenu.h>
 #include <qdesigner_propertysheet.h>
 #include <qdesigner_promotedwidget.h>
@@ -53,18 +55,20 @@ FormEditor::FormEditor(QObject *parent)
 
     QExtensionManager *mgr = new QExtensionManager(this);
 
-    mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new QDesignerContainerFactory(mgr),             Q_TYPEID(QDesignerContainerExtension));
+    mgr->registerExtensions(new QMainWindowContainerFactory(mgr),           Q_TYPEID(QDesignerContainerExtension));
+
     mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(QDesignerLayoutDecorationExtension));
+
+    mgr->registerExtensions(new QDesignerPropertySheetFactory(mgr),         Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new QLayoutWidgetPropertySheetFactory(mgr),     Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new SpacerPropertySheetFactory(mgr),            Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new LinePropertySheetFactory(mgr),              Q_TYPEID(QDesignerPropertySheetExtension));
     mgr->registerExtensions(new PromotedWidgetPropertySheetFactory(mgr),    Q_TYPEID(QDesignerPropertySheetExtension));
+
     mgr->registerExtensions(new QDesignerTaskMenuFactory(mgr),              Q_TYPEID(QDesignerTaskMenuExtension));
 
     setExtensionManager(mgr);
-
-    qdesigner::components::signalsloteditor::SignalSlotEditor::registerExtensions(this);
 
     // load the plugins
     widgetDatabase->loadPlugins();

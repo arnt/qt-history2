@@ -608,6 +608,10 @@ SignalSlotEditor::SignalSlotEditor(QDesignerFormWindowInterface *form_window, QW
 {
     m_form_window = form_window;
     m_model = new ConnectionModel(this, this);
+
+    QDesignerFormEditorInterface *core = form_window->core();
+    QDesignerMemberSheetFactory *factory = new QDesignerMemberSheetFactory(core->extensionManager());
+    core->extensionManager()->registerExtensions(factory, Q_TYPEID(QDesignerMemberSheetExtension));
 }
 
 QAbstractItemModel *SignalSlotEditor::model() const
@@ -647,13 +651,6 @@ Connection *SignalSlotEditor::createConnection(QWidget *source, QWidget *destina
     delete dialog;
 
     return con;
-}
-
-void SignalSlotEditor::registerExtensions(QDesignerFormEditorInterface *core)
-{
-    QDesignerMemberSheetFactory *factory
-        = new QDesignerMemberSheetFactory(core->extensionManager());
-    core->extensionManager()->registerExtensions(factory, Q_TYPEID(QDesignerMemberSheetExtension));
 }
 
 DomConnections *SignalSlotEditor::toUi() const

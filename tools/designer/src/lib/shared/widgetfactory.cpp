@@ -20,6 +20,10 @@
 #include "qdesigner_stackedbox.h"
 #include "qdesigner_promotedwidget.h"
 #include "abstractformwindow.h"
+
+// shared
+#include "layoutinfo.h"
+#include "spacer_widget.h"
 #include "layout.h"
 
 // sdk
@@ -29,8 +33,6 @@
 #include <QtDesigner/abstractwidgetdatabase.h>
 #include <QtDesigner/abstractmetadatabase.h>
 #include <QtDesigner/abstractformeditor.h>
-#include <layoutinfo.h>
-#include <spacer_widget.h>
 #include <QtDesigner/customwidget.h>
 
 #include <QtGui/QtGui>
@@ -86,10 +88,10 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         w = new QDesignerStackedWidget(parentWidget);
     } else if (widgetName == QLatin1String("QToolBox")) {
         w = new QDesignerToolBox(parentWidget);
-    } else if (widgetName == QLatin1String("QLayoutWidget")) {
-        w = fw ? new QLayoutWidget(fw, parentWidget) : new QWidget(parentWidget);
     } else if (widgetName == QLatin1String("Spacer")) {
         w = new Spacer(parentWidget);
+    } else if (widgetName == QLatin1String("QLayoutWidget")) {
+        w = fw ? new QLayoutWidget(fw, parentWidget) : new QWidget(parentWidget);
     } else if (widgetName == QLatin1String("QDialog")) {
         if (fw) {
              w = new QDesignerDialog(fw, parentWidget);

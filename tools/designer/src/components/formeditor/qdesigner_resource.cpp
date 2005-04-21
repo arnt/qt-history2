@@ -42,16 +42,16 @@
 #include <QtDesigner/abstractformwindowtool.h>
 #include <QtDesigner/ui4.h>
 
-#include <QtGui/QMainWindow>
 #include <QtGui/QMessageBox>
 #include <QtGui/QLayout>
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolBox>
 #include <QtGui/QTabBar>
-#include <QtXml/QDomDocument>
 #include <QtCore/QDir>
-
 #include <QtCore/qdebug.h>
+
+#include <QtXml/QDomDocument>
+
 
 using namespace qdesigner::components::formeditor;
 

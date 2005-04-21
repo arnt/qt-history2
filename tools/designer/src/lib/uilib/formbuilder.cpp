@@ -55,8 +55,6 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
 
     if (widgetName == QLatin1String("Line"))
         w = new QFrame(parentWidget);
-    else if (widgetName == QLatin1String("QToolBar"))
-        w = new QToolBar(qobject_cast<QMainWindow*>(parentWidget));
 
 #define DECLARE_LAYOUT(L, C)
 #define DECLARE_COMPAT_WIDGET(W, C) /*DECLARE_WIDGET(W, C)*/

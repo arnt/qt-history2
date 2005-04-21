@@ -37,7 +37,6 @@
 #include <QtGui/QToolBox>
 #include <QtGui/QStackedWidget>
 #include <QtGui/QTabWidget>
-#include <QtGui/QMainWindow>
 #include <QtGui/QToolBar>
 #include <QtGui/QMenuBar>
 
@@ -223,19 +222,6 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
     if (QToolBox *toolBox = qobject_cast<QToolBox*>(parentWidget)) {
         toolBox->addItem(widget, label);
         return true;
-    }
-
-    if (QMainWindow *mainWindow = qobject_cast<QMainWindow*>(parentWidget)) {
-        if (QToolBar *tb = qobject_cast<QToolBar*>(widget)) {
-            mainWindow->addToolBar(tb);
-            return true;
-        } else if (QMenuBar *mb = qobject_cast<QMenuBar*>(widget)) {
-            mainWindow->setMenuBar(mb);
-            return true;
-        } else if (QStatusBar *sb = qobject_cast<QStatusBar*>(widget)) {
-            mainWindow->setStatusBar(sb);
-            return true;
-        }
     }
 
     if (QMenu *menu = qobject_cast<QMenu*>(widget)){
