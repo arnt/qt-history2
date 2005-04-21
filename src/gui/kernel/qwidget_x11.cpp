@@ -998,8 +998,8 @@ qstring_to_xtp(const QString& s)
     return &tp;
 }
 
-void QWidgetPrivate::setWindowTitle_sys(const QString &caption);
-
+void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
+{
     Q_Q(QWidget);
     XSetWMName(X11->display, q->winId(), qstring_to_xtp(caption));
 
