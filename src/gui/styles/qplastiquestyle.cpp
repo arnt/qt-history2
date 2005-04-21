@@ -32,6 +32,17 @@
 #include <qradiobutton.h>
 #include <qstyleoption.h>
 
+// from windows style
+static const int windowsItemFrame        =  2; // menu item frame width
+static const int windowsSepHeight        =  2; // separator item height
+static const int windowsItemHMargin      =  3; // menu item hor text margin
+static const int windowsItemVMargin      =  2; // menu item ver text margin
+static const int windowsArrowHMargin	 =  6; // arrow horizontal margin
+static const int windowsTabSpacing	 = 12; // space between text and tab
+static const int windowsCheckMarkHMargin =  2; // horiz. margins of check mark
+static const int windowsRightBorder      = 15; // right border on windows
+static const int windowsCheckMarkWidth   = 12; // checkmarks width on windows
+
 // checkbox, on
 static const char * const qt_plastique_check[] = {
     "9 9 3 1",
@@ -1159,6 +1170,11 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
     alphaCornerColor.setGreen((alphaCornerColor.green() + borderColor.green()) / 2);
     alphaCornerColor.setBlue((alphaCornerColor.blue() + borderColor.blue()) / 2);
 
+    QColor alphaTextColor = option->palette.background().color();
+    alphaTextColor.setRed((alphaTextColor.red() + option->palette.text().color().red()) / 2);
+    alphaTextColor.setGreen((alphaTextColor.green() + option->palette.text().color().green()) / 2);
+    alphaTextColor.setBlue((alphaTextColor.blue() + option->palette.text().color().blue()) / 2);
+    
     QColor gradientStartColor = option->palette.button().color().dark(90);
     QColor gradientStopColor = option->palette.button().color().dark(108);
 
@@ -1649,6 +1665,133 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         break;
     case CE_HeaderSection:
         qt_plastique_drawShadedPanel(painter, option);
+        break;
+    case CE_MenuItem:
+        if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
+            painter->save();
+
+            if (menuItem->menuItemType == QStyleOptionMenuItem::Separator) {
+                painter->setPen(alphaCornerColor);
+                painter->drawLine(menuItem->rect.left() + 5, menuItem->rect.top(),
+                                  menuItem->rect.right() - 5, menuItem->rect.top());
+                                  
+                painter->restore();
+                break;
+            }
+            
+            bool selected = menuItem->state & State_Selected;
+            if (selected) {
+                QLinearGradient gradient(menuItem->rect.center().x(), menuItem->rect.top(),
+                                         menuItem->rect.center().x(), menuItem->rect.bottom());
+                gradient.setColorAt(0, option->palette.highlight().color().light(105));
+                gradient.setColorAt(1, option->palette.highlight().color().dark(110));
+                painter->fillRect(menuItem->rect, gradient);
+
+                painter->setPen(option->palette.highlight().color().light(110));
+                painter->drawLine(option->rect.topLeft(), option->rect.topRight());
+                painter->setPen(option->palette.highlight().color().dark(115));
+                painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
+            } else {
+                painter->fillRect(option->rect, option->palette.background().color().light(103));
+            }
+
+            bool checkable = menuItem->checkType != QStyleOptionMenuItem::NotCheckable;
+            bool checked = menuItem->checked;
+            bool enabled = menuItem->state & State_Enabled;
+
+            // Check
+            if (checkable && checked) {
+                QRect checkRect(option->rect.left() + 7, option->rect.center().y() - 6, 13, 13);
+                painter->setPen(borderColor);
+                painter->drawRect(checkRect.adjusted(0, 0, -1, -1));
+                painter->setPen(qt_plastique_mergedColors(borderColor,
+                                                          selected ? option->palette.highlight().color()
+                                                          : option->palette.background().color()));
+                painter->drawPoint(checkRect.topLeft());
+                painter->drawPoint(checkRect.topRight());
+                painter->drawPoint(checkRect.bottomLeft());
+                painter->drawPoint(checkRect.bottomRight());
+                painter->fillRect(checkRect.adjusted(1, 1, -1, -1), option->palette.base().color());
+
+                QImage image(qt_plastique_check);
+                image.setColor(0, option->palette.text().color().rgba());
+                image.setColor(1, alphaTextColor.rgba());
+                painter->drawImage(QPoint(checkRect.center().x() - image.width() / 2,
+                                          checkRect.center().y() - image.height() / 2), image);
+            }
+
+            // Text, ripped from windows style
+            painter->setPen(menuItem->palette.text().color());
+            const QStyleOptionMenuItem *menuitem = menuItem;
+            const QStyleOption *opt = option;
+            QPainter *p = painter;
+            int x, y, w, h;
+            menuitem->rect.getRect(&x, &y, &w, &h);
+            int checkcol = qMax(menuitem->maxIconWidth, 20);
+            int tab = menuitem->tabWidth;
+            bool dis = !(menuitem->state & State_Enabled);
+            bool act = menuitem->state & State_Selected;
+            QColor discol;
+            if (dis) {
+                discol = menuitem->palette.text().color();
+                p->setPen(discol);
+            }
+            int xm = windowsItemFrame + checkcol + windowsItemHMargin;
+            int xpos = menuitem->rect.x() + xm;
+            QRect textRect(xpos, y + windowsItemVMargin, w - xm - windowsRightBorder - tab + 1, h - 2 * windowsItemVMargin);
+            QRect vTextRect = visualRect(opt->direction, menuitem->rect, textRect);
+            QString s = menuitem->text;
+            if (!s.isEmpty()) {                     // draw text
+                p->save();
+                int t = s.indexOf('\t');
+                int text_flags = Qt::AlignVCenter | Qt::TextShowMnemonic | Qt::TextDontClip | Qt::TextSingleLine;
+                if (!styleHint(SH_UnderlineShortcut, menuitem, widget))
+                    text_flags |= Qt::TextHideMnemonic;
+                text_flags |= Qt::AlignLeft;
+                if (t >= 0) {
+                    QRect vShortcutRect = visualRect(opt->direction, menuitem->rect,
+                                                     QRect(textRect.topRight(), menuitem->rect.bottomRight()));
+                    if (dis && !act) {
+                        p->setPen(menuitem->palette.light().color());
+                        p->drawText(vShortcutRect.adjusted(1,1,1,1), text_flags, s.mid(t + 1));
+                        p->setPen(discol);
+                    }
+                    p->drawText(vShortcutRect, text_flags, s.mid(t + 1));
+                    s = s.left(t);
+                }
+                QFont font = menuitem->font;
+                if (menuitem->menuItemType == QStyleOptionMenuItem::DefaultItem)
+                    font.setBold(true);
+                p->setFont(font);
+                if (dis && !act) {
+                    p->setPen(menuitem->palette.light().color());
+                    p->drawText(vTextRect.adjusted(1,1,1,1), text_flags, s.left(t));
+                    p->setPen(discol);
+                }
+                p->drawText(vTextRect, text_flags, s.left(t));
+                p->restore();
+            }
+            
+            // Arrow
+            if (menuItem->menuItemType == QStyleOptionMenuItem::SubMenu) {// draw sub menu arrow
+                int dim = (menuItem->rect.height() - 4) / 2;
+                PrimitiveElement arrow;
+                arrow = QApplication::isRightToLeft() ? PE_IndicatorArrowLeft : PE_IndicatorArrowRight;
+                int xpos = menuItem->rect.left() + menuItem->rect.width() - 6 - 2 - dim;
+                QRect  vSubMenuRect = visualRect(option->direction, menuItem->rect,
+                                                 QRect(xpos, menuItem->rect.top() + menuItem->rect.height() / 2 - dim / 2, dim, dim));
+                QStyleOptionMenuItem newMI = *menuItem;
+                newMI.rect = vSubMenuRect;
+                newMI.state = !enabled ? State_None : State_Enabled;
+                if (selected)
+                    newMI.palette.setColor(QPalette::ButtonText,
+                                           newMI.palette.highlightedText().color());
+                drawPrimitive(arrow, &newMI, painter, widget);
+            }
+
+            
+            painter->restore();
+        }
         break;
     case CE_MenuBarItem:
         if (option->state & State_Selected)
@@ -2661,6 +2804,8 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         return 4;
     case PM_DockWidgetHandleExtent:
         return 20;
+    case PM_DefaultFrameWidth:
+        return 1;
     default:
         break;
     }
