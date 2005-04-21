@@ -805,11 +805,11 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             painter->save();
 
-            bool down = (button->state & State_Sunken) || (button->state & State_On);
-            bool hover = (button->state & State_Enabled) && (button->state & State_MouseOver);
             const QPushButton *pushButton = qobject_cast<const QPushButton *>(widget);
             bool isDefault = pushButton && pushButton->isDefault();
-            
+            bool down = pushButton && ((button->state & State_Sunken) || (button->state & State_On));
+            bool hover = (button->state & State_Enabled) && (button->state & State_MouseOver);
+
             // gradient fill            
             QLinearGradient gradient(QPointF(option->rect.center().x(), option->rect.top()),
                                      QPointF(option->rect.center().x(), option->rect.bottom()));
@@ -2201,8 +2201,12 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
         if (const QStyleOptionComboBox *comboBox = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
             painter->save();
            
-            QRect downArrowRect = subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget);
             QRect rect = comboBox->rect;
+            QRect downArrowRect = subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget);
+            if (comboBox->direction == Qt::RightToLeft)
+                downArrowRect.setRect(downArrowRect.left(), downArrowRect.top(), 16, downArrowRect.height());
+            else
+                downArrowRect.setRect(downArrowRect.right() - 16, downArrowRect.top(), 16, downArrowRect.height());
 
             // Draw a push button
             QStyleOptionButton buttonOption;
@@ -2212,8 +2216,6 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 buttonOption.state |= State_Enabled;
             if (comboBox->state & State_MouseOver)
                 buttonOption.state |= State_MouseOver;
-            if (qobject_cast<const QComboBox *>(widget)->view()->isVisible())
-                buttonOption.state |= State_Sunken;
             
             buttonOption.state = comboBox->state;
             drawPrimitive(PE_PanelButtonCommand, &buttonOption, painter, widget);
@@ -2228,7 +2230,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             } else {
                 painter->drawLine(downArrowRect.topLeft(), downArrowRect.bottomLeft());
             }
-            
+
             painter->drawImage(downArrowRect.center().x() - downArrow.width() / 2,
                                downArrowRect.center().y() - downArrow.height() / 2, downArrow);
 
@@ -2516,13 +2518,8 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
         }
         break;
     case CC_ComboBox:
-        if (const QStyleOptionComboBox *comboBox = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
-            if (subControl == SC_ComboBoxArrow) {
-                rect.setRect(comboBox->rect.right() - 17, comboBox->rect.top(),
-                             17, comboBox->rect.height());
-                rect = visualRect(comboBox->direction, comboBox->rect, rect);
-            }
-        }
+        if (subControl == SC_ComboBoxArrow)
+            rect = option->rect;
         break;
     default:
         break;
@@ -2536,7 +2533,7 @@ QStyle::SubControl QPlastiqueStyle::hitTestComplexControl(ComplexControl control
 {
     switch (control) {
     case CC_ComboBox:
-        return SC_ComboBoxListBoxPopup;
+        return SC_ComboBoxArrow;
    case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             QRect slider = subControlRect(control, scrollBar, SC_ScrollBarSlider, widget);
