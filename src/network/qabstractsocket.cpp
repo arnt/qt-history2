@@ -303,7 +303,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
 */
 QAbstractSocketPrivate::QAbstractSocketPrivate()
     : readBuffer(QABSTRACTSOCKET_BUFFERSIZE),
-      writeBuffer(QABSTRACTSOCKET_BUFFERSIZE)
+      writeBuffer(QABSTRACTSOCKET_BUFFERSIZE),
+      connectTimer(0)
 {
     port = 0;
     readSocketNotifier = 0;
@@ -759,8 +760,14 @@ void QAbstractSocketPrivate::connectToNextAddress()
         }
 
         // Start the connect timer.
-        if (QAbstractEventDispatcher::instance(q->thread()))
-            connectTimer.start(QT_CONNECT_TIMEOUT);
+        if (QAbstractEventDispatcher::instance(q->thread())) {
+            if (!connectTimer) {
+                connectTimer = new QTimer(q);
+                QObject::connect(connectTimer, SIGNAL(timeout()),
+                                 q, SLOT(abortConnectionAttempt()));
+            }
+            connectTimer->start(QT_CONNECT_TIMEOUT);
+        }
 
         // Wait for a write notification that will eventually call
         // testConnection().
@@ -778,8 +785,10 @@ void QAbstractSocketPrivate::connectToNextAddress()
 void QAbstractSocketPrivate::testConnection()
 {
     Q_Q(QAbstractSocket);
-    if (QAbstractEventDispatcher::instance(q->thread()))
-        connectTimer.stop();
+    if (QAbstractEventDispatcher::instance(q->thread())) {
+        if (connectTimer)
+            connectTimer->stop();
+    }
 
     if (socketLayer.state() == QAbstractSocket::ConnectedState || socketLayer.connectToHost(host, port)) {
         state = QAbstractSocket::ConnectedState;
@@ -878,8 +887,6 @@ QAbstractSocket::QAbstractSocket(SocketType socketType,
            ? "Udp" : "Unknown", &dd, parent);
 #endif
     d->socketType = socketType;
-
-    QObject::connect(&d->connectTimer, SIGNAL(timeout()), SLOT(abortConnectionAttempt()));
 }
 
 /*!
@@ -896,8 +903,6 @@ QAbstractSocket::QAbstractSocket(SocketType socketType, QObject *parent)
     qDebug("QAbstractSocket::QAbstractSocket(%p)", parent);
 #endif
     d->socketType = socketType;
-
-    QObject::connect(&d->connectTimer, SIGNAL(timeout()), SLOT(abortConnectionAttempt()));
 }
 
 /*!

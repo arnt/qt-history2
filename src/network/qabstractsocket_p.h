@@ -44,7 +44,7 @@ public:
     bool readSocketNotifierState;
     bool readSocketNotifierStateSet;
 
-    bool emittedReadyRead;    
+    bool emittedReadyRead;
     bool emittedBytesWritten;
 
     bool closeCalled;
@@ -74,7 +74,7 @@ public:
     bool isBlocking;
     int blockingTimeout;
 
-    QTimer connectTimer;
+    QTimer *connectTimer;
     int connectTimeElapsed;
 
     int hostLookupId;
