@@ -80,6 +80,12 @@ protected:
     virtual DomLayout *createDom(QLayout *layout, DomLayout *ui_layout, DomWidget *ui_parentWidget);
     virtual DomLayoutItem *createDom(QLayoutItem *item, DomLayout *ui_layout, DomWidget *ui_parentWidget);
 
+    virtual QAction *create(DomAction *ui_action, QObject *parent);
+    virtual QActionGroup *create(DomActionGroup *ui_action_group, QObject *parent);
+
+    virtual DomAction *createDom(QAction *action);
+    virtual DomActionGroup *createDom(QActionGroup *actionGroup);
+
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath);
     virtual QString iconToFilePath(const QIcon &pm) const;
     virtual QString iconToQrcPath(const QIcon &pm) const;
@@ -116,8 +122,6 @@ private:
     QDesignerFormEditorInterface *m_core;
     QHash<QString, QString> m_internal_to_qt;
     QHash<QString, QString> m_qt_to_internal;
-    QHash<QString, QString> m_internal_to_qlayout;
-    QHash<QString, QString> m_qlayout_to_internal;
     QHash<QString, QDesignerCustomWidgetInterface*> m_customFactory;
     QStack<QLayout*> m_chain;
     QHash<QDesignerWidgetDataBaseItemInterface*, bool> m_usedCustomWidgets;

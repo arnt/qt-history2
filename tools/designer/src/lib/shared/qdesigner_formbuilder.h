@@ -16,7 +16,7 @@
 
 #include "shared_global.h"
 
-#include <formbuilder.h>
+#include <QtDesigner/formbuilder.h>
 #include <QtCore/QMap>
 
 class QDesignerFormEditorInterface;

@@ -30,6 +30,7 @@
 #include <QtGui/QTreeWidget>
 #include <QtGui/QComboBox>
 #include <QtGui/QStatusBar>
+#include <QtGui/QMainWindow>
 
 #include <QtXml/QDomDocument>
 
@@ -193,6 +194,7 @@ QActionGroup *QAbstractFormBuilder::create(DomActionGroup *ui_action_group, QObj
         QActionGroup *child_action_group = create(g, a);
         Q_UNUSED( child_action_group );
     }
+
     return a;
 }
 
@@ -633,14 +635,18 @@ QLayout *QAbstractFormBuilder::createLayout(const QString &layoutName, QObject *
 QAction *QAbstractFormBuilder::createAction(QObject *parent, const QString &name)
 {
     QAction *action = new QAction(parent);
+    action->setObjectName(name);
     m_actions.insert(name, action);
+
     return action;
 }
 
 QActionGroup *QAbstractFormBuilder::createActionGroup(QObject *parent, const QString &name)
 {
     QActionGroup *g = new QActionGroup(parent);
+    g->setObjectName(name);
     m_actionGroups.insert(name, g);
+
     return g;
 }
 
@@ -717,34 +723,55 @@ DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parent
     ui_widget->setAttributeClass(QLatin1String(widget->metaObject()->className()));
     ui_widget->setElementProperty(computeProperties(widget));
 
-    if (!recursive)
-        return ui_widget;
+    if (recursive) {
+        if (QLayout *layout = widget->layout()) {
+            if (DomLayout *ui_layout = createDom(layout, 0, ui_parentWidget)) {
+                QList<DomLayout*> ui_layouts;
+                ui_layouts.append(ui_layout);
 
-    // widgets
-    QList<DomWidget*> ui_widgets;
-    if (QLayout *layout = widget->layout()) {
-        if (DomLayout *ui_layout = createDom(layout, 0, ui_parentWidget)) {
-            QList<DomLayout*> ui_layouts;
-            ui_layouts.append(ui_layout);
-
-            ui_widget->setElementLayout(ui_layouts);
+                ui_widget->setElementLayout(ui_layouts);
+            }
         }
     }
+
+    // widgets, actions and action groups
+    QList<DomWidget*> ui_widgets;
+    QList<DomAction*> ui_actions;
+    QList<DomActionGroup*> ui_action_groups;
 
     QList<QObject*> children = widget->children();
     foreach (QObject *obj, children) {
         if (QWidget *childWidget = qobject_cast<QWidget*>(obj)) {
-            if (m_laidout.contains(childWidget))
+            if (m_laidout.contains(childWidget) || recursive == false)
                 continue;
 
             if (DomWidget *ui_child = createDom(childWidget, ui_widget)) {
                 ui_widgets.append(ui_child);
             }
+        } else if (QAction *childAction = qobject_cast<QAction*>(obj)) {
+            if (childAction->actionGroup() != 0) {
+                // it will be added later.
+                continue;
+            }
+
+            if (DomAction *ui_action = createDom(childAction)) {
+                ui_actions.append(ui_action);
+            }
+        } else if (QActionGroup *childActionGroup = qobject_cast<QActionGroup*>(obj)) {
+            if (DomActionGroup *ui_action_group = createDom(childActionGroup)) {
+                ui_action_groups.append(ui_action_group);
+            }
         }
     }
-    ui_widget->setElementWidget(ui_widgets);
+
+    if (recursive)
+        ui_widget->setElementWidget(ui_widgets);
+
+    ui_widget->setElementAction(ui_actions);
+    ui_widget->setElementActionGroup(ui_action_groups);
 
     saveExtraInfo(widget, ui_widget, ui_parentWidget);
+
     return ui_widget;
 }
 
@@ -1464,6 +1491,38 @@ QString QAbstractFormBuilder::relativeToDir(const QString &_dir, const QString &
     }
 
     return result;
+}
+
+DomAction *QAbstractFormBuilder::createDom(QAction *action)
+{
+    DomAction *ui_action = new DomAction;
+    ui_action->setAttributeName(action->objectName());
+
+    QList<DomProperty*> properties = computeProperties(action);
+    ui_action->setElementProperty(properties);
+
+    return ui_action;
+}
+
+DomActionGroup *QAbstractFormBuilder::createDom(QActionGroup *actionGroup)
+{
+    DomActionGroup *ui_action_group = new DomActionGroup;
+    ui_action_group->setAttributeName(actionGroup->objectName());
+
+    QList<DomProperty*> properties = computeProperties(actionGroup);
+    ui_action_group->setElementProperty(properties);
+
+    QList<DomAction*> ui_actions;
+
+    foreach (QAction *action, actionGroup->actions()) {
+        if (DomAction *ui_action = createDom(action)) {
+            ui_actions.append(ui_action);
+        }
+    }
+
+    ui_action_group->setElementAction(ui_actions);
+
+    return ui_action_group;
 }
 
 

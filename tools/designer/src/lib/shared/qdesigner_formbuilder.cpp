@@ -29,6 +29,8 @@
 #include <pluginmanager.h>
 
 #include <QtGui/QWidget>
+#include <QtGui/QAction>
+#include <QtGui/QActionGroup>
 
 #include <QtCore/QBuffer>
 #include <QtCore/qdebug.h>
@@ -149,4 +151,3 @@ QWidget *QDesignerFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
 
     return widget;
 }
-

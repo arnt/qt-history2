@@ -102,10 +102,15 @@ protected:
     virtual void saveExtraInfo(QWidget *widget, DomWidget *ui_widget, DomWidget *ui_parentWidget);
 
     virtual void saveDom(DomUI *ui, QWidget *widget);
+
     virtual DomWidget *createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive = true);
     virtual DomLayout *createDom(QLayout *layout, DomLayout *ui_layout, DomWidget *ui_parentWidget);
-    virtual DomLayoutItem *createDom(QLayoutItem *item, DomLayout *ui_layout, DomWidget *ui_parentWidget);
-    virtual DomSpacer *createDom(QSpacerItem *spacer, DomLayout *ui_layout, DomWidget *ui_parentWidget);
+    virtual DomLayoutItem *createDom(QLayoutItem *item, DomLayout *ui_parentLayout, DomWidget *ui_parentWidget);
+    virtual DomSpacer *createDom(QSpacerItem *spacer, DomLayout *ui_parentLayout, DomWidget *ui_parentWidget);
+
+    virtual DomAction *createDom(QAction *action);
+    virtual DomActionGroup *createDom(QActionGroup *actionGroup);
+
     virtual DomConnections *saveConnections();
     virtual QString saveAuthor();
     virtual QString saveComment();

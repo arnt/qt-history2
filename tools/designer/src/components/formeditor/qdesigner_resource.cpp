@@ -47,6 +47,9 @@
 #include <QtGui/QTabWidget>
 #include <QtGui/QToolBox>
 #include <QtGui/QTabBar>
+#include <QtGui/QAction>
+#include <QtGui/QActionGroup>
+
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
 
@@ -159,74 +162,6 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
     return mainWidget;
 }
 
-static ActionListElt createActionListElt(DomAction *action)
-{
-    ActionListElt result;
-
-    result.name = action->attributeName();
-    result.menu = action->attributeMenu();
-    QList<DomProperty*> prop_list = action->elementProperty();
-    foreach (DomProperty *prop, prop_list) {
-        if (prop->attributeName() == QLatin1String("objectName")) {
-            result.objectName
-                = prop->elementString() == 0 ? QString() : prop->elementString()->text();
-        } else if (prop->attributeName() == QLatin1String("icon")) {
-            result.icon
-                = prop->elementIconSet() == 0 ? QString() : prop->elementIconSet()->text();
-        } else if (prop->attributeName() == QLatin1String("iconText")) {
-            result.iconText
-                = prop->elementString() == 0 ? QString() : prop->elementString()->text();
-        } else if (prop->attributeName() == QLatin1String("shortcut")) {
-            result.shortcut
-                = prop->elementString() == 0 ? QString() : prop->elementString()->text();
-        }
-    }
-
-    return result;
-}
-
-static DomAction *createDomAction(const ActionListElt &elt)
-{
-    DomAction *result = new DomAction;
-
-    result->setAttributeName(elt.name);
-    result->setAttributeMenu(elt.menu);
-
-    QList<DomProperty*> prop_list;
-
-    DomProperty *prop = new DomProperty;
-    prop->setAttributeName(QLatin1String("objectName"));
-    DomString *string = new DomString;
-    string->setText(elt.objectName);
-    prop->setElementString(string);
-    prop_list.append(prop);
-
-    prop = new DomProperty;
-    prop->setAttributeName(QLatin1String("icon"));
-    DomResourcePixmap *pixmap = new DomResourcePixmap;
-    pixmap->setText(elt.icon);
-    prop->setElementIconSet(pixmap);
-    prop_list.append(prop);
-
-    prop = new DomProperty;
-    prop->setAttributeName(QLatin1String("iconText"));
-    string = new DomString;
-    string->setText(elt.iconText);
-    prop->setElementString(string);
-    prop_list.append(prop);
-
-    prop = new DomProperty;
-    prop->setAttributeName(QLatin1String("shortcut"));
-    string = new DomString;
-    string->setText(elt.shortcut);
-    prop->setElementString(string);
-    prop_list.append(prop);
-
-    result->setElementProperty(prop_list);
-
-    return result;
-}
-
 QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
 {
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(parentWidget))
@@ -255,10 +190,6 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
         if (action_ref->hasAttributeName())
             m_formWindow->widgetToActionMap().add(w, action_ref->attributeName());
     }
-
-    QList<DomAction*> action_list = ui_widget->elementAction();
-    foreach (DomAction *action, action_list)
-        m_formWindow->actionList().append(createActionListElt(action));
 
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), w)) {
         extra->loadWidgetExtraInfo(ui_widget);
@@ -489,18 +420,9 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         ref->setAttributeName(s);
         ref_list.append(ref);
     }
+
     if (!ref_list.isEmpty())
         w->setElementAddAction(ref_list);
-
-    if (widget == m_formWindow->mainContainer()) {
-        QList<DomAction*> dom_action_list;
-        ActionList action_list = m_formWindow->actionList();
-        foreach (ActionListElt elt, action_list) {
-            dom_action_list.append(createDomAction(elt));
-        }
-        if (!dom_action_list.isEmpty())
-            w->setElementAction(dom_action_list);
-    }
 
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), widget)) {
         extra->saveWidgetExtraInfo(w);
@@ -528,10 +450,6 @@ DomLayout *QDesignerResource::createDom(QLayout *layout, DomLayout *ui_parentLay
 
     DomLayout *l = QAbstractFormBuilder::createDom(layout, ui_parentLayout, ui_parentWidget);
     Q_ASSERT(l != 0);
-
-    QString className = l->attributeClass();
-    if (m_internal_to_qlayout.contains(className))
-        l->setAttributeClass(m_internal_to_qlayout.value(className));
 
     m_chain.pop();
 
@@ -1158,4 +1076,46 @@ QString QDesignerResource::pixmapToQrcPath(const QPixmap &pm) const
         return QString();
 
     return relativePath(qrc_path);
+}
+
+DomAction *QDesignerResource::createDom(QAction *action)
+{
+    if (core()->metaDataBase()->item(action) != 0) {
+        return QAbstractFormBuilder::createDom(action);
+    }
+
+    qDebug() << "unknown action:" << action;
+
+    return 0;
+}
+
+DomActionGroup *QDesignerResource::createDom(QActionGroup *actionGroup)
+{
+    if (core()->metaDataBase()->item(actionGroup) != 0) {
+        return QAbstractFormBuilder::createDom(actionGroup);
+    }
+
+    qDebug() << "unknown action group:" << actionGroup;
+
+    return 0;
+}
+
+QAction *QDesignerResource::create(DomAction *ui_action, QObject *parent)
+{
+    if (QAction *action = QAbstractFormBuilder::create(ui_action, parent)) {
+        core()->metaDataBase()->add(action);
+        return action;
+    }
+
+    return 0;
+}
+
+QActionGroup *QDesignerResource::create(DomActionGroup *ui_action_group, QObject *parent)
+{
+    if (QActionGroup *actionGroup = QAbstractFormBuilder::create(ui_action_group, parent)) {
+        core()->metaDataBase()->add(actionGroup);
+        return actionGroup;
+    }
+
+    return 0;
 }
