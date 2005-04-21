@@ -777,7 +777,7 @@ qint64 QSocketLayerPrivate::nativeReceiveDatagram(char *data, qint64 maxLength,
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeReceiveDatagram(%p \"%s\", %li, %s, %i) == %li",
-           data, qt_prettyDebug(data, qMin(ret, 16), ret).data(), maxLength,
+           data, qt_prettyDebug(data, qMin<qint64>(ret, 16), ret).data(), maxLength,
            address ? address->toString().toLatin1().constData() : "(nil)",
            port ? *port : 0, ret);
 #endif
@@ -819,7 +819,7 @@ qint64 QSocketLayerPrivate::nativeSendDatagram(const char *data, qint64 len,
 
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeSendDatagram(%p \"%s\", %li, \"%s\", %i) == %li", data,
-           qt_prettyDebug(data, qMin(len, 16), len).data(), 0, address.toString().toLatin1().constData(),
+           qt_prettyDebug(data, qMin<qint64>(len, 16), len).data(), 0, address.toString().toLatin1().constData(),
            port, ret);
 #endif
 
