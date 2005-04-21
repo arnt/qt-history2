@@ -777,7 +777,7 @@ void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
         d->brush = QBrush();
 
         for (int i=0; i<rectCount; ++i) {
-            QRectF rect(rects[i]);
+            QRectF rect = rects[i].normalized();
             rect.translate(offset_x, offset_y);
 
             FillData fillData = d->fillForBrush(oldBrush, 0);
