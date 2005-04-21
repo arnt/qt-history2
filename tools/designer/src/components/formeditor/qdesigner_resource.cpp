@@ -182,16 +182,10 @@ QWidget *QDesignerResource::create(DomWidget *ui_widget, QWidget *parentWidget)
     }
 
     QWidget *w = QAbstractFormBuilder::create(ui_widget, parentWidget);
-    if (!w)
+    if (w == 0)
         return 0;
 
     ui_widget->setAttributeClass(className); // fix the class name
-
-    QList<DomActionRef*> action_ref_list = ui_widget->elementAddAction();
-    foreach (DomActionRef *action_ref, action_ref_list) {
-        if (action_ref->hasAttributeName())
-            m_formWindow->widgetToActionMap().add(w, action_ref->attributeName());
-    }
 
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), w)) {
         extra->loadWidgetExtraInfo(ui_widget);
@@ -399,6 +393,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
     if (m_internal_to_qt.contains(className))
         w->setAttributeClass(m_internal_to_qt.value(className));
 
+    w->setAttributeName(widget->objectName());
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget)) {
         w->setAttributeName(promoted->child()->objectName());
         QList<DomProperty*> prop_list = w->elementProperty();
@@ -411,20 +406,7 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
                 break;
             }
         }
-    } else {
-        w->setAttributeName(widget->objectName());
     }
-
-    QList<DomActionRef*> ref_list;
-    QStringList action_list = m_formWindow->widgetToActionMap().actions(widget);
-    foreach (QString s, action_list) {
-        DomActionRef *ref = new DomActionRef;
-        ref->setAttributeName(s);
-        ref_list.append(ref);
-    }
-
-    if (!ref_list.isEmpty())
-        w->setElementAddAction(ref_list);
 
     if (QDesignerExtraInfoExtension *extra = qt_extension<QDesignerExtraInfoExtension*>(core()->extensionManager(), widget)) {
         extra->saveWidgetExtraInfo(w);

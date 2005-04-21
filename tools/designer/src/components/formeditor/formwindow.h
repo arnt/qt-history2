@@ -51,33 +51,6 @@ class FormWindowWidgetStack;
 class FormWindowManager;
 class FormWindowDnDItem;
 
-
-// ### fake - remove when actions are implemented
-class QT_FORMEDITOR_EXPORT WidgetToActionMap
-{
-public:
-    void add(QWidget *w, const QString &action_name)
-        { m_map[w].append(action_name); }
-    QStringList actions(QWidget *w)
-        { return m_map.value(w, QStringList()); }
-private:
-    typedef QMap<QWidget*, QStringList> Map;
-    Map m_map;
-};
-
-// ### fake - remove when actions are implemented
-class QT_FORMEDITOR_EXPORT ActionListElt
-{
-public:
-    QString name;
-    QString objectName;
-    QString menu;
-    QString icon;
-    QString iconText;
-    QString shortcut;
-};
-typedef QList<ActionListElt> ActionList;
-
 class QT_FORMEDITOR_EXPORT FormWindow: public QDesignerFormWindowInterface
 {
     Q_OBJECT
@@ -185,9 +158,6 @@ public:
                                     HighlightMode mode = Highlight);
 
     void updateOrderIndicators();
-
-    WidgetToActionMap &widgetToActionMap() { return m_widget_to_action_map; }
-    ActionList &actionList() { return m_action_list; }
 
     bool handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event);
 
@@ -341,9 +311,6 @@ private:
 
     int m_dirty;
     int m_lastIndex;
-
-    WidgetToActionMap m_widget_to_action_map;
-    ActionList m_action_list;
 
     QString m_comment;
     QString m_author;
