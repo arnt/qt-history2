@@ -50,11 +50,48 @@ bool Q3IconViewExtraInfo::loadUiExtraInfo(DomUi *ui)
 
 bool Q3IconViewExtraInfo::saveWidgetExtraInfo(DomWidget *ui_widget)
 {
-    Q_UNUSED(ui_widget);
-
     // ### finish me
     Q3IconView *iconView = qobject_cast<Q3IconView*>(widget());
     Q_ASSERT(iconView != 0);
+
+    QList<DomItem*> ui_items;
+
+    Q3IconViewItem *__item = iconView->firstItem();
+    while (__item != 0) {
+        DomItem *ui_item = new DomItem();
+
+        QList<DomProperty*> properties;
+
+        // text property
+        DomProperty *ptext = new DomProperty();
+        DomString *str = new DomString();
+        str->setText(__item->text());
+        ptext->setAttributeName(QLatin1String("text"));
+        ptext->setElementString(str);
+        properties.append(ptext);
+
+        ui_item->setElementProperty(properties);
+        ui_items.append(ui_item);
+
+        if (__item->pixmap() != 0 && core()->iconCache()) {
+            QPixmap pix = *__item->pixmap();
+            QString filePath = core()->iconCache()->pixmapToFilePath(pix);
+            QString qrcPath = core()->iconCache()->pixmapToQrcPath(pix);
+            DomResourcePixmap *ui_pix = new DomResourcePixmap();
+            if (!qrcPath.isEmpty())
+                ui_pix->setAttributeResource(qrcPath);
+            ui_pix->setText(filePath);
+
+            DomProperty *ppix = new DomProperty();
+            ppix->setAttributeName(QLatin1String("pixmap"));
+            ppix->setElementPixmap(ui_pix);
+            properties.append(ppix);
+        }
+
+        __item = __item->nextItem();
+    }
+
+    ui_widget->setElementItem(ui_items);
 
     return true;
 }
