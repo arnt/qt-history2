@@ -6347,7 +6347,7 @@ void QWidget::setWindowModified(bool mod)
     Q_D(QWidget);
     setAttribute(Qt::WA_WindowModified, mod);
 
-    if (!windowTitle().contains("[*]"))
+    if (!windowTitle().contains("[*]") && mod)
         qWarning("QWidget::setWindowModified: The window title does not contain a '[*]' placeholder!");
     d->setWindowTitle_helper(windowTitle());
 
