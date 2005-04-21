@@ -5,19 +5,19 @@
 
 ConfigDialog::ConfigDialog()
 {
-    contentsWidget = new QListWidget(this);
+    contentsWidget = new QListWidget;
     contentsWidget->setViewMode(QListView::IconMode);
     contentsWidget->setIconSize(QSize(96, 84));
     contentsWidget->setMovement(QListView::Static);
     contentsWidget->setMaximumWidth(128);
     contentsWidget->setSpacing(12);
 
-    pagesWidget = new QStackedWidget(this);
+    pagesWidget = new QStackedWidget;
     pagesWidget->addWidget(new ConfigurationPage);
     pagesWidget->addWidget(new UpdatePage);
     pagesWidget->addWidget(new QueryPage);
 
-    QPushButton *closeButton = new QPushButton(tr("Close"), this);
+    QPushButton *closeButton = new QPushButton(tr("Close"));
 
     createIcons();
     contentsWidget->setCurrentRow(0);
@@ -32,11 +32,12 @@ ConfigDialog::ConfigDialog()
     buttonsLayout->addStretch(1);
     buttonsLayout->addWidget(closeButton);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(horizontalLayout);
     mainLayout->addStretch(1);
     mainLayout->addSpacing(12);
     mainLayout->addLayout(buttonsLayout);
+    setLayout(mainLayout);
 
     setWindowTitle(tr("Config Dialog"));
 }
