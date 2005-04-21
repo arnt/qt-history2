@@ -13,14 +13,17 @@
 
 #include "widgetbox.h"
 
+// sdk
 #include <QtDesigner/abstractformwindowmanager.h>
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstractwidgetfactory.h>
 #include <QtDesigner/abstractwidgetdatabase.h>
 #include <QtDesigner/abstracticoncache.h>
 #include <QtDesigner/customwidget.h>
-#include <pluginmanager.h>
 #include <QtDesigner/ui4.h>
+
+// shared
+#include <pluginmanager.h>
 #include <sheet_delegate.h>
 #include <iconloader.h>
 
@@ -421,22 +424,22 @@ bool WidgetBoxTreeView::load()
     QSettings settings;
     settings.beginGroup(QLatin1String("WidgetBox"));
 
-    QStringList open_cat;
+    QStringList closed_cat;
     for (int i = 0; i < topLevelItemCount(); ++i) {
         QTreeWidgetItem *item = topLevelItem(i);
-        if (isItemExpanded(item))
-            open_cat.append(item->text(0));
+        if (!isItemExpanded(item))
+            closed_cat.append(item->text(0));
     }
 
-    open_cat = settings.value(QLatin1String("open categories"), open_cat).toStringList();
-    for (int i = 0; i < open_cat.size(); ++i) {
-        int cat_idx = indexOfCategory(open_cat[i]);
+    closed_cat = settings.value(QLatin1String("Closed categories"), closed_cat).toStringList();
+    for (int i = 0; i < closed_cat.size(); ++i) {
+        int cat_idx = indexOfCategory(closed_cat[i]);
         if (cat_idx == -1)
             continue;
         QTreeWidgetItem *item = topLevelItem(cat_idx);
         if (item == 0)
             continue;
-        setItemExpanded(item, true);
+        setItemExpanded(item, false);
     }
 
     settings.endGroup();
@@ -622,6 +625,7 @@ void WidgetBoxTreeView::addCategory(const Category &cat)
 {
     QTreeWidgetItem *cat_item = new QTreeWidgetItem(this);
     cat_item->setText(0, cat.name());
+    setItemExpanded(cat_item, true);
 
     switch (cat.type()) {
         case Category::Scratchpad:
