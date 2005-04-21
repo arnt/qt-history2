@@ -1156,7 +1156,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_CustomBase  Base value for custom ControlElements
     Custom values must be greater than this value
 
-    \value PM_DefaultToplevelMargin
+    \value PM_DefaultTopLevelMargin
     \value PM_DefaultChildMargin
     \value PM_DefaultLayoutSpacing
 

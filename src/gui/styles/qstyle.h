@@ -421,7 +421,7 @@ public:
 
         PM_SpinBoxSliderHeight,
 
-        PM_DefaultToplevelMargin,
+        PM_DefaultTopLevelMargin,
         PM_DefaultChildMargin,
         PM_DefaultLayoutSpacing,
 

@@ -308,7 +308,7 @@ int QLayout::margin() const
     if (pw)
         return pw->style()->pixelMetric(
             (pw->isWindow() || (pw->windowType() == Qt::SubWindow))
-            ? QStyle::PM_DefaultToplevelMargin
+            ? QStyle::PM_DefaultTopLevelMargin
             : QStyle::PM_DefaultChildMargin
             );
     return 0;

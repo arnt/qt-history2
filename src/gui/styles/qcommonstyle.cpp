@@ -2779,7 +2779,7 @@ int QCommonStyle::pixelMetric(PixelMetric m, const QStyleOption *opt, const QWid
         ret = 16;
         break;
 
-    case PM_DefaultToplevelMargin:
+    case PM_DefaultTopLevelMargin:
         ret = 11;
         break;
     case PM_DefaultChildMargin:
