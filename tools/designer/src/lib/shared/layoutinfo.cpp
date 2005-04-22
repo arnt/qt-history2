@@ -13,10 +13,11 @@
 
 #include "layoutinfo.h"
 
-#include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/container.h>
+#include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/qextensionmanager.h>
 #include <QtDesigner/abstractmetadatabase.h>
+#include <QtDesigner/abstractwidgetfactory.h>
 
 #include <QtGui/QHBoxLayout>
 #include <QtGui/QSplitter>

@@ -245,18 +245,9 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
  */
 QWidget* WidgetFactory::containerOfWidget(QWidget *w) const
 {
-    if (!w)
-        return w;
+    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), w))
+        return container->widget(container->currentIndex());
 
-    // ### use the QDesignerContainerExtension extension
-    else if (qobject_cast<QTabWidget*>(w))
-        return static_cast<QTabWidget*>(w)->currentWidget();
-    else if (qobject_cast<QStackedWidget*>(w))
-        return static_cast<QStackedWidget*>(w)->currentWidget();
-    else if (qobject_cast<QToolBox*>(w))
-        return static_cast<QToolBox*>(w)->widget(static_cast<QToolBox*>(w)->currentIndex());
-    else if (qobject_cast<QMainWindow*>(w))
-        return static_cast<QMainWindow*>(w)->centralWidget();
     return w;
 }
 

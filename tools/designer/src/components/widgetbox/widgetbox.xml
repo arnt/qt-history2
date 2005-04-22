@@ -317,6 +317,21 @@
                 <string notr="true">frame</string>
             </property>
         </widget>
+
+        <widget class="QDockWidget" name="Dock Widget" icon="widgets/frame.png">
+            <property name="geometry">
+                <rect>
+                    <x>0</x>
+                    <y>0</y>
+                    <width>120</width>
+                    <height>80</height>
+                </rect>
+            </property>
+            <property name="objectName">
+                <string notr="true">dockWidget</string>
+            </property>
+            <widget class="QWidget" name="dockWidgetContents" />
+        </widget>
     </category>
 
     <category name="Input Widgets">
