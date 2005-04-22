@@ -61,7 +61,7 @@ public:
             if (a < 0) { a = -a; neg = true; }
             if (b < 0) { b = -b; neg = !neg; }
 
-            int res = (int)(((a << LowBits) + (b >> 1)) / b);
+            int res = int(((a << int(LowBits)) + (b >> 1)) / b);
 
             val = (neg ? -res : res);
         }
