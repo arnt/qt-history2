@@ -28,14 +28,14 @@
 */
 
 /*!
-    \internal
+  \internal
 */
 QInputEvent::QInputEvent(Type type, Qt::KeyboardModifiers modifiers)
     : QEvent(type), modState(modifiers)
 {}
 
-/*
-    \internal
+/*!
+  \internal
 */
 QInputEvent::~QInputEvent()
 {
@@ -393,7 +393,10 @@ QHoverEvent::~QHoverEvent()
     the widget. The globalPos() is initialized to QCursor::pos()
     which is usually, but not always, correct.
     Use the other constructor if you need to specify the global
-    position explicitly. \a delta contains the rotation distance,
+    position explicitly.
+
+    The \a buttons describe the state of the mouse buttons at the time
+    of the event, \a delta contains the rotation distance,
     \a modifiers holds the keyboard modifier flags at the time of the
     event, and \a orient holds the wheel's orientation.
 
@@ -408,6 +411,9 @@ QWheelEvent::QWheelEvent(const QPoint &pos, int delta,
     g = QCursor::pos();
 }
 
+/*!
+  \internal
+*/
 QWheelEvent::~QWheelEvent()
 {
 }
@@ -584,6 +590,9 @@ QKeyEvent::QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, const 
         ignore();
 }
 
+/*!
+  \internal
+*/
 QKeyEvent::~QKeyEvent()
 {
 }
@@ -712,12 +721,16 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
     Constructs a focus event object.
 
     The \a type parameter must be either \c QEvent::FocusIn or \c
-    QEvent::FocusOut.
+    QEvent::FocusOut. The \a reason describes the cause of the change
+    in focus.
 */
 QFocusEvent::QFocusEvent(Type type, Qt::FocusReason reason)
     : QEvent(type), m_reason(reason)
 {}
 
+/*!
+  \internal
+*/
 QFocusEvent::~QFocusEvent()
 {
 }
@@ -816,7 +829,9 @@ QPaintEvent::QPaintEvent(const QRegion &paintRegion, const QRect &paintRect)
     : QEvent(Paint), m_rect(paintRect), m_region(paintRegion)
 {}
 
-
+/*!
+  \internal
+*/
 QPaintEvent::~QPaintEvent()
 {
 }
@@ -875,6 +890,9 @@ QMoveEvent::QMoveEvent(const QPoint &pos, const QPoint &oldPos)
     : QEvent(Move), p(pos), oldp(oldPos)
 {}
 
+/*!
+  \internal
+*/
 QMoveEvent::~QMoveEvent()
 {
 }
@@ -914,6 +932,9 @@ QResizeEvent::QResizeEvent(const QSize &size, const QSize &oldSize)
     : QEvent(Resize), s(size), olds(oldSize)
 {}
 
+/*!
+  \internal
+*/
 QResizeEvent::~QResizeEvent()
 {
 }
@@ -1753,7 +1774,8 @@ QTabletEvent::~QTabletEvent()
     that the mouse is at position \a pos given within a widget.
 
     The mouse and keyboard states are specified by \a buttons and
-    \a modifiers.
+    \a modifiers, and the \a actions describe the types of drag
+    and drop operation that are possible.
     The drag data is passed as MIME-encoded information in \a data.
 
     \warning Do not attempt to create a QDragMoveEvent yourself.
@@ -1855,10 +1877,14 @@ QDragMoveEvent::~QDragMoveEvent()
 
 /*!
     Constructs a drop event of a certain \a type corresponding to a
-    drop at the given \a point in the destination widget's coordinate
-    system.
+    drop at the point specified by \a pos in the destination widget's
+    coordinate system.
 
-    The drag data is stored as MIME-encoded data in \a data.
+    The \a actions indicate which types of drag and drop operation can
+    be performed, and the drag data is stored as MIME-encoded data in \a data.
+
+    The states of the mouse buttons and keyboard modifiers at the time of
+    the drop are specified by \a buttons and \a modifiers.
 */ // ### pos is in which coordinate system?
 QDropEvent::QDropEvent(const QPoint& pos, Qt::DropActions actions, const QMimeData *data,
                        Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers, Type type)
@@ -2105,7 +2131,9 @@ QT3_SUPPORT QDropEvent::Action QDropEvent::action() const
     widget at the given \a point with mouse and keyboard states specified by
     \a buttons and \a modifiers.
 
-    The drag data is passed as MIME-encoded information in \a data.
+    The drag data is passed as MIME-encoded information in \a data, and the
+    specified \a actions describe the possible types of drag and drop
+    operation that can be performed.
 
     \warning Do not create a QDragEnterEvent yourself since these
     objects rely on Qt's internal state.

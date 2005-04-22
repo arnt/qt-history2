@@ -228,18 +228,32 @@ bool QProxyModel::setHeaderData(int section, Qt::Orientation orientation,
     return d->model->setHeaderData(section, orientation, value, role);
 }
 
+/*!
+    Returns a list of MIME types that are supported by the model.
+*/
 QStringList QProxyModel::mimeTypes() const
 {
     Q_D(const QProxyModel);
     return d->model->mimeTypes();
 }
 
+/*!
+    Returns MIME data for the specified \a indexes in the model.
+*/
 QMimeData *QProxyModel::mimeData(const QModelIndexList &indexes) const
 {
     Q_D(const QProxyModel);
     return d->model->mimeData(indexes);
 }
 
+/*!
+    Returns true if the model accepts the \a data dropped onto an attached
+    view for the specified \a action; otherwise returns false.
+
+    The \a parent, \a row, and \a column details can be used to control
+    which MIME types are acceptable to different parts of a model when
+    received via the drag and drop system.
+*/
 bool QProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
                                int row, int column, const QModelIndex &parent)
 {
@@ -247,6 +261,15 @@ bool QProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     return d->model->dropMimeData(data, action, row, column, parent);
 }
 
+/*!
+    Returns the drop actions that are supported by the model; this is
+    a combination of the individual actions defined in \l Qt::DropActions.
+
+    The selection of drop actions provided by the model will influence the
+    behavior of the component that started the drag and drop operation.
+
+    \sa \link dnd.html Drag and Drop\endlink
+*/
 Qt::DropActions QProxyModel::supportedDropActions() const
 {
     Q_D(const QProxyModel);
@@ -300,8 +323,6 @@ void QProxyModel::fetchMore(const QModelIndex &parent)
 
 /*!
     Returns the item flags for the given \a index.
-
-    \sa Qt::flags()
 */
 Qt::ItemFlags QProxyModel::flags(const QModelIndex &index) const
 {
@@ -310,8 +331,8 @@ Qt::ItemFlags QProxyModel::flags(const QModelIndex &index) const
 }
 
 /*!
-    Sorts the child items in the specified \a column of the given \a parent
-    according to the sort order defined by \a order.
+    Sorts the child items in the specified \a column according to the sort
+    order defined by \a order.
 
     \sa QAbstractItemModel::sort()
 */

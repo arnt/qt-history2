@@ -814,7 +814,7 @@ void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
 
     Returns the check state of the label in the given \a column.
 
-    \sa Qt::CheckedState
+    \sa Qt::CheckState
 */
 
 /*!
@@ -822,7 +822,7 @@ void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
 
     Sets the item in the given \a column check state to be \a state.
 
-    \sa checkedState()
+    \sa checkState()
 */
 
 /*!
@@ -1085,7 +1085,9 @@ void QTreeWidgetItem::write(QDataStream &out) const
 }
 
 /*!
-  \reimpl
+  \reimp
+
+  Creates a copy of the \a other item.
 */
 void QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
 {
@@ -1395,7 +1397,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     This signal is emitted when the specified \a item is expanded so that
     all of its children are displayed.
 
-    \sa isItemOpen()
+    \sa isItemExpanded()
 */
 
 /*!
@@ -1404,7 +1406,7 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     This signal is emitted when the specified \a item is collapsed so that
     none of its children are displayed.
 
-    \sa isItemOpen()
+    \sa isItemExpanded()
 */
 
 /*!
@@ -1838,8 +1840,8 @@ bool QTreeWidget::isItemExpanded(const QTreeWidgetItem *item) const
 }
 
 /*!
-    Sets the item referred to by \a index to either closed or opened,
-  depending on the value of \a open.
+  Sets the item referred to by \a item to either closed or opened,
+  depending on the value of \a expand.
 
   \sa expandItem, collapseItem
 */
@@ -1854,7 +1856,8 @@ void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)
 }
 
 /*!
-  Ensures that the \a item is visible, scrolling the view if necessary.
+  Ensures that the \a item is visible, scrolling the view if necessary using
+  the specified \a hint.
 */
 
 void QTreeWidget::scrollToItem(const QTreeWidgetItem *item, ScrollHint hint)
