@@ -108,6 +108,9 @@ protected:
     virtual QStringList &findDependencies(const QString &file);
     virtual bool doDepends() const { return Option::mkfile::do_deps; }
 
+    void filterIncludedFiles(const QString &);
+    virtual void processSources() { filterIncludedFiles("SOURCES"); filterIncludedFiles("GENERATED_SOURCES"); }
+
     //for cross-platform dependent directories
     virtual void usePlatformDir();
 

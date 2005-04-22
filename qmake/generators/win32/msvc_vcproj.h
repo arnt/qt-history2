@@ -41,7 +41,6 @@ public:
     ~VcprojGenerator();
 
     QString defaultMakefile() const;
-    virtual bool doDepends() const { return false; } //never necesary
     QString precompH, precompHFilename,
             precompObj, precompPch;
     static bool hasBuiltinCompiler(const QString &file);
@@ -51,6 +50,8 @@ public:
     bool usePCH;
 
 protected:
+    virtual bool doDepends() const { return false; } //never necesary
+    virtual void processSources() { filterIncludedFiles("SOURCES"); }
     virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
     virtual bool supportsMetaBuild() { return true; }
     virtual bool supportsMergedBuilds() { return true; }

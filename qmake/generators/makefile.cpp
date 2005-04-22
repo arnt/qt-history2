@@ -622,19 +622,7 @@ MakefileGenerator::init()
         }
     }
 
-    { //remove anything in SOURCES which is included (thus it need not be linked in)
-        QStringList sources;
-        sources << "SOURCES" << "GENERATED_SOURCES";
-        for(QStringList::ConstIterator it = sources.begin(); it != sources.end(); ++it) {
-            QStringList &inputs = v[(*it)];
-            for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ) {
-                if(QMakeSourceFileInfo::included((*input)) > 0)
-                    input = inputs.erase(input);
-                else
-                    ++input;
-            }
-        }
-    }
+    processSources(); //remove anything in SOURCES which is included (thus it need not be linked in)
 
     //all sources and generated sources must be turned into objects at some point (the one builtin compiler)
     v["OBJECTS"] += createObjectList(v["SOURCES"]) + createObjectList(v["GENERATED_SOURCES"]);
@@ -833,6 +821,18 @@ MakefileGenerator::processPrlFile(QString &file)
         file = orig_file;
     }
     return ret;
+}
+
+void
+MakefileGenerator::filterIncludedFiles(const QString &var)
+{
+    QStringList &inputs = project->variables()[var];
+    for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ) {
+        if(QMakeSourceFileInfo::included((*input)) > 0)
+            input = inputs.erase(input);
+        else
+            ++input;
+    }
 }
 
 void
