@@ -1840,37 +1840,78 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         painter->restore();
     }
         break;
-    case CE_DockWidgetTitle: {
+    case CE_DockWidgetTitle:
+        if (const QStyleOptionDockWidget *dockWidget = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {
+            painter->save();
+
+            // Find text width and title rect
+            int textWidth = option->fontMetrics.width(dockWidget->title);           
+            int margin = 2;
+            QRect titleRect = visualRect(dockWidget->direction, dockWidget->rect,
+                                         dockWidget->rect.adjusted(margin, 0, -margin * 2 - 26, 0));
+           
+            // Chop and insert ellide into title if text is too wide
+            QString title = dockWidget->title;
+            if (textWidth > titleRect.width()) {
+                QString leftHalf = title.left(title.size() / 2);
+                QString rightHalf = title.mid(leftHalf.size() + 1);
+                while (!leftHalf.isEmpty() && !rightHalf.isEmpty()) {
+                    leftHalf.chop(1);
+                    int width = dockWidget->fontMetrics.width(leftHalf + QLatin1String("...") + rightHalf);
+                    if (width < titleRect.width()) {
+                        title = leftHalf + QLatin1String("...") + rightHalf;
+                        textWidth = width;       
+                        break;
+                    }
+                    rightHalf.remove(0, 1);
+                    width = dockWidget->fontMetrics.width(leftHalf + QLatin1String("...") + rightHalf);
+                    if (width < titleRect.width()) {
+                        title = leftHalf + QLatin1String("...") + rightHalf;
+                        textWidth = width;       
+                        break;
+                    }
+                }
+            }
+            
+            // Draw the toolbar handle pattern to the left and right of the text
             QImage handle(qt_toolbarhandle);
             handle.setColor(1, alphaCornerColor.rgba());
             handle.setColor(2, qt_plastique_mergedColors(alphaCornerColor, option->palette.base().color()).rgba());
             handle.setColor(3, option->palette.base().color().rgba());
-            int margin = 4;
 
-            QRect titleRect;
-            if (option->state & State_Horizontal) {
-                titleRect = option->rect.adjusted(0, 32 + margin, 0, -margin * 2);
-            } else {
-                titleRect = option->rect.adjusted(margin, 0, -margin * 2 - 32, 0);
+            QRect leftSide(titleRect.left(), titleRect.top(), titleRect.width() / 2 - textWidth / 2 - margin, titleRect.bottom());
+            QRect rightSide = titleRect.adjusted(titleRect.width() / 2 + textWidth / 2 + margin, 0, 0, 0);
+            int nchunks = leftSide.width() / handle.width();
+            int indent = (leftSide.width() - (nchunks * handle.width())) / 2;
+            for (int i = 0; i < nchunks; ++i) {
+                painter->drawImage(QPoint(leftSide.left() + indent + i * handle.width(), leftSide.top() + 3),
+                                   handle);
             }
-            titleRect = visualRect(option->direction, option->rect, titleRect);
+            nchunks = rightSide.width() / handle.width();
+            indent = (rightSide.width() - (nchunks * handle.width())) / 2;
+            for (int j = 0; j < nchunks; ++j) {
+                painter->drawImage(QPoint(rightSide.left() + indent + j * handle.width(), rightSide.top() + 3),
+                                   handle);
+            }            
 
-            if (option->state & State_Horizontal) {
-                int nchunks = titleRect.height() / handle.height();
-                int indent = (titleRect.height() - (nchunks * handle.height())) / 2;
-                for (int i = 0; i < nchunks; ++i) {
-                    painter->drawImage(QPoint(titleRect.left() + 3, titleRect.top() + indent + i * handle.height()),
-                                       handle);
-                }
+            // Draw the text centered
+            QFont font = painter->font();
+            font.setPointSize(font.pointSize() - 1);
+            painter->setFont(font);
+            painter->setPen(dockWidget->palette.text().color());
+            if (textWidth > titleRect.width()) {
+                painter->drawText(QRect(titleRect.left(),
+                                        titleRect.center().y() - option->fontMetrics.height() / 2,
+                                        textWidth, option->fontMetrics.height()), title,
+                                  QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
             } else {
-                int nchunks = titleRect.width() / handle.width();
-                int indent = (titleRect.width() - (nchunks * handle.width())) / 2;
-                for (int i = 0; i < nchunks; ++i) {
-                    painter->drawImage(QPoint(titleRect.left() + indent + i * handle.width(), titleRect.top() + 3),
-                                       handle);
-                }
+                painter->drawText(QRect(titleRect.center().x() - textWidth / 2,
+                                        titleRect.center().y() - option->fontMetrics.height() / 2,
+                                        textWidth, option->fontMetrics.height()), title,
+                                  QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
             }
-    }
+            painter->restore();
+        }
         break;
     default:
         QWindowsStyle::drawControl(element, option, painter, widget);
