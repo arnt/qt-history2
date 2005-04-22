@@ -99,7 +99,7 @@ void MdiChild::closeEvent(QCloseEvent *event)
 
 void MdiChild::documentWasModified()
 {
-    setWindowModified(true);
+    setWindowModified(document()->isModified());
 }
 
 bool MdiChild::maybeSave()
