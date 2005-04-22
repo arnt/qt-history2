@@ -1850,45 +1850,6 @@ void FormWindow::removeResourceFile(const QString &path)
     }
 }
 
-static QString relativePath(const QString &_dir, const QString &_file)
-{
-    QString dir = QDir::cleanPath(_dir);
-    QString file = QDir::cleanPath(_file);
-
-#ifdef Q_OS_WIN
-    QString root_path = QDir(dir).rootPath();
-    if (root_path != QDir(QFileInfo(file).path()).rootPath()) {
-        return file;
-    } else {
-        dir.remove(0, root_path.size() - 1);
-        file.remove(0, root_path.size() - 1);
-    }
-    // QDir::cleanPath return always a '/' as separator.
-    // Stupid workarround for Windows for now.
-    dir = dir.replace("/", "\\");
-    file = file.replace("/", "\\");
-#endif
-
-    QString result;
-    QStringList dir_elts = dir.split(QDir::separator(), QString::SkipEmptyParts);
-    QStringList file_elts = file.split(QDir::separator(), QString::SkipEmptyParts);
-
-    int i = 0;
-    while (i < dir_elts.size() && i < file_elts.size() && dir_elts.at(i) == file_elts.at(i))
-        ++i;
-
-    for (int j = 0; j < dir_elts.size() - i; ++j)
-        result += QLatin1String("..") + QDir::separator();
-
-    for (int j = i; j < file_elts.size(); ++j) {
-        result += file_elts.at(j);
-        if (j < file_elts.size() - 1)
-        result += QDir::separator();
-    }
-
-    return result;
-}
-
 bool FormWindow::blockSelectionChanged(bool b)
 {
     bool blocked = m_blockSelectionChanged;
