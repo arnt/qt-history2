@@ -287,6 +287,8 @@ int QTreeModel::columnCount(const QModelIndex &index) const
 
 bool QTreeModel::hasChildren(const QModelIndex &parent) const
 {
+    if (!parent.isValid())
+        return tree.count() > 0;
     if (parent.column() != 0)
         return false;
     QTreeWidgetItem *itm = item(parent);

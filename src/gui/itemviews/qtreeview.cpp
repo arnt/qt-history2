@@ -844,7 +844,7 @@ void QTreeView::doItemsLayout()
     d->viewItems.clear(); // prepare for new layout
     QStyleOptionViewItem option = viewOptions();
     QModelIndex parent = rootIndex();
-    if (model() && model()->rowCount(parent) > 0 && model()->columnCount(parent) > 0) {
+    if (model() && model()->hasChildren(parent)) {
         QModelIndex index = model()->index(0, 0, parent);
         d->itemHeight = indexRowSizeHint(index);
         d->layout(-1);
@@ -1338,6 +1338,10 @@ void QTreeViewPrivate::initialize()
 void QTreeViewPrivate::expand(int i)
 {
     Q_Q(QTreeView);
+
+    if (!model || i < 0)
+        return;
+
     QModelIndex index = viewItems.at(i).index;
 
     if (viewItems.at(i).expanded)
@@ -1358,7 +1362,7 @@ void QTreeViewPrivate::expand(int i)
 void QTreeViewPrivate::collapse(int i)
 {
     Q_Q(QTreeView);
-    if (i < 0 || expandedIndexes.isEmpty())
+    if (!model || i < 0 || expandedIndexes.isEmpty())
         return;
     int total = viewItems.at(i).total;
     QModelIndex index = viewItems.at(i).index;
@@ -1385,7 +1389,10 @@ void QTreeViewPrivate::layout(int i)
     Q_Q(QTreeView);
     QModelIndex current;
     QModelIndex parent = modelIndex(i);
-    int count = model->rowCount(parent);
+
+    int count = 0;
+    if (model->hasChildren(parent))
+        count = model->rowCount(parent);
 
     if (i == -1)
         viewItems.resize(count);

@@ -1704,9 +1704,9 @@ QModelIndex QAbstractTableModel::parent(const QModelIndex &) const
     return QModelIndex();
 }
 
-bool QAbstractTableModel::hasChildren(const QModelIndex &) const
+bool QAbstractTableModel::hasChildren(const QModelIndex &parent) const
 {
-    return false;
+    return !parent.isValid();
 }
 
 /*!
@@ -1840,7 +1840,7 @@ int QAbstractListModel::columnCount(const QModelIndex &) const
     return 1;
 }
 
-bool QAbstractListModel::hasChildren(const QModelIndex &) const
+bool QAbstractListModel::hasChildren(const QModelIndex &parent) const
 {
-    return false;
+    return !parent.isValid();
 }
