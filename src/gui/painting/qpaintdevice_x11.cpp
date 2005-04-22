@@ -139,6 +139,8 @@ Drawable Q_GUI_EXPORT qt_x11Handle(const QPaintDevice *pd)
 }
 
 /*!
+    \relates QPaintDevice
+
     Returns the QX11Info structure for the \a pd paint device. 0 is
     returned if it can't be obtained.
 */
@@ -327,7 +329,7 @@ bool QPaintDevice::x11DefaultVisual() const
         void *visual = qApp->x11Info(screen).visual();
     \endcode
 
-    \sa QApplication::x11Info()
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 void *QPaintDevice::x11AppVisual(int screen)
 { return QX11Info::appVisual(screen); }
@@ -341,7 +343,7 @@ void *QPaintDevice::x11AppVisual(int screen)
         unsigned long colormap = qApp->x11Info(screen).colormap();
     \endcode
 
-    \sa QApplication::x11Info()
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
 { return QX11Info::appColormap(screen); }
@@ -355,7 +357,7 @@ Qt::HANDLE QPaintDevice::x11AppColormap(int screen)
         Display *display = qApp->x11Info().display();
     \endcode
 
-    \sa QApplication::x11Info()
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 Display *QPaintDevice::x11AppDisplay()
 { return QX11Info::display(); }
@@ -369,7 +371,7 @@ Display *QPaintDevice::x11AppDisplay()
         int screen = qApp->x11Info().screen();
     \endcode
 
-    \sa QApplication::x11Info()
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 int QPaintDevice::x11AppScreen()
 { return QX11Info::appScreen(); }
@@ -383,7 +385,7 @@ int QPaintDevice::x11AppScreen()
         int depth = qApp->x11Info(screen).depth();
     \endcode
 
-    \sa QApplication::x11Info()
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 int QPaintDevice::x11AppDepth(int screen)
 { return QX11Info::appDepth(screen); }
@@ -397,7 +399,7 @@ int QPaintDevice::x11AppDepth(int screen)
         int cells = qApp->x11Info(screen).cells();
     \endcode
 
-    \sa QApplication::x11Info()
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 int QPaintDevice::x11AppCells(int screen)
 { return QX11Info::appCells(screen); }
@@ -411,7 +413,7 @@ int QPaintDevice::x11AppCells(int screen)
         unsigned long window = qApp->x11Info(screen).rootWindow();
     \endcode
 
-    \sa QApplication::x11Info()
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 Qt::HANDLE QPaintDevice::x11AppRootWindow(int screen)
 { return QX11Info::appRootWindow(screen); }
@@ -425,7 +427,7 @@ Qt::HANDLE QPaintDevice::x11AppRootWindow(int screen)
         bool isDefault = qApp->x11Info(screen).isDefaultColormap();
     \endcode
 
-    \sa QApplication::x11Info()
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 bool QPaintDevice::x11AppDefaultColormap(int screen)
 { return QX11Info::appDefaultColormap(screen); }
@@ -439,7 +441,7 @@ bool QPaintDevice::x11AppDefaultColormap(int screen)
         bool isDefault = qApp->x11Info(screen).isDefaultVisual();
     \endcode
 
-    \sa QApplication::x11Info()
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 bool QPaintDevice::x11AppDefaultVisual(int screen)
 { return QX11Info::appDefaultVisual(screen); }
@@ -470,7 +472,7 @@ void QPaintDevice::x11SetAppDpiY(int dpi, int screen)
         bool isDefault = qApp->x11Info(screen).dpiX();
     \endcode
 
-    \sa QApplication::x11Info()
+    \sa QWidget::x11Info(), QPixmap::x11Info()
 */
 int QPaintDevice::x11AppDpiX(int screen)
 {
@@ -482,7 +484,7 @@ int QPaintDevice::x11AppDpiX(int screen)
     \a screen.  Using this function is not portable.
     Using this function is not portable.
 
-    \sa x11AppDpiX(), x11SetAppDpiY(), QPaintDeviceMetrics::logicalDpiY()
+    \sa x11AppDpiX(), x11SetAppDpiY(), logicalDpiY()
 */
 int QPaintDevice::x11AppDpiY(int screen)
 {

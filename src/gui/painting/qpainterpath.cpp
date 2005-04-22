@@ -1196,6 +1196,15 @@ bool QPainterPath::operator!=(const QPainterPath &path) const
 }
 
 #ifndef QT_NO_DATASTREAM
+/*!
+    \fn QDataStream &operator<<(QDataStream &stream, const QPainterPath &path)
+    \relates QPainterPath
+
+    Writes the painter path specified by \a path to the given \a stream, and
+    returns a reference to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
 QDataStream &operator<<(QDataStream &s, const QPainterPath &p)
 {
     if (p.isEmpty()) {
@@ -1218,6 +1227,15 @@ QDataStream &operator<<(QDataStream &s, const QPainterPath &p)
     return s;
 }
 
+/*!
+    \fn QDataStream &operator>>(QDataStream &stream, QPainterPath &path)
+    \relates QPainterPath
+
+    Reads a painter path from the given \a stream into the specified \a path,
+    and returns a reference to the stream.
+
+    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+*/
 QDataStream &operator>>(QDataStream &s, QPainterPath &p)
 {
     int size;

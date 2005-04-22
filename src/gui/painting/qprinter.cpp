@@ -1639,3 +1639,61 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
 
     \value PPK_CustomBase Basis for extension.
 */
+
+/*!
+    \fn QPrintEngine::~QPrintEngine()
+
+    Destroys the print engine.
+*/
+
+/*!
+    \fn void QPrintEngine::setProperty(PrintEnginePropertyKey key, const QVariant &value)
+
+    Sets the print engine's property specified by \a key to the given \a value.
+
+    \sa property()
+*/
+
+/*!
+    \fn void QPrintEngine::property(PrintEnginePropertyKey key) const
+
+    Returns the print engine's property specified by \a key.
+
+    \sa property()
+*/
+
+/*!
+    \fn bool QPrintEngine::newPage()
+
+    Instructs the print engine to start a new page. Returns true if
+    successful; otherwise returns false.
+*/
+
+/*!
+    \fn bool QPrintEngine::abort()
+
+    Instructs the print engine to abort the printing process. Returns
+    true if successful; otherwise returns false.
+*/
+
+/*!
+    \fn int QPrintEngine::metric(QPaintDevice::PaintDeviceMetric id) const
+
+    Returns the metric for the given \a id.
+*/
+
+/*!
+    \fn QPrinter::PrinterState QPrintEngine::printerState() const
+
+    Returns the state of the printer used by the print engine.
+*/
+
+/*!
+    \fn HDC QPrintEngine::getPrinterDC() const
+    \internal
+*/
+
+/*!
+    \fn void QPrintEngine::releasePrinterDC(HDC) const
+    \internal
+*/

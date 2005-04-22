@@ -570,7 +570,10 @@ void QPainterPrivate::updateState(QPainterState *newState)
     may not be respected by any given engine.
 
     \value Antialiasing Indicates that the engine should antialias
-    edges if possible.
+    edges of primitives if possible.
+
+    \value TextAntialiasing Indicates that the engine should antialias
+    text if possible.
 
     \value SmoothPixmapTransform Indicates that the engine should use
     a smooth pixmap transformation algorithm (such as bilinear) rather
@@ -1065,6 +1068,19 @@ void QPainter::setBrushOrigin(const QPointF &p)
   \enum QPainter::CompositionMode
 
   Defines one of the Porter Duff composition operations.
+
+  \value CompositionMode_SourceOver
+  \value CompositionMode_DestinationOver
+  \value CompositionMode_Clear
+  \value CompositionMode_Source
+  \value CompositionMode_Destination
+  \value CompositionMode_SourceIn
+  \value CompositionMode_DestinationIn
+  \value CompositionMode_SourceOut
+  \value CompositionMode_DestinationOut
+  \value CompositionMode_SourceAtop
+  \value CompositionMode_DestinationAtop
+  \value CompositionMode_Xor
 */
 
 /*!
@@ -1733,6 +1749,20 @@ void QPainter::drawPath(const QPainterPath &path)
 */
 
 /*!
+    \fn void QPainter::drawLines(const QVector<QLine> &lines)
+
+    Draws the set of lines defined by the list \a lines using the
+    current pen and brush.
+*/
+
+/*!
+    \fn void QPainter::drawLines(const QVector<QPoint> &pointPairs)
+
+    Draws the set of lines defined by the vector of points specified by
+    \a pointPairs using the current pen and brush.
+*/
+
+/*!
     \fn void QPainter::drawLine(int x1, int y1, int x2, int y2)
     \overload
 
@@ -1757,9 +1787,17 @@ void QPainter::drawPath(const QPainterPath &path)
 /*!
   \fn void QPainter::drawLine(const QLineF &l)
 
-    Draws a line defined by \a l.
+  Draws a line defined by \a l.
 
-    \sa pen()
+  \sa pen()
+*/
+
+/*!
+  \fn void QPainter::drawLine(const QLine &l)
+
+  Draws a line defined by \a l.
+
+  \sa pen()
 */
 
 /*!
@@ -1795,6 +1833,12 @@ void QPainter::drawPath(const QPainterPath &path)
     current pen and brush.
 */
 
+/*!
+    \fn void QPainter::drawRects(const QVector<QRect> &rectangles)
+
+    Draws the rectangles specified in \a rectangles using the
+    current pen and brush.
+*/
 
 /*!
     Draws the first \a rectCount rectangles in the array \a rects
@@ -3003,8 +3047,7 @@ void QPainter::drawConvexPolygon(const QPointF *points, int pointCount)
 
     \overload
 
-    Draws the given \a pixmap at position (\a{x}, \a{y}) using the
-    specified drawing \a mode.
+    Draws the given \a pixmap at position (\a{x}, \a{y}).
 */
 
 /*!
@@ -3239,12 +3282,14 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
 }
 
 /*!
-    \fn void QPainter::drawText(int x, int y, const QString &text, TextDirection dir)
+    \fn void QPainter::drawText(int x, int y, const QString &text)
 
     \overload
 
-    Draws the given \a text at position (\a{x}, \a{y}), in text
-    direction \a dir.
+    Draws the given \a text at position (\a{x}, \a{y}), using the painter's
+    text layout direction.
+
+    \sa layoutDirection(), setLayoutDirection()
 */
 
 /*!
@@ -3265,7 +3310,7 @@ void QPainter::drawImage(const QRectF &targetRect, const QImage &image, const QR
     Draws the string \a str with the currently defined text direction,
     beginning at position \a p.
 
-    \sa QPainter::TextDirection
+    \sa Qt::LayoutDirection
 */
 
 void QPainter::drawText(const QPointF &p, const QString &str)
@@ -3323,11 +3368,14 @@ void QPainter::drawText(const QRect &r, int flags, const QString &str, QRect *br
         *br = bounds.toRect();
 }
 
-/*! \fn void QPainter::drawText(const QPoint &p, const QString &s, TextDirection dir = Auto)
+/*! \fn void QPainter::drawText(const QPoint &p, const QString &s)
 
     \overload
 
-    Draws the string \a s at position \a p, in text direction \a dir.
+    Draws the string \a s at position \a p, using the painter's layout
+    direction.
+
+    \sa layoutDirection(), setLayoutDirection()
 */
 
 /*! \overload
@@ -3542,8 +3590,7 @@ QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextO
     (\a{x}, \a{y}) specifies the top-left point in the paint device
     that is to be drawn onto; with the width and height given by \a w
     and \a h. (\a{sx}, \a{sy}) specifies the top-left point in the \a
-    pixmap that is to be drawn; this defaults to (0, 0). The pixmap is
-    drawn using the given drawing \a mode.
+    pixmap that is to be drawn; this defaults to (0, 0).
 
     Calling drawTiledPixmap() is similar to calling drawPixmap()
     several times to fill (tile) an area with a pixmap, but is
@@ -3558,14 +3605,14 @@ QRectF QPainter::boundingRect(const QRectF &r, const QString &text, const QTextO
     \overload
 
     Draws a tiled \a pixmap, inside rectangle \a rect with its origin
-    at point \a sp, using the given drawing \a mode.
+    at point \a sp.
 */
 
 /*!
     \overload
 
     Draws a tiled \a pixmap, inside rectangle \a r with its origin
-    at point \a sp, using the given drawing \a mode.
+    at point \a sp.
 */
 void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &sp)
 {
@@ -4566,12 +4613,23 @@ void qt_format_text(const QFont &font, const QRectF &_r,
         delete [] underlinePositions;
 }
 
+/*!
+    Sets the layout direction used by the painter when drawing text to the
+    \a direction specified.
+
+    \sa layoutDirection()
+*/
 void QPainter::setLayoutDirection(Qt::LayoutDirection direction)
 {
     Q_D(QPainter);
     d->state->layoutDirection = direction;
 }
 
+/*!
+    Returns the layout direction used by the painter when drawing text.
+
+    \sa setLayoutDirection()
+*/
 Qt::LayoutDirection QPainter::layoutDirection() const
 {
     Q_D(const QPainter);
@@ -4712,31 +4770,31 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
 */
 
 /*!
-    \fn void QPainter::drawText(int x, int y, const QString &text, int pos, int len, TextDirection dir)
+    \fn void QPainter::drawText(int x, int y, const QString &text, int pos, int len)
     \compat
 
-    Use drawText(x, y, text.mid(pos, len), dir) instead.
+    Use drawText(x, y, text.mid(pos, len)) instead.
 */
 
 /*!
-    \fn void QPainter::drawText(const QPoint &p, const QString &text, int pos, int len, TextDirection dir)
+    \fn void QPainter::drawText(const QPoint &p, const QString &text, int pos, int len)
     \compat
 
-    Use drawText(p, text.mid(pos, len), dir) instead.
+    Use drawText(p, text.mid(pos, len)) instead.
 */
 
 /*!
-    \fn void QPainter::drawText(int x, int y, const QString &text, int len, TextDirection dir)
+    \fn void QPainter::drawText(int x, int y, const QString &text, int len)
     \compat
 
-    Use drawText(x, y, text.left(len), dir) instead.
+    Use drawText(x, y, text.left(len)) instead.
 */
 
 /*!
-    \fn void QPainter::drawText(const QPoint &p, const QString &s, int len, TextDirection dir)
+    \fn void QPainter::drawText(const QPoint &p, const QString &s, int len)
     \compat
 
-    Use drawText(p, text.left(len), dir) instead.
+    Use drawText(p, text.left(len)) instead.
 */
 
 /*!
@@ -4849,7 +4907,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     \compat
 
     Returns the bounding rectangle of the first \a len characters of
-    the string \a str constrained by the rectangle that begins at
+    the given \a text constrained by the rectangle that begins at
     point (\a{x}, \a{y}) with width \a w and height \a h.
 */
 
