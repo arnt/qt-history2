@@ -878,8 +878,10 @@ void QListView::paintEvent(QPaintEvent *e)
             if (this->state() == EditingState)
                 option.state |= QStyle::State_Editing;
         }
-        if (alternate)
+        if (alternate) {
             option.palette.setColor(QPalette::Base, (*it).row() & 1 ? oddColor : evenColor);
+            painter.fillRect(option.rect, option.palette.color(QPalette::Base));
+        }
         delegate->paint(&painter, option, *it);
     }
 
