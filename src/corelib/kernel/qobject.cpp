@@ -1060,7 +1060,7 @@ void QObject::moveToThread(QThread *targetThread)
     }
 }
 
-void QObjectPrivate::moveToThiread_helper(QThread *targetThread)
+void QObjectPrivate::moveToThread_helper(QThread *targetThread)
 {
     Q_Q(QObject);
     QEvent e(QEvent::ThreadChange);
