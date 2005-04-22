@@ -16,6 +16,7 @@
 #include <qtreeview.h>
 #include <qlistview.h>
 #include <qsplitter.h>
+#include <qheaderview.h>
 #include "model.h"
 
 int main(int argc, char *argv[])
@@ -29,6 +30,8 @@ int main(int argc, char *argv[])
     QTableView *table = new QTableView(&page);
     table->setModel(data);
     table->setSelectionModel(selections);
+    table->horizontalHeader()->setMovable(true);
+    table->verticalHeader()->setMovable(true);
 
     QTreeView *tree = new QTreeView(&page);
     tree->setModel(data);

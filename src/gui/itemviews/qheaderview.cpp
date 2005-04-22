@@ -501,9 +501,12 @@ void QHeaderView::moveSection(int from, int to)
 void QHeaderView::resizeSection(int logicalIndex, int size)
 {
     Q_D(QHeaderView);
+
     int oldSize = sectionSize(logicalIndex);
     if (oldSize == size)
         return;
+
+    d->executePostedLayout();
 
     int diff = size - oldSize;
     int visual = visualIndex(logicalIndex);

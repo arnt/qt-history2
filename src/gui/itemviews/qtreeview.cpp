@@ -1141,6 +1141,7 @@ void QTreeView::columnCountChanged(int, int)
 void QTreeView::resizeColumnToContents(int column)
 {
     Q_D(QTreeView);
+    d->executePostedLayout();
     int contents = sizeHintForColumn(column);
     int header = d->header->isExplicitlyHidden() ? 0 : d->header->sectionSizeHint(column);
     d->header->resizeSection(column, qMax(contents, header));

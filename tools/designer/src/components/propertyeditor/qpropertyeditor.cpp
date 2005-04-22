@@ -19,6 +19,7 @@
 #include <QtGui/QApplication>
 #include <QtGui/QPainter>
 #include <QtGui/QScrollBar>
+#include <qdebug.h>
 
 using namespace qdesigner::components::propertyeditor;
 
@@ -74,7 +75,6 @@ void QPropertyEditor::setInitialInput(IProperty *initialInput)
     setEditTriggers(QAbstractItemView::CurrentChanged|QAbstractItemView::SelectedClicked);
     setRootIndex(m_model->indexOf(initialInput));
 
-    header()->setResizeMode(1, QHeaderView::Stretch);
     resizeColumnToContents(0);
 }
 
