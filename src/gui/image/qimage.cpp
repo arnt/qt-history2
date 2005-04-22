@@ -564,7 +564,7 @@ QImage::QImage(const QString &fileName, const char *format)
     can be useful if you want to ensure that all user-visible strings
     go through QObject::tr(), for example.
 
-    \sa QString::fromAscii(),     \sa load(), isNull(), QImageReader
+    \sa QString::fromAscii(), load(), isNull(), QImageReader
 */
 QImage::QImage(const char *fileName, const char *format)
     : QPaintDevice()
@@ -1193,10 +1193,8 @@ int QImage::bytesPerLine() const
     Returns the color in the color table at index \a i. The first
     color is at index 0.
 
-    A color value is an RGB triplet. Use the \link ::qRed()
-    qRed()\endlink, \link ::qGreen() qGreen()\endlink and \link
-    ::qBlue() qBlue()\endlink functions (defined in \c qcolor.h) to
-    get the color value components.
+    A color value is an RGB triplet. Use the qRed(), qGreen(), and qBlue()
+    functions to get the color value components.
 
     \sa setColor() numColors() QColor
 */
@@ -1209,9 +1207,8 @@ QRgb QImage::color(int i) const
 /*!
     Sets a color in the color table at index \a i to \a c.
 
-    A color value is an RGB triplet. Use the \link ::qRgb()
-    qRgb()\endlink function (defined in \c qcolor.h) to make RGB
-    triplets.
+    A color value is an RGB triplet. Use the qRed(), qGreen(), and qBlue()
+    functions to get the color value components.
 
     \sa color() setNumColors() numColors()
 */
@@ -1233,9 +1230,8 @@ void QImage::setColor(int i, QRgb c)
     pointer to \c{QRgb*} (QRgb has a 32-bit size) and use it to
     read/write the pixel value. You cannot use the \c{uchar*} pointer
     directly, because the pixel format depends on the byte order on
-    the underlying platform. Hint: use \link ::qRed() qRed()\endlink,
-    \link ::qGreen() qGreen()\endlink and \link ::qBlue()
-    qBlue()\endlink, etc. (qcolor.h) to access the pixels.
+    the underlying platform. Use qRed(), qGreen(), qBlue(), and
+    qAlpha() to access the pixels.
 
     \sa bytesPerLine() bits() jumpTable()
 */
@@ -2715,7 +2711,7 @@ bool QImage::isGrayscale() const
     If either the width \a w or the height \a h is zero or negative,
     this function returns a \l{isNull()}{null} image.
 
-    \sa scaleWidth() scaleHeight() transform()
+    \sa scaledToWidth(), scaledToHeight(), transformed()
 */
 
 /*!
@@ -2750,14 +2746,14 @@ QImage QImage::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transf
 #endif
 
 /*!
-    Returns a scaled copy of the image. The returned image has a width
-    of \a w pixels. This function automatically calculates the height
-    of the image so that the ratio of the image is preserved.
+    Returns a scaled copy of the image with a width of \a w pixels using
+    the specified transformation \a mode. This function automatically
+    calculates the height of the image so that its aspect ratio is preserved.
 
     If \a w is 0 or negative a \link isNull() null\endlink image is
     returned.
 
-    \sa scaled(), scaleHeight(), transformed()
+    \sa scaled(), scaledToHeight(), transformed()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
@@ -2785,7 +2781,7 @@ QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
     If \a h is 0 or negative a \link isNull() null\endlink image is
     returned.
 
-    \sa scaled(), scaleWidth(), transformed()
+    \sa scaled(), scaledToWidth(), transformed()
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
@@ -2871,7 +2867,7 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
     for unwanted translation; i.e. the image produced is the smallest image
     that contains all the transformed points of the original image.
 
-    \sa scaled(), QPixmap::transform(), QPixmap::trueMatrix(), QMatrix
+    \sa scaled(), QPixmap::transformed(), QPixmap::trueMatrix(), QMatrix
 */
 #ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
@@ -4239,14 +4235,14 @@ inline QImage::Endian QImage::systemBitOrder()
 #endif
 
 /*!
-    \fn QImage QImage::copy(const QRect &rect, Qt::ImageConversionFlags) const
+    \fn QImage QImage::copy(const QRect &rect, Qt::ImageConversionFlags flags) const
     \compat
 
     Use copy() and convertToFormat() instead.
 */
 
 /*!
-    \fn QImage QImage::copy(int x, int y, int w, int h, Qt::ImageConversionFlags) const
+    \fn QImage QImage::copy(int x, int y, int w, int h, Qt::ImageConversionFlags flags) const
     \compat
 
     Use copy() and convertToFormat() instead.
@@ -4260,7 +4256,7 @@ inline QImage::Endian QImage::systemBitOrder()
 */
 
 /*!
-    \fn QImage scaleHeight(int h) const
+    \fn QImage QImage::scaleHeight(int h) const
     \compat
 
     Use scaledToHeight() instead.

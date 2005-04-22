@@ -72,7 +72,8 @@ QBitmap::QBitmap()
 
     Constructs a bitmap with the given \a width and \a height.
 
-    The pixels in the bitmap are uninitialized.
+    If \a clear is true, the bitmap is filled with pixel value 0 (the
+    QColor \c Qt::color0); otherwise the pixels are uninitialized.
 */
 
 QBitmap::QBitmap(int w, int h)
@@ -126,7 +127,7 @@ QBitmap::QBitmap(const QPixmap &pixmap)
     uses more than 1 bit per pixel.
 
     \sa QPixmap::isNull(), QPixmap::load(), QPixmap::loadFromData(),
-    QPixmap::save(), QPixmap::imageFormat()
+    QPixmap::save(), QImageReader::imageFormat()
 */
 
 QBitmap::QBitmap(const QString& fileName, const char *format)
@@ -176,7 +177,7 @@ QBitmap::QBitmap(const QSize &size, const uchar *bits, bool isXbitmap)
 #endif
 
 /*!
-  \reimp
+  Destroys the bitmap.
 */
 QBitmap::~QBitmap()
 {
@@ -205,6 +206,10 @@ QBitmap::operator QVariant() const
     greater than 1.
 */
 
+/*!
+    Returns a copy of the given \a image converted to a bitmap using the
+    image conversion flags specified by \a flags.
+*/
 QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
 {
     if (image.isNull())
@@ -332,7 +337,7 @@ QBitmap QBitmap::fromData(const QSize &size, const uchar *bits, QImage::Format m
     This function does exactly the same as QPixmap::transform(), except
     that it returns a QBitmap instead of a QPixmap.
 
-    \sa QPixmap::transform()
+    \sa QPixmap::transformed()
 */
 
 QBitmap QBitmap::transformed(const QMatrix &matrix) const
@@ -347,16 +352,6 @@ QBitmap QBitmap::transformed(const QMatrix &matrix) const
     \fn QBitmap QBitmap::xForm(const QMatrix &matrix) const
 
     Use transform(\a matrix) instead.
-*/
-
-/*!
-    \fn QBitmap::QBitmap(int width, int height, bool clear)
-
-    Constructs a bitmap with the given \a width and \a height.
-
-    The pixels in the bitmap are uninitialized if \a clear is false;
-    otherwise it is filled with pixel value 0 (the QColor \c
-    Qt::color0).
 */
 
 /*!
