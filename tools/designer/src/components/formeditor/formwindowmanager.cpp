@@ -516,6 +516,7 @@ void FormWindowManager::slotUpdateActions()
 
         if (simplifiedSelection.count() == 1) {
             QWidget *widget = m_core->widgetFactory()->widgetOfContainer(simplifiedSelection.first());
+
             QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
 
             QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget));
