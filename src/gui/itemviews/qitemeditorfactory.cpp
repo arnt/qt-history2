@@ -20,6 +20,23 @@
 #include <qspinbox.h>
 #include <limits.h>
 
+/*!
+    \class QItemEditorFactory
+    \brief The QItemEditorFactory class provides widgets for editing item data
+    in views.
+*/
+
+/*!
+    \fn QItemEditorFactory::QItemEditorFactory()
+
+    Constructs a new item editor factory.
+*/
+
+/*!
+Creates an editor widget with the given \a parent for the specified \a type of data,
+and returns it as a QWidget.
+
+\sa registerEditor()*/
 QWidget *QItemEditorFactory::createEditor(QVariant::Type type, QWidget *parent) const
 {
     QItemEditorCreatorBase *creator = creatorMap.value(type, 0);
@@ -28,6 +45,8 @@ QWidget *QItemEditorFactory::createEditor(QVariant::Type type, QWidget *parent) 
     return creator->createWidget(parent);
 }
 
+/*!
+Returns the property name used to identify the given \a type of data. */
 QByteArray QItemEditorFactory::valuePropertyName(QVariant::Type type) const
 {
     QItemEditorCreatorBase *creator = creatorMap.value(type, 0);
@@ -36,12 +55,17 @@ QByteArray QItemEditorFactory::valuePropertyName(QVariant::Type type) const
     return creator->valuePropertyName();
 }
 
-
+/*!
+Destroys the item editor factory.*/
 QItemEditorFactory::~QItemEditorFactory()
 {
 
 }
 
+/*!
+Registers an item editor creator specified by \a creator for the given \a type of data.
+
+\sa createEditor()*/
 void QItemEditorFactory::registerEditor(QVariant::Type type, QItemEditorCreatorBase *creator)
 {
    delete creatorMap.value(type, 0);
@@ -132,6 +156,10 @@ struct QDefaultFactoryCleaner
     ~QDefaultFactoryCleaner() { delete q_default_factory; q_default_factory = 0; }
 };
 
+/*!
+Returns the default item editor factory.
+
+\sa setDefaultFactory()*/
 const QItemEditorFactory *QItemEditorFactory::defaultFactory()
 {
     static const QDefaultItemEditorFactory factory;
@@ -140,6 +168,10 @@ const QItemEditorFactory *QItemEditorFactory::defaultFactory()
     return &factory;
 }
 
+/*!
+Sets the default item editor factory to the given \a factory.
+
+\sa defaultFactory()*/
 void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
 {
     static const QDefaultFactoryCleaner cleaner;

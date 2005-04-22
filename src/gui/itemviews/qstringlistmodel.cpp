@@ -19,29 +19,48 @@
 
 /*!
   \class QStringListModel
-  \brief The QStringListModel provides a model that supplies strings to views.
+  \brief The QStringListModel class provides a model that supplies strings to views.
 
   \ingroup model-view
   \mainclass
 
   QStringListModel is an editable model that can be used for simple cases
   where you need to display a number of strings in a view widget, such as
-  QListView or QComboBox.
+  a QListView or a QComboBox.
 
-  The model can be constructed
+  The model provides all the standard functions of an editable model,
+  representing the data in the string list as a model with one column and
+  a number of rows equal to the number of items in the list.
+
+  Model indexes corresponding to items are obtained with the
+  \l{QAbstractListModel::index()}{index()} function, and item flags are
+  obtained with flags().
+  Item data is read with the data() function and written with setData().
+  The number of rows (and number of items in the string list) can be found
+  with the rowCount() function.
+
+  The model can be constructed with an existing string list, or strings can
+  be set later with the setStringList() convenience function. Strings can
+  also be inserted in the usual way with the insertRows() function, and
+  removed with removeRows(). The contents of the string list can be
+  retrieved with the stringList() convenience function.
 
   \sa QAbstractListModel QAbstractItemModel
 */
 
 /*!
-  Constructs a string list model containing the specified \a strings with
-  the given \a parent.
+  Constructs a string list model with the given \a parent.
 */
 
 QStringListModel::QStringListModel(QObject *parent)
     : QAbstractListModel(parent)
 {
 }
+
+/*!
+  Constructs a string list model containing the specified \a strings with
+  the given \a parent.
+*/
 
 QStringListModel::QStringListModel(const QStringList &strings, QObject *parent)
     : QAbstractListModel(parent), lst(strings)
@@ -52,7 +71,10 @@ QStringListModel::QStringListModel(const QStringList &strings, QObject *parent)
     Returns the number of rows in the model. This value corresponds to the
     number of items in the model's internal string list.
 
-    \sa insertRows() removeRows()
+    The optional \a parent argument is used in most models to specify the
+    parent of the rows to be counted. In this model, the parent is ignored.
+
+    \sa insertRows(), removeRows(), QAbstractItemModel::rowCount()
 */
 
 int QStringListModel::rowCount(const QModelIndex &parent) const
@@ -159,11 +181,20 @@ bool QStringListModel::removeRows(int row, int count, const QModelIndex &parent)
     return true;
 }
 
+/*!
+    Returns the string list used by the model to store data.
+*/
 QStringList QStringListModel::stringList() const
 {
     return lst;
 }
 
+/*!
+    Sets the model's internal string list to \a strings. The model will
+    notify any attached views that its underlying data has changed.
+
+    \sa dataChanged()
+*/
 void QStringListModel::setStringList(const QStringList &strings)
 {
     lst = strings;
