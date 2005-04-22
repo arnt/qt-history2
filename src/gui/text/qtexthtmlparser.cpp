@@ -1030,6 +1030,8 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
         case Html_code:
         case Html_tt:
             fontFamily = QString::fromLatin1("Courier New,courier");
+            // <tt> uses a fixed font, so set the property
+            fontFixedPitch = true;
             break;
         case Html_br:
             text = QChar(QChar::LineSeparator);
@@ -1040,6 +1042,8 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             wsm = WhiteSpacePre;
             margin[QTextHtmlParser::MarginTop] = 12;
             margin[QTextHtmlParser::MarginBottom] = 12;
+            // <pre> uses a fixed font
+            fontFixedPitch = true;
             break;
         case Html_blockquote:
             margin[QTextHtmlParser::MarginLeft] = 40;
