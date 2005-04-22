@@ -106,7 +106,7 @@ elif [ ! -z "$SOURCE_PACKAGE" ]; then
     export DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
     export DYLD_FRAMEWORK_PATH=$QTDIR/lib:$DYLD_FRAMEWORK_PATH
     export PATH=$QTDIR/bin:$PATH
-    if (cd "$TMP_DIR/source" && tar $TAR_COMMANDS "$SOURCE_PACKAGE" && cd "$PACKAGE_DEST" && ./configure -qt-imgfmt-png -qt-gif -release -framework -confirm-license && make); then
+    if (cd "$TMP_DIR/source" && tar $TAR_COMMANDS "$SOURCE_PACKAGE" && cd "$PACKAGE_DEST" && ./configure -qt-imgfmt-png -qt-jpeg -qt-sql-sqlite -release -framework -confirm-license && make); then
           SOURCE_DIR="$QTDIR"
           BINARY_DIR="$SOURCE_DIR"
     else
