@@ -3823,7 +3823,7 @@ void QPainter::setRenderHint(RenderHint hint, bool on)
     Q_D(QPainter);
 
     // Don't even try to emulate since it is becomes slower and is not visually better
-    if (hint == QPaintEngine::Antialiasing && on
+    if (hint == QPainter::Antialiasing && on
         && !d->engine->hasFeature(QPaintEngine::Antialiasing)
         && !d->engine->hasFeature(QPaintEngine::AlphaBlend)) {
         return;
