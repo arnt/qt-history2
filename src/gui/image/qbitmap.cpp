@@ -162,6 +162,18 @@ QBitmap &QBitmap::operator=(const QPixmap &pixmap)
 }
 
 
+QBitmap::QBitmap(int w, int h, const uchar *bits, bool isXbitmap)
+{
+    *this = fromData(QSize(w, h), bits, isXbitmap ? QImage::Format_Mono : QImage::Format_MonoLSB);
+}
+
+
+QBitmap::QBitmap(const QSize &size, const uchar *bits, bool isXbitmap)
+{
+    *this = fromData(size, bits, isXbitmap ? QImage::Format_Mono : QImage::Format_MonoLSB);
+}
+
+
 /*!
   \reimp
 */
@@ -288,11 +300,18 @@ QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
     Constructs a bitmap with the given \a size, and sets the contents to
     the \a bits supplied.
 
-    The bitmap data has to be byte aligned and provided in in the bit order specified by \a endian.
+    The bitmap data has to be byte aligned and provided in in the bit
+    order specified by \a monoFormat. The mono format must be either
+    QImage::Mono or QImage::MonoLSB.
+
+    Use QImage::Mono to specify data on the XBM format.
+
 */
-QBitmap QBitmap::fromData(const QSize &size, const uchar *bits, QSysInfo::Endian endian)
+QBitmap QBitmap::fromData(const QSize &size, const uchar *bits, QImage::Format monoFormat)
 {
-    QImage image(size, endian == QSysInfo::LittleEndian ? QImage::Format_MonoLSB : QImage::Format_Mono);
+    Q_ASSERT(monoFormat == QImage::Format_Mono || monoFormat == QImage::Format_MonoLSB);
+
+    QImage image(size, monoFormat);
     image.setColor(0, Qt::color0);
     image.setColor(1, Qt::color1);
 

@@ -1841,7 +1841,9 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
 
     if (depth1) {                                // mono bitmap
         QBitmap bm = QBitmap::fromData(QSize(w, h), dptr,
-                                       BitmapBitOrder(X11->display) == MSBFirst ? QSysInfo::BigEndian : QSysInfo::LittleEndian);
+                                       BitmapBitOrder(X11->display) == MSBFirst
+                                       ? QImage::Format_Mono
+                                       : QImage::Format_MonoLSB);
         free(dptr);
         return bm;
     } else {                                        // color pixmap
