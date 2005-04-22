@@ -25,7 +25,6 @@
 #include <qdebug.h>
 #include <qhash.h>
 #include <qpair.h>
-#include <qreadwritelock.h>
 #include <qvarlengtharray.h>
 
 #include <new>
@@ -1042,6 +1041,7 @@ void QObject::moveToThread(QThread *targetThread)
 
     d->moveToThread_helper(targetThread);
 
+    QWriteLocker locker(QObjectPrivate::readWriteLock());
     QThreadData *currentData = QThreadData::get(currentThread);
     QThreadData *targetData =
         QThreadData::get(targetThread ? targetThread : QCoreApplicationPrivate::mainThread());
@@ -1060,7 +1060,7 @@ void QObject::moveToThread(QThread *targetThread)
     }
 }
 
-void QObjectPrivate::moveToThread_helper(QThread *targetThread)
+void QObjectPrivate::moveToThiread_helper(QThread *targetThread)
 {
     Q_Q(QObject);
     QEvent e(QEvent::ThreadChange);

@@ -691,6 +691,7 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
         return;
     }
 
+    QReadLocker locker(QObjectPrivate::readWriteLock());
     QThread *thread = receiver->thread();
     if (!thread)
         thread = mainThread();

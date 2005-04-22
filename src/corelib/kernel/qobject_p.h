@@ -29,6 +29,7 @@
 #include "qpointer.h"
 #include "qcoreevent.h"
 #include "qlist.h"
+#include "qreadwritelock.h"
 
 class QThreadData;
 
@@ -54,6 +55,9 @@ class Q_CORE_EXPORT QObjectPrivate : public QObjectData
     Q_DECLARE_PUBLIC(QObject)
 
 public:
+    // use this lock when implementing thread-safe QObject things (e.g. postEvent())
+    Q_GLOBAL_STATIC(QReadWriteLock, readWriteLock)
+
     QObjectPrivate(int version = QObjectPrivateVersion);
     virtual ~QObjectPrivate();
 
