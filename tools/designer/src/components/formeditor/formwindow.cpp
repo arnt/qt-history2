@@ -1426,22 +1426,19 @@ void FormWindow::layoutGridContainer(QWidget *w)
     commandHistory()->push(cmd);
 }
 
-bool FormWindow::hasInsertedChildren(QWidget *widget) const
+bool FormWindow::hasInsertedChildren(QWidget *widget) const // ### move
 {
-    if (widget == 0)
-        return false;
+    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), widget)) {
+        QWidget *currentPage = container->widget(container->currentIndex());
 
-    widget = core()->widgetFactory()->containerOfWidget(widget);
-    if (widget == 0)
-        return false;
+        QList<QWidget*> l = widgets(currentPage);
+        if (l.isEmpty())
+            return false;
 
-    QList<QWidget*> l = widgets(widget);
-    if (l.isEmpty())
-        return false;
-
-    foreach (QWidget *child, l) {
-        if (isManaged(child) && child->isVisibleTo(const_cast<FormWindow*>(this)))
-            return true;
+        foreach (QWidget *child, l) {
+            if (isManaged(child) && !LayoutInfo::isWidgetLaidout(core(), child) && child->isVisibleTo(const_cast<FormWindow*>(this)))
+                return true;
+        }
     }
 
     return false;

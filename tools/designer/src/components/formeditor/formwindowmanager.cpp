@@ -515,17 +515,11 @@ void FormWindowManager::slotUpdateActions()
         }
 
         if (simplifiedSelection.count() == 1) {
-            QWidget *widget = simplifiedSelection.first();
+            QWidget *widget = m_core->widgetFactory()->widgetOfContainer(simplifiedSelection.first());
             QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
 
             QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget));
             Q_ASSERT(item != 0);
-
-            if (item->isContainer()) {
-                widget = m_core->widgetFactory()->widgetOfContainer(widget);
-                item = db->item(db->indexOfObject(widget)); // refresh the item
-                Q_ASSERT(item != 0);
-            }
 
             QLayout *layout = LayoutInfo::managedLayout(m_core, widget);
             layoutContainer = (item->isContainer() || m_activeFormWindow->isMainContainer(widget));
