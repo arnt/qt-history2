@@ -18,6 +18,7 @@
 #include "formwindowmanager.h"
 #include "qmainwindow_container.h"
 #include "qdockwidget_container.h"
+#include "qworkspace_container.h"
 #include "default_container.h"
 #include "default_layoutdecoration.h"
 #include "qlayoutwidget_propertysheet.h"
@@ -59,6 +60,7 @@ FormEditor::FormEditor(QObject *parent)
     mgr->registerExtensions(new QDesignerContainerFactory(mgr),             Q_TYPEID(QDesignerContainerExtension));
     mgr->registerExtensions(new QMainWindowContainerFactory(mgr),           Q_TYPEID(QDesignerContainerExtension));
     mgr->registerExtensions(new QDockWidgetContainerFactory(mgr),           Q_TYPEID(QDesignerContainerExtension));
+    mgr->registerExtensions(new QWorkspaceContainerFactory(mgr),            Q_TYPEID(QDesignerContainerExtension));
 
     mgr->registerExtensions(new QDesignerLayoutDecorationFactory(mgr),      Q_TYPEID(QDesignerLayoutDecorationExtension));
 
