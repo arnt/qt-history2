@@ -193,7 +193,7 @@ QAbstractScrollArea::~QAbstractScrollArea()
 {
 }
 
-/*! Returns the viewport's widget.
+/*! Returns the viewport widget.
  */
 QWidget *QAbstractScrollArea::viewport() const
 {
