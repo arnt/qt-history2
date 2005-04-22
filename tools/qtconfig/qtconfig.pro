@@ -1,11 +1,15 @@
 TEMPLATE = app
-CONFIG        += qt warn_on uic3
+CONFIG        += qt warn_on
 LANGUAGE = C++
 QT += qt3support
-SOURCES        += colorbutton.cpp main.cpp previewframe.cpp previewwidget.cpp mainwindow.cpp paletteeditoradvanced.cpp
-HEADERS        += colorbutton.h previewframe.h previewwidget.h mainwindow.h paletteeditoradvanced.h
+
+SOURCES        += colorbutton.cpp main.cpp previewframe.cpp previewwidget.cpp mainwindow.cpp paletteeditoradvanced.cpp \
+    mainwindowbase.cpp paletteeditoradvancedbase.cpp previewwidgetbase.cpp
+HEADERS        += colorbutton.h previewframe.h previewwidget.h mainwindow.h paletteeditoradvanced.h \
+    mainwindowbase.h paletteeditoradvancedbase.h previewwidgetbase.h
+
 FORMS        = mainwindowbase.ui paletteeditoradvancedbase.ui previewwidgetbase.ui
-IMAGES        = images/appicon.png
+RESOURCES    = qtconfig.qrc
 
 PROJECTNAME        = Qt Configuration
 TARGET                = qtconfig
