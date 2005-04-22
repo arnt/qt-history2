@@ -645,8 +645,8 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
         }
     } else {
         while (block.isValid()) {
-            int blockOffset = pos - block.position();
-            if (pos > block.position())
+            int blockOffset = pos - block.position() - expr.size() - 1;            
+            if (blockOffset > block.length())
                 blockOffset = block.length() - 1;
 
             const QString blockText = block.text();
