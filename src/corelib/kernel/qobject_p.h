@@ -30,6 +30,8 @@
 #include "qcoreevent.h"
 #include "qlist.h"
 
+class QThreadData;
+
 struct QSignalSpyCallbackSet
 {
     typedef void (*BeginCallback)(QObject *caller, int method_index, void **argv);
