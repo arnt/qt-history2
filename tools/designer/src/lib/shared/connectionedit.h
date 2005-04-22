@@ -209,7 +209,7 @@ private:
     friend class SetEndPointCommand;
 };
 
-class CECommand : public QtCommand, public CETypes
+class QT_SHARED_EXPORT CECommand : public QtCommand, public CETypes
 {
     Q_OBJECT
 public:
@@ -220,7 +220,7 @@ private:
     ConnectionEdit *m_edit;
 };
 
-class AddConnectionCommand : public CECommand
+class QT_SHARED_EXPORT AddConnectionCommand : public CECommand
 {
     Q_OBJECT
 public:
@@ -231,7 +231,7 @@ private:
     Connection *m_con;
 };
 
-class DeleteConnectionsCommand : public CECommand
+class QT_SHARED_EXPORT DeleteConnectionsCommand : public CECommand
 {
 public:
     DeleteConnectionsCommand(ConnectionEdit *edit, const ConnectionList &con_list);
