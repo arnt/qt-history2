@@ -423,8 +423,7 @@ void qt_mac_update_os_settings()
             { "QHeaderView", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
             { "Q3Header", kThemeTextColorPushButtonActive, kThemeTextColorPushButtonInactive },
             { "QComboBox", kThemeTextColorPopupButtonActive, kThemeTextColorPopupButtonInactive },
-            { "QListView", kThemeTextColorListView, kThemeTextColorDialogInactive },
-            { "QListBox", kThemeTextColorListView, kThemeTextColorDialogInactive },
+            { "QAbstractItemView", kThemeTextColorListView, kThemeTextColorDialogInactive },
             { "QMessageBoxLabel", kThemeTextColorAlertActive, kThemeTextColorAlertInactive },
             { "QTabBar", kThemeTextColorTabFrontActive, kThemeTextColorTabFrontInactive },
             { "QLabel", kThemeTextColorPlacardActive, kThemeTextColorPlacardInactive },
@@ -467,7 +466,14 @@ void qt_mac_update_os_settings()
                              pal.color(QPalette::Inactive, QPalette::Text));
                 pal.setColor(QPalette::Active, QPalette::ButtonText,
                              pal.color(QPalette::Active, QPalette::Text));
+            } else if (!strcmp(mac_widget_colors[i].qt_class, "QAbstractItemView")) {
+                if(!GetThemeBrushAsColor(kThemeBrushAlternatePrimaryHighlightColor, 32, true, &c))
+                    pal.setBrush(QPalette::Active, QPalette::Highlight,
+                            QColor(c.red / 256, c.green / 256, c.blue / 256));
+                GetThemeTextColor(kThemeTextColorMenuItemSelected, 32, true, &c);
+                pal.setBrush(QPalette::HighlightedText, QColor(c.red / 256, c.green / 256, c.blue / 256));
             }
+
             bool set_palette = true;
             extern QHash<QByteArray, QPalette> *qt_app_palettes_hash(); //qapplication.cpp
             QHash<QByteArray, QPalette> *phash = qt_app_palettes_hash();
