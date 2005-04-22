@@ -148,10 +148,7 @@ public:
 
   Here we've created a new QDateTimeEdit object initialized with
   today's date, and restricted the valid date range to today plus or
-  minus 365 days. We've set the order to month, day, year. If the
-  auto advance property is true (as we've set it here) when the user
-  completes a section of the date, e.g. enters two digits for the
-  month, they are automatically taken to the next section.
+  minus 365 days. We've set the order to month, day, year.
 
   The maximum and minimum values for a date value in the date editor
   default to the maximum and minimum values for a QDate. You can
