@@ -1470,6 +1470,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
     ThemeDrawState tds = getDrawState(opt->state);
     QMacCGContext cg(p);
     switch (pe) {
+    case QStyle::PE_IndicatorViewItemCheck:
     case QStyle::PE_Q3CheckListExclusiveIndicator:
     case QStyle::PE_Q3CheckListIndicator:
     case QStyle::PE_IndicatorRadioButton:
@@ -3089,6 +3090,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
 {
     ThemeDrawState tds = getDrawState(opt->state);
     switch (pe) {
+    case QStyle::PE_IndicatorViewItemCheck:
     case QStyle::PE_Q3CheckListExclusiveIndicator:
     case QStyle::PE_Q3CheckListIndicator:
     case QStyle::PE_IndicatorRadioButton:
