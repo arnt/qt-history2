@@ -406,8 +406,10 @@ QUuid VcprojGenerator::increaseUUID(const QUuid &id)
 
 void VcprojGenerator::writeSubDirs(QTextStream &t)
 {
-    if(project->first("TEMPLATE") == "subdirs") {
-        writeSubDirs(t);
+    // Check if all requirements are fullfilled
+    if(!project->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+        fprintf(stderr, "Project file not generated because all requirements not met:\n\t%s\n",
+                var("QMAKE_FAILED_REQUIREMENTS").toLatin1().constData());
         return;
     }
 
@@ -457,6 +459,12 @@ void VcprojGenerator::writeSubDirs(QTextStream &t)
                         fprintf(stderr, "Cannot find directory: %s\n", dir.toLatin1().constData());
                 }
                 if(tmp_proj.read(fn)) {
+                    // Check if all requirements are fullfilled
+                    if(!tmp_proj.variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+                        fprintf(stderr, "Project file(%s) not added to Solution because all requirements not met:\n\t%s\n",
+                                fn.toLatin1().constData(), tmp_proj.values("QMAKE_FAILED_REQUIREMENTS").join(" ").toLatin1().constData());
+                        continue;
+                    }
                     if(tmp_proj.first("TEMPLATE") == "vcsubdirs") {
                         subdirs += fileFixify(tmp_proj.variables()["SUBDIRS"]);
                     } else if(tmp_proj.first("TEMPLATE") == "vcapp" || tmp_proj.first("TEMPLATE") == "vclib") {
