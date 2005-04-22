@@ -518,7 +518,7 @@ void QListView::scrollTo(const QModelIndex &index, ScrollHint hint)
 
     if (index.parent() != rootIndex() || index.column() != d->column)
         return;
-    
+
     QRect area = d->viewport->rect();
     QRect rect = visualRect(index);
     if (hint == EnsureVisible && area.contains(rect)) {
@@ -892,7 +892,6 @@ void QListView::paintEvent(QPaintEvent *e)
     }
 
     if (d->elasticBand.isValid()) {
-        QStyleHintReturnMask mask;
         QStyleOptionRubberBand opt;
         opt.init(this);
         opt.shape = QRubberBand::Rectangle;
@@ -900,8 +899,6 @@ void QListView::paintEvent(QPaintEvent *e)
         opt.rect = d->mapToViewport(d->elasticBand).intersect(
             d->viewport->rect().adjusted(-16, -16, 16, 16));
         painter.save();
-        if (style()->styleHint(QStyle::SH_RubberBand_Mask, &opt, this, &mask))
-            painter.setClipRegion(mask.region);
         style()->drawControl(QStyle::CE_RubberBand, &opt, &painter);
         painter.restore();
     }

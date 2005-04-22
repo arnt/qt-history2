@@ -1086,17 +1086,26 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
         break; }
     case CE_RubberBand: {
         if (const QStyleOptionRubberBand *rbOpt = qstyleoption_cast<const QStyleOptionRubberBand *>(opt)) {
+            QPixmap tiledPixmap(16, 16);
+            QPainter pixmapPainter(&tiledPixmap);
+            pixmapPainter.setPen(Qt::NoPen);
+            pixmapPainter.setBrush(Qt::Dense4Pattern);
+            pixmapPainter.setBackground(QBrush(opt->palette.base()));
+            pixmapPainter.setBackgroundMode(Qt::OpaqueMode);
+            pixmapPainter.drawRect(0, 0, tiledPixmap.width(), tiledPixmap.height());
+            pixmapPainter.end();
+
             p->save();
-            QRect r = opt->rect.adjusted(0,0,-1,-1);
-            p->setBrush(Qt::Dense4Pattern);
-            p->setBackground(QBrush(opt->palette.base()));
-            p->setBackgroundMode(Qt::OpaqueMode);
+            QRect r = opt->rect;
+            QStyleHintReturnMask mask;
+            if (styleHint(QStyle::SH_RubberBand_Mask, opt, widget, &mask))
+                p->setClipRegion(mask.region);
+            p->drawTiledPixmap(r.x(), r.y(), r.width(), r.height(), tiledPixmap);
             p->setPen(opt->palette.color(QPalette::Active, QPalette::Foreground));
-            p->drawRect(r);
-            if (rbOpt->shape == QRubberBand::Rectangle) {
-                r.adjust(3,3, -3,-3);
-                p->drawRect(r);
-            }
+            p->setBrush(Qt::NoBrush);
+            p->drawRect(r.adjusted(0, 0, -1, -1));
+            if (rbOpt->shape == QRubberBand::Rectangle)
+                p->drawRect(r.adjusted(3, 3, -4, -4));
             p->restore();
         }
         break; }
