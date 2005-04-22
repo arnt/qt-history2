@@ -60,26 +60,40 @@
 
     This enum describes the regions in the window decorations.
 
-    \value All the entire region used by the window decoration.
-    \value Title displays the window title and allows the window to be
-            moved by dragging.
-    \value Top allows the top of the window to be resized.
-    \value Bottom allows the bottom of the window to be resized.
-    \value Left allows the left edge of the window to be resized.
-    \value Right allows the right edge of the window to be resized.
-    \value TopLeft allows the top-left of the window to be resized.
-    \value TopRight allows the top-right of the window to be resized.
-    \value BottomLeft allows the bottom-left of the window to be resized.
-    \value BottomRight allows the bottom-right of the window to be resized.
-    \value Close clicking in this region closes the window.
-    \value Minimize clicking in this region minimizes the window.
-    \value Maximize clicking in this region maximizes the window.
-    \value Normalize returns a maximized window to its previous size.
-    \value Menu clicking in this region opens the window operations
-            (system) menu.
-    \value Help clicking in this region provides context-sensitive help.
+    \value All The entire region used by the window decoration.
+
+    \value Top    The top border is used to vertically resize the window.
+    \value Bottom The bottom border is used to vertically resize the window.
+    \value Left   The left border is used to horizontally resize the window.
+    \value Right  The right border is used to horizontally resize the window.
+    \value TopLeft    The top-left corner of the window is used to resize the
+                      window both horizontally and vertically.
+    \value TopRight   The top-right corner of the window is used to resize the
+                      window both horizontally and vertically.
+    \value BottomLeft The bottom-left corner of the window is used to resize the
+                      window both horizontally and vertically.
+    \value BottomRight The bottom-right corner of the window is used to resize the
+                      window both horizontally and vertically.
+    \value Borders    All of the regions used to describe the window border.
+
+    \value Title    The region containing the window title that can be used
+                    to move the window by dragging with the mouse cursor.
+    \value Close    The region occupied by the close button. Clicking in this
+                    region closes the window.
+    \value Minimize The region occupied by the minimize button. Clicking in
+                    this region minimizes the window.
+    \value Maximize The region occupied by the maximize button. Clicking in
+                    this region maximizes the window.
+    \value Normalize The region occupied by a button used to restore a window's
+                     normal size. Clicking in this region restores a maximized
+                     window to its previous size. This region used for this
+                     button is often also the maximize region.
+    \value Menu     The region occupied by the window's menu button. Clicking
+                    in this region opens the window operations (system) menu.
+    \value Help     The region occupied by the window's help button. Clicking
+                    in this region causes the context-sensitive help function
+                    to be enabled.
     \omitvalue None
-    \omitvalue LastRegion
 */
 
 /*!
@@ -153,6 +167,10 @@ void QDecoration::buildSysMenu(QWidget *widget, QMenu *menu)
     menu->addAction(new QDecorationAction("Close", menu, Close));
 }
 
+/*!
+    This function is called whenever an \a action in a menu is triggered
+    for a top level \a widget.
+*/
 void QDecoration::menuTriggered(QWidget *widget, QAction *action)
 {
     QDecorationAction *decAction = static_cast<QDecorationAction *>(action);
@@ -160,8 +178,11 @@ void QDecoration::menuTriggered(QWidget *widget, QAction *action)
 }
 
 /*!
-    Performs the action for when \a region is clicked.
-    Also used for items clicked in the system menu.
+    This function is called whenever a region in a top level widget is
+    clicked. The widget and region are specified by \a widget and \a reg.
+
+    The default implementation performs the action for when a region is
+    clicked, and it is used to handle clicks on items in the system menu.
 */
 void QDecoration::regionClicked(QWidget *widget, int reg)
 {
@@ -191,6 +212,14 @@ void QDecoration::regionClicked(QWidget *widget, int reg)
     }
 }
 
+/*!
+    This function is called whenever a region in a top level widget is
+    double clicked. The widget and region are specified by \a widget and
+    \a reg.
+
+    The default implementation responds to a double click on the widget's
+    title, toggling its size between the maximum and its normal size.
+*/
 void QDecoration::regionDoubleClicked(QWidget *widget, int reg)
 {
     switch(reg)
@@ -206,7 +235,8 @@ void QDecoration::regionDoubleClicked(QWidget *widget, int reg)
 }
 
 /*!
-    Initiates move mode for the TLW handled by QWSManager.
+    Initiates move mode for the top level widget specified by \a widget
+    that is TLW handled by QWSManager.
 */
 void QDecoration::startMove(QWidget *widget)
 {
@@ -216,7 +246,8 @@ void QDecoration::startMove(QWidget *widget)
 }
 
 /*!
-    Initiates resize mode for the TLW handled by QWSManager.
+    Initiates resize mode for the top level widget specified by \a widget
+    that is handled by QWSManager.
 */
 void QDecoration::startResize(QWidget *widget)
 {
