@@ -162,6 +162,7 @@ QBitmap &QBitmap::operator=(const QPixmap &pixmap)
 }
 
 
+#ifdef QT3_SUPPORT
 QBitmap::QBitmap(int w, int h, const uchar *bits, bool isXbitmap)
 {
     *this = fromData(QSize(w, h), bits, isXbitmap ? QImage::Format_Mono : QImage::Format_MonoLSB);
@@ -172,7 +173,7 @@ QBitmap::QBitmap(const QSize &size, const uchar *bits, bool isXbitmap)
 {
     *this = fromData(size, bits, isXbitmap ? QImage::Format_Mono : QImage::Format_MonoLSB);
 }
-
+#endif
 
 /*!
   \reimp
