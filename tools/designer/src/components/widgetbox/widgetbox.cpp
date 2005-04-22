@@ -606,8 +606,8 @@ WidgetBoxTreeView::Category WidgetBoxTreeView::category(int cat_idx) const
         result.addWidget(itemToWidget(child));
     }
 
-    int i = cat_item->data(0, Qt::UserRole).toInt();
-    switch (i) {
+    int j = cat_item->data(0, Qt::UserRole).toInt();
+    switch (j) {
         case SCRATCHPAD_ITEM:
             result.setType(Category::Scratchpad);
             break;
