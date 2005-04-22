@@ -30,7 +30,6 @@ public:
 
     MainWindow *mainWindow() const;
     HelpWindow *currentBrowser() const;
-    bool linkUnderline() const;
     QStringList sources() const;
     QFont browserFont() const;
     QList<HelpWindow*> browsers() const;
@@ -38,10 +37,20 @@ public:
     HelpWindow* newBackgroundTab(const QString &url);
     HelpWindow* createHelpWindow(const QString &);
 
-    void setMimePath(QStringList lst);
-    void setMimeExtension(const QString &ext);
     void setBrowserFont(const QFont &fnt);
     void setTitle(HelpWindow*, const QString &);
+    void applySettings();
+
+    
+    void setFixedFontFamily(const QString &family) { fixedFontFam = family; }
+    QString fixedFontFamily() const { return fixedFontFam; }
+
+    void setLinkColor(const QColor &col) { lnkColor = col; }
+    QColor linkColor() const { return lnkColor; }
+
+    void setUnderlineLink(bool udrline) { underlineLnk = udrline; }
+    bool underlineLink() const { return underlineLnk; }
+
 
 public slots:
     void init();
@@ -60,17 +69,18 @@ public slots:
     void transferFocus();
     void initHelpWindow(HelpWindow *win);
     void setup();
-    void setLinkUnderline(bool uline);
-    void setPalette(const QPalette &pal);
     void copy();
     void closeTab();
     void sourceChanged();
 
 private:
     Ui::TabbedBrowser ui;
-    bool tabLinkUnderline;
     QWidget *lastCurrentTab;
     QFont tabFont;
+
+    QString fixedFontFam;
+    QColor lnkColor;
+    bool underlineLnk;
 };
 
 #endif // TABBEDBROWSER_H

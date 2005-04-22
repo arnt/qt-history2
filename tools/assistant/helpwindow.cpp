@@ -32,6 +32,8 @@
 #include <qtextcodec.h>
 #include <qstatusbar.h>
 #include <qtextcursor.h>
+#include <qtextobject.h>
+#include <qtextlayout.h>
 
 #if defined(Q_OS_WIN32)
 #include <windows.h>
@@ -144,6 +146,8 @@ void HelpWindow::setSource(const QUrl &name)
             */
 
         QTextBrowser::setSource(name);
+        updateFormat();        
+        
         return;
     }
     mw->statusBar()->showMessage(tr("Failed to open link: '%1'").arg(name.toString()), 5000);
@@ -152,6 +156,46 @@ void HelpWindow::setSource(const QUrl &name)
     mw->browsers()->updateTitle(tr("Error..."));
 }
 
+void HelpWindow::updateFormat()
+{
+    Config *config = Config::configuration();
+
+    QString fixedFontFamily = mw->browsers()->fixedFontFamily();
+    QColor linkColor = mw->browsers()->linkColor();
+    bool underlineLinks = mw->browsers()->underlineLink();
+        
+    QTextDocument *doc = QTextBrowser::document();
+    for (QTextBlock block = doc->begin(); block != doc->end(); block = block.next()) {
+        QTextLayout *layout = block.layout();
+        QString txt = block.text();
+        QList<QTextLayout::FormatRange> overrides;
+
+        for (QTextBlock::Iterator it = block.begin(); !it.atEnd(); ++it) {
+            const QTextFragment fragment = it.fragment();
+            QTextCharFormat fmt = fragment.charFormat();
+            if (fmt.isAnchor() && !fmt.anchorHref().isEmpty()) {
+                QTextLayout::FormatRange range;
+                range.start = fragment.position() - block.position();
+                range.length = fragment.length();
+                fmt.setForeground(linkColor);
+                fmt.setFontUnderline(underlineLinks);
+                range.format = fmt;
+                overrides.append(range);
+                continue;
+            }
+            if (fmt.fontFixedPitch()) {
+                QTextLayout::FormatRange range;
+                range.start = fragment.position() - block.position();
+                range.length = fragment.length();
+                fmt.setFontFamily(fixedFontFamily);
+                range.format = fmt;
+                overrides.append(range);                    
+            }
+        }
+        layout->setAdditionalFormats(overrides);
+        doc->markContentsDirty(block.position(), block.length());
+    }
+}
 
 void HelpWindow::openLinkInNewWindow()
 {

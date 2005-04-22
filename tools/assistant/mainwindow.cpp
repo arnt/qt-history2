@@ -520,28 +520,22 @@ void MainWindow::showSettingsDialog(int page)
     if (!settingsDia){
         settingsDia = new SettingsDialog(this);
     }
-    QFontDatabase fonts;
-    settingsDia->fontCombo()->clear();
-    settingsDia->fontCombo()->addItems(fonts.families());
+    
     settingsDia->fontCombo()->lineEdit()->setText(tabs->browserFont().family());
-    settingsDia->fixedFontCombo()->clear();
-    settingsDia->fixedFontCombo()->addItems(fonts.families());
-    // ### FIXME
-    //settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->styleSheet()->item(QLatin1String("pre"))->fontFamily());
-    settingsDia->linkUnderlineCB()->setChecked(tabs->linkUnderline());
-
+    settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->fixedFontFamily());
+        
     QPalette pal = settingsDia->colorButton()->palette();
-	pal.setColor(QPalette::Active, QPalette::Button, tabs->palette().color(QPalette::Active, QPalette::Link));
+	pal.setColor(QPalette::Active, QPalette::Button, tabs->linkColor());
     settingsDia->colorButton()->setPalette(pal);
+
 
     if (page != -1)
         settingsDia->settingsTab()->setCurrentIndex(page);
 
-    int ret = settingsDia->exec();
-
-    if (ret != QDialog::Accepted)
+    if (settingsDia->exec() != QDialog::Accepted)
         return;
 
+    
     QObjectList lst = ui.Toolbar->children();
     for (int i = 0; i < lst.size(); ++i) {
         QObject *obj = lst.at(i);
@@ -550,31 +544,12 @@ void MainWindow::showSettingsDialog(int page)
             break;
         }
     }
-
     setupGoActions();
-
-    QFont fnt(tabs->browserFont());
-    fnt.setFamily(settingsDia->fontCombo()->currentText());
-    tabs->setBrowserFont(fnt);
-    tabs->setLinkUnderline(settingsDia->linkUnderlineCB()->isChecked());
-
-    pal = tabs->palette();
-	QColor lc = settingsDia->colorButton()->palette().color(QPalette::Button);
-    pal.setColor(QPalette::Active, QPalette::Link, lc);
-    pal.setColor(QPalette::Inactive, QPalette::Link, lc);
-    pal.setColor(QPalette::Disabled, QPalette::Link, lc);
-    tabs->setPalette(pal);
-
-    QString family = settingsDia->fixedFontCombo()->currentText();
-
-    /* ### FIXME
-    QStyleSheet *sh = tabs->styleSheet();
-    sh->item(QLatin1String("pre"))->setFontFamily(family);
-    sh->item(QLatin1String("code"))->setFontFamily(family);
-    sh->item(QLatin1String("tt"))->setFontFamily(family);
-    */
+    
+    tabs->applySettings();
+        
     tabs->currentBrowser()->reload();
-    showLink(tabs->currentBrowser()->source().toString());
+    //showLink(tabs->currentBrowser()->source().toString());
 }
 
 MainWindow* MainWindow::newWindow()
@@ -595,10 +570,11 @@ void MainWindow::saveSettings()
     Config *config = Config::configuration();
     config->setFontFamily(tabs->browserFont().family());
     config->setFontSize(tabs->currentBrowser()->font().pointSize());
-    // ### FIXME
-    //config->setFontFixedFamily(tabs->styleSheet()->item(QLatin1String("pre"))->fontFamily());
-    config->setLinkUnderline(tabs->linkUnderline());
-    config->setLinkColor(tabs->palette().color(QPalette::Active, QPalette::Link).name());
+    
+    config->setFontFixedFamily(tabs->fixedFontFamily());
+    config->setLinkUnderline(tabs->underlineLink());
+    config->setLinkColor(tabs->linkColor().name());    
+    
     config->setSideBarPage(helpDock->tabWidget()->currentIndex());
     config->setGeometry(QRect(x(), y(), width(), height()));
     config->setMaximized(isMaximized());

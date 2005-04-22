@@ -30,7 +30,7 @@
 #include <qtoolbutton.h>
 #include <qtabwidget.h>
 #include <qmap.h>
-
+#include <qfontdatabase.h>
 
 SettingsDialog::SettingsDialog(QWidget *parent)
     : QDialog(parent)
@@ -42,6 +42,19 @@ SettingsDialog::SettingsDialog(QWidget *parent)
 void SettingsDialog::init()
 {
     Config *config = Config::configuration();
+
+    QFontDatabase fonts;
+    ui.fontCombo->addItems(fonts.families());
+    ui.fontCombo->lineEdit()->setText(config->fontFamily());
+    
+    ui.fixedfontCombo->addItems(fonts.families());
+    ui.fixedfontCombo->lineEdit()->setText(config->fontFixedFamily());
+
+    QPalette pal = ui.colorButton->palette();
+    pal.setColor(QPalette::Active, QPalette::Button, QColor(config->linkColor()));
+    ui.colorButton->setPalette(pal);
+
+    ui.linkUnderlineCB->setChecked(config->isLinkUnderline());
 
     ui.browserApp->setText(config->webBrowser());
     ui.homePage->setText(config->homePage());
@@ -82,6 +95,11 @@ void SettingsDialog::setFile(QLineEdit *le, const QString &caption)
 void SettingsDialog::accept()
 {
     Config *config = Config::configuration();
+
+    config->setFontFamily(ui.fontCombo->currentText());
+    config->setFontFixedFamily(ui.fixedfontCombo->currentText());
+    config->setLinkColor(ui.colorButton->palette().color(QPalette::Button).name());
+    config->setLinkUnderline(ui.linkUnderlineCB->isChecked());
 
     config->setWebBrowser(ui.browserApp->text());
     config->setHomePage(ui.homePage->text());
