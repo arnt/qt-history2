@@ -822,12 +822,11 @@ void QHeaderView::setSortIndicator(int logicalIndex, Qt::SortOrder order)
     }
 }
 
-// ### DOC: I made up the -1 case...
 /*!
-    Returns the logical index of the section that has a sort indicator, or -1
-    if no section has a sort indicator.
+    Returns the logical index of the section that has a sort
+    indicator. By default this is section 0.
 
-    \sa setSortIndicator() sortIndicatorOrder()
+    \sa setSortIndicator() sortIndicatorOrder() setSortIndicatorShown()
 */
 
 int QHeaderView::sortIndicatorSection() const
@@ -850,9 +849,9 @@ Qt::SortOrder QHeaderView::sortIndicatorOrder() const
 }
 
 /*
-  \property QHeaderView:: streatchLastSection
+  \property QHeaderView:: stretchLastSection
+  \brief whether the last section in the header takes up all the available space
 
-  ###
 */
 bool QHeaderView::stretchLastSection() const
 {

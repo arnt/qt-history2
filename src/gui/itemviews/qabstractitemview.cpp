@@ -450,8 +450,6 @@ void QAbstractItemView::setSelectionModel(QItemSelectionModel *selectionModel)
     }
 }
 
-// ### DOC: Couldn't we call this selection() (and setSelection() and clearSelection()) ?
-// This can be confused with actually selecting items.
 /*!
     Returns the current selection.
 
@@ -500,13 +498,14 @@ QAbstractItemDelegate *QAbstractItemView::itemDelegate() const
     return d_func()->delegate;
 }
 
-// ###DOC: this has to be explained in a better way
 /*!
   \property QAbstractItemView::selectionMode
   \brief which selection mode the view operates in.
 
-  This property holds whether the user can select
-  only one item or several items.
+
+  This property controls whether the user can select one or many items
+  and, in many-item selections, whether the selection must be a
+  continuous range of items.
 
   \sa SelectionMode SelectionBehavior
 */
@@ -1526,13 +1525,11 @@ void QAbstractItemView::editorDestroyed(QObject *editor)
         setState(NoState);
 }
 
-// ###DOC: this value is used by the "scroll in item units" algorithm to
-// enable the scrolling in fractions of item units (one step == itemHeight / verticalFraction)
 /*!
     Sets the horizontal scrollbar's steps per item to \a steps.
 
-    This is the number of steps used by the horizontal scrollbar to represent
-    the width of an item.
+    This is the number of steps used by the horizontal scrollbar to
+    represent the width of an item.
 
     \sa horizontalStepsPerItem() setVerticalStepsPerItem()
 */
@@ -1555,8 +1552,8 @@ int QAbstractItemView::horizontalStepsPerItem() const
 /*!
     Sets the vertical scrollbar's steps per item to \a steps.
 
-    This is the number of steps used by the vertical scrollbar to represent
-    the height of an item.
+    This is the number of steps used by the vertical scrollbar to
+    represent the height of an item.
 
     \sa verticalStepsPerItem() setHorizontalStepsPerItem()
 */

@@ -87,11 +87,8 @@
 /*!
   \fn void QAbstractItemDelegate::commitData(QWidget *editor)
 
-  This signal is emitted when the \a editor widget has completed editing the
-  data, and wants to write it back into the model.
-  \omit
-  ... ### FIXME ###
-  \endomit
+  This signal must be emitted when the \a editor widget has completed
+  editing the data, and wants to write it back into the model.
 */
 
 /*!

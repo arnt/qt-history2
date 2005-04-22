@@ -815,7 +815,10 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 /*!
   \fn void QListWidget::itemActivated(QListWidgetItem *item)
 
-  This signal is emitted when ... ###
+  This signal is emitted when the \a item is activated
+  \omit
+  ### DOC: Describe "activated" better. Task 71866
+  \endomit
 */
 
 /*!
