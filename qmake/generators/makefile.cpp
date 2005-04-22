@@ -989,14 +989,18 @@ MakefileGenerator::writePrlFile()
 	   || project->first("TEMPLATE") == "vclib")
        && !project->isActiveConfig("plugin")) { //write prl file
 
-	QString prl = project->first("TARGET");
+	QString prl = project->first("TARGET_PRL");;
+        if(prl.isEmpty())
+            prl = project->first("TARGET");
 	int slsh = prl.lastIndexOf(Option::dir_sep);
 	if(slsh != -1)
 	    prl = prl.right(prl.length() - slsh);
-	int dot = prl.indexOf('.');
-	if(dot != -1)
-	    prl = prl.left(dot);
-	prl += Option::prl_ext;
+        if(!prl.endsWith(Option::prl_ext)) {
+            int dot = prl.indexOf('.');
+            if(dot != -1)
+                prl = prl.left(dot);
+            prl += Option::prl_ext;
+        }
         if(!project->isEmpty("QMAKE_BUNDLE_NAME"))
             prl.prepend(project->first("QMAKE_BUNDLE_NAME") + Option::dir_sep);
 	if(!project->isEmpty("DESTDIR"))
