@@ -320,8 +320,9 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
 
     Returns the region that the window has requested to draw onto,
     including any window decorations.
-
+    \omit
     \sa allocatedRegion()
+    \endomit
 */
 
 /*!
@@ -1641,6 +1642,13 @@ void QWSServer::sendIMEvent(IMState state, const QString& txt, int cpos, int sel
 }
 
 
+/*!
+  Sends an input method query for the specified \a property.
+
+  You must reimplement the QWSInputMethod::responseHandler() event handler
+  in a subclass of QWSInputMethod if you want to receive responses to
+  input method queries.
+*/
 void QWSServer::sendIMQuery(int property)
 {
     QWSIMQueryEvent event;
@@ -2345,12 +2353,22 @@ void QWSServer::openMouse()
 #endif
 }
 
+/*!
+  Suspends mouse handling by suspending each registered mouse handler.
+
+  \sa resumeMouse()
+*/
 void QWSServer::suspendMouse()
 {
     for (int i=0; i < mousehandlers.size(); ++i)
         mousehandlers.at(i)->suspend();
 }
 
+/*!
+  Resumes mouse handling by reactivating each registered mouse handler.
+
+  \sa suspendMouse()
+*/
 void QWSServer::resumeMouse()
 {
     for (int i=0; i < mousehandlers.size(); ++i)
@@ -2948,7 +2966,6 @@ QWSInputMethod::~QWSInputMethod()
 
     All normal key events should be blocked while in compose mode
     (i.e., between \c InputMethodStart and \c InputMethodEnd).
-
 */
 
 
@@ -2964,13 +2981,13 @@ void QWSInputMethod::reset()
         sendIMEvent(QWSServer::InputMethodCommitToPrev, QString(), 0, 0);
 }
 
-/*
-   Handles update events, including resets and focus changes
+/*!
+  Handles update events, including resets and focus changes.
 
-   Reimplementations must call the base implementation for all cases that it does not handle itself
+  Reimplementations must call the base implementation for all cases that it
+  does not handle itself.
 
-    \a type is a QWSIMUpdateCommand::UpdateType
-
+  \a type is a value defined in \l QWSIMUpdateCommand::UpdateType.
 */
 void QWSInputMethod::updateHandler(int type)
 {
@@ -2986,8 +3003,14 @@ void QWSInputMethod::updateHandler(int type)
 }
 
 
-/*
-  Implemented in subclasses to receive replies to an IMQuery
+/*!
+  This event handler is implemented in subclasses to receive replies to an
+  input method query.
+
+  The specified \a property and \a result contain the property
+  queried and the result returned in the reply.
+
+  \sa sendIMQuery()
 */
 void QWSInputMethod::responseHandler(int property, const QVariant &result)
 {
@@ -3007,7 +3030,7 @@ void QWSInputMethod::responseHandler(int property, const QVariant &result)
 
   if \a state < 0 then the mouse event is inside the widget, but outside the preedit text
 
-  \a QWSServer::MouseOutside is sent when clicking in a different widget.
+  \c QWSServer::MouseOutside is sent when clicking in a different widget.
 
   The default implementation resets the input method on all mouse presses.
 
@@ -3036,6 +3059,17 @@ void QWSInputMethod::mouseHandler(int, int state)
     If state is \c InputMethodCompose, \a selLen is the number of characters in
     the composition string (starting at \a cpos) that should be
     marked as selected by the input widget receiving the event.
+*/
+
+/*!
+  \fn void QWSInputMethod::sendIMQuery(int property)
+
+  Sends an input method query for the specified \a property.
+
+  You must reimplement the responseHandler() event handler in your
+  subclasses if you want to receive responses to input method queries.
+
+  \sa responseHandler()
 */
 #endif
 
@@ -3103,8 +3137,7 @@ void QWSInputMethod::mouseHandler(int, int state)
 
 /*!
     \class QWSServer::KeyboardFilter
-    \brief The QWSServer::KeyboardFilter class provides a global keyboard
-    event filter.
+    \brief The KeyboardFilter class provides a global keyboard event filter.
 
     \ingroup qws
 
@@ -3113,6 +3146,28 @@ void QWSInputMethod::mouseHandler(int, int state)
     can be used to implement things like APM (advanced power
     management) suspend from a button without having to filter for it
     in all applications.
+*/
+
+/*!
+    \fn QWSServer::KeyboardFilter::~KeyboardFilter()
+
+    Destroys the keyboard filter.
+*/
+
+/*!
+    \fn bool QWSServer::KeyboardFilter::filter(int unicode, int keycode, int modifiers, bool isPress, bool autoRepeat)
+
+    Returns true if the specified key should be filtered; otherwise returns
+    false. A true return value stops the key from being processed any further.
+
+    The Unicode value is given in \a unicode and the key code in \a
+    keycode. Keyboard modifiers are OR-ed together in \a modifiers.
+    If \a isPress is true this is a key press; otherwise it is a key
+    release. If \a autoRepeat is true this is an auto-repeated key
+    press.
+
+    All normal key events should be blocked while in compose mode
+    (i.e., between \c InputMethodStart and \c InputMethodEnd).
 */
 
 /*!
