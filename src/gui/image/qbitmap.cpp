@@ -166,13 +166,13 @@ QBitmap &QBitmap::operator=(const QPixmap &pixmap)
 #ifdef QT3_SUPPORT
 QBitmap::QBitmap(int w, int h, const uchar *bits, bool isXbitmap)
 {
-    *this = fromData(QSize(w, h), bits, isXbitmap ? QImage::Format_Mono : QImage::Format_MonoLSB);
+    *this = fromData(QSize(w, h), bits, isXbitmap ? QImage::Format_MonoLSB : QImage::Format_Mono);
 }
 
 
 QBitmap::QBitmap(const QSize &size, const uchar *bits, bool isXbitmap)
 {
-    *this = fromData(size, bits, isXbitmap ? QImage::Format_Mono : QImage::Format_MonoLSB);
+    *this = fromData(size, bits, isXbitmap ? QImage::Format_MonoLSB : QImage::Format_Mono);
 }
 #endif
 
@@ -230,7 +230,6 @@ QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
     }
     return bm;
 #elif defined(Q_WS_X11)
-    extern const uchar *qt_get_bitflip_array(); // defined in qimage.cpp
     QBitmap bm;
     // make sure image.color(0) == Qt::color0 (white) and image.color(1) == Qt::color1 (black)
     const QRgb c0 = QColor(Qt::black).rgb();
@@ -247,36 +246,17 @@ QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
     int h = img.height();
     int bpl = (w+7)/8;
     int ibpl = img.bytesPerLine();
-    if (img.format() == QImage::Format_Mono || bpl != ibpl) {
+    if (bpl != ibpl) {
         tmp_bits = new uchar[bpl*h];
         bits = (char *)tmp_bits;
         uchar *p, *b, *end;
         int y, count;
-        if (img.format() == QImage::Format_Mono) {
-            const uchar *f = qt_get_bitflip_array();
-            b = tmp_bits;
-            for (y = 0; y < h; y++) {
-                p = img.scanLine(y);
-                end = p + bpl;
-                count = bpl;
-                while (count > 4) {
-                    *b++ = f[*p++];
-                    *b++ = f[*p++];
-                    *b++ = f[*p++];
-                    *b++ = f[*p++];
-                    count -= 4;
-                }
-                while (p < end)
-                    *b++ = f[*p++];
-            }
-        } else {                                // just copy
-            b = tmp_bits;
-            p = img.scanLine(0);
-            for (y = 0; y < h; y++) {
-                memcpy(b, p, bpl);
-                b += bpl;
-                p += ibpl;
-            }
+        b = tmp_bits;
+        p = img.scanLine(0);
+        for (y = 0; y < h; y++) {
+            memcpy(b, p, bpl);
+            b += bpl;
+            p += ibpl;
         }
     } else {
         bits = (char *)img.bits();
