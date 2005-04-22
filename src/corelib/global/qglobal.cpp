@@ -107,7 +107,7 @@ Q_CORE_EXPORT void qt_mac_to_pascal_string(QString s, Str255 str, TextEncoding e
 }
 
 Q_CORE_EXPORT QString qt_mac_from_pascal_string(const Str255 pstr) {
-    return QCFString::toQString(CFStringCreateWithPascalString(0, pstr, CFStringGetSystemEncoding()));
+    return QCFString(CFStringCreateWithPascalString(0, pstr, CFStringGetSystemEncoding()));
 }
 
 static QSysInfo::MacVersion macVersion()
