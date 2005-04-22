@@ -958,8 +958,6 @@ bool QAbstractSpinBoxPrivate::updateHoverControl(const QPoint &pos)
 QStyle::SubControl QAbstractSpinBoxPrivate::newHoverControl(const QPoint &pos)
 {
     Q_Q(QAbstractSpinBox);
-    if (hoverRect.contains(pos))
-        return hoverControl;
 
     QStyleOptionSpinBox opt = getStyleOption();
     opt.subControls = QStyle::SC_All;
