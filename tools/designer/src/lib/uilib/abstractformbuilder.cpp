@@ -152,6 +152,7 @@ QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidge
             QAction *sep = new QAction(w);
             sep->setSeparator(true);
             w->addAction(sep);
+            addMenuAction(sep);
         } else if (QAction *a = m_actions.value(name)) {
             w->addAction(a);
         } else if (QActionGroup *g = m_actionGroups.value(name)) {
@@ -812,7 +813,11 @@ DomActionRef *QAbstractFormBuilder::createActionRefDom(QAction *action)
         name = name.left(name.count() - 6);
 
     DomActionRef *ui_action_ref = new DomActionRef();
-    ui_action_ref->setAttributeName(name);
+    if (action->isSeparator())
+        ui_action_ref->setAttributeName(QLatin1String("separator"));
+    else
+        ui_action_ref->setAttributeName(name);
+
     return ui_action_ref;
 }
 

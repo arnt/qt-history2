@@ -1104,7 +1104,7 @@ QActionGroup *QDesignerResource::create(DomActionGroup *ui_action_group, QObject
 
 DomActionRef *QDesignerResource::createActionRefDom(QAction *action)
 {
-    if (core()->metaDataBase()->item(action) != 0 && action->objectName().isEmpty() == false)
+    if (core()->metaDataBase()->item(action) != 0 && (action->objectName().isEmpty() == false || action->isSeparator()))
         return QAbstractFormBuilder::createActionRefDom(action);
 
     return 0;
