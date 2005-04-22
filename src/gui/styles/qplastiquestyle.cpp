@@ -805,9 +805,9 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->save();
 
             const QPushButton *pushButton = qobject_cast<const QPushButton *>(widget);
-            bool isDefault = pushButton && pushButton->isDefault();
             bool down = pushButton && ((button->state & State_Sunken) || (button->state & State_On));
             bool hover = (button->state & State_Enabled) && (button->state & State_MouseOver);
+            bool isDefault = (button->features & QStyleOptionButton::AutoDefaultButton) && (button->features & QStyleOptionButton::DefaultButton);
 
             // gradient fill            
             QLinearGradient gradient(QPointF(option->rect.center().x(), option->rect.top()),
@@ -1822,6 +1822,38 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         painter->drawPoint(rect.bottomLeft());
         painter->drawPoint(rect.bottomRight());
         painter->restore();
+    }
+        break;
+    case CE_DockWidgetTitle: {
+            QImage handle(qt_toolbarhandle);
+            handle.setColor(1, alphaCornerColor.rgba());
+            handle.setColor(2, qt_plastique_mergedColors(alphaCornerColor, option->palette.base().color()).rgba());
+            handle.setColor(3, option->palette.base().color().rgba());
+            int margin = 4;
+
+            QRect titleRect;
+            if (option->state & State_Horizontal) {
+                titleRect = option->rect.adjusted(0, 32 + margin, 0, -margin * 2);
+            } else {
+                titleRect = option->rect.adjusted(margin, 0, -margin * 2 - 32, 0);
+            }
+            titleRect = visualRect(option->direction, option->rect, titleRect);
+
+            if (option->state & State_Horizontal) {
+                int nchunks = titleRect.height() / handle.height();
+                int indent = (titleRect.height() - (nchunks * handle.height())) / 2;
+                for (int i = 0; i < nchunks; ++i) {
+                    painter->drawImage(QPoint(titleRect.left() + 3, titleRect.top() + indent + i * handle.height()),
+                                       handle);
+                }
+            } else {
+                int nchunks = titleRect.width() / handle.width();
+                int indent = (titleRect.width() - (nchunks * handle.width())) / 2;
+                for (int i = 0; i < nchunks; ++i) {
+                    painter->drawImage(QPoint(titleRect.left() + indent + i * handle.width(), titleRect.top() + 3),
+                                       handle);
+                }
+            }
     }
         break;
     default:
