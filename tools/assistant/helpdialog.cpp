@@ -228,10 +228,10 @@ void HelpDialog::removeOldCacheFiles()
     QString pname = QLatin1String(".") + Config::configuration()->profileName();
 
     QStringList fileList;
-    fileList << QLatin1String("indexdb")
-        << QLatin1String("indexdb.dict")
-        << QLatin1String("indexdb.doc")
-        << QLatin1String("contentdb");
+    fileList << QLatin1String("indexdb40")
+        << QLatin1String("indexdb40.dict")
+        << QLatin1String("indexdb40.doc")
+        << QLatin1String("contentdb40");
 
     QStringList::iterator it = fileList.begin();
     for (; it != fileList.end(); ++it) {
@@ -269,7 +269,7 @@ void HelpDialog::loadIndexFile()
 
 
     QList<IndexKeyword> lst;
-    QFile indexFile(cacheFilesPath + QDir::separator() + QLatin1String("indexdb.") +
+    QFile indexFile(cacheFilesPath + QDir::separator() + QLatin1String("indexdb40.") +
                      Config::configuration()->profileName());
     if (!indexFile.open(QFile::ReadOnly)) {
         buildKeywordDB();
@@ -409,7 +409,7 @@ void HelpDialog::buildKeywordDB()
     if (!lst.isEmpty())
         qSort(lst);
 
-    QFile indexout(cacheFilesPath + QDir::separator() + QLatin1String("indexdb.")
+    QFile indexout(cacheFilesPath + QDir::separator() + QLatin1String("indexdb40.")
 		+ Config::configuration()->profileName());
     if (verifyDirectory(cacheFilesPath) && indexout.open(QFile::WriteOnly)) {
         QDataStream s(&indexout);
@@ -444,7 +444,7 @@ void HelpDialog::setupTitleMap()
 
 void HelpDialog::getAllContents()
 {
-    QFile contentFile(cacheFilesPath + QDir::separator() + QLatin1String("contentdb.")
+    QFile contentFile(cacheFilesPath + QDir::separator() + QLatin1String("contentdb40.")
 		+ Config::configuration()->profileName());
     contentList.clear();
     if (!contentFile.open(QFile::ReadOnly)) {
@@ -507,7 +507,7 @@ void HelpDialog::buildContentDict()
         }
     }
 
-    QFile contentOut(cacheFilesPath + QDir::separator() + QLatin1String("contentdb.")
+    QFile contentOut(cacheFilesPath + QDir::separator() + QLatin1String("contentdb40.")
 		+ Config::configuration()->profileName());
     if (contentOut.open(QFile::WriteOnly)) {
         QDataStream s(&contentOut);
@@ -886,13 +886,13 @@ void HelpDialog::setupFullTextIndex()
                                 "Assistant will not work!"));
         return;
     }
-    fullTextIndex->setDictionaryFile(cacheFilesPath + QDir::separator() + QLatin1String("indexdb.dict.") + pname);
-    fullTextIndex->setDocListFile(cacheFilesPath + QDir::separator() + QLatin1String("indexdb.doc.") + pname);
+    fullTextIndex->setDictionaryFile(cacheFilesPath + QDir::separator() + QLatin1String("indexdb40.dict.") + pname);
+    fullTextIndex->setDocListFile(cacheFilesPath + QDir::separator() + QLatin1String("indexdb40.doc.") + pname);
     processEvents();
 
     connect(fullTextIndex, SIGNAL(indexingProgress(int)),
              this, SLOT(setIndexingProgress(int)));
-    QFile f(cacheFilesPath + QDir::separator() + QLatin1String("indexdb.dict.") + pname);
+    QFile f(cacheFilesPath + QDir::separator() + QLatin1String("indexdb40.dict.") + pname);
     if (!f.exists()) {
         help->statusBar()->clearMessage();
         setCursor(Qt::WaitCursor);
