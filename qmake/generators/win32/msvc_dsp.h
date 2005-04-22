@@ -44,7 +44,7 @@ public:
 
 protected:
     virtual bool doDepends() const { return false; } //never necesary
-    virtual void processSources() { filterIncludedFiles("SOURCES"); }
+    virtual void processSources() { filterIncludedFiles("SOURCES"); filterIncludedFiles("GENERATED_SOURCES"); }
     virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
     virtual bool supportsMetaBuild() { return true; }
     virtual bool supportsMergedBuilds() { return true; }
