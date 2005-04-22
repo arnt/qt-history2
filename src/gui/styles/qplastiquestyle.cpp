@@ -805,8 +805,9 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->save();
 
             const QPushButton *pushButton = qobject_cast<const QPushButton *>(widget);
+            bool hoverable = (pushButton || qobject_cast<const QComboBox *>(widget));
             bool down = pushButton && ((button->state & State_Sunken) || (button->state & State_On));
-            bool hover = (button->state & State_Enabled) && (button->state & State_MouseOver);
+            bool hover = hoverable && (button->state & State_Enabled) && (button->state & State_MouseOver);
             bool isDefault = (button->features & QStyleOptionButton::AutoDefaultButton) && (button->features & QStyleOptionButton::DefaultButton);
 
             // gradient fill            
@@ -2246,49 +2247,19 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             painter->save();
+            bool focus = (spinBox->state & State_Enabled) && (spinBox->state & State_HasFocus);
 
             QRect rect = spinBox->rect;
 
-            // Border
-            painter->setPen(borderColor);
-            painter->drawLine(rect.left() + 2, rect.top(), rect.right() - 2, rect.top());
-            painter->drawLine(rect.left() + 2, rect.bottom(), rect.right() - 2, rect.bottom());
-            painter->drawLine(rect.left(), rect.top() + 2, rect.left(), rect.bottom() - 2);
-            painter->drawLine(rect.right(), rect.top() + 2, rect.right(), rect.bottom() - 2);
-            if (spinBox->direction == Qt::RightToLeft) {
-                painter->drawPoint(rect.right() - 1, rect.top() + 1);
-                painter->drawPoint(rect.right() - 1, rect.bottom() - 1);
-            } else {
-                painter->drawPoint(rect.left() + 1, rect.top() + 1);
-                painter->drawPoint(rect.left() + 1, rect.bottom() - 1);
-            }
-            painter->setPen(alphaCornerColor);
-            painter->drawPoint(rect.left() + 1, rect.top());
-            painter->drawPoint(rect.left() + 1, rect.bottom());
-            painter->drawPoint(rect.right() - 1, rect.top());
-            painter->drawPoint(rect.right() - 1, rect.bottom());
-            painter->drawPoint(rect.left(), rect.top() + 1);
-            painter->drawPoint(rect.left(), rect.bottom() - 1);
-            painter->drawPoint(rect.right(), rect.top() + 1);
-            painter->drawPoint(rect.right(), rect.bottom() - 1);
-            painter->setPen(qt_plastique_mergedColors(borderColor, option->palette.base().color()));
-            painter->drawLine(rect.left() + 2, rect.top() + 1, rect.right() - 2, rect.top() + 1);
-            painter->drawLine(rect.left() + 1, rect.top() + 2, rect.left() + 1, rect.bottom() - 2);
+            // Draw a line edit
+            QStyleOptionFrame lineEdit;
+            lineEdit.rect = rect;
+            lineEdit.state = spinBox->state;
+            lineEdit.state |= State_Sunken;
+            drawPrimitive(PE_FrameLineEdit, &lineEdit, painter, widget);
 
             QRect upRect = subControlRect(CC_SpinBox, option, SC_SpinBoxUp, widget);
             QRect downRect = subControlRect(CC_SpinBox, option, SC_SpinBoxDown, widget);
-
-            // outline the up/down buttons
-            painter->setPen(borderColor);
-            if (spinBox->direction == Qt::RightToLeft) {
-                painter->drawLine(upRect.right(), upRect.top(), upRect.right(), downRect.bottom());
-                painter->drawLine(upRect.right(), upRect.top(), upRect.right(), downRect.bottom());
-                painter->drawLine(upRect.right(), upRect.bottom(), upRect.left(), upRect.bottom());
-            } else {
-                painter->drawLine(upRect.left(), upRect.top(), upRect.left(), downRect.bottom());
-                painter->drawLine(upRect.left(), upRect.top(), upRect.left(), downRect.bottom());
-                painter->drawLine(upRect.left(), upRect.bottom(), upRect.right(), upRect.bottom());
-            }
 
             // gradients
             QLinearGradient upGradient(upRect.center().x(), upRect.top(),
@@ -2297,10 +2268,15 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 upGradient.setColorAt(0, gradientStopColor.rgba());
                 upGradient.setColorAt(1, gradientStopColor.rgba());
             } else {
-                upGradient.setColorAt(0, gradientStartColor.rgba());
-                upGradient.setColorAt(1, gradientStopColor.rgba());
+                if (focus) {
+                    upGradient.setColorAt(0, highlightedGradientStartColor.rgba());
+                    upGradient.setColorAt(1, highlightedGradientStopColor.rgba());
+                } else {
+                    upGradient.setColorAt(0, gradientStartColor.rgba());
+                    upGradient.setColorAt(1, gradientStopColor.rgba());
+                }
             }
-            painter->fillRect(upRect.adjusted(1, 1, -1, -1), upGradient);
+            painter->fillRect(upRect.adjusted(1, 1, -1, 0), upGradient);
             
             QLinearGradient downGradient(downRect.center().x(), downRect.top(),
                                          downRect.center().x(), downRect.bottom());
@@ -2308,12 +2284,49 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 downGradient.setColorAt(0, gradientStopColor.rgba());
                 downGradient.setColorAt(1, gradientStopColor.rgba());
             } else {
-                downGradient.setColorAt(0, gradientStartColor.rgba());
-                downGradient.setColorAt(1, gradientStopColor.rgba());
+                if (focus) {
+                    downGradient.setColorAt(0, highlightedGradientStartColor.rgba());
+                    downGradient.setColorAt(1, highlightedGradientStopColor.rgba());
+                } else {
+                    downGradient.setColorAt(0, gradientStartColor.rgba());
+                    downGradient.setColorAt(1, gradientStopColor.rgba());
+                }
             }
-            painter->fillRect(downRect.adjusted(1, 1, -1, -1), downGradient);
+            painter->fillRect(downRect.adjusted(1, 0, -1, -1), downGradient);
+
+            // outline the up/down buttons
+            if (!focus) {
+                painter->setPen(borderColor);
+                if (spinBox->direction == Qt::RightToLeft) {
+                    painter->drawLine(upRect.right(), upRect.top(), upRect.right(), downRect.bottom());
+                    painter->drawLine(upRect.right(), upRect.top(), upRect.right(), downRect.bottom());
+                    painter->drawLine(upRect.right(), upRect.bottom(), upRect.left(), upRect.bottom());
+                } else {
+                    painter->drawLine(upRect.left(), upRect.top(), upRect.left(), downRect.bottom());
+                    painter->drawLine(upRect.left(), upRect.top(), upRect.left(), downRect.bottom());
+                    painter->drawLine(upRect.left(), upRect.bottom(), upRect.right(), upRect.bottom());
+                }
+            } else {
+                painter->setPen(option->palette.highlight().color().dark(130));
+                if (spinBox->direction == Qt::RightToLeft) {
+                } else {
+                    painter->drawLine(upRect.left(), upRect.top() + 1, upRect.left(), downRect.bottom() - 2);
+                    painter->drawLine(upRect.left() + 1, upRect.top() + 1, upRect.right() - 2, upRect.top() + 1);
+                    painter->drawLine(upRect.left() + 1, upRect.top() + 1, upRect.right() - 2, upRect.top() + 1);
+                    painter->drawLine(upRect.left() + 1, upRect.bottom(), upRect.right() - 2, upRect.bottom());
+
+                    painter->setPen(highlightedDarkInnerBorderColor);
+                    painter->drawLine(upRect.left() - 1, upRect.top() + 2, upRect.left() - 1, downRect.bottom() - 2);
+
+                    painter->setPen(option->palette.highlight().color().light(101));
+                    painter->drawLine(upRect.right() - 1, upRect.top() + 2, upRect.right() - 1, downRect.bottom() - 2);
+                    painter->drawLine(downRect.left() + 1, downRect.bottom() - 1, downRect.right() - 2, downRect.bottom() - 1);
+                }
+            }
             
             // finish alpha corners
+            painter->setPen(focus ? highlightedDarkInnerBorderColor : borderColor);
+
             if (spinBox->direction == Qt::RightToLeft) {
                 painter->drawPoint(rect.left() + 1, rect.top() + 1);
                 painter->drawPoint(rect.left() + 1, rect.bottom() - 1);
@@ -2349,11 +2362,11 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 upArrow.setColor(1, spinBox->palette.text().color().rgba());
                 if (spinBox->activeSubControls == SC_SpinBoxUp && (spinBox->state & State_Sunken)) {
                     painter->drawImage(1 + upRect.center().x() - upArrow.width() / 2,
-                                       1 + upRect.center().y() - upArrow.height() / 2,
+                                       2 + upRect.center().y() - upArrow.height() / 2,
                                        upArrow);
                 } else {
                     painter->drawImage(upRect.center().x() - upArrow.width() / 2,
-                                       upRect.center().y() - upArrow.height() / 2,
+                                       1+ upRect.center().y() - upArrow.height() / 2,
                                        upArrow);
                 }
                 QImage downArrow(qt_scrollbar_button_arrow_down);
@@ -2729,11 +2742,11 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             int center = spinBox->rect.height() / 2;
             switch (subControl) {
             case SC_SpinBoxUp:
-                rect.setRect(spinBox->rect.right() - 16, spinBox->rect.top(), 17, center);
+                rect.setRect(spinBox->rect.right() - 16, spinBox->rect.top(), 17, center + 1);
                 rect = visualRect(spinBox->direction, spinBox->rect, rect);
                 break;
             case SC_SpinBoxDown:
-                rect.setRect(spinBox->rect.right() - 16, center, 17, spinBox->rect.bottom() - center + 1);
+                rect.setRect(spinBox->rect.right() - 16, center + 1, 17, spinBox->rect.bottom() - center);
                 rect = visualRect(spinBox->direction, spinBox->rect, rect);
                 break;
             default:
