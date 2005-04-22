@@ -30,6 +30,7 @@ HEADERS += \
            line_propertysheet.h \
            default_container.h \
            qmainwindow_container.h \
+           qdockwidget_container.h \
            default_layoutdecoration.h \
            iconcache.h \
            tool_widgeteditor.h
@@ -47,6 +48,7 @@ SOURCES += \
            spacer_propertysheet.cpp \
            line_propertysheet.cpp \
            qmainwindow_container.cpp \
+           qdockwidget_container.cpp \
            default_container.cpp \
            default_layoutdecoration.cpp \
            tool_widgeteditor.cpp \
