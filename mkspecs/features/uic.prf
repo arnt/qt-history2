@@ -18,7 +18,7 @@ uic.commands = $$QMAKE_UIC ${QMAKE_FILE_IN} -o ${QMAKE_FILE_OUT}
 
 uic.output = $$UI_HEADERS_DIR/ui_${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
 uic.input = FORMS
-uic.variable_out = GENERATED_SOURCES
+uic.variable_out = GENERATED_FILES
 uic.CONFIG += no_link
 uic.name = UIC ${QMAKE_FILE_IN}
 unix:silent:uic.commands = @echo uic ${QMAKE_FILE_IN} && $$uic.commands
@@ -32,7 +32,7 @@ uic3 {
     uic3_decl.output = $$UI_HEADERS_DIR/${QMAKE_FILE_BASE}$${first(QMAKE_EXT_H)}
     uic3_decl.input = FORMS
     uic3_decl.CONFIG += no_link
-    uic3_decl.variable_out = GENERATED_SOURCES UIC3_HEADERS
+    uic3_decl.variable_out = GENERATED_FILES UIC3_HEADERS
     uic3_decl.name = UIC3 Decl ${QMAKE_FILE_IN}
     unix:silent:uic3_decl.commands = @echo uic3 ${QMAKE_FILE_IN} && $$uic3_decl.commands
     QMAKE_EXTRA_COMPILERS += uic3_decl
@@ -59,7 +59,7 @@ uic3 {
 }
 
 image_collection.output = qmake_image_collection$${first(QMAKE_EXT_CPP)}
-image_collection.variable_out = GENERATED_SOURCES
+image_collection.variable_out = GENERATED_FILES
 image_collection.input = IMAGES
 image_collection.CONFIG += combine
 image_collection.name = UIC3 Image collection in ${QMAKE_FILE_OUT}

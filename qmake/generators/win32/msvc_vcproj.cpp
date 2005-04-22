@@ -1033,6 +1033,7 @@ void VcprojGenerator::initGeneratedFiles()
 
     // ### These cannot have CustomBuild (mocSrc)!!
     vcProject.GeneratedFiles.addFiles(project->variables()["GENERATED_SOURCES"]);
+    vcProject.GeneratedFiles.addFiles(project->variables()["GENERATED_FILES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["RESOURCES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["IDLSOURCES"]);
     vcProject.GeneratedFiles.addFiles(project->variables()["RES_FILE"]);

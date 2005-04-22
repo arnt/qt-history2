@@ -144,7 +144,7 @@ bool DspMakefileGenerator::writeDspParts(QTextStream &t)
 
         project->variables()["SWAPPED_BUILD_STEPS"] = swappedBuildSteps.keys();
 
-        writeFileGroup(t, QString("GENERATED_SOURCES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
+        writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
 
     } else { // directory mode
         /* //###
@@ -587,13 +587,15 @@ bool DspMakefileGenerator::writeProjectMakefile()
                 files["SWAPPED_BUILD_STEPS"] +=  config->project->variables()["SWAPPED_BUILD_STEPS"].toSet();
 
                 files["GENERATED_SOURCES"] += config->project->variables()["GENERATED_SOURCES"].toSet();
+                files["GENERATED_FILES"] += config->project->variables()["GENERATED_FILES"].toSet();
             }
 
             project->variables()["SWAPPED_BUILD_STEPS"] = QList<QString>::fromSet(files["SWAPPED_BUILD_STEPS"]);
             project->variables()["UIC3_HEADERS"] = QList<QString>::fromSet(files["UIC3_HEADERS"]);
             project->variables()["GENERATED_SOURCES"] = QList<QString>::fromSet(files["GENERATED_SOURCES"]);
+            project->variables()["GENERATED_FILES"] = QList<QString>::fromSet(files["GENERATED_FILES"]);
 
-            writeFileGroup(t, QString("GENERATED_SOURCES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
+            writeFileGroup(t, QString("GENERATED_SOURCES|GENERATED_FILES|UIC3_HEADERS|SWAPPED_BUILD_STEPS").split("|"), "Generated", "");
 
         }
     }
