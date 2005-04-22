@@ -32,8 +32,7 @@ int QPageSetupDialog::exec()
     QMacPrintEnginePrivate *ep = static_cast<QMacPrintEnginePrivate *>(engine->d_ptr);
     Boolean ret;
     { //simulate modality
-	QWidget modal_widg(0,
-			   Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_DialogBorder);
+	QWidget modal_widg(0, Qt::Window);
         modal_widg.setObjectName(QLatin1String(__FILE__ "__modal_dlg"));
 	QApplicationPrivate::enterModal(&modal_widg);
         if (PMSessionPageSetupDialog(ep->session, ep->format, &ret) != noErr)

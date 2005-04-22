@@ -82,7 +82,7 @@ extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 
 static QSize qt_initial_size(QWidget *w) {
     QSize s = w->sizeHint();
-    QSizePolicy::ExpandData exp;
+    Qt::Orientations exp;
 #ifndef QT_NO_LAYOUT
     QLayout *layout = w->layout();
     if (layout) {
@@ -96,9 +96,9 @@ static QSize qt_initial_size(QWidget *w) {
             s.setHeight(w->heightForWidth(s.width()));
         exp = w->sizePolicy().expandingDirections();
     }
-    if (exp & QSizePolicy::Horizontally)
+    if (exp & Qt::Horizontal)
         s.setWidth(qMax(s.width(), 200));
-    if (exp & QSizePolicy::Vertically)
+    if (exp & Qt::Vertical)
         s.setHeight(qMax(s.height(), 150));
 #if defined(Q_WS_X11)
     QRect screen = QApplication::desktop()->screenGeometry(w->x11Info()->screen());
@@ -1555,8 +1555,7 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                 }
                 needShow = isVisible();
                 const QRect fullscreen(qApp->desktop()->screenGeometry(qApp->desktop()->screenNumber(this)));
-                setParent(0, Qt::WType_TopLevel | Qt::WStyle_Customize | Qt::WStyle_NoBorder |
-                          (windowFlags() & 0xffff0000));                           // preserve some widget flags
+                setParent(0, Qt::Window | Qt::FramelessWindowHint | (windowFlags() & 0xffff0000)); //save
                 setGeometry(fullscreen);
                 if(!qApp->desktop()->screenNumber(this))
                     qt_mac_set_fullscreen_mode(true);

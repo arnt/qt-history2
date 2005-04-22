@@ -111,7 +111,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &
         float aw = si.width, ah = si.ascent + si.descent + 1;
         if(aw == 0 || ah == 0)
             return;
-        QBitmap bm(qRound(aw), qRound(ah), true);        // create bitmap
+        QBitmap bm(qRound(aw), qRound(ah));        // create bitmap
         {
             QPainter paint(&bm);  // draw text in bitmap
             paint.setPen(Qt::color1);

@@ -2730,7 +2730,7 @@ QStyle::SubControl QMacStylePrivate::HIThemeHitTestComplexControl(QStyle::Comple
             if (tbar->titleBarState)
                 wdi.attributes |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
                                   | kThemeWindowHasCollapseBox;
-            else if (tbar->titleBarFlags & Qt::WStyle_SysMenu)
+            else if (tbar->titleBarFlags & Qt::WindowSystemMenuHint)
                 wdi.attributes |= kThemeWindowHasCloseBox;
             QRect tmpRect = tbar->rect;
             tmpRect.setHeight(tmpRect.height() + 100);
@@ -2969,7 +2969,7 @@ int QMacStylePrivate::HIThemePixelMetric(QStyle::PixelMetric metric, const QStyl
             if (tb->titleBarState)
                 wdi.attributes = kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
                                   | kThemeWindowHasCollapseBox;
-            else if (tb->titleBarFlags & Qt::WStyle_SysMenu)
+            else if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
                 wdi.attributes = kThemeWindowHasCloseBox;
             else
                 wdi.attributes = 0;
@@ -3410,7 +3410,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                         DrawThemeButton(buff_rct, bkind, &mask_info, 0, 0, 0, 0);
                     }
                     QImage img = buffer.toImage(), maskimg = buffer_mask.toImage();
-                    QImage mask_out(img.width(), img.height(), 1, 2, QImage::LittleEndian);
+                    QImage mask_out(img.width(), img.height(), QImage::Format_Mono);
                     for (int y = 0; y < img.height(); ++y) {
                         //calculate a mask
                         for (int maskx = 0; maskx < img.width(); ++maskx) {
@@ -3426,8 +3426,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                             *(bytes + x) = 255 - (((255 - *(bytes + x)) * (128 - (frame<<2))) >> 7);
                     }
                     buffer = QPixmap::fromImage(img);
-                    QBitmap qmask(mask_out);
-                    buffer.setMask(qmask);
+                    buffer.setMask(QBitmap::fromImage(mask_out));
                 }
                 p->drawPixmap(opt->rect, buffer);
                 if (do_draw)
@@ -4296,7 +4295,7 @@ QStyle::SubControl QMacStylePrivate::AppManHitTestComplexControl(QStyle::Complex
             if (tbar->titleBarState)
                 twa |= kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
                        | kThemeWindowHasCollapseBox;
-            else if (tbar->titleBarFlags & Qt::WStyle_SysMenu)
+            else if (tbar->titleBarFlags & Qt::WindowSystemMenuHint)
                 twa |= kThemeWindowHasCloseBox;
             WindowRegionCode hit;
             Point macpt = { (short)pt.y(), (short)pt.x() };
@@ -4500,7 +4499,7 @@ int QMacStylePrivate::AppManPixelMetric(QStyle::PixelMetric metric, const QStyle
             if (tbar->titleBarState)
                 twa = kThemeWindowHasFullZoom | kThemeWindowHasCloseBox
                        | kThemeWindowHasCollapseBox;
-            else if (tbar->titleBarFlags & Qt::WStyle_SysMenu)
+            else if (tbar->titleBarFlags & Qt::WindowSystemMenuHint)
                 twa = kThemeWindowHasCloseBox;
             else
                 twa = 0;
@@ -5042,7 +5041,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
             const int sbpl = img.bytesPerLine();
             const int w = sbpl/4, h = img.height();
 
-            QImage img_mask(img.width(), img.height(), 32);
+            QImage img_mask(img.width(), img.height(), QImage::Format_ARGB32);
             QRgb *dptr = (QRgb*)img_mask.bits(), *drow;
             const int dbpl = img_mask.bytesPerLine();
 

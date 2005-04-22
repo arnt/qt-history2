@@ -37,7 +37,7 @@ class QMacCursorWidget : public QWidget
     QBitmap bitmap;
 public:
     QMacCursorWidget(const QBitmap *b, const QBitmap *m) :
-        QWidget(0, Qt::WType_Dialog | Qt::WStyle_Customize | Qt::WStyle_NoBorder | Qt::WStyle_StaysOnTop)
+        QWidget(0, Qt::Dialog | Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint)
         {
             setObjectName("fake_cursor");
             setAttribute(Qt::WA_TransparentForMouseEvents);

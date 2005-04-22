@@ -2035,7 +2035,7 @@ QSettings::QSettings(QObject *parent)
 #ifdef Q_OS_MAC
                                         QCoreApplication::organizationDomain().isEmpty()
                                             ? QCoreApplication::organizationName()
-                                            : QCoreApplication::organiationDomain()
+                                        : QCoreApplication::organizationDomain(),
 #else
                                         QCoreApplication::organizationName(),
 #endif

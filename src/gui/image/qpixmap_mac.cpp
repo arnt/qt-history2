@@ -474,7 +474,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     if (mode == Qt::SmoothTransformation) {
         // ###### do this efficiently! --Sam
         QImage image = toImage();
-        return QPixmap(image.transformed(matrix, mode));
+        return QPixmap::fromImage(image.transformed(matrix, mode));
     }
     if(isNull())
         return copy();
@@ -737,7 +737,7 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
             PlotIconRef(&rect, kAlignNone, kTransformNone, kIconServicesNormalUsageFlag, icon);
         }
         if(!IsIconRefMaskEmpty(icon)) {
-            QBitmap bitmap(width, height, true);
+            QBitmap bitmap(width, height);
             {
                 QPainter p(&bitmap);
                 RgnHandle mask = qt_mac_get_rgn();
