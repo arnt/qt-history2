@@ -170,31 +170,27 @@ FirstPage::FirstPage(ClassWizard *wizard)
 {
     topLabel = new QLabel(tr("<center><b>Class information</b></center>"
                              "<p>This wizard will generate a skeleton class "
-                             "definition and member function definitions."),
-                          this);
+                             "definition and member function definitions."));
     topLabel->setWordWrap(false);
 
-    classNameLabel = new QLabel(tr("Class &name:"), this);
-    classNameLineEdit = new QLineEdit(this);
+    classNameLabel = new QLabel(tr("Class &name:"));
+    classNameLineEdit = new QLineEdit;
     classNameLabel->setBuddy(classNameLineEdit);
     setFocusProxy(classNameLineEdit);
 
-    baseClassLabel = new QLabel(tr("&Base class:"), this);
-    baseClassLineEdit = new QLineEdit(this);
+    baseClassLabel = new QLabel(tr("&Base class:"));
+    baseClassLineEdit = new QLineEdit;
     baseClassLabel->setBuddy(baseClassLineEdit);
 
-    qobjectMacroCheckBox = new QCheckBox(tr("&Generate Q_OBJECT macro"), this);
+    qobjectMacroCheckBox = new QCheckBox(tr("&Generate Q_OBJECT macro"));
 
-    groupBox = new QGroupBox(tr("&Constructor"), this);
+    groupBox = new QGroupBox(tr("&Constructor"));
 
-    qobjectCtorRadioButton = new QRadioButton(tr("&QObject-style constructor"),
-                                              groupBox);
-    qwidgetCtorRadioButton = new QRadioButton(tr("Q&Widget-style constructor"),
-                                              groupBox);
-    defaultCtorRadioButton = new QRadioButton(tr("&Default constructor"),
-                                              groupBox);
+    qobjectCtorRadioButton = new QRadioButton(tr("&QObject-style constructor"));
+    qwidgetCtorRadioButton = new QRadioButton(tr("Q&Widget-style constructor"));
+    defaultCtorRadioButton = new QRadioButton(tr("&Default constructor"));
     copyCtorCheckBox = new QCheckBox(tr("&Also generate copy constructor and "
-                                        "assignment operator"), groupBox);
+                                        "assignment operator"));
 
     defaultCtorRadioButton->setChecked(true);
 
@@ -205,13 +201,14 @@ FirstPage::FirstPage(ClassWizard *wizard)
 
     wizard->setButtonEnabled(false);
 
-    QVBoxLayout *groupBoxLayout = new QVBoxLayout(groupBox);
+    QVBoxLayout *groupBoxLayout = new QVBoxLayout;
     groupBoxLayout->addWidget(qobjectCtorRadioButton);
     groupBoxLayout->addWidget(qwidgetCtorRadioButton);
     groupBoxLayout->addWidget(defaultCtorRadioButton);
     groupBoxLayout->addWidget(copyCtorCheckBox);
+    groupBox->setLayout(groupBoxLayout);
 
-    QGridLayout *layout = new QGridLayout(this);
+    QGridLayout *layout = new QGridLayout;
     layout->addWidget(topLabel, 0, 0, 1, 2);
     layout->setRowMinimumHeight(1, 10);
     layout->addWidget(classNameLabel, 2, 0);
@@ -221,6 +218,7 @@ FirstPage::FirstPage(ClassWizard *wizard)
     layout->addWidget(qobjectMacroCheckBox, 4, 0, 1, 2);
     layout->addWidget(groupBox, 5, 0, 1, 2);
     layout->setRowStretch(6, 1);
+    setLayout(layout);
 }
 
 void FirstPage::classNameChanged()
@@ -232,26 +230,23 @@ void FirstPage::classNameChanged()
 SecondPage::SecondPage(ClassWizard *wizard)
     : QWidget(wizard)
 {
-    topLabel = new QLabel(tr("<center><b>Code style options</b></center>"),
-                          this);
+    topLabel = new QLabel(tr("<center><b>Code style options</b></center>"));
 
-    commentCheckBox = new QCheckBox(tr("&Start generated files with a comment"),
-                                    this);
+    commentCheckBox = new QCheckBox(tr("&Start generated files with a comment"));
     commentCheckBox->setChecked(true);
     setFocusProxy(commentCheckBox);
 
     protectCheckBox = new QCheckBox(tr("&Protect header file against multiple "
-                                       "inclusions"), this);
+                                       "inclusions"));
     protectCheckBox->setChecked(true);
 
-    macroNameLabel = new QLabel(tr("&Macro name:"), this);
-    macroNameLineEdit = new QLineEdit(this);
+    macroNameLabel = new QLabel(tr("&Macro name:"));
+    macroNameLineEdit = new QLineEdit;
     macroNameLabel->setBuddy(macroNameLineEdit);
 
-    includeBaseCheckBox = new QCheckBox(tr("&Include base class definition"),
-                                        this);
-    baseIncludeLabel = new QLabel(tr("Base class include:"), this);
-    baseIncludeLineEdit = new QLineEdit(this);
+    includeBaseCheckBox = new QCheckBox(tr("&Include base class definition"));
+    baseIncludeLabel = new QLabel(tr("Base class include:"));
+    baseIncludeLineEdit = new QLineEdit;
     baseIncludeLabel->setBuddy(baseIncludeLineEdit);
 
     QString className = wizard->firstPage->classNameLineEdit->text();
@@ -280,7 +275,7 @@ SecondPage::SecondPage(ClassWizard *wizard)
     connect(includeBaseCheckBox, SIGNAL(toggled(bool)),
             baseIncludeLineEdit, SLOT(setEnabled(bool)));
 
-    QGridLayout *layout = new QGridLayout(this);
+    QGridLayout *layout = new QGridLayout;
     layout->setColumnMinimumWidth(0, 20);
     layout->addWidget(topLabel, 0, 0, 1, 3);
     layout->setRowMinimumHeight(1, 10);
@@ -292,24 +287,25 @@ SecondPage::SecondPage(ClassWizard *wizard)
     layout->addWidget(baseIncludeLabel, 6, 1);
     layout->addWidget(baseIncludeLineEdit, 6, 2);
     layout->setRowStretch(7, 1);
+    setLayout(layout);
 }
 
 ThirdPage::ThirdPage(ClassWizard *wizard)
     : QWidget(wizard)
 {
-    topLabel = new QLabel(tr("<center><b>Output files</b></center>"), this);
+    topLabel = new QLabel(tr("<center><b>Output files</b></center>"));
 
-    outputDirLabel = new QLabel(tr("&Output directory:"), this);
-    outputDirLineEdit = new QLineEdit(this);
+    outputDirLabel = new QLabel(tr("&Output directory:"));
+    outputDirLineEdit = new QLineEdit;
     outputDirLabel->setBuddy(outputDirLineEdit);
     setFocusProxy(outputDirLineEdit);
 
-    headerLabel = new QLabel(tr("&Header file name:"), this);
-    headerLineEdit = new QLineEdit(this);
+    headerLabel = new QLabel(tr("&Header file name:"));
+    headerLineEdit = new QLineEdit;
     headerLabel->setBuddy(headerLineEdit);
 
-    implementationLabel = new QLabel(tr("&Implementation file name:"), this);
-    implementationLineEdit = new QLineEdit(this);
+    implementationLabel = new QLabel(tr("&Implementation file name:"));
+    implementationLineEdit = new QLineEdit;
     implementationLabel->setBuddy(implementationLineEdit);
 
     QString className = wizard->firstPage->classNameLineEdit->text();
@@ -317,7 +313,7 @@ ThirdPage::ThirdPage(ClassWizard *wizard)
     implementationLineEdit->setText(className.toLower() + ".cpp");
     outputDirLineEdit->setText(QDir::convertSeparators(QDir::homePath()));
 
-    QGridLayout *layout = new QGridLayout(this);
+    QGridLayout *layout = new QGridLayout;
     layout->addWidget(topLabel, 0, 0, 1, 2);
     layout->setRowMinimumHeight(1, 10);
     layout->addWidget(outputDirLabel, 2, 0);
@@ -327,4 +323,5 @@ ThirdPage::ThirdPage(ClassWizard *wizard)
     layout->addWidget(implementationLabel, 4, 0);
     layout->addWidget(implementationLineEdit, 4, 1);
     layout->setRowStretch(5, 1);
+    setLayout(layout);
 }

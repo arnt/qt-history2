@@ -5,10 +5,10 @@
 SimpleWizard::SimpleWizard(QWidget *parent)
     : QDialog(parent)
 {
-    cancelButton = new QPushButton(tr("Cancel"), this);
-    backButton = new QPushButton(tr("< &Back"), this);
-    nextButton = new QPushButton(tr("Next >"), this);
-    finishButton = new QPushButton(tr("&Finish"), this);
+    cancelButton = new QPushButton(tr("Cancel"));
+    backButton = new QPushButton(tr("< &Back"));
+    nextButton = new QPushButton(tr("Next >"));
+    finishButton = new QPushButton(tr("&Finish"));
 
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
     connect(backButton, SIGNAL(clicked()), this, SLOT(backButtonClicked()));
@@ -22,8 +22,9 @@ SimpleWizard::SimpleWizard(QWidget *parent)
     buttonLayout->addWidget(nextButton);
     buttonLayout->addWidget(finishButton);
 
-    mainLayout = new QVBoxLayout(this);
+    mainLayout = new QVBoxLayout;
     mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 }
 
 void SimpleWizard::setButtonEnabled(bool enable)

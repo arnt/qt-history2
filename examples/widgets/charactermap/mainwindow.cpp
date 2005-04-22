@@ -5,22 +5,22 @@
 
 MainWindow::MainWindow()
 {
-    QWidget *centralWidget = new QWidget(this);
+    QWidget *centralWidget = new QWidget;
 
-    QLabel *fontLabel = new QLabel(tr("Font:"), centralWidget);
-    fontCombo = new QComboBox(centralWidget);
-    QLabel *styleLabel = new QLabel(tr("Style:"), centralWidget);
-    styleCombo = new QComboBox(centralWidget);
+    QLabel *fontLabel = new QLabel(tr("Font:"));
+    fontCombo = new QComboBox;
+    QLabel *styleLabel = new QLabel(tr("Style:"));
+    styleCombo = new QComboBox;
 
-    view = new QScrollArea(centralWidget);
+    scrollArea = new QScrollArea;
     characterWidget = new CharacterWidget;
-    view->setWidget(characterWidget);
+    scrollArea->setWidget(characterWidget);
 
     findFonts();
     findStyles();
 
-    lineEdit = new QLineEdit(centralWidget);
-    QPushButton *clipboardButton = new QPushButton(tr("&To clipboard"), centralWidget);
+    lineEdit = new QLineEdit;
+    QPushButton *clipboardButton = new QPushButton(tr("&To clipboard"));
 
     clipboard = QApplication::clipboard();
 
@@ -46,11 +46,12 @@ MainWindow::MainWindow()
     lineLayout->addSpacing(12);
     lineLayout->addWidget(clipboardButton);
 
-    QVBoxLayout *centralLayout = new QVBoxLayout(centralWidget);
+    QVBoxLayout *centralLayout = new QVBoxLayout;
     centralLayout->addLayout(controlsLayout);
-    centralLayout->addWidget(view, 1);
+    centralLayout->addWidget(scrollArea, 1);
     centralLayout->addSpacing(4);
     centralLayout->addLayout(lineLayout);
+    centralWidget->setLayout(centralLayout);
 
     setCentralWidget(centralWidget);
     setWindowTitle(tr("Character Map"));

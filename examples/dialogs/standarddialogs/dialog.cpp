@@ -14,79 +14,75 @@ Dialog::Dialog(QWidget *parent)
 
     int frameStyle = QFrame::Sunken | QFrame::Panel;
 
-    integerLabel = new QLabel(this);
+    integerLabel = new QLabel;
     integerLabel->setFrameStyle(frameStyle);
     QPushButton *integerButton =
-            new QPushButton(tr("QInputDialog::get&Integer()"), this);
-    doubleLabel = new QLabel(this);
+            new QPushButton(tr("QInputDialog::get&Integer()"));
 
+    doubleLabel = new QLabel;
     doubleLabel->setFrameStyle(frameStyle);
     QPushButton *doubleButton =
-            new QPushButton(tr("QInputDialog::get&Double()"), this);
-    itemLabel = new QLabel(this);
+            new QPushButton(tr("QInputDialog::get&Double()"));
+
+    itemLabel = new QLabel;
     itemLabel->setFrameStyle(frameStyle);
-    QPushButton *itemButton =
-            new QPushButton(tr("QInputDialog::getIte&m()"), this);
+    QPushButton *itemButton = new QPushButton(tr("QInputDialog::getIte&m()"));
 
-    textLabel = new QLabel(this);
+    textLabel = new QLabel;
     textLabel->setFrameStyle(frameStyle);
-    QPushButton *textButton =
-            new QPushButton(tr("QInputDialog::get&Text()"), this);
+    QPushButton *textButton = new QPushButton(tr("QInputDialog::get&Text()"));
 
-    colorLabel = new QLabel(this);
+    colorLabel = new QLabel;
     colorLabel->setFrameStyle(frameStyle);
-    QPushButton *colorButton =
-            new QPushButton(tr("QColorDialog::get&Color()"), this);
+    QPushButton *colorButton = new QPushButton(tr("QColorDialog::get&Color()"));
 
-    fontLabel = new QLabel(this);
+    fontLabel = new QLabel;
     fontLabel->setFrameStyle(frameStyle);
-    QPushButton *fontButton =
-            new QPushButton(tr("QFontDialog::get&Font()"), this);
+    QPushButton *fontButton = new QPushButton(tr("QFontDialog::get&Font()"));
 
-    directoryLabel = new QLabel(this);
+    directoryLabel = new QLabel;
     directoryLabel->setFrameStyle(frameStyle);
     QPushButton *directoryButton =
-            new QPushButton(tr("QFileDialog::getE&xistingDirectory()"), this);
+            new QPushButton(tr("QFileDialog::getE&xistingDirectory()"));
 
-    openFileNameLabel = new QLabel(this);
+    openFileNameLabel = new QLabel;
     openFileNameLabel->setFrameStyle(frameStyle);
     QPushButton *openFileNameButton =
-            new QPushButton(tr("QFileDialog::get&OpenFileName()"), this);
+            new QPushButton(tr("QFileDialog::get&OpenFileName()"));
 
-    openFileNamesLabel = new QLabel(this);
+    openFileNamesLabel = new QLabel;
     openFileNamesLabel->setFrameStyle(frameStyle);
     QPushButton *openFileNamesButton =
-            new QPushButton(tr("QFileDialog::&getOpenFileNames()"), this);
+            new QPushButton(tr("QFileDialog::&getOpenFileNames()"));
 
-    saveFileNameLabel = new QLabel(this);
+    saveFileNameLabel = new QLabel;
     saveFileNameLabel->setFrameStyle(frameStyle);
     QPushButton *saveFileNameButton =
-            new QPushButton(tr("QFileDialog::get&SaveFileName()"), this);
+            new QPushButton(tr("QFileDialog::get&SaveFileName()"));
 
-    criticalLabel = new QLabel(this);
+    criticalLabel = new QLabel;
     criticalLabel->setFrameStyle(frameStyle);
     QPushButton *criticalButton =
-            new QPushButton(tr("QMessageBox::critica&l()"), this);
+            new QPushButton(tr("QMessageBox::critica&l()"));
 
-    informationLabel = new QLabel(this);
+    informationLabel = new QLabel;
     informationLabel->setFrameStyle(frameStyle);
     QPushButton *informationButton =
-            new QPushButton(tr("QMessageBox::i&nformation()"), this);
+            new QPushButton(tr("QMessageBox::i&nformation()"));
 
-    questionLabel = new QLabel(this);
+    questionLabel = new QLabel;
     questionLabel->setFrameStyle(frameStyle);
     QPushButton *questionButton =
-            new QPushButton(tr("QMessageBox::&question()"), this);
+            new QPushButton(tr("QMessageBox::&question()"));
 
-    warningLabel = new QLabel(this);
+    warningLabel = new QLabel;
     warningLabel->setFrameStyle(frameStyle);
-    QPushButton *warningButton =
-            new QPushButton(tr("QMessageBox::&warning()"), this);
+    QPushButton *warningButton = new QPushButton(tr("QMessageBox::&warning()"));
 
-    errorLabel = new QLabel(this);
+    errorLabel = new QLabel;
     errorLabel->setFrameStyle(frameStyle);
     QPushButton *errorButton =
-            new QPushButton(tr("QErrorMessage::show&M&essage()"), this);
+            new QPushButton(tr("QErrorMessage::show&M&essage()"));
 
     connect(integerButton, SIGNAL(clicked()), this, SLOT(setInteger()));
     connect(doubleButton, SIGNAL(clicked()), this, SLOT(setDouble()));
@@ -109,7 +105,7 @@ Dialog::Dialog(QWidget *parent)
     connect(warningButton, SIGNAL(clicked()), this, SLOT(warningMessage()));
     connect(errorButton, SIGNAL(clicked()), this, SLOT(errorMessage()));
 
-    QGridLayout *layout = new QGridLayout(this);
+    QGridLayout *layout = new QGridLayout;
     layout->setColumnStretch(1, 1);
     layout->setColumnMinimumWidth(1, 250);
     layout->addWidget(integerButton, 0, 0);
@@ -142,6 +138,7 @@ Dialog::Dialog(QWidget *parent)
     layout->addWidget(warningLabel, 13, 1);
     layout->addWidget(errorButton, 14, 0);
     layout->addWidget(errorLabel, 14, 1);
+    setLayout(layout);
 
     setWindowTitle(tr("Standard Dialogs"));
 }

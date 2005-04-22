@@ -30,7 +30,7 @@ private:
     QComboBox *fontCombo;
     QComboBox *styleCombo;
     QLineEdit *lineEdit;
-    QScrollArea *view;
+    QScrollArea *scrollArea;
 };
 
 #endif
