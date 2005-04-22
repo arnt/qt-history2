@@ -615,7 +615,7 @@ int QHeaderView::count() const
     Returns the visual index position of the section specified by the
     given \a logicalIndex, or -1 otherwise.
 
-    \sa section()
+    \sa logicalIndex()
 */
 
 int QHeaderView::visualIndex(int logicalIndex) const
@@ -632,7 +632,7 @@ int QHeaderView::visualIndex(int logicalIndex) const
     Returns the logicalIndex for the section at the given \a
     visualIndex position, or -1 otherwise.
 
-    \sa visualIndex()
+    \sa visualIndex(), sectionPosition()
 */
 
 int QHeaderView::logicalIndex(int visualIndex) const
@@ -710,8 +710,6 @@ bool QHeaderView::highlightSections() const
 /*!
     Sets the constraints on how the header can be resized to those
     described by the given \a mode.
-
-    \sa QLayout::ResizeMode
 */
 
 void QHeaderView::setResizeMode(ResizeMode mode)
@@ -730,8 +728,6 @@ void QHeaderView::setResizeMode(ResizeMode mode)
 
     Sets the constraints on how the section specified by \a logicalIndex
     in the header can be resized to those described by the given \a mode.
-
-    \sa QLayout::ResizeMode
 */
 
 void QHeaderView::setResizeMode(int logicalIndex, ResizeMode mode)
@@ -865,6 +861,9 @@ void QHeaderView::setStretchLastSection(bool stretch)
     d->stretchLastSection = stretch;
 }
 
+/*!
+    \internal
+*/
 void QHeaderView::doItemsLayout()
 {
     initializeSections();
@@ -882,7 +881,8 @@ bool QHeaderView::sectionsMoved() const
 }
 
 /*!
-  Updates the changed header sections
+  Updates the changed header sections with the given \a orientation, from
+  \a logicalFirst to \a logicalLast inclusive.
 */
 void QHeaderView::headerDataChanged(Qt::Orientation orientation, int logicalFirst, int logicalLast)
 {
