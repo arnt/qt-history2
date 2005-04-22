@@ -1535,30 +1535,38 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     }
 
     if (v < minimum) {
-        QVariant t = v;
-        setDigit(t, s, steps < 0 ? max : min);
-        if (t >= minimum && t <= maximum) {
-            v = t;
-        } else {
-            setDigit(t, s, getDigit(steps < 0 ? maximum : minimum, s));
+        if (wrapping) {
+            QVariant t = v;
+            setDigit(t, s, steps < 0 ? max : min);
             if (t >= minimum && t <= maximum) {
                 v = t;
+            } else {
+                setDigit(t, s, getDigit(steps < 0 ? maximum : minimum, s));
+                if (t >= minimum && t <= maximum) {
+                    v = t;
+                }
             }
+        } else {
+            v = value;
         }
     } else if (v > maximum) {
-        QVariant t = v;
-        setDigit(t, s, steps > 0 ? min : max);
-        if (t >= minimum && t <= maximum) {
-            v = t;
-        } else {
-            setDigit(t, s, getDigit(steps > 0 ? minimum : maximum, s));
+        if (wrapping) {
+            QVariant t = v;
+            setDigit(t, s, steps > 0 ? min : max);
             if (t >= minimum && t <= maximum) {
                 v = t;
+            } else {
+                setDigit(t, s, getDigit(steps > 0 ? minimum : maximum, s));
+                if (t >= minimum && t <= maximum) {
+                    v = t;
+                }
             }
+        } else {
+            v = value;
         }
     }
 
-    return bound(v);
+    return bound(v, value, steps);
 }
 
 /*!
