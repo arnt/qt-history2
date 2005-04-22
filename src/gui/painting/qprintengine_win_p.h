@@ -47,6 +47,7 @@ public:
     void updateState(const QPaintEngineState &state);
 
     void updateMatrix(const QMatrix &matrix);
+    void updateClipPath(const QPainterPath &clip, Qt::ClipOperation op);
 
     void drawPath(const QPainterPath &path);
     void drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode);
@@ -140,6 +141,7 @@ public:
     void strokePath(const QPainterPath &path, const QColor &color);
     void fillPath(const QPainterPath &path, const QColor &color);
 
+    void composeGdiPath(const QPainterPath &path);
     void fillPath_dev(const QPainterPath &path, const QColor &color);
 
     void updateOrigin();

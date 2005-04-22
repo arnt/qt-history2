@@ -183,7 +183,8 @@ QWin32PrintEngine::QWin32PrintEngine(QPrinter::PrinterMode mode)
                    PaintEngineFeatures(AllFeatures
                                        & ~(LinearGradientFill
                                            | RadialGradientFill
-                                           | ConicalGradientFill)))
+                                           | ConicalGradientFill
+                                           | BrushStroke)))
 {
     Q_D(QWin32PrintEngine);
     d->docName = "document1";
@@ -429,13 +430,49 @@ void QWin32PrintEngine::updateState(const QPaintEngineState &state)
 
     if (state.state() & DirtyPen) {
         d->pen = state.pen();
-        d->has_pen = d->pen.style() != Qt::NoPen && d->pen.isSolid() && d->pen.brush().isOpaque();
+        d->has_pen = d->pen.style() != Qt::NoPen && d->pen.isSolid();
     }
 
     if (state.state() & DirtyBrush) {
         QBrush brush = state.brush();
-        d->has_brush = brush.style() == Qt::SolidPattern && brush.isOpaque();
+        d->has_brush = brush.style() == Qt::SolidPattern;
         d->brush_color = brush.color();
+    }
+
+    if (state.state() & DirtyClipPath) {
+        updateClipPath(state.clipPath(), state.clipOperation());
+    }
+
+    if (state.state() & DirtyClipRegion) {
+        QPainterPath clipPath;
+        QRegion clipRegion = state.clipRegion();
+        clipPath.addRegion(clipRegion);
+        updateClipPath(clipPath, state.clipOperation());
+    }
+}
+
+void QWin32PrintEngine::updateClipPath(const QPainterPath &clipPath, Qt::ClipOperation op)
+{
+    Q_D(QWin32PrintEngine);
+
+    if (op == Qt::NoClip) {
+        SelectClipRgn(d->hdc, 0);
+    }
+
+    QPainterPath xformed = clipPath * d->matrix;
+    if (xformed.isEmpty()) {
+        QRegion empty(-0x1000000, -0x1000000, 1, 1);
+        SelectClipRgn(d->hdc, empty.handle());
+    } else {
+        d->composeGdiPath(xformed);
+        const int ops[] = {
+            -1,         // Qt::NoClip, covered above
+            RGN_COPY,   // Qt::ReplaceClip
+            RGN_AND,    // Qt::IntersectClip
+            RGN_OR      // Qt::UniteClip
+        };
+        Q_ASSERT(op > 0 && op <= sizeof(ops) / sizeof(int));
+        SelectClipPath(d->hdc, ops[op]);
     }
 
 }
@@ -505,17 +542,20 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
     HRGN old_region = 0;
     bool clip_was_changed = false;
     if (pixmap.hasAlpha()) {
-        QRegion mask = pixmap.mask();
-        mask = mask * QMatrix(d->stretch_x, 0, 0, d->stretch_y,
-                              tx - xform_offset_x, ty - xform_offset_y);
-        if (!mask.isEmpty()) {
+        QPainterPath clipMask;
+        clipMask.addRegion(QRegion(pixmap.mask()));
+        clipMask = clipMask * QMatrix(d->stretch_x, 0, 0, d->stretch_y,
+                                      tx - xform_offset_x, ty - xform_offset_y);
+        if (!clipMask.isEmpty()) {
             int get_clip = GetClipRgn(d->hdc, old_region);
             if (get_clip == -1) {
                 qErrnoWarning("QWin32PrintEngine::drawPixmap(), failed to get old clip");
             } else {
                 clip_was_changed = true;
                 int clip_op = get_clip == 0 ? RGN_COPY : RGN_AND;
-                ExtSelectClipRgn(d->hdc, mask.handle(), clip_op);
+                d->composeGdiPath(clipMask);
+                if (!SelectClipPath(d->hdc, clip_op))
+                    qErrnoWarning("QWin32PrintEngine::drawPixmap(), failed to set mask");
             }
         }
     }
@@ -534,7 +574,7 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
 //     };
 
 //     if (!qAlphaBlend(d->hdc, tx, ty, tw, th, hbitmap_hdc, sx, sy, sw, sh, bf)) {
-//         qWarning("AlphaBlending didn't see too successful...");
+//         qWarning("QWin32PrintEngine::drawPixmap(), alpha blending was successful...");
 //     }
 
     SelectObject(hbitmap_hdc, null_bitmap);
@@ -547,9 +587,6 @@ void QWin32PrintEngine::drawPixmap(const QRectF &targetRect,
         ExtSelectClipRgn(d->hdc, old_region, RGN_COPY);
     }
 
-//     SelectObject(mask_hdc, null_mask);
-//     DeleteObject(mask);
-//     DeleteDC(mask_hdc);
 }
 
 
@@ -564,12 +601,9 @@ void QWin32PrintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, cons
 
 }
 
-void QWin32PrintEnginePrivate::fillPath_dev(const QPainterPath &path, const QColor &color)
-{
-#ifdef QT_DEBUG_DRAW
-    qDebug() << " --- QWin32PrintEnginePrivate::fillPath() bound:" << path.boundingRect() << color;
-#endif
 
+void QWin32PrintEnginePrivate::composeGdiPath(const QPainterPath &path)
+{
     if (!BeginPath(hdc))
         qErrnoWarning("QWin32PrintEnginePrivate::drawPath: BeginPath failed");
 
@@ -612,8 +646,18 @@ void QWin32PrintEnginePrivate::fillPath_dev(const QPainterPath &path, const QCol
     if (!EndPath(hdc))
         qErrnoWarning("QWin32PaintEngine::drawPath: EndPath failed");
 
-
     SetPolyFillMode(hdc, path.fillRule() == Qt::WindingFill ? WINDING : ALTERNATE);
+}
+
+
+void QWin32PrintEnginePrivate::fillPath_dev(const QPainterPath &path, const QColor &color)
+{
+#ifdef QT_DEBUG_DRAW
+    qDebug() << " --- QWin32PrintEnginePrivate::fillPath() bound:" << path.boundingRect() << color;
+#endif
+
+    composeGdiPath(path);
+
     HBRUSH brush = CreateSolidBrush(RGB(color.red(), color.green(), color.blue()));
     HGDIOBJ old_brush = SelectObject(hdc, brush);
     FillPath(hdc);
