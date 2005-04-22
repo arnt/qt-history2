@@ -140,6 +140,8 @@ HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
     : QWidget(parent), lwClosed(false), help(h)
 {
     ui.setupUi(this);
+    ui.listContents->setUniformRowHeights(true);
+    ui.listBookmarks->setUniformRowHeights(true);
 }
 
 void HelpDialog::initialize()
