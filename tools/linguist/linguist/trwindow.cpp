@@ -144,7 +144,7 @@ const QPixmap TrWindow::pageCurl()
     pixmap.load(":/images/pagecurl.png" );
     if ( !pixmap.isNull() ) {
         QBitmap pageCurlMask = QBitmap::fromData(QSize(pagecurl_mask_width, pagecurl_mask_height),
-                                                 pagecurl_mask_bits, QSysInfo::LittleEndian);
+                                                 pagecurl_mask_bits, QImage::Format_MonoLSB);
         pixmap.setMask(pageCurlMask);
     }
 
