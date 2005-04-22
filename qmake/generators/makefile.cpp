@@ -565,23 +565,26 @@ MakefileGenerator::init()
             if(tmp_out.indexOf("$") == -1) {
                 if(!verifyExtraCompiler((*it), QString::null)) //verify
                     continue;
-                QStringList *out_list = 0;
+                QString out = Option::fixPathToTargetOS(tmp_out, false);
                 if(project->variables().contains((*it) + ".variable_out")) {
                     const QStringList &var_out = project->variables().value((*it) + ".variable_out");
                     for(int i = 0; i < var_out.size(); ++i) {
                         QString v = var_out.at(i);
                         if(v == QLatin1String("SOURCES"))
                             v = "GENERATED_SOURCES";
-                        out_list = &project->variables()[v];
+                        QStringList &list = project->variables()[v];
+                        if(!list.contains(out))
+                            list.append(out);
                     }
                 } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
-                    out_list = &project->variables()["OBJECTS"];
+                    QStringList &list = project->variables()["OBJECTS"];
+                    if(!list.contains(out))
+                        list.append(out);
                 } else {
-                    out_list = &project->variables()["UNUSED_SOURCES"];
+                        QStringList &list = project->variables()["UNUSED_SOURCES"];
+                        if(!list.contains(out))
+                            list.append(out);
                 }
-                QString out = Option::fixPathToTargetOS(tmp_out, false);
-                if(out_list && !out_list->contains(out))
-                    out_list->append(out);
             }
         } else {
             QStringList &tmp = project->variables()[(*it) + ".input"];
@@ -593,24 +596,27 @@ MakefileGenerator::init()
                     QString in = Option::fixPathToTargetOS((*input), false);
                     if(!verifyExtraCompiler((*it), in)) //verify
                         continue;
-                    QStringList *out_list = 0;
                     QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString::null);
+                    out = Option::fixPathToTargetOS(out, false);
                     if(project->variables().contains((*it) + ".variable_out")) {
                         const QStringList &var_out = project->variables().value((*it) + ".variable_out");
                         for(int i = 0; i < var_out.size(); ++i) {
                             QString v = var_out.at(i);
                             if(v == QLatin1String("SOURCES"))
                                 v = "GENERATED_SOURCES";
-                            out_list = &project->variables()[v];
+                            QStringList &list = project->variables()[v];
+                            if(!list.contains(out))
+                                list.append(out);
                         }
                     } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
-                        out_list = &project->variables()["OBJCTS"];
+                        QStringList &list = project->variables()["OBJECTS"];
+                        if(!list.contains(out))
+                            list.append(out);
                     } else {
-                        out_list = &project->variables()["UNUSED_SOURCES"];
+                        QStringList &list = project->variables()["UNUSED_SOURCES"];
+                        if(!list.contains(out))
+                            list.append(out);
                     }
-                    out = Option::fixPathToTargetOS(out, false);
-                    if(out_list && !out_list->contains(out))
-                        out_list->append(out);
                 }
             }
         }
