@@ -204,8 +204,8 @@ void QAbstractSlider::setRange(int min, int max)
 void QAbstractSliderPrivate::setSteps(int single, int page)
 {
     Q_Q(QAbstractSlider);
-    singleStep = single;
-    pageStep = page;
+    singleStep = qAbs(single);
+    pageStep = qAbs(page);
     q->sliderChange(QAbstractSlider::SliderStepsChange);
 }
 
