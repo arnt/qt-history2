@@ -759,6 +759,10 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 }
             }
 
+            if (className.endsWith("ComboBox")) {
+                CONVERT_PROPERTY(QLatin1String("currentItem"), QLatin1String("currentIndex"));
+            }
+
             if (className == QLatin1String("QToolBar")) {
                 if (name == QLatin1String("label")) {
                     prop->setAttributeName(QLatin1String("windowTitle"));
