@@ -517,9 +517,9 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
             QString qrc_path = resource->attributeResource();
 
             if (qrc_path.isEmpty())
-                icon_path = absolutePath(icon_path);
+                icon_path = workingDirectory().absoluteFilePath(icon_path);
             else
-                qrc_path = absolutePath(qrc_path);
+                qrc_path = workingDirectory().absoluteFilePath(qrc_path);
 
             if (p->kind() == DomProperty::IconSet) {
                 QIcon icon = nameToIcon(icon_path, qrc_path);
@@ -1024,9 +1024,9 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
             }
 
             if (qrc_path.isEmpty())
-                icon_path = relativePath(icon_path);
+                icon_path = workingDirectory().relativeFilePath(icon_path);
             else
-                qrc_path = relativePath(qrc_path);
+                qrc_path = workingDirectory().relativeFilePath(qrc_path);
 
             r->setText(icon_path);
             if (!qrc_path.isEmpty())
@@ -1470,68 +1470,14 @@ QString QAbstractFormBuilder::pixmapToQrcPath(const QPixmap &pm) const
     return QString();
 }
 
-QString QAbstractFormBuilder::absolutePath(const QString &rel_path) const
-{
-    if (QFileInfo(rel_path).isAbsolute())
-        return rel_path;
-    // ### broken for links
-    return QFileInfo(QDir(workingDirectory()), rel_path).absoluteFilePath();
-}
-
-QString QAbstractFormBuilder::relativePath(const QString &abs_path) const
-{
-    if (QFileInfo(abs_path).isRelative())
-        return abs_path;
-    return relativeToDir(workingDirectory(), abs_path);
-}
-
-QString QAbstractFormBuilder::workingDirectory() const
+QDir QAbstractFormBuilder::workingDirectory() const
 {
     return m_workingDirectory;
 }
 
-void QAbstractFormBuilder::setWorkingDirectory(const QString &directory)
+void QAbstractFormBuilder::setWorkingDirectory(const QDir &directory)
 {
     m_workingDirectory = directory;
-}
-
-QString QAbstractFormBuilder::relativeToDir(const QString &_dir, const QString &_file)
-{
-    QString dir = QDir::cleanPath(_dir);
-    QString file = QDir::cleanPath(_file);
-
-#ifdef Q_OS_WIN
-    QString root_path = QDir(dir).rootPath();
-    if (root_path != QDir(QFileInfo(file).path()).rootPath()) {
-        return file;
-    } else {
-        dir.remove(0, root_path.size() - 1);
-        file.remove(0, root_path.size() - 1);
-    }
-    // QDir::cleanPath return always a '/' as separator.
-    // Stupid workarround for Windows for now.
-    dir = dir.replace("/", "\\");
-    file = file.replace("/", "\\");
-#endif
-
-    QString result;
-    QStringList dir_elts = dir.split(QDir::separator(), QString::SkipEmptyParts);
-    QStringList file_elts = file.split(QDir::separator(), QString::SkipEmptyParts);
-
-    int i = 0;
-    while (i < dir_elts.size() && i < file_elts.size() && dir_elts.at(i) == file_elts.at(i))
-        ++i;
-
-    for (int j = 0; j < dir_elts.size() - i; ++j)
-        result += QLatin1String("..") + QDir::separator();
-
-    for (int j = i; j < file_elts.size(); ++j) {
-        result += file_elts.at(j);
-        if (j < file_elts.size() - 1)
-        result += QDir::separator();
-    }
-
-    return result;
 }
 
 DomAction *QAbstractFormBuilder::createDom(QAction *action)

@@ -23,6 +23,7 @@ class QDesignerFormWindowCursorInterface;
 class QDesignerFormWindowToolInterface;
 class DomUI;
 class QtUndoStack;
+class QDir;
 
 class QT_SDK_EXPORT QDesignerFormWindowInterface: public QWidget
 {
@@ -41,6 +42,9 @@ public:
     QDesignerFormWindowInterface(QWidget *parent = 0, Qt::WindowFlags flags = 0);
     virtual ~QDesignerFormWindowInterface();
 
+    virtual QString fileName() const = 0;
+    virtual QDir absoluteDir() const = 0;
+
     virtual bool hasFeature(Feature f) const = 0;
     virtual Feature features() const = 0;
 
@@ -53,8 +57,6 @@ public:
     virtual void setCurrentTool(int index) = 0;
     virtual QDesignerFormWindowToolInterface *tool(int index) const = 0;
     virtual void registerTool(QDesignerFormWindowToolInterface *tool) = 0;
-
-    virtual QString fileName() const = 0;
 
     virtual QString author() const = 0;
     virtual QString comment() const = 0;
@@ -89,9 +91,6 @@ public:
     virtual QStringList resourceFiles() const = 0;
     virtual void addResourceFile(const QString &path) = 0;
     virtual void removeResourceFile(const QString &path) = 0;
-
-    virtual QString relativePath(const QString &abs_path) const = 0;
-    virtual QString absolutePath(const QString &rel_path) const = 0;
 
 public slots:
     virtual void manageWidget(QWidget *widget) = 0;

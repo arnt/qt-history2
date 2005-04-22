@@ -262,25 +262,18 @@ void GraphicsPropertyEditor::showDialog()
     if (form == 0)
         return;
 
-    FindIconDialog dialog(form, 0);
-    QString file_path;
+    QString file_path = form->absoluteDir().absolutePath();
     QString qrc_path;
-    if (m_mode == Icon) {
-        if (m_icon.isNull()) {
-            file_path = form->absolutePath(QString()) + QDir::separator();
-        } else {
-            file_path = m_core->iconCache()->iconToFilePath(m_icon);
-            qrc_path = m_core->iconCache()->iconToQrcPath(m_icon);
-        }
-    } else {
-        if (m_pixmap.isNull()) {
-            file_path = form->absolutePath(QString()) + QDir::separator();
-        } else {
-            file_path = m_core->iconCache()->pixmapToFilePath(m_pixmap);
-            qrc_path = m_core->iconCache()->pixmapToQrcPath(m_pixmap);
-        }
+
+    if (m_mode == Icon && !m_icon.isNull()) {
+        file_path = m_core->iconCache()->iconToFilePath(m_icon);
+        qrc_path = m_core->iconCache()->iconToQrcPath(m_icon);
+    } else if (!m_pixmap.isNull()) {
+        file_path = m_core->iconCache()->pixmapToFilePath(m_pixmap);
+        qrc_path = m_core->iconCache()->pixmapToQrcPath(m_pixmap);
     }
 
+    FindIconDialog dialog(form, 0);
     dialog.setPaths(qrc_path, file_path);
     if (dialog.exec()) {
         file_path = dialog.filePath();

@@ -84,6 +84,7 @@ public:
     virtual void setAuthor(const QString &author);
     virtual void setComment(const QString &comment);
 
+    virtual QDir absoluteDir() const;
     virtual QString fileName() const;
     virtual void setFileName(const QString &fileName);
 
@@ -194,9 +195,6 @@ public slots:
 
     void breakLayout();
     void editContents();
-
-    QString relativePath(const QString &abs_path) const;
-    QString absolutePath(const QString &rel_path) const;
 
 protected:
     virtual QMenu *createPopupMenu(QWidget *w);

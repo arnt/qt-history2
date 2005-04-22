@@ -63,7 +63,7 @@ using namespace qdesigner::components::formeditor;
 QDesignerResource::QDesignerResource(FormWindow *formWindow)
    : m_formWindow(formWindow), m_core(formWindow->core())
 {
-    setWorkingDirectory(formWindow->absolutePath(QString()));
+    setWorkingDirectory(formWindow->absoluteDir());
 
     m_topLevelSpacerCount = 0;
     m_copyWidget = false;
@@ -979,7 +979,7 @@ void QDesignerResource::createResources(DomResources *resources)
 
     QList<DomResource*> dom_include = resources->elementInclude();
     foreach (DomResource *res, dom_include) {
-        QString path = m_formWindow->absolutePath(res->attributeLocation());
+        QString path = m_formWindow->absoluteDir().absoluteFilePath(res->attributeLocation());
         m_formWindow->addResourceFile(path);
     }
 }
@@ -990,7 +990,7 @@ DomResources *QDesignerResource::saveResources()
     QList<DomResource*> dom_include;
     foreach (QString res, res_list) {
         DomResource *dom_res = new DomResource;
-        dom_res->setAttributeLocation(m_formWindow->relativePath(res));
+        dom_res->setAttributeLocation(m_formWindow->absoluteDir().relativeFilePath(res));
         dom_include.append(dom_res);
     }
 
@@ -1006,9 +1006,9 @@ QIcon QDesignerResource::nameToIcon(const QString &filePath, const QString &qrcP
     QString qrc_path = qrcPath;
 
     if (qrc_path.isEmpty())
-        file_path = absolutePath(file_path);
+        file_path = workingDirectory().absoluteFilePath(file_path);
     else
-        qrc_path = absolutePath(qrc_path);
+        qrc_path = workingDirectory().absoluteFilePath(qrc_path);
 
     return core()->iconCache()->nameToIcon(file_path, qrc_path);
 }
@@ -1018,7 +1018,7 @@ QString QDesignerResource::iconToFilePath(const QIcon &pm) const
     QString file_path = core()->iconCache()->iconToFilePath(pm);
     QString qrc_path = core()->iconCache()->iconToQrcPath(pm);
     if (qrc_path.isEmpty())
-        return relativePath(file_path);
+        return workingDirectory().relativeFilePath(file_path);
 
     return file_path;
 }
@@ -1029,7 +1029,7 @@ QString QDesignerResource::iconToQrcPath(const QIcon &pm) const
     if (qrc_path.isEmpty())
         return QString();
 
-    return relativePath(qrc_path);
+    return workingDirectory().relativeFilePath(qrc_path);
 }
 
 QPixmap QDesignerResource::nameToPixmap(const QString &filePath, const QString &qrcPath)
@@ -1038,9 +1038,9 @@ QPixmap QDesignerResource::nameToPixmap(const QString &filePath, const QString &
     QString qrc_path = qrcPath;
 
     if (qrc_path.isEmpty())
-        file_path = absolutePath(file_path);
+        file_path = workingDirectory().absoluteFilePath(file_path);
     else
-        qrc_path = absolutePath(qrc_path);
+        qrc_path = workingDirectory().absoluteFilePath(qrc_path);
 
     return core()->iconCache()->nameToPixmap(file_path, qrc_path);
 }
@@ -1050,7 +1050,7 @@ QString QDesignerResource::pixmapToFilePath(const QPixmap &pm) const
     QString file_path = core()->iconCache()->pixmapToFilePath(pm);
     QString qrc_path = core()->iconCache()->pixmapToQrcPath(pm);
     if (qrc_path.isEmpty())
-        return relativePath(file_path);
+        return workingDirectory().relativeFilePath(file_path);
 
     return file_path;
 }
@@ -1061,7 +1061,7 @@ QString QDesignerResource::pixmapToQrcPath(const QPixmap &pm) const
     if (qrc_path.isEmpty())
         return QString();
 
-    return relativePath(qrc_path);
+    return workingDirectory().relativeFilePath(qrc_path);
 }
 
 DomAction *QDesignerResource::createDom(QAction *action)

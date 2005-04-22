@@ -155,7 +155,7 @@ void ListWidgetEditor::on_previewButton_clicked()
 
     QIcon icon = item->icon();
     if (icon.isNull()) {
-        file_path = m_form->absolutePath(QString()) + QDir::separator();
+        file_path = m_form->absoluteDir().absolutePath();
     } else {
         file_path = m_form->core()->iconCache()->iconToFilePath(icon);
         qrc_path = m_form->core()->iconCache()->iconToQrcPath(icon);

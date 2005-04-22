@@ -110,12 +110,12 @@ bool QDesignerFormBuilder::addItem(DomLayoutItem *ui_item, QLayoutItem *item, QL
 
 QIcon QDesignerFormBuilder::nameToIcon(const QString &filePath, const QString &qrcPath)
 {
-    return QIcon(core()->iconCache()->resolveQrcPath(filePath, qrcPath, workingDirectory()));
+    return QIcon(core()->iconCache()->resolveQrcPath(filePath, qrcPath, workingDirectory().absolutePath()));
 }
 
 QPixmap QDesignerFormBuilder::nameToPixmap(const QString &filePath, const QString &qrcPath)
 {
-    return QPixmap(core()->iconCache()->resolveQrcPath(filePath, qrcPath, workingDirectory()));
+    return QPixmap(core()->iconCache()->resolveQrcPath(filePath, qrcPath, workingDirectory().absolutePath()));
 }
 
 void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)

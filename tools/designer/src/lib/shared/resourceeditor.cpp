@@ -617,7 +617,7 @@ QString ResourceEditor::qrcName(const QString &path) const
 {
     if (path.isEmpty())
         return tr("Untitled");
-    return m_form->relativePath(path);
+    return m_form->absoluteDir().relativeFilePath(path);
 }
 
 void ResourceEditor::updateQrcPaths()
@@ -663,7 +663,7 @@ void ResourceEditor::saveCurrentView()
 
     if (model->fileName().isEmpty()) {
         QString file_name = QFileDialog::getSaveFileName(this, tr("Save resource file"),
-                                                            m_form->absolutePath(QString()),
+                                                            m_form->absoluteDir().absolutePath(),
                                                             tr("Resource files (*.qrc)"));
         if (file_name.isEmpty())
             return;
@@ -739,7 +739,7 @@ void ResourceEditor::reloadCurrentView()
 void ResourceEditor::newView()
 {
     QString file_name = QFileDialog::getSaveFileName(this, tr("New resource file"),
-                                                        m_form->absolutePath(QString()),
+                                                        m_form->absoluteDir().absolutePath(),
                                                         tr("Resource files (*.qrc)"));
     if (file_name.isEmpty()) {
         setCurrentIndex(m_qrc_stack->count() == 0 ? 0 : m_qrc_stack->currentIndex());
@@ -755,7 +755,7 @@ void ResourceEditor::newView()
 void ResourceEditor::openView()
 {
     QString file_name = QFileDialog::getOpenFileName(this, tr("Open resource file"),
-                                                        m_form->absolutePath(QString()),
+                                                        m_form->absoluteDir().absolutePath(),
                                                         tr("Resource files (*.qrc)"));
     if (file_name.isEmpty()) {
         setCurrentIndex(m_qrc_stack->count() == 0 ? 0 : m_qrc_stack->currentIndex());

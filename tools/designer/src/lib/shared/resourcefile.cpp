@@ -276,7 +276,8 @@ QString ResourceFile::relativePath(const QString &abs_path) const
     if (m_file_name.isEmpty() || QFileInfo(abs_path).isRelative())
         return abs_path;
 
-    return QAbstractFormBuilder::relativeToDir(QFileInfo(m_file_name).path(), abs_path);
+    QFileInfo fileInfo(m_file_name);
+    return fileInfo.absoluteDir().relativeFilePath(abs_path);
 }
 
 QString ResourceFile::absolutePath(const QString &rel_path) const
@@ -353,7 +354,7 @@ void ResourceModel::setDirty(bool b)
 {
     if (b == m_dirty)
         return;
-                   
+
     m_dirty = b;
     emit dirtyChanged(b);
 }
@@ -441,7 +442,7 @@ bool ResourceModel::iconFileExtension(const QString &path)
                     <<  QLatin1String(".png")
                     <<  QLatin1String(".bmp");
     }
-    
+
     foreach (QString ext, ext_list) {
         if (path.endsWith(ext, Qt::CaseInsensitive))
             return true;
@@ -566,13 +567,13 @@ QModelIndex ResourceModel::addFiles(const QModelIndex &model_idx, const QStringL
 
     if (unique_list.isEmpty())
         return QModelIndex();
-    
+
     int cnt = m_resource_file.fileCount(prefix_idx);
     beginInsertRows(prefix_model_idx, cnt, cnt + unique_list.count() - 1); // ### FIXME
 
     foreach (QString file, file_list)
         m_resource_file.addFile(prefix_idx, file);
-    
+
     endInsertRows();
 
     return index(cnt + unique_list.count() - 1, 0, prefix_model_idx);

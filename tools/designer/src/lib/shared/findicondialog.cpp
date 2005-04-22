@@ -27,7 +27,7 @@ FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *pare
     QStringList res_list = m_form->resourceFiles();
     QStringList rel_res_list;
     foreach (QString res, res_list)
-        rel_res_list.append(m_form->relativePath(res));
+        rel_res_list.append(m_form->absoluteDir().relativeFilePath(res));
     m_resource_combo->addItems(rel_res_list);
     m_resource_tree->header()->hide();
 
@@ -51,7 +51,7 @@ void FindIconDialog::setPaths(const QString &qrcPath, const QString &filePath)
         m_icon_file_name = fileName;
     } else {
         activateBox(ResourceBox);
-        int idx = m_resource_combo->findText(m_form->relativePath(qrcPath));
+        int idx = m_resource_combo->findText(m_form->absoluteDir().relativeFilePath(qrcPath));
         if (idx != -1) {
             m_resource_combo->setCurrentIndex(idx);
             m_icon_file_name = filePath;
@@ -85,7 +85,7 @@ void FindIconDialog::updateBoxes()
         m_file_image_list->clear();
         QString dir_path = m_file_dir_input->text();
         if (dir_path.isEmpty()) {
-            dir_path = m_form->absolutePath(QString());
+            dir_path = m_form->absoluteDir().absolutePath();
             bool blocked = m_file_dir_input->blockSignals(true);
             m_file_dir_input->setText(dir_path);
             m_file_dir_input->blockSignals(blocked);
@@ -112,7 +112,7 @@ void FindIconDialog::updateBoxes()
     } else {
         int idx = m_resource_combo->currentIndex();
         if (idx != -1) {
-            QString qrc_file = m_form->absolutePath(m_resource_combo->itemText(idx));
+            QString qrc_file = m_form->absoluteDir().absoluteFilePath(m_resource_combo->itemText(idx));
             ResourceFile rf(qrc_file);
             rf.load();
             QAbstractItemModel *old_model = m_resource_tree->model();
@@ -182,7 +182,7 @@ QString FindIconDialog::qrcPath() const
 {
     if (activeBox() == FileBox)
         return QString();
-    return m_form->absolutePath(m_resource_combo->currentText());
+    return m_form->absoluteDir().absoluteFilePath(m_resource_combo->currentText());
 }
 
 QString FindIconDialog::filePath() const

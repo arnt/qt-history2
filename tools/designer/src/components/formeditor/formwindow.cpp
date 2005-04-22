@@ -1889,34 +1889,6 @@ static QString relativePath(const QString &_dir, const QString &_file)
     return result;
 }
 
-QString FormWindow::relativePath(const QString &abs_path) const
-{
-    if (QFileInfo(abs_path).isRelative())
-        return abs_path;
-
-    QString ui_dir;
-    if (fileName().isEmpty())
-        ui_dir = QDir::currentPath();
-    else
-        ui_dir = QFileInfo(fileName()).path();
-
-    return ::relativePath(ui_dir, abs_path);
-}
-
-QString FormWindow::absolutePath(const QString &rel_path) const
-{
-    if (QFileInfo(rel_path).isAbsolute())
-        return rel_path;
-
-    QString ui_dir;
-    if (fileName().isEmpty())
-        ui_dir = QDir::currentPath();
-    else
-        ui_dir = QFileInfo(fileName()).path();
-
-    return QDir::cleanPath(ui_dir + QDir::separator() + rel_path);
-}
-
 bool FormWindow::blockSelectionChanged(bool b)
 {
     bool blocked = m_blockSelectionChanged;
@@ -1981,3 +1953,12 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
 
     endCommand();
 }
+
+QDir FormWindow::absoluteDir() const
+{
+    if (fileName().isEmpty())
+        return QDir::current();
+
+    return QFileInfo(fileName()).absoluteDir();
+}
+

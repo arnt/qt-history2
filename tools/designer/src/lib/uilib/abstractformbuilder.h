@@ -18,6 +18,8 @@
 
 #include <QtCore/QList>
 #include <QtCore/QHash>
+#include <QtCore/QDir>
+
 #include <QtGui/QSizePolicy>
 #include <QtGui/QPalette>
 
@@ -57,13 +59,11 @@ public:
     QAbstractFormBuilder();
     virtual ~QAbstractFormBuilder();
 
-    QString workingDirectory() const;
-    void setWorkingDirectory(const QString &directory);
+    QDir workingDirectory() const;
+    void setWorkingDirectory(const QDir &directory);
 
     virtual QWidget *load(QIODevice *dev, QWidget *parentWidget=0);
     virtual void save(QIODevice *dev, QWidget *widget);
-
-    static QString relativeToDir(const QString &_dir, const QString &_file); // ### move me!
 
 protected:
 //
@@ -149,8 +149,6 @@ protected:
     static QString toString(const DomString *str);
 
     static QHash<QString, DomProperty*> propertyMap(const QList<DomProperty*> &properties);
-    QString absolutePath(const QString &rel_path) const;
-    QString relativePath(const QString &abs_path) const;
 
     QHash<QObject*, bool> m_laidout;
     QHash<QString, QAction*> m_actions;
@@ -162,7 +160,7 @@ private:
 
     int m_defaultMargin;
     int m_defaultSpacing;
-    QString m_workingDirectory;
+    QDir m_workingDirectory;
 
 private:
     QAbstractFormBuilder(const QAbstractFormBuilder &other);
