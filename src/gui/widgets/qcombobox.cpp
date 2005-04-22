@@ -110,24 +110,10 @@ QStyle::SubControl QComboBoxPrivate::newHoverControl(const QPoint &pos)
     Q_Q(QComboBox);
     QStyleOptionComboBox opt = getStyleOption();
     opt.subControls = QStyle::SC_All;
-    QRect arrowRect = q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxArrow, q);
-    QRect editRect = q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxEditField, q);
-    QRect listRect = q->style()->subControlRect(QStyle::CC_ComboBox, &opt, QStyle::SC_ComboBoxListBoxPopup, q);
-
-    if (arrowRect.contains(pos)) {
-        hoverRect = arrowRect;
-        hoverControl = QStyle::SC_ComboBoxArrow;
-    } else if (editRect.contains(pos)) {
-        hoverRect = editRect;
-        hoverControl = QStyle::SC_ComboBoxEditField;
-    } else if (listRect.contains(pos)) {
-        hoverRect = listRect;
-        hoverControl = QStyle::SC_ComboBoxListBoxPopup;
-    } else {
-        hoverRect = QRect();
-        hoverControl = QStyle::SC_None;
-    }
-
+    hoverControl = q->style()->hitTestComplexControl(QStyle::CC_ComboBox, &opt, pos, q);
+    hoverRect = (hoverControl != QStyle::SC_None)
+                   ? q->style()->subControlRect(QStyle::CC_ComboBox, &opt, hoverControl, q)
+                   : QRect();
     return hoverControl;
 }
 
