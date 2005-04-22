@@ -35,6 +35,7 @@
 #include "qimage.h"
 #include "qfocusframe.h"
 #include "qdebug.h"
+#include "qpainterpath.h"
 #include <limits.h>
 
 #ifdef Q_WS_X11
@@ -1069,9 +1070,14 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
                         &opt->palette.brush((opt->state & State_Sunken) ? QPalette::Mid : QPalette::Button));
         p->restore();
         break;
-    case CE_RubberBand:
-        p->fillRect(opt->rect, opt->palette.base());
-        p->fillRect(opt->rect, QBrush(opt->palette.foreground().color(), Qt::Dense4Pattern));
+    case CE_RubberBand: {
+        QPainterPath path;
+        path.addRect(opt->rect);
+        path.addRect(opt->rect.adjusted(4, 4, -4, -4));
+
+        p->fillPath(path, opt->palette.base());
+        p->fillPath(path, QBrush(opt->palette.foreground().color(), Qt::Dense4Pattern));
+        }
         break;
     default:
         QCommonStyle::drawControl(element, opt, p, widget);
