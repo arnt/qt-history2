@@ -558,72 +558,110 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     alphaLightTextColor.setGreen((alphaLightTextColor.green() + option->palette.text().color().light(250).green()) / 2);
     alphaLightTextColor.setBlue((alphaLightTextColor.blue() + option->palette.text().color().light(250).blue()) / 2);
 
+    QColor lightShadow = option->palette.button().color().light(105);
+
     switch (element) {
     case PE_FrameDefaultButton:
         break;
     case PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
+            if (twf->shape != QTabBar::RoundedNorth && twf->shape != QTabBar::RoundedWest && 
+                twf->shape != QTabBar::RoundedSouth && twf->shape != QTabBar::RoundedEast) {
+                QWindowsStyle::drawPrimitive(element, option, painter, widget);
+                break;
+            }
+
+            int borderThickness = pixelMetric(PM_TabBarBaseOverlap, twf, widget);
+    
             painter->save();
+
+            QRect tabBarRect;
+            switch (twf->shape) {
+            case QTabBar::RoundedNorth:
+                tabBarRect = QRect(twf->rect.left(), twf->rect.top(), twf->tabBarSize.width(), borderThickness);         
+                break ;
+            case QTabBar::RoundedWest:
+                tabBarRect = QRect(twf->rect.left(), twf->rect.top(), borderThickness, twf->tabBarSize.height());         
+                break ;
+            case QTabBar::RoundedEast:
+                tabBarRect = QRect(twf->rect.right() - borderThickness + 1, twf->rect.top(),
+                                   borderThickness, twf->tabBarSize.height());      
+                break ;
+            case QTabBar::RoundedSouth:
+                tabBarRect = QRect(twf->rect.left(), twf->rect.bottom() - borderThickness + 1, 
+                                   twf->tabBarSize.width(), borderThickness);
+                break ;
+            }
+
             QRegion region(twf->rect);
-            region -= QRect(0, 0, twf->tabBarSize.width(), twf->tabBarSize.height());
+            region -= tabBarRect;
             painter->setClipRegion(region);
 
             // Outer border
-            QLine leftLine = QLine(twf->rect.topLeft(), twf->rect.bottomLeft() - QPoint(0, 2));
+            QLine leftLine = QLine(twf->rect.topLeft() + QPoint(0, 2), twf->rect.bottomLeft() - QPoint(0, 2));
             QLine rightLine = QLine(twf->rect.topRight() + QPoint(0, 2), twf->rect.bottomRight() - QPoint(0, 2));
             QLine bottomLine = QLine(twf->rect.bottomLeft() + QPoint(2, 0), twf->rect.bottomRight() - QPoint(2, 0));
-            QLine topLine = QLine(twf->rect.topLeft(), twf->rect.topRight() - QPoint(2, 0));
+            QLine topLine = QLine(twf->rect.topLeft() + QPoint(2, 0), twf->rect.topRight() - QPoint(2, 0));
 
             painter->setPen(borderColor);
             painter->drawLine(topLine);
-
-            painter->setPen(twf->palette.button().color().light());
-            painter->drawLine(bottomLine);
 
             // Inner border
             QLine innerLeftLine = QLine(leftLine.p1() + QPoint(1, 0), leftLine.p2() + QPoint(1, 0));
             QLine innerRightLine = QLine(rightLine.p1() - QPoint(1, 0), rightLine.p2() - QPoint(1, 0));
             QLine innerBottomLine = QLine(bottomLine.p1() - QPoint(0, 1), bottomLine.p2() - QPoint(0, 1));
-            QLine innerTopLine = QLine(twf->rect.topLeft() + QPoint(0, 1), twf->rect.topRight() + QPoint(-2, 1));
+            QLine innerTopLine = QLine(topLine.p1() + QPoint(0, 1), topLine.p2() + QPoint(0, 1));
 
             // Rounded Corner
-            QPoint leftOuterCorner = QPoint(innerLeftLine.p2() + QPoint(0, 1));
-            QPoint leftInnerCorner1 = QPoint(leftLine.p2() + QPoint(0, 1));
-            QPoint leftInnerCorner2 = QPoint(bottomLine.p1() - QPoint(1, 0));
-            QPoint rightOuterCorner = QPoint(innerRightLine.p2() + QPoint(0, 1));
-            QPoint rightInnerCorner1 = QPoint(rightLine.p2() + QPoint(0, 1));
-            QPoint rightInnerCorner2 = QPoint(bottomLine.p2() + QPoint(1, 0));
+            QPoint leftBottomOuterCorner = QPoint(innerLeftLine.p2() + QPoint(0, 1));
+            QPoint leftBottomInnerCorner1 = QPoint(leftLine.p2() + QPoint(0, 1));
+            QPoint leftBottomInnerCorner2 = QPoint(bottomLine.p1() - QPoint(1, 0));
+            QPoint rightBottomOuterCorner = QPoint(innerRightLine.p2() + QPoint(0, 1));
+            QPoint rightBottomInnerCorner1 = QPoint(rightLine.p2() + QPoint(0, 1));
+            QPoint rightBottomInnerCorner2 = QPoint(bottomLine.p2() + QPoint(1, 0));
             QPoint rightTopOuterCorner = QPoint(innerRightLine.p1() - QPoint(0, 1));
             QPoint rightTopInnerCorner1 = QPoint(rightLine.p1() - QPoint(0, 1));
             QPoint rightTopInnerCorner2 = QPoint(topLine.p2() + QPoint(1, 0));
+            QPoint leftTopOuterCorner = QPoint(innerLeftLine.p1() - QPoint(0, 1));
+            QPoint leftTopInnerCorner1 = QPoint(leftLine.p1() - QPoint(0, 1));
+            QPoint leftTopInnerCorner2 = QPoint(topLine.p1() - QPoint(1, 0));
 
             painter->setPen(borderColor);
             painter->drawLine(leftLine);
             painter->drawLine(rightLine);
             painter->drawLine(bottomLine);
-            painter->drawPoint(leftOuterCorner);
-            painter->drawPoint(rightOuterCorner);
+            painter->drawPoint(leftBottomOuterCorner);
+            painter->drawPoint(rightBottomOuterCorner);
             painter->drawPoint(rightTopOuterCorner);
+            painter->drawPoint(leftTopOuterCorner);
 
-            painter->setPen(twf->palette.button().color().light());
+            painter->setPen(lightShadow);
             painter->drawLine(innerLeftLine);
             painter->drawLine(innerTopLine);
 
             painter->setPen(alphaCornerColor);
             painter->drawLine(innerRightLine);
             painter->drawLine(innerBottomLine);
-            painter->drawPoint(leftInnerCorner1);
-            painter->drawPoint(leftInnerCorner2);
-            painter->drawPoint(rightInnerCorner1);
-            painter->drawPoint(rightInnerCorner2);
+            painter->drawPoint(leftBottomInnerCorner1);
+            painter->drawPoint(leftBottomInnerCorner2);
+            painter->drawPoint(rightBottomInnerCorner1);
+            painter->drawPoint(rightBottomInnerCorner2);
             painter->drawPoint(rightTopInnerCorner1);
             painter->drawPoint(rightTopInnerCorner2);
+            painter->drawPoint(leftTopInnerCorner1);
+            painter->drawPoint(leftTopInnerCorner2);
 
             painter->restore();
         }
         break ;
     case PE_FrameTabBarBase:
         if (const QStyleOptionTabBarBase *tbb = qstyleoption_cast<const QStyleOptionTabBarBase *>(option)) {
+            if (tbb->shape != QTabBar::RoundedNorth && tbb->shape != QTabBar::RoundedWest && 
+                tbb->shape != QTabBar::RoundedSouth && tbb->shape != QTabBar::RoundedEast) {
+                QWindowsStyle::drawPrimitive(element, option, painter, widget);
+                break;
+            }
+
             painter->save();
 
             QRegion region(tbb->rect);
@@ -633,10 +671,16 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             QLine topLine = QLine(tbb->rect.bottomLeft() - QPoint(0, 1), tbb->rect.bottomRight() - QPoint(0, 1));
             QLine bottomLine = QLine(tbb->rect.bottomLeft(), tbb->rect.bottomRight());
 
-            painter->setPen(borderColor);
+            if (tbb->shape == QTabBar::RoundedSouth)
+                painter->setPen(alphaCornerColor);
+            else
+                painter->setPen(borderColor);
             painter->drawLine(topLine);
 
-            painter->setPen(tbb->palette.button().color().light());
+            if (tbb->shape != QTabBar::RoundedSouth)
+                painter->setPen(lightShadow);
+            else
+                painter->setPen(borderColor);
             painter->drawLine(bottomLine);
 
             painter->restore();
@@ -1193,240 +1237,316 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
     QColor gradientStartColor = option->palette.button().color().dark(90);
     QColor gradientStopColor = option->palette.button().color().dark(108);
+    QColor shadowGradientStartColor = option->palette.button().color().dark(115);
+    QColor shadowGradientStopColor = option->palette.button().color().dark(120);
+    QColor lightShadowGradientStartColor = option->palette.button().color().light(105);
+    QColor lightShadowGradientStopColor = option->palette.button().color().light(115);
+    QColor tabGradientStartColor = option->palette.button().color().dark(95);
+    QColor tabGradientStopColor = option->palette.button().color().dark(108);
 
     QColor highlightedDarkInnerBorderColor = qt_plastique_mergedColors(option->palette.highlight().color(), borderColor);
     QColor alphaInnerColor = qt_plastique_mergedColors(highlightedDarkInnerBorderColor, option->palette.base().color());
+    QColor lightShadow = lightShadowGradientStartColor;
+    QColor shadow = shadowGradientStartColor;
 
     switch (element) {
     case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
 
-            // Temporary: Fall back to Windows style if the orientation is not supported
-            if (tab->shape != QTabBar::RoundedNorth) {
+            if (tab->shape != QTabBar::RoundedNorth && tab->shape != QTabBar::RoundedWest && 
+                tab->shape != QTabBar::RoundedSouth && tab->shape != QTabBar::RoundedEast) {
                 QWindowsStyle::drawControl(element, option, painter, widget);
                 break;
             }
 
             painter->save();
 
+            // Set up some convenience variables
             bool onlyTab = tab->position == QStyleOptionTab::OnlyOneTab;
             bool selected = (tab->state & State_Selected) || onlyTab;
             bool previousSelected = tab->selectedPosition == QStyleOptionTab::PreviousIsSelected;
-            bool nextSelected = tab->selectedPosition == QStyleOptionTab::NextIsSelected;
-
+            bool nextSelected = tab->selectedPosition == QStyleOptionTab::NextIsSelected;            
 
             int lowerTop = selected ? 0 : 3; // to make the selected tab bigger than the rest
-            QRect adjustedRect = tab->rect.adjusted(previousSelected ? 0 : 1, 1 + lowerTop, -1, -1);
+            QRect adjustedRect;
             bool atEnd = (tab->position == QStyleOptionTab::End) || onlyTab;
-            bool atBeginning = (tab->position == QStyleOptionTab::Beginning) || onlyTab;
+            bool atBeginning = (tab->position == QStyleOptionTab::Beginning) || onlyTab;            
 
             int borderThickness = pixelMetric(PM_TabBarBaseOverlap, tab, widget);
-
             int marginLeft = 0;
-            if (atBeginning && !selected) {
-                adjustedRect = adjustedRect.adjusted(1, 0, 0, 0);
+            if (atBeginning && !selected) {                
                 marginLeft = 1;
             }
 
-            // Create the default top border line
-            QLine topLine = QLine(tab->rect.topLeft() + QPoint(marginLeft + (previousSelected ? 0 : 1), lowerTop),
-                                  tab->rect.topRight() + QPoint(0, lowerTop));
+            // I've set the names based on the natural coordinate system. Vectors are used to rotate everything
+            // if the orientation of the tab bare is different than north.
+            {
+                // Coordinates of corners of rectangle for transformation
+                QPoint topLeft;
+                QPoint topRight;
+                QPoint bottomLeft;
+                QPoint bottomRight;
 
-            // If we are the final tab or selected tab, we must make the top line shorter to round off the corner
-            if (atEnd || selected)
-                topLine = QLine(topLine.p1(), topLine.p2() - QPoint(2, 0));
+                // Fill with normalized vectors in the direction of the coordinate system
+                // (down and right should be complement of up and left, or it will look odd)
+                QPoint vectorUp;
+                QPoint vectorDown;
+                QPoint vectorLeft;
+                QPoint vectorRight;
 
-            // Likewise for the first tab (and selected)
-            if (atBeginning || selected)
-                topLine = QLine(topLine.p1() + QPoint(1, 0), topLine.p2());
+                QColor baseColor1;
+                QColor baseColor2; 
 
-            // The default left border line
-            QLine leftLine = QLine(tab->rect.topLeft() + QPoint(marginLeft, lowerTop),
-                                   tab->rect.bottomLeft() - QPoint(-1*marginLeft, borderThickness));
+                switch (tab->shape) {
+                case QTabBar::RoundedNorth:
+                    vectorUp = QPoint(0, -1);
+                    vectorDown = QPoint(0, 1);
+                    vectorLeft = QPoint(-1, 0);
+                    vectorRight = QPoint(1, 0);
 
-            // If we are the first tab or selected tab, we draw a rounded corner, and hence the left line must
-            // be shorter than usual
-            if (atBeginning && selected)
-                leftLine = QLine(leftLine.p1() + QPoint(0,2), leftLine.p2() + QPoint(0, borderThickness));
-            else if (atBeginning || selected)
-                leftLine = QLine(leftLine.p1() + QPoint(0,2), leftLine.p2());
+                    topLeft = tab->rect.topLeft();
+                    topRight = tab->rect.topRight();
+                    bottomLeft = tab->rect.bottomLeft();
+                    bottomRight = tab->rect.bottomRight();
 
-            // Default right border line
-            QLine rightLine = QLine(tab->rect.topRight() + QPoint(0,2 + lowerTop),
-                                    tab->rect.bottomRight() - QPoint(0,borderThickness));
+                    baseColor1 = borderColor;
+                    baseColor2 = lightShadow;
+                    break ;
+                case QTabBar::RoundedWest:
+                    vectorUp = QPoint(-1, 0);
+                    vectorDown = QPoint(1, 0);
+                    vectorLeft = QPoint(0, -1);
+                    vectorRight = QPoint(0, 1);
 
-            // For rounding corners on selected tabs and tabs at the end and beginning
-            QPoint rightConnectDot = tab->rect.topRight() + QPoint(-1,1 + lowerTop);
-            QPoint leftConnectDot = tab->rect.topLeft() + QPoint(marginLeft + 1,1 + lowerTop);
+                    topLeft = tab->rect.topLeft();
+                    topRight = tab->rect.bottomLeft();
+                    bottomLeft = tab->rect.topRight();
+                    bottomRight = tab->rect.bottomRight();
 
-            // A single dot which connects the frame of the tab to the base
-            QPoint bottomRightConnectToBase = rightLine.p2() + QPoint(1, 0);
-            QPoint bottomLeftConnectToBase = leftLine.p2() - QPoint(1, 0);
+                    baseColor1 = borderColor;
+                    baseColor2 = lightShadow;
+                    break ;
+                case QTabBar::RoundedEast:
+                    vectorUp = QPoint(1, 0);
+                    vectorDown = QPoint(-1, 0);
+                    vectorLeft = QPoint(0, -1);
+                    vectorRight = QPoint(0, 1);
 
-            // Draw the outer border
-            painter->setPen(borderColor);
+                    topLeft = tab->rect.topRight();
+                    topRight = tab->rect.bottomRight();
+                    bottomLeft = tab->rect.topLeft();
+                    bottomRight = tab->rect.bottomLeft();
 
-            // The left line ends up behind the selected tab if previous is selected
-            if (!previousSelected)
-                painter->drawLine(leftLine);
+                    baseColor1 = borderColor;
+                    baseColor2 = alphaCornerColor;                    
+                    break ;
+                case QTabBar::RoundedSouth:
+                    vectorUp = QPoint(0, 1);
+                    vectorDown = QPoint(0, -1);
+                    vectorLeft = QPoint(-1, 0);
+                    vectorRight = QPoint(1, 0);
 
-            // Always draw the top line
-            painter->drawLine(topLine);
+                    topLeft = tab->rect.bottomLeft();
+                    topRight = tab->rect.bottomRight();
+                    bottomLeft = tab->rect.topLeft();
+                    bottomRight = tab->rect.topRight();
 
-            // Only if we are the final tab or the selected tab do we draw a right line
-            // We also draw the rounded corner on the right side
-            if (atEnd || selected) {
-                painter->drawLine(rightLine);
-                painter->drawPoint(rightConnectDot);
-            }
+                    baseColor1 = borderColor;
+                    baseColor2 = alphaCornerColor;                    
+                    break ;
+                }
 
-            // Selected and first tabs get a rounded corner on the left side
-            if (atBeginning || selected)
-                painter->drawPoint(leftConnectDot);
+                // Make the tab smaller when it's at the end, so that we are able to draw the corner
+                if (atEnd) {
+                    topRight += vectorLeft;
+                    bottomRight += vectorLeft;
+                }
+                
+                {
+                    // Outer border
+                    QLine topLine; 
+                    {
+                        QPoint adjustTopLineLeft = (vectorRight * (marginLeft + (previousSelected ? 0 : 1))) + 
+                                                   (vectorDown * lowerTop);
+                        QPoint adjustTopLineRight = (vectorDown * lowerTop);
+                        if (atBeginning || selected) 
+                            adjustTopLineLeft += vectorRight;
+                        if (atEnd || selected) 
+                            adjustTopLineRight += 2 * vectorLeft;
 
-            // The selected tab gets connected to the base
-            if (selected) {
-                painter->drawPoint(bottomRightConnectToBase);
-                painter->drawPoint(bottomLeftConnectToBase);
-            }
+                        topLine = QLine(topLeft + adjustTopLineLeft, topRight + adjustTopLineRight);
+                    }
 
-            // More for the rounded corners. We've now moved to the inner shade for the border
-            // (some anti-aliasing effect)
-            QPoint topLeftCorner = tab->rect.topLeft() + QPoint(marginLeft, lowerTop);
-            if (atBeginning || selected)
-                topLeftCorner += QPoint(1,0);
-            QPoint topRightCorner = tab->rect.topRight() - QPoint(1, -1*lowerTop);
-            QPoint topRightCorner2 = tab->rect.topRight() + QPoint(0, 1 + lowerTop);
-            QPoint topLeftCorner2 = tab->rect.topLeft() + QPoint(marginLeft, 1 + lowerTop);
+                    QLine leftLine;
+                    {
+                        QPoint adjustLeftLineTop = (vectorRight * marginLeft) + (vectorDown * (lowerTop + 1));
+                        QPoint adjustLeftLineBottom = (vectorRight * marginLeft) + (vectorUp * borderThickness);
+                        if (atBeginning || selected)                  
+                            adjustLeftLineTop += vectorDown; // Make place for rounded corner
+                        if (atBeginning && selected)
+                            adjustLeftLineBottom += borderThickness * vectorDown;
+                        else if (selected) 
+                            adjustLeftLineBottom += vectorUp;
+                        
+                        leftLine = QLine(topLeft + adjustLeftLineTop, bottomLeft + adjustLeftLineBottom);
+                    }
 
-            painter->setPen(alphaCornerColor);
+                    QLine rightLine;
+                    {
+                        QPoint adjustRightLineTop = vectorDown * (2 + lowerTop);
+                        QPoint adjustRightLineBottom = vectorUp * borderThickness;
+                        if (selected)
+                            adjustRightLineBottom += vectorUp;
 
-            // Hide the top left corner if the previous tab is selected
-            // Otherwise: Draw it. This is drawn for middle tabs as well.
-            if (!previousSelected)
-                painter->drawPoint(topLeftCorner);
+                        rightLine = QLine(topRight + adjustRightLineTop, bottomRight + adjustRightLineBottom);
+                    }
 
-            // Draw a rounded corner for the end tab
-            if (atEnd || selected) {
-                painter->drawPoint(topRightCorner);
-                painter->drawPoint(topRightCorner2);
-            }
+                    // Background
+                    QPoint startPoint = topLine.p1() + vectorDown;
+                    QPoint endPoint = rightLine.p2() + vectorLeft;
+                    
+                    QRect fillRect = QRect(startPoint, endPoint);                    
+                    QLinearGradient fillGradient(leftLine.p1(), leftLine.p2());            
+                    fillGradient.setColorAt(0, tabGradientStartColor);
+                    fillGradient.setColorAt(1, tabGradientStopColor);
+                    if (selected)
+                        painter->fillRect(fillRect, tab->palette.background()); 
+                    else
+                        painter->fillRect(fillRect, fillGradient);                    
 
-            // Round off the left corner
-            if (atBeginning || selected) {
-                painter->drawPoint(topLeftCorner2);
-            }
+                    QPoint rightCornerDot = topRight + vectorLeft + (lowerTop + 1)*vectorDown;
+                    QPoint leftCornerDot = topLeft + (marginLeft + 1)*vectorRight + (lowerTop + 1)*vectorDown;
+                    QPoint bottomRightConnectToBase = rightLine.p2() + vectorRight + vectorDown;
+                    QPoint bottomLeftConnectToBase = leftLine.p2() + vectorLeft + vectorDown;
 
-            // Connect the inner border to the base
-            if (selected) {
-                painter->drawPoint(bottomRightConnectToBase - QPoint(1, 0));
-                if (!atBeginning)
-                    painter->drawPoint(bottomLeftConnectToBase + QPoint(1, 0));
+                    painter->setPen(borderColor);
+                    painter->drawLine(topLine);
+                    if (!previousSelected)
+                        painter->drawLine(leftLine);
+                    if (atEnd || selected) {
+                        painter->drawLine(rightLine);
+                        painter->drawPoint(rightCornerDot);                        
+                    }
+                    if (atBeginning || selected) 
+                        painter->drawPoint(leftCornerDot);
+                    if (selected) {
+                        painter->drawPoint(bottomRightConnectToBase);
+                        painter->drawPoint(bottomLeftConnectToBase);
+                    }
 
-            }
+                    // Antialiasing
+                    painter->setPen(alphaCornerColor);
+                    if (atBeginning || selected) 
+                        painter->drawPoint(topLine.p1() + vectorLeft);                    
+                    if (!previousSelected)
+                        painter->drawPoint(leftLine.p1() + vectorUp);
+                    if (atEnd || selected) {
+                        painter->drawPoint(topLine.p2() + vectorRight);                    
+                        painter->drawPoint(rightLine.p1() + vectorUp);
+                    }
 
-            // Default inner top line
-            QLine innerTopLine = QLine(adjustedRect.topLeft(), adjustedRect.topRight() + QPoint(1, 0));
+                    if (selected) {
+                        painter->drawPoint(bottomRightConnectToBase + vectorLeft);
+                        if (!atBeginning)                             
+                            painter->drawPoint(bottomLeftConnectToBase + vectorRight);
+                    }
 
-            // Modify for special tabs
-            if (atEnd || selected)
-                innerTopLine = QLine(innerTopLine.p1(), innerTopLine.p2() - QPoint(2,0));
-            if (atBeginning || selected)
-                innerTopLine = QLine(innerTopLine.p1() + QPoint(1,0), innerTopLine.p2());
+                    // Inner border                    
+                    QLine innerTopLine = QLine(topLine.p1() + vectorDown, topLine.p2() + vectorDown);
+                    if (!selected) {
+                        QLinearGradient topLineGradient(innerTopLine.p1(),innerTopLine.p2());
+                        topLineGradient.setColorAt(0, lightShadowGradientStartColor);
+                        topLineGradient.setColorAt(1, lightShadowGradientStopColor);
+                        painter->setPen(QPen(QBrush(topLineGradient), 1));
+                    } else painter->setPen(lightShadow);                    
+                    painter->drawLine(innerTopLine);
 
-            // And inner vertical lines
-            QLine innerRightLine = QLine(adjustedRect.topRight() + QPoint(0, 1),
-                                         adjustedRect.bottomRight() - QPoint(0, 1));
-            QLine innerLeftLine = QLine(adjustedRect.topLeft() + QPoint(0, 1),
-                                        adjustedRect.bottomLeft() - QPoint(0, 2));
+                    QLine innerLeftLine = QLine(leftLine.p1() + vectorRight, leftLine.p2() + vectorRight);
+                    if (selected || atBeginning) {
+                        if (!selected) {
+                            QLinearGradient leftLineGradient(innerLeftLine.p1(),innerLeftLine.p2());
+                            leftLineGradient.setColorAt(0, lightShadowGradientStartColor);
+                            leftLineGradient.setColorAt(1, lightShadowGradientStopColor);
+                            painter->setPen(QPen(QBrush(leftLineGradient), 1));
+                        }
 
-            if (selected && atBeginning)
-                innerLeftLine = QLine(innerLeftLine.p1(), innerLeftLine.p2() + QPoint(0, 1 + borderThickness));
-
-            if (selected)
-                innerRightLine = QLine(innerRightLine.p1(), innerRightLine.p2() - QPoint(0, 1));
-
-            // Draw the inner border, top
-            painter->setPen(tab->palette.button().color().light());
-            painter->drawLine(innerTopLine);
-            if (selected)
-                painter->drawLine(innerLeftLine);
-            if (atEnd || selected) {
-                // Draw the inner border, right
-                QLinearGradient rightLineGradient(innerRightLine.p1(),innerRightLine.p2());
-                rightLineGradient.setColorAt(0, tab->palette.button().color().dark(115));
-                rightLineGradient.setColorAt(1, tab->palette.button().color().dark(120));
-
-                painter->setPen(QPen(QBrush(rightLineGradient), 1));
-                painter->drawLine(innerRightLine);
-            }
-
-            // Fill the rect with a gradient
-            QRect fillRect = adjustedRect.adjusted(0, 1, 1, -1);
-            if (atEnd)
-                fillRect = fillRect.adjusted(0, 0, -1*borderThickness, 0);
-            if (selected)
-                fillRect = fillRect.adjusted(1, 0, -1*borderThickness, 0);
-
-            QLinearGradient fillGradient(fillRect.topLeft(), fillRect.bottomLeft());
-            fillGradient.setColorAt(0, tab->palette.button().color().dark(106));
-            fillGradient.setColorAt(1, tab->palette.button().color().dark(120));
-            if (selected)
-                painter->fillRect(fillRect, tab->palette.background());
-            else
-                painter->fillRect(fillRect, fillGradient);
-
-            // Draw the base (for this to work with QTabWidget we can't use the ordinary primitive)
-            QLine baseTopLine = QLine(tab->rect.bottomLeft() - QPoint(0, 1), tab->rect.bottomRight() - QPoint(0, 1));
-            QLine baseBottomLine = QLine(tab->rect.bottomLeft(), tab->rect.bottomRight());
-
-            if (nextSelected) {
-                baseTopLine = QLine(baseTopLine.p1(), baseTopLine.p2() - QPoint(1, 0));
-                baseBottomLine = QLine(baseBottomLine.p1(), baseBottomLine.p2() - QPoint(1, 0));
-            }
-
-            if (previousSelected) {
-                baseTopLine = QLine(baseTopLine.p1() + QPoint(1, 0), baseTopLine.p2());
-                baseBottomLine = QLine(baseBottomLine.p1() + QPoint(1, 0), baseBottomLine.p2());
-            }
-
-            if (atBeginning) {
-                baseTopLine = QLine(baseTopLine.p1() + QPoint(1, 0), baseTopLine.p2());
-                baseBottomLine = QLine(baseBottomLine.p1() + QPoint(2, 0), baseBottomLine.p2());
-            }
-
-            painter->setPen(borderColor);
-            if (!selected)
-                painter->drawLine(baseTopLine);
-
-            painter->setPen(tab->palette.button().color().light());
-            if (!selected)
-                painter->drawLine(baseBottomLine);
-
-            painter->setPen(alphaCornerColor);
-            if (nextSelected) {
-                QPoint endPoint = baseTopLine.p2() + QPoint(1, 0);
-                painter->drawPoint(endPoint);
-            }
-
-            if (previousSelected) {
-                QPoint endPoint = baseTopLine.p1() - QPoint(1, 0);
-                painter->drawPoint(endPoint);
-            }
-
-            // Draw the top left corner of the tab bar base
-            if (atBeginning && !selected) {
-                QPoint specialCorner1 = QPoint(baseBottomLine.p1() - QPoint(1, 0));
-                QPoint specialCorner2 = QPoint(baseBottomLine.p1() - QPoint(2, 0));
-
-                painter->setPen(borderColor);
-                painter->drawPoint(specialCorner1);
-
-                painter->setPen(alphaCornerColor);
-                painter->drawPoint(specialCorner2);
-            }
+                        painter->drawLine(innerLeftLine);
+                    }
+                    QLine innerRightLine = QLine(rightLine.p1() + vectorLeft, rightLine.p2() + vectorLeft);;
+                    if (atEnd || selected) {                        
+                        if (!selected) {
+                            QLinearGradient rightLineGradient(innerRightLine.p1(),innerRightLine.p2());
+                            rightLineGradient.setColorAt(0, shadowGradientStartColor);
+                            rightLineGradient.setColorAt(1, shadowGradientStopColor);
+                            painter->setPen(QPen(QBrush(rightLineGradient), 1));
+                        } else {
+                            painter->setPen(shadow);
+                        }
+                        
+                        painter->drawLine(innerRightLine);
+                    }
 
 
+                    // Base 
+                    QLine baseLine = QLine(bottomLeft + marginLeft * 2 * vectorRight, bottomRight);
+                    {                                        
+                        
+                        QPoint adjustedLeft;
+                        QPoint adjustedRight;
+
+                        if (atEnd && !selected) {
+                            baseLine = QLine(baseLine.p1(), baseLine.p2() + vectorRight);
+                        }
+                        
+                        if (nextSelected) {
+                            adjustedRight += vectorLeft;
+                            baseLine = QLine(baseLine.p1(), baseLine.p2() + vectorLeft);
+                        }
+                        if (previousSelected) {
+                            adjustedLeft += vectorRight;
+                            baseLine = QLine(baseLine.p1() + vectorRight, baseLine.p2());
+                        }                        
+                        if (atBeginning)
+                            adjustedLeft += vectorRight;
+
+                        painter->setPen(baseColor2);
+                        if (!selected) 
+                            painter->drawLine(baseLine);
+                        
+                        if (atEnd && !selected) 
+                            painter->drawPoint(baseLine.p2() + vectorRight);
+
+                        if (atBeginning && !selected) 
+                            adjustedLeft = vectorRight;
+                        else
+                            adjustedLeft = QPoint(0, 0);                        
+                        painter->setPen(baseColor1);
+                        if (!selected)
+                            painter->drawLine(bottomLeft + vectorUp + adjustedLeft, baseLine.p2() + vectorUp);
+                        
+                        QPoint endPoint = bottomRight + vectorUp;
+                        if (atEnd && !selected) 
+                            painter->drawPoint(endPoint);
+
+                        // For drawing a lower left "fake" corner on the base when the first tab is unselected
+                        if (atBeginning && !selected) {
+                            painter->drawPoint(baseLine.p1() + vectorLeft);
+                        }
+                        
+                        painter->setPen(alphaCornerColor);
+                        if (nextSelected) 
+                            painter->drawPoint(endPoint);
+                        else if (selected)
+                            painter->drawPoint(endPoint + vectorRight);
+                       
+                        // For drawing a lower left "fake" corner on the base when the first tab is unselected
+                        if (atBeginning && !selected) {
+                            painter->drawPoint(baseLine.p1() + 2 * vectorLeft);
+                        }
+                    }
+                }
+            }                                       
+            
             // Yay we're done
 
             painter->restore();
@@ -2917,6 +3037,11 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         if (qobject_cast<const QMenu *>(widget))
             return 1;
         return 2;
+    case PM_TabBarTabVSpace:
+        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
+            if (!tab->icon.isNull()) return 15;
+        }
+        break ;
     default:
         break;
     }
