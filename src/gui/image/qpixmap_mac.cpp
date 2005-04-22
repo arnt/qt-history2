@@ -388,6 +388,7 @@ QPixmapData::~QPixmapData()
         cg_data = 0;
         pixels = 0; //let the cgimage hang onto the pixels if it wants to
     }
+    delete paintEngine;
 }
 
 void
