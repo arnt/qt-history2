@@ -1267,17 +1267,29 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Tab:
         e->accept(); // don't change focus
         break;
-    case Qt::Key_Enter:
-    case Qt::Key_Return:
-        emit activated(currentIndex());
-        break;
     case Qt::Key_Space:
         selectionModel()->select(currentIndex(), selectionCommand(currentIndex(), e));
         break;
+#ifdef Q_WS_MAC
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+        if (!edit(currentIndex(), EditKeyPressed, e))
+            e->ignore();
+        break;
+    case Qt::Key_O:
+        if (e->modifiers() & Qt::ControlModifier)
+            emit activated(currentIndex());
+        break;
+#else
     case Qt::Key_F2:
         if (!edit(currentIndex(), EditKeyPressed, e))
             e->ignore();
         break;
+    case Qt::Key_Enter:
+    case Qt::Key_Return:
+        emit activated(currentIndex());
+        break;
+#endif
     case Qt::Key_A:
         if (e->modifiers() & Qt::ControlModifier) {
             SelectionMode mode = selectionMode();
