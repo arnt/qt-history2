@@ -31,6 +31,7 @@ class QDockWidgetLayout;
 
 class QDockSeparator : public QWidget
 {
+    Q_OBJECT
 public:
     QDockSeparator(QDockWidgetLayout *dock, QWidget *parent);
 
