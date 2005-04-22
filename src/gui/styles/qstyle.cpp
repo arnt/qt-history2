@@ -1454,11 +1454,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
      By default it should be the same value as the QStyleOption's
      \c{direction}.
 
-    \value SH_ItemView_EllipsesLocation The location where ellipses should be
+    \value SH_ItemView_EllipsisLocation The location where ellipses should be
     added for item text that is too long to fit in an view item.
 
-    \value SH_ItemView_SelectWholeRow Allows the whole row row to be selected,
-    including the area behind the item.
+    \value SH_TreeView_ShowBranchSelected When an item in the tree view is selected,
+    also highlight the branch.
 
      \omitvalue SH_UnderlineAccelerator
 

@@ -3061,11 +3061,11 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = opt->direction;
         break;
 
-    case SH_ItemView_EllipsesLocation:
+    case SH_ItemView_EllipsisLocation:
         ret = Qt::AlignTrailing;
         break;
 
-    case SH_ItemView_SelectEntireRow:
+    case SH_TreeView_ShowBranchSelected:
         ret = false;
         break;
 

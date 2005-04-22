@@ -5067,10 +5067,10 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_ComboBox_LayoutDirection:
         ret = Qt::LeftToRight;
         break;
-    case SH_ItemView_EllipsesLocation:
+    case SH_ItemView_EllipsisLocation:
         ret = Qt::AlignHCenter;
         break;
-    case SH_ItemView_SelectEntireRow:
+    case SH_TreeView_ShowBranchSelected:
         ret = true;
         break;
     default:
