@@ -211,6 +211,7 @@ private:
         QString input_dir;
         QString output_dir, output_file;
         MetaMakefileGenerator *makefile;
+        int indent;
     };
     QList<Subdir *> subs;
     MakefileGenerator *processBuild(const QString &);
@@ -234,9 +235,11 @@ SubdirsMetaMakefileGenerator::init()
         const QString old_output_dir = Option::output_dir;
         const QString oldpwd = qmake_getpwd();
         const QStringList &subdirs = project->values("SUBDIRS");
+        static int recurseDepth = -1;
+        ++recurseDepth;
         for(int i = 0; i < subdirs.size(); ++i) {
             Subdir *sub = new Subdir;
-            subs.append(sub);
+            sub->indent = recurseDepth;
 
 //###             bool subPro = false;
             QFileInfo subdir(subdirs.at(i));
@@ -247,7 +250,9 @@ SubdirsMetaMakefileGenerator::init()
 
             //handle sub project
             QMakeProject *sub_proj = new QMakeProject(project->properities());
-            printf("RECURSIVE: reading %s\n", subdir.absoluteFilePath().toLatin1().constData());
+            for (int ind = 0; ind < sub->indent; ++ind)
+                printf(" ");
+            printf("Reading %s\n", subdir.absoluteFilePath().toLatin1().constData());
             sub->input_dir = subdir.absolutePath();
             qmake_setpwd(sub->input_dir);
             sub->output_dir = qmake_getpwd(); //this is not going to work for shadow builds ### --Sam
@@ -255,7 +260,15 @@ SubdirsMetaMakefileGenerator::init()
             if(Option::output_dir.at(Option::output_dir.length()-1) != QLatin1Char('/'))
                 Option::output_dir += QLatin1Char('/');
             sub_proj->read(subdir.fileName());
+            if(!sub_proj->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
+                fprintf(stderr, "Project file(%s) not recursed because all requirements not met:\n\t%s\n",
+                        subdir.fileName().toLatin1().constData(), sub_proj->values("QMAKE_FAILED_REQUIREMENTS").join(" ").toLatin1().constData());
+                delete sub;
+                delete sub_proj;
+                continue;
+            }
             sub->makefile = MetaMakefileGenerator::createMetaGenerator(sub_proj);
+            subs.append(sub);
             Option::output_dir = old_output_dir;
             qmake_setpwd(oldpwd);
 
@@ -270,6 +283,7 @@ SubdirsMetaMakefileGenerator::init()
 //###                 sub->output_file += "." + subdir.baseName();
 #endif
         }
+        --recurseDepth;
         Option::output_dir = old_output_dir;
         qmake_setpwd(oldpwd);
     }
@@ -292,15 +306,18 @@ SubdirsMetaMakefileGenerator::write(const QString &passpwd)
     const QString &output_dir = Option::output_dir;
     const QString &output_name = Option::output.fileName();
     for(int i = 0; ret && i < subs.count(); i++) {
+        const Subdir *sub = subs.at(i);
         qmake_setpwd(subs.at(i)->input_dir);
         Option::output_dir = QFileInfo(subs.at(i)->output_dir).absoluteFilePath();
         if(Option::output_dir.at(Option::output_dir.length()-1) != QLatin1Char('/'))
             Option::output_dir += QLatin1Char('/');
         Option::output.setFileName(subs.at(i)->output_file);
-        if(i != subs.count()-1)
-            printf("RECURSIVE: writing %s\n", QDir::cleanPath(Option::output_dir+"/"+
-                                                              Option::output.fileName()).toLatin1().constData());
-
+        if(i != subs.count()-1) {
+            for (int ind = 0; ind < sub->indent; ++ind)
+                printf(" ");
+            printf("Writing %s\n", QDir::cleanPath(Option::output_dir+"/"+
+                                                   Option::output.fileName()).toLatin1().constData());
+        }
         QString writepwd = Option::fixPathToLocalOS(qmake_getpwd());
         if(!writepwd.startsWith(Option::fixPathToLocalOS(passpwd)))
             writepwd = passpwd;
