@@ -20,6 +20,35 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QMainWindow>
 
+#include <QtCore/qdebug.h>
+
+
+namespace qdesigner { namespace sdk { namespace internal {
+
+static bool isPassiveInteractor(QWidget *o)
+{
+    if (qobject_cast<QTabBar*>(o))
+        return true;
+    else if (qobject_cast<QSizeGrip*>(o))
+        return true;
+    else if (qobject_cast<QAbstractButton*>(o) && (qobject_cast<QTabBar*>(o->parent()) || qobject_cast<QToolBox*>(o->parent())))
+        return true;
+    else if (qobject_cast<QMenuBar*>(o) && qobject_cast<QMainWindow*>(o->parent()))
+        return true;
+    else if (qstrcmp(o->metaObject()->className(), "QDockSeparator") == 0)
+        return true;
+    else if (qstrcmp(o->metaObject()->className(), "QDockWindowSeparator") == 0)
+        return true;
+    else if (qstrcmp(o->metaObject()->className(), "QToolBarHandle") == 0)
+        return true;
+    else if (o->objectName().startsWith(QLatin1String("__qt__passive_")))
+        return true;
+
+    return false;
+}
+
+} } }  // namespace qdesigner::sdk::internal
+
 QDesignerFormWindowInterface::QDesignerFormWindowInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
@@ -34,35 +63,12 @@ QDesignerFormEditorInterface *QDesignerFormWindowInterface::core() const
     return 0;
 }
 
-static bool isPassiveInteractor(QWidget *o)
-{
-    if (qobject_cast<QTabBar*>(o))
-        return true;
-    else if (qobject_cast<QSizeGrip*>(o))
-        return true;
-    else if (qobject_cast<QAbstractButton*>(o)
-            && (qobject_cast<QTabBar*>(o->parent()) || qobject_cast<QToolBox*>(o->parent())))
-        return true;
-    else if (qobject_cast<QMenuBar*>(o) && qobject_cast<QMainWindow*>(o->parent()))
-        return true;
-    else if (qstrcmp(o->metaObject()->className(), "QDockSeparator") == 0)
-        return true;
-    else if (qstrcmp(o->metaObject()->className(), "QDockWindowSeparator") == 0)
-        return true;
-    else if (o->objectName() == QLatin1String("designer_wizardstack_button"))
-        return true;
-    else if (o->objectName().startsWith(QLatin1String("__qt__passive_")))
-        return true;
-
-    return false;
-}
-
 QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidget *w)
 {
-    while (w) {
+    while (w != 0) {
         if (QDesignerFormWindowInterface *fw = qobject_cast<QDesignerFormWindowInterface*>(w)) {
             return fw;
-        } else if (isPassiveInteractor(w)) {
+        } else if (qdesigner::sdk::internal::isPassiveInteractor(w)) {
             break;
         } else if (w->isWindow()) {
             break;
