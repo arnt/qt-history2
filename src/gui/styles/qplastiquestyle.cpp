@@ -497,10 +497,25 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
     painter->setPen(oldPen);
 }
 
+/*!
+    \class QPlastiqueStyle
+    \brief The QPlastiqueStyle class provides a widget style similar to the
+    Plastik style available in KDE.
+
+    The Plastique style provides a default look and feel for widgets on
+    X11 that closely resembles the Plastik style introduced in KDE 3.2.
+*/
+
+/*!
+*/
 QPlastiqueStyle::QPlastiqueStyle()
     : QWindowsStyle()
 {
 }
+
+/*!
+    \fn QPlastiqueStyle::~QPlastiqueStyle()
+*/
 
 void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                                     QPainter *painter, const QWidget *widget) const
