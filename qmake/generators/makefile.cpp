@@ -575,7 +575,7 @@ MakefileGenerator::init()
                         out_list = &project->variables()[v];
                     }
                 } else if(project->variables()[(*it) + ".CONFIG"].indexOf("no_link") == -1) {
-                    out_list = &project->variables()["OBJCTS"];
+                    out_list = &project->variables()["OBJECTS"];
                 } else {
                     out_list = &project->variables()["UNUSED_SOURCES"];
                 }
