@@ -31,7 +31,7 @@ NmakeMakefileGenerator::writeMakefile(QTextStream &t)
         QStringList &qut = project->variables()["QMAKE_EXTRA_TARGETS"];
         for(QStringList::ConstIterator it = qut.begin(); it != qut.end(); ++it)
             t << *it << " ";
-        t << "all clean:" << "\n\t"
+        t << "all first clean:" << "\n\t"
           << "@echo \"Some of the required modules ("
           << var("QMAKE_FAILED_REQUIREMENTS") << ") are not available.\"" << "\n\t"
           << "@echo \"Skipped.\"" << endl << endl;
