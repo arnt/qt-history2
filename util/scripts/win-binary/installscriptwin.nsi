@@ -121,24 +121,9 @@ Section -Post
 SectionEnd
 
 Function .onInit
-  push $0
-  ClearErrors
-  UserInfo::GetAccountType
-  IfErrors Admin ;It's probably Win95
-  pop $0
-  StrCmp $0 "Admin" Admin
-
-  NoAdmin:
-  StrCpy $RUNNING_AS_ADMIN "false"
-  goto Done
-
-  Admin:
-  StrCpy $RUNNING_AS_ADMIN "true"
-  Done:
-  
+  call SetAdminVar
   !insertmacro TT_LICENSE_PAGE_INIT
   !insertmacro TT_QTENV_PAGE_INIT
-  pop $0
 FunctionEnd
 
 Function PatchPrlFiles
@@ -227,6 +212,21 @@ Function ShowReadMe
   Exec 'notepad.exe "$INSTDIR\README"'
 FunctionEnd
 
+Function un.onInit
+  push $0
+  call un.SetAdminVar
+  StrCmp $RUNNING_AS_ADMIN "true" Done
+  
+  ; We are running as a restriced user... make sure it has been installed as one too
+  ReadRegStr $0 HKLM "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\" "InstallDir"
+  StrCmp $0 $INSTDIR 0 Done
+  MessageBox MB_OK|MB_ICONSTOP "You do not have the required access rights to uninstall this package."
+  Abort
+
+  Done:
+  pop $0
+FunctionEnd
+
 Section Uninstall
   DetailPrint "Removing start menu shortcuts"
   Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Uninstall.lnk"
@@ -251,3 +251,28 @@ Section Uninstall
   
   SetAutoClose true
 SectionEnd
+
+;sets $RUNNING_AS_ADMIN to "true" if Admin or Power user
+!macro SetAdminVar UN
+Function ${UN}SetAdminVar
+  push $0
+  ClearErrors
+  UserInfo::GetAccountType
+  IfErrors Admin ;It's probably Win95
+  pop $0
+  StrCmp $0 "Admin" Admin
+  StrCmp $0 "Power" Admin
+
+  NoAdmin:
+  StrCpy $RUNNING_AS_ADMIN "false"
+  goto Done
+
+  Admin:
+  StrCpy $RUNNING_AS_ADMIN "true"
+
+  Done:
+  pop $0
+FunctionEnd
+!macroend
+!insertmacro SetAdminVar ""
+!insertmacro SetAdminVar "un."

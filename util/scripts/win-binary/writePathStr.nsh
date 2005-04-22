@@ -48,7 +48,7 @@ Function AddToPath
     FileReadByte $1 $2
     IntCmp $2 26 0 +2 +2 # DOS EOF
       FileSeek $1 -1 END # write over EOF
-    FileWrite $1 "$\r$\nSET PATH=%PATH%;$3$\r$\n"
+    FileWrite $1 "$\r$\nSET PATH=$3;%PATH%$\r$\n"
     FileClose $1
     SetRebootFlag true
     Goto AddToPath_done
@@ -59,7 +59,7 @@ Function AddToPath
     StrCmp $2 ";" 0 +2 # if last char == ;
       StrCpy $1 $1 -1 # remove last char
     StrCmp $1 "" AddToPath_NTdoIt
-      StrCpy $0 "$1;$0"
+      StrCpy $0 "$0;$1"
     AddToPath_NTdoIt:
       WriteRegExpandStr HKCU "Environment" "PATH" $0
       SendMessage ${HWND_BROADCAST} ${WM_WININICHANGE} 0 "STR:Environment" /TIMEOUT=5000
@@ -94,7 +94,7 @@ Function un.RemoveFromPath
     GetTempFileName $4
     FileOpen $2 $4 w
     GetFullPathName /SHORT $0 $0
-    StrCpy $0 "SET PATH=%PATH%;$0"
+    StrCpy $0 "SET PATH=$0;%PATH%"
     Goto unRemoveFromPath_dosLoop
 
     unRemoveFromPath_dosLoop:

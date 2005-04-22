@@ -145,6 +145,7 @@ FunctionEnd
 #
 Function un.UnRegisterQtEnvVariables
   exch $0 ; QTDIR
+  push $1
 
   ClearErrors
   ReadRegDWORD $SET_ENV_VARS "HKCU" "${PRODUCT_UNINST_KEY}" "QtEnvSet"
@@ -153,19 +154,29 @@ Function un.UnRegisterQtEnvVariables
 
   intcmp $SET_ENV_VARS 0 noenv
 
-  DetailPrint "Removing QTDIR"
-  push "QTDIR"
-  Call un.DeleteEnvStr ; removes QTDIR
-
   DetailPrint "Removing $0\bin from the PATH"
   push "$0\bin"
   Call un.RemoveFromPath ; removes qt from the path
+
+  ;Check if QTDIR is equal to installdir
+  ExpandEnvStrings $1 "%QTDIR%"
+  
+  StrCmp "$0" "$1" removeenv
+  StrCmp "$0\" "$1" removeenv
+  StrCmp "$0" "$1\" removeenv
+  Goto noenv
+  
+  removeenv:
+  DetailPrint "Removing QTDIR"
+  push "QTDIR"
+  Call un.DeleteEnvStr ; removes QTDIR
 
   DetailPrint "Removing QMAKESPEC"
   push "QMAKESPEC"
   Call un.DeleteEnvStr ; removes QMAKESPEC
 
   noenv:
+    pop $1
     pop $0
 FunctionEnd
 
