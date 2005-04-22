@@ -253,7 +253,7 @@ static int defaultScreen = -1;
  *****************************************************************************/
 
 static int qt_pixmap_serial = 0;
-int qt_x11_preferred_pixmap_depth = 0;
+int Q_GUI_EXPORT qt_x11_preferred_pixmap_depth = 0;
 
 /*!
   \internal
