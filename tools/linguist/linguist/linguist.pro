@@ -1,5 +1,6 @@
 TEMPLATE = app
 LANGUAGE = C++
+QT += xml
 
 CONFIG        += qt warn_on assistant
 
@@ -32,8 +33,6 @@ HEADERS        += finddialog.h \
         ../shared/metatranslator.h
 
 DEFINES        += QT_KEYWORDS
-QT += xml network
-include( ../../../src/qt_professional.pri )
 
 DESTDIR                = ../../../bin
 TARGET                = linguist

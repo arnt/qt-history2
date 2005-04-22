@@ -1,4 +1,5 @@
 TEMPLATE        = lib
+QT += network
 TARGET                = QtAssistantClient
 VERSION                = 1.0
 
@@ -8,9 +9,6 @@ CONFIG                -= dll
 
 HEADERS         = qassistantclient.h
 SOURCES         = qassistantclient.cpp
-
-QT += network
-include( ../../../src/qt_professional.pri )
 
 DESTDIR                = ../../../lib
 

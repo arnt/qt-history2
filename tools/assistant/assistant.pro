@@ -44,11 +44,6 @@ RESOURCES += assistant.qrc
 
 DEFINES += QT_KEYWORDS
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
-!network:DEFINES        += QT_INTERNAL_NETWORK
-else:QT += network
-!xml: DEFINES                += QT_INTERNAL_XML
-else:QT += xml
-include( ../../src/qt_professional.pri )
 
 win32 {
     LIBS += -lshell32

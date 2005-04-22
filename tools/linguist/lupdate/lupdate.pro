@@ -1,4 +1,5 @@
 TEMPLATE        = app
+QT += xml
 CONFIG          += qt warn_on console
 CONFIG          -= app_bundle
 HEADERS         = ../shared/metatranslator.h \
@@ -10,9 +11,6 @@ SOURCES         = fetchtr.cpp \
                   sametexth.cpp \
                   ../shared/metatranslator.cpp \
                   ../shared/proparser.cpp
-
-QT += xml
-include( ../../../src/qt_professional.pri )
 
 TARGET          = lupdate
 INCLUDEPATH     += ../shared
