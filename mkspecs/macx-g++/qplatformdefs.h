@@ -68,7 +68,6 @@
 
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
 #define QT_SOCKLEN_T		socklen_t
-#define QT_SOCKOPTLEN_T         int
 #else
 #define QT_SOCKLEN_T		int
 #endif
