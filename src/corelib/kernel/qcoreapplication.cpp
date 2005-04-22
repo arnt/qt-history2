@@ -1348,36 +1348,66 @@ char **QCoreApplication::argv() const
     return d->argv;
 }
 
+/*!
+    \property QCoreApplication::organizationName
+    \brief the name of the organization that wrote this application
+
+    The value is used by the QSettings class when it is constructed
+    using the empty constructor. This saves having to repeat this
+    information each time a QSettings object is created.
+
+    On Mac, QSettings uses organizationDomain() as the organization
+    if it's not an empty string; otherwise it uses
+    organizationName(). On all other platforms, QSettings uses
+    organizationName() as the organization.
+
+    \sa organizationDomain applicationName
+*/
+
+void QCoreApplication::setOrganizationName(const QString &orgName)
+{
+    self->d_func()->orgName = orgName;
+}
+
+QString QCoreApplication::organizationName()
+{
+    return self ? self->d_func()->orgName : QString();
+}
 
 /*!
-  \property QCoreApplication::organizationDomain
+    \property QCoreApplication::organizationDomain
     \brief the Internet domain of the organization that wrote this application
 
     The value is used by the QSettings class when it is constructed
     using the empty constructor. This saves having to repeat this
     information each time a QSettings object is created.
 
-    \sa applicationName
+    On Mac, QSettings uses organizationDomain() as the organization
+    if it's not an empty string; otherwise it uses organizationName().
+    On all other platforms, QSettings uses organizationName() as the
+    organization.
+
+    \sa organizationName applicationName
 */
-void QCoreApplication::setOrganizationDomain(const QString &organization)
+void QCoreApplication::setOrganizationDomain(const QString &orgDomain)
 {
-    self->d_func()->organization = organization;
+    self->d_func()->orgDomain = orgDomain;
 }
 
 QString QCoreApplication::organizationDomain()
 {
-    return self ? self->d_func()->organization : QString();
+    return self ? self->d_func()->orgDomain : QString();
 }
 
 /*!
-  \property QCoreApplication::applicationName
+    \property QCoreApplication::applicationName
     \brief the name of this application
 
     The value is used by the QSettings class when it is constructed
     using the empty constructor. This saves having to repeat this
     information each time a QSettings object is created.
 
-    \sa organizationDomain
+    \sa organizationName organizationDomain
 */
 void QCoreApplication::setApplicationName(const QString &application)
 {

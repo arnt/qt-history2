@@ -2032,7 +2032,13 @@ QSettings::QSettings(const QString &fileName, Format format, QObject *parent)
 */
 QSettings::QSettings(QObject *parent)
     : QObject(*QSettingsPrivate::create(NativeFormat, UserScope,
-                                        QCoreApplication::organizationDomain(),
+#ifdef Q_OS_MAC
+                                        QCoreApplication::organizationDomain().isEmpty()
+                                            ? QCoreApplication::organizationName()
+                                            : QCoreApplication::organiationDomain()
+#else
+                                        QCoreApplication::organizationName(),
+#endif
                                         QCoreApplication::applicationName()),
               parent)
 {

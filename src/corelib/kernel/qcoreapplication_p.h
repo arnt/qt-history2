@@ -55,7 +55,7 @@ public:
 
     int &argc;
     char **argv;
-    QString organization, application;
+    QString orgName, orgDomain, application;
 #ifndef QT_NO_TRANSLATION
     QTranslatorList translators;
 #endif

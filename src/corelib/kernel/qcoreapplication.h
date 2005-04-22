@@ -36,6 +36,7 @@ class Q_CORE_EXPORT QCoreApplication : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString applicationName READ applicationName WRITE setApplicationName)
+    Q_PROPERTY(QString organiationName READ organizationName WRITE setOrganizationName)
     Q_PROPERTY(QString organizationDomain READ organizationDomain WRITE setOrganizationDomain)
 
     Q_DECLARE_PRIVATE(QCoreApplication)
@@ -46,8 +47,10 @@ public:
     int argc() const;
     char **argv() const;
 
-    static void setOrganizationDomain(const QString &organization);
+    static void setOrganizationDomain(const QString &orgDomain);
     static QString organizationDomain();
+    static void setOrganizationName(const QString &orgName);
+    static QString organizationName();
     static void setApplicationName(const QString &application);
     static QString applicationName();
 
