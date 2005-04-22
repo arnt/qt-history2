@@ -34,6 +34,7 @@
 #include "qprogressbar.h"
 #include "qimage.h"
 #include "qfocusframe.h"
+#include "qpainterpath.h"
 #include "qdebug.h"
 #include <limits.h>
 
@@ -126,7 +127,13 @@ void QCDEStyle::drawControl(ControlElement element, const QStyleOption *opt, QPa
         else  // other item
             p->fillRect(opt->rect, opt->palette.brush(QPalette::Button));
         QCommonStyle::drawControl(element, opt, p, widget);
-        break;  }
+        break; }
+    case CE_RubberBand: {
+        QPainterPath path;
+        path.addRect(opt->rect);
+        path.addRect(opt->rect.adjusted(2, 2, -2, -2));
+        p->fillPath(path, opt->palette.dark());
+        break; }
     default:
         QMotifStyle::drawControl(element, opt, p, widget);
     break;
