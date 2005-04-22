@@ -1657,7 +1657,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         if(!tmp_dep_cmd.isEmpty()) {
 	    QString argv0;
 	    QStringList cmdline = tmp_dep_cmd.split(' ');
-	    for(int i = 0; i < cmdline.isEmpty(); ++i) {
+	    for(int i = 0; i < cmdline.count(); ++i) {
 	    	if(!cmdline.at(i).contains('=')) {
 		   argv0 = cmdline.at(i);
 		   break;
