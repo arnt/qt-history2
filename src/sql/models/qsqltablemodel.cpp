@@ -56,7 +56,6 @@ void QSqlTableModelPrivate::revertInsertedRow()
         return;
 
     q->beginRemoveRows(QModelIndex(), insertIndex, insertIndex);
-    int oldIndex = insertIndex;
     insertIndex = -1;
     q->endRemoveRows();
 }
