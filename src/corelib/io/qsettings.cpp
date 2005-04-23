@@ -137,11 +137,6 @@ QSettingsPrivate::~QSettingsPrivate()
 {
 }
 
-QString QSettingsPrivate::fileName() const
-{
-    return QString();
-}
-
 QString QSettingsPrivate::actualKey(const QString &key) const
 {
     QString n = normalizedKey(key);

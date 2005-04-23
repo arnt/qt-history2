@@ -144,7 +144,7 @@ public:
     virtual void sync() = 0;
     virtual void flush() = 0;
     virtual bool isWritable() const = 0;
-    virtual QString fileName() const;
+    virtual QString fileName() const = 0;
 
     QString actualKey(const QString &key) const;
     void beginGroupOrArray(const QSettingsGroup &group);
@@ -189,6 +189,7 @@ public:
        F_Global = 0x2,
        NumConfFiles = 4
     };
+
 protected:
     QStack<QSettingsGroup> groupStack;
     QString groupPrefix;
