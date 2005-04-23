@@ -201,9 +201,17 @@ static QVariant qtValue(CFPropertyListRef cfvalue)
         CFArrayRef cfarray = static_cast<CFArrayRef>(cfvalue);
         QList<QVariant> list;
         CFIndex size = CFArrayGetCount(cfarray);
-        for (CFIndex i = 0; i < size; ++i)
-            list << qtValue(CFArrayGetValueAtIndex(cfarray, i));
-        return list;
+        bool metNonString = false;
+        for (CFIndex i = 0; i < size; ++i) {
+            QVariant value = qtValue(CFArrayGetValueAtIndex(cfarray, i));
+            if (value.type() != QVariant::String)
+                metNonString = true;
+            list << value;
+        }
+        if (metNonString)
+            return list;
+        else
+            return QVariant(list).toStringList();
     } else if (typeId == CFBooleanGetTypeID()) {
         return (bool)CFBooleanGetValue(static_cast<CFBooleanRef>(cfvalue));
     } else if (typeId == CFDataGetTypeID()) {
