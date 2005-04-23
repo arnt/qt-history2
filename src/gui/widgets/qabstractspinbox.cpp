@@ -445,7 +445,9 @@ QLineEdit *QAbstractSpinBox::lineEdit() const
     \fn void QAbstractSpinBox::setLineEdit(QLineEdit *lineEdit)
 
     Sets the line edit of the spinbox to be \a lineEdit instead of the
-    current line edit widget.
+    current line edit widget. \a lineEdit can not be 0.
+
+    QAbstractSpinBox takes ownership of the new lineEdit
 
     If validator() for the \a lineEdit returns 0, the internal validator
     of the spinbox will be set on the line edit.
