@@ -826,7 +826,11 @@ void QConfFileSettingsPrivate::init()
     if (!readAccess)
         setStatus(QSettings::AccessError);
 
+#ifdef Q_OS_MAC
+    cs = (format == QSettings::NativeFormat) ? Qt::CaseSensitive : Qt::CaseInsensitive;
+#else
     cs = Qt::CaseInsensitive;
+#endif
     sync();       // loads the files the first time
 }
 
@@ -922,12 +926,11 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(QSettings::Format format,
     this->format = format;
     for (i = 0; i < NumConfFiles; ++i)
         confFiles[i] = 0;
-    cs = Qt::CaseSensitive;
 
     QString org = organization;
     if (org.isEmpty()) {
         setStatus(QSettings::AccessError);
-        org = QLatin1String("unknown-organization.trolltech.com");
+        org = QLatin1String("Unknown Organization");
     }
 
     const char *extension = format == QSettings::IniFormat ? ".ini" : ".conf";
@@ -959,7 +962,6 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(const QString &fileName,
     for (int i = 1; i < NumConfFiles; ++i)
         confFiles[i] = 0;
     this->format = format;
-    cs = Qt::CaseSensitive;
 }
 
 QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
