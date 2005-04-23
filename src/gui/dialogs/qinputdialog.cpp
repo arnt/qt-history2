@@ -334,24 +334,22 @@ QString QInputDialog::getText(QWidget *parent, const QString &title, const QStri
                                QLineEdit::EchoMode mode, const QString &text,
                                bool *ok, Qt::WFlags f)
 {
-    QInputDialog *dlg = new QInputDialog(label, parent, LineEdit, f);
-    dlg->setObjectName("qt_inputdlg_gettext");
+    QInputDialog dlg(label, parent, LineEdit, f);
+    dlg.setObjectName("qt_inputdlg_gettext");
 
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setWindowTitle(title);
+    dlg.setWindowTitle(title);
 #endif
-    dlg->lineEdit()->setText(text);
-    dlg->lineEdit()->setEchoMode(mode);
+    dlg.lineEdit()->setText(text);
+    dlg.lineEdit()->setEchoMode(mode);
 
-    bool ok_ = false;
     QString result;
-    ok_ = dlg->exec() == QDialog::Accepted;
+    bool accepted = (dlg.exec() == QDialog::Accepted);
     if (ok)
-        *ok = ok_;
-    if (ok_)
-        result = dlg->lineEdit()->text();
+        *ok = accepted;
+    if (accepted)
+        result = dlg.lineEdit()->text();
 
-    delete dlg;
     return result;
 }
 
@@ -401,9 +399,9 @@ int QInputDialog::getInteger(QWidget *parent, const QString &title, const QStrin
     dlg.spinBox()->setSingleStep(step);
     dlg.spinBox()->setValue(value);
 
-    bool ok_ = (dlg.exec() == QDialog::Accepted);
+    bool accepted = (dlg.exec() == QDialog::Accepted);
     if (ok)
-        *ok = ok_;
+        *ok = accepted;
     return dlg.spinBox()->value();
 }
 
@@ -496,30 +494,28 @@ double QInputDialog::getDouble( QWidget *parent, const QString &title, const QSt
 QString QInputDialog::getItem(QWidget *parent, const QString &title, const QString &label, const QStringList &list,
                                int current, bool editable, bool *ok, Qt::WFlags f)
 {
-    QInputDialog *dlg = new QInputDialog(label, parent, editable ? EditableComboBox : ComboBox, f);
-    dlg->setObjectName("qt_inputdlg_getitem");
+    QInputDialog dlg(label, parent, editable ? EditableComboBox : ComboBox, f);
+    dlg.setObjectName("qt_inputdlg_getitem");
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    dlg->setWindowTitle(title);
+    dlg.setWindowTitle(title);
 #endif
     if (editable) {
-        dlg->editableComboBox()->addItems(list);
-        dlg->editableComboBox()->setCurrentIndex(current);
+        dlg.editableComboBox()->addItems(list);
+        dlg.editableComboBox()->setCurrentIndex(current);
     } else {
-        dlg->comboBox()->addItems(list);
-        dlg->comboBox()->setCurrentIndex(current);
+        dlg.comboBox()->addItems(list);
+        dlg.comboBox()->setCurrentIndex(current);
     }
 
-    bool ok_ = false;
     QString result;
-    ok_ = dlg->exec() == QDialog::Accepted;
+    bool accepted = (dlg.exec() == QDialog::Accepted);
     if (ok)
-        *ok = ok_;
+        *ok = accepted;
     if (editable)
-        result = dlg->editableComboBox()->currentText();
+        result = dlg.editableComboBox()->currentText();
     else
-        result = dlg->comboBox()->currentText();
+        result = dlg.comboBox()->currentText();
 
-    delete dlg;
     return result;
 }
 
