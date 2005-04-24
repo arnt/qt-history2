@@ -292,14 +292,14 @@ void QListModel::itemChanged(QListWidgetItem *item)
 */
 
 /*!
-    \fn QListWidgetItem::QListWidgetItem(QListWidget *parent)
+    \fn QListWidgetItem::QListWidgetItem(QListWidget *view)
 
-    Constructs an empty list widget item with the given \a parent.
+    Constructs an empty list widget item with the given \a view.
     If the parent is not specified, the item will need to be inserted into a
     list widget with QListWidget::insertItem().
 */
-QListWidgetItem::QListWidgetItem(QListWidget *view)
-    : view(view), model(0),
+QListWidgetItem::QListWidgetItem(QListWidget *view, int type)
+    : rtti(type), view(view), model(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -318,8 +318,8 @@ QListWidgetItem::QListWidgetItem(QListWidget *view)
     If the parent is not specified, the item will need to be inserted into a
     list widget with QListWidget::insertItem().
 */
-QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view)
-    : view(view), model(0),
+QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view, int type)
+    : rtti(type), view(view), model(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled

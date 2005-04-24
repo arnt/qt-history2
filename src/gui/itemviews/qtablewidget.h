@@ -42,8 +42,9 @@ class Q_GUI_EXPORT QTableWidgetItem
     friend class QTableWidget;
     friend class QTableModel;
 public:
-    QTableWidgetItem();
-    explicit QTableWidgetItem(const QString &text);
+    enum { Type = 0, UserType = 1000 };
+    QTableWidgetItem(int type = Type);
+    explicit QTableWidgetItem(const QString &text, int type = Type);
     virtual ~QTableWidgetItem();
 
     virtual QTableWidgetItem *clone() const;
@@ -108,7 +109,10 @@ public:
 #endif
     void operator=(const QTableWidgetItem &other);
 
+    inline int type() const { return rtti; }
+
 private:
+    int rtti;
     QVector<QWidgetItemData> values;
     QTableWidget *view;
     QTableModel *model;

@@ -26,8 +26,9 @@ class Q_GUI_EXPORT QListWidgetItem
 {
     friend class QListModel;
 public:
-    explicit QListWidgetItem(QListWidget *view = 0);
-    explicit QListWidgetItem(const QString &text, QListWidget *view = 0);
+    enum { Type = 0, UserType = 1000 };
+    explicit QListWidgetItem(QListWidget *view = 0, int type = Type);
+    explicit QListWidgetItem(const QString &text, QListWidget *view = 0, int type = Type);
     virtual ~QListWidgetItem();
 
     virtual QListWidgetItem *clone() const;
@@ -92,7 +93,10 @@ public:
 #endif
     void operator=(const QListWidgetItem &other);
 
+    inline int type() const { return rtti; }
+
 private:
+    int rtti;
     QVector<QWidgetItemData> values;
     QListWidget *view;
     QListModel *model;

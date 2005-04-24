@@ -879,8 +879,8 @@ void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
 
 */
 
-QTreeWidgetItem::QTreeWidgetItem()
-    : view(0), model(0), par(0),
+QTreeWidgetItem::QTreeWidgetItem(int type)
+    : rtti(type), view(0), model(0), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -895,8 +895,8 @@ QTreeWidgetItem::QTreeWidgetItem()
     \a view.
 */
 
-QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
-    : view(view), model(0), par(0),
+QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
+    : rtti(type), view(view), model(0), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -914,8 +914,8 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
   tree \a view after the \a preceding item.
 */
 
-QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
-    : view(view), model(0), par(0),
+QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int type)
+    : rtti(type), view(view), model(0), par(0),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -935,8 +935,8 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after)
     Constructs a tree widget item and append it to the given \a parent.
 */
 
-QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
-    : view(0), model(0), par(parent),
+QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, int type)
+    : rtti(type), view(0), model(0), par(parent),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
@@ -954,8 +954,8 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent)
   into the parent's list of child items after the \a preceding child.
 */
 
-QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after)
-    : view(0), model(0), par(parent),
+QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after, int type)
+    : rtti(type), view(0), model(0), par(parent),
       itemFlags(Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled

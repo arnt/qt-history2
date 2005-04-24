@@ -27,10 +27,11 @@ class Q_GUI_EXPORT QTreeWidgetItem
     friend class QTreeModel;
     friend class QTreeWidget;
 public:
-    explicit QTreeWidgetItem(QTreeWidget *view);
-    QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after);
-    explicit QTreeWidgetItem(QTreeWidgetItem *parent);
-    QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after);
+    enum { Type = 0, UserType = 1000 };
+    explicit QTreeWidgetItem(QTreeWidget *view, int type = Type);
+    QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int type = Type);
+    explicit QTreeWidgetItem(QTreeWidgetItem *parent, int type = Type);
+    QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after, int type = Type);
     virtual ~QTreeWidgetItem();
 
     virtual QTreeWidgetItem *clone() const;
@@ -106,11 +107,14 @@ public:
     void insertChild(int index, QTreeWidgetItem *child);
     QTreeWidgetItem *takeChild(int index);
 
+    inline int type() const { return rtti; }
+
 private:
-    QTreeWidgetItem();
+    QTreeWidgetItem(int type = Type);
     void sortChildren(int column, Qt::SortOrder order, bool climb);
     QVariant childrenCheckState(int column) const;
 
+    int rtti;
     // One item has a vector of column entries. Each column has a vector of (role, value) pairs.
     QVector< QVector<QWidgetItemData> > values;
     QTreeWidget *view;

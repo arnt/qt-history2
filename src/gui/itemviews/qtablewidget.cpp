@@ -791,8 +791,8 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 /*!
     Constructs a table item that does not belong to any table.
 */
-QTableWidgetItem::QTableWidgetItem()
-    : view(0), model(0),
+QTableWidgetItem::QTableWidgetItem(int type)
+    :  rtti(type), view(0), model(0),
       itemFlags(Qt::ItemIsEditable
                 |Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
@@ -804,8 +804,8 @@ QTableWidgetItem::QTableWidgetItem()
 /*!
     Constructs a table item with the given \a text.
 */
-QTableWidgetItem::QTableWidgetItem(const QString &text)
-    : view(0), model(0),
+QTableWidgetItem::QTableWidgetItem(const QString &text, int type)
+    :  rtti(type), view(0), model(0),
       itemFlags(Qt::ItemIsEditable
                 |Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
