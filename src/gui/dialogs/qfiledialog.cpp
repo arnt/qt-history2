@@ -1220,7 +1220,7 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
 
 void QFileDialogPrivate::autoCompleteDirectory(const QString &text)
 {
-    // if we hanve no path or the last character is '/', then don't autocomplete
+    // if we have no path or the last character is '/', then don't autocomplete
     if (text.isEmpty() || text.at(text.length() - 1) == QDir::separator())
         return;
 #ifdef Q_OS_WIN
@@ -1236,7 +1236,8 @@ void QFileDialogPrivate::autoCompleteDirectory(const QString &text)
     if (key == Qt::Key_Delete || key == Qt::Key_Backspace)
         return;
     // do autocompletion; text is the local path format (on windows separator is '\\')
-    QString path = toInternal(text.left(text.lastIndexOf(QDir::separator())));
+    int indexOfLastSeparator = text.lastIndexOf(QDir::separator()); // this will only trigger on unix
+    QString path = toInternal(indexOfLastSeparator == 0 ? "/" : text.left(indexOfLastSeparator));
     QString name = text.section(QDir::separator(), -1);
     QModelIndex parent = model->index(path);
     QModelIndex result = matchDir(name, model->index(0, 0, parent));

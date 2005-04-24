@@ -962,7 +962,11 @@ QModelIndex QDirModel::index(const QString &path, int column) const
 
     QString absolutePath = QDir(path).absolutePath();
     QStringList pathElements = absolutePath.split(QChar('/'), QString::SkipEmptyParts);
-    if (pathElements.isEmpty() || !QFileInfo(path).exists())
+    if ((pathElements.isEmpty() || !QFileInfo(path).exists())
+#ifndef Q_OS_WIN
+        && path != "/"
+#endif
+        )
         return QModelIndex();
 
     QModelIndex idx; // start with "My Computer"
