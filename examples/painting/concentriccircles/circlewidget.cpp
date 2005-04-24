@@ -2,6 +2,8 @@
 
 #include "circlewidget.h"
 
+#include <stdlib.h>
+
 CircleWidget::CircleWidget(QWidget *parent)
     : QWidget(parent)
 {

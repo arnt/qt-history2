@@ -1,6 +1,8 @@
 #include "fortuneserver.h"
 #include "fortunethread.h"
 
+#include <stdlib.h>
+
 FortuneServer::FortuneServer(QObject *parent)
     : QTcpServer(parent)
 {
