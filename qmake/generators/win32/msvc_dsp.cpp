@@ -745,9 +745,8 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
         }
     }
 
-    QString fileBase = file.left(file.lastIndexOf('.'));
-    fileBase = fileBase.mid(fileBase.lastIndexOf('\\') + 1);
-
+    QString fileBase = QFileInfo(file).completeBaseName();
+    
     bool hasBuiltin = config->hasBuiltinCompiler(file);
     BuildStep allSteps;
 
