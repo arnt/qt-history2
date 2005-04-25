@@ -5095,6 +5095,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_TreeView_ShowBranchSelected:
         ret = true;
         break;
+    case SH_ItemView_AlternatingRowColors:
+        ret = true;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;

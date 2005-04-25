@@ -682,7 +682,11 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
         if (headerSection == 0) {
             int i = d->indentation(d->current);
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
-            painter->fillRect(position, y, width, height, baseBrush);
+            if (opt.state & QStyle::State_Selected
+                && style()->styleHint(QStyle::SH_TreeView_ShowBranchSelected))
+                painter->fillRect(position, y, width, height, option.palette.highlight());
+            else
+                painter->fillRect(position, y, width, height, baseBrush);
             drawBranches(painter, QRect(reverse ? position + width - i :
                                         position, y, i, option.rect.height()), index);
         } else {
@@ -977,8 +981,10 @@ QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) con
     } else {
         for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange range = selection.at(i);
-            selectionRegion += QRegion(QRect(visualRect(range.topLeft()).topLeft(),
-                                             visualRect(range.bottomRight()).bottomRight()));
+            QPoint tl = visualRect(range.topLeft()).topLeft();
+            QPoint br = visualRect(range.bottomRight()).bottomRight();
+            tl.setX(columnViewportPosition(range.left())); // get the branches too
+            selectionRegion += QRegion(QRect(tl, br));
         }
     }
 

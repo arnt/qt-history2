@@ -74,6 +74,7 @@ void QAbstractItemViewPrivate::init()
     QObject::connect(q->horizontalScrollBar(), SIGNAL(valueChanged(int)),
                      q, SLOT(horizontalScrollbarValueChanged(int)));
 
+    alternatingColors = q->style()->styleHint(QStyle::SH_ItemView_AlternatingRowColors);
     viewport->setBackgroundRole(QPalette::Base);
 
     q->setHorizontalStepsPerItem(64);
