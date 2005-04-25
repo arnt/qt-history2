@@ -458,6 +458,7 @@ struct QX11Data
         XdndDrop,
         XdndFinished,
         XdndTypelist,
+        XdndActionList,
 
         XdndSelection,
 

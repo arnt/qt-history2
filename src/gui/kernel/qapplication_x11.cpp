@@ -209,6 +209,7 @@ static const char * x11_atomnames = {
     "XdndDrop\0"
     "XdndFinished\0"
     "XdndTypeList\0"
+    "XdndActionList\0"
 
     "XdndSelection\0"
 
