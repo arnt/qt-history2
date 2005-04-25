@@ -2,6 +2,8 @@
 
 #include "sortingbox.h"
 
+#include <stdlib.h>
+
 SortingBox::SortingBox()
 {
     setAttribute(Qt::WA_StaticContents);
