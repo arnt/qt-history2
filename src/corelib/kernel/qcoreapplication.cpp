@@ -691,6 +691,13 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
         return;
     }
 
+    /*
+      avoid a deadlock when trying to create the mainThread() when
+      posting the very first event in an application with a
+      QCoreApplication
+    */
+    (void) mainThread();
+
     QReadLocker locker(QObjectPrivate::readWriteLock());
     if (!QObjectPrivate::isValidObject(receiver)) {
         qWarning("QCoreApplication::postEvent: Receiver is not a valid QObject");
