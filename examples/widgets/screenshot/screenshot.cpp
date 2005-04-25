@@ -82,7 +82,7 @@ void Screenshot::createOptionsGroupBox()
 {
     optionsGroupBox = new QGroupBox(tr("Options"));
 
-    delaySpinBox = new QSpinBox();
+    delaySpinBox = new QSpinBox;
     delaySpinBox->setSuffix(tr(" s"));
     delaySpinBox->setMaximum(60);
     connect(delaySpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateCheckBox()));

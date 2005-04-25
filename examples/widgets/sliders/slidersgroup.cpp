@@ -6,16 +6,16 @@ SlidersGroup::SlidersGroup(Qt::Orientation orientation, const QString &title,
                            QWidget *parent)
     : QGroupBox(title, parent)
 {
-    slider = new QSlider(orientation, this);
+    slider = new QSlider(orientation);
     slider->setFocusPolicy(Qt::StrongFocus);
     slider->setTickPosition(QSlider::TicksBothSides);
     slider->setTickInterval(10);
     slider->setSingleStep(1);
 
-    scrollBar = new QScrollBar(orientation, this);
+    scrollBar = new QScrollBar(orientation);
     scrollBar->setFocusPolicy(Qt::StrongFocus);
 
-    dial = new QDial(this);
+    dial = new QDial;
     dial->setFocusPolicy(Qt::StrongFocus);
 
     connect(slider, SIGNAL(valueChanged(int)), scrollBar, SLOT(setValue(int)));
@@ -30,10 +30,11 @@ SlidersGroup::SlidersGroup(Qt::Orientation orientation, const QString &title,
     else
         direction = QBoxLayout::LeftToRight;
 
-    QBoxLayout *slidersLayout = new QBoxLayout(direction, this);
+    QBoxLayout *slidersLayout = new QBoxLayout(direction);
     slidersLayout->addWidget(slider);
     slidersLayout->addWidget(scrollBar);
     slidersLayout->addWidget(dial);
+    setLayout(slidersLayout);
 }
 
 void SlidersGroup::setValue(int value)

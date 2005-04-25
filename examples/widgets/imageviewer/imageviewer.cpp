@@ -123,13 +123,13 @@ void ImageViewer::createActions()
 
 void ImageViewer::createMenus()
 {
-    fileMenu = new QMenu(tr("&File"));
+    fileMenu = new QMenu(tr("&File"), this);
     fileMenu->addAction(openAct);
     fileMenu->addAction(printAct);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
-    viewMenu = new QMenu(tr("&View"));
+    viewMenu = new QMenu(tr("&View"), this);
     viewMenu->addAction(zoomInAct);
     viewMenu->addAction(zoomOutAct);
     viewMenu->addAction(normalSizeAct);

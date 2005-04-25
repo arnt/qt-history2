@@ -91,17 +91,17 @@ void MainWindow::createActions()
 
 void MainWindow::createMenus()
 {
-    saveAsMenu = new QMenu(tr("&Save As"));
+    saveAsMenu = new QMenu(tr("&Save As"), this);
     foreach (QAction *action, saveAsActs)
         saveAsMenu->addAction(action);
 
-    fileMenu = new QMenu(tr("&File"));
+    fileMenu = new QMenu(tr("&File"), this);
     fileMenu->addAction(openAct);
     fileMenu->addMenu(saveAsMenu);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
-    optionMenu = new QMenu(tr("&Options"));
+    optionMenu = new QMenu(tr("&Options"), this);
     optionMenu->addAction(penColorAct);
     optionMenu->addAction(penWidthAct);
     optionMenu->addSeparator();

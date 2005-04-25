@@ -13,7 +13,7 @@ Calculator::Calculator(QWidget *parent)
     factorSoFar = 0.0;
     waitingForOperand = true;
 
-    display = new QLineEdit("0", this);
+    display = new QLineEdit("0");
     display->setReadOnly(true);
     display->setAlignment(Qt::AlignRight);
     display->setMaxLength(15);
@@ -35,7 +35,7 @@ Calculator::Calculator(QWidget *parent)
 
     pointButton = createButton(tr("."), digitColor, SLOT(pointClicked()));
     changeSignButton = createButton(tr("±"), digitColor, SLOT(changeSignClicked()));
-   
+
     backspaceButton = createButton(tr("Backspace"), backspaceColor,
                                    SLOT(backspaceClicked()));
     clearButton = createButton(tr("Clear"), backspaceColor, SLOT(clear()));
@@ -66,8 +66,8 @@ Calculator::Calculator(QWidget *parent)
                                     SLOT(unaryOperatorClicked()));
     equalButton = createButton(tr("="), operatorColor.light(120),
                                SLOT(equalClicked()));
-   
-    QGridLayout *mainLayout = new QGridLayout(this);
+
+    QGridLayout *mainLayout = new QGridLayout;
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
 
     mainLayout->addWidget(display, 0, 0, 1, 6);
@@ -99,6 +99,7 @@ Calculator::Calculator(QWidget *parent)
     mainLayout->addWidget(powerButton, 3, 5);
     mainLayout->addWidget(reciprocalButton, 4, 5);
     mainLayout->addWidget(equalButton, 5, 5);
+    setLayout(mainLayout);
 
     setWindowTitle(tr("Calculator"));
 }
@@ -159,7 +160,7 @@ void Calculator::unaryOperatorClicked()
     } else if (clickedOperator == tr("1/x")) {
         if (operand == 0.0) {
 	    abortOperation();
-	    return;        
+	    return;
         }
         result = 1.0 / operand;
     }
@@ -240,7 +241,7 @@ void Calculator::equalClicked()
     } else {
         sumSoFar = operand;
     }
-   
+
     display->setText(QString::number(sumSoFar));
     sumSoFar = 0.0;
     waitingForOperand = true;
@@ -315,19 +316,19 @@ void Calculator::readMemory()
 void Calculator::setMemory()
 {
     equalClicked();
-    sumInMemory = sumSoFar;
+    sumInMemory = display->text().toDouble();
 }
 
 void Calculator::addToMemory()
 {
     equalClicked();
-    sumInMemory += sumSoFar;
+    sumInMemory += display->text().toDouble();
 }
 
 Button *Calculator::createButton(const QString &text, const QColor &color,
                                  const char *member)
 {
-    Button *button = new Button(text, color, this);
+    Button *button = new Button(text, color);
     connect(button, SIGNAL(clicked()), this, member);
     return button;
 }
@@ -348,7 +349,7 @@ bool Calculator::calculate(double rightOperand, const QString &pendingOperator)
         factorSoFar *= rightOperand;
     } else if (pendingOperator == tr("÷")) {
 	if (rightOperand == 0.0)
-	    return false;       
+	    return false;
 	factorSoFar /= rightOperand;
     }
     return true;

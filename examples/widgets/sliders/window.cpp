@@ -8,7 +8,7 @@ Window::Window()
     horizontalSliders = new SlidersGroup(Qt::Horizontal, tr("Horizontal"));
     verticalSliders = new SlidersGroup(Qt::Vertical, tr("Vertical"));
 
-    stackedWidget = new QStackedWidget(this);
+    stackedWidget = new QStackedWidget;
     stackedWidget->addWidget(horizontalSliders);
     stackedWidget->addWidget(verticalSliders);
 
@@ -21,9 +21,10 @@ Window::Window()
     connect(valueSpinBox, SIGNAL(valueChanged(int)),
             horizontalSliders, SLOT(setValue(int)));
 
-    QHBoxLayout *layout = new QHBoxLayout(this);
+    QHBoxLayout *layout = new QHBoxLayout;
     layout->addWidget(controlsGroup);
     layout->addWidget(stackedWidget);
+    setLayout(layout);
 
     minimumSpinBox->setValue(0);
     maximumSpinBox->setValue(20);
@@ -34,30 +35,28 @@ Window::Window()
 
 void Window::createControls(const QString &title)
 {
-    controlsGroup = new QGroupBox(title, this);
+    controlsGroup = new QGroupBox(title);
 
-    minimumLabel = new QLabel(tr("Minimum value:"), controlsGroup);
-    maximumLabel = new QLabel(tr("Maximum value:"), controlsGroup);
-    valueLabel = new QLabel(tr("Current value:"), controlsGroup);
+    minimumLabel = new QLabel(tr("Minimum value:"));
+    maximumLabel = new QLabel(tr("Maximum value:"));
+    valueLabel = new QLabel(tr("Current value:"));
 
-    invertedAppearance = new QCheckBox(tr("Inverted appearance"),
-                                       controlsGroup);
-    invertedKeyBindings = new QCheckBox(tr("Inverted key bindings"),
-                                        controlsGroup);
+    invertedAppearance = new QCheckBox(tr("Inverted appearance"));
+    invertedKeyBindings = new QCheckBox(tr("Inverted key bindings"));
 
-    minimumSpinBox = new QSpinBox(controlsGroup);
+    minimumSpinBox = new QSpinBox;
     minimumSpinBox->setRange(-100, 100);
     minimumSpinBox->setSingleStep(1);
 
-    maximumSpinBox = new QSpinBox(controlsGroup);
+    maximumSpinBox = new QSpinBox;
     maximumSpinBox->setRange(-100, 100);
     maximumSpinBox->setSingleStep(1);
 
-    valueSpinBox = new QSpinBox(controlsGroup);
+    valueSpinBox = new QSpinBox;
     valueSpinBox->setRange(-100, 100);
     valueSpinBox->setSingleStep(1);
 
-    orientationCombo = new QComboBox(controlsGroup);
+    orientationCombo = new QComboBox;
     orientationCombo->addItem(tr("Horizontal slider-like widgets"));
     orientationCombo->addItem(tr("Vertical slider-like widgets"));
 
@@ -80,7 +79,7 @@ void Window::createControls(const QString &title)
     connect(invertedKeyBindings, SIGNAL(toggled(bool)),
             verticalSliders, SLOT(invertKeyBindings(bool)));
 
-    QGridLayout *controlsLayout = new QGridLayout(controlsGroup);
+    QGridLayout *controlsLayout = new QGridLayout;
     controlsLayout->addWidget(minimumLabel, 0, 0);
     controlsLayout->addWidget(maximumLabel, 1, 0);
     controlsLayout->addWidget(valueLabel, 2, 0);
@@ -90,4 +89,5 @@ void Window::createControls(const QString &title)
     controlsLayout->addWidget(invertedAppearance, 0, 2);
     controlsLayout->addWidget(invertedKeyBindings, 1, 2);
     controlsLayout->addWidget(orientationCombo, 3, 0, 1, 3);
+    controlsGroup->setLayout(controlsLayout);
 }
