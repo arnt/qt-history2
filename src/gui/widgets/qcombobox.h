@@ -214,13 +214,13 @@ public:
     inline QT3_SUPPORT QString text(int index) const { return itemText(index); }
     inline QT3_SUPPORT QPixmap pixmap(int index) const { return itemIcon(index).pixmap(QSize(22,22)); }
     inline QT3_SUPPORT void insertStringList(const QStringList &list, int index = -1)
-        { insertItems(index, list); }
+        { insertItems((index < 0 ? count() : index), list); }
     inline QT3_SUPPORT void insertItem(const QString &text, int index = -1)
-        { insertItem(index, text); }
+        { insertItem((index < 0 ? count() : index), text); }
     inline QT3_SUPPORT void insertItem(const QPixmap &pix, int index = -1)
-        { insertItem(index, QIcon(pix), QString()); }
+        { insertItem((index < 0 ? count() : index), QIcon(pix), QString()); }
     inline QT3_SUPPORT void insertItem(const QPixmap &pix, const QString &text, int index = -1)
-        { insertItem(index, QIcon(pix), text); }
+        { insertItem((index < 0 ? count() : index), QIcon(pix), text); }
     inline QT3_SUPPORT void changeItem(const QString &text, int index)
         { setItemText(index, text); }
     inline QT3_SUPPORT void changeItem(const QPixmap &pix, int index)
