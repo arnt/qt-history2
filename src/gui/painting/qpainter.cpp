@@ -3624,15 +3624,13 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
            sp.x(), sp.y());
 #endif
 
-    if (!isActive())
+    if (!isActive() || pixmap.isNull() || r.isEmpty())
         return;
     Q_D(QPainter);
     d->updateState(d->state);
 
     qreal sw = pixmap.width();
     qreal sh = pixmap.height();
-    if (!sw || !sh)
-        return;
     qreal sx = sp.x();
     qreal sy = sp.y();
     if (sx < 0)
