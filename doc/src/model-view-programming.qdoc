@@ -262,9 +262,9 @@ framework.
 In the model/view architecture, the model provides a standard interface
 that views and delegates use to access data. In Qt, the standard
 interface is defined by the QAbstractItemModel class. No matter how
-the data is stored in any underlying data structure, all subclasses of
-QAbstractItemModel represent the data as a hierarchical structure
-containing tables of items.
+the items of data are stored in any underlying data structure, all
+subclasses of QAbstractItemModel represent the data as a hierarchical
+structure containing tables of items.
 Views use this \e convention to access items of data in the model, but
 they are not restricted in the way that they present this information
 to the user.
@@ -275,8 +275,8 @@ Models also notify any attached views about changes to data through the
 signals and slots mechanism.
 
 This chapter describes some basic concepts that are central to the way
-data is accessed by other components via a model class. More advanced
-concepts are discussed in later chapters.
+item of data are accessed by other components via a model class. More
+advanced concepts are discussed in later chapters.
 
 \section2 Model Indexes
 
@@ -315,9 +315,9 @@ and explain these properties in detail.
 
 In its most basic form, a model can be accessed as a simple table
 in which items are located by their row and column numbers. \e{This does
-not mean that the underlying data is stored in an array structure};
-the use of row and column numbers is only a convention to allow components
-to communicate with each other.
+not mean that the underlying pieces of data are stored in an array
+structure}; the use of row and column numbers is only a convention to
+allow components to communicate with each other.
 We can retrieve information about any given item by specifying its row
 and column numbers to the model, and we receive an index that
 represents the item:
@@ -1265,9 +1265,10 @@ items.
     the row number is within the range of items in the string list, and the
     requested role is one that we support.
 
-    If our model is displayed in a view with headers, we want the headers
-    to show the row and column numbers. We can provide information about
-    the headers by subclassing the
+    Some views, such as QTreeView and QTableView, are able to display headers
+    along with the item data. If our model is displayed in a view with headers,
+    we want the headers to show the row and column numbers. We can provide
+    information about the headers by subclassing the
     \l{QAbstractItemModel::headerData()}{headerData()} function:
 
     \skipto QVariant StringListModel::headerData
@@ -1276,6 +1277,11 @@ items.
     Again, we return a valid QVariant only if the model index is valid and
     the role is one that we support. The orientation of the header is also
     taken into account when deciding the exact data to return.
+
+    Not all views display headers with the item data, and those that do may
+    be configured to hide them. Nonetheless, it is recommended that you
+    implement the \l{QAbstractItemModel::headerData()}{headerData()} function
+    to provide relevant information about the data provided by the model.
 
     An item can have several roles, giving out different data depending on the
     role specified. The items in our model only have one role,
