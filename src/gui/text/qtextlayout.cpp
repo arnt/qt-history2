@@ -454,8 +454,10 @@ void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
         }
         return;
     }
-    if (!d->specialData)
+    if (!d->specialData) {
         d->specialData = new QTextEngine::SpecialData;
+        d->specialData->preeditPosition = -1;
+    }
     d->specialData->addFormats = formatList;
 }
 
