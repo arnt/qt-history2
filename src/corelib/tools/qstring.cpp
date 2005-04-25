@@ -4464,7 +4464,7 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
             case 'p': {
                 void *arg = va_arg(ap, void*);
 #ifdef Q_OS_WIN64
-                quint64 i = reinterpret_cast<quit64>(arg);
+                quint64 i = reinterpret_cast<quint64>(arg);
 #else
                 quint64 i = reinterpret_cast<unsigned long>(arg);
 #endif
