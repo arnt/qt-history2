@@ -3155,6 +3155,7 @@ void QWidgetPrivate::setWindowTitle_helper(const QString &title)
         if (count%2) { // odd number of [*] -> replace last one
             int lastIndex = cap.lastIndexOf(placeHolder, index - 1);
 #ifndef Q_WS_MAC
+            Q_Q(QWidget);
             if (q->isWindowModified())
                 cap.replace(lastIndex, 3, QWidget::tr("*"));
             else
