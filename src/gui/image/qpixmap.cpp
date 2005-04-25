@@ -413,7 +413,7 @@ void QPixmap::resize_helper(const QSize &s)
 
     int d = data->d;
     // Create new pixmap
-    QPixmap pm(QSize(w, h), d == 1 ? PixmapType : BitmapType);
+    QPixmap pm(QSize(w, h), d == 1 ? BitmapType : PixmapType);
 #ifdef Q_WS_X11
     pm.x11SetScreen(data->xinfo.screen());
 #endif // Q_WS_X11
