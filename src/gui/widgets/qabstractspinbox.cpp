@@ -668,7 +668,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Return:
         d->interpret(AlwaysEmit);
         selectAll();
-        e->accept();
+        e->ignore();
         return;
 
     case Qt::Key_U:
