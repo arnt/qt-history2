@@ -308,7 +308,7 @@ void QSpinBox::setPrefix(const QString &p)
 
     To turn off the suffix display, set this property to an empty
     string. The default is no suffix. The suffix is not displayed for
-    the minValue() if specialValueText() is set.
+    the minimum() if specialValueText() is set.
 
     If no suffix is set, suffix() returns an empty string.
 
@@ -738,7 +738,7 @@ void QDoubleSpinBox::setPrefix(const QString &p)
 
     To turn off the suffix display, set this property to an empty
     string. The default is no suffix. The suffix is not displayed for
-    the minValue() if specialValueText() is set.
+    the minimum() if specialValueText() is set.
 
     If no suffix is set, suffix() returns an empty string.
 
