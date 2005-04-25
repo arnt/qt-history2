@@ -1329,6 +1329,16 @@ Qt::DropAction QDragManager::drag(QDrag * o)
     }
 #endif
 
+    // delete cursors as they may be different next drag.
+    delete noDropCursor;
+    noDropCursor = 0;
+    delete copyCursor;
+    copyCursor = 0;
+    delete moveCursor;
+    moveCursor = 0;
+    delete linkCursor;
+    linkCursor = 0;
+
     delete xdnd_data.deco;
     xdnd_data.deco = 0;
     if (heartbeat != -1)

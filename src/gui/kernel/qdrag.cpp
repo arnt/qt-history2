@@ -176,14 +176,14 @@ QWidget *QDrag::target() const
 /*!
     Starts the drag and drop operation. The actions that are available to the
     user when the drag and drop operation is completed are specified in
-    \a request.
+    \a request. Qt::CopyAction is always allowed.
 */
 Qt::DropAction QDrag::start(Qt::DropActions request)
 {
     Q_D(QDrag);
     Q_ASSERT_X(d->data, "QDrag", "No mimedata set before starting the drag");
     QDragManager *manager = QDragManager::self();
-    d->possible_actions = request;
+    d->possible_actions = request | Qt::CopyAction;
     if (manager)
         d->executed_action = manager->drag(this);
     return d->executed_action;

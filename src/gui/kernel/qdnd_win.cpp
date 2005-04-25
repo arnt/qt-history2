@@ -821,9 +821,6 @@ Qt::DropAction QDragManager::drag(QDrag *o)
     QOleDataObject *obj = new QOleDataObject(o->mimeData());
     DWORD allowedEffects = translateToWinDragEffects(dragPrivate()->possible_actions);
 
-    // always allow a copy
-    allowedEffects |= DROPEFFECT_COPY;
-
 #ifdef Q_OS_TEMP
     HRESULT r = 0;
     resultEffect = 0;
