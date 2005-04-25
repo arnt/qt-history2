@@ -3471,18 +3471,18 @@ bool QXmlSimpleReaderPrivate::parseProlog()
                 // call the handler
                 if (contentHnd) {
                     if (xmldecl_possible && !xmlVersion.isEmpty()) {
-                        QString value("version = '");
+                        QString value("version='");
                         value += xmlVersion;
                         value += "'";
                         if (!encoding.isEmpty()) {
-                            value += " encoding = '";
+                            value += " encoding='";
                             value += encoding;
                             value += "'";
                         }
                         if (standalone == QXmlSimpleReaderPrivate::Yes) {
-                            value += " standalone = 'yes'";
+                            value += " standalone='yes'";
                         } else if (standalone == QXmlSimpleReaderPrivate::No) {
-                            value += " standalone = 'no'";
+                            value += " standalone='no'";
                         }
                         if (!contentHnd->processingInstruction("xml", value)) {
                             reportParseError(contentHnd->errorString());
