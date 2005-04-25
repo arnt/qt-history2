@@ -1114,8 +1114,9 @@
 
     \section1 QDateEdit
 
-    The \c QDateEdit class has been renamed Q3DateEdit and moved to
-    the Qt3Support library. Use QDateTimeEdit instead.
+    The QDateEdit class in Qt 4 is a convenience class based on
+    QDateTimeEdit. The old class has been renamed Q3DateEdit and moved
+    to the Qt3Support library.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of \c
     QDateEdit virtual member functions in Qt 3 that are no longer
@@ -1662,7 +1663,7 @@
 
     \section1 QGrid
 
-    The QGrid class is now only available as Q3Grid in Qt 4. You can
+    The \c QGrid class is now only available as Q3Grid in Qt 4. You can
     achieve the same result as QGrid by creating a QWidget with a
     grid layout:
 
@@ -1721,7 +1722,7 @@
 
     \section1 QHBox
 
-    The QHBox class is now only available as Q3HBox in Qt 4. You can
+    The \c QHBox class is now only available as Q3HBox in Qt 4. You can
     achieve the same result as QHBox by creating a QWidget with an
     horizontal layout:
 
@@ -2863,10 +2864,10 @@
     \c QRangeControl.
 
     In Qt 4, \c QRangeControl has been replaced with the new
-    QAbstractSlider and QAbstractSpinBox classes, which inherits from
+    QAbstractSlider and QAbstractSpinBox classes, which inherit from
     QWidget and provides similar functionality. Apart from eliminating
     unnecessary multiple inheritance, the new design allows
-    QAbstractSlider to contain signals, slots, and properties.
+    QAbstractSlider to provide signals, slots, and properties.
 
     The old \c QRangeControl class has been renamed Q3RangeControl
     and moved to the Qt3Support library, together with
@@ -3462,8 +3463,9 @@
 
     \section1 QTimeEdit
 
-    The \c QTimeEdit class has been renamed Q3TimeEdit and moved to
-    the Qt3Support library. Use QDateTimeEdit instead.
+    The QTimeEdit class in Qt 4 is a convenience class based on
+    QDateTimeEdit. The old class has been renamed Q3TimeEdit and moved
+    to the Qt3Support library.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of \c
     QTimeEdit virtual member functions in Qt 3 that are no longer
@@ -3619,7 +3621,7 @@
 
     \section1 QVBox
 
-    The QVBox class is now only available as Q3VBox in Qt 4. You can
+    The \c QVBox class is now only available as Q3VBox in Qt 4. You can
     achieve the same result as QVBox by creating a QWidget with a
     vertical layout:
 
