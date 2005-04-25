@@ -8,7 +8,7 @@ Node::~Node()
 {
     if (par)
 	par->removeChild(this);
-    if (rel)
+    if (rel)        
 	rel->removeRelated(this);
 }
 
@@ -32,7 +32,7 @@ Node::Node( Type type, InnerNode *parent, const QString& name )
 void Node::setRelates(InnerNode *pseudoParent)
 {
     if (rel)
-	rel->removeRelated(this);
+	    rel->removeRelated(this);
     rel = pseudoParent;
     pseudoParent->related.append(this);
 }
@@ -70,6 +70,7 @@ Node::ThreadSafeness Node::inheritedThreadSafeness() const
 InnerNode::~InnerNode()
 {
     deleteChildren();
+    removeFromRelated();
 }
 
 Node *InnerNode::findNode( const QString& name )
@@ -178,6 +179,15 @@ void InnerNode::normalizeOverloads()
 	if ( (*c)->isInnerNode() )
 	    ((InnerNode *) *c)->normalizeOverloads();
 	++c;
+    }
+}
+
+void InnerNode::removeFromRelated() 
+{
+    while (!related.isEmpty()) {
+        Node *p = static_cast<Node *>(related.takeFirst());
+
+        if (p != 0 && p->relates() == this) p->clearRelated();
     }
 }
 
@@ -365,8 +375,8 @@ const QString Node::moduleName() const
 }
 
 void InnerNode::removeRelated(Node *pseudoChild)
-{
-    related.removeAll(pseudoChild);
+{       
+    related.removeAll(pseudoChild);    
 }
 
 bool LeafNode::isInnerNode() const

@@ -54,8 +54,13 @@ public:
     ThreadSafeness threadSafeness() const;
     ThreadSafeness inheritedThreadSafeness() const;
 
+    void clearRelated() { rel = 0; }
+
+    
+
 protected:
     Node( Type type, InnerNode *parent, const QString& name );
+    
 
 private:
 #ifdef Q_WS_WIN
@@ -69,11 +74,11 @@ private:
     Status sta : 3;
     ThreadSafeness saf : 2;
 #endif
-    InnerNode *par;
+    InnerNode *par;    
     InnerNode *rel;
     QString nam;
     Location loc;
-    Doc d;
+    Doc d;    
     QMap<LinkType, QPair<QString, QString> > linkMap;
 };
 
@@ -97,6 +102,7 @@ public:
     void normalizeOverloads();
     void makeUndocumentedChildrenInternal();
     void deleteChildren();
+    void removeFromRelated();
 
     virtual bool isInnerNode() const;
     const Node *findNode( const QString& name ) const;
