@@ -31,6 +31,7 @@ HEADERS += \
     $$PWD/qdesigner_promotedwidget.h \
     $$PWD/qdesigner_stackedbox.h \
     $$PWD/qdesigner_tabwidget.h \
+    $$PWD/qdesigner_dockwidget.h \
     $$PWD/qdesigner_toolbox.h \
     $$PWD/qdesigner_dnditem.h \
     $$PWD/widgetfactory.h \
@@ -54,6 +55,7 @@ SOURCES += \
     $$PWD/qdesigner_formbuilder.cpp \
     $$PWD/qdesigner_taskmenu.cpp \
     $$PWD/qdesigner_widget.cpp \
+    $$PWD/qdesigner_dockwidget.cpp \
     $$PWD/qdesigner_propertysheet.cpp \
     $$PWD/qdesigner_integration.cpp \
     $$PWD/qdesigner_dnditem.cpp \
