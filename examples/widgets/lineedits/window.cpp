@@ -33,7 +33,7 @@ Window::Window()
     alignmentComboBox->addItem(tr("Centered"));
     alignmentComboBox->addItem(tr("Right"));
 
-    alignmentLineEdit = new QLineEdit(alignmentGroup);
+    alignmentLineEdit = new QLineEdit;
 
     QGroupBox *inputMaskGroup = new QGroupBox(tr("Input mask"));
 
