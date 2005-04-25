@@ -561,6 +561,7 @@ void QDesignerActions::fixActionContext()
     actions += m_toolActions->actions();
     actions += m_formActions->actions();
     actions += m_windowActions->actions();
+    actions += m_helpActions->actions();
 
     foreach (QAction *a, actions) {
         a->setShortcutContext(Qt::ApplicationShortcut);
