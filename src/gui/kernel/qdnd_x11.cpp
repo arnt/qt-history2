@@ -263,14 +263,17 @@ static bool xdndEnable(QWidget* w, bool on)
     }
 }
 
-const char* QX11Data::xdndAtomToString(Atom a)
+QByteArray QX11Data::xdndAtomToString(Atom a)
 {
     if (!a) return 0;
 
     if (a == XA_STRING)
         return "text/plain"; // some Xdnd clients are dumb
 
-    return XGetAtomName(display, a);
+    char *atom = XGetAtomName(display, a);
+    QByteArray result = atom;
+    XFree(atom);
+    return result;
 }
 
 Atom QX11Data::xdndStringToAtom(const char *mimeType)
@@ -1172,9 +1175,9 @@ void QX11Data::xdndHandleSelectionRequest(const XSelectionRequestEvent * req)
     evt.xselection.target = req->target;
     evt.xselection.property = XNone;
     evt.xselection.time = req->time;
-    const char* format = X11->xdndAtomToString(req->target);
+    QByteArray format = X11->xdndAtomToString(req->target);
     QDragPrivate* dp = QDragManager::self()->dragPrivate();
-    if (format && dp->data->hasFormat(QLatin1String(format))) {
+    if (!format.isEmpty() && dp->data->hasFormat(QLatin1String(format))) {
         QByteArray a = dp->data->data(QLatin1String(format));
         XChangeProperty (X11->display, req->requestor, req->property,
                          req->target, 8, PropModeReplace,
@@ -1406,15 +1409,15 @@ QStringList QDropData::formats() const
     QStringList formats;
     if (X11->motifdnd_active) {
         int i = 0;
-        const char *fmt;
-        while ((fmt = X11->motifdndFormat(i))) {
+        QByteArray fmt;
+        while (!(fmt = X11->motifdndFormat(i)).isEmpty()) {
             formats.append(QLatin1String(fmt));
             ++i;
         }
     } else {
         int i = 0;
         while ((qt_xdnd_types[i])) {
-            formats.append(QLatin1String(X11->xdndAtomToString(qt_xdnd_types[i])));
+            formats.append(QLatin1String(X11->xdndAtomToString(qt_xdnd_types[i]).data()));
             ++i;
         }
     }

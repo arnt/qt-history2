@@ -626,7 +626,7 @@ static int _DndIndexToTargets(Display * display,
 }
 
 
-const char *QX11Data::motifdndFormat(int n)
+QByteArray QX11Data::motifdndFormat(int n)
 {
     if (!motifdnd_active)
         return 0; // should not happen
@@ -642,16 +642,12 @@ const char *QX11Data::motifdndFormat(int n)
 
     Atom target = src_targets[n];
 
-    Atom xa_utf8_string = ATOM(UTF8_STRING);
-    Atom xa_text = ATOM(TEXT);
-    Atom xa_compound_text = ATOM(COMPOUND_TEXT);
-
     if (target == XA_STRING)
         return "text/plain;charset=ISO-8859-1";
-    if (target == xa_utf8_string)
+    if (target == ATOM(UTF8_STRING))
         return "text/plain;charset=UTF-8";
-    if (target == xa_text ||
-         target == xa_compound_text)
+    if (target == ATOM(TEXT) ||
+         target == ATOM(COMPOUND_TEXT))
         return "text/plain";
 
     return X11->xdndAtomToString(target);
@@ -668,13 +664,13 @@ QByteArray QX11Data::motifdndObtainData(const char *mimeType)
     // qDebug("trying to convert to '%s'", mimeType);
 
     int n=0;
-    const char* f;
+    QByteArray f;
     do {
         f = motifdndFormat(n);
-        if (!f)
+        if (f.isEmpty())
             return result;
         n++;
-    } while(qstricmp(mimeType, f));
+    } while(qstricmp(mimeType, f.data()));
 
     // found one
     Atom conversion_type;
