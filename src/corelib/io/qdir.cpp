@@ -35,6 +35,7 @@ static QString driveSpec(const QString &path)
         return QString();
     return path.mid(0, 2);
 #else
+    Q_UNUSED(path);
     return QString();
 #endif
 }

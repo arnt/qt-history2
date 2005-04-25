@@ -348,8 +348,6 @@ QProcessPrivate::~QProcessPrivate()
 */
 void QProcessPrivate::cleanup()
 {
-    Q_Q(QProcess);
-    
     processState = QProcess::NotRunning;
 #ifdef Q_OS_WIN
     if (pid) {
@@ -364,7 +362,7 @@ void QProcessPrivate::cleanup()
 #endif
     pid = 0;
     sequenceNumber = 0;
-    
+
     if (standardReadSocketNotifier) {
         standardReadSocketNotifier->setEnabled(false);
         delete standardReadSocketNotifier;
