@@ -426,31 +426,33 @@ void FormWindowManager::slotActionSplitVerticalActivated()
 
 void FormWindowManager::slotActionBreakLayoutActivated()
 {
-    QWidget *w = m_activeFormWindow->mainContainer();
-    if (m_activeFormWindow->currentWidget())
-        w = m_activeFormWindow->currentWidget();
-    if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
-         w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout) {
-        m_activeFormWindow->breakLayout(w);
-        return;
-    } else {
-        QList<QWidget*> widgets = m_activeFormWindow->selectedWidgets();
-        for (int i = 0; i < widgets.size(); ++i) {
-            QWidget *w = widgets.at(i);
-            if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
-                 w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout)
-                break;
-        }
-        if (w) {
-            m_activeFormWindow->breakLayout(w);
-            return;
+    QList<QWidget*> widgets = m_activeFormWindow->selectedWidgets();
+    m_activeFormWindow->simplifySelection(&widgets);
+
+    QList<QWidget*> layoutBaseList;
+
+    foreach (QWidget *widget, widgets) {
+        QWidget *currentWidget = widget;
+        while (currentWidget && currentWidget != m_activeFormWindow) {
+            if (QLayout *layout = LayoutInfo::managedLayout(core(), currentWidget)) {
+                if (!layoutBaseList.contains(layout->parentWidget())) {
+                    layoutBaseList.prepend(layout->parentWidget());
+                }
+            }
+            currentWidget = currentWidget->parentWidget();
         }
     }
 
-    w = m_activeFormWindow->mainContainer();
-    if (LayoutInfo::layoutType(m_core, w) != LayoutInfo::NoLayout ||
-         w->parentWidget() && LayoutInfo::layoutType(m_core, w->parentWidget()) != LayoutInfo::NoLayout)
-        m_activeFormWindow->breakLayout(w);
+    if (layoutBaseList.isEmpty()) {
+        // nothing to do
+        return;
+    }
+
+    m_activeFormWindow->beginCommand(tr("Break Layout"));
+    foreach (QWidget *layoutBase, layoutBaseList) {
+        m_activeFormWindow->breakLayout(layoutBase);
+    }
+    m_activeFormWindow->endCommand();
 }
 
 void FormWindowManager::slotActionAdjustSizeActivated()

@@ -652,13 +652,12 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
 {
     m_widgets = widgets;
     m_layoutBase = layoutBase;
+    m_layout = 0;
 
     QDesignerFormEditorInterface *core = formWindow()->core();
-    LayoutInfo::Type lay = LayoutInfo::layoutType(core, m_layoutBase);
-
     QPoint grid = formWindow()->grid();
 
-    m_layout = 0;
+    LayoutInfo::Type lay = LayoutInfo::layoutType(core, m_layoutBase);
     if (lay == LayoutInfo::HBox)
         m_layout = new HorizontalLayout(widgets, m_layoutBase, formWindow(), m_layoutBase, qobject_cast<QSplitter*>(m_layoutBase) != 0);
     else if (lay == LayoutInfo::VBox)
@@ -680,9 +679,9 @@ void BreakLayoutCommand::redo()
 
     formWindow()->clearSelection(false);
     m_layout->breakLayout();
-    for (int i = 0; i < m_widgets.size(); ++i) {
-        QWidget *w = m_widgets.at(i);
-        w->resize(qMax(16, w->width()), qMax(16, w->height()));
+
+    foreach (QWidget *widget, m_widgets) {
+        widget->resize(widget->size().expandedTo(QSize(16, 16)));
     }
 
     QDesignerFormEditorInterface *core = formWindow()->core();
