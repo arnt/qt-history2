@@ -697,13 +697,13 @@ QObject::~QObject()
         t->inherits("QObject");           // returns true
         t->inherits("QAbstractButton");   // returns false
 
-        // QScrollBar inherits QWidget and QRangeControl
-        QScrollBar *s = new QScrollBar(0);
-        s->inherits("QWidget");       // returns true
-        s->inherits("QRangeControl"); // returns true
+        // QLayout inherits QObject and QLayoutItem
+        QLayout *s = new QLayout(0);
+        s->inherits("QObject");       // returns true
+        s->inherits("QLayoutItem"); // returns false
     \endcode
 
-    (\l QRangeControl is not a QObject.)
+    (\l QLayoutItem is not a QObject.)
 
     \sa isA(), metaObject(), qobject_cast
 */
