@@ -33,34 +33,16 @@ class QInputDialogPrivate : public QDialogPrivate
 public:
     QInputDialogPrivate();
     QLabel *label;
-    QLineEdit *lineEdit;
-    QSpinBox *spinBox;
-    QComboBox *comboBox, *editComboBox;
     QPushButton *ok;
-    QStackedLayout *stack;
-    QInputDialog::Type type;
+    QWidget *input;
 
-    void init(const QString &label, QInputDialog::Type type);
-};
-
-
-class QInputDialogPrivateStackedLayout : public QStackedLayout
-{
-public:
-    QSize sizeHint() const {
-        if (QWidget *w = currentWidget())
-            return w->sizeHint();
-        return QStackedLayout::sizeHint();
-    }
+    void init(const QString &label, QInputDialog::Type);
+    void tryAccept();
 };
 
 QInputDialogPrivate::QInputDialogPrivate()
     : QDialogPrivate(),
-      label(0),
-      lineEdit(0),
-      spinBox(0),
-      comboBox(0),
-      editComboBox(0)
+      label(0)
 {
 }
 
@@ -75,17 +57,26 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     vbox->addWidget(label);
     vbox->addStretch(1);
 
-    stack = new QInputDialogPrivateStackedLayout;
-    vbox->addLayout(stack);
-    lineEdit = new QLineEdit(q);
-    stack->addWidget(lineEdit);
-    spinBox = new QSpinBox(q);
-    stack->addWidget(spinBox);
-    comboBox = new QComboBox(q);
-    stack->addWidget(comboBox);
-    editComboBox = new QComboBox(q);
-    stack->addWidget(editComboBox);
-    editComboBox->setEditable(true);
+    switch (type) {
+    case QInputDialog::LineEdit:
+        input = new QLineEdit(q);
+        break;
+    case QInputDialog::SpinBox:
+        input = new QSpinBox(q);
+        break;
+    case QInputDialog::DoubleSpinBox:
+        input = new QDoubleSpinBox(q);
+        break;
+    case QInputDialog::ComboBox:
+    case QInputDialog::EditableComboBox: {
+        QComboBox *combo = new QComboBox(q);
+        if (type == QInputDialog::EditableComboBox)
+            combo->setEditable(true);
+        input = combo;
+    }
+        break;
+    }
+    vbox->addWidget(input);
     vbox->addStretch(1);
 
     QHBoxLayout *hbox = new QHBoxLayout;
@@ -104,13 +95,8 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     hbox->addWidget(ok);
     hbox->addWidget(cancel);
 
-    QObject::connect(lineEdit, SIGNAL(returnPressed()), q, SLOT(tryAccept()));
-    QObject::connect(lineEdit, SIGNAL(textChanged(QString)), q, SLOT(textChanged(QString)));
-
     QObject::connect(ok, SIGNAL(clicked()), q, SLOT(accept()));
     QObject::connect(cancel, SIGNAL(clicked()), q, SLOT(reject()));
-
-    q->setType(type);
 
     q->resize(q->sizeHint());
 }
@@ -184,116 +170,6 @@ QInputDialog::QInputDialog(const QString &label, QWidget* parent, Type type, Qt:
     d->init(label, type);
 }
 
-#ifdef QT3_SUPPORT
-/*!
-  \obsolete
-
-  Constructs the dialog. The \a label is the text which is shown to the user
-  (it should tell the user what they are expected to enter). The \a parent
-  is the dialog's parent widget. The widget is called \a name. If \a
-  modal is true (the default) the dialog will be modal. The \a type
-  parameter is used to specify which type of dialog to construct. The \a f
-  parameter is passed on to the QDialog constructor.
-
-  \sa getText(), getInteger(), getDouble(), getItem()
-*/
-
-QInputDialog::QInputDialog(const QString &label, QWidget* parent,
-                            const char* name, bool modal, Type type, Qt::WFlags f)
-    : QDialog(*new QInputDialogPrivate, parent, f)
-{
-    Q_D(QInputDialog);
-    d->init(label, type);
-    setModal(modal);
-    setObjectName(name);
-}
-#endif
-
-/*!
-  Returns the line edit which is used in LineEdit mode.
-*/
-
-QLineEdit *QInputDialog::lineEdit() const
-{
-    Q_D(const QInputDialog);
-    return d->lineEdit;
-}
-
-/*!
-  Returns the spinbox which is used in SpinBox mode.
-*/
-
-QSpinBox *QInputDialog::spinBox() const
-{
-    Q_D(const QInputDialog);
-    return d->spinBox;
-}
-
-/*!
-  Returns the combobox that is used in ComboBox mode.
-*/
-
-QComboBox *QInputDialog::comboBox() const
-{
-    Q_D(const QInputDialog);
-    return d->comboBox;
-}
-
-/*!
-  Returns the combobox that is used in EditableComboBox mode.
-*/
-
-QComboBox *QInputDialog::editableComboBox() const
-{
-    Q_D(const QInputDialog);
-    return d->editComboBox;
-}
-
-/*!
-  Sets the input type of the dialog to \a t.
-*/
-
-void QInputDialog::setType(Type t)
-{
-    Q_D(QInputDialog);
-    QWidget *input = 0;
-    switch (t) {
-    case LineEdit:
-        input = d->lineEdit;
-        break;
-    case SpinBox:
-        input = d->spinBox;
-        break;
-    case ComboBox:
-        input = d->comboBox;
-        break;
-    case EditableComboBox:
-        input = d->editComboBox;
-        break;
-    }
-    if (input) {
-        d->stack->setCurrentIndex(t);
-        input->setFocus();
-#ifndef QT_NO_ACCEL
-        d->label->setBuddy(input);
-#endif
-    }
-
-    d->type = t;
-}
-
-/*!
-  Returns the input type of the dialog.
-
-  \sa setType()
-*/
-
-QInputDialog::Type QInputDialog::type() const
-{
-    Q_D(const QInputDialog);
-    return d->type;
-}
-
 /*!
     Destroys the input dialog.
 */
@@ -340,15 +216,16 @@ QString QInputDialog::getText(QWidget *parent, const QString &title, const QStri
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setWindowTitle(title);
 #endif
-    dlg.lineEdit()->setText(text);
-    dlg.lineEdit()->setEchoMode(mode);
+    QLineEdit *le = qobject_cast<QLineEdit *>(dlg.d_func()->input);
+    le->setText(text);
+    le->setEchoMode(mode);
 
     QString result;
-    bool accepted = (dlg.exec() == QDialog::Accepted);
+    ok_ = dlg.exec() == QDialog::Accepted;
     if (ok)
-        *ok = accepted;
-    if (accepted)
-        result = dlg.lineEdit()->text();
+        *ok = ok_;
+    if (ok_)
+        result = le->text();
 
     return result;
 }
@@ -395,14 +272,15 @@ int QInputDialog::getInteger(QWidget *parent, const QString &title, const QStrin
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setWindowTitle(title);
 #endif
-    dlg.spinBox()->setRange(minValue, maxValue);
-    dlg.spinBox()->setSingleStep(step);
-    dlg.spinBox()->setValue(value);
+    QSpinBox *sb = qobject_cast<QSpinBox *>(dlg.d_func()->input);
+    sb->setRange(minValue, maxValue);
+    sb->setSingleStep(step);
+    sb->setValue(value);
 
     bool accepted = (dlg.exec() == QDialog::Accepted);
     if (ok)
         *ok = accepted;
-    return dlg.spinBox()->value();
+    return sb->value();
 }
 
 /*!
@@ -442,19 +320,20 @@ double QInputDialog::getDouble( QWidget *parent, const QString &title, const QSt
                                 double value, double minValue, double maxValue,
                                 int decimals, bool *ok, Qt::WFlags f)
 {
-    QInputDialog dlg(label, parent, LineEdit, f);
+    QInputDialog dlg(label, parent, DoubleSpinBox, f);
     dlg.setObjectName("qt_inputdlg_getdbl");
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setWindowTitle(title);
 #endif
-    dlg.lineEdit()->setValidator(new QDoubleValidator(minValue, maxValue, decimals, dlg.lineEdit()));
-    dlg.lineEdit()->setText(QString::number(value, 'f', decimals));
-    dlg.lineEdit()->selectAll();
+    QDoubleSpinBox *sb = qobject_cast<QDoubleSpinBox *>(dlg.d_func()->input);
+    sb->setRange(minValue, maxValue);
+    sb->setDecimals(decimals);
+    sb->setValue(value);
 
-    bool accepted = (dlg.exec() == QDialog::Accepted);
+    bool ok_ = (dlg.exec() == QDialog::Accepted);
     if (ok)
-        *ok = accepted;
-    return dlg.lineEdit()->text().toDouble();
+        *ok = ok_;
+    return sb->value();
 }
 
 /*!
@@ -492,65 +371,25 @@ double QInputDialog::getDouble( QWidget *parent, const QString &title, const QSt
 */
 
 QString QInputDialog::getItem(QWidget *parent, const QString &title, const QString &label, const QStringList &list,
-                               int current, bool editable, bool *ok, Qt::WFlags f)
+                              int current, bool editable, bool *ok, Qt::WFlags f)
 {
     QInputDialog dlg(label, parent, editable ? EditableComboBox : ComboBox, f);
     dlg.setObjectName("qt_inputdlg_getitem");
 #ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setWindowTitle(title);
 #endif
-    if (editable) {
-        dlg.editableComboBox()->addItems(list);
-        dlg.editableComboBox()->setCurrentIndex(current);
-    } else {
-        dlg.comboBox()->addItems(list);
-        dlg.comboBox()->setCurrentIndex(current);
-    }
+
+    QComboBox *combo = qobject_cast<QComboBox *>(dlg.d_func()->input);
+    combo->addItems(list);
+    combo->setCurrentIndex(current);
 
     QString result;
-    bool accepted = (dlg.exec() == QDialog::Accepted);
+    ok_ = dlg.exec() == QDialog::Accepted;
     if (ok)
         *ok = accepted;
-    if (editable)
-        result = dlg.editableComboBox()->currentText();
-    else
-        result = dlg.comboBox()->currentText();
+    result = combo->currentText();
 
     return result;
-}
-
-/*!
-  \internal
-
-  This slot is invoked when the text is changed; the new text is passed
-  in \a s.
-*/
-
-void QInputDialog::textChanged(const QString &s)
-{
-    Q_D(QInputDialog);
-    bool on = true;
-
-    if (d->lineEdit->validator()) {
-        QString str = d->lineEdit->text();
-        int index = d->lineEdit->cursorPosition();
-        on = (d->lineEdit->validator()->validate(str, index) ==
-               QValidator::Acceptable);
-    } else if (type() != LineEdit) {
-        on = !s.isEmpty();
-    }
-    d->ok->setEnabled(on);
-}
-
-/*!
-  \internal
-*/
-
-void QInputDialog::tryAccept()
-{
-    Q_D(QInputDialog);
-    if (!d->lineEdit->text().isEmpty())
-        accept();
 }
 
 #endif
