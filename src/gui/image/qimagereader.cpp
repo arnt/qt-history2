@@ -213,6 +213,7 @@ QImageReaderPrivate::~QImageReaderPrivate()
 {
     if (deleteDevice)
         delete device;
+    delete handler;
 }
 
 /*!

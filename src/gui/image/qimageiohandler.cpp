@@ -222,6 +222,7 @@ QImageIOHandler::QImageIOHandler(QImageIOHandlerPrivate &dd)
 */
 QImageIOHandler::~QImageIOHandler()
 {
+    delete d_ptr;
 }
 
 /*!
