@@ -301,13 +301,6 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         xform = !s->matrix.isIdentity();
     }
 
-    // Check antialiasing emulation
-    if (s->renderHints & QPainter::Antialiasing
-        && !engine->hasFeature(QPaintEngine::Antialiasing))
-        s->emulationSpecifier |= QPaintEngine::Antialiasing;
-    else
-        s->emulationSpecifier &= ~QPaintEngine::Antialiasing;
-
     // Check alphablending
     if (alpha && !engine->hasFeature(QPaintEngine::AlphaBlend))
         s->emulationSpecifier |= QPaintEngine::AlphaBlend;
@@ -3819,13 +3812,6 @@ void QPainter::setRenderHint(RenderHint hint, bool on)
     }
 
     Q_D(QPainter);
-
-    // Don't even try to emulate since it is becomes slower and is not visually better
-    if (hint == QPainter::Antialiasing && on
-        && !d->engine->hasFeature(QPaintEngine::Antialiasing)
-        && !d->engine->hasFeature(QPaintEngine::AlphaBlend)) {
-        return;
-    }
 
     if (on)
         d->state->renderHints |= hint;
