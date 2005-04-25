@@ -827,7 +827,7 @@ void QLayoutWidget::updateMargin()
         layout()->setMargin(style()->pixelMetric(QStyle::PM_DefaultChildMargin, 0, 0));
         qDebug() << "use default-child margin";
     } else {
-        layout()->setMargin(style()->pixelMetric(QStyle::PM_DefaultToplevelMargin, 0, 0));
+        layout()->setMargin(style()->pixelMetric(QStyle::PM_DefaultTopLevelMargin, 0, 0));
         qDebug() << "use default-toplevel margin";
     }
 #endif
