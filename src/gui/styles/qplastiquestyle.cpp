@@ -32,6 +32,7 @@
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qstyleoption.h>
+#include <qworkspace.h>
 
 #include <limits.h>
 
@@ -499,6 +500,45 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
     painter->setPen(oldPen);
 }
 
+static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp, bool hover)
+{
+    bool active = (option->titleBarState & QStyle::State_Active);
+    //bool pressed = (option->state & QStyle::State_Sunken);
+    QColor mdiButtonGradientStartColor;
+    QColor mdiButtonGradientStopColor;
+    if (active) {
+	mdiButtonGradientStartColor = QColor(hover ? 0x7d8bb1 : 0x55689a);
+	mdiButtonGradientStopColor = QColor(hover ? 0x939ebe : 0x7381ab);
+    } else {
+	mdiButtonGradientStartColor = QColor(hover ? 0x9e9e9e : 0x818181);
+	mdiButtonGradientStopColor = QColor(hover ? 0xababab : 0x929292);
+    }
+
+    QLinearGradient buttonGrad(tmp.center().x(), tmp.top(), tmp.center().x(), tmp.bottom());
+    buttonGrad.setColorAt(0, mdiButtonGradientStartColor);
+    buttonGrad.setColorAt(1, mdiButtonGradientStopColor);
+
+    // ### drawing error; the rects are sometimes invalid.
+    
+    painter->fillRect(tmp.adjusted(1, 1, -1, -1), buttonGrad);
+
+    QColor mdiButtonBorderColor;
+    if (active) {
+	mdiButtonBorderColor = hover ? QColor(0x627097) : QColor(0x324577);
+    } else {
+	mdiButtonBorderColor = hover ? QColor(0x838383) : QColor(0x5e5e5e);
+    }    
+    painter->setPen(QPen(mdiButtonBorderColor, 1));
+    painter->drawLine(tmp.left() + 2, tmp.top(), tmp.right() - 2, tmp.top());
+    painter->drawLine(tmp.left() + 2, tmp.bottom(), tmp.right() - 2, tmp.bottom());
+    painter->drawLine(tmp.left(), tmp.top() + 2, tmp.left(), tmp.bottom() - 2);
+    painter->drawLine(tmp.right(), tmp.top() + 2, tmp.right(), tmp.bottom() - 2);
+    painter->drawPoint(tmp.left() + 1, tmp.top() + 1);
+    painter->drawPoint(tmp.right() - 1, tmp.top() + 1);
+    painter->drawPoint(tmp.left() + 1, tmp.bottom() - 1);
+    painter->drawPoint(tmp.right() - 1, tmp.bottom() - 1);
+}
+
 /*!
     \class QPlastiqueStyle
     \brief The QPlastiqueStyle class provides a widget style similar to the
@@ -591,6 +631,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 tabBarRect = QRect(twf->rect.left(), twf->rect.bottom() - borderThickness + 1, 
                                    twf->tabBarSize.width(), borderThickness);
                 break ;
+            default:
+                break;
             }
 
             QRegion region(twf->rect);
@@ -1214,6 +1256,50 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         drawPrimitive(PE_IndicatorCheckBox, &button, painter, widget);
         break;
     }
+    case PE_FrameWindow: {
+        painter->save();
+        bool active = (option->state & State_Active);
+        int titleBarStop = option->rect.top() + pixelMetric(PM_TitleBarHeight, option, widget);
+
+        // Frame and rounded corners
+        painter->setPen(QColor(0x393939));
+
+        // bottom border line        
+        painter->drawLine(option->rect.left() + 1, option->rect.bottom(), option->rect.right() - 1, option->rect.bottom());
+
+        // bottom left and right side border lines
+        painter->drawLine(option->rect.left(), titleBarStop, option->rect.left(), option->rect.bottom() - 1);        
+        painter->drawLine(option->rect.right(), titleBarStop, option->rect.right(), option->rect.bottom() - 1);        
+        painter->drawPoint(option->rect.left() + 1, option->rect.bottom() - 1);
+        painter->drawPoint(option->rect.right() - 1, option->rect.bottom() - 1);
+
+        // alpha corners
+        painter->setPen(QColor(active ? 0x4b5e7f : 0x6a6a6a));
+        painter->drawPoint(option->rect.left() + 2, option->rect.bottom() - 1);
+        painter->drawPoint(option->rect.left() + 1, option->rect.bottom() - 2);
+        painter->drawPoint(option->rect.right() - 2, option->rect.bottom() - 1);
+        painter->drawPoint(option->rect.right() - 1, option->rect.bottom() - 2);
+
+        // upper and lower left inner
+        painter->setPen(QColor(active ? 0xc5cad8 : 0xcfcfcf));
+        painter->drawLine(option->rect.left() + 1, titleBarStop, option->rect.left() + 1, option->rect.bottom() - 2);
+        painter->setPen(QColor(active ? 0x9a9fad : 0xa8a8a8));
+        painter->drawLine(option->rect.right() - 1, titleBarStop, option->rect.right() - 1, option->rect.bottom() - 2);
+        painter->drawLine(option->rect.left() + 1, option->rect.bottom() - 1, option->rect.right() - 1, option->rect.bottom() - 1);
+
+        // ### draw these?
+        painter->setPen(QColor(0xeeeeee));
+        painter->drawLine(option->rect.left() + 2, titleBarStop, option->rect.left() + 2, option->rect.bottom() - 2);
+        painter->drawLine(option->rect.left() + 3, titleBarStop, option->rect.left() + 3, option->rect.bottom() - 2);
+        painter->setPen(QColor(0xeeeeee));
+        painter->drawLine(option->rect.right() - 2, titleBarStop, option->rect.right() - 2, option->rect.bottom() - 2);
+        painter->drawLine(option->rect.right() - 3, titleBarStop, option->rect.right() - 3, option->rect.bottom() - 2);
+        painter->drawLine(option->rect.left() + 4, option->rect.bottom() - 3, option->rect.right() - 4, option->rect.bottom() - 3);
+        painter->drawLine(option->rect.left() + 4, option->rect.bottom() - 2, option->rect.right() - 4, option->rect.bottom() - 2);
+        
+        painter->restore();
+    }
+        break;
     default:
         QWindowsStyle::drawPrimitive(element, option, painter, widget);
         break;
@@ -1354,6 +1440,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     baseColor1 = borderColor;
                     baseColor2 = alphaCornerColor;                    
                     break ;
+                default:
+                    break;
                 }
 
                 // Make the tab smaller when it's at the end, so that we are able to draw the corner
@@ -2655,22 +2743,225 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             painter->restore();
         }
         break;
-        /*
-          case CC_TitleBar:
-          if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
-          painter->save();
-          QRect rect = titleBar->rect;
-          QLinearGradient gradient(rect.center().x(), rect.top(), rect.center().x(), rect.bottom());
-          gradient.setColorAt(0, qt_plastique_mergedColors(titleBar->palette.highlight().color(), Qt::black));
-          gradient.setColorAt(1, qt_plastique_mergedColors(titleBar->palette.highlight().color(), Qt::black).light(110));
-          painter->fillRect(rect.adjusted(0, 0, -1, -1), gradient);
+    case CC_TitleBar:
+        if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
+            painter->save();
+            bool active = (titleBar->titleBarState & State_Active);
 
-          painter->setPen(titleBar->palette.base().color());
-          painter->drawText(subControlRect(CC_TitleBar, option, SC_TitleBarLabel, widget), titleBar->text);
-          painter->restore();
-          }
-          break;
-        */
+            QRect fullRect = titleBar->rect;
+
+            // Fill titlebar gradient
+            QLinearGradient gradient(option->rect.center().x(), option->rect.top() + 1,
+                                     option->rect.center().x(), option->rect.bottom());
+            gradient.setColorAt(0, active ? 0x3b508a : 0x6e6e6e);
+            gradient.setColorAt(1, active ? 0x5d6e9e : 0x818181);
+            painter->fillRect(option->rect.adjusted(1, 1, -1, 0), gradient);
+
+            // Frame and rounded corners
+            painter->setPen(QColor(0x393939));
+
+            // top border line
+            painter->drawLine(fullRect.left() + 2, fullRect.top(), fullRect.right() - 2, fullRect.top());
+            painter->drawLine(fullRect.left(), fullRect.top() + 2, fullRect.left(), fullRect.bottom());
+            painter->drawLine(fullRect.right(), fullRect.top() + 2, fullRect.right(), fullRect.bottom());
+            painter->drawPoint(fullRect.left() + 1, fullRect.top() + 1);
+            painter->drawPoint(fullRect.right() - 1, fullRect.top() + 1);
+
+            // alpha corners
+            painter->setPen(QColor(active ? 0x4b5e7f : 0x6a6a6a));
+            painter->drawPoint(fullRect.left() + 2, fullRect.top() + 1);
+            painter->drawPoint(fullRect.left() + 1, fullRect.top() + 2);
+            painter->drawPoint(fullRect.right() - 2, fullRect.top() + 1);
+            painter->drawPoint(fullRect.right() - 1, fullRect.top() + 2);
+           
+            // inner top line
+            painter->setPen(QColor(active ? 0x8e98ba : 0xa4a4a4));
+            painter->drawLine(fullRect.left() + 3, fullRect.top() + 1, fullRect.right() - 3, fullRect.top() + 1);
+
+            // inner inner top line
+            painter->setPen(QColor(active ? 0x57699b : 0x808080));
+            painter->drawLine(fullRect.left() + 2, fullRect.top() + 2, fullRect.right() - 2, fullRect.top() + 2);
+            
+            // left and right inner
+            painter->setPen(QColor(active ? 0x6f7ea8 : 0x8e8e8e));
+            painter->drawLine(fullRect.left() + 1, fullRect.top() + 3, fullRect.left() + 1, fullRect.bottom());
+            painter->setPen(QColor(active ? 0x44537d : 0x676767));
+            painter->drawLine(fullRect.right() - 1, fullRect.top() + 3, fullRect.right() - 1, fullRect.bottom());
+
+            // draw title
+            QRect textRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
+            
+            QFont font = painter->font();
+            font.setBold(true);
+            painter->setFont(font);
+            painter->setPen(titleBar->palette.text().color());
+            painter->drawText(textRect.adjusted(1, 1, 1, 1), titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
+            painter->setPen(titleBar->palette.highlightedText().color());
+            painter->drawText(textRect, titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
+
+	    QColor textColor(active ? 0x282e40 : 0x282e40);
+	    QColor textAlphaColor(active ? 0x3f4862 : 0x3f4862);
+
+            
+            if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_MouseOver);
+		QRect minButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarMinButton, widget);
+                qt_plastique_draw_mdibutton(painter, titleBar, minButtonRect, hover);
+
+                int xoffset = minButtonRect.width() / 3;
+                int yoffset = minButtonRect.height() / 3;
+                
+		QRect minButtonIconRect(minButtonRect.left() + xoffset, minButtonRect.top() + yoffset,
+                                        minButtonRect.width() - xoffset * 2, minButtonRect.height() - yoffset * 2);
+
+                painter->setPen(textColor);
+                painter->drawLine(minButtonIconRect.center().x() - 2, minButtonIconRect.center().y() + 3,
+				  minButtonIconRect.center().x() + 3, minButtonIconRect.center().y() + 3);
+                painter->drawLine(minButtonIconRect.center().x() - 2, minButtonIconRect.center().y() + 4,
+				  minButtonIconRect.center().x() + 3, minButtonIconRect.center().y() + 4);
+		painter->setPen(textAlphaColor);
+		painter->drawLine(minButtonIconRect.center().x() - 3, minButtonIconRect.center().y() + 3,
+				  minButtonIconRect.center().x() - 3, minButtonIconRect.center().y() + 4);
+		painter->drawLine(minButtonIconRect.center().x() + 4, minButtonIconRect.center().y() + 3,
+				  minButtonIconRect.center().x() + 4, minButtonIconRect.center().y() + 4);
+            }
+
+            if ((titleBar->subControls & SC_TitleBarMaxButton) && (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint)) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_MouseOver);
+		QRect maxButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarMaxButton, widget);
+                qt_plastique_draw_mdibutton(painter, titleBar, maxButtonRect, hover);
+
+                int xoffset = maxButtonRect.width() / 3;
+                int yoffset = maxButtonRect.height() / 3;
+                
+		QRect maxButtonIconRect(maxButtonRect.left() + xoffset, maxButtonRect.top() + yoffset,
+                                        maxButtonRect.width() - xoffset * 2, maxButtonRect.height() - yoffset * 2);
+
+                painter->setPen(textColor);
+                painter->drawRect(maxButtonIconRect.adjusted(0, 0, -1, -1));
+                painter->drawLine(maxButtonIconRect.left() + 1, maxButtonIconRect.top() + 1,
+                                  maxButtonIconRect.right() - 1, maxButtonIconRect.top() + 1);
+		painter->setPen(textAlphaColor);
+		painter->drawPoint(maxButtonIconRect.topLeft());
+		painter->drawPoint(maxButtonIconRect.topRight());
+		painter->drawPoint(maxButtonIconRect.bottomLeft());
+		painter->drawPoint(maxButtonIconRect.bottomRight());
+            }
+
+            if (titleBar->subControls & SC_TitleBarCloseButton) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_MouseOver);
+		QRect closeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarCloseButton, widget);
+                qt_plastique_draw_mdibutton(painter, titleBar, closeButtonRect, hover);
+
+                int xoffset = closeButtonRect.width() / 3;
+                int yoffset = closeButtonRect.height() / 3;
+                
+		QRect closeIconRect(closeButtonRect.left() + xoffset, closeButtonRect.top() + yoffset,
+                                    closeButtonRect.width() - xoffset * 2, closeButtonRect.height() - yoffset * 2);
+                
+		painter->setPen(textAlphaColor);
+ 		painter->drawLine(closeIconRect.left() + 1, closeIconRect.top(),
+				  closeIconRect.right(), closeIconRect.bottom() - 1);
+ 		painter->drawLine(closeIconRect.left(), closeIconRect.top() + 1,
+				  closeIconRect.right() - 1, closeIconRect.bottom());
+ 		painter->drawLine(closeIconRect.right() - 1, closeIconRect.top(),
+				  closeIconRect.left(), closeIconRect.bottom() - 1);
+ 		painter->drawLine(closeIconRect.right(), closeIconRect.top() + 1,
+				  closeIconRect.left() + 1, closeIconRect.bottom());
+		painter->drawPoint(closeIconRect.topLeft());
+		painter->drawPoint(closeIconRect.topRight());
+		painter->drawPoint(closeIconRect.bottomLeft());
+		painter->drawPoint(closeIconRect.bottomRight());
+
+		painter->setPen(textColor);
+ 		painter->drawLine(closeIconRect.left() + 1, closeIconRect.top() + 1,
+				  closeIconRect.right() - 1, closeIconRect.bottom() - 1);
+ 		painter->drawLine(closeIconRect.left() + 1, closeIconRect.bottom() - 1,
+				  closeIconRect.right() - 1, closeIconRect.top() + 1);
+            }
+
+            if ((titleBar->subControls & SC_TitleBarNormalButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
+                bool hover = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_MouseOver);
+		QRect normalButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarNormalButton, widget);
+                qt_plastique_draw_mdibutton(painter, titleBar, normalButtonRect, hover);
+
+                int xoffset = int(normalButtonRect.width() / 3.5);
+                int yoffset = int(normalButtonRect.height() / 3.5);
+                
+		QRect normalButtonIconRect(normalButtonRect.left() + xoffset, normalButtonRect.top() + yoffset,
+                                        normalButtonRect.width() - xoffset * 2, normalButtonRect.height() - yoffset * 2);
+
+                QRect frontWindowRect = normalButtonIconRect.adjusted(0, 3, -3, 0);
+                painter->setPen(textColor);
+                painter->drawRect(frontWindowRect.adjusted(0, 0, -1, -1));
+                painter->drawLine(frontWindowRect.left() + 1, frontWindowRect.top() + 1,
+                                  frontWindowRect.right() - 1, frontWindowRect.top() + 1);
+		painter->setPen(textAlphaColor);
+		painter->drawPoint(frontWindowRect.topLeft());
+		painter->drawPoint(frontWindowRect.topRight());
+		painter->drawPoint(frontWindowRect.bottomLeft());
+		painter->drawPoint(frontWindowRect.bottomRight());
+
+                QRect backWindowRect = normalButtonIconRect.adjusted(3, 0, 0, -3);
+                QRegion clipRegion = backWindowRect;
+                clipRegion -= frontWindowRect;
+                painter->save();
+                painter->setClipRegion(clipRegion);
+                painter->setPen(textColor);
+                painter->drawRect(backWindowRect.adjusted(0, 0, -1, -1));
+                painter->drawLine(backWindowRect.left() + 1, backWindowRect.top() + 1,
+                                  backWindowRect.right() - 1, backWindowRect.top() + 1);
+		painter->setPen(textAlphaColor);
+		painter->drawPoint(backWindowRect.topLeft());
+		painter->drawPoint(backWindowRect.topRight());
+		painter->drawPoint(backWindowRect.bottomLeft());
+		painter->drawPoint(backWindowRect.bottomRight());
+                painter->restore();
+            }
+
+            if (titleBar->subControls & SC_TitleBarContextHelpButton) {
+                // ### add context help icon
+                bool hover = (titleBar->activeSubControls & SC_TitleBarContextHelpButton) && (titleBar->state & State_MouseOver);
+		QRect contextHelpButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarContextHelpButton, widget);
+                qt_plastique_draw_mdibutton(painter, titleBar, contextHelpButtonRect, hover);
+            }
+
+            if (titleBar->subControls & SC_TitleBarShadeButton) {
+                // ### add shade icon
+                bool hover = (titleBar->activeSubControls & SC_TitleBarShadeButton) && (titleBar->state & State_MouseOver);
+		QRect shadeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarShadeButton, widget);
+                qt_plastique_draw_mdibutton(painter, titleBar, shadeButtonRect, hover);
+            }
+
+            if (titleBar->subControls & SC_TitleBarUnshadeButton) {
+                // ### add unshade icon
+                bool hover = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_MouseOver);
+		QRect unshadeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarUnshadeButton, widget);
+                qt_plastique_draw_mdibutton(painter, titleBar, unshadeButtonRect, hover);
+            }
+
+	    // from qwindowsstyle.cpp
+            if ((titleBar->subControls & SC_TitleBarSysMenu) && (titleBar->titleBarFlags & Qt::WindowSystemMenuHint)) {
+
+                bool hover = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_MouseOver);
+		QRect iconRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarSysMenu, widget);
+                qt_plastique_draw_mdibutton(painter, titleBar, iconRect, hover);
+
+                if (!titleBar->icon.isNull()) {
+                    titleBar->icon.paint(painter, iconRect);
+                } else {
+		    QStyleOption tool(0);
+		    tool.palette = titleBar->palette;
+                    QPixmap pm = standardPixmap(SP_TitleBarMenuButton, &tool, widget);
+                    tool.rect = iconRect;
+                    painter->save();
+                    drawItemPixmap(painter, iconRect, Qt::AlignCenter, pm);
+                    painter->restore();
+                }
+            }
+            painter->restore();
+        }
+        break;
     default:
         QWindowsStyle::drawComplexControl(control, option, painter, widget);
         break;
@@ -2900,21 +3191,6 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             rect = visualRect(scrollBar->direction, scrollBarRect, rect);
         }
         break;
-    case CC_TitleBar:
-        if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
-
-            switch (subControl) {
-            case SC_TitleBarLabel:
-                rect = QRect(widget->rect().center().x() - widget->fontMetrics().width(titleBar->text)/2,
-                             widget->rect().top(),
-                             widget->fontMetrics().width(titleBar->text),
-                             widget->rect().height());
-                break;
-            default:
-                break;
-            }
-        }
-        break;
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             int center = spinBox->rect.height() / 2;
@@ -2940,11 +3216,121 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
                          option->rect.width() - 20, option->rect.height() - 4);
         }
         break;
+    case CC_TitleBar:
+        if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
+
+            const bool isToolTitle = false; // widget->testWFlags(Qt::WA_WState_Tool)
+            const int height = titleBar->rect.height() - 2;
+            const int width = titleBar->rect.width() - 1;
+            const int controlTop = 4; //widget->testWFlags(Qt::WA_WState_Tool) ? 4 : 6;
+            const int controlHeight = height - controlTop - 1;
+
+            const bool sysmenuHint  = (titleBar->titleBarFlags & Qt::WindowSystemMenuHint) != 0;
+            const bool minimizeHint = (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint) != 0;
+            const bool maximizeHint = (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint) != 0;
+            const bool contextHint = (titleBar->titleBarFlags & Qt::WindowContextHelpButtonHint) != 0;
+            const bool shadeHint = (titleBar->titleBarFlags & Qt::WindowShadeButtonHint) != 0;
+
+            switch (subControl) {
+            case SC_TitleBarLabel: {
+                QRect ir(0, 0, width, height);
+                if (isToolTitle) {
+                    if (sysmenuHint)
+                        ir.adjust(0, 0, -controlHeight-6, 0);
+                    if (minimizeHint || maximizeHint)
+                        ir.adjust(0, 0, -controlHeight-2, 0);
+                } else {
+                    if (sysmenuHint)
+                        ir.adjust(controlHeight+6, 0, -controlHeight-6, 0);
+                    if (minimizeHint)
+                        ir.adjust(0, 0, -controlHeight-2, 0);
+                    if (maximizeHint)
+                        ir.adjust(0, 0, -controlHeight-2, 0);
+                    if (contextHint)
+                        ir.adjust(0, 0, -controlHeight-2, 0);
+                    if (shadeHint)
+                        ir.adjust(0, 0, -controlHeight-2, 0);
+                }
+                return ir;
+            }
+            case SC_TitleBarCloseButton:
+                return QRect(width - (controlHeight + 1) - controlTop,
+                            controlTop, controlHeight, controlHeight);
+            case SC_TitleBarShadeButton:
+                if (!(titleBar->titleBarFlags & Qt::WindowShadeButtonHint))
+                    return QRect();
+                return QRect(width - ((controlHeight + 1) * 2) - controlTop,
+                            controlTop, controlHeight, controlHeight);
+            case SC_TitleBarMaxButton:
+            case SC_TitleBarUnshadeButton:
+                return QRect(width - ((controlHeight + 1) * 2) - controlTop,
+                            controlTop, controlHeight, controlHeight);
+            case SC_TitleBarMinButton: {
+                if (!(titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint))
+                    return QRect();
+                int offset = controlHeight + 1;
+                if (!maximizeHint)
+                    offset *= 2;
+                else
+                    offset *= 3;
+                return QRect(width - offset - controlTop,
+                            controlTop, controlHeight, controlHeight);
+            }
+            case SC_TitleBarNormalButton: {
+                int offset = controlHeight + 1;
+                if (!maximizeHint)
+                    offset *= 2;
+                else
+                    offset *= 3;
+                return QRect(width - offset - controlTop,
+                            controlTop, controlHeight, controlHeight);
+            }
+            case SC_TitleBarSysMenu: {
+                QSize iconSize = titleBar->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).size();
+                if (titleBar->icon.isNull())
+                    iconSize = QSize(controlHeight, controlHeight);
+                int hPad = (controlHeight - iconSize.height())/2;
+                int vPad = (controlHeight - iconSize.width())/2;
+                QRect ret = QRect(6 + vPad, controlTop + hPad, iconSize.width(), controlHeight - hPad);
+                return ret;
+            }
+            default:
+                break;
+            }
+        }
+        break;
     default:
         break;
     }
 
     return rect;
+}
+
+int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
+                               QStyleHintReturn *returnData) const
+{
+    int ret = 0;
+    switch (hint) {
+    case SH_FrameWindow_Mask:
+        ret = 1;
+        if (QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask *>(returnData)) {
+            mask->region = option->rect;
+            mask->region -= QRect(option->rect.left(), option->rect.top(), 2, 1);
+            mask->region -= QRect(option->rect.right() - 1, option->rect.top(), 2, 1);
+            mask->region -= QRect(option->rect.left(), option->rect.top() + 1, 1, 1);
+            mask->region -= QRect(option->rect.right(), option->rect.top() + 1, 1, 1);
+            mask->region -= QRect(option->rect.bottomLeft(), QSize(1, 1));
+            mask->region -= QRect(option->rect.bottomRight(), QSize(1, 1));
+        }
+        break;
+    case SH_TitleBar_NoBorder:
+        ret = 1;
+        break;
+    default:
+        ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
+        break;
+    }
+    return ret;
 }
 
 QStyle::SubControl QPlastiqueStyle::hitTestComplexControl(ComplexControl control, const QStyleOptionComplex *option,
@@ -3041,7 +3427,11 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
             if (!tab->icon.isNull()) return 15;
         }
-        break ;
+        break;
+    case PM_MDIFrameWidth:
+        return 4;
+    case PM_TitleBarHeight:
+        return qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 30);
     default:
         break;
     }
@@ -3105,12 +3495,13 @@ QPalette QPlastiqueStyle::standardPalette()
 
 void QPlastiqueStyle::polish(QWidget *widget)
 {
-    if (qobject_cast<QPushButton *>(widget))
+    if (qobject_cast<QPushButton *>(widget)
+        || qobject_cast<QComboBox *>(widget)
+        || qobject_cast<QCheckBox *>(widget)
+        || qobject_cast<QRadioButton *>(widget)) {
         widget->setAttribute(Qt::WA_Hover);
-    if (qobject_cast<QComboBox *>(widget))
-        widget->setAttribute(Qt::WA_Hover);
-    else if (qobject_cast<QCheckBox *>(widget))
-        widget->setAttribute(Qt::WA_Hover);
-    else if (qobject_cast<QRadioButton *>(widget))
+    }
+
+    if (widget->inherits("QWorkspaceTitleBar"))
         widget->setAttribute(Qt::WA_Hover);
 }

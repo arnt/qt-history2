@@ -2445,6 +2445,12 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
     QRect r = contentsRect();
     QRect cr;
 
+    QStyleOptionFrame frame;
+    frame.rect = rect();
+    QStyleHintReturnMask mask;
+    if (style()->styleHint(QStyle::SH_FrameWindow_Mask, &frame, this, &mask))
+        setMask(mask.region);
+
     if (titlebar) {
         int th = titlebar->sizeHint().height();
         QRect tbrect(0, 0, width(), th);
