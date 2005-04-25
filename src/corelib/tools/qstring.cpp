@@ -4462,7 +4462,12 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
                 break;
             }
             case 'p': {
-                quint64 i = reinterpret_cast<quint64>(va_arg(ap, void*));
+                void *arg = va_arg(ap, void*);
+#ifdef Q_OS_WIN64
+                quint64 i = reinterpret_cast<quit64>(arg);
+#else
+                quint64 i = reinterpret_cast<unsigned long>(arg);
+#endif
                 flags |= QLocalePrivate::Alternate;
                 subst = locale.d->unsLongLongToString(i, precision, 16, width, flags);
                 ++c;
