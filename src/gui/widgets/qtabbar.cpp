@@ -954,6 +954,8 @@ void QTabBar::paintEvent(QPaintEvent *)
     }
     QStylePainter p(this);
     int selected = -1;
+    int lastCutTab = -1;
+    bool rtl = optTabBase.direction == Qt::RightToLeft;
     for (int i = 0; i < d->tabList.count(); ++i) {
         if (i == d->currentIndex) {
             selected = i;
@@ -962,6 +964,10 @@ void QTabBar::paintEvent(QPaintEvent *)
             continue;
         }
         QStyleOptionTab tab = d->getStyleOption(i);
+        if (tab.rect.right() < 0 || tab.rect.left() > width())
+            continue; // Don't bother drawing it
+        if ((!rtl && tab.rect.left() < 0) || (rtl && tab.rect.right() > width()))
+            lastCutTab = i;
         optTabBase.tabBarRect |= tab.rect;
         p.drawControl(QStyle::CE_TabBarTab, tab);
     }
@@ -973,6 +979,16 @@ void QTabBar::paintEvent(QPaintEvent *)
     }
     if (d->drawBase)
         p.drawPrimitive(QStyle::PE_FrameTabBarBase, optTabBase);
+
+    if (d->leftB->isVisible()
+        && ((!rtl && tabRect(0).left() < 0) || (rtl && tabRect(0).right() > width()))) {
+        if (lastCutTab < 0)
+            lastCutTab = 0;
+        QStyleOptionTab cutTab = d->getStyleOption(lastCutTab);
+        cutTab.rect = rect();
+        cutTab.rect = style()->subElementRect(QStyle::SE_TabBarTearIndicator, &cutTab, this);
+        p.drawPrimitive(QStyle::PE_IndicatorTabTear, cutTab);
+    }
 }
 
 /*!\reimp

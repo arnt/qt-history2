@@ -143,6 +143,7 @@ public:
         PE_IndicatorToolBarHandle,
         PE_IndicatorToolBarSeparator,
         PE_PanelTipLabel,
+        PE_IndicatorTabTear,
 
         // do not add any values below/greater this
         PE_CustomBase = 0xf000000
@@ -258,6 +259,8 @@ public:
         SE_TabWidgetRightCorner,
 
         SE_ViewItemCheckIndicator,
+
+        SE_TabBarTearIndicator,
 
         // do not add any values below/greater than this
         SE_CustomBase = 0xf0000000

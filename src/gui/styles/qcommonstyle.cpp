@@ -523,6 +523,49 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         p->setBrush(oldBrush);
         break;
     }
+    case PE_IndicatorTabTear:
+        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
+            QPolygon a;
+            bool rtl = tab->direction == Qt::RightToLeft;
+            int h = tab->rect.height();
+            int top = tab->rect.top();
+            int w = tab->rect.left();
+            int startJig;
+            int jag;
+            if (!rtl) {
+                startJig = tab->rect.left();
+                jag = 3;
+            } else {
+                startJig = tab->rect.right() - 1;
+                jag = -3;
+            }
+
+            if (tab->shape == QTabBar::RoundedNorth) {
+                p->fillRect(opt->rect.left(), top + 3, w, h - 5,
+                            tab->palette.brush(QPalette::Background));
+                a.setPoints(5,  startJig, top + 2,  startJig + jag, h / 4,
+                            startJig, h / 2, startJig + jag, 3 * h / 4, startJig, h);
+            } else if (tab->shape == QTabBar::RoundedSouth) {
+                p->fillRect(opt->rect.left(), top + 2, w, h - 5,
+                            tab->palette.brush(QPalette::Background));
+                a.setPoints(5, startJig, top,  startJig + jag, h / 4, startJig, h / 2, startJig + jag,
+                            3 * h / 4, startJig, h - 3);
+            }
+
+            if (!a.isEmpty()) {
+                QPen oldPen = p->pen();
+                QPen newPen;
+                newPen.setBrush(tab->palette.brush(QPalette::Light));
+                p->setPen(newPen);
+                p->drawPolyline(a);
+                a.translate(1, 0);
+                newPen.setBrush(tab->palette.brush(QPalette::Midlight));
+                p->setPen(newPen);
+                p->drawPolyline(a);
+                p->setPen(oldPen);
+            }
+        }
+        break;
     default:
         break;
     }
@@ -1531,6 +1574,10 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                break;
             }
         }
+        break;
+   case SE_TabBarTearIndicator:
+        r.setRect(0, 0, 4, opt->rect.height());
+        r = visualRect(opt->direction, opt->rect, r);
         break;
     default:
         break;

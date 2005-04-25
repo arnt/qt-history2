@@ -509,6 +509,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PE_PanelToolBar  The panel for a toolbar.
     \value PE_PanelTipLabel The panel for a tip label.
     \value PE_FrameTabBarBase The frame that is drawn for a tabbar, ususally drawn for a tabbar that isn't part of a tab widget
+    \value PE_IndicatorTabTear An indicator that a tab is partially scrolled out of the visible tab bar when there are many tabs.
 
     \value PE_CustomBase  Base value for custom PrimitiveElements.
         All values above this are reserved for custom use. Custom
@@ -817,6 +818,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SE_ToolBoxTabContents  Area for a toolbox tab's icon and label
 
     \value SE_ViewItemCheckIndicator Area for a view item's check mark
+
+    \value SE_TabBarTearIndicator Area for the tear indicator on a tab bar with scroll arrows.
 
     \value SE_CustomBase  Base value for custom ControlElements
     Custom values must be greater than this value
