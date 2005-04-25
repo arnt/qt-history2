@@ -26,6 +26,7 @@
 #include <qhash.h>
 #include <qpair.h>
 #include <qvarlengtharray.h>
+#include <qset.h>
 
 #include <new>
 
@@ -229,6 +230,30 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
     return success;
 }
 
+
+Q_GLOBAL_STATIC(QSet<QObject *>, allObjects)
+
+static void newObject(QObject *object)
+{
+    QWriteLocker locker(QObjectPrivate::readWriteLock());
+    QSet<QObject *> *set = allObjects();
+    if (set)
+        set->insert(object);
+}
+
+static void removeObject(QObject *object)
+{
+    QWriteLocker locker(QObjectPrivate::readWriteLock());
+    QSet<QObject *> *set = allObjects();
+    if (set)
+        set->remove(object);
+}
+
+bool QObjectPrivate::isValidObject(QObject *object)
+{
+    QSet<QObject *> *set = allObjects();
+    return set ? set->contains(object) : false;
+}
 
 QObjectPrivate::QObjectPrivate(int version)
     : thread(0), currentSender(0)
@@ -502,7 +527,7 @@ QObject::QObject(QObject *parent)
     : d_ptr(new QObjectPrivate)
 {
     Q_D(QObject);
-    d_ptr->q_ptr = this;
+    ::newObject(d_ptr->q_ptr = this);
     if (parent) {
         d->thread = parent->d_func()->thread;
     } else {
@@ -523,7 +548,7 @@ QObject::QObject(QObject *parent, const char *name)
     : d_ptr(new QObjectPrivate)
 {
     Q_D(QObject);
-    d_ptr->q_ptr = this;
+    ::newObject(d_ptr->q_ptr = this);
     if (parent) {
         d->thread = parent->d_func()->thread;
     } else {
@@ -541,7 +566,7 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
     : d_ptr(&dd)
 {
     Q_D(QObject);
-    d_ptr->q_ptr = this;
+    ::newObject(d_ptr->q_ptr = this);
     if (parent) {
         d->thread = parent->d_func()->thread;
     } else {
@@ -615,6 +640,7 @@ QObject::~QObject()
     while (!d->children.isEmpty())                        // delete children objects
         delete d->children.takeFirst();
 
+    ::removeObject(this);
     QCoreApplication::removePostedEvents(this);
 
     if (d->parent)                                // remove it from parent object

@@ -692,6 +692,12 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
     }
 
     QReadLocker locker(QObjectPrivate::readWriteLock());
+    if (!QObjectPrivate::isValidObject(receiver)) {
+        qWarning("QCoreApplication::postEvent: Receiver is not a valid QObject");
+        delete event;
+        return;
+    }
+
     QThread *thread = receiver->thread();
     if (!thread)
         thread = mainThread();
