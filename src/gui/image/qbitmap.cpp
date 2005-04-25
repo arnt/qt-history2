@@ -249,8 +249,8 @@ QBitmap QBitmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags)
     if (bpl != ibpl) {
         tmp_bits = new uchar[bpl*h];
         bits = (char *)tmp_bits;
-        uchar *p, *b, *end;
-        int y, count;
+        uchar *p, *b;
+        int y;
         b = tmp_bits;
         p = img.scanLine(0);
         for (y = 0; y < h; y++) {

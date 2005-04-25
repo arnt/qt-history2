@@ -1912,8 +1912,10 @@ static void dither_to_Mono(QImageData *dst, const QImageData *src,
         int bpl = (dst->width + 7) * dst->depth / 8;
         int pad = dst->bytes_per_line - bpl;
         for (int y=0; y<dst->height; ++y) {
-            for (int x=0; x<bpl; ++x)
-                *sl++ = bitflip[*sl];
+            for (int x=0; x<bpl; ++x) {
+                *sl = bitflip[*sl];
+                ++sl;
+            }
             sl += pad;
         }
     }
