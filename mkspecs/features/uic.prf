@@ -59,7 +59,7 @@ uic3 {
 }
 
 image_collection.output = qmake_image_collection$${first(QMAKE_EXT_CPP)}
-image_collection.variable_out = GENERATED_FILES
+image_collection.variable_out = SOURCES
 image_collection.input = IMAGES
 image_collection.CONFIG += combine
 image_collection.name = UIC3 Image collection in ${QMAKE_FILE_OUT}
