@@ -60,6 +60,16 @@
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
 extern QHash<QByteArray, QFont> *qt_app_fonts_hash(); // qapplication.cpp
 
+static inline bool isTreeView(const QWidget *widget)
+{
+    return (widget && widget->parentWidget() &&
+            (qobject_cast<const QTreeView *>(widget->parentWidget())
+#ifdef QT3_SUPPORT
+             || widget->parentWidget()->inherits("Q3ListView")
+#endif
+             ));
+}
+
 static inline bool isQDPainter(const QPainter *p)
 {
     QPaintEngine *engine = p->paintEngine();
@@ -547,12 +557,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
                 ret = QSize(-1, 19);
         }
     } else if (ct == QStyle::CT_HeaderSection) {
-        if (sz == QAquaSizeLarge && (widg && widg->parentWidget() &&
-                                     (qobject_cast<const QTreeView *>(widg->parentWidget())
-#ifdef QT3_SUPPORT
-                        || widg->parentWidget()->inherits("Q3ListView")
-#endif
-                        )))
+        if (sz == QAquaSizeLarge && isTreeView(widg))
            ret = QSize(-1, qt_mac_aqua_get_metric(kThemeMetricListHeaderHeight));
     } else if (ct == QStyle::CT_MenuBar) {
         if (sz == QAquaSizeLarge) {
@@ -1576,11 +1581,7 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
         break; }
     case QStyle::PE_IndicatorHeaderArrow:
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
-            if (w && (qobject_cast<QTreeView *>(w->parentWidget())
-#ifdef QT3_SUPPORT
-                        || w->parentWidget()->inherits("Q3ListView")
-#endif
-                ))
+            if (w && isTreeView(w))
                 break; // ListView-type header is taken care of.
             q->drawPrimitive(header->state & QStyle::State_UpArrow ? QStyle::PE_IndicatorArrowUp : QStyle::PE_IndicatorArrowDown, header, p, w);
         }
@@ -2107,12 +2108,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
             bdi.state = kThemeStateActive;
             QStyle::State flags = header->state;
             QRect ir = header->rect;
-            QWidget *pw = w ? w->parentWidget() : 0;
-            if (pw && (qobject_cast<QTreeView *>(pw)
-#ifdef QT3_SUPPORT
-                       || pw->inherits("Q3ListView")
-#endif
-                )) {
+            if (isTreeView(w)) {
                 bdi.kind = kThemeListHeaderButton;
                 GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
                 if (ir.height() > headerHeight)
@@ -2197,6 +2193,7 @@ QRect QMacStylePrivate::HIThemeSubElementRect(QStyle::SubElement sr, const QStyl
             HIThemeButtonDrawInfo bdi;
             bdi.version = qt_mac_hitheme_version;
             bdi.state = kThemeStateActive;
+            bdi.value = kThemeButtonOff;
             if (btn->features & QStyleOptionButton::None)
                 bdi.kind = kThemePushButton;
             else
@@ -2208,6 +2205,25 @@ QRect QMacStylePrivate::HIThemeSubElementRect(QStyle::SubElement sr, const QStyl
                       int(qMin(qAbs(btn->rect.height() - 2 * outRect.origin.y), outRect.size.height)));
         }
         break;
+    case QStyle::SE_HeaderLabel: {
+        HIRect inRect = CGRectMake(opt->rect.x(), opt->rect.y(),
+                                   opt->rect.width(), opt->rect.height());
+        HIRect outRect;
+        HIThemeButtonDrawInfo bdi;
+        bdi.version = qt_mac_hitheme_version;
+        bdi.state = kThemeStateActive;
+        bdi.value = kThemeButtonOff;
+        if (isTreeView(widget))
+            bdi.kind = kThemeListHeaderButton;
+        else
+            bdi.kind = kThemeBevelButton;
+
+        bdi.adornment = kThemeAdornmentNone;
+        HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
+        r.setRect(opt->rect.x() + 6, int(outRect.origin.y - 1), opt->rect.width() - 10,
+                  int(qMin(qAbs(opt->rect.height() - 2 * outRect.origin.y), outRect.size.height)));
+        break;
+    }
     case QStyle::SE_ProgressBarGroove:
     case QStyle::SE_ProgressBarLabel:
         break;
@@ -3163,11 +3179,7 @@ void QMacStylePrivate::AppManDrawPrimitive(QStyle::PrimitiveElement pe, const QS
         break;
     case QStyle::PE_IndicatorHeaderArrow:
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
-            if (w && (qobject_cast<QTreeView *>(w->parentWidget())
-#ifdef QT3_SUPPORT
-                        || w->parentWidget()->inherits("Q3ListView")
-#endif
-                ))
+            if (isTreeView(w))
                 break; // ListView-type header is taken care of.
             q->drawPrimitive(header->state & QStyle::State_UpArrow ? QStyle::PE_IndicatorArrowUp
                                                                    : QStyle::PE_IndicatorArrowDown,
@@ -3712,12 +3724,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             QRect ir = header->rect;
             bool scaleHeader = false;
             SInt32 headerHeight = 0;
-            QWidget *pw = widget ? widget->parentWidget() : 0;
-            if (pw && (qobject_cast<QTreeView *>(pw)
-#ifdef QT3_SUPPORT
-                       || pw->inherits("Q3ListView")
-#endif
-                )) {
+            if (isTreeView(widget)) {
                 bkind = kThemeListHeaderButton;
                 GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
                 if (ir.height() > headerHeight)
@@ -3803,6 +3810,20 @@ QRect QMacStylePrivate::AppManSubElementRect(QStyle::SubElement sr, const QStyle
                            macRect.bottom - macRect.top));
         }
         break;
+    case QStyle::SE_HeaderLabel: {
+        Rect macRect, myRect;
+        SetRect(&myRect, opt->rect.left(), opt->rect.top(), opt->rect.right(), opt->rect.bottom());
+        ThemeButtonDrawInfo bdi = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
+        ThemeButtonKind bkind;
+        if (isTreeView(widget))
+            bkind = kThemeListHeaderButton;
+        else
+            bkind = kThemeBevelButton;
+        GetThemeButtonContentBounds(&myRect, bkind, &bdi, &macRect);
+        r = QRect(macRect.left - 6, macRect.top - 1, opt->rect.width() - 10,
+                  qMin(qAbs(opt->rect.height() - 2 * macRect.top), macRect.bottom - macRect.top));
+        break;
+    }
     case QStyle::SE_ProgressBarContents:
         r = opt->rect;
         break;
@@ -5348,11 +5369,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             QPalette::ColorRole textRole = QPalette::ButtonText;
             if (p->font().bold()) {
                 // If it's a table, use the bright text instead.
-                if (!(w && (qobject_cast<QTreeView *>(w->parentWidget())
-#ifdef QT3_SUPPORT
-                            || w->parentWidget()->inherits("Q3ListView")
-#endif
-                          )))
+                if (!isTreeView(w))
                     textRole = QPalette::BrightText;
             }
             drawItemText(p, textr, Qt::AlignVCenter, header->palette,
