@@ -505,7 +505,7 @@
     inherits QCoreApplication and adds GUI-related functionality. In
     practice, this has no consequences for existing Qt applications.
 
-    In addition, the following API change was made:
+    In addition, the following API changes were made:
 
     \list 1
     \o  QApplication::allWidgets() and QApplication::topLevelWidgets()
@@ -534,6 +534,8 @@
                     mainWin->updateRecentFileItems();
             }
         \endcode
+    \o QApplication::setMainWidget() is no longer used. When all an application's
+       windows are closed, the application will exit normally.
     \endlist
 
     \section1 QAquaStyle
@@ -1660,7 +1662,17 @@
 
     \section1 QGrid
 
-    The QGrid class has been renamed QGridWidget.
+    The QGrid class is now only available as Q3Grid in Qt 4. You can
+    achieve the same result as QGrid by creating a QWidget with a
+    grid layout:
+
+    \oldcode
+    QGrid *grid = new QGrid;
+    \newcode
+    QWidget *grid = new QWidget;
+    QGridLayout *gridLayout = new QGridLayout(grid);
+    grid->setLayout(gridLayout);
+    \endcode
 
     \section1 QGridLayout
 
@@ -1709,7 +1721,17 @@
 
     \section1 QHBox
 
-    The QHBox class has been renamed QHBoxWidget.
+    The QHBox class is now only available as Q3HBox in Qt 4. You can
+    achieve the same result as QHBox by creating a QWidget with an
+    horizontal layout:
+
+    \oldcode
+    QHBox *hbox = new QHBox;
+    \newcode
+    QWidget *hbox = new QWidget;
+    QHBoxLayout *hboxLayout = new QHBoxLayout(hbox);
+    hbox->setLayout(hboxLayout);
+    \endcode
 
     \section1 QHeader
 
@@ -3597,7 +3619,17 @@
 
     \section1 QVBox
 
-    The QVBox class has been renamed QVBoxWidget.
+    The QVBox class is now only available as Q3VBox in Qt 4. You can
+    achieve the same result as QVBox by creating a QWidget with a
+    vertical layout:
+
+    \oldcode
+    QVBox *vbox = new QVBox;
+    \newcode
+    QWidget *vbox = new QWidget;
+    QVBoxLayout *vboxLayout = new QVBoxLayout(vbox);
+    vbox->setLayout(vboxLayout);
+    \endcode
 
     \section1 QWhatsThis
 
