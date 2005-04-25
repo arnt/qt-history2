@@ -415,7 +415,9 @@ QFontEngineMultiFT::QFontEngineMultiFT(FcFontSet *fs, int s)
 }
 
 QFontEngineMultiFT::~QFontEngineMultiFT()
-{ FcFontSetDestroy(fontSet); }
+{
+    FcFontSetDestroy(fontSet);
+}
 
 void QFontEngineMultiFT::loadEngine(int at)
 {
@@ -522,7 +524,7 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
 {
     cache_cost = 100;
     fontDef = fd;
-    _pattern = FcPatternDuplicate(pattern);
+    _pattern = pattern;
 //     FcPatternPrint(pattern);
 
     antialias = X11->fc_antialias;
@@ -599,6 +601,7 @@ QFontEngineFT::~QFontEngineFT()
     FcPatternDestroy(_pattern);
     _pattern = 0;
 
+    qDeleteAll(glyph_data);
     XRenderFreeGlyphSet(X11->display, glyphSet);
     delete _openType;
 }
@@ -857,6 +860,9 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
     g->advance = TRUNC(ROUND(slot->advance.x));
     g->format = add_to_glyphset ? Format_None : format;
     g->data = buffer;
+
+    // make sure we delete the old cached glyph
+    delete glyph_data.value(glyph);
     glyph_data[glyph] = g;
 
     return g;

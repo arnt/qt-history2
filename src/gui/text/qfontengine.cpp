@@ -200,8 +200,11 @@ QFontEngineMulti::~QFontEngineMulti()
 {
     for (int i = 0; i < engines.size(); ++i) {
         QFontEngine *fontEngine = engines.at(i);
-        if (fontEngine)
+        if (fontEngine) {
             fontEngine->ref.deref();
+            if (fontEngine->cache_count == 0 && fontEngine->ref == 0)
+                delete fontEngine;
+        }
     }
 }
 

@@ -2082,18 +2082,18 @@ QFontCache::~QFontCache()
     EngineCache::Iterator it = engineCache.begin(),
                          end = engineCache.end();
     while (it != end) {
-        if (it.value().data->ref == 0) {
-            if (--it.value().data->cache_count == 0) {
+        if (--it.value().data->cache_count == 0) {
+            if (it.value().data->ref == 0) {
                 FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %g %d %d %d %d)",
                          it.value().data, it.key().script, it.key().def.pointSize,
                          it.key().def.pixelSize, it.key().def.weight, it.key().def.style,
                          it.key().def.fixedPitch);
 
                 delete it.value().data;
+            } else {
+                FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
+                         it.value().data, it.value().data->ref.atomic);
             }
-        } else {
-            FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
-                     it.value().data, it.value().data->ref.atomic);
         }
         ++it;
     }
@@ -2118,17 +2118,17 @@ void QFontCache::clear()
     EngineCache::Iterator it = engineCache.begin(),
                          end = engineCache.end();
     while (it != end) {
-        if (it.value().data->ref == 0) {
-            if (--it.value().data->cache_count == 0) {
+        if (--it.value().data->cache_count == 0) {
+            if (it.value().data->ref == 0) {
                 FC_DEBUG("QFontCache::~QFontCache: deleting engine %p key=(%d / %g %d %d %d %d)",
                          it.value().data, it.key().script, it.key().def.pointSize,
                          it.key().def.pixelSize, it.key().def.weight, it.key().def.style,
                          it.key().def.fixedPitch);
                 delete it.value().data;
+            } else {
+                FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
+                         it.value().data, it.value().data->ref.atomic);
             }
-        } else {
-            FC_DEBUG("QFontCache::~QFontCache: engine = %p still has refcount %d",
-                     it.value().data, it.value().data->ref.atomic);
         }
         ++it;
     }
