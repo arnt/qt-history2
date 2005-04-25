@@ -57,9 +57,10 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
     if (decorationRegion == None)
         return false;
 
+    bool isActive = (widget == qApp->activeWindow());
     QPalette pal = widget->palette();
     //ideally, the difference between Active and Inactive should be enough, so we shouldn't need to test this
-    if (widget != qApp->activeWindow()) {
+    if (!isActive) {
         //pal.setCurrentColorGroup(QPalette::Disabled); //Can't do this either, because of palette limitations
         //copied from Q3TitleBar:
          pal.setColor(QPalette::Inactive, QPalette::Highlight,
@@ -100,7 +101,10 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
         opt.palette = pal;
         opt.rect = br;
         opt.lineWidth = 2;
-        style->drawPrimitive(QStyle::PE_PanelMenuBar, &opt, painter, widget);
+        if (isActive)
+            opt.state |= QStyle::State_Active;
+        painter->fillRect(br, pal.background());
+        style->drawPrimitive(QStyle::PE_FrameWindow, &opt, painter, widget);
         painter->restore();
 
         decorationRegion &= (~Borders);
@@ -124,6 +128,8 @@ bool QDecorationStyled::paint(QPainter *painter, const QWidget *widget, int deco
                           | (decorationRegion & Close
                               ? QStyle::SC_TitleBarCloseButton : QStyle::SubControl(0));
         opt.titleBarFlags = widget->windowFlags();
+        if (isActive)
+            opt.titleBarState |= QStyle::State_Active;
         opt.text = widget->windowTitle();
         opt.palette = pal;
 
