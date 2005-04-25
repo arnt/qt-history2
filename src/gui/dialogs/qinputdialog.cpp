@@ -221,10 +221,10 @@ QString QInputDialog::getText(QWidget *parent, const QString &title, const QStri
     le->setEchoMode(mode);
 
     QString result;
-    ok_ = dlg.exec() == QDialog::Accepted;
+    bool accepted = (dlg.exec() == QDialog::Accepted);
     if (ok)
-        *ok = ok_;
-    if (ok_)
+        *ok = accepted;
+    if (accepted)
         result = le->text();
 
     return result;
@@ -330,9 +330,9 @@ double QInputDialog::getDouble( QWidget *parent, const QString &title, const QSt
     sb->setDecimals(decimals);
     sb->setValue(value);
 
-    bool ok_ = (dlg.exec() == QDialog::Accepted);
+    bool accepted = (dlg.exec() == QDialog::Accepted);
     if (ok)
-        *ok = ok_;
+        *ok = accepted;
     return sb->value();
 }
 
@@ -383,13 +383,11 @@ QString QInputDialog::getItem(QWidget *parent, const QString &title, const QStri
     combo->addItems(list);
     combo->setCurrentIndex(current);
 
-    QString result;
-    ok_ = dlg.exec() == QDialog::Accepted;
+    bool accepted = (dlg.exec() == QDialog::Accepted);
     if (ok)
         *ok = accepted;
-    result = combo->currentText();
 
-    return result;
+    return combo->currentText();
 }
 
 #endif
