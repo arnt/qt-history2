@@ -815,62 +815,8 @@ void QX11PaintEngine::updatePen(const QPen &pen)
 {
     Q_D(QX11PaintEngine);
     d->cpen = pen;
-    int ps = pen.style();
-    char dashes[10];                            // custom pen dashes
-    int dash_len = 0;                           // length of dash list
-    int s = LineSolid;
     int cp = CapButt;
     int jn = JoinMiter;
-
-    /*
-      We are emulating Windows here.  Windows treats cpen.width() == 1
-      (or 0) as a very special case.  The fudge variable unifies this
-      case with the general case.
-    */
-    int dot = qRound(pen.widthF());
-    int fudge = 1;
-    bool allow_zero_lw = true;
-    if (dot <= 1) {
-        dot = 3;
-        fudge = 2;
-    }
-
-    switch(ps) {
-    case Qt::NoPen:
-    case Qt::SolidLine:
-        s = LineSolid;
-        break;
-    case Qt::DashLine:
-        dashes[0] = fudge * 3 * dot;
-        dashes[1] = fudge * dot;
-        dash_len = 2;
-        allow_zero_lw = false;
-        break;
-    case Qt::DotLine:
-        dashes[0] = dot;
-        dashes[1] = dot;
-        dash_len = 2;
-        allow_zero_lw = false;
-        break;
-    case Qt::DashDotLine:
-        dashes[0] = 3 * dot;
-        dashes[1] = fudge * dot;
-        dashes[2] = dot;
-        dashes[3] = fudge * dot;
-        dash_len = 4;
-        allow_zero_lw = false;
-        break;
-    case Qt::DashDotDotLine:
-        dashes[0] = 3 * dot;
-        dashes[1] = dot;
-        dashes[2] = dot;
-        dashes[3] = dot;
-        dashes[4] = dot;
-        dashes[5] = dot;
-        dash_len = 6;
-        allow_zero_lw = false;
-    }
-    Q_ASSERT(dash_len <= (int) sizeof(dashes));
 
     switch (pen.capStyle()) {
     case Qt::SquareCap:
@@ -899,7 +845,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
 
     d->adapted_pen_origin = false;
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures | GCLineWidth
-                 | GCLineStyle | GCCapStyle | GCJoinStyle;
+                 | GCCapStyle | GCJoinStyle;
     XGCValues vals;
     vals.graphics_exposures = false;
     if (d->pdev->depth() == 1) {
@@ -913,26 +859,11 @@ void QX11PaintEngine::updatePen(const QPen &pen)
         QColormap cmap = QColormap::instance(d->scrn);
         vals.foreground = cmap.pixel(pen.color());
         vals.background = cmap.pixel(d->bg_col);
-
-        if (!pen.brush().isOpaque()) {
-            QPixmap pattern = qt_patternForAlpha(pen.color().alpha());
-            mask |= GCStipple;
-            vals.stipple = pattern.handle();
-            s = FillStippled;
-            d->adapted_pen_origin = true;
-        }
     }
-    vals.line_width = (! allow_zero_lw && pen.widthF() == 0) ? 1 : qRound(pen.widthF());
+    vals.line_width = qRound(pen.widthF());
     vals.cap_style = cp;
     vals.join_style = jn;
-    if (dash_len) {
-        s = d->bg_mode == Qt::TransparentMode ? LineOnOffDash : LineDoubleDash;
-    }
-    vals.line_style = s;
     XChangeGC(d->dpy, d->gc, mask, &vals);
-
-    if (dash_len)
-        XSetDashes(d->dpy, d->gc, 0, dashes, dash_len);
 
     if (!d->has_clipping) { // if clipping is set the paintevent clip region is merged with the clip region
         QRegion sysClip = systemClip();
@@ -1216,7 +1147,8 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     if (d->cpen.style() != Qt::NoPen
         && ((X11->use_xrender && (d->cpen.color().alpha() != 255
                                   || (d->render_hints & QPainter::Antialiasing)))
-            || (d->cpen.widthF() > 0 && d->txop > QPainterPrivate::TxTranslate))) {
+            || (d->cpen.widthF() > 0 && d->txop > QPainterPrivate::TxTranslate)
+            || (d->cpen.style() > Qt::SolidLine))) {
         QPainterPathStroker stroker;
         stroker.setDashPattern(d->cpen.style());
         stroker.setCapStyle(d->cpen.capStyle());
