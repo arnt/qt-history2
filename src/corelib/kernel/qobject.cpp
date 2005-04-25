@@ -220,6 +220,8 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
                 }
             }
 
+            if (c.types)
+                qFree(c.types);
             memset(&c, 0, sizeof(c));
             unusedConnections << at;
             success = true;
