@@ -33,8 +33,6 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
     Q_PROPERTY(bool showDropIndicator READ showDropIndicator WRITE setDropIndicatorShown)
     Q_PROPERTY(bool dragEnabled READ dragEnabled WRITE setDragEnabled)
     Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
-    Q_PROPERTY(QColor oddRowColor READ oddRowColor WRITE setOddRowColor)
-    Q_PROPERTY(QColor evenRowColor READ evenRowColor WRITE setEvenRowColor)
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
     Q_PROPERTY(SelectionBehavior selectionBehavior READ selectionBehavior WRITE setSelectionBehavior)
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
@@ -111,12 +109,6 @@ public:
 
     void setAlternatingRowColors(bool enable);
     bool alternatingRowColors() const;
-
-    void setOddRowColor(const QColor &odd);
-    QColor oddRowColor() const;
-
-    void setEvenRowColor(const QColor &even);
-    QColor evenRowColor() const;
     
     void setIconSize(const QSize &size);
     QSize iconSize() const;

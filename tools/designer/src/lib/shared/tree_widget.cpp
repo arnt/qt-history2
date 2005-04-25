@@ -66,8 +66,10 @@ TreeWidget::TreeWidget(QWidget *parent)
     setItemDelegate(new TreeWidgetDelegate(this));
 
     setAlternatingRowColors(true);
-    setOddRowColor(Qt::white);
-    setEvenRowColor(QColor(237, 243, 254));
+    QPalette pal = palette();
+    pal.setColor(QPalette::Base, Qt::white);
+    pal.setColor(QPalette::AlternateBase, QColor(237, 243, 254));
+    setPalette(pal);
 }
 
 TreeWidget::~TreeWidget()

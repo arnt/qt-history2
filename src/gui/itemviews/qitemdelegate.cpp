@@ -301,7 +301,7 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
                               ? QPalette::Normal : QPalette::Disabled;
     if (option.state & QStyle::State_Selected) {
-        painter->fillRect(rect, option.palette.color(cg, QPalette::Highlight));
+        painter->fillRect(rect, option.palette.brush(cg, QPalette::Highlight));
         painter->setPen(option.palette.color(cg, QPalette::HighlightedText));
     } else {
         painter->setPen(option.palette.color(cg, QPalette::Text));
@@ -360,10 +360,10 @@ void QItemDelegate::drawFocus(QPainter *painter,
         QStyleOptionFocusRect o;
         o.QStyleOption::operator=(option);
         o.rect = rect;
-        QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled) ?
-                                  QPalette::Normal : QPalette::Disabled;
-        o.backgroundColor = option.palette.color(cg, (option.state & QStyle::State_Selected) ?
-                                                 QPalette::Highlight : QPalette::Background);
+        QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled)
+                                  ? QPalette::Normal : QPalette::Disabled;
+        o.backgroundColor = option.palette.color(cg, (option.state & QStyle::State_Selected)
+                                                 ? QPalette::Highlight : QPalette::Background);
         QApplication::style()->drawPrimitive(QStyle::PE_FrameFocusRect, &o, painter);
     }
 }
@@ -533,9 +533,7 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
     if (!pm) {
         QImage img = pixmap.toImage().convertToFormat(QImage::Format_ARGB32_Premultiplied);
 
-        QColor color = palette.color(enabled
-                                     ? QPalette::Normal
-                                     : QPalette::Disabled,
+        QColor color = palette.color(enabled ? QPalette::Normal : QPalette::Disabled,
                                      QPalette::Highlight);
         color.setAlphaF(0.3);
 

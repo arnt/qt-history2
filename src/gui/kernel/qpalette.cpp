@@ -70,6 +70,8 @@ QDataStream &qt_stream_in_qcolorgroup(QDataStream &s, QColorGroup &g)
         int max = QPalette::NColorRoles;
         if (s.version() <= 3) // Qt 2.x
             max = 14;
+        else if (s.version() <= 4) // Qt 3.x
+            max = 16;
         QBrush tmp;
         for(int r = 0 ; r < max; r++) {
             s >> tmp;
@@ -113,8 +115,9 @@ QColorGroup QPalette::createColorGroup(ColorGroup cr) const
 void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 {
     setColorGroup(cg, g.brush(Foreground), g.brush(Button), g.brush(Light),
-                  g.brush(Dark), g.brush(Mid), g.brush(Text), g.brush(BrightText), g.brush(Base),
-                  g.brush(Background), g.brush(Midlight), g.brush(ButtonText), g.brush(Shadow),
+                  g.brush(Dark), g.brush(Mid), g.brush(Text), g.brush(BrightText),
+                  g.brush(Base), g.brush(AlternateBase), g.brush(Background),
+                  g.brush(Midlight), g.brush(ButtonText), g.brush(Shadow),
                   g.brush(Highlight), g.brush(HighlightedText), g.brush(Link),
                   g.brush(LinkVisited));
 }
@@ -465,8 +468,7 @@ static void qt_palette_from_color(QPalette &pal, const QColor & button)
 {
     QColor bg = button,
            btn = button,
-           fg,
-           base;
+           fg, base;
     int h, s, v;
     bg.getHsv(&h, &s, &v);
     if(v > 128) {
@@ -477,13 +479,15 @@ static void qt_palette_from_color(QPalette &pal, const QColor & button)
         base = Qt::black;
     }
     //inactive and active are the same..
-    pal.setColorGroup(QPalette::Active, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
-                      QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), QBrush(bg));
-    pal.setColorGroup(QPalette::Inactive, QBrush(fg), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
-                      QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white), QBrush(base), QBrush(bg));
-    pal.setColorGroup(QPalette::Disabled, QBrush(btn.dark()), QBrush(btn), QBrush(btn.light(150)), QBrush(btn.dark()),
-                      QBrush(btn.dark(150)), QBrush(btn.dark()), QBrush(Qt::white), QBrush(bg),
-                      QBrush(bg));
+    pal.setColorGroup(QPalette::Active, QBrush(fg), QBrush(btn), QBrush(btn.light(150)),
+                      QBrush(btn.dark()), QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white),
+                      QBrush(base), QBrush(bg));
+    pal.setColorGroup(QPalette::Inactive, QBrush(fg), QBrush(btn), QBrush(btn.light(150)),
+                      QBrush(btn.dark()), QBrush(btn.dark(150)), QBrush(fg), QBrush(Qt::white),
+                      QBrush(base), QBrush(bg));
+    pal.setColorGroup(QPalette::Disabled, QBrush(btn.dark()), QBrush(btn), QBrush(btn.light(150)),
+                      QBrush(btn.dark()), QBrush(btn.dark(150)), QBrush(btn.dark()),
+                      QBrush(Qt::white), QBrush(bg), QBrush(bg));
 }
 
 
@@ -958,13 +962,14 @@ bool QPalette::isCopyOf(const QPalette &p) const
     \sa QBrush
 */
 void QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &button,
-                              const QBrush &light, const QBrush &dark, const QBrush &mid,
-                              const QBrush &text, const QBrush &bright_text, const QBrush &base,
-                              const QBrush &background)
+                             const QBrush &light, const QBrush &dark, const QBrush &mid,
+                             const QBrush &text, const QBrush &bright_text, const QBrush &base,
+                             const QBrush &background)
 {
+    QBrush mid_light = QBrush(qt_mix_colors(button.color(), light.color()));
     setColorGroup(cg, foreground, button, light, dark, mid, text, bright_text, base,
-                  background, QBrush(qt_mix_colors(button.color(), light.color())),
-                  text, QBrush(Qt::black), QBrush(Qt::darkBlue), QBrush(Qt::white),
+                  mid_light, background, mid_light, text,
+                  QBrush(Qt::black), QBrush(Qt::darkBlue), QBrush(Qt::white),
                   QBrush(Qt::blue), QBrush(Qt::magenta));
 
     resolve_mask &= ~(1 << Highlight);
@@ -978,7 +983,8 @@ void QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBru
 void
 QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &button,
                         const QBrush &light, const QBrush &dark, const QBrush &mid,
-                        const QBrush &text, const QBrush &bright_text, const QBrush &base,
+                        const QBrush &text, const QBrush &bright_text,
+                        const QBrush &base, const QBrush &alternate_base,
                         const QBrush &background, const QBrush &midlight,
                         const QBrush &button_text, const QBrush &shadow,
                         const QBrush &highlight, const QBrush &highlighted_text,
@@ -993,6 +999,7 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
     setBrush(cg, Text, text);
     setBrush(cg, BrightText, bright_text);
     setBrush(cg, Base, base);
+    setBrush(cg, AlternateBase, alternate_base);
     setBrush(cg, Background, background);
     setBrush(cg, Midlight, midlight);
     setBrush(cg, ButtonText, button_text);

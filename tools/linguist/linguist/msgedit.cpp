@@ -458,11 +458,13 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     srcMdl = new MessageModel(topDockWnd);
     srcTextView->setModel(srcMdl);
     srcTextView->setAlternatingRowColors(true);
-    srcTextView->setOddRowColor(TREEVIEW_ODD_COLOR);
     srcTextView->setSelectionBehavior(QAbstractItemView::SelectRows);
     srcTextView->setSelectionMode(QAbstractItemView::SingleSelection);
     srcTextView->setRootIsDecorated(false);
-	srcTextView->setUniformRowHeights(true);
+    srcTextView->setUniformRowHeights(true);
+    QPalette pal = srcTextView->palette();
+    pal.setColor(QPalette::AlternateBase, TREEVIEW_ODD_COLOR);
+    srcTextView->setPalette(pal);
 
     QFontMetrics fm(font());
     srcTextView->header()->setResizeMode(1, QHeaderView::Stretch);
@@ -490,10 +492,12 @@ MessageEditor::MessageEditor(MetaTranslator *t, QMainWindow *parent)
     phrMdl = new PhraseModel(w);
     phraseTv->setModel(phrMdl);
     phraseTv->setAlternatingRowColors(true);
-    phraseTv->setOddRowColor(TREEVIEW_ODD_COLOR);
     phraseTv->setSelectionBehavior(QAbstractItemView::SelectRows);
     phraseTv->setSelectionMode(QAbstractItemView::SingleSelection);
     phraseTv->setRootIsDecorated(false);
+    pal = phraseTv->palette();
+    pal.setColor(QPalette::AlternateBase, TREEVIEW_ODD_COLOR);
+    phraseTv->setPalette(pal);
 
     phraseTv->header()->setResizeMode(QHeaderView::Stretch);
     phraseTv->header()->setClickable(true);

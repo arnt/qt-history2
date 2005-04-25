@@ -757,40 +757,6 @@ bool QAbstractItemView::alternatingRowColors() const
 }
 
 /*!
-  \property QAbstractItemView::oddRowColor
-  \brief the color used to draw the background for odd rows
-*/
-
-void QAbstractItemView::setOddRowColor(const QColor &odd)
-{
-    d_func()->oddColor = odd;
-    if (isVisible())
-        d_func()->viewport->update();
-}
-
-QColor QAbstractItemView::oddRowColor() const
-{
-    return d_func()->oddColor;
-}
-
-/*!
-  \property QAbstractItemView::evenRowColor
-  \brief the color used to draw the background for even rows
-*/
-
-void QAbstractItemView::setEvenRowColor(const QColor &even)
-{
-    d_func()->evenColor = even;
-    if (isVisible())
-        d_func()->viewport->update();
-}
-
-QColor QAbstractItemView::evenRowColor() const
-{
-    return d_func()->evenColor;
-}
-
-/*!
     \property QAbstractItemView::iconSize
     \brief the size of items
 

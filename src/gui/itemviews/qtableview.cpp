@@ -331,7 +331,6 @@ void QTableView::paintEvent(QPaintEvent *e)
     // setup temp variables for the painting
     
     QStyleOptionViewItem option = viewOptions();
-    const QBrush base = option.palette.base();
     const QPoint offset = d->scrollDelayOffset;
     const bool showGrid = d->showGrid;
     const int gridSize = showGrid ? 1 : 0;
@@ -345,14 +344,14 @@ void QTableView::paintEvent(QPaintEvent *e)
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
-    const QColor oddColor = d->oddRowColor();
-    const QColor evenColor = d->evenRowColor();
+    const QBrush baseBrush = palette().color(QPalette::Base);
+    const QBrush alternateBrush = palette().color(QPalette::AlternateBase);
 
     QPainter painter(d->viewport);
     
     // if there's nothing to do, clear the area and return
     if (d->horizontalHeader->count() == 0 || d->verticalHeader->count() == 0) {
-        painter.fillRect(e->rect(), base);
+        painter.fillRect(e->rect(), baseBrush);
         return;
     }
 
@@ -396,7 +395,7 @@ void QTableView::paintEvent(QPaintEvent *e)
             if (verticalHeader->isSectionHidden(row))
                 continue;
             if (alternate)
-                option.palette.setColor(QPalette::Base, v & 1 ? oddColor : evenColor);
+                option.palette.setBrush(QPalette::Base, v & 1 ? baseBrush : alternateBrush);
             int rowp = rowViewportPosition(row) + offset.y();
             int rowh = rowHeight(row) - gridSize;
             for (int h = left; h <= right; ++h) {
@@ -441,15 +440,15 @@ void QTableView::paintEvent(QPaintEvent *e)
         int y = d->verticalHeader->length();
         QRect b(0, y, w, h - y);
         if (y < h && area.intersects(b))
-            painter.fillRect(b, base);
+            painter.fillRect(b, baseBrush);
         if (isRightToLeft()) {
             QRect r(0, 0, w - x, h);
             if (x > 0 && area.intersects(r))
-                painter.fillRect(r, base);
+                painter.fillRect(r, baseBrush);
         } else {
             QRect l(x, 0, w - x, h);
             if (x < w && area.intersects(l))
-                painter.fillRect(l, base);
+                painter.fillRect(l, baseBrush);
         }
     }
 }

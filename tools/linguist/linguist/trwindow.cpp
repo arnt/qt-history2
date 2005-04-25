@@ -190,7 +190,9 @@ TrWindow::TrWindow()
     cmdl = new ContextModel(dwScope);
     tv->setModel(cmdl);
     tv->setAlternatingRowColors(true);
-    tv->setOddRowColor(TREEVIEW_ODD_COLOR);
+    QPalette tvp = tv->palette();
+    tvp.setColor(QPalette::AlternateBase, TREEVIEW_ODD_COLOR);
+    tv->setPalette(tvp);
 
     tv->setSelectionBehavior(QAbstractItemView::SelectRows);
     tv->setSelectionMode(QAbstractItemView::SingleSelection);

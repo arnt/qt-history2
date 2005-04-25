@@ -35,8 +35,10 @@ QPropertyEditor::QPropertyEditor(QWidget *parent)
     setInitialInput(0);
 
     setAlternatingRowColors(true);
-    setEvenRowColor(QColor(237, 243, 254));
-    setOddRowColor(QColor(255, 255, 255));
+    QPalette pal = palette();
+    pal.setColor(QPalette::Base, QColor(237, 243, 254));
+    pal.setColor(QPalette::AlternateBase, QColor(255, 255, 255));
+    setPalette(pal);
 
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 

@@ -50,7 +50,7 @@ public:
     enum ColorGroup { Active, Disabled, Inactive, NColorGroups, Current, All, Normal = Active };
     enum ColorRole { Foreground, Button, Light, Midlight, Dark, Mid,
                      Text, BrightText, ButtonText, Base, Background, Shadow,
-                     Highlight, HighlightedText, Link, LinkVisited,
+                     Highlight, HighlightedText, Link, LinkVisited, AlternateBase,
                      NColorRoles, NoRole = NColorRoles };
 
     inline ColorGroup currentColorGroup() const { return static_cast<ColorGroup>(current_group); }
@@ -78,6 +78,7 @@ public:
     inline const QBrush &mid() const { return brush(Mid); }
     inline const QBrush &text() const { return brush(Text); }
     inline const QBrush &base() const { return brush(Base); }
+    inline const QBrush &alternateBase() const { return brush(AlternateBase); }
     inline const QBrush &background() const { return brush(Background); }
     inline const QBrush &midlight() const { return brush(Midlight); }
     inline const QBrush &brightText() const { return brush(BrightText); }
@@ -114,7 +115,8 @@ public:
 private:
     void setColorGroup(ColorGroup cr, const QBrush &foreground, const QBrush &button,
                        const QBrush &light, const QBrush &dark, const QBrush &mid,
-                       const QBrush &text, const QBrush &bright_text, const QBrush &base,
+                       const QBrush &text, const QBrush &bright_text,
+                       const QBrush &base, const QBrush &alternate_base,
                        const QBrush &background, const QBrush &midlight,
                        const QBrush &button_text, const QBrush &shadow,
                        const QBrush &highlight, const QBrush &highlighted_text,

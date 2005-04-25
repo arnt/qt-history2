@@ -861,8 +861,8 @@ void QListView::paintEvent(QPaintEvent *e)
     const QItemSelectionModel *selections = selectionModel();
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const bool alternate = d->alternatingColors;
-    const QColor oddColor = d->oddRowColor();
-    const QColor evenColor = d->evenRowColor();
+    const QBrush baseBrush = palette().brush(QPalette::Base);
+    const QBrush alternateBrush = palette().brush(QPalette::AlternateBase);
     const QStyle::State state = option.state;
     QVector<QModelIndex>::iterator it = toBeRendered.begin();
     for (; it != toBeRendered.end(); ++it) {
@@ -879,8 +879,8 @@ void QListView::paintEvent(QPaintEvent *e)
                 option.state |= QStyle::State_Editing;
         }
         if (alternate) {
-            option.palette.setColor(QPalette::Base, (*it).row() & 1 ? oddColor : evenColor);
-            painter.fillRect(option.rect, option.palette.color(QPalette::Base));
+            option.palette.setBrush(QPalette::Base, (*it).row() & 1 ? baseBrush : alternateBrush);
+            painter.fillRect(option.rect, (*it).row() & 1 ? baseBrush : alternateBrush);
         }
         delegate->paint(&painter, option, *it);
     }
