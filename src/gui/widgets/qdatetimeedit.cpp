@@ -726,6 +726,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Return:
         d->interpret(AlwaysEmit);
         d->setSelected(d->currentsection);
+        e->ignore();
         return;
 
     case Qt::Key_Left:
