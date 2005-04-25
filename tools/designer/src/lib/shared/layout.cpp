@@ -41,7 +41,7 @@ public:
     friend void insert_into_box_layout(QBoxLayout *box, int index, QWidget *widget);
 };
 
-bool operator<(const QPointer<QWidget> &p1, const QPointer<QWidget> &p2)
+static bool operator<(const QPointer<QWidget> &p1, const QPointer<QWidget> &p2)
 {
     return p1.operator->() < p2.operator->();
 }

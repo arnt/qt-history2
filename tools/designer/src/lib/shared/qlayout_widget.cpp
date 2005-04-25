@@ -199,10 +199,9 @@ void QLayoutSupport::simplifyLayout()
     for (int c = 0; c < gridLayout()->columnCount(); ++c) {
         tryRemoveColumn(c);
     }
-#if 0
+
     if (QGridLayout *g = gridLayout())
         createEmptyCells(g);
-#endif
 }
 
 void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
@@ -526,7 +525,6 @@ void QLayoutSupport::createEmptyCells(QGridLayout *&gridLayout)
 {
     Q_ASSERT(gridLayout);
 
-#if 0
     { // take the spacers items
         int index = 0;
         while (QLayoutItem *item = gridLayout->itemAt(index)) {
@@ -538,7 +536,6 @@ void QLayoutSupport::createEmptyCells(QGridLayout *&gridLayout)
                 ++index;
         }
     }
-#endif
 
     QMap<QPair<int,int>, QLayoutItem*> cells;
 

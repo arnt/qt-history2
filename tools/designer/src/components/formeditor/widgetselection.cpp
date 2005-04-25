@@ -362,19 +362,82 @@ void WidgetHandle::mouseReleaseEvent(QMouseEvent *e)
         QGridLayout *grid = static_cast<QGridLayout*>(widget->parentWidget()->layout());
 
         QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), widget->parentWidget());
-        QList<QWidget*> widgets = deco->widgets(grid);
-        GridLayout gridLayout(widgets, widget->parentWidget(), formWindow, widget->parentWidget(), QSize(10,10));
 
-        gridLayout.breakLayout();
-        gridLayout.doLayout();
+        int index = deco->indexOf(widget);
+        QRect info = deco->itemInfo(index);
+        int top = deco->findItemAt(info.top() - 1, info.left());
+        int left = deco->findItemAt(info.top(), info.left() - 1);
+        int bottom = deco->findItemAt(info.bottom() + 1, info.left());
+        int right = deco->findItemAt(info.top(), info.right() + 1);
+
+        QPoint pt = origGeom.center() - widget->geometry().center();
+
+        switch (type) {
+            default: break;
+
+            case WidgetHandle::Top: {
+                if (pt.y() < 0 && info.height() > 1) {
+                    QLayoutItem *item = grid->takeAt(index);
+                    delete item;
+
+                    add_to_grid_layout(grid, widget, info.y() + 1, info.x(), info.height() - 1, info.width());
+                } else if (pt.y() > 0 && top != -1 && grid->itemAt(top)->spacerItem()) {
+                    QLayoutItem *item = grid->takeAt(index);
+                    delete item;
+
+                    add_to_grid_layout(grid, widget, info.y() - 1, info.x(), info.height() + 1, info.width());
+                }
+            } break;
+
+            case WidgetHandle::Left: {
+                if (pt.x() < 0 && info.width() > 1) {
+                    QLayoutItem *item = grid->takeAt(index);
+                    delete item;
+
+                    add_to_grid_layout(grid, widget, info.y(), info.x() + 1, info.height(), info.width() - 1);
+                } else if (pt.x() > 0 && left != -1 && grid->itemAt(left)->spacerItem()) {
+                    QLayoutItem *item = grid->takeAt(index);
+                    delete item;
+
+                    add_to_grid_layout(grid, widget, info.y(), info.x() - 1, info.height(), info.width() + 1);
+                }
+            } break;
+
+            case WidgetHandle::Right: {
+                if (pt.x() > 0 && info.width() > 1) {
+                    QLayoutItem *item = grid->takeAt(index);
+                    delete item;
+
+                    add_to_grid_layout(grid, widget, info.y(), info.x(), info.height(), info.width() - 1);
+                } else if (pt.x() < 0 && right != -1 && grid->itemAt(right)->spacerItem()) {
+                    QLayoutItem *item = grid->takeAt(index);
+                    delete item;
+
+                    add_to_grid_layout(grid, widget, info.y(), info.x(), info.height(), info.width() + 1);
+                }
+            } break;
+
+            case WidgetHandle::Bottom: {
+                if (pt.y() > 0 && info.width() > 1) {
+                    QLayoutItem *item = grid->takeAt(index);
+                    delete item;
+
+                    add_to_grid_layout(grid, widget, info.y(), info.x(), info.height() - 1, info.width());
+                } else if (pt.x() < 0 && bottom != -1 && grid->itemAt(bottom)->spacerItem()) {
+                    QLayoutItem *item = grid->takeAt(index);
+                    delete item;
+
+                    add_to_grid_layout(grid, widget, info.y(), info.x(), info.height() + 1, info.width());
+                }
+            } break;
+        }
+
+        deco->simplify();
+        grid->invalidate();
+        grid->activate();
+
         formWindow->clearSelection(false);
         formWindow->selectWidget(widget, true);
-
-        // refresh the `deco' extension
-        deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), widget->parentWidget());
-        deco->simplify();
-
-        widget->parentWidget()->resize(size);
     } else if (geom != widget->geometry()) {
         SetPropertyCommand *cmd = new SetPropertyCommand(formWindow);
         cmd->init(widget, QLatin1String("geometry"), widget->geometry());
