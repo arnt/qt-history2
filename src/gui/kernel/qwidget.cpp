@@ -3138,7 +3138,6 @@ QString QWidget::windowTitle() const
 #ifndef QT_NO_WIDGET_TOPEXTRA
 void QWidgetPrivate::setWindowTitle_helper(const QString &title)
 {
-    Q_Q(QWidget);
     QString cap = title;
 
     QString placeHolder(QLatin1String("[*]"));
