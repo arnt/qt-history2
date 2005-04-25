@@ -121,6 +121,7 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "IPV6" ]            = "yes"; // Always, dynamicly loaded
 
     dictionary[ "STYLE_WINDOWS" ]   = "yes";
+    dictionary[ "STYLE_PLASTIQUE" ] = "yes";
     dictionary[ "STYLE_MOTIF" ]     = "yes";
     dictionary[ "STYLE_MOTIFPLUS" ] = "no";
     dictionary[ "STYLE_PLATINUM" ]  = "no";
@@ -164,6 +165,7 @@ Configure::Configure( int& argc, char** argv )
 	dictionary[ "STL" ]		= "no"; // < CE 4.0
 	dictionary[ "OPENGL" ]		= "no"; // < CE 4.0
 	dictionary[ "STYLE_MOTIF" ]	= "no";
+	dictionary[ "STYLE_PLASTIQUE" ]	= "no";
 	dictionary[ "STYLE_MOTIFPLUS" ] = "no";
 	dictionary[ "STYLE_PLATINUM" ]  = "no";
 	dictionary[ "STYLE_SGI" ]	= "no";
@@ -324,6 +326,13 @@ void Configure::parseCmdLine()
 	    dictionary[ "STYLE_WINDOWS" ] = "plugin";
 	else if( configCmdLine.at(i) == "-no-style-windows" )
 	    dictionary[ "STYLE_WINDOWS" ] = "no";
+
+	else if( configCmdLine.at(i) == "-qt-style-plastique" )
+	    dictionary[ "STYLE_PLASTIQUE" ] = "yes";
+	else if( configCmdLine.at(i) == "-plugin-style-plastique" )
+	    dictionary[ "STYLE_PLASTIQUE" ] = "plugin";
+	else if( configCmdLine.at(i) == "-no-style-plastique" )
+	    dictionary[ "STYLE_PLASTIQUE" ] = "no";
 
 	else if( configCmdLine.at(i) == "-qt-style-motif" )
 	    dictionary[ "STYLE_MOTIF" ] = "yes";
@@ -896,6 +905,11 @@ void Configure::generateOutputVars()
     else if ( dictionary[ "STYLE_WINDOWS" ] == "plugin" )
 	qmakeStylePlugins += "windows";
 
+    if ( dictionary[ "STYLE_PLASTIQUE" ] == "yes" )
+	qmakeStyles += "plastique";
+    else if ( dictionary[ "STYLE_PLASTIQUE" ] == "plugin" )
+	qmakeStylePlugins += "plastique";
+
     if ( dictionary[ "STYLE_WINDOWSXP" ] == "yes" )
 	qmakeStyles += "windowsxp";
     else if ( dictionary[ "STYLE_WINDOWSXP" ] == "plugin" )
@@ -1161,6 +1175,7 @@ void Configure::generateConfigfiles()
         QStringList qconfigList;
         if(dictionary["STL"] == "no")                qconfigList += "QT_NO_STL";
         if(dictionary["STYLE_WINDOWS"] != "yes")     qconfigList += "QT_NO_STYLE_WINDOWS";
+        if(dictionary["STYLE_PLASTIQUE"] != "yes")   qconfigList += "QT_NO_STYLE_PLASTIQUE";
 	if(dictionary["STYLE_WINDOWSXP"] != "yes")   qconfigList += "QT_NO_STYLE_WINDOWSXP";
 	if(dictionary["STYLE_MOTIF"] != "yes")       qconfigList += "QT_NO_STYLE_MOTIF";
 	if(dictionary["STYLE_MOTIFPLUS"] != "yes")   qconfigList += "QT_NO_STYLE_MOTIFPLUS";
@@ -1418,6 +1433,7 @@ WCE( { cout << "    PocketPC............." << dictionary[ "STYLE_POCKETPC" ] << 
     cout << "    Windows XP.............." << dictionary[ "STYLE_WINDOWSXP" ] << endl;
     cout << "    Motif..................." << dictionary[ "STYLE_MOTIF" ] << endl;
     cout << "    Platinum................" << dictionary[ "STYLE_PLATINUM" ] << endl;
+    cout << "    Plastique..............." << dictionary[ "STYLE_PLASTIQUE" ] << endl;
     cout << "    MotifPlus..............." << dictionary[ "STYLE_MOTIFPLUS" ] << endl;
     cout << "    CDE....................." << dictionary[ "STYLE_CDE" ] << endl;
     cout << "    SGI....................." << dictionary[ "STYLE_SGI" ] << endl << endl;
