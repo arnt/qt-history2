@@ -1926,7 +1926,7 @@ void QAbstractItemView::doAutoScroll()
     int horizontalValue = horizontalScrollBar()->value();
 
     QPoint pos = d->viewport->mapFromGlobal(QCursor::pos());
-    QRect area = d->viewport->visibleRegion().boundingRect();
+    QRect area = static_cast<QAbstractItemView*>(d->viewport)->d_func()->clipRect(); // access QWidget private by bending C++ rules
 
     // do the scrolling if we are in the scroll margins
     if (pos.y() - area.top() < margin)
@@ -2122,7 +2122,7 @@ bool QAbstractItemViewPrivate::shouldAutoScroll(const QPoint &pos)
 {
     if (!autoScroll)
         return false;
-    QRect area = viewport->visibleRegion().boundingRect();
+    QRect area = static_cast<QAbstractItemView*>(viewport)->d_func()->clipRect();  // access QWidget private by bending C++ rules
     return (pos.y() - area.top() < autoScrollMargin)
         || (area.bottom() - pos.y() < autoScrollMargin)
         || (pos.x() - area.left() < autoScrollMargin)

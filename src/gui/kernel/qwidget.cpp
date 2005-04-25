@@ -1202,8 +1202,10 @@ void QWidgetPrivate::propagatePaletteChange()
 QRect QWidgetPrivate::clipRect() const
 {
     Q_Q(const QWidget);
-    QRect r = q->rect();
     const QWidget * w = q;
+    if (!w->isVisible())
+        return QRect();
+    QRect r = q->rect();
     int ox = 0;
     int oy = 0;
     while (w
@@ -1213,12 +1215,64 @@ QRect QWidgetPrivate::clipRect() const
         ox -= w->x();
         oy -= w->y();
         w = w->parentWidget();
-        r = r.intersect(QRect(ox, oy, w->width(), w->height()));
+        r &= QRect(ox, oy, w->width(), w->height());
     }
-    if (!w->isVisible())
-        return QRect();
     return r;
 }
+
+bool QWidgetPrivate::isFullyOpaque() const
+{
+    Q_Q(const QWidget);
+    if (q->testAttribute(Qt::WA_NoBackground) || q->testAttribute(Qt::WA_NoSystemBackground)
+        || q->isWindow() || q->windowType() == Qt::SubWindow)
+        return true;
+
+    const QPalette &pal = q->palette();
+    QPalette::ColorRole bg = q->backgroundRole();
+    QBrush bgBrush = pal.brush(bg);
+    return (bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque()
+            && ((bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
+}
+
+/*
+  Returns true if the widget's clipping region (excluding siblings) is
+  complex; otherwise returns false.
+*/
+bool QWidgetPrivate::hasComplexClipRegion() const
+{
+    Q_Q(const QWidget);
+    QRect r(q->rect());
+    const QWidget * w = q;
+    const QWidget *ignoreUpTo;
+    int ox = 0;
+    int oy = 0;
+    while (w
+           && w->isVisible()
+           && !w->isWindow()
+           && w->parentWidget()) {
+        ox -= w->x();
+        oy -= w->y();
+        ignoreUpTo = w;
+        w = w->parentWidget();
+        r &= QRect(ox, oy, w->width(), w->height());
+
+        int i = 0;
+        while(w->d_func()->children.at(i++) != ignoreUpTo)
+            ;
+        for ( ; i < w->d_func()->children.size(); ++i) {
+            if(QWidget *sibling = qobject_cast<QWidget *>(w->d_func()->children.at(i))) {
+                if(sibling->isVisible() && !sibling->isWindow()) {
+                    QRect siblingRect(ox+sibling->x(), oy+sibling->y(),
+                                      sibling->width(), sibling->height());
+                    if(siblingRect.intersects(q->rect()))
+                        return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 
 /*!
     \fn void QPixmap::fill(const QWidget *widget, const QPoint &offset)

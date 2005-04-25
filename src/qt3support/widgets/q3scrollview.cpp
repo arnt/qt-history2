@@ -229,7 +229,7 @@ void Q3ScrollViewData::hideOrShowAll(Q3ScrollView* sv, bool isScroll)
         if(static_bg)
             clipped_viewport->repaint(true);
         else if ((!isScroll && !clipped_viewport->testAttribute(Qt::WA_StaticContents)) || static_bg)
-            clipped_viewport->update(clipped_viewport->visibleRegion());
+            clipped_viewport->update();
     } else {
         // Re-center
         int nx = (viewport->width() - clipped_viewport->width()) / 2;

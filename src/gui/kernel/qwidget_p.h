@@ -194,6 +194,8 @@ public:
     void composeBackground(const QRect &);
 
     QRect clipRect() const;
+    bool hasComplexClipRegion() const;
+    bool isFullyOpaque() const;
 
     enum CloseMode {
         CloseNoEvent,

@@ -1436,7 +1436,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
     q->resizeContents(rect.right(), rect.bottom());
     // if the new items are visble, update the viewport
     QRect changedRect(topLeft, rect.bottomRight());
-    if (q->visibleRegion().boundingRect().intersects(changedRect))
+    if (clipRect().intersects(changedRect))
         viewport->update();
 }
 
@@ -1530,7 +1530,7 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         tree.climbTree(tree.item(row).rect(), &QBinTree<QListViewItem>::insert, row);
     // if the new items are visble, update the viewport
     QRect changedRect(topLeft, rect.bottomRight());
-    if (q->visibleRegion().boundingRect().intersects(changedRect))
+    if (clipRect().intersects(changedRect))
         viewport->update();
 }
 
