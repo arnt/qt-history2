@@ -13,4 +13,5 @@ SUBDIRS       = analogclock \
                 spinboxes \
                 styles \
                 tetrix \
+                tooltips \
                 wiggly
