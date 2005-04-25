@@ -50,7 +50,7 @@ QVariant ConnectionModel::headerData(int section, Qt::Orientation orientation,
 
     switch (section) {
         case 0:
-            result = tr("Sener");
+            result = tr("Sender");
             break;
         case 1:
             result = tr("Signal");
