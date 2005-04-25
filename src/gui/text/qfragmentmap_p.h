@@ -265,6 +265,8 @@ public:
     }
 
     inline void clear() {
+        for (Iterator it = begin(); !it.atEnd(); ++it)
+            it.value()->free();
         ::free(data.head);
         data.init();
     }
