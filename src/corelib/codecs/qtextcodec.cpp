@@ -254,8 +254,8 @@ static const char * const koi8_ulocales[] = {
 static const char * const tis_620locales[] = {
     "th", "th_TH", "thai", 0 };
 
-static const char * const tcvnlocales[] = {
-    "vi", "vi_VN", 0 };
+// static const char * const tcvnlocales[] = {
+//     "vi", "vi_VN", 0 };
 
 static bool try_locale_list(const char * const locale[], const char * lang)
 {
