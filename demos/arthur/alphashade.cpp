@@ -77,10 +77,10 @@ void drawPrimitives(DemoWidget *dw, QPainter *p, int count, double distance, int
 
         switch (PrimitiveType(((step+i)/200)%3)) {
         case Rect:
-            p->drawRect(0, 0, int(size*x), int(size*y));
+            p->drawRect(QRect(0, 0, int(size*x), int(size*y)).normalized());
             break;
         case Ellipse:
-            p->drawEllipse(0, 0, int(size*x), int(size*y));
+            p->drawEllipse(QRect(0, 0, int(size*x), int(size*y)).normalized());
             break;
         case Polygon:
             p->scale(x * size / 200, y * size / 200);
