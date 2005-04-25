@@ -2113,6 +2113,20 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
                 if (ir.height() > headerHeight)
                     scaleHeader = true;
+                switch (header->position) {
+                case QStyleOptionHeader::Middle:
+                    ir.adjust(-1, 0, 1, 0);
+                    break;
+                case QStyleOptionHeader::Beginning:
+                    ir.adjust(0, 0, 1, 0);
+                    break;
+                case QStyleOptionHeader::End:
+                    ir.adjust(-1, 0, 0, 0);
+                    break;
+                default:
+                    break;
+                }
+                ir = QStyle::visualRect(header->direction, header->rect, ir);
             } else {
                 bdi.kind = kThemeBevelButton;
                 if (p->font().bold())
@@ -2139,12 +2153,15 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 bdi.value = kThemeButtonOff;
 
             bdi.adornment = kThemeAdornmentNone;
-            if (bdi.kind == kThemeListHeaderButton
-                && header->selectedPosition != QStyleOptionHeader::NotAdjacent) {
-                if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
-                    bdi.adornment = kThemeAdornmentHeaderButtonRightNeighborSelected;
-                else if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
-                    bdi.adornment = kThemeAdornmentHeaderButtonLeftNeighborSelected;
+            if (bdi.kind == kThemeListHeaderButton && header->position != QStyleOptionHeader::Beginning) {
+                // This code doesn't work at the moment.
+//                && header->selectedPosition != QStyleOptionHeader::NotAdjacent) {
+//                if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
+//                    bdi.adornment = kThemeAdornmentHeaderButtonRightNeighborSelected;
+//                else if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
+                bdi.adornment = header->direction == Qt::LeftToRight
+                                        ? kThemeAdornmentHeaderButtonLeftNeighborSelected
+                                        : kThemeAdornmentHeaderButtonRightNeighborSelected;
             }
 
             if (header->sortIndicator != QStyleOptionHeader::None) {
@@ -2213,15 +2230,25 @@ QRect QMacStylePrivate::HIThemeSubElementRect(QStyle::SubElement sr, const QStyl
         bdi.version = qt_mac_hitheme_version;
         bdi.state = kThemeStateActive;
         bdi.value = kThemeButtonOff;
-        if (isTreeView(widget))
-            bdi.kind = kThemeListHeaderButton;
-        else
+        int xpos = opt->rect.x() + 6;
+        int width = opt->rect.width() - 10;
+        if (!isTreeView(widget)) {
             bdi.kind = kThemeBevelButton;
+        } else {
+            bdi.kind = kThemeListHeaderButton;
+            if (opt->direction == Qt::RightToLeft) {
+                xpos = opt->rect.x() + 15;
+                width = opt->rect.width() - 20;
+            } else {
+                width = opt->rect.width() - 22;
+            }
+        }
 
         bdi.adornment = kThemeAdornmentNone;
         HIThemeGetButtonContentBounds(&inRect, &bdi, &outRect);
-        r.setRect(opt->rect.x() + 6, int(outRect.origin.y - 1), opt->rect.width() - 10,
+        r.setRect(xpos, int(outRect.origin.y - 1), width,
                   int(qMin(qAbs(opt->rect.height() - 2 * outRect.origin.y), outRect.size.height)));
+        r = QStyle::visualRect(opt->direction, opt->rect, r);
         break;
     }
     case QStyle::SE_ProgressBarGroove:
@@ -3729,6 +3756,20 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 GetThemeMetric(kThemeMetricListHeaderHeight, &headerHeight);
                 if (ir.height() > headerHeight)
                     scaleHeader = true;
+                switch (header->position) {
+                case QStyleOptionHeader::Middle:
+                    ir.adjust(-1, 0, 1, 0);
+                    break;
+                case QStyleOptionHeader::Beginning:
+                    ir.adjust(0, 0, 1, 0);
+                    break;
+                case QStyleOptionHeader::End:
+                    ir.adjust(-1, 0, 0, 0);
+                    break;
+                default:
+                    break;
+                }
+                ir = QStyle::visualRect(header->direction, header->rect, ir);
             } else {
                 bkind = kThemeBevelButton;
                 if (p->font().bold())
@@ -3756,13 +3797,6 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
             if (flags & QStyle::State_On)
                 info.value = kThemeButtonOn;
 
-            if (bkind == kThemeListHeaderButton
-                && header->selectedPosition != QStyleOptionHeader::NotAdjacent) {
-                if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
-                    info.adornment = kThemeAdornmentHeaderButtonRightNeighborSelected;
-                else if (header->selectedPosition == QStyleOptionHeader::PreviousIsSelected)
-                    info.adornment = kThemeAdornmentHeaderButtonLeftNeighborSelected;
-            }
             if (header->sortIndicator != QStyleOptionHeader::None) {
                 info.value = kThemeButtonOn;
                 if (header->sortIndicator == QStyleOptionHeader::SortUp)
@@ -3815,12 +3849,21 @@ QRect QMacStylePrivate::AppManSubElementRect(QStyle::SubElement sr, const QStyle
         SetRect(&myRect, opt->rect.left(), opt->rect.top(), opt->rect.right(), opt->rect.bottom());
         ThemeButtonDrawInfo bdi = { kThemeStateActive, kThemeButtonOff, kThemeAdornmentNone };
         ThemeButtonKind bkind;
-        if (isTreeView(widget))
-            bkind = kThemeListHeaderButton;
-        else
+        int xpos = opt->rect.x() + 6;
+        int width = opt->rect.width() - 10;
+        if (!isTreeView(widget)) {
             bkind = kThemeBevelButton;
+        } else {
+            bkind = kThemeListHeaderButton;
+            if (opt->direction == Qt::RightToLeft) {
+                xpos = opt->rect.x() + 15;
+                width = opt->rect.width() - 20;
+            } else {
+                width = opt->rect.width() - 22;
+            }
+        }
         GetThemeButtonContentBounds(&myRect, bkind, &bdi, &macRect);
-        r = QRect(macRect.left - 6, macRect.top - 1, opt->rect.width() - 10,
+        r = QRect(xpos, macRect.top - 1, width,
                   qMin(qAbs(opt->rect.height() - 2 * macRect.top), macRect.bottom - macRect.top));
         break;
     }
@@ -5357,6 +5400,7 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
     case CE_HeaderLabel:
         if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(opt)) {
             QRect textr = header->rect;
+            bool workingOnTreeView = isTreeView(w);
             if (!header->icon.isNull()) {
                 QIcon::Mode mode = QIcon::Disabled;
                 if (opt->state & QStyle::State_Enabled)
@@ -5370,10 +5414,9 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
             }
 
             QPalette::ColorRole textRole = QPalette::ButtonText;
-            if (p->font().bold()) {
+            if (p->font().bold() && !workingOnTreeView) {
                 // If it's a table, use the bright text instead.
-                if (!isTreeView(w))
-                    textRole = QPalette::BrightText;
+                textRole = QPalette::BrightText;
             }
             drawItemText(p, textr, Qt::AlignVCenter, header->palette,
                          header->state & QStyle::State_Enabled, header->text, textRole);
