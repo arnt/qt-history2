@@ -995,8 +995,8 @@ void QOCIResultPrivate::getOraFields(QSqlRecord &rinf)
         OraFieldInfo ofi = qMakeOraField(d, param);
         QSqlField f(ofi.name, ofi.type);
         f.setRequired(ofi.oraIsNull == 0);
-        f.setLength(int(ofi.oraFieldLength));
-        f.setPrecision(ofi.oraPrecision);
+        f.setLength(ofi.oraPrecision == 0 ? int(ofi.oraFieldLength) : int(ofi.oraPrecision));
+        f.setPrecision(ofi.oraScale);
         f.setSqlType(int(ofi.oraType));
         rinf.append(f);
         count++;
@@ -1676,12 +1676,12 @@ QSqlRecord QOCIDriver::record(const QString& tablename) const
                             t.value(3).toInt(), t.value(4).toInt());
             QSqlField f(t.value(0).toString(), ty);
             f.setRequired(t.value(5).toString() == QLatin1String("N"));
-            if (!t.isNull(3))
-                f.setPrecision(t.value(3).toInt());
-            f.setLength(t.value(2).toInt());
-            if (d->serverVersion >= 9 && (ty == QVariant::String)) {
+            f.setPrecision(t.value(4).toInt());
+            if (d->serverVersion >= 9 && (ty == QVariant::String) && !t.isNull(3)) {
                 // Oracle9: data_length == size in bytes, char_length == amount of characters
                 f.setLength(t.value(7).toInt());
+            } else {
+                f.setLength(t.value(t.isNull(3) ? 2 : 3).toInt());
             }
             f.setDefaultValue(t.value(6));
             fil.append(f);
