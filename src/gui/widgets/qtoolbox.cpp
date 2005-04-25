@@ -64,14 +64,13 @@ public:
         QToolBoxButton *button;
         QScrollArea *sv;
         QWidget *widget;
-        QString toolTip;
 
         inline void setText(const QString &text) { button->setText(text); }
         inline void setIcon(const QIcon &is) { button->setIcon(is); }
-        inline void setToolTip(const QString &tip)
-        {
-            button->setToolTip(tip);
-        }
+        inline void setToolTip(const QString &tip) { button->setToolTip(tip); }
+        inline QString text() const { return button->text(); }
+        inline QIcon icon() const { return button->icon(); }
+        inline QString toolTip() const { return button->toolTip(); }
 
         inline bool operator==(const Page& other) const
         {
@@ -642,7 +641,7 @@ QString QToolBox::itemText(int index) const
 {
     Q_D(const QToolBox);
     const QToolBoxPrivate::Page *c = d->page(index);
-    return (c ? c->button->text() : QString());
+    return (c ? c->text() : QString());
 }
 
 /*!
@@ -654,7 +653,7 @@ QIcon QToolBox::itemIcon(int index) const
 {
     Q_D(const QToolBox);
     const QToolBoxPrivate::Page *c = d->page(index);
-    return (c ? c->button->icon() : QIcon());
+    return (c ? c->icon() : QIcon());
 }
 
 /*!
@@ -666,7 +665,7 @@ QString QToolBox::itemToolTip(int index) const
 {
     Q_D(const QToolBox);
     const QToolBoxPrivate::Page *c = d->page(index);
-    return (c ? c->toolTip : QString());
+    return (c ? c->toolTip() : QString());
 }
 
 /*! \reimp */
