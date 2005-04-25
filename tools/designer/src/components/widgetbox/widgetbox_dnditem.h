@@ -19,7 +19,7 @@
 
 class QDesignerFormEditorInterface;
 
-namespace qdesigner { namespace components { namespace widgetbox {
+namespace qdesigner_internal {
 
 class QT_WIDGETBOX_EXPORT WidgetBoxDnDItem : public QDesignerDnDItem
 {
@@ -29,6 +29,6 @@ public:
                         const QPoint &global_mouse_pos);
 };
 
-} } } // namespace qdesigner::components::widgetbox
+}  // namespace qdesigner_internal
 
 #endif // WIDGETBOX_DNDITEM_H

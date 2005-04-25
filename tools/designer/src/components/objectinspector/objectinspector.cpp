@@ -35,7 +35,7 @@
 #include <QtCore/QPair>
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner::components::objectinspector;
+using namespace qdesigner_internal;
 
 Q_DECLARE_METATYPE(QObject *)
 

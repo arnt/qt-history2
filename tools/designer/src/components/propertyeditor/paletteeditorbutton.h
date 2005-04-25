@@ -19,7 +19,7 @@
 #include <QtGui/QPalette>
 #include <QtGui/QToolButton>
 
-namespace qdesigner { namespace components { namespace propertyeditor {
+namespace qdesigner_internal {
 
 class QT_PROPERTYEDITOR_EXPORT PaletteEditorButton: public QToolButton
 {
@@ -44,6 +44,6 @@ private:
     QPalette m_palette;
 };
 
-} } } // namespace qdesigner::components::propertyeditor
+}  // namespace qdesigner_internal
 
 #endif // PALETTEEDITORBUTTON_H

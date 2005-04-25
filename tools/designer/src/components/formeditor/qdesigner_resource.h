@@ -32,7 +32,7 @@ class QDesignerWidgetDataBaseItemInterface;
 class QDesignerFormEditorInterface;
 class QDesignerCustomWidgetInterface;
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class FormWindow;
 
@@ -131,6 +131,6 @@ private:
     bool m_copyWidget;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // QDESIGNER_RESOURCE_H

@@ -25,7 +25,7 @@
 #include <QtDesigner/extension.h>
 #include <QtDesigner/qextensionmanager.h>
 
-using namespace qdesigner::components::taskmenu;
+using namespace qdesigner_internal;
 
 TaskMenuComponent::TaskMenuComponent(QDesignerFormEditorInterface *core, QObject *parent)
     : QObject(parent),

@@ -19,7 +19,7 @@
 
 #include <QtGui/QComboBox>
 
-namespace qdesigner { namespace components { namespace propertyeditor {
+namespace qdesigner_internal {
 
 class QT_PROPERTYEDITOR_EXPORT FlagBox: public QComboBox
 {
@@ -49,6 +49,6 @@ private:
     FlagBoxModel *m_model;
 };
 
-} } } // namespace qdesigner::components::propertyeditor
+}  // namespace qdesigner_internal
 
 #endif // FLAGBOX_P_H

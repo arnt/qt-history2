@@ -19,7 +19,7 @@
 
 #include "styledbutton.h"
 
-using namespace qdesigner::components::propertyeditor;
+using namespace qdesigner_internal;
 
 StyledButton::StyledButton (QWidget *parent, ButtonType type)
     : QPushButton(parent), btype(type)

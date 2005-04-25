@@ -16,7 +16,7 @@
 
 #include <QtGui/QItemDelegate>
 
-namespace qdesigner { namespace components { namespace propertyeditor {
+namespace qdesigner_internal {
 
 class QPropertyEditorDelegate : public QItemDelegate
 {
@@ -65,6 +65,6 @@ private:
     bool m_readOnly;
 };
 
-} } } // namespace qdesigner::components::propertyeditor
+}  // namespace qdesigner_internal
 
 #endif // QPROPERTYEDITOR_DELEGATE_P_H

@@ -51,7 +51,7 @@
 #include <QtCore/qdebug.h>
 
 #ifndef Q_MOC_RUN
-using namespace qdesigner::components::formeditor;
+using namespace qdesigner_internal;
 #endif
 
 class FriendlyWidget: public QWidget

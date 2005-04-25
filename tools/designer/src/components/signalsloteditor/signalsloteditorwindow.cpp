@@ -15,7 +15,7 @@
 #include "signalsloteditor_p.h"
 #include "signalsloteditor.h"
 
-namespace qdesigner { namespace components { namespace signalsloteditor {
+namespace qdesigner_internal {
 
 /*******************************************************************************
 ** ConnectionModel
@@ -603,8 +603,6 @@ void SignalSlotEditorWindow::updateUi()
     m_remove_button->setEnabled(!m_editor.isNull() && m_view->currentIndex().isValid());
 }
 
-} // namespace signalsloteditor
-} // namespace components
-} // namespace qdesigner
+} // namespace qdesigner_internal
 
 #include "signalsloteditorwindow.moc"

@@ -35,7 +35,7 @@
 #include <QtCore/qdebug.h>
 #include <limits.h>
 
-using namespace qdesigner::components::propertyeditor;
+using namespace qdesigner_internal;
 
 Q_GLOBAL_STATIC(QFontDatabase, fontDatabase)
 

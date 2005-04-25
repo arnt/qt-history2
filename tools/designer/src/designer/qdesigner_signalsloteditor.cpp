@@ -27,7 +27,7 @@
 QDesignerSignalSlotEditor::QDesignerSignalSlotEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
-    using namespace qdesigner::components::signalsloteditor;
+    using namespace qdesigner_internal;
 
     setObjectName(QLatin1String("SignalSlotEditorWindow"));
     SignalSlotEditorWindow *widget

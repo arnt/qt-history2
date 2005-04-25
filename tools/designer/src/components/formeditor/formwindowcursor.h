@@ -20,7 +20,7 @@
 
 #include <QtCore/QObject>
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class QT_FORMEDITOR_EXPORT FormWindowCursor: public QObject, public QDesignerFormWindowCursorInterface
 {
@@ -57,6 +57,6 @@ private:
     int m_iterator;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // FORMWINDOWCURSOR_H

@@ -20,7 +20,7 @@
 #include "formwindow_dnditem.h"
 #include "formwindow.h"
 
-using namespace qdesigner::components::formeditor;
+using namespace qdesigner_internal;
 
 static QWidget *decorationFromWidget(QWidget *w)
 {

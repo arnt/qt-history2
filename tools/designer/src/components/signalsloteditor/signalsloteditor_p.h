@@ -24,7 +24,7 @@
 class QDesignerFormWindowInterface;
 class DomConnection;
 
-namespace qdesigner { namespace components { namespace signalsloteditor {
+namespace qdesigner_internal {
 
 class SignalSlotEditor;
 
@@ -98,8 +98,6 @@ private:
     SignalSlotEditor *m_editor;
 };
 
-} // namespace signalsloteditor
-} // namespace components
-} // namespace qdesigner
+} // namespace qdesigner_internal
 
 #endif // SIGNALSLOTEDITOR_P_H

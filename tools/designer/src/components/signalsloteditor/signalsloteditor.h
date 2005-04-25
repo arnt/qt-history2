@@ -27,7 +27,7 @@ class DomConnections;
 class DomConnection;
 class QAbstractItemModel;
 
-namespace qdesigner { namespace components { namespace signalsloteditor {
+namespace qdesigner_internal {
 
 class SignalSlotDialog;
 class SignalSlotConnection;
@@ -68,8 +68,6 @@ private:
     friend class SetMemberCommand;
 };
 
-} // namespace signalsloteditor
-} // namespace components
-} // namespace qdesigner
+} // namespace qdesigner_internal
 
 #endif // SIGNALSLOTEDITOR_H

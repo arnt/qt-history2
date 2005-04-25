@@ -41,7 +41,7 @@
 
 #include <QtCore/qdebug.h>
 
-namespace qdesigner { namespace components { namespace signalsloteditor {
+namespace qdesigner_internal {
 
 /*******************************************************************************
 ** Tools
@@ -735,7 +735,7 @@ static bool skipWidget(QWidget *w)
         return true;
     if (name == QLatin1String("QLayoutWidget"))
         return true;
-    if (name == QLatin1String("qdesigner::components::formeditor::FormWindow"))
+    if (name == QLatin1String("qdesigner_internal::FormWindow"))
         return true;
     if (name == QLatin1String("Spacer"))
         return true;
@@ -829,8 +829,6 @@ void SignalSlotEditor::addEmptyConnection()
     undoStack()->push(new AddConnectionCommand(this, con));
 }
 
-} // namespace signalsloteditor
-} // namespace components
-} // namespace qdesigner
+} // namespace qdesigner_internal
 
 #include "signalsloteditor.moc"

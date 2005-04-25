@@ -58,7 +58,7 @@
 #include <QtXml/QDomDocument>
 
 
-using namespace qdesigner::components::formeditor;
+using namespace qdesigner_internal;
 
 QDesignerResource::QDesignerResource(FormWindow *formWindow)
    : m_formWindow(formWindow), m_core(formWindow->core())

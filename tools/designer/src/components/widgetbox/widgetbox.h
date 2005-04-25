@@ -32,7 +32,7 @@ class QAction;
 class QActionGroup;
 class DomWidget;
 
-namespace qdesigner { namespace components { namespace widgetbox {
+namespace qdesigner_internal {
 
 class WidgetBoxTreeView;
 class WidgetCollectionModel;
@@ -72,6 +72,6 @@ private:
     WidgetBoxTreeView *m_view;
 };
 
-} } } // namespace qdesigner::components::widgetbox
+}  // namespace qdesigner_internal
 
 #endif // WIDGETBOX_H

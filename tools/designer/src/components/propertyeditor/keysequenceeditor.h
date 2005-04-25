@@ -22,7 +22,7 @@
 class QLineEdit;
 class QToolButton;
 
-namespace qdesigner { namespace components { namespace propertyeditor {
+namespace qdesigner_internal {
 
 class QT_PROPERTYEDITOR_EXPORT KeySequenceEditor: public QWidget
 {
@@ -57,6 +57,6 @@ private:
     int k1, k2, k3, k4;
 };
 
-} } } // namespace qdesigner::components::propertyeditor
+}  // namespace qdesigner_internal
 
 #endif // KEYSEQUENCEEDITOR_H

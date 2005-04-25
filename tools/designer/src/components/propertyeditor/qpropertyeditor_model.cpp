@@ -14,7 +14,7 @@
 #include "qpropertyeditor_model_p.h"
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner::components::propertyeditor;
+using namespace qdesigner_internal;
 
 QPropertyEditorModel::QPropertyEditorModel(QObject *parent)
     : QAbstractItemModel(parent), m_initialInput(0)

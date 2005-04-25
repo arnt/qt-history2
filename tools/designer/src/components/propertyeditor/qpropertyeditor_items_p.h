@@ -28,7 +28,7 @@
 class QWidget;
 class QComboBox;
 
-namespace qdesigner { namespace components { namespace propertyeditor {
+namespace qdesigner_internal {
 
 class QT_PROPERTYEDITOR_EXPORT IProperty
 {
@@ -507,6 +507,6 @@ public:
     void updateValue(QWidget *editor);
 };
 
-} } } // namespace qdesigner::components::propertyeditor
+}  // namespace qdesigner_internal
 
 #endif // QPROPERTYEDITOR_ITEMS_P_H

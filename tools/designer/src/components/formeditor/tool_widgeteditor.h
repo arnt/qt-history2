@@ -20,7 +20,7 @@
 
 class QAction;
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class FormWindow;
 
@@ -55,6 +55,6 @@ private:
     QAction *m_action;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // TOOL_WIDGETEDITOR_H

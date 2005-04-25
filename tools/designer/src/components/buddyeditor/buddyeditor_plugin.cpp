@@ -20,7 +20,7 @@
 #include <QtDesigner/abstractformwindow.h>
 #include <QtDesigner/abstractformwindowmanager.h>
 
-using namespace qdesigner::components::buddyeditor;
+using namespace qdesigner_internal;
 
 BuddyEditorPlugin::BuddyEditorPlugin()
     : m_initialized(false)

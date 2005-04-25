@@ -23,8 +23,6 @@
 #include <QtCore/qdebug.h>
 
 
-namespace qdesigner { namespace sdk { namespace internal {
-
 static bool isPassiveInteractor(QWidget *o)
 {
     if (qobject_cast<QTabBar*>(o))
@@ -51,7 +49,6 @@ static bool isPassiveInteractor(QWidget *o)
     return false;
 }
 
-} } }  // namespace qdesigner::sdk::internal
 
 QDesignerFormWindowInterface::QDesignerFormWindowInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
@@ -72,7 +69,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     while (w != 0) {
         if (QDesignerFormWindowInterface *fw = qobject_cast<QDesignerFormWindowInterface*>(w)) {
             return fw;
-        } else if (qdesigner::sdk::internal::isPassiveInteractor(w)) {
+        } else if (isPassiveInteractor(w)) {
             break;
         } else if (w->isWindow()) {
             break;

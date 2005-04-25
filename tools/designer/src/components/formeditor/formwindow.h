@@ -41,7 +41,7 @@ class QtUndoStack;
 class QRubberBand;
 class BreakLayoutCommand;
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class FormEditor;
 class FormWindowCursor;
@@ -326,6 +326,6 @@ private:
     friend class WidgetEditorTool;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // FORMWINDOW_H

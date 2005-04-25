@@ -21,7 +21,7 @@
 #include <QtGui/QScrollBar>
 #include <qdebug.h>
 
-using namespace qdesigner::components::propertyeditor;
+using namespace qdesigner_internal;
 
 Q_GLOBAL_STATIC_WITH_ARGS(PropertyCollection, dummy_collection, (QLatin1String("<empty>")))
 

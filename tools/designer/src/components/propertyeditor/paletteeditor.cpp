@@ -16,7 +16,7 @@
 #include <QtCore/qdebug.h>
 #include <QtGui/QMessageBox>
 
-using namespace qdesigner::components::propertyeditor;
+using namespace qdesigner_internal;
 
 PaletteEditor::PaletteEditor(QWidget *parent)
     : QDialog(parent)

@@ -20,7 +20,7 @@ class QListWidget;
 class QComboBox;
 class QDesignerFormWindowInterface;
 
-namespace qdesigner { namespace components { namespace taskmenu {
+namespace qdesigner_internal {
 
 class ListWidgetEditor: public QDialog
 {
@@ -51,6 +51,6 @@ private:
     QDesignerFormWindowInterface *m_form;
 };
 
-} } } // namespace qdesigner::components::taskmenu
+}  // namespace qdesigner_internal
 
 #endif // LISTWIDGETEDITOR_H

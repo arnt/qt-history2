@@ -13,7 +13,7 @@
 
 #include "defs.h"
 
-namespace qdesigner { namespace components { namespace propertyeditor {
+namespace qdesigner_internal {
 
 int size_type_to_int( QSizePolicy::Policy t )
 {
@@ -72,4 +72,4 @@ QSizePolicy::Policy int_to_size_type( int i )
     return QSizePolicy::Preferred;
 }
 
-} } } // namespace qdesigner::components::propertyeditor
+}  // namespace qdesigner_internal

@@ -26,7 +26,7 @@
 #include <qdesigner_utils.h>
 #include <qlayout_widget.h>
 
-using namespace qdesigner::components::buddyeditor;
+using namespace qdesigner_internal;
 
 /*******************************************************************************
 ** BuddyConnection

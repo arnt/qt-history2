@@ -10,7 +10,7 @@ class QModelIndex;
 class QTreeView;
 class QToolButton;
 
-namespace qdesigner { namespace components { namespace signalsloteditor {
+namespace qdesigner_internal {
 
 class SignalSlotEditor;
 class ConnectionModel;
@@ -40,9 +40,7 @@ private:
     bool m_handling_selection_change;
 };
 
-} // namespace signalsloteditor
-} // namespace components
-} // namespace qdesigner
+} // namespace qdesigner_internal
 
 #endif // SIGNALSLOTEDITORWINDOW_H
 

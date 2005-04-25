@@ -47,8 +47,8 @@
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner::components::formeditor;
-using namespace qdesigner::components::taskmenu;
+using namespace qdesigner_internal;
+using namespace qdesigner_internal;
 
 QDesignerWorkbench::QDesignerWorkbench()
     : m_mode(QDesignerWorkbench::NeutralMode), m_workspace(0)

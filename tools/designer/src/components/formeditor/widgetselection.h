@@ -24,7 +24,7 @@ class QDesignerFormEditorInterface;
 class QMouseEvent;
 class QPaintEvent;
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class FormWindow;
 class WidgetSelection;
@@ -107,7 +107,7 @@ protected:
     QDesignerTaskMenuExtension *taskMenu;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 
 #endif // WIDGETHANDLE_H

@@ -20,7 +20,7 @@
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner::components::taskmenu;
+using namespace qdesigner_internal;
 
 ListWidgetEditor::ListWidgetEditor(QDesignerFormWindowInterface *form, QWidget *parent)
     : QDialog(parent)

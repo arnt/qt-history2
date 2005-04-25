@@ -20,7 +20,7 @@
 #include <QtGui/QIconSet>
 #include <QtGui/QHBoxLayout>
 
-using namespace qdesigner::components::propertyeditor;
+using namespace qdesigner_internal;
 
 KeySequenceEditor::KeySequenceEditor(QWidget *parent)
     : QWidget(parent),

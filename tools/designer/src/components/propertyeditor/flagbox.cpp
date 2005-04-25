@@ -18,7 +18,7 @@
 
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner::components::propertyeditor;
+using namespace qdesigner_internal;
 
 FlagBox::FlagBox(QWidget *parent)
     : QComboBox(parent)

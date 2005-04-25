@@ -36,7 +36,7 @@
 #define CUSTOM_ITEM     2
 
 #ifndef Q_MOC_RUN
-using namespace qdesigner::components::widgetbox;
+using namespace qdesigner_internal;
 #endif
 
 /*******************************************************************************
@@ -139,7 +139,7 @@ static DomWidget *xmlToUi(QString xml)
 ** WidgetBoxItemDelegate
 */
 
-namespace qdesigner { namespace components { namespace widgetbox {
+namespace qdesigner_internal {
 
 class WidgetBoxItemDelegate : public SheetDelegate
 {
@@ -217,7 +217,7 @@ private:
     QString qtify(const QString &name) const;
 };
 
-} } } // namespace qdesigner::components::widgetbox
+}  // namespace qdesigner_internal
 
 QWidget *WidgetBoxItemDelegate::createEditor(QWidget *parent,
                                                 const QStyleOptionViewItem &option,

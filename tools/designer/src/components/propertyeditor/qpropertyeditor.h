@@ -19,7 +19,7 @@
 
 #include <QtGui/QTreeView>
 
-namespace qdesigner { namespace components { namespace propertyeditor {
+namespace qdesigner_internal {
 
 class QPropertyEditorModel;
 class QPropertyEditorDelegate;
@@ -53,6 +53,6 @@ private:
     QPropertyEditorDelegate *m_itemDelegate;
 };
 
-} } } // namespace qdesigner::components::propertyeditor
+}  // namespace qdesigner_internal
 
 #endif // QPROPERTYEDITOR_H

@@ -13,7 +13,7 @@
 
 #include "actioneditor.h"
 
-using namespace qdesigner::components::propertyeditor;
+using namespace qdesigner_internal;
 
 ActionEditor::ActionEditor(QWidget *parent)
     : QDialog(parent)

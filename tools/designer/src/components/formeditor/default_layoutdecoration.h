@@ -25,7 +25,7 @@
 class QLayoutWidget;
 class QLayoutSupport;
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class FormWindow;
 
@@ -73,7 +73,7 @@ protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 
 #endif // DEFAULT_LAYOUTDECORATION_H

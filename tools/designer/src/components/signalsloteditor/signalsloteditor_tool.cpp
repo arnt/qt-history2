@@ -55,7 +55,7 @@ QWidget *SignalSlotEditorTool::editor() const
 {
     if (!m_editor) {
         Q_ASSERT(formWindow() != 0);
-        m_editor = new qdesigner::components::signalsloteditor::SignalSlotEditor(formWindow(), 0);
+        m_editor = new qdesigner_internal::SignalSlotEditor(formWindow(), 0);
         connect(formWindow(), SIGNAL(mainContainerChanged(QWidget*)), m_editor, SLOT(setBackground(QWidget*)));
     }
 

@@ -16,7 +16,7 @@
 #include "qdesigner_tabwidget.h"
 #include "qdesigner_toolbox.h"
 
-using namespace qdesigner::components::formeditor;
+using namespace qdesigner_internal;
 
 QDesignerContainer::QDesignerContainer(QWidget *widget, QObject *parent)
     : QObject(parent),

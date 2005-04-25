@@ -24,7 +24,7 @@ class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class QAction;
 
-namespace qdesigner { namespace components { namespace tabordereditor {
+namespace qdesigner_internal {
 
 class TabOrderEditor;
 
@@ -52,6 +52,6 @@ private:
     QAction *m_action;
 };
 
-} } } // namespace qdesigner::components::tabordereditor
+}  // namespace qdesigner_internal
 
 #endif // TABORDEREDITOR_TOOL_H

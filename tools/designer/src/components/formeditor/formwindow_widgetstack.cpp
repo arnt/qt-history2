@@ -20,7 +20,7 @@
 
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner::components::formeditor;
+using namespace qdesigner_internal;
 
 FormWindowWidgetStack::FormWindowWidgetStack(QWidget *parent)
     : QWidget(parent),

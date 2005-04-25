@@ -20,7 +20,7 @@
 
 #include <QtCore/QObject>
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class QT_FORMEDITOR_EXPORT FormEditor: public QDesignerFormEditorInterface
 {
@@ -30,6 +30,6 @@ public:
     virtual ~FormEditor();
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // FORMEDITOR_H

@@ -19,7 +19,7 @@
 
 #include <QtDesigner/abstractformeditor.h>
 
-using namespace qdesigner::components::objectinspector;
+using namespace qdesigner_internal;
 
 QDesignerObjectInspector::QDesignerObjectInspector(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)

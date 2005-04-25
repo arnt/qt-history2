@@ -16,7 +16,7 @@
 
 #include <QtGui/QPushButton>
 
-namespace qdesigner { namespace components { namespace propertyeditor {
+namespace qdesigner_internal {
 
 class StyledButton : public QPushButton
 {
@@ -54,6 +54,6 @@ private:
     QBrush mBrush;
 };
 
-} } } // namespace qdesigner::components::propertyeditor
+}  // namespace qdesigner_internal
 
 #endif // STYLEBUTTON_H

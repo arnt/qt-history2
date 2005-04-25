@@ -15,7 +15,7 @@
 
 #include "buddyeditor_plugin.h"
 
-using namespace qdesigner::components::buddyeditor;
+using namespace qdesigner_internal;
 
 Q_EXPORT_STATIC_PLUGIN(BuddyEditorPlugin)
 

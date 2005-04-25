@@ -1,7 +1,7 @@
 
 #include "previewwidget.h"
 
-using namespace qdesigner::components::propertyeditor;
+using namespace qdesigner_internal;
 
 PreviewWidget::PreviewWidget(QWidget *parent)
     : QWidget(parent)

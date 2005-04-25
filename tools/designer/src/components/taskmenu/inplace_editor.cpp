@@ -22,7 +22,7 @@
 #include <QtCore/QMetaProperty>
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner::components::taskmenu;
+using namespace qdesigner_internal;
 
 InPlaceEditor::InPlaceEditor(QWidget *widget, QDesignerFormWindowInterface *fw)
     : QLineEdit(),

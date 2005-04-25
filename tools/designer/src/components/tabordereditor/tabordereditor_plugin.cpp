@@ -20,7 +20,7 @@
 #include <QtDesigner/abstractformwindow.h>
 #include <QtDesigner/abstractformwindowmanager.h>
 
-using namespace qdesigner::components::tabordereditor;
+using namespace qdesigner_internal;
 
 TabOrderEditorPlugin::TabOrderEditorPlugin()
     : m_initialized(false)

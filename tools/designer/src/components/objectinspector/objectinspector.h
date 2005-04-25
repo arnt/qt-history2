@@ -22,7 +22,7 @@ class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class TreeWidget;
 
-namespace qdesigner { namespace components { namespace objectinspector {
+namespace qdesigner_internal {
 
 class ObjectItem;
 
@@ -54,6 +54,6 @@ private:
     bool m_ignoreUpdate;
 };
 
-} } } // namespace qdesigner::components::objectinspector
+}  // namespace qdesigner_internal
 
 #endif // OBJECTINSPECTOR_H

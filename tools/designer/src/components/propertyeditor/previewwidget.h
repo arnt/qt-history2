@@ -3,7 +3,7 @@
 
 #include "ui_previewwidget.h"
 
-namespace qdesigner { namespace components { namespace propertyeditor {
+namespace qdesigner_internal {
 
 class PreviewWidget: public QWidget
 {
@@ -16,6 +16,6 @@ private:
     Ui::PreviewWidget ui;
 };
 
-} } } // namespace qdesigner::components::propertyeditor
+}  // namespace qdesigner_internal
 
 #endif // PREVIEWWIDGET_H

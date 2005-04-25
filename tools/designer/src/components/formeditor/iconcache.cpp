@@ -17,7 +17,7 @@
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 
-using namespace qdesigner::components::formeditor;
+using namespace qdesigner_internal;
 
 IconCache::IconCache(QObject *parent)
     : QDesignerIconCacheInterface(parent)

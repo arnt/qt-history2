@@ -29,7 +29,7 @@ class MetaDataBase;
 class QDesignerFormEditorInterface;
 class QDesignerWidgetBoxInterface;
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class QT_FORMEDITOR_EXPORT FormWindowManager: public QDesignerFormWindowManagerInterface
 {
@@ -146,6 +146,6 @@ private:
     QDesignerWidgetBoxInterface *m_widget_box_under_mouse;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // FORMWINDOWMANAGER_H

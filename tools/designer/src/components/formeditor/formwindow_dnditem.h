@@ -16,7 +16,7 @@
 
 #include <qdesigner_dnditem.h>
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class FormWindow;
 
@@ -28,6 +28,6 @@ public:
     virtual DomUI *domUi() const;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // FORMWINDOW_DNDITEM_H

@@ -19,7 +19,7 @@
 
 #include <QtGui/QAction>
 
-using namespace qdesigner::components::tabordereditor;
+using namespace qdesigner_internal;
 
 TabOrderEditorTool::TabOrderEditorTool(QDesignerFormWindowInterface *formWindow, QObject *parent)
     : QDesignerFormWindowToolInterface(parent),

@@ -19,7 +19,7 @@
 
 class QDockWidget;
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class QDockWidgetContainer: public QObject, public QDesignerContainerExtension
 {
@@ -50,6 +50,6 @@ protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // QDOCKWIDGET_CONTAINER_H

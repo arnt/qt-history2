@@ -24,7 +24,7 @@
 class QDesignerFormWindowInterface;
 class QAction;
 
-namespace qdesigner { namespace components { namespace buddyeditor {
+namespace qdesigner_internal {
 
 class BuddyEditorTool;
 
@@ -56,6 +56,6 @@ private:
     QAction *m_action;
 };
 
-} } } // namespace qdesigner::components::buddyeditor
+}  // namespace qdesigner_internal
 
 #endif // BUDDYEDITOR_PLUGIN_H

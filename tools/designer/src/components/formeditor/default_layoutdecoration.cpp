@@ -19,7 +19,7 @@
 #include <QtGui/QGridLayout>
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner::components::formeditor;
+using namespace qdesigner_internal;
 
 // ---- QDesignerLayoutDecoration ----
 QDesignerLayoutDecoration::QDesignerLayoutDecoration(QLayoutWidget *widget, QObject *parent)

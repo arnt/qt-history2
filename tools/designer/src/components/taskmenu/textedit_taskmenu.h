@@ -22,7 +22,7 @@
 
 class QDesignerFormWindowInterface;
 
-namespace qdesigner { namespace components { namespace taskmenu {
+namespace qdesigner_internal {
 
 class TextEditTaskMenu: public QDesignerTaskMenu
 {
@@ -56,6 +56,6 @@ protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
-} } } // namespace qdesigner::components::taskmenu
+}  // namespace qdesigner_internal
 
 #endif // TEXTEDIT_TASKMENU_H

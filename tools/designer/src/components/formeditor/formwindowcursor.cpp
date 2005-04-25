@@ -21,7 +21,7 @@
 
 #include <QtCore/qdebug.h>
 
-using namespace qdesigner::components::formeditor;
+using namespace qdesigner_internal;
 
 FormWindowCursor::FormWindowCursor(FormWindow *fw, QObject *parent)
     : QObject(parent),

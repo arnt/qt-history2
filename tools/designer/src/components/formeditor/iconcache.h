@@ -28,7 +28,7 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QIcon>
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 /*
     We need two caches - one for icons and one for pixmaps - which are in all
@@ -134,6 +134,6 @@ private:
     ResourceCache<QPixmap> m_pixmap_cache;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // ICONCACHE_H

@@ -19,7 +19,7 @@
 
 class QMainWindow;
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class QMainWindowContainer: public QObject, public QDesignerContainerExtension
 {
@@ -51,6 +51,6 @@ protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // QMAINWINDOW_CONTAINER_H

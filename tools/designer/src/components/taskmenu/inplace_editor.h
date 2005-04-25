@@ -18,7 +18,7 @@
 
 class QDesignerFormWindowInterface;
 
-namespace qdesigner { namespace components { namespace taskmenu {
+namespace qdesigner_internal {
 
 class InPlaceEditor: public QLineEdit
 {
@@ -37,6 +37,6 @@ private:
     bool m_noChildEvent;
 };
 
-} } } // namespace qdesigner::components::taskmenu
+}  // namespace qdesigner_internal
 
 #endif // INPLACE_EDITOR_H

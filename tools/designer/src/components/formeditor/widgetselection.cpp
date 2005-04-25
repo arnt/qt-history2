@@ -41,7 +41,7 @@
 #define NO_TOPWIDGET
 
 #ifndef Q_MOC_RUN
-using namespace qdesigner::components::formeditor;
+using namespace qdesigner_internal;
 #endif
 
 class TopWidget: public InvisibleWidget

@@ -50,7 +50,7 @@ public:
 
 private:
     QDesignerFormWindowInterface *m_formWindow;
-    mutable QPointer<qdesigner::components::signalsloteditor::SignalSlotEditor> m_editor;
+    mutable QPointer<qdesigner_internal::SignalSlotEditor> m_editor;
     QAction *m_action;
 };
 

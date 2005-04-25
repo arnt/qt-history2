@@ -18,7 +18,7 @@
 
 class QLayoutWidget;
 
-namespace qdesigner { namespace components { namespace formeditor {
+namespace qdesigner_internal {
 
 class QLayoutWidgetPropertySheet: public QDesignerPropertySheet
 {
@@ -42,6 +42,6 @@ protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const;
 };
 
-} } } // namespace qdesigner::components::formeditor
+}  // namespace qdesigner_internal
 
 #endif // QLAYOUTWIDGET_PROPERTYSHEET_H

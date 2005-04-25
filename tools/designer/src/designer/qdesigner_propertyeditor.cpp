@@ -20,7 +20,7 @@
 
 #include <QtDesigner/abstractformeditor.h>
 
-using namespace qdesigner::components::propertyeditor;
+using namespace qdesigner_internal;
 
 QDesignerPropertyEditor::QDesignerPropertyEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)

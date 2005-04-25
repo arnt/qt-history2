@@ -17,7 +17,7 @@
 
 #include "widgetbox_dnditem.h"
 
-using namespace qdesigner::components::widgetbox;
+using namespace qdesigner_internal;
 
 /*******************************************************************************
 ** WidgetBoxResource

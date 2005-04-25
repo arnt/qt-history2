@@ -68,7 +68,7 @@
        </rect>
       </property>
      </widget>
-     <widget class="qdesigner::components::propertyeditor::QPropertyEditor" name="treeView" >
+     <widget class="qdesigner_internal::QPropertyEditor" name="treeView" >
       <property name="objectName" >
        <string notr="true" >treeView</string>
       </property>
@@ -103,7 +103,7 @@
  <pixmapfunction></pixmapfunction>
  <customwidgets>
   <customwidget>
-   <class>qdesigner::components::propertyeditor::QPropertyEditor</class>
+   <class>qdesigner_internal::QPropertyEditor</class>
    <extends>QTreeView</extends>
    <header>qpropertyeditor.h</header>
    <container>0</container>
