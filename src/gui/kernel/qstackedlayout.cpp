@@ -220,11 +220,11 @@ void QStackedLayout::setCurrentIndex(int index)
     if (!next || next == prev)
         return;
 
-    bool updatesEnabled = false;
+    bool reenableUpdates = false;
     QWidget *parent = parentWidget();
 
-    if (parent) {
-        updatesEnabled =  parent->updatesEnabled();
+    if (parent && parent->updatesEnabled()) {
+        reenableUpdates = true;
         parent->setUpdatesEnabled(false);
     }
 
@@ -260,8 +260,8 @@ void QStackedLayout::setCurrentIndex(int index)
     }
     if (prev)
         prev->hide();
-    if (parent)
-        parent->setUpdatesEnabled(updatesEnabled);
+    if (reenableUpdates)
+        parent->setUpdatesEnabled(true);
     emit currentChanged(index);
 }
 
