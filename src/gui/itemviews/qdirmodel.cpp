@@ -687,9 +687,8 @@ QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
 */
 
 bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
-                             int row, const QModelIndex &parent)
+                             int row, int /*column*/, const QModelIndex &parent)
 {
-    Q_UNUSED(row);
     Q_D(QDirModel);
     if (!parent.isValid() || isReadOnly())
         return false;
@@ -697,7 +696,7 @@ bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
     QDirModelPrivate::QDirNode *p =
         static_cast<QDirModelPrivate::QDirNode*>(parent.internalPointer());
     Q_ASSERT(p);
-    
+
     bool success = true;
     QString to = filePath(parent) + QDir::separator();
 

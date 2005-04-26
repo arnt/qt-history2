@@ -75,7 +75,7 @@ public:
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
     bool dropMimeData(const QMimeData *data, Qt::DropAction action,
-                      int row, const QModelIndex &parent);
+                      int row, int column, const QModelIndex &parent);
     Qt::DropActions supportedDropActions() const;
 
     // QDirModel specific API
