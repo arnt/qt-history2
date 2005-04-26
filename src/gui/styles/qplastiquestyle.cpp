@@ -612,24 +612,32 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             }
 
             int borderThickness = pixelMetric(PM_TabBarBaseOverlap, twf, widget);
+            bool reverse = (twf->direction == Qt::RightToLeft);
     
             painter->save();
 
             QRect tabBarRect;
             switch (twf->shape) {
             case QTabBar::RoundedNorth:
-                tabBarRect = QRect(twf->rect.left(), twf->rect.top(), twf->tabBarSize.width(), borderThickness);         
+                if (reverse)
+                    tabBarRect = QRect(twf->rect.right() - twf->leftCornerWidgetSize.width() - twf->tabBarSize.width() + 1, twf->rect.top(), twf->tabBarSize.width(), borderThickness);         
+                else
+                    tabBarRect = QRect(twf->rect.left() + twf->leftCornerWidgetSize.width(), twf->rect.top(), twf->tabBarSize.width(), borderThickness);         
                 break ;
             case QTabBar::RoundedWest:
-                tabBarRect = QRect(twf->rect.left(), twf->rect.top(), borderThickness, twf->tabBarSize.height());         
+                tabBarRect = QRect(twf->rect.left(), twf->rect.top() + twf->leftCornerWidgetSize.height(), borderThickness, twf->tabBarSize.height());         
                 break ;
             case QTabBar::RoundedEast:
-                tabBarRect = QRect(twf->rect.right() - borderThickness + 1, twf->rect.top(),
+                tabBarRect = QRect(twf->rect.right() - borderThickness + 1, twf->rect.top()  + twf->leftCornerWidgetSize.height(),
                                    borderThickness, twf->tabBarSize.height());      
                 break ;
             case QTabBar::RoundedSouth:
-                tabBarRect = QRect(twf->rect.left(), twf->rect.bottom() - borderThickness + 1, 
-                                   twf->tabBarSize.width(), borderThickness);
+                if (reverse) 
+                    tabBarRect = QRect(twf->rect.right() - twf->leftCornerWidgetSize.width() - twf->tabBarSize.width() + 1, 
+                                       twf->rect.bottom() - borderThickness + 1, twf->tabBarSize.width(), borderThickness);
+                else
+                    tabBarRect = QRect(twf->rect.right() - twf->rightCornerWidgetSize.width() - twf->tabBarSize.width() + 1, 
+                                   twf->rect.bottom() - borderThickness + 1, twf->tabBarSize.width(), borderThickness);
                 break ;
             default:
                 break;
@@ -1330,6 +1338,9 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
     QColor tabGradientStartColor = option->palette.button().color().dark(95);
     QColor tabGradientStopColor = option->palette.button().color().dark(108);
 
+    QColor highlightedGradientStartColor = option->palette.highlight().color().light(200);
+    QColor highlightedGradientStopColor = option->palette.highlight().color().light(190);    
+    QColor highlightedLightInnerBorderColor = option->palette.highlight().color().light(163);
     QColor highlightedDarkInnerBorderColor = qt_plastique_mergedColors(option->palette.highlight().color(), borderColor);
     QColor alphaInnerColor = qt_plastique_mergedColors(highlightedDarkInnerBorderColor, option->palette.base().color());
     QColor lightShadow = lightShadowGradientStartColor;
@@ -1347,16 +1358,20 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
             painter->save();
 
-            // Set up some convenience variables
+            // Set up some convenience variables            
             bool onlyTab = tab->position == QStyleOptionTab::OnlyOneTab;
             bool selected = (tab->state & State_Selected) || onlyTab;
+            bool mouseOver = (tab->state & State_MouseOver) && !selected; 
             bool previousSelected = tab->selectedPosition == QStyleOptionTab::PreviousIsSelected;
             bool nextSelected = tab->selectedPosition == QStyleOptionTab::NextIsSelected;            
+            bool leftCornerWidget = (tab->cornerWidgets & QStyleOptionTab::LeftCornerWidget);
+            bool rightCornerWidget = (tab->cornerWidgets & QStyleOptionTab::RightCornerWidget);
+            bool reverse = (tab->direction == Qt::RightToLeft);
 
             int lowerTop = selected ? 0 : 3; // to make the selected tab bigger than the rest
             QRect adjustedRect;
             bool atEnd = (tab->position == QStyleOptionTab::End) || onlyTab;
-            bool atBeginning = (tab->position == QStyleOptionTab::Beginning) || onlyTab;            
+            bool atBeginning = ((tab->position == QStyleOptionTab::Beginning) || onlyTab) && !leftCornerWidget;            
 
             int borderThickness = pixelMetric(PM_TabBarBaseOverlap, tab, widget);
             int marginLeft = 0;
@@ -1387,13 +1402,27 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                 case QTabBar::RoundedNorth:
                     vectorUp = QPoint(0, -1);
                     vectorDown = QPoint(0, 1);
-                    vectorLeft = QPoint(-1, 0);
-                    vectorRight = QPoint(1, 0);
 
-                    topLeft = tab->rect.topLeft();
-                    topRight = tab->rect.topRight();
-                    bottomLeft = tab->rect.bottomLeft();
-                    bottomRight = tab->rect.bottomRight();
+                    if (reverse) {
+                        vectorLeft = QPoint(1, 0);
+                        vectorRight = QPoint(-1, 0);
+                    } else {
+                        vectorLeft = QPoint(-1, 0);
+                        vectorRight = QPoint(1, 0);
+                    }
+
+                    if (reverse) {
+                        topLeft = tab->rect.topRight();
+                        topRight = tab->rect.topLeft();                    
+                        bottomLeft = tab->rect.bottomRight();                    
+                        bottomRight = tab->rect.bottomLeft();
+                    } else {
+                        topLeft = tab->rect.topLeft();
+                        topRight = tab->rect.topRight();                    
+                        bottomLeft = tab->rect.bottomLeft();                    
+                        bottomRight = tab->rect.bottomRight();
+                    }
+                                   
 
                     baseColor1 = borderColor;
                     baseColor2 = lightShadow;
@@ -1491,12 +1520,21 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
                     // Background
                     QPoint startPoint = topLine.p1() + vectorDown;
+                    if (mouseOver) 
+                        startPoint += vectorDown;
                     QPoint endPoint = rightLine.p2() + vectorLeft;
                     
                     QRect fillRect = QRect(startPoint, endPoint);                    
                     QLinearGradient fillGradient(leftLine.p1(), leftLine.p2());            
-                    fillGradient.setColorAt(0, tabGradientStartColor);
-                    fillGradient.setColorAt(1, tabGradientStopColor);
+
+                    if (mouseOver) {
+                        fillGradient.setColorAt(0, highlightedGradientStartColor);
+                        fillGradient.setColorAt(1, highlightedGradientStopColor);
+
+                    } else {
+                        fillGradient.setColorAt(0, tabGradientStartColor);
+                        fillGradient.setColorAt(1, tabGradientStopColor);
+                    }
                     if (selected)
                         painter->fillRect(fillRect, tab->palette.background()); 
                     else
@@ -1507,8 +1545,21 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     QPoint bottomRightConnectToBase = rightLine.p2() + vectorRight + vectorDown;
                     QPoint bottomLeftConnectToBase = leftLine.p2() + vectorLeft + vectorDown;
 
-                    painter->setPen(borderColor);
+                    
+                    if (mouseOver)
+                        painter->setPen(highlightedDarkInnerBorderColor);
+                    else
+                        painter->setPen(borderColor);
                     painter->drawLine(topLine);
+
+                    if (mouseOver) {
+                        QLine secondHoverLine = QLine(topLine.p1() + vectorDown, topLine.p2() + vectorDown);
+                        painter->setPen(highlightedLightInnerBorderColor);
+                        painter->drawLine(secondHoverLine);
+                    }
+
+                    if (mouseOver)
+                        painter->setPen(borderColor);
                     if (!previousSelected)
                         painter->drawLine(leftLine);
                     if (atEnd || selected) {
@@ -3426,7 +3477,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     case PM_TabBarTabVSpace:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
             if (!tab->icon.isNull()) return 15;
-        }
+        }        
         break;
     case PM_MDIFrameWidth:
         return 4;
@@ -3503,5 +3554,7 @@ void QPlastiqueStyle::polish(QWidget *widget)
     }
 
     if (widget->inherits("QWorkspaceTitleBar"))
+        widget->setAttribute(Qt::WA_Hover);
+    else if (qobject_cast<QTabBar *>(widget)) 
         widget->setAttribute(Qt::WA_Hover);
 }
