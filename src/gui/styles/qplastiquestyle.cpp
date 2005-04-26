@@ -3561,11 +3561,11 @@ void QPlastiqueStyle::polish(QWidget *widget)
 
 void QPlastiqueStyle::polish(QApplication *app)
 {
-    return QWindowsStyle::polish(app);
+    QWindowsStyle::polish(app);
 }
 
 void QPlastiqueStyle::polish(QPalette &pal)
 {
-    return QWindowsStyle::polish(pal);
+    QWindowsStyle::polish(pal);
 }
 
