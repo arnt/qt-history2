@@ -118,7 +118,7 @@ QModelIndex QStandardItemModel::parent(const QModelIndex &child) const
 int QStandardItemModel::rowCount(const QModelIndex &parent) const
 {
     Q_D(const QStandardItemModel);
-    QStdModelRow *modelRow = d->containedRow(parent, false);
+    QStdModelRow *modelRow = d->containedRow(parent, true);
     if (modelRow)
         return modelRow->childrenRows.count();
 
@@ -132,7 +132,7 @@ int QStandardItemModel::rowCount(const QModelIndex &parent) const
 int QStandardItemModel::columnCount(const QModelIndex &parent) const
 {
     Q_D(const QStandardItemModel);
-    QStdModelRow *modelRow = d->containedRow(parent, false);
+    QStdModelRow *modelRow = d->containedRow(parent, true);
     if (modelRow)
         return modelRow->childrenColumns;
 
@@ -147,9 +147,11 @@ bool QStandardItemModel::hasChildren(const QModelIndex &parent) const
 {
     Q_D(const QStandardItemModel);
     if (parent.isValid()) {
-        QStdModelRow *modelRow = d->containedRow(parent, false);
+        QStdModelRow *modelRow = d->containedRow(parent, true);
         if (modelRow)
             return modelRow->childrenRows.count() && modelRow->childrenColumns;
+    } else {
+        return !d->topLevelRows.isEmpty() && d->topLevelColumns;
     }
     return false;
 }
@@ -356,7 +358,7 @@ bool QStandardItemModel::removeRows(int row, int count, const QModelIndex &paren
 
     beginRemoveRows(parent, row, row + count - 1);
 
-    QVector<QStdModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, false)->childrenRows
+    QVector<QStdModelRow*> &rows = (parent.isValid()) ? d->containedRow(parent, true)->childrenRows
                                : d->topLevelRows;
 
     if (!parent.isValid() && d->verticalHeader.count() > row) {
