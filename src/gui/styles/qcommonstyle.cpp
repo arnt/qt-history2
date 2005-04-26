@@ -529,27 +529,70 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             bool rtl = tab->direction == Qt::RightToLeft;
             int h = tab->rect.height();
             int top = tab->rect.top();
-            int w = tab->rect.left();
+            int w = tab->rect.width();
             int startJig;
             int jag;
-            if (!rtl) {
-                startJig = tab->rect.left();
+
+            // Yup, do the swich twice, once to set up the variables, the second time to actually
+            // draw.
+            switch (tab->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::RoundedSouth:
+                if (!rtl) {
+                    startJig = tab->rect.left();
+                    jag = 3;
+                } else {
+                    startJig = tab->rect.right() - 1;
+                    jag = -3;
+                }
+                break;
+            case QTabBar::RoundedWest:
+                startJig = top;
+                if (tab->state & State_Selected) {
+                    top = opt->rect.left();
+                    w += 2;
+                } else {
+                    startJig = top - 1;
+                    top = opt->rect.left() + 2;
+                }
                 jag = 3;
-            } else {
-                startJig = tab->rect.right() - 1;
-                jag = -3;
+                break;
+            case QTabBar::RoundedEast:
+                startJig = top;
+                top = opt->rect.right() - 1;
+                jag = 3;
+                break;
+            default:
+                startJig = jag = 0;
+                break;
             }
 
-            if (tab->shape == QTabBar::RoundedNorth) {
+            switch (tab->shape) {
+            case QTabBar::RoundedNorth:
                 p->fillRect(opt->rect.left(), top + 3, w, h - 5,
                             tab->palette.brush(QPalette::Background));
                 a.setPoints(5,  startJig, top + 2,  startJig + jag, h / 4,
                             startJig, h / 2, startJig + jag, 3 * h / 4, startJig, h);
-            } else if (tab->shape == QTabBar::RoundedSouth) {
+                break;
+            case QTabBar::RoundedSouth:
                 p->fillRect(opt->rect.left(), top + 2, w, h - 5,
                             tab->palette.brush(QPalette::Background));
-                a.setPoints(5, startJig, top,  startJig + jag, h / 4, startJig, h / 2, startJig + jag,
-                            3 * h / 4, startJig, h - 3);
+                a.setPoints(5, startJig, top,  startJig + jag, h / 4, startJig, h / 2,
+                            startJig + jag, 3 * h / 4, startJig, h - 3);
+                break;
+            case QTabBar::RoundedWest:
+                p->fillRect(opt->rect.left() + 3, opt->rect.top(), w - 5, h,
+                            tab->palette.brush(QPalette::Background));
+                a.setPoints(5, top, startJig, w / 4, startJig + jag, w / 2,
+                            startJig, 3 * w / 4, startJig + jag, w - 3, startJig);
+                break;
+            case QTabBar::RoundedEast:
+                p->fillRect(opt->rect.left() + 2, opt->rect.top(), w - 5, h,
+                            tab->palette.brush(QPalette::Background));
+                a.setPoints(5, top, startJig, 3 * w / 4, startJig + jag, w / 2, startJig,
+                            w / 4, startJig + jag, 1, startJig);
+            default:
+                break;
             }
 
             if (!a.isEmpty()) {
@@ -1576,8 +1619,25 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
         }
         break;
    case SE_TabBarTearIndicator:
-        r.setRect(0, 0, 4, opt->rect.height());
-        r = visualRect(opt->direction, opt->rect, r);
+        if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
+            switch (tab->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+                r.setRect(tab->rect.left(), tab->rect.top(), 4, opt->rect.height());
+                break;
+            case QTabBar::RoundedWest:
+            case QTabBar::TriangularWest:
+            case QTabBar::RoundedEast:
+            case QTabBar::TriangularEast:
+                r.setRect(tab->rect.left(), tab->rect.top(), opt->rect.width(), 4);
+                break;
+            default:
+                break;
+            }
+            r = visualRect(opt->direction, opt->rect, r);
+        }
         break;
     default:
         break;
