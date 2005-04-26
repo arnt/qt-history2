@@ -190,7 +190,11 @@ public:
     const char toAscii() const;
     inline const char toLatin1() const;
     inline const ushort unicode() const { return ucs; }
+#ifdef Q_NO_PACKED_REFERENCE
+    inline ushort &unicode() { return *(&ucs); }
+#else
     inline ushort &unicode() { return ucs; }
+#endif
 
     static QChar fromAscii(char c);
     static QChar fromLatin1(char c);

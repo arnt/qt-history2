@@ -277,6 +277,7 @@
 #    endif
 #    if (defined(__arm__) || defined(__ARMEL__)) && !defined(QT_MOC_CPP)
 #      define Q_PACKED __attribute__ ((__packed__))
+#      define Q_NO_PACKED_REFERENCE
 #    endif
 #  endif /* __INTEL_COMPILER */
 
@@ -470,6 +471,7 @@
 
 #ifndef Q_PACKED
 #  define Q_PACKED
+#  undef Q_NO_PACKED_REFERENCE
 #endif
 
 
