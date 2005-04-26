@@ -92,9 +92,10 @@ inline void qSwap(T &value1, T &value2)
         value1 = value2;
         value2 = t;
     } else {
-        const void *t = (const void *&)value1;
-        (const void *&)value1 = (const void *&)value2;
-        (const void *&)value2 = t;
+        const void * const t = reinterpret_cast<const void * const &>(value1);
+        const_cast<const void *&>(reinterpret_cast<const void * const &>(value1)) =
+            reinterpret_cast<const void * const &>(value2);
+        const_cast<const void *&>(reinterpret_cast<const void * const &>(value2)) = t;
     }
 }
 
