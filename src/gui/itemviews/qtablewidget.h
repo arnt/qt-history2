@@ -233,6 +233,11 @@ signals:
     void itemSelectionChanged();
 
 protected:
+    virtual QStringList mimeTypes() const;
+    virtual QMimeData *mimeData(const QList<QTableWidgetItem*> items) const;
+    virtual bool dropMimeData(int row, int column, const QMimeData *data, Qt::DropAction action);
+    virtual Qt::DropActions supportedDropActions() const;
+
     QModelIndex indexFromItem(QTableWidgetItem *item) const;
     QTableWidgetItem *itemFromIndex(const QModelIndex &index) const;
 

@@ -68,6 +68,13 @@ public:
     void removeFromTopLevel(QTreeWidgetItem *item);
     QTreeWidgetItem *takeFromTopLevel(int row);
 
+    // dnd
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+                      int row, int column, const QModelIndex &parent);
+    Qt::DropActions supportedDropActions() const;
+
 protected:
     void emitDataChanged(QTreeWidgetItem *item, int column);
     void beginInsertItem(QTreeWidgetItem *parent, int row);
@@ -581,6 +588,37 @@ QTreeWidgetItem *QTreeModel::takeFromTopLevel(int row)
     item->par = 0;
     endRemoveRows();
     return item;
+}
+
+QStringList QTreeModel::mimeTypes() const
+{
+    const QTreeWidget *view = ::qobject_cast<const QTreeWidget*>(QObject::parent());
+    return view->mimeTypes();
+}
+
+QMimeData *QTreeModel::mimeData(const QModelIndexList &indexes) const
+{
+    QList<QTreeWidgetItem*> items;
+    for (int i = 0; i < indexes.count(); ++i)
+        if (indexes.at(i).column() == 0) // only one item per row
+            items << item(indexes.at(i));
+    const QTreeWidget *view = ::qobject_cast<const QTreeWidget*>(QObject::parent());
+    return view->mimeData(items);
+}
+
+bool QTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
+                              int row, int column, const QModelIndex &parent)
+{
+    QTreeWidget *view = ::qobject_cast<QTreeWidget*>(QObject::parent());
+    if (row == -1 && column == -1)
+        row = rowCount(parent); // append
+    return view->dropMimeData(item(parent), row, data, action);
+}
+
+Qt::DropActions QTreeModel::supportedDropActions() const
+{
+    const QTreeWidget *view = ::qobject_cast<const QTreeWidget*>(QObject::parent());
+    return view->supportedDropActions();
 }
 
 /*!
@@ -1904,6 +1942,104 @@ void QTreeWidget::clear()
     Q_D(QTreeWidget);
     selectionModel()->clear();
     d->model()->clear();
+}
+
+/*!
+    Returns a list of MIME types that can be used to describe a list of
+    treewidget items.
+
+    \sa mimeData()
+*/
+QStringList QTreeWidget::mimeTypes() const
+{
+    return QStringList() << "application/x-qtreewidgetitemdatavector"
+                         << "application/x-qtreewidgetitempointers"
+                         << "application/x-qwidgetitemdatavector";
+}
+
+/*!
+    Returns an object that contains a serialized description of the specified
+    \a items. The format used to describe the items is obtained from the
+    mimeTypes() function.
+
+    If the list of items is empty, 0 is returned rather than a serialized
+    empty list.
+*/
+QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
+{
+    if (items.isEmpty())
+        return 0;
+    // encodes both the qtreewidgetitemdata and qwidgetitemdata
+    QByteArray encodedRows;
+    QByteArray encodedPtrs;
+    QByteArray encodedData;
+    QDataStream rowsStream(&encodedRows, QIODevice::WriteOnly);
+    QDataStream ptrsStream(&encodedPtrs, QIODevice::WriteOnly);
+    QDataStream dataStream(&encodedData, QIODevice::WriteOnly);
+    for (int i = 0; i < items.count(); ++i) {
+        QTreeWidgetItem *item = items.at(i);
+        rowsStream << *item;
+        ptrsStream << item;
+        for (int j = 0; j < item->values.count(); ++j) // for each column
+            dataStream << item->values.at(j);
+    }
+    QMimeData *data = new QMimeData();
+    data->setData(mimeTypes().at(0), encodedRows);
+    data->setData(mimeTypes().at(1), encodedPtrs);
+    data->setData(mimeTypes().at(2), encodedData);
+    return data;
+}
+
+/*!
+    Handles the \a data supplied by a drag and drop operation that ended with
+    the given \a action in the \a  inde in \a the given\a parent item.
+
+    \sa supportedDropActions()
+*/
+bool QTreeWidget::dropMimeData(QTreeWidgetItem *parent, int index,
+                               const QMimeData *data, Qt::DropAction action)
+{
+    if (action != Qt::CopyAction)
+        return false;
+    if (data->hasFormat(mimeTypes().at(0))) {
+        QByteArray encoded = data->data(mimeTypes().at(0));
+        QDataStream stream(&encoded, QIODevice::ReadOnly);
+        while (!stream.atEnd()) {
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            stream >> *item;
+            if (parent)
+                parent->insertChild(index, item);
+            else
+                insertTopLevelItem(index, item);
+        }
+        return true;
+    }
+    if (data->hasFormat(mimeTypes().at(2))) {
+        QByteArray encoded = data->data(mimeTypes().at(2));
+        QDataStream stream(&encoded, QIODevice::ReadOnly);
+        while (!stream.atEnd()) {
+            QVector <QWidgetItemData> values;
+            stream >> values;
+            QTreeWidgetItem *item = new QTreeWidgetItem();
+            item->values.append(values);
+            if (parent)
+                parent->insertChild(index, item);
+            else
+                insertTopLevelItem(index, item);
+        }
+        return true;
+    }
+    return false;
+}
+
+/*!
+  Returns the drop actions supported by this view.
+
+  \sa Qt::DropActions
+*/
+Qt::DropActions QTreeWidget::supportedDropActions() const
+{
+    return Qt::CopyAction;
 }
 
 /*!

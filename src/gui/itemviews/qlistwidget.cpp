@@ -24,7 +24,7 @@ class QListModel : public QAbstractListModel
 {
     Q_OBJECT
 public:
-    QListModel(QListWidget *parent = 0);
+    QListModel(QListWidget *parent);
     ~QListModel();
 
     void clear();
@@ -52,6 +52,13 @@ public:
     QList<QListWidgetItem*> find(const QRegExp &rx) const;
 
     void itemChanged(QListWidgetItem *item);
+
+    // dnd
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+                      int row, int column, const QModelIndex &parent);
+    Qt::DropActions supportedDropActions() const;
 
 private:
     QList<QListWidgetItem*> lst;
@@ -240,6 +247,35 @@ void QListModel::itemChanged(QListWidgetItem *item)
 {
     QModelIndex idx = index(item);
     emit dataChanged(idx, idx);
+}
+
+QStringList QListModel::mimeTypes() const
+{
+    const QListWidget *view = ::qobject_cast<const QListWidget*>(QObject::parent());
+    return view->mimeTypes();
+}
+
+QMimeData *QListModel::mimeData(const QModelIndexList &indexes) const
+{
+    QList<QListWidgetItem*> items;
+    for (int i = 0; i < indexes.count(); ++i)
+        items << at(indexes.at(i).row());
+    const QListWidget *view = ::qobject_cast<const QListWidget*>(QObject::parent());
+    return view->mimeData(items);
+}
+
+bool QListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
+                              int row, int column, const QModelIndex &index)
+{
+    QListWidget *view = ::qobject_cast<QListWidget*>(QObject::parent());
+    int i = (!index.isValid() && row == -1 && column == -1) ? lst.count() : index.row();
+    return view->dropMimeData(i, data, action);
+}
+
+Qt::DropActions QListModel::supportedDropActions() const
+{
+    const QListWidget *view = ::qobject_cast<const QListWidget*>(QObject::parent());
+    return view->supportedDropActions();
 }
 
 /*!
@@ -1175,6 +1211,74 @@ void QListWidget::clear()
     Q_D(QListWidget);
     selectionModel()->clear();
     d->model()->clear();
+}
+
+/*!
+    Returns a list of MIME types that can be used to describe a list of
+    listwidget items.
+
+    \sa mimeData()
+*/
+QStringList QListWidget::mimeTypes() const
+{
+    return QStringList() << "application/x-qlistwidgetitempointers"
+                         << "application/x-qwidgetitemdatavector";
+}
+
+/*!
+    Returns an object that contains a serialized description of the specified
+    \a items. The format used to describe the items is obtained from the
+    mimeTypes() function.
+
+    If the list of items is empty, 0 is returned rather than a serialized
+    empty list.
+*/
+QMimeData *QListWidget::mimeData(const QList<QListWidgetItem*> items) const
+{
+    if (items.isEmpty())
+        return 0;
+    QByteArray encodedPtrs;
+    QByteArray encodedData;
+    QDataStream ptrsStream(&encodedPtrs, QIODevice::WriteOnly);
+    QDataStream dataStream(&encodedData, QIODevice::WriteOnly);
+    for (int i = 0; i < items.count(); ++i) {
+        ptrsStream << items.at(i);
+        dataStream << *items.at(i);
+    }
+    QMimeData *data = new QMimeData();
+    data->setData(mimeTypes().at(0), encodedPtrs);
+    data->setData(mimeTypes().at(1), encodedData);
+    return data;
+}
+
+/*!
+    Handles the \a data supplied by a drag and drop operation that ended with
+    the given \a action in the given \a index.
+
+    \sa supportedDropActions()
+*/
+bool QListWidget::dropMimeData(int index, const QMimeData *data, Qt::DropAction action)
+{
+    if (action != Qt::CopyAction || !data->hasFormat(mimeTypes().at(1)))
+        return false;
+    QByteArray encoded = data->data(mimeTypes().at(1));
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
+    while (!stream.atEnd()) {
+        QListWidgetItem *item = new QListWidgetItem();
+        stream >> *item;
+        insertItem(index++, item);
+    }
+    return true;
+}
+
+/*!
+  Returns the drop actions supported by this view.
+
+  \sa Qt::DropActions
+*/
+Qt::DropActions QListWidget::supportedDropActions() const
+{
+    return Qt::CopyAction;
 }
 
 /*!

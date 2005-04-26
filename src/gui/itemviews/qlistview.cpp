@@ -734,8 +734,10 @@ void QListView::dragMoveEvent(QDragMoveEvent *e)
 void QListView::dragLeaveEvent(QDragLeaveEvent *e)
 {
     Q_D(QListView);
-    d->viewport->update(d->draggedItemsRect()); // erase the area
-    d->draggedItemsPos = QPoint(-1, -1); // don't draw the dragged items
+    if (d->movement != Static) {
+        d->viewport->update(d->draggedItemsRect()); // erase the area
+        d->draggedItemsPos = QPoint(-1, -1); // don't draw the dragged items
+    }
     QAbstractItemView::dragLeaveEvent(e);
 }
 
@@ -757,7 +759,7 @@ void QListView::dropEvent(QDropEvent *e)
 void QListView::startDrag(Qt::DropActions supportedActions)
 {
     Q_D(QListView);
-    if (d->movement == Free)
+    if (d->movement != Static)
         internalDrag(supportedActions);
     else
         QAbstractItemView::startDrag(supportedActions);

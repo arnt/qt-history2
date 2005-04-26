@@ -162,6 +162,7 @@ class Q_GUI_EXPORT QTreeWidget : public QTreeView
     Q_PROPERTY(bool sortingEnabled READ isSortingEnabled WRITE setSortingEnabled)
     Q_PROPERTY(int topLevelItemCount READ topLevelItemCount)
 
+    friend class QTreeModel;
 public:
     explicit QTreeWidget(QWidget *parent = 0);
     ~QTreeWidget();
@@ -225,6 +226,12 @@ signals:
     void itemSelectionChanged();
 
 protected:
+    virtual QStringList mimeTypes() const;
+    virtual QMimeData *mimeData(const QList<QTreeWidgetItem*> items) const;
+    virtual bool dropMimeData(QTreeWidgetItem *parent, int index,
+                              const QMimeData *data, Qt::DropAction action);
+    virtual Qt::DropActions supportedDropActions() const;
+
     QModelIndex indexFromItem(QTreeWidgetItem *item, int column = 0) const;
     QTreeWidgetItem *itemFromIndex(const QModelIndex &index) const;
 

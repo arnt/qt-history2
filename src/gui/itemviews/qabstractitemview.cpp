@@ -1084,31 +1084,31 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
     QModelIndex index;
     // if we drop on the viewport
     if (d->viewport->rect().contains(e->pos())) {
-        QPoint center = d->dropIndicator->geometry().center();
-        pos = d->viewport->mapFromGlobal(center);
+        //QPoint center = d->dropIndicator->geometry().center();
+        pos = e->pos();//d->viewport->mapFromGlobal(center);
         index = indexAt(pos);
-        index = model()->sibling(index.row(), 0, index);
         if (!index.isValid())
             index = rootIndex(); // drop on viewport
     }
     // if we are allowed to do the drop
     if (model()->supportedDropActions() & e->proposedAction()) {
-        // find the parent index and the row to drop after
-        int row = -1; // prepend
-        int col = index.column();
-        if (model()->flags(index) & Qt::ItemIsDropEnabled
-            || model()->flags(index.parent()) & Qt::ItemIsDropEnabled) {
-            switch(d->position(pos, visualRect(index), 2)) {
+        int row = -1;
+        int col = -1;
+        if (index.isValid() &&
+            (model()->flags(index) & Qt::ItemIsDropEnabled
+             || model()->flags(index.parent()) & Qt::ItemIsDropEnabled)) {
+            switch (d->position(pos, visualRect(index), 2)) {
             case QAbstractItemViewPrivate::Above:
                 row = index.row();
+                col = index.column();
                 index = index.parent();
                 break;
             case QAbstractItemViewPrivate::Below:
                 row = index.row() + 1;
+                col = index.column();
                 index = index.parent();
                 break;
             case QAbstractItemViewPrivate::On:
-                row = model()->rowCount(index); // append
                 break;
             }
         }

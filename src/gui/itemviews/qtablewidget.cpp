@@ -83,6 +83,13 @@ public:
     inline void setItemPrototype(const QTableWidgetItem *item)
         { prototype = item; }
 
+    // dnd
+    QStringList mimeTypes() const;
+    QMimeData *mimeData(const QModelIndexList &indexes) const;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action,
+                      int row, int column, const QModelIndex &parent);
+    Qt::DropActions supportedDropActions() const;
+    
 private:
     const QTableWidgetItem *prototype;
     QVector<QTableWidgetItem*> table;
@@ -501,6 +508,34 @@ void QTableModel::itemChanged(QTableWidgetItem *item)
     emit dataChanged(idx, idx);
 }
 
+QStringList QTableModel::mimeTypes() const
+{
+    const QTableWidget *view = ::qobject_cast<const QTableWidget*>(QObject::parent());
+    return view->mimeTypes();
+}
+
+QMimeData *QTableModel::mimeData(const QModelIndexList &indexes) const
+{
+    QList<QTableWidgetItem*> items;
+    for (int i = 0; i < indexes.count(); ++i)
+        items << item(indexes.at(i));
+    const QTableWidget *view = ::qobject_cast<const QTableWidget*>(QObject::parent());
+    return view->mimeData(items);
+}
+
+bool QTableModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
+                              int, int, const QModelIndex &index)
+{
+    QTableWidget *view = ::qobject_cast<QTableWidget*>(QObject::parent());
+    return view->dropMimeData(index.row(), index.column(), data, action);
+}
+
+Qt::DropActions QTableModel::supportedDropActions() const
+{
+    const QTableWidget *view = ::qobject_cast<const QTableWidget*>(QObject::parent());
+    return view->supportedDropActions();
+}
+
 /*!
   \class QTableWidgetSelectionRange
 
@@ -797,7 +832,8 @@ QTableWidgetItem::QTableWidgetItem(int type)
                 |Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
-                |Qt::ItemIsDragEnabled)
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
 {
 }
 
@@ -810,7 +846,8 @@ QTableWidgetItem::QTableWidgetItem(const QString &text, int type)
                 |Qt::ItemIsSelectable
                 |Qt::ItemIsUserCheckable
                 |Qt::ItemIsEnabled
-                |Qt::ItemIsDragEnabled)
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
 {
     setData(Qt::DisplayRole, text);
 }
@@ -1633,6 +1670,74 @@ void QTableWidget::clear()
     Q_D(QTableWidget);
     selectionModel()->clear();
     d->model()->clear();
+}
+
+/*!
+    Returns a list of MIME types that can be used to describe a list of
+    tablewidget items.
+
+    \sa mimeData()
+*/
+QStringList QTableWidget::mimeTypes() const
+{
+    return QStringList() << "application/x-qtablewidgetitempointes"
+                         << "application/x-qwidgetitemdatavector";
+}
+
+/*!
+    Returns an object that contains a serialized description of the specified
+    \a items. The format used to describe the items is obtained from the
+    mimeTypes() function.
+
+    If the list of items is empty, 0 is returned rather than a serialized
+    empty list.
+*/
+QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*> items) const
+{
+    if (items.isEmpty())
+        return 0;
+    QByteArray encodedPtrs;
+    QByteArray encodedData;
+    QDataStream ptrsStream(&encodedPtrs, QIODevice::WriteOnly);
+    QDataStream dataStream(&encodedData, QIODevice::WriteOnly);
+    for (int i = 0; i < items.count(); ++i) {
+        ptrsStream << items.at(i);
+        dataStream << *items.at(i);
+    }
+    QMimeData *data = new QMimeData();
+    data->setData(mimeTypes().at(0), encodedPtrs);
+    data->setData(mimeTypes().at(1), encodedData);
+    return data;
+}
+
+/*!
+    Handles the \a data supplied by a drag and drop operation that ended with
+    the given \a action in the given \a row and \a column.
+
+    \sa supportedDropActions()
+*/
+bool QTableWidget::dropMimeData(int row, int column, const QMimeData *data, Qt::DropAction action)
+{
+    if (action != Qt::CopyAction || !data->hasFormat(mimeTypes().at(1)))
+        return false;
+    QByteArray encoded = data->data(mimeTypes().at(1));
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
+    while (!stream.atEnd()) {
+        QTableWidgetItem *item = new QTableWidgetItem();
+        stream >> *item;
+        setItem(row++, column, item);
+    }
+    return true;
+}
+
+/*!
+  Returns the drop actions supported by this view.
+
+  \sa Qt::DropActions
+*/
+Qt::DropActions QTableWidget::supportedDropActions() const
+{
+    return Qt::CopyAction;
 }
 
 /*!
