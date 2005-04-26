@@ -443,12 +443,13 @@ static const char * const qt_toolbarhandle[] = {
     "   .+@",
     "    @@"};
 
-static QColor qt_plastique_mergedColors(const QColor &colorA, const QColor &colorB)
+static QColor mergedColors(const QColor &colorA, const QColor &colorB, int factor = 50)
 {
+    const int maxFactor = 100;
     QColor tmp = colorA;
-    tmp.setRed((tmp.red() + colorB.red()) / 2);
-    tmp.setGreen((tmp.green() + colorB.green()) / 2);
-    tmp.setBlue((tmp.blue() + colorB.blue()) / 2);
+    tmp.setRed((tmp.red() * factor) / maxFactor + (colorB.red() * (maxFactor - factor)) / maxFactor);
+    tmp.setGreen((tmp.green() * factor) / maxFactor + (colorB.green() * (maxFactor - factor)) / maxFactor);
+    tmp.setBlue((tmp.blue() * factor) / maxFactor + (colorB.blue() * (maxFactor - factor)) / maxFactor);
     return tmp;
 }
 
@@ -457,14 +458,10 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
     QRect rect = option->rect;
     QPen oldPen = painter->pen();
 
-    QColor borderColor = option->palette.button().color().dark(162);
-    QColor gradientStartColor = option->palette.button().color().dark(90);
-    QColor gradientStopColor = option->palette.button().color().dark(108);
-
-    QColor alphaCornerColor = option->palette.background().color();
-    alphaCornerColor.setRed((alphaCornerColor.red() + borderColor.red()) / 2);
-    alphaCornerColor.setGreen((alphaCornerColor.green() + borderColor.green()) / 2);
-    alphaCornerColor.setBlue((alphaCornerColor.blue() + borderColor.blue()) / 2);
+    QColor borderColor = option->palette.background().color().dark(178);
+    QColor gradientStartColor = option->palette.button().color().light(104);
+    QColor gradientStopColor = option->palette.button().color().dark(105);
+    QColor alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
 
     // outline / border
     painter->setPen(borderColor);
@@ -564,39 +561,29 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 {
     Q_ASSERT(option);
 
-    QColor borderColor = option->palette.button().color().dark(162);
+    QColor borderColor = option->palette.background().color().dark(178);
+    QColor gradientStartColor = option->palette.button().color().light(104);
+    QColor gradientStopColor = option->palette.button().color().dark(105);
 
-    QColor gradientStartColor = option->palette.button().color().dark(90);
-    QColor gradientStopColor = option->palette.button().color().dark(108);
-    QColor highlightedGradientStartColor = option->palette.highlight().color().light(200);
-    QColor highlightedGradientStopColor = option->palette.highlight().color().light(190);
-    QColor highlightedDarkInnerBorderColor = option->palette.highlight().color().light(143);
-    QColor highlightedLightInnerBorderColor = option->palette.highlight().color().light(163);
+    QColor baseGradientStartColor = option->palette.base().color().dark(101);
+    QColor baseGradientStopColor = option->palette.base().color().dark(106);
 
-    QColor alphaCornerColor = option->palette.background().color();
-    alphaCornerColor.setRed((alphaCornerColor.red() + borderColor.red()) / 2);
-    alphaCornerColor.setGreen((alphaCornerColor.green() + borderColor.green()) / 2);
-    alphaCornerColor.setBlue((alphaCornerColor.blue() + borderColor.blue()) / 2);
+    QColor highlightedGradientStartColor = option->palette.button().color().light(101);
+    QColor highlightedGradientStopColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 85);
+    
+    QColor highlightedBaseGradientStartColor = option->palette.base().color();
+    QColor highlightedBaseGradientStopColor = mergedColors(option->palette.base().color().dark(105), option->palette.highlight().color(), 70);
 
-    QColor alphaInnerColor = highlightedLightInnerBorderColor;
-    alphaInnerColor.setRed((alphaInnerColor.red() + gradientStartColor.red()) / 2);
-    alphaInnerColor.setGreen((alphaInnerColor.green() + gradientStartColor.green()) / 2);
-    alphaInnerColor.setBlue((alphaInnerColor.blue() + gradientStartColor.blue()) / 2);
+    QColor highlightedDarkInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 35);
+    QColor highlightedLightInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 58);
 
-    QColor alphaInnerColorNoHover = borderColor;
-    alphaInnerColorNoHover.setRed((alphaInnerColorNoHover.red() + gradientStartColor.red()) / 2);
-    alphaInnerColorNoHover.setGreen((alphaInnerColorNoHover.green() + gradientStartColor.green()) / 2);
-    alphaInnerColorNoHover.setBlue((alphaInnerColorNoHover.blue() + gradientStartColor.blue()) / 2);
+    QColor alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    QColor alphaInnerColor = mergedColors(highlightedLightInnerBorderColor, gradientStartColor);
 
-    QColor alphaTextColor = option->palette.background().color();
-    alphaTextColor.setRed((alphaTextColor.red() + option->palette.text().color().red()) / 2);
-    alphaTextColor.setGreen((alphaTextColor.green() + option->palette.text().color().green()) / 2);
-    alphaTextColor.setBlue((alphaTextColor.blue() + option->palette.text().color().blue()) / 2);
+    QColor alphaInnerColorNoHover = mergedColors(borderColor, gradientStartColor);
+    QColor alphaTextColor = mergedColors(option->palette.background().color(), option->palette.text().color());
 
-    QColor alphaLightTextColor = option->palette.background().color().light(250);
-    alphaLightTextColor.setRed((alphaLightTextColor.red() + option->palette.text().color().light(250).red()) / 2);
-    alphaLightTextColor.setGreen((alphaLightTextColor.green() + option->palette.text().color().light(250).green()) / 2);
-    alphaLightTextColor.setBlue((alphaLightTextColor.blue() + option->palette.text().color().light(250).blue()) / 2);
+    QColor alphaLightTextColor = mergedColors(option->palette.background().color().light(250), option->palette.text().color().light(250));
 
     QColor lightShadow = option->palette.button().color().light(105);
 
@@ -758,21 +745,22 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             bool focus = element == PE_FrameLineEdit && (frame->state & State_Enabled) && (frame->state & State_HasFocus);
             bool groupbox = element == PE_FrameGroupBox;
 
-            int lw = 1; int mlw = 1;
+            int lw = 1;
+            int mlw = 1;
 
             // Don't show frames in tiny rects
-            if (lw+mlw > frame->rect.width() || lw+mlw > frame->rect.height()) break ;
+            if (lw + mlw > frame->rect.width() || lw + mlw > frame->rect.height())
+                break;
 
             // Outer border, left side and top side
-            QColor color = focus ? highlightedDarkInnerBorderColor : borderColor.dark(112);
+            QColor color = focus ? highlightedDarkInnerBorderColor : borderColor;
             painter->fillRect(QRect(frame->rect.left() + lw + mlw,frame->rect.top(),
                                     frame->rect.width() - lw*2 - mlw*2,lw),color); // top line
             painter->fillRect(QRect(frame->rect.left(), frame->rect.top() + lw + mlw,
                                     lw, frame->rect.height() - lw*2 - mlw*2),color); // left line
 
             // Line ends
-            QColor alphaLineEnds = qt_plastique_mergedColors(frame->palette.background().color(),
-                                                             color);
+            QColor alphaLineEnds = mergedColors(frame->palette.background().color(), color);
             painter->fillRect(QRect(frame->rect.left() + lw, frame->rect.top(), mlw, lw),
                               alphaLineEnds);
             painter->fillRect(QRect(frame->rect.right() - lw - mlw + 1, frame->rect.top(), mlw, lw),
@@ -797,7 +785,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                               alphaLineEnds);
             painter->fillRect(QRect(frame->rect.right() - lw + 1, frame->rect.bottom() - lw - mlw + 1, lw, mlw),
                               alphaLineEnds);
-
+            
             // Only show inner frame for raised and sunken states
             if ((frame->state & State_Raised) || (frame->state & State_Sunken)) {
                 if (frame->state & State_Raised) {
@@ -884,7 +872,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 
         QImage handle(qt_toolbarhandle);
         handle.setColor(1, alphaCornerColor.rgba());
-        handle.setColor(2, qt_plastique_mergedColors(alphaCornerColor, option->palette.base().color()).rgba());
+        handle.setColor(2, mergedColors(alphaCornerColor, option->palette.base().color()).rgba());
         handle.setColor(3, option->palette.base().color().rgba());
 
         if (option->state & State_Horizontal) {
@@ -951,7 +939,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 painter->drawPoint(rect.left() + 2, rect.bottom() - 2);
                 painter->drawPoint(rect.right() - 2, rect.bottom() - 2);
 
-                QColor outlineColor = qt_plastique_mergedColors(alphaCornerColor.dark(110), option->palette.background().color());
+                QColor outlineColor = mergedColors(alphaCornerColor.dark(110), option->palette.background().color());
                 painter->setPen(outlineColor);
                 painter->drawLine(rect.left() + 2, rect.top(), rect.right() - 2, rect.top());
                 painter->drawLine(rect.left() + 2, rect.bottom(), rect.right() - 2, rect.bottom());
@@ -962,7 +950,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 painter->drawPoint(rect.left() + 1, rect.bottom() - 1);
                 painter->drawPoint(rect.right() - 1, rect.bottom() - 1);
 
-                painter->setPen(qt_plastique_mergedColors(outlineColor, option->palette.background().color()));
+                painter->setPen(mergedColors(outlineColor, option->palette.background().color()));
                 painter->drawPoint(rect.left() + 1, rect.top());
                 painter->drawPoint(rect.left() + 1, rect.bottom());
                 painter->drawPoint(rect.right() - 1, rect.top());
@@ -972,7 +960,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 painter->drawPoint(rect.right(), rect.top() + 1);
                 painter->drawPoint(rect.right(), rect.bottom() - 1);
 
-                painter->setPen(qt_plastique_mergedColors(outlineColor, borderColor.dark(105)));
+                painter->setPen(mergedColors(outlineColor, borderColor.dark(105)));
                 painter->drawPoint(rect.left() + 2, rect.top() + 1);
                 painter->drawPoint(rect.right() - 2, rect.top() + 1);
                 painter->drawPoint(rect.left() + 2, rect.bottom() - 1);
@@ -1031,7 +1019,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 painter->setPen(option->palette.button().color().light(96));
             } else {
                 if (hover) {
-                    painter->setPen(option->palette.highlight().color().light(138));
+                    painter->setPen(highlightedDarkInnerBorderColor.dark(105));
                 } else {
                     painter->setPen(option->palette.button().color().light(91));
                 }
@@ -1089,14 +1077,14 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                     painter->setPen(highlightedLightInnerBorderColor);
                     painter->drawLine(rect.left() + 2, rect.top() + 2,
                                       rect.right() - 2, rect.top() + 2);
-                    painter->setPen(option->palette.highlight().color().light(160));
+                    painter->setPen(highlightedLightInnerBorderColor.dark(105));
                     painter->drawLine(rect.left() + 2, rect.bottom() - 2,
                                       rect.right() - 2, rect.bottom() - 2);
                 } else {
                     painter->setPen(highlightedLightInnerBorderColor);
                     painter->drawLine(rect.left() + 1, rect.top() + 2,
                                       rect.right() - 1, rect.top() + 2);
-                    painter->setPen(option->palette.highlight().color().light(160));
+                    painter->setPen(highlightedLightInnerBorderColor.dark(105));
                     painter->drawLine(rect.left() + 1, rect.bottom() - 2,
                                       rect.right() - 1, rect.bottom() - 2);
                 }
@@ -1136,11 +1124,11 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 QLinearGradient gradient(QPointF(adjustedRect.left() + 1, adjustedRect.top() + 1),
                                          QPointF(adjustedRect.right() - 1, adjustedRect.bottom() - 1));
                 if (hover) {
-                    gradient.setColorAt(0, highlightedGradientStartColor);
-                    gradient.setColorAt(1, highlightedGradientStopColor);
+                    gradient.setColorAt(0, highlightedBaseGradientStartColor);
+                    gradient.setColorAt(1, highlightedBaseGradientStopColor);
                 } else {
-                    gradient.setColorAt(0, gradientStartColor);
-                    gradient.setColorAt(1, gradientStopColor);
+                    gradient.setColorAt(0, baseGradientStartColor);
+                    gradient.setColorAt(1, baseGradientStopColor);
                 }
                 painter->fillRect(adjustedRect.left() + 1, adjustedRect.top() + 1,
                                   adjustedRect.right() - adjustedRect.left() - 1,
@@ -1200,11 +1188,11 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                                      QPointF(button->rect.right(), button->rect.bottom()));
 
             if (hover) {
-                gradient.setColorAt(0, highlightedGradientStartColor);
-                gradient.setColorAt(1, highlightedGradientStopColor);
+                gradient.setColorAt(0, highlightedBaseGradientStartColor);
+                gradient.setColorAt(1, highlightedBaseGradientStopColor);
             } else {
-                gradient.setColorAt(0, gradientStartColor);
-                gradient.setColorAt(1, gradientStopColor);
+                gradient.setColorAt(0, baseGradientStartColor);
+                gradient.setColorAt(1, baseGradientStopColor);
             }
 
             painter->setPen(QPen(Qt::NoPen));
@@ -1224,7 +1212,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             QRect adjustedRect = button->rect;
             if (hover) {
                 image = QImage(qt_plastique_radio_innerhover);
-                image.setColor(1, qt_plastique_mergedColors(borderColor, highlightedDarkInnerBorderColor).rgba());
+                image.setColor(1, mergedColors(borderColor, highlightedDarkInnerBorderColor).rgba());
                 image.setColor(2, highlightedDarkInnerBorderColor.rgba());
                 image.setColor(3, highlightedLightInnerBorderColor.rgba());
                 adjustedRect = adjustedRect.adjusted(1, 1, 0, 0);
@@ -1239,10 +1227,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             if (button->state & State_On) {
                 image = QImage(qt_plastique_radio_check);
                 if (button->state & State_Sunken) {
-                    image.setColor(1, qt_plastique_mergedColors(button->palette.background().color(),
-                                                                alphaTextColor).rgba());
-                    image.setColor(2, qt_plastique_mergedColors(button->palette.background().color(),
-                                                                button->palette.text().color()).rgba());
+                    image.setColor(1, mergedColors(button->palette.background().color(), alphaTextColor).rgba());
+                    image.setColor(2, mergedColors(button->palette.background().color(), button->palette.text().color()).rgba());
                 } else {
                     image.setColor(1, alphaTextColor.rgba());
                     image.setColor(2, button->palette.text().color().rgba());
@@ -1269,8 +1255,12 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         bool active = (option->state & State_Active);
         int titleBarStop = option->rect.top() + pixelMetric(PM_TitleBarHeight, option, widget);
 
+        QPalette palette = option->palette;
+        if (!active)
+            palette.setCurrentColorGroup(QPalette::Disabled);
+        
         // Frame and rounded corners
-        painter->setPen(QColor(0x393939));
+        painter->setPen(mergedColors(palette.highlight().color(), Qt::black, 50));
 
         // bottom border line        
         painter->drawLine(option->rect.left() + 1, option->rect.bottom(), option->rect.right() - 1, option->rect.bottom());
@@ -1282,29 +1272,19 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         painter->drawPoint(option->rect.right() - 1, option->rect.bottom() - 1);
 
         // alpha corners
-        painter->setPen(QColor(active ? 0x4b5e7f : 0x6a6a6a));
+        painter->setPen(mergedColors(palette.highlight().color(), palette.background().color(), 55));
         painter->drawPoint(option->rect.left() + 2, option->rect.bottom() - 1);
         painter->drawPoint(option->rect.left() + 1, option->rect.bottom() - 2);
         painter->drawPoint(option->rect.right() - 2, option->rect.bottom() - 1);
         painter->drawPoint(option->rect.right() - 1, option->rect.bottom() - 2);
 
         // upper and lower left inner
-        painter->setPen(QColor(active ? 0xc5cad8 : 0xcfcfcf));
+        painter->setPen(active ? mergedColors(palette.highlight().color(), palette.background().color()) : palette.background().color().dark(120));
         painter->drawLine(option->rect.left() + 1, titleBarStop, option->rect.left() + 1, option->rect.bottom() - 2);
-        painter->setPen(QColor(active ? 0x9a9fad : 0xa8a8a8));
+        painter->setPen(active ? mergedColors(palette.highlight().color(), palette.background().color(), 57) : palette.background().color().dark(130));
         painter->drawLine(option->rect.right() - 1, titleBarStop, option->rect.right() - 1, option->rect.bottom() - 2);
         painter->drawLine(option->rect.left() + 1, option->rect.bottom() - 1, option->rect.right() - 1, option->rect.bottom() - 1);
 
-        // ### draw these?
-        painter->setPen(QColor(0xeeeeee));
-        painter->drawLine(option->rect.left() + 2, titleBarStop, option->rect.left() + 2, option->rect.bottom() - 2);
-        painter->drawLine(option->rect.left() + 3, titleBarStop, option->rect.left() + 3, option->rect.bottom() - 2);
-        painter->setPen(QColor(0xeeeeee));
-        painter->drawLine(option->rect.right() - 2, titleBarStop, option->rect.right() - 2, option->rect.bottom() - 2);
-        painter->drawLine(option->rect.right() - 3, titleBarStop, option->rect.right() - 3, option->rect.bottom() - 2);
-        painter->drawLine(option->rect.left() + 4, option->rect.bottom() - 3, option->rect.right() - 4, option->rect.bottom() - 3);
-        painter->drawLine(option->rect.left() + 4, option->rect.bottom() - 2, option->rect.right() - 4, option->rect.bottom() - 2);
-        
         painter->restore();
     }
         break;
@@ -1317,35 +1297,29 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *option,
                                   QPainter *painter, const QWidget *widget) const
 {
-    QColor borderColor = option->palette.button().color().dark(162);
+    QColor borderColor = option->palette.background().color().dark(178);
+    QColor alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    QColor alphaTextColor = mergedColors(option->palette.background().color(), option->palette.text().color());
 
-    QColor alphaCornerColor = option->palette.background().color();
-    alphaCornerColor.setRed((alphaCornerColor.red() + borderColor.red()) / 2);
-    alphaCornerColor.setGreen((alphaCornerColor.green() + borderColor.green()) / 2);
-    alphaCornerColor.setBlue((alphaCornerColor.blue() + borderColor.blue()) / 2);
+    QColor gradientStartColor = option->palette.button().color().light(104);
+    QColor gradientStopColor = option->palette.button().color().dark(105);
 
-    QColor alphaTextColor = option->palette.background().color();
-    alphaTextColor.setRed((alphaTextColor.red() + option->palette.text().color().red()) / 2);
-    alphaTextColor.setGreen((alphaTextColor.green() + option->palette.text().color().green()) / 2);
-    alphaTextColor.setBlue((alphaTextColor.blue() + option->palette.text().color().blue()) / 2);
-
-    QColor gradientStartColor = option->palette.button().color().dark(90);
-    QColor gradientStopColor = option->palette.button().color().dark(108);
     QColor shadowGradientStartColor = option->palette.button().color().dark(115);
     QColor shadowGradientStopColor = option->palette.button().color().dark(120);
-    QColor lightShadowGradientStartColor = option->palette.button().color().light(105);
-    QColor lightShadowGradientStopColor = option->palette.button().color().light(115);
-    QColor tabGradientStartColor = option->palette.button().color().dark(95);
-    QColor tabGradientStopColor = option->palette.button().color().dark(108);
 
-    QColor highlightedGradientStartColor = option->palette.highlight().color().light(200);
-    QColor highlightedGradientStopColor = option->palette.highlight().color().light(190);    
-    QColor highlightedLightInnerBorderColor = option->palette.highlight().color().light(163);
-    QColor highlightedDarkInnerBorderColor = qt_plastique_mergedColors(option->palette.highlight().color(), borderColor);
-    QColor alphaInnerColor = qt_plastique_mergedColors(highlightedDarkInnerBorderColor, option->palette.base().color());
+    QColor highlightedGradientStartColor = option->palette.button().color().light(101);
+    QColor highlightedGradientStopColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 85);
+
+    QColor lightShadowGradientStartColor = highlightedGradientStartColor.light(105);
+    QColor lightShadowGradientStopColor = highlightedGradientStopColor.light(105);
+
+    QColor highlightedDarkInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 35);
+    QColor highlightedLightInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 58);
+
+    QColor alphaInnerColor = mergedColors(highlightedDarkInnerBorderColor, option->palette.base().color());
     QColor lightShadow = lightShadowGradientStartColor;
     QColor shadow = shadowGradientStartColor;
-
+    
     switch (element) {
     case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
@@ -1365,7 +1339,6 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             bool previousSelected = tab->selectedPosition == QStyleOptionTab::PreviousIsSelected;
             bool nextSelected = tab->selectedPosition == QStyleOptionTab::NextIsSelected;            
             bool leftCornerWidget = (tab->cornerWidgets & QStyleOptionTab::LeftCornerWidget);
-            bool rightCornerWidget = (tab->cornerWidgets & QStyleOptionTab::RightCornerWidget);
             bool reverse = (tab->direction == Qt::RightToLeft);
 
             int lowerTop = selected ? 0 : 3; // to make the selected tab bigger than the rest
@@ -1519,10 +1492,10 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     }
 
                     // Background
-                    QPoint startPoint = topLine.p1() + vectorDown;
+                    QPoint startPoint = topLine.p1() + vectorDown + vectorLeft;
                     if (mouseOver) 
                         startPoint += vectorDown;
-                    QPoint endPoint = rightLine.p2() + vectorLeft;
+                    QPoint endPoint = rightLine.p2();
                     
                     QRect fillRect = QRect(startPoint, endPoint);                    
                     QLinearGradient fillGradient(leftLine.p1(), leftLine.p2());            
@@ -1530,11 +1503,11 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     if (mouseOver) {
                         fillGradient.setColorAt(0, highlightedGradientStartColor);
                         fillGradient.setColorAt(1, highlightedGradientStopColor);
-
                     } else {
-                        fillGradient.setColorAt(0, tabGradientStartColor);
-                        fillGradient.setColorAt(1, tabGradientStopColor);
+                        fillGradient.setColorAt(0, gradientStartColor);
+                        fillGradient.setColorAt(1, gradientStopColor);
                     }
+
                     if (selected)
                         painter->fillRect(fillRect, tab->palette.background()); 
                     else
@@ -1545,15 +1518,11 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     QPoint bottomRightConnectToBase = rightLine.p2() + vectorRight + vectorDown;
                     QPoint bottomLeftConnectToBase = leftLine.p2() + vectorLeft + vectorDown;
 
-                    
-                    if (mouseOver)
-                        painter->setPen(highlightedDarkInnerBorderColor);
-                    else
-                        painter->setPen(borderColor);
+                    painter->setPen(borderColor);
                     painter->drawLine(topLine);
 
                     if (mouseOver) {
-                        QLine secondHoverLine = QLine(topLine.p1() + vectorDown, topLine.p2() + vectorDown);
+                        QLine secondHoverLine = QLine(topLine.p1() + vectorDown * 2 + vectorLeft, topLine.p2() + vectorDown * 2 + vectorRight);
                         painter->setPen(highlightedLightInnerBorderColor);
                         painter->drawLine(secondHoverLine);
                     }
@@ -1596,11 +1565,13 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                         QLinearGradient topLineGradient(innerTopLine.p1(),innerTopLine.p2());
                         topLineGradient.setColorAt(0, lightShadowGradientStartColor);
                         topLineGradient.setColorAt(1, lightShadowGradientStopColor);
-                        painter->setPen(QPen(QBrush(topLineGradient), 1));
-                    } else painter->setPen(lightShadow);                    
+                        painter->setPen(QPen(mouseOver ? QBrush(highlightedDarkInnerBorderColor) : QBrush(topLineGradient), 1));
+                    } else {
+                        painter->setPen(lightShadow);
+                    }
                     painter->drawLine(innerTopLine);
 
-                    QLine innerLeftLine = QLine(leftLine.p1() + vectorRight, leftLine.p2() + vectorRight);
+                    QLine innerLeftLine = QLine(leftLine.p1() + vectorRight + vectorDown, leftLine.p2() + vectorRight);
                     if (selected || atBeginning) {
                         if (!selected) {
                             QLinearGradient leftLineGradient(innerLeftLine.p1(),innerLeftLine.p2());
@@ -1611,7 +1582,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
                         painter->drawLine(innerLeftLine);
                     }
-                    QLine innerRightLine = QLine(rightLine.p1() + vectorLeft, rightLine.p2() + vectorLeft);;
+                    QLine innerRightLine = QLine(rightLine.p1() + vectorLeft + vectorDown, rightLine.p2() + vectorLeft);
                     if (atEnd || selected) {                        
                         if (!selected) {
                             QLinearGradient rightLineGradient(innerRightLine.p1(),innerRightLine.p2());
@@ -1619,6 +1590,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                             rightLineGradient.setColorAt(1, shadowGradientStopColor);
                             painter->setPen(QPen(QBrush(rightLineGradient), 1));
                         } else {
+                            innerRightLine = QLine(innerRightLine.p1() + vectorUp, innerRightLine.p2());
                             painter->setPen(shadow);
                         }
                         
@@ -1979,7 +1951,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                 QRect checkRect(option->rect.left() + 7, option->rect.center().y() - 6, 13, 13);
                 painter->setPen(borderColor);
                 painter->drawRect(checkRect.adjusted(0, 0, -1, -1));
-                painter->setPen(qt_plastique_mergedColors(borderColor,
+                painter->setPen(mergedColors(borderColor,
                                                           selected ? option->palette.highlight().color()
                                                           : option->palette.background().color()));
                 painter->drawPoint(checkRect.topLeft());
@@ -2137,7 +2109,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             // Draw the toolbar handle pattern to the left and right of the text
             QImage handle(qt_toolbarhandle);
             handle.setColor(1, alphaCornerColor.rgba());
-            handle.setColor(2, qt_plastique_mergedColors(alphaCornerColor, option->palette.base().color()).rgba());
+            handle.setColor(2, mergedColors(alphaCornerColor, option->palette.base().color()).rgba());
             handle.setColor(3, option->palette.base().color().rgba());
 
             QRect leftSide(titleRect.left(), titleRect.top(), titleRect.width() / 2 - textWidth / 2 - margin, titleRect.bottom());
@@ -2183,14 +2155,14 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                          QPainter *painter, const QWidget *widget) const
 {
-    QColor borderColor = option->palette.button().color().dark(162);
-    QColor alphaCornerColor = qt_plastique_mergedColors(borderColor, option->palette.background().color());
-    QColor gradientStartColor = option->palette.button().color().dark(90);
-    QColor gradientStopColor = option->palette.button().color().dark(108);
-    QColor highlightedGradientStartColor = option->palette.highlight().color().light(200);
-    QColor highlightedGradientStopColor = option->palette.highlight().color().light(190);
-    QColor highlightedDarkInnerBorderColor = option->palette.highlight().color().light(143);
-    QColor highlightedLightInnerBorderColor = option->palette.highlight().color().light(163);
+    QColor borderColor = option->palette.background().color().dark(178);
+    QColor alphaCornerColor = mergedColors(option->palette.background().color(), borderColor);
+    QColor gradientStartColor = option->palette.button().color().light(104);
+    QColor gradientStopColor = option->palette.button().color().dark(105);
+    QColor highlightedGradientStartColor = option->palette.button().color().light(101);
+    QColor highlightedGradientStopColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 85);
+    QColor highlightedDarkInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 35);
+    QColor highlightedLightInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 58);
 
     switch (control) {
     case CC_Slider:
@@ -2398,9 +2370,9 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     gradient2.setColorAt(0, gradientStopColor);
                     gradient2.setColorAt(1, gradientStopColor);
                 } else {
-                    gradient1.setColorAt(0, gradientStartColor.dark(106));
+                    gradient1.setColorAt(0, gradientStartColor.light(105));
                     gradient1.setColorAt(1, gradientStopColor);
-                    gradient2.setColorAt(0, gradientStartColor.dark(106));
+                    gradient2.setColorAt(0, gradientStartColor.light(105));
                     gradient2.setColorAt(1, gradientStopColor);
                 }
                 painter->fillRect(button1.left() + 2, button1.top() + 2,
@@ -2419,10 +2391,10 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 subButton.setColor(2, borderColor.rgba());
                 if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && (scrollBar->state & State_Sunken)) {
                     subButton.setColor(3, gradientStopColor.rgba());
-                    subButton.setColor(4, gradientStopColor.dark(104).rgba());
+                    subButton.setColor(4, gradientStopColor.rgba());
                 } else {
-                    subButton.setColor(3, gradientStartColor.dark(105).rgba());
-                    subButton.setColor(4, gradientStopColor.dark(104).rgba());
+                    subButton.setColor(3, gradientStartColor.light(105).rgba());
+                    subButton.setColor(4, gradientStopColor.rgba());
                 }
                 subButton.setColor(5, scrollBar->palette.text().color().rgba());
                 painter->drawImage(button1, subButton);
@@ -2463,7 +2435,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     gradient.setColorAt(0, gradientStopColor);
                     gradient.setColorAt(1, gradientStopColor);
                 } else {
-                    gradient.setColorAt(0, gradientStartColor.dark(106));
+                    gradient.setColorAt(0, gradientStartColor.light(105));
                     gradient.setColorAt(1, gradientStopColor);
                 }
                 painter->fillRect(scrollBarAddLine.left() + 2, scrollBarAddLine.top() + 2,
@@ -2481,10 +2453,10 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 addButton.setColor(2, borderColor.rgba());
                 if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && (scrollBar->state & State_Sunken)) {
                     addButton.setColor(3, gradientStopColor.rgba());
-                    addButton.setColor(4, gradientStopColor.dark(104).rgba());
+                    addButton.setColor(4, gradientStopColor.rgba());
                 } else {
-                    addButton.setColor(3, gradientStartColor.dark(105).rgba());
-                    addButton.setColor(4, gradientStopColor.dark(104).rgba());
+                    addButton.setColor(3, gradientStartColor.light(105).rgba());
+                    addButton.setColor(4, gradientStopColor.rgba());
                 }
                 addButton.setColor(5, scrollBar->palette.text().color().rgba());
                 painter->drawImage(scrollBarAddLine, addButton);
@@ -2515,7 +2487,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             if (scrollBar->subControls & SC_ScrollBarSlider) {
                 QLinearGradient gradient(scrollBarSlider.center().x(), scrollBarSlider.top(),
                                          scrollBarSlider.center().x(), scrollBarSlider.bottom());
-                gradient.setColorAt(0, gradientStartColor);
+                gradient.setColorAt(0, gradientStartColor.light(105));
                 gradient.setColorAt(1, gradientStopColor);
                 painter->fillRect(scrollBarSlider.adjusted(2, 2, -2, -2), gradient);
 
@@ -2527,13 +2499,13 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 painter->drawPoint(scrollBarSlider.right(), scrollBarSlider.top());
                 painter->drawPoint(scrollBarSlider.right(), scrollBarSlider.bottom());
 
-                painter->setPen(gradientStartColor.dark(105));
+                painter->setPen(gradientStartColor.light(105));
                 painter->drawLine(scrollBarSlider.left() + 1, scrollBarSlider.top() + 1,
                                   scrollBarSlider.right() - 1, scrollBarSlider.top() + 1);
                 painter->drawLine(scrollBarSlider.left() + 1, scrollBarSlider.top() + 2,
                                   scrollBarSlider.left() + 1, scrollBarSlider.bottom() - 2);
 
-                painter->setPen(gradientStopColor.dark(105));
+                painter->setPen(gradientStopColor);
                 painter->drawLine(scrollBarSlider.left() + 1, scrollBarSlider.bottom() - 1,
                                   scrollBarSlider.right() - 1, scrollBarSlider.bottom() - 1);
                 painter->drawLine(scrollBarSlider.right() - 1, scrollBarSlider.top() + 2,
@@ -2544,7 +2516,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     || (!horizontal && scrollBar->rect.height() > (16 * 3 + sliderMinLength))) {
                     QImage pattern(qt_scrollbar_slider_pattern);
                     pattern.setColor(1, alphaCornerColor.rgba());
-                    pattern.setColor(2, gradientStartColor.rgba());
+                    pattern.setColor(2, gradientStartColor.light(105).rgba());
 
                     if (horizontal) {
                         painter->drawImage(scrollBarSlider.center().x() - pattern.width() / 2 + 1,
@@ -2579,12 +2551,11 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             QRect downRect = subControlRect(CC_SpinBox, option, SC_SpinBoxDown, widget);
 
             // gradients
-            QLinearGradient upGradient(upRect.center().x(), upRect.top(),
-                                       upRect.center().x(), upRect.bottom());
             if (spinBox->activeSubControls == SC_SpinBoxUp && (spinBox->state & State_Sunken)) {
-                upGradient.setColorAt(0, gradientStopColor.rgba());
-                upGradient.setColorAt(1, gradientStopColor.rgba());
+                painter->fillRect(upRect.adjusted(1, 1, -1, 0), gradientStopColor);
             } else {
+                QLinearGradient upGradient(upRect.center().x(), upRect.top(),
+                                           upRect.center().x(), upRect.bottom());
                 if (focus) {
                     upGradient.setColorAt(0, highlightedGradientStartColor.rgba());
                     upGradient.setColorAt(1, highlightedGradientStopColor.rgba());
@@ -2592,15 +2563,14 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     upGradient.setColorAt(0, gradientStartColor.rgba());
                     upGradient.setColorAt(1, gradientStopColor.rgba());
                 }
+                painter->fillRect(upRect.adjusted(1, 1, -1, 0), upGradient);
             }
-            painter->fillRect(upRect.adjusted(1, 1, -1, 0), upGradient);
 
-            QLinearGradient downGradient(downRect.center().x(), downRect.top(),
-                                         downRect.center().x(), downRect.bottom());
             if (spinBox->activeSubControls == SC_SpinBoxDown && (spinBox->state & State_Sunken)) {
-                downGradient.setColorAt(0, gradientStopColor.rgba());
-                downGradient.setColorAt(1, gradientStopColor.rgba());
+                painter->fillRect(downRect.adjusted(1, 0, -1, -1), gradientStopColor);
             } else {
+                QLinearGradient downGradient(downRect.center().x(), downRect.top(),
+                                             downRect.center().x(), downRect.bottom());
                 if (focus) {
                     downGradient.setColorAt(0, highlightedGradientStartColor.rgba());
                     downGradient.setColorAt(1, highlightedGradientStopColor.rgba());
@@ -2608,8 +2578,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     downGradient.setColorAt(0, gradientStartColor.rgba());
                     downGradient.setColorAt(1, gradientStopColor.rgba());
                 }
+                painter->fillRect(downRect.adjusted(1, 0, -1, -1), downGradient);
             }
-            painter->fillRect(downRect.adjusted(1, 0, -1, -1), downGradient);
 
             // outline the up/down buttons
             if (!focus) {
@@ -2798,18 +2768,28 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
         if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
             painter->save();
             bool active = (titleBar->titleBarState & State_Active);
-
             QRect fullRect = titleBar->rect;
+
+            QColor titleBarGradientStart(active ? 0x3b508a : 0x6e6e6e);
+            QColor titleBarGradientStop(active ? 0x5d6e9e : 0x818181);
+            QColor titleBarFrameBorder(0x393939);
+            QColor titleBarAlphaCorner(active ? 0x4b5e7f : 0x6a6a6a);
+            QColor titleBarInnerTopLine(active ? 0x8e98ba : 0xa4a4a4);
+            QColor titleBarInnerInnerTopLine(active ? 0x57699b : 0x808080);
+            QColor leftCorner(active ? 0x6f7ea8 : 0x8e8e8e);
+            QColor rightCorner(active ? 0x44537d : 0x676767);
+            QColor textColor(active ? 0x282e40 : 0x282e40);
+            QColor textAlphaColor(active ? 0x3f4862 : 0x3f4862);
 
             // Fill titlebar gradient
             QLinearGradient gradient(option->rect.center().x(), option->rect.top() + 1,
                                      option->rect.center().x(), option->rect.bottom());
-            gradient.setColorAt(0, active ? 0x3b508a : 0x6e6e6e);
-            gradient.setColorAt(1, active ? 0x5d6e9e : 0x818181);
+            gradient.setColorAt(0, titleBarGradientStart);
+            gradient.setColorAt(1, titleBarGradientStop);
             painter->fillRect(option->rect.adjusted(1, 1, -1, 0), gradient);
 
             // Frame and rounded corners
-            painter->setPen(QColor(0x393939));
+            painter->setPen(titleBarFrameBorder);
 
             // top border line
             painter->drawLine(fullRect.left() + 2, fullRect.top(), fullRect.right() - 2, fullRect.top());
@@ -2819,24 +2799,24 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             painter->drawPoint(fullRect.right() - 1, fullRect.top() + 1);
 
             // alpha corners
-            painter->setPen(QColor(active ? 0x4b5e7f : 0x6a6a6a));
+            painter->setPen(titleBarAlphaCorner);
             painter->drawPoint(fullRect.left() + 2, fullRect.top() + 1);
             painter->drawPoint(fullRect.left() + 1, fullRect.top() + 2);
             painter->drawPoint(fullRect.right() - 2, fullRect.top() + 1);
             painter->drawPoint(fullRect.right() - 1, fullRect.top() + 2);
            
             // inner top line
-            painter->setPen(QColor(active ? 0x8e98ba : 0xa4a4a4));
+            painter->setPen(titleBarInnerTopLine);
             painter->drawLine(fullRect.left() + 3, fullRect.top() + 1, fullRect.right() - 3, fullRect.top() + 1);
 
             // inner inner top line
-            painter->setPen(QColor(active ? 0x57699b : 0x808080));
+            painter->setPen(titleBarInnerInnerTopLine);
             painter->drawLine(fullRect.left() + 2, fullRect.top() + 2, fullRect.right() - 2, fullRect.top() + 2);
             
             // left and right inner
-            painter->setPen(QColor(active ? 0x6f7ea8 : 0x8e8e8e));
+            painter->setPen(leftCorner);
             painter->drawLine(fullRect.left() + 1, fullRect.top() + 3, fullRect.left() + 1, fullRect.bottom());
-            painter->setPen(QColor(active ? 0x44537d : 0x676767));
+            painter->setPen(rightCorner);
             painter->drawLine(fullRect.right() - 1, fullRect.top() + 3, fullRect.right() - 1, fullRect.bottom());
 
             // draw title
@@ -2849,10 +2829,6 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             painter->drawText(textRect.adjusted(1, 1, 1, 1), titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
             painter->setPen(titleBar->palette.highlightedText().color());
             painter->drawText(textRect, titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
-
-	    QColor textColor(active ? 0x282e40 : 0x282e40);
-	    QColor textAlphaColor(active ? 0x3f4862 : 0x3f4862);
-
             
             if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_MouseOver);
@@ -3493,54 +3469,55 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 QPalette QPlastiqueStyle::standardPalette()
 {
     QPalette palette;
+
     palette.setBrush(QPalette::Disabled, QPalette::Foreground, QColor(QRgb(0xff808080)));
-    palette.setBrush(QPalette::Disabled, QPalette::Button, QColor(QRgb(0xfff4f4f4)));
+    palette.setBrush(QPalette::Disabled, QPalette::Button, QColor(QRgb(0xffdddfe4)));
     palette.setBrush(QPalette::Disabled, QPalette::Light, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Disabled, QPalette::Midlight, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Disabled, QPalette::Dark, QColor(QRgb(0xff555555)));
-    palette.setBrush(QPalette::Disabled, QPalette::Mid, QColor(QRgb(0xffc6c6c6)));
-    palette.setBrush(QPalette::Disabled, QPalette::Text, QColor(QRgb(0xffc6c6c6)));
+    palette.setBrush(QPalette::Disabled, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
+    palette.setBrush(QPalette::Disabled, QPalette::Text, QColor(QRgb(0xffc7c7c7)));
     palette.setBrush(QPalette::Disabled, QPalette::BrightText, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Disabled, QPalette::ButtonText, QColor(QRgb(0xff808080)));
     palette.setBrush(QPalette::Disabled, QPalette::Base, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Disabled, QPalette::Background, QColor(QRgb(0xffeeeeee)));
+    palette.setBrush(QPalette::Disabled, QPalette::Background, QColor(QRgb(0xffefefef)));
     palette.setBrush(QPalette::Disabled, QPalette::Shadow, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(QRgb(0xff3966aa)));
+    palette.setBrush(QPalette::Disabled, QPalette::Highlight, QColor(QRgb(0xff567594)));
     palette.setBrush(QPalette::Disabled, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Disabled, QPalette::Link, QColor(QRgb(0xff535378)));
-    palette.setBrush(QPalette::Disabled, QPalette::LinkVisited, QColor(QRgb(0xff004000)));
+    palette.setBrush(QPalette::Disabled, QPalette::Link, QColor(QRgb(0xff0000ee)));
+    palette.setBrush(QPalette::Disabled, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
     palette.setBrush(QPalette::Active, QPalette::Foreground, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Active, QPalette::Button, QColor(QRgb(0xfff4f4f4)));
+    palette.setBrush(QPalette::Active, QPalette::Button, QColor(QRgb(0xffdddfe4)));
     palette.setBrush(QPalette::Active, QPalette::Light, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Active, QPalette::Midlight, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Active, QPalette::Dark, QColor(QRgb(0xff555555)));
-    palette.setBrush(QPalette::Active, QPalette::Mid, QColor(QRgb(0xffc6c6c6)));
+    palette.setBrush(QPalette::Active, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
     palette.setBrush(QPalette::Active, QPalette::Text, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Active, QPalette::BrightText, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Active, QPalette::ButtonText, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Active, QPalette::Base, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Active, QPalette::Background, QColor(QRgb(0xffeeeeee)));
+    palette.setBrush(QPalette::Active, QPalette::Background, QColor(QRgb(0xffefefef)));
     palette.setBrush(QPalette::Active, QPalette::Shadow, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(QRgb(0xff447bcd)));
+    palette.setBrush(QPalette::Active, QPalette::Highlight, QColor(QRgb(0xff678db2)));
     palette.setBrush(QPalette::Active, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Active, QPalette::Link, QColor(QRgb(0xff535378)));
-    palette.setBrush(QPalette::Active, QPalette::LinkVisited, QColor(QRgb(0xff004000)));
+    palette.setBrush(QPalette::Active, QPalette::Link, QColor(QRgb(0xff0000ee)));
+    palette.setBrush(QPalette::Active, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
     palette.setBrush(QPalette::Inactive, QPalette::Foreground, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Inactive, QPalette::Button, QColor(QRgb(0xfff4f4f4)));
+    palette.setBrush(QPalette::Inactive, QPalette::Button, QColor(QRgb(0xffdddfe4)));
     palette.setBrush(QPalette::Inactive, QPalette::Light, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Inactive, QPalette::Midlight, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Inactive, QPalette::Dark, QColor(QRgb(0xff555555)));
-    palette.setBrush(QPalette::Inactive, QPalette::Mid, QColor(QRgb(0xffc6c6c6)));
+    palette.setBrush(QPalette::Inactive, QPalette::Mid, QColor(QRgb(0xffc7c7c7)));
     palette.setBrush(QPalette::Inactive, QPalette::Text, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Inactive, QPalette::BrightText, QColor(QRgb(0xffffffff)));
     palette.setBrush(QPalette::Inactive, QPalette::ButtonText, QColor(QRgb(0xff000000)));
     palette.setBrush(QPalette::Inactive, QPalette::Base, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Inactive, QPalette::Background, QColor(QRgb(0xffeeeeee)));
+    palette.setBrush(QPalette::Inactive, QPalette::Background, QColor(QRgb(0xffefefef)));
     palette.setBrush(QPalette::Inactive, QPalette::Shadow, QColor(QRgb(0xff000000)));
-    palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(QRgb(0xff447bcd)));
+    palette.setBrush(QPalette::Inactive, QPalette::Highlight, QColor(QRgb(0xff678db2)));
     palette.setBrush(QPalette::Inactive, QPalette::HighlightedText, QColor(QRgb(0xffffffff)));
-    palette.setBrush(QPalette::Inactive, QPalette::Link, QColor(QRgb(0xff535378)));
-    palette.setBrush(QPalette::Inactive, QPalette::LinkVisited, QColor(QRgb(0xff004000)));
+    palette.setBrush(QPalette::Inactive, QPalette::Link, QColor(QRgb(0xff0000ee)));
+    palette.setBrush(QPalette::Inactive, QPalette::LinkVisited, QColor(QRgb(0xff52188b)));
     return palette;
 }
 
