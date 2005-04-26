@@ -747,7 +747,7 @@ void QPainter::restore()
         printf("QPainter::restore()\n");
 #endif
     Q_D(QPainter);
-    if (d->states.size()==0) {
+    if (d->states.size()<=1) {
         qWarning("QPainter::restore(), unbalanced save/restore");
         return;
     } else if (!isActive()) {
