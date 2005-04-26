@@ -909,7 +909,9 @@ void QWidget::repaint(const QRegion& rgn)
     bool do_clipping = (br != QRect(0, 0, data->crect.width(), data->crect.height()));
 
     QRasterPaintEngine *rasterEngine = 0;
-    if (paintEngine()->type() == QPaintEngine::Raster)
+    QPaintEngine *engine = paintEngine();
+
+    if (engine && engine->type() == QPaintEngine::Raster)
 	rasterEngine = static_cast<QRasterPaintEngine *>(paintEngine());
 
     if (rasterEngine && do_clipping)
