@@ -70,14 +70,13 @@ QAction *SignalSlotEditorTool::action() const
 void SignalSlotEditorTool::activated()
 {
     connect(formWindow(), SIGNAL(changed()),
-                m_editor, SLOT(updateBackground()));
-    m_editor->updateBackground();
+            m_editor, SLOT(updateBackground()));
+    m_editor->enableUpdateBackground(true);
 }
 
 void SignalSlotEditorTool::deactivated()
 {
-    disconnect(formWindow(), SIGNAL(changed()),
-                m_editor, SLOT(updateBackground()));
+    m_editor->enableUpdateBackground(false);
 }
 
 void SignalSlotEditorTool::saveToDom(DomUI *ui, QWidget*)

@@ -909,6 +909,7 @@ ConnectionEdit::ConnectionEdit(QWidget *parent, QDesignerFormWindowInterface *fo
     m_widget_under_mouse = 0;
     m_tmp_con = 0;
     m_start_connection_on_drag = true;
+    m_enable_update_background = false;
     m_undo_stack = form->commandHistory();
     m_active_color = Qt::red;
     m_inactive_color = Qt::blue;
@@ -939,12 +940,20 @@ void ConnectionEdit::setBackground(QWidget *background)
     updateBackground();
 }
 
+void ConnectionEdit::enableUpdateBackground(bool enable)
+{
+    m_enable_update_background = enable;
+    if (enable)
+        updateBackground();
+}
+
 void ConnectionEdit::updateBackground()
 {
-    if (m_bg_widget == 0) {
-        // nothing to do
+    if (m_bg_widget == 0)
         return;
-    }
+
+    if (!m_enable_update_background)
+        return;
 
     m_bg_pixmap = QPixmap::grabWidget(m_bg_widget);
 /*

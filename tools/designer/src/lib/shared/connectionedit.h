@@ -147,6 +147,7 @@ public slots:
     void updateBackground();
     void widgetRemoved(QWidget *w);
     void updateLines();
+    void enableUpdateBackground(bool enable);
 
 protected:
     virtual void paintEvent(QPaintEvent *e);
@@ -171,6 +172,7 @@ private:
     QWidget *m_bg_widget;
     QtUndoStack *m_undo_stack;
     QPixmap m_bg_pixmap;
+    bool m_enable_update_background;
 
     Connection *m_tmp_con; // the connection we are currently editing
     ConnectionList m_con_list;
