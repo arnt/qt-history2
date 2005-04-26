@@ -27,7 +27,7 @@ inline uint qHash(uchar key) { return uint(key); }
 inline uint qHash(signed char key) { return uint(key); }
 inline uint qHash(ushort key) { return uint(key); }
 inline uint qHash(short key) { return uint(key); }
-inline uint qHash(uint key) { return uint(key); }
+inline uint qHash(uint key) { return key; }
 inline uint qHash(int key) { return uint(key); }
 inline uint qHash(ulong key)
 {
