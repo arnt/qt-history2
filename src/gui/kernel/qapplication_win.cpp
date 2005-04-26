@@ -794,7 +794,8 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
         wc.hCursor        = 0;
         wc.hbrBackground= 0;
         wc.lpszMenuName        = 0;
-        wc.lpszClassName= cname.toLatin1();
+	  QByteArray tempArray = cname.toLatin1();
+        wc.lpszClassName= tempArray;
         atom = RegisterClassA(&wc);
     });
 #else
