@@ -2014,6 +2014,7 @@ bool QTreeWidget::dropMimeData(QTreeWidgetItem *parent, int index,
                 parent->insertChild(index, item);
             else
                 insertTopLevelItem(index, item);
+            ++index;
         }
         return true;
     }
@@ -2029,6 +2030,7 @@ bool QTreeWidget::dropMimeData(QTreeWidgetItem *parent, int index,
                 parent->insertChild(index, item);
             else
                 insertTopLevelItem(index, item);
+            ++index;
         }
         return true;
     }
