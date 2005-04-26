@@ -26,36 +26,50 @@
 
 #include "qconfig.cpp"
 
+
 Q_GLOBAL_STATIC(QString, qt_library_config_file)
 Q_CORE_EXPORT void qt_set_library_config_file(const QString &p) { *(qt_library_config_file()) = p; }
 
 class QLibraryInfoPrivate
 {
 private:
-#ifdef QT_NO_QOBJECT
-    static QSettings *qt_library_settings;
-#else
-    static QPointer<QSettings> qt_library_settings;
-#endif
     static QSettings *findConfiguration();
-public:
-    //~QLibraryInfoPrivate() { cleanup(); }
-    static void cleanup() { if (static_cast<QSettings *>(qt_library_settings)) { delete static_cast<QSettings *>(qt_library_settings); qt_library_settings = 0; } }
-    static QSettings *configuration() {
-        if(!qt_library_settings) {
-#ifndef QT_NO_QOBJECT
-            qAddPostRoutine(QLibraryInfoPrivate::cleanup);
-#endif
-            qt_library_settings = findConfiguration();
+    static void cleanup()
+    {
+        QLibrarySettings *ls = qt_library_settings();
+        if (ls) {
+            delete static_cast<QSettings *>(ls->settings);
+            ls->settings = 0;
         }
-        return qt_library_settings;
     }
-};
+
+public:
+    static QSettings *configuration()
+    {
+        QLibrarySettings *ls = qt_library_settings();
+        return ls ? static_cast<QSettings *>(qt_library_settings()->settings) : (QSettings*)0;
+    }
+
+    struct QLibrarySettings
+    {
+        QLibrarySettings()
+        {
+            if (!static_cast<QSettings *>(settings)) {
+                settings = findConfiguration();
+                qAddPostRoutine(QLibraryInfoPrivate::cleanup);
+            }
+        }
+        ~QLibrarySettings() { delete static_cast<QSettings *>(settings); }
+
 #ifdef QT_NO_QOBJECT
-QSettings *QLibraryInfoPrivate::qt_library_settings = 0;
+        QSettings *settings;
 #else
-QPointer<QSettings> QLibraryInfoPrivate::qt_library_settings = 0;
+        QPointer<QSettings> settings;
 #endif
+    };
+
+    Q_GLOBAL_STATIC(QLibrarySettings, qt_library_settings)
+};
 
 QSettings *QLibraryInfoPrivate::findConfiguration()
 {
