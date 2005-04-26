@@ -53,6 +53,14 @@ struct QATSUStyle {
     ATSUStyle style;
     QColor rgb;
     int ascent, descent, leading, maxWidth; //slight cache
+    QATSUStyle() {
+        style = 0;
+    }
+    ~QATSUStyle() {
+        if (style)
+            ATSUDisposeStyle(style);
+
+    }
 };
 
 //Mac (ATSUI) engine
@@ -63,9 +71,9 @@ QFontEngineMac::QFontEngineMac() : QFontEngine(), mTextLayout(0), internal_fi(0)
 
 QFontEngineMac::~QFontEngineMac()
 {
-    delete internal_fi;
     if (mTextLayout)
         ATSUDisposeTextLayout(mTextLayout);
+    delete internal_fi;
 }
 
 bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
