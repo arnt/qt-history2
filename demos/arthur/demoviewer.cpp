@@ -196,6 +196,11 @@ DemoViewer::DemoViewer(QWidget *parent)
     attributes->fillMode = Attributes::Gradient;
 }
 
+DemoViewer::~DemoViewer()
+{
+    delete attributes;
+}
+
 void DemoViewer::addDemoWidget(const QString &name, DemoWidget *widget, const QString &file)
 {
     listWidget->addItem(name);

@@ -31,6 +31,7 @@ class DemoViewer : public QWidget
     Q_OBJECT
 public:
     DemoViewer(QWidget *parent = 0);
+    ~DemoViewer();
 
     void addDemoWidget(const QString &name, DemoWidget *demoWidget, const QString &file);
 
