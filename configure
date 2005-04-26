@@ -3890,7 +3890,7 @@ for file in .projects .projects.3; do
 	*-pro.pro)
 	    [ "x$Edition" != "xpro" ] && continue
 	;;
-	*moc*) SPEC=$QMAKESPEC ;;
+	*moc*|*rcc*) SPEC=$QMAKESPEC ;;
 	*) SPEC=$XQMAKESPEC ;;
 	esac
 	dir=`dirname $a | sed -e "s;$sepath;.;g"`
