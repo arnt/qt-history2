@@ -1231,7 +1231,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     QSize size = sizeHint();
     QRect screen = QApplication::desktop()->availableGeometry(p);
     const int desktopFrame = style()->pixelMetric(QStyle::PM_MenuDesktopFrameWidth, 0, this);
-    if (d->ncols != 1) {
+    if (d->ncols > 1) {
         pos.setY(screen.top()+desktopFrame);
     } else if (atAction) {
         for(int i=0, above_height=0; i<(int)d->actionList.count(); i++) {
