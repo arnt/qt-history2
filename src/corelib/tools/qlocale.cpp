@@ -29,7 +29,7 @@
 #   include "qt_windows.h"
 #endif
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(__UCLIBC__)
 #    include <fenv.h>
 #endif
 
@@ -4481,7 +4481,7 @@ static Bigint *pow5mult(Bigint *b, int k)
     }
 #else
     b = multadd(b, p05[i-1], 0);
-#endif            
+#endif
 
     if (!(k >>= 2))
         return b;
@@ -5080,10 +5080,10 @@ static double qstrtod(const char *s00, const char **se, bool *ok)
         double *t = (double *) tens;
         rv = t[k - 9] * rv + z;
     }
-#else        
+#else
     rv = tens[k - 9] * rv + z;
-#endif  
-    
+#endif
+
     bd0 = 0;
     if (nd <= DBL_DIG
 #ifndef RND_PRODQUOT
@@ -5643,7 +5643,7 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
     _control87(MCW_EM, MCW_EM);
 #endif
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(__UCLIBC__)
     fenv_t envp;
     feholdexcept(&envp);
 #endif
@@ -5655,7 +5655,7 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
     _control87(oldbits, 0xFFFFF);
 #endif
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX) && !defined(__UCLIBC__)
     fesetenv(&envp);
 #endif
 
@@ -5959,7 +5959,7 @@ static char *_qdtoa( double d, int mode, int ndigits, int *decpt, int *sign, cha
             eps *= t[ilim-1];
 #else
             eps *= tens[ilim-1];
-#endif            
+#endif
             for(i = 1;; i++, d *= 10.) {
                 L = Long(d);
                 d -= L;
