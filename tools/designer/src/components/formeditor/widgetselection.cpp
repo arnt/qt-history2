@@ -420,6 +420,11 @@ void WidgetHandle::mouseReleaseEvent(QMouseEvent *e)
 
         if (cmd != 0) {
             formWindow->commandHistory()->push(cmd);
+        } else {
+            grid->invalidate();
+            grid->activate();
+            formWindow->clearSelection(false);
+            formWindow->selectWidget(widget);
         }
     } else if (geom != widget->geometry()) {
         SetPropertyCommand *cmd = new SetPropertyCommand(formWindow);
