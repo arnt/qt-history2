@@ -23,7 +23,6 @@
     (static_cast<QDesigner*>(QCoreApplication::instance()))
 
 class QDesignerSettings;
-class QDesignerSession;
 class QDesignerWorkbench;
 class QDesignerServer;
 
@@ -35,7 +34,6 @@ public:
     virtual ~QDesigner();
 
     QDesignerWorkbench *workbench() const;
-    QDesignerSession *session() const;
     QDesignerServer *server() const;
     QDesignerToolWindow *mainWindow() const;
     void setMainWindow(QDesignerToolWindow *tw);
@@ -51,7 +49,6 @@ private slots:
 
 private:
     QDesignerServer *m_server;
-    QDesignerSession *m_session;
     QDesignerWorkbench *m_workbench;
     QPointer<QDesignerToolWindow> m_mainWindow;
 };

@@ -24,7 +24,6 @@
 #include "qdesigner_actions.h"
 #include "qdesigner_server.h"
 #include "qdesigner_settings.h"
-#include "qdesigner_session.h"
 #include "qdesigner_workbench.h"
 #include "qdesigner_toolwindow.h"
 
@@ -33,8 +32,7 @@ extern int qInitResources_widgetbox();
 
 QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
-      m_server(0),
-      m_session(0)
+      m_server(0)
 {
     setOrganizationDomain(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
@@ -48,13 +46,7 @@ QDesigner::QDesigner(int &argc, char **argv)
 QDesigner::~QDesigner()
 {
     delete m_workbench;
-    delete m_session;
     delete m_server;
-}
-
-QDesignerSession *QDesigner::session() const
-{
-    return m_session;
 }
 
 QDesignerWorkbench *QDesigner::workbench() const
@@ -98,7 +90,6 @@ void QDesigner::initialize()
     installTranslator(translator);
     installTranslator(qtTranslator);
 
-    m_session = new QDesignerSession();
     m_workbench = new QDesignerWorkbench();
 
     emit initialized();

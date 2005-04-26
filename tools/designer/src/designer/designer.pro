@@ -38,7 +38,6 @@ HEADERS += \
     qdesigner_formwindow.h \
     qdesigner_workbench.h \
     qdesigner_settings.h \
-    qdesigner_session.h \
     qdesigner_server.h \
     qdesigner_widgetbox.h \
     qdesigner_propertyeditor.h \
@@ -55,7 +54,6 @@ SOURCES += main.cpp \
     qdesigner_formwindow.cpp \
     qdesigner_workbench.cpp \
     qdesigner_settings.cpp \
-    qdesigner_session.cpp \
     qdesigner_server.cpp \
     qdesigner_widgetbox.cpp \
     qdesigner_propertyeditor.cpp \
