@@ -23,6 +23,13 @@
 // workaround for VC++ 6.0 linker bug (?)
 typedef bool(*LessThan)(const QTableWidgetItem *left, const QTableWidgetItem *right);
 
+class QTableWidgetMimeData : public QMimeData
+{
+    Q_OBJECT
+public:
+    QList<QTableWidgetItem*> items;
+};
+
 class QTableModel : public QAbstractTableModel
 {
     Q_OBJECT
@@ -1680,8 +1687,7 @@ void QTableWidget::clear()
 */
 QStringList QTableWidget::mimeTypes() const
 {
-    return QStringList() << "application/x-qtablewidgetitempointes"
-                         << "application/x-qwidgetitemdatavector";
+    return QStringList() << "application/x-qwidgetitemdatavector";
 }
 
 /*!
@@ -1696,17 +1702,14 @@ QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*> items) const
 {
     if (items.isEmpty())
         return 0;
-    QByteArray encodedPtrs;
     QByteArray encodedData;
-    QDataStream ptrsStream(&encodedPtrs, QIODevice::WriteOnly);
     QDataStream dataStream(&encodedData, QIODevice::WriteOnly);
-    for (int i = 0; i < items.count(); ++i) {
-        ptrsStream << items.at(i);
-        dataStream << *items.at(i);
-    }
-    QMimeData *data = new QMimeData();
-    data->setData(mimeTypes().at(0), encodedPtrs);
-    data->setData(mimeTypes().at(1), encodedData);
+    for (int i = 0; i < items.count(); ++i)
+        if (items.at(i))
+            dataStream << *items.at(i);
+    QTableWidgetMimeData *data = new QTableWidgetMimeData();
+    data->setData(mimeTypes().at(0), encodedData);
+    data->items = items;
     return data;
 }
 
@@ -1718,9 +1721,9 @@ QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*> items) const
 */
 bool QTableWidget::dropMimeData(int row, int column, const QMimeData *data, Qt::DropAction action)
 {
-    if (action != Qt::CopyAction || !data->hasFormat(mimeTypes().at(1)))
+    if (action != Qt::CopyAction || !data->hasFormat(mimeTypes().at(0)))
         return false;
-    QByteArray encoded = data->data(mimeTypes().at(1));
+    QByteArray encoded = data->data(mimeTypes().at(0));
     QDataStream stream(&encoded, QIODevice::ReadOnly);
     while (!stream.atEnd()) {
         QTableWidgetItem *item = new QTableWidgetItem();
@@ -1738,6 +1741,20 @@ bool QTableWidget::dropMimeData(int row, int column, const QMimeData *data, Qt::
 Qt::DropActions QTableWidget::supportedDropActions() const
 {
     return Qt::CopyAction;
+}
+
+/*!
+  Returns a list of pointers to the items contained in the \a data object.
+  If the object was not created by a QTreeWidget in the same process, the list
+  is empty.
+  
+*/
+QList<QTableWidgetItem*> QTableWidget::items(const QMimeData *data) const
+{
+    const QTableWidgetMimeData *twd = qobject_cast<const QTableWidgetMimeData*>(data);
+    if (twd)
+        return twd->items;
+    return QList<QTableWidgetItem*>();
 }
 
 /*!

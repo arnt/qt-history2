@@ -24,6 +24,13 @@
 // workaround for VC++ 6.0 linker bug (?)
 typedef bool(*LessThan)(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
 
+class QTreeWidgetMimeData : public QMimeData
+{
+    Q_OBJECT
+public:
+    QList<QTreeWidgetItem*> items;
+};
+
 class QTreeModel : public QAbstractItemModel
 {
     Q_OBJECT
@@ -1953,7 +1960,6 @@ void QTreeWidget::clear()
 QStringList QTreeWidget::mimeTypes() const
 {
     return QStringList() << "application/x-qtreewidgetitemdatavector"
-                         << "application/x-qtreewidgetitempointers"
                          << "application/x-qwidgetitemdatavector";
 }
 
@@ -1971,22 +1977,19 @@ QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
         return 0;
     // encodes both the qtreewidgetitemdata and qwidgetitemdata
     QByteArray encodedRows;
-    QByteArray encodedPtrs;
     QByteArray encodedData;
     QDataStream rowsStream(&encodedRows, QIODevice::WriteOnly);
-    QDataStream ptrsStream(&encodedPtrs, QIODevice::WriteOnly);
     QDataStream dataStream(&encodedData, QIODevice::WriteOnly);
     for (int i = 0; i < items.count(); ++i) {
         QTreeWidgetItem *item = items.at(i);
         rowsStream << *item;
-        ptrsStream << item;
         for (int j = 0; j < item->values.count(); ++j) // for each column
             dataStream << item->values.at(j);
     }
-    QMimeData *data = new QMimeData();
+    QTreeWidgetMimeData *data = new QTreeWidgetMimeData();
     data->setData(mimeTypes().at(0), encodedRows);
-    data->setData(mimeTypes().at(1), encodedPtrs);
-    data->setData(mimeTypes().at(2), encodedData);
+    data->setData(mimeTypes().at(1), encodedData);
+    data->items = items;
     return data;
 }
 
@@ -2014,8 +2017,8 @@ bool QTreeWidget::dropMimeData(QTreeWidgetItem *parent, int index,
         }
         return true;
     }
-    if (data->hasFormat(mimeTypes().at(2))) {
-        QByteArray encoded = data->data(mimeTypes().at(2));
+    if (data->hasFormat(mimeTypes().at(1))) {
+        QByteArray encoded = data->data(mimeTypes().at(1));
         QDataStream stream(&encoded, QIODevice::ReadOnly);
         while (!stream.atEnd()) {
             QVector <QWidgetItemData> values;
@@ -2040,6 +2043,20 @@ bool QTreeWidget::dropMimeData(QTreeWidgetItem *parent, int index,
 Qt::DropActions QTreeWidget::supportedDropActions() const
 {
     return Qt::CopyAction;
+}
+
+/*!
+  Returns a list of pointers to the items contained in the \a data object.
+  If the object was not created by a QTreeWidget in the same process, the list
+  is empty.
+  
+*/
+QList<QTreeWidgetItem*> QTreeWidget::items(const QMimeData *data) const
+{
+    const QTreeWidgetMimeData *twd = qobject_cast<const QTreeWidgetMimeData*>(data);
+    if (twd)
+        return twd->items;
+    return QList<QTreeWidgetItem*>();
 }
 
 /*!

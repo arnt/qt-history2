@@ -231,6 +231,7 @@ protected:
     virtual bool dropMimeData(QTreeWidgetItem *parent, int index,
                               const QMimeData *data, Qt::DropAction action);
     virtual Qt::DropActions supportedDropActions() const;
+    QList<QTreeWidgetItem*> items(const QMimeData *data) const;
 
     QModelIndex indexFromItem(QTreeWidgetItem *item, int column = 0) const;
     QTreeWidgetItem *itemFromIndex(const QModelIndex &index) const;

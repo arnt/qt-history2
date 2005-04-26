@@ -201,6 +201,7 @@ protected:
     virtual QMimeData *mimeData(const QList<QListWidgetItem*> items) const;
     virtual bool dropMimeData(int index, const QMimeData *data, Qt::DropAction action);
     virtual Qt::DropActions supportedDropActions() const;
+    QList<QListWidgetItem*> items(const QMimeData *data) const;
 
     QModelIndex indexFromItem(QListWidgetItem *item) const;
     QListWidgetItem *itemFromIndex(const QModelIndex &index) const;
