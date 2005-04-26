@@ -6,12 +6,13 @@
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent)
 {
-    WigglyWidget *wigglyWidget = new WigglyWidget(this);
-    QLineEdit *lineEdit = new QLineEdit(this);
+    WigglyWidget *wigglyWidget = new WigglyWidget;
+    QLineEdit *lineEdit = new QLineEdit;
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(wigglyWidget);
     layout->addWidget(lineEdit);
+    setLayout(layout);
 
     connect(lineEdit, SIGNAL(textChanged(QString)),
             wigglyWidget, SLOT(setText(QString)));

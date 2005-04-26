@@ -95,7 +95,7 @@ void MainWindow::init()
 
     isUntitled = true;
 
-    textEdit = new QTextEdit(this);
+    textEdit = new QTextEdit;
     setCentralWidget(textEdit);
 
     createActions();

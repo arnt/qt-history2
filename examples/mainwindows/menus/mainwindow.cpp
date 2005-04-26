@@ -4,24 +4,26 @@
 
 MainWindow::MainWindow()
 {
-    QWidget *w = new QWidget(this);
-    QVBoxLayout *vbox = new QVBoxLayout(w);
-    vbox->setMargin(5);
+    QWidget *w = new QWidget;
     setCentralWidget(w);
 
-    QWidget *topFiller = new QWidget(w);
-    vbox->addWidget(topFiller);
+    QWidget *topFiller = new QWidget;
     topFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
 
     infoLabel = new QLabel(tr("<i>Choose a menu option, or right-click to "
-                              "invoke a context menu</i>"), w);
-    vbox->addWidget(infoLabel);
+                              "invoke a context menu</i>"));
     infoLabel->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     infoLabel->setAlignment(Qt::AlignCenter);
 
-    QWidget *bottomFiller = new QWidget(w);
-    vbox->addWidget(bottomFiller);
+    QWidget *bottomFiller = new QWidget;
     bottomFiller->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+
+    QVBoxLayout *vbox = new QVBoxLayout;
+    vbox->setMargin(5);
+    vbox->addWidget(topFiller);
+    vbox->addWidget(infoLabel);
+    vbox->addWidget(bottomFiller);
+    w->setLayout(vbox);
 
     createActions();
     createMenus();

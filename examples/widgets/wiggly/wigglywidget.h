@@ -9,7 +9,7 @@ class WigglyWidget : public QWidget
     Q_OBJECT
 
 public:
-    WigglyWidget(QWidget *parent);
+    WigglyWidget(QWidget *parent = 0);
 
 public slots:
     void setText(const QString &newText) { text = newText; }

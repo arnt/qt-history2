@@ -6,7 +6,7 @@ MainWindow::MainWindow()
 {
     setAttribute(Qt::WA_DeleteOnClose);
 
-    textEdit = new QTextEdit(this);
+    textEdit = new QTextEdit;
     setCentralWidget(textEdit);
 
     createActions();

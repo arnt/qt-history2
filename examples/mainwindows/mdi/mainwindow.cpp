@@ -5,7 +5,7 @@
 
 MainWindow::MainWindow()
 {
-    workspace = new QWorkspace(this);
+    workspace = new QWorkspace;
     setCentralWidget(workspace);
     connect(workspace, SIGNAL(windowActivated(QWidget *)),
             this, SLOT(updateMenus()));

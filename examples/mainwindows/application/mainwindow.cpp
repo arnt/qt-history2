@@ -4,7 +4,7 @@
 
 MainWindow::MainWindow()
 {
-    textEdit = new QTextEdit(this);
+    textEdit = new QTextEdit;
     setCentralWidget(textEdit);
 
     createActions();
