@@ -56,7 +56,9 @@ public:
         {
             if (!static_cast<QSettings *>(settings)) {
                 settings = findConfiguration();
+#ifndef QT_NO_QOBJECT
                 qAddPostRoutine(QLibraryInfoPrivate::cleanup);
+#endif
             }
         }
         ~QLibrarySettings() { delete static_cast<QSettings *>(settings); }
