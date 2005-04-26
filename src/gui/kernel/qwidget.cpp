@@ -1230,8 +1230,9 @@ bool QWidgetPrivate::isFullyOpaque() const
     const QPalette &pal = q->palette();
     QPalette::ColorRole bg = q->backgroundRole();
     QBrush bgBrush = pal.brush(bg);
+    QPalette::ColorRole bgrl = bg_role;
     return (bgBrush.style() != Qt::NoBrush && bgBrush.isOpaque()
-            && ((bg_role != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
+            && ((bgrl != QPalette::NoRole || (pal.resolve() & (1<<bg)))));
 }
 
 /*
