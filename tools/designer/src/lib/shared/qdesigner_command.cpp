@@ -354,21 +354,22 @@ void InsertWidgetCommand::redo()
     if (!deco && hasLayout(parentWidget))
         deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
 
-    if (deco && LayoutInfo::layoutType(core, parentWidget) == LayoutInfo::Grid) {
-        switch (m_insertMode) {
-            case QDesignerLayoutDecorationExtension::InsertRowMode: {
-                deco->insertRow(m_cell.first);
-            } break;
+    if (deco != 0) {
+        if (LayoutInfo::layoutType(core, parentWidget) == LayoutInfo::Grid) {
+            switch (m_insertMode) {
+                case QDesignerLayoutDecorationExtension::InsertRowMode: {
+                    deco->insertRow(m_cell.first);
+                } break;
 
-            case QDesignerLayoutDecorationExtension::InsertColumnMode: {
-                deco->insertColumn(m_cell.second);
-            } break;
+                case QDesignerLayoutDecorationExtension::InsertColumnMode: {
+                    deco->insertColumn(m_cell.second);
+                } break;
 
-            default: break;
-        } // end switch
+                default: break;
+            } // end switch
+        }
         deco->insertWidget(m_widget, m_cell);
     }
-
 
     formWindow()->manageWidget(m_widget);
     m_widget->show();
@@ -1143,7 +1144,7 @@ void AdjustWidgetSizeCommand::undo()
 {
 }
 
-// ---- AdjustWidgetSizeCommand ----
+// ---- ChangeLayoutItemGeometry ----
 ChangeLayoutItemGeometry::ChangeLayoutItemGeometry(QDesignerFormWindowInterface *formWindow)
     : QDesignerFormWindowCommand(tr("Change Layout Item Geometry"), formWindow)
 {
@@ -1207,3 +1208,22 @@ void ChangeLayoutItemGeometry::undo()
     changeItemPosition(m_oldInfo);
 }
 
+// ---- InsertRowCommand ----
+InsertRowCommand::InsertRowCommand(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Insert Row"), formWindow)
+{
+}
+
+void InsertRowCommand::init(QWidget *widget, int row)
+{
+    m_widget = widget;
+    m_row = row;
+}
+
+void InsertRowCommand::redo()
+{
+}
+
+void InsertRowCommand::undo()
+{
+}

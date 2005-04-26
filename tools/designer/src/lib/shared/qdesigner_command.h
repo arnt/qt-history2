@@ -284,6 +284,23 @@ private:
     QRect m_newInfo;
 };
 
+class QT_SHARED_EXPORT InsertRowCommand: public QDesignerFormWindowCommand
+{
+    Q_OBJECT
+public:
+    InsertRowCommand(QDesignerFormWindowInterface *formWindow);
+
+    void init(QWidget *widget, int row);
+
+    virtual void redo();
+    virtual void undo();
+
+private:
+    QPointer<QWidget> m_widget;
+    int m_row;
+};
+
+
 class QT_SHARED_EXPORT TabOrderCommand: public QDesignerFormWindowCommand
 {
     Q_OBJECT
