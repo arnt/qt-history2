@@ -35,43 +35,43 @@
 #include <QtGui/QDockWidget>
 #include <QtGui/QMainWindow>
 
-// ---- QDesignerFormEditorInterfaceCommand ----
-QDesignerFormEditorInterfaceCommand::QDesignerFormEditorInterfaceCommand(const QString &description, QDesignerFormEditorInterface *core)
+// ---- QDesignerFormEditorCommand ----
+QDesignerFormEditorCommand::QDesignerFormEditorCommand(const QString &description, QDesignerFormEditorInterface *core)
     : QtCommand(description),
       m_core(core)
 {
 }
 
-QDesignerFormEditorInterface *QDesignerFormEditorInterfaceCommand::core() const
+QDesignerFormEditorInterface *QDesignerFormEditorCommand::core() const
 {
     return m_core;
 }
 
-// ---- QDesignerFormWindowManagerInterfaceCommand ----
-QDesignerFormWindowManagerInterfaceCommand::QDesignerFormWindowManagerInterfaceCommand(const QString &description, QDesignerFormWindowManagerInterface *formWindowManager)
+// ---- QDesignerFormWindowManagerCommand ----
+QDesignerFormWindowManagerCommand::QDesignerFormWindowManagerCommand(const QString &description, QDesignerFormWindowManagerInterface *formWindowManager)
     : QtCommand(description),
       m_formWindowManager(formWindowManager)
 {
 }
 
-QDesignerFormWindowManagerInterface *QDesignerFormWindowManagerInterfaceCommand::formWindowManager() const
+QDesignerFormWindowManagerInterface *QDesignerFormWindowManagerCommand::formWindowManager() const
 {
     return m_formWindowManager;
 }
 
-// ---- QDesignerFormWindowInterfaceCommand ----
-QDesignerFormWindowInterfaceCommand::QDesignerFormWindowInterfaceCommand(const QString &description, QDesignerFormWindowInterface *formWindow)
+// ---- QDesignerFormWindowCommand ----
+QDesignerFormWindowCommand::QDesignerFormWindowCommand(const QString &description, QDesignerFormWindowInterface *formWindow)
     : QtCommand(description),
       m_formWindow(formWindow)
 {
 }
 
-QDesignerFormWindowInterface *QDesignerFormWindowInterfaceCommand::formWindow() const
+QDesignerFormWindowInterface *QDesignerFormWindowCommand::formWindow() const
 {
     return m_formWindow;
 }
 
-bool QDesignerFormWindowInterfaceCommand::hasLayout(QWidget *widget) const
+bool QDesignerFormWindowCommand::hasLayout(QWidget *widget) const
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
     if (widget && LayoutInfo::layoutType(core, widget) != LayoutInfo::NoLayout) {
@@ -82,7 +82,7 @@ bool QDesignerFormWindowInterfaceCommand::hasLayout(QWidget *widget) const
     return false;
 }
 
-void QDesignerFormWindowInterfaceCommand::checkObjectName(QWidget *widget)
+void QDesignerFormWindowCommand::checkObjectName(QWidget *widget)
 {
     if (widget->objectName().isEmpty())
         qWarning("invalid object name");
@@ -93,7 +93,7 @@ void QDesignerFormWindowInterfaceCommand::checkObjectName(QWidget *widget)
     }
 }
 
-void QDesignerFormWindowInterfaceCommand::checkSelection(QWidget *widget)
+void QDesignerFormWindowCommand::checkSelection(QWidget *widget)
 {
     Q_UNUSED(widget);
 
@@ -107,7 +107,7 @@ void QDesignerFormWindowInterfaceCommand::checkSelection(QWidget *widget)
 #endif
 }
 
-void QDesignerFormWindowInterfaceCommand::checkParent(QWidget *widget, QWidget *parentWidget)
+void QDesignerFormWindowCommand::checkParent(QWidget *widget, QWidget *parentWidget)
 {
     Q_ASSERT(widget);
 
@@ -117,7 +117,7 @@ void QDesignerFormWindowInterfaceCommand::checkParent(QWidget *widget, QWidget *
 
 // ---- SetPropertyCommand ----
 SetPropertyCommand::SetPropertyCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow),
+    : QDesignerFormWindowCommand(QString(), formWindow),
       m_index(-1),
       m_propertySheet(0),
       m_changed(false)
@@ -214,7 +214,7 @@ bool SetPropertyCommand::mergeMeWith(QtCommand *other)
 
 // ---- ResetPropertyCommand ----
 ResetPropertyCommand::ResetPropertyCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow),
+    : QDesignerFormWindowCommand(QString(), formWindow),
       m_index(-1),
       m_propertySheet(0),
       m_changed(false)
@@ -321,7 +321,7 @@ void ResetPropertyCommand::undo()
 
 // ---- InsertWidgetCommand ----
 InsertWidgetCommand::InsertWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -394,7 +394,7 @@ void InsertWidgetCommand::undo()
 
 // ---- RaiseWidgetCommand ----
 RaiseWidgetCommand::RaiseWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -415,7 +415,7 @@ void RaiseWidgetCommand::undo()
 
 // ---- LowerWidgetCommand ----
 LowerWidgetCommand::LowerWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -436,7 +436,7 @@ void LowerWidgetCommand::undo()
 
 // ---- DeleteWidgetCommand ----
 DeleteWidgetCommand::DeleteWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -543,7 +543,7 @@ void DeleteWidgetCommand::undo()
 
 // ---- ReparentWidgetCommand ----
 ReparentWidgetCommand::ReparentWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -579,7 +579,7 @@ void ReparentWidgetCommand::undo()
 
 // ---- LayoutCommand ----
 LayoutCommand::LayoutCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -638,7 +638,7 @@ void LayoutCommand::undo()
 
 // ---- BreakLayoutCommand ----
 BreakLayoutCommand::BreakLayoutCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(tr("Break layout"), formWindow)
+    : QDesignerFormWindowCommand(tr("Break layout"), formWindow)
 {
 }
 
@@ -704,7 +704,7 @@ void BreakLayoutCommand::undo()
 
 // ---- ToolBoxCommand ----
 ToolBoxCommand::ToolBoxCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -800,7 +800,7 @@ void AddToolBoxPageCommand::undo()
 
 // ---- TabWidgetCommand ----
 TabWidgetCommand::TabWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -934,7 +934,7 @@ void MoveTabPageCommand::undo()
 
 // ---- StackedWidgetCommand ----
 StackedWidgetCommand::StackedWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -1025,7 +1025,7 @@ void AddStackedWidgetPageCommand::undo()
 
 // ---- TabOrderCommand ----
 TabOrderCommand::TabOrderCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(tr("Change Tab order"), formWindow),
+    : QDesignerFormWindowCommand(tr("Change Tab order"), formWindow),
       m_widgetItem(0)
 {
 }
@@ -1053,7 +1053,7 @@ void TabOrderCommand::undo()
 
 // ---- DockWidgetCommand:: ----
 DockWidgetCommand::DockWidgetCommand(const QString &description, QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(description, formWindow)
+    : QDesignerFormWindowCommand(description, formWindow)
 {
 }
 
@@ -1093,7 +1093,7 @@ void SetDockWidgetCommand::redo()
 
 // ---- AddDockWidgetCommand ----
 AddDockWidgetCommand::AddDockWidgetCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(tr("Add Dock Window"), formWindow)
+    : QDesignerFormWindowCommand(tr("Add Dock Window"), formWindow)
 {
 }
 
@@ -1115,7 +1115,7 @@ void AddDockWidgetCommand::undo()
 
 // ---- AdjustWidgetSizeCommand ----
 AdjustWidgetSizeCommand::AdjustWidgetSizeCommand(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(QString(), formWindow)
+    : QDesignerFormWindowCommand(QString(), formWindow)
 {
 }
 
@@ -1145,7 +1145,7 @@ void AdjustWidgetSizeCommand::undo()
 
 // ---- AdjustWidgetSizeCommand ----
 ChangeLayoutItemGeometry::ChangeLayoutItemGeometry(QDesignerFormWindowInterface *formWindow)
-    : QDesignerFormWindowInterfaceCommand(tr("Change Layout Item Geometry"), formWindow)
+    : QDesignerFormWindowCommand(tr("Change Layout Item Geometry"), formWindow)
 {
 }
 
