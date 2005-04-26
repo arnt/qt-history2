@@ -51,6 +51,9 @@ public:
     int pixelMetric(PixelMetric metric, const QStyleOption *option = 0, const QWidget *widget = 0) const;
 
     void polish(QWidget *widget);
+    void polish(QApplication *app);
+    void polish(QPalette &pal);
+
     QPalette standardPalette();
 
 private:

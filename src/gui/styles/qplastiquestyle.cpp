@@ -3558,3 +3558,14 @@ void QPlastiqueStyle::polish(QWidget *widget)
     else if (qobject_cast<QTabBar *>(widget)) 
         widget->setAttribute(Qt::WA_Hover);
 }
+
+void QPlastiqueStyle::polish(QApplication *app)
+{
+    return QWindowsStyle::polish(app);
+}
+
+void QPlastiqueStyle::polish(QPalette &pal)
+{
+    return QWindowsStyle::polish(pal);
+}
+
