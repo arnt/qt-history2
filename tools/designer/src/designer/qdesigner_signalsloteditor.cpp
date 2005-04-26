@@ -46,3 +46,15 @@ QDesignerSignalSlotEditor::~QDesignerSignalSlotEditor()
 {
 }
 
+QRect QDesignerSignalSlotEditor::geometryHint() const
+{
+    QRect g = workbench()->availableGeometry();
+    int margin = workbench()->marginHint();
+
+    QSize sz(g.width() * 1/3, g.height() * 1/6);
+    QRect r(QPoint(0, 0), sz);
+    r.moveCenter(g.center());
+    r.moveTop(margin);
+
+    return r;
+}

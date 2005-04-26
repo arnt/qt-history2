@@ -25,7 +25,7 @@ public:
     QDesignerSignalSlotEditor(QDesignerWorkbench *workbench);
     virtual ~QDesignerSignalSlotEditor();
 
-//    virtual QRect geometryHint() const;
+    virtual QRect geometryHint() const;
 };
 
 #endif // QDESIGNER_SIGNALSLOTEDITOR_H
