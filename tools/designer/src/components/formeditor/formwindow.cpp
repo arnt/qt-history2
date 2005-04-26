@@ -50,9 +50,7 @@
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>
 
-#ifndef Q_MOC_RUN
-using namespace qdesigner_internal;
-#endif
+namespace qdesigner_internal {
 
 class FriendlyWidget: public QWidget
 {
@@ -1918,3 +1916,4 @@ QDir FormWindow::absoluteDir() const
     return QFileInfo(fileName()).absoluteDir();
 }
 
+} // namespace
