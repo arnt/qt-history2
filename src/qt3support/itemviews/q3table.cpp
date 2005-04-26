@@ -4823,7 +4823,8 @@ void Q3Table::setNumRows(int r)
     saveContents(tmp, tmp2);
 
     bool updatesEnabled = leftHeader->updatesEnabled();
-    leftHeader->setUpdatesEnabled(false);
+    if (updatesEnabled)
+        leftHeader->setUpdatesEnabled(false);
 
     bool updateBefore;
     updateHeaderAndResizeContents(leftHeader, numRows(), r, 20, updateBefore);
@@ -4836,9 +4837,10 @@ void Q3Table::setNumRows(int r)
 
     leftHeader->calculatePositions();
     finishContentsResze(updateBefore);
-    leftHeader->setUpdatesEnabled(updatesEnabled);
-    if (updatesEnabled)
+    if (updatesEnabled) {
+        leftHeader->setUpdatesEnabled(true);
 	leftHeader->update();
+    }
     leftHeader->updateCache();
     if (curRow >= numRows()) {
 	curRow = numRows() - 1;
@@ -4872,7 +4874,8 @@ void Q3Table::setNumCols(int c)
     saveContents(tmp, tmp2);
 
     bool updatesEnabled = topHeader->updatesEnabled();
-    topHeader->setUpdatesEnabled(false);
+    if (updatesEnabled)
+        topHeader->setUpdatesEnabled(false);
 
     bool updateBefore;
     updateHeaderAndResizeContents(topHeader, numCols(), c, 100, updateBefore);
@@ -4881,9 +4884,10 @@ void Q3Table::setNumCols(int c)
 
     topHeader->calculatePositions();
     finishContentsResze(updateBefore);
-    topHeader->setUpdatesEnabled(updatesEnabled);
-    if (updatesEnabled)
+    if (updatesEnabled) {
+        topHeader->setUpdatesEnabled(true);
 	topHeader->update();
+    }
     topHeader->updateCache();
     if (curCol >= numCols()) {
 	curCol = numCols() - 1;
@@ -5484,8 +5488,9 @@ void Q3Table::sortColumn(int col, bool ascending, bool wholeRows)
 
     qsort(items, filledRows, sizeof(SortableTableItem), cmpTableItems);
 
-    bool updatesEnabled = this->updatesEnabled();
-    setUpdatesEnabled(false);
+    bool updatesWereEnabled = updatesEnabled();
+    if (updatesWereEnabled)
+        setUpdatesEnabled(false);
     for (i = 0; i < numRows(); ++i) {
 	if (i < filledRows) {
 	    if (ascending) {
@@ -5506,7 +5511,8 @@ void Q3Table::sortColumn(int col, bool ascending, bool wholeRows)
 	    }
 	}
     }
-    setUpdatesEnabled(updatesEnabled);
+    if (updatesWereEnabled)
+        setUpdatesEnabled(true);
     if (topHeader)
  	topHeader->setSortIndicator(col, ascending ? Qt::Ascending : Qt::Descending);
 
@@ -5996,10 +6002,12 @@ void Q3Table::insertRows(int row, int count)
     if (row >= numRows())
 	return;
 
-    bool updatesEnabled = this->updatesEnabled();
-    setUpdatesEnabled(false);
+    bool updatesWereEnabled = updatesEnabled();
+    if (updatesWereEnabled)
+        setUpdatesEnabled(false);
     bool leftHeaderUpdatesEnabled = leftHeader->updatesEnabled();
-    leftHeader->setUpdatesEnabled(false);
+    if (leftHeaderUpdatesEnabled)
+        leftHeader->setUpdatesEnabled(false);
     int oldLeftMargin = leftMargin();
 
     setNumRows(numRows() + count);
@@ -6007,8 +6015,11 @@ void Q3Table::insertRows(int row, int count)
     for (int i = numRows() - count - 1; i > row; --i)
 	leftHeader->swapSections(i, i + count);
 
-    leftHeader->setUpdatesEnabled(leftHeaderUpdatesEnabled);
-    setUpdatesEnabled(updatesEnabled);
+    if (leftHeaderUpdatesEnabled)
+        leftHeader->setUpdatesEnabled(leftHeaderUpdatesEnabled);
+
+    if (updatesWereEnabled)
+        setUpdatesEnabled(true);
 
     int cr = QMAX(0, currentRow());
     int cc = QMAX(0, currentColumn());
@@ -6025,7 +6036,7 @@ void Q3Table::insertRows(int row, int count)
 	leftHeader->update(rect);
     }
 
-    if (updatesEnabled) {
+    if (updatesWereEnabled) {
 	int p = rowPos(row);
 	if (d->hasRowSpan)
 	    p = contentsY();
@@ -6054,10 +6065,12 @@ void Q3Table::insertColumns(int col, int count)
     if (col >= numCols())
 	return;
 
-    bool updatesEnabled = this->updatesEnabled();
-    setUpdatesEnabled(false);
+    bool updatesWereEnabled = updatesEnabled();
+    if (updatesWereEnabled)
+        setUpdatesEnabled(false);
     bool topHeaderUpdatesEnabled = topHeader->updatesEnabled();
-    topHeader->setUpdatesEnabled(false);
+    if (topHeaderUpdatesEnabled)
+        topHeader->setUpdatesEnabled(false);
     int oldTopMargin = topMargin();
 
     setNumCols(numCols() + count);
@@ -6065,8 +6078,10 @@ void Q3Table::insertColumns(int col, int count)
     for (int i = numCols() - count - 1; i > col; --i)
 	topHeader->swapSections(i, i + count);
 
-    topHeader->setUpdatesEnabled(topHeaderUpdatesEnabled);
-    setUpdatesEnabled(updatesEnabled);
+    if (topHeaderUpdatesEnabled)
+        topHeader->setUpdatesEnabled(true);
+    if (updatesWereEnabled)
+        setUpdatesEnabled(true);
 
     int cr = QMAX(0, currentRow());
     int cc = QMAX(0, currentColumn());
@@ -6083,7 +6098,7 @@ void Q3Table::insertColumns(int col, int count)
 	topHeader->update(rect);
     }
 
-    if (updatesEnabled) {
+    if (updatesWereEnabled) {
 	int p = columnPos(col);
 	if (d->hasColSpan)
 	    p = contentsX();
@@ -7215,12 +7230,14 @@ void Q3TableHeader::indexChanged(int sec, int oldIdx, int newIdx)
 void Q3TableHeader::setLabels(const QStringList & labels)
 {
     int i = 0;
-    bool updates = updatesEnabled();
     const int c = QMIN(count(), (int)labels.count());
-    setUpdatesEnabled(false);
+    bool updates = updatesEnabled();
+    if (updates)
+        setUpdatesEnabled(false);
     for (QStringList::ConstIterator it = labels.begin(); i < c; ++i, ++it) {
 	if (i == c - 1) {
-	    setUpdatesEnabled(updates);
+            if (updates)
+                setUpdatesEnabled(true);
 	    setLabel(i, *it);
 	} else {
 	    Q3Header::setLabel(i, *it);

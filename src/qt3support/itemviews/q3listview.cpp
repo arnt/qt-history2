@@ -3088,9 +3088,11 @@ void Q3ListView::insertItem(Q3ListViewItem * i)
 void Q3ListView::clear()
 {
     bool wasUpdatesEnabled = viewport()->updatesEnabled();
-    viewport()->setUpdatesEnabled(false);
+    if (!wasUpdatesEnabled)
+        viewport()->setUpdatesEnabled(false);
     setContentsPos(0, 0);
-    viewport()->setUpdatesEnabled(wasUpdatesEnabled);
+    if (!wasUpdatesEnabled)
+        viewport()->setUpdatesEnabled(true);
     bool block = signalsBlocked();
     blockSignals(true);
     d->clearing = true;
@@ -3505,6 +3507,8 @@ void Q3ListView::updateGeometries()
 void Q3ListView::handleSizeChange(int section, int os, int ns)
 {
     bool upe = viewport()->updatesEnabled();
+    if (upe)
+        viewport()->setUpdatesEnabled(false);
     viewport()->setAttribute(Qt::WA_UpdatesDisabled, true);
     int sx = horizontalScrollBar()->value();
     bool sv = horizontalScrollBar()->isVisible();
@@ -3512,7 +3516,8 @@ void Q3ListView::handleSizeChange(int section, int os, int ns)
     bool fullRepaint = d->fullRepaintOnComlumnChange || sx != horizontalScrollBar()->value()
                        || sv != horizontalScrollBar()->isVisible();
     d->fullRepaintOnComlumnChange = false;
-    viewport()->setAttribute(Qt::WA_UpdatesDisabled, !upe);
+    if (upe)
+        viewport()->setUpdatesEnabled(true);
 
     if (fullRepaint) {
         viewport()->repaint();

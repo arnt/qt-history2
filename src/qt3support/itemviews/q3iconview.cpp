@@ -3469,7 +3469,8 @@ void Q3IconView::arrangeItemsInGrid(bool update)
         h += d->spacing;
 
     bool ue = updatesEnabled();
-    viewport()->setUpdatesEnabled(false);
+    if (ue)
+        viewport()->setUpdatesEnabled(false);
     int vw = visibleWidth();
     int vh = visibleHeight();
     resizeContents(w, h);
@@ -3480,7 +3481,8 @@ void Q3IconView::arrangeItemsInGrid(bool update)
         doAgain = visibleHeight() != vh;
     if (doAgain) // in the case that the visibleExtend changed because of the resizeContents (scrollbar show/hide), redo layout again
         arrangeItemsInGrid(false);
-    viewport()->setUpdatesEnabled(ue);
+    if (ue)
+        viewport()->setUpdatesEnabled(true);
     d->dirty = !isVisible();
     rebuildContainers();
     if (update && (!optimize_layout || changedLayout))
@@ -3715,7 +3717,8 @@ void Q3IconView::selectAll(bool select)
     Q3IconViewItem *i = d->currentItem;
     bool changed = false;
     bool ue = viewport()->updatesEnabled();
-    viewport()->setUpdatesEnabled(false);
+    if (ue)
+        viewport()->setUpdatesEnabled(false);
     QRect rr;
     for (; item; item = item->next) {
         if (select != item->isSelected()) {
@@ -3724,7 +3727,8 @@ void Q3IconView::selectAll(bool select)
             changed = true;
         }
     }
-    viewport()->setUpdatesEnabled(ue);
+    if (ue)
+        viewport()->setUpdatesEnabled(true);
     // we call updateContents not repaintContents because of possible previous updateContents
     Q3ScrollView::updateContents(rr);
     QApplication::sendPostedEvents(viewport(), QEvent::Paint);

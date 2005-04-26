@@ -1512,7 +1512,8 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
         removeSelectedText();
 
     bool oldupdate = updatesEnabled();
-    setUpdatesEnabled(false);
+    if (oldupdate)
+        setUpdatesEnabled(false);
     const int preeditSelectionBase = 31900;
     for (int i = 0; i < d->numPreeditSelections; ++i)
         doc->removeSelection(preeditSelectionBase + i);
@@ -1563,7 +1564,8 @@ void Q3TextEdit::inputMethodEvent(QInputMethodEvent *e)
             }
         }
     }
-    setUpdatesEnabled(oldupdate);
+    if (oldupdate)
+        setUpdatesEnabled(true);
     repaintChanged();
 }
 
