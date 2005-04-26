@@ -38,7 +38,7 @@
 
 QtCrashHandler QSegfaultHandler::callback = 0;
 
-#if defined(__GLIBC__) && (__GLIBC__ >= 2)
+#if defined(__GLIBC__) && (__GLIBC__ >= 2) && !defined(__UCLIBC__)
 # include "qstring.h"
 # include <execinfo.h>
 static void print_backtrace(FILE *outb)
