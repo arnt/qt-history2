@@ -106,7 +106,7 @@ inline void QCache<Key,T>::setMaxCost(int m)
 template <class Key, class T>
 inline T *QCache<Key,T>::object(const Key &key) const
 { if (!hash.contains(key)) return 0;
- return ((QCache<Key,T>*)this)->relink(key); }
+ return const_cast<QCache<Key,T>*>(this)->relink(key); }
 
 template <class Key, class T>
 inline T *QCache<Key,T>::operator[](const Key &key) const

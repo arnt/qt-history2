@@ -218,7 +218,7 @@ inline QPixmap QPixmap::copy(int x, int y, int width, int height) const
 inline bool QPixmap::loadFromData(const QByteArray &buf, const char *format,
                                   Qt::ImageConversionFlags flags)
 {
-    return loadFromData((const uchar *)buf.constData(), buf.size(), format, flags);
+    return loadFromData(reinterpret_cast<const uchar *>(buf.constData()), buf.size(), format, flags);
 }
 
 /*****************************************************************************

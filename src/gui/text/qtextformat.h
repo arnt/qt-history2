@@ -239,7 +239,7 @@ public:
     inline void setLayoutDirection(Qt::LayoutDirection direction)
         { setProperty(QTextFormat::LayoutDirection, direction); }
     inline Qt::LayoutDirection layoutDirection() const
-        { return (Qt::LayoutDirection)intProperty(QTextFormat::LayoutDirection); }
+        { return Qt::LayoutDirection(intProperty(QTextFormat::LayoutDirection)); }
 
     inline void setBackground(const QBrush &brush)
     { setProperty(BackgroundBrush, brush); }

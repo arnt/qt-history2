@@ -138,7 +138,7 @@ Q_OUTOFLINE_TEMPLATE void QVarLengthArray<T, Prealloc>::realloc(int asize, int a
     s = asize;
 
     if (aalloc != a) {
-        ptr = (T *)qMalloc(aalloc * sizeof(T));
+        ptr = reinterpret_cast<T *>(qMalloc(aalloc * sizeof(T)));
         a = aalloc;
 
         if (QTypeInfo<T>::isStatic) {

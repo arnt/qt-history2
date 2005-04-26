@@ -99,7 +99,7 @@ inline void QHashData::mightGrow()
 inline void QHashData::hasShrunk()
 {
     if (size <= (numBuckets >> 3) && numBits > userNumBits)
-        rehash(qMax((int)numBits - 2, (int)userNumBits));
+        rehash(qMax(int(numBits) - 2, int(userNumBits)));
 }
 
 inline QHashData::Node *QHashData::firstNode()
@@ -439,7 +439,7 @@ Q_OUTOFLINE_TEMPLATE void QHash<Key, T>::detach_helper()
         size = sizeof(Node);
     }
 
-    QHashData *x = d->detach_helper(duplicateNode, (int)size);
+    QHashData *x = d->detach_helper(duplicateNode, int(size));
     x = qAtomicSetPtr(&d, x);
     if (!x->ref.deref())
         freeData(x);

@@ -37,12 +37,12 @@ public:
     explicit QFixedPoint(int i) : val(i<<8) {}
     explicit QFixedPoint(unsigned int i) : val(i*256) {}
     explicit QFixedPoint(long i) : val(i*256) {}
-    explicit QFixedPoint(double d) { val = (int)(d*256.); }
+    explicit QFixedPoint(double d) { val = int(d*256.); }
     QFixedPoint(const QFixedPoint &other) : val(other.val) {}
     QFixedPoint & operator=(const QFixedPoint &other) { val = other.val; return *this; }
 
     inline int toInt() const { return (((val)+128) & -256)/256; }
-    inline double toDouble() const { return ((double)val)/256.; }
+    inline double toDouble() const { return double(val)/256.; }
 
     inline bool operator!() const { return !val; }
 
@@ -81,7 +81,7 @@ public:
         if (a < 0) { a = -a; neg = true; }
         if (b < 0) { b = -b; neg = !neg; }
 
-        int res = (int)((a * b + 0x80L) >> 8);
+        int res = int(((a * b + 0x80L) >> 8));
         val = neg ? -res : res;
         return *this;
     }
@@ -195,14 +195,14 @@ public:
     QFixedPointLong() : val(0) {}
     QFixedPointLong(int i) : val(i) { val <<= 32; }
     QFixedPointLong(qint64 i) : val(i) { val <<= 32; }
-    QFixedPointLong(double d) { val = (qint64)(d*(double(Q_INT64_C(1)<<32))); }
+    QFixedPointLong(double d) { val = qint64((d*(double(Q_INT64_C(1)<<32)))); }
     QFixedPointLong(const QFixedPointLong &other) : val(other.val) {}
     QFixedPointLong(const QFixedPoint &other) { val = other.value(); val <<= 24; }
     QFixedPointLong & operator=(const QFixedPointLong &other) { val = other.val; return *this; }
     QFixedPointLong & operator=(const QFixedPoint &other) { val = other.value(); val <<= 24; return *this; }
 
     inline double toDouble() const { return (val >> 32) + ((val & 0xffffffff)/(double(Q_INT64_C(1)<<32))); }
-    inline QFixedPoint toFixed() const { return QFixedPoint((int)(val>>24), QFixedPoint::FixedPoint); }
+    inline QFixedPoint toFixed() const { return QFixedPoint(int((val>>24)), QFixedPoint::FixedPoint); }
     inline bool operator!() const { return !val; }
 
     inline QFixedPointLong &operator+=(const QFixedPointLong &other) { val += other.val; return *this; }
@@ -244,10 +244,10 @@ inline QFixedPointLong operator/(int i, const QFixedPointLong &d) { return QFixe
 inline QFixedPointLong operator/(double d, const QFixedPointLong &d2) { return QFixedPointLong(d)/d2; }
 
 inline int qRound(QFixedPointLong f)
-{ return (int)((f.value() > 0 ? (f.value() + 0x80000000) : (f.value() - 0x80000000))>>32); }
-inline int qIntCast(QFixedPointLong f) { return (int)(f.value()>>32); }
-inline int floor(QFixedPointLong f) { return (int)((f.value() > 0 ? f.value() : (f.value() - 0x80000000))>>32); }
-inline int ceil(QFixedPointLong f) { return (int)((f.value() > 0 ? (f.value() + 0xffffffff) : f.value())>>32); }
+{ return int(((f.value() > 0 ? (f.value() + 0x80000000) : (f.value() - 0x80000000))>>32)); }
+inline int qIntCast(QFixedPointLong f) { return int((f.value()>>32)); }
+inline int floor(QFixedPointLong f) { return int(((f.value() > 0 ? f.value() : (f.value() - 0x80000000))>>32)); }
+inline int ceil(QFixedPointLong f) { return int(((f.value() > 0 ? (f.value() + 0xffffffff) : f.value())>>32)); }
 
 Q_CORE_EXPORT QFixedPointLong sqrt(QFixedPointLong f);
 

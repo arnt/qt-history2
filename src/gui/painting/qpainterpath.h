@@ -121,7 +121,7 @@ private:
     inline void detach();
     void detach_helper();
 
-    QPainterPathData *d_func() const { return (QPainterPathData *) d_ptr; }
+    QPainterPathData *d_func() const { return reinterpret_cast<QPainterPathData *>(d_ptr); }
 
     friend class QPainterPathData;
     friend class QPainterPathStroker;
