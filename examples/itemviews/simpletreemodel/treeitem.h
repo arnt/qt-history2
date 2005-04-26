@@ -32,8 +32,6 @@ public:
     TreeItem *parent();
 
 private:
-    int childRow(TreeItem *item) const;
-
     QList<TreeItem*> childItems;
     QList<QVariant> itemData;
     TreeItem *parentItem;
