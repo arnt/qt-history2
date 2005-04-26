@@ -564,8 +564,7 @@ Q_GFX_INLINE unsigned int QGfxRasterBase::get_value_16(int sdepth, unsigned cons
         ret=qt_convRgbTo16(hold);
         (*srcdata)+=4;
     } else {
-        qDebug("Odd source depth %d!",sdepth);
-        abort();
+        qFatal("Odd source depth %d!",sdepth);
         ret=0;
     }
 
