@@ -76,7 +76,7 @@ namespace QGL
         NoSampleBuffers         = SampleBuffers   << 16
     };
     Q_DECLARE_FLAGS(FormatOptions, FormatOption)
-};
+}
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QGL::FormatOptions)
 

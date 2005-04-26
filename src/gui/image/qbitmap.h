@@ -52,7 +52,7 @@ public:
 #endif
 #endif
 };
-Q_DECLARE_SHARED(QBitmap);
+Q_DECLARE_SHARED(QBitmap)
 
 #ifdef QT3_SUPPORT
 inline QBitmap::QBitmap(int w, int h, bool clear)

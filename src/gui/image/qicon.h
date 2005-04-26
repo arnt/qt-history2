@@ -76,7 +76,7 @@ private:
     QIconPrivate *d;
 };
 
-Q_DECLARE_SHARED(QIcon);
+Q_DECLARE_SHARED(QIcon)
 Q_DECLARE_TYPEINFO(QIcon, Q_MOVABLE_TYPE);
 
 #ifdef QT3_SUPPORT

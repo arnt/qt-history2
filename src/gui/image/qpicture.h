@@ -79,7 +79,7 @@ private:
     friend class Q3Picture;
 };
 
-Q_DECLARE_SHARED(QPicture);
+Q_DECLARE_SHARED(QPicture)
 
 
 #ifndef QT_NO_PICTUREIO

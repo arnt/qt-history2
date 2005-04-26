@@ -139,7 +139,7 @@ private:
     Q_DISABLE_COPY(QItemSelectionModel)
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QItemSelectionModel::SelectionFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QItemSelectionModel::SelectionFlags)
 
 // dummy implentation of qHash() necessary for instantiating QList<QItemSelectionRange>::toSet() with MSVC
 inline uint qHash(const QItemSelectionRange &) { return 0; }

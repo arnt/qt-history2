@@ -1219,7 +1219,7 @@ public:
     typedef void * HANDLE;
 #endif
     typedef WindowFlags WFlags;
-};
+}
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MouseButtons)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::Orientations)
@@ -1231,7 +1231,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DockWidgetAreas)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowStates)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DropActions)
-Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ItemFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ItemFlags)
 
 class Q_CORE_EXPORT QInternal {
 public:

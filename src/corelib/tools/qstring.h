@@ -833,7 +833,7 @@ public:
 #endif
 
 Q_DECLARE_TYPEINFO(QString, Q_MOVABLE_TYPE);
-Q_DECLARE_SHARED(QString);
+Q_DECLARE_SHARED(QString)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QString::SectionFlags)
 
 #if defined(Q_OS_WIN32)

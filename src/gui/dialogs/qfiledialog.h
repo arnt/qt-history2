@@ -223,6 +223,6 @@ private:
 inline void QFileDialog::setDirectory(const QDir &adirectory)
 { setDirectory(adirectory.absolutePath()); }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QFileDialog::Options);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QFileDialog::Options)
 
 #endif // QFILEDIALOG_H

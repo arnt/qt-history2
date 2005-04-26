@@ -56,7 +56,7 @@ namespace QSql
         Yes = 1
     };
 #endif
-};
+}
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QSql::ParamType)
 

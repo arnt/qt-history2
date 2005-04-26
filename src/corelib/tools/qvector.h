@@ -473,9 +473,9 @@ bool QVector<T>::operator==(const QVector<T> &v) const
 }
 
 template <typename T>
-QVector<T> &QVector<T>::fill(const T &at, int asize)
+QVector<T> &QVector<T>::fill(const T &from, int asize)
 {
-    const T copy(at);
+    const T copy(from);
     resize(asize < 0 ? d->size : asize);
     if (d->size) {
         T *i = d->array + d->size;

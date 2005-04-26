@@ -500,6 +500,6 @@ inline QByteArray qUncompress(const QByteArray& data)
 #endif
 
 Q_DECLARE_TYPEINFO(QByteArray, Q_MOVABLE_TYPE);
-Q_DECLARE_SHARED(QByteArray);
+Q_DECLARE_SHARED(QByteArray)
 
 #endif // QBYTEARRAY_H

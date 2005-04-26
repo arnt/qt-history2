@@ -159,8 +159,8 @@ public:
 #ifndef QT_NO_IMAGEIO
     bool load(const QString &fileName, const char* format=0);
     bool loadFromData(const uchar *buf, int len, const char *format = 0);
-    inline bool loadFromData(const QByteArray &data, const char* format=0)
-        { return loadFromData(reinterpret_cast<const uchar *>(data.constData()), data.size(), format); }
+    inline bool loadFromData(const QByteArray &data, const char* aformat=0)
+        { return loadFromData(reinterpret_cast<const uchar *>(data.constData()), data.size(), aformat); }
 
     bool save(const QString &fileName, const char* format, int quality=-1) const;
     bool save(QIODevice * device, const char* format, int quality=-1) const;
@@ -249,7 +249,7 @@ private:
     friend class QPixmap;
 };
 
-Q_DECLARE_SHARED(QImage);
+Q_DECLARE_SHARED(QImage)
 Q_DECLARE_TYPEINFO(QImage, Q_MOVABLE_TYPE);
 
 // QImage stream functions

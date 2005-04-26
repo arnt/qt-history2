@@ -40,7 +40,7 @@ public:
 
 protected:
     Qt::HANDLE handle() { return d ? d->cmapHandle : 0; }
-    void setHandle(Qt::HANDLE handle) { d->cmapHandle = handle; }
+    void setHandle(Qt::HANDLE ahandle) { d->cmapHandle = ahandle; }
 
 private:
     struct QGLColormapData {

@@ -186,7 +186,7 @@ protected:
     QPaintEnginePrivate *d_ptr;
 
 private:
-    void setAutoDestruct(bool autoDestruct) { selfDestruct = autoDestruct; }
+    void setAutoDestruct(bool autoDestr) { selfDestruct = autoDestr; }
     bool autoDestruct() const { return selfDestruct; }
 
     friend class QFontEngineBox;
@@ -274,7 +274,7 @@ inline void QPaintEngine::clearDirty(DirtyFlags df)
 }
 
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::PaintEngineFeatures);
-Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::DirtyFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::PaintEngineFeatures)
+Q_DECLARE_OPERATORS_FOR_FLAGS(QPaintEngine::DirtyFlags)
 
 #endif // QPAINTENGINE_H

@@ -200,7 +200,7 @@ protected:
     QStyleOptionButton(int version);
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionButton::ButtonFeatures);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionButton::ButtonFeatures)
 
 class Q_GUI_EXPORT QStyleOptionTab : public QStyleOption
 {
@@ -237,7 +237,7 @@ protected:
     QStyleOptionTab(int version);
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionTab::CornerWidgets);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionTab::CornerWidgets)
 
 class Q_GUI_EXPORT QStyleOptionProgressBar : public QStyleOption
 {
@@ -336,7 +336,7 @@ protected:
     QStyleOptionQ3ListViewItem(int version);
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionQ3ListViewItem::Q3ListViewItemFeatures);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionQ3ListViewItem::Q3ListViewItemFeatures)
 
 class Q_GUI_EXPORT QStyleOptionQ3DockWindow : public QStyleOption
 {
@@ -585,7 +585,7 @@ protected:
     QStyleOptionToolButton(int version);
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionToolButton::ToolButtonFeatures);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionToolButton::ToolButtonFeatures)
 
 class Q_GUI_EXPORT QStyleOptionComboBox : public QStyleOptionComplex
 {

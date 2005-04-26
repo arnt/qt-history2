@@ -239,7 +239,7 @@ inline QModelIndex QAbstractItemModel::createIndex(int arow, int acolumn, void *
 inline QModelIndex QAbstractItemModel::createIndex(int arow, int acolumn, int aid) const
 { return QModelIndex(arow, acolumn, reinterpret_cast<void*>(aid), this); }
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags)
 
 class Q_CORE_EXPORT QAbstractTableModel : public QAbstractItemModel
 {

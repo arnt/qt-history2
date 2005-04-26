@@ -68,7 +68,7 @@ private:
     class QPenPrivate *d;
 };
 Q_DECLARE_TYPEINFO(QPen, Q_MOVABLE_TYPE);
-Q_DECLARE_SHARED(QPen);
+Q_DECLARE_SHARED(QPen)
 
 /*****************************************************************************
   QPen stream functions

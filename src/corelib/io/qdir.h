@@ -208,6 +208,6 @@ public:
 #endif
 };
 
-Q_DECLARE_OPERATORS_FOR_FLAGS(QDir::Filters);
+Q_DECLARE_OPERATORS_FOR_FLAGS(QDir::Filters)
 
 #endif // QDIR_H

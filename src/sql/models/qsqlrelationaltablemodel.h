@@ -20,9 +20,9 @@ class Q_SQL_EXPORT QSqlRelation
 {
 public:
     QSqlRelation() {}
-    QSqlRelation(const QString &tableName, const QString &indexColumn,
-               const QString &displayColumn)
-        : tName(tableName), iColumn(indexColumn), dColumn(displayColumn) {}
+    QSqlRelation(const QString &aTableName, const QString &indexCol,
+               const QString &displayCol)
+        : tName(aTableName), iColumn(indexCol), dColumn(displayCol) {}
     inline QString tableName() const
     { return tName; }
     inline QString indexColumn() const

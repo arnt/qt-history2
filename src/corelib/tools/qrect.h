@@ -681,10 +681,10 @@ inline void QRectF::translate(const QPointF &p)
     yp += p.y();
 }
 
-inline void QRectF::moveTo(qreal x, qreal y)
+inline void QRectF::moveTo(qreal ax, qreal ay)
 {
-    xp = x;
-    yp = y;
+    xp = ax;
+    yp = ay;
 }
 
 inline void QRectF::moveTo(const QPointF &p)

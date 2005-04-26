@@ -210,9 +210,9 @@ private:
 Q_DECLARE_SHARED(QPixmap)
 
 
-inline QPixmap QPixmap::copy(int x, int y, int width, int height) const
+inline QPixmap QPixmap::copy(int ax, int ay, int awidth, int aheight) const
 {
-    return copy(QRect(x, y, width, height));
+    return copy(QRect(ax, ay, awidth, aheight));
 }
 
 inline bool QPixmap::loadFromData(const QByteArray &buf, const char *format,
