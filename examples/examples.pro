@@ -1,13 +1,11 @@
 TEMPLATE      = subdirs
-SUBDIRS       = designer \
-                dialogs \
+SUBDIRS       = dialogs \
                 draganddrop \
                 itemviews \
                 layouts \
                 linguist \
                 mainwindows \
                 network \
-                opengl \
                 painting \
                 richtext \
                 sql \
@@ -16,3 +14,6 @@ SUBDIRS       = designer \
                 tutorial \
                 widgets \
                 xml
+
+!cross_compiler:SUBDIRS: += designer
+contains(QT_CONFIG, opengl): SUBDIRS += opengl

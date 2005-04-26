@@ -6,7 +6,9 @@ CONFIG += ordered
 TEMPLATE = subdirs
 isEmpty(QT_PROJECTS) {
 #  QT_PROJECTS = qmake
-   QT_PROJECTS += src tools demos examples
+   QT_PROJECTS += src 
+   !cross_compile:QT_PROJECTS += tools
+   QT_PROJECTS += demos examples
 }
 SUBDIRS += $$QT_PROJECTS
 

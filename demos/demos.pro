@@ -1,5 +1,4 @@
 TEMPLATE    = subdirs
-
 SUBDIRS     = arthur \
               downloadwidget \
               interview \
@@ -8,6 +7,6 @@ SUBDIRS     = arthur \
               plasmatable \
               scrollarea \
               spreadsheet \
-              sqlbrowser \
-              textedit \
+              textedit
 
+!cross_compile:SUBDIRS += sqlbrowser

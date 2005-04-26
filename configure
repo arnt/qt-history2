@@ -1535,6 +1535,9 @@ if [ -d "$XPLATFORM" ]; then
 else
   XQMAKESPEC="$relpath/mkspecs/${XPLATFORM}"
 fi
+if [ "$PLATFORM" != "$XPLATFORM" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG cross_compile"
+fi
 
 if [ "$PLATFORM_MAC" = "yes" ]; then
    if [ `basename $QMAKESPEC` = "macx-pbuilder" ] || [ `basename $XQMAKESPEC` = "macx-pbuilder" ]; then
