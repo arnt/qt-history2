@@ -3149,14 +3149,16 @@ static QRegExpEngine *refEngine(const QString &pattern, Qt::CaseSensitivity cs)
 {
 #if !defined(QT_NO_REGEXP_OPTIM)
     EngineCache *engineCache = globalEngineCache();
-    QMutexLocker locker(mutex());
+    if (engineCache) {
+        QMutexLocker locker(mutex());
 
-    QRegExpEngine *eng = engineCache->take(pattern);
-    if (eng == 0 || eng->caseSensitivity() != cs) {
-        delete eng;
-    } else {
-        ++eng->ref;
-        return eng;
+        QRegExpEngine *eng = engineCache->take(pattern);
+        if (eng == 0 || eng->caseSensitivity() != cs) {
+            delete eng;
+        } else {
+            ++eng->ref;
+            return eng;
+        }
     }
 #endif // QT_NO_REGEXP_OPTIM
 
