@@ -356,6 +356,7 @@ QPrinter::~QPrinter()
 #ifdef QT3_SUPPORT
     delete d->printDialog;
 #endif
+    delete d->printEngine;
     delete d;
 }
 
