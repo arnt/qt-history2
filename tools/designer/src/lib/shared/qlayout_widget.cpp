@@ -616,6 +616,10 @@ void QLayoutSupport::insertRow(int row)
 
 void QLayoutSupport::insertColumn(int column)
 {
+    QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
+    if (!gridLayout)
+        return;
+
     QHash<QLayoutItem*, QRect> infos;
     computeGridLayout(&infos);
 
@@ -633,7 +637,7 @@ void QLayoutSupport::insertColumn(int column)
 
     rebuildGridLayout(&infos);
 
-    QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
+    gridLayout = qobject_cast<QGridLayout*>(layout());
     Q_ASSERT(gridLayout);
 
     if (gridLayout->columnCount() == column) {

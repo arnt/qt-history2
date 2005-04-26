@@ -354,23 +354,21 @@ void InsertWidgetCommand::redo()
     if (!deco && hasLayout(parentWidget))
         deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
 
-    if (deco != 0) {
-        if (LayoutInfo::layoutType(core, parentWidget) == LayoutInfo::Grid) {
-            switch (m_insertMode) {
-                case QDesignerLayoutDecorationExtension::InsertRowMode:
-                    deco->insertRow(m_cell.first);
-                    break;
+    if (deco && LayoutInfo::layoutType(core, parentWidget) == LayoutInfo::Grid) {
+        switch (m_insertMode) {
+            case QDesignerLayoutDecorationExtension::InsertRowMode: {
+                deco->insertRow(m_cell.first);
+            } break;
 
-                case QDesignerLayoutDecorationExtension::InsertColumnMode:
-                    deco->insertColumn(m_cell.second);
-                    break;
+            case QDesignerLayoutDecorationExtension::InsertColumnMode: {
+                deco->insertColumn(m_cell.second);
+            } break;
 
-                default: break;
-            } // end switch
-        }
-
+            default: break;
+        } // end switch
         deco->insertWidget(m_widget, m_cell);
     }
+
 
     formWindow()->manageWidget(m_widget);
     m_widget->show();
@@ -1144,3 +1142,68 @@ void AdjustWidgetSizeCommand::redo()
 void AdjustWidgetSizeCommand::undo()
 {
 }
+
+// ---- AdjustWidgetSizeCommand ----
+ChangeLayoutItemGeometry::ChangeLayoutItemGeometry(QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowInterfaceCommand(tr("Change Layout Item Geometry"), formWindow)
+{
+}
+
+void ChangeLayoutItemGeometry::init(QWidget *widget, int row, int column, int rowspan, int colspan)
+{
+    m_widget = widget;
+    Q_ASSERT(m_widget->parentWidget() != 0);
+
+    QLayout *layout = LayoutInfo::managedLayout(formWindow()->core(), m_widget->parentWidget());
+    Q_ASSERT(layout != 0);
+
+    QGridLayout *grid = qobject_cast<QGridLayout*>(layout);
+    Q_ASSERT(grid != 0);
+
+    int itemIndex = grid->indexOf(m_widget);
+    Q_ASSERT(itemIndex != -1);
+
+    int current_row, current_column, current_rowspan, current_colspan;
+    grid->getItemPosition(itemIndex, &current_row, &current_column, &current_rowspan, &current_colspan);
+
+    m_oldInfo.setRect(current_column, current_row, current_colspan, current_rowspan);
+    m_newInfo.setRect(column, row, colspan, rowspan);
+}
+
+void ChangeLayoutItemGeometry::changeItemPosition(const QRect &g)
+{
+    QLayout *layout = LayoutInfo::managedLayout(formWindow()->core(), m_widget->parentWidget());
+    Q_ASSERT(layout != 0);
+
+    QGridLayout *grid = qobject_cast<QGridLayout*>(layout);
+    Q_ASSERT(grid != 0);
+
+    int itemIndex = grid->indexOf(m_widget);
+    Q_ASSERT(itemIndex != -1);
+
+    QLayoutItem *item = grid->takeAt(itemIndex);
+    delete item;
+
+    add_to_grid_layout(grid, m_widget, g.top(), g.left(), g.height(), g.width());
+
+    if (QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(formWindow()->core()->extensionManager(), m_widget->parentWidget())) {
+        deco->simplify();
+    }
+
+    grid->invalidate();
+    grid->activate();
+
+    formWindow()->clearSelection(false);
+    formWindow()->selectWidget(m_widget, true);
+}
+
+void ChangeLayoutItemGeometry::redo()
+{
+    changeItemPosition(m_newInfo);
+}
+
+void ChangeLayoutItemGeometry::undo()
+{
+    changeItemPosition(m_oldInfo);
+}
+

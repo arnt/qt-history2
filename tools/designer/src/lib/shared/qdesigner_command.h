@@ -264,6 +264,26 @@ private:
     QPointer<QWidget> m_newParentWidget;
 };
 
+class QT_SHARED_EXPORT ChangeLayoutItemGeometry: public QDesignerFormWindowInterfaceCommand
+{
+    Q_OBJECT
+public:
+    ChangeLayoutItemGeometry(QDesignerFormWindowInterface *formWindow);
+
+    void init(QWidget *widget, int row, int column, int rowspan, int colspan);
+
+    virtual void redo();
+    virtual void undo();
+
+protected:
+    void changeItemPosition(const QRect &g);
+
+private:
+    QPointer<QWidget> m_widget;
+    QRect m_oldInfo;
+    QRect m_newInfo;
+};
+
 class QT_SHARED_EXPORT TabOrderCommand: public QDesignerFormWindowInterfaceCommand
 {
     Q_OBJECT
