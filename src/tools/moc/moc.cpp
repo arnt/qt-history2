@@ -799,6 +799,8 @@ void Moc::parseProperty(ClassDef *def)
         case 'E': if (l != "EDITABLE") error(2);
             propDef.editable = v + v2;
             break;
+        case 'N': if (l != "NOTIFY") error(2);
+            break;
         default:
             error(2);
         }
