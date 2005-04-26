@@ -89,7 +89,7 @@
         <number>1</number>
        </property>
        <property name="text" >
-        <string>Choose a template for a preivew</string>
+        <string>Choose a template for a preview</string>
        </property>
        <property name="alignment" >
         <set>Qt::AlignCenter</set>
