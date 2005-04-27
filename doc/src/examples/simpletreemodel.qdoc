@@ -83,9 +83,7 @@
        provided by \c columnCount(), and the data in each column can be
        obtained with the data() function.
     \o The \c row() and \c parent() functions are used to obtain the item's
-       row number and parent item. The \c childRow() private member function
-       is used internally to determine the row number of an item within its
-       parent's list of child items.
+       row number and parent item.
     \endlist
 
     The parent item and column data are stored in the \c parentItem and
@@ -135,17 +133,8 @@
     The \c TreeModel uses this function to determine the number of rows that
     exist for a given parent item.
 
-    The \c childRow() function returns the row number of the specified child
-    of the item:
-
-    \skipto TreeItem::childRow(
-    \printuntil /^\}/
-
-    This function is used by the \c row() function to report the item's
-    location within its parent's list of items, and is only necessary
-    because the \c childItems variable is private.
-
-    The \c row() function shows how it is used:
+    The \c row() function reports the item's location within its parent's
+    list of items:
 
     \skipto TreeItem::row(
     \printuntil /^\}/
