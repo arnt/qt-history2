@@ -453,7 +453,7 @@ static QColor mergedColors(const QColor &colorA, const QColor &colorB, int facto
     return tmp;
 }
 
-static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *option, bool base = false)
+static void qt_plastique_drawFrame(QPainter *painter, const QStyleOption *option, bool base = false)
 {
     QRect rect = option->rect;
     QPen oldPen = painter->pen();
@@ -465,34 +465,63 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
 
     // outline / border
     painter->setPen(borderColor);
-    painter->drawLine(rect.left() + 1, rect.top(), rect.right() - 1, rect.top());
-    painter->drawLine(rect.left() + 1, rect.bottom(), rect.right() - 1, rect.bottom());
-    painter->drawLine(rect.left(), rect.top() + 1, rect.left(), rect.bottom() - 1);
-    painter->drawLine(rect.right(), rect.top() + 1, rect.right(), rect.bottom() - 1);
+    painter->drawLine(rect.left() + 2, rect.top(), rect.right() - 2, rect.top());
+    painter->drawLine(rect.left() + 2, rect.bottom(), rect.right() - 2, rect.bottom());
+    painter->drawLine(rect.left(), rect.top() + 2, rect.left(), rect.bottom() - 2);
+    painter->drawLine(rect.right(), rect.top() + 2, rect.right(), rect.bottom() - 2);
+    painter->drawPoint(rect.left() + 1, rect.top() + 1);
+    painter->drawPoint(rect.right() - 1, rect.top() + 1);
+    painter->drawPoint(rect.left() + 1, rect.bottom() - 1);
+    painter->drawPoint(rect.right() - 1, rect.bottom() - 1);
+
+    painter->setPen(alphaCornerColor);
+    painter->drawPoint(rect.left() + 1, rect.top());
+    painter->drawPoint(rect.right() - 1, rect.top());
+    painter->drawPoint(rect.left() + 1, rect.bottom());
+    painter->drawPoint(rect.right() - 1, rect.bottom());
+    painter->drawPoint(rect.left(), rect.top() + 1);
+    painter->drawPoint(rect.right(), rect.top() + 1);
+    painter->drawPoint(rect.left(), rect.bottom() - 1);
+    painter->drawPoint(rect.right(), rect.bottom() - 1);
+
+    // inner border
+    if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On))
+        painter->setPen(option->palette.button().color().dark(118));
+    else
+        painter->setPen(gradientStartColor);
+    painter->drawLine(rect.left() + 2, rect.top() + 1, rect.right() - 2, option->rect.top() + 1);
+    painter->drawLine(rect.left() + 1, rect.top() + 2, rect.left() + 1, option->rect.bottom() - 2);
+    
+    if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On))
+        painter->setPen(option->palette.button().color().dark(110));
+    else
+        painter->setPen(gradientStopColor.dark(102));
+    painter->drawLine(rect.left() + 2, rect.bottom() - 1, rect.right() - 2, rect.bottom() - 1);
+    painter->drawLine(rect.right() - 1, rect.top() + 2, rect.right() - 1, rect.bottom() - 2);
+    
+    painter->setPen(oldPen);
+}
+
+static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *option, bool base = false)
+{
+    QRect rect = option->rect;
+    QPen oldPen = painter->pen();
+
+    QColor gradientStartColor = option->palette.button().color().light(104);
+    QColor gradientStopColor = option->palette.button().color().dark(105);
 
     // gradient fill
-    QLinearGradient gradient(rect.center().x(), rect.top() + 1, rect.center().x(), rect.bottom() - 2);
-    if (option->state & QStyle::State_Sunken) {
-        gradient.setColorAt(0, option->palette.button().color().dark(111));
+    QLinearGradient gradient(rect.center().x(), rect.top() + 1, rect.center().x(), rect.bottom() - 1);
+    if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On)) {
+        gradient.setColorAt(0, option->palette.button().color().dark(114));
         gradient.setColorAt(1, option->palette.button().color().dark(106));
     } else {
         gradient.setColorAt(0, base ? option->palette.background().color().light(105) : gradientStartColor);
         gradient.setColorAt(1, base ? option->palette.background().color().dark(102) : gradientStopColor);
     }
-    painter->fillRect(rect.adjusted(1, 1, -2, -2), gradient);
+    painter->fillRect(rect.adjusted(1, 1, -1, -1), gradient);
 
-    // inner border
-    painter->setPen(gradientStopColor.dark(102));
-    painter->drawLine(rect.left() + 1, rect.bottom() - 1, rect.right() - 1, rect.bottom() - 1);
-    painter->drawLine(rect.right() - 1, rect.top() + 2, rect.right() - 1, rect.bottom() - 2);
-    painter->setPen(gradientStartColor);
-    painter->drawLine(rect.left() + 1, rect.top() + 1, rect.left() + 1, option->rect.bottom() - 2);
-
-    painter->setPen(alphaCornerColor);
-    painter->drawPoint(rect.topLeft());
-    painter->drawPoint(rect.topRight());
-    painter->drawPoint(rect.bottomLeft());
-    painter->drawPoint(rect.bottomRight());
+    qt_plastique_drawFrame(painter, option, base);
 
     painter->setPen(oldPen);
 }
@@ -589,6 +618,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 
     switch (element) {
     case PE_FrameDefaultButton:
+        // Draws the frame around a default button (drawn in
+        // PE_PanelButtonCommand).
         break;
     case PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
@@ -837,6 +868,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         }
         break ;
     case PE_FrameMenu: {
+        // Draws the frame around a popup menu.
         QPen oldPen = painter->pen();
         painter->setPen(borderColor);
         painter->drawRect(option->rect.adjusted(0, 0, -1, -1));
@@ -850,6 +882,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     }
     case PE_PanelMenuBar:
     case PE_PanelToolBar: {
+        // Draws the light line above and the dark line below menu bars and
+        // tool bars.
         painter->save();
         painter->setPen(alphaCornerColor);
         painter->drawLine(option->rect.left(), option->rect.bottom(),
@@ -860,12 +894,9 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         painter->restore();
         break;
     }
-    case PE_FrameButtonTool:
     case PE_PanelButtonTool:
-        if ((option->state & State_Enabled) && (option->state & State_MouseOver))
-            qt_plastique_drawShadedPanel(painter, option, true);
-        else
-            painter->fillRect(option->rect, option->palette.background());
+        // Draws the tool button panel.
+        qt_plastique_drawShadedPanel(painter, option, true);
         break;
     case PE_IndicatorToolBarHandle: {
         painter->save();
@@ -1911,9 +1942,11 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         break;
     case CE_HeaderSection:
+        // Draws the header in tables.
         qt_plastique_drawShadedPanel(painter, option);
         break;
     case CE_MenuItem:
+        // Draws one item in a popup menu.
         if (const QStyleOptionMenuItem *menuItem = qstyleoption_cast<const QStyleOptionMenuItem *>(option)) {
             painter->save();
 
@@ -2045,17 +2078,19 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         break;
     case CE_MenuBarItem:
-        if (option->state & State_Selected)
+        // Draws a menu bar item; File, Edit, Help etc..
+        if ((option->state & State_Selected) && (option->state & State_Enabled))
             qt_plastique_drawShadedPanel(painter, option, true);
         else
             painter->fillRect(option->rect, option->palette.background());
         QCommonStyle::drawControl(element, option, painter, widget);
         break;
     case CE_MenuBarEmptyArea:
+        // Draws the area in a menu bar that is not populated by menu items.
         painter->fillRect(option->rect, option->palette.background());
         break;
     case CE_ToolBoxTab:
-        if (option->state & State_Selected)
+        if ((option->state & State_Selected) && (option->state & State_Enabled))
             qt_plastique_drawShadedPanel(painter, option, true);
         else
             painter->fillRect(option->rect, option->palette.background());
