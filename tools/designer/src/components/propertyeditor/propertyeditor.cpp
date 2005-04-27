@@ -14,6 +14,7 @@
 #include "propertyeditor.h"
 #include "findicondialog.h"
 #include "qpropertyeditor_model_p.h"
+#include "qpropertyeditor_items_p.h"
 
 #include <QtDesigner/qextensionmanager.h>
 #include <QtDesigner/propertysheet.h>
@@ -703,5 +704,20 @@ void PropertyEditor::resetProperty(const QString &prop_name)
     form->cursor()->resetWidgetProperty(w, prop_name);
 }
 
+QString PropertyEditor::currentPropertyName() const
+{
+    QModelIndex index = m_editor->selectionModel()->currentIndex();
+    if (index.isValid()) {
+        IProperty *property = static_cast<IProperty*>(index.internalPointer());
+
+        while (property && property->isFake())
+            property = property->parent();
+
+        if (property)
+            return property->propertyName();
+    }
+
+    return QString();
+}
 
 #include "propertyeditor.moc"

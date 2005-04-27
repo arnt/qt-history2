@@ -34,6 +34,8 @@ public:
     virtual bool isReadOnly() const = 0;
     virtual QObject *object() const = 0;
 
+    virtual QString currentPropertyName() const = 0;
+
 signals:
     void propertyChanged(const QString &name, const QVariant &value);
 

@@ -44,6 +44,8 @@ public:
     virtual QObject *object() const
     { return m_object; }
 
+    virtual QString currentPropertyName() const;
+
 private slots:
     void firePropertyChanged(IProperty *property);
     void resetProperty(const QString &prop_name);
