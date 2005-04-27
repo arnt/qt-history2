@@ -51,11 +51,9 @@ void DetailsDialog::setupItemsTable()
 
     for (int row = 0; row < items.count(); ++row) {
         QTableWidgetItem *name = new QTableWidgetItem(items[row]);
-        name->setFlags(Qt::ItemIsEnabled
-                     | Qt::ItemIsSelectable
-                     | Qt::ItemIsDragEnabled);
+        name->setFlags(Qt::ItemIsEnabled | Qt::ItemIsSelectable);
         itemsTable->setItem(row, 0, name);
-        QTableWidgetItem *quantity = new QTableWidgetItem("0");
+        QTableWidgetItem *quantity = new QTableWidgetItem("1");
         itemsTable->setItem(row, 1, quantity);
     }
 }
