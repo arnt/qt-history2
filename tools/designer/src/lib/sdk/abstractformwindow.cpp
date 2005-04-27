@@ -41,8 +41,6 @@ static bool isPassiveInteractor(QWidget *o)
         return true;
     else if (qstrcmp(o->metaObject()->className(), "QToolBarHandle") == 0)
         return true;
-    else if (qstrcmp(o->metaObject()->className(), "QSplitterHandle") == 0)
-        return true;
     else if (o->objectName().startsWith(QLatin1String("__qt__passive_")))
         return true;
 
