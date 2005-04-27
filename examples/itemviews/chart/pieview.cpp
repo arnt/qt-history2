@@ -280,9 +280,19 @@ int PieView::horizontalOffset() const
     return horizontalScrollBar()->value();
 }
 
+void PieView::horizontalScrollbarAction(int action)
+{
+    viewport()->update();
+}
+
 int PieView::verticalOffset() const
 {
     return verticalScrollBar()->value();
+}
+
+void PieView::verticalScrollbarAction(int action)
+{
+    viewport()->update();
 }
 
 /*

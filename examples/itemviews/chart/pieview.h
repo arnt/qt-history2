@@ -54,6 +54,10 @@ protected:
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
 
+protected slots:
+    void horizontalScrollbarAction(int action);
+    void verticalScrollbarAction(int action);
+
 private:
     QRect itemRect(const QModelIndex &item) const;
     int rows(const QModelIndex &index = QModelIndex()) const;
