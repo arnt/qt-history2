@@ -81,6 +81,7 @@ QString Q3MainWindowPlugin::domXml() const
                 <height>80</height>\
             </rect>\
         </property>\
+        <widget class=\"QWidget\" name=\"centralWidget\" />\
     </widget>\
     ");
 }
