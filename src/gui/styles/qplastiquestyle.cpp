@@ -865,6 +865,13 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                                   lineEndColor);
                 painter->fillRect(QRect(frame->rect.right() - lw - mlw + 1, frame->rect.top() + lw, mlw, mlw),
                                   lineEndColor);
+            } else {
+                // just draw the inner corners
+                painter->setPen(focus ? highlightedDarkInnerBorderColor : borderColor);
+                painter->drawPoint(frame->rect.left() + 1, frame->rect.top() + 1);
+                painter->drawPoint(frame->rect.right() - 1, frame->rect.top() + 1);
+                painter->drawPoint(frame->rect.left() + 1, frame->rect.bottom() - 1);
+                painter->drawPoint(frame->rect.right() - 1, frame->rect.bottom() - 1);
             }
             painter->restore();
         }

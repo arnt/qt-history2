@@ -505,10 +505,7 @@ void QFrame::drawFrame(QPainter *p)
 
 
     case StyledPanel:
-        if (frameShadow == Plain)
-            qDrawPlainRect(p, opt.rect, opt.palette.foreground().color(), lw);
-        else
-            style()->drawPrimitive(QStyle::PE_Frame, &opt, p, this);
+        style()->drawPrimitive(QStyle::PE_Frame, &opt, p, this);
         break;
 
     case Panel:

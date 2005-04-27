@@ -172,9 +172,14 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
         break; }
     case PE_Frame:
     case PE_FrameMenu:
-        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt))
-            qDrawShadePanel(p, frame->rect, frame->palette, frame->state & State_Sunken,
-                            frame->lineWidth);
+        if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+            if ((frame->state & State_Sunken) || (frame->state & State_Raised)) {
+                qDrawShadePanel(p, frame->rect, frame->palette, frame->state & State_Sunken,
+                                frame->lineWidth);
+            } else {
+                qDrawPlainRect(p, frame->rect, frame->palette.foreground().color(), frame->lineWidth);
+            }
+        }
         break;
     case PE_PanelMenuBar:
     case PE_PanelToolBar:
