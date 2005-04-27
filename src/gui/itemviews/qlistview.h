@@ -80,6 +80,7 @@ public:
 
     void doItemsLayout();
     void reset();
+    void setRootIndex(const QModelIndex &index);
 
 protected:
     QListView(QListViewPrivate &, QWidget *parent = 0);

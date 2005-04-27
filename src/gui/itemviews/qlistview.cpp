@@ -562,6 +562,17 @@ void QListView::reset()
 }
 
 /*!
+  \internal
+*/
+void QListView::setRootIndex(const QModelIndex &index)
+{
+    Q_D(QListView);
+    QAbstractItemView::setRootIndex(index);
+    if (d->column >= model()->columnCount(rootIndex()))
+        d->column = model()->columnCount(rootIndex()) - 1;
+}
+
+/*!
     \internal
 
     Scroll the view contents by \a dx and \a dy.
@@ -1179,6 +1190,8 @@ bool QListView::isIndexHidden(const QModelIndex &index) const
 void QListView::setModelColumn(int column)
 {
     Q_D(QListView);
+    if (column < 0 || column >= model()->columnCount(rootIndex()))
+        return;
     d->column = column;
     d->doDelayedItemsLayout();
 }
