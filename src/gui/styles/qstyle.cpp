@@ -1445,7 +1445,7 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
 
      \value SH_RubberBand_Mask The mask of the rubber band.
 
-     \value SH_FrameWindow_Mask The mask of the frame window.
+     \value SH_WindowFrame_Mask The mask of the window frame.
 
      \value SH_SpinControls_DisableOnBounds Determines if the spin controls will shown
      as disabled when reaching the spin range boundary.

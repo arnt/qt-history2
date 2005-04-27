@@ -3493,7 +3493,7 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
 {
     int ret = 0;
     switch (hint) {
-    case SH_FrameWindow_Mask:
+    case SH_WindowFrame_Mask:
         ret = 1;
         if (QStyleHintReturnMask *mask = qstyleoption_cast<QStyleHintReturnMask *>(returnData)) {
             mask->region = option->rect;

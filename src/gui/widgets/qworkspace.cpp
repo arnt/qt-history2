@@ -2424,7 +2424,7 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
     titleBarOptions.titleBarFlags = childWidget->windowFlags();
     titleBarOptions.titleBarState = childWidget->windowState();
     QStyleHintReturnMask mask;
-    if (style()->styleHint(QStyle::SH_FrameWindow_Mask, &titleBarOptions, this, &mask))
+    if (style()->styleHint(QStyle::SH_WindowFrame_Mask, &titleBarOptions, this, &mask))
         setMask(mask.region);
 
     if (titlebar) {
@@ -2785,7 +2785,7 @@ QWidget* QWorkspaceChild::iconWidget() const
         titleBarOptions.titleBarFlags = frame->windowFlags();
         titleBarOptions.titleBarState = frame->windowState() | Qt::WindowMinimized;
         QStyleHintReturnMask mask;
-        if (style()->styleHint(QStyle::SH_FrameWindow_Mask, &titleBarOptions, frame, &mask))
+        if (style()->styleHint(QStyle::SH_WindowFrame_Mask, &titleBarOptions, frame, &mask))
             frame->setMask(mask.region);
 
         that->iconw = tb;
