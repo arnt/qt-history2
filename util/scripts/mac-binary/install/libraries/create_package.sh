@@ -28,7 +28,7 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support; do
         continue
     fi
     cp -r "$BINDIR/lib/${lib}.framework" "$FRAMEWORK_DIR/"
-    find "$BINDIR/lib/${lib}.framework" -name '*_debug*' -exec rm -f {} \; >/dev/null 2>&1
+    [ "$DO_DEBUG" = "no" ]  && find "$BINDIR/lib/${lib}.framework" -name '*_debug*' -exec rm -f {} \; >/dev/null 2>&1
     #no headers
     find "$FRAMEWORK_DIR/${lib}.framework/" -name Headers -exec rm -rf {} \; >/dev/null 2>&1
 done
