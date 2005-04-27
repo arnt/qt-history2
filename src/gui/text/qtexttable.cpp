@@ -36,7 +36,7 @@
 
     Cells contain information about their location in a table; you can
     obtain the row() and column() numbers of a cell, and its rowSpan()
-    and columnSpan(). 
+    and columnSpan().
 
     The format() of a cell describes the default character format of its
     contents. The firstCursorPosition() and lastCursorPosition() functions
@@ -235,6 +235,8 @@ QTextFrame::iterator QTextTableCell::end() const
 
 QTextTablePrivate::~QTextTablePrivate()
 {
+    if (grid)
+        free(grid);
 }
 
 
