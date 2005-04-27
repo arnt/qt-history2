@@ -20,10 +20,7 @@
 #include "saveformastemplate.h"
 
 // sdk
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractformeditorplugin.h>
+#include <QtDesigner/QtDesigner>
 #include <qdesigner_formbuilder.h>
 #include <qtundo.h>
 
@@ -281,9 +278,18 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 #ifdef Q_WS_MAC
     m_mainHelpAction->setShortcut(Qt::CTRL + Qt::Key_Question);
 #else
-    m_mainHelpAction->setShortcut(Qt::Key_F1);
+    m_mainHelpAction->setShortcut(Qt::CTRL + Qt::Key_M);
 #endif
     m_helpActions->addAction(m_mainHelpAction);
+
+    sep = new QAction(this);
+    sep->setSeparator(true);
+    m_helpActions->addAction(sep);
+
+    m_widgetHelp = new QAction(tr("Current Widget Help"));
+    m_widgetHelp->setShortcut(Qt::Key_F1);
+    connect(m_widgetHelp, SIGNAL(triggered()), this, SLOT(showWidgetSpecificHelp()));
+    m_helpActions->addAction(m_widgetHelp);
 
     sep = new QAction(this);
     sep->setSeparator(true);
@@ -827,3 +833,40 @@ QAction *QDesignerActions::editWidgets() const
     return m_editWidgetsAction;
 }
 
+void QDesignerActions::showWidgetSpecificHelp()
+{
+    QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow();
+    if (!fw) {
+        showDesignerHelp();
+        return;
+    }
+
+    QString className;
+    QString currentPropertyName;
+;
+
+    currentPropertyName = core()->propertyEditor()->currentPropertyName();
+    if (!currentPropertyName.isEmpty()) {
+        QDesignerPropertySheetExtension *ps
+            = qt_extension<QDesignerPropertySheetExtension *>(core()->extensionManager(),
+                                                              fw->cursor()->selectedWidget(0));
+        Q_ASSERT(ps);
+        className = ps->propertyGroup(ps->indexOf(currentPropertyName));
+    } else {
+        QDesignerWidgetDataBaseInterface *db = core()->widgetDataBase();
+        QDesignerWidgetDataBaseItemInterface *dbi = db->item(db->indexOfObject(fw->cursor()->selectedWidget(0),
+                                                                               true));
+        className = dbi->name();
+    }
+
+    QString url = className.toLower();
+    url += QLatin1String(".html");
+    if (!currentPropertyName.isEmpty())
+        url += QLatin1Char('#') + currentPropertyName;
+    showHelp(url);
+}
+
+QAction *QDesignerActions::widgetHelpAction() const
+{
+    return m_widgetHelp;
+}

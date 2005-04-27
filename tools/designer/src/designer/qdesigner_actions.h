@@ -105,6 +105,7 @@ public:
 // help actions
 //
     QAction *mainHelpAction() const;
+    QAction *widgetHelpAction() const;
     QAction *whatsNewAction() const;
     QAction *aboutQtAction() const;
     QAction *aboutDesignerAction() const;
@@ -134,6 +135,7 @@ private slots:
     void showWhatsNew();
     void aboutDesigner();
     void updateUIMode(QAction *act);
+    void showWidgetSpecificHelp();
 
 private:
     bool saveFormAs(QDesignerFormWindowInterface *fw);
@@ -191,6 +193,7 @@ private:
     QAction *m_bringAllToFrontAction;
 
     QAction *m_mainHelpAction;
+    QAction *m_widgetHelp;
     QAction *m_whatsNewAction;
     QAction *m_aboutQtAction;
     QAction *m_aboutDesignerAction;
