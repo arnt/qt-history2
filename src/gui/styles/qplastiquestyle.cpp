@@ -1354,7 +1354,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->drawPoint(fullRect.bottomLeft());
             painter->drawPoint(fullRect.bottomRight());
             // fill
-            QRect adjustedRect = fullRect.adjusted(0, 0, -1, -1);
+            QRect adjustedRect = fullRect;
             QLinearGradient gradient(QPointF(adjustedRect.left() + 1, adjustedRect.top() + 1),
                                      QPointF(adjustedRect.right() - 1, adjustedRect.bottom() - 1));
              gradient.setColorAt(0, baseGradientStartColor);
@@ -3462,6 +3462,12 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     case SH_TitleBar_NoBorder:
         ret = 1;
         break;
+    case SH_TreeView_ShowBranchSelected:
+        ret = true;
+        break;
+    case SH_ItemView_AlternatingRowColors:
+        ret = true;
+        break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
         break;
@@ -3653,5 +3659,6 @@ void QPlastiqueStyle::polish(QApplication *app)
 void QPlastiqueStyle::polish(QPalette &pal)
 {
     QWindowsStyle::polish(pal);
+    pal.setBrush(QPalette::AlternateBase, pal.background().color().dark(102));
 }
 
