@@ -865,18 +865,25 @@ void Moc::parseClassInfo(ClassDef *def)
 void Moc::parseInterfaces(ClassDef *def)
 {
     next(LPAREN);
-    QList<QByteArray> ifaceHierarchy;
-    do {
-        next(IDENTIFIER);
-        QByteArray iface = lexem();
+    while (test(IDENTIFIER)) {
+        QList<QByteArray> iface;
+        iface += lexem();
         while (test(SCOPE)) {
-            iface += lexem();
+            iface.last() += lexem();
+            next(IDENTIFIER);
+            iface.last() += lexem();
+        }
+        while (test(COLON)) {
             next(IDENTIFIER);
             iface += lexem();
+            while (test(SCOPE)) {
+                iface.last() += lexem();
+                next(IDENTIFIER);
+                iface.last() += lexem();
+            }
         }
-        ifaceHierarchy += iface;
-    } while (test(COLON));
-    def->interfaceList += ifaceHierarchy;
+        def->interfaceList += iface;
+    }
     next(RPAREN);
 }
 
