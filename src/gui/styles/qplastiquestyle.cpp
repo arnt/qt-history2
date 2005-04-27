@@ -896,7 +896,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     }
     case PE_PanelButtonTool:
         // Draws the tool button panel.
-        qt_plastique_drawShadedPanel(painter, option, true);
+        if (option->state & State_Enabled)
+            qt_plastique_drawShadedPanel(painter, option, true);
         break;
     case PE_IndicatorToolBarHandle: {
         painter->save();
