@@ -238,7 +238,7 @@ void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
         QString href;
         if (anchor == a)
             href = a;
-        anchor = QString::null;
+        anchor.clear();
         if (!href.isEmpty()) {
             QWhatsThisClickedEvent e(href);
             if (QApplication::sendEvent(widget, &e))

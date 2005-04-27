@@ -2723,7 +2723,7 @@ void Q3FileDialog::fileNameEditReturnPressed()
     if (!isDirectoryMode(d->mode)) {
         okClicked();
     } else {
-        d->currentFileName = QString::null;
+        d->currentFileName.clear();
         if (nameEdit->text().isEmpty()) {
             emit fileSelected(selectedFile());
             accept();
@@ -3367,7 +3367,7 @@ QString Q3FileDialog::getOpenFileName(const QString & startWith,
                 }
             } else {
                 *workingDirectory = u.toString();
-                initialSelection = QString::null;//u.fileName();
+                initialSelection.clear();
             }
         }
     }
@@ -3485,7 +3485,7 @@ QString Q3FileDialog::getSaveFileName(const QString & startWith,
                 }
             } else {
                 *workingDirectory = u.toString();
-                initialSelection = QString::null;//u.fileName();
+                initialSelection.clear();
             }
         }
     }
@@ -3703,7 +3703,7 @@ bool Q3FileDialog::trySetSelection(bool isDir, const Q3UrlOperator &u, bool upda
         QString fn(u.fileName());
         if (fn.contains("*")) {
             addFilter(fn);
-            d->currentFileName = QString::null;
+            d->currentFileName.clear();
             d->url.setFileName(QString::null);
             nameEdit->setText(QString::fromLatin1(""));
             return false;
@@ -3719,13 +3719,13 @@ bool Q3FileDialog::trySetSelection(bool isDir, const Q3UrlOperator &u, bool upda
         if (isDir)
             d->currentFileName = u;
         else
-            d->currentFileName = QString::null;
+            d->currentFileName.clear();
     } else if (!isDir && mode() == ExistingFiles) {
         d->currentFileName = u;
     } else if (!isDir || (mode() == AnyFile && !isDir)) {
         d->currentFileName = u;
     } else {
-        d->currentFileName = QString::null;
+        d->currentFileName.clear();
     }
     if (updatelined && !d->currentFileName.isEmpty()) {
         // If the selection is valid, or if its a directory, allow OK.
@@ -4383,7 +4383,7 @@ QString Q3FileDialog::getExistingDirectory(const QString & dir,
         if (QFileInfo(u.path()).isDir())
             initialDir = dir;
     } else
-        initialDir = QString::null;
+        initialDir.clear();
     if (qt_use_native_dialogs && qobject_cast<QWindowsStyle *>(qApp->style()) && dirOnly)
         return winGetExistingDirectory(initialDir, parent, name, caption);
 #endif

@@ -659,15 +659,15 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
             ptrSHGetPathFromIDList(pItemIDList, path);
             IMalloc *pMalloc;
             if (SHGetMalloc(&pMalloc) != NOERROR)
-                result = QString::null;
+                result.clear();
             else {
                 pMalloc->Free(pItemIDList);
                 pMalloc->Release();
                 result = QString::fromUcs2((ushort*)path);
             }
         } else
-            result = QString::null;
-        tTitle = QString::null;
+            result.clear();
+        tTitle.clear();
     } , {
         QString initDir = QDir::convertSeparators(initialDirectory);
         char path[MAX_PATH];
@@ -688,14 +688,14 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
             SHGetPathFromIDListA(pItemIDList, path);
             IMalloc *pMalloc;
             if (SHGetMalloc(&pMalloc) != NOERROR)
-                result = QString::null;
+                result.clear();
             else {
                 pMalloc->Free(pItemIDList);
                 pMalloc->Release();
                 result = QString::fromLocal8Bit(path);
             }
         } else
-            result = QString::null;
+            result.clear();
     });
     if (parent) {
         QApplicationPrivate::leaveModal(parent);

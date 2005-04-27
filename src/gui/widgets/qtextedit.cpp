@@ -402,7 +402,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 
     doc->setModified(false);
 
-    anchorToScrollToWhenVisible = QString::null;
+    anchorToScrollToWhenVisible.clear();
 }
 
 void QTextEditPrivate::startDrag()
@@ -2036,7 +2036,7 @@ void QTextEdit::showEvent(QShowEvent *)
     Q_D(QTextEdit);
     if (!d->anchorToScrollToWhenVisible.isEmpty()) {
         scrollToAnchor(d->anchorToScrollToWhenVisible);
-        d->anchorToScrollToWhenVisible = QString::null;
+        d->anchorToScrollToWhenVisible.clear();
     }
 }
 

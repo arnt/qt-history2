@@ -75,7 +75,7 @@ QMakeMetaInfo::findLib(QString lib)
 	lib = lib.mid(1, lib.length()-2);
     lib = Option::fixPathToLocalOS(lib);
 
-    QString ret = QString::null;
+    QString ret;
     QString extns[] = { Option::prl_ext, /*Option::pkgcfg_ext, Option::libtool_ext,*/ QString::null };
     for(int extn = 0; !extns[extn].isNull(); extn++) {
         if(lib.endsWith(extns[extn]))

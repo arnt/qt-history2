@@ -565,7 +565,7 @@ void QFont::setFamily(const QString &family)
 
     d->request.family = family;
 #if defined(Q_WS_X11)
-    d->request.addStyle = QString::null;
+    d->request.addStyle.clear();
 #endif // Q_WS_X11
 
     resolve_mask |= QFontPrivate::Family;
@@ -1013,7 +1013,7 @@ void QFont::setStyleHint(StyleHint hint, StyleStrategy strategy)
     resolve_mask |= QFontPrivate::StyleStrategy;
 
 #if defined(Q_WS_X11)
-    d->request.addStyle = QString::null;
+    d->request.addStyle.clear();
 #endif // Q_WS_X11
 }
 

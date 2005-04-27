@@ -895,7 +895,7 @@ void Q3DataTable::endInsert()
     d->editRow = -1;
     d->editCol = -1;
     d->insertRowLast = -1;
-    d->insertHeaderLabelLast = QString::null;
+    d->insertHeaderLabelLast.clear();
     setEditMode( NotEditing, -1, -1 );
     setNumRows( d->insertPreRows );
     d->insertPreRows = -1;
@@ -1351,7 +1351,7 @@ void Q3DataTable::reset()
     d->editRow = -1;
     d->editCol = -1;
     d->insertRowLast = -1;
-    d->insertHeaderLabelLast = QString::null;
+    d->insertHeaderLabelLast.clear();
     d->cancelMode = false;
     d->lastAt = -1;
     d->fld.clear();

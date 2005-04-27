@@ -635,7 +635,7 @@ void MessageEditor::showNothing()
     editorPage->srcText->clear();
 
     setEditionEnabled(false);
-    sourceText = QString::null;
+    sourceText.clear();
     editorPage->cmtText->clear();
     setTranslation(QString::null, false);
     editorPage->handleSourceChanges();

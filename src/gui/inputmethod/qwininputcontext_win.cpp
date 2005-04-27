@@ -447,7 +447,7 @@ bool QWinInputContext::endComposition()
     }
 
     if (imeComposition)
-        *imeComposition = QString::null;
+        imeComposition->clear();
     imePosition = -1;
 
     return result;
@@ -469,7 +469,7 @@ void QWinInputContext::reset()
     }
 
     if (imeComposition)
-        *imeComposition = QString::null;
+        imeComposition->clear();
     imePosition = -1;
 
     if (fw) {
@@ -540,7 +540,7 @@ bool QWinInputContext::composition(LPARAM lParam)
             imePosition = -1;
             QInputMethodEvent e;
             e.setCommitString(*imeComposition);
-            *imeComposition = QString::null;
+            imeComposition->clear();
             result = qt_sendSpontaneousEvent(fw, &e);
         }
         else if (lParam & (GCS_COMPSTR | GCS_COMPATTR | GCS_CURSORPOS)) {

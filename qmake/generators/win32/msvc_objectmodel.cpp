@@ -1974,7 +1974,7 @@ void VCFilter::outputFileConfig(XmlOutput &xml, const QString &filename)
     CompilerTool.ExceptionHandling = unset;
     CompilerTool.GeneratePreprocessedFile = preprocessUnknown;
     CompilerTool.Optimization = optimizeDefault;
-    CompilerTool.ProgramDataBaseFileName = QString::null;
+    CompilerTool.ProgramDataBaseFileName.clear();
     CompilerTool.RuntimeLibrary = rtUnknown;
     CompilerTool.WarningLevel = warningLevelUnknown;
 

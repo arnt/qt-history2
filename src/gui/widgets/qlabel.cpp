@@ -1065,7 +1065,7 @@ void QLabelPrivate::clearContents()
     delete pix;
     pix = 0;
 
-    ltext = QString::null;
+    ltext.clear();
     q->releaseShortcut(shortcutId);
     shortcutId = 0;
 #ifndef QT_NO_MOVIE

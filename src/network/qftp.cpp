@@ -404,7 +404,7 @@ inline QString QFtpDTP::errorMessage() const
 
 inline void QFtpDTP::clearError()
 {
-    err = QString::null;
+    err.clear();
 }
 
 void QFtpDTP::abortConnection()
@@ -744,7 +744,7 @@ void QFtpPI::clearPendingCommands()
 {
     pendingCommands.clear();
     dtp.abortConnection();
-    currentCmd = QString::null;
+    currentCmd.clear();
     state = Idle;
 }
 
@@ -1043,7 +1043,7 @@ bool QFtpPI::startNextCmd()
         qDebug("QFtpPI startNextCmd: Internal error! QFtpPI called in non-Idle state %d", state);
 #endif
     if (pendingCommands.isEmpty()) {
-        currentCmd = QString::null;
+        currentCmd.clear();
         emit finished(replyText);
         return false;
     }

@@ -156,9 +156,9 @@ WinShell::WinShell()
     LPITEMIDLIST item;
 #endif
 
-    localProgramsFolderName = QString::null;
-    commonProgramsFolderName = QString::null;
-    windowsFolderName = QString::null;
+    localProgramsFolderName.clear();
+    commonProgramsFolderName.clear();
+    windowsFolderName.clear();
 
 #if defined(Q_OS_WIN32)
     resolveLibs();

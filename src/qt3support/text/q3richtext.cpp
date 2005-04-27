@@ -1323,7 +1323,7 @@ void Q3TextDocument::init()
 #ifndef QT_NO_MIME
     factory_ = Q3MimeSourceFactory::defaultFactory();
 #endif
-    contxt = QString::null;
+    contxt.clear();
 
     underlLinks = par ? par->underlLinks : true;
     backBrush = 0;
@@ -1384,7 +1384,7 @@ void Q3TextDocument::clear(bool createEmptyParag)
     if (createEmptyParag)
         fParag = lParag = createParagraph(this);
     selections.clear();
-    oText = QString::null;
+    oText.clear();
     oTextValid = false;
 }
 
@@ -1782,7 +1782,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                         curpar->at(index)->setAnchor(QString::null, curtag.anchorHref);
                     if (!anchorName.isEmpty() ) {
                         curpar->at(index)->setAnchor(anchorName, curpar->at(index)->anchorHref());
-                        anchorName = QString::null;
+                        anchorName.clear();
                     }
                     registerCustomItem(custom, curpar);
                     hasNewPar = false;
@@ -2037,7 +2037,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                 if (!anchorName.isEmpty() ) {
                     for (int i = 0; i < int(s.length()); i++)
                         curpar->at(index + i)->setAnchor(anchorName, curpar->at(index + i)->anchorHref());
-                    anchorName = QString::null;
+                    anchorName.clear();
                 }
             }
         }
@@ -2051,7 +2051,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
 
     if (!anchorName.isEmpty() ) {
         curpar->at(curpar->length() - 1)->setAnchor(anchorName, curpar->at(curpar->length() - 1)->anchorHref());
-        anchorName = QString::null;
+        anchorName.clear();
     }
 
     setRichTextMarginsInternal(styles, stylesPar);
@@ -3417,8 +3417,8 @@ bool Q3TextDocument::focusNextPrevChild(bool next)
     } else {
         focusIndicator.parag->setChanged(true);
     }
-    focusIndicator.href = QString::null;
-    focusIndicator.name = QString::null;
+    focusIndicator.href.clear();
+    focusIndicator.name.clear();
 
     if (next) {
         Q3TextParagraph *p = focusIndicator.parag;

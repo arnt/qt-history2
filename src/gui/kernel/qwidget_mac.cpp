@@ -1194,7 +1194,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         q->setMask(extra->mask);
     q->setAcceptDrops(dropable);
     if(!capt.isNull()) {
-        topData()->caption = QString::null;
+        topData()->caption.clear();
         q->setWindowTitle(capt);
     }
     if(setcurs)

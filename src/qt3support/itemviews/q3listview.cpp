@@ -4935,7 +4935,7 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
         } else {
             d->currentPrefix.truncate(0);
             if (e->state() & Qt::ControlButton) {
-                d->currentPrefix = QString::null;
+                d->currentPrefix.clear();
                 switch (e->key()) {
                 case Qt::Key_A:
                     selectAll(true);

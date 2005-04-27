@@ -4667,8 +4667,8 @@ bool QXmlSimpleReaderPrivate::parseDoctype()
 
     if (parseStack==0 || parseStack->isEmpty()) {
         startDTDwasReported = false;
-        systemId = QString::null;
-        publicId = QString::null;
+        systemId.clear();
+        publicId.clear();
         state = Init;
     } else {
         state = parseStack->pop().state;
@@ -4870,8 +4870,8 @@ bool QXmlSimpleReaderPrivate::parseExternalID()
     signed char input;
 
     if (parseStack==0 || parseStack->isEmpty()) {
-        systemId = QString::null;
-        publicId = QString::null;
+        systemId.clear();
+        publicId.clear();
         state = Init;
     } else {
         state = parseStack->pop().state;

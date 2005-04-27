@@ -595,7 +595,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if (!extra->mask.isEmpty())
         q->setMask(extra->mask);
     if (!capt.isNull()) {
-        extra->topextra->caption = QString::null;
+        extra->topextra->caption.clear();
         q->setWindowTitle(capt);
     }
     if (old_winid)

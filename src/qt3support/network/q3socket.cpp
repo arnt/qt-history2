@@ -1349,7 +1349,7 @@ void Q3Socket::setSocketIntern( int socket )
     open( IO_ReadWrite );
 
     // hm... this is not very nice.
-    d->host = QString::null;
+    d->host.clear();
     d->port = 0;
 #ifndef QT_NO_DNS
     delete d->dns4;

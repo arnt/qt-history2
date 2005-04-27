@@ -593,7 +593,7 @@ bool Q3Url::parse( const QString& url )
     d->cleanPathDirty = true;
     d->isValid = true;
     QString oldProtocol = d->protocol;
-    d->protocol = QString::null;
+    d->protocol.clear();
 
     const int Init	= 0;
     const int Protocol	= 1;

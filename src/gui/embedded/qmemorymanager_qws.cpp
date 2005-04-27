@@ -793,7 +793,7 @@ QMemoryManager::FontID QMemoryManager::refFont(const QFontDef& font)
         mmf->renderer = 0;
         QString filename = fontFilename(font);
         if (!QFile::exists(filename)) {
-            filename = QString::null;
+            filename.clear();
             int bestmatch = -999;
             QDiskFont* qdf = qt_fontmanager->get(font);
 #ifndef QT_NO_DIR

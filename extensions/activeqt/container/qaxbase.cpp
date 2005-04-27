@@ -1070,7 +1070,7 @@ void QAxBase::clear()
         d->initialized = false;
     }
 
-    d->ctrl = QString::null;
+    d->ctrl.clear();
 
     if (!d->cachedMetaObject) {
         delete d->metaobj;
@@ -3576,7 +3576,7 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
                                 vars << curArg;
                         }
                     }
-                    curArg = QString::null;
+                    curArg.clear();
                     continue;
                 default:
                     break;
@@ -4200,4 +4200,3 @@ void *qax_createObjectWrapper(int metaType, IUnknown *iface)
     provided by the COM server and can be used to provide useful feedback to the end user. \a help includes
     the help file, and the help context ID in brackets, e.g. "filename [id]".
 */
-

@@ -679,7 +679,7 @@ void fetchtr_inlined_cpp( const char *fileName, const QString& in,
     yyInStr = in;
     startTokenizer( fileName, getCharFromString );
     parse( tor, context, 0 );
-    yyInStr = QString::null;
+    yyInStr.clear();
 }
 
 class UiHandler : public QXmlDefaultHandler

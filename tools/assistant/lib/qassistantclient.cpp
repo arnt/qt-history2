@@ -261,7 +261,7 @@ void QAssistantClient::showPage( const QString &page )
     if ( !opened ) {
         pageBuffer = page;
         openAssistant();
-        pageBuffer = QString::null;
+        pageBuffer.clear();
         return;
     }
     QTextStream os( socket );

@@ -474,7 +474,7 @@ bool qt_fillFontDef(const QByteArray &xlfd, QFontDef *fd, int dpi)
     if (qstrlen(tokens[AddStyle]) > 0)
         fd->addStyle = QString::fromLatin1(tokens[AddStyle]);
     else
-        fd->addStyle = QString::null;
+        fd->addStyle.clear();
 
     fd->pointSize = atoi(tokens[PointSize]);
     fd->styleHint = QFont::AnyStyle;        // ### any until we match families

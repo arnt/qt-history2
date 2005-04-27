@@ -808,8 +808,8 @@ static void parseQconfig(QList<QPrinterDescription> *printers)
             if (line.length() >= 1 && line.length() <= 20)
                 stanzaName = line;
             up = true;
-            remoteHost = QString::null;
-            deviceName = QString::null;
+            remoteHost.clear();
+            deviceName.clear();
         } else {
             // syntax error?  ignore.
         }

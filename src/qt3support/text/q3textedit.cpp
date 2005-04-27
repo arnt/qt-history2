@@ -914,8 +914,8 @@ void Q3TextEdit::init()
     mousePressed = false;
     inDoubleClick = false;
     modified = false;
-    onLink = QString::null;
-    d->onName = QString::null;
+    onLink.clear();
+    d->onName.clear();
     overWrite = false;
     wrapMode = WidgetWidth;
     wrapWidth = -1;
@@ -1162,7 +1162,7 @@ bool Q3TextEdit::event(QEvent *e)
         }
         if (!d->scrollToAnchor.isEmpty()) {
             scrollToAnchor(d->scrollToAnchor);
-            d->scrollToAnchor = QString::null;
+            d->scrollToAnchor.clear();
         }
     }
     return QWidget::event(e);
@@ -1598,7 +1598,7 @@ void Q3TextEdit::doKeyboardAction(KeyboardAction action)
                 if (!undoRedoInfo.valid()) {
                     undoRedoInfo.id = cursor->paragraph()->paragId();
                     undoRedoInfo.index = cursor->index();
-                    undoRedoInfo.d->text = QString::null;
+                    undoRedoInfo.d->text.clear();
                 }
                 int idx = cursor->index();
                 do {
@@ -1653,7 +1653,7 @@ void Q3TextEdit::doKeyboardAction(KeyboardAction action)
                 if (!undoRedoInfo.valid()) {
                     undoRedoInfo.id = cursor->paragraph()->paragId();
                     undoRedoInfo.index = cursor->index();
-                    undoRedoInfo.d->text = QString::null;
+                    undoRedoInfo.d->text.clear();
                 }
                 undoRedoInfo.d->text.insert(0, cursor->paragraph()->at(cursor->index()-1), true);
                 undoRedoInfo.index = cursor->index()-1;
@@ -1680,7 +1680,7 @@ void Q3TextEdit::doKeyboardAction(KeyboardAction action)
             if (!undoRedoInfo.valid()) {
                 undoRedoInfo.id = cursor->paragraph()->paragId();
                 undoRedoInfo.index = cursor->index();
-                undoRedoInfo.d->text = QString::null;
+                undoRedoInfo.d->text.clear();
             }
             undoRedoInfo.d->text += "\n";
         }
@@ -1797,7 +1797,7 @@ void Q3TextEdit::removeSelectedText(int selNum)
         checkUndoRedoInfo(UndoRedoInfo::RemoveSelected);
         if (!undoRedoInfo.valid()) {
             doc->selectionStart(selNum, undoRedoInfo.id, undoRedoInfo.index);
-            undoRedoInfo.d->text = QString::null;
+            undoRedoInfo.d->text.clear();
         }
         readFormats(c1, c2, undoRedoInfo.d->text, true);
     }
@@ -2112,8 +2112,8 @@ void Q3TextEdit::contentsMousePressEvent(QMouseEvent *e)
     Q3TextCursor c = *cursor;
     mousePos = e->pos();
     mightStartDrag = false;
-    pressedLink = QString::null;
-    d->pressedName = QString::null;
+    pressedLink.clear();
+    d->pressedName.clear();
 
     if (e->button() == Qt::LeftButton) {
         mousePressed = true;
@@ -2892,7 +2892,7 @@ void Q3TextEdit::insert(const QString &text, uint insertionFlags)
         if (!undoRedoInfo.valid()) {            
             undoRedoInfo.id = cursor->paragraph()->paragId();
             undoRedoInfo.index = cursor->index();
-            undoRedoInfo.d->text = QString::null;
+            undoRedoInfo.d->text.clear();
         } 
         oldLen = undoRedoInfo.d->text.length();
     }
@@ -3697,7 +3697,7 @@ void Q3TextEdit::setText(const QString &text, const QString &context)
     }
     formatMore();
     updateCurrentFormat();
-    d->scrollToAnchor = QString::null;
+    d->scrollToAnchor.clear();
 }
 
 /*!
@@ -4308,7 +4308,7 @@ void Q3TextEdit::UndoRedoInfo::clear()
         }
     }
     type = Invalid;
-    d->text = QString::null;
+    d->text.clear();
     id = -1;
     index = -1;
     styleInformation = QByteArray();
@@ -4338,7 +4338,7 @@ Q3TextEdit::UndoRedoInfo::UndoRedoInfo(Q3TextDocument *dc)
     : type(Invalid), doc(dc)
 {
     d = new QUndoRedoInfoPrivate;
-    d->text = QString::null;
+    d->text.clear();
     id = -1;
     index = -1;
 }
@@ -4856,7 +4856,7 @@ void Q3TextEdit::pasteSubType(const QByteArray& subtype, QMimeSource *m)
                 if (!undoRedoInfo.valid()) {
                     undoRedoInfo.id = oldC.paragraph()->paragId();
                     undoRedoInfo.index = oldC.index();
-                    undoRedoInfo.d->text = QString::null;
+                    undoRedoInfo.d->text.clear();
                 }
                 int oldLen = undoRedoInfo.d->text.length();
                 if (!doc->preProcessor()) {
@@ -5757,13 +5757,13 @@ void Q3TextEdit::updateCursor(const QPoint & pos)
                     && c.index() < c.paragraph()->length() - 1)
                 onLink = c.paragraph()->at(c.index())->anchorHref();
             else
-                onLink = QString::null;
+                onLink.clear();
 
             if (!c.paragraph()->at(c.index())->anchorName().isEmpty()
                     && c.index() < c.paragraph()->length() - 1)
                 d->onName = c.paragraph()->at(c.index())->anchorName();
             else
-                d->onName = QString::null;
+                d->onName.clear();
 
             if (!c.paragraph()->at(c.index())->anchorHref().isEmpty()) {
 #ifndef QT_NO_CURSOR
@@ -5776,7 +5776,7 @@ void Q3TextEdit::updateCursor(const QPoint & pos)
 #ifndef QT_NO_CURSOR
             viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
-            onLink = QString::null;
+            onLink.clear();
             emitHighlighted(QString::null);
         }
 #endif

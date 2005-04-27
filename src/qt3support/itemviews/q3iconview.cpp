@@ -2704,7 +2704,7 @@ Q3IconView::Q3IconView(QWidget *parent, const char *name, Qt::WFlags f)
     d->maxItemWidth = 100;
     d->maxItemTextLength = 255;
     d->inputTimer = new QTimer(this, "iconview input timer");
-    d->currInputString = QString::null;
+    d->currInputString.clear();
     d->dirty = false;
     d->rearrangeEnabled = true;
     d->itemTextPos = Bottom;
@@ -4844,7 +4844,7 @@ void Q3IconView::keyPressEvent(QKeyEvent *e)
     } break;
 #endif
     case Qt::Key_Home: {
-        d->currInputString = QString::null;
+        d->currInputString.clear();
         if (!d->firstItem)
             break;
 
@@ -4887,7 +4887,7 @@ void Q3IconView::keyPressEvent(QKeyEvent *e)
         }
     } break;
     case Qt::Key_End: {
-        d->currInputString = QString::null;
+        d->currInputString.clear();
         if (!d->lastItem)
             break;
 
@@ -4929,7 +4929,7 @@ void Q3IconView::keyPressEvent(QKeyEvent *e)
         }
     } break;
     case Qt::Key_Right: {
-        d->currInputString = QString::null;
+        d->currInputString.clear();
         Q3IconViewItem *item;
         selectCurrent = false;
         Direction dir = DirRight;
@@ -4951,7 +4951,7 @@ void Q3IconView::keyPressEvent(QKeyEvent *e)
         }
     } break;
     case Qt::Key_Left: {
-        d->currInputString = QString::null;
+        d->currInputString.clear();
         Q3IconViewItem *item;
         selectCurrent = false;
         Direction dir = DirLeft;
@@ -4973,18 +4973,18 @@ void Q3IconView::keyPressEvent(QKeyEvent *e)
         }
     } break;
     case Qt::Key_Space: {
-        d->currInputString = QString::null;
+        d->currInputString.clear();
         if (d->selectionMode == Single)
             break;
 
         d->currentItem->setSelected(!d->currentItem->isSelected(), true);
     } break;
     case Qt::Key_Enter: case Qt::Key_Return:
-        d->currInputString = QString::null;
+        d->currInputString.clear();
         emit returnPressed(d->currentItem);
         break;
     case Qt::Key_Down: {
-        d->currInputString = QString::null;
+        d->currInputString.clear();
         Q3IconViewItem *item;
         selectCurrent = false;
         Direction dir = DirDown;
@@ -5005,7 +5005,7 @@ void Q3IconView::keyPressEvent(QKeyEvent *e)
         handleItemChange(item, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
     } break;
     case Qt::Key_Up: {
-        d->currInputString = QString::null;
+        d->currInputString.clear();
         Q3IconViewItem *item;
         selectCurrent = false;
         Direction dir = DirUp;
@@ -5025,7 +5025,7 @@ void Q3IconView::keyPressEvent(QKeyEvent *e)
         handleItemChange(item, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
     } break;
     case Qt::Key_Next: {
-        d->currInputString = QString::null;
+        d->currInputString.clear();
         selectCurrent = false;
         QRect r;
         if (d->arrangement == LeftToRight)
@@ -5047,7 +5047,7 @@ void Q3IconView::keyPressEvent(QKeyEvent *e)
         }
     } break;
     case Qt::Key_Prior: {
-        d->currInputString = QString::null;
+        d->currInputString.clear();
         selectCurrent = false;
         QRect r;
         if (d->arrangement == LeftToRight)
@@ -5113,7 +5113,7 @@ void Q3IconView::keyPressEvent(QKeyEvent *e)
             d->inputTimer->start(400, true);
         } else {
             selectCurrent = false;
-            d->currInputString = QString::null;
+            d->currInputString.clear();
             if (e->state() & Qt::ControlButton) {
                 switch (e->key()) {
                 case Qt::Key_A:

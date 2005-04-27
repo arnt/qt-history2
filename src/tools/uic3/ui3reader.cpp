@@ -115,11 +115,11 @@ QString Ui3Reader::mkStdSet(const QString& prop)
 
 void Ui3Reader::init()
 {
-    outputFileName = QString::null;
-    trmacro = QString::null;
+    outputFileName.clear();
+    trmacro.clear();
     nofwd = false;
 
-    fileName = QString::null;
+    fileName.clear();
     writeFunctImpl = true;
     defMargin = BOXLAYOUT_DEFAULT_MARGIN;
     defSpacing = BOXLAYOUT_DEFAULT_SPACING;
@@ -133,9 +133,9 @@ void Ui3Reader::init()
     tags = layouts;
     tags << QLatin1String("widget");
 
-    nameOfClass = QString::null;
+    nameOfClass.clear();
     namespaces.clear();
-    bareNameOfClass = QString::null;
+    bareNameOfClass.clear();
 }
 
 QDomElement Ui3Reader::parse(const QDomDocument &doc)
@@ -564,4 +564,3 @@ bool Ui3Reader::isLayout(const QString& name) const
 {
     return layoutObjects.contains(name);
 }
-

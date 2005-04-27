@@ -266,7 +266,7 @@ Q3DnsAnswer::Q3DnsAnswer( Q3DnsQuery * query_ )
     rrs->setAutoDelete( false );
     next = size;
     ttl = 0;
-    label = QString::null;
+    label.clear();
     rr = 0;
 
     Q3DnsRR * newrr = new Q3DnsRR( query->l );
@@ -292,7 +292,7 @@ Q3DnsAnswer::Q3DnsAnswer( const QByteArray& answer_,
     rrs->setAutoDelete( false );
     next = size;
     ttl = 0;
-    label = QString::null;
+    label.clear();
     rr = 0;
 }
 
@@ -314,7 +314,7 @@ Q3DnsAnswer::~Q3DnsAnswer()
 QString Q3DnsAnswer::readString(bool multipleLabels)
 {
     int p = pp;
-    QString r = QString::null;
+    QString r;
     Q_UINT8 b;
     for( ;; ) {
 	b = 128;

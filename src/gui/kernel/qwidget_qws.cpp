@@ -315,7 +315,7 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
     q->setFocusPolicy(fp);
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if (!capt.isNull()) {
-        extra->topextra->caption = QString::null;
+        extra->topextra->caption.clear();
         q->setWindowTitle(capt);
     }
 #endif

@@ -1105,7 +1105,7 @@ QTranslatorMessage::QTranslatorMessage(QDataStream & stream)
             st = 0;
             cx = 0;
             cm = 0;
-            tn = QString::null;
+            tn.clear();
             return;
         }
     }

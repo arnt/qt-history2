@@ -217,7 +217,7 @@ void HelpWindow::openLinkInNewPage()
     if(lastAnchor.isEmpty())
         return;
     mw->browsers()->newTab(lastAnchor);
-    lastAnchor = QString::null;
+    lastAnchor.clear();
 }
 
 void HelpWindow::openLinkInNewPage(const QString &link)
@@ -280,4 +280,3 @@ void HelpWindow::updateBackward(bool back)
 {
     backAvail = back;
 }
-

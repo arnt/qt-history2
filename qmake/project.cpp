@@ -137,7 +137,7 @@ bool FunctionBlock::exec(const QStringList &args,
 
     //restore state
     calling_place = 0;
-    return_value = QString::null;
+    return_value.clear();
     vars.clear();
     return ret;
 }

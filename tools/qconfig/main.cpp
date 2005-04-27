@@ -404,7 +404,7 @@ void Main::loadFeatures(const QString& filename)
 		qDebug("Unparsed text");
 	    }
 
-	    feature = lab = sec = QString::null;
+	    feature.clear(); lab.clear(); sec.clear();
 	    deps.clear(); seealso.clear();
 	    line = s.readLine();
 	    continue;

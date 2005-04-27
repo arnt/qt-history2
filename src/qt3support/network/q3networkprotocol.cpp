@@ -931,7 +931,7 @@ Q3NetworkOperation::Q3NetworkOperation( Q3NetworkProtocol::Operation operation,
     d->rawArgs[ 0 ] = QByteArray( 0 );
     d->rawArgs[ 1 ] = QByteArray( 0 );
     d->rawArgs[ 2 ] = QByteArray( 0 );
-    d->protocolDetail = QString::null;
+    d->protocolDetail.clear();
     d->errorCode = (int)Q3NetworkProtocol::NoError;
 }
 
@@ -954,13 +954,13 @@ Q3NetworkOperation::Q3NetworkOperation( Q3NetworkProtocol::Operation operation,
 	     this, SLOT( deleteMe() ) );
     d->operation = operation;
     d->state = Q3NetworkProtocol::StWaiting;
-    d->args[ 0 ] = QString::null;
-    d->args[ 1 ] = QString::null;
-    d->args[ 2 ] = QString::null;
+    d->args[ 0 ].clear();
+    d->args[ 1 ].clear();
+    d->args[ 2 ].clear();
     d->rawArgs[ 0 ] = arg0;
     d->rawArgs[ 1 ] = arg1;
     d->rawArgs[ 2 ] = arg2;
-    d->protocolDetail = QString::null;
+    d->protocolDetail.clear();
     d->errorCode = (int)Q3NetworkProtocol::NoError;
 }
 

@@ -117,7 +117,7 @@ void MainWindow::readDB( const QString &filename )
                     first = 0;
                 } else {
                     pages[number]->page = currentText;
-                    currentText = QString::null;
+                    currentText.clear();
                     number++;
                     pages[number] = new Page();
                 }

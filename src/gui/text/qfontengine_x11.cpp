@@ -86,7 +86,7 @@ void QFontEngineMultiXLFD::loadEngine(int at)
     QFontDef req = fontDef;
     QFontEngine *fontEngine = QFontDatabase::findFont(QUnicodeTables::Common, 0, req, encoding);
     if (!fontEngine) {
-        req.family = QString::null;
+        req.family.clear();
         fontEngine = QFontDatabase::findFont(QUnicodeTables::Common, 0, req, encoding);
     }
     Q_ASSERT(fontEngine != 0);

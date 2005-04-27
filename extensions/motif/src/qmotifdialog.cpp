@@ -419,7 +419,7 @@ void QMotifDialog::realize( Widget w )
  	    XtVaGetValues(w, XtNtitle, &t, NULL);
  	    wtitle = QString::fromLocal8Bit(t);
 	}
-        d->topData()->caption = QString::null; // make sure the
+        d->topData()->caption.clear(); // make sure setWindowTitle() works below
 
         QString icontext = windowIconText();
         if (icontext.isEmpty()) {
@@ -427,7 +427,7 @@ void QMotifDialog::realize( Widget w )
  	    XtVaGetValues(w, XtNiconName, &iconName, NULL);
  	    icontext = QString::fromLocal8Bit(iconName);
         }
-        d_func()->topData()->iconText = QString::null; // make sure setWindowIconText() works below
+        d_func()->topData()->iconText.clear(); // make sure setWindowIconText() works below
 
 	Window newid = XtWindow(w);
 	QObjectList list = children();

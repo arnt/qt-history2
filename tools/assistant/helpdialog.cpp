@@ -312,8 +312,8 @@ void HelpDialog::loadIndexFile()
 
     HelpNavigationListItem *oneAgo = 0;
     HelpNavigationListItem *twoAgo = 0;
-    QString oneAgoStr = QString::null;
-    QString twoAgoStr = QString::null;
+    QString oneAgoStr;
+    QString twoAgoStr;
 
     for (int i=0; i<lst.count(); ++i) {
         const IndexKeyword &idx = lst.at(i);

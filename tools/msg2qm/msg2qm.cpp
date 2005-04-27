@@ -121,14 +121,14 @@ void translate( const QString& filename, const QString& qmfile )
 		line = t.readLine();
 	    }
 	    if ( hasHandle( line, "msgid") ) {
-		msgstr = QString::null;
+		msgstr.clear();
 		msgid = extractContents( line );
 		if (!t.atEnd()) {
 		    t.skipWhiteSpace();
 		    line = t.readLine();
 		}
 		else
-		    line = QString::null;
+		    line.clear();
 		while ( hasHandle( line, "\"") ) {
 		    msgid += extractContents( line );
 		    if (!t.atEnd()) {
@@ -136,7 +136,7 @@ void translate( const QString& filename, const QString& qmfile )
 			line = t.readLine();
 		    }
 		    else
-			line = QString::null;
+			line.clear();
 		}
 	    }
 	    else if ( hasHandle( line, "msgstr") ) {
@@ -146,7 +146,7 @@ void translate( const QString& filename, const QString& qmfile )
 		    line = t.readLine();
 		}
 		else
-		    line = QString::null;
+		    line.clear();
 		while ( hasHandle( line, "\"") ) {
 		    msgstr += extractContents( line );
 		    if (!t.atEnd()) {
@@ -154,7 +154,7 @@ void translate( const QString& filename, const QString& qmfile )
 			line = t.readLine();
 		    }
 		    else
-			line = QString::null;
+			line.clear();
 		}
 		if ( pass == 1 )
 		    addTranslation( translator, msgid, msgstr);
@@ -181,7 +181,7 @@ void translate( const QString& filename, const QString& qmfile )
 		}
 	    }
 	    else
-		line = QString::null;
+		line.clear();
 	}
     }
     f.close();

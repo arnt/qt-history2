@@ -2230,7 +2230,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
     switch (e->key()) {
         case Qt::Key_Up:
             {
-                d->currInputString = QString::null;
+                d->currInputString.clear();
                 if (currentItem() > 0) {
                     setCurrentItem(currentItem() - 1);
                     handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
@@ -2241,7 +2241,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
             break;
         case Qt::Key_Down:
             {
-                d->currInputString = QString::null;
+                d->currInputString.clear();
                 if (currentItem() < (int)count() - 1) {
                     setCurrentItem(currentItem() + 1);
                     handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
@@ -2252,7 +2252,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
             break;
         case Qt::Key_Left:
             {
-                d->currInputString = QString::null;
+                d->currInputString.clear();
                 if (currentColumn() > 0) {
                     setCurrentItem(currentItem() - numRows());
                     handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
@@ -2273,7 +2273,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
             break;
         case Qt::Key_Right:
             {
-                d->currInputString = QString::null;
+                d->currInputString.clear();
                 if (currentColumn() < numColumns()-1) {
                     int row = currentRow();
                     int i = currentItem();
@@ -2304,7 +2304,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
             break;
         case Qt::Key_Next:
             {
-                d->currInputString = QString::null;
+                d->currInputString.clear();
                 int i = 0;
                 if (numColumns() == 1) {
                     i = currentItem() + numItemsVisible();
@@ -2328,7 +2328,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
         case Qt::Key_Prior:
             {
                 selectCurrent = true;
-                d->currInputString = QString::null;
+                d->currInputString.clear();
                 int i;
                 if (numColumns() == 1) {
                     i = currentItem() - numItemsVisible();
@@ -2352,7 +2352,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
         case Qt::Key_Space:
             {
                 selectCurrent = true;
-                d->currInputString = QString::null;
+                d->currInputString.clear();
                 toggleCurrentItem();
                 if (selectionMode() == Extended && d->current->isSelected())
                     emit highlighted(currentItem());
@@ -2364,7 +2364,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
         case Qt::Key_Enter:
             {
                 selectCurrent = true;
-                d->currInputString = QString::null;
+                d->currInputString.clear();
                 if (currentItem() >= 0 && selectionMode() != NoSelection) {
                     QString tmp = item(currentItem())->text();
                     emit selected(currentItem());
@@ -2380,7 +2380,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
         case Qt::Key_Home:
             {
                 selectCurrent = true;
-                d->currInputString = QString::null;
+                d->currInputString.clear();
                 setCurrentItem(0);
                 handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
                 if (!(e->state() & Qt::ShiftButton) || !d->selectAnchor)
@@ -2390,7 +2390,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
         case Qt::Key_End:
             {
                 selectCurrent = true;
-                d->currInputString = QString::null;
+                d->currInputString.clear();
                 int i = (int)count() - 1;
                 setCurrentItem(i);
                 handleItemChange(old, e->state() & Qt::ShiftButton, e->state() & Qt::ControlButton);
@@ -2436,7 +2436,7 @@ void Q3ListBox::keyPressEvent(QKeyEvent *e)
                     }
                     d->inputTimer->start(400, true);
                 } else {
-                    d->currInputString = QString::null;
+                    d->currInputString.clear();
                     if (e->state() & Qt::ControlButton) {
                         switch (e->key()) {
                             case Qt::Key_A:
@@ -4022,7 +4022,7 @@ int Q3ListBoxPrivate::findItemByName(int start, const QString &text)
 
 void Q3ListBox::clearInputString()
 {
-    d->currInputString = QString::null;
+    d->currInputString.clear();
 }
 
 /*!

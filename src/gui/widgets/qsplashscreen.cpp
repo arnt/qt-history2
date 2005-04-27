@@ -178,7 +178,7 @@ void QSplashScreen::showMessage(const QString &message, int alignment,
  */
 void QSplashScreen::clearMessage()
 {
-    d_func()->currStatus = QString::null;
+    d_func()->currStatus.clear();
     emit messageChanged(d_func()->currStatus);
     repaint();
 }

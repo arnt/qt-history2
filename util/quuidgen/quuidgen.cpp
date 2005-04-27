@@ -24,7 +24,7 @@ QUuidGen::QUuidGen()
 void QUuidGen::newUuid()
 {
     QString temp;
-    result = QString::null;
+    result.clear();
 
 #if defined(Q_WS_WIN32)
     GUID guid;

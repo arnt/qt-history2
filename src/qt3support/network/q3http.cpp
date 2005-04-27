@@ -781,7 +781,7 @@ bool Q3HttpResponseHeader::parseLine( const QString& line, int number )
 	    statCode = l.mid( 9, pos - 9 ).toInt();
 	} else {
 	    statCode = l.mid( 9 ).toInt();
-	    reasonPhr = QString::null;
+	    reasonPhr.clear();
 	}
     } else {
 	return false;

@@ -396,7 +396,7 @@ void QStatusBar::clearMessage()
         delete d->timer;
         d->timer = 0;
     }
-    d->tempItem = QString::null;
+    d->tempItem.clear();
     hideOrShow();
 }
 

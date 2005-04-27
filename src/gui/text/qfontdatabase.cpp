@@ -2005,7 +2005,7 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
             family = name.left(i);
         }
     } else {
-        foundry = QString::null;
+        foundry.clear();
         family = name;
     }
 
