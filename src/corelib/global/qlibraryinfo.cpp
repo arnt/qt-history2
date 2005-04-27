@@ -30,8 +30,22 @@
 Q_GLOBAL_STATIC(QString, qt_library_config_file)
 Q_CORE_EXPORT void qt_set_library_config_file(const QString &p) { *(qt_library_config_file()) = p; }
 
+
+struct QLibrarySettings
+{
+    QLibrarySettings();
+    ~QLibrarySettings() { delete static_cast<QSettings *>(settings); }
+
+#ifdef QT_NO_QOBJECT
+    QSettings *settings;
+#else
+    QPointer<QSettings> settings;
+#endif
+};
+
 class QLibraryInfoPrivate
 {
+    friend struct QLibrarySettings;
 private:
     static QSettings *findConfiguration();
     static void cleanup()
@@ -50,28 +64,20 @@ public:
         return ls ? static_cast<QSettings *>(qt_library_settings()->settings) : (QSettings*)0;
     }
 
-    struct QLibrarySettings
-    {
-        QLibrarySettings()
-        {
-            if (!static_cast<QSettings *>(settings)) {
-                settings = findConfiguration();
-#ifndef QT_NO_QOBJECT
-                qAddPostRoutine(QLibraryInfoPrivate::cleanup);
-#endif
-            }
-        }
-        ~QLibrarySettings() { delete static_cast<QSettings *>(settings); }
-
-#ifdef QT_NO_QOBJECT
-        QSettings *settings;
-#else
-        QPointer<QSettings> settings;
-#endif
-    };
 
     Q_GLOBAL_STATIC(QLibrarySettings, qt_library_settings)
 };
+
+
+QLibrarySettings::QLibrarySettings()
+{
+    if (!static_cast<QSettings *>(settings)) {
+        settings = QLibraryInfoPrivate::findConfiguration();
+#ifndef QT_NO_QOBJECT
+        qAddPostRoutine(QLibraryInfoPrivate::cleanup);
+#endif
+    }
+}
 
 QSettings *QLibraryInfoPrivate::findConfiguration()
 {
