@@ -535,11 +535,9 @@ void PropertyEditor::createPropertySheet(PropertyCollection *root, QObject *obje
             case QVariant::Cursor:
                 p = new CursorProperty(qvariant_cast<QCursor>(value), pname);
                 break;
-#if 0 // ### disabled for now
             case QVariant::KeySequence:
-                p = new KeySequenceProperty(value.toKeySequence(), pname);
+                p = new StringProperty(qvariant_cast<QKeySequence>(value), pname);
                 break;
-#endif
             case QVariant::Palette:
                 p = new PaletteProperty(qvariant_cast<QPalette>(value), pname);
                 break;

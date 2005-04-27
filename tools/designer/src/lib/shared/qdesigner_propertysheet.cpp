@@ -37,7 +37,6 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
       m_object(object),
       meta(object->metaObject())
 {
-
     const QMetaObject *baseMeta = meta;
 
     while (baseMeta && QString::fromUtf8(baseMeta->className()).startsWith(QLatin1String("QDesigner"))) {
@@ -49,6 +48,9 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
     for (int index=0; index<count(); ++index) {
         QMetaProperty p = meta->property(index);
         setVisible(index, p.isDesignable(m_object));
+
+        if (p.type() == QVariant::KeySequence)
+            createFakeProperty(QString::fromUtf8(p.name()));
 
         QString pgroup = QString::fromUtf8(baseMeta->className());
 
