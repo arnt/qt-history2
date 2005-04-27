@@ -34,7 +34,7 @@ QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
       m_server(0)
 {
-    setOrganizationDomain(QLatin1String("Trolltech"));
+    setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
 
     qInitResources_formeditor();
