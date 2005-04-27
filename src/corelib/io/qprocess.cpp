@@ -416,7 +416,7 @@ bool QProcessPrivate::canReadStandardOutput()
     qint64 readBytes = readFromStdout(ptr, available);
     if (readBytes == -1) {
         processError = QProcess::ReadError;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error reading from process"));
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, QLatin1String("Error reading from process")));
         emit q->error(processError);
         return false;
     }
@@ -460,7 +460,7 @@ bool QProcessPrivate::canReadStandardError()
     qint64 readBytes = readFromStderr(ptr, available);
     if (readBytes == -1) {
         processError = QProcess::ReadError;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error reading from process"));
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, QLatin1String("Error reading from process")));
         emit q->error(processError);
         return false;
     }
@@ -507,7 +507,7 @@ bool QProcessPrivate::canWrite()
     if (written < 0) {
         destroyPipe(writePipe);
         processError = QProcess::WriteError;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Error writing to process"));
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, QLatin1String("Error writing to process")));
         emit q->error(processError);
         return false;
     }
@@ -544,7 +544,7 @@ void QProcessPrivate::processDied()
 
     if (crashed) {
         processError = QProcess::Crashed;
-        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process crashed"));
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, QLatin1String("Process crashed")));
         emit q->error(processError);
     }
 

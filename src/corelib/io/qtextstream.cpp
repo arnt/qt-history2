@@ -1799,9 +1799,9 @@ bool QTextStreamPrivate::putNumber(qulonglong number, bool negative)
 
     if (numberFlags & QTextStream::ShowBase) {
         switch (integerBase) {
-        case 2: tmp += "0b"; break;
-        case 8: tmp += "0"; break;
-        case 16: tmp += "0x"; break;
+        case 2: tmp += QLatin1String("0b"); break;
+        case 8: tmp += QLatin1String("0"); break;
+        case 16: tmp += QLatin1String("0x"); break;
         default: break;
         }
     }
@@ -1836,7 +1836,7 @@ QTextStream &QTextStream::operator<<(char c)
 {
     Q_D(QTextStream);
     CHECK_VALID_STREAM(*this);
-    d->putString(QString(QChar(c)));
+    d->putString(QString(QChar::fromAscii(c)));
     return *this;
 }
 
@@ -2030,13 +2030,13 @@ QTextStream &QTextStream::operator<<(const QString &string)
     \overload
 
     Writes \a array to the stream. The contents of \a array are
-    assumed to be in ISO-8859-1 encoding.
+    converted with QString::fromAscii().
 */
 QTextStream &QTextStream::operator<<(const QByteArray &array)
 {
     Q_D(QTextStream);
     CHECK_VALID_STREAM(*this);
-    d->putString(array);
+    d->putString(QString::fromAscii(array.constData(), array.length()));
     return *this;
 }
 

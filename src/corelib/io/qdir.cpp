@@ -107,7 +107,8 @@ private:
     {
         detach(false);
         QString path = p;
-        if ((path.endsWith("/") || path.endsWith("\\")) && path.length() > 1) {
+        if ((path.endsWith(QLatin1String("/")) || path.endsWith(QLatin1String("\\")))
+                && path.length() > 1) {
 #ifdef Q_OS_WIN
             if (!(path.length() == 3 && path.at(1) == ':'))
 #endif
@@ -1814,7 +1815,7 @@ QString QDir::cleanPath(const QString &path)
 	ret = QString(out.data(), used);
 
     // Strip away last slash except for root directories
-    if (ret.endsWith("/")
+    if (ret.endsWith(QLatin1String("/"))
         && !(ret.size() == 1 || (ret.size() == 3 && ret.at(1) == QLatin1Char(':'))))
         ret = ret.left(ret.length() - 1);
 

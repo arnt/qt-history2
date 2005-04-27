@@ -2754,7 +2754,7 @@ bool QString::startsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
                 return false;
     } else {
         for (int i = 0; i < slen; ++i)
-            if (::lower(d->data[i]) != ::lower(latin[i]))
+            if (QUnicodeTables::lower(d->data[i]) != QUnicodeTables::lower(latin[i]))
                 return false;
     }
     return true;
@@ -2814,7 +2814,7 @@ bool QString::endsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
                 return false;
     } else {
         for (int i = 0; i < slen; i++)
-            if (::lower(d->data[pos+i]) != ::lower(latin[i]))
+            if (QUnicodeTables::lower(d->data[pos+i]) != QUnicodeTables::lower(latin[i]))
                 return false;
     }
     return true;

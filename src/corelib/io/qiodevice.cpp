@@ -53,7 +53,7 @@
 QIODevicePrivate::QIODevicePrivate()
 {
     openMode = QIODevice::NotOpen;
-    errorString = QT_TRANSLATE_NOOP(QIODevice, "Unknown error");
+    errorString = QT_TRANSLATE_NOOP(QIODevice, QLatin1String("Unknown error"));
 }
 
 /*! \internal

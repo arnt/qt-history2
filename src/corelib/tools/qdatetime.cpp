@@ -697,7 +697,7 @@ QString QDate::toString(Qt::DateFormat f) const
 #ifndef QT_NO_TEXTDATE
     case Qt::TextDate:
         {
-            return QString("%0 %1 %2 %3")
+            return QString::fromLatin1("%0 %1 %2 %3")
                 .arg(shortDayName(dayOfWeek()))
                 .arg(shortMonthName(m))
                 .arg(d)
@@ -1467,7 +1467,7 @@ QString QTime::toString(Qt::DateFormat f) const
     default:
     case Qt::ISODate:
     case Qt::TextDate:
-        return QString("%1:%2:%3")
+        return QString::fromLatin1("%1:%2:%3")
             .arg(hour(), 2, 10, QLatin1Char('0'))
             .arg(minute(), 2, 10, QLatin1Char('0'))
             .arg(second(), 2, 10, QLatin1Char('0'));
@@ -3026,7 +3026,7 @@ static bool hasUnqutedAP(const QString &f)
     for (int i=0; i<f.size(); ++i) {
         if (f.at(i) == quote) {
             if (status == quote) {
-                if (f.at(i - 1) != '\\')
+                if (f.at(i - 1) != QLatin1Char('\\'))
                     status = QLatin1Char('0');
             } else {
                 status = quote;
@@ -3034,7 +3034,8 @@ static bool hasUnqutedAP(const QString &f)
         } else if (status != quote) {
             if (f.at(i).toUpper() == QLatin1Char('A')) {
                 status = f.at(i);
-            } else if ((f.at(i) == 'p' && status == QLatin1Char('a')) || (f.at(i) == 'P' && status == QLatin1Char('A'))) {
+            } else if ((f.at(i) == QLatin1Char('p') && status == QLatin1Char('a'))
+                    || (f.at(i) == QLatin1Char('P') && status == QLatin1Char('A'))) {
                 return true;
             } else {
                 status = QLatin1Char('0');

@@ -697,7 +697,7 @@ QFileInfo::completeSuffix() const
     if(!d->data->fileEngine)
         return QLatin1String("");
     QString fileName = d->getFileName(QFileEngine::BaseName);
-    int firstDot = fileName.indexOf('.');
+    int firstDot = fileName.indexOf(QLatin1Char('.'));
     if (firstDot == -1)
         return QLatin1String("");
     return fileName.mid(firstDot + 1);
@@ -725,7 +725,7 @@ QFileInfo::suffix() const
     if(!d->data->fileEngine)
         return QLatin1String("");
     QString fileName = d->getFileName(QFileEngine::BaseName);
-    int lastDot = fileName.lastIndexOf('.');
+    int lastDot = fileName.lastIndexOf(QLatin1Char('.'));
     if (lastDot == -1)
         return QLatin1String("");
     return fileName.mid(lastDot + 1);

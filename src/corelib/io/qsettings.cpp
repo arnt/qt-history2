@@ -734,8 +734,8 @@ QStringList QSettingsPrivate::splitArgs(const QString &s, int idx)
 {
     int l = s.length();
     Q_ASSERT(l > 0);
-    Q_ASSERT(s.at(idx) == '(');
-    Q_ASSERT(s.at(l - 1) == ')');
+    Q_ASSERT(s.at(idx) == QLatin1Char('('));
+    Q_ASSERT(s.at(l - 1) == QLatin1Char(')'));
 
     QStringList result;
     QString item;
@@ -2264,7 +2264,7 @@ int QSettings::beginReadArray(const QString &prefix)
 {
     Q_D(QSettings);
     d->beginGroupOrArray(QSettingsGroup(d->normalizedKey(prefix), false));
-    return value("size").toInt();
+    return value(QLatin1String("size")).toInt();
 }
 
 /*!
