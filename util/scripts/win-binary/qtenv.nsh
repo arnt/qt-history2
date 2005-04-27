@@ -302,7 +302,7 @@ Function GetVSVarsFile
   StrCmp $0 "" +1 foundVSDir ; found msvc.net 2002
 
   VS60:
-  ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\6.0\Setup\Microsoft Visual Studio" "ProductDir"
+  ReadRegStr $0 HKLM "Software\Microsoft\VisualStudio\6.0\Setup\Microsoft Visual C++" "ProductDir"
   StrCmp $0 "" +1 foundVCDir ; found msvc 6.0
 
   push "" ;empty string if not found
@@ -313,7 +313,7 @@ Function GetVSVarsFile
     goto done
 
   foundVCDir:
-    push "$0\vc98\bin\vcvars32.bat"
+    push "$0\bin\vcvars32.bat"
 
   done:
     exch
