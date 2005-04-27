@@ -211,3 +211,9 @@ void NewForm::on_openButton_clicked()
     else
         show();
 }
+
+void NewForm::on_treeWidget_itemPressed(QTreeWidgetItem *item)
+{
+    if (item && !item->parent())
+        ui.treeWidget->setItemExpanded(item, !ui.treeWidget->isItemExpanded(item));
+}

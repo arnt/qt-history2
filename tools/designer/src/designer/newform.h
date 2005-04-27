@@ -35,6 +35,7 @@ private slots:
     void on_openButton_clicked();
     void on_treeWidget_itemActivated(QTreeWidgetItem *item);
     void on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *);
+    void on_treeWidget_itemPressed(QTreeWidgetItem *item);
 
 private:
     QIcon formPreviewIcon(const QString &fileName);
