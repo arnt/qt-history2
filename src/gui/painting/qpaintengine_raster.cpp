@@ -481,7 +481,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     if (device->devType() == QInternal::Image) {
         QImage *image = static_cast<QImage *>(device);
-        d->flushOnEnd = image->format() != QImage::Format_ARGB32_Premultiplied;
+        d->flushOnEnd = image->format() != QImage::Format_ARGB32_Premultiplied
+                        && image->format() != QImage::Format_RGB32;
         d->rasterBuffer->prepare(image);
         if (image->format() != QImage::Format_RGB32)
             layout = DrawHelper::Layout_ARGB;
@@ -596,13 +597,15 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
         }
 
         Q_ASSERT(target);
+        Q_ASSERT(target->format() != QImage::Format_RGB32 &&
+                 target->format() != QImage::Format_ARGB32_Premultiplied);
+
         switch (target->format()) {
         case QImage::Format_Mono:
         case QImage::Format_MonoLSB:
             d->rasterBuffer->flushTo1BitImage(target);
             break;
 
-        case QImage::Format_RGB32:
         case QImage::Format_ARGB32:
             d->rasterBuffer->flushToARGBImage(target);
             break;
