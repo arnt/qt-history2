@@ -632,7 +632,7 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
     if (flags & QTextItem::RightToLeft) {
         for (int gl = 0; gl < numGlyphs; gl++)
-            point += glyphs[gl].advance;
+            oset += glyphs[gl].advance;
     }
     for (int i=0; i<numGlyphs; ++i) {
         memset(&gMetric, 0, sizeof(GLYPHMETRICS));
@@ -730,7 +730,7 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
     }
 
     if (useFallback) {
-        addBitmapFontToPath(x, y, glyphs, numGlyphs, path);
+        addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
     }
 }
 
