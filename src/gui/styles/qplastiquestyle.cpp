@@ -2974,6 +2974,13 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             painter->setPen(rightCorner);
             painter->drawLine(fullRect.right() - 1, fullRect.top() + 3, fullRect.right() - 1, fullRect.bottom());
 
+            if (titleBar->titleBarState & Qt::WindowMinimized) {
+                painter->setPen(titleBarFrameBorder);
+                painter->drawLine(fullRect.left() + 2, fullRect.bottom(), fullRect.right() - 2, fullRect.bottom());
+                painter->setPen(rightCorner);
+                painter->drawLine(fullRect.left() + 2, fullRect.bottom() - 1, fullRect.right() - 2, fullRect.bottom() - 1);
+            }
+
             // draw title
             QRect textRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarLabel, widget);
             
@@ -3501,8 +3508,17 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
             mask->region -= QRect(option->rect.right() - 1, option->rect.top(), 2, 1);
             mask->region -= QRect(option->rect.left(), option->rect.top() + 1, 1, 1);
             mask->region -= QRect(option->rect.right(), option->rect.top() + 1, 1, 1);
-            mask->region -= QRect(option->rect.bottomLeft(), QSize(1, 1));
-            mask->region -= QRect(option->rect.bottomRight(), QSize(1, 1));
+
+            const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option);
+            if (titleBar && (titleBar->titleBarState & Qt::WindowMinimized)) {
+                mask->region -= QRect(option->rect.left(), option->rect.bottom(), 2, 1);
+                mask->region -= QRect(option->rect.right() - 1, option->rect.bottom(), 2, 1);
+                mask->region -= QRect(option->rect.left(), option->rect.bottom() - 1, 1, 1);
+                mask->region -= QRect(option->rect.right(), option->rect.bottom() - 1, 1, 1);
+            } else {
+                mask->region -= QRect(option->rect.bottomLeft(), QSize(1, 1));
+                mask->region -= QRect(option->rect.bottomRight(), QSize(1, 1));
+            }
         }
         break;
     case SH_TitleBar_NoBorder:
