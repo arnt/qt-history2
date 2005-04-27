@@ -34,7 +34,7 @@ QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
     prev->setAttribute(Qt::WA_NoChildEventsForParent, true);
     prev->setParent(this);
 
-    prev->setObjectName(QLatin1String("designer_wizardstack_button"));
+    prev->setObjectName(QLatin1String("__qt__passive_prev"));
     prev->setArrowType(Qt::LeftArrow);
     prev->setAutoRaise(true);
     prev->setAutoRepeat(true);
@@ -44,7 +44,7 @@ QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
     next = new QToolButton();
     next->setAttribute(Qt::WA_NoChildEventsForParent, true);
     next->setParent(this);
-    next->setObjectName(QLatin1String("designer_wizardstack_button"));
+    next->setObjectName(QLatin1String("__qt__passive_next"));
     next->setArrowType(Qt::RightArrow);
     next->setAutoRaise(true);
     next->setAutoRepeat(true);
