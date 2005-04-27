@@ -411,7 +411,7 @@ void WidgetHandle::mouseReleaseEvent(QMouseEvent *e)
                 if (pt.y() > 0 && info.width() > 1) {
                     cmd = new ChangeLayoutItemGeometry(formWindow);
                     cmd->init(widget, info.y(), info.x(), info.height() - 1, info.width());
-                } else if (pt.x() < 0 && bottom != -1 && grid->itemAt(bottom)->spacerItem()) {
+                } else if (pt.y() < 0 && bottom != -1 && grid->itemAt(bottom)->spacerItem()) {
                     cmd = new ChangeLayoutItemGeometry(formWindow);
                     cmd->init(widget, info.y(), info.x(), info.height() + 1, info.width());
                 }
