@@ -17,9 +17,7 @@
 #include "qdesigner_settings.h"
 
 // sdk
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/QtDesigner>
 
 // shared
 #include <qtundo.h>
@@ -27,6 +25,7 @@
 #include <QtCore/QEvent>
 #include <QtCore/QFile>
 #include <QtCore/QTimer>
+#include <QtCore/qdebug.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
@@ -50,8 +49,6 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, Q
 
     m_action = new QAction(this);
     m_action->setCheckable(true);
-
-    updateWindowTitle(m_editor->fileName());
 
     setWindowIcon(QIcon(QString::fromUtf8(":/trolltech/designer/images/designer.png")));
 
@@ -113,7 +110,9 @@ void QDesignerFormWindow::updateWindowTitle(const QString &fileName)
     if (fn.isEmpty())
         fn = tr("Untitled");
 
-    setWindowTitle(tr("%1 - [Design]").arg(fn));
+    fn += QLatin1String("[*]");
+
+    setWindowTitle(fn);
 }
 
 void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
