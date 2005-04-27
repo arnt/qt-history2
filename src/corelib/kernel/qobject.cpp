@@ -1035,9 +1035,9 @@ QThread *QObject::thread() const
 /*!
     Changes this object's thread affinity.  Event processing for this
     object will continue in the \a targetThread.  If \a targetThread
-    is zero, only \link QCoreApplication::postEvent() posted
-    events\link are processed by the main thread; all other event
-    processing for this object stops.
+    is zero, only \l{QCoreApplication::postEvent()}{posted events} are
+    processed by the main thread; all other event processing for this
+    object stops.
 
     Note that this function is \e not thread-safe; the current thread
     must be same as the current thread affinity. In other words, this
