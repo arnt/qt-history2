@@ -27,6 +27,7 @@
 
 #include "qtextformat.h"
 #include <qvector.h>
+#include <qset.h>
 
 class QTextFormatCollection
 {
@@ -66,6 +67,7 @@ public:
 
     FormatVector formats;
     QVector<qint32> objFormats;
+    QSet<uint> hashes;
 };
 
 #endif // QTEXTFORMAT_P_H

@@ -136,6 +136,13 @@ public:
 
     qint32 type;
 
+    inline uint hash() const
+    {
+        if (!hashDirty)
+            return hashValue;
+        return recalcHash();
+    }
+
     inline bool operator==(const QTextFormatPrivate &rhs) const {
         if (hash() != rhs.hash() || type != rhs.type)
             return false;
@@ -160,13 +167,6 @@ public:
 
 private:
     PropertyMap props;
-
-    inline uint hash() const
-    {
-        if (!hashDirty)
-            return hashValue;
-        return recalcHash();
-    }
 
     uint recalcHash() const;
 
@@ -193,8 +193,7 @@ static uint variantHash(const QVariant &variant)
 uint QTextFormatPrivate::recalcHash() const
 {
     hashValue = 0;
-    for (PropertyMap::ConstIterator it = props.begin();
-         it != props.end(); ++it)
+    for (PropertyMap::ConstIterator it = props.begin(); it != props.end(); ++it)
         hashValue += (it.key() << 16) + variantHash(*it);
 
     hashDirty = false;
@@ -1972,22 +1971,25 @@ QTextFormatCollection::~QTextFormatCollection()
 
 int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 {
-    // ### certainly need speedup
-    for (int i = 0; i < formats.size(); ++i) {
-        if (formats.at(i) == format)
-            return i;
+    if (hashes.contains(format.d->hash())) {
+        for (int i = 0; i < formats.size(); ++i) {
+            if (formats.at(i) == format)
+                return i;
+        }
     }
-
     int idx = formats.size();
     formats.append(format);
+    hashes.insert(format.d->hash());
     return idx;
 }
 
 bool QTextFormatCollection::hasFormatCached(const QTextFormat &format) const
 {
-    for (int i = 0; i < formats.size(); ++i)
-        if (formats.at(i) == format)
-            return true;
+    if (hashes.contains(format.d->hash())) {
+        for (int i = 0; i < formats.size(); ++i)
+            if (formats.at(i) == format)
+                return true;
+    }
     return false;
 }
 
