@@ -24,6 +24,7 @@ private slots:
     void zoomOut();
     void normalSize();
     void fitToWindow();
+    void about();
 
 private:
     void createActions();
@@ -45,9 +46,12 @@ private:
     QAction *zoomOutAct;
     QAction *normalSizeAct;
     QAction *fitToWindowAct;
+    QAction *aboutAct;
+    QAction *aboutQtAct;
 
     QMenu *fileMenu;
     QMenu *viewMenu;
+    QMenu *helpMenu;
 };
 
 #endif

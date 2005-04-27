@@ -59,6 +59,22 @@ void MainWindow::penWidth()
         scribbleArea->setPenWidth(newWidth);
 }
 
+void MainWindow::about()
+{
+    QMessageBox::about(this, tr("About Scribble"),
+            tr("<p>The <b>Scribble</b> example shows how to use QMainWindow as the "
+               "base widget for an application, and how to reimplement some of "
+               "QWidget's event handlers to receive the events generated for "
+               "the application's widgets:</p><p> We reimplement the mouse event "
+               "handlers to facilitate drawing, the paint event handler to "
+               "update the application and the resize event handler to optimize "
+               "the application's appearance. In addition we reimplement the "
+               "close event handler to intercept the close events before "
+               "terminating the application.</p><p> The example also demonstrates "
+               "how to use QPainter to draw an image in real time, as well as "
+               "to repaint widgets.</p>"));
+}
+
 void MainWindow::createActions()
 {
     openAct = new QAction(tr("&Open..."), this);
@@ -88,6 +104,12 @@ void MainWindow::createActions()
     clearScreenAct->setShortcut(tr("Ctrl+L"));
     connect(clearScreenAct, SIGNAL(triggered()),
             scribbleArea, SLOT(clearImage()));
+
+    aboutAct = new QAction(tr("&About"), this);
+    connect(aboutAct, SIGNAL(triggered()), this, SLOT(about()));
+
+    aboutQtAct = new QAction(tr("About &Qt"), this);
+    connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
 }
 
 void MainWindow::createMenus()
@@ -108,8 +130,13 @@ void MainWindow::createMenus()
     optionMenu->addSeparator();
     optionMenu->addAction(clearScreenAct);
 
+    helpMenu = new QMenu(tr("&Help"), this);
+    helpMenu->addAction(aboutAct);
+    helpMenu->addAction(aboutQtAct);
+
     menuBar()->addMenu(fileMenu);
     menuBar()->addMenu(optionMenu);
+    menuBar()->addMenu(helpMenu);
 }
 
 bool MainWindow::maybeSave()

@@ -21,6 +21,7 @@ private slots:
     void save();
     void penColor();
     void penWidth();
+    void about();
 
 private:
     void createActions();
@@ -30,15 +31,19 @@ private:
 
     ScribbleArea *scribbleArea;
 
+    QMenu *saveAsMenu;
     QMenu *fileMenu;
     QMenu *optionMenu;
-    QMenu *saveAsMenu;
+    QMenu *helpMenu;
+
     QAction *openAct;
     QList<QAction *> saveAsActs;
     QAction *exitAct;
     QAction *penColorAct;
     QAction *penWidthAct;
     QAction *clearScreenAct;
+    QAction *aboutAct;
+    QAction *aboutQtAct;
 };
 
 #endif
