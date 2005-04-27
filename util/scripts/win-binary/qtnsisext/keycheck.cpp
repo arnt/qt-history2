@@ -161,3 +161,14 @@ uint KeyCheck::checkForCode(uint code)
 {
     return code >> NumFeatures;
 }
+
+int KeyCheck::getNumberOfDays()
+{
+    uint y = decodeBaseZ(k3);
+    y = y ^ 0x0000beef;
+	int days = ((y >> 7) ^ y) >> 7;
+
+    if (days > 4000)
+        return 0; 
+    return days;
+}

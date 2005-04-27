@@ -11,6 +11,7 @@ public:
     KeyCheck(const char *key1, const char *key2, const char *key3);
     
     bool isValidWindowsLicense();
+    int getNumberOfDays();
     bool usesUSLicense();
 
 private:
