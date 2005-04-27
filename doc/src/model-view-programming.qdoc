@@ -1355,48 +1355,49 @@ items.
     \skipto bool insertRows
     \printuntil bool removeRows
 
-    We implement a function to allow rows to be inserted into the model:
+    Since rows in this model correspond to strings in a list, the
+    \c insertRows() function inserts a number of empty strings into the string
+    list before the specified position. The number of strings inserted is
+    equivalent to the number of rows specified.
+
+    The parent index is normally used to determine where in the model the
+    rows should be added. In this case, we only have a single top-level list
+    of strings, so we just insert empty strings into that list.
 
     \quotefile stringlistmodel/model.cpp
     \skipto bool StringListModel::insertRows
     \printuntil return true
     \printuntil }
 
-    Since rows in this model correspond to strings in a list, this function
-    inserts a number of empty strings into the list before the specified
-    position. The number of strings inserted is equivalent to the number of
-    rows specified.
+    The model first calls the
+    \l{QAbstractItemModel::beginInsertRows()}{beginInsertRows()} function to
+    inform other components that the number of rows is about to change. The
+    function specifies the row numbers of the first and last new rows to be
+    inserted, and the model index for their parent item. After changing the
+    string list, it calls
+    \l{QAbstractItemModel::endInsertRows()}{endInsertRows()} to complete the
+    operation and inform other components that the dimensions of the model
+    have changed, returning true to indicate success.
 
-    The parent index is normally used to determine where in the model the
-    rows should be added. In this case, we only have a single top-level list
-    of strings, so we just insert empty strings into that list.
-
-    The model first emits the
-    \l{QAbstractItemModel::rowsAboutToBeInserted()}{rowsAboutToBeInserted()}
-    signal to inform other components that the number of rows will change then
-    emits \l{QAbstractItemModel::rowsInserted()}{rowsInserted()} to indicate
-    that the dimensions of the model have changed, returning true to indicate
-    success. The signal specifies the row numbers of the first and last rows
-    that were inserted, and the model index for their parent item.
-
-    The function to remove rows from the model is also simple to write:
+    The function to remove rows from the model is also simple to write.
+    The rows to be removed from the model are specified by the position and
+    the number of rows given. 
+    We ignore the parent index to simplify our implementation, and just
+    remove the corresponding items from the string list.
 
     \quotefile stringlistmodel/model.cpp
     \skipto bool StringListModel::removeRows
     \printuntil return true
     \printuntil }
 
-    The rows to be removed from the model are specified by the position and
-    the number of rows given. 
-    We ignore the parent index to simplify our implementation, and just
-    remove the corresponding items from the string list.
-    The \l{QAbstractItemModel::rowsAboutToBeRemoved()}{rowsAboutToBeRemoved()}
-    signal is always emitted before the rows are removed, and specifies the
+    The \l{QAbstractItemModel::beginRemoveRows()}{beginRemoveRows()} function
+    is always called before any underlying data is removed, and specifies the
     first and last rows to be removed. This allows other components to access
-    the data before it is removed.
-    After the rows have been remove, the model emits
-    \l{QAbstractItemModel::rowsRemoved()}{rowsRemoved()} to let other components
-    know that the dimensions of the model have changed.
+    the data before it becomes unavailable.
+    After the rows have been removed, the model emits
+    \l{QAbstractItemModel::endRemoveRows()}{endRemoveRows()} to finish the
+    operation and let other components know that the dimensions of the model
+    have changed.
 
     \section1 Next Steps
 

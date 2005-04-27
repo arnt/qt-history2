@@ -1120,10 +1120,13 @@ Qt::DropActions QAbstractItemModel::supportedDropActions() const
   Returns true if the rows were successfully inserted; otherwise returns
   false.
 
-  The base class implementation does nothing and returns false. If
-  you want to be able to insert rows in a subclass, you must reimplement
-  this function and make sure that rowsInserted() is emitted after the
-  new rows have been inserted into the data structure.
+  The base class implementation does nothing and returns false.
+
+  If you want to be able to insert rows in a subclass, you must reimplement
+  this function, calling the beginInsertRows() function \e before inserting
+  new rows into your underlying data store, and call the endInsertRows()
+  function \e afterwards. Return true to indicate success; otherwise return
+  false.
 */
 bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
 {
@@ -1143,10 +1146,13 @@ bool QAbstractItemModel::insertRows(int, int, const QModelIndex &)
   Returns true if the columns were successfully inserted; otherwise returns
   false.
 
-  The base class implementation does nothing and returns false. If
-  you want to be able to insert columns in a subclass, you must reimplement
-  this function, and make sure that columnsInserted() is emitted after
-  the new columns have been inserted into the data structure.
+  The base class implementation does nothing and returns false.
+
+  If you want to be able to insert columns in a subclass, you must reimplement
+  this function, calling the beginInsertColumns() function \e before inserting
+  new columns into your underlying data store, and call the endInsertColumns()
+  function \e afterwards. Return true to indicate success; otherwise return
+  false.
 */
 bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
 {
@@ -1160,10 +1166,11 @@ bool QAbstractItemModel::insertColumns(int, int, const QModelIndex &)
 
     The base class implementation does nothing and returns false.
 
-    If you want to remove rows in a subclass, you must reimplement this
-    function and make sure that rowsAboutToBeRemoved() is emitted \e before
-    the rows are removed from the data structure. This gives attached
-    components the chance to take action before any data becomes unavailable.
+    If you want to be able to remove rows in a subclass, you must reimplement
+    this function, calling the beginRemoveRows() function \e before removing
+    new rows into your underlying data store, and call the endRemoveRows()
+    function \e afterwards. Return true to indicate success; otherwise return
+    false.
 */
 bool QAbstractItemModel::removeRows(int, int, const QModelIndex &)
 {
@@ -1177,10 +1184,11 @@ bool QAbstractItemModel::removeRows(int, int, const QModelIndex &)
 
     The base class implementation does nothing and returns false.
 
-    If you want to remove columns in a subclass, you must reimplement this
-    function and make sure that columnsAboutToBeRemoved() is emitted \e before
-    the columns are removed from the data structure. This gives attached
-    components the chance to take action before any data becomes unavailable.
+    If you want to be able to remove columns in a subclass, you must reimplement
+    this function, calling the beginRemoveColumns() function \e before removing
+    new columns into your underlying data store, and call the endRemoveColumns()
+    function \e afterwards. Return true to indicate success; otherwise return
+    false.
 */
 bool QAbstractItemModel::removeColumns(int, int, const QModelIndex &)
 {
