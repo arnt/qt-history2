@@ -2720,7 +2720,7 @@ if true; then ###[ '!' -f "$outpath/bin/qmake" ];
 
     #mkspecs/default is used as a (gasp!) default mkspec so QMAKESPEC needn't be set once configured
     rm -f mkspecs/default
-    ln -s `echo $QMAKESPEC | sed "s,^${relpath}/mkspecs/,,"` mkspecs/default
+    ln -s `echo $XQMAKESPEC | sed "s,^${relpath}/mkspecs/,,"` mkspecs/default
     # fix makefiles
     for mkfile in GNUmakefile Makefile; do
 	EXTRA_LFLAGS=
