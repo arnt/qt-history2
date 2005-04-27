@@ -1835,6 +1835,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.displayAlignment = QStyle::visualAlignment(layoutDirection(),
                                                       Qt::AlignLeft|Qt::AlignVCenter);
     option.rect = QRect();
+    option.showDecorationSelected = style()->styleHint(QStyle::SH_ItemView_ShowDecorationSelected);
     return option;
 }
 

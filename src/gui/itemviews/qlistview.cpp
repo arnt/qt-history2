@@ -457,8 +457,7 @@ void QListView::setViewMode(ViewMode mode)
 
     bool movable = (d->movement != QListView::Static);
     setDragEnabled(movable);
-    d->viewport->setAcceptDrops(movable);
-
+    setAcceptDrops(movable);
     d->doDelayedItemsLayout();
 }
 
@@ -843,6 +842,7 @@ QStyleOptionViewItem QListView::viewOptions() const
         option.decorationSize = QSize(pm, pm);
     }
     if (d->viewMode == IconMode) {
+        option.showDecorationSelected = false;
         option.decorationPosition = QStyleOptionViewItem::Top;
     } else {
         option.decorationPosition = QStyleOptionViewItem::Left;
@@ -876,9 +876,12 @@ void QListView::paintEvent(QPaintEvent *e)
     const QItemSelectionModel *selections = selectionModel();
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const bool alternate = d->alternatingColors;
-    const QBrush baseBrush = palette().brush(QPalette::Base);
-    const QBrush alternateBrush = palette().brush(QPalette::AlternateBase);
+    const QPalette::ColorGroup cg = (option.state & QStyle::State_Enabled
+                                     ? QPalette::Normal : QPalette::Disabled);
+    const QBrush baseBrush = option.palette.brush(cg, QPalette::Base);
+    const QBrush alternateBrush = option.palette.brush(cg, QPalette::AlternateBase);
     const QStyle::State state = option.state;
+
     QVector<QModelIndex>::iterator it = toBeRendered.begin();
     for (; it != toBeRendered.end(); ++it) {
         Q_ASSERT((*it).isValid());
@@ -1391,9 +1394,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
         flowPosition = topLeft.x();
         segPosition = topLeft.y();
         deltaFlowPosition = gridSize.width(); // dx
-        deltaSegPosition = useItemSize
-                           ? batchSavedDeltaSeg
-                           : gridSize.height(); // dy
+        deltaSegPosition = useItemSize ? batchSavedDeltaSeg : gridSize.height(); // dy
         deltaSegHint = gridSize.height();
     } else { // flow == QListView::TopToBottom
         segStartPosition = bounds.top();
@@ -1401,9 +1402,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
         flowPosition = topLeft.y();
         segPosition = topLeft.x();
         deltaFlowPosition = gridSize.height(); // dy
-        deltaSegPosition = useItemSize
-                           ? batchSavedDeltaSeg
-                           : gridSize.width(); // dx
+        deltaSegPosition = useItemSize ? batchSavedDeltaSeg : gridSize.width(); // dx
         deltaSegHint = gridSize.width();
     }
 

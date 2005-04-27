@@ -149,9 +149,15 @@ void QItemDelegate::paint(QPainter *painter,
     doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
 
     // draw the background color
-    value = model->data(index, Qt::BackgroundColorRole);
-    if (value.isValid() && qvariant_cast<QColor>(value).isValid())
-        painter->fillRect(option.rect, qvariant_cast<QColor>(value));
+    if (option.showDecorationSelected && (option.state & QStyle::State_Selected)) {
+        QPalette::ColorGroup cg = option.state & QStyle::State_Enabled
+                                  ? QPalette::Normal : QPalette::Disabled;
+        painter->fillRect(option.rect, option.palette.brush(cg, QPalette::Highlight));
+    } else {
+        value = model->data(index, Qt::BackgroundColorRole);
+        if (value.isValid() && qvariant_cast<QColor>(value).isValid())
+            painter->fillRect(option.rect, qvariant_cast<QColor>(value));
+    }
 
     // draw the item
     drawCheck(painter, opt, checkRect, checkState);

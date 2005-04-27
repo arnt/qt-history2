@@ -602,6 +602,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
         if (i < 0) // couldn't find the first item
             return;
         int y = d->topItemDelta(v, d->height(i));
+        int w = d->viewport->width();
 
         while (y < b && i < c) {
             int h = d->height(i); // actual height
@@ -618,7 +619,6 @@ void QTreeView::paintEvent(QPaintEvent *e)
             ++i;
         }
 
-        int w = d->viewport->width();
         int x = d->header->length();
         QRect bottom(0, y, w, b - y);
         if (y < b && area.intersects(bottom))
@@ -648,7 +648,6 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
     Q_D(const QTreeView);
     const QPoint offset = d->scrollDelayOffset;
     QStyleOptionViewItem opt = option;
-    const QBrush baseBrush = option.palette.base();
     const int y = option.rect.y() + offset.y();
     const QModelIndex parent = index.parent();
     const QHeaderView *header = d->header;
@@ -677,21 +676,26 @@ void QTreeView::drawRow(QPainter *painter, const QStyleOptionViewItem &option,
             opt.state |= QStyle::State_Selected;
         if (focus && current == modelIndex)
             opt.state |= QStyle::State_HasFocus;
-        if ((model()->flags(index) & Qt::ItemIsEnabled) == 0)
+        QPalette::ColorGroup cg;
+        if ((model()->flags(index) & Qt::ItemIsEnabled) == 0) {
             opt.state &= ~QStyle::State_Enabled;
+            cg = QPalette::Disabled;
+        } else {
+            cg = QPalette::Normal;
+        }
         if (headerSection == 0) {
             int i = d->indentation(d->current);
             opt.rect.setRect(reverse ? position : i + position, y, width - i, height);
-            if (opt.state & QStyle::State_Selected
-                && style()->styleHint(QStyle::SH_TreeView_ShowBranchSelected))
-                painter->fillRect(position, y, width, height, option.palette.highlight());
+            painter->fillRect(opt.rect, option.palette.brush(QPalette::Base));
+            QRect branches(reverse ? position + width - i : position, y, i, height);
+            if ((opt.state & QStyle::State_Selected) && option.showDecorationSelected)
+                painter->fillRect(branches, option.palette.brush(cg, QPalette::Highlight));
             else
-                painter->fillRect(position, y, width, height, baseBrush);
-            drawBranches(painter, QRect(reverse ? position + width - i :
-                                        position, y, i, option.rect.height()), index);
+                painter->fillRect(branches, option.palette.brush(QPalette::Base));
+            drawBranches(painter, branches, index);
         } else {
             opt.rect.setRect(position, y, width, height);
-            painter->fillRect(position, y, width, height, baseBrush);
+            painter->fillRect(opt.rect, option.palette.brush(QPalette::Base));
         }
         itemDelegate()->paint(painter, opt, modelIndex);
     }

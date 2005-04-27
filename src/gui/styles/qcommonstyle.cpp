@@ -3188,7 +3188,7 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = Qt::AlignTrailing;
         break;
 
-    case SH_TreeView_ShowBranchSelected:
+    case SH_ItemView_ShowDecorationSelected:
         ret = false;
         break;
 

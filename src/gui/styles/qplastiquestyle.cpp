@@ -1167,22 +1167,20 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->drawPoint(fullRect.bottomLeft());
             painter->drawPoint(fullRect.bottomRight());
 
-            // fill if it's a real checkbox.
-            if (qobject_cast<const QCheckBox *>(widget)) {
-                QRect adjustedRect = option->rect.adjusted(0, 0, -1, -1);
-                QLinearGradient gradient(QPointF(adjustedRect.left() + 1, adjustedRect.top() + 1),
-                                         QPointF(adjustedRect.right() - 1, adjustedRect.bottom() - 1));
-                if (hover) {
-                    gradient.setColorAt(0, highlightedBaseGradientStartColor);
-                    gradient.setColorAt(1, highlightedBaseGradientStopColor);
-                } else {
-                    gradient.setColorAt(0, baseGradientStartColor);
-                    gradient.setColorAt(1, baseGradientStopColor);
-                }
-                painter->fillRect(adjustedRect.left() + 1, adjustedRect.top() + 1,
-                                  adjustedRect.right() - adjustedRect.left() - 1,
-                                  adjustedRect.bottom() - adjustedRect.top() - 1, gradient);
+            // fill background
+            QRect adjustedRect = option->rect;
+            QLinearGradient gradient(QPointF(fullRect.left() + 1, fullRect.top() + 1),
+                                     QPointF(fullRect.right() - 1, fullRect.bottom() - 1));
+            if (hover) {
+                gradient.setColorAt(0, highlightedBaseGradientStartColor);
+                gradient.setColorAt(1, highlightedBaseGradientStopColor);
+            } else {
+                gradient.setColorAt(0, baseGradientStartColor);
+                gradient.setColorAt(1, baseGradientStopColor);
             }
+            painter->fillRect(fullRect.left() + 1, fullRect.top() + 1,
+                              fullRect.right() - fullRect.left() - 1,
+                              fullRect.bottom() - fullRect.top() - 1, gradient);
 
             // draw highlighted border when hovering
             if (hover) {
@@ -3531,11 +3529,11 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     case SH_TitleBar_NoBorder:
         ret = 1;
         break;
-    case SH_TreeView_ShowBranchSelected:
+    case SH_ItemView_ShowDecorationSelected:
         ret = true;
         break;
     case SH_ItemView_AlternatingRowColors:
-        ret = true;
+        ret = false;
         break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
@@ -3728,6 +3726,6 @@ void QPlastiqueStyle::polish(QApplication *app)
 void QPlastiqueStyle::polish(QPalette &pal)
 {
     QWindowsStyle::polish(pal);
-    pal.setBrush(QPalette::AlternateBase, pal.background().color().dark(102));
+    pal.setBrush(QPalette::AlternateBase, pal.base().color().dark(110));
 }
 

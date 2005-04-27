@@ -321,6 +321,17 @@ void QTableView::scrollContentsBy(int dx, int dy)
     d->viewport->scroll(dx, dy);
 }
 
+
+/*!
+  \reimp
+*/
+QStyleOptionViewItem QTableView::viewOptions() const
+{
+    QStyleOptionViewItem option = QAbstractItemView::viewOptions();
+    option.showDecorationSelected = true;
+    return option;
+}
+
 /*!
     Paints the table on receipt of the given paint event \a e.
 */
@@ -344,14 +355,12 @@ void QTableView::paintEvent(QPaintEvent *e)
     const bool focus = (hasFocus() || d->viewport->hasFocus()) && current.isValid();
     const QStyle::State state = option.state;
     const bool alternate = d->alternatingColors;
-    const QBrush baseBrush = palette().color(QPalette::Base);
-    const QBrush alternateBrush = palette().color(QPalette::AlternateBase);
 
     QPainter painter(d->viewport);
     
     // if there's nothing to do, clear the area and return
     if (d->horizontalHeader->count() == 0 || d->verticalHeader->count() == 0) {
-        painter.fillRect(e->rect(), baseBrush);
+        painter.fillRect(e->rect(), option.palette.brush(QPalette::Base));
         return;
     }
 
@@ -394,8 +403,6 @@ void QTableView::paintEvent(QPaintEvent *e)
             int row = verticalHeader->logicalIndex(v);
             if (verticalHeader->isSectionHidden(row))
                 continue;
-            if (alternate)
-                option.palette.setBrush(QPalette::Base, v & 1 ? baseBrush : alternateBrush);
             int rowp = rowViewportPosition(row) + offset.y();
             int rowh = rowHeight(row) - gridSize;
             for (int h = left; h <= right; ++h) {
@@ -410,13 +417,21 @@ void QTableView::paintEvent(QPaintEvent *e)
                     option.state = state;
                     if (sels && sels->isSelected(index))
                         option.state |= QStyle::State_Selected;
-                    if ((model()->flags(index) & Qt::ItemIsEnabled) == 0)
+                    QPalette::ColorGroup cg;
+                    if ((model()->flags(index) & Qt::ItemIsEnabled) == 0) {
                         option.state &= ~QStyle::State_Enabled;
+                        cg = QPalette::Disabled;
+                    } else {
+                        cg = QPalette::Normal;
+                    }
                     if (focus && index == current)
                         option.state |= QStyle::State_HasFocus;
-                    painter.fillRect(colp, rowp, colw, rowh,
-                                     (option.state & QStyle::State_Selected
-                                      ? option.palette.highlight() : option.palette.base()));
+                    if (alternate && v & 1)
+                        painter.fillRect(colp, rowp, colw, rowh,
+                                         option.palette.brush(cg, QPalette::AlternateBase));
+                    else
+                        painter.fillRect(colp, rowp, colw, rowh,
+                                         option.palette.brush(QPalette::Base));
                     itemDelegate()->paint(&painter, option, index);
                 }
                 if (v == top && showGrid) {
@@ -440,15 +455,15 @@ void QTableView::paintEvent(QPaintEvent *e)
         int y = d->verticalHeader->length();
         QRect b(0, y, w, h - y);
         if (y < h && area.intersects(b))
-            painter.fillRect(b, baseBrush);
+            painter.fillRect(b, option.palette.brush(QPalette::Base));
         if (isRightToLeft()) {
             QRect r(0, 0, w - x, h);
             if (x > 0 && area.intersects(r))
-                painter.fillRect(r, baseBrush);
+                painter.fillRect(r, option.palette.brush(QPalette::Base));
         } else {
             QRect l(x, 0, w - x, h);
             if (x < w && area.intersects(l))
-                painter.fillRect(l, baseBrush);
+                painter.fillRect(l, option.palette.brush(QPalette::Base));
         }
     }
 }
@@ -737,7 +752,7 @@ int QTableView::sizeHintForRow(int row) const
 
     int hint = 0;
     QModelIndex index;
-    for (int column = columnfirst; column < columnlast; ++column) {
+    for (int column = columnfirst; column <= columnlast; ++column) {
         index = d->model->index(row, column, rootIndex());
         hint = qMax(hint, itemDelegate()->sizeHint(option, index).height());
     }

@@ -5136,7 +5136,7 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_ItemView_EllipsisLocation:
         ret = Qt::AlignHCenter;
         break;
-    case SH_TreeView_ShowBranchSelected:
+    case SH_ItemView_ShowDecorationSelected:
         ret = true;
         break;
     default:

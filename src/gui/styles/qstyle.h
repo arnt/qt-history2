@@ -540,7 +540,7 @@ public:
         SH_ComboBox_LayoutDirection,
         SH_ItemView_EllipsisLocation,
         SH_ItemView_AlternatingRowColors,
-        SH_TreeView_ShowBranchSelected,
+        SH_ItemView_ShowDecorationSelected,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT

@@ -43,6 +43,7 @@ int main(int argc, char *argv[])
     list->setSelectionModel(selections);
     list->setViewMode(QListView::IconMode);
     list->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    list->setAlternatingRowColors(false);
 
     page.setWindowIcon(QPixmap(":/images/interview.png"));
     page.show();

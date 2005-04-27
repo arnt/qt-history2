@@ -118,6 +118,10 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
         QDoubleSpinBox *sb = new QDoubleSpinBox(parent);
         sb->setFrame(false);
         return sb; }
+    case QVariant::StringList: {
+        QComboBox *cb = new QComboBox(parent);
+        cb->setFrame(false);
+        return cb; }
     case QVariant::String:
     default: {
         // the default editor is a lineedit
@@ -142,6 +146,8 @@ QByteArray QDefaultItemEditorFactory::valuePropertyName(QVariant::Type type) con
         return "time";
     case QVariant::DateTime:
         return "dateTime";
+    case QVariant::StringList:
+        return "contents";
     case QVariant::String:
     default:
         // the default editor is a lineedit

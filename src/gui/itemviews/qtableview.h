@@ -84,6 +84,7 @@ protected:
     QTableView(QTableViewPrivate &, QWidget *parent);
     void scrollContentsBy(int dx, int dy);
 
+    QStyleOptionViewItem viewOptions() const;
     void paintEvent(QPaintEvent *e);
 
     int horizontalOffset() const;

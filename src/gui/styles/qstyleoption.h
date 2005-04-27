@@ -393,6 +393,7 @@ public:
     Position decorationPosition;
     QSize decorationSize;
     QFont font;
+    bool showDecorationSelected;
 
     QStyleOptionViewItem();
     QStyleOptionViewItem(const QStyleOptionViewItem &other) : QStyleOption(Version, Type) { *this = other; }
@@ -402,6 +403,7 @@ public:
     QDOC_PROPERTY(Position decorationPosition)
     QDOC_PROPERTY(QSize decorationSize)
     QDOC_PROPERTY(QFont font)
+    QDOC_PROPERTY(showDecorationSelected)
 
 protected:
     QStyleOptionViewItem(int version);
