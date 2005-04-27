@@ -2977,8 +2977,15 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             if (titleBar->titleBarState & Qt::WindowMinimized) {
                 painter->setPen(titleBarFrameBorder);
                 painter->drawLine(fullRect.left() + 2, fullRect.bottom(), fullRect.right() - 2, fullRect.bottom());
+                painter->drawPoint(fullRect.left() + 1, fullRect.bottom() - 1);
+                painter->drawPoint(fullRect.right() - 1, fullRect.bottom() - 1);
                 painter->setPen(rightCorner);
                 painter->drawLine(fullRect.left() + 2, fullRect.bottom() - 1, fullRect.right() - 2, fullRect.bottom() - 1);
+                painter->setPen(titleBarAlphaCorner);
+                painter->drawPoint(fullRect.left() + 1, fullRect.bottom() - 2);
+                painter->drawPoint(fullRect.left() + 2, fullRect.bottom() - 1);
+                painter->drawPoint(fullRect.right() - 1, fullRect.bottom() - 2);
+                painter->drawPoint(fullRect.right() - 2, fullRect.bottom() - 1);
             }
 
             // draw title
