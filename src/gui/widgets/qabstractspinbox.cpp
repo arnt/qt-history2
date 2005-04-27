@@ -1223,7 +1223,10 @@ void QAbstractSpinBoxPrivate::calculateSizeHints() const
                                                    QStyle::SC_SpinBoxEditField, q).size();
         hint += extra;
 
-        cachedsizehint = cachedminimumsizehint =  hint.expandedTo(QApplication::globalStrut());
+        QStyleOptionSpinBox option = getStyleOption();
+        cachedsizehint = q->style()->sizeFromContents(QStyle::CT_SpinBox, &option, hint, q)
+                         .expandedTo(QApplication::globalStrut());
+        cachedminimumsizehint = cachedsizehint;
         sizehintdirty = false;
     }
 }
