@@ -453,7 +453,7 @@ static QColor mergedColors(const QColor &colorA, const QColor &colorB, int facto
     return tmp;
 }
 
-static void qt_plastique_drawFrame(QPainter *painter, const QStyleOption *option, bool base = false)
+static void qt_plastique_drawFrame(QPainter *painter, const QStyleOption *option)
 {
     QRect rect = option->rect;
     QPen oldPen = painter->pen();
@@ -511,17 +511,19 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
     QColor gradientStopColor = option->palette.button().color().dark(105);
 
     // gradient fill
-    QLinearGradient gradient(rect.center().x(), rect.top() + 1, rect.center().x(), rect.bottom() - 1);
-    if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On)) {
-        gradient.setColorAt(0, option->palette.button().color().dark(114));
-        gradient.setColorAt(1, option->palette.button().color().dark(106));
-    } else {
-        gradient.setColorAt(0, base ? option->palette.background().color().light(105) : gradientStartColor);
-        gradient.setColorAt(1, base ? option->palette.background().color().dark(102) : gradientStopColor);
+    if (option->state & QStyle::State_Enabled) {
+        QLinearGradient gradient(rect.center().x(), rect.top() + 1, rect.center().x(), rect.bottom() - 1);
+        if ((option->state & QStyle::State_Sunken) || (option->state & QStyle::State_On)) {
+            gradient.setColorAt(0, option->palette.button().color().dark(114));
+            gradient.setColorAt(1, option->palette.button().color().dark(106));
+        } else {
+            gradient.setColorAt(0, base ? option->palette.background().color().light(105) : gradientStartColor);
+            gradient.setColorAt(1, base ? option->palette.background().color().dark(102) : gradientStopColor);
+        }
+        painter->fillRect(rect.adjusted(1, 1, -1, -1), gradient);
     }
-    painter->fillRect(rect.adjusted(1, 1, -1, -1), gradient);
 
-    qt_plastique_drawFrame(painter, option, base);
+    qt_plastique_drawFrame(painter, option);
 
     painter->setPen(oldPen);
 }
@@ -655,7 +657,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                                        twf->rect.bottom() - borderThickness + 1, twf->tabBarSize.width(), borderThickness);
                 else
                     tabBarRect = QRect(twf->rect.right() - twf->rightCornerWidgetSize.width() - twf->tabBarSize.width() + 1, 
-                                   twf->rect.bottom() - borderThickness + 1, twf->tabBarSize.width(), borderThickness);
+                                       twf->rect.bottom() - borderThickness + 1, twf->tabBarSize.width(), borderThickness);
                 break ;
             default:
                 break;
@@ -940,24 +942,27 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             bool down = pushButton && ((button->state & State_Sunken) || (button->state & State_On));
             bool hover = hoverable && (button->state & State_Enabled) && (button->state & State_MouseOver);
             bool isDefault = (button->features & QStyleOptionButton::AutoDefaultButton) && (button->features & QStyleOptionButton::DefaultButton);
+            bool isEnabled = (button->state & State_Enabled);
 
-            // gradient fill
-            QLinearGradient gradient(QPointF(option->rect.center().x(), option->rect.top()),
-                                     QPointF(option->rect.center().x(), option->rect.bottom()));
-            if (down) {
-                gradient.setColorAt(0, option->palette.button().color().dark(111));
-                gradient.setColorAt(1, option->palette.button().color().dark(106));
-            } else {
-                if (hover) {
-                    gradient.setColorAt(0, highlightedGradientStartColor);
-                    gradient.setColorAt(1, highlightedGradientStopColor);
+            if (isEnabled) {
+                // gradient fill
+                QLinearGradient gradient(QPointF(option->rect.center().x(), option->rect.top()),
+                                         QPointF(option->rect.center().x(), option->rect.bottom()));
+                if (down) {
+                    gradient.setColorAt(0, option->palette.button().color().dark(111));
+                    gradient.setColorAt(1, option->palette.button().color().dark(106));
                 } else {
-                    gradient.setColorAt(0, gradientStartColor);
-                    gradient.setColorAt(1, gradientStopColor);
+                    if (hover) {
+                        gradient.setColorAt(0, highlightedGradientStartColor);
+                        gradient.setColorAt(1, highlightedGradientStopColor);
+                    } else {
+                        gradient.setColorAt(0, gradientStartColor);
+                        gradient.setColorAt(1, gradientStopColor);
+                    }
                 }
+                painter->fillRect(option->rect.adjusted(2, 2, -2, -2), QBrush(gradient));
             }
-            painter->fillRect(option->rect.adjusted(2, 2, -2, -2), QBrush(gradient));
-            QPen oldPen = painter->pen();
+            
             QRect rect = option->rect;
 
             if (isDefault) {
@@ -1528,23 +1533,25 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     if (mouseOver) 
                         startPoint += vectorDown;
                     QPoint endPoint = rightLine.p2();
-                    
-                    QRect fillRect = QRect(startPoint, endPoint);                    
-                    QLinearGradient fillGradient(leftLine.p1(), leftLine.p2());            
 
-                    if (mouseOver) {
-                        fillGradient.setColorAt(0, highlightedGradientStartColor);
-                        fillGradient.setColorAt(1, highlightedGradientStopColor);
-                    } else {
-                        fillGradient.setColorAt(0, gradientStartColor);
-                        fillGradient.setColorAt(1, gradientStopColor);
+                    if (tab->state & State_Enabled) {
+                        QRect fillRect = QRect(startPoint, endPoint);                    
+                        QLinearGradient fillGradient(leftLine.p1(), leftLine.p2());            
+
+                        if (mouseOver) {
+                            fillGradient.setColorAt(0, highlightedGradientStartColor);
+                            fillGradient.setColorAt(1, highlightedGradientStopColor);
+                        } else {
+                            fillGradient.setColorAt(0, gradientStartColor);
+                            fillGradient.setColorAt(1, gradientStopColor);
+                        }
+
+                        if (selected)
+                            painter->fillRect(fillRect, tab->palette.background()); 
+                        else
+                            painter->fillRect(fillRect, fillGradient);                    
                     }
-
-                    if (selected)
-                        painter->fillRect(fillRect, tab->palette.background()); 
-                    else
-                        painter->fillRect(fillRect, fillGradient);                    
-
+                    
                     QPoint rightCornerDot = topRight + vectorLeft + (lowerTop + 1)*vectorDown;
                     QPoint leftCornerDot = topLeft + (marginLeft + 1)*vectorRight + (lowerTop + 1)*vectorDown;
                     QPoint bottomRightConnectToBase = rightLine.p2() + vectorRight + vectorDown;
@@ -2249,51 +2256,59 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
             if ((option->subControls & SC_SliderHandle) && handle.isValid()) {
                 // draw handle
-                if (horizontal) {
-                    QPainterPath path;
-                    if (ticksAbove && !ticksBelow) {
-                        path.moveTo(QPoint(handle.right(), handle.bottom() - 1));
-                        path.lineTo(QPoint(handle.right(), handle.bottom() - 10));
-                        path.lineTo(QPoint(handle.right() - 5, handle.bottom() - 14));
-                        path.lineTo(QPoint(handle.left() + 1,  handle.bottom() - 10));
-                        path.lineTo(QPoint(handle.left() + 1, handle.bottom() - 1));
-                        path.lineTo(QPoint(handle.right(), handle.bottom() - 1));
+                    if (horizontal) {
+                        QPainterPath path;
+                        if (ticksAbove && !ticksBelow) {
+                            path.moveTo(QPoint(handle.right(), handle.bottom() - 1));
+                            path.lineTo(QPoint(handle.right(), handle.bottom() - 10));
+                            path.lineTo(QPoint(handle.right() - 5, handle.bottom() - 14));
+                            path.lineTo(QPoint(handle.left() + 1,  handle.bottom() - 10));
+                            path.lineTo(QPoint(handle.left() + 1, handle.bottom() - 1));
+                            path.lineTo(QPoint(handle.right(), handle.bottom() - 1));
+                        } else {
+                            path.moveTo(QPoint(handle.right(), handle.top() + 1));
+                            path.lineTo(QPoint(handle.right(), handle.top() + 10));
+                            path.lineTo(QPoint(handle.right() - 5, handle.top() + 14));
+                            path.lineTo(QPoint(handle.left() + 1,  handle.top() + 10));
+                            path.lineTo(QPoint(handle.left() + 1, handle.top() + 1));
+                            path.lineTo(QPoint(handle.right(), handle.top() + 1));
+                        }
+                        if (slider->state & State_Enabled) {
+                             QLinearGradient gradient(handle.center().x(), handle.top(),
+                                                     handle.center().x(), handle.bottom());
+                            gradient.setColorAt(0, gradientStartColor);
+                            gradient.setColorAt(1, gradientStopColor);
+                            painter->fillPath(path, gradient);
+                        } else {
+                            painter->fillPath(path, slider->palette.background());
+                        }
                     } else {
-                        path.moveTo(QPoint(handle.right(), handle.top() + 1));
-                        path.lineTo(QPoint(handle.right(), handle.top() + 10));
-                        path.lineTo(QPoint(handle.right() - 5, handle.top() + 14));
-                        path.lineTo(QPoint(handle.left() + 1,  handle.top() + 10));
-                        path.lineTo(QPoint(handle.left() + 1, handle.top() + 1));
-                        path.lineTo(QPoint(handle.right(), handle.top() + 1));
+                        QPainterPath path;
+                        if (ticksAbove && !ticksBelow) {
+                            path.moveTo(QPoint(handle.right() - 1, handle.top() + 1));
+                            path.lineTo(QPoint(handle.right() - 10, handle.top() + 1));
+                            path.lineTo(QPoint(handle.right() - 14, handle.top() + 5));
+                            path.lineTo(QPoint(handle.right() - 10, handle.bottom()));
+                            path.lineTo(QPoint(handle.right() - 1, handle.bottom()));
+                            path.lineTo(QPoint(handle.right() - 1, handle.top() + 1));
+                        } else {
+                            path.moveTo(QPoint(handle.left() + 1, handle.top() + 1));
+                            path.lineTo(QPoint(handle.left() + 10, handle.top() + 1));
+                            path.lineTo(QPoint(handle.left() + 14, handle.top() + 5));
+                            path.lineTo(QPoint(handle.left() + 10, handle.bottom()));
+                            path.lineTo(QPoint(handle.left() + 1, handle.bottom()));
+                            path.lineTo(QPoint(handle.left() + 1, handle.top() + 1));
+                        }
+                        if (slider->state & State_Enabled) {
+                            QLinearGradient gradient(handle.center().x(), handle.top(),
+                                                     handle.center().x(), handle.bottom());
+                            gradient.setColorAt(0, gradientStartColor);
+                            gradient.setColorAt(1, gradientStopColor);
+                            painter->fillPath(path, gradient);
+                        } else {
+                            painter->fillPath(path, slider->palette.background());
+                        }
                     }
-                    QLinearGradient gradient(handle.center().x(), handle.top(),
-                                             handle.center().x(), handle.bottom());
-                    gradient.setColorAt(0, gradientStartColor);
-                    gradient.setColorAt(1, gradientStopColor);
-                    painter->fillPath(path, gradient);
-                } else {
-                    QPainterPath path;
-                    if (ticksAbove && !ticksBelow) {
-                        path.moveTo(QPoint(handle.right() - 1, handle.top() + 1));
-                        path.lineTo(QPoint(handle.right() - 10, handle.top() + 1));
-                        path.lineTo(QPoint(handle.right() - 14, handle.top() + 5));
-                        path.lineTo(QPoint(handle.right() - 10, handle.bottom()));
-                        path.lineTo(QPoint(handle.right() - 1, handle.bottom()));
-                        path.lineTo(QPoint(handle.right() - 1, handle.top() + 1));
-                    } else {
-                        path.moveTo(QPoint(handle.left() + 1, handle.top() + 1));
-                        path.lineTo(QPoint(handle.left() + 10, handle.top() + 1));
-                        path.lineTo(QPoint(handle.left() + 14, handle.top() + 5));
-                        path.lineTo(QPoint(handle.left() + 10, handle.bottom()));
-                        path.lineTo(QPoint(handle.left() + 1, handle.bottom()));
-                        path.lineTo(QPoint(handle.left() + 1, handle.top() + 1));
-                    }
-                    QLinearGradient gradient(handle.center().x(), handle.top(),
-                                             handle.center().x(), handle.bottom());
-                    gradient.setColorAt(0, gradientStartColor);
-                    gradient.setColorAt(1, gradientStopColor);
-                    painter->fillPath(path, gradient);
-                }
 
                 QImage image;
                 if (horizontal) {
@@ -2358,6 +2373,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             QRect scrollBarAddLine = subControlRect(control, scrollBar, SC_ScrollBarAddLine, widget);
             QRect scrollBarSlider = subControlRect(control, scrollBar, SC_ScrollBarSlider, widget);
 
+            bool isEnabled = scrollBar->state & State_Enabled;
             bool reverse = scrollBar->direction == Qt::RightToLeft;
             bool horizontal = scrollBar->orientation == Qt::Horizontal;
 
@@ -2395,26 +2411,28 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     button2.setRect(scrollBarSubLine.left(), scrollBarSubLine.bottom() - 15, scrollBarExtent, 16);
                 }
 
-                // Gradients
-                QLinearGradient gradient1(button1.center().x(), button1.top() + 2,
-                                          button1.center().x(), button1.bottom() - 2);
-                QLinearGradient gradient2(button2.center().x(), button2.top() + 2,
-                                          button2.center().x(), button2.bottom() - 2);
-                if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && (scrollBar->state & State_Sunken)) {
-                    gradient1.setColorAt(0, gradientStopColor);
-                    gradient1.setColorAt(1, gradientStopColor);
-                    gradient2.setColorAt(0, gradientStopColor);
-                    gradient2.setColorAt(1, gradientStopColor);
-                } else {
-                    gradient1.setColorAt(0, gradientStartColor.light(105));
-                    gradient1.setColorAt(1, gradientStopColor);
-                    gradient2.setColorAt(0, gradientStartColor.light(105));
-                    gradient2.setColorAt(1, gradientStopColor);
+                if (isEnabled) {
+                    // Gradients
+                    QLinearGradient gradient1(button1.center().x(), button1.top() + 2,
+                                              button1.center().x(), button1.bottom() - 2);
+                    QLinearGradient gradient2(button2.center().x(), button2.top() + 2,
+                                              button2.center().x(), button2.bottom() - 2);
+                    if ((scrollBar->activeSubControls & SC_ScrollBarSubLine) && (scrollBar->state & State_Sunken)) {
+                        gradient1.setColorAt(0, gradientStopColor);
+                        gradient1.setColorAt(1, gradientStopColor);
+                        gradient2.setColorAt(0, gradientStopColor);
+                        gradient2.setColorAt(1, gradientStopColor);
+                    } else {
+                        gradient1.setColorAt(0, gradientStartColor.light(105));
+                        gradient1.setColorAt(1, gradientStopColor);
+                        gradient2.setColorAt(0, gradientStartColor.light(105));
+                        gradient2.setColorAt(1, gradientStopColor);
+                    }
+                    painter->fillRect(button1.left() + 2, button1.top() + 2,
+                                      button1.right() - 3, button1.bottom() - 3, gradient1);
+                    painter->fillRect(button2.left() + 2, button2.top() + 2,
+                                      button2.right() - 3, button2.bottom() - 3, gradient2);
                 }
-                painter->fillRect(button1.left() + 2, button1.top() + 2,
-                                  button1.right() - 3, button1.bottom() - 3, gradient1);
-                painter->fillRect(button2.left() + 2, button2.top() + 2,
-                                  button2.right() - 3, button2.bottom() - 3, gradient2);
 
                 // Details
                 QImage subButton;
@@ -2464,19 +2482,21 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
             // The AddLine (down/right) button
             if (scrollBar->subControls & SC_ScrollBarAddLine) {
-                // Gradient
-                QLinearGradient gradient(scrollBarAddLine.center().x(), scrollBarAddLine.top() + 2,
-                                         scrollBarAddLine.center().x(), scrollBarAddLine.bottom() - 2);
-                if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && (scrollBar->state & State_Sunken)) {
-                    gradient.setColorAt(0, gradientStopColor);
-                    gradient.setColorAt(1, gradientStopColor);
-                } else {
-                    gradient.setColorAt(0, gradientStartColor.light(105));
-                    gradient.setColorAt(1, gradientStopColor);
+                if (isEnabled) {
+                    // Gradient
+                    QLinearGradient gradient(scrollBarAddLine.center().x(), scrollBarAddLine.top() + 2,
+                                             scrollBarAddLine.center().x(), scrollBarAddLine.bottom() - 2);
+                    if ((scrollBar->activeSubControls & SC_ScrollBarAddLine) && (scrollBar->state & State_Sunken)) {
+                        gradient.setColorAt(0, gradientStopColor);
+                        gradient.setColorAt(1, gradientStopColor);
+                    } else {
+                        gradient.setColorAt(0, gradientStartColor.light(105));
+                        gradient.setColorAt(1, gradientStopColor);
+                    }
+                    painter->fillRect(scrollBarAddLine.left() + 2, scrollBarAddLine.top() + 2,
+                                      scrollBarAddLine.right() - 3, scrollBarAddLine.bottom() - 3,
+                                      gradient);
                 }
-                painter->fillRect(scrollBarAddLine.left() + 2, scrollBarAddLine.top() + 2,
-                                  scrollBarAddLine.right() - 3, scrollBarAddLine.bottom() - 3,
-                                  gradient);
 
                 // Details
                 QImage addButton;
@@ -2521,11 +2541,13 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
             // The slider
             if (scrollBar->subControls & SC_ScrollBarSlider) {
-                QLinearGradient gradient(scrollBarSlider.center().x(), scrollBarSlider.top(),
-                                         scrollBarSlider.center().x(), scrollBarSlider.bottom());
-                gradient.setColorAt(0, gradientStartColor.light(105));
-                gradient.setColorAt(1, gradientStopColor);
-                painter->fillRect(scrollBarSlider.adjusted(2, 2, -2, -2), gradient);
+                if (isEnabled) {
+                    QLinearGradient gradient(scrollBarSlider.center().x(), scrollBarSlider.top(),
+                                             scrollBarSlider.center().x(), scrollBarSlider.bottom());
+                    gradient.setColorAt(0, gradientStartColor.light(105));
+                    gradient.setColorAt(1, gradientStopColor);
+                    painter->fillRect(scrollBarSlider.adjusted(2, 2, -2, -2), gradient);
+                }
 
                 painter->setPen(borderColor);
                 painter->drawRect(scrollBarSlider.adjusted(0, 0, -1, -1));
@@ -2572,7 +2594,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             painter->save();
-            bool focus = (spinBox->state & State_Enabled) && (spinBox->state & State_HasFocus);
+            bool isEnabled = (spinBox->state & State_Enabled);
+            bool focus = isEnabled && (spinBox->state & State_HasFocus);
 
             QRect rect = spinBox->rect;
 
@@ -2586,37 +2609,39 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             QRect upRect = subControlRect(CC_SpinBox, option, SC_SpinBoxUp, widget);
             QRect downRect = subControlRect(CC_SpinBox, option, SC_SpinBoxDown, widget);
 
-            // gradients
-            if (spinBox->activeSubControls == SC_SpinBoxUp && (spinBox->state & State_Sunken)) {
-                painter->fillRect(upRect.adjusted(1, 1, -1, 0), gradientStopColor);
-            } else {
-                QLinearGradient upGradient(upRect.center().x(), upRect.top(),
-                                           upRect.center().x(), upRect.bottom());
-                if (focus) {
-                    upGradient.setColorAt(0, highlightedGradientStartColor.rgba());
-                    upGradient.setColorAt(1, highlightedGradientStopColor.rgba());
+            if (isEnabled) {
+                // gradients
+                if (spinBox->activeSubControls == SC_SpinBoxUp && (spinBox->state & State_Sunken)) {
+                    painter->fillRect(upRect.adjusted(1, 1, -1, 0), gradientStopColor);
                 } else {
-                    upGradient.setColorAt(0, gradientStartColor.rgba());
-                    upGradient.setColorAt(1, gradientStopColor.rgba());
+                    QLinearGradient upGradient(upRect.center().x(), upRect.top(),
+                                               upRect.center().x(), upRect.bottom());
+                    if (focus) {
+                        upGradient.setColorAt(0, highlightedGradientStartColor.rgba());
+                        upGradient.setColorAt(1, highlightedGradientStopColor.rgba());
+                    } else {
+                        upGradient.setColorAt(0, gradientStartColor.rgba());
+                        upGradient.setColorAt(1, gradientStopColor.rgba());
+                    }
+                    painter->fillRect(upRect.adjusted(1, 1, -1, 0), upGradient);
                 }
-                painter->fillRect(upRect.adjusted(1, 1, -1, 0), upGradient);
-            }
 
-            if (spinBox->activeSubControls == SC_SpinBoxDown && (spinBox->state & State_Sunken)) {
-                painter->fillRect(downRect.adjusted(1, 0, -1, -1), gradientStopColor);
-            } else {
-                QLinearGradient downGradient(downRect.center().x(), downRect.top(),
-                                             downRect.center().x(), downRect.bottom());
-                if (focus) {
-                    downGradient.setColorAt(0, highlightedGradientStartColor.rgba());
-                    downGradient.setColorAt(1, highlightedGradientStopColor.rgba());
+                if (spinBox->activeSubControls == SC_SpinBoxDown && (spinBox->state & State_Sunken)) {
+                    painter->fillRect(downRect.adjusted(1, 0, -1, -1), gradientStopColor);
                 } else {
-                    downGradient.setColorAt(0, gradientStartColor.rgba());
-                    downGradient.setColorAt(1, gradientStopColor.rgba());
+                    QLinearGradient downGradient(downRect.center().x(), downRect.top(),
+                                                 downRect.center().x(), downRect.bottom());
+                    if (focus) {
+                        downGradient.setColorAt(0, highlightedGradientStartColor.rgba());
+                        downGradient.setColorAt(1, highlightedGradientStopColor.rgba());
+                    } else {
+                        downGradient.setColorAt(0, gradientStartColor.rgba());
+                        downGradient.setColorAt(1, gradientStopColor.rgba());
+                    }
+                    painter->fillRect(downRect.adjusted(1, 0, -1, -1), downGradient);
                 }
-                painter->fillRect(downRect.adjusted(1, 0, -1, -1), downGradient);
             }
-
+            
             // outline the up/down buttons
             if (!focus) {
                 painter->setPen(borderColor);
@@ -2712,7 +2737,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
         if (const QStyleOptionComboBox *comboBox = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
             painter->save();
 
-            bool focus = (comboBox->state & State_Enabled) && (comboBox->state & State_HasFocus);
+            bool isEnabled = (comboBox->state & State_Enabled);
+            bool focus = isEnabled && (comboBox->state & State_HasFocus);
 
             QRect rect = comboBox->rect;
             QRect downArrowRect = subControlRect(CC_ComboBox, option, SC_ComboBoxArrow, widget);
@@ -2739,16 +2765,18 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 painter->drawLine(downArrowRect.left() + 1, downArrowRect.bottom() - 1,
                                   downArrowRect.right() - 1, downArrowRect.bottom() - 1);
 
-                QLinearGradient gradient(downArrowRect.center().x(), downArrowRect.top(),
-                                         downArrowRect.center().x(), downArrowRect.bottom());
-                if (focus) {
-                    gradient.setColorAt(0, highlightedGradientStartColor);
-                    gradient.setColorAt(1, highlightedGradientStopColor);
-                } else {
-                    gradient.setColorAt(0, gradientStartColor);
-                    gradient.setColorAt(1, gradientStopColor);
+                if (isEnabled) {
+                    QLinearGradient gradient(downArrowRect.center().x(), downArrowRect.top(),
+                                             downArrowRect.center().x(), downArrowRect.bottom());
+                    if (focus) {
+                        gradient.setColorAt(0, highlightedGradientStartColor);
+                        gradient.setColorAt(1, highlightedGradientStopColor);
+                    } else {
+                        gradient.setColorAt(0, gradientStartColor);
+                        gradient.setColorAt(1, gradientStopColor);
+                    }
+                    painter->fillRect(downArrowRect.adjusted(1, 2, -1, -2), gradient);
                 }
-                painter->fillRect(downArrowRect.adjusted(1, 2, -1, -2), gradient);
             } else {
                 QStyleOptionButton buttonOption;
                 buttonOption.rect = rect;
@@ -2952,7 +2980,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 int yoffset = int(normalButtonRect.height() / 3.5);
                 
 		QRect normalButtonIconRect(normalButtonRect.left() + xoffset, normalButtonRect.top() + yoffset,
-                                        normalButtonRect.width() - xoffset * 2, normalButtonRect.height() - yoffset * 2);
+                                           normalButtonRect.width() - xoffset * 2, normalButtonRect.height() - yoffset * 2);
 
                 QRect frontWindowRect = normalButtonIconRect.adjusted(0, 3, -3, 0);
                 painter->setPen(textColor);
