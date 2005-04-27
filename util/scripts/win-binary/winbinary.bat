@@ -186,9 +186,9 @@ cd %QTDIR%\extensions\activeqt\tools
 nmake >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
-cd %QTDIR%\extensions\activeqt\plugin
-nmake >> %1\log.txt 2>&1
-if not %errorlevel%==0 goto FAILED
+REM cd %QTDIR%\extensions\activeqt\plugin
+REM nmake >> %1\log.txt 2>&1
+REM if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%
 
