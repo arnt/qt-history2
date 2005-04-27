@@ -15,15 +15,15 @@
 #include "qdesigner_command.h"
 #include "qdesigner_promotedwidget.h"
 #include "qtundo.h"
+#include "richtexteditor.h"
 #include "promotetocustomwidgetdialog.h"
 #include "widgetfactory.h"
 #include "widgetdatabase.h"
 #include "qlayout_widget.h"
 #include "spacer_widget.h"
 
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QAction>
 #include <QtGui/QWidget>
@@ -38,8 +38,20 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     : QObject(parent),
       m_widget(widget)
 {
-    m_changeObjectNameAction = new QAction(tr("Change Object Name"), this);
+    m_separator = new QAction(this);
+    m_separator->setSeparator(true);
+
+    m_changeObjectNameAction = new QAction(tr("Change objectName"), this);
     connect(m_changeObjectNameAction, SIGNAL(triggered()), this, SLOT(changeObjectName()));
+
+    m_changeStatusTip = new QAction(tr("Change statusTip"), this);
+    connect(m_changeStatusTip, SIGNAL(triggered()), this, SLOT(changeStatusTip()));
+
+    m_changeToolTip = new QAction(tr("Change toolTip"), this);
+    connect(m_changeToolTip, SIGNAL(triggered()), this, SLOT(changeToolTip()));
+
+    m_changeWhatsThis = new QAction(tr("Change whatsThis"), this);
+    connect(m_changeWhatsThis, SIGNAL(triggered()), this, SLOT(changeWhatsThis()));
 
     m_createDockWidgetAction = new QAction(tr("Create Dock Window"), this);
     connect(m_createDockWidgetAction, SIGNAL(triggered()), this, SLOT(createDockWidget()));
@@ -50,9 +62,9 @@ QDesignerTaskMenu::QDesignerTaskMenu(QWidget *widget, QObject *parent)
     QString demote_string = tr("Demote from Custom Widget");
     if (const QDesignerPromotedWidget *promoted = qobject_cast<const QDesignerPromotedWidget*>(widget))
         demote_string = tr("Demote to ") + promoted->item()->extends();
+
     m_demoteFromCustomWidgetAction = new QAction(demote_string, this);
-    connect(m_demoteFromCustomWidgetAction, SIGNAL(triggered()),
-            this, SLOT(demoteFromCustomWidget()));
+    connect(m_demoteFromCustomWidgetAction, SIGNAL(triggered()), this, SLOT(demoteFromCustomWidget()));
 }
 
 QDesignerTaskMenu::~QDesignerTaskMenu()
@@ -79,6 +91,11 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     QList<QAction*> actions;
 
     actions.append(m_changeObjectNameAction);
+    actions.append(m_separator);
+    actions.append(m_changeToolTip);
+    actions.append(m_changeStatusTip);
+    actions.append(m_changeWhatsThis);
+    actions.append(m_separator);
 
     if (qobject_cast<const QMainWindow*>(formWindow->mainContainer()) != 0 && qobject_cast<QDockWidget*>(widget()) == 0)
         actions.append(m_createDockWidgetAction);
@@ -233,3 +250,40 @@ void QDesignerTaskMenu::demoteFromCustomWidget()
     fw->selectWidget(promoted);
 }
 
+void QDesignerTaskMenu::changeRichTextProperty(const QString &propertyName)
+{
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
+        RichTextEditorDialog *dlg = new RichTextEditorDialog(fw);
+        Q_ASSERT(m_widget->parentWidget() != 0);
+        RichTextEditor *editor = dlg->editor();
+
+        QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(fw->core()->extensionManager(), m_widget);
+        Q_ASSERT(sheet != 0);
+
+        editor->setDefaultFont(m_widget->font());
+        editor->setText(sheet->property(sheet->indexOf(propertyName)).toString());
+        editor->selectAll();
+
+        if (dlg->exec()) {
+            QString text = editor->text(Qt::RichText);
+            fw->cursor()->setWidgetProperty(m_widget, propertyName, QVariant(text));
+        }
+
+        delete dlg;
+    }
+}
+
+void QDesignerTaskMenu::changeToolTip()
+{
+    changeRichTextProperty(QLatin1String("toolTip"));
+}
+
+void QDesignerTaskMenu::changeStatusTip()
+{
+    changeRichTextProperty(QLatin1String("statusTip"));
+}
+
+void QDesignerTaskMenu::changeWhatsThis()
+{
+    changeRichTextProperty(QLatin1String("whatsThis"));
+}
