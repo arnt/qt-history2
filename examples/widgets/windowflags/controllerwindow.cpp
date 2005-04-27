@@ -77,7 +77,7 @@ void ControllerWindow::createTypeGroupBox()
 {
     typeGroupBox = new QGroupBox(tr("Type"));
 
-    windowRadioButton = new QRadioButton(tr("Window"));
+    windowRadioButton = createRadioButton(tr("Window"));
     dialogRadioButton = createRadioButton(tr("Dialog"));
     sheetRadioButton = createRadioButton(tr("Sheet"));
     drawerRadioButton = createRadioButton(tr("Drawer"));
