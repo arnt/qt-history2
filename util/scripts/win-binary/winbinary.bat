@@ -14,6 +14,7 @@ set TMP_QTVERSION=%3
 set TMP_QTCONFIG=%4
 set TMP_COMPILER=%5
 set TMP_NSISDIR=%6
+set QT_WINBINARY_STATUS=ok
 
 rem We need to compile qt in a long directory, since we want to patch the pdb files.
 set TMP_BUILDDIR=__________________________________________________PADDING__________________________________________________
@@ -23,9 +24,13 @@ if "%5"=="" set TMP_COMPILER=vs2003
 if "%6"=="" set TMP_NSISDIR=C:\Program Files\NSIS
 
 call :ExtractAndCopy %1 %2
+if "%QT_WINBINARY_STATUS%"=="failed" goto End
 call :Compile %1
+if "%QT_WINBINARY_STATUS%"=="failed" goto End
 call :OrganizeClean %1
+if "%QT_WINBINARY_STATUS%"=="failed" goto End
 call :CreateNSISPackage %1 %2
+if "%QT_WINBINARY_STATUS%"=="failed" goto End
 
 echo Done!
 goto END
@@ -281,6 +286,7 @@ goto :EOF
 
 :FAILED
 echo Failed!
+set QT_WINBINARY_STATUS=failed
 
 :END
 cd %1
