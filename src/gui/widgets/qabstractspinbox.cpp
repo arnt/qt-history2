@@ -554,11 +554,7 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
     Q_D(QAbstractSpinBox);
 
     switch(e->type()) {
-        case QEvent::FontChange:
-            d->sizehintdirty = true;
-            break;
         case QEvent::StyleChange:
-            d->sizehintdirty = true;
             d->spinclicktimerinterval = style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, this);
             d->resetState();
             break;
@@ -602,7 +598,39 @@ void QAbstractSpinBox::resizeEvent(QResizeEvent *e)
 QSize QAbstractSpinBox::sizeHint() const
 {
     Q_D(const QAbstractSpinBox);
-    return d->sizeHint();
+    ensurePolished();
+
+    const QFontMetrics fm(fontMetrics());
+    int h = d->edit->sizeHint().height();
+    int w = 0;
+    QString s;
+    s = d->prefix + d->textFromValue(d->minimum) + d->suffix + QLatin1Char(' ');
+    s.truncate(18);
+    w = qMax<int>(w, fm.width(s));
+    s = d->prefix + d->textFromValue(d->maximum) + d->suffix + QLatin1Char(' ');
+    s.truncate(18);
+    w = qMax<int>(w, fm.width(s));
+    if (d->specialvaluetext.size()) {
+        s = d->specialvaluetext;
+        w = qMax<int>(w, fm.width(s));
+    }
+    w += 2; // cursor blinking space
+
+    QStyleOptionSpinBox opt = d->getStyleOption();
+    QSize hint(w, h);
+    QSize extra(35, 6);
+    opt.rect.setSize(hint + extra);
+    extra += hint - style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                            QStyle::SC_SpinBoxEditField, this).size();
+    // get closer to final result by repeating the calculation
+    opt.rect.setSize(hint + extra);
+    extra += hint - style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                               QStyle::SC_SpinBoxEditField, this).size();
+    hint += extra;
+
+    opt.rect = rect();
+    return style()->sizeFromContents(QStyle::CT_SpinBox, &opt, hint, this)
+        .expandedTo(QApplication::globalStrut());
 }
 
 /*!
@@ -611,8 +639,7 @@ QSize QAbstractSpinBox::sizeHint() const
 
 QSize QAbstractSpinBox::minimumSizeHint() const
 {
-    Q_D(const QAbstractSpinBox);
-    return d->minimumSizeHint();
+    return sizeHint();
 }
 
 /*!
@@ -930,7 +957,7 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *)
 
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
     : edit(0), type(QVariant::Invalid), spinclicktimerid(-1),
-      spinclicktimerinterval(100), buttonstate(None), sizehintdirty(true),
+      spinclicktimerinterval(100), buttonstate(None),
       dirty(true), cachedtext("\x01"), cachedstate(QValidator::Invalid),
       pendingemit(false), readonly(false), wrapping(false),
       ignorecursorpositionchanged(false), frame(true),
@@ -985,25 +1012,26 @@ QStyle::SubControl QAbstractSpinBoxPrivate::newHoverControl(const QPoint &pos)
     Strips any prefix/suffix from \a text.
 */
 
-void QAbstractSpinBoxPrivate::strip(QString *text) const
+QString QAbstractSpinBoxPrivate::stripped(const QString &t) const
 {
-    Q_ASSERT(text);
-    if (specialvaluetext.size() && *text == specialvaluetext)
-        return;
-    int from = 0;
-    int length = text->length();
-    bool changed = false;
-    if (prefix.size() && text->startsWith(prefix)) {
-        from += prefix.length();
-        length -= from;
-	changed = true;
+    QString text = t;
+    if (specialvaluetext.size() == 0 || text != specialvaluetext) {
+        int from = 0;
+        int length = text.length();
+        bool changed = false;
+        if (prefix.size() && text.startsWith(prefix)) {
+            from += prefix.length();
+            length -= from;
+            changed = true;
+        }
+        if (suffix.size() && text.endsWith(suffix)) {
+            length -= suffix.length();
+            changed = true;
+        }
+        if (changed)
+            text = text.mid(from, length).simplified();
     }
-    if (suffix.size() && text->endsWith(suffix)) {
-        length -= suffix.length();
-	changed = true;
-    }
-    if (changed)
-        *text = text->mid(from, length).simplified();
+    return text;
 }
 
 /*!
@@ -1184,52 +1212,6 @@ void QAbstractSpinBoxPrivate::updateState(bool up)
     }
 }
 
-/*!
-    \internal
-
-    If sizehintdirty is true and edit != 0
-    recalculates the sizehint. Called from QAbstractSpinBox::sizeHint().
-*/
-
-void QAbstractSpinBoxPrivate::calculateSizeHints() const
-{
-    Q_Q(const QAbstractSpinBox);
-    if (sizehintdirty && edit) {
-        const QFontMetrics fm(q->fontMetrics());
-        int h = edit->sizeHint().height();
-        int w = 0;
-        QString s;
-        s = prefix + textFromValue(minimum) + suffix + QLatin1Char(' ');
-        s.truncate(18);
-        w = qMax<int>(w, fm.width(s));
-        s = prefix + textFromValue(maximum) + suffix + QLatin1Char(' ');
-        s.truncate(18);
-        w = qMax<int>(w, fm.width(s));
-        if (specialvaluetext.size()) {
-            s = specialvaluetext;
-            w = qMax<int>(w, fm.width(s));
-        }
-        w += 2; // cursor blinking space
-
-        QStyleOptionSpinBox opt = getStyleOption();
-        QSize hint(w, h);
-        QSize extra(35, 6);
-        opt.rect.setSize(hint + extra);
-        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                   QStyle::SC_SpinBoxEditField, q).size();
-        // get closer to final result by repeating the calculation
-        opt.rect.setSize(hint + extra);
-        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                   QStyle::SC_SpinBoxEditField, q).size();
-        hint += extra;
-
-        QStyleOptionSpinBox option = getStyleOption();
-        cachedsizehint = q->style()->sizeFromContents(QStyle::CT_SpinBox, &option, hint, q)
-                         .expandedTo(QApplication::globalStrut());
-        cachedminimumsizehint = cachedsizehint;
-        sizehintdirty = false;
-    }
-}
 
 /*!
     \internal
@@ -1263,36 +1245,6 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
 
     opt.frame = frame;
     return opt;
-}
-
-/*!
-    \internal
-
-    Returns the cached sizehint. If sizehintdirty is true it
-    recalculates the sizehint. Called from QAbstractSpinBox::sizeHint().
-*/
-
-QSize QAbstractSpinBoxPrivate::sizeHint() const
-{
-    Q_Q(const QAbstractSpinBox);
-    q->ensurePolished();
-    calculateSizeHints();
-    return cachedsizehint;
-}
-
-/*!
-    \internal
-
-    Returns the minimumSizeHint. If sizehintdirty is true it
-    recalculates the sizehint. Called from QAbstractSpinBox::minimumSizeHint().
-*/
-
-QSize QAbstractSpinBoxPrivate::minimumSizeHint() const
-{
-    Q_Q(const QAbstractSpinBox);
-    q->ensurePolished();
-    calculateSizeHints();
-    return cachedminimumsizehint;
 }
 
 /*!

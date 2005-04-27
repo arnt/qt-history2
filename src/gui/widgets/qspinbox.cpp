@@ -396,9 +396,7 @@ QString QSpinBox::cleanText() const
     if (d->dirty)
         d->updateEdit();
 
-    QString t = d->edit->displayText();
-    d->strip(&t);
-    return t;
+    return d->stripped(d->edit->displayText());
 }
 
 
@@ -827,9 +825,7 @@ QString QDoubleSpinBox::cleanText() const
     if (d->dirty)
         d->updateEdit();
 
-    QString t = d->edit->displayText();
-    d->strip(&t);
-    return t;
+    return d->stripped(d->edit->displayText());
 }
 
 /*!
@@ -1123,8 +1119,7 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
     const int t = maximum.toInt();
     const int b = minimum.toInt();
 
-    QString copy = input;
-    strip(&copy);
+    QString copy = stripped(input);
     QSBDEBUG() << "input" << input << "copy" << copy;
     state = QValidator::Acceptable;
     int num;
@@ -1289,8 +1284,7 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
     }
     const double t = maximum.toDouble();
     const double b = minimum.toDouble();
-    QString copy = input;
-    strip(&copy);
+    QString copy = stripped(input);
     int len = copy.size();
     double num;
 

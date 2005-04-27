@@ -1,4 +1,3 @@
-class QSpinBoxValidator;
 /****************************************************************************
 **
 ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -71,7 +70,7 @@ enum Button {
     Down = 0x020,
     DirectionMask = 0x040
 };
-
+class QSpinBoxValidator;
 class QAbstractSpinBoxPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QAbstractSpinBox)
@@ -82,7 +81,7 @@ public:
     void init();
     void resetState();
     void updateState(bool up);
-    void strip(QString *text) const;
+    QString stripped(const QString &text) const;
     bool specialValue() const;
     QVariant getZeroVariant() const;
     void setBoundary(Boundary b, const QVariant &val);
@@ -92,14 +91,10 @@ public:
     void updateSpinBox();
     void update();
     void updateEdit() const;
-    virtual void calculateSizeHints() const;
-
     virtual QStyleOptionSpinBox getStyleOption() const;
 
     virtual void emitSignals(EmitPolicy ep, const QVariant &old);
     virtual void interpret(EmitPolicy ep);
-    virtual QSize sizeHint() const;
-    virtual QSize minimumSizeHint() const;
     virtual QString textFromValue(const QVariant &n) const;
     virtual QVariant valueFromText(const QString &input) const;
 
@@ -116,8 +111,6 @@ public:
     QVariant::Type type;
     int spinclicktimerid, spinclicktimerinterval;
     uint buttonstate;
-    mutable QSize cachedsizehint, cachedminimumsizehint;
-    mutable uint sizehintdirty : 1;
     mutable uint dirty : 1;
     mutable QString cachedtext;
     mutable QVariant cachedvalue;

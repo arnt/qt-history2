@@ -69,7 +69,6 @@ public:
 
     void readLocaleSettings();
 
-    void calculateSizeHints() const;
     void emitSignals(EmitPolicy ep, const QVariant &old);
     QString textFromValue(const QVariant &f) const;
     QVariant valueFromText(const QString &f) const;
@@ -668,7 +667,6 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
                 setTimeRange(TIME_MIN, TIME_MAX);
             }
         }
-        d->sizehintdirty = true;
         d->update();
         d->edit->setCursorPosition(0);
         d->editorCursorPositionChanged(-1, 0);
@@ -2591,41 +2589,6 @@ QVariant QDateTimeEditPrivate::valueFromText(const QString &f) const
     return QVariant(q->dateTimeFromText(f));
 }
 
-/*!
-  \internal
-  \reimp
-*/
-
-void QDateTimeEditPrivate::calculateSizeHints() const
-{
-    Q_Q(const QDateTimeEdit);
-    if (sizehintdirty && edit) {
-        const QFontMetrics fm(q->fontMetrics());
-        int h = edit->sizeHint().height();
-        int w = 0;
-        QString s;
-        s = prefix + textFromValue(minimum) + QLatin1String("  ");
-        w = qMax<int>(w, fm.width(s));
-        s = prefix + textFromValue(maximum) + QLatin1String("  ");
-        w = qMax<int>(w, fm.width(s));
-        w += 10; // cursor blinking space
-
-        QStyleOptionSpinBox opt = getStyleOption();
-        QSize hint(w, h);
-        QSize extra(35, 6);
-        opt.rect.setSize(hint + extra);
-        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                   QStyle::SC_SpinBoxEditField, q).size();
-        // get closer to final result by repeating the calculation
-        opt.rect.setSize(hint + extra);
-        extra += hint - q->style()->subControlRect(QStyle::CC_SpinBox, &opt,
-                                                   QStyle::SC_SpinBoxEditField, q).size();
-        hint += extra;
-
-        cachedsizehint = cachedminimumsizehint = hint.expandedTo(QApplication::globalStrut());
-        sizehintdirty = false;
-    }
-}
 /*!
   \internal Returns whether \a str is a string which value cannot be
   parsed but still might turn into something valid.
