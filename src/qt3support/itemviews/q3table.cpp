@@ -3116,7 +3116,7 @@ QString Q3Table::text(int row, int col) const
     Q3TableItem *itm = item(row, col);
     if (itm)
 	return itm->text();
-    return QString::null;
+    return QString();
 }
 
 /*!

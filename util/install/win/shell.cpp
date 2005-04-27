@@ -243,7 +243,7 @@ QString WinShell::createFolder( QString folderName, bool common )
 
     if( !folderDir.exists( folderPath ) )
 	if( !createDir( folderPath ) )
-	    return QString::null;
+	    return QString();
 
     return folderPath;
 }

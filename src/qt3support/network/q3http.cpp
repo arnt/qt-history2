@@ -619,7 +619,7 @@ QString Q3HttpHeader::contentType() const
 {
     QString type = values[ "content-type" ];
     if ( type.isEmpty() )
-	return QString::null;
+	return QString();
 
     int pos = type.find( ";" );
     if ( pos == -1 )

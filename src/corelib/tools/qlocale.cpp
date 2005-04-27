@@ -1552,7 +1552,7 @@ static QString languageToCode(QLocale::Language language)
 static QString countryToCode(QLocale::Country country)
 {
     if (country == QLocale::AnyCountry)
-        return QString::null;
+        return QString();
 
     QString code;
     code.resize(2);

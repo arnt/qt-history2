@@ -712,7 +712,7 @@ QString Q3FileDialog::winGetExistingDirectory(const QString& initialDirectory,
         result.replace("\\", "/");
     return result;
 #else
-    return QString::null;
+    return QString();
 #endif
 }
 

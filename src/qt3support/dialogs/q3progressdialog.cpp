@@ -401,7 +401,7 @@ QString Q3ProgressDialog::labelText() const
 {
     if (label())
         return label()->text();
-    return QString::null;
+    return QString();
 }
 
 void Q3ProgressDialog::setLabelText(const QString &text)

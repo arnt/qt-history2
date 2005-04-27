@@ -139,7 +139,7 @@ static QString getEnglishName(const QString &familyName)
     } );
     if(!hfont) {
         ReleaseDC(0, hdc);
-        return QString::null;
+        return QString();
     }
 
     HGDIOBJ oldobj = SelectObject( hdc, hfont );

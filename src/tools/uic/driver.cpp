@@ -68,7 +68,7 @@ QString Driver::findOrInsertLayoutItem(DomLayoutItem *ui_layoutItem)
 
     Q_ASSERT( 0 );
 
-    return QString::null;
+    return QString();
 }
 
 QString Driver::findOrInsertActionGroup(DomActionGroup *ui_group)

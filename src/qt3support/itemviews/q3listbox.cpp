@@ -1417,7 +1417,7 @@ QString Q3ListBox::text(int index) const
     Q3ListBoxItem * i = item(index);
     if (i)
         return i->text();
-    return QString::null;
+    return QString();
 }
 
 

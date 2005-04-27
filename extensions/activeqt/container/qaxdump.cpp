@@ -98,7 +98,7 @@ QString qax_generateDocumentation(QAxBase *that)
     that->metaObject();
 
     if (that->isNull())
-	return QString::null;
+	return QString();
 
     ITypeInfo *typeInfo = 0;
     IDispatch *dispatch = 0;

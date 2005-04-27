@@ -398,10 +398,8 @@ QString QAxFactory::exposeToSuperClass(const QString &key) const
 {
     const QMetaObject *mo = metaObject(key);
     if (!mo)
-        return QString::null;
-    QString str = QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("ToSuperClass")).value());
-    
-    return str;
+        return QString();
+    return QString::fromLatin1(mo->classInfo(mo->indexOfClassInfo("ToSuperClass")).value());
 }
 
 /*!

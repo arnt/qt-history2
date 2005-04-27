@@ -149,7 +149,7 @@ Q3TextBrowser::~Q3TextBrowser()
 QString Q3TextBrowser::source() const
 {
     if (d->stack.isEmpty())
-        return QString::null;
+        return QString();
     else
         return d->stack.top();
 }

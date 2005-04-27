@@ -462,7 +462,7 @@ QString QHostAddress::toString() const
         return s;
     }
 
-    return QString::null;
+    return QString();
 }
 #endif
 

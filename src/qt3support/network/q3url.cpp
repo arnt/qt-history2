@@ -1077,7 +1077,7 @@ QString Q3Url::fileName() const
 	|| d->path.endsWith( "\\" )
 #endif
 	)
-	return QString::null;
+	return QString();
 
     return QFileInfo( d->path ).fileName();
 }
@@ -1122,7 +1122,7 @@ void Q3Url::addPath( const QString& pa )
 QString Q3Url::dirPath() const
 {
     if ( path().isEmpty() )
-	return QString::null;
+	return QString();
 
     QString s = path();
     int pos = s.findRev( '/' );

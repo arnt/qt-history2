@@ -1037,7 +1037,7 @@ int QTextBlock::charFormatIndex() const
 QString QTextBlock::text() const
 {
     if (!p || !n)
-        return QString::null;
+        return QString();
 
     const QString buffer = p->buffer();
     QString text;

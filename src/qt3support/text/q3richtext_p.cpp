@@ -31,7 +31,7 @@ void Q3TextCustomItem::invalidate() {}
 bool Q3TextCustomItem::isNested() const { return false; }
 int Q3TextCustomItem::minimumWidth() const { return 0; }
 
-QString Q3TextCustomItem::richText() const { return QString::null; }
+QString Q3TextCustomItem::richText() const { return QString(); }
 
 bool Q3TextCustomItem::enter(Q3TextCursor *, Q3TextDocument*&, Q3TextParagraph *&, int &, int &, int &, bool)
 {

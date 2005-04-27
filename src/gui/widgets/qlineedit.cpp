@@ -842,7 +842,7 @@ QString QLineEdit::selectedText() const
     Q_D(const QLineEdit);
     if (d->hasSelectedText())
         return d->text.mid(d->selstart, d->selend - d->selstart);
-    return QString::null;
+    return QString();
 }
 
 /*!
@@ -2693,7 +2693,7 @@ QString QLineEditPrivate::maskString(uint pos, const QString &str, bool clear) c
 QString QLineEditPrivate::clearString(uint pos, uint len) const
 {
     if (pos >= (uint)maxLength)
-        return QString::null;
+        return QString();
 
     QString s;
     int end = qMin((uint)maxLength, pos + len);

@@ -21,7 +21,7 @@ QLatin1Codec::~QLatin1Codec()
 QString QLatin1Codec::convertToUnicode(const char *chars, int len, ConverterState *) const
 {
     if (chars == 0)
-        return QString::null;
+        return QString();
 
     return QString::fromLatin1(chars, len);
 }
@@ -77,7 +77,7 @@ QLatin15Codec::~QLatin15Codec()
 QString QLatin15Codec::convertToUnicode(const char* chars, int len, ConverterState *) const
 {
     if (chars == 0)
-        return QString::null;
+        return QString();
 
     QString str = QString::fromLatin1(chars, len);
     QChar *uc = str.data();
@@ -207,4 +207,3 @@ int QLatin15Codec::mibEnum() const
 {
     return 111;
 }
-

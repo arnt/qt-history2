@@ -1553,7 +1553,7 @@ int Q3DataTable::numCols() const
 QString Q3DataTable::text ( int row, int col ) const
 {
     if ( !sqlCursor() )
-	return QString::null;
+	return QString();
 
     QString s;
     if ( sqlCursor()->seek( row ) )

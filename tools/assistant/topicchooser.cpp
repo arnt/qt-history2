@@ -33,7 +33,7 @@ TopicChooser::TopicChooser(QWidget *parent, const QStringList &lnkNames,
 QString TopicChooser::link() const
 {
     if (ui.listbox->currentRow() == -1)
-        return QString::null;
+        return QString();
     QString s = ui.listbox->item(ui.listbox->currentRow())->text();
     if (s.isEmpty())
         return s;

@@ -651,7 +651,7 @@ void QSimpleTextCodec::buildReverseMap() const
 QString QSimpleTextCodec::convertToUnicode(const char* chars, int len, ConverterState *) const
 {
     if (len <= 0 || chars == 0)
-        return QString::null;
+        return QString();
 
     const unsigned char * c = (const unsigned char *)chars;
 

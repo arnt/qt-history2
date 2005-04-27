@@ -87,7 +87,7 @@ QString QFont::lastResortFont() const
 {
     qFatal("QFont::lastResortFont: Cannot find any reasonable font");
     // Shut compiler up
-    return QString::null;
+    return QString();
 }
 
 void QFontPrivate::load(int)

@@ -43,7 +43,7 @@ QString Ui3Reader::getComment(const QDomNode& n)
             return child.toElement().firstChild().toText().data();
         child = child.nextSibling();
     }
-    return QString::null;
+    return QString();
 }
 
 QString Ui3Reader::mkBool(bool b)
@@ -271,7 +271,7 @@ QString Ui3Reader::getPixmapLoaderFunction(const QDomElement& e)
         if (n.tagName() == QLatin1String("pixmapfunction"))
             return n.firstChild().toText().data();
     }
-    return QString::null;
+    return QString();
 }
 
 
@@ -326,7 +326,7 @@ QString Ui3Reader::getObjectName(const QDomElement& e)
     QDomElement n = getObjectProperty(e, QLatin1String("name"));
     if (n.firstChild().toElement().tagName() == QLatin1String("cstring"))
         return n.firstChild().toElement().firstChild().toText().data();
-    return QString::null;
+    return QString();
 }
 
 /*! Extracts an layout name from \a e. It's stored in the 'name'
@@ -362,7 +362,7 @@ QString Ui3Reader::getDatabaseInfo(const QDomElement& e, const QString& tag)
     else if (tag == QLatin1String("field"))
         child = 2;
     else
-        return QString::null;
+        return QString();
     n = getObjectProperty(e, QLatin1String("database"));
     if (n.firstChild().toElement().tagName() == QLatin1String("stringlist")) {
             // find correct stringlist entry
@@ -370,10 +370,10 @@ QString Ui3Reader::getDatabaseInfo(const QDomElement& e, const QString& tag)
             for (int i = 0; i < child && !n1.isNull(); ++i)
                 n1 = n1.nextSibling().toElement();
             if (n1.isNull())
-                return QString::null;
+                return QString();
             return n1.firstChild().toText().data();
     }
-    return QString::null;
+    return QString();
 }
 
 static const char* const ColorRole[] = {

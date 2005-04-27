@@ -1062,7 +1062,7 @@ QString QXmlAttributes::value(const QString& uri, const QString& localName) cons
 {
     int i = index(uri, localName);
     if (i == -1)
-        return QString::null;
+        return QString();
     return attList.at(i).value;
 }
 

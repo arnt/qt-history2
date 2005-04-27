@@ -313,7 +313,7 @@ public:
       "); }
     
     virtual QString codeTemplate() const
-    { return QString::null; }
+    { return QString(); }
 
 private:
     AbstractFormEditor *m_core;

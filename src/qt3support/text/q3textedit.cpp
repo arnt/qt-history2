@@ -4738,7 +4738,7 @@ QString Q3TextEdit::anchorAt(const QPoint& pos, Qt::AnchorAttribute attr)
     }
     // incase the compiler is really dumb about determining if a function
     // returns something :)
-    return QString::null;
+    return QString();
 }
 
 void Q3TextEdit::documentWidthChanged(int w)

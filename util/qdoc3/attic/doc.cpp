@@ -1624,7 +1624,7 @@ const Molecule& Doc::body() const
 const QString& Doc::baseName() const
 {
     if ( priv->extra == 0 ) {
-	return QString::null;
+	return QString();
     } else {
 	return priv->extra->baseName;
     }

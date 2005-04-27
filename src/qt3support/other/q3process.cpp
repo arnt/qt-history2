@@ -443,7 +443,7 @@ QString Q3Process::readLineStdout()
     Q3Membuf *buf = membufStdout();
     if ( !buf->scanNewline( &a ) ) {
       if ( !canReadLineStdout() )
-	return QString::null;
+	return QString();
 
       if ( !buf->scanNewline( &a ) )
 	return QString( buf->readAll() );
@@ -479,7 +479,7 @@ QString Q3Process::readLineStderr()
     Q3Membuf *buf = membufStderr();
     if ( !buf->scanNewline( &a ) ) {
       if ( !canReadLineStderr() )
-	return QString::null;
+	return QString();
 
       if ( !buf->scanNewline( &a ) )
 	return QString( buf->readAll() );

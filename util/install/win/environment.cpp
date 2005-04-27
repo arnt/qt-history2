@@ -51,7 +51,7 @@ QString QEnvironment::getEnv( const QString &varName, int envBlock )
 		return value;
 	    }
 	    else {
-		return QString::null;
+		return QString();
 	    }
 	}
 	else { //  Win 9x
@@ -63,7 +63,7 @@ QString QEnvironment::getEnv( const QString &varName, int envBlock )
 	if( int( qWinVersion() ) & int( Qt::WV_NT_based ) ) {
 	    int size = GetEnvironmentVariableW( (TCHAR*)varName.ucs2(), 0, 0 );
 	    if ( size == 0 )
-		return QString::null;
+		return QString();
 	    TCHAR *data = new TCHAR[ size ];
 	    GetEnvironmentVariableW( (TCHAR*)varName.ucs2(), data, size );
 	    QString ret = QString::fromUcs2( data );
@@ -73,7 +73,7 @@ QString QEnvironment::getEnv( const QString &varName, int envBlock )
 	    QCString varNameL = varName.local8Bit();
 	    int size = GetEnvironmentVariableA( varNameL.data(), 0, 0 );
 	    if ( size == 0 )
-		return QString::null;
+		return QString();
 	    char *data = new char[ size ];
 	    GetEnvironmentVariableA( varNameL.data(), data, size );
 	    QString ret = QString::fromLocal8Bit( data );
@@ -87,7 +87,7 @@ QString QEnvironment::getEnv( const QString &varName, int envBlock )
 	return QString( getenv( varName ) );
     }
 #endif
-    return QString::null;
+    return QString();
 }
 
 void QEnvironment::putEnv( const QString &varName, const QString &varValue, int envBlock )

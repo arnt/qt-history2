@@ -213,7 +213,7 @@ QString WidgetInfo::resolveEnumerator(const QMetaObject *meta, const QString &na
             return e;
     }
 
-    return QString::null;
+    return QString();
 }
 
 QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const QString &name)
@@ -230,6 +230,6 @@ QString WidgetInfo::resolveEnumerator(const QMetaEnum &metaEnum, const QString &
         return scope + QLatin1String("::") + enumerator;
     }
 
-    return QString::null;
+    return QString();
 }
 

@@ -85,7 +85,7 @@ int QFontJis0208Codec::_mibEnum()
 
 QString QFontJis0208Codec::convertToUnicode(const char* /*chars*/, int /*len*/, ConverterState *) const
 {
-    return QString::null;
+    return QString();
 }
 
 QByteArray QFontJis0208Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const

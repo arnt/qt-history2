@@ -1293,7 +1293,7 @@ QString QComboBox::currentText() const
     else if (d->currentIndex.isValid())
 	return model()->data(d->currentIndex, Qt::EditRole).toString();
     else
-	return QString::null;
+	return QString();
 }
 
 /*!
@@ -2065,4 +2065,3 @@ void QComboBox::setModelColumn(int visibleColumn)
 
 
 #include "moc_qcombobox.cpp"
-

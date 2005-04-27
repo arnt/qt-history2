@@ -1040,7 +1040,7 @@ public:
 
         int len = cName.length();
         if (!len)
-            return QString::null;
+            return QString();
         for (int i = 0; i < len ;++i) {
             uchar inCh = (uchar)cName[i];
             if (inCh >= 128 || sChars.contains(inCh))

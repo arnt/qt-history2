@@ -2283,21 +2283,21 @@ static QString align_to_string(int a)
         return " align=\"center\"";
     if (a & Qt::AlignJustify)
         return " align=\"justify\"";
-    return QString::null;
+    return QString();
 }
 
 static QString direction_to_string(int dir)
 {
     if (dir != QChar::DirON)
         return (dir == QChar::DirL? " dir=\"ltr\"" : " dir=\"rtl\"");
-    return QString::null;
+    return QString();
 }
 
 static QString list_value_to_string(int v)
 {
     if (v != -1)
         return " listvalue=\"" + QString::number(v) + "\"";
-    return QString::null;
+    return QString();
 }
 
 static QString list_style_to_string(int v)
@@ -2310,7 +2310,7 @@ static QString list_style_to_string(int v)
     case Q3StyleSheetItem::ListSquare: return "\"square\"";
     case Q3StyleSheetItem::ListCircle: return "\"circle\"";
     default:
-        return QString::null;
+        return QString();
     }
 }
 
@@ -2337,7 +2337,7 @@ static QString margin_to_string(Q3StyleSheetItem* style, int t, int b, int l, in
         s += QString(s.size() ? ";" : "") + "text-indent:" + QString::number(fl+qMax(0,style->margin(Q3StyleSheetItem::MarginFirstLine))) + "px";
     if (s.size())
         return " style=\"" + s + "\"";
-    return QString::null;
+    return QString();
 }
 
 QString Q3TextDocument::richText() const
@@ -2359,7 +2359,7 @@ QString Q3TextDocument::richText() const
     Q3StyleSheetItem* item_li = styleSheet()->item("li");
     if (!item_p || !item_div || !item_ul || !item_ol || !item_li) {
         qWarning("QTextEdit: cannot export HTML due to insufficient stylesheet (lack of p, div, ul, ol, or li)");
-        return QString::null;
+        return QString();
     }
     int pastListDepth = 0;
     int listDepth = 0;
@@ -2456,7 +2456,7 @@ QString Q3TextDocument::text(int parag) const
 {
     Q3TextParagraph *p = paragAt(parag);
     if (!p)
-        return QString::null;
+        return QString();
 
     if (txtFormat == Qt::AutoText && preferRichText || txtFormat == Qt::RichText)
         return p->richText();
@@ -2730,7 +2730,7 @@ QString Q3TextDocument::selectedText(int id, bool asRichText) const
 {
     QMap<int, Q3TextDocumentSelection>::ConstIterator it = selections.find(id);
     if (it == selections.end())
-        return QString::null;
+        return QString();
 
     Q3TextDocumentSelection sel = *it;
 
@@ -3933,7 +3933,7 @@ void Q3TextStringChar::loseCustomItem()
 QString Q3TextStringChar::anchorName() const
 {
     if (type == Regular)
-        return QString::null;
+        return QString();
     else
         return p.custom->anchorName;
 }
@@ -3941,7 +3941,7 @@ QString Q3TextStringChar::anchorName() const
 QString Q3TextStringChar::anchorHref() const
 {
     if (type == Regular)
-        return QString::null;
+        return QString();
     else
         return p.custom->anchorHref;
 }
@@ -7324,7 +7324,7 @@ QString Q3TextDocument::parseOpenTag(const QChar* doc, int length, int& pos,
                 eatSpace(doc, length, pos, true);
             }
             emptyTag = true;
-            return QString::null;
+            return QString();
         }
         else {
             // eat strange internal tags
@@ -7334,7 +7334,7 @@ QString Q3TextDocument::parseOpenTag(const QChar* doc, int length, int& pos,
                 pos++;
                 eatSpace(doc, length, pos, true);
             }
-            return QString::null;
+            return QString();
         }
     }
 

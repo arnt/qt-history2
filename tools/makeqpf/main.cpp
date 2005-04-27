@@ -113,7 +113,7 @@ public:
 	    case 3:
 		return italic ? "Italic" : "Roman";
 	}
-	return QString::null;
+	return QString();
     }
 };
 

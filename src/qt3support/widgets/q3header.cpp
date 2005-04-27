@@ -978,7 +978,7 @@ bool qt_qheader_label_return_null_strings = false;
 QString Q3Header::label(int section) const
 {
     if (section < 0 || section >= count())
-        return QString::null;
+        return QString();
     QString l = d->labels.value(section);
     if (!l.isNull() || qt_qheader_label_return_null_strings)
         return l;

@@ -614,7 +614,7 @@ int QFontGb2312Codec::_mibEnum()
 
 QString QFontGb2312Codec::convertToUnicode(const char* /*chars*/, int /*len*/, ConverterState *) const
 {
-    return QString::null;
+    return QString();
 }
 
 QByteArray QFontGb2312Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const
@@ -662,7 +662,7 @@ int QFontGbkCodec::_mibEnum()
 
 QString QFontGbkCodec::convertToUnicode(const char* /*chars*/, int /*len*/, ConverterState *) const
 {
-    return QString::null;
+    return QString();
 }
 
 QByteArray QFontGbkCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const
@@ -713,7 +713,7 @@ int QFontGb18030_0Codec::_mibEnum()
 
 QString QFontGb18030_0Codec::convertToUnicode(const char* /*chars*/, int /*len*/, ConverterState *) const
 {
-    return QString::null;
+    return QString();
 }
 
 QByteArray QFontGb18030_0Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const

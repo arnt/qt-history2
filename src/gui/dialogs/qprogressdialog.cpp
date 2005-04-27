@@ -355,7 +355,7 @@ QString QProgressDialog::labelText() const
     Q_D(const QProgressDialog);
     if (d->label)
         return d->label->text();
-    return QString::null;
+    return QString();
 }
 
 void QProgressDialog::setLabelText(const QString &text)
@@ -783,6 +783,5 @@ void QProgressDialog::forceShow()
     show();
     d->shown_once = true;
 }
-
 
 #endif

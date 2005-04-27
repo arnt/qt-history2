@@ -493,7 +493,7 @@ void Q3MultiLineEdit::cursorDown(bool mark)
 QString Q3MultiLineEdit::textLine(int line) const
 {
     if (line < 0 || line >= numLines())
-        return QString::null;
+        return QString();
     QString str = document()->paragAt(line)->string()->toString();
     str.truncate(str.length() - 1);
     return str;

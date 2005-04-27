@@ -3115,7 +3115,7 @@ QByteArray qt_winQString2MB(const QChar *ch, int uclen)
 QString qt_winMB2QString(const char *mb, int mblen)
 {
     if (!mb || !mblen)
-        return QString::null;
+        return QString();
     const int wclen_auto = 4096;
     WCHAR wc_auto[wclen_auto];
     int wclen = wclen_auto;
@@ -3142,7 +3142,7 @@ QString qt_winMB2QString(const char *mb, int mblen)
         }
     }
     if (len <= 0)
-        return QString::null;
+        return QString();
     if (wc[len-1] == 0) // len - 1: we don't want terminator
         --len;
     QString s((QChar*)wc, len);
@@ -3167,7 +3167,7 @@ QString qt_winMB2QString(const char *mb, int mblen)
 QString QString::fromLocal8Bit(const char *str, int size)
 {
     if (!str)
-        return QString::null;
+        return QString();
 #if defined(Q_OS_WIN32)
     if (size >= 0) {
         QByteArray ba(str, size); // creates a '\0'-terminated deep copy
@@ -3205,7 +3205,7 @@ QString QString::fromAscii(const char *str, int size)
 #ifndef QT_NO_TEXTCODEC
     if (codecForCStrings) {
         if (!str)
-            return QString::null;
+            return QString();
         if (size == 0 || (!*str && size < 0))
             return QLatin1String("");
         if (size < 0)
@@ -3235,7 +3235,7 @@ static ushort *addOne(ushort *qch, QString &str)
 QString QString::fromUtf8(const char *str, int size)
 {
     if (!str)
-        return QString::null;
+        return QString();
     if (size < 0)
         size = qstrlen(str);
 

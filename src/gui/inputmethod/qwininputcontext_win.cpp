@@ -320,7 +320,7 @@ static QString getString(HIMC himc, DWORD dwindex, int *selStart = 0, int *selLe
     }
 
     if (len <= 0)
-        return QString::null;
+        return QString();
     if (unicode) {
         return QString((QChar *)buffer, len/sizeof(QChar));
     }

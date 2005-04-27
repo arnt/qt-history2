@@ -821,7 +821,7 @@ int QFontBig5Codec::_mibEnum()
 
 QString QFontBig5Codec::convertToUnicode(const char* /*chars*/, int /*len*/, ConverterState *) const
 {
-    return QString::null;
+    return QString();
 }
 
 QByteArray QFontBig5Codec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const
@@ -880,7 +880,7 @@ int QFontBig5hkscsCodec::_mibEnum()
 
 QString QFontBig5hkscsCodec::convertToUnicode(const char* /*chars*/, int /*len*/, ConverterState *) const
 {
-    return QString::null;
+    return QString();
 }
 
 QByteArray QFontBig5hkscsCodec::convertFromUnicode(const QChar *uc, int len, ConverterState *) const

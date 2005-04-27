@@ -364,7 +364,7 @@ QString Q3DnsAnswer::readString(bool multipleLabels)
     }
 not_ok:
     ok = false;
-    return QString::null;
+    return QString();
 }
 
 
@@ -2206,7 +2206,7 @@ QString Q3Dns::canonicalName() const
 	cached->next();
     }
     delete cached;
-    return QString::null;
+    return QString();
 }
 
 #if defined(Q_DNS_SYNCHRONOUS)
