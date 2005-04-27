@@ -335,7 +335,7 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
     }
     if(!Option::mkfile::qmakespec.isEmpty()) {
         QFileInfo specfi(Option::mkfile::qmakespec);
-        QDir specdir(specfi.absolutePath());
+        QDir specdir(specfi.absoluteFilePath());
         while(!specdir.isRoot()) {
             if(!specdir.cdUp() || specdir.isRoot())
                 break;
