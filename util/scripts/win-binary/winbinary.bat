@@ -173,10 +173,6 @@ echo   * Examples (release)
 nmake sub-examples >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
-echo   * Tutorial (release)
-nmake sub-tutorial >> %1\log.txt 2>&1
-if not %errorlevel%==0 goto FAILED
-
 echo   * ActiveQt (release, no examples)
 cd %QTDIR%\extensions\activeqt\container
 nmake >> %1\log.txt 2>&1
@@ -300,3 +296,5 @@ set TMP_QTCONFIG=
 set TMP_COMPILER=
 set TMP_BUILDDIR=
 set TMP_NSISDIR=
+
+
