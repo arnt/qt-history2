@@ -4708,6 +4708,7 @@ void QMacStyle::polish(QPalette &pal)
     QBrush background(pc, px);
     pal.setBrush(QPalette::Background, background);
     pal.setBrush(QPalette::Button, background);
+    pal.setBrush(QPalette::AlternateBase, QColor(237, 243, 254));
 }
 
 /*! \reimp */
@@ -5136,9 +5137,6 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
         ret = Qt::AlignHCenter;
         break;
     case SH_TreeView_ShowBranchSelected:
-        ret = true;
-        break;
-    case SH_ItemView_AlternatingRowColors:
         ret = true;
         break;
     default:
