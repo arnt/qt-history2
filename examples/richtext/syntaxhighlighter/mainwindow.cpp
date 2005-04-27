@@ -50,7 +50,7 @@ void MainWindow::setupEditor()
     QTextCharFormat defaultFormat;
     defaultFormat.setFontFamily("Courier");
     defaultFormat.setFontPointSize(10);
-    
+
     QTextCharFormat variableFormat = defaultFormat;
     variableFormat.setFontWeight(QFont::Bold);
     variableFormat.setForeground(Qt::blue);
@@ -70,7 +70,7 @@ void MainWindow::setupEditor()
     functionFormat.setForeground(Qt::blue);
     highlighter.addMapping("\\b[a-z0-9_]+\\(.*\\)", functionFormat);
 
-    editor = new QTextEdit(this);
+    editor = new QTextEdit;
     editor->setFont(defaultFormat.font());
     editor->document()->setDefaultFont(defaultFormat.font());
     highlighter.addToDocument(editor->document());

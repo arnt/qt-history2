@@ -1,3 +1,4 @@
+
 #include <QtGui>
 
 #include "detailsdialog.h"
@@ -15,7 +16,7 @@ MainWindow::MainWindow()
     quitAction->setShortcut(tr("Ctrl+Q"));
     menuBar()->addMenu(fileMenu);
 
-    letters = new QTabWidget(this);
+    letters = new QTabWidget;
 
     connect(newAction, SIGNAL(triggered()), this, SLOT(openDialog()));
     connect(quitAction, SIGNAL(triggered()), this, SLOT(close()));
@@ -33,7 +34,7 @@ void MainWindow::createLetter(const QString &name, const QString &address,
     letters->setCurrentIndex(tabIndex);
 
     QTextCursor cursor(editor->textCursor());
-    cursor.movePosition(QTextCursor::Start); 
+    cursor.movePosition(QTextCursor::Start);
     QTextFrame *topFrame = cursor.currentFrame();
     QTextFrameFormat topFrameFormat = topFrame->frameFormat();
     topFrameFormat.setPadding(16);

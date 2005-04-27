@@ -146,7 +146,7 @@ Window::Window()
     for (int i = 0; i < NumRenderAreas; ++i)
         topLayout->addWidget(renderAreas[i], i / 3, i % 3);
 
-    QGridLayout *mainLayout = new QGridLayout(this);
+    QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addLayout(topLayout, 0, 0, 1, 4);
     mainLayout->addWidget(fillRuleLabel, 1, 0);
     mainLayout->addWidget(fillRuleComboBox, 1, 1, 1, 3);
@@ -160,6 +160,7 @@ Window::Window()
     mainLayout->addWidget(penColorComboBox, 4, 1, 1, 3);
     mainLayout->addWidget(rotationAngleLabel, 5, 0);
     mainLayout->addWidget(rotationAngleSpinBox, 5, 1, 1, 3);
+    setLayout(mainLayout);
 
     fillRuleChanged();
     fillGradientChanged();

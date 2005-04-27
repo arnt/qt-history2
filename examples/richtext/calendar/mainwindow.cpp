@@ -15,15 +15,15 @@ MainWindow::MainWindow()
     for (int month = 1; month <= 12; ++month)
         monthCombo->addItem(QDate::longMonthName(month));
 
-    QDateTimeEdit *yearEdit = new QDateTimeEdit(centralWidget);
+    QDateTimeEdit *yearEdit = new QDateTimeEdit;
     yearEdit->setDisplayFormat("yyyy");
     yearEdit->setDateRange(QDate(1753, 1, 1), QDate(8000, 1, 1));
 
     monthCombo->setCurrentIndex(selectedDate.month() - 1);
     yearEdit->setDate(selectedDate);
 
-    QLabel *fontSizeLabel = new QLabel(tr("Font size:"), centralWidget);
-    QSpinBox *fontSizeSpinBox = new QSpinBox(centralWidget);
+    QLabel *fontSizeLabel = new QLabel(tr("Font size:"));
+    QSpinBox *fontSizeSpinBox = new QSpinBox;
     fontSizeSpinBox->setRange(1, 64);
     fontSizeSpinBox->setValue(10);
 

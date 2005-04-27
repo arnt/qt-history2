@@ -8,7 +8,7 @@ MainWindow::MainWindow()
 {
     model = 0;
 
-    view = new QTableView(this);
+    view = new QTableView;
     view->setItemDelegate(new PixelDelegate(this));
     view->setShowGrid(false);
     view->horizontalHeader()->hide();

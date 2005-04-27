@@ -7,7 +7,7 @@ static const char * const listEntries[] = {
     QT_TRANSLATE_NOOP("MainWindow", "Second"),
     QT_TRANSLATE_NOOP("MainWindow", "Third"),
     0
-}; 
+};
 
 MainWindow::MainWindow()
 {
@@ -20,9 +20,10 @@ MainWindow::MainWindow()
     for (int i = 0; listEntries[i]; ++i)
         listWidget->addItem(tr(listEntries[i]));
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(centralWidget);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(groupBox);
     mainLayout->addWidget(listWidget);
+    centralWidget->setLayout(mainLayout);
 
     exitAction = new QAction(tr("E&xit"), this);
     connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
@@ -46,8 +47,9 @@ void MainWindow::createGroupBox()
     obliqueRadioButton = new QRadioButton(tr("Oblique"));
     perspectiveRadioButton->setChecked(true);
 
-    QVBoxLayout *groupBoxLayout = new QVBoxLayout(groupBox);
+    QVBoxLayout *groupBoxLayout = new QVBoxLayout;
     groupBoxLayout->addWidget(perspectiveRadioButton);
     groupBoxLayout->addWidget(isometricRadioButton);
     groupBoxLayout->addWidget(obliqueRadioButton);
+    groupBox->setLayout(groupBoxLayout);
 }

@@ -139,19 +139,19 @@ void MainWindow::createActions()
 
 void MainWindow::createMenus()
 {
-    saveAsMenu = new QMenu(tr("&Save As"));
+    saveAsMenu = new QMenu(tr("&Save As"), this);
     foreach (QAction *action, saveAsActs)
         saveAsMenu->addAction(action);
     connect(saveAsMenu, SIGNAL(aboutToShow()),
             this, SLOT(aboutToShowSaveAsMenu()));
 
-    fileMenu = new QMenu(tr("&File"));
+    fileMenu = new QMenu(tr("&File"), this);
     fileMenu->addAction(openAct);
     fileMenu->addMenu(saveAsMenu);
     fileMenu->addSeparator();
     fileMenu->addAction(exitAct);
 
-    helpMenu = new QMenu(tr("&Help"));
+    helpMenu = new QMenu(tr("&Help"), this);
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
 

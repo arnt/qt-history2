@@ -7,9 +7,9 @@ const int IdRole = Qt::UserRole;
 
 Window::Window()
 {
-    renderArea = new RenderArea(this);
+    renderArea = new RenderArea;
 
-    shapeComboBox = new QComboBox(this);
+    shapeComboBox = new QComboBox;
     shapeComboBox->addItem(tr("Rectangle"), RenderArea::Rect);
     shapeComboBox->addItem(tr("Round Rectangle"), RenderArea::RoundRect);
     shapeComboBox->addItem(tr("Ellipse"), RenderArea::Ellipse);
@@ -24,16 +24,16 @@ Window::Window()
     shapeComboBox->addItem(tr("Text"), RenderArea::Text);
     shapeComboBox->addItem(tr("Pixmap"), RenderArea::Pixmap);
 
-    shapeLabel = new QLabel(tr("&Shape:"), this);
+    shapeLabel = new QLabel(tr("&Shape:"));
     shapeLabel->setBuddy(shapeComboBox);
 
-    penWidthSpinBox = new QSpinBox(this);
+    penWidthSpinBox = new QSpinBox;
     penWidthSpinBox->setRange(0, 20);
 
-    penWidthLabel = new QLabel(tr("Pen &Width:"), this);
+    penWidthLabel = new QLabel(tr("Pen &Width:"));
     penWidthLabel->setBuddy(penWidthSpinBox);
 
-    penStyleComboBox = new QComboBox(this);
+    penStyleComboBox = new QComboBox;
     penStyleComboBox->addItem(tr("Solid"), Qt::SolidLine);
     penStyleComboBox->addItem(tr("Dash"), Qt::DashLine);
     penStyleComboBox->addItem(tr("Dot"), Qt::DotLine);
@@ -41,26 +41,26 @@ Window::Window()
     penStyleComboBox->addItem(tr("Dash Dot Dot"), Qt::DashDotDotLine);
     penStyleComboBox->addItem(tr("None"), Qt::NoPen);
 
-    penStyleLabel = new QLabel(tr("&Pen Style:"), this);
+    penStyleLabel = new QLabel(tr("&Pen Style:"));
     penStyleLabel->setBuddy(penStyleComboBox);
 
-    penCapComboBox = new QComboBox(this);
+    penCapComboBox = new QComboBox;
     penCapComboBox->addItem(tr("Flat"), Qt::FlatCap);
     penCapComboBox->addItem(tr("Square"), Qt::SquareCap);
     penCapComboBox->addItem(tr("Round"), Qt::RoundCap);
 
-    penCapLabel = new QLabel(tr("Pen &Cap:"), this);
+    penCapLabel = new QLabel(tr("Pen &Cap:"));
     penCapLabel->setBuddy(penCapComboBox);
 
-    penJoinComboBox = new QComboBox(this);
+    penJoinComboBox = new QComboBox;
     penJoinComboBox->addItem(tr("Miter"), Qt::MiterJoin);
     penJoinComboBox->addItem(tr("Bevel"), Qt::BevelJoin);
     penJoinComboBox->addItem(tr("Round"), Qt::RoundJoin);
 
-    penJoinLabel = new QLabel(tr("Pen &Join:"), this);
+    penJoinLabel = new QLabel(tr("Pen &Join:"));
     penJoinLabel->setBuddy(penJoinComboBox);
 
-    brushStyleComboBox = new QComboBox(this);
+    brushStyleComboBox = new QComboBox;
     brushStyleComboBox->addItem(tr("Linear Gradient"),
             Qt::LinearGradientPattern);
     brushStyleComboBox->addItem(tr("Texture"), Qt::TexturePattern);
@@ -80,11 +80,11 @@ Window::Window()
     brushStyleComboBox->addItem(tr("Dense 7"), Qt::Dense7Pattern);
     brushStyleComboBox->addItem(tr("None"), Qt::NoBrush);
 
-    brushStyleLabel = new QLabel(tr("&Brush Style:"), this);
+    brushStyleLabel = new QLabel(tr("&Brush Style:"));
     brushStyleLabel->setBuddy(brushStyleComboBox);
 
-    antialiasingCheckBox = new QCheckBox(tr("&Antialiasing"), this);
-    transformationsCheckBox = new QCheckBox(tr("&Transformations"), this);
+    antialiasingCheckBox = new QCheckBox(tr("&Antialiasing"));
+    transformationsCheckBox = new QCheckBox(tr("&Transformations"));
 
     connect(shapeComboBox, SIGNAL(activated(int)),
             this, SLOT(shapeChanged()));
@@ -107,7 +107,7 @@ Window::Window()
     checkBoxLayout->addWidget(antialiasingCheckBox);
     checkBoxLayout->addWidget(transformationsCheckBox);
 
-    QGridLayout *mainLayout = new QGridLayout(this);
+    QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addWidget(renderArea, 0, 0, 1, 2);
     mainLayout->addWidget(shapeLabel, 1, 0);
     mainLayout->addWidget(shapeComboBox, 1, 1);
@@ -122,6 +122,7 @@ Window::Window()
     mainLayout->addWidget(brushStyleLabel, 6, 0);
     mainLayout->addWidget(brushStyleComboBox, 6, 1);
     mainLayout->addLayout(checkBoxLayout, 7, 0, 1, 2);
+    setLayout(mainLayout);
 
     shapeChanged();
     penChanged();

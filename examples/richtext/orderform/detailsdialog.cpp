@@ -5,18 +5,18 @@
 DetailsDialog::DetailsDialog(const QString &title, QWidget *parent)
     : QDialog(parent)
 {
-    QLabel *nameLabel = new QLabel(tr("Name:"), this);
-    QLabel *addressLabel = new QLabel(tr("Address:"), this);
+    QLabel *nameLabel = new QLabel(tr("Name:"));
+    QLabel *addressLabel = new QLabel(tr("Address:"));
 
-    nameEdit = new QLineEdit(this);
-    addressEdit = new QTextEdit(this);
+    nameEdit = new QLineEdit;
+    addressEdit = new QTextEdit;
     addressEdit->setPlainText("");
-    offersCheckBox = new QCheckBox(tr("Send offers:"), this);
+    offersCheckBox = new QCheckBox(tr("Send offers:"));
 
     setupItemsTable();
 
-    QPushButton *okButton = new QPushButton(tr("OK"), this);
-    QPushButton *cancelButton = new QPushButton(tr("Cancel"), this);
+    QPushButton *okButton = new QPushButton(tr("OK"));
+    QPushButton *cancelButton = new QPushButton(tr("Cancel"));
     okButton->setDefault(true);
 
     connect(okButton, SIGNAL(clicked()), this, SLOT(verify()));
@@ -35,9 +35,10 @@ DetailsDialog::DetailsDialog(const QString &title, QWidget *parent)
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(detailsLayout);
     mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 
     setWindowTitle(title);
 }
@@ -47,7 +48,7 @@ void DetailsDialog::setupItemsTable()
     items << tr("T-shirt") << tr("Badge") << tr("Reference book")
           << tr("Coffee cup");
 
-    itemsTable = new QTableWidget(items.count(), 2, this);
+    itemsTable = new QTableWidget(items.count(), 2);
 
     for (int row = 0; row < items.count(); ++row) {
         QTableWidgetItem *name = new QTableWidgetItem(items[row]);

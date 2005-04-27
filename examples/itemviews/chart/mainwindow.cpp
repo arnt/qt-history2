@@ -57,9 +57,11 @@ void MainWindow::setupModel()
 
 void MainWindow::setupViews()
 {
-    QSplitter *splitter = new QSplitter(this);
-    QTableView *table = new QTableView(splitter);
-    pieChart = new PieView(splitter);
+    QSplitter *splitter = new QSplitter;
+    QTableView *table = new QTableView;
+    pieChart = new PieView;
+    splitter->addWidget(table);
+    splitter->addWidget(pieChart);
 
     table->setModel(model);
     pieChart->setModel(model);

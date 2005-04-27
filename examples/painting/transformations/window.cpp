@@ -4,22 +4,22 @@
 
 Window::Window()
 {
-    originalRenderArea = new RenderArea(this);
+    originalRenderArea = new RenderArea;
 
-    shapeComboBox = new QComboBox(this);
+    shapeComboBox = new QComboBox;
     shapeComboBox->addItem(tr("Clock"));
     shapeComboBox->addItem(tr("House"));
     shapeComboBox->addItem(tr("Text"));
     shapeComboBox->addItem(tr("Truck"));
 
-    QGridLayout *layout = new QGridLayout(this);
+    QGridLayout *layout = new QGridLayout;
     layout->addWidget(originalRenderArea, 0, 0);
     layout->addWidget(shapeComboBox, 1, 0);
 
     for (int i = 0; i < NumTransformedAreas; ++i) {
-        transformedRenderAreas[i] = new RenderArea(this);
+        transformedRenderAreas[i] = new RenderArea;
 
-        operationComboBoxes[i] = new QComboBox(this);
+        operationComboBoxes[i] = new QComboBox;
         operationComboBoxes[i]->addItem(tr("No transformation"));
         operationComboBoxes[i]->addItem(tr("Rotate by 60\xB0"));
         operationComboBoxes[i]->addItem(tr("Scale to 75%"));
@@ -32,6 +32,7 @@ Window::Window()
         layout->addWidget(operationComboBoxes[i], 1, i + 1);
     }
 
+    setLayout(layout);
     setupShapes();
     shapeSelected(0);
 

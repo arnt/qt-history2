@@ -12,7 +12,7 @@ LanguageChooser::LanguageChooser(QWidget *parent)
 {
     groupBox = new QGroupBox("Languages");
 
-    QGridLayout *groupBoxLayout = new QGridLayout(groupBox);
+    QGridLayout *groupBoxLayout = new QGridLayout;
 
     QStringList qmFiles = findQmFiles();
     for (int i = 0; i < qmFiles.size(); ++i) {
@@ -21,6 +21,7 @@ LanguageChooser::LanguageChooser(QWidget *parent)
         connect(checkBox, SIGNAL(toggled(bool)), this, SLOT(checkBoxToggled()));
         groupBoxLayout->addWidget(checkBox, i / 2, i % 2);
     }
+    groupBox->setLayout(groupBoxLayout);
 
     showAllButton = new QPushButton("Show All");
     hideAllButton = new QPushButton("Hide All");
@@ -37,9 +38,10 @@ LanguageChooser::LanguageChooser(QWidget *parent)
     buttonLayout->addWidget(hideAllButton);
     buttonLayout->addWidget(closeButton);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(groupBox);
     mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 
 #ifdef Q_WS_MAC
     qt_mac_set_menubar_merge(false);
