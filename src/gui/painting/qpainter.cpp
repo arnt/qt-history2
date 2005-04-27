@@ -724,11 +724,9 @@ void QPainter::save()
     }
 
     Q_D(QPainter);
-    d->engine->syncState();
+    d->updateState(d->state);
 
     d->state = new QPainterState(d->states.back());
-    // We need top propagate pending changes to the restore later..
-    d->state->changeFlags = d->state->dirtyFlags;
     d->states.push_back(d->state);
     d->engine->state = d->state;
 }
