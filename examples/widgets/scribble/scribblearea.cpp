@@ -8,28 +8,27 @@ ScribbleArea::ScribbleArea(QWidget *parent)
     setAttribute(Qt::WA_StaticContents);
     modified = false;
     scribbling = false;
-    penWidth = 1;
-    penColor = Qt::blue;
+    myPenWidth = 1;
+    myPenColor = Qt::blue;
 }
 
 bool ScribbleArea::openImage(const QString &fileName)
 {
-    QImage newImage;
-    if (!newImage.load(fileName))
+    QImage loadedImage;
+    if (!loadedImage.load(fileName))
         return false;
 
-    QPainter painter(&image);
-    image.fill(qRgb(255, 255, 255));
-    painter.drawImage(QPoint(0, 0), newImage);
+    QSize newSize = loadedImage.size().expandedTo(size());
+    resizeImage(&loadedImage, newSize);
+    image = loadedImage;
     update();
     return true;
 }
 
 bool ScribbleArea::saveImage(const QString &fileName, const char *fileFormat)
 {
-    QImage visibleImage(width(), height(), QImage::Format_ARGB32);
-    QPainter painter(&visibleImage);
-    painter.drawImage(QPoint(0, 0), image);
+    QImage visibleImage = image;
+    resizeImage(&visibleImage, size());
 
     if (visibleImage.save(fileName, fileFormat)) {
         modified = false;
@@ -39,24 +38,14 @@ bool ScribbleArea::saveImage(const QString &fileName, const char *fileFormat)
     }
 }
 
-QColor ScribbleArea::getPenColor()
-{
-    return penColor;
-}
-
-int ScribbleArea::getPenWidth()
-{
-    return penWidth;
-}
-
 void ScribbleArea::setPenColor(const QColor &newColor)
 {
-    penColor = newColor;
+    myPenColor = newColor;
 }
 
 void ScribbleArea::setPenWidth(int newWidth)
 {
-    penWidth = newWidth;
+    myPenWidth = newWidth;
 }
 
 void ScribbleArea::clearImage()
@@ -69,7 +58,7 @@ void ScribbleArea::clearImage()
 void ScribbleArea::mousePressEvent(QMouseEvent *event)
 {
     if (event->button() == Qt::LeftButton) {
-        startPoint = event->pos();
+        lastPoint = event->pos();
         scribbling = true;
     }
 }
@@ -99,12 +88,7 @@ void ScribbleArea::resizeEvent(QResizeEvent *event)
     if (width() > image.width() || height() > image.height()) {
         int newWidth = qMax(width() + 128, image.width());
         int newHeight = qMax(height() + 128, image.height());
-
-        QImage newImage = QImage(newWidth, newHeight, QImage::Format_ARGB32);
-        newImage.fill(qRgb(255, 255, 255));
-        QPainter painter(&newImage);
-        painter.drawImage(QPoint(0, 0), image);
-        image = newImage;
+        resizeImage(&image, QSize(newWidth, newHeight));
         update();
     }
     QWidget::resizeEvent(event);
@@ -113,13 +97,25 @@ void ScribbleArea::resizeEvent(QResizeEvent *event)
 void ScribbleArea::drawLineTo(const QPoint &endPoint)
 {
     QPainter painter(&image);
-    painter.setPen(QPen(penColor, penWidth, Qt::SolidLine, Qt::RoundCap,
+    painter.setPen(QPen(myPenColor, myPenWidth, Qt::SolidLine, Qt::RoundCap,
                         Qt::RoundJoin));
-    painter.drawLine(startPoint, endPoint);
+    painter.drawLine(lastPoint, endPoint);
     modified = true;
 
-    int rad = penWidth / 2;
-    update(QRect(startPoint, endPoint).normalized()
-                                      .adjusted(-rad, -rad, +rad, +rad));
-    startPoint = endPoint;
+    int rad = myPenWidth / 2;
+    update(QRect(lastPoint, endPoint).normalized()
+                                     .adjusted(-rad, -rad, +rad, +rad));
+    lastPoint = endPoint;
+}
+
+void ScribbleArea::resizeImage(QImage *image, const QSize &newSize)
+{
+    if (image->size() == newSize)
+        return;
+
+    QImage newImage(newSize, QImage::Format_ARGB32);
+    newImage.fill(qRgb(255, 255, 255));
+    QPainter painter(&newImage);
+    painter.drawImage(QPoint(0, 0), *image);
+    *image = newImage;
 }

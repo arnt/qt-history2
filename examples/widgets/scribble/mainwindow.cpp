@@ -37,13 +37,13 @@ void MainWindow::open()
 void MainWindow::save()
 {
     QAction *action = qobject_cast<QAction *>(sender());
-    QString fileFormat = action->iconText();
+    QByteArray fileFormat = action->data().toByteArray();
     saveFile(fileFormat);
 }
 
 void MainWindow::penColor()
 {
-    QColor newColor = QColorDialog::getColor(scribbleArea->getPenColor());
+    QColor newColor = QColorDialog::getColor(scribbleArea->penColor());
     if (newColor.isValid())
         scribbleArea->setPenColor(newColor);
 }
@@ -53,7 +53,7 @@ void MainWindow::penWidth()
     bool ok;
     int newWidth = QInputDialog::getInteger(this, tr("Select Pen Width"),
                                             tr("Select pen width:"),
-                                            scribbleArea->getPenWidth(),
+                                            scribbleArea->penWidth(),
                                             1, 50, 1, &ok);
     if (ok)
         scribbleArea->setPenWidth(newWidth);
@@ -69,6 +69,7 @@ void MainWindow::createActions()
         QString text = tr("%1...").arg(QString(format).toUpper());
 
         QAction *action = new QAction(text, this);
+        action->setData(format);
         connect(action, SIGNAL(triggered()), this, SLOT(save()));
         saveAsActs.append(action);
     }
@@ -121,7 +122,7 @@ bool MainWindow::maybeSave()
                           QMessageBox::No,
                           QMessageBox::Cancel | QMessageBox::Escape);
         if (ret == QMessageBox::Yes) {
-            return saveFile("PNG");
+            return saveFile("png");
         } else if (ret == QMessageBox::Cancel) {
             return false;
         }
@@ -129,19 +130,18 @@ bool MainWindow::maybeSave()
     return true;
 }
 
-bool MainWindow::saveFile(const QString &fileFormat)
+bool MainWindow::saveFile(const QByteArray &fileFormat)
 {
-    QString initialPath = QDir::currentPath() + "/untitled."
-                          + fileFormat.toLower();
+    QString initialPath = QDir::currentPath() + "/untitled." + fileFormat;
 
     QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
                                initialPath,
                                tr("%1 Files (*.%2);;All Files (*)")
-                               .arg(fileFormat)
-                               .arg(fileFormat.toLower()));
+                               .arg(QString(fileFormat.toUpper()))
+                               .arg(QString(fileFormat)));
     if (fileName.isEmpty()) {
         return false;
     } else {
-        return scribbleArea->saveImage(fileName, fileFormat.toAscii());
+        return scribbleArea->saveImage(fileName, fileFormat);
     }
 }

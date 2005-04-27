@@ -26,10 +26,9 @@ private:
     void createActions();
     void createMenus();
     bool maybeSave();
-    bool saveFile(const QString &fileFormat);
+    bool saveFile(const QByteArray &fileFormat);
 
     ScribbleArea *scribbleArea;
-    bool modified;
 
     QMenu *fileMenu;
     QMenu *optionMenu;
