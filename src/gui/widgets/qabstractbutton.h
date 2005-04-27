@@ -72,7 +72,7 @@ public slots:
 signals:
     void pressed();
     void released();
-    void clicked();
+    void clicked(bool checked = false);
     void toggled(bool checked);
 
 protected:

@@ -161,7 +161,7 @@ void QDesignerWorkbench::initialize()
     m_toolMenu->addSeparator();
 
     QAction *bigAction = m_actionManager->useBigIconsAction();
-    connect(bigAction, SIGNAL(checked(bool)), this, SLOT(setUseBigIcons(bool)));
+    connect(bigAction, SIGNAL(triggered(bool)), this, SLOT(setUseBigIcons(bool)));
     m_toolMenu->addAction(bigAction);
 
     m_windowMenu = m_globalMenuBar->addMenu(tr("&Window"));

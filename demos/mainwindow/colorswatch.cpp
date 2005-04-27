@@ -38,38 +38,38 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags f
 
     closableAction = new QAction(tr("Closable"), this);
     closableAction->setCheckable(true);
-    connect(closableAction, SIGNAL(checked(bool)), SLOT(changeClosable(bool)));
+    connect(closableAction, SIGNAL(triggered(bool)), SLOT(changeClosable(bool)));
 
     movableAction = new QAction(tr("Movable"), this);
     movableAction->setCheckable(true);
-    connect(movableAction, SIGNAL(checked(bool)), SLOT(changeMovable(bool)));
+    connect(movableAction, SIGNAL(triggered(bool)), SLOT(changeMovable(bool)));
 
     floatableAction = new QAction(tr("Floatable"), this);
     floatableAction->setCheckable(true);
-    connect(floatableAction, SIGNAL(checked(bool)), SLOT(changeFloatable(bool)));
+    connect(floatableAction, SIGNAL(triggered(bool)), SLOT(changeFloatable(bool)));
 
     floatingAction = new QAction(tr("Floating"), this);
     floatingAction->setCheckable(true);
-    connect(floatingAction, SIGNAL(checked(bool)), SLOT(changeFloating(bool)));
+    connect(floatingAction, SIGNAL(triggered(bool)), SLOT(changeFloating(bool)));
 
     allowedAreasActions = new QActionGroup(this);
     allowedAreasActions->setExclusive(false);
 
     allowLeftAction = new QAction(tr("Allow on Left"), this);
     allowLeftAction->setCheckable(true);
-    connect(allowLeftAction, SIGNAL(checked(bool)), SLOT(allowLeft(bool)));
+    connect(allowLeftAction, SIGNAL(triggered(bool)), SLOT(allowLeft(bool)));
 
     allowRightAction = new QAction(tr("Allow on Right"), this);
     allowRightAction->setCheckable(true);
-    connect(allowRightAction, SIGNAL(checked(bool)), SLOT(allowRight(bool)));
+    connect(allowRightAction, SIGNAL(triggered(bool)), SLOT(allowRight(bool)));
 
     allowTopAction = new QAction(tr("Allow on Top"), this);
     allowTopAction->setCheckable(true);
-    connect(allowTopAction, SIGNAL(checked(bool)), SLOT(allowTop(bool)));
+    connect(allowTopAction, SIGNAL(triggered(bool)), SLOT(allowTop(bool)));
 
     allowBottomAction = new QAction(tr("Allow on Bottom"), this);
     allowBottomAction->setCheckable(true);
-    connect(allowBottomAction, SIGNAL(checked(bool)), SLOT(allowBottom(bool)));
+    connect(allowBottomAction, SIGNAL(triggered(bool)), SLOT(allowBottom(bool)));
 
     allowedAreasActions->addAction(allowLeftAction);
     allowedAreasActions->addAction(allowRightAction);
@@ -81,33 +81,33 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags f
 
     leftAction = new QAction(tr("Place on Left") , this);
     leftAction->setCheckable(true);
-    connect(leftAction, SIGNAL(checked(bool)), SLOT(placeLeft(bool)));
+    connect(leftAction, SIGNAL(triggered(bool)), SLOT(placeLeft(bool)));
 
     rightAction = new QAction(tr("Place on Right") , this);
     rightAction->setCheckable(true);
-    connect(rightAction, SIGNAL(checked(bool)), SLOT(placeRight(bool)));
+    connect(rightAction, SIGNAL(triggered(bool)), SLOT(placeRight(bool)));
 
     topAction = new QAction(tr("Place on Top") , this);
     topAction->setCheckable(true);
-    connect(topAction, SIGNAL(checked(bool)), SLOT(placeTop(bool)));
+    connect(topAction, SIGNAL(triggered(bool)), SLOT(placeTop(bool)));
 
     bottomAction = new QAction(tr("Place on Bottom") , this);
     bottomAction->setCheckable(true);
-    connect(bottomAction, SIGNAL(checked(bool)), SLOT(placeBottom(bool)));
+    connect(bottomAction, SIGNAL(triggered(bool)), SLOT(placeBottom(bool)));
 
     areaActions->addAction(leftAction);
     areaActions->addAction(rightAction);
     areaActions->addAction(topAction);
     areaActions->addAction(bottomAction);
 
-    connect(movableAction, SIGNAL(checked(bool)), areaActions, SLOT(setEnabled(bool)));
+    connect(movableAction, SIGNAL(triggered(bool)), areaActions, SLOT(setEnabled(bool)));
 
-    connect(movableAction, SIGNAL(checked(bool)), allowedAreasActions, SLOT(setEnabled(bool)));
+    connect(movableAction, SIGNAL(triggered(bool)), allowedAreasActions, SLOT(setEnabled(bool)));
 
-    connect(floatableAction, SIGNAL(checked(bool)), floatingAction, SLOT(setEnabled(bool)));
+    connect(floatableAction, SIGNAL(triggered(bool)), floatingAction, SLOT(setEnabled(bool)));
 
-    connect(floatingAction, SIGNAL(checked(bool)), floatableAction, SLOT(setDisabled(bool)));
-    connect(movableAction, SIGNAL(checked(bool)), floatableAction, SLOT(setEnabled(bool)));
+    connect(floatingAction, SIGNAL(triggered(bool)), floatableAction, SLOT(setDisabled(bool)));
+    connect(movableAction, SIGNAL(triggered(bool)), floatableAction, SLOT(setEnabled(bool)));
 
     menu = new QMenu(colorName, this);
     menu->addAction(toggleViewAction());

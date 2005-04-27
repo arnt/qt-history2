@@ -322,7 +322,7 @@ bool QActionGroup::isVisible() const
 
     Connect to this signal for command actions.
 
-    \sa QAction::activate(), QAction::checked()
+    \sa QAction::activate()
 */
 
 /*!

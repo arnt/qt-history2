@@ -91,7 +91,7 @@ void QToolBarPrivate::init()
 
     toggleViewAction = new QAction(q);
     toggleViewAction->setCheckable(true);
-    QObject::connect(toggleViewAction, SIGNAL(checked(bool)), q, SLOT(toggleView(bool)));
+    QObject::connect(toggleViewAction, SIGNAL(triggered(bool)), q, SLOT(toggleView(bool)));
 }
 
 void QToolBarPrivate::toggleView(bool b)

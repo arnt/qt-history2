@@ -273,7 +273,7 @@ void MainWindow::createActions()
         action->setText(tr("%1 Style").arg(styleName));
         action->setIconText(styleName);
         action->setCheckable(true);
-        connect(action, SIGNAL(checked(bool)), this, SLOT(changeStyle(bool)));
+        connect(action, SIGNAL(triggered(bool)), this, SLOT(changeStyle(bool)));
     }
 
     guessModeStateAct = new QAction(tr("&Guess Image Mode/State"), this);

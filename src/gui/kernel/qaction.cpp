@@ -656,6 +656,7 @@ void QAction::setCheckable(bool b)
         return;
 
     d->checkable = b;
+    d->checked = false;
     d->sendDataChanged();
 }
 
@@ -671,6 +672,11 @@ bool QAction::isCheckable() const
     This is a convenience function for the \l checked property.
     Connect to it to change the checked state to its opposite state.
 */
+void QAction::toggle()
+{
+    Q_D(QAction);
+    setChecked(!d->checked);
+}
 
 /*!
     \property QAction::checked
@@ -687,12 +693,13 @@ void QAction::setChecked(bool b)
     if (!d->checkable || d->checked == b)
         return;
 
+    QObject *guard = this;
+    QMetaObject::addGuard(&guard);
     d->checked = b;
     d->sendDataChanged();
-    emit checked(b);
-#ifdef QT3_SUPPORT
-    emit toggled(b);
-#endif
+    if (guard)
+        emit toggled(b);
+    QMetaObject::removeGuard(&guard);
 }
 
 bool QAction::isChecked() const
@@ -844,44 +851,56 @@ void QAction::activate(ActionEvent event)
 {
     Q_D(QAction);
     if(event == Trigger) {
+        QObject *guard = this;
+        QMetaObject::addGuard(&guard);
         if(d->checkable) {
             // the checked action of an exclusive group cannot be  unchecked
             if (d->checked && (d->group && d->group->isExclusive()
-                               && d->group->checkedAction() == this))
+                               && d->group->checkedAction() == this)) {
+                QMetaObject::removeGuard(&guard);
                 return;
+            }
             setChecked(!d->checked);
         }
-        emit triggered();
+        if (guard)
+            emit triggered(d->checked);
 #ifdef QT3_SUPPORT
-        emit activated(d->param);
+        if (guard)
+            emit activated(d->param);
 #endif
+        QMetaObject::removeGuard(&guard);
     } else if(event == Hover) {
         emit hovered();
     }
 }
 
 /*!
-    \fn void QAction::triggered()
+    \fn void QAction::triggered(bool checked)
 
     This signal is emitted when an action is activated by the user;
     for example, when the user clicks a menu option, toolbar button,
-    or presses an action's shortcut key combination.
+    or presses an action's shortcut key combination, or when trigger()
+    was called. Notably, it is \e not emitted when setChecked() or
+    toggle() is called.
 
-    Connect to this signal for command actions.
+    If the action is checkable, \a checked is true if the action is
+    checked, or false if the action is unchecked.
 
-    \sa QAction::activate(), QAction::checked()
+    \sa QAction::activate(), QAction::checked(), QAction::toggled()
 */
 
 /*!
-    \fn void QAction::checked(bool state)
+    \fn void QAction::toggled(bool checked)
 
-    This signal is emitted when an action is activated by the user
-    which causes the isChecked() status to change. The new \a state
-    of the action is given.
+    This signal is emitted whenever a checkable action changes its
+    isChecked() status. This can be the result of a user interaction,
+    or because setChecked() was called.
 
-    Connect to this signal for checkable actions.
+    \a checked is true if the action is checked, or false if the
+    action is unchecked.
 
-    \sa QAction::activate(), QAction::triggered(), QAction::setChecked()
+    \sa QAction::activate(), QAction::triggered(), QAction::checked(),
+    QAction::setChecked()
 */
 
 /*!
@@ -997,12 +1016,6 @@ void QAction::activate(ActionEvent event)
     \fn QKeySequence QAction::accel() const
 
     Use shortcut() instead.
-*/
-
-/*!
-    \fn void QAction::toggled(bool b);
-
-    Use checked() instead.
 */
 
 /*!

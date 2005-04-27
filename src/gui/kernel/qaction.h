@@ -127,23 +127,22 @@ protected:
 
 public slots:
 #ifdef QT3_SUPPORT
-    inline QT3_SUPPORT void setOn(bool b) { setChecked(b); }
+    inline QT_MOC_COMPAT void setOn(bool b) { setChecked(b); }
 #endif
-    inline void toggle() { setChecked(!isChecked()); }
     void trigger() { activate(Trigger); }
     void hover() { activate(Hover); }
     void setChecked(bool);
+    void toggle();
     void setEnabled(bool);
     inline void setDisabled(bool b) { setEnabled(!b); }
     void setVisible(bool);
 
 signals:
     void changed();
-    void triggered();
+    void triggered(bool checked = false);
     void hovered();
-    void checked(bool);
+    void toggled(bool);
 #ifdef QT3_SUPPORT
-    QT_MOC_COMPAT void toggled(bool);
     QT_MOC_COMPAT void activated(int = 0);
 #endif
 

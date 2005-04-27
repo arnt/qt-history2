@@ -401,7 +401,7 @@ void QAbstractButtonPrivate::click()
     emit q->released();
     if (!guard)
         return;
-    emit q->clicked();
+    emit q->clicked(checked);
     QMetaObject::removeGuard(&guard);
 }
 
@@ -526,6 +526,7 @@ void QAbstractButton::setCheckable(bool checkable)
 {
     Q_D(QAbstractButton);
     d->checkable = checkable;
+    d->checked = false;
 }
 
 bool QAbstractButton::isCheckable() const
@@ -558,14 +559,19 @@ void QAbstractButton::setChecked(bool checked)
                 return;
     }
 
+    QObject *guard = this;
+    QMetaObject::addGuard(&guard);
+
     d->checked = checked;
     if (!d->blockRefresh)
         checkStateSet();
     d->refresh();
 
-    if (checked)
+    if (guard && checked)
         d->notifyChecked();
-    emit toggled(checked);
+    if (guard)
+        emit toggled(checked);
+    QMetaObject::removeGuard(&guard);
 }
 
 bool QAbstractButton::isChecked() const
@@ -698,7 +704,9 @@ void QAbstractButton::animateClick(int msec)
 /*!
 Performs a click.
 
-All the usual signals associated with a click are emitted as appropriate.
+All the usual signals associated with a click are emitted as
+appropriate. If the button is checkable, the state of the button is
+toggled.
 
 This function does nothing if the button is \link setEnabled()
 disabled. \endlink
@@ -713,21 +721,28 @@ void QAbstractButton::click()
     d->down = true;
     emit pressed();
     d->down = false;
+    QObject *guard = this;
+    QMetaObject::addGuard(&guard);
     nextCheckState();
-    emit released();
-    emit clicked();
+    if (guard)
+        emit released();
+    if (guard)
+        emit clicked(d->checked);
+    QMetaObject::removeGuard(&guard);
 }
 
-/*!
+/*! \fn void QAbstractButton::toggle()
+
     Toggles the state of a checkable button.
 
-    \sa checked
+     \sa checked
 */
 void QAbstractButton::toggle()
 {
     Q_D(QAbstractButton);
     setChecked(!d->checked);
 }
+
 
 /*! This virtual handler is called when setChecked() was called,
 unless it was called from within nextCheckState(). It allows
@@ -922,7 +937,7 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
         d->repeatTimer.start(AUTO_REPEAT_PERIOD, this);
         if (d->down) {
             emit released();
-            emit clicked();
+            emit clicked(d->checked);
             emit pressed();
         }
     } else if (e->timerId() == d->animateTimer.timerId()) {
@@ -985,12 +1000,16 @@ void QAbstractButton::changeEvent(QEvent *e)
 */
 
 /*!
-\fn void QAbstractButton::clicked()
+\fn void QAbstractButton::clicked(bool checked)
 
 This signal is emitted when the button is activated (i.e. pressed down
 then released while the mouse cursor is inside the button), when the
-shortcut key is typed, or when animateClick() is called.
-This signal is \e not emitted if you call setDown().
+shortcut key is typed, or when click() or animateClick() is called.
+Notably, this signal is \e not emitted if you call setDown(),
+setChecked() or toggle().
+
+If the button is checkable, \a checked is true if the button is
+checked, or false if the button is unchecked.
 
 \sa pressed(), released(), toggled()
 */
@@ -998,15 +1017,16 @@ This signal is \e not emitted if you call setDown().
 /*!
 \fn void QAbstractButton::toggled(bool checked)
 
-This signal is emitted whenever a toggle button changes its state.
-\a checked is true if the button is checked, or false if the button
-is unchecked.
+This signal is emitted whenever a checkable button changes its state.
+\a checked is true if the button is checked, or false if the button is
+unchecked.
 
-This may be the result of a user action, toggle() slot activation,
+This may be the result of a user action, click() slot activation,
 or because setChecked() was called.
 
-\sa clicked()
+\sa checked(), clicked()
 */
+
 
 
 #ifdef QT3_SUPPORT

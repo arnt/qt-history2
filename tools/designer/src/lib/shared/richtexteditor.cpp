@@ -63,7 +63,7 @@ static QAction *createCheckableAction(const QIcon &icon, const QString &text,
     result->setText(text);
     result->setCheckable(true);
     result->setChecked(false);
-    QObject::connect(result, SIGNAL(checked(bool)), receiver, slot);
+    QObject::connect(result, SIGNAL(triggered(bool)), receiver, slot);
     return result;
 }
 
@@ -130,9 +130,7 @@ void RichTextEditorToolBar::colorInputActivated(const QString &s)
     if (!color.isValid())
         return;
 
-    bool block = m_editor->blockSignals(true);
     m_editor->setTextColor(color);
-    m_editor->blockSignals(block);
 }
 
 void RichTextEditorToolBar::sizeInputActivated(const QString &size)
@@ -145,16 +143,7 @@ void RichTextEditorToolBar::sizeInputActivated(const QString &size)
     if (!ok)
         return;
 
-    bool block = m_editor->blockSignals(true);
     m_editor->setFontPointSize(i);
-    m_editor->blockSignals(block);
-}
-
-static void setCheckAction(QAction *action, bool b)
-{
-    bool block = action->blockSignals(true);
-    action->setChecked(b);
-    action->blockSignals(block);
 }
 
 void RichTextEditorToolBar::updateActions()
@@ -167,17 +156,17 @@ void RichTextEditorToolBar::updateActions()
     QTextCursor cursor = m_editor->textCursor();
 
     QTextCharFormat char_format = cursor.charFormat();
-    setCheckAction(m_bold_action, char_format.fontWeight() == QFont::Bold);
-    setCheckAction(m_italic_action, char_format.fontItalic());
-    setCheckAction(m_underline_action, char_format.fontUnderline());
+    m_bold_action->setChecked(char_format.fontWeight() == QFont::Bold);
+    m_italic_action->setChecked(char_format.fontItalic());
+    m_underline_action->setChecked(char_format.fontUnderline());
 
-    bool block = m_font_size_input->blockSignals(true);
+    bool block = m_font_size_input->blockSignals(true); // ### I don't think this is necessary!
     QString size = QString::number((int) char_format.fontPointSize());
     int idx = m_font_size_input->findText(size);
     m_font_size_input->setCurrentIndex(idx);
     m_font_size_input->blockSignals(block);
 
-    block = m_color_input->blockSignals(true);
+    block = m_color_input->blockSignals(true); // ### I don't think this is necessary!
     QString color = m_color_map.value(m_editor->textColor());
     idx = m_color_input->findText(color);
     m_color_input->setCurrentIndex(idx);

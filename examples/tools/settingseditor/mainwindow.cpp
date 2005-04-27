@@ -112,16 +112,16 @@ void MainWindow::createActions()
     autoRefreshAct->setShortcut(tr("Ctrl+A"));
     autoRefreshAct->setCheckable(true);
     autoRefreshAct->setEnabled(false);
-    connect(autoRefreshAct, SIGNAL(checked(bool)),
+    connect(autoRefreshAct, SIGNAL(triggered(bool)),
             settingsTree, SLOT(setAutoRefresh(bool)));
-    connect(autoRefreshAct, SIGNAL(checked(bool)),
+    connect(autoRefreshAct, SIGNAL(triggered(bool)),
             refreshAct, SLOT(setDisabled(bool)));
 
     fallbacksAct = new QAction(tr("&Fallbacks"), this);
     fallbacksAct->setShortcut(tr("Ctrl+F"));
     fallbacksAct->setCheckable(true);
     fallbacksAct->setEnabled(false);
-    connect(fallbacksAct, SIGNAL(checked(bool)),
+    connect(fallbacksAct, SIGNAL(triggered(bool)),
             settingsTree, SLOT(setFallbacksEnabled(bool)));
 
     aboutAct = new QAction(tr("&About"), this);
