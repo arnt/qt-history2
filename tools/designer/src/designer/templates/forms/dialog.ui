@@ -38,7 +38,7 @@
         <x>1</x>
         <y>1</y>
         <width>75</width>
-        <height>26</height>
+        <height>27</height>
        </rect>
       </property>
       <property name="text" >
@@ -51,9 +51,9 @@
       <property name="geometry" >
        <rect>
         <x>1</x>
-        <y>33</y>
+        <y>34</y>
         <width>75</width>
-        <height>26</height>
+        <height>27</height>
        </rect>
       </property>
       <property name="text" >
@@ -66,9 +66,9 @@
       <property name="geometry" >
        <rect>
         <x>1</x>
-        <y>65</y>
+        <y>67</y>
         <width>75</width>
-        <height>40</height>
+        <height>38</height>
        </rect>
       </property>
       <property name="orientation" >
@@ -87,5 +87,38 @@
  </widget>
  <pixmapfunction></pixmapfunction>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>okButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>351</x>
+     <y>38</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>233</x>
+     <y>29</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cancelButton</sender>
+   <signal>clicked()</signal>
+   <receiver>Dialog</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>330</x>
+     <y>66</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>197</x>
+     <y>125</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
