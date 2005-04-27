@@ -243,6 +243,7 @@ void QMainWindowLayout::insertToolBarBreak(QToolBar *before)
 */
 void QMainWindowLayout::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 {
+    addChildWidget(toolbar);
     removeToolBarInfo(toolbar);
 
     POSITION pos = positionForArea(area);
@@ -251,8 +252,6 @@ void QMainWindowLayout::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
         if (tb_layout_info.at(line).pos == pos) {
             while (line < tb_layout_info.size() - 1 && tb_layout_info.at(line + 1).pos == pos)
                 ++line;
-
-            addChildWidget(toolbar);
 
             switch (pos) {
             case TOP:
