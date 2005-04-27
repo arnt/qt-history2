@@ -80,9 +80,7 @@ signals:
 
 protected:
     bool event(QEvent *);
-    void resizeEvent(QResizeEvent *);
     void contextMenuEvent(QContextMenuEvent *);
-    void changeEvent(QEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseDoubleClickEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
@@ -90,8 +88,6 @@ protected:
     void enterEvent(QEvent *e);
     void leaveEvent(QEvent *e);
     void paintEvent(QPaintEvent *p);
-
-    virtual void cutText();
 
 private:
     Q_DISABLE_COPY(QWorkspaceTitleBar)
@@ -135,11 +131,13 @@ QStyleOptionTitleBar QWorkspaceTitleBarPrivate::getStyleOption() const
     Q_Q(const QWorkspaceTitleBar);
     QStyleOptionTitleBar opt;
     opt.init(q);
-    opt.text = q->windowTitle();
     //################
-    QIcon icon = q->windowIcon();
-    QSize s = icon.actualSize(QSize(64, 64));
-    opt.icon = icon.pixmap(s);
+    if (window) {
+        opt.text = window->windowTitle();
+        QIcon icon = window->windowIcon();
+        QSize s = icon.actualSize(QSize(64, 64));
+        opt.icon = icon.pixmap(s);
+    }
     opt.subControls = QStyle::SC_All;
     opt.activeSubControls = QStyle::SC_None;
     opt.titleBarState = titleBarState();
@@ -240,13 +238,6 @@ void QWorkspaceTitleBarPrivate::readColors()
 
     q->setPalette(pal);
     q->setActive(act);
-}
-
-void QWorkspaceTitleBar::changeEvent(QEvent *ev)
-{
-    if(ev->type() == QEvent::ModifiedChange)
-        update();
-    QWidget::changeEvent(ev);
 }
 
 void QWorkspaceTitleBar::mousePressEvent(QMouseEvent *e)
@@ -455,12 +446,6 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
     }
 }
 
-void QWorkspaceTitleBar::resizeEvent(QResizeEvent *r)
-{
-    QWidget::resizeEvent(r);
-    cutText();
-}
-
 bool QWorkspaceTitleBar::isTool() const
 {
     Q_D(const QWorkspaceTitleBar);
@@ -473,6 +458,29 @@ void QWorkspaceTitleBar::paintEvent(QPaintEvent *)
     QStyleOptionTitleBar opt = d->getStyleOption();
     opt.subControls = QStyle::SC_TitleBarLabel;
     opt.activeSubControls = d->buttonDown;
+
+    if (d->window) {
+        QString title = opt.text;
+        QFontMetrics fm(fontMetrics());
+        int maxw = style()->subControlRect(QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarLabel,
+                                       this).width();
+
+        if (style()->styleHint(QStyle::SH_TitleBarModifyNotification, 0, this) && d->window
+            && d->window->isWindowModified())
+            title += " *";
+
+        QString cuttitle = title;
+        if (fm.width(title + "m") > maxw) {
+            int i = title.length();
+            int dotlength = fm.width("...");
+            while (i>0 && fm.width(title.left(i)) + dotlength > maxw)
+                i--;
+            if(i != (int)title.length())
+                cuttitle = title.left(i) + "...";
+        }
+        opt.text = cuttitle;
+    }
+
     if (d->flags & Qt::WindowSystemMenuHint) {
         opt.subControls |= QStyle::SC_TitleBarSysMenu | QStyle::SC_TitleBarCloseButton;
         if (d->window && (d->flags & Qt::WindowShadeButtonHint)) {
@@ -527,35 +535,6 @@ void QWorkspaceTitleBar::mouseDoubleClickEvent(QMouseEvent *e)
         break;
     }
 }
-
-void QWorkspaceTitleBar::cutText()
-{
-    Q_D(QWorkspaceTitleBar);
-    QFontMetrics fm(font());
-    QStyleOptionTitleBar opt = d->getStyleOption();
-    int maxw = style()->subControlRect(QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarLabel,
-                                       this).width();
-    if (!d->window)
-        return;
-
-    QString txt = d->window->windowTitle();
-    if (style()->styleHint(QStyle::SH_TitleBarModifyNotification, 0, this) && d->window
-        && d->window->isWindowModified())
-        txt += " *";
-
-    QString cuttext = txt;
-    if (fm.width(txt + "m") > maxw) {
-        int i = txt.length();
-        int dotlength = fm.width("...");
-        while (i>0 && fm.width(txt.left(i)) + dotlength > maxw)
-            i--;
-        if(i != (int)txt.length())
-            cuttext = txt.left(i) + "...";
-    }
-
-    setWindowTitle(cuttext);
-}
-
 
 void QWorkspaceTitleBar::leaveEvent(QEvent *)
 {
@@ -616,11 +595,6 @@ bool QWorkspaceTitleBar::event(QEvent *e)
         bool wasActive = d->act;
         setActive(false);
         d->act = wasActive;
-    } else if (e->type() == QEvent::WindowIconChange) {
-        update();
-    } else if (e->type() == QEvent::WindowTitleChange) {
-        cutText();
-        update();
     }
 
     d->inevent = false;
@@ -1602,7 +1576,7 @@ void QWorkspacePrivate::maximizeWindow(QWidget* w)
     inTitleChange = true;
     if (topTitle.size())
         q->window()->setWindowTitle(q->tr("%1 - [%2]")
-                                            .arg(topTitle).arg(c->windowTitle()));
+                                    .arg(topTitle).arg(c->windowWidget()->windowTitle()));
     inTitleChange = false;
 
     updateWorkspace();
@@ -1721,13 +1695,13 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
         if (o == window()) {
             QWidget *tlw = (QWidget*)o;
             if (!d->maxWindow
-                || tlw->windowTitle() != tr("%1 - [%2]").arg(d->topTitle).arg(d->maxWindow->windowTitle()))
+                || tlw->windowTitle() != tr("%1 - [%2]").arg(d->topTitle).arg(d->maxWindow->windowWidget()->windowTitle()))
                 d->topTitle = tlw->windowTitle();
         }
 
         if (d->maxWindow && d->topTitle.size())
             window()->setWindowTitle(tr("%1 - [%2]")
-                .arg(d->topTitle).arg(d->maxWindow->windowTitle()));
+                                     .arg(d->topTitle).arg(d->maxWindow->windowWidget()->windowTitle()));
         inTitleChange = false;
 
         break;
@@ -2584,29 +2558,21 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
         }
         ((QWorkspace*)parentWidget())->d_func()->hideChild(this);
     } break;
-    case QEvent::WindowTitleChange:
-        setWindowTitle(childWidget->windowTitle());
-        if (iconw)
-            iconw->setWindowTitle(childWidget->windowTitle());
-        break;
     case QEvent::WindowIconChange:
         {
             QWorkspace* ws = (QWorkspace*)parentWidget();
-            if (!titlebar)
-                break;
-            int iconSize = titlebar->size().height();
-            QIcon icon = childWidget->windowIcon();
-
-            titlebar->setWindowIcon(icon);
-            if (iconw)
-                iconw->setWindowIcon(icon);
-
-            if (ws->d_func()->maxWindow != this)
-                break;
-
-            if (ws->d_func()->maxtools)
-                ws->d_func()->maxtools->setPixmap(icon.pixmap(QSize(iconSize, iconSize)));
+            if (ws->d_func()->maxtools && ws->d_func()->maxWindow == this) {
+                int iconSize = ws->d_func()->maxtools->size().height();
+                ws->d_func()->maxtools->setPixmap(childWidget->windowIcon().pixmap(QSize(iconSize, iconSize)));
+            }
         }
+        // fall through
+    case QEvent::WindowTitleChange:
+    case QEvent::ModifiedChange:
+        if (titlebar)
+            titlebar->update();
+        if (iconw)
+            iconw->update();
         break;
     case QEvent::Resize:
         {
