@@ -2448,7 +2448,8 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
     windowSize = cr.size();
     backgroundWidget->setGeometry(cr);
     childWidget->move(cr.topLeft());
-    childWidget->resize(cr.size());
+    if (!childWidget->testAttribute(Qt::WA_PendingResizeEvent))
+        childWidget->resize(cr.size());
     ((QWorkspace*)parentWidget())->d_func()->updateWorkspace();
 
     if (wasMax) {
