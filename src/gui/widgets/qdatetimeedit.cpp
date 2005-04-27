@@ -1008,6 +1008,17 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
 
 
 /*!
+    \class QTimeEdit
+    \brief The QTimeEdit class provides a widget for editing times based on
+    the QDateTimeEdit widget.
+
+    \ingroup basic
+    \mainclass
+
+    \sa QDateEdit QDateTimeEdit
+*/
+
+/*!
   Constructs an empty time editor with a \a parent.
 */
 
@@ -1026,6 +1037,17 @@ QTimeEdit::QTimeEdit(const QTime &t, QWidget *parent)
     : QDateTimeEdit(t, parent)
 {
 }
+
+/*!
+    \class QDateEdit
+    \brief The QDateEdit class provides a widget for editing dates based on
+    the QDateTimeEdit widget.
+
+    \ingroup basic
+    \mainclass
+
+    \sa QTimeEdit QDateTimeEdit
+*/
 
 /*!
   Constructs an empty date editor with a \a parent.
