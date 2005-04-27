@@ -618,6 +618,9 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 
     QColor lightShadow = option->palette.button().color().light(105);
 
+    QColor shadowGradientStartColor = option->palette.button().color().dark(115);
+    QColor shadow = shadowGradientStartColor;
+
     switch (element) {
     case PE_FrameDefaultButton:
         // Draws the frame around a default button (drawn in
@@ -656,7 +659,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                     tabBarRect = QRect(twf->rect.right() - twf->leftCornerWidgetSize.width() - twf->tabBarSize.width() + 1, 
                                        twf->rect.bottom() - borderThickness + 1, twf->tabBarSize.width(), borderThickness);
                 else
-                    tabBarRect = QRect(twf->rect.right() - twf->rightCornerWidgetSize.width() - twf->tabBarSize.width() + 1, 
+                    tabBarRect = QRect(twf->rect.left() + twf->leftCornerWidgetSize.width(), 
                                        twf->rect.bottom() - borderThickness + 1, twf->tabBarSize.width(), borderThickness);
                 break ;
             default:
@@ -709,9 +712,11 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->drawLine(innerLeftLine);
             painter->drawLine(innerTopLine);
 
-            painter->setPen(alphaCornerColor);
+            painter->setPen(shadow);
             painter->drawLine(innerRightLine);
             painter->drawLine(innerBottomLine);
+
+            painter->setPen(alphaCornerColor);
             painter->drawPoint(leftBottomInnerCorner1);
             painter->drawPoint(leftBottomInnerCorner2);
             painter->drawPoint(rightBottomInnerCorner1);
@@ -1415,22 +1420,24 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->save();
 
             // Set up some convenience variables            
+            bool disabled = !(tab->state & State_Enabled);
             bool onlyTab = tab->position == QStyleOptionTab::OnlyOneTab;
             bool selected = (tab->state & State_Selected) || onlyTab;
-            bool mouseOver = (tab->state & State_MouseOver) && !selected; 
+            bool mouseOver = (tab->state & State_MouseOver) && !selected && !disabled; 
             bool previousSelected = tab->selectedPosition == QStyleOptionTab::PreviousIsSelected;
             bool nextSelected = tab->selectedPosition == QStyleOptionTab::NextIsSelected;            
             bool leftCornerWidget = (tab->cornerWidgets & QStyleOptionTab::LeftCornerWidget);
-            bool reverse = (tab->direction == Qt::RightToLeft);
+            bool reverse = (tab->direction == Qt::RightToLeft);            
 
             int lowerTop = selected ? 0 : 3; // to make the selected tab bigger than the rest
             QRect adjustedRect;
             bool atEnd = (tab->position == QStyleOptionTab::End) || onlyTab;
             bool atBeginning = ((tab->position == QStyleOptionTab::Beginning) || onlyTab) && !leftCornerWidget;            
+            bool reverseShadow = false;
 
             int borderThickness = pixelMetric(PM_TabBarBaseOverlap, tab, widget);
             int marginLeft = 0;
-            if (atBeginning && !selected) {                
+            if ((atBeginning && !selected) || (selected && leftCornerWidget && (tab->position == QStyleOptionTab::Beginning) || onlyTab)) {                
                 marginLeft = 1;
             }
 
@@ -1461,6 +1468,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     if (reverse) {
                         vectorLeft = QPoint(1, 0);
                         vectorRight = QPoint(-1, 0);
+                        reverseShadow = true;
                     } else {
                         vectorLeft = QPoint(-1, 0);
                         vectorRight = QPoint(1, 0);
@@ -1508,21 +1516,33 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     bottomRight = tab->rect.bottomLeft();
 
                     baseColor1 = borderColor;
-                    baseColor2 = alphaCornerColor;                    
+                    baseColor2 = shadow;                    
                     break ;
                 case QTabBar::RoundedSouth:
                     vectorUp = QPoint(0, 1);
                     vectorDown = QPoint(0, -1);
-                    vectorLeft = QPoint(-1, 0);
-                    vectorRight = QPoint(1, 0);
 
-                    topLeft = tab->rect.bottomLeft();
-                    topRight = tab->rect.bottomRight();
-                    bottomLeft = tab->rect.topLeft();
-                    bottomRight = tab->rect.topRight();
+                    if (reverse) {
+                        vectorLeft = QPoint(1, 0);
+                        vectorRight = QPoint(-1, 0);
+                        reverseShadow = true;
+
+                        topLeft = tab->rect.bottomRight();
+                        topRight = tab->rect.bottomLeft();
+                        bottomLeft = tab->rect.topRight();
+                        bottomRight = tab->rect.topLeft();
+                    } else {
+                        vectorLeft = QPoint(-1, 0);
+                        vectorRight = QPoint(1, 0);
+
+                        topLeft = tab->rect.bottomLeft();
+                        topRight = tab->rect.bottomRight();
+                        bottomLeft = tab->rect.topLeft();
+                        bottomRight = tab->rect.topRight();
+                    }
 
                     baseColor1 = borderColor;
-                    baseColor2 = alphaCornerColor;                    
+                    baseColor2 = shadow;  
                     break ;
                 default:
                     break;
@@ -1639,8 +1659,18 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
 
                     if (selected) {
                         painter->drawPoint(bottomRightConnectToBase + vectorLeft);
-                        if (!atBeginning)                             
+                        if (!atBeginning) {                            
                             painter->drawPoint(bottomLeftConnectToBase + vectorRight);
+
+                            if (((tab->position == QStyleOptionTab::Beginning) || onlyTab) && leftCornerWidget) {
+                                // A special case: When the first tab is selected and 
+                                // has a left corner widget, it needs to do more work
+                                // to connect to the base
+                                QPoint p1 = bottomLeftConnectToBase + vectorDown;
+
+                                painter->drawPoint(p1);
+                            }
+                        }
                     }
 
                     // Inner border                    
@@ -1656,6 +1686,13 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     painter->drawLine(innerTopLine);
 
                     QLine innerLeftLine = QLine(leftLine.p1() + vectorRight + vectorDown, leftLine.p2() + vectorRight);
+                    QLine innerRightLine = QLine(rightLine.p1() + vectorLeft + vectorDown, rightLine.p2() + vectorLeft);
+
+                    if (selected) {
+                        innerRightLine = QLine(innerRightLine.p1() + vectorUp, innerRightLine.p2());
+                        innerLeftLine = QLine(innerLeftLine.p1() + vectorUp, innerLeftLine.p2());
+                    }
+
                     if (selected || atBeginning) {
                         if (!selected) {
                             QLinearGradient leftLineGradient(innerLeftLine.p1(),innerLeftLine.p2());
@@ -1664,21 +1701,30 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                             painter->setPen(QPen(QBrush(leftLineGradient), 1));
                         }
 
-                        painter->drawLine(innerLeftLine);
+                        // Assume the sun is on the same side in Right-To-Left layouts and draw the 
+                        // light shadow on the left side always (the right line is on the left side in
+                        // reverse layouts for north and south)
+                        if (reverseShadow)
+                            painter->drawLine(innerRightLine);
+                        else
+                            painter->drawLine(innerLeftLine);
                     }
-                    QLine innerRightLine = QLine(rightLine.p1() + vectorLeft + vectorDown, rightLine.p2() + vectorLeft);
+
+                    
                     if (atEnd || selected) {                        
                         if (!selected) {
                             QLinearGradient rightLineGradient(innerRightLine.p1(),innerRightLine.p2());
                             rightLineGradient.setColorAt(0, shadowGradientStartColor);
                             rightLineGradient.setColorAt(1, shadowGradientStopColor);
                             painter->setPen(QPen(QBrush(rightLineGradient), 1));
-                        } else {
-                            innerRightLine = QLine(innerRightLine.p1() + vectorUp, innerRightLine.p2());
+                        } else {                            
                             painter->setPen(shadow);
                         }
                         
-                        painter->drawLine(innerRightLine);
+                        if (reverseShadow)
+                            painter->drawLine(innerLeftLine);
+                        else
+                            painter->drawLine(innerRightLine);
                     }
 
 
