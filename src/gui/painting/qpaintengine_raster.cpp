@@ -1900,6 +1900,15 @@ QRasterBuffer::~QRasterBuffer()
             qFree((QT_FT_Span *)m_clipSpans[y]);
         qFree(m_clipSpans);
     }
+
+#if defined (Q_WS_WIN)
+    if (m_bitmap || m_hdc) {
+        Q_ASSERT(m_hdc);
+        Q_ASSERT(m_bitmap);
+        DeleteObject(m_hdc);
+        DeleteObject(m_bitmap);
+    }
+#endif
 }
 
 void QRasterBuffer::init()
@@ -2618,7 +2627,7 @@ void GradientData::initColorTable()
 
 /**
  * Initialzes the xincr and yincr delta values that is used to interpolate the Linear Gradient
- * 
+ *
  * The deltas are found by projecting the gradientline down to a horizontal (xincr) or vertical (yincr)
  * line that covers the whole gradient (from 0 to 1.0).
  * Given that the gradient line is d, the transformed normal vector is n, we use this formula to
@@ -2653,7 +2662,7 @@ void LinearGradientData::init()
         qDebug(" - %d, pos=%f, color=%x", i, stopPoints[i], stopColors[i]);
     }
 #endif
-    
+
     // Calculate the normalvector and transform it.
     QLineF n = brushMatrix.map(QLineF(x1, y1, x2, y2).normalVector() );
 
