@@ -271,7 +271,7 @@ bool QFontEngineWin::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     }
 
     *nglyphs = getGlyphIndexes(str, len, glyphs, flags & QTextEngine::RightToLeft);
-                
+
     HDC hdc = shared_dc;
     if (flags & QTextEngine::DesignMetrics) {
         HGDIOBJ oldFont = 0;
@@ -576,7 +576,7 @@ bool QFontEngineWin::canRender(const QChar *string,  int len)
     } else if (ttf) {
         for (int i = 0; i < len; ++i) {
             unsigned int uc = getChar(string, i, len);
-            if (getGlyphIndex(cmap, uc) == 0) 
+            if (getGlyphIndex(cmap, uc) == 0)
                 return false;
         }
     } else {
@@ -613,7 +613,7 @@ static inline QPointF qt_to_qpointf(const POINTFX &pt) {
 #endif
 
 void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
-                                      QPainterPath *path)
+                                      QPainterPath *path, QTextItem::RenderFlags flags)
 {
     QPointF oset(x, y);
     MAT2 mat;
@@ -630,6 +630,10 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
     bool useFallback = false;
 
+    if (flags & QTextItem::RightToLeft) {
+        for (int gl = 0; gl < numGlyphs; gl++)
+            point += glyphs[gl].advance;
+    }
     for (int i=0; i<numGlyphs; ++i) {
         memset(&gMetric, 0, sizeof(GLYPHMETRICS));
         int bufferSize;
@@ -665,6 +669,8 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
         int headerOffset = 0;
         TTPOLYGONHEADER *ttph = 0;
 
+        if (flags & QTextItem::RightToLeft)
+            oset -= glyphs[i].advance;
         while (headerOffset < bufferSize) {
             ttph = (TTPOLYGONHEADER*)((char *)dataBuffer + headerOffset);
 
@@ -719,7 +725,8 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
             headerOffset += ttph->cb;
         }
         delete [] (char*)dataBuffer;
-        oset += glyphs[i].advance;
+        if (!(flags & QTextItem::RightToLeft))
+            oset += glyphs[i].advance;
     }
 
     if (useFallback) {
@@ -937,7 +944,7 @@ static unsigned char *getCMap(HDC hdc, bool &symbol)
     unsigned int length;
     if(format < 8)
         length = getUShort(header+2);
-    else 
+    else
         length = getUInt(header+4);
     unsigned char *unicode_data = new unsigned char[length];
 

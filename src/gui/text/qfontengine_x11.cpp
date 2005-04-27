@@ -1116,15 +1116,22 @@ static void addCurve(QPainterPath *path, const QPointF &cp, const QPointF &endPo
     }
 }
 
-void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
+void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
     if (FT_IS_SCALABLE(freetype->face)) {
         FT_Face face = lockFace();
         QPointF point = QPointF(x, y);
+        if (flags & QTextItem::RightToLeft) {
+            for (int gl = 0; gl < numGlyphs; gl++)
+                point += glyphs[gl].advance;
+        }
         for (int gl = 0; gl < numGlyphs; gl++) {
             FT_UInt glyph = glyphs[gl].glyph;
+            if (flags & QTextItem::RightToLeft)
+                point -= glyphs[gl].advance;
             QPointF cp = point + glyphs[gl].offset;
-            point += glyphs[gl].advance;
+            if (!(flags & QTextItem::RightToLeft))
+                point += glyphs[gl].advance;
 
             FT_Load_Glyph(face, glyph, FT_LOAD_NO_HINTING|FT_LOAD_NO_BITMAP);
 
@@ -1178,7 +1185,7 @@ void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyph
         }
         unlockFace();
     } else {
-        addBitmapFontToPath(x, y, glyphs, numGlyphs, path);
+        addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
     }
 }
 

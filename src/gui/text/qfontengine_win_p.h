@@ -11,7 +11,7 @@ public:
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
+    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
     virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
     HGDIOBJ selectDesignFont(float *) const;

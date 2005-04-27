@@ -656,7 +656,7 @@ OSStatus QMacFontPath::closePath(void *data)
 
 
 void QFontEngineMac::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
-                                      QPainterPath *path)
+                                      QPainterPath *path, QTextItem::RenderFlags)
 {
 
     OSStatus e;

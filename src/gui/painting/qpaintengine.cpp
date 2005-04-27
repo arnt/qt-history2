@@ -593,7 +593,8 @@ void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 #endif
 
     QPainterPath path;
-    ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path);
+    path.setFillRule(Qt::WindingFill);
+    ti.fontEngine->addOutlineToPath(p.x(), p.y(), ti.glyphs, ti.num_glyphs, &path, ti.flags);
     if (!path.isEmpty()) {
         painter()->save();
         painter()->setBrush(state->pen().brush());

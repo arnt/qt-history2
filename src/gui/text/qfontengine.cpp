@@ -21,13 +21,14 @@
 #include <math.h>
 
 
-void QFontEngine::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
+void QFontEngine::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path,
+                                   QTextItem::RenderFlags flags)
 {
-    addBitmapFontToPath(x, y, glyphs, numGlyphs, path);
+    addBitmapFontToPath(x, y, glyphs, numGlyphs, path, flags);
 }
 
 void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs,
-                                 QPainterPath *path)
+                                      QPainterPath *path, QTextItem::RenderFlags flags)
 {
     glyph_metrics_t metrics = boundingBox(glyphs, numGlyphs);
     QBitmap bm(qRound(metrics.width), qRound(metrics.height));
@@ -36,7 +37,7 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     p.setPen(Qt::color1);
 
     QTextItemInt item;
-    item.flags = 0;
+    item.flags = flags;
     item.descent = descent();
     item.ascent = ascent();
     item.width = metrics.width;
@@ -318,7 +319,7 @@ glyph_metrics_t QFontEngineMulti::boundingBox(const QGlyphLayout *glyphs_const, 
 }
 
 void QFontEngineMulti::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs_const, int numGlyphs,
-                                        QPainterPath *path)
+                                        QPainterPath *path, QTextItem::RenderFlags flags)
 {
     if (numGlyphs <= 0)
         return;
@@ -327,23 +328,38 @@ void QFontEngineMulti::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *gl
     int which = highByte(glyphs[0].glyph);
     int start = 0;
     int end, i;
+    if (flags & QTextItem::RightToLeft) {
+        for (int gl = 0; gl < numGlyphs; gl++) {
+            x += glyphs[gl].advance.x();
+            y += glyphs[gl].advance.x();
+        }
+    }
     for (end = 0; end < numGlyphs; ++end) {
         const int e = highByte(glyphs[end].glyph);
         if (e == which)
             continue;
 
+        if (flags & QTextItem::RightToLeft) {
+            for (i = start; i < end; ++i) {
+                x -= glyphs[i].advance.x();
+                y -= glyphs[i].advance.y();
+            }
+        }
+
         // set the high byte to zero
         for (i = start; i < end; ++i)
             glyphs[i].glyph = stripped(glyphs[i].glyph);
-
-        engine(which)->addOutlineToPath(x, y, glyphs + start, end - start, path);
-
+        engine(which)->addOutlineToPath(x, y, glyphs + start, end - start, path, flags);
         // reset the high byte for all glyphs and update x and y
         const int hi = which << 24;
-        for (i = start; i < end; ++i) {
+        for (i = start; i < end; ++i)
             glyphs[i].glyph = hi | glyphs[i].glyph;
-            x += glyphs[i].advance.x();
-            y += glyphs[i].advance.y();
+
+        if (!(flags & QTextItem::RightToLeft)) {
+            for (i = start; i < end; ++i) {
+                x += glyphs[i].advance.x();
+                y += glyphs[i].advance.y();
+            }
         }
 
         // change engine
@@ -351,11 +367,18 @@ void QFontEngineMulti::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *gl
         which = e;
     }
 
+    if (flags & QTextItem::RightToLeft) {
+        for (i = start; i < end; ++i) {
+            x -= glyphs[i].advance.x();
+            y -= glyphs[i].advance.y();
+        }
+    }
+
     // set the high byte to zero
     for (i = start; i < end; ++i)
         glyphs[i].glyph = stripped(glyphs[i].glyph);
 
-    engine(which)->addOutlineToPath(x, y, glyphs + start, end - start, path);
+    engine(which)->addOutlineToPath(x, y, glyphs + start, end - start, path, flags);
 
     // reset the high byte for all glyphs
     const int hi = which << 24;

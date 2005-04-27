@@ -283,14 +283,21 @@ static void addCurve(QPainterPath *path, const QPointF &cp, const QPointF &endPo
     }
 }
 
-void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path)
+void QFontEngineFT::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags)
 {
     if (FT_IS_SCALABLE(face)) {
         QPointF point = QPointF(x, y);
+        if (flags & QTextItem::RightToLeft) {
+            for (int gl = 0; gl < numGlyphs; gl++)
+                point += glyphs[gl].advance;
+        }
         for (int i = 0; i < numGlyphs; i++) {
             FT_UInt glyph = glyphs[i].glyph;
+            if (flags & QTextItem::RightToLeft)
+                point -= glyphs[i].advance;
             QPointF cp = point + glyphs[i].offset;
-            point += glyphs[i].advance;
+            if (!(flags & QTextItem::RightToLeft))
+                point += glyphs[i].advance;
 
             FT_Load_Glyph(face, glyph, FT_LOAD_NO_BITMAP);
 

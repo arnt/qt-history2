@@ -100,8 +100,8 @@ public:
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
     virtual void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si) = 0;
 #endif
-    virtual void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *);
-    virtual void addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *, int, QPainterPath *);
+    virtual void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags flags);
+    virtual void addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags);
 
     virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
@@ -182,7 +182,7 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si);
-    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
+    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
     void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
@@ -309,7 +309,7 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
     void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si);
-    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path);
+    void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -353,7 +353,7 @@ public:
 
     void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
     void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
-    void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *);
+    void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags flags);
 
     qreal ascent() const;
     qreal descent() const;
