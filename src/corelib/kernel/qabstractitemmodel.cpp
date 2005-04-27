@@ -727,31 +727,31 @@ void QAbstractItemModelPrivate::reset()
     Models that provide interfaces to resizable data structures can
     provide implementations of insertRows(), removeRows(), insertColumns(),
     and removeColumns(). When implementing these functions, it is
-    important to emit all the appropriate signals so that connected views
-    are aware of any changes both \e before and \e after they occur:
+    important to notify any connected views about changes to the model's
+    dimensions both \e before and \e after they occur:
 
     \list
-    \o An insertRows() implementation must emit rowsAboutToBeInserted()
-       \e before inserting new rows into the data structure, and it must emit
-       rowsInserted() \e{immediately afterwards}.
-    \o An insertColumns() implementation must emit columnsAboutToBeInserted()
-       \e before inserting new columns into the data structure, and it must emit
-       columnsInserted() \e{immediately afterwards}.
-    \o A removeRows() implementation must emit rowsAboutToBeRemoved()
+    \o An insertRows() implementation must call beginInsertRows()
+       \e before inserting new rows into the data structure, and it must
+       call endInsertRows() \e{immediately afterwards}.
+    \o An insertColumns() implementation must call beginInsertColumns()
+       \e before inserting new columns into the data structure, and it must
+       call endInsertColumns() \e{immediately afterwards}.
+    \o A removeRows() implementation must call beginRemoveRows() 
        \e before the rows are removed from the data structure, and it must
-       emit rowsRemoved() \e{immediately afterwards}.
-    \o A removeColumns() implementation must emit columnsAboutToBeRemoved()
+       call endRemoveRows() \e{immediately afterwards}.
+    \o A removeColumns() implementation must call beginRemoveColumns()
        \e before the columns are removed from the data structure, and it must
-       emit columnsRemoved() \e{immediately afterwards}.
+       call endRemoveColumns() \e{immediately afterwards}.
     \endlist
 
-    The signals that are emitted by the model before data is inserted or
-    removed give attached components the chance to take action before any
-    data becomes unavailable. The encapsulation of the insert and remove
-    operations with signals also enable the model to manage
-    \l{QPersistentModelIndex}{persistent model indexes} correctly. If you
-    want selections to be handled properly, you must ensure that these
-    signals are emitted.
+    The signals that these functions emit give attached components the chance
+    to take action before any data becomes unavailable. The encapsulation of
+    the insert and remove operations with these begin and end functions also
+    enable the model to manage
+    \l{QPersistentModelIndex}{persistent model indexes} correctly.
+    \bold{If you want selections to be handled properly, you must ensure that
+    you call these functions.}
 
     \sa \link model-view-programming.html Model/View Programming\endlink QModelIndex QAbstractItemView
 
@@ -861,18 +861,6 @@ QAbstractItemModel::~QAbstractItemModel()
 /*!
     \fn int QAbstractItemModel::columnCount(const QModelIndex &parent) const = 0;
     Returns the number of columns for the given \a parent.
-*/
-
-/*!
-    \fn void QAbstractItemModel::reset()
-
-    This signal is emitted when the model has been reset. When a model
-    is reset it means that any previous data reported from the model
-    is now invalid and has to be queried for again.
-
-    When a model radically changes its data it can sometimes be easier
-    to just emit this signal rather than using rowsRemoved(),
-    dataChanged(), etc.
 */
 
 /*!
@@ -1515,6 +1503,19 @@ bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &pare
     return true;
 }
 
+/*!
+    Begins a row insertion operation.
+
+    When reimplementing insertRows() in a subclass, you must call this
+    function \e before inserting data into the model's underlying data
+    store.
+
+    The \a parent index corresponds to the parent into which the new
+    rows are inserted; \a first and \a last are the row numbers of the new
+    rows to be inserted.
+
+    \sa endInsertRows()
+*/
 void QAbstractItemModel::beginInsertRows(const QModelIndex &parent, int first, int last)
 {
     Q_D(QAbstractItemModel);
@@ -1525,6 +1526,15 @@ void QAbstractItemModel::beginInsertRows(const QModelIndex &parent, int first, i
     d->rowsAboutToBeInserted(parent, first, last);
 }
 
+/*!
+    Ends a row insertion operation.
+
+    When reimplementing insertRows() in a subclass, you must call this
+    function \e after inserting data into the model's underlying data
+    store.
+
+    \sa beginInsertRows()
+*/
 void QAbstractItemModel::endInsertRows()
 {
     Q_D(QAbstractItemModel);
@@ -1532,6 +1542,19 @@ void QAbstractItemModel::endInsertRows()
     emit rowsInserted(d->change.parent, d->change.first, d->change.last);
 }
 
+/*!
+    Begins a row removal operation.
+
+    When reimplementing removeRows() in a subclass, you must call this
+    function \e before removing data from the model's underlying data
+    store.
+
+    The \a parent index corresponds to the parent from which the new
+    rows are removed; \a first and \a last are the row numbers of the
+    rows to be removed.
+
+    \sa endRemoveRows()
+*/
 void QAbstractItemModel::beginRemoveRows(const QModelIndex &parent, int first, int last)
 {
     Q_D(QAbstractItemModel);
@@ -1542,6 +1565,15 @@ void QAbstractItemModel::beginRemoveRows(const QModelIndex &parent, int first, i
     d->rowsAboutToBeRemoved(parent, first, last);
 }
 
+/*!
+    Ends a row removal operation.
+
+    When reimplementing removeRows() in a subclass, you must call this
+    function \e after removing data from the model's underlying data
+    store.
+
+    \sa beginRemoveRows()
+*/
 void QAbstractItemModel::endRemoveRows()
 {
     Q_D(QAbstractItemModel);
@@ -1549,6 +1581,19 @@ void QAbstractItemModel::endRemoveRows()
     emit rowsRemoved(d->change.parent, d->change.first, d->change.last);
 }
 
+/*!
+    Begins a column insertion operation.
+
+    When reimplementing insertColumns() in a subclass, you must call this
+    function \e before inserting data into the model's underlying data
+    store.
+
+    The \a parent index corresponds to the parent into which the new
+    columns are inserted; \a first and \a last are the column numbers of
+    the new columns to be inserted.
+
+    \sa endInsertColumns()
+*/
 void QAbstractItemModel::beginInsertColumns(const QModelIndex &parent, int first, int last)
 {
     Q_D(QAbstractItemModel);
@@ -1559,6 +1604,15 @@ void QAbstractItemModel::beginInsertColumns(const QModelIndex &parent, int first
     d->columnsAboutToBeInserted(parent, first, last);
 }
 
+/*!
+    Ends a column insertion operation.
+
+    When reimplementing insertColumns() in a subclass, you must call this
+    function \e after inserting data into the model's underlying data
+    store.
+
+    \sa beginInsertColumns()
+*/
 void QAbstractItemModel::endInsertColumns()
 {
     Q_D(QAbstractItemModel);
@@ -1566,6 +1620,19 @@ void QAbstractItemModel::endInsertColumns()
     emit columnsInserted(d->change.parent, d->change.first, d->change.last);
 }
 
+/*!
+    Begins a column removal operation.
+
+    When reimplementing removeColumns() in a subclass, you must call this
+    function \e before removing data from the model's underlying data
+    store.
+
+    The \a parent index corresponds to the parent from which the new
+    columns are removed; \a first and \a last are the column numbers of the
+    columns to be removed.
+
+    \sa endRemoveColumns()
+*/
 void QAbstractItemModel::beginRemoveColumns(const QModelIndex &parent, int first, int last)
 {
     Q_D(QAbstractItemModel);
@@ -1576,6 +1643,15 @@ void QAbstractItemModel::beginRemoveColumns(const QModelIndex &parent, int first
     d->columnsAboutToBeRemoved(parent, first, last);
 }
 
+/*!
+    Ends a column removal operation.
+
+    When reimplementing removeColumns() in a subclass, you must call this
+    function \e after removing data from the model's underlying data
+    store.
+
+    \sa beginRemoveColumns()
+*/
 void QAbstractItemModel::endRemoveColumns()
 {
     Q_D(QAbstractItemModel);
@@ -1583,6 +1659,16 @@ void QAbstractItemModel::endRemoveColumns()
     emit columnsRemoved(d->change.parent, d->change.first, d->change.last);
 }
 
+/*!
+    Resets the model to its original state in any attached views.
+
+    When a model is reset it means that any previous data reported from
+    the model is now invalid and has to be queried for again.
+
+    When a model radically changes its data it can sometimes be easier
+    to just emit this signal rather than using rowsRemoved(),
+    dataChanged(), etc.
+*/
 void QAbstractItemModel::reset()
 {
     Q_D(QAbstractItemModel);
