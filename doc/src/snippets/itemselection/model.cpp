@@ -134,9 +134,10 @@ bool TableModel::setData(const QModelIndex &index,
     Inserts a number of rows into the model at the specified position.
 */
 
-bool TableModel::insertRows(int position, int rows, const QModelIndex &/*parent*/)
+bool TableModel::insertRows(int position, int rows, const QModelIndex &parent)
 {
     int columns = columnCount();
+    beginInsertRows(parent, position, position + rows - 1);
 
     for (int row = 0; row < rows; ++row) {
         QStringList items;
@@ -145,7 +146,7 @@ bool TableModel::insertRows(int position, int rows, const QModelIndex &/*parent*
         rowList.insert(position, items);
     }
 
-    emit rowsInserted(QModelIndex(), position, position+rows-1);
+    endInsertRows();
     return true;
 }
 
@@ -156,9 +157,10 @@ bool TableModel::insertRows(int position, int rows, const QModelIndex &/*parent*
 */
 
 bool TableModel::insertColumns(int position, int columns,
-                               const QModelIndex &/*parent*/)
+                               const QModelIndex &parent)
 {
     int rows = rowCount();
+    beginInsertColumns(parent, position, position + columns - 1);
 
     for (int row = 0; row < rows; ++row) {
         for (int column = position; column < columns; ++column) {
@@ -166,7 +168,7 @@ bool TableModel::insertColumns(int position, int columns,
         }
     }
 
-    emit columnsInserted(QModelIndex(), position, position+columns-1);
+    endInsertColumns();
     return true;
 }
 
@@ -174,15 +176,15 @@ bool TableModel::insertColumns(int position, int columns,
     Removes a number of rows from the model at the specified position.
 */
 
-bool TableModel::removeRows(int position, int rows,
-                            const QModelIndex &/*parent*/)
+bool TableModel::removeRows(int position, int rows, const QModelIndex &parent)
 {
-    emit rowsAboutToBeRemoved(QModelIndex(), position, position+rows-1);
+    beginRemoveRows(parent, position, position + rows - 1);
 
     for (int row = 0; row < rows; ++row) {
         rowList.removeAt(position);
     }
 
+    endRemoveRows();
     return true;
 }
 
@@ -192,10 +194,10 @@ bool TableModel::removeRows(int position, int rows,
 */
 
 bool TableModel::removeColumns(int position, int columns,
-                               const QModelIndex &/*parent*/)
+                               const QModelIndex &parent)
 {
     int rows = rowCount();
-    emit columnsAboutToBeRemoved(QModelIndex(), position, position+columns-1);
+    beginRemoveColumns(parent, position, position + columns - 1);
 
     for (int row = 0; row < rows; ++row) {
         for (int column = 0; column < columns; ++column) {
@@ -203,5 +205,6 @@ bool TableModel::removeColumns(int position, int columns,
         }
     }
 
+    endRemoveColumns();
     return true;
 }

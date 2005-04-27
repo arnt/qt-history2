@@ -101,11 +101,11 @@ bool LinearModel::setData(const QModelIndex &index,
 
 bool LinearModel::insertRows(int position, int rows, const QModelIndex &parent)
 {
-    Q_UNUSED(parent);
+    beginInsertRows(parent, position, position + rows - 1);
 
     values.insert(position, rows, 0);
 
-    emit rowsInserted(QModelIndex(), position, position+rows-1);
+    endInsertRows();
     return true;
 }
 
@@ -115,10 +115,10 @@ bool LinearModel::insertRows(int position, int rows, const QModelIndex &parent)
 
 bool LinearModel::removeRows(int position, int rows, const QModelIndex &parent)
 {
-    Q_UNUSED(parent);
+    beginRemoveRows(QModelIndex(), position, position+rows-1);
 
-    emit rowsAboutToBeRemoved(QModelIndex(), position, position+rows-1);
     values.remove(position, rows);
 
+    endRemoveRows();
     return true;
 }
