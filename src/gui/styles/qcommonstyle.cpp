@@ -1515,6 +1515,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                 r.setWidth(qMin(r.width(), twf->rect.width()
                                             - twf->leftCornerWidgetSize.width()
                                             - twf->rightCornerWidgetSize.width()));
+                r = visualRect(twf->direction, twf->rect, r);
                 break;
             case QTabBar::RoundedEast:
             case QTabBar::TriangularEast:
