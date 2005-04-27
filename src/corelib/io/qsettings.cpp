@@ -66,13 +66,10 @@ Q_GLOBAL_STATIC(QMutex, mutex)
 Q_GLOBAL_STATIC(QString, defaultSystemIniPath)
 Q_GLOBAL_STATIC(QString, defaultUserIniPath)
 
-static ConfFileHash *usedHash;
-static ConfFileCache *unusedCache;
-
 QConfFile::QConfFile(const QString &fileName)
     : name(fileName), size(0), ref(1)
 {
-    usedHash->insert(name, this);
+    usedHashFunc()->insert(name, this);
 #ifdef Q_OS_WIN
     semHandle = 0;
 #endif
@@ -101,8 +98,8 @@ QConfFile *QConfFile::fromName(const QString &fileName)
     QConfFile *confFile;
     QString absPath = QFileInfo(fileName).absoluteFilePath();
 
-    usedHash = usedHashFunc();
-    unusedCache = unusedCacheFunc();
+    ConfFileHash *usedHash = usedHashFunc();
+    ConfFileCache *unusedCache = unusedCacheFunc();
 
     QMutexLocker locker(mutex());
 
@@ -119,10 +116,8 @@ QConfFile *QConfFile::fromName(const QString &fileName)
 
 void QConfFile::clearCache()
 {
-    unusedCache = unusedCacheFunc();
-
     QMutexLocker locker(mutex());
-    unusedCache->clear();
+    unusedCacheFunc()->clear();
 }
 
 // ************************************************************************
@@ -962,14 +957,17 @@ QConfFileSettingsPrivate::QConfFileSettingsPrivate(const QString &fileName,
 QConfFileSettingsPrivate::~QConfFileSettingsPrivate()
 {
     QMutexLocker locker(mutex());
+    ConfFileHash *usedHash = usedHashFunc();
+    ConfFileCache *unusedCache = unusedCacheFunc();
 
     for (int i = 0; i < NumConfFiles; ++i) {
         if (confFiles[i] && !confFiles[i]->ref.deref()) {
-            usedHash->remove(confFiles[i]->name);
+            if (usedHash)
+                usedHash->remove(confFiles[i]->name);
 
             if (confFiles[i]->size == 0) {
                 delete confFiles[i];
-            } else {
+            } else if (unusedCache) {
                 unusedCache->insert(confFiles[i]->name, confFiles[i],
                                       10 + (confFiles[i]->originalKeys.size() / 4));
             }
