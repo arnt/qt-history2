@@ -14,4 +14,5 @@ SUBDIRS       = analogclock \
                 styles \
                 tetrix \
                 tooltips \
-                wiggly
+                wiggly \
+                windowflags
