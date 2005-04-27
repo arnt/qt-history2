@@ -118,8 +118,7 @@ void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
 /*!
     \class QListView qlistview.h
 
-    \brief The QListView class provides a default model/view
-    implementation of a list, and of an icon view.
+    \brief The QListView class provides a list or icon view onto a model.
 
     \ingroup model-view
     \mainclass
@@ -132,6 +131,9 @@ void QBinTree<T>::init(const QRect &area, int depth, NodeType type, int index)
 
     The QListView class is one of the \l{Model/View Classes}
     and is part of Qt's \l{Model/View Programming}{model/view framework}.
+
+    This view does not display horizontal or vertical headers; to display
+    a list of items with a horizontal header, use QTreeView instead.
 
     QListView implements the interfaces defined by the
     QAbstractItemView class to allow it to display data provided by
