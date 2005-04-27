@@ -592,6 +592,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     q->setGeometry(0, 0, s.width(), s.height());
     q->setEnabled(enable);
     q->setFocusPolicy(fp);
+    if (!extra->mask.isEmpty())
+        q->setMask(extra->mask);
     if (!capt.isNull()) {
         extra->topextra->caption = QString::null;
         q->setWindowTitle(capt);
@@ -1306,16 +1308,8 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     if (!isMove && !isResize)
         return;
 
-    if (isResize) {
-        if (!q->testAttribute(Qt::WA_StaticContents))
-            ValidateRgn(q->winId(), 0);
-        else if (!q->testAttribute(Qt::WA_WState_InPaintEvent)) {
-            QRegion region(0, 0, 1, 1);
-            int result = GetUpdateRgn(q->winId(), region.handle(), false);
-            if (result != NULLREGION && result != ERROR)
-                q->repaint(region);
-        }
-    }
+    if (isResize && !q->testAttribute(Qt::WA_StaticContents))
+        ValidateRgn(q->winId(), 0);
 
     if (isResize)
         data.window_state &= ~Qt::WindowMaximized;
@@ -1354,7 +1348,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             QResizeEvent e(q->size(), oldSize);
             QApplication::sendEvent(q, &e);
             if (!q->testAttribute(Qt::WA_StaticContents))
-                q->testAttribute(Qt::WA_WState_InPaintEvent)?q->update():q->repaint();
+                q->update();
         }
     } else {
         if (isMove && q->pos() != oldPos)

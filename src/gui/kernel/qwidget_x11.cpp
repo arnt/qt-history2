@@ -841,6 +841,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 
     q->setEnabled(enable);
     q->setFocusPolicy(fp);
+    if (!extra->mask.isEmpty())
+        q->setMask(extra->mask);
     if (!capt.isNull()) {
         extra->topextra->caption = QString::null;
         q->setWindowTitle(capt);
