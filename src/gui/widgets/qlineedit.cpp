@@ -104,9 +104,15 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     When the text changes the textChanged() signal is emitted; when
     the cursor is moved the cursorPositionChanged() signal is emitted
     and when the Return or Enter key is pressed the returnPressed()
-    signal is emitted. Note that if there is a validator set on the
-    line edit, the returnPressed() signal will only be emitted if the
-    validator returns \c Acceptable.
+    signal is emitted.
+
+    When editing is finished, either because the line edit lost focus
+    or Return/Enter is pressed the editingFinished() signal is
+    emitted.
+
+    Note that if there is a validator set on the line edit, the
+    returnPressed()/editingFinished() signals will only be emitted if
+    the validator returns \c Acceptable.
 
     By default, QLineEdits have a frame as specified by the Windows
     and Motif style guides; you can turn it off by calling
@@ -179,15 +185,6 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
 
     \sa hasSelectedText(), selectedText()
 */
-
-/*!
-    \fn void QLineEdit::lostFocus()
-
-    This signal is emitted when the line edit has lost focus.
-
-    \sa hasFocus(), QWidget::focusInEvent(), QWidget::focusOutEvent()
-*/
-
 
 /*!
     Constructs a line edit with no text.
@@ -863,6 +860,16 @@ int QLineEdit::selectionStart() const
 
 
 #ifdef QT3_SUPPORT
+
+/*!
+    \fn void QLineEdit::lostFocus()
+
+    This signal is emitted when the line edit has lost focus.
+
+    Use editingFinished() instead
+    \sa editingFinished(), returnPressed()
+*/
+
 /*!
     Use isModified() instead.
 */
@@ -1422,6 +1429,16 @@ void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
 */
 
 /*!
+    \fn void  QLineEdit::editingFinished()
+
+    This signal is emitted when the Return or Enter key is pressed or
+    the line edit looses focus. Note that if there is a validator() or
+    inputMask() set on the line edit and enter/return is pressed, the
+    editingFinished() signal will only be emitted if the input follows
+    the inputMask() and the validator() returns \c Acceptable.
+*/
+
+/*!
     Converts key press event \a e into a line edit action.
 
     If Return or Enter is pressed and the current text is valid (or
@@ -1440,6 +1457,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
         const QValidator * v = d->validator;
         if (hasAcceptableInput()) {
             emit returnPressed();
+            emit editingFinished();
         }
 #ifndef QT_NO_VALIDATOR
         else {
@@ -1452,6 +1470,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
                 if (v && (textCopy != d->text || cursorCopy != d->cursor))
                     d->setText(textCopy, cursorCopy);
                 emit returnPressed();
+                emit editingFinished();
             }
         }
 #endif
@@ -1820,8 +1839,12 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
     if (d->cursorTimer > 0)
         killTimer(d->cursorTimer);
     d->cursorTimer = 0;
-    if (e->reason() != Qt::PopupFocusReason)
+    if (e->reason() != Qt::PopupFocusReason) {
+        emit editingFinished();
+#ifdef QT3_SUPPORT
         emit lostFocus();
+#endif
+    }
 #ifdef Q_WS_MAC
     if(d->echoMode == Password || d->echoMode == NoEcho)
         qt_mac_secure_keyboard(false);

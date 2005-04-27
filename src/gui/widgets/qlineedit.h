@@ -134,7 +134,7 @@ signals:
     void textChanged(const QString &);
     void cursorPositionChanged(int, int);
     void returnPressed();
-    void lostFocus();
+    void editingFinished();
     void selectionChanged();
 
 protected:
@@ -178,6 +178,9 @@ public:
     QT3_SUPPORT void setEdited(bool);
     QT3_SUPPORT int characterAt(int, QChar*) const;
     QT3_SUPPORT bool getSelection(int *, int *);
+
+signals:
+    QT_MOC_COMPAT void lostFocus();
 #endif
 
 private:
