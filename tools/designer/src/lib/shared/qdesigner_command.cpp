@@ -492,8 +492,8 @@ void DeleteWidgetCommand::redo()
         deco->removeWidget(m_widget);
 
     formWindow()->unmanageWidget(m_widget);
-    m_widget->hide();
     m_widget->setParent(formWindow());
+    m_widget->hide();
 
     if (m_tabOrderIndex != -1) {
         QList<QWidget*> tab_order = m_formItem->tabOrder();
