@@ -133,6 +133,7 @@ void GraphicsPropertyEditor::init()
     layout->setSpacing(0);
 
     m_combo = new QComboBox(this);
+    m_combo->setFrame(0);
     m_combo->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Fixed));
     m_combo->setEditable(false);
     layout->addWidget(m_combo);
