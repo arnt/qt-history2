@@ -79,6 +79,13 @@
 */
 
 /*!
+  \fn void QAbstractSpinBox::editingFinished()
+
+  This signal is emitted editing is finished. This happens when the
+  spinbox looses focus and when enter is pressed.
+*/
+
+/*!
     Constructs an abstract spinbox with the given \a parent with default
     \l wrapping, and \l alignment properties.
 */
@@ -669,6 +676,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         d->interpret(AlwaysEmit);
         selectAll();
         e->ignore();
+        emit editingFinished();
         return;
 
     case Qt::Key_U:
@@ -770,6 +778,7 @@ void QAbstractSpinBox::focusOutEvent(QFocusEvent *e)
     d->resetState();
     d->edit->event(e);
     QWidget::focusOutEvent(e);
+    emit editingFinished();
 }
 
 /*!
@@ -1005,8 +1014,8 @@ bool QAbstractSpinBoxPrivate::specialValue() const
 }
 
 /*!
-    \internal
-    Virtual function that emits signals. Reimplemented in the different subclasses.
+    \internal Virtual function that emits signals when the value
+    changes. Reimplemented in the different subclasses.
 */
 
 void QAbstractSpinBoxPrivate::emitSignals(EmitPolicy, const QVariant &)

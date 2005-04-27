@@ -97,7 +97,8 @@ protected:
     void setLineEdit(QLineEdit *e);
 
     virtual StepEnabled stepEnabled() const;
-
+signals:
+    void editingFinished();
 protected:
     QAbstractSpinBox(QAbstractSpinBoxPrivate &dd, QWidget *parent = 0);
 
