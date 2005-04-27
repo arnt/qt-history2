@@ -112,7 +112,7 @@ static HCURSOR create32BitCursor(const QPixmap &pixmap, int hx, int hy)
     ii.hbmColor  = ic;
 
     cur = CreateIconIndirect(&ii);
-    
+
     DeleteObject(ic);
     DeleteObject(im);
 
@@ -269,17 +269,17 @@ void QCursorData::update()
         QImage bbits, mbits;
         bool invb, invm;
         if (cshape == Qt::BlankCursor) {
-            bbits.create(32, 32, 1, 2, QImage::BigEndian);
+            bbits = QImage(32, 32, QImage::Format_Mono);
             bbits.fill(0);                // ignore color table
             mbits = bbits.copy();
             hx = hy = 16;
             invb = invm = false;
         } else if (cshape != Qt::BitmapCursor) {
             int i = cshape - Qt::SplitVCursor;
-            QBitmap cb(32, 32, cursor_bits32[i * 2], true);
-            QBitmap cm(32, 32, cursor_bits32[i * 2 + 1], true);
-            bbits = cb.toImage();
-            mbits = cm.toImage();
+            QBitmap cb = QBitmap::fromData(QSize(32, 32), cursor_bits32[i * 2]);
+            QBitmap cm = QBitmap::fromData(QSize(32, 32), cursor_bits32[i * 2 + 1]);
+            bbits = cb.toImage().convertToFormat(QImage::Format_Mono);
+            mbits = cm.toImage().convertToFormat(QImage::Format_Mono);
             if (cshape == Qt::PointingHandCursor) {
                 hx = 7;
                 hy = 0;
@@ -287,8 +287,8 @@ void QCursorData::update()
                 hx = hy = 16;
             invb = invm = false;
         } else {
-            bbits = bm->toImage();
-            mbits = bmm->toImage();
+            bbits = bm->toImage().convertToFormat(QImage::Format_Mono);
+            mbits = bmm->toImage().convertToFormat(QImage::Format_Mono);
             invb = bbits.numColors() > 1 && qGray(bbits.color(0)) < qGray(bbits.color(1));
             invm = mbits.numColors() > 1 && qGray(mbits.color(0)) < qGray(mbits.color(1));
         }
