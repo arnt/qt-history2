@@ -21,7 +21,7 @@ DragWidget::DragWidget(QWidget *parent)
             wordLabel->move(x, y);
             wordLabel->show();
             x += wordLabel->width() + 2;
-            if (x >= 195) {
+            if (x >= 245) {
                 x = 5;
                 y += wordLabel->height() + 2;
             }
