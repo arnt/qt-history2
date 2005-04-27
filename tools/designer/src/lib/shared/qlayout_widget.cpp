@@ -281,11 +281,11 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
 
                 int incr = (mx == dx1) ? 0 : +1;
 
-                if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout())) {
+                if (qobject_cast<QGridLayout*>(layout())) {
                     m_currentInsertMode = QDesignerLayoutDecorationExtension::InsertColumnMode;
-                    int row, column, rowspan, colspan;
-                    gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
-                    m_currentCell = qMakePair(row, qMax(0, column + incr));
+
+                    QRect info = itemInfo(m_currentIndex);
+                    m_currentCell = qMakePair(info.top(), incr ? info.right() + 1 : info.left());
                 } else if (QBoxLayout *box = qobject_cast<QBoxLayout*>(layout())) {
                     m_currentCell = qMakePair(0, box->indexOf(item->widget()) + incr);
                 }
@@ -300,11 +300,11 @@ void QLayoutSupport::adjustIndicator(const QPoint &pos, int index)
 
                 int incr = (my == dy1) ? 0 : +1;
 
-                if (QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout())) {
+                if (qobject_cast<QGridLayout*>(layout())) {
                     m_currentInsertMode = QDesignerLayoutDecorationExtension::InsertRowMode;
-                    int row, column, rowspan, colspan;
-                    gridLayout->getItemPosition(m_currentIndex, &row, &column, &rowspan, &colspan);
-                    m_currentCell = qMakePair(qMax(0, row + incr), column);
+
+                    QRect info = itemInfo(m_currentIndex);
+                    m_currentCell = qMakePair(incr ? info.bottom() + 1 : info.top(), info.left());
                 } else if (QBoxLayout *box = qobject_cast<QBoxLayout*>(layout())) {
                     m_currentCell = qMakePair(box->indexOf(item->widget()) + incr, 0);
                 }
