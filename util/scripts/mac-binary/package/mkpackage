@@ -95,18 +95,14 @@ if [ ! -z "$BINARY_DIR" ] && [ -z "$SOURCE_PACKAGE" ]; then
 elif [ ! -z "$SOURCE_PACKAGE" ]; then
     rm -rf "$TMP_DIR/source"
     mkdir -p "$TMP_DIR/source"
-    TAR_COMMANDS="xfvz"
     PACKAGE_NAME=`echo $SOURCE_PACKAGE | sed -e 's,.*\(qt-mac.*\),\1,'`
     EXTENSION=`echo $PACKAGE_NAME | sed -e 's,.*\.tar\.\(.*\),\1,'`
     PACKAGE_DEST=`echo $PACKAGE_NAME | sed -e 's,\(.*\)\.tar.*,\1,'`
-    if [ "$EXTENSION" == "bz2" ]; then
-        TAR_COMMANDS="xfvj"
-    fi
     export QTDIR=$TMP_DIR/source/$PACKAGE_DEST
     export DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
     export DYLD_FRAMEWORK_PATH=$QTDIR/lib:$DYLD_FRAMEWORK_PATH
     export PATH=$QTDIR/bin:$PATH
-    if (cd "$TMP_DIR/source" && tar $TAR_COMMANDS "$SOURCE_PACKAGE" && cd "$PACKAGE_DEST" && ./configure -qt-imgfmt-png -qt-jpeg -qt-sql-sqlite -release -framework -confirm-license && make); then
+    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xvf - && cd "$PACKAGE_DEST" && ./configure -qt-imgfmt-png -qt-libjpeg -qt-sql-sqlite -release -framework -confirm-license && make); then
           SOURCE_DIR="$QTDIR"
           BINARY_DIR="$SOURCE_DIR"
     else
@@ -244,6 +240,8 @@ EOF
         rm -f "${PACKAGE_DICT}.tmp"
     done
     sed "/PACKAGE_DICT/r $PACKAGE_DICT" "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist" >"${TMP_DIR}/Info.plist"
+    chflags nouchg "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist"
+    rm -f "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist"
     mv "${TMP_DIR}/Info.plist" "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist"
 
     PKG_CREATED="$PKG_CREATED $OUTPUT_DIR/Qt.mpkg"
