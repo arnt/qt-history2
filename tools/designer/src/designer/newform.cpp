@@ -46,11 +46,11 @@ NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
     ui.lblPreview->setBackgroundRole(QPalette::Base);
     ui.chkShowOnStartup->setChecked(QDesignerSettings().showNewFormOnStartup());
 
-    loadFrom(QLatin1String(":/trolltech/designer/templates/forms"));
+    loadFrom(QLatin1String(":/trolltech/designer/templates/forms"), true);
 
     QDesignerSettings settings;
     foreach(QString path, settings.formTemplatePaths())
-        loadFrom(path);
+        loadFrom(path, false);
 }
 
 NewForm::~NewForm()
@@ -158,7 +158,7 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
     return QIcon();
 }
 
-void NewForm::loadFrom(const QString &path)
+void NewForm::loadFrom(const QString &path, bool resourceFile)
 {
     QDir dir(path);
 
@@ -171,16 +171,19 @@ void NewForm::loadFrom(const QString &path)
     if (list.isEmpty())
         return;
 
+    QChar separator = resourceFile ? QChar(QLatin1Char('/'))
+                                   : QChar(QDir::separator());
     QTreeWidgetItem *root = new QTreeWidgetItem(ui.treeWidget);
     // Try to get something that is easy to read.
     QString visiblePath = path;
-    int index = visiblePath.lastIndexOf(QDir::separator());
+    int index = visiblePath.lastIndexOf(separator);
     if (index != -1) {
         // try to find a second slash, just to be a bit better.
-        int index2 = visiblePath.lastIndexOf(QDir::separator(), index - 1);
+        int index2 = visiblePath.lastIndexOf(separator, index - 1);
         if (index2 != -1)
             index = index2;
         visiblePath = visiblePath.mid(index + 1);
+        visiblePath = QDir::convertSeparators(visiblePath);
     }
 
     root->setText(0, visiblePath.replace(QLatin1String("_"), QLatin1String(" ")));

@@ -39,7 +39,7 @@ private slots:
 
 private:
     QIcon formPreviewIcon(const QString &fileName);
-    void loadFrom(const QString &path);
+    void loadFrom(const QString &path, bool resourceFile);
 
 private:
     QDesignerWorkbench *m_workbench;
