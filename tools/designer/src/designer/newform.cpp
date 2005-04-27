@@ -183,7 +183,7 @@ void NewForm::loadFrom(const QString &path)
         visiblePath = visiblePath.mid(index + 1);
     }
 
-    root->setText(0, visiblePath);
+    root->setText(0, visiblePath.replace(QLatin1String("_"), QLatin1String(" ")));
     root->setToolTip(0, path);
 
     foreach(QFileInfo fi, list) {
@@ -191,7 +191,7 @@ void NewForm::loadFrom(const QString &path)
             continue;
 
         QTreeWidgetItem *item = new QTreeWidgetItem(root);
-        item->setText(0, fi.baseName());
+        item->setText(0, fi.baseName().replace(QLatin1String("_"), QLatin1String(" ")));
         item->setData(0, TemplateNameRole, fi.absoluteFilePath());
 
         QTreeWidgetItem *i = ui.treeWidget->currentItem();
