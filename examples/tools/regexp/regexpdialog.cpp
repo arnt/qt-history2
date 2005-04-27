@@ -3,46 +3,46 @@
 RegExpDialog::RegExpDialog(QWidget *parent)
     : QDialog(parent)
 {
-    patternComboBox = new QComboBox(this);
+    patternComboBox = new QComboBox;
     patternComboBox->setEditable(true);
     patternComboBox->setSizePolicy(QSizePolicy::Expanding,
                                    QSizePolicy::Preferred);
 
-    patternLabel = new QLabel(tr("&Pattern:"), this);
+    patternLabel = new QLabel(tr("&Pattern:"));
     patternLabel->setBuddy(patternComboBox);
 
-    escapedPatternLineEdit = new QLineEdit(this);
+    escapedPatternLineEdit = new QLineEdit;
     escapedPatternLineEdit->setReadOnly(true);
     QPalette palette = escapedPatternLineEdit->palette();
     palette.setBrush(QPalette::Base, palette.brush(QPalette::Disabled, QPalette::Base));
     escapedPatternLineEdit->setPalette(palette);
 
-    escapedPatternLabel = new QLabel(tr("&Escaped Pattern:"), this);
+    escapedPatternLabel = new QLabel(tr("&Escaped Pattern:"));
     escapedPatternLabel->setBuddy(escapedPatternLineEdit);
 
-    textComboBox = new QComboBox(this);
+    textComboBox = new QComboBox;
     textComboBox->setEditable(true);
     textComboBox->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Preferred);
 
-    textLabel = new QLabel(tr("&Text:"), this);
+    textLabel = new QLabel(tr("&Text:"));
     textLabel->setBuddy(textComboBox);
 
-    caseSensitiveCheckBox = new QCheckBox(tr("Case &Sensitive"), this);
+    caseSensitiveCheckBox = new QCheckBox(tr("Case &Sensitive"));
     caseSensitiveCheckBox->setChecked(true);
-    minimalCheckBox = new QCheckBox(tr("&Minimal"), this);
-    wildcardCheckBox = new QCheckBox(tr("&Wildcard"), this);
+    minimalCheckBox = new QCheckBox(tr("&Minimal"));
+    wildcardCheckBox = new QCheckBox(tr("&Wildcard"));
 
-    indexLabel = new QLabel(tr("Index of Match:"), this);
-    indexEdit = new QLineEdit(this);
+    indexLabel = new QLabel(tr("Index of Match:"));
+    indexEdit = new QLineEdit;
     indexEdit->setReadOnly(true);
 
-    matchedLengthLabel = new QLabel(tr("Matched Length:"), this);
-    matchedLengthEdit = new QLineEdit(this);
+    matchedLengthLabel = new QLabel(tr("Matched Length:"));
+    matchedLengthEdit = new QLineEdit;
     matchedLengthEdit->setReadOnly(true);
 
     for (int i = 0; i < MaxCaptures; ++i) {
-        captureLabels[i] = new QLabel(tr("Capture %1:").arg(i), this);
-        captureEdits[i] = new QLineEdit(this);
+        captureLabels[i] = new QLabel(tr("Capture %1:").arg(i));
+        captureEdits[i] = new QLineEdit;
         captureEdits[i]->setReadOnly(true);
     }
     captureLabels[0]->setText(tr("Match:"));
@@ -53,7 +53,7 @@ RegExpDialog::RegExpDialog(QWidget *parent)
     checkBoxLayout->addWidget(wildcardCheckBox);
     checkBoxLayout->addStretch(1);
 
-    QGridLayout *mainLayout = new QGridLayout(this);
+    QGridLayout *mainLayout = new QGridLayout;
     mainLayout->setSizeConstraint(QLayout::SetFixedSize);
     mainLayout->addWidget(patternLabel, 0, 0);
     mainLayout->addWidget(patternComboBox, 0, 1);
@@ -71,6 +71,7 @@ RegExpDialog::RegExpDialog(QWidget *parent)
         mainLayout->addWidget(captureLabels[j], 6 + j, 0);
         mainLayout->addWidget(captureEdits[j], 6 + j, 1);
     }
+    setLayout(mainLayout);
 
     connect(patternComboBox, SIGNAL(editTextChanged(const QString &)),
             this, SLOT(refresh()));

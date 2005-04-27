@@ -13,7 +13,7 @@ LauncherPanel::LauncherPanel()
     qtDir = examplesDir;
     qtDir.cdUp();
 
-    popupButtonLayout = new QVBoxLayout(this);
+    popupButtonLayout = new QVBoxLayout;
 
     findAllExamples();
     fillFriendlyStringMap();
@@ -21,6 +21,7 @@ LauncherPanel::LauncherPanel()
 
     showDocumentationCheckBox = new QCheckBox(tr("Show documentation"));
     popupButtonLayout->addWidget(showDocumentationCheckBox);
+    setLayout(popupButtonLayout);
 
 #if 0
     assistantClient = new QAssistantClient("", this);
@@ -39,7 +40,7 @@ void LauncherPanel::launchExample(QAction *action)
         assistantClient->showPage(helpPageForActionMap.value(action));
 #endif
 }
-    
+
 void LauncherPanel::findAllExamples()
 {
     static const char *exceptionTable[] = {
@@ -121,12 +122,12 @@ void LauncherPanel::createPopups()
     while (i.hasNext()) {
         i.next();
 
-        QMenu *menu = new QMenu(friendlyName(i.key()));
+        QMenu *menu = new QMenu(friendlyName(i.key()), this);
         connect(menu, SIGNAL(triggered(QAction *)),
                 this, SLOT(launchExample(QAction *)));
 
         foreach (QString example, i.value()) {
-            QAction *action = new QAction(friendlyName(example));
+            QAction *action = new QAction(friendlyName(example), this);
             menu->addAction(action);
             programForActionMap[action] =
                 examplesDir.filePath(i.key() + "/" + example + "/" + example);
