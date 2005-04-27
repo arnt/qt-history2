@@ -67,6 +67,8 @@ static const struct { const char * typeName; int type; } types[] = {
     {"QChar", QMetaType::QChar},
     {"QByteArray", QMetaType::QByteArray},
     {"QString", QMetaType::QString},
+    {"QObject*", QMetaType::QObjectStar},
+    {"QWidget*", QMetaType::QWidgetStar},
     {"void", QMetaType::Void},
     {"", QMetaType::Void},
     {0, QMetaType::Void}
@@ -230,6 +232,8 @@ void *QMetaType::construct(int type, const void *copy)
     if (copy) {
         switch(type) {
         case QMetaType::VoidStar:
+        case QMetaType::QObjectStar:
+        case QMetaType::QWidgetStar:
             return new void *(*static_cast<void* const *>(copy));
         case QMetaType::Long:
             return new long(*static_cast<const long*>(copy));
@@ -267,6 +271,8 @@ void *QMetaType::construct(int type, const void *copy)
     } else {
         switch(type) {
         case QMetaType::VoidStar:
+        case QMetaType::QObjectStar:
+        case QMetaType::QWidgetStar:
             return new void *;
         case QMetaType::Long:
             return new long;
@@ -318,6 +324,8 @@ void QMetaType::destroy(int type, void *data)
         return;
     switch(type) {
     case QMetaType::VoidStar:
+    case QMetaType::QObjectStar:
+    case QMetaType::QWidgetStar:
         delete static_cast<void**>(data);
         break;
     case QMetaType::Long:

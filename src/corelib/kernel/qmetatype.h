@@ -28,7 +28,7 @@ public:
         Bool = 18, Double = 19, QByteArray = 29, QChar = 35,
 
         VoidStar = 128, Long, Short, Char, ULong,
-        UShort, UChar, Float,
+        UShort, UChar, Float, QObjectStar, QWidgetStar,
         User = 256
     };
 
