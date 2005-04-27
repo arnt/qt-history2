@@ -1705,10 +1705,8 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 }
 
 /*!
-  \internal
-
-  Parses the format \a newFormat. If successful, returns true and
-  sets up the format. Else keeps the old format and returns false.
+  \internal helper function for parseFormat. removes quotes that are
+  not escaped and removes the escaping on those that are escaped
 
 */
 
@@ -1732,9 +1730,18 @@ static QString unquote(const QString &str)
     }
     return ret;
 }
+/*!
+  \internal
+
+  Parses the format \a newFormat. If successful, returns true and
+  sets up the format. Else keeps the old format and returns false.
+
+*/
 
 bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 {
+    if (newFormat == displayFormat && !newFormat.isEmpty())
+        return true;
     QList<SectionNode> list;
     QDateTimeEdit::Sections newDisplay = 0;
     QStringList newSeparators;

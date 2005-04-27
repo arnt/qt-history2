@@ -554,6 +554,9 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
     Q_D(QAbstractSpinBox);
 
     switch(e->type()) {
+        case QEvent::FontChange:
+            d->sizehintdirty = true;
+            break;
         case QEvent::StyleChange:
             d->sizehintdirty = true;
             d->spinclicktimerinterval = style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, this);
