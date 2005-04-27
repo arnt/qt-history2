@@ -70,6 +70,10 @@ FORMS += \
     newform.ui \
     saveformastemplate.ui
 
+win32 {
+   RC_FILE	= designer.rc
+}
+
 mac {
     ICON = designer.icns
     QMAKE_INFO_PLIST = Info_mac.plist
