@@ -26,7 +26,6 @@ private:
     QLabel *label;
     QTreeWidget *treeWidget;
     QPushButton *okButton;
-    QIcon sadPluginIcon;
     QIcon interfaceIcon;
     QIcon featureIcon;
 };

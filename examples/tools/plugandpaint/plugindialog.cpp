@@ -39,9 +39,6 @@ PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
 void PluginDialog::populateTreeWidget(const QString &path,
                                       const QStringList &fileNames)
 {
-    sadPluginIcon.addPixmap(
-            style()->standardPixmap(QStyle::SP_MessageBoxCritical));
-
     interfaceIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirOpenIcon),
                             QIcon::Normal, QIcon::On);
     interfaceIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirClosedIcon),
@@ -86,8 +83,6 @@ void PluginDialog::populateTreeWidget(const QString &path,
                         qobject_cast<FilterInterface *>(plugin);
                 if (iFilter)
                     addItems(pluginItem, "FilterInterface", iFilter->filters());
-            } else {
-                pluginItem->setIcon(0, sadPluginIcon);
             }
         }
     }
