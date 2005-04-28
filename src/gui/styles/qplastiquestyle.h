@@ -29,6 +29,7 @@ class Q_GUI_EXPORT_STYLE_PLASTIQUE QPlastiqueStyle : public QWindowsStyle
 {
 public:
     QPlastiqueStyle();
+    ~QPlastiqueStyle();
 
     void drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                        QPainter *painter, const QWidget *widget = 0) const;

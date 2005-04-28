@@ -531,7 +531,8 @@ static void qt_plastique_drawShadedPanel(QPainter *painter, const QStyleOption *
 static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTitleBar *option, const QRect &tmp, bool hover)
 {
     bool active = (option->titleBarState & QStyle::State_Active);
-    //bool pressed = (option->state & QStyle::State_Sunken);
+
+    // ### use palette colors instead
     QColor mdiButtonGradientStartColor;
     QColor mdiButtonGradientStopColor;
     if (active) {
@@ -546,8 +547,6 @@ static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTit
     buttonGrad.setColorAt(0, mdiButtonGradientStartColor);
     buttonGrad.setColorAt(1, mdiButtonGradientStopColor);
 
-    // ### drawing error; the rects are sometimes invalid.
-    
     painter->fillRect(tmp.adjusted(1, 1, -1, -1), buttonGrad);
 
     QColor mdiButtonBorderColor;
@@ -567,6 +566,30 @@ static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTit
     painter->drawPoint(tmp.right() - 1, tmp.bottom() - 1);
 }
 
+class QPlastiqueStylePrivate
+{
+public:
+    QPlastiqueStylePrivate(QPlastiqueStyle *qq);
+    virtual ~QPlastiqueStylePrivate();
+
+    QPlastiqueStyle *q;
+};
+
+/*!
+  \internal
+ */
+QPlastiqueStylePrivate::QPlastiqueStylePrivate(QPlastiqueStyle *qq)
+{
+    q = qq;
+}
+
+/*!
+  \internal
+ */
+QPlastiqueStylePrivate::~QPlastiqueStylePrivate()
+{
+}
+
 /*!
     \class QPlastiqueStyle
     \brief The QPlastiqueStyle class provides a widget style similar to the
@@ -577,16 +600,24 @@ static void qt_plastique_draw_mdibutton(QPainter *painter, const QStyleOptionTit
 */
 
 /*!
+    Constructs a QPlastiqueStyle object.
 */
 QPlastiqueStyle::QPlastiqueStyle()
-    : QWindowsStyle()
+    : QWindowsStyle(), d(new QPlastiqueStylePrivate(this))
 {
 }
 
 /*!
-    \fn QPlastiqueStyle::~QPlastiqueStyle()
+    Destructs the QPlastiqueStyle object.
 */
+QPlastiqueStyle::~QPlastiqueStyle()
+{
+    delete d;
+}
 
+/*!
+  \reimp
+*/
 void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption *option,
                                     QPainter *painter, const QWidget *widget) const
 {
@@ -1379,6 +1410,9 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     }
 }
 
+/*!
+  \reimp
+*/
 void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *option,
                                   QPainter *painter, const QWidget *widget) const
 {
@@ -2284,6 +2318,9 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
     }
 }
 
+/*!
+  \reimp
+*/
 void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                          QPainter *painter, const QWidget *widget) const
 {
@@ -2923,6 +2960,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             bool active = (titleBar->titleBarState & State_Active);
             QRect fullRect = titleBar->rect;
 
+            // ### use palette colors instead
             QColor titleBarGradientStart(active ? 0x3b508a : 0x6e6e6e);
             QColor titleBarGradientStop(active ? 0x5d6e9e : 0x818181);
             QColor titleBarFrameBorder(0x393939);
@@ -3162,6 +3200,9 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
     }
 }
 
+/*!
+  \reimp
+*/
 QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *option,
                                         const QSize &size, const QWidget *widget) const
 {
@@ -3223,6 +3264,9 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
     return newSize;
 }
 
+/*!
+  \reimp
+*/
 QRect QPlastiqueStyle::subElementRect(SubElement element, const QStyleOption *option, const QWidget *widget) const
 {
     QRect rect = QWindowsStyle::subElementRect(element, option, widget);
@@ -3247,6 +3291,9 @@ QRect QPlastiqueStyle::subElementRect(SubElement element, const QStyleOption *op
     return rect;
 }
 
+/*!
+  \reimp
+*/
 QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOptionComplex *option,
                                       SubControl subControl, const QWidget *widget) const
 {
@@ -3500,6 +3547,9 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
     return rect;
 }
 
+/*!
+  \reimp
+*/
 int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const QWidget *widget,
                                QStyleHintReturn *returnData) const
 {
@@ -3539,6 +3589,9 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     return ret;
 }
 
+/*!
+  \reimp
+*/
 QStyle::SubControl QPlastiqueStyle::hitTestComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                                           const QPoint &pos, const QWidget *widget) const
 {
@@ -3575,6 +3628,9 @@ QStyle::SubControl QPlastiqueStyle::hitTestComplexControl(ComplexControl control
     return QWindowsStyle::hitTestComplexControl(control, option, pos, widget);
 }
 
+/*!
+  \reimp
+*/
 int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
 {
     switch (metric) {
@@ -3645,6 +3701,9 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     return QWindowsStyle::pixelMetric(metric, option, widget);
 }
 
+/*!
+  \reimp
+*/
 QPalette QPlastiqueStyle::standardPalette()
 {
     QPalette palette;
@@ -3700,6 +3759,9 @@ QPalette QPlastiqueStyle::standardPalette()
     return palette;
 }
 
+/*!
+  \reimp
+*/
 void QPlastiqueStyle::polish(QWidget *widget)
 {
     if (qobject_cast<QPushButton *>(widget)
@@ -3715,11 +3777,17 @@ void QPlastiqueStyle::polish(QWidget *widget)
         widget->setAttribute(Qt::WA_Hover);
 }
 
+/*!
+  \reimp
+*/
 void QPlastiqueStyle::polish(QApplication *app)
 {
     QWindowsStyle::polish(app);
 }
 
+/*!
+  \reimp
+*/
 void QPlastiqueStyle::polish(QPalette &pal)
 {
     QWindowsStyle::polish(pal);
