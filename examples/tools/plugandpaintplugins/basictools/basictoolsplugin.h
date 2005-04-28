@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "../../plugandpaint/interfaces.h"
+#include <interfaces.h>
 
 class BasicToolsPlugin : public QObject,
                          public BrushInterface,
@@ -29,7 +29,8 @@ public:
 
     // FilterInterface
     QStringList filters() const;
-    QImage filterImage(const QString &filter, const QImage &image);
+    QImage filterImage(const QString &filter, const QImage &image,
+                       QWidget *parent);
 };
 
 #endif

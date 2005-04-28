@@ -74,7 +74,7 @@ QRect BasicToolsPlugin::mouseRelease(const QString & /* brush */,
 
 QStringList BasicToolsPlugin::shapes() const
 {
-    return QStringList() << tr("Star") << tr("Text...");
+    return QStringList() << tr("Circle") << tr("Star") << tr("Text...");
 }
 
 QPainterPath BasicToolsPlugin::generateShape(const QString &shape,
@@ -82,7 +82,9 @@ QPainterPath BasicToolsPlugin::generateShape(const QString &shape,
 {
     QPainterPath path;
 
-    if (shape == tr("Star")) {
+    if (shape == tr("Circle")) {
+        path.addEllipse(0, 0, 50, 50);
+    } else if (shape == tr("Star")) {
         path.moveTo(90, 50);
         for (int i = 1; i < 5; ++i) {
             path.lineTo(50 + 40 * cos(0.8 * i * Pi),
@@ -109,7 +111,8 @@ QStringList BasicToolsPlugin::filters() const
                          << tr("Grayscale");
 }
 
-QImage BasicToolsPlugin::filterImage(const QString &filter, const QImage &image)
+QImage BasicToolsPlugin::filterImage(const QString &filter, const QImage &image,
+                                     QWidget * /* parent */)
 {
     QImage result = image.convertToFormat(QImage::Format_ARGB32);
 

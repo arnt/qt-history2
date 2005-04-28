@@ -2,6 +2,7 @@
 #define PLUGINDIALOG_H
 
 #include <QDialog>
+#include <QIcon>
 
 class QLabel;
 class QPushButton;
@@ -18,12 +19,16 @@ public:
                  QWidget *parent = 0);
 
 private:
+    void populateTreeWidget(const QString &path, const QStringList &fileNames);
     void addItems(QTreeWidgetItem *pluginItem, const char *interfaceName,
                   const QStringList &features);
 
     QLabel *label;
     QTreeWidget *treeWidget;
     QPushButton *okButton;
+    QIcon sadPluginIcon;
+    QIcon interfaceIcon;
+    QIcon featureIcon;
 };
 
 #endif

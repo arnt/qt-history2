@@ -18,8 +18,39 @@ PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
     treeWidget->setHeaderLabels(headerLabels);
     treeWidget->header()->hide();
 
+    okButton = new QPushButton(tr("OK"));
+
+    connect(okButton, SIGNAL(clicked()), this, SLOT(close()));
+
+    QGridLayout *mainLayout = new QGridLayout;
+    mainLayout->setColumnStretch(0, 1);
+    mainLayout->setColumnStretch(2, 1);
+    mainLayout->addWidget(label, 0, 0, 1, 3);
+    mainLayout->addWidget(treeWidget, 1, 0, 1, 3);
+    mainLayout->addWidget(okButton, 2, 1);
+    setLayout(mainLayout);
+
+    setWindowTitle(tr("Plugin Information"));
+    populateTreeWidget(path, fileNames);
+}
+
+void PluginDialog::populateTreeWidget(const QString &path,
+                                      const QStringList &fileNames)
+{
+    sadPluginIcon.addPixmap(
+            style()->standardPixmap(QStyle::SP_MessageBoxCritical));
+
+    interfaceIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirOpenIcon),
+                            QIcon::Normal, QIcon::On);
+    interfaceIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirClosedIcon),
+                            QIcon::Normal, QIcon::Off);
+
+    featureIcon.addPixmap(style()->standardPixmap(QStyle::SP_FileIcon));
+
     if (fileNames.isEmpty()) {
-        label->setText(tr("Plug & Paint couldn't detect any plugins."));
+        label->setText(tr("Plug & Paint couldn't find any plugins in the %1 "
+                          "directory.")
+                       .arg(QDir::convertSeparators(path)));
         treeWidget->hide();
     } else {
         label->setText(tr("Plug & Paint found the following plugins in the %1 "
@@ -53,23 +84,11 @@ PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
                         qobject_cast<FilterInterface *>(plugin);
                 if (iFilter)
                     addItems(pluginItem, "FilterInterface", iFilter->filters());
+            } else {
+                pluginItem->setIcon(0, sadPluginIcon);
             }
         }
     }
-
-    okButton = new QPushButton(tr("OK"));
-
-    connect(okButton, SIGNAL(clicked()), this, SLOT(close()));
-
-    QGridLayout *mainLayout = new QGridLayout;
-    mainLayout->setColumnStretch(0, 1);
-    mainLayout->setColumnStretch(2, 1);
-    mainLayout->addWidget(label, 0, 0, 1, 3);
-    mainLayout->addWidget(treeWidget, 1, 0, 1, 3);
-    mainLayout->addWidget(okButton, 2, 1);
-    setLayout(mainLayout);
-
-    setWindowTitle(tr("Plug & Paint"));
 }
 
 void PluginDialog::addItems(QTreeWidgetItem *pluginItem,
@@ -78,10 +97,13 @@ void PluginDialog::addItems(QTreeWidgetItem *pluginItem,
 {
     QTreeWidgetItem *interfaceItem = new QTreeWidgetItem(pluginItem);
     interfaceItem->setText(0, interfaceName);
-    treeWidget->setItemExpanded(interfaceItem, true);
+    interfaceItem->setIcon(0, interfaceIcon);
 
     foreach (QString feature, features) {
+        if (feature.endsWith("..."))
+            feature.chop(3);
         QTreeWidgetItem *featureItem = new QTreeWidgetItem(interfaceItem);
         featureItem->setText(0, feature);
+        featureItem->setIcon(0, featureIcon);
     }
 }

@@ -1,7 +1,9 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
+#include <QDir>
 #include <QMainWindow>
+#include <QStringList>
 
 class QAction;
 class QActionGroup;
@@ -25,6 +27,7 @@ private slots:
     void insertShape();
     void applyFilter();
     void about();
+    void aboutPlugins();
 
 private:
     void createActions();
@@ -35,6 +38,8 @@ private:
 
     PaintArea *paintArea;
     QScrollArea *scrollArea;
+    QDir pluginsDir;
+    QStringList pluginFileNames;
 
     QMenu *fileMenu;
     QMenu *brushMenu;
@@ -49,6 +54,7 @@ private:
     QAction *brushColorAct;
     QAction *aboutAct;
     QAction *aboutQtAct;
+    QAction *aboutPluginsAct;
 };
 
 #endif

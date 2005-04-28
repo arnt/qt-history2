@@ -19,6 +19,11 @@ MainWindow::MainWindow()
     loadPlugins();
 
     setWindowTitle(tr("Plug & Paint"));
+
+    if (!brushActionGroup->actions().isEmpty())
+        brushActionGroup->actions().first()->trigger();
+
+    QTimer::singleShot(500, this, SLOT(aboutPlugins()));
 }
 
 void MainWindow::open()
@@ -37,11 +42,14 @@ void MainWindow::open()
 
 bool MainWindow::saveAs()
 {
-    QString fileName = QFileDialog::getSaveFileName(this);
+    QString initialPath = QDir::currentPath() + "/untitled.png";
+
+    QString fileName = QFileDialog::getSaveFileName(this, tr("Save As"),
+                                                    initialPath);
     if (fileName.isEmpty()) {
         return false;
     } else {
-        return paintArea->saveImage(fileName);
+        return paintArea->saveImage(fileName, "png");
     }
 }
 
@@ -62,7 +70,6 @@ void MainWindow::brushWidth()
     if (ok)
         paintArea->setBrushWidth(newWidth);
 }
-
 
 void MainWindow::changeBrush()
 {
@@ -89,7 +96,8 @@ void MainWindow::applyFilter()
     FilterInterface *iFilter =
             qobject_cast<FilterInterface *>(action->parent());
 
-    QImage image = iFilter->filterImage(action->text(), paintArea->image());
+    QImage image = iFilter->filterImage(action->text(), paintArea->image(),
+                                        this);
     paintArea->setImage(image);
 }
 
@@ -98,6 +106,12 @@ void MainWindow::about()
    QMessageBox::about(this, tr("About Plug & Paint"),
             tr("The <b>Plug & Paint</b> example demonstrates how to write Qt "
                "applications that can be extended through plugins."));
+}
+
+void MainWindow::aboutPlugins()
+{
+    PluginDialog dialog(pluginsDir.path(), pluginFileNames, this);
+    dialog.exec();
 }
 
 void MainWindow::createActions()
@@ -127,6 +141,9 @@ void MainWindow::createActions()
 
     aboutQtAct = new QAction(tr("About &Qt"), this);
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+
+    aboutPluginsAct = new QAction(tr("About &Plugins"), this);
+    connect(aboutPluginsAct, SIGNAL(triggered()), this, SLOT(aboutPlugins()));
 }
 
 void MainWindow::createMenus()
@@ -151,20 +168,21 @@ void MainWindow::createMenus()
     helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(aboutAct);
     helpMenu->addAction(aboutQtAct);
+    helpMenu->addAction(aboutPluginsAct);
 }
 
 void MainWindow::loadPlugins()
 {
-    QDir dir(qApp->applicationDirPath());
-    dir.cd("plugins");
+    pluginsDir = QDir(qApp->applicationDirPath());
+    pluginsDir.cd("plugins");
 
     QStringList fileFilters;
     fileFilters << "pnp_*" << "libpnp_*";
 
-    QStringList fileNames = dir.entryList(fileFilters);
+    pluginFileNames = pluginsDir.entryList(fileFilters);
 
-    foreach (QString fileName, fileNames) {
-        QPluginLoader loader(dir.absoluteFilePath(fileName));
+    foreach (QString fileName, pluginFileNames) {
+        QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
         QObject *plugin = loader.instance();
         if (plugin) {
             BrushInterface *iBrush = qobject_cast<BrushInterface *>(plugin);
@@ -187,9 +205,6 @@ void MainWindow::loadPlugins()
     brushMenu->setEnabled(!brushActionGroup->actions().isEmpty());
     shapesMenu->setEnabled(!shapesMenu->actions().isEmpty());
     filterMenu->setEnabled(!filterMenu->actions().isEmpty());
-
-    PluginDialog dialog(dir.path(), fileNames, this);
-    dialog.exec();
 }
 
 void MainWindow::addToMenu(QObject *plugin, const QStringList &texts,
@@ -204,7 +219,6 @@ void MainWindow::addToMenu(QObject *plugin, const QStringList &texts,
         if (actionGroup) {
             action->setCheckable(true);
             actionGroup->addAction(action);
-            action->setChecked(actionGroup->actions().isEmpty()); // ###
         }
     }
 }

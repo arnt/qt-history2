@@ -33,7 +33,8 @@ class FilterInterface
 {
 public:
     virtual QStringList filters() const = 0;
-    virtual QImage filterImage(const QString &filter, const QImage &image) = 0;
+    virtual QImage filterImage(const QString &filter, const QImage &image,
+                               QWidget *parent) = 0;
 };
 
 Q_DECLARE_INTERFACE(BrushInterface,

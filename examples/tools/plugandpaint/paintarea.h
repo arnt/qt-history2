@@ -16,7 +16,7 @@ public:
     PaintArea(QWidget *parent = 0);
 
     bool openImage(const QString &fileName);
-    bool saveImage(const QString &fileName);
+    bool saveImage(const QString &fileName, const char *fileFormat);
     void setImage(const QImage &image);
     void insertShape(const QPainterPath &path);
     void setBrushColor(const QColor &color);

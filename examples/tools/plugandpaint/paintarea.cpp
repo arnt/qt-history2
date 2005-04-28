@@ -28,9 +28,9 @@ bool PaintArea::openImage(const QString &fileName)
     return true;
 }
 
-bool PaintArea::saveImage(const QString &fileName)
+bool PaintArea::saveImage(const QString &fileName, const char *fileFormat)
 {
-    if (theImage.save(fileName, "png")) { // ### guess from file name
+    if (theImage.save(fileName, fileFormat)) {
         return true;
     } else {
         return false;
@@ -94,7 +94,7 @@ void PaintArea::mousePressEvent(QMouseEvent *event)
             painter.translate(event->pos() - boundingRect.center());
             painter.drawPath(pendingPath);
 
-            pendingPath = QPainterPath(); // ### clear()
+            pendingPath = QPainterPath();
             unsetCursor();
             update();
         } else {
