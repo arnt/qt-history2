@@ -16,9 +16,11 @@
 #include <Qt3Support/Q3MainWindow>
 
 #include <QtCore/qdebug.h>
-#include <QtGui/QMenuBar>
 #include <QtGui/QToolBar>
+#include <QtGui/QMenuBar>
 #include <QtGui/QStatusBar>
+
+#include <Qt3Support/Q3ToolBar>
 
 Q3MainWindowContainer::Q3MainWindowContainer(Q3MainWindow *widget, QObject *parent)
     : QObject(parent),
@@ -51,6 +53,8 @@ void Q3MainWindowContainer::setCurrentIndex(int index)
 void Q3MainWindowContainer::addWidget(QWidget *widget)
 {
     if (qobject_cast<QToolBar*>(widget)) {
+        m_widgets.append(widget);
+    } else if (qobject_cast<Q3ToolBar*>(widget)) {
         m_widgets.append(widget);
     } else if (qobject_cast<QMenuBar*>(widget)) {
         (void) m_mainWindow->menuBar();

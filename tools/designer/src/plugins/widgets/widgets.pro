@@ -8,6 +8,7 @@ SUBDIRS = \
     q3buttongroup \
     q3groupbox \
     q3mainwindow \
+    q3toolbar \
     q3frame
 
 
