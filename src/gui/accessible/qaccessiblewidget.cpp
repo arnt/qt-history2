@@ -296,6 +296,17 @@ void QAccessibleWidget::setAccelerator(const QString &accel)
     d->accelerator = accel;
 }
 
+static inline bool isAncestor(const QObject *obj, const QObject *child)
+{
+    while (child) {
+        if (child == obj)
+            return true;
+        child = child->parent();
+    }
+    return false;
+}
+
+
 /*! \reimp */
 QAccessible::Relation QAccessibleWidget::relationTo(int child,
             const QAccessibleInterface *other, int otherChild) const
@@ -309,7 +320,7 @@ QAccessible::Relation QAccessibleWidget::relationTo(int child,
         return relation;
 
     QWidget *focus = widget()->focusWidget();
-    if (object() == focus && o->isAncestorOf(focus))
+    if (object() == focus && isAncestor(o, focus))
         relation |= FocusChild;
 
     ConnectionObject *connectionObject = (ConnectionObject*)object();
@@ -379,9 +390,9 @@ QAccessible::Relation QAccessibleWidget::relationTo(int child,
         return relation;
     }
 
-    if (o->isAncestorOf(object()))
+    if (isAncestor(o, object()))
         return relation | Descendent;
-    if (object()->isAncestorOf(o))
+    if (isAncestor(object(), o))
         return relation | Ancestor;
 
     return relation;
@@ -611,7 +622,7 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
             if (!fw)
                 return -1;
 
-            if (widget()->isAncestorOf(fw))
+            if (isAncestor(widget(), fw))
                 targetObject = fw;
             /* ###
             QWidget *parent = fw;

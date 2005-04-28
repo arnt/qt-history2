@@ -487,6 +487,8 @@ public:
     QInputContext *inputContext();
     void setInputContext(QInputContext *);
 
+    bool isAncestorOf(const QWidget *child) const;
+
 signals:
     void customContextMenuRequested(const QPoint &pos);
 

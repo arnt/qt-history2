@@ -472,13 +472,6 @@ QMetaCallEvent::~QMetaCallEvent()
 */
 
 /*!
-    \fn bool QObject::isAncestorOf(const QObject *child) const
-
-    Returns true if this object is an parent, (or grandparent and so
-    on to any level), of the given \a child; otherwise returns false.
-*/
-
-/*!
     \relates QObject
 
     Returns a pointer to the object named \a name that inherits \a

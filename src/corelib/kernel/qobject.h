@@ -193,8 +193,6 @@ public:
     QObjectUserData* userData(uint id) const;
 #endif // QT_NO_USERDATA
 
-    bool isAncestorOf(const QObject *child) const;
-
 signals:
     void destroyed(QObject * = 0);
 
@@ -265,17 +263,6 @@ private:
 inline bool QObject::connect(const QObject *asender, const char *asignal,
                              const char *amember, Qt::ConnectionType atype) const
 { return connect(asender, asignal, this, amember, atype); }
-
-inline bool QObject::isAncestorOf(const QObject *child) const
-{
-    while (child) {
-        if (child == this)
-            return true;
-        child = child->d_ptr->parent;
-    }
-    return false;
-}
-
 
 #ifndef QT_NO_USERDATA
 class Q_CORE_EXPORT QObjectUserData {

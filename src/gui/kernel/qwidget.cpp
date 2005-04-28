@@ -4678,6 +4678,26 @@ QSize QWidget::minimumSizeHint() const
 */
 
 
+/*!
+    Returns true if this widget is a parent, (or grandparent and so on
+    to any level), of the given \a child, and both widgets are within
+    the same window; otherwise returns false.
+*/
+
+bool QWidget::isAncestorOf(const QWidget *child) const
+{
+    while (child) {
+        if (child == this)
+            return true;
+        if (child->isWindow())
+            return false;
+        child = child->parentWidget();
+    }
+    return false;
+}
+
+
+
 /*****************************************************************************
   QWidget event handling
  *****************************************************************************/
