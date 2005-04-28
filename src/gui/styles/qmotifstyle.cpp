@@ -651,7 +651,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
         break; }
 
     case PE_IndicatorProgressChunk:
-        p->fillRect(opt->rect.x(), opt->rect.y() + 2, opt->rect.width() - 2,
+        p->fillRect(opt->rect.x(), opt->rect.y() + 2, opt->rect.width(),
                     opt->rect.height() - 4, opt->palette.brush(QPalette::Highlight));
         break;
 
