@@ -195,6 +195,7 @@ private slots:
     void removeCurrentItem();
     void editCurrentItem();
     void updateItemData(QTreeWidgetItem *item);
+    void deleteScratchpad();
 
 private:
     QDesignerFormEditorInterface *m_core;
@@ -707,12 +708,22 @@ void WidgetBoxTreeView::removeCurrentItem()
         parent->takeChild(parent->indexOfChild(item));
         setItemExpanded(parent, true);
         if (parent->data(0, Qt::UserRole).toInt() == SCRATCHPAD_ITEM
-                && parent->childCount() == 0)
-            delete takeTopLevelItem(indexOfTopLevelItem(parent));
+                && parent->childCount() == 0) {
+            QMetaObject::invokeMember(this, "deleteScratchpad",
+                                        Qt::QueuedConnection);
+        }
     }
     delete item;
 
     save();
+}
+
+void WidgetBoxTreeView::deleteScratchpad()
+{
+    int idx = indexOfScratchpad();
+    if (idx == -1)
+        return;
+    delete takeTopLevelItem(idx);
 }
 
 void WidgetBoxTreeView::updateItemData(QTreeWidgetItem *item)
