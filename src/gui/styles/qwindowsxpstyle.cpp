@@ -1299,24 +1299,26 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
             else
                 stateId = HSAS_SORTEDUP;
 #else
-            p->save();
-            p->setPen(option->palette.dark().color());
-            p->translate(0, option->rect.height()/2 - 4);
-            if (flags & State_UpArrow) { // invert logic to follow Windows style guide
-                p->drawLine(option->rect.x(), option->rect.y(), option->rect.x()+8, option->rect.y());
-                p->drawLine(option->rect.x()+1, option->rect.y()+1, option->rect.x()+7, option->rect.y()+1);
-                p->drawLine(option->rect.x()+2, option->rect.y()+2, option->rect.x()+6, option->rect.y()+2);
-                p->drawLine(option->rect.x()+3, option->rect.y()+3, option->rect.x()+5, option->rect.y()+3);
-                p->drawPoint(option->rect.x()+4, option->rect.y()+4);
-            } else {
-                p->drawLine(option->rect.x(), option->rect.y()+4, option->rect.x()+8, option->rect.y()+4);
-                p->drawLine(option->rect.x()+1, option->rect.y()+3, option->rect.x()+7, option->rect.y()+3);
-                p->drawLine(option->rect.x()+2, option->rect.y()+2, option->rect.x()+6, option->rect.y()+2);
-                p->drawLine(option->rect.x()+3, option->rect.y()+1, option->rect.x()+5, option->rect.y()+1);
-                p->drawPoint(option->rect.x()+4, option->rect.y());
+            if (const QStyleOptionHeader *header = qstyleoption_cast<const QStyleOptionHeader *>(option)) {
+                p->save();
+                p->setPen(option->palette.dark().color());
+                p->translate(0, option->rect.height()/2 - 4);
+                if (header->sortIndicator & QStyleOptionHeader::SortUp) { // invert logic to follow Windows style guide
+                    p->drawLine(option->rect.x(), option->rect.y(), option->rect.x()+8, option->rect.y());
+                    p->drawLine(option->rect.x()+1, option->rect.y()+1, option->rect.x()+7, option->rect.y()+1);
+                    p->drawLine(option->rect.x()+2, option->rect.y()+2, option->rect.x()+6, option->rect.y()+2);
+                    p->drawLine(option->rect.x()+3, option->rect.y()+3, option->rect.x()+5, option->rect.y()+3);
+                    p->drawPoint(option->rect.x()+4, option->rect.y()+4);
+                } else if(header->sortIndicator & QStyleOptionHeader::SortDown) {
+                    p->drawLine(option->rect.x(), option->rect.y()+4, option->rect.x()+8, option->rect.y()+4);
+                    p->drawLine(option->rect.x()+1, option->rect.y()+3, option->rect.x()+7, option->rect.y()+3);
+                    p->drawLine(option->rect.x()+2, option->rect.y()+2, option->rect.x()+6, option->rect.y()+2);
+                    p->drawLine(option->rect.x()+3, option->rect.y()+1, option->rect.x()+5, option->rect.y()+1);
+                    p->drawPoint(option->rect.x()+4, option->rect.y());
+                }
+                p->restore();
+                return;
             }
-            p->restore();
-            return;
 #endif
         }
         break;
