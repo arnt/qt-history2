@@ -53,13 +53,6 @@ public:
     int styleHint(StyleHint hint, const QStyleOption *option = 0, const QWidget *widget = 0,
                   QStyleHintReturn *returnData = 0) const;
 
-protected:
-    bool eventFilter(QObject *o, QEvent *e);
-    void updateRegion(QWidget *widget);
-
-protected slots:
-    void activeTabChanged();
-
 private:
     Q_DISABLE_COPY(QWindowsXPStyle)
 
