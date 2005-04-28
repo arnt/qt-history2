@@ -2339,6 +2339,24 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 			    break;
 			}
 		    }
+                    // resolve overloads
+                    if (index == -1) {
+                        QRegExp regexp("_([0-9])\\(");
+                        if (regexp.lastIndexIn(name) != -1) {
+                            name = name.left(name.length() - regexp.cap(0).length()) + "(";
+                            int overload = regexp.cap(1).toInt() + 1;
+                            
+                            for (int s = 0; s < qt.object->metaObject()->memberCount(); ++s) {
+                                QMetaMember slot = qt.object->metaObject()->member(s);
+                                if (slot.memberType() == QMetaMember::Slot && QByteArray(slot.signature()).startsWith(name)) {
+                                    if (!--overload) {
+                                        index = s;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
 		    if (index == -1)
 			return res;
 		}
