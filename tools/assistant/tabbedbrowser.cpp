@@ -34,7 +34,7 @@ TabbedBrowser::TabbedBrowser(MainWindow *parent)
 
     QStackedWidget *stack = qFindChild<QStackedWidget*>(ui.tab);
     Q_ASSERT(stack);
-    stack->setContentsMargins(0, 1, 0, 1);
+    stack->setContentsMargins(0, 0, 0, 0);
     connect(stack, SIGNAL(currentChanged(int)), parent, SLOT(browserTabChanged()));
 }
 
@@ -106,6 +106,7 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
 {
     MainWindow *mainWin = mainWindow();
     HelpWindow *win = new HelpWindow(mainWin, 0);
+    win->setFrameStyle(QFrame::NoFrame);
     win->setFont(browserFont());
     win->setPalette(palette());
     win->setSearchPaths(Config::configuration()->mimePaths());
