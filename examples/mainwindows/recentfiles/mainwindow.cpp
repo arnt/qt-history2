@@ -61,7 +61,7 @@ void MainWindow::openRecentFile()
 {
     QAction *action = qobject_cast<QAction *>(sender());
     if (action)
-        loadFile(action->iconText());
+        loadFile(action->data().toString());
 }
 
 void MainWindow::about()
@@ -188,7 +188,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
         setWindowTitle(tr("%1 - %2").arg(strippedName(curFile))
                                     .arg(tr("Recent Files")));
 
-    QSettings settings("Qt Examples", "Recent Files");
+    QSettings settings("Trolltech", "Recent Files Example");
     QStringList files = settings.value("recentFileList").toStringList();
     files.removeAll(fileName);
     files.prepend(fileName);
@@ -206,7 +206,7 @@ void MainWindow::setCurrentFile(const QString &fileName)
 
 void MainWindow::updateRecentFileActions()
 {
-    QSettings settings("Qt Examples", "Recent Files");
+    QSettings settings("Trolltech", "Recent Files Example");
     QStringList files = settings.value("recentFileList").toStringList();
 
     int numRecentFiles = qMin(files.size(), (int)MaxRecentFiles);
@@ -214,7 +214,7 @@ void MainWindow::updateRecentFileActions()
     for (int i = 0; i < numRecentFiles; ++i) {
         QString text = tr("&%1 %2").arg(i + 1).arg(strippedName(files[i]));
         recentFileActs[i]->setText(text);
-        recentFileActs[i]->setIconText(files[i]);
+        recentFileActs[i]->setData(files[i]);
         recentFileActs[i]->setVisible(true);
     }
     for (int j = numRecentFiles; j < MaxRecentFiles; ++j)

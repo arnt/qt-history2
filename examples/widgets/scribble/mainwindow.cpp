@@ -51,7 +51,7 @@ void MainWindow::penColor()
 void MainWindow::penWidth()
 {
     bool ok;
-    int newWidth = QInputDialog::getInteger(this, tr("Select Pen Width"),
+    int newWidth = QInputDialog::getInteger(this, tr("Scribble"),
                                             tr("Select pen width:"),
                                             scribbleArea->penWidth(),
                                             1, 50, 1, &ok);

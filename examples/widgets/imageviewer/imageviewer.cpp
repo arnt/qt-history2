@@ -17,7 +17,7 @@ ImageViewer::ImageViewer()
     createActions();
     createMenus();
 
-    setWindowTitle(tr("ImageViewer"));
+    setWindowTitle(tr("Image Viewer"));
     resize(500, 400);
 }
 
@@ -28,8 +28,8 @@ void ImageViewer::open()
     if (!fileName.isEmpty()) {
         QImage image(fileName);
         if (image.isNull()) {
-            QMessageBox::information(this, tr("ImageViewer"),
-                                     tr("Could not load \n %1") .arg(fileName));
+            QMessageBox::information(this, tr("Image Viewer"),
+                                     tr("Cannot load %1.").arg(fileName));
             return;
         }
         imageLabel->setPixmap(QPixmap::fromImage(image));

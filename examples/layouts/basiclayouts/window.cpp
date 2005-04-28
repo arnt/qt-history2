@@ -6,7 +6,7 @@ Window::Window()
 {
     QMenuBar *menuBar = new QMenuBar;
 
-    QMenu* fileMenu = new QMenu(tr("&File"));
+    QMenu *fileMenu = new QMenu(tr("&File"), this);
     QAction *quitAction = fileMenu->addAction(tr("&Quit"));
     menuBar->addMenu(fileMenu);
 

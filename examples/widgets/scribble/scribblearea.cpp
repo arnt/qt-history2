@@ -21,6 +21,7 @@ bool ScribbleArea::openImage(const QString &fileName)
     QSize newSize = loadedImage.size().expandedTo(size());
     resizeImage(&loadedImage, newSize);
     image = loadedImage;
+    modified = false;
     update();
     return true;
 }

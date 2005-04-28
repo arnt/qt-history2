@@ -6,7 +6,7 @@
 
 MainWindow::MainWindow()
 {
-    QMenu *fileMenu = new QMenu(tr("&File"));
+    QMenu *fileMenu = new QMenu(tr("&File"), this);
     QAction *newAction = fileMenu->addAction(tr("&New..."));
     newAction->setShortcut(tr("Ctrl+N"));
     printAction = fileMenu->addAction(tr("&Print..."), this, SLOT(printFile()));

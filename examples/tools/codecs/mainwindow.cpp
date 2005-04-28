@@ -56,7 +56,7 @@ void MainWindow::save()
         }
 
         QAction *action = qobject_cast<QAction *>(sender());
-        QByteArray codecName = action->iconText().toAscii();
+        QByteArray codecName = action->data().toByteArray();
 
         QTextStream out(&file);
         out.setCodec(codecName);
@@ -76,7 +76,7 @@ void MainWindow::aboutToShowSaveAsMenu()
     QString currentText = textEdit->toPlainText();
 
     foreach (QAction *action, saveAsActs) {
-        QByteArray codecName = action->iconText().toAscii();
+        QByteArray codecName = action->data().toByteArray();
         QTextCodec *codec = QTextCodec::codecForName(codecName);
         action->setVisible(codec && codec->canEncode(currentText));
     }
@@ -122,6 +122,7 @@ void MainWindow::createActions()
         QString text = tr("%1...").arg(QString(codec->name()));
 
         QAction *action = new QAction(text, this);
+	action->setData(codec->name());
         connect(action, SIGNAL(triggered()), this, SLOT(save()));
         saveAsActs.append(action);
     }

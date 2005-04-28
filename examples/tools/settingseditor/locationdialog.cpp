@@ -15,17 +15,16 @@ LocationDialog::LocationDialog(QWidget *parent)
 
     organizationComboBox = new QComboBox;
     organizationComboBox->addItem(tr("Trolltech"));
-    organizationComboBox->addItem(tr("Qt Examples"));
     organizationComboBox->setEditable(true);
 
     applicationComboBox = new QComboBox;
     applicationComboBox->addItem(tr("Any"));
+    applicationComboBox->addItem(tr("Application Example"));
     applicationComboBox->addItem(tr("Assistant"));
     applicationComboBox->addItem(tr("Designer"));
     applicationComboBox->addItem(tr("Linguist"));
-    applicationComboBox->addItem(tr("QMake"));
     applicationComboBox->setEditable(true);
-    applicationComboBox->setCurrentIndex(2);
+    applicationComboBox->setCurrentIndex(3);
 
     formatLabel = new QLabel(tr("&Format:"));
     formatLabel->setBuddy(formatComboBox);

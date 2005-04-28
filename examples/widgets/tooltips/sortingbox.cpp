@@ -1,8 +1,8 @@
 #include <QtGui>
 
-#include "sortingbox.h"
-
 #include <stdlib.h>
+
+#include "sortingbox.h"
 
 SortingBox::SortingBox()
 {
