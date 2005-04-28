@@ -302,4 +302,10 @@ void WidgetFactory::initialize(QObject *object) const
     int o = sheet->indexOf(QLatin1String("orientation"));
     if (o != -1)
         sheet->setChanged(o, true);
+
+    if (QWidget *widget = qobject_cast<QWidget*>(object)) {
+        QSize sz = widget->minimumSize();
+        if (sz.width() <= 0 && sz.height() <= 0)
+            widget->setMinimumSize(QSize(16, 16));
+    }
 }
