@@ -342,7 +342,7 @@ void QAbstractButtonPrivate::moveFocus(int key)
         && candidate->d_func()->checkable)
         candidate->setChecked(true);
 
-    if (candidate) {
+    if (candidate && candidate->focusPolicy() != Qt::NoFocus) {
         if (key == Qt::Key_Up || key == Qt::Key_Left)
             candidate->setFocus(Qt::BacktabFocusReason);
         else
@@ -694,7 +694,7 @@ void QAbstractButton::animateClick(int msec)
     if (!isEnabled())
         return;
     Q_D(QAbstractButton);
-    if (d->checkable)
+    if (d->checkable && focusPolicy() != Qt::NoFocus)
         setFocus();
     setDown(true);
     emit pressed();
@@ -810,7 +810,8 @@ bool QAbstractButton::event(QEvent *e)
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         if (d->shortcutId != se->shortcutId())
             return false;
-        setFocus();
+        if (focusPolicy() != Qt::NoFocus)
+            setFocus();
         if (!se->isAmbiguous())
             animateClick();
         else
