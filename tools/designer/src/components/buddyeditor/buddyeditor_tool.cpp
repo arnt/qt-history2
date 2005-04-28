@@ -57,6 +57,8 @@ QWidget *BuddyEditorTool::editor() const
         Q_ASSERT(formWindow() != 0);
         m_editor = new BuddyEditor(formWindow(), 0);
         connect(formWindow(), SIGNAL(mainContainerChanged(QWidget*)), m_editor, SLOT(setBackground(QWidget*)));
+        connect(formWindow(), SIGNAL(changed()),
+                    m_editor, SLOT(updateBackground()));
     }
 
     return m_editor;
@@ -64,15 +66,12 @@ QWidget *BuddyEditorTool::editor() const
 
 void BuddyEditorTool::activated()
 {
-    connect(formWindow(), SIGNAL(changed()),
-                m_editor, SLOT(updateBackground()));
-    m_editor->updateBackground();
+    m_editor->enableUpdateBackground(true);
 }
 
 void BuddyEditorTool::deactivated()
 {
-    disconnect(formWindow(), SIGNAL(changed()),
-                m_editor, SLOT(updateBackground()));
+    m_editor->enableUpdateBackground(false);
 }
 
 QAction *BuddyEditorTool::action() const
