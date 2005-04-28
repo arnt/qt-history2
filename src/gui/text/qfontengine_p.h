@@ -80,8 +80,8 @@ public:
         cache_count = 0;
 #if defined(Q_WS_WIN)
         script_cache = 0;
-#endif
         cmap = 0;
+#endif
     }
     virtual ~QFontEngine();
 
