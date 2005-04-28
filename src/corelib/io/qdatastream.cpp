@@ -842,10 +842,10 @@ QDataStream &QDataStream::readBytes(char *&s, uint &l)
         curBuf = new char[allocated + blockSize + 1];
         if (prevBuf) {
             memcpy(curBuf, prevBuf, allocated);
-            delete prevBuf;
+            delete [] prevBuf;
         }
         if (dev->read(curBuf + allocated, blockSize) != blockSize) {
-            delete curBuf;
+            delete [] curBuf;
             setStatus(ReadPastEnd);
             return *this;
         }
