@@ -32,24 +32,105 @@ PieView::PieView(QWidget *parent)
     totalValue = 0.0;
 }
 
-bool PieView::isIndexHidden(const QModelIndex & /*index*/) const
+void PieView::dataChanged(const QModelIndex &topLeft,
+                          const QModelIndex &bottomRight)
 {
-    return false;
+    QAbstractItemView::dataChanged(topLeft, bottomRight);
+
+    validItems = 0;
+    totalValue = 0.0;
+
+    for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+
+        QModelIndex index = model()->index(row, 1, rootIndex());
+        double value = model()->data(index).toDouble();
+
+        if (value > 0.0) {
+            totalValue += value;
+            validItems++;
+        }
+    }
+    viewport()->update();
+}
+
+bool PieView::edit(const QModelIndex &index, EditTrigger trigger, QEvent *event)
+{
+    if (index.column() == 0)
+        return QAbstractItemView::edit(index, trigger, event);
+    else
+        return false;
 }
 
 /*
-    Returns the position of the item in viewport coordinates.
+    Returns the item that covers the coordinate given in the view.
 */
 
-QRect PieView::visualRect(const QModelIndex &index) const
+QModelIndex PieView::indexAt(const QPoint &point) const
 {
-    QRect rect = itemRect(index);
-    if (rect.isValid())
-        return QRect(rect.left() - horizontalScrollBar()->value(),
-                     rect.top() - verticalScrollBar()->value(),
-                     rect.width(), rect.height());
-    else
-        return rect;
+    if (validItems == 0)
+        return QModelIndex();
+
+    // Transform the view coordinates into contents widget coordinates.
+    int wx = point.x() + horizontalScrollBar()->value();
+    int wy = point.y() + verticalScrollBar()->value();
+
+    if (wx < totalSize) {
+        double cx = wx - totalSize/2;
+        double cy = totalSize/2 - wy; // positive cy for items above the center
+
+        // Determine the distance from the center point of the pie chart.
+        double d = pow(pow(cx, 2) + pow(cy, 2), 0.5);
+
+        if (d == 0 || d > pieSize/2)
+            return QModelIndex();
+
+        // Determine the angle of the point.
+        double angle = (180 / M_PI) * acos(cx/d);
+        if (cy < 0)
+            angle = 360 - angle;
+
+        // Find the relevant slice of the pie.
+        double startAngle = 0.0;
+
+        for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+
+            QModelIndex index = model()->index(row, 1, rootIndex());
+            double value = model()->data(index).toDouble();
+
+            if (value > 0.0) {
+                double sliceAngle = 360*value/totalValue;
+
+                if (angle >= startAngle && angle < (startAngle + sliceAngle))
+                    return model()->index(row, 1, rootIndex());
+
+                startAngle += sliceAngle;
+            }
+        }
+    } else {
+        double itemHeight = QFontMetrics(viewOptions().font).height();
+        int listItem = int((wy - margin) / itemHeight);
+        int validRow = 0;
+
+        for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
+
+            QModelIndex index = model()->index(row, 1, rootIndex());
+            if (model()->data(index).toDouble() > 0.0) {
+
+                if (listItem == validRow)
+                    return model()->index(row, 0, rootIndex());
+
+                // Update the list index that corresponds to the next valid row.
+                validRow++;
+            }
+        }
+    }
+
+    return QModelIndex();
+}
+
+bool PieView::isIndexHidden(const QModelIndex & /*index*/) const
+{
+    return false;
 }
 
 /*
@@ -85,9 +166,9 @@ QRect PieView::itemRect(const QModelIndex &index) const
         case 0:
             itemHeight = QFontMetrics(viewOptions().font).height();
 
-            return QRect(int(totalSize + itemHeight),
+            return QRect(totalSize,
                          int(margin + listItem*itemHeight),
-                         pieSize, int(itemHeight));
+                         totalSize - margin, int(itemHeight));
         case 1:
             return viewport()->rect();
         }
@@ -96,158 +177,53 @@ QRect PieView::itemRect(const QModelIndex &index) const
     return QRect();
 }
 
-void PieView::scrollTo(const QModelIndex &index, ScrollHint)
+QRegion PieView::itemRegion(const QModelIndex &index) const
 {
-    QRect area = viewport()->rect();
-    QRect rect = visualRect(index);
+    if (!index.isValid())
+        return QRegion();
 
-    if (rect.left() < area.left())
-        horizontalScrollBar()->setValue(
-            horizontalScrollBar()->value() - rect.left());
-    else if (rect.right() > area.right())
-        horizontalScrollBar()->setValue(
-            horizontalScrollBar()->value() + rect.left() - area.width());
+    if (index.column() != 1)
+        return itemRect(index);
 
-    if (rect.top() < area.top())
-        verticalScrollBar()->setValue(
-            verticalScrollBar()->value() - rect.top());
-    else if (rect.bottom() > area.bottom())
-        verticalScrollBar()->setValue(
-            verticalScrollBar()->value() + rect.bottom() - area.height());
-}
+    if (model()->data(index).toDouble() <= 0.0)
+        return QRegion();
 
-/*
-    Returns the item that covers the coordinate given in the view.
-*/
-
-QModelIndex PieView::indexAt(const QPoint &point) const
-{
-    if (validItems == 0)
-        return QModelIndex();
-
-    // Transform the view coordinates into contents widget coordinates.
-    int wx = point.x() + horizontalScrollBar()->value();
-    int wy = point.y() + verticalScrollBar()->value();
-
-    if (wx < totalSize) {
-        double cx = wx - totalSize/2;
-        double cy = totalSize/2 - wy;
-
-        // Determine the distance from the center point of the pie chart.
-        double d = pow(pow(cx, 2) + pow(cy, 2), 0.5);
-
-        if (d == 0 || d > pieSize/2)
-            return QModelIndex();
-
-        // Determine the angle of the point.
-        double angle = 180 * acos(cx/d) / M_PI;
-        if (cy < 0)
-            angle = 360 - angle;
-
-        // Find the relevant slice of the pie.
-        double startAngle = 0.0;
-
-        for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
-
-            QModelIndex index = model()->index(row, 1, rootIndex());
-            double value = model()->data(index).toDouble();
-
-            if (value > 0.0) {
-                double sliceAngle = 360*value/totalValue;
-
-                if (angle >= startAngle && angle < (startAngle + sliceAngle))
-                    return model()->index(row, 0, rootIndex());
-
-                startAngle += sliceAngle;
-            }
-        }
-    } else {
-        double itemHeight = QFontMetrics(viewOptions().font).height();
-        int listItem = int((wy - margin) / itemHeight);
-        int validRow = 0;
-
-        for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
-
-            QModelIndex index = model()->index(row, 1, rootIndex());
-            if (model()->data(index).toDouble() > 0.0) {
-
-                if (listItem == validRow)
-                    return model()->index(row, 0, rootIndex());
-
-                // Update the list index that corresponds to the next valid row.
-                validRow++;
-            }
-        }
-    }
-
-    return QModelIndex();
-}
-
-void PieView::dataChanged(const QModelIndex &topLeft,
-                          const QModelIndex &bottomRight)
-{
-    QAbstractItemView::dataChanged(topLeft, bottomRight);
-
-    validItems = 0;
-    totalValue = 0.0;
-
+    double startAngle = 0.0;
     for (int row = 0; row < model()->rowCount(rootIndex()); ++row) {
 
-        QModelIndex index = model()->index(row, 1, rootIndex());
-        double value = model()->data(index).toDouble();
+        QModelIndex sliceIndex = model()->index(row, 1, rootIndex());
+        double value = model()->data(sliceIndex).toDouble();
 
         if (value > 0.0) {
-            totalValue += value;
-            validItems++;
-        }
-    }
-}
+            double angle = 360*value/totalValue;
 
-void PieView::rowsInserted(const QModelIndex &parent, int start, int end)
-{
-    for (int row = start; row <= end; ++row) {
+            if (sliceIndex == index) {
+                QPainterPath slicePath;
+                slicePath.moveTo(totalSize/2, totalSize/2);
+                slicePath.arcTo(margin, margin, margin+pieSize, margin+pieSize,
+                                startAngle, angle);
+                slicePath.closeSubpath();
 
-        QModelIndex index = model()->index(row, 1, rootIndex());
-        double value = model()->data(index).toDouble();
+                return QRegion(slicePath.toFillPolygon().toPolygon());
+            }
 
-        if (value > 0.0) {
-            totalValue += value;
-            validItems++;
+            startAngle += angle;
         }
     }
 
-    QAbstractItemView::rowsInserted(parent, start, end);
+    return QRegion();
 }
 
-void PieView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+int PieView::horizontalOffset() const
 {
-    for (int row = start; row <= end; ++row) {
-
-        QModelIndex index = model()->index(row, 1, rootIndex());
-        double value = model()->data(index).toDouble();
-        if (value > 0.0) {
-            totalValue -= value;
-            validItems--;
-        }
-    }
-
-    QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
+    return horizontalScrollBar()->value();
 }
 
-/*
-    Find the indices corresponding to the extent of the selection.
-*/
-
-void PieView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
+void PieView::mouseReleaseEvent(QMouseEvent *event)
 {
-    // Use viewport coordinates because the itemRect() function will transform
-    // them into widget coordinates.
-    QModelIndex firstIndex = indexAt(rect.topLeft());
-    QModelIndex lastIndex = indexAt(rect.bottomRight());
-
-    QItemSelection selection(firstIndex, lastIndex);
-
-    selectionModel()->select(selection, command);
+    QAbstractItemView::mouseReleaseEvent(event);
+    selectionRect = QRect();
+    viewport()->update();
 }
 
 QModelIndex PieView::moveCursor(QAbstractItemView::CursorAction cursorAction,
@@ -259,71 +235,25 @@ QModelIndex PieView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         case MoveLeft:
         case MoveUp:
             if (current.row() > 0)
-                return model()->index(current.row() - 1, 0, rootIndex());
+                return model()->index(current.row() - 1, current.column(),
+                                      rootIndex());
             else
-                return model()->index(0, 0, rootIndex());
+                return model()->index(0, current.column(), rootIndex());
             break;
         case MoveRight:
         case MoveDown:
             if (current.row() < rows(current) - 1)
-                return model()->index(current.row() + 1, 0, rootIndex());
+                return model()->index(current.row() + 1, current.column(),
+                                      rootIndex());
             else
-                return model()->index(rows(current) - 1, 0, rootIndex());
+                return model()->index(rows(current) - 1, current.column(),
+                                      rootIndex());
             break;
         default:
             return current;
     }
-}
 
-int PieView::horizontalOffset() const
-{
-    return horizontalScrollBar()->value();
-}
-
-void PieView::horizontalScrollbarAction(int action)
-{
     viewport()->update();
-}
-
-int PieView::verticalOffset() const
-{
-    return verticalScrollBar()->value();
-}
-
-void PieView::verticalScrollbarAction(int action)
-{
-    viewport()->update();
-}
-
-/*
-    Returns a region corresponding to the selection in viewport coordinates.
-*/
-
-QRegion PieView::visualRegionForSelection(const QItemSelection &selection) const
-{
-    int ranges = selection.count();
-
-    if (ranges == 0)
-        return QRect();
-
-    // Note that we use the top and bottom functions of the selection range
-    // since the data is stored in rows.
-
-    int firstRow = selection.at(0).top();
-    int lastRow = selection.at(0).top();
-
-    for (int i = 0; i < ranges; ++i) {
-        firstRow = qMin(firstRow, selection.at(i).top());
-        lastRow = qMax(lastRow, selection.at(i).bottom());
-    }
-
-    QModelIndex firstItem = model()->index(qMin(firstRow, lastRow), 0, rootIndex());
-    QModelIndex lastItem = model()->index(qMax(firstRow, lastRow), 0, rootIndex());
-
-    QRect firstRect = visualRect(firstItem);
-    QRect lastRect = visualRect(lastItem);
-
-    return firstRect.unite(lastRect);
 }
 
 void PieView::paintEvent(QPaintEvent *event)
@@ -366,9 +296,16 @@ void PieView::paintEvent(QPaintEvent *event)
                 double angle = 360*value/totalValue;
 
                 QModelIndex colorIndex = model()->index(row, 0, rootIndex());
-                QColor color = QColor(model()->data(colorIndex, Qt::DecorationRole).toString());
+                QColor color = QColor(model()->data(colorIndex,
+                                Qt::DecorationRole).toString());
 
-                painter.setBrush(QBrush(color));
+                if (currentIndex() == index)
+                    painter.setBrush(QBrush(color, Qt::Dense4Pattern));
+                else if (selections->isSelected(index))
+                    painter.setBrush(QBrush(color, Qt::Dense3Pattern));
+                else
+                    painter.setBrush(QBrush(color));
+
                 painter.drawPie(0, 0, pieSize, pieSize, int(startAngle*16),
                                 int(angle*16));
 
@@ -378,12 +315,6 @@ void PieView::paintEvent(QPaintEvent *event)
         painter.restore();
 
         int keyNumber = 0;
-        painter.setFont(viewOptions().font);
-        double itemHeight = QFontMetrics(viewOptions().font).height();
-        double fontHeight = QFontMetrics(viewOptions().font).ascent();
-        QModelIndex current = currentIndex();
-
-        painter.save();
 
         for (row = 0; row < model()->rowCount(rootIndex()); ++row) {
 
@@ -393,44 +324,32 @@ void PieView::paintEvent(QPaintEvent *event)
             if (value > 0.0) {
                 QModelIndex labelIndex = model()->index(row, 0, rootIndex());
 
-                QString label = model()->data(labelIndex).toString();
-                QColor color = QColor(model()->data(labelIndex, Qt::DecorationRole).toString());
+                QStyleOptionViewItem option = viewOptions();
+                option.rect = visualRect(labelIndex);
+                if (selections->isSelected(labelIndex))
+                    option.state |= QStyle::State_Selected;
+                if (currentIndex() == labelIndex)
+                    option.state |= QStyle::State_HasFocus;
+                itemDelegate()->paint(&painter, option, labelIndex);
 
-                painter.setBrush(QBrush(color));
-                painter.setPen(textPen);
-
-                painter.save();
-                painter.translate(keyPoint);
-                QRectF thisItemRect(0, keyNumber*itemHeight,
-                    itemHeight * 0.8, itemHeight * 0.9);
-                painter.drawRect(thisItemRect);
-                painter.restore();
-
-                QRect textRect = itemRect(labelIndex);
-                textRect.translate(-horizontalScrollBar()->value(),
-                                   -verticalScrollBar()->value());
-
-                if (labelIndex == current) {
-                    painter.fillRect(textRect, option.palette.highlight());
-                    painter.setPen(highlightedPen);
-                }
-                else if (selections->isSelected(labelIndex)) {
-                    painter.fillRect(textRect, option.palette.highlight());
-                    painter.setPen(highlightedPen);
-                } else {
-                    painter.fillRect(textRect, background);
-                    painter.setPen(textPen);
-                }
-
-                QPointF textPosition(textRect.x(), textRect.y() + fontHeight);
-
-                painter.drawText(textPosition, label);
                 keyNumber++;
             }
         }
+    }
 
+    if (!selectionRect.isEmpty()) {
+        QStyleOptionRubberBand band;
+        band.shape = QRubberBand::Rectangle;
+        band.rect = selectionRect;
+        painter.save();
+        style()->drawControl(QStyle::CE_RubberBand, &band, &painter);
         painter.restore();
     }
+}
+
+void PieView::resizeEvent(QResizeEvent * /* event */)
+{
+    updateGeometries();
 }
 
 int PieView::rows(const QModelIndex &index) const
@@ -438,9 +357,114 @@ int PieView::rows(const QModelIndex &index) const
     return model()->rowCount(model()->parent(index));
 }
 
-void PieView::resizeEvent(QResizeEvent * /* event */)
+void PieView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
-    updateGeometries();
+    for (int row = start; row <= end; ++row) {
+
+        QModelIndex index = model()->index(row, 1, rootIndex());
+        double value = model()->data(index).toDouble();
+
+        if (value > 0.0) {
+            totalValue += value;
+            validItems++;
+        }
+    }
+
+    QAbstractItemView::rowsInserted(parent, start, end);
+}
+
+void PieView::rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end)
+{
+    for (int row = start; row <= end; ++row) {
+
+        QModelIndex index = model()->index(row, 1, rootIndex());
+        double value = model()->data(index).toDouble();
+        if (value > 0.0) {
+            totalValue -= value;
+            validItems--;
+        }
+    }
+
+    QAbstractItemView::rowsAboutToBeRemoved(parent, start, end);
+}
+
+void PieView::scrollContentsBy(int dx, int dy)
+{
+    viewport()->scroll(dx, dy);
+}
+
+void PieView::scrollTo(const QModelIndex &index, ScrollHint)
+{
+    QRect area = viewport()->rect();
+    QRect rect = visualRect(index);
+
+    if (rect.left() < area.left())
+        horizontalScrollBar()->setValue(
+            horizontalScrollBar()->value() + rect.left() - area.left());
+    else if (rect.right() > area.right())
+        horizontalScrollBar()->setValue(
+            horizontalScrollBar()->value() + qMin(
+                rect.right() - area.right(), rect.left() - area.left()));
+
+    if (rect.top() < area.top())
+        verticalScrollBar()->setValue(
+            verticalScrollBar()->value() + rect.top() - area.top());
+    else if (rect.bottom() > area.bottom())
+        verticalScrollBar()->setValue(
+            verticalScrollBar()->value() + qMin(
+                rect.bottom() - area.bottom(), rect.top() - area.top()));
+}
+
+/*
+    Find the indices corresponding to the extent of the selection.
+*/
+
+void PieView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFlags command)
+{
+    // Use content widget coordinates because we will use the itemRegion()
+    // function to check for intersections.
+
+    QRect contentsRect = rect.translated(horizontalScrollBar()->value(),
+                                         verticalScrollBar()->value());
+
+    int rows = model()->rowCount(rootIndex());
+    int columns = model()->columnCount(rootIndex());
+    QModelIndexList indexes;
+
+    for (int row = 0; row < rows; ++row) {
+        for (int column = 0; column < columns; ++column) {
+            QModelIndex index = model()->index(row, column, rootIndex());
+            QRegion region = itemRegion(index);
+            if (!region.intersect(contentsRect).isEmpty())
+                indexes.append(index);
+        }
+    }
+
+    if (indexes.size() > 0) {
+        int firstRow = indexes[0].row();
+        int lastRow = indexes[0].row();
+        int firstColumn = indexes[0].column();
+        int lastColumn = indexes[0].column();
+
+        for (int i = 1; i < indexes.size(); ++i) {
+            firstRow = qMin(firstRow, indexes[i].row());
+            lastRow = qMax(lastRow, indexes[i].row());
+            firstColumn = qMin(firstColumn, indexes[i].column());
+            lastColumn = qMax(lastColumn, indexes[i].column());
+        }
+
+        QItemSelection selection(
+            model()->index(firstRow, firstColumn, rootIndex()),
+            model()->index(lastRow, lastColumn, rootIndex()));
+        selectionModel()->select(selection, command);
+    } else {
+        QModelIndex noIndex;
+        QItemSelection selection(noIndex, noIndex);
+        selectionModel()->select(selection, command);
+    }
+
+    selectionRect = rect;
+    viewport()->update();
 }
 
 void PieView::updateGeometries()
@@ -449,4 +473,55 @@ void PieView::updateGeometries()
     horizontalScrollBar()->setRange(0, qMax(0, 2*totalSize - viewport()->width()));
     verticalScrollBar()->setPageStep(viewport()->height());
     verticalScrollBar()->setRange(0, qMax(0, totalSize - viewport()->height()));
+}
+
+int PieView::verticalOffset() const
+{
+    return verticalScrollBar()->value();
+}
+
+/*
+    Returns the position of the item in viewport coordinates.
+*/
+
+QRect PieView::visualRect(const QModelIndex &index) const
+{
+    QRect rect = itemRect(index);
+    if (rect.isValid())
+        return QRect(rect.left() - horizontalScrollBar()->value(),
+                     rect.top() - verticalScrollBar()->value(),
+                     rect.width(), rect.height());
+    else
+        return rect;
+}
+
+/*
+    Returns a region corresponding to the selection in viewport coordinates.
+*/
+
+QRegion PieView::visualRegionForSelection(const QItemSelection &selection) const
+{
+    int ranges = selection.count();
+
+    if (ranges == 0)
+        return QRect();
+
+    // Note that we use the top and bottom functions of the selection range
+    // since the data is stored in rows.
+
+    int firstRow = selection.at(0).top();
+    int lastRow = selection.at(0).top();
+
+    for (int i = 0; i < ranges; ++i) {
+        firstRow = qMin(firstRow, selection.at(i).top());
+        lastRow = qMax(lastRow, selection.at(i).bottom());
+    }
+
+    QModelIndex firstItem = model()->index(qMin(firstRow, lastRow), 0, rootIndex());
+    QModelIndex lastItem = model()->index(qMax(firstRow, lastRow), 0, rootIndex());
+
+    QRect firstRect = visualRect(firstItem);
+    QRect lastRect = visualRect(lastItem);
+
+    return firstRect.unite(lastRect);
 }

@@ -39,10 +39,9 @@ protected slots:
     void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
 
 protected:
+    bool edit(const QModelIndex &index, EditTrigger trigger, QEvent *event);
     QModelIndex moveCursor(QAbstractItemView::CursorAction cursorAction,
                            Qt::KeyboardModifiers modifiers);
-
-    QRegion visualRegionForSelection(const QItemSelection &selection) const;
 
     int horizontalOffset() const;
     int verticalOffset() const;
@@ -51,15 +50,16 @@ protected:
 
     void setSelection(const QRect&, QItemSelectionModel::SelectionFlags command);
 
+    void mouseReleaseEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event);
     void resizeEvent(QResizeEvent *event);
+    void scrollContentsBy(int dx, int dy);
 
-protected slots:
-    void horizontalScrollbarAction(int action);
-    void verticalScrollbarAction(int action);
+    QRegion visualRegionForSelection(const QItemSelection &selection) const;
 
 private:
     QRect itemRect(const QModelIndex &item) const;
+    QRegion itemRegion(const QModelIndex &index) const;
     int rows(const QModelIndex &index = QModelIndex()) const;
     void updateGeometries();
 
@@ -68,6 +68,7 @@ private:
     int pieSize;
     int validItems;
     double totalValue;
+    QRect selectionRect;
 };
 
 #endif

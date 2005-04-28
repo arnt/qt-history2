@@ -62,6 +62,8 @@ void MainWindow::setupViews()
     pieChart = new PieView;
     splitter->addWidget(table);
     splitter->addWidget(pieChart);
+    splitter->setStretchFactor(0, 0);
+    splitter->setStretchFactor(1, 1);
 
     table->setModel(model);
     pieChart->setModel(model);
