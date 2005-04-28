@@ -26,6 +26,8 @@
 #include "qregexp.h"
 #include "qdir.h"
 #include "qdnd_p.h"
+#include "qimagereader.h"
+#include "qimagewriter.h"
 #include <ctype.h>
 
 // These pixmaps approximate the images in the Windows User Interface Guidelines.
@@ -349,11 +351,118 @@ Qt::DropAction QDragManager::defaultAction(Qt::DropActions possibleActions,
     return defaultAction;
 }
 
+QStringList QDragManager::imageReadMimeFormats()
+{
+    QStringList formats;
+    QList<QByteArray> imageFormats = QImageReader::supportedImageFormats();
+    for (int i = 0; i < imageFormats.size(); ++i) {
+        QString format = QLatin1String("image/");
+        format += QString::fromLatin1(imageFormats.at(i).toLower());
+        formats.append(format);
+    }
+    
+    //put png at the front because it is best
+    int pngIndex = formats.indexOf(QLatin1String("image/png"));
+    if (pngIndex != -1 && pngIndex != 0)
+        formats.move(pngIndex, 0);
+
+    return formats;
+}
+    
+
+QStringList QDragManager::imageWriteMimeFormats()
+{
+    QStringList formats;
+    QList<QByteArray> imageFormats = QImageWriter::supportedImageFormats();
+    for (int i = 0; i < imageFormats.size(); ++i) {
+        QString format = QLatin1String("image/");
+        format += QString::fromLatin1(imageFormats.at(i).toLower());
+        formats.append(format);
+    }
+    
+    //put png at the front because it is best
+    int pngIndex = formats.indexOf(QLatin1String("image/png"));
+    if (pngIndex != -1 && pngIndex != 0)
+        formats.move(pngIndex, 0);
+
+    return formats;
+}
+
+QByteArray QDragManager::imageMimeData(const QString &mimeType, const QMimeData * mimeData)
+{
+    QByteArray data;
+    QImage image = qvariant_cast<QImage>(mimeData->imageData());
+    QBuffer buf(&data);
+    buf.open(QBuffer::WriteOnly);
+    image.save(&buf, mimeType.mid(mimeType.indexOf('/') + 1).toLatin1());
+    return data;
+}
+
 #endif
 
+QInternalMimeData::QInternalMimeData()
+    : QMimeData()
+{
+}
+
+QInternalMimeData::~QInternalMimeData()
+{
+}
+
+bool QInternalMimeData::hasFormat(const QString &mimeType) const
+{
+    bool foundFormat = hasFormat_sys(mimeType);
+    if (!foundFormat && mimeType ==  QLatin1String("application/x-qt-image")) {
+        QStringList imageFormats = QDragManager::imageReadMimeFormats();
+        for (int i = 0; i < imageFormats.size(); ++i) {
+            if ((foundFormat = hasFormat_sys(imageFormats.at(i))))
+                break;
+        }
+    }
+    return foundFormat;
+}
+
+QStringList QInternalMimeData::formats() const
+{
+    QStringList realFormats = formats_sys();
+    if (!realFormats.contains(QLatin1String("application/x-qt-image"))) {
+        QStringList imageFormats = QDragManager::imageReadMimeFormats();
+        for (int i = 0; i < imageFormats.size(); ++i) {
+            if (realFormats.contains(imageFormats.at(i))) {
+                realFormats += QLatin1String("application/x-qt-image");
+                break;
+            }
+        }
+    }
+    return realFormats;
+}
+
+QVariant QInternalMimeData::retrieveData(const QString &mimeType, QVariant::Type type) const
+{
+    QVariant data = retrieveData_sys(mimeType, type);
+    if (data.isNull() && mimeType == QLatin1String("application/x-qt-image")) {
+        QStringList imageFormats = QDragManager::imageReadMimeFormats();
+        for (int i = 0; i < imageFormats.size(); ++i) {
+            data = retrieveData_sys(imageFormats.at(i), QVariant::ByteArray);
+            if (!data.isNull()) {
+                if (type != data.type() && data.type() == QVariant::ByteArray) {
+                    QImage image = QImage::fromData(data.toByteArray());
+                    if (type == QVariant::Bitmap)
+                        data = QPixmap::fromImage(image);
+                    else if (type == QVariant::Pixmap)
+                        data = QBitmap::fromImage(image);
+                    else
+                        data = image;
+                }
+                break;
+            }
+        }
+    }
+    return data;
+}
 
 QDropData::QDropData()
-    : QMimeData()
+    : QInternalMimeData()
 {
 }
 

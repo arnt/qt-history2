@@ -210,7 +210,7 @@ static void qt_mac_dnd_update_action(DragReference dragRef) {
 /*****************************************************************************
   DnD functions
  *****************************************************************************/
-bool QDropData::hasFormat(const QString &mime) const
+bool QDropData::hasFormat_sys(const QString &mime) const
 {
     ItemReference ref = 0;
     if(GetDragItemReferenceNumber(qt_mac_current_dragRef, 1, &ref))
@@ -235,7 +235,7 @@ bool QDropData::hasFormat(const QString &mime) const
     return false;
 }
 
-QVariant QDropData::retrieveData(const QString &mime, QVariant::Type) const
+QVariant QDropData::retrieveData_sys(const QString &mime, QVariant::Type) const
 {
     Size flavorsize=0;
     QVariant ret;
@@ -278,7 +278,7 @@ QVariant QDropData::retrieveData(const QString &mime, QVariant::Type) const
     return ret;
 }
 
-QStringList QDropData::formats() const
+QStringList QDropData::formats_sys() const
 {
     QStringList ret;
 

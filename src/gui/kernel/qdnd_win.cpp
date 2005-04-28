@@ -741,7 +741,7 @@ QOleDropTarget::Drop(LPDATAOBJECT /*pDataObj*/, DWORD grfKeyState, POINTL pt, LP
 //                    QDropData
 //---------------------------------------------------------------------
 
-bool QDropData::hasFormat(const QString &mimeType) const
+bool QDropData::hasFormat_sys(const QString &mimeType) const
 {
     if (!currentDataObject) // Sanity
         return false;
@@ -749,7 +749,7 @@ bool QDropData::hasFormat(const QString &mimeType) const
     return QWindowsMime::converterToMime(mimeType, currentDataObject) != 0;
 }
 
-QStringList QDropData::formats() const
+QStringList QDropData::formats_sys() const
 {
     QStringList fmts;
     if (!currentDataObject) // Sanity
@@ -760,7 +760,7 @@ QStringList QDropData::formats() const
     return fmts;
 }
 
-QVariant QDropData::retrieveData(const QString &mimeType, QVariant::Type type) const
+QVariant QDropData::retrieveData_sys(const QString &mimeType, QVariant::Type type) const
 {
     QVariant result;
 
@@ -810,10 +810,6 @@ Qt::DropAction QDragManager::drag(QDrag *o)
 #ifndef QT_NO_ACCESSIBILITY
     QAccessible::updateAccessibility(this, 0, QAccessible::DragDropStart);
 #endif
-
-    QStringList fmts = o->mimeData()->formats();
-    for(int i = 0; i < fmts.size(); ++i)
-        QWindowsMime::registerMimeType(fmts.at(i).toLatin1());
 
     DWORD resultEffect;
     QOleDropSource *src = new QOleDropSource();

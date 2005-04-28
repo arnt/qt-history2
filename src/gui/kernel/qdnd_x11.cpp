@@ -1376,7 +1376,7 @@ void QDragManager::updatePixmap()
     }
 }
 
-QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) const
+QVariant QDropData::retrieveData_sys(const QString &mimetype, QVariant::Type type) const
 {
     QByteArray mime = mimetype.toLatin1();
     if (type == QVariant::Image && mime == "application/x-qt-image") {
@@ -1399,12 +1399,12 @@ QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) c
     return data;
 }
 
-bool QDropData::hasFormat(const QString &format) const
+bool QDropData::hasFormat_sys(const QString &format) const
 {
     return formats().contains(format);
 }
 
-QStringList QDropData::formats() const
+QStringList QDropData::formats_sys() const
 {
     QStringList formats;
     if (X11->motifdnd_active) {

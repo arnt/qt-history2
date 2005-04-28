@@ -51,17 +51,35 @@ public:
     QMap<Qt::DropAction, QPixmap> customCursors;
 };
 
-class QDropData : public QMimeData
+class QInternalMimeData : public QMimeData
+{
+    Q_OBJECT
+public:
+    QInternalMimeData();
+    ~QInternalMimeData();
+
+    bool hasFormat(const QString &mimeType) const;
+    QStringList formats() const;
+
+protected:    
+    QVariant retrieveData(const QString &mimeType, QVariant::Type type) const;
+    
+    virtual bool hasFormat_sys(const QString &mimeType) const = 0;
+    virtual QStringList formats_sys() const = 0;
+    virtual QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const = 0;
+};
+
+class QDropData : public QInternalMimeData
 {
     Q_OBJECT
 public:
     QDropData();
     ~QDropData();
 
-    bool hasFormat(const QString &mimetype) const;
-    QStringList formats() const;
 protected:
-    QVariant retrieveData(const QString &mimetype, QVariant::Type) const;
+    bool hasFormat_sys(const QString &mimeType) const;
+    QStringList formats_sys() const;
+    QVariant retrieveData_sys(const QString &mimeType, QVariant::Type type) const;
 
 #if defined(Q_WS_WIN)
 public:
@@ -117,6 +135,11 @@ public:
 
     void emitActionChanged(Qt::DropAction newAction) { if (object) emit object->actionChanged(newAction); }
     void emitTargetChanged(QWidget *newTarget) { if (object) emit object->targetChanged(newTarget); }
+
+    static QStringList imageReadMimeFormats();
+    static QStringList imageWriteMimeFormats();
+    static QByteArray imageMimeData(const QString &mimeType, const QMimeData * mimeData);
+    
 
 #ifdef Q_WS_MAC
     static OSErr qt_mac_send_handler(FlavorType, void *, DragItemRef, DragRef); //qdnd_mac.cpp

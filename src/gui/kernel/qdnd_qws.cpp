@@ -346,7 +346,7 @@ void QDragManager::drop()
 {
 }
 
-QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) const
+QVariant QDropData::retrieveData_sys(const QString &mimetype, QVariant::Type type) const
 {
     if (!drag_object)
         return QVariant();
@@ -356,12 +356,12 @@ QVariant QDropData::retrieveData(const QString &mimetype, QVariant::Type type) c
     return data;
 }
 
-bool QDropData::hasFormat(const QString &format) const
+bool QDropData::hasFormat_sys(const QString &format) const
 {
     return formats().contains(format);
 }
 
-QStringList QDropData::formats() const
+QStringList QDropData::formats_sys() const
 {
     if (drag_object)
         return drag_object->mimeData()->formats();
