@@ -314,23 +314,23 @@ bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType
 
     Returns the value of the socket option \a opt.
 */
-int QSocketLayerPrivate::option(SocketOption opt) const
+int QSocketLayerPrivate::option(QSocketLayer::SocketOption opt) const
 {
     if (!q->isValid())
         return -1;
 
     int n = -1;
     switch (opt) {
-    case ReceiveBufferSocketOption:
+    case QSocketLayer::ReceiveBufferSocketOption:
         n = SO_RCVBUF;
         break;
-    case SendBufferSocketOption:
+    case QSocketLayer::SendBufferSocketOption:
         n = SO_SNDBUF;
         break;
-    case BroadcastSocketOption:
+    case QSocketLayer::BroadcastSocketOption:
         n = SO_BROADCAST;
         break;
-    case NonBlockingSocketOption: {
+    case QSocketLayer::NonBlockingSocketOption: {
         unsigned long buf = 0;
         if (WSAIoctl(socketDescriptor, FIONBIO, 0,0, &buf, sizeof(buf), 0,0,0) == 0)
             return buf;
@@ -338,7 +338,7 @@ int QSocketLayerPrivate::option(SocketOption opt) const
             return -1;
         break;
     }
-    case AddressReusable:
+    case QSocketLayer::AddressReusable:
         n = SO_REUSEADDR;
         break;
     }
@@ -354,23 +354,24 @@ int QSocketLayerPrivate::option(SocketOption opt) const
 /*! \internal
     Sets the socket option \a opt to \a v.
 */
-bool QSocketLayerPrivate::setOption(SocketOption opt, int v)
+bool QSocketLayerPrivate::setOption(QSocketLayer::SocketOption opt, int v)
 {
     if (!q->isValid())
         return false;
 
     int n = 0;
     switch (opt) {
-    case ReceiveBufferSocketOption:
+    case QSocketLayer::ReceiveBufferSocketOption:
         n = SO_RCVBUF;
         break;
-    case SendBufferSocketOption:
+    case QSocketLayer::SendBufferSocketOption:
         n = SO_SNDBUF;
         break;
-    case BroadcastSocketOption:
+    case QSocketLayer::BroadcastSocketOption:
         n = SO_BROADCAST;
         break;
-    case NonBlockingSocketOption:
+    case QSocketLayer::NonBlockingSocketOption:
+        {
         unsigned long buf = v;
         unsigned long outBuf;
         DWORD sizeWritten = 0;
@@ -380,7 +381,8 @@ bool QSocketLayerPrivate::setOption(SocketOption opt, int v)
         }
         return true;
         break;
-    case AddressReusable:
+        }
+    case QSocketLayer::AddressReusable:
         n = SO_REUSEADDR;
         break;
     }
