@@ -539,7 +539,6 @@ public:
         SH_Dial_BackgroundRole,
         SH_ComboBox_LayoutDirection,
         SH_ItemView_EllipsisLocation,
-        SH_ItemView_AlternatingRowColors,
         SH_ItemView_ShowDecorationSelected,
         // Add new style hint values here
 

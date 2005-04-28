@@ -3532,9 +3532,6 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     case SH_ItemView_ShowDecorationSelected:
         ret = true;
         break;
-    case SH_ItemView_AlternatingRowColors:
-        ret = false;
-        break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
         break;

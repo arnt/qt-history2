@@ -3192,10 +3192,6 @@ int QCommonStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget
         ret = false;
         break;
 
-    case SH_ItemView_AlternatingRowColors:
-        ret = false;
-        break;
-
     default:
         ret = 0;
         break;
