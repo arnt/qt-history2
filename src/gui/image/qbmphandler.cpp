@@ -625,7 +625,7 @@ bool QBmpHandler::read(QImage *image)
 {
     QIODevice *d = device();
     QDataStream s(d);
-    BMP_FILEHDR bf;
+    BMP_FILEHDR bf = {{0, 0}, 0, 0, 0, 0};
     int startpos = d->pos();
 
     // Intel byte order
