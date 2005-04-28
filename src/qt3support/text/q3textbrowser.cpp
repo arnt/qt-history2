@@ -155,33 +155,6 @@ QString Q3TextBrowser::source() const
 }
 
 /*!
-    \property Q3TextBrowser::undoDepth
-    \brief This text browser's undo depth.
-*/
-
-/*!
-    \property Q3TextBrowser::overwriteMode
-    \brief This text browser's overwrite mode.
-*/
-
-/*!
-    \property Q3TextBrowser::modified
-    \brief Whether the contents have been modified.
-*/
-
-/*!
-    \property Q3TextBrowser::readOnly
-    \brief Whether the contents are read only.
-*/
-
-/*!
-    \property Q3TextBrowser::undoRedoEnabled
-    \brief Whether undo and redo are enabled.
-*/
-
-
-
-/*!
     Reloads the current set source.
 */
 

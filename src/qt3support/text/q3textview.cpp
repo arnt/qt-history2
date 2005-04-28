@@ -49,29 +49,4 @@ Q3TextView::~Q3TextView()
 {
 }
 
-/*!
-    \property Q3TextView::undoDepth
-    \brief the number of undoable steps
-*/
-
-/*!
-    \property Q3TextView::overwriteMode
-    \brief whether new text overwrites or pushes aside existing text
-*/
-
-/*!
-    \property Q3TextView::modified
-    \brief Whether the text view's contents have been modified.
-*/
-
-/*!
-    \property Q3TextView::readOnly
-    \brief Whether the text view's contents are read only.
-*/
-
-/*!
-    \property Q3TextView::undoRedoEnabled
-    \brief Whether undo and redo are enabled.
-*/
-
 #endif
