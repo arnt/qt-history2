@@ -108,6 +108,7 @@ QFileIconProvider::QFileIconProvider()
 
 QFileIconProvider::~QFileIconProvider()
 {
+    delete d_ptr;
 }
 
 /*!
