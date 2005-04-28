@@ -10,7 +10,7 @@ const qdocCommand = qdocDir + "/qdoc3";
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
-const validEditions = ["opensource", "commercial", "preview", "beta"];
+const validLicenses = ["opensource", "commercial", "preview", "beta"];
 const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
@@ -73,13 +73,8 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^src/gui/painting/makepsheader.pl"),
 		       new RegExp("^src/gui/painting/qpsprinter"),
 		       new RegExp("^LICENSE.TROLL") ];
-var checkoutKeep = [ /./ ];
 
 var platformRemove = new Array();
-var platformKeep = new Array();
-
-var editionRemove = new Array();
-var editionKeep = new Array();
 
 platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("^doc/src"),
@@ -100,7 +95,6 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("^configure"),
 			  new RegExp("^LICENSE.PREVIEW"),
 			  new RegExp("^README.qws") ];
-platformKeep["win"] = [ new RegExp(".") ];
 
 platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^doc/src"),
@@ -116,7 +110,6 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^bin/configure.exe"),
 			  new RegExp("^README.qws") ];
-platformKeep["x11"] = [ new RegExp(".") ];
 
 platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("^doc/src"),
@@ -131,7 +124,6 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^bin/configure.exe"),
 			  new RegExp("^README.qws") ];
-platformKeep["mac"] = [ new RegExp(".") ];
 
 platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("^doc/src"),
@@ -143,12 +135,12 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("_qnx4"),
 			       new RegExp("_qnx6"),
 			       new RegExp("^bin/configure.exe") ];
-platformKeep["embedded"] = [ new RegExp(".") ];
 
-editionRemove["commercial"] = [ new RegExp("GPL") ];
-editionKeep["commercial"] = [ new RegExp(".") ];
+var licenseRemove = new Array();
 
-editionRemove["opensource"] = [ new RegExp("^extensions"),
+licenseRemove["commercial"] = [ new RegExp("GPL") ];
+
+licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^src/plugins/sqldrivers/db2"),
 				new RegExp("^src/plugins/sqldrivers/oci"),
 				new RegExp("^src/plugins/sqldrivers/tds"),
@@ -167,16 +159,13 @@ editionRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^mkspecs/macx-pbuilder"),
 				new RegExp("^mkspecs/macx-xcode"),
 				new RegExp("^README-QT.TXT") ];
-editionKeep["opensource"] = [ new RegExp(".") ];
 
-editionRemove["preview"] = [ new RegExp("GPL") ];
-editionKeep["preview"] = [ new RegExp(".") ];
+licenseRemove["preview"] = [ new RegExp("GPL") ];
 
-editionRemove["beta"] = [ new RegExp("GPL") ];
-editionKeep["beta"] = [ new RegExp(".") ];
+licenseRemove["beta"] = [ new RegExp("GPL") ];
 
 var finalRemove = [ new RegExp("^dist") ];
-var finalKeep = [ /./ ];
+
 
 /************************************************************
  * Mapping from directories to module names
@@ -229,39 +218,38 @@ buildQdoc();
 print("Checkout from P4...");
 checkout();
 print("Purging checkout...");
-purgeFiles(checkoutDir, getFileList(checkoutDir), checkoutRemove, checkoutKeep);
+purgeFiles(checkoutDir, getFileList(checkoutDir), checkoutRemove);
 indentation+=tabSize;
 for (var p in validPlatforms) {
-    for (var e in validEditions) {
+    for (var l in validLicenses) {
   	var platform = validPlatforms[p];
-  	var edition = validEditions[e];
-  	if (options[platform] && options[edition]) {
-	    if (edition == "opensource" && platform == "win")
+  	var license = validLicenses[l];
+  	if (options[platform] && options[license]) {
+	    if (license == "opensource" && platform == "win")
 		continue;
-  	    print("Packaging %1-%2...".arg(platform).arg(edition));
+  	    print("Packaging %1-%2...".arg(platform).arg(license));
   	    indentation+=tabSize;
 
   	    // copy checkoutDir to platDir and set permissions
   	    print("Copying checkout...");
-  	    var platName = "qt-%1-%2-%3".arg(platform).arg(edition).arg(options["version"]);
+  	    var platName = "qt-%1-%2-%3".arg(platform).arg(license).arg(options["version"]);
   	    var platDir = distDir + "/" + platName;
   	    execute(["cp", "-r", checkoutDir, platDir]);
 	    execute(["chmod", "-R", "ug+w", platDir]);
 
 	    //copying dist files
 	    print("Copying dist files...");
-	    copyDist(platDir, platform, edition);
+	    copyDist(platDir, platform, license);
 
 	    // run qdoc
   	    print("Running qdoc...");
-  	    qdoc(platDir, edition);
+  	    qdoc(platDir, license);
 
-  	    // purge platform and edition files
-  	    print("Purging platform and edition specific files...");
+  	    // purge platform and license files
+  	    print("Purging platform and license specific files...");
   	    purgeFiles(platDir,
 		       getFileList(platDir),
-  		       [].concat(platformRemove[platform]).concat(editionRemove[edition]),
-  		       [].concat(platformKeep[platform]).concat(editionKeep[edition]));
+  		       [].concat(platformRemove[platform]).concat(licenseRemove[license]));
 
 	    // run syncqt
   	    print("Running syncqt...");
@@ -269,18 +257,18 @@ for (var p in validPlatforms) {
 
   	    // final package purge
   	    print("Final package purge...");
-  	    purgeFiles(platDir, getFileList(platDir), finalRemove, finalKeep);
+  	    purgeFiles(platDir, getFileList(platDir), finalRemove);
 
 	    // replace tags (like THISYEAR etc.)
 	    print("Traversing all txt files and replacing tags...");
-	    replaceTags(platDir, getFileList(platDir), platform, edition, platName);
+	    replaceTags(platDir, getFileList(platDir), platform, license, platName);
 
   	    // package directory
 	    print("Compressing and packaging file(s)...")
-	    compress(platform, edition, platDir);
+	    compress(platform, license, platDir);
 
 	    // create binaries
-	    compile(platform, edition, platName);
+	    compile(platform, license, platName);
 	    
   	    indentation-=tabSize;
   	}
@@ -297,7 +285,7 @@ function parseArgc()
 {
     var validOptions = []
 	.concat(validPlatforms)
-	.concat(validEditions)
+	.concat(validLicenses)
 	.concat(validSwitches)
 	.concat(validVars);
     for (var i=0; i<argc.length; ++i) {
@@ -351,23 +339,19 @@ function initialize()
 	if (!(validPlatforms[i] in options))
 	    options[validPlatforms[i]] = false;
 
-    // by default turn off all valid editions that were not defined
-    for (var i in validEditions)
-	if (!(validEditions[i] in options))
-	    options[validEditions[i]] = false;
+    // by default turn off all valid licenses that were not defined
+    for (var i in validLicenses)
+	if (!(validLicenses[i] in options))
+	    options[validLicenses[i]] = false;
 
-    // make sure platform and edition filters are defined
+    // make sure platform and license filters are defined
     for (var i in validPlatforms) {
 	if (!(validPlatforms[i] in platformRemove))
 	    platformRemove[validPlatforms[i]] = new Array();
-	if (!(validPlatforms[i] in platformKeep))
-	    platformKeep[validPlatforms[i]] = new Array();
     }
-    for (var i in validEditions) {
-	if (!(validEditions[i] in editionRemove))
-	    editionRemove[validEditions[i]] = new Array();
-	if (!(validEditions[i] in editionKeep))
-	    editionKeep[validEditions[i]] = new Array();
+    for (var i in validLicenses) {
+	if (!(validLicenses[i] in licenseRemove))
+	    licenseRemove[validLicenses[i]] = new Array();
     }
 
     // finds a tmpDir
@@ -492,19 +476,16 @@ function checkout()
 
 /************************************************************
  * iterates over the fileList and removes any files found in the
- * remove patterns and keeps any files found in the keep pattern, any
- * file not found in any of the patterns throws an exception
+ * remove patterns
  */
-function purgeFiles(rootDir, fileList, remove, keep)
+function purgeFiles(rootDir, fileList, remove)
 {
     var doRemove = false;
-    var doKeep = false;
     var fileName = new String();
     var absFileName = new String();
 
     for (var i in fileList) {
 	doRemove = false;
-	doKeep = false;
 	fileName = fileList[i];
 	absFileName = rootDir + "/" + fileName;
 	// check if the file should be removed
@@ -516,36 +497,21 @@ function purgeFiles(rootDir, fileList, remove, keep)
 	}
 
 	// remove file
-	if (doRemove) {
-	    if (File.exists(absFileName)) {
-		if (File.isFile(absFileName)) {
-		    File.remove(absFileName);
-		} else if (File.isDir(absFileName)) {
-		    var dir = new Dir(absFileName);
-		    dir.rmdirs();
-		}
-	    }
-	    continue;
-	}
-
-	// check if the file should be kept
-	for (var k in keep) {
-	    if (fileName.find(keep[k]) != -1) {
-		doKeep = true;
-		break;
+	if (doRemove && File.exists(absFileName)) {
+	    if (File.isFile(absFileName)) {
+		File.remove(absFileName);
+	    } else if (File.isDir(absFileName)) {
+		var dir = new Dir(absFileName);
+		dir.rmdirs();
 	    }
 	}
-
-	// bail out
-	if (!doKeep)
-	    throw "File: %1 not found in remove nor keep filter, bailing out.".arg(absFileName);
     }
 }
 
 /************************************************************
  * compresses platDir into files (.zip .gz etc.)
  */
-function compress(platform, edition, packageDir)
+function compress(platform, license, packageDir)
 {
     // set directory to parent of packageDir
     var dir = new Dir(packageDir);
@@ -605,7 +571,7 @@ function compress(platform, edition, packageDir)
  * copies a qt-package to binary host, compiles qt, and collects the
  * resulting dlls etc.
  */
-function compile(platform, edition, platformName)
+function compile(platform, license, platformName)
 {
     if (!options["binaries"] || !(platform in binaryHosts))
 	return;
@@ -699,7 +665,7 @@ function compile(platform, edition, platformName)
 	var extraTags = new Array();
 	extraTags[windowsPath] = /\%PACKAGEDIR\%/g;
 	var scriptFile = new File(installScript);
-	replaceTags(scriptFile.path, ["installscriptwin.nsi"], platform, edition, platformName,
+	replaceTags(scriptFile.path, ["installscriptwin.nsi"], platform, license, platformName,
 		    extraTags);
 
 	// copy over the install scipt files
@@ -800,13 +766,13 @@ function cleanup()
 
 
 /************************************************************
- * copies the special dist files according to platform and edition
+ * copies the special dist files according to platform and license
  * and populates the licenseHeaders array
  */
-function copyDist(packageDir, platform, edition)
+function copyDist(packageDir, platform, license)
 {
     var platformFiles = getFileList(packageDir + "/dist/" + platform);
-    var editionFiles = getFileList(packageDir + "/dist/" + edition);
+    var licenseFiles = getFileList(packageDir + "/dist/" + license);
 
     //copies changes file to root
     var changesFile = packageDir + "/dist/changes-" + options["version"];
@@ -830,10 +796,10 @@ function copyDist(packageDir, platform, edition)
 	}
     }
 
-    // copies any edition specific files
-    for (var i in editionFiles) {
-	var fileName = editionFiles[i];
-	var absFileName = packageDir + "/dist/" + edition + "/" + fileName;
+    // copies any license specific files
+    for (var i in licenseFiles) {
+	var fileName = licenseFiles[i];
+	var absFileName = packageDir + "/dist/" + license + "/" + fileName;
 	if (File.exists(absFileName) && File.isFile(absFileName))
 	    execute(["cp", absFileName, packageDir + "/" + fileName]);
     }
@@ -860,9 +826,9 @@ function copyDist(packageDir, platform, edition)
     var keyFiles = ["README",
 		    "INSTALL",
 		    "PLATFORMS"];
-    if (!options["snapshots"] && (edition != "preview" || edition != "beta"))
+    if (!options["snapshots"] && (license != "preview" || license != "beta"))
 	keyFiles.push("changes-" + options["version"]);
-    if (edition == "opensource") {
+    if (license == "opensource") {
 	keyFiles.push("LICENSE.GPL");
 	keyFiles.push("LICENSE.QPL");
     } else {
@@ -893,12 +859,12 @@ function syncqt(packageDir, platform)
 /************************************************************
  * runs qdoc on packageDir
  */
-function qdoc(packageDir, edition)
+function qdoc(packageDir, license)
 {
     var dir = new Dir(packageDir);
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
-    var qdocConfigFile = qdocDir + "/test/qt-" + edition + ".qdocconf";
+    var qdocConfigFile = qdocDir + "/test/qt-" + license + ".qdocconf";
     if (!File.exists(qdocConfigFile))
 	throw "Missing qdoc configuratio file: %1".arg(qdocConfigFile);
     execute([qdocCommand, qdocConfigFile]);
@@ -907,7 +873,7 @@ function qdoc(packageDir, edition)
 /************************************************************
  * goes through all txt files and replaces tags like %VERSION%, %THISYEAR% etc.
  */
-function replaceTags(packageDir, fileList, platform, edition, platName, additionalTags)
+function replaceTags(packageDir, fileList, platform, license, platName, additionalTags)
 {
     var replace = new Array();
     replace[startDate.getYear().toString()] = /\$THISYEAR\$/g;
@@ -916,10 +882,10 @@ function replaceTags(packageDir, fileList, platform, edition, platName, addition
 	/#\s*define\s+QT_VERSION_STR\s+\"([^\"]+)\"*/g;
     replace[platName] = /\%DISTNAME\%/g;
 
-    if (platform + "-" + edition in licenseHeaders)
-	replace[licenseHeaders[platform+"-"+edition]] = /\*\* \$LICENSE\$\n/;
+    if (platform + "-" + license in licenseHeaders)
+	replace[licenseHeaders[platform+"-"+license]] = /\*\* \$LICENSE\$\n/;
     else
-	replace[licenseHeaders[edition]] = /\*\* \$LICENSE\$\n/;
+	replace[licenseHeaders[license]] = /\*\* \$LICENSE\$\n/;
     for (var i in additionalTags)
 	replace[i] = additionalTags[i];
 
