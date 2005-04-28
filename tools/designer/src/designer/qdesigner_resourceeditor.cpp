@@ -50,7 +50,7 @@ QRect QDesignerResourceEditor::geometryHint() const
     QSize sz(g.width() * 1/3, g.height() * 1/6);
     QRect r(QPoint(0, 0), sz);
     r.moveCenter(g.center());
-    r.moveTop(margin);
+    r.moveBottom(g.bottom() - margin);
 
     return r;
 }
