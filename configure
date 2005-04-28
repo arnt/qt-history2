@@ -2140,17 +2140,6 @@ fi
     -help ................. Print help and usage information.
     -h .................... Print help and usage information.
 
-Image Formats:
-
-    -plugin-imgfmt-<format> Enable <format> to be linked to at runtime.
-                            Uses specified lib<format>.
-    -qt-imgfmt-<format> ... Enable <format> to be linked into Qt.
-                            Uses specified lib<format>.
-    -no-imgfmt-<format> ... Fully disable <format> from Qt.
-
-                            Possible values for <format>:
-                            [ png jpeg ]
-
 Third Party Image Loading Libraries:
 
     -qt-libpng ......... Use the libpng bundled with Qt.
