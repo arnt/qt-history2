@@ -7,6 +7,7 @@ PreviewWindow::PreviewWindow(QWidget *parent)
 {
     textEdit = new QTextEdit;
     textEdit->setReadOnly(true);
+    textEdit->setLineWrapMode(QTextEdit::NoWrap);
 
     closeButton = new QPushButton(tr("&Close"));
     connect(closeButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -65,6 +66,5 @@ void PreviewWindow::setWindowFlags(Qt::WindowFlags flags)
     if (flags & Qt::WindowStaysOnTopHint)
         text += "\n| Qt::WindowStaysOnTopHint";
 
-    textEdit->clear();
-    textEdit->insertPlainText(text);
+    textEdit->setPlainText(text);
 }
