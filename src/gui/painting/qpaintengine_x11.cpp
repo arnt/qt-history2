@@ -1909,7 +1909,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
         col.red = pen.red () | pen.red() << 8;
         col.green = pen.green () | pen.green() << 8;
         col.blue = pen.blue () | pen.blue() << 8;
-        col.alpha = 0xffff;
+        col.alpha = pen.alpha() | pen.alpha() << 8;
         ::Picture src = getSolidFill(screen, col);
 
         int i = 0;
