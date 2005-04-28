@@ -718,16 +718,18 @@ void QAbstractButton::click()
     if (!isEnabled())
         return;
     Q_D(QAbstractButton);
-    d->down = true;
-    emit pressed();
-    d->down = false;
     QObject *guard = this;
     QMetaObject::addGuard(&guard);
-    nextCheckState();
-    if (guard)
-        emit released();
-    if (guard)
-        emit clicked(d->checked);
+    d->down = true;
+    emit pressed();
+    if (guard) {
+        d->down = false;
+        nextCheckState();
+        if (guard)
+            emit released();
+        if (guard)
+            emit clicked(d->checked);
+    }
     QMetaObject::removeGuard(&guard);
 }
 

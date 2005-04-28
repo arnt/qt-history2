@@ -506,8 +506,13 @@ void QPushButtonPrivate::popupPressed()
         else
             x -= menuSize.width();
     }
+    QObject *guard = q;
+    QMetaObject::addGuard(&guard);
     menu->exec(QPoint(x, y));
-    q->setDown(false);
+    if (guard)
+        q->setDown(false);
+    QMetaObject::removeGuard(&guard);
+
 }
 
 void QPushButton::setFlat(bool flat)
