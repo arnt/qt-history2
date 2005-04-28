@@ -6,6 +6,7 @@ TetrixBoard::TetrixBoard(QWidget *parent)
     : QFrame(parent)
 {
     setFrameStyle(QFrame::Panel | QFrame::Sunken);
+    setFocusPolicy(Qt::StrongFocus);
     isStarted = false;
     isPaused = false;
     clearBoard();

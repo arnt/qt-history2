@@ -6,7 +6,6 @@
 TetrixWindow::TetrixWindow()
 {
     board = new TetrixBoard;
-    board->setFocus();
 
     nextPieceLabel = new QLabel;
     nextPieceLabel->setFrameStyle(QFrame::Box | QFrame::Raised);
