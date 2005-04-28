@@ -54,6 +54,7 @@ public:
     void polish(QWidget *widget);
     void polish(QApplication *app);
     void polish(QPalette &pal);
+    void unpolish (QWidget *widget);
 
     QPalette standardPalette();
 
