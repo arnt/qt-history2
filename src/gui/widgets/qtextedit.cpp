@@ -1980,8 +1980,6 @@ void QTextEdit::inputMethodEvent(QInputMethodEvent *e)
     }
     layout->setAdditionalFormats(overrides);
     d->cursor.endEditBlock();
-    // ##############
-//    d->doc->documentLayout()->documentChange(block.position(), block.length(), block.length());
 }
 
 /*!\reimp

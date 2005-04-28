@@ -218,9 +218,10 @@ private:
     static void clearFrame(QTextFrame *f);
 
     void adjustDocumentChangesAndCursors(int from, int addedOrRemoved, QTextUndoCommand::Operation op);
-    void documentChange(int from, int length);
 
 public:
+    void documentChange(int from, int length);
+
     inline void addCursor(QTextCursorPrivate *c) { cursors.append(c); }
     inline void removeCursor(QTextCursorPrivate *c) { cursors.removeAll(c); changedCursors.removeAll(c); }
 

@@ -409,13 +409,15 @@ void QTextLayout::setPreeditArea(int position, const QString &text)
             d->specialData->preeditText = QString();
             d->specialData->preeditPosition = -1;
         }
-        return;
+    } else {
+        if (!d->specialData)
+            d->specialData = new QTextEngine::SpecialData;
+        d->specialData->preeditPosition = position;
+        d->specialData->preeditText = text;
     }
-    if (!d->specialData)
-        d->specialData = new QTextEngine::SpecialData;
-    d->specialData->preeditPosition = position;
-    d->specialData->preeditText = text;
     d->invalidate();
+    if (d->block.docHandle())
+        d->block.docHandle()->documentChange(d->block.position(), d->block.length());
 }
 
 /*!
@@ -459,6 +461,8 @@ void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
         d->specialData->preeditPosition = -1;
     }
     d->specialData->addFormats = formatList;
+    if (d->block.docHandle())
+        d->block.docHandle()->documentChange(d->block.position(), d->block.length());
 }
 
 /*!

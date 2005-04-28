@@ -1949,7 +1949,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
     // invisible if we have a preedit string.
     bool showCursor = (d->cursorVisible && !supressCursor && !d->textLayout.preeditAreaText().length());
     d->textLayout.draw(&p, topLeft, selections, r);
-    if (showCursor)
+    if (showCursor && d->textLayout.preeditAreaText().isEmpty())
         d->textLayout.drawCursor(&p, topLeft, d->cursor);
 
 }

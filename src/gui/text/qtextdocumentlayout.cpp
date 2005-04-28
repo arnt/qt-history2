@@ -662,7 +662,7 @@ QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *painter,
 
     painter->setPen(context.palette.color(QPalette::Text));
     tl->draw(painter, offset, selections, context.clip);
-    if (cursor >= 0)
+    if (cursor >= 0 && tl->preeditAreaText().isEmpty())
         tl->drawCursor(painter, offset, cursor);
 
     return Drawn;
