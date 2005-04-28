@@ -88,48 +88,62 @@ EXPORT_NSIS_FUNCTION(GetLicenseInfo)
     pushstring(f.getLicensee());
 }
 
-EXPORT_NSIS_FUNCTION(PatchBinary)
+EXPORT_NSIS_FUNCTION(PatchVC6Binary)
 {
     g_hwndParent = hwndParent;
     EXDLL_INIT();
     
-    char *fileName = (char *)LocalAlloc(LPTR, g_stringsize);
-    char *oldStr = (char *)LocalAlloc(LPTR, g_stringsize);
-    char *newStr = (char *)LocalAlloc(LPTR, g_stringsize);
-    char *endsWith = (char *)LocalAlloc(LPTR, g_stringsize);
+    char *fileName = (char *)LocalAlloc(LPTR, g_stringsize+1);
+    char *oldStr = (char *)LocalAlloc(LPTR, g_stringsize+1);
+    char *newStr = (char *)LocalAlloc(LPTR, g_stringsize+1);
 
     popstring(fileName);
     popstring(oldStr);
     popstring(newStr);
-    popstring(endsWith);
 
-    BinPatch::patchFile(fileName, oldStr, newStr, endsWith);
+    BinPatch::patchBinaryFile(fileName, oldStr, newStr, true, ".cpp;.h;.moc;.pdb");
 
-    LocalFree(endsWith);
     LocalFree(newStr);
     LocalFree(oldStr);
     LocalFree(fileName);
 }
 
-EXPORT_NSIS_FUNCTION(PatchBinaryInsert)
+EXPORT_NSIS_FUNCTION(PatchVC7Binary)
 {
     g_hwndParent = hwndParent;
     EXDLL_INIT();
     
-    char *oldFile = (char *)LocalAlloc(LPTR, g_stringsize);
-    char *newFile = (char *)LocalAlloc(LPTR, g_stringsize);
-    char *oldStr = (char *)LocalAlloc(LPTR, g_stringsize);
-    char *newStr = (char *)LocalAlloc(LPTR, g_stringsize);
+    char *fileName = (char *)LocalAlloc(LPTR, g_stringsize+1);
+    char *oldStr = (char *)LocalAlloc(LPTR, g_stringsize+1);
+    char *newStr = (char *)LocalAlloc(LPTR, g_stringsize+1);
 
-    popstring(oldFile);
-    popstring(newFile);
+    popstring(fileName);
     popstring(oldStr);
     popstring(newStr);
 
-    BinPatch::patchFileInsert(oldFile, newFile, oldStr, newStr, true);
+    BinPatch::patchBinaryFile(fileName, oldStr, newStr, false, ".cpp;.h;.moc;.pdb");
 
     LocalFree(newStr);
     LocalFree(oldStr);
-    LocalFree(newFile);
-    LocalFree(oldFile);
+    LocalFree(fileName);
+}
+
+EXPORT_NSIS_FUNCTION(PatchBinary)
+{
+    g_hwndParent = hwndParent;
+    EXDLL_INIT();
+    
+    char *fileName = (char *)LocalAlloc(LPTR, g_stringsize+1);
+    char *oldStr = (char *)LocalAlloc(LPTR, g_stringsize+1);
+    char *newStr = (char *)LocalAlloc(LPTR, g_stringsize+1);
+
+    popstring(fileName);
+    popstring(oldStr);
+    popstring(newStr);
+
+    BinPatch::patchBinaryFile(fileName, oldStr, newStr, false, "");
+
+    LocalFree(newStr);
+    LocalFree(oldStr);
+    LocalFree(fileName);
 }

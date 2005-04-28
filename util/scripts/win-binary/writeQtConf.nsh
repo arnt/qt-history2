@@ -93,8 +93,10 @@ nextline:
 renameFile:
   FileClose $5
   FileClose $4
+  SetDetailsPrint none
   Delete $1
   Rename $6 $1
+  SetDetailsPrint both
   
 done:
   pop $8

@@ -81,6 +81,12 @@ SectionEnd
 Section -AdditionalIcons
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}"
+
+  CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Assistant.lnk" "$INSTDIR\bin\assistant.exe"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Designer.lnk" "$INSTDIR\bin\designer.exe"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Linguist.lnk" "$INSTDIR\bin\linguist.exe"
+  
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Uninstall.lnk" "$INSTDIR\uninst.exe"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk" "%COMSPEC%" '/k "$INSTDIR\bin\qtvars.bat vsvars"'
@@ -129,8 +135,8 @@ Section -Post
   push "$LICENSEE"
   call PatchPath
   
-  qtnsisext::PatchBinary "$INSTDIR\bin\QtCored4.dll" "${LICENSEE_REPLACENAME}" "$LICENSEE" ""
-  qtnsisext::PatchBinary "$INSTDIR\bin\QtCore4.dll" "${LICENSEE_REPLACENAME}" "$LICENSEE" ""
+  qtnsisext::PatchBinary "$INSTDIR\bin\QtCored4.dll" "${LICENSEE_REPLACENAME}" "$LICENSEE"
+  qtnsisext::PatchBinary "$INSTDIR\bin\QtCore4.dll" "${LICENSEE_REPLACENAME}" "$LICENSEE"
   ####
 SectionEnd
 
@@ -172,14 +178,10 @@ Function PatchPdbFiles
     StrCmp $1 "" done
     DetailPrint "Patching $1..."
     
-    StrCmp ${FORCE_MAKESPEC} "vc60" VC60Patching
-    qtnsisext::PatchBinary "$INSTDIR\bin\$1" ${QTBUILDDIR} $INSTDIR ".cpp;.h;.c"
-    Goto DonePatching
-    VC60Patching:
-    qtnsisext::PatchBinaryInsert "$INSTDIR\bin\$1" "$INSTDIR\bin\$1.tmp" ${QTBUILDDIR} $INSTDIR
-    Delete "$INSTDIR\bin\$1"
-    Rename "$INSTDIR\bin\$1.tmp" "$INSTDIR\bin\$1"
-    DonePatching:
+    StrCmp ${FORCE_MAKESPEC} "vc60" +3
+    qtnsisext::PatchVC7Binary "$INSTDIR\bin\$1" "${QTBUILDDIR}" "$INSTDIR"
+    Goto +2
+    qtnsisext::PatchVC6Binary "$INSTDIR\bin\$1" "${QTBUILDDIR}" "$INSTDIR"
     FindNext $0 $1
     Goto loop
   done:
@@ -187,7 +189,10 @@ Function PatchPdbFiles
   pop $0
 
   DetailPrint "Patching qtmaind.lib..."
-  qtnsisext::PatchBinary "$INSTDIR\lib\qtmaind.lib" ${QTBUILDDIR} $INSTDIR ".cpp;.pdb"
+  StrCmp ${FORCE_MAKESPEC} "vc60" +3
+  qtnsisext::PatchVC7Binary "$INSTDIR\lib\qtmaind.lib" "${QTBUILDDIR}" "$INSTDIR"
+  Goto +2
+  qtnsisext::PatchVC6Binary "$INSTDIR\lib\qtmaind.lib" "${QTBUILDDIR}" "$INSTDIR"
 FunctionEnd
 
 Function CheckDirectory
@@ -250,6 +255,13 @@ FunctionEnd
 
 Section Uninstall
   DetailPrint "Removing start menu shortcuts"
+  
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Assistant.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Designer.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Linguist.lnk"
+
+  RMDir "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools"
+  
   Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Uninstall.lnk"
   Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Website.lnk"
   Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk"
