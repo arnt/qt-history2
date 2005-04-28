@@ -241,55 +241,56 @@ bool QAbstractItemDelegate::editorEvent(QEvent *,
 
 /*!
     Creates a string with an ellipses ("..."), for example,
-    "Trollte..." or "...olltech" depending on the alignment. This is
+    "Trollte..." or "...olltech" depending on the \a mode. This is
     used to display items that are too wide to fit. The font metrics
     to be used are given by \a fontMetrics, the available width by \a
-    width, the alignment by \a align, and the string by \a org.
+    width, the mode by \a mode, and the string by \a text.
 */
-QString QAbstractItemDelegate::ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
-                                            const QString &org)
+
+QString QAbstractItemDelegate::elidedText(const QFontMetrics &fontMetrics, int width,
+                                          Qt::TextElideMode mode, const QString &text)
 {
     const QLatin1String ellipsis("...");
     int ellipsisWidth = fontMetrics.width(ellipsis);
-    int length = org.length();
+    int length = text.length();
     int i = 0;
 
-    if (fontMetrics.width(org) < width)
-        return org;
+    if (fontMetrics.width(text) < width)
+        return text;
 
-    if (align & Qt::AlignHCenter) {
+    if (mode == Qt::ElideMiddle) {
         QString left, right;
         i = (length / 2) - 1;
         do {
-            left = org.left(i);
-            right = org.right(i);
+            left = text.left(i);
+            right = text.right(i);
         } while (--i > -1 &&
                  fontMetrics.width(left) + ellipsisWidth + fontMetrics.width(right) > width);
         return left + ellipsis + right;
     }
 
-    int offset = (align & Qt::AlignRight) ? length - 1 : 0;
-    QString text;
+    int offset = (mode ==  Qt::ElideLeft) ? length - 1 : 0;
+    QString elided;
         
-    while (i < length && fontMetrics.width(text + org.at(offset)) + ellipsisWidth < width) {
-        if (align & Qt::AlignRight) {
-            text.prepend(org.at(offset));
+    while (i < length && fontMetrics.width(elided + text.at(offset)) + ellipsisWidth < width) {
+        if (mode == Qt::ElideLeft) {
+            elided.prepend(text.at(offset));
             offset = (length - 1) - ++i;
         } else {
-            text.append(org.at(offset));
+            elided.append(text.at(offset));
             offset = ++i;
         }
     }
     
-    if (align & Qt::AlignRight) {
-        if (text.isEmpty())
-            text = org.right(1);
-        text.prepend(ellipsis);
+    if (mode == Qt::ElideLeft) {
+        if (elided.isEmpty())
+            elided = text.right(1);
+        elided.prepend(ellipsis);
     } else {
-        if (text.isEmpty())
-            text = org.left(1);
-        text.append(ellipsis);
+        if (elided.isEmpty())
+            elided = text.left(1);
+        elided.append(ellipsis);
     }
     
-    return text;
+    return elided;
 }

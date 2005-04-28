@@ -36,6 +36,7 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
     Q_PROPERTY(SelectionBehavior selectionBehavior READ selectionBehavior WRITE setSelectionBehavior)
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
+    Q_PROPERTY(Qt::TextElideMode textElideMode READ textElideMode WRITE setTextElideMode)
     Q_ENUMS(SelectionMode SelectionBehavior ScrollHint)
     Q_FLAGS(EditTriggers)
 
@@ -112,6 +113,9 @@ public:
     
     void setIconSize(const QSize &size);
     QSize iconSize() const;
+
+    void setTextElideMode(Qt::TextElideMode mode);
+    Qt::TextElideMode textElideMode() const;
 
     virtual void keyboardSearch(const QString &search);
 

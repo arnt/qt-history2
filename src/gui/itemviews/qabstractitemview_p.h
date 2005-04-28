@@ -161,6 +161,7 @@ public:
     bool alternatingColors;
 
     QSize iconSize;
+    Qt::TextElideMode textElideMode;
 
     QRubberBand *dropIndicator;
 

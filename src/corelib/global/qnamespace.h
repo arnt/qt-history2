@@ -174,6 +174,12 @@ public:
     typedef TextFlag TextFlags;
 #endif
 
+    enum TextElideMode {
+        ElideLeft,
+        ElideRight,
+        ElideMiddle
+    };
+
     enum WindowType {
         Widget = 0x00000000,
         Window = 0x00000001,

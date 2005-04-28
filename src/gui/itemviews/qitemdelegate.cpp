@@ -325,8 +325,8 @@ void QItemDelegate::drawDisplay(QPainter *painter, const QStyleOptionViewItem &o
     QRect textRect = rect.adjusted(textMargin, 0, -textMargin, 0); // remove width padding
     if (painter->fontMetrics().width(text) > textRect.width())
         painter->drawText(textRect, option.displayAlignment,
-                          ellipsisText(painter->fontMetrics(), textRect.width(),
-                                       option.displayAlignment, text));
+                          elidedText(painter->fontMetrics(), textRect.width(),
+                                     option.textElideMode, text));
     else
         painter->drawText(textRect, option.displayAlignment, text);
     painter->setFont(font);

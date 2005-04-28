@@ -49,6 +49,7 @@ QAbstractItemViewPrivate::QAbstractItemViewPrivate()
         autoScrollCount(0),
         layoutPosted(false),
         alternatingColors(false),
+        textElideMode(Qt::ElideRight),
         dropIndicator(0)
 {
 }
@@ -772,6 +773,20 @@ void QAbstractItemView::setIconSize(const QSize &size)
 QSize QAbstractItemView::iconSize() const
 {
     return d_func()->iconSize;
+}
+
+/*!
+    \property QAbstractItemView::textElideMode
+    \brief the the position of the "..." in elided text.
+*/
+void QAbstractItemView::setTextElideMode(Qt::TextElideMode mode)
+{
+    d_func()->textElideMode = mode;
+}
+
+Qt::TextElideMode QAbstractItemView::textElideMode() const
+{
+    return d_func()->textElideMode;
 }
 
 /*!
@@ -1821,6 +1836,7 @@ QStyleOptionViewItem QAbstractItemView::viewOptions() const
     option.decorationAlignment = Qt::AlignCenter;
     option.displayAlignment = QStyle::visualAlignment(layoutDirection(),
                                                       Qt::AlignLeft|Qt::AlignVCenter);
+    option.textElideMode = d->textElideMode;
     option.rect = QRect();
     option.showDecorationSelected = style()->styleHint(QStyle::SH_ItemView_ShowDecorationSelected);
     return option;

@@ -390,6 +390,7 @@ public:
 
     Qt::Alignment displayAlignment;
     Qt::Alignment decorationAlignment;
+    Qt::TextElideMode textElideMode;
     Position decorationPosition;
     QSize decorationSize;
     QFont font;
@@ -400,6 +401,7 @@ public:
 
     QDOC_PROPERTY(Qt::Alignment displayAlignment)
     QDOC_PROPERTY(Qt::Alignment decorationAlignment)
+    QDOC_PROPERTY(Qt::TextElideMode textElideMode)
     QDOC_PROPERTY(Position decorationPosition)
     QDOC_PROPERTY(QSize decorationSize)
     QDOC_PROPERTY(QFont font)

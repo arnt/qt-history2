@@ -1694,8 +1694,10 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 */
 
 QStyleOptionViewItem::QStyleOptionViewItem()
-    : QStyleOption(Version, SO_ViewItem), displayAlignment(0), decorationAlignment(0),
-      decorationPosition(Left)
+    : QStyleOption(Version, SO_ViewItem),
+      displayAlignment(0), decorationAlignment(0),
+      textElideMode(Qt::ElideMiddle), decorationPosition(Left),
+      showDecorationSelected(false)
 {
 }
 
@@ -1703,8 +1705,10 @@ QStyleOptionViewItem::QStyleOptionViewItem()
     \internal
 */
 QStyleOptionViewItem::QStyleOptionViewItem(int version)
-    : QStyleOption(version, SO_ViewItem), displayAlignment(0), decorationAlignment(0),
-      decorationPosition(Left)
+    : QStyleOption(version, SO_ViewItem),
+      displayAlignment(0), decorationAlignment(0),
+      textElideMode(Qt::ElideMiddle), decorationPosition(Left),
+      showDecorationSelected(false)
 {
 }
 

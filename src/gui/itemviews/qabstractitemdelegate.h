@@ -67,6 +67,8 @@ public:
                              const QStyleOptionViewItem &option,
                              const QModelIndex &index);
 
+    static QString elidedText(const QFontMetrics &fontMetrics, int width,
+                              Qt::TextElideMode mode, const QString &text);
 signals:
     void commitData(QWidget *editor);
     void closeEditor(QWidget *editor, EndEditHint hint = NoHint);
@@ -74,8 +76,6 @@ signals:
 protected:
     Q_DISABLE_COPY(QAbstractItemDelegate)
     QAbstractItemDelegate(QObjectPrivate &, QObject *parent = 0);
-    static QString ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
-                                const QString &org);
 };
 
 #endif // QABSTRACTITEMDELEGATE_H
