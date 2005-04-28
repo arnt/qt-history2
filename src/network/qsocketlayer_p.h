@@ -22,6 +22,14 @@ class QSocketLayerPrivate;
 class QSocketLayer
 {
 public:
+    enum SocketOption {
+        NonBlockingSocketOption,
+        BroadcastSocketOption,
+        ReceiveBufferSocketOption,
+        SendBufferSocketOption,
+        AddressReusable
+    };
+
     QSocketLayer();
     ~QSocketLayer();
 
@@ -64,6 +72,10 @@ public:
     qint64 sendBufferSize() const;
     void setSendBufferSize(qint64 bufferSize);
 
+    // native functions
+    int option(SocketOption option) const;
+    bool setOption(SocketOption option, int value);
+    
     bool waitForRead(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForWrite(int msecs = 30000, bool *timedOut = 0) const;
     bool waitForReadOrWrite(bool *readyToRead, bool *readyToWrite,
@@ -116,16 +128,9 @@ public:
 
     void setError(QAbstractSocket::SocketError error, const QString &errorString) const;
 
-    enum SocketOption {
-        NonBlockingSocketOption,
-        BroadcastSocketOption,
-        ReceiveBufferSocketOption,
-        SendBufferSocketOption
-    };
-
     // native functions
-    int option(SocketOption option) const;
-    bool setOption(SocketOption option, int value);
+    int option(QSocketLayer::SocketOption option) const;
+    bool setOption(QSocketLayer::SocketOption option, int value);
 
     bool createNewSocket(QAbstractSocket::SocketType type, QAbstractSocket::NetworkLayerProtocol protocol);
 

@@ -174,22 +174,25 @@ bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType
 /*
     Returns the value of the socket option \a opt.
 */
-int QSocketLayerPrivate::option(SocketOption opt) const
+int QSocketLayerPrivate::option(QSocketLayer::SocketOption opt) const
 {
     if (!q->isValid())
         return -1;
 
     int n = -1;
     switch (opt) {
-    case ReceiveBufferSocketOption:
+    case QSocketLayer::ReceiveBufferSocketOption:
         n = SO_RCVBUF;
         break;
-    case SendBufferSocketOption:
+    case QSocketLayer::SendBufferSocketOption:
         n = SO_SNDBUF;
         break;
-    case NonBlockingSocketOption:
+    case QSocketLayer::NonBlockingSocketOption:
         break;
-    case BroadcastSocketOption:
+    case QSocketLayer::BroadcastSocketOption:
+        break;
+    case QSocketLayer::AddressReusable:
+        n = SO_REUSEADDR;
         break;
     }
 
@@ -204,26 +207,30 @@ int QSocketLayerPrivate::option(SocketOption opt) const
 /*
     Sets the socket option \a opt to \a v.
 */
-bool QSocketLayerPrivate::setOption(SocketOption opt, int v)
+bool QSocketLayerPrivate::setOption(QSocketLayer::SocketOption opt, int v)
 {
     if (!q->isValid())
         return false;
 
     int n = 0;
     switch (opt) {
-    case ReceiveBufferSocketOption:
+    case QSocketLayer::ReceiveBufferSocketOption:
         n = SO_RCVBUF;
         break;
-    case SendBufferSocketOption:
+    case QSocketLayer::SendBufferSocketOption:
         n = SO_SNDBUF;
         break;
-    case BroadcastSocketOption:
+    case QSocketLayer::BroadcastSocketOption:
         n = SO_BROADCAST;
         break;
-    case NonBlockingSocketOption:
+    case QSocketLayer::NonBlockingSocketOption: {
         // Make the socket nonblocking.
         int flags = ::fcntl(socketDescriptor, F_GETFL, 0);
         return flags != -1 && ::fcntl(socketDescriptor, F_SETFL, flags | O_NONBLOCK) != -1;
+    }
+    case QSocketLayer::AddressReusable:
+        n = SO_REUSEADDR;
+        break;
     }
 
     return ::setsockopt(socketDescriptor, SOL_SOCKET, n, (char *) &v, sizeof(v)) == 0;

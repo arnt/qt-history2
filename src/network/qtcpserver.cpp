@@ -207,6 +207,19 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
         return false;
     }
 
+#if defined(Q_OS_UNIX)
+    // Under Unix, we want to be able to bind to the port, even if a socket on
+    // the same address-port is in TIME_WAIT. Under Windows this is possible
+    // anyway -- furthermore, the meaning of reusable on Windows is different:
+    // it means that you can use the same address-port for multiple listening
+    // sockets.
+    if (!d->socketLayer.setOption(QSocketLayer::AddressReusable, 1)) {
+        d->serverSocketError = d->socketLayer.error();
+        d->serverSocketErrorString = d->socketLayer.errorString();
+        return false;
+    }
+#endif
+
     if (!d->socketLayer.bind(address, port)) {
         d->serverSocketError = d->socketLayer.error();
         d->serverSocketErrorString = d->socketLayer.errorString();

@@ -212,7 +212,7 @@ bool QSocketLayer::initialize(QAbstractSocket::SocketType socketType, QAbstractS
     }
 
     // Make the socket nonblocking.
-    if (!d->setOption(QSocketLayerPrivate::NonBlockingSocketOption, 1)) {
+    if (!setOption(NonBlockingSocketOption, 1)) {
         d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                     Q_TR("Unable to initialize a non-blocking socket"));
         close();
@@ -221,7 +221,7 @@ bool QSocketLayer::initialize(QAbstractSocket::SocketType socketType, QAbstractS
 
     // Set the broadcasting flag if it's a UDP socket.
     if (socketType == QAbstractSocket::UdpSocket
-        && !d->setOption(QSocketLayerPrivate::BroadcastSocketOption, 1)) {
+        && !setOption(BroadcastSocketOption, 1)) {
         d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                     Q_TR("Unable to initialize broadcasting socket"));
         close();
@@ -267,7 +267,7 @@ bool QSocketLayer::initialize(int socketDescriptor, QAbstractSocket::SocketState
 
     if (d->socketType != QAbstractSocket::UnknownSocketType) {
         // Make the socket nonblocking.
-        if (!d->setOption(QSocketLayerPrivate::NonBlockingSocketOption, 1)) {
+        if (!setOption(NonBlockingSocketOption, 1)) {
             d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                         Q_TR("Unable to initialize a non-blocking socket"));
             close();
@@ -276,7 +276,7 @@ bool QSocketLayer::initialize(int socketDescriptor, QAbstractSocket::SocketState
 
         // Set the broadcasting flag if it's a Udp socket.
         if (d->socketType == QAbstractSocket::UdpSocket
-            && !d->setOption(QSocketLayerPrivate::BroadcastSocketOption, 1)) {
+            && !setOption(BroadcastSocketOption, 1)) {
             d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                         Q_TR("Unable to initialize broadcasting socket"));
             close();
@@ -746,7 +746,7 @@ bool QSocketLayer::waitForReadOrWrite(bool *readyToRead, bool *readyToWrite,
 qint64 QSocketLayer::receiveBufferSize() const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::receiveBufferSize(), -1);
-    return d->option(QSocketLayerPrivate::ReceiveBufferSocketOption);
+    return option(ReceiveBufferSocketOption);
 }
 
 /*!
@@ -767,7 +767,7 @@ qint64 QSocketLayer::receiveBufferSize() const
 void QSocketLayer::setReceiveBufferSize(qint64 size)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::setReceiveBufferSize(), Q_VOID);
-    d->setOption(QSocketLayerPrivate::ReceiveBufferSocketOption, size);
+    setOption(ReceiveBufferSocketOption, size);
 }
 
 /*!
@@ -778,7 +778,7 @@ void QSocketLayer::setReceiveBufferSize(qint64 size)
 qint64 QSocketLayer::sendBufferSize() const
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::setSendBufferSize(), -1);
-    return d->option(QSocketLayerPrivate::SendBufferSocketOption);
+    return option(SendBufferSocketOption);
 }
 
 /*!
@@ -793,7 +793,7 @@ qint64 QSocketLayer::sendBufferSize() const
 void QSocketLayer::setSendBufferSize(qint64 size)
 {
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::setSendBufferSize(), Q_VOID);
-    d->setOption(QSocketLayerPrivate::SendBufferSocketOption, size);
+    setOption(SendBufferSocketOption, size);
 }
 
 /*!
@@ -815,4 +815,20 @@ QAbstractSocket::SocketError QSocketLayer::error() const
 QString QSocketLayer::errorString() const
 {
     return d->socketErrorString;
+}
+
+/*!
+    Sets the option \a option to the value \a value.
+*/
+bool QSocketLayer::setOption(SocketOption option, int value)
+{
+    return d->setOption(option, value);
+}
+
+/*!
+    Returns the value of the option \a socketOption.
+*/
+int QSocketLayer::option(SocketOption socketOption) const
+{
+    return d->option(socketOption);
 }

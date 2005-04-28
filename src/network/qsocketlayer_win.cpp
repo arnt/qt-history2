@@ -330,12 +330,16 @@ int QSocketLayerPrivate::option(SocketOption opt) const
     case BroadcastSocketOption:
         n = SO_BROADCAST;
         break;
-    case NonBlockingSocketOption:
+    case NonBlockingSocketOption: {
         unsigned long buf = 0;
         if (WSAIoctl(socketDescriptor, FIONBIO, 0,0, &buf, sizeof(buf), 0,0,0) == 0)
             return buf;
         else
             return -1;
+        break;
+    }
+    case AddressReusable:
+        n = SO_REUSEADDR;
         break;
     }
 
@@ -375,6 +379,9 @@ bool QSocketLayerPrivate::setOption(SocketOption opt, int v)
             return false;
         }
         return true;
+        break;
+    case AddressReusable:
+        n = SO_REUSEADDR;
         break;
     }
 
