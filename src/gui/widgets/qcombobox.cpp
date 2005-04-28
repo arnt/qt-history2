@@ -854,6 +854,11 @@ int QComboBox::count() const
 /*!
     \property QComboBox::maxCount
     \brief the maximum number of items allowed in the combobox
+
+    Note: If you set the maximum number to be less then the current
+    amount of items in the combobox, the extra items will be
+    truncated. This also applies if you have set an external model on
+    the combobox.
 */
 
 void QComboBox::setMaxCount(int max)
@@ -1587,6 +1592,9 @@ void QComboBox::hide()
     \internal
 
     Clears the combobox, removing all items.
+
+    Note: If you have set an external model on the combobox this model
+    will still be cleared when calling this function.
 */
 
 void QComboBox::clear()
