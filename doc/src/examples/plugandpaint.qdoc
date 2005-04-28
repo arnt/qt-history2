@@ -1,0 +1,22 @@
+/*!
+    \example tools/plugandpaint
+    \title Plug & Paint Example
+
+    See also the
+    \l{tools/plugandpaintplugins/basictools}{Basic Tools}
+    plugin and the
+    \l{tools/plugandpaintplugins/extrafilters}{Extra Filters}
+    plugin.
+*/
+
+/*!
+    \example tools/plugandpaintplugins/basictools
+    \title Plug & Paint Example: Basic Tools
+
+*/
+
+/*!
+    \example tools/plugandpaintplugins/extrafilters
+    \title Plug & Paint Example: Extra Filters
+
+*/
