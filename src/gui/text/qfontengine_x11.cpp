@@ -692,7 +692,8 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
     info.xOff = TRUNC(ROUND(slot->advance.x));
     info.yOff = 0;
 
-    int pitch = format == Format_Mono ? ((info.width + 31) & ~31) >> 3 : (info.width * hfactor + 3) & ~3;
+    int pitch = (format == Format_Mono ? ((info.width + 31) & ~31) >> 3 :
+                 (format == Format_A8 ? (info.width + 3) & ~3 : info.width * 4));
     int size = pitch * info.height * vfactor;
     uchar *buffer = new uchar[size];
     memset (buffer, 0, size);
@@ -773,6 +774,7 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
                     uchar *dd = dst;
                     for (int x = 0; x < slot->bitmap.width; x++) {
                         unsigned char a = ((src[x >> 3] & (0x80 >> (x & 7))) ? 0xff : 0x00);
+                        *dd++ = a;
                         *dd++ = a;
                         *dd++ = a;
                         *dd++ = a;
