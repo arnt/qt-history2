@@ -32,6 +32,7 @@ public:
     ~QTreeView();
 
     void setModel(QAbstractItemModel *model);
+    void setRootIndex(const QModelIndex &index);
     void setSelectionModel(QItemSelectionModel *selectionModel);
 
     QHeaderView *header() const;

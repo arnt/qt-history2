@@ -196,6 +196,18 @@ void QTableView::setModel(QAbstractItemModel *model)
 /*!
   \reimp
 */
+void QTableView::setRootIndex(const QModelIndex &index)
+{
+    Q_D(QTableView);
+
+    d->verticalHeader->setRootIndex(index);
+    d->horizontalHeader->setRootIndex(index);
+    QAbstractItemView::setRootIndex(index);
+}
+
+/*!
+  \reimp
+*/
 void QTableView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
     Q_D(QTableView);

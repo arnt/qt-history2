@@ -138,6 +138,16 @@ void QTreeView::setModel(QAbstractItemModel *model)
 /*!
   \reimp
 */
+void QTreeView::setRootIndex(const QModelIndex &index)
+{
+    Q_D(QTreeView);
+    d->header->setRootIndex(index);
+    QAbstractItemView::setRootIndex(index);
+}
+
+/*!
+  \reimp
+*/
 void QTreeView::setSelectionModel(QItemSelectionModel *selectionModel)
 {
     Q_D(QTreeView);
