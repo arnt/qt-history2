@@ -412,6 +412,10 @@ void FormWindowManager::slotActionSplitVerticalActivated()
 void FormWindowManager::slotActionBreakLayoutActivated()
 {
     QList<QWidget*> widgets = m_activeFormWindow->selectedWidgets();
+
+    if (widgets.isEmpty())
+        widgets.append(m_activeFormWindow->mainContainer());
+
     m_activeFormWindow->simplifySelection(&widgets);
 
     QList<QWidget*> layoutBaseList;
