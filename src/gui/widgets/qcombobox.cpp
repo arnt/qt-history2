@@ -806,6 +806,8 @@ void QComboBoxPrivate::emitActivated(const QModelIndex &index)
 void QComboBoxPrivate::emitHighlighted(const QModelIndex &index)
 {
     Q_Q(QComboBox);
+    if (!index.isValid())
+        return;
     QString text(q->model()->data(index, Qt::EditRole).toString());
     emit q->highlighted(index.row());
     emit q->highlighted(text);
