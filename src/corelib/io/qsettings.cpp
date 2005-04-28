@@ -2079,6 +2079,9 @@ QSettings::~QSettings()
     Q_D(QSettings);
     if (d->pendingChanges)
         d->flush();
+#ifdef QT_NO_QOBJECT
+    delete d;
+#endif
 }
 
 /*!
