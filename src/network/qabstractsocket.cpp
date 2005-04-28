@@ -302,24 +302,26 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxLength)
     Constructs a QAbstractSocketPrivate. Initializes all members.
 */
 QAbstractSocketPrivate::QAbstractSocketPrivate()
-    : readBuffer(QABSTRACTSOCKET_BUFFERSIZE),
+    : readSocketNotifierCalled(false),
+      readSocketNotifierState(false),
+      readSocketNotifierStateSet(false),
+      emittedReadyRead(false),
+      emittedBytesWritten(false),
+      closeCalled(false),
+      port(0),
+      readSocketNotifier(0),
+      writeSocketNotifier(0),
+      readBufferMaxSize(0),
+      readBuffer(QABSTRACTSOCKET_BUFFERSIZE),
       writeBuffer(QABSTRACTSOCKET_BUFFERSIZE),
-      connectTimer(0)
+      isBuffered(false),
+      blockingTimeout(30000),
+      connectTimer(0),
+      connectTimeElapsed(0),
+      hostLookupId(-1),
+      state(QAbstractSocket::UnconnectedState),
+      socketError(QAbstractSocket::UnknownSocketError)
 {
-    port = 0;
-    readSocketNotifier = 0;
-    writeSocketNotifier = 0;
-    readSocketNotifierCalled = false;
-    readSocketNotifierState = false;
-    readSocketNotifierStateSet = false;
-    isBuffered = false;
-    blockingTimeout = 30000;
-    state = QAbstractSocket::UnconnectedState;
-    readBufferMaxSize = 0;
-    socketError = QAbstractSocket::UnknownSocketError;
-    hostLookupId = -1;
-    emittedReadyRead = false;
-    emittedBytesWritten = false;
 }
 
 /*! \internal
