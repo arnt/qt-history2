@@ -429,9 +429,9 @@ QIcon QAction::icon() const
 }
 
 /*!
-  Returns this action's submenu.
+  Returns the menu this action appears in.
 
-  \sa QAction::setMenu()
+  \sa QMenu::addAction()
 */
 QMenu *QAction::menu() const
 {
@@ -446,7 +446,7 @@ QMenu *QAction::menu() const
   into. Under most circumstances the text, submenu, and icon will be
   ignored for separator actions.
 
-  \sa QAction::separator()
+  \sa QAction::separator
 */
 void QAction::setSeparator(bool b)
 {
@@ -582,7 +582,7 @@ QString QAction::toolTip() const
 
     There is no default statusTip text.
 
-    \sa setStatusTip() setToolTip() showStatusText()
+    \sa setToolTip() showStatusText()
 */
 void QAction::setStatusTip(const QString &statustip)
 {
@@ -611,7 +611,7 @@ QString QAction::statusTip() const
     If the text contains a hyperlink, the whatsThisClicked() signal is
     emitted when the user clicks inside the "What's This?" window.
 
-    \sa QWhatsThis whatsThisClicked() QStyleSheet
+    \sa QWhatsThis QStyleSheet
 */
 void QAction::setWhatsThis(const QString &whatsthis)
 {
@@ -798,7 +798,7 @@ QAction::event(QEvent *e)
 /*!
   Returns the user data as set in QAction::setData.
 
-  \sa setData(const QVariant &d)
+  \sa setData()
 */
 QVariant
 QAction::data() const
@@ -827,7 +827,7 @@ QAction::setData(const QVariant &data)
   Updates the status bar for \a widget. If widget is an appropriate
   QStatusBar found for for this action based on the parent heirarchy will be used.
 
-  \sa setStatusTip(QString&)
+  \sa statusTip
 
 */
 bool
@@ -886,7 +886,7 @@ void QAction::activate(ActionEvent event)
     If the action is checkable, \a checked is true if the action is
     checked, or false if the action is unchecked.
 
-    \sa QAction::activate(), QAction::checked(), QAction::toggled()
+    \sa QAction::activate(), QAction::toggled(), checked
 */
 
 /*!
@@ -899,8 +899,7 @@ void QAction::activate(ActionEvent event)
     \a checked is true if the action is checked, or false if the
     action is unchecked.
 
-    \sa QAction::activate(), QAction::triggered(), QAction::checked(),
-    QAction::setChecked()
+    \sa QAction::activate(), QAction::triggered(), checked
 */
 
 /*!

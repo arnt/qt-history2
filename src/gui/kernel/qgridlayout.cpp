@@ -1113,8 +1113,14 @@ QLayoutItem *QGridLayout::takeAt(int index)
 }
 
 /*!
-  Returns the position information of the item with index \a idx.
- */
+  \fn void QGridLayout::getItemPosition(int index, int *row, int *column, int *rowSpan, int *columnSpan)
+
+  Returns the position information of the item with the given \a index.
+
+  The variables passed as \a row and \a column are updated with the position of the
+  item in the layout, and the \a rowSpan and \a columnSpan variables are updated
+  with the vertical and horizontal spans of the item.
+*/
 void QGridLayout::getItemPosition(int idx, int *row, int *column, int *rowSpan, int *columnSpan)
 {
     Q_D(QGridLayout);

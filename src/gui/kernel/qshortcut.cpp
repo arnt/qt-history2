@@ -189,7 +189,7 @@ QShortcut::~QShortcut()
         setKey("Ctrl+P");           // Ctrl+P, e.g. to print document
     \endcode
 
-    \sa key(), QKeySequence
+    \sa QKeySequence
 */
 void QShortcut::setKey(const QKeySequence &key)
 {
@@ -222,7 +222,7 @@ QKeySequence QShortcut::key() const
     If the application is in \c WhatsThis mode the shortcut will not emit
     the signals, but will show the "What's This?" text instead.
 
-    \sa isEnabled(), whatsThis()
+    \sa whatsThis
 */
 void QShortcut::setEnabled(bool enable)
 {
@@ -256,7 +256,7 @@ bool QShortcut::isEnabled() const
     containing the shortcut) is a subwidget of the active top-level
     window.
 
-    \sa context Qt::ShortcutContext
+    \sa Qt::ShortcutContext
 */
 void QShortcut::setContext(Qt::ShortcutContext context)
 {
@@ -288,8 +288,7 @@ Qt::ShortcutContext QShortcut::context()
     To set "What's This?" help on a menu item (with or without a
     shortcut key), set the help on the item's action.
 
-    \sa whatsThis(), QWhatsThis::inWhatsThisMode(),
-    setWhatsThis(), QAction::setWhatsThis()
+    \sa QWhatsThis::inWhatsThisMode(), QAction::setWhatsThis()
 */
 void QShortcut::setWhatsThis(const QString &text)
 {
