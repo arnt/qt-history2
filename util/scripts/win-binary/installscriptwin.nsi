@@ -2,6 +2,7 @@
 !define PRODUCT_PUBLISHER "Trolltech"
 !define PRODUCT_WEB_SITE "http://www.trolltech.com"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${PRODUCT_VERSION}"
+!define LICENSEE_REPLACENAME "Beta Tester"
 
 !include "MUI.nsh"
 !include "qtlicense.nsh"
@@ -118,6 +119,19 @@ Section -Post
 
   call PatchPrlFiles
   call PatchPdbFiles
+  
+  #patch the licencee information
+  DetailPrint "Patching license information..."
+  #### LICENSEE_REPLACENAME must reflect license used when compiling
+  
+  push "$INSTDIR\include\QtCore\qconfig.h"
+  push "${LICENSEE_REPLACENAME}"
+  push "$LICENSEE"
+  call PatchPath
+  
+  qtnsisext::PatchBinary "$INSTDIR\bin\QtCored4.dll" "${LICENSEE_REPLACENAME}" "$LICENSEE" ""
+  qtnsisext::PatchBinary "$INSTDIR\bin\QtCore4.dll" "${LICENSEE_REPLACENAME}" "$LICENSEE" ""
+  ####
 SectionEnd
 
 Function .onInit
@@ -158,7 +172,14 @@ Function PatchPdbFiles
     StrCmp $1 "" done
     DetailPrint "Patching $1..."
     
+    StrCmp ${FORCE_MAKESPEC} "vc60" VC60Patching
     qtnsisext::PatchBinary "$INSTDIR\bin\$1" ${QTBUILDDIR} $INSTDIR ".cpp;.h;.c"
+    Goto DonePatching
+    VC60Patching:
+    qtnsisext::PatchBinaryInsert "$INSTDIR\bin\$1" "$INSTDIR\bin\$1.tmp" ${QTBUILDDIR} $INSTDIR
+    Delete "$INSTDIR\bin\$1"
+    Rename "$INSTDIR\bin\$1.tmp" "$INSTDIR\bin\$1"
+    DonePatching:
     FindNext $0 $1
     Goto loop
   done:
@@ -263,7 +284,6 @@ Function ${UN}SetAdminVar
   StrCmp $0 "Admin" Admin
   StrCmp $0 "Power" Admin
 
-  NoAdmin:
   StrCpy $RUNNING_AS_ADMIN "false"
   goto Done
 

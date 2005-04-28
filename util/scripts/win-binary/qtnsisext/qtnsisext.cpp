@@ -18,7 +18,7 @@ EXPORT_NSIS_FUNCTION(testMessage)
     g_hwndParent = hwndParent;
     EXDLL_INIT();
 
-    wsprintf(buf,"What?");
+    popstring(buf);
     MessageBox(g_hwndParent,buf,0,MB_OK);
 }
 
@@ -76,21 +76,16 @@ EXPORT_NSIS_FUNCTION(UsesUSLicense)
     pushstring(isValid);
 }
 
-EXPORT_NSIS_FUNCTION(GetLicenseKey)
+EXPORT_NSIS_FUNCTION(GetLicenseInfo)
 {
     g_hwndParent = hwndParent;
     EXDLL_INIT();
 
-    char *key1, *key2, *key3;
-
     LicenseFinder f;
-    key1 = f.getLicenseKey(1);
-    key2 = f.getLicenseKey(2);
-    key3 = f.getLicenseKey(3);
-
-    pushstring(key3);
-    pushstring(key2);
-    pushstring(key1);
+    pushstring(f.getLicenseKey(3));
+    pushstring(f.getLicenseKey(2));
+    pushstring(f.getLicenseKey(1));
+    pushstring(f.getLicensee());
 }
 
 EXPORT_NSIS_FUNCTION(PatchBinary)
@@ -114,4 +109,27 @@ EXPORT_NSIS_FUNCTION(PatchBinary)
     LocalFree(newStr);
     LocalFree(oldStr);
     LocalFree(fileName);
+}
+
+EXPORT_NSIS_FUNCTION(PatchBinaryInsert)
+{
+    g_hwndParent = hwndParent;
+    EXDLL_INIT();
+    
+    char *oldFile = (char *)LocalAlloc(LPTR, g_stringsize);
+    char *newFile = (char *)LocalAlloc(LPTR, g_stringsize);
+    char *oldStr = (char *)LocalAlloc(LPTR, g_stringsize);
+    char *newStr = (char *)LocalAlloc(LPTR, g_stringsize);
+
+    popstring(oldFile);
+    popstring(newFile);
+    popstring(oldStr);
+    popstring(newStr);
+
+    BinPatch::patchFileInsert(oldFile, newFile, oldStr, newStr, true);
+
+    LocalFree(newStr);
+    LocalFree(oldStr);
+    LocalFree(newFile);
+    LocalFree(oldFile);
 }

@@ -70,7 +70,9 @@ Function PatchPath
 
   ClearErrors
   GetTempFileName $6
+  IfErrors done
   FileOpen $5 $6 w
+  IfErrors done
   FileOpen $4 $1 r
   IfErrors done
 

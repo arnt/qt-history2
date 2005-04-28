@@ -12,6 +12,16 @@ LicenseFinder::LicenseFinder()
         key2[i] = '\0';
         key3[i] = '\0';
     }
+
+    memset(licensee, '\0', sizeof(licensee)*sizeof(char));
+}
+
+char *LicenseFinder::getLicensee()
+{
+    if (!searched)
+        searchLicense();
+
+    return licensee;
 }
 
 char *LicenseFinder::getLicenseKey(int part)
@@ -61,10 +71,21 @@ bool LicenseFinder::lookInDirectory(const char *dir)
 
     FILE *f;
     if ((f = fopen(file, "r")) != NULL) {
-        char buf[256];
-        size_t r = fread(buf, sizeof(char), 256, f);
+        char buf[60000];
+        size_t r = fread(buf, sizeof(char), 60000, f);
         buf[r] = '\0';
-        
+
+        /* Licensee */
+        char *pat = "Licensee=\"";
+        char *tmp = findPattern(buf, pat, ulong(r));
+
+        if (tmp && (strlen(tmp) > strlen(pat)+1)) {
+            char *end = strchr(tmp, '\"');
+            if (end)
+                strncpy(licensee, tmp, end-tmp);
+        }
+
+        /* LicenseKey */
         char *n = "LicenseKey=";        
         char *key = findPattern(buf, n, ulong(r));
 

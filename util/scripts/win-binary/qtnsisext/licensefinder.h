@@ -8,6 +8,7 @@ class LicenseFinder
 public:
     LicenseFinder();
     char *getLicenseKey(int part);
+    char *getLicensee();
 
 private:
     void searchLicense();
@@ -17,6 +18,7 @@ private:
     char key1[5];
     char key2[5];
     char key3[5];
+    char licensee[256];
 };
 
 #endif

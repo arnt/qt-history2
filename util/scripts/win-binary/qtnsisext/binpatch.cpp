@@ -43,7 +43,7 @@ bool endsWithTokens(const char *data, const char *tokens)
     return false; //no matching tokens
 }
 
-long replaceString(char *data, const char *oldstr, const char *newstr, const char *endsWith, ulong len, ulong *offset)
+bool replaceString(char *data, const char *oldstr, const char *newstr, const char *endsWith, ulong len, ulong *offset)
 {
     bool changed = false;
     char nc1 = *oldstr++;
@@ -73,8 +73,13 @@ long replaceString(char *data, const char *oldstr, const char *newstr, const cha
                     ulong slen = ulong(strlen(newstr)); //get length of newstr
                     strncpy(data-1, newstr, slen); //copy new string into buffer
                     strcpy((data-1)+slen, tmp); //append tmp
-                    memset((data-1)+slen+tlen, '\0', (nlen+1)-slen); //pad rest with null
+                    if((nlen+1) > slen)
+                        memset((data-1)+slen+tlen, '\0', (nlen+1)-slen); //pad rest with null
                     changed = true;
+
+                    //fast forward...
+                    data += strlen(data);
+                    len -= strlen(data);
                 }
             }
         }
@@ -82,6 +87,116 @@ long replaceString(char *data, const char *oldstr, const char *newstr, const cha
     }
 
     return changed;
+}
+
+size_t insertString(char *inbuffer, char *outbuffer, const char *oldstr, const char *newstr, size_t len, size_t *rw, bool length)
+{
+    char nc1 = *oldstr;
+    char nc2 = 0;
+    char *inend = inbuffer + len;
+    size_t oldlen = strlen(oldstr);
+    char *outstart = outbuffer;
+    *rw = 0;
+
+    isupper(nc1) ? nc2 = tolower(nc1) : nc2 = toupper(nc1);
+
+    while(inbuffer < inend) {
+        if ((*inbuffer == nc1) || (*inbuffer == nc2)) {
+            if (inbuffer > (inend-oldlen)) {
+                *rw = (inend-inbuffer); //rewind
+                break;
+            }
+
+            if (strnicmp(inbuffer, oldstr, oldlen) == 0) {
+                //insert
+                size_t newlen = strlen(newstr);
+                strncpy(outbuffer, newstr, newlen);
+
+                if (length) {
+                    if (outstart == outbuffer) {
+                        //we don't have access to the length byte, rewind all + 1!
+                        *rw = 1;
+                        break;
+                    }
+                    char oldsize = *(inbuffer-1);
+                    //pdb files only support 256 characters it seems :|
+                    *(outbuffer-1) = (char)(oldsize-(oldlen-newlen));
+                }
+
+                outbuffer+=newlen;
+                inbuffer+=oldlen;
+
+                continue;
+            }
+        }
+
+        //copy char
+        *outbuffer = *inbuffer;
+        ++outbuffer;
+        ++inbuffer;
+    }
+
+    return (outbuffer - outstart);
+}
+
+bool BinPatch::patchFileInsert(const char *inName, const char *outName, const char *oldstr, const char *newstr, bool updateLength)
+{
+    size_t olen = strlen(oldstr);
+    size_t nlen = strlen(newstr);
+
+    if ((!inName && strlen(inName) < 1) ||
+        (!outName && strlen(outName) < 1)
+        || !oldstr && olen < 1
+        || !newstr && nlen < 1)
+        return false;
+
+    FILE *input;
+    FILE *output;
+
+    if (!(input = fopen(inName, "rb")))
+    {
+        fprintf(stderr, "Cannot open file %s!\n", inName);
+        return false;
+    }
+
+    if (!(output = fopen(outName, "wb")))
+    {
+        fprintf(stderr, "Cannot open file %s!\n", outName);
+        fclose(input);
+        return false;
+    }
+
+    //the diff between new and old should not be longer than 1000
+    char inbuffer[7];
+    char outbuffer[7];
+    
+    size_t inoffset = 0;
+    size_t rw = 0;
+    size_t outsize = 0;
+
+    while (!feof(input)) {
+        size_t len = fread(inbuffer, sizeof(char), sizeof(inbuffer), input);
+        
+        if (len < olen)
+            break;
+        
+        outsize = insertString(inbuffer, outbuffer, oldstr, newstr, len, &rw, updateLength);
+        if (rw == 1 && outsize == 0) {
+            //rewind everything by one!
+            fseek(input, -((long)len+1), SEEK_CUR);
+            fseek(output, -1, SEEK_CUR);
+            continue;
+        }
+
+        fwrite(outbuffer, sizeof(char), outsize, output);
+
+        if (rw > 0) //entire string was not in buffer (rewind)
+            fseek(input, -(long)rw, SEEK_CUR);
+    }
+
+    fclose(input);
+    fclose(output);
+    return true;
 }
 
 bool BinPatch::patchFile(const char *fileName, const char *oldstr, const char *newstr, const char *endsWith)
