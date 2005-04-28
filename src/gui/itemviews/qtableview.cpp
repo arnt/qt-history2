@@ -329,8 +329,7 @@ void QTableView::scrollContentsBy(int dx, int dy)
         d->verticalHeader->setOffset(offset);
     }
 
-    QAbstractItemView::scrollContentsBy(dx, dy);
-    d->viewport->scroll(dx, dy);
+    d->scrollContentsBy(dx, dy);
 }
 
 

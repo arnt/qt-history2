@@ -595,8 +595,7 @@ void QListView::scrollContentsBy(int dx, int dy)
             d->elasticBand.moveTop(d->elasticBand.top() - dy);
     }
 
-    QAbstractItemView::scrollContentsBy(dx, dy);
-    d->viewport->scroll(dx, dy);
+    d->scrollContentsBy(dx, dy);
 
     // update the dragged items
     if (!d->draggedItems.isEmpty())

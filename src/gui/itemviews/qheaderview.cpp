@@ -1529,6 +1529,17 @@ void QHeaderView::updateGeometries()
 /*!
   \reimp
   \internal
+*/
+
+void QHeaderView::scrollContentsBy(int dx, int dy)
+{
+    Q_D(QHeaderView);
+    d->scrollDirtyRegion(dx, dy);
+}
+
+/*!
+  \reimp
+  \internal
 
   Empty implementation because the header doesn't show QModelIndex items.
 */

@@ -103,6 +103,17 @@ public:
             updateTimer.start(0, q_func());
     }
 
+    inline void scrollDirtyRegion(int dx, int dy) {
+        scrollDelayOffset = QPoint(-dx, -dy);
+        updateDirtyRegion();
+        scrollDelayOffset = QPoint(0, 0);
+    }
+
+    inline void scrollContentsBy(int dx, int dy) {
+        scrollDirtyRegion(dx, dy);
+        viewport->scroll(dx, dy);
+    }
+    
     void updateDirtyRegion() {
         updateTimer.stop();
         viewport->update(updateRegion);

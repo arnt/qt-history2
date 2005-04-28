@@ -137,6 +137,7 @@ protected:
     int horizontalOffset() const;
     int verticalOffset() const;
     void updateGeometries();
+    void scrollContentsBy(int dx, int dy);
 
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void rowsInserted(const QModelIndex &parent, int start, int end);

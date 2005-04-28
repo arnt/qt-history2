@@ -775,18 +775,6 @@ QSize QAbstractItemView::iconSize() const
 }
 
 /*!
-  \reimp
-*/
-
-void QAbstractItemView::scrollContentsBy(int dx, int dy)
-{
-    Q_D(QAbstractItemView);
-    d->scrollDelayOffset = QPoint(-dx, -dy);
-    d->updateDirtyRegion();
-    d->scrollDelayOffset = QPoint(0, 0);
-}
-
-/*!
     \fn bool QAbstractItemView::viewportEvent(QEvent *event)
 
     This function is used to handle tool tips, status tips, and What's

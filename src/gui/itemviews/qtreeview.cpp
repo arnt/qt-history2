@@ -1077,8 +1077,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
         }
     }
 
-    QAbstractItemView::scrollContentsBy(dx, dy);
-    d->viewport->scroll(dx, dy);
+    d->scrollContentsBy(dx, dy);
 }
 
 /*!
