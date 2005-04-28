@@ -161,6 +161,10 @@ void QDesignerWorkbench::initialize()
 
     m_toolMenu->addSeparator();
 
+    QAction *showToolBars = m_actionManager->showToolBarsAction();
+    connect(showToolBars, SIGNAL(triggered()), this, SLOT(showToolBars()));
+    m_toolMenu->addAction(showToolBars);
+
     QAction *bigAction = m_actionManager->useBigIconsAction();
     connect(bigAction, SIGNAL(triggered(bool)), this, SLOT(setUseBigIcons(bool)));
     m_toolMenu->addAction(bigAction);
@@ -749,4 +753,11 @@ void QDesignerWorkbench::formWindowActionTriggered(QAction *a)
     widget->setWindowState(widget->windowState() & ~Qt::WindowMinimized);
     widget->activateWindow();
     widget->raise();
+}
+
+void QDesignerWorkbench::showToolBars()
+{
+    m_toolToolBar->show();
+    m_formToolBar->show();
+    m_editToolBar->show();
 }

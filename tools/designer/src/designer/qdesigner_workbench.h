@@ -109,6 +109,7 @@ private slots:
     void updateWorkbench(QDesignerFormWindowInterface *formWindow, const QString &name, const QVariant &value);
     void updateWindowMenu(QDesignerFormWindowInterface *fw);
     void formWindowActionTriggered(QAction *a);
+    void showToolBars();
 
 private:
     QWidget *magicalParent() const;

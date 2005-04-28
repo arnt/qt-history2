@@ -755,23 +755,22 @@ void WidgetBoxTreeView::contextMenuEvent(QContextMenuEvent *e)
 {
     QPoint global_pos = mapToGlobal(e->pos());
     QTreeWidgetItem *item = itemAt(e->pos());
-    if (item == 0)
-        return;
 
-    QTreeWidgetItem *parent = item->parent();
-    if (parent == 0)
-        return;
+    bool scratchpad_menu = item != 0
+                            && item->parent() != 0
+                            && item->parent()->data(0, Qt::UserRole).toInt()
+                                ==  SCRATCHPAD_ITEM;
 
-    if (!parent->data(0, Qt::UserRole).isValid())
-        return;
-
-    setCurrentItem(item);
-    QMenu *menu = new QMenu(this);
-    menu->addAction(tr("Remove"), this, SLOT(removeCurrentItem()));
-    menu->addAction(tr("Edit name"), this, SLOT(editCurrentItem()));
-    menu->exec(global_pos);
-
-    e->accept();
+    if (scratchpad_menu) {
+        e->accept();
+        setCurrentItem(item);
+        QMenu *menu = new QMenu(this);
+        menu->addAction(tr("Remove"), this, SLOT(removeCurrentItem()));
+        menu->addAction(tr("Edit name"), this, SLOT(editCurrentItem()));
+        menu->exec(global_pos);
+    } else {
+        e->ignore();
+    }
 }
 
 void WidgetBoxTreeView::dropWidgets(const QList<QDesignerDnDItemInterface*> &item_list)

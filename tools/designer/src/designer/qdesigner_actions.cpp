@@ -250,6 +250,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_useBigIcons = new QAction(tr("Use &Big Toolbar Icons"), this);
     m_useBigIcons->setCheckable(true);
     m_useBigIcons->setChecked(settings.useBigIcons());
+    m_showToolBars = new QAction(tr("Show All &Toolbars"), this);
 
 //
 // window actions
@@ -826,6 +827,11 @@ QActionGroup *QDesignerActions::uiMode() const
 
 QAction *QDesignerActions::useBigIconsAction() const
 { return m_useBigIcons; }
+
+QAction *QDesignerActions::showToolBarsAction() const
+{
+    return m_showToolBars;
+}
 
 QAction *QDesignerActions::editWidgets() const
 {
