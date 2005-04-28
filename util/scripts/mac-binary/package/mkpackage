@@ -262,20 +262,21 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
 	echo "  $package == $PACKAGESIZE"
 	SIZE=$((SIZE + `/usr/bin/du -s -k $package 2>/dev/null | awk '{print $1}'`))
     done
-    SIZE=$(((SIZE * 2) + 10000));  #some fudge...
-    SIZE=$((SIZE / 1000)) #bytes
-    hdiutil create "${IMAGE}.sparseimage" -volname "$IMAGE_NAME" -megabytes $SIZE -type SPARSE -fs HFS+ >/dev/null 2>&1
-    MOUNTPOINT=`hdid ${IMAGE}.sparseimage 2>&1 | grep "$IMAGE_NAME" | awk '{print $1}'`
-    echo "  Mounted $MOUNTPOINT [$SIZE]"
+#   SIZE=$(((SIZE * 2) + 10000));  #some fudge...
+#   SIZE=$((SIZE / 1000)) #bytes
+#   hdiutil create "${IMAGE}.sparseimage" -volname "$IMAGE_NAME" -megabytes $SIZE -type SPARSE -fs HFS+ >/dev/null 2>&1
+#   MOUNTPOINT=`hdid ${IMAGE}.sparseimage 2>&1 | grep "$IMAGE_NAME" | awk '{print $1}'`
+#    echo "  Mounted $MOUNTPOINT [$SIZE]"
 
     #copy
     echo -n "  Copying..."
-    for package in $PKG_CREATED; do 
-	[ -z "$package" ] && continue
-	OUT_PACKAGE=`echo $package | sed "s,^$OUTPUT_DIR,/Volumes/$IMAGE_NAME/,"`
-	mkdir -p "`dirname "$OUT_PACKAGE"`"
-	cp -r "$package" "$OUT_PACKAGE"
-    done
+    hdiutil create -srcfolder $OUTPUT_DIR $IMAGE
+#    for package in $PKG_CREATED; do 
+#	[ -z "$package" ] && continue
+#	OUT_PACKAGE=`echo $package | sed "s,^$OUTPUT_DIR,/Volumes/$IMAGE_NAME/,"`
+#	mkdir -p "`dirname "$OUT_PACKAGE"`"
+#	cp -r "$package" "$OUT_PACKAGE"
+#    done
     echo " done!"
 
     #do evilness
@@ -297,18 +298,18 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     #echo " done!"
 
     #unmount
-    echo -n "  Unmounting..."
-    hdiutil detach $MOUNTPOINT >/dev/null 2>&1
-    rm -rf "/Volumes/$IMAGE_NAME/" >/dev/null 2>&1
-    echo " done!"
+#    echo -n "  Unmounting..."
+#    hdiutil detach $MOUNTPOINT >/dev/null 2>&1
+#    rm -rf "/Volumes/$IMAGE_NAME/" >/dev/null 2>&1
+#    echo " done!"
 
     #compress
-    echo -n "  Compressing.."
-    hdiutil convert ${IMAGE}.sparseimage -format UDZO -o "$IMAGE" -imagekey zlib-devel=9 >/dev/null 2>&1
-    echo " done!"
+#    echo -n "  Compressing.."
+#    hdiutil convert ${IMAGE}.sparseimage -format UDZO -o "$IMAGE" -imagekey zlib-level=9 >/dev/null 2>&1
+#    echo " done!"
 
     #cleanup
-    rm ${IMAGE}.sparseimage
+ #   rm ${IMAGE}.sparseimage
 
     #license
     echo -n "  Licensing..."
