@@ -15,10 +15,12 @@ PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
 
     treeWidget = new QTreeWidget;
     treeWidget->setAlternatingRowColors(false);
+    treeWidget->setSelectionMode(QAbstractItemView::NoSelection);
     treeWidget->setHeaderLabels(headerLabels);
     treeWidget->header()->hide();
 
     okButton = new QPushButton(tr("OK"));
+    okButton->setDefault(true);
 
     connect(okButton, SIGNAL(clicked()), this, SLOT(close()));
 

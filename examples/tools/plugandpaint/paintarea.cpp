@@ -9,7 +9,7 @@ PaintArea::PaintArea(QWidget *parent)
     setAttribute(Qt::WA_StaticContents);
     setAttribute(Qt::WA_NoBackground);
 
-    theImage = QImage(500, 400, QImage::Format_ARGB32);
+    theImage = QImage(500, 400, QImage::Format_RGB32);
     theImage.fill(qRgb(255, 255, 255));
     color = Qt::blue;
     thickness = 3;
@@ -23,24 +23,20 @@ bool PaintArea::openImage(const QString &fileName)
     if (!image.load(fileName))
         return false;
 
-    theImage = image;
-    update();
+    setImage(image);
     return true;
 }
 
 bool PaintArea::saveImage(const QString &fileName, const char *fileFormat)
 {
-    if (theImage.save(fileName, fileFormat)) {
-        return true;
-    } else {
-        return false;
-    }
+    return theImage.save(fileName, fileFormat);
 }
 
 void PaintArea::setImage(const QImage &image)
 {
-    theImage = image;
+    theImage = image.convertToFormat(QImage::Format_RGB32);
     update();
+    updateGeometry();
 }
 
 void PaintArea::insertShape(const QPainterPath &path)

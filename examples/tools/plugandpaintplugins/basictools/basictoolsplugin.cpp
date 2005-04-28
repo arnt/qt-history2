@@ -114,7 +114,7 @@ QStringList BasicToolsPlugin::filters() const
 QImage BasicToolsPlugin::filterImage(const QString &filter, const QImage &image,
                                      QWidget * /* parent */)
 {
-    QImage result = image.convertToFormat(QImage::Format_ARGB32);
+    QImage result = image.convertToFormat(QImage::Format_RGB32);
 
     if (filter == tr("Invert Pixels")) {
         result.invertPixels();

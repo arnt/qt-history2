@@ -174,6 +174,16 @@ void MainWindow::createMenus()
 void MainWindow::loadPlugins()
 {
     pluginsDir = QDir(qApp->applicationDirPath());
+#ifdef Q_OS_WIN
+    if (pluginsDir.name() == "debug" || plugins.name() == "release")
+        pluginsDir.cdUp();
+#elif Q_OS_MAC
+    if (pluginsDir.name() == "MacOS") {
+        pluginsDir.cdUp();
+        pluginsDir.cdUp();
+        pluginsDir.cdUp();
+    }
+#endif
     pluginsDir.cd("plugins");
 
     QStringList fileFilters;

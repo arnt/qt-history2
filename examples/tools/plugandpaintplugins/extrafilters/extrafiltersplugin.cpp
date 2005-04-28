@@ -14,7 +14,7 @@ QStringList ExtraFiltersPlugin::filters() const
 QImage ExtraFiltersPlugin::filterImage(const QString &filter,
                                        const QImage &image, QWidget *parent)
 {
-    QImage original = image.convertToFormat(QImage::Format_ARGB32);
+    QImage original = image.convertToFormat(QImage::Format_RGB32);
     QImage result = original;
 
     if (filter == tr("Flip Horizontally")) {
