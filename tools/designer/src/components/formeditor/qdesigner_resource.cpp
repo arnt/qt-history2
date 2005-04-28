@@ -394,9 +394,11 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         return 0;
     }
 
+    QDesignerWidgetDataBaseItemInterface *widgetInfo =  0;
     int widgetInfoIndex = m_core->widgetDataBase()->indexOfObject(widget, false);
     if (widgetInfoIndex != -1) {
-        QDesignerWidgetDataBaseItemInterface *widgetInfo = m_core->widgetDataBase()->item(widgetInfoIndex);
+        widgetInfo = m_core->widgetDataBase()->item(widgetInfoIndex);
+
         if (widgetInfo->isCustom())
             m_usedCustomWidgets.insert(widgetInfo, true);
     }
@@ -423,8 +425,13 @@ DomWidget *QDesignerResource::createDom(QWidget *widget, DomWidget *ui_parentWid
         w->setAttributeClass(m_internal_to_qt.value(className));
 
     w->setAttributeName(widget->objectName());
+
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget)) {
+        Q_ASSERT(widgetInfo != 0);
+
         w->setAttributeName(promoted->child()->objectName());
+        w->setAttributeClass(widgetInfo->name());
+
         QList<DomProperty*> prop_list = w->elementProperty();
         foreach (DomProperty *prop, prop_list) {
             if (prop->attributeName() == QLatin1String("geometry")) {
@@ -714,9 +721,13 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
 {
     if (prop == QLatin1String("objectName")) // ### don't store the property objectName
         return false;
-    else if (prop == QLatin1String("geometry") && obj->isWidgetType() && LayoutInfo::isWidgetLaidout(core(), static_cast<QWidget*>(obj)))
-        return false;
-    else if (!checkProperty(qobject_cast<QDesignerTabWidget*>(obj), prop))
+    else if (prop == QLatin1String("geometry") && obj->isWidgetType()) {
+        QWidget *check_widget = qobject_cast<QWidget*>(obj);
+         if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(obj->parent()))
+            check_widget = promoted;
+
+        return !LayoutInfo::isWidgetLaidout(core(), check_widget);
+    } else if (!checkProperty(qobject_cast<QDesignerTabWidget*>(obj), prop))
         return false;
     else if (!checkProperty(qobject_cast<QDesignerToolBox*>(obj), prop))
         return false;
