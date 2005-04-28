@@ -1190,7 +1190,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     //reset flags and show (if neccesary)
     q->setEnabled(enable);
     q->setFocusPolicy(fp);
-    if (!extra->mask.isEmpty())
+    if (extra && !extra->mask.isEmpty())
         q->setMask(extra->mask);
     q->setAcceptDrops(dropable);
     if(!capt.isNull()) {

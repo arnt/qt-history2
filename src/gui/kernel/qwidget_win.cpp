@@ -592,7 +592,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     q->setGeometry(0, 0, s.width(), s.height());
     q->setEnabled(enable);
     q->setFocusPolicy(fp);
-    if (!extra->mask.isEmpty())
+    if (extra && !extra->mask.isEmpty())
         q->setMask(extra->mask);
     if (!capt.isNull()) {
         extra->topextra->caption.clear();
