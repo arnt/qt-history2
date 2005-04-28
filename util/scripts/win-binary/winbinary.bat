@@ -146,7 +146,7 @@ echo - Creating license file
 type LICENSE.TROLL > LICENSE.TROLL
 
 echo - Running configure...
-configure -release -qt-sql-sqlite -plugin-style-windowsxp -qt-zlib -qt-png -qt-jpeg 1>>log.txt >> %1\log.txt 2>&1
+configure -release -plugin-sql-sqlite -plugin-sql-odbc -plugin-style-windowsxp -qt-zlib -qt-png -qt-jpeg 1>>log.txt >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 echo - Building...
