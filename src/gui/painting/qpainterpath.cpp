@@ -748,7 +748,7 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
             Q_ASSERT(fe);
             fe->addOutlineToPath(x, y, glyphs, si.num_glyphs, this,
                                  si.analysis.bidiLevel % 2
-                                 ? QTextItem::RightToLeft
+                                 ? QTextItem::RenderFlags(QTextItem::RightToLeft)
                                  : QTextItem::RenderFlags(0));
         }
         x += si.width;
