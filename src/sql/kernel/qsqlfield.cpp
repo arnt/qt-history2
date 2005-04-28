@@ -20,26 +20,24 @@ class QSqlFieldPrivate
 public:
     QSqlFieldPrivate(const QString &name,
               QVariant::Type type) :
-        nm(name), ro(false), type(type), req(QSqlField::Unknown),
+        ref(1), nm(name), ro(false), type(type), req(QSqlField::Unknown),
         len(-1), prec(-1), tp(-1), gen(true), autoval(false)
     {
-        ref = 1;
     }
 
-    QSqlFieldPrivate& operator=(const QSqlFieldPrivate& other)
-    {
-        nm = other.nm;
-        ro = other.ro;
-        type = other.type;
-        req = other.req;
-        len = other.len;
-        prec = other.prec;
-        def = other.def;
-        tp = other.tp;
-        gen = other.gen;
-        autoval = other.autoval;
-        return *this;
-    }
+    QSqlFieldPrivate(const QSqlFieldPrivate &other)
+        : ref(1),
+          nm(other.nm),
+          ro(other.ro),
+          type(other.type),
+          req(other.req),
+          len(other.len),
+          prec(other.prec),
+          def(other.def),
+          tp(other.tp),
+          gen(other.gen),
+          autoval(other.autoval)
+    {}
 
     bool operator==(const QSqlFieldPrivate& other) const
     {
