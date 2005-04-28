@@ -156,7 +156,7 @@ void QDesignerWorkbench::initialize()
         m_formMenu->addAction(action);
     }
 
-    m_toolMenu = m_globalMenuBar->addMenu(tr("&Tool"));
+    m_toolMenu = m_globalMenuBar->addMenu(tr("&Tools"));
 
     m_toolMenu->addSeparator();
 
