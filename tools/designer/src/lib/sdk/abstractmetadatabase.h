@@ -32,15 +32,6 @@ public:
     virtual QString name() const = 0;
     virtual void setName(const QString &name) = 0;
 
-    virtual QString author() const = 0;
-    virtual void setAuthor(const QString &author) = 0;
-
-    virtual QString comment() const = 0;
-    virtual void setComment(const QString &comment) = 0;
-
-    virtual QCursor cursor() const = 0;
-    virtual void setCursor(const QCursor &cursor) = 0;
-
     virtual QList<QWidget*> tabOrder() const = 0;
     virtual void setTabOrder(const QList<QWidget*> &tabOrder) = 0;
 

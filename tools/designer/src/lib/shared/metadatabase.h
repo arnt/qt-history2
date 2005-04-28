@@ -30,15 +30,6 @@ public:
     virtual QString name() const;
     virtual void setName(const QString &name);
 
-    virtual QString author() const;
-    virtual void setAuthor(const QString &author);
-
-    virtual QString comment() const;
-    virtual void setComment(const QString &comment);
-
-    virtual QCursor cursor() const;
-    virtual void setCursor(const QCursor &cursor);
-
     virtual QList<QWidget*> tabOrder() const;
     virtual void setTabOrder(const QList<QWidget*> &tabOrder);
 
@@ -47,9 +38,6 @@ public:
 
 private:
     QObject *m_object;
-    QString m_author;
-    QString m_comment;
-    QCursor m_cursor;
     QList<QWidget*> m_tabOrder;
     bool m_enabled;
 };

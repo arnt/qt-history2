@@ -43,36 +43,6 @@ void MetaDataBaseItem::setName(const QString &name)
     m_object->setObjectName(name);
 }
 
-QString MetaDataBaseItem::author() const
-{
-    return m_author;
-}
-
-void MetaDataBaseItem::setAuthor(const QString &author)
-{
-    m_author = author;
-}
-
-QString MetaDataBaseItem::comment() const
-{
-    return m_comment;
-}
-
-void MetaDataBaseItem::setComment(const QString &comment)
-{
-    m_comment = comment;
-}
-
-QCursor MetaDataBaseItem::cursor() const
-{
-    return m_cursor;
-}
-
-void MetaDataBaseItem::setCursor(const QCursor &cursor)
-{
-    m_cursor = cursor;
-}
-
 QList<QWidget*> MetaDataBaseItem::tabOrder() const
 {
     return m_tabOrder;

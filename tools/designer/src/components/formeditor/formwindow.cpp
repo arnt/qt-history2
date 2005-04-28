@@ -185,30 +185,11 @@ void FormWindow::setFeatures(Feature f)
 void FormWindow::setCursorToAll(const QCursor &c, QWidget *start)
 {
     start->setCursor(c);
-    QList<QWidget*> l = qFindChildren<QWidget*>(start);
-    QListIterator<QWidget*> it(l);
-    while (it.hasNext()) {
-        QWidget *w = it.next();
-        if (!qobject_cast<WidgetHandle*>(w)) {
-            w->setCursor(c);
+    QList<QWidget*> widgets = qFindChildren<QWidget*>(start);
+    foreach (QWidget *widget, widgets) {
+        if (!qobject_cast<WidgetHandle*>(widget)) {
+            widget->setCursor(c);
         }
-    }
-}
-
-void FormWindow::restoreCursors(QWidget *start, FormWindow *fw)
-{
-    QDesignerMetaDataBaseItemInterface *item = core()->metaDataBase()->item(start);
-    if (fw->isManaged(start))
-        start->setCursor(item->cursor());
-    else
-        start->setCursor(Qt::ArrowCursor);
-
-    QList<QWidget*> l = qFindChildren<QWidget*>(start);
-    QListIterator<QWidget*> it(l);
-    while (it.hasNext()) {
-        QWidget *w = it.next();
-        if (!qobject_cast<WidgetHandle*>(w))
-            restoreCursors(w, fw);
     }
 }
 

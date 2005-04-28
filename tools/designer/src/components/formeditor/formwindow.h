@@ -240,7 +240,6 @@ private:
     BreakLayoutCommand *breakLayoutCommand(QWidget *w);
 
     void setCursorToAll(const QCursor &c, QWidget *start);
-    void restoreCursors(QWidget *start, FormWindow *fw);
 
     QPoint mapToForm(const QWidget *w, const QPoint &pos) const;
     bool canBeBuddy(QWidget *w) const;
