@@ -52,7 +52,10 @@
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
 
+#include <QtCore/QBuffer>
 #include <QtCore/QDir>
+#include <QtCore/QProcess>
+#include <QtCore/QLibraryInfo>
 #include <QtCore/qdebug.h>
 
 #include <QtXml/QDomDocument>
@@ -139,13 +142,39 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 {
     QString version = ui->attributeVersion();
     if (version != QLatin1String("4.0")) {
-        QMessageBox::warning(parentWidget->window(), QObject::tr("Qt Designer"),
+
+        // Try to convert it ourselves.
+        QProcess uic3;
+        uic3.start(QLibraryInfo::location(QLibraryInfo::BinariesPath)
+                   + QDir::separator() + QLatin1String("uic3"), QStringList()
+                   << QLatin1String("-convert") << m_formWindow->fileName());
+        bool allOK = uic3.waitForFinished();
+        if (allOK) {
+            QByteArray ba = uic3.readAll();
+            QBuffer buffer(&ba);
+            m_formWindow->setFileName(QString());
+            QWidget *w = load(&buffer, parentWidget);
+            if (!w) {
+                allOK = false;
+            } else {
+                QMessageBox::information(parentWidget->window(), QObject::tr("Qt Designer"),
+                   QObject::tr("This file was created using Designer from Qt-%1 and"
+                               " will be converted to a new form by Qt Designer.\n"
+                               "The old form has been untouched, but you will have to save this form"
+                               " under a new name.").arg(version), QMessageBox::Ok, 0);
+                return w;
+            }
+        }
+
+        if (!allOK) {
+            QMessageBox::warning(parentWidget->window(), QObject::tr("Qt Designer"),
                QObject::tr("This file was created using designer from Qt-%1 and "
                            "could not be read. "
                            "Please run it through <b>uic3 -convert</b> to convert "
-                           "it to Qt4's ui format.").arg(version),
+                           "it to Qt-4's ui format.").arg(version),
                                QMessageBox::Ok, 0);
-        return 0;
+            return 0;
+        }
     }
 
     m_isMainWidget = true;

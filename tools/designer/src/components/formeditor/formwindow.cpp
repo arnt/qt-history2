@@ -1303,7 +1303,9 @@ void FormWindow::setContents(QIODevice *dev)
     QDesignerResource r(this);
     QWidget *w = r.load(dev, this);
     if (w == 0) {
+        setFileName(QString());
         w = core()->widgetFactory()->createWidget(QLatin1String("QWidget"), this);
+        w->resize(400, 300);
     }
 
     setMainContainer(w);
