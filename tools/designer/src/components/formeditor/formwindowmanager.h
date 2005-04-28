@@ -58,8 +58,6 @@ public:
     inline QAction *actionBreakLayout() const { return m_actionBreakLayout; }
     inline QAction *actionAdjustSize() const { return m_actionAdjustSize; }
 
-    inline QAction *actionShowResourceEditor() const { return m_actionShowResourceEditor; }
-
     QDesignerFormWindowInterface *activeFormWindow() const;
 
     int formWindowCount() const;
@@ -91,7 +89,6 @@ private slots:
     void slotActionGridLayoutActivated();
     void slotActionBreakLayoutActivated();
     void slotActionAdjustSizeActivated();
-    void slotActionShowResourceEditorActivated();
 
     void slotUpdateActions();
 
@@ -132,8 +129,6 @@ private:
 
     QAction *m_actionUndo;
     QAction *m_actionRedo;
-
-    QAction *m_actionShowResourceEditor;
 
     // DnD stuff
     void beginDrag(const QList<QDesignerDnDItemInterface*> &item_list, const QPoint &globalPos);

@@ -6,6 +6,7 @@
 
 class Connection;
 class QDesignerFormWindowInterface;
+class QDesignerFormEditorInterface;
 class QModelIndex;
 class QTreeView;
 class QToolButton;
@@ -19,7 +20,7 @@ class SignalSlotEditorWindow : public QWidget
 {
     Q_OBJECT
 public:
-    SignalSlotEditorWindow(QWidget *parent = 0);
+    SignalSlotEditorWindow(QDesignerFormEditorInterface *core, QWidget *parent = 0);
 
 public slots:
     void setActiveFormWindow(QDesignerFormWindowInterface *form);

@@ -12,11 +12,11 @@
 ****************************************************************************/
 
 #include "qdesigner.h"
-#include "qdesigner_signalsloteditor.h"
 #include "qdesigner_workbench.h"
+#include "qdesigner_resourceeditor.h"
 #include "qdesigner_settings.h"
 
-#include <signalsloteditor/signalsloteditorwindow.h>
+#include <resourceeditor/resourceeditor.h>
 
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstractformwindowmanager.h>
@@ -24,25 +24,25 @@
 #include <QtCore/qdebug.h>
 
 
-QDesignerSignalSlotEditor::QDesignerSignalSlotEditor(QDesignerWorkbench *workbench)
+QDesignerResourceEditor::QDesignerResourceEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
     using namespace qdesigner_internal;
 
-    setObjectName(QLatin1String("SignalSlotEditorWindow"));
-    SignalSlotEditorWindow *widget
-        = new SignalSlotEditorWindow(workbench->core(), this);
+    setObjectName(QLatin1String("ResourceEditor"));
+    ResourceEditor *widget
+        = new ResourceEditor(workbench->core(), this);
 
     setCentralWidget(widget);
 
-    setWindowTitle(tr("Signal/slot editor"));
+    setWindowTitle(tr("Resouce Editor"));
 }
 
-QDesignerSignalSlotEditor::~QDesignerSignalSlotEditor()
+QDesignerResourceEditor::~QDesignerResourceEditor()
 {
 }
 
-QRect QDesignerSignalSlotEditor::geometryHint() const
+QRect QDesignerResourceEditor::geometryHint() const
 {
     QRect g = workbench()->availableGeometry();
     int margin = workbench()->marginHint();
@@ -54,3 +54,4 @@ QRect QDesignerSignalSlotEditor::geometryHint() const
 
     return r;
 }
+

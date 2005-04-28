@@ -11,6 +11,8 @@
 
 #include <iconloader.h>
 
+#include <abstractformeditor.h>
+#include <abstractformwindowmanager.h>
 #include "signalsloteditorwindow.h"
 #include "signalsloteditor_p.h"
 #include "signalsloteditor.h"
@@ -477,7 +479,8 @@ void ConnectionDelegate::emitCommitData()
 ** SignalSlotEditorWindow
 */
 
-SignalSlotEditorWindow::SignalSlotEditorWindow(QWidget *parent)
+SignalSlotEditorWindow::SignalSlotEditorWindow(QDesignerFormEditorInterface *core,
+                                                QWidget *parent)
     : QWidget(parent)
 {
     m_handling_selection_change = false;
@@ -506,6 +509,10 @@ SignalSlotEditorWindow::SignalSlotEditorWindow(QWidget *parent)
     m_add_button->setIcon(createIconSet(QLatin1String("plus.png")));
     connect(m_add_button, SIGNAL(clicked()), this, SLOT(addConnection()));
     layout2->addWidget(m_add_button);
+
+    connect(core->formWindowManager(),
+            SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
+                this, SLOT(setActiveFormWindow(QDesignerFormWindowInterface*)));
 
     updateUi();
 }

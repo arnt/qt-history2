@@ -198,7 +198,6 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
             formEditorPlugin->action()->setCheckable(true);
         }
     }
-    m_toolActions->addAction(formWindowManager->actionShowResourceEditor());
 
     m_uiMode = new QActionGroup(this);
     m_uiMode->setExclusive(true);

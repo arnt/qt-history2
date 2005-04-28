@@ -27,7 +27,6 @@
 #include <QtDesigner/abstractwidgetbox.h>
 #include <qdesigner_promotedwidget.h>
 #include <qdesigner_command.h>
-#include <resourceeditor.h>
 #include <layoutinfo.h>
 
 #include <QtGui/QAction>
@@ -337,20 +336,6 @@ void FormWindowManager::setupActions()
     m_actionRedo = new QAction(tr("Redo"));
     m_actionRedo->setShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Z);
     m_actionRedo->setEnabled(false);
-
-    m_actionShowResourceEditor = new QAction(createIconSet(QLatin1String("resourceeditortool.png")), tr("Edit &resources"));
-    m_actionShowResourceEditor->setStatusTip(tr("Display the resource editor dialog"));
-    m_actionShowResourceEditor->setWhatsThis(tr("Display the resource editor dialog"));
-    connect(m_actionShowResourceEditor, SIGNAL(triggered()), this, SLOT(slotActionShowResourceEditorActivated()));
-    m_actionShowResourceEditor->setEnabled(false);
-}
-
-void FormWindowManager::slotActionShowResourceEditorActivated()
-{
-    ResourceEditor *editor = new ResourceEditor(m_activeFormWindow, 0);
-    editor->show();
-    editor->exec();
-    delete editor;
 }
 
 void FormWindowManager::slotActionCutActivated()
@@ -549,7 +534,6 @@ void FormWindowManager::slotUpdateActions()
     m_actionPaste->setEnabled(pasteAvailable);
 
     m_actionSelectAll->setEnabled(m_activeFormWindow != 0);
-    m_actionShowResourceEditor->setEnabled(m_activeFormWindow != 0);
 
     m_actionAdjustSize->setEnabled(unlaidoutWidgetCount > 0);
 

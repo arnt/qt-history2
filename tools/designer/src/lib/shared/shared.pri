@@ -6,7 +6,6 @@ UI_DIR = $$PWD
 # Input
 FORMS += \
     $$PWD/promotetocustomwidgetdialog.ui \
-    $$PWD/resourceeditor.ui \
     $$PWD/findicondialog.ui
 
 HEADERS += \
@@ -39,7 +38,6 @@ HEADERS += \
     $$PWD/promotetocustomwidgetdialog.h \
     $$PWD/resourcefile.h \
     $$PWD/iconloader.h \
-    $$PWD/resourceeditor.h \
     $$PWD/findicondialog.h \
     $$PWD/richtexteditor.h
 
@@ -72,7 +70,6 @@ SOURCES += \
     $$PWD/widgetdatabase.cpp \
     $$PWD/promotetocustomwidgetdialog.cpp \
     $$PWD/resourcefile.cpp \
-    $$PWD/resourceeditor.cpp \
     $$PWD/findicondialog.cpp \
     $$PWD/richtexteditor.cpp
 

@@ -25,6 +25,7 @@ LIBS += -L../../lib \
     -lbuddyeditor \
     -ltabordereditor \
     -ltaskmenu \
+    -lresourceeditor \
     -lQtDesigner
 
 RESOURCES += designer.qrc
@@ -43,6 +44,7 @@ HEADERS += \
     qdesigner_propertyeditor.h \
     qdesigner_objectinspector.h \
     qdesigner_actions.h \
+    qdesigner_resourceeditor.h \
     preferenceinterface.h \
     saveformastemplate.h \
     newform.h \
@@ -60,6 +62,7 @@ SOURCES += main.cpp \
     qdesigner_objectinspector.cpp \
     qdesigner_actions.cpp \
     qdesigner_plugins.cpp \
+    qdesigner_resourceeditor.cpp \
     saveformastemplate.cpp \
     newform.cpp \
     qdesigner_signalsloteditor.cpp

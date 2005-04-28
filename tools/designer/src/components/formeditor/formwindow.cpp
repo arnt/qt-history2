@@ -1514,11 +1514,6 @@ QMenu *FormWindow::createPopupMenu(QWidget *w)
 
     menu->addAction(manager->actionBreakLayout());
 
-    if (isFormWindow) {
-        popup->addSeparator();
-        popup->addAction(manager->actionShowResourceEditor());
-    }
-
     return popup;
 }
 

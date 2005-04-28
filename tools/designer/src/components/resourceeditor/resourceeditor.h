@@ -1,11 +1,12 @@
 #ifndef RESOURCEEDITOR_H
 #define RESOURCEEDITOR_H
 
-#include <QtGui/QDialog>
+#include <QtGui/QWidget>
 
-#include "shared_global.h"
+#include "resourceeditor_global.h"
 #include "ui_resourceeditor.h"
 
+class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
 class ResourceModel;
 class QPushButton;
@@ -16,23 +17,27 @@ class QStackedWidget;
 class QString;
 class QTreeView;
 
-class QT_SHARED_EXPORT ResourceEditor : public QDialog, public Ui::ResourceEditor
+namespace qdesigner_internal {
+
+class QT_RESOURCEEDITOR_EXPORT ResourceEditor : public QWidget, public Ui::ResourceEditor
 {
     Q_OBJECT
 
 public:
-    ResourceEditor(QDesignerFormWindowInterface *form, QWidget *parent = 0);
+    ResourceEditor(QDesignerFormEditorInterface *core, QWidget *parent = 0);
 
     QDesignerFormWindowInterface *form() const { return m_form; }
     int qrcCount() const;
-    
-public slots:    
+
+public slots:
     void saveCurrentView();
     void removeCurrentView();
     void reloadCurrentView();
     void newView();
     void openView();
-    
+
+    void setActiveForm(QDesignerFormWindowInterface *form);
+
 private slots:
     void updateQrcPaths();
     void updateQrcStack();
@@ -42,7 +47,7 @@ private slots:
     void deleteItem();
     void setCurrentIndex(int i);
     void addView(const QString &file_name);
-    
+
 private:
     QDesignerFormWindowInterface *m_form;
 
@@ -58,5 +63,7 @@ private:
     void insertEmptyComboItem();
     void removeEmptyComboItem();
 };
+
+} // namespace qdesigner_internal
 
 #endif // RESOURCEEDITOR_H

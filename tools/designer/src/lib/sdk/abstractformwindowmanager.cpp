@@ -145,8 +145,3 @@ QAction *QDesignerFormWindowManagerInterface::actionRedo() const
     return 0;
 }
 
-QAction *QDesignerFormWindowManagerInterface::actionShowResourceEditor()const
-{
-    return 0;
-}
-

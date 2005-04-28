@@ -50,8 +50,6 @@ public:
     virtual QAction *actionBreakLayout() const;
     virtual QAction *actionAdjustSize() const;
 
-    virtual QAction *actionShowResourceEditor()const;
-
     virtual QDesignerFormWindowInterface *activeFormWindow() const;
 
     virtual int formWindowCount() const;

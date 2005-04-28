@@ -21,6 +21,7 @@
 #include "qdesigner_propertyeditor.h"
 #include "qdesigner_objectinspector.h"
 #include "qdesigner_signalsloteditor.h"
+#include "qdesigner_resourceeditor.h"
 
 // components
 #include <formeditor/formeditor.h>
@@ -178,6 +179,7 @@ void QDesignerWorkbench::initialize()
     addToolWindow(new QDesignerObjectInspector(this));
     addToolWindow(new QDesignerPropertyEditor(this));
     addToolWindow(new QDesignerSignalSlotEditor(this));
+    addToolWindow(new QDesignerResourceEditor(this));
 
     m_modeActionGroup = new QActionGroup(this);
     m_modeActionGroup->setExclusive(true);

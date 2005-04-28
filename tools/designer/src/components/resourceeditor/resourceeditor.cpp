@@ -31,6 +31,8 @@
 #define COMBO_NEW_DATA 1
 #define COMBO_OPEN_DATA 2
 
+namespace qdesigner_internal {
+
 /******************************************************************************
 ** QrcItemDelegate
 */
@@ -371,16 +373,17 @@ ResourceModel *ModelCache::model(const QString &file)
 ** ResourceEditor
 */
 
-ResourceEditor::ResourceEditor(QDesignerFormWindowInterface *form, QWidget *parent)
-    : QDialog(parent)
+ResourceEditor::ResourceEditor(QDesignerFormEditorInterface *core, QWidget *parent)
+    : QWidget(parent)
 {
-    setModal(true);
     setupUi(this);
 
-    m_form = form;
+    m_form = 0;
+    setEnabled(false);
 
-    connect(form, SIGNAL(fileNameChanged(QString)),
-            this, SLOT(updateQrcPaths()));
+    connect(core->formWindowManager(),
+            SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface *)),
+            this, SLOT(setActiveForm(QDesignerFormWindowInterface *)));
     connect(m_qrc_combo, SIGNAL(activated(int)),
             this, SLOT(setCurrentIndex(int)));
 
@@ -549,7 +552,9 @@ void ResourceEditor::updateUi()
     m_add_files_button->setEnabled(!prefix.isEmpty());
     m_remove_qrc_button->setEnabled(currentModel() != 0);
 
-    QString name = QFileInfo(m_form->fileName()).fileName();
+    QString name;
+    if (m_form != 0)
+        name = QFileInfo(m_form->fileName()).fileName();
     if (name.isEmpty())
         name = tr("Untitled");
 
@@ -601,9 +606,12 @@ void ResourceEditor::updateQrcStack()
         delete w;
     }
 
-    QStringList qrc_file_list = m_form->resourceFiles();
-    foreach (QString qrc_file, qrc_file_list)
-        addView(qrc_file);
+    QStringList qrc_file_list;
+    if (m_form != 0) {
+        qrc_file_list = m_form->resourceFiles();
+        foreach (QString qrc_file, qrc_file_list)
+            addView(qrc_file);
+    }
 
     m_qrc_combo->addItem(QIcon(), tr("New..."), QVariant(COMBO_NEW_DATA));
     m_qrc_combo->addItem(QIcon(), tr("Open..."), QVariant(COMBO_OPEN_DATA));
@@ -615,7 +623,7 @@ void ResourceEditor::updateQrcStack()
 
 QString ResourceEditor::qrcName(const QString &path) const
 {
-    if (path.isEmpty())
+    if (m_form == 0 || path.isEmpty())
         return tr("Untitled");
     return m_form->absoluteDir().relativeFilePath(path);
 }
@@ -649,7 +657,7 @@ void ResourceEditor::addView(const QString &qrc_file)
 
     setCurrentIndex(idx);
 
-    if (!qrc_file.isEmpty())
+    if (m_form && !qrc_file.isEmpty())
         m_form->addResourceFile(qrc_file);
 
     updateUi();
@@ -668,7 +676,8 @@ void ResourceEditor::saveCurrentView()
         if (file_name.isEmpty())
             return;
         model->setFileName(file_name);
-        m_form->addResourceFile(file_name);
+        if (m_form != 0)
+            m_form->addResourceFile(file_name);
         QString s = QFileInfo(file_name).fileName();
         bool blocked = m_qrc_combo->blockSignals(true);
         m_qrc_combo->setItemText(currentIndex(), s);
@@ -712,7 +721,7 @@ void ResourceEditor::removeCurrentView()
 
     disconnect(model, SIGNAL(dirtyChanged(bool)), this, SLOT(updateUi()));
 
-    if (!file_name.isEmpty())
+    if (m_form != 0 && !file_name.isEmpty())
         m_form->removeResourceFile(file_name);
 
     if (qrcCount() == 0) {
@@ -764,5 +773,28 @@ void ResourceEditor::openView()
 
     addView(file_name);
 }
+
+void ResourceEditor::setActiveForm(QDesignerFormWindowInterface *form)
+{
+    if (form == m_form)
+        return;
+
+    if (m_form != 0) {
+        disconnect(m_form, SIGNAL(fileNameChanged(QString)),
+                    this, SLOT(updateQrcPaths()));
+    }
+
+    m_form = form;
+    updateQrcStack();
+
+    if (m_form != 0) {
+        connect(m_form, SIGNAL(fileNameChanged(QString)),
+                    this, SLOT(updateQrcPaths()));
+    }
+
+    setEnabled(m_form != 0);
+}
+
+} // namespace qdesigner_internal
 
 #include "resourceeditor.moc"
