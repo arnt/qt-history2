@@ -790,40 +790,76 @@ public:
 QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatetcs;
-    if (mimeData->hasImage() && mimeType == "application/x-qt-image")
+    if (mimeData->hasImage() && mimeType == "application/x-qt-image") {
+        QStringList imageFormats = QDragManager::imageWriteMimeFormats();
+        for (int i = 0; i < imageFormats.size(); ++i)
+            formatetcs += setCf(QWindowsMime::registerMimeType(imageFormats.at(i)));
         formatetcs += setCf(CF_DIB);
+    }
     return formatetcs;
 }
 
 QString QWindowsMimeImage::mimeForFormat(const FORMATETC &formatetc) const
 {
-    if (getCf(formatetc) == CF_DIB)
-        return "application/x-qt-image";
+    int  cf = getCf(formatetc);
+    if (cf == CF_DIB) {
+       return "application/x-qt-image";
+    } else {
+        QStringList imageFormats = QDragManager::imageReadMimeFormats();
+        for (int i = 0; i < imageFormats.size(); ++i) {
+            if (cf == QWindowsMime::registerMimeType(imageFormats.at(i)))
+                return imageFormats.at(i);
+        }
+    }
     return QString();
 }
 
 bool QWindowsMimeImage::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
-    return mimeType == "application/x-qt-image" && canGetData(CF_DIB, pDataObj);
+    if (mimeType == "application/x-qt-image" && canGetData(CF_DIB, pDataObj))
+        return true;
+    if (QDragManager::imageReadMimeFormats().contains(mimeType) 
+        && canGetData(QWindowsMime::registerMimeType(mimeType), pDataObj))
+        return true;
+    return false;
 }
 
 bool QWindowsMimeImage::canConvertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData) const
 {
-    return getCf(formatetc) == CF_DIB && mimeData->hasImage();
+    int cf = getCf(formatetc); 
+    if (cf == CF_DIB && mimeData->hasImage())
+        return true;
+    QStringList imageFormats = QDragManager::imageWriteMimeFormats();
+    for (int i = 0; i < imageFormats.size(); ++i) {
+        if (cf == QWindowsMime::registerMimeType(imageFormats.at(i))
+            && (mimeData->hasImage() || mimeData->hasFormat(imageFormats.at(i))))
+                return true;
+    }
+    return false;
 }
 
 bool QWindowsMimeImage::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
 {
-    if (!canConvertFromMime(formatetc, mimeData))
-        return false;
-    QImage img = qvariant_cast<QImage>(mimeData->imageData());
-    if (img.isNull())
-        return false;
-    QByteArray ba;
-    QDataStream s(&ba, QIODevice::WriteOnly);
-    s.setByteOrder(QDataStream::LittleEndian);// Intel byte order ####
-    if (qt_write_dib(s, img))
-        return setData(ba, pmedium);
+    int cf = getCf(formatetc); 
+    if (cf == CF_DIB && mimeData->hasImage()) {
+        QImage img = qvariant_cast<QImage>(mimeData->imageData());
+        if (img.isNull())
+            return false;
+        QByteArray ba;
+        QDataStream s(&ba, QIODevice::WriteOnly);
+        s.setByteOrder(QDataStream::LittleEndian);// Intel byte order ####
+        if (qt_write_dib(s, img))
+            return setData(ba, pmedium);
+    }
+    QStringList imageFormats = QDragManager::imageWriteMimeFormats();
+    for (int i = 0; i < imageFormats.size(); ++i) {
+        if (cf == QWindowsMime::registerMimeType(imageFormats.at(i))) {
+            if (mimeData->hasFormat(imageFormats.at(i)))
+                return setData(mimeData->data(imageFormats.at(i)), pmedium);
+            else 
+                return setData(QDragManager::imageMimeData(imageFormats.at(i), mimeData), pmedium);
+        }
+    }
     return false;
 }
 
@@ -831,7 +867,7 @@ QVariant QWindowsMimeImage::convertToMime(const QString &mimeType, IDataObject *
 {
     Q_UNUSED(preferredType);
     QVariant result;
-    if (canConvertToMime(mimeType, pDataObj)) {
+    if (mimeType == "application/x-qt-image" && canGetData(CF_DIB, pDataObj)) {
         QImage img;
         QByteArray data = getData(CF_DIB, pDataObj);
         QDataStream s(&data, QIODevice::ReadOnly);
@@ -839,6 +875,9 @@ QVariant QWindowsMimeImage::convertToMime(const QString &mimeType, IDataObject *
         if (qt_read_dib(s, img)) { // ##### encaps "-14"
             result = img;
         }
+    } else {
+        if (QDragManager::imageReadMimeFormats().contains(mimeType)) 
+            result = getData(QWindowsMime::registerMimeType(mimeType), pDataObj);
     }
     // Failed
     return result;

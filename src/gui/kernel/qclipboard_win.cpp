@@ -25,20 +25,20 @@
 #include "qdnd_p.h"
 
 
-class QClipboardWatcher : public QMimeData {
+class QClipboardWatcher : public QInternalMimeData {
 public:
     QClipboardWatcher()
-        : QMimeData()
+        : QInternalMimeData()
     {
     }
 
-    bool hasFormat(const QString &mimetype) const;
-    QStringList formats() const;
-    QVariant retrieveData(const QString &mimetype, QVariant::Type preferredType) const;
+    bool hasFormat_sys(const QString &mimetype) const;
+    QStringList formats_sys() const;
+    QVariant retrieveData_sys(const QString &mimetype, QVariant::Type preferredType) const;
 };
 
 
-bool QClipboardWatcher::hasFormat(const QString &mime) const
+bool QClipboardWatcher::hasFormat_sys(const QString &mime) const
 {
     IDataObject * pDataObj = 0;
 
@@ -52,7 +52,7 @@ bool QClipboardWatcher::hasFormat(const QString &mime) const
     return has;
 }
 
-QStringList QClipboardWatcher::formats() const
+QStringList QClipboardWatcher::formats_sys() const
 {
     QStringList fmts;
     IDataObject * pDataObj = 0;
@@ -67,7 +67,7 @@ QStringList QClipboardWatcher::formats() const
     return fmts;
 }
 
-QVariant QClipboardWatcher::retrieveData(const QString &mimeType, QVariant::Type type) const
+QVariant QClipboardWatcher::retrieveData_sys(const QString &mimeType, QVariant::Type type) const
 {
     QVariant result;
     IDataObject * pDataObj = 0;
