@@ -934,10 +934,10 @@ QTreeWidgetItem::QTreeWidgetItem(int type)
 }
 
 /*!
-    \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view)
+    \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, int type)
 
-    Constructs a tree widget item and appends it into the given tree
-    \a view.
+    Constructs a tree widget item of the specified \a type and appends it
+    to the items in the given \a parent.
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
@@ -953,10 +953,10 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
 }
 
 /*!
-  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *preceding)
+  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, QTreeWidgetItem *preceding, int type)
 
-  Constructs a tree widget item and inserts it into the given
-  tree \a view after the \a preceding item.
+  Constructs a tree widget item of the specified \a type and inserts it into
+  the given \a parent after the \a preceding item.
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int type)
@@ -993,10 +993,10 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, int type)
 }
 
 /*!
-  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *preceding)
+  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *preceding, int type)
 
-  Constructs a tree widget item with the given \a parent that is inserted
-  into the parent's list of child items after the \a preceding child.
+  Constructs a tree widget item of the specified \a type that is inserted
+  into the \a parent after the \a preceding child item.
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after, int type)
@@ -1995,7 +1995,7 @@ QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 
 /*!
     Handles the \a data supplied by a drag and drop operation that ended with
-    the given \a action in the \a  inde in \a the given\a parent item.
+    the given \a action in the \a index in the given \a parent item.
 
     \sa supportedDropActions()
 */

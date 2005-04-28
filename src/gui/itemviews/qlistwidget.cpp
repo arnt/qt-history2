@@ -335,9 +335,10 @@ Qt::DropActions QListModel::supportedDropActions() const
 */
 
 /*!
-    \fn QListWidgetItem::QListWidgetItem(QListWidget *view)
+    \fn QListWidgetItem::QListWidgetItem(QListWidget *parent, int type)
 
-    Constructs an empty list widget item with the given \a view.
+    Constructs an empty list widget item of the specified \a type with the
+    given \a parent.
     If the parent is not specified, the item will need to be inserted into a
     list widget with QListWidget::insertItem().
 */
@@ -355,9 +356,10 @@ QListWidgetItem::QListWidgetItem(QListWidget *view, int type)
 }
 
 /*!
-    \fn QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *parent)
+    \fn QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *parent, int type)
 
-    Constructs an empty list widget item with the given \a text and \a parent.
+    Constructs an empty list widget item of the specified \a type with the
+    given \a text and \a parent.
     If the parent is not specified, the item will need to be inserted into a
     list widget with QListWidget::insertItem().
 */
@@ -459,7 +461,7 @@ void QListWidgetItem::write(QDataStream &out) const
 }
 
 /*!
-  \reimpl
+  \reimp
 */
 void QListWidgetItem::operator=(const QListWidgetItem &other)
 {
