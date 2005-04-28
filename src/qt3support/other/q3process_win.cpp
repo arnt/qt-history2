@@ -233,7 +233,7 @@ bool Q3Process::start( QStringList *env )
 
     // construct the arguments for CreateProcess()
     QString args;
-    QString appName.clear();
+    QString appName;
     QStringList::Iterator it = _arguments.begin();
     args = *it;
     ++it;
