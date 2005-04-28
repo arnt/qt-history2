@@ -911,7 +911,7 @@ QFSFileEnginePrivate::getLink() const
                 hres = ppf->Load((LPOLESTR)file.utf16(), STGM_READ);
                 if(SUCCEEDED(hres)) {        // Resolve the link.
 
-                    hres = psl->Resolve(0, SLR_ANY_MATCH);
+                    hres = psl->Resolve(0, SLR_ANY_MATCH | SLR_NO_UI | SLR_UPDATE);
 
                     if(SUCCEEDED(hres)) {
                         memcpy(szGotPath, (TCHAR*)file.utf16(), (file.length()+1)*sizeof(QChar));
