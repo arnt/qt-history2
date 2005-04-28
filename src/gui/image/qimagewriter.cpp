@@ -217,6 +217,9 @@ QImageWriter::QImageWriter(const QString &fileName, const QByteArray &format)
 */
 QImageWriter::~QImageWriter()
 {
+    if (d->deleteDevice)
+        delete d->device;
+    delete d->handler;
     delete d;
 }
 
