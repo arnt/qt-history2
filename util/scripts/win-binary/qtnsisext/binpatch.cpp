@@ -75,7 +75,7 @@ bool patchBuffer(char *inbuffer, const char *oldstr, const char *newstr, size_t 
                 
                 long oldsize = -1;
                 if (useLength) { //VC60
-                    oldsize = *(inbuffer-1);
+                    oldsize = (unsigned char)(*(inbuffer-1));
 
                     // vc60 pdb files sometimes uses 0A, then it should be null terminated
                     if (oldsize < (long)oldlen) {
