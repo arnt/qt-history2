@@ -294,7 +294,7 @@ public:
 
     void fillRect(const QRectF &, const QBrush &);
     inline void fillRect(int x, int y, int w, int h, const QBrush &);
-    inline void fillRect(const QRect &, const QBrush &);
+    void fillRect(const QRect &, const QBrush &);
 
     void eraseRect(const QRectF &);
     inline void eraseRect(int x, int y, int w, int h);
@@ -611,12 +611,7 @@ inline void QPainter::eraseRect(int x, int y, int w, int h)
 
 inline void QPainter::fillRect(int x, int y, int w,  int h, const QBrush &b)
 {
-    fillRect(QRectF(x, y, w, h), b);
-}
-
-inline void QPainter::fillRect(const QRect &rect, const QBrush &b)
-{
-    fillRect(QRectF(rect), b);
+    fillRect(QRect(x, y, w, h), b);
 }
 
 inline void QPainter::setBrushOrigin(int x, int y)

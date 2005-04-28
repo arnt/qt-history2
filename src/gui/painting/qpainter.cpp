@@ -3764,6 +3764,20 @@ void QPainter::fillRect(const QRectF &r, const QBrush &brush)
         setPen(oldPen);
 }
 
+void QPainter::fillRect(const QRect &r, const QBrush &brush)
+{
+    QPen oldPen   = pen();
+    bool swap = oldPen.style() != Qt::NoPen;
+    if (swap)
+        setPen(Qt::NoPen);
+    QBrush oldBrush = this->brush();
+    setBrush(brush);
+    drawRect(r);
+    setBrush(oldBrush);
+    if (swap)
+        setPen(oldPen);
+}
+
 /*!
   \fn void QPainter::fillRect(const QRect &rect, const QBrush &brush)
 

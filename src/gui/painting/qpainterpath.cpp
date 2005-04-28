@@ -506,7 +506,7 @@ void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength
         || qIsNan(startAngle) || qIsNan(sweepLength))
         qWarning("QPainterPath::arcTo(): adding arc where a parameter is nan, results are undefined.");
 #endif
-    if (rect.isEmpty())
+    if (rect.isNull())
         return;
 
     ensureData();
@@ -598,7 +598,7 @@ void QPainterPath::addRect(const QRectF &r)
     if (qIsNan(r.x()) || qIsNan(r.y()) || qIsNan(r.width()) || qIsNan(r.height()))
         qWarning("QPainterPath::addRect(): adding rect where a parameter is nan, results are undefined.");
 #endif
-    if (r.isEmpty())
+    if (r.isNull())
         return;
 
     ensureData();
@@ -651,7 +651,7 @@ void QPainterPath::addEllipse(const QRectF &boundingRect)
         || qIsNan(boundingRect.width()) || qIsNan(boundingRect.height()))
         qWarning("QPainterPath::addEllipse(): adding ellipse where a parameter is nan, results are undefined.");
 #endif
-    if (boundingRect.isEmpty())
+    if (boundingRect.isNull())
         return;
 
     ensureData();

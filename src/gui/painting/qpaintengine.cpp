@@ -723,10 +723,10 @@ void QPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
     if (hasFeature(PainterPaths)) {
         for (int i=0; i<rectCount; ++i) {
-			if (rects[i].isEmpty())
-				continue;
             QPainterPath path;
             path.addRect(rects[i]);
+            if (path.isEmpty())
+                continue;
             drawPath(path);
         }
     } else {
