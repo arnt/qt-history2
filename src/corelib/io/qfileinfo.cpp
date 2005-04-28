@@ -56,7 +56,7 @@ public:
         mutable QHash<int, QString> fileNames;
 
         mutable uint cache_enabled : 1;
-        mutable uint fileSize;
+        mutable qint64 fileSize;
         mutable QDateTime fileTimes[3];
         mutable uint fileFlags;
         mutable uchar cachedFlags;
