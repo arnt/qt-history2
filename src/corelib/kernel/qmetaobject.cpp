@@ -1688,6 +1688,8 @@ bool QMetaProperty::isWritable() const
 
 
 /*!
+    \fn bool QMetaProperty::isDesignable(const QObject *object) const
+
     Returns true if this property is designable for the given \a object;
     otherwise returns false.
 
@@ -1712,6 +1714,8 @@ bool QMetaProperty::isDesignable(const QObject *obj) const
 }
 
 /*!
+    \fn bool QMetaProperty::isScriptable(const QObject *object) const
+
     Returns true if the property is scriptable for the given \a object;
     otherwise returns false.
 
@@ -1734,6 +1738,8 @@ bool QMetaProperty::isScriptable(const QObject *obj) const
 }
 
 /*!
+    \fn bool QMetaProperty::isStored(const QObject *object) const
+
     Returns true if the property is stored for \a object; otherwise returns
     false.
 
@@ -1756,6 +1762,8 @@ bool QMetaProperty::isStored(const QObject *obj) const
 }
 
 /*!
+    \fn bool QMetaProperty::isEditable(const QObject *object) const
+
     Returns true if the property is editable for the given \a object;
     otherwise returns false.
 
