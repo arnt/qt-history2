@@ -317,10 +317,7 @@ void QBuffer::close()
     QIODevice::close();
 
     Q_D(QBuffer);
-    if(d->ioIndex == qint64(-1))
-        return;
     d->ioIndex = qint64(-1);
-    return;
 }
 
 /*!
@@ -378,8 +375,7 @@ bool QBuffer::atEnd() const
         return false;
     }
 
-    QBuffer *that = const_cast<QBuffer *>(this);
-    return that->d_func()->ioIndex == qint64(that->d_func()->buf->size());
+    return d_func()->ioIndex == qint64(d_func()->buf->size());
 }
 
 /*!
