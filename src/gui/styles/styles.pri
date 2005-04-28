@@ -34,6 +34,8 @@ contains( styles, mac ) {
 		styles += windows
 		DEFINES+= QT_STYLE_WINDOWS
 	}
+} else {
+	DEFINES += QT_NO_STYLE_MAC
 }
 
 contains( styles, cde ) {
@@ -45,36 +47,8 @@ contains( styles, cde ) {
 		styles += motif
 		DEFINES+= QT_STYLE_MOTIF
 	}
-}
-
-contains( styles, motifplus ) {
-	HEADERS += styles/qmotifplusstyle.h
-	SOURCES += styles/qmotifplusstyle.cpp
-	!contains( styles, motif ) {
-		message( motifplus requires motif )
-		styles += motif
-		DEFINES+= QT_STYLE_MOTIF
-	}
-}
-
-contains( styles, interlace ) {
-	HEADERS += styles/qinterlacestyle.h
-	SOURCES += styles/qinterlacestyle.cpp
-	!contains( styles, windows ) {
-		message( interlace requires windows )
-		styles += windows
-		DEFINES+= QT_STYLE_WINDOWS
-	}
-}
-
-contains( styles, platinum ) {
-	HEADERS += styles/qplatinumstyle.h
-	SOURCES += styles/qplatinumstyle.cpp
-	!contains( styles, windows ) {
-		message( platinum requires windows )
-		styles += windows
-		DEFINES+= QT_STYLE_WINDOWS
-	}
+} else {
+	DEFINES += QT_NO_STYLE_CDE
 }
 
 contains( styles, windowsxp ) {
@@ -85,38 +59,8 @@ contains( styles, windowsxp ) {
 		styles += windows
 		DEFINES+= QT_STYLE_WINDOWS
 	}
-}
-
-contains( styles, sgi ) {
-	HEADERS += styles/qsgistyle.h
-	SOURCES += styles/qsgistyle.cpp
-	!contains( styles, motif ) {
-		message( sgi requires motif )
-		styles += motif
-		DEFINES+= QT_STYLE_MOTIF
-	}
-}
-
-contains( styles, compact ) {
-	HEADERS += styles/qcompactstyle.h
-	SOURCES += styles/qcompactstyle.cpp
-	!contains( styles, windows ) {
-		message( compact requires windows )
-		styles += windows
-		DEFINES+= QT_STYLE_WINDOWS
-	}
-}
-
-wince-*:styles += pocketpc
-contains( styles, pocketpc ) {
-	HEADERS += styles/qpocketpcstyle_wce.h
-	SOURCES += styles/qpocketpcstyle_wce.cpp
-
-	!contains( styles, windows ) {
-		message( pocketpc requires windows )
-		styles += windows
-		DEFINES+= QT_STYLE_WINDOWS
-	}
+} else {
+	DEFINES += QT_NO_STYLE_WINDOWSXP
 }
 
 contains( styles, plastique ) {
@@ -127,14 +71,20 @@ contains( styles, plastique ) {
 		styles += windows
 		DEFINES+= QT_STYLE_WINDOWS
 	}
+} else {
+	DEFINES += QT_NO_STYLE_PLASTIQUE
 }
 				
 contains( styles, windows ) {
 	HEADERS += styles/qwindowsstyle.h
 	SOURCES += styles/qwindowsstyle.cpp
+} else {
+	DEFINES += QT_NO_STYLE_WINDOWS
 }
 
 contains( styles, motif ) {
 	HEADERS += styles/qmotifstyle.h
 	SOURCES += styles/qmotifstyle.cpp
+} else {
+	DEFINES += QT_NO_STYLE_MOTIF
 }

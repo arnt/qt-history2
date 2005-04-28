@@ -20,24 +20,11 @@
 #include "qwindowsstyle.h"
 #include "qmotifstyle.h"
 #include "qcdestyle.h"
-#ifndef QT_NO_STYLE_MOTIFPLUS
-#include "qmotifplusstyle.h"
-#endif
 #ifndef QT_NO_STYLE_PLASTIQUE
 #include "qplastiquestyle.h"
 #endif
-#ifndef QT_NO_STYLE_PLATINUM
-#include "qplatinumstyle.h"
-#endif
-#ifndef QT_NO_STYLE_SGI
-#include "qsgistyle.h"
-#endif
-#include "qcompactstyle.h"
 #ifndef QT_NO_STYLE_WINDOWSXP
 #include "qwindowsxpstyle.h"
-#endif
-#ifndef QT_NO_STYLE_POCKETPC
-#include "qpocketpcstyle_wce.h"
 #endif
 
 #if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
@@ -99,34 +86,9 @@ QStyle *QStyleFactory::create(const QString& key)
         ret = new QCDEStyle;
     else
 #endif
-#ifndef QT_NO_STYLE_MOTIFPLUS
-    if (style == "motifplus")
-        ret = new QMotifPlusStyle;
-    else
-#endif
 #ifndef QT_NO_STYLE_PLASTIQUE
     if (style == "plastique")
         ret = new QPlastiqueStyle;
-    else
-#endif
-#ifndef QT_NO_STYLE_PLATINUM
-    if (style == "platinum")
-        ret = new QPlatinumStyle;
-    else
-#endif
-#ifndef QT_NO_STYLE_SGI
-    if (style == "sgi")
-        ret = new QSGIStyle;
-    else
-#endif
-#ifndef QT_NO_STYLE_COMPACT
-    if (style == "compact")
-        ret = new QCompactStyle;
-    else
-#endif
-#ifndef QT_NO_STYLE_POCKETPC
-    if (style == "pocketpc")
-        ret = new QPocketPCStyle;
     else
 #endif
 #if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
@@ -174,25 +136,9 @@ QStringList QStyleFactory::keys()
     if (!list.contains("CDE"))
         list << "CDE";
 #endif
-#ifndef QT_NO_STYLE_MOTIFPLUS
-    if (!list.contains("MotifPlus"))
-        list << "MotifPlus";
-#endif
 #ifndef QT_NO_STYLE_PLASTIQUE
     if (!list.contains("Plastique"))
         list << "Plastique";
-#endif
-#ifndef QT_NO_STYLE_PLATINUM
-    if (!list.contains("Platinum"))
-        list << "Platinum";
-#endif
-#ifndef QT_NO_STYLE_SGI
-    if (!list.contains("SGI"))
-        list << "SGI";
-#endif
-#ifndef QT_NO_STYLE_COMPACT
-    if (!list.contains("Compact"))
-        list << "Compact";
 #endif
 #if !defined(QT_NO_STYLE_MAC) && defined(Q_WS_MAC)
     QString mstyle = "Macintosh";

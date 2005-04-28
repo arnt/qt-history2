@@ -213,17 +213,10 @@ else
     exit 1
 fi
 
-QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif motifplus plastique platinum pocketpc sgi windows windowsxp\""
+QMAKE_VARS="$QMAKE_VARS \"styles += cde mac motif plastique windows\""
+
 QMAKE_VARS="$QMAKE_VARS \"decorations += default windows styled\""
 QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\"" # adjust below as well
-QMAKE_VARS="$QMAKE_VARS \"styles -= pocketpc\""  # experimental
-QMAKE_VARS="$QMAKE_VARS \"styles -= windowsxp\"" # only on Windows
-
-# Temporary until all the styles are ported over..
-QMAKE_VARS="$QMAKE_VARS \"styles -= motifplus\""
-QMAKE_VARS="$QMAKE_VARS \"styles -= platinum\""
-QMAKE_VARS="$QMAKE_VARS \"styles -= sgi\""
-QMAKE_VARS="$QMAKE_VARS \"styles -= compact\""
 
 
 #-------------------------------------------------------------------------------
@@ -269,7 +262,6 @@ CFG_KBD_OFF=
 CFG_MOUSE_AVAILABLE="pc bus linuxtp yopy vr41xx"
 CFG_MOUSE_ON="pc"   #default, see QMAKE_VARS above
 CFG_MOUSE_OFF=
-CFG_STYLE_AVAILABLE=
 CFG_USE_GNUMAKE=no
 CFG_IM=yes
 CFG_DECORATION_AVAILABLE=
@@ -328,8 +320,6 @@ QT_INSTALL_SETTINGS=
 
 CFG_SQL_AVAILABLE=`find $relpath/src/plugins/sqldrivers/* -prune -type d -exec basename {} \;`
 CFG_SQL_AVAILABLE=`echo $CFG_SQL_AVAILABLE`               # normalize whitespace
-CFG_STYLE_AVAILABLE=`find $relpath/src/plugins/styles/* -prune -type d -exec basename {} \;`
-CFG_STYLE_AVAILABLE=`echo $CFG_STYLE_AVAILABLE`           # normalize whitespace
 CFG_DECORATION_AVAILABLE=""
 if [ -d "$relpath/src/plugins/decorations" ]; then
     CFG_DECORATION_AVAILABLE=`find $relpath/src/plugins/decorations/* -prune -type d -exec basename {} \;`
@@ -903,7 +893,7 @@ while [ "$#" -gt 0 ]; do
 	    UNKNOWN_OPT=yes
 	fi
 	;;
-    imgfmt-*|style-*|sql-*|gfx-*|decoration-*|kbd-*|mouse-*)
+    sql-*|gfx-*|decoration-*|kbd-*|mouse-*)
 	# if Qt style options were used, $VAL can be "no", "qt", or "plugin"
 	# if autoconf style options were used, $VAL can be "yes" or "no"
 	[ "$VAL" = "yes" ] && VAL=qt
@@ -916,89 +906,51 @@ while [ "$#" -gt 0 ]; do
 	VAL=`echo $VAR | sed "s,^[^-]*-\([^-]*\).*,\1,"`
 	VAR=`echo $VAR | sed "s,^\([^-]*\).*,\1,"`
 	ERROR=no
-	# now $OPT is "no", "qt", or "plugin"
-	if [ "$VAR" = "imgfmt" ]; then
-	    [ "$OPT" = "qt" ] && OPT=yes
-	    # now $OPT is "no", "yes", or "plugin"
-	    if [ "$VAL" = "gif" ]; then
-		if [ "$OPT" = "yes" ]; then
-		    echo "GIF is only available as a plugin"
-		    CFG_GIF=plugin
-		else
-		    CFG_GIF=$OPT
+        if [ "$VAR" = "decoration" ]; then
+	    ERROR=yes
+	    for d in $CFG_DECORATION_AVAILABLE; do
+		if [ "$VAL" = "$d" ]; then
+		    ERROR=no
+		    break
 		fi
-	    fi
-	    if [ "$VAL" = "jpeg" ]; then
-		if [ "$OPT" = "yes" ]; then
-		    echo "JPEG is only available as a plugin"
-		    CFG_JPEG=plugin
-		else
-		    CFG_JPEG=$OPT
+	    done
+	elif [ "$VAR" = "sql" ]; then
+	    ERROR=yes
+	    for d in $CFG_SQL_AVAILABLE; do
+	        if [ "$VAL" = "$d" ]; then
+		    ERROR=no
+		    break
 		fi
-	    fi
-	    if [ "$VAL" = "png" ]; then
-	        if [ "$OPT" = "plugin" ]; then
-		    echo "PNG is only available as a built-in"
-		    CFG_PNG=yes
-		else
-		    CFG_PNG=$OPT
-		fi
-	    fi
-	else
-	    if [ "$VAR" = "style" ]; then
-		ERROR=yes
-		for d in $CFG_STYLE_AVAILABLE; do
-		    if [ "$VAL" = "$d" ]; then
-			ERROR=no
-			break
-		    fi
-		done
-	    elif [ "$VAR" = "decoration" ]; then
-		ERROR=yes
-		for d in $CFG_DECORATION_AVAILABLE; do
-		    if [ "$VAL" = "$d" ]; then
-			ERROR=no
-			break
-		    fi
-		done
-	    elif [ "$VAR" = "sql" ]; then
-		ERROR=yes
-		for d in $CFG_SQL_AVAILABLE; do
-		    if [ "$VAL" = "$d" ]; then
-			ERROR=no
-			break
-		    fi
-		done
-	    fi
-	    if [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
-		if [ "$OPT" = "plugin" ]; then
-		    [ "$VAR" = "style" -o  "$VAR" = "decoration" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
-		    [ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"` && CFG_DECORATION_PLUGIN="$CFG_DECORATION_PLUGIN ${VAL}"
-		    VAR="${VAR}-${OPT}"
-		else
-		    if [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "mouse" ]; then
-                        [ "$VAR" = "sql" ] && CFG_SQL_ON="$CFG_SQL_ON $VAL"
-                        [ "$VAR" = "gfx" ] && CFG_GFX_ON="$CFG_GFX_ON $VAL"
-                        [ "$VAR" = "kbd" ] && CFG_KBD_ON="$CFG_KBD_ON $VAL"
-                        [ "$VAR" = "mouse" ] && CFG_MOUSE_ON="$CFG_MOUSE_ON $VAL"
-                        VAR="${VAR}-driver"
-                    fi
-		fi
-		QMAKE_VARS="$QMAKE_VARS \"${VAR}s += $VAL\""
-	    elif [ "$OPT" = "no" ]; then
-		PLUG_VAR="${VAR}-plugin"
+	    done
+	fi
+	if [ "$OPT" = "plugin" ] || [ "$OPT" = "qt" ]; then
+	    if [ "$OPT" = "plugin" ]; then
+		[ "$VAR" = "decoration" ] && QMAKE_VARS="$QMAKE_VARS \"${VAR}s -= $VAL\""
+		[ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"` && CFG_DECORATION_PLUGIN="$CFG_DECORATION_PLUGIN ${VAL}"
+		VAR="${VAR}-${OPT}"
+	    else
 		if [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "mouse" ]; then
-		    IN_VAR="${VAR}-driver"
-		else
-		    IN_VAR="${VAR}"
-		fi
-	        [ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"`
-                [ "$VAR" = "sql" ] && CFG_SQL_ON=`echo "${CFG_SQL_ON} " | sed "s,${VAL} ,,g"`
-                [ "$VAR" = "gfx" ] && CFG_GFX_ON=`echo "${CFG_GFX_ON} " | sed "s,${VAL} ,,g"`
-                [ "$VAR" = "kbd" ] && CFG_KBD_ON=`echo "${CFG_KBD_ON} " | sed "s,${VAL} ,,g"`
-                [ "$VAR" = "mouse" ] && CFG_MOUSE_ON=`echo "${CFG_MOUSE_ON} " | sed "s,${VAL} ,,g"`
-		QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
+                    [ "$VAR" = "sql" ] && CFG_SQL_ON="$CFG_SQL_ON $VAL"
+                    [ "$VAR" = "gfx" ] && CFG_GFX_ON="$CFG_GFX_ON $VAL"
+                    [ "$VAR" = "kbd" ] && CFG_KBD_ON="$CFG_KBD_ON $VAL"
+                    [ "$VAR" = "mouse" ] && CFG_MOUSE_ON="$CFG_MOUSE_ON $VAL"
+                    VAR="${VAR}-driver"
+                fi
 	    fi
+	    QMAKE_VARS="$QMAKE_VARS \"${VAR}s += $VAL\""
+	elif [ "$OPT" = "no" ]; then
+	    PLUG_VAR="${VAR}-plugin"
+	    if [ "$VAR" = "sql" ] || [ "$VAR" = "gfx" ] || [ "$VAR" = "kbd" ] || [ "$VAR" = "mouse" ]; then
+		IN_VAR="${VAR}-driver"
+	    else
+		IN_VAR="${VAR}"
+	    fi
+	    [ "$VAR" = "decoration" ] && CFG_DECORATION_ON=`echo "${CFG_DECORATION_ON} " | sed "s,${VAL} ,,g"`
+            [ "$VAR" = "sql" ] && CFG_SQL_ON=`echo "${CFG_SQL_ON} " | sed "s,${VAL} ,,g"`
+            [ "$VAR" = "gfx" ] && CFG_GFX_ON=`echo "${CFG_GFX_ON} " | sed "s,${VAL} ,,g"`
+            [ "$VAR" = "kbd" ] && CFG_KBD_ON=`echo "${CFG_KBD_ON} " | sed "s,${VAL} ,,g"`
+            [ "$VAR" = "mouse" ] && CFG_MOUSE_ON=`echo "${CFG_MOUSE_ON} " | sed "s,${VAL} ,,g"`
+	    QMAKE_VARS="$QMAKE_VARS \"${IN_VAR}s -= $VAL\" \"${PLUG_VAR}s -= $VAL\""
 	fi
         if [ "$ERROR" = "yes" ]; then
 	   echo "$CURRENT_OPT: unknown argument"
@@ -2165,15 +2117,6 @@ fi
                             By default none of the SQL drivers are built,
 			    even if they are auto-detected.
 
-    -qt-style-<style> ..... Enable a GUI <style> in the Qt Library, by default
-                            all available styles are on.
-    -plugin-style-<style> . Enable GUI <style> as a plugin to be linked to
-                            at run time.
-    -no-style-<style> ..... Disable GUI <style> entirely.
-
-                            Possible values for <style>:
-                            [ $CFG_STYLE_AVAILABLE ]
-
  $NSN  -no-nis ............... Do not compile NIS support.
  $NSY  -nis .................. Compile NIS support.
 
@@ -3322,31 +3265,6 @@ fi
 $unixtests/ptrsize.test $XQMAKESPEC $OPT_VERBOSE $relpath $outpath
 echo "#define QT_POINTER_SIZE $?" >>$outpath/src/corelib/global/qconfig.h.new
 echo "" >>$outpath/src/corelib/global/qconfig.h.new
-
-## find excluded styles and add this to $QCONFIG_FLAGS
-VSTYLE=no
-VNO=no
-for QMVAR in $QMAKE_VARS; do
-    STRIPPED=`echo $QMVAR | sed 's,^",,' | sed 's,"$,,'`
-    if [ "$VSTYLE" = "yes" ]; then
-        if [ "$VNO" = "yes" ]; then
-            NOSTYLE=`echo $STRIPPED | tr '[:lower:]' '[:upper:]'`
-            QCONFIG_FLAGS="$QCONFIG_FLAGS QT_NO_STYLE_$NOSTYLE"
-            VSTYLE=no
-            VNO=no
-        else
-            if [ "$STRIPPED" = "-=" ]; then
-                VNO=yes
-            else
-                VSTYLE=no
-            fi
-        fi
-    else
-        if [ "$STRIPPED" = "styles" ]; then
-            VSTYLE=yes
-        fi
-    fi
-done
 
 # Embedded compile time options
 if [ "$PLATFORM_QWS" = "yes" ]; then
