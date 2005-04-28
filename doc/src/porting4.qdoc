@@ -2213,12 +2213,17 @@
     \section1 QPopupMenu
 
     ###
+\endomit
 
     \section1 QPrinter
 
-    page setup / print setup -> Use QPrintDialog, QPageSetupDialog
-    Compat functions: margins
-    Killed -> setMargins
+    The QPrinter class now expects printing to be set up from a
+    QPrintDialog.
+
+    The \c margins() and \c setMargins() functions are only available as
+    compatibility functions.
+\omit
+ page setup / , QPageSetupDialog
 \endomit
 
     \section1 QProcess
