@@ -13,6 +13,7 @@
 
 #include "qplatformdefs.h"
 
+#include "qbitmap.h"
 #include "qdrag.h"
 #include "qpixmap.h"
 #include "qevent.h"
@@ -360,7 +361,7 @@ QStringList QDragManager::imageReadMimeFormats()
         format += QString::fromLatin1(imageFormats.at(i).toLower());
         formats.append(format);
     }
-    
+
     //put png at the front because it is best
     int pngIndex = formats.indexOf(QLatin1String("image/png"));
     if (pngIndex != -1 && pngIndex != 0)
@@ -368,7 +369,7 @@ QStringList QDragManager::imageReadMimeFormats()
 
     return formats;
 }
-    
+
 
 QStringList QDragManager::imageWriteMimeFormats()
 {
@@ -379,7 +380,7 @@ QStringList QDragManager::imageWriteMimeFormats()
         format += QString::fromLatin1(imageFormats.at(i).toLower());
         formats.append(format);
     }
-    
+
     //put png at the front because it is best
     int pngIndex = formats.indexOf(QLatin1String("image/png"));
     if (pngIndex != -1 && pngIndex != 0)
