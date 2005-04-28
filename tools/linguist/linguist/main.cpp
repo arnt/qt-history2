@@ -37,7 +37,7 @@ int main(int argc, char **argv)
 
     app.installTranslator(&translator);
 
-    app.setOrganizationDomain("Trolltech");
+    app.setOrganizationName("Trolltech");
     app.setApplicationName("Linguist");
     QString keybase("4.0/");
     QSettings config;
@@ -59,7 +59,7 @@ int main(int argc, char **argv)
         tw->showMaximized();
     else
         tw->show();
-    
+
     if (splash)
         splash->finish(tw);
 
