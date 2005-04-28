@@ -304,7 +304,7 @@ void WidgetFactory::initialize(QObject *object) const
         sheet->setChanged(o, true);
 
     if (QWidget *widget = qobject_cast<QWidget*>(object)) {
-        QSize sz = widget->minimumSize();
+        QSize sz = widget->sizeHint();
         if (sz.width() <= 0 && sz.height() <= 0)
             widget->setMinimumSize(QSize(16, 16));
     }
