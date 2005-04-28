@@ -391,7 +391,7 @@ void QSqlRecord::setGenerated(int index, bool generated)
     if (!d->contains(index))
         return;
     detach();
-    d->fields[index].setGenerated(!generated);
+    d->fields[index].setGenerated(generated);
 }
 
 /*!
@@ -462,7 +462,7 @@ bool QSqlRecord::isGenerated(const QString& name) const
 */
 bool QSqlRecord::isGenerated(int index) const
 {
-    return d->fields.value(index).isGenerated() != 1;
+    return d->fields.value(index).isGenerated();
 }
 
 #ifdef QT3_SUPPORT

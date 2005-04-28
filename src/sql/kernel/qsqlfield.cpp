@@ -21,7 +21,7 @@ public:
     QSqlFieldPrivate(const QString &name,
               QVariant::Type type) :
         nm(name), ro(false), type(type), req(QSqlField::Unknown),
-        len(-1), prec(-1), tp(-1), gen(false), autoval(false)
+        len(-1), prec(-1), tp(-1), gen(true), autoval(false)
     {
         ref = 1;
     }
@@ -253,7 +253,7 @@ void QSqlField::setSqlType(int type)
 }
 
 /*!
-    Sets the generated state. If \a gen is true, no SQL will
+    Sets the generated state. If \a gen is false, no SQL will
     be generated for this field; otherwise, Qt classes such as
     QSqlQueryModel and QSqlTableModel will generate SQL for this
     field.

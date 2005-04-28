@@ -444,8 +444,8 @@ bool QSqlQueryModel::insertColumns(int column, int count, const QModelIndex &par
     for (int c = 0; c < count; ++c) {
         QSqlField field;
         field.setReadOnly(true);
+        field.setGenerated(false);
         d->rec.insert(column, field);
-        d->rec.setGenerated(column, false);
         if (d->colOffsets.size() < d->rec.count()) {
             int nVal = d->colOffsets.isEmpty() ? 0 : d->colOffsets[d->colOffsets.size() - 1];
             d->colOffsets.append(nVal);
