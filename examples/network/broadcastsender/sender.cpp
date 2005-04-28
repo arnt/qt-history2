@@ -6,10 +6,9 @@
 Sender::Sender(QWidget *parent)
     : QDialog(parent)
 {
-    statusLabel = new QLabel(tr("Ready to broadcast datagrams on port 45454"),
-                             this);
-    startButton = new QPushButton(tr("&Start"), this);
-    quitButton = new QPushButton(tr("&Quit"), this);
+    statusLabel = new QLabel(tr("Ready to broadcast datagrams on port 45454"));
+    startButton = new QPushButton(tr("&Start"));
+    quitButton = new QPushButton(tr("&Quit"));
     timer = new QTimer(this);
     udpSocket = new QUdpSocket(this);
     messageNo = 1;
@@ -23,9 +22,10 @@ Sender::Sender(QWidget *parent)
     buttonLayout->addWidget(startButton);
     buttonLayout->addWidget(quitButton);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(statusLabel);
     mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 
     setWindowTitle(tr("Broadcast Sender"));
 }

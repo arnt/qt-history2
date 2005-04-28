@@ -6,26 +6,25 @@
 FtpWindow::FtpWindow(QWidget *parent)
     : QDialog(parent)
 {
-    ftpServerLabel = new QLabel(tr("Ftp &server:"), this);
-    ftpServerLineEdit = new QLineEdit("ftp.trolltech.com", this);
+    ftpServerLabel = new QLabel(tr("Ftp &server:"));
+    ftpServerLineEdit = new QLineEdit("ftp.trolltech.com");
     ftpServerLabel->setBuddy(ftpServerLineEdit);
 
-    statusLabel = new QLabel(tr("Please enter the name of an FTP server."),
-                             this);
+    statusLabel = new QLabel(tr("Please enter the name of an FTP server."));
 
-    fileList = new QListWidget(this);
+    fileList = new QListWidget;
 
-    connectButton = new QPushButton(tr("Connect"), this);
+    connectButton = new QPushButton(tr("Connect"));
     connectButton->setDefault(true);
 
-    downloadButton = new QPushButton(tr("Download"), this);
+    downloadButton = new QPushButton(tr("Download"));
     downloadButton->setEnabled(false);
 
-    cdToParentButton = new QPushButton(this);
+    cdToParentButton = new QPushButton;
     cdToParentButton->setIcon(QPixmap(":/images/cdtoparent.png"));
     cdToParentButton->setEnabled(false);
 
-    quitButton = new QPushButton(tr("Quit"), this);
+    quitButton = new QPushButton(tr("Quit"));
 
     ftp = new QFtp(this);
 
@@ -62,11 +61,12 @@ FtpWindow::FtpWindow(QWidget *parent)
     buttonLayout->addWidget(connectButton);
     buttonLayout->addWidget(quitButton);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(topLayout);
     mainLayout->addWidget(fileList);
     mainLayout->addWidget(statusLabel);
     mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 
     setWindowTitle(tr("FTP"));
 }

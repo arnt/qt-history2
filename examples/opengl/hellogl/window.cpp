@@ -5,7 +5,7 @@
 
 Window::Window()
 {
-    glWidget = new GLWidget(this);
+    glWidget = new GLWidget;
 
     xSlider = createSlider(SIGNAL(xRotationChanged(int)),
                            SLOT(setXRotation(int)));
@@ -14,11 +14,12 @@ Window::Window()
     zSlider = createSlider(SIGNAL(zRotationChanged(int)),
                            SLOT(setZRotation(int)));
 
-    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->addWidget(glWidget);
     mainLayout->addWidget(xSlider);
     mainLayout->addWidget(ySlider);
     mainLayout->addWidget(zSlider);
+    setLayout(mainLayout);
 
     xSlider->setValue(15 * 16);
     ySlider->setValue(345 * 16);
@@ -28,7 +29,7 @@ Window::Window()
 
 QSlider *Window::createSlider(const char *changedSignal, const char *setterSlot)
 {
-    QSlider *slider = new QSlider(Qt::Vertical, this);
+    QSlider *slider = new QSlider(Qt::Vertical);
     slider->setRange(0, 360 * 16);
     slider->setSingleStep(16);
     slider->setPageStep(15 * 16);

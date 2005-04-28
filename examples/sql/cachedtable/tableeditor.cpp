@@ -15,13 +15,13 @@ TableEditor::TableEditor(const QString &tableName, QWidget *parent)
     model->setHeaderData(1, Qt::Horizontal, tr("First name"));
     model->setHeaderData(2, Qt::Horizontal, tr("Last name"));
 
-    QTableView *view = new QTableView(this);
+    QTableView *view = new QTableView;
     view->setModel(model);
 
-    submitButton = new QPushButton(tr("Submit"), this);
+    submitButton = new QPushButton(tr("Submit"));
     submitButton->setDefault(true);
-    revertButton = new QPushButton(tr("&Revert"), this);
-    quitButton = new QPushButton(tr("Quit"), this);
+    revertButton = new QPushButton(tr("&Revert"));
+    quitButton = new QPushButton(tr("Quit"));
 
     connect(submitButton, SIGNAL(clicked()), this, SLOT(submit()));
     connect(revertButton, SIGNAL(clicked()), model, SLOT(revertAll()));
@@ -33,9 +33,10 @@ TableEditor::TableEditor(const QString &tableName, QWidget *parent)
     buttonLayout->addWidget(quitButton);
     buttonLayout->addStretch(1);
 
-    QHBoxLayout *mainLayout = new QHBoxLayout(this);
+    QHBoxLayout *mainLayout = new QHBoxLayout;
     mainLayout->addWidget(view);
     mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 
     setWindowTitle(tr("Cached Table"));
 }

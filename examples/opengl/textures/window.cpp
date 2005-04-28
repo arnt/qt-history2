@@ -5,7 +5,7 @@
 
 Window::Window()
 {
-    QGridLayout *mainLayout = new QGridLayout(this);
+    QGridLayout *mainLayout = new QGridLayout;
 
     glWidgets[0][0] = 0;
 
@@ -25,6 +25,7 @@ Window::Window()
                     this, SLOT(setCurrentGlWidget()));
         }
     }
+    setLayout(mainLayout);
 
     currentGlWidget = glWidgets[0][0];
 

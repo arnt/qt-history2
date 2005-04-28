@@ -9,13 +9,13 @@ static const int PayloadSize = 65536;
 Dialog::Dialog(QWidget *parent)
     : QDialog(parent)
 {
-    clientProgressBar = new QProgressBar(this);
-    clientStatusLabel = new QLabel(tr("Client ready"), this);
-    serverProgressBar = new QProgressBar(this);
-    serverStatusLabel = new QLabel(tr("Server ready"), this);
+    clientProgressBar = new QProgressBar;
+    clientStatusLabel = new QLabel(tr("Client ready"));
+    serverProgressBar = new QProgressBar;
+    serverStatusLabel = new QLabel(tr("Server ready"));
 
-    startButton = new QPushButton(tr("&Start"), this);
-    quitButton = new QPushButton(tr("&Quit"), this);
+    startButton = new QPushButton(tr("&Start"));
+    quitButton = new QPushButton(tr("&Quit"));
 
     connect(startButton, SIGNAL(clicked()), this, SLOT(start()));
     connect(quitButton, SIGNAL(clicked()), this, SLOT(close()));
@@ -32,12 +32,13 @@ Dialog::Dialog(QWidget *parent)
     buttonLayout->addWidget(startButton);
     buttonLayout->addWidget(quitButton);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(clientProgressBar);
     mainLayout->addWidget(clientStatusLabel);
     mainLayout->addWidget(serverProgressBar);
     mainLayout->addWidget(serverStatusLabel);
     mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 
     setWindowTitle(tr("Loopback"));
 }

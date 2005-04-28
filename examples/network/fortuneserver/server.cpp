@@ -8,8 +8,8 @@
 Server::Server(QWidget *parent)
     : QDialog(parent)
 {
-    statusLabel = new QLabel(this);
-    quitButton = new QPushButton(tr("Quit"), this);
+    statusLabel = new QLabel;
+    quitButton = new QPushButton(tr("Quit"));
     quitButton->setAutoDefault(false);
 
     tcpServer = new QTcpServer(this);
@@ -40,9 +40,10 @@ Server::Server(QWidget *parent)
     buttonLayout->addStretch(1);
     buttonLayout->addWidget(quitButton);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(statusLabel);
     mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 
     setWindowTitle(tr("Fortune Server"));
 }

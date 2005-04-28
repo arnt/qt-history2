@@ -6,13 +6,13 @@
 
 MainWindow::MainWindow()
 {
-    centralWidget = new QWidget(this);
+    centralWidget = new QWidget;
     setCentralWidget(centralWidget);
 
     glWidget = new GLWidget;
     pixmapLabel = new QLabel;
 
-    glWidgetArea = new QScrollArea(centralWidget);
+    glWidgetArea = new QScrollArea;
     glWidgetArea->setWidget(glWidget);
     glWidgetArea->setWidgetResizable(true);
     glWidgetArea->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
@@ -20,7 +20,7 @@ MainWindow::MainWindow()
     glWidgetArea->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     glWidgetArea->setMinimumSize(50, 50);
 
-    pixmapLabelArea = new QScrollArea(centralWidget);
+    pixmapLabelArea = new QScrollArea;
     pixmapLabelArea->setWidget(pixmapLabel);
     pixmapLabelArea->setSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored);
     pixmapLabelArea->setMinimumSize(50, 50);
@@ -35,12 +35,13 @@ MainWindow::MainWindow()
     createActions();
     createMenus();
 
-    QGridLayout *centralLayout = new QGridLayout(centralWidget);
+    QGridLayout *centralLayout = new QGridLayout;
     centralLayout->addWidget(glWidgetArea, 0, 0);
     centralLayout->addWidget(pixmapLabelArea, 0, 1);
     centralLayout->addWidget(xSlider, 1, 0, 1, 2);
     centralLayout->addWidget(ySlider, 2, 0, 1, 2);
     centralLayout->addWidget(zSlider, 3, 0, 1, 2);
+    centralWidget->setLayout(centralLayout);
 
     xSlider->setValue(15 * 16);
     ySlider->setValue(345 * 16);
@@ -121,7 +122,7 @@ void MainWindow::createMenus()
 QSlider *MainWindow::createSlider(const char *changedSignal,
                                   const char *setterSlot)
 {
-    QSlider *slider = new QSlider(Qt::Horizontal, centralWidget);
+    QSlider *slider = new QSlider(Qt::Horizontal);
     slider->setRange(0, 360 * 16);
     slider->setSingleStep(16);
     slider->setPageStep(15 * 16);

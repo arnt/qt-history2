@@ -18,8 +18,9 @@ CalculatorForm::CalculatorForm(QWidget *parent)
 
     QMetaObject::connectSlotsByName(this);
 
-    QVBoxLayout *layout = new QVBoxLayout(this);
+    QVBoxLayout *layout = new QVBoxLayout;
     layout->addWidget(formWidget);
+    setLayout(layout);
 
     setWindowTitle(tr("Calculator Builder"));
 }

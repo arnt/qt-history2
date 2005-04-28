@@ -6,24 +6,24 @@
 Client::Client(QWidget *parent)
     : QDialog(parent)
 {
-    hostLabel = new QLabel(tr("&Server name:"), this);
-    portLabel = new QLabel(tr("S&erver port:"), this);
+    hostLabel = new QLabel(tr("&Server name:"));
+    portLabel = new QLabel(tr("S&erver port:"));
 
-    hostLineEdit = new QLineEdit("Localhost", this);
-    portLineEdit = new QLineEdit(this);
+    hostLineEdit = new QLineEdit("Localhost");
+    portLineEdit = new QLineEdit;
     portLineEdit->setValidator(new QIntValidator(1, 65535, this));
 
     hostLabel->setBuddy(hostLineEdit);
     portLabel->setBuddy(portLineEdit);
 
     statusLabel = new QLabel(tr("This examples requires that you run the "
-                                "Fortune Server example as well."), this);
+                                "Fortune Server example as well."));
 
-    getFortuneButton = new QPushButton(tr("Get Fortune"), this);
+    getFortuneButton = new QPushButton(tr("Get Fortune"));
     getFortuneButton->setDefault(true);
     getFortuneButton->setEnabled(false);
 
-    quitButton = new QPushButton(tr("Quit"), this);
+    quitButton = new QPushButton(tr("Quit"));
 
     tcpSocket = new QTcpSocket(this);
 
@@ -42,13 +42,14 @@ Client::Client(QWidget *parent)
     buttonLayout->addWidget(getFortuneButton);
     buttonLayout->addWidget(quitButton);
 
-    QGridLayout *mainLayout = new QGridLayout(this);
+    QGridLayout *mainLayout = new QGridLayout;
     mainLayout->addWidget(hostLabel, 0, 0);
     mainLayout->addWidget(hostLineEdit, 0, 1);
     mainLayout->addWidget(portLabel, 1, 0);
     mainLayout->addWidget(portLineEdit, 1, 1);
     mainLayout->addWidget(statusLabel, 2, 0, 1, 2);
     mainLayout->addLayout(buttonLayout, 3, 0, 1, 2);
+    setLayout(mainLayout);
 
     setWindowTitle(tr("Fortune Client"));
     portLineEdit->setFocus();

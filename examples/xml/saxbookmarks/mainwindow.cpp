@@ -9,7 +9,7 @@ MainWindow::MainWindow()
     QStringList labels;
     labels << tr("Title") << tr("Location");
 
-    treeWidget = new QTreeWidget(this);
+    treeWidget = new QTreeWidget;
     treeWidget->header()->setResizeMode(QHeaderView::Stretch);
     treeWidget->setHeaderLabels(labels);
     setCentralWidget(treeWidget);

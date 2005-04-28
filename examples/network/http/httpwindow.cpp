@@ -6,16 +6,15 @@
 HttpWindow::HttpWindow(QWidget *parent)
     : QDialog(parent)
 {
-    urlLineEdit = new QLineEdit("http://www.ietf.org/iesg/1rfc_index.txt",
-                                this);
+    urlLineEdit = new QLineEdit("http://www.ietf.org/iesg/1rfc_index.txt");
 
-    urlLabel = new QLabel(tr("&URL:"), this);
+    urlLabel = new QLabel(tr("&URL:"));
     urlLabel->setBuddy(urlLineEdit);
     statusLabel = new QLabel(tr("Please enter the URL of a file you want to "
-                                "download."), this);
+                                "download."));
 
-    quitButton = new QPushButton(tr("Quit"), this);
-    downloadButton = new QPushButton(tr("Download"), this);
+    quitButton = new QPushButton(tr("Quit"));
+    downloadButton = new QPushButton(tr("Download"));
     downloadButton->setDefault(true);
 
     progressDialog = new QProgressDialog(this);
@@ -43,10 +42,11 @@ HttpWindow::HttpWindow(QWidget *parent)
     buttonLayout->addWidget(downloadButton);
     buttonLayout->addWidget(quitButton);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addLayout(topLayout);
     mainLayout->addWidget(statusLabel);
     mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 
     setWindowTitle(tr("HTTP"));
     urlLineEdit->setFocus();

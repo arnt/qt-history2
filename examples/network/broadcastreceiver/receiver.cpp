@@ -6,8 +6,8 @@
 Receiver::Receiver(QWidget *parent)
     : QDialog(parent)
 {
-    statusLabel = new QLabel(tr("Listening for broadcasted messages"), this);
-    quitButton = new QPushButton(tr("&Quit"), this);
+    statusLabel = new QLabel(tr("Listening for broadcasted messages"));
+    quitButton = new QPushButton(tr("&Quit"));
 
     udpSocket = new QUdpSocket(this);
     udpSocket->bind(45454);
@@ -20,9 +20,10 @@ Receiver::Receiver(QWidget *parent)
     buttonLayout->addStretch(1);
     buttonLayout->addWidget(quitButton);
 
-    QVBoxLayout *mainLayout = new QVBoxLayout(this);
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->addWidget(statusLabel);
     mainLayout->addLayout(buttonLayout);
+    setLayout(mainLayout);
 
     setWindowTitle(tr("Broadcast Receiver"));
 }
