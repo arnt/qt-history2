@@ -714,6 +714,8 @@ bool QDesignerResource::checkProperty(QObject *obj, const QString &prop) const
 {
     if (prop == QLatin1String("objectName")) // ### don't store the property objectName
         return false;
+    else if (prop == QLatin1String("geometry") && obj->isWidgetType() && LayoutInfo::isWidgetLaidout(core(), static_cast<QWidget*>(obj)))
+        return false;
     else if (!checkProperty(qobject_cast<QDesignerTabWidget*>(obj), prop))
         return false;
     else if (!checkProperty(qobject_cast<QDesignerToolBox*>(obj), prop))
