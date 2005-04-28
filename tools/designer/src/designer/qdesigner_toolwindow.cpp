@@ -32,13 +32,21 @@ QDesignerToolWindow::QDesignerToolWindow(QDesignerWorkbench *workbench, QWidget 
     m_action->setShortcutContext(Qt::ApplicationShortcut);
     m_action->setText(windowTitle());
     m_action->setCheckable(true);
-    connect(m_action, SIGNAL(triggered(bool)), this, SLOT(setVisible(bool)));
+    connect(m_action, SIGNAL(triggered(bool)), this, SLOT(showMe(bool)));
 }
 
 QDesignerToolWindow::~QDesignerToolWindow()
 {
     if (workbench())
         workbench()->removeToolWindow(this);
+}
+
+void QDesignerToolWindow::showMe(bool v)
+{
+    if (v)
+        setWindowState(windowState() & ~Qt::WindowMinimized);
+
+    setVisible(v);
 }
 
 void QDesignerToolWindow::showEvent(QShowEvent *e)

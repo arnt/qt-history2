@@ -34,6 +34,9 @@ public:
 
     virtual QRect geometryHint() const;
 
+private slots:
+    void showMe(bool);
+
 protected:
     virtual void showEvent(QShowEvent *e);
     virtual void hideEvent(QHideEvent *e);
