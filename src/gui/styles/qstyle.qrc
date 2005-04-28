@@ -18,5 +18,7 @@
 <file>images/parentdir-16.png</file>
 <file>images/viewdetailed-16.png</file>
 <file>images/viewlist-16.png</file>
+<file>images/trash-16.png</file>
+<file>images/networkdrive-16.png</file>
 </qresource>
 </RCC>

@@ -3220,45 +3220,45 @@ QPixmap QCommonStyle::standardPixmap(StandardPixmap standardPixmap, const QStyle
     case SP_FileDialogEnd:
         return QPixmap(filedialog_end_xpm);
     case SP_FileDialogToParent:
-        return QPixmap(":/trolltech/styles/commonstyle/images/parentdir-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/parentdir-16.png"));
     case SP_FileDialogNewFolder:
-        return QPixmap(":/trolltech/styles/commonstyle/images/newdirectory-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/newdirectory-16.png"));
     case SP_FileDialogDetailedView:
-        return QPixmap(":/trolltech/styles/commonstyle/images/viewdetailed-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/viewdetailed-16.png"));
     case SP_FileDialogInfoView:
-        return QPixmap(":/trolltech/styles/commonstyle/images/fileinfo-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/fileinfo-16.png"));
     case SP_FileDialogContentsView:
-        return QPixmap(":/trolltech/styles/commonstyle/images/filecontents-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/filecontents-16.png"));
     case SP_FileDialogListView:
-        return QPixmap(":/trolltech/styles/commonstyle/images/viewlist-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/viewlist-16.png"));
     case SP_FileDialogBack:
-        return QPixmap(":/trolltech/styles/commonstyle/images/back-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/back-16.png"));
     case SP_DriveHDIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/harddrive-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/harddrive-16.png"));
     case SP_TrashIcon:
-        return QPixmap(trashcan_xpm);
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/trash-16.png"));
     case SP_DriveFDIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/floppy-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/floppy-16.png"));
     case SP_DriveNetIcon:
-        break; // Grab from Windows
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/networkdrive-16.png"));
     case SP_DesktopIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/desktop-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/desktop-16.png"));
     case SP_ComputerIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/computer-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/computer-16.png"));
     case SP_DriveCDIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/cdr-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/cdr-16.png"));
     case SP_DriveDVDIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/dvd-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/dvd-16.png"));
     case SP_DirOpenIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/diropen-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/diropen-16.png"));
     case SP_DirClosedIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/dirclosed-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/dirclosed-16.png"));
     case SP_DirLinkIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/dirlink-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/dirlink-16.png"));
     case SP_FileIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/file-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/file-16.png"));
     case SP_FileLinkIcon:
-        return QPixmap(":/trolltech/styles/commonstyle/images/filelink-16.png");
+        return QPixmap(QLatin1String(":/trolltech/styles/commonstyle/images/filelink-16.png"));
     default:
         break;
     }
