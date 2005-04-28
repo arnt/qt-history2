@@ -622,7 +622,8 @@ QString QTextFormat::stringProperty(int propertyId) const
     property isn't of \c QVariant::Color type, an invalid color is
     returned instead.
 
-    \sa setProperty() boolProperty() intProperty() doubleProperty() stringProperty() lengthProperty() lengthVectorProperty() Property
+    \sa setProperty(), boolProperty(), intProperty(), doubleProperty(),
+        stringProperty(), lengthProperty(), lengthVectorProperty(), Property
 */
 QColor QTextFormat::colorProperty(int propertyId) const
 {
@@ -1260,22 +1261,31 @@ QFont QTextCharFormat::font() const
 
     \ingroup text
 
-    A document is composed of a list of blocks. Each block can contain
-    an item of some kind, for example, a paragraph of text, a table, a
-    list, or an image. Every block has an associated QTextBlockFormat
-    that specifies its characteristics.
+    A document is composed of a list of blocks. Each block can contain an item
+    of some kind, such as a paragraph of text, a table, a list, or an image.
+    Every block has an associated QTextBlockFormat that specifies its
+    characteristics.
 
     To cater for left-to-right and right-to-left languages you can set
     a block's direction with setDirection(). Paragraph alignment is
     set with setAlignment(). Margins are controlled by setTopMargin(),
     setBottomMargin(), setLeftMargin(), setRightMargin(). Overall
     indentation is set with setIndent(), the indentation of the first
-    line with setTextIndent().  Line breaking is controlled with
-    setNonBreakableLines(). The paragraph's background color is set
-    with setBackgroundColor().
+    line with setTextIndent().
 
-    A text block can also have a list format (if is part of a list);
-    this is accessible using listFormat().
+    Line breaking can be enabled and disabled with setNonBreakableLines().
+
+    The brush used to paint the paragraph's background
+    is set with \l{QTextFormat::setBackground()}{setBackground()}, and other
+    aspects of the text's appearance can be customized by using the
+    \l{QTextFormat::setProperty()}{setProperty()} function with the
+    \c OutlinePen, \c ForegroundBrush, and \c BackgroundBrush
+    \l{QTextFormat::Property} values.
+
+    If a text block is part of a list, it can also have a list format that
+    is accessible with the listFormat() function.
+
+    \sa QTextCharFormat
 */
 
 /*!
