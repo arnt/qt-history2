@@ -11,13 +11,14 @@
 **
 ****************************************************************************/
 
-#ifndef WIDGETHANDLE_H
-#define WIDGETHANDLE_H
+#ifndef WIDGETSELECTION_H
+#define WIDGETSELECTION_H
 
 #include "formeditor_global.h"
 #include <invisible_widget.h>
 
 #include <QtCore/QHash>
+#include <QtCore/QPointer>
 
 class QDesignerTaskMenuExtension;
 class QDesignerFormEditorInterface;
@@ -78,8 +79,9 @@ private:
     bool active;
 };
 
-class QT_FORMEDITOR_EXPORT WidgetSelection
+class QT_FORMEDITOR_EXPORT WidgetSelection: public QObject
 {
+    Q_OBJECT
 public:
     WidgetSelection(FormWindow *parent, QHash<QWidget *, WidgetSelection *> *selDict);
 
@@ -98,10 +100,12 @@ public:
 
     QDesignerFormEditorInterface *core() const;
 
+    virtual bool eventFilter(QObject *object, QEvent *event);
+
 protected:
     QHash<int, WidgetHandle*> handles;
     InvisibleWidget *m_topWidget;
-    QWidget *wid;
+    QPointer<QWidget> wid;
     FormWindow *formWindow;
     QHash<QWidget *, WidgetSelection *> *selectionDict;
     QDesignerTaskMenuExtension *taskMenu;
@@ -110,4 +114,4 @@ protected:
 }  // namespace qdesigner_internal
 
 
-#endif // WIDGETHANDLE_H
+#endif // WIDGETSELECTION_H

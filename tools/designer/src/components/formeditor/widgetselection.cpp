@@ -475,6 +475,7 @@ void WidgetHandle::tryResize(QWidget *w, int width, int height)
 WidgetSelection::WidgetSelection(FormWindow *parent, QHash<QWidget *, WidgetSelection *> *selDict)
     : selectionDict(selDict)
 {
+    wid = 0;
     taskMenu = 0;
     formWindow = parent;
     for (int i = WidgetHandle::LeftTop; i < WidgetHandle::TypeCount; ++i) {
@@ -500,6 +501,9 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
     m_topWidget = 0;
 #endif
 
+    if (wid != 0)
+        wid->removeEventFilter(this);
+
     if (w == 0) {
         hide();
         if (updateDict)
@@ -509,6 +513,8 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
     }
 
     wid = w;
+
+    wid->installEventFilter(this);
 
     bool active = LayoutInfo::isWidgetLaidout(formWindow->core(), wid) == false;
 
@@ -688,6 +694,23 @@ QDesignerFormEditorInterface *WidgetSelection::core() const
         return formWindow->core();
 
     return 0;
+}
+
+bool WidgetSelection::eventFilter(QObject *object, QEvent *event)
+{
+    if (object != widget())
+        return false;
+
+    switch (event->type()) {
+        default: break;
+
+        case QEvent::Move:
+        case QEvent::Resize:
+            updateGeometry();
+            break;
+    } // end switch
+
+    return false;
 }
 
 #include "widgetselection.moc"
