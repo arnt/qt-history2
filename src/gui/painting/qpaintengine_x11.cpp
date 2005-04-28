@@ -1179,19 +1179,22 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
     }
 }
 
-void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &_sr)
+void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const QRectF &_sr)
 {
     Q_D(QX11PaintEngine);
-    QPixmap pixmap = pm;
     QRectF sr = _sr;
     if (r.size() != sr.size()) {
-        QImage image = pm.toImage();
+        QImage image = pixmap.toImage();
         image = image.copy(sr.toRect());
         image = image.scaled(qRound(r.width()), qRound(r.height()), Qt::IgnoreAspectRatio,
                              d->render_hints & QPainter::SmoothPixmapTransform
                              ? Qt::SmoothTransformation : Qt::FastTransformation);
-        pixmap = QPixmap::fromImage(image);
         sr = QRectF(0, 0, r.width(), r.height());
+        // this recursive call here prevents us from doing a pixmap assignment,
+        // and thus triggering a deep copy if pixmap is being painted on
+        // Nice trick to speed such things up...
+        drawPixmap(r, QPixmap::fromImage(image), sr);
+        return;
     }
 
     int x = qRound(r.x());
