@@ -67,6 +67,9 @@ QFontEngine::~QFontEngine()
     // for Uniscribe
     if (ScriptFreeCache && script_cache)
         ScriptFreeCache(&script_cache);
+
+    if (cmap)
+        delete [] cmap;
 }
 
 // ##### get these from windows
