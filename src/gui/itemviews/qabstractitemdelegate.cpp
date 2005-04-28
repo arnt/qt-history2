@@ -15,6 +15,7 @@
 #include <qabstractitemmodel.h>
 #include <qfontmetrics.h>
 #include <qstring.h>
+#include <qdebug.h>
 
 /*!
     \class QAbstractItemDelegate qabstractitemdelegate.h
@@ -248,31 +249,47 @@ bool QAbstractItemDelegate::editorEvent(QEvent *,
 QString QAbstractItemDelegate::ellipsisText(const QFontMetrics &fontMetrics, int width, int align,
                                             const QString &org)
 {
-    const QLatin1String ell("...");
-    int ellWidth = fontMetrics.width(ell);
-    QString text;
+    const QLatin1String ellipsis("...");
+    int ellipsisWidth = fontMetrics.width(ellipsis);
+    int length = org.length();
     int i = 0;
-    int len = org.length();
-    int offset = (align & Qt::AlignRight) ? len - 1 : 0;
 
-    while (i < len && fontMetrics.width(text + org.at(offset)) + ellWidth < width) {
-	if (align & Qt::AlignRight) {
-	    text.prepend(org.at(offset));
-            offset = (len - 1) - ++i;
-	} else {
-	    text.append(org.at(offset));
+    if (fontMetrics.width(org) < width)
+        return org;
+
+    if (align & Qt::AlignHCenter) {
+        QString left, right;
+        i = (length / 2) - 1;
+        do {
+            left = org.left(i);
+            right = org.right(i);
+        } while (--i > -1 &&
+                 fontMetrics.width(left) + ellipsisWidth + fontMetrics.width(right) > width);
+        return left + ellipsis + right;
+    }
+
+    int offset = (align & Qt::AlignRight) ? length - 1 : 0;
+    QString text;
+        
+    while (i < length && fontMetrics.width(text + org.at(offset)) + ellipsisWidth < width) {
+        if (align & Qt::AlignRight) {
+            text.prepend(org.at(offset));
+            offset = (length - 1) - ++i;
+        } else {
+            text.append(org.at(offset));
             offset = ++i;
         }
     }
-
+    
     if (align & Qt::AlignRight) {
         if (text.isEmpty())
             text = org.right(1);
-        text.prepend(ell);
+        text.prepend(ellipsis);
     } else {
         if (text.isEmpty())
             text = org.left(1);
-	text.append(ell);
+        text.append(ellipsis);
     }
+    
     return text;
 }
