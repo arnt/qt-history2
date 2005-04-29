@@ -28,8 +28,8 @@ QMutexPrivate::~QMutexPrivate()
 ulong QMutexPrivate::self()
 { return GetCurrentThreadId(); }
 
-void QMutex::hang()
+void QMutexPrivate::wait()
 { WaitForSingleObject(event, INFINITE); }
 
-void QMutex::kick()
+void QMutexPrivate::wakeUp()
 { SetEvent(event); }
