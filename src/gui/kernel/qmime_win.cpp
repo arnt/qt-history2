@@ -269,7 +269,7 @@ QVector<FORMATETC> QWindowsMime::allFormatsForMime(const QMimeData *mimeData)
     QList<QWindowsMime*> mimes = ::mimeList()->windowsMimes();
     QVector<FORMATETC> formatics;
     formatics.reserve(20);
-    QStringList formats = mimeData->formats();
+    QStringList formats = QInternalMimeData::formatsHelper(mimeData);
     for (int f=0; f<formats.size(); ++f) {
         for (int i=mimes.size()-1; i>=0; --i)
             formatics += mimes.at(i)->formatsForMime(formats.at(f), mimeData);
@@ -791,9 +791,6 @@ QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, co
 {
     QVector<FORMATETC> formatetcs;
     if (mimeData->hasImage() && mimeType == "application/x-qt-image") {
-        QStringList imageFormats = QDragManager::imageWriteMimeFormats();
-        for (int i = 0; i < imageFormats.size(); ++i)
-            formatetcs += setCf(QWindowsMime::registerMimeType(imageFormats.at(i)));
         formatetcs += setCf(CF_DIB);
     }
     return formatetcs;
@@ -801,25 +798,14 @@ QVector<FORMATETC> QWindowsMimeImage::formatsForMime(const QString &mimeType, co
 
 QString QWindowsMimeImage::mimeForFormat(const FORMATETC &formatetc) const
 {
-    int  cf = getCf(formatetc);
-    if (cf == CF_DIB) {
+    if (getCf(formatetc) == CF_DIB)
        return "application/x-qt-image";
-    } else {
-        QStringList imageFormats = QDragManager::imageReadMimeFormats();
-        for (int i = 0; i < imageFormats.size(); ++i) {
-            if (cf == QWindowsMime::registerMimeType(imageFormats.at(i)))
-                return imageFormats.at(i);
-        }
-    }
     return QString();
 }
 
 bool QWindowsMimeImage::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 {
     if (mimeType == "application/x-qt-image" && canGetData(CF_DIB, pDataObj))
-        return true;
-    if (QDragManager::imageReadMimeFormats().contains(mimeType) 
-        && canGetData(QWindowsMime::registerMimeType(mimeType), pDataObj))
         return true;
     return false;
 }
@@ -829,19 +815,12 @@ bool QWindowsMimeImage::canConvertFromMime(const FORMATETC &formatetc, const QMi
     int cf = getCf(formatetc); 
     if (cf == CF_DIB && mimeData->hasImage())
         return true;
-    QStringList imageFormats = QDragManager::imageWriteMimeFormats();
-    for (int i = 0; i < imageFormats.size(); ++i) {
-        if (cf == QWindowsMime::registerMimeType(imageFormats.at(i))
-            && (mimeData->hasImage() || mimeData->hasFormat(imageFormats.at(i))))
-                return true;
-    }
     return false;
 }
 
 bool QWindowsMimeImage::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
 {
-    int cf = getCf(formatetc); 
-    if (cf == CF_DIB && mimeData->hasImage()) {
+    if (getCf(formatetc) == CF_DIB && mimeData->hasImage()) {
         QImage img = qvariant_cast<QImage>(mimeData->imageData());
         if (img.isNull())
             return false;
@@ -850,15 +829,6 @@ bool QWindowsMimeImage::convertFromMime(const FORMATETC &formatetc, const QMimeD
         s.setByteOrder(QDataStream::LittleEndian);// Intel byte order ####
         if (qt_write_dib(s, img))
             return setData(ba, pmedium);
-    }
-    QStringList imageFormats = QDragManager::imageWriteMimeFormats();
-    for (int i = 0; i < imageFormats.size(); ++i) {
-        if (cf == QWindowsMime::registerMimeType(imageFormats.at(i))) {
-            if (mimeData->hasFormat(imageFormats.at(i)))
-                return setData(mimeData->data(imageFormats.at(i)), pmedium);
-            else 
-                return setData(QDragManager::imageMimeData(imageFormats.at(i), mimeData), pmedium);
-        }
     }
     return false;
 }
@@ -875,9 +845,6 @@ QVariant QWindowsMimeImage::convertToMime(const QString &mimeType, IDataObject *
         if (qt_read_dib(s, img)) { // ##### encaps "-14"
             result = img;
         }
-    } else {
-        if (QDragManager::imageReadMimeFormats().contains(mimeType)) 
-            result = getData(QWindowsMime::registerMimeType(mimeType), pDataObj);
     }
     // Failed
     return result;
@@ -964,12 +931,8 @@ bool QBuiltInMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData 
             r[byteLength] = 0;
             r[byteLength+1] = 0;
             data = r;
-        } else if (outFormats.value(getCf(formatetc)) == "application/x-qt-image") {
-            QImage image = qvariant_cast<QImage>(mimeData->imageData());
-            QDataStream ds(&data, QIODevice::WriteOnly);
-            ds << image;
         } else {
-            data = mimeData->data(outFormats.value(getCf(formatetc)));
+            data = QInternalMimeData::renderDataHelper(outFormats.value(getCf(formatetc)), mimeData);
         }
         return setData(data, pmedium);
     }
@@ -1002,11 +965,6 @@ QVariant QBuiltInMimes::convertToMime(const QString &mimeType, IDataObject *pDat
             if (mimeType == "text/html" && preferredType == QVariant::String) {
                 // text/html is in wide chars on windows (compatible with mozillia)
                 val = QString::fromUtf16((const unsigned short *)data.data());
-            } else if (mimeType == "application/x-qt-image") {
-                QDataStream ds(&data, QIODevice::ReadOnly);
-                QImage image;
-                ds >> image;
-                val = image;
             } else {
                 val = data; // it should be enough to return the data and let QMimeData do the rest.
             }
@@ -1043,32 +1001,27 @@ bool QLastResortMimes::canConvertFromMime(const FORMATETC &formatetc, const QMim
 {
     // really check
     return formatetc.tymed & TYMED_HGLOBAL
-        && formats.contains(formatetc.cfFormat)
-        && mimeData->formats().contains(formats.value(formatetc.cfFormat));
+        && (formats.contains(formatetc.cfFormat)
+        || QInternalMimeData::hasFormatHelper(formats.value(formatetc.cfFormat), mimeData));
 }
 
 bool QLastResortMimes::convertFromMime(const FORMATETC &formatetc, const QMimeData *mimeData, STGMEDIUM * pmedium) const
 {
     return canConvertFromMime(formatetc, mimeData)
-        && setData(mimeData->data(formats.value(getCf(formatetc))), pmedium);
+        && setData(QInternalMimeData::renderDataHelper(formats.value(getCf(formatetc)), mimeData), pmedium);
 }
 
 QVector<FORMATETC> QLastResortMimes::formatsForMime(const QString &mimeType, const QMimeData *mimeData) const
 {
     QVector<FORMATETC> formatetcs;
-    if (!formats.keys(mimeType).isEmpty() && mimeData->formats().contains(mimeType)) {
+    if (!formats.keys(mimeType).isEmpty()) {
         formatetcs += setCf(formats.key(mimeType));
     } else {
         // register any other available formats
-        QStringList availableFormats = mimeData->formats();
-        for (int i=0; i<availableFormats.size(); ++i) {
-            int cf = QWindowsMime::registerMimeType(availableFormats.at(i));
-            if (!formats.keys().contains(cf)) {
-                QLastResortMimes *that = const_cast<QLastResortMimes *>(this);
-                that->formats.insert(cf, availableFormats.at(i));
-                formatetcs += setCf(cf);
-            }
-        }
+        int cf = QWindowsMime::registerMimeType(mimeType);
+        QLastResortMimes *that = const_cast<QLastResortMimes *>(this);
+        that->formats.insert(cf, mimeType);
+        formatetcs += setCf(cf);
     }
     return formatetcs;
 }
@@ -1105,7 +1058,17 @@ QVariant QLastResortMimes::convertToMime(const QString &mimeType, IDataObject *p
 
 QString QLastResortMimes::mimeForFormat(const FORMATETC &formatetc) const
 {
-    return formats.value(getCf(formatetc));
+    QString format = formats.value(getCf(formatetc));
+    if (format.isEmpty()) {
+        QByteArray ba(256);
+        int len = GetClipboardFormatNameA(getCf(formatetc), ba.data(), 255);
+        if (len) {
+            QString clipFormat = QString::fromLocal8Bit(ba.data(), len);
+            if (QInternalMimeData::canReadData(clipFormat))
+                format = clipFormat;
+        }
+    }
+    return format;
 }
 
 QWindowsMimeList::QWindowsMimeList()
@@ -1124,12 +1087,13 @@ void QWindowsMimeList::init()
 {
     if (!initialized) {
         initialized = true;
-        new QLastResortMimes;
-        new QWindowsMimeText;
-        new QWindowsMimeURI;
 #ifndef QT_NO_IMAGEIO_BMP
         new QWindowsMimeImage;
 #endif
+        new QLastResortMimes;
+        new QWindowsMimeText;
+        new QWindowsMimeURI;
+
         new QWindowsMimeHtml;
         new QBuiltInMimes;
     }

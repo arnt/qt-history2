@@ -413,7 +413,7 @@ QInternalMimeData::~QInternalMimeData()
 bool QInternalMimeData::hasFormat(const QString &mimeType) const
 {
     bool foundFormat = hasFormat_sys(mimeType);
-    if (!foundFormat && mimeType ==  QLatin1String("application/x-qt-image")) {
+    if (!foundFormat && mimeType == QLatin1String("application/x-qt-image")) {
         QStringList imageFormats = QDragManager::imageReadMimeFormats();
         for (int i = 0; i < imageFormats.size(); ++i) {
             if ((foundFormat = hasFormat_sys(imageFormats.at(i))))
@@ -462,6 +462,61 @@ QVariant QInternalMimeData::retrieveData(const QString &mimeType, QVariant::Type
 	}
     }
     return data;
+}
+
+bool QInternalMimeData::canReadData(const QString &mimeType)
+{
+    return QDragManager::imageReadMimeFormats().contains(mimeType);
+}
+
+// helper functions for rendering mimedata to the system, this is needed because QMimeData is in core.
+QStringList QInternalMimeData::formatsHelper(const QMimeData *data)
+{
+    QStringList realFormats = data->formats();
+    if (realFormats.contains(QLatin1String("application/x-qt-image"))) {
+        // add all supported image formats
+        QStringList imageFormats = QDragManager::imageWriteMimeFormats();
+        for (int i = 0; i < imageFormats.size(); ++i) {
+            if (!realFormats.contains(imageFormats.at(i)))
+                realFormats.append(imageFormats.at(i));
+        }
+    }
+    return realFormats;
+    
+}
+
+bool QInternalMimeData::hasFormatHelper(const QString &mimeType, const QMimeData *data)
+{
+    bool foundFormat = data->hasFormat(mimeType);
+    if (!foundFormat && mimeType == QLatin1String("application/x-qt-image")) {
+        // check all supported image formats
+        QStringList imageFormats = QDragManager::imageWriteMimeFormats();
+        for (int i = 0; i < imageFormats.size(); ++i) {
+            if ((foundFormat = data->hasFormat(imageFormats.at(i))))
+                break;
+        }
+    }
+    return foundFormat;
+}
+
+QByteArray QInternalMimeData::renderDataHelper(const QString &mimeType, const QMimeData *data)
+{
+    QByteArray ba = data->data(mimeType);
+    if (ba.isEmpty()) {
+        if (mimeType == QLatin1String("application/x-qt-image") && data->hasImage()) {
+            QImage image = qvariant_cast<QImage>(data->imageData());
+            QBuffer buf(&ba);
+            buf.open(QBuffer::WriteOnly);
+            // would there not be PNG ??
+            image.save(&buf, "PNG");
+        } else if (mimeType.startsWith(QLatin1String("image/")) && data->hasImage()) {
+            QImage image = qvariant_cast<QImage>(data->imageData());
+            QBuffer buf(&ba);
+            buf.open(QBuffer::WriteOnly);
+            image.save(&buf, mimeType.mid(mimeType.indexOf('/') + 1).toLatin1().toUpper());
+        }
+    }
+    return ba;
 }
 
 QDropData::QDropData()
