@@ -16,34 +16,20 @@
 #include "qhash.h"
 #include "qobject_p.h"
 
-struct Rec
-{
-    bool has_int : 1;
-    bool has_str : 1;
-
-    int int_id;
-    QString str_id;
-    // extensible to other types of identification
-
-    inline Rec() : has_int(false), has_str(false) {}
-};
-
 class QSignalMapperPrivate : public QObjectPrivate
 {
     Q_DECLARE_PUBLIC(QSignalMapper)
 public:
-    QHash<const QObject *, Rec> hash;
+    void senderDestroyed() {
+        Q_Q(QSignalMapper);
+        q->removeMappings(q->sender());
+    }
+    QHash<QObject *, int> intHash;
+    QHash<QObject *, QString> stringHash;
+    QHash<QObject *, QWidget*> widgetHash;
+
 };
 
-static Rec &getRec(QObject *signalMapper, QHash<const QObject *, Rec> &hash, const QObject *sender)
-{
-    QHash<const QObject *, Rec>::iterator i = hash.find(sender);
-    if (i == hash.constEnd()) {
-        i = hash.insert(sender, Rec());
-        QObject::connect(sender, SIGNAL(destroyed()), signalMapper, SLOT(removeMapping()));
-    }
-    return *i;
-}
 
 /*!
     \class QSignalMapper
@@ -53,8 +39,8 @@ static Rec &getRec(QObject *signalMapper, QHash<const QObject *, Rec> &hash, con
     \mainclass
 
     This class collects a set of parameterless signals, and re-emits
-    them with integer or string parameters corresponding to the object
-    that sent the signal.
+    them with integer, string or widget parameters corresponding to
+    the object that sent the signal.
 
     The class supports the mapping of particular strings or integers
     with particular objects using setMapping(). The objects' signals
@@ -135,31 +121,41 @@ QSignalMapper::~QSignalMapper()
 
     \sa mapping()
 */
-void QSignalMapper::setMapping(const QObject *sender, int id)
+void QSignalMapper::setMapping(QObject *sender, int id)
 {
     Q_D(QSignalMapper);
-
-    Rec &rec = getRec(this, d->hash, sender);
-    rec.has_int = true;
-    rec.int_id = id;
+    d->intHash.insert(sender, id);
+    connect(sender, SIGNAL(destroyed()), this, SLOT(senderDestroyed()));
 }
 
 /*!
     \overload
 
     Adds a mapping so that when map() is signalled from the given \a
-    sender, the signal mapper(\a id) is emitted.
+    sender, the signal mapped(\a text ) is emitted.
 
-    There may be at most one string ID for each object, and it
-    may not be empty.
+    There may be at most one text for each object.
 */
-void QSignalMapper::setMapping(const QObject *sender, const QString &id)
+void QSignalMapper::setMapping(QObject *sender, const QString &text)
 {
     Q_D(QSignalMapper);
+    d->stringHash.insert(sender, text);
+    connect(sender, SIGNAL(destroyed()), this, SLOT(senderDestroyed()));
+}
 
-    Rec &rec = getRec(this, d->hash, sender);
-    rec.has_str = true;
-    rec.str_id = id;
+/*!
+    \overload
+
+    Adds a mapping so that when map() is signalled from the given \a
+    sender, the signal mapped(\a widget ) is emitted.
+
+    There may be at most one widget for each object.
+*/
+void QSignalMapper::setMapping(QObject *sender, QWidget *widget)
+{
+    Q_D(QSignalMapper);
+    d->widgetHash.insert(sender, widget);
+    connect(sender, SIGNAL(destroyed()), this, SLOT(senderDestroyed()));
 }
 
 
@@ -172,17 +168,7 @@ void QSignalMapper::setMapping(const QObject *sender, const QString &id)
 QObject *QSignalMapper::mapping(int id) const
 {
     Q_D(const QSignalMapper);
-
-    QHash<const QObject *, Rec>::const_iterator i = d->hash.begin();
-    while (i != d->hash.end()) {
-        if (i->has_int && i->int_id == id) {
-	    // a const_cast would be best, but certain versions of aCC
-	    // claim that it can not be used on volatile pointers.
-            return (QObject *)i.key();
-	}
-        ++i;
-    }
-    return 0;
+    return d->intHash.key(id);
 }
 
 /*!
@@ -191,17 +177,16 @@ QObject *QSignalMapper::mapping(int id) const
 QObject *QSignalMapper::mapping(const QString &id) const
 {
     Q_D(const QSignalMapper);
+    return d->stringHash.key(id);
+}
 
-    QHash<const QObject *, Rec>::const_iterator i = d->hash.begin();
-    while (i != d->hash.end()) {
-        if (i->has_str && i->str_id == id) {
-	    // a const_cast would be best, but certain versions of aCC
-	    // claim that it can not be used on volatile pointers.
-            return (QObject *)i.key();
-	}
-        ++i;
-    }
-    return 0;
+/*!
+    \overload
+*/
+QObject *QSignalMapper::mapping(QWidget *widget) const
+{
+    Q_D(const QSignalMapper);
+    return d->widgetHash.key(widget);
 }
 
 /*!
@@ -209,33 +194,34 @@ QObject *QSignalMapper::mapping(const QString &id) const
 
     This is done automatically when mapped objects are destroyed.
 */
-void QSignalMapper::removeMappings(const QObject *sender)
+void QSignalMapper::removeMappings(QObject *sender)
 {
     Q_D(QSignalMapper);
 
-    d->hash.remove(sender);
-}
-
-void QSignalMapper::removeMapping()
-{
-    removeMappings(sender());
+    d->intHash.remove(sender);
+    d->stringHash.remove(sender);
+    d->widgetHash.remove(sender);
 }
 
 /*!
     This slot emits signals based on which object sends signals to it.
 */
-void QSignalMapper::map()
+void QSignalMapper::map() { map(sender()); }
+
+/*!
+    This slot emits signals based on the \a sender object.
+*/
+void QSignalMapper::map(QObject *sender)
 {
     Q_D(QSignalMapper);
-
-    QHash<const QObject *, Rec>::iterator i = d->hash.find(sender());
-    if (i != d->hash.constEnd()) {
-        if (i->has_int)
-            emit mapped(i->int_id);
-        if (i->has_str)
-            emit mapped(i->str_id);
-    }
+    if (d->intHash.contains(sender))
+        emit mapped(d->intHash.value(sender));
+    if (d->stringHash.contains(sender))
+        emit mapped(d->stringHash.value(sender));
+    if (d->widgetHash.contains(sender))
+        emit mapped(d->widgetHash.value(sender));
 }
+
 
 /*!
     \fn void QSignalMapper::mapped(int i)
@@ -258,4 +244,16 @@ void QSignalMapper::map()
     \sa setMapping()
 */
 
+/*!
+    \fn void QSignalMapper::mapped(QWidget *widget)
+    \overload
+
+    This signal is emitted when map() is signalled from an object that
+    has a widget mapping set. The object's mapped widget is passed in
+    \a widget.
+
+    \sa setMapping()
+*/
+
+#include "moc_qsignalmapper.cpp"
 #endif // QT_NO_SIGNALMAPPER

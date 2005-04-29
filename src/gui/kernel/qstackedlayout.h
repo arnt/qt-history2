@@ -35,7 +35,6 @@ public:
     int insertWidget(int index, QWidget *w);
 
     QWidget *currentWidget() const;
-    void setCurrentWidget(QWidget *w);
     int currentIndex() const;
 #ifdef Q_NO_USING_KEYWORD
     inline QWidget *widget() { return QLayout::widget(); }
@@ -59,6 +58,7 @@ signals:
 
 public slots:
     void setCurrentIndex(int);
+    void setCurrentWidget(QWidget *w);
 
 private:
     Q_DISABLE_COPY(QStackedLayout)

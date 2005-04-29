@@ -33,7 +33,6 @@ public:
     void removeWidget(QWidget *w);
 
     QWidget *currentWidget() const;
-    void setCurrentWidget(QWidget *w);
     int currentIndex() const;
 
     int indexOf(QWidget *) const;
@@ -42,6 +41,7 @@ public:
 
 public slots:
     void setCurrentIndex(int);
+    void setCurrentWidget(QWidget *w);
 
 signals:
     void currentChanged(int);

@@ -52,13 +52,13 @@ public:
 
     int currentIndex() const;
     QWidget *currentWidget() const;
-    void setCurrentWidget(QWidget *widget);
     QWidget *widget(int index) const;
     int indexOf(QWidget *widget) const;
     int count() const;
 
 public slots:
     void setCurrentIndex(int index);
+    void setCurrentWidget(QWidget *widget);
 
 signals:
     void currentChanged(int index);

@@ -27,22 +27,29 @@ public:
     explicit QSignalMapper(QObject *parent = 0);
     ~QSignalMapper();
 
-    void setMapping(const QObject *sender, int id);
-    void setMapping(const QObject *sender, const QString &id);
-    void removeMappings(const QObject *sender);
+    void setMapping(QObject *sender, int id);
+    void setMapping(QObject *sender, const QString &text);
+    void setMapping(QObject *sender, QWidget *widget);
+    void removeMappings(QObject *sender);
 
     QObject *mapping(int id) const;
-    QObject *mapping(const QString &id) const;
+    QObject *mapping(const QString &text) const;
+    QObject *mapping(QWidget *widget) const;
 
 signals:
     void mapped(int);
     void mapped(const QString &);
+    void mapped(QWidget *);
 
 public slots:
     void map();
+    void map(QObject *sender);
 
-private slots:
-    void removeMapping();
+protected:
+    QSignalMapper(QSignalMapperPrivate &dd, QObject *parent = 0);
+private:
+    Q_DISABLE_COPY(QSignalMapper)
+    Q_PRIVATE_SLOT(d_func(), void senderDestroyed())
 
 #ifdef QT3_SUPPORT
 public:
