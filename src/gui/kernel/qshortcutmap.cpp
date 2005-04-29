@@ -341,7 +341,7 @@ QKeySequence::SequenceMatch QShortcutMap::find(QKeyEvent *e)
     Q_D(QShortcutMap);
     if (!d->sequences.count())
         return QKeySequence::NoMatch;
-
+    
     static QShortcutEntry newEntry;
     createNewSequence(e, newEntry.keyseq);
 
@@ -450,10 +450,10 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     // for the shortcut system.
     if (qApp->activePopupWidget())
         active_window = qApp->activePopupWidget();
-
+    
     if (!active_window)
         return false;
-
+ 
     if (QAction *a = qobject_cast<QAction *>(item.owner))
         return correctContext(item.context, a, active_window);
 
@@ -517,6 +517,17 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QAction *a, QWidg
                 return true;
         } else {
             if (correctContext(context, w, active_window))
+                return true;
+        }
+    }
+    QWidget *parent = a->parentWidget();
+    if (parent && !widgets.contains(parent)) {
+        if (QMenu *menu = qobject_cast<QMenu *>(parent)) {
+            QAction *a = menu->menuAction();
+            if (correctContext(context, a, active_window))
+                return true;
+        } else {
+            if (correctContext(context, parent, active_window))
                 return true;
         }
     }
