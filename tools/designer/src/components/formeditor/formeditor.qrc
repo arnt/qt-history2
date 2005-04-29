@@ -37,6 +37,8 @@
     <file>images/mac/fileopen.png</file>
     <file>images/mac/filesave.png</file>
     <file>images/mac/resourceeditortool.png</file>
+    <file>images/mac/plus.png</file>
+    <file>images/mac/minus.png</file>
     <file>images/qtlogo.png</file>
     <file>images/resetproperty.png</file>
     <file>images/widgets/checkbox.png</file>
