@@ -46,6 +46,7 @@ private:
     QPointer<QLineEdit> m_editor;
 
     QAction *m_editTitleAction;
+    QList<QAction*> m_taskActions;
 };
 
 class GroupBoxTaskMenuFactory: public QExtensionFactory

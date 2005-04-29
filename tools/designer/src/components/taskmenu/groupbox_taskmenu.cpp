@@ -33,8 +33,13 @@ GroupBoxTaskMenu::GroupBoxTaskMenu(QGroupBox *groupbox, QObject *parent)
     : QDesignerTaskMenu(groupbox, parent),
       m_groupbox(groupbox)
 {
-    m_editTitleAction = new QAction(tr("Edit title"), this);
+    m_editTitleAction = new QAction(tr("Change title"), this);
     connect(m_editTitleAction, SIGNAL(triggered()), this, SLOT(editTitle()));
+    m_taskActions.append(m_editTitleAction);
+
+    QAction *sep = new QAction(this);
+    sep->setSeparator(true);
+    m_taskActions.append(sep);
 }
 
 GroupBoxTaskMenu::~GroupBoxTaskMenu()
@@ -43,17 +48,7 @@ GroupBoxTaskMenu::~GroupBoxTaskMenu()
 
 QList<QAction*> GroupBoxTaskMenu::taskActions() const
 {
-#if 0 // ### implement me
-    action = new QAction(that);
-    action->setText(tr("Edit groupbox icon"));
-    connect(action, SIGNAL(triggered()), this, SLOT(editIcon()));
-    m_taskActions.append(action);
-#endif
-
-    QList<QAction*> action_list = QDesignerTaskMenu::taskActions();
-    action_list.insert(1, m_editTitleAction);
-
-    return action_list;
+    return m_taskActions + QDesignerTaskMenu::taskActions();
 }
 
 void GroupBoxTaskMenu::editTitle()

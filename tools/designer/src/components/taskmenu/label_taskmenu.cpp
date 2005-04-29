@@ -34,9 +34,13 @@ LabelTaskMenu::LabelTaskMenu(QLabel *label, QObject *parent)
       m_label(label)
 {
     m_editTextAction= new QAction(this);
-    m_editTextAction->setText(tr("Edit Label Text"));
+    m_editTextAction->setText(tr("Change text"));
     connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_editTextAction);
+
+    QAction *sep = new QAction(this);
+    sep->setSeparator(true);
+    m_taskActions.append(sep);
 }
 
 LabelTaskMenu::~LabelTaskMenu()
@@ -50,7 +54,7 @@ QAction *LabelTaskMenu::preferredEditAction() const
 
 QList<QAction*> LabelTaskMenu::taskActions() const
 {
-    return QDesignerTaskMenu::taskActions() + m_taskActions;
+    return m_taskActions + QDesignerTaskMenu::taskActions();
 }
 
 void LabelTaskMenu::editText()

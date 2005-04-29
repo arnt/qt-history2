@@ -97,8 +97,10 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     actions.append(m_changeWhatsThis);
     actions.append(m_separator);
 
+#if 0
     if (qobject_cast<const QMainWindow*>(formWindow->mainContainer()) != 0 && qobject_cast<QDockWidget*>(widget()) == 0)
         actions.append(m_createDockWidgetAction);
+#endif
 
     if (qobject_cast<const QDesignerPromotedWidget*>(m_widget) == 0)
         actions.append(m_promoteToCustomWidgetAction);

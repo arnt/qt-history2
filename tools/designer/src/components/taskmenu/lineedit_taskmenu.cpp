@@ -34,9 +34,13 @@ LineEditTaskMenu::LineEditTaskMenu(QLineEdit *lineEdit, QObject *parent)
       m_lineEdit(lineEdit)
 {
     m_editTextAction = new QAction(this);
-    m_editTextAction->setText(tr("Edit Text"));
+    m_editTextAction->setText(tr("Change text"));
     connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_editTextAction);
+
+    QAction *sep = new QAction(this);
+    sep->setSeparator(true);
+    m_taskActions.append(sep);
 }
 
 LineEditTaskMenu::~LineEditTaskMenu()
@@ -50,7 +54,7 @@ QAction *LineEditTaskMenu::preferredEditAction() const
 
 QList<QAction*> LineEditTaskMenu::taskActions() const
 {
-    return QDesignerTaskMenu::taskActions() + m_taskActions;
+    return m_taskActions + QDesignerTaskMenu::taskActions();
 }
 
 void LineEditTaskMenu::editText()

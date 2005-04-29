@@ -35,9 +35,13 @@ TextEditTaskMenu::TextEditTaskMenu(QTextEdit *textEdit, QObject *parent)
       m_textEdit(textEdit)
 {
     m_editTextAction= new QAction(this);
-    m_editTextAction->setText(tr("Edit Html"));
+    m_editTextAction->setText(tr("Change html"));
     connect(m_editTextAction, SIGNAL(triggered()), this, SLOT(editText()));
     m_taskActions.append(m_editTextAction);
+
+    QAction *sep = new QAction(this);
+    sep->setSeparator(true);
+    m_taskActions.append(sep);
 }
 
 TextEditTaskMenu::~TextEditTaskMenu()
@@ -51,7 +55,7 @@ QAction *TextEditTaskMenu::preferredEditAction() const
 
 QList<QAction*> TextEditTaskMenu::taskActions() const
 {
-    return QDesignerTaskMenu::taskActions() + m_taskActions;
+    return m_taskActions + QDesignerTaskMenu::taskActions();
 }
 
 void TextEditTaskMenu::editText()

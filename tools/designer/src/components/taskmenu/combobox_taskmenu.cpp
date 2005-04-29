@@ -38,6 +38,10 @@ ComboBoxTaskMenu::ComboBoxTaskMenu(QComboBox *button, QObject *parent)
     m_editItemsAction->setText(tr("Edit Items..."));
     connect(m_editItemsAction, SIGNAL(triggered()), this, SLOT(editItems()));
     m_taskActions.append(m_editItemsAction);
+
+    QAction *sep = new QAction(this);
+    sep->setSeparator(true);
+    m_taskActions.append(sep);
 }
 
 ComboBoxTaskMenu::~ComboBoxTaskMenu()
@@ -51,7 +55,7 @@ QAction *ComboBoxTaskMenu::preferredEditAction() const
 
 QList<QAction*> ComboBoxTaskMenu::taskActions() const
 {
-    return QDesignerTaskMenu::taskActions() + m_taskActions;
+    return m_taskActions + QDesignerTaskMenu::taskActions();
 }
 
 void ComboBoxTaskMenu::editItems()
