@@ -119,8 +119,6 @@ public:
     QDateTimeEdit::Sections display;
     mutable int cachedday;
     mutable Section currentsection;
-    mutable QVariant cached;
-    mutable QString cachedText;
 };
 
 // --- QDateTimeEdit ---
@@ -658,15 +656,17 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
 {
     Q_D(QDateTimeEdit);
     if (d->parseFormat(format)) {
-        d->cached = QVariant();
-        if ((d->display & QDateTimeEditPrivate::TimeSectionMask) == 0
-            || (d->display & QDateTimeEditPrivate::DateSectionMask) == 0) {
-            if ((d->display & QDateTimeEditPrivate::TimeSectionMask) != 0) {
-                setDateRange(d->value.toDate(), d->value.toDate());
-            } else { // It must be date
-                setTimeRange(TIME_MIN, TIME_MAX);
-            }
-        }
+        d->cachedvalue.clear();
+        d->cachedtext.clear();
+        const bool timeShown = (d->display & QDateTimeEditPrivate::TimeSectionMask);
+        const bool dateShown = (d->display & QDateTimeEditPrivate::DateSectionMask);
+	Q_ASSERT(dateShown || timeShown);
+	if (timeShown && !dateShown) {
+	    setDateRange(d->value.toDate(), d->value.toDate());
+	} else if (dateShown && !timeShown) {
+	    setTimeRange(TIME_MIN, TIME_MAX);
+	    d->value = QVariant(QDateTime(d->value.toDate(), QTime()));
+	}
         d->update();
         d->edit->setCursorPosition(0);
         d->editorCursorPositionChanged(-1, 0);
@@ -749,6 +749,10 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         }
     case Qt::Key_Backtab:
     case Qt::Key_Tab: {
+	if (d->specialValue()) {
+	    select = false;
+	    break;
+	}
         if (e->key() == Qt::Key_Backtab
             || (e->key() == Qt::Key_Tab && e->modifiers() & Qt::ShiftModifier)) {
             forward = false;
@@ -776,6 +780,9 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     QAbstractSpinBox::keyPressEvent(e);
     if (select && d->currentsection != oldCurrent && !(e->modifiers() & Qt::ShiftModifier) && !d->edit->hasSelectedText()) {
         d->setSelected(d->currentsection);
+    }
+    if (d->specialValue()) {
+	d->edit->setSelection(d->edit->cursorPosition(), 0);
     }
 }
 
@@ -884,9 +891,9 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
 {
     Q_D(const QDateTimeEdit);
     QVariant var(dateTime);
-    if (var == d->cached) {
-        QDTEDEBUG << "cached and var is the same so returning cachedText" << dateTime << d->cachedText;
-        return d->cachedText;
+    if (var == d->cachedvalue && d->cachedstate == QValidator::Acceptable) {
+        QDTEDEBUG << "cached and var is the same so returning cachedText" << dateTime << d->cachedtext;
+        return d->cachedtext;
     }
     QString ret = d->escapedFormat;
     for (int i=0; i<d->sections.size(); ++i) {
@@ -935,9 +942,9 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
             break;
         }
     }
-    d->cached = var;
-    d->cachedText = ret;
-    QDTEDEBUG << "setting cached to" << d->cached << " and cachedText to" << d->cachedText;
+    d->cachedvalue = var;
+    d->cachedtext = ret;
+    QDTEDEBUG << "setting cached to" << d->cachedvalue << " and cachedText to" << d->cachedtext;
     return ret;
 }
 
@@ -980,6 +987,13 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     Q_D(const QDateTimeEdit);
     if (d->readonly)
         return StepEnabled(0);
+    if (d->specialValue()) {
+	if (d->minimum == d->maximum)
+	    return StepEnabled(0);
+	return d->wrapping
+	    ? StepEnabled(StepDownEnabled|StepUpEnabled)
+	    : StepEnabled(StepUpEnabled);
+    }
     switch (d->currentsection) {
     case QDateTimeEditPrivate::NoSection:
     case QDateTimeEditPrivate::FirstSection:
@@ -1122,7 +1136,7 @@ void QDateTimeEditPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
 void QDateTimeEditPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 {
     Q_Q(QDateTimeEdit);
-    if (ignorecursorpositionchanged)
+    if (ignorecursorpositionchanged || specialValue())
         return;
     const bool allowChange = !edit->hasSelectedText();
     ignorecursorpositionchanged = true;
@@ -1487,6 +1501,7 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
     QVariant v = value;
     QString str = edit->displayText();
     int pos = edit->cursorPosition();
+    bool specVal = specialValue();
 
     int val;
     // to make sure it behaves reasonably when typing something and then stepping in non-tracking mode
@@ -1499,10 +1514,14 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
         val = getDigit(v, s);
     } else {
         QValidator::State state;
+	if (!specVal) {
         val = sectionValue(s, str, state);
         if (state == QValidator::Invalid) {
             return value;
         }
+	} else {
+	    val = getDigit(v, s);
+	}
     }
 
     val += steps;
@@ -1531,13 +1550,25 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
             // doesn't mean that we hit the floor in the other
             if (steps > 0) {
                 setDigit(v, s, min);
+		if (s != DaySection) {
+		    int daysInMonth = v.toDate().daysInMonth();
+		    if (v.toDate().day() < tmp && v.toDate().day() < daysInMonth) 
+			setDigit(v, DaySection, qMin(tmp, daysInMonth));
+		}
+
                 if (v < minimum) {
                     setDigit(v, s, localmin);
-                    if (v < minimum)
+                    if (v < minimum) 
                         setDigit(v, s, localmin + 1);
                 }
             } else {
                 setDigit(v, s, max);
+		if (s != DaySection) {
+		    int daysInMonth = v.toDate().daysInMonth();
+		    if (v.toDate().day() < tmp && v.toDate().day() < daysInMonth) 
+			setDigit(v, DaySection, qMin(tmp, daysInMonth));
+		}
+
                 if (v > maximum) {
                     setDigit(v, s, localmax);
                     if (v > maximum)
@@ -1545,7 +1576,7 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
                 }
             }
         } else {
-            setDigit(v, s, (steps>0) ? localmax : localmin);
+            setDigit(v, s, (steps > 0 ? localmax : localmin));
         }
     }
     if (!test && tmp != v.toDate().day() && s != DaySection) {
@@ -1717,6 +1748,8 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 {
     if (s == NoSection)
         return;
+    if (specialValue())
+	edit->selectAll();
     if (forward) {
         edit->setSelection(sectionPos(s), sectionSize(s));
     } else {
@@ -1760,8 +1793,8 @@ static QString unquote(const QString &str)
 
 bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 {
-    if (newFormat == displayFormat && !newFormat.isEmpty())
-        return true;
+    //if (newFormat == displayFormat && !newFormat.isEmpty())
+        //return true;
     QList<SectionNode> list;
     QDateTimeEdit::Sections newDisplay = 0;
     QStringList newSeparators;
@@ -2206,6 +2239,13 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
 
     QDTEDEBUG << "validateAndInterpret" << input;
     int diff = input.size() - escapedFormat.size();
+    bool specval = false;
+    if (!specialvaluetext.isEmpty() && input == specialvaluetext) {
+	specval = true;
+	state = QValidator::Acceptable;
+	tmp = minimum;
+	goto end;
+    }
     if (diff > 0) {
         const Section s = closestSection(pos - 1, false);
         if (s == FirstSection && s == LastSection) {
@@ -2334,7 +2374,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
                    tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
     }
 end:
-    if (state != QValidator::Invalid && tmp < minimum && tmp.toDateTime().isValid()) {
+    if (!specval && state != QValidator::Invalid && tmp < minimum && tmp.toDateTime().isValid()) {
         state = checkIntermediate(tmp.toDateTime(), input);
     } else {
         QDTEDEBUG << "not checking intermediate because tmp is" << tmp << minimum << maximum;

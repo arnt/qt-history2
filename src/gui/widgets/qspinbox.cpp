@@ -331,56 +331,6 @@ void QSpinBox::setSuffix(const QString &s)
 }
 
 /*!
-    \property QSpinBox::specialValueText
-    \brief the special-value text
-
-    If set, the spin box will display this text instead of a numeric
-    value whenever the current value is equal to minimum(). Typical use
-    is to indicate that this choice has a special (default) meaning.
-
-    For example, if your spin box allows the user to choose the margin
-    width in a print dialog and your application is able to
-    automatically choose a good margin width, you can set up the spin
-    box like this:
-
-    \code
-        QSpinBox marginBox(-1, 20, 1, parent);
-        marginBox.setSuffix(" mm");
-        marginBox.setSpecialValueText("Auto");
-    \endcode
-
-    The user will then be able to choose a margin width from 0-20
-    millimeters or select "Auto" to leave it to the application to
-    choose. Your code must then interpret the spin box value of -1 as
-    the user requesting automatic margin width.
-
-    All values are displayed with the prefix() and suffix() (if set),
-    \e except for the special value, which only shows the special
-    value text.
-
-    To turn off the special-value text display, call this function
-    with an empty string. The default is no special-value text, i.e.
-    the numeric value is shown as usual.
-
-    If no special-value text is set, specialValueText() returns an
-    empty string.
-*/
-
-QString QSpinBox::specialValueText() const
-{
-    Q_D(const QSpinBox);
-
-    return d->specialvaluetext;
-}
-
-void QSpinBox::setSpecialValueText(const QString &s)
-{
-    Q_D(QSpinBox);
-
-    d->specialvaluetext = s;
-    d->update();
-}
-/*!
     \property QSpinBox::cleanText
 
     \brief the text of the spin box excluding any prefix, suffix,
@@ -755,57 +705,6 @@ void QDoubleSpinBox::setSuffix(const QString &s)
     Q_D(QDoubleSpinBox);
 
     d->suffix = s;
-    d->update();
-}
-
-/*!
-    \property QDoubleSpinBox::specialValueText
-    \brief the special-value text
-
-    If set, the spin box will display this text instead of a numeric
-    value whenever the current value is equal to minimum(). Typical use
-    is to indicate that this choice has a special (default) meaning.
-
-    For example, if your spin box allows the user to choose the margin
-    width in a print dialog and your application is able to
-    automatically choose a good margin width, you can set up the spin
-    box like this:
-
-    \code
-        QDoubleSpinBox marginBox(-1.0, 20.0, 1.0, 1, parent);
-        marginBox.setSuffix(" mm");
-        marginBox.setSpecialValueText("Auto");
-    \endcode
-
-    The user will then be able to choose a margin width from 0.0-20.0
-    millimeters or select "Auto" to leave it to the application to
-    choose. Your code must then interpret the spin box value of -1 as
-    the user requesting automatic margin width.
-
-    All values are displayed with the prefix() and suffix() (if set),
-    \e except for the special value, which only shows the special
-    value text.
-
-    To turn off the special-value text display, call this function
-    with an empty string. The default is no special-value text, i.e.
-    the numeric value is shown as usual.
-
-    If no special-value text is set, specialValueText() returns an
-    empty string.
-*/
-
-QString QDoubleSpinBox::specialValueText() const
-{
-    Q_D(const QDoubleSpinBox);
-
-    return d->specialvaluetext;
-}
-
-void QDoubleSpinBox::setSpecialValueText(const QString &s)
-{
-    Q_D(QDoubleSpinBox);
-
-    d->specialvaluetext = s;
     d->update();
 }
 

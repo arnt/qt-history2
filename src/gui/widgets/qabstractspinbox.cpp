@@ -23,7 +23,6 @@
 #include <qpainter.h>
 #include <qdebug.h>
 #include <qpalette.h>
-#include <qspinbox.h>
 #include <qstyle.h>
 
 #if defined(Q_WS_X11)
@@ -163,6 +162,60 @@ void QAbstractSpinBox::setButtonSymbols(ButtonSymbols bs)
 QString QAbstractSpinBox::text() const
 {
     return lineEdit()->displayText();
+}
+
+
+/*!
+    \property QAbstractSpinBox::specialValueText
+    \brief the special-value text
+
+    If set, the spin box will display this text instead of a numeric
+    value whenever the current value is equal to minimum(). Typical use
+    is to indicate that this choice has a special (default) meaning.
+
+    For example, if your spin box allows the user to choose the margin
+    width in a print dialog and your application is able to
+    automatically choose a good margin width, you can set up the spin
+    box like this:
+
+    \code
+        QSpinBox marginBox(-1, 20, 1, parent);
+        marginBox.setSuffix(" mm");
+        marginBox.setSpecialValueText("Auto");
+    \endcode
+
+    The user will then be able to choose a margin width from 0-20
+    millimeters or select "Auto" to leave it to the application to
+    choose. Your code must then interpret the spin box value of -1 as
+    the user requesting automatic margin width.
+
+    All values are displayed with the prefix() and suffix() (if set),
+    \e except for the special value, which only shows the special
+    value text.
+
+    To turn off the special-value text display, call this function
+    with an empty string. The default is no special-value text, i.e.
+    the numeric value is shown as usual.
+
+    If no special-value text is set, specialValueText() returns an
+    empty string.
+*/
+
+QString QAbstractSpinBox::specialValueText() const
+{
+    Q_D(const QAbstractSpinBox);
+
+    return d->specialvaluetext;
+}
+
+void QAbstractSpinBox::setSpecialValueText(const QString &s)
+{
+    Q_D(QAbstractSpinBox);
+
+    d->specialvaluetext = s;
+    d->cachedtext.clear();
+    d->cachedvalue.clear();
+    d->update();
 }
 
 /*!
@@ -1459,8 +1512,9 @@ void QAbstractSpinBoxPrivate::interpret(EmitPolicy ep)
     if (doInterpret) {
         v = valueFromText(tmp);
     }
-
-    setValue(v, ep);
+    cachedvalue.clear();
+    cachedtext.clear();
+    setValue(v, ep, true);
     if (oldpos != pos)
         edit->setCursorPosition(pos);
 }

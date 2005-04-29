@@ -101,7 +101,6 @@ public:
     void editorTextChanged(const QString &);
     virtual void editorCursorPositionChanged(int oldpos, int newpos);
 
-    bool eq(const QVariant &arg1, const QVariant &arg2) const;
     QStyle::SubControl newHoverControl(const QPoint &pos);
     bool updateHoverControl(const QPoint &pos);
 
