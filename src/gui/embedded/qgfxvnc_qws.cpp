@@ -261,6 +261,7 @@ void QRfbRect::write(QTcpSocket *s)
     buf[1] = htons(y);
     buf[2] = htons(w);
     buf[3] = htons(h);
+//    qDebug( "QRfbRect::write %d,%d,%d,%d:%x %x %x %x", x,y,w,h, buf[0],buf[1],buf[2],buf[3]);
     s->write((char*)buf, 8);
 }
 
@@ -510,7 +511,7 @@ void QVNCServer::newConnection()
     }
     client = serverSocket->nextPendingConnection();
     connect(client,SIGNAL(readyRead()),this,SLOT(readClient()));
-    connect(client,SIGNAL(closed()),this,SLOT(discardClient()));
+    connect(client,SIGNAL(disconnected()),this,SLOT(discardClient()));
     handleMsg = false;
     encodingsPending = 0;
     cutTextPending = 0;
