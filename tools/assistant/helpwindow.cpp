@@ -158,8 +158,6 @@ void HelpWindow::setSource(const QUrl &name)
 
 void HelpWindow::updateFormat()
 {
-    Config *config = Config::configuration();
-
     QString fixedFontFamily = mw->browsers()->fixedFontFamily();
     QColor linkColor = mw->browsers()->linkColor();
     bool underlineLinks = mw->browsers()->underlineLink();
