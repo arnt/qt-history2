@@ -1328,7 +1328,7 @@ void ConnectionEdit::widgetRemoved(QWidget *widget)
 
 void ConnectionEdit::setSelected(Connection *con, bool sel)
 {
-    if (sel == m_sel_con_set.contains(con))
+    if (!con || sel == m_sel_con_set.contains(con))
         return;
 
     if (sel) {
