@@ -1171,9 +1171,8 @@ static bool openFile(QFile &file, QConfFile &confFile, int flags)
     if (flags == WriteFlags)
         QT_FTRUNCATE(fd, 0);
 
-    return file.open(flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Text
-                     : QIODevice::OpenMode(QIODevice::ReadOnly),
-                     fd);
+    return file.open(fd, flags == WriteFlags ? QIODevice::WriteOnly | QIODevice::Text
+                     : QIODevice::OpenMode(QIODevice::ReadOnly));
 #else
     // on Windows we use a named semaphore
     if (confFile.semHandle == 0) {
