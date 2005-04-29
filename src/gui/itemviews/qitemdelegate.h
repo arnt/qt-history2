@@ -67,7 +67,8 @@ protected:
                   QRect *checkRect, QRect *iconRect, QRect *textRect, bool hint) const;
     QPixmap decoration(const QStyleOptionViewItem &option, const QVariant &variant) const;
     QPixmap *selected(const QPixmap &pixmap, const QPalette &palette, bool enabled) const;
-    QRect check(const QStyleOptionViewItem &option, const QVariant &variant) const;
+    QRect check(const QStyleOptionViewItem &option, const QRect &bounding,
+                const QVariant &variant) const;
 
     bool eventFilter(QObject *object, QEvent *event);
     bool editorEvent(QEvent *event, QAbstractItemModel *model,

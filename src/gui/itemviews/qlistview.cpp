@@ -1434,7 +1434,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
                 }
             }
             // create new segment
-            if (wrap && (flowPosition >= segEndPosition)) {
+            if (wrap && (flowPosition + gap + deltaFlowPosition > segEndPosition)) {
                 flowPosition = gap + segStartPosition;
                 segPosition += gap + deltaSegPosition;
                 segmentPositions.append(segPosition);

@@ -143,7 +143,7 @@ void QItemDelegate::paint(QPainter *painter,
     QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
 
     value = model->data(index, Qt::CheckStateRole);
-    QRect checkRect = check(opt, value);
+    QRect checkRect = check(opt, opt.rect, value);
     Qt::CheckState checkState = static_cast<Qt::CheckState>(value.toInt());
 
     doLayout(opt, &checkRect, &pixmapRect, &textRect, false);
@@ -189,10 +189,10 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 
     QFontMetrics fontMetrics(fnt);
     QRect textRect(0, 0, fontMetrics.width(text), fontMetrics.lineSpacing());
-    QRect checkRect = check(option, model->data(index, Qt::CheckStateRole));
+    QRect checkRect = check(option, textRect, model->data(index, Qt::CheckStateRole));
     doLayout(option, &checkRect, &pixmapRect, &textRect, true);
 
-    return pixmapRect.unite(textRect).size();
+    return (pixmapRect|textRect|checkRect).size();
 }
 
 /*!
@@ -268,7 +268,7 @@ void QItemDelegate::updateEditorGeometry(QWidget *editor,
         QString text = model->data(index, Qt::EditRole).toString();
         QRect pixmapRect = pixmap.rect();
         QRect textRect(0, 0, editor->fontMetrics().width(text), editor->fontMetrics().lineSpacing());
-        QRect checkRect = check(option, model->data(index, Qt::CheckStateRole));
+        QRect checkRect = check(option, textRect, model->data(index, Qt::CheckStateRole));
         doLayout(option, &checkRect, &pixmapRect, &textRect, false);
         editor->setGeometry(textRect);
     }
@@ -559,12 +559,12 @@ QPixmap *QItemDelegate::selected(const QPixmap &pixmap, const QPalette &palette,
 */
 
 QRect QItemDelegate::check(const QStyleOptionViewItem &option,
-                           const QVariant &value) const
+                           const QRect &bounding, const QVariant &value) const
 {
     if (value.isValid()) {
         QStyleOptionButton opt;
         opt.QStyleOption::operator=(option);
-        opt.rect.setWidth(opt.rect.height());
+        opt.rect = bounding;
         return QApplication::style()->subElementRect(QStyle::SE_ViewItemCheckIndicator, &opt);
     }
     return QRect();
@@ -642,7 +642,7 @@ bool QItemDelegate::editorEvent(QEvent *event,
     // check if the event happened in the right place
     QVariant value = model->data(index, Qt::CheckStateRole);
     QRect checkRect = QStyle::alignedRect(option.direction, Qt::AlignCenter,
-                                          check(option, value).size(),
+                                          check(option, option.rect, value).size(),
                                           QRect(option.rect.x(), option.rect.y(),
                                                 option.rect.height(), option.rect.height()));
     if (checkRect.contains(static_cast<QMouseEvent*>(event)->pos())) {
