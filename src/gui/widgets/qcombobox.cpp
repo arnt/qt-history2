@@ -129,7 +129,7 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
     Q_ASSERT(itemView);
 
     // setup container
-    setFrameStyle(QFrame::Box|QFrame::Plain);
+    setFrameStyle(QFrame::StyledPanel|QFrame::Plain);
     setLineWidth(1);
     blockMouseReleaseTimer.setSingleShot(true);
 
@@ -1538,7 +1538,8 @@ void QComboBox::showPopup()
         listRect.setHeight(itemHeight * count());
     else
         listRect.setHeight(itemHeight * qMin(d->maxVisibleItems, count()));
-    listRect.setHeight(listRect.height() + 2*container->spacing() + 2);
+    listRect.setHeight(listRect.height() + 2*container->spacing()
+                       + style()->pixelMetric(QStyle::PM_DefaultFrameWidth) * 2);
 
     // make sure the widget fits on screen
     //### do horizontally as well
