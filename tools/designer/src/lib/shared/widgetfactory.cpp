@@ -247,7 +247,9 @@ QLayout *WidgetFactory::createLayout(QWidget *widget, QLayout *parentLayout, int
  */
 QWidget* WidgetFactory::containerOfWidget(QWidget *w) const
 {
-    if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), w))
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(w))
+        return promoted->child();
+    else if (QDesignerContainerExtension *container = qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), w))
         return container->widget(container->currentIndex());
 
     return w;
@@ -267,16 +269,22 @@ QWidget* WidgetFactory::widgetOfContainer(QWidget *w) const
     if (!w)
         return 0;
 
+    if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(w))
+        return widgetOfContainer(promoted->child());
+
     if (w->parentWidget() && w->parentWidget()->parentWidget() &&
          w->parentWidget()->parentWidget()->parentWidget() &&
          qobject_cast<QToolBox*>(w->parentWidget()->parentWidget()->parentWidget()))
         return w->parentWidget()->parentWidget()->parentWidget();
-    while (w) {
+
+    while (w != 0) {
         if (core()->widgetDataBase()->isContainer(w) ||
              w && qobject_cast<QDesignerFormWindowInterface*>(w->parentWidget()))
             return w;
+
         w = w->parentWidget();
     }
+
     return w;
 }
 

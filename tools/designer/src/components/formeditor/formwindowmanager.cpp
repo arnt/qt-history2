@@ -421,7 +421,8 @@ void FormWindowManager::slotActionBreakLayoutActivated()
     QList<QWidget*> layoutBaseList;
 
     foreach (QWidget *widget, widgets) {
-        QWidget *currentWidget = widget;
+        QWidget *currentWidget = core()->widgetFactory()->containerOfWidget(widget);
+
         while (currentWidget && currentWidget != m_activeFormWindow) {
             if (QLayout *layout = LayoutInfo::managedLayout(core(), currentWidget)) {
                 if (!layoutBaseList.contains(layout->parentWidget())) {
@@ -506,7 +507,7 @@ void FormWindowManager::slotUpdateActions()
         }
 
         if (simplifiedSelection.count() == 1) {
-            QWidget *widget = m_core->widgetFactory()->widgetOfContainer(simplifiedSelection.first());
+            QWidget *widget = core()->widgetFactory()->containerOfWidget(simplifiedSelection.first());
 
             QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
 
@@ -521,8 +522,7 @@ void FormWindowManager::slotUpdateActions()
                                 && layout == 0;
 
             m_layoutChilds = layoutAvailable;
-
-            breakAvailable = layout != 0 || LayoutInfo::isWidgetLaidout(m_core, widget);
+            breakAvailable = layout != 0;
         } else {
             layoutAvailable = unlaidoutWidgetCount > 1;
             breakAvailable = false;
