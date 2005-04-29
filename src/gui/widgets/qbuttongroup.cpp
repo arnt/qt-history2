@@ -37,8 +37,10 @@
     A button is added to the group with addButton(). It can be removed
     from the group with removeButton(). If the group is exclusive, the
     currently checked button is available as checkedButton(). If a
-    button is checked the buttonChecked() signal is emitted. The
-    number of buttons in the group is returned by count().
+    button is clicked the buttonClicked() signal is emitted. For a
+    checkable button in an exclusive group this means that the button
+    was checked. The number of buttons in the group is returned by
+    count().
 
     \sa QGroupBox QPushButton, QCheckBox, QRadioButton
 */
@@ -67,11 +69,11 @@
 */
 
 /*!
-    \fn void QButtonGroup::buttonChecked(QAbstractButton *button)
+    \fn void QButtonGroup::buttonClicked(QAbstractButton *button)
 
-    This signal is emitted when the given \a button is checked.
+    This signal is emitted when the given \a button is clicked.
 
-    \sa checkedButton()
+    \sa checkedButton(), QAbstractButton::clicked()
 */
 
 

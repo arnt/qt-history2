@@ -41,7 +41,7 @@ public:
     // no setter on purpose!
 
 signals:
-    void buttonChecked(QAbstractButton *);
+    void buttonClicked(QAbstractButton *);
 
 #ifdef QT3_SUPPORT
 public:

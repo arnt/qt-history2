@@ -257,7 +257,6 @@ void QAbstractButtonPrivate::notifyChecked()
         group->d_func()->checkedButton = q;
         if (group->d_func()->exclusive && previous && previous != q)
             previous->setChecked(false);
-        emit group->buttonChecked(q);
     } else if (autoExclusive) {
         if (QAbstractButton *b = queryCheckedButton())
             b->setChecked(false);
@@ -340,9 +339,9 @@ void QAbstractButtonPrivate::moveFocus(int key)
         && candidate
         && fb->d_func()->checked
         && candidate->d_func()->checkable)
-        candidate->setChecked(true);
+        candidate->click();
 
-    if (candidate && candidate->focusPolicy() != Qt::NoFocus) {
+    if (candidate) {
         if (key == Qt::Key_Up || key == Qt::Key_Left)
             candidate->setFocus(Qt::BacktabFocusReason);
         else
@@ -399,9 +398,10 @@ void QAbstractButtonPrivate::click()
     blockRefresh = false;
     refresh();
     emit q->released();
-    if (!guard)
-        return;
-    emit q->clicked(checked);
+    if (guard)
+        emit q->clicked(checked);
+    if (guard && group)
+        emit group->buttonClicked(q);
     QMetaObject::removeGuard(&guard);
 }
 
@@ -729,6 +729,8 @@ void QAbstractButton::click()
             emit released();
         if (guard)
             emit clicked(d->checked);
+        if (guard && d->group)
+            emit d->group->buttonClicked(this);
     }
     QMetaObject::removeGuard(&guard);
 }
@@ -939,9 +941,15 @@ void QAbstractButton::timerEvent(QTimerEvent *e)
     if (e->timerId() == d->repeatTimer.timerId()) {
         d->repeatTimer.start(AUTO_REPEAT_PERIOD, this);
         if (d->down) {
+            QObject *guard = this;
+            QMetaObject::addGuard(&guard);
             emit released();
-            emit clicked(d->checked);
-            emit pressed();
+            if (guard)
+                emit clicked(d->checked);
+            if (guard && d->group)
+                emit d->group->buttonClicked(this);
+            if (guard)
+                emit pressed();
         }
     } else if (e->timerId() == d->animateTimer.timerId()) {
         d->animateTimer.stop();
