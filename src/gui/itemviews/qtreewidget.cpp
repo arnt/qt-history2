@@ -126,6 +126,7 @@ QTreeModel::QTreeModel(int columns, QObject *parent)
 QTreeModel::~QTreeModel()
 {
     clear();
+    delete header;
 }
 
 /*!
