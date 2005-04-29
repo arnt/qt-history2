@@ -117,40 +117,33 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 #undef DECLARE_LAYOUT
 #undef DECLARE_WIDGET
 
-    if (fw && !w) {
-        QDesignerWidgetDataBaseInterface *db = fw->core()->widgetDataBase();
+    if (w == 0) {
+        QDesignerWidgetDataBaseInterface *db = core()->widgetDataBase();
         QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfClassName(widgetName));
-        if (item != 0 && item->isPromoted()) {
-            QWidget *child = createWidget(item->extends(), 0);
-            if (child != 0) {
-                QDesignerPromotedWidget *promoted = new QDesignerPromotedWidget(item, parentWidget);
-                promoted->setChildWidget(child);
-                w = promoted;
-            }
-        } else {
-            // qDebug() << "widget" << widgetName << "not found! Created a generic custom widget";
 
-            // step 1) create a new entry in widget database
-            QDesignerWidgetDataBaseItemInterface *item = new WidgetDataBaseItem(widgetName, tr("%1 Widget").arg(widgetName));
+        if (item == 0) {
+            item = new WidgetDataBaseItem(widgetName, tr("%1 Widget").arg(widgetName));
             item->setCustom(true);
-            item->setPromoted(true); // ### ??
+            item->setPromoted(true);
             item->setExtends(QLatin1String("QWidget"));
+            item->setContainer(true);
             item->setIncludeFile(widgetName.toLower() + QLatin1String(".h"));
             db->append(item);
-
-            // step 2) create the actual widget
-            QWidget *actualWidget = new QWidget();
-
-            // step 3) create a QDesignerPromotedWidget
-            QDesignerPromotedWidget *promotedWidget = new QDesignerPromotedWidget(item, parentWidget);
-            promotedWidget->setChildWidget(actualWidget);
-            w = promotedWidget;
         }
+
+        QString baseClass = item->extends();
+        if (baseClass.isEmpty())
+            baseClass = QLatin1String("QWidget");
+
+        QDesignerPromotedWidget *promoted = new QDesignerPromotedWidget(item, parentWidget);
+        QWidget *child = createWidget(baseClass, promoted);
+        promoted->setChildWidget(child);
+
+        w = promoted;
     }
 
-    if (w != 0) {
-        initialize(w);
-    }
+    Q_ASSERT(w != 0);
+    initialize(w);
 
     return w;
 }
