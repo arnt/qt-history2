@@ -94,7 +94,19 @@ static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &
     QByteArray form = format.toLower();
     QImageIOHandler *handler = 0;
 
-    if (!format.isEmpty()) {
+    // check if any plugins can write the image
+    QFactoryLoader *l = loader();
+    QStringList keys = l->keys();
+    for (int i = 0; i < keys.count(); ++i) {
+        QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
+        if (plugin->capabilities(device, form) & QImageIOPlugin::CanWrite) {
+            handler = plugin->create(device, form);
+            break;
+        }
+    }
+
+    // check if any built-in handlers can write the image
+    if (!handler && !format.isEmpty()) {
 #ifndef QT_NO_IMAGEIO_PNG
         if (form == "png") {
             handler = new QPngHandler;
@@ -111,18 +123,6 @@ static QImageIOHandler *createWriteHandler(QIODevice *device, const QByteArray &
                  || form == "pgmraw" || form == "ppm" || form == "ppmraw") {
             handler = new QPpmHandler;
             handler->setOption(QImageIOHandler::SubType, form);
-        }
-    }
-
-    if (!handler) {
-        QFactoryLoader *l = loader();
-        QStringList keys = l->keys();
-        for (int i = 0; i < keys.count(); ++i) {
-            QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
-            if (plugin->capabilities(device, form) & QImageIOPlugin::CanWrite) {
-                handler = plugin->create(device, form);
-                break;
-            }
         }
     }
 

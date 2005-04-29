@@ -111,24 +111,19 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
     QByteArray form = format.toLower();
     QImageIOHandler *handler = 0;
 
-    if (format.isEmpty()) {
-        QByteArray subType;
-#ifndef QT_NO_IMAGEIO_PNG
-        if (QPngHandler::canRead(device)) {
-            handler = new QPngHandler;
-        } else
-#endif
-        if (QBmpHandler::canRead(device)) {
-            handler = new QBmpHandler;
-        } else if (QXpmHandler::canRead(device)) {
-            handler = new QXpmHandler;
-        } else if (QPpmHandler::canRead(device, &subType)) {
-            handler = new QPpmHandler;
-            handler->setOption(QImageIOHandler::SubType, subType);
-        } else if (QXbmHandler::canRead(device)) {
-            handler = new QXbmHandler;
+    // check if we have plugins that support the image format
+    QFactoryLoader *l = loader();
+    QStringList keys = l->keys();
+    for (int i = 0; i < keys.count(); ++i) {
+        QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
+        if (plugin->capabilities(device, form) & QImageIOPlugin::CanRead) {
+            handler = plugin->create(device, form);
+            break;
         }
-    } else {
+    }
+
+    // check if we have built-in support for the format name
+    if (!format.isEmpty()) {
 #ifndef QT_NO_IMAGEIO_PNG
         if (form == "png") {
             handler = new QPngHandler;
@@ -147,16 +142,24 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
             handler->setOption(QImageIOHandler::SubType, form);
         }
     }
-
+    
+    // check if any of our built-in formats can read images from the device
     if (!handler) {
-        QFactoryLoader *l = loader();
-        QStringList keys = l->keys();
-        for (int i = 0; i < keys.count(); ++i) {
-            QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
-            if (plugin->capabilities(device, form) & QImageIOPlugin::CanRead) {
-                handler = plugin->create(device, form);
-                break;
-            }
+        QByteArray subType;
+#ifndef QT_NO_IMAGEIO_PNG
+        if (QPngHandler::canRead(device)) {
+            handler = new QPngHandler;
+        } else
+#endif
+        if (QBmpHandler::canRead(device)) {
+            handler = new QBmpHandler;
+        } else if (QXpmHandler::canRead(device)) {
+            handler = new QXpmHandler;
+        } else if (QPpmHandler::canRead(device, &subType)) {
+            handler = new QPpmHandler;
+            handler->setOption(QImageIOHandler::SubType, subType);
+        } else if (QXbmHandler::canRead(device)) {
+            handler = new QXbmHandler;
         }
     }
 
@@ -764,7 +767,7 @@ QList<QByteArray> QImageReader::supportedImageFormats()
     QList<QByteArray> sortedFormats;
     for (QSet<QByteArray>::ConstIterator it = formats.constBegin(); it != formats.constEnd(); ++it)
         sortedFormats << *it;
-    
+
     qSort(sortedFormats);
     return sortedFormats;
 }
