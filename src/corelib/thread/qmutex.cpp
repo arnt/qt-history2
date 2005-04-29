@@ -186,7 +186,8 @@ void QMutex::lock()
         d->lock.deref();
     }
     d->owner = self;
-    Q_ASSERT_X(++d->count != 0, "QMutex::lock()", "Overflow in recursion counter");
+    ++d->count;
+    Q_ASSERT_X(d->count != 0, "QMutex::lock()", "Overflow in recursion counter");
 }
 
 /*!
