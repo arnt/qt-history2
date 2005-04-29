@@ -17,7 +17,6 @@
 #include "qsocketlayer_p.h"
 #include <ws2tcpip.h>
 #include <qlibrary.h>
-#include <qsignal.h>
 #include <qtimer.h>
 #include <qmutex.h>
 
