@@ -14,6 +14,8 @@
 #include "qdesigner_propertysheet.h"
 #include "qdesigner_utils.h"
 
+#include <QtDesigner/QDesignerFormWindowInterface>
+
 #include <QtCore/QVariant>
 #include <QtCore/QMetaObject>
 #include <QtCore/QMetaProperty>
@@ -63,12 +65,14 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
 
     // ### disable the overrided properties
 
-    createFakeProperty(QLatin1String("focusPolicy"));
-    createFakeProperty(QLatin1String("cursor"));
-    createFakeProperty(QLatin1String("toolTip"));
-    createFakeProperty(QLatin1String("whatsThis"));
-    createFakeProperty(QLatin1String("acceptDrops"));
-    createFakeProperty(QLatin1String("dragEnabled"));
+    if (object->isWidgetType() && QDesignerFormWindowInterface::findFormWindow(static_cast<QWidget*>(object))) {
+        createFakeProperty(QLatin1String("focusPolicy"));
+        createFakeProperty(QLatin1String("cursor"));
+        createFakeProperty(QLatin1String("toolTip"));
+        createFakeProperty(QLatin1String("whatsThis"));
+        createFakeProperty(QLatin1String("acceptDrops"));
+        createFakeProperty(QLatin1String("dragEnabled"));
+    }
 }
 
 QDesignerPropertySheet::~QDesignerPropertySheet()

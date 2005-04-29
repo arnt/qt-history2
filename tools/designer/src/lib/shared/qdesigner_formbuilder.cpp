@@ -100,18 +100,17 @@ QPixmap QDesignerFormBuilder::nameToPixmap(const QString &filePath, const QStrin
 
 void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*> &properties)
 {
-    QFormBuilder::applyProperties(o, properties);
-
-#if 0  // ### disabled for now.
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o);
     Q_ASSERT(sheet != 0);
 
     foreach (DomProperty *p, properties) {
+        int index = sheet->indexOf(p->attributeName());
         QVariant v = toVariant(o->metaObject(), p);
-        if (!v.isNull())
-            sheet->setProperty(sheet->indexOf(p->attributeName()), v);
+
+        if (!v.isNull()) {
+            sheet->setProperty(index, v);
+        }
     }
-#endif
 }
 
 DomWidget *QDesignerFormBuilder::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)
