@@ -1082,6 +1082,10 @@ void QWindowsXPStyle::polish(QWidget *widget)
 }
 
 /*! \reimp */
+void QWindowsXPStyle::polish(QPalette &pal)
+{ QWindowsStyle::polish(pal); }
+
+/*! \reimp */
 void QWindowsXPStyle::unpolish(QWidget *widget)
 {
     // Unpolish of widgets is the first thing that

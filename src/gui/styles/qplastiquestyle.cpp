@@ -3925,3 +3925,9 @@ void QPlastiqueStyle::polish(QPalette &pal)
     QWindowsStyle::polish(pal);
     pal.setBrush(QPalette::AlternateBase, pal.base().color().dark(110));
 }
+
+void QPlastiqueStyle::unpolish(QApplication *app)
+{
+    QWindowsStyle::unpolish(app);
+}
+

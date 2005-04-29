@@ -35,6 +35,7 @@ public:
     void unpolish(QApplication*);
     void polish(QApplication*);
     void polish(QWidget*);
+    void polish(QPalette&);
     void unpolish(QWidget*);
 
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *option, QPainter *p,
