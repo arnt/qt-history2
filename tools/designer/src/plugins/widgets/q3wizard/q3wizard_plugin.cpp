@@ -18,6 +18,7 @@
 #include <QtDesigner/QExtensionManager>
 
 #include <QtCore/qplugin.h>
+#include <QtGui/QPushButton>
 #include <Qt3Support/Q3Wizard>
 
 Q3WizardPlugin::Q3WizardPlugin(QObject *parent)
@@ -49,7 +50,12 @@ bool Q3WizardPlugin::isForm() const
 { return false; }
 
 QWidget *Q3WizardPlugin::createWidget(QWidget *parent)
-{ return new Q3Wizard(parent); }
+{
+    Q3Wizard *wizard = new Q3Wizard(parent);
+    wizard->backButton()->setObjectName(QLatin1String("__qt__passive_") + wizard->backButton()->objectName());
+    wizard->nextButton()->setObjectName(QLatin1String("__qt__passive_") + wizard->nextButton()->objectName());
+    return wizard;
+}
 
 bool Q3WizardPlugin::isInitialized() const
 { return m_initialized; }
