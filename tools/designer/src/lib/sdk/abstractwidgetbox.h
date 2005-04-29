@@ -29,15 +29,18 @@ class QT_SDK_EXPORT QDesignerWidgetBoxInterface : public QWidget
 public:
     class Widget {
     public:
+        enum Type { Default, Custom };
         Widget(const QString &name = QString(), const QString &xml = QString(),
-                const QString &icon_name = QString())
-            : m_name(name), m_xml(xml), m_icon_name(icon_name) {}
+                const QString &icon_name = QString(), Type type = Default)
+            : m_name(name), m_xml(xml), m_icon_name(icon_name), m_type(type) {}
         QString name() const { return m_name; }
         void setName(const QString &name) { m_name = name; }
         QString domXml() const { return m_xml; }
         void setDomXml(const QString &xml) { m_xml = xml; }
         QString iconName() const { return m_icon_name; }
         void setIconName(const QString &icon_name) { m_icon_name = icon_name; }
+        Type type() const { return m_type; }
+        void setType(Type type) { m_type = type; }
 
         bool isNull() const { return m_name.isEmpty(); }
 
@@ -45,12 +48,13 @@ public:
         QString m_name;
         QString m_xml;
         QString m_icon_name;
+        Type m_type;
     };
     typedef QList<Widget> WidgetList;
 
     class Category {
     public:
-        enum Type { Default, Custom, Scratchpad };
+        enum Type { Default, Scratchpad };
 
         Category(const QString &name = QString(), Type type = Default)
             : m_name(name), m_type(type) {}
