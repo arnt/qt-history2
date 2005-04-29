@@ -36,7 +36,7 @@ public:
     Q3SqlRecordInfo(const QSqlRecord& other)
     {
         for (int i = 0; i < other.count(); ++i)
-            push_back(Q3SqlFieldInfo(other.field(i), other.isGenerated(i)));
+            push_back(Q3SqlFieldInfo(other.field(i)));
     }
 
     size_type contains(const QString& fieldName) const;

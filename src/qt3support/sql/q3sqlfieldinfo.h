@@ -52,7 +52,7 @@ public:
 
     virtual ~Q3SqlFieldInfo() {}
 
-    Q3SqlFieldInfo(const QSqlField & other, bool generated = true)
+    Q3SqlFieldInfo(const QSqlField & other)
     {
         nm = other.name();
         typ = other.type();
@@ -65,8 +65,8 @@ public:
         prec = other.precision();
         defValue = other.defaultValue();
         tID = other.typeID();
-        calc = other.isGenerated();
-        gen = generated;
+        gen = other.isGenerated();
+        calc = false;
         trim = false;
     }
 
@@ -91,22 +91,22 @@ public:
       f.setPrecision(prec);
       f.setDefaultValue(defValue);
       f.setSqlType(tID);
-      f.setGenerated(calc);
+      f.setGenerated(gen);
       return f;
     }
     int isRequired() const
     { return req; }
     QVariant::Type type() const
     { return typ; }
-    int        length() const
+    int length() const
     { return len; }
-    int        precision() const
+    int precision() const
     { return prec; }
     QVariant defaultValue() const
     { return defValue; }
     QString name() const
     { return nm; }
-    int        typeID() const
+    int typeID() const
     { return tID; }
     bool isGenerated() const
     { return gen; }
