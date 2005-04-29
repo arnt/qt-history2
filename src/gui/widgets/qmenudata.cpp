@@ -16,8 +16,6 @@
 #include <qaction.h>
 #include <private/qaction_p.h>
 
-#include "qmenudata.moc"
-
 /*!
     \class QMenuItem
     \brief The QMenuItem class represents an item in a menu.
