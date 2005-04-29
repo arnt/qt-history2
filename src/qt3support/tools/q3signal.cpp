@@ -41,7 +41,7 @@
 
     Example:
     \code
-	#include <qsignal.h>
+	#include <q3signal.h>
 
 	class MyClass
 	{
