@@ -9,6 +9,7 @@ SUBDIRS = \
     q3groupbox \
     q3mainwindow \
     q3toolbar \
-    q3frame
+    q3frame \
+    q3wizard
 
 
