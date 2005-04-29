@@ -21,6 +21,7 @@
 #include <qregexp.h>
 #include <qvector.h>
 #include <qresource.h>
+#include <qdebug.h>
 #include <stdlib.h>
 
 static QString driveSpec(const QString &path)
@@ -269,8 +270,10 @@ void QDirPrivate::initFileEngine(const QString &path)
 void QDirPrivate::detach(bool createFileEngine)
 {
     qAtomicDetach(data);
-    if (createFileEngine)
+    if (createFileEngine) {
+        delete data->fileEngine;
         data->fileEngine = QFileEngine::createFileEngine(data->path);
+    }
 }
 
 /*!
