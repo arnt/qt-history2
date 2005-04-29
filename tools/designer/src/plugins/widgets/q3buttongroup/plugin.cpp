@@ -2,6 +2,7 @@
 #include <QtDesigner/QDesignerCustomWidgetInterface>
 
 #include <Qt3Support/Q3ButtonGroup>
+#include <QtGui/QLayout>
 #include <QtCore/qplugin.h>
 
 class Q3ButtonGroupPlugin: public QObject, public QDesignerCustomWidgetInterface
@@ -100,6 +101,7 @@ QWidget *Q3ButtonGroupPlugin::createWidget(QWidget *parent)
 {
     Q3ButtonGroup *g = new Q3ButtonGroup(parent);
     g->setColumnLayout(0, Qt::Vertical);
+    g->layout()->setMargin(0);
     return g;
 }
 
