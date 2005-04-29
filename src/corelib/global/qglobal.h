@@ -725,6 +725,9 @@ template <typename T>
 inline const T &qMin(const T &a, const T &b) { if (a < b) return a; return b; }
 template <typename T>
 inline const T &qMax(const T &a, const T &b) { if (a < b) return b; return a; }
+template <typename T>
+inline const T &qBound(const T &min, const T &val, const T &max)
+{ return qMax(min, qMin(max, val)); }
 
 #ifdef QT3_SUPPORT
 #  define QABS(a) qAbs(a)

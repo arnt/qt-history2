@@ -93,3 +93,7 @@
 /*! \fn T qMax(T a, T b)
     \relates <QtGlobal>
 */
+
+/*! \fn T qBound(T min, T val, T max)
+    \relates <QtGlobal>
+*/
