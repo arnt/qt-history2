@@ -41,6 +41,8 @@ QImageIOPlugin::Capabilities QJpegPlugin::capabilities(QIODevice *device, const 
 {
     if (format == "jpeg" || format == "jpg")
         return Capabilities(CanRead | CanWrite);
+    if (!format.isEmpty())
+        return 0;
     if (!device->isOpen())
         return 0;
 
