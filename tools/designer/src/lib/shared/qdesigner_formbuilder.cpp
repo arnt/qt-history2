@@ -26,6 +26,7 @@
 
 // shared
 #include <resourcefile.h>
+#include <widgetfactory.h>
 #include <pluginmanager.h>
 
 #include <QtGui/QWidget>
@@ -65,29 +66,8 @@ QWidget *QDesignerFormBuilder::createWidgetFromContents(const QString &contents,
 
 QWidget *QDesignerFormBuilder::createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name)
 {
-    if (QDesignerCustomWidgetInterface *c = m_customFactory.value(widgetName)) {
-        QWidget *widget = c->createWidget(parentWidget);
-        widget->setObjectName(name);
-        return widget;
-    }
-
-    if (widgetName == QLatin1String("QLabel")) {
-        QLabel *label = new QDesignerLabel(parentWidget);
-        label->setObjectName(name);
-        return label;
-    } else if (widgetName == QLatin1String("Line")) {
-        Line *line = new Line(parentWidget);
-        line->setObjectName(name);
-        return line;
-    }
-
-    QWidget *widget = QFormBuilder::createWidget(widgetName, parentWidget, name);
-    if (widget == 0) {
-        // ### qWarning("failed to create a widget for type %s", widgetName.toUtf8().constData());
-        widget = new QWidget(parentWidget);
-        widget->setObjectName(name);
-    }
-
+    QWidget *widget = core()->widgetFactory()->createWidget(widgetName, parentWidget);
+    widget->setObjectName(name);
     return widget;
 }
 

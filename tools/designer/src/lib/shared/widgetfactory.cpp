@@ -143,7 +143,9 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
     }
 
     Q_ASSERT(w != 0);
-    initialize(w);
+
+    if (fw != 0)
+        initialize(w);
 
     return w;
 }
