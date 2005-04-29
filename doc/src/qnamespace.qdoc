@@ -609,10 +609,15 @@
     although some have special convenience functions which are
     mentioned below.
 
-    \value WA_DeleteOnClose makes Qt delete this widget when the
+    \value WA_AcceptDrops Allows data from drag and drop operations
+    to be dropped onto the widget (see QWidget::setAcceptDrops()).
+
+    \value WA_DeleteOnClose Makes Qt delete this widget when the
     widget has accepted the close event (see QWidget::closeEvent()).
 
-    \value WA_QuitOnClose makes Qt quit the application when the last
+    \omitvalue WA_ForceAcceptDrops
+
+    \value WA_QuitOnClose Makes Qt quit the application when the last
     widget with the attribute set has accepted closeEvent(). This
     behaviour can be adjusted with the
     QApplication::quitOnLastWindowClosed property. By default the
@@ -1236,7 +1241,7 @@
                             children are checked.
     \value Checked          The item is checked.
 
-    \sa QCheckBox, QAbstractItemModel::ItemFlag, QAbstractItemModel::Role
+    \sa QCheckBox, Qt::ItemFlags, Qt::ItemDataRole
 */
 
 
