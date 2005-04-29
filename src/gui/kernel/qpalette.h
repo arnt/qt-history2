@@ -20,7 +20,9 @@
 
 #ifndef QT_NO_PALETTE
 
+#ifdef QT3_SUPPORT
 class QColorGroup;
+#endif
 class QPalettePrivate;
 class QVariant;
 

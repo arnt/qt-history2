@@ -1599,7 +1599,7 @@ void QApplication::setWindowIcon(const QIcon &icon)
     }
   \endcode
 
-  \sa allWidgets(), QWidget::isWindow(), QWidget::isExplicitlyHidden(),
+  \sa allWidgets(), QWidget::isWindow(), QWidget::isHidden(),
       QList::isEmpty()
 */
 QWidgetList QApplication::topLevelWidgets()

@@ -413,7 +413,7 @@ void QDockWidgetTitle::updateButtons()
 
             box->insertWidget(1, floatButton);
 
-            if (!dockwidget->isExplicitlyHidden())
+            if (!dockwidget->isHidden())
                 floatButton->show();
         }
     } else {
@@ -429,7 +429,7 @@ void QDockWidgetTitle::updateButtons()
 
             box->insertWidget(2, closeButton);
 
-            if (!dockwidget->isExplicitlyHidden())
+            if (!dockwidget->isHidden())
                 closeButton->show();
         }
     } else {
@@ -495,7 +495,7 @@ void QDockWidgetPrivate::init() {
 void QDockWidgetPrivate::toggleView(bool b)
 {
     Q_Q(QDockWidget);
-    if (b == q->isExplicitlyHidden()) {
+    if (b == q->isHidden()) {
         if (b)
             q->show();
         else
@@ -778,7 +778,7 @@ bool QDockWidget::event(QEvent *event)
     Q_D(QDockWidget);
     switch (event->type()) {
     case QEvent::Hide:
-        if (!isExplicitlyHidden())
+        if (!isHidden())
             break;
         // fallthrough intended
     case QEvent::Show:

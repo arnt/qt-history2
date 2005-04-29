@@ -1040,7 +1040,7 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
     bool wasMaximized = w->isMaximized();
     bool wasMinimized = w->isMinimized();
 #endif
-    bool hasBeenHidden = w->isExplicitlyHidden();
+    bool hasBeenHidden = w->isHidden();
     bool hasSize = w->testAttribute(Qt::WA_Resized);
     int x = w->x();
     int y = w->y();
@@ -1879,7 +1879,7 @@ void QWorkspace::closeAllWindows()
     while (it != d->windows.constEnd() && did_close) {
         QWorkspaceChild *c = *it;
         ++it;
-        if (c->windowWidget() && !c->windowWidget()->isExplicitlyHidden())
+        if (c->windowWidget() && !c->windowWidget()->isHidden())
             did_close = c->windowWidget()->close();
     }
 }
@@ -2199,7 +2199,7 @@ void QWorkspace::tile()
     while (it != d->windows.end()) {
         c = *it;
         ++it;
-        if (!c->windowWidget()->isExplicitlyHidden()
+        if (!c->windowWidget()->isHidden()
             && !(c->windowWidget()->windowFlags() & Qt::WindowStaysOnTopHint)
             && !c->iconw)
             n++;
@@ -2225,7 +2225,7 @@ void QWorkspace::tile()
     while (it != d->windows.end()) {
         c = *it;
         ++it;
-        if (c->iconw || c->windowWidget()->isExplicitlyHidden() || (c->titlebar->isTool()))
+        if (c->iconw || c->windowWidget()->isHidden() || (c->titlebar->isTool()))
             continue;
         if (!row && !col) {
             w -= c->baseSize().width();
@@ -2909,7 +2909,7 @@ void QWorkspaceChild::internalRaise()
             QWorkspaceChild* c = *it;
             ++it;
             if (c->windowWidget() &&
-                !c->windowWidget()->isExplicitlyHidden() &&
+                !c->windowWidget()->isHidden() &&
                 (c->windowWidget()->windowFlags() & Qt::WindowStaysOnTopHint)) {
                 if (stackUnderWidget)
                     c->stackUnder(stackUnderWidget);
@@ -2934,7 +2934,7 @@ void QWorkspaceChild::internalRaise()
 
 void QWorkspaceChild::show()
 {
-    if (childWidget && childWidget->isExplicitlyHidden())
+    if (childWidget && childWidget->isHidden())
         childWidget->show();
     QWidget::show();
 }
@@ -3009,7 +3009,7 @@ QRect QWorkspacePrivate::updateWorkspace()
         while (it != windows.end()) {
             QWorkspaceChild *child = *it;
             ++it;
-            if (!child->isExplicitlyHidden())
+            if (!child->isHidden())
                 r = r.unite(child->geometry());
         }
         vbar->blockSignals(true);

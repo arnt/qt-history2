@@ -838,7 +838,7 @@ void Q3ScrollView::updateScrollBars()
         // Do we definitely need the scrollbar?
         needh = w-lmarg-rmarg < d->contentsWidth();
         if (d->inresize)
-            needh  = !horizontalScrollBar()->isExplicitlyHidden();
+            needh  = !horizontalScrollBar()->isHidden();
         needv = h-tmarg-bmarg < contentsHeight();
 
         // Do we intend to show the scrollbar?
@@ -1034,9 +1034,9 @@ void Q3ScrollView::updateScrollBars()
     }
 
     // Finally, show the scroll bars
-    if (showh && (d->hbar->isExplicitlyHidden() || !d->hbar->isVisible()))
+    if (showh && (d->hbar->isHidden() || !d->hbar->isVisible()))
         d->hbar->show();
-    if (showv && (d->vbar->isExplicitlyHidden() || !d->vbar->isVisible()))
+    if (showv && (d->vbar->isHidden() || !d->vbar->isVisible()))
         d->vbar->show();
 
     d->signal_choke=true;

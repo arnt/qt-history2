@@ -84,7 +84,7 @@ static bool canBeBuddy(QWidget *w, QDesignerFormWindowInterface *form)
 {
     if (qobject_cast<QLayoutWidget*>(w)
             || w == form->mainContainer()
-            || w->isExplicitlyHidden())
+            || w->isHidden())
         return false;
 
     QExtensionManager *ext = form->core()->extensionManager();

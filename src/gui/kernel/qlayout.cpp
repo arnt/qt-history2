@@ -26,7 +26,7 @@
 
 static int menuBarHeightForWidth(QWidget *menubar, int w)
 {
-    if (menubar && !menubar->isExplicitlyHidden() && !menubar->isWindow())
+    if (menubar && !menubar->isHidden() && !menubar->isWindow())
         return menubar->heightForWidth(qMax(w, menubar->minimumWidth()));
     return 0;
 }
@@ -745,7 +745,7 @@ void QLayout::addChildWidget(QWidget *w)
         qWarning("QLayout::addChildWidget: %s in wrong parent; moved to correct parent", w->metaObject()->className());
         pw = 0;
     }
-    bool needShow = mw && mw->isVisible() && !w->isExplicitlyHidden();
+    bool needShow = mw && mw->isVisible() && !(w->isHidden() && w->testAttribute(Qt::WA_WState_ExplicitShowHide));
     if (!pw && mw)
         w->setParent(mw);
     w->setAttribute(Qt::WA_LaidOut);

@@ -1789,7 +1789,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
         if (outsideRange) {
             HIViewSetVisible((HIViewRef)q->winId(), false);
             q->setAttribute(Qt::WA_Mapped, false);
-        } else if (!q->isExplicitlyHidden()) {
+        } else if (!q->isHidden()) {
             mapWindow = true;
         }
     }

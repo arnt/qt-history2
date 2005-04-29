@@ -160,7 +160,7 @@ bool TabOrderEditor::skipWidget(QWidget *w) const
 {
     if (qobject_cast<QLayoutWidget*>(w)
             || w == formWindow()->mainContainer()
-            || w->isExplicitlyHidden())
+            || w->isHidden())
         return true;
 
     if (!formWindow()->isManaged(w)) {

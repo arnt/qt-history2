@@ -581,10 +581,6 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     return naturalpalette;
 }
 
-static inline bool isPersonallyHidden(const QWidget *w)
-{ return w->testAttribute(Qt::WA_WState_Hidden); }
-
-
 
 /*****************************************************************************
   QWidget member functions
@@ -2178,7 +2174,7 @@ QRect QWidget::childrenRect() const
     QRect r(0, 0, 0, 0);
     for (int i = 0; i < d->children.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
-        if (w && !w->isWindow() && !w->isExplicitlyHidden())
+        if (w && !w->isWindow() && !w->isHidden())
             r |= w->geometry();
     }
     return r;
@@ -2199,7 +2195,7 @@ QRegion QWidget::childrenRegion() const
     QRegion r;
     for (int i = 0; i < d->children.size(); ++i) {
         QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
-        if (w && !w->isWindow() && !w->isExplicitlyHidden()) {
+        if (w && !w->isWindow() && !w->isHidden()) {
             QRegion mask = w->mask();
             if (mask.isEmpty())
                 r |= w->geometry();
@@ -3394,8 +3390,8 @@ void QWidget::setFocus(Qt::FocusReason reason)
 
 
     QWidget *w = f;
-    if (isPersonallyHidden(this)) {
-        while (w && isPersonallyHidden(w)) {
+    if (isHidden()) {
+        while (w && w->isHidden()) {
             w->d_func()->focus_child = f;
             w = w->isWindow() ? 0 : w->parentWidget();
         }
@@ -4168,7 +4164,7 @@ void QWidgetPrivate::show_helper()
     Hides the widget. This function is equivalent to
     setVisible(false).
 
-    \sa hideEvent(), isExplicitlyHidden(), show(), setVisible(), isVisible(), close()
+    \sa hideEvent(), isHidden(), show(), setVisible(), isVisible(), close()
 */
 
 /*!\internal
@@ -4234,15 +4230,25 @@ void QWidgetPrivate::hide_helper()
 }
 
 /*!
-    \fn bool QWidget::isExplicitlyHidden() const
+    \fn bool QWidget::isHidden() const
 
-    Returns true if the widget is explicity hidden, otherwise returns
-    false.
+    Returns true if the widget is hidden, otherwise returns false.
 
-    Widgets are explicitly hidden after hide() or setVisible(false) is called.
+    A hidden widget will only become visible when show() is called on
+    it. It will not be automatically shown when the parent is shown.
 
-    \sa setVisible(), hide()
+    To check visiblity, use !isVisible() instead (notice the exclamation mark).
+
+    isHidden() implies !isVisible(), but a widget can be not visible
+    and not hidden at the same time. This is the case for widgets that are children of
+    widgets that are not visible.
+
+
+    Widgets are  hidden if they were created as independent
+    windows or as children of visible widgets, or if hide() or setVisible(false) was called.
+
 */
+
 
 void QWidget::setVisible(bool visible)
 {
@@ -4403,7 +4409,7 @@ bool QWidgetPrivate::close_helper(CloseMode mode)
         }
     }
 
-    if (!that.isNull() && !isPersonallyHidden(q))
+    if (!that.isNull() && !q->isHidden())
         q->hide();
 
 #ifdef QT3_SUPPORT
@@ -4502,7 +4508,7 @@ bool QWidget::close()
     showEvent() instead. If you need to do some delayed initialization
     use the Polish event delivered to the event() method
 
-    \sa show(), hide(), isExplicitlyHidden(), isVisibleTo(), isMinimized(),
+    \sa show(), hide(), isHidden(), isVisibleTo(), isMinimized(),
     showEvent(), hideEvent()
 */
 
@@ -4529,12 +4535,12 @@ bool QWidget::isVisibleTo(QWidget* ancestor) const
         return isVisible();
     const QWidget * w = this;
     while (w
-            && !w->isExplicitlyHidden()
+            && !w->isHidden()
             && !w->isWindow()
             && w->parentWidget()
             && w->parentWidget() != ancestor)
         w = w->parentWidget();
-    return !isPersonallyHidden(w);
+    return !w->isHidden();
 }
 
 #ifdef QT3_SUPPORT
@@ -4941,7 +4947,7 @@ bool QWidget::event(QEvent *e)
         break;
 
     case QEvent::ShowWindowRequest:
-        if (isVisible())
+        if (!isHidden())
             d->show_sys();
         break;
 
@@ -5996,7 +6002,7 @@ QWidget *QWidget::childAt(const QPoint &p) const
     for (int i = d->children.size(); i > 0 ;) {
         --i;
         QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
-        if (w && !w->isWindow() && !w->isExplicitlyHidden() && w->geometry().contains(p)) {
+        if (w && !w->isWindow() && !w->isHidden() && w->geometry().contains(p)) {
             if (QWidget *t = w->childAt(p.x() - w->x(), p.y() - w->y()))
                 return t;
             // if WMouseNoMask is set the widget mask is ignored, if
@@ -6024,7 +6030,7 @@ QWidget *QWidget::childAt(const QPoint &p) const
 void QWidget::updateGeometry()
 {
 #ifndef QT_NO_LAYOUT
-    if (!isWindow() && !isExplicitlyHidden() && parentWidget()) {
+    if (!isWindow() && !isHidden() && parentWidget()) {
         if (parentWidget()->d_func()->layout)
             parentWidget()->d_func()->layout->update();
         else if (parentWidget()->isVisible())
@@ -7121,15 +7127,9 @@ void QWidget::languageChange() { }  // compat
 */
 
 /*!
-    \fn bool QWidget::isHidden() const
-
-    Use isExplicitlyHidden() instead.
-*/
-
-/*!
     \fn bool QWidget::isShown() const
 
-    Use !isExplicitlyHidden() instead (notice the exclamation mark).
+    Use !isHidden() instead (notice the exclamation mark), or use isVisible() to check whether the widget is visible.
 */
 
 /*!

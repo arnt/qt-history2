@@ -246,7 +246,7 @@ void Q3WidgetStack::raiseWidget(QWidget *w)
     else if (invisible->backgroundMode() != NoBackground)
         invisible->setBackgroundMode(NoBackground);
 
-    if (invisible->isExplicitlyHidden()) {
+    if (invisible->isHidden()) {
         invisible->setGeometry(contentsRect());
         invisible->lower();
         invisible->show();

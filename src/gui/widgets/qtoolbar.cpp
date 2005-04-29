@@ -97,7 +97,7 @@ void QToolBarPrivate::init()
 void QToolBarPrivate::toggleView(bool b)
 {
     Q_Q(QToolBar);
-    if (b == q->isExplicitlyHidden()) {
+    if (b == q->isHidden()) {
         if (b)
             q->show();
         else
@@ -691,7 +691,7 @@ void QToolBar::actionEvent(QActionEvent *event)
                 // destroy the QToolButton/QToolBarSeparator
                 delete item.widget;
             } else {
-                if (!isExplicitlyHidden())
+                if (!isHidden())
                     item.widget->hide();
             }
             break;
@@ -786,8 +786,8 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 	QWidget *w = box->itemAt(i)->widget();
 	bool hide = false;
 	if (QApplication::layoutDirection() == Qt::RightToLeft && orientation == Qt::Horizontal) {
-            if (w->isExplicitlyHidden()) {
-                if (box->itemAt(i-1) && !box->itemAt(i-1)->widget()->isExplicitlyHidden()) {
+            if (w->isHidden()) {
+                if (box->itemAt(i-1) && !box->itemAt(i-1)->widget()->isHidden()) {
                     QWidget *pw = box->itemAt(i-1)->widget();
                     hide = pw->pos().x() < (extension_size + w->size().width() + margin + box->spacing());
                 } else {
@@ -797,7 +797,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
                         QWidget * pw = box->itemAt(k)->widget();
                         if (pw == w)
                             break;
-                        pos = pw->isExplicitlyHidden()
+                        pos = pw->isHidden()
                               ? pos - pw->size().width() - box->spacing()
                               : pw->pos().x();
                     }
@@ -884,7 +884,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             d->extension->show();
             d->extension->setEnabled(false);
         }
-    } else if (!d->extension->isExplicitlyHidden()) {
+    } else if (!d->extension->isHidden()) {
 	if (d->extension->menu())
 	    d->extension->menu()->clear();
 	d->extension->hide();
@@ -898,7 +898,7 @@ bool QToolBar::event(QEvent *event)
     Q_D(QToolBar);
     switch (event->type()) {
     case QEvent::Hide:
-        if (!isExplicitlyHidden())
+        if (!isHidden())
             break;
         // fallthrough intended
     case QEvent::Show:

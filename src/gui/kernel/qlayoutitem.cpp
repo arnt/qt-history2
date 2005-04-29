@@ -536,7 +536,7 @@ bool QSpacerItem::isEmpty() const
 */
 bool QWidgetItem::isEmpty() const
 {
-    return wid->isExplicitlyHidden() || wid->isWindow();
+    return wid->isHidden() || wid->isWindow();
 }
 
 #endif // QT_NO_LAYOUT

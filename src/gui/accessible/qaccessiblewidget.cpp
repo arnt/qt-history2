@@ -197,7 +197,7 @@ int QAccessibleWidget::childAt(int x, int y) const
     QPoint rp = w->mapFromGlobal(QPoint(x, y));
     for (int i = 0; i<list.size(); ++i) {
         QWidget *child = list.at(i);
-        if (!child->isWindow() && !child->isExplicitlyHidden() && child->geometry().contains(rp)) {
+        if (!child->isWindow() && !child->isHidden() && child->geometry().contains(rp)) {
             return i + 1;
         }
     }

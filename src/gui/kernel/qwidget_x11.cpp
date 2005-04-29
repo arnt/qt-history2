@@ -1985,7 +1985,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
         if (outsideRange) {
             XUnmapWindow(dpy, data.winid);
             q->setAttribute(Qt::WA_Mapped, false);
-        } else if (!q->isExplicitlyHidden()) {
+        } else if (!q->isHidden()) {
             mapWindow = true;
         }
     }
@@ -2021,7 +2021,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
             QObject *object = children.at(i);
             if (object->isWidgetType()) {
                 QWidget *w = static_cast<QWidget *>(object);
-                if (!w->testAttribute(Qt::WA_OutsideWSRange) && !w->testAttribute(Qt::WA_Mapped) && !w->isExplicitlyHidden()) {
+                if (!w->testAttribute(Qt::WA_OutsideWSRange) && !w->testAttribute(Qt::WA_Mapped) && !w->isHidden()) {
                     w->setAttribute(Qt::WA_Mapped);
                     XMapWindow(dpy, w->data->winid);
                 }

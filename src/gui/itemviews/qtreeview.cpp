@@ -1161,7 +1161,7 @@ void QTreeView::resizeColumnToContents(int column)
     Q_D(QTreeView);
     d->executePostedLayout();
     int contents = sizeHintForColumn(column);
-    int header = d->header->isExplicitlyHidden() ? 0 : d->header->sectionSizeHint(column);
+    int header = d->header->isHidden() ? 0 : d->header->sectionSizeHint(column);
     d->header->resizeSection(column, qMax(contents, header));
 }
 
@@ -1218,7 +1218,7 @@ void QTreeView::columnResized(int column, int, int)
 void QTreeView::updateGeometries()
 {
     Q_D(QTreeView);
-    QSize hint = d->header->isExplicitlyHidden() ? QSize(0, 0) : d->header->sizeHint();
+    QSize hint = d->header->isHidden() ? QSize(0, 0) : d->header->sizeHint();
     setViewportMargins(0, hint.height(), 0, 0);
 
     QRect vg = d->viewport->geometry();
@@ -1226,7 +1226,7 @@ void QTreeView::updateGeometries()
     d->header->setGeometry(geometryRect);
 
     // make sure that the header sections are resized, even if the header is hidden
-    if (d->header->isExplicitlyHidden()
+    if (d->header->isHidden()
         && (d->header->stretchSectionCount() || d->header->stretchLastSection())) {
         d->header->viewport()->setGeometry(geometryRect);
         QMetaObject::invokeMember(d->header, "resizeSections");

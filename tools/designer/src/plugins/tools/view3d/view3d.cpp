@@ -372,7 +372,7 @@ static void grabWidget_helper(QWidget *widget, QPixmap &res, QPixmap &buf,
         QWidget *child = qobject_cast<QWidget*>(children.at(i));
         if (child == 0 || child->isWindow())
             continue;
-        if (child->isExplicitlyHidden() || !child->geometry().intersects(r))
+        if (child->isHidden() || !child->geometry().intersects(r))
             continue;
         if (core->metaDataBase()->item(child) != 0)
             continue;

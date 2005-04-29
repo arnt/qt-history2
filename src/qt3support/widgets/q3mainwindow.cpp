@@ -344,7 +344,7 @@ protected:
             Q3DockWindow *dw = qobject_cast<Q3DockWindow*>(o);
             if (!dw)
                 continue;
-            if (dw->isExplicitlyHidden()) {
+            if (dw->isHidden()) {
                 visible = false;
                 continue;
             }

@@ -4240,9 +4240,9 @@ QSize Q3Table::sizeHint() const
 		    tableSize().height() + topMargin() + 5);
     } else {
     	sh = Q3ScrollView::sizeHint();
-    	if (!topHeader->isExplicitlyHidden())
+    	if (!topHeader->isHidden())
 		sh.setHeight(sh.height() + topHeader->height());
-    	if (!leftHeader->isExplicitlyHidden())
+    	if (!leftHeader->isHidden())
 		sh.setWidth(sh.width() + leftHeader->width());
     }
     setCachedSizeHint(sh);

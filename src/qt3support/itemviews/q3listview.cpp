@@ -3488,7 +3488,7 @@ void Q3ListView::updateGeometries()
 #endif
     verticalScrollBar()->raise();
     resizeContents(tw, th);
-    if (d->h->isExplicitlyHidden()) {
+    if (d->h->isHidden()) {
         setMargins(0, 0, 0, 0);
     } else {
         QSize hs(d->h->sizeHint());

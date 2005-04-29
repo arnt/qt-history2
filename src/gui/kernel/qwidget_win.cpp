@@ -1245,7 +1245,7 @@ void QWidgetPrivate::setWSGeometry(bool dontShow)
         if (outsideRange) {
             ShowWindow(q->winId(), SW_HIDE);
             q->setAttribute(Qt::WA_Mapped, false);
-        } else if (!q->isExplicitlyHidden()) {
+        } else if (!q->isHidden()) {
             mapWindow = true;
         }
     }

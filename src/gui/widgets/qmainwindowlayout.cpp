@@ -412,7 +412,7 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
             for (int i = 0; i < lineInfo.list.size(); ++i) {
                 const ToolBarLayoutInfo &info = lineInfo.list.at(i);
                 stream << info.item->widget()->windowTitle();
-                stream << (uchar) !info.item->widget()->isExplicitlyHidden();
+                stream << (uchar) !info.item->widget()->isHidden();
                 stream << info.pos;
                 stream << info.size;
                 stream << info.offset;
@@ -791,7 +791,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     for (int line = 0; line < tb_layout_info_hidden.size(); ++line) {
         ToolBarLineInfo &lineInfo = tb_layout_info_hidden[line];
         for (int i = 0; i < lineInfo.hidden_list.size(); ++i) {
-            if (!lineInfo.hidden_list.at(i).item->widget()->isExplicitlyHidden()
+            if (!lineInfo.hidden_list.at(i).item->widget()->isHidden()
                 && lineInfo.list.size() == 0)
             {
                 ToolBarLineInfo l = tb_layout_info_hidden.takeAt(line--);
@@ -804,7 +804,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     for (int line = 0; line < tb_layout_info.size(); ++line) {
         ToolBarLineInfo &lineInfo = tb_layout_info[line];
         for (int i = 0; i < lineInfo.hidden_list.size(); ++i) {
-            if (!lineInfo.hidden_list.at(i).item->widget()->isExplicitlyHidden()) {
+            if (!lineInfo.hidden_list.at(i).item->widget()->isHidden()) {
                 ToolBarLayoutInfo tb = lineInfo.hidden_list.takeAt(i);
                 lineInfo.list.insert(tb.index, tb);
             }
@@ -815,7 +815,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
     for (int line = 0; line < tb_layout_info.size(); ++line) {
         ToolBarLineInfo &lineInfo = tb_layout_info[line];
         for (int i = 0; i < lineInfo.list.size(); ++i) {
-            if (lineInfo.list.at(i).item->widget()->isExplicitlyHidden()) {
+            if (lineInfo.list.at(i).item->widget()->isHidden()) {
                 ToolBarLayoutInfo tb = lineInfo.list.takeAt(i);
                 tb.index = i;
                 lineInfo.hidden_list.append(tb);

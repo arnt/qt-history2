@@ -361,7 +361,7 @@ void EditorPage::layoutWidgets()
     cmtText->move(margin, srcText->y() + srcText->height() + space);
     cmtText->resize(w - margin*2, cmtText->height());
 
-    if (cmtText->isExplicitlyHidden())
+    if (cmtText->isHidden())
         transLbl->move(margin, srcText->y() + srcText->height() + space);
     else
         transLbl->move(margin, cmtText->y() + cmtText->height() + space);
@@ -378,7 +378,7 @@ void EditorPage::layoutWidgets()
                     transText->height() + space +
                     frameWidth()*lineWidth()*2 + space * 3;
 
-    if (!cmtText->isExplicitlyHidden())
+    if (!cmtText->isHidden())
         totHeight += cmtText->height() + space;
 
      if (height() != totHeight)

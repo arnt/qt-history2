@@ -1852,7 +1852,7 @@ bool QTreeWidget::isItemHidden(const QTreeWidgetItem *item) const
 {
     Q_D(const QTreeWidget);
     if (item == headerItem())
-        return header()->isExplicitlyHidden();
+        return header()->isHidden();
     QModelIndex index = d->model()->index(const_cast<QTreeWidgetItem*>(item), 0);
     QModelIndex parent = index.parent();
     return isRowHidden(index.row(), parent);
