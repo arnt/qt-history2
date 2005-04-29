@@ -92,13 +92,13 @@ public:
     \endcode
 
     \e Normal and \e Permanent messages are displayed by creating a
-    small widget and then adding it to the status bar with
-    addWidget(). Widgets like QLabel, QProgressBar or even QToolButton
-    are useful for adding to status bars. removeWidget() is used to
-    remove widgets.
+    small widget and then adding it to the status bar with addWidget()
+    or addPermanentWidget(). Widgets like QLabel, QProgressBar or
+    even QToolButton are useful for adding to status
+    bars. removeWidget() is used to remove widgets.
 
     \code
-        statusBar()->addWidget(new MyReadWriteIndication(statusBar()));
+        statusBar()->addWidget(new MyReadWriteIndication);
     \endcode
 
     By default QStatusBar provides a QSizeGrip in the lower-right
@@ -133,6 +133,14 @@ QStatusBar::QStatusBar(QWidget * parent, const char *name)
     reformat();
 #endif
 }
+
+
+/*! \fn void QStatusBar::addWidget(QWidget * widget, int stretch, bool permanent)
+
+   Use addWidget(\a widget, \a stretch) or addWidgetPermantly(\a
+   widget, \a stretch) instead, depending on \a permanent.
+ */
+
 #endif
 
 /*!
@@ -171,13 +179,9 @@ QStatusBar::~QStatusBar()
     Adds \a widget to this status bar. \a widget is reparented if it
     isn't already a child of the QStatusBar.
 
-    \a widget is permanently visible if \a permanent is true and may
-    be obscured by temporary messages if \a permanent is false. The
-    default is false.
-
-    If \a permanent is true, \a widget is located at the far right of
-    the status bar. If \a permanent is false (the default), \a widget
-    is located just to the left of the first permanent widget.
+    The widget is located just to the left of the first permanent
+    widget (see addWidgetPermantly()) and may be obscured by
+    temporary messages.
 
     \a stretch is used to compute a suitable size for \a widget as the
     status bar grows and shrinks. The default of 0 uses a minimum of
@@ -185,36 +189,61 @@ QStatusBar::~QStatusBar()
 
     This function may cause some flicker.
 
-    \sa removeWidget()
+    \sa removeWidget(), addPermanentWidget()
 */
 
-void QStatusBar::addWidget(QWidget * widget, int stretch, bool permanent)
+void QStatusBar::addWidget(QWidget * widget, int stretch)
 {
-    if (!widget) {
-        qWarning("QStatusBar::addWidget(): Cannot add null widget");
+    if (!widget)
         return;
-    }
-
-    if (widget->parentWidget() != this) {
-        widget->setParent(this);
-        widget->show();
-    }
 
     Q_D(QStatusBar);
-    QStatusBarPrivate::SBItem* item
-        = new QStatusBarPrivate::SBItem(widget, stretch, permanent);
+    QStatusBarPrivate::SBItem* item = new QStatusBarPrivate::SBItem(widget, stretch, false);
 
     int i = d->items.size() - 1;
-    if (!permanent)
-        for (; i>=0; --i)
-            if (!(d->items.at(i) && d->items.at(i)->p))
-                break;
+    for (; i>=0; --i)
+        if (!(d->items.at(i) && d->items.at(i)->p))
+            break;
     d->items.insert(i >= 0 ? i + 1 : 0, item);
 
-    if (!d->tempItem.isEmpty() && !permanent)
+    if (!d->tempItem.isEmpty())
         widget->hide();
 
     reformat();
+    if (!widget->isHidden() || !widget->testAttribute(Qt::WA_WState_ExplicitShowHide))
+        widget->show();
+}
+
+/*!
+    Adds \a widget permanently to this status bar. \a widget is
+    reparented if it isn't already a child of the QStatusBar.
+
+    Permanently means that the widget may not be obscured by temporary
+    messages. It is is located at the far right of the status bar.
+
+    \a stretch is used to compute a suitable size for \a widget as the
+    status bar grows and shrinks. The default of 0 uses a minimum of
+    space.
+
+    This function may cause some flicker.
+
+    \sa removeWidget(), addWidget()
+*/
+
+void QStatusBar::addPermanentWidget(QWidget * widget, int stretch)
+{
+    if (!widget)
+        return;
+
+    Q_D(QStatusBar);
+    QStatusBarPrivate::SBItem* item = new QStatusBarPrivate::SBItem(widget, stretch, true);
+
+    int i = d->items.size() - 1;
+    d->items.insert(i >= 0 ? i + 1 : 0, item);
+
+    reformat();
+    if (!widget->isHidden() || !widget->testAttribute(Qt::WA_WState_ExplicitShowHide))
+        widget->show();
 }
 
 

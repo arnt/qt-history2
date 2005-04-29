@@ -30,8 +30,9 @@ public:
     explicit QStatusBar(QWidget* parent=0);
     virtual ~QStatusBar();
 
-    virtual void addWidget(QWidget *, int stretch = 0, bool = false);
-    virtual void removeWidget(QWidget *);
+    void addWidget(QWidget *widget, int stretch = 0);
+    void addPermanentWidget(QWidget *widget, int stretch = 0);
+    void removeWidget(QWidget *widget);
 
     void setSizeGripEnabled(bool);
     bool isSizeGripEnabled() const;
@@ -45,6 +46,8 @@ public slots:
 #ifdef QT3_SUPPORT
 public:
     QT3_SUPPORT_CONSTRUCTOR QStatusBar(QWidget* parent, const char* name);
+    QT3_SUPPORT void addWidget(QWidget *w, int stretch, bool permanent)
+        { if (permanent) addPermanentWidget(w, stretch); else addWidget(w, stretch); }
 public slots:
     inline QT_MOC_COMPAT void message(const QString &text, int timeout = 0) { showMessage(text, timeout); }
     inline QT_MOC_COMPAT void clear() { clearMessage(); }

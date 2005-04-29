@@ -36,7 +36,6 @@
 #include <QtGui/QFileDialog>
 #include <QtGui/qevent.h>
 
-#include <QtCore/qsignal.h>
 
 #ifndef Q_MOC_RUN
 using namespace qdesigner_internal;

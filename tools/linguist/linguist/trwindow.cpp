@@ -217,9 +217,9 @@ TrWindow::TrWindow()
     setupToolBars();
 
     progress = new QLabel(statusBar());
-    statusBar()->addWidget(progress, 0, true);
+    statusBar()->addPermanentWidget(progress);
     modified = new QLabel(QString(" %1 ").arg(tr("MOD")), statusBar());
-    statusBar()->addWidget(modified, 0, true);
+    statusBar()->addPermanentWidget(modified);
 
     numFinished = 0;
     numNonobsolete = 0;
