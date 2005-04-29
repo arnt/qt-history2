@@ -617,6 +617,14 @@ void QListView::resizeContents(int width, int height)
 }
 
 /*!
+    \internal
+*/
+QSize QListView::contentsSize() const
+{
+    return d_func()->contentsSize;
+}
+
+/*!
   \reimp
 */
 void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
@@ -961,6 +969,9 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     Q_UNUSED(modifiers);
 
     QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return current;
+
     QRect rect = rectForIndex(current);
     QSize contents = d->contentsSize;
     QPoint pos = rect.center();
@@ -1182,9 +1193,9 @@ void QListView::updateGeometries()
 bool QListView::isIndexHidden(const QModelIndex &index) const
 {
     Q_D(const QListView);
-    return d->hiddenRows.contains(index.row())
-        && (index.parent() == rootIndex())
-        && index.column() == d->column;
+    return (d->hiddenRows.contains(index.row())
+            && (index.parent() == rootIndex())
+            && index.column() == d->column);
 }
 
 /*!
@@ -1218,7 +1229,6 @@ QListViewPrivate::QListViewPrivate()
       batchStartRow(0),
       batchSavedDeltaSeg(0),
       batchSavedPosition(0),
-      rubberBand(0),
       column(0)
 {}
 
@@ -1764,20 +1774,11 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
     Q_Q(const QListView);
     if (!rect.isValid())
         return rect;
-    QRect result(rect.left() - q->horizontalOffset(),
-                 rect.top() - q->verticalOffset(),
-                 rect.width(), rect.height());
+    QRect result = rect;
     // If the listview is in "listbox-mode", the items are as wide as the view.
-    if (!wrap && movement == QListView::Static
-        && flow == QListView::TopToBottom) {
-        if (q->isRightToLeft()) {
-            result.setRight(viewport->width()-1);
-            result.setLeft(0);
-        } else {
-            result.setRight(qMax(contentsSize.width(), viewport->width())-1);
-            result.setLeft(0);
-        }
-    }
+    if (!wrap && movement == QListView::Static && flow == QListView::TopToBottom)
+        result.setWidth(qMax(contentsSize.width(), viewport->width()));
+    result.adjust(-q->horizontalOffset(), -q->verticalOffset(), 0, 0);
     return result;
 }
 

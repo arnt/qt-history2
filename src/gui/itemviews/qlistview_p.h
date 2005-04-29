@@ -364,7 +364,6 @@ public:
     // used when dragging
     QVector<QModelIndex> draggedItems; // indices to the tree.itemVector
     mutable QPoint draggedItemsPos;
-    QRubberBand *rubberBand;
 
     // used for hidden items
     QVector<int> hiddenRows;

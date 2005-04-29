@@ -443,7 +443,7 @@ void QFileDialog::selectFile(const QString &filename)
         index = (r >= 0 ? d->model->index(r, 0, d->rootIndex()) : QModelIndex());
     }
     if (index.isValid()) {
-        d->selections->select(index, QItemSelectionModel::Select);
+        d->selections->select(index, QItemSelectionModel::Select|QItemSelectionModel::Rows);
     } else {
         d->selections->clear();
         d->fileNameEdit->setText(text);
@@ -1192,7 +1192,7 @@ void QFileDialogPrivate::autoCompleteFileName(const QString &text)
     QModelIndex result = matchName(info.fileName(), first);
     // did we find a valid autocompletion ?
     if (result.isValid()) {
-        selections->setCurrentIndex(result, QItemSelectionModel::SelectCurrent);
+        treeView->setCurrentIndex(result);
         QString completed = model->data(result).toString();
         if (info.isAbsolute()) { // if we are doing completion in another directory, add the path first
             if (info.path() == "/")
@@ -1309,7 +1309,7 @@ void QFileDialogPrivate::createDirectory()
     QModelIndex index = model->mkdir(parent, "New Folder");
     if (!index.isValid())
         return;
-    selections->setCurrentIndex(index, QItemSelectionModel::SelectCurrent);
+    listView->setCurrentIndex(index);
     if (viewMode() == QFileDialog::List)
         listView->edit(index);
     else
@@ -1721,7 +1721,10 @@ void QFileDialogPrivate::setRootIndex(const QModelIndex &index)
     treeView->setRootIndex(index);
     treeView->resizeColumnToContents(0);
     selections->blockSignals(block);
-    selections->setCurrentIndex(QModelIndex(), QItemSelectionModel::SelectCurrent);
+    if (listView->hasFocus() || treeView->hasFocus()) // user is navigating in the views
+        treeView->setCurrentIndex(model->index(0, 0, index));
+    else // user is using the line edit or the combobox
+        treeView->setCurrentIndex(QModelIndex());
 }
 
 QModelIndex QFileDialogPrivate::rootIndex() const

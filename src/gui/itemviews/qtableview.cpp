@@ -528,6 +528,8 @@ QModelIndex QTableView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifi
     Q_UNUSED(modifiers);
 
     QModelIndex current = currentIndex();
+    if (!current.isValid())
+        return current;
     int visualRow = verticalHeader()->visualIndex(current.row());
     int visualColumn = horizontalHeader()->visualIndex(current.column());
     int verticalStep = 0;

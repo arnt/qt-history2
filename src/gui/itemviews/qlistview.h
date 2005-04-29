@@ -86,7 +86,9 @@ protected:
     QListView(QListViewPrivate &, QWidget *parent = 0);
 
     void scrollContentsBy(int dx, int dy);
+ 
     void resizeContents(int width, int height);
+    QSize contentsSize() const;
 
     void rowsInserted(const QModelIndex &parent, int start, int end);
     void rowsAboutToBeRemoved(const QModelIndex &parent, int start, int end);
