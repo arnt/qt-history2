@@ -474,8 +474,11 @@ void QToolButton::actionEvent(QActionEvent *event)
         connect(action, SIGNAL(triggered()), this, SLOT(actionTriggered()));
         break;
     case QEvent::ActionRemoved:
-        if (d->defaultAction == action)
+        if (d->defaultAction == action) {
             d->defaultAction = 0;
+            if (action->menu() == d->menu)
+                d->menu = 0;
+        }
         action->disconnect(this);
         break;
     default:
@@ -883,6 +886,8 @@ bool QToolButton::autoRaise() const
 void QToolButton::setDefaultAction(QAction *action)
 {
     Q_D(QToolButton);
+    if (d->defaultAction && d->menu == d->defaultAction->menu())
+        d->menu = 0;
     d->defaultAction = action;
     if (!action)
         return;
@@ -893,7 +898,8 @@ void QToolButton::setDefaultAction(QAction *action)
     setToolTip(action->toolTip());
     setStatusTip(action->statusTip());
     setWhatsThis(action->whatsThis());
-    setMenu(action->menu());
+    if (QMenu *menu = action->menu())
+        setMenu(menu);
     setCheckable(action->isCheckable());
     setChecked(action->isChecked());
     setEnabled(action->isEnabled());
