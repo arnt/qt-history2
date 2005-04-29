@@ -16,7 +16,7 @@
 
 #include "signalsloteditor_global.h"
 
-#include <QtDesigner/abstractformeditorplugin.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtCore/QPointer>
 #include <QtCore/QHash>

@@ -17,8 +17,7 @@
 #include "propertyeditor_global.h"
 #include "qpropertyeditor.h"
 
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractpropertyeditor.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtCore/QPointer>
 

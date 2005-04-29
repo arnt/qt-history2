@@ -16,7 +16,7 @@
 
 #include "formeditor_global.h"
 
-#include <QtDesigner/abstracticoncache.h>
+#include <QtDesigner/QtDesigner>
 
 #include <resourcefile.h>
 

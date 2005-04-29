@@ -14,8 +14,7 @@
 #if defined __cplusplus
 #include <QtCore/QPointer>
 #include <QtGui/QAction>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/QtDesigner>
 #include "buddyeditor.h"
 #include "buddyeditor_global.h"
 #include "buddyeditor_plugin.h"

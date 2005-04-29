@@ -16,10 +16,8 @@
 #include "formwindowmanager.h"
 
 // sdk
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/abstractwidgetfactory.h>
-#include <QtDesigner/taskmenu.h>
-#include <QtDesigner/layoutdecoration.h>
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QExtensionManager>
 
 // shared
 #include <qdesigner_command.h>

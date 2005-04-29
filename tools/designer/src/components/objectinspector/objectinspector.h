@@ -15,7 +15,7 @@
 #define OBJECTINSPECTOR_H
 
 #include "objectinspector_global.h"
-#include <QtDesigner/abstractobjectinspector.h>
+#include <QtDesigner/QtDesigner>
 #include <QtCore/QPointer>
 
 class QDesignerFormEditorInterface;

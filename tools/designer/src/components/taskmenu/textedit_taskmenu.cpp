@@ -14,10 +14,7 @@
 #include "textedit_taskmenu.h"
 #include "inplace_editor.h"
 
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowcursor.h>
-#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/QtDesigner>
 #include <richtexteditor.h>
 
 #include <QtGui/QAction>

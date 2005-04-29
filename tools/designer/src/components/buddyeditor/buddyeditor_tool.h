@@ -18,7 +18,7 @@
 
 #include <QtCore/QPointer>
 
-#include <QtDesigner/abstractformwindowtool.h>
+#include <QtDesigner/QtDesigner>
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;

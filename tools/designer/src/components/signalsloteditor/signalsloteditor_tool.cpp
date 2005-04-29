@@ -14,9 +14,7 @@
 #include "signalsloteditor_tool.h"
 #include "signalsloteditor.h"
 
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/ui4.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtGui/QAction>
 #include <QtCore/qdebug.h>

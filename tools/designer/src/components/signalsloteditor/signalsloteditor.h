@@ -17,8 +17,7 @@
 #include "signalsloteditor_global.h"
 
 #include <connectionedit.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtXml/QDomDocument>
 #include <QtXml/QDomElement>

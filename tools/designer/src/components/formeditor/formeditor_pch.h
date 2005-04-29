@@ -18,8 +18,7 @@
 #include <QtDesigner/qextensionmanager.h>
 #include <layoutinfo.h>
 #include <qdesigner_command.h>
-#include <QtDesigner/abstractwidgetfactory.h>
-#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/QtDesigner>
 #include <QtGui/QWidget>
 #include "qdesigner_widget.h"
 #include "formwindowmanager.h"

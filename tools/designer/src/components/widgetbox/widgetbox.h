@@ -16,9 +16,7 @@
 
 #include <QtXml/QDomDocument>
 
-#include <QtDesigner/abstractwidgetbox.h>
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractdnditem.h>
+#include <QtDesigner/QtDesigner>
 
 #include "widgetbox_global.h"
 

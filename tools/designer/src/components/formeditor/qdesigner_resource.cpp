@@ -31,17 +31,7 @@
 #include <qdesigner_utils.h>
 
 // sdk
-#include <QtDesigner/container.h>
-#include <QtDesigner/propertysheet.h>
-#include <QtDesigner/customwidget.h>
-#include <QtDesigner/extrainfo.h>
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/abstractwidgetfactory.h>
-#include <QtDesigner/abstractmetadatabase.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstracticoncache.h>
-#include <QtDesigner/abstractformwindowtool.h>
-#include <QtDesigner/ui4.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtGui/QMenu>
 #include <QtGui/QMessageBox>

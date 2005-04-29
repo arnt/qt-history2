@@ -20,10 +20,8 @@
 #include "combobox_taskmenu.h"
 #include "textedit_taskmenu.h"
 
-#include <QtDesigner/abstractformeditor.h>
-
-#include <QtDesigner/extension.h>
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QExtensionManager>
 
 using namespace qdesigner_internal;
 

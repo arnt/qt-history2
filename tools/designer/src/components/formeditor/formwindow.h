@@ -18,8 +18,7 @@
 #include "formeditor.h"
 
 // sdk
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/QtDesigner>
 
 // Qt
 #include <QtCore/QHash>

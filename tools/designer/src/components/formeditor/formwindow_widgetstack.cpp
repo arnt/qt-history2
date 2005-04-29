@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/abstractformwindowtool.h>
+#include <QtDesigner/QtDesigner>
 #include "formwindow_widgetstack.h"
 
 #include <QtGui/QWidget>

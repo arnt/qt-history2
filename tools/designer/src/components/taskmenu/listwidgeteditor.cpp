@@ -14,9 +14,7 @@
 #include "listwidgeteditor.h"
 #include <findicondialog.h>
 #include <iconloader.h>
-#include <QtDesigner/abstracticoncache.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/QtDesigner>
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
 

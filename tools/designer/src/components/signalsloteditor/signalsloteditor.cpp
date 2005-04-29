@@ -16,13 +16,7 @@
 #include "default_membersheet.h"
 #include "signalsloteditor_p.h"
 
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractmetadatabase.h>
-#include <QtDesigner/abstractwidgetdatabase.h>
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/ui4.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowcursor.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtGui/QDialog>
 #include <QtGui/QListWidget>

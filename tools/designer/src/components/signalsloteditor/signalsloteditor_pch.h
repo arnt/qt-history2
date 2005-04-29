@@ -15,8 +15,7 @@
 #include <QtCore/QPointer>
 #include <QtCore/qdebug.h>
 #include <QtGui/QAction>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/QtDesigner>
 #include "default_membersheet.h"
 #include "signalsloteditor.h"
 #include "signalsloteditor_global.h"

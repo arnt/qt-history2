@@ -16,9 +16,7 @@
 #include "signalsloteditor_plugin.h"
 #include "signalsloteditor_tool.h"
 
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/QtDesigner>
 
 SignalSlotEditorPlugin::SignalSlotEditorPlugin()
     : m_initialized(false), m_action(0)

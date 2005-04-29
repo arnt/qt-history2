@@ -15,10 +15,7 @@
 
 #include "buddyeditor.h"
 
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/propertysheet.h>
-#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/QtDesigner>
 
 #include <qtundo.h>
 #include <qdesigner_command.h>

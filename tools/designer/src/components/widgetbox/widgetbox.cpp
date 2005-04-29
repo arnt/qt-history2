@@ -14,13 +14,7 @@
 #include "widgetbox.h"
 
 // sdk
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractwidgetfactory.h>
-#include <QtDesigner/abstractwidgetdatabase.h>
-#include <QtDesigner/abstracticoncache.h>
-#include <QtDesigner/customwidget.h>
-#include <QtDesigner/ui4.h>
+#include <QtDesigner/QtDesigner>
 
 // shared
 #include <pluginmanager.h>

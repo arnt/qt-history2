@@ -35,17 +35,7 @@
 #include <connectionedit.h>
 
 // sdk
-#include <QtDesigner/layoutdecoration.h>
-#include <QtDesigner/taskmenu.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindowtool.h>
-#include <QtDesigner/abstractwidgetfactory.h>
-#include <QtDesigner/abstractwidgetdatabase.h>
-#include <QtDesigner/ui4.h>
-
-#include <QtDesigner/container.h>
-#include <QtDesigner/propertysheet.h>
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>

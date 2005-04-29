@@ -20,12 +20,7 @@
 #include <QtGui/qevent.h>
 #include <QtGui/QFontMetrics>
 
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowcursor.h>
-#include <QtDesigner/abstractmetadatabase.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/propertysheet.h>
+#include <QtDesigner/QtDesigner>
 
 #include <qtundo.h>
 #include <qdesigner_command.h>

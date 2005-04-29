@@ -15,8 +15,7 @@
 #include "formwindow.h"
 
 // sdk
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractwidgetbox.h>
+#include <QtDesigner/QtDesigner>
 #include <layoutinfo.h>
 
 #include <QtGui/qevent.h>

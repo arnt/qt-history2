@@ -14,12 +14,9 @@
 #include "objectinspector.h"
 
 // sdk
-#include <QtDesigner/container.h>
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowcursor.h>
-#include <QtDesigner/abstractwidgetdatabase.h>
+#include <QtDesigner/QtDesigner>
+
+// shared
 #include <tree_widget.h>
 #include <qdesigner_promotedwidget.h>
 

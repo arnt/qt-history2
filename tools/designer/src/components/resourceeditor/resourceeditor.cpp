@@ -19,8 +19,7 @@
 #include <QtGui/QKeyEvent>
 #include <QtGui/QDrag>
 
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/QtDesigner>
 
 #include <resourcefile.h>
 #include <iconloader.h>

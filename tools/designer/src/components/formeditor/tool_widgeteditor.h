@@ -14,7 +14,7 @@
 #ifndef TOOL_WIDGETEDITOR_H
 #define TOOL_WIDGETEDITOR_H
 
-#include <QtDesigner/abstractformwindowtool.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtGui/qevent.h>
 

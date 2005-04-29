@@ -20,11 +20,7 @@
 #include <QtGui/QLineEdit>
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowcursor.h>
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/default_extensionfactory.h>
+#include <QtDesigner/QtDesigner>
 #include <qdesigner_taskmenu.h>
 #include "button_taskmenu.h"
 #include "groupbox_taskmenu.h"

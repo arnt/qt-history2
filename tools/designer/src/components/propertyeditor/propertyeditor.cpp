@@ -16,13 +16,11 @@
 #include "qpropertyeditor_model_p.h"
 #include "qpropertyeditor_items_p.h"
 
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/propertysheet.h>
-#include <QtDesigner/container.h>
-#include <QtDesigner/abstracticoncache.h>
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractformwindowcursor.h>
-#include <QtDesigner/abstractwidgetdatabase.h>
+// sdk
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QExtensionManager>
+
+// shared
 #include <iconloader.h>
 #include <qdesigner_promotedwidget.h>
 #include <qdesigner_utils.h>

@@ -16,8 +16,8 @@
 #include <QtGui/QAction>
 #include <QtGui/QFontMetrics>
 #include <QtGui/QRegion>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
+#include <QtDesigner/QtDesigner>
+
 #include "tabordereditor.h"
 #include "tabordereditor_global.h"
 #include "tabordereditor_plugin.h"

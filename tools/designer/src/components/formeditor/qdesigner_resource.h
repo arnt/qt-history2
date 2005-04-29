@@ -16,7 +16,7 @@
 
 #include "formeditor_global.h"
 
-#include <QtDesigner/abstractformbuilder.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtCore/QHash>
 #include <QtCore/QStack>

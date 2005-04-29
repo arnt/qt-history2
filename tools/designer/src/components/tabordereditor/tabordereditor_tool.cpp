@@ -14,8 +14,7 @@
 #include "tabordereditor_tool.h"
 #include "tabordereditor.h"
 
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtGui/QAction>
 

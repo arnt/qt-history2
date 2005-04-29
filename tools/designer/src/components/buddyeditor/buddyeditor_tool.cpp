@@ -14,8 +14,7 @@
 #include "buddyeditor_tool.h"
 #include "buddyeditor.h"
 
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformeditor.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtGui/QAction>
 

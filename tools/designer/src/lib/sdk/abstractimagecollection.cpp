@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/abstractimagecollection.h>
+#include <QtDesigner/QtDesigner>
 
 QDesignerImageCollectionInterface::QDesignerImageCollectionInterface(QObject *parent)
     : QObject(parent)

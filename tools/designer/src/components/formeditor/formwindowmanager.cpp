@@ -19,12 +19,7 @@
 #include "qdesigner_resource.h"
 #include "connectionedit.h"
 
-#include <QtDesigner/abstractwidgetfactory.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractmetadatabase.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowcursor.h>
-#include <QtDesigner/abstractwidgetbox.h>
+#include <QtDesigner/QtDesigner>
 #include <qdesigner_promotedwidget.h>
 #include <qdesigner_command.h>
 #include <layoutinfo.h>
