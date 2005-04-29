@@ -70,6 +70,7 @@
 #include <qbytearray.h>
 #include <qfile.h>
 #include <qimageiohandler.h>
+#include <qset.h>
 #include <qvariant.h>
 
 // factory loader
@@ -460,7 +461,7 @@ QString QImageWriter::errorString() const
 */
 QList<QByteArray> QImageWriter::supportedImageFormats()
 {
-    QList<QByteArray> formats;
+    QSet<QByteArray> formats;
     formats << "bmp" << "ppm" << "xbm" << "xpm";
 #ifndef QT_NO_IMAGEIO_PNG
     formats << "png";
@@ -474,7 +475,11 @@ QList<QByteArray> QImageWriter::supportedImageFormats()
             formats << keys.at(i).toLatin1();
     }
 
-    qSort(formats);
-    return formats;
+    QList<QByteArray> sortedFormats;
+    for (QSet<QByteArray>::ConstIterator it = formats.constBegin(); it != formats.constEnd(); ++it)
+        sortedFormats << *it;
+
+    qSort(sortedFormats);
+    return sortedFormats;
 }
 

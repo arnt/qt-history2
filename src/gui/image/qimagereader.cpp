@@ -86,6 +86,7 @@
 #include <qimageiohandler.h>
 #include <qlist.h>
 #include <qrect.h>
+#include <qset.h>
 #include <qsize.h>
 #include <qvariant.h>
 
@@ -745,7 +746,7 @@ QByteArray QImageReader::imageFormat(QIODevice *device)
 */
 QList<QByteArray> QImageReader::supportedImageFormats()
 {
-    QList<QByteArray> formats;
+    QSet<QByteArray> formats;
     formats << "bmp" << "pbm" << "pgm" << "ppm" << "xbm" << "xpm";
 #ifndef QT_NO_IMAGEIO_PNG
     formats << "png";
@@ -760,6 +761,10 @@ QList<QByteArray> QImageReader::supportedImageFormats()
             formats << keys.at(i).toLatin1();
     }
 
-    qSort(formats);
-    return formats;
+    QList<QByteArray> sortedFormats;
+    for (QSet<QByteArray>::ConstIterator it = formats.constBegin(); it != formats.constEnd(); ++it)
+        sortedFormats << *it;
+    
+    qSort(sortedFormats);
+    return sortedFormats;
 }
