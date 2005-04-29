@@ -64,7 +64,7 @@ QString Q3GroupBoxPlugin::name() const
 
 QString Q3GroupBoxPlugin::group() const
 {
-    return QLatin1String("Compat");
+    return QLatin1String("Qt 3 Support");
 }
 
 QString Q3GroupBoxPlugin::toolTip() const

@@ -29,7 +29,7 @@ QString Q3IconViewPlugin::name() const
 { return QLatin1String("Q3IconView"); }
 
 QString Q3IconViewPlugin::group() const
-{ return QLatin1String("Compat"); }
+{ return QLatin1String("Qt 3 Support"); }
 
 QString Q3IconViewPlugin::toolTip() const
 { return QString(); }

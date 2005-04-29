@@ -64,7 +64,7 @@ QString Q3ButtonGroupPlugin::name() const
 
 QString Q3ButtonGroupPlugin::group() const
 {
-    return QLatin1String("Compat");
+    return QLatin1String("Qt 3 Support");
 }
 
 QString Q3ButtonGroupPlugin::toolTip() const

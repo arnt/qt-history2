@@ -28,7 +28,7 @@ QString Q3WidgetStackPlugin::name() const
 { return QLatin1String("Q3WidgetStack"); }
 
 QString Q3WidgetStackPlugin::group() const
-{ return QLatin1String("Compat"); }
+{ return QLatin1String("Qt 3 Support"); }
 
 QString Q3WidgetStackPlugin::toolTip() const
 { return QString(); }

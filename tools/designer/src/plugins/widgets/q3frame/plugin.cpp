@@ -63,7 +63,7 @@ QString Q3FramePlugin::name() const
 
 QString Q3FramePlugin::group() const
 {
-    return QLatin1String("Compat");
+    return QLatin1String("Qt 3 Support");
 }
 
 QString Q3FramePlugin::toolTip() const

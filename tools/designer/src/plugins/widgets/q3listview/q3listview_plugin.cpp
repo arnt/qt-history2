@@ -29,7 +29,7 @@ QString Q3ListViewPlugin::name() const
 { return QLatin1String("Q3ListView"); }
 
 QString Q3ListViewPlugin::group() const
-{ return QLatin1String("Compat"); }
+{ return QLatin1String("Qt 3 Support"); }
 
 QString Q3ListViewPlugin::toolTip() const
 { return QString(); }

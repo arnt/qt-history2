@@ -28,7 +28,7 @@ QString Q3MainWindowPlugin::name() const
 { return QLatin1String("Q3MainWindow"); }
 
 QString Q3MainWindowPlugin::group() const
-{ return QLatin1String("Compat"); }
+{ return QLatin1String("Qt 3 Support"); }
 
 QString Q3MainWindowPlugin::toolTip() const
 { return QString(); }

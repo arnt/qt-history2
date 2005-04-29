@@ -31,7 +31,7 @@ QString Q3ToolBarPlugin::name() const
 { return QLatin1String("Q3ToolBar"); }
 
 QString Q3ToolBarPlugin::group() const
-{ return QLatin1String("Compat"); }
+{ return QLatin1String("Qt 3 Support"); }
 
 QString Q3ToolBarPlugin::toolTip() const
 { return QString(); }
