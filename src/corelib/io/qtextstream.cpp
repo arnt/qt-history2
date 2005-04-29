@@ -882,7 +882,7 @@ QTextStream::QTextStream(FILE *fileHandle, QIODevice::OpenMode openMode)
            fileHandle, int(openMode));
 #endif
     QFile *file = new QFile;
-    file->open(openMode, fileHandle);
+    file->open(fileHandle, openMode);
 
     Q_D(QTextStream);
     d->device = file;

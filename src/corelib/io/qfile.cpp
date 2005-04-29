@@ -765,62 +765,6 @@ bool QFile::isSequential() const
 }
 
 /*!
-    \fn bool QFile::open(OpenMode mode, FILE *fh)
-    \overload
-
-    Opens the existing file handle \a fh in the given \a mode.
-    Returns true if successful; otherwise returns false.
-
-    Example:
-    \code
-        #include <stdio.h>
-
-        void printError(const char* msg)
-        {
-            QFile file;
-            file.open(QIODevice::WriteOnly, stderr);
-            file.write(msg, qstrlen(msg));        // write to stderr
-            file.close();
-        }
-    \endcode
-
-    When a QFile is opened using this function, close() does not actually
-    close the file, but only flushes it.
-
-    \warning If \a fh is \c stdin, \c stdout, or \c stderr, you may not be
-    able to seek(). See QIODevice::isSequentialAccess() for more
-    information.
-
-    \sa close()
-*/
-
-bool
-QFile::open(OpenMode mode, FILE *fh)
-{
-    Q_D(QFile);
-    if (isOpen()) {
-        qWarning("QFile::open: File already open");
-        return false;
-    }
-    if (mode & Append)
-        mode |= WriteOnly;
-    unsetError();
-    if ((mode & (ReadOnly | WriteOnly)) == 0) {
-        qWarning("QFile::open: File access not specified");
-        return false;
-    }
-
-    // Implicitly set Unbuffered mode; buffering is already handled.
-    mode |= Unbuffered;
-
-    if(d->openExternalFile(mode, fh)) {
-        setOpenMode(mode);
-        return true;
-    }
-    return false;
-}
-
-/*!
     Opens the file using OpenMode \a mode.
 
     The \a mode must be QIODevice::ReadOnly, QIODevice::WriteOnly, or
@@ -829,9 +773,7 @@ QFile::open(OpenMode mode, FILE *fh)
 
     \sa QIODevice::OpenMode
 */
-
-bool
-QFile::open(OpenMode mode)
+bool QFile::open(OpenMode mode)
 {
     Q_D(QFile);
     if (isOpen()) {
@@ -856,8 +798,70 @@ QFile::open(OpenMode mode)
     return false;
 }
 
+/*! \fn QFile::open(OpenMode, FILE*)
+
+    Use open(FILE *, OpenMode) instead.
+*/
+
 /*!
-    \fn bool QFile::open(OpenMode mode, int fd)
+    \overload
+
+    Opens the existing file handle \a fh in the given \a mode.
+    Returns true if successful; otherwise returns false.
+
+    Example:
+    \code
+        #include <stdio.h>
+
+        void printError(const char* msg)
+        {
+            QFile file;
+            file.open(stderr, QIODevice::WriteOnly);
+            file.write(msg, qstrlen(msg));        // write to stderr
+            file.close();
+        }
+    \endcode
+
+    When a QFile is opened using this function, close() does not actually
+    close the file, but only flushes it.
+
+    \warning If \a fh is \c stdin, \c stdout, or \c stderr, you may not be
+    able to seek(). See QIODevice::isSequentialAccess() for more
+    information.
+
+    \sa close()
+*/
+bool QFile::open(FILE *fh, OpenMode mode)
+{
+    Q_D(QFile);
+    if (isOpen()) {
+        qWarning("QFile::open: File already open");
+        return false;
+    }
+    if (mode & Append)
+        mode |= WriteOnly;
+    unsetError();
+    if ((mode & (ReadOnly | WriteOnly)) == 0) {
+        qWarning("QFile::open: File access not specified");
+        return false;
+    }
+
+    // Implicitly set Unbuffered mode; buffering is already handled.
+    mode |= Unbuffered;
+
+    if(d->openExternalFile(mode, fh)) {
+        setOpenMode(mode);
+        return true;
+    }
+    return false;
+}
+
+/*! \fn QFile::open(OpenMode, int)
+
+    Use open(int, OpenMode) instead.
+*/
+
+/*!
     \overload
 
     Opens the existing file descripter \a fd in the given \a mode.
@@ -877,9 +881,7 @@ QFile::open(OpenMode mode)
 
     \sa close()
 */
-
-bool
-QFile::open(OpenMode mode, int fd)
+bool QFile::open(int fd, OpenMode mode)
 {
     Q_D(QFile);
     if (isOpen()) {

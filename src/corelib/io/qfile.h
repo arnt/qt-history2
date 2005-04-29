@@ -107,8 +107,8 @@ public:
     bool isSequential() const;
 
     bool open(OpenMode flags);
-    bool open(OpenMode flags, FILE *);
-    bool open(OpenMode flags, int);
+    bool open(FILE *f, OpenMode flags);
+    bool open(int fd, OpenMode flags);
     virtual void close();
 
     qint64 size() const;
@@ -133,6 +133,8 @@ public:
     typedef Permission PermissionSpec;
     inline QT3_SUPPORT QString name() const { return fileName(); }
     inline QT3_SUPPORT void setName(const QString &name) { setFileName(name); }
+    inline QT3_SUPPORT bool open(OpenMode flags, FILE *f) { return open(f, flags); }
+    inline QT3_SUPPORT bool open(OpenMode flags, int fd) { return open(fd, flags); }
 #endif
 
 protected:

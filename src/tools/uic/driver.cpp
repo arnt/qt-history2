@@ -183,7 +183,7 @@ bool Driver::uic(const QString &fileName, QTextStream *out)
 {
     QFile f;
     if (fileName.isEmpty())
-        f.open(QIODevice::ReadOnly, stdin);
+        f.open(stdin, QIODevice::ReadOnly);
     else {
         f.setFileName(fileName);
         if (!f.open(QIODevice::ReadOnly))
