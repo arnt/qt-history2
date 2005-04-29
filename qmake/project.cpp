@@ -1093,7 +1093,7 @@ QMakeProject::read(const QString &file, QMap<QString, QStringList> &place)
     QFile qfile;
     if(!strcmp(filename.toLatin1(), "-")) {
         qfile.setFileName("");
-        ret = qfile.open(QIODevice::ReadOnly, stdin);
+        ret = qfile.open(stdin, QIODevice::ReadOnly);
         using_stdin = true;
     } else if(QFileInfo(file).isDir()) {
         return false;
@@ -1977,7 +1977,7 @@ QMakeProject::doProjectExpand(QString func, QStringList args,
                     msg.toLatin1().constData());
 
             QFile qfile;
-            if(qfile.open(QIODevice::ReadOnly, stdin)) {
+            if(qfile.open(stdin, QIODevice::ReadOnly)) {
                 QTextStream t(&qfile);
                 ret = t.readLine();
             }

@@ -122,7 +122,7 @@ BuildsMetaMakefileGenerator::write(const QString &oldpwd)
                 if(Option::output.fileName() == "-") {
                     Option::output.setFileName("");
                     Option::output_dir = qmake_getpwd();
-                    Option::output.open(QIODevice::WriteOnly | QIODevice::Text, stdout);
+                    Option::output.open(stdout, QIODevice::WriteOnly | QIODevice::Text);
                     using_stdout = true;
                 } else {
                     if(Option::output.fileName().isEmpty() && Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE)
