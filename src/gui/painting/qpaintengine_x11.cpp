@@ -694,10 +694,12 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
         return;
     }
 
+    bool has_brush = d->cbrush.style() != Qt::NoBrush;
+    bool has_pen = d->cpen.style() != Qt::NoPen;
 #if !defined(QT_NO_XRENDER)
     ::Picture pict = d->picture;
 
-    if (X11->use_xrender && (d->pdev->depth() != 1) && pict && d->cbrush.style() != Qt::NoBrush
+    if (X11->use_xrender && (d->pdev->depth() != 1) && pict && has_brush
         && d->cbrush.color().alpha() != 255)
     {
         XRenderColor xc;
@@ -721,13 +723,13 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     } else
 #endif // !QT_NO_XRENDER
     {
-        if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() != Qt::NoPen) {
+        if (has_brush && has_pen) {
             for (int i = 0; i < rectCount; ++i) {
                 QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalized();
                 d->setupAdaptedOrigin(r.topLeft());
-                if (d->cbrush.style() != Qt::NoBrush)
+                if (has_brush)
                     XFillRectangle(d->dpy, d->hd, d->gc_brush, r.x(), r.y(), r.width(), r.height());
-                if (d->cpen.style() != Qt::NoPen)
+                if (has_pen)
                     XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
             }
             d->resetAdaptedOrigin();
@@ -742,11 +744,10 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
             }
 
             d->setupAdaptedOrigin(rects[0].topLeft());
-            if (d->cbrush.style() != Qt::NoBrush && d->cpen.style() == Qt::NoPen) {
+            if (has_brush && !has_pen)
                 XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects.data(), rectCount);
-            } else if (d->cpen.style() != Qt::NoPen && d->cbrush.style() == Qt::NoBrush) {
+            else if (has_pen && !has_brush)
                 XDrawRectangles(d->dpy, d->hd, d->gc, xrects.data(), rectCount);
-            }
             d->resetAdaptedOrigin();
         }
     }
@@ -758,10 +759,11 @@ void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
     Q_ASSERT(pointCount);
     Q_D(QX11PaintEngine);
 
+    if (d->cpen.style() == Qt::NoPen)
+        return;
     for (int i = 0; i < pointCount; ++i) {
         QPointF xformed = d->matrix.map(points[i]);
-        if (d->cpen.style() != Qt::NoPen)
-            XDrawPoint(d->dpy, d->hd, d->gc, qRound(xformed.x()), qRound(xformed.y()));
+        XDrawPoint(d->dpy, d->hd, d->gc, qRound(xformed.x()), qRound(xformed.y()));
     }
 }
 
