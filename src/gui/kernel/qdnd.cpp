@@ -441,23 +441,25 @@ QStringList QInternalMimeData::formats() const
 QVariant QInternalMimeData::retrieveData(const QString &mimeType, QVariant::Type type) const
 {
     QVariant data = retrieveData_sys(mimeType, type);
-    if (data.isNull() && mimeType == QLatin1String("application/x-qt-image")) {
-        QStringList imageFormats = QDragManager::imageReadMimeFormats();
-        for (int i = 0; i < imageFormats.size(); ++i) {
-            data = retrieveData_sys(imageFormats.at(i), QVariant::ByteArray);
-            if (!data.isNull()) {
-                if (type != data.type() && data.type() == QVariant::ByteArray) {
-                    QImage image = QImage::fromData(data.toByteArray());
-                    if (type == QVariant::Bitmap)
-                        data = QPixmap::fromImage(image);
-                    else if (type == QVariant::Pixmap)
-                        data = QBitmap::fromImage(image);
-                    else
-                        data = image;
-                }
-                break;
-            }
-        }
+    if (mimeType == QLatin1String("application/x-qt-image")) {
+	if (data.isNull()) {
+	    // try to find an image
+            QStringList imageFormats = QDragManager::imageReadMimeFormats();
+            for (int i = 0; i < imageFormats.size(); ++i) {
+               data = retrieveData_sys(imageFormats.at(i), QVariant::ByteArray);
+		if (!data.isNull())
+		    break;
+	    }
+	}
+	if (type != data.type() && data.type() == QVariant::ByteArray) {
+	    QImage image = QImage::fromData(data.toByteArray());
+	    if (type == QVariant::Bitmap)
+		data = QPixmap::fromImage(image);
+	    else if (type == QVariant::Pixmap)
+	        data = QBitmap::fromImage(image);
+	    else
+	        data = image;
+	}
     }
     return data;
 }
