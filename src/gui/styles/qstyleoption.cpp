@@ -354,7 +354,8 @@ QStyleOptionHeader::QStyleOptionHeader()
     : QStyleOption(QStyleOptionHeader::Version, SO_Header),
       section(0), textAlignment(0), iconAlignment(0),
       position(QStyleOptionHeader::Beginning),
-      selectedPosition(QStyleOptionHeader::NotAdjacent), sortIndicator(None)
+      selectedPosition(QStyleOptionHeader::NotAdjacent), sortIndicator(None),
+      orientation(Qt::Horizontal)
 {
 }
 
@@ -365,9 +366,17 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
     : QStyleOption(version, SO_Header),
       section(0), textAlignment(0), iconAlignment(0),
       position(QStyleOptionHeader::Beginning),
-      selectedPosition(QStyleOptionHeader::NotAdjacent), sortIndicator(None)
+      selectedPosition(QStyleOptionHeader::NotAdjacent), sortIndicator(None),
+      orientation(Qt::Horizontal)
 {
 }
+
+/*!
+    \property QStyleOptionHeader::orientation
+    \brief the header's orientation (horizontal or vertical)
+
+    \sa Qt::Orientation
+*/
 
 /*!
   \fn QStyleOptionHeader::QStyleOptionHeader(const QStyleOptionHeader &other)

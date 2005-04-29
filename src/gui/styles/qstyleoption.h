@@ -161,6 +161,7 @@ public:
     SectionPosition position;
     SelectedPosition selectedPosition;
     SortIndicator sortIndicator;
+    Qt::Orientation orientation;
 
     QStyleOptionHeader();
     QStyleOptionHeader(const QStyleOptionHeader &other) : QStyleOption(Version, Type) { *this = other; }
@@ -170,6 +171,7 @@ public:
     QDOC_PROPERTY(Qt::Alignment textAlignment)
     QDOC_PROPERTY(QIcon icon)
     QDOC_PROPERTY(Qt::Alignment iconAlignment)
+    QDOC_PROPERTY(Qt::Orientation orientation)
 
 protected:
     QStyleOptionHeader(int version);

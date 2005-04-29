@@ -1439,6 +1439,7 @@ void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logical
         opt.position = QStyleOptionHeader::OnlyOneSection;
     else
         opt.position = QStyleOptionHeader::Middle;
+    opt.orientation = d->orientation;
     // the selected position
     bool previousSelected = d->isSectionSelected(this->logicalIndex(visual - 1));
     bool nextSelected =  d->isSectionSelected(this->logicalIndex(visual + 1));
