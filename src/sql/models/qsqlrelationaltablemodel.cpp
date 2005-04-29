@@ -337,6 +337,10 @@ QString QSqlRelationalTableModel::selectStatement() const
         where.chop(5);
     qAppendWhereClause(query, where, filter());
 
+    QString orderBy = orderByClause();
+    if (!orderBy.isEmpty())
+        query.append(QLatin1Char(' ')).append(orderBy);
+
     return query;
 }
 
@@ -430,5 +434,19 @@ bool QSqlRelationalTableModel::updateRowInTable(int row, const QSqlRecord &value
         }
     }
     return QSqlTableModel::updateRowInTable(row, rec);
+}
+
+QString QSqlRelationalTableModel::orderByClause() const
+{
+    Q_D(const QSqlRelationalTableModel);
+
+    const QSqlRelation rel = d->relations.value(d->sortColumn).rel;
+    if (!rel.isValid())
+        return QSqlTableModel::orderByClause();
+
+    QString s = QLatin1String("ORDER BY ");
+    s.append(rel.tableName()).append(QLatin1Char('.')).append(d->rec.field(d->sortColumn).name());
+    s += d->sortOrder == Qt::AscendingOrder ? QLatin1String(" ASC") : QLatin1String(" DESC");
+    return s;
 }
 

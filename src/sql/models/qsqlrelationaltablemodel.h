@@ -63,6 +63,7 @@ public slots:
 protected:
     QString selectStatement() const;
     bool updateRowInTable(int row, const QSqlRecord &values);
+    QString orderByClause() const;
 
 private:
     Q_DECLARE_PRIVATE(QSqlRelationalTableModel)
