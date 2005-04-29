@@ -175,7 +175,7 @@ void MainWindow::loadPlugins()
 {
     pluginsDir = QDir(qApp->applicationDirPath());
 #if defined(Q_OS_WIN)
-    if (pluginsDir.dirName() == "debug" || plugins.dirName() == "release")
+    if (pluginsDir.dirName() == "debug" || pluginsDir.dirName() == "release")
         pluginsDir.cdUp();
 #elif defined(Q_OS_MAC)
     if (pluginsDir.dirName() == "MacOS") {
