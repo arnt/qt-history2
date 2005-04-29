@@ -160,12 +160,17 @@ void QWSWindow::bltToScreen(const QRegion &globalrgn)
 
     QPixmap *buf = backingStore->pixmap();
 
-    if (!buf || buf->isNull() || globalrgn.isEmpty())
+    if (!buf || buf->isNull())
+        return;
+
+    QRegion bltRegion = requested_region & globalrgn;
+
+    if (bltRegion.isEmpty())
         return;
 
     QPoint topLeft = requested_region.boundingRect().topLeft();
 
-    gfx->setClipRegion(globalrgn, Qt::ReplaceClip);
+    gfx->setClipRegion(bltRegion, Qt::ReplaceClip);
 
 
     backingStore->lock();
