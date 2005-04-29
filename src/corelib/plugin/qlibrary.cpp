@@ -473,10 +473,8 @@ bool QLibraryPrivate::isPlugin()
         settings.setValue(regkey, queried);
     }
 
-    if (!success) {
-        qWarning("In %s:\n Not a plugin", QFile::encodeName(fileName).constData());
+    if (!success)
         return false;
-    }
 
     pluginState = IsNotAPlugin; // be pessimistic
 
