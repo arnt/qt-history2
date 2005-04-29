@@ -504,7 +504,7 @@ QHash<QFreetypeFaceId, QFreetypeFace *> *QFontEngineFT::freetypeFaces = 0;
 
 QFontEngineFT::Glyph::~Glyph()
 {
-    if (data) free(data);
+    delete [] data;
 }
 
 static QFreetypeFaceId face_id(FcPattern *pattern)
