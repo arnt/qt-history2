@@ -1035,7 +1035,7 @@ glyph_metrics_t QFontEngineFT::boundingBox(glyph_t glyph)
     }
     if (g) {
         overall.x = g->x;
-        overall.y = g->y;
+        overall.y = -g->y;
         overall.width = g->width;
         overall.height = g->height;
         overall.xoff = g->advance;
@@ -1047,8 +1047,8 @@ glyph_metrics_t QFontEngineFT::boundingBox(glyph_t glyph)
 
         overall.width = TRUNC(right-left);
         overall.height = TRUNC(top-bottom);
-        overall.x = -TRUNC(left);
-        overall.y = TRUNC(top);
+        overall.x = TRUNC(left);
+        overall.y = -TRUNC(top);
         overall.xoff = TRUNC(ROUND(face->glyph->advance.x));
     }
     if (face)
