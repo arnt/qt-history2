@@ -363,7 +363,7 @@ bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationSta
     QRegion clipRgn = dec.region(managed, managed->rect().translated(-topextra->backingStoreOffset ));
 #if 0
     qDebug() << "QWSManagerPrivate::doPaint"
-             << "rect" << d->managed->rect()
+             << "rect" << managed->rect()
              << "backingStoreOffset" << topextra->backingStoreOffset
              << "clipRgn" << clipRgn;
 #endif
@@ -380,8 +380,9 @@ bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationSta
 bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationState state)
 {
     Q_D(QWSManager);
+    //### lock backing store
     bool result = d->doPaint(decorationRegion, state);
-
+    //### unlock
     QTLWExtra *topextra = d->managed->d_func()->extra->topextra;
     QDecoration &dec = QApplication::qwsDecoration();
     //### copies too much, but we don't know here what has actually been changed
@@ -471,7 +472,7 @@ bool QWSManagerPrivate::newCachedRegion(const QPoint &pos)
                                                                 reg);
     cached_region.windowFlags = managed->windowFlags();
     cached_region.windowGeometry = managed->geometry();
-//    QRect rec = d->cached_region.region.boundingRect();
+//    QRect rec = cached_region.region.boundingRect();
 //    qDebug("Updated cached region: 0x%04x (%d, %d)  (%d, %d,  %d, %d)",
 //           reg, pos.x(), pos.y(), rec.x(), rec.y(), rec.right(), rec.bottom());
     return true;
