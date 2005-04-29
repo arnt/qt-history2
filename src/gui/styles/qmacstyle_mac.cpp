@@ -416,9 +416,11 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
         // However, this doesn't work for German, therefore only do it for English,
         // I suppose it would be better to do some sort of lookups for languages
         // that like to have really long words.
-        if (psh->text() == "OK" || psh->text() == "Cancel")
-            minw = 69;
-        if (psh->text().contains('\n'))
+        QString buttonText = psh->text();
+        if (buttonText == QLatin1String("OK") || buttonText == QLatin1String("&OK")
+            || buttonText == QLatin1String("Cancel") || buttonText == QLatin1String("&Cancel"))
+            minw = 77 - 8;
+        if (buttonText.contains(QLatin1Char('\n')))
             ret = QSize(minw, -1);
         else if (sz == QAquaSizeLarge)
             ret = QSize(minw, qt_mac_aqua_get_metric(kThemeMetricPushButtonHeight));
