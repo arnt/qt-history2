@@ -179,11 +179,21 @@ void QDesignerWorkbench::initialize()
         m_helpMenu->addAction(action);
     }
 
-    addToolWindow(new QDesignerWidgetBox(this));
-    addToolWindow(new QDesignerObjectInspector(this));
-    addToolWindow(new QDesignerPropertyEditor(this));
-    addToolWindow(new QDesignerSignalSlotEditor(this));
-    addToolWindow(new QDesignerResourceEditor(this));
+    QDesignerToolWindow *tw = new QDesignerWidgetBox(this);
+    tw->setObjectName(QLatin1String("qt_designer_widgetbox"));
+    addToolWindow(tw);
+    tw = new QDesignerObjectInspector(this);
+    tw->setObjectName(QLatin1String("qt_designer_objectinspector"));
+    addToolWindow(tw);
+    tw = new QDesignerPropertyEditor(this);
+    tw->setObjectName(QLatin1String("qt_designer_propertyeditor"));
+    addToolWindow(tw);
+    tw = new QDesignerSignalSlotEditor(this);
+    tw->setObjectName(QLatin1String("qt_designer_signalsloteditor"));
+    addToolWindow(tw);
+    tw = new QDesignerResourceEditor(this);
+    tw->setObjectName(QLatin1String("qt_designer_resourceeditor"));
+    addToolWindow(tw);
 
     m_modeActionGroup = new QActionGroup(this);
     m_modeActionGroup->setExclusive(true);
@@ -235,11 +245,18 @@ void QDesignerWorkbench::initialize()
                 this, SLOT(updateWindowMenu(QDesignerFormWindowInterface*)));
 }
 
-Qt::WindowFlags QDesignerWorkbench::magicalWindowFlags() const
+Qt::WindowFlags QDesignerWorkbench::magicalWindowFlags(const QWidget *widgetForFlags) const
 {
     switch (m_mode) {
-        case TopLevelMode:
+        case TopLevelMode: {
+#ifdef Q_WS_MAC
+            if (qobject_cast<const QDesignerToolWindow *>(widgetForFlags))
+                return Qt::Tool;
+#else
+            Q_UNUSED(widgetForFlags);
+#endif
             return Qt::Window;
+        }
         case WorkspaceMode:
             Q_ASSERT(m_workspace != 0);
             return Qt::Window | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint;
@@ -373,7 +390,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     qDesigner->setMainWindow(mw);
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        QWidget *frame = m_workspace->addWindow(tw, magicalWindowFlags());
+        QWidget *frame = m_workspace->addWindow(tw, magicalWindowFlags(tw));
         if (m_geometries.isEmpty()) {
             settings.setGeometryFor(tw, tw->geometryHint());
             QHeaderView *header = qFindChild<QHeaderView*>(tw);
@@ -388,7 +405,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     }
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
-        QWidget *frame = m_workspace->addWindow(fw, magicalWindowFlags());
+        QWidget *frame = m_workspace->addWindow(fw, magicalWindowFlags(fw));
         QRect g = m_geometries.value(fw, fw->geometryHint());
         fw->resize(g.size());
         frame->move(g.topLeft());
@@ -442,7 +459,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
 
     QDesignerSettings settings;
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        tw->setParent(magicalParent(), magicalWindowFlags());
+        tw->setParent(magicalParent(), magicalWindowFlags(tw));
         if (m_geometries.isEmpty()) {
             settings.setGeometryFor(tw, tw->geometryHint());
             if (QHeaderView *header = qFindChild<QHeaderView*>(tw))
@@ -457,7 +474,7 @@ void QDesignerWorkbench::switchToTopLevelMode()
     changeBringToFrontVisiblity(true);
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
-        fw->setParent(magicalParent(), magicalWindowFlags());
+        fw->setParent(magicalParent(), magicalWindowFlags(fw));
         QRect g = m_geometries.value(fw, fw->geometryHint());
         fw->resize(g.size());
         fw->move(g.topLeft() + desktopOffset);
@@ -470,9 +487,9 @@ QDesignerFormWindow *QDesignerWorkbench::createFormWindow()
     QDesignerFormWindow *formWindow = new QDesignerFormWindow(/*formWindow=*/ 0, this);
 
     if (m_workspace) {
-        m_workspace->addWindow(formWindow, magicalWindowFlags());
+        m_workspace->addWindow(formWindow, magicalWindowFlags(formWindow));
     } else {
-        formWindow->setParent(magicalParent(), magicalWindowFlags());
+        formWindow->setParent(magicalParent(), magicalWindowFlags(formWindow));
     }
 
     formWindow->setAttribute(Qt::WA_DeleteOnClose, true);
