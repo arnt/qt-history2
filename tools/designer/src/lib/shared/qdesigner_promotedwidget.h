@@ -65,9 +65,10 @@ class QT_SHARED_EXPORT QDesignerPromotedWidget : public QWidget
 {
     Q_OBJECT
 public:
-    QDesignerPromotedWidget(QDesignerWidgetDataBaseItemInterface *item,
-                            QWidget *child, QWidget *parent = 0);
+    QDesignerPromotedWidget(QDesignerWidgetDataBaseItemInterface *item, QWidget *parent = 0);
     ~QDesignerPromotedWidget();
+
+    void setChildWidget(QWidget *widget);
 
     QWidget *child() const { return m_child; }
     QDesignerWidgetDataBaseItemInterface *item() const { return m_item; }
@@ -75,9 +76,6 @@ public:
 
     virtual QSize sizeHint() const;
     virtual QSize minimumSizeHint() const;
-
-protected:
-    virtual void childEvent(QChildEvent *e);
 
 private:
     QDesignerWidgetDataBaseItemInterface *m_item;

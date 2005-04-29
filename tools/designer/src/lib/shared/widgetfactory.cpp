@@ -123,8 +123,9 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
         if (item != 0 && item->isPromoted()) {
             QWidget *child = createWidget(item->extends(), 0);
             if (child != 0) {
-                w = new QDesignerPromotedWidget(item, child, parentWidget);
-                child->setParent(w, 0);
+                QDesignerPromotedWidget *promoted = new QDesignerPromotedWidget(item, parentWidget);
+                promoted->setChildWidget(child);
+                w = promoted;
             }
         } else {
             // qDebug() << "widget" << widgetName << "not found! Created a generic custom widget";
@@ -141,7 +142,8 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
             QWidget *actualWidget = new QWidget();
 
             // step 3) create a QDesignerPromotedWidget
-            QDesignerPromotedWidget *promotedWidget = new QDesignerPromotedWidget(item, actualWidget, parentWidget);
+            QDesignerPromotedWidget *promotedWidget = new QDesignerPromotedWidget(item, parentWidget);
+            promotedWidget->setChildWidget(actualWidget);
             w = promotedWidget;
         }
     }

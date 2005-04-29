@@ -128,40 +128,30 @@ QObject *PromotedWidgetPropertySheetFactory::createExtension(QObject *object,
                                 parent);
 }
 
-QDesignerPromotedWidget::QDesignerPromotedWidget(QDesignerWidgetDataBaseItemInterface *item,
-                                                    QWidget *child,
-                                                    QWidget *parent)
-    : QWidget(parent)
+QDesignerPromotedWidget::QDesignerPromotedWidget(QDesignerWidgetDataBaseItemInterface *item, QWidget *parent)
+    : QWidget(parent), m_child(0)
 {
     (new QVBoxLayout(this))->setMargin(0);
 
-    m_child = child;
     m_item = item;
     m_custom_class_name = item->name().toUtf8();
-
-    setSizePolicy(m_child->sizePolicy());
-    m_child->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
 }
 
 QDesignerPromotedWidget::~QDesignerPromotedWidget()
 {
 }
 
-void QDesignerPromotedWidget::childEvent(QChildEvent *e)
+void QDesignerPromotedWidget::setChildWidget(QWidget *widget)
 {
-    if (e->child() != m_child)
-        return;
+    Q_ASSERT(m_child == 0);
+    m_child = widget;
 
-    switch (e->type()) {
-        case QEvent::ChildAdded:
-            layout()->addWidget(m_child);
-            break;
-        case QEvent::ChildRemoved:
-            layout()->removeWidget(m_child);
-            break;
-        default:
-            break;
-    }
+    widget->setParent(this);
+
+    setSizePolicy(m_child->sizePolicy());
+    m_child->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
+
+    layout()->addWidget(m_child);
 }
 
 QSize QDesignerPromotedWidget::sizeHint() const
