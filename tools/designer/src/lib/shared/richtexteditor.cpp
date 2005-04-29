@@ -261,12 +261,12 @@ RichTextEditorDialog::RichTextEditorDialog(QWidget *parent)
 
     layout2->addStretch();
     QPushButton *cancel_button = new QPushButton(tr("&Cancel"), this);
-    layout2->addWidget(cancel_button);
     connect(cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
-    QPushButton *ok_button = new QPushButton(tr("&Ok"), this);
-    layout2->addWidget(ok_button);
+    QPushButton *ok_button = new QPushButton(tr("&OK"), this);
     connect(ok_button, SIGNAL(clicked()), this, SLOT(accept()));
     ok_button->setDefault(true);
+    layout2->addWidget(ok_button);
+    layout2->addWidget(cancel_button);
 }
 
 RichTextEditor *RichTextEditorDialog::editor()
