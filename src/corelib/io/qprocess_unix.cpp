@@ -65,7 +65,6 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 #include <qmap.h>
 #include <qmutex.h>
 #include <qsemaphore.h>
-#include <qsignal.h>
 #include <qsocketnotifier.h>
 #include <qthread.h>
 
@@ -93,7 +92,7 @@ class QProcessManager : public QThread
 public:
     QProcessManager();
     ~QProcessManager();
-    
+
     void run();
     void catchDeadChildren();
     void add(int pid, QProcess *process);
@@ -196,7 +195,7 @@ void QProcessManager::catchDeadChildren()
                    it.key(), info.process);
 #endif
         }
-        
+
         ++it;
     }
 }
@@ -275,7 +274,7 @@ void QProcessPrivate::startProcess()
     // ### RACE CONDITION
     if (!processManager()->isRunning())
         processManager()->start();
-    
+
     // Initialize pipes
     qt_create_pipe(childStartedPipe);
     if (QAbstractEventDispatcher::instance(q->thread())) {
@@ -329,7 +328,7 @@ void QProcessPrivate::startProcess()
     qt_create_pipe(waitForParentPipe);
 
     QByteArray encodedProg = QFile::encodeName(program);
-    
+
     if ((pid = (Q_PID) fork()) == 0) {
         char c;
         read(waitForParentPipe[0], &c, 1);
@@ -557,7 +556,7 @@ static void qt_ignore_sigpipe()
 qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
 {
     qt_ignore_sigpipe();
-    
+
     qint64 written = qint64(::write(writePipe[1], data, maxlen));
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::writeToStdin(%p \"%s\", %lld) == %lld",
@@ -711,7 +710,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
     QTime stopWatch;
     stopWatch.start();
-  
+
     forever {
         fd_set fdread;
         fd_set fdwrite;
@@ -774,7 +773,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
 #if defined (QPROCESS_DEBUG)
     qDebug("QProcessPrivate::waitForFinished(%d)", msecs);
 #endif
-   
+
     QTime stopWatch;
     stopWatch.start();
 
@@ -784,7 +783,7 @@ bool QProcessPrivate::waitForFinished(int msecs)
 
         FD_ZERO(&fdread);
         FD_ZERO(&fdwrite);
-        
+
         if (processState == QProcess::Starting)
             FD_SET(childStartedPipe[0], &fdread);
 

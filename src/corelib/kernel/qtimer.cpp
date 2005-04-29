@@ -15,7 +15,6 @@
 
 #include "qabstracteventdispatcher.h"
 #include "qcoreapplication.h"
-#include "qsignal.h"
 
 /*!
     \class QTimer

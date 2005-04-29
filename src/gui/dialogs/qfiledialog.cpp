@@ -25,7 +25,6 @@
 #include <qpixmap.h>
 #include <qpushbutton.h>
 #include <qregexp.h>
-#include <qsignal.h>
 #include <qtoolbutton.h>
 #include <qmessagebox.h>
 
@@ -302,11 +301,11 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
 /*!
     \enum QFileDialog::Option
 
-    \value ShowDirsOnly Only show directories in the file dialog. By default both files and 
+    \value ShowDirsOnly Only show directories in the file dialog. By default both files and
     directories are shown.
     \value DontResolveSymlinks Don't resolve symlinks in the file dialog. By default symlinks
     are resolved.
-    \value DontConfirmOverwrite Don't ask for confirmation if an existing file is selected. 
+    \value DontConfirmOverwrite Don't ask for confirmation if an existing file is selected.
     By default confirmation is requested.
     \value DontUseSheet Don't make the native file dialog a sheet. By default on Mac OS X, the
     native file dialog is made a sheet if it has a parent that can take a sheet.
@@ -1023,7 +1022,7 @@ void QFileDialogPrivate::enterDirectory(const QModelIndex &index)
     if (!index.isValid() || model->isDir(index)) {
         history.push_back(rootIndex());
         setRootIndex(index);
-        updateButtons(index);        
+        updateButtons(index);
     } else {
         q->accept();
     }
@@ -1888,8 +1887,8 @@ QString QFileDialogPrivate::initialSelection(const QString &path, bool encode)
   If \a dir includes a file name, the file will be selected. Only files
   that match the given \a filter are shown. The filter selected is set to
   \a selectedFilter. The parameters \a dir, \a selectedFilter, and
-  \a filter may be empty strings. The \a options argument holds various 
-  options about how to run the dialog, see the QFileDialog::Option enum for 
+  \a filter may be empty strings. The \a options argument holds various
+  options about how to run the dialog, see the QFileDialog::Option enum for
   more information on the flags you can pass.
 
   The dialog's caption is set to \a caption. If \a caption is not
@@ -1987,8 +1986,8 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
   dir includes a file name, the file will be selected. Only files that
   match the \a filter are shown. The filter selected is set to
   \a selectedFilter. The parameters \a dir, \a selectedFilter, and
-  \a filter may be empty strings. The \a options argument holds various 
-  options about how to run the dialog, see the QFileDialog::Option enum for 
+  \a filter may be empty strings. The \a options argument holds various
+  options about how to run the dialog, see the QFileDialog::Option enum for
   more information on the flags you can pass.
 
   The dialog's caption is set to \a caption. If \a caption is not
@@ -2086,8 +2085,8 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
   The dialog's working directory is set to \a dir, and the caption is
   set to \a caption. Either of these may be an empty string in which case
   the current directory and a default caption will be used
-  respectively. The \a options argument holds various 
-  options about how to run the dialog, see the QFileDialog::Option enum for 
+  respectively. The \a options argument holds various
+  options about how to run the dialog, see the QFileDialog::Option enum for
   more information on the flags you can pass.
 
   Under Unix/X11, the normal behavior of the file dialog is to resolve
@@ -2186,8 +2185,8 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
   Under Unix/X11, the normal behavior of the file dialog is to resolve
   and follow symlinks. For example, if \c{/usr/tmp} is a symlink to
   \c{/var/tmp}, the file dialog will change to \c{/var/tmp} after
-  entering \c{/usr/tmp}. The \a options argument holds various 
-  options about how to run the dialog, see the QFileDialog::Option enum for 
+  entering \c{/usr/tmp}. The \a options argument holds various
+  options about how to run the dialog, see the QFileDialog::Option enum for
   more information on the flags you can pass.
 
   Note that if you want to iterate over the list of files, you should

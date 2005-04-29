@@ -28,7 +28,6 @@
 #include "qfileinfo.h"
 #include "qhash.h"
 #include "qtcpserver.h"
-#include "qsignal.h"
 
 class QFtpPI;
 
@@ -919,7 +918,7 @@ bool QFtpPI::processReply()
             }
 #else
             state = table[replyCode[0] - 1];
-#endif            
+#endif
             break;
         default:
             // ignore unrequested message
@@ -1427,7 +1426,7 @@ QFtp::QFtp(QObject *parent, const char *name)
 
     \value Binary The data will be transferred in Binary mode.
 
-    \value Ascii The data will be transferred in Ascii mode and new line 
+    \value Ascii The data will be transferred in Ascii mode and new line
     characters will be converted to the local format.
 */
 /*!

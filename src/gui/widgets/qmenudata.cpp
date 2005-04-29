@@ -14,28 +14,8 @@
 
 #ifdef QT3_SUPPORT
 #include <qaction.h>
-#include <qsignal.h>
 #include <private/qaction_p.h>
 
-struct QActionAccessor { QActionPrivate *d_ptr; };
-class QMenuItemEmitter : public QObject
-{
-    Q_OBJECT
-    QMenuItem *menuitem;
-    QSignalEmitter *sig;
-public:
-    inline QMenuItemEmitter(QMenuItem *mi) : QObject(mi), menuitem(mi) {
-        sig = new QSignalEmitter("int");
-        QObject::connect(mi, SIGNAL(triggered()), this, SLOT(doSignalEmit()));
-    }
-    inline ~QMenuItemEmitter() { delete sig; }
-    inline QSignalEmitter *signal() const { return sig; }
- private slots:
-    void doSignalEmit() {
-        int value = reinterpret_cast<QActionAccessor*>(menuitem)->d_ptr->param;
-        sig->activate(&value);
-    }
-};
 #include "qmenudata.moc"
 
 /*!
@@ -67,19 +47,6 @@ void QMenuItem::setId(int id)
 int QMenuItem::id() const
 {
     return d_func()->id;
-}
-
-/*!
-    \compat
-    Returns the signal emitter for the menu item.
-*/
-QSignalEmitter *QMenuItem::signal() const
-{
-    if(!d_func()->act_signal) {
-        QMenuItem *that = const_cast<QMenuItem*>(this);
-        that->d_func()->act_signal = new QMenuItemEmitter(that);
-    }
-    return d_func()->act_signal->signal();
 }
 
 void QMenuItem::setSignalValue(int param)

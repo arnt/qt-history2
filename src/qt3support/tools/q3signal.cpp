@@ -26,8 +26,9 @@
     If you want to send signals from a class that does not inherit
     QObject, you can create an internal Q3Signal object to emit the
     signal. You must also provide a function that connects the signal
-    to an outside object slot.  This is how we have implemented
-    signals in the QMenuData class, which is not a QObject.
+    to an outside object slot.  This is how we used to implement
+    signals in Qt 3's QMenuData class, which was not a QObject. In Qt
+    4, menus contain actions, which are QObjects.
 
     In general, we recommend inheriting QObject instead. QObject
     provides much more functionality.

@@ -14,7 +14,6 @@ HEADERS += \
         kernel/qmimedata.h \
 	kernel/qobject.h \
 	kernel/qobjectdefs.h \
-	kernel/qsignal.h \
 	kernel/qsignalmapper.h \
 	kernel/qsocketnotifier.h \
 	kernel/qtimer.h \
@@ -24,7 +23,8 @@ HEADERS += \
 	kernel/qabstracteventdispatcher_p.h \
 	kernel/qcoreapplication_p.h \
 	kernel/qobjectcleanuphandler.h \
-        kernel/qvariant_p.h
+        kernel/qvariant_p.h \
+        kernel/qobject_p.h
 
 SOURCES += \
 	kernel/qabstracteventdispatcher.cpp \
@@ -39,7 +39,6 @@ SOURCES += \
         kernel/qmimedata.cpp \
 	kernel/qobject.cpp \
 	kernel/qobjectcleanuphandler.cpp \
-	kernel/qsignal.cpp \
 	kernel/qsignalmapper.cpp \
 	kernel/qsocketnotifier.cpp \
 	kernel/qtimer.cpp \

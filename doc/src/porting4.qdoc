@@ -2980,32 +2980,8 @@
 
     \section1 QSignal
 
-    The QSignal class has been completely redesigned in Qt 4. For
-    compatibility, the old \c QSignal class has been renamed Q3Signal
-    and has been moved to the Qt3Support library.
-
-    The new QSignal class is a template class, where the template
-    type gives the parameter type of the signal. For example, if you
-    used Q3Signal class's @C{intSignal(int)} signal, you can now use
-    QSignal<int>'s @C{signal(int)} signal instead.
-
-    The Q3Signal::setParameter(), Q3Signal::parameter(),
-    Q3Signal::setValue(), and Q3Signal::value() functions have no
-    direct equivalent in Qt 4. Instead, pass the value to
-    QSignal::activate().
-
-    \oldcode
-        QSignal signal;
-        signal.connect(target, SLOT(display(int)));
-        ...
-        signal.setParameter(5);
-        signal.activate();
-    \newcode
-        QSignal<int> signal;
-        signal.connect(target, SLOT(display(int)));
-        ...
-        signal.activate(5);
-    \endcode
+    The QSignal class has been renamed to Q3Signal and moved to the
+    Qt3Support library.
 
     \section1 QSimpleRichText
 

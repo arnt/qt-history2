@@ -250,7 +250,6 @@
 #include <qhostaddress.h>
 #include <qhostinfo.h>
 #include <qpointer.h>
-#include <qsignal.h>
 #include <qtimer.h>
 
 #ifdef QABSTRACTSOCKET_DEBUG
