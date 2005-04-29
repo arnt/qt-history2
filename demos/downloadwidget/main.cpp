@@ -61,8 +61,8 @@ void DownloadDelegate::paint(QPainter *painter, const QStyleOptionViewItem &opti
             painter->fillRect(option.rect, option.palette.color(cg, QPalette::Highlight));
         if (index.column() == 2) {
             QRect rect = option.rect.adjusted(3, 3, -4, -4);
-            double download = model->data(index, Qt::DisplayRole).toDouble();
-            int width = qMin(rect.width(), static_cast<int>(rect.width() * download));
+            int download = model->data(index, Qt::DisplayRole).toInt();
+            int width = qMin(rect.width(), static_cast<int>(rect.width() * download / 100));
             QLinearGradient gradient(rect.topLeft(), rect.bottomLeft());
             gradient.setColorAt(0, option.palette.color(cg, QPalette::Light));
             gradient.setColorAt(1, option.palette.color(cg, QPalette::Dark));
@@ -135,7 +135,7 @@ int main(int argc, char *argv[])
       item->setText(0, "Song " + QString::number(i));
       item->setData(0, Qt::CheckStateRole, (i % 5) != 0 ? Qt::Checked : Qt::Unchecked);
       item->setData(1, Qt::DisplayRole, QDate(2004, 9, 11 + i));
-      item->setData(2, Qt::DisplayRole, 0.25 * (i % 4) + 0.10);
+      item->setData(2, Qt::DisplayRole, 25 * (i % 4) + 10);
       item->setData(3, Qt::DisplayRole, (i % 6) + 1);
       item->setFlags(item->flags()|Qt::ItemIsEditable);
   }
