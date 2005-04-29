@@ -568,9 +568,8 @@ void QListView::reset()
 void QListView::setRootIndex(const QModelIndex &index)
 {
     Q_D(QListView);
+    d->column = qBound(0, d->column, model()->columnCount(index) - 1);
     QAbstractItemView::setRootIndex(index);
-    if (d->column >= model()->columnCount(rootIndex()))
-        d->column = model()->columnCount(rootIndex()) - 1;
 }
 
 /*!
@@ -970,7 +969,10 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
 
     QModelIndex current = currentIndex();
     if (!current.isValid())
-        return current;
+        if (model())
+            return model()->index(0, 0, rootIndex());
+        else
+            return current;
 
     QRect rect = rectForIndex(current);
     QSize contents = d->contentsSize;
@@ -1778,7 +1780,9 @@ QRect QListViewPrivate::mapToViewport(const QRect &rect) const
     // If the listview is in "listbox-mode", the items are as wide as the view.
     if (!wrap && movement == QListView::Static && flow == QListView::TopToBottom)
         result.setWidth(qMax(contentsSize.width(), viewport->width()));
-    result.adjust(-q->horizontalOffset(), -q->verticalOffset(), 0, 0);
+    int dx = -q->horizontalOffset();
+    int dy = -q->verticalOffset();
+    result.adjust(dx, dy, dx, dy);
     return result;
 }
 
