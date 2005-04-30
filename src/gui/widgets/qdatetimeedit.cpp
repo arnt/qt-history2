@@ -35,6 +35,7 @@ extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 #include <qdebug.h>
 
 static const char space = ' ';
+static const char quote = '\'';
 
 class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate
 {
@@ -1822,7 +1823,6 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 static QString unquote(const QString &str)
 {
     QString ret;
-    const QChar quote = QLatin1Char('\'');
     QChar status = QLatin1Char('0');
     for (int i=0; i<str.size(); ++i) {
         if (str.at(i) == quote) {
@@ -1860,7 +1860,6 @@ bool QDateTimeEditPrivate::parseFormat(const QString &nfoo)
     int i, index = 0;
     int add = 0;
     QChar status = QLatin1Char('0');
-    const QChar quote = QLatin1Char('\'');
     for (i = 0; i<newFormat.size(); ++i) {
         if (newFormat.at(i) == quote) {
             ++add;
