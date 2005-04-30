@@ -4863,15 +4863,16 @@ bool QWidget::event(QEvent *e)
     case QEvent::Enter:
         if (d->statusTip.size()) {
             QStatusTipEvent tip(d->statusTip);
-            QApplication::sendEvent(this, &tip);
+            QApplication::sendEvent(const_cast<QWidget *>(this), &tip);
         }
         enterEvent(e);
         break;
 
     case QEvent::Leave:
         if (d->statusTip.size()) {
-            QStatusTipEvent tip((QString()));
-            QApplication::sendEvent(this, &tip);
+            QString empty;
+            QStatusTipEvent tip(empty);
+            QApplication::sendEvent(const_cast<QWidget *>(this), &tip);
         }
         leaveEvent(e);
         break;
