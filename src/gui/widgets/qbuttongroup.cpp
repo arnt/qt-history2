@@ -56,7 +56,7 @@
 /*!
     \fn QButtonGroup::~QButtonGroup()
 
-    Destroys the button group and all its child widgets.
+    Destroys the button group.
 */
 
 /*!

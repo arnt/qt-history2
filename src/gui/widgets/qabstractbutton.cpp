@@ -1035,7 +1035,7 @@ unchecked.
 This may be the result of a user action, click() slot activation,
 or because setChecked() was called.
 
-\sa checked(), clicked()
+\sa checked, clicked()
 */
 
 
