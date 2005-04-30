@@ -627,8 +627,8 @@ QPixmap Q3TableItem::pixmap() const
 
 
 /*!
-    Returns the text of the table item or QString::null if there is no
-    text.
+    Returns the text of the table item or an empty string if there is
+    no text.
 
     To ensure that the current value of the editor is returned,
     setContentFromEditor() is called:
@@ -3099,13 +3099,13 @@ void Q3Table::setPixmap(int row, int col, const QPixmap &pix)
 	updateCell(row, col);
     } else {
 	Q3TableItem *i = new Q3TableItem(this, Q3TableItem::OnTyping,
-					QString::null, pix);
+					QString(), pix);
 	setItem(row, col, i);
     }
 }
 
 /*!
-    Returns the text in the cell at \a row, \a col, or QString::null
+    Returns the text in the cell at \a row, \a col, or an empty string
     if the relevant item does not exist or has no text.
 
     \sa setText() setPixmap()
@@ -4714,7 +4714,7 @@ void Q3Table::updateHeaderAndResizeContents(Q3TableHeader *header,
 	clearSelection(false);
 	int i = 0;
 	for (i = old; i < rowCol; ++i)
-	    header->addLabel(QString::null, width);
+	    header->addLabel(QString(), width);
     } else {
 	clearSelection(false);
 	if (header == leftHeader) {

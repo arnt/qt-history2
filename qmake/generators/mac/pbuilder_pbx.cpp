@@ -689,7 +689,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
 
     if(!project->isActiveConfig("staticlib")) { //DUMP LIBRARIES
         QStringList &libdirs = project->variables()["QMAKE_PBX_LIBPATHS"];
-        QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
+        QString libs[] = { "QMAKE_LFLAGS", "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString() };
         for(int i = 0; !libs[i].isNull(); i++) {
             tmp = project->variables()[libs[i]];
             for(int x = 0; x < tmp.count();) {
@@ -730,7 +730,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                             }
                         }
                         if(!remove) {
-                            QString extns[] = { ".dylib", ".so", ".a", QString::null };
+                            QString extns[] = { ".dylib", ".so", ".a", QString() };
                             for(int n = 0; !remove && !extns[n].isNull(); n++) {
                                 QString tmp =  (*lit) + Option::dir_sep + lib + extns[n];
                                 if(exists(tmp)) {
@@ -1509,4 +1509,3 @@ ProjectBuilderMakefileGenerator::pbxbuild()
        return "xcodebuild";
     return (ideType() == MAC_XCODE ? "xcodebuild" : "pbxbuild");
 }
-

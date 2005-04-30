@@ -490,7 +490,7 @@ void QFontEngineFT::computeSize()
                 best = i;
             }
         }
-        if (FT_Set_Char_Size (face, X_SIZE(face,  best), Y_SIZE(face, best), 0, 0) == 0) {
+        if (FT_Set_Char_Size (face, X_SIZE(face, best), Y_SIZE(face, best), 0, 0) == 0) {
             xsize = X_SIZE(face, best);
             ysize = Y_SIZE(face, best);
         } else
@@ -977,7 +977,7 @@ void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::S
         unlockFace();
 }
 
-glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs,  int numGlyphs)
+glyph_metrics_t QFontEngineFT::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 {
 
     FT_Face face = 0;
@@ -1056,7 +1056,7 @@ glyph_metrics_t QFontEngineFT::boundingBox(glyph_t glyph)
     return overall;
 }
 
-bool QFontEngineFT::canRender(const QChar *string,  int len)
+bool QFontEngineFT::canRender(const QChar *string, int len)
 {
     FT_Face face = freetype->face;
 #if 0
@@ -1110,8 +1110,8 @@ static void addCurve(QPainterPath *path, const QPointF &cp, const QPointF &endPo
         QPointF c3 = (j == nOff) ? next : (next + current)/2;
         QPointF c1 = (2*current + c0)/3;
         QPointF c2 = (2*current + c3)/3;
-//         qDebug("cubicTo %f/%f %f/%f %f/%f", (cp + c1).x(),  (cp + c1).y(),
-//                (cp + c2).x(),  (cp + c2).y(), (cp + c3).x(),  (cp + c3).y());
+//         qDebug("cubicTo %f/%f %f/%f %f/%f", (cp + c1).x(), (cp + c1).y(),
+//                (cp + c2).x(), (cp + c2).y(), (cp + c3).x(), (cp + c3).y());
         path->cubicTo(cp + c1, cp + c2, cp + c3);
         c0 = c3;
         current = next;
@@ -1280,7 +1280,5 @@ QOpenType *QFontEngineFT::openType() const
     unlockFace();
     return _openType;
 }
-
-
 
 #endif // QT_NO_FONTCONFIG

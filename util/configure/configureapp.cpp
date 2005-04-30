@@ -1802,8 +1802,8 @@ void Configure::readLicense()
 		QStringList components = buffer.split( '=' );
 		if ( components.size() >= 2 ) {
 		    QStringList::Iterator it = components.begin();
-		    QString key = (*it++).trimmed().replace( "\"", QString::null ).toUpper();
-		    QString value = (*it++).trimmed().replace( "\"", QString::null );
+		    QString key = (*it++).trimmed().replace( "\"", QString() ).toUpper();
+		    QString value = (*it++).trimmed().replace( "\"", QString() );
 		    licenseInfo[ key ] = value;
 		}
 	    }

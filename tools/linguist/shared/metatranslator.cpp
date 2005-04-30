@@ -133,12 +133,12 @@ bool TsHandler::endElement( const QString& /* namespaceURI */,
             if ( contextIsUtf8 )
                 tor->insert( MetaTranslatorMessage(context.toUtf8(),
                              ContextComment,
-                             accum.toUtf8(), QString::null, true,
+                             accum.toUtf8(), QString(), true,
                              MetaTranslatorMessage::Unfinished) );
             else
                 tor->insert( MetaTranslatorMessage(context.toAscii(),
                              ContextComment,
-                             accum.toAscii(), QString::null, false,
+                             accum.toAscii(), QString(), false,
                              MetaTranslatorMessage::Unfinished) );
         }
     } else if ( qName == QString("translation") ) {

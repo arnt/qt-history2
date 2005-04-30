@@ -330,7 +330,7 @@ Q3ToolBar::Q3ToolBar(Q3MainWindow * parent, const char * name)
     init();
 
     if (parent)
-        parent->addToolBar(this, QString::null, Qt::DockTop);
+        parent->addToolBar(this, QString(), Qt::DockTop);
 }
 
 /*!

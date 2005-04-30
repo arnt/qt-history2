@@ -34,7 +34,7 @@ public:
     static inline void add(QWidget *w, const QString &s) { w->setWhatsThis(s); }
     static inline void remove(QWidget *w) { w->setWhatsThis(QString()); }
     static QToolButton * whatsThisButton(QWidget * parent);
-    static inline void leaveWhatsThisMode(const QString& text = QString::null, const QPoint& pos = QCursor::pos(), QWidget* w = 0)
+    static inline void leaveWhatsThisMode(const QString& text = QString(), const QPoint& pos = QCursor::pos(), QWidget* w = 0)
         { QWhatsThis::showText(pos, text, w); }
     static inline void display(const QString& text, const QPoint& pos = QCursor::pos(), QWidget* w = 0)
         { QWhatsThis::showText(pos, text, w); }

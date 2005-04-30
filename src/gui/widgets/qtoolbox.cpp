@@ -161,7 +161,7 @@ QSize QToolBoxButton::minimumSizeHint() const
     if (icon().isNull())
         return QSize();
     int icone = style()->pixelMetric(QStyle::PM_SmallIconSize);
-    return QSize(icone + 8,  icone + 8);
+    return QSize(icone + 8, icone + 8);
 }
 
 void QToolBoxButton::paintEvent(QPaintEvent *)

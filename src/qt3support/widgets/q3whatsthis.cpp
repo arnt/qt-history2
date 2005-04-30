@@ -138,7 +138,7 @@ bool Q3WhatsThis::clicked(const QString & /* href */)
 */
 
 /*!
-    \fn void Q3WhatsThis::leaveWhatsThisMode(const QString& text = QString::null, const QPoint& pos = QCursor::pos(), QWidget* widget = 0)
+    \fn void Q3WhatsThis::leaveWhatsThisMode(const QString& text = QString(), const QPoint& pos = QCursor::pos(), QWidget* widget = 0)
 
     This function is used internally by widgets that support
     QWidget::customWhatsThis(); applications do not usually call it.
@@ -146,7 +146,7 @@ bool Q3WhatsThis::clicked(const QString & /* href */)
     normally in "What's This?" mode but also provide help texts for
     individual menu items.
 
-    If \a text is not QString::null, a "What's This?" help window is
+    If \a text is not empty, a "What's This?" help window is
     displayed at the global screen position \a pos. If widget \a widget is
     not 0 and has its own dedicated QWhatsThis object, this object
     will receive clicked() messages when the user clicks on hyperlinks

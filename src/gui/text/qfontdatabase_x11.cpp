@@ -322,7 +322,7 @@ int qt_xlfd_encoding_id(const char *encoding)
         const char *n = enc->name;
         const char *e = encoding;
         while (1) {
-            // qDebug("bol: *e='%c', *n='%c'", *e,  *n);
+            // qDebug("bol: *e='%c', *n='%c'", *e, *n);
             if (*e == '\0') {
                 if (*n)
                     break;
@@ -337,7 +337,7 @@ int qt_xlfd_encoding_id(const char *encoding)
             if (*n != '*')
                 break;
             ++n;
-            // qDebug("skip: *e='%c', *n='%c'", *e,  *n);
+            // qDebug("skip: *e='%c', *n='%c'", *e, *n);
             while (*e && *e != *n)
                 ++e;
         }
@@ -963,8 +963,8 @@ static void loadFontConfig()
         }
 
         QtFontFoundry *foundry
-            = family->foundry(foundry_value ? QString::fromUtf8((const char *)foundry_value) : QString::null,  true);
-        QtFontStyle *style = foundry->style(styleKey,  true);
+            = family->foundry(foundry_value ? QString::fromUtf8((const char *)foundry_value) : QString(), true);
+        QtFontStyle *style = foundry->style(styleKey, true);
 
         if (spacing_value < FC_MONO)
             family->fixedPitch = false;
@@ -1002,7 +1002,7 @@ static void loadFontConfig()
         family->rawName = f->rawname;
         family->hasFT = true;
         family->synthetic = true;
-        QtFontFoundry *foundry = family->foundry(QString::null,  true);
+        QtFontFoundry *foundry = family->foundry(QString(), true);
 
         // aliases only make sense for 'common', not for any of the specials
         for (int i = 1; i < LanguageCount; ++i) {
@@ -1017,7 +1017,7 @@ static void loadFontConfig()
         for (int i = 0; i < 4; ++i) {
             styleKey.style = (i%2) ? QFont::StyleNormal : QFont::StyleItalic;
             styleKey.weight = (i > 1) ? QFont::Bold : QFont::Normal;
-            QtFontStyle *style = foundry->style(styleKey,  true);
+            QtFontStyle *style = foundry->style(styleKey, true);
             style->smoothScalable = true;
             QtFontSize *size = style->pixelSize(SMOOTH_SCALABLE, true);
             QtFontEncoding *enc = size->encodingID(-1, 0, 0, 0, 0, true);
@@ -1028,7 +1028,7 @@ static void loadFontConfig()
 }
 #endif // QT_NO_FONTCONFIG
 
-static void load(const QString &family = QString::null, int script = -1)
+static void load(const QString &family = QString(), int script = -1)
 {
     if (X11->has_fontconfig)
         return;
@@ -1077,7 +1077,7 @@ static void initializeDb()
 
 #ifndef QT_NO_FONTCONFIG
     loadFontConfig();
-    FD_DEBUG("QFontDatabase: loaded FontConfig: %d ms",  t.elapsed());
+    FD_DEBUG("QFontDatabase: loaded FontConfig: %d ms", t.elapsed());
 #endif
 
     t.start();
@@ -1128,7 +1128,7 @@ static void initializeDb()
     if (!X11->has_fontconfig)
 #endif
         // load everything at startup in debug mode.
-        loadXlfds(0,  -1);
+        loadXlfds(0, -1);
 
     // print the database
     for (int f = 0; f < db->count; f++) {
@@ -1158,7 +1158,7 @@ static void initializeDb()
                 else if (style->bitmapScalable)
                     FD_DEBUG("\t\t\t\tbitmap scalable");
                 if (style->pixelSizes) {
-                    qDebug("\t\t\t\t%d pixel sizes",  style->count);
+                    qDebug("\t\t\t\t%d pixel sizes", style->count);
                     for (int z = 0; z < style->count; ++z) {
                         QtFontSize *size = style->pixelSizes + z;
                         for (int e = 0; e < size->count; ++e) {

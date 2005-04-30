@@ -863,7 +863,7 @@ void QGradient::setColorAt(qreal pos, const QColor &color)
 
     int index = 0;
     while (index < m_stops.size() && m_stops.at(index).first < pos) ++index;
-    m_stops.insert(index,  QGradientStop(pos, color));
+    m_stops.insert(index, QGradientStop(pos, color));
 }
 
 /*!

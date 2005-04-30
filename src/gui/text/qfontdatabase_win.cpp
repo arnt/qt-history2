@@ -325,8 +325,8 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
         if(ttf && localizedName(familyName) && family->english_name.isEmpty())
             family->english_name = getEnglishName(familyName);
 
-        QtFontFoundry *foundry = family->foundry(foundryName,  true);
-        QtFontStyle *style = foundry->style(styleKey,  true);
+        QtFontFoundry *foundry = family->foundry(foundryName, true);
+        QtFontStyle *style = foundry->style(styleKey, true);
         style->smoothScalable = true;
         style->pixelSize(SMOOTH_SCALABLE, true);
 
@@ -334,14 +334,14 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
         if (styleKey.weight <= QFont::DemiBold) {
             QtFontStyle::Key key(styleKey);
             key.weight = QFont::Bold;
-            QtFontStyle *style = foundry->style(key,  true);
+            QtFontStyle *style = foundry->style(key, true);
             style->smoothScalable = true;
             style->pixelSize(SMOOTH_SCALABLE, true);
         }
         if (styleKey.style != QFont::StyleItalic) {
             QtFontStyle::Key key(styleKey);
             key.style = QFont::StyleItalic;
-            QtFontStyle *style = foundry->style(key,  true);
+            QtFontStyle *style = foundry->style(key, true);
             style->smoothScalable = true;
             style->pixelSize(SMOOTH_SCALABLE, true);
         }
@@ -349,7 +349,7 @@ storeFont(ENUMLOGFONTEX* f, NEWTEXTMETRIC *textmetric, int type, LPARAM /*p*/)
             QtFontStyle::Key key(styleKey);
             key.weight = QFont::Bold;
             key.style = QFont::StyleItalic;
-            QtFontStyle *style = foundry->style(key,  true);
+            QtFontStyle *style = foundry->style(key, true);
             style->smoothScalable = true;
             style->pixelSize(SMOOTH_SCALABLE, true);
         }
@@ -497,7 +497,7 @@ static void initializeDb()
     if (!db || db->count)
         return;
 
-    populate_database(QString::null);
+    populate_database(QString());
 
 #ifdef QFONTDATABASE_DEBUG
     // print the database
@@ -523,7 +523,7 @@ static void initializeDb()
 
 }
 
-static inline void load(const QString &family = QString::null,  int = -1)
+static inline void load(const QString &family = QString(), int = -1)
 {
     populate_database(family);
 }

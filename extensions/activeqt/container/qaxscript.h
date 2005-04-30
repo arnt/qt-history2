@@ -74,7 +74,7 @@ public:
     QAxScript(const QString &name, QAxScriptManager *manager);
     ~QAxScript();
     
-    bool load(const QString &code, const QString &language = QString::null);
+    bool load(const QString &code, const QString &language = QString());
     
     QStringList functions(FunctionFlags = FunctionNames) const;
     

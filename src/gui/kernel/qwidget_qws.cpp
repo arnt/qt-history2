@@ -178,7 +178,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
 #ifndef QT_NO_WIDGET_TOPEXTRA
         q->qwsDisplay()->nameRegion(q->winId(), q->objectName(), q->windowTitle());
 #else
-        q->qwsDisplay()->nameRegion(q->winId(), q->objectName(), QString::null);
+        q->qwsDisplay()->nameRegion(q->winId(), q->objectName(), QString());
 #endif
     }
 
@@ -374,7 +374,7 @@ void QWidget::setMicroFocusHint(int x, int y, int width, int height,
         r.setBottom(tlw->geometry().bottom());
 
         //qDebug("QWidget::setMicroFocusHint %d %d %d %d", r.x(),
-        //        r.y(),  r.width(), r.height());
+        //        r.y(), r.width(), r.height());
         QInputContext::setMicroFocusWidget(this);
 
         qwsDisplay()->setIMInfo(winid, gp.x(), gp.y(), r);
@@ -745,7 +745,7 @@ void QWSBackingStore::create(QSize s)
     }
     int extradatasize = 0;//2 * sizeof(int); //store height and width ???
     int datasize = 4 * s.width() * s.height() + extradatasize;
-    shmid = shmget(IPC_PRIVATE, datasize,  IPC_CREAT|0600);
+    shmid = shmget(IPC_PRIVATE, datasize, IPC_CREAT|0600);
     shmaddr = shmat(shmid,0,0);
     QImage img(static_cast<uchar*>(shmaddr)+extradatasize, s.width(), s.height(),
                QImage::Format_ARGB32_Premultiplied);

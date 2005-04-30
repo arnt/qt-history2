@@ -160,7 +160,7 @@ void Window::slotInputMaskChanged(int index)
 {
     switch (index) {
         case 0:
-            inputMaskLineEdit->setInputMask(QString::null);
+            inputMaskLineEdit->setInputMask(QString());
             break;
         case 1:
             inputMaskLineEdit->setInputMask("+99 99 99 99 99;_");

@@ -67,7 +67,7 @@ private:
     void colorChanged(const QColor &c);
     void alignmentChanged(Qt::Alignment a);
 
-    QTextEdit *createNewEditor(const QString &title = QString::null);
+    QTextEdit *createNewEditor(const QString &title = QString());
 
     QAction *actionSave,
         *actionTextBold,

@@ -218,7 +218,7 @@ UnixMakefileGenerator::init()
         const QString libtoolify[] = { "QMAKE_RUN_CC", "QMAKE_RUN_CC_IMP",
                                        "QMAKE_RUN_CXX", "QMAKE_RUN_CXX_IMP",
                                        "QMAKE_LINK_THREAD", "QMAKE_LINK", "QMAKE_AR_CMD", "QMAKE_LINK_SHLIB_CMD",
-                                       QString::null };
+                                       QString() };
         for(int i = 0; !libtoolify[i].isNull(); i++) {
             QStringList &l = project->variables()[libtoolify[i]];
             if(!l.isEmpty()) {
@@ -371,7 +371,7 @@ UnixMakefileGenerator::findLibraries()
     QList<QMakeLocalFileName> libdirs, frameworkdirs;
     frameworkdirs.append(QMakeLocalFileName("/System/Library/Frameworks"));
     frameworkdirs.append(QMakeLocalFileName("/Library/Frameworks"));
-    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
+    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString() };
     for(int i = 0; !lflags[i].isNull(); i++) {
         QStringList &l = project->variables()[lflags[i]];
         for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -472,7 +472,7 @@ UnixMakefileGenerator::processPrlFiles()
     QList<QMakeLocalFileName> libdirs, frameworkdirs;
     frameworkdirs.append(QMakeLocalFileName("/System/Library/Frameworks"));
     frameworkdirs.append(QMakeLocalFileName("/Library/Frameworks"));
-    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString::null };
+    const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString() };
     for(int i = 0; !lflags[i].isNull(); i++) {
         for(bool ret = false; true; ret = false) {
             QStringList l_out;

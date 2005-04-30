@@ -249,7 +249,7 @@ void QFontPrivate::load(int script)
         family_list += subs_list;
     }
     // null family means find the first font matching the specified script
-    family_list << QString::null;
+    family_list << QString();
 
     // load the font
     QFontEngine *engine = 0;

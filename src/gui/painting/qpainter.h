@@ -609,7 +609,7 @@ inline void QPainter::eraseRect(int x, int y, int w, int h)
     eraseRect(QRectF(x, y, w, h));
 }
 
-inline void QPainter::fillRect(int x, int y, int w,  int h, const QBrush &b)
+inline void QPainter::fillRect(int x, int y, int w, int h, const QBrush &b)
 {
     fillRect(QRect(x, y, w, h), b);
 }

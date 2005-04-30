@@ -132,11 +132,11 @@ void QListData::remove(int i)
     i += d->begin;
     if (i - d->begin < d->end - i) {
         if (int offset = i - d->begin)
-            ::memmove(d->array + d->begin + 1,  d->array + d->begin, offset * sizeof(void *));
+            ::memmove(d->array + d->begin + 1, d->array + d->begin, offset * sizeof(void *));
         d->begin++;
     } else {
         if (int offset = d->end - i - 1)
-            ::memmove(d->array + i,  d->array + i + 1, offset * sizeof(void *));
+            ::memmove(d->array + i, d->array + i + 1, offset * sizeof(void *));
         d->end--;
     }
 }
@@ -147,11 +147,11 @@ void QListData::remove(int i, int n)
     i += d->begin;
     int middle = i + n/2;
     if (middle - d->begin < d->end - middle) {
-        ::memmove(d->array + d->begin + n,  d->array + d->begin,
+        ::memmove(d->array + d->begin + n, d->array + d->begin,
                    (i - d->begin) * sizeof(void*));
         d->begin += n;
     } else {
-        ::memmove(d->array + i,  d->array + i + n,
+        ::memmove(d->array + i, d->array + i + n,
                    (d->end - i - n) * sizeof(void*));
         d->end -= n;
     }

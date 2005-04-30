@@ -57,8 +57,8 @@ public:
     { return headerFileName(m_option.outputFile.isEmpty() ? m_option.inputFile : m_option.outputFile); }
 
     static QString qtify(const QString &name);
-    QString unique(const QString &instanceName=QString::null,
-                   const QString &className=QString::null);
+    QString unique(const QString &instanceName=QString(),
+                   const QString &className=QString());
 
     // symbol table
     QString findOrInsertWidget(DomWidget *ui_widget);

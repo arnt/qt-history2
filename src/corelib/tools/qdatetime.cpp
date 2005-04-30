@@ -3653,4 +3653,3 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
 
     return true;
 }
-

@@ -1410,7 +1410,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
 
 #ifdef INDIC_DEBUG
         for (i = fixed; i < len; ++i)
-            IDEBUG("position[%d] = %d, form=%d", i, position[i],  form(uc[i]));
+            IDEBUG("position[%d] = %d, form=%d", i, position[i], form(uc[i]));
 #endif
         // we continuosly position the matras and vowel marks and increase the fixed
         // until we reached the end.
@@ -1427,7 +1427,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                     // need to move this glyph
                     int to = fixed;
                     if (i < len-1 && position[i+1] == Inherit) {
-                        IDEBUG("         moving two chars from %d to %d", i,  to);
+                        IDEBUG("         moving two chars from %d to %d", i, to);
                         unsigned short ch = uc[i];
                         unsigned short ch2 = uc[i+1];
                         unsigned char pos = position[i];
@@ -1441,7 +1441,7 @@ static bool indic_shape_syllable(QOpenType *openType, QShaperItem *item, bool in
                         position[to+1] = pos;
                         fixed += 2;
                     } else {
-                        IDEBUG("         moving one char from %d to %d", i,  to);
+                        IDEBUG("         moving one char from %d to %d", i, to);
                         unsigned short ch = uc[i];
                         unsigned char pos = position[i];
                         for (int j = i; j > to; j--) {

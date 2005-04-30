@@ -42,8 +42,8 @@ public:
     bool isItemEnabled( int id ) const;
     void setItemEnabled( int id, bool enable );
 
-    bool connectItem( int id,  const QObject *receiver, const char* member );
-    bool disconnectItem( int id,  const QObject *receiver, const char* member );
+    bool connectItem( int id, const QObject *receiver, const char* member );
+    bool disconnectItem( int id, const QObject *receiver, const char* member );
 
     void repairEventFilter() {}
 

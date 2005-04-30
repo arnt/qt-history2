@@ -126,7 +126,7 @@ public:
     static QWidget *widgetAt(const QPoint &p);
     static inline QWidget *widgetAt(int x, int y) { return widgetAt(QPoint(x, y)); }
     static QWidget *topLevelAt(const QPoint &p);
-    static inline QWidget *topLevelAt(int x,  int y)  { return topLevelAt(QPoint(x, y)); }
+    static inline QWidget *topLevelAt(int x, int y)  { return topLevelAt(QPoint(x, y)); }
 
     static void syncX();
     static void beep();

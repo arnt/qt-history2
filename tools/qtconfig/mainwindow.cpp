@@ -898,7 +898,7 @@ void MainWindow::upLibpath()
 
 void MainWindow::browseLibpath()
 {
-    QString dirname = QFileDialog::getExistingDirectory(QString::null, this, 0,
+    QString dirname = QFileDialog::getExistingDirectory(QString(), this, 0,
                                                         tr("Select a Directory"));
     if (dirname.isNull())
         return;
@@ -984,7 +984,7 @@ void MainWindow::upFontpath()
 
 void MainWindow::browseFontpath()
 {
-    QString dirname = QFileDialog::getExistingDirectory(QString::null, this, 0,
+    QString dirname = QFileDialog::getExistingDirectory(QString(), this, 0,
                                                         tr("Select a Directory"));
     if (dirname.isNull())
         return;

@@ -36,7 +36,7 @@ QWinEventNotifier::QWinEventNotifier(QObject *parent)
 {}
 
 QWinEventNotifier::QWinEventNotifier(HANDLE hEvent, QObject *parent)
- : QObject(parent),  handleToEvent(hEvent), enabled(false)
+ : QObject(parent), handleToEvent(hEvent), enabled(false)
 {
     QEventDispatcherWin32 *eventDispatcher = qobject_cast<QEventDispatcherWin32 *>(QAbstractEventDispatcher::instance(thread()));
     Q_ASSERT_X(eventDispatcher, "QWinEventNotifier::QWinEventNotifier()",

@@ -187,9 +187,9 @@ void PhraseBookBox::enableDisable()
         definitionLed->setText(p.definition());
     }
     else {
-        sourceLed->setText(QString::null);
-        targetLed->setText(QString::null);
-        definitionLed->setText(QString::null);
+        sourceLed->setText(QString());
+        targetLed->setText(QString());
+        definitionLed->setText(QString());
     }
 
     sourceLed->setEnabled(indexValid);

@@ -502,7 +502,7 @@ QSize QIcon::actualSize(const QSize &size, Mode mode, State state) const
 
     \sa actualSize(), pixmap()
 */
-void QIcon::paint(QPainter *painter, const QRect &rect,  Qt::Alignment alignment, Mode mode, State state) const
+void QIcon::paint(QPainter *painter, const QRect &rect, Qt::Alignment alignment, Mode mode, State state) const
 {
     if (!d || !painter)
         return;

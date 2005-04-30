@@ -1112,8 +1112,8 @@ void QGLWidget::setContext(QGLContext *context,
     if (parentWidget())
         p = parentWidget()->winId();
 
-    Window w = XCreateWindow(X11->display, p,  x(), y(), width(), height(),
-                              0, vi->depth, InputOutput,  vi->visual,
+    Window w = XCreateWindow(X11->display, p, x(), y(), width(), height(),
+                              0, vi->depth, InputOutput, vi->visual,
                               CWBackPixel|CWBorderPixel|CWColormap, &a);
 
     Window *cmw;

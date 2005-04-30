@@ -23,8 +23,8 @@ class QWSLinuxTPMouseHandlerPrivate;
 class QWSLinuxTPMouseHandler : public QWSCalibratedMouseHandler
 {
 public:
-    explicit QWSLinuxTPMouseHandler(const QString & = QString::null,
-                                    const QString & = QString::null);
+    explicit QWSLinuxTPMouseHandler(const QString & = QString(),
+                                    const QString & = QString());
     ~QWSLinuxTPMouseHandler();
 
     void suspend();

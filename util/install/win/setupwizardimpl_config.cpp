@@ -502,7 +502,7 @@ void SetupWizardImpl::cleanDone()
     else
 	args += "-shared";
 
-    entry = settings.readEntry( "/Trolltech/Qt/Threading", QString::null, &settingsOK );
+    entry = settings.readEntry( "/Trolltech/Qt/Threading", QString(), &settingsOK );
     if ( entry == "Threaded" )
 	args += "-thread";
     else

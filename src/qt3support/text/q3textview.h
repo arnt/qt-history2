@@ -23,7 +23,7 @@ class Q_COMPAT_EXPORT Q3TextView : public Q3TextEdit
     Q_OBJECT
 
 public:
-    Q3TextView(const QString& text, const QString& context = QString::null,
+    Q3TextView(const QString& text, const QString& context = QString(),
                QWidget* parent=0, const char* name=0);
     Q3TextView(QWidget* parent=0, const char* name=0);
 

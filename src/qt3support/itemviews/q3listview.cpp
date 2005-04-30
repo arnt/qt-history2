@@ -5842,7 +5842,7 @@ struct Q3CheckListItemPrivate
 */
 Q3CheckListItem::Q3CheckListItem(Q3CheckListItem *parent, const QString &text,
                                 Type tt)
-    : Q3ListViewItem(parent, text, QString::null)
+    : Q3ListViewItem(parent, text, QString())
 {
     myType = tt;
     init();
@@ -5884,7 +5884,7 @@ Q3CheckListItem::Q3CheckListItem(Q3CheckListItem *parent, Q3ListViewItem *after,
 */
 Q3CheckListItem::Q3CheckListItem(Q3ListViewItem *parent, const QString &text,
                                 Type tt)
-    : Q3ListViewItem(parent, text, QString::null)
+    : Q3ListViewItem(parent, text, QString())
 {
     myType = tt;
     if (myType == RadioButton) {

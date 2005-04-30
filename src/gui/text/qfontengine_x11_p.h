@@ -51,7 +51,7 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                       QTextEngine::ShaperFlags flags) const;
 
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
+    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
     qreal ascent() const;
@@ -64,7 +64,7 @@ public:
     inline Type type() const
     { return QFontEngine::XLFD; }
 
-    bool canRender(const QChar *string,  int len);
+    bool canRender(const QChar *string, int len);
     const char *name() const;
 
     inline XFontStruct *fontStruct() const
@@ -135,7 +135,7 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                       QTextEngine::ShaperFlags flags) const;
 
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
+    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
     qreal ascent() const;
@@ -149,7 +149,7 @@ public:
     inline Type type() const
     { return QFontEngine::Freetype; }
 
-    bool canRender(const QChar *string,  int len);
+    bool canRender(const QChar *string, int len);
     inline const char *name() const
     { return "freetype"; }
 

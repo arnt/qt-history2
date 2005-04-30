@@ -840,7 +840,7 @@ QFDProgressDialog::QFDProgressDialog(QWidget *parent, const QString &fn, int ste
     readBar->reset();
     readBar->setProgress(0);
     layout->addWidget(readBar);
-    writeLabel = new QLabel(Q3FileDialog::tr("Write: %1").arg(QString::null),
+    writeLabel = new QLabel(Q3FileDialog::tr("Write: %1").arg(QString()),
                              this, "qt_write_lbl");
     layout->addWidget(writeLabel);
     writeBar = new Q3ProgressBar(steps, this, "qt_writebar");
@@ -2403,7 +2403,7 @@ void Q3FileDialog::init()
     nameEdit = new QLineEdit(this, "name/filter editor");
     nameEdit->setMaxLength(255); //_POSIX_MAX_PATH
     connect(nameEdit, SIGNAL(textChanged(QString)),
-             this,  SLOT(fileNameEditDone()));
+             this, SLOT(fileNameEditDone()));
     nameEdit->installEventFilter(this);
 
     d->splitter = new QSplitter(this, "qt_splitter");
@@ -2743,7 +2743,7 @@ void Q3FileDialog::fileNameEditReturnPressed()
                 d->checkForFilter = false;
             }
         }
-        nameEdit->setText(QString::null);
+        nameEdit->setText(QString());
     }
 }
 
@@ -3387,7 +3387,7 @@ QString Q3FileDialog::getOpenFileName(const QString & startWith,
     }
 #endif
 
-    Q3FileDialog *dlg = new Q3FileDialog(*workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofn", true);
+    Q3FileDialog *dlg = new Q3FileDialog(*workingDirectory, QString(), parent, name ? name : "qt_filedlg_gofn", true);
 
     if (!caption.isNull())
         dlg->setWindowTitle(caption);
@@ -3506,7 +3506,7 @@ QString Q3FileDialog::getSaveFileName(const QString & startWith,
                                          QString::NormalizationForm_C);
 #endif
 
-    Q3FileDialog *dlg = new Q3FileDialog(*workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gsfn", true);
+    Q3FileDialog *dlg = new Q3FileDialog(*workingDirectory, QString(), parent, name ? name : "qt_filedlg_gsfn", true);
 
     if (!caption.isNull())
         dlg->setWindowTitle(caption);
@@ -3704,7 +3704,7 @@ bool Q3FileDialog::trySetSelection(bool isDir, const Q3UrlOperator &u, bool upda
         if (fn.contains("*")) {
             addFilter(fn);
             d->currentFileName.clear();
-            d->url.setFileName(QString::null);
+            d->url.setFileName(QString());
             nameEdit->setText(QString::fromLatin1(""));
             return false;
         }
@@ -4247,7 +4247,7 @@ void Q3FileDialog::deleteFile(const QString &filename)
                                tr("Delete %1").arg(t),
                                tr("<qt>Are you sure you wish to delete %1 \"%2\"?</qt>")
                                .arg(t).arg(filename),
-                               tr("&Yes"), tr("&No"), QString::null, 1) == 0)
+                               tr("&Yes"), tr("&No"), QString(), 1) == 0)
         d->url.remove(Q3FileDialogPrivate::encodeFileName(filename));
 
 }
@@ -4968,7 +4968,7 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
     });
     resolveLibs();
     if (r == ERROR_SUCCESS) {
-        s = getWindowsRegString(k, QString::null);
+        s = getWindowsRegString(k, QString());
         RegCloseKey(k);
 
         QStringList lst = QStringList::split(",", s);
@@ -4993,7 +4993,7 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
             defaultFolder.resize(pixw, pixh);
             initPixmap(defaultFolder);
             HDC dc = defaultFolder.getDC();
-            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
+            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0, DI_NORMAL);
             defaultFolder.releaseDC(dc);
             defaultFolder.setMask(defaultFolder.createHeuristicMask());
             *closedFolderIcon = defaultFolder;
@@ -5050,7 +5050,7 @@ QWindowsIconProvider::QWindowsIconProvider(QObject *parent, const char *name)
         defaultExe.resize(pixw, pixh);
         initPixmap(defaultExe);
         HDC dc = defaultExe.getDC();
-        DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
+        DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0, DI_NORMAL);
         defaultExe.releaseDC(dc);
         defaultExe.setMask(defaultExe.createHeuristicMask());
         DestroyIcon(si);
@@ -5090,7 +5090,7 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
         });
         QString s;
         if (r == ERROR_SUCCESS) {
-            s = getWindowsRegString(k, QString::null);
+            s = getWindowsRegString(k, QString());
         } else {
             cache[key] = defaultFile;
             RegCloseKey(k);
@@ -5106,7 +5106,7 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
                                0, KEY_READ, &k2);
         });
         if (r == ERROR_SUCCESS) {
-            s = getWindowsRegString(k2, QString::null);
+            s = getWindowsRegString(k2, QString());
         } else {
             cache[key] = defaultFile;
             RegCloseKey(k2);
@@ -5149,7 +5149,7 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
             pix.resize(pixw, pixh);
             initPixmap(pix);
             HDC dc = pix.getDC();
-            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
+            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0, DI_NORMAL);
             pix.releaseDC(dc);
             pix.setMask(pix.createHeuristicMask());
             DestroyIcon(si);
@@ -5195,7 +5195,7 @@ const QPixmap * QWindowsIconProvider::pixmap(const QFileInfo &fi)
             pix.resize(pixw, pixh);
             initPixmap(pix);
             HDC dc = pix.getDC();
-            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0,  DI_NORMAL);
+            DrawIconEx(dc, 0, 0, si, pixw, pixh, 0, 0, DI_NORMAL);
             pix.releaseDC(dc);
             pix.setMask(pix.createHeuristicMask());
             DestroyIcon(si);
@@ -5538,7 +5538,7 @@ QStringList Q3FileDialog::getOpenFileNames(const QString & filter,
     }
 #endif
 
-    Q3FileDialog *dlg = new Q3FileDialog(*workingDirectory, QString::null, parent, name ? name : "qt_filedlg_gofns", true);
+    Q3FileDialog *dlg = new Q3FileDialog(*workingDirectory, QString(), parent, name ? name : "qt_filedlg_gofns", true);
 
     if (!caption.isNull())
         dlg->setWindowTitle(caption);

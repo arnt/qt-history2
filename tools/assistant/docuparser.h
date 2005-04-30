@@ -22,7 +22,7 @@ class Profile;
 
 struct ContentItem {
     ContentItem()
-	: title( QString::null ), reference( QString::null ), depth( 0 ) {}
+	: title( QString() ), reference( QString() ), depth( 0 ) {}
     ContentItem( const QString &t, const QString &r, int d )
 	: title( t ), reference( r ), depth( d ) {}
     QString title;
@@ -128,4 +128,5 @@ private:
     QString propertyName;
     Profile *prof;
 };
+
 #endif //DOCUPARSER_H

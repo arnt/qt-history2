@@ -610,7 +610,7 @@ void TrWindow::newPhraseBook()
     QString name;
     for (;;) {
         name = QFileDialog::getSaveFileName(this, tr("Create New Phrase Book"),
-            QString::null, tr("Qt phrase books (*.qph)\nAll files (*)"));
+            QString(), tr("Qt phrase books (*.qph)\nAll files (*)"));
         if (name.isEmpty())
             break;
         else if (!QFile::exists(name)) {
@@ -1909,4 +1909,3 @@ void TrWindow::doCharCounting(const QString& text, int& trW, int& trC, int& trCS
             trC++;
     }
 }
-

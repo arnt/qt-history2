@@ -75,7 +75,7 @@ static bool verifyDirectory(const QString &str)
 struct IndexKeyword {
     IndexKeyword(const QString &kw, const QString &l)
         : keyword(kw), link(l) {}
-    IndexKeyword() : keyword(QString::null), link(QString::null) {}
+    IndexKeyword() : keyword(QString()), link(QString()) {}
     bool operator<(const IndexKeyword &ik) const {
         return keyword.toLower() < ik.keyword.toLower();
     }

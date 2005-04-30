@@ -248,7 +248,7 @@ int main(int argc, char** argv)
 		specfile = *++argv;
 	    else {
 		usage();
-		specfile=QString::null;
+		specfile=QString();
 		*argv=0;
 		break;
 	    }

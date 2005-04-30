@@ -429,7 +429,7 @@ QByteArray Q3Process::readStderr()
 /*!
     Reads a line of text from standard output, excluding any trailing
     newline or carriage return characters, and returns it. Returns
-    QString::null if canReadLineStdout() returns false.
+    an empty string if canReadLineStdout() returns false.
 
     By default, the text is interpreted to be in Latin-1 encoding. If you need
     other codecs, you can set a different codec with
@@ -465,7 +465,7 @@ QString Q3Process::readLineStdout()
 /*!
     Reads a line of text from standard error, excluding any trailing
     newline or carriage return characters and returns it. Returns
-    QString::null if canReadLineStderr() returns false.
+    an empty string if canReadLineStderr() returns false.
 
     By default, the text is interpreted to be in Latin-1 encoding. If you need
     other codecs, you can set a different codec with

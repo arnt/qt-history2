@@ -769,7 +769,7 @@ static void qt_set_input_encoding()
     int e = XGetWindowProperty(X11->display, QX11Info::appRootWindow(),
                                 ATOM(_QT_INPUT_ENCODING), 0, 1024,
                                 False, XA_STRING, &type, &format, &nitems,
-                                &after,  (unsigned char**)&data);
+                                &after, (unsigned char**)&data);
     if (e != Success || !nitems || type == XNone) {
         // Always use the locale codec, since we have no examples of non-local
         // XIMs, and since we cannot get a sensible answer about the encoding
@@ -978,7 +978,7 @@ static void qt_set_x11_resources(const char* font = 0, const char* fg = 0,
 
     if (!resEF.isEmpty()) {
         QStringList effects = resEF.split(' ');
-        QApplication::setEffectEnabled(Qt::UI_General,  effects.contains("general"));
+        QApplication::setEffectEnabled(Qt::UI_General, effects.contains("general"));
         QApplication::setEffectEnabled(Qt::UI_AnimateMenu, effects.contains("animatemenu"));
         QApplication::setEffectEnabled(Qt::UI_FadeMenu, effects.contains("fademenu"));
         QApplication::setEffectEnabled(Qt::UI_AnimateCombo, effects.contains("animatecombo"));
@@ -5738,7 +5738,7 @@ QStringList QSessionManager::discardCommand() const
 
 void QSessionManager::setManagerProperty(const QString& name, const QString& value)
 {
-    sm_setProperty(name,  value);
+    sm_setProperty(name, value);
 }
 
 void QSessionManager::setManagerProperty(const QString& name, const QStringList& value)

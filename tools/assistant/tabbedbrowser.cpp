@@ -207,7 +207,7 @@ void TabbedBrowser::updateTitle(const QString &title)
 
 void TabbedBrowser::newTab()
 {
-    newTab(QString::null);
+    newTab(QString());
 }
 
 void TabbedBrowser::transferFocus()
@@ -246,7 +246,7 @@ void TabbedBrowser::applySettings()
 void TabbedBrowser::setup()
 {
     applySettings();    
-    newTab(QString::null);
+    newTab(QString());
 }
 
 QFont TabbedBrowser::browserFont() const
@@ -315,4 +315,3 @@ void TabbedBrowser::setTitle(HelpWindow *win, const QString &title)
     if (win == currentBrowser())
         mainWindow()->setWindowTitle(Config::configuration()->title() + QLatin1String(" - ") + title);
 }
-

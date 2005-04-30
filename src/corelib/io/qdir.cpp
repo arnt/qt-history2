@@ -527,7 +527,7 @@ QString QDir::path() const
     drive specification), which may contain symbolic links, but never
     contains redundant ".", ".." or multiple separators.
 
-    \sa setPath(), canonicalPath(), exists(),  cleanPath(),
+    \sa setPath(), canonicalPath(), exists(), cleanPath(),
     dirName(), absoluteFilePath()
 */
 

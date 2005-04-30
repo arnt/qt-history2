@@ -38,7 +38,7 @@ private:
 public:
     static QString getText(QWidget *parent, const QString &title, const QString &label,
                            QLineEdit::EchoMode echo = QLineEdit::Normal,
-                           const QString &text = QString::null, bool *ok = 0, Qt::WFlags f = 0);
+                           const QString &text = QString(), bool *ok = 0, Qt::WFlags f = 0);
     static int getInteger(QWidget *parent, const QString &title, const QString &label, int value = 0,
                           int minValue = -2147483647, int maxValue = 2147483647,
                           int step = 1, bool *ok = 0, Qt::WFlags f = 0);
@@ -51,7 +51,7 @@ public:
 #ifdef QT3_SUPPORT
     inline static QT3_SUPPORT QString getText(const QString &title, const QString &label,
                                               QLineEdit::EchoMode echo = QLineEdit::Normal,
-                                              const QString &text = QString::null, bool *ok = 0,
+                                              const QString &text = QString(), bool *ok = 0,
                                               QWidget *parent = 0, const char * = 0, Qt::WFlags f = 0)
         { return getText(parent, title, label, echo, text, ok, f); }
     inline static QT3_SUPPORT int getInteger(const QString &title, const QString &label, int value = 0,
@@ -77,4 +77,3 @@ private:
 #endif // QT_NO_INPUTDIALOG
 
 #endif // QINPUTDIALOG_H
-

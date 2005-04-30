@@ -23,8 +23,8 @@ class QWSPcMouseHandlerPrivate;
 class QWSPcMouseHandler : public QWSMouseHandler
 {
 public:
-    explicit QWSPcMouseHandler(const QString & = QString::null,
-                               const QString & = QString::null);
+    explicit QWSPcMouseHandler(const QString & = QString(),
+                               const QString & = QString());
     ~QWSPcMouseHandler();
 
     void suspend();

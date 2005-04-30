@@ -28,7 +28,7 @@ public:
     virtual ~QAxBindable();
 
     virtual QAxAggregated *createAggregate();
-    static void reportError(int code, const QString &src, const QString &desc, const QString &help = QString::null);
+    static void reportError(int code, const QString &src, const QString &desc, const QString &help = QString());
 
 protected:
     bool requestPropertyChange(const char *property);

@@ -177,7 +177,7 @@ public:
     STDMETHOD_(ULONG,Release)(void);
 
     // IDataObject methods
-    STDMETHOD(GetData)(LPFORMATETC pformatetcIn,  LPSTGMEDIUM pmedium);
+    STDMETHOD(GetData)(LPFORMATETC pformatetcIn, LPSTGMEDIUM pmedium);
     STDMETHOD(GetDataHere)(LPFORMATETC pformatetc, LPSTGMEDIUM pmedium);
     STDMETHOD(QueryGetData)(LPFORMATETC pformatetc);
     STDMETHOD(GetCanonicalFormatEtc)(LPFORMATETC pformatetc, LPFORMATETC pformatetcOut);

@@ -104,7 +104,7 @@ public:
     virtual void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags flags);
     virtual void addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags);
 
-    virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs) = 0;
+    virtual glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs) = 0;
     virtual glyph_metrics_t boundingBox(glyph_t glyph) = 0;
 
     virtual qreal ascent() const = 0;
@@ -120,7 +120,7 @@ public:
 
     virtual const char *name() const = 0;
 
-    virtual bool canRender(const QChar *string,  int len) = 0;
+    virtual bool canRender(const QChar *string, int len) = 0;
 
     virtual Type type() const = 0;
 
@@ -186,7 +186,7 @@ public:
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
     void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
+    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
     qreal ascent() const;
@@ -200,7 +200,7 @@ public:
 
     Type type() const;
 
-    bool canRender(const QChar *string,  int len);
+    bool canRender(const QChar *string, int len);
     inline const char *name() const { return 0; }
 
     FT_Face face;
@@ -225,7 +225,7 @@ public:
 
     void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si);
 
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
+    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
     qreal ascent() const;
@@ -239,7 +239,7 @@ public:
 
     Type type() const;
 
-    bool canRender(const QChar *string,  int len);
+    bool canRender(const QChar *string, int len);
     inline const char *name() const { return 0; }
 
 
@@ -263,7 +263,7 @@ public:
     void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si);
 #endif
 
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
+    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
     qreal ascent() const;
@@ -278,7 +278,7 @@ public:
 #endif
     const char *name() const;
 
-    bool canRender(const QChar *string,  int len);
+    bool canRender(const QChar *string, int len);
 
     Type type() const;
     inline int size() const { return _size; }
@@ -312,7 +312,7 @@ public:
     void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si);
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
 
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
+    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
     qreal ascent() const;
@@ -322,7 +322,7 @@ public:
 
     const char *name() const { return "ATSUI"; }
 
-    bool canRender(const QChar *string,  int len);
+    bool canRender(const QChar *string, int len);
 
     Type type() const { return QFontEngine::Mac; }
 
@@ -349,7 +349,7 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
                       QTextEngine::ShaperFlags flags) const;
 
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
+    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
     void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
@@ -366,7 +366,7 @@ public:
     inline Type type() const
     { return QFontEngine::Multi; }
 
-    bool canRender(const QChar *string,  int len);
+    bool canRender(const QChar *string, int len);
     inline const char *name() const
     { return "Multi"; }
 

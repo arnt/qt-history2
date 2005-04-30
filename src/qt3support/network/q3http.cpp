@@ -37,7 +37,7 @@ public:
     Q3HttpPrivate() :
 	state( Q3Http::Unconnected ),
 	error( Q3Http::NoError ),
-	hostname( QString::null ),
+	hostname( QString() ),
 	port( 0 ),
 	toDevice( 0 ),
 	postDevice( 0 ),

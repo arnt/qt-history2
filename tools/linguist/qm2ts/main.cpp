@@ -53,7 +53,7 @@ int main( int argc, char **argv )
         QTranslator tor( 0 );
         if ( tor.load(argv[i], ".") ) {
             QString g = argv[i];
-            g.replace( QRegExp(QString("\\.qm$")), QString::null );
+            g.replace( QRegExp(QString("\\.qm$")), QString() );
             g += QString( ".ts" );
 
             if ( verbose )

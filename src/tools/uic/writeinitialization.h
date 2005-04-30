@@ -77,7 +77,7 @@ private:
                          const QList<DomProperty*> &lst);
     void writeColorGroup(DomColorGroup *colorGroup, const QString &group, const QString &paletteName);
 
-    QString translate(const QString &text, const QString &className=QString::null) const;
+    QString translate(const QString &text, const QString &className=QString()) const;
 
 //
 // special initialization
@@ -140,6 +140,5 @@ private:
     QString m_delayedActionInitialization;
     QTextStream actionOut;
 };
-
 
 #endif // WRITEINITIALIZATION_H

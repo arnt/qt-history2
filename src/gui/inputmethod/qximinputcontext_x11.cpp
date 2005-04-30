@@ -298,7 +298,7 @@ static XFontSet getFontSet(const QFont &f)
         if(missCount > 0)
             XFreeStringList(missList);
         if (!fontsetCache[i]) {
-            fontsetCache[i] = XCreateFontSet(dpy,  "-*-fixed-*-*-*-*-16-*", &missList, &missCount, 0);
+            fontsetCache[i] = XCreateFontSet(dpy, "-*-fixed-*-*-*-*-16-*", &missList, &missCount, 0);
             if(missCount > 0)
                 XFreeStringList(missList);
             if (!fontsetCache[i])

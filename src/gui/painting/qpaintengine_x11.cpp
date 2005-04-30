@@ -101,13 +101,13 @@ static inline void x11ClearClipRegion(Display *dpy, GC gc, GC gc2,
 #endif // QT_NO_XRENDER
 }
 
-void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w,  int h, bool fill)
+void qt_draw_transformed_rect(QPaintEngine *pe, int x, int y, int w, int h, bool fill)
 {
     QX11PaintEngine *p = static_cast<QX11PaintEngine *>(pe);
     QMatrix matrix = p->d_func()->matrix;
 
     XPoint points[5];
-    int xp = x,  yp = y;
+    int xp = x, yp = y;
     matrix.map(xp, yp, &xp, &yp);
     points[0].x = xp;
     points[0].y = yp;

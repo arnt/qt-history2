@@ -3374,7 +3374,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
     case QStyle::CE_FocusFrame: {
         SInt32 fo;
         GetThemeMetric(kThemeMetricFocusRectOutset, &fo);
-        QRect r(fo, fo,  opt->rect.width() - (fo*2), opt->rect.height() - (fo*2));
+        QRect r(fo, fo, opt->rect.width() - (fo*2), opt->rect.height() - (fo*2));
         qt_mac_set_port(p);
         DrawThemeFocusRect(qt_glb_mac_rect(r, p, true, QRect(1, 1, 1, 1)), true);
         break; }
@@ -5914,4 +5914,3 @@ bool QMacStyle::event(QEvent *e)
     }
     return false;
 }
-

@@ -53,8 +53,8 @@ class Q_COMPAT_EXPORT Q3DateEdit : public Q3DateTimeEditBase
     Q_PROPERTY(QDate minValue READ minValue WRITE setMinValue)
 
 public:
-    Q3DateEdit(QWidget* parent=0,  const char* name=0);
-    Q3DateEdit(const QDate& date, QWidget* parent=0,  const char* name=0);
+    Q3DateEdit(QWidget* parent=0, const char* name=0);
+    Q3DateEdit(const QDate& date, QWidget* parent=0, const char* name=0);
     ~Q3DateEdit();
 
     enum Order { DMY, MDY, YMD, YDM };
@@ -138,8 +138,8 @@ public:
         AMPM        = 0x10
     };
 
-    Q3TimeEdit(QWidget* parent=0,  const char* name=0);
-    Q3TimeEdit(const QTime& time, QWidget* parent=0,  const char* name=0);
+    Q3TimeEdit(QWidget* parent=0, const char* name=0);
+    Q3TimeEdit(const QTime& time, QWidget* parent=0, const char* name=0);
     ~Q3TimeEdit();
 
     QSize sizeHint() const;

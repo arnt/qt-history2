@@ -255,7 +255,7 @@ Q3Url::Q3Url( const Q3Url& url, const QString& relUrl, bool checkSlash )
 	} else {
 	    decode( rel );
 	    *this = urlTmp;
-	    setRef( QString::null );
+	    setRef( QString() );
 	    if ( checkSlash && d->cleanPath[(int)path().length()-1] != '/' ) {
 		if ( isRelativeUrl( path() ) )
 		    setEncodedPathAndQuery( rel );

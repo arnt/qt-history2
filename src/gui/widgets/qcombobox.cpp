@@ -662,7 +662,7 @@ void QComboBoxPrivate::rowsAboutToBeRemoved(const QModelIndex &parent, int start
         else {
             currentIndex = QPersistentModelIndex();
             if (lineEdit) {
-                lineEdit->setText(QString::null);
+                lineEdit->setText(QString());
                 updateLineEditGeometry();
             }
             q->update();
@@ -2073,6 +2073,5 @@ void QComboBox::setModelColumn(int visibleColumn)
     if (lv)
         lv->setModelColumn(visibleColumn);
 }
-
 
 #include "moc_qcombobox.cpp"

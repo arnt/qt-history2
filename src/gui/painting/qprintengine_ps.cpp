@@ -1000,7 +1000,7 @@ static void appendReplacements(QStringList &list, const psfont * const * replace
     }
 }
 
-static QStringList makePSFontNameList(const QFontEngine *fe, const QString &psname = QString::null, bool useNameForLookup = false)
+static QStringList makePSFontNameList(const QFontEngine *fe, const QString &psname = QString(), bool useNameForLookup = false)
 {
     int i;
     int type;
@@ -2020,7 +2020,7 @@ QString QPSPrintEngineFontAsian::defineFont(QTextStream &stream, const QString &
     QString fontName;
     QString fontName2;
 
-    QString tmp = d->headerFontNames.value(ps, QString::null);
+    QString tmp = d->headerFontNames.value(ps, QString());
 
     if (d->buffer) {
         if (!tmp.isNull()) {
@@ -2858,7 +2858,7 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
     s.prepend(' ');
 
     QString key = fontKey + '/' + toString(fe->fontDef.pixelSize);
-    QString tmp = !buffer ? pageFontNames.value(key, QString::null) : headerFontNames.value(key, QString::null);
+    QString tmp = !buffer ? pageFontNames.value(key, QString()) : headerFontNames.value(key, QString());
 
     QString fontName;
     if (!tmp.isNull())

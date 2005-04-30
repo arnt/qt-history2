@@ -799,10 +799,10 @@ static void parseQconfig(QList<QPrinterDescription> *printers)
             if (up && stanzaName.length() > 0 && stanzaName.length() < 21) {
                 if (remoteHost.length()) // remote printer
                     perhapsAddPrinter(printers, stanzaName, remoteHost,
-                                       QString::null);
+                                       QString());
                 else if (deviceName.length()) // local printer
-                    perhapsAddPrinter(printers, stanzaName, QString::null,
-                                       QString::null);
+                    perhapsAddPrinter(printers, stanzaName, QString(),
+                                       QString());
             }
             line.chop(1);
             if (line.length() >= 1 && line.length() <= 20)
@@ -1592,7 +1592,7 @@ void QPrintDialogPrivate::init()
     horiz->addWidget(cancel);
 
     q->connect(ok, SIGNAL(clicked()), q, SLOT(okClicked()));
-    q->connect(cancel, SIGNAL(clicked()), q,  SLOT(reject()));
+    q->connect(cancel, SIGNAL(clicked()), q, SLOT(reject()));
 
     QSize ms(q->minimumSize());
     QSize ss(QApplication::desktop()->screenGeometry(q->pos()).size());

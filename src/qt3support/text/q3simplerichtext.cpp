@@ -150,7 +150,7 @@ Q3SimpleRichText::Q3SimpleRichText(const QString& text, const QFont& fnt,
 */
 
 Q3SimpleRichText::Q3SimpleRichText(const QString& text, const QFont& fnt,
-                                  const QString& context,  const Q3StyleSheet* sheet,
+                                  const QString& context, const Q3StyleSheet* sheet,
                                   const Q3MimeSourceFactory* factory, int pageBreak,
                                   const QColor& /*linkColor*/, bool linkUnderline)
 {
@@ -294,7 +294,7 @@ void Q3SimpleRichText::adjustSize()
     the area to be painted and then calling this without a brush.
 */
 
-void Q3SimpleRichText::draw(QPainter *p,  int x, int y, const QRect& clipRect,
+void Q3SimpleRichText::draw(QPainter *p, int x, int y, const QRect& clipRect,
                             const QPalette &pal, const QBrush* paper) const
 {
     p->save();
@@ -319,7 +319,7 @@ void Q3SimpleRichText::draw(QPainter *p,  int x, int y, const QRect& clipRect,
 }
 
 
-/*! \fn void Q3SimpleRichText::draw(QPainter *p,  int x, int y, const QRegion& clipRegion,
+/*! \fn void Q3SimpleRichText::draw(QPainter *p, int x, int y, const QRegion& clipRegion,
   const QPalette &pal, const QBrush* paper) const
 
   Use the version with clipRect instead of this \a clipRegion version,

@@ -517,7 +517,7 @@ void QTextCursorPrivate::selectedTableCells(int *firstRow, int *numRows, int *fi
     *numColumns = qMax(cell_pos.column() + cell_pos.columnSpan(), cell_anchor.column() + cell_anchor.columnSpan()) - *firstColumn;
 }
 
-static void setBlockCharFormat(QTextDocumentPrivate *priv, int pos1,  int pos2,
+static void setBlockCharFormat(QTextDocumentPrivate *priv, int pos1, int pos2,
                                const QTextCharFormat &format, QTextDocumentPrivate::FormatChangeMode changeMode)
 {
     QTextBlock it = priv->blocksFind(pos1);
@@ -538,7 +538,7 @@ void QTextCursorPrivate::setBlockCharFormat(const QTextCharFormat &format, QText
     QTextTable *table = complexSelectionTable();
     if (table) {
         int row_start, col_start, num_rows, num_cols;
-        selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+        selectedTableCells(&row_start, &num_rows, &col_start, &num_cols);
 
         Q_ASSERT(row_start != -1);
         for (int r = row_start; r < row_start + num_rows; ++r) {
@@ -582,7 +582,7 @@ void QTextCursorPrivate::setBlockFormat(const QTextBlockFormat &format, QTextDoc
     if (table) {
         priv->beginEditBlock();
         int row_start, col_start, num_rows, num_cols;
-        selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+        selectedTableCells(&row_start, &num_rows, &col_start, &num_cols);
 
         Q_ASSERT(row_start != -1);
         for (int r = row_start; r < row_start + num_rows; ++r) {
@@ -627,7 +627,7 @@ void QTextCursorPrivate::setCharFormat(const QTextCharFormat &format, QTextDocum
     if (table) {
         priv->beginEditBlock();
         int row_start, col_start, num_rows, num_cols;
-        selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+        selectedTableCells(&row_start, &num_rows, &col_start, &num_cols);
 
         Q_ASSERT(row_start != -1);
         for (int r = row_start; r < row_start + num_rows; ++r) {
@@ -1250,7 +1250,7 @@ QString QTextCursor::selectedText() const
     QTextTable *table = d->complexSelectionTable();
     if (table) {
         int row_start, col_start, num_rows, num_cols;
-        selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+        selectedTableCells(&row_start, &num_rows, &col_start, &num_cols);
 
         Q_ASSERT(row_start != -1);
         for (int r = row_start; r < row_start + num_rows; ++r) {
@@ -1964,4 +1964,3 @@ bool QTextCursor::isCopyOf(const QTextCursor &other) const
 {
     return d == other.d;
 }
-

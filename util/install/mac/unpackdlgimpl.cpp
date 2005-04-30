@@ -27,9 +27,9 @@ UnpackDlgImpl::UnpackDlgImpl( QString key, QWidget* pParent, const char* pName, 
 		if( buffer[ 0 ] != '#' ) {
 		    QStringList components = QStringList::split( '=', buffer );
 		    QStringList::Iterator it = components.begin();
-		    QString key = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
+		    QString key = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString() );
 		    if(key.upper() == "LICENSEKEY") {
-			QString value = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
+			QString value = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString() );
 			srcKey->setText(value);
 		    }
 		}

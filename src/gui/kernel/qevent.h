@@ -131,7 +131,7 @@ public:
     enum TabletDevice { NoDevice, Puck, Stylus, Airbrush, FourDMouse,
                         XFreeEraser /*internal*/ };
     enum PointerType { UnknownPointer, Pen, Cursor, Eraser };
-    QTabletEvent(Type t, const QPoint &pos,  const QPoint &globalPos, const QPointF &hiResGlobalPos,
+    QTabletEvent(Type t, const QPoint &pos, const QPoint &globalPos, const QPointF &hiResGlobalPos,
                  int device, int pointerType, qreal pressure, int xTilt, int yTilt,
                  qreal tangentialPressure, qreal rotation, int z,
                  Qt::KeyboardModifiers keyState, qint64 uniqueID);
@@ -175,7 +175,7 @@ class Q_GUI_EXPORT QKeyEvent : public QInputEvent
 {
 public:
     QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers,
-              const QString& text = QString::null,
+              const QString& text = QString(),
               bool autorep = false, ushort count = 1);
     ~QKeyEvent();
 
@@ -187,7 +187,7 @@ public:
 
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT_CONSTRUCTOR QKeyEvent(Type type, int key, int /*ascii*/,
-                                           int modifiers, const QString& text = QString::null,
+                                           int modifiers, const QString& text = QString(),
                                            bool autorep = false, ushort count = 1)
         : QInputEvent(type, (Qt::KeyboardModifiers)(modifiers & (int)Qt::KeyButtonMask)), txt(text), k(key),
           c(count), autor(autorep)

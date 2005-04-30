@@ -23,7 +23,7 @@
 
 #ifndef QT_NO_COMPONENT
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QDecorationFactoryInterface_iid,  QCoreApplication::libraryPaths(),  "/decorations",  Qt::CaseInsensitive))
+    (QDecorationFactoryInterface_iid, QCoreApplication::libraryPaths(), "/decorations", Qt::CaseInsensitive))
 #endif
 
 

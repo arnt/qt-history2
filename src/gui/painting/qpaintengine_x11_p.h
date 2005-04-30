@@ -112,8 +112,8 @@ protected:
 #endif
 
     friend void qt_cleanup();
-    friend void qt_draw_transformed_rect(QPaintEngine *pp,  int x, int y, int w,  int h, bool fill);
-    friend void qt_draw_background(QPaintEngine *pp, int x, int y, int w,  int h);
+    friend void qt_draw_transformed_rect(QPaintEngine *pp, int x, int y, int w, int h, bool fill);
+    friend void qt_draw_background(QPaintEngine *pp, int x, int y, int w, int h);
     friend class QPixmap;
     friend class QFontEngineBox;
 
@@ -183,4 +183,5 @@ public:
     QPolygonClipper<qt_float_point, qt_XPoint, short> polygonClipper;
     QPolygonClipper<qt_float_point, qt_float_point, float> floatClipper;
 };
+
 #endif // QPAINTENGINE_X11_P_H

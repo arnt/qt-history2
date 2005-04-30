@@ -32,7 +32,7 @@ class Q_COMPAT_EXPORT Q3SimpleRichText
 {
 public:
     Q3SimpleRichText(const QString& text, const QFont& fnt,
-                     const QString& context = QString::null, const Q3StyleSheet* sheet = 0);
+                     const QString& context = QString(), const Q3StyleSheet* sheet = 0);
     Q3SimpleRichText(const QString& text, const QFont& fnt,
                      const QString& context, const Q3StyleSheet *sheet,
                      const Q3MimeSourceFactory* factory, int pageBreak = -1,
@@ -47,10 +47,10 @@ public:
     int height() const;
     void adjustSize();
 
-    void draw(QPainter* p,  int x, int y, const QRect& clipRect,
+    void draw(QPainter* p, int x, int y, const QRect& clipRect,
                const QPalette& pal, const QBrush* paper = 0) const;
 
-    void draw(QPainter* p,  int x, int y, const QRegion& clipRegion,
+    void draw(QPainter* p, int x, int y, const QRegion& clipRegion,
                const QPalette& pal, const QBrush* paper = 0) const {
         draw(p, x, y, clipRegion.boundingRect(), pal, paper);
     }

@@ -89,9 +89,9 @@ public:
                                             const char * = 0) const;
 
     bool load(const QString & filename,
-               const QString & directory = QString::null,
-               const QString & search_delimiters = QString::null,
-               const QString & suffix = QString::null);
+               const QString & directory = QString(),
+               const QString & search_delimiters = QString(),
+               const QString & suffix = QString());
     bool load(const uchar *data, int len);
 
     void clear();

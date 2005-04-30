@@ -714,7 +714,7 @@ void qt_event_send_clipboard_changed()
     if(AECreateAppleEvent(kEventClassQt, typeAEClipboardChanged, 0, kAutoGenerateReturnID, kAnyTransactionID, &ae) != noErr)
         qDebug("Can't happen!!");
     AppleEvent reply;
-    AESend(&ae, &reply,  kAENoReply, kAENormalPriority, kAEDefaultTimeout, 0, 0);
+    AESend(&ae, &reply, kAENoReply, kAENormalPriority, kAEDefaultTimeout, 0, 0);
 #endif
 }
 

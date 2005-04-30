@@ -41,7 +41,7 @@ public slots:
     virtual void forward();
     virtual void home();
     virtual void reload();
-    void setText(const QString &txt) { setText(txt, QString::null); }
+    void setText(const QString &txt) { setText(txt, QString()); }
     virtual void setText(const QString &txt, const QString &context);
 
 signals:

@@ -424,7 +424,7 @@ QByteArray qUncompress(const uchar* data, int nbytes)
     }
     ulong expectedSize = (data[0] << 24) | (data[1] << 16) |
                        (data[2] <<  8) | (data[3]      );
-    ulong len = qMax(expectedSize,  1ul);
+    ulong len = qMax(expectedSize, 1ul);
     QByteArray baunzip;
     int res;
     do {

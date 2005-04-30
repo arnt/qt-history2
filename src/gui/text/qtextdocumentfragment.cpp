@@ -96,7 +96,7 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     if (cursor.hasComplexSelection()) {
         QTextTable *table = cursor.currentTable();
         int row_start, col_start, num_rows, num_cols;
-        cursor.selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+        cursor.selectedTableCells(&row_start, &num_rows, &col_start, &num_cols);
 
         QTextTableFormat tableFormat = table->format();
         tableFormat.setColumns(num_cols);
@@ -796,7 +796,7 @@ void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
 
         text.remove(0, 1);
         format.setAnchor(false);
-        format.setAnchorName(QString::null);
+        format.setAnchorName(QString());
 
         setNamedAnchorInNextOutput = false;
     }
@@ -839,4 +839,3 @@ QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &_html)
     QTextHTMLImporter(res.d, html).import();
     return res;
 }
-

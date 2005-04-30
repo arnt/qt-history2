@@ -176,7 +176,7 @@ void QFontEngineWin::draw(QPainter *p, int x, int y, const QTextItemInt &si)
             QRect bbox(0, 0, si.width, si.ascent + si.descent + 1);
             int w=bbox.width(), h=bbox.height();
             int aw = w, ah = h;
-            int tx=-bbox.x(),  ty=-bbox.y();    // text position
+            int tx=-bbox.x(), ty=-bbox.y();    // text position
             QMatrix mat1 = p->xmat;
             if (aw == 0 || ah == 0)
                 return;
@@ -424,7 +424,7 @@ const char *QFontEngineWin::name() const
     return 0;
 }
 
-bool QFontEngineWin::canRender(const QChar *string,  int len)
+bool QFontEngineWin::canRender(const QChar *string, int len)
 {
     while(len--) {
         if (tm.w.tmFirstChar > string->unicode() || tm.w.tmLastChar < string->unicode())
@@ -459,7 +459,7 @@ QFontEngineBox::~QFontEngineBox()
 {
 }
 
-QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *,  int len, QGlyphLayout *glyphs, int *nglyphs, bool) const
+QFontEngine::Error QFontEngineBox::stringToCMap(const QChar *, int len, QGlyphLayout *glyphs, int *nglyphs, bool) const
 {
     if (*nglyphs < len) {
         *nglyphs = len;
@@ -526,7 +526,7 @@ const char *QFontEngineBox::name() const
     return "null";
 }
 
-bool QFontEngineBox::canRender(const QChar *,  int)
+bool QFontEngineBox::canRender(const QChar *, int)
 {
     return true;
 }

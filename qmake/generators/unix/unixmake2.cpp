@@ -242,7 +242,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
         t << mkdir_p_asstring("$(@D)") << "\n\t"
           << "@$(CC) " << cmd << " $< | sed \"s,^\\($(*F).o\\):," << odir << "\\1:,g\" >$@" << endl << endl;
 
-        QString src[] = { "SOURCES", "GENERATED_SOURCES", QString::null };
+        QString src[] = { "SOURCES", "GENERATED_SOURCES", QString() };
         for(int x = 0; !src[x].isNull(); x++) {
             QStringList &l = project->variables()[src[x]];
             for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
@@ -811,7 +811,7 @@ UnixMakefileGenerator::writeMakeParts(QTextStream &t)
     if(doPrecompiledHeaders() && !project->isEmpty("PRECOMPILED_HEADER")) {
         QString precomph = fileFixify(project->first("PRECOMPILED_HEADER"));
         t << "###### Prefix headers" << endl;
-        QString comps[] = { "C", "CXX", QString::null };
+        QString comps[] = { "C", "CXX", QString() };
         for(int i = 0; !comps[i].isNull(); i++) {
             QString flags = var("QMAKE_" + comps[i] + "FLAGS_PRECOMPILE");
             flags += " $(" + comps[i] + "FLAGS)";

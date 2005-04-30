@@ -1779,7 +1779,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                     curpar->setFormat(index, 1, f);
                     curpar->at(index)->setCustomItem(custom);
                     if (!curtag.anchorHref.isEmpty())
-                        curpar->at(index)->setAnchor(QString::null, curtag.anchorHref);
+                        curpar->at(index)->setAnchor(QString(), curtag.anchorHref);
                     if (!anchorName.isEmpty() ) {
                         curpar->at(index)->setAnchor(anchorName, curpar->at(index)->anchorHref());
                         anchorName.clear();
@@ -2032,7 +2032,7 @@ void Q3TextDocument::setRichTextInternal(const QString &text, Q3TextCursor* curs
                 f->ref += s.length() -1; // that what friends are for...
                 if (!curtag.anchorHref.isEmpty()) {
                     for (int i = 0; i < int(s.length()); i++)
-                        curpar->at(index + i)->setAnchor(QString::null, curtag.anchorHref);
+                        curpar->at(index + i)->setAnchor(QString(), curtag.anchorHref);
                 }
                 if (!anchorName.isEmpty() ) {
                     for (int i = 0; i < int(s.length()); i++)
@@ -5086,7 +5086,7 @@ QString Q3TextParagraph::richText() const
         }
         if (!formatChar) {
             s += c->format()->makeFormatChangeTags(formatCollection()->defaultFormat(),
-                                                    0, QString::null, c->anchorHref());
+                                                    0, QString(), c->anchorHref());
             formatChar = c;
         } else if ((formatChar->format()->key() != c->format()->key()) ||
                   (c->anchorHref() != formatChar->anchorHref()))  {
@@ -6117,7 +6117,7 @@ Q3TextFormat *Q3TextFormatCollection::format(const QFont &f, const QColor &c)
         return cachedFormat;
     }
 
-    QString key = Q3TextFormat::getKey(f, c, false,  Q3TextFormat::AlignNormal);
+    QString key = Q3TextFormat::getKey(f, c, false, Q3TextFormat::AlignNormal);
     cachedFormat = cKey.value(key);
     cfont = f;
     ccol = c;
@@ -6681,7 +6681,7 @@ void Q3TextImage::draw(QPainter* p, int x, int y, int cx, int cy, int cw, int ch
     }
 
     if (pm.isNull()) {
-        p->fillRect(x , y, width, height,  pal.dark());
+        p->fillRect(x , y, width, height, pal.dark());
         return;
     }
 

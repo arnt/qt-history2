@@ -326,7 +326,7 @@ void TextEdit::fileSaveAs()
     if (!currentEditor)
         return;
     QString fn = QFileDialog::getSaveFileName(this, tr("Save as..."),
-                                              QString::null, tr("HTML-Files (*.htm *.html);;All Files (*)"));
+                                              QString(), tr("HTML-Files (*.htm *.html);;All Files (*)"));
     if (!fn.isEmpty()) {
         filenames.insert(currentEditor, fn);
         fileSave();

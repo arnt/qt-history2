@@ -212,7 +212,7 @@ void QWidget::resetInputContext()
     clipped by its parent and by the widgets in front of it.
 
     A widget that isn't embedded in a parent widget is called a
-    window. Usually, windows have a frame and a title bar,  although
+    window. Usually, windows have a frame and a title bar, although
     it is also possible to create windows without such decoration using
     suitable \l{Qt::WindowFlags}{window flags}). In Qt,
     QMainWindow and the various subclasses of QDialog are the most
@@ -1448,7 +1448,7 @@ QStyle* QWidget::setStyle(const QString &style)
     This value is not updated properly during drag and drop
     operations.
 
-    \sa enterEvent(),  leaveEvent()
+    \sa enterEvent(), leaveEvent()
 */
 
 /*!
@@ -3018,7 +3018,7 @@ void QWidgetPrivate::setLayoutDirection_helper(Qt::LayoutDirection direction)
 
     if ( (direction == Qt::RightToLeft) == q->testAttribute(Qt::WA_RightToLeft))
         return;
-    q->setAttribute(Qt::WA_RightToLeft,  (direction == Qt::RightToLeft));
+    q->setAttribute(Qt::WA_RightToLeft, (direction == Qt::RightToLeft));
     if (!children.isEmpty()) {
         for (int i = 0; i < children.size(); ++i) {
             QWidget *w = qobject_cast<QWidget*>(children.at(i));
@@ -4614,7 +4614,7 @@ void QWidget::adjustSize()
         QRect r = childrenRect(); // get children rectangle
         if (r.isNull())
             return;
-        s = r.size() + QSize(2 * r.x(),  2 * r.y());
+        s = r.size() + QSize(2 * r.x(), 2 * r.y());
     }
 
     resize(s);
@@ -5203,7 +5203,7 @@ void QWidget::mousePressEvent(QMouseEvent *e)
     subclass to receive mouse release events for the widget.
 
     \sa mousePressEvent(), mouseDoubleClickEvent(),
-    mouseMoveEvent(), event(),  QMouseEvent
+    mouseMoveEvent(), event(), QMouseEvent
 */
 
 void QWidget::mouseReleaseEvent(QMouseEvent * e)

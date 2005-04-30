@@ -99,7 +99,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
     //let metrowerks find the files & set the files to the type I expect
     QHash<QString, bool> seen;
     QString paths[] = { QString("SRCMOC"), QString("SOURCES"), QString("HEADERS"),
-                        QString::null };
+                        QString() };
     for(int y = 0; !paths[y].isNull(); y++) {
         QStringList &l = project->variables()[paths[y]];
         for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
@@ -122,7 +122,7 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
                 if(fixifyToMacPath(tmpd, tmpv)) {
                     bool add_in = true;
                     QString deps[] = { QString("DEPENDPATH"),
-                                     QString("INCLUDEPATH"), QString::null },
+                                     QString("INCLUDEPATH"), QString() },
                                      dd, dv;
                     for(int yy = 0; !deps[yy].isNull(); yy++) {
                         QStringList &l2 = project->variables()[deps[yy]];
@@ -651,7 +651,7 @@ void
 MetrowerksMakefileGenerator::processPrlFiles()
 {
     QList<QMakeLocalFileName> libdirs;
-    const QString lflags[] = { "QMAKE_LIBS", QString::null };
+    const QString lflags[] = { "QMAKE_LIBS", QString() };
     for(int i = 0; !lflags[i].isNull(); i++) {
         for(bool ret = false; true; ret = false) {
             QStringList l_out;

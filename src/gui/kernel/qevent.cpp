@@ -1573,7 +1573,7 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
   \sa pos() globalPos() device() pressure() xTilt() yTilt() uniqueId(), rotation(), tangentialPressure(), z()
 */
 
-QTabletEvent::QTabletEvent(Type type, const QPoint &pos,  const QPoint &globalPos,
+QTabletEvent::QTabletEvent(Type type, const QPoint &pos, const QPoint &globalPos,
                            const QPointF &hiResGlobalPos, int device, int pointerType,
                            qreal pressure, int xTilt, int yTilt, qreal tangentialPressure,
                            qreal rotation, int z, Qt::KeyboardModifiers keyState, qint64 uniqueID)
@@ -2603,4 +2603,3 @@ QWindowStateChangeEvent::QWindowStateChangeEvent(Qt::WindowStates s)
 QWindowStateChangeEvent::~QWindowStateChangeEvent()
 {
 }
-

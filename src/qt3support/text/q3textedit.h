@@ -190,7 +190,7 @@ public:
         RemoveSelected = 0x0004
     };
 
-    Q3TextEdit(const QString& text, const QString& context = QString::null,
+    Q3TextEdit(const QString& text, const QString& context = QString(),
                QWidget* parent=0, const char* name=0);
     Q3TextEdit(QWidget* parent=0, const char* name=0);
     virtual ~Q3TextEdit();
@@ -294,7 +294,7 @@ public slots:
     virtual void copy();
     virtual void append(const QString& text);
 
-    void setText(const QString &txt) { setText(txt, QString::null); }
+    void setText(const QString &txt) { setText(txt, QString()); }
     virtual void setText(const QString &txt, const QString &context);
     virtual void setTextFormat(Qt::TextFormat f);
 

@@ -906,7 +906,7 @@ void SetupWizardImpl::fixEnvironment(const QString &var, const QString &file)
 {
     if (var == "COMSPEC" || !(globalInformation.sysId() == GlobalInformation::MSVC || 
 	globalInformation.sysId() == GlobalInformation::MSVCNET)) {
-	QString fn = QDir::convertSeparators(QFileDialog::getOpenFileName(QString::null, QString::null, this, 0,
+	QString fn = QDir::convertSeparators(QFileDialog::getOpenFileName(QString(), QString(), this, 0,
 						  "Please find " + file));
 	QString envs = getenv(var);
 	if (var != "COMSPEC") {
@@ -2340,7 +2340,7 @@ bool SetupWizardImpl::copyFiles( const QString& sourcePath, const QString& destP
 		} else {
 		    QString error = QEnvironment::getLastError();
 		    logFiles( QString( "   ERROR: " ) + error + "\n" );
-		    if( QMessageBox::warning( this, "File copy error", entryName + ": " + error, "Continue", "Cancel", QString::null, 0 ) )
+		    if( QMessageBox::warning( this, "File copy error", entryName + ": " + error, "Continue", "Cancel", QString(), 0 ) )
 			return false;
 		}
 #elif defined( Q_OS_UNIX )
@@ -2400,8 +2400,8 @@ void SetupWizardImpl::readLicense( QString filePath)
 	    if( buffer[ 0 ] != '#' ) {
 		QStringList components = QStringList::split( '=', buffer );
 		QStringList::Iterator it = components.begin();
-		QString keyString = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null ).upper();
-		QString value = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString::null );
+		QString keyString = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString() ).upper();
+		QString value = (*it++).stripWhiteSpace().replace( QRegExp( QString( "\"" ) ), QString() );
 
 		licenseInfo[ keyString ] = value;
 	    }
@@ -2463,7 +2463,7 @@ void SetupWizardImpl::writeLicense( QString filePath )
 
 void SetupWizardImpl::clickedLicenseFile()
 {
-    QString licensePath = QFileDialog::getOpenFileName( optionsPage->installPath->text(), QString::null, this, NULL, "Browse for license file" );
+    QString licensePath = QFileDialog::getOpenFileName( optionsPage->installPath->text(), QString(), this, NULL, "Browse for license file" );
 
     if( !licensePath.isEmpty() )
 	readLicense( licensePath );

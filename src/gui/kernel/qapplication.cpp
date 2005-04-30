@@ -2839,7 +2839,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
                 QWheelEvent we(relpos, wheel->globalPos(), wheel->delta(), wheel->buttons(),
                                wheel->modifiers(), wheel->orientation());
                 we.spont = wheel->spontaneous();
-                res = d->notify_helper(w,  w == receiver ? wheel : &we);
+                res = d->notify_helper(w, w == receiver ? wheel : &we);
                 eventAccepted = ((w == receiver) ? wheel : &we)->isAccepted();
                 e->spont = false;
                 if ((res && eventAccepted)
@@ -2862,7 +2862,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             while (w) {
                 QContextMenuEvent ce(context->reason(), relpos, context->globalPos());
                 ce.spont = e->spontaneous();
-                res = d->notify_helper(w,  w == receiver ? context : &ce);
+                res = d->notify_helper(w, w == receiver ? context : &ce);
                 eventAccepted = ((w == receiver) ? context : &ce)->isAccepted();
                 e->spont = false;
 
@@ -2917,7 +2917,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             while (w) {
                 QHelpEvent he(help->type(), relpos, help->globalPos());
                 he.spont = e->spontaneous();
-                res = d->notify_helper(w,  w == receiver ? help : &he);
+                res = d->notify_helper(w, w == receiver ? help : &he);
                 e->spont = false;
                 if ((res && (w == receiver ? help : &he)->isAccepted()) || w->isWindow())
                     break;

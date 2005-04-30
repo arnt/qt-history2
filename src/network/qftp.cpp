@@ -690,7 +690,7 @@ QFtpPI::QFtpPI(QObject *parent) :
     dtp(this),
     commandSocket(0),
     state(Begin), abortState(None),
-    currentCmd(QString::null),
+    currentCmd(QString()),
     waitForDtpToConnect(false),
     waitForDtpToClose(false)
 {

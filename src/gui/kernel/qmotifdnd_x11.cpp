@@ -235,7 +235,7 @@ typedef struct {
 
 #define SWAP4BYTES(l) {\
 struct { unsigned t :32;} bit32;\
-char n,        *tp = (char *) &bit32;\
+char n, *tp = (char *) &bit32;\
 bit32.t = l;\
 n = tp[0]; tp[0] = tp[3]; tp[3] = n;\
 n = tp[1]; tp[1] = tp[2]; tp[2] = n;\
@@ -532,7 +532,7 @@ static DndTargetsTable TargetsTable(Display *display)
     if ((XGetWindowProperty (display, motif_window,
                              ATOM(_MOTIF_DRAG_TARGETS), 0L, 100000L,
                              False, ATOM(_MOTIF_DRAG_TARGETS),
-                             &type, &format,        &size, &bytes_after,
+                             &type, &format, &size, &bytes_after,
                              (unsigned char **) &target_prop) != Success) ||
         type == XNone) {
         qWarning("QMotifDND: cannot get property on motif window");

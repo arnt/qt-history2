@@ -182,7 +182,7 @@ void QFontPrivate::load(int script)
     }
 
     // null family means find the first font matching the specified script
-    family_list << QString::null;
+    family_list << QString();
 
     QStringList::ConstIterator it = family_list.begin(), end = family_list.end();
     for (; ! engine && it != end; ++it) {

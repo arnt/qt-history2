@@ -586,7 +586,7 @@ void qDrawWinButton(QPainter *p, const QRect &r,
 */
 
 void qDrawWinPanel(QPainter *p, const QRect &r,
-                    const QPalette &pal, bool sunken,  const QBrush *fill)
+                    const QPalette &pal, bool sunken, const QBrush *fill)
 {
     qDrawWinPanel(p, r.x(), r.y(), r.width(), r.height(), pal, sunken, fill);
 }

@@ -47,8 +47,8 @@ public:
     virtual const Q3NetworkOperation *mkdir( const QString &dirname );
     virtual const Q3NetworkOperation *remove( const QString &filename );
     virtual const Q3NetworkOperation *rename( const QString &oldname, const QString &newname );
-    virtual const Q3NetworkOperation *get( const QString &location = QString::null );
-    virtual const Q3NetworkOperation *put( const QByteArray &data, const QString &location = QString::null  );
+    virtual const Q3NetworkOperation *get( const QString &location = QString() );
+    virtual const Q3NetworkOperation *put( const QByteArray &data, const QString &location = QString()  );
     virtual Q3PtrList<Q3NetworkOperation> copy( const QString &from, const QString &to, bool move = false, bool toPath = true );
     virtual void copy( const QStringList &files, const QString &dest, bool move = false );
     virtual bool isDir( bool *ok = 0 );

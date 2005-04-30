@@ -1527,7 +1527,7 @@ void QWSServer::beginDisplayReconfigure()
 void QWSServer::endDisplayReconfigure()
 {
     delete qwsServer->gfx;
-    qt_screen->connect(QString::null);
+    qt_screen->connect(QString());
     qwsServer->swidth = qt_screen->deviceWidth();
     qwsServer->sheight = qt_screen->deviceHeight();
     qwsServer->screenRegion = QRegion(0, 0, qwsServer->swidth, qwsServer->sheight);

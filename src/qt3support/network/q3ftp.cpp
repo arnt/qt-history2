@@ -608,7 +608,7 @@ Q3FtpPI::Q3FtpPI( QObject *parent ) :
     dtp( this ),
     commandSocket( 0, "Q3FtpPI_socket" ),
     state( Begin ), abortState( None ),
-    currentCmd( QString::null ),
+    currentCmd( QString() ),
     waitForDtpToConnect( false ),
     waitForDtpToClose( false )
 {

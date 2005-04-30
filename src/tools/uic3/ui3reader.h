@@ -84,7 +84,7 @@ private:
     void errorInvalidProperty(const QString &propertyName, const QString &widgetName, const QString &widgetClass);
 
     DomUI *generateUi4(const QDomElement &e);
-    DomWidget *createWidget(const QDomElement &w, const QString &widgetClass = QString::null);
+    DomWidget *createWidget(const QDomElement &w, const QString &widgetClass = QString());
     void createProperties(const QDomElement &e, QList<DomProperty*> *properties, const QString &className);
     void createAttributes(const QDomElement &e, QList<DomProperty*> *properties, const QString &className);
     DomLayout *createLayout(const QDomElement &e);

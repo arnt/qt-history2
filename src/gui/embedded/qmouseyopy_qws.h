@@ -26,8 +26,8 @@ class QWSYopyMouseHandlerPrivate;
 class QWSYopyMouseHandler : public QWSMouseHandler
 {
 public:
-    explicit QWSYopyMouseHandler(const QString & = QString::null,
-                                 const QString & = QString::null);
+    explicit QWSYopyMouseHandler(const QString & = QString(),
+                                 const QString & = QString());
     ~QWSYopyMouseHandler();
 
 protected:

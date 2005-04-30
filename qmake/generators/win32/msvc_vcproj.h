@@ -94,7 +94,7 @@ protected:
     QList<VcprojGenerator*> mergedProjects;
 
 private:
-    QUuid getProjectUUID(const QString &filename=QString::null);
+    QUuid getProjectUUID(const QString &filename=QString());
     QUuid increaseUUID(const QUuid &id);
     friend class VCFilter;
 };

@@ -1151,7 +1151,7 @@ void Q3Action::menuStatusText(int id)
 void Q3Action::clearStatusText()
 {
     if (!statusTip().isEmpty())
-        showStatusText(QString::null);
+        showStatusText(QString());
 }
 
 /*!

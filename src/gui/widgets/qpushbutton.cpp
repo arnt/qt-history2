@@ -225,7 +225,7 @@ QPushButton::QPushButton(const QString &text, QWidget *parent)
 
 
 /*!
-    Constructs a push button with an \a icon and a \a text,  and a \a parent.
+    Constructs a push button with an \a icon and a \a text, and a \a parent.
 
     Note that you can also pass a QPixmap object as an icon (thanks to
     the implicit type conversion provided by C++).
@@ -598,4 +598,3 @@ QPushButton::QPushButton(const QIcon& icon, const QString &text, QWidget *parent
 
 
 #include "moc_qpushbutton.cpp"
-

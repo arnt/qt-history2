@@ -186,7 +186,7 @@ QString QClipboard::text(QString& subtype) const
 
 void QClipboard::clear(Mode mode)
 {
-    setText(QString::null, mode);
+    setText(QString(), mode);
 }
 
 

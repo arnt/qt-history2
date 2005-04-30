@@ -176,7 +176,7 @@ protected:
 #ifndef QT_NO_TEXTEDIT
     virtual void removeRenameBox();
 #endif
-    virtual void calcRect(const QString &text_ = QString::null);
+    virtual void calcRect(const QString &text_ = QString());
     virtual void paintItem(QPainter *p, const QPalette &pal);
     virtual void paintFocus(QPainter *p, const QPalette &pal);
 #ifndef QT_NO_DRAGANDDROP

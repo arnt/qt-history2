@@ -528,7 +528,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
                     if ( qualifiedContexts.contains(context) )
                         context = qualifiedContexts[context];
                     tor->insert( MetaTranslatorMessage(context, text, com,
-                                                       QString::null, utf8) );
+                                                       QString(), utf8) );
 
                     if ( lacks_Q_OBJECT.contains(context) ) {
                         qWarning( "%s:%d: Class '%s' lacks Q_OBJECT macro",
@@ -557,7 +557,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
                        matchEncoding(&utf8) &&
                        match(Tok_RightParen))) )
                     tor->insert( MetaTranslatorMessage(context, text, com,
-                                                       QString::null, utf8) );
+                                                       QString(), utf8) );
             }
             break;
         case Tok_Q_OBJECT:
@@ -584,7 +584,7 @@ static void parse( MetaTranslator *tor, const char *initialContext,
                     context = com.left( k );
                     com.remove( 0, k + 1 );
                     tor->insert( MetaTranslatorMessage(context, "", com,
-                                                       QString::null, false) );
+                                                       QString(), false) );
                 }
 
                 /*
@@ -774,7 +774,7 @@ void UiHandler::flush()
 {
     if ( !context.isEmpty() && !source.isEmpty() )
         tor->insert( MetaTranslatorMessage(context.toUtf8(), source.toUtf8(),
-                                           comment.toUtf8(), QString::null,
+                                           comment.toUtf8(), QString(),
                                            true) );
     source.truncate( 0 );
     comment.truncate( 0 );

@@ -208,7 +208,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
             int cy = opt->rect.height()/2;
             int e = opt->rect.width()/2 - 1;
             for (int i = 0; i < 3; i++) { //penWidth 2 doesn't quite work
-                a.setPoints(4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e);
+                a.setPoints(4, cx-e, cy, cx, cy-e, cx+e, cy, cx, cy+e);
                 p->drawPolygon(a);
                 e--;
             }
@@ -221,7 +221,7 @@ void QMotifStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QP
                 QBrush saveBrush = p->brush();
                 p->setBrush(opt->palette.text());
                 e = e - 2;
-                a.setPoints(4, cx-e, cy, cx, cy-e,  cx+e, cy,  cx, cy+e);
+                a.setPoints(4, cx-e, cy, cx, cy-e, cx+e, cy, cx, cy+e);
                 p->drawPolygon(a);
                 p->setBrush(saveBrush);
             }
@@ -2381,7 +2381,4 @@ QPalette QMotifStyle::standardPalette()
     return palette;
 }
 
-
 #endif
-
-

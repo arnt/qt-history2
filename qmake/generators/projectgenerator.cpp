@@ -216,7 +216,7 @@ ProjectGenerator::init()
 
     QStringList &h = v["HEADERS"];
     bool no_qt_files = true;
-    QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "FORMS", QString::null };
+    QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "FORMS", QString() };
     for(int i = 0; !srcs[i].isNull(); i++) {
         QStringList &l = v[srcs[i]];
         QMakeSourceFileInfo::SourceFileType type = QMakeSourceFileInfo::TYPE_C;
@@ -276,7 +276,7 @@ ProjectGenerator::init()
 #if 0
     //if we find a file that matches an forms it needn't be included in the project
     QStringList &u = v["FORMS"];
-    QString no_ui[] = { "SOURCES", "HEADERS", QString::null };
+    QString no_ui[] = { "SOURCES", "HEADERS", QString() };
     {
         for(int i = 0; !no_ui[i].isNull(); i++) {
             QStringList &l = v[no_ui[i]];

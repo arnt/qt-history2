@@ -340,8 +340,8 @@ private:
 class Q_COMPAT_EXPORT Q3ListBoxText : public Q3ListBoxItem
 {
 public:
-    Q3ListBoxText(Q3ListBox* listbox, const QString & text=QString::null);
-    Q3ListBoxText(const QString & text=QString::null);
+    Q3ListBoxText(Q3ListBox* listbox, const QString & text=QString());
+    Q3ListBoxText(const QString & text=QString());
     Q3ListBoxText(Q3ListBox* listbox, const QString & text, Q3ListBoxItem *after);
    ~Q3ListBoxText();
 

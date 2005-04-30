@@ -343,7 +343,7 @@ public:
     QDomElementPrivate(QDomElementPrivate* n, bool deep);
     ~QDomElementPrivate();
 
-    QString attribute(const QString& name,  const QString& defValue) const;
+    QString attribute(const QString& name, const QString& defValue) const;
     QString attributeNS(const QString& nsURI, const QString& localName, const QString& defValue) const;
     void setAttribute(const QString& name, const QString& value);
     void setAttributeNS(const QString& nsURI, const QString& qName, const QString& newValue);
@@ -4192,7 +4192,7 @@ QDomNamedNodeMap QDomElement::attributes() const
 
     \sa setAttribute() attributeNode() setAttributeNode() attributeNS()
 */
-QString QDomElement::attribute(const QString& name,  const QString& defValue) const
+QString QDomElement::attribute(const QString& name, const QString& defValue) const
 {
     if (!impl)
         return defValue;
@@ -6663,7 +6663,7 @@ bool QDomHandler::characters(const QString&  ch)
         node->appendChild(doc->createCDATASection(ch));
     } else if (!entityName.isEmpty()) {
         QDomEntityPrivate* e = new QDomEntityPrivate(doc, 0, entityName,
-                QString::null, QString::null, QString::null);
+                QString(), QString(), QString());
         e->value = ch;
         doc->doctype()->appendChild(e);
         node->appendChild(doc->createEntityReference(entityName));
@@ -6734,7 +6734,7 @@ bool QDomHandler::unparsedEntityDecl(const QString &name, const QString &publicI
 
 bool QDomHandler::externalEntityDecl(const QString &name, const QString &publicId, const QString &systemId)
 {
-    return unparsedEntityDecl(name, publicId, systemId, QString::null);
+    return unparsedEntityDecl(name, publicId, systemId, QString());
 }
 
 bool QDomHandler::notationDecl(const QString & name, const QString & publicId, const QString & systemId)

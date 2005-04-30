@@ -637,7 +637,7 @@ void MessageEditor::showNothing()
     setEditionEnabled(false);
     sourceText.clear();
     editorPage->cmtText->clear();
-    setTranslation(QString::null, false);
+    setTranslation(QString(), false);
     editorPage->handleSourceChanges();
     editorPage->handleCommentChanges();
     editorPage->handleTranslationChanges();

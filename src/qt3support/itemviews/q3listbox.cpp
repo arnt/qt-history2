@@ -49,7 +49,7 @@ public:
         scrollTimer(0), updateTimer(0), visibleTimer(0),
         selectionMode(Q3ListBox::Single),
         count(0),
-        listBox(lb), currInputString(QString::null),
+        listBox(lb), currInputString(QString()),
         rowModeWins(false),
         ignoreMoves(false),
         layoutDirty(true),
@@ -3569,7 +3569,7 @@ void Q3ListBox::viewportPaintEvent(QPaintEvent * e)
         int cw = d->columnPos[col+1] - d->columnPos[col];
         while (i && (int)row < numRows() && d->rowPos[row] < y + h) {
             int ch = d->rowPos[row+1] - d->rowPos[row];
-            QRect itemRect(d->columnPos[col]-x,  d->rowPos[row]-y, cw, ch);
+            QRect itemRect(d->columnPos[col]-x, d->rowPos[row]-y, cw, ch);
             QRegion tempRegion(itemRect);
             QRegion itemPaintRegion(tempRegion.intersect(r ));
             if (!itemPaintRegion.isEmpty()) {

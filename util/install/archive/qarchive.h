@@ -9,7 +9,7 @@
 class QArchiveHeader
 {
 public:
-    QArchiveHeader( uint feat, const QString& desc=QString::null, uchar mayorVer = 1, uchar minorVer = 0 )
+    QArchiveHeader( uint feat, const QString& desc=QString(), uchar mayorVer = 1, uchar minorVer = 0 )
 	: _features(feat), _description(desc), _mayorVersion(mayorVer), _minorVersion(minorVer)
     {}
     
@@ -48,7 +48,7 @@ class QArchive : public QObject
 {
     Q_OBJECT
 public:
-    QArchive( const QString& archivePath = QString::null );
+    QArchive( const QString& archivePath = QString() );
     ~QArchive();
 
     void setPath( const QString& archivePath );
@@ -62,17 +62,17 @@ public:
     bool isOpen() { return arcFile.isOpen(); }
 
     bool writeHeader( const QArchiveHeader header );
-    bool writeFile( const QString& fileName, const QString& localPath = QString::null );
+    bool writeFile( const QString& fileName, const QString& localPath = QString() );
     bool writeFileList( const QStringList fileList );
     bool writeDir( const QString& dirName, bool includeLastComponent = false, 
-		   const QString& localPath = QString::null );
+		   const QString& localPath = QString() );
     bool writeDirList( const QStringList dirList, bool includeLastComponent = true );
 
     QArchiveHeader* readArchiveHeader();
     QArchiveHeader* readArchiveHeader( QDataStream *inStream );
 
-    bool readArchive( const QString &outpath, const QString &key = QString::null );
-    bool readArchive( QDataStream *inStream, const QString &outpath, const QString &key = QString::null );
+    bool readArchive( const QString &outpath, const QString &key = QString() );
+    bool readArchive( QDataStream *inStream, const QString &outpath, const QString &key = QString() );
 private:
     QFile arcFile;
 

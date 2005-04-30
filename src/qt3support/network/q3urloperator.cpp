@@ -411,7 +411,7 @@ const Q3NetworkOperation *Q3UrlOperator::listChildren()
     if ( !checkValid() )
 	return 0;
 
-    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpListChildren, QString::null, QString::null, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpListChildren, QString(), QString(), QString() );
     return startOperation( res );
 }
 
@@ -440,7 +440,7 @@ const Q3NetworkOperation *Q3UrlOperator::mkdir( const QString &dirname )
     if ( !checkValid() )
 	return 0;
 
-    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpMkDir, dirname, QString::null, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpMkDir, dirname, QString(), QString() );
     return startOperation( res );
 }
 
@@ -468,7 +468,7 @@ const Q3NetworkOperation *Q3UrlOperator::remove( const QString &filename )
     if ( !checkValid() )
 	return 0;
 
-    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpRemove, filename, QString::null, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpRemove, filename, QString(), QString() );
     return startOperation( res );
 }
 
@@ -496,7 +496,7 @@ const Q3NetworkOperation *Q3UrlOperator::rename( const QString &oldname, const Q
     if ( !checkValid() )
 	return 0;
 
-    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpRename, oldname, newname, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpRename, oldname, newname, QString() );
     return startOperation( res );
 }
 
@@ -576,7 +576,7 @@ Q3PtrList<Q3NetworkOperation> Q3UrlOperator::copy( const QString &from, const QS
 	connect( pProt, SIGNAL( finished(Q3NetworkOperation*) ),
 		 this, SLOT( finishedCopy() ) );
 
-	Q3NetworkOperation *opGet = new Q3NetworkOperation( Q3NetworkProtocol::OpGet, frm, QString::null, QString::null );
+	Q3NetworkOperation *opGet = new Q3NetworkOperation( Q3NetworkProtocol::OpGet, frm, QString(), QString() );
 	ops.append( opGet );
 	gProt->addOperation( opGet );
 
@@ -585,7 +585,7 @@ Q3PtrList<Q3NetworkOperation> Q3UrlOperator::copy( const QString &from, const QS
 	if (!toPath)
 	    toFile = to;
 
-	Q3NetworkOperation *opPut = new Q3NetworkOperation( Q3NetworkProtocol::OpPut, toFile, QString::null, QString::null );
+	Q3NetworkOperation *opPut = new Q3NetworkOperation( Q3NetworkProtocol::OpPut, toFile, QString(), QString() );
 	ops.append( opPut );
 
 	d->getOpPutProtMap.insert( (void*)opGet, pProt );
@@ -595,7 +595,7 @@ Q3PtrList<Q3NetworkOperation> Q3UrlOperator::copy( const QString &from, const QS
 	if ( move && (gProt->supportedOperations()&Q3NetworkProtocol::OpRemove) ) {
 	    gProt->setAutoDelete( false );
 
-	    Q3NetworkOperation *opRm = new Q3NetworkOperation( Q3NetworkProtocol::OpRemove, frm, QString::null, QString::null );
+	    Q3NetworkOperation *opRm = new Q3NetworkOperation( Q3NetworkProtocol::OpRemove, frm, QString(), QString() );
 	    ops.append( opRm );
 	    d->getOpRemoveOpMap.insert( (void*)opGet, opRm );
 	} else {
@@ -618,7 +618,7 @@ Q3PtrList<Q3NetworkOperation> Q3UrlOperator::copy( const QString &from, const QS
 	}
 	delete uFrom;
 	delete uTo;
-	Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpGet, frm, to, QString::null );
+	Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpGet, frm, to, QString() );
 	res->setState( Q3NetworkProtocol::StFailed );
 	res->setProtocolDetail( msg );
 	res->setErrorCode( (int)Q3NetworkProtocol::ErrUnsupported );
@@ -682,7 +682,7 @@ bool Q3UrlOperator::isDir( bool *ok )
 
 /*!
     Tells the network protocol to get data from \a location or, if
-    this is QString::null, to get data from the location to which this
+    it is empty, to get data from the location to which this
     URL points (see Q3Url::fileName() and Q3Url::encodedPathAndQuery()).
     What happens then depends on the network protocol. The data()
     signal is emitted when data comes in. Because it's unlikely that
@@ -693,7 +693,7 @@ bool Q3UrlOperator::isDir( bool *ok )
     network operation object to see whether or not the operation was
     successful.
 
-    If \a location is QString::null, the path of this Q3UrlOperator
+    If \a location is empty, the path of this Q3UrlOperator
     should point to a file when you use this operation. If \a location
     is not empty, it can be a relative URL (a child of the path to
     which the Q3UrlOperator points) or an absolute URL.
@@ -746,15 +746,15 @@ const Q3NetworkOperation *Q3UrlOperator::get( const QString &location )
 	getNetworkProtocol();
     }
 
-    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpGet, u, QString::null, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpGet, u, QString(), QString() );
     return startOperation( res );
 }
 
 /*!
     This function tells the network protocol to put \a data in \a
-    location. If \a location is empty (QString::null), it puts the \a
-    data in the location to which the URL points. What happens depends
-    on the network protocol. Depending on the network protocol, some
+    location. If \a location is empty, it puts the \a data in the
+    location to which the URL points. What happens depends on
+    the network protocol. Depending on the network protocol, some
     data might come back after putting data, in which case the data()
     signal is emitted. The dataTransferProgress() signal is emitted
     during processing of the operation. At the end, finished() (with
@@ -762,8 +762,8 @@ const Q3NetworkOperation *Q3UrlOperator::get( const QString &location )
     operation object to see whether or not the operation was
     successful.
 
-    If \a location is QString::null, the path of this Q3UrlOperator
-    should point to a file when you use this operation. If \a location
+    If \a location is empty, the path of this Q3UrlOperator should
+    point to a file when you use this operation. If \a location
     is not empty, it can be a relative (a child of the path to which
     the Q3UrlOperator points) or an absolute URL.
 
@@ -803,7 +803,7 @@ const Q3NetworkOperation *Q3UrlOperator::put( const QByteArray &data, const QStr
 	getNetworkProtocol();
     }
 
-    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpPut, u, QString::null, QString::null );
+    Q3NetworkOperation *res = new Q3NetworkOperation( Q3NetworkProtocol::OpPut, u, QString(), QString() );
     res->setRawArg( 1, data );
     return startOperation( res );
 }

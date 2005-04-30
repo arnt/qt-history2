@@ -831,7 +831,7 @@ void Q3DataTable::endEdit( int row, int col, bool, bool )
     if ( d->dat.mode() != QSql::None && d->editBuffer ) {
 	Q3SqlPropertyMap * m = (d->propertyMap == 0) ?
 			      Q3SqlPropertyMap::defaultMap() : d->propertyMap;
-	d->editBuffer->setValue( indexOf( col ),  m->property( editor ) );
+	d->editBuffer->setValue( indexOf( col ), m->property( editor ) );
 	clearCellWidget( row, col );
 	if ( !d->continuousEdit ) {
 	    switch ( d->dat.mode() ) {
@@ -1546,7 +1546,7 @@ int Q3DataTable::numCols() const
 /*!
     Returns the text in cell \a row, \a col, or an empty string if the
     cell is empty. If the cell's value is NULL then nullText() will be
-    returned. If the cell does not exist then QString::null is
+    returned. If the cell does not exist then an empty string is
     returned.
 */
 

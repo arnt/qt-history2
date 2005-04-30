@@ -595,7 +595,7 @@ inline QString QString::arg(const QString &a1, const QString &a2) const
 { return multiArg(2, a1, a2); }
 inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3) const
 { return multiArg(3, a1, a2, a3); }
-inline QString QString::arg(const QString &a1, const QString &a2,  const QString &a3, const QString &a4) const
+inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3, const QString &a4) const
 { return multiArg(4, a1, a2, a3, a4); }
 inline QString QString::section(QChar asep, int astart, int aend, SectionFlags aflags) const
 { return section(QString(asep), astart, aend, aflags); }

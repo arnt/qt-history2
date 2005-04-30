@@ -51,7 +51,7 @@ public:
 
     struct Tab {
         inline Tab():enabled(true), shortcutId(0){}
-        inline Tab(const QIcon &ico,  const QString &txt):enabled(true), shortcutId(0), text(txt), icon(ico){}
+        inline Tab(const QIcon &ico, const QString &txt):enabled(true), shortcutId(0), text(txt), icon(ico){}
         bool enabled;
         int shortcutId;
         QString text, toolTip;

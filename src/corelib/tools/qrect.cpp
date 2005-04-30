@@ -237,7 +237,7 @@ QRect QRect::normalized() const
 
     Returns a reference to the top coordinate of the rectangle.
 
-    \sa rLeft(),  rRight(), rBottom()
+    \sa rLeft(), rRight(), rBottom()
 */
 
 /*!
@@ -1772,4 +1772,3 @@ QDebug operator<<(QDebug dbg, const QRectF &r) {
     return dbg.space();
 }
 #endif
-

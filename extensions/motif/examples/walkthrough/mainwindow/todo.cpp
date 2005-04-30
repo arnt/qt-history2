@@ -248,8 +248,7 @@ Save(Widget, XtPointer client_data,
 {
   QWidget *toplevel = (QWidget *) client_data;
   QString filename =
-      QFileDialog::getSaveFileName( QString::null, QString::null,
-				    toplevel );
+      QFileDialog::getSaveFileName( QString(), QString(), toplevel );
 
   if ( ! filename.isEmpty() ) {
     char *str = qstrdup( filename.local8Bit() );
@@ -268,8 +267,7 @@ Open(Widget, XtPointer client_data,
 {
   QWidget *toplevel = (QWidget *) client_data;
   QString filename =
-      QFileDialog::getOpenFileName( QString::null, QString::null,
-				    toplevel );
+      QFileDialog::getOpenFileName( QString(), QString(), toplevel );
 
   if ( ! filename.isEmpty() ) {
     char *str = qstrdup( filename.local8Bit() );

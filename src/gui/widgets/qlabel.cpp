@@ -245,7 +245,7 @@ QLabel::QLabel(const QString &text, QWidget *parent, const char *name,
     \sa setText(), setBuddy(), setAlignment(), setFrameStyle(),
     setIndent()
 */
-QLabel::QLabel(QWidget *buddy,  const QString &text,
+QLabel::QLabel(QWidget *buddy, const QString &text,
                 QWidget *parent, const char *name, Qt::WFlags f)
     : QFrame(*new QLabelPrivate(), parent, f)
 {

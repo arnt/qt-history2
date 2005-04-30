@@ -985,7 +985,7 @@ void QMessageBox::resizeEvent(QResizeEvent *)
                           height() - 3*border - bh);
     int extra_space = (width() - bw*n - 2*border - (n-1)*btn_spacing);
     if (n)
-        bw = qMin(bw,  (width() - 2 *border) / n);
+        bw = qMin(bw, (width() - 2 *border) / n);
     if (useBorder) {
         for (i=0; i<n; i++)
             d->pb[rtl ? n - i - 1 : i]->setGeometry(border + i*bw + qMax(0,i*btn_spacing + extra_space*(i+1)/(n+1)),

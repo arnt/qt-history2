@@ -40,7 +40,7 @@ QString Driver::findOrInsertWidget(DomWidget *ui_widget)
 QString Driver::findOrInsertSpacer(DomSpacer *ui_spacer)
 {
     if (!m_spacers.contains(ui_spacer))
-        m_spacers.insert(ui_spacer, unique(QString::null, QLatin1String("QSpacerItem")));
+        m_spacers.insert(ui_spacer, unique(QString(), QLatin1String("QSpacerItem")));
 
     return m_spacers.value(ui_spacer);
 }
@@ -48,7 +48,7 @@ QString Driver::findOrInsertSpacer(DomSpacer *ui_spacer)
 QString Driver::findOrInsertLayout(DomLayout *ui_layout)
 {
     if (!m_layouts.contains(ui_layout))
-        m_layouts.insert(ui_layout, unique(QString::null, ui_layout->attributeClass()));
+        m_layouts.insert(ui_layout, unique(QString(), ui_layout->attributeClass()));
 
     return m_layouts.value(ui_layout);
 }
@@ -267,4 +267,3 @@ DomAction *Driver::actionByName(const QString &name) const
 {
     return m_actions.key(name);
 }
-

@@ -101,7 +101,7 @@ void QAbstractScrollAreaPrivate::init()
     q->setFocusPolicy(Qt::WheelFocus);
     q->setFrameStyle(QFrame::StyledPanel | QFrame::Sunken);
     q->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    hbar = new QScrollBar(Qt::Horizontal,  q);
+    hbar = new QScrollBar(Qt::Horizontal, q);
     QObject::connect(hbar, SIGNAL(valueChanged(int)), q, SLOT(hslide(int)));
     QObject::connect(hbar, SIGNAL(rangeChanged(int,int)), q, SLOT(showOrHideScrollBars()), Qt::QueuedConnection);
     vbar = new QScrollBar(Qt::Vertical, q);
@@ -147,7 +147,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
         vr = q->contentsRect();
         if (needh) {
             vr.setBottom(vr.bottom() - hsbExt);
-            hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect,  QRect(vr.left(), vr.bottom() + 1, vr.width() - (needv?vsbExt:0), hsbExt)));
+            hbar->setGeometry(QStyle::visualRect(opt.direction, opt.rect, QRect(vr.left(), vr.bottom() + 1, vr.width() - (needv?vsbExt:0), hsbExt)));
         }
         if (needv) {
             vr.setRight(vr.right() - vsbExt);
@@ -643,4 +643,3 @@ QSize QAbstractScrollArea::sizeHint() const
 }
 
 #include "moc_qabstractscrollarea.cpp"
-

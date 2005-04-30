@@ -36,7 +36,7 @@ public:
     void setGuide( const QString& guide );
     void vskip();
     void flushLine( bool mayBreak = false );
-    void addBox( int percent, const QString& text = QString::null,
+    void addBox( int percent, const QString& text = QString(),
                  Style style = Normal,
                  int halign = Qt::AlignLeft | Qt::TextWordWrap ); //NEW WordBread -> TextWordWrap
 

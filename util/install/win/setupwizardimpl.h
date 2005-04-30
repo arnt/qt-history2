@@ -126,7 +126,7 @@ private:
     void initPages();
     void initConnections();
 
-    void fixEnvironment(const QString &var, const QString &file = QString::null);
+    void fixEnvironment(const QString &var, const QString &file = QString());
     void prepareEnvironment();
 
     void makeDone( bool error );

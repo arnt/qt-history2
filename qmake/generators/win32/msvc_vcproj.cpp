@@ -685,7 +685,7 @@ void VcprojGenerator::init()
                             extraCompilerSources[file] += *it;
                         } else {
                             QString out = Option::fixPathToTargetOS(replaceExtraCompilerVariables(
-                                            compiler_out, file, QString::null), false);
+                                            compiler_out, file, QString()), false);
                             extraCompilerSources[out] += *it;
                             extraCompilerOutputs[out] = QStringList(file); // Can only have one
                         }
@@ -1167,7 +1167,7 @@ void VcprojGenerator::initExtraCompilerOutputs()
         if (project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
             // Combined output, only one file result
             extraCompile.addFile(
-                Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, QString::null, QString::null), false));
+                Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, QString(), QString()), false));
         } else {
             // One output file per input
             QStringList tmp_in = project->variables()[project->first((*it) + ".input")];
@@ -1175,7 +1175,7 @@ void VcprojGenerator::initExtraCompilerOutputs()
                 const QString &filename = tmp_in.at(i);
                 if (extraCompilerSources.contains(filename))
                     extraCompile.addFile(
-                        Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, filename, QString::null), false));
+                        Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, filename, QString()), false));
             }
         }
         extraCompile.Project = this;

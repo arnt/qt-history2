@@ -134,7 +134,7 @@ private:
 };
 Q_GLOBAL_STATIC(QCoreApplicationThread, mainThread)
 
-QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc,  char **aargv)
+QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc, char **aargv)
     : QObjectPrivate(), argc(aargc), argv(aargv), eventFilter(0)
 {
     static const char *const empty = "";
@@ -1256,7 +1256,7 @@ QString QCoreApplication::applicationFilePath()
     return filePath.filePath();
 #elif defined(Q_WS_MAC)
     QFileInfo fi(qAppFileName());
-    return fi.exists() ? fi.canonicalFilePath() : QString::null;
+    return fi.exists() ? fi.canonicalFilePath() : QString();
 #else
     QString argv0 = QFile::decodeName(QByteArray(argv()[0]));
     QString absPath;
@@ -1295,7 +1295,7 @@ QString QCoreApplication::applicationFilePath()
     absPath = QDir::cleanPath(absPath);
 
     QFileInfo fi(absPath);
-    return fi.exists() ? fi.canonicalFilePath() : QString::null;
+    return fi.exists() ? fi.canonicalFilePath() : QString();
 #endif
 }
 #endif // QT_NO_DIR

@@ -10,6 +10,7 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #ifndef __MAKEFILE_H__
 #define __MAKEFILE_H__
 
@@ -139,11 +140,11 @@ protected:
 
     //file fixification to unify all file names into a single pattern
     enum FileFixifyType { FileFixifyAbsolute, FileFixifyRelative, FileFixifyDefault };
-    QString fileFixify(const QString& file, const QString &out_dir=QString::null,
-                       const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=true) const;
-    inline QString fileFixify(const QString& file, FileFixifyType fix, bool canon=true) const { return fileFixify(file, QString::null, QString::null, fix, canon); }
-    QStringList fileFixify(const QStringList& files, const QString &out_dir=QString::null,
-                           const QString &in_dir=QString::null, FileFixifyType fix=FileFixifyDefault, bool canon=true) const;
+    QString fileFixify(const QString& file, const QString &out_dir=QString(),
+                       const QString &in_dir=QString(), FileFixifyType fix=FileFixifyDefault, bool canon=true) const;
+    inline QString fileFixify(const QString& file, FileFixifyType fix, bool canon=true) const { return fileFixify(file, QString(), QString(), fix, canon); }
+    QStringList fileFixify(const QStringList& files, const QString &out_dir=QString(),
+                           const QString &in_dir=QString(), FileFixifyType fix=FileFixifyDefault, bool canon=true) const;
 public:
     MakefileGenerator();
     virtual ~MakefileGenerator();

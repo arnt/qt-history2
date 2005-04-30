@@ -75,10 +75,10 @@ class QHttpResponseHeaderPrivate;
 class Q_NETWORK_EXPORT QHttpResponseHeader : public QHttpHeader
 {
 private:
-    QHttpResponseHeader(int code, const QString &text = QString::null, int majorVer = 1, int minorVer = 1);
+    QHttpResponseHeader(int code, const QString &text = QString(), int majorVer = 1, int minorVer = 1);
     QHttpResponseHeader(const QString &str);
 
-    void setStatusLine(int code, const QString &text = QString::null, int majorVer = 1, int minorVer = 1);
+    void setStatusLine(int code, const QString &text = QString(), int majorVer = 1, int minorVer = 1);
 
 public:
     QHttpResponseHeader();

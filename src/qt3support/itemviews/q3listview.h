@@ -46,26 +46,26 @@ public:
     Q3ListViewItem(Q3ListViewItem * parent, Q3ListViewItem * after);
 
     Q3ListViewItem(Q3ListView * parent,
-                   const QString&,                 const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null);
+                   const QString&,             const QString& = QString(),
+                   const QString& = QString(), const QString& = QString(),
+                   const QString& = QString(), const QString& = QString(),
+                   const QString& = QString(), const QString& = QString());
     Q3ListViewItem(Q3ListViewItem * parent,
-                   const QString&,                 const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null);
+                   const QString&,             const QString& = QString(),
+                   const QString& = QString(), const QString& = QString(),
+                   const QString& = QString(), const QString& = QString(),
+                   const QString& = QString(), const QString& = QString());
 
     Q3ListViewItem(Q3ListView * parent, Q3ListViewItem * after,
-                   const QString&,                 const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null);
+                   const QString&,             const QString& = QString(),
+                   const QString& = QString(), const QString& = QString(),
+                   const QString& = QString(), const QString& = QString(),
+                   const QString& = QString(), const QString& = QString());
     Q3ListViewItem(Q3ListViewItem * parent, Q3ListViewItem * after,
-                   const QString&,                 const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null,
-                   const QString& = QString::null, const QString& = QString::null);
+                   const QString&,             const QString& = QString(),
+                   const QString& = QString(), const QString& = QString(),
+                   const QString& = QString(), const QString& = QString(),
+                   const QString& = QString(), const QString& = QString());
     virtual ~Q3ListViewItem();
 
     virtual void insertItem(Q3ListViewItem *);
@@ -358,7 +358,7 @@ signals:
     void rightButtonClicked(Q3ListViewItem *, const QPoint&, int);
     void rightButtonPressed(Q3ListViewItem *, const QPoint&, int);
     void mouseButtonPressed(int, Q3ListViewItem *, const QPoint& , int);
-    void mouseButtonClicked(int, Q3ListViewItem *,  const QPoint&, int);
+    void mouseButtonClicked(int, Q3ListViewItem *, const QPoint&, int);
 
     void contextMenuRequested(Q3ListViewItem *, const QPoint &, int);
 
@@ -466,7 +466,7 @@ public:
                     const QPixmap &);
     ~Q3CheckListItem();
 
-    void paintCell(QPainter *,  const QPalette & pal,
+    void paintCell(QPainter *, const QPalette & pal,
                     int column, int width, int alignment);
     virtual void paintFocus(QPainter *, const QPalette &pal,
                              const QRect & r);

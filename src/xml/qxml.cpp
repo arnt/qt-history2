@@ -3708,7 +3708,7 @@ bool QXmlSimpleReaderPrivate::parseElement()
                             return false;
                         }
                     } else {
-                        if (!contentHnd->startElement(QString::null, QString::null, tagsTop, attList)) {
+                        if (!contentHnd->startElement(QString(), QString(), tagsTop, attList)) {
                             reportParseError(contentHnd->errorString());
                             return false;
                         }
@@ -3797,12 +3797,12 @@ bool QXmlSimpleReaderPrivate::processElementEmptyTag()
             }
         } else {
             // report startElement first...
-            if (!contentHnd->startElement(QString::null, QString::null, tags.top(), attList)) {
+            if (!contentHnd->startElement(QString(), QString(), tags.top(), attList)) {
                 reportParseError(contentHnd->errorString());
                 return false;
             }
             // ... followed by endElement
-            if (!contentHnd->endElement(QString::null, QString::null, tags.pop())) {
+            if (!contentHnd->endElement(QString(), QString(), tags.pop())) {
                 reportParseError(contentHnd->errorString());
                 return false;
             }
@@ -6535,7 +6535,7 @@ bool QXmlSimpleReaderPrivate::parseEntityDecl()
                 break;
             case EDDone:
                 if ( !entityExist(name())) {
-                    externEntities.insert(name(), QXmlSimpleReaderPrivate::ExternEntity(publicId, systemId, QString::null));
+                    externEntities.insert(name(), QXmlSimpleReaderPrivate::ExternEntity(publicId, systemId, QString()));
                     if (declHnd) {
                         if (!declHnd->externalEntityDecl(name(), publicId, systemId)) {
                             reportParseError(declHnd->errorString());

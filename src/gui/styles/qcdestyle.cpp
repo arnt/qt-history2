@@ -154,7 +154,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
         bool on = opt->state & State_On;
         bool showUp = !(down ^ on);
         QBrush fill = showUp || opt->state & State_NoChange ? opt->palette.brush(QPalette::Button) : opt->palette.brush(QPalette::Mid);
-        qDrawShadePanel(p, opt->rect,  opt->palette, !showUp, pixelMetric(PM_DefaultFrameWidth), &opt->palette.brush(QPalette::Button));
+        qDrawShadePanel(p, opt->rect, opt->palette, !showUp, pixelMetric(PM_DefaultFrameWidth), &opt->palette.brush(QPalette::Button));
 
         if (!(opt->state & State_Off)) {
             QRect r = opt->rect;
@@ -163,7 +163,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
             xx = r.x() + 3;
             yy = r.y() + 5;
             for (i = 0; i < 3; i++) {
-                a.setPoint(2 * i,   xx, yy);
+                a.setPoint(2 * i, xx, yy);
                 a.setPoint(2 * i + 1, xx, yy + 2);
                 xx++; yy++;
             }

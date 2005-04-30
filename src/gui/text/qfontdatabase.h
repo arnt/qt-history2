@@ -80,16 +80,16 @@ public:
     QList<WritingSystem> writingSystems() const;
     QStringList families(WritingSystem writingSystem = Any) const;
     QStringList styles(const QString &family) const;
-    QList<int> pointSizes(const QString &family, const QString &style = QString::null);
+    QList<int> pointSizes(const QString &family, const QString &style = QString());
     QList<int> smoothSizes(const QString &family, const QString &style);
     QString styleString(const QFont &font);
 
     QFont font(const QString &family, const QString &style, int pointSize) const;
 
-    bool isBitmapScalable(const QString &family, const QString &style = QString::null) const;
-    bool isSmoothlyScalable(const QString &family, const QString &style = QString::null) const;
-    bool isScalable(const QString &family, const QString &style = QString::null) const;
-    bool isFixedPitch(const QString &family, const QString &style = QString::null) const;
+    bool isBitmapScalable(const QString &family, const QString &style = QString()) const;
+    bool isSmoothlyScalable(const QString &family, const QString &style = QString()) const;
+    bool isScalable(const QString &family, const QString &style = QString()) const;
+    bool isFixedPitch(const QString &family, const QString &style = QString()) const;
 
     bool italic(const QString &family, const QString &style) const;
     bool bold(const QString &family, const QString &style) const;

@@ -945,7 +945,7 @@ void Q3Accel::setWhatsThis(int id, const QString& text)
 
 /*!
     Returns the What's This help text for the specified item \a id or
-    QString::null if no text has been specified.
+    an empty string if no text has been specified.
 
     \sa setWhatsThis()
 */

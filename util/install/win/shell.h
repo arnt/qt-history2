@@ -29,7 +29,7 @@ public:
     QString createFolder( QString folderName, bool common );
 
 #if defined(Q_OS_WIN32)
-    HRESULT createShortcut( QString folderName, bool common, QString shortcutName, QString target, QString description = QString::null, QString arguments = QString::null, QString wrkDir = QString::null );
+    HRESULT createShortcut( QString folderName, bool common, QString shortcutName, QString target, QString description = QString(), QString arguments = QString(), QString wrkDir = QString() );
     void createInternetShortcut( QString folderName, bool common, QString shortcutName, QString url );
 #endif
 

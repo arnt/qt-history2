@@ -16,7 +16,7 @@ public:
 
     HGDIOBJ selectDesignFont(float *) const;
 
-    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs,  int numGlyphs);
+    glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
 
     qreal ascent() const;
@@ -28,7 +28,7 @@ public:
 
     const char *name() const;
 
-    bool canRender(const QChar *string,  int len);
+    bool canRender(const QChar *string, int len);
 
     Type type() const;
 

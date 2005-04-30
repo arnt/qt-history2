@@ -190,7 +190,7 @@ struct ThemeMapData {
 class XPThemeData
 {
 public:
-    XPThemeData(const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString::null,
+    XPThemeData(const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString(),
                 int part = 0, int state = 0, const QRect &r = QRect())
         : widget(w), painter(p), name(theme), htheme(0), partId(part), stateId(state), 
           rect(r), mirrorHorizontally(false), mirrorVertically(false), rotate(0)

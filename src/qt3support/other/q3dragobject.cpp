@@ -956,7 +956,7 @@ Q3StoredDrag::Q3StoredDrag(const char* mimeType, QWidget * dragSource, const cha
 }
 
 /*! \internal */
-Q3StoredDrag::Q3StoredDrag(Q3StoredDragPrivate &dd,  const char* mimeType, QWidget * dragSource)
+Q3StoredDrag::Q3StoredDrag(Q3StoredDragPrivate &dd, const char* mimeType, QWidget * dragSource)
     : Q3DragObject(dd, dragSource)
 {
     d_func()->fmt = qstrdup(mimeType);

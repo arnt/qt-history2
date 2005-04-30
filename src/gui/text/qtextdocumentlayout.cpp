@@ -564,7 +564,7 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
                     int row_start = -1, col_start = -1, num_rows = -1, num_cols = -1;
 
                     if (s.cursor.currentTable() == table)
-                        s.cursor.selectedTableCells(&row_start, &num_rows, &col_start,  &num_cols);
+                        s.cursor.selectedTableCells(&row_start, &num_rows, &col_start, &num_cols);
                     if (row_start != -1) {
                         if (r >= row_start && r < row_start + num_rows
                             && c >= col_start && c < col_start + num_cols) {
@@ -1752,4 +1752,3 @@ QRectF QTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 {
     return QRectF(data(frame)->position, data(frame)->size);
 }
-

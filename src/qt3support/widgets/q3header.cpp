@@ -221,7 +221,7 @@ Q3Header::Q3Header(QWidget *parent, const char *name)
     and parent \a parent.
 */
 
-Q3Header::Q3Header(int n,  QWidget *parent, const char *name)
+Q3Header::Q3Header(int n, QWidget *parent, const char *name)
     : QWidget(parent, name, Qt::WStaticContents)
 {
     orient = Qt::Horizontal;

@@ -1549,7 +1549,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
                             else
                                 widget = (QETWidget*)widget->window();
                             if (widget->isEnabled())
-                                res = ((QETWidget*)widget)->sendKeyEvent(QEvent::KeyPress, key, state, false, QString::null, g != 0);
+                                res = ((QETWidget*)widget)->sendKeyEvent(QEvent::KeyPress, key, state, false, QString(), g != 0);
                             if (res)
                                 return true;
                         }
@@ -2809,14 +2809,14 @@ bool QETWidget::translateKeyEvent(const MSG &msg, bool grab)
                     if (dirStatus == VK_LSHIFT &&
                         (msg.wParam == VK_SHIFT && GetKeyState(VK_LCONTROL)  ||
                           msg.wParam == VK_CONTROL && GetKeyState(VK_LSHIFT))) {
-                        k0 = sendKeyEvent(QEvent::KeyPress, Qt::Key_Direction_L, 0, grab, QString::null);
-                        k1 = sendKeyEvent(QEvent::KeyRelease, Qt::Key_Direction_L, 0, grab, QString::null);
+                        k0 = sendKeyEvent(QEvent::KeyPress, Qt::Key_Direction_L, 0, grab, QString());
+                        k1 = sendKeyEvent(QEvent::KeyRelease, Qt::Key_Direction_L, 0, grab, QString());
                         dirStatus = 0;
                     } else if (dirStatus == VK_RSHIFT &&
                         (msg.wParam == VK_SHIFT && GetKeyState(VK_RCONTROL) ||
                           msg.wParam == VK_CONTROL && GetKeyState(VK_RSHIFT))) {
-                        k0 = sendKeyEvent(QEvent::KeyPress, Qt::Key_Direction_R, 0, grab, QString::null);
-                        k1 = sendKeyEvent(QEvent::KeyRelease, Qt::Key_Direction_R, 0, grab, QString::null);
+                        k0 = sendKeyEvent(QEvent::KeyPress, Qt::Key_Direction_R, 0, grab, QString());
+                        k1 = sendKeyEvent(QEvent::KeyRelease, Qt::Key_Direction_R, 0, grab, QString());
                         dirStatus = 0;
                     } else {
                         dirStatus = 0;

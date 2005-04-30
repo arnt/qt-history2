@@ -106,7 +106,7 @@ static void initializeDb()
     }
 }
 
-static inline void load(const QString & = QString::null,  int = -1)
+static inline void load(const QString & = QString(), int = -1)
 {
 }
 

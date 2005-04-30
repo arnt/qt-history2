@@ -5242,7 +5242,7 @@ QString QString::number(double n, char f, int prec)
 
     \sa QStringList::join(), section()
 */
-QStringList QString::split(const QString &sep, SplitBehavior behavior,  Qt::CaseSensitivity cs) const
+QStringList QString::split(const QString &sep, SplitBehavior behavior, Qt::CaseSensitivity cs) const
 {
     QStringList list;
     int start = 0;

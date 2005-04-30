@@ -728,7 +728,7 @@ void QBoxLayout::insertStretch(int index, int stretch)
         b = new QSpacerItem(0, 0, QSizePolicy::Expanding,
                              QSizePolicy::Minimum);
     else
-        b = new QSpacerItem(0, 0,  QSizePolicy::Minimum,
+        b = new QSpacerItem(0, 0, QSizePolicy::Minimum,
                              QSizePolicy::Expanding);
 
     QBoxLayoutItem *it = new QBoxLayoutItem(b, stretch);

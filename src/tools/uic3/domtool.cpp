@@ -471,7 +471,7 @@ struct widgetName {
 };
 
 struct propertyName : public widgetName {
-    propertyName(double v, QString b, QString a, QString c = QString::null)
+    propertyName(double v, QString b, QString a, QString c = QString())
         : widgetName(v, b, a), clss(c) {}
     QString clss;
 };

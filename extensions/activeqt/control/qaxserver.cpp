@@ -215,7 +215,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
             const QString classId = qAxFactory()->classID(className).toString().toUpper();
 
             if (object) { // don't register subobject classes
-                QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString::null;
+                QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString();
                 if (classVersion.isNull())
                     classVersion = "1.0";
                 bool insertable = mo && QString(mo->classInfo(mo->indexOfClassInfo("Insertable")).value()) == "yes";
@@ -272,7 +272,7 @@ HRESULT UpdateRegistry(BOOL bRegister)
             const QMetaObject *mo = qAxFactory()->metaObject(className);
             const QString classId = qAxFactory()->classID(className).toString().toUpper();
             
-            QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString::null;
+            QString classVersion = mo ? QString(mo->classInfo(mo->indexOfClassInfo("Version")).value()) : QString();
             if (classVersion.isNull())
                 classVersion = "1.0";
             const QString classMajorVersion = classVersion.left(classVersion.indexOf("."));

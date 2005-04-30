@@ -1845,7 +1845,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         QStringList deps, inputs;
         // Variabel replacement of output name
         out = Option::fixPathToTargetOS(
-                    Project->replaceExtraCompilerVariables(tmp_out, inFile, QString::null),
+                    Project->replaceExtraCompilerVariables(tmp_out, inFile, QString()),
                     false);
 
         // If file has built-in compiler, we've swapped the input and output of
@@ -1892,7 +1892,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         if (combined) {
             // Replace variables for command w/o intput files
             cmd = Project->replaceExtraCompilerVariables(tmp_cmd,
-                                                         QString::null,
+                                                         QString(),
                                                          out);
             // Add dependencies for each file
             QStringList tmp_in = Project->project->variables()[extraCompilerName + ".input"];
@@ -2269,4 +2269,3 @@ XmlOutput &operator<<(XmlOutput &xml, VCProject &tool)
             << data(); // No "/>" end tag
     return xml;
 }
-

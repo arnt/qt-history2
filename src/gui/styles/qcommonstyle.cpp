@@ -502,9 +502,9 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
 
         QPolygon a;
         if (pe == PE_IndicatorSpinDown)
-            a.setPoints(3,  0, 1,  sw-1, 1,  sh-2, sh-1);
+            a.setPoints(3, 0, 1,  sw-1, 1,  sh-2, sh-1);
         else
-            a.setPoints(3,  0, sh-1,  sw-1, sh-1,  sh-2, 1);
+            a.setPoints(3, 0, sh-1,  sw-1, sh-1,  sh-2, 1);
         int bsx = 0;
         int bsy = 0;
         if (opt->state & State_Sunken) {
@@ -576,13 +576,13 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             case QTabBar::RoundedNorth:
                 p->fillRect(opt->rect.left(), top + 3, w, h - 5,
                             tab->palette.brush(QPalette::Background));
-                a.setPoints(5,  startJig, top + 2,  startJig + jag, h / 4,
+                a.setPoints(5, startJig, top + 2, startJig + jag, h / 4,
                             startJig, h / 2, startJig + jag, 3 * h / 4, startJig, h);
                 break;
             case QTabBar::RoundedSouth:
                 p->fillRect(opt->rect.left(), top + 2, w, h - 5,
                             tab->palette.brush(QPalette::Background));
-                a.setPoints(5, startJig, top,  startJig + jag, h / 4, startJig, h / 2,
+                a.setPoints(5, startJig, top, startJig + jag, h / 4, startJig, h / 2,
                             startJig + jag, 3 * h / 4, startJig, h - 3);
                 break;
             case QTabBar::RoundedWest:
@@ -764,7 +764,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                             | Qt::TextSingleLine;
             if (!styleHint(SH_UnderlineShortcut, mbi, widget))
                 alignment |= Qt::TextHideMnemonic;
-            QPixmap pix = mbi->icon.pixmap(pixelMetric(PM_SmallIconSize),  (mbi->state & State_Enabled) ? QIcon::Normal : QIcon::Disabled);
+            QPixmap pix = mbi->icon.pixmap(pixelMetric(PM_SmallIconSize), (mbi->state & State_Enabled) ? QIcon::Normal : QIcon::Disabled);
             if (!pix.isNull())
                 drawItemPixmap(p,mbi->rect, alignment, pix);
             else
@@ -1153,22 +1153,22 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             sx = x + sw;
             for (int i = 0; i < 4; ++i) {
                 p->setPen(QPen(opt->palette.light().color(), 1));
-                p->drawLine(x, sy - 1 , sx + 1,  sw);
+                p->drawLine(x, sy - 1 , sx + 1, sw);
                 p->setPen(QPen(opt->palette.dark().color(), 1));
                 p->drawLine(x, sy, sx, sw);
                 p->setPen(QPen(opt->palette.dark().color(), 1));
-                p->drawLine(x, sy + 1, sx - 1,  sw);
+                p->drawLine(x, sy + 1, sx - 1, sw);
                 sx -= s;
                 sy += s;
             }
         } else {
             for (int i = 0; i < 4; ++i) {
                 p->setPen(QPen(opt->palette.light().color(), 1));
-                p->drawLine(sx - 1, sw, sw,  sy - 1);
+                p->drawLine(sx - 1, sw, sw, sy - 1);
                 p->setPen(QPen(opt->palette.dark().color(), 1));
-                p->drawLine(sx, sw, sw,  sy);
+                p->drawLine(sx, sw, sw, sy);
                 p->setPen(QPen(opt->palette.dark().color(), 1));
-                p->drawLine(sx + 1, sw, sw,  sy + 1);
+                p->drawLine(sx + 1, sw, sw, sy + 1);
                 sx += s;
                 sy += s;
             }
@@ -1334,7 +1334,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                                   subElementRect(SE_CheckBoxContents, btn, widget));
 
             if (!btn->icon.isNull()) {
-                r = itemPixmapRect(cr,  Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
+                r = itemPixmapRect(cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
                                         | Qt::TextShowMnemonic,
                                    btn->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal));
             } else {
@@ -1378,10 +1378,10 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
                                   subElementRect(SE_RadioButtonContents, opt, widget));
 
             if(!btn->icon.isNull()) {
-                r = itemPixmapRect(cr,  Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
+                r = itemPixmapRect(cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
                                    btn->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal));
             } else {
-                r = itemTextRect(opt->fontMetrics, cr,  Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
+                r = itemTextRect(opt->fontMetrics, cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
                                  | Qt::TextShowMnemonic, btn->state & State_Enabled, btn->text);
             }
             r.adjust(-3, -2, 3, 2);

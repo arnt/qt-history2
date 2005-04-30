@@ -195,14 +195,14 @@ void Ui3Reader::createSubImpl( const QDomElement &e, const QString& subClass )
         out << " *  The " << objClass.mid(1).toLower() << " will by default be modeless, unless you set 'modal' to" << endl;
         out << " *  true to construct a modal " << objClass.mid(1).toLower() << "." << endl;
         out << " */" << endl;
-        out << subClass << "::" << subClass << "( QWidget* parent,  const char* name, bool modal, Qt::WFlags fl )" << endl;
+        out << subClass << "::" << subClass << "( QWidget* parent, const char* name, bool modal, Qt::WFlags fl )" << endl;
         out << "    : " << nameOfClass << "( parent, name, modal, fl )" << endl;
     } else { // standard QWidget
         out << "/* " << endl;
         out << " *  Constructs a " << subClass << " which is a child of 'parent', with the " << endl;
         out << " *  name 'name' and widget flags set to 'f' " << endl;
         out << " */" << endl;
-        out << subClass << "::" << subClass << "( QWidget* parent,  const char* name, Qt::WFlags fl )" << endl;
+        out << subClass << "::" << subClass << "( QWidget* parent, const char* name, Qt::WFlags fl )" << endl;
         out << "    : " << nameOfClass << "( parent, name, fl )" << endl;
     }
     out << "{" << endl;

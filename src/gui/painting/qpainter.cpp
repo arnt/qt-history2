@@ -3405,7 +3405,7 @@ void QPainter::drawText(const QRectF &r, const QString &text, const QTextOption 
 #ifdef QT_DEBUG_DRAW
     if (qt_show_painter_debug_output)
         printf("QPainter::drawText(), r=[%.2f,%.2f,%.2f,%.2f], str='%s'\n",
-           r.x(), r.y(), r.width(), r.height(),  text.toLatin1().constData());
+           r.x(), r.y(), r.width(), r.height(), text.toLatin1().constData());
 #endif
 
     if (!isActive() || text.length() == 0)

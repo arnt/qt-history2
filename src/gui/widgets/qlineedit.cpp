@@ -199,7 +199,7 @@ QLineEdit::QLineEdit(QWidget* parent)
     : QWidget(*new QLineEditPrivate, parent,0)
 {
     Q_D(QLineEdit);
-    d->init(QString::null);
+    d->init(QString());
 }
 
 /*!
@@ -236,7 +236,7 @@ QLineEdit::QLineEdit(QWidget* parent, const char* name)
 {
     Q_D(QLineEdit);
     setObjectName(name);
-    d->init(QString::null);
+    d->init(QString());
 }
 
 /*!
@@ -2443,7 +2443,7 @@ void QLineEditPrivate::parseInputMask(const QString &maskFields)
             delete [] maskData;
             maskData = 0;
             maxLength = 32767;
-            q->setText(QString::null);
+            q->setText(QString());
         }
         return;
     }

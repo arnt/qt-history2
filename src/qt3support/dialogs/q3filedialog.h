@@ -73,36 +73,36 @@ class Q_COMPAT_EXPORT Q3FileDialog : public QDialog
     Q_PROPERTY(bool contentsPreview READ isContentsPreviewEnabled WRITE setContentsPreviewEnabled)
 
 public:
-    Q3FileDialog(const QString& dirName, const QString& filter = QString::null,
+    Q3FileDialog(const QString& dirName, const QString& filter = QString(),
                  QWidget* parent=0, const char* name=0, bool modal = false);
     Q3FileDialog(QWidget* parent=0, const char* name=0, bool modal = false);
     ~Q3FileDialog();
 
     // recommended static functions
 
-    static QString getOpenFileName(const QString &initially = QString::null,
-                                    const QString &filter = QString::null,
+    static QString getOpenFileName(const QString &initially = QString(),
+                                    const QString &filter = QString(),
                                     QWidget *parent = 0, const char* name = 0,
-                                    const QString &caption = QString::null,
+                                    const QString &caption = QString(),
                                     QString *selectedFilter = 0,
                                     bool resolveSymlinks = true);
-    static QString getSaveFileName(const QString &initially = QString::null,
-                                    const QString &filter = QString::null,
+    static QString getSaveFileName(const QString &initially = QString(),
+                                    const QString &filter = QString(),
                                     QWidget *parent = 0, const char* name = 0,
-                                    const QString &caption = QString::null,
+                                    const QString &caption = QString(),
                                     QString *selectedFilter = 0,
                                     bool resolveSymlinks = true);
-    static QString getExistingDirectory(const QString &dir = QString::null,
+    static QString getExistingDirectory(const QString &dir = QString(),
                                          QWidget *parent = 0,
                                          const char* name = 0,
-                                         const QString &caption = QString::null,
+                                         const QString &caption = QString(),
                                          bool dirOnly = true,
                                          bool resolveSymlinks = true);
-    static QStringList getOpenFileNames(const QString &filter= QString::null,
-                                         const QString &dir = QString::null,
+    static QStringList getOpenFileNames(const QString &filter= QString(),
+                                         const QString &dir = QString(),
                                          QWidget *parent = 0,
                                          const char* name = 0,
-                                         const QString &caption = QString::null,
+                                         const QString &caption = QString(),
                                          QString *selectedFilter = 0,
                                          bool resolveSymlinks = true);
 
@@ -270,25 +270,25 @@ private:
                                        QString* workingDirectory,
                                        QWidget *parent = 0,
                                        const char* name = 0,
-                                       const QString& caption = QString::null,
+                                       const QString& caption = QString(),
                                        QString* selectedFilter = 0);
     static QString winGetSaveFileName(const QString &initialSelection,
                                        const QString &filter,
                                        QString* workingDirectory,
                                        QWidget *parent = 0,
                                        const char* name = 0,
-                                       const QString& caption = QString::null,
+                                       const QString& caption = QString(),
                                        QString* selectedFilter = 0);
     static QStringList winGetOpenFileNames(const QString &filter,
                                             QString* workingDirectory,
                                             QWidget *parent = 0,
                                             const char* name = 0,
-                                            const QString& caption = QString::null,
+                                            const QString& caption = QString(),
                                             QString* selectedFilter = 0);
     static QString winGetExistingDirectory(const QString &initialDirectory,
                                             QWidget* parent = 0,
                                             const char* name = 0,
-                                            const QString& caption = QString::null);
+                                            const QString& caption = QString());
     static QString resolveLinkFile(const QString& linkfile);
     int old_qt_ntfs_permission_lookup;
 #endif

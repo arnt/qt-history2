@@ -11,7 +11,7 @@
 #include <qregexp.h>
 
 
-void error( const QString &msg = QString::null );
+void error( const QString &msg = QString() );
 void printFunction(
 	const QString &className, const QString &fn, const QDomDocument & ui );
 

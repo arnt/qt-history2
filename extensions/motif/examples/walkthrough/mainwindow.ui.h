@@ -69,7 +69,7 @@ void MainWindow::fileNew()
 void MainWindow::fileOpen()
 {
     QString filename =
-	QFileDialog::getOpenFileName( QString::null, QString::null, this );
+	QFileDialog::getOpenFileName( QString(), QString(), this );
 
     if ( ! filename.isEmpty() ) {
 	options.todoFile = filename;
@@ -93,7 +93,7 @@ void MainWindow::fileSave()
 void MainWindow::fileSaveAs()
 {
     QString filename =
-	QFileDialog::getSaveFileName( QString::null, QString::null, this );
+	QFileDialog::getSaveFileName( QString(), QString(), this );
 
     if ( ! filename.isEmpty() ) {
 	options.todoFile = filename;
@@ -147,7 +147,7 @@ void MainWindow::filePrint()
     QFont font( font() );
     font.setPointSize( 10 ); // we define 10pt to be a nice base size for printing
 
-    QSimpleRichText richText( printtext, font, QString::null, 0, 0, body.height() );
+    QSimpleRichText richText( printtext, font, QString(), 0, 0, body.height() );
     richText.setWidth( &p, body.width() );
     QRect view( body );
     int page = 1;

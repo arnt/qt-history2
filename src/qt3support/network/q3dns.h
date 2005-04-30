@@ -61,7 +61,7 @@ public:
 
     class Q_COMPAT_EXPORT MailServer {
     public:
-	MailServer( const QString & n=QString::null, Q_UINT16 p=0 )
+	MailServer( const QString & n=QString(), Q_UINT16 p=0 )
 	    :name(n), priority(p) {}
 	QString name;
 	Q_UINT16 priority;
@@ -71,7 +71,7 @@ public:
 
     class Q_COMPAT_EXPORT Server {
     public:
-	Server(const QString & n=QString::null, Q_UINT16 p=0, Q_UINT16 w=0, Q_UINT16 po=0 )
+	Server(const QString & n=QString(), Q_UINT16 p=0, Q_UINT16 w=0, Q_UINT16 po=0 )
 	    : name(n), priority(p), weight(w), port(po) {}
 	QString name;
 	Q_UINT16 priority;

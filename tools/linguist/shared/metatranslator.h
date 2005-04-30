@@ -29,7 +29,7 @@ public:
     MetaTranslatorMessage();
     MetaTranslatorMessage( const char *context, const char *sourceText,
                            const char *comment,
-                           const QString& translation = QString::null,
+                           const QString& translation = QString(),
                            bool utf8 = false, Type type = Unfinished );
     MetaTranslatorMessage( const MetaTranslatorMessage& m );
 

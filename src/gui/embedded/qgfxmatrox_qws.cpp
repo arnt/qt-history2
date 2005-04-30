@@ -275,8 +275,8 @@ void QGfxMatrox<depth,type>::fillRect(int rx,int ry,int w,int h)
             if(xp<=r.right() && yp<=r.bottom() &&
                x2>=r.left() && y2>=r.top()) {
                 x3 = qMax(r.left(), xp);
-                y3 = qMax(r.top(),  yp);
-                x4 = qMin(r.right(),  x2);
+                y3 = qMax(r.top(), yp);
+                x4 = qMin(r.right(), x2);
                 y4 = qMin(r.bottom(), y2);
                 int hh=(y4-y3)+1;
                 int p=y3;
@@ -835,4 +835,3 @@ void QMatroxCursor::move(int x,int y)
 }
 
 #endif // QT_NO_QWS_MATROX
-

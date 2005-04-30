@@ -1172,7 +1172,7 @@ void QWidget::grabMouse(const QCursor &cursor)
 void QWidget::releaseMouse()
 {
     if (!qt_nograb() && mouseGrb == this) {
-        XUngrabPointer(X11->display,  X11->time);
+        XUngrabPointer(X11->display, X11->time);
         XFlush(X11->display);
         mouseGrb = 0;
     }
@@ -1405,7 +1405,7 @@ void qt_x11_get_double_buffer(QX11DoubleBuffer **db, Qt::HANDLE hd, int screen, 
             return;
         }
 
- 	width  = qMax(qt_x11_global_double_buffer->width,  width);
+ 	width  = qMax(qt_x11_global_double_buffer->width, width);
  	height = qMax(qt_x11_global_double_buffer->height, height);
 
         qt_discard_double_buffer();

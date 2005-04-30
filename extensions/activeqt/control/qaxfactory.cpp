@@ -318,7 +318,7 @@ QUuid QAxFactory::eventsID(const QString &key) const
     this function.
 
     \code
-    settings->writeEntry("/CLSID/" + classID(key) + "/Implemented Categories/{00000000-0000-0000-000000000000}/.", QString::null);
+    settings->writeEntry("/CLSID/" + classID(key) + "/Implemented Categories/{00000000-0000-0000-000000000000}/.", QString());
     \endcode
 
     If you reimplement this function you must also reimplement

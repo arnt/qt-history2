@@ -273,9 +273,9 @@ void QTextBrowser::setSource(const QUrl &url)
     bool doSetText = false;
 
     QUrl currentUrlWithoutFragment = d->currentURL;
-    currentUrlWithoutFragment.setFragment(QString::null);
+    currentUrlWithoutFragment.setFragment(QString());
     QUrl urlWithoutFragment = url;
-    urlWithoutFragment.setFragment(QString::null);
+    urlWithoutFragment.setFragment(QString());
 
     if (url.isValid()
         && (urlWithoutFragment != currentUrlWithoutFragment || d->forceLoadOnSourceChange)) {
@@ -489,7 +489,7 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
     if (anchor.isEmpty()) {
         d->viewport->setCursor(Qt::ArrowCursor);
         emit highlighted(QUrl());
-        emit highlighted(QString::null);
+        emit highlighted(QString());
     } else {
         d->viewport->setCursor(Qt::PointingHandCursor);
 
@@ -745,7 +745,5 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
 
     return data;
 }
-
-
 
 #include "moc_qtextbrowser.cpp"

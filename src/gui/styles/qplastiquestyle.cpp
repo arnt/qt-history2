@@ -2673,14 +2673,14 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                             path.moveTo(QPoint(pixmapRect.right(), pixmapRect.bottom() - 1));
                             path.lineTo(QPoint(pixmapRect.right(), pixmapRect.bottom() - 10));
                             path.lineTo(QPoint(pixmapRect.right() - 5, pixmapRect.bottom() - 14));
-                            path.lineTo(QPoint(pixmapRect.left() + 1,  pixmapRect.bottom() - 10));
+                            path.lineTo(QPoint(pixmapRect.left() + 1, pixmapRect.bottom() - 10));
                             path.lineTo(QPoint(pixmapRect.left() + 1, pixmapRect.bottom() - 1));
                             path.lineTo(QPoint(pixmapRect.right(), pixmapRect.bottom() - 1));
                         } else {
                             path.moveTo(QPoint(pixmapRect.right(), pixmapRect.top() + 1));
                             path.lineTo(QPoint(pixmapRect.right(), pixmapRect.top() + 10));
                             path.lineTo(QPoint(pixmapRect.right() - 5, pixmapRect.top() + 14));
-                            path.lineTo(QPoint(pixmapRect.left() + 1,  pixmapRect.top() + 10));
+                            path.lineTo(QPoint(pixmapRect.left() + 1, pixmapRect.top() + 10));
                             path.lineTo(QPoint(pixmapRect.left() + 1, pixmapRect.top() + 1));
                             path.lineTo(QPoint(pixmapRect.right(), pixmapRect.top() + 1));
                         }
@@ -4192,4 +4192,3 @@ void QPlastiqueStyle::unpolish(QApplication *app)
 {
     QWindowsStyle::unpolish(app);
 }
-

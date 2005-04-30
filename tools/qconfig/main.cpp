@@ -275,9 +275,9 @@ Main::Main()
 
     QToolBar* tb = new QToolBar( this, "browser controls" );
     tb->setLabel( "Browser Controls" );
-    (void)new QToolButton( QPixmap(back_xpm), "Back", QString::null,
+    (void)new QToolButton( QPixmap(back_xpm), "Back", QString(),
                            info, SLOT(back()), tb, "back" );
-    (void)new QToolButton( QPixmap(forward_xpm), "Forward", QString::null,
+    (void)new QToolButton( QPixmap(forward_xpm), "Forward", QString(),
                            info, SLOT(forward()), tb, "forward" );
 
     QPopupMenu* file = new QPopupMenu( menuBar() );

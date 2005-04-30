@@ -68,7 +68,7 @@ public:
     bool hasApplyButton() const;
 
 #ifndef qdoc
-    void setOKButton(const QString &text = QString::null);
+    void setOKButton(const QString &text = QString());
 #endif
     void setOkButton(const QString &text);
     void setOkButton();

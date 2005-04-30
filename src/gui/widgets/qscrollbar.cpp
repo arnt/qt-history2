@@ -307,7 +307,7 @@ QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent)
     argument and then use setObjectName() instead.
 */
 QScrollBar::QScrollBar(QWidget *parent, const char *name)
-    : QAbstractSlider(*new QScrollBarPrivate,  parent)
+    : QAbstractSlider(*new QScrollBarPrivate, parent)
 {
     setObjectName(name);
     d_func()->orientation = Qt::Vertical;
@@ -319,7 +319,7 @@ QScrollBar::QScrollBar(QWidget *parent, const char *name)
     argument and then use setObjectName() instead.
 */
 QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent, const char *name)
-    : QAbstractSlider(*new QScrollBarPrivate,  parent)
+    : QAbstractSlider(*new QScrollBarPrivate, parent)
 {
     setObjectName(name);
     d_func()->orientation = orientation;
@@ -331,9 +331,9 @@ QScrollBar::QScrollBar(Qt::Orientation orientation, QWidget *parent, const char 
     argument and then use setObjectName() instead.
 */
 QScrollBar::QScrollBar(int minimum, int maximum, int lineStep, int pageStep,
-                        int value,  Qt::Orientation orientation,
+                        int value, Qt::Orientation orientation,
                         QWidget *parent, const char *name)
-    : QAbstractSlider(*new QScrollBarPrivate,  parent)
+    : QAbstractSlider(*new QScrollBarPrivate, parent)
 {
     Q_D(QScrollBar);
     setObjectName(name);
@@ -595,4 +595,3 @@ void QScrollBar::hideEvent(QHideEvent *)
 
     Use isSliderDown() instead.
 */
-

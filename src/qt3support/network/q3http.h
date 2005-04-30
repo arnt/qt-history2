@@ -75,10 +75,10 @@ private:
 class Q_COMPAT_EXPORT Q3HttpResponseHeader : public Q3HttpHeader
 {
 private:
-    Q3HttpResponseHeader( int code, const QString& text = QString::null, int majorVer = 1, int minorVer = 1 );
+    Q3HttpResponseHeader( int code, const QString& text = QString(), int majorVer = 1, int minorVer = 1 );
     Q3HttpResponseHeader( const QString& str );
 
-    void setStatusLine( int code, const QString& text = QString::null, int majorVer = 1, int minorVer = 1 );
+    void setStatusLine( int code, const QString& text = QString(), int majorVer = 1, int minorVer = 1 );
 
 public:
     Q3HttpResponseHeader();

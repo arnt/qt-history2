@@ -87,7 +87,7 @@ QRegion::QRegion(const QRect &r, RegionType t)
         data = new QRegionData;
         data->is_null = false;
         if (t == Rectangle) {                        // rectangular region
-            data->rgn = CreateRectRgn(r.left(),         r.top(),
+            data->rgn = CreateRectRgn(r.left(),     r.top(),
                                        r.right()+1, r.bottom()+1);
         } else if (t == Ellipse) {                // elliptic region
             QPolygon a;
@@ -1301,7 +1301,7 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
              *  for each active edge
              */
             while (pAET) {
-                pts->setX(pAET->bres.minor_axis),  pts->setY(y);
+                pts->setX(pAET->bres.minor_axis), pts->setY(y);
                 pts++, iPts++;
 
                 /*
@@ -1347,7 +1347,7 @@ static QRegionPrivate *PolygonRegion(QPoint *Pts, int Count, int rule)
                  *  are in the Winding active edge table.
                  */
                 if (pWETE == pAET) {
-                    pts->setX(pAET->bres.minor_axis),  pts->setY(y);
+                    pts->setX(pAET->bres.minor_axis), pts->setY(y);
                     pts++, iPts++;
 
                     /*

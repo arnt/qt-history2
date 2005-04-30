@@ -660,7 +660,7 @@ void Ui3Reader::createFormImpl(const QDomElement &e)
         out << " *  Constructs a " << nameOfClass << " which is a child of 'parent', with the" << endl;
         out << " *  name 'name'.' " << endl;
         out << " */" << endl;
-        out << nameOfClass << "::" << bareNameOfClass << "(QWidget* parent,  const char* name)" << endl;
+        out << nameOfClass << "::" << bareNameOfClass << "(QWidget* parent, const char* name)" << endl;
         out << "    : " << objClass << "(parent, name)";
     }
 

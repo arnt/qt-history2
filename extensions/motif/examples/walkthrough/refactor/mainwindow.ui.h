@@ -74,7 +74,7 @@ void MainWindow::fileNew()
 void MainWindow::fileOpen()
 {
     QString filename =
-	QFileDialog::getOpenFileName( QString::null, QString::null, this );
+	QFileDialog::getOpenFileName( QString(), QString(), this );
 
     if ( ! filename.isEmpty() ) {
 	char *str = qstrdup( filename.local8Bit() );
@@ -100,7 +100,7 @@ void MainWindow::fileSave()
 void MainWindow::fileSaveAs()
 {
   QString filename =
-      QFileDialog::getSaveFileName( QString::null, QString::null, this );
+      QFileDialog::getSaveFileName( QString(), QString(), this );
 
   if ( ! filename.isEmpty() ) {
     char *str = qstrdup( filename.local8Bit() );

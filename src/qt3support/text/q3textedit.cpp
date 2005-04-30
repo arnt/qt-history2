@@ -5777,7 +5777,7 @@ void Q3TextEdit::updateCursor(const QPoint & pos)
             viewport()->setCursor(isReadOnly() ? Qt::ArrowCursor : Qt::IBeamCursor);
 #endif
             onLink.clear();
-            emitHighlighted(QString::null);
+            emitHighlighted(QString());
         }
 #endif
     }

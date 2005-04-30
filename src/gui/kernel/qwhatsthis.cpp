@@ -516,7 +516,7 @@ void QWhatsThis::add(QWidget *w, const QString &s)
 */
 void QWhatsThis::remove(QWidget *w)
 {
-    w->setWhatsThis(QString::null);
+    w->setWhatsThis(QString());
 }
 
 class QWhatsThisButton : public QToolButton
