@@ -91,6 +91,8 @@ public:
     void updateSpinBox();
     void update();
     void updateEdit() const;
+    virtual void layoutDirectionChange();
+
     virtual QStyleOptionSpinBox getStyleOption() const;
 
     virtual void emitSignals(EmitPolicy ep, const QVariant &old);
@@ -105,25 +107,25 @@ public:
     bool updateHoverControl(const QPoint &pos);
 
     QLineEdit *edit;
-    QString prefix, suffix, specialvaluetext;
-    QVariant value, minimum, maximum, singlestep;
+    QString prefix, suffix, specialValueText;
+    QVariant value, minimum, maximum, singleStep;
     QVariant::Type type;
-    int spinclicktimerid, spinclicktimerinterval;
-    uint buttonstate;
+    int spinClickTimerId, spinClickTimerInterval;
+    uint buttonState;
     mutable uint dirty : 1;
-    mutable QString cachedtext;
-    mutable QVariant cachedvalue;
-    mutable QValidator::State cachedstate;
-    uint pendingemit : 1;
-    uint spindownenabled : 1;
-    uint spinupenabled : 1;
-    uint readonly : 1;
+    mutable QString cachedText;
+    mutable QVariant cachedValue;
+    mutable QValidator::State cachedState;
+    uint pendingEmit : 1;
+    uint spindownEnabled : 1;
+    uint spinupEnabled : 1;
+    uint readOnly : 1;
     uint wrapping : 1;
-    uint ignorecursorpositionchanged : 1;
+    uint ignoreCursorPositionChanged : 1;
     uint frame : 1;
     QStyle::SubControl hoverControl;
     QRect hoverRect;
-    QAbstractSpinBox::ButtonSymbols buttonsymbols;
+    QAbstractSpinBox::ButtonSymbols buttonSymbols;
     QSpinBoxValidator *validator;
 };
 

@@ -141,13 +141,13 @@ QAbstractSpinBox::~QAbstractSpinBox()
 QAbstractSpinBox::ButtonSymbols QAbstractSpinBox::buttonSymbols() const
 {
     Q_D(const QAbstractSpinBox);
-    return d->buttonsymbols;
+    return d->buttonSymbols;
 }
 
 void QAbstractSpinBox::setButtonSymbols(ButtonSymbols bs)
 {
     Q_D(QAbstractSpinBox);
-    if (d->buttonsymbols != (d->buttonsymbols = bs))
+    if (d->buttonSymbols != (d->buttonSymbols = bs))
         update();
 }
 
@@ -205,16 +205,16 @@ QString QAbstractSpinBox::specialValueText() const
 {
     Q_D(const QAbstractSpinBox);
 
-    return d->specialvaluetext;
+    return d->specialValueText;
 }
 
 void QAbstractSpinBox::setSpecialValueText(const QString &s)
 {
     Q_D(QAbstractSpinBox);
 
-    d->specialvaluetext = s;
-    d->cachedtext.clear();
-    d->cachedvalue.clear();
+    d->specialValueText = s;
+    d->cachedText.clear();
+    d->cachedValue.clear();
     d->update();
 }
 
@@ -271,13 +271,13 @@ void QAbstractSpinBox::setWrapping(bool w)
 bool QAbstractSpinBox::isReadOnly() const
 {
     Q_D(const QAbstractSpinBox);
-    return d->readonly;
+    return d->readOnly;
 }
 
 void QAbstractSpinBox::setReadOnly(bool enable)
 {
     Q_D(QAbstractSpinBox);
-    d->readonly = enable;
+    d->readOnly = enable;
     d->edit->setReadOnly(enable);
     update();
 }
@@ -392,7 +392,7 @@ void QAbstractSpinBox::clear()
 QAbstractSpinBox::StepEnabled QAbstractSpinBox::stepEnabled() const
 {
     Q_D(const QAbstractSpinBox);
-    if (d->readonly)
+    if (d->readOnly)
         return StepEnabled(0);
     if (!style()->styleHint(QStyle::SH_SpinControls_DisableOnBounds)
         || d->wrapping)
@@ -473,14 +473,14 @@ void QAbstractSpinBox::stepBy(int steps)
     int cursorPos = d->edit->cursorPosition();
     bool dontstep = false;
     EmitPolicy e = EmitIfChanged;
-    if (d->pendingemit) {
+    if (d->pendingEmit) {
         dontstep = validate(tmp, cursorPos) != QValidator::Acceptable;
         d->interpret(NeverEmit);
         if (d->value != old)
             e = AlwaysEmit;
     }
     if (!dontstep) {
-        d->setValue(d->bound(d->value + (d->singlestep * steps), old, steps), e);
+        d->setValue(d->bound(d->value + (d->singleStep * steps), old, steps), e);
     } else if (e == AlwaysEmit) {
         d->emitSignals(e, old);
     }
@@ -572,6 +572,10 @@ bool QAbstractSpinBox::event(QEvent *event)
 {
     Q_D(QAbstractSpinBox);
     switch (event->type()) {
+    case QEvent::ApplicationLayoutDirectionChange:
+        d->layoutDirectionChange();
+        update();
+        break;
     case QEvent::HoverEnter:
     case QEvent::HoverLeave:
     case QEvent::HoverMove:
@@ -608,7 +612,7 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
 
     switch(e->type()) {
         case QEvent::StyleChange:
-            d->spinclicktimerinterval = style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, this);
+            d->spinClickTimerInterval = style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, this);
             d->resetState();
             break;
         case QEvent::EnabledChange:
@@ -619,7 +623,7 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
         case QEvent::ActivationChange:
             if (!isActiveWindow()){
                 d->resetState();
-                if (d->pendingemit) // pendingemit can be true even if it hasn't changed.
+                if (d->pendingEmit) // pendingEmit can be true even if it hasn't changed.
                     d->interpret(EmitIfChanged); // E.g. 10 to 10.0
             }
             break;
@@ -663,8 +667,8 @@ QSize QAbstractSpinBox::sizeHint() const
     s = d->prefix + d->textFromValue(d->maximum) + d->suffix + QLatin1Char(' ');
     s.truncate(18);
     w = qMax<int>(w, fm.width(s));
-    if (d->specialvaluetext.size()) {
-        s = d->specialvaluetext;
+    if (d->specialValueText.size()) {
+        s = d->specialValueText;
         w = qMax<int>(w, fm.width(s));
     }
     w += 2; // cursor blinking space
@@ -749,7 +753,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         if (!up)
             steps *= -1;
         if (style()->styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)) {
-            d->buttonstate = (Keyboard | (up ? Up : Down));
+            d->buttonState = (Keyboard | (up ? Up : Down));
         }
         stepBy(steps);
         return;
@@ -813,7 +817,7 @@ void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *e)
 {
     Q_D(QAbstractSpinBox);
 
-    if (d->buttonstate & Keyboard && !e->isAutoRepeat()
+    if (d->buttonState & Keyboard && !e->isAutoRepeat()
         && style()->styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)) {
         d->resetState();
     } else {
@@ -856,7 +860,7 @@ void QAbstractSpinBox::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QAbstractSpinBox);
 
-    if (d->pendingemit)
+    if (d->pendingEmit)
         d->interpret(EmitIfChanged);
     d->resetState();
     d->edit->event(e);
@@ -873,7 +877,7 @@ void QAbstractSpinBox::closeEvent(QCloseEvent *e)
     Q_D(QAbstractSpinBox);
 
     d->resetState();
-    if (d->pendingemit)
+    if (d->pendingEmit)
         d->interpret(EmitIfChanged);
     QWidget::closeEvent(e);
 }
@@ -897,12 +901,12 @@ void QAbstractSpinBox::timerEvent(QTimerEvent *e)
 {
     Q_D(QAbstractSpinBox);
 
-    if (e->timerId() == d->spinclicktimerid) {
-        if (d->buttonstate & Up) {
+    if (e->timerId() == d->spinClickTimerId) {
+        if (d->buttonState & Up) {
             stepBy(1);
             if (!(stepEnabled() & StepUpEnabled))
                 d->resetState();
-        } else if (d->buttonstate & Down) {
+        } else if (d->buttonState & Down) {
             stepBy(-1);
             if (!(stepEnabled() & StepDownEnabled))
                 d->resetState();
@@ -956,7 +960,7 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
 
     // If we have a timer ID, update the state
     const StepEnabled se = stepEnabled();
-    if (d->spinclicktimerid != -1) {
+    if (d->spinClickTimerId != -1) {
         if ((se & StepUpEnabled) && d->hoverControl == QStyle::SC_SpinBoxUp)
             d->updateState(true);
         else if ((se & StepDownEnabled) && d->hoverControl == QStyle::SC_SpinBoxDown)
@@ -975,7 +979,7 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QAbstractSpinBox);
 
-    if (e->button() != Qt::LeftButton || d->buttonstate != None)
+    if (e->button() != Qt::LeftButton || d->buttonState != None)
         return;
 
     d->updateHoverControl(e->pos());
@@ -997,7 +1001,7 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *)
 {
     Q_D(QAbstractSpinBox);
 
-    if ((d->buttonstate & Mouse) != 0)
+    if ((d->buttonState & Mouse) != 0)
         d->resetState();
 }
 
@@ -1009,12 +1013,12 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *)
 */
 
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
-    : edit(0), type(QVariant::Invalid), spinclicktimerid(-1),
-      spinclicktimerinterval(100), buttonstate(None),
-      dirty(true), cachedtext("\x01"), cachedstate(QValidator::Invalid),
-      pendingemit(false), readonly(false), wrapping(false),
-      ignorecursorpositionchanged(false), frame(true),
-      hoverControl(QStyle::SC_None), buttonsymbols(QAbstractSpinBox::UpDownArrows), validator(0)
+    : edit(0), type(QVariant::Invalid), spinClickTimerId(-1),
+      spinClickTimerInterval(100), buttonState(None),
+      dirty(true), cachedText("\x01"), cachedState(QValidator::Invalid),
+      pendingEmit(false), readOnly(false), wrapping(false),
+      ignoreCursorPositionChanged(false), frame(true),
+      hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0)
 {
 }
 
@@ -1068,7 +1072,7 @@ QStyle::SubControl QAbstractSpinBoxPrivate::newHoverControl(const QPoint &pos)
 QString QAbstractSpinBoxPrivate::stripped(const QString &t) const
 {
     QString text = t;
-    if (specialvaluetext.size() == 0 || text != specialvaluetext) {
+    if (specialValueText.size() == 0 || text != specialValueText) {
         int from = 0;
         int length = text.length();
         bool changed = false;
@@ -1094,7 +1098,7 @@ QString QAbstractSpinBoxPrivate::stripped(const QString &t) const
 
 bool QAbstractSpinBoxPrivate::specialValue() const
 {
-    return (value == minimum && specialvaluetext.size() > 0);
+    return (value == minimum && specialValueText.size() > 0);
 }
 
 /*!
@@ -1128,9 +1132,9 @@ void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
             edit->blockSignals(wasBlocked);
         }
         setValue(v, EmitIfChanged, false);
-        pendingemit = false;
+        pendingEmit = false;
     } else {
-        pendingemit = true;
+        pendingEmit = true;
     }
 }
 
@@ -1146,8 +1150,8 @@ void QAbstractSpinBoxPrivate::editorTextChanged(const QString &t)
 
 void QAbstractSpinBoxPrivate::editorCursorPositionChanged(int oldpos, int newpos)
 {
-    if (!edit->hasSelectedText() && !ignorecursorpositionchanged && !specialValue()) {
-        ignorecursorpositionchanged = true;
+    if (!edit->hasSelectedText() && !ignoreCursorPositionChanged && !specialValue()) {
+        ignoreCursorPositionChanged = true;
 
         bool allowSelection = true;
         int pos = -1;
@@ -1181,7 +1185,7 @@ void QAbstractSpinBoxPrivate::editorCursorPositionChanged(int oldpos, int newpos
             }
             edit->blockSignals(wasBlocked);
         }
-        ignorecursorpositionchanged = false;
+        ignoreCursorPositionChanged = false;
     }
 }
 
@@ -1195,7 +1199,7 @@ void QAbstractSpinBoxPrivate::init()
 {
     Q_Q(QAbstractSpinBox);
 
-    spinclicktimerinterval = q->style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, q);
+    spinClickTimerInterval = q->style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, q);
     q->setFocusPolicy(Qt::WheelFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setAttribute(Qt::WA_InputMethodEnabled);
@@ -1236,11 +1240,11 @@ void QAbstractSpinBoxPrivate::resetState()
 {
     Q_Q(QAbstractSpinBox);
 
-    buttonstate = None;
+    buttonState = None;
     if (q) {
-        if (spinclicktimerid != -1)
-            q->killTimer(spinclicktimerid);
-        spinclicktimerid = -1;
+        if (spinClickTimerId != -1)
+            q->killTimer(spinClickTimerId);
+        spinClickTimerId = -1;
         updateSpinBox();
     }
 }
@@ -1254,13 +1258,13 @@ void QAbstractSpinBoxPrivate::resetState()
 void QAbstractSpinBoxPrivate::updateState(bool up)
 {
     Q_Q(QAbstractSpinBox);
-    if ((up && (buttonstate & Up)) || (!up && (buttonstate & Down)))
+    if ((up && (buttonState & Up)) || (!up && (buttonState & Down)))
         return;
     resetState();
     if (q && (q->stepEnabled() & (up ? QAbstractSpinBox::StepUpEnabled
                                   : QAbstractSpinBox::StepDownEnabled))) {
-        spinclicktimerid = q->startTimer(spinclicktimerinterval);
-        buttonstate = (up ? (Mouse | Up) : (Mouse | Down));
+        spinClickTimerId = q->startTimer(spinClickTimerInterval);
+        buttonState = (up ? (Mouse | Up) : (Mouse | Down));
         q->stepBy(up ? 1 : -1);
     }
 }
@@ -1278,16 +1282,16 @@ QStyleOptionSpinBox QAbstractSpinBoxPrivate::getStyleOption() const
     QStyleOptionSpinBox opt;
     opt.init(q);
     opt.activeSubControls = 0;
-    opt.buttonSymbols = buttonsymbols;
+    opt.buttonSymbols = buttonSymbols;
     opt.subControls = QStyle::SC_SpinBoxUp | QStyle::SC_SpinBoxDown | QStyle::SC_SpinBoxFrame;
 
-    if (buttonstate & Up)
+    if (buttonState & Up)
         opt.activeSubControls = QStyle::SC_SpinBoxUp;
-    else if (buttonstate & Down)
+    else if (buttonState & Down)
         opt.activeSubControls = QStyle::SC_SpinBoxDown;
     else
         opt.activeSubControls = hoverControl;
-    if (buttonstate)
+    if (buttonState)
         opt.state |= QStyle::State_Sunken;
 
     if (type != QVariant::Invalid) {
@@ -1347,11 +1351,10 @@ void QAbstractSpinBoxPrivate::setValue(const QVariant &val, EmitPolicy ep,
 {
     const QVariant old = value;
     value = bound(val);
-    pendingemit = false;
-    const bool changed = old != value;
+    pendingEmit = false;
     if (doUpdate)
         update();
-    if (ep == AlwaysEmit || (ep == EmitIfChanged && changed)) {
+    if (ep == AlwaysEmit || (ep == EmitIfChanged && old != value)) {
         emitSignals(ep, old);
     }
 }
@@ -1368,7 +1371,7 @@ void QAbstractSpinBoxPrivate::updateEdit() const
     const bool empty = e->text().isEmpty();
     int cursor = e->cursorPosition();
     int sellength = e->selectedText().length();
-    const QString newText = specialValue() ? specialvaluetext : prefix + textFromValue(value) + suffix;
+    const QString newText = specialValue() ? specialValueText : prefix + textFromValue(value) + suffix;
     const bool sb = e->blockSignals(true);
     e->setText(newText);
 
@@ -1384,6 +1387,17 @@ void QAbstractSpinBoxPrivate::updateEdit() const
 
     const_cast<QAbstractSpinBoxPrivate *>(this)->dirty = false;
 }
+
+/*!
+    \internal
+
+    Called when ApplicationLayoutDirectionChange is received
+*/
+
+void QAbstractSpinBoxPrivate::layoutDirectionChange()
+{
+}
+
 
 /*!
     \internal
@@ -1512,8 +1526,8 @@ void QAbstractSpinBoxPrivate::interpret(EmitPolicy ep)
     if (doInterpret) {
         v = valueFromText(tmp);
     }
-    cachedvalue.clear();
-    cachedtext.clear();
+    cachedValue.clear();
+    cachedText.clear();
     setValue(v, ep, true);
     if (oldpos != pos)
         edit->setCursorPosition(pos);
@@ -1541,7 +1555,7 @@ QSpinBoxValidator::QSpinBoxValidator(QAbstractSpinBox *qp, QAbstractSpinBoxPriva
 
 QValidator::State QSpinBoxValidator::validate(QString &input, int &pos) const
 {
-    if (dptr->specialvaluetext.size() > 0 && input == dptr->specialvaluetext) {
+    if (dptr->specialValueText.size() > 0 && input == dptr->specialValueText) {
         return QValidator::Acceptable;
     } else if ((!dptr->prefix.isEmpty() && !input.startsWith(dptr->prefix))
 	       || (!dptr->suffix.isEmpty() && !input.endsWith(dptr->suffix))) {

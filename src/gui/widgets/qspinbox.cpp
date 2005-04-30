@@ -233,7 +233,7 @@ QSpinBox::QSpinBox(int min, int max, int step, QWidget *parent, const char *name
     Q_D(QSpinBox);
     d->minimum = QVariant(qMin<int>(min, max));
     d->maximum = QVariant(qMax<int>(min, max));
-    d->singlestep = QVariant(step);
+    d->singleStep = QVariant(step);
     setObjectName(name);
 }
 
@@ -364,14 +364,14 @@ int QSpinBox::singleStep() const
 {
     Q_D(const QSpinBox);
 
-    return d->singlestep.toInt();
+    return d->singleStep.toInt();
 }
 
 void QSpinBox::setSingleStep(int val)
 {
     Q_D(QSpinBox);
     if (val >= 0) {
-        d->singlestep = QVariant(val);
+        d->singleStep = QVariant(val);
         d->update();
     }
 }
@@ -740,7 +740,7 @@ double QDoubleSpinBox::singleStep() const
 {
     Q_D(const QDoubleSpinBox);
 
-    return d->singlestep.toDouble();
+    return d->singleStep.toDouble();
 }
 
 void QDoubleSpinBox::setSingleStep(double val)
@@ -748,7 +748,7 @@ void QDoubleSpinBox::setSingleStep(double val)
     Q_D(QDoubleSpinBox);
 
     if (val >= 0) {
-        d->singlestep = val;
+        d->singleStep = val;
         d->update();
     }
 }
@@ -949,7 +949,7 @@ QSpinBoxPrivate::QSpinBoxPrivate()
     minimum = QVariant((int)0);
     maximum = QVariant((int)99);
     value = minimum;
-    singlestep = QVariant((int)1);
+    singleStep = QVariant((int)1);
     type = QVariant::Int;
     const QString str = QLocale().toString(4567);
     if (str.size() == 5) {
@@ -969,7 +969,7 @@ void QSpinBoxPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
 {
     Q_Q(QSpinBox);
     if (ep != NeverEmit) {
-	pendingemit = false;
+	pendingEmit = false;
 	if (ep == AlwaysEmit || value != old) {
 	    emit q->valueChanged(edit->displayText());
 	    emit q->valueChanged(value.toInt());
@@ -1008,12 +1008,12 @@ QVariant QSpinBoxPrivate::valueFromText(const QString &f) const
 QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
                                                QValidator::State &state) const
 {
-    if (cachedtext == input) {
-	state = cachedstate;
-	QSBDEBUG() << "cachedtext was" << "'" + cachedtext + "'" << "state was "
-		   << state << " and value was " << cachedvalue;
+    if (cachedText == input) {
+	state = cachedState;
+	QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
+		   << state << " and value was " << cachedValue;
 
-	return cachedvalue;
+	return cachedValue;
     }
     const int t = maximum.toInt();
     const int b = minimum.toInt();
@@ -1060,13 +1060,13 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
 	    }
 	}
     }
-    cachedtext = input;
-    cachedstate = state;
-    cachedvalue = QVariant((int)num);
+    cachedText = input;
+    cachedState = state;
+    cachedValue = QVariant((int)num);
 
-    QSBDEBUG() << "cachedtext is set to '" << cachedtext << "' state is set to "
-	       << state << " and value is set to " << cachedvalue;
-    return cachedvalue;
+    QSBDEBUG() << "cachedText is set to '" << cachedText << "' state is set to "
+	       << state << " and value is set to " << cachedValue;
+    return cachedValue;
 }
 
 // --- QDoubleSpinBoxPrivate ---
@@ -1081,7 +1081,7 @@ QDoubleSpinBoxPrivate::QDoubleSpinBoxPrivate()
     minimum = QVariant(0.0);
     maximum = QVariant(99.99);
     value = minimum;
-    singlestep = QVariant(1.0);
+    singleStep = QVariant(1.0);
     decimals = 2;
     type = QVariant::Double;
     const QString str = QLocale().toString(4567.1);
@@ -1106,7 +1106,7 @@ void QDoubleSpinBoxPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
 {
     Q_Q(QDoubleSpinBox);
     if (ep != NeverEmit) {
-	pendingemit = false;
+	pendingEmit = false;
 	if (ep == AlwaysEmit || value != old) {
 	    emit q->valueChanged(edit->displayText());
 	    emit q->valueChanged(value.toDouble());
@@ -1177,9 +1177,9 @@ QVariant QDoubleSpinBoxPrivate::valueFromText(const QString &f) const
 QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
 						     QValidator::State &state) const
 {
-    if (cachedtext == input) {
-	state = cachedstate;
-	return cachedvalue;
+    if (cachedText == input) {
+	state = cachedState;
+	return cachedValue;
     }
     const double t = maximum.toDouble();
     const double b = minimum.toDouble();
@@ -1283,9 +1283,9 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
 	}
     }
 end:
-    cachedtext = input;
-    cachedstate = state;
-    cachedvalue = QVariant(num);
+    cachedText = input;
+    cachedState = state;
+    cachedValue = QVariant(num);
     return QVariant(num);
 }
 

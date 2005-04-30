@@ -90,6 +90,8 @@ public:
     QString displayFormat() const;
     void setDisplayFormat(const QString &format);
 
+    QSize sizeHint() const;
+
     virtual void clear();
     virtual void stepBy(int steps);
 signals:
