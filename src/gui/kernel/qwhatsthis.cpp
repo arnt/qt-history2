@@ -94,9 +94,6 @@
 
     \img whatsthis.png
 
-    If you are using QMainWindow you can also use the
-    QMainWindow::whatsThis() slot to enter the mode from a menu item.
-
     You can enter "What's This?" mode programmatically with
     enterWhatsThisMode(), check the mode with inWhatsThisMode(), and
     return to normal mode with leaveWhatsThisMode().
