@@ -77,7 +77,7 @@ QStringListModel::QStringListModel(const QStringList &strings, QObject *parent)
     \sa insertRows(), removeRows(), QAbstractItemModel::rowCount()
 */
 
-int QStringListModel::rowCount(const QModelIndex &parent) const
+int QStringListModel::rowCount(const QModelIndex &/*parent*/) const
 {
     return lst.count();
 }
@@ -147,7 +147,7 @@ bool QStringListModel::insertRows(int row, int count, const QModelIndex &parent)
     Q_UNUSED(parent);
 
     beginInsertRows(QModelIndex(), row, row + count - 1);
-    
+
     for (int r = 0; r < count; ++r)
         lst.insert(row, QString());
 
@@ -177,7 +177,7 @@ bool QStringListModel::removeRows(int row, int count, const QModelIndex &parent)
         lst.removeAt(row);
 
     endRemoveRows();
-        
+
     return true;
 }
 
