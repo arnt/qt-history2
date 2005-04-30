@@ -4870,7 +4870,7 @@ bool QWidget::event(QEvent *e)
 
     case QEvent::Leave:
         if (d->statusTip.size()) {
-            QStatusTipEvent tip(QString::null);
+            QStatusTipEvent tip(QString());
             QApplication::sendEvent(this, &tip);
         }
         leaveEvent(e);
