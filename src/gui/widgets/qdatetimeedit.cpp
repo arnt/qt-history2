@@ -942,7 +942,6 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
         int l = d->sectionSize(d->sectionNodes.at(i).section);
         int pos = d->sectionNodes.at(i).pos;
         const QDateTimeEditPrivate::Section s = d->sectionNodes.at(i).section;
-//        qDebug() << ret << d->escapedFormat << d->sectionName(s) << l << pos;
         switch (s) {
         case QDateTimeEditPrivate::AmPmSection:
         case QDateTimeEditPrivate::AmPmLowerCaseSection: {
@@ -985,7 +984,6 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
             break;
         }
     }
-//    qDebug() << ret << d->escapedFormat;
 
     d->cachedValue = var;
     d->cachedText = ret;
@@ -1849,9 +1847,9 @@ static QString unquote(const QString &str)
 
 */
 
-bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
+bool QDateTimeEditPrivate::parseFormat(const QString &nfoo)
 {
-//    const QString newFormat = nfoo;
+    const QString newFormat = nfoo; // ### serious bug here. This changes a lot of things. Need to check for mem-corruption
     if (newFormat == displayFormat && !newFormat.isEmpty() && layoutDirection == QApplication::layoutDirection())
         return true;
     layoutDirection = QApplication::layoutDirection();
@@ -2026,8 +2024,17 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
             }
         }
     }
-//     qDebug() << newFormat << displayFormat;
 
+    if (layoutDirection == Qt::RightToLeft) {
+        // we want displayFormat to return what you set with
+        // setDisplayFormat() in rtol mode as well. I needed to
+        // reverse it to calculate the escapedFormat correctly. Set it
+        // back here.
+        displayFormat = newFormat;
+    }
+
+
+//     qDebug() << newFormat << displayFormat;
 //     qDebug("escapedFormat = [%s]", escapedFormat.toLatin1().constData());
 //     qDebug("separators:\n'%s'", separators.join("|").toLatin1().constData());
 
@@ -2052,6 +2059,7 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionAt(int index) const
         }
         return (index == last.pos ? LastSection : NoSection);
     }
+
 //    QString deb;
     for (int i=0; i<sectionNodes.size(); ++i) {
         const int tmp = sectionNodes.at(i).pos;
@@ -2063,7 +2071,6 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::sectionAt(int index) const
         }
     }
 //    qDebug() << deb;
-    qWarning("%d index return NoSection. This should not happen", index);
     return NoSection;
 }
 
