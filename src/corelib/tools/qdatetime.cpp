@@ -43,7 +43,7 @@ static const uint SECS_PER_MIN = 60;
 static const uint MSECS_PER_MIN = 60000;
 
 static const short monthDays[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-static const QChar quote = QLatin1Char('\'');
+static const char quote = '\'';
 
 static const char * const qt_shortMonthNames[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -1049,7 +1049,7 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
 }
 #endif //QT_NO_DATESTRING
 
-/*! 
+/*!
     \fn QDate::fromString(const QString &string, const QString &format)
 
     Returns the QDate represented by the \a string, using the \a
@@ -1735,7 +1735,7 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
 #endif
 
 
-/*! 
+/*!
     \fn QTime::fromString(const QString &string, const QString &format)
 
     Returns the QTime represented by the \a string, using the \a
@@ -2632,7 +2632,7 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
 }
 #endif //QT_NO_DATESTRING
 
-/*! 
+/*!
     \fn QDateTime::fromString(const QString &string, const QString &format)
 
     Returns the QDateTime represented by the \a string, using the \a
@@ -3353,7 +3353,7 @@ QFormatSection QDateTimeParser::findNextFormat(const QString &str, const int sta
         if (isSpecial(ch)) {
             const QString rest = str.mid(i);
             switch (ch.cell()) {
-            case '\'': typ = QDateTimeParser::Quote; break;
+            case quote: typ = QDateTimeParser::Quote; break;
             case 'd':
                 if (rest.startsWith(QLatin1String("dddd"))) {
                     typ = QDateTimeParser::Day4;
@@ -3475,7 +3475,6 @@ void QDateTimeParser::parseFormat(const QString &f, QVariant::Type t)
 
 bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *timeIn)
 {
-    static const QChar quote = QLatin1Char('\'');
     Q_ASSERT(dateIn || timeIn);
     int msec = -1;
     int sec = -1;
