@@ -575,7 +575,7 @@
     \section2 Project Mode Options
 
     \code
-        qmake -platform [options] files
+        qmake -project [options] files
     \endcode
 
     In project mode, \c qmake will generate a project file. Additionally, you
