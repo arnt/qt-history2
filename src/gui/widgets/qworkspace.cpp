@@ -443,6 +443,8 @@ void QWorkspaceTitleBar::mouseMoveEvent(QMouseEvent *e)
                 repaint();
         }
         break;
+    default:
+        break;
     }
 }
 
