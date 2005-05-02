@@ -908,12 +908,12 @@ void WriteInitialization::initializeQ3ListView(DomWidget *w)
                    << varName << "->header()->count() - 1, " << pixCall(pixmap->elementIconSet()) << ", " << txt << ");\n";
         }
 
-        if (!clickable) {
-            output << option.indent << varName << "->header()->setClickEnabled(false, " << varName << "->header()->count() - 1);\n";
+        if (clickable != 0) {
+            output << option.indent << varName << "->header()->setClickEnabled(" << clickable->elementBool() << ", " << varName << "->header()->count() - 1);\n";
         }
 
-        if (!resizable) {
-            output << option.indent << varName << "->header()->setResizeEnabled(false, " << varName << "->header()->count() - 1);\n";
+        if (resizable != 0) {
+            output << option.indent << varName << "->header()->setResizeEnabled(" << resizable->elementBool() << ", " << varName << "->header()->count() - 1);\n";
         }
     }
 
