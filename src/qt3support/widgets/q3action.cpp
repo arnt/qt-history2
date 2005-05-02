@@ -1036,7 +1036,7 @@ bool Q3Action::addTo(QWidget* w)
     } else if(qobject_cast<QMenu*>(w)) {
         Q3ActionPrivate::Action4Item *act = new Q3ActionPrivate::Action4Item;
         if(!act->action) { //static
-            act->action = new QAction;
+            act->action = new QAction(this);
             if (objectName() == QLatin1String("qt_separator_action"))
                 act->action->setSeparator(true);
         }

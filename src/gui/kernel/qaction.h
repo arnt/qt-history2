@@ -44,15 +44,17 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
 
 public:
-    explicit QAction(QObject* parent = 0);
-    QAction(const QString &text, QObject* parent=0);
-    QAction(const QIcon &icon, const QString &text, QObject* parent=0);
+    explicit QAction(QObject* parent);
+    QAction(const QString &text, QObject* parent);
+    QAction(const QIcon &icon, const QString &text, QObject* parent);
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QAction(QObject* parent, const char* name);
-    QT3_SUPPORT_CONSTRUCTOR QAction(const QString &text, const QKeySequence &shortcut, QObject* parent, const char* name);
-    QT3_SUPPORT_CONSTRUCTOR QAction(const QIcon &icon, const QString &text, const QKeySequence &shortcut,
-                                  QObject* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QAction(const QString &text, const QKeySequence &shortcut,
+                                    QObject* parent, const char* name);
+    QT3_SUPPORT_CONSTRUCTOR QAction(const QIcon &icon, const QString &text,
+                                    const QKeySequence &shortcut,
+                                    QObject* parent, const char* name);
 #endif
     ~QAction();
 
