@@ -865,8 +865,9 @@ void HelpDialog::setupFullTextIndex()
     QStringList documentList;
     QString doc;
     for (; it != titleMap.end(); ++it) {
-        doc = HelpDialog::removeAnchorFromLink(it.key());        
-        documentList << doc;
+        doc = HelpDialog::removeAnchorFromLink(it.key());
+        if (documentList.filter(doc, Qt::CaseInsensitive).count() == 0)
+            documentList << doc;
     }
 
     QString pname = Config::configuration()->profileName();
