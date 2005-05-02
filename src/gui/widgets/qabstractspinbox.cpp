@@ -1494,8 +1494,8 @@ QVariant QAbstractSpinBoxPrivate::valueFromText(const QString &) const
 /*!
     \internal
 
-    Interprets text and emits signals. Called from interpretText() and
-    when the user presses Enter.
+    Interprets text and emits signals. Called when the spinbox needs
+    to interpret the text on the lineedit.
 */
 
 void QAbstractSpinBoxPrivate::interpret(EmitPolicy ep)

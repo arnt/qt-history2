@@ -2470,10 +2470,14 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
                    tmp.toString().toLatin1().constData(), stateName(state).toLatin1().constData());
     }
 end:
-    if (!specval && state != QValidator::Invalid && tmp < minimum && tmp.toDateTime().isValid()) {
-        state = checkIntermediate(tmp.toDateTime(), input);
-    } else {
-        QDTEDEBUG << "not checking intermediate because tmp is" << tmp << minimum << maximum;
+    if (tmp.toDateTime().isValid()) {
+        if (!specval && state != QValidator::Invalid && tmp < minimum) {
+            state = checkIntermediate(tmp.toDateTime(), input);
+        } else {
+            if (tmp > maximum)
+                state = QValidator::Invalid;
+            QDTEDEBUG << "not checking intermediate because tmp is" << tmp << minimum << maximum;
+        }
     }
     cachedText = input;
     cachedState = state;
@@ -2813,7 +2817,8 @@ QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt,
                 int maxChange = QDateTimeEditPrivate::maxChange(sn.section);
                 int maxChangeUnits = maxChange * multi;
                 if (toMin > maxChangeUnits) {
-                    QDTEDEBUG << "invalid because toMin > maxChangeUnits" << toMin << maxChangeUnits << t << dt << minimum.toDateTime()
+                    QDTEDEBUG << "invalid because toMin > maxChangeUnits" << toMin
+                              << maxChangeUnits << t << dt << minimum.toDateTime()
                               << multi;
 
                     return QValidator::Invalid;
