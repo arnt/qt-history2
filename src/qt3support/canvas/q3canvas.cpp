@@ -44,6 +44,7 @@ public:
     QMatrix xform;
     QMatrix ixform;
 #endif
+    QRegion eraseRegion;    
 };
 
 // clusterizer
@@ -3463,17 +3464,17 @@ void Q3CanvasView::updateContentsSize()
 	if (br.width() < contentsWidth()) {
 	    QRect r(contentsToViewport(QPoint(br.width(),0)),
 		    QSize(contentsWidth()-br.width(),contentsHeight()));
-	    viewport()->erase(r);
+            d->eraseRegion = r;
 	}
 	if (br.height() < contentsHeight()) {
 	    QRect r(contentsToViewport(QPoint(0,br.height())),
 		    QSize(contentsWidth(),contentsHeight()-br.height()));
-	    viewport()->erase(r);
+            d->eraseRegion |= r;
 	}
 
 	resizeContents(br.width(),br.height());
     } else {
-	viewport()->erase();
+        d->eraseRegion = rect();
 	resizeContents(1,1);
     }
 }
@@ -3486,6 +3487,14 @@ void Q3CanvasView::updateContentsSize()
 void Q3CanvasView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
 {
     QRect r(cx,cy,cw,ch);
+    if (!d->eraseRegion.isEmpty()) {
+        const QVector<QRect> rects = d->eraseRegion.rects();
+        for (int i = 0; i < rects.size(); ++i)
+            p->eraseRect(rects.at(i));
+
+        d->eraseRegion = QRegion();
+    }
+    
     if (viewing) {
         viewing->drawViewArea(this,p,r,false);
     } else {
