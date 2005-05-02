@@ -24,6 +24,7 @@
 #ifndef QT_NO_STYLE
 
 class QAction;
+class QDebug;
 class QTab;
 class QFontMetrics;
 
@@ -624,6 +625,10 @@ private:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::State)
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyle::SubControls)
 
+#ifndef QT_NO_DEBUG
+Q_GUI_EXPORT QDebug operator<<(QDebug debug, QStyle::State state);
+#endif
+    
 #endif // QT_NO_STYLE
 
 #endif // QSTYLE_H

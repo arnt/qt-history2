@@ -22,6 +22,8 @@
 #include "QtGui/qtabwidget.h"
 #include "QtGui/qrubberband.h"
 
+class QDebug;
+
 class Q_GUI_EXPORT QStyleOption
 {
 public:
@@ -712,5 +714,10 @@ T qstyleoption_cast(QStyleHintReturn *hint)
         return static_cast<T>(hint);
     return 0;
 }
+
+#ifndef QT_NO_DEBUG
+Q_GUI_EXPORT QDebug operator<<(QDebug debug, const QStyleOption::OptionType &optionType);
+Q_GUI_EXPORT QDebug operator<<(QDebug debug, const QStyleOption &option);
+#endif
 
 #endif

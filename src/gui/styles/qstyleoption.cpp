@@ -16,6 +16,9 @@
 #ifdef Q_WS_MAC
 # include "private/qt_mac_p.h"
 #endif
+#ifndef QT_NO_DEBUG
+#include <qdebug.h>
+#endif
 
 /*!
     \class QStyleOption
@@ -1923,3 +1926,74 @@ QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
 
     Returns a T or 0 depending on the type of \a hint.
 */
+
+#ifndef QT_NO_DEBUG
+QDebug operator<<(QDebug debug, const QStyleOption::OptionType &optionType)
+{
+    switch (optionType) {
+    case QStyleOption::SO_Default:
+        debug << "SO_Default"; break;
+    case QStyleOption::SO_FocusRect:
+        debug << "SO_FocusRect"; break;
+    case QStyleOption::SO_Button:
+        debug << "SO_Button"; break;
+    case QStyleOption::SO_Tab:
+        debug << "SO_Tab"; break;
+    case QStyleOption::SO_MenuItem:
+        debug << "SO_MenuItem"; break;
+    case QStyleOption::SO_Frame:
+        debug << "SO_Frame"; break;
+    case QStyleOption::SO_ProgressBar:
+        debug << "SO_ProgressBar"; break;
+    case QStyleOption::SO_ToolBox:
+        debug << "SO_ToolBox"; break;
+    case QStyleOption::SO_Header:
+        debug << "SO_Header"; break;
+    case QStyleOption::SO_Q3DockWindow:
+        debug << "SO_Q3DockWindow"; break;
+    case QStyleOption::SO_DockWidget:
+        debug << "SO_DockWidget"; break;
+    case QStyleOption::SO_Q3ListViewItem:
+        debug << "SO_Q3ListViewItem"; break;
+    case QStyleOption::SO_ViewItem:
+        debug << "SO_ViewItem"; break;
+    case QStyleOption::SO_TabWidgetFrame:
+        debug << "SO_TabWidgetFrame"; break;
+    case QStyleOption::SO_TabBarBase:
+        debug << "SO_TabBarBase"; break;
+    case QStyleOption::SO_RubberBand:
+        debug << "SO_RubberBand"; break;
+    case QStyleOption::SO_Complex:
+        debug << "SO_Complex"; break;
+    case QStyleOption::SO_Slider:
+        debug << "SO_Slider"; break;
+    case QStyleOption::SO_SpinBox:
+        debug << "SO_SpinBox"; break;
+    case QStyleOption::SO_ToolButton:
+        debug << "SO_ToolButton"; break;
+    case QStyleOption::SO_ComboBox:
+        debug << "SO_ComboBox"; break;
+    case QStyleOption::SO_Q3ListView:
+        debug << "SO_Q3ListView"; break;
+    case QStyleOption::SO_TitleBar:
+        debug << "SO_TitleBar"; break;
+    case QStyleOption::SO_CustomBase:
+        debug << "SO_CustomBase"; break;
+    case QStyleOption::SO_ComplexCustomBase:
+        debug << "SO_ComplexCustomBase"; break;
+        break;
+    }
+    return debug;
+}
+
+QDebug operator<<(QDebug debug, const QStyleOption &option)
+{
+    debug << "QStyleOption(";
+    debug << QStyleOption::OptionType(option.type);
+    debug << "," << (option.direction == Qt::RightToLeft ? "RightToLeft" : "LeftToRight");
+    debug << "," << option.state;
+    debug << "," << option.rect;
+    debug << ")";
+    return debug;
+}
+#endif
