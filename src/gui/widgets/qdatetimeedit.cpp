@@ -34,8 +34,8 @@ extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 #endif
 #include <qdebug.h>
 
-static const char space = ' ';
-static const char quote = '\'';
+const char space = ' ';
+const char quote = '\'';
 
 class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate
 {
