@@ -234,6 +234,7 @@ void ConnectionModel::connectionChanged(Connection *con)
 
 class InlineEditorModel : public QStandardItemModel
 {
+    Q_OBJECT
 public:
     InlineEditorModel(int rows, int cols, QObject *parent = 0);
 
@@ -263,7 +264,7 @@ public:
     void addTextList(const QStringList &text_list);
 
 private slots:
-    void checkSelection();
+    void checkSelection(int idx);
 
 private:
     InlineEditorModel *m_model;
@@ -272,10 +273,6 @@ private:
 
 InlineEditorModel::InlineEditorModel(int rows, int cols, QObject *parent)
     : QStandardItemModel(rows, cols, parent)
-{
-}
-
-InlineEditor::~InlineEditor()
 {
 }
 
@@ -343,23 +340,21 @@ InlineEditor::InlineEditor(QWidget *parent)
     setModel(m_model = new InlineEditorModel(0, 4, this));
     setFrame(false);
     m_idx = -1;
-
-    connect(this, SIGNAL(activated(int)), this, SLOT(checkSelection()));
+    connect(this, SIGNAL(activated(int)), this, SLOT(checkSelection(int)));
 }
 
-void InlineEditor::checkSelection()
+InlineEditor::~InlineEditor()
 {
-    int idx = currentIndex();
+}
 
-    if (idx == -1)
+void InlineEditor::checkSelection(int idx)
+{
+    if (idx == m_idx)
         return;
-    if (m_model->isTitle(idx)) {
-        if (m_idx != -1)
-            setCurrentIndex(m_idx);
-        return;
-    }
-
-    m_idx = idx;
+    if (m_model->isTitle(idx))
+        setCurrentIndex(m_idx);
+    else
+        m_idx = idx;
 }
 
 void InlineEditor::addTitle(const QString &title)
@@ -384,8 +379,10 @@ QString InlineEditor::text() const
 
 void InlineEditor::setText(const QString &text)
 {
-    int idx = m_model->findText(text);
-    setCurrentIndex(idx == -1 ? 0 : idx);
+    m_idx = m_model->findText(text);
+    if (m_idx == -1)
+        m_idx = 0;
+    setCurrentIndex(m_idx);
 }
 
 /*******************************************************************************
