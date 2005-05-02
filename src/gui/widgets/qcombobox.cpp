@@ -865,7 +865,6 @@ void QComboBox::setMaxCount(int max)
 {
     Q_D(QComboBox);
     if (max < count())
-        // ##### FIXME!!!!! for a SQL model this will erase data in the database !!!!
         model()->removeRows(max, count() - max, rootModelIndex());
 
     d->maxCount = max;
