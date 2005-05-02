@@ -181,9 +181,9 @@
 QColor::QColor(Qt::GlobalColor color)
 {
 #define QRGB(r, g, b) \
-    ((0xff << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff))
+    QRgb(((0xff << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff)))
 #define QRGBA(r, g, b, a) \
-    ((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff)
+    QRgb(((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff))
 
     static const QRgb global_colors[] = {
 #if defined(Q_WS_QWS)
