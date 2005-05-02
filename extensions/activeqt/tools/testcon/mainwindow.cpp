@@ -67,6 +67,7 @@ void MainWindow::on_actionFileNew_triggered()
     QAxSelect select(this);
     if (select.exec()) {
         QAxWidget *container = new QAxWidget(workspace);
+        workspace->addWindow(container);
         container->setAttribute(Qt::WA_DeleteOnClose);
         container->setControl(select.clsid());
 	container->setObjectName(container->windowTitle());
@@ -88,6 +89,7 @@ void MainWindow::on_actionFileLoad_triggered()
     }
 
     QAxWidget *container = new QAxWidget(workspace);
+    workspace->addWindow(container);
     
     QDataStream d(&file);
     d >> *container;
