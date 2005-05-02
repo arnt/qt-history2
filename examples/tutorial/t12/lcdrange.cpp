@@ -26,25 +26,23 @@ LCDRange::LCDRange(const QString &text, QWidget *parent)
 
 void LCDRange::init()
 {
-    QVBoxLayout *layout = new QVBoxLayout;
-    setLayout(layout);
-
     QLCDNumber *lcd = new QLCDNumber(2);
-    layout->addWidget(lcd);
-
-    slider = new QSlider(Qt::Horizontal, this);
+    slider = new QSlider(Qt::Horizontal);
     slider->setRange(0, 99);
     slider->setValue(0);
-    layout->addWidget(slider);
-
-    label = new QLabel(this);
+    label = new QLabel;
     label->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
-    layout->addWidget(label);
 
     connect(slider, SIGNAL(valueChanged(int)),
             lcd, SLOT(display(int)));
     connect(slider, SIGNAL(valueChanged(int)),
             this, SIGNAL(valueChanged(int)));
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(lcd);
+    layout->addWidget(slider);
+    layout->addWidget(label);
+    setLayout(layout);
 
     setFocusProxy(slider);
 }

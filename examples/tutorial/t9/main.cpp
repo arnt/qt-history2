@@ -22,26 +22,27 @@ public:
 MyWidget::MyWidget(QWidget *parent)
     : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton("Quit", this);
+    QPushButton *quit = new QPushButton("Quit");
     quit->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    LCDRange *angle = new LCDRange(this);
+    LCDRange *angle = new LCDRange;
     angle->setRange(5, 70);
 
-    CannonField *cannonField = new CannonField(this);
+    CannonField *cannonField = new CannonField;
 
     connect(angle, SIGNAL(valueChanged(int)),
             cannonField, SLOT(setAngle(int)));
     connect(cannonField, SIGNAL(angleChanged(int)),
             angle, SLOT(setValue(int)));
 
-    QGridLayout *gridLayout = new QGridLayout(this);
+    QGridLayout *gridLayout = new QGridLayout;
     gridLayout->addWidget(quit, 0, 0);
     gridLayout->addWidget(angle, 1, 0);
     gridLayout->addWidget(cannonField, 1, 1, 2, 1);
     gridLayout->setColumnStretch(1, 10);
+    setLayout(gridLayout);
 
     angle->setValue(60);
     angle->setFocus();

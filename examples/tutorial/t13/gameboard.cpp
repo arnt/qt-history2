@@ -20,18 +20,18 @@
 GameBoard::GameBoard(QWidget *parent)
     : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton("&Quit", this);
+    QPushButton *quit = new QPushButton("&Quit");
     quit->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    LCDRange *angle = new LCDRange("ANGLE", this);
+    LCDRange *angle = new LCDRange("ANGLE");
     angle->setRange(5, 70);
 
-    LCDRange *force = new LCDRange("FORCE", this);
+    LCDRange *force = new LCDRange("FORCE");
     force->setRange(10, 50);
 
-    cannonField = new CannonField(this);
+    cannonField = new CannonField;
 
     connect(angle, SIGNAL(valueChanged(int)),
             cannonField, SLOT(setAngle(int)));
@@ -48,7 +48,7 @@ GameBoard::GameBoard(QWidget *parent)
     connect(cannonField, SIGNAL(missed()),
             this, SLOT(missed()));
 
-    QPushButton *shoot = new QPushButton("&Shoot", this);
+    QPushButton *shoot = new QPushButton("&Shoot");
     shoot->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(shoot, SIGNAL(clicked()),
@@ -56,15 +56,15 @@ GameBoard::GameBoard(QWidget *parent)
     connect(cannonField, SIGNAL(canShoot(bool)),
             shoot, SLOT(setEnabled(bool)));
 
-    QPushButton *restart = new QPushButton("&New Game", this);
+    QPushButton *restart = new QPushButton("&New Game");
     restart->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(restart, SIGNAL(clicked()), this, SLOT(newGame()));
 
-    hits = new QLCDNumber(2, this);
-    shotsLeft = new QLCDNumber(2, this);
-    QLabel *hitsLabel = new QLabel("HITS", this);
-    QLabel *shotsLeftLabel = new QLabel("SHOTS LEFT", this);
+    hits = new QLCDNumber(2);
+    shotsLeft = new QLCDNumber(2);
+    QLabel *hitsLabel = new QLabel("HITS");
+    QLabel *shotsLeftLabel = new QLabel("SHOTS LEFT");
 
     QHBoxLayout *topLayout = new QHBoxLayout;
     topLayout->addWidget(shoot);
@@ -79,12 +79,13 @@ GameBoard::GameBoard(QWidget *parent)
     leftLayout->addWidget(angle);
     leftLayout->addWidget(force);
 
-    QGridLayout *gridLayout = new QGridLayout(this);
+    QGridLayout *gridLayout = new QGridLayout;
     gridLayout->addWidget(quit, 0, 0);
     gridLayout->addLayout(topLayout, 0, 1);
     gridLayout->addLayout(leftLayout, 1, 0);
     gridLayout->addWidget(cannonField, 1, 1, 2, 1);
     gridLayout->setColumnStretch(1, 10);
+    setLayout(gridLayout);
 
     angle->setValue(60);
     force->setValue(25);

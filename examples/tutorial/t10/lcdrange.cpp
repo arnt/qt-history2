@@ -13,21 +13,20 @@
 LCDRange::LCDRange(QWidget *parent)
     : QWidget(parent)
 {
-    QVBoxLayout *layout = new QVBoxLayout;
-    setLayout(layout);
-
     QLCDNumber *lcd = new QLCDNumber(2);
-    layout->addWidget(lcd);
-
-    slider = new QSlider(Qt::Horizontal, this);
+    slider = new QSlider(Qt::Horizontal);
     slider->setRange(0, 99);
     slider->setValue(0);
-    layout->addWidget(slider);
 
     connect(slider, SIGNAL(valueChanged(int)),
             lcd, SLOT(display(int)));
     connect(slider, SIGNAL(valueChanged(int)),
             this, SIGNAL(valueChanged(int)));
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(lcd);
+    layout->addWidget(slider);
+    setLayout(layout);
 
     setFocusProxy(slider);
 }

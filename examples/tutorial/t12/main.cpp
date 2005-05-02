@@ -24,18 +24,18 @@ public:
 MyWidget::MyWidget(QWidget *parent)
     : QWidget(parent)
 {
-    QPushButton *quit = new QPushButton("&Quit", this);
+    QPushButton *quit = new QPushButton("&Quit");
     quit->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
-    LCDRange *angle = new LCDRange("ANGLE", this);
+    LCDRange *angle = new LCDRange("ANGLE");
     angle->setRange(5, 70);
 
-    LCDRange *force = new LCDRange("FORCE", this);
+    LCDRange *force = new LCDRange("FORCE");
     force->setRange(10, 50);
 
-    CannonField *cannonField = new CannonField(this);
+    CannonField *cannonField = new CannonField;
 
     connect(angle, SIGNAL(valueChanged(int)),
             cannonField, SLOT(setAngle(int)));
@@ -47,7 +47,7 @@ MyWidget::MyWidget(QWidget *parent)
     connect(cannonField, SIGNAL(forceChanged(int)),
             force, SLOT(setValue(int)));
 
-    QPushButton *shoot = new QPushButton("&Shoot", this);
+    QPushButton *shoot = new QPushButton("&Shoot");
     shoot->setFont(QFont("Times", 18, QFont::Bold));
 
     connect(shoot, SIGNAL(clicked()), cannonField, SLOT(shoot()));
@@ -60,12 +60,13 @@ MyWidget::MyWidget(QWidget *parent)
     leftLayout->addWidget(angle);
     leftLayout->addWidget(force);
 
-    QGridLayout *gridLayout = new QGridLayout(this);
+    QGridLayout *gridLayout = new QGridLayout;
     gridLayout->addWidget(quit, 0, 0);
     gridLayout->addLayout(topLayout, 0, 1);
     gridLayout->addLayout(leftLayout, 1, 0);
     gridLayout->addWidget(cannonField, 1, 1, 2, 1);
     gridLayout->setColumnStretch(1, 10);
+    setLayout(gridLayout);
 
     angle->setValue(60);
     force->setValue(25);
