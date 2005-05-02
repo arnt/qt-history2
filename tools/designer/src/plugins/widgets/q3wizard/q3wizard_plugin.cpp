@@ -46,9 +46,6 @@ QIcon Q3WizardPlugin::icon() const
 bool Q3WizardPlugin::isContainer() const
 { return true; }
 
-bool Q3WizardPlugin::isForm() const
-{ return false; }
-
 QWidget *Q3WizardPlugin::createWidget(QWidget *parent)
 {
     Q3Wizard *wizard = new Q3Wizard(parent);

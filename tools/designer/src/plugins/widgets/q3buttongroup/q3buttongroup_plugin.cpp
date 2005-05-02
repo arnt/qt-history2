@@ -51,11 +51,6 @@ bool Q3ButtonGroupPlugin::isContainer() const
     return true;
 }
 
-bool Q3ButtonGroupPlugin::isForm() const
-{
-    return false;
-}
-
 QWidget *Q3ButtonGroupPlugin::createWidget(QWidget *parent)
 {
     Q3ButtonGroup *g = new Q3ButtonGroup(parent);

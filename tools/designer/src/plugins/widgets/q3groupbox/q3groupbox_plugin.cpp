@@ -51,11 +51,6 @@ bool Q3GroupBoxPlugin::isContainer() const
     return true;
 }
 
-bool Q3GroupBoxPlugin::isForm() const
-{
-    return false;
-}
-
 QWidget *Q3GroupBoxPlugin::createWidget(QWidget *parent)
 {
     Q3GroupBox *g = new Q3GroupBox(parent);

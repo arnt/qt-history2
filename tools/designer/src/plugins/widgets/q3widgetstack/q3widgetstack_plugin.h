@@ -30,7 +30,6 @@ public:
     virtual QString includeFile() const;
     virtual QIcon icon() const;
     virtual bool isContainer() const;
-    virtual bool isForm() const;
     virtual QWidget *createWidget(QWidget *parent);
     virtual bool isInitialized() const;
     virtual void initialize(QDesignerFormEditorInterface *core);

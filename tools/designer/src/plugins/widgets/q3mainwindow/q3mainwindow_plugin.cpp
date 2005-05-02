@@ -45,9 +45,6 @@ QIcon Q3MainWindowPlugin::icon() const
 bool Q3MainWindowPlugin::isContainer() const
 { return true; }
 
-bool Q3MainWindowPlugin::isForm() const
-{ return false; }
-
 QWidget *Q3MainWindowPlugin::createWidget(QWidget *parent)
 { return new Q3MainWindow(parent); }
 

@@ -48,9 +48,6 @@ QIcon Q3ToolBarPlugin::icon() const
 bool Q3ToolBarPlugin::isContainer() const
 { return false; }
 
-bool Q3ToolBarPlugin::isForm() const
-{ return false; }
-
 QWidget *Q3ToolBarPlugin::createWidget(QWidget *parent)
 { return new Q3ToolBar(qobject_cast<Q3MainWindow*>(parent)); }
 

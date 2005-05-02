@@ -24,7 +24,6 @@ public:
     virtual QIcon icon() const;
 
     virtual bool isContainer() const;
-    virtual bool isForm() const;
 
     virtual QWidget *createWidget(QWidget *parent);
 

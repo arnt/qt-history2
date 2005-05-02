@@ -50,11 +50,6 @@ bool Q3FramePlugin::isContainer() const
     return true;
 }
 
-bool Q3FramePlugin::isForm() const
-{
-    return false;
-}
-
 QWidget *Q3FramePlugin::createWidget(QWidget *parent)
 {
     return new Q3Frame(parent);
