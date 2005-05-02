@@ -15,6 +15,7 @@
     <property name="windowTitle" >
       <string>Qt WebBrowser</string>
     </property>
+    <widget class="QWidget" name="centralWidget">
     <layout class="QHBoxLayout" >
       <property name="objectName" >
         <string notr="true" >unnamed</string>
@@ -63,6 +64,7 @@
         </widget>
       </item>
     </layout>
+    </widget>
     <widget class="QToolBar" name="tbNavigate" >
       <property name="objectName" >
         <string notr="true" >tbNavigate</string>
