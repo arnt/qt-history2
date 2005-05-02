@@ -1855,9 +1855,8 @@ static QString unquote(const QString &str)
 
 */
 
-bool QDateTimeEditPrivate::parseFormat(const QString &nfoo)
+bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 {
-    const QString newFormat = nfoo; // ### serious bug here. This changes a lot of things. Need to check for mem-corruption
     if (newFormat == displayFormat && !newFormat.isEmpty() && layoutDirection == QApplication::layoutDirection())
         return true;
     layoutDirection = QApplication::layoutDirection();
