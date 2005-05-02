@@ -270,8 +270,6 @@ public:
     QTextEngine(const QString &str, QFontPrivate *f);
     ~QTextEngine();
 
-    void setText(const QString &str);
-
     enum Mode {
         WidthOnly = 0x07
     };

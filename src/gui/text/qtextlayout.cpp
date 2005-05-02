@@ -288,26 +288,26 @@ QTextLayout::QTextLayout()
 { d = new QTextEngine(); }
 
 /*!
-    Constructs a text layout to lay out the given \a string.
+    Constructs a text layout to lay out the given \a text.
 */
-QTextLayout::QTextLayout(const QString& string)
+QTextLayout::QTextLayout(const QString& text)
 {
     d = new QTextEngine();
-    d->setText(string);
+    d->text = text;
 }
 
 /*!
-    Constructs a text layout to lay out the given \a string with the specified
+    Constructs a text layout to lay out the given \a text with the specified
     \a font.
 
     All the metric and layout calculations will be done in terms of
     the paint device, \a paintdevice. If \a paintdevice is 0 the
     calculations will be done in screen metrics.
 */
-QTextLayout::QTextLayout(const QString& string, const QFont &font, QPaintDevice *paintdevice)
+QTextLayout::QTextLayout(const QString& text, const QFont &font, QPaintDevice *paintdevice)
 {
     QFontPrivate *f = paintdevice ? QFont(font, paintdevice).d : font.d;
-    d = new QTextEngine((string.isNull() ? (const QString&)QString::fromLatin1("") : string), f);
+    d = new QTextEngine((text.isNull() ? (const QString&)QString::fromLatin1("") : text), f);
 }
 
 /*!

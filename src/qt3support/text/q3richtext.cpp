@@ -3824,7 +3824,7 @@ void Q3TextString::checkBidi() const
 
     // determines the properties we need for layouting
     QTextEngine textEngine;
-    textEngine.setText(toString());
+    textEngine.text = toString();
     textEngine.option.setTextDirection(rightToLeft ? Qt::RightToLeft : Qt::LeftToRight);
     textEngine.itemize();
     const QCharAttributes *ca = textEngine.attributes() + length-1;

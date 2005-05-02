@@ -808,16 +808,9 @@ QTextEngine::QTextEngine(const QString &str, QFontPrivate *f)
     : fnt(f)
 {
     init(this);
-    setText(str);
+    text = str;
     if (fnt)
         fnt->ref.ref();
-}
-
-
-void QTextEngine::setText(const QString &str)
-{
-    invalidate();
-    text = str;
 }
 
 QTextEngine::~QTextEngine()
@@ -843,7 +836,7 @@ void QTextEngine::reallocate(int totalGlyphs)
     if (long(m)%8)
         m = (void **) (((long(m) + 7) >> 3) << 3);
     glyphPtr = (QGlyphLayout *) m;
-    
+
     memset(((char *)layoutData->memory) + layoutData->allocated*sizeof(void *), 0,
            (newAllocated - layoutData->allocated)*sizeof(void *));
 

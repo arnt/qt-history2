@@ -71,8 +71,8 @@ class Q_GUI_EXPORT QTextLayout
 public:
     // does itemization
     QTextLayout();
-    QTextLayout(const QString& string);
-    QTextLayout(const QString& string, const QFont &font, QPaintDevice *paintdevice = 0);
+    QTextLayout(const QString& text);
+    QTextLayout(const QString& text, const QFont &font, QPaintDevice *paintdevice = 0);
     QTextLayout(const QTextBlock &b);
     ~QTextLayout();
 
