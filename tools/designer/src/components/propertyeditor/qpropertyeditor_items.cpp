@@ -720,36 +720,43 @@ void FlagsProperty::updateEditorContents(QWidget *editor)
 
     unsigned int v = m_value.toUInt();
 
+    // step 0) clear the contents
+    for (int i=0; i<box->count(); ++i) {
+        FlagBoxModelItem &item = box->item(i);
+        item.setChecked(false);
+    }
+
     // step 1) perfect match
     bool foundPerfectMatch = false;
-    for (int i=0; i<box->count(); ++i) {
+    for (int i=0; !foundPerfectMatch && i<box->count(); ++i) {
         FlagBoxModelItem &item = box->item(i);
         foundPerfectMatch = item.value() == v;
         item.setChecked(foundPerfectMatch);
     }
 
-    if (foundPerfectMatch == true) {
-        // nothing to do
-        return;
+    if (!foundPerfectMatch) {
+        // step 2)
+        for (int i=0; i<box->count(); ++i) {
+            FlagBoxModelItem &item = box->item(i);
+            item.setChecked((item.value() & v) == item.value());
+        }
     }
 
-    // step 2)
-    for (int i=0; i<box->count(); ++i) {
-        FlagBoxModelItem &item = box->item(i);
-        item.setChecked((item.value() & v) == item.value());
-    }
+    box->view()->reset();
 }
 
 void FlagsProperty::updateValue(QWidget *editor)
 {
+    FlagBox *box = qobject_cast<FlagBox*>(editor);
+    if (box == 0)
+        return;
+
     unsigned int newValue = 0;
 
-    if (FlagBox *box = qobject_cast<FlagBox*>(editor)) {
-        for (int i=0; i<box->count(); ++i) {
-            FlagBoxModelItem &item = box->item(i);
-            if (item.isChecked())
-                newValue |= item.value();
-        }
+    for (int i=0; i<box->count(); ++i) {
+        FlagBoxModelItem &item = box->item(i);
+        if (item.isChecked())
+            newValue |= item.value();
     }
 
     if (newValue != m_value) {
