@@ -6076,7 +6076,6 @@ void QWidget::overrideWindowFlags(Qt::WindowFlags f)
 */
 
 /*!
-
     Sets the parent of the widget to \a parent. The widget is moved
     to position (0,0) in its new parent.
 
@@ -6096,9 +6095,9 @@ void QWidget::overrideWindowFlags(Qt::WindowFlags f)
 
     \warning It is extremely unlikely that you will ever need this
     function. If you have a widget that changes its content
-    dynamically, it is far easier to use \l QWidgetStack or \l
-    QWizard.
+    dynamically, it is far easier to use \l QStackedWidget.
 
+    \sa reparent()
 */
 void QWidget::setParent(QWidget *parent)
 {
