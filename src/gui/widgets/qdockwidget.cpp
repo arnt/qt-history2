@@ -237,8 +237,16 @@ void QDockWidgetTitle::mousePressEvent(QMouseEvent *event)
                       ? state->current
                       : QRect(state->current.topLeft(), dockwidget->sizeHint());
 
-    // the offset is the middle of the titlebar in a window of floating.size()
-    state->offset = mapTo(dockwidget, event->pos());
+    const QPoint globalPos = event->globalPos();
+    const int dl = globalPos.x() - state->current.left(),
+              dr = state->current.right() - globalPos.x(),
+       halfWidth = state->floating.width() / 2;
+    state->offset = mapFrom(dockwidget,
+                            (dl < dr)
+                            ? QPoint(qMin(dl, halfWidth), 0)
+                            : QPoint(state->floating.width() - qMin(dr, halfWidth), 0));
+    state->offset = mapTo(dockwidget, QPoint(state->offset.x(), event->pos().y()));
+
     state->canDrop = true;
 
     state->rubberband->setGeometry(state->current);
