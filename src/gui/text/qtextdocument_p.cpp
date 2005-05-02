@@ -1094,6 +1094,7 @@ void QTextDocumentPrivate::scan_frames(int pos, int charsRemoved, int charsAdded
         }
     }
     Q_ASSERT(f == frame);
+    framesDirty = false;
 }
 
 void QTextDocumentPrivate::insert_frame(QTextFrame *f)
@@ -1152,7 +1153,6 @@ QTextFrame *QTextDocumentPrivate::insertFrame(int start, int end, const QTextFra
     frame->d_func()->fragment_end = find(end).n;
 
     insert_frame(frame);
-    framesDirty = false;
 
     endEditBlock();
 
