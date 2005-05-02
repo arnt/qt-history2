@@ -123,18 +123,11 @@ HelpNavigationListItem::HelpNavigationListItem(QListWidget *ls, const QString &t
 
 void HelpNavigationListItem::addLink(const QString &link)
 {
-    int hash = link.indexOf(QLatin1Char('#'));
-    if (hash == -1) {
-        linkList << link;
+    QString lnk = HelpDialog::removeAnchorFromLink(link);    
+    if (linkList.filter(lnk, Qt::CaseInsensitive).count() > 0)
         return;
-    }
-
-    QString preHash = link.left(hash);
-    if (linkList.filter(preHash, Qt::CaseInsensitive).count() > 0)
-        return;
-    linkList << link;
+    linkList << link;   
 }
-
 
 HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
     : QWidget(parent), lwClosed(false), help(h)
@@ -612,9 +605,8 @@ void HelpDialog::searchInIndex(const QString &s)
 
 QString HelpDialog::titleOfLink(const QString &link)
 {
-    QString s(link);
-    s.remove(s.indexOf(QLatin1Char('#')), s.length());
-    s = titleMap[ s ];
+    QString s = HelpDialog::removeAnchorFromLink(link);
+    s = titleMap[s];
     if (s.isEmpty())
         return link;
     return s;
@@ -873,10 +865,7 @@ void HelpDialog::setupFullTextIndex()
     QStringList documentList;
     QString doc;
     for (; it != titleMap.end(); ++it) {
-        doc = it.key();
-        int i = doc.indexOf('#');
-        if (i>-1)
-            doc = doc.left(i);
+        doc = HelpDialog::removeAnchorFromLink(it.key());        
         documentList << doc;
     }
 
@@ -1119,4 +1108,20 @@ void HelpDialog::on_termsEdit_returnPressed()
 void HelpDialog::on_searchButton_clicked()
 {
     startSearch();
+}
+
+QString HelpDialog::removeAnchorFromLink(const QString &link)
+{
+    int i = link.length();
+	int j = link.lastIndexOf('/');
+    int l = link.lastIndexOf(QDir::separator());
+    if (l > j)
+        j = l;
+	if (j > -1) {
+		QString fileName = link.mid(j+1);
+		int k = fileName.lastIndexOf('#');
+		if (k > -1)
+			i = j + k + 1;		
+	}
+	return link.left(i);
 }

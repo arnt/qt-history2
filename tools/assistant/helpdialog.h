@@ -67,6 +67,7 @@ public:
     bool lastWindowClosed() { return lwClosed; }
 
     void timerEvent(QTimerEvent *e);
+    static QString removeAnchorFromLink(const QString &link);
 
 signals:
     void showLink(const QString &s);
@@ -118,7 +119,7 @@ private:
     void showContentsTopic();
     void showInitDoneMessage();
     void buildContentDict();
-
+    
 private:
     Ui::HelpDialog ui;
 
