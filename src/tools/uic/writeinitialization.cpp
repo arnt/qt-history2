@@ -1056,7 +1056,7 @@ QString WriteInitialization::pixCall(DomResourcePixmap *r) const
     if (pixFunc.isEmpty())
         pixFunc = QLatin1String("QString::fromUtf8");
 
-    return pixFunc + QLatin1String("(") + fixString(s) + QLatin1String(")");
+    return QLatin1String("QPixmap(") + pixFunc + QLatin1String("(") + fixString(s) + QLatin1String(")") + QLatin1String(")");
 }
 
 void WriteInitialization::initializeComboBox(DomWidget *w)
