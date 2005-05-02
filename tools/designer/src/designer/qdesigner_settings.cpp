@@ -20,7 +20,6 @@
 #include <QtCore/QDir>
 
 #include <QtGui/QDesktopWidget>
-#include <QtGui/QHeaderView>
 
 #include <QtCore/qdebug.h>
 
@@ -119,63 +118,6 @@ void QDesignerSettings::setGeometryHelper(QWidget *w, const QString &key,
     if (value(key + QLatin1String("/visible"), true).toBool())
         w->show();
 //    endGroup();
-}
-
-void QDesignerSettings::setHeaderSizesFor(QHeaderView *hv) const
-{
-    if (!hv)
-        return;
-
-    QString key;
-    QWidget *w = hv;
-    while (key.isEmpty() && w) {
-        key = w->objectName();
-        w = w->parentWidget();
-    }
-    Q_ASSERT(!key.isEmpty());
-    QList<QVariant> sizeHints;
-    for (int i = 0; i < hv->count(); ++i)
-        sizeHints.append(hv->sectionSizeHint(i));
-    setHeaderSizesForHelper(hv, key, sizeHints);
-}
-
-void QDesignerSettings::saveHeaderSizesFor(const QHeaderView *hv)
-{
-    if (!hv)
-        return;
-
-    const QWidget *w = hv;
-    QString key;
-    while (key.isEmpty() && w) {
-        key = w->objectName();
-        w = w->parentWidget();
-    }
-    Q_ASSERT(!key.isEmpty());
-    saveHeaderSizesForHelper(hv, key);
-}
-
-void QDesignerSettings::setHeaderSizesForHelper(QHeaderView *hv, const QString &key,
-                                               const QList<QVariant> &hints) const
-{
-    QList<QVariant> sizes = value(key + QLatin1String("/columnSizes"), hints).toList();
-    int i;
-    // Make sure the list of the sizes is correct.
-    if (sizes.size() < hints.size()) {
-        for (i = sizes.size(); i < hints.size(); ++i)
-            sizes.append(hints.at(i));
-    }
-
-    for (i = 0; i < sizes.size(); ++i)
-        hv->resizeSection(i, sizes.at(i).toInt());
-}
-
-void QDesignerSettings::saveHeaderSizesForHelper(const QHeaderView *hv, const QString &key)
-{
-    QList<QVariant> sizes;
-    for (int i = 0; i < hv->count(); ++i)
-        sizes.append(hv->sectionSize(i));
-    QDesignerSettings settings;
-    settings.setValue(key + QLatin1String("/columnSizes"), sizes);
 }
 
 QStringList QDesignerSettings::recentFilesList() const

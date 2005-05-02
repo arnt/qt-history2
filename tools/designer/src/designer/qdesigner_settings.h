@@ -32,8 +32,6 @@ public:
     void setGeometryFor(QWidget *w, const QRect &fallBack = QRect()) const;
     void saveGeometryFor(const QWidget *w);
 
-    void setHeaderSizesFor(QHeaderView *hv) const;
-    void saveHeaderSizesFor(const QHeaderView *hv);
     QStringList recentFilesList() const;
     void setRecentFilesList(const QStringList &list);
 
@@ -52,9 +50,6 @@ private:
     void setGeometryHelper(QWidget *w, const QString &key, const QRect &fallBack) const;
     void saveGeometryHelper(const QWidget *w, const QString &key);
 
-    void setHeaderSizesForHelper(QHeaderView *hv, const QString &key,
-                           const QList<QVariant> &hints) const;
-    void saveHeaderSizesForHelper(const QHeaderView *hv, const QString &key);
 private:
     QString m_designerPath;
 };
