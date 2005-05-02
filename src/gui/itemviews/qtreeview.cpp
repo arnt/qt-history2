@@ -917,10 +917,8 @@ QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
 
     QModelIndex current = currentIndex();
     if (!current.isValid())
-        return current;
-    int vi = d->viewIndex(current);
-    if (vi < 0)
-        return current;
+        return d->modelIndex(0);
+    int vi = qMax(0, d->viewIndex(current));
     switch (cursorAction) {
     case MoveNext:
     case MoveDown:
