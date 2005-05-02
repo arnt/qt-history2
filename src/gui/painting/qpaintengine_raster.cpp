@@ -3059,8 +3059,9 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
 
     dy = dy0;
 
-    if ( floor( dx0 ) == dx0 && floor( dy0 ) == dy0 )
-        image.setPixel(-(int)dx0, -(int)dy0, qt_gradient_pixel( cdata, 0. ));
+    if ( floor( dx0 ) == dx0 && floor( dy0 ) == dy0
+         && -dx0 >= 0 && -dx0 < width && -dy0 >= 0 && -dy0 < height)
+            image.setPixel(-(int)dx0, -(int)dy0, qt_gradient_pixel( cdata, 0. ));
 
     for ( i = 0; i < height; i++ ) {
         if ( dy == 0. ) {
