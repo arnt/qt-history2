@@ -103,6 +103,7 @@ QString BoolProperty::toString() const
 QWidget *BoolProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
+    combo->view()->setTextElideMode(Qt::ElideLeft);
     combo->setFrame(0);
     combo->insertItems(-1, QStringList() << QString::fromUtf8("false") << QString::fromUtf8("true"));
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
@@ -314,6 +315,7 @@ QString ListProperty::toString() const
 QWidget *ListProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
+    combo->view()->setTextElideMode(Qt::ElideLeft);
     combo->setFrame(0);
 
     combo->insertItems(-1, items());
@@ -662,6 +664,7 @@ int MapProperty::indexOf(const QVariant &value) const
 QWidget *MapProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
+    combo->view()->setTextElideMode(Qt::ElideLeft);
     combo->setFrame(0);
 
     combo->insertItems(-1, m_keys);
@@ -983,6 +986,7 @@ QVariant CursorProperty::decoration() const
 QWidget *CursorProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
 {
     QComboBox *combo = new QComboBox(parent);
+    combo->view()->setTextElideMode(Qt::ElideLeft);
     combo->setFrame(0);
 
     addCursor(combo, Qt::ArrowCursor);
