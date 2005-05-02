@@ -157,6 +157,14 @@ void QDesignerWorkbench::initialize()
         m_formMenu->addAction(action);
     }
 
+    QMenu *previewSubMenu = new QMenu(tr("Preview in"), m_formMenu);
+    m_formMenu->insertMenu(m_actionManager->previewFormAction(), previewSubMenu);
+
+    foreach (QAction *action, m_actionManager->styleActions()->actions()) {
+        previewSubMenu->addAction(action);
+    }
+
+
     m_toolMenu = m_globalMenuBar->addMenu(tr("&Tools"));
 
     m_toolMenu->addSeparator();

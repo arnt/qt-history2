@@ -48,6 +48,7 @@ public:
     QActionGroup *toolActions() const;
     QActionGroup *helpActions() const;
     QActionGroup *uiMode() const;
+    QActionGroup *styleActions() const;
 
     QAction *useBigIconsAction() const;
 
@@ -122,7 +123,7 @@ private slots:
     void saveForm();
     void saveFormAs();
     void saveFormAsTemplate();
-    void previewForm();
+    void previewForm(QAction *action = 0);
     void notImplementedYet();
     void shutdown();
     void editWidgetsSlot();
@@ -158,6 +159,7 @@ private:
     QActionGroup *m_toolActions;
     QActionGroup *m_helpActions;
     QActionGroup *m_uiMode;
+    QActionGroup *m_styleActions;
 
     QAction *m_editWidgetsAction;
 

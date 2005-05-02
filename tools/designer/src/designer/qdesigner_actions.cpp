@@ -26,6 +26,7 @@
 
 #include <QtAssistant/QAssistantClient>
 
+#include <QtGui/QStyleFactory>
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
 #include <QtGui/QCloseEvent>
@@ -244,6 +245,19 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     connect(m_previewFormAction, SIGNAL(triggered()), this, SLOT(previewForm()));
     m_formActions->addAction(m_previewFormAction);
 
+    m_styleActions = new QActionGroup(this);
+    m_styleActions->setExclusive(true);
+    connect(m_styleActions, SIGNAL(triggered(QAction*)), this, SLOT(previewForm(QAction*)));
+
+    QStringList availableStyleList = QStyleFactory::keys();
+    foreach (QString style, availableStyleList) {
+        QAction *a = new QAction(this);
+        a->setText(tr("%1 Style").arg(style));
+        a->setObjectName(QLatin1String("__qt_action_style_") + style);
+
+        m_styleActions->addAction(a);
+    }
+
 //
 // tools actions
 //
@@ -344,6 +358,9 @@ QActionGroup *QDesignerActions::windowActions() const
 
 QActionGroup *QDesignerActions::helpActions() const
 { return m_helpActions; }
+
+QActionGroup *QDesignerActions::styleActions() const
+{ return m_styleActions; }
 
 QAction *QDesignerActions::newFormAction() const
 { return m_newFormAction; }
@@ -524,7 +541,7 @@ void QDesignerActions::updateUIMode(QAction *act)
     m_workbench->setUIMode(QDesignerWorkbench::UIMode(settings.uiMode()));
 }
 
-void QDesignerActions::previewForm()
+void QDesignerActions::previewForm(QAction *action)
 {
     if (QDesignerFormWindowInterface *fw = core()->formWindowManager()->activeFormWindow()) {
         QDialog *fakeTopLevel = new QDialog(fw);
@@ -550,11 +567,27 @@ void QDesignerActions::previewForm()
         widget->setParent(fakeTopLevel, 0);
         layout->addWidget(widget);
 
+        QStyle *style = 0;
+
+        if (action != 0 && action->objectName().startsWith(QLatin1String("__qt_action_style_"))) {
+            QString styleName = action->objectName().mid(QString::fromUtf8("__qt_action_style_").count());
+            style = QStyleFactory::create(styleName);
+
+            if (style != 0) {
+                fakeTopLevel->setStyle(style);
+                QList<QWidget*> lst = qFindChildren<QWidget*>(fakeTopLevel);
+                foreach (QWidget *w, lst) {
+                    w->setStyle(style);
+                }
+            }
+        }
+
         fakeTopLevel->resize(size);
         fakeTopLevel->setWindowTitle(tr("%1 - [Preview]").arg(widget->windowTitle()));
         fakeTopLevel->exec();
 
         delete fakeTopLevel;
+        delete style;
     }
 }
 
@@ -687,6 +720,7 @@ void QDesignerActions::activeFormWindowChanged(QDesignerFormWindowInterface *for
     m_editWidgetsAction->setEnabled(enable);
 
     m_previewFormAction->setEnabled(enable);
+    m_styleActions->setEnabled(enable);
 }
 
 void QDesignerActions::updateRecentFileActions()
