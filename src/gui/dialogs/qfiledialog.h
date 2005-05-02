@@ -108,6 +108,7 @@ public:
 
 signals:
     void filesSelected(const QStringList &files);
+    void currentChanged(const QString &path);
 
 public:
 #ifdef QT3_SUPPORT
@@ -218,6 +219,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), void sortBySize())
     Q_PRIVATE_SLOT(d_func(), void sortByDate())
     Q_PRIVATE_SLOT(d_func(), void setUnsorted())
+    Q_PRIVATE_SLOT(d_func(), void currentChanged(const QModelIndex &index))
 };
 
 inline void QFileDialog::setDirectory(const QDir &adirectory)

@@ -68,6 +68,7 @@ public:
     void sortBySize();
     void sortByDate();
     void setUnsorted();
+    void currentChanged(const QModelIndex &index);
 
     // setup
     void setup(const QString &directory, const QStringList &nameFilter);

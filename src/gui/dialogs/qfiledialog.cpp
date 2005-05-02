@@ -1406,6 +1406,15 @@ void QFileDialogPrivate::setUnsorted()
     setDirSorting(sort);
 }
 
+/*!
+  \internal
+*/
+
+void QFileDialogPrivate::currentChanged(const QModelIndex &index)
+{
+    emit q_func()->currentChanged(model->filePath(index));
+}
+
 void QFileDialogPrivate::setup(const QString &directory, const QStringList &nameFilter)
 {
     Q_Q(QFileDialog);
@@ -1424,9 +1433,10 @@ void QFileDialogPrivate::setup(const QString &directory, const QStringList &name
 
     // Selections
     selections = new QItemSelectionModel(model);
-    QObject::connect(selections,
-                     SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
+    QObject::connect(selections, SIGNAL(selectionChanged(QItemSelection,QItemSelection)),
                      q, SLOT(updateFileName(QItemSelection)));
+    QObject::connect(selections, SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                     q, SLOT(currentChanged(QModelIndex)));
 
 
     QModelIndex current = directory.isEmpty() ? QModelIndex() : model->index(directory);
