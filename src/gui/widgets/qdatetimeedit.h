@@ -94,6 +94,8 @@ public:
 
     virtual void clear();
     virtual void stepBy(int steps);
+
+    bool event(QEvent *e);
 signals:
     void dateTimeChanged(const QDateTime &date);
     void timeChanged(const QTime &date);

@@ -70,8 +70,6 @@ public:
 
     void readLocaleSettings();
 
-    void layoutDirectionChange();
-
     void emitSignals(EmitPolicy ep, const QVariant &old);
     QString textFromValue(const QVariant &f) const;
     QVariant valueFromText(const QString &f) const;
@@ -716,6 +714,23 @@ QSize QDateTimeEdit::sizeHint() const
     opt.rect = rect();
     return style()->sizeFromContents(QStyle::CT_SpinBox, &opt, hint, this)
         .expandedTo(QApplication::globalStrut());
+}
+
+/*!
+  \reimp
+*/
+
+bool QDateTimeEdit::event(QEvent *e)
+{
+    Q_D(QDateTimeEdit);
+    switch (e->type()) {
+    case QEvent::ApplicationLayoutDirectionChange:
+        setDisplayFormat(d->displayFormat);
+        break;
+    default:
+        break;
+    }
+    return QAbstractSpinBox::event(e);
 }
 
 /*!
@@ -1443,13 +1458,6 @@ void QDateTimeEditPrivate::readLocaleSettings()
     defaultDateTimeFormat = str;
 
     QDTEDEBUG << "default Time:" << defaultTimeFormat << "default date:" << defaultDateFormat << "default date/time" << defaultDateTimeFormat;
-}
-
-
-void QDateTimeEditPrivate::layoutDirectionChange()
-{
-    Q_Q(QDateTimeEdit);
-    q->setDisplayFormat(displayFormat);
 }
 
 /*!

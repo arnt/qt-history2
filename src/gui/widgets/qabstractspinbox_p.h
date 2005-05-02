@@ -91,7 +91,6 @@ public:
     void updateSpinBox();
     void update();
     void updateEdit() const;
-    virtual void layoutDirectionChange();
 
     virtual QStyleOptionSpinBox getStyleOption() const;
 

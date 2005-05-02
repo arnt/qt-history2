@@ -573,7 +573,6 @@ bool QAbstractSpinBox::event(QEvent *event)
     Q_D(QAbstractSpinBox);
     switch (event->type()) {
     case QEvent::ApplicationLayoutDirectionChange:
-        d->layoutDirectionChange();
         update();
         break;
     case QEvent::HoverEnter:
@@ -1387,17 +1386,6 @@ void QAbstractSpinBoxPrivate::updateEdit() const
 
     const_cast<QAbstractSpinBoxPrivate *>(this)->dirty = false;
 }
-
-/*!
-    \internal
-
-    Called when ApplicationLayoutDirectionChange is received
-*/
-
-void QAbstractSpinBoxPrivate::layoutDirectionChange()
-{
-}
-
 
 /*!
     \internal
