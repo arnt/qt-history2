@@ -2514,7 +2514,8 @@ void QApplication::setLayoutDirection(Qt::LayoutDirection direction)
     QWidgetList list = topLevelWidgets();
     for (int i = 0; i < list.size(); ++i) {
         QWidget *w = list.at(i);
-        sendEvent(w, new QEvent(QEvent::ApplicationLayoutDirectionChange));
+        QEvent ev(QEvent::ApplicationLayoutDirectionChange);
+        sendEvent(w, &ev);
     }
 }
 
