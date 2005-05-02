@@ -131,6 +131,7 @@ void RichTextEditorToolBar::colorInputActivated(const QString &s)
         return;
 
     m_editor->setTextColor(color);
+    m_editor->setFocus();
 }
 
 void RichTextEditorToolBar::sizeInputActivated(const QString &size)
@@ -144,6 +145,7 @@ void RichTextEditorToolBar::sizeInputActivated(const QString &size)
         return;
 
     m_editor->setFontPointSize(i);
+    m_editor->setFocus();
 }
 
 void RichTextEditorToolBar::updateActions()
@@ -156,21 +158,21 @@ void RichTextEditorToolBar::updateActions()
     QTextCursor cursor = m_editor->textCursor();
 
     QTextCharFormat char_format = cursor.charFormat();
+
     m_bold_action->setChecked(char_format.fontWeight() == QFont::Bold);
     m_italic_action->setChecked(char_format.fontItalic());
     m_underline_action->setChecked(char_format.fontUnderline());
 
-    bool block = m_font_size_input->blockSignals(true); // ### I don't think this is necessary!
-    QString size = QString::number((int) char_format.fontPointSize());
-    int idx = m_font_size_input->findText(size);
-    m_font_size_input->setCurrentIndex(idx);
-    m_font_size_input->blockSignals(block);
+    int size = (int) char_format.fontPointSize();
+    if (size == 0) // workaround for a bug in QTextEdit
+        size = (int) m_editor->document()->defaultFont().pointSize();
+    int idx = m_font_size_input->findText(QString::number(size));
+    if (idx != -1)
+        m_font_size_input->setCurrentIndex(idx);
 
-    block = m_color_input->blockSignals(true); // ### I don't think this is necessary!
     QString color = m_color_map.value(m_editor->textColor());
     idx = m_color_input->findText(color);
     m_color_input->setCurrentIndex(idx);
-    m_color_input->blockSignals(block);
 }
 
 RichTextEditor::RichTextEditor(QWidget *parent)
