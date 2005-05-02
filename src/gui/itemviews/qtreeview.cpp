@@ -963,9 +963,15 @@ void QTreeView::setSelection(const QRect &rect, QItemSelectionModel::SelectionFl
         return;
     QPoint tl(isRightToLeft() ? rect.right() : rect.left(), rect.top());
     QPoint br(isRightToLeft() ? rect.left() : rect.right(), rect.bottom());
-    int start = d->viewIndex(indexAt(tl));
-    int stop = d->viewIndex(indexAt(br));
-    d->select(start, stop, command);
+    QModelIndex topLeft = indexAt(tl);
+    QModelIndex bottomRight = indexAt(br);
+    if (selectionBehavior() != SelectRows) {
+        QItemSelection selection;
+        selection.append(QItemSelectionRange(topLeft, bottomRight));
+        selectionModel()->select(selection, command);
+    } else {
+        d->select(d->viewIndex(topLeft), d->viewIndex(bottomRight), command);
+    }
 }
 
 /*!
@@ -1687,25 +1693,24 @@ int QTreeViewPrivate::itemDecorationAt(const QPoint &pos) const
     return viewItemIndex;
 }
 
-void QTreeViewPrivate::select(int start, int stop, QItemSelectionModel::SelectionFlags command)
+void QTreeViewPrivate::select(int top, int bottom,
+                              QItemSelectionModel::SelectionFlags command)
 {
     Q_Q(QTreeView);
     QModelIndex previous;
     QItemSelectionRange currentRange;
     QStack<QItemSelectionRange> rangeStack;
     QItemSelection selection;
-    for (int i = start; i <= stop; ++i) {
+    for (int i = top; i <= bottom; ++i) {
         QModelIndex index = modelIndex(i);
         QModelIndex parent = index.parent();
         if (previous.isValid() && parent == previous.parent()) {
             // same parent
-            QModelIndex tl = model->index(currentRange.top(),
-                                          currentRange.left(),
+            QModelIndex tl = model->index(currentRange.top(), currentRange.left(),
                                           currentRange.parent());
             currentRange = QItemSelectionRange(tl, index);
-        } else if (previous.isValid()
-                   && parent == model->sibling(previous.row(), 0, previous)) {
-            // item is child of prevItem
+        } else if (previous.isValid() && parent == model->sibling(previous.row(), 0, previous)) {
+            // item is child of previous
             rangeStack.push(currentRange);
             currentRange = QItemSelectionRange(index);
         } else {
