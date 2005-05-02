@@ -2423,8 +2423,8 @@ void QFontCache::timerEvent(QTimerEvent *)
         EngineCache::Iterator it = engineCache.begin(),
                              end = engineCache.end();
         // determine the oldest and least popular of the unused engines
-        uint oldest = ~0;
-        uint least_popular = ~0;
+        uint oldest = ~0u;
+        uint least_popular = ~0u;
 
         for (; it != end; ++it) {
             if (it.value().data->ref != 0)

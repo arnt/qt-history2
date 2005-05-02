@@ -285,9 +285,8 @@ QVariant QSettingsPrivate::stringListToVariantList(const QStringList &l) const
         return variantList;
     } else if (foundEscapedStringItem) {
         return QVariant(variantList).toStringList();
-    } else {
-        return l;
     }
+    return l;
 }
 
 QString &QSettingsPrivate::escapedLeadingAt(QString &s)

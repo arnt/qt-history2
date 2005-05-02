@@ -2101,7 +2101,7 @@ QRegionPrivate *qt_bitmapToRegion(const QBitmap& bitmap)
             UnionRectWithRegion(&xr, region, *region); \
         }
 
-    const int zero = 0;
+    const uint zero = 0;
     bool little = image.format() == QImage::Format_MonoLSB;
 
     int x,

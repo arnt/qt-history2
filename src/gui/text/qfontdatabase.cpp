@@ -862,7 +862,7 @@ QFontDatabase::findFont(int script, const QFontPrivate *fp,
         QtFontEncoding *best_encoding = 0;
 #endif // Q_WS_X11
 
-        unsigned int score = ~0;
+        unsigned int score = ~0u;
 
         load(family_name, script);
 

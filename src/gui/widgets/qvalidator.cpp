@@ -530,8 +530,7 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
 
     if (entered < b || entered > t)
         return Intermediate;
-    else
-        return Acceptable;
+    return Acceptable;
 }
 
 

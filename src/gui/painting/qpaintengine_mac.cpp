@@ -564,7 +564,7 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
         f.red = f.green = f.blue = 0;
     }
     RGBForeColor(&f);
-    f.red = f.green = f.blue = ~0;
+    f.red = f.green = f.blue = ~0u;
     RGBBackColor(&f);
 
     //the copy mode

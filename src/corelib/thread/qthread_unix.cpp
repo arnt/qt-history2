@@ -277,6 +277,8 @@ void QThread::start(Priority priority)
             break;
         }
     }
+#else
+    Q_UNUSED(priority);
 #endif // _POSIX_THREAD_PRIORITY_SCHEDULING
 
     if (d->stackSize > 0) {
