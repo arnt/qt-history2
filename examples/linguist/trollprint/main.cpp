@@ -9,7 +9,7 @@ int main(int argc, char *argv[])
     QString locale = QLocale::system().name();
 
     QTranslator translator;
-    translator.load(QString("tt3_") + locale);
+    translator.load(QString("trollprint_") + locale);
     app.installTranslator(&translator);
 
     MainWindow *mainWin = new MainWindow;
