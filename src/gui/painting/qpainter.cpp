@@ -545,8 +545,8 @@ void QPainterPrivate::updateState(QPainterState *newState)
     setTabStops() and setTabArray() can change where the tab stops
     are, but these are very seldomly used.
 
-    \warning A QPainter can only be used inside a paintEvent() or a
-    function called by a paintEvent().
+    \warning A QPainter can only be used on a widget inside a
+    paintEvent() or a function called by a paintEvent().
 
     \warning Note that QPainter does not attempt to work around
     coordinate limitations in the underlying window system. Some
