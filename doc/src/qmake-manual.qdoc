@@ -2256,7 +2256,7 @@
     Returns the basename of the file specified. For example:
 
     \code
-       FILE = /etc/passd
+       FILE = /etc/passwd
        FILENAME = $$basename($$FILE) #passwd
     \endcode
 
