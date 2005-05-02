@@ -546,8 +546,8 @@ Qt::DropActions QTableModel::supportedDropActions() const
 /*!
   \class QTableWidgetSelectionRange
 
-  \brief The QTableWidgetSelectionRange provides a class for storing a
-  selection range in a QTableWidget.
+  \brief The QTableWidgetSelectionRange class provides a container for
+  storing a selection range in a QTableWidget.
 
   \ingroup model-view
 
@@ -661,8 +661,6 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
     \fn void QTableWidgetItem::setCheckState(Qt::CheckState state)
 
     Sets the check state of the table item to be \a state.
-
-    \sa checked()
 */
 
 /*!
@@ -831,7 +829,8 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 */
 
 /*!
-    Constructs a table item that does not belong to any table.
+    Constructs a table item of the specified \a type that does not belong
+    to any table.
 */
 QTableWidgetItem::QTableWidgetItem(int type)
     :  rtti(type), view(0), model(0),
@@ -971,7 +970,7 @@ QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
 #endif // QT_NO_DATASTREAM
 
 /*!
-  \reimpl
+  \reimp
 */
 void QTableWidgetItem::operator=(const QTableWidgetItem &other)
 {
@@ -1139,7 +1138,7 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 /*!
     \fn void QTableWidget::itemActivated(QTableWidgetItem *item)
 
-    This signal is emitted when the item has been activated
+    This signal is emitted when the specified \a item has been activated
 */
 
 /*!
@@ -1159,6 +1158,20 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
+    \fn void QTableWidget::itemClicked(QTableWidgetItem *item)
+
+    This signal is emitted whenever an item in the table is clicked.
+    The \a item specified is the item that was clicked.
+*/
+
+/*!
+    \fn void QTableWidget::itemDoubleClicked(QTableWidgetItem *item)
+
+    This signal is emitted whenever an item in the table is double
+    clicked. The \a item specified is the item that was double clicked.
+*/
+
+/*!
     \fn void QTableWidget::itemEntered(QTableWidgetItem *item)
 
     This signal is emitted when the mouse cursor enters an item. The
@@ -1169,9 +1182,29 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
+    \fn void QTableWidget::itemPressed(QTableWidgetItem *item)
+
+    This signal is emitted whenever an item in the table is pressed.
+    The \a item specified is the item that was pressed.
+*/
+
+/*!
     \fn void QTableWidget::itemChanged(QTableWidgetItem *item)
 
     This signal is emitted whenever the data of \a item has changed.
+*/
+
+/*!
+    \fn QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const
+
+    Returns the item at the position (\a{ax}, \a{ay}) in the table's
+    coordinate system.
+*/
+
+/*!
+    \fn int QTableWidget::type() const
+
+    Returns the table's type.
 */
 
 /*!
@@ -1620,12 +1653,25 @@ void QTableWidget::scrollToItem(const QTableWidgetItem *item, ScrollHint hint)
     QTableView::scrollTo(index, hint);
 }
 
+/*!
+    Returns the item prototype used by the table.
+
+    Copies of the item prototype are returned by the \a createItem()
+    function.
+
+    \sa setItemPrototype()
+*/
 const QTableWidgetItem *QTableWidget::itemPrototype() const
 {
     Q_D(const QTableWidget);
     return d->model()->itemPrototype();
 }
 
+/*!
+    Sets the item prototype for the table to the specified \a item.
+
+    \sa itemPrototype()
+*/
 void QTableWidget::setItemPrototype(const QTableWidgetItem *item)
 {
     Q_D(QTableWidget);
