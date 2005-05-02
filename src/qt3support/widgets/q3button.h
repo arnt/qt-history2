@@ -16,7 +16,7 @@
 
 #include "QtGui/qabstractbutton.h"
 
-class Q3Button : public QAbstractButton
+class Q_COMPAT_EXPORT Q3Button : public QAbstractButton
 {
     Q_OBJECT
 public:
