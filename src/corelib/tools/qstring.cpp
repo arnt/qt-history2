@@ -5847,8 +5847,7 @@ QString QString::arg(double a, int fieldWidth, char fmt, int prec, const QChar &
 }
 
 
-QString QString::multiArg(int numArgs, const QString& a1, const QString& a2,
-                          const QString& a3, const QString& a4) const
+QString QString::multiArg(int numArgs, const QString **args) const
 {
     QString result;
     union {
@@ -5856,17 +5855,12 @@ QString QString::multiArg(int numArgs, const QString& a1, const QString& a2,
         int argForDigit[10];
     };
     const QChar *uc = (const QChar*) d->data;
-    const QString *args[4];
     const int len = d->size;
     const int end = len - 1;
     int lastDigit = -1;
     int i;
 
     memset(digitUsed, 0, sizeof(digitUsed));
-    args[0] = &a1;
-    args[1] = &a2;
-    args[2] = &a3;
-    args[3] = &a4;
 
     for (i = 0; i < end; i++) {
         if (uc[i] == QLatin1Char('%')) {

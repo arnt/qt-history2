@@ -495,8 +495,7 @@ private:
     void realloc(int alloc);
     void expand(int i);
     void updateProperties() const;
-    QString multiArg(int numArgs, const QString &a1, const QString &a2,
-                     const QString &a3 = QString(), const QString &a4 = QString()) const;
+    QString multiArg(int numArgs, const QString **args) const;
 #ifndef QT_NO_STL
     int toWCharArray(wchar_t *array) const;
     static QString fromWCharArray(const wchar_t *, int);
@@ -592,11 +591,11 @@ inline QString QString::arg(short a, int fieldWidth, int base, const QChar &fill
 inline QString QString::arg(ushort a, int fieldWidth, int base, const QChar &fillChar) const
 { return arg(qulonglong(a), fieldWidth, base, fillChar); }
 inline QString QString::arg(const QString &a1, const QString &a2) const
-{ return multiArg(2, a1, a2); }
+{ const QString *args[2] = { &a1, &a2 }; return multiArg(2, args); }
 inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3) const
-{ return multiArg(3, a1, a2, a3); }
+{ const QString *args[3] = { &a1, &a2, &a3 }; return multiArg(3, args); }
 inline QString QString::arg(const QString &a1, const QString &a2, const QString &a3, const QString &a4) const
-{ return multiArg(4, a1, a2, a3, a4); }
+{ const QString *args[4] = { &a1, &a2, &a3, &a4 }; return multiArg(4, args); }
 inline QString QString::section(QChar asep, int astart, int aend, SectionFlags aflags) const
 { return section(QString(asep), astart, aend, aflags); }
 
