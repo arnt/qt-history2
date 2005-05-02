@@ -645,7 +645,7 @@ QTextCursor QTextDocument::find(const QString &expr, int from, FindFlags options
         }
     } else {
         while (block.isValid()) {
-            int blockOffset = pos - block.position() - expr.size() - 1;            
+            int blockOffset = pos - block.position() - expr.size() - 1;
             if (blockOffset > block.length())
                 blockOffset = block.length() - 1;
 
@@ -1315,7 +1315,7 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     html += style;
 
     if (block.begin().atEnd()) {
-        html += " -qt-paragraph-type:empty;";
+        html += "-qt-paragraph-type:empty;";
         hasStyle = true;
     }
 
