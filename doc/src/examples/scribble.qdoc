@@ -2,12 +2,11 @@
     \example widgets/scribble
     \title Scribble Example
 
-    The Scribble example shows how to use QMainWindow as the base
-    widget for an application, and how to reimplement some of
-    QWidget's event handlers to receive the events generated for the
-    application's widgets:
+    The Scribble example shows how to reimplement some of QWidget's
+    event handlers to receive the events generated for the
+    application's widgets.
 
-    We reimplement the mouse event handlers to facilitate drawing, the
+    We reimplement the mouse event handlers to implement drawing, the
     paint event handler to update the application and the resize event
     handler to optimize the application's appearance. In addition we
     reimplement the close event handler to intercept the close events
@@ -27,12 +26,190 @@
     The example consists of two classes:
 
     \list
-    \o \c ScribbleArea is a custom widget displaying a QImage.
-    \o \c MainWindow is the main widget containing a \c ScribbleArea
+    \o \c ScribbleArea is a custom widget that displays a QImage and
+       allows to the user to draw on it.
+    \o \c MainWindow provides a menu above the \c ScribbleArea.
     \endlist
 
-    We will start by reviewing the \c MainWindow class, then we will
-    take a look at the \c ScribbleArea class.
+    We will start by reviewing the \c ScribbleArea class, which
+    contains the interesting then we will take a look at the \c
+    MainWindow class that uses it.
+
+    \section1 ScribbleArea Class Definition
+
+    \quotefromfile widgets/scribble/scribblearea.h
+    \skipto class ScribbleArea
+    \printuntil /^\};/
+
+    The \c ScribbleArea class inherits from QWidget. We reimplement
+    the \c mousePressEvent(), \c mouseMoveEvent() and \c
+    mouseReleaseEvent() functions to implement the drawing. We
+    reimplement the \c paintEvent() function to update the scribble
+    area, and the \c resizeEvent() function to ensure that the QImage
+    on which we draw is at least as large as the widget at any time.
+
+    We need several public functions: \c openImage() loads an image
+    from a file into the scribble area, allowing the user to edit the
+    image; \c save() writes the currently displayed image to file; \c
+    clearImage() slot clears the image displayed in the scribble
+    area. We need the private \c drawLineTo() function to actually do
+    the drawing, and \c resizeImage() to change the size of a
+    QImage. 
+
+    We also need the following private variables:
+
+    \list
+    \o \c modified is \c true if there are unsaved
+       changes to the image displayed in the scribble area.
+    \o \c scribbling is \c true while the user is pressing
+       the left mouse button within the scribble area.
+    \o \c penWidth and \c penColor hold the currently
+       set width and color for the pen used in the application.
+    \o \c image stores the image drawn by the user.
+    \o \c lastPoint holds the position of the cursor at the last
+       mouse press or mouse move event.
+    \endlist
+
+    \section1 ScribbleArea Class Implementation
+
+    \quotefromfile widgets/scribble/scribblearea.cpp
+    \skipto ScribbleArea
+    \printuntil /^\}/
+
+    In the constructor, we set the Qt::WA_StaticContents
+    attribute for the widget, indicating that the widget contents are
+    rooted to the top-left corner and don't change when the widget is
+    resized. Qt uses this attribute to optimize paint events on
+    resizes. This is purely an optimization and should only be used
+    for widgets whose contents are static and rooted to the top-left
+    corner.
+
+    \printline openImage
+    \printuntil /^\}/
+
+    In the \c openImage() function, we load the given image. Then we
+    resize the loaded QImage to be at least as large as the widget in
+    both directions using the private \c resizeImage() function and
+    we set the \c image member variable to be the loaded image. At
+    the end, we call QWidget::update() to schedule a repaint.
+
+    \printline saveImage
+    \printuntil /^\}/
+
+    The \c save() function creates a QImage object that covers only
+    the visible section of the actual \c image and saves it using
+    QImage::save(). If the image is successfully saved, we set the
+    scribble area's \c modified variable to \c false, because there
+    is no unsaved data.
+
+    \printline setPenColor
+    \printuntil /^\}/
+
+    \printline setPenWidth
+    \printuntil /^\}/
+
+    The \c setPenColor() and \c setPenWidth() functions set the
+    current pen color and width. These values will be used for future
+    drawing operations.
+
+    \printline clearImage
+    \printuntil /^\}/
+
+    The public \c clearImage() slot clears the image displayed in the
+    scribble area. We simply fill the entire image with white, which
+    corresponds to RGB value (255, 255, 255). As usual when we modify
+    the image, we set \c modified to \c true and schedule a repaint.
+
+    \printline mousePressEvent
+    \printto paintEvent
+
+    For mouse press and mouse release events, we use the
+    QMouseEvent::button() function to find out which button caused
+    the event. For mose move events, we use QMouseEvent::buttons()
+    to find which buttons are currently held down (as an OR-combination).
+
+    If the users press the left mouse button, we store the position
+    of the mouse cursor in \c lastPoint. We also make a note that the
+    user is currently scribbling. (The \c scribbling variable is
+    necessary because we can't assume that a mouse move and mouse
+    release event is always preceded by a mouse press event on the
+    same widget.)
+
+    If the user moves the mouse with the left button pressed down or
+    releases the button, we call the private \c drawLineTo() function
+    to draw.
+
+    \printline paintEvent
+    \printuntil /^\}/
+
+    In the reimplementation of the \l
+    {QWidget::paintEvent()}{paintEvent()} function, we simply create
+    a QPainter for the scribble area, and draw the image.
+
+    At this point, you might wonder why we don't just draw directly
+    onto the widget instead of drawing in a QImage and copying the
+    QImage onto screen in \c paintEvent(). There are at least three
+    good reasons for this:
+
+    \list
+    \o The window system requires us to be able to redraw the widget
+       \e{at any time}. For example, if the window is minimized and
+       restored, the window system might have forgotten the contents
+       of the widget and send us a paint event. In other words, we
+       can't rely on the window system to remember our image.
+
+    \o Qt normally doesn't allow us to paint outside of \c
+       paintEvent(). In particular, we can't paint from the mouse
+       event handlers. (This behavior can be changed using the
+       Qt::WA_PaintOnScreen widget attribute, though.)
+
+    \o If initialized properly, a QImage is guaranteed to use 8-bit
+       for each color channel (red, green, blue, and alpha), whereas
+       a QWidget might have a lower color depth, depending on the
+       monitor configuration. This means that if we load a 24-bit or
+       32-bit image and paint it onto a QWidget, then copy the
+       QWidget into a QImage again, we might lose some information.
+    \endlist
+
+    \printline resizeEvent
+    \printuntil /^\}/
+
+    When the user starts the Scribble application, a resize event is
+    generated and an image is created and displayed in the scribble
+    area. We make this initial image slightly larger than the
+    application's main window and scribble area, to avoid always
+    resizing the image when the user resizes the main window (which
+    would be very inefficient). But when the main window becomes
+    larger than this initial size, the image needs to be resized.
+
+    \printline drawLineTo
+    \printuntil /^\}/
+
+    In \c drawLineTo(), we draw a line from the point where the mouse
+    was located when the last mouse press or mouse move occurred, we
+    set \c modified to true, we generate a repaint event, and we
+    update \c lastPoint so that next time \c drawLineTo() is called,
+    we continue drawing from where we left.
+
+    We could call the \c update() function with no parameter, but as
+    an easy optimization we pass a QRect that specifies the rectangle
+    inside the scribble are needs updating, to avoid a complete
+    repaint of the widget.
+
+    \printline resizeImage
+    \printuntil /^\}/
+
+    QImage has no nice API for resizing an image. There's a
+    QImage::copy() function that could do the trick, but when used to
+    expand an image, it fills the new areas with black, whereas we
+    want white.
+
+    So the trick is to create a brand new QImage with the right size,
+    to fill it with white, and to draw the old image onto it using
+    QPainter. The new image is given the QImage::Format_ARGB32
+    format, which means that each pixel is stored as 0xAARRGGBB
+    (where AA, RR, GG, and BB are the alpha, red, green and blue
+    color channels).
 
     \section1 MainWindow Class Definition
 
@@ -41,26 +218,17 @@
     \printuntil /^\};/
 
     The \c MainWindow class inherits from QMainWindow. We reimplement
-    the constructor and the event handler
-    \l{QWidget::closeEvent()}{closeEvent()}. We create the private
-    \gui open(), \gui save(), \gui penColor() and \gui penWidth()
-    slots to facilitate the corresponding menu entries. In addition we
-    create four private functions:
+    the \l{QWidget::closeEvent()}{closeEvent()} handler from QWidget.
+    The \gui open(), \gui save(), \gui penColor() and \gui penWidth()
+    slots correspond to menu entries. In addition we create four
+    private functions.
 
-    We use \c createActions() and \c createMenus() when constructing
-    the \c MainWindow widget. We use the boolean \c mayBeSave()
-    function to check if there are any unsaved changes. If there are,
-    we give the user the opportunity to save these changes. The
-    function returns true if the scribble area isn't modified or the
-    user successfully saves the modifications, otherwise it returns
-    false. We use the boolean \c saveFile() function to retrieve a
-    filename from the user, and to save the image currently displayed
-    in the scribble area in that file. It returns true if the image
-    was successfully saved; otherwise false.
-
-    The \c MainWindow contains a scribble area. It also has the \c
-    modified property that is true if there are any unsaved changes to
-    the image displayed in the scribble area, otherwise it is false.
+    We use the boolean \c maybeSave() function to check if there are
+    any unsaved changes. If there are unsaved changes, we give the
+    user the opportunity to save these changes. The function returns
+    \c false if the user clicks \gui Cancel. We use the \c saveFile()
+    function to let the user save the image currently displayed in
+    the scribble area.
 
     \section1 MainWindow Class Implementation
 
@@ -68,45 +236,33 @@
     \skipto MainWindow
     \printuntil /^\}/
 
-    In the constructor we create a scribble area which we make the
+    In the constructor, we create a scribble area which we make the
     central widget of the \c MainWindow widget. Then we create the
-    associated actions and menus, and customize the \c {ImageViewer}'s
-    appearance.
+    associated actions and menus.
 
     \printline closeEvent
     \printuntil /^\}/
 
-    The reimplemented \l{QWidget::closeEvent()}{closeEvent()} event
-    handler receives the \c {MainWindow}'s close events. Close events
-    are sent to widgets that the users want to close, usually by
-    choosing "Close" from the window menu, or by clicking the 'X'
+    Close events are sent to widgets that the users want to close,
+    usually by clicking \gui{File|Exit} or by clicking the \gui X
     title bar button. By reimplementing the event handler, we can
     intercept attempts to close the application.
 
-    This is particularly useful in this example, because the users may
-    have modified the image after the last time they saved. By calling
-    the \c maybeSave() function we ensure that the users get the
-    opportunity to save any modifications before \c MainWindow is
-    closed and the application is terminated. If there are no
-    modifications or if the users successfully save them, we accept
-    the event and the application is terminated. Otherwise, if the
-    users click \gui cancel, the call to the event's ignore() function
-    leave the application unaffected by the event.
+    In this example, we use the close event to ask the user to save
+    any unsaved changes. The logic for that is located in the \c
+    maybeSave() function. If \c maybeSave() returns true, there are
+    no modifications or the users successfully saved them, and we
+    accept the event. The application can then terminate normally. If
+    \c maybeSave() returns false, the user clicked \gui Cancel, so we
+    "ignore" the event, leaving the application unaffected by it.
 
     \printline open
     \printuntil /^\}/
 
     In the \c open() slot we first give the user the opportunity to
     save any modifications to the currently displayed image, before a
-    new image is loaded into the scribble area. Then we show a file
-    dialog. QFileDialog enables the user to traverse the file
-    system. The easiest way to create a QFileDialog is to use the
-    static functions; QFileDialog::getOpenFileName() returns an
-    existing file selected by the user. If the user presses Cancel, it
-    returns a null string.
-
-    Unless the file name is a null string, we load the file's image
-    into the scribble area.
+    new image is loaded into the scribble area. Then we ask the user
+    to choose a file and we load the file in the \c ScribbleArea.
 
     \printline save
     \printuntil /^\}/
@@ -117,288 +273,101 @@
     signal using QObject::sender(). This function returns the sender
     as a QObject pointer. Since we know that the sender is an action
     object, we can safely cast the QObject. We could have used a
-    C-style cast or a C++ static_cast<>(), but as a defensive
+    C-style cast or a C++ \c static_cast<>(), but as a defensive
     programming technique we use a qobject_cast(). The advantage is
     that if the object has the wrong type, a null pointer is
     returned. Crashes due to null pointers are much easier to diagnose
-    than crashes due to unsafe casts. Once we have the action, we
-    extract the chosen format using QAction::iconText().
+    than crashes due to unsafe casts.
+    
+    Once we have the action, we extract the chosen format using
+    QAction::data(). (When the actions are created, we use
+    QAction::setData() to set our own custom data attached to the
+    action, as a QVariant. More on this when we review \c
+    createActions().)
 
-    Now that we know the format, we call the private \c savefile()
+    Now that we know the format, we call the private \c saveFile()
     function to save the currently displayed image.
 
     \printline penColor
     \printuntil /^\}/
 
     We use the \c penColor() slot to retrieve a new color from the
-    user with a QColorDialog. As with QFileDialog, the easiest way to
-    create a QColorDialog is to use its static functions;
-    QColorDialog::getColor() pops up a modal color dialog, lets the
-    user choose a color, and returns that color. We set the dialog's
-    initial color to be the scribble area's current color. Then, if
-    the user choose a valid new color, we make it the scribble area's
-    color.
+    user with a QColorDialog. If the user chooses a new color, we
+    make it the scribble area's color.
 
     \printline penWidth
     \printuntil /^\}/
 
     To retrieve a new pen width in the \c penWidth() slot, we use
-    QInputDialog. The QInputDialog class provides a simple convenience
-    dialog to get a single value from the user. We use the static \l
-    {QInputDialog::getInteger()}{getInteger()} function that
-    initialize the current value of the dialog's spin box to the
-    scribble area's current pen width, the minimum value to 1 and the
-    maximum value to 50.
+    QInputDialog. The QInputDialog class provides a simple
+    convenience dialog to get a single value from the user. We use
+    the static QInputDialog::getInteger() function, which combines a
+    QLabel and a QSpinBox. The QSpinBox is initialized with the
+    scribble area's pen width, allows a range from 1 to 50, a step of
+    1 (meaning that the up and down arrow increment or decrement the
+    value by 1).
 
-    The boolean \c ok variable will be set to true if the user pressed
-    OK and to false if the user pressed Cancel. Then we set the
-    scribble area's pen width to the new value.
+    The boolean \c ok variable will be set to \c true if the user
+    clicked \gui OK and to \c false if the user pressed \gui Cancel.
 
     \printline createActions
     \printuntil /^\}/
 
     In the \c createAction() function we create the actions
     representing the menu entries and connect them to the appropiate
-    slots. In particular we create the actions found in the \gui {Save
-    As} sub menu. We use the QImageWriter's static
-    supportedImageFormats() function to get a list of the supported
-    formats. Then we iterate through the list; creating an action for
-    each list item.
+    slots. In particular we create the actions found in the \gui
+    {Save As} sub-menu. We use QImageWriter::supportedImageFormats()
+    to get a list of the supported formats (as a QList<QByteArray>).
+
+    Then we iterate through the list, creating an action for each
+    format. We call QAction::setData() with the file format, so we
+    can retrieve it later as QAction::data(). We could also have
+    deduced the file format from the action's text, by truncating the
+    "...", but that would have been inelegant.
 
     \printline createMenus
     \printuntil /^\}/
 
-    In the \c createMenu function we add the previously created format
-    actions to the \c saveAsMenu. Then we add the rest of the actions
-    as well as the \c saveAsMenu sub menu to the \gui File and \gui
-    Options menus.
+    In the \c createMenu() function, we add the previously created
+    format actions to the \c saveAsMenu. Then we add the rest of the
+    actions as well as the \c saveAsMenu sub-menu to the \gui File
+    and \gui Options menus.
 
     The QMenu class provides a menu widget for use in menu bars,
-    context menus, and other popup menus. A menu widget is a selection
-    menu. It can be either a pull-down menu in a menu bar, like in
-    this example, or a standalone context menu.
-
-    The QMenuBar class provides a horizontal menu bar that consists of
-    a list of pull-down menu items. So at the end we put the \gui File
-    and \gui Options menus in the \c {MainWindow}'s menu bar which we
-    retrieve with the QMainWindow::menuBar() function.
+    context menus, and other popup menus. The QMenuBar class provides
+    a horizontal menu bar with a list of pull-down \l{QMenu}s. At the
+    end we put the \gui File and \gui Options menus in the \c
+    {MainWindow}'s menu bar, which we retrieve using the
+    QMainWindow::menuBar() function.
 
     \printline maybeSave
     \printuntil /^\}/
 
-    With the \c mayBeSave() function we check if there are any unsaved
-    changes. And if there are, we use QMessageBox to give the user a
-    warning that the image has been modified, and the opportunity to
-    save the modifications.
+    In \c mayBeSave(), we check if there are any unsaved changes. If
+    there are any, we use QMessageBox to give the user a warning that
+    the image has been modified and the opportunity to save the
+    modifications.
 
     As with QColorDialog and QFileDialog, the easiest way to create a
-    QMessageBox is to use its static functions. QMessageBox provides a
-    range of different messages arranged along two axes: severity
+    QMessageBox is to use its static functions. QMessageBox provides
+    a range of different messages arranged along two axes: severity
     (question, information, warning and critical) and complexity (the
     number of necessary response buttons). Here we use the \c
-    warning() function sice the message is rather important: If the
-    user doesn't save the modifications, the data will be lost.
+    warning() function sice the message is rather important.
 
-    If the user choose to save, we call the private saveFile()
-    function. The file format is set to png. The \c
-    mayBeSave() function returns true if the the scribble area is not
-    modified or the user successfully saves the modifications,
-    otherwise it returns false.
+    If the user chooses to save, we call the private \c saveFile()
+    function. For simplicitly, we use PNG as the file format; the
+    user can always press \gui Cancel and save the file using another
+    format.
+
+    The \c maybeSave() function returns \c false if the user clicks
+    \gui Cancel; otherwise it returns \c true.
 
     \printline saveFile
     \printuntil /^\}/
 
-    In the \c saveFile() function we show a file dialog to the
-    user. We want the file dialog's initial directory to be the
-    directory the application is run from. Therefore we first
-    construct this initial path.  The static
-    QFileDialog::getSaveFileName() function returns a file name
-    selected by the user. The file does not have to exist. If the user
-    presses Cancel, it returns a null string.
-
-    The \c saveFile function returns true if the file name is not a
-    null string and the scribble area's \c saveImage() function
-    completes successfully, otherwise it returns false.
-
-    \section1 ScribbleArea Class Definition
-
-    \quotefromfile widgets/scribble/scribblearea.h
-    \skipto class ScribbleArea
-    \printuntil /^\};/
-
-    The \c ScribbleArea class inherits from QWidget and displays the
-    image the user draws. We reimplement the constructor along with
-    several of the event handlers: We reimplement the \c
-    mousePressEvent(), \c mouseMoveEvent() and \c mouseReleaseEvent()
-    functions to facilitate the drawing. We reimplement the \c
-    paintEvent() function to update the scribble area, and the \c
-    resizeEvent() function to optimize the application's appearance.
-
-    We need several public functions: with \c openImage() we load an
-    image from file into the scribble area, allowing the user to edit
-    the image, while \c save() writes the currently displayed image to
-    file. We need the private \c drawLineTo() function to actually do
-    the drawing. And in addition we need the public \c clearImage()
-    slot to clear the screen, i.e. clear the image displayed in the
-    scribble area.
-
-    We give the \c ScribbleArea widget some properties: The \c
-    modified property is true if there are unsaved changes to the
-    image displayed in the scribble area, otherwise false. The \c
-    scribbling property is true if the user is pressing the left mouse
-    button within the scribble area, otherwise false. The \c penWidth
-    and \c penColor properties holds the currently set width and color
-    for the pen used in the application.
-
-    In addition to the scribble area's image, we keep a QPoint \c
-    startPoint holding the point from where any drawing should start.
-    It can be the position where the users first press the left mouse
-    button, or the end point of the lines they draw between the
-    positions if they move the mouse around with the left button
-    pressed.
-
-    \section1 ScribbleArea Class Implementation
-
-    \quotefromfile widgets/scribble/scribblearea.cpp
-    \skipto ScribbleArea
-    \printuntil /^\}/
-
-    In the constructor we initialize the scribble area's
-    properties. But more important, we set the Qt::WA_StaticContents
-    attribute for the widget, indicating that the widget contents are
-    north-west aligned and static. This is an optimization of the
-    widget's behavior. On resize, such a widget will receive paint
-    events only for the newly visible part of itself.
-
-    \printline openImage
-    \printuntil /^\}/
-
-    In the \c openImage() function we load the image, from the file
-    given by the \c fileName parameter, into a new QImage. Then we
-    create a painter and draws the new image onto the scribble area's
-    image. To actually display the image in the scribble area we need
-    to call the \l{QWidget::update()}{update()} function which
-    schedules a paint event for processing when Qt returns to the main
-    event loop. The paint event is in the end handled by the
-    reimplemented \c paintEvent() function. The \c openImage()
-    function returns true if the image was successfully loaded from
-    file; otherwise false.
-
-    \printline saveImage
-    \printuntil /^\}/
-
-    The first thing we do in the \c saveImage() slot, is to create a
-    new image \c visibleImage with the same size as the current
-    scribble area. The new image is also given the
-    QImage::Format_ARGB32 format which means that the image is stored
-    using a 32-bit ARGB format (0xAARRGGBB). We draw the scribble
-    area's image onto the new image. Then the parts of the image not
-    currently shown in the main window, are cut off the image that we
-    save.
-
-    The QImage::save() function takes the \c fileName and \c
-    fileFormat parameters as arguments, and returns true if the image
-    was successfully saved; otherwise false. If \c visibleImage is
-    successfully saved, we set the scribble area's modified property
-    to false.
-
-    The \c saveImage function returns true if the image was
-    successfully saved; otherwise false.
-
-    \printline getPenColor
-    \printto clearImage
-
-    The \c getPenColor() and \c getPenWidth() simply return the
-    currently set pen color and pen width, respectively. While the \c
-    setPenColor() and \c setPenWidth() give the pen color and pen
-    width new values.
-
-    \printline clearImage
-    \printuntil /^\}/
-
-    The public \c clearImage() slot clears the screen, i.e. clears the
-    image displayed in the scribble area. We simply fill the entire
-    image with white, and make a remark that the image has been
-    modified. Then we call update() to display the modified image.
-
-    \printline mousePressEvent
-    \printto paintEvent
-
-    The \l {QWidget::mousePressEvent()}{mousePressEvent()}, \l
-    {QWidget::mouseMoveEvent()}{mouseMoveEvent()} and \l
-    {QWidget::mouseReleaseEvent()}{mouseReleaseEvent()} functions are
-    reimplemented to facilitate the drawing. In case of a mouse press
-    or a mouse release event, we use the QMouseEvent::button()
-    function to find out which buttons that caused the event, while we
-    use the QMouseEvent::buttons() function to find out if the event
-    is a mouse move event. The difference is that \c button() returns
-    the button that caused the event. While \c buttons() returns the
-    button state when the event was generated. The button state is a
-    combination of Qt::LeftButton, Qt::RightButton, Qt::MidButton
-    using the OR operator.
-
-    If the users press the left mouse button, we store the position of
-    the mouse cursor when the event was generated as the starting
-    point. We also make a note that the user is currently
-    scribbling. The \c scribbling property is needed to distinguish
-    mouse move and release events in the scribble area
-    following a mouse press within the scribble area, from those
-    following any other mouse press event; like, for example, choosing
-    a new pen color from the \gui Options menu.
-
-    If the user moves the mouse with the left button pressed down or
-    release the button, we call the private \c drawLineTo() function
-    to draw. We pass the position of the mouse cursor when the event
-    was generated, as an argument. In the case of a release event, we
-    also set the \c scribbling property to false.
-
-    \printline paintEvent
-    \printuntil /^\}/
-
-    In the reimplementation of the \l
-    {QWidget::paintEvent()}{paintEvent()} function, we simply create a
-    QPainter for the scribble area, and draw its image at position (0,
-    0).
-
-    This simple reimplementation is possible due to the implementation
-    of the actual drawing. Any changes the user makes are drawn onto
-    \c image. But the changes don't cause an immediate repaint of the
-    scribble area. A call to \l {QWidget::update()}{update()}
-    schedules a paint event for processing when Qt returns to the main
-    event loop, and the only thing the scribble area paint event
-    handler needs to repaint the widget, is to draw the image onto the
-    scribble area.
-
-    \printline resizeEvent
-    \printuntil /^\}/
-
-    When the user starts the \c Scribble application, a resize event
-    is generated and an image is created and displayed in the scribble
-    area. We make this initial image slightly larger than the
-    application's main window and scribble area, to avoid always
-    resizing the image when the user resizes the main window (which
-    would cause flickering). But when the main window becomes larger
-    than this initial size, the image needs to be resized as well.
-
-    To resize the scribble area's image we first create a new image
-    using the inital idea; making it larger than it needs to be. Then
-    we create a painter for the new image, and draw the scribble
-    area's image at position (0, 0) in the new one. In the end we let
-    the new image become the scribble area's image, and use \c
-    update() to generate a paint event updating the scribble area.
-
-    \printline drawLineTo
-    \printuntil /^\}/
-
-    With the \c drawLineTo() function we first create a painter for
-    the scribble area's image. Then we define the pen before we draw a
-    line from \c startPoint to the position given by the \c endPoint
-    parameter.
-
-    We make a remark that the image has been modified before we call
-    the \c update() function with a rectangle enclosing the modified
-    part of the image, as an argument. This is an optimization
-    updating that specific rectangle inside the scribble area,
-    avoiding a complete repaint of the widget. Finally we make the end
-    point of the line we drawed the new start point.
+    In \c saveFile(), we pop up a file dialog with a file name
+    suggestion. The static QFileDialog::getSaveFileName() function
+    returns a file name selected by the user. The file does not have
+    to exist.
 */
