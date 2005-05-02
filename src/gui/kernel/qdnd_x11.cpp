@@ -1027,7 +1027,7 @@ void QDragManager::move(const QPoint & globalPos)
         if (target) {
             QVector<Atom> type;
             int flags = target_version << 24;
-            QStringList fmts = dragPrivate()->data->formats();
+            QStringList fmts = QInternalMimeData::formatsHelper(dragPrivate()->data);
             for (int i = 0; i < fmts.size(); ++i)
                 type.append(X11->xdndStringToAtom(fmts.at(i).toLatin1().data()));
             if (type.size() > 3) {
@@ -1113,7 +1113,6 @@ void QDragManager::drop()
     drop.data.l[0] = dragPrivate()->source->winId();
     drop.data.l[1] = 0; // flags
     drop.data.l[2] = X11->time;
-    qDebug("sending timestamp via XdndDrop %ld", X11->time);
 
     drop.data.l[3] = 0;
     drop.data.l[4] = 0;
@@ -1177,8 +1176,8 @@ void QX11Data::xdndHandleSelectionRequest(const XSelectionRequestEvent * req)
     evt.xselection.time = req->time;
     QByteArray format = X11->xdndAtomToString(req->target);
     QDragPrivate* dp = QDragManager::self()->dragPrivate();
-    if (!format.isEmpty() && dp->data->hasFormat(QLatin1String(format))) {
-        QByteArray a = dp->data->data(QLatin1String(format));
+    if (!format.isEmpty() && QInternalMimeData::hasFormatHelper(QLatin1String(format), dp->data)) {
+        QByteArray a = QInternalMimeData::renderDataHelper(QLatin1String(format), dp->data);
         XChangeProperty (X11->display, req->requestor, req->property,
                          req->target, 8, PropModeReplace,
                          (unsigned char *)a.data(), a.size());
@@ -1379,23 +1378,11 @@ void QDragManager::updatePixmap()
 QVariant QDropData::retrieveData_sys(const QString &mimetype, QVariant::Type type) const
 {
     QByteArray mime = mimetype.toLatin1();
-    if (type == QVariant::Image && mime == "application/x-qt-image") {
-        mime = "image/png";
-    }
     QByteArray data = X11->motifdnd_active
                       ? X11->motifdndObtainData(mime)
                       : xdndObtainData(mime);
     if (type == QVariant::String)
         return QString::fromUtf8(data);
-    if (type == QVariant::Url) { // ### handle uri list
-        QByteArray d = data.left(data.indexOf('\r'));
-        return QUrl::fromEncoded(d);
-    }
-    if (type == QVariant::Image) {
-        QImage img;
-        img.loadFromData(data);
-        return img;
-    }
     return data;
 }
 
@@ -1419,12 +1406,6 @@ QStringList QDropData::formats_sys() const
         while ((qt_xdnd_types[i])) {
             formats.append(QLatin1String(X11->xdndAtomToString(qt_xdnd_types[i]).data()));
             ++i;
-        }
-    }
-    for (int i = 0; i < formats.count(); ++i) {
-        if (formats.at(i).startsWith("image/")) {
-            formats.append("application/x-qt-image");
-            break;
         }
     }
     return formats;

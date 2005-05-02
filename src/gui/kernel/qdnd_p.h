@@ -142,11 +142,6 @@ public:
     void emitActionChanged(Qt::DropAction newAction) { if (object) emit object->actionChanged(newAction); }
     void emitTargetChanged(QWidget *newTarget) { if (object) emit object->targetChanged(newTarget); }
 
-    static QStringList imageReadMimeFormats();
-    static QStringList imageWriteMimeFormats();
-    static QByteArray imageMimeData(const QString &mimeType, const QMimeData * mimeData);
-    
-
 #ifdef Q_WS_MAC
     static OSErr qt_mac_send_handler(FlavorType, void *, DragItemRef, DragRef); //qdnd_mac.cpp
 #endif

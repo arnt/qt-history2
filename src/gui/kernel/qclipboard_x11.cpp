@@ -48,6 +48,7 @@
 #include "qx11info_x11.h"
 #include "qimagewriter.h"
 #include "qvariant.h"
+#include "qdnd_p.h"
 
 /*****************************************************************************
   Internal QClipboard functions for X11.
@@ -109,15 +110,15 @@ int sizeof_format(int format)
     return sz;
 }
 
-class QClipboardWatcher : public QMimeData {
+class QClipboardWatcher : public QInternalMimeData {
 public:
     QClipboardWatcher(QClipboard::Mode mode);
     ~QClipboardWatcher();
     bool empty() const;
-    virtual bool hasFormat(const QString &mimetype) const;
-    virtual QStringList formats() const;
+    virtual bool hasFormat_sys(const QString &mimetype) const;
+    virtual QStringList formats_sys() const;
 
-    QVariant retrieveData(const QString &mimetype, QVariant::Type type) const;
+    QVariant retrieveData_sys(const QString &mimetype, QVariant::Type type) const;
     QByteArray getDataInFormat(Atom fmtatom) const;
 
     Atom atom;
@@ -644,7 +645,7 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
 
 static Atom send_targets_selection(QClipboardData *d, Window window, Atom property)
 {
-    QStringList formats = d->source()->formats();
+    QStringList formats = QInternalMimeData::formatsHelper(d->source());
     int atoms = formats.size();
     if (formats.contains("image/ppm")) atoms++;
     if (formats.contains("image/pbm")) atoms++;
@@ -782,9 +783,10 @@ static Atom send_selection(QClipboardData *d, Atom target, Window window, Atom p
     if (data.isEmpty()) {
         QByteArray fmt = X11->xdndAtomToString(target);
         DEBUG("QClipboard: send_selection(): converting to type '%s'", fmt.data());
-        if (!fmt.isEmpty() && !d->source()->hasFormat(fmt)) // Not a MIME type we can produce
-            return XNone;
-        data = d->source()->data(fmt);
+	if (fmt.isEmpty() || !QInternalMimeData::hasFormatHelper(fmt, d->source())) // Not a MIME type we have
+	    return XNone;
+         else
+	    data = QInternalMimeData::renderDataHelper(fmt, d->source());
     }
 
     DEBUG("QClipboard: send_selection():\n"
@@ -1112,7 +1114,7 @@ bool QClipboard::event(QEvent *e)
 
 
 QClipboardWatcher::QClipboardWatcher(QClipboard::Mode mode)
-    : QMimeData()
+    : QInternalMimeData()
 {
     switch (mode) {
     case QClipboard::Selection:
@@ -1152,7 +1154,7 @@ bool QClipboardWatcher::empty() const
     return win == XNone;
 }
 
-QStringList QClipboardWatcher::formats() const
+QStringList QClipboardWatcher::formats_sys() const
 {
     if (empty())
         return QStringList();
@@ -1192,13 +1194,13 @@ QStringList QClipboardWatcher::formats() const
     return formatList;
 }
 
-bool QClipboardWatcher::hasFormat(const QString &format) const
+bool QClipboardWatcher::hasFormat_sys(const QString &format) const
 {
     QStringList list = formats();
     return list.contains(format);
 }
 
-QVariant QClipboardWatcher::retrieveData(const QString &fmt, QVariant::Type type) const
+QVariant QClipboardWatcher::retrieveData_sys(const QString &fmt, QVariant::Type type) const
 {
     if (fmt.isEmpty() || empty())
         return QByteArray();
