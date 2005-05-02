@@ -520,17 +520,6 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QAction *a, QWidg
                 return true;
         }
     }
-    QWidget *parent = a->parentWidget();
-    if (parent && !widgets.contains(parent)) {
-        if (QMenu *menu = qobject_cast<QMenu *>(parent)) {
-            QAction *a = menu->menuAction();
-            if (correctContext(context, a, active_window))
-                return true;
-        } else {
-            if (correctContext(context, parent, active_window))
-                return true;
-        }
-    }
     return false;
 }
 
