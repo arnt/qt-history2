@@ -351,7 +351,10 @@ void QProcessPrivate::cleanup()
     processState = QProcess::NotRunning;
 #ifdef Q_OS_WIN
     if (pid) {
+        CloseHandle(pid->hThread);
+        CloseHandle(pid->hProcess);
         delete pid;
+        pid = 0;
     }
     if (processFinishedNotifier) {
         processFinishedNotifier->setEnabled(false);

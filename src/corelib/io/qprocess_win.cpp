@@ -360,6 +360,8 @@ void QProcessPrivate::startProcess()
     bool success = false;
 
     if (pid) {
+        CloseHandle(pid->hThread);
+        CloseHandle(pid->hProcess);
         delete pid;
         pid = 0;
     }
@@ -739,6 +741,10 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
 #endif // Q_OS_TEMP
     }
 
+    if (success) {
+        CloseHandle(pinfo.hThread);
+        CloseHandle(pinfo.hProcess);
+    }
     return success;
 }
 
