@@ -64,6 +64,8 @@
         <addaction name="actionOpenPage" />
         <addaction name="actionClosePage" />
         <addaction name="separator" />
+        <addaction name="actionSaveAs" />
+        <addaction name="separator" />
         <addaction name="actionFilePrint" />
         <addaction name="separator" />
         <addaction name="actionClose" />
@@ -117,7 +119,6 @@
       <addaction name="fileMenu" />
       <addaction name="viewMenu" />
       <addaction name="editMenu" />
-      <addaction name="PopupMenu" />
       <addaction name="goMenu" />
       <addaction name="bookmarkMenu" />
       <addaction name="helpMenu" />
@@ -367,6 +368,14 @@
         </property>
         <property name="text" >
           <string>Qt Assistant Manual</string>
+        </property>
+      </action>
+      <action name="actionSaveAs" >
+        <property name="shortcut" >
+          <string>Ctrl+Alt+S</string>
+        </property>
+        <property name="text" >
+          <string>Save Page As...</string>
         </property>
       </action>
   </widget>

@@ -35,6 +35,8 @@
 #include <qprintdialog.h>
 #include <qabstracttextdocumentlayout.h>
 #include <qtextdocument.h>
+#include <qtextobject.h>
+#include <qfiledialog.h>
 
 QList<MainWindow*> MainWindow::windows;
 
@@ -701,6 +703,8 @@ void MainWindow::setupPopupMenu(QMenu *m)
     m->addAction(ui.actionOpenPage);
     m->addAction(ui.actionClosePage);
     m->addSeparator();
+    m->addAction(ui.actionSaveAs);
+    m->addSeparator();
     m->addAction(ui.actionGoPrevious);
     m->addAction(ui.actionGoNext);
     m->addAction(ui.actionGoHome);
@@ -725,4 +729,75 @@ void MainWindow::on_actionClose_triggered()
 void MainWindow::on_actionHelpWhatsThis_triggered()
 {
     QWhatsThis::enterWhatsThisMode();
+}
+
+void MainWindow::on_actionSaveAs_triggered()
+{
+    QString fileName;
+    QUrl url = tabs->currentBrowser()->source();
+    if (url.isValid()) {
+        QFileInfo fi(url.toLocalFile());
+        fileName = fi.fileName();
+    }
+    fileName = QFileDialog::getSaveFileName(this, tr("Save Page"), fileName);
+    if (fileName.isEmpty())
+        return;
+
+    QFile file(fileName);
+    if (!file.open(QIODevice::WriteOnly)) {
+        QMessageBox::critical(this, tr("Save Page"), tr("Cannot open file for writing!")); 
+        return;
+    }
+    
+    QFileInfo fi(fileName);
+    QString fn = fi.fileName();
+    int i = fn.lastIndexOf('.');
+    if (i > -1)
+        fn = fn.left(i);
+    QString relativeDestPath = fn + "_images";
+    QDir destDir(fi.absolutePath() + QDir::separator() + relativeDestPath);
+    bool imgDirAvailable = destDir.exists();
+    if (!imgDirAvailable)
+        imgDirAvailable = destDir.mkdir(destDir.absolutePath());
+    
+    // save images
+    QTextDocument *doc = tabs->currentBrowser()->document()->clone();
+    if (url.isValid() && imgDirAvailable) {
+        QTextBlock::iterator it;
+        for (QTextBlock block = doc->begin(); block != doc->end(); block = block.next()) {
+            for (it = block.begin(); !(it.atEnd()); ++it) {
+                QTextFragment fragment = it.fragment();
+                if (fragment.isValid()) {
+                    QTextImageFormat fm = fragment.charFormat().toImageFormat();
+                    if (fm.isValid() && !fm.name().isEmpty()) {
+                        QUrl imagePath = tabs->currentBrowser()->source().resolved(fm.name());
+                        if (!imagePath.isValid())
+                            continue;
+                        QString from = imagePath.toLocalFile();
+                        QString destName = fm.name();
+                        int j = destName.lastIndexOf('/');
+                        if (j > -1)
+                            destName = destName.mid(j+1);
+                        QFileInfo info(from);
+                        if (info.exists()) {
+                            if (!QFile::copy(from, destDir.absolutePath()
+                                + QDir::separator() + destName))
+                                continue;
+                            fm.setName("./" + relativeDestPath + "/" + destName);
+                            QTextCursor cursor(doc);                        
+                            cursor.setPosition(fragment.position());
+                            cursor.setPosition(fragment.position() + fragment.length(),
+                                QTextCursor::KeepAnchor);
+                            cursor.setCharFormat(fm);
+                        }
+                    }
+                }
+            }        
+        }
+    }
+    QString src = doc->toHtml();
+    QTextStream s(&file);
+    s << src;
+    s.flush();
+    file.close();
 }

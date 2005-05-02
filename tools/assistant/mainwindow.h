@@ -61,6 +61,7 @@ private slots:
     void on_actionHelpAssistant_triggered();
     void on_actionAboutApplication_triggered();
     void on_actionAboutAssistant_triggered();
+    void on_actionSaveAs_triggered();
 
     void about();
     void setupBookmarkMenu();
