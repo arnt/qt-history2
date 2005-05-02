@@ -42,6 +42,9 @@
 #define AX_DEBUG(x);
 #endif
 
+// #define QAX_SUPPORT_WINDOWLESS
+// #define QAX_SUPPORT_BORDERSPACE
+
 // missing interface from win32api
 #if defined(Q_CC_GNU) 
 #   if !defined(IOleInPlaceObjectWindowless)
@@ -170,7 +173,11 @@ private:
 class QAxClientSite : public IDispatch,
                     public IOleClientSite,
                     public IOleControlSite,
+#ifdef QAX_SUPPORT_WINDOWLESS
                     public IOleInPlaceSiteWindowless,
+#else
+                    public IOleInPlaceSite,
+#endif
                     public IOleInPlaceFrame,
                     public IOleDocumentSite,
                     public IAdviseSink
@@ -249,6 +256,7 @@ public:
     STDMETHOD(DeactivateAndUndo)();
     STDMETHOD(OnPosRectChange)(LPCRECT lprcPosRect);
 
+#ifdef QAX_SUPPORT_WINDOWLESS
 // IOleInPlaceSiteEx ###
     STDMETHOD(OnInPlaceActivateEx)(BOOL* /*pfNoRedraw*/, DWORD /*dwFlags*/)
     {
@@ -324,6 +332,7 @@ public:
     {
         return S_FALSE;
     }
+#endif    
 
     // IOleInPlaceFrame
     STDMETHOD(InsertMenus(HMENU hmenuShared, LPOLEMENUGROUPWIDTHS lpMenuWidths));
@@ -688,6 +697,12 @@ HRESULT WINAPI QAxClientSite::QueryInterface(REFIID iid, void **iface)
             *iface = (IOleWindow*)(IOleInPlaceSite*)this;
         else if (iid == IID_IOleInPlaceSite)
             *iface = (IOleInPlaceSite*)this;
+#ifdef QAX_SUPPORT_WINDOWLESS
+        else if (iid == IID_IOleInPlaceSiteEx)
+            *iface = (IOleInPlaceSiteEx*)this;
+        else if (iid == IID_IOleInPlaceSiteWindowless)
+            *iface = (IOleInPlaceSiteWindowless*)this;
+#endif
         else if (iid == IID_IOleInPlaceFrame)
             *iface = (IOleInPlaceFrame*)this;
         else if (iid == IID_IOleInPlaceUIWindow)
@@ -1274,6 +1289,9 @@ HRESULT WINAPI QAxClientSite::TranslateAccelerator(LPMSG lpMsg, WORD grfModifier
 //**** IOleInPlaceUIWindow
 HRESULT WINAPI QAxClientSite::GetBorder(LPRECT lprectBorder)
 {
+#ifndef QAX_SUPPORT_BORDERSPACE
+    return INPLACE_E_NOTOOLSPACE;
+#else
     AX_DEBUG(QAxClientSite::GetBorder);
 
     QMainWindow *mw = qobject_cast<QMainWindow*>(widget->window());
@@ -1283,10 +1301,14 @@ HRESULT WINAPI QAxClientSite::GetBorder(LPRECT lprectBorder)
     RECT border = { 0,0, 300, 200 };
     *lprectBorder = border;
     return S_OK;
+#endif
 }
 
 HRESULT WINAPI QAxClientSite::RequestBorderSpace(LPCBORDERWIDTHS /*pborderwidths*/)
 {
+#ifndef QAX_SUPPORT_BORDERSPACE
+    return INPLACE_E_NOTOOLSPACE;
+#else
     AX_DEBUG(QAxClientSite::RequestBorderSpace);
 
     QMainWindow *mw = qobject_cast<QMainWindow*>(widget->window());
@@ -1294,10 +1316,14 @@ HRESULT WINAPI QAxClientSite::RequestBorderSpace(LPCBORDERWIDTHS /*pborderwidths
         return INPLACE_E_NOTOOLSPACE;
 
     return S_OK;
+#endif
 }
 
 HRESULT WINAPI QAxClientSite::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
 {
+#ifndef QAX_SUPPORT_BORDERSPACE
+    return OLE_E_INVALIDRECT;
+#else
     AX_DEBUG(QAxClientSite::SetBorderSpace);
 
     // object has no toolbars and wants container toolbars to remain
@@ -1331,6 +1357,7 @@ HRESULT WINAPI QAxClientSite::SetBorderSpace(LPCBORDERWIDTHS pborderwidths)
     }
 
     return S_OK;
+#endif
 }
 
 HRESULT WINAPI QAxClientSite::SetActiveObject(IOleInPlaceActiveObject *pActiveObject, LPCOLESTR pszObjName)
@@ -1504,7 +1531,7 @@ bool QAxHostWidget::winEvent(MSG *msg, long *result)
         if (hres == S_OK)
             return true;
     }
-    return false; // ###
+    return false;
 }
 
 bool QAxHostWidget::event(QEvent *e)
