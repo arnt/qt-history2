@@ -75,7 +75,7 @@ int main(int argc, char **argv)
             qWarning("dumpdoc: Could not open output file '%s'", outname.data());
         }
     } else {
-        outfile.open(QIODevice::WriteOnly, stdout);
+        outfile.open(stdout, QIODevice::WriteOnly);
     }
     QTextStream out(&outfile);
     
