@@ -1044,7 +1044,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             SInt32 lvl;
             GetWindowGroupLevel(grpf, &lvl);
             const char *from = "Default";
-            if(d->topData() && grpf == topData()->group)
+            if(topData() && grpf == topData()->group)
                 from = "Created";
             else if(grpf == grp)
                 from = "Copied";
