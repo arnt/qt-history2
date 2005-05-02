@@ -64,7 +64,6 @@ public:
     bool hasFrame() const;
 
     QSize sizeHint() const;
-    QSize minimumSizeHint() const;
 
     void interpretText();
     bool event(QEvent *event);

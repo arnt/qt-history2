@@ -685,17 +685,9 @@ QSize QAbstractSpinBox::sizeHint() const
     hint += extra;
 
     opt.rect = rect();
+
     return style()->sizeFromContents(QStyle::CT_SpinBox, &opt, hint, this)
         .expandedTo(QApplication::globalStrut());
-}
-
-/*!
-    \reimp
-*/
-
-QSize QAbstractSpinBox::minimumSizeHint() const
-{
-    return sizeHint();
 }
 
 /*!
