@@ -53,18 +53,18 @@ int main(int argc, char **argv)
     splash->setAttribute(Qt::WA_DeleteOnClose);
     splash->show();
 
-    TrWindow *tw = new TrWindow();
+    TrWindow tw;
 
     if (config.value(keybase + "Geometry/MainwindowMaximized", false).toBool())
-        tw->showMaximized();
+        tw.showMaximized();
     else
-        tw->show();
+        tw.show();
 
     if (splash)
-        splash->finish(tw);
+        splash->finish(&tw);
 
     if (app.argc() > 1)
-        tw->openFile(QString(app.argv()[app.argc() - 1]));
+        tw.openFile(QString(app.argv()[app.argc() - 1]));
 
     QApplication::restoreOverrideCursor();
 

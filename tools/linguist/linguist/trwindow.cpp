@@ -1270,7 +1270,7 @@ void TrWindow::setupMenuBar()
 
     recentFilesMenu = new QMenu(this);
     filep->addMenu(recentFilesMenu)->setText(tr("Re&cently opened files"));
-    connect(recentFilesMenu, SIGNAL(aboutToShow()), this,
+    connect(filep, SIGNAL(aboutToShow()), this,
         SLOT(setupRecentFilesMenu()));
     connect(recentFilesMenu, SIGNAL(triggered(QAction*)), this,
         SLOT(recentFileActivated(QAction*)));
@@ -1810,9 +1810,15 @@ void TrWindow::writeConfig()
 void TrWindow::setupRecentFilesMenu()
 {
     recentFilesMenu->clear();
-    QStringList::Iterator it = recentFiles.begin();
-    for (; it != recentFiles.end(); ++it) {
-        recentFilesMenu->addAction(*it);
+
+    if (recentFiles.count() > 0) {
+        recentFilesMenu->setEnabled(true);
+        QStringList::Iterator it = recentFiles.begin();
+        for (; it != recentFiles.end(); ++it) {
+            recentFilesMenu->addAction(*it);
+        }
+    } else {
+        recentFilesMenu->setEnabled(false);
     }
 }
 
