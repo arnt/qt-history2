@@ -3220,7 +3220,7 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     if (creator.count() == 0)                             // default creator
         creator = QLatin1String("Qt " QT_VERSION_STR);
     outDevice = new QFile();
-    static_cast<QFile *>(outDevice)->open(QIODevice::WriteOnly, fd);
+    static_cast<QFile *>(outDevice)->open(fd, QIODevice::WriteOnly);
     outStream.setDevice(outDevice);
     outStream << "%!PS-Adobe-1.0";
     QPSPrintEngine *q = static_cast<QPSPrintEngine *>(q_ptr);
