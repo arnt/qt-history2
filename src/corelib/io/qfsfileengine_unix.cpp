@@ -405,8 +405,10 @@ QString QFSFileEngine::fileName(FileName file) const
             int len = readlink(QFile::encodeName(d->file), s, PATH_MAX);
             if(len > 0) {
                 QString ret;
-                if(s[0] != '/') {
-                    ret = QDir::currentPath();
+                if (S_ISDIR(d->st.st_mode) && s[0] != '/') {
+                    QDir parent(d->file);
+                    parent.cdUp();
+                    ret = parent.path();
                     if(!ret.isEmpty() && ret.right(1) != QLatin1String("/"))
                         ret += QLatin1Char('/');
                 }
