@@ -189,7 +189,7 @@ void MainWindow::loadPlugins()
     QStringList fileFilters;
     fileFilters << "pnp_*" << "libpnp_*";
 
-    pluginFileNames = pluginsDir.entryList(fileFilters);
+    pluginFileNames = pluginsDir.entryList(fileFilters, QDir::Files);
 
     foreach (QString fileName, pluginFileNames) {
         QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));

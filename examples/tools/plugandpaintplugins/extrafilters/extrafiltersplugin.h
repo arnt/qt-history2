@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include "interfaces.h"
+#include <plugandpaint/interfaces.h>
 
 class ExtraFiltersPlugin : public QObject, public FilterInterface
 {

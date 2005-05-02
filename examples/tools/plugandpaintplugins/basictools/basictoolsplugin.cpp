@@ -59,7 +59,7 @@ QRect BasicToolsPlugin::mouseMove(const QString &brush, QPainter &painter,
         QFontMetrics metrics(painter.font());
         boundingRect = metrics.boundingRect(ch);
         boundingRect.translate(newPos);
-        boundingRect.adjust(-100, -100, 100, 100);
+        boundingRect.adjust(-10, -10, +10, +10);
     }
     painter.restore();
     return boundingRect;

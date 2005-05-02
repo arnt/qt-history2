@@ -3,7 +3,7 @@
 
 #include <QObject>
 
-#include <interfaces.h>
+#include <plugandpaint/interfaces.h>
 
 class BasicToolsPlugin : public QObject,
                          public BrushInterface,

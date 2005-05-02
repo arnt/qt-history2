@@ -64,7 +64,10 @@
     library, the call will fail, and unloading will only happen when
     every instance has called unload().
 
-    \sa QLibrary, {How to Create Qt Plugins}
+    See \l{How to Create Qt Plugins} for more information about
+    how to make your application extensible through plugins.
+
+    \sa QLibrary
 */
 
 /*!

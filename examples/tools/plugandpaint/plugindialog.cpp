@@ -32,6 +32,12 @@ PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
     mainLayout->addWidget(okButton, 2, 1);
     setLayout(mainLayout);
 
+    interfaceIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirOpenIcon),
+                            QIcon::Normal, QIcon::On);
+    interfaceIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirClosedIcon),
+                            QIcon::Normal, QIcon::Off);
+    featureIcon.addPixmap(style()->standardPixmap(QStyle::SP_FileIcon));
+
     setWindowTitle(tr("Plugin Information"));
     populateTreeWidget(path, fileNames);
 }
@@ -39,13 +45,6 @@ PluginDialog::PluginDialog(const QString &path, const QStringList &fileNames,
 void PluginDialog::populateTreeWidget(const QString &path,
                                       const QStringList &fileNames)
 {
-    interfaceIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirOpenIcon),
-                            QIcon::Normal, QIcon::On);
-    interfaceIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirClosedIcon),
-                            QIcon::Normal, QIcon::Off);
-
-    featureIcon.addPixmap(style()->standardPixmap(QStyle::SP_FileIcon));
-
     if (fileNames.isEmpty()) {
         label->setText(tr("Plug & Paint couldn't find any plugins in the %1 "
                           "directory.")

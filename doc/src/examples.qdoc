@@ -55,7 +55,7 @@
     \o \l{widgets/imageviewer}{Image Viewer}\raisedaster
     \o \l{widgets/lineedits}{Line Edits}
     \o \l{widgets/screenshot}{Screenshot}
-    \o \l{widgets/scribble}{Scribble}
+    \o \l{widgets/scribble}{Scribble}\raisedaster
     \o \l{widgets/sliders}{Sliders}\raisedaster
     \o \l{widgets/spinboxes}{Spin Boxes}
     \o \l{widgets/styles}{Styles}\raisedaster
@@ -128,7 +128,9 @@
     \o \l{tools/codecs}{Codecs}
     \o \l{tools/i18n}{I18N}
     \o \l{tools/launcher}{Launcher}
-    \o \l{tools/plugandpaint}{Plug & Paint}
+    \o \l{tools/plugandpaint}{Plug & Paint}\raisedaster
+    \o Plug & Paint Plugins: \l{tools/plugandpaintplugins/basictools}{Basic Tools}\raisedaster
+       and \l{tools/plugandpaintplugins/extrafilters}{Extra Filters}\raisedaster
     \o \l{tools/regexp}{RegExp}
     \o \l{tools/settingseditor}{Settings Editor}
     \endlist
@@ -199,8 +201,8 @@
     \section1 Qt Linguist Examples
 
     \list
-    \o \l{linguist/hellotr}{Hello tr()}
-    \o \l{linguist/arrowpad}{Arrow Pad}
-    \o \l{linguist/trollprint}{Troll Print}
+    \o \l{linguist/hellotr}{Hello tr()}\raisedaster
+    \o \l{linguist/arrowpad}{Arrow Pad}\raisedaster
+    \o \l{linguist/trollprint}{Troll Print}\raisedaster
     \endlist
 */

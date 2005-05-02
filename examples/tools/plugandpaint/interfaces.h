@@ -38,10 +38,10 @@ public:
 };
 
 Q_DECLARE_INTERFACE(BrushInterface,
-                    "http://trolltech.com/PlugAndPaint/BrushInterface");
+                    "http://trolltech.com/PlugAndPaint/1.0/BrushInterface");
 Q_DECLARE_INTERFACE(ShapeInterface,
-                    "http://trolltech.com/PlugAndPaint/ShapeInterface");
+                    "http://trolltech.com/PlugAndPaint/1.0/ShapeInterface");
 Q_DECLARE_INTERFACE(FilterInterface,
-                    "http://trolltech.com/PlugAndPaint/FilterInterface");
+                    "http://trolltech.com/PlugAndPaint/1.0/FilterInterface");
 
 #endif
