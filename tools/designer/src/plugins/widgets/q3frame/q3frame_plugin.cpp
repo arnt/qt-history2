@@ -1,49 +1,8 @@
 
-#include <QtDesigner/QDesignerCustomWidgetInterface>
+#include "q3frame_plugin.h"
 
 #include <Qt3Support/Q3Frame>
 #include <QtCore/qplugin.h>
-
-class Q3FramePlugin: public QObject, public QDesignerCustomWidgetInterface
-{
-    Q_OBJECT
-    Q_INTERFACES(QDesignerCustomWidgetInterface)
-public:
-    Q3FramePlugin(QObject *parent = 0);
-    virtual ~Q3FramePlugin();
-
-    virtual QString name() const;
-    virtual QString group() const;
-    virtual QString toolTip() const;
-    virtual QString whatsThis() const;
-    virtual QString includeFile() const;
-    virtual QIcon icon() const;
-
-    virtual bool isContainer() const;
-    virtual bool isForm() const;
-
-    virtual QWidget *createWidget(QWidget *parent);
-
-    virtual bool isInitialized() const;
-    virtual void initialize(QDesignerFormEditorInterface *core);
-
-    virtual QString domXml() const
-    { return QLatin1String("\
-        <widget class=\"Q3Frame\" name=\"frame\">\
-            <property name=\"geometry\">\
-                <rect>\
-                    <x>0</x>\
-                    <y>0</y>\
-                    <width>100</width>\
-                    <height>80</height>\
-                </rect>\
-            </property>\
-        </widget>\
-      "); }
-
-private:
-    bool m_initialized;
-};
 
 Q3FramePlugin::Q3FramePlugin(QObject *parent)
     : QObject(parent),
@@ -112,7 +71,3 @@ void Q3FramePlugin::initialize(QDesignerFormEditorInterface *core)
     m_initialized = true;
 }
 
-
-Q_EXPORT_PLUGIN(Q3FramePlugin)
-
-#include "plugin.moc"

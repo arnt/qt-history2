@@ -1,50 +1,9 @@
 
-#include <QtDesigner/QDesignerCustomWidgetInterface>
+#include "q3buttongroup_plugin.h"
 
 #include <Qt3Support/Q3ButtonGroup>
 #include <QtGui/QLayout>
 #include <QtCore/qplugin.h>
-
-class Q3ButtonGroupPlugin: public QObject, public QDesignerCustomWidgetInterface
-{
-    Q_OBJECT
-    Q_INTERFACES(QDesignerCustomWidgetInterface)
-public:
-    Q3ButtonGroupPlugin(QObject *parent = 0);
-    virtual ~Q3ButtonGroupPlugin();
-
-    virtual QString name() const;
-    virtual QString group() const;
-    virtual QString toolTip() const;
-    virtual QString whatsThis() const;
-    virtual QString includeFile() const;
-    virtual QIcon icon() const;
-
-    virtual bool isContainer() const;
-    virtual bool isForm() const;
-
-    virtual QWidget *createWidget(QWidget *parent);
-
-    virtual bool isInitialized() const;
-    virtual void initialize(QDesignerFormEditorInterface *core);
-
-    virtual QString domXml() const
-    { return QLatin1String("\
-        <widget class=\"Q3ButtonGroup\" name=\"buttonGroup\">\
-            <property name=\"geometry\">\
-                <rect>\
-                    <x>0</x>\
-                    <y>0</y>\
-                    <width>100</width>\
-                    <height>80</height>\
-                </rect>\
-            </property>\
-        </widget>\
-      "); }
-
-private:
-    bool m_initialized;
-};
 
 Q3ButtonGroupPlugin::Q3ButtonGroupPlugin(QObject *parent)
     : QObject(parent),
@@ -115,8 +74,3 @@ void Q3ButtonGroupPlugin::initialize(QDesignerFormEditorInterface *core)
     Q_UNUSED(core);
     m_initialized = true;
 }
-
-
-Q_EXPORT_PLUGIN(Q3ButtonGroupPlugin)
-
-#include "plugin.moc"

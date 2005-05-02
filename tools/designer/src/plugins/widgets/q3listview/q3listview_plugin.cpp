@@ -89,5 +89,3 @@ QString Q3ListViewPlugin::domXml() const
 }
 
 
-Q_EXPORT_PLUGIN(Q3ListViewPlugin)
-

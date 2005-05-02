@@ -87,5 +87,3 @@ QString Q3WidgetStackPlugin::domXml() const
     ");
 }
 
-Q_EXPORT_PLUGIN(Q3WidgetStackPlugin)
-

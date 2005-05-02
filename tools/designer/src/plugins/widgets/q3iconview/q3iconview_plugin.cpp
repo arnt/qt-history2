@@ -88,6 +88,3 @@ QString Q3IconViewPlugin::domXml() const
     ");
 }
 
-
-Q_EXPORT_PLUGIN(Q3IconViewPlugin)
-

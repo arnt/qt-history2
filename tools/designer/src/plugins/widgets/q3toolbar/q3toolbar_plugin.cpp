@@ -79,5 +79,3 @@ QString Q3ToolBarPlugin::domXml() const
 { return QString(); }
 
 
-Q_EXPORT_PLUGIN(Q3ToolBarPlugin)
-

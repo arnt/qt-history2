@@ -93,5 +93,3 @@ QString Q3WizardPlugin::domXml() const
     ");
 }
 
-Q_EXPORT_PLUGIN(Q3WizardPlugin)
-
