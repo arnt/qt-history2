@@ -322,6 +322,8 @@ QEventDispatcherWin32::QEventDispatcherWin32(QObject *parent)
 
 QEventDispatcherWin32::~QEventDispatcherWin32()
 {
+    Q_D(QEventDispatcherWin32);
+    DestroyWindow(d->internalHwnd);
 }
 
 bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
