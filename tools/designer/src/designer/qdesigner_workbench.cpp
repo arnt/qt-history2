@@ -161,10 +161,6 @@ void QDesignerWorkbench::initialize()
 
     m_toolMenu->addSeparator();
 
-    QAction *showToolBars = m_actionManager->showToolBarsAction();
-    connect(showToolBars, SIGNAL(triggered()), this, SLOT(showToolBars()));
-    m_toolMenu->addAction(showToolBars);
-
     QAction *bigAction = m_actionManager->useBigIconsAction();
     connect(bigAction, SIGNAL(triggered(bool)), this, SLOT(setUseBigIcons(bool)));
     m_toolMenu->addAction(bigAction);
@@ -235,6 +231,11 @@ void QDesignerWorkbench::initialize()
         if (action->icon().isNull() == false)
             m_formToolBar->addAction(action);
     }
+
+    QMenu *toolbarMenu = m_toolMenu->addMenu(tr("Toolbars"));
+    toolbarMenu->addAction(m_editToolBar->toggleViewAction());
+    toolbarMenu->addAction(m_toolToolBar->toggleViewAction());
+    toolbarMenu->addAction(m_formToolBar->toggleViewAction());
 
     m_geometries.clear();
 

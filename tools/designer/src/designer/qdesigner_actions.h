@@ -50,7 +50,6 @@ public:
     QActionGroup *uiMode() const;
 
     QAction *useBigIconsAction() const;
-    QAction *showToolBarsAction() const;
 
 //
 // file actions
@@ -202,7 +201,6 @@ private:
     QAction *m_sdiAction;
 
     QAction *m_useBigIcons;
-    QAction *m_showToolBars;
 };
 
 #endif // QDESIGNER_ACTIONS_H
