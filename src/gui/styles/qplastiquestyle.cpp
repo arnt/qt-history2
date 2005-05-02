@@ -1962,20 +1962,19 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->setFont(font);
             painter->setPen(bar->palette.text().color());
 
+            int progressIndicatorPos = int(((bar->progress - bar->minimum) / double(bar->maximum - bar->minimum)) * grooveWidth);
             if (bar->direction == Qt::RightToLeft) {
-                int progressIndicatorPos = grooveWidth - (((bar->progress - bar->minimum) * grooveWidth) / (bar->maximum - bar->minimum));
-                if (progressIndicatorPos >= rect.left() && progressIndicatorPos <= rect.right()) {
-                    int leftWidth = progressIndicatorPos - rect.left();
+                int indicatorPos = grooveWidth - progressIndicatorPos;
+                if (indicatorPos >= rect.left() && indicatorPos <= rect.right()) {
+                    int leftWidth = indicatorPos - rect.left();
                     painter->setPen(bar->palette.base().color());
                     leftRect = QRect(rect.left(), rect.top(), leftWidth, rect.height());
-                } else if (progressIndicatorPos > rect.right()) {
+                } else if (indicatorPos > rect.right()) {
                     painter->setPen(bar->palette.text().color());
                 } else {
                     painter->setPen(bar->palette.base().color());
                 }
-
             } else {
-                int progressIndicatorPos = ((bar->progress - bar->minimum) * grooveWidth) / (bar->maximum - bar->minimum);
                 if (progressIndicatorPos >= rect.left() && progressIndicatorPos <= rect.right()) {
                     int leftWidth = progressIndicatorPos - rect.left();
                     leftRect = QRect(rect.left(), rect.top(), leftWidth, rect.height());
@@ -2002,7 +2001,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             int maxWidth = bar->rect.width() - 4;
             int minWidth = 4;
             int progress = qMax(bar->progress, bar->minimum); // workaround for bug in QProgressBar
-            int width = qMax(((progress - bar->minimum) * maxWidth) / (bar->maximum - bar->minimum), minWidth);
+            int width = qMax(int((((progress - bar->minimum)) / double(bar->maximum - bar->minimum)) * maxWidth), minWidth);
             bool reverse = bar->direction == Qt::RightToLeft;
 
             QRect progressBar;
