@@ -37,6 +37,7 @@ extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 const char space = ' ';
 const char quote = '\'';
 const char slash = '\\';
+const char zero = '0';
 
 class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate
 {
@@ -974,7 +975,7 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
         case QDateTimeEditPrivate::YearTwoDigitsSection:
             ret.replace(pos, l,
                         QString::number(d->getDigit(var, QDateTimeEditPrivate::YearTwoDigitsSection) - 2000)
-                        .rightJustified(l, QLatin1Char('0'), true));
+                        .rightJustified(l, zero, true));
             break;
         case QDateTimeEditPrivate::HourSection:
             if (d->display & QDateTimeEditPrivate::AmPmSection) {
@@ -983,13 +984,13 @@ QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
                 if (h == 0)
                     h = 12;
                 ret.replace(pos, l,
-                            QString::number(h).rightJustified(l, QLatin1Char('0'), true));
+                            QString::number(h).rightJustified(l, zero, true));
                 break;
             }
         default:
             ret.replace(pos, l,
                         QString::number(d->getDigit(var, d->sectionNodes.at(i).section)).
-                        rightJustified(l, QLatin1Char('0')));
+                        rightJustified(l, zero));
             break;
         }
     }
@@ -1824,7 +1825,7 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 static QString unquote(const QString &str)
 {
     QString ret;
-    QChar status = QLatin1Char('0');
+    QChar status = zero;
     for (int i=0; i<str.size(); ++i) {
         if (str.at(i) == quote) {
             if (status != quote) {
@@ -1832,7 +1833,7 @@ static QString unquote(const QString &str)
             } else if (!ret.isEmpty() && str.at(i - 1) == slash) {
                 ret[ret.size() - 1] = quote;
             } else {
-                status = QLatin1Char('0');
+                status = zero;
             }
         } else {
             ret += str.at(i);
@@ -1859,14 +1860,14 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
     QStringList newSeparators;
     int i, index = 0;
     int add = 0;
-    QChar status = QLatin1Char('0');
+    QChar status = zero;
     for (i = 0; i<newFormat.size(); ++i) {
         if (newFormat.at(i) == quote) {
             ++add;
             if (status != quote) {
                 status = quote;
             } else if (newFormat.at(i - 1) != slash) {
-                status = QLatin1Char('0');
+                status = zero;
             }
         } else if (i + 1 < newFormat.size() && status != quote) {
             switch (newFormat.at(i).cell()) {
@@ -1994,7 +1995,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
         separators.append(newSeparators.at(0));
     }
     escapedFormat.clear();
-    status = QLatin1Char('0');
+    status = zero;
     int ampmlength = sectionSize(AmPmSection);
     for (int i = 0; i < displayFormat.length(); ++i) {
         if (displayFormat.at(i) == quote){
@@ -2002,7 +2003,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
                 if (!escapedFormat.isEmpty() && displayFormat.at(i - 1) == slash) {
                     escapedFormat[escapedFormat.length() - 1] = quote;
                 } else {
-                    status = QLatin1Char('0');
+                    status = zero;
                 }
             } else {
                 status = quote;
