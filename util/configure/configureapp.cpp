@@ -1637,77 +1637,94 @@ void Configure::generateMakefiles()
 	    dictionary[ "VCPROJFILES" ] = "no";
 
 	int i = 0;
-#if !defined(EVAL)
-	QStringList qtProjects;
-	qtProjects << "winmain" << "tools/moc" << "corelib" << "gui" << "network"
-	    << "opengl" << "sql" << "xml" << "qt3support";
-
-        for (i=0;i<qtProjects.size();++i)
-            appendMakeItem(0, qtProjects.at(i));
-
-        // Ensure the plugins and tools are done after the main libraries
-	findProjects(dictionary["QT_SOURCE_TREE"] + "/src/plugins");
-	findProjects(dictionary["QT_SOURCE_TREE"] + "/src/tools");
-        appendMakeItem(2, "src"); // Now do src itself
-#endif
-	if (dictionary["LEAN"] == "no")
-	    findProjects(dictionary["QT_SOURCE_TREE"]);
-
+        QString pwd = QDir::currentPath();
         QString qtDir = QDir::convertSeparators(dictionary["QT_SOURCE_TREE"] + "/");
-
-	QString pwd = QDir::currentPath();
-	for ( i=0; i<3; i++ ) {
-	    for ( int j=0; j<makeList[i].size(); ++j) {
-		MakeItem *it=makeList[i][j];
-		QString dirPath = QDir::convertSeparators( it->directory + "/" );
-		QString projectName = dirPath + it->proFile;
-		QString makefileName = dirPath + it->target;
-		QStringList args;
-
- 		args << QDir::convertSeparators( dictionary[ "QT_INSTALL_BINS" ] + "/qmake" );
-		args << projectName;
-		args << dictionary[ "QMAKE_ALL_ARGS" ];
-
-		if ( makefileName.endsWith( ".dsp" ) ||
-		     makefileName.endsWith( ".vcp" ) ||
-		     makefileName.endsWith( ".vcproj" ) ) {
-		    // We don't create projects for sub directories, continue
-		    if ( it->qmakeTemplate == Subdirs )
-			continue;
-		    if( dictionary[ "DEPENDENCIES" ] == "no" )
-			args << "-nodepend";
-		    args << "-tp vc";
-		} else {
-		    cout << "For " << qPrintable(projectName) << endl;
-		    args << "-o";
-		    args << makefileName;
-		}
-		args << "-spec";
-		args << dictionary[ "QMAKESPEC" ];
-
-		QDir::setCurrent( QDir::convertSeparators( dirPath ) );
-
-                if (dictionary["FAST"] == "yes" && dirPath != qtDir) {
-                    QFile file(makefileName);
-                    if (!file.open(QFile::WriteOnly)) {
-                        printf("failed on dirPath=%s, makefile=%s\n",
-                               qPrintable(dirPath), qPrintable(makefileName));
-                        continue;
-                    }
-                    QTextStream txt(&file);
-                    txt << "all:\n";
-                    txt << "\t" << args.join(" ") << "\n";
-                    txt << "\t$(MAKE) -f " << makefileName << "\n";
-                    txt << "first: all\n";
+        if (dictionary["FAST"] != "yes") {
+            int i = 0;
+            QString dirName;
+            if (dictionary["LEAN"] == "yes")
+                dirName = "src/";
+            bool generate = true;
+            bool doDsp = (dictionary["DSPFILES"] == "yes" || dictionary["VCPFILES"] == "yes" 
+                          || dictionary["VCPROJFILES"] == "yes");
+            while (generate) {
+                QString qtDir = QDir::convertSeparators(dictionary["QT_SOURCE_TREE"] + "/");
+                QString pwd = QDir::currentPath();
+                QString dirPath = QDir::convertSeparators(qtDir + dirName);
+                QStringList args;
+                
+                args << QDir::convertSeparators( dictionary[ "QT_INSTALL_BINS" ] + "/qmake" );
+                
+                if (doDsp) {
+                    if( dictionary[ "DEPENDENCIES" ] == "no" )
+                        args << "-nodepend";
+                    args << "-tp vc";
+                    doDsp = false; // DSP files will be done
+                    printf("Generating Visual Studio project files...\n");
                 } else {
-                    if( int r = system( qPrintable(args.join( " " )) ) ) {
-                        cout << "Qmake failed, return code " << r  << endl << endl;
-                        dictionary[ "DONE" ] = "error";
+                    printf("Generating Makefiles...\n");
+                    generate = false; // Now Makefiles will be done
+                }
+                args << "-spec";
+                args << dictionary[ "QMAKESPEC" ];
+                args << "-r";
+                
+                QDir::setCurrent( QDir::convertSeparators( dirPath ) );
+                if( int r = system( qPrintable(args.join( " " )) ) ) {
+                    cout << "Qmake failed, return code " << r  << endl << endl;
+                    dictionary[ "DONE" ] = "error";
+                }
+            }
+        } else {
+            findProjects(dictionary["QT_SOURCE_TREE"]);
+            for ( i=0; i<3; i++ ) {
+                for ( int j=0; j<makeList[i].size(); ++j) {
+                    MakeItem *it=makeList[i][j];
+                    QString dirPath = QDir::convertSeparators( it->directory + "/" );
+                    QString projectName = dirPath + it->proFile;
+                    QString makefileName = dirPath + it->target;
+                    QStringList args;
+                    
+                    args << QDir::convertSeparators( dictionary[ "QT_INSTALL_BINS" ] + "/qmake" );
+                    args << projectName;
+                    args << dictionary[ "QMAKE_ALL_ARGS" ];
+                    
+                    if ( makefileName.endsWith( ".dsp" ) ||
+                        makefileName.endsWith( ".vcp" ) ||
+                        makefileName.endsWith( ".vcproj" ) ) {
+                        // We don't create projects for sub directories, continue
+                        if ( it->qmakeTemplate == Subdirs )
+                            continue;
+                        if( dictionary[ "DEPENDENCIES" ] == "no" )
+                            args << "-nodepend";
+                        args << "-tp vc";
+                    } else {
+                        cout << "For " << qPrintable(projectName) << endl;
+                        args << "-o";
+                        args << makefileName;
                     }
-		}
-	    }
-	}
-	QDir::setCurrent( pwd );
+                    args << "-spec";
+                    args << dictionary[ "QMAKESPEC" ];
+                    
+                    QDir::setCurrent( QDir::convertSeparators( dirPath ) );
+                    
+                    if (dirPath != qtDir) {
+                        QFile file(makefileName);
+                        if (!file.open(QFile::WriteOnly)) {
+                            printf("failed on dirPath=%s, makefile=%s\n",
+                                qPrintable(dirPath), qPrintable(makefileName));
+                            continue;
+                        }
+                        QTextStream txt(&file);
+                        txt << "all:\n";
+                        txt << "\t" << args.join(" ") << "\n";
+                        txt << "\t" << dictionary[ "MAKE" ] << " -f " << makefileName << "\n";
+                        txt << "first: all\n";
+                    }
+                }
+            }
+        }
+        QDir::setCurrent( pwd );
     } else {
 	cout << "Processing of project files have been disabled." << endl;
 	cout << "Only use this option if you really know what you're doing." << endl << endl;
