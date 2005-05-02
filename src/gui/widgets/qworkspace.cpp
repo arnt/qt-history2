@@ -1066,9 +1066,7 @@ QWidget * QWorkspace::addWindow(QWidget *w, Qt::WFlags flags)
 
     if (!hasPos)
         d->place(child);
-    if (hasSize)
-        child->resize(s + child->baseSize());
-    else
+    if (!hasSize)
         child->adjustSize();
     if (hasPos)
         child->move(x, y);
@@ -2349,9 +2347,11 @@ QWorkspaceChild::QWorkspaceChild(QWidget* window, QWorkspace *parent, Qt::WFlags
     bool hasBeenResized = childWidget->testAttribute(Qt::WA_Resized);
 
     if (!hasBeenResized)
-        cs = childWidget->sizeHint().expandedTo(childWidget->minimumSizeHint());
+        cs = childWidget->sizeHint().expandedTo(childWidget->minimumSizeHint()).expandedTo(childWidget->minimumSize()).boundedTo(childWidget->maximumSize());
     else
         cs = childWidget->size();
+
+    windowSize = cs;
 
     int th = titlebar ? titlebar->sizeHint().height() : 0;
     if (titlebar) {
@@ -2447,10 +2447,12 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
     if (!childWidget)
         return;
 
+    bool doContentsResize = (windowSize == childWidget->size() || !childWidget->testAttribute(Qt::WA_PendingResizeEvent));
+
     windowSize = cr.size();
     backgroundWidget->setGeometry(cr);
     childWidget->move(cr.topLeft());
-    if (!childWidget->testAttribute(Qt::WA_PendingResizeEvent))
+    if (doContentsResize)
         childWidget->resize(cr.size());
     ((QWorkspace*)parentWidget())->d_func()->updateWorkspace();
 
