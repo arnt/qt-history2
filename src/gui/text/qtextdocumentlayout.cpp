@@ -840,15 +840,6 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
 // ##### shouldn't we just add a global offset to each cell instead?
 void QTextDocumentLayoutPrivate::setCellPosition(QTextTable *t, const QTextTableCell &cell, const QPointF &pos)
 {
-    // #### don't we add the offset twice here????
-    for (int i = 0; i < t->childFrames().size(); ++i) {
-        QTextFrame *frame = t->childFrames().at(i);
-        if (isFrameInCell(cell, frame)) {
-            QTextFrameData *cd = data(frame);
-            cd->position += pos;
-        }
-    }
-
     for (QTextFrame::Iterator it = cell.begin(); !it.atEnd(); ++it) {
         if (QTextFrame *c = it.currentFrame()) {
             QTextFrameData *cd = data(c);
@@ -1748,5 +1739,11 @@ void QTextDocumentLayout::setFixedColumnWidth(int width)
 
 QRectF QTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
 {
-    return QRectF(data(frame)->position, data(frame)->size);
+    QPointF pos;
+    QTextFrame *f = frame;
+    while (f) {
+        pos += data(f)->position;
+        f = f->parentFrame();
+    }
+    return QRectF(pos, data(frame)->size);
 }
