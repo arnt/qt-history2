@@ -49,24 +49,22 @@ static QByteArray combinePath(const char *infile, const char *outfile)
         numCommonComponents++;
     }
 
-    if (numCommonComponents < 2) {
+    if (numCommonComponents < 2)
         /*
           The paths don't have the same drive, or they don't have the
           same root directory. Use an absolute path.
         */
         return QFile::encodeName(inFileInfo.absoluteFilePath());
-    } else {
-        /*
-          The paths have something in common. Use a path relative to
-          the output file.
-        */
-        while (!outSplitted.isEmpty()) {
-            outSplitted.removeFirst();
-            inSplitted.prepend("..");
-        }
-        inSplitted.append(inFileInfo.fileName());
-        return QFile::encodeName(inSplitted.join("/"));
+    /*
+       The paths have something in common. Use a path relative to
+       the output file.
+     */
+    while (!outSplitted.isEmpty()) {
+        outSplitted.removeFirst();
+        inSplitted.prepend("..");
     }
+    inSplitted.append(inFileInfo.fileName());
+    return QFile::encodeName(inSplitted.join("/"));
 }
 
 
