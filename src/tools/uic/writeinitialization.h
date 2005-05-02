@@ -66,6 +66,11 @@ struct WriteInitialization : public TreeWalker
 //
     void acceptConnection(DomConnection *connection);
 
+//
+// images
+//
+    void acceptImage(DomImage *image);
+
 private:
     static QString domColor2QString(DomColor *c);
 
@@ -107,6 +112,8 @@ private:
 
     DomWidget *findWidget(const QString &widgetClass);
 
+    DomImage *findImage(const QString &name) const;
+
 private:
     Uic *uic;
     Driver *driver;
@@ -129,6 +136,7 @@ private:
 
     QHash<QString, QString> m_buttonGroups;
     QHash<QString, DomWidget*> m_registeredWidgets;
+    QHash<QString, DomImage*> m_registeredImages;
     int m_defaultMargin;
     int m_defaultSpacing;
 

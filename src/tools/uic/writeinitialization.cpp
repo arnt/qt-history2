@@ -35,6 +35,7 @@ WriteInitialization::WriteInitialization(Uic *uic)
 
 void WriteInitialization::acceptUI(DomUI *node)
 {
+    m_registeredImages.clear();
     m_actionGroupChain.push(0);
     m_widgetChain.push(0);
     m_layoutChain.push(0);
@@ -43,6 +44,9 @@ void WriteInitialization::acceptUI(DomUI *node)
 
     if (node->elementCustomWidgets())
         TreeWalker::acceptCustomWidgets(node->elementCustomWidgets());
+
+    if (node->elementImages())
+        TreeWalker::acceptImages(node->elementImages());
 
     if (option.generateImplemetation)
         output << "#include <" << driver->headerFileName() << ">\n\n";
@@ -1041,31 +1045,18 @@ void WriteInitialization::initializeQ3TableItems(const QString &className, const
 
 QString WriteInitialization::pixCall(DomResourcePixmap *r) const
 {
-    QString pix = r->text();
-    QString s = pix;
+    QString s = r->text();
 
-    bool declaredPix = driver->containsPixmap(pix);
-    if (s.isEmpty() || uic->hasExternalPixmap() || !uic->pixmapFunction().isEmpty() || !declaredPix) {
-        QString pixFunc = uic->pixmapFunction();
+    if (s.isEmpty())
+        return QLatin1String("QPixmap()");
+    else if (findImage(s) != 0)
+        return QLatin1String("icon(") + s + QLatin1String("_ID)");
 
-        if (pixFunc.isEmpty() && !s.isEmpty())
-            pixFunc = QLatin1String("QString::fromUtf8");
+    QString pixFunc = uic->pixmapFunction();
+    if (pixFunc.isEmpty())
+        pixFunc = QLatin1String("QString::fromUtf8");
 
-        if (uic->hasExternalPixmap() || !declaredPix)
-            s = fixString(s);
-
-        if (pixFunc.isEmpty() && s == QLatin1String("\"\""))
-            s.clear();
-
-        if (!pixFunc.isEmpty())
-            s = pixFunc + QLatin1String("(") + s + QLatin1String(")");
-
-        s = QLatin1String("QPixmap(") + s + QLatin1String(")");
-
-        return s;
-    }
-
-    return QLatin1String("icon(") + s + QLatin1String("_ID)");
+    return pixFunc + QLatin1String("(") + fixString(s) + QLatin1String(")");
 }
 
 void WriteInitialization::initializeComboBox(DomWidget *w)
@@ -1305,6 +1296,11 @@ void WriteInitialization::acceptConnection(DomConnection *connection)
         << ");\n";
 }
 
+DomImage *WriteInitialization::findImage(const QString &name) const
+{
+    return m_registeredImages.value(name);
+}
+
 DomWidget *WriteInitialization::findWidget(const QString &widgetClass)
 {
     for (int i = m_widgetChain.count() - 1; i >= 0; --i) {
@@ -1315,5 +1311,13 @@ DomWidget *WriteInitialization::findWidget(const QString &widgetClass)
     }
 
     return 0;
+}
+
+void WriteInitialization::acceptImage(DomImage *image)
+{
+    if (!image->hasAttributeName())
+        return;
+
+    m_registeredImages.insert(image->attributeName(), image);
 }
 
