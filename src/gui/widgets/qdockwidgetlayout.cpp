@@ -1041,6 +1041,8 @@ QRect QDockWidgetLayout::place(QDockWidget *dockwidget, const QRect &r, const QP
         const QDockWidgetLayoutInfo &info = layout_info.at(i);
         if (info.is_sep)
             continue;
+        if (info.item->isEmpty())
+            continue;
         if (dockwidget == info.item->widget())
             which = i;
     }
@@ -1137,6 +1139,8 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
     for (int i = 0; which == -1 && i < layout_info.count(); ++i) {
         const QDockWidgetLayoutInfo &info = layout_info.at(i);
         if (info.is_sep)
+            continue;
+        if (info.item->isEmpty())
             continue;
         if (dockwidget == info.item->widget())
             which = i;
