@@ -879,19 +879,18 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
 
     if (frm) {
         d->readLocaleSettings();
-        if (d->displayFormat != *frm)
-            setDisplayFormat(*frm);
+        setDisplayFormat(*frm);
     }
-    QDateTimeEditPrivate::Section s;
+    bool first;
     switch (e->reason()) {
     case Qt::ShortcutFocusReason:
-    case Qt::TabFocusReason: s = d->sectionNodes.first().section; break;
-    case Qt::BacktabFocusReason: s = d->sectionNodes.at(d->sectionNodes.size() - 1).section; break;
+    case Qt::TabFocusReason: first = true; break;
+    case Qt::BacktabFocusReason: first = false; break;
     default: return;
     }
-
-
-    d->setSelected(s);
+    if (d->layoutDirection == Qt::RightToLeft)
+        first = !first;
+    d->setSelected(first ? d->sectionNodes.first().section : d->sectionNodes.at(d->sectionNodes.size() - 1).section);
 }
 
 /*!
