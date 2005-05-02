@@ -3440,7 +3440,7 @@ static bool removeGroupSeparators(QLocalePrivate::CharBuff *num)
     int decpt_idx = -1;
 
     char *data = num->data();
-    int l = num->size();
+    int l = qstrlen(data);
 
     // Find the decimal point and check if there are any group chars
     int i = 0;
@@ -3490,8 +3490,7 @@ static bool removeGroupSeparators(QLocalePrivate::CharBuff *num)
 
             // Remove it
             memmove(data + i, data + i + 1, l - i - 1);
-            num->resize(--l);
-            data = num->data();
+            data[--l] = '\0';
 
             --group_cnt;
             --decpt_idx;
@@ -3570,12 +3569,13 @@ bool QLocalePrivate::numberToCLocale(const QString &num,
             return false;
     }
 
+    result->append('\0');
+
     // Check separators
     if (group_sep_mode == ParseGroupSeparators
             && !removeGroupSeparators(result))
         return false;
 
-    result->append('\0');
 
     return true;
 }
