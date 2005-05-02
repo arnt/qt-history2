@@ -36,6 +36,13 @@ TabbedBrowser::TabbedBrowser(MainWindow *parent)
     Q_ASSERT(stack);
     stack->setContentsMargins(0, 0, 0, 0);
     connect(stack, SIGNAL(currentChanged(int)), parent, SLOT(browserTabChanged()));
+
+    QPalette p = palette();
+    p.setColor(QPalette::Inactive, QPalette::Highlight,
+        p.color(QPalette::Active, QPalette::Highlight));
+    p.setColor(QPalette::Inactive, QPalette::HighlightedText,
+        p.color(QPalette::Active, QPalette::HighlightedText));
+    setPalette(p);
 }
 
 TabbedBrowser::~TabbedBrowser()
