@@ -36,6 +36,7 @@ extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 
 const char space = ' ';
 const char quote = '\'';
+const char slash = '\\';
 
 class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate
 {
@@ -790,35 +791,28 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
     case Qt::Key_Left:
         forward = false;
     case Qt::Key_Right:
-#ifdef Q_WS_MAC
-        if ((e->modifiers() & Qt::ShiftModifier) || (e->modifiers() & Qt::ControlModifier))
-#else
-            if ((e->modifiers() & Qt::ShiftModifier) && !(e->modifiers() & Qt::ControlModifier))
-#endif
-            {
-                select = false;
-                break;
-            }
         if (!(e->modifiers() & Qt::ControlModifier)) {
-            const int selsize = d->edit->selectedText().size();
-            if (selsize == 0 || selsize != d->sectionSize(d->currentSection)) {
-                select = false;
-                break;
-            }
+            select = false;
+            break;
         }
+#ifdef Q_WS_MAC
+        if (e->modifiers() & Qt::ShiftModifier) {
+            select = false;
+            break;
+        }
+#endif
+
     case Qt::Key_Backtab:
     case Qt::Key_Tab: {
 	if (d->specialValue()) {
 	    select = false;
 	    break;
 	}
-        if (e->key() == Qt::Key_Backtab
-            || (e->key() == Qt::Key_Tab && e->modifiers() & Qt::ShiftModifier)) {
+        if (e->key() == Qt::Key_Backtab || (e->key() == Qt::Key_Tab && e->modifiers() & Qt::ShiftModifier)) {
             forward = false;
         }
 
-        const QDateTimeEditPrivate::SectionNode newSection =
-            d->nextPrevSection(d->currentSection, forward);
+        const QDateTimeEditPrivate::SectionNode newSection = d->nextPrevSection(d->currentSection, forward);
         if (select) {
             d->setSelected(newSection.section);
         } else {
@@ -1836,7 +1830,7 @@ static QString unquote(const QString &str)
         if (str.at(i) == quote) {
             if (status != quote) {
                 status = quote;
-            } else if (!ret.isEmpty() && str.at(i - 1) == QLatin1Char('\\')) {
+            } else if (!ret.isEmpty() && str.at(i - 1) == slash) {
                 ret[ret.size() - 1] = quote;
             } else {
                 status = QLatin1Char('0');
@@ -1872,7 +1866,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
             ++add;
             if (status != quote) {
                 status = quote;
-            } else if (newFormat.at(i - 1) != QLatin1Char('\\')) {
+            } else if (newFormat.at(i - 1) != slash) {
                 status = QLatin1Char('0');
             }
         } else if (i + 1 < newFormat.size() && status != quote) {
@@ -2006,7 +2000,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
     for (int i = 0; i < displayFormat.length(); ++i) {
         if (displayFormat.at(i) == quote){
             if (status == quote) {
-                if (!escapedFormat.isEmpty() && displayFormat.at(i - 1) == QLatin1Char('\\')) {
+                if (!escapedFormat.isEmpty() && displayFormat.at(i - 1) == slash) {
                     escapedFormat[escapedFormat.length() - 1] = quote;
                 } else {
                     status = QLatin1Char('0');
