@@ -230,6 +230,7 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
         label = toString(attributes.value(QLatin1String("label"))->elementString());
 
     if (QTabWidget *tabWidget = qobject_cast<QTabWidget*>(parentWidget)) {
+        widget->setParent(0);
         tabWidget->addTab(widget, title);
         return true;
     }
@@ -243,26 +244,6 @@ bool QAbstractFormBuilder::addItem(DomWidget *ui_widget, QWidget *widget, QWidge
         toolBox->addItem(widget, label);
         return true;
     }
-
-#if 0 // ### remove me
-    if (QMenu *menu = qobject_cast<QMenu*>(widget)){
-        QMenuBar *parentMenuBar = qobject_cast<QMenuBar*>(parentWidget);
-        QMenu *parentMenu = qobject_cast<QMenu*>(parentWidget);
-
-        menu->hide();
-
-        if (parentMenuBar || parentMenu) {
-            menu->setParent(0, Qt::Popup);
-
-            if (parentMenuBar)
-                parentMenuBar->addMenu(menu);
-            else
-                parentMenu->addMenu(menu);
-
-            return true;
-        }
-    }
-#endif
 
     return false;
 }

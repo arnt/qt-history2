@@ -85,6 +85,8 @@ bool Q3ListViewExtraInfo::loadWidgetExtraInfo(DomWidget *ui_widget)
     Q3ListView *listView = qobject_cast<Q3ListView*>(widget());
     Q_ASSERT(listView != 0);
 
+    Q3Header *header = listView->header();
+
     QList<DomColumn*> columns = ui_widget->elementColumn();
     for (int i=0; i<columns.size(); ++i) {
         DomColumn *column = columns.at(i);
@@ -96,20 +98,21 @@ bool Q3ListViewExtraInfo::loadWidgetExtraInfo(DomWidget *ui_widget)
         DomProperty *resizable = properties.value(QLatin1String("resizable"));
 
         QString txt = text->elementString()->text();
-        listView->addColumn(txt);
 
-        if (pixmap) {
+        if (pixmap != 0) {
             DomResourcePixmap *pix = pixmap->elementIconSet();
             QIcon icon(core()->iconCache()->resolveQrcPath(pix->text(), pix->attributeResource(), workingDirectory()));
-            listView->header()->setLabel(listView->header()->count() - 1, icon, txt);
+            listView->addColumn(icon, txt);
+        } else {
+            listView->addColumn(txt);
         }
 
-        if (!clickable) {
-            listView->header()->setClickEnabled(false, listView->header()->count() - 1);
+        if (clickable != 0) {
+            header->setClickEnabled(clickable->elementBool() == QLatin1String("true"), header->count() - 1);
         }
 
-        if (!resizable) {
-            listView->header()->setResizeEnabled(false, listView->header()->count() - 1);
+        if (resizable != 0) {
+            header->setResizeEnabled(resizable->elementBool() == QLatin1String("true"), header->count() - 1);
         }
     }
 
