@@ -73,6 +73,7 @@ public:
 
 protected:
     void checkObjectName(QWidget *widget);
+    void updateBuddies(const QString &old_name, const QString &new_name);
     void checkSelection(QWidget *widget);
     void checkParent(QWidget *widget, QWidget *parentWidget);
     bool hasLayout(QWidget *widget) const;

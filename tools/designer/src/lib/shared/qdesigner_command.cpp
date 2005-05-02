@@ -93,6 +93,28 @@ void QDesignerFormWindowCommand::checkObjectName(QWidget *widget)
     }
 }
 
+void QDesignerFormWindowCommand::updateBuddies(const QString &old_name,
+                                                const QString &new_name)
+{
+    QDesignerFormEditorInterface *core = formWindow()->core();
+
+    QList<QDesignerLabel*> label_list = qFindChildren<QDesignerLabel*>(formWindow());
+    foreach (QDesignerLabel *label, label_list) {
+        QDesignerPropertySheetExtension* propertySheet
+            = qt_extension<QDesignerPropertySheetExtension*>
+                (core->extensionManager(), label);
+        if (propertySheet == 0)
+            continue;
+        int idx = propertySheet->indexOf(QLatin1String("buddy"));
+        if (idx == -1)
+            continue;
+        qDebug() << "QDesignerFormWindowCommand::updateBuddies(): updating "
+                    << label->objectName() << "to" << new_name;
+        if (propertySheet->property(idx).toString() == old_name)
+            propertySheet->setProperty(idx, new_name);
+    }
+}
+
 void QDesignerFormWindowCommand::checkSelection(QWidget *widget)
 {
     Q_UNUSED(widget);
@@ -171,6 +193,7 @@ void SetPropertyCommand::redo()
         checkParent(m_widget, m_parentWidget);
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
+        updateBuddies(m_oldValue.toString(), m_newValue.toString());
     }
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
@@ -192,6 +215,7 @@ void SetPropertyCommand::undo()
         checkParent(m_widget, m_parentWidget);
     } else if (m_propertyName == QLatin1String("objectName")) {
         checkObjectName(m_widget);
+        updateBuddies(m_newValue.toString(), m_oldValue.toString());
     }
 
     if (QDesignerPropertyEditorInterface *propertyEditor = formWindow()->core()->propertyEditor()) {
