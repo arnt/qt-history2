@@ -323,6 +323,19 @@ QEventDispatcherWin32::QEventDispatcherWin32(QObject *parent)
 QEventDispatcherWin32::~QEventDispatcherWin32()
 {
     Q_D(QEventDispatcherWin32);
+    
+    // clean up any socketnotifiers
+    while (!d->sn_read.isEmpty())
+        unregisterSocketNotifier((*(d->sn_read.begin()))->obj);
+    while (!d->sn_write.isEmpty())
+        unregisterSocketNotifier((*(d->sn_write.begin()))->obj);
+    while (!d->sn_except.isEmpty())
+        unregisterSocketNotifier((*(d->sn_except.begin()))->obj);
+
+    // clean up any timers
+    while (!d->timerDict.isEmpty())
+        unregisterTimer((*(d->timerDict.begin()))->ind);
+
     DestroyWindow(d->internalHwnd);
 }
 
