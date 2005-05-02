@@ -108,8 +108,6 @@ void QDesignerFormWindowCommand::updateBuddies(const QString &old_name,
         int idx = propertySheet->indexOf(QLatin1String("buddy"));
         if (idx == -1)
             continue;
-        qDebug() << "QDesignerFormWindowCommand::updateBuddies(): updating "
-                    << label->objectName() << "to" << new_name;
         if (propertySheet->property(idx).toString() == old_name)
             propertySheet->setProperty(idx, new_name);
     }
