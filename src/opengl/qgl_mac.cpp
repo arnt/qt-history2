@@ -49,7 +49,7 @@
   Externals
  *****************************************************************************/
 extern WindowPtr qt_mac_window_for(HIViewRef); //qwidget_mac.cpp
-extern QPoint posInWindow(const QWidget *); //qwidget_mac.cpp
+extern QPoint qt_mac_posInWindow(const QWidget *); //qwidget_mac.cpp
 extern RgnHandle qt_mac_get_rgn(); //qregion_mac.cpp
 extern void qt_mac_dispose_rgn(RgnHandle); //qregion_mac.cpp
 extern QRegion qt_mac_convert_mac_region(RgnHandle); //qregion_mac.cpp
@@ -281,7 +281,7 @@ static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
 {
     RgnHandle macr = qt_mac_get_rgn();
     GetControlRegion((HIViewRef)widget->winId(), kControlStructureMetaPart, macr);
-    QPoint wpos = posInWindow(widget);
+    QPoint wpos = qt_mac_posInWindow(widget);
     OffsetRgn(macr, wpos.x(), wpos.y());
     QRegion ret = qt_mac_convert_mac_region(macr);
     QStack<const QWidget *> widgets;
@@ -295,7 +295,7 @@ static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
                     break;
                 if(child->isVisible() && !child->isTopLevel()) {
                     GetControlRegion((HIViewRef)child->winId(), kControlStructureMetaPart, macr);
-                    wpos = posInWindow(child);
+                    wpos = qt_mac_posInWindow(child);
                     OffsetRgn(macr, wpos.x(), wpos.y());
                     ret -= qt_mac_convert_mac_region(macr);
                 }
@@ -346,7 +346,7 @@ void QGLContext::updatePaintDevice()
                 if(aglIsEnabled((AGLContext)d->cx, AGL_CLIP_REGION))
                     aglDisable((AGLContext)d->cx, AGL_CLIP_REGION);
             } else {
-                QPoint wpos = posInWindow(w);
+                QPoint wpos = qt_mac_posInWindow(w);
                 const GLint offs[4] = { wpos.x(), w->window()->height() - (wpos.y() + w->height()),
                                         w->width(), w->height() };
                 aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);

@@ -587,7 +587,7 @@ private:
     friend class QMacSavedPortInfo;
     friend class QQuickDrawPaintEngine;
     friend class QCoreGraphicsPaintEnginePrivate;
-    friend QPoint posInWindow(const QWidget *w);
+    friend QPoint qt_mac_posInWindow(const QWidget *w);
 #endif
 #ifdef Q_WS_QWS
     friend class QWSManager;

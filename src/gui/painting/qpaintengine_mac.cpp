@@ -41,7 +41,7 @@
 /*****************************************************************************
   External functions
  *****************************************************************************/
-extern QPoint posInWindow(const QWidget *w); //qwidget_mac.cpp
+extern QPoint qt_mac_posInWindow(const QWidget *w); //qwidget_mac.cpp
 extern WindowPtr qt_mac_window_for(const QWidget *); //qwidget_mac.cpp
 extern GrafPtr qt_mac_qd_context(const QPaintDevice *); //qpaintdevice_mac.cpp
 extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp
@@ -113,7 +113,7 @@ QQuickDrawPaintEngine::begin(QPaintDevice *pdev)
     if(d->pdev->devType() == QInternal::Widget) {
         QWidget *w = static_cast<QWidget*>(d->pdev);
         { //offset painting in widget relative the tld
-            QPoint wp = posInWindow(w);
+            QPoint wp = qt_mac_posInWindow(w);
             d->offx = wp.x();
             d->offy = wp.y();
         }
@@ -741,7 +741,7 @@ void QQuickDrawPaintEngine::setupQDPort(bool force, QPoint *off, QRegion *rgn)
         }
         if(remade_clip) {
             //offset painting in widget relative the tld
-            QPoint wp = posInWindow(w);
+            QPoint wp = qt_mac_posInWindow(w);
             d->offx = wp.x();
             d->offy = wp.y();
 
@@ -1044,7 +1044,7 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
     if(d->pdev->devType() == QInternal::Widget) {                    // device is a widget
         QWidget *w = (QWidget*)d->pdev;
         { //offset painting in widget relative the tld (quickdraw compat!!!)
-            QPoint wp = posInWindow(w);
+            QPoint wp = qt_mac_posInWindow(w);
             d->offx = wp.x();
             d->offy = wp.y();
         }
@@ -1568,7 +1568,7 @@ QCoreGraphicsPaintEnginePrivate::setClip(const QRegion *rgn)
         QPoint mp(0, 0);
         if(pdev->devType() == QInternal::Widget) {
             QWidget *w = static_cast<QWidget*>(pdev);
-            mp = posInWindow(w);
+            mp = qt_mac_posInWindow(w);
             qt_mac_clip_cg(hd, w->d_func()->clippedRegion(), &mp, &orig_xform);
         }
         QRegion sysClip = q->systemClip();

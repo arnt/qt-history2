@@ -863,7 +863,7 @@ void Q3ScrollView::updateScrollBars()
         } else {
             QWidget *tlw = window();
             QPoint tlw_br = QPoint(tlw->width(), tlw->height()),
-                    my_br = posInWindow(this) + QPoint(w, h);
+                    my_br = qt_mac_posInWindow(this) + QPoint(w, h);
             if(my_br.x() >= tlw_br.x() - 3 && my_br.y() >= tlw_br.y() - 3)
                 mac_need_scroll = true;
         }

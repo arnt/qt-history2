@@ -574,7 +574,7 @@ void qt_event_request_showsheet(QWidget *w)
 /* window changing. This is a hack around Apple's missing functionality, pending the toolbox
    team fix. --Sam */
 static EventRef request_window_change_pending = 0;
-void qt_event_request_window_change()
+Q_GUI_EXPORT void qt_event_request_window_change()
 {
     if(request_window_change_pending) {
         if(IsEventInQueue(GetMainEventQueue(), request_window_change_pending))

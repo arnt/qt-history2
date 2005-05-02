@@ -58,6 +58,7 @@ const UInt32 kWidgetCreatorQt = 'cute';
 enum {
     kWidgetPropertyQWidget = 'QWId' //QWidget *
 };
+Q_GUI_EXPORT QPoint qt_mac_posInWindow(const QWidget *w);
 
 
 /*****************************************************************************
@@ -113,7 +114,7 @@ static QSize qt_initial_size(QWidget *w) {
     return s;
 }
 
-QPoint posInWindow(const QWidget *w)
+QPoint qt_mac_posInWindow(const QWidget *w)
 {
     QPoint ret = w->data->wrect.topLeft();
     while (w && !w->isWindow()) {
@@ -159,7 +160,7 @@ inline static void qt_mac_set_fullscreen_mode(bool b)
 }
 
 //find a WindowPtr from a QWidget/HIView
-WindowPtr qt_mac_window_for(HIViewRef hiview)
+Q_GUI_EXPORT WindowPtr qt_mac_window_for(HIViewRef hiview)
 {
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3)
@@ -168,7 +169,7 @@ WindowPtr qt_mac_window_for(HIViewRef hiview)
     return GetControlOwner(hiview);
 
 }
-WindowPtr qt_mac_window_for(const QWidget *w)
+Q_GUI_EXPORT WindowPtr qt_mac_window_for(const QWidget *w)
 {
     return qt_mac_window_for((HIViewRef)w->winId());
 }
@@ -391,7 +392,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                 widget->d_func()->clp = qt_mac_convert_mac_region(widgetRgn);
                 qt_mac_dispose_rgn(widgetRgn);
                 if(!widget->isWindow()) {
-                    QPoint pt(posInWindow(widget));
+                    QPoint pt(qt_mac_posInWindow(widget));
                     widget->d_func()->clp.translate(pt.x(), pt.y());
                 }
 

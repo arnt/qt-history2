@@ -74,7 +74,7 @@ public:
     static bool blocking() { return block != 0; }
 };
 
-class QMacWindowChangeEvent
+class Q_GUI_EXPORT QMacWindowChangeEvent
 {
 private:
     static QList<QMacWindowChangeEvent*> *change_events;
