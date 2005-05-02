@@ -261,7 +261,6 @@ void QRfbRect::write(QTcpSocket *s)
     buf[1] = htons(y);
     buf[2] = htons(w);
     buf[3] = htons(h);
-//    qDebug( "QRfbRect::write %d,%d,%d,%d:%x %x %x %x", x,y,w,h, buf[0],buf[1],buf[2],buf[3]);
     s->write((char*)buf, 8);
 }
 
@@ -996,7 +995,7 @@ void QVNCServer::sendHextile()
                 rect.x += MAP_TILE_SIZE;
             }
             rect.y += MAP_TILE_SIZE;
-            client->flush();
+//////////////////////////////            client->flush();
             if (client->state() == QAbstractSocket::UnconnectedState)
                 break;
         }
