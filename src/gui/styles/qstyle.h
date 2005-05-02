@@ -60,7 +60,7 @@ public:
     virtual void drawItemPixmap(QPainter *painter, const QRect &rect,
                                 int alignment, const QPixmap &pixmap) const;
 
-    virtual QPalette standardPalette();
+    virtual QPalette standardPalette() const;
 
     enum StateFlag {
         State_None    =       0x00000000,

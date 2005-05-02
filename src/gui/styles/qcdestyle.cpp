@@ -224,7 +224,7 @@ void QCDEStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPai
 }
 
 /*!\reimp*/
-QPalette QCDEStyle::standardPalette()
+QPalette QCDEStyle::standardPalette() const
 {
     QColor background = QColor(0xb6, 0xb6, 0xcf);
     QColor light = background.light();

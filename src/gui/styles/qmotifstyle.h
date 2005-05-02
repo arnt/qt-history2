@@ -71,7 +71,7 @@ public:
 
     bool event(QEvent *);
 
-    QPalette standardPalette();
+    QPalette standardPalette() const;
 protected:
     QPointer<QFocusFrame> focus;
 private:

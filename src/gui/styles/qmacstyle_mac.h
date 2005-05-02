@@ -58,7 +58,7 @@ public:
 
     int pixelMetric(PixelMetric pm, const QStyleOption *opt = 0, const QWidget *widget = 0) const;
 
-
+    QPalette standardPalette() const;
 
     virtual int styleHint(StyleHint sh, const QStyleOption *opt = 0, const QWidget *w = 0,
                           QStyleHintReturn *shret = 0) const;

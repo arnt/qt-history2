@@ -1773,7 +1773,7 @@ int QStyle::sliderValueFromPosition(int min, int max, int pos, int span, bool up
      Returns the style's standard palette. On systems that support
      system colors, the style's standard palette is not used.
  */
-QPalette QStyle::standardPalette()
+QPalette QStyle::standardPalette() const
 {
 #ifdef Q_WS_X11
     QColor background;

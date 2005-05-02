@@ -57,7 +57,7 @@ public:
     void unpolish(QWidget *widget);
     void unpolish(QApplication *app);
 
-    QPalette standardPalette();
+    QPalette standardPalette() const;
 
 private:
     QPlastiqueStylePrivate *d;

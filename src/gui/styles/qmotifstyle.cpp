@@ -2360,7 +2360,7 @@ QMotifStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWidget *w
 }
 
 /*! \reimp */
-QPalette QMotifStyle::standardPalette()
+QPalette QMotifStyle::standardPalette() const
 {
 #ifdef Q_WS_X11
     QColor background(0xcf, 0xcf, 0xcf);

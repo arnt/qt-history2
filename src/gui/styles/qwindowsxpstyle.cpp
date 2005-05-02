@@ -2820,6 +2820,11 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     return res;
 }
 
+/* \reimp */
+QPalette QWindowsXPStyle::standardPalette() const
+{
+    return QWindowsStyle::standardPalette();
+}
 
 
 // Debugging code ---------------------------------------------------------------------[ START ]---
@@ -3095,5 +3100,6 @@ void QWindowsXPStylePrivate::showProperties(XPThemeData &themeData)
 }
 #endif
 // Debugging code -----------------------------------------------------------------------[ END ]---
+
 
 #endif //QT_NO_WINDOWSXP

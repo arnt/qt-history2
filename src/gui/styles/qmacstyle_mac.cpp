@@ -4996,6 +4996,12 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     return ret;
 }
 
+/* \reimp */
+QPalette QMacStyle::standardPalette() const
+{
+    return QWindowsStyle::standardPalette();
+}
+
 /*! \reimp */
 int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w,
                          QStyleHintReturn *hret) const

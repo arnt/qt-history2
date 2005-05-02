@@ -4079,7 +4079,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
 /*!
   \reimp
 */
-QPalette QPlastiqueStyle::standardPalette()
+QPalette QPlastiqueStyle::standardPalette() const
 {
     QPalette palette;
 

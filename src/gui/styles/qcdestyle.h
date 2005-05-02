@@ -42,7 +42,7 @@ public:
     void drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, QPainter *p,
                         const QWidget *w = 0) const;
 
-    QPalette standardPalette();
+    QPalette standardPalette() const;
 
 };
 
