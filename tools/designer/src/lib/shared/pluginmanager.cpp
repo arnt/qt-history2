@@ -185,8 +185,9 @@ void PluginManager::ensureInitialized()
     }
 
     foreach (QDesignerCustomWidgetInterface *c, m_customWidgets) {
-        if (!c->isInitialized())
+        if (!c->isInitialized()) {
             c->initialize(core());
+        }
     }
 }
 

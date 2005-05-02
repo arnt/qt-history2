@@ -541,19 +541,10 @@ WidgetBoxTreeView::CategoryList WidgetBoxTreeView::loadCustomCategoryList() cons
 
     PluginManager *pm = m_core->pluginManager();
     QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
-    for (int i = 0; i < db->count(); ++i) {
-        QDesignerWidgetDataBaseItemInterface *item = db->item(i);
-        if (!item->isCustom())
-            continue;
-        QString path = item->pluginPath();
-        if (path.isEmpty())
-            continue;
-        QObject *o = pm->instance(path);
-        if (o == 0)
-            continue;
-        QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o);
-        if (c == 0)
-            continue;
+
+    QList<QDesignerCustomWidgetInterface*> customWidgets = pm->registeredCustomWidgets();
+
+    foreach (QDesignerCustomWidgetInterface *c, customWidgets) {
         QString dom_xml = c->domXml();
         if (dom_xml.isEmpty())
             continue;
@@ -561,6 +552,7 @@ WidgetBoxTreeView::CategoryList WidgetBoxTreeView::loadCustomCategoryList() cons
         QString cat_name = c->group();
         if (cat_name.isEmpty())
             cat_name = tr("Custom Widgets");
+
         int idx = findCategory(cat_name, result);
         if (idx == -1) {
             result.append(Category(cat_name));
@@ -574,6 +566,7 @@ WidgetBoxTreeView::CategoryList WidgetBoxTreeView::loadCustomCategoryList() cons
             icon_name = QLatin1String("qtlogo.png");
         else
             icon_name = m_core->iconCache()->iconToFilePath(icon);
+
         cat.addWidget(Widget(c->name(), dom_xml, icon_name, Widget::Custom));
     }
 

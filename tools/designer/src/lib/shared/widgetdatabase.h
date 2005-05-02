@@ -56,9 +56,6 @@ public:
     bool isContainer() const;
     void setContainer(bool b);
 
-    bool isForm() const;
-    void setForm(bool b);
-
     bool isCustom() const;
     void setCustom(bool b);
 

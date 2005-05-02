@@ -45,6 +45,6 @@ public:
     virtual QList<QByteArray> parameterTypes(int index) const = 0;
     virtual QList<QByteArray> parameterNames(int index) const = 0;
 };
-Q_DECLARE_EXTENSION_INTERFACE(QDesignerMemberSheetExtension, "http://trolltech.com/Qt/IDE/MemberSheet")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerMemberSheetExtension, "http://trolltech.com/Qt/Designer/MemberSheet")
 
 #endif // MEMBERSHEET_H

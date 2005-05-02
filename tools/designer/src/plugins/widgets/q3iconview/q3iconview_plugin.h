@@ -21,7 +21,7 @@ class Q3IconViewPlugin: public QObject, public QDesignerCustomWidgetInterface
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
-    inline Q3IconViewPlugin(QObject *parent = 0);
+    Q3IconViewPlugin(QObject *parent = 0);
 
     virtual QString name() const;
     virtual QString group() const;

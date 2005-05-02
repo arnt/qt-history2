@@ -71,7 +71,7 @@ int QDesignerWidgetDataBaseInterface::indexOfObject(QObject *object, bool) const
     if (!object)
         return -1;
 
-    QString className = QString::fromUtf8(object->metaObject()->className());         
+    QString className = QString::fromUtf8(object->metaObject()->className());
     return indexOfClassName(className);
 }
 
@@ -79,13 +79,6 @@ bool QDesignerWidgetDataBaseInterface::isContainer(QObject *object, bool resolve
 {
     if (QDesignerWidgetDataBaseItemInterface *i = item(indexOfObject(object, resolveName)))
         return i->isContainer();
-    return false;
-}
-
-bool QDesignerWidgetDataBaseInterface::isForm(QObject *object, bool resolveName) const
-{
-    if (QDesignerWidgetDataBaseItemInterface *i = item(indexOfObject(object, resolveName)))
-        return i->isForm();
     return false;
 }
 

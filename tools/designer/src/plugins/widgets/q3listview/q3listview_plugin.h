@@ -21,7 +21,7 @@ class Q3ListViewPlugin: public QObject, public QDesignerCustomWidgetInterface
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
-    inline Q3ListViewPlugin(QObject *parent = 0);
+    Q3ListViewPlugin(QObject *parent = 0);
 
     virtual QString name() const;
     virtual QString group() const;

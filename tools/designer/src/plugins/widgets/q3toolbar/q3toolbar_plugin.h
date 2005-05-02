@@ -21,7 +21,7 @@ class Q3ToolBarPlugin: public QObject, public QDesignerCustomWidgetInterface
     Q_OBJECT
     Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
-    inline Q3ToolBarPlugin(QObject *parent = 0);
+    Q3ToolBarPlugin(QObject *parent = 0);
 
     virtual QString name() const;
     virtual QString group() const;

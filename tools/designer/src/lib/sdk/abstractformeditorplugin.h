@@ -32,6 +32,6 @@ public:
 
     virtual QDesignerFormEditorInterface *core() const = 0;
 };
-Q_DECLARE_INTERFACE(QDesignerFormEditorPluginInterface, "http://trolltech.com/Qt/IDE/QDesignerFormEditorPluginInterface")
+Q_DECLARE_INTERFACE(QDesignerFormEditorPluginInterface, "http://trolltech.com/Qt/Designer/QDesignerFormEditorPluginInterface")
 
 #endif // ABSTRACTFORMEDITORPLUGIN_H

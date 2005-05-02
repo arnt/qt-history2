@@ -116,16 +116,6 @@ void WidgetDataBaseItem::setContainer(bool b)
     m_container = b;
 }
 
-bool WidgetDataBaseItem::isForm() const
-{
-    return m_form;
-}
-
-void WidgetDataBaseItem::setForm(bool b)
-{
-    m_form = b;
-}
-
 bool WidgetDataBaseItem::isCustom() const
 {
     return m_custom;
@@ -214,10 +204,7 @@ WidgetDataBase::WidgetDataBase(QDesignerFormEditorInterface *core, QObject *pare
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDockWidget"))))->setContainer(true);
 
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QWidget"))))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QWidget"))))->setForm(true);
-
     static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDialog"))))->setContainer(true);
-    static_cast<WidgetDataBaseItem *>(item(indexOfClassName(QLatin1String("QDialog"))))->setForm(true);
 }
 
 WidgetDataBase::~WidgetDataBase()
@@ -284,7 +271,6 @@ WidgetDataBaseItem *WidgetDataBase::createCustomWidgetItem(QDesignerCustomWidget
     WidgetDataBaseItem *item = new WidgetDataBaseItem();
     item->setContainer(c->isContainer());
     item->setCustom(true);
-    item->setForm(c->isForm());
     item->setGroup(c->group());
     item->setIcon(c->icon());
     item->setIncludeFile(c->includeFile());

@@ -52,9 +52,6 @@ public:
     virtual bool isContainer() const = 0;
     virtual void setContainer(bool container) = 0;
 
-    virtual bool isForm() const = 0;
-    virtual void setForm(bool form) = 0;
-
     virtual bool isCustom() const = 0;
     virtual void setCustom(bool custom) = 0;
 
@@ -91,7 +88,6 @@ public:
     virtual QDesignerFormEditorInterface *core() const;
 
     bool isContainer(QObject *object, bool resolveName = true) const;
-    bool isForm(QObject *object, bool resolveName = true) const;
     bool isCustom(QObject *object, bool resolveName = true) const;
 
 signals:

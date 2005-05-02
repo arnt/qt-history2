@@ -35,7 +35,6 @@ public:
     virtual QIcon icon() const = 0;
 
     virtual bool isContainer() const = 0;
-    virtual bool isForm() const = 0;
 
     virtual QWidget *createWidget(QWidget *parent) = 0;
 
@@ -45,7 +44,7 @@ public:
     virtual QString codeTemplate() const { return QString(); }
     virtual QString domXml() const { return QString(); }
 };
-Q_DECLARE_INTERFACE(QDesignerCustomWidgetInterface, "http://trolltech.com/Qt/IDE/CustomWidget")
+Q_DECLARE_INTERFACE(QDesignerCustomWidgetInterface, "http://trolltech.com/Qt/Designer/CustomWidget")
 
 
 class QDesignerCustomWidgetCollectionInterface
@@ -55,6 +54,6 @@ public:
 
     virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const = 0;
 };
-Q_DECLARE_INTERFACE(QDesignerCustomWidgetCollectionInterface, "http://trolltech.com/Qt/IDE/CustomWidgetCollection")
+Q_DECLARE_INTERFACE(QDesignerCustomWidgetCollectionInterface, "http://trolltech.com/Qt/Designer/CustomWidgetCollection")
 
 #endif // CUSTOMWIDGET_H
