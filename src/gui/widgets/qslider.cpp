@@ -368,30 +368,39 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
     Q_D(QSlider);
     if (d->maximum == d->minimum
         || (ev->buttons() ^ ev->button())
-        || (ev->button() != Qt::LeftButton)) {
+        || (ev->button() == Qt::RightButton)) {
         ev->ignore();
         return;
     }
     ev->accept();
-    QStyleOptionSlider opt = d->getStyleOption();
-    d->pressedControl = style()->hitTestComplexControl(QStyle::CC_Slider, &opt, ev->pos(), this);
-    SliderAction action = SliderNoAction;
-    if (d->pressedControl == QStyle::SC_SliderGroove) {
-        int pressValue = d->pixelPosToRangeValue(d->pick(ev->pos()));
-        if (pressValue > d->value)
-            action = SliderPageStepAdd;
-        else if (pressValue < d->value)
-            action = SliderPageStepSub;
-        if (action) {
-            triggerAction(action);
-            setRepeatAction(action);
-        }
-    } else if (d->pressedControl == QStyle::SC_SliderHandle) {
+    if (ev->button() == Qt::MidButton) {
+        setSliderPosition(d->pixelPosToRangeValue(d->pick(ev->pos())));
+        triggerAction(SliderMove);
         setRepeatAction(SliderNoAction);
-        QRect sr = style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, this);
-        d->clickOffset = d->pick(ev->pos() - sr.topLeft());
-        d->snapBackPosition = d->position;
-        update(sr);
+        d->pressedControl = QStyle::SC_SliderHandle;
+        update();
+    } else {
+        QStyleOptionSlider opt = d->getStyleOption();
+        d->pressedControl = style()->hitTestComplexControl(QStyle::CC_Slider,
+                                                           &opt, ev->pos(), this);
+        SliderAction action = SliderNoAction;
+        if (d->pressedControl == QStyle::SC_SliderGroove) {
+            int pressValue = d->pixelPosToRangeValue(d->pick(ev->pos()));
+            if (pressValue > d->value)
+                action = SliderPageStepAdd;
+            else if (pressValue < d->value)
+                action = SliderPageStepSub;
+            if (action) {
+                triggerAction(action);
+                setRepeatAction(action);
+            }
+        } else if (d->pressedControl == QStyle::SC_SliderHandle) {
+            setRepeatAction(SliderNoAction);
+            QRect sr = style()->subControlRect(QStyle::CC_Slider, &opt, QStyle::SC_SliderHandle, this);
+            d->clickOffset = d->pick(ev->pos() - sr.topLeft());
+            d->snapBackPosition = d->position;
+            update(sr);
+        }
     }
 }
 
@@ -401,7 +410,7 @@ void QSlider::mousePressEvent(QMouseEvent *ev)
 void QSlider::mouseMoveEvent(QMouseEvent *ev)
 {
     Q_D(QSlider);
-    if (d->pressedControl != QStyle::SC_SliderHandle || !(ev->buttons() & Qt::LeftButton)) {
+    if (d->pressedControl != QStyle::SC_SliderHandle || (ev->buttons() & Qt::RightButton)) {
         ev->ignore();
         return;
     }
