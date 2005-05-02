@@ -45,7 +45,16 @@ public:
     virtual QString codeTemplate() const { return QString(); }
     virtual QString domXml() const { return QString(); }
 };
-
 Q_DECLARE_INTERFACE(QDesignerCustomWidgetInterface, "http://trolltech.com/Qt/IDE/CustomWidget")
+
+
+class QDesignerCustomWidgetCollectionInterface
+{
+public:
+    virtual ~QDesignerCustomWidgetCollectionInterface() {}
+
+    virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const = 0;
+};
+Q_DECLARE_INTERFACE(QDesignerCustomWidgetCollectionInterface, "http://trolltech.com/Qt/IDE/CustomWidgetCollection")
 
 #endif // CUSTOMWIDGET_H

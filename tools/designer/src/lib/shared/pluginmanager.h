@@ -19,34 +19,47 @@
 #include <QtCore/QStringList>
 #include <QtCore/QSettings>
 
+class QDesignerFormEditorInterface;
+class QDesignerCustomWidgetInterface;
+
 class QT_SHARED_EXPORT PluginManager: public QObject
 {
     Q_OBJECT
 public:
-    PluginManager(QObject *parent = 0);
+    PluginManager(QDesignerFormEditorInterface *core);
     virtual ~PluginManager();
+
+    QDesignerFormEditorInterface *core() const;
 
     QObject *instance(const QString &plugin) const;
 
     QStringList registeredPlugins() const;
 
     QStringList findPlugins(const QString &path);
-    
-    void setPluginPaths(const QStringList &plugin_paths);
+
     QStringList pluginPaths() const;
-    void setDisabledPlugins(const QStringList &disabled_plugins);
+    void setPluginPaths(const QStringList &plugin_paths);
+
     QStringList disabledPlugins() const;
-        
+    void setDisabledPlugins(const QStringList &disabled_plugins);
+
+    QList<QDesignerCustomWidgetInterface*> registeredCustomWidgets() const;
+
+public slots:
     bool syncSettings();
+    void ensureInitialized();
 
 private:
     void updateRegisteredPlugins();
     void registerPath(const QString &path);
     void registerPlugin(const QString &plugin);
-    
+
+private:
+    QDesignerFormEditorInterface *m_core;
     QStringList m_pluginPaths;
     QStringList m_registeredPlugins;
     QStringList m_disabledPlugins;
+    QList<QDesignerCustomWidgetInterface*> m_customWidgets;
 };
 
 #endif // PLUGINMANAGER_H

@@ -84,15 +84,9 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
 
     QStringList plugins = m_core->pluginManager()->registeredPlugins();
 
-    foreach (QString plugin, plugins) {
-        QObject *o = m_core->pluginManager()->instance(plugin);
-
-        if (QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o)) {
-            if (!c->isInitialized())
-                c->initialize(m_core);
-
-            m_customFactory.insert(c->name(), c);
-        }
+    QList<QDesignerCustomWidgetInterface*> lst = m_core->pluginManager()->registeredCustomWidgets();
+    foreach (QDesignerCustomWidgetInterface *c, lst) {
+        m_customFactory.insert(c->name(), c);
     }
 }
 

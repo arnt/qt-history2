@@ -19,11 +19,12 @@
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstractwidgetdatabase.h>
 
-#include <QString>
-#include <QIcon>
+#include <QtGui/QIcon>
+#include <QtCore/QString>
 #include <QtCore/QVariant>
 
 class QObject;
+class QDesignerCustomWidgetInterface;
 
 class QT_SHARED_EXPORT WidgetDataBaseItem: public QDesignerWidgetDataBaseItemInterface
 {
@@ -103,12 +104,13 @@ public:
     int indexOfObject(QObject *o, bool resolveName = true) const;
 
     void grabDefaultPropertyValues();
-        
+
 public slots:
     void loadPlugins();
 
 private:
     QList<QVariant> defaultPropertyValues(const QString &name);
+    WidgetDataBaseItem *createCustomWidgetItem(QDesignerCustomWidgetInterface *customWidget) const;
 
     QDesignerFormEditorInterface *m_core;
 };

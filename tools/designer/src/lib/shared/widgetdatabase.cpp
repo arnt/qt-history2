@@ -260,28 +260,39 @@ void WidgetDataBase::loadPlugins()
         }
     }
 
+    pluginManager->ensureInitialized();
+
     foreach (QString plugin, plugins) {
         QObject *o = pluginManager->instance(plugin);
 
         if (QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o)) {
-            if (!c->isInitialized())
-                c->initialize(core());
-
-            WidgetDataBaseItem *item = new WidgetDataBaseItem();
-            item->setContainer(c->isContainer());
-            item->setCustom(true);
-            item->setForm(c->isForm());
-            item->setGroup(c->group());
-            item->setIcon(c->icon());
-            item->setIncludeFile(c->includeFile());
-            item->setName(c->name());
-            item->setToolTip(c->toolTip());
-            item->setWhatsThis(c->whatsThis());
+            WidgetDataBaseItem *item = createCustomWidgetItem(c);
             item->setPluginPath(plugin);
-
             append(item);
+        } else if (QDesignerCustomWidgetCollectionInterface *coll = qobject_cast<QDesignerCustomWidgetCollectionInterface*>(o)) {
+            foreach (QDesignerCustomWidgetInterface *c, coll->customWidgets()) {
+                WidgetDataBaseItem *item = createCustomWidgetItem(c);
+                item->setPluginPath(plugin);
+                append(item);
+            }
         }
     }
+}
+
+WidgetDataBaseItem *WidgetDataBase::createCustomWidgetItem(QDesignerCustomWidgetInterface *c) const
+{
+    WidgetDataBaseItem *item = new WidgetDataBaseItem();
+    item->setContainer(c->isContainer());
+    item->setCustom(true);
+    item->setForm(c->isForm());
+    item->setGroup(c->group());
+    item->setIcon(c->icon());
+    item->setIncludeFile(c->includeFile());
+    item->setName(c->name());
+    item->setToolTip(c->toolTip());
+    item->setWhatsThis(c->whatsThis());
+
+    return item;
 }
 
 QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)

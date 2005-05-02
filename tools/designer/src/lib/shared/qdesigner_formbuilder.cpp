@@ -38,22 +38,6 @@ QDesignerFormBuilder::QDesignerFormBuilder(QDesignerFormEditorInterface *core)
     : m_core(core)
 {
     Q_ASSERT(m_core);
-
-    PluginManager *pluginManager = m_core->pluginManager();
-
-    m_customFactory.clear();
-    QStringList plugins = pluginManager->registeredPlugins();
-
-    foreach (QString plugin, plugins) {
-        QObject *o = pluginManager->instance(plugin);
-
-        if (QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o)) {
-            if (!c->isInitialized())
-                c->initialize(m_core);
-
-            m_customFactory.insert(c->name(), c);
-        }
-    }
 }
 
 QWidget *QDesignerFormBuilder::createWidgetFromContents(const QString &contents, QWidget *parentWidget)

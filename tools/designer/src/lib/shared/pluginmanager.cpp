@@ -13,28 +13,29 @@
 
 #include "pluginmanager.h"
 
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerCustomWidgetInterface>
+
 #include <QtCore/QDir>
 #include <QtCore/QFile>
-#include <QtCore/QMap>
+#include <QtCore/QSet>
 #include <QtCore/QPluginLoader>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/qdebug.h>
 
-static QStringList unique(const QStringList &list)
+
+namespace qdesigner_internal {
+
+static QStringList unique(const QStringList &lst)
 {
-    QMap<QString, bool> m;
-    foreach (QString s, list) {
-        if (s.isEmpty())
-            continue;
-
-        m.insert(s, true);
-    }
-
-    return m.keys();
+    QSet<QString> s = QSet<QString>::fromList(lst);
+    return s.toList();
 }
 
-PluginManager::PluginManager(QObject *parent)
-    : QObject(parent)
+}
+
+PluginManager::PluginManager(QDesignerFormEditorInterface *core)
+    : QObject(core), m_core(core)
 {
     QSettings settings;
 
@@ -47,10 +48,8 @@ PluginManager::PluginManager(QObject *parent)
         settings.setValue(QLatin1String("PluginPaths"), QStringList() << path);
     }
 
-    m_pluginPaths
-        = unique(settings.value(QLatin1String("PluginPaths")).toStringList());
-    m_disabledPlugins
-        = unique(settings.value(QLatin1String("DisabledPlugins")).toStringList());
+    m_pluginPaths = qdesigner_internal::unique(settings.value(QLatin1String("PluginPaths")).toStringList());
+    m_disabledPlugins = qdesigner_internal::unique(settings.value(QLatin1String("DisabledPlugins")).toStringList());
     updateRegisteredPlugins();
 
     settings.endGroup();
@@ -59,6 +58,11 @@ PluginManager::PluginManager(QObject *parent)
 PluginManager::~PluginManager()
 {
     syncSettings();
+}
+
+QDesignerFormEditorInterface *PluginManager::core() const
+{
+    return m_core;
 }
 
 QStringList PluginManager::findPlugins(const QString &path)
@@ -149,6 +153,7 @@ void PluginManager::registerPlugin(const QString &plugin)
         return;
     if (m_registeredPlugins.contains(plugin))
         return;
+
     QPluginLoader loader(plugin);
     if (loader.load())
         m_registeredPlugins += plugin;
@@ -163,3 +168,31 @@ bool PluginManager::syncSettings()
     settings.endGroup();
     return settings.status() == QSettings::NoError;
 }
+
+void PluginManager::ensureInitialized()
+{
+    QStringList plugins = registeredPlugins();
+
+    m_customWidgets.clear();
+    foreach (QString plugin, plugins) {
+        QObject *o = instance(plugin);
+
+        if (QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o)) {
+            m_customWidgets.append(c);
+        } else if (QDesignerCustomWidgetCollectionInterface *coll = qobject_cast<QDesignerCustomWidgetCollectionInterface*>(o)) {
+            m_customWidgets += coll->customWidgets();
+        }
+    }
+
+    foreach (QDesignerCustomWidgetInterface *c, m_customWidgets) {
+        if (!c->isInitialized())
+            c->initialize(core());
+    }
+}
+
+QList<QDesignerCustomWidgetInterface*> PluginManager::registeredCustomWidgets() const
+{
+    const_cast<PluginManager*>(this)->ensureInitialized();
+    return m_customWidgets;
+}
+

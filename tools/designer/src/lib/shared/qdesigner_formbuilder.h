@@ -53,7 +53,6 @@ protected:
 
 private:
     QDesignerFormEditorInterface *m_core;
-    QMap<QString, QDesignerCustomWidgetInterface*> m_customFactory;
 };
 
 #endif // QDESIGNER_FORMBUILDER_H

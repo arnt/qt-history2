@@ -50,20 +50,13 @@ WidgetFactory::~WidgetFactory()
 
 void WidgetFactory::loadPlugins()
 {
+    m_customFactory.clear();
+
     PluginManager *pluginManager = m_core->pluginManager();
 
-    m_customFactory.clear();
-    QStringList plugins = pluginManager->registeredPlugins();
-
-    foreach (QString plugin, plugins) {
-        QObject *o = pluginManager->instance(plugin);
-
-        if (QDesignerCustomWidgetInterface *c = qobject_cast<QDesignerCustomWidgetInterface*>(o)) {
-            if (!c->isInitialized())
-                c->initialize(core());
-
-            m_customFactory.insert(c->name(), c);
-        }
+    QList<QDesignerCustomWidgetInterface*> lst = pluginManager->registeredCustomWidgets();
+    foreach (QDesignerCustomWidgetInterface *c, lst) {
+        m_customFactory.insert(c->name(), c);
     }
 }
 
