@@ -11,24 +11,28 @@
 **
 ****************************************************************************/
 
-#include <customwidget.h>
-#include <abstractformeditor.h>
-#include <abstractformwindowmanager.h>
-#include <abstractformwindowcursor.h>
-#include <qextensionmanager.h>
+#include <QtDesigner/QDesignerCustomWidgetInterface>
+#include <QtDesigner/QDesignerFormEditorInterface>
+#include <QtDesigner/QDesignerFormWindowManagerInterface>
+#include <QtDesigner/QDesignerFormWindowCursorInterface>
+#include <QtDesigner/QDesignerFormWindowInterface>
+#include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerTaskMenuExtension>
+#include <QtDesigner/QExtensionFactory>
+
 #include <qdesigner_propertysheet.h>
-#include <taskmenu.h>
 
-#include <qplugin.h>
+#include <QtCore/qplugin.h>
+#include <QtCore/QObject>
+#include <QtCore/QTimer>
+#include <QtCore/QUuid>
 
-#include <QObject>
-#include <QTimer>
-#include <QIcon>
-#include <QMessageBox>
-#include <QPainter>
+#include <QtGui/QIcon>
+#include <QtGui/QMessageBox>
+#include <QtGui/QPainter>
 
-#include <QUuid>
-#include <QAxWidget>
+#include <ActiveQt/QAxWidget>
+
 #include <olectl.h>
 #include "../container/qaxselect.h"
 
@@ -115,7 +119,7 @@ private:
 class QActiveXPropertySheet: public QDesignerPropertySheet
 {
     Q_OBJECT
-    Q_INTERFACES(IPropertySheet)
+    Q_INTERFACES(QDesignerPropertySheetExtension)
 public:
     QActiveXPropertySheet(QAxWidget *object, QObject *parent = 0)
         : QDesignerPropertySheet(object, parent)
@@ -140,10 +144,10 @@ public:
     virtual ~QActiveXPropertySheet() { }
 };
 
-class QActiveXTaskMenu: public QObject, public ITaskMenu
+class QActiveXTaskMenu: public QObject, public QDesignerTaskMenuExtension
 {
     Q_OBJECT
-    Q_INTERFACES(ITaskMenu)
+    Q_INTERFACES(QDesignerTaskMenuExtension)
 public:
     QActiveXTaskMenu(QAxWidget *object, QObject *parent = 0)
         : QObject(parent), m_axwidget(object) { }
@@ -194,7 +198,7 @@ public:
 
 	    if (!clsid.isNull())
             {
-                AbstractFormWindow *formWin = AbstractFormWindow::findFormWindow(widget);
+                QDesignerFormWindowInterface *formWin = QDesignerFormWindowInterface::findFormWindow(widget);
                 formWin->selectWidget(widget, true);
 
 	        if (key.isEmpty())
@@ -219,13 +223,13 @@ private:
     mutable QList<QAction*> m_taskActions;
 };
 
-class QActiveXExtensionFactory: public DefaultExtensionFactory
+class QActiveXExtensionFactory: public QExtensionFactory
 {
     Q_OBJECT
-    Q_INTERFACES(ExtensionFactory)
+    Q_INTERFACES(QAbstractExtensionFactory)
 public:
     QActiveXExtensionFactory(QExtensionManager *parent = 0)
-        : DefaultExtensionFactory(parent) { }
+        : QExtensionFactory(parent) { }
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const
@@ -235,20 +239,20 @@ protected:
         if (!w)
             return 0;
 
-        if (iid == Q_TYPEID(IPropertySheet))
+        if (iid == Q_TYPEID(QDesignerPropertySheetExtension))
             return new QActiveXPropertySheet(w, parent);
 
-        if (iid == Q_TYPEID(ITaskMenu))
+        if (iid == Q_TYPEID(QDesignerTaskMenuExtension))
             return new QActiveXTaskMenu(w, parent);
         
         return 0;
     }
 };
 
-class QActiveXPlugin : public QObject, public ICustomWidget
+class QActiveXPlugin : public QObject, public QDesignerCustomWidgetInterface
 {
     Q_OBJECT
-    Q_INTERFACES(ICustomWidget)
+    Q_INTERFACES(QDesignerCustomWidgetInterface)
 public:
     inline QActiveXPlugin(QObject *parent = 0)
         : QObject(parent), m_core(0) {}
@@ -285,7 +289,7 @@ public:
     virtual bool isInitialized() const 
     { return (m_core != 0); }
     
-    virtual void initialize(AbstractFormEditor *core) 
+    virtual void initialize(QDesignerFormEditorInterface *core) 
     { 
         if (m_core != 0)
             return;
@@ -294,8 +298,8 @@ public:
 
         QExtensionManager *mgr = core->extensionManager();
         QActiveXExtensionFactory *axf = new QActiveXExtensionFactory(mgr);
-        mgr->registerExtensions(axf, Q_TYPEID(IPropertySheet));
-        mgr->registerExtensions(axf, Q_TYPEID(ITaskMenu));
+        mgr->registerExtensions(axf, Q_TYPEID(QDesignerPropertySheetExtension));
+        mgr->registerExtensions(axf, Q_TYPEID(QDesignerTaskMenuExtension));
     }
 
     virtual QString domXml() const
@@ -316,7 +320,7 @@ public:
     { return QString(); }
 
 private:
-    AbstractFormEditor *m_core;
+    QDesignerFormEditorInterface *m_core;
 };
 
 Q_EXPORT_PLUGIN(QActiveXPlugin)

@@ -7,6 +7,4 @@ include($$QT_SOURCE_TREE/tools/designer/src/plugins/plugins.pri)
 SOURCES += plugin.cpp
 CONFIG += qt warn_on qaxcontainer
 
-LIBS += -lQtDesigner
-
-include($$IDEDIR/src/sharedcomponents.pri)
+INCLUDEPATH += $$QT_SOURCE_TREE/tools/designer/src/lib/shared
