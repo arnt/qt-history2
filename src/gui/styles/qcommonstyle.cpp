@@ -682,12 +682,26 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 //Center the icon if there is no text
-                if (btn->text.isEmpty())
-                    p->drawPixmap(ir.x() + ir.width() / 2 - pixw / 2,
-                                  ir.y() + ir.height() / 2 - pixh / 2, pixmap);
+
+                QPoint point;
+                if (btn->text.isEmpty()) {
+                    point = QPoint(ir.x() + ir.width() / 2 - pixw / 2,
+                                   ir.y() + ir.height() / 2 - pixh / 2);
+                } else {
+                    point = QPoint(ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2);
+                }
+                if (btn->direction == Qt::RightToLeft)
+                    point.rx() += pixw;
+
+                if ((btn->state & (State_On | State_Sunken)) && btn->direction == Qt::RightToLeft)
+                    point.rx() -= pixelMetric(PM_ButtonShiftHorizontal, opt, widget) * 2;
+
+                p->drawPixmap(visualPos(btn->direction, btn->rect, point), pixmap);
+
+                if (btn->direction == Qt::RightToLeft)
+                    ir.translate(-4, 0);
                 else
-                    p->drawPixmap(ir.x() + 2, ir.y() + ir.height() / 2 - pixh / 2, pixmap);
-                ir.translate(pixw + 4, 0);
+                    ir.translate(pixw + 4, 0);
                 ir.setWidth(ir.width() - (pixw + 4));
                 // left-align text if there is
                 if (!btn->text.isEmpty())
