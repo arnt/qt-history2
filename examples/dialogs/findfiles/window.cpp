@@ -69,8 +69,8 @@ void Window::find()
     showFiles(directory, files);
 }
 
-QStringList Window::findFiles(QDir directory, const QStringList &files,
-                                const QString &text)
+QStringList Window::findFiles(const QDir &directory, const QStringList &files,
+                              const QString &text)
 {
     QProgressDialog progressDialog(this);
     progressDialog.setCancelButtonText(tr("&Cancel"));
@@ -103,7 +103,7 @@ QStringList Window::findFiles(QDir directory, const QStringList &files,
     return foundFiles;
 }
 
-void Window::showFiles(QDir directory, QStringList files)
+void Window::showFiles(const QDir &directory, const QStringList &files)
 {
     for (int i = 0; i < files.count(); ++i) {
         QFile file(directory.absoluteFilePath(files[i]));

@@ -21,9 +21,9 @@ private slots:
     void find();
 
 private:
-    QStringList findFiles(QDir directory, const QStringList &files,
-                            const QString &text);
-    void showFiles(QDir directory, QStringList files);
+    QStringList findFiles(const QDir &directory, const QStringList &files,
+                          const QString &text);
+    void showFiles(const QDir &directory, const QStringList &files);
     QPushButton *createButton(const QString &text, const char *member);
     QComboBox *createComboBox(const QString &text = QString());
     void createFilesTable();
