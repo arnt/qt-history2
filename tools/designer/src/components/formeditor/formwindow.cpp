@@ -398,7 +398,13 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
 
     QList<QDesignerDnDItemInterface*> item_list;
     foreach (QWidget *widget, sel) {
-        if (e->modifiers() & Qt::ControlModifier) {
+        if (e->modifiers()
+#ifndef Q_WS_MAC
+        & Qt::ControlModifier
+#else
+        & Qt::AltModifier
+#endif
+        ) {
             item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::CopyDrop, this,
                                                     widget, e->globalPos()));
         } else {
