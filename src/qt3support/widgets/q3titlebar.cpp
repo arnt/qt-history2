@@ -392,6 +392,8 @@ void Q3TitleBar::mouseMoveEvent(QMouseEvent *e)
                 repaint();
         }
         break;
+    default:
+        break;
     }
 }
 
