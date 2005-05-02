@@ -921,6 +921,11 @@
 
     \section1 QComboBox
 
+    In Qt 3, the list box used to display the contents of a \c QComboBox
+    widget could be accessed by using the \c listBox() function. In Qt 4,
+    the standard list box is provided by a QListView widget, and can be
+    accessed with the \l{QComboBox::view()}{view()} function.
+
     \omit ### \endomit
 
     See \l{#virtual.functions}{Virtual Functions} for a list of
