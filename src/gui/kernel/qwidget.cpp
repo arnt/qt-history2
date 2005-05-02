@@ -756,6 +756,15 @@ void QWidgetPrivate::init(Qt::WFlags f)
     QApplication::postEvent(q, new QEvent(QEvent::PolishRequest));
 
     extraPaintEngine = 0;
+
+    // send and post remaining QObject events
+    if (q->parent() && sendChildEvents) {
+        QChildEvent e(QEvent::ChildAdded, q);
+        QApplication::sendEvent(q->parent(), &e);
+#ifdef QT3_SUPPORT
+        QApplication::postEvent(q->parent(), new QChildEvent(QEvent::ChildInserted, q));
+#endif
+    }
 }
 
 
@@ -812,15 +821,6 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         setAttribute(Qt::WA_QuitOnClose, false);
 
     d->create_sys(window, initializeWindow, destroyOldWindow);
-
-    // send and post remaining QObject events
-    if (parent() && d->sendChildEvents) {
-        QChildEvent e(QEvent::ChildAdded, this);
-        QApplication::sendEvent(parent(), &e);
-#ifdef QT3_SUPPORT
-        QApplication::postEvent(parent(), new QChildEvent(QEvent::ChildInserted, this));
-#endif
-    }
 }
 
 /*!
@@ -6119,18 +6119,32 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
     Q_D(QWidget);
     bool resized = testAttribute(Qt::WA_Resized);
     QWidget *oldtlw = window();
+    bool newParent = parent == parentWidget();
     d->setParent_sys(parent, f);
     d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
     d->resolveFont();
     d->resolvePalette();
     d->resolveLayoutDirection();
-    if (parent && d->sendChildEvents && d->polished) {
-        QChildEvent e(QEvent::ChildPolished, this);
-        QCoreApplication::sendEvent(parent, &e);
+
+    if (newParent) {
+
+        // send and post remaining QObject events
+        if (parent && d->sendChildEvents) {
+            QChildEvent e(QEvent::ChildAdded, this);
+            QApplication::sendEvent(parent, &e);
+#ifdef QT3_SUPPORT
+            QApplication::postEvent(parent, new QChildEvent(QEvent::ChildInserted, this));
+#endif
+        }
+
+        if (parent && d->sendChildEvents && d->polished) {
+            QChildEvent e(QEvent::ChildPolished, this);
+            QCoreApplication::sendEvent(parent, &e);
+        }
+        QEvent e(QEvent::ParentChange);
+        QApplication::sendEvent(this, &e);
     }
-    QEvent e(QEvent::ParentChange);
-    QApplication::sendEvent(this, &e);
 }
 
 /*!

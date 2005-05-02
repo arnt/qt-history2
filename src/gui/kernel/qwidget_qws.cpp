@@ -302,16 +302,18 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
 #ifndef QT_NO_WIDGET_TOPEXTRA
     QString capt = q->windowTitle();
 #endif
+    bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
+
     data.window_flags = f;
     q->setAttribute(Qt::WA_WState_Created, false);
     q->setAttribute(Qt::WA_WState_Visible, false);
     q->setAttribute(Qt::WA_WState_Hidden, false);
-    q->setAttribute(Qt::WA_WState_ExplicitShowHide, false);
     q->create();
-    if (q->isWindow() || (!newparent || newparent->isVisible()))
+    if (q->isWindow() || (!newparent || newparent->isVisible()) || explicitlyHidden)
         q->setAttribute(Qt::WA_WState_Hidden);
+    q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
     q->setGeometry(0, 0, s.width(), s.height());
-    q->setEnabled(enable);
+    q->setEnabled_helper(enable); //preserving WA_ForceDisabled
     q->setFocusPolicy(fp);
 #ifndef QT_NO_WIDGET_TOPEXTRA
     if (!capt.isNull()) {
