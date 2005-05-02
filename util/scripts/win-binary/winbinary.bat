@@ -213,7 +213,7 @@ set PATH=%1\%TMP_BUILDDIR%\bin;%PATH%
 set QTDIR=%1\%TMP_BUILDDIR%
 
 if "%TMP_COMPILER%"=="vs2003" goto VS2003Env
-if "%TMP_COMPILER%"=="vs2003" goto VS2003Env
+if "%TMP_COMPILER%"=="vs2002" goto VS2002Env
 if "%TMP_COMPILER%"=="vc60" goto VC60Env
 goto :EOF
 
@@ -224,7 +224,7 @@ goto :EOF
 
 :VS2002Env
 set QMAKESPEC=win32-msvc.net
-call "%VS70COMNTOOLS%vsvars32.bat" >> %1\log.txt
+call %VSCOMNTOOLS%vsvars32.bat >> %1\log.txt
 goto :EOF
 
 :VC60Env
