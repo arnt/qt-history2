@@ -100,6 +100,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
                 }
             }
             results.setAddresses(addresses);
+            local_freeaddrinfo(res);
         } else if (WSAGetLastError() == WSAHOST_NOT_FOUND || WSAGetLastError() == WSANO_DATA) {
             results.setError(QHostInfo::HostNotFound);
             results.setErrorString(tr("Host not found"));
