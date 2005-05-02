@@ -18,6 +18,8 @@
 
 #include <QtGui/QTabWidget>
 
+class QDesignerFormWindowInterface;
+
 class QT_SHARED_EXPORT QDesignerTabWidget : public QTabWidget
 {
     Q_OBJECT
@@ -49,6 +51,8 @@ public:
     { return m_actionInsertPage; }
 
     bool eventFilter(QObject *o, QEvent *e);
+
+    QDesignerFormWindowInterface *formWindow() const;
 
 private slots:
     void removeCurrentPage();

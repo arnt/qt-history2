@@ -12,7 +12,8 @@
 ****************************************************************************/
 
 #include "qdesigner_tabwidget.h"
-#include "abstractformwindow.h"
+
+#include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <qdesigner_command.h>
 
@@ -30,18 +31,20 @@ QDesignerTabWidget::QDesignerTabWidget(QWidget *parent)
     dragPage = 0;
     mousePressed = false;
 
-    tabBar()->setAcceptDrops(true);
-    tabBar()->installEventFilter(this);
+    if (formWindow() != 0) {
+        tabBar()->setAcceptDrops(true);
+        tabBar()->installEventFilter(this);
 
-    m_actionInsertPage = new QAction(this);
-    m_actionInsertPage->setText(tr("Add Page"));
-    connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
+        m_actionInsertPage = new QAction(this);
+        m_actionInsertPage->setText(tr("Add Page"));
+        connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
 
-    m_actionDeletePage = new QAction(this);
-    m_actionDeletePage->setText(tr("Delete Page"));
-    connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
+        m_actionDeletePage = new QAction(this);
+        m_actionDeletePage->setText(tr("Delete Page"));
+        connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
 
-    connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
+        connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
+    }
 }
 
 QDesignerTabWidget::~QDesignerTabWidget()
@@ -231,7 +234,7 @@ bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
                 newIndex++;
         }
 
-        if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
+        if (QDesignerFormWindowInterface *fw = formWindow()) {
             MoveTabPageCommand *cmd = new MoveTabPageCommand(fw);
             insertTab(dragIndex, dragPage, dragIcon, dragLabel);
             cmd->init(this, dragPage, dragIcon, dragLabel, dragIndex, newIndex);
@@ -251,7 +254,7 @@ void QDesignerTabWidget::removeCurrentPage()
     if (!currentWidget())
         return;
 
-    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
         DeleteTabPageCommand *cmd = new DeleteTabPageCommand(fw);
         cmd->init(this);
         fw->commandHistory()->push(cmd);
@@ -260,7 +263,7 @@ void QDesignerTabWidget::removeCurrentPage()
 
 void QDesignerTabWidget::addPage()
 {
-    if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
+    if (QDesignerFormWindowInterface *fw = formWindow()) {
         AddTabPageCommand *cmd = new AddTabPageCommand(fw);
         cmd->init(this);
         fw->commandHistory()->push(cmd);
@@ -276,11 +279,16 @@ bool QDesignerTabWidget::canMove(QMouseEvent *e) const
 void QDesignerTabWidget::slotCurrentChanged(int index)
 {
     if (widget(index)) {
-        if (QDesignerFormWindowInterface *fw = QDesignerFormWindowInterface::findFormWindow(this)) {
+        if (QDesignerFormWindowInterface *fw = formWindow()) {
             fw->clearSelection();
             fw->selectWidget(this, true);
         }
     }
+}
+
+QDesignerFormWindowInterface *QDesignerTabWidget::formWindow() const
+{
+    return QDesignerFormWindowInterface::findFormWindow(const_cast<QDesignerTabWidget*>(this));
 }
 
 #include "qdesigner_tabwidget.moc"
