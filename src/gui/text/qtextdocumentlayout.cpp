@@ -872,10 +872,8 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
     const QTextTableFormat fmt = table->format();
 
     QVector<QTextLength> columnWidthConstraints = fmt.columnWidthConstraints();
-    if (columnWidthConstraints.isEmpty()) {
+    if (columnWidthConstraints.size() != columns)
         columnWidthConstraints.resize(columns);
-        columnWidthConstraints.fill(QTextLength());
-    }
     Q_ASSERT(columnWidthConstraints.count() == columns);
 
     const qreal cellSpacing = td->cellSpacing = fmt.cellSpacing();
