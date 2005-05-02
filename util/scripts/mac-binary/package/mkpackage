@@ -6,6 +6,8 @@
 #arch in QtCore.framework is probably wrong
 #version commandline options (and maybe from qglobal.h)
 #maybe a License.rtf generator, maybe applescript textedit?
+#make the package non-relocatable
+#add a README to the root .dmg
 
 #options
 OUTPUT_DIR=`pwd`/outputs
