@@ -411,15 +411,26 @@ void Generator::generateExampleFiles(const FakeNode *fake, CodeMarker *marker)
 
 void Generator::generateModuleName(const ClassNode *classe, CodeMarker *marker)
 {
-    if (!classe->moduleName().isEmpty()) {
+    QString module = classe->moduleName();
+    if (!module.isEmpty()) {
         Text text;
-	text << Atom::ParaLeft << "Part of the "
-             << Atom(Atom::Link, classe->moduleName().toLower() + ".html")
-             << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
-             << classe->moduleName()
-             << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
-             << " module."
-             << Atom::ParaRight;
+        if (Tokenizer::isTrue("core") && module != "QtCore"
+                && module != "QtNetwork" && module != "QtSql"
+                && module != "QtXml") {
+            text << Atom::ParaLeft
+                 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD)
+                 << "This class is not part of the Qt Core Edition."
+                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
+                 << Atom::ParaRight;
+        } else {
+	    text << Atom::ParaLeft << "Part of the "
+                 << Atom(Atom::Link, module.toLower() + ".html")
+                 << Atom(Atom::FormattingLeft, ATOM_FORMATTING_LINK)
+                 << module
+                 << Atom(Atom::FormattingRight, ATOM_FORMATTING_LINK)
+                 << " module."
+                 << Atom::ParaRight;
+        }
         generateText(text, classe, marker);
     }
 }
