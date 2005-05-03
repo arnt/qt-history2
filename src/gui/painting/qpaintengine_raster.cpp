@@ -1561,7 +1561,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
     Q_ASSERT(fg);
     Q_ASSERT(fg->callback);
 
-    QImage image = pm.toImage();
+    const QImage image = pm.toImage();
     Q_ASSERT(image.depth() == 1);
 
     const int spanCount = 256;
@@ -1578,14 +1578,22 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
 
     int x_offset = xmin - qRound(pos.x());
 
+#if BITMAPS_ARE_MSB
     QImage::Format format = image.format();
+#endif
     for (int y = ymin; y < ymax; ++y) {
-        uchar *src = image.scanLine(y - qRound(pos.y()));
+        const uchar *src = image.scanLine(y - qRound(pos.y()));
+#if BITMAPS_ARE_MSB
         if (format == QImage::Format_MonoLSB) {
+#endif
             for (int x = 0; x < xmax - xmin; ++x) {
                 int src_x = x + x_offset;
-                bool set = src[src_x >> 3] & (0x1 << (src_x & 7));
-                if (set) {
+                uchar pixel = src[src_x >> 3];
+                if (!pixel) {
+                    x += 7;
+                    continue;
+                }
+                if (pixel & (0x1 << (src_x & 7))) {
                     QT_FT_Span span = { xmin + x, 1, 255 };
                     while (src_x < w-1 && src[(src_x+1) >> 3] & (0x1 << ((src_x+1) & 7))) {
                         ++src_x;
@@ -1600,6 +1608,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                     n = 0;
                 }
             }
+#if BITMAPS_ARE_MSB
         } else {
             for (int x = 0; x < xmax - xmin; ++x) {
                 bool set = src[x >> 3] & (0x80 >> (x & 7));
@@ -1619,6 +1628,7 @@ void QRasterPaintEnginePrivate::drawBitmap(const QPointF &pos, const QPixmap &pm
                 }
             }
         }
+#endif
         if (n) {
             fg->callback(y, n, spans, fg->data);
             n = 0;
