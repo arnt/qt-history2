@@ -36,10 +36,10 @@ QStringList GfxSnapDriver::keys() const
     return list;
 }
 
-QScreen* GfxVfbDriver::create(const QString& driver, int displayId)
+QScreen* GfxSnapDriver::create(const QString& driver, int displayId)
 {
     if (driver.toLower() == "snap")
-        return new QSnapScreen(displayId);
+        return new QSNAPScreen(displayId);
 
     return 0;
 }
