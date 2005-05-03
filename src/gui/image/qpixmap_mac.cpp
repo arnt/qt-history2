@@ -18,6 +18,7 @@
 #include "qbitmap.h"
 #include "qmatrix.h"
 #include "qdebug.h"
+#include <private/qdrawhelper_p.h>
 #ifdef QT_RASTER_PAINTENGINE
 #  include <private/qpaintengine_raster_p.h>
 #else
@@ -174,6 +175,8 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         case 32:
             for(int xx=0;xx<w;xx++) {
                 q = *(((QRgb *)srow) + xx);
+                if(sformat == QImage::Format_ARGB32)
+                    q = PREMUL(q);
                 *(drow + xx) = q;
             }
             break;
@@ -564,7 +567,7 @@ void QPixmap::init(int w, int h, Type type)
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
     CGDataProviderRef provider = CGDataProviderCreateWithData(0, data->pixels, data->nbytes, qt_mac_cgimage_data_free);
     data->cg_data = CGImageCreate(w, h, 8, 32, data->nbytes / h, colorspace,
-                                  kCGImageAlphaFirst, provider, 0, 0, kCGRenderingIntentDefault);
+                                  kCGImageAlphaPremultipliedFirst, provider, 0, 0, kCGRenderingIntentDefault);
     CGColorSpaceRelease(colorspace);
     CGDataProviderRelease(provider);
 
