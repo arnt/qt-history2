@@ -1,5 +1,6 @@
 TEMPLATE = app
 CONFIG        += qt warn_on
+build_all:CONFIG += release
 LANGUAGE = C++
 QT += qt3support
 
