@@ -3288,7 +3288,10 @@ bool QETWidget::translateMouseEvent(const XEvent *event)
             if (nextEvent.type == ConfigureNotify
                 || nextEvent.type == PropertyNotify
                 || nextEvent.type == Expose
-                || nextEvent.type == NoExpose) {
+                || nextEvent.type == GraphicsExpose
+                || nextEvent.type == NoExpose
+                || (nextEvent.type == ClientMessage
+                    && nextEvent.xclient.message_type == ATOM(_QT_SCROLL_DONE))) {
                 qApp->x11ProcessEvent(&nextEvent);
                 continue;
             } else if (nextEvent.type != MotionNotify ||
