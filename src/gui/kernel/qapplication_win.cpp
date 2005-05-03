@@ -362,6 +362,7 @@ extern QFont qt_LOGFONTtoQFont(LOGFONT& lf,bool scale);
 
 static void qt_set_windows_resources()
 {
+    (void) QApplication::style(); // trigger creation of application style
 #ifndef Q_OS_TEMP
     QFont menuFont;
     QFont messageFont;
