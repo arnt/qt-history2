@@ -694,6 +694,38 @@ QSize QAbstractSpinBox::sizeHint() const
     \reimp
 */
 
+QSize QAbstractSpinBox::minimumSizeHint() const
+{
+    Q_D(const QAbstractSpinBox);
+    ensurePolished();
+
+    const QFontMetrics fm(fontMetrics());
+    int h = d->edit->minimumSizeHint().height();
+    int w = fm.width(QLatin1String("1000"));
+    w += 2; // cursor blinking space
+
+    QStyleOptionSpinBox opt = d->getStyleOption();
+    QSize hint(w, h);
+    QSize extra(35, 6);
+    opt.rect.setSize(hint + extra);
+    extra += hint - style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                            QStyle::SC_SpinBoxEditField, this).size();
+    // get closer to final result by repeating the calculation
+    opt.rect.setSize(hint + extra);
+    extra += hint - style()->subControlRect(QStyle::CC_SpinBox, &opt,
+                                               QStyle::SC_SpinBoxEditField, this).size();
+    hint += extra;
+
+    opt.rect = rect();
+
+    return style()->sizeFromContents(QStyle::CT_SpinBox, &opt, hint, this)
+        .expandedTo(QApplication::globalStrut());
+}
+
+/*!
+    \reimp
+*/
+
 void QAbstractSpinBox::paintEvent(QPaintEvent *)
 {
     Q_D(QAbstractSpinBox);
