@@ -377,8 +377,8 @@ inline void QList<T>::append(const T &t)
     if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) {
         node_construct(reinterpret_cast<Node *>(p.append()), t);
     } else {
-        const T copy(t);
-        node_construct(reinterpret_cast<Node *>(p.append()), copy);
+        const T cpy(t);
+        node_construct(reinterpret_cast<Node *>(p.append()), cpy);
     }
 }
 
@@ -389,8 +389,8 @@ inline void QList<T>::prepend(const T &t)
     if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) {
         node_construct(reinterpret_cast<Node *>(p.prepend()), t);
     } else {
-        const T copy(t);
-        node_construct(reinterpret_cast<Node *>(p.prepend()), copy);
+        const T cpy(t);
+        node_construct(reinterpret_cast<Node *>(p.prepend()), cpy);
     }
 }
 
@@ -401,8 +401,8 @@ inline void QList<T>::insert(int i, const T &t)
     if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) {
         node_construct(reinterpret_cast<Node *>(p.insert(i)), t);
     } else {
-        const T copy(t);
-        node_construct(reinterpret_cast<Node *>(p.insert(i)), copy);
+        const T cpy(t);
+        node_construct(reinterpret_cast<Node *>(p.insert(i)), cpy);
     }
 }
 
@@ -414,8 +414,8 @@ inline void QList<T>::replace(int i, const T &t)
     if (QTypeInfo<T>::isLarge || QTypeInfo<T>::isStatic) {
         reinterpret_cast<Node *>(p.at(i))->t() = t;
     } else {
-        const T copy(t);
-        reinterpret_cast<Node *>(p.at(i))->t() = copy;
+        const T cpy(t);
+        reinterpret_cast<Node *>(p.at(i))->t() = cpy;
     }
 }
 
@@ -446,12 +446,12 @@ Q_OUTOFLINE_TEMPLATE QList<T> QList<T>::mid(int pos, int length) const
         length = size() - pos;
     if (pos == 0 && length == size())
         return *this;
-    QList<T> copy;
+    QList<T> cpy;
     if (pos + length > size())
         length = size() - pos;
     for (int i = pos; i < pos + length; ++i)
-        copy += at(i);
-    return copy;
+        cpy += at(i);
+    return cpy;
 }
 
 template<typename T>

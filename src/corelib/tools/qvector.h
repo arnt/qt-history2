@@ -246,9 +246,9 @@ QVector<T> &QVector<T>::operator=(const QVector<T> &v)
 }
 
 template <typename T>
-inline QVectorData *QVector<T>::malloc(int alloc)
+inline QVectorData *QVector<T>::malloc(int aalloc)
 {
-    return static_cast<QVectorData *>(qMalloc(sizeof(Data) + (alloc - 1) * sizeof(T)));
+    return static_cast<QVectorData *>(qMalloc(sizeof(Data) + (aalloc - 1) * sizeof(T)));
 }
 
 template <typename T>
