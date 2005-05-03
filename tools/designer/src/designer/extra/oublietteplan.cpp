@@ -10,12 +10,14 @@
 #include <QtCore/QTextStream>
 #include "oublietteplan.h"
 #include "tile.h"
-#include <cstdlib>
-#include <cassert>
+#include <stdlib.h>
+#include <assert.h>
+#include <time.h>
 
 OublietteLevel::OublietteLevel(int width, int height, int totalFeatures)
     : m_size(width, height), m_totalFeatures(totalFeatures), m_totalItems(0)
 {
+    srand(::time(0));
     m_map = new Tile[m_size.width() * m_size.height()];
     generateOubliette();
 }
