@@ -4,7 +4,7 @@ TARGET                = QtAssistantClient
 VERSION                = 1.0
 
 CONFIG                += qt warn_on
-CONFIG                += staticlib
+CONFIG                += staticlib debug_and_release
 CONFIG                -= dll
 
 HEADERS         = qassistantclient.h
