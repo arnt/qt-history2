@@ -38,7 +38,7 @@ QString Q3IconViewPlugin::whatsThis() const
 { return QString(); }
 
 QString Q3IconViewPlugin::includeFile() const
-{ return QLatin1String("q3listview.h"); }
+{ return QLatin1String("q3iconview.h"); }
 
 QIcon Q3IconViewPlugin::icon() const
 { return QIcon(); }
