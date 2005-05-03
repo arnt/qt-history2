@@ -36,7 +36,7 @@
 #include "qscreen_qws.h"
 #include "qcopchannel_qws.h"
 #include "private/qlock_p.h"
-#include "qmemorymanager_qws.h"
+//#include "qmemorymanager_qws.h"
 #include "qwsmanager_qws.h"
 //#include "qwsregionmanager_qws.h"
 #include "qwindowsystem_qws.h"
@@ -298,7 +298,7 @@ public:
     ~Data()
     {
 //        delete rgnMan; rgnMan = 0;
-        delete memorymanager; memorymanager = 0;
+//        delete memorymanager; memorymanager = 0;
         qt_screen->disconnect();
         delete qt_screen; qt_screen = 0;
 #ifndef QT_NO_QWS_CURSOR
@@ -572,8 +572,8 @@ void QWSDisplay::Data::init()
     /* Initialise framebuffer memory manager */
     /* Add 4k for luck and to avoid clobbering hardware cursor */
     int screensize=qt_screen->screenSize();
-    memorymanager=new QMemoryManager(qt_screen->base()+screensize+4096,
-        qt_screen->totalSize()-(screensize+4096),0);
+//     memorymanager=new QMemoryManager(qt_screen->base()+screensize+4096,
+//         qt_screen->totalSize()-(screensize+4096),0);
 
 // #ifndef QT_NO_QWS_MULTIPROCESS
 //     rgnMan = new QWSRegionManager(pipe, csocket);

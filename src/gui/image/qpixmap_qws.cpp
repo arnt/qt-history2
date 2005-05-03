@@ -26,7 +26,6 @@
 #include <stdlib.h>
 #include <limits.h>
 
-#include "qmemorymanager_qws.h"
 #include <private/qpaintengine_raster_p.h>
 
 QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)

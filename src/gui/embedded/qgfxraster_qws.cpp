@@ -15,7 +15,7 @@
 #include "qpen.h"
 #include "qcolormap.h"
 #include "qpaintdevice.h"
-#include "qmemorymanager_qws.h"
+//#include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qgfxdriverfactory_qws.h"
 #include "qpixmap.h"

@@ -21,7 +21,7 @@
 #include "qfile.h"
 #include "qtextstream.h"
 #include "qmap.h"
-#include "qmemorymanager_qws.h"
+//#include "qmemorymanager_qws.h"
 #include "qtextengine_p.h"
 #include "qfontengine_p.h"
 
