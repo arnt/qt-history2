@@ -84,6 +84,8 @@ QAxSelect::QAxSelect(QWidget *parent, Qt::WFlags f)
 
     setupUi(this);
     ActiveXList->setModel(new ControlList(this));
+    connect(ActiveXList->selectionModel(), SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
+        this, SLOT(on_ActiveXList_clicked(const QModelIndex&)));
     QApplication::restoreOverrideCursor();
     ActiveXList->setFocus();
 
