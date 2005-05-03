@@ -1936,16 +1936,16 @@ bool QObject::connect(const QObject *sender, const char *signal,
         warnCompat = false;
     }
 
-#ifndef QT_NO_DEBUG
     if (sender == 0 || receiver == 0 || signal == 0 || member == 0) {
+#ifndef QT_NO_DEBUG
         qWarning("Object::connect: Cannot connect %s::%s to %s::%s",
                  sender ? sender->metaObject()->className() : "(null)",
                  signal ? signal+1 : "(null)",
                  receiver ? receiver->metaObject()->className() : "(null)",
                  member ? member+1 : "(null)");
+#endif
         return false;
     }
-#endif
     QByteArray tmp_signal_name;
 
 #ifndef QT_NO_DEBUG

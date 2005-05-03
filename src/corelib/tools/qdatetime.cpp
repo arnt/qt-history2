@@ -33,14 +33,16 @@
 extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 #endif
 
-static const uint FIRST_DAY = 2361222;        // Julian day for 1752-09-14
-static const int FIRST_YEAR = 1752;     // wrong for many countries
-static const uint SECS_PER_DAY = 86400;
-static const uint MSECS_PER_DAY = 86400000;
-static const uint SECS_PER_HOUR = 3600;
-static const uint MSECS_PER_HOUR = 3600000;
-static const uint SECS_PER_MIN = 60;
-static const uint MSECS_PER_MIN = 60000;
+enum {
+    FIRST_DAY = 2361222,        // Julian day for 1752-09-14
+    FIRST_YEAR = 1752,     // wrong for many countries
+    SECS_PER_DAY = 86400,
+    MSECS_PER_DAY = 86400000,
+    SECS_PER_HOUR = 3600,
+    MSECS_PER_HOUR = 3600000,
+    SECS_PER_MIN = 60,
+    MSECS_PER_MIN = 60000
+};
 
 static const short monthDays[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
@@ -3515,9 +3517,9 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
 
         case QDateTimeParser::APLower: {
         case QDateTimeParser::APUpper:
-            static const QChar a = s.type == QDateTimeParser::APLower ? QLatin1Char('a') : QLatin1Char('A');
-            static const QChar p = s.type == QDateTimeParser::APLower ? QLatin1Char('p') : QLatin1Char('P');
-            static const QChar m = s.type == QDateTimeParser::APLower ? QLatin1Char('m') : QLatin1Char('M');
+            const QChar a = s.type == QDateTimeParser::APLower ? QLatin1Char('a') : QLatin1Char('A');
+            const QChar p = s.type == QDateTimeParser::APLower ? QLatin1Char('p') : QLatin1Char('P');
+            const QChar m = s.type == QDateTimeParser::APLower ? QLatin1Char('m') : QLatin1Char('M');
 
             if ((string.at(index) != a && string.at(index) != p)
                 || string.size() < index + 2
