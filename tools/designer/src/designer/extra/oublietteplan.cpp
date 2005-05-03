@@ -91,14 +91,14 @@ void OublietteLevel::generateOubliette()
     QPoint itemPoint;
     for (int i = 0; i < m_totalItems; ++i) {
         do {
-            QRect r = m_roomList.at(random() % m_roomList.size());
-            x = random() % (r.width() - 2);
-            y = random() % (r.height() - 2);
+            QRect r = m_roomList.at(rand() % m_roomList.size());
+            x = rand() % (r.width() - 2);
+            y = rand() % (r.height() - 2);
             itemPoint.rx() = r.x() + x + 1;
             itemPoint.ry() = r.y() + y + 1;
         } while (itemPoint == centerPoint);
 
-        int card = random() % names.size();
+        int card = rand() % names.size();
         TmpStruct *tmp = names.at(card);
         names.removeAt(card);
         addItemToTile(itemPoint, new BusinessCard(QString::fromUtf8(tmp->name), QString::fromUtf8(tmp->desc), QString::fromUtf8(tmp->path)));
@@ -118,7 +118,7 @@ void OublietteLevel::generateOubliette()
 
 OublietteLevel::LevelFeature OublietteLevel::pickFeature() const
 {
-    int roll = random() % 100;
+    int roll = rand() % 100;
     LevelFeature ret;
     if (roll >= 0 && roll < 20)
         ret = HorizontalCorridor;
@@ -303,12 +303,12 @@ void OublietteLevel::fillRect(int x, int y, int width, int height, Tile le)
 QPoint OublietteLevel::findWall() const
 {
     QPoint ret;
-    // Randomly walk through the dungeon and find a point,
+    // randly walk through the dungeon and find a point,
     // if it is a wall that isn't a corner we are in good shape.
     // Technically we could get in here forever, but there is a very big chance that we will
     // break out.
     for (;;) {
-        ret = QPoint(random() % m_size.width(), random() % m_size.height());
+        ret = QPoint(rand() % m_size.width(), rand() % m_size.height());
 
         // Try to see if it works.
         Tile le = tile(ret);
