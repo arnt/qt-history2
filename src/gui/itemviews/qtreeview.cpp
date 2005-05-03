@@ -1040,7 +1040,7 @@ void QTreeView::scrollContentsBy(int dx, int dy)
     int maxDeltaY = verticalStepsPerItem() * qMin(d->viewItems.count(), viewCount);
 
     // no need to do a lot of work if we are going to redraw the whole thing anyway
-    if (qAbs(dy) > maxDeltaY) {
+    if (qAbs(dy) > qAbs(maxDeltaY)) {
         verticalScrollBar()->repaint();
         d->viewport->update();
         return;
@@ -1237,14 +1237,14 @@ void QTreeView::updateGeometries()
     }
 
     // update scrollbars
-    if (model() && model()->rowCount(rootIndex()) > 0
-        && model()->columnCount(rootIndex()) > 0) {
+    if (model() && model()->rowCount(rootIndex()) > 0)
         d->updateVerticalScrollbar();
-        d->updateHorizontalScrollbar();
-    } else {
-        horizontalScrollBar()->setRange(0, 0);
+    else
         verticalScrollBar()->setRange(0, 0);
-    }
+    if (model() && model()->columnCount(rootIndex()) > 0)
+        d->updateHorizontalScrollbar();
+    else
+        horizontalScrollBar()->setRange(0, 0);
 
     QAbstractItemView::updateGeometries();
 }
