@@ -1,7 +1,7 @@
 TEMPLATE=lib
 TARGET=QtDesigner
 QT += xml
-CONFIG += qt dll
+CONFIG += qt dll debug_and_release
 DESTDIR = ../../../../lib
 DLLDESTDIR = ../../../../bin
 

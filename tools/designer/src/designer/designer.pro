@@ -2,6 +2,7 @@
 DESTDIR = ../../../../bin
 QT += xml network
 CONFIG += qt depend_prl assistant
+build_all:CONFIG += release
 
 INCLUDEPATH += \
     ../lib/sdk \
