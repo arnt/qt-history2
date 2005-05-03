@@ -234,6 +234,8 @@ void WriteInitialization::acceptWidget(DomWidget *node)
         output << option.indent << parentWidget << "->addWidget(" << varName << ");\n";
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("Q3WidgetStack"))) {
         output << option.indent << parentWidget << "->addWidget(" << varName << ", " << id << ");\n";
+    } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QDockWidget"))) {
+        output << option.indent << parentWidget << "->setWidget(" << varName << ");\n";
     } else if (uic->customWidgetsInfo()->extends(parentClass, QLatin1String("QToolBox"))) {
         output << option.indent << parentWidget << "->addItem(" << varName << ", " << trCall(label, className) << ");\n";
 
