@@ -707,7 +707,7 @@ QFSFileEngine::currentPath(const QString &fileName)
                     WCHAR * newCurrentName = new WCHAR[size];
                     if (::GetCurrentDirectoryW(PATH_MAX, newCurrentName) != 0)
                         ret = QString::fromUtf16((ushort*)newCurrentName);
-                    delete newCurrentName;
+                    delete [] newCurrentName;
                 } else {
                     ret = QString::fromUtf16((ushort*)currentName);
                 }
