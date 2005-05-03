@@ -840,6 +840,7 @@ void QDesignerActions::aboutDesigner()
     VersionDialog mb(core()->topLevel());
     mb.setWindowTitle(tr("About Qt Designer"));
     if (mb.exec()) {
+        m_workbench->closeAllToolWindows();
         OublietteView *oubliette = new OublietteView;
         oubliette->setAttribute(Qt::WA_DeleteOnClose);
         oubliette->setMinimumSize(800, 600);

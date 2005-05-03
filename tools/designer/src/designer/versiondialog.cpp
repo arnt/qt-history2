@@ -116,7 +116,11 @@ void VersionLabel::paintEvent(QPaintEvent *pe)
 }
 
 VersionDialog::VersionDialog(QWidget *parent)
-    : QDialog(parent)
+    : QDialog(parent
+#ifdef Q_WS_MAC
+            , Qt::Tool
+#endif
+            )
 {
     QGridLayout *layout = new QGridLayout(this);
     VersionLabel *label = new VersionLabel(this);

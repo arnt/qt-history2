@@ -37,7 +37,7 @@ enum NewForm_CustomRole
 
 NewForm::NewForm(QDesignerWorkbench *workbench, QWidget *parentWidget)
     : QDialog(parentWidget,
-#ifdef QT_WS_MAC
+#ifdef Q_WS_MAC
             Qt::Tool |
 #endif
             Qt::WindowTitleHint | Qt::WindowSystemMenuHint),

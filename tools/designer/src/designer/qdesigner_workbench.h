@@ -83,6 +83,7 @@ public:
     bool writeOutForm(QDesignerFormWindowInterface *formWindow, const QString &fileName) const;
     bool saveForm(QDesignerFormWindowInterface *fw);
     bool handleClose();
+    void closeAllToolWindows();
 
 signals:
     void modeChanged(UIMode mode);

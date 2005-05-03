@@ -777,3 +777,9 @@ void QDesignerWorkbench::showToolBars()
     m_formToolBar->show();
     m_editToolBar->show();
 }
+
+void QDesignerWorkbench::closeAllToolWindows()
+{
+    foreach (QDesignerToolWindow *tw, m_toolWindows)
+        tw->hide();
+}
