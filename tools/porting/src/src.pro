@@ -2,6 +2,8 @@ TEMPLATE = app
 CONFIG -= moc
 CONFIG += console
 CONFIG -= app_bundle
+build_all:CONFIG += release
+QT = xml core
 DEPENDPATH += .
 TARGET =qt3to4
 DESTDIR = ../../../bin
@@ -66,11 +68,6 @@ SOURCES += port.cpp                  \
            codemodel.cpp             \
            codemodelwalker.cpp       \
            codemodelattributes.cpp
-
-
-OBJECTS_DIR=.obj/debug-shared
-MOC_DIR=.moc/debug-shared
-QT = xml core
 
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target
