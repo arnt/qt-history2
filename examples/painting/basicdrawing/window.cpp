@@ -165,21 +165,21 @@ void Window::brushChanged()
 
     if (style == Qt::LinearGradientPattern) {
         QLinearGradient linearGradient(0, 0, 100, 100);
-        linearGradient.setColorAt(0.0, Qt::red);
-        linearGradient.setColorAt(0.5, Qt::blue);
-        linearGradient.setColorAt(1.0, Qt::green);
+        linearGradient.setColorAt(0.0, Qt::white);
+        linearGradient.setColorAt(0.2, Qt::green);
+        linearGradient.setColorAt(1.0, Qt::black);
         renderArea->setBrush(linearGradient);
     } else if (style == Qt::RadialGradientPattern) {
         QRadialGradient radialGradient(50, 50, 50, 50, 50);
-        radialGradient.setColorAt(0.0, Qt::red);
-        radialGradient.setColorAt(0.5, Qt::blue);
-        radialGradient.setColorAt(1.0, Qt::green);
+        radialGradient.setColorAt(0.0, Qt::white);
+        radialGradient.setColorAt(0.2, Qt::green);
+        radialGradient.setColorAt(1.0, Qt::black);
         renderArea->setBrush(radialGradient);
     } else if (style == Qt::ConicalGradientPattern) {
         QConicalGradient conicalGradient(50, 50, 150);
-        conicalGradient.setColorAt(0.0, Qt::red);
-        conicalGradient.setColorAt(0.5, Qt::blue);
-        conicalGradient.setColorAt(1.0, Qt::green);
+        conicalGradient.setColorAt(0.0, Qt::white);
+        conicalGradient.setColorAt(0.2, Qt::green);
+        conicalGradient.setColorAt(1.0, Qt::black);
         renderArea->setBrush(conicalGradient);
     } else if (style == Qt::TexturePattern) {
         renderArea->setBrush(QBrush(QPixmap(":/images/brick.png")));
