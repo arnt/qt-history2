@@ -31,9 +31,6 @@
 //#include "qwsregionmanager_qws.h"
 #include "qpaintengine.h"
 
-#include <qgfxraster_qws.h>
-
-
 #include "qdebug.h"
 
 #include "qwidget_p.h"
