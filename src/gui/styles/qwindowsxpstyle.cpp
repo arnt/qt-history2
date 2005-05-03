@@ -1083,7 +1083,10 @@ void QWindowsXPStyle::polish(QWidget *widget)
 
 /*! \reimp */
 void QWindowsXPStyle::polish(QPalette &pal)
-{ QWindowsStyle::polish(pal); }
+{ 
+    QWindowsStyle::polish(pal);
+    pal.setBrush(QPalette::AlternateBase, pal.base().color().dark(110));
+}
 
 /*! \reimp */
 void QWindowsXPStyle::unpolish(QWidget *widget)
