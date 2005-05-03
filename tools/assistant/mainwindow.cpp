@@ -522,10 +522,10 @@ void MainWindow::showSettingsDialog(int page)
     if (!settingsDia){
         settingsDia = new SettingsDialog(this);
     }
-    
+
     settingsDia->fontCombo()->lineEdit()->setText(tabs->browserFont().family());
     settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->fixedFontFamily());
-        
+
     QPalette pal = settingsDia->colorButton()->palette();
 	pal.setColor(QPalette::Active, QPalette::Button, tabs->linkColor());
     settingsDia->colorButton()->setPalette(pal);
@@ -537,7 +537,7 @@ void MainWindow::showSettingsDialog(int page)
     if (settingsDia->exec() != QDialog::Accepted)
         return;
 
-    
+
     QObjectList lst = ui.Toolbar->children();
     for (int i = 0; i < lst.size(); ++i) {
         QObject *obj = lst.at(i);
@@ -547,9 +547,9 @@ void MainWindow::showSettingsDialog(int page)
         }
     }
     setupGoActions();
-    
+
     tabs->applySettings();
-        
+
     tabs->currentBrowser()->reload();
     //showLink(tabs->currentBrowser()->source().toString());
 }
@@ -572,11 +572,11 @@ void MainWindow::saveSettings()
     Config *config = Config::configuration();
     config->setFontFamily(tabs->browserFont().family());
     config->setFontSize(tabs->currentBrowser()->font().pointSize());
-    
+
     config->setFontFixedFamily(tabs->fixedFontFamily());
     config->setLinkUnderline(tabs->underlineLink());
-    config->setLinkColor(tabs->linkColor().name());    
-    
+    config->setLinkColor(tabs->linkColor().name());
+
     config->setSideBarPage(helpDock->tabWidget()->currentIndex());
     config->setGeometry(QRect(x(), y(), width(), height()));
     config->setMaximized(isMaximized());
@@ -745,10 +745,10 @@ void MainWindow::on_actionSaveAs_triggered()
 
     QFile file(fileName);
     if (!file.open(QIODevice::WriteOnly)) {
-        QMessageBox::critical(this, tr("Save Page"), tr("Cannot open file for writing!")); 
+        QMessageBox::critical(this, tr("Save Page"), tr("Cannot open file for writing!"));
         return;
     }
-    
+
     QFileInfo fi(fileName);
     QString fn = fi.fileName();
     int i = fn.lastIndexOf('.');
@@ -759,7 +759,7 @@ void MainWindow::on_actionSaveAs_triggered()
     bool imgDirAvailable = destDir.exists();
     if (!imgDirAvailable)
         imgDirAvailable = destDir.mkdir(destDir.absolutePath());
-    
+
     // save images
     QTextDocument *doc = tabs->currentBrowser()->document()->clone();
     if (url.isValid() && imgDirAvailable) {
@@ -784,7 +784,7 @@ void MainWindow::on_actionSaveAs_triggered()
                                 + QDir::separator() + destName))
                                 continue;
                             fm.setName("./" + relativeDestPath + "/" + destName);
-                            QTextCursor cursor(doc);                        
+                            QTextCursor cursor(doc);
                             cursor.setPosition(fragment.position());
                             cursor.setPosition(fragment.position() + fragment.length(),
                                 QTextCursor::KeepAnchor);
@@ -792,7 +792,7 @@ void MainWindow::on_actionSaveAs_triggered()
                         }
                     }
                 }
-            }        
+            }
         }
     }
     QString src = doc->toHtml();
