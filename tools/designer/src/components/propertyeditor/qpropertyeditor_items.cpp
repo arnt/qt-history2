@@ -1084,7 +1084,7 @@ QPixmap CursorProperty::cursorPixmap(int shape)
 
 void CursorProperty::addCursor(QComboBox *combo, int shape) const
 {
-    combo->insertItem(-1, cursorPixmap(shape), cursorName(shape), shape);
+    combo->addItem(cursorPixmap(shape), cursorName(shape), shape);
 }
 
 
