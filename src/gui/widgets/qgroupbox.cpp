@@ -397,8 +397,9 @@ QSize QGroupBox::minimumSizeHint() const
             m.rwidth() += fontMetrics().width(QLatin1Char(' '));
         sh = sh.expandedTo(d->checkbox->sizeHint() + m);
     } else if (!d->title.isEmpty()) {
-        sh += fontMetrics().size(0, d->title + QLatin1Char(' ')) + m;
+        sh = sh.expandedTo(fontMetrics().size(0, d->title + QLatin1Char(' ')) + m);
     }
+
     return sh;
 }
 
