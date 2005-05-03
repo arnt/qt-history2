@@ -88,7 +88,7 @@
     QAbstractSocket::NetworkLayerProtocol proto = address.protocol(); \
     if (proto == QUdpSocket::IPv6Protocol) { \
         d_func()->socketError = QUdpSocket::UnsupportedSocketOperationError; \
-        setErrorString(tr("This platform does not support IPv6")); \
+        setErrorString(QT_TRANSLATE_NOOP("QUdpSocket", "This platform does not support IPv6")); \
         return (a); \
     } \
     if (!d_func()->socketLayer.isValid() || d_func()->socketLayer.protocol() != proto) \

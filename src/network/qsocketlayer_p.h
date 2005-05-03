@@ -126,7 +126,32 @@ public:
     QWindowsSockInit winSock;
 #endif
 
-    void setError(QAbstractSocket::SocketError error, const QString &errorString) const;
+    enum ErrorString {
+        NonBlockingInitFailedErrorString, 
+        BroadcastingInitFailedErrorString,
+        NoIpV6ErrorString, 
+        RemoteHostClosedErrorString,
+        TimeOutErrorString,
+        ResourceErrorString,
+        OperationUnsupportedErrorString,
+        ProtocolUnsupportedErrorString, 
+        InvalidSocketErrorString, 
+        UnreachableErrorString, 
+        AccessErrorString, 
+        ConnectionTimeOutErrorString, 
+        ConnectionRefusedErrorString, 
+        AddressInuseErrorString, 
+        AddressNotAvailableErrorString, 
+        AddressProtectedErrorString, 
+        DatagramTooLargeErrorString, 
+        SendDatagramErrorString,
+        ReceiveDatagramErrorString,
+        WriteErrorString, 
+        ReadErrorString,
+        PortInuseErrorString
+    };
+
+    void setError(QAbstractSocket::SocketError error, ErrorString errorString) const;
 
     // native functions
     int option(QSocketLayer::SocketOption option) const;

@@ -291,11 +291,11 @@ bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType
         case WSAESOCKTNOSUPPORT:
         case WSAEPROTOTYPE:
         case WSAEINVAL:
-            setError(QAbstractSocket::UnsupportedSocketOperationError, "Protocol type not supported");
+            setError(QAbstractSocket::UnsupportedSocketOperationError, ProtocolUnsupportedErrorString);
             break;
         case WSAEMFILE:
         case WSAENOBUFS:
-            setError(QAbstractSocket::SocketResourceError, "Out of resources");
+            setError(QAbstractSocket::SocketResourceError, ResourceErrorString);
             break;
         default:
             break;
@@ -437,7 +437,8 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
     } else {
 	WS_ERROR_DEBUG
 	if (WSAGetLastError() == WSAENOTSOCK) {
-	    setError(QAbstractSocket::UnsupportedSocketOperationError, "Invalid socket descriptor");
+	    setError(QAbstractSocket::UnsupportedSocketOperationError, 
+                 InvalidSocketErrorString);
             return false;
 	}
     }
@@ -495,19 +496,19 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 por
             socketState = QAbstractSocket::ConnectingState;
             break;
         case WSAEADDRINUSE:
-            setError(QAbstractSocket::NetworkError, "The bound address is already in use");
+            setError(QAbstractSocket::NetworkError, AddressInuseErrorString);
             break;
         case WSAECONNREFUSED:
-            setError(QAbstractSocket::ConnectionRefusedError, "Connection refused");
+            setError(QAbstractSocket::ConnectionRefusedError, ConnectionRefusedErrorString);
             break;
         case WSAETIMEDOUT:
-            setError(QAbstractSocket::NetworkError, "Connection timed out");
+            setError(QAbstractSocket::NetworkError, ConnectionTimeOutErrorString);
             break;
         case WSAEACCES:
-            setError(QAbstractSocket::SocketAccessError, "Permission denied");
+            setError(QAbstractSocket::SocketAccessError, AccessErrorString);
             break;
         case WSAENETUNREACH:
-            setError(QAbstractSocket::NetworkError, "Network unreachable");
+            setError(QAbstractSocket::NetworkError, UnreachableErrorString);
             break;
         default:
             break;
@@ -553,13 +554,13 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, quint16 port)
             break;
         case WSAEADDRINUSE:
         case WSAEINVAL:
-            setError(QAbstractSocket::AddressInUseError, "The address is already bound");
+            setError(QAbstractSocket::AddressInUseError, AddressInuseErrorString);
             break;
         case WSAEACCES:
-            setError(QAbstractSocket::SocketAccessError, "The address is protected");
+            setError(QAbstractSocket::SocketAccessError, AddressProtectedErrorString);
             break;
         case WSAEADDRNOTAVAIL:
-            setError(QAbstractSocket::SocketAddressNotAvailableError, "The address is not available");
+            setError(QAbstractSocket::SocketAddressNotAvailableError, AddressNotAvailableErrorString);
             break;
         default:
             break;
@@ -592,7 +593,7 @@ bool QSocketLayerPrivate::nativeListen(int backlog)
             break;
         case WSAEADDRINUSE:
             setError(QAbstractSocket::AddressInUseError,
-                     "Another socket is already listening on the same port");
+                     PortInuseErrorString);
             break;
         default:
             break;
@@ -775,7 +776,7 @@ qint64 QSocketLayerPrivate::nativeReceiveDatagram(char *data, qint64 maxLength,
     if (::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &flags, (struct sockaddr *) &aa, &sz,0,0) == SOCKET_ERROR
         && WSAGetLastError() != WSAEMSGSIZE) { // it is ok the buffer was to small
         WS_ERROR_DEBUG
-        setError(QAbstractSocket::NetworkError, "Unable to receive a message");
+        setError(QAbstractSocket::NetworkError, ReceiveDatagramErrorString);
         ret = -1;
     } else {
         ret = qint64(bytesRead);
@@ -814,10 +815,10 @@ qint64 QSocketLayerPrivate::nativeSendDatagram(const char *data, qint64 len,
         WS_ERROR_DEBUG
         switch (WSAGetLastError()) {
         case WSAEMSGSIZE:
-            setError(QAbstractSocket::DatagramTooLargeError, "Datagram was to large to send");
+            setError(QAbstractSocket::DatagramTooLargeError, DatagramTooLargeErrorString);
             break;
         default:
-            setError(QAbstractSocket::NetworkError, "Unable to send a message");
+            setError(QAbstractSocket::NetworkError, SendDatagramErrorString);
             break;
         }
         ret = -1;
@@ -864,7 +865,7 @@ qint64 QSocketLayerPrivate::nativeWrite(const char *data, qint64 len)
             case WSAECONNRESET:
             case WSAECONNABORTED:
                 ret = -1;
-                setError(QAbstractSocket::NetworkError, "Unable to write");
+                setError(QAbstractSocket::NetworkError, WriteErrorString);
                 q->close();
                 break;
             default:
@@ -896,7 +897,7 @@ qint64 QSocketLayerPrivate::nativeRead(char *data, qint64 maxLength)
         switch (WSAGetLastError()) {
         case WSAEBADF:
         case WSAEINVAL:
-            setError(QAbstractSocket::NetworkError, "Network error");
+            setError(QAbstractSocket::NetworkError, ReadErrorString);
             break;
         default:
             break;

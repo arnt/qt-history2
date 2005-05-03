@@ -1413,7 +1413,7 @@ QHttp::QHttp(const QString &hostName, quint16 port, QObject *parent)
 void QHttpPrivate::init()
 {
     Q_Q(QHttp);
-    errorString = QT_TRANSLATE_NOOP(QHttp, "Unknown error");
+    errorString = QT_TRANSLATE_NOOP("QHttp", "Unknown error");
     QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
 }
 
@@ -2059,7 +2059,7 @@ void QHttpPrivate::startNextRequest()
     QHttpRequest *r = pending.first();
 
     error = QHttp::NoError;
-    errorString = QT_TRANSLATE_NOOP(QHttp, "Unknown error");
+    errorString = QT_TRANSLATE_NOOP("QHttp", "Unknown error");
 
     if (q->bytesAvailable() != 0)
         q->readAll(); // clear the data
@@ -2105,7 +2105,7 @@ void QHttpPrivate::sendRequest()
     }
 
     if (hostName.isNull()) {
-        finishedWithError(QT_TRANSLATE_NOOP(QHttp, "No server set to connect to"),
+        finishedWithError(QT_TRANSLATE_NOOP("QHttp", "No server set to connect to"),
                           QHttp::UnknownError);
         return;
     }
@@ -2171,11 +2171,11 @@ void QHttpPrivate::slotClosed()
         if (response.hasKey("content-length")) {
             // We got Content-Length, so did we get all bytes?
             if (bytesDone + q->bytesAvailable() != response.contentLength()) {
-                finishedWithError(QT_TRANSLATE_NOOP(QHttp, "Wrong content length"), QHttp::WrongContentLength);
+                finishedWithError(QT_TRANSLATE_NOOP("QHttp", "Wrong content length"), QHttp::WrongContentLength);
             }
         }
     } else if (state == QHttp::Connecting || state == QHttp::Sending) {
-        finishedWithError(QT_TRANSLATE_NOOP(QHttp, "Server closed connection unexpectedly"), QHttp::UnexpectedClose);
+        finishedWithError(QT_TRANSLATE_NOOP("QHttp", "Server closed connection unexpectedly"), QHttp::UnexpectedClose);
     }
 
     postDevice = 0;
@@ -2213,14 +2213,14 @@ void QHttpPrivate::slotError(QTcpSocket::SocketError err)
     if (state == QHttp::Connecting || state == QHttp::Reading || state == QHttp::Sending) {
         switch (err) {
         case QTcpSocket::ConnectionRefusedError:
-                finishedWithError(QT_TRANSLATE_NOOP(QHttp, "Connection refused"), QHttp::ConnectionRefused);
+                finishedWithError(QT_TRANSLATE_NOOP("QHttp", "Connection refused"), QHttp::ConnectionRefused);
                 break;
         case QTcpSocket::HostNotFoundError:
-                finishedWithError(QString(QT_TRANSLATE_NOOP(QHttp, "Host %1 not found"))
+                finishedWithError(QString(QT_TRANSLATE_NOOP("QHttp", "Host %1 not found"))
                                   .arg(socket->peerName()), QHttp::HostNotFound);
                 break;
             default:
-                finishedWithError(QT_TRANSLATE_NOOP(QHttp, "HTTP request failed"), QHttp::UnknownError);
+                finishedWithError(QT_TRANSLATE_NOOP("QHttp", "HTTP request failed"), QHttp::UnknownError);
                 break;
         }
     }
@@ -2292,7 +2292,7 @@ void QHttpPrivate::slotReadyRead()
 #endif
         // Check header
         if (!response.isValid()) {
-            finishedWithError(QT_TRANSLATE_NOOP(QHttp, "Invalid HTTP response header"),
+            finishedWithError(QT_TRANSLATE_NOOP("QHttp", "Invalid HTTP response header"),
                               QHttp::InvalidResponseHeader);
             closeConn();
             return;
@@ -2333,7 +2333,7 @@ void QHttpPrivate::slotReadyRead()
                         bool ok;
                         chunkedSize = sizeString.toInt(&ok, 16);
                         if (!ok) {
-                            finishedWithError(QT_TRANSLATE_NOOP(QHttp, "Invalid HTTP chunked body"),
+                            finishedWithError(QT_TRANSLATE_NOOP("QHttp", "Invalid HTTP chunked body"),
                                               QHttp::WrongContentLength);
                             closeConn();
                             return;
@@ -2380,7 +2380,7 @@ void QHttpPrivate::slotReadyRead()
                         char tmp[2];
                         socket->read(tmp, 2);
                         if (tmp[0] != '\r' || tmp[1] != '\n') {
-                            finishedWithError(QT_TRANSLATE_NOOP(QHttp, "Invalid HTTP chunked body"),
+                            finishedWithError(QT_TRANSLATE_NOOP("QHttp", "Invalid HTTP chunked body"),
                                               QHttp::WrongContentLength);
                             closeConn();
                             return;

@@ -2251,39 +2251,39 @@ void QFtpPrivate::piError(int errorCode, const QString &text)
     error = QFtp::Error(errorCode);
     switch (q->currentCommand()) {
         case QFtp::ConnectToHost:
-            errorString = QString(QT_TRANSLATE_NOOP(QFtp, "Connecting to host failed:\n%1"))
+            errorString = QString(QT_TRANSLATE_NOOP("QFtp", "Connecting to host failed:\n%1"))
                           .arg(text);
             break;
         case QFtp::Login:
-            errorString = QString(QT_TRANSLATE_NOOP(QFtp, "Login failed:\n%1"))
+            errorString = QString(QT_TRANSLATE_NOOP("QFtp", "Login failed:\n%1"))
                           .arg(text);
             break;
         case QFtp::List:
-            errorString = QString(QT_TRANSLATE_NOOP(QFtp, "Listing directory failed:\n%1"))
+            errorString = QString(QT_TRANSLATE_NOOP("QFtp", "Listing directory failed:\n%1"))
                           .arg(text);
             break;
         case QFtp::Cd:
-            errorString = QString(QT_TRANSLATE_NOOP(QFtp, "Changing directory failed:\n%1"))
+            errorString = QString(QT_TRANSLATE_NOOP("QFtp", "Changing directory failed:\n%1"))
                           .arg(text);
             break;
         case QFtp::Get:
-            errorString = QString(QT_TRANSLATE_NOOP(QFtp, "Downloading file failed:\n%1"))
+            errorString = QString(QT_TRANSLATE_NOOP("QFtp", "Downloading file failed:\n%1"))
                           .arg(text);
             break;
         case QFtp::Put:
-            errorString = QString(QT_TRANSLATE_NOOP(QFtp, "Uploading file failed:\n%1"))
+            errorString = QString(QT_TRANSLATE_NOOP("QFtp", "Uploading file failed:\n%1"))
                           .arg(text);
             break;
         case QFtp::Remove:
-            errorString = QString(QT_TRANSLATE_NOOP(QFtp, "Removing file failed:\n%1"))
+            errorString = QString(QT_TRANSLATE_NOOP("QFtp", "Removing file failed:\n%1"))
                           .arg(text);
             break;
         case QFtp::Mkdir:
-            errorString = QString(QT_TRANSLATE_NOOP(QFtp, "Creating directory failed:\n%1"))
+            errorString = QString(QT_TRANSLATE_NOOP("QFtp", "Creating directory failed:\n%1"))
                           .arg(text);
             break;
         case QFtp::Rmdir:
-            errorString = QString(QT_TRANSLATE_NOOP(QFtp, "Removing directory failed:\n%1"))
+            errorString = QString(QT_TRANSLATE_NOOP("QFtp", "Removing directory failed:\n%1"))
                           .arg(text);
             break;
         default:
@@ -2311,7 +2311,7 @@ void QFtpPrivate::piConnectState(int connectState)
     emit q_func()->stateChanged(state);
     if (close_waitForStateChange) {
         close_waitForStateChange = false;
-        piFinished(QT_TRANSLATE_NOOP(QFtp, "Connection closed"));
+        piFinished(QT_TRANSLATE_NOOP("QFtp", "Connection closed"));
     }
 }
 

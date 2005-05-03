@@ -140,14 +140,80 @@ QSocketLayerPrivate::~QSocketLayerPrivate()
     interesting error is the first one that occurred, and not the last
     one.
 */
-void QSocketLayerPrivate::setError(QAbstractSocket::SocketError error,
-                                   const QString &errorString) const
+void QSocketLayerPrivate::setError(QAbstractSocket::SocketError error, ErrorString errorString) const
 {
     if (socketError != QAbstractSocket::UnknownSocketError)
         return;
 
     socketError = error;
-    socketErrorString = errorString;
+    switch (errorString) {
+    case NonBlockingInitFailedErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Unable to initialize a non-blocking socket"); 
+        break;
+    case BroadcastingInitFailedErrorString:
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Unable to initialize broadcasting socket"); 
+        break;
+    case NoIpV6ErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Attempt to use an IPv6 socket on a platform with no IPv6 support"); 
+        break;
+    case RemoteHostClosedErrorString:
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "The remote host closed the connection"); 
+        break;
+    case TimeOutErrorString:
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Network operation timed out"); 
+        break;
+    case ResourceErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Out of resources"); 
+        break;
+    case OperationUnsupportedErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Unsupported socket operation"); 
+        break;
+    case ProtocolUnsupportedErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Protocol type not supported"); 
+        break;
+    case InvalidSocketErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Invalid socket descriptor"); 
+        break;
+    case UnreachableErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Network unreachable"); 
+        break;
+    case AccessErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Permission denied"); 
+        break;
+    case ConnectionTimeOutErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Connection timed out"); 
+        break;
+    case ConnectionRefusedErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Connection refused"); 
+        break;
+    case AddressInuseErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "The bound address is already in use"); 
+        break;
+    case AddressNotAvailableErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "The address is not available"); 
+        break;
+    case AddressProtectedErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "The address is protected"); 
+        break;
+    case DatagramTooLargeErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Datagram was to large to send"); 
+        break;
+    case SendDatagramErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Unable to send a message"); 
+        break;
+    case ReceiveDatagramErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Unable to receive a message"); 
+        break;
+    case WriteErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Unable to write"); 
+        break;
+    case ReadErrorString: 
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Network error"); 
+        break;
+    case PortInuseErrorString:
+        socketErrorString = QT_TRANSLATE_NOOP("QSocketLayer", "Another socket is already listening on the same port"); 
+        break;
+    }
 }
 
 /*!
@@ -190,8 +256,7 @@ bool QSocketLayer::initialize(QAbstractSocket::SocketType socketType, QAbstractS
 #if defined(QT_NO_IPV6)
     if (protocol == QAbstractSocket::IPv6Protocol) {
         d->setError(QAbstractSocket::UnsupportedSocketOperationError,
-                    Q_TR("Attempt to create an IPv6 socket on"
-                         " a platform with no IPv6 support"));
+                    NoIpV6ErrorString);
         return false;
     }
 #endif
@@ -214,7 +279,7 @@ bool QSocketLayer::initialize(QAbstractSocket::SocketType socketType, QAbstractS
     // Make the socket nonblocking.
     if (!setOption(NonBlockingSocketOption, 1)) {
         d->setError(QAbstractSocket::UnsupportedSocketOperationError,
-                    Q_TR("Unable to initialize a non-blocking socket"));
+                    QSocketLayerPrivate::NonBlockingInitFailedErrorString);
         close();
         return false;
     }
@@ -223,7 +288,7 @@ bool QSocketLayer::initialize(QAbstractSocket::SocketType socketType, QAbstractS
     if (socketType == QAbstractSocket::UdpSocket
         && !setOption(BroadcastSocketOption, 1)) {
         d->setError(QAbstractSocket::UnsupportedSocketOperationError,
-                    Q_TR("Unable to initialize broadcasting socket"));
+                    QSocketLayerPrivate::BroadcastingInitFailedErrorString);
         close();
         return false;
     }
@@ -269,7 +334,7 @@ bool QSocketLayer::initialize(int socketDescriptor, QAbstractSocket::SocketState
         // Make the socket nonblocking.
         if (!setOption(NonBlockingSocketOption, 1)) {
             d->setError(QAbstractSocket::UnsupportedSocketOperationError,
-                        Q_TR("Unable to initialize a non-blocking socket"));
+                QSocketLayerPrivate::NonBlockingInitFailedErrorString);
             close();
             return false;
         }
@@ -278,7 +343,7 @@ bool QSocketLayer::initialize(int socketDescriptor, QAbstractSocket::SocketState
         if (d->socketType == QAbstractSocket::UdpSocket
             && !setOption(BroadcastSocketOption, 1)) {
             d->setError(QAbstractSocket::UnsupportedSocketOperationError,
-                        Q_TR("Unable to initialize broadcasting socket"));
+                QSocketLayerPrivate::BroadcastingInitFailedErrorString);
             close();
             return false;
         }
@@ -414,8 +479,7 @@ bool QSocketLayer::connectToHost(const QHostAddress &address, quint16 port)
 #if defined (QT_NO_IPV6)
     if (address.isIPv6Address()) {
         d->setError(QAbstractSocket::UnsupportedSocketOperationError,
-                    Q_TR("Attempt to connect to an IPv6 address on"
-                         " a platform with no IPv6 support"));
+                    QSocketLayerPrivate::NoIpV6ErrorString);
         return false;
     }
 #endif
@@ -446,8 +510,7 @@ bool QSocketLayer::bind(const QHostAddress &address, quint16 port)
 #if defined (QT_NO_IPV6)
     if (address.isIPv6Address()) {
         d->setError(QAbstractSocket::UnsupportedSocketOperationError,
-                    Q_TR("Attempt to bind to an IPv6 address on"
-                         " a platform with no IPv6 support"));
+                    QSocketLayerPrivate::NoIpV6ErrorString);
         return false;
     }
 #endif
@@ -632,8 +695,8 @@ qint64 QSocketLayer::read(char *data, qint64 maxSize)
     // Handle remote close
     if (readBytes == 0 && d->socketType == QAbstractSocket::TcpSocket) {
         close();
-        d->setError(QAbstractSocket::RemoteHostClosedError,
-                    Q_TR("The remote host closed the connection"));
+        d->setError(QAbstractSocket::RemoteHostClosedError, 
+                    QSocketLayerPrivate::RemoteHostClosedErrorString);
         d->socketState = QAbstractSocket::UnconnectedState;
         return -1;
     }
@@ -680,7 +743,8 @@ bool QSocketLayer::waitForRead(int msecs, bool *timedOut) const
     if (ret == 0) {
         if (timedOut)
             *timedOut = true;
-        d->setError(QAbstractSocket::SocketTimeoutError, "Network operation timed out");
+        d->setError(QAbstractSocket::SocketTimeoutError, 
+            QSocketLayerPrivate::TimeOutErrorString);
         return false;
     }
 
@@ -712,7 +776,8 @@ bool QSocketLayer::waitForWrite(int msecs, bool *timedOut) const
     if (ret == 0) {
         if (timedOut)
             *timedOut = true;
-        d->setError(QAbstractSocket::SocketTimeoutError, "Network operation timed out");
+        d->setError(QAbstractSocket::SocketTimeoutError,
+                    QSocketLayerPrivate::TimeOutErrorString);
         return false;
     }
 
@@ -731,7 +796,8 @@ bool QSocketLayer::waitForReadOrWrite(bool *readyToRead, bool *readyToWrite,
     if (ret == 0) {
         if (timedOut)
             *timedOut = true;
-        d->setError(QAbstractSocket::SocketTimeoutError, "Network operation timed out");
+        d->setError(QAbstractSocket::SocketTimeoutError, 
+                    QSocketLayerPrivate::TimeOutErrorString);
         return false;
     }
     return ret > 0;

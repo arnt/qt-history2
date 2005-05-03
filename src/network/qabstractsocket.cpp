@@ -660,7 +660,7 @@ void QAbstractSocketPrivate::startConnecting(const QHostInfo &hostInfo)
 #endif
         state = QAbstractSocket::UnconnectedState;
         socketError = QAbstractSocket::HostNotFoundError;
-        q->setErrorString(QT_TRANSLATE_NOOP(QAbstractSocket, "Host not found"));
+        q->setErrorString(QT_TRANSLATE_NOOP("QAbstractSocket", "Host not found"));
         emit q->stateChanged(state);
         emit q->error(QAbstractSocket::HostNotFoundError);
         return;
@@ -702,7 +702,7 @@ void QAbstractSocketPrivate::connectToNextAddress()
 #endif
             state = QAbstractSocket::UnconnectedState;
             socketError = QAbstractSocket::ConnectionRefusedError;
-            q->setErrorString(QT_TRANSLATE_NOOP(QAbstractSocket,
+            q->setErrorString(QT_TRANSLATE_NOOP("QAbstractSocket",
                                                 "Connection refused"));
             emit q->error(QAbstractSocket::ConnectionRefusedError);
             return;

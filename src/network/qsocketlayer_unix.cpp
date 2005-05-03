@@ -148,16 +148,16 @@ bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType
         case EPROTONOSUPPORT:
         case EAFNOSUPPORT:
         case EINVAL:
-            setError(QAbstractSocket::UnsupportedSocketOperationError, "Protocol type not supported");
+            setError(QAbstractSocket::UnsupportedSocketOperationError, ProtocolUnsupportedErrorString);
             break;
         case ENFILE:
         case EMFILE:
         case ENOBUFS:
         case ENOMEM:
-            setError(QAbstractSocket::SocketResourceError, "Out of resources");
+            setError(QAbstractSocket::SocketResourceError, ResourceErrorString);
             break;
         case EACCES:
-            setError(QAbstractSocket::SocketAccessError, "Permission denied");
+            setError(QAbstractSocket::SocketAccessError, AccessErrorString);
             break;
         default:
             break;
@@ -275,33 +275,33 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &addr, quint16 port)
     if (connectResult == -1) {
         switch (errno) {
         case EINVAL:
-            setError(QAbstractSocket::UnsupportedSocketOperationError, "Unsupported socket operation");
+            setError(QAbstractSocket::UnsupportedSocketOperationError, OperationUnsupportedErrorString);
             break;
         case EISCONN:
             socketState = QAbstractSocket::ConnectedState;
             break;
         case ECONNREFUSED:
-            setError(QAbstractSocket::ConnectionRefusedError, "Connection refused");
+            setError(QAbstractSocket::ConnectionRefusedError, ConnectionRefusedErrorString);
             break;
         case ETIMEDOUT:
-            setError(QAbstractSocket::NetworkError, "Connection timed out");
+            setError(QAbstractSocket::NetworkError, ConnectionTimeOutErrorString);
             break;
         case ENETUNREACH:
-            setError(QAbstractSocket::NetworkError, "Network unreachable");
+            setError(QAbstractSocket::NetworkError, UnreachableErrorString);
             break;
         case EADDRINUSE:
-            setError(QAbstractSocket::NetworkError, "The bound address is already in use");
+            setError(QAbstractSocket::NetworkError, AddressInuseErrorString);
             break;
         case EINPROGRESS:
         case EALREADY:
             socketState = QAbstractSocket::ConnectingState;
             break;
         case EAGAIN:
-            setError(QAbstractSocket::SocketResourceError, "Out of free local ports");
+            setError(QAbstractSocket::SocketResourceError, ResourceErrorString);
             break;
         case EACCES:
         case EPERM:
-            setError(QAbstractSocket::SocketAccessError, "Permission denied");
+            setError(QAbstractSocket::SocketAccessError, AccessErrorString);
             break;
         case EAFNOSUPPORT:
         case EBADF:
@@ -365,16 +365,16 @@ bool QSocketLayerPrivate::nativeBind(const QHostAddress &address, quint16 port)
     if (bindResult < 0) {
         switch(errno) {
         case EADDRINUSE:
-            setError(QAbstractSocket::AddressInUseError, "The address is already bound");
+            setError(QAbstractSocket::AddressInUseError, AddressInuseErrorString);
             break;
         case EACCES:
-            setError(QAbstractSocket::SocketAccessError, "The address is protected");
+            setError(QAbstractSocket::SocketAccessError, AddressProtectedErrorString);
             break;
         case EINVAL:
-            setError(QAbstractSocket::UnsupportedSocketOperationError, "Unsupported socket operation");
+            setError(QAbstractSocket::UnsupportedSocketOperationError, OperationUnsupportedErrorString);
             break;
         case EADDRNOTAVAIL:
-            setError(QAbstractSocket::SocketAddressNotAvailableError, "The address is not available");
+            setError(QAbstractSocket::SocketAddressNotAvailableError, AddressNotAvailableErrorString);
             break;
         default:
             break;
@@ -402,7 +402,7 @@ bool QSocketLayerPrivate::nativeListen(int backlog)
         switch (errno) {
         case EADDRINUSE:
             setError(QAbstractSocket::AddressInUseError,
-                     "Another socket is already listening on the same port");
+                     PortInuseErrorString);
             break;
         default:
             break;
@@ -548,7 +548,7 @@ qint64 QSocketLayerPrivate::nativeReceiveDatagram(char *data, qint64 maxSize,
     } while (recvFromResult == -1 && errno == EINTR);
 
     if (recvFromResult == -1) {
-        setError(QAbstractSocket::NetworkError, "Unable to receive a message");
+        setError(QAbstractSocket::NetworkError, ReceiveDatagramErrorString);
     } else if (port || address) {
         qt_socket_getPortAndAddress((struct sockaddr *) &aa, port, address);
     }
@@ -604,10 +604,10 @@ qint64 QSocketLayerPrivate::nativeSendDatagram(const char *data, qint64 len,
     if (sentBytes < 0) {
         switch (errno) {
         case EMSGSIZE:
-            setError(QAbstractSocket::DatagramTooLargeError, "Datagram too large");
+            setError(QAbstractSocket::DatagramTooLargeError, DatagramTooLargeErrorString);
             break;
         default:
-            setError(QAbstractSocket::NetworkError, "Unable to receive a message");
+            setError(QAbstractSocket::NetworkError, SendDatagramErrorString);
         }
     }
 
@@ -659,7 +659,7 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
         }
 
     } else if (errno == EBADF) {
-        setError(QAbstractSocket::UnsupportedSocketOperationError, "Invalid socket descriptor");
+        setError(QAbstractSocket::UnsupportedSocketOperationError, InvalidSocketErrorString);
         return false;
     }
 
@@ -721,14 +721,14 @@ qint64 QSocketLayerPrivate::nativeWrite(const char *data, qint64 len)
         case EPIPE:
         case ECONNRESET:
             writtenBytes = -1;
-            setError(QAbstractSocket::RemoteHostClosedError, "Remote host closed");
+            setError(QAbstractSocket::RemoteHostClosedError, RemoteHostClosedErrorString);
             q->close();
             break;
         case EAGAIN:
             writtenBytes = 0;
             break;
         case EMSGSIZE:
-            setError(QAbstractSocket::DatagramTooLargeError, "Datagram too large");
+            setError(QAbstractSocket::DatagramTooLargeError, DatagramTooLargeErrorString);
             break;
         default:
             break;
@@ -765,7 +765,7 @@ qint64 QSocketLayerPrivate::nativeRead(char *data, qint64 maxSize)
         case EBADF:
         case EINVAL:
         case EIO:
-            setError(QAbstractSocket::NetworkError, "Network error");
+            setError(QAbstractSocket::NetworkError, ReadErrorString);
             break;
         default:
             break;
