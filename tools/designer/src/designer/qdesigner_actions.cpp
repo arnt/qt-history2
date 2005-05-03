@@ -577,6 +577,7 @@ void QDesignerActions::previewForm(QAction *action)
 
             if (style != 0) {
                 fakeTopLevel->setStyle(style);
+                fakeTopLevel->setPalette(style->standardPalette());
                 QList<QWidget*> lst = qFindChildren<QWidget*>(fakeTopLevel);
                 foreach (QWidget *w, lst) {
                     w->setStyle(style);
