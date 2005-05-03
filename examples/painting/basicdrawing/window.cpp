@@ -63,6 +63,10 @@ Window::Window()
     brushStyleComboBox = new QComboBox;
     brushStyleComboBox->addItem(tr("Linear Gradient"),
             Qt::LinearGradientPattern);
+    brushStyleComboBox->addItem(tr("Radial Gradient"),
+            Qt::RadialGradientPattern);
+    brushStyleComboBox->addItem(tr("Conical Gradient"),
+            Qt::ConicalGradientPattern);
     brushStyleComboBox->addItem(tr("Texture"), Qt::TexturePattern);
     brushStyleComboBox->addItem(tr("Solid"), Qt::SolidPattern);
     brushStyleComboBox->addItem(tr("Horizontal"), Qt::HorPattern);
@@ -160,10 +164,23 @@ void Window::brushChanged()
         (Qt::BrushStyle)brushStyleComboBox->itemData(brushStyleComboBox->currentIndex(), IdRole).toInt();
 
     if (style == Qt::LinearGradientPattern) {
-        QLinearGradient lg(0, 0, 400, 200);
-        lg.setColorAt(0, Qt::red);
-        lg.setColorAt(1, Qt::green);
-        renderArea->setBrush(lg);
+        QLinearGradient linearGradient(0, 0, 100, 100);
+        linearGradient.setColorAt(0.0, Qt::red);
+        linearGradient.setColorAt(0.5, Qt::blue);
+        linearGradient.setColorAt(1.0, Qt::green);
+        renderArea->setBrush(linearGradient);
+    } else if (style == Qt::RadialGradientPattern) {
+        QRadialGradient radialGradient(50, 50, 50, 50, 50);
+        radialGradient.setColorAt(0.0, Qt::red);
+        radialGradient.setColorAt(0.5, Qt::blue);
+        radialGradient.setColorAt(1.0, Qt::green);
+        renderArea->setBrush(radialGradient);
+    } else if (style == Qt::ConicalGradientPattern) {
+        QConicalGradient conicalGradient(50, 50, 150);
+        conicalGradient.setColorAt(0.0, Qt::red);
+        conicalGradient.setColorAt(0.5, Qt::blue);
+        conicalGradient.setColorAt(1.0, Qt::green);
+        renderArea->setBrush(conicalGradient);
     } else if (style == Qt::TexturePattern) {
         renderArea->setBrush(QBrush(QPixmap(":/images/brick.png")));
     } else {
