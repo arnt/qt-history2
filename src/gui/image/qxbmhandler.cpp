@@ -44,11 +44,15 @@ static bool read_xbm_image(QIODevice *device, QImage *outImage)
 
     // "#define .._width <num>"
     readBytes = device->readLine(buf, buflen);
+    if (readBytes == -1)
+	return false;
     buf[readBytes] = '\0';
 
     // skip initial comment, if any
     while (buf[0] != '#' && (readBytes = device->readLine( buf, buflen )) > 0);
 
+    if (readBytes == -1)
+	return false;
     buf[readBytes] = '\0';
     QString sbuf;
     sbuf = QString::fromLatin1(buf);
@@ -59,6 +63,8 @@ static bool read_xbm_image(QIODevice *device, QImage *outImage)
 
     // "#define .._height <num>"
     readBytes = device->readLine(buf, buflen);
+    if (readBytes == -1)
+	return false;
     buf[readBytes] = '\0';
 
     sbuf = QString::fromLatin1(buf);
