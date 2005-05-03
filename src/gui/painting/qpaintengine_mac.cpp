@@ -1115,28 +1115,6 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     Q_ASSERT(isActive());
     d->current.pen = pen;
 
-    //pen style
-    float *lengths = 0;
-    int count = 0;
-    if(pen.style() == Qt::DashLine) {
-        static float inner_lengths[] = { 3, 1 };
-        lengths = inner_lengths;
-        count = 2;
-    } else if(pen.style() == Qt::DotLine) {
-        static float inner_lengths[] = { 1, 1 };
-        lengths = inner_lengths;
-        count = 2;
-    } else if(pen.style() == Qt::DashDotLine) {
-        static float inner_lengths[] = { 3, 1, 1, 1 };
-        lengths = inner_lengths;
-        count = 4;
-    } else if(pen.style() == Qt::DashDotDotLine) {
-        static float inner_lengths[] = { 3, 1, 1, 1, 1, 1 };
-        lengths = inner_lengths;
-        count = 6;
-    }
-    CGContextSetLineDash(d->hd, 0, lengths, count);
-
     //pencap
     CGLineCap cglinecap = kCGLineCapButt;
     if(pen.capStyle() == Qt::SquareCap)
@@ -1146,7 +1124,8 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     CGContextSetLineCap(d->hd, cglinecap);
 
     //penwidth
-    CGContextSetLineWidth(d->hd, pen.width() <= 0 ? 1 : pen.width());
+    const float cglinewidth = pen.width() <= 0 ? 1 : pen.width();
+    CGContextSetLineWidth(d->hd, cglinewidth);
 
     //join
     CGLineJoin cglinejoin = kCGLineJoinMiter;
@@ -1155,6 +1134,44 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     else if(pen.joinStyle() == Qt::RoundJoin)
         cglinejoin = kCGLineJoinRound;
     CGContextSetLineJoin(d->hd, cglinejoin);
+
+    //pen style
+    int count = 0;
+    float lengths[10];
+    if(pen.style() == Qt::DashLine) {
+        lengths[0] = 3;
+        lengths[1] = 1;
+        count = 2;
+    } else if(pen.style() == Qt::DotLine) {
+        lengths[0] = 1;
+        lengths[1] = 1;
+        count = 2;
+    } else if(pen.style() == Qt::DashDotLine) {
+        lengths[0] = 3;
+        lengths[1] = 1;
+        lengths[2] = 1;
+        lengths[3] = 1;
+        count = 4;
+    } else if(pen.style() == Qt::DashDotDotLine) {
+        lengths[0] = 3;
+        lengths[1] = 1;
+        lengths[2] = 1;
+        lengths[3] = 1;
+        lengths[4] = 1;
+        lengths[5] = 1;
+        count = 6;
+    }
+    for(int i = 0; i < count; ++i) {
+        lengths[i] *= cglinewidth;
+        if(cglinecap == kCGLineCapSquare || cglinecap == kCGLineCapRound) {
+            if((i%2))
+                lengths[i] += cglinewidth/2;
+            else
+                lengths[i] -= cglinewidth/2;
+        }
+    }
+    Q_ASSERT(count < 10);
+    CGContextSetLineDash(d->hd, 0, lengths, count);
 
     //color
     const QColor &col = pen.color();
