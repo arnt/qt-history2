@@ -6048,8 +6048,6 @@ void QWidget::updateGeometry()
 
     \sa windowType()
  */
-
-
 void QWidget::setWindowFlags(Qt::WindowFlags f)
 {
     if (!(data->window_flags & Qt::Window) && !(f & Qt::Window))
