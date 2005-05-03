@@ -19,6 +19,15 @@
 #include <qevent.h>
 #include <math.h>
 
+enum {
+    Neither = -1,
+    AM = 0,
+    PM = 1,
+    PossibleAM = 2,
+    PossiblePM = 3,
+    PossibleBoth = 4
+};
+
 #ifdef Q_WS_MAC
 #include <private/qt_mac_p.h>
 extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
@@ -1920,8 +1929,8 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
                 break; }
             case 'y':
                 if (newFormat.at(i+1) == QLatin1Char('y')) {
-                    static const QDate YY_MIN(2000, 1, 1);
-                    static const QDate YY_MAX(2099, 12, 31);
+                    const QDate YY_MIN(2000, 1, 1);
+                    const QDate YY_MAX(2099, 12, 31);
                     const bool four = (i + 3 <newFormat.size()
                                        && newFormat.at(i+2) == QLatin1Char('y') && newFormat.at(i+3) == QLatin1Char('y'));
                     if (!addSection(newSectionNodes, four ? YearSection : YearTwoDigitsSection, i - add)
@@ -2228,21 +2237,21 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
         case AmPmLowerCaseSection: {
             int ampm = findAmPm(st, s);
             switch (ampm) {
-            case 0: // st == AM
-            case 1: // st == PM
+            case AM: // st == AM
+            case PM: // st == PM
                 num = ampm;
                 state = QValidator::Acceptable;
                 break;
-            case 2: // st => AM
-            case 3: // st => PM
+            case PossibleAM: // st => AM
+            case PossiblePM: // st => PM
                 num = ampm - 2;
                 state = QValidator::Intermediate;
                 break;
-            case 4: // st => AM|PM
+            case PossibleBoth: // st => AM|PM
                 num = 0;
                 state = QValidator::Intermediate;
                 break;
-            case -1:
+            case Neither:
                 state = QValidator::Invalid;
                 QDTEDEBUG << "invalid because findAmPm(" << st << ") returned -1";
                 break;
@@ -2530,8 +2539,10 @@ int QDateTimeEditPrivate::findAmPm(QString &str, QDateTimeEditPrivate::Section s
     const int size = sectionSize(AmPmSection);
     Q_ASSERT(str.size() == size);
 
-    static const int amindex = 0;
-    static const int pmindex = 1;
+    enum {
+        amindex = 0,
+        pmindex = 1
+    };
     QString ampm[2];
     if (s == AmPmSection) {
         ampm[amindex] = QDateTimeEdit::tr("AM");
@@ -2547,12 +2558,12 @@ int QDateTimeEditPrivate::findAmPm(QString &str, QDateTimeEditPrivate::Section s
 
     if (str.indexOf(ampm[amindex], 0, Qt::CaseInsensitive) == 0) {
         str = ampm[amindex];
-        return 0;
+        return AM;
     } else if (str.indexOf(ampm[pmindex], 0, Qt::CaseInsensitive) == 0) {
         str = ampm[pmindex];
-        return 1;
+        return PM;
     } else if (str.count(space) == 0) {
-        return -1;
+        return Neither;
     }
 
     bool broken[2] = {false, false};
@@ -2577,7 +2588,7 @@ int QDateTimeEditPrivate::findAmPm(QString &str, QDateTimeEditPrivate::Section s
                             broken[j] = true;
                             if (broken[amindex] && broken[pmindex]) {
                                 QDTEDEBUG << str << "didn't make it";
-                                return -1;
+                                return Neither;
                             }
                             continue;
                         } else {
@@ -2590,8 +2601,8 @@ int QDateTimeEditPrivate::findAmPm(QString &str, QDateTimeEditPrivate::Section s
         }
     }
     if (!broken[pmindex] && !broken[amindex])
-        return 4;
-    return (!broken[amindex] ? 2 : 3);
+        return PossibleBoth;
+    return (!broken[amindex] ? PossibleAM : PossiblePM);
 }
 
 /*!
