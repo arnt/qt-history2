@@ -54,6 +54,7 @@ void HelpWindow::setSource(const QUrl &name)
         return;
 
     if (newWindow || shiftPressed) {
+        shiftPressed = false;
         QTextCursor c = textCursor();
         c.clearSelection();
         setTextCursor(c);
@@ -260,7 +261,8 @@ void HelpWindow::ensureCursorVisible()
 void HelpWindow::mousePressEvent(QMouseEvent *e)
 {
     shiftPressed = e->modifiers() & Qt::ShiftModifier;
-    QTextBrowser::mousePressEvent(e);
+    if (anchorAt(e->pos()).isEmpty())
+        QTextBrowser::mousePressEvent(e);
 }
 
 void HelpWindow::keyPressEvent(QKeyEvent *e)
