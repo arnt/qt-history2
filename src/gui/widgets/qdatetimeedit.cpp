@@ -34,11 +34,6 @@ extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 #endif
 #include <qdebug.h>
 
-const char space = ' ';
-const char quote = '\'';
-const char slash = '\\';
-const char zero = '0';
-
 class QDateTimeEditPrivate : public QAbstractSpinBoxPrivate
 {
     Q_DECLARE_PUBLIC(QDateTimeEdit)
@@ -889,7 +884,7 @@ void QDateTimeEdit::focusInEvent(QFocusEvent *e)
     case Qt::BacktabFocusReason: first = false; break;
     default: return;
     }
-    if (d->layoutDirection == Qt::RightToLeft)
+    if (QApplication::isRightToLeft())
         first = !first;
     d->setSelected(first ? d->sectionNodes.first().section : d->sectionNodes.at(d->sectionNodes.size() - 1).section);
 }
@@ -941,6 +936,8 @@ void QDateTimeEdit::stepBy(int steps)
 */
 QString QDateTimeEdit::textFromDateTime(const QDateTime &dateTime) const
 {
+    const char zero = '0';
+
     Q_D(const QDateTimeEdit);
     QVariant var(dateTime);
     if (var == d->cachedValue) {
@@ -1151,14 +1148,8 @@ QDateTimeEditPrivate::QDateTimeEditPrivate()
     layoutDirection = QApplication::layoutDirection();
     first.section = FirstSection;
     last.section = LastSection;
-//    if (QApplication::isRightToLeft()) {
-//         first.pos = -1;
-//         last.pos = 0;
-//     } else {
-        first.pos = 0;
-        last.pos = -1;
-
-//    }
+    first.pos = 0;
+    last.pos = -1;
     readLocaleSettings();
 }
 
@@ -1824,6 +1815,9 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
 
 static QString unquote(const QString &str)
 {
+    const char quote = '\'';
+    const char slash = '\\';
+    const char zero = '0';
     QString ret;
     QChar status = zero;
     for (int i=0; i<str.size(); ++i) {
@@ -1851,6 +1845,10 @@ static QString unquote(const QString &str)
 
 bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
 {
+    const char space = ' ';
+    const char quote = '\'';
+    const char slash = '\\';
+    const char zero = '0';
     if (newFormat == displayFormat && !newFormat.isEmpty() && layoutDirection == QApplication::layoutDirection())
         return true;
     layoutDirection = QApplication::layoutDirection();
@@ -2025,7 +2023,7 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
         }
     }
 
-    if (layoutDirection == Qt::RightToLeft) {
+    if (QApplication::isRightToLeft()) {
         // we want displayFormat to return what you set with
         // setDisplayFormat() in rtol mode as well. I needed to
         // reverse it to calculate the escapedFormat correctly. Set it
@@ -2111,7 +2109,7 @@ QDateTimeEditPrivate::Section QDateTimeEditPrivate::closestSection(int index, bo
 
 QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(Section current, bool forward) const
 {
-    if (layoutDirection == Qt::RightToLeft)
+    if (QApplication::isRightToLeft())
         forward = !forward;
     if (current == FirstSection) {
         return (forward ? sectionNodes.first() : first);
@@ -2139,6 +2137,7 @@ QDateTimeEditPrivate::SectionNode QDateTimeEditPrivate::nextPrevSection(Section 
 
 void QDateTimeEditPrivate::clearSection(Section s)
 {
+    const char space = ' ';
     int cursorPos = edit->cursorPosition();
     bool blocked = edit->blockSignals(true);
     QString t = edit->text();
@@ -2211,6 +2210,7 @@ QString QDateTimeEditPrivate::sectionText(const QString &text, Section s) const
 
 int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::State &state) const
 {
+    const char space = ' ';
     state = QValidator::Invalid;
     int num = 0;
     QString st = sectionText(text, s);
@@ -2326,6 +2326,7 @@ int QDateTimeEditPrivate::sectionValue(Section s, QString &text, QValidator::Sta
 QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
                                                     int &pos, QValidator::State &state) const
 {
+    const char space = ' ';
     if (cachedText == input) {
         state = cachedState;
         QDTEDEBUG << "state" << state << "cachedText" << cachedText << "cachedValue" << cachedValue;
@@ -2525,6 +2526,7 @@ int QDateTimeEditPrivate::findMonth(const QString &str1, int index) const
 
 int QDateTimeEditPrivate::findAmPm(QString &str, QDateTimeEditPrivate::Section s) const
 {
+    const char space = ' ';
     const int size = sectionSize(AmPmSection);
     Q_ASSERT(str.size() == size);
 
@@ -2763,6 +2765,8 @@ QVariant QDateTimeEditPrivate::valueFromText(const QString &f) const
 QValidator::State QDateTimeEditPrivate::checkIntermediate(const QDateTime &dt,
                                                           const QString &s) const
 {
+    const char space = ' ';
+
     Q_ASSERT(dt < minimum);
 
     bool found = false;

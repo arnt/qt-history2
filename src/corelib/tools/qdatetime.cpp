@@ -33,17 +33,16 @@
 extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 #endif
 
-const uint FIRST_DAY = 2361222;        // Julian day for 1752-09-14
-const int FIRST_YEAR = 1752;     // wrong for many countries
-const uint SECS_PER_DAY = 86400;
-const uint MSECS_PER_DAY = 86400000;
-const uint SECS_PER_HOUR = 3600;
-const uint MSECS_PER_HOUR = 3600000;
-const uint SECS_PER_MIN = 60;
-const uint MSECS_PER_MIN = 60000;
+static const uint FIRST_DAY = 2361222;        // Julian day for 1752-09-14
+static const int FIRST_YEAR = 1752;     // wrong for many countries
+static const uint SECS_PER_DAY = 86400;
+static const uint MSECS_PER_DAY = 86400000;
+static const uint SECS_PER_HOUR = 3600;
+static const uint MSECS_PER_HOUR = 3600000;
+static const uint SECS_PER_MIN = 60;
+static const uint MSECS_PER_MIN = 60000;
 
 static const short monthDays[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-const char quote = '\'';
 
 static const char * const qt_shortMonthNames[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
@@ -3022,6 +3021,7 @@ static QString getFmtString(const QString& f, const QTime* dt = 0, const QDate* 
 // checks if there is an unqoted 'AP' or 'ap' in the string
 static bool hasUnqutedAP(const QString &f)
 {
+    const char quote = '\'';
     QChar status = QLatin1Char('0');
     for (int i=0; i<f.size(); ++i) {
         if (f.at(i) == quote) {
@@ -3049,6 +3049,7 @@ static bool hasUnqutedAP(const QString &f)
 // Parses the format string and uses getFmtString to get the values for the tokens. Ret
 static QString fmtDateTime(const QString& f, const QTime* dt, const QDate* dd)
 {
+    const char quote = '\'';
     if (f.isEmpty())
         return QString();
     if (dt && !dt->isValid())
@@ -3346,6 +3347,7 @@ bool QDateTimeParser::isSpecial(const QChar &c) const
 
 QFormatSection QDateTimeParser::findNextFormat(const QString &str, const int start)
 {
+    const char quote = '\'';
     int i = start;
     QDateTimeParser::Section typ = QDateTimeParser::NoSection;
     while (i < str.size()) {
@@ -3447,6 +3449,7 @@ QFormatSection QDateTimeParser::findNextFormat(const QString &str, const int sta
 
 void QDateTimeParser::parseFormat(const QString &f, QVariant::Type t)
 {
+    const char quote = '\'';
     display = 0;
     formatType = t;
     format = f;
@@ -3476,6 +3479,7 @@ void QDateTimeParser::parseFormat(const QString &f, QVariant::Type t)
 bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *timeIn)
 {
     Q_ASSERT(dateIn || timeIn);
+    const char quote = '\'';
     int msec = -1;
     int sec = -1;
     int minute = -1;
