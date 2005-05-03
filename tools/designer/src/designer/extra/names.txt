@@ -1,0 +1,487 @@
+{ "Haavard Nord"  ,
+ "Chief Executive Officer",
+ ":/qthack/images/hanord.jpg"} ,
+
+{ "Eirik Chambe-Eng"  ,
+ "President",
+ ":/qthack/images/Eirik_Chambe-Eng.jpg" },
+
+{ "Eirik Aavitsland"  ,
+ "Senior software engineer and research advisor",
+ ":/qthack/images/Eirik_Aavitsland.jpg"} ,
+
+{ "Suetelane Paludo"  ,
+ "Regional Sales Manager",
+ ":/qthack/images/sue.jpg" } ,
+
+{ "Matthias Ettrich"  ,
+ "Director of Software Development",
+ ":/qthack/images/Matthias_Ettrich.jpg" } ,
+
+{ "Brita Rojahn"  ,
+ "Secretary",
+ ":/qthack/images/brita.jpg" } ,
+
+{ "Trond Vidar Aastorp Hermansen"  ,
+ "Sales representative",
+ ":/qthack/images/Trond_Vidar_Hermansenr.jpg" } ,
+
+{ "Finn Arild Aasheim"  ,
+ "Webmaster",
+ ":/qthack/images/Finn_Aasheim.jpg" } ,
+
+{ "Ragnhild C. Torsvik Bamrud"  ,
+ "Director of HR & Admin",
+ ":/qthack/images/Ragnhild_Bamrud.jpg" } ,
+
+{ "Volker Hilsheimer"  ,
+ "Support Manager",
+ ":/qthack/images/Volker_Hilsheimer.jpg" } ,
+
+{ "Bradley Hughes"  ,
+ "Software Engineer",
+ ":/qthack/images/bhughes.jpg" } ,
+
+{ "Mike Acar"  ,
+ "System Administrator",
+ ":/qthack/images/Mike_Acar.jpg" } ,
+
+{ "Jasmin Blanchette"  ,
+ "Documentation Manager",
+ ":/qthack/images/Jasmin_Blanchette.jpg" } ,
+
+{ "David Boddie"  ,
+ "Junior Technical Writer",
+ ":/qthack/images/David_Boddie.jpg" } ,
+
+{ "Alexander Blasche"  ,
+ "Software Engineer",
+ ":/qthack/images/qt.png" } ,
+
+{ "Sarah Hollings"  ,
+ "Software Engineer",
+ ":/qthack/images/qt.png" } ,
+
+{ "Delphine Saunier"  ,
+ "",
+ ":/qthack/images/delphine.jpg" } ,
+
+{ "Sam Magnuson"  ,
+ "Software Engineer",
+ ":/qthack/images/qt.png" } ,
+
+{ "Paul Tvete"  ,
+ "Senior Software Engineer",
+ ":/qthack/images/Paul_Tvete.jpg" } ,
+
+{ "Warwick Allison"  ,
+ "VP of Engineering",
+ ":/qthack/images/Warwick.jpg" } ,
+
+{ "Martin Jones"  ,
+ "Senior Software Engineer",
+ ":/qthack/images/martin_jones.jpg" } ,
+
+{ "Jan Aarsæther"  ,
+ "Technical Sales Manager",
+ ":/qthack/images/jaa.jpg" } ,
+
+{ "Anne-Therese Werner"  ,
+ "Sales Renewal Coordinator",
+ ":/qthack/images/Anne Therese Werner.jpg"} ,
+
+{ "Inge Martin Berglund"  ,
+ "CRM Administrator & developer",
+ ":/qthack/images/Inge_Berglund.jpg" } ,
+
+{ "Aaron Kennedy"  ,
+ "Mr",
+ ":/qthack/images/qt.png" } ,
+
+{ "David Kipping"  ,
+ "Director of Business Development",
+ ":/qthack/images/david_kipping.jpg" } ,
+
+{ "Trond Are Haugland"  ,
+ "System Admininstrator",
+ ":/qthack/images/Trond_Are_Haugland.jpg" } ,
+
+{ "Don Sanders"  ,
+ "Software Engineer",
+ ":/qthack/images/don_sanders.jpg" } ,
+
+{ "Lars Knoll"  ,
+ "Senior Software Engineer",
+ ":/qthack/images/Lars_Knoll.jpg" } ,
+
+{ "Dimitri Papadopoulos"  ,
+ "",
+":/qthack/images/qt.png" } ,
+
+{ "Janicke Klefelt"  ,
+ "Senior Accountant",
+ ":/qthack/images/janicke.jpg" } ,
+
+{ "Dave Parker"  ,
+ "VP Worldwide Sales - Development Tools Business Unit",
+":/qthack/images/P10100151.jpg" } ,
+
+{ "Rebecca Kersten"  ,
+ "",
+ ":/qthack/images/rebecca_kersten.jpg" } ,
+
+{ "Holly Citti"  ,
+ "Sales Coordinator",
+ ":/qthack/images/holly_citti.jpg" } ,
+
+{ "Trond Kjernåsen"  ,
+ "Software Engineer",
+ ":/qthack/images/trond.jpg" } ,
+
+{ "John Ryland"  ,
+ "Senior Software Engineer",
+ ":/qthack/images/john.jpg" } ,
+
+{ "Andy Shaw"  ,
+ "Support Engineer",
+ ":/qthack/images/andy.jpg" } ,
+
+{ "Cathrine Bore"  ,
+ "Head of Legal Affairs",
+ ":/qthack/images/Cathrine_Bore.jpg"} ,
+
+{ "Andreas Aardal Hanssen"  ,
+ "Software Engineer",
+ ":/qthack/images/Andras_Hanssen.jpg"} ,
+
+{ "David Almström",
+ "Director",
+ ":/qthack/images/dvd.jpg" } ,
+
+{ "Ingvild Hartberg"  ,
+ "Personnel Consultant",
+ ":/qthack/images/Ingvild Hartberg.jpg" } ,
+
+{ "Jacek Surazski"  ,
+ "Software engineer",
+ ":/qthack/images/Jacek Surazski.jpg" } ,
+
+{ "Karin Stavik"  ,
+ "Personnel Manager",
+ ":/qthack/images/Karin_stavik_lien.jpg" } ,
+
+{ "Tom Hinton"  ,
+ "VP of Sales MCE",
+":/qthack/images/qt.png" } ,
+
+{ "Knut Stålen"  ,
+ "Director of Finance",
+ ":/qthack/images/Knut_stalen.jpg" } ,
+
+{ "Ed Baak"  ,
+ "Quality Assurance Coordinator",
+ ":/qthack/images/ed_baak.jpg" } ,
+
+{ "Marty Udisches"  ,
+ "Sales",
+":/qthack/images/qt.png" } ,
+
+{ "Hanne Linaae"  ,
+ "Partner Manager / Product Manager QSA",
+ ":/qthack/images/Hanne_Linaae.jpg" } ,
+
+{ "Trenton Schulz"  ,
+ "Software Engineer",
+ ":/qthack/images/twschulz.jpg" } ,
+
+{ "Harald Fernengel"  ,
+ "Software Engineer",
+ ":/qthack/images/Harald Fernengel.jpg" } ,
+
+{ "Ian Walters"  ,
+ "Software Engineer",
+ ":/qthack/images/ian.jpg" } ,
+
+{ "Marius Storm-Olsen"  ,
+ "Software Engineer",
+ ":/qthack/images/Marius_Storm_Olsen.jpg" } ,
+
+{ "Kristen Tveter"  ,
+ "Director",
+ ":/qthack/images/Kristen_Tveter.jpg" } ,
+
+{ "Marc Britton"  ,
+ "Software Engineer",
+ ":/qthack/images/marc.jpg" } ,
+
+{ "Tonje Sund"  ,
+ "Corporate PR Manager",
+ ":/qthack/images/Tonje_Sund.jpg" } ,
+
+{ "Anitra McEuen"  ,
+ "Sales representative",
+ ":/qthack/images/anitra.jpg" } ,
+
+{ "Margaret McLeod"  ,
+ "Marketing Director",
+ ":/qthack/images/Margaret_McLeod.jpg" } ,
+
+{ "Raymond Biggs"  ,
+ "",
+ ":/qthack/images/raymond_biggs.jpg" } ,
+
+{ "Anders Bakken"  ,
+ "Support Engineer",
+ ":/qthack/images/anders.jpg" } ,
+
+{ "Simon Hausmann"  ,
+ "",
+ ":/qthack/images/simon_hausmann.jpg" } ,
+
+{ "Nina Gudiksen"  ,
+ "Ms",
+":/qthack/images/qt.png" } ,
+
+{ "Vivi Glückstad Karlsen"  ,
+ "Junior Technical Writer",
+ ":/qthack/images/Vivi_V5U9757v21.jpg" } ,
+
+{ "Eivind Throndsen"  ,
+ "Product Manager",
+ ":/qthack/images/eivind.jpg" } ,
+
+{ "Bente Dørum"  ,
+ "",
+ ":/qthack/images/bente_dorum.jpg" } ,
+
+{ "Lorn Potter"  ,
+ "Qtopia Community Liaison",
+ ":/qthack/images/lorn.jpg" } ,
+
+{ "Caroline Lam"  ,
+ "",
+ ":/qthack/images/caroline_lam.jpg" } ,
+
+{ "Pascal Bühler"  ,
+ "",
+ ":/qthack/images/Pascal_Buhler.jpg" } ,
+
+{ "Xavier Ducasse"  ,
+ "Sales Representative",
+ ":/qthack/images/Xavier_Ducasse.jpg" } ,
+
+{ "Sigrid Nævdal"  ,
+ "Support Engineer",
+ ":/qthack/images/Sigrid_Navdal.jpg" } ,
+
+{ "Lincoln Ramsay"  ,
+ "Software Engineer",
+ ":/qthack/images/lincoln_ramsay.jpg" } ,
+
+{ "Silje Johansen"  ,
+ "",
+ ":/qthack/images/Silje_V5U9953.jpg" } ,
+
+{ "Fredrik Thoresen"  ,
+ "",
+ ":/qthack/images/Fredrik_Thoresen.jpg" } ,
+
+{ "Jan Krämer"  ,
+ "",
+":/qthack/images/qt.png" } ,
+
+{ "Ann Sofie Kaalen"  ,
+ "Web / Internal Systems Developer",
+ ":/qthack/images/Anne Therese Werner.jpg"} ,
+
+{ "Carol Dolge"  ,
+ "Controller",
+":/qthack/images/qt.png" } ,
+
+{ "Jan Erik Hanssen"  ,
+ "Support Engineer",
+ ":/qthack/images/jan_erik_hanssen.jpg" } ,
+
+{ "Bente Høgnes"  ,
+ "Financial Controller",
+ ":/qthack/images/bente_hognes.jpg" } ,
+
+{ "David Henderson"  ,
+ "International Sales Manager",
+ ":/qthack/images/David_Henderson.jpg" } ,
+
+{ "Roberto Raggi"  ,
+ "",
+ ":/qthack/images/Roberto_Raggi.jpg" } ,
+
+{ "Elizabeth Hjul"  ,
+ "Sales Director",
+ ":/qthack/images/Elizabeth_Hjul.jpg" } ,
+
+{ "Sonia Mohal"  ,
+ "Senior Sales Executive",
+ ":/qthack/images/Sonia_Mohal.jpg" } ,
+
+{ "Yann Bodson"  ,
+ "Mr",
+":/qthack/images/qt.png" } ,
+
+{ "Marius B. Monsen"  ,
+ "Software Developer",
+ ":/qthack/images/Marius_Bugge_Monsen.jpg" } ,
+
+{ "Gunnar Sletta"  ,
+ "Software Developer",
+ ":/qthack/images/Gunnar_Sletta.jpg" } ,
+
+{ "Henrik Hartz"  ,
+ "CRM Administrator & Developer",
+ ":/qthack/images/Henrik_Hartz.jpg" } ,
+
+{ "Keith Isdale"  ,
+ "Software Engineer",
+ ":/qthack/images/keith_isdal.jpg" } ,
+
+{ "Paul Russell"  ,
+ "Accountant",
+":/qthack/images/qt.png" } ,
+
+{ "Espen Riskedal"  ,
+ "Software Developer",
+ ":/qthack/images/Espen_Riskedal.jpg" } ,
+
+{ "Ben Conlan"  ,
+ "Tester",
+ ":/qthack/images/ben_conlan.jpg" } ,
+
+{ "Rhys Weatherley"  ,
+ "",
+ ":/qthack/images/rhys_weatherley.jpg" } ,
+
+{ "Yu Yijun"  ,
+ "",
+":/qthack/images/qt.png" } ,
+
+{ "Thomas Strehl"  ,
+ "Junior Software Engineer",
+ ":/qthack/images/Thomas_Strehl.jpg" } ,
+
+{ "Delphine d'Alauzier"  ,
+ "Senior Account Manager",
+ ":/qthack/images/Delphine_d'Alauzier.jpg" } ,
+
+{ "Daniel Münch"  ,
+ "",
+":/qthack/images/qt.png" } ,
+
+{ "Sevtap Incoglu"  ,
+ "Pre-sales/Support Engineer",
+ ":/qthack/images/Sevtap_Incoglu.jpg" } ,
+
+{ "Gerard Loughran"  ,
+ "",
+":/qthack/images/qt.png" } ,
+
+{ "Morten Johan Sørvig"  ,
+ "Junior Software Engineer",
+ ":/qthack/images/morten_sorvig.jpg" } ,
+
+{ "Sverre Djønne"  ,
+ "Junior Software Engineer",
+ ":/qthack/images/Sverre_Djonne.jpg" } ,
+
+{ "Scott Collins"  ,
+ "Qt Evangelist",
+ ":/qthack/images/Scott_Collins.jpg" } ,
+
+{ "Pål de Vibe"  ,
+ "Support Engineer",
+ ":/qthack/images/pal_deVibe.jpg" } ,
+
+{ "Adam Walhout"  ,
+ "Product Marketing Manager - Desktop Tools",
+ ":/qthack/images/Adam_Walhout.jpg" } ,
+
+{ "Nicole Lua"  ,
+ "",
+ ":/qthack/images/Nicole_Lua.jpg" } ,
+
+{ "Richard Liu"  ,
+ "Sr Sales Manager",
+ ":/qthack/images/Richard1.jpg" } ,
+
+{ "Jennifer Zhang"  ,
+ "Office Manager",
+ ":/qthack/images/Jen.jpg" } ,
+
+{ "Karen Lachtanski"  ,
+ "Marketing Manager",
+":/qthack/images/qt.png" } ,
+
+{ "Young Tang"  ,
+ "Field Service Co-ordinator",
+ ":/qthack/images/Young.jpg" } ,
+
+{ "Chunlei Zhao"  ,
+ "",
+ ":/qthack/images/Chunlei.jpg" } ,
+
+{ "Håvard Wall"  ,
+ "",
+ ":/qthack/images/HOvard_V5U9853.jpg" } ,
+
+{ "Eskil Abrahamsen Blomfeldt"  ,
+ "Software Engineer",
+ ":/qthack/images/Eskil_V5U9906.jpg" } ,
+
+{ "Ole Christian Lappen"  ,
+ "Regional Sales Manager Nordic Region",
+ ":/qthack/images/Ole_Christian_V5U9730v2.jpg" },
+
+{ "Mette Olsen"  ,
+ "",
+ ":/qthack/images/Mette_V5U9792.jpg" } ,
+
+{ "Jean-Christophe Vuillot"  ,
+ "",
+ ":/qthack/images/Jean_Christophe_V5U9650.jpg" } ,
+
+{ "Mark George"  ,
+ "Software Engineer",
+":/qthack/images/qt.png" } ,
+
+{ "Hiroshi Oikawa"  ,
+ "Senior Sales Manager",
+":/qthack/images/qt.png" } ,
+
+{ "Kurt Korbatits"  ,
+ "Software Engineer",
+":/qthack/images/qt.png" } ,
+
+{ "Mark Keir"  ,
+ "Systems Administrator",
+":/qthack/images/qt.png" } ,
+
+{ "Arunav Mandal"  ,
+ "System administrator",
+ ":/qthack/images/Arunav_V5U9645.jpg"} ,
+
+{ "Smain Laruelle"  ,
+ "System administrator",
+ ":/qthack/images/smain.jpg" } ,
+
+{ "Alexander Luddy"  ,
+ "",
+":/qthack/images/qt.png" } ,
+
+{ "Thomas Threlfo"  ,
+ "Software Test Engineer",
+":/qthack/images/qt.png" } ,
+
+{ "Jan-Arve Sæthe"  ,
+ "",
+ ":/qthack/images/Jan_Arve_V5U9689v2.jpg" } ,
+
+{ "Ryan Mills"  ,
+ "",
+":/qthack/images/qt.png" }

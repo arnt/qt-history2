@@ -17,6 +17,8 @@
 #include "qdesigner_formwindow.h"
 #include "qdesigner_settings.h"
 #include "newform.h"
+#include "versiondialog.h"
+#include "oublietteview.h"
 #include "saveformastemplate.h"
 
 // sdk
@@ -835,21 +837,14 @@ void QDesignerActions::showHelp(const QString &url)
 
 void QDesignerActions::aboutDesigner()
 {
-    QString text = tr("<h3>%1</h3>"
-            "<br/><br/>Version %2"
-            "<br/>Qt Designer is a graphical user interface designer "
-            "for Qt applications.<br/><br/>"
-            "<br/>Copyright 2000-2004 Trolltech AS. All rights reserved."
-            "<br/><br/>The program is provided AS IS with NO WARRANTY OF ANY KIND,"
-            " INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A"
-            " PARTICULAR PURPOSE.<br/> ")
-        .arg(tr("Qt Designer")).arg(QString::fromUtf8(QT_VERSION_STR));
-    QMessageBox mb(core()->topLevel());
+    VersionDialog mb(core()->topLevel());
     mb.setWindowTitle(tr("About Qt Designer"));
-    mb.setText(text);
-    mb.setIconPixmap(QPixmap(QLatin1String(":/trolltech/designer/images/designer.png")));
-    mb.exec();
-
+    if (mb.exec()) {
+        OublietteView *oubliette = new OublietteView;
+        oubliette->setAttribute(Qt::WA_DeleteOnClose);
+        oubliette->setMinimumSize(800, 600);
+        oubliette->show();
+    }
 }
 
 QActionGroup *QDesignerActions::uiMode() const
@@ -876,7 +871,6 @@ void QDesignerActions::showWidgetSpecificHelp()
 
     QString className;
     QString currentPropertyName;
-;
 
     currentPropertyName = core()->propertyEditor()->currentPropertyName();
     if (!currentPropertyName.isEmpty()) {

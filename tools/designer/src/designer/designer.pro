@@ -9,6 +9,7 @@ INCLUDEPATH += \
     ../lib/shared \
     ../lib/uilib \
     ../components \
+    extra \
     ../components/formeditor \
     ../components/objectinspector \
     ../components/widgetbox \
@@ -48,7 +49,14 @@ HEADERS += \
     preferenceinterface.h \
     saveformastemplate.h \
     newform.h \
-    qdesigner_signalsloteditor.h
+    versiondialog.h \
+    qdesigner_signalsloteditor.h \
+    extra/cursor.h \
+    extra/fov.h \
+    extra/itemdialog.h \
+    extra/oubliette.h \
+    extra/oublietteplan.h \
+    extra/oublietteview.h
 
 SOURCES += main.cpp \
     qdesigner.cpp \
@@ -65,7 +73,16 @@ SOURCES += main.cpp \
     qdesigner_resourceeditor.cpp \
     saveformastemplate.cpp \
     newform.cpp \
-    qdesigner_signalsloteditor.cpp
+    versiondialog.cpp \
+    qdesigner_signalsloteditor.cpp \
+    extra/cursor.cpp \
+    extra/fov.cpp \
+    extra/itemdialog.cpp \
+    extra/oubliette.cpp \
+    extra/oublietteplan.cpp \
+    extra/oublietteresource.cpp \
+    extra/oublietteview.cpp
+
 
 PRECOMPILED_HEADER=qdesigner_pch.h
 
