@@ -709,6 +709,17 @@ void FormWindowManager::endDrag(const QPoint &pos)
         m_last_form_under_mouse->dropWidgets(m_drag_item_list, m_last_widget_under_mouse, pos);
     } else if (m_widget_box_under_mouse != 0) {
         m_widget_box_under_mouse->dropWidgets(m_drag_item_list, pos);
+        foreach (QDesignerDnDItemInterface *item, m_drag_item_list) {
+            if (item->type() == QDesignerDnDItemInterface::CopyDrop)
+                continue;
+            FormWindow *source = qobject_cast<FormWindow*>(item->source());
+            if (source == 0)
+                continue;
+            QWidget *widget = item->widget();
+            if (widget == 0)
+                continue;
+            source->deleteWidgets(QList<QWidget*>() << widget);
+        }
     } else {
         foreach (QDesignerDnDItemInterface *item, m_drag_item_list) {
             if (item->widget() != 0)
