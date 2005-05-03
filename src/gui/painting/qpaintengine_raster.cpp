@@ -3110,7 +3110,7 @@ QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cd
         dy += 1;
     }
     dx = dx0;
-    for ( i = 0; i < width; i++ ) {
+    for ( i = 0; i < height; i++ ) {
         if ( dx == 0. ) {
             dx += 1;
             continue;
