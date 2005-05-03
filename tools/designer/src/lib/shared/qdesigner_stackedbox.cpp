@@ -53,16 +53,16 @@ QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
 
     updateButtons();
 
-    m_actionPreviousPage = new QAction(tr("Previous Page"));
+    m_actionPreviousPage = new QAction(tr("Previous Page"), this);
     connect(m_actionPreviousPage, SIGNAL(triggered()), this, SLOT(prevPage()));
 
-    m_actionNextPage = new QAction(tr("Next Page"));
+    m_actionNextPage = new QAction(tr("Next Page"), this);
     connect(m_actionNextPage, SIGNAL(triggered()), this, SLOT(nextPage()));
 
-    m_actionDeletePage = new QAction(tr("Delete Page"));
+    m_actionDeletePage = new QAction(tr("Delete Page"), this);
     connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
 
-    m_actionInsertPage = new QAction(tr("Add Page"));
+    m_actionInsertPage = new QAction(tr("Add Page"), this);
     connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
 }
 
