@@ -36,7 +36,7 @@ class Q_CORE_EXPORT QCoreApplication : public QObject
 {
     Q_OBJECT
     Q_PROPERTY(QString applicationName READ applicationName WRITE setApplicationName)
-    Q_PROPERTY(QString organiationName READ organizationName WRITE setOrganizationName)
+    Q_PROPERTY(QString organizationName READ organizationName WRITE setOrganizationName)
     Q_PROPERTY(QString organizationDomain READ organizationDomain WRITE setOrganizationDomain)
 
     Q_DECLARE_PRIVATE(QCoreApplication)
