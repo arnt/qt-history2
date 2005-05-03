@@ -288,7 +288,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 // Help actions
 //
 
-    m_mainHelpAction = new QAction(tr("Qt Designer &Help"));
+    m_mainHelpAction = new QAction(tr("Qt Designer &Help"), this);
     connect(m_mainHelpAction, SIGNAL(triggered()), this, SLOT(showDesignerHelp()));
 #ifdef Q_WS_MAC
     m_mainHelpAction->setShortcut(Qt::CTRL + Qt::Key_Question);
@@ -301,7 +301,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     sep->setSeparator(true);
     m_helpActions->addAction(sep);
 
-    m_widgetHelp = new QAction(tr("Current Widget Help"));
+    m_widgetHelp = new QAction(tr("Current Widget Help"), this);
     m_widgetHelp->setShortcut(Qt::Key_F1);
     connect(m_widgetHelp, SIGNAL(triggered()), this, SLOT(showWidgetSpecificHelp()));
     m_helpActions->addAction(m_widgetHelp);
@@ -310,7 +310,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     sep->setSeparator(true);
     m_helpActions->addAction(sep);
 
-    m_whatsNewAction = new QAction(tr("What's New in Qt Designer?"));
+    m_whatsNewAction = new QAction(tr("What's New in Qt Designer?"), this);
     connect(m_whatsNewAction, SIGNAL(triggered()), this, SLOT(showWhatsNew()));
     m_helpActions->addAction(m_whatsNewAction);
 
@@ -320,10 +320,10 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     sep->setSeparator(true);
     m_helpActions->addAction(sep);
 #endif
-    m_aboutDesignerAction = new QAction(tr("About Qt Designer"));
+    m_aboutDesignerAction = new QAction(tr("About Qt Designer"), this);
     connect(m_aboutDesignerAction, SIGNAL(triggered()), this, SLOT(aboutDesigner()));
     m_helpActions->addAction(m_aboutDesignerAction);
-    m_aboutQtAction = new QAction(tr("About Qt"));
+    m_aboutQtAction = new QAction(tr("About Qt"), this);
     connect(m_aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     m_helpActions->addAction(m_aboutQtAction);
 //
