@@ -724,7 +724,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 		        getUntilEnd( command );
 		        break;
 		    case CMD_OMITVALUE:
-		        //leaveValue();
 		        x = getArgument();
 		        if (!priv->enumItemList.contains(x))
 			    priv->enumItemList.append(x);
@@ -882,8 +881,8 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			    append( Atom::ListItemLeft, ATOM_LIST_VALUE );
 
                             skipSpacesOrOneEndl();
-                            if (!isBlankLine())
-                                enterPara();
+                            if (isBlankLine())
+                                append(Atom::Nop);
 		        } else {
 			    // ### problems
 		        }
@@ -1509,6 +1508,8 @@ void DocParser::leaveValue()
 	openedLists.push( OpenedList(OpenedList::Value) );
 	append( Atom::ListLeft, ATOM_LIST_VALUE );
     } else {
+        if (priv->text.lastAtom()->type() == Atom::Nop)
+            priv->text.stripLastAtom();
 	append( Atom::ListItemRight, ATOM_LIST_VALUE );
     }
 }
@@ -1517,6 +1518,8 @@ void DocParser::leaveValueList()
 {
     leavePara();
     if ( !openedLists.isEmpty() && openedLists.top().style() == OpenedList::Value) {
+        if (priv->text.lastAtom()->type() == Atom::Nop)
+            priv->text.stripLastAtom();
 	append( Atom::ListItemRight, ATOM_LIST_VALUE );
 	append( Atom::ListRight, ATOM_LIST_VALUE );
 	openedLists.pop();

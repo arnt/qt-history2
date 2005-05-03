@@ -1,11 +1,17 @@
+MUST HAVES:
+
+  * fix bug with Qt::SubWindow
+
+  * setters in Qt Assistant
+  * FakeNodes in .dcf
+  * get rid of spurious 'global' functions
+  * Make automatic links in code work
+
   * Fix encoding bug (see Important email from Simon Hausmann)
   * Make links to QFoo::bar().baz() work
   * Fix automatic links in \sectionX (e.g. qt4-getting-started.html)
   * Provide a "List of all properties" page.
-  * Make automatic links in code work
 
-  * Fix look of \value (consecutive \values)
-  * fix \value (e.g. Qt::BitmapCursor in qcursor.cpp)
   * expand QObjectList -> QList<QObject *>
   * qhboxwidget.html#sizeHint is broken (apparently)
 
@@ -28,8 +34,6 @@ LINKS:
   * fix \legalese
   * remove warning for undocumented enum item like QLocale::LastLanguage
   * improve the \a warnings for overloads; if one overload documents a para, fine
-
-  * get rid of spurious 'global' functions
 
   * implement \sidebar
 
