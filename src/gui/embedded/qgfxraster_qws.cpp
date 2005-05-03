@@ -378,7 +378,6 @@ bool QScreenCursor::restoreUnder(const QRect &r)
                 QRect r(x,y,data->width,data->height);
                 r = qt_screen->mapFromDevice(r, s);
                 gfx->setSource(imgunder);
-                gfx->setAlphaType(QGfx::IgnoreAlpha);
                 gfx->blt(r.x(), r.y(), r.width(), r.height(),0,0);
                 gfx->gfx_swcursor = true;
             }
@@ -435,11 +434,9 @@ void QScreenCursor::saveUnder()
 
     if (depth < 8) {
         gfxunder->gfx_swcursor = false;   // prevent recursive call from blt
-        gfxunder->setAlphaType(QGfx::IgnoreAlpha);
         gfxunder->srclinestep = gfx->linestep();
         gfxunder->srcdepth = gfx->bitDepth();
         gfxunder->srcbits = gfx->buffer;
-        gfxunder->srctype = QGfx::SourceImage;
         gfxunder->srcpixeltype = QScreen::NormalPixel;
         gfxunder->srcwidth = qt_screen->width();
         gfxunder->srcheight = qt_screen->height();
@@ -913,7 +910,6 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSource(const QImage *i)
 {
     //qWarning("QGfxRaster::setSource(const QImage*)");
-    srctype=SourceImage;
     srcpixeltype=QScreen::NormalPixel;
     srclinestep=i->bytesPerLine();
     srcdepth=i->depth();
@@ -950,7 +946,6 @@ template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSource(unsigned char *c, int w, int h, int l, int d, QRgb *clut,
                                        int numcols)
 {
-    srctype=SourceImage;
     srcpixeltype=QScreen::NormalPixel;
     srclinestep=l;
     srcdepth=d;
@@ -1013,50 +1008,6 @@ void QGfxRaster<depth,type>::buildSourceClut(const QRgb * cols,int numcols)
 
 
 /*!
-    \fn void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char *l)
-
-    \internal
-
-    This draws a point in the scanline pointed to by \a l, at the position \a x,
-    without taking any notice of clipping. It's an internal method called
-    by drawPoint(), and vLine().
-*/
-template <const int depth, const int type>
-Q_GFX_INLINE void QGfxRaster<depth,type>::drawPointUnclipped(int x, unsigned char *l)
-{
-    //screen coordinates
-    if (depth == 32)
-        ((QRgb*)l)[x] = pixel;
-    else if (depth == 24)
-        gfxSetRgb24(l + x*3, pixel);
-    else if (depth == 16)
-        ((ushort*)l)[x] = (pixel & 0xffff);
-    else if (depth == 8)
-        l[x] = (pixel & 0xff);
-    else if (depth == 4) {
-        uchar *d = l + (x>>1);
-        int s = (x & 1) << 2;
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-        if (is_screen_gfx)
-            s = (~x & 1) << 2;
-#endif
-        *d = (*d & MASK4BPP(s)) | (pixel << s);
-    } else if (depth == 1)
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-        if (is_screen_gfx) {
-        if (pixel)
-            l[x/8] |= 0x80 >> (x%8);
-        else
-            l[x/8] &= ~(0x80 >> (x%8));
-        } else
-#endif
-        if (pixel)
-            l[x/8] |= 1 << (x%8);
-        else
-            l[x/8] &= ~(1 << (x%8));
-}
-
-/*!
     \fn void QGfxRaster<depth,type>::hline(int x1, int x2, int y)
 
     \internal
@@ -1094,6 +1045,17 @@ void QGfxRaster<depth,type>::hline(int x1, int x2, int y) //screen coordinates, 
     }
 }
 
+
+static inline void drawPoint_4(int x, unsigned char *l, uint pixel)
+{
+    uchar *d = l + (x>>1);
+    int s = (x & 1) << 2;
+#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
+    if (is_screen_gfx)
+        s = (~x & 1) << 2;
+#endif
+    *d = (*d & MASK4BPP(s)) | (pixel << s);
+}
 /*!
     \fn void QGfxRaster<depth,type>::hlineUnclipped(int x1, int x2, unsigned char *l)
 
@@ -1107,15 +1069,6 @@ template <const int depth, const int type> //screen coordinates, unclipped, x1<=
 Q_GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1, int x2, unsigned char *l)
 {
     int w = x2-x1+1;
-    // Use hAlphaLineUnclipped if we are drawing with an alpha pen
-    if (alphatype == SolidAlpha && srctype == SourcePen && calpha != 255) {
-//        printf("Using hAlphaLineUnclipped instead of hLineUnclipped!\n");
-        alphabuf = new unsigned int[w];
-        hAlphaLineUnclipped(x1, x2, l, 0, 0);
-        delete[] alphabuf;
-        alphabuf = 0;
-        return;
-    }
 
     if (depth == 32) {
         unsigned int *myptr=(unsigned int *)l + x1;
@@ -1206,7 +1159,7 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1, int x2, unsigne
         unsigned char *myptr=l;
         unsigned char *dptr = myptr + x1/2;
         if (x1&1) {
-            drawPointUnclipped(x1, myptr);
+            drawPoint_4(x1, myptr, pixel);
             w--;
             dptr++;
         }
@@ -1218,7 +1171,7 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1, int x2, unsigne
         }
 
         if (!(x2&1))
-            drawPointUnclipped(x2, myptr);
+            drawPoint_4(x2, myptr, pixel);
     } else if (depth == 1) {
         //#### we need to use semaphore
         l += x1/8;
@@ -1282,8 +1235,8 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hlineUnclipped(int x1, int x2, unsigne
 */
 template <const int depth, const int type>
 Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, unsigned char *l,
-                                                            unsigned const char *srcdata,
-                                                            bool reverse)
+                                                              unsigned const char *srcdata,
+                                                              bool reverse)
 {
     int w = x2-x1+1;
     if (depth == 32) {
@@ -1295,26 +1248,12 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, un
             myptr+=x2;
             inc = -1;
         }
-        if (!ismasking) {
-            uint gv = pixel;
-            while (w--) {
-                if (srctype==SourceImage)
-                    gv = get_value_32(srcdepth,&srcdata);
-                *(myptr++) = gv;
-            }
-        } else {
-            //masked 32bpp blt...
-            unsigned int gv = pixel;
-            while (w--) {
-                if (srctype == SourceImage)
-                    gv = get_value_32(srcdepth, &srcdata, reverse);
-                bool masked = true;
-                GET_MASKED(reverse, w);
-                if (!masked)
-                    *(myptr) = gv;
-                myptr += inc;
-            }
+
+        while (w--) {
+            uint gv = get_value_32(srcdepth,&srcdata);
+            *(myptr++) = gv;
         }
+
     } else if (depth == 24) {
         unsigned char *myptr = l;
         int inc = 3;
@@ -1324,27 +1263,13 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, un
             myptr += x2*3;
             inc = -3;
         }
-        if (!ismasking) {
-            uint gv = pixel;
-            while (w--) {
-                if (srctype==SourceImage)
-                    gv = get_value_24(srcdepth,&srcdata);
-                gfxSetRgb24(myptr, gv);
-                myptr += 3;
-            }
-        } else {
-            //masked 32bpp blt...
-            unsigned int gv = pixel;
-            while (w--) {
-                if (srctype == SourceImage)
-                    gv = get_value_24(srcdepth, &srcdata, reverse);
-                bool masked = true;
-                GET_MASKED(reverse, w);
-                if (!masked)
-                    gfxSetRgb24(myptr, gv);
-                myptr += inc;
-            }
+
+        while (w--) {
+            uint gv = get_value_24(srcdepth,&srcdata);
+            gfxSetRgb24(myptr, gv);
+            myptr += 3;
         }
+
     } else if (depth == 16) {
         unsigned short int *myptr=(unsigned short int *)l;
         int inc = 1;
@@ -1354,50 +1279,38 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, un
             myptr+=x2;
             inc = -1;
         }
-        if(!ismasking) {
+
 #ifdef QWS_NO_WRITE_PACKING
-            while (w--) {
-                *(myptr++)=get_value_16(srcdepth,&srcdata);
-            }
-#else
-            // 32-bit writes
-            int frontadd;
-            int backadd;
-            int count;
-
-            calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
-
-            PackType dput;
-            while (frontadd--)
-                *(myptr++)=get_value_16(srcdepth,&srcdata);
-            PackType *myptr2 = (PackType*)myptr;
-            myptr += count * 2;
-            while (count--) {
-# ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-                dput = (get_value_16(srcdepth,&srcdata) << 16);
-                dput |= get_value_16(srcdepth,&srcdata);
-# else
-                dput = get_value_16(srcdepth,&srcdata);
-                dput |= (get_value_16(srcdepth,&srcdata) << 16);
-# endif
-                *myptr2++ = dput;
-            }
-            while (backadd--)
-                *(myptr++)=get_value_16(srcdepth,&srcdata);
-#endif
-        } else {
-            // Probably not worth trying to pack writes if there's a mask
-            unsigned short int gv = pixel;
-            while (w--) {
-                if (srctype==SourceImage)
-                    gv = get_value_16(srcdepth, &srcdata, reverse);
-                bool masked = true;
-                GET_MASKED(reverse, w);
-                if (!masked)
-                    *(myptr) = gv;
-                myptr += inc;
-            }
+        while (w--) {
+            *(myptr++)=get_value_16(srcdepth,&srcdata);
         }
+#else
+        // 32-bit writes
+        int frontadd;
+        int backadd;
+        int count;
+
+        calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
+
+        PackType dput;
+        while (frontadd--)
+            *(myptr++)=get_value_16(srcdepth,&srcdata);
+        PackType *myptr2 = (PackType*)myptr;
+        myptr += count * 2;
+        while (count--) {
+# ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
+            dput = (get_value_16(srcdepth,&srcdata) << 16);
+            dput |= get_value_16(srcdepth,&srcdata);
+# else
+            dput = get_value_16(srcdepth,&srcdata);
+            dput |= (get_value_16(srcdepth,&srcdata) << 16);
+# endif
+            *myptr2++ = dput;
+        }
+        while (backadd--)
+            *(myptr++)=get_value_16(srcdepth,&srcdata);
+#endif
+
     } else if (depth == 8) {
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
         // cursor code uses 8bpp backing store
@@ -1412,52 +1325,40 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, un
             myptr+=x2;
             inc = -1;
         }
-        if(!ismasking) {
+
 #ifdef QWS_NO_WRITE_PACKING
-          while (w--)
+        while (w--)
             *(myptr++)=get_value_8(srcdepth,&srcdata);
 #else
-            // 32-bit writes
-            int frontadd;
-            int backadd;
-            int count;
+        // 32-bit writes
+        int frontadd;
+        int backadd;
+        int count;
 
-            calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
+        calcPacking(myptr-x1,x1,x2,frontadd,backadd,count);
 
-            PackType dput;
-            while (frontadd--)
-                *(myptr++)=get_value_8(srcdepth,&srcdata);
-            while (count--) {
+        PackType dput;
+        while (frontadd--)
+            *(myptr++)=get_value_8(srcdepth,&srcdata);
+        while (count--) {
 #ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-                dput = (get_value_8(srcdepth,&srcdata) << 24);
-                dput |= (get_value_8(srcdepth,&srcdata) << 16);
-                dput |= (get_value_8(srcdepth,&srcdata) << 8);
-                dput |= get_value_8(srcdepth,&srcdata);
+            dput = (get_value_8(srcdepth,&srcdata) << 24);
+            dput |= (get_value_8(srcdepth,&srcdata) << 16);
+            dput |= (get_value_8(srcdepth,&srcdata) << 8);
+            dput |= get_value_8(srcdepth,&srcdata);
 #else
-                dput = get_value_8(srcdepth,&srcdata);
-                dput |= (get_value_8(srcdepth,&srcdata) << 8);
-                dput |= (get_value_8(srcdepth,&srcdata) << 16);
-                dput |= (get_value_8(srcdepth,&srcdata) << 24);
+            dput = get_value_8(srcdepth,&srcdata);
+            dput |= (get_value_8(srcdepth,&srcdata) << 8);
+            dput |= (get_value_8(srcdepth,&srcdata) << 16);
+            dput |= (get_value_8(srcdepth,&srcdata) << 24);
 #endif
-                *((PackType*)myptr) = dput;
-                myptr += 4;
-            }
-            while (backadd--)
-                *(myptr++)=get_value_8(srcdepth,&srcdata);
-#endif
-        } else {
-            // Probably not worth trying to pack writes if there's a mask
-            unsigned char gv = pixel;
-            while (w--) {
-                if (srctype==SourceImage)
-                    gv = get_value_8(srcdepth, &srcdata, reverse);
-                bool masked = true;
-                GET_MASKED(reverse, w);
-                if (!masked)
-                    *(myptr) = gv;
-                myptr += inc;
-            }
+            *((PackType*)myptr) = dput;
+            myptr += 4;
         }
+        while (backadd--)
+            *(myptr++)=get_value_8(srcdepth,&srcdata);
+#endif
+
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
         //restore
         if (srcdepth == 4 && srcbits==qt_screen->base())
@@ -1475,20 +1376,14 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, un
             dp += (x2/2);
             int x = x2;
             while (w--) {
-                if (srctype==SourceImage)
-                    gv = get_value_4(srcdepth, &srcdata, reverse);
-                bool masked = true;
-                if (ismasking) {
-                    GET_MASKED(reverse, w);
-                }
-                if (!masked || !ismasking) {
-                    int s = (x&1) << 2;
+                gv = get_value_4(srcdepth, &srcdata, reverse);
+                int s = (x&1) << 2;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-                    if (is_screen_gfx)
-                        s = (~x&1) << 2;
+                if (is_screen_gfx)
+                    s = (~x&1) << 2;
 #endif
-                    *dp = (*dp & MASK4BPP(s)) | (gv << s);
-                }
+                *dp = (*dp & MASK4BPP(s)) | (gv << s);
+
                 if (!(x&1))
                     dp--;
                 x--;
@@ -1497,20 +1392,15 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, un
             dp += (x1/2);
             int x = x1;
             while (w--) {
-                if (srctype==SourceImage)
-                    gv = get_value_4(srcdepth, &srcdata, reverse);
-                bool masked = true;
-                if (ismasking) {
-                    GET_MASKED(reverse, w);
-                }
-                if (!masked || !ismasking) {
-                    int s = (x&1) << 2;
+                gv = get_value_4(srcdepth, &srcdata, reverse);
+
+                int s = (x&1) << 2;
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-                    if (is_screen_gfx)
-                        s = (~x&1) << 2;
+                if (is_screen_gfx)
+                    s = (~x&1) << 2;
 #endif
-                    *dp = (*dp & MASK4BPP(s)) | (gv << s);
-                }
+                *dp = (*dp & MASK4BPP(s)) | (gv << s);
+
                 if (x&1)
                     dp++;
                 x++;
@@ -1541,26 +1431,21 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, un
                         skipbits--;
                     else {
                         w--;
-                        if (srctype == SourceImage)
-                            gv = get_value_1(srcdepth, &srcdata, true);
-                        bool masked = true;
-                        if (ismasking) {
-                            GET_MASKED(true, w);
-                        }
-                        if (!masked || !ismasking) {
+                        gv = get_value_1(srcdepth, &srcdata, true);
+
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-                            if (is_screen_gfx) {
-                                if (gv)
-                                    m |= 0x01 << i;
-                                else
-                                    m &= ~(0x01 << i);
-                            } else
+                        if (is_screen_gfx) {
+                            if (gv)
+                                m |= 0x01 << i;
+                            else
+                                m &= ~(0x01 << i);
+                        } else
 #endif
-                                if (gv)
-                                    m |= 0x80 >> i;
-                                else
-                                    m &= ~(0x80 >> i);
-                        }
+                            if (gv)
+                                m |= 0x80 >> i;
+                            else
+                                m &= ~(0x80 >> i);
+
                     }
                 }
                 *(dp--) = m;
@@ -1575,26 +1460,19 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, un
                         skipbits--;
                     else {
                         w--;
-                        if (srctype == SourceImage)
-                            gv = get_value_1(srcdepth, &srcdata, false);
-                        bool masked = true;
-                        if (ismasking) {
-                            GET_MASKED(false, w);
-                        }
-                        if (!masked || !ismasking) {
+                        gv = get_value_1(srcdepth, &srcdata, false);
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-                            if (is_screen_gfx) {
-                                if (gv)
-                                    m |= 0x80 >> i;
-                                else
-                                    m &= ~(0x80 >> i);
-                            } else
+                        if (is_screen_gfx) {
+                            if (gv)
+                                m |= 0x80 >> i;
+                            else
+                                m &= ~(0x80 >> i);
+                        } else
 #endif
-                                if (gv)
-                                    m |= 1 << i;
-                                else
-                                    m &= ~(1 << i);
-                        }
+                            if (gv)
+                                m |= 1 << i;
+                            else
+                                m &= ~(1 << i);
                     }
                 }
                 *(dp++) = m;
@@ -1605,530 +1483,6 @@ Q_GFX_INLINE void QGfxRaster<depth,type>::hImageLineUnclipped(int x1, int x2, un
         if (srcbits==qt_screen->base())
             src_little_endian = !src_little_endian;
 #endif
-    }
-}
-
-/*!
-    \fn void QGfxRaster::hAlphaLineUnclipped(int x1, int x2, unsigned char *l,
-                                             unsigned const char *srcdata,
-                                             unsigned const char *alphas)
-    \internal
-
-    This is similar to hImageLineUnclipped but handles the more complex
-    alpha blending modes (InlineAlpha, SeparateAlpha, SolidAlpha).
-    Blending is a simple averaging between the source and destination r, g and b
-    values using the 8-bit source alpha value that is, for each of r, g and b the
-    result is
-
-    (source - destination * alpha) / 256 + destination
-
-    Note that since blending requires some per-pixel computation and a read-write
-    access on the destination it tends to be slower than the simpler alpha
-    blending modes. \a x1 and \a x2 specify where to draw in the destination,
-    \a l is the pointer to the scanline to draw into, \a srcdata is the source
-    pixel data and \a alphas is the alpha channel for the SeparateAlpha mode.
-*/
-template <const int depth, const int type>
-Q_GFX_INLINE void QGfxRaster<depth,type>::hAlphaLineUnclipped(int x1, int x2, unsigned char *l,
-                                                            unsigned const char *srcdata,
-                                                            unsigned const char *alphas)
-{
-    int w=x2-x1+1;
-    if (depth == 32) {
-        // First read in the destination line
-        unsigned int *myptr = reinterpret_cast<unsigned int *>(l);
-        unsigned int *alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
-        unsigned const char *avp = alphas;
-        int loopc;
-
-        unsigned int *temppos = myptr+x1;
-        for (int i = 0; i < w; i++)
-            *(alphaptr++) = *(temppos++);
-
-        // Now blend with source data
-        unsigned const char * srcptr=srcdata;
-        unsigned int srcval;
-
-        if(srctype==SourceImage) {
-            srcptr=srcdata;
-            srcval=0; // Shut up compiler
-        } else {
-            // SourcePen
-            srcval=pixel;
-        }
-
-        alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
-        for(loopc=0;loopc<w;loopc++) {
-            int a,r,g,b;
-            if(srctype==SourceImage)
-                srcval=get_value_32(srcdepth,&srcptr);
-
-            int av;
-            if(alphatype==InlineAlpha) {
-                av = srcval >> 24;
-            } else if(alphatype==SolidAlpha) {
-                av=calpha;
-            } else {
-                av=*(avp++);
-            }
-
-            r = (srcval & 0xff0000) >> 16;
-            g = (srcval & 0xff00) >> 8;
-            b = srcval & 0xff;
-
-            unsigned int hold = alphabuf[loopc];
-            if(av==255) {
-                a = av;
-                // Do nothing - we already have source values in r,g,b
-            } else if(av==0) {
-                a = (hold >> 24) & 0xff;
-                r = (hold >> 16) & 0xff;
-                g = (hold >> 8) & 0xff;
-                b = hold & 0xff;
-            } else {
-                int tmp = (hold >> 24) & 0xff;
-                a = av + tmp - av*tmp/255;
-                tmp = (hold >> 16) & 0xff;
-                r = ((r-tmp) * av) / 256 + tmp;
-                tmp = (hold >> 8) & 0xff;
-                g = ((g-tmp) * av) / 256 + tmp;
-                tmp = hold & 0xff;
-                b = ((b-tmp) * av) / 256 + tmp;
-            }
-            *(alphaptr++) = (a<<24) | (r << 16) | (g << 8) | b;
-        }
-
-        // Now write it all out
-        alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
-
-        myptr += x1;
-        while (w--)
-            *(myptr++)=*(alphaptr++);
-    } else if (depth == 24) {
-        // First read in the destination line
-        unsigned char *myptr = l;
-        unsigned char *alphaptr = reinterpret_cast<unsigned char *>(alphabuf);
-        unsigned const char *avp = alphas;
-        int loopc;
-
-        memcpy(alphabuf, myptr+x1*3, w*3);
-
-        // Now blend with source data
-        unsigned const char * srcptr=srcdata;
-        unsigned int srcval;
-
-        if(srctype==SourceImage) {
-            srcptr=srcdata;
-            srcval=0; // Shut up compiler
-        } else {
-            // SourcePen
-            srcval=pixel;
-        }
-
-        alphaptr = reinterpret_cast<unsigned char *>(alphabuf);
-        for(loopc=0;loopc<w;loopc++) {
-            int r,g,b;
-            if(srctype==SourceImage)
-                srcval=get_value_32(srcdepth,&srcptr);
-
-            int av;
-            if(alphatype==InlineAlpha) {
-                av = srcval >> 24;
-            } else if(alphatype==SolidAlpha) {
-                av=calpha;
-            } else {
-                av=*(avp++);
-            }
-
-            r = (srcval & 0xff0000) >> 16;
-            g = (srcval & 0xff00) >> 8;
-            b = srcval & 0xff;
-
-            unsigned char *tmp = alphaptr;
-            if (av == 255) {
-                // Do nothing - we already have source values in r,g,b
-            } else if (av == 0) {
-                r = *(tmp+2);
-                g = *(tmp+1);
-                b = *(tmp+0);
-            } else {
-                r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
-                g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
-                b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
-            }
-            gfxSetRgb24(alphaptr, r, g, b);
-            alphaptr += 3;
-        }
-
-        // Now write it all out
-        memcpy(myptr+x1*3, alphabuf, w*3);
-#if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
-    } else if (depth == 16) {
-        // First read in the destination line
-        unsigned short int *myptr = reinterpret_cast<unsigned short int *>(l);
-        unsigned int *alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
-        int loopc;
-
-#ifdef QWS_NO_WRITE_PACKING
-        unsigned short int *temppos = myptr + x1;
-        for (int i = 0; i < w; i++)
-            *(alphaptr++) = get_value_32(16,reinterpret_cast<unsigned char **>(&temppos));
-#else
-        int frontadd, backadd, count;
-        calcPacking(myptr,x1,x2,frontadd,backadd,count);
-        myptr+=x1;
-
-        unsigned const short int *temppos = myptr;
-
-        int loopc2;
-        for(loopc2=0;loopc2<frontadd;loopc2++)
-            *(alphaptr++)=get_value_32(16,reinterpret_cast<unsigned const char **>(&temppos));
-
-        volatile PackType temp2;
-        volatile unsigned short int *cp;
-        for(loopc2=0;loopc2<count;loopc2++) {
-            temp2=*reinterpret_cast<const PackType *>(temppos);
-            cp=reinterpret_cast<volatile unsigned short int*>(&temp2);
-            *(alphaptr++)=qt_conv16ToRgb(*cp);
-            cp++;
-            *(alphaptr++)=qt_conv16ToRgb(*cp);
-            temppos += 2;
-        }
-
-        for(loopc2=0;loopc2<backadd;loopc2++)
-            *(alphaptr++)=get_value_32(16, reinterpret_cast<unsigned const char **>(&temppos));
-#endif
-
-        // Now blend with source data
-        unsigned const char *srcptr=srcdata;
-        unsigned int srcval;
-
-        if(srctype==SourceImage) {
-            srcptr=srcdata;
-            srcval=0; // Shut up compiler
-        } else {
-            // SourcePen
-            srcval=qt_conv16ToRgb(pixel);
-        }
-
-        int astype = 3;
-        if (srctype==SourceImage && alphatype==InlineAlpha)
-            astype = 0;
-        else if (srctype==SourceImage && alphatype != SolidAlpha)
-            astype = 1;
-        else if (alphatype != SolidAlpha)
-            astype = 2;
-
-        int av = calpha;
-        alphaptr = (unsigned int *)alphabuf;
-        unsigned const char *avp = alphas;
-        for (loopc=0;loopc<w;loopc++) {
-            switch (astype) {
-                case 0:
-                    srcval=get_value_32(srcdepth,&srcptr);
-                    av = srcval >> 24;
-                    break;
-                case 1:
-                    srcval=get_value_32(srcdepth,&srcptr);
-                    // FALLTHROUGH
-                case 2:
-                    av=*(avp++);
-                    break;
-            }
-
-            int r,g,b;
-            if (av == 255) {
-                unsigned const char *stmp = reinterpret_cast<unsigned const char *>(&srcval);
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-                stmp++;
-                r = *stmp++;
-                g = *stmp++;
-                b = *stmp;
-#else
-                b = *stmp++;
-                g = *stmp++;
-                r = *stmp;
-#endif
-            } else {
-                unsigned const char *tmp=reinterpret_cast<unsigned const char *>(alphaptr);
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-                tmp++;
-                r = *tmp++;
-                g = *tmp++;
-                b = *tmp;
-#else
-                b = *tmp++;
-                g = *tmp++;
-                r = *tmp;
-#endif
-                if (av) {
-                    unsigned const char *stmp = reinterpret_cast<unsigned const char *>(&srcval);
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-                    stmp++;
-                    r += ((*stmp++-r) * av) >> 8;
-                    g += (((*stmp++)-g) * av) >> 8;
-                    b += (((*stmp)-b) * av) >> 8;
-#else
-                    b += (((*stmp++)-b) * av) >> 8;
-                    g += (((*stmp++)-g) * av) >> 8;
-                    r += ((*stmp-r) * av) >> 8;
-#endif
-                }
-            }
-            *(alphaptr++) = qt_convRgbTo16(r,g,b);
-        }
-
-        // Now write it all out
-        alphaptr = reinterpret_cast<unsigned int *>(alphabuf);
-
-        // #### Consider having different pointer types to alphabuf, such that
-        // #### the written 16bits are aligned and we may use memcpy instead
-        // #### the hackish while loop/DUFF_WRITE_WORD below. Should be faster.
-        // #### (Packing wouldn't be an issue either)
-#ifdef QWS_NO_WRITE_PACKING
-        myptr += x1;
-        while (w--)
-            *(myptr++)=*(alphaptr++);
-#else
-        myptr=reinterpret_cast<unsigned short int *>(l);
-        calcPacking(myptr,x1,x2,frontadd,backadd,count);
-        myptr+=x1;
-
-        for (loopc2=0;loopc2<frontadd;loopc2++)
-            *(myptr++)=*(alphaptr++);
-
-        PackType put;
-        // Duffs device.
-#ifdef QT_QWS_REVERSE_BYTE_ENDIANNESS
-        #define DUFF_WRITE_WORD put=(*(alphaptr++) << 16); put|=(*alphaptr++); \
-                            *myptr2++ = put;
-#else
-        #define DUFF_WRITE_WORD put=*(alphaptr++); put|=(*(alphaptr++) << 16); \
-                            *myptr2++ = put;
-#endif
-        PackType *myptr2 = reinterpret_cast<PackType*>(myptr);
-        myptr += count * 2;
-        PackType *end2 = reinterpret_cast<PackType*>(myptr);
-        switch(count%8){
-            case 0:
-                while (myptr2 != end2) {
-                    DUFF_WRITE_WORD
-            case 7: DUFF_WRITE_WORD
-            case 6: DUFF_WRITE_WORD
-            case 5: DUFF_WRITE_WORD
-            case 4: DUFF_WRITE_WORD
-            case 3: DUFF_WRITE_WORD
-            case 2: DUFF_WRITE_WORD
-            case 1: DUFF_WRITE_WORD
-                }
-        }
-        #undef DUFF_WRITE_WORD
-
-        for (loopc2=0;loopc2<backadd;loopc2++)
-            *(myptr++)=*(alphaptr++);
-#endif
-#endif
-    } else if (depth == 8) {
-        // First read in the destination line
-        unsigned char * myptr;
-        myptr=l;
-        myptr+=x1;
-        int loopc;
-
-        unsigned const char * avp=alphas;
-
-        unsigned char * tempptr=myptr;
-
-        for(loopc=0;loopc<w;loopc++) {
-            int val = *tempptr++;
-            alphabuf[loopc] = clut[val];
-        }
-
-        // Now blend with source data
-
-        unsigned const char * srcptr;
-        unsigned int srcval = 0;
-        if(srctype==SourceImage) {
-            srcptr=srcdata;
-        } else {
-            // SourcePen
-            QRgb mytmp=clut[pixel];
-            srcval=qRed(mytmp) << 16 | qGreen(mytmp) << 8 | qBlue(mytmp);
-        }
-        simple_8bpp_alloc=true;
-        for(loopc=0;loopc<w;loopc++) {
-            int r,g,b;
-            if(srctype==SourceImage)
-                srcval=get_value_32(srcdepth,&srcptr);
-
-            int av;
-            if(alphatype==InlineAlpha) {
-                av=srcval >> 24;
-            } else if(alphatype==SolidAlpha) {
-                av=calpha;
-            } else {
-                av=*(avp++);
-            }
-
-            r = (srcval & 0xff0000) >> 16;
-            g = (srcval & 0xff00) >> 8;
-            b = srcval & 0xff;
-
-            unsigned char * tmp=reinterpret_cast<unsigned char *>(&alphabuf[loopc]);
-            if(av==255) {
-                *myptr = GFX_CLOSEST_PIXEL(r,g,b);
-            } else if (av > 0) {
-                r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
-                g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
-                b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
-                *myptr = GFX_CLOSEST_PIXEL(r,g,b);
-            }
-            myptr++;
-        }
-        simple_8bpp_alloc=false;
-    } else if (depth == 4) {
-        // First read in the destination line
-        unsigned char *myptr = l;
-        myptr+=x1/2;
-
-        unsigned const char *avp=alphas;
-        unsigned char *tempptr=myptr;
-
-        int loopc = 0;
-        if (x1&1) {
-            int val = *tempptr++;
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-            if (is_screen_gfx)
-                alphabuf[loopc++] = clut[(val & 0x0f)];
-            else
-#endif
-            alphabuf[loopc++] = clut[(val & 0xf0) >> 4];
-        }
-
-        for (;loopc < w-1; loopc += 2) {
-            int val = *tempptr++;
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-            if (is_screen_gfx) {
-                alphabuf[loopc] = clut[val >> 4];
-                alphabuf[loopc+1] = clut[val & 0x0f];
-            } else
-#endif
-            {
-            alphabuf[loopc] = clut[val & 0x0f];
-            alphabuf[loopc+1] = clut[val >> 4];
-            }
-        }
-
-        if (!(x2&1)) {
-            int val = *tempptr;
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-            if (is_screen_gfx)
-                alphabuf[w-1] = clut[(val & 0xf0) >> 4];
-            else
-#endif
-            alphabuf[w-1] = clut[val & 0x0f];
-        }
-
-        // Now blend with source data
-
-        unsigned const char * srcptr;
-        unsigned int srcval = 0;
-        if(srctype==SourceImage) {
-            srcptr=srcdata;
-        } else {
-            // SourcePen
-            QRgb mytmp=clut[pixel];
-            srcval=qRed(mytmp) << 16 | qGreen(mytmp) << 8 | qBlue(mytmp);
-        }
-        for(loopc=0;loopc<w;loopc++) {
-            int r,g,b;
-            if(srctype==SourceImage)
-                srcval=get_value_32(srcdepth,&srcptr);
-
-            int av;
-            if(alphatype==InlineAlpha) {
-                av=srcval >> 24;
-            } else if(alphatype==SolidAlpha) {
-                av=calpha;
-            } else {
-                av=*(avp++);
-            }
-
-            r = (srcval & 0xff0000) >> 16;
-            g = (srcval & 0xff00) >> 8;
-            b = srcval & 0xff;
-
-            unsigned char *tmp = reinterpret_cast<unsigned char *>(&alphabuf[loopc]);
-
-            if(av==255) {
-                alphabuf[loopc] = qRgb(r,g,b);
-            } else {
-                r = ((r-*(tmp+2)) * av) / 256 + *(tmp+2);
-                g = ((g-*(tmp+1)) * av) / 256 + *(tmp+1);
-                b = ((b-*(tmp+0)) * av) / 256 + *(tmp+0);
-                alphabuf[loopc] = qRgb(r,g,b);
-            }
-        }
-
-        loopc = 0;
-        if (x1&1) {
-            QRgb rgb = alphabuf[loopc++];
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-            if (is_screen_gfx)
-                *myptr++ = (*myptr & 0xf0) |
-                (gfx_screen->alloc(qRed(rgb), qGreen(rgb), qBlue(rgb)) & 0x0f);
-            else
-#endif
-            *myptr++ = (*myptr & 0x0f) |
-                (gfx_screen->alloc(qRed(rgb), qGreen(rgb), qBlue(rgb)) << 4);
-        }
-
-        for (;loopc < w-1; loopc += 2) {
-            QRgb rgb1 = alphabuf[loopc];
-            QRgb rgb2 = alphabuf[loopc+1];
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-            if (is_screen_gfx) {
-                rgb2 = alphabuf[loopc];
-                rgb1 = alphabuf[loopc+1];
-            }
-#endif
-            *myptr++ = gfx_screen->alloc(qRed(rgb1), qGreen(rgb1), qBlue(rgb1)) |
-                (gfx_screen->alloc(qRed(rgb2), qGreen(rgb2), qBlue(rgb2)) << 4);
-        }
-
-        if (!(x2&1)) {
-            QRgb rgb = alphabuf[w-1];
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-            if (is_screen_gfx)
-                *myptr++ = (*myptr & 0x0f) |
-                     (gfx_screen->alloc(qRed(rgb), qGreen(rgb), qBlue(rgb)) << 4);
-            else
-#endif
-            *myptr = (*myptr & 0xf0) |
-                gfx_screen->alloc(qRed(rgb), qGreen(rgb), qBlue(rgb));
-        }
-
-    } else if (depth == 1) {
-        if (srctype==SourceImage) {
-            static int warn;
-            if (warn++ < 5)
-                qDebug("bitmap alpha-image not implemented");
-            hImageLineUnclipped(x1, x2, l, srcdata, false);
-        } else {
-            bool black = qGray(clut[pixel]) < 128;
-            for (int x=x1; x<=x2; x++) {
-                if (*alphas++ >= 64) { // ### could be configurable (monoContrast)
-                    uchar* lx = l+(x>>3);
-                    uchar b = 1<<(x&0x7);
-#ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-                    if (is_screen_gfx)
-                        b = 0x80>>(x&0x7);
-#endif
-                    if (!(*lx&b) != black)
-                        *lx ^= b;
-                }
-            }
-        }
     }
 }
 
@@ -2147,7 +1501,6 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
         return;
     GFX_START(QRect(rx, ry, w+1, h+1))
 
-    setAlphaType(IgnoreAlpha);
     if (w <= 0 || h <= 0) {
         GFX_END
         return;
@@ -2380,7 +1733,7 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
     // Very gross clip
     if (!clipbounds.intersects(QRect(rx,ry,w,h))) {
         GFX_END
-        return;
+            return;
     }
 
     //slightly tighter clip
@@ -2437,7 +1790,7 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
     int right = rx+w-1;
 
     // Fast path for 8/16/32 bit same-depth opaque blit. (ie. the common case)
-    if (srcdepth == depth && alphatype == IgnoreAlpha
+    if (srcdepth == depth
         && pixeltype == srcpixeltype
         && (depth > 8 || (depth == 8 && src_normal_palette))) {
         int bytesPerPixel = depth/8;
@@ -2494,24 +1847,11 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
             }
         }
     } else {
-        if (alphatype == InlineAlpha || alphatype == SolidAlpha ||
-             alphatype == SeparateAlpha) {
-            alphabuf = new unsigned int[w];
-        }
 
         // reverse will only ever be true if the source and destination
         // are the same buffer.
         bool reverse = srcoffs.y()==ry && rx>srcoffs.x() &&
-                        srctype==SourceImage && srcbits == buffer;
-
-        if (alphatype == LittleEndianMask || alphatype == BigEndianMask) {
-            // allows us to optimise GET_MASK a little
-            amonolittletest = false;
-            if((alphatype==LittleEndianMask && !reverse) ||
-                (alphatype==BigEndianMask && reverse)) {
-                amonolittletest = true;
-            }
-        }
+                       srcbits == buffer;
 
         unsigned const char *srcptr = 0;
         for (; j!=tj; j+=dj,ry+=dry,l+=dl,srcline+=sl) {
@@ -2524,55 +1864,32 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
                     if (x2 < x) break;
                 }
                 if (plot) {
-                    if (srctype == SourceImage) {
-                        if (srcdepth == 1) {
+                    if (srcdepth == 1) {
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
                         if  (srcbits == qt_screen->base())
-                                 src_little_endian =  !src_little_endian;
+                            src_little_endian =  !src_little_endian;
 #endif
-                            srcptr=find_pointer(srcbits,(x-rx)+srcoffs.x(),
-                                         j+srcoffs.y(), x2-x, srclinestep,
-                                         monobitcount, monobitval,
-                                         !src_little_endian, reverse);
+                        srcptr=find_pointer(srcbits,(x-rx)+srcoffs.x(),
+                                            j+srcoffs.y(), x2-x, srclinestep,
+                                            monobitcount, monobitval,
+                                            !src_little_endian, reverse);
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
                         if  (srcbits == qt_screen->base())
-                                 src_little_endian =  !src_little_endian;
+                            src_little_endian =  !src_little_endian;
 #endif
-                        } else if (srcdepth == 4) {
-                            srcptr = find_pointer_4(const_cast<unsigned char*>(srcbits),(x-rx)+srcoffs.x(),
-                                         j+srcoffs.y(), x2-x, srclinestep,
-                                         monobitcount, monobitval, reverse
+                    } else if (srcdepth == 4) {
+                        srcptr = find_pointer_4(const_cast<unsigned char*>(srcbits),(x-rx)+srcoffs.x(),
+                                                j+srcoffs.y(), x2-x, srclinestep,
+                                                monobitcount, monobitval, reverse
 #ifdef QT_QWS_EXPERIMENTAL_REVERSE_BIT_ENDIANNESS
-                                                    , srcbits == qt_screen->base()
+                                                , srcbits == qt_screen->base()
 #endif
-                               );
-                        } else if (reverse)
-                            srcptr = srcline + (x2-rx+srcoffs.x())*srcdepth/8;
-                        else
-                            srcptr = srcline + (x-rx+srcoffs.x())*srcdepth/8;
-                    }
-                    switch (alphatype) {
-                      case LittleEndianMask:
-                      case BigEndianMask:
-                        maskp=find_pointer(alphabits,(x-rx)+srcoffs.x(),
-                                           j+srcoffs.y(), x2-x, alphalinestep,
-                                           amonobitcount,amonobitval,
-                                           alphatype==BigEndianMask, reverse);
-                        // Fall through
-                      case IgnoreAlpha:
-                        hImageLineUnclipped(x,x2,l,srcptr,reverse);
-                        break;
-                      case InlineAlpha:
-                      case SolidAlpha:
-                        hAlphaLineUnclipped(x,x2,l,srcptr,0);
-                        break;
-                      case SeparateAlpha:
-                        // Separate alpha table
-                        unsigned char * alphap=alphabits
-                                                +((j+srcoffs.y())*alphalinestep)
-                                                +(x-rx)+srcoffs.x();
-                        hAlphaLineUnclipped(x,x2,l,srcptr,alphap);
-                    }
+                            );
+                    } else if (reverse)
+                        srcptr = srcline + (x2-rx+srcoffs.x())*srcdepth/8;
+                    else
+                        srcptr = srcline + (x-rx+srcoffs.x())*srcdepth/8;
+                    hImageLineUnclipped(x,x2,l,srcptr,reverse);
                 }
                 x=x2+1;
                 if (x > right)
@@ -2580,10 +1897,6 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
                 if (mustclip)
                     plot=inClip(x,ry,&cr,plot);
             }
-        }
-        if (alphabuf) {
-            delete [] alphabuf;
-            alphabuf = 0;
         }
     }
 
@@ -2610,7 +1923,6 @@ void QGfxRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
     GFX_START(QRect(rx, ry, w+1, h+1))
 
     pixel = brushPixel;
-    unsigned char * savealphabits=alphabits;
 
     int offx =  rx;
     int offy = ry;
@@ -2639,7 +1951,6 @@ void QGfxRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
             if (xPos + drawW > rx + w)    // Cropping last column
                 drawW = rx + w - xPos;
             blt(xPos, yPos, drawW, drawH,xOff,yOff);
-            alphabits=savealphabits;
             xPos += drawW;
             xOff = 0;
         }

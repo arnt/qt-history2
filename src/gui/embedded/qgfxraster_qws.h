@@ -38,11 +38,6 @@ protected:
     void hlineUnclipped(int, int, unsigned char *);
     void hImageLineUnclipped(int x1, int x2, unsigned char *l, unsigned const char *srcdata,
                              bool reverse);
-    void hAlphaLineUnclipped(int x1, int x2, unsigned char *l, unsigned const char *srcdata,
-                             unsigned const char *alphas);
-    void drawPointUnclipped(int, unsigned char *);
-    void drawAlphaPointUnclipped(int, unsigned char *);
-
     void calcPacking(void *, int, int, int &, int &, int &);
 };
 

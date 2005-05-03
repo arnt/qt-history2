@@ -175,7 +175,6 @@ void QWSWindow::bltToScreen(const QRegion &globalrgn)
 
     backingStore->lock();
     gfx->setSource(buf);
-    gfx->setAlphaType(QGfx::IgnoreAlpha);
 
     gfx->blt(topLeft.x(),topLeft.y(), buf->width(), buf->height(), 0, 0);
     backingStore->unlock();
@@ -2312,7 +2311,6 @@ void QWSServer::exposeRegion(QRegion r, int changing)
 
         gfx->setClipDeviceRegion(blendRegion);
         gfx->setSource(&blendBuffer);
-        gfx->setAlphaType(QGfx::IgnoreAlpha);
         gfx->blt(topLeft.x(),topLeft.y(), blendBuffer.width(), blendBuffer.height(), 0, 0);
     }
 }

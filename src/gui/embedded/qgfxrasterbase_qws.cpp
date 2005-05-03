@@ -77,8 +77,6 @@ QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
     width=w;
     height=h;
 
-    srctype=SourcePen;
-
     QRect cr(0,0,w,h);
     cr = qt_screen->mapToDevice(cr, QSize(w, h));
     cliprgn = cr;
@@ -88,13 +86,9 @@ QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
     clipbounds = cr;
     clipcursor = 0;
 
-    alphatype=IgnoreAlpha;
-    alphabuf = 0;
-    ismasking=false;
     srclinestep=0;
     srcbits=0;
     lstep=0;
-    calpha=255;
     src_normal_palette=false;
     clutcols = 0;
 
@@ -191,33 +185,6 @@ void QGfxRasterBase::setClipDeviceRegion(const QRegion &r)
         ncliprect = cr->numRects;
     }
     clipcursor = 0;
-}
-
-/*!
-    \internal
-
-    This sets one of several alpha channel types for the next
-    blt operation to \a a:
-
-    \list
-    \i IgnoreAlpha - Always draw source pixels as-is (no alpha blending)
-    \i InlineAlpha - An 8-bit alpha value is in the highest byte of the (32-bit) source data
-    \i SeparateAlpha - A separate 8-bit alpha channel buffer is provided (used for anti-aliased text)
-    \i LittleEndianMask - A separate little-bit-endian mask is provided
-    \i BigEndianMask - A separate big-bit-endian mask is provided
-    \i SolidAlpha - A single 8-bit alpha value is to be applied to all pixels
-    \endlist
-
-    The alpha channel buffer/value is provided by setAlphaSource
-*/
-void QGfxRasterBase::setAlphaType(AlphaType a)
-{
-    alphatype=a;
-    if(a==LittleEndianMask || a==BigEndianMask) {
-        ismasking=true;
-    } else {
-        ismasking=false;
-    }
 }
 
 

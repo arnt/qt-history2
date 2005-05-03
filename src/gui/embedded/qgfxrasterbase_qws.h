@@ -66,29 +66,6 @@
 #endif //QT_NO_QWS_CURSOR
 
 
-#define GET_MASKED(rev, advance) \
-    if(amonolittletest) { \
-        if(amonobitval & 0x1) { \
-            masked=false; \
-        } \
-        amonobitval=amonobitval >> 1; \
-    } else { \
-        if(amonobitval & 0x80) { \
-            masked=false; \
-        } \
-        amonobitval=amonobitval << 1; \
-        amonobitval=amonobitval & 0xff; \
-    } \
-    if(amonobitcount<7) { \
-        amonobitcount++; \
-    } else if (advance) { \
-        amonobitcount=0; \
-        if (rev) maskp--; \
-        else maskp++; \
-        amonobitval=*maskp; \
-    } \
-
-
 typedef unsigned int PackType;
 // Pull this private function in from qglobal.cpp
 extern unsigned int qt_int_sqrt(unsigned int n);
@@ -184,8 +161,6 @@ public:
 
     virtual void setClipDeviceRegion(const QRegion &);
 
-    virtual void setAlphaType(AlphaType);
-
     virtual void setLineStep(int i) { lstep=i; }
     int linestep() const { return lstep; }
 
@@ -241,19 +216,6 @@ protected:
             qFatal("Source pointer overrun");
     }
 
-    void checkMask(unsigned char *c,int i) {
-        unsigned char *tmp1 = alphabits + (i * alphalinestep);
-        unsigned char *tmp2 = tmp1 + alphalinestep;
-        if(i < 0)
-            qFatal("Negative mask coordinate");    // Convert to/from different bit depths
-        if(i >= srcheight)
-            qFatal("Mask height overrun");
-        if(c < tmp1)
-            qFatal("Alpha pointer underrun");
-        if(c >= tmp2)
-            qFatal("Alpha pointer overrun");
-    }
-
     void checkDest(unsigned char *c,int i) {
         unsigned char *tmp1 = buffer + (i * lstep);
         unsigned char *tmp2 = tmp1 + lstep;
@@ -287,8 +249,6 @@ protected:
     QRgb *clut;                     // Destination color table - r,g,b values
     int clutcols;                   // Colours in clut
 
-    int calpha;                     // Constant alpha value
-
     // Sizes and offsets ------------------------
     int width;
     int height;
@@ -304,22 +264,11 @@ protected:
 
     int monobitcount;
     unsigned char monobitval;
-    int amonobitcount;
-    unsigned char amonobitval;
 
     QScreen::PixelType pixeltype;
     QScreen::PixelType srcpixeltype;
-    SourceType srctype;
     unsigned const char *srcbits;
     unsigned char *const buffer;
-
-    AlphaType alphatype;
-    unsigned char *alphabits;
-    unsigned int *alphabuf;
-    unsigned char *maskp;
-    int alphalinestep;
-    bool ismasking;
-    bool amonolittletest;
 
     // Clipping and regions ---------------------
     QRegion cliprgn;

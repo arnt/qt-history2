@@ -51,28 +51,11 @@ public:
     virtual void blt(int,int,int,int,int,int)=0;
     virtual void tiledBlt(int,int,int,int)=0;
 
-    enum SourceType { SourcePen, SourceImage, SourceAccel };
-
     // Setting up source data - can be solid color or pixmap data
     virtual void setSource(const QImage *)=0;
     virtual void setSource(const QPixmap *)=0;
     virtual void setSource(unsigned char *,int,int,int,int,QRgb *,int);
 
-    // These apply only to blt's. For alpha values for general
-    // drawing operations we should probably have a separate QGfx
-    // class. It's not a high priority though.
-
-    // Enum values: Ignore alpha information, alpha information encoded in
-    // 32-bit rgba along with colors, alpha information in 8bpp
-    // format in alphabits
-
-    enum AlphaType { IgnoreAlpha, InlineAlpha, SeparateAlpha,
-                     LittleEndianMask, BigEndianMask, SolidAlpha };
-
-    // Can be no alpha, inline (32bit data), separate (for images),
-    // LittleEndianMask/BigEndianMask 1bpp masks, constant alpha
-    // value
-    virtual void setAlphaType(AlphaType)=0;
     // Pointer to data, linestep
     virtual void setClut(QRgb *,int)=0;
 
