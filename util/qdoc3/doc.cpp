@@ -882,11 +882,8 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			    append( Atom::ListItemLeft, ATOM_LIST_VALUE );
 
                             skipSpacesOrOneEndl();
-                            if (isBlankLine()) {
-                                leaveValueList();
-                            } else {
+                            if (!isBlankLine())
                                 enterPara();
-                            }
 		        } else {
 			    // ### problems
 		        }
