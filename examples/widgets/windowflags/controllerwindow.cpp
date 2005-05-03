@@ -71,6 +71,14 @@ void ControllerWindow::updatePreview()
 
     previewWindow->setWindowFlags(flags);
     previewWindow->show();
+
+    QPoint framePos = previewWindow->frameGeometry().topLeft();
+    QPoint newPos = previewWindow->pos();
+    if (framePos.x() < 0)
+        newPos.rx() += -framePos.x();
+    if (framePos.y() < 0)
+        newPos.ry() += -framePos.y();
+    previewWindow->move(newPos);
 }
 
 void ControllerWindow::createTypeGroupBox()
