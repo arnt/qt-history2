@@ -639,14 +639,15 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
     if (q->testAttribute(Qt::WA_WState_InPaintEvent))
         qWarning("QWidget::repaint: recursive repaint detected.");
 
-    q->setAttribute(Qt::WA_WState_InPaintEvent);
-
     QWidget *tlw = q->window();
     QTLWExtra *topextra = tlw->d_func()->extra->topextra;
     if (!topextra || !topextra->backingStore) {
         qWarning("QWidgetPrivate::doPaint no backingStore");
         return;
     }
+
+    q->setAttribute(Qt::WA_WState_InPaintEvent);
+
     QPixmap *bs = topextra->backingStore->pixmap();
     QPoint redirectionOffset = topextra->backingStoreOffset + q->mapFrom(tlw,QPoint(0,0));
 
