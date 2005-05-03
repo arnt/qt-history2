@@ -19,17 +19,36 @@ struct QSpan
 
 struct GradientData;
 struct LinearGradientData;
+struct ConicalGradientData;
 extern uint qt_gradient_pixel(const GradientData *data, double pos);
 
 
-typedef void (*BlendColor)(void *target, const QSpan *span, uint color, QPainter::CompositionMode mode);
+typedef void (*BlendColor)(void *target, const QSpan *span, uint color,
+                           QPainter::CompositionMode mode);
+
 typedef void (*Blend)(void *target, const QSpan *span,
                       const qreal dx, const qreal dy,
-                      const void *image_bits, const int image_width, const int image_height, QPainter::CompositionMode mode);
+                      const void *image_bits, const int image_width, const int image_height,
+                      QPainter::CompositionMode mode);
+
 typedef void (*BlendTransformed)(void *target, const QSpan *span,
-                                 const qreal ix, const qreal iy, const qreal dx, const qreal dy,
-                                 const void *image_bits, const int image_width, const int image_height, QPainter::CompositionMode mode);
-typedef void (*BlendLinearGradient)(void *target, const QSpan *span, LinearGradientData *data, qreal ybase, QPainter::CompositionMode mode);
+                                 const qreal ix, const qreal iy,
+                                 const qreal dx, const qreal dy,
+                                 const void *image_bits,
+                                 const int image_width, const int image_height,
+                                 QPainter::CompositionMode mode);
+
+typedef void (*BlendLinearGradient)(void *target,
+                                    const QSpan *span,
+                                    LinearGradientData *data,
+                                    qreal ybase,
+                                    QPainter::CompositionMode mode);
+
+typedef void (*BlendConicalGradient)(void *target,
+                                     const QSpan *span,
+                                     ConicalGradientData *data,
+                                     int y,
+                                     QPainter::CompositionMode mode);
 
 struct DrawHelper {
     enum Layout {
@@ -45,6 +64,7 @@ struct DrawHelper {
     BlendTransformed blendTransformedBilinear;
     BlendTransformed blendTransformedBilinearTiled;
     BlendLinearGradient blendLinearGradient;
+    BlendConicalGradient blendConicalGradient;
 };
 
 extern DrawHelper qDrawHelper[DrawHelper::Layout_Count];
@@ -96,6 +116,9 @@ struct ConicalGradientData : public GradientData
 {
     QPointF center;
     qreal angle;
+    void init(const QPointF &center, qreal angle, const QMatrix &matrix);
+    BlendConicalGradient blendFunc;
+    QPainter::CompositionMode compositionMode;
 };
 
 

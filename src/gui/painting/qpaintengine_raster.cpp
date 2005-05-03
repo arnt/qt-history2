@@ -81,7 +81,6 @@ void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
 #endif
 
 QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rdata );
-QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cdata);
 
 // #define QT_DEBUG_DRAW
 // #define QT_DEBUG_CONVERT
@@ -96,6 +95,7 @@ void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData);
 void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData);
 void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userData);
 void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData);
+void qt_span_conical_gradient(int y, int count, QT_FT_Span *spans, void *userData);
 void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData);
 
 struct SolidFillData
@@ -1755,25 +1755,13 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
             conicalGradientData->stopCount = brush.gradient()->stops().size();
             conicalGradientData->stopPoints = gradientStopPoints(brush.gradient());
             conicalGradientData->stopColors = gradientStopColors(brush.gradient());
-            conicalGradientData->center =
-                static_cast<const QConicalGradient *>(brush.gradient())->center();
-            conicalGradientData->angle =
-                static_cast<const QConicalGradient *>(brush.gradient())->angle() * Q_PI * 2 / 360.0;
             conicalGradientData->alphaColor = !brush.isOpaque();
-            conicalGradientData->initColorTable();
-            QRectF bounds = path ? path->boundingRect() : QRectF(deviceRect);
-            tempImage = qt_draw_conical_gradient_image(bounds.toRect(), conicalGradientData);
-
-            fillData->data = textureFillData;
-            fillData->callback = txop > QPainterPrivate::TxTranslate
-                                 ? qt_span_texturefill_xform
-                                 : qt_span_texturefill;
-            textureFillData->compositionMode = compositionMode;
-            QMatrix m = matrix;
-            m.translate(bounds.x(), bounds.y());
-            textureFillData->init(rasterBuffer, &tempImage, m,
-                                  drawHelper->blendTiled,
-                                  drawHelper->blendTransformedBilinearTiled);
+            conicalGradientData->compositionMode = compositionMode;
+            conicalGradientData->blendFunc = drawHelper->blendConicalGradient;
+            const QConicalGradient *cg = static_cast<const QConicalGradient *>(brush.gradient());
+            conicalGradientData->init(cg->center(), cg->angle(), brushMatrix);
+            fillData->data = conicalGradientData;
+            fillData->callback = qt_span_conical_gradient;
         }
         break;
 
@@ -2277,8 +2265,20 @@ void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData
 
     while (count--) {
         uint *target = baseTarget + spans->x;
-        data->blendFunc(target, (const QSpan *)spans, data, ybase,
-                        data->compositionMode);
+        data->blendFunc(target, (const QSpan *)spans, data, ybase, data->compositionMode);
+        ++spans;
+    }
+}
+
+
+void qt_span_conical_gradient(int y, int count, QT_FT_Span *spans, void *userData)
+{
+    ConicalGradientData *data = reinterpret_cast<ConicalGradientData *>(userData);
+    uint *baseTarget = data->rasterBuffer->scanLine(y);
+
+    while (count--) {
+        uint *target = baseTarget + spans->x;
+        data->blendFunc(target, (const QSpan *)spans, data, y, data->compositionMode);
         ++spans;
     }
 }
@@ -2713,6 +2713,18 @@ void LinearGradientData::init()
 }
 
 
+void ConicalGradientData::init(const QPointF &pt, qreal a, const QMatrix &matrix)
+{
+    center = pt * matrix;
+    double rad_angle = a * 2 * Q_PI / 360.0;
+    QLineF l = QLineF(0, 0, qCos(rad_angle), qSin(rad_angle)) * matrix;
+    angle = l.angle(QLineF(0, 0, 1, 0));
+    if (l.dy() < 0)
+        angle = 360 - angle;
+
+    initColorTable();
+};
+
 
 #ifdef Q_WS_WIN
 static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
@@ -3038,119 +3050,3 @@ QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rda
 
     return image;
 } // qt_draw_gradient_pixmap
-
-static const double cg_tan[ 5 ] = { -1., -.5880025, 0., .5880025, 1. };
-static const double cg_po0[ 5 ] = { 3./8., 2./6., 1./4., 1./6., 1./8. };
-static const double cg_po1[ 5 ] = { 3./8., 5./12., 2./4., 7./12., 5./8. };
-static const double cg_po2[ 5 ] = { 5./8., 4./6., 3./4., 5./6., 7./8. };
-static const double cg_po3[ 5 ] = { 1./8., 1./12., 1., 11./12., 7./8. };
-static const double cg_dpr[ 5 ] = { .0955, .1405, .1405, .0955, .0 };
-
-QImage qt_draw_conical_gradient_image(const QRect &rect, ConicalGradientData *cdata)
-{
-    int width = rect.width();
-    int height = rect.height();
-
-    QImage image(width, height, cdata->alphaColor ? QImage::Format_ARGB32_Premultiplied : QImage::Format_RGB32);
-
-    if ( cdata->stopCount == 0 ) {
-        image.fill( 0 );
-        return image;
-    }
-
-    double dx0, dy0, da, dy, dx, dny, dnx, nx, ny, p, dp, rp;
-    int i, j, si;
-    bool mdp;
-    uint *line;
-
-    p = 0;
-    dp = 0;
-
-    dx0 = rect.x() - cdata->center.x();
-    dy0 = rect.y() - cdata->center.y();
-    da = cdata->angle / 2. / Q_PI;
-
-    dy = dy0;
-
-    if ( floor( dx0 ) == dx0 && floor( dy0 ) == dy0
-         && -dx0 >= 0 && -dx0 < width && -dy0 >= 0 && -dy0 < height)
-            image.setPixel(-(int)dx0, -(int)dy0, qt_gradient_pixel( cdata, 0. ));
-
-    for ( i = 0; i < height; i++ ) {
-        if ( dy == 0. ) {
-            dy += 1;
-            continue;
-        }
-        line = (uint *) image.scanLine( i );
-        dnx = fabs( 1. / dy );
-        nx = dx0 * dnx;
-
-        j = 0;
-        while ( nx < -1.000001 && j < width ) {
-            nx += dnx;
-            j++;
-        }
-        mdp = true;
-        si = 0;
-        while ( nx < 1.000001 && j < width ) {
-            while ( nx >= cg_tan[ si + 1 ] && nx < 1. ) {
-                si++;
-                mdp = true;
-            }
-            if ( mdp ) {
-                dp = cg_dpr[ si ] / dy;
-                p = ( dy < 0. ? cg_po0[ si ] : cg_po2[ si ] ) + ( dy > 0. ? 1. : -1. ) * ( nx - cg_tan[ si ] ) * cg_dpr[ si ];
-                mdp = false;
-            }
-            rp = p - da;
-            if ( rp < 0.001 && rp > -0.001 )
-                rp = 0.;
-            line[ j ] = qt_gradient_pixel( cdata, rp );
-            p += dp;
-            nx += dnx;
-            j++;
-        }
-        dy += 1;
-    }
-    dx = dx0;
-    for ( i = 0; i < height; i++ ) {
-        if ( dx == 0. ) {
-            dx += 1;
-            continue;
-        }
-        line = (uint *) image.scanLine( i );
-        dny = fabs( 1. / dx );
-        ny = dy0 * dny;
-        si = 0;
-
-        j = 0;
-        while ( ny < -1.000001 && j < height ) {
-            ny += dny;
-            j++;
-        }
-        mdp = true;
-        si = 0;
-        while ( ny < 1.000001 && j < height ) {
-            while ( ny >= cg_tan[ si + 1 ] && ny < 1. ) {
-                si++;
-                mdp = true;
-            }
-            if ( mdp ) {
-                dp = -cg_dpr[ si ] / dx;
-                p = ( dx < 0. ? cg_po1[ si ] : cg_po3[ si ] ) + ( dx < 0. ? 1. : -1. ) * ( ny - cg_tan[ si ] ) * cg_dpr[ si ];
-                mdp = false;
-            }
-            rp = p - da;
-            if ( rp < 0.001 && rp > -0.001 )
-                rp = 0.;
-            image.setPixel(i, j, qt_gradient_pixel( cdata, rp ));
-            p += dp;
-            ny += dny;
-            j++;
-        }
-        dx += 1;
-    }
-
-    return image;
-}
-

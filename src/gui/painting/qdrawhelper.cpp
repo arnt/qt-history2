@@ -486,6 +486,43 @@ static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradien
     }
 }
 
+static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradientData *data,
+                                        int y, QPainter::CompositionMode mode)
+{
+    uint *target = (uint *)t;
+    QLineF x_axis(0, 0, 1, 0);
+    uint *end = target + span->len;
+    int x = span->x;
+    if (mode == QPainter::CompositionMode_SourceOver
+        && !data->alphaColor
+        && span->coverage == 255) {
+        while (target < end) {
+            QLineF line(data->center, QPoint(x, y));
+            double angle = x_axis.angle(line);
+            if (line.dy() < 0)
+                angle = 360 - angle;
+            angle += data->angle;
+            *target = qt_gradient_pixel(data, angle / 360.0);
+            ++target;
+            ++x;
+        }
+    } else {
+        CompositionFunction func = functionForMode(mode);
+        int icov = 255 - span->coverage;
+        while (target < end) {
+            QLineF line(data->center, QPoint(x, y));
+            double angle = x_axis.angle(line);
+            if (line.dy() < 0)
+                angle = 360 - angle;
+            angle += data->angle;
+            uint tmp = func(*target, qt_gradient_pixel(data, angle / 360.0));
+            *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
+            ++target;
+            ++x;
+        }
+    }
+}
+
 // ************************** RGB32 handling ******************************
 
 static inline uint qt_blend_pixel_rgb32(uint dest, uint src, uint coverage)
@@ -774,6 +811,7 @@ static void blend_linear_gradient_rgb32(void *t, const QSpan *span, LinearGradie
     }
 }
 
+
 DrawHelper qDrawHelper[2] =
 {
     { // Layout_ARGB
@@ -784,7 +822,8 @@ DrawHelper qDrawHelper[2] =
         blend_transformed_tiled_argb,
         blend_transformed_bilinear_argb,
         blend_transformed_bilinear_tiled_argb,
-        blend_linear_gradient_argb
+        blend_linear_gradient_argb,
+        blend_conical_gradient_argb
     },
     { // Layout_RGB32
         blend_color_rgb32,
@@ -794,6 +833,7 @@ DrawHelper qDrawHelper[2] =
         blend_transformed_tiled_rgb32,
         blend_transformed_bilinear_rgb32,
         blend_transformed_bilinear_tiled_rgb32,
-        blend_linear_gradient_rgb32
+        blend_linear_gradient_rgb32,
+        blend_conical_gradient_argb
     }
 };
