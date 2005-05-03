@@ -711,6 +711,8 @@ QImage::QImage(uchar* data, int w, int h, int depth, const QRgb* colortable, int
         d->colortable.resize(numColors);
         for (int i = 0; i < numColors; ++i)
             d->colortable[i] = colortable[i];
+    } else if (numColors) {
+        setNumColors(numColors);
     }
 }
 
@@ -757,6 +759,8 @@ QImage::QImage(uchar* data, int w, int h, int depth, int bpl, const QRgb* colort
         d->colortable.reserve(numColors);
         for (int i = 0; i < numColors; ++i)
             d->colortable[i] = colortable[i];
+    } else if (numColors) {
+        setNumColors(numColors);
     }
 }
 #endif // Q_WS_QWS
