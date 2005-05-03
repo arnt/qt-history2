@@ -1,9 +1,11 @@
 #include <QtCore/QVector>
+#include <QtGui/QMouseEvent>
 #include <QtGui/QGridLayout>
 #include <QtGui/QLabel>
 #include <QtGui/QPushButton>
 #include <QtGui/QPainter>
 #include <QtGui/QPainterPath>
+#include <QtGui/QStyleOption>
 #include "versiondialog.h"
 
 class VersionLabel : public QLabel
