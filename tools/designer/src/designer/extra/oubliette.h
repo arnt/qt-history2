@@ -14,7 +14,7 @@
 class QPaintEvent;
 class QKeyEvent;
 class QListWidgetItem;
-class ItemEffect;
+struct ItemEffect;
 
 class Oubliette : public QWidget
 {

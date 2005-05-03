@@ -32,7 +32,7 @@ static const int TileWidth = 32;
 static const int TileHeight = 32;
 
 struct ItemEffect {
-    static const int TotalSteps = 15;
+    static const int TotalSteps;
     ItemEffect(const Item *newItem, const QPoint &newPos)
         : item(newItem), rect(0, 0, 140, 60), step(0)
     {
@@ -44,6 +44,8 @@ struct ItemEffect {
     int directionY;
     int step;
 };
+
+const int ItemEffect::TotalSteps = 15;
 
 Oubliette::Oubliette()
     : m_timerID(-1)

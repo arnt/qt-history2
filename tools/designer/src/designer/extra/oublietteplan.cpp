@@ -48,9 +48,9 @@ void OublietteLevel::setTile(int x, int y, Tile element)
 }
 
 struct TmpStruct {
-    const char * const name;
-    const char * const desc;
-    const char * const path;
+    const char *name;
+    const char *desc;
+    const char *path;
 } bcards[] = {
 #include "names.txt"
     , {0 , 0, 0}
