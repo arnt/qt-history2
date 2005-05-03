@@ -101,7 +101,7 @@ public:
 
 };
 
-class QSplitterHandlePrivate : QWidgetPrivate
+class QSplitterHandlePrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QSplitterHandle)
 public:

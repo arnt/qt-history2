@@ -24,7 +24,6 @@ x11 {
 }
 
 mac {
-    QMAKE_CXXFLAGS += -fpascal-strings
     SOURCES += qgl_mac.cpp
     LIBS += -framework Carbon
 }

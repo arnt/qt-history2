@@ -1294,7 +1294,7 @@ static QString macParseDateLocale(QVariant::Type type)
             LongDateString(&oldDate, shortDate, pString, intlHandle);
             QString final = qt_mac_from_pascal_string(pString);
             LongTimeString(&oldDate, true, pString, intlHandle);
-            return final + space + qt_mac_from_pascal_string(pString);
+            return final + QLatin1Char(' ') + qt_mac_from_pascal_string(pString);
         }
     }
     default: return QString();

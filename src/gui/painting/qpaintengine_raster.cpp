@@ -231,7 +231,8 @@ public:
 
     QT_FT_Outline *convert(const QPainterPath &path)
     {
-        QT_FT_Vector pt, last;
+        QT_FT_Vector pt;
+        QT_FT_Vector last = {0, 0};
 
         Q_ASSERT(!path.isEmpty());
         reset();
@@ -621,6 +622,8 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
 #    warning "unhandled"
 #  else
     extern CGContextRef qt_macCreateCGHandle(const QPaintDevice *); //qpaintdevice_mac.cpp
+    extern CGContextRef qt_mac_cg_context(const QPaintDevice *); //qpaintdevice_mac.cpp
+
     if(CGContextRef ctx = qt_mac_cg_context(device)) {
         CGRect rect = CGRectMake(d->deviceRect.x(), d->deviceRect.y(),
                                  d->deviceRect.width(), d->deviceRect.height());
