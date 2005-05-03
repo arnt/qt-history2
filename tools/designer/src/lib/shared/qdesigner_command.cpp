@@ -630,6 +630,7 @@ void LayoutCommand::init(QWidget *parentWidget, const QList<QWidget*> &widgets, 
             m_layout = new VerticalLayout(widgets, m_parentWidget, formWindow(), layoutBase, splitter);
             setDescription(tr("Lay out vertically"));
             break;
+
         case LayoutInfo::HBox:
             m_layout = new HorizontalLayout(widgets, m_parentWidget, formWindow(), layoutBase, splitter);
             setDescription(tr("Lay out horizontally"));
