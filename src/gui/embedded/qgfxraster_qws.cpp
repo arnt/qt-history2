@@ -164,7 +164,7 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 {
     // initialise our gfx
     gfx = (QGfxRasterBase*)qt_screen->screenGfx();
-    gfx->setClipRegion(QRect(0, 0, qt_screen->width(), qt_screen->height()), Qt::ReplaceClip);
+    gfx->setClipDeviceRegion(QRect(0, 0, qt_screen->width(), qt_screen->height()));
 
     data = da;
     save_under = false;
@@ -260,7 +260,7 @@ void QScreenCursor::show()
             QWSDisplay::grab(true);
         data->enable = true;
         gfx = (QGfxRasterBase*)qt_screen->screenGfx();
-        gfx->setClipRegion(QRect(0, 0, qt_screen->width(), qt_screen->height()), Qt::ReplaceClip);
+        gfx->setClipDeviceRegion(QRegion(0, 0, qt_screen->width(), qt_screen->height()));
         fb_start = qt_screen->base();
         fb_end = fb_start + qt_screen->deviceHeight() * gfx->linestep();
         clipWidth = qt_screen->deviceWidth();
@@ -2145,7 +2145,7 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
 {
     if (!ncliprect)
         return;
-    GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
+    GFX_START(QRect(rx, ry, w+1, h+1))
 
     setAlphaType(IgnoreAlpha);
     if (w <= 0 || h <= 0) {
@@ -2162,8 +2162,6 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
         if(depth==16) {
             pixel = brushPixel;
             int x1,y1,x2,y2;
-            rx+=xoffs;
-            ry+=yoffs;
             x2=rx+w-1;
             y2=ry+h-1;
             if(rx>cliprect[0].right() || ry>cliprect[0].bottom() ||
@@ -2230,8 +2228,6 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
         } else if(depth==32) {
             pixel = brushPixel;
             int x1,y1,x2,y2;
-            rx+=xoffs;
-            ry+=yoffs;
             x2=rx+w-1;
             y2=ry+h-1;
             if(rx>cliprect[0].right() || ry>cliprect[0].bottom() ||
@@ -2283,8 +2279,6 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
         } else if(depth==8) {
             pixel = brushPixel;
             int x1,y1,x2,y2;
-            rx+=xoffs;
-            ry+=yoffs;
             x2=rx+w-1;
             y2=ry+h-1;
             if(rx>cliprect[0].right() || ry>cliprect[0].bottom() ||
@@ -2341,8 +2335,6 @@ void QGfxRaster<depth,type>::fillRect(int rx,int ry,int w,int h) //widget coordi
 #endif // QWS_EXPERIMENTAL_FASTPATH
     if(cbrush.style()!=Qt::NoBrush) {
         pixel = brushPixel;
-        rx += xoffs;
-        ry += yoffs;
         // Gross clip
         if (rx < clipbounds.left()) {
             w -= clipbounds.left()-rx;
@@ -2381,9 +2373,6 @@ void QGfxRaster<depth,type>::blt(int rx,int ry,int w,int h, int sx, int sy)
 {
     if (!w || !h) return;
     int osrcdepth=srcdepth;
-
-    rx += xoffs;
-    ry += yoffs;
 
     QRect cursRect(rx, ry, w+1, h+1);
     GFX_START(cursRect&clipbounds);
@@ -2618,7 +2607,7 @@ void QGfxRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)
 {
     if (srcwidth == 0 || srcheight == 0)
         return;
-    GFX_START(QRect(rx+xoffs, ry+yoffs, w+1, h+1))
+    GFX_START(QRect(rx, ry, w+1, h+1))
 
     pixel = brushPixel;
     unsigned char * savealphabits=alphabits;

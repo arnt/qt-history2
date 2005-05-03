@@ -27,8 +27,6 @@ QScreenCursor * qt_screencursor=0;
 #endif
 QScreen * qt_screen=0;
 
-extern bool qws_screen_is_interlaced; //### hack, from qapplication_qws.cpp
-
 ClearCacheFunc QScreen::clearCacheFunc = 0;
 
 QGfx *QGfx::createGfx(int depth, unsigned char *buffer, int w, int h,
@@ -98,7 +96,7 @@ bool QScreen::isTransformed() const
 
 bool QScreen::isInterlaced() const
 {
-    return qws_screen_is_interlaced;;
+    return false;//qws_screen_is_interlaced;;
 }
 
 /*!

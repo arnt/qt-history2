@@ -254,7 +254,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::fillRect(int x,int y,int w,int h)
 {
     QWSDisplay::grab(true);
-    ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x+this->xoffs, y+this->yoffs, w, h));
+    ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x, y, w, h));
     QGfxRaster<depth,type>::fillRect(x, y, w, h);
     QWSDisplay::ungrab();
 }
@@ -264,7 +264,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::blt(int x,int y,int w,int h, int sx, int sy)
 {
     QWSDisplay::grab(true);
-    ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x+this->xoffs, y+this->yoffs, w, h));
+    ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x, y, w, h));
     QGfxRaster<depth,type>::blt(x, y, w, h, sx, sy);
     QWSDisplay::ungrab();
 }
@@ -274,7 +274,7 @@ template <const int depth, const int type>
 void QGfxVFb<depth,type>::tiledBlt(int x,int y,int w,int h)
 {
     QWSDisplay::grab(true);
-    ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x + this->xoffs, y + this->yoffs, w, h));
+    ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x, y, w, h));
     QGfxRaster<depth,type>::tiledBlt(x, y, w, h);
     QWSDisplay::ungrab();
 }

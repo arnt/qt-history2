@@ -181,12 +181,8 @@ public:
     ~QGfxRasterBase();
 
     virtual void setBrush(const QBrush &);
-    virtual void setBrushOrigin(int x, int y);
 
-    virtual void setClipRegion(const QRegion &, Qt::ClipOperation);
     virtual void setClipDeviceRegion(const QRegion &);
-    virtual void setClipping(bool);
-
 
     virtual void setAlphaType(AlphaType);
 
@@ -209,9 +205,6 @@ public:
     void setClut(QRgb *cols, int numcols) { clut=cols; clutcols=numcols; }
 
 protected:
-
-    void fixClip();
-    void update_clip();
 
     bool inClip(int x, int y, QRect *cr = 0, bool know_to_be_outside = false);
 
@@ -299,8 +292,6 @@ protected:
     // Sizes and offsets ------------------------
     int width;
     int height;
-    int xoffs;
-    int yoffs;
     unsigned int lstep;
 
     int srcwidth;
@@ -331,9 +322,6 @@ protected:
     bool amonolittletest;
 
     // Clipping and regions ---------------------
-    bool regionClip;
-    bool clipDirty;
-    QRegion widgetrgn;
     QRegion cliprgn;
     QRect clipbounds;
 

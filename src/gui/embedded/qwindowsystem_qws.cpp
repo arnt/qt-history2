@@ -170,7 +170,7 @@ void QWSWindow::bltToScreen(const QRegion &globalrgn)
 
     QPoint topLeft = requested_region.boundingRect().topLeft();
 
-    gfx->setClipRegion(bltRegion, Qt::ReplaceClip);
+    gfx->setClipDeviceRegion(bltRegion);
 
 
     backingStore->lock();
@@ -2310,7 +2310,7 @@ void QWSServer::exposeRegion(QRegion r, int changing)
         //bltToScreen
         QPoint topLeft = blendRegion.boundingRect().topLeft();
 
-        gfx->setClipRegion(blendRegion, Qt::ReplaceClip);
+        gfx->setClipDeviceRegion(blendRegion);
         gfx->setSource(&blendBuffer);
         gfx->setAlphaType(QGfx::IgnoreAlpha);
         gfx->blt(topLeft.x(),topLeft.y(), blendBuffer.width(), blendBuffer.height(), 0, 0);
@@ -2601,7 +2601,7 @@ void QWSServer::paintBackground(const QRegion &rr)
 //            gfx->setBrushOrigin(0, 0);
             gfx->tiledBlt(br.x(), br.y(), br.width(), br.height());
         }
-        gfx->setClipDeviceRegion(screenRegion);
+//        gfx->setClipDeviceRegion(screenRegion);
     }
 }
 

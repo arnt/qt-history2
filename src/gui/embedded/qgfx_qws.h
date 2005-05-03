@@ -39,9 +39,7 @@ public:
     virtual ~QGfx() {}
 
     virtual void setBrush(const QBrush &)=0;
-    virtual void setClipRegion(const QRegion &, Qt::ClipOperation)=0;
     virtual void setClipDeviceRegion(const QRegion &)=0;
-    virtual void setClipping (bool)=0;
 
     // Fill operations - these use the current source (pixmap,
     // color, etc), and draws outline

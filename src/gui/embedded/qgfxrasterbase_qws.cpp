@@ -76,21 +76,17 @@ QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
     is_screen_gfx = buffer==qt_screen->base();
     width=w;
     height=h;
-    xoffs=0;
-    yoffs=0;
 
     srctype=SourcePen;
 
-    regionClip=false;
-    QRect wr(0,0,w,h);
-    wr = qt_screen->mapToDevice(wr, QSize(w, h));
-    widgetrgn = wr;
+    QRect cr(0,0,w,h);
+    cr = qt_screen->mapToDevice(cr, QSize(w, h));
+    cliprgn = cr;
     cliprect = new QRect[1];
-    cliprect[0] = wr;
+    cliprect[0] = cr;
     ncliprect = 1;
-    clipbounds = wr;
+    clipbounds = cr;
     clipcursor = 0;
-    clipDirty = false;
 
     alphatype=IgnoreAlpha;
     alphabuf = 0;
@@ -150,126 +146,15 @@ void QGfxRasterBase::setBrush(const QBrush &b)
         brushPixel = QColormap::instance().pixel(brushColor) & 0x00ffffff;
 }
 
-/*!
-    \internal
-
-    This sets the offset of a pattern when drawing with a patterned
-    brush to (\a x, \a y). This is needed when clipping means the start
-    position for drawing doesn't correspond with the start position
-    requested by QPainter, for example.
-*/
-void QGfxRasterBase::setBrushOrigin(int x, int y)
-{
-}
-
-/*!
-    \internal
-
-    This sets the clipping region for the QGfx to region \a r. All
-    drawing outside of the region is not displayed. The clip region is
-    defined relative to the QGfx's origin at the time the clip region
-    is set, and consists of an array of rectangles stored in the array
-    cliprect. Note that changing the origin after the clip region is
-    set will not change the position of the clip region within the
-    buffer. Hardware drivers should use this to set their clipping
-    scissors when drawing. Note also that this is the user clip region
-    as set by QPainter; it is combined (via an intersection) with the
-    widget clip region to provide the actual clipping region.
-*/
-void QGfxRasterBase::setClipRegion(const QRegion &r, Qt::ClipOperation op)
-{
-    if (!regionClip && op != Qt::NoClip)
-        op = Qt::ReplaceClip;
-
-    regionClip= op != Qt::NoClip;
-    QRegion mr = r;
-    mr.translate(xoffs,yoffs);
-    mr = qt_screen->mapToDevice(mr, QSize(width, height));
-
-    switch (op) {
-    case Qt::ReplaceClip:
-        cliprgn=mr;
-        break;
-    case Qt::IntersectClip:
-        cliprgn &= mr;
-        break;
-    case Qt::UniteClip:
-        cliprgn |= mr;
-    case Qt::NoClip:
-        break;
-    default:
-        cliprgn = mr;
-        break;
-    }
-    update_clip();
-
-#ifdef QWS_EXTRA_DEBUG
-    qDebug("QGfxRasterBase::setClipRegion");
-    for (int i=0; i< ncliprect; i++) {
-        QRect r = cliprect[i];
-        qDebug("   cliprect[%d] %d,%d %dx%d", i, r.x(), r.y(),
-               r.width(), r.height());
-    }
-#endif
-}
-
 void QGfxRasterBase::setClipDeviceRegion(const QRegion &r)
 {
-    regionClip=true;
     cliprgn=r;
-    update_clip();
-}
-
-/*!
-    \internal
-
-    If \a b is true then clipping is switched enabled; otherwise clipping
-    is disabled.
-
-    If clipping is not enabled then drawing will access the whole buffer.
-    This will be reflected in the cliprect array, which will consist of
-    one rectangle of buffer width and height. The variable regionClip
-    defines whether to clip or not.
-*/
-void QGfxRasterBase::setClipping(bool b)
-{
-    if(regionClip!=b) {
-        regionClip=b;
-        update_clip();
-    } else if (clipDirty) {
-        update_clip();
-    }
-}
-
-
-/*!
-    \internal
-
-    This combines the currently set widget and user clips
-    and caches the result in an array of QRects, cliprect,
-    the size of which is stored in ncliprect. It's called whenever
-    the widget or user clips are changed.
-*/
-void QGfxRasterBase::update_clip()
-{
-    _XRegion* wr = (_XRegion*) widgetrgn.handle();
     _XRegion* cr = (_XRegion*) cliprgn.handle();
 
-    if (wr->numRects==0) {
-        // Widget not visible
-        ncliprect = 0;
-        delete [] cliprect;
-        cliprect = 0;
-        clipbounds = QRect();
-    } else if (wr->numRects==1 && (!regionClip || cr->numRects==1)) {
+     if (cr->numRects==1) {
         // fastpath: just simple rectangles (90% of cases)
         QRect setrgn;
-
-        if(regionClip) {
-            setrgn=wr->rects[0].intersect(cr->rects[0]);
-        } else {
-            setrgn=wr->rects[0];
-        }
+        setrgn=cr->rects[0];
 
         if (setrgn.isEmpty()) {
             ncliprect = 0;
@@ -292,12 +177,7 @@ void QGfxRasterBase::update_clip()
         qDebug("QGfxRasterBase::update_clip");
 #endif
         QRegion setrgn;
-        if(regionClip) {
-            setrgn=widgetrgn.intersect(cliprgn);
-        } else {
-            setrgn=widgetrgn;
-        }
-
+        setrgn=cliprgn;
         // cache bounding rect
         QRect sr(QPoint(0,0), gfx_screen->mapToDevice(QSize(width, height)));
         clipbounds = sr.intersect(setrgn.boundingRect());
@@ -311,7 +191,6 @@ void QGfxRasterBase::update_clip()
         ncliprect = cr->numRects;
     }
     clipcursor = 0;
-    clipDirty = false;
 }
 
 /*!
