@@ -3,6 +3,7 @@ LANGUAGE = C++
 QT += xml
 
 CONFIG        += qt warn_on assistant
+build_all:CONFIG += release
 
 SOURCES        += finddialog.cpp \
 	about.cpp \

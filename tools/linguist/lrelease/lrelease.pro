@@ -1,6 +1,7 @@
 TEMPLATE        = app
 CONFIG          += qt warn_on console
 CONFIG          -= app_bundle
+build_all:CONFIG += release
 HEADERS         = ../shared/metatranslator.h \
                   ../shared/proparser.h
 SOURCES         = main.cpp \
