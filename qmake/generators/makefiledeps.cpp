@@ -120,6 +120,7 @@ SourceFiles::~SourceFiles()
             delete nodes[n];
         }
     }
+    free(nodes);
 }
 
 int SourceFiles::hash(const char *file)
@@ -252,6 +253,7 @@ QMakeSourceFileInfo::~QMakeSourceFileInfo()
 
     //quick project lookup
     delete files;
+    delete includes;
 }
 
 void QMakeSourceFileInfo::setCacheFile(const QString &cf)

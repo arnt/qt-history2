@@ -322,6 +322,9 @@ QFile::QFile(QFilePrivate &dd, QObject *parent)
 QFile::~QFile()
 {
     close();
+#ifdef QT_NO_QOBJECT
+    delete d_ptr;
+#endif
 }
 
 /*!
