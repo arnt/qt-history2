@@ -310,7 +310,7 @@
     We add an include of <QVBoxLayout> to get the layout class we'll
     use.
 
-    \skipto QVBoxLayout vbox
+    \skipto QWidget vbox
     \printline vbox
 
     Here we simply create a vertical box container. The QVBoxLayout
@@ -498,7 +498,8 @@
     a range. Here we create a horizontal one, set its minimum value
     to 0, its maximum value to 99, and its initial value to 0.
 
-    \printline connect
+    \skipto connect(slider
+    \printline connect(slider
     \printline SLOT
 
     Here we use the \l{signals and slots} mechanism to connect the
@@ -597,6 +598,7 @@
     the grid object. The QGridLayout will arrange them in four
     columns.
 
+    \skipto }
     \printline }
 
     That's all.
@@ -1028,6 +1030,7 @@
     row should stretch twice as fast as another by assigning
     appropriate stretch factors.
 
+    \skipto setValue
     \printline setValue
 
     We set an initial angle value. Note that this will trigger the
@@ -2241,8 +2244,8 @@
     \quotefromfile tutorial/t14/gameboard.cpp
 
     \skipto ::GameBoard
-    \skipto QVBoxLayout
-    \printline QVBoxLayout
+    \skipto QFrame
+    \printline QFrame
     \printline setFrameStyle
     \printline cannonField
 

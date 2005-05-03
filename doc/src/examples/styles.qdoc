@@ -219,7 +219,7 @@
     QStyle::State_MouseOver flag to be set when the mouse is over the
     widget.
 
-    \printline roundRect = 
+    \printline roundRect =
     \printline int radius
 
     The \c roundRect variable is a QPainterPath. A QPainterPath is is
@@ -297,7 +297,8 @@
     \l{QPen}s to give a sunken look to the button.
 
     \printline int x1
-    \printline isRightToLeft) {
+    \printuntil int x4
+    \printline Qt::RightToLeft) {
     \printuntil }
     \printuntil QPoint(x1, y + height);
     \printuntil drawPath

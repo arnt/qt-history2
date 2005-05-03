@@ -21,25 +21,24 @@ public:
 MyWidget::MyWidget(QWidget *parent)
     : QWidget(parent)
 {
-    QVBoxLayout *layout = new QVBoxLayout;
-    setLayout(layout);
-
     QPushButton *quit = new QPushButton("Quit");
     quit->setFont(QFont("Times", 18, QFont::Bold));
-    layout->addWidget(quit);
-
-    connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
     QLCDNumber *lcd = new QLCDNumber(2);
-    layout->addWidget(lcd);
 
     QSlider *slider = new QSlider(Qt::Horizontal);
     slider->setRange(0, 99);
     slider->setValue(0);
-    layout->addWidget(slider);
 
+    connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
     connect(slider, SIGNAL(valueChanged(int)),
             lcd, SLOT(display(int)));
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(quit);
+    layout->addWidget(lcd);
+    layout->addWidget(slider);
+    setLayout(layout);
 }
 
 int main(int argc, char *argv[])

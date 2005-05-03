@@ -17,14 +17,13 @@ int main(int argc, char *argv[])
     QWidget vbox;
     vbox.resize(200, 120);
 
-    QVBoxLayout layout;
-    vbox.setLayout(&layout);
-
     QPushButton quit("Quit");
     quit.setFont(QFont("Times", 18, QFont::Bold));
-    layout.addWidget(&quit);
-
     QObject::connect(&quit, SIGNAL(clicked()), &app, SLOT(quit()));
+
+    QVBoxLayout layout;
+    layout.addWidget(&quit);
+    vbox.setLayout(&layout);
 
     vbox.show();
     return app.exec();

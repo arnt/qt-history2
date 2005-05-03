@@ -36,6 +36,10 @@
     \o \gui{Fit to Window} - Stretch the image to occupy the entire window
     \endlist
 
+    In addition the \gui Help menu provides the users with information
+    about the ImageViewer example in particular, and about Qt in
+    general.
+
     \section1 ImageViewer Class Definition
 
     \quotefromfile widgets/imageviewer/imageviewer.h
@@ -164,7 +168,7 @@
     and viewport in such a way that the image is as large as possible
     on the paper, but without altering its
     \l{Qt::KeepAspectRatio}{aspect ratio}.
-    
+
     In the end we draw the pixmap at position (0, 0).
 
     \printline zoomIn
@@ -237,6 +241,12 @@
     label's size to its content. And in the end we update the view
     menu entries.
 
+    \printline about
+    \printuntil /^\}/
+
+    We implement the \c about() slot to create a message box
+    describing what the example is designed to show.
+
     \printline createActions
     \printuntil /^\}/
 
@@ -253,7 +263,7 @@
     \printuntil /^\}/
 
     In the private \c createMenu() function, we add the previously
-    created actions to the \gui File and \gui View menus.
+    created actions to the \gui File, \gui View and \gui Help menus.
 
     The QMenu class provides a menu widget for use in menu bars,
     context menus, and other popup menus. The QMenuBar class provides

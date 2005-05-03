@@ -139,7 +139,7 @@ by any other interested widgets.
 
 The mouseMoveEvent() maps the mouse cursor's position in global
 coordinates to widget coordinates, and determines the character that
-was clicked by performing the calculation 
+was clicked by performing the calculation
 
 \quotefromfile widgets/charactermap/characterwidget.cpp
 \skipto mouseMoveEvent
@@ -177,7 +177,7 @@ so that we can view its contents:
 
 \quotefromfile widgets/charactermap/mainwindow.cpp
 \skipto MainWindow::MainWindow
-\printuntil view->setWidget
+\printuntil scrollArea->setWidget
 
 QScrollArea provides a viewport onto the \c CharacterWidget when we set
 its widget and handles much of the work needed to provide a scrolling

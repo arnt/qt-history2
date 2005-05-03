@@ -44,22 +44,21 @@ public:
 MyWidget::MyWidget(QWidget *parent)
     : QWidget(parent)
 {
-    QVBoxLayout *layout = new QVBoxLayout;
-    setLayout(layout);
-
     QPushButton *quit = new QPushButton("Quit");
     quit->setFont(QFont("Times", 18, QFont::Bold));
-    layout->addWidget(quit);
-
     connect(quit, SIGNAL(clicked()), qApp, SLOT(quit()));
 
     QGridLayout *grid = new QGridLayout;
-    layout->addLayout(grid);
     for (int row = 0; row < 4; ++row) {
         for (int column = 0; column < 4; ++column) {
             grid->addWidget(new LCDRange, row, column);
         }
     }
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(quit);
+    layout->addLayout(grid);
+    setLayout(layout);
 }
 
 int main(int argc, char *argv[])

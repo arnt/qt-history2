@@ -21,7 +21,9 @@
     \gui File menu gives the users the possibility to open and edit an
     existing image file, save an image and exit the application. While
     drawing, the \gui Options menu allows the users to to choose the
-    pen color and pen width, as well as clear the screen.
+    pen color and pen width, as well as clear the screen. In addition
+    the \gui Help menu provides the users with information about the
+    Scribble example in particular, and about Qt in general.
 
     The example consists of two classes:
 
@@ -54,7 +56,7 @@
     clearImage() slot clears the image displayed in the scribble
     area. We need the private \c drawLineTo() function to actually do
     the drawing, and \c resizeImage() to change the size of a
-    QImage. 
+    QImage.
 
     We also need the following private variables:
 
@@ -96,11 +98,11 @@
     \printline saveImage
     \printuntil /^\}/
 
-    The \c save() function creates a QImage object that covers only
-    the visible section of the actual \c image and saves it using
+    The \c saveImage() function creates a QImage object that covers
+    only the visible section of the actual \c image and saves it using
     QImage::save(). If the image is successfully saved, we set the
-    scribble area's \c modified variable to \c false, because there
-    is no unsaved data.
+    scribble area's \c modified variable to \c false, because there is
+    no unsaved data.
 
     \printline setPenColor
     \printuntil /^\}/
@@ -278,7 +280,7 @@
     that if the object has the wrong type, a null pointer is
     returned. Crashes due to null pointers are much easier to diagnose
     than crashes due to unsafe casts.
-    
+
     Once we have the action, we extract the chosen format using
     QAction::data(). (When the actions are created, we use
     QAction::setData() to set our own custom data attached to the
@@ -310,6 +312,12 @@
     The boolean \c ok variable will be set to \c true if the user
     clicked \gui OK and to \c false if the user pressed \gui Cancel.
 
+    \printline about
+    \printuntil /^\}/
+
+    We implement the \c about() slot to create a message box
+    describing what the example is designed to show.
+
     \printline createActions
     \printuntil /^\}/
 
@@ -330,8 +338,8 @@
 
     In the \c createMenu() function, we add the previously created
     format actions to the \c saveAsMenu. Then we add the rest of the
-    actions as well as the \c saveAsMenu sub-menu to the \gui File
-    and \gui Options menus.
+    actions as well as the \c saveAsMenu sub-menu to the \gui File,
+    \gui Options and \gui Help menus.
 
     The QMenu class provides a menu widget for use in menu bars,
     context menus, and other popup menus. The QMenuBar class provides
