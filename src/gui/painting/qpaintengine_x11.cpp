@@ -699,8 +699,10 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     Q_ASSERT(rectCount);
     Q_D(QX11PaintEngine);
 
+    bool has_brush = d->cbrush.style() != Qt::NoBrush;
+    bool has_pen = d->cpen.style() != Qt::NoPen;
 
-    if (d->use_path_fallback) {
+    if (d->use_path_fallback || (has_pen && d->cpen.color().alpha() != 255)) {
         for (int i = 0; i < rectCount; ++i) {
             QPainterPath path;
             path.addRect(rects[i]);
@@ -709,8 +711,6 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
         return;
     }
 
-    bool has_brush = d->cbrush.style() != Qt::NoBrush;
-    bool has_pen = d->cpen.style() != Qt::NoPen;
 #if !defined(QT_NO_XRENDER)
     ::Picture pict = d->picture;
 
@@ -1061,19 +1061,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
     {
         QPixmap gpix;
         int x_offset = 0;
-        XRenderColor color;
-        QColor qc = fill.color();
-
-        const uint A = qc.alpha(),
-                   R = qc.red(),
-                   G = qc.green(),
-                   B = qc.blue();
-
-        color.alpha = (A | A << 8);
-        color.red   = (R | R << 8) * color.alpha / 0x10000;
-        color.green = (B | G << 8) * color.alpha / 0x10000;
-        color.blue  = (B | B << 8) * color.alpha / 0x10000;
-        ::Picture src = getSolidFill(scrn, color);
+        ::Picture src = getSolidFill(scrn, fill.color());
 
         if (src && picture) {
             int cCount;
@@ -1925,12 +1913,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
 #endif
 
         const QColor &pen = d->cpen.color();
-        XRenderColor col;
-        col.red = pen.red () | pen.red() << 8;
-        col.green = pen.green () | pen.green() << 8;
-        col.blue = pen.blue () | pen.blue() << 8;
-        col.alpha = pen.alpha() | pen.alpha() << 8;
-        ::Picture src = getSolidFill(screen, col);
+        ::Picture src = getSolidFill(screen, pen);
 
         int i = 0;
         while (i < nGlyphs) {
