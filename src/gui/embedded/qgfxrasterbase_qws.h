@@ -19,7 +19,6 @@
 #include "QtGui/qpen.h"
 #include "QtGui/qbrush.h"
 #include "QtGui/qwsdisplay_qws.h"
-#include "QtGui/qpolygonscanner_qws.h"
 #include "QtGui/qregion.h"
 #include "QtGui/qpixmap.h"
 
@@ -53,26 +52,17 @@
 # define GFX_START(r) \
     bool swc_do_save=false; \
     if(is_screen_gfx && gfx_swcursor) { \
-        if((*gfx_optype)) sync(); \
         swc_do_save = gfx_screencursor->restoreUnder(r); \
-        beginDraw(); \
     }
 
 # define GFX_END \
     if(is_screen_gfx && gfx_swcursor) { \
-        if((*gfx_optype)) sync(); \
-            endDraw(); \
         if(swc_do_save) \
             gfx_screencursor->saveUnder(); \
     }
 #else //QT_NO_QWS_CURSOR
-# define GFX_START(r) \
-    if(is_screen_gfx) \
-        beginDraw();
-
-# define GFX_END \
-    if(is_screen_gfx) \
-        endDraw();
+# define GFX_START(r)
+# define GFX_END
 #endif //QT_NO_QWS_CURSOR
 
 
@@ -190,7 +180,6 @@ public:
     QGfxRasterBase(unsigned char *, int w, int h);
     ~QGfxRasterBase();
 
-    virtual void setPen(const QPen &);
     virtual void setBrush(const QBrush &);
     virtual void setBrushOrigin(int x, int y);
 
@@ -198,30 +187,8 @@ public:
     virtual void setClipDeviceRegion(const QRegion &);
     virtual void setClipping(bool);
 
-    // These will be called from qwidget_qws or qwidget_mac
-    // to update the drawing area when a widget is moved
-    virtual void setOffset(int, int);
-    virtual void setWidgetRect(int, int, int, int);
-    virtual void setWidgetRegion(const QRegion &);
-    virtual void setWidgetDeviceRegion(const QRegion &);
-    virtual void setGlobalRegionIndex(int idx);
-
-    virtual void setDashedLines(bool d);
-    virtual void setDashes(char *, int);
-
-    virtual void moveTo(int, int);
-    virtual void lineTo(int, int);
-
-    virtual QPoint pos() const;
-
-    virtual void setOpaqueBackground(bool b) { opaque=b; }
-    virtual void setBackgroundColor(QColor c) { backcolor=c; }
 
     virtual void setAlphaType(AlphaType);
-    virtual void setAlphaSource(unsigned char *,int);
-    virtual void setAlphaSource(int, int = -1, int = -1, int = -1);
-
-    virtual void sync();
 
     virtual void setLineStep(int i) { lstep=i; }
     int linestep() const { return lstep; }
@@ -236,44 +203,18 @@ public:
         gfx_screencursor=c;
         gfx_swcursor=swc;
 #endif
-        gfx_lastop=lo;
-        gfx_optype=ot;
         setClut(gfx_screen->clut(),gfx_screen->numCols());
     }
-
-    void save();
-    void restore();
 
     void setClut(QRgb *cols, int numcols) { clut=cols; clutcols=numcols; }
 
 protected:
-    void *beginTransaction(const QRect &);
-    void endTransaction(void *);
 
-    inline void beginDraw()
-    {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-        QWSDisplay::grab();
-#endif
-        if (globalRegionRevision &&
-                *globalRegionRevision != currentRegionRevision) {
-            fixClip();
-        }
-    }
-    inline void endDraw()
-    {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-        QWSDisplay::ungrab();
-#endif
-    }
     void fixClip();
     void update_clip();
 
     bool inClip(int x, int y, QRect *cr = 0, bool know_to_be_outside = false);
 
-    virtual void setSourceWidgetOffset(int x, int y);
-
-    virtual void setSourcePen();
     unsigned char *scanLine(int i) { return buffer+(i*lstep); }
     unsigned const char *srcScanLine(int i) { return srcbits + (i*srclinestep); }
 
@@ -340,20 +281,12 @@ protected:
     QScreenCursor *gfx_screencursor;
 #endif
     bool gfx_swcursor;               // Software cursor?
-    volatile int *gfx_lastop;
-    volatile int *gfx_optype;
 
     // Pen, brushes and colors ------------------
-    QPen cpen;
     QBrush cbrush;
-    QPen savepen;
-    QBrush savebrush;
-    QRgb penColor;
     QRgb brushColor;
-    unsigned long int penPixel;
     unsigned long int brushPixel;
     unsigned long int pixel;        // (palette) pixel used for current drawing operation
-    int srccol;                     // #### Needs to go, inconsistent
 
     unsigned int srcclut[256];      // Source color table - r,g,b values
     unsigned int transclut[256];    // Source clut transformed to destination
@@ -361,15 +294,9 @@ protected:
     QRgb *clut;                     // Destination color table - r,g,b values
     int clutcols;                   // Colours in clut
 
-    QColor backcolor;
-
     int calpha;                     // Constant alpha value
-    int calpha2, calpha3, calpha4;  // Used for groovy accelerated effect
 
     // Sizes and offsets ------------------------
-    int penx;
-    int peny;
-
     int width;
     int height;
     int xoffs;
@@ -381,21 +308,8 @@ protected:
     int srcdepth;
     int srclinestep;
 
-    QPoint srcwidgetoffs;            // Needed when source is widget
     bool src_little_endian;
     bool src_normal_palette;
-
-    // Drawing, styles, and pixmaps --------------
-    bool opaque;
-
-    QWSPolygonScanner::Edge stitchedges;
-    QPoint brushorig;
-    bool patternedbrush;
-    QPixmap cbrushpixmap;
-
-    bool dashedLines;
-    char *dashes;
-    int numDashes;
 
     int monobitcount;
     unsigned char monobitval;
@@ -427,12 +341,7 @@ protected:
     QRect *cliprect;
     int ncliprect;
 
-    int globalRegionIndex;
-    const int *globalRegionRevision;
-    int currentRegionRevision;
-
     friend class QScreenCursor;
-    friend class QFontEngine;
 };
 
 static bool simple_8bpp_alloc = false;

@@ -2598,7 +2598,7 @@ void QWSServer::paintBackground(const QRegion &rr)
             gfx->fillRect(br.x(), br.y(), br.width(), br.height());
         } else {
             gfx->setSource(bgImage);
-            gfx->setBrushOrigin(0, 0);
+//            gfx->setBrushOrigin(0, 0);
             gfx->tiledBlt(br.x(), br.y(), br.width(), br.height());
         }
         gfx->setClipDeviceRegion(screenRegion);

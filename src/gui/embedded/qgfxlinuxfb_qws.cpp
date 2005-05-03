@@ -14,7 +14,6 @@
 #include "qgfxlinuxfb_qws.h"
 
 #ifndef QT_NO_QWS_LINUXFB
-#include "qgfxraster_qws.h"
 #include "qmemorymanager_qws.h"
 #include "qwsdisplay_qws.h"
 #include "qpixmap.h"

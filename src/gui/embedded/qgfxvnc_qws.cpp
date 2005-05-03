@@ -1127,17 +1127,8 @@ public:
     QGfxVNC(unsigned char *b,int w,int h);
     virtual ~QGfxVNC();
 
-    virtual void drawPoint(int,int);
-    virtual void drawPoints(const QPolygon &,int,int);
-    virtual void drawLine(int,int,int,int);
     virtual void fillRect(int,int,int,int);
-    virtual void drawPolyline(const QPolygon &,int,int);
-    virtual void drawPolygon(const QPolygon &,bool,int,int);
     virtual void blt(int,int,int,int,int,int);
-    virtual void scroll(int,int,int,int,int,int);
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
-    virtual void stretchBlt(int,int,int,int,int,int);
-#endif
     virtual void tiledBlt(int,int,int,int);
 };
 
@@ -1153,38 +1144,6 @@ QGfxVNC<depth,type>::~QGfxVNC()
 }
 
 template <const int depth, const int type>
-void QGfxVNC<depth,type>::drawPoint(int x, int y)
-{
-    QWSDisplay::grab(true);
-    qvnc_screen->setDirty(QRect(x+this->xoffs, y+this->yoffs, 1, 1) & this->clipbounds);
-    QGfxRaster<depth,type>::drawPoint(x, y);
-    QWSDisplay::ungrab();
-}
-
-template <const int depth, const int type>
-void QGfxVNC<depth,type>::drawPoints(const QPolygon &pa,int x,int y)
-{
-    QWSDisplay::grab(true);
-    QRect r = pa.boundingRect();
-    r.translate(this->xoffs, this->yoffs);
-    qvnc_screen->setDirty(r & this->clipbounds);
-    QGfxRaster<depth,type>::drawPoints(pa, x, y);
-    QWSDisplay::ungrab();
-}
-
-template <const int depth, const int type>
-void QGfxVNC<depth,type>::drawLine(int x1,int y1,int x2,int y2)
-{
-    QWSDisplay::grab(true);
-    QRect r;
-    r.setCoords(x1+this->xoffs, y1+this->yoffs, x2+this->xoffs, y2+this->yoffs);
-    r = r.normalized();
-    qvnc_screen->setDirty(r & this->clipbounds);
-    QGfxRaster<depth,type>::drawLine(x1, y1, x2, y2);
-    QWSDisplay::ungrab();
-}
-
-template <const int depth, const int type>
 void QGfxVNC<depth,type>::fillRect(int x,int y,int w,int h)
 {
     QWSDisplay::grab(true);
@@ -1193,27 +1152,6 @@ void QGfxVNC<depth,type>::fillRect(int x,int y,int w,int h)
     QWSDisplay::ungrab();
 }
 
-template <const int depth, const int type>
-void QGfxVNC<depth,type>::drawPolyline(const QPolygon &pa,int x,int y)
-{
-    QWSDisplay::grab(true);
-    QRect r = pa.boundingRect();
-    r.translate(this->xoffs, this->yoffs);
-    qvnc_screen->setDirty(r & this->clipbounds);
-    QGfxRaster<depth,type>::drawPolyline(pa, x, y);
-    QWSDisplay::ungrab();
-}
-
-template <const int depth, const int type>
-void QGfxVNC<depth,type>::drawPolygon(const QPolygon &pa,bool w,int x,int y)
-{
-    QWSDisplay::grab(true);
-    QRect r = pa.boundingRect();
-    r.translate(this->xoffs, this->yoffs);
-    qvnc_screen->setDirty(r & this->clipbounds);
-    QGfxRaster<depth,type>::drawPolygon(pa, w, x, y);
-    QWSDisplay::ungrab();
-}
 
 template <const int depth, const int type>
 void QGfxVNC<depth,type>::blt(int x,int y,int w,int h, int sx, int sy)
@@ -1224,28 +1162,6 @@ void QGfxVNC<depth,type>::blt(int x,int y,int w,int h, int sx, int sy)
     QWSDisplay::ungrab();
 }
 
-template <const int depth, const int type>
-void QGfxVNC<depth,type>::scroll(int x,int y,int w,int h,int sx,int sy)
-{
-    QWSDisplay::grab(true);
-    int dy = sy - y;
-    int dx = sx - x;
-    qvnc_screen->setDirty(QRect(qMin(x,sx) + this->xoffs, qMin(y,sy) + this->yoffs,
-                           w+abs(dx), h+abs(dy)) & this->clipbounds);
-    QGfxRaster<depth,type>::scroll(x, y, w, h, sx, sy);
-    QWSDisplay::ungrab();
-}
-
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
-template <const int depth, const int type>
-void QGfxVNC<depth,type>::stretchBlt(int x,int y,int w,int h,int sx,int sy)
-{
-    QWSDisplay::grab(true);
-    qvnc_screen->setDirty(QRect(x + this->xoffs, y + this->yoffs, w, h) & this->clipbounds);
-    QGfxRaster<depth,type>::stretchBlt(x, y, w, h, sx, sy);
-    QWSDisplay::ungrab();
-}
-#endif
 
 template <const int depth, const int type>
 void QGfxVNC<depth,type>::tiledBlt(int x,int y,int w,int h)

@@ -17,38 +17,23 @@
 #include "QtGui/qgfxrasterbase_qws.h"
 
 template <const int depth, const int type>
-class QGfxRaster : public QGfxRasterBase, protected QWSPolygonScanner {
+class QGfxRaster : public QGfxRasterBase {
 public:
     QGfxRaster(unsigned char *, int w, int h);
     ~QGfxRaster();
 
-    virtual void drawPoint(int, int);
-    virtual void drawPoints(const QPolygon &, int, int);
-    virtual void drawLine(int, int, int, int);
     virtual void fillRect(int, int, int, int);
-    virtual void drawPolyline(const QPolygon &, int, int);
-    virtual void drawPolygon(const QPolygon &, bool, int, int);
     virtual void blt(int, int, int, int, int, int);
-    virtual void scroll(int, int, int, int, int, int);
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS) || !defined(QT_NO_PIXMAP_TRANSFORMATION)
-    virtual void stretchBlt(int, int, int, int, int, int);
-#endif
     virtual void tiledBlt(int, int, int, int);
 
     virtual int bitDepth() { return depth; }
 
     virtual void setSource(const QImage *);
-    virtual void setSource(const QPaintDevice *);
+    virtual void setSource(const QPixmap *);
     virtual void setSource(unsigned char *, int, int, int, int, QRgb *, int);
 
 protected:
-    virtual void drawThickLine(int, int,int, int);
-    virtual void drawThickPolyline(const QPolygon &,int, int);
-
     void buildSourceClut(const QRgb *cols , int numcols);
-    void processSpans(int n, QPoint *point, int *width);
-
-    void vline(int, int, int); // Optimised vertical line drawing
     void hline(int, int, int); // Optimised horizontal line drawing
     void hlineUnclipped(int, int, unsigned char *);
     void hImageLineUnclipped(int x1, int x2, unsigned char *l, unsigned const char *srcdata,

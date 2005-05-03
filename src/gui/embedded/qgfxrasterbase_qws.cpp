@@ -55,8 +55,8 @@ struct _XRegion {
     \a w and \a h its width and height in pixels
 */
 QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
-    cpen(Qt::black), cbrush(Qt::black), penColor(0xff000000), brushColor(0x00000000),
-    backcolor(Qt::black), buffer(b)
+    cbrush(Qt::black), brushColor(0x00000000),
+    buffer(b)
 {
     // Buffers should always be aligned
     if(((unsigned long)b) & 0x3) {
@@ -80,12 +80,6 @@ QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
     yoffs=0;
 
     srctype=SourcePen;
-    dashedLines = false;
-    dashes = 0;
-    numDashes = 0;
-
-    patternedbrush=false;
-    srccol = 0;
 
     regionClip=false;
     QRect wr(0,0,w,h);
@@ -98,8 +92,6 @@ QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
     clipcursor = 0;
     clipDirty = false;
 
-    penx=0;
-    peny=0;
     alphatype=IgnoreAlpha;
     alphabuf = 0;
     ismasking=false;
@@ -107,13 +99,8 @@ QGfxRasterBase::QGfxRasterBase(unsigned char *b, int w, int h) :
     srcbits=0;
     lstep=0;
     calpha=255;
-    opaque=false;
-    globalRegionRevision = 0;
     src_normal_palette=false;
     clutcols = 0;
-    gfx_lastop=lastop;
-    gfx_optype=optype;
-    stitchedges=QWSPolygonScanner::Edge(QWSPolygonScanner::Left+QWSPolygonScanner::Top);
 
     src_little_endian=true;
 #if !defined(QT_NO_QWS_DEPTH_8)
@@ -132,93 +119,7 @@ QGfxRasterBase::~QGfxRasterBase()
 #ifdef QT_PAINTER_LOCKING
     QWSDisplay::ungrab();
 #endif
-    delete [] dashes;
-    delete [] cliprect;
 }
-
-void* QGfxRasterBase::beginTransaction(const QRect &r)
-{
-    GFX_START(r);
-#ifndef QT_NO_QWS_CURSOR
-    return (void*)swc_do_save;
-#else
-    return (void*)0;
-#endif
-}
-
-void QGfxRasterBase::endTransaction(void *data)
-{
-    bool swc_do_save = !!data;
-    GFX_END;
-}
-
-/*!
-    \internal
-
-    This does very little in a purely-software QGfxRasterBase (simply
-    records that the last operation was a software one). Hardware drivers
-    should reimplement this to wait for graphics engine idle in order to
-    allow software and hardware drawing to synchronize properly.
-*/
-void QGfxRasterBase::sync()
-{
-    (*gfx_optype)=0;
-}
-
-/*!
-    \internal
-
-    This corresponds to QPainter::setPen - it tells QGfxRaster
-    what line color and style to use, i.e. to use pen \a p.
-*/
-void QGfxRasterBase::setPen(const QPen &p)
-{
-    static char dash_line[]         = { 7, 3 };
-    static char dot_line[]          = { 1, 3 };
-    static char dash_dot_line[]     = { 7, 3, 2, 3 };
-    static char dash_dot_dot_line[] = { 7, 3, 2, 3, 2, 3 };
-
-    cpen=p;
-    penColor = p.color().rgba();
-    switch (cpen.style()) {
-        case Qt::DashLine:
-            setDashes(dash_line, sizeof(dash_line));
-            setDashedLines(true);
-            break;
-        case Qt::DotLine:
-            setDashes(dot_line, sizeof(dot_line));
-            setDashedLines(true);
-            break;
-        case Qt::DashDotLine:
-            setDashes(dash_dot_line, sizeof(dash_dot_line));
-            setDashedLines(true);
-            break;
-        case Qt::DashDotDotLine:
-            setDashes(dash_dot_dot_line, sizeof(dash_dot_dot_line));
-            setDashedLines(true);
-            break;
-        default:
-            setDashedLines(false);
-            break;
-    }
-
-#ifndef QT_NO_QWS_REPEATER
-    if (isScreenGfx()) {
-        int r = qRed(penColor), g = qGreen(penColor), b = qBlue(penColor);
-        int depth = bitDepth();
-        if(depth==32||depth==24)
-            penPixel=(r << 16) | (g << 8) | b;
-        else if(depth==16)
-            penPixel=((r >> 3) << 11) | ((g >> 2) << 5) | (b >> 3);
-        else if(depth==1)
-            penPixel=qGray(r, g, b) < 128 ? 1 : 0;
-        else
-            penPixel=gfx_screen->alloc(r, g, b);
-    } else
-#endif
-        penPixel = QColormap::instance().pixel(penColor) & 0x00ffffff;
-}
-
 
 QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 /*!
@@ -231,18 +132,6 @@ void QGfxRasterBase::setBrush(const QBrush &b)
 {
     cbrush = b;
     brushColor = b.color().rgba();
-
-    int brush_style = cbrush.style();
-    if (brush_style >= Qt::Dense1Pattern && brush_style <= Qt::DiagCrossPattern) {
-        cbrushpixmap = qt_pixmapForBrush(brush_style, true);
-    } else {
-        cbrushpixmap = cbrush.texture();
-    }
-
-    if((cbrush.style() != Qt::NoBrush) && (cbrush.style() != Qt::SolidPattern))
-        patternedbrush = true;
-    else
-        patternedbrush = false;
 
 #ifndef QT_NO_QWS_REPEATER
     if (isScreenGfx()) {
@@ -259,7 +148,6 @@ void QGfxRasterBase::setBrush(const QBrush &b)
     } else
 #endif
         brushPixel = QColormap::instance().pixel(brushColor) & 0x00ffffff;
-    srccol = brushPixel; // #### Apparently, and only for now. Will be removed
 }
 
 /*!
@@ -272,7 +160,6 @@ void QGfxRasterBase::setBrush(const QBrush &b)
 */
 void QGfxRasterBase::setBrushOrigin(int x, int y)
 {
-    brushorig = QPoint(x, y);
 }
 
 /*!
@@ -354,104 +241,6 @@ void QGfxRasterBase::setClipping(bool b)
     }
 }
 
-/*!
-    \internal
-
-    This defines the (\a x, \a y) origin of the gfx. For instance, if
-    the origin is set to (100, 100) and a line is then drawn from (0,
-    0) to (10, 10) the line will be (relative to the top left of the
-    buffer) from 100,100 to (110, 110). This is used to support windows
-    within the buffer.
-*/
-void QGfxRasterBase::setOffset(int x, int y)
-{
-    xoffs=x;
-    yoffs=y;
-}
-
-/*!
-    \internal
-
-    This is a special case of setWidgetRegion for widgets which are not
-    shaped and not occluded by any other widgets. The rectangle is
-    defined by position \a(x, y), width \a w and height \a h.
-*/
-void QGfxRasterBase::setWidgetRect(int x, int y, int w, int h)
-{
-    setWidgetRegion(QRegion(x,y,w,h));
-}
-
-/*!
-    \internal
-
-    This sets the widget's region clip to \a r, which is combined with
-    the user clip to determine the widget's drawable region onscreen.
-    It's a combination of the widget's shape (if it's a shaped widget)
-    and the area not obscured by windows on top of it.
-*/
-void QGfxRasterBase::setWidgetRegion(const QRegion &r)
-{
-    widgetrgn = qt_screen->mapToDevice(r, QSize(width, height));
-    clipDirty = true;
-    hsync(r.boundingRect().bottom());
-}
-
-void QGfxRasterBase::setWidgetDeviceRegion(const QRegion &r)
-{
-    widgetrgn = r;
-    clipDirty = true;
-    hsync(r.boundingRect().bottom());
-}
-
-void QGfxRasterBase::setGlobalRegionIndex(int idx)
-{
-    qDebug("QGfxRasterBase::setGlobalRegionIndex");
-#if 0
-    globalRegionIndex = idx;
-    globalRegionRevision = qt_fbdpy->regionManager()->revision(idx);
-    currentRegionRevision = *globalRegionRevision;
-#endif
-}
-
-/*!
-    \internal
-
-    If \a d is true then the gfx should draw dashed lines; otherwise it
-    should draw solid lines. It's called by setPen so there is no need
-    to call it directly.
-*/
-
-void QGfxRasterBase::setDashedLines(bool d)
-{
-    dashedLines = d;
-}
-
-/*!
-    \internal
-
-    This defines the pattern for dashed lines. It's called by setPen
-    so there is no need to call it directly. \a dashList is a 1 bit
-    per pixel specification of the dashes in the line, \a n is the
-    number of bytes in the dashList.
-*/
-void QGfxRasterBase::setDashes(char *dashList, int n)
-{
-    if (dashes) delete [] dashes;
-    dashes = new char [n];
-    memcpy(dashes, dashList, n);
-    numDashes = n;
-}
-
-void QGfxRasterBase::fixClip()
-{
-    qDebug("QGfxRasterBase::fixClip");
-#if 0
-    currentRegionRevision = *globalRegionRevision;
-    QRegion rgn = qt_fbdpy->regionManager()->region(globalRegionIndex);
-    widgetrgn &= rgn;
-    update_clip();
-#endif
-}
 
 /*!
     \internal
@@ -528,55 +317,6 @@ void QGfxRasterBase::update_clip()
 /*!
     \internal
 
-    This is the counterpart to QPainter::moveTo. It simply stores the
-    \a x and \a y values passed to it until a lineTo.
-*/
-void QGfxRasterBase::moveTo(int x, int y)
-{
-    penx=x;
-    peny=y;
-}
-
-/*!
-    \internal
-
-    This draws a line from the last values passed to moveTo to (\a x,
-    \a y). It calls drawLine so there is no need to reimplement it in
-    an accelerated driver.
-*/
-void QGfxRasterBase::lineTo(int x, int y)
-{
-    drawLine(penx,peny,x,y);
-    penx=x;
-    peny=y;
-}
-
-/*!
-    \internal
-
-    Returns the current position of the pen.
-*/
-QPoint QGfxRasterBase::pos() const
-{
-    return QPoint(penx, peny);
-}
-
-/*!
-    \internal
-
-    This stores the offset from the screen framebuffer of the widget
-    from which a blt() is being performed - this is added to the source
-    \a x and \a y coordinates from a bitBlt to produce the source
-    screen position of the blt
-*/
-void QGfxRasterBase::setSourceWidgetOffset(int x, int y)
-{
-    srcwidgetoffs = QPoint(x,y);
-}
-
-/*!
-    \internal
-
     This sets one of several alpha channel types for the next
     blt operation to \a a:
 
@@ -601,73 +341,7 @@ void QGfxRasterBase::setAlphaType(AlphaType a)
     }
 }
 
-/*!
-    \internal
 
-    This is used in conjunction with LittleEndianMask, BigEndianMask or
-    SeparateAlpha alpha channels. \a b is a pointer to the bytes
-    containing the alpha values, \a l is the linestep (length in bytes
-    per horizontal line of data)
-*/
-void QGfxRasterBase::setAlphaSource(unsigned char *b, int l)
-{
-    alphabits=b;
-    alphalinestep=l;
-}
-
-/*!
-    \internal
-    \overload
-
-    This is used by the SolidAlpha alpha channel type and sets a single
-    alpha value to be used in blending all of the source data. The
-    value is between 0 (draw nothing) and 255 (draw solid source data)
-    - a value of 128 would draw a 50% blend between the source and
-    destination data. Normally called with just one argument, where \a
-    i is the alpha value to use. If \a i2, \a i3 and \a i4 are used
-    they specify different alpha values for the corners of an
-    alpha-blended rectangle; this is only used by some experimental
-    hardware-accelerated alpha-blending code.
-*/
-void QGfxRasterBase::setAlphaSource(int i, int i2, int i3, int i4)
-{
-    calpha=i;
-    if(i2==-1)
-        i2=i;
-    if(i3==-1)
-        i3=i;
-    if(i4==-1)
-        i4=i;
-    calpha2=i2;
-    calpha3=i3;
-    calpha4=i4;
-    setAlphaType(SolidAlpha);
-}
-
-/*!
-    \internal
-
-    This saves the current brush and pen state to temporary variables.
-    This is used internally in QGfxRaster when a temporary pen or brush
-    is needed for something. This is not a stack; a save() followed by
-    a save() will obliterate the previously saved brush and pen.
-*/
-void QGfxRasterBase::save()
-{
-    savepen=cpen;
-    savebrush=cbrush;
-}
-
-/*!
-    \internal
-
-    Restores the brush and pen from a previous save().
-*/
-void QGfxRasterBase::restore()
-{
-    setPen(savepen);
-    setBrush(savebrush);
-}
 
 /*!
     \internal
@@ -894,25 +568,6 @@ bool QGfxRasterBase::inClip(int x, int y, QRect *cr, bool known_to_be_outside)
 
 //qDebug("!found %d,%d in %d[%d..%d,%d..%d] nor [%d..%d,%d..%d]",x,y, clipcursor, cliprect[clipcursor].left(),cliprect[clipcursor].right(),cliprect[clipcursor].top(),cliprect[clipcursor].bottom(), cr->left(),cr->right(),cr->top(),cr->bottom());
     return false;
-}
-
-/*!
-    \internal
-
-    This tells blt()s that instead of image data a single solid value
-    should be used as the source, taken from the current pen color. You
-    could reproduce a fillRect() using a pen source and the IgnoreAlpha
-    alpha type, but this would be both pointless and slower than
-    fillRect; its normal use is for anti-aliased text, where the text
-    color is that of the pen and a separate alpha channel produces the
-    shape of the glyphs.
-*/
-void QGfxRasterBase::setSourcePen()
-{
-    srccol = penPixel;
-    src_normal_palette = true;
-    srctype = SourcePen;
-    setSourceWidgetOffset(0, 0);
 }
 
 /*!

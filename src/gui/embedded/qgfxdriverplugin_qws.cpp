@@ -15,8 +15,6 @@
 
 #ifndef QT_NO_COMPONENT
 
-#include "qgfx_qws.h"
-
 /*!
     \class QGfxDriverPlugin qgfxdriverplugin_qws.h
     \brief The QGfxDriverPlugin class provides an abstract base for
