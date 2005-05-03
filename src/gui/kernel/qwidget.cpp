@@ -1182,7 +1182,7 @@ void QWidgetPrivate::propagatePaletteChange()
     if(!children.isEmpty()) {
         for(int i = 0; i < children.size(); ++i) {
             QWidget *w = qobject_cast<QWidget*>(children.at(i));
-            if(w && !w->isWindow())
+            if (w && !w->isWindow())
                 w->d_func()->resolvePalette();
         }
     }
@@ -6042,26 +6042,49 @@ void QWidget::updateGeometry()
 
 /*! \property QWidget::windowFlags
 
-    Window flags are a combination of a window type (e.g. Qt::Widget,
-    or Qt::Window) and zero or more hints to the window system
-    (e.g. Qt::FramelessWindowHint).
+    Window flags are a combination of a type (e.g. Qt::Dialog) and
+    zero or more hints to the window system (e.g.
+    Qt::FramelessWindowHint).
+
+    If the widget had type Qt::Widget or Qt::SubWindow and becomes a
+    window (Qt::Window, Qt::Dialog, etc.), it is put at position (0,
+    0) on the desktop. If the widget is a window and becomes a
+    Qt::Widget or Qt::SubWindow, it is put at position (0, 0)
+    relative to its parent widget.
 
     \sa windowType()
- */
-void QWidget::setWindowFlags(Qt::WindowFlags f)
+*/
+void QWidget::setWindowFlags(Qt::WindowFlags flags)
 {
-    if (!(data->window_flags & Qt::Window) && !(f & Qt::Window))
-        data->window_flags = f;
-    else
-        setParent(parentWidget(), f);
+    if (data->window_flags == flags)
+        return;
+
+    if ((data->window_flags | flags) & Qt::Window) {
+        // the old type was a window and/or the new type is a window
+        QPoint oldPos = pos();
+        setParent(parentWidget(), flags);
+
+        // if both types are windows or neither of them are, we restore
+        // the old position
+        if (!((data->window_flags ^ flags) & Qt::Window))
+            move(oldPos);
+    } else {
+        data->window_flags = flags;
+    }
 }
 
 /*!
-    Overrides the window flags for the widget with \a f.
+    Sets the window flags for the widget to \a flags,
+    \e without telling the window system.
+
+    \warning Do not call this function unless you really know what
+    you're doing.
+
+    \sa setWindowFlags()
 */
-void QWidget::overrideWindowFlags(Qt::WindowFlags f)
+void QWidget::overrideWindowFlags(Qt::WindowFlags flags)
 {
-    data->window_flags = f;
+    data->window_flags = flags;
 }
 
 /*!
@@ -6075,11 +6098,11 @@ void QWidget::overrideWindowFlags(Qt::WindowFlags f)
 
 /*!
     Sets the parent of the widget to \a parent. The widget is moved
-    to position (0,0) in its new parent.
+    to position (0, 0) in its new parent.
 
     If the new parent widget is in a different window, the
     reparented widget and its children are appended to the end of the
-    \link setFocusPolicy() tab chain \endlink of the new parent
+    \l{setFocusPolicy()}{tab chain} of the new parent
     widget, in the same internal order as before. If one of the moved
     widgets had keyboard focus, setParent() calls clearFocus() for that
     widget.
@@ -6091,11 +6114,11 @@ void QWidget::overrideWindowFlags(Qt::WindowFlags f)
     If the "new" parent widget is the old parent widget, this function
     does nothing.
 
-    \warning It is extremely unlikely that you will ever need this
+    \warning It is very unlikely that you will ever need this
     function. If you have a widget that changes its content
     dynamically, it is far easier to use \l QStackedWidget.
 
-    \sa reparent()
+    \sa setWindowFlags()
 */
 void QWidget::setParent(QWidget *parent)
 {
@@ -6108,8 +6131,6 @@ void QWidget::setParent(QWidget *parent)
     \overload
 
     This function also takes widget flags, \a f as an argument.
-
-    \sa windowFlags()
 */
 
 void QWidget::setParent(QWidget *parent, Qt::WFlags f)
