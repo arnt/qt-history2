@@ -5,14 +5,10 @@ language		= Cpp
 headerdirs		= $QTDIR/src
 sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
-                          $QTDIR/doc/src/examples \
                           $QTDIR/extensions/activeqt/doc \
                           $QTDIR/extensions/activeqt/tools
 sources.fileextensions	= "*.cpp *.qdoc"
-exampledirs		= $QTDIR/doc/src \
-                          $QTDIR/doc/src/examples \
-                          $QTDIR/doc/src/examples/designer \
-                          $QTDIR/doc/src/snippets \
+exampledirs		= $QTDIR/doc/src/snippets \
 			  $QTDIR/examples \
 			  $QTDIR/demos \
 			  $QTDIR \

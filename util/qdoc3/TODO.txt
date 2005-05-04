@@ -1,9 +1,9 @@
 MUST HAVES:
 
-  * fix bug with Qt::SubWindow
-
+  * fix wrong links to constructor
   * setters in Qt Assistant
   * FakeNodes in .dcf
+
   * get rid of spurious 'global' functions
   * Make automatic links in code work
 

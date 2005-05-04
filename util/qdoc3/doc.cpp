@@ -2408,6 +2408,9 @@ CodeMarker *Doc::quoteFromFile(const Location &location, Quoter &quoter, const Q
 QString Doc::canonicalTitle(const QString &title)
 {
     QRegExp attributeExpr("[^A-Za-z0-9]+");
-    QString result = title.toLower().simplified();
-    return result.replace(attributeExpr, "-");
+    QString result = title.toLower();
+    result.replace(attributeExpr, " ");
+    result = result.simplified();
+    result.replace(QLatin1Char(' '), QLatin1Char('-'));
+    return result;
 }

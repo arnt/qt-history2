@@ -120,7 +120,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	break;
     case Atom::AutoLink:
         if (!inLink && !inContents && !inSectionHeading) {
-            link = linkForNode(marker->resolveTarget(atom->string(), tre, relative), relative);
+            link = getLink(atom, relative, marker);
 	    if (!link.isEmpty()) {
 	        out() << "<a href=\"" << link << "\">";
                 inLink = true;
@@ -282,61 +282,8 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
     case Atom::LegaleseRight:
 	break;
     case Atom::Link:
-        link.clear();
-        if (atom->string().contains(":") &&
-		(atom->string().startsWith("file:")
-		 || atom->string().startsWith("http:")
-		 || atom->string().startsWith("https:")
-                 || atom->string().startsWith("ftp:")
-		 || atom->string().startsWith("mailto:"))) {
-            link = atom->string();
-        } else if (atom->string().count('@') == 1) {
-            link = "mailto:" + atom->string();
-        } else {
-            QStringList path;
-            if (atom->string().contains('#')) {
-                path = atom->string().split('#');
-            } else {
-                path.append(atom->string());
-            }
-
-            const Node *node = 0;
-            Atom *atom = 0;
-
-            QString first = path.first().trimmed();
-            if (first.isEmpty()) {
-                node = relative;
-            } else if (first.endsWith(".html")) {
-                node = tre->root()->findNode(first, Node::Fake);
-            } else {
-                node = marker->resolveTarget(first, tre, relative);
-                if (!node)
-                    node = tre->findFakeNodeByTitle(first);
-                if (!node)
-                    node = tre->findUnambiguousTarget(first, atom);
-            }
-
-            if (node) {
-                path.removeFirst();
-            } else {
-                node = relative;
-            }
-
-            while (!path.isEmpty()) {
-                atom = tre->findTarget(path.first(), node);
-                if (atom == 0)
-                    break;
-                path.removeFirst();
-            }
-
-            if (path.isEmpty()) {
-                link = linkForNode(node, relative);
-                if (atom)
-                    link += "#" + refForAtom(atom, node);
-            }
-        }
-
-	if ( link.isEmpty() ) {
+        link = getLink(atom, relative, marker);
+	if (link.isEmpty()) {
             if (showBrokenLinks)
                 out() << "<i>";
             relative->doc().location().warning(tr("Cannot link to '%1'").arg(atom->string()));
@@ -2003,6 +1950,8 @@ bool HtmlGenerator::isThreeColumnEnumValueTable(const Atom *atom)
     return false;
 }
 
+#include <qdebug.h>
+
 const Node *HtmlGenerator::findNodeForTarget(const QString &target,
     const Node *relative, CodeMarker *marker, const Atom *atom)
 {
@@ -2039,4 +1988,62 @@ const QPair<QString,QString> HtmlGenerator::anchorForNode(const Node *node)
         anchorPair.second = fakeNode->title();
 
     return anchorPair;
+}
+
+QString HtmlGenerator::getLink(const Atom *atom, const Node *relative, CodeMarker *marker)
+{
+    QString link;
+    if (atom->string().contains(":") &&
+	    (atom->string().startsWith("file:")
+	     || atom->string().startsWith("http:")
+	     || atom->string().startsWith("https:")
+             || atom->string().startsWith("ftp:")
+	     || atom->string().startsWith("mailto:"))) {
+        link = atom->string();
+    } else if (atom->string().count('@') == 1) {
+        link = "mailto:" + atom->string();
+    } else {
+        QStringList path;
+        if (atom->string().contains('#')) {
+            path = atom->string().split('#');
+        } else {
+            path.append(atom->string());
+        }
+
+        const Node *node = 0;
+        Atom *atom = 0;
+
+        QString first = path.first().trimmed();
+        if (first.isEmpty()) {
+            node = relative;
+        } else if (first.endsWith(".html")) {
+            node = tre->root()->findNode(first, Node::Fake);
+        } else {
+            node = marker->resolveTarget(first, tre, relative);
+            if (!node)
+                node = tre->findFakeNodeByTitle(first);
+            if (!node)
+                node = tre->findUnambiguousTarget(first, atom);
+        }
+
+        if (node) {
+            path.removeFirst();
+        } else {
+            node = relative;
+        }
+
+        while (!path.isEmpty()) {
+            atom = tre->findTarget(path.first(), node);
+            if (atom == 0)
+                break;
+            path.removeFirst();
+        }
+
+        if (path.isEmpty()) {
+            link = linkForNode(node, relative);
+            if (atom)
+                link += "#" + refForAtom(atom, node);
+        }
+    }
+    return link;
 }

@@ -98,6 +98,7 @@ private:
     void findAllLegaleseTexts(const InnerNode *node);
     static int hOffset(const Node *node);
     static bool isThreeColumnEnumValueTable(const Atom *atom);
+    QString getLink(const Atom *atom, const Node *relative, CodeMarker *marker);
 
 #if 0
     NavigationBar currentNavigationBar;
