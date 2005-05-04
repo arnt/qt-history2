@@ -48,7 +48,8 @@ public:
         darkBlue,
         darkCyan,
         darkMagenta,
-        darkYellow
+        darkYellow,
+        transparent
     };
 
     enum KeyboardModifier {

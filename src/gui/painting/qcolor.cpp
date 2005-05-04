@@ -48,12 +48,12 @@
     colors. The result of using an invalid color is unspecified and
     will usually be surprising.
 
-    There are 19 predefined QColor objects: \c white, \c black, \c
+    There are 20 predefined QColor objects: \c white, \c black, \c
     red, \c darkRed, \c green, \c darkGreen, \c blue, \c darkBlue, \c
     cyan, \c darkCyan, \c magenta, \c darkMagenta, \c yellow, \c
-    darkYellow, \c gray, \c darkGray, \c lightGray, \c Qt::color0, and
-    \c Qt::color1, accessible as members of the Qt namespace
-    (i.e. \c Qt::red).
+    darkYellow, \c gray, \c darkGray, \c lightGray, \c color0, \c
+    color1, and \c transparent, accessible as members of the Qt
+    namespace (i.e. \c Qt::red).
 
     \img qt-colors.png Qt Colors
 
@@ -229,7 +229,8 @@ QColor::QColor(Qt::GlobalColor color)
         QRGB(  0,   0, 128), // index 4     dark blue
         QRGB(  0, 128, 128), // index 6     dark cyan
         QRGB(128,   0, 128), // index 5     dark magenta
-        QRGB(128, 128,   0)  // index 3     dark yellow
+        QRGB(128, 128,   0), // index 3     dark yellow
+        QRGBA(0, 0, 0, 0)    //             transparent
     };
 #undef QRGB
 #undef QRGBA
