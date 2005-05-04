@@ -591,7 +591,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
 
     reparentChildren();
 
-    q->setGeometry(0, 0, s.width(), s.height());
+    q->resize(s);
     setEnabled_helper(enable); //preserving WA_ForceDisabled
     q->setFocusPolicy(fp);
     if (extra && !extra->mask.isEmpty())
