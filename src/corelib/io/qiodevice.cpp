@@ -26,8 +26,8 @@
 
 #define CHECK_MAXLEN(function, returnType) \
     do { \
-        if (maxlen < 0) { \
-            qWarning("QIODevice::"#function" called with maxlen < 0"); \
+        if (maxSize < 0) { \
+            qWarning("QIODevice::"#function" called with maxSize < 0"); \
             return returnType; \
         } \
     } while (0)
@@ -578,7 +578,7 @@ qint64 QIODevice::bytesToWrite() const
 }
 
 /*!
-    Reads at most \a maxlen bytes from the device into \a data, and
+    Reads at most \a maxSize bytes from the device into \a data, and
     returns the number of bytes read. If an error occurs, such as when
     attempting to read from a device opened in WriteOnly mode, this
     function returns -1.
@@ -587,7 +587,7 @@ qint64 QIODevice::bytesToWrite() const
 
     \sa readData() readLine() write()
 */
-qint64 QIODevice::read(char *data, qint64 maxlen)
+qint64 QIODevice::read(char *data, qint64 maxSize)
 {
     Q_D(QIODevice);
     CHECK_OPEN(read, qint64(-1));
@@ -597,7 +597,7 @@ qint64 QIODevice::read(char *data, qint64 maxlen)
 
     if (int ungetSize = d->ungetBuffer.size()) {
         do {
-            if (readSoFar + 1 > maxlen) {
+            if (readSoFar + 1 > maxSize) {
                 d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
                 return readSoFar;
             }
@@ -607,7 +607,7 @@ qint64 QIODevice::read(char *data, qint64 maxlen)
         d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
     }
 
-    qint64 ret = readData(data + readSoFar, maxlen - readSoFar);
+    qint64 ret = readData(data + readSoFar, maxSize - readSoFar);
     if (ret <= 0)
         return readSoFar ? readSoFar : ret;
 
@@ -651,14 +651,14 @@ qint64 QIODevice::read(char *data, qint64 maxlen)
 /*!
     \overload
 
-    Reads at most \a maxlen bytes from the device, and returns the
+    Reads at most \a maxSize bytes from the device, and returns the
     data read as a QByteArray.
 
     This function has no way of reporting errors; returning an empty
     QByteArray() can mean either that no data was currently available
     for reading, or that an error occurred.
 */
-QByteArray QIODevice::read(qint64 maxlen)
+QByteArray QIODevice::read(qint64 maxSize)
 {
     CHECK_MAXLEN(read, QByteArray());
     QByteArray tmp;
@@ -666,13 +666,13 @@ QByteArray QIODevice::read(qint64 maxlen)
     char buffer[4096];
 
     do {
-        qint64 bytesToRead = qMin(int(maxlen - readSoFar), int(sizeof(buffer)));
+        qint64 bytesToRead = qMin(int(maxSize - readSoFar), int(sizeof(buffer)));
         qint64 readBytes = read(buffer, bytesToRead);
         if (readBytes <= 0)
             break;
         tmp += QByteArray(buffer, (int) readBytes);
         readSoFar += readBytes;
-    } while (readSoFar < maxlen && bytesAvailable() > 0);
+    } while (readSoFar < maxSize && bytesAvailable() > 0);
 
     return tmp;
 }
@@ -706,18 +706,18 @@ QByteArray QIODevice::readAll()
 
 /*!
     This function reads a line of ASCII characters from the device, up
-    to a maximum of \a maxlen bytes, stores the characters in \a data,
+    to a maximum of \a maxSize bytes, stores the characters in \a data,
     and returns the number of bytes read. If an error occurred, -1 is
     returned.
 
     If there is room in the buffer (i.e. the line read is shorter than
-    \a maxlen characters), a '\0' byte is appended to \a data.
+    \a maxSize characters), a '\0' byte is appended to \a data.
 
     Data is read until either of the following conditions are met:
 
     \list
     \o The first '\n' character is read.
-    \o \a maxlen bytes are read.
+    \o \a maxSize bytes are read.
     \o The end of the device data is detected.
     \endlist
 
@@ -746,19 +746,19 @@ QByteArray QIODevice::readAll()
 
     \sa getChar(), read(), write()
 */
-qint64 QIODevice::readLine(char *data, qint64 maxlen)
+qint64 QIODevice::readLine(char *data, qint64 maxSize)
 {
     Q_D(QIODevice);
-    if (maxlen < 1) {
-        qWarning("QIODevice::readLine() called with maxlen < 1");
+    if (maxSize < 1) {
+        qWarning("QIODevice::readLine() called with maxSize < 1");
         return qint64(-1);
     }
 
     qint64 readSoFar = 0;
     if (int ungetSize = d->ungetBuffer.size()) {
         do {
-            if (readSoFar + 1 > maxlen) {
-                if (readSoFar < maxlen)
+            if (readSoFar + 1 > maxSize) {
+                if (readSoFar < maxSize)
                     data[readSoFar] = '\0';
                 d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
                 return readSoFar;
@@ -767,7 +767,7 @@ qint64 QIODevice::readLine(char *data, qint64 maxlen)
             char c = d->ungetBuffer[ungetSize-- - 1];
             data[readSoFar++] = c;
             if (c == '\n') {
-                if (readSoFar < maxlen)
+                if (readSoFar < maxSize)
                     data[readSoFar] = '\0';
                 return readSoFar;
             }
@@ -775,20 +775,20 @@ qint64 QIODevice::readLine(char *data, qint64 maxlen)
         d->ungetBuffer.resize(d->ungetBuffer.size() - readSoFar);
     }
 
-    return readLineData(data + readSoFar, maxlen - readSoFar);
+    return readLineData(data + readSoFar, maxSize - readSoFar);
 }
 
 /*!
     \overload
 
-    Reads a line from the device, but no more than \a maxlen characters,
+    Reads a line from the device, but no more than \a maxSize characters,
     and returns the result as a QByteArray.
 
     This function has no way of reporting errors; returning an empty
     QByteArray() can mean either that no data was currently available
     for reading, or that an error occurred.
 */
-QByteArray QIODevice::readLine(qint64 maxlen)
+QByteArray QIODevice::readLine(qint64 maxSize)
 {
     CHECK_MAXLEN(readLine, QByteArray());
     QByteArray tmp;
@@ -798,13 +798,13 @@ QByteArray QIODevice::readLine(qint64 maxlen)
     qint64 readBytes = 0;
 
     do {
-        if (maxlen != 0)
-            tmp.resize(readSoFar + qMin(int(maxlen), int(sizeof(buffer))));
+        if (maxSize != 0)
+            tmp.resize(readSoFar + qMin(int(maxSize), int(sizeof(buffer))));
         else
             tmp.resize(readSoFar + int(sizeof(buffer)));
         readBytes = readLineData(tmp.data() + readSoFar, tmp.size());
         readSoFar += readBytes;
-    } while (readSoFar < maxlen && readBytes > 0
+    } while (readSoFar < maxSize && readBytes > 0
              && readBytes == tmp.size() && tmp.at(readBytes - 1) != '\n');
 
     tmp.resize(readSoFar);
@@ -812,6 +812,9 @@ QByteArray QIODevice::readLine(qint64 maxlen)
 }
 
 /*!
+    Reads up to \a maxSize characters into \a data and returns the
+    number of characters read.
+
     This function is called by readLine(), and provides its base
     implementation, using getChar(). Buffered devices can improve the
     performance of readLine() by reimplementing this function.
@@ -819,19 +822,19 @@ QByteArray QIODevice::readLine(qint64 maxlen)
     When reimplementing this function, keep in mind that you must
     handle the \l Text flag which translates end-of-line characters.
 */
-qint64 QIODevice::readLineData(char *data, qint64 maxlen)
+qint64 QIODevice::readLineData(char *data, qint64 maxSize)
 {
     qint64 readSoFar = 0;
     char c;
     bool lastGetSucceeded = false;
-    while (readSoFar + 1 < maxlen && (lastGetSucceeded = getChar(&c))) {
+    while (readSoFar + 1 < maxSize && (lastGetSucceeded = getChar(&c))) {
         *data++ = c;
         ++readSoFar;
         if (c == '\n')
             break;
     }
 
-    if (readSoFar < maxlen)
+    if (readSoFar < maxSize)
         *data = '\0';
 
     if (!lastGetSucceeded && readSoFar == 0)
@@ -866,13 +869,13 @@ bool QIODevice::canReadLine() const
 */
 
 /*!
-    Writes at most \a maxlen bytes of data from \a data to the
+    Writes at most \a maxSize bytes of data from \a data to the
     device. Returns the number of bytes that were actually written, or
     -1 if an error occurred.
 
     \sa read() writeData()
 */
-qint64 QIODevice::write(const char *data, qint64 maxlen)
+qint64 QIODevice::write(const char *data, qint64 maxSize)
 {
     Q_D(QIODevice);
     CHECK_OPEN(write, qint64(-1));
@@ -881,7 +884,7 @@ qint64 QIODevice::write(const char *data, qint64 maxlen)
 
 #ifdef Q_OS_WIN
     if (d->openMode & Text) {
-        const char *endOfData = data + maxlen;
+        const char *endOfData = data + maxSize;
         const char *startOfBlock = data;
 
         qint64 writtenSoFar = 0;
@@ -921,7 +924,7 @@ qint64 QIODevice::write(const char *data, qint64 maxlen)
         return writtenSoFar;
     }
 #endif
-    qint64 written = writeData(data, maxlen);
+    qint64 written = writeData(data, maxSize);
     d->ungetBuffer.chop(written);
     return written;
 }
@@ -1040,9 +1043,9 @@ QString QIODevice::errorString() const
 }
 
 /*!
-    \fn qint64 QIODevice::readData(char *data, qint64 maxlen)
+    \fn qint64 QIODevice::readData(char *data, qint64 maxSize)
 
-    Reads up to \a maxlen bytes from the device into \a data, and
+    Reads up to \a maxSize bytes from the device into \a data, and
     returns the number of bytes read or -1 if an error occurred.
 
     This function is called by QIODevice. Reimplement this function
@@ -1052,9 +1055,9 @@ QString QIODevice::errorString() const
 */
 
 /*!
-    \fn qint64 QIODevice::writeData(const char *data, qint64 maxlen)
+    \fn qint64 QIODevice::writeData(const char *data, qint64 maxSize)
 
-    Writes up to \a maxlen bytes from \a data to the device. Returns
+    Writes up to \a maxSize bytes from \a data to the device. Returns
     the number of bytes written, or -1 if an error occurred.
 
     This function is called by QIODevice. Reimplement this function
@@ -1069,7 +1072,7 @@ QString QIODevice::errorString() const
     For device specific error handling, please refer to the
     individual device documentation.
 
-    \sa qobject_cast<>()
+    \sa qobject_cast()
 */
 
 /*!

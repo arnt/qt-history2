@@ -414,9 +414,9 @@ void QFileEngine::unmap(uchar * /* data */)
 /*!
     \fn QStringList QFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 
-    Requests that a list of all the files matching the \a filters list
-    based on the \a filterSpec in the file engine's directory are
-    returned.
+    Requests that a list of all the files matching the \a filters
+    list based on the \a filterNames in the file engine's directory
+    are returned.
 
     Should return an empty list if the file engine refers to a file
     rather than a directory, or if the directory is unreadable or does
@@ -450,9 +450,9 @@ void QFileEngine::unmap(uchar * /* data */)
 /*!
     \fn uint QFileEngine::fileFlags(FileFlags type) const
 
-    This function should return the set of OR'd \c
-    QFileEngine::FileInfo members that are true for the file engine's
-    file, and that are in the \a type's OR'd members.
+    This function should return the set of OR'd flags that are true
+    for the file engine's file, and that are in the \a type's OR'd
+    members.
 
     In your reimplementation you can use the \a type argument as an
     optimization hint and only return the OR'd set of members that are
@@ -462,7 +462,7 @@ void QFileEngine::unmap(uchar * /* data */)
 
     This virtual function must be reimplemented by all subclasses.
 
-    \sa setFileName(), FileInfo
+    \sa setFileName()
 */
 
 /*!

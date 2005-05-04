@@ -225,7 +225,7 @@ int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
 /*!
     \fn QList<TimerInfo> registeredTimers(QObject *object) const
 
-    Returns a list of registered timers for \a object.  The timer id
+    Returns a list of registered timers for \a object. The timer ID
     is the first member in each pair; the interval is the second.
 */
 
@@ -260,6 +260,28 @@ void QAbstractEventDispatcher::closingDown()
 { }
 
 /*!
+    \typedef QAbstractEventDispatcher::TimerInfo
+
+    Typedef for QPair<int, int>. The first component of
+    the pair is the timer ID; the second component is
+    the interval.
+
+    \sa registeredTimers()
+*/
+
+/*!
+    \typedef QAbstractEventDispatcher::EventFilter
+
+    Typedef for a function with the signature
+
+    \code
+        bool myEventFilter(void *message);
+    \endcode
+
+    \sa setEventFilter(), filterEvent()
+*/
+
+/*!
     Sets the event filter \a filter. Returns a pointer to the filter
     function previously defined.
 
@@ -273,7 +295,7 @@ void QAbstractEventDispatcher::closingDown()
 
     Only one filter can be defined, but the filter can use the return
     value to call the previously set event filter. By default, no
-    filter is set (ie.  the function returns 0).
+    filter is set (i.e. the function returns 0).
 */
 QAbstractEventDispatcher::EventFilter QAbstractEventDispatcher::setEventFilter(EventFilter filter)
 {

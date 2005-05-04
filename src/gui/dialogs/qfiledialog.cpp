@@ -326,8 +326,19 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
 /*!
     \fn void QFileDialog::filesSelected(const QStringList &selected)
 
-    When the selection changes this signal is emitted with the
+    When the selection changes, this signal is emitted with the
     (possibly empty) list of \a selected files.
+
+    \sa currentChanged()
+*/
+
+/*!
+    \fn void QFileDialog::currentChanged(const QString &path)
+
+    When the current file changes, this signal is emitted with the
+    new file name as the \a path parameter.
+
+    \sa filesSelected()
 */
 
 /*!
@@ -683,12 +694,12 @@ bool QFileDialog::isReadOnly() const
     return d_func()->model->isReadOnly();
 }
 
-/*
-  \property QFileDialog::resolveSymlinks
-  \brief Whether the filedialog should resolve symbolic links.
+/*!
+    \property QFileDialog::resolveSymlinks
+    \brief whether the filedialog should resolve symbolic links
 
-  If this property is set to true, the filedialog will resolve symbolic
-  links.
+    If this property is set to true, the file dialog will resolve
+    symbolic links.
 */
 void QFileDialog::setResolveSymlinks(bool enabled)
 {
@@ -700,14 +711,14 @@ bool QFileDialog::resolveSymlinks() const
     return d_func()->model->resolveSymlinks();
 }
 
-/*
-  \property QFileDialog::confirmOverwrite
-  \brief Whether the filedialog should ask before accepting a selected file,
-  when the accept mode is AcceptSave.
+/*!
+    \property QFileDialog::confirmOverwrite
+    \brief whether the filedialog should ask before accepting a selected file,
+    when the accept mode is AcceptSave
 
-  If this property is set to true and the accept mode is AcceptSave,
-  the filedialog will ask whether the user wants to overwrite the fike before
-  accepting the file.
+    If this property is set to true and the accept mode is
+    AcceptSave, the filedialog will ask whether the user wants to
+    overwrite the fike before accepting the file.
 */
 void QFileDialog::setConfirmOverwrite(bool enabled)
 {
@@ -719,12 +730,14 @@ bool QFileDialog::confirmOverwrite() const
     return d_func()->confirmOverwrite;
 }
 
-/*
-  \property QFileDialog::defaultSuffix
-  \brief  Suffix added to the filename if no other suffix was specified.
+/*!
+    \property QFileDialog::defaultSuffix
+    \brief suffix added to the filename if no other suffix was specified
 
-  This property specifies a string that will be added to the filename if it has no suffix already.
-  The suffix is typically used to indicate the file type (e.g. "txt" indicates a text file).
+    This property specifies a string that will be added to the
+    filename if it has no suffix already. The suffix is typically
+    used to indicate the file type (e.g. "txt" indicates a text
+    file).
 */
 void QFileDialog::setDefaultSuffix(const QString &suffix)
 {
@@ -737,7 +750,8 @@ QString QFileDialog::defaultSuffix() const
 }
 
 /*!
-  \brief sets the browsing history of the filedialog to contain the given \a paths.
+    Sets the browsing history of the filedialog to contain the given
+    \a paths.
 */
 void QFileDialog::setHistory(const QStringList &paths)
 {
@@ -2282,7 +2296,12 @@ QString QFileDialog::selectedFile() const
     QStringList files = selectedFiles();
     return files.size() ? files.at(0) : QString();
 }
-#endif
+
+/*!
+    \typedef QFileDialog::Mode
+
+    Use QFileDialog::FileMode instead.
+*/
 
 /*!
     \fn void QFileDialog::setMode(FileMode m)
@@ -2312,7 +2331,9 @@ QString QFileDialog::selectedFile() const
     \fn QStringList QFileDialog::getOpenFileNames(const QString &filter,
         const QString &dir, QWidget *parent, const char* name,
         const QString &caption, QString *selectedFilter, bool resolveSymlinks)
-    \compat
+
+    Use the getOpenFileNames() overload that takes \a parent as the first
+    argument instead.
 */
 
 /*!
@@ -2320,7 +2341,8 @@ QString QFileDialog::selectedFile() const
         const QString &filter, QWidget *parent = 0, const char *name,
         const QString &caption, QString *selectedFilter, bool resolveSymlinks)
 
-    \compat
+    Use the getOpenFileName() overload that takes \a parent as the first
+    argument instead.
 */
 
 /*!
@@ -2328,7 +2350,8 @@ QString QFileDialog::selectedFile() const
         const QString &filter, QWidget *parent, const char *name,
         const QString &caption, QString *selectedFilter, bool resolveSymlinks)
 
-    \compat
+    Use the getSaveFileName() overload that takes \a parent as the first
+    argument instead.
 */
 
 /*!
@@ -2336,7 +2359,9 @@ QString QFileDialog::selectedFile() const
         QWidget *parent, const char *name, const QString &caption,
         bool dirOnly, bool resolveSymlinks)
 
-    \compat
+    Use the getExistingDirectory() overload that takes \a parent as
+    the first argument instead.
 */
+#endif
 
 #include "moc_qfiledialog.cpp"

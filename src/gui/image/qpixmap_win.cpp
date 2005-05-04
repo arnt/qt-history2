@@ -60,7 +60,31 @@ QPixmap QPixmap::grabWindow(WId winId, int x, int y, int w, int h )
     return pixmap;
 }
 
+/*!
+    \enum QPixmap::HBitmapFormat
 
+    This specifies the underlying format used to store the \c HBITMAP
+    object:
+
+    \value NoAlpha  The bitmap has no alpha channel.
+    \value PremultipliedAlpha  The bitmap has a premultiplied alpha channel.
+
+    \warning This function is only available on Windows.
+
+    \sa fromWinoHBITMAP(), toWinoHBITMAP()
+*/
+
+/*!
+    Creates a \c HBITMAP equivalent to the QPixmap, with the given \a
+    format, and returns the \c HBITMAP handle.
+
+    It is the caller's responsibility to free the \c HBITMAP data
+    after use.
+
+    \warning This function is only available on Windows.
+
+    \sa fromWinHBITMAP()
+*/
 HBITMAP QPixmap::toWinHBITMAP(HBitmapFormat format) const
 {
     int w = data->image.width();
@@ -103,7 +127,12 @@ HBITMAP QPixmap::toWinHBITMAP(HBitmapFormat format) const
     return bitmap;
 }
 
+/*!
+    Returns a QPixmap that is equivalent to the bitmap \c HBITMAP
+    which has the specified \a format.
 
+    \sa toWinHBITMAP()
+*/
 QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap, HBitmapFormat format)
 {
     // Verify size

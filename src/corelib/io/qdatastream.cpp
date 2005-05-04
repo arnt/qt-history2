@@ -89,7 +89,6 @@
     changed with setDevice(). If you've reached the end of the data
     (or if there is no IODevice set) atEnd() will return true.
 
-    \target versioning
     \section1 Versioning
 
     QDataStream's binary format has evolved since Qt 1.0, and is
@@ -516,9 +515,9 @@ void QDataStream::setByteOrder(ByteOrder bo)
     Sets the version number of the data serialization format to \a v.
 
     You don't \e have to set a version if you are using the current
-    version of Qt, but for your own custom binary formats we recommend
-    that you do; see \link #versioning Versioning\endlink in the
-    Detailed Description.
+    version of Qt, but for your own custom binary formats we
+    recommend that you do; see \l{Versioning} in the Detailed
+    Description.
 
     In order to accommodate new functionality, the datastream
     serialization format of some Qt classes has changed in some

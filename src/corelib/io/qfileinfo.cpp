@@ -1062,7 +1062,7 @@ QFileInfo::size() const
     If neither creation time nor "last status change" time are not
     available, returns the same as lastModified().
 
-    \sa created() lastModified() lastRead()
+    \sa lastModified() lastRead()
 */
 
 QDateTime
@@ -1077,7 +1077,7 @@ QFileInfo::created() const
 /*!
     Returns the date and time when the file was last modified.
 
-    \sa created() lastModified() lastRead()
+    \sa created() lastRead()
 */
 
 QDateTime
@@ -1095,7 +1095,7 @@ QFileInfo::lastModified() const
     On platforms where this information is not available, returns the
     same as lastModified().
 
-    \sa created() lastModified() lastRead()
+    \sa created() lastModified()
 */
 
 QDateTime

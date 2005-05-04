@@ -430,21 +430,21 @@ QRegion QTransformedScreen::mapToDevice(const QRegion &rgn, const QSize &s) cons
         case Rot270:
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(h - r->y() - 1, r->x(),
-                              h - r->bottom() - 1, r->right());
+                             h - r->bottom() - 1, r->right());
                 trgn |= tr.normalized();
             }
             break;
         case Rot90:
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(r->y(), w - r->x() - 1,
-                              r->bottom(), w - r->right() - 1);
+                             r->bottom(), w - r->right() - 1);
                 trgn |= tr.normalized();
             }
             break;
         case Rot180:
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(w - r->x() - 1, h - r->y() - 1,
-                              w - r->right() - 1, h - r->bottom() - 1);
+                             w - r->right() - 1, h - r->bottom() - 1);
                 trgn |= tr.normalized();
             }
             break;
@@ -473,21 +473,21 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
         case Rot270:
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(r->y(), w - r->x() - 1,
-                              r->bottom(), w - r->right() - 1);
+                             r->bottom(), w - r->right() - 1);
                 trgn |= tr.normalized();
             }
             break;
         case Rot90:
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(h - r->y() - 1, r->x(),
-                              h - r->bottom() - 1, r->right());
+                             h - r->bottom() - 1, r->right());
                 trgn |= tr.normalized();
             }
             break;
         case Rot180:
             for (int i = 0; i < size; i++, r++) {
                 tr.setCoords(w - r->x() - 1, h - r->y() - 1,
-                              w - r->right() - 1, h - r->bottom() - 1);
+                             w - r->right() - 1, h - r->bottom() - 1);
                 trgn |= tr.normalized();
             }
             break;
@@ -501,14 +501,14 @@ QRegion QTransformedScreen::mapFromDevice(const QRegion &rgn, const QSize &s) co
 /*!
     \table
     \header \i Transformation \i Rotation \i Mirrored
-    \row \i 0 \i 0        \i No
+    \row \i 0 \i 0         \i No
     \row \i 1 \i 90        \i No
-    \row \i 2 \i 180        \i No
-    \row \i 3 \i 270        \i No
-    \row \i 4 \i 0        \i Yes
+    \row \i 2 \i 180       \i No
+    \row \i 3 \i 270       \i No
+    \row \i 4 \i 0         \i Yes
     \row \i 5 \i 90        \i Yes
-    \row \i 6 \i 180        \i Yes
-    \row \i 7 \i 270        \i Yes
+    \row \i 6 \i 180       \i Yes
+    \row \i 7 \i 270       \i Yes
     \endtable
 */
 int QTransformedScreen::transformOrientation() const

@@ -1004,6 +1004,19 @@ QString &QString::operator=(const QString &other)
     go through QObject::tr(), for example.
 */
 
+/*! \fn QString &QString::operator=(char ch)
+
+    \overload
+
+    Assigns character \a ch to this string. The character is converted
+    to Unicode using fromAscii().
+
+    You can disable this operator by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. This
+    can be useful if you want to ensure that all user-visible strings
+    go through QObject::tr(), for example.
+*/
+
 /*!
     \overload
 
@@ -3690,6 +3703,19 @@ QString& QString::fill(QChar ch, int size)
     go through QObject::tr(), for example.
 */
 
+/*! \fn QString &QString::operator+=(char ch)
+
+    \overload
+
+    Appends the character \a ch to this string. The character is
+    converted to Unicode using fromAscii().
+
+    You can disable this function by defining \c
+    QT_NO_CAST_FROM_ASCII when you compile your applications. This
+    can be useful if you want to ensure that all user-visible strings
+    go through QObject::tr(), for example.
+*/
+
 /*! \fn QString &QString::operator+=(QChar ch)
 
     \overload
@@ -5337,19 +5363,35 @@ QStringList QString::split(const QRegExp &rx, SplitBehavior behavior) const
 #endif
 
 /*!
-  Normalizes the string to the Unicode normalization form
- */
-QString QString::normalized(QString::NormalizationForm form) const
+    \enum QString::NormalizationForm
+
+    \value NormalizationForm_D  Canonical Decomposition
+    \value NormalizationForm_C  Canonical Decomposition followed by Canonical Composition
+    \value NormalizationForm_KD  Compatibility Decomposition
+    \value NormalizationForm_KC  Compatibility Decomposition followed by Canonical Composition
+
+    \sa normalized(),
+        {http://www.unicode.org/reports/tr15/}{Unicode Standard Annex #15}
+*/
+
+/*!
+    Returns the string in the given Unicode normalization \a form.
+*/
+QString QString::normalized(NormalizationForm form) const
 {
     return QUnicodeTables::normalize(*this, form);
 }
 
-QString QString::normalized(QString::NormalizationForm form, QChar::UnicodeVersion version) const
+/*!
+    \overload
+
+    Returns the string in the given Unicode normalization \a form,
+    according to the given \a version of the Unicode standard.
+*/
+QString QString::normalized(NormalizationForm form, QChar::UnicodeVersion version) const
 {
     return QUnicodeTables::normalize(*this, form, version);
 }
-
-
 
 struct ArgEscapeData
 {
@@ -5672,7 +5714,7 @@ QString QString::arg(const QString &a, int fieldWidth, const QChar &fillChar) co
     string. \a base must be between 2 and 36, with 8 giving octal, 10
     decimal, and 16 hexadecimal numbers.
 */
-QString QString::arg(qint64 a, int fieldWidth, int base, const QChar &fillChar) const
+QString QString::arg(qlonglong a, int fieldWidth, int base, const QChar &fillChar) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 
@@ -5701,7 +5743,7 @@ QString QString::arg(qint64 a, int fieldWidth, int base, const QChar &fillChar) 
     string. \a base must be between 2 and 36, with 8 giving octal, 10
     decimal, and 16 hexadecimal numbers.
 */
-QString QString::arg(quint64 a, int fieldWidth, int base, const QChar &fillChar) const
+QString QString::arg(qulonglong a, int fieldWidth, int base, const QChar &fillChar) const
 {
     ArgEscapeData d = findArgEscapes(*this);
 

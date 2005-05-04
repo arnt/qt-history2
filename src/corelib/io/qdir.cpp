@@ -1986,4 +1986,17 @@ void QDir::setNameFilter(const QString &nameFilter)
 
     Use cleanPath() instead.
 */
+
+/*!
+    \typedef QDir::FilterSpec
+
+    Use QDir::Filters instead.
+*/
+
+/*!
+    \typedef QDir::SortSpec
+
+    Use QDir::SortFlags instead.
+*/
+
 #endif
