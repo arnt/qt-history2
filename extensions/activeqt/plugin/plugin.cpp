@@ -124,9 +124,9 @@ public:
     QActiveXPropertySheet(QAxWidget *object, QObject *parent = 0)
         : QDesignerPropertySheet(object, parent)
     { 
-        createFakeProperty("control", QString());
-        int index = indexOf("control");
-        setVisible(index, false);
+        createFakeProperty(QLatin1String("control"), QString());
+//        int index = indexOf("control");
+//        setVisible(index, false);
     }
 
     void setProperty(int index, const QVariant &value)
@@ -134,7 +134,7 @@ public:
         QDesignerPropertySheet::setProperty(index, value);
 
         if (isAdditionalProperty(index) 
-            && (propertyName(index) == "control"))
+            && (propertyName(index) == QLatin1String("control")))
         {
             if (!value.toString().isEmpty())
                 static_cast<QActiveXPluginObject*>(m_object)->setControl(value.toString());
@@ -199,12 +199,36 @@ public:
 	    if (!clsid.isNull())
             {
                 QDesignerFormWindowInterface *formWin = QDesignerFormWindowInterface::findFormWindow(widget);
+				Q_ASSERT(formWin != 0);
+
                 formWin->selectWidget(widget, true);
 
-	        if (key.isEmpty())
-                    formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString());
-	        else
-		    formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString() + ":" + key);
+				if (key.isEmpty())
+					formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString());
+				else
+					formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString() + ":" + key);
+
+				QDesignerFormEditorInterface *core = formWin->core();
+				QDesignerPropertySheetExtension *sheet = 0;
+
+				// compute the changed properties
+				QStringList changedProperties;
+				sheet = qt_extension<QDesignerPropertySheetExtension *>(core->extensionManager(), widget);
+				for (int i = 0; i<sheet->count(); ++i)
+					if (sheet->isChanged(i))
+						changedProperties.append(sheet->propertyName(i));
+				
+				// refresh the property sheet
+				delete sheet;
+				sheet = qt_extension<QDesignerPropertySheetExtension *>(core->extensionManager(), widget);
+
+				foreach (QString p, changedProperties)
+					sheet->setChanged(sheet->indexOf(p), true);
+
+				sheet->setProperty(sheet->indexOf(QLatin1String("control")), clsid.toString()); 
+
+                formWin->clearSelection(true);
+                formWin->selectWidget(widget);
             }
         }
 
