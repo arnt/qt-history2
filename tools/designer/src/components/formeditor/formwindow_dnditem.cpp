@@ -25,7 +25,9 @@ using namespace qdesigner_internal;
 static QWidget *decorationFromWidget(QWidget *w)
 {
     QLabel *label = new QLabel(0, Qt::ToolTip);
-    label->setPixmap(QPixmap::grabWidget(w));
+    QPixmap pm = QPixmap::grabWidget(w);
+    label->setPixmap(pm);
+    label->resize(pm.size());
 
     return label;
 }
