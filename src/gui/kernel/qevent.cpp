@@ -115,9 +115,9 @@ QInputEvent::~QInputEvent()
     position explicitly.
 */
 
-QMouseEvent::QMouseEvent(Type type, const QPoint &pos, Qt::MouseButton button,
+QMouseEvent::QMouseEvent(Type type, const QPoint &position, Qt::MouseButton button,
                          Qt::MouseButtons buttons, Qt::KeyboardModifiers modifiers)
-    : QInputEvent(type, modifiers), p(pos), b(button), mouseState(buttons)
+    : QInputEvent(type, modifiers), p(position), b(button), mouseState(buttons)
 {
     g = QCursor::pos();
 }
@@ -381,6 +381,12 @@ QHoverEvent::~QHoverEvent()
 */
 
 /*!
+    \fn Qt::MouseButtons QWheelEvent::buttons() const
+
+    Returns the mouse state when the event occurred.
+*/
+
+/*!
     \fn Qt::Orientation QWheelEvent::orientation() const
 
     Returns the wheel's orientation.
@@ -419,6 +425,9 @@ QWheelEvent::~QWheelEvent()
 }
 
 #ifdef QT3_SUPPORT
+/*!
+    Use one of the other constructors instead.
+*/
 QWheelEvent::QWheelEvent(const QPoint &pos, int delta, int state, Qt::Orientation orient)
     : QInputEvent(Wheel), p(pos), d(delta), o(orient)
 {
@@ -446,6 +455,9 @@ QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta,
 {}
 
 #ifdef QT3_SUPPORT
+/*!
+    Use one of the other constructors instead.
+*/
 QWheelEvent::QWheelEvent(const QPoint &pos, const QPoint& globalPos, int delta, int state,
                          Qt::Orientation orient)
     : QInputEvent(Wheel), p(pos), g(globalPos), d(delta), o(orient)
@@ -1076,8 +1088,6 @@ QIconDragEvent::~QIconDragEvent()
 */
 
 /*!
-    \fn QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos)
-
     Constructs a context menu event object with the accept parameter
     flag set to false.
 
@@ -1096,10 +1106,10 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPo
 /*!
     Constructs a context menu event with the given \a reason for the
     position specified by \a pos in widget coordinates and \a globalPos
-    in global screen coordinates.
+    in global screen coordinates. \a dummy is ignored.
 */
 QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, const QPoint &globalPos,
-                                     int)
+                                     int /* dummy */)
     : QInputEvent(ContextMenu), p(pos), gp(globalPos), reas(reason)
 {}
 #endif
@@ -1131,9 +1141,10 @@ QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos)
 #ifdef QT3_SUPPORT
 /*!
     Constructs a context menu event with the given \a reason for the
-    position specified by \a pos in widget coordinates.
+    position specified by \a pos in widget coordinates. \a dummy is
+    ignored.
 */
-QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int)
+QContextMenuEvent::QContextMenuEvent(Reason reason, const QPoint &pos, int /* dummy */)
     : QInputEvent(ContextMenu), p(pos), reas(reason)
 {
     gp = QCursor::pos();
@@ -1373,6 +1384,19 @@ Qt::ButtonState QContextMenuEvent::state() const
 */
 
 /*!
+    \class QInputMethodEvent::Attribute
+    \brief The QInputMethodEvent::Attribute class stores an input method attribute.
+*/
+
+/*!
+    \fn QInputMethodEvent::Attribute::Attribute(AttributeType type, int start, int length, QVariant value)
+
+    Constructs an input method attribute. \a type specifies the type
+    of attribute, \a start and \a length the position of the
+    attribute, and \a value the value of the attribute.
+*/
+
+/*!
     Constructs an event of type QEvent::InputMethod. The
     attributes(), preeditString(), commitString(), replacementStart(),
     and replacementLength() are initialized to default values.
@@ -1394,7 +1418,7 @@ QInputMethodEvent::QInputMethodEvent()
 
     \sa preeditText(), attributes()
 */
-QInputMethodEvent::QInputMethodEvent(const QString &preeditText, const QList<QInputMethodEvent::Attribute> &attributes)
+QInputMethodEvent::QInputMethodEvent(const QString &preeditText, const QList<Attribute> &attributes)
     : QEvent(QEvent::InputMethod), preedit(preeditText), attrs(attributes),
       replace_from(0), replace_length(0)
 {
@@ -1538,6 +1562,8 @@ void QInputMethodEvent::setCommitString(const QString &commitString, int replace
     \value Pen    Tip end of a stylus-like device (the narrow end of the pen).
     \value Cursor  Any puck-like device.
     \value Eraser  Eraser end of a stylus-like device (the broad end of the pen).
+
+    \sa pointerType()
 */
 
 /*!
@@ -1610,6 +1636,12 @@ QTabletEvent::~QTabletEvent()
     to draw on the tablet.
 
     \sa TabletDevice
+*/
+
+/*!
+    \fn PointerType QTabletEvent::pointerType() const
+
+    Returns the type of point that generated the event.
 */
 
 /*!
@@ -1795,11 +1827,14 @@ QDragMoveEvent::~QDragMoveEvent()
 }
 
 /*!
+    \fn void QDragMoveEvent::accept()
+\    \internal
+*/
+
+/*!
     \fn void QDragMoveEvent::accept(bool y)
 
-    \overload
-
-    Calls QDropEvent::accept(\a{y})
+    Calls setAccepted(\a y) instead.
 */
 
 /*!
@@ -1813,6 +1848,14 @@ QDragMoveEvent::~QDragMoveEvent()
     If the rectangle is \link QRect::isEmpty() empty \endlink, then
     drag move events will be sent continuously. This is useful if the
     source is scrolling in a timer event.
+*/
+
+/*!
+    \fn void QDragMoveEvent::accept()
+
+    \overload
+    
+    Calls QDropEvent::accept().
 */
 
 /*!
@@ -2068,6 +2111,30 @@ void QDropEvent::setDropAction(Qt::DropAction action)
     Copy action, call accept().
 
     \sa setDropAction()
+*/
+
+/*!
+    \fn Qt::DropActions QDropEvent::possibleActions() const
+
+    Returns an OR-combination of possible drop actions.
+
+    \sa dropAction()
+*/
+
+/*!
+    \fn Qt::DropAction QDropEvent::proposedAction() const
+
+    Returns the proposed drop action.
+
+    \sa dropAction()
+*/
+
+/*!
+    \fn void QDropEvent::acceptProposedAction()
+
+    Sets the drop action to be the proposed action.
+
+    \sa setDropAction(), proposedAction(), accept()
 */
 
 #ifdef QT3_SUPPORT
