@@ -369,6 +369,7 @@ public:
     bool translateXinputEvent(const XEvent*, const TabletDeviceData *tablet);
 #endif
     bool translatePropertyEvent(const XEvent *);
+    void removePendingPaintEvents();
 };
 
 
@@ -4889,13 +4890,15 @@ bool translateBySips(QWidget* that, QRect& paintRect)
     return false;
 }
 
-void QWidgetPrivate::removePendingPaintEvents()
+void QETWidget::removePendingPaintEvents()
 {
-    Q_Q(QWidget);
     XEvent xevent;
-    while (XCheckTypedWindowEvent(X11->display, q->winId(), Expose, &xevent) &&
-            ! qt_x11EventFilter(&xevent)  &&
-            ! q->x11Event(&xevent)) // send event through filter
+    PaintEventInfo info;
+    info.window = winId();
+    while (XCheckIfEvent(X11->display,&xevent,isPaintOrScrollDoneEvent,
+                         (XPointer)&info) &&
+           !qt_x11EventFilter(&xevent)  &&
+           !x11Event(&xevent)) // send event through filter
         ;
 }
 
@@ -4972,6 +4975,7 @@ bool QETWidget::translateScrollDoneEvent(const XEvent *event)
 bool QETWidget::translateConfigEvent(const XEvent *event)
 {
     Q_D(QWidget);
+    bool wasResize = testAttribute(Qt::WA_WState_ConfigPending); // set in QWidget::setGeometry_sys()
     setAttribute(Qt::WA_WState_ConfigPending, false);
 
     if (isWindow()) {
@@ -5040,24 +5044,20 @@ bool QETWidget::translateConfigEvent(const XEvent *event)
             } else {
                 setAttribute(Qt::WA_PendingResizeEvent, true);
             }
-
-            if (!testAttribute(Qt::WA_StaticContents)) {
-                // remove unnecessary paint events from the queue
-                XEvent xevent;
-                while (XCheckTypedWindowEvent(X11->display, winId(), Expose, &xevent) &&
-                        ! qt_x11EventFilter(&xevent)  &&
-                        ! x11Event(&xevent)) // send event through filter
-                    ;
-
-                testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
-            }
+            wasResize = true;
         }
+
     } else {
         XEvent xevent;
         while (XCheckTypedWindowEvent(X11->display,winId(), ConfigureNotify,&xevent) &&
                 !qt_x11EventFilter(&xevent)  &&
                 !x11Event(&xevent)) // send event through filter
             ;
+    }
+
+    if (wasResize && !testAttribute(Qt::WA_StaticContents)) {
+        removePendingPaintEvents();
+        testAttribute(Qt::WA_WState_InPaintEvent)?update():repaint();
     }
 
     return true;

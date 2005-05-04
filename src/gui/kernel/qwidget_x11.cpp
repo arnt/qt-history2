@@ -1433,8 +1433,8 @@ void QWidget::repaint(const QRegion& rgn)
     setAttribute(Qt::WA_WState_InPaintEvent);
 
     QRect br = rgn.boundingRect();
+    QVector<QRect> rects = rgn.rects();
     QRect brWS = d->mapToWS(br);
-    bool do_clipping = (br != QRect(0,0,data->crect.width(),data->crect.height()));
 
     bool double_buffer = (!testAttribute(Qt::WA_PaintOnScreen)
                           && !testAttribute(Qt::WA_NoSystemBackground)
@@ -1442,6 +1442,7 @@ void QWidget::repaint(const QRegion& rgn)
                           && br.height() <= QX11DoubleBuffer::MaxHeight
                           && !QPainter::redirected(this));
 
+    bool do_system_clip = !double_buffer && (rects.size() > 1 || (br != QRect(0,0,data->crect.width(),data->crect.height())));
 
     Qt::HANDLE old_hd = d->hd;
     Qt::HANDLE old_picture = d->picture;
@@ -1464,7 +1465,7 @@ void QWidget::repaint(const QRegion& rgn)
 
     QPaintEngine *engine = paintEngine();
 
-    if (engine && do_clipping) {
+    if (engine && do_system_clip) {
         if (redirectionOffset.isNull()) {
             engine->setSystemClip(rgn);
         } else {
@@ -1480,7 +1481,7 @@ void QWidget::repaint(const QRegion& rgn)
     QPaintEvent e(rgn);
     QApplication::sendSpontaneousEvent(this, &e);
 
-    if (engine && do_clipping)
+    if (engine && do_system_clip)
         engine->setSystemClip(QRegion());
 
     if (!redirectionOffset.isNull())
@@ -1488,8 +1489,7 @@ void QWidget::repaint(const QRegion& rgn)
 
     if (double_buffer) {
         GC gc = XCreateGC(d->xinfo.display(), d->hd, 0, 0);
-        QVector<QRect> rects = rgn.rects();
-	if (testAttribute(Qt::WA_PaintUnclipped))
+        if (testAttribute(Qt::WA_PaintUnclipped))
 	    XSetSubwindowMode(X11->display, gc, IncludeInferiors);
         for (int i = 0; i < rects.size(); ++i) {
             QRect rr = d->mapToWS(rects.at(i));
@@ -2121,11 +2121,6 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
 
             QResizeEvent e(q->size(), oldSize);
             QApplication::sendEvent(q, &e);
-
-            // Process events immediately rather than in
-            // translateConfigEvent to avoid message process delay.
-            if (!q->testAttribute(Qt::WA_StaticContents))
-                q->testAttribute(Qt::WA_WState_InPaintEvent)?q->update():q->repaint();
         }
     } else {
         if (isMove && q->pos() != oldPos)

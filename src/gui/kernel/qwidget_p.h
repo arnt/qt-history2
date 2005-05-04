@@ -212,7 +212,6 @@ public:
 
 #if defined(Q_WS_X11)
     void checkChildrenDnd();
-    void removePendingPaintEvents();
     QRegion invalidated_region;
 
     void setWindowRole(const char *role);
