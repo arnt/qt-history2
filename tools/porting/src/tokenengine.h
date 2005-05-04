@@ -21,6 +21,50 @@
 #include <QSharedDataPointer>
 #include <QMap>
 
+template <class T> class QExplicitlySharedDataPointer
+{
+public:
+    inline T *operator->() { return d; }
+    inline const T *operator->() const { return d; }
+    inline operator T *() { return d; }
+    inline operator const T *() const { return d; }
+    inline T *data() { return d; }
+    inline const T *data() const { return d; }
+    inline const T *constData() const { return d; }
+
+    inline QExplicitlySharedDataPointer() { d = 0; }
+    inline ~QExplicitlySharedDataPointer() { if (d && !d->ref.deref()) delete d; }
+
+    explicit inline QExplicitlySharedDataPointer(T *data);
+    inline QExplicitlySharedDataPointer(const QExplicitlySharedDataPointer &o) : d(o.d)
+    { if (d) d->ref.ref(); }
+    inline QExplicitlySharedDataPointer &operator=(const QExplicitlySharedDataPointer &o) {
+        if (o.d != d) {
+            T *x = o.d;
+            if (x) x->ref.ref();
+            x = qAtomicSetPtr(&d, x);
+            if (x && !x->ref.deref())
+                delete x;
+        }
+        return *this;
+    }
+    inline QExplicitlySharedDataPointer &operator=(T *o) {
+        if (o != d) {
+            T *x = o;
+            if (x) x->ref.ref();
+            x = qAtomicSetPtr(&d, x);
+            if (x && !x->ref.deref())
+                delete x;
+        }
+        return *this;
+    }
+
+    inline bool operator!() const { return !d; }
+
+private:
+    T *d;
+};
+
 namespace TokenEngine {
 
 class TokenContainer;
@@ -135,7 +179,7 @@ public:
     TokenAttributes *tokenAttributes();
     const TokenAttributes *tokenAttributes() const;
     int line(int index) const;
-    int column(int index) const; 
+    int column(int index) const;
 private:
     QExplicitlySharedDataPointer<TokenContainerData> d;
 };

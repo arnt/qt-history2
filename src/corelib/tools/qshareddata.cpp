@@ -186,7 +186,7 @@
 
 /*! \fn bool QSharedDataPointer::operator==(const QSharedDataPointer<T> &other) const
 
-    Returns a true if the pointer to the shared object in \a other is equal to 
+    Returns a true if the pointer to the shared object in \a other is equal to
     to the pointer to the shared data in this else returns false.
 
     This function does not call detach().
@@ -194,7 +194,7 @@
 
 /*! \fn bool QSharedDataPointer::operator!=(const QSharedDataPointer<T> &other) const
 
-    Returns a true if the pointer to the shared object in \a other is not equal to 
+    Returns a true if the pointer to the shared object in \a other is not equal to
     to the pointer to the shared data in this else returns false.
 
     This function does not call detach().
@@ -265,13 +265,4 @@
 
     This function is automatically called by QSharedDataPointer when
     necessary. You should never need to call it yourself.
-*/
-
-/*! \class QExplicitlySharedDataPointer
-    \brief The QExplicitlySharedDataPointer class is an internal class
-    supporting shared data objects.
-
-    \internal
-
-    \ingroup misc
 */
