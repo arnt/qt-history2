@@ -999,10 +999,13 @@ QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) con
     } else {
         for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange range = selection.at(i);
-            QPoint tl = visualRect(range.topLeft()).topLeft();
-            QPoint br = visualRect(range.bottomRight()).bottomRight();
-            tl.setX(columnViewportPosition(range.left())); // get the branches too
-            selectionRegion += QRegion(QRect(tl, br));
+            QRect tl = visualRect(range.topLeft());
+            QRect br = visualRect(range.bottomRight());
+            if (isRightToLeft()) // get the branches too
+                br.setRight(columnViewportPosition(range.left()));
+            else
+                tl.setLeft(columnViewportPosition(range.left()));
+            selectionRegion += QRegion(tl|br);
         }
     }
 

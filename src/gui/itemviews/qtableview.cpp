@@ -666,9 +666,9 @@ QRegion QTableView::visualRegionForSelection(const QItemSelection &selection) co
             QItemSelectionRange range = selection.at(i);
             if (range.parent() != rootIndex() || !range.isValid())
                 continue;
-            QPoint tl = visualRect(range.topLeft()).topLeft();
-            QPoint br = visualRect(range.bottomRight()).bottomRight();
-            selectionRegion += QRegion(QRect(tl, br));
+            QRect tl = visualRect(range.topLeft());
+            QRect br = visualRect(range.bottomRight());
+            selectionRegion += QRegion(tl|br);
         }
     }
 
