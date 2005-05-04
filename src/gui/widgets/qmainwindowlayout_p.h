@@ -51,7 +51,7 @@ public:
 
     void addToolBarBreak(Qt::ToolBarArea area);
     void insertToolBarBreak(QToolBar *before);
-    void addToolBar(Qt::ToolBarArea area, QToolBar *toolbar);
+    void addToolBar(Qt::ToolBarArea area, QToolBar *toolbar, bool needAddChildWidget = true);
     void insertToolBar(QToolBar *before, QToolBar *toolbar);
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
 

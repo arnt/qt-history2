@@ -241,10 +241,14 @@ void QMainWindowLayout::insertToolBarBreak(QToolBar *before)
 /*!
     Adds \a toolbar to \a area, continuing the current line.
 */
-void QMainWindowLayout::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
+void QMainWindowLayout::addToolBar(Qt::ToolBarArea area,
+                                   QToolBar *toolbar,
+                                   bool needAddChildWidget)
 {
-    addChildWidget(toolbar);
-    removeToolBarInfo(toolbar);
+    if (needAddChildWidget)
+        addChildWidget(toolbar);
+    else
+        removeToolBarInfo(toolbar);
 
     POSITION pos = positionForArea(area);
     // see if we have an existing line in the tb - append it in the last in line
@@ -276,7 +280,7 @@ void QMainWindowLayout::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 
     // no line to continue, add one and recurse
     addToolBarBreak(area);
-    addToolBar(area, toolbar);
+    addToolBar(area, toolbar, false);
 }
 
 /*!
@@ -284,12 +288,13 @@ void QMainWindowLayout::addToolBar(Qt::ToolBarArea area, QToolBar *toolbar)
 */
 void QMainWindowLayout::insertToolBar(QToolBar *before, QToolBar *toolbar)
 {
+    addChildWidget(toolbar);
+
     for (int line = 0; line < tb_layout_info.size(); ++line) {
         const ToolBarLineInfo &lineInfo = tb_layout_info.at(line);
 	for (int i = 0; i < lineInfo.list.size(); ++i) {
 	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
 	    if (info.item->widget() == before) {
-                addChildWidget(toolbar);
 
                 ToolBarLayoutInfo newInfo;
                 newInfo.item = new QWidgetItem(toolbar);
@@ -2054,7 +2059,7 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
         }
     } else {
         TBDEBUG() << "changed area";
-        addToolBar(static_cast<Qt::ToolBarArea>(areaForPosition(where)), toolbar);
+        addToolBar(static_cast<Qt::ToolBarArea>(areaForPosition(where)), toolbar, false);
         dropToolBar(toolbar, mouse, offset);
         return;
     }
