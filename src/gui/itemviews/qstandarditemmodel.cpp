@@ -21,7 +21,7 @@
 
 /*!
     \class QStandardItemModel
-    \brief The QStandardItemModel provides a generic model for storing custom data.
+    \brief The QStandardItemModel class provides a generic model for storing custom data.
 
     QStandardItemModel provides a model that that can be used as a repository
     for standard Qt data types. Data is written to the model and read back using

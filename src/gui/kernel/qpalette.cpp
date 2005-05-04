@@ -389,6 +389,10 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     \value Base  Used as the background color for text entry widgets;
                  usually white or another light color.
 
+    \value AlternateBase  Used as the alternate background color in views with
+                          alternating row colors (see
+                          QAbstractItemView::setAlternatingRowColors()).
+
     \value Text  The foreground color used with \c Base. This is usually
                  the same as the \c Foreground, in which case it must provide
                  good contrast with \c Background and \c Base.

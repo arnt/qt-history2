@@ -2630,8 +2630,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     \class QClipboardEvent
     \ingroup events
 
-    \brief The QClipboard class provides the parameters used in a clipboard
-    event.
+    \brief The QClipboardEvent class provides the parameters used in a clipboard event.
 
     This class is for internal use only, and exists to aid the clipboard on various
     platforms to get all the information it needs.  Use QEvent::Clipboard instead.

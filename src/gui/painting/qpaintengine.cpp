@@ -230,15 +230,15 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
 
     \value X11
     \value Windows
-    \value Gdiplus (same as Windows)
-    \value QuickDraw (same as CoreGraphics)
     \value MacPrinter
     \value CoreGraphics Mac OS X
+    \value QuickDraw (same as CoreGraphics)
     \value QWindowSystem Qt/Embedded
     \value PostScript
     \value OpenGL
     \value Picture QPicture format
     \value SVG Scalable Vector Graphics XML format
+    \value Raster
     \value User First user type ID
     \value MaxUser Last user type ID
 */

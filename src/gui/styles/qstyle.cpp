@@ -1160,9 +1160,6 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_HeaderMargin
     \value PM_SpinBoxSliderHeight The height of the optional spin box slider
 
-    \value PM_CustomBase  Base value for custom ControlElements
-    Custom values must be greater than this value
-
     \value PM_DefaultTopLevelMargin
     \value PM_DefaultChildMargin
     \value PM_DefaultLayoutSpacing
@@ -1175,6 +1172,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value PM_FocusFrameVMargin Vertical margin that the focus frame will outset the widget by.
     \value PM_IconViewIconSize
     \value PM_ListViewIconSize
+
+    \value PM_ToolTipLabelFrameWidth
+
+    \value PM_CustomBase  Base value for custom ControlElements
+    Custom values must be greater than this value
 
     \sa pixelMetric()
 */
@@ -1418,11 +1420,11 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     spinbox key presses.
     \value SH_SpinBox_ClickAutoRepeatRate  Auto-repeat interval for
     spinbox mouse clicks.
-    \value SH_TipLabel_Opacity  An integer indicating the opacity for
+    \value SH_ToolTipLabel_Opacity  An integer indicating the opacity for
     the tip label, 0 is completely transparent, 255 is completely
     opaque.
     \value SH_DrawMenuBarSeparator  Indicates whether or not the menubar draws separators.
-    \value SH_TitlebarModifyNotification  Indicates if the titlebar should show
+    \value SH_TitleBarModifyNotification  Indicates if the titlebar should show
     a '*' for windows that are modified.
 
     \value SH_Button_FocusPolicy The default focus policy for buttons.
@@ -1466,10 +1468,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_ItemView_EllipsisLocation The location where ellipses should be
     added for item text that is too long to fit in an view item.
 
-    \value SH_TreeView_ShowBranchSelected When an item in the tree view is selected,
-    also highlight the branch.
+    \value SH_ItemView_ShowDecorationSelected When an item in an item
+    view is selected, also highlight the branch or other decoration.
 
-     \omitvalue SH_UnderlineAccelerator
+    \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()
 */

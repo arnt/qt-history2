@@ -56,7 +56,7 @@ bool qSharedBuild()
 
 /*!
     \class QSysInfo
-    \brief The QSysInfo provides information about the system.
+    \brief The QSysInfo class provides information about the system.
 
     \ingroup misc
 

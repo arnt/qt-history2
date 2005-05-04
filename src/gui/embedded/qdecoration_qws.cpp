@@ -93,6 +93,8 @@
     \value Help     The region occupied by the window's help button. Clicking
                     in this region causes the context-sensitive help function
                     to be enabled.
+    \value Resize   The region that the user can click to resize the window.
+    \value Move     The region that the user can click to move the window.
     \omitvalue None
 */
 
