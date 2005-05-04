@@ -49,26 +49,25 @@ public:
     original signalling object. Mappings can be removed later using
     removeMappings().
 
-    Example:
-
-    Suppose we want to create a custom widget that contains a group of
-    buttons (like a tool palette). One approach is to connect each
-    button's clicked() signal to its own custom slot; but in this
-    example we want to connect all the buttons to a single slot and
-    parameterize the slot by the button that was clicked.
+    Example: Suppose we want to create a custom widget that contains
+    a group of buttons (like a tool palette). One approach is to
+    connect each button's clicked() signal to its own custom slot;
+    but in this example we want to connect all the buttons to a
+    single slot and parameterize the slot by the button that was
+    clicked.
 
     Here's the definition of a simple custom widget that has a single
     signal, clicked(), which is emitted with the caption of the button
     that was clicked:
 
-    \quotefile qsignalmapper/buttonwidget.h
+    \quotefromfile snippets/qsignalmapper/buttonwidget.h
     \skipto QWidget
     \printuntil QSignalMapper
     \printuntil };
 
     The only function that we need to implement is the constructor:
 
-    \quotefile qsignalmapper/buttonwidget.cpp
+    \quotefromfile snippets/qsignalmapper/buttonwidget.cpp
     \skipto ButtonWidget
     \printuntil connect
     \printuntil connect

@@ -400,13 +400,6 @@ void QDirPrivate::detach(bool createFileEngine)
 */
 
 /*!
-    \enum QDir::Recursion
-
-    \value Recursive
-    \value NonRecursive
-*/
-
-/*!
     Constructs a QDir pointing to the given directory \a path. If path
     is empty the program's working directory, ("."), is used.
 
@@ -1131,9 +1124,9 @@ QFileInfoList QDir::entryInfoList(const QStringList &nameFilters, Filters filter
 }
 
 /*!
-    Creates a directory.
+    Creates a sub-directory called \a dirName.
 
-    Returns true if successful; otherwise returns false.
+    Returns true on success; otherwise returns false.
 
     \sa rmdir()
 */

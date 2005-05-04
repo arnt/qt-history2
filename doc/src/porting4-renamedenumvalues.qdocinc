@@ -55,6 +55,11 @@
 \row \o QImage::ScaleFree \o Qt::IgnoreAspectRatio
 \row \o QImage::ScaleMax \o Qt::KeepAspectRatioByExpanding
 \row \o QImage::ScaleMin \o Qt::KeepAspectRatio
+\row \o QKeySequence::Identical \o QKeySequence::ExactMatch
+\row \o QLayout::Auto \o QLayout::SetDefaultConstraint
+\row \o QLayout::Fixed \o QLayout::SetFixedSize
+\row \o QLayout::FreeResize \o QLayout::SetNoConstraint
+\row \o QLayout::Minimum \o QLayout::SetMinimumSize
 \row \o QMacStyle::SizeNone \o QMacStyle::SizeDefault
 \row \o QSettings::Global \o QSettings::SystemScope
 \row \o QSettings::User \o QSettings::UserScope

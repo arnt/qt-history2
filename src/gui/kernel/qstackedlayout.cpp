@@ -88,6 +88,15 @@ public:
 */
 
 /*!
+    \fn void QStackedLayout::currentChanged(int index)
+
+    This signal is emitted when the widget at position \a index is
+    made the current widget.
+
+    \sa setCurrentIndex(), setCurrentWidget()
+*/
+
+/*!
     Constructs a QStackedLayout with no parent.
 
     This QStackedLayout must be added to another layout later on to
@@ -242,7 +251,7 @@ void QStackedLayout::setCurrentIndex(int index)
             if (QWidget *nfw = next->focusWidget())
                 nfw->setFocus();
             else {
-                // second best == first child widget in the focus chain
+                // second best: first child widget in the focus chain
                 QWidget *i = fw;
                 while ((i = i->nextInFocusChain()) != fw) {
                     if (((i->focusPolicy() & Qt::TabFocus) == Qt::TabFocus)
@@ -252,7 +261,7 @@ void QStackedLayout::setCurrentIndex(int index)
                         break;
                     }
                 }
-                // third best == incoming widget
+                // third best: incoming widget
                 if (i == fw )
                     next->setFocus();
             }
@@ -273,15 +282,15 @@ int QStackedLayout::currentIndex() const
 
 
 /*!
-   Sets \w to be the current widget. \w must be contained in this
-   stacked layout.
+   Sets \a widget to be the current widget. \a widget must be
+   contained in this stacked layout.
 
   \sa setCurrentIndex(), currentWidget()
  */
-void QStackedLayout::setCurrentWidget(QWidget *w)
+void QStackedLayout::setCurrentWidget(QWidget *widget)
 {
-    Q_ASSERT_X(indexOf(w) >= 0, "QStackedLayout::setCurrentWidget", "widget not contained in stack");
-    setCurrentIndex(indexOf(w));
+    Q_ASSERT_X(indexOf(widget) >= 0, "QStackedLayout::setCurrentWidget", "widget not contained in stack");
+    setCurrentIndex(indexOf(widget));
 }
 
 

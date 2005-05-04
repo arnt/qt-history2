@@ -140,7 +140,7 @@
     function, so we need to reimplement that function. We need the
     following class declaration:
 
-    \quotefile customstyle/customstyle.h
+    \quotefile snippets/customstyle/customstyle.h
     \skipto class CustomStyle
     \printuntil };
 
@@ -149,7 +149,7 @@
     Here's how to reimplement drawPrimitive() to draw them
     differently:
 
-    \quotefile customstyle/customstyle.cpp
+    \quotefile snippets/customstyle/customstyle.cpp
     \skipto CustomStyle::drawPrimitive
     \printuntil QWindowsStyle::drawPrimitive
     \printline }
@@ -186,7 +186,7 @@
     QApplication::setStyle() static function before creating the
     QApplication object:
 
-    \include customstyle/main.cpp
+    \include snippets/customstyle/main.cpp
 
     You can call QApplication::setStyle() at any time, but by calling
     it before the constructor, you ensure that the user's preference,

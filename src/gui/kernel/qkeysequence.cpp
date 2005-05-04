@@ -76,6 +76,7 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
     \value PartialMatch The key sequences match partially, but are not
     the same.
     \value ExactMatch The key sequences are the same.
+    \omitvalue Identical
 */
 
 static struct {
@@ -724,6 +725,9 @@ bool QKeySequence::operator< (const QKeySequence &other) const
     \sa operator==() operator!=() operator<() operator>() operator<=()
 */
 
+/*!
+    \internal
+*/
 bool QKeySequence::isDetached() const
 {
     return d->ref == 1;

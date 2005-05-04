@@ -797,7 +797,7 @@ QRect QGridLayoutPrivate::cellRect(int row, int col) const
     there are equivalent functions for rows.
 
     Each column has a minimum width and a stretch factor. The minimum
-    width is the greatest of that set using setColumnSpacing() and the
+    width is the greatest of that set using setColumnMinimumWidth() and the
     minimum width of each widget in that column. The stretch factor is
     set using setColumnStretch() and determines how much of the available
     space the column will get over and above its necessary minimum.
@@ -820,7 +820,7 @@ QRect QGridLayoutPrivate::cellRect(int row, int col) const
 
     Columns 0, 2 and 4 in this dialog fragment are made up of a
     QLabel, a QLineEdit, and a QListBox. Columns 1 and 3 are
-    placeholders made with setColumnSpacing(). Row 0 consists of three
+    placeholders made with setColumnMinimumWidth(). Row 0 consists of three
     QLabel objects, row 1 of three QLineEdit objects and row 2 of
     three QListBox objects. We used placeholder columns (1 and 3) to
     get the right amount of space between the columns.
@@ -828,7 +828,7 @@ QRect QGridLayoutPrivate::cellRect(int row, int col) const
     Note that the columns and rows are not equally wide or tall. If
     you want two columns to have the same width, you must set their
     minimum widths and stretch factors to be the same yourself. You do
-    this using setColumnSpacing() and setColumnStretch().
+    this using setColumnMinimumWidth() and setColumnStretch().
 
     If the QGridLayout is not the top-level layout (i.e. does not
     manage all of the widget's area and children), you must add it to
@@ -1062,6 +1062,8 @@ int QGridLayout::minimumHeightForWidth(int w) const
 
 #ifdef QT3_SUPPORT
 /*!
+    \compat
+
     Searches for widget \a w in this layout (not including child
     layouts). If \a w is found, it sets \c{*}\a{row} and
     \c{*}\a{column} to the row and column that the widget
@@ -1070,7 +1072,7 @@ int QGridLayout::minimumHeightForWidth(int w) const
     If the widget spans multiple rows/columns, the top-left cell
     is returned.
 
-    Use indexOf() and getItemPosition() instead
+    Use indexOf() and getItemPosition() instead.
 */
 bool QGridLayout::findWidget(QWidget* w, int *row, int *column)
 {
@@ -1386,7 +1388,7 @@ void QGridLayout::setColumnStretch(int column, int stretch)
 /*!
     Sets the minimum height of row \a row to \a minSize pixels.
 
-    \sa rowMinimumHeight(), setColumnSpacing()
+    \sa rowMinimumHeight(), setColumnMinimumWidth()
 */
 void QGridLayout::setRowMinimumHeight(int row, int minSize)
 {
@@ -1419,7 +1421,7 @@ void QGridLayout::setColumnMinimumWidth(int column, int minSize)
 /*!
     Returns the column spacing for column \a column.
 
-    \sa setColumnSpacing()
+    \sa setColumnMinimumWidth()
 */
 int QGridLayout::columnMinimumWidth(int column) const
 {
@@ -1533,7 +1535,7 @@ void QGridLayout::invalidate()
 /*!
     \fn void QGridLayout::setColSpacing(int col, int minSize)
 
-    Use setColumnSpacing() instead.
+    Use setColumnMinimumWidth() instead.
 */
 
 /*!
@@ -1542,5 +1544,34 @@ void QGridLayout::invalidate()
     Use columnSpacing() instead.
 */
 
+/*!
+    \fn void QGridLayout::setRowSpacing(int row, int minSize)
+
+    Use setRowMinimumHeight(\a row, \a minSize) instead.
+*/
+
+/*!
+    \fn int QGridLayout::rowSpacing(int row) const
+
+    Use rowMinimumHeight(\a row) instead.
+*/
+
+/*!
+    \fn QRect QGridLayout::cellGeometry(int row, int column) const
+
+    Use cellRect(\a row, \a column) instead.
+*/
+
+/*!
+    \fn void QGridLayout::setOrigin(Qt::Corner corner)
+
+    Use setOriginCorner(\a corner) instead.
+*/
+
+/*!
+    \fn Qt::Corner QGridLayout::origin() const
+
+    Use originCorner() instead.
+*/
 
 #endif // QT_NO_LAYOUT

@@ -57,15 +57,15 @@
     \skipto ::polish
     \printuntil painter.end()
 
-    The \l{QStyle::polish(QPalette &)}{polish()} function is
-    reimplemented from QStyle. It takes a QPalette as a reference and
-    adapts the palette to fit the style. Most styles don't need to
-    reimplement that function. The Norwegian Wood style reimplements
-    it to set a "wooden" palette.
+    The \c polish() function is reimplemented from QStyle. It takes a
+    QPalette as a reference and adapts the palette to fit the style.
+    Most styles don't need to reimplement that function. The
+    Norwegian Wood style reimplements it to set a "wooden" palette.
 
     We start by defining a few \l{QColor}s that we'll need. Then we
     load two PNG images. The \c : prefix in the file path indicates
-    that the PNG files are embedded \l{resources}.
+    that the PNG files are \l{The Qt Resource System}{embedded
+    resources}.
 
     \table
     \row \o \inlineimage widgets/styles/images/woodbackground.png
@@ -172,7 +172,7 @@
     bar, to be 4 pixels more than in the Motif style. This makes the
     style a bit more distinctive.
 
-    For all other \l{PixelMetric} elements, we use the Motif
+    For all other QStyle::PixelMetric elements, we use the Motif
     settings.
 
     \printline ::styleHint

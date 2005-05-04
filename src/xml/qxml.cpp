@@ -2145,7 +2145,7 @@ events are reported.
     it we can use the same handler for both of the following
     reader functions:
 
-    \quotefile xml/rsslisting/rsslisting.cpp
+    \quotefile snippets/xml/rsslisting/rsslisting.cpp
     \skipto xmlReader.setContentHandler
     \printuntil setErrorHandler(handler);
 
@@ -2153,7 +2153,7 @@ events are reported.
     necessary to reimplement QXmlErrorHandler::fatalError() if, for
     example, we want to stop parsing when such an error occurs:
 
-    \quotefile xml/rsslisting/handler.cpp
+    \quotefile snippets/xml/rsslisting/handler.cpp
     \skipto bool Handler::fatalError
     \printuntil }
 
@@ -2779,7 +2779,7 @@ void QXmlSimpleReaderPrivate::initIncrementalParsing()
     create a reader, and define an input source to be used by the
     reader:
 
-    \quotefile xml/simpleparse/main.cpp
+    \quotefile snippets/xml/simpleparse/main.cpp
     \skipto QXmlSimpleReader
     \printuntil (file);
 
@@ -2790,7 +2790,7 @@ void QXmlSimpleReaderPrivate::initIncrementalParsing()
     handler by subclassing QXmlDefaultHandler, and use this to handle
     both error and content events:
 
-    \quotefile xml/simpleparse/main.cpp
+    \quotefile snippets/xml/simpleparse/main.cpp
     \skipto Handler *handler
     \printuntil setErrorHandler(handler);
 
@@ -2802,7 +2802,7 @@ void QXmlSimpleReaderPrivate::initIncrementalParsing()
     single pass using the parse() function with an argument that
     specifies the input source:
 
-    \quotefile xml/simpleparse/main.cpp
+    \quotefile snippets/xml/simpleparse/main.cpp
     \skipto bool ok
     \printuntil endl;
 

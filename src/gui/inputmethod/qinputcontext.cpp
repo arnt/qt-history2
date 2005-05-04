@@ -299,11 +299,11 @@ QWidget *QInputContext::focusWidget() const
 
     \sa focusWidget()
 */
-void QInputContext::setFocusWidget(QWidget *w)
+void QInputContext::setFocusWidget(QWidget *widget)
 {
-    Q_ASSERT(!w || w->testAttribute(Qt::WA_InputMethodEnabled));
+    Q_ASSERT(!widget || widget->testAttribute(Qt::WA_InputMethodEnabled));
     Q_D(QInputContext);
-    d->focusWidget = w;
+    d->focusWidget = widget;
 }
 
 /*!
@@ -318,7 +318,6 @@ void QInputContext::setFocusWidget(QWidget *w)
 
     \sa sendIMEvent()
 */
-
 
 /*!
     This function can be reimplemented in a subclass to filter input
@@ -416,7 +415,7 @@ void QInputContext::mouseHandler(int /*x*/, QMouseEvent *event)
 
 /*!
     Returns the font of the current input widget
- */
+*/
 QFont QInputContext::font() const
 {
     Q_D(const QInputContext);
@@ -427,24 +426,28 @@ QFont QInputContext::font() const
 }
 
 /*!
-  Is called when a state in the focus widget has changed. QInputContext
-  can then use QWidget::inputMethodQuery() to query the new state of the
-  widget.
+    This virtual function is called when a state in the focus widget
+    has changed. QInputContext can then use
+    QWidget::inputMethodQuery() to query the new state of the widget.
 */
 void QInputContext::update()
 {
 }
 
-
-void QInputContext::widgetDestroyed(QWidget *w)
+/*!
+    This virtual function is called when the specified \a widget is
+    destroyed. The \a widget is a widget on which this input context
+    is installed.
+*/
+void QInputContext::widgetDestroyed(QWidget *widget)
 {
     Q_D(QInputContext);
-    if (w == d->focusWidget)
+    if (widget == d->focusWidget)
         setFocusWidget(0);
 }
 
 /*!
-  \fn void QInputContext::reset()
+    \fn void QInputContext::reset()
 
     This function can be reimplemented in a subclass to reset the
     state of the input method.
@@ -505,13 +508,26 @@ void QInputContext::widgetDestroyed(QWidget *w)
 
 
 /*!
-    This is a preliminary interface for Qt4
- */
+    This is a preliminary interface for Qt 4.
+*/
 QList<QAction *> QInputContext::actions()
 {
     return QList<QAction *>();
 }
 
+/*!
+    \enum QInputContext::StandardFormat
+
+    \value PreeditFormat  The preedit text.
+    \value SelectionFormat  The selection text.
+
+    \sa standardFormat()
+*/
+
+/*!
+    Returns a QTextFormat object that specifies the format for
+    component \a s.
+*/
 QTextFormat QInputContext::standardFormat(QInputContext::StandardFormat s) const
 {
     QWidget *focus = focusWidget();
@@ -522,7 +538,7 @@ QTextFormat QInputContext::standardFormat(QInputContext::StandardFormat s) const
     switch (s) {
     case QInputContext::PreeditFormat: {
         fmt.setFontUnderline(true);
-        int h1, s1, v1, h2, s2, v2;
+        int h1, s1, v1, h2, s2, v2;
         pal.color(QPalette::Base).getHsv(&h1, &s1, &v1);
         pal.color(QPalette::Background).getHsv(&h2, &s2, &v2);
         bg.setHsv(h1, s1, (v1 + v2) / 2);

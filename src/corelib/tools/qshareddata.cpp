@@ -68,7 +68,7 @@
     source code for an implicitly shared Employee class. Here's the
     header file that defines the Employee class:
 
-    \include sharedemployee/employee.h
+    \include snippets/sharedemployee/employee.h
 
     All accesses to the data in the setter and getter functions are
     made through the QSharedDataPointer object \c d. For non-const
@@ -83,7 +83,7 @@
 
     Let's now see how to implement the Employee constructors:
 
-    \quotefile sharedemployee/employee.cpp
+    \quotefile snippets/sharedemployee/employee.cpp
 
     \skipto ::Employee()
     \printuntil }

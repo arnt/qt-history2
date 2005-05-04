@@ -1172,34 +1172,3 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
 
     \sa QBitmap, QImage, QImageReader, {shclass.html}{Shared Classes}
 */
-
-/*!
-    \enum QPixmap::HBITMAPFormat This enum defines how an HBITMAP is
-    converted into a QPixmap.
-
-    \value NoAlpha The alpha channel is ignored and always treated
-    as being set to fully opaque. This is preferred if the HBITMAP
-    is used with standard GDI calls, such as BitBlt.
-
-    \value PremultipliedAlpha The HBITMAP is treated as having
-    alphachannel and premultiplied colors. This is preferred
-    if the HBITMAP is accessed using the GDI function AlphaBlend.
-*/
-
-/*!
-    \fn HBITMAP QPixmap::toWinHBITMAP(HBITMAPFormat format) const
-
-    Creates an HBITMAP object and copies the pixel data of this pixmap
-    into it based on the specified \a format.
-
-    The ownership of the HBITMAP object is passed to the caller of
-    this function.
-*/
-
-/*!
-    \fn QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap)
-
-    Creates a QPixmap object and copies the pixel data of \a hbitmap
-    into it based on the specified \a format.
-
-*/

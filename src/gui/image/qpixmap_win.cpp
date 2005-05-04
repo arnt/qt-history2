@@ -60,23 +60,30 @@ QPixmap QPixmap::grabWindow(WId winId, int x, int y, int w, int h )
     return pixmap;
 }
 
+
+
 /*!
     \enum QPixmap::HBitmapFormat
 
-    This specifies the underlying format used to store the \c HBITMAP
-    object:
+    This enum defines how the conversion between \c HBITMAP
+    and QPixmap is performed.
 
-    \value NoAlpha  The bitmap has no alpha channel.
-    \value PremultipliedAlpha  The bitmap has a premultiplied alpha channel.
+    \value NoAlpha The alpha channel is ignored and always treated as
+    being set to fully opaque. This is preferred if the \c HBITMAP is
+    used with standard GDI calls, such as \c BitBlt().
 
-    \warning This function is only available on Windows.
+    \value PremultipliedAlpha The \c HBITMAP is treated as having a
+    alpha channel and premultiplied colors. This is preferred if the
+    \c HBITMAP is accessed through the \c AlphaBlend() GDI function.
 
-    \sa fromWinoHBITMAP(), toWinoHBITMAP()
+    \warning This enum is only available on Windows.
+
+    \sa fromWinHBITMAP(), toWinHBITMAP()
 */
 
 /*!
-    Creates a \c HBITMAP equivalent to the QPixmap, with the given \a
-    format, and returns the \c HBITMAP handle.
+    Creates a \c HBITMAP equivalent to the QPixmap, based on the
+    given \a format, and returns the \c HBITMAP handle.
 
     It is the caller's responsibility to free the \c HBITMAP data
     after use.
@@ -128,17 +135,17 @@ HBITMAP QPixmap::toWinHBITMAP(HBitmapFormat format) const
 }
 
 /*!
-    Returns a QPixmap that is equivalent to the bitmap \c HBITMAP
+    Returns a QPixmap that is equivalent to the given \c bitmap
     which has the specified \a format.
 
     \sa toWinHBITMAP()
 */
-QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap, HBitmapFormat format)
+QPixmap QPixmap::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
 {
     // Verify size
     BITMAP bitmap_info;
     memset(&bitmap_info, 0, sizeof(BITMAP));
-    if (!GetObject(hbitmap, sizeof(BITMAP), &bitmap_info)) {
+    if (!GetObject(bitmap, sizeof(BITMAP), &bitmap_info)) {
         qErrnoWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap info");
         return QPixmap();
     }
@@ -158,7 +165,7 @@ QPixmap QPixmap::fromWinHBITMAP(HBITMAP hbitmap, HBitmapFormat format)
     QImage result;
     // Get bitmap bits
     uchar *data = (uchar *) qMalloc(bmi.bmiHeader.biSizeImage);
-    if (GetDIBits(qt_win_display_dc(), hbitmap, 0, h, data, &bmi, DIB_RGB_COLORS)) {
+    if (GetDIBits(qt_win_display_dc(), bitmap, 0, h, data, &bmi, DIB_RGB_COLORS)) {
 
         QImage::Format imageFormat = QImage::Format_ARGB32_Premultiplied;
         uint mask = 0;

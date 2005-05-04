@@ -1062,10 +1062,12 @@ int QLayout::indexOf(QWidget *w) const
 
     The possible values are:
 
-    \value SetDefaultConstraint The default. (not yet documented)
+    \value SetDefaultConstraint The main widget's minimum size is set
+                    to minimumSize(), unless the widget already has
+                    a minimum size.
 
     \value SetFixedSize The main widget's size is set to sizeHint(); it
-                  cannot be resized at all.
+                    cannot be resized at all.
     \value SetMinimumSize  The main widget's minimum size is set to
                     minimumSize(); it cannot be smaller.
 
@@ -1077,17 +1079,21 @@ int QLayout::indexOf(QWidget *w) const
                     maximumSize().
 
     \value SetNoConstraint  The widget is not constrained.
+
+    \omitvalue Auto
+    \omitvalue FreeResize
+    \omitvalue Minimum
+    \omitvalue Fixed
+
+    \sa setSizeConstraint()
 */
 
 /*!
     \property QLayout::sizeConstraint
     \brief the resize mode of the layout
 
-    The default mode is \c SetDefaultConstraint.
-
-    \sa QLayout::SizeConstraint
+    The default mode is \l SetDefaultConstraint.
 */
-
 void QLayout::setSizeConstraint(SizeConstraint constraint)
 {
     Q_D(QLayout);
@@ -1273,5 +1279,17 @@ QSize QLayout::closestAcceptableSize(const QWidget *w, QSize s)
     }
     return result;
 }
+
+/*!
+    \fn void QLayout::setResizeMode(SizeConstraint constraint)
+
+    Use setSizeConstraint(\a constraint) instead.
+*/
+
+/*!
+    \fn QLayout::SizeConstraint QLayout::resizeMode() const
+
+    Use sizeConstraint() instead.
+*/
 
 #endif // QT_NO_LAYOUT

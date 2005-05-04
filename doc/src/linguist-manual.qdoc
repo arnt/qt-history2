@@ -106,10 +106,10 @@
     section of the project file for each language that is additional to
     the native language. A typical entry looks like this:
 
-    \quotefromfile tt2/tt2.pro
+    \quotefromfile linguist/arrowpad/arrowpad.pro
     \skipto TRANSLATIONS
-    \printline tt2_fr
-    \printline tt2_nl
+    \printline _fr
+    \printline _nl
 
     Using a locale within the translation file name is useful for
     determining which language to load at runtime. This is explained in
@@ -405,7 +405,7 @@
     Later versions of \e {Qt Linguist} are expected to help the
     translator avoid accelerator conflicts.
 
-    \section2 Dealing with Phrases that Contain Variables
+    \section2 Dealing with Phrases That Contain Variables
 
     Some phrases contain variables. Variables are placeholders for items of
     text that are filled in at runtime. They are signified in the source
@@ -811,7 +811,8 @@
     For \l lupdate to work successfully, it must know which translation
     files to produce. The files are simply listed in the application's \c
     .pro Qt project file, for example:
-    \quotefromfile  tt2/tt2.pro
+
+    \quotefromfile linguist/arrowpad/arrowpad.pro
     \skipto TRANSLATIONS
     \printline TRANSLATIONS
     \printline
@@ -820,14 +821,14 @@
 
     \section2 Loading Translations
 
-    \quotefromfile  tt1/main.cpp
+    \quotefromfile linguist/hellotr/main.cpp
     \skipto main(
     \printline main(
     \printuntil QApplication
 
     This is how a simple \c main() function of a Qt application begins.
 
-    \quotefromfile tt1/main.cpp
+    \quotefromfile linguist/hellotr/main.cpp
     \skipto main(
     \printline main(
     \printuntil app.installTrans
@@ -836,7 +837,7 @@
     translation is loaded and the translator object installed into the
     application.
 
-    \quotefromfile tt2/main.cpp
+    \quotefromfile linguist/arrowpad/main.cpp
     \skipto main(
     \printline main(
     \printuntil app.installTrans
@@ -905,7 +906,7 @@
 
     Ctrl key accelerators are also translatable:
 
-    \quotefromfile tt3/mainwindow.cpp
+    \quotefromfile linguist/trollprint/mainwindow.cpp
     \skipto quit()
     \printline quit()
     \printuntil Quit
@@ -914,7 +915,7 @@
     for Ctrl key accelerators. The second argument is the only clue the
     translator has as to the function performed by the accelerator.
 
-    \section2 Helping The Translator With Navigation Information
+    \section2 Helping the Translator with Navigation Information
 
     In large complex applications it may be difficult for the translator to
     see where a particular source text comes from. This problem can be
@@ -957,7 +958,7 @@
     After the comment, all references to \c MyClass::tr() will be
     understood as meaning \c MyNamespace::MyClass::tr().
 
-    \section2 Translating Text that is Outside of a QObject subclass
+    \section2 Translating Text That is Outside of a QObject Subclass
 
     \section3 Using QCoreApplication::translate()
 
@@ -1051,6 +1052,6 @@
     text in \c tr() calls. They should also use the two argument form for
     Ctrl key accelerators, or when asked by the translator for the cases
     where the same text translates into two different forms in the same
-    context. The programmer should also include \e TRANSLATION comments to
+    context. The programmer should also include \c TRANSLATION comments to
     help the translator navigate the application.
 */
