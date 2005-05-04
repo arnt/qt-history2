@@ -205,7 +205,7 @@ static bool uncListSharesOnServer(const QString &server, QStringList *list)
         DWORD res;
         DWORD er=0,tr=0,resume=0, i;
         do {
-            res = ptrNetShareEnum_NT((wchar_t*)server.utf16(), 1, (LPBYTE *)&BufPtr, -1, &er, &tr, &resume);
+            res = ptrNetShareEnum_NT((wchar_t*)server.utf16(), 1, (LPBYTE *)&BufPtr, DWORD(-1), &er, &tr, &resume);
             if (res == ERROR_SUCCESS || res == ERROR_MORE_DATA) {
                 p=BufPtr;
                 for (i = 1; i <= er; ++i) {
@@ -829,8 +829,8 @@ bool QFSFileEnginePrivate::doStat() const
         } else {
             QString statName = QDir::convertSeparators(file);
             // Stat on windows doesn't accept d: without \ so append \ it if this is the case.
-            // It also does not accept c:\dir\ so remove it unless if is drive c:\
-            // but it does want just \
+            // It also does not accept c:\dir\ so remove it unless if is drive "c:\"
+            // but it does want just "\"
 
             if ((statName.length() == 2 || statName.length() == 3) && statName.at(1) == ':') {
                 if (statName.length() == 2)

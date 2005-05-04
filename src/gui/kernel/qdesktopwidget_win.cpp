@@ -354,8 +354,10 @@ QWidget *QDesktopWidget::screen(int /*screen*/)
 // Therefore, we ignore that warning with the following pragmas
 // I've also tried to eliminate the macro, but to no use...
 // We pop it further down
-#pragma warning(push)
-#pragma warning(disable : 4189)
+#ifdef Q_CC_MSVC
+# pragma warning(push)
+# pragma warning(disable : 4189)
+#endif
 const QRect QDesktopWidget::availableGeometry(int screen) const
 {
     Q_D(const QDesktopWidget);
@@ -512,7 +514,9 @@ void QDesktopWidget::resizeEvent(QResizeEvent *)
 #endif
 }
 
-#pragma warning(pop)
+#ifdef Q_CC_MSVC
+# pragma warning(pop)
+#endif
 
 /*! \fn void QDesktopWidget::resized(int screen)
     This signal is emitted when the size of \a screen changes.

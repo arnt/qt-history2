@@ -1060,7 +1060,8 @@ QString QLastResortMimes::mimeForFormat(const FORMATETC &formatetc) const
 {
     QString format = formats.value(getCf(formatetc));
     if (format.isEmpty()) {
-        QByteArray ba(256);
+        QByteArray ba;
+        ba.resize(256);
         int len = GetClipboardFormatNameA(getCf(formatetc), ba.data(), 255);
         if (len) {
             QString clipFormat = QString::fromLocal8Bit(ba.data(), len);

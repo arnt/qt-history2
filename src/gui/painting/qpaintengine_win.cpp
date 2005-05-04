@@ -73,7 +73,6 @@
 Q_DECLARE_TYPEINFO(POINT, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(RECT, Q_PRIMITIVE_TYPE);
 
-static void qt_resolve_gdiplus();
 static QPaintEngine::PaintEngineFeatures qt_decide_paintengine_features();
 static void qMaskedBlt(HDC hdcDest, int x, int y, int w, int h,
                        HDC hdcSrc, int sx, int sy,

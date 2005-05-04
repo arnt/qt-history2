@@ -162,7 +162,7 @@ class QRasterBuffer
 {
 public:
 #if defined(Q_WS_WIN)
-    QRasterBuffer() : m_hdc(0), m_bitmap(0), m_buffer(0), m_width(0), m_height(0) { init(); }
+    QRasterBuffer() : m_hdc(0), m_bitmap(0), m_width(0), m_height(0), m_buffer(0) { init(); }
 
     HDC hdc() const { return m_hdc; }
 #elif defined(Q_WS_X11)
