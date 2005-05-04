@@ -1047,7 +1047,6 @@ glyph_metrics_t QTextEngine::boundingBox(int from,  int len) const
 
 QFont QTextEngine::font(const QScriptItem &si) const
 {
-    QFontPrivate *fp = fnt;
     if (block.docHandle()) {
         QTextFormat f = format(&si);
         Q_ASSERT(f.isCharFormat());
@@ -1060,7 +1059,7 @@ QFont QTextEngine::font(const QScriptItem &si) const
 
         return fnt;
     }
-    return QFont(fp);
+    return QFont(fnt);
 }
 
 QFont QTextEngine::font() const
