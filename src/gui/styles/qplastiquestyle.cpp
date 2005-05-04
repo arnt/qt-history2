@@ -1029,8 +1029,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_PanelToolBar: {
         // Draws the light line above and the dark line below menu bars and
         // tool bars.
-        painter->save();
-        if (option->state & State_Horizontal) {
+        QPen oldPen = painter->pen();
+        if (element == PE_PanelMenuBar || (option->state & State_Horizontal)) {
             painter->setPen(alphaCornerColor);
             painter->drawLine(option->rect.left(), option->rect.bottom(),
                               option->rect.right(), option->rect.bottom());
@@ -1038,14 +1038,14 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->drawLine(option->rect.left(), option->rect.top(),
                               option->rect.right(), option->rect.top());
         } else {
-            painter->setPen(alphaCornerColor);
+            painter->setPen(option->palette.background().color().light(104));
             painter->drawLine(option->rect.left(), option->rect.top(),
                               option->rect.left(), option->rect.bottom());
-            painter->setPen(option->palette.background().color().light(104));
+            painter->setPen(alphaCornerColor);
             painter->drawLine(option->rect.right(), option->rect.top(),
                               option->rect.right(), option->rect.bottom());
         }
-        painter->restore();
+        painter->setPen(oldPen);
         break;
     }
     case PE_PanelButtonTool:
@@ -2502,13 +2502,13 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             }
             painter->drawPixmap(option->rect.topLeft(), cache);
         } else {
-            painter->fillRect(option->rect, painter->brush());
+            painter->fillRect(option->rect, option->palette.background());
         }
         QCommonStyle::drawControl(element, option, painter, widget);
         break;
     case CE_MenuBarEmptyArea:
         // Draws the area in a menu bar that is not populated by menu items.
-        painter->fillRect(option->rect, painter->brush());
+        painter->fillRect(option->rect, option->palette.background());
         break;
     case CE_ToolBoxTab:
         if ((option->state & State_Selected) && (option->state & State_Enabled))
@@ -3342,7 +3342,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 // Draw the focus rect
                 if ((focus && (option->state & State_KeyboardFocusChange)) && !comboBox->editable) {
                     QStyleOptionFocusRect focus;
-                    focus.rect = subControlRect(CC_ComboBox, &comboBoxCopy, SC_ComboBoxEditField, widget);
+                    focus.rect = subControlRect(CC_ComboBox, &comboBoxCopy, SC_ComboBoxEditField, widget)
+                                 .adjusted(0, 0, option->direction == Qt::RightToLeft ? 1 : -1, 0);
                     drawPrimitive(PE_FrameFocusRect, &focus, &cachePainter, widget);
                 }
                 if (UsePixmapCache)
@@ -3843,19 +3844,30 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
                 rect.setRect(spinBox->rect.right() - 16, center + 1, 17, spinBox->rect.height() - (center + 1));
                 rect = visualRect(spinBox->direction, spinBox->rect, rect);
                 break;
+            case SC_SpinBoxEditField: {
+                int frameWidth = pixelMetric(PM_DefaultFrameWidth);
+                rect = spinBox->rect.adjusted(frameWidth, frameWidth, -frameWidth - 16, -frameWidth);
+                rect = visualRect(spinBox->direction, spinBox->rect, rect);
+            }
             default:
                 break;
             }
         }
         break;
     case CC_ComboBox:
-        if (subControl == SC_ComboBoxArrow) {
+        switch (subControl) {
+        case SC_ComboBoxArrow:
             rect = option->rect;
-        } else if (subControl == SC_ComboBoxEditField) {
+            break;
+        case SC_ComboBoxEditField: {
+            int frameWidth = pixelMetric(PM_DefaultFrameWidth);
             rect = visualRect(option->direction, option->rect, rect);
-            rect.setRect(option->rect.left() + 2, option->rect.top() + 2,
-                         option->rect.width() - 20, option->rect.height() - 4);
+            rect.setRect(option->rect.left() + frameWidth, option->rect.top() + frameWidth,
+                         option->rect.width() - 16 - 2 * frameWidth + 1,
+                         option->rect.height() - 2 * frameWidth);
             rect = visualRect(option->direction, option->rect, rect);
+            break;
+        }
         }
         break;
     case CC_TitleBar:
@@ -4168,13 +4180,12 @@ void QPlastiqueStyle::polish(QWidget *widget)
     if (qobject_cast<QPushButton *>(widget)
         || qobject_cast<QComboBox *>(widget)
         || qobject_cast<QCheckBox *>(widget)
-        || qobject_cast<QRadioButton *>(widget)) {
+        || qobject_cast<QRadioButton *>(widget)
+        || qobject_cast<QTabBar *>(widget)) {
         widget->setAttribute(Qt::WA_Hover);
     }
 
     if (widget->inherits("QWorkspaceTitleBar"))
-        widget->setAttribute(Qt::WA_Hover);
-    else if (qobject_cast<QTabBar *>(widget))
         widget->setAttribute(Qt::WA_Hover);
 }
 
