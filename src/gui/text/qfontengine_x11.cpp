@@ -551,6 +551,7 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
         freetype->lock = 0;
         freetype->xsize = 0;
         freetype->ysize = 0;
+        memset(freetype->cmapCache, 0, sizeof(freetype->cmapCache));
         FT_New_Face(library, face_id.filename, face_id.index, &freetype->face);
         freetypeFaces->insert(face_id, freetype);
     }
@@ -928,13 +929,18 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
             unsigned int uc = getChar(str, i, len);
             if (mirrored)
                 uc = QUnicodeTables::mirroredChar(uc);
+            glyphs[glyph_pos].glyph = uc < QFreetypeFace::cmapCacheSize ? freetype->cmapCache[uc] : 0;
+            if (!glyphs[glyph_pos].glyph) {
             redo:
-            glyph_t glyph = FT_Get_Char_Index(face, uc);
+                glyph_t glyph = FT_Get_Char_Index(face, uc);
                 if (!glyph && (uc == 0xa0 || uc == 0x9)) {
                     uc = 0x20;
                     goto redo;
                 }
                 glyphs[glyph_pos].glyph = glyph;
+                if (uc < QFreetypeFace::cmapCacheSize)
+                    freetype->cmapCache[uc] = glyph;
+            }
             ++glyph_pos;
         }
     }
@@ -967,7 +973,7 @@ void QFontEngineFT::recalcAdvances(int len, QGlyphLayout *glyphs, QTextEngine::S
                 if (!face)
                     face = lockFace();
                 g = loadGlyph(glyphs[i].glyph);
-    }
+            }
             // for uncachable glyph, get advance from glyphslot
             glyphs[i].advance.rx() = g ? g->advance : face->glyph->metrics.horiAdvance/64.;
             glyphs[i].advance.ry() = 0.;

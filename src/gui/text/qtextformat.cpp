@@ -129,7 +129,7 @@ QDataStream &operator>>(QDataStream &stream, QTextLength &length)
 class QTextFormatPrivate : public QSharedData
 {
 public:
-    QTextFormatPrivate() : hashDirty(true), hashValue(0) {}
+    QTextFormatPrivate() : hashDirty(true), fontDirty(true), hashValue(0) {}
 
     // keep qint* types here, so we can safely stream to a datastream
     typedef QMap<qint32, QVariant> PropertyMap;
@@ -153,25 +153,36 @@ public:
     inline void insertProperty(qint32 key, const QVariant &value)
     {
         hashDirty = true;
+        fontDirty = true;
         props.insert(key, value);
     }
 
     inline void clearProperty(qint32 key)
     {
         hashDirty = true;
+        fontDirty = true;
         props.remove(key);
     }
 
     const PropertyMap &properties() const { return props; }
 
+    inline const QFont &font() const {
+        if (fontDirty)
+            recalcFont();
+        return fnt;
+    }
 
 private:
     PropertyMap props;
 
     uint recalcHash() const;
+    void recalcFont() const;
 
     mutable bool hashDirty;
+    mutable bool fontDirty;
     mutable uint hashValue;
+    mutable QFont fnt;
+
     friend QDataStream &operator<<(QDataStream &, const QTextFormat &);
     friend QDataStream &operator>>(QDataStream &, QTextFormat &);
 };
@@ -197,9 +208,41 @@ uint QTextFormatPrivate::recalcHash() const
         hashValue += (it.key() << 16) + variantHash(*it);
 
     hashDirty = false;
+
     return hashValue;
 }
 
+void QTextFormatPrivate::recalcFont() const
+{
+    // update cached font as well
+    QFont f;
+
+    if (props.contains(QTextFormat::FontFamily))
+        f.setFamily(props.value(QTextFormat::FontFamily).toString());
+
+    if (props.contains(QTextFormat::FontPointSize))
+	f.setPointSizeF(props.value(QTextFormat::FontPointSize).toDouble());
+
+    if (props.contains(QTextFormat::FontWeight))
+        f.setWeight(props.value(QTextFormat::FontWeight).toInt());
+
+    if (props.contains(QTextFormat::FontItalic))
+        f.setItalic(props.value(QTextFormat::FontItalic).toBool());
+
+    if (props.contains(QTextFormat::FontUnderline))
+        f.setUnderline(props.value(QTextFormat::FontUnderline).toBool());
+
+    if (props.contains(QTextFormat::FontOverline))
+        f.setOverline(props.value(QTextFormat::FontOverline).toBool());
+
+    if (props.contains(QTextFormat::FontStrikeOut))
+        f.setStrikeOut(props.value(QTextFormat::FontStrikeOut).toBool());
+
+    if (props.contains(QTextFormat::FontFixedPitch))
+        f.setFixedPitch(props.value(QTextFormat::FontFixedPitch).toBool());
+    fnt = f;
+    fontDirty = false;
+}
 
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QTextFormat &fmt)
 {
@@ -1225,33 +1268,7 @@ void QTextCharFormat::setFont(const QFont &font)
 */
 QFont QTextCharFormat::font() const
 {
-    QFont font;
-
-    if (hasProperty(FontFamily))
-        font.setFamily(fontFamily());
-
-    if (hasProperty(FontPointSize))
-	font.setPointSizeF(fontPointSize());
-
-    if (hasProperty(FontWeight))
-        font.setWeight(fontWeight());
-
-    if (hasProperty(FontItalic))
-        font.setItalic(fontItalic());
-
-    if (hasProperty(FontUnderline))
-        font.setUnderline(fontUnderline());
-
-    if (hasProperty(FontOverline))
-        font.setOverline(fontOverline());
-
-    if (hasProperty(FontStrikeOut))
-        font.setStrikeOut(fontStrikeOut());
-
-    if (hasProperty(FontFixedPitch))
-        font.setFixedPitch(fontFixedPitch());
-
-    return font;
+    return d->font();
 }
 
 /*!

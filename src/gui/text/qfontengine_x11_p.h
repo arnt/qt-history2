@@ -110,7 +110,7 @@ struct QFreetypeFace {
     int xsize; // 26.6
     int ysize; // 26.6
 
-    enum { cmapCacheSize = 0x500 };
+    enum { cmapCacheSize = 0x200 };
     glyph_t cmapCache[cmapCacheSize];
 };
 
