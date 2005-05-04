@@ -704,11 +704,14 @@ void QListView::resizeEvent(QResizeEvent *e)
 {
     Q_D(QListView);
     QAbstractItemView::resizeEvent(e);
-    if (d->resizeMode == Adjust && state() == NoState) {
+    if (d->resizeMode == Adjust && state() == NoState && e->size() == size()) {
         QSize delta = e->size() - e->oldSize();
-        if ((d->flow == LeftToRight && delta.width() != 0) ||
-            (d->flow == TopToBottom && delta.height() != 0))
+        if (!d->layoutPosted
+            && ((d->flow == LeftToRight && delta.width() != 0)
+                || (d->flow == TopToBottom && delta.height() != 0))) {
+            d->layoutPosted = true;
             d->startLayoutTimer.start(100, this); // wait 1/10 sec before starting the layout
+        }
     }
 }
 
@@ -1171,7 +1174,9 @@ void QListView::doItemsLayout()
 void QListView::updateGeometries()
 {
     Q_D(QListView);
-    if (!model() || model()->rowCount(rootIndex()) <= 0 || model()->columnCount(rootIndex()) <= 0) {
+    if (!model()
+        || model()->rowCount(rootIndex()) <= 0
+        || model()->columnCount(rootIndex()) <= 0) {
         horizontalScrollBar()->setRange(0, 0);
         verticalScrollBar()->setRange(0, 0);
     } else {
@@ -1243,10 +1248,10 @@ void QListViewPrivate::prepareItemsLayout()
     batchSavedPosition = 0;
     batchSavedDeltaSeg = 0;
     contentsSize = QSize(0, 0);
+    layoutBounds = viewport->rect();
     int sbx = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-    layoutBounds.setWidth(viewport->width() - sbx);
-    layoutBounds.setHeight(viewport->height() - sbx);
-
+    layoutBounds.adjust(0, 0, -sbx, -sbx);
+        
     int rowCount = model ? model->rowCount(root) : 0;
     int colCount = model ? model->columnCount(root) : 0;
     if (colCount <= 0)
@@ -1427,17 +1432,17 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
                 QModelIndex index = model->index(row, column, root);
                 QSize hint = delegate->sizeHint(option, index);
                 if (flow == QListView::LeftToRight) {
-                    deltaFlowPosition = hint.width();
-                    deltaSegHint = hint.height();
+                    deltaFlowPosition = hint.width() + gap;
+                    deltaSegHint = hint.height() + gap;
                 } else { // TopToBottom
-                    deltaFlowPosition = hint.height();
-                    deltaSegHint = hint.width();
+                    deltaFlowPosition = hint.height() + gap;
+                    deltaSegHint = hint.width() + gap;
                 }
             }
             // create new segment
-            if (wrap && (flowPosition + gap + deltaFlowPosition > segEndPosition)) {
+            if (wrap && (flowPosition + deltaFlowPosition >= segEndPosition)) {
                 flowPosition = gap + segStartPosition;
-                segPosition += gap + deltaSegPosition;
+                segPosition += deltaSegPosition;
                 segmentPositions.append(segPosition);
                 segmentStartRows.append(row);
                 deltaSegPosition = 0;
@@ -1515,14 +1520,6 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         if (hiddenRows.contains(row)) {
             item->invalidate();
         } else {
-            // set the position of the item
-            if (flow == QListView::LeftToRight) {
-                item->x = flowPosition;
-                item->y = segPosition;
-            } else { // TopToBottom
-                item->y = flowPosition;
-                item->x = segPosition;
-            }
             // if we are not using a grid, we need to find the deltas
             if (useItemSize) {
                 if (flow == QListView::LeftToRight) {
@@ -1532,17 +1529,28 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
                     deltaFlowPosition = item->h + gap;
                     deltaSegHint = item->w + gap;
                 }
+                deltaSegPosition = qMax(deltaSegPosition, deltaSegHint);
             }
-            // prepare for next item
-            flowPosition += deltaFlowPosition;
-            deltaSegPosition = qMax(deltaSegPosition, deltaSegHint);
-            rect |= item->rect();
             // create new segment
-            if (wrap && (flowPosition + deltaFlowPosition >= segEndPosition)) {
+            if (wrap
+                && flowPosition + deltaFlowPosition > segEndPosition
+                && flowPosition > segStartPosition) {
                 flowPosition = segStartPosition;
                 segPosition += deltaSegPosition;
                 deltaSegPosition = 0;
             }
+            // set the position of the item
+            if (flow == QListView::LeftToRight) {
+                item->x = flowPosition;
+                item->y = segPosition;
+            } else { // TopToBottom
+                item->y = flowPosition;
+                item->x = segPosition;
+            }
+            rect |= item->rect(); // let the contents contain the new item
+
+            // prepare for next item
+            flowPosition += deltaFlowPosition; // current position + item width + gap
         }
     }
     batchSavedDeltaSeg = deltaSegPosition;
