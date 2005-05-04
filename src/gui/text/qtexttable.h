@@ -15,7 +15,6 @@
 #define QTEXTTABLE_H
 
 #include <QtCore/qglobal.h>
-#include <QtCore/qshareddata.h>
 #include <QtCore/qobject.h>
 #include "QtGui/qtextobject.h"
 
