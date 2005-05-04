@@ -18,7 +18,6 @@
 
 /*!
     \class Q3Painter q3painter.h
-
     \brief Q3Painter is the compat version of QPainter.
 
     \compat

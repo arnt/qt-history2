@@ -19,6 +19,8 @@
     \brief The Q3VBox widget provides vertical geometry management of
     its child widgets.
 
+    \compat
+
     \ingroup geomanagement
     \ingroup appearance
     \ingroup organizers
