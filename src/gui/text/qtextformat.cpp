@@ -528,6 +528,9 @@ void QTextFormat::merge(const QTextFormat &other)
         return;
     }
 
+    if (!other.d)
+        return;
+
     // don't use QMap's += operator, as it uses insertMulti!
     for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties().begin();
          it != other.d->properties().end(); ++it) {
