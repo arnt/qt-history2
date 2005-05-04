@@ -179,6 +179,9 @@ public:
     virtual QSize minimumSize() const;
     virtual QSize maximumSize() const;
     virtual Qt::Orientations expandingDirections() const;
+    virtual bool hasHeightForWidth() const;
+    virtual int heightForWidth(int) const;
+    virtual int minimumHeightForWidth(int) const;
 
     void addTo(QLayout *layout);
     void removeFrom(QLayout *layout);

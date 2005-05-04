@@ -503,6 +503,30 @@ void QLayoutWidgetItem::addTo(QLayout *layout)
     static_cast<FriendlyLayout*>(layout)->addChildWidget(widget());
 }
 
+bool QLayoutWidgetItem::hasHeightForWidth() const
+{
+    if (QLayout *l = theLayout())
+        return l->hasHeightForWidth();
+
+    return QWidgetItem::hasHeightForWidth();
+}
+
+int QLayoutWidgetItem::heightForWidth(int w) const
+{
+    if (QLayout *l = theLayout())
+        return l->heightForWidth(w);
+
+    return QWidgetItem::heightForWidth(w);
+}
+
+int QLayoutWidgetItem::minimumHeightForWidth(int w) const
+{
+    if (QLayout *l = theLayout())
+        return l->minimumHeightForWidth(w);
+
+    return QWidgetItem::minimumHeightForWidth(w);
+}
+
 void QLayoutWidgetItem::removeFrom(QLayout *layout)
 {
     Q_UNUSED(layout);
@@ -661,9 +685,9 @@ QRect QLayoutSupport::itemInfo(int index) const
         l->getItemPosition(index, &row, &column, &rowSpan, &columnSpan);
         return QRect(column, row, columnSpan, rowSpan);
     } else if (qobject_cast<QHBoxLayout*>(layout())) {
-        return QRect(0, index, 1, 1);
-    } else if (qobject_cast<QVBoxLayout*>(layout())) {
         return QRect(index, 0, 1, 1);
+    } else if (qobject_cast<QVBoxLayout*>(layout())) {
+        return QRect(0, index, 1, 1);
     } else {
         Q_ASSERT(0); // ### not supported yet!
         return QRect();
