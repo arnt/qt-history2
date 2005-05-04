@@ -95,15 +95,7 @@ static Qt::MouseButtons translateMouseButtonState(int s, int type, int button)
         bst |= Qt::MidButton;
     if (s & MK_RBUTTON)
         bst |= Qt::RightButton;
-    
-    // Translate from Windows-style "state after event"
-    // to X-style "state before event"
-    if (type == QEvent::MouseButtonPress ||
-        type == QEvent::MouseButtonDblClick)
-        bst &= ~button;
-    else if (type == QEvent::MouseButtonRelease)
-        bst |= (Qt::MouseButton)button;
-    
+
     return bst;
 }
 
@@ -590,6 +582,7 @@ bool QAxClientSite::activateObject(bool initialized)
             m_spOleControl->OnAmbientPropertyChange(DISPID_AMBIENT_BACKCOLOR);
             m_spOleControl->OnAmbientPropertyChange(DISPID_AMBIENT_FORECOLOR);
             m_spOleControl->OnAmbientPropertyChange(DISPID_AMBIENT_FONT);
+            m_spOleControl->OnAmbientPropertyChange(DISPID_AMBIENT_USERMODE);
             
             control_info.cb = sizeof(control_info);
             m_spOleControl->GetControlInfo(&control_info);
@@ -719,9 +712,7 @@ HRESULT WINAPI QAxClientSite::QueryInterface(REFIID iid, void **iface)
     return S_OK;
 }
 
-#if defined(QT_PLUGIN)
-extern bool runsInDesignMode;
-#endif
+bool qax_runsInDesignMode = false;
 
 //**** IDispatch
 HRESULT WINAPI QAxClientSite::Invoke(DISPID dispIdMember,
@@ -740,17 +731,10 @@ HRESULT WINAPI QAxClientSite::Invoke(DISPID dispIdMember,
     
     switch(dispIdMember) {
     case DISPID_AMBIENT_USERMODE:
-#if defined(QT_PLUGIN)
         pVarResult->vt = VT_BOOL;
-        if (runsInDesignMode) {
-            bool isPreview = !host->window()->inherits("MainWindow");
-            pVarResult->boolVal = isPreview;
-        } else {
-            pVarResult->boolVal = true;
-        }
+        pVarResult->boolVal = !qax_runsInDesignMode;
         return S_OK;
-#endif
-        
+
     case DISPID_AMBIENT_AUTOCLIP:	
     case DISPID_AMBIENT_SUPPORTSMNEMONICS:
         pVarResult->vt = VT_BOOL;
