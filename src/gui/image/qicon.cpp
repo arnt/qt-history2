@@ -185,7 +185,7 @@ QPixmapIconEngineEntry *QPixmapIconEngine::bestMatch(const QSize &size, QIcon::M
             return pe;
     }
 
-    if (sizeOnly ? pe->size.isNull() : pe->pixmap.isNull()) {
+    if (sizeOnly ? (pe->size.isNull() || !pe->size.isValid()) : pe->pixmap.isNull()) {
         pe->pixmap = QPixmap(pe->fileName);
         if (!pe->pixmap.isNull())
             pe->size = pe->pixmap.size();
