@@ -1,5 +1,5 @@
-#ifndef WINDOW_H
-#define WINDOW_H
+#ifndef DIALOG_H
+#define DIALOG_H
 
 #include <QWidget>
 
@@ -12,12 +12,12 @@ class QMenuBar;
 class QPushButton;
 class QTextEdit;
 
-class Window : public QWidget
+class Dialog : public QWidget
 {
     Q_OBJECT
 
 public:
-    Window();
+    Dialog();
 
 private:
     void createMenu();

@@ -1,8 +1,8 @@
 #include <QtGui>
 
-#include "window.h"
+#include "dialog.h"
 
-Window::Window()
+Dialog::Dialog()
 {
     createMenu();
     createHorizontalGroupBox();
@@ -35,7 +35,7 @@ Window::Window()
     setWindowTitle(tr("Basic Layouts"));
 }
 
-void Window::createMenu()
+void Dialog::createMenu()
 {
     menuBar = new QMenuBar;
 
@@ -46,19 +46,19 @@ void Window::createMenu()
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 }
 
-void Window::createHorizontalGroupBox()
+void Dialog::createHorizontalGroupBox()
 {
     horizontalGroupBox = new QGroupBox(tr("Horizontal layout"));
     QBoxLayout *layout = new QHBoxLayout;
 
     for (int i = 0; i < NumButtons; ++i) {
         buttons[i] = new QPushButton(tr("Button %1").arg(i + 1));
-	layout->addWidget(buttons[i], 1);
+	layout->addWidget(buttons[i]);
     }
     horizontalGroupBox->setLayout(layout);
 }
 
-void Window::createGridGroupBox()
+void Dialog::createGridGroupBox()
 {
     gridGroupBox = new QGroupBox(tr("Grid layout"));
     QGridLayout *layout = new QGridLayout;
@@ -71,8 +71,8 @@ void Window::createGridGroupBox()
     }
 
     smallEditor = new QTextEdit;
-    smallEditor->setPlainText(tr("This widget will take up three rows in "
-                                 "the grid layout."));
+    smallEditor->setPlainText(tr("This widget takes up about two thirds of the "
+                                 "grid layout."));
     layout->addWidget(smallEditor, 0, 2, 3, 1);
 
     layout->setColumnStretch(1, 10);
