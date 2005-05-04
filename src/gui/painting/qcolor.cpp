@@ -25,7 +25,7 @@
 
 
 /*!
-    \class QColor qcolor.h
+    \class QColor
     \brief The QColor class provides colors based on RGB or HSV values.
 
     \ingroup multimedia
@@ -63,9 +63,10 @@
     (transparent, i.e. background), and painting with \c Qt::color1 sets the
     bits to 1 (opaque, i.e. foreground).
 
-    The QColor class has an efficient, dynamic color allocation
-    strategy. A color is normally allocated the first time it is used
-    (lazy allocation), that is, whenever the pixel() function is called:
+    For displays with a color table (typically 8-bit displays), the
+    QColor class has an efficient, dynamic color allocation strategy.
+    A color is normally allocated the first time it is used (lazy
+    allocation), that is, whenever the pixel() function is called:
 
     \list 1
     \i Is the pixel value valid? If it is, just return it; otherwise,
