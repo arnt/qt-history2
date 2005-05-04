@@ -1763,7 +1763,7 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
     qreal ypos = p.y();
 
     QFontEngineFT *ft = static_cast<QFontEngineFT *>(si.fontEngine);
-    if (ft->drawAsOutline() || d->txop > QPainterPrivate::TxScale) {
+    if (ft->drawAsOutline() || d->txop >= QPainterPrivate::TxScale) {
         uint hints = d->render_hints;
         updateRenderHints(QFlag(hints|QPainter::Antialiasing));
         QPaintEngine::drawTextItem(p, si);
