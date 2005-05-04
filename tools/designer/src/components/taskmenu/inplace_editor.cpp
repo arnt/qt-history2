@@ -36,7 +36,7 @@ InPlaceEditor::InPlaceEditor(QWidget *widget, QDesignerFormWindowInterface *fw)
     connect(this, SIGNAL(destroyed()), fw->mainContainer(), SLOT(setFocus()));
 
     if (m_widget->metaObject()->indexOfProperty("alignment") != -1) {
-        Qt::Alignment alignment = static_cast<Qt::Alignment>(m_widget->property("alignment").toInt());
+        Qt::Alignment alignment = Qt::Alignment(m_widget->property("alignment").toInt());
         setAlignment(alignment);
     } else if (qobject_cast<QPushButton *>(widget)
             || qobject_cast<QToolButton *>(widget) /* tool needs to be more complex */) {
