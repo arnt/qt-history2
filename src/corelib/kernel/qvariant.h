@@ -63,55 +63,62 @@ class Q_CORE_EXPORT QVariant
  public:
     enum Type {
         Invalid = 0,
-        Map = 1,
-        List = 2,
-        String = 3,
-        StringList = 4,
-        Font = 5,
-        Pixmap = 6,
-        Brush = 7,
-        Rect = 8,
-        Size = 9,
-        Color = 10,
-        Palette = 11,
-        Icon = 13,
-        Point = 14,
-        Image = 15,
-        Int = 16,
-        UInt = 17,
-        Bool = 18,
-        Double = 19,
-        Polygon = 21,
-        Region = 22,
-        Bitmap = 23,
-        Cursor = 24,
-        SizePolicy = 25,
-        Date = 26,
-        Time = 27,
-        DateTime = 28,
-        ByteArray = 29,
-        BitArray = 30,
-        KeySequence = 31,
-        Pen = 32,
-        LongLong = 33,
-        ULongLong = 34,
-        Char = 35,
-        Url = 36,
-        TextLength = 37,
-        TextFormat = 38,
-        Locale = 39,
-        LineF = 40,
-        RectF = 41,
-        PointF = 42,
-        Line = 43,
-        UserType = 127,
-        LastType = 0xffffffff // need this so that gcc >= 3.4 allocates 32 bits for Type
+
+        Bool = 1,
+        Int = 2,
+        UInt = 3,
+        LongLong = 4,
+        ULongLong = 5,
+        Double = 6,
+        Char = 7,
+
+        Map = 8,
+        List = 9,
+        String = 10,
+        StringList = 11,
+        ByteArray = 12,
+        BitArray = 13,
+        Date = 14,
+        Time = 15,
+        DateTime = 16,
+        Url = 17,
+        Locale = 18,
+
+        Rect = 19,
+        RectF = 20,
+        Size = 21,
+        SizeF = 22,
+        Line = 23,
+        LineF = 24,
+        Point = 25,
+        PointF = 26,
+
 #ifdef QT3_SUPPORT
-        , ColorGroup = 12,
+        ColorGroup = 63,
+#endif
+        Font = 64,
+        Pixmap = 65,
+        Brush = 66,
+        Color = 67,
+        Palette = 68,
+        Icon = 69,
+        Image = 70,
+        Polygon = 71,
+        Region = 72,
+        Bitmap = 73,
+        Cursor = 74,
+        SizePolicy = 75,
+        KeySequence = 76,
+        Pen = 77,
+        TextLength = 78,
+        TextFormat = 79,
+        UserType = 127,
+#ifdef QT3_SUPPORT
         IconSet = Icon,
         CString = ByteArray,
-        PointArray = Polygon
+        PointArray = Polygon,
 #endif
+        LastType = 0xffffffff // need this so that gcc >= 3.4 allocates 32 bits for Type
     };
 
     inline QVariant();
@@ -283,6 +290,10 @@ class Q_CORE_EXPORT QVariant
     struct Private
     {
         inline Private(): type(Invalid), is_shared(false), is_null(true) { data.ptr = 0; }
+        inline Private(const Private &other)
+            : data(other.data), type(other.type),
+              is_shared(other.is_shared), is_null(other.is_null)
+        {}
         union Data
         {
             int i;
@@ -381,6 +392,8 @@ template<>
 inline int qt_variant_metatype_id(QRect *) { return QVariant::Rect; }
 template<>
 inline int qt_variant_metatype_id(QSize *) { return QVariant::Size; }
+template<>
+inline int qt_variant_metatype_id(QSizeF *) { return QVariant::SizeF; }
 class QColor;
 template<>
 inline int qt_variant_metatype_id(QColor *) { return QVariant::Color; }

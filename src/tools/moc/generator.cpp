@@ -50,49 +50,58 @@ enum MemberFlags {
   Attention!  This table is copied from qcorevariant.cpp. If you
   change one, change both.
 */
-static const int ntypes = 40;
-static const char* const type_map[ntypes] =
+enum { CoreTypeCount = 27 };
+static const char* const core_type_map[CoreTypeCount] =
 {
     0,
+    "bool",
+    "int",
+    "uint",
+    "qlonglong",
+    "qulonglong",
+    "double",
+    "QChar",
     "QVariantMap",
     "QVariantList",
     "QString",
     "QStringList",
+    "QByteArray",
+    "QBitArray",
+    "QDate",
+    "QTime",
+    "QDateTime",
+    "QUrl",
+    "QLocale",
+    "QRect",
+    "QRectF",
+    "QSize",
+    "QSizeF",
+    "QLine",
+    "QLineF",
+    "QPoint",
+    "QPointF"
+};
+
+enum { GuiTypeCount = 79 - 63 + 1 };
+static const char* const gui_type_map[GuiTypeCount] =
+{
+    "QColorGroup",
     "QFont",
     "QPixmap",
     "QBrush",
-    "QRect",
-    "QSize",
     "QColor",
     "QPalette",
-    "QColorGroup",
     "QIcon",
-    "QPoint",
     "QImage",
-    "int",
-    "uint",
-    "bool",
-    "double",
-    "",
     "QPolygon",
     "QRegion",
     "QBitmap",
     "QCursor",
     "QSizePolicy",
-    "QDate",
-    "QTime",
-    "QDateTime",
-    "QByteArray",
-    "QBitArray",
     "QKeySequence",
     "QPen",
-    "qint64",
-    "quint64",
-    "QChar",
-    "QUrl",
     "QTextLength",
-    "QTextFormat",
-    "QLocale"
+    "QTextFormat"
 };
 
 int qvariant_nameToType(const char* name)
@@ -104,19 +113,20 @@ int qvariant_nameToType(const char* name)
         if (strcmp(name, "QCString") == 0)
             name = "QByteArray";
         else if (strcmp(name, "Q_LLONG") == 0)
-            name = "qint64";
+            name = "qlonglong";
         else if (strcmp(name, "Q_ULLONG") == 0)
-            name = "quint64";
+            name = "qulonglong";
         else if (strcmp(name, "QIconSet") == 0)
             name = "QIcon";
-        else if (strcmp(name, "QVariantMap") == 0)
-            name = "QVariantMap";
-        else if (strcmp(name, "QVariantList") == 0)
-            name = "QVariantList";
 
-        for (int i = 1; i < ntypes; i++) {
-            if (!strcmp(type_map[i], name))
+        int i;
+        for (i = 1; i < CoreTypeCount; ++i) {
+            if (strcmp(core_type_map[i], name) == 0)
                 return i;
+        }
+        for (i = 0; i < GuiTypeCount; ++i) {
+            if (strcmp(gui_type_map[i], name) == 0)
+                return (i + 63);
         }
     }
     return 0;

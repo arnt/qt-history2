@@ -80,6 +80,9 @@ static void construct(QVariant::Private *x, const void *copy)
     case QVariant::Size:
         v_construct<QSize>(x, copy);
         break;
+    case QVariant::SizeF:
+        v_construct<QSizeF>(x, copy);
+        break;
     case QVariant::Rect:
         v_construct<QRect>(x, copy);
         break;
@@ -180,6 +183,9 @@ static void clear(QVariant::Private *d)
     case QVariant::Size:
         v_clear<QSize>(d);
         break;
+    case QVariant::SizeF:
+        v_clear<QSizeF>(d);
+        break;
     case QVariant::Rect:
         v_clear<QRect>(d);
         break;
@@ -240,6 +246,8 @@ static bool isNull(const QVariant::Private *d)
 #ifndef QT_NO_GEOM_VARIANT
     case QVariant::Size:
         return v_cast<QSize>(d)->isNull();
+    case QVariant::SizeF:
+        return v_cast<QSizeF>(d)->isNull();
     case QVariant::Rect:
         return v_cast<QRect>(d)->isNull();
     case QVariant::Line:
@@ -304,6 +312,9 @@ static void load(QVariant::Private *d, QDataStream &s)
 #ifndef QT_NO_GEOM_VARIANT
     case QVariant::Size:
         s >> *v_cast<QSize>(d);
+        break;
+    case QVariant::SizeF:
+        s >> *v_cast<QSizeF>(d);
         break;
     case QVariant::Rect:
         s >> *v_cast<QRect>(d);
@@ -400,6 +411,9 @@ static void save(const QVariant::Private *d, QDataStream &s)
 #ifndef QT_NO_GEOM_VARIANT
     case QVariant::Size:
         s << *v_cast<QSize>(d);
+        break;
+    case QVariant::SizeF:
+        s << *v_cast<QSizeF>(d);
         break;
     case QVariant::Point:
         s << *v_cast<QPoint>(d);
@@ -505,6 +519,8 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 #ifndef QT_NO_GEOM_VARIANT
     case QVariant::Size:
         return *v_cast<QSize>(a) == *v_cast<QSize>(b);
+    case QVariant::SizeF:
+        return *v_cast<QSizeF>(a) == *v_cast<QSizeF>(b);
     case QVariant::Rect:
         return *v_cast<QRect>(a) == *v_cast<QRect>(b);
     case QVariant::Line:
@@ -1079,6 +1095,9 @@ void streamDebug(QDebug dbg, const QVariant &v)
     case QVariant::Size:
         dbg.nospace() << v.toSize();
         break;
+    case QVariant::SizeF:
+        dbg.nospace() << v.toSizeF();
+        break;
     case QVariant::Line:
         dbg.nospace() << v.toLine();
         break;
@@ -1236,6 +1255,7 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value RectF  a QRectF
     \value Region  a QRegion
     \value Size  a QSize
+    \value SizeF  a QSizeF
     \value SizePolicy  a QSizePolicy
     \value String  a QString
     \value StringList  a QStringList
@@ -1310,7 +1330,7 @@ void QVariant::create(int type, const void *copy)
 
 QVariant::~QVariant()
 {
-    if (!d.is_shared || !d.data.shared->ref.deref())
+    if (d.type > Char && (!d.is_shared || !d.data.shared->ref.deref()))
         handler->clear(&d);
 }
 
@@ -1324,16 +1344,14 @@ QVariant::~QVariant()
 */
 
 QVariant::QVariant(const QVariant &p)
+    : d(p.d)
 {
-    d.type = p.d.type;
-    d.is_shared = p.d.is_shared;
     if (d.is_shared) {
-        d.data.shared = p.d.data.shared;
         d.data.shared->ref.ref();
-    } else {
+    } else if (p.d.type > Char) {
         handler->construct(&d, p.constData());
+        d.is_null = p.d.is_null;
     }
-    d.is_null = p.d.is_null;
 }
 
 #ifndef QT_NO_DATASTREAM
@@ -1579,6 +1597,7 @@ QVariant::QVariant(const QLineF &l) { create (LineF, &l); }
 QVariant::QVariant(const QLine &l) { create (Line, &l); }
 QVariant::QVariant(const QRect &r) { create(Rect, &r); }
 QVariant::QVariant(const QSize &s) { create(Size, &s); }
+QVariant::QVariant(const QSizeF &s) { create(SizeF, &s); }
 #endif
 QVariant::QVariant(const QUrl &u) { create(Url, &u); }
 QVariant::QVariant(const QLocale &l) { create(Locale, &l); }
@@ -1687,57 +1706,58 @@ void QVariant::clear()
 
    (Search for the word 'Attention' in generator.cpp)
 */
-enum { ntypes = 44 };
-static const char* const type_map[ntypes] =
+enum { CoreTypeCount = QVariant::PointF + 1 };
+static const char* const core_type_map[CoreTypeCount] =
 {
     0,
+    "bool",
+    "int",
+    "uint",
+    "qlonglong",
+    "qulonglong",
+    "double",
+    "QChar",
     "QVariantMap",
     "QVariantList",
     "QString",
     "QStringList",
+    "QByteArray",
+    "QBitArray",
+    "QDate",
+    "QTime",
+    "QDateTime",
+    "QUrl",
+    "QLocale",
+    "QRect",
+    "QRectF",
+    "QSize",
+    "QSizeF",
+    "QLine",
+    "QLineF",
+    "QPoint",
+    "QPointF"
+};
+
+enum { GuiTypeCount = QVariant::TextFormat - QVariant::Font + 2 };
+static const char* const gui_type_map[GuiTypeCount] =
+{
+    "QColorGroup",
     "QFont",
     "QPixmap",
     "QBrush",
-    "QRect",
-    "QSize",
     "QColor",
     "QPalette",
-#ifdef QT3_SUPPORT
-    "QColorGroup",
-#else
-    "",
-#endif
     "QIcon",
-    "QPoint",
     "QImage",
-    "int",
-    "uint",
-    "bool",
-    "double",
-    "",
     "QPolygon",
     "QRegion",
     "QBitmap",
     "QCursor",
     "QSizePolicy",
-    "QDate",
-    "QTime",
-    "QDateTime",
-    "QByteArray",
-    "QBitArray",
     "QKeySequence",
     "QPen",
-    "qlonglong",
-    "qulonglong",
-    "QChar",
-    "QUrl",
     "QTextLength",
-    "QTextFormat",
-    "QLocale",
-    "QLineF",
-    "QRectF",
-    "QPointF",
-    "QLine"
+    "QTextFormat"
 };
 
 
@@ -1749,9 +1769,13 @@ const char *QVariant::typeToName(Type typ)
 {
     if (typ == UserType)
         return "UserType";
-    if ((int)typ >= ntypes)
+    if (typ <= QVariant::PointF)
+        return core_type_map[typ];
+    if (typ >= QVariant::Font - 1 && typ <= QVariant::TextFormat)
+        return gui_type_map[int(typ) - QVariant::Font + 1];
+    if (typ > QVariant::UserType )
         return QMetaType::typeName(typ);
-    return type_map[typ];
+    return 0;
 }
 
 
@@ -1766,7 +1790,7 @@ QVariant::Type QVariant::nameToType(const char *name)
 {
     if (!name)
         return Invalid;
-    if (strcmp(name, "") == 0)
+    if (name[0] == '\0')
         return Invalid;
     if (strcmp(name, "Q3CString") == 0)
         return ByteArray;
@@ -1778,9 +1802,14 @@ QVariant::Type QVariant::nameToType(const char *name)
         return Icon;
     if (strcmp(name, "UserType") == 0)
         return UserType;
-    for (int i = 1; i < ntypes; ++i) {
-        if (strcmp(type_map[i], name) == 0)
+    int i;
+    for (i = 1; i < CoreTypeCount; ++i) {
+        if (strcmp(core_type_map[i], name) == 0)
             return (Type)i;
+    }
+    for (i = 0; i < GuiTypeCount; ++i) {
+        if (strcmp(gui_type_map[i], name) == 0)
+            return (Type)(i + QVariant::Font - 1);
     }
     if (QMetaType::type(name))
         return UserType;
@@ -1788,6 +1817,46 @@ QVariant::Type QVariant::nameToType(const char *name)
 }
 
 #ifndef QT_NO_DATASTREAM
+enum { MapFromThreeCount = 35 };
+static const uint map_from_three[MapFromThreeCount] =
+{
+    QVariant::Invalid,
+    QVariant::Map,
+    QVariant::List,
+    QVariant::String,
+    QVariant::StringList,
+    QVariant::Font,
+    QVariant::Pixmap,
+    QVariant::Brush,
+    QVariant::Rect,
+    QVariant::Size,
+    QVariant::Color,
+    QVariant::Palette,
+    63, // ColorGroup
+    QVariant::Icon,
+    QVariant::Point,
+    QVariant::Image,
+    QVariant::Int,
+    QVariant::UInt,
+    QVariant::Bool,
+    QVariant::Double,
+    QVariant::ByteArray,
+    QVariant::Polygon,
+    QVariant::Region,
+    QVariant::Bitmap,
+    QVariant::Cursor,
+    QVariant::SizePolicy,
+    QVariant::Date,
+    QVariant::Time,
+    QVariant::DateTime,
+    QVariant::ByteArray,
+    QVariant::BitArray,
+    QVariant::KeySequence,
+    QVariant::Pen,
+    QVariant::LongLong,
+    QVariant::ULongLong
+};
+
 /*!
     Internal function for loading a variant from stream \a s. Use the
     stream operators instead.
@@ -1800,6 +1869,11 @@ void QVariant::load(QDataStream &s)
 
     quint32 u;
     s >> u;
+    if (s.version() < QDataStream::Qt_4_0) {
+        if (u > MapFromThreeCount)
+            return;
+        u = map_from_three[u];
+    }
     if (u >= QVariant::UserType) {
         QByteArray name;
         s >> name;
@@ -1820,8 +1894,22 @@ void QVariant::load(QDataStream &s)
 */
 void QVariant::save(QDataStream &s) const
 {
-    s << (quint32)type();
-    if (type() == QVariant::UserType) {
+    quint32 tp = type();
+    if (s.version() < QDataStream::Qt_4_0) {
+        int i;
+        for (i = 0; i < MapFromThreeCount; ++i) {
+            if (map_from_three[i] == tp) {
+                tp = map_from_three[i];
+                break;
+            }
+        }
+        if (i == MapFromThreeCount) {
+            s << QVariant();
+            return;
+        }
+    }
+    s << tp;
+    if (tp == QVariant::UserType) {
         s << QMetaType::typeName(userType());
     }
     handler->save(&d, s);
@@ -1901,6 +1989,7 @@ Q_VARIANT_TO(Url)
 Q_VARIANT_TO(Locale)
 #ifndef QT_NO_GEOM_VARIANT
 Q_VARIANT_TO(Size)
+Q_VARIANT_TO(SizeF)
 Q_VARIANT_TO(Rect)
 Q_VARIANT_TO(Point)
 Q_VARIANT_TO(PointF)

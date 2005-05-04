@@ -24,8 +24,8 @@ class Q_CORE_EXPORT QMetaType {
 public:
     enum {
         // these are merged with QVariant
-        Void = 0, QString = 3, Int = 16, UInt = 17,
-        Bool = 18, Double = 19, QByteArray = 29, QChar = 35,
+        Void = 0, Bool = 1, Int = 2, UInt = 3, Double = 6, QChar = 7,
+        QString = 10, QByteArray = 12,
 
         VoidStar = 128, Long, Short, Char, ULong,
         UShort, UChar, Float, QObjectStar, QWidgetStar,
