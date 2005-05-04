@@ -1975,7 +1975,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 if (tabletCaps & 0x0200)     // Z-axis
                     z = tabletPointRec.absZ;
 
-                if (tabletCaps & 0x0800)  // Tangental pressure
+                if (tabletCaps & 0x0800)  // Tangential pressure
                     tp = tabletPointRec.tangentialPressure / 32767.0;
 
                 if (tabletCaps & 0x2000) // Rotation
