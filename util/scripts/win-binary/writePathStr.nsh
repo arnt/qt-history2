@@ -74,7 +74,8 @@ FunctionEnd
 ; RemoveFromPath - Remove a given dir from the path
 ;     Input: head of the stack
 
-Function un.RemoveFromPath
+!macro RemoveFromPath un
+Function ${un}RemoveFromPath
   Exch $0
   Push $1
   Push $2
@@ -85,7 +86,7 @@ Function un.RemoveFromPath
 
   IntFmt $6 "%c" 26 # DOS EOF
 
-  Call un.IsNT2
+  Call ${un}IsNT2
   Pop $1
   StrCmp $1 1 unRemoveFromPath_NT
     ; Not on NT
@@ -128,7 +129,7 @@ Function un.RemoveFromPath
       StrCpy $1 "$1;" # append ;
     Push $1
     Push "$0;"
-    Call un.StrStr ; Find `$0;` in $1
+    Call ${un}StrStr ; Find `$0;` in $1
     Pop $2 ; pos of our dir
     StrCmp $2 "" unRemoveFromPath_done
       ; else, it is in path
@@ -156,6 +157,10 @@ Function un.RemoveFromPath
     Pop $1
     Pop $0
 FunctionEnd
+!macroend
+!insertmacro RemoveFromPath ""
+!insertmacro RemoveFromPath "un."
+
 
 ###########################################
 #            Utility Functions            #

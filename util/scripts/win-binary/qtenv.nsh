@@ -11,6 +11,7 @@
 !define DESIGNER_CMD_SHORT "designer.exe"
 
 var SET_ENV_VARS
+var OLD_QTDIR
 var REGISTER_UI_EXT_STATE
 var RUNNING_AS_ADMIN
 
@@ -19,7 +20,17 @@ LangString EnvTitleDescription ${LANG_ENGLISH} "Configure the environment variab
 
 !macro TT_QTENV_PAGE_INIT
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "${TT_ENV_INI_FILE}"
-  strcpy $SET_ENV_VARS "0"
+  push $0
+  ExpandEnvStrings $0 "%QTDIR%"
+
+  StrCmp $0 "%QTDIR%" +4
+  strcpy $SET_ENV_VARS "0" ;QTDIR exists
+  strcpy $OLD_QTDIR $0
+  Goto +3
+  strcpy $SET_ENV_VARS "1" ;no QTDIR
+  strcpy $OLD_QTDIR "0"
+
+  pop $0
   strcpy $REGISTER_UI_EXT_STATE "0"
 !macroend
 
@@ -115,6 +126,11 @@ Function RegisterQtEnvVariables
   push $1
   
   intcmp $SET_ENV_VARS 0 noenv
+  
+  StrCmp $OLD_QTDIR "0" +4
+  DetailPrint "Removing $OLD_QTDIR\bin from PATH"
+  push "$OLD_QTDIR\bin"
+  Call RemoveFromPath ; remove old qtdir
 
   DetailPrint "Setting QTDIR to $2"
   push "QTDIR"
@@ -264,6 +280,12 @@ Function MakeQtVarsFile
   FileWrite $0 "@set QTDIR=$1$\r$\n"
   FileWrite $0 "@set PATH=$1\bin;%PATH%$\r$\n"
   FileWrite $0 "@set QMAKESPEC=$2$\r$\n"
+  
+  FileWrite $0 "$\r$\n"
+  FileWrite $0 '@if not "%1"=="setup" goto SETUP_DONE$\r$\n'
+  FileWrite $0 "@cd %QTDIR%\examples$\r$\n"
+  FileWrite $0 "@qmake -r -tp vc$\r$\n"
+  FileWrite $0 "@:SETUP_DONE$\r$\n"
 
   call GetVSVarsFile
   pop $2
@@ -273,6 +295,8 @@ Function MakeQtVarsFile
     FileWrite $0 '@call "$2"$\r$\n'
     FileWrite $0 "@:END$\r$\n"
   novsvars:
+  FileWrite $0 "$\r$\n"
+  FileWrite $0 "@cd %QTDIR%$\r$\n"
   FileClose $0
   done:
   pop $2

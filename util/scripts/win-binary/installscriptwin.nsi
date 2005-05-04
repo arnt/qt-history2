@@ -58,7 +58,7 @@
 Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
 OutFile "${DISTNAME}.exe"
 
-InstallDir "C:\${PRODUCT_NAME}\${PRODUCT_VERSION}"
+InstallDir "C:\${PRODUCT_NAME}\${PRODUCT_VERSION}\"
 ShowInstDetails show
 ShowUnInstDetails show
 
@@ -68,19 +68,24 @@ Section "MainSection" SEC01
   File /r "${PACKAGEDIR}\*.*"
   
   ;clean up license files
+  SetDetailsPrint none
   strcmp $DISPLAY_US_LICENSE "1" 0 NonUS
-    File /oname=".LICENSE" "${PACKAGEDIR}\.LICENSE-US"
-    goto End
+    Delete "$INSTDIR\.LICENSE"
+    Rename "$INSTDIR\.LICENSE-US" "$INSTDIR\.LICENSE"
+    Goto End
 
   NonUS:
-    File /oname=".LICENSE" "${PACKAGEDIR}\.LICENSE"
+    Delete "$INSTDIR\.LICENSE-US"
 
   End:
+  SetDetailsPrint both
 SectionEnd
 
 Section -AdditionalIcons
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}"
+
+  call AddDemoShortCuts
 
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Assistant.lnk" "$INSTDIR\bin\assistant.exe"
@@ -124,7 +129,7 @@ Section -Post
   call MakeQtVarsFile
 
   call PatchPrlFiles
-  call PatchPdbFiles
+  call PatchBinaryFiles
   
   #patch the licencee information
   DetailPrint "Patching license information..."
@@ -138,12 +143,39 @@ Section -Post
   qtnsisext::PatchBinary "$INSTDIR\bin\QtCored4.dll" "${LICENSEE_REPLACENAME}" "$LICENSEE"
   qtnsisext::PatchBinary "$INSTDIR\bin\QtCore4.dll" "${LICENSEE_REPLACENAME}" "$LICENSEE"
   ####
+
+  DetailPrint "Please wait while creating project files for examples..."
+  nsExec::Exec "$INSTDIR\bin\qtvars.bat setup"
 SectionEnd
 
 Function .onInit
   call SetAdminVar
   !insertmacro TT_LICENSE_PAGE_INIT
   !insertmacro TT_QTENV_PAGE_INIT
+FunctionEnd
+
+Function AddDemoShortCuts
+  push $0
+  push $1
+
+  SetOutPath "$INSTDIR\bin" ;this becomes the Start In path (where the qt libs are)
+  CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos"
+
+  FindFirst $0 $1 "$INSTDIR\demos\*.*"
+  loop:
+    StrCmp $1 "" done
+    IfFileExists "$INSTDIR\demos\$1\$1.exe" 0 +2
+    CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos\$1.lnk" "$INSTDIR\demos\$1\$1.exe"
+    IfFileExists "$INSTDIR\demos\$1\release\$1.exe" 0 +2
+    CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos\$1.lnk" "$INSTDIR\demos\$1\release\$1.exe"
+    FindNext $0 $1
+    Goto loop
+
+  done:
+  
+  SetOutPath "$INSTDIR"
+  pop $1
+  pop $0
 FunctionEnd
 
 Function PatchPrlFiles
@@ -168,7 +200,7 @@ Function PatchPrlFiles
   pop $0
 FunctionEnd
 
-Function PatchPdbFiles
+Function PatchBinaryFiles
   #patching the pdb files
   push $0
   push $1
@@ -200,10 +232,18 @@ Function CheckDirectory
   push $1
   push $2
   push $3
+  
+  ; check if qt is already installed
+  IfFileExists "$INSTDIR\bin\qmake.exe" 0 +2
+  IfFileExists "$INSTDIR\uninst.exe" qtExistsError
+  
+  GetInstDirError $0
+  IntCmp 0 $0 0 instDirError
+  
   StrLen $0 $INSTDIR
   StrLen $1 ${QTBUILDDIR}
 
-  IntCmp $1 $0 0 errorInDirectory
+  IntCmp $1 $0 0 directoryToLong
   
   ;check for spaces
   StrCpy $2 "-1"
@@ -213,11 +253,26 @@ Function CheckDirectory
   IntOp $2 $2 + 1 ;increase counter
   StrCpy $3 $INSTDIR "1" $2 ;get char
   StrCmp $3 "" directoryOk ; check for end
-  StrCmp $3 " " errorInDirectory ;check for space
+  StrCmp $3 " " spaceInDirectory ;check for space
   goto loop
+  
+qtExistsError:
+  MessageBox MB_OK|MB_ICONEXCLAMATION "Qt is already installed in this directory. Please uninstall the previous version and try again."
+  Goto errorInDirectory
+
+instDirError:
+  MessageBox MB_OK|MB_ICONEXCLAMATION "This is not a valid installation directory."
+  Goto errorInDirectory
+
+spaceInDirectory:
+  MessageBox MB_OK|MB_ICONEXCLAMATION "The installation path can't contain spaces."
+  Goto errorInDirectory
+  
+directoryToLong:
+  MessageBox MB_OK|MB_ICONEXCLAMATION "The installation directory is to long."
+  Goto errorInDirectory
 
 errorInDirectory:
-  MessageBox MB_OK|MB_ICONEXCLAMATION "The installation path can't contain spaces or be more than 100 characters long."
   pop $3
   pop $2
   pop $1
@@ -254,13 +309,11 @@ Function un.onInit
 FunctionEnd
 
 Section Uninstall
+  AddSize 150000
   DetailPrint "Removing start menu shortcuts"
-  
-  Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Assistant.lnk"
-  Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Designer.lnk"
-  Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Linguist.lnk"
 
-  RMDir "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools"
+  RMDir /r "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos"
+  RMDir /r "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools"
   
   Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Uninstall.lnk"
   Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Website.lnk"
@@ -268,7 +321,8 @@ Section Uninstall
 
   RMDir "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}"
   
-  DetailPrint "Removing installation directory"
+  #removing in more than one step (progressbar)
+  DetailPrint "Removing installation directory..."
   RMDir /r "$INSTDIR"
 
   #removing the environment variables
