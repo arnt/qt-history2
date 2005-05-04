@@ -786,48 +786,6 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
     // layout toolbars
 
-    // put all lines on the hidden list that contains at least one
-    // shown tb back into the active lines list
-    for (int line = 0; line < tb_layout_info_hidden.size(); ++line) {
-        ToolBarLineInfo &lineInfo = tb_layout_info_hidden[line];
-        for (int i = 0; i < lineInfo.hidden_list.size(); ++i) {
-            if (!lineInfo.hidden_list.at(i).item->widget()->isHidden()
-                && lineInfo.list.size() == 0)
-            {
-                ToolBarLineInfo l = tb_layout_info_hidden.takeAt(line--);
-                tb_layout_info.insert(l.index, l);
-            }
-        }
-    }
-
-    // put all shown tbs in the hidden list back into the active list
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        ToolBarLineInfo &lineInfo = tb_layout_info[line];
-        for (int i = 0; i < lineInfo.hidden_list.size(); ++i) {
-            if (!lineInfo.hidden_list.at(i).item->widget()->isHidden()) {
-                ToolBarLayoutInfo tb = lineInfo.hidden_list.takeAt(i);
-                lineInfo.list.insert(tb.index, tb);
-            }
-        }
-    }
-
-    // remove all hidden tbs from the active list
-    for (int line = 0; line < tb_layout_info.size(); ++line) {
-        ToolBarLineInfo &lineInfo = tb_layout_info[line];
-        for (int i = 0; i < lineInfo.list.size(); ++i) {
-            if (lineInfo.list.at(i).item->widget()->isHidden()) {
-                ToolBarLayoutInfo tb = lineInfo.list.takeAt(i);
-                tb.index = i;
-                lineInfo.hidden_list.append(tb);
-            }
-        }
-        if (lineInfo.list.size() == 0) {
-            ToolBarLineInfo l = tb_layout_info.takeAt(line);
-            l.index = line;
-            tb_layout_info_hidden.append(l);
-        }
-    }
-
     // calculate the respective tool bar rectangles and store the
     // width/height of the largest tb on each line
     QVarLengthArray<QRect> tb_rect(tb_layout_info.size());
@@ -846,6 +804,8 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	QSize tb_sz;
         for (int i = 0; i < lineInfo.list.size(); ++i) {
 	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
+            if (info.item->isEmpty())
+                continue;
 	    QSize sh = info.item->sizeHint();
 	    if (tb_sz.width() < sh.width())
 		tb_sz.setWidth(sh.width());
@@ -925,34 +885,45 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
         int num_tbs = lineInfo.list.size();
 	POSITION where = static_cast<POSITION>(lineInfo.pos);
 
+        bool first = true;
         for (int i = 0; i < num_tbs; ++i) {
             ToolBarLayoutInfo &info = lineInfo.list[i];
+            if (info.item->isEmpty())
+                continue;
+
  	    set(where, info.size, pick(where, tb_rect[line].size()));
 
 	    // position
- 	    if (i == 0) { // first tool bar can't have an offset
-		if (num_tbs > 1 && !info.size.isEmpty()
+ 	    if (first) { // first tool bar can't have an offset
+                first = false;
+                int nextIndex = nextVisible(i, lineInfo);
+		if (nextIndex != -1 && !info.size.isEmpty()
 		    && pick_perp(where, info.offset) > pick_perp(where, info.size)) {
 		    // swap if dragging it past the next one
-		    ToolBarLayoutInfo &next = lineInfo.list[i+1];
-		    next.pos = tb_rect[line].topLeft();
-		    next.size.setHeight(pick_perp(where, get_item_sh(next.item->widget()->layout())) + tb_fill);
-		    next.offset = QPoint();
-		    if (where == LEFT || where == RIGHT)
+                    ToolBarLayoutInfo &next = lineInfo.list[nextIndex];
+                    next.pos = tb_rect[line].topLeft();
+                    next.size.setHeight(pick_perp(where, get_item_sh(next.item->widget()->layout())) + tb_fill);
+                    next.offset = QPoint();
+                    if (where == LEFT || where == RIGHT)
 			info.pos = QPoint(tb_rect[line].left(), next.pos.y() + next.size.height());
-		    else
+                    else
 			info.pos = QPoint(next.pos.x() + next.size.width(), tb_rect[line].top());
-		    info.offset = QPoint(); // has to be done before swapping
-		    lineInfo.list.swap(i, i+1);
-		} else {
+                    info.offset = QPoint(); // has to be done before swapping
+                    lineInfo.list.swap(i, nextIndex);
+                } else {
 		    info.pos = tb_rect[line].topLeft();
 		    info.offset = QPoint();
 		}
 	    } else {
-                ToolBarLayoutInfo &prev = lineInfo.list[i-1];
+                int prevIndex = prevVisible(i, lineInfo);
+                Q_ASSERT_X(prevIndex != -1, "QMainWindowLayout", "internal error");
+
+                ToolBarLayoutInfo &prev = lineInfo.list[prevIndex];
 		QSize min_size = get_item_sh(info.item->widget()->layout());
 		set_perp(where, min_size, pick_perp(where, min_size) + tb_fill);
- 		const int cur_pt = pick_perp(where, prev.pos) + pick_perp(where, prev.size);
+                const int cur_pt = info.size.isEmpty()
+                                   ? (pick_perp(where, prev.pos) + pick_perp(where, get_real_sh(prev.item->widget()->layout())))
+                                   : pick_perp(where, prev.pos) + pick_perp(where, prev.size);
  		const int prev_min = pick_perp(where, get_item_sh(prev.item->widget()->layout())) + tb_fill;
                 const int snap_dist = 12;
 
@@ -961,7 +932,7 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 
 		if (pick_perp(where, info.offset) < 0) { // left/up motion
 		    if (pick_perp(where, prev.size) + pick_perp(where, info.offset) >= prev_min) {
-			// shrink the previous one and increase size of current with same
+                        // shrink the previous one and increase size of current with same
                         QSize real_sh = get_real_sh(prev.item->widget()->layout());
                         QSize sz(0, 0);
 			set_perp(where, sz, pick_perp(where, info.offset));
@@ -1047,10 +1018,12 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 			    QSize sz(0, 0);
 			    set_perp(where, sz, can_remove);
 			    info.size -= sz;
-			    if (i+1 < num_tbs) {
-                                ToolBarLayoutInfo &t = lineInfo.list[i+1];
+
+                            int nextIndex = nextVisible(i, lineInfo);
+			    if (nextIndex != -1) {
+                                ToolBarLayoutInfo &t = lineInfo.list[nextIndex];
                                 if (pick_perp(where, info.pos) + pick_perp(where, info.offset) > pick_perp(where, t.pos))
-                                    lineInfo.list.swap(i, i+1);
+                                    lineInfo.list.swap(i, nextIndex);
 			    }
 			}
 		    }
@@ -1068,32 +1041,44 @@ void QMainWindowLayout::setGeometry(const QRect &_r)
 	    }
 
 	    // size
-	    if (num_tbs == 1)
+	    if (num_tbs == 1) {
 		set_perp(where, info.size, pick_perp(where, tb_rect[line].size()));
-	    else if (i == num_tbs-1) {
-                // do a sanity check on the pos
-                if (pick_perp(where, info.pos) >= pick_perp(where, tb_rect[line].size())) {
-                    int min = pick_perp(where, get_item_sh(info.item->widget()->layout())) + tb_fill;
-                    set_perp(where, info.pos, pick_perp(where, tb_rect[line].size()) - min);
+            } else {
+                int nextIndex = nextVisible(i, lineInfo);
+                if (nextIndex == -1) {
+                    // do a sanity check on the pos
+                    if (pick_perp(where, info.pos) >= pick_perp(where, tb_rect[line].size())) {
+                        int min = pick_perp(where, get_item_sh(info.item->widget()->layout())) + tb_fill;
+                        set_perp(where, info.pos, pick_perp(where, tb_rect[line].size()) - min);
+                    }
+                    set_perp(where, info.size, pick_perp(where, tb_rect[line].size()));
+                    if (where == LEFT || where == RIGHT)
+                        info.size.setHeight(tb_rect[line].bottom() - info.pos.y() + 1);
+                    else
+                        info.size.setWidth(tb_rect[line].right() - info.pos.x() + 1);
+                    if (pick_perp(where, info.size) < 1)
+                        set_perp(where, info.size, pick_perp(where, get_item_sh(info.item->widget()->layout())) + tb_fill);
                 }
-		set_perp(where, info.size, pick_perp(where, tb_rect[line].size()));
-		if (where == LEFT || where == RIGHT)
-		    info.size.setHeight(tb_rect[line].bottom() - info.pos.y() + 1);
-                else
-		    info.size.setWidth(tb_rect[line].right() - info.pos.x() + 1);
-		if (pick_perp(where, info.size) < 1)
-		    set_perp(where, info.size, pick_perp(where, get_item_sh(info.item->widget()->layout())) + tb_fill);
-	    }
+            }
+
 	    if (i > 0) {
 		// assumes that all tbs are positioned at the correct
 		// pos - fill in the gaps btw them
-		ToolBarLayoutInfo &prev = lineInfo.list[i-1];
-		set_perp(where, prev.size, pick_perp(where, info.pos) - pick_perp(where, prev.pos));
-	    }
+                int prevIndex = prevVisible(i, lineInfo);
+                if (prevIndex != -1) {
+                    ToolBarLayoutInfo &prev = lineInfo.list[prevIndex];
+                    set_perp(where, prev.size, pick_perp(where, info.pos) - pick_perp(where, prev.pos));
+                }
+            }
 	}
 
 	for (int i = 0; i < num_tbs; ++i) {
 	    ToolBarLayoutInfo &info = lineInfo.list[i];
+            if (info.item->isEmpty()) {
+                info.size = QSize();
+                continue;
+            }
+
 	    QRect tb(info.pos, info.size);
 	    tb = QStyle::visualRect(QApplication::layoutDirection(), tb_rect[line], tb);
 	    if (!tb.isEmpty() && relayout_type == QInternal::RelayoutNormal)
@@ -1946,7 +1931,9 @@ int QMainWindowLayout::locateToolBar(QToolBar *toolbar, const QPoint &mouse) con
 	    const ToolBarLayoutInfo &info = lineInfo.list.at(i);
 	    if (!info.item)
                 continue;
- 	    if (!info.item->geometry().contains(p))
+ 	    if (info.item->isEmpty())
+                continue;
+            if (!info.item->geometry().contains(p))
                 continue;
 	    pos = static_cast<POSITION>(lineInfo.pos);
 	    break_it = true;
@@ -1983,7 +1970,7 @@ void QMainWindowLayout::dropToolBar(QToolBar *toolbar, const QPoint &mouse, cons
             ToolBarLineInfo &lineInfo = tb_layout_info[l];
 	    bool break_it = false;
 	    for (i = 0; i < lineInfo.list.size(); ++i) {
-		ToolBarLayoutInfo &tmp = lineInfo.list[i];
+                ToolBarLayoutInfo &tmp = lineInfo.list[i];
 		if (tmp.item->widget() == toolbar) {
 		    info = tmp;
  		    tmp.offset += offset;
@@ -2089,4 +2076,22 @@ void QMainWindowLayout::removeToolBarInfo(QToolBar *toolbar)
 	    }
 	}
     }
+}
+
+int QMainWindowLayout::nextVisible(int index, const ToolBarLineInfo &lineInfo)
+{
+    for (++index; index < lineInfo.list.size(); ++index) {
+        if (!lineInfo.list.at(index).item->isEmpty())
+            break;
+    }
+    return (index >= 0 && index < lineInfo.list.size()) ? index : -1;
+}
+
+int QMainWindowLayout::prevVisible(int index, const ToolBarLineInfo &lineInfo)
+{
+    for (--index; index >= 0; --index) {
+        if (!lineInfo.list.at(index).item->isEmpty())
+            break;
+    }
+    return (index >= 0 && index < lineInfo.list.size()) ? index : -1;
 }
