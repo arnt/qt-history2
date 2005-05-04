@@ -11,7 +11,7 @@ LINK	    = link
 !endif
 
 CFLAGS	    = -c -Fo$@ \
-              -W3 -nologo -O1 \
+              -W3 -nologo -O2 \
               -I. -Igenerators -Igenerators\unix -Igenerators\win32 -Igenerators\mac \
               -I..\src\corelib\arch\generic -I..\include -I..\src\tools -I..\include\QtCore \
               -I..\mkspecs\win32-msvc \
