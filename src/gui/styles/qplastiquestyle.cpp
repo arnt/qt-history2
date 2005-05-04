@@ -37,6 +37,7 @@ static const bool UsePixmapCache = true;
 #include <qscrollbar.h>
 #include <qstyleoption.h>
 #include <qtextedit.h>
+#include <qtoolbox.h>
 #include <qtoolbutton.h>
 #include <qworkspace.h>
 
@@ -2511,10 +2512,63 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         painter->fillRect(option->rect, option->palette.background());
         break;
     case CE_ToolBoxTab:
-        if ((option->state & State_Selected) && (option->state & State_Enabled))
-            qt_plastique_drawShadedPanel(painter, option, true);
-        else
-            painter->fillRect(option->rect, painter->brush());
+        if (const QStyleOptionToolBox *toolBox = qstyleoption_cast<const QStyleOptionToolBox *>(option)) {
+            painter->save();
+
+            int width = toolBox->rect.width();
+            int diag = toolBox->rect.height() - 2;
+
+            // The essential points
+            QPoint rightMost(toolBox->rect.right(), toolBox->rect.bottom() - 2);
+            QPoint rightEdge(toolBox->rect.right() - width / 10, toolBox->rect.bottom() - 2);
+            QPoint leftEdge(toolBox->rect.right() - width / 10 - diag, toolBox->rect.top());
+            QPoint leftMost(toolBox->rect.left(), toolBox->rect.top());
+            QPoint upOne(0, -1);
+            QPoint downOne(0, 1);
+            QPoint leftOne(-1, 0);
+            QPoint rightOne(1, 0);
+
+            // The upper path
+            QPainterPath upperPath(rightMost + rightOne);
+            upperPath.lineTo(rightEdge);
+            upperPath.lineTo(leftEdge);
+            upperPath.lineTo(leftMost + leftOne);
+            upperPath.lineTo(toolBox->rect.topLeft() + leftOne + upOne);
+            upperPath.lineTo(toolBox->rect.topRight() + rightOne + upOne);
+            upperPath.lineTo(rightMost + rightOne);
+
+            // The lower path
+            QPainterPath lowerPath(rightMost + rightOne);
+            lowerPath.lineTo(rightEdge);
+            lowerPath.lineTo(leftEdge);
+            lowerPath.lineTo(leftMost + leftOne);
+            lowerPath.lineTo(toolBox->rect.bottomLeft() + leftOne + downOne);
+            lowerPath.lineTo(toolBox->rect.bottomRight() + rightOne + downOne);
+            lowerPath.lineTo(rightMost);
+
+            //painter->fillRect(option->rect, toolBox->palette.base());
+
+            // Fill the tab
+            // if (toolBox->selectedPosition == QStyleOptionToolBox::PreviousIsSelected) {
+            //    painter->fillPath(upperPath, toolBox->palette.base());
+            //    painter->fillPath(lowerPath, toolBox->palette.background());
+            // } else {
+            //    painter->fillPath(upperPath, toolBox->palette.background());
+            //    painter->fillPath(lowerPath, toolBox->palette.base());
+            // }
+
+            // Draw the outline
+            painter->setPen(borderColor);
+            painter->drawLine(rightMost, rightEdge);
+            painter->drawLine(rightEdge + leftOne, leftEdge);
+            painter->drawLine(leftEdge + leftOne, leftMost);
+            painter->setPen(toolBox->palette.base().color());
+            painter->drawLine(rightMost + downOne, rightEdge + downOne);
+            painter->drawLine(rightEdge + leftOne + downOne, leftEdge + downOne);
+            painter->drawLine(leftEdge + leftOne + downOne, leftMost + downOne);
+            
+            painter->restore();
+        }
         break;
     case CE_Splitter:
         if (option->state & State_Horizontal) {
@@ -3995,6 +4049,9 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     case SH_ItemView_ShowDecorationSelected:
         ret = true;
         break;
+    case SH_ToolBox_SelectedPageTitleBold:
+        ret = true;
+        break;
     default:
         ret = QWindowsStyle::styleHint(hint, option, widget, returnData);
         break;
@@ -4107,6 +4164,9 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         return 4;
     case PM_TitleBarHeight:
         return qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 30);
+    case PM_DefaultChildMargin:
+        return 0;
+        break;
     default:
         break;
     }
@@ -4187,6 +4247,10 @@ void QPlastiqueStyle::polish(QWidget *widget)
 
     if (widget->inherits("QWorkspaceTitleBar"))
         widget->setAttribute(Qt::WA_Hover);
+
+    QToolBox *box = qobject_cast<QToolBox *>(widget);
+    if (box)
+        box->setBackgroundRole(QPalette::Background);
 }
 
 /*!
@@ -4205,6 +4269,10 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
         widget->setAttribute(Qt::WA_Hover, false);
     else if (qobject_cast<QTabBar *>(widget))
         widget->setAttribute(Qt::WA_Hover, false);
+
+    QToolBox *box = qobject_cast<QToolBox *>(widget);
+    if (box)
+        box->setBackgroundRole(QPalette::Button);
 }
 
 /*!
