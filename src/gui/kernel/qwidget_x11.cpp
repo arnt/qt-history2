@@ -1462,24 +1462,26 @@ void QWidget::repaint(const QRegion& rgn)
     if (!redirectionOffset.isNull())
         QPainter::setRedirected(this, this, redirectionOffset);
 
-    if (do_clipping) {
+    QPaintEngine *engine = paintEngine();
+
+    if (engine && do_clipping) {
         if (redirectionOffset.isNull()) {
-            paintEngine()->setSystemClip(rgn);
+            engine->setSystemClip(rgn);
         } else {
             QRegion redirectedRegion(rgn);
             redirectedRegion.translate(-redirectionOffset);
-            paintEngine()->setSystemClip(redirectedRegion);
+            engine->setSystemClip(redirectedRegion);
         }
     }
 
-    if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
+    if (engine && !testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
         d->composeBackground(br);
 
     QPaintEvent e(rgn);
     QApplication::sendSpontaneousEvent(this, &e);
 
-    if (do_clipping)
-        paintEngine()->setSystemClip(QRegion());
+    if (engine && do_clipping)
+        engine->setSystemClip(QRegion());
 
     if (!redirectionOffset.isNull())
         QPainter::restoreRedirected(this);

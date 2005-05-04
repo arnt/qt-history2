@@ -432,10 +432,12 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 
                     //setup the context
                     widget->setAttribute(Qt::WA_WState_InPaintEvent);
-                    widget->paintEngine()->setSystemClip(qrgn);
+                    QPaintEngine *engine = widget->paintEngine();
+                    if (engine)
+                        engine->setSystemClip(qrgn);
 
                     //handle the erase
-                    if(!widget->testAttribute(Qt::WA_NoBackground) &&
+                    if(engine && !widget->testAttribute(Qt::WA_NoBackground) &&
                        !widget->d_func()->isBackgroundInherited()) {
                         if (!redirectionOffset.isNull())
                             QPainter::setRedirected(widget, widget, redirectionOffset);
@@ -468,7 +470,9 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         QPainter::restoreRedirected(widget);
 
                     //cleanup
-                    widget->paintEngine()->setSystemClip(QRegion());
+                    if (engine)
+                        engine->setSystemClip(QRegion());
+
                     widget->setAttribute(Qt::WA_WState_InPaintEvent, false);
                     if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
                         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");

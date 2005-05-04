@@ -655,9 +655,12 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
 
     QRegion clipRegion(rgn);
     clipRegion.translate(-redirectionOffset);
-    bs->paintEngine()->setSystemClip(clipRegion);
+    QPaintEngine *engine = bs->paintEngine();
+    if (engine)
+        engine->setSystemClip(clipRegion);
 
-    if (!q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
+    if (engine
+        && !q->testAttribute(Qt::WA_NoBackground) && !q->testAttribute(Qt::WA_NoSystemBackground)) {
         const QPalette &pal = q->palette();
         QPalette::ColorRole bg = q->backgroundRole();
         QBrush bgBrush = pal.brush(bg);
@@ -677,7 +680,8 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
     QApplication::sendSpontaneousEvent(q, &e);
 
     // Clear the clipping again
-    bs->paintEngine()->setSystemClip(QRegion());
+    if (engine)
+        engine->setSystemClip(QRegion());
 
     QPainter::restoreRedirected(q);
 

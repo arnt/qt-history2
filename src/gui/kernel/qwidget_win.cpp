@@ -921,7 +921,9 @@ void QWidget::repaint(const QRegion& rgn)
     if (rasterEngine && do_clipping)
         rasterEngine->setSystemClip(rgn);
 
-    if (!testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
+    if (engine
+        && !testAttribute(Qt::WA_NoBackground)
+        && !testAttribute(Qt::WA_NoSystemBackground))
         d->composeBackground(br);
 
     QPaintEvent e(rgn);
