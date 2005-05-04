@@ -475,7 +475,7 @@ static void setup()
 
 
 /*!
-    \class QTextCodec qtextcodec.h
+    \class QTextCodec
     \brief The QTextCodec class provides conversions between text encodings.
     \reentrant
     \ingroup i18n
@@ -644,6 +644,26 @@ static void setup()
     Codecs can also be created as \link plugins-howto.html plugins\endlink.
 */
 
+/*!
+    \enum QTextCodec::ConversionFlag
+
+    \value DefaultConversion  No flag is set.
+    \value ConvertInvalidToNull  If this flag is set, invalid input results in
+           an empty string.
+    \value IgnoreHeader  Ignore any Unicode byte-order mark and don't generate any.
+*/
+
+/*!
+    \fn QTextCodec::ConverterState::ConverterState(ConversionFlags flags)
+
+    Constructs a ConverterState object initialized with the given \a flags.
+*/
+
+/*!
+    \fn QTextCodec::ConverterState::~ConverterState()
+
+    Destroys the ConverterState object.
+*/
 
 /*!
     \nonreentrant
@@ -923,11 +943,12 @@ QByteArray QTextCodec::fromUnicode(const QString& str) const
 }
 
 /*
-    \fn QString QTextCodec::toUnicode(const char *input, int number,
+    \fn QString QTextCodec::toUnicode(const char *in, int size,
                                       ConverterState *state) const
 
-    Converts the first \a number of characters from the \a input from the
-    encoding of this codec to Unicode, and returns the result in a QString.
+    Converts the first \a size characters from the \a input from the
+    encoding of this codec to Unicode, and returns the result in a
+    QString.
 
     The \a state of the convertor used is updated.
 */
@@ -974,13 +995,13 @@ bool QTextCodec::canEncode(const QString& s) const
 
     \sa QLocale
 */
-const char* QTextCodec::locale()
+const char *QTextCodec::locale()
 {
     return QLocalePrivate::systemLocaleName();
 }
 
 /*!
-  \overload
+    \overload
 */
 
 QByteArray QTextCodec::fromUnicode(const QString& uc, int& lenInOut) const
@@ -1205,6 +1226,33 @@ QString QTextDecoder::toUnicode(const QByteArray &ba)
     the ASCII range when needed.
 
     \sa codecForCStrings(), setCodecForTr()
+*/
+
+/*!
+    \fn QTextCodec *QTextCodec::codecForContent(const char *str, int size)
+
+    This functionality is no longer provided by Qt. This
+    compatibility function always returns a null pointer.
+*/
+
+/*!
+    \fn QTextCodec *QTextCodec::codecForName(const char *hint, int accuracy)
+    
+    Use the codecForName(const QByteArray &) overload instead.
+*/
+
+/*!
+    \fn QTextCodec *QTextCodec::codecForIndex(int i)
+
+    Use availableCodecs() or availableMibs() instead and iterate
+    through the resulting list.
+*/
+
+
+/*!
+    \fn QByteArray QTextCodec::mimeName() const
+
+    Use name() instead.
 */
 
 #endif // QT_NO_TEXTCODEC

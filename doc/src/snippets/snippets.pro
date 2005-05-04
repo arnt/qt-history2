@@ -19,6 +19,7 @@ SUBDIRS         = buffer \
                   events \
 #                  file \
                   itemselection \
+                  layouts \
                   moc \
 #                  modelview-subclasses \   # broken
                   persistentindexes \

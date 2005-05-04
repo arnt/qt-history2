@@ -818,7 +818,7 @@
 #define QT_NO_TEXTCODECPLUGIN
 #endif
 
-// QImageFormatPlugin
+// QImageIOPlugin
 #if !defined(QT_NO_IMAGEFORMATPLUGIN) && (defined(QT_NO_COMPONENT) || defined(QT_NO_IMAGEIO))
 #define QT_NO_IMAGEFORMATPLUGIN
 #endif

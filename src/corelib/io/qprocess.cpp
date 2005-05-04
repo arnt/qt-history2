@@ -69,6 +69,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \ingroup io
     \ingroup misc
     \mainclass
+    \reentrant
 
     To start a process, pass the name and command line arguments of
     the program you want to run as arguments to start(). QProcess then

@@ -48,7 +48,7 @@
     \o Base Class
     \o Default Path
     \row
-    \o \l QImageFormatPlugin
+    \o \l QImageIOPlugin
     \o \c{pluginsbase/imageformats}
     \row
     \o \l QSqlDriverPlugin

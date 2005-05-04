@@ -569,7 +569,7 @@
     \omitvalue ScaleMin
     \omitvalue ScaleMax
 
-    \sa QSize::scale(), QImage::scale()
+    \sa QSize::scale(), QImage::scaled()
 */
 
 /*! \typedef Qt::ScaleMode
@@ -597,7 +597,7 @@
     \value SmoothTransformation  The resulting image has smoothed
                                  edges.
 
-    \sa QImage::scale()
+    \sa QImage::scaled()
 */
 
 /*!
@@ -1463,12 +1463,12 @@
     \value MSWindowsFixedSizeDialogHint  Gives the window a thin dialog border on Windows.
            This style is traditionally used for fixed-size dialogs.
 
-    \value Qt::MSWindowsOwnDC  Gives the window its own display
+    \value MSWindowsOwnDC  Gives the window its own display
            context on Windows.
 
     \value X11BypassWindowManagerHint  Bypass the window
            manager completely. This results in a borderless window
-           that is not managed at all (i.e. no keyboard input unless
+           that is not managed at all (i.e., no keyboard input unless
            you call QWidget::activateWindow() manually).
 
     \value FramelessWindowHint  Produces a borderless window.
@@ -1881,4 +1881,23 @@
     \value ItemIsUserCheckable It can be checked or unchecked by the user.
     \value ItemIsEnabled The user can interact with the item.
     \value ItemIsTristate The item is checkable with three separate states.
+*/
+
+/*!
+    \enum Qt::TextElideMode
+
+    This enum specifies where the ellipsis should appear when
+    displaying texts that don't fit:
+
+    \value ElideLeft    The ellipsis should appear at the beginning of the text.
+    \value ElideRight   The ellipsis should appear at the end of the text.
+    \value ElideMiddle  The ellipsis should appear in the middle of the text.
+
+    \c ElideMiddle is normally the most appropriate choice for URLs (e.g.,
+    \l{http://www.trolltech.cn/newsroom/announcements/Beijing-Office-Opening.pdf}{http://www.trolltech.cn/news...s/Beijing-Office-Opening.pdf})
+    whereas \c ElideRight is appropriate
+    for other strings (e.g.
+    \l{http://doc.trolltech.com/qq/qq09-mac-deployment.html}{Deploying Applications on Ma...}).
+
+    \sa QAbstractItemView::elideMode, QAbstractItemDelegate::elidedText()
 */

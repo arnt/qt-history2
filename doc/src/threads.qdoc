@@ -282,8 +282,8 @@
     object. For example, if you create a QTimer object in a thread
     but never call \l{QThread::exec()}{exec()}, the QTimer will never emit its
     \l{QTimer::timeout()}{timeout()} signal. Calling
-    \l{QObject::deleteLater()}{deleteLater()} won't work either. (This
-    restriction applies to timers created in the main thread as well.)
+    \l{QObject::deleteLater()}{deleteLater()} won't work either. (These
+    restrictions apply to the main thread as well.)
 
     You can manually post events to any object in any thread at any
     time using the thread-safe function

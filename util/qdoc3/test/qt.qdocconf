@@ -27,7 +27,8 @@ defines			= Q_QDOC \
 			  QT3_SUPPORT \
 			  Q_WS_.* \
 			  Q_OS_.* \
-			  beta
+			  Q_BYTE_ORDER \
+                          __cplusplus
 
 extraimages.HTML	= qt-logo \
                           trolltech-logo

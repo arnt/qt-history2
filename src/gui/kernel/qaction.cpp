@@ -91,14 +91,18 @@ void QActionPrivate::setShortcutEnabled(bool enable, QShortcutMap &map)
 
 
 /*!
-    \class QAction qaction.h
+    \class QAction
     \brief The QAction class provides an abstract user interface
-    action that can be inserted into widgets with
-    QWidget::addAction().
+    action that can be inserted into widgets.
 
     \ingroup basic
     \ingroup application
     \mainclass
+
+    \omit
+        * parent and widget are different
+        * parent does not define context
+    \endomit
 
     In applications many common commands can be invoked via menus,
     toolbar buttons, and keyboard shortcuts. Since the user expects
@@ -140,9 +144,6 @@ void QActionPrivate::setShortcutEnabled(bool enable, QShortcutMap &map)
     We recommend that actions are created as children of the window
     they are used in. In most cases actions will be children of
     the application's main window.
-
-    To prevent recursion, do not create an action as a child of a
-    widget that the action is later added to.
 */
 
 /*!

@@ -288,7 +288,7 @@
 /*! \example tutorial/t3
 
     \contentspage Qt Tutorial
-    \previouspage {Qt Tutorial 2 - Calling it Quits}{Chapter 2}
+    \previouspage {tutorial/t2}{Chapter 2}
     \nextpage {tutorial/t4}{Chapter 4}
 
     \title Qt Tutorial 3 - Family Values

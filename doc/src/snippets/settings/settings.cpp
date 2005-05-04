@@ -9,8 +9,9 @@ void snippet_ctor1()
 
 void snippet_ctor2()
 {
-    QCoreApplication::setOrganizationDomain("mysoft.org");
-    QCoreApplication::setApplicationName("StarRunner");
+    QCoreApplication::setOrganizationName("MySoft");
+    QCoreApplication::setOrganizationDomain("mysoft.com");
+    QCoreApplication::setApplicationName("Star Runner");
 
     QSettings settings;
 
@@ -36,13 +37,13 @@ void snippet_ctor2()
 
 void snippet_locations()
 {
-    QSettings obj1("mysoft.org", "StarRunner");
-    QSettings obj2("mysoft.org");
-    QSettings obj3(QSettings::SystemScope, "mysoft.org", "StarRunner");
-    QSettings obj4(QSettings::SystemScope, "mysoft.org");
+    QSettings obj1("MySoft", "Star Runner");
+    QSettings obj2("MySoft");
+    QSettings obj3(QSettings::SystemScope, "MySoft", "Star Runner");
+    QSettings obj4(QSettings::SystemScope, "MySoft");
 
     QSettings settings(QSettings::IniFormat, QSettings::UserScope,
-                       "mysoft.org", "StarRunner");
+                       "MySoft", "Star Runner");
 
     QSettings settings("starrunner.ini", QSettings::IniFormat);
 
@@ -64,7 +65,7 @@ protected:
 
 void MainWindow::writeSettings()
 {
-    QSettings settings("moose-soft.co.uk", "Clipper");
+    QSettings settings("Moose Soft", "Clipper");
 
     settings.beginGroup("MainWindow");
     settings.setValue("size", size());
@@ -74,7 +75,7 @@ void MainWindow::writeSettings()
 
 void MainWindow::readSettings()
 {
-    QSettings settings("moose-soft.co.uk", "Clipper");
+    QSettings settings("Moose Soft", "Clipper");
 
     settings.beginGroup("MainWindow");
     resize(settings.value("size", QSize(400, 400)));

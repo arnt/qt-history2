@@ -835,8 +835,7 @@ void QImage::detach()
     \fn inline QImage QImage::copy(int x, int y, int w, int h) const
     \overload
 
-    Returns a \link shclass.html deep copy\endlink of a sub-area of
-    the image.
+    Returns a sub-area of the image.
 
     The returned image is always \a w by \a h pixels in size, and is
     copied from position \a x, \a y in this image. In areas beyond
@@ -846,8 +845,7 @@ void QImage::detach()
 /*!
     \overload
 
-    Returns a \link shclass.html deep copy\endlink of a sub-area of
-    the image.
+    Returns a sub-area of the image.
 
     The returned image always has the size of the rectangle \a r. In
     areas beyond this image pixels are filled with pixel 0.

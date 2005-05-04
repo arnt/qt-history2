@@ -1534,6 +1534,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     \ingroup io
     \ingroup misc
     \mainclass
+    \reentrant
 
     Users normally expect an application to remember its settings
     (window sizes and positions, options, etc.) across sessions. This
@@ -1554,11 +1555,11 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \section1 Basic Usage
 
-    When creating a QSettings object, you must pass the domain
-    name of your company or organization as well as the name of your
-    application. For example, if your product is called StarRunner and
-    you own the mysoft.org Internet domain name, you would
-    construct the QSettings object as follows:
+    When creating a QSettings object, you must pass the name of your
+    company or organization as well as the name of your application.
+    For example, if your product is called Star Runner and your
+    company is called MySoft, you would construct the QSettings
+    object as follows:
 
     \quotefromfile snippets/settings/settings.cpp
     \skipuntil snippet_ctor1
@@ -1570,17 +1571,25 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     QSettings object is very fast.
 
     If you use QSettings from many places in your application, you
-    might want to specify the organization domain name and the
-    application name using QCoreApplication::setOrganizationDomain()
-    and QCoreApplication::setApplicationName(), and then use the
-    default QSettings constructor:
+    might want to specify the organization name and the application
+    name using QCoreApplication::setOrganizationName() and
+    QCoreApplication::setApplicationName(), and then use the default
+    QSettings constructor:
 
     \skipuntil snippet_ctor2
     \skipline {
+    \printline setOrganizationName
     \printline setOrganizationDomain
     \printline setApplicationName
     \dots
     \printline QSettings settings;
+
+    (Here, we also specify the organization's Internet domain. When
+    the Internet domain is set, it is used on Mac OS X instead of the
+    organization name, since Mac OS X applications conventionally use
+    Internet domains to identify themselves. If no domain is set, a
+    fake domain is derived from the organization name. See the
+    \l{Platform-Specific Notes} below for details.)
 
     QSettings stores settings. Each setting consists of a QString
     that specifies the setting's name (the \e key) and a QVariant
@@ -1623,7 +1632,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     example:
 
     \code
-        QSettings settings("mysoft.org", "StarRunner");
+        QSettings settings("MySoft", "Star Runner");
         QColor color = qvariant_value<QColor>(
                 settings.value("DataPump/bgcolor"));
     \endcode
@@ -1633,7 +1642,7 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     GUI-related types:
 
     \code
-        QSettings settings("mysoft.org", "StarRunner");
+        QSettings settings("MySoft", "Star Runner");
         QColor color = palette().background().color();
         settings.setValue("DataPump/bgcolor", color);
     \endcode
@@ -1680,45 +1689,45 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     \section1 Fallback Mechanism
 
-    Let's assume that you have created a QSettings object with
-    the organization domain name "mysoft.org" and the application
-    name "StarRunner". When you look up a value, up to four locations
-    are searched in that order:
+    Let's assume that you have created a QSettings object with the
+    organization name MySoft and the application name Star Runner.
+    When you look up a value, up to four locations are searched in
+    that order:
 
     \list 1
-    \o a user-specific location for the StarRunner application
-    \o a user-spefific location for all applications by mysoft.org
-    \o a system-wide location for the StarRunner application
-    \o a system-wide location for all applications by mysoft.org
+    \o a user-specific location for the Star Runner application
+    \o a user-spefific location for all applications by MySoft
+    \o a system-wide location for the Star Runner application
+    \o a system-wide location for all applications by MySoft
     \endlist
 
     On Unix with X11 and on embedded Linux, these locations are the
     following files:
 
     \list 1
-    \o \c{$HOME/.config/mysoft.org/StarRunner.conf}
-    \o \c{$HOME/.config/mysoft.org.conf}
-    \o \c{/etc/xdg/mysoft.org/StarRunner.conf}
-    \o \c{/etc/xdg/mysoft.org.conf}
+    \o \c{$HOME/.config/MySoft/Star Runner.conf}
+    \o \c{$HOME/.config/MySoft.conf}
+    \o \c{/etc/xdg/MySoft/Star Runner.conf}
+    \o \c{/etc/xdg/MySoft.conf}
     \endlist
 
     On Mac OS X versions 10.2 and 10.3, these files are used:
 
     \list 1
-    \o \c{$HOME/Library/Preferences/org.mysoft.StarRunner.plist}
-    \o \c{$HOME/Library/Preferences/org.mysoft.plist}
-    \o \c{/Library/Preferences/org.mysoft.StarRunner.plist}
-    \o \c{/Library/Preferences/org.mysoft.plist}
+    \o \c{$HOME/Library/Preferences/com.MySoft.Star Runner.plist}
+    \o \c{$HOME/Library/Preferences/com.MySoft.plist}
+    \o \c{/Library/Preferences/com.MySoft.Star Runner.plist}
+    \o \c{/Library/Preferences/com.MySoft.plist}
     \endlist
 
     On Windows, the settings are stored in the following registry
     paths:
 
     \list 1
-    \o \c{HKEY_CURRENT_USER\Software\mysoft.org\StarRunner}
-    \o \c{HKEY_CURRENT_USER\Software\mysoft.org}
-    \o \c{HKEY_LOCAL_MACHINE\Software\mysoft.org\StarRunner}
-    \o \c{HKEY_LOCAL_MACHINE\Software\mysoft.org}
+    \o \c{HKEY_CURRENT_USER\Software\MySoft\Star Runner}
+    \o \c{HKEY_CURRENT_USER\Software\MySoft}
+    \o \c{HKEY_LOCAL_MACHINE\Software\MySoft\Star Runner}
+    \o \c{HKEY_LOCAL_MACHINE\Software\MySoft}
     \endlist
 
     If a key cannot be found in the first location, the search goes
@@ -1731,7 +1740,8 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     only the first file (the user-specific location for the
     application at hand) is accessible for writing. To write to any
     of the other files, omit the application name and/or specify
-    QSettings::SystemScope (as opposed to QSettings::UserScope, the default).
+    QSettings::SystemScope (as opposed to QSettings::UserScope, the
+    default).
 
     Let's see with an example:
 
@@ -1760,9 +1770,9 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     paths.
 
     If you want to use INI files on all platforms instead of the
-    native API, you can pass QSettings::IniFormat as the first argument to
-    the QSettings constructor, followed by the scope, the
-    organization domain name, and the application name:
+    native API, you can pass QSettings::IniFormat as the first
+    argument to the QSettings constructor, followed by the scope, the
+    organization name, and the application name:
 
     \printline /settings\(.*,$/
     \printline );
@@ -1785,6 +1795,10 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 
     On X11 and embedded Linux, QSettings::IniFormat and QSettings::NativeFormat have
     the same meaning.
+
+    The \l{tools/settingseditor}{Settings Editor} example lets you
+    experiment with different settings location and with fallbacks
+    turned on or off.
 
     \section1 Restoring the State of a GUI Application
 
@@ -1857,9 +1871,32 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
         Calling setFallbacksEnabled(false) will hide these global
         settings.
 
+    \o  On Mac OS X, the APIs used by QSettings expect an Internet
+        domain name rather than an organization name. To provide a
+        uniform API, QSettings derives a fake domain name from the
+        organization name (unless the organization name already is a
+        domain name, e.g. OpenOffice.org). The algorithm appends
+        ".com" to the company name and replaces spaces and other
+        illegal characters with hyphens. If you want to specify a
+        different domain name, call
+        QCoreApplication::setOrganizationDomain(),
+        QCoreApplication::setOrganizationName(), and
+        QCoreApplication::setApplicationName() in your \c main()
+        function and then use the default QSettings constructor.
+        Another solution is to use preprocessor directives, for
+        example:
+
+        \code
+        #ifdef Q_WS_MAC
+            QSettings settings("grenoullelogique.fr", "Squash");
+        #else
+            QSettings settings("Grenoulle Logique", "Squash");
+        #endif
+        \endcode
     \endlist
 
-    \sa QVariant, QSessionManager
+    \sa {tools/settingseditor}{Settings Editor Example},
+        QVariant, QSessionManager
 */
 
 /*! \enum QSettings::Status
@@ -1911,15 +1948,16 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
 #ifndef QT_NO_QOBJECT
 /*!
     Constructs a QSettings object for accessing settings of the
-    application called \a application from the organization with the
-    Internet domain name \a organization, and with parent \a parent.
+    application called \a application from the organization called \a
+    organization, and with parent \a parent.
 
     Example:
     \code
-        QSettings settings("technopro.co.jp", "Facturo-Pro");
+        QSettings settings("Moose Tech", "Facturo-Pro");
     \endcode
 
-    The scope is QSettings::UserScope and the format is QSettings::NativeFormat.
+    The scope is QSettings::UserScope and the format is
+    QSettings::NativeFormat.
 
     \sa {Fallback Mechanism}
 */
@@ -1931,8 +1969,8 @@ QSettings::QSettings(const QString &organization, const QString &application, QO
 
 /*!
     Constructs a QSettings object for accessing settings of the
-    application called \a application from the organization with the
-    Internet domain name \a organization, and with parent \a parent.
+    application called \a application from the organization called \a
+    organization, and with parent \a parent.
 
     If \a scope is QSettings::UserScope, the QSettings object searches
     user-specific settings first, before it searches system-wide
@@ -1953,8 +1991,8 @@ QSettings::QSettings(Scope scope, const QString &organization, const QString &ap
 
 /*!
     Constructs a QSettings object for accessing settings of the
-    application called \a application from the organization with the
-    Internet domain name \a organization, and with parent \a parent.
+    application called \a application from the organization called
+    \a organization, and with parent \a parent.
 
     If \a scope is QSettings::UserScope, the QSettings object searches
     user-specific settings first, before it searches system-wide
@@ -1999,7 +2037,8 @@ QSettings::QSettings(const QString &fileName, Format format, QObject *parent)
 /*!
     Constructs a QSettings object for accessing settings of the
     application and organization set previously with a call to
-    QCoreApplication::setOrganizationDomain() and
+    QCoreApplication::setOrganizationName(),
+    QCoreApplication::setOrganizationDomain(), and
     QCoreApplication::setApplicationName().
 
     The scope is QSettings::UserScope and the format is QSettings::NativeFormat.
@@ -2007,32 +2046,42 @@ QSettings::QSettings(const QString &fileName, Format format, QObject *parent)
     The code
 
     \code
-        QSettings settings("technopro.co.jp", "Facturo-Pro");
+        QSettings settings("Moose Soft", "Facturo-Pro");
     \endcode
 
     is equivalent to
 
     \code
-        QApplication::setOrganizationDomain("technopro.co.jp");
-        QApplication::setApplicationName("Facturo-Pro");
+        QCoreApplication::setOrganizationName("Moose Soft");
+        QCoreApplication::setApplicationName("Facturo-Pro");
         QSettings settings;
     \endcode
 
-    If QApplication::setOrganizationDomain() and
-    QApplication::setApplicationName() has not been previously called,
-    the QSettings object will not be able to read or write any
-    settings, and status() will return AccessError.
+    If QCoreApplication::setOrganizationName() and
+    QCoreApplication::setApplicationName() has not been previously
+    called, the QSettings object will not be able to read or write
+    any settings, and status() will return AccessError.
+
+    On Mac OS X, if both a name and an Internet domain are specified
+    for the organization, the domain is preferred over the name. On
+    other platforms, the name is preferred over the domain.
+
+    \sa QCoreApplication::setOrganizationName(),
+        QCoreApplication::setOrganizationDomain(),
+        QCoreApplication::setApplicationName()
 */
 QSettings::QSettings(QObject *parent)
     : QObject(*QSettingsPrivate::create(NativeFormat, UserScope,
 #ifdef Q_OS_MAC
                                         QCoreApplication::organizationDomain().isEmpty()
                                             ? QCoreApplication::organizationName()
-                                        : QCoreApplication::organizationDomain(),
+                                            : QCoreApplication::organizationDomain()
 #else
-                                        QCoreApplication::organizationName(),
+                                        QCoreApplication::organizationName().isEmpty()
+                                            ? QCoreApplication::organizationDomain()
+                                            : QCoreApplication::organizationName()
 #endif
-                                        QCoreApplication::applicationName()),
+                                        , QCoreApplication::applicationName()),
               parent)
 {
 }

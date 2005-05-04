@@ -10,14 +10,15 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+
 #include "qdir.h"
 #include "qfile.h"
 #include "qconfig.h"
 #include "qsettings.h"
 #include "qlibraryinfo.h"
 #ifndef QT_NO_QOBJECT
-# include "qpointer.h"
-# include "qcoreapplication.h"
+#include "qpointer.h"
+#include "qcoreapplication.h"
 #endif
 
 #ifdef Q_OS_WIN
@@ -190,16 +191,19 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
 }
 static QLibraryInfoPrivate qt_library_data;
 
-/*! \class QLibraryInfo
+/*!
+    \class QLibraryInfo
     \brief The QLibraryInfo class provides information about the Qt library.
 
     \ingroup misc
     \mainclass
 
-    Many pieces of information are established when Qt is
-    configured. Installation paths, license information, and even a
-    unique build key. This class provides an abstraction for accessing
-    this information.
+    Many pieces of information are established when Qt is configured.
+    Installation paths, license information, and even a unique build
+    key. This class provides an abstraction for accessing this
+    information.
+
+    \sa QSysInfo
 */
 
 /*! \internal
@@ -216,7 +220,7 @@ QLibraryInfo::QLibraryInfo()
 /*!
   Returns the person to whom this build of Qt is licensed.
 
-  \sa QLibraryInfo::licensedProducts
+  \sa licensedProducts()
 */
 
 QString
@@ -229,7 +233,7 @@ QLibraryInfo::licensee()
 /*!
   Returns the products that the license for this build of Qt has access to.
 
-  \sa QLibraryInfo::licensee
+  \sa licensee()
 */
 
 QString
@@ -243,7 +247,7 @@ QLibraryInfo::licensedProducts()
   Returns a unique key identifying this build of Qt and its
   configurations. This key is not globally unique, rather only useful
   for establishing of two configurations are compatible. This can be
-  used to compare with QT_BUILD_KEY.
+  used to compare with the \c QT_BUILD_KEY preprocessor symbol.
 */
 
 QString
@@ -261,34 +265,33 @@ QLibraryInfo::buildKey()
 
   \list
 
-  \i A user argument to your application of -qtconfig
-  <config_location>.
+  \o A user argument to your application of \c{-qtconfig <config_location>}.
 
-  \i A resource of the name :/qt/etc/qt.conf.
+  \o A resource of the name \c{:/qt/etc/qt.conf}.
 
-  \i A file of the name qt.conf in the directory from which your
-  application executable lives. The filesystem will be walked up from
+  \o A file of the name qt.conf in the directory from which your
+  application executable lives. The file system will be walked up from
   that directory to the root.
 
-  \i A file of the name qt.conf in the directory from which your
+  \o A file of the name qt.conf in the directory from which your
   application executable was run. The filesystem will be walked up
   from that directory to the root.
 
-  \i An environment variable QTCONFIG.
+  \o An environment variable \c QTCONFIG.
 
-  \i An environment variable QTDIR/qt.conf.
+  \o An environment variable \c QTDIR/qt.conf.
 
-  \i A file in $(HOME)/.qt.conf.
+  \o A file in \c HOME/.qt.conf.
 
-  \i A file in /etc/qt.conf. (Unix only)
+  \o A file in \c /etc/qt.conf (Unix only).
 
-  \i A file in /usr/local/etc/qt.conf. (Unix only)
+  \o A file in \c /usr/local/etc/qt.conf (Unix only).
 
   \endlist
 
   If no configuration can be found then zero will be returned.
 
-  \sa QLibrayInfo::location, QSettings
+  \sa location(), QSettings
 */
 
 QSettings
@@ -300,7 +303,7 @@ QSettings
 /*!
   Returns the location specified by \a loc.
 
-  \sa QLibraryInfo::LibraryLocation, QLibraryInfo::configuration
+  \sa configuration()
 */
 
 QString
@@ -403,7 +406,6 @@ QLibraryInfo::location(LibraryLocation loc)
     return ret;
 }
 
-
 /*!
     \enum QLibraryInfo::LibraryLocation
 
@@ -412,7 +414,7 @@ QLibraryInfo::location(LibraryLocation loc)
     This enum type is used to specify a specific location
     specifier. This for use with QLibraryInfo::location.
 
-    The locations are
+    The locations are:
 
     \value PrefixPath The default prefix for all paths.
     \value DocumentationPath The location for documentation upon install.
@@ -423,4 +425,6 @@ QLibraryInfo::location(LibraryLocation loc)
     \value DataPath The location of general Qt data.
     \value TranslationsPath The location of translation information for Qt strings.
     \value SettingsPath The location for Qt settings.
+
+    \sa location()
 */

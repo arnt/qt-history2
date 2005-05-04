@@ -1089,7 +1089,7 @@ QVariant QTreeWidgetItem::data(int column, int role) const
     // return the item data
     role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     if (column < values.size()) {
-        const QVector<QWidgetItemData> column_values = values.at(column);
+        const QVector<QWidgetItemData> &column_values = values.at(column);
         for (int i = 0; i < column_values.count(); ++i)
             if (column_values.at(i).role == role)
                 return column_values.at(i).value;

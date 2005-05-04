@@ -44,7 +44,7 @@ void QMapData::continueFreeData(int offset)
     while (cur != e) {
         prev = cur;
         cur = cur->forward[0];
-        qFree(reinterpret_cast<char *>(prev) - offset);
+        ::free(reinterpret_cast<char *>(prev) - offset);
     }
     delete this;
 }
@@ -70,7 +70,7 @@ QMapData::Node *QMapData::node_create(Node *update[], int offset)
         update[level] = e;
     }
 
-    void *concreteNode = qMalloc(offset + sizeof(Node) + level * sizeof(Node *));
+    void *concreteNode = ::malloc(offset + sizeof(Node) + level * sizeof(Node *));
     Node *abstractNode = reinterpret_cast<Node *>(reinterpret_cast<char *>(concreteNode) + offset);
 
     abstractNode->backward = update[0];
@@ -95,7 +95,7 @@ void QMapData::node_delete(Node *update[], int offset, Node *node)
         update[i]->forward[i] = node->forward[i];
     }
     --size;
-    qFree(reinterpret_cast<char *>(node) - offset);
+    ::free(reinterpret_cast<char *>(node) - offset);
 }
 
 #ifdef QT_QMAP_DEBUG
