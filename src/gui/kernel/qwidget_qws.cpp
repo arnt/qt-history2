@@ -565,7 +565,7 @@ void QWidgetPrivate::bltToScreen(const QRegion &globalrgn)
     QWidget *win = q->window();
     QBrush bgBrush = win->palette().brush(win->backgroundRole());
     bool opaque = bgBrush.style() == Qt::NoBrush || bgBrush.isOpaque();
-    q->qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn);
+    q->qwsDisplay()->repaintRegion(win->data->winid, opaque, globalrgn & win->geometry());
 }
 
 
