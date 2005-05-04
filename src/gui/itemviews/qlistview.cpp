@@ -704,7 +704,7 @@ void QListView::resizeEvent(QResizeEvent *e)
 {
     Q_D(QListView);
     QAbstractItemView::resizeEvent(e);
-    if (d->resizeMode == Adjust && state() == NoState && e->size() == size()) {
+    if (d->resizeMode == Adjust && state() == NoState) {
         QSize delta = e->size() - e->oldSize();
         if (!d->layoutPosted
             && ((d->flow == LeftToRight && delta.width() != 0)
@@ -1247,10 +1247,7 @@ void QListViewPrivate::prepareItemsLayout()
     batchStartRow = 0;
     batchSavedPosition = 0;
     batchSavedDeltaSeg = 0;
-    contentsSize = QSize(0, 0);
     layoutBounds = viewport->rect();
-    int sbx = q->style()->pixelMetric(QStyle::PM_ScrollBarExtent);
-    layoutBounds.adjust(0, 0, -sbx, -sbx);
         
     int rowCount = model ? model->rowCount(root) : 0;
     int colCount = model ? model->columnCount(root) : 0;
@@ -1354,8 +1351,6 @@ bool QListViewPrivate::doItemsLayout(int delta)
         doDynamicLayout(layoutBounds, first, last);
     }
 
-    batchStartRow = last + 1;
-
     if (batchStartRow >= max) { // stop items layout
         flowPositions.resize(flowPositions.count());
         segmentPositions.resize(segmentPositions.count());
@@ -1457,6 +1452,7 @@ void QListViewPrivate::doStaticLayout(const QRect &bounds, int first, int last)
     // used when laying out next batch
     batchSavedPosition = flowPosition;
     batchSavedDeltaSeg = deltaSegPosition;
+    batchStartRow = last + 1;
     // set the contents size
     QRect rect = bounds;
     if (flow == QListView::LeftToRight) {
@@ -1495,25 +1491,21 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         segStartPosition = bounds.left() + gap;
         segEndPosition = bounds.right();
         deltaFlowPosition = gridSize.width(); // dx
-        deltaSegPosition = (useItemSize
-                            ? batchSavedDeltaSeg
-                            : gridSize.height()); // dy
+        deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : gridSize.height()); // dy
         deltaSegHint = gridSize.height();
         flowPosition = topLeft.x();
         segPosition = topLeft.y();
-    } else {// flow == QListView::TopToBottom
+    } else { // flow == QListView::TopToBottom
         segStartPosition = bounds.top() + gap;
         segEndPosition = bounds.bottom();
         deltaFlowPosition = gridSize.height(); // dy
-        deltaSegPosition = (useItemSize
-                            ? batchSavedDeltaSeg
-                            : gridSize.width()); // dx
+        deltaSegPosition = (useItemSize ? batchSavedDeltaSeg : gridSize.width()); // dx
         deltaSegHint = gridSize.width();
         flowPosition = topLeft.y();
         segPosition = topLeft.x();
     }
 
-    QRect rect(QPoint(0, 0), contentsSize);
+    QRect rect(QPoint(0, 0), topLeft);
     QListViewItem *item = 0;
     for (int row = first; row <= last; ++row) {
         item = tree.itemPtr(row);
@@ -1554,10 +1546,14 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
         }
     }
     batchSavedDeltaSeg = deltaSegPosition;
-    q->resizeContents(rect.width(), rect.height());
+    batchStartRow = last + 1;
+    bool done = (last >= model->rowCount(root) - 1);
+    // resize the content area
+    if (done || !bounds.contains(item->rect()))
+        q->resizeContents(rect.width(), rect.height());
     // resize tree
     int insertFrom = first;
-    if (first == 0 || last >= model->rowCount(root) - 1) {
+    if (done || first == 0) {
         initBinaryTree(rect.size());
         insertFrom = 0;
     }
