@@ -193,7 +193,8 @@ public:
     XPThemeData(const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString(),
                 int part = 0, int state = 0, const QRect &r = QRect())
         : widget(w), painter(p), name(theme), htheme(0), partId(part), stateId(state), 
-          rect(r), mirrorHorizontally(false), mirrorVertically(false), rotate(0)
+          rect(r), mirrorHorizontally(false), mirrorVertically(false), noBorder(false),
+          noContent(false), rotate(0)
     {}
 
     HRGN mask();
@@ -209,8 +210,10 @@ public:
     int partId;
     int stateId;
 
-    uint mirrorHorizontally :1;
-    uint mirrorVertically :1;
+    uint mirrorHorizontally : 1;
+    uint mirrorVertically : 1;
+    uint noBorder : 1;
+    uint noContent : 1;
     uint rotate;
     QRect rect;
 };
@@ -772,7 +775,10 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
     DTBGOPTS drawOptions;
     drawOptions.dwSize = sizeof(drawOptions);
     drawOptions.rcClip = themeData.toRECT(area);
-    drawOptions.dwFlags = DTBG_CLIPRECT | (themeData.mirrorVertically ? DTBG_MIRRORDC : 0);
+    drawOptions.dwFlags = DTBG_CLIPRECT
+                          | (themeData.mirrorVertically ? DTBG_MIRRORDC : 0)
+                          | (themeData.noBorder ? DTBG_OMITBORDER : 0)
+                          | (themeData.noContent ? DTBG_OMITCONTENT : 0);
     pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), &drawOptions);
 
     if (painter->hasClipping())
@@ -804,7 +810,9 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
     bool inspectData;
     bool potentialInvalidAlpha;
 
-    QString pixmapCacheKey = QString("$qt_xp_%1p%2s%3w%4h%5").arg(themeData.name).arg(partId).arg(stateId).arg(w).arg(h);
+    QString pixmapCacheKey = QString("$qt_xp_%1p%2s%3s%4b%5c%6w%7h").arg(themeData.name)
+                             .arg(partId).arg(stateId).arg(themeData.noBorder).arg(themeData.noContent)
+                             .arg(w).arg(h);
     QPixmap cachedPixmap;
     ThemeMapKey key(themeData.name, themeData.partId, themeData.stateId);
     ThemeMapData data = alphaCache.value(key);
@@ -877,7 +885,10 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
         DTBGOPTS drawOptions;
         drawOptions.dwSize = sizeof(drawOptions);
         drawOptions.rcClip = themeData.toRECT(rect);
-        drawOptions.dwFlags = DTBG_CLIPRECT | (themeData.mirrorVertically ? DTBG_MIRRORDC : 0);
+        drawOptions.dwFlags = DTBG_CLIPRECT
+                            | (themeData.mirrorVertically ? DTBG_MIRRORDC : 0)
+                            | (themeData.noBorder ? DTBG_OMITBORDER : 0)
+                            | (themeData.noContent ? DTBG_OMITCONTENT : 0);
         pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), &drawOptions);
 
         // If not cached, analyze the buffer data to figure
@@ -1147,6 +1158,8 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     State flags = option->state;
     bool hMirrored = false;
     bool vMirrored = false;
+    bool noBorder = false;
+    bool noContent = false;
 
     switch (pe) {
     case PE_PanelButtonBevel:
@@ -1240,12 +1253,47 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         break;
 
     case PE_FrameLineEdit:
-        name = "EDIT";
-        partId = EP_EDITTEXT;
-        if (!(flags & State_Enabled))
-            stateId = ETS_DISABLED;
-        else
-            stateId = ETS_NORMAL;
+        if (const QStyleOptionFrame *tab = qstyleoption_cast<const QStyleOptionFrame *>(option))
+        {
+            name = "EDIT";
+            partId = EP_EDITTEXT;
+            noContent = true;
+            if (!(flags & State_Enabled))
+                stateId = ETS_DISABLED;
+            else
+                stateId = ETS_NORMAL;
+        }
+        break;
+
+    case PE_PanelLineEdit:
+        if (const QStyleOptionFrame *panel = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
+            name = "EDIT";
+            partId = EP_EDITTEXT;
+            noBorder = true;
+            QBrush bg;
+            bool usePalette = false;
+            uint resolve_mask = panel->palette.resolve();
+            if (flags & State_Enabled) {
+                stateId = ETS_NORMAL;
+                if (resolve_mask & (1 << QPalette::Base)) {
+                    // Base color is set for this widget, so use it
+                    bg = panel->palette.brush(QPalette::Base);
+                    usePalette = true;
+                }
+            } else {
+                stateId = ETS_DISABLED;
+                if (resolve_mask & (1 << QPalette::Background)) {
+                    // Background color is set for this widget, so use it
+                    bg = panel->palette.brush(QPalette::Background);
+                    usePalette = true;
+                }
+            }
+
+            if (usePalette) {
+                p->fillRect(panel->rect, bg);
+                return;
+            }
+        }
         break;
 
     case PE_FrameTabWidget:
@@ -1431,7 +1479,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
                 dd->drawBackground(theme);
             }
         }
-        return; 
+        return;
     default:
         break;
     }
@@ -1441,6 +1489,8 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         QWindowsStyle::drawPrimitive(pe, option, p, widget);
     theme.mirrorHorizontally = hMirrored;
     theme.mirrorVertically = vMirrored;
+    theme.noBorder = noBorder;
+    theme.noContent = noContent;
     dd->drawBackground(theme);
 }
 

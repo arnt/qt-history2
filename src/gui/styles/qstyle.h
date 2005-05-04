@@ -123,6 +123,7 @@ public:
         PE_PanelButtonTool,
         PE_PanelMenuBar,
         PE_PanelToolBar,
+        PE_PanelLineEdit,
 
         PE_IndicatorArrowDown,
         PE_IndicatorArrowLeft,

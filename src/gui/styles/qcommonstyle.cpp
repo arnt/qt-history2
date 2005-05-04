@@ -614,6 +614,14 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
             }
         }
         break;
+    case PE_PanelLineEdit:
+        if (const QStyleOptionFrame *panel = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
+            if (!(panel->state & State_Enabled)) {
+                QBrush bg = panel->palette.brush(QPalette::Base);
+                p->fillRect(panel->rect, bg);
+            }
+        }
+        break;
     default:
         break;
     }

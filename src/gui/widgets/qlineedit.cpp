@@ -1874,16 +1874,14 @@ void QLineEdit::paintEvent(QPaintEvent *)
         r.adjust(frameWidth, frameWidth, -frameWidth, -frameWidth);
     }
     p.setClipRect(r);
+    
+    QStyleOptionFrame panel = d->getStyleOption();
+    panel.state |= (isEnabled() ? QStyle::State_Enabled : QStyle::State_None);
+    style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
 
     QFontMetrics fm = fontMetrics();
     QRect lineRect(r.x() + innerMargin, r.y() + (r.height() - fm.height() + 1) / 2,
                     r.width() - 2*innerMargin, fm.height());
-    bool enabled = isEnabled();
-    QBrush bg = pal.brush(backgroundRole());
-    if (!enabled) {
-        bg = pal.brush(QPalette::Background);
-        p.fillRect(r, bg);
-    }
     QTextLine line = d->textLayout.lineAt(0);
 
     // locate cursor position

@@ -455,7 +455,8 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
         example, a QPushButton.
     \value PE_FrameDefaultButton  This frame around a default button, e.g. in a dialog.
     \value PE_PanelButtonBevel  Generic panel with a button bevel.
-    \value PE_PanelButtonTool  Panel for a Tool button, used with QToolButton
+    \value PE_PanelButtonTool  Panel for a Tool button, used with QToolButton.
+    \value PE_PanelLineEdit  Panel for a QLineEdit.
     \value PE_IndicatorButtonDropDown  indicator for a drop down button, for example, a tool
                                        button that displays a menu.
 
