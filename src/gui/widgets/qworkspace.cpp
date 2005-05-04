@@ -454,6 +454,9 @@ bool QWorkspaceTitleBar::isTool() const
     return (d->flags & Qt::WindowType_Mask) == Qt::Tool;
 }
 
+// from qwidget.cpp
+extern QString qt_setWindowTitle_helperHelper(const QString &, QWidget*);
+
 void QWorkspaceTitleBar::paintEvent(QPaintEvent *)
 {
     Q_D(QWorkspaceTitleBar);
@@ -462,14 +465,10 @@ void QWorkspaceTitleBar::paintEvent(QPaintEvent *)
     opt.activeSubControls = d->buttonDown;
 
     if (d->window) {
-        QString title = opt.text;
+        QString title = qt_setWindowTitle_helperHelper(opt.text, d->window);
         QFontMetrics fm(fontMetrics());
         int maxw = style()->subControlRect(QStyle::CC_TitleBar, &opt, QStyle::SC_TitleBarLabel,
                                        this).width();
-
-        if (style()->styleHint(QStyle::SH_TitleBarModifyNotification, 0, this) && d->window
-            && d->window->isWindowModified())
-            title += " *";
 
         QString cuttitle = title;
         if (fm.width(title + "m") > maxw) {
@@ -944,7 +943,6 @@ QWorkspacePrivate::init()
     q->setAttribute(Qt::WA_NoBackground, true);
     q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
-    topTitle = q->window()->windowTitle();
     hbar = vbar = 0;
     corner = 0;
     xoffset = yoffset = 0;
@@ -1454,10 +1452,6 @@ void QWorkspacePrivate::minimizeWindow(QWidget* w)
         if (c == maxWindow) {
             wasMax = true;
             maxWindow = 0;
-            inTitleChange = true;
-            if (topTitle.size())
-                q->window()->setWindowTitle(topTitle);
-            inTitleChange = false;
             if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
                 hideMaximizeControls();
             for (QList<QWorkspaceChild *>::Iterator it(windows.begin()); it != windows.end(); ++it) {
@@ -1507,10 +1501,6 @@ void QWorkspacePrivate::normalizeWindow(QWidget* w)
         if (c == maxWindow) {
             c->setGeometry(maxRestore);
             maxWindow = 0;
-            inTitleChange = true;
-            if (topTitle.size())
-                q->window()->setWindowTitle(topTitle);
-            inTitleChange = false;
         } else {
             if (c->iconw)
                 removeIcon(c->iconw->parentWidget());
@@ -1573,12 +1563,6 @@ void QWorkspacePrivate::maximizeWindow(QWidget* w)
         if (c->titlebar)
             c->titlebar->setMovable(false);
     }
-    inTitleChange = true;
-    if (topTitle.size())
-        q->window()->setWindowTitle(q->tr("%1 - [%2]")
-                                    .arg(topTitle).arg(c->windowWidget()->windowTitle()));
-    inTitleChange = false;
-
     updateWorkspace();
 
     w->overrideWindowState(Qt::WindowMaximized);
@@ -1693,7 +1677,7 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
 
         inTitleChange = true;
         if (o == window()) {
-            QWidget *tlw = (QWidget*)o;
+            QWidget *tlw = static_cast<QWidget*>(o);
             if (!d->maxWindow
                 || tlw->windowTitle() != tr("%1 - [%2]").arg(d->topTitle).arg(d->maxWindow->windowWidget()->windowTitle()))
                 d->topTitle = tlw->windowTitle();
@@ -1705,6 +1689,12 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
         inTitleChange = false;
 
         break;
+
+    case QEvent::ModifiedChange:
+        if (o == d->maxWindow)
+            window()->setWindowModified(d->maxWindow->isWindowModified());
+        break;
+
     case QEvent::Close:
         if (o == window())
         {
@@ -1738,6 +1728,18 @@ void QWorkspacePrivate::showMaximizeControls()
 {
     Q_Q(QWorkspace);
     Q_ASSERT(maxWindow);
+
+    // merge windowtitle and modified state
+
+    topTitle = q->window()->windowTitle();
+    QString docTitle = maxWindow->windowWidget()->windowTitle();
+    if (topTitle.size() && docTitle.size()) {
+        inTitleChange = true;
+        q->window()->setWindowTitle(q->tr("%1 - [%2]").arg(topTitle).arg(docTitle));
+        inTitleChange = false;
+    }
+    q->window()->setWindowModified(maxWindow->windowWidget()->isWindowModified());
+
     QMenuBar* b = 0;
 
     // Do a breadth-first search first on every parent,
@@ -1838,6 +1840,7 @@ void QWorkspacePrivate::showMaximizeControls()
 
 void QWorkspacePrivate::hideMaximizeControls()
 {
+    Q_Q(QWorkspace);
     if (maxmenubar) {
         maxmenubar->setCornerWidget(0, Qt::TopLeftCorner);
         maxmenubar->setCornerWidget(0, Qt::TopRightCorner);
@@ -1846,6 +1849,13 @@ void QWorkspacePrivate::hideMaximizeControls()
     maxcontrols = 0;
     delete maxtools;
     maxtools = 0;
+
+    if (topTitle.size()) {
+        inTitleChange = true;
+        q->window()->setWindowTitle(topTitle);
+        inTitleChange = false;
+    }
+    q->window()->setWindowModified(false);
 }
 
 /*!
@@ -2575,7 +2585,14 @@ bool QWorkspaceChild::eventFilter(QObject * o, QEvent * e)
         }
         // fall through
     case QEvent::WindowTitleChange:
+        setWindowTitle(windowWidget()->windowTitle());
+        if (titlebar)
+            titlebar->update();
+        if (iconw)
+            iconw->update();
+        break;
     case QEvent::ModifiedChange:
+        setWindowModified(windowWidget()->isWindowModified());
         if (titlebar)
             titlebar->update();
         if (iconw)
