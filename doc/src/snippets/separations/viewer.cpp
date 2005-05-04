@@ -20,21 +20,7 @@ A main menu provides entries for selecting files, and adjusting the
 brightness of the separations.
 */
 
-#include <QApplication>
-#include <QAction>
-#include <QDir>
-#include <QFileDialog>
-#include <QFileInfo>
-#include <QFrame>
-#include <QKeySequence>
-#include <QLabel>
-#include <QGridLayout>
-#include <qlist.h>
-#include <QMenuBar>
-#include <QMessageBox>
-#include <QMenu>
-#include <QPixmap>
-#include <QStringList>
+#include <QtGui>
 
 #include "finalwidget.h"
 #include "screenwidget.h"
@@ -70,9 +56,9 @@ void Viewer::createMenus()
     fileMenu = new QMenu(tr("&File"), this);
     brightnessMenu = new QMenu(tr("&Brightness"), this);
 
-    QAction *openAction = fileMenu->addAction(tr("&Open"));
+    QAction *openAction = fileMenu->addAction(tr("&Open..."));
     openAction->setShortcut(QKeySequence("Ctrl+O"));
-    saveAction = fileMenu->addAction(tr("&Save"));
+    saveAction = fileMenu->addAction(tr("&Save..."));
     saveAction->setShortcut(QKeySequence("Ctrl+S"));
     saveAction->setEnabled(false);
     QAction *quitAction = fileMenu->addAction(tr("E&xit"));
