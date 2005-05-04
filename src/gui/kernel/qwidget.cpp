@@ -3132,8 +3132,10 @@ QString QWidget::windowTitle() const
         : QString();
 }
 
-QString qt_setWindowTitle_helperHelper(const QString &title, bool isModified)
+QString qt_setWindowTitle_helperHelper(const QString &title, QWidget *widget)
 {
+    Q_ASSERT(widget);
+
     QString cap = title;
 
     QString placeHolder(QLatin1String("[*]"));
@@ -3150,11 +3152,10 @@ QString qt_setWindowTitle_helperHelper(const QString &title, bool isModified)
 
         if (count%2) { // odd number of [*] -> replace last one
             int lastIndex = cap.lastIndexOf(placeHolder, index - 1);
-#ifndef Q_WS_MAC
-            if (isModified)
+            if (widget->isWindowModified() 
+             && widget->style()->styleHint(QStyle::SH_TitleBarModifyNotification, 0, widget))
                 cap.replace(lastIndex, 3, QWidget::tr("*"));
             else
-#endif
                 cap.replace(lastIndex, 3, QLatin1String(""));
         }
 
@@ -3170,7 +3171,7 @@ QString qt_setWindowTitle_helperHelper(const QString &title, bool isModified)
 void QWidgetPrivate::setWindowTitle_helper(const QString &title)
 {
     Q_Q(QWidget);
-    setWindowTitle_sys(qt_setWindowTitle_helperHelper(title, q->isWindowModified()));
+    setWindowTitle_sys(qt_setWindowTitle_helperHelper(title, q));
 }
 #endif
 
