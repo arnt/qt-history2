@@ -8,7 +8,7 @@ sourcedirs              = $QTDIR/src \
                           $QTDIR/extensions/activeqt/doc \
                           $QTDIR/extensions/activeqt/tools
 sources.fileextensions	= "*.cpp *.qdoc"
-exampledirs		= $QTDIR/doc/src/snippets \
+exampledirs		= $QTDIR/doc/src \
 			  $QTDIR/examples \
 			  $QTDIR/demos \
 			  $QTDIR \
