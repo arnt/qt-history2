@@ -54,6 +54,104 @@ bool qSharedBuild()
   System detection routines
  *****************************************************************************/
 
+/*!
+    \class QSysInfo
+    \brief The QSysInfo provides information about the system.
+
+    \ingroup misc
+
+    \table
+    \header \o Constant \o Description
+    \row \o \c QSysInfo::WordSize
+         \o The size in bits of a pointer for the platform on which
+            the application is compiled (32 or 64).
+
+    \row \o \c QSysInfo::ByteOrder
+         \o The byte order of the machine on which the application is
+            compiled (QSysInfo::BigEndian or QSysInfo::LittleEndian).
+
+    \row \o \c QSysInfo::WindowsVersion
+         \o The version of the Windows operating system on which the
+            application is run (Windows only).
+
+    \row \o \c QSysInfo::MacVersion
+         \o The version of the Macintosh operating system on which
+            the application is run (Mac only).
+    \endtable
+
+    You can use the preprocessor symbols \c Q_WS_WIN and \c Q_WS_MAC
+    to test that the application is compiled under Windows or Mac.
+
+    \sa QLibraryInfo
+*/
+
+/*!
+    \enum QSysInfo::Endian
+
+    \value BigEndian  Big-endian byte order (also called Network byte order)
+    \value LittleEndian  Little-endian byte order
+    \value ByteOrder  Equals BigEndian or LittleEndian, depending on
+                      the platform's byte order.
+*/
+
+/*!
+    \enum QSysInfo::WinVersion
+
+    This enum provides symbolic names for the various versions of the
+    Windows operating system.
+
+    MS-DOS-based versions:
+
+    \value WV_32s   Windows 3.1 wth Win 32s
+    \value WV_95    Windows 95
+    \value WV_98    Windows 98
+    \value WV_Me    Windows Me
+
+    NT-based versions:
+
+    \value WV_NT    Windows NT
+    \value WV_2000  Windows 2000
+    \value WV_XP    Windows XP
+    \value WV_2003  Windows XP 2003
+
+    CE-based versions:
+
+    \value WV_CE    Windows CE
+    \value WV_CENET Windows CE .NET
+
+    The following masks can be used for testing whether a Windows
+    version is MS-DOS-based, NT-based, or CE-based:
+
+    \value WV_DOS_based MS-DOS-based version of Windows
+    \value WV_NT_based  NT-based version of Windows
+    \value WV_CE_based  CE-based version of Windows
+
+    On Windows, the \c QSysInfo::WindowsVersion variable gives the
+    version of the system on which the application is run.
+
+    \sa MacVersion
+*/
+
+/*!
+    \enum QSysInfo::MacVersion
+
+    This enum provides symbolic names for the various versions of the
+    Macintosh operating system.
+
+    \value MV_9        MacOS 9 (unsupported)
+    \value MV_10_0     Mac OS X 10.0
+    \value MV_10_1     Mac OS X 10.1
+    \value MV_10_2     Mac OS X 10.2
+    \value MV_10_3     Mac OS X 10.3
+    \value MV_10_4     Mac OS X 10.4
+    \value MV_Unknown  Other
+
+    On Mac, the \c QSysInfo::MacintoshVersion variable gives the
+    version of the system on which the application is run.
+
+    \sa WinVersion
+*/
+
 #if !defined(Q_BYTE_ORDER) && defined(QT_BUILD_QMAKE)
 // needed to bootstrap qmake
 static const unsigned int qt_one = 1;

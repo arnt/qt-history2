@@ -905,7 +905,9 @@ public:
         LittleEndian
 
 #ifdef Q_BYTE_ORDER
-#  if Q_BYTE_ORDER == Q_BIG_ENDIAN
+#  ifdef qdoc
+        , ByteOrder = <platform-dependent>
+#  elif Q_BYTE_ORDER == Q_BIG_ENDIAN
         , ByteOrder = BigEndian
 #  elif Q_BYTE_ORDER == Q_LITTLE_ENDIAN
         , ByteOrder = LittleEndian
