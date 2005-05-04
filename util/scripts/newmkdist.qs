@@ -11,6 +11,7 @@ const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
 const validLicenses = ["opensource", "commercial", "preview", "beta"];
+const validEditions = ["core", "client"];
 const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
@@ -164,8 +165,11 @@ licenseRemove["preview"] = [ new RegExp("GPL") ];
 
 licenseRemove["beta"] = [ new RegExp("GPL") ];
 
-var finalRemove = [ new RegExp("^dist") ];
+var editionRemove = new Array();
+editionRemove["core"] = [ ];
+editionRemove["client"] = [ ];
 
+var finalRemove = [ new RegExp("^dist") ];
 
 /************************************************************
  * Mapping from directories to module names
@@ -222,56 +226,63 @@ purgeFiles(checkoutDir, getFileList(checkoutDir), checkoutRemove);
 indentation+=tabSize;
 for (var p in validPlatforms) {
     for (var l in validLicenses) {
-  	var platform = validPlatforms[p];
-  	var license = validLicenses[l];
-  	if (options[platform] && options[license]) {
-	    if (license == "opensource" && platform == "win")
-		continue;
-  	    print("Packaging %1-%2...".arg(platform).arg(license));
-  	    indentation+=tabSize;
+	for (var e in validEditions) {
+	    var platform = validPlatforms[p];
+	    var license = validLicenses[l];
+	    var edition = validEditions[e];
+	    if (options[platform] && options[license] && options[edition] &&
+		packageExists(platform, license, edition)) {
+		print("Packaging %1-%2-%3...".arg(platform).arg(license).arg(edition));
+		indentation+=tabSize;
 
-  	    // copy checkoutDir to platDir and set permissions
-  	    print("Copying checkout...");
-  	    var platName = "qt-%1-%2-%3".arg(platform).arg(license).arg(options["version"]);
-  	    var platDir = distDir + "/" + platName;
-  	    execute(["cp", "-r", checkoutDir, platDir]);
-	    execute(["chmod", "-R", "ug+w", platDir]);
+		// copy checkoutDir to platDir and set permissions
+		print("Copying checkout...");
+		var platName = "qt-%1-%2-%3-%4"
+		    .arg(platform)
+		    .arg(license)
+		    .arg(edition)
+		    .arg(options["version"]);
+		var platDir = distDir + "/" + platName;
+		execute(["cp", "-r", checkoutDir, platDir]);
+		execute(["chmod", "-R", "ug+w", platDir]);
 
-	    //copying dist files
-	    print("Copying dist files...");
-	    copyDist(platDir, platform, license);
+		//copying dist files
+		print("Copying dist files...");
+		copyDist(platDir, platform, license);
 
-	    // run qdoc
-  	    print("Running qdoc...");
-  	    qdoc(platDir, license);
+		// run qdoc
+		print("Running qdoc...");
+		qdoc(platDir, license);
 
-  	    // purge platform and license files
-  	    print("Purging platform and license specific files...");
-  	    purgeFiles(platDir,
-		       getFileList(platDir),
-  		       [].concat(platformRemove[platform]).concat(licenseRemove[license]));
+		// purge platform and license files
+		print("Purging platform and license specific files...");
+		purgeFiles(platDir, getFileList(platDir),[]
+			   .concat(platformRemove[platform])
+			   .concat(licenseRemove[license])
+			   .concat(editionRemove[edition]));
 
-	    // run syncqt
-  	    print("Running syncqt...");
-  	    syncqt(platDir, platform);
+		// run syncqt
+		print("Running syncqt...");
+		syncqt(platDir, platform);
 
-  	    // final package purge
-  	    print("Final package purge...");
-  	    purgeFiles(platDir, getFileList(platDir), finalRemove);
+		// final package purge
+		print("Final package purge...");
+		purgeFiles(platDir, getFileList(platDir), finalRemove);
 
-	    // replace tags (like THISYEAR etc.)
-	    print("Traversing all txt files and replacing tags...");
-	    replaceTags(platDir, getFileList(platDir), platform, license, platName);
+		// replace tags (like THISYEAR etc.)
+		print("Traversing all txt files and replacing tags...");
+		replaceTags(platDir, getFileList(platDir), platform, license, platName);
 
-  	    // package directory
-	    print("Compressing and packaging file(s)...")
-	    compress(platform, license, platDir);
+		// package directory
+		print("Compressing and packaging file(s)...");
+		compress(platform, license, platDir);
 
-	    // create binaries
-	    compile(platform, license, platName);
+		// create binaries
+		compile(platform, license, platName);
 	    
-  	    indentation-=tabSize;
-  	}
+		indentation-=tabSize;
+	    }
+	}
     }
 }
 indentation-=tabSize;
@@ -286,6 +297,7 @@ function parseArgc()
     var validOptions = []
 	.concat(validPlatforms)
 	.concat(validLicenses)
+	.concat(validEditions)
 	.concat(validSwitches)
 	.concat(validVars);
     for (var i=0; i<argc.length; ++i) {
@@ -344,6 +356,11 @@ function initialize()
 	if (!(validLicenses[i] in options))
 	    options[validLicenses[i]] = false;
 
+    // by default turn off all valid editions that were not defined
+    for (var i in validEditions)
+	if (!(validEditions[i] in options))
+	    options[validEditions[i]] = false;
+
     // make sure platform and license filters are defined
     for (var i in validPlatforms) {
 	if (!(validPlatforms[i] in platformRemove))
@@ -353,6 +370,11 @@ function initialize()
 	if (!(validLicenses[i] in licenseRemove))
 	    licenseRemove[validLicenses[i]] = new Array();
     }
+    for (var i in validEditions) {
+	if (!(validEditions[i] in editionRemove))
+	    editionRemove[validEditions[i]] = new Array();
+    }
+
 
     // finds a tmpDir
     if (tmpDir == undefined || !File.exists(tmpDir)) {
@@ -573,6 +595,18 @@ function compress(platform, license, packageDir)
  */
 function compile(platform, license, platformName)
 {
+
+    // copy script dir over
+    // copy package over
+    // copy license over?
+    // run script
+    // collect binaries
+    
+
+
+
+
+
     if (!options["binaries"] || !(platform in binaryHosts))
 	return;
 
@@ -917,6 +951,27 @@ function replaceTags(packageDir, fileList, platform, license, platName, addition
 	    File.write(absFileName, content);
 	}
     }
+}
+
+/************************************************************
+ * returns true if the combinations of platform, license and edition
+ * is a valid package
+ */
+function packageExists(platform, license, edition)
+{
+    // no windows opensource packages yet
+    if (platform == "win" && license == "opensource")
+	return false;
+
+    // core only exists for commercial and opensource license
+    if (edition == "core" && (license == "commercial" || license == "opensource"))
+	return true;
+
+    // client exists on all platforms for licenses
+    if (edition == "client")
+	return true;
+
+    return false;
 }
 
 /************************************************************
