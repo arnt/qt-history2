@@ -134,8 +134,6 @@ public:
     // keep qint* types here, so we can safely stream to a datastream
     typedef QMap<qint32, QVariant> PropertyMap;
 
-    qint32 type;
-
     inline uint hash() const
     {
         if (!hashDirty)
@@ -144,7 +142,7 @@ public:
     }
 
     inline bool operator==(const QTextFormatPrivate &rhs) const {
-        if (hash() != rhs.hash() || type != rhs.type)
+        if (hash() != rhs.hash())
             return false;
 
         return props == rhs.props;
@@ -246,13 +244,13 @@ void QTextFormatPrivate::recalcFont() const
 
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &stream, const QTextFormat &fmt)
 {
-    stream << fmt.d->type << fmt.d->props;
+    stream << fmt.format_type << fmt.d->props;
     return stream;
 }
 
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
 {
-    stream >> fmt.d->type >> fmt.d->props;
+    stream >> fmt.format_type >> fmt.d->props;
     return stream;
 }
 
@@ -458,9 +456,8 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &stream, QTextFormat &fmt)
     \sa FormatType
 */
 QTextFormat::QTextFormat()
-    : d(new QTextFormatPrivate)
+    : format_type(InvalidFormat)
 {
-    d->type = InvalidFormat;
 }
 
 /*!
@@ -469,9 +466,8 @@ QTextFormat::QTextFormat()
     \sa FormatType
 */
 QTextFormat::QTextFormat(int type)
-    : d(new QTextFormatPrivate)
+    : format_type(type)
 {
-    d->type = type;
 }
 
 
@@ -482,8 +478,8 @@ QTextFormat::QTextFormat(int type)
     text format.
 */
 QTextFormat::QTextFormat(const QTextFormat &rhs)
+    : d(rhs.d), format_type(rhs.format_type)
 {
-    d = rhs.d;
 }
 
 /*!
@@ -495,6 +491,7 @@ QTextFormat::QTextFormat(const QTextFormat &rhs)
 QTextFormat &QTextFormat::operator=(const QTextFormat &rhs)
 {
     d = rhs.d;
+    format_type = rhs.format_type;
     return *this;
 }
 
@@ -523,8 +520,13 @@ QTextFormat::operator QVariant() const
 */
 void QTextFormat::merge(const QTextFormat &other)
 {
-    if (d->type != other.d->type)
+    if (format_type != other.format_type)
         return;
+
+    if (!d) {
+        d = other.d;
+        return;
+    }
 
     // don't use QMap's += operator, as it uses insertMulti!
     for (QTextFormatPrivate::PropertyMap::ConstIterator it = other.d->properties().begin();
@@ -540,7 +542,7 @@ void QTextFormat::merge(const QTextFormat &other)
 */
 int QTextFormat::type() const
 {
-    return d->type;
+    return format_type;
 }
 
 /*!
@@ -611,6 +613,8 @@ QTextImageFormat QTextFormat::toImageFormat() const
 */
 bool QTextFormat::boolProperty(int propertyId) const
 {
+    if (!d)
+        return false;
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Bool)
         return false;
@@ -625,6 +629,8 @@ bool QTextFormat::boolProperty(int propertyId) const
 */
 int QTextFormat::intProperty(int propertyId) const
 {
+    if (!d)
+        return 0;
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Int)
         return 0;
@@ -639,6 +645,8 @@ int QTextFormat::intProperty(int propertyId) const
 */
 double QTextFormat::doubleProperty(int propertyId) const
 {
+    if (!d)
+        return 0.;
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Double)
         return 0.;
@@ -654,6 +662,8 @@ double QTextFormat::doubleProperty(int propertyId) const
 */
 QString QTextFormat::stringProperty(int propertyId) const
 {
+    if (!d)
+        return QString();
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::String)
         return QString();
@@ -670,6 +680,8 @@ QString QTextFormat::stringProperty(int propertyId) const
 */
 QColor QTextFormat::colorProperty(int propertyId) const
 {
+    if (!d)
+        return QColor();
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Color)
         return QColor();
@@ -685,6 +697,8 @@ QColor QTextFormat::colorProperty(int propertyId) const
 */
 QPen QTextFormat::penProperty(int propertyId) const
 {
+    if (!d)
+        return QPen(Qt::NoPen);
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Pen)
         return QPen(Qt::NoPen);
@@ -700,6 +714,8 @@ QPen QTextFormat::penProperty(int propertyId) const
 */
 QBrush QTextFormat::brushProperty(int propertyId) const
 {
+    if (!d)
+        return QBrush(Qt::NoBrush);
     const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::Brush)
         return QBrush(Qt::NoBrush);
@@ -713,6 +729,8 @@ QBrush QTextFormat::brushProperty(int propertyId) const
 */
 QTextLength QTextFormat::lengthProperty(int propertyId) const
 {
+    if (!d)
+        return QTextLength();
     return qvariant_cast<QTextLength>(d->properties().value(propertyId));
 }
 
@@ -725,9 +743,10 @@ QTextLength QTextFormat::lengthProperty(int propertyId) const
 */
 QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
 {
-    const QVariant prop = d->properties().value(propertyId);
-
     QVector<QTextLength> vector;
+    if (!d)
+        return vector;
+    const QVariant prop = d->properties().value(propertyId);
     if (prop.type() != QVariant::List)
         return vector;
 
@@ -746,7 +765,7 @@ QVector<QTextLength> QTextFormat::lengthVectorProperty(int propertyId) const
 */
 QVariant QTextFormat::property(int propertyId) const
 {
-    return d->properties().value(propertyId);
+    return d ? d->properties().value(propertyId) : QVariant();
 }
 
 /*!
@@ -754,6 +773,8 @@ QVariant QTextFormat::property(int propertyId) const
 */
 void QTextFormat::setProperty(int propertyId, const QVariant &value)
 {
+    if (!d)
+        d = new QTextFormatPrivate;
     if (!value.isValid())
         clearProperty(propertyId);
     else
@@ -767,6 +788,8 @@ void QTextFormat::setProperty(int propertyId, const QVariant &value)
 */
 void QTextFormat::setProperty(int propertyId, const QVector<QTextLength> &value)
 {
+    if (!d)
+        d = new QTextFormatPrivate;
     QVariantList list;
     for (int i=0; i<value.size(); ++i)
         list << value.at(i);
@@ -778,6 +801,8 @@ void QTextFormat::setProperty(int propertyId, const QVector<QTextLength> &value)
  */
 void QTextFormat::clearProperty(int propertyId)
 {
+    if (!d)
+        return;
     d->clearProperty(propertyId);
 }
 
@@ -803,6 +828,8 @@ void QTextFormat::clearProperty(int propertyId)
 */
 int QTextFormat::objectIndex() const
 {
+    if (!d)
+        return -1;
     const QVariant prop = d->properties().value(ObjectIndex);
     if (prop.type() != QVariant::Int) // ####
         return -1;
@@ -819,8 +846,11 @@ int QTextFormat::objectIndex() const
 void QTextFormat::setObjectIndex(int o)
 {
     if (o == -1) {
-        d->clearProperty(ObjectIndex);
+        if (d)
+            d->clearProperty(ObjectIndex);
     } else {
+        if (!d)
+            d = new QTextFormatPrivate;
         // ### type
         d->insertProperty(ObjectIndex, o);
     }
@@ -834,7 +864,7 @@ void QTextFormat::setObjectIndex(int o)
 */
 bool QTextFormat::hasProperty(int propertyId) const
 {
-    return d->properties().contains(propertyId);
+    return d ? d->properties().contains(propertyId) : false;
 }
 
 /*
@@ -848,7 +878,7 @@ bool QTextFormat::hasProperty(int propertyId) const
 */
 QMap<int, QVariant> QTextFormat::properties() const
 {
-    return d->properties();
+    return d ? d->properties() : QMap<int, QVariant>();
 }
 
 
@@ -870,6 +900,8 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 {
     if (d == rhs.d)
         return true;
+    if (format_type != rhs.format_type || !d || !rhs.d)
+        return false;
 
     return *d == *rhs.d;
 }
@@ -1268,7 +1300,7 @@ void QTextCharFormat::setFont(const QFont &font)
 */
 QFont QTextCharFormat::font() const
 {
-    return d->font();
+    return d ? d->font() : QFont();
 }
 
 /*!
@@ -1998,7 +2030,8 @@ QTextFormatCollection::~QTextFormatCollection()
 
 int QTextFormatCollection::indexForFormat(const QTextFormat &format)
 {
-    if (hashes.contains(format.d->hash())) {
+    int hash = format.d ? format.d->hash() : 0;
+    if (hashes.contains(hash)) {
         for (int i = 0; i < formats.size(); ++i) {
             if (formats.at(i) == format)
                 return i;
@@ -2006,13 +2039,14 @@ int QTextFormatCollection::indexForFormat(const QTextFormat &format)
     }
     int idx = formats.size();
     formats.append(format);
-    hashes.insert(format.d->hash());
+    hashes.insert(hash);
     return idx;
 }
 
 bool QTextFormatCollection::hasFormatCached(const QTextFormat &format) const
 {
-    if (hashes.contains(format.d->hash())) {
+    int hash = format.d ? format.d->hash() : 0;
+    if (hashes.contains(hash)) {
         for (int i = 0; i < formats.size(); ++i)
             if (formats.at(i) == format)
                 return true;

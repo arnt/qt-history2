@@ -257,6 +257,8 @@ public:
 
 private:
     QSharedDataPointer<QTextFormatPrivate> d;
+    qint32 format_type;
+
     friend class QTextFormatCollection;
     friend class QTextCharFormat;
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QTextFormat &);
