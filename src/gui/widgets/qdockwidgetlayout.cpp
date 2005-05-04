@@ -673,7 +673,7 @@ QPoint QDockWidgetLayout::constrain(QDockWidgetSeparator *sep, int delta)
 
 	// find 'sep'
 	local_list = save_layout_info ? *save_layout_info : layout_info;
-	QMutableListIterator<QDockWidgetLayoutInfo> f_it(local_list), b_it(local_list);
+        QMutableListIterator<QDockWidgetLayoutInfo> f_it(local_list), b_it(local_list);
 	while (f_it.hasNext()) {
 	    const QDockWidgetLayoutInfo &info = f_it.peekNext();
 	    if (info.is_sep && qobject_cast<QDockWidgetSeparator*>(info.item->widget()) == sep) break;
@@ -683,11 +683,23 @@ QPoint QDockWidgetLayout::constrain(QDockWidgetSeparator *sep, int delta)
 	// at this point, the iterator is just before 'sep'
 
 	// get info for 'sep->prev' and move to just after sep->prev
+        while (b_it.hasPrevious()) {
+            if (!b_it.peekPrevious().item->isEmpty())
+                break;
+            (void) b_it.previous(); // skip item
+            (void) b_it.previous(); // skip sep
+        }
 	QDockWidgetLayoutInfo &info1 = b_it.previous(); // move to just after previous separator
 
 	(void)f_it.next(); // move to before sep->next
 
-	 // get info for 'sep->next' and move to just before next separator
+        // get info for 'sep->next' and move to just before next separator
+        while (f_it.hasNext()) {
+            if (!f_it.peekNext().item->isEmpty())
+                break;
+            (void) f_it.next(); // skip sep
+            (void) f_it.next(); // skip item
+        }
 	QDockWidgetLayoutInfo &info2 = f_it.next();
 
 	// subtract delta to the current size of sep->next
@@ -712,17 +724,18 @@ QPoint QDockWidgetLayout::constrain(QDockWidgetSeparator *sep, int delta)
 		    (void)f_it.next(); // skip separator
 
 		    QDockWidgetLayoutInfo &f_info = f_it.next();
+                    if (!f_info.item->isEmpty()) {
+                        // subtract delta to the current size
+                        x = f_info.cur_size;
+                        f_info.cur_size -= remain;
 
-		    // subtract delta to the current size
-		    x = f_info.cur_size;
-		    f_info.cur_size -= remain;
+                        // constrain the new size according to our min/max size
+                        f_info.cur_size = qMax(f_info.cur_size, f_info.min_size);
+                        f_info.cur_size = qMin(f_info.cur_size, f_info.max_size);
+                        remain -= x - f_info.cur_size;
 
-		    // constrain the new size according to our min/max size
-		    f_info.cur_size = qMax(f_info.cur_size, f_info.min_size);
-		    f_info.cur_size = qMin(f_info.cur_size, f_info.max_size);
-		    remain -= x - f_info.cur_size;
-
-		    VDEBUG("  done, new %4d old %4d remaining %d", f_info.cur_size, x, remain);
+                        VDEBUG("  done, new %4d old %4d remaining %d", f_info.cur_size, x, remain);
+                    }
 
 		    if (!f_it.hasNext()) break; // at the end
 		}
@@ -754,17 +767,18 @@ QPoint QDockWidgetLayout::constrain(QDockWidgetSeparator *sep, int delta)
 		    // (void)b_it.prev(); // skip separator
 
 		    QDockWidgetLayoutInfo &b_info = b_it.previous();
+                    if (!b_info.item->isEmpty()) {
+                        // add delta from current size of sep->next
+                        x = b_info.cur_size;
+                        b_info.cur_size += remain;
 
-		    // add delta from current size of sep->next
-		    x = b_info.cur_size;
-		    b_info.cur_size += remain;
+                        // constrain the delta according to our min/max size
+                        b_info.cur_size = qMax(b_info.cur_size, b_info.min_size);
+                        b_info.cur_size = qMin(b_info.cur_size, b_info.max_size);
+                        remain -= b_info.cur_size - x;
 
-		    // constrain the delta according to our min/max size
-		    b_info.cur_size = qMax(b_info.cur_size, b_info.min_size);
-		    b_info.cur_size = qMin(b_info.cur_size, b_info.max_size);
-		    remain -= b_info.cur_size - x;
-
-		    VDEBUG("  done, new %4d old %4d remaining %d", b_info.cur_size, x, remain);
+                        VDEBUG("  done, new %4d old %4d remaining %d", b_info.cur_size, x, remain);
+                    }
 
 		    if (!b_it.hasPrevious()) break; // at the beginning
 		}
