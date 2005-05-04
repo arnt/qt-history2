@@ -19,8 +19,6 @@
     \class Q3Grid qgrid.h
     \brief The Q3Grid widget provides simple geometry management of its children.
 
-    \compat
-
     \ingroup geomanagement
     \ingroup appearance
 

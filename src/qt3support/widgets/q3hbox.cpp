@@ -21,8 +21,6 @@
     \brief The Q3HBox widget provides horizontal geometry management
     for its child widgets.
 
-    \compat
-
     \ingroup organizers
     \ingroup geomanagement
     \ingroup appearance
