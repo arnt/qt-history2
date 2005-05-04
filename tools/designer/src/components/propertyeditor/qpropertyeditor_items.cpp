@@ -105,7 +105,7 @@ QWidget *BoolProperty::createEditor(QWidget *parent, const QObject *target, cons
     QComboBox *combo = new QComboBox(parent);
     combo->view()->setTextElideMode(Qt::ElideLeft);
     combo->setFrame(0);
-    combo->insertItems(-1, QStringList() << QString::fromUtf8("false") << QString::fromUtf8("true"));
+    combo->addItems(QStringList() << QString::fromUtf8("false") << QString::fromUtf8("true"));
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
 
     return combo;
@@ -318,7 +318,7 @@ QWidget *ListProperty::createEditor(QWidget *parent, const QObject *target, cons
     combo->view()->setTextElideMode(Qt::ElideLeft);
     combo->setFrame(0);
 
-    combo->insertItems(-1, items());
+    combo->addItems(items());
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
     return combo;
 }
@@ -667,7 +667,7 @@ QWidget *MapProperty::createEditor(QWidget *parent, const QObject *target, const
     combo->view()->setTextElideMode(Qt::ElideLeft);
     combo->setFrame(0);
 
-    combo->insertItems(-1, m_keys);
+    combo->addItems(m_keys);
     QObject::connect(combo, SIGNAL(activated(int)), target, receiver);
 
     return combo;
