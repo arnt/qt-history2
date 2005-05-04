@@ -4,63 +4,78 @@
 
 Window::Window()
 {
-    QMenuBar *menuBar = new QMenuBar;
+    createMenu();
+    createHorizontalGroupBox();
+    createGridGroupBox();
 
-    QMenu *fileMenu = new QMenu(tr("&File"), this);
-    QAction *quitAction = fileMenu->addAction(tr("&Quit"));
-    menuBar->addMenu(fileMenu);
+    bigEditor = new QTextEdit;
+    bigEditor->setPlainText(tr("This widget takes up all the remaining space "
+                               "in the top-level layout."));
 
-    connect(quitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
-
-    QGroupBox *horizontalGroup = new QGroupBox(tr("Horizontal layout"));
-    QBoxLayout *horizontalLayout = new QHBoxLayout;
-    for (int i = 1; i <= 4; ++i) {
-	QPushButton *button = new QPushButton;
-	button->setText(tr("Button %1").arg(i));
-	horizontalLayout->addWidget(button, 10);
-    }
-    horizontalGroup->setLayout(horizontalLayout);
-
-    QGroupBox *gridGroup = new QGroupBox(tr("Grid layout"));
-    QTextEdit *gridEditor = new QTextEdit;
-    gridEditor->setPlainText(tr("This widget will take up three rows in "
-                                "the grid layout."));
-
-    QGridLayout *gridLayout = new QGridLayout;
-    for (int row = 0; row < 3; ++row) {
-	QLabel *label = new QLabel(tr("Line %1").arg(row+1));
-	QLineEdit *lineEdit = new QLineEdit;
-	gridLayout->addWidget(label, row, 0);
-	gridLayout->addWidget(lineEdit, row, 1);
-    }
-    gridLayout->addWidget(gridEditor, 0, 2, 3, 1);
-    gridLayout->setColumnStretch(1, 10);
-    gridLayout->setColumnStretch(2, 20);
-    gridGroup->setLayout(gridLayout);
-
-    QTextEdit *bigEditor = new QTextEdit;
-    bigEditor->setPlainText(tr("This widget will take up all the remaining "
-                               "space in the top-level layout."));
-
-    QPushButton *okButton = new QPushButton(tr("OK"));
-    QPushButton *cancelButton = new QPushButton(tr("Cancel"));
+    okButton = new QPushButton(tr("OK"));
+    cancelButton = new QPushButton(tr("Cancel"));
     okButton->setDefault(true);
 
-    connect(okButton, SIGNAL(clicked()), qApp, SLOT(quit()));
-    connect(cancelButton, SIGNAL(clicked()), qApp, SLOT(quit()));
+    connect(okButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
 
-    QHBoxLayout *paddedLayout = new QHBoxLayout;
-    paddedLayout->addStretch(1);
-    paddedLayout->addWidget(okButton);
-    paddedLayout->addWidget(cancelButton);
+    QHBoxLayout *buttonLayout = new QHBoxLayout;
+    buttonLayout->addStretch(1);
+    buttonLayout->addWidget(okButton);
+    buttonLayout->addWidget(cancelButton);
 
     QBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->setMenuBar(menuBar);
-    mainLayout->addWidget(horizontalGroup);
-    mainLayout->addWidget(gridGroup);
+    mainLayout->addWidget(horizontalGroupBox);
+    mainLayout->addWidget(gridGroupBox);
     mainLayout->addWidget(bigEditor);
-    mainLayout->addLayout(paddedLayout);
+    mainLayout->addLayout(buttonLayout);
     setLayout(mainLayout);
 
     setWindowTitle(tr("Basic Layouts"));
+}
+
+void Window::createMenu()
+{
+    menuBar = new QMenuBar;
+
+    fileMenu = new QMenu(tr("&File"), this);
+    exitAction = fileMenu->addAction(tr("E&xit"));
+    menuBar->addMenu(fileMenu);
+
+    connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+}
+
+void Window::createHorizontalGroupBox()
+{
+    horizontalGroupBox = new QGroupBox(tr("Horizontal layout"));
+    QBoxLayout *layout = new QHBoxLayout;
+
+    for (int i = 0; i < NumButtons; ++i) {
+        buttons[i] = new QPushButton(tr("Button %1").arg(i + 1));
+	layout->addWidget(buttons[i], 1);
+    }
+    horizontalGroupBox->setLayout(layout);
+}
+
+void Window::createGridGroupBox()
+{
+    gridGroupBox = new QGroupBox(tr("Grid layout"));
+    QGridLayout *layout = new QGridLayout;
+
+    for (int i = 0; i < NumGridRows; ++i) {
+	labels[i] = new QLabel(tr("Line %1:").arg(i + 1));
+	lineEdits[i] = new QLineEdit;
+	layout->addWidget(labels[i], i, 0);
+	layout->addWidget(lineEdits[i], i, 1);
+    }
+
+    smallEditor = new QTextEdit;
+    smallEditor->setPlainText(tr("This widget will take up three rows in "
+                                 "the grid layout."));
+    layout->addWidget(smallEditor, 0, 2, 3, 1);
+
+    layout->setColumnStretch(1, 10);
+    layout->setColumnStretch(2, 20);
+    gridGroupBox->setLayout(layout);
 }
