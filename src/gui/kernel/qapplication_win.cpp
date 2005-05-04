@@ -2063,10 +2063,6 @@ void QApplicationPrivate::enterModal(QWidget *widget)
     if (!qt_modal_stack) {                        // create modal stack
         qt_modal_stack = new QWidgetList;
     }
-    if (widget->parentWidget()) {
-        QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(widget->parentWidget(), &e);
-    }
 
     releaseAutoCapture();
     QApplicationPrivate::dispatchEnterLeave(0, QWidget::find((WId)curWin));
@@ -2075,6 +2071,11 @@ void QApplicationPrivate::enterModal(QWidget *widget)
     curWin = 0;
     qt_button_down = 0;
     qt_win_ignoreNextMouseReleaseEvent = false;
+
+    if (widget->parentWidget()) {
+        QEvent e(QEvent::WindowBlocked);
+        QApplication::sendEvent(widget->parentWidget(), &e);
+    }
 }
 
 

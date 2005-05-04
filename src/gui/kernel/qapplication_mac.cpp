@@ -1496,10 +1496,6 @@ void QApplicationPrivate::enterModal(QWidget *widget)
     if(!qt_modal_stack) {                        // create modal stack
         qt_modal_stack = new QWidgetList;
     }
-    if (widget->parentWidget()) {
-        QEvent e(QEvent::WindowBlocked);
-        QApplication::sendEvent(widget->parentWidget(), &e);
-    }
 
     dispatchEnterLeave(0, qt_mouseover);
     qt_mouseover = 0;
@@ -1508,6 +1504,11 @@ void QApplicationPrivate::enterModal(QWidget *widget)
     if(!app_do_modal)
         qt_event_request_menubarupdate();
     app_do_modal = true;
+
+    if (widget->parentWidget()) {
+        QEvent e(QEvent::WindowBlocked);
+        QApplication::sendEvent(widget->parentWidget(), &e);
+    }
 }
 
 

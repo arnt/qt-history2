@@ -2633,13 +2633,14 @@ void QApplicationPrivate::enterModal(QWidget *widget)
     if (!qt_modal_stack) {                        // create modal stack
         qt_modal_stack = new QWidgetList;
     }
+
+    qt_modal_stack->insert(0, widget);
+    app_do_modal = true;
+
     if (widget->parentWidget()) {
         QEvent e(QEvent::WindowBlocked);
         QApplication::sendEvent(widget->parentWidget(), &e);
     }
-
-    qt_modal_stack->insert(0, widget);
-    app_do_modal = true;
 }
 
 

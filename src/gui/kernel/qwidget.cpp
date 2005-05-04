@@ -3132,8 +3132,7 @@ QString QWidget::windowTitle() const
         : QString();
 }
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
-void QWidgetPrivate::setWindowTitle_helper(const QString &title)
+QString qt_setWindowTitle_helperHelper(const QString &title, bool isModified)
 {
     QString cap = title;
 
@@ -3152,8 +3151,7 @@ void QWidgetPrivate::setWindowTitle_helper(const QString &title)
         if (count%2) { // odd number of [*] -> replace last one
             int lastIndex = cap.lastIndexOf(placeHolder, index - 1);
 #ifndef Q_WS_MAC
-            Q_Q(QWidget);
-            if (q->isWindowModified())
+            if (isModified)
                 cap.replace(lastIndex, 3, QWidget::tr("*"));
             else
 #endif
@@ -3164,7 +3162,15 @@ void QWidgetPrivate::setWindowTitle_helper(const QString &title)
     }
 
     cap.replace(QLatin1String("[*][*]"), QLatin1String("[*]"));
-    setWindowTitle_sys(cap);
+
+    return cap;
+}
+
+#ifndef QT_NO_WIDGET_TOPEXTRA
+void QWidgetPrivate::setWindowTitle_helper(const QString &title)
+{
+    Q_Q(QWidget);
+    setWindowTitle_sys(qt_setWindowTitle_helperHelper(title, q->isWindowModified()));
 }
 #endif
 
@@ -5050,7 +5056,8 @@ bool QWidget::event(QEvent *e)
             QList<QObject*> childList = d->children;
             for (int i = 0; i < childList.size(); ++i) {
                 QObject *o = childList.at(i);
-                QApplication::sendEvent(o, e);
+                if (o != qApp->activeModalWidget())
+                    QApplication::sendEvent(o, e);
             }
         }
         break;
