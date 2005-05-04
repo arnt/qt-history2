@@ -175,7 +175,7 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
 
 QLayoutItem *QDockWidgetLayout::find(QWidget *widget)
 {
-    for (int i = 0; i < layout_info.count(); ++i) {
+   for (int i = 0; i < layout_info.count(); ++i) {
 	const QDockWidgetLayoutInfo &info = layout_info.at(i);
 	if (info.is_sep)
             continue;
@@ -327,7 +327,7 @@ void QDockWidgetLayout::setGeometry(const QRect &rect)
         QLayoutStruct &ls = a[x];
         ls.init();
         ls.empty = info.item->isEmpty();
-        if (ls.empty)
+        if (ls.empty && !info.is_dropped)
             continue;
 
         if (info.is_sep) {
@@ -822,6 +822,8 @@ QDockWidgetLayout::Location QDockWidgetLayout::locate(const QPoint &p) const
         const QDockWidgetLayoutInfo &info = layout_info.at(i);
         if (info.is_sep)
             continue;
+        if (info.item->isEmpty())
+            continue;
 
         if (pos < (info.cur_pos + info.cur_size - 1)) {
             const QRect current =
@@ -1096,6 +1098,12 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
 {
     DEBUG("QDockWidgetLayout::drop");
 
+    if (dockwidget->isFloating()) {
+        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
+        Q_ASSERT(layout != 0);
+        layout->removeRecursive(dockwidget);
+    }
+
     const QPoint p = parentWidget()->mapFromGlobal(mouse);
     Location location = locate(p - geometry().topLeft());
     const QDockWidgetLayoutInfo &info = layout_info.at(location.index);
@@ -1158,9 +1166,12 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
     QRect target = ::trySplit(orientation, location.area, allowedAreas,
                               info.item->geometry(), p, separatorExtent);
     if (!target.isEmpty()) {
-        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
-        Q_ASSERT(layout != 0);
-        layout->removeRecursive(dockwidget);
+        if (!dockwidget->isFloating()) {
+            QMainWindowLayout *layout =
+                qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
+            Q_ASSERT(layout != 0);
+            layout->removeRecursive(dockwidget);
+        }
 
         bool nested = false;
         switch (orientation) {
