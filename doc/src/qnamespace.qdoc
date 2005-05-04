@@ -162,7 +162,7 @@
     </style>
     \endraw
 
-    Qt's 19 predefined QColor objects
+    Qt's predefined QColor objects:
 
     \value white       \raw HTML
     White <tt id="white">(#ffffff)</tt>
@@ -215,6 +215,7 @@
     \value lightGray   \raw HTML
     Light gray <tt id="lightGray">(#c0c0c0)</tt>
     \endraw
+    \value transparent a transparent black value (i.e., QColor(0, 0, 0, 0))
     \value color0 0 pixel value (for bitmaps)
     \value color1 1 pixel value (for bitmaps)
 
@@ -386,6 +387,7 @@
                              invoked directly, as with \c DirectConnection;
                              otherwise the signal is queued, as with
                              \c QueuedConnection.
+    \omitvalue AutoCompatConnection
 
     \sa {Thread Support in Qt}, QObject::connect()
 */
@@ -734,6 +736,11 @@
     This is currently not supported on Mac OS X. We recommend that you
     use this attribute only when porting Qt 3 code to Qt 4.
 
+    \value WA_Hover Forces Qt to generate paint events when the mouse
+    enters or leaves the widget. This feature is typically used when
+    implementing custom styles; see the \l{widgets/styles}{Styles}
+    example for details.
+
     \value WA_WindowModified Indicates that the window is marked as
     modified. On some platforms this will mean nothing, on others
     (including Mac OS X and Windows) the window will take a modified
@@ -799,6 +806,7 @@
         the users changes focus with the keyboard (tab, backtab, or shortcut).
 
     \value WA_InputMethodEnabled
+    \value WA_InputMethodTransparent
     \value WA_MacNoClickThrough
     \value WA_MouseNoMask
     \value WA_NoMousePropagation
@@ -806,7 +814,6 @@
     \value WA_SetLayoutDirection
     \value WA_ShowModal
 
-    \omitvalue WA_WState_AutoMask
     \omitvalue WA_WState_CompressKeys
     \omitvalue WA_WState_ConfigPending
     \omitvalue WA_WState_Created
@@ -1456,6 +1463,9 @@
     \value MSWindowsFixedSizeDialogHint  Gives the window a thin dialog border on Windows.
            This style is traditionally used for fixed-size dialogs.
 
+    \value Qt::MSWindowsOwnDC  Gives the window its own display
+           context on Windows.
+
     \value X11BypassWindowManagerHint  Bypass the window
            manager completely. This results in a borderless window
            that is not managed at all (i.e. no keyboard input unless
@@ -1524,7 +1534,7 @@
     \value WPaintClever         No longer needed.
 
     \value WX11BypassWM         Use Qt::X11BypassWindowManagerHint instead.
-    \value WWinOwnDC            No longer needed.
+    \value WWinOwnDC            Use Qt::MSWindowsOwnDC instead.
     \value WMacSheet            Use Qt::Sheet instead.
     \value WMacDrawer           Use Qt::Drawer instead.
 
