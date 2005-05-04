@@ -898,9 +898,9 @@ QMap<int, QVariant> QTextFormat::properties() const
 */
 bool QTextFormat::operator==(const QTextFormat &rhs) const
 {
-    if (d == rhs.d)
+    if (format_type == rhs.format_type && d == rhs.d)
         return true;
-    if (format_type != rhs.format_type || !d || !rhs.d)
+    if (!d || !rhs.d)
         return false;
 
     return *d == *rhs.d;
