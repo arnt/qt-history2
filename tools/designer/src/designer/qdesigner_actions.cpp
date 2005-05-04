@@ -244,7 +244,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_previewFormAction = new QAction(tr("&Preview"), this);
     m_previewFormAction->setShortcut(tr("CTRL+R"));
-    connect(m_previewFormAction, SIGNAL(triggered()), this, SLOT(previewForm()));
+    connect(m_previewFormAction, SIGNAL(triggered()), this, SLOT(previewFormLater()));
     m_formActions->addAction(m_previewFormAction);
 
     m_styleActions = new QActionGroup(this);
@@ -541,6 +541,13 @@ void QDesignerActions::updateUIMode(QAction *act)
     QDesignerSettings settings;
     settings.setUIMode(act == m_sdiAction ? QDesignerWorkbench::TopLevelMode : QDesignerWorkbench::WorkspaceMode);
     m_workbench->setUIMode(QDesignerWorkbench::UIMode(settings.uiMode()));
+}
+
+void QDesignerActions::previewFormLater(QAction *action)
+{
+    qRegisterMetaType<QAction*>("QAction*");
+    QMetaObject::invokeMember(this, "previewForm", Qt::QueuedConnection,
+                                Q_ARG(QAction*, action));
 }
 
 void QDesignerActions::previewForm(QAction *action)

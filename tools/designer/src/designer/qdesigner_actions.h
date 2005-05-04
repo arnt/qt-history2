@@ -16,6 +16,7 @@
 
 #include <QtCore/QPointer>
 #include <QtCore/QObject>
+#include <QtGui/QAction>
 
 class QDesignerMainWindow;
 class QDesignerWorkbench;
@@ -124,6 +125,7 @@ private slots:
     void saveFormAs();
     void saveFormAsTemplate();
     void previewForm(QAction *action = 0);
+    void previewFormLater(QAction *action = 0);
     void notImplementedYet();
     void shutdown();
     void editWidgetsSlot();
