@@ -236,7 +236,7 @@ public:
     static QT3_SUPPORT Endian systemBitOrder();
 #ifndef QT_NO_IMAGEIO
     inline QT3_SUPPORT_CONSTRUCTOR QImage(const QByteArray &data)
-        { *this = QImage::fromData(data); }
+        { d = 0; *this = QImage::fromData(data); }
 #endif
 #endif
 
