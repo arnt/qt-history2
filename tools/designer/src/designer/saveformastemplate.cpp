@@ -48,7 +48,10 @@ SaveFormAsTemplate::~SaveFormAsTemplate()
 void SaveFormAsTemplate::on_okButton_clicked()
 {
     QString templateFileName = ui.categoryCombo->currentText() + QLatin1Char('/') + ui.templateNameEdit->text();
+    if (!templateFileName.endsWith(QLatin1String(".ui")))
+        templateFileName.append(QLatin1String(".ui"));
     QFile file(templateFileName);
+
     if (file.exists()) {
         if (QMessageBox::information(m_formWindow, tr("Template Exists"),
                                  tr("A template with the name %1 already exits\n"

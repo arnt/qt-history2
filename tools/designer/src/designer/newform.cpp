@@ -27,6 +27,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QFileInfo>
 #include <QtGui/QHeaderView>
+#include <QtGui/QPainter>
 
 #include <QtCore/qdebug.h>
 
@@ -65,9 +66,15 @@ NewForm::~NewForm()
 void NewForm::on_treeWidget_currentItemChanged(QTreeWidgetItem *current, QTreeWidgetItem *)
 {
     if (current && current->parent()) {
-        ui.createButton->setEnabled(true);
-        ui.createButton->setDefault(true);
-        ui.lblPreview->setPixmap(formPreviewIcon(current->data(0, TemplateNameRole).toString()).pixmap(QSize(256, 256)));
+        QIcon icon = formPreviewIcon(current->data(0, TemplateNameRole).toString());
+        if (icon.isNull()) {
+            ui.createButton->setEnabled(false);
+            ui.lblPreview->setText(tr("Error loading form"));
+        } else {
+            ui.createButton->setEnabled(true);
+            ui.createButton->setDefault(true);
+            ui.lblPreview->setPixmap(icon.pixmap(QSize(256, 256)));
+        }
     } else {
         ui.createButton->setEnabled(false);
         ui.lblPreview->setText(tr("Choose a template for a preview"));
@@ -134,32 +141,34 @@ QDesignerWorkbench *NewForm::workbench() const
 
 QIcon NewForm::formPreviewIcon(const QString &fileName)
 {
+    QIcon result;
+
     QFile f(fileName);
     if (f.open(QFile::ReadOnly)) {
         QDesignerFormBuilder formBuilder(workbench()->core());
 
         QWidget *fake = new QWidget(0);
-        QWidget *widget = formBuilder.load(&f, fake);
-        QSize size = widget->size();
-        widget->setParent(fake, 0);
-        widget->resize(size);
-        widget->show();
-        f.close();
+        if (QWidget *widget = formBuilder.load(&f, fake)) {
+            QSize size = widget->size();
+            widget->setParent(fake, 0);
+            widget->resize(size);
+            widget->show();
+            f.close();
 
-        qDesigner->processEvents();
+            qDesigner->processEvents();
 
-        widget->ensurePolished();
+            widget->ensurePolished();
 
-        QPixmap pix = QPixmap::grabWidget(widget);
-        QImage image = pix.toImage();
-        image = image.scaled(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
-        pix = QPixmap::fromImage(image);
+            QPixmap pix = QPixmap::grabWidget(widget);
+            QImage image = pix.toImage();
+            image = image.scaled(256, 256, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+            result = QPixmap::fromImage(image);
+        }
 
         fake->deleteLater();
-
-        return pix;
     }
-    return QIcon();
+
+    return result;
 }
 
 void NewForm::loadFrom(const QString &path, bool resourceFile)
@@ -170,7 +179,7 @@ void NewForm::loadFrom(const QString &path, bool resourceFile)
         return;
 
     // Iterate through the directory and add the templates
-    QFileInfoList list = dir.entryInfoList(QDir::Files);
+    QFileInfoList list = dir.entryInfoList(QStringList() << "*.ui", QDir::Files);
 
     if (list.isEmpty())
         return;
