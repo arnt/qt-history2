@@ -256,7 +256,7 @@ bool QSocketLayer::initialize(QAbstractSocket::SocketType socketType, QAbstractS
 #if defined(QT_NO_IPV6)
     if (protocol == QAbstractSocket::IPv6Protocol) {
         d->setError(QAbstractSocket::UnsupportedSocketOperationError,
-                    NoIpV6ErrorString);
+                    QSocketLayerPrivate::NoIpV6ErrorString);
         return false;
     }
 #endif
