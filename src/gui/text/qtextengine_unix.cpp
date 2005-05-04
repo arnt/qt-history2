@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <assert.h>
+#include <qdebug.h>
 
 #if (FREETYPE_MAJOR == 2) && (FREETYPE_MINOR == 1) && (FREETYPE_PATCH < 3)
 #  define FT_KERNING_DEFAULT ft_kerning_default
@@ -21,7 +21,7 @@
 
 void QTextEngine::shapeText(int item) const
 {
-    assert(item < layoutData->items.size());
+    Q_ASSERT(item < layoutData->items.size());
     QScriptItem &si = layoutData->items[item];
 
     if (si.num_glyphs)

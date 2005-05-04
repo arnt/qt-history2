@@ -796,6 +796,8 @@ static void init(QTextEngine *e)
 
     e->underlinePositions = 0;
     e->specialData = 0;
+    e->logClustersPtr = 0;
+    e->glyphPtr = 0;
 }
 
 QTextEngine::QTextEngine()
@@ -877,7 +879,7 @@ void QTextEngine::shape(int item) const
     if (layoutData->items[item].isObject) {
         if (block.docHandle()) {
             QTextFormat format = formats()->format(formatIndex(&layoutData->items[item]));
-            // ##### const cast
+            ensureSpace(1);
             docLayout()->resizeInlineObject(QTextInlineObject(item, const_cast<QTextEngine *>(this)), format);
         }
     } else {
@@ -1319,6 +1321,8 @@ void QTextEngine::freeMemory()
 {
     delete layoutData;
     layoutData = 0;
+    logClustersPtr = 0;
+    glyphPtr = 0;
     for (int i = 0; i < lines.size(); ++i) {
         lines[i].justified = 0;
         lines[i].gridfitted = 0;

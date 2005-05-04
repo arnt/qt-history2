@@ -1543,7 +1543,9 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
 */
 qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
 {
-    eng->itemize();
+    if (!eng->layoutData)
+        eng->itemize();
+
     const QScriptLine &line = eng->lines[i];
 
     qreal x = line.x;
@@ -1566,8 +1568,6 @@ qreal QTextLine::cursorToX(int *cursorPos, Edge edge) const
         eng->shape(itm);
     pos -= si->position;
 
-    if (!si->num_glyphs)
-        eng->shape(itm);
     QGlyphLayout *glyphs = eng->glyphs(si);
     unsigned short *logClusters = eng->logClusters(si);
 
