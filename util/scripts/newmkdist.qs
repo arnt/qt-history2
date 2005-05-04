@@ -220,7 +220,8 @@ checkTools();
 print("Building qdoc...");
 buildQdoc();
 print("Checkout from P4...");
-checkout();
+preparePerforce();
+checkoutDir = checkout("...", distDir + "/qt");
 print("Purging checkout...");
 purgeFiles(checkoutDir, getFileList(checkoutDir), checkoutRemove);
 indentation+=tabSize;
@@ -278,8 +279,8 @@ for (var p in validPlatforms) {
 		compress(platform, license, platDir);
 
 		// create binaries
-		compile(platform, license, platName);
-	    
+ 		createBinary(platform, "vs2003", platName);
+         
 		indentation-=tabSize;
 	    }
 	}
@@ -391,7 +392,6 @@ function initialize()
     if (dir.exists)
 	dir.rmdirs();
     dir.mkdir();
-    checkoutDir = distDir + "/qt";
 
     // setting up p4
     if (p4Port == undefined)
@@ -455,9 +455,9 @@ function buildQdoc()
 
 
 /************************************************************
- * checkouts from P4 and puts everything in checkoutDir
+ * checks that branch and version exists and sets the p4Label etc.
  */
-function checkout()
+function preparePerforce()
 {
     // check that the branch exist
     p4BranchPath = "//depot/qt/" + options["branch"];
@@ -474,14 +474,23 @@ function checkout()
 	if (Process.stdout.find("Label " + p4Label + " ") == -1)
 	    throw "Label: " + p4Label + " does not exist, or not in this branch.";
     }
+}
 
+
+/************************************************************
+ * checks out p4Path (for example "...") from P4 and puts it into the absolute
+ * directory localDir, returns the localDir on success or throws an exception
+ */
+function checkout(p4Path, localDir)
+{
     // generate clientSpec
     var tmpClient="qt-release-tmp-" + user;
     execute([p4Command, "client", "-t", "qt-release-3x", "-o", tmpClient]);
     var clientSpec = Process.stdout.split("\n");
     for (var i in clientSpec) {
-	clientSpec[i] = clientSpec[i].replace(/^Root:.*/, "Root: " + distDir);
-	clientSpec[i] = clientSpec[i].replace(/X.Y/, options["branch"]);
+	clientSpec[i] = clientSpec[i].replace(/^Root:.*/, "Root: " + localDir);
+	clientSpec[i] = clientSpec[i].replace(/X.Y.*/, options["branch"] + "/" + p4Path + " " +
+					      "//" + tmpClient + "/...");
 	clientSpec[i] = clientSpec[i].replace(/\bnomodtime\b/, "modtime");
     }
     // save clientSpec
@@ -489,11 +498,12 @@ function checkout()
     execute([p4Command, "client", "-i"], clientSpec);
 
     // checkout
-    execute([p4Command, "-c", tmpClient, "-d", distDir, "sync", "-f", "...@" + p4Label]);
+    execute([p4Command, "-c", tmpClient, "-d", localDir, "sync", "-f", "...@" + p4Label]);
 
-    // test for checkoutDir
-    if (!File.exists(checkoutDir))
+    // test that checkout worked
+    if (!File.exists(localDir))
 	throw "Checkout failed, checkout dir %1 does not exist.".arg(checkoutDir);
+    return localDir;
 }
 
 /************************************************************
@@ -593,153 +603,46 @@ function compress(platform, license, packageDir)
  * copies a qt-package to binary host, compiles qt, and collects the
  * resulting dlls etc.
  */
-function compile(platform, license, platformName)
+function createBinary(platform, compiler, packageName)
 {
-
-    // copy script dir over
-    // copy package over
-    // copy license over?
-    // run script
-    // collect binaries
-    
-
-
-
-
-
     if (!options["binaries"] || !(platform in binaryHosts))
-	return;
-
-    print("Compiling binaries...")
+ 	return;
 
     var login = binaryUser + "@" + binaryHosts[platform];
-
-    // remove any previous packages/dirs/scripts for this platform
-    execute(["ssh", login, "rm -rf", platformName + "*"]);
-    execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
-    execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
-    execute(["ssh", login, "rm -rf", "write*.nsh"]);
-    execute(["ssh", login, "rm -rf", "checkqtlicense.ini"]);
-    execute(["ssh", login, "rm -rf", "setenvpage.ini"]);
-
-    if (platform == "win" && options["zip"]) {
-	// copy zip package to host
-	var packageName = platformName + ".zip";
-	execute(["scp", outputDir + "/" + packageName, login + ":."]);
-	
-	// unzip package (overwrite)
-	execute(["ssh", login, "unzip", "-q", "-o", packageName]);
-	
-	// duplicate directory where we copy the compiled results over
-	execute(["ssh", login, "cp", "-r", platformName, platformName+"clean"]);
-	// regenerate include/ with syncqt -copy
-	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + platformName + "clean"]);
-	var windowsPath = Process.stdout.split("\n")[0];
-	execute(["ssh", login, "rm -rf", platformName+"clean/include"]);
-	execute(["ssh", login, "QTDIR='" + windowsPath + "'", "cmd", "/c",
-		 "perl", platformName+"clean/bin/syncqt", "-copy"]);
-	// remove src/
-	execute(["ssh", login, "rm -rf", platformName+"clean/src"]);
-
-	// copy build script
-	var buildScript = p4Copy(p4BranchPath + "/util/scripts" ,"buildbinarywin.bat", p4Label);
-	execute(["scp", buildScript, login + ":."]);
-
-	// run it
-	execute(["ssh", login, "cmd", "/c", "buildbinarywin.bat win32-msvc.net " + platformName]);
-
-	// copy files from bin
-	execute(["ssh", login, "cp", platformName + "/bin/*.exe", platformName+"clean/bin/."]);
-	execute(["ssh", login, "cp", platformName + "/bin/*.dll", platformName+"clean/bin/."]);
-	// copy files from lib
-	execute(["ssh", login, "cp", platformName + "/lib/*.dll", platformName+"clean/lib/."]);
-	execute(["ssh", login, "cp", platformName + "/lib/*.lib", platformName+"clean/lib/."]);
-	execute(["ssh", login, "cp", platformName + "/lib/*.pdb", platformName+"clean/lib/."]);
-	// copy the plugin directory
-	execute(["ssh", login, "cp", "-r", platformName + "/plugins", platformName+"clean/."]);
-	// copy generated qconfig.h
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/global/qconfig.h",
-		 platformName + "clean/include/Qt/qconfig.h"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/global/qconfig.h",
-		 platformName + "clean/include/QtCore/qconfig.h"]);
-	// copy arch/qatomic.h
-	execute(["ssh", login, "mkdir", "-p", platformName + "clean/include/Qt/arch"]);
-	execute(["ssh", login, "mkdir", "-p", platformName + "clean/include/QtCore/arch"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/arch/windows/arch/qatomic.h",
-		 platformName + "clean/include/Qt/arch/."]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/arch/windows/arch/qatomic.h",
-		 platformName + "clean/include/QtCore/arch/."]);
-	// copy qatomic.h
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/Qt/."]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/QtCore/."]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/QtCore/QAtomic"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/QtCore/QBasicAtomic"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/QtCore/QAtomicPointer"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/QtCore/QBasicAtomicPointer"]);
-
-	// replace tags in installscript.nsi
-	var installScript = p4Copy(p4BranchPath + "/util/scripts", "installscriptwin.nsi",
-				   p4Label);
-	var extraTags = new Array();
-	extraTags[windowsPath] = /\%PACKAGEDIR\%/g;
-	var scriptFile = new File(installScript);
-	replaceTags(scriptFile.path, ["installscriptwin.nsi"], platform, license, platformName,
-		    extraTags);
-
-	// copy over the install scipt files
-	var installWriteEnv = p4Copy(p4BranchPath + "/util/scripts", "writeEnvStr.nsh", p4Label);
-	var installWritePath = p4Copy(p4BranchPath + "/util/scripts", "writePathStr.nsh", p4Label);
-	var installLicensePage = p4Copy(p4BranchPath + "/util/scripts", "checkqtlicense.ini",
-					p4Label);
-	var installEnvPage = p4Copy(p4BranchPath + "/util/scripts", "setenvpage.ini", p4Label);
-	execute(["scp", installScript, login + ":."]);
-	execute(["scp", installWriteEnv, login + ":."]);
-	execute(["scp", installWritePath, login + ":."]);
-	execute(["scp", installLicensePage, login + ":."]);
-	execute(["scp", installEnvPage, login + ":."]);
-
-	// copy over the latest version of the install dll to the nsis plugins dir
-	var installDll = p4Copy(p4BranchPath + "/util/scripts/qtnsisext", "qtnsisext.dll",
-				p4Label);
-	execute(["ssh", login, "which", "makensis.exe"]);
-	var nsisPluginsPath = Process.stdout.split("\n")[0];
-	nsisPluginsPath = nsisPluginsPath.left(nsisPluginsPath.lastIndexOf("/")) + "/plugins";
-	execute(["scp", installDll, login + ":'" + nsisPluginsPath + "'"]);
-
-	// run the install script and create compiler
-	execute(["ssh", login, "cmd", "/c", "makensis.exe", "installscriptwin.nsi"]);
-
-	//copy the result back
-	execute(["scp", login + ":" + platformName + ".exe", outputDir + "/."]);
-
-
-    } else if (platform == "mac") {
-
+    
+    // check that package exists
+    var packageFile = packageName + ".zip";
+    if (!File.exists(outputDir + "/" + packageFile)) {
+ 	warning("Package: " + outputDir + "/" + packageFile + " not found.");
+ 	return;
     }
 
-    // clean up on host after building binaries
-//     execute(["ssh", login, "rm -rf", platformName + "*"]);
-//     execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
-//     execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
-//     execute(["ssh", login, "rm -rf", "write*.nsh"]);
-//     execute(["ssh", login, "rm -rf", "checkqtlicense.ini"]);
-//     execute(["ssh", login, "rm -rf", "setenvpage.ini"]);
+    // clean up host
+    var hostDir = platform + "-binary";
+    execute(["ssh", login, "rm -rf", hostDir]);
+
+    // copy script over
+    var binaryScriptsDir = checkout("util/scripts/" + platform + "-binary/...", hostDir);
+    execute(["scp", "-r", binaryScriptsDir, login + ":."]);
+    
+    // copy src package over
+    execute(["scp", outputDir + "/" + packageFile, login + ":" + hostDir]);
+
+    // get absolute windows path to hostDir
+    execute(["ssh", login, "cygpath", "-w", "`pwd`/" + hostDir]);
+    var windowsPath = Process.stdout.split("\n")[0];
+    //windowsPath = windowsPath.replace(/\\/g, "\\\\");
+
+    // run script
+    execute(["ssh", login, "cmd", "/c", "'" + hostDir + "\\winbinary.bat",
+	     windowsPath,
+	     packageName,
+	     options["version"],
+	     "full",
+	     compiler + "'"]);
+
+    // collect binary
+    execute(["scp", login + ":" + hostDir + "/" + packageName + "*.exe", outputDir + "/."]);
 }
 
 /************************************************************
@@ -1041,6 +944,7 @@ function binaryFile(fileName)
  * runs the command and prints out stderror if not empty
  */
 function execute(command, stdin) {
+    print("Running %1".arg(command));
     var start = Date().getTime();
     var error = Process.execute(command, stdin);
     var runTime = Math.floor((Date().getTime() - start)/1000);
