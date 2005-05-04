@@ -64,19 +64,16 @@ public:
         return ls ? static_cast<QSettings *>(qt_library_settings()->settings) : (QSettings*)0;
     }
 
-
     Q_GLOBAL_STATIC(QLibrarySettings, qt_library_settings)
 };
 
 
 QLibrarySettings::QLibrarySettings()
 {
-    if (!static_cast<QSettings *>(settings)) {
-        settings = QLibraryInfoPrivate::findConfiguration();
+    settings = QLibraryInfoPrivate::findConfiguration();
 #ifndef QT_NO_QOBJECT
-        qAddPostRoutine(QLibraryInfoPrivate::cleanup);
+    qAddPostRoutine(QLibraryInfoPrivate::cleanup);
 #endif
-    }
 }
 
 QSettings *QLibraryInfoPrivate::findConfiguration()
