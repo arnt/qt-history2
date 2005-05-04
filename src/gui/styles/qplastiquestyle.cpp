@@ -1791,7 +1791,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     QPoint endPoint = rightLine.p2();
 
                     if (tab->state & State_Enabled) {
-                        QRect fillRect = QRect(startPoint, endPoint);
+                        QRect fillRect = QRect(startPoint, endPoint).normalized();
                         if (fillRect.isValid()) {
                             if (selected) {
                                 painter->fillRect(fillRect, painter->brush());
