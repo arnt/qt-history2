@@ -173,19 +173,6 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
     return true;
 }
 
-QLayoutItem *QDockWidgetLayout::find(QWidget *widget)
-{
-   for (int i = 0; i < layout_info.count(); ++i) {
-	const QDockWidgetLayoutInfo &info = layout_info.at(i);
-	if (info.is_sep)
-            continue;
-	if (widget == info.item->widget())
-	    return info.item;
-    }
-    return 0;
-}
-
-
 int QDockWidgetLayout::count() const
 {
     qWarning("QDockWidgetLayout::count() is wrong");

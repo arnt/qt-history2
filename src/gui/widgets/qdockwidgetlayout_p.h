@@ -87,7 +87,6 @@ public:
     void relayout(QInternal::RelayoutType type = QInternal::RelayoutNormal);
 
     void setOrientation(Qt::Orientation o);
-    QLayoutItem *find(QWidget *widget);
     QDockWidgetLayoutInfo &insert(int index, QLayoutItem *layoutitem);
 
     void dump();
