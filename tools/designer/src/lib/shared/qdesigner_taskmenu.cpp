@@ -21,9 +21,11 @@
 #include "widgetdatabase.h"
 #include "qlayout_widget.h"
 #include "spacer_widget.h"
+#include "layout.h"
 
 #include <QtDesigner/QtDesigner>
 #include <QtDesigner/QExtensionManager>
+#include <QtDesigner/QDesignerLayoutDecorationExtension>
 
 #include <QtGui/QAction>
 #include <QtGui/QWidget>
@@ -176,6 +178,51 @@ QObject *QDesignerTaskMenuFactory::createExtension(QObject *object, const QStrin
     return new QDesignerTaskMenu(widget, parent);
 }
 
+
+static void replace_widget_item(QDesignerFormWindowInterface *fw, QWidget *wgt, QWidget *promoted)
+{
+    QDesignerFormEditorInterface *core = fw->core();
+    QWidget *parent = wgt->parentWidget();
+
+    QRect info;
+    if (QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parent)) {
+        QLayout *layout = LayoutInfo::managedLayout(core, parent);
+        Q_ASSERT(layout != 0);
+
+        int old_index = layout->indexOf(wgt);
+        Q_ASSERT(old_index != -1);
+
+        info = deco->itemInfo(old_index);
+
+        QLayoutItem *item = layout->takeAt(old_index);
+        delete item;
+        layout->activate();
+    }
+
+    if (qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parent)) {
+        QLayout *layout = LayoutInfo::managedLayout(core, parent);
+        Q_ASSERT(layout != 0);
+
+        // ### check if `info' is valid!
+
+        switch (LayoutInfo::layoutType(core, layout)) {
+            default: Q_ASSERT(0); break;
+
+            case LayoutInfo::VBox:
+                insert_into_box_layout(static_cast<QBoxLayout*>(layout), info.top(), promoted);
+                break;
+
+            case LayoutInfo::HBox:
+                insert_into_box_layout(static_cast<QBoxLayout*>(layout), info.left(), promoted);
+                break;
+
+            case LayoutInfo::Grid:
+                add_to_grid_layout(static_cast<QGridLayout*>(layout), promoted, info.top(), info.left(), info.height(), info.width());
+                break;
+        }
+    }
+}
+
 void QDesignerTaskMenu::promoteToCustomWidget()
 {
     QDesignerFormWindowInterface *fw = formWindow();
@@ -209,23 +256,19 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     }
     item->setIncludeFile(include_file);
 
-    fw->beginCommand(tr("Promote to custom widget"));
+    // ### use the undo stack
+    // fw->beginCommand(tr("Promote to custom widget"));
 
-    QDesignerPromotedWidget *promoted
-        = new QDesignerPromotedWidget(item, parent);
-
-    promoted->setGeometry(wgt->geometry());
-    promoted->setChildWidget(wgt);
+    QDesignerPromotedWidget *promoted = new QDesignerPromotedWidget(item, parent);
     promoted->setObjectName(QLatin1String("__qt__promoted_") + wgt->objectName());
-    InsertWidgetCommand *insert_cmd = new InsertWidgetCommand(fw);
-    insert_cmd->init(promoted);
-    fw->commandHistory()->push(insert_cmd);
+    promoted->setGeometry(wgt->geometry());
 
-    ReparentWidgetCommand *reparent_cmd = new ReparentWidgetCommand(fw);
-    reparent_cmd->init(wgt, promoted);
-    fw->commandHistory()->push(reparent_cmd);
+    replace_widget_item(fw, wgt, promoted);
 
-    fw->endCommand();
+    promoted->setChildWidget(wgt);
+    fw->manageWidget(promoted);
+
+    // fw->endCommand();
 
     fw->clearSelection();
     fw->selectWidget(promoted);
@@ -234,23 +277,25 @@ void QDesignerTaskMenu::promoteToCustomWidget()
 void QDesignerTaskMenu::demoteFromCustomWidget()
 {
     QDesignerFormWindowInterface *fw = formWindow();
-    QWidget *wgt = widget();
-    QWidget *parent = wgt->parentWidget();
 
-    QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(wgt);
+    QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget());
     Q_ASSERT(promoted != 0);
 
-    fw->beginCommand(tr("Demote to ") + promoted->item()->extends());
+    // ### use the undo stack
+    //fw->beginCommand(tr("Demote to ") + promoted->item()->extends());
 
-    ReparentWidgetCommand *reparent_cmd = new ReparentWidgetCommand(fw);
-    reparent_cmd->init(promoted->child(), parent);
-    fw->commandHistory()->push(reparent_cmd);
+    QWidget *childWidget = promoted->child();
 
-    DeleteWidgetCommand *delete_cmd = new DeleteWidgetCommand(fw);
-    delete_cmd->init(promoted);
-    fw->commandHistory()->push(delete_cmd);
+    childWidget->setParent(promoted->parentWidget());
+    childWidget->setGeometry(promoted->geometry());
+    childWidget->setSizePolicy(promoted->sizePolicy());
 
-    fw->endCommand();
+    replace_widget_item(fw, promoted, childWidget);
+
+    fw->manageWidget(childWidget);
+    fw->unmanageWidget(promoted);
+
+    //fw->endCommand();
 
     fw->clearSelection();
     fw->selectWidget(promoted);
