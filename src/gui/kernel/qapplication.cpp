@@ -1123,7 +1123,7 @@ QStyle *QApplication::style()
 */
 void QApplication::setStyle(QStyle *style)
 {
-    if (!style)
+    if (!style || style == QApplicationPrivate::app_style)
         return;
 
     QStyle* old = QApplicationPrivate::app_style;
@@ -1171,7 +1171,7 @@ void QApplication::setStyle(QStyle *style)
         }
         delete old;
     }
-    if(QApplicationPrivate::focus_widget) {
+    if (QApplicationPrivate::focus_widget) {
         QFocusEvent in(QEvent::FocusIn, Qt::OtherFocusReason);
         QApplication::sendEvent(QApplicationPrivate::focus_widget->style(), &in);
         QApplicationPrivate::focus_widget->update();
