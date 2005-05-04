@@ -285,6 +285,7 @@ CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
 CFG_FRAMEWORK=no
 CFG_LOADER_PATH=LD_LIBRARY_PATH
+CFG_MAC_DL=auto
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -1130,6 +1131,14 @@ fi
 if [ "$CFG_DEBUG" = "auto" ]; then
     CFG_DEBUG=yes
     QMAKE_CONFIG="$QMAKE_CONFIG build_all"
+fi
+
+if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_MAC_DL" = "auto" ]; then
+    if $relpath/config.tests/mac/systemdl $OPT_VERBOSE; then
+        CFG_MAC_DL=system
+    else
+        CFG_MAC_DL=compat
+    fi
 fi
 
 #detect zlib
@@ -2976,6 +2985,11 @@ elif [ "$CFG_ZLIB" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG zlib"
 elif [ "$CFG_ZLIB" = "system" ]; then
     QT_CONFIG="$QT_CONFIG system-zlib"
+fi
+if [ "$CFG_MAC_DL" = "system" ]; then
+    QT_CONFIG="$QT_CONFIG system-libdl"
+else
+    QT_CONFIG="$QT_CONFIG compat-libdl"
 fi
 [ "$CFG_NIS" = "yes" ] && QT_CONFIG="$QT_CONFIG nis"
 [ "$CFG_CUPS" = "yes" ] && QT_CONFIG="$QT_CONFIG cups"

@@ -1,0 +1,19 @@
+#!/bin/sh
+#
+# usage: $1 is verbose 
+# returns 0 on success
+
+VERBOSE=$1
+
+if nm /usr/lib/libSystem.dylib | grep dlopen >/dev/null 2>&1; then
+    if [ "$VERBOSE" = "yes" ]; then
+        echo "Using dlopen as provied by /usr/lib/libSystem.dylib."
+    fi
+    exit 0 
+fi
+if [ "$VERBOSE" = "yes" ]; then
+    echo "Using dlopen from the dlcompat library."
+fi
+exit 1
+
+
