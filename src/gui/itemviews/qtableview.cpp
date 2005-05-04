@@ -351,7 +351,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     Q_D(QTableView);
 
     // setup temp variables for the painting
-    
+
     QStyleOptionViewItem option = viewOptions();
     const QPoint offset = d->scrollDelayOffset;
     const bool showGrid = d->showGrid;
@@ -368,7 +368,7 @@ void QTableView::paintEvent(QPaintEvent *e)
     const bool alternate = d->alternatingColors;
 
     QPainter painter(d->viewport);
-    
+
     // if there's nothing to do, clear the area and return
     if (d->horizontalHeader->count() == 0 || d->verticalHeader->count() == 0) {
         painter.fillRect(e->rect(), option.palette.brush(QPalette::Base));
@@ -377,14 +377,14 @@ void QTableView::paintEvent(QPaintEvent *e)
 
     QVector<QRect> rects = e->region().rects();
     for (int i = 0; i < rects.size(); ++i) {
-    
+
         QRect area = rects.at(i);
         area.translate(offset);
-        
-        // get the horizontal start and end sections (visual indexes)        
+
+        // get the horizontal start and end sections (visual indexes)
         int left = d->horizontalHeader->visualIndexAt(area.left());
         int right = d->horizontalHeader->visualIndexAt(area.right());
-        
+
         if (isRightToLeft()) {
             left = (left == -1 ? model()->columnCount(rootIndex()) - 1 : left);
             right = (right == -1 ? 0 : right);
@@ -392,7 +392,7 @@ void QTableView::paintEvent(QPaintEvent *e)
             left = (left == -1 ? 0 : left);
             right = (right == -1 ? model()->columnCount(rootIndex()) - 1 : right);
         }
-        
+
         int tmp = left;
         left = qMin(left, right);
         right = qMax(tmp, right);
@@ -409,7 +409,7 @@ void QTableView::paintEvent(QPaintEvent *e)
         bottom = qMax(tmp, bottom);
 
         // do the actual painting
-        
+
         for (int v = top; v <= bottom; ++v) {
             int row = verticalHeader->logicalIndex(v);
             if (verticalHeader->isSectionHidden(row))
@@ -448,7 +448,7 @@ void QTableView::paintEvent(QPaintEvent *e)
                 if (v == top && showGrid) {
                     QPen old = painter.pen();
                     painter.setPen(gridPen);
-                    painter.drawLine(colp + colw, area.top(), colp + colw, area.bottom());
+                    painter.drawLine(colp + colw, area.top(), colp + colw, area.bottom()+1);
                     painter.setPen(old);
                 }
             }
@@ -628,7 +628,7 @@ QRegion QTableView::visualRegionForSelection(const QItemSelection &selection) co
         for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange range = selection.at(i);
             if (range.parent() != rootIndex() || !range.isValid())
-                continue; 
+                continue;
             for (int r = range.top(); r <= range.bottom(); ++r)
                 for (int c = range.left(); c <= range.right(); ++c)
                     selectionRegion += QRegion(visualRect(d->model->index(r, c, rootIndex())));
@@ -648,7 +648,7 @@ QRegion QTableView::visualRegionForSelection(const QItemSelection &selection) co
                                                  columnWidth(c), height));
         }
     } else if (verticalMoved) {
-        for (int i = 0; i < selection.count(); ++i) {            
+        for (int i = 0; i < selection.count(); ++i) {
             QItemSelectionRange range = selection.at(i);
             if (range.parent() != rootIndex() || !range.isValid())
                 continue;
@@ -954,7 +954,7 @@ void QTableView::scrollTo(const QModelIndex &index, ScrollHint hint)
     // check if we really need to do anything
     if (index.parent() != rootIndex() || isIndexHidden(index))
         return;
-    
+
     QRect area = d->viewport->rect();
     QRect rect = visualRect(index);
     if (hint == EnsureVisible && area.contains(rect)) {
