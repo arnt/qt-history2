@@ -538,7 +538,7 @@ QTextFormat QInputContext::standardFormat(QInputContext::StandardFormat s) const
     switch (s) {
     case QInputContext::PreeditFormat: {
         fmt.setFontUnderline(true);
-        int h1, s1, v1, h2, s2, v2;
+        int h1, s1, v1, h2, s2, v2;
         pal.color(QPalette::Base).getHsv(&h1, &s1, &v1);
         pal.color(QPalette::Background).getHsv(&h2, &s2, &v2);
         bg.setHsv(h1, s1, (v1 + v2) / 2);
