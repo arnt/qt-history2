@@ -640,6 +640,27 @@ int QEventDispatcherUNIX::activateSocketNotifiers()
     if (d->sn_pending_list.isEmpty())
         return 0;
 
+    // create sets that match the current pending sets (note: we skip
+    // the first one, because we activate first and check second)
+    fd_set rset, wset, xset;
+    FD_ZERO(&rset);
+    FD_ZERO(&wset);
+    FD_ZERO(&xset);
+    for (int i = 1; i < d->sn_pending_list.size(); ++i) {
+        const QSockNot * const sn = d->sn_pending_list.at(i);
+        switch (sn->obj->type()) {
+        case QSocketNotifier::Read:
+            FD_SET(sn->fd, &rset);
+            break;
+        case QSocketNotifier::Write:
+            FD_SET(sn->fd, &wset);
+            break;
+        case QSocketNotifier::Exception:
+            FD_SET(sn->fd, &xset);
+            break;
+        }
+    }
+
     // activate entries
     int n_act = 0;
     QEvent event(QEvent::SockAct);
@@ -649,6 +670,46 @@ int QEventDispatcherUNIX::activateSocketNotifiers()
             FD_CLR(sn->fd, sn->queue);
             QCoreApplication::sendEvent(sn->obj, &event);
             n_act++;
+        }
+
+        if (d->sn_pending_list.isEmpty())
+            break;
+
+        // check if any fds are no longer pending
+        int ret = -1;
+        do {
+            timeval zero_timeout = { 0l, 0l };
+            ret = ::select(d->sn_highest + 1, &rset, &wset, &xset, &zero_timeout);
+        } while (ret == -1 && (errno == EINTR || errno == EAGAIN));
+
+        if (ret < -1) {
+            // any errors caught here are new errors, so we punt and
+            // let doSelect() handle them
+            break;
+        }
+
+        for (int i = 0; i < d->sn_pending_list.size(); ++i) {
+            QSockNot *sn = d->sn_pending_list.at(i);
+
+            fd_set *set = 0;
+            switch (sn->obj->type()) {
+            case QSocketNotifier::Read:
+                set = &rset;
+                break;
+            case QSocketNotifier::Write:
+                set = &wset;
+                break;
+            case QSocketNotifier::Exception:
+                set = &xset;
+                break;
+            }
+
+            if (set && !FD_ISSET(sn->fd, set)) {
+                // fd is no longer pending
+                FD_CLR(sn->fd, set);
+                FD_CLR(sn->fd, sn->queue);
+                d->sn_pending_list.removeAt(i--);
+            }
         }
     }
 
