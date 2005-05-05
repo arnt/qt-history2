@@ -36,17 +36,16 @@
 
     A lot of CPU and memory is used by the ELF linking process. You can
     make significant savings by using a static build of your application
-    suite. This means that rather than having a dynamic library (\c
-    libqte.so) and a collection of executables which link dynamically to
-    that library, you build all the applications into a single executable
-    and statically link that with a static library (\c libqt.a). This
-    improves start-up time, and reduces memory usage, at the expense of
-    flexibility (to add a new application, you must recompile the single
-    executable) and robustness (if one application has a bug, it might
-    harm other applications). If you need to install end-user
-    applications, this may not be an option, but if you are building a
-    single application suite for a device with limited CPU power and
-    memory, this option could be very beneficial.
+    suite. This means that rather than having dynamic Qt libraries and a
+    collection of executables which link dynamically to these libraries,
+    you build all the applications into a single executable and statically
+    link that with static Qt libraries. This improves start-up time, and
+    reduces memory usage, at the expense of flexibility (to add a new
+    application, you must recompile the single executable) and robustness
+    (if one application has a bug, it might harm other applications). If
+    you need to install end-user applications, this may not be an option,
+    but if you are building a single application suite for a device with
+    limited CPU power and memory, this option could be very beneficial.
 
     To compile Qt as a static library, use the \c -static option when
     you run configure.

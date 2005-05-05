@@ -2067,8 +2067,8 @@ Configure options:
  *  -release ........... Compile and link Qt with debugging turned off.
     -debug ............. Compile and link Qt with debugging turned on.
 
- *  -shared ............ Create and use a shared Qt library (libqt.so).
-    -static ............ Create and use a static Qt library (libqt.a).
+ *  -shared ............ Create and use shared Qt libraries.
+    -static ............ Create and use static Qt libraries.
 
  *  -no-gif ............ Do not compile in GIF reading support.
     -qt-gif ............ Compile in GIF reading support.
