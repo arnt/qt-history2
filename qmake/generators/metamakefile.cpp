@@ -16,6 +16,9 @@
 #include "makefile.h"
 #include "project.h"
 
+#define BUILDSMETATYPE 1
+#define SUBDIRSMETATYPE 2
+
 MetaMakefileGenerator::~MetaMakefileGenerator()
 {
 
@@ -34,10 +37,12 @@ private:
     MakefileGenerator *processBuild(const QString &);
 
 public:
+
     BuildsMetaMakefileGenerator(QMakeProject *p) : MetaMakefileGenerator(p), init_flag(false) { }
     virtual ~BuildsMetaMakefileGenerator() { clearBuilds(); }
 
     virtual bool init();
+    virtual int type() const { return BUILDSMETATYPE; }
     virtual bool write(const QString &);
 };
 
@@ -208,6 +213,8 @@ class SubdirsMetaMakefileGenerator : public MetaMakefileGenerator
     bool init_flag;
 private:
     struct Subdir {
+        Subdir() : makefile(0), indent(0) { }
+        ~Subdir() { delete makefile; }
         QString input_dir;
         QString output_dir, output_file;
         MetaMakefileGenerator *makefile;
@@ -221,6 +228,7 @@ public:
     virtual ~SubdirsMetaMakefileGenerator();
 
     virtual bool init();
+    virtual int type() const { return SUBDIRSMETATYPE; }
     virtual bool write(const QString &);
 };
 
@@ -241,12 +249,9 @@ SubdirsMetaMakefileGenerator::init()
             Subdir *sub = new Subdir;
             sub->indent = recurseDepth;
 
-//###             bool subPro = false;
             QFileInfo subdir(subdirs.at(i));
             if(subdir.isDir())
                 subdir = QFileInfo(subdirs.at(i) + "/" + subdir.fileName() + Option::pro_ext);
-//###             else
-//###                 subPro = true;
 
             //handle sub project
             QMakeProject *sub_proj = new QMakeProject(project->properities());
@@ -262,26 +267,26 @@ SubdirsMetaMakefileGenerator::init()
             sub_proj->read(subdir.fileName());
             if(!sub_proj->variables()["QMAKE_FAILED_REQUIREMENTS"].isEmpty()) {
                 fprintf(stderr, "Project file(%s) not recursed because all requirements not met:\n\t%s\n",
-                        subdir.fileName().toLatin1().constData(), sub_proj->values("QMAKE_FAILED_REQUIREMENTS").join(" ").toLatin1().constData());
+                        subdir.fileName().toLatin1().constData(),
+                        sub_proj->values("QMAKE_FAILED_REQUIREMENTS").join(" ").toLatin1().constData());
                 delete sub;
                 delete sub_proj;
                 continue;
             }
             sub->makefile = MetaMakefileGenerator::createMetaGenerator(sub_proj);
-            subs.append(sub);
+            if(sub->makefile->type() == SUBDIRSMETATYPE) {
+                subs.append(sub);
+            } else {
+                const QString &output_name = Option::output.fileName();
+                Option::output.setFileName(sub->output_file);
+                sub->makefile->write(sub->output_dir);
+                delete sub;
+                sub = 0;
+                Option::output.setFileName(output_name);
+            }
             Option::output_dir = old_output_dir;
             qmake_setpwd(oldpwd);
 
-#if 0
-            //handle output file
-            if(!Option::output.fileName().isEmpty()) {
-                QFileInfo output(Option::output.fileName());
-                if(!output.isDir())
-                    sub->output_file += output.fileName();
-            }
-//###             if(subPro)
-//###                 sub->output_file += "." + subdir.baseName();
-#endif
         }
         --recurseDepth;
         Option::output_dir = old_output_dir;
@@ -333,11 +338,8 @@ SubdirsMetaMakefileGenerator::write(const QString &passpwd)
 
 SubdirsMetaMakefileGenerator::~SubdirsMetaMakefileGenerator()
 {
-    for(int i = 0; i < subs.count(); i++) {
-        Subdir *sub = subs[i];
-        delete sub->makefile;
-        delete sub;
-    }
+    for(int i = 0; i < subs.count(); i++)
+        delete subs[i];
     subs.clear();
 }
 

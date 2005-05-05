@@ -25,6 +25,7 @@ protected:
     QMakeProject *project;
 
 public:
+
     virtual ~MetaMakefileGenerator();
 
     static MetaMakefileGenerator *createMetaGenerator(QMakeProject *);
@@ -33,6 +34,7 @@ public:
     inline QMakeProject *projectFile() const { return project; }
 
     virtual bool init() = 0;
+    virtual int type() const { return -1; }
     virtual bool write(const QString &) = 0;
 };
 
