@@ -3888,6 +3888,10 @@ static int balance_nonroot(MemPage *pPage){
     nMaxCells += 1+apOld[i]->nCell+apOld[i]->nOverflow;
   }
 
+  /* Make nMaxCells a multiple of 2 in order to preserve 8-byte
+  ** alignment */
+  nMaxCells = (nMaxCells + 1)&~1;
+
   /*
   ** Allocate space for memory structures
   */
