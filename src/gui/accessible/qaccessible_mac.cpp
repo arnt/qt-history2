@@ -171,7 +171,7 @@ static AXUIElementRef qt_mac_find_uielement(QObject *object, int child=0)
   QAccessible Bindings
  *****************************************************************************/
 //hardcoded bindings between control info and (known) QWidgets
-static struct {
+struct QAccessibleTextBinding {
     int qt;
     CFStringRef mac;
     bool settable;
