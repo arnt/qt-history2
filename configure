@@ -285,7 +285,6 @@ CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
 CFG_FRAMEWORK=no
 CFG_LOADER_PATH=LD_LIBRARY_PATH
-CFG_MAC_DL=auto
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -1131,14 +1130,6 @@ fi
 if [ "$CFG_DEBUG" = "auto" ]; then
     CFG_DEBUG=yes
     QMAKE_CONFIG="$QMAKE_CONFIG build_all"
-fi
-
-if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_MAC_DL" = "auto" ]; then
-    if $relpath/config.tests/mac/systemdl.test $OPT_VERBOSE; then
-        CFG_MAC_DL=system
-    else
-        CFG_MAC_DL=compat
-    fi
 fi
 
 #detect zlib

@@ -49,9 +49,6 @@ WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 #endif
 #include "dlfcn.h"
 
-#ifndef dl_restrict
-#define dl_restrict __restrict
-#endif
 /* This is not available on 10.1 */
 #ifndef LC_LOAD_WEAK_DYLIB
 #define	LC_LOAD_WEAK_DYLIB (0x18 | LC_REQ_DYLD)
@@ -882,7 +879,7 @@ static inline void dounlock(void)
 		exit(err);
 }
 
-void *dlopen(const char *path, int mode)
+void *DL_PREFIX(dlopen)(const char *path, int mode)
 {
 	const struct stat *sbuf;
 	struct dlstatus *dls;
@@ -930,7 +927,7 @@ void *dlopen(const char *path, int mode)
 }
 
 #if !FINK_BUILD
-void *dlsym(void * dl_restrict handle, const char * dl_restrict symbol)
+void *DL_PREFIX(dlsym)(void * dl_restrict handle, const char * dl_restrict symbol)
 {
 	int sym_len = strlen(symbol);
 	void *value = NULL;
@@ -958,7 +955,7 @@ void *dlsym(void * dl_restrict handle, const char * dl_restrict symbol)
 
 #if FINK_BUILD
 
-void *dlsym_prepend_underscore(void *handle, const char *symbol)
+static void *dlsym_prepend_underscore(void *handle, const char *symbol)
 {
 	void *answer;
 	dolock();
@@ -995,7 +992,7 @@ static void *dlsym_prepend_underscore_intern(void *handle, const char *symbol)
 	return value;
 }
 
-void *dlsym_auto_underscore(void *handle, const char *symbol)
+static void *dlsym_auto_underscore(void *handle, const char *symbol)
 {
 	void *answer;
 	dolock();
@@ -1015,7 +1012,7 @@ static void *dlsym_auto_underscore_intern(void *handle, const char *symbol)
 }
 
 
-void *dlsym(void * dl_restrict handle, const char * dl_restrict symbol)
+void *DL_PREFIX(dlsym)(void * dl_restrict handle, const char * dl_restrict symbol)
 {
 	struct dlstatus *dls = handle;
 	void *addr = 0;
@@ -1026,7 +1023,7 @@ void *dlsym(void * dl_restrict handle, const char * dl_restrict symbol)
 }
 #endif
 
-int dlclose(void *handle)
+int DL_PREFIX(dlclose)(void *handle)
 {
 	struct dlstatus *dls = handle;
 	dolock();
@@ -1102,7 +1099,7 @@ int dlclose(void *handle)
 	return 1;
 }
 
-const char *dlerror(void)
+const char *DL_PREFIX(dlerror)(void)
 {
 	struct dlthread  *tss;
 	const char * err_str = NULL;
@@ -1150,7 +1147,7 @@ const struct mach_header *image_for_address(const void *address)
 	return mh;
 }
 
-int dladdr(const void * dl_restrict p, Dl_info * dl_restrict info)
+int DL_PREFIX(dladdr)(const void * dl_restrict p, DL_PREFIX(Dl_info) * dl_restrict info)
 {
 /*
 	FIXME: USe the routine image_for_address.

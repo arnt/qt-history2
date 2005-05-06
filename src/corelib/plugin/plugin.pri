@@ -19,7 +19,7 @@ win32 {
 	SOURCES += plugin/qlibrary_win.cpp
 }
 
-mac:contains(QT_CONFIG, compat-libdl) { 
+mac { 
 	SOURCES+=../3rdparty/dlcompat/dlfcn.c
 	INCLUDEPATH+=../3rdparty/dlcompat
 }

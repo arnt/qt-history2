@@ -2491,7 +2491,7 @@ static int q3dns_res_init()
     typedef int (*PtrRes_init)();
     static PtrRes_init ptrRes_init = 0;
     if (!ptrRes_init)
-	ptrRes_init = (PtrRes_init)dlsym(RTLD_NEXT, "res_init");
+	ptrRes_init = (PtrRes_init)DL_PREFIX(dlsym)(RTLD_NEXT, "res_init");
     if (ptrRes_init)
 	return (*ptrRes_init)();
     else
@@ -2522,8 +2522,8 @@ void Q3Dns::doResInit()
 	while ( !stream.atEnd() ) {
             line = stream.readLine();
 	    QStringList list = QStringList::split( " ", line );
-	    if( list.isEmpty() ) 
-	       continue; 
+	    if( list.isEmpty() )
+	       continue;
 	    const QString type = list[0].lower();
 
 	    if ( type == "nameserver" ) {

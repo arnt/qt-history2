@@ -68,10 +68,13 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 
 #else // POSIX
 #include <dlfcn.h>
+#ifndef DL_PREFIX //for mac dlcompat
+#  define DL_PREFIX(x) x
+#endif
 
 static const char *qdlerror()
 {
-    const char *err = dlerror();
+    const char *err = DL_PREFIX(dlerror)();
     return err ? err : "";
 }
 
@@ -105,7 +108,7 @@ bool QLibraryPrivate::load_sys()
             if (!suffixes.at(suffix).isEmpty() && name.endsWith(suffixes.at(suffix)))
                 continue;
             attempt = path + prefixes.at(prefix) + name + suffixes.at(suffix);
-            pHnd = dlopen(QFile::encodeName(attempt), RTLD_LAZY);
+            pHnd = DL_PREFIX(dlopen)(QFile::encodeName(attempt), RTLD_LAZY);
         }
     }
 #ifdef Q_OS_MAC
@@ -113,7 +116,7 @@ bool QLibraryPrivate::load_sys()
         if(QCFType<CFBundleRef> bundle = CFBundleGetBundleWithIdentifier(QCFString(fileName))) {
             QCFType<CFURLRef> url = CFBundleCopyExecutableURL(bundle);
             QCFString str = CFURLCopyFileSystemPath(url, kCFURLPOSIXPathStyle);
-            pHnd = dlopen(QFile::encodeName(str), RTLD_LAZY);
+            pHnd = DL_PREFIX(dlopen)(QFile::encodeName(str), RTLD_LAZY);
             attempt = str;
         }
     }
@@ -131,7 +134,7 @@ bool QLibraryPrivate::load_sys()
 
 bool QLibraryPrivate::unload_sys()
 {
-    if (dlclose(pHnd)) {
+    if (DL_PREFIX(dlclose)(pHnd)) {
         qWarning("QLibrary: Cannot unload '%s': %s", QFile::encodeName(fileName).constData(),
                  qdlerror());
         return false;
@@ -146,10 +149,10 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
     char* undrscr_symbol = new char[strlen(symbol)+2];
     undrscr_symbol[0] = '_';
     strcpy(undrscr_symbol+1, symbol);
-    void* address = dlsym(pHnd, undrscr_symbol);
+    void* address = DL_PREFIX(dlsym)(pHnd, undrscr_symbol);
     delete [] undrscr_symbol;
 #else
-    void* address = dlsym(pHnd, symbol);
+    void* address = DL_PREFIX(dlsym)(pHnd, symbol);
 #endif
 #if defined(QT_DEBUG_COMPONENT)
     if (!address)
