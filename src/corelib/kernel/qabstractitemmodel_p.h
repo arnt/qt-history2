@@ -28,7 +28,6 @@
 
 #include <private/qobject_p.h>
 
-
 class Q_CORE_EXPORT QPersistentModelIndexData
 {
 public:
@@ -36,7 +35,6 @@ public:
     QModelIndex index;
     QAtomic ref;
     const QAbstractItemModel *model;
-    static QPersistentModelIndexData shared_null;
     static QPersistentModelIndexData *create(const QModelIndex &index);
     static void destroy(QPersistentModelIndexData *data);
 };

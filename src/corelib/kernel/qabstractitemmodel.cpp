@@ -21,12 +21,10 @@
 #include <qvector.h>
 #include <private/qabstractitemmodel_p.h>
 
-QPersistentModelIndexData QPersistentModelIndexData::shared_null;
-
 QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &index)
 {
-    Q_ASSERT(index.isValid());
-    QPersistentModelIndexData *d = &QPersistentModelIndexData::shared_null;
+    Q_ASSERT(index.isValid()); // we will _never_ insert an invalid index in the list
+    QPersistentModelIndexData *d = 0;
     QAbstractItemModel *model = const_cast<QAbstractItemModel*>(index.model());
     QList<QPersistentModelIndexData*> *persistentIndexes = &(model->d_func()->persistent.indexes);
     for (int i = 0; i < persistentIndexes->count(); ++i) {
@@ -35,7 +33,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
             break;
         }
     }
-    if (d == &QPersistentModelIndexData::shared_null) {
+    if (d == 0) { // not found
         d = new QPersistentModelIndexData();
         d->model = model;
         d->index = index;
@@ -46,7 +44,7 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
 
 void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 {
-    if (data && data != &QPersistentModelIndexData::shared_null) {
+    if (data) {
         QAbstractItemModel *model = const_cast<QAbstractItemModel*>(data->model);
         // a valid persistent model index with a null model pointer can only happen if the model was destroyed
         if (model) {
@@ -88,9 +86,8 @@ void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 */
 
 QPersistentModelIndex::QPersistentModelIndex()
-    : d(&QPersistentModelIndexData::shared_null)
+    : d(0)
 {
-    d->ref.ref();
 }
 
 /*!
@@ -103,7 +100,7 @@ QPersistentModelIndex::QPersistentModelIndex()
 QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
     : d(other.d)
 {
-    d->ref.ref();
+    if (d) d->ref.ref();
 }
 
 /*!
@@ -111,11 +108,12 @@ QPersistentModelIndex::QPersistentModelIndex(const QPersistentModelIndex &other)
 */
 
 QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index)
-    : d(&QPersistentModelIndexData::shared_null)
+    : d(0)
 {
-    if (index.isValid())
+    if (index.isValid()) {
         d = QPersistentModelIndexData::create(index);
-    d->ref.ref();
+        d->ref.ref();
+    }
 }
 
 /*!
@@ -126,9 +124,10 @@ QPersistentModelIndex::QPersistentModelIndex(const QModelIndex &index)
 
 QPersistentModelIndex::~QPersistentModelIndex()
 {
-    if (!d->ref.deref())
+    if (d && !d->ref.deref()) {
         QPersistentModelIndexData::destroy(d);
-    d = 0;
+        d = 0;
+    }
 }
 
 /*!
@@ -140,7 +139,9 @@ QPersistentModelIndex::~QPersistentModelIndex()
 
 bool QPersistentModelIndex::operator==(const QPersistentModelIndex &other) const
 {
-    return d->index == other.d->index;
+    if (d && other.d)
+        return d->index == other.d->index;
+    return d == other.d;
 }
 
 /*!
@@ -162,7 +163,7 @@ bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 
 void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
 {
-    if (!d->ref.deref())
+    if (d && !d->ref.deref())
         QPersistentModelIndexData::destroy(d);
     d = other.d;
     d->ref.ref();
@@ -175,13 +176,14 @@ void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
 
 void QPersistentModelIndex::operator=(const QModelIndex &other)
 {
-    if (!d->ref.deref())
+    if (d && !d->ref.deref())
         QPersistentModelIndexData::destroy(d);
-    if (other.isValid())
+    if (other.isValid()) {
         d = QPersistentModelIndexData::create(other);
-    else
-        d = &QPersistentModelIndexData::shared_null;
-    d->ref.ref();
+        d->ref.ref();
+    } else {
+        d = 0;
+    }
 }
 
 /*!
@@ -192,7 +194,9 @@ void QPersistentModelIndex::operator=(const QModelIndex &other)
 
 QPersistentModelIndex::operator const QModelIndex&() const
 {
-    return d->index;
+    if (d)
+        return d->index;
+    return QModelIndex();
 }
 
 /*!
@@ -204,7 +208,9 @@ QPersistentModelIndex::operator const QModelIndex&() const
 
 bool QPersistentModelIndex::operator==(const QModelIndex &other) const
 {
-    return d->index == other;
+    if (d)
+        return d->index == other;
+    return !other.isValid();
 }
 
 /*!
@@ -216,7 +222,9 @@ bool QPersistentModelIndex::operator==(const QModelIndex &other) const
 
 bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 {
-    return d->index != other;
+    if (d)
+        return d->index != other;
+    return other.isValid();
 }
 
 /*!
@@ -227,7 +235,9 @@ bool QPersistentModelIndex::operator!=(const QModelIndex &other) const
 
 int QPersistentModelIndex::row() const
 {
-    return d->index.row();
+    if (d)
+        return d->index.row();
+    return -1;
 }
 
 /*!
@@ -238,7 +248,9 @@ int QPersistentModelIndex::row() const
 
 int QPersistentModelIndex::column() const
 {
-    return d->index.column();
+    if (d)
+        return d->index.column();
+    return -1;
 }
 
 /*!
@@ -252,7 +264,9 @@ int QPersistentModelIndex::column() const
 
 void *QPersistentModelIndex::internalPointer() const
 {
-    return d->index.internalPointer();
+    if (d)
+        return d->index.internalPointer();
+    return 0;
 }
 
 /*!
@@ -266,7 +280,9 @@ void *QPersistentModelIndex::internalPointer() const
 
 qint64 QPersistentModelIndex::internalId() const
 {
-    return d->index.internalId();
+    if (d)
+        return d->index.internalId();
+    return 0;
 }
 
 /*!
@@ -277,7 +293,9 @@ qint64 QPersistentModelIndex::internalId() const
 */
 QModelIndex QPersistentModelIndex::parent() const
 {
-    return d->index.parent();
+    if (d)
+        return d->index.parent();
+    return QModelIndex();
 }
 
 /*!
@@ -289,7 +307,9 @@ QModelIndex QPersistentModelIndex::parent() const
 
 QModelIndex QPersistentModelIndex::sibling(int row, int column) const
 {
-    return d->index.sibling(row, column);
+    if (d)
+        return d->index.sibling(row, column);
+    return QModelIndex();
 }
 
 /*!
@@ -301,7 +321,9 @@ QModelIndex QPersistentModelIndex::sibling(int row, int column) const
 
 QModelIndex QPersistentModelIndex::child(int row, int column) const
 {
-    return d->index.child(row, column);
+    if (d)
+        return d->index.child(row, column);
+    return QModelIndex();
 }
 
 /*!
@@ -309,7 +331,9 @@ QModelIndex QPersistentModelIndex::child(int row, int column) const
 */
 const QAbstractItemModel *QPersistentModelIndex::model() const
 {
-    return d->index.model();
+    if (d)
+        return d->index.model();
+    return 0;
 }
 
 /*!
@@ -321,7 +345,7 @@ const QAbstractItemModel *QPersistentModelIndex::model() const
 
 bool QPersistentModelIndex::isValid() const
 {
-    return d->index.isValid();
+    return d && d->index.isValid();
 }
 
 #ifndef QT_NO_DEBUG_STREAM
@@ -340,7 +364,10 @@ QDebug operator<<(QDebug dbg, const QModelIndex &idx)
 
 QDebug operator<<(QDebug dbg, const QPersistentModelIndex &idx)
 {
-    dbg << idx.d->index;
+    if (idx.d)
+        dbg << idx.d->index;
+    else
+        dbg << QModelIndex();
     return dbg;
 }
 #endif
@@ -349,7 +376,7 @@ QAbstractItemModelPrivate::~QAbstractItemModelPrivate()
 {
     QList<QPersistentModelIndexData*>::iterator it = persistent.indexes.begin();
     for (; it != persistent.indexes.end(); ++it) {
-        Q_ASSERT((*it) != &QPersistentModelIndexData::shared_null);
+        Q_ASSERT((*it));
         (*it)->index = QModelIndex();
         (*it)->model = 0;
     }
@@ -360,7 +387,7 @@ void QAbstractItemModelPrivate::invalidate(int position)
     QModelIndex parent = persistent.indexes.at(position)->index;
     for (int i = 0; i < persistent.indexes.count(); ++i) {
         if (persistent.indexes.at(i)->index.parent() == parent) {
-            Q_ASSERT((persistent.indexes.at(i)) != &QPersistentModelIndexData::shared_null);
+            Q_ASSERT((persistent.indexes.at(i)));
             invalidate(i); // recursive
         }
     }
