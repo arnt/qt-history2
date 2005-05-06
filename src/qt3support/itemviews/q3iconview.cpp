@@ -105,7 +105,7 @@ static bool optimize_layout = false;
 static Q3CleanupHandler<QPixmap> qiv_cleanup_pixmap;
 
 #if !defined(Q_WS_X11)
-static void createSelectionPixmap(const QPalette &cg)
+static void createSelectionPixmap(const QColorGroup &cg)
 {
     QBitmap m(2, 2);
     m.fill(Qt::color1);
@@ -120,7 +120,7 @@ static void createSelectionPixmap(const QPalette &cg)
     qiv_cleanup_pixmap.add(&qiv_selection);
     qiv_selection->fill(Qt::color0);
     qiv_selection->setMask(m);
-    qiv_selection->fill(cg.highlight().color());
+    qiv_selection->fill(cg.highlight());
 }
 #endif
 
@@ -1916,7 +1916,7 @@ void Q3IconViewItem::calcRect(const QString &text_)
     with the changed values.
 */
 
-void Q3IconViewItem::paintItem(QPainter *p, const QPalette &cg)
+void Q3IconViewItem::paintItem(QPainter *p, const QColorGroup &cg)
 {
     if (!view)
         return;
@@ -1924,9 +1924,9 @@ void Q3IconViewItem::paintItem(QPainter *p, const QPalette &cg)
     p->save();
 
     if (isSelected()) {
-        p->setPen(cg.highlightedText().color());
+        p->setPen(cg.highlightedText());
     } else {
-        p->setPen(cg.text().color());
+        p->setPen(cg.text());
     }
 
     calcTmpText();
@@ -1935,12 +1935,12 @@ void Q3IconViewItem::paintItem(QPainter *p, const QPalette &cg)
     if (picture()) {
         QPicture *pic = picture();
         if (isSelected()) {
-            p->fillRect(pixmapRect(false), QBrush(cg.highlight().color(), Qt::Dense4Pattern));
+            p->fillRect(pixmapRect(false), QBrush(cg.highlight(), Qt::Dense4Pattern));
         }
         p->drawPicture(x()-pic->boundingRect().x(), y()-pic->boundingRect().y(), *pic);
         if (isSelected()) {
             p->fillRect(textRect(false), cg.highlight());
-            p->setPen(QPen(cg.highlightedText().color()));
+            p->setPen(QPen(cg.highlightedText()));
         } else if (view->d->itemTextBrush != QBrush(Qt::NoBrush))
             p->fillRect(textRect(false), view->d->itemTextBrush);
 
@@ -2001,7 +2001,7 @@ void Q3IconViewItem::paintItem(QPainter *p, const QPalette &cg)
     p->save();
     if (isSelected()) {
         p->fillRect(textRect(false), cg.highlight());
-        p->setPen(QPen(cg.highlightedText().color()));
+        p->setPen(QPen(cg.highlightedText()));
     } else if (view->d->itemTextBrush != QBrush(Qt::NoBrush))
         p->fillRect(textRect(false), view->d->itemTextBrush);
 
@@ -2021,7 +2021,7 @@ void Q3IconViewItem::paintItem(QPainter *p, const QPalette &cg)
     the color group \a cg.
 */
 
-void Q3IconViewItem::paintFocus(QPainter *p, const QPalette &cg)
+void Q3IconViewItem::paintFocus(QPainter *p, const QColorGroup &cg)
 {
     if (!view)
         return;
@@ -2031,16 +2031,16 @@ void Q3IconViewItem::paintFocus(QPainter *p, const QPalette &cg)
     opt.palette = cg;
     if (isSelected()) {
         opt.state = QStyle::State_FocusAtBorder;
-        opt.backgroundColor = cg.highlight().color();
+        opt.backgroundColor = cg.highlight();
     } else {
         opt.state = QStyle::State_None;
-        opt.backgroundColor = cg.base().color();
+        opt.backgroundColor = cg.base();
     }
     view->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p);
 
     if (this != view->d->currentItem) {
         opt.rect = pixmapRect(false);
-        opt.backgroundColor = cg.base().color();
+        opt.backgroundColor = cg.base();
         opt.state = QStyle::State_None;
         view->style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, p);
     }

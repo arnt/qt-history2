@@ -295,7 +295,7 @@ void Q3SimpleRichText::adjustSize()
 */
 
 void Q3SimpleRichText::draw(QPainter *p, int x, int y, const QRect& clipRect,
-                            const QPalette &pal, const QBrush* paper) const
+                            const QColorGroup &cg, const QBrush* paper) const
 {
     p->save();
     if (d->cachedWidth < 0)
@@ -306,7 +306,7 @@ void Q3SimpleRichText::draw(QPainter *p, int x, int y, const QRect& clipRect,
 
     if (paper)
         d->doc->setPaper(new QBrush(*paper));
-    QPalette pal2 = pal;
+    QPalette pal2 = cg;
     if (d->doc->paper())
         pal2.setBrush(QPalette::Base, *d->doc->paper());
 
@@ -320,7 +320,7 @@ void Q3SimpleRichText::draw(QPainter *p, int x, int y, const QRect& clipRect,
 
 
 /*! \fn void Q3SimpleRichText::draw(QPainter *p, int x, int y, const QRegion& clipRegion,
-  const QPalette &pal, const QBrush* paper) const
+  const QColorGroup &cg, const QBrush* paper) const
 
   Use the version with clipRect instead of this \a clipRegion version,
   since this region version has problems with larger documents on some

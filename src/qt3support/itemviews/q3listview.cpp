@@ -1979,11 +1979,12 @@ static QStyleOptionQ3ListView getStyleOption(const Q3ListView *lv, const Q3ListV
 /*!
     \internal
 */
-void Q3ListViewItem::paintCell(QPainter * p, const QPalette & pal,
+void Q3ListViewItem::paintCell(QPainter * p, const QColorGroup & cg,
                                int column, int width, int align)
 {
     // Change width() if you change this.
 
+    QPalette pal = cg;
     if (!p)
         return;
 
@@ -2183,8 +2184,9 @@ int Q3ListViewItem::width(const QFontMetrics& fm,
     \sa paintCell() paintBranches() Q3ListView::setAllColumnsShowFocus()
 */
 
-void Q3ListViewItem::paintFocus(QPainter *p, const QPalette &pal, const QRect &r)
+void Q3ListViewItem::paintFocus(QPainter *p, const QColorGroup &cg, const QRect &r)
 {
+    QPalette pal = cg;
     Q3ListView *lv = listView();
     if (lv) {
         QStyleOptionFocusRect opt;
@@ -2218,7 +2220,7 @@ void Q3ListViewItem::paintFocus(QPainter *p, const QPalette &pal, const QRect &r
     \sa paintCell(), Q3ListView::drawContentsOffset()
 */
 
-void Q3ListViewItem::paintBranches(QPainter * p, const QPalette & pal,
+void Q3ListViewItem::paintBranches(QPainter * p, const QColorGroup & cg,
                                    int w, int y, int h)
 {
     Q3ListView *lv = listView();
@@ -2228,7 +2230,7 @@ void Q3ListViewItem::paintBranches(QPainter * p, const QPalette & pal,
         return;
     QStyleOptionQ3ListView opt = getStyleOption(lv, this);
     opt.rect.setRect(0, y, w, h);
-    opt.palette = pal;
+    opt.palette = cg;
     opt.subControls = QStyle::SC_Q3ListViewBranch | QStyle::SC_Q3ListViewExpand;
     opt.activeSubControls = QStyle::SC_None;
     lv->style()->drawComplexControl(QStyle::CC_Q3ListView, &opt, p, lv);
@@ -6480,7 +6482,7 @@ int Q3CheckListItem::width(const QFontMetrics& fm, const Q3ListView* lv, int col
     The item is in column \a column, has width \a width and has
     alignment \a align. (See \l Qt::Alignment for valid alignments.)
 */
-void Q3CheckListItem::paintCell(QPainter * p, const QPalette & pal,
+void Q3CheckListItem::paintCell(QPainter * p, const QColorGroup & cg,
                                int column, int width, int align)
 {
     if (!p)
@@ -6491,14 +6493,14 @@ void Q3CheckListItem::paintCell(QPainter * p, const QPalette & pal,
         return;
 
     const QPalette::ColorRole crole = lv->foregroundRole();
-    if (pal.brush(crole) != lv->palette().brush(crole))
-        p->fillRect(0, 0, width, height(), pal.brush(crole));
+    if (cg.brush(crole) != lv->palette().brush(crole))
+        p->fillRect(0, 0, width, height(), cg.brush(crole));
     else
         lv->paintEmptyArea(p, QRect(0, 0, width, height()));
 
     if (column != 0) {
         // The rest is text, or for subclasses to change.
-        Q3ListViewItem::paintCell(p, pal, column, width, align);
+        Q3ListViewItem::paintCell(p, cg, column, width, align);
         return;
     }
 
@@ -6537,7 +6539,7 @@ void Q3CheckListItem::paintCell(QPainter * p, const QPalette & pal,
         if (!pixmap(0)) {
             QStyleOptionQ3ListView opt = getStyleOption(lv, this);
             opt.rect.setRect(x, 0, boxsize, fm.height() + 2 + marg);
-            opt.palette = pal;
+            opt.palette = cg;
             opt.state = styleflags;
             lv->style()->drawPrimitive(QStyle::PE_Q3CheckListController, &opt, p, lv);
             r += boxsize + 4;
@@ -6555,7 +6557,7 @@ void Q3CheckListItem::paintCell(QPainter * p, const QPalette & pal,
 
         QStyleOptionQ3ListView opt = getStyleOption(lv, this);
         opt.rect.setRect(x, y, boxsize, fm.height() + 2 + marg);
-        opt.palette = pal;
+        opt.palette = cg;
         opt.state = styleflags;
         lv->style()->drawPrimitive((myType == CheckBox || myType == CheckBoxController)
                                     ? QStyle::PE_Q3CheckListIndicator
@@ -6565,15 +6567,15 @@ void Q3CheckListItem::paintCell(QPainter * p, const QPalette & pal,
 
     // Draw text ----------------------------------------------------
     p->translate(r, 0);
-    p->setPen(QPen(pal.text().color()));
-    Q3ListViewItem::paintCell(p, pal, column, width - r, align);
+    p->setPen(QPen(cg.text()));
+    Q3ListViewItem::paintCell(p, cg, column, width - r, align);
 }
 
 /*!
     Draws the focus rectangle \a r using the color group \a pal on the
     painter \a p.
 */
-void Q3CheckListItem::paintFocus(QPainter *p, const QPalette & pal,
+void Q3CheckListItem::paintFocus(QPainter *p, const QColorGroup & cg,
                                  const QRect & r)
 {
     bool intersect = true;
@@ -6602,9 +6604,9 @@ void Q3CheckListItem::paintFocus(QPainter *p, const QPalette & pal,
         } else
             rect.setRect(r.x() + boxsize + 5, r.y(), r.width() - boxsize - 5,
                           r.height());
-        Q3ListViewItem::paintFocus(p, pal, rect);
+        Q3ListViewItem::paintFocus(p, cg, rect);
     } else {
-        Q3ListViewItem::paintFocus(p, pal, r);
+        Q3ListViewItem::paintFocus(p, cg, r);
     }
 }
 

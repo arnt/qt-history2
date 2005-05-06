@@ -48,11 +48,11 @@ public:
     void adjustSize();
 
     void draw(QPainter* p, int x, int y, const QRect& clipRect,
-               const QPalette& pal, const QBrush* paper = 0) const;
+               const QColorGroup& cg, const QBrush* paper = 0) const;
 
     void draw(QPainter* p, int x, int y, const QRegion& clipRegion,
-               const QPalette& pal, const QBrush* paper = 0) const {
-        draw(p, x, y, clipRegion.boundingRect(), pal, paper);
+               const QColorGroup& cg, const QBrush* paper = 0) const {
+        draw(p, x, y, clipRegion.boundingRect(), cg, paper);
     }
 
     QString context() const;
