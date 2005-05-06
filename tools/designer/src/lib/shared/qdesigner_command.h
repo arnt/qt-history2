@@ -28,10 +28,12 @@
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowManagerInterface;
 class QDesignerFormWindowInterface;
+class QDesignerWidgetDataBaseItemInterface;
 class Layout;
 
 class QDesignerPropertySheetExtension;
 class QDesignerMetaDataBaseItemInterface;
+class QDesignerPromotedWidget;
 
 class QToolBox;
 class QTabWidget;
@@ -323,6 +325,30 @@ private:
     QDesignerMetaDataBaseItemInterface *m_widgetItem;
     QList<QWidget*> m_oldTabOrder;
     QList<QWidget*> m_newTabOrder;
+};
+
+class QT_SHARED_EXPORT PromoteToCustomWidgetCommand : public QDesignerFormWindowCommand
+{
+public:
+    PromoteToCustomWidgetCommand(QDesignerFormWindowInterface *formWindow);
+    void init(QDesignerWidgetDataBaseItemInterface *item, QWidget *widget);
+    virtual void redo();
+    virtual void undo();
+private:
+    QWidget *m_widget;
+    QDesignerPromotedWidget *m_promoted;
+    friend class DemoteFromCustomWidgetCommand;
+};
+
+class QT_SHARED_EXPORT DemoteFromCustomWidgetCommand : public QDesignerFormWindowCommand
+{
+public:
+    DemoteFromCustomWidgetCommand(QDesignerFormWindowInterface *formWindow);
+    void init(QDesignerPromotedWidget *promoted);
+    virtual void redo();
+    virtual void undo();
+private:
+    PromoteToCustomWidgetCommand *m_promote_cmd;
 };
 
 class QT_SHARED_EXPORT LayoutCommand: public QDesignerFormWindowCommand

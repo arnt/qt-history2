@@ -600,6 +600,126 @@ void ReparentWidgetCommand::undo()
     m_widget->show();
 }
 
+// ---- PromoteToCustomWidgetCommand ----
+
+static void replace_widget_item(QDesignerFormWindowInterface *fw, QWidget *wgt, QWidget *promoted)
+{
+    QDesignerFormEditorInterface *core = fw->core();
+    QWidget *parent = wgt->parentWidget();
+
+    QRect info;
+    if (QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parent)) {
+        QLayout *layout = LayoutInfo::managedLayout(core, parent);
+        Q_ASSERT(layout != 0);
+
+        int old_index = layout->indexOf(wgt);
+        Q_ASSERT(old_index != -1);
+
+        info = deco->itemInfo(old_index);
+
+        QLayoutItem *item = layout->takeAt(old_index);
+        delete item;
+        layout->activate();
+    }
+
+    if (qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parent)) {
+        QLayout *layout = LayoutInfo::managedLayout(core, parent);
+        Q_ASSERT(layout != 0);
+
+        // ### check if `info' is valid!
+
+        switch (LayoutInfo::layoutType(core, layout)) {
+            default: Q_ASSERT(0); break;
+
+            case LayoutInfo::VBox:
+                insert_into_box_layout(static_cast<QBoxLayout*>(layout), info.top(), promoted);
+                break;
+
+            case LayoutInfo::HBox:
+                insert_into_box_layout(static_cast<QBoxLayout*>(layout), info.left(), promoted);
+                break;
+
+            case LayoutInfo::Grid:
+                add_to_grid_layout(static_cast<QGridLayout*>(layout), promoted, info.top(), info.left(), info.height(), info.width());
+                break;
+        }
+    }
+}
+
+PromoteToCustomWidgetCommand::PromoteToCustomWidgetCommand
+                                (QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Promote to custom widget"), formWindow)
+{
+    m_widget = 0;
+    m_promoted = 0;
+}
+
+void PromoteToCustomWidgetCommand::init(QDesignerWidgetDataBaseItemInterface *item,
+                                        QWidget *widget)
+{
+    m_widget = widget;
+    m_promoted = new QDesignerPromotedWidget(item, widget->parentWidget());
+}
+
+void PromoteToCustomWidgetCommand::redo()
+{
+    m_promoted->setObjectName(QLatin1String("__qt__promoted_") + m_widget->objectName());
+    m_promoted->setGeometry(m_widget->geometry());
+
+    replace_widget_item(formWindow(), m_widget, m_promoted);
+
+    m_promoted->setChildWidget(m_widget);
+    formWindow()->manageWidget(m_promoted);
+
+    formWindow()->clearSelection();
+    formWindow()->selectWidget(m_promoted);
+    m_promoted->show();
+}
+
+void PromoteToCustomWidgetCommand::undo()
+{
+    m_promoted->setChildWidget(0);
+    m_widget->setParent(m_promoted->parentWidget());
+    m_widget->setGeometry(m_promoted->geometry());
+
+    replace_widget_item(formWindow(), m_promoted, m_widget);
+
+    formWindow()->manageWidget(m_widget);
+    formWindow()->unmanageWidget(m_promoted);
+
+    m_promoted->hide();
+    m_widget->show();
+
+    formWindow()->clearSelection();
+    formWindow()->selectWidget(m_promoted);
+}
+
+// ---- DemoteFromCustomWidgetCommand ----
+
+DemoteFromCustomWidgetCommand::DemoteFromCustomWidgetCommand
+                                    (QDesignerFormWindowInterface *formWindow)
+    : QDesignerFormWindowCommand(tr("Demote from custom widget"), formWindow)
+{
+    m_promote_cmd = new PromoteToCustomWidgetCommand(formWindow);
+}
+
+void DemoteFromCustomWidgetCommand::init(QDesignerPromotedWidget *promoted)
+{
+    m_promote_cmd->m_widget = promoted->child();
+    m_promote_cmd->m_promoted = promoted;
+}
+
+void DemoteFromCustomWidgetCommand::redo()
+{
+    m_promote_cmd->undo();
+    m_promote_cmd->m_widget->show();
+}
+
+void DemoteFromCustomWidgetCommand::undo()
+{
+    m_promote_cmd->redo();
+}
+
 // ---- LayoutCommand ----
 LayoutCommand::LayoutCommand(QDesignerFormWindowInterface *formWindow)
     : QDesignerFormWindowCommand(QString(), formWindow)

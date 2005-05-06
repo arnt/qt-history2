@@ -143,24 +143,33 @@ QDesignerPromotedWidget::~QDesignerPromotedWidget()
 
 void QDesignerPromotedWidget::setChildWidget(QWidget *widget)
 {
-    Q_ASSERT(m_child == 0);
+    if (m_child != 0) {
+        layout()->removeWidget(m_child);
+        m_child->setSizePolicy(sizePolicy());
+        m_child->setParent(0);
+    }
+
     m_child = widget;
 
-    widget->setParent(this);
-
-    setSizePolicy(m_child->sizePolicy());
-    m_child->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
-
-    layout()->addWidget(m_child);
+    if (m_child != 0) {
+        m_child->setParent(this);
+        setSizePolicy(m_child->sizePolicy());
+        m_child->setSizePolicy(QSizePolicy(QSizePolicy::Ignored, QSizePolicy::Ignored));
+        layout()->addWidget(m_child);
+    }
 }
 
 QSize QDesignerPromotedWidget::sizeHint() const
 {
+    if (m_child == 0)
+        return QSize();
     return m_child->sizeHint();
 }
 
 QSize QDesignerPromotedWidget::minimumSizeHint() const
 {
+    if (m_child == 0)
+        return QSize();
     return m_child->minimumSizeHint();
 }
 

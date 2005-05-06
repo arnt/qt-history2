@@ -259,46 +259,23 @@ void QDesignerTaskMenu::promoteToCustomWidget()
     // ### use the undo stack
     // fw->beginCommand(tr("Promote to custom widget"));
 
-    QDesignerPromotedWidget *promoted = new QDesignerPromotedWidget(item, parent);
-    promoted->setObjectName(QLatin1String("__qt__promoted_") + wgt->objectName());
-    promoted->setGeometry(wgt->geometry());
-
-    replace_widget_item(fw, wgt, promoted);
-
-    promoted->setChildWidget(wgt);
-    fw->manageWidget(promoted);
-
-    // fw->endCommand();
-
-    fw->clearSelection();
-    fw->selectWidget(promoted);
+    PromoteToCustomWidgetCommand *cmd = new PromoteToCustomWidgetCommand(fw);
+    cmd->init(item, wgt);
+    fw->commandHistory()->push(cmd);
 }
 
 void QDesignerTaskMenu::demoteFromCustomWidget()
 {
     QDesignerFormWindowInterface *fw = formWindow();
-
     QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(widget());
     Q_ASSERT(promoted != 0);
 
     // ### use the undo stack
     //fw->beginCommand(tr("Demote to ") + promoted->item()->extends());
 
-    QWidget *childWidget = promoted->child();
-
-    childWidget->setParent(promoted->parentWidget());
-    childWidget->setGeometry(promoted->geometry());
-    childWidget->setSizePolicy(promoted->sizePolicy());
-
-    replace_widget_item(fw, promoted, childWidget);
-
-    fw->manageWidget(childWidget);
-    fw->unmanageWidget(promoted);
-
-    //fw->endCommand();
-
-    fw->clearSelection();
-    fw->selectWidget(promoted);
+    DemoteFromCustomWidgetCommand *cmd = new DemoteFromCustomWidgetCommand(fw);
+    cmd->init(promoted);
+    fw->commandHistory()->push(cmd);
 }
 
 void QDesignerTaskMenu::changeRichTextProperty(const QString &propertyName)
