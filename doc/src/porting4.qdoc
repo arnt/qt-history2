@@ -910,7 +910,7 @@
     you can simply replace colorGroup() with palette():
 
     \code
-        painter.setBrush(palette().brush(QColorGroup::Background));
+        painter.setBrush(palette().brush(QPalette::Background));
     \endcode
 
     \section1 QColorDrag
