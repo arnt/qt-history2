@@ -745,7 +745,6 @@ public slots:
     void showMaximized();
     void showNormal();
     void showShaded();
-    void setWindowTitle(const QString&);
     void internalRaise();
     void titleBarDoubleClicked();
 
@@ -2457,7 +2456,9 @@ void QWorkspaceChild::resizeEvent(QResizeEvent *)
     if (!childWidget)
         return;
 
-    bool doContentsResize = (windowSize == childWidget->size() || !childWidget->testAttribute(Qt::WA_PendingResizeEvent));
+    bool doContentsResize = (windowSize == childWidget->size()
+                             || !(childWidget->testAttribute(Qt::WA_Resized) && childWidget->testAttribute(Qt::WA_PendingResizeEvent))
+                             ||childWidget->isMaximized());
 
     windowSize = cr.size();
     backgroundWidget->setGeometry(cr);
@@ -2910,13 +2911,6 @@ void QWorkspaceChild::adjustToFullscreen()
     }
     childWidget->overrideWindowState(Qt::WindowMaximized);
     overrideWindowState(Qt::WindowMaximized);
-}
-
-void QWorkspaceChild::setWindowTitle(const QString& cap)
-{
-    if (titlebar)
-        titlebar->setWindowTitle(cap);
-    QWidget::setWindowTitle(cap);
 }
 
 void QWorkspaceChild::internalRaise()
