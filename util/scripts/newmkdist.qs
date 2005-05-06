@@ -253,7 +253,7 @@ for (var p in validPlatforms) {
 
 		// run qdoc
 		print("Running qdoc...");
-		qdoc(platDir, license);
+		qdoc(platDir, license, edition);
 
 		// purge platform and license files
 		print("Purging platform and license specific files...");
@@ -819,12 +819,14 @@ function syncqt(packageDir, platform)
 /************************************************************
  * runs qdoc on packageDir
  */
-function qdoc(packageDir, license)
+function qdoc(packageDir, license, edition)
 {
     var dir = new Dir(packageDir);
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
     var qdocConfigFile = qdocDir + "/test/qt-" + license + ".qdocconf";
+    if (edition == "core")
+	qdocConfigFile = qdocDir + "/test/qt-" + license + "-" + edition + ".qdocconf";
     if (!File.exists(qdocConfigFile))
 	throw "Missing qdoc configuratio file: %1".arg(qdocConfigFile);
     execute([qdocCommand, qdocConfigFile]);
