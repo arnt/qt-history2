@@ -730,6 +730,8 @@ bool QMYSQLResult::exec()
                         currBind->buffer_type = MYSQL_TYPE_DATETIME;
                         myTime->time_type = MYSQL_TIMESTAMP_DATETIME;
                         break;
+                    default:
+                        break;
                     }
                     currBind->buffer_length = sizeof(MYSQL_TIME);
                     currBind->length = 0;

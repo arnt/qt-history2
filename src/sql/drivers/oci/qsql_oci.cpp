@@ -678,7 +678,7 @@ QOCIResultPrivate::OraFieldInf::~OraFieldInf()
 QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
     : fieldInf(size), d(dp)
 {
-    ub4 dataSize(0);
+    ub4 dataSize = 0;
     OCIDefine* dfn = 0;
     int r;
 
@@ -778,7 +778,7 @@ QOCIResultPrivate::QOCIResultPrivate(int size, QOCIPrivate* dp)
                 setCharset(dfn);
            break;
         default:
-            dataSize += ++dataSize; // REMOVE ME
+//            dataSize += ++dataSize; // REMOVE ME
             //qDebug("OCIDefineByPosDef: %d", dataSize);
             r = OCIDefineByPos(d->sql,
                                 &dfn,

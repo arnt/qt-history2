@@ -655,6 +655,8 @@ static char* createArrayBuffer(char *buffer, const QList<QVariant> &list,
                 buffer += sizeof(ISC_TIMESTAMP);
             }
             break;
+        default:
+            break;
         }
     }
     return buffer;
