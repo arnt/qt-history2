@@ -338,10 +338,10 @@ OldSignalSlotDialog::OldSignalSlotDialog(QDesignerFormEditorInterface *core, QWi
                 SLOT(selectSlot(QListWidgetItem*)));
     m_slot_list->setEnabled(false);
 
-    QPushButton *cancel_button = new QPushButton(tr("Cancel"), this);
-    connect(cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
     m_ok_button = new QPushButton(tr("OK"), this);
     connect(m_ok_button, SIGNAL(clicked()), this, SLOT(accept()));
+    QPushButton *cancel_button = new QPushButton(tr("Cancel"), this);
+    connect(cancel_button, SIGNAL(clicked()), this, SLOT(reject()));
     m_ok_button->setEnabled(false);
     m_show_all_checkbox = new QCheckBox(tr("Show all signals and slots"), this);
     m_show_all_checkbox->setChecked(false);
