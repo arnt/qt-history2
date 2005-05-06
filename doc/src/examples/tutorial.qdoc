@@ -304,38 +304,53 @@
 
     \section1 Line by Line Walkthrough
 
-    \skipto <QVBoxLayout>
-    \printline QVBoxLayout
+    \skipto <QWidget>
+    \printline QWidget
 
-    We add an include of <QVBoxLayout> to get the layout class we'll
+    We add an include of <QWidget> to get the base widget class we'll
     use.
 
-    \skipto QWidget vbox
-    \printline vbox
+    \skipto QWidget window
+    \printline window
 
-    Here we simply create a vertical box container. The QVBoxLayout
-    arranges its child widgets in a vertical row, one above the
-    other, handing out space according to each child's
-    size policy (QWidget::sizePolicy()) and size hint (QWidget::sizeHint()).
+    Here we simply create a plain widget object. The QWidget class is the
+    base class of all user interface objects. The widget is the atom
+    of the user interface: It receives mouse, keyboard and other
+    events from the window system, and paints a representation of
+    itself on the screen. A widget is clipped by its parent and by the
+    widgets in front of it.
+
+    A widget that isn't embedded in a parent widget, like this
+    particular widget, is called a window. Usually, windows have their
+    own window frame and taskbar entry, provided by the window system.
+    A widget without a parent widget is always an independent window.
+    Its initial position on the screen is controlled by the window
+    system.
 
     \printline resize
 
-    We set the widget's width to 200 pixels and the height to 120
+    We set the window's width to 200 pixels and its height to 120
     pixels.
 
     \printline quit
 
     A child is born.
 
-    This QPushButton is created with a parent widget (\c vbox). A
+    This QPushButton is created with a parent widget (\c window). A
     child widget is always displayed within its parent's area. When
-    displayed, it is clipped by its parent's bounds.
+    displayed, it is clipped by its parent's bounds. By default,
+    it is rooted at the top-left corner of its parent, at position (0,
+    0).
 
-    The parent widget's layout, a QVBoxLayout, automatically adds the child
-    centered in its box. Because nothing else is added, the button
-    gets all the space the parent has. Since the parent widget has no
-    parent, it is a top-level window, with its own window frame and
-    taskbar entry.
+    \skipto setGeometry
+    \printline setGeometry
+
+    The QWidget::setGeometry() function takes four arguments: The
+    first two arguments are the x and y coordinates of the button's
+    top-left corner. The coordinates are relative to the parent
+    widget. The last two arguments are the button's width and height.
+    The result is a button that extends from position (10, 40) to
+    position (190, 80).
 
     \skipto show
     \printline show
@@ -346,18 +361,15 @@
 
     \section1 Running the Application
 
-    The button no longer fills the entire widget. Instead, it gets a
-    "natural" size. This is because there is now a new top-level widget,
-    which uses the button's size hint and size change policy to set the
-    button's size and position. (See QWidget::sizeHint() and \l
-    QWidget::setSizePolicy() for more information about these functions.)
+    The button no longer fills the entire window. Instead, it
+    stays at position (10, 40) within the window and with a size
+    of (180, 40), because of the QWidget::setGeometry() call.
 
     \section1 Exercises
 
-    Try resizing the window. How does the button change? What is the
-    button's size-change policy? What happens to the button's height
-    if you run the program with a bigger font? What happens if you
-    try to make the window really small?
+    Try resizing the window. How does the button change? What happens
+    to the button's height if you run the program with a bigger font?
+    What happens if you try to make the window really small?
 */
 
 /*! \example tutorial/t4
@@ -370,8 +382,8 @@
 
     \image t4.png Screenshot of tutorial four
 
-    This example shows how to create your own widget, describes how to control the
-    minimum and maximum sizes of a widget, and introduces widget names.
+    This example shows how to create your own widget, and describes
+    how to control the minimum and maximum sizes of a widget.
 
     \include tutorial/t4/main.cpp
     \quotefromfile tutorial/t4/main.cpp
@@ -390,22 +402,15 @@
     widget constructor; you should always include a similar constructor
     when you create widgets.
 
-    The first argument is its parent widget. To create a top-level window
-    you specify a null pointer as the parent. As you can see, this widget
-    defaults to be a top-level window.
-
-    The second argument is the widget's name. This is not the text
-    that appears in the window's title bar or in the button. It is a
-    name associated with a widget to make it possible to look up this
-    widget later, and there is also a handy debugging function called
-    QObject::dumpObjectTree() that will list a complete widget
-    hierarchy.
+    The argument is its parent widget. To create a top-level window
+    you specify a null pointer as the parent. As you can see, this
+    widget defaults to be a top-level window.
 
     \printline MyWidget
     \printline QWidget
 
-    The implementation of the constructor starts here. Like most widgets,
-    it just passes on the \c parent and \c name to the QWidget
+    The implementation of the constructor starts here. Like most
+    widgets, it just passes on the \c parent to the QWidget
     constructor.
 
     \printuntil setFixedSize
@@ -467,7 +472,7 @@
     \image t5.png Screenshot of tutorial five
 
     This example shows how to create and connect together several widgets
-    by using signals and slots, and how to handle resize events.
+    by using signals and slots, and how to handle resizes.
 
     \include tutorial/t5/main.cpp
     \quotefromfile tutorial/t5/main.cpp
@@ -478,17 +483,10 @@
     \printuntil }
 
     \target constructor
-    \printuntil {
-
-    \c MyWidget now uses a QVBoxLayout to place all of its children
-    vertically inside itself.
-
-    \skipto lcd
-    \printline lcd
+    \printuntil lcd
 
     \c lcd is a QLCDNumber, a widget that displays numbers in an LCD-like
-    fashion. This instance is set up to display two digits and to be a child of
-    \c this.
+    fashion. This instance is set up to display two digits.
 
     \printline QSlider
     \printline slider
@@ -516,12 +514,31 @@
     Slots are otherwise normal C++ member functions and follow the normal
     C++ access rules.
 
+    \printline layout
+    \printuntil setLayout
+
+    \c MyWidget now uses a QVBoxLayout to manage the geometry of its
+    child widgets. For that reason, we don't need to specify the
+    screen coordinates for each widget like we did in chapter 4. In
+    addition, using a layout ensures that the child widgets are
+    resized when the window is resized. Then we add the \c quit, \c
+    lcd and \c slider widgets to the layout using
+    QBoxLayout::addWidget().
+
+    The QWidget::setLayout() function installs the layout on \c
+    MyWidget. This makes the layout a child widget of \c MyWidget so
+    we don't have to worry about deleting it; it will be deleted
+    together with \c MyWidget. Also, the call to QWidget::setLayout()
+    automatically reparents the widgets in the layout so that they are
+    children of \c MyWidget. Because of this, we didn't need to specify
+    \c this as the parent for the \c quit, \c lcd and \c slider widgets.
+
     \section1 Running the Application
 
     The LCD number reflects everything you do to the slider, and the
     widget handles resizing well. Notice that the LCD number widget
     changes in size when the window is resized (because it can), but the
-    others stay about the same (because otherwise they would look stupid).
+    others stay about the same (because otherwise they would look strange).
 
     \section1 Exercises
 
@@ -648,10 +665,10 @@
 
     \printline include
 
-    \c <QVBoxLayout> is included. Our \c LCDRange class uses
-    QVBoxLayout to manage its children. The header file of a parent class
-    must always be included - we cheated a bit in the previous chapters,
-    and we let \c <QWidget> be included indirectly via other header files.
+    \c <QWidget> is included since our \c LCDRange class inherits
+    QWidget. The header file of a parent class must always be included
+    - we cheated a bit in the previous chapters, and we let \c
+    <QWidget> be included indirectly via other header files.
 
     \printline QSlider
 
@@ -1241,9 +1258,6 @@
 
     We have made a slight change in the \c setAngle() function. It
     repaints only the portion of the widget that contains the cannon.
-    The \c false argument indicates that the specified rectangle
-    should not be erased before a paint event is sent to the widget.
-    This speeds up and smooths the drawing a little bit.
 
     \skipto ::setForce
     \printuntil }
@@ -1437,7 +1451,7 @@
     Next we fetch the new shot rectangle.
 
     If the shot has moved beyond the right or bottom edge of the
-    widget, we stop the timer or we add the new \c shotRect() to the
+    widget we stop the timer, or we add the new \c shotRect() to the
     QRegion.
 
     Finally, we repaint the QRegion. This will send a single paint event
@@ -1446,11 +1460,9 @@
     \skipto ::paintEvent
     \printuntil }
 
-    The paint event function has been split in two since the previous
-    chapter. Now we fetch the bounding rectangle of the region that
-    needs painting, check whether it intersects either the cannon
-    and/or the shot, and if necessary, call \c paintCannon() and/or
-    \c paintShot().
+    The paint event function has been simplified since the previous
+    chapter. Most of the logic has been moved to the new \c
+    paintShot() and \c paintCannon() functions.
 
     \skipto ::paintShot
     \printuntil drawRect
@@ -1542,10 +1554,11 @@
 
     \skipto QLabel
     \printline QLabel
+    \printline QSlider
 
-    We forward declare QLabel because we want to use a pointer to it
-    in the class definition. We could also use an \c #include, but
-    that would slow down compilation for nothing.
+    We forward declare QLabel and QSlider because we want to use
+    pointers to them in the class definition. We could also use \c
+    #include, but that would slow down compilation for nothing.
 
     \skipto class
     \printuntil parent = 0
@@ -1779,9 +1792,11 @@
 
     \section1 Running the Application
 
-    The \c LCDRange widgets look a bit strange: The built-in layout
-    management in QVBoxLayout gives the labels too much space and the
-    rest not enough. We'll fix that in the next chapter.
+    The \c LCDRange widgets look a bit strange: When resizing \c
+    MyWidget, the built-in layout management in QVBoxLayout gives the
+    labels too much space and the rest not enough; making the space
+    between the two \c LCDRange widgets change size. We'll fix that in
+    the next chapter.
 
     \section1 Exercises
 
@@ -1814,7 +1829,8 @@
     \image t13.png Screenshot of tutorial thirteen
 
     In this example we start to approach a real playable game with a
-    score. We give \c MyWidget a new name (\c{GameBoard}) and add some slots.
+    score. We give \c MyWidget a new name (\c{GameBoard}) and add some
+    slots.
 
     We put the definition in \c gameboard.h and the implementation in
     \c gameboard.cpp.
@@ -1834,7 +1850,7 @@
 
     We set the size policy of the QLabel to
     (\l{QSizePolicy::Preferred}{Preferred},
-    \l{QSizePolicy::Fixed}{Fixed}). The vertical component ensures
+   \l{QSizePolicy::Fixed}{Fixed}). The vertical component ensures
     that the label won't stretch or shrink vertically; it will stay
     at its optimal size (its \l{QWidget::sizeHint}{sizeHint()}). This
     solves the layout problems observed in Chapter 12.
@@ -2197,7 +2213,7 @@
     If the left button is released, we can be sure that the barrel is no
     longer pressed.
 
-    The paint event has two extra lines:
+    The paint event has one extra line:
 
     \skipto ::paintEvent
     \skipto paintBarrier
@@ -2232,11 +2248,11 @@
     drawing the barrel in the \c paintCannon() function. First we
     translate the coordinate system and then we rotate it.
 
-    Now we need to check whether the point \c p (in widget
+    Now we need to check whether the point \c pos (in widget
     coordinates) lies inside the barrel. To do this, we invert the
     transformation matrix. The inverted matrix performs the inverse
     transformation that we used when drawing the barrel. We map the
-    point \c p using the inverted matrix and return \c true if it is
+    point \c pos using the inverted matrix and return \c true if it is
     inside the original barrel rectangle.
 
     \section2 \l{tutorial/t14/gameboard.cpp}{t14/gameboard.cpp}
@@ -2247,12 +2263,8 @@
     \skipto QFrame
     \printline QFrame
     \printline setFrameStyle
-    \printline cannonField
 
-    We create and set up a QFrame, set its frame style, and then
-    create \c CannonField as a child of that box. Because nothing
-    else is in the box, the effect is that the QVBoxLayout will put
-    a frame around the \c CannonField.
+    We create and set up a QFrame, and set its frame style.
 
     \skipto QShortcut
     \printline QShortcut
@@ -2277,11 +2289,16 @@
     Qt::CTRL, Qt::Key_Enter, Qt::Key_Return, and Qt::Key_Q are all
     constants declared in the \l Qt namespace.
 
-    \skipto addWidget(cannonBox
-    \printline addWidget
+    \skipto cannonLayout
+    \printline cannonLayout
+    \printuntil setLayout(gridLayout)
 
-    We put \c cannonBox (with its own QVBoxLayout), not \c cannonField, in
-    the grid layout.
+    We give \c cannonBox its own QVBoxLayout, and we add \c
+    cannonField to that layout. This implicitly makes \c cannonField a
+    child of \c cannonBox. Because nothing else is in the box, the
+    effect is that the QVBoxLayout will put a frame around the \c
+    CannonField.  We put \c cannonBox, not \c cannonField, in the grid
+    layout.
 
     \section1 Running the Application
 

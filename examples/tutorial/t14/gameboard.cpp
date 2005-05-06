@@ -89,8 +89,8 @@ GameBoard::GameBoard(QWidget *parent)
     leftLayout->addWidget(force);
 
     QVBoxLayout *cannonLayout = new QVBoxLayout;
-    cannonBox->setLayout(cannonLayout);
     cannonLayout->addWidget(cannonField);
+    cannonBox->setLayout(cannonLayout);
 
     QGridLayout *gridLayout = new QGridLayout;
     gridLayout->addWidget(quit, 0, 0);
