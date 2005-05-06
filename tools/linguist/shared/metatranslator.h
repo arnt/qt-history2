@@ -16,12 +16,12 @@
 
 #include <qmap.h>
 #include <qstring.h>
-#include <qtranslator.h>
+#include <translator.h>
 #include <qlist.h>
 
 class QTextCodec;
 
-class MetaTranslatorMessage : public QTranslatorMessage
+class MetaTranslatorMessage : public TranslatorMessage
 {
 public:
     enum Type { Unfinished, Finished, Obsolete };
@@ -68,7 +68,7 @@ public:
     bool save( const QString& filename ) const;
     bool release( const QString& filename, bool verbose = false,
                   bool ignoreUnfinished = false,
-                  QTranslator::SaveMode mode = QTranslator::Stripped ) const;
+                  Translator::SaveMode mode = Translator::Stripped ) const;
 
     bool contains( const char *context, const char *sourceText,
                    const char *comment ) const;

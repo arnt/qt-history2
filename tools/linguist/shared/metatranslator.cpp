@@ -246,7 +246,7 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
                                               const char *comment,
                                               const QString& translation,
                                               bool utf8, Type type )
-    : QTranslatorMessage( context, sourceText, comment, translation ),
+    : TranslatorMessage( context, sourceText, comment, translation ),
       utfeight( false ), ty( type )
 {
     /*
@@ -279,14 +279,14 @@ MetaTranslatorMessage::MetaTranslatorMessage( const char *context,
 }
 
 MetaTranslatorMessage::MetaTranslatorMessage( const MetaTranslatorMessage& m )
-    : QTranslatorMessage( m ), utfeight( m.utfeight ), ty( m.ty )
+    : TranslatorMessage( m ), utfeight( m.utfeight ), ty( m.ty )
 {
 }
 
 MetaTranslatorMessage& MetaTranslatorMessage::operator=(
         const MetaTranslatorMessage& m )
 {
-    QTranslatorMessage::operator=( m );
+    TranslatorMessage::operator=( m );
     utfeight = m.utfeight;
     ty = m.ty;
     return *this;
@@ -434,9 +434,9 @@ bool MetaTranslator::save( const QString& filename ) const
 
 bool MetaTranslator::release( const QString& filename, bool verbose,
                               bool ignoreUnfinished,
-                              QTranslator::SaveMode mode ) const
+                              Translator::SaveMode mode ) const
 {
-    QTranslator tor( 0 );
+    Translator tor( 0 );
     int finished = 0;
     int unfinished = 0;
     int untranslated = 0;
@@ -473,7 +473,7 @@ bool MetaTranslator::release( const QString& filename, bool verbose,
                                 .isNull() ) {
                         tor.insert( m.key() );
                     } else {
-                        tor.insert( QTranslatorMessage(context, sourceText, "",
+                        tor.insert( TranslatorMessage(context, sourceText, "",
                                                        translation) );
                     }
                 }

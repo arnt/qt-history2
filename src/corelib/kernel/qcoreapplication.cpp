@@ -1187,7 +1187,7 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
         QString result;
         for (it = self->d_func()->translators.constBegin(); it != self->d_func()->translators.constEnd(); ++it) {
             mf = *it;
-            result = mf->findMessage(context, sourceText, comment).translation();
+            result = mf->translate(context, sourceText, comment);
             if (!result.isEmpty())
                 return result;
         }

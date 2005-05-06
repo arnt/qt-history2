@@ -18,7 +18,8 @@ SOURCES        += finddialog.cpp \
         printout.cpp \
         simtexth.cpp \
         trwindow.cpp \
-	../shared/metatranslator.cpp
+	../shared/metatranslator.cpp \
+	../shared/translator.cpp
 HEADERS        += finddialog.h \
 	about.h \
 	statistics.h \
@@ -31,7 +32,8 @@ HEADERS        += finddialog.h \
         printout.h \
         simtexth.h \
         trwindow.h \
-        ../shared/metatranslator.h
+        ../shared/metatranslator.h \
+	../shared/translator.h
 
 DEFINES        += QT_KEYWORDS
 

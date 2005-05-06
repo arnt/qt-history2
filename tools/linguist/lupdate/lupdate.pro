@@ -4,6 +4,7 @@ CONFIG          += qt warn_on console
 CONFIG          -= app_bundle
 build_all:CONFIG += release
 HEADERS         = ../shared/metatranslator.h \
+                  ../shared/translator.h \
                   ../shared/proparser.h
 SOURCES         = fetchtr.cpp \
                   main.cpp \
@@ -11,6 +12,7 @@ SOURCES         = fetchtr.cpp \
                   numberh.cpp \
                   sametexth.cpp \
                   ../shared/metatranslator.cpp \
+                  ../shared/translator.cpp \
                   ../shared/proparser.cpp
 
 TARGET          = lupdate

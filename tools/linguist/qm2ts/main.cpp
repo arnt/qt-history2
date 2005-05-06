@@ -18,7 +18,7 @@
 #include <qtranslator.h>
 #include <stdio.h>
 
-typedef QList<QTranslatorMessage> TML;
+typedef QList<TranslatorMessage> TML;
 
 static void printUsage()
 {
@@ -50,7 +50,7 @@ int main( int argc, char **argv )
         }
 
         numQmFiles++;
-        QTranslator tor( 0 );
+        Translator tor( 0 );
         if ( tor.load(argv[i], ".") ) {
             QString g = argv[i];
             g.replace( QRegExp(QString("\\.qm$")), QString() );

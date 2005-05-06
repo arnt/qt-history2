@@ -65,8 +65,8 @@ static void releaseMetaTranslator( const MetaTranslator& tor,
     if ( verbose )
         fprintf( stderr, "Updating '%s'...\n", qmFileName.toLatin1().constData() );
     if ( !tor.release(qmFileName, verbose, ignoreUnfinished,
-                      trimmed ? QTranslator::Stripped
-                               : QTranslator::Everything) )
+                      trimmed ? Translator::Stripped
+                               : Translator::Everything) )
         fprintf( stderr,
                  "lrelease warning: For some reason, I cannot save '%s'\n",
                  qmFileName.toLatin1().constData() );
