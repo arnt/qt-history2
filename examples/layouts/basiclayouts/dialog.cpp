@@ -24,7 +24,7 @@ Dialog::Dialog()
     buttonLayout->addWidget(okButton);
     buttonLayout->addWidget(cancelButton);
 
-    QBoxLayout *mainLayout = new QVBoxLayout;
+    QVBoxLayout *mainLayout = new QVBoxLayout;
     mainLayout->setMenuBar(menuBar);
     mainLayout->addWidget(horizontalGroupBox);
     mainLayout->addWidget(gridGroupBox);
@@ -49,7 +49,7 @@ void Dialog::createMenu()
 void Dialog::createHorizontalGroupBox()
 {
     horizontalGroupBox = new QGroupBox(tr("Horizontal layout"));
-    QBoxLayout *layout = new QHBoxLayout;
+    QHBoxLayout *layout = new QHBoxLayout;
 
     for (int i = 0; i < NumButtons; ++i) {
         buttons[i] = new QPushButton(tr("Button %1").arg(i + 1));
