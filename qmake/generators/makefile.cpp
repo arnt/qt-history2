@@ -1825,7 +1825,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                    deps += replaceExtraCompilerVariables(pre_deps.at(i), (*input), out);
             }
             QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out);
-            for(QStringList::Iterator it3 = vars.begin(); it3 != vars.end(); ++it3)
+            for(QStringList::ConstIterator it3 = vars.constBegin(); it3 != vars.constEnd(); ++it3)
                 cmd.replace("$(" + (*it3) + ")", "$(QMAKE_COMP_" + (*it3)+")");
             if(!tmp_dep_cmd.isEmpty() && doDepends()) {
                 char buff[256];
