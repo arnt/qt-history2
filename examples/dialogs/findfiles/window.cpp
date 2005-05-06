@@ -145,6 +145,7 @@ void Window::createFilesTable()
     labels << tr("File Name") << tr("Size");
     filesTable->setHorizontalHeaderLabels(labels);
     filesTable->horizontalHeader()->setResizeMode(0, QHeaderView::Stretch);
+    filesTable->verticalHeader()->hide();
     filesTable->setShowGrid(false);
 }
 
