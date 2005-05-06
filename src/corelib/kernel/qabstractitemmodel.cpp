@@ -194,9 +194,10 @@ void QPersistentModelIndex::operator=(const QModelIndex &other)
 
 QPersistentModelIndex::operator const QModelIndex&() const
 {
+    static const QModelIndex invalid;
     if (d)
         return d->index;
-    return QModelIndex();
+    return invalid;
 }
 
 /*!
