@@ -964,7 +964,9 @@ void QHeaderView::resizeSections()
     }
     int position = 0;
     QSize strut = QApplication::globalStrut();
-    int minimum = orientation() == Qt::Horizontal ? strut.width() : strut.height();
+    int minimum = orientation() == Qt::Horizontal
+                  ? qMax(strut.width(), fontMetrics().maxWidth())
+                  : qMax(strut.height(), fontMetrics().height());
     int hint = stretchSecs > 0 ? stretchSize / stretchSecs : 0;
     int stretchSectionSize = qMax(hint, minimum);
     for (int i = 0; i < count; ++i) {
