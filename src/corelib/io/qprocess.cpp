@@ -884,7 +884,7 @@ void QProcess::setEnvironment(const QStringList &environment)
 /*!
     Returns the environment that QProcess will use when starting a
     process, or an empty QStringList if no environment has been set.
-    It no environment has been set, the environment of the calling
+    If no environment has been set, the environment of the calling
     process will be used.
 
     \sa setEnvironment()
