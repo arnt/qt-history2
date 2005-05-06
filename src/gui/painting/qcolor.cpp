@@ -1119,12 +1119,17 @@ QColor QColor::toRgb() const
     return color;
 };
 
+
+#define Q_MAX_3(a, b, c) ( ( a > b && a > c) ? a : (b > c ? b : c) )
+#define Q_MIN_3(a, b, c) ( ( a < b && a < c) ? a : (b < c ? b : c) )
+
+
 /*!
     Returns an HSV QColor based on this color.
 
     \sa fromHsv() toCmyk() toRgb()
 */
-QColor QColor::toHsv() const 
+QColor QColor::toHsv() const
 {
     if (!isValid())
         return *this;
@@ -1137,12 +1142,12 @@ QColor QColor::toHsv() const
     color.ct.ahsv.alpha = ct.argb.alpha;
     color.ct.ahsv.pad = 0;
 
-    volatile qreal r = ct.argb.red   / qreal(USHRT_MAX);
-    volatile qreal g = ct.argb.green / qreal(USHRT_MAX);
-    volatile qreal b = ct.argb.blue  / qreal(USHRT_MAX);
-    qreal max = qMax(r, qMax(g, b));
-    qreal min = qMin(r, qMin(g, b));
-    qreal delta = max - min;
+    const qreal r = ct.argb.red   / qreal(USHRT_MAX);
+    const qreal g = ct.argb.green / qreal(USHRT_MAX);
+    const qreal b = ct.argb.blue  / qreal(USHRT_MAX);
+    const qreal max = Q_MAX_3(r, g, b);
+    const qreal min = Q_MIN_3(r, g, b);
+    const qreal delta = max - min;
     color.ct.ahsv.value = qRound(max * USHRT_MAX);
     if (delta == 0.0) {
         // achromatic case, hue is undefined
@@ -1571,7 +1576,7 @@ QColor QColor::light(int factor) const
         return *this;
     else if (factor < 100)                        // makes color darker
         return dark(10000/factor);
-        
+
     QColor hsv = toHsv();
     int s = hsv.ct.ahsv.saturation;
     int v = hsv.ct.ahsv.value;
