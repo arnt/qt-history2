@@ -2501,7 +2501,7 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
         }
     } else {
 #if defined (Q_WS_WIN)
-        res = QImage(w, h, 8);
+        res = QImage(w, h, QImage::Format_Indexed8);
         glReadPixels(0, 0, w, h, GL_COLOR_INDEX, GL_UNSIGNED_BYTE, res.bits());
         const QVector<QColor> pal = QColormap::instance().colormap();
         if (pal.size()) {
