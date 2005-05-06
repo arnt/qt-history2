@@ -166,7 +166,7 @@ licenseRemove["preview"] = [ new RegExp("GPL") ];
 licenseRemove["beta"] = [ new RegExp("GPL") ];
 
 var editionRemove = new Array();
-editionRemove["core"] = [ ];
+editionRemove["core"] = [ new RegExp("^tools/designer") ];
 editionRemove["client"] = [ ];
 
 var finalRemove = [ new RegExp("^dist") ];
@@ -431,7 +431,7 @@ function checkTools()
 	for (var p in binaryHosts) {
 	    if (options["binaries"] && options[p]) {
 		var host = binaryHosts[p];
-		execute(["ssh", "period@" + host, "true"]);
+		execute(["ssh", binaryUser + "@" + host, "true"]);
 	    }
 	}
 	execute(p4Command);
@@ -969,7 +969,6 @@ function binaryFile(fileName)
  * runs the command and prints out stderror if not empty
  */
 function execute(command, stdin) {
-    print("Running %1".arg(command));
     var start = Date().getTime();
     var error = Process.execute(command, stdin);
     var runTime = Math.floor((Date().getTime() - start)/1000);
