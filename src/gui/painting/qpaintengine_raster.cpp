@@ -516,7 +516,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     d->matrix = QMatrix();
     d->txop = QPainterPrivate::TxNone;
-    d->brushMatrix = QMatrix();
     d->outlineMapper->setMatrix(d->matrix, d->txop);
 
     if (device->depth() == 1) {
@@ -658,18 +657,13 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
 
     if (flags & DirtyPen) {
         d->pen = state.pen();
-        d->penMatrix = d->matrix;
     }
 
     if ((flags & DirtyBrush) || (flags & DirtyBrushOrigin)) {
         QBrush brush = state.brush();
         QPointF offset = state.brushOrigin();
         d->brush = brush;
-        d->brushMatrix = d->matrix;
         d->brushOffset = offset;
-
-        // Offset the brush matrix with offset.
-        d->brushMatrix.translate(offset.x(), offset.y());
     }
 
     if (flags & DirtyBackgroundMode) {
@@ -868,20 +862,17 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
 {
     Q_D(QRasterPaintEngine);
     QBrush oldBrush = d->brush;
-    QMatrix oldMatrix = d->brushMatrix;
     QPainterPath path(points[0]);
     for (int i=1; i<pointCount; ++i)
         path.lineTo(points[i]);
     if (mode == PolylineMode) {
         d->brush = QBrush();
-        d->brushMatrix = d->matrix;
     } else {
         path.setFillRule(mode == WindingMode ? Qt::WindingFill : Qt::OddEvenFill);
         path.closeSubpath();
     }
     drawPath(path);
     d->brush = oldBrush;
-    d->brushMatrix = oldMatrix;
 }
 
 
@@ -1627,7 +1618,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
             textureFillData->compositionMode = compositionMode;
-            textureFillData->init(rasterBuffer, &tempImage, brushMatrix,
+            textureFillData->init(rasterBuffer, &tempImage, brushMatrix(),
                                   drawHelper->blendTiled,
                                   bilinear
                                   ? drawHelper->blendTransformedBilinearTiled
@@ -1636,25 +1627,26 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
         break;
 
     case Qt::LinearGradientPattern:
-        linearGradientData->rasterBuffer = fillData->rasterBuffer;
-        linearGradientData->spread = brush.gradient()->spread();
-        linearGradientData->stopCount = brush.gradient()->stops().size();
-        linearGradientData->stopPoints = gradientStopPoints(brush.gradient());
-        linearGradientData->stopColors = gradientStopColors(brush.gradient());
-        linearGradientData->origin =
-            static_cast<const QLinearGradient *>(brush.gradient())->start();// * brushMatrix;
-        linearGradientData->end =
-            static_cast<const QLinearGradient *>(brush.gradient())->finalStop();// * brushMatrix;
+        {
+            linearGradientData->rasterBuffer = fillData->rasterBuffer;
+            linearGradientData->spread = brush.gradient()->spread();
+            linearGradientData->stopCount = brush.gradient()->stops().size();
+            linearGradientData->stopPoints = gradientStopPoints(brush.gradient());
+            linearGradientData->stopColors = gradientStopColors(brush.gradient());
+            const QLinearGradient *lg = static_cast<const QLinearGradient *>(brush.gradient());
+            linearGradientData->origin = lg->start();
+            linearGradientData->end = lg->finalStop();
 
-        linearGradientData->brushMatrix = brushMatrix;
-        linearGradientData->alphaColor = !brush.isOpaque();
-        linearGradientData->init();
-        linearGradientData->initColorTable();
-        linearGradientData->blendFunc = drawHelper->blendLinearGradient;
-        linearGradientData->compositionMode = compositionMode;
-        fillData->callback = qt_span_linear_gradient;
-        fillData->data = linearGradientData;
-        break;
+            linearGradientData->brushMatrix = brushMatrix();
+            linearGradientData->alphaColor = !brush.isOpaque();
+            linearGradientData->init();
+            linearGradientData->initColorTable();
+            linearGradientData->blendFunc = drawHelper->blendLinearGradient;
+            linearGradientData->compositionMode = compositionMode;
+            fillData->callback = qt_span_linear_gradient;
+            fillData->data = linearGradientData;
+            break;
+        }
 
     case Qt::RadialGradientPattern:
         {
@@ -1698,7 +1690,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
             conicalGradientData->compositionMode = compositionMode;
             conicalGradientData->blendFunc = drawHelper->blendConicalGradient;
             const QConicalGradient *cg = static_cast<const QConicalGradient *>(brush.gradient());
-            conicalGradientData->init(cg->center(), cg->angle(), brushMatrix);
+            conicalGradientData->init(cg->center(), cg->angle(), brushMatrix());
             fillData->data = conicalGradientData;
             fillData->callback = qt_span_conical_gradient;
         }
@@ -1730,7 +1722,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
                                  ? qt_span_texturefill_xform
                                  : qt_span_texturefill;
             textureFillData->compositionMode = compositionMode;
-            textureFillData->init(rasterBuffer, &tempImage, brushMatrix,
+            textureFillData->init(rasterBuffer, &tempImage, brushMatrix(),
                                   drawHelper->blendTiled,
                                   bilinear
                                   ? drawHelper->blendTransformedBilinearTiled

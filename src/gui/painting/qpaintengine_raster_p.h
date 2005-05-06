@@ -109,6 +109,11 @@ public:
     void drawBitmap(const QPointF &pos, const QPixmap &image, FillData *fill);
     QImage colorizeBitmap(const QImage &image, const QColor &color);
 
+    QMatrix brushMatrix() const {
+        QMatrix m(matrix);
+        m.translate(brushOffset.x(), brushOffset.y());
+        return m;
+    }
 
     qreal *gradientStopPoints(const QGradient *gradient);
     uint *gradientStopColors(const QGradient *gradient);
@@ -118,8 +123,6 @@ public:
     QBrush bgBrush;
     QPen pen;
     QMatrix matrix;
-    QMatrix brushMatrix;
-    QMatrix penMatrix;
     QPainter::CompositionMode compositionMode;
 
     QPaintDevice *device;
