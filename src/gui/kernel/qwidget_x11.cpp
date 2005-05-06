@@ -2395,7 +2395,7 @@ void QWidget::setMask(const QRegion& region)
     See \c examples/tux for an example of masking for transparency.
     \endomit
 
-    \sa setMask(), clearMask()
+    \sa clearMask()
 */
 
 void QWidget::setMask(const QBitmap &bitmap)

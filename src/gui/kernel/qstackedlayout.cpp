@@ -79,6 +79,15 @@ public:
 */
 
 /*!
+    \fn void QStackedLayout::currentChanged(int index)
+
+    This signal is emitted when the current widget in the layout changes.
+    The \a index specifies the index of the new current widget.
+
+    \sa currentWidget(), setCurrentWidget()
+*/
+
+/*!
     \fn void QStackedLayout::widgetRemoved(int index)
 
     This signal is emitted when the widget at position \a index
@@ -282,8 +291,10 @@ int QStackedLayout::currentIndex() const
 
 
 /*!
-   Sets \a widget to be the current widget. \a widget must be
-   contained in this stacked layout.
+  \fn void QStackedLayout::setCurrentWidget(QWidget *widget)
+
+  Sets the current widget to the \a widget specified. The new widget
+  must already be contained in this stacked layout.
 
   \sa setCurrentIndex(), currentWidget()
  */

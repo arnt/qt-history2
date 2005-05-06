@@ -700,8 +700,8 @@ void QWhatsThis::hideText()
     delete QWhatsThat::instance;
 }
 
-/*
-    Returns a ready-made QAction to invoke "What's This?" context
+/*!
+    Returns a ready-made QAction, used to invoke "What's This?" context
     help, with the given \a parent.
 
     The returned QAction provides a convenient way to let users enter

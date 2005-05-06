@@ -37,7 +37,7 @@
     The tip is a short piece of text reminding the user of the
     widget's function. It is drawn immediately below the given
     position in a distinctive black-on-yellow color combination. The
-    tip can be any \l{rich text} formatted string.
+    tip can be any \l{QTextEdit}{rich text} formatted string.
 
     The simplest and most common way to set a widget's tooltip is by
     calling its QWidget::setToolTip() function.
