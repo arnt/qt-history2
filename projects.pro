@@ -9,6 +9,7 @@ isEmpty(QT_PROJECTS) {
    QT_PROJECTS += src 
    !cross_compile:QT_PROJECTS += tools
    QT_PROJECTS += demos examples
+   win32:QT_PROJECTS += extensions
 }
 SUBDIRS += $$QT_PROJECTS
 
