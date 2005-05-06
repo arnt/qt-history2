@@ -34,7 +34,7 @@ QDesignerMemberSheet::~QDesignerMemberSheet()
 
 int QDesignerMemberSheet::count() const
 {
-    return meta->memberCount();
+    return meta->methodCount();
 }
 
 int QDesignerMemberSheet::indexOf(const QString &name) const
@@ -44,12 +44,12 @@ int QDesignerMemberSheet::indexOf(const QString &name) const
 
 QString QDesignerMemberSheet::memberName(int index) const
 {
-    return QString::fromUtf8(meta->member(index).tag());
+    return QString::fromUtf8(meta->method(index).tag());
 }
 
 QString QDesignerMemberSheet::declaredInClass(int index) const
 {
-    const char *member = meta->member(index).signature();
+    const char *member = meta->method(index).signature();
 
     const QMetaObject *meta_obj = meta;
 
@@ -80,7 +80,7 @@ void QDesignerMemberSheet::setMemberGroup(int index, const QString &group)
 
 QString QDesignerMemberSheet::signature(int index) const
 {
-    return QString::fromUtf8(meta->member(index).signature());
+    return QString::fromUtf8(meta->method(index).signature());
 }
 
 bool QDesignerMemberSheet::isVisible(int index) const
@@ -88,8 +88,8 @@ bool QDesignerMemberSheet::isVisible(int index) const
     if (m_info.contains(index))
         return m_info.value(index).visible;
 
-   return meta->member(index).memberType() == QMetaMember::Signal
-           || meta->member(index).access() == QMetaMember::Public;
+   return meta->method(index).methodType() == QMetaMethod::Signal
+           || meta->method(index).access() == QMetaMethod::Public;
 }
 
 void QDesignerMemberSheet::setVisible(int index, bool visible)
@@ -102,29 +102,29 @@ void QDesignerMemberSheet::setVisible(int index, bool visible)
 
 bool QDesignerMemberSheet::isSignal(int index) const
 {
-    return meta->member(index).memberType() == QMetaMember::Signal;
+    return meta->method(index).memberType() == QMetaMethod::Signal;
 }
 
 bool QDesignerMemberSheet::isSlot(int index) const
 {
-    return meta->member(index).memberType() == QMetaMember::Slot;
+    return meta->method(index).memberType() == QMetaMethod::Slot;
 }
 
 bool QDesignerMemberSheet::inheritedFromWidget(int index) const
 {
-    const char *name = meta->member(index).signature();
+    const char *name = meta->method(index).signature();
     return someWidget()->metaObject()->indexOfMember(name) != -1;
 }
 
 
 QList<QByteArray> QDesignerMemberSheet::parameterTypes(int index) const
 {
-    return meta->member(index).parameterTypes();
+    return meta->method(index).parameterTypes();
 }
 
 QList<QByteArray> QDesignerMemberSheet::parameterNames(int index) const
 {
-    return meta->member(index).parameterNames();
+    return meta->method(index).parameterNames();
 }
 
 QDesignerMemberSheetFactory::QDesignerMemberSheetFactory(QExtensionManager *parent)

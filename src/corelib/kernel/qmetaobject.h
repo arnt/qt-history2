@@ -19,10 +19,10 @@
 
 template <typename T> class QList;
 
-class Q_CORE_EXPORT QMetaMember
+class Q_CORE_EXPORT QMetaMethod
 {
 public:
-    inline QMetaMember() : mobj(0),handle(0) {}
+    inline QMetaMethod() : mobj(0),handle(0) {}
 
     const char *signature() const;
     const char *typeName() const;
@@ -31,8 +31,9 @@ public:
     const char *tag() const;
     enum Access { Private, Protected, Public };
     Access access() const;
-    enum MemberType { Method, Signal, Slot };
-    MemberType memberType() const;
+    enum MethodType { Method, Signal, Slot };
+    MethodType methodType() const;
+    inline MethodType memberType() const { return methodType(); } // ### remove me
     enum Attributes { Compatibility = 0x1, Cloned = 0x2, Scriptable = 0x4 };
     int attributes() const;
 
@@ -41,7 +42,7 @@ private:
     uint handle;
     friend struct QMetaObject;
 };
-Q_DECLARE_TYPEINFO(QMetaMember, Q_MOVABLE_TYPE);
+Q_DECLARE_TYPEINFO(QMetaMethod, Q_MOVABLE_TYPE);
 
 class Q_CORE_EXPORT QMetaEnum
 {

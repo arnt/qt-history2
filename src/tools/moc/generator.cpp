@@ -34,16 +34,16 @@ enum ProperyFlags  {
     Editable = 0x00040000,
     ResolveEditable = 0x00080000
 };
-enum MemberFlags {
+enum MethodFlags {
     AccessPrivate = 0x00,
     AccessProtected = 0x01,
     AccessPublic = 0x02,
-    MemberMethod = 0x00,
-    MemberSignal = 0x04,
-    MemberSlot = 0x08,
-    MemberCompatibility = 0x10,
-    MemberCloned = 0x20,
-    MemberScriptable = 0x40
+    MethodMethod = 0x00,
+    MethodSignal = 0x04,
+    MethodSlot = 0x08,
+    MethodCompatibility = 0x10,
+    MethodCloned = 0x20,
+    MethodScriptable = 0x40
 };
 
 /*
@@ -209,9 +209,9 @@ void Generator::generateCode()
     fprintf(out, "    %4d, %4d, // classinfo\n", cdef->classInfoList.count(), cdef->classInfoList.count() ? index : 0);
     index += cdef->classInfoList.count() * 2;
 
-    int memberCount = cdef->signalList.count() + cdef->slotList.count() + cdef->methodList.count();
-    fprintf(out, "    %4d, %4d, // members\n", memberCount, memberCount ? index : 0);
-    index += memberCount * 5;
+    int methodCount = cdef->signalList.count() + cdef->slotList.count() + cdef->methodList.count();
+    fprintf(out, "    %4d, %4d, // methods\n", methodCount, methodCount ? index : 0);
+    index += methodCount * 5;
     fprintf(out, "    %4d, %4d, // properties\n", cdef->propertyList.count(), cdef->propertyList.count() ? index : 0);
     index += cdef->propertyList.count() * 3;
     fprintf(out, "    %4d, %4d, // enums/sets\n", cdef->enumList.count(), cdef->enumList.count() ? index : 0);
@@ -225,17 +225,17 @@ void Generator::generateCode()
 //
 // Build signals array first, otherwise the signal indices would be wrong
 //
-    generateFunctions(cdef->signalList, "signal", MemberSignal);
+    generateFunctions(cdef->signalList, "signal", MethodSignal);
 
 //
 // Build slots array
 //
-    generateFunctions(cdef->slotList, "slot", MemberSlot);
+    generateFunctions(cdef->slotList, "slot", MethodSlot);
 
 //
 // Build method array
 //
-    generateFunctions(cdef->methodList, "method", MemberMethod);
+    generateFunctions(cdef->methodList, "method", MethodMethod);
 
 
 //
@@ -425,11 +425,11 @@ void Generator::generateFunctions(QList<FunctionDef>& list, const char *functype
         else if (f.access == FunctionDef::Protected)
             flags |= AccessProtected;
         if (f.isCompat)
-            flags |= MemberCompatibility;
+            flags |= MethodCompatibility;
         if (f.wasCloned)
-            flags |= MemberCloned;
+            flags |= MethodCloned;
         if (f.isScriptable)
-            flags |= MemberScriptable;
+            flags |= MethodScriptable;
         fprintf(out, "    %4d, %4d, %4d, %4d, 0x%02x,\n", strreg(sig),
                 strreg(arguments), strreg(f.normalizedType), strreg(f.tag), flags);
     }
@@ -575,27 +575,27 @@ void Generator::generateMetacall()
     fprintf(out, "    ");
 
     bool needElse = false;
-    QList<FunctionDef> memberList;
-    memberList += cdef->signalList;
-    memberList += cdef->slotList;
-    memberList += cdef->methodList;
+    QList<FunctionDef> methodList;
+    methodList += cdef->signalList;
+    methodList += cdef->slotList;
+    methodList += cdef->methodList;
 
     int signalCount = cdef->signalList.size();
-    if (memberList.size()) {
+    if (methodList.size()) {
         needElse = true;
-        fprintf(out, "if (_c == QMetaObject::InvokeMetaMember) {\n        ");
+        fprintf(out, "if (_c == QMetaObject::InvokeMetaMethod) {\n        ");
         if (signalCount) {
             fprintf(out, "if (_id < %d)\n", signalCount);
             fprintf(out, "            QMetaObject::activate(this, _id_global, _a);\n");
         }
     }
-    if (memberList.size() > signalCount) {
+    if (methodList.size() > signalCount) {
         if (signalCount)
             fprintf(out, "        else ");
         fprintf(out, "switch (_id) {\n");
-        for (int memberindex = signalCount; memberindex < memberList.size(); ++memberindex) {
-            const FunctionDef &f = memberList.at(memberindex);
-            fprintf(out, "        case %d: ", memberindex);
+        for (int methodindex = signalCount; methodindex < methodList.size(); ++methodindex) {
+            const FunctionDef &f = methodList.at(methodindex);
+            fprintf(out, "        case %d: ", methodindex);
             if (f.normalizedType.size())
                 fprintf(out, "{ %s _r = ", noRef(f.normalizedType).constData());
             if (f.inPrivateClass.size())
@@ -616,8 +616,8 @@ void Generator::generateMetacall()
         }
         fprintf(out, "        }\n");
     }
-    if (memberList.size())
-        fprintf(out, "        _id -= %d;\n    }", memberList.size());
+    if (methodList.size())
+        fprintf(out, "        _id -= %d;\n    }", methodList.size());
 
     if (cdef->propertyList.size()) {
         bool needGet = false;
@@ -796,7 +796,7 @@ void Generator::generateMetacall()
         fprintf(out, "\n#endif // QT_NO_PROPERTIES");
     }
  skip_properties:
-    if (memberList.size() || cdef->signalList.size() || cdef->propertyList.size())
+    if (methodList.size() || cdef->signalList.size() || cdef->propertyList.size())
         fprintf(out, "\n    ");
     fprintf(out,"return _id;\n}\n");
 }
@@ -812,7 +812,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
 
     if (def->arguments.isEmpty() && def->normalizedType.isEmpty()) {
         fprintf(out, ")\n{\n"
-                "    qt_metacall(QMetaObject::InvokeMetaMember, staticMetaObject.memberOffset() + %d, 0);\n"
+                "    QMetaObject::activate(this, &staticMetaObject, %d, 0);\n"
                 "};\n", index);
         return;
     }
@@ -839,7 +839,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
         if (def->arguments.at(i).isDefault)
             ++n;
     for (i = 0; i < n; ++i)
-        fprintf(out, "    qt_metacall(QMetaObject::InvokeMetaMember, staticMetaObject.memberOffset() + %d, _a);\n", index + i);
+        fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _a);\n", index + i);
     if (def->normalizedType.size())
         fprintf(out, "    return _t0;\n");
     fprintf(out, "}\n");

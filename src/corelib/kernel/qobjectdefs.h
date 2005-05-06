@@ -21,7 +21,7 @@ class QString;
 class QByteArray;
 
 #ifndef Q_MOC_OUTPUT_REVISION
-#define Q_MOC_OUTPUT_REVISION 56
+#define Q_MOC_OUTPUT_REVISION 57
 #endif
 
 // The following macros are our "extensions" to C++
@@ -102,7 +102,7 @@ private:
 #define Q_INVOKABLE Q_INVOKABLE
 #endif //QT_MOC_CPP
 
-// macro for naming members
+// macro for onaming members
 #ifdef METHOD
 #undef METHOD
 #endif
@@ -131,7 +131,8 @@ private:
 #define Q_RETURN_ARG(type, data) QReturnArgument<type>(#type, data)
 
 class QObject;
-class QMetaMember;
+class QMetaMethod;
+typedef QMetaMethod QMetaMember; // ### remove me
 class QMetaEnum;
 class QMetaProperty;
 class QMetaClassInfo;
@@ -189,38 +190,42 @@ struct Q_CORE_EXPORT QMetaObject
     QString trUtf8(const char *s, const char *c) const;
 #endif // QT_NO_TRANSLATION
 
-    int memberOffset() const;
+    int methodOffset() const;
+    inline int memberOffset() const { return methodOffset(); } // ### remove me
     int enumeratorOffset() const;
     int propertyOffset() const;
     int classInfoOffset() const;
 
-    int memberCount() const;
+    int methodCount() const;
+    inline int memberCount() const { return methodCount(); } // ### remove me
     int enumeratorCount() const;
     int propertyCount() const;
     int classInfoCount() const;
 
-    int indexOfMember(const char *member) const;
+    int indexOfMethod(const char *method) const;
+    inline int indexOfMember(const char *member) const { return indexOfMethod(member); } // ### remove me
     int indexOfSignal(const char *signal) const;
     int indexOfSlot(const char *slot) const;
     int indexOfEnumerator(const char *name) const;
     int indexOfProperty(const char *name) const;
     int indexOfClassInfo(const char *name) const;
 
-    QMetaMember member(int index) const;
+    QMetaMethod method(int index) const;
+    QMetaMethod member(int index) const; // ### remove me
     QMetaEnum enumerator(int index) const;
     QMetaProperty property(int index) const;
     QMetaClassInfo classInfo(int index) const;
 
-    static bool checkConnectArgs(const char *signal, const char *member);
-    static QByteArray normalizedSignature(const char *member);
+    static bool checkConnectArgs(const char *signal, const char *method);
+    static QByteArray normalizedSignature(const char *method);
 
     // internal index-based connect
     static bool connect(const QObject *sender, int signal_index,
-                        const QObject *receiver, int member_index,
+                        const QObject *receiver, int method_index,
                         int type = 0, int *types = 0);
     // internal index-based disconnect
     static bool disconnect(const QObject *sender, int signal_index,
-                           const QObject *receiver, int member_index);
+                           const QObject *receiver, int method_index);
     // internal slot-name based connect
     static void connectSlotsByName(QObject *o);
 
@@ -298,7 +303,8 @@ struct Q_CORE_EXPORT QMetaObject
     }
 
     enum Call {
-        InvokeMetaMember,
+        InvokeMetaMethod,
+        InvokeMetaMember = InvokeMetaMethod, // ### remove me
         ReadProperty,
         WriteProperty,
         ResetProperty,

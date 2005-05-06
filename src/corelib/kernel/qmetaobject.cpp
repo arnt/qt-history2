@@ -48,15 +48,15 @@
     \list
     \i className() returns the name of a class.
     \i superClass() returns the super-class's meta object.
-    \i memberCount(), member() provide information
-       about a class's meta members (signals, slots and methods).
+    \i methodCount(), method() provide information
+       about a class's meta methods (signals, slots and other member functions).
     \i enumeratorCount() and enumerator() provide information about
        a class's enumerators.
     \i propertyCount() and property() provide information about a
        class's properties.
     \endlist
 
-    The index functions indexOfMember(), indexOfEnumerator(), and
+    The index functions indexOfMethod(), indexOfEnumerator(), and
     indexOfProperty() map names of member functions, enumerators, or
     properties to indexes in the meta object. For example, Qt uses
     indexOfMember() internally when you connect a signal to a slot.
@@ -88,7 +88,7 @@
 */
 
 /*!
-    \enum QMetaMember::Access
+    \enum QMetaMethod::Access
 
     \internal
 */
@@ -118,14 +118,14 @@ enum MethodFlags  {
     AccessPublic = 0x02,
     AccessMask = 0x03, //mask
 
-    MemberMethod = 0x00,
-    MemberSignal = 0x04,
-    MemberSlot = 0x08,
-    MemberTypeMask = 0x0c,
+    MethodMethod = 0x00,
+    MethodSignal = 0x04,
+    MethodSlot = 0x08,
+    MethodTypeMask = 0x0c,
 
-    MemberCompatibility = 0x10,
-    MemberCloned = 0x20,
-    MemberScriptable = 0x40
+    MethodCompatibility = 0x10,
+    MethodCloned = 0x20,
+    MethodScriptable = 0x40
 };
 
 struct QMetaObjectPrivate
@@ -133,7 +133,7 @@ struct QMetaObjectPrivate
     int revision;
     int className;
     int classInfoCount, classInfoData;
-    int memberCount, memberData;
+    int methodCount, methodData;
     int propertyCount, propertyData;
     int enumeratorCount, enumeratorData;
 };
@@ -205,17 +205,18 @@ QString QMetaObject::trUtf8(const char *s, const char *c) const
 
 
 /*!
-    Returns the member offset for this class; i.e. the index position of
-    this class's first member. The offset is the sum of all the members in
-    the class's super-classes (which is always positive since QObject
-    has the deleteLater() slot and a destroyed() signal).
+    Returns the method offset for this class; i.e. the index position
+    of this class's first member function. The offset is the sum of
+    all the methods in the class's super-classes (which is always
+    positive since QObject has the deleteLater() slot and a
+    destroyed() signal).
  */
-int QMetaObject::memberOffset() const
+int QMetaObject::methodOffset() const
 {
     int offset = 0;
     const QMetaObject *m = d.superdata;
     while (m) {
-        offset += priv(m->d.data)->memberCount;
+        offset += priv(m->d.data)->methodCount;
         m = m->d.superdata;
     }
     return offset;
@@ -273,17 +274,17 @@ int QMetaObject::classInfoOffset() const
 }
 
 /*!
-    Returns the number of members in this class. These include ordinary
-    methods, signals, and slots.
+    Returns the number of methods in this class. These include
+    ordinary methods, signals, and slots.
 
     \sa member()
 */
-int QMetaObject::memberCount() const
+int QMetaObject::methodCount() const
 {
-    int n = priv(d.data)->memberCount;
+    int n = priv(d.data)->methodCount;
     const QMetaObject *m = d.superdata;
     while (m) {
-        n += priv(m->d.data)->memberCount;
+        n += priv(m->d.data)->methodCount;
         m = m->d.superdata;
     }
     return n;
@@ -343,19 +344,19 @@ int QMetaObject::classInfoCount() const
 }
 
 /*!
-    Finds \a member and returns its index; otherwise returns -1.
+    Finds \a method and returns its index; otherwise returns -1.
 
-    \sa member(), memberCount()
+    \sa method(), methodCount()
 */
-int QMetaObject::indexOfMember(const char *member) const
+int QMetaObject::indexOfMethod(const char *method) const
 {
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-        for (i = priv(m->d.data)->memberCount-1; i >= 0; --i)
-            if (strcmp(member, m->d.stringdata
-                       + m->d.data[priv(m->d.data)->memberData + 5*i]) == 0) {
-                i += m->memberOffset();
+        for (i = priv(m->d.data)->methodCount-1; i >= 0; --i)
+            if (strcmp(method, m->d.stringdata
+                       + m->d.data[priv(m->d.data)->methodData + 5*i]) == 0) {
+                i += m->methodOffset();
                 break;
             }
         m = m->d.superdata;
@@ -366,25 +367,25 @@ int QMetaObject::indexOfMember(const char *member) const
 /*!
     Finds \a signal and returns its index; otherwise returns -1.
 
-    \sa indexOfMember(), member(), memberCount()
+    \sa indexOfMethod(), method(), methodCount()
 */
 int QMetaObject::indexOfSignal(const char *signal) const
 {
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-        for (i = priv(m->d.data)->memberCount-1; i >= 0; --i)
-            if ((m->d.data[priv(m->d.data)->memberData + 5*i + 4] & MemberTypeMask) == MemberSignal
+        for (i = priv(m->d.data)->methodCount-1; i >= 0; --i)
+            if ((m->d.data[priv(m->d.data)->methodData + 5*i + 4] & MethodTypeMask) == MethodSignal
                 && strcmp(signal, m->d.stringdata
-                          + m->d.data[priv(m->d.data)->memberData + 5*i]) == 0) {
-                i += m->memberOffset();
+                          + m->d.data[priv(m->d.data)->methodData + 5*i]) == 0) {
+                i += m->methodOffset();
                 break;
             }
         m = m->d.superdata;
     }
 #ifndef QT_NO_DEBUG
     if (i >= 0 && m && m->d.superdata) {
-        int conflict = m->d.superdata->indexOfMember(signal);
+        int conflict = m->d.superdata->indexOfMethod(signal);
         if (conflict >= 0)
             qWarning("QMetaObject::indexOfSignal:%s: Conflict with %s::%s",
                       m->d.stringdata, m->d.superdata->d.stringdata, signal);
@@ -396,18 +397,18 @@ int QMetaObject::indexOfSignal(const char *signal) const
 /*!
     Finds \a slot and returns its index; otherwise returns -1.
 
-    \sa indexOfMember(), member(), memberCount()
+    \sa indexOfMethod(), method(), methodCount()
 */
 int QMetaObject::indexOfSlot(const char *slot) const
 {
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-        for (i = priv(m->d.data)->memberCount-1; i >= 0; --i)
-            if ((m->d.data[priv(m->d.data)->memberData + 5*i + 4] & MemberTypeMask) == MemberSlot
+        for (i = priv(m->d.data)->methodCount-1; i >= 0; --i)
+            if ((m->d.data[priv(m->d.data)->methodData + 5*i + 4] & MethodTypeMask) == MethodSlot
                 && strcmp(slot, m->d.stringdata
-                       + m->d.data[priv(m->d.data)->memberData + 5*i]) == 0) {
-                i += m->memberOffset();
+                       + m->d.data[priv(m->d.data)->methodData + 5*i]) == 0) {
+                i += m->methodOffset();
                 break;
             }
         m = m->d.superdata;
@@ -515,21 +516,26 @@ int QMetaObject::indexOfClassInfo(const char *name) const
 }
 
 /*!
-    Returns the meta data for the member with the given \a index.
+    Returns the meta data for the method with the given \a index.
 */
-QMetaMember QMetaObject::member(int index) const
+QMetaMethod QMetaObject::method(int index) const
 {
     int i = index;
-    i -= memberOffset();
+    i -= methodOffset();
     if (i < 0 && d.superdata)
-        return d.superdata->member(index);
+        return d.superdata->method(index);
 
-    QMetaMember result;
-    if (i >= 0 && i <= priv(d.data)->memberCount) {
+    QMetaMethod result;
+    if (i >= 0 && i <= priv(d.data)->methodCount) {
         result.mobj = this;
-        result.handle = priv(d.data)->memberData + 5*i;
+        result.handle = priv(d.data)->methodData + 5*i;
     }
     return result;
+}
+
+QMetaMethod QMetaObject::member(int index) const  // ### remove me
+{
+    return method(index);
 }
 
 /*!
@@ -612,25 +618,25 @@ QMetaClassInfo QMetaObject::classInfo(int index) const
 }
 
 /*!
-    Returns true if the \a signal and \a member arguments are
+    Returns true if the \a signal and \a method arguments are
     compatible; otherwise returns false.
 
-    Both \a signal and \a member are expected to be normalized.
+    Both \a signal and \a method are expected to be normalized.
 
     \sa normalizedSignature()
 */
-bool QMetaObject::checkConnectArgs(const char *signal, const char *member)
+bool QMetaObject::checkConnectArgs(const char *signal, const char *method)
 {
     const char *s1 = signal;
-    const char *s2 = member;
+    const char *s2 = method;
     while (*s1++ != '(') { }                        // scan to first '('
     while (*s2++ != '(') { }
-    if (*s2 == ')' || qstrcmp(s1,s2) == 0)        // member has no args or
+    if (*s2 == ')' || qstrcmp(s1,s2) == 0)        // method has no args or
         return true;                                //   exact match
     int s1len = qstrlen(s1);
     int s2len = qstrlen(s2);
     if (s2len < s1len && strncmp(s1,s2,s2len-1)==0 && s1[s2len-1]==',')
-        return true;                                // member has less args
+        return true;                                // method has less args
     return false;
 }
 
@@ -740,7 +746,7 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
 }
 
 /*!
-    Normalizes the signature of the given \a member.
+    Normalizes the signature of the given \a method.
 
     Qt uses normalized signatures to decide whether two given signals
     and slots are compatible. Normalization reduces whitespace to a
@@ -750,9 +756,9 @@ static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixSc
 
     \sa checkConnectArgs()
  */
-QByteArray QMetaObject::normalizedSignature(const char *member)
+QByteArray QMetaObject::normalizedSignature(const char *method)
 {
-    const char *s = member;
+    const char *s = method;
     if (!s || !*s)
         return "";
     int len = qstrlen(s);
@@ -912,7 +918,7 @@ bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionT
 
     // check return type
     if (ret.data()) {
-        const char *retType = obj->metaObject()->member(idx).typeName();
+        const char *retType = obj->metaObject()->method(idx).typeName();
         if (qstrcmp(ret.name(), retType) != 0)
             return false;
     }
@@ -1007,20 +1013,20 @@ bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionT
 */
 
 /*!
-    \class QMetaMember qmetaobject.h
+    \class QMetaMethod qmetaobject.h
 
-    \brief The QMetaMember class provides meta data about a member
+    \brief The QMetaMethod class provides meta data about a method
     function.
 
     \ingroup objectmodel
 
-    A QMetaMember has a memberType(), a signature(), a list of
+    A QMetaMethod has a methodType(), a signature(), a list of
     parameterTypes() and parameterNames(), a return typeName(), a
     tag(), and an access() specifier.
 */
 
 /*!
-    \enum QMetaMember::Attributes
+    \enum QMetaMethod::Attributes
 
     \value Compatibility
     \value Cloned
@@ -1029,7 +1035,7 @@ bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionT
 */
 
 /*!
-    \enum QMetaMember::MemberType
+    \enum QMetaMethod::MethodType
 
     \value Method
     \value Signal
@@ -1037,14 +1043,14 @@ bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionT
 */
 
 /*!
-    \fn QMetaMember::QMetaMember()
+    \fn QMetaMethod::QMetaMethod()
     \internal
 */
 
 /*!
-    Returns the signature of this member.
+    Returns the signature of this method.
 */
-const char *QMetaMember::signature() const
+const char *QMetaMethod::signature() const
 {
     if (!mobj)
         return 0;
@@ -1054,7 +1060,7 @@ const char *QMetaMember::signature() const
 /*!
     Returns a list of parameter types.
 */
-QList<QByteArray> QMetaMember::parameterTypes() const
+QList<QByteArray> QMetaMethod::parameterTypes() const
 {
     QList<QByteArray> list;
     if (!mobj)
@@ -1080,7 +1086,7 @@ QList<QByteArray> QMetaMember::parameterTypes() const
 /*!
     Returns a list of parameter names.
 */
-QList<QByteArray> QMetaMember::parameterNames() const
+QList<QByteArray> QMetaMethod::parameterNames() const
 {
     QList<QByteArray> list;
     if (!mobj)
@@ -1107,10 +1113,10 @@ QList<QByteArray> QMetaMember::parameterNames() const
 
 
 /*!
-    Returns the return type of this member, or an empty string if the
+    Returns the return type of this method, or an empty string if the
     return type is \e void.
 */
-const char *QMetaMember::typeName() const
+const char *QMetaMethod::typeName() const
 {
     if (!mobj)
         return 0;
@@ -1118,10 +1124,10 @@ const char *QMetaMember::typeName() const
 }
 
 /*!
-    Returns the tag associated with this member.
+    Returns the tag associated with this method.
 */
 
-const char *QMetaMember::tag() const
+const char *QMetaMethod::tag() const
 {
     if (!mobj)
         return 0;
@@ -1130,7 +1136,7 @@ const char *QMetaMember::tag() const
 
 
 /*! \internal */
-int QMetaMember::attributes() const
+int QMetaMethod::attributes() const
 {
     if (!mobj)
         return false;
@@ -1138,26 +1144,26 @@ int QMetaMember::attributes() const
 }
 
 /*!
-  Returns the access specification of this member: private,
+  Returns the access specification of this method: private,
     protected, or public. Signals are always protected.
 */
 
-QMetaMember::Access QMetaMember::access() const
+QMetaMethod::Access QMetaMethod::access() const
 {
     if (!mobj)
         return Private;
-    return (QMetaMember::Access)(mobj->d.data[handle + 4] & AccessMask);
+    return (QMetaMethod::Access)(mobj->d.data[handle + 4] & AccessMask);
 }
 
 /*!
-    Returns the type of this member: Signal, Slot, or Method.
+    Returns the type of this method: Signal, Slot, or Method.
 */
 
-QMetaMember::MemberType QMetaMember::memberType() const
+QMetaMethod::MethodType QMetaMethod::methodType() const
 {
     if (!mobj)
-        return QMetaMember::Method;
-    return (QMetaMember::MemberType)((mobj->d.data[handle + 4] & MemberTypeMask)>>2);
+        return QMetaMethod::Method;
+    return (QMetaMethod::MethodType)((mobj->d.data[handle + 4] & MethodTypeMask)>>2);
 }
 
 /*!
