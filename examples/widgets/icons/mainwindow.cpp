@@ -26,7 +26,7 @@ MainWindow::MainWindow()
 
     setWindowTitle(tr("Icons"));
     checkCurrentStyle();
-    otherRadioButton->toggle();
+    otherRadioButton->click();
 
     resize(860, 400);
 }
@@ -136,7 +136,6 @@ void MainWindow::addImage()
 
             QString imageName = QFileInfo(fileName).baseName();
             QTableWidgetItem *item0 = new QTableWidgetItem(imageName);
-            item0->setCheckState(Qt::Checked);
             item0->setData(Qt::UserRole, fileName);
             item0->setFlags(item0->flags() & ~Qt::ItemIsEditable);
 
@@ -160,7 +159,7 @@ void MainWindow::addImage()
             imagesTable->openPersistentEditor(item1);
             imagesTable->openPersistentEditor(item2);
 
-            changeIcon();;
+            item0->setCheckState(Qt::Checked);
         }
     }
 }
@@ -323,7 +322,7 @@ void MainWindow::checkCurrentStyle()
         Q_ASSERT(candidate);
         if (candidate->metaObject()->className()
                 == QApplication::style()->metaObject()->className()) {
-            action->setChecked(true);
+            action->trigger();
             return;
         }
         delete candidate;
