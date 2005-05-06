@@ -1702,8 +1702,6 @@ void QColor::invalidate()
 
     The \a screen parameter is only used under X11 to specify the X11
     screen.
-
-    \sa alloc()
 */
 uint QColor::pixel(int screen) const
 {
