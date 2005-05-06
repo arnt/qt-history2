@@ -1529,7 +1529,8 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
                 && flowPosition > segStartPosition) {
                 flowPosition = segStartPosition;
                 segPosition += deltaSegPosition;
-                deltaSegPosition = 0;
+                if (useItemSize)
+                    deltaSegPosition = 0;
             }
             // set the position of the item
             if (flow == QListView::LeftToRight) {
