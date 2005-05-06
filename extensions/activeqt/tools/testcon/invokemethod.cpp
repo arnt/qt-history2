@@ -41,11 +41,11 @@ void InvokeMethod::setControl(QAxBase *ax)
     }
 
     const QMetaObject *mo = activex->metaObject();
-    if (mo->memberCount()) {
-	for (int i = mo->memberOffset(); i < mo->memberCount(); ++i) {
-	    const QMetaMember member = mo->member(i);
-            if (member.memberType() == QMetaMember::Slot)
-	        comboMethods->addItem(member.signature());
+    if (mo->methodCount()) {
+	for (int i = mo->methodOffset(); i < mo->methodCount(); ++i) {
+	    const QMetaMethod method = mo->method(i);
+            if (method.methodType() == QMetaMethod::Slot)
+	        comboMethods->addItem(method.signature());
 	}
         comboMethods->model()->sort(0);
 
@@ -87,7 +87,7 @@ void InvokeMethod::on_comboMethods_activated(const QString &method)
     listParameters->clear();
 
     const QMetaObject *mo = activex->metaObject();
-    const QMetaMember slot = mo->member(mo->indexOfSlot(method.toLatin1()));
+    const QMetaMethod slot = mo->method(mo->indexOfSlot(method.toLatin1()));
     QString signature = slot.signature();
     signature = signature.mid(signature.indexOf('(') + 1);
     signature.truncate(signature.length()-1);

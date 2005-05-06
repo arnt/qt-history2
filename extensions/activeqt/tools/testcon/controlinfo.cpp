@@ -44,12 +44,12 @@ void ControlInfo::setControl(QWidget *activex)
     group->setText(0, "Signals");
 
     count = 0;
-    for (i = mo->memberOffset(); i < mo->memberCount(); ++i) {
-	const QMetaMember member = mo->member(i);
-        if (member.memberType() == QMetaMember::Signal) {
+    for (i = mo->methodOffset(); i < mo->methodCount(); ++i) {
+	const QMetaMethod method = mo->method(i);
+        if (method.methodType() == QMetaMethod::Signal) {
             ++count;
 	    item = new QTreeWidgetItem(group);
-            item->setText(0, member.signature());
+            item->setText(0, method.signature());
         }
     }
     group->setText(1, QString::number(count));
@@ -58,12 +58,12 @@ void ControlInfo::setControl(QWidget *activex)
     group->setText(0, "Slots");
 
     count = 0;
-    for (i = mo->memberOffset(); i < mo->memberCount(); ++i) {
-	const QMetaMember member = mo->member(i);
-        if (member.memberType() == QMetaMember::Slot) {
+    for (i = mo->methodOffset(); i < mo->methodCount(); ++i) {
+	const QMetaMethod method = mo->method(i);
+        if (method.methodType() == QMetaMethod::Slot) {
             ++count;
 	    item = new QTreeWidgetItem(group);
-            item->setText(0, member.signature());
+            item->setText(0, method.signature());
         }
     }
     group->setText(1, QString::number(count));
