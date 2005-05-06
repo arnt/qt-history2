@@ -93,6 +93,9 @@ void QDesignerFormBuilder::applyProperties(QObject *o, const QList<DomProperty*>
 
         if (!v.isNull()) {
             sheet->setProperty(index, v);
+
+            if (o->metaObject()->indexOfProperty(p->attributeName().toUtf8()) != -1)
+                o->setProperty(p->attributeName().toUtf8(), v);
         }
     }
 }
