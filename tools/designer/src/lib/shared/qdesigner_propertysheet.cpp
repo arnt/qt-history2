@@ -63,15 +63,14 @@ QDesignerPropertySheet::QDesignerPropertySheet(QObject *object, QObject *parent)
         setPropertyGroup(index, pgroup);
     }
 
-    // ### disable the overrided properties
-
-    if (object->isWidgetType() && QDesignerFormWindowInterface::findFormWindow(static_cast<QWidget*>(object))) {
+    if (object->isWidgetType()) {
         createFakeProperty(QLatin1String("focusPolicy"));
         createFakeProperty(QLatin1String("cursor"));
         createFakeProperty(QLatin1String("toolTip"));
         createFakeProperty(QLatin1String("whatsThis"));
         createFakeProperty(QLatin1String("acceptDrops"));
         createFakeProperty(QLatin1String("dragEnabled"));
+        createFakeProperty(QLatin1String("modal"));
     }
 }
 
