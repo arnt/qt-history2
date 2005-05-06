@@ -36,6 +36,7 @@ public:
     virtual QWidget *createWidget(const QString &name, QWidget *parentWidget = 0) const = 0;
     virtual QLayout *createLayout(QWidget *widget, QLayout *layout, int type) const = 0;
 
+    virtual bool isPassiveInteractor(QWidget *widget) = 0;
     virtual void initialize(QObject *object) const = 0;
 };
 

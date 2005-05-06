@@ -52,6 +52,10 @@ QDesignerFormWindowInterface *WidgetEditorTool::formWindow() const
 
 bool WidgetEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event)
 {
+    if (core()->widgetFactory()->isPassiveInteractor(widget)) {
+        return false;
+    }
+
     switch (event->type()) {
 
 #if 0 // ### check me

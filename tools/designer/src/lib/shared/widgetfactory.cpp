@@ -38,6 +38,10 @@
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>
 
+QPointer<QWidget> *WidgetFactory::m_lastPassiveInteractor = new QPointer<QWidget>();
+bool WidgetFactory::m_lastWasAPassiveInteractor = false;
+
+
 WidgetFactory::WidgetFactory(QDesignerFormEditorInterface *core, QObject *parent)
     : QDesignerWidgetFactoryInterface(parent),
       m_core(core)
@@ -309,3 +313,37 @@ void WidgetFactory::initialize(QObject *object) const
             widget->setMinimumSize(QSize(16, 16));
     }
 }
+
+bool WidgetFactory::isPassiveInteractor(QWidget *widget)
+{
+    if (m_lastPassiveInteractor != 0 && (QWidget*)(*m_lastPassiveInteractor) == widget)
+        return m_lastWasAPassiveInteractor;
+
+    m_lastWasAPassiveInteractor = false;
+    (*m_lastPassiveInteractor) = widget;
+
+    if (QApplication::activePopupWidget()) // if a popup is open, we have to make sure that this one is closed, else X might do funny things
+        return (m_lastWasAPassiveInteractor = true);
+
+    if (qobject_cast<QTabBar*>(widget))
+        return (m_lastWasAPassiveInteractor = true);
+    else if (qobject_cast<QSizeGrip*>(widget))
+        return (m_lastWasAPassiveInteractor = true);
+    else if (qobject_cast<QAbstractButton*>(widget) && (qobject_cast<QTabBar*>(widget->parent()) || qobject_cast<QToolBox*>(widget->parent())))
+        return (m_lastWasAPassiveInteractor = true);
+    else if (qobject_cast<QMenuBar*>(widget) && qobject_cast<QMainWindow*>(widget->parent()))
+        return (m_lastWasAPassiveInteractor = true);
+    else if (qstrcmp(widget->metaObject()->className(), "QDockSeparator") == 0)
+        return (m_lastWasAPassiveInteractor = true);
+    else if (qstrcmp(widget->metaObject()->className(), "QDockWidgetSeparator") == 0)
+        return (m_lastWasAPassiveInteractor = true);
+    else if (qstrcmp(widget->metaObject()->className(), "QDockWidgetTitle") == 0)
+        return (m_lastWasAPassiveInteractor = true);
+    else if (qstrcmp(widget->metaObject()->className(), "QToolBarHandle") == 0)
+        return (m_lastWasAPassiveInteractor = true);
+    else if (widget->objectName().startsWith(QLatin1String("__qt__passive_")))
+        return (m_lastWasAPassiveInteractor = true);
+
+    return m_lastWasAPassiveInteractor;
+}
+

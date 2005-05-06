@@ -19,6 +19,7 @@
 #include <QtGui/QRegion>
 #include <QtGui/qevent.h>
 #include <QtGui/QFontMetrics>
+#include <QtGui/QApplication>
 
 #include <QtDesigner/QtDesigner>
 
@@ -102,9 +103,9 @@ QRect TabOrderEditor::indicatorRect(int index) const
     QWidget *w = m_tab_order_list.at(index);
     QString text = QString::number(index + 1);
 
-    QPoint center = mapFromGlobal(w->mapToGlobal(w->rect().center()));
+    QPoint tl = mapFromGlobal(w->mapToGlobal(w->rect().topLeft()));
     QSize size = m_font_metrics.size(Qt::TextSingleLine, text);
-    QRect r(center - QPoint(size.width(), size.height())/2, size);
+    QRect r(tl - QPoint(size.width(), size.height())/2, size);
     r = QRect(r.left() - HBOX_MARGIN, r.top() - VBOX_MARGIN,
                 r.width() + HBOX_MARGIN*2, r.height() + VBOX_MARGIN*2);
 
@@ -225,6 +226,16 @@ int TabOrderEditor::widgetIndexAt(const QPoint &pos) const
 void TabOrderEditor::mousePressEvent(QMouseEvent *e)
 {
     e->accept();
+
+    if (QWidget *child = m_bg_widget->childAt(e->pos())) {
+        if (m_form_window->core()->widgetFactory()->isPassiveInteractor(child)) {
+            QMouseEvent event(QEvent::MouseButtonPress, child->mapFromGlobal(e->globalPos()), e->button(), e->buttons(), e->modifiers());
+            qApp->sendEvent(child, &event);
+            updateBackground();
+            return;
+        }
+    }
+
     if (!m_indicator_region.contains(e->pos()))
         return;
 

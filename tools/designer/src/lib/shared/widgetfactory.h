@@ -40,6 +40,8 @@ public:
 
     virtual QWidget *createWidget(const QString &className, QWidget *parentWidget) const;
     virtual QLayout *createLayout(QWidget *widget, QLayout *layout, int type) const;
+
+    virtual bool isPassiveInteractor(QWidget *widget);
     virtual void initialize(QObject *object) const;
 
     virtual QDesignerFormEditorInterface *core() const;
@@ -52,6 +54,9 @@ public slots:
 private:
     QDesignerFormEditorInterface *m_core;
     QMap<QString, QDesignerCustomWidgetInterface*> m_customFactory;
+
+    static QPointer<QWidget> *m_lastPassiveInteractor;
+    static bool m_lastWasAPassiveInteractor;
 };
 
 #endif // WIDGETFACTORY_H
