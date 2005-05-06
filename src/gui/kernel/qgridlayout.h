@@ -96,7 +96,7 @@ public:
 
 protected:
 #ifdef QT3_SUPPORT
-    bool findWidget(QWidget* w, int *r, int *c);
+    QT3_SUPPORT bool findWidget(QWidget* w, int *r, int *c);
 #endif
     void addItem(QLayoutItem *);
 
