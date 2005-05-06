@@ -1130,16 +1130,23 @@ void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, 
         d->strokePolygon(polygonPoints, pointCount);
 }
 
+
+void QX11PaintEnginePrivate::fillPath(const QPainterPath &path, QX11PaintEnginePrivate::GCMode gc_mode, bool transform)
+{
+    QList<QPolygonF> polys = path.toFillPolygons(transform ? matrix : QMatrix());
+    for (int i = 0; i < polys.size(); ++i) {
+        fillPolygon(polys.at(i).data(), polys.at(i).size(), gc_mode,
+                    path.fillRule() == Qt::OddEvenFill ? QPaintEngine::OddEvenMode : QPaintEngine::WindingMode);
+    }
+}
+
 void QX11PaintEngine::drawPath(const QPainterPath &path)
 {
     Q_D(QX11PaintEngine);
     if (path.isEmpty())
         return;
-    if (d->cbrush.style() != Qt::NoBrush) {
-        QPolygonF poly = path.toFillPolygon(d->matrix);
-        d->fillPolygon(poly.data(), poly.size(), QX11PaintEnginePrivate::BrushGC,
-                       path.fillRule() == Qt::OddEvenFill ? OddEvenMode : WindingMode);
-    }
+    if (d->cbrush.style() != Qt::NoBrush)
+        d->fillPath(path, QX11PaintEnginePrivate::BrushGC, true);
 
     if (d->cpen.style() != Qt::NoPen
         && ((X11->use_xrender && (d->cpen.color().alpha() != 255
@@ -1158,16 +1165,17 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
             stroke = stroker.createStroke(path * d->matrix);
             if (stroke.isEmpty())
                 return;
-            poly = stroke.toFillPolygon();
+            stroke.setFillRule(Qt::WindingFill);
+            d->fillPath(stroke, QX11PaintEnginePrivate::PenGC, false);
         } else {
             stroker.setWidth(width);
             stroker.setCurveThreshold(width / (2 * 10 * d->matrix.m11() * d->matrix.m22()));
             stroke = stroker.createStroke(path);
             if (stroke.isEmpty())
                 return;
-            poly = stroke.toFillPolygon(d->matrix);
+            stroke.setFillRule(Qt::WindingFill);
+            d->fillPath(stroke, QX11PaintEnginePrivate::PenGC, true);
         }
-        d->fillPolygon(poly.data(), poly.size(), QX11PaintEnginePrivate::PenGC, WindingMode);
     } else if (d->cpen.style() != Qt::NoPen) {
         // if we have a pen width of 0 - use XDrawLine() for speed
         QList<QPolygonF> polys = path.toSubpathPolygons(d->matrix);
