@@ -88,6 +88,7 @@ void QListModel::clear()
     for (int i = 0; i < lst.count(); ++i) {
         if (lst.at(i)) {
             lst.at(i)->model = 0;
+            lst.at(i)->view = 0;
             delete lst.at(i);
         }
     }
@@ -109,6 +110,7 @@ void QListModel::remove(QListWidgetItem *item)
     Q_ASSERT(row != -1);
     beginRemoveRows(QModelIndex(), row, row);
     lst.at(row)->model = 0;
+    lst.at(row)->view = 0;
     lst.removeAt(row);
     endRemoveRows();
 }
@@ -117,6 +119,7 @@ void QListModel::insert(int row, QListWidgetItem *item)
 {
     Q_ASSERT(item);
     item->model = this;
+    item->view = ::qobject_cast<QListWidget*>(QObject::parent());
     if (row < 0)
         row = 0;
     else if (row > lst.count())
@@ -131,6 +134,7 @@ QListWidgetItem *QListModel::take(int row)
     Q_ASSERT(row >= 0 && row < lst.count());
     beginRemoveRows(QModelIndex(), row, row);
     lst.at(row)->model = 0;
+    lst.at(row)->view = 0;
     QListWidgetItem *item = lst.takeAt(row);
     endRemoveRows();
     return item;
