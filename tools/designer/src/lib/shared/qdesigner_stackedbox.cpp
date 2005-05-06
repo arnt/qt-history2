@@ -118,6 +118,9 @@ void QDesignerStackedWidget::prevPage()
         cmd->init(this, QLatin1String("currentIndex"), newIndex);
         fw->commandHistory()->push(cmd);
         updateButtons();
+    } else {
+        setCurrentIndex(qMax(0, currentIndex() - 1));
+        updateButtons();
     }
 }
 
@@ -132,6 +135,9 @@ void QDesignerStackedWidget::nextPage()
         SetPropertyCommand *cmd = new SetPropertyCommand(fw);
         cmd->init(this, QLatin1String("currentIndex"), (currentIndex() + 1) % count());
         fw->commandHistory()->push(cmd);
+        updateButtons();
+    } else {
+        setCurrentIndex((currentIndex() + 1) % count());
         updateButtons();
     }
 }
