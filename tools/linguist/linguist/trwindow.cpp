@@ -160,7 +160,6 @@ const QString rsrcString = ":/images/win";
 TrWindow::TrWindow()
     : QMainWindow(0, Qt::Window)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
     ac = 0;
 
 #ifndef Q_WS_MAC
@@ -1832,11 +1831,13 @@ void TrWindow::recentFileActivated(QAction *action)
 
 void TrWindow::addRecentlyOpenedFile(const QString &fn, QStringList &lst)
 {
-    if (lst.contains(fn))
+    QFileInfo fi(fn);
+    if (lst.contains(fi.absoluteFilePath()))
         return;
     if ( lst.count() >= 10 )
-        lst.removeAt(0);
-    lst << fn;
+        lst.removeLast();
+
+    lst.prepend(fi.absoluteFilePath());
 }
 
 void TrWindow::toggleGuessing()
