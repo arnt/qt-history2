@@ -4165,7 +4165,8 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     case PM_TitleBarHeight:
         return qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 30);
     case PM_DefaultChildMargin:
-        return 0;
+        if (const QStyleOptionToolBox *box = qstyleoption_cast<const QStyleOptionToolBox *>(option)) 
+            return 0;
         break;
     default:
         break;
