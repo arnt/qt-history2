@@ -31,20 +31,18 @@ QDesignerTabWidget::QDesignerTabWidget(QWidget *parent)
     dragPage = 0;
     mousePressed = false;
 
-    if (formWindow() != 0) {
-        tabBar()->setAcceptDrops(true);
-        tabBar()->installEventFilter(this);
+    tabBar()->setAcceptDrops(true);
+    tabBar()->installEventFilter(this);
 
-        m_actionInsertPage = new QAction(this);
-        m_actionInsertPage->setText(tr("Add Page"));
-        connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
+    m_actionInsertPage = new QAction(this);
+    m_actionInsertPage->setText(tr("Add Page"));
+    connect(m_actionInsertPage, SIGNAL(triggered()), this, SLOT(addPage()));
 
-        m_actionDeletePage = new QAction(this);
-        m_actionDeletePage->setText(tr("Delete Page"));
-        connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
+    m_actionDeletePage = new QAction(this);
+    m_actionDeletePage->setText(tr("Delete Page"));
+    connect(m_actionDeletePage, SIGNAL(triggered()), this, SLOT(removeCurrentPage()));
 
-        connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
-    }
+    connect(this, SIGNAL(currentChanged(int)), this, SLOT(slotCurrentChanged(int)));
 }
 
 QDesignerTabWidget::~QDesignerTabWidget()
@@ -104,6 +102,9 @@ public:
 bool QDesignerTabWidget::eventFilter(QObject *o, QEvent *e)
 {
     if (o != tabBar())
+        return false;
+
+    if (formWindow() == 0)
         return false;
 
     switch (e->type()) {
