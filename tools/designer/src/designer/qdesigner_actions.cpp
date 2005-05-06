@@ -546,7 +546,7 @@ void QDesignerActions::updateUIMode(QAction *act)
 void QDesignerActions::previewFormLater(QAction *action)
 {
     qRegisterMetaType<QAction*>("QAction*");
-    QMetaObject::invokeMethod(this, "previewForm", Qt::QueuedConnection,
+    QMetaObject::invokeMember(this, "previewForm", Qt::QueuedConnection,
                                 Q_ARG(QAction*, action));
 }
 

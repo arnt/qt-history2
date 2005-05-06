@@ -107,7 +107,7 @@ void QDesignerToolWindow::closeEvent(QCloseEvent *ev)
                 settings.saveGeometryFor(this);
                 settings.setValue(objectName() + QLatin1String("/visible"), false);
             }
-            QMetaObject::invokeMethod(qDesigner, "quit", Qt::QueuedConnection);  // We're going down!
+            QMetaObject::invokeMember(qDesigner, "quit", Qt::QueuedConnection);  // We're going down!
         }
     } else {
         QMainWindow::closeEvent(ev);

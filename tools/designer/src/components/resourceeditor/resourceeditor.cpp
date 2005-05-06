@@ -297,7 +297,7 @@ QModelIndex EditableResourceModel::addFiles(const QModelIndex &idx,
 bool EditableResourceModel::reload()
 {
     if (!ResourceModel::reload()) {
-        QMetaObject::invokeMethod(this, "showWarning", Qt::QueuedConnection,
+        QMetaObject::invokeMember(this, "showWarning", Qt::QueuedConnection,
                                     Q_ARG(QString, tr("Error loading resource file")),
                                     Q_ARG(QString, tr("Failed to open \"%1\":\n%2")
                                                         .arg(fileName())
@@ -310,7 +310,7 @@ bool EditableResourceModel::reload()
 bool EditableResourceModel::save()
 {
     if (!ResourceModel::save()) {
-        QMetaObject::invokeMethod(this, "showWarning", Qt::QueuedConnection,
+        QMetaObject::invokeMember(this, "showWarning", Qt::QueuedConnection,
                                     Q_ARG(QString, tr("Error saving resource file")),
                                     Q_ARG(QString, tr("Failed to save \"%1\":\n%2")
                                         .arg(fileName())

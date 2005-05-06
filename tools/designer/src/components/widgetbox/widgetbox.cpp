@@ -721,7 +721,7 @@ void WidgetBoxTreeView::removeCurrentItem()
         setItemExpanded(parent, true);
         if (parent->data(0, Qt::UserRole).toInt() == SCRATCHPAD_ITEM
                 && parent->childCount() == 0) {
-            QMetaObject::invokeMethod(this, "deleteScratchpad",
+            QMetaObject::invokeMember(this, "deleteScratchpad",
                                         Qt::QueuedConnection);
         }
     }
