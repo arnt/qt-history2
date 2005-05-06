@@ -545,7 +545,6 @@ private:
     bool mousePressed : 1;
     bool cursorVisible : 1;
     bool blinkCursorVisible : 1;
-    bool readOnly : 1;
     bool modified : 1;
     bool mightStartDrag : 1;
     bool inDnD : 1;
