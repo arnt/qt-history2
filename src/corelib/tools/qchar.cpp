@@ -376,7 +376,7 @@
     \sa isNull()
 */
 
-/*! 
+/*!
     \fn QChar::QChar(QLatin1Char ch)
 
     Constructs a QChar corresponding to ASCII/Latin-1 character \a ch.
@@ -465,7 +465,7 @@ QChar::QChar(uchar ch)
     ('\\0'); otherwise returns false.
 */
 
-/*! 
+/*!
     \fn uchar QChar::cell() const
 
     Returns the cell (least significant byte) of the Unicode
@@ -474,7 +474,7 @@ QChar::QChar(uchar ch)
     \sa row()
 */
 
-/*! 
+/*!
     \fn uchar QChar::row() const
 
     Returns the row (most significant byte) of the Unicode character.
@@ -767,7 +767,7 @@ QChar QChar::fromAscii(char c)
         // #####
         return QTextCodec::codecForCStrings()->toUnicode(&c, 1).at(0).unicode();
 #endif
-    return QChar(ushort(c));
+    return QChar(ushort((uchar)c));
 }
 
 #ifndef QT_NO_DATASTREAM
@@ -803,13 +803,13 @@ QDataStream &operator>>(QDataStream &in, QChar &chr)
 }
 #endif
 
-/*! 
+/*!
     \fn ushort & QChar::unicode()
 
     Returns a reference to the numberic Unicode value of the QChar.
 */
 
-/*! 
+/*!
     \fn ushort QChar::unicode() const
 
     \overload
