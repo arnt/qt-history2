@@ -914,6 +914,7 @@ void Q3TextEdit::init()
     mousePressed = false;
     inDoubleClick = false;
     modified = false;
+    mightStartDrag = false;
     onLink.clear();
     d->onName.clear();
     overWrite = false;
