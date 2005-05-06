@@ -1134,7 +1134,7 @@ if [ "$CFG_DEBUG" = "auto" ]; then
 fi
 
 if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_MAC_DL" = "auto" ]; then
-    if $relpath/config.tests/mac/systemdl $OPT_VERBOSE; then
+    if $relpath/config.tests/mac/systemdl.test $OPT_VERBOSE; then
         CFG_MAC_DL=system
     else
         CFG_MAC_DL=compat
