@@ -279,7 +279,7 @@ for (var p in validPlatforms) {
 		compress(platform, license, platDir);
 
 		// create binaries
- 		createBinary(platform, "vs2003", platName);
+ 		createBinary(platform, platName);
          
 		indentation-=tabSize;
 	    }
@@ -603,22 +603,26 @@ function compress(platform, license, packageDir)
  * copies a qt-package to binary host, compiles qt, and collects the
  * resulting dlls etc.
  */
-function createBinary(platform, compiler, packageName)
+function createBinary(platform, packageName)
 {
     if (!options["binaries"] || !(platform in binaryHosts))
  	return;
 
     var login = binaryUser + "@" + binaryHosts[platform];
+    var hostDir = platform + "-binary";
     
     // check that package exists
-    var packageFile = packageName + ".zip";
+    var packageFile = packageName;
+    if (platform == "win")
+	packageFile += ".zip";
+    else
+	packageFile += ".tar.gz";
     if (!File.exists(outputDir + "/" + packageFile)) {
  	warning("Package: " + outputDir + "/" + packageFile + " not found.");
  	return;
     }
 
     // clean up host
-    var hostDir = platform + "-binary";
     execute(["ssh", login, "rm -rf", hostDir]);
 
     // copy script over
@@ -628,21 +632,40 @@ function createBinary(platform, compiler, packageName)
     // copy src package over
     execute(["scp", outputDir + "/" + packageFile, login + ":" + hostDir]);
 
-    // get absolute windows path to hostDir
-    execute(["ssh", login, "cygpath", "-w", "`pwd`/" + hostDir]);
-    var windowsPath = Process.stdout.split("\n")[0];
-    //windowsPath = windowsPath.replace(/\\/g, "\\\\");
+    if (platform == "win") {
+	// get absolute windows path to hostDir
+	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + hostDir]);
+	var windowsPath = Process.stdout.split("\n")[0];
 
-    // run script
-    execute(["ssh", login, "cmd", "/c", "'" + hostDir + "\\winbinary.bat",
-	     windowsPath,
-	     packageName,
-	     options["version"],
-	     "full",
-	     compiler + "'"]);
+	// run script
+	execute(["ssh", login, "cmd", "/c", "'" + hostDir + "\\winbinary.bat",
+		 windowsPath,
+		 packageName,
+		 options["version"],
+		 "full",
+		 "vs2003" + "'"]);
+	
+	// collect binary
+	execute(["scp", login + ":" + hostDir + "/" + packageName + "*.exe", outputDir + "/."]);
 
-    // collect binary
-    execute(["scp", login + ":" + hostDir + "/" + packageName + "*.exe", outputDir + "/."]);
+    } else if (platform == "mac") {
+	// get absolute path to hostDir
+	execute(["ssh", login, "cd", hostDir, "&&", "pwd"]);
+	var macPath = Process.stdout.split("\n")[0];
+
+	// run script
+	execute(["ssh", login,
+		 "cd",
+		 hostDir,
+		 "&&",
+		 "MAKEFLAGS=-j10",
+		 "package/mkpackage",
+		 "-qtpackage",
+		 macPath + "/" + packageFile]);
+
+	// collect binary
+	execute(["scp", login + ":" + hostDir + "/outputs/*.dmg", outputDir + "/."]);
+    }
 }
 
 /************************************************************
