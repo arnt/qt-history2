@@ -877,7 +877,6 @@ void QAbstractItemView::mousePressEvent(QMouseEvent *e)
     QRect rect(d->pressedPosition - offset, pos);
     setSelection(rect.normalized(), command);
 
-    //emit activated(index);
     emit pressed(index);
 
     if (e->button() == Qt::LeftButton)
@@ -963,8 +962,9 @@ void QAbstractItemView::mouseReleaseEvent(QMouseEvent *e)
         selectionModel()->select(index, selectionCommand(index, e));
 
     if (index == d_func()->pressedIndex) {
-        //emit activated(index);
         emit clicked(index);
+        if (style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
+            emit activated(index);
     }
 }
 
@@ -978,9 +978,10 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
     QModelIndex index = indexAt(e->pos());
     if (!index.isValid())
         return;
-    emit activated(index);
     emit doubleClicked(index);
-    edit(index, DoubleClicked, e);
+    if (!edit(index, DoubleClicked, e)
+        && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
+        emit activated(index);
 }
 
 /*!
@@ -1082,13 +1083,10 @@ void QAbstractItemView::dragLeaveEvent(QDragLeaveEvent *)
 void QAbstractItemView::dropEvent(QDropEvent *e)
 {
     Q_D(QAbstractItemView);
-    QPoint pos;
     QModelIndex index;
     // if we drop on the viewport
     if (d->viewport->rect().contains(e->pos())) {
-        //QPoint center = d->dropIndicator->geometry().center();
-        pos = e->pos();//d->viewport->mapFromGlobal(center);
-        index = indexAt(pos);
+        index = indexAt(e->pos());
         if (!index.isValid())
             index = rootIndex(); // drop on viewport
     }
@@ -1099,7 +1097,7 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
         if (index.isValid() &&
             (model()->flags(index) & Qt::ItemIsDropEnabled
              || model()->flags(index.parent()) & Qt::ItemIsDropEnabled)) {
-            switch (d->position(pos, visualRect(index), 2)) {
+            switch (d->position(e->pos(), visualRect(index), 2)) {
             case QAbstractItemViewPrivate::Above:
                 row = index.row();
                 col = index.column();
@@ -1240,7 +1238,6 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         selectionModel()->select(currentIndex(), selectionCommand(currentIndex(), e));
         break;
 #ifdef Q_WS_MAC
-    case Qt::Key_Enter:
     case Qt::Key_Return:
         if (!edit(currentIndex(), EditKeyPressed, e))
             e->ignore();
@@ -1254,7 +1251,6 @@ void QAbstractItemView::keyPressEvent(QKeyEvent *e)
         if (!edit(currentIndex(), EditKeyPressed, e))
             e->ignore();
         break;
-    case Qt::Key_Enter:
     case Qt::Key_Return:
         emit activated(currentIndex());
         break;

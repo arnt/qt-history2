@@ -542,6 +542,7 @@ public:
         SH_ComboBox_LayoutDirection,
         SH_ItemView_EllipsisLocation,
         SH_ItemView_ShowDecorationSelected,
+        SH_ItemView_ActivateItemOnSingleClick,
         // Add new style hint values here
 
 #ifdef QT3_SUPPORT

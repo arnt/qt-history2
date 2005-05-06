@@ -1471,6 +1471,10 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     \value SH_ItemView_ShowDecorationSelected When an item in an item
     view is selected, also highlight the branch or other decoration.
 
+    \value SH_ItemView_ActivateItemOnSingleClick Emit the activated signal
+    when the user single clicks on an item in an item in an item view.
+    Otherwise the signal is emitted when the user double clicks on an item.
+
     \omitvalue SH_UnderlineAccelerator
 
     \sa styleHint()

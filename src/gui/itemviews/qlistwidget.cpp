@@ -860,9 +860,11 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 /*!
   \fn void QListWidget::itemActivated(QListWidgetItem *item)
 
-  This signal is emitted when the \a item is activated
-  \omit
-  ### DOC: Describe "activated" better. Task 71866
+  This signal is emitted when the \a item is activated.
+  The \a is activated when the user clicks or double clicks on it, depending on
+  the system configuration. It is also activated  when the user presses the activation
+  key (on windows and X11 this is the return key, on Mac it is ctrl + '0' keys).
+  
   \endomit
 */
 
