@@ -197,8 +197,10 @@ void TabOrderEditor::initTabOrder()
     }
 
     m_indicator_region = QRegion();
-    for (int i = 0; i < m_tab_order_list.size(); ++i)
-        m_indicator_region |= indicatorRect(i);
+    for (int i = 0; i < m_tab_order_list.size(); ++i) {
+        if (m_tab_order_list.at(i)->isVisible())
+            m_indicator_region |= indicatorRect(i);
+    }
 }
 
 void TabOrderEditor::mouseMoveEvent(QMouseEvent *e)
@@ -214,6 +216,8 @@ int TabOrderEditor::widgetIndexAt(const QPoint &pos) const
 {
     int target_index = -1;
     for (int i = 0; i < m_tab_order_list.size(); ++i) {
+        if (!m_tab_order_list.at(i)->isVisible())
+            continue;
         if (indicatorRect(i).contains(pos)) {
             target_index = i;
             break;
@@ -227,19 +231,21 @@ void TabOrderEditor::mousePressEvent(QMouseEvent *e)
 {
     e->accept();
 
-    if (QWidget *child = m_bg_widget->childAt(e->pos())) {
-        if (m_form_window->core()->widgetFactory()->isPassiveInteractor(child)) {
-            QMouseEvent event(QEvent::MouseButtonPress, child->mapFromGlobal(e->globalPos()), e->button(), e->buttons(), e->modifiers());
-            qApp->sendEvent(child, &event);
-            updateBackground();
-            return;
+    if (!m_indicator_region.contains(e->pos())) {
+        if (QWidget *child = m_bg_widget->childAt(e->pos())) {
+            if (m_form_window->core()->widgetFactory()->isPassiveInteractor(child)) {
+                QMouseEvent event(QEvent::MouseButtonPress,
+                                    child->mapFromGlobal(e->globalPos()),
+                                    e->button(), e->buttons(), e->modifiers());
+                qApp->sendEvent(child, &event);
+                updateBackground();
+            }
         }
+        return;
     }
 
-    if (!m_indicator_region.contains(e->pos()))
-        return;
-
     int target_index = widgetIndexAt(e->pos());
+    qDebug() << "TabOrderEditor::mousePressEvent():" << m_current_index << target_index;
     if (target_index == -1)
         return;
 
@@ -261,6 +267,7 @@ void TabOrderEditor::mousePressEvent(QMouseEvent *e)
 void TabOrderEditor::mouseDoubleClickEvent(QMouseEvent *e)
 {
     m_current_index = 0;
+    qDebug() << "TabOrderEditor::mouseDoubleClickEvent():" << m_current_index;
     mousePressEvent(e);
 }
 
