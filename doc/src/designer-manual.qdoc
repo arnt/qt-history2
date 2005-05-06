@@ -74,7 +74,7 @@ that they will look and feel exactly as you intended.
 
 /*!
 \page designer-getting-started.html
-\contentspage designer-manual.html Contents
+\contentspage {Qt Designer Manual}{Contents}
 \previouspage Qt Designer Manual
 \nextpage Designing a Component with Qt Designer
 
@@ -153,7 +153,7 @@ provide related features.
 
 You can display all of the available objects in a category by clicking on
 the "+" handle next to the category label. When in
-\l{designer-editing-mode.html}{Form Editing Mode}, you can add objects to a
+\l{Qt Designer's Form Editing Mode}{Form Editing Mode}, you can add objects to a
 form by dragging the appropriate items from the widget box onto the form, and
 dropping them in the required locations.
 \endtable
@@ -162,7 +162,7 @@ dropping them in the required locations.
 
 /*!
 \page designer-designing-a-component.html
-\contentspage designer-manual.html Contents
+\contentspage {Qt Designer Manual}{Contents}
 \previouspage Getting Started with Qt Designer
 \nextpage Qt Designer's Form Editing Mode
 
@@ -452,7 +452,7 @@ the form's design.
 /*!
 \page designer-editing-mode.html
 \previouspage Designing a Component with Qt Designer
-\contentspage designer-manual.html Contents
+\contentspage {Qt Designer Manual}{Contents}
 \nextpage Using Containers in Qt Designer
 
 \title Qt Designer's Form Editing Mode
@@ -681,7 +681,7 @@ used in an application.
 
 /*!
 \page designer-connection-mode.html
-\contentspage designer-manual.html Contents
+\contentspage {Qt Designer Manual}{Contents}
 \previouspage Using Containers in Qt Designer
 \nextpage Qt Designer's Buddy Editing Mode
 
@@ -816,7 +816,7 @@ key, and they will not be set up in the .ui file.
 
 /*!
 \page designer-using-containers.html
-\contentspage designer-manual.html Contents
+\contentspage {Qt Designer Manual}{Contents}
 \previouspage Qt Designer's Form Editing Mode
 \nextpage Editing Signals and Slots
 
@@ -955,7 +955,7 @@ click inside it and apply the layout as usual.
 
 /*!
 \page designer-buddy-mode.html
-\contentspage designer-manual.html Contents
+\contentspage {Qt Designer Manual}{Contents}
 \previouspage Editing Signals and Slots
 \nextpage Qt Designer's Tab Order Mode
 
@@ -1008,7 +1008,7 @@ operation does not modify either the label or its buddy in any way.
 
 /*!
 \page designer-tab-order.html
-\contentspage designer-manual.html Contents
+\contentspage {Qt Designer Manual}{Contents}
 \previouspage Qt Designer's Buddy Editing Mode
 \nextpage Editing Resources with Qt Designer
 
@@ -1041,7 +1041,7 @@ again.
 
 /*!
 \page designer-resources.html
-\contentspage designer-manual.html Contents
+\contentspage {Qt Designer Manual}{Contents}
 \previouspage Qt Designer's Tab Order Mode
 \nextpage Using Custom Widgets with Qt Designer
 
@@ -1064,7 +1064,7 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
 
 /*!
     \page designer-using-custom-widgets.html
-    \contentspage designer-manual.html Contents
+    \contentspage {Qt Designer Manual}{Contents}
     \previouspage Editing Resources with Qt Designer
     \nextpage Using a Component in Your Application
 
@@ -1145,7 +1145,7 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
 /*!
 \page designer-using-a-component.html
 \previouspage Using Custom Widgets with Qt Designer
-\contentspage designer-manual.html Contents
+\contentspage {Qt Designer Manual}{Contents}
 \nextpage Creating Custom Widgets for Qt Designer
 
 \title Using a Component in Your Application
@@ -1395,7 +1395,7 @@ without having to write code themselves.
 /*!
     \page designer-creating-custom-widgets.html
     \previouspage Using a Component in Your Application
-    \contentspage designer-manual.html Contents
+    \contentspage {Qt Designer Manual}{Contents}
 
     \title Creating Custom Widgets for Qt Designer
 

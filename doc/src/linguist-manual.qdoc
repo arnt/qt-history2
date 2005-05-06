@@ -2,6 +2,9 @@
     \page linguist-manual.html
     \title Qt Linguist Manual
 
+    \startpage Qt Reference Documentation
+    \nextpage Qt Linguist Manual: Release Manager
+
     \keyword Qt Linguist
 
     Qt provides excellent support for translating applications into local
@@ -82,15 +85,19 @@
     Chapters:
 
     \list
-    \o \l{linguist-manager.html}{Release Manager}
-    \o \l{linguist-translators.html}{Translators}
-    \o \l{linguist-programmers.html}{Programmers}
+    \o \l{Qt Linguist Manual: Release Manager}{Release Manager}
+    \o \l{Qt Linguist Manual: Translators}{Translators}
+    \o \l{Qt Linguist Manual: Programmers}{Programmers}
     \endlist
 */
 
 /*!
     \page linguist-manager.html
     \title Qt Linguist Manual: Release Manager
+
+    \contentspage {Qt Linguist Manual}{Contents}
+    \previouspage Qt Linguist Manual
+    \nextpage Qt Linguist Manual: Translators
 
     Two tools are provided for the release manager, \l lupdate and \l
     lrelease. These tools depend on \e qmake project files. You don't
@@ -201,6 +208,10 @@
 /*!
     \page linguist-translators.html
     \title Qt Linguist Manual: Translators
+
+    \contentspage {Qt Linguist Manual}{Contents}
+    \previouspage Qt Linguist Manual: Release Manager
+    \nextpage Qt Linguist Manual: Programmers
 
     \image linguist-linguist.png
     \caption Linguist Main Window
@@ -754,6 +765,9 @@
 /*!
     \page linguist-programmers.html
     \title Qt Linguist Manual: Programmers
+
+    \contentspage {Qt Linguist Manual}{Contents}
+    \previouspage Qt Linguist Manual: Translators
 
     Support for multiple languages is extremely simple in Qt
     applications, and adds little overhead to the programmer's workload.

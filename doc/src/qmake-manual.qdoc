@@ -1,7 +1,7 @@
 /*!
     \page qmake-manual.html
     \title qmake Manual
-    \startpage index.html Qt Reference Documentation
+    \startpage Qt Reference Documentation
     \nextpage Using qmake
 
     \keyword qmake
@@ -50,7 +50,7 @@
 /*!
     \page qmake-using.html
     \title Using qmake
-    \contentspage qmake-manual.html Contents
+    \contentspage {qmake Manual}{Contents}
     \previouspage qmake Manual
     \nextpage qmake Project Files
 
@@ -103,7 +103,7 @@
 /*!
     \page qmake-project-files.html
     \title qmake Project Files
-    \contentspage qmake-manual.html Contents
+    \contentspage {qmake Manual}{Contents}
     \previouspage Using qmake
     \nextpage Running qmake
 
@@ -409,9 +409,9 @@
 /*!
     \page qmake-running.html
     \title Running qmake
-    \contentspage qmake-manual.html Contents
+    \contentspage {qmake Manual}{Contents}
     \previouspage qmake Project Files
-    \nextpage qmake Advanced Usage
+    \nextpage qmake Reference
 
     The behavior of \c qmake can be customized when it is run by
     specifying various options on the command line. These allow the
@@ -603,8 +603,8 @@
 /*!
     \page qmake-reference.html
     \title qmake Reference
-    \contentspage qmake-manual.html Contents
-    \previouspage qmake Advanced Usage
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Running qmake
     \nextpage qmake Variable Reference
 
     This reference is a detailed index of all the variables and function
@@ -665,7 +665,7 @@
 /*!
     \page qmake-variable-reference.html
     \title qmake Variable Reference
-    \contentspage qmake-manual.html Contents
+    \contentspage {qmake Manual}{Contents}
     \previouspage qmake Reference
     \nextpage qmake Function Reference
 
@@ -1945,7 +1945,7 @@
 /*!
     \page qmake-function-reference.html
     \title qmake Function Reference
-    \contentspage qmake-manual.html Contents
+    \contentspage {qmake Manual}{Contents}
     \previouspage qmake Variable Reference
     \nextpage Configuring qmake's Environment
 
@@ -2227,9 +2227,9 @@
 
 /*!
     \page qmake-environment-reference.html
-    \contentspage qmake-manual.html Contents
-    \previouspage qmake-function-reference.html qmake Function Reference
-    \nextpage qmake Tutorial
+    \contentspage {qmake Manual}{Contents}
+    \previouspage qmake Function Reference
+    \nextpage qmake Advanced Usage
 
     \title Configuring qmake's Environment
 
@@ -2517,9 +2517,9 @@
 /*!
     \page qmake-advanced-usage.html
     \title qmake Advanced Usage
-    \contentspage qmake-manual.html Contents
-    \previouspage Running qmake
-    \nextpage qmake Reference
+    \contentspage {qmake Manual}{Contents}
+    \previouspage Configuring qmake's Environment
+    \nextpage qmake Tutorial
 
     Many \c qmake project files simply describe the sources and header files used
     by the project, using a list of \c{name = value} and \c{name += value}
@@ -3032,8 +3032,8 @@
 /*!
     \page qmake-tutorial.html
     \title qmake Tutorial
-    \contentspage qmake-manual.html Contents
-    \previouspage qmake Function Reference
+    \contentspage {qmake Manual}{Contents}
+    \previouspage qmake Advanced Usage
     \nextpage qmake Common Projects
 
     This tutorial teaches you how to use \c qmake.  We recommend that
@@ -3409,7 +3409,7 @@
 /*!
     \page qmake-common-projects.html
     \title qmake Common Projects
-    \contentspage qmake-manual.html Contents
+    \contentspage {qmake Manual}{Contents}
     \previouspage qmake Tutorial
 
     This chapter describes how to set up \c qmake project files for three
