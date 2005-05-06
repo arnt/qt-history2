@@ -315,7 +315,7 @@ public:
 
             QString nameString = QLatin1String(signame);
             void *argv[] = {0, &nameString, &pDispParams->cArgs, &pDispParams->rgvarg};
-            combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
+            combase->qt_metacall(QMetaObject::InvokeMetaMethod, index, argv);
         }
 
         HRESULT hres = S_OK;
@@ -325,8 +325,8 @@ public:
         if (((QAxObject*)qobject)->receivers(QByteArray::number(QSIGNAL_CODE) + signame)) {
             index = meta->indexOfSignal(signame);
             Q_ASSERT(index != -1);
-            const QMetaMember signal = meta->member(index);
-            Q_ASSERT(signal.memberType() == QMetaMember::Signal);
+            const QMetaMethod signal = meta->method(index);
+            Q_ASSERT(signal.methodType() == QMetaMethod::Signal);
             Q_ASSERT(signame == signal.signature());            
             // verify parameter count
             int pcount = axmeta->numParameter(signame);
@@ -388,7 +388,7 @@ public:
 
             if (ok) {
                 // emit the generated signal if everything went well
-                combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
+                combase->qt_metacall(QMetaObject::InvokeMetaMethod, index, argv);
                 // update the VARIANT for references and free memory
                 for (p = 0; p < pcount; ++p) {
                     bool out;
@@ -437,7 +437,7 @@ public:
         if (index != -1) {
             QString propnameString = QString::fromLatin1(propname);
             void *argv[] = {0, &propnameString};
-            combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
+            combase->qt_metacall(QMetaObject::InvokeMetaMethod, index, argv);
         }
 
         QByteArray signame = propsigs.value(dispID);
@@ -463,7 +463,7 @@ public:
                 argv[1] = &var;
 
             // emit the "changed" signal
-            combase->qt_metacall(QMetaObject::InvokeMetaMember, index, argv);
+            combase->qt_metacall(QMetaObject::InvokeMetaMethod, index, argv);
         }
         return S_OK;
     }
@@ -1525,7 +1525,7 @@ private:
         Method &signal = signal_list[proto];
         signal.type = 0;
         signal.parameters = parameters;
-        signal.flags = QMetaMember::Public | MemberSignal;
+        signal.flags = QMetaMethod::Public | MemberSignal;
         if (proto != prototype)
             signal.realPrototype = prototype;
     }
@@ -1538,7 +1538,7 @@ private:
     }
 
     QMap<QByteArray, Method> slot_list;
-    inline void addSlot(const QByteArray &type, const QByteArray &prototype, const QByteArray &parameters, int flags = QMetaMember::Public)
+    inline void addSlot(const QByteArray &type, const QByteArray &prototype, const QByteArray &parameters, int flags = QMetaMethod::Public)
     {
         QByteArray proto = replacePrototype(prototype);
 
@@ -2360,9 +2360,9 @@ void MetaObjectGenerator::readFuncsInfo(ITypeInfo *typeinfo, ushort nFuncs)
                             pnames += ',';
                     }
                     defargs = pnames.contains("=0");
-                    int flags = QMetaMember::Public;
+                    int flags = QMetaMethod::Public;
                     if (cloned)
-                        flags |= QMetaMember::Cloned << 4;
+                        flags |= QMetaMethod::Cloned << 4;
                     cloned |= defargs;
                     addSlot(type, prototype, pnames.replace("=0", ""), flags);
 
@@ -3121,7 +3121,7 @@ static bool checkHRESULT(HRESULT hres, EXCEPINFO *exc, QAxBase *that, const QStr
                     help += QString(" [%1]").arg(helpContext);
 
                 void *argv[] = {0, &code, &source, &desc, &help};
-                that->qt_metacall(QMetaObject::InvokeMetaMember, exceptionSignal, argv);
+                that->qt_metacall(QMetaObject::InvokeMetaMethod, exceptionSignal, argv);
             }
         }
         return false;
@@ -3275,7 +3275,7 @@ int QAxBase::internalProperty(QMetaObject::Call call, int index, void **v)
 
 int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 {
-    Q_ASSERT(call == QMetaObject::InvokeMetaMember);
+    Q_ASSERT(call == QMetaObject::InvokeMetaMethod);
 
     // get the IDispatch
     IDispatch *disp = d->dispatch();
@@ -3284,8 +3284,8 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
 
     const QMetaObject *mo = metaObject();
     // get the slot information
-    const QMetaMember slot = mo->member(index + mo->memberOffset());
-    Q_ASSERT(slot.memberType() == QMetaMember::Slot);
+    const QMetaMethod slot = mo->method(index + mo->methodOffset());
+    Q_ASSERT(slot.methodType() == QMetaMethod::Slot);
 
     QByteArray signature(slot.signature());
     QByteArray slotname(signature);
@@ -3308,7 +3308,7 @@ int QAxBase::internalInvoke(QMetaObject::Call call, int index, void **v)
         return index;
 
     // slot found, so everthing that goes wrong now should not bother the caller
-    index -= mo->memberCount();
+    index -= mo->methodCount();
 
     // setup the parameters
     DISPPARAMS params;
@@ -3396,13 +3396,13 @@ int QAxBase::qt_metacall(QMetaObject::Call call, int id, void **v)
     }
 
     switch(call) {
-    case QMetaObject::InvokeMetaMember:
-        switch (mo->member(id + mo->memberOffset()).memberType()) {
-        case QMetaMember::Signal:
+    case QMetaObject::InvokeMetaMethod:
+        switch (mo->method(id + mo->methodOffset()).methodType()) {
+        case QMetaMethod::Signal:
             QMetaObject::activate(qObject(), mo, id, v);
-            id -= mo->memberCount();
+            id -= mo->methodCount();
             break;
-        case QMetaMember::Slot:
+        case QMetaMethod::Slot:
             id = internalInvoke(call, id, v);
             break;
         }
@@ -3432,9 +3432,9 @@ static void qax_noSuchFunction(int disptype, const QByteArray &name, const QByte
     if (disptype == DISPATCH_METHOD) {
         qWarning("QAxBase::dynamicCallHelper: %s: No such method in %s [%s]", name.data(), that->control().toLatin1().data(), coclass ? coclass: "unknown");
         qWarning("\tCandidates are:");
-        for (int i = 0; i < metaObject->memberCount(); ++i) {
-            const QMetaMember slot(metaObject->member(i));
-            if (slot.memberType() != QMetaMember::Slot)
+        for (int i = 0; i < metaObject->methodCount(); ++i) {
+            const QMetaMethod slot(metaObject->method(i));
+            if (slot.methodType() != QMetaMethod::Slot)
                 continue;
             QByteArray signature = slot.signature();
             if (signature.toLower().startsWith(function.toLower()))
@@ -3495,8 +3495,8 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
         if (d->useMetaObject)
             id = mo->indexOfSlot(function);
         if (id >= 0) {
-            const QMetaMember slot = mo->member(id);
-            Q_ASSERT(slot.memberType() == QMetaMember::Slot);
+            const QMetaMethod slot = mo->method(id);
+            Q_ASSERT(slot.methodType() == QMetaMethod::Slot);
             function = slot.signature();
             type = slot.typeName();
         }
