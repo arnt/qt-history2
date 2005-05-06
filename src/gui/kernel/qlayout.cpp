@@ -704,6 +704,12 @@ void QLayoutPrivate::reparentChildWidgets(QWidget *mw)
 {
     Q_Q(QLayout);
     int n =  q->count();
+
+#ifndef QT_NO_MENUBAR
+    if (menubar && menubar->parentWidget() != mw) {
+        menubar->setParent(mw);
+    }
+#endif
     for (int i = 0; i < n; ++i) {
         QLayoutItem *item = q->itemAt(i);
         if (QWidget *w = item->widget()) {
