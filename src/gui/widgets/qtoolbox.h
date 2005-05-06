@@ -24,7 +24,7 @@ class QToolBoxPrivate;
 class Q_GUI_EXPORT QToolBox : public QFrame
 {
     Q_OBJECT
-    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
+    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentChanged)
     Q_PROPERTY(int count READ count)
 
 public:

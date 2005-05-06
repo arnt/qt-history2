@@ -26,8 +26,9 @@ class Q_GUI_EXPORT QDockWidget : public QWidget
 
     Q_FLAGS(DockWidgetFeatures)
     Q_PROPERTY(bool floating READ isFloating WRITE setFloating)
-    Q_PROPERTY(DockWidgetFeatures features READ features WRITE setFeatures)
-    Q_PROPERTY(Qt::DockWidgetAreas allowedAreas READ allowedAreas WRITE setAllowedAreas)
+    Q_PROPERTY(DockWidgetFeatures features READ features WRITE setFeatures NOTIFY featuresChanged)
+    Q_PROPERTY(Qt::DockWidgetAreas allowedAreas READ allowedAreas
+               WRITE setAllowedAreas NOTIFY allowedAreasChanged)
 
 public:
     explicit QDockWidget(const QString &title, QWidget *parent = 0, Qt::WFlags flags = 0);

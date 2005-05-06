@@ -30,7 +30,7 @@ class Q_GUI_EXPORT QLineEdit : public QWidget
 
     Q_ENUMS(EchoMode)
     Q_PROPERTY(QString inputMask READ inputMask WRITE setInputMask)
-    Q_PROPERTY(QString text READ text WRITE setText)
+    Q_PROPERTY(QString text READ text WRITE setText NOTIFY textChanged)
     Q_PROPERTY(int maxLength READ maxLength WRITE setMaxLength)
     Q_PROPERTY(bool frame READ hasFrame WRITE setFrame)
     Q_PROPERTY(EchoMode echoMode READ echoMode WRITE setEchoMode)

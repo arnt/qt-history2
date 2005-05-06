@@ -22,7 +22,7 @@ class Q_GUI_EXPORT QStackedLayout : public QLayout
 {
     Q_OBJECT
     Q_DECLARE_PRIVATE(QStackedLayout)
-    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex)
+    Q_PROPERTY(int currentIndex READ currentIndex WRITE setCurrentIndex NOTIFY currentChanged)
     QDOC_PROPERTY(int count READ count)
 
 public:
