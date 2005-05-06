@@ -701,7 +701,6 @@ QSize QWorkspaceTitleBar::sizeHint() const
     property to true.
 */
 
-static bool inTitleChange = false;
 
 class QWorkspaceChild : public QWidget
 {
@@ -836,6 +835,7 @@ private:
     void operationMenuActivated(QAction *);
     void scrollBarChanged();
     void updateActions();
+    bool inTitleChange;
 };
 
 static bool isChildOf(QWidget * child, QWidget * parent)
@@ -946,6 +946,7 @@ QWorkspacePrivate::init()
     corner = 0;
     xoffset = yoffset = 0;
 
+    inTitleChange = false;
     updateWorkspace();
 
     q->window()->installEventFilter(q);
@@ -1671,22 +1672,16 @@ bool QWorkspace::eventFilter(QObject *o, QEvent * e)
         d->updateWorkspace();
         break;
     case QEvent::WindowTitleChange:
-        if (inTitleChange)
-            break;
-
-        inTitleChange = true;
-        if (o == window()) {
-            QWidget *tlw = static_cast<QWidget*>(o);
-            if (!d->maxWindow
-                || tlw->windowTitle() != tr("%1 - [%2]").arg(d->topTitle).arg(d->maxWindow->windowWidget()->windowTitle()))
-                d->topTitle = tlw->windowTitle();
+        if (!d->inTitleChange) {
+            if (o == window())
+                d->topTitle = window()->windowTitle();
+            if (d->maxWindow && d->topTitle.size()) {
+                d->inTitleChange = true;
+                window()->setWindowTitle(tr("%1 - [%2]")
+                                         .arg(d->topTitle).arg(d->maxWindow->windowWidget()->windowTitle()));
+                d->inTitleChange = false;
+            }
         }
-
-        if (d->maxWindow && d->topTitle.size())
-            window()->setWindowTitle(tr("%1 - [%2]")
-                                     .arg(d->topTitle).arg(d->maxWindow->windowWidget()->windowTitle()));
-        inTitleChange = false;
-
         break;
 
     case QEvent::ModifiedChange:
@@ -1729,8 +1724,9 @@ void QWorkspacePrivate::showMaximizeControls()
     Q_ASSERT(maxWindow);
 
     // merge windowtitle and modified state
+    if (!topTitle.size())
+        topTitle = q->window()->windowTitle();
 
-    topTitle = q->window()->windowTitle();
     QString docTitle = maxWindow->windowWidget()->windowTitle();
     if (topTitle.size() && docTitle.size()) {
         inTitleChange = true;
