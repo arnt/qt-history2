@@ -1263,7 +1263,7 @@ bool FormWindow::handleContextMenu(QWidget *, QWidget *managedWidget, QContextMe
         selectWidget(managedWidget);
         raiseChildSelections(managedWidget); // raise selections and select widget
 
-        QMetaObject::invokeMember(core()->formWindowManager(), "slotUpdateActions");
+        QMetaObject::invokeMethod(core()->formWindowManager(), "slotUpdateActions");
     }
 
     if (!isMainContainer(managedWidget)) { // press on a child widget

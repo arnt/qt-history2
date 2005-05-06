@@ -429,7 +429,7 @@ qint64 QBuffer::writeData(const char *data, qint64 len)
     d->writtenSinceLastEmit += len;
     if (!d->signalsEmitted) {
         d->signalsEmitted = true;
-        QMetaObject::invokeMember(this, "emitSignals", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, "emitSignals", Qt::QueuedConnection);
     }
 #endif
     return len;

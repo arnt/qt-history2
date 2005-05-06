@@ -847,7 +847,7 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
     QPushButton:
 
     \code
-        QMetaObject::invokeMember(pushButton, "animateClick",
+        QMetaObject::invokeMethod(pushButton, "animateClick",
                                   Qt::QueuedConnection);
     \endcode
 
@@ -856,7 +856,7 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
 
     \code
         QString retVal;
-        QMetaObject::invokeMember(obj, "compute", Qt::DirectConnection,
+        QMetaObject::invokeMethod(obj, "compute", Qt::DirectConnection,
                                   Q_RETURN_ARG(QString, retVal),
                                   Q_ARG(QString, "sqrt"),
                                   Q_ARG(int, 42),
@@ -866,7 +866,7 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
     If the "compute" slot does not take exactly one QString, one int
     and one double in the specified order, the call will fail.
 */
-bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionType type,
+bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionType type,
                  QGenericReturnArgument ret,
                  QGenericArgument val0,
                  QGenericArgument val1,
@@ -934,7 +934,7 @@ bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionT
         return obj->qt_metacall(QMetaObject::InvokeMetaMember, idx, param) < 0;
     } else {
         if (ret.data()) {
-            qWarning("QMetaObject::invokeMember: Unable to invoke methods with return values in queued "
+            qWarning("QMetaObject::invokeMethod: Unable to invoke methods with return values in queued "
                      "connections.");
             return false;
         }
@@ -949,7 +949,7 @@ bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionT
                 args[i] = QMetaType::construct(types[i], param[i]);
                 ++nargs;
             } else if (param[i]) {
-                qWarning("QMetaObject::invokeMember: Unable to handle unregistered datatype '%s'",
+                qWarning("QMetaObject::invokeMethod: Unable to handle unregistered datatype '%s'",
                          typeNames[i]);
                 return false;
             }
@@ -960,7 +960,7 @@ bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionT
     return true;
 }
 
-/*! \fn static inline bool QMetaObject::invokeMember(QObject *obj, const char *member,
+/*! \fn static inline bool QMetaObject::invokeMethod(QObject *obj, const char *member,
                              QGenericReturnArgument ret,
                              QGenericArgument val0 = QGenericArgument(0),
                              QGenericArgument val1 = QGenericArgument(),
@@ -977,7 +977,7 @@ bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionT
     This overload always invokes the member using the connection type Qt::AutoConnection.
 */
 
-/*! \fn static inline bool QMetaObject::invokeMember(QObject *obj, const char *member,
+/*! \fn static inline bool QMetaObject::invokeMethod(QObject *obj, const char *member,
                              Qt::ConnectionType type,
                              QGenericArgument val0 = QGenericArgument(0),
                              QGenericArgument val1 = QGenericArgument(),
@@ -995,7 +995,7 @@ bool QMetaObject::invokeMember(QObject *obj, const char *member, Qt::ConnectionT
     This overload can be used if the return value of the member is of no interest.
 */
 
-/* \fn static inline bool QMetaObject::invokeMember(QObject *obj, const char *member,
+/* \fn static inline bool QMetaObject::invokeMethod(QObject *obj, const char *member,
                              QGenericArgument val0 = QGenericArgument(0),
                              QGenericArgument val1 = QGenericArgument(),
                              QGenericArgument val2 = QGenericArgument(),

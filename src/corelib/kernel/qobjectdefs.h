@@ -237,7 +237,7 @@ struct Q_CORE_EXPORT QMetaObject
     static void removeGuard(QObject **ptr);
     static void changeGuard(QObject **ptr, QObject *o);
 
-    static bool invokeMember(QObject *obj, const char *member,
+    static bool invokeMethod(QObject *obj, const char *member,
                              Qt::ConnectionType,
                              QGenericReturnArgument ret,
                              QGenericArgument val0 = QGenericArgument(0),
@@ -251,7 +251,7 @@ struct Q_CORE_EXPORT QMetaObject
                              QGenericArgument val8 = QGenericArgument(),
                              QGenericArgument val9 = QGenericArgument());
 
-    static inline bool invokeMember(QObject *obj, const char *member,
+    static inline bool invokeMethod(QObject *obj, const char *member,
                              QGenericReturnArgument ret,
                              QGenericArgument val0 = QGenericArgument(0),
                              QGenericArgument val1 = QGenericArgument(),
@@ -264,11 +264,11 @@ struct Q_CORE_EXPORT QMetaObject
                              QGenericArgument val8 = QGenericArgument(),
                              QGenericArgument val9 = QGenericArgument())
     {
-        return invokeMember(obj, member, Qt::AutoConnection, ret, val0, val1, val2, val3,
+        return invokeMethod(obj, member, Qt::AutoConnection, ret, val0, val1, val2, val3,
                 val4, val5, val6, val7, val8, val9);
     }
 
-    static inline bool invokeMember(QObject *obj, const char *member,
+    static inline bool invokeMethod(QObject *obj, const char *member,
                              Qt::ConnectionType type,
                              QGenericArgument val0 = QGenericArgument(0),
                              QGenericArgument val1 = QGenericArgument(),
@@ -281,12 +281,12 @@ struct Q_CORE_EXPORT QMetaObject
                              QGenericArgument val8 = QGenericArgument(),
                              QGenericArgument val9 = QGenericArgument())
     {
-        return invokeMember(obj, member, type, QGenericReturnArgument(), val0, val1, val2,
+        return invokeMethod(obj, member, type, QGenericReturnArgument(), val0, val1, val2,
                                  val3, val4, val5, val6, val7, val8, val9);
     }
 
 
-    static inline bool invokeMember(QObject *obj, const char *member,
+    static inline bool invokeMethod(QObject *obj, const char *member,
                              QGenericArgument val0 = QGenericArgument(0),
                              QGenericArgument val1 = QGenericArgument(),
                              QGenericArgument val2 = QGenericArgument(),
@@ -298,7 +298,7 @@ struct Q_CORE_EXPORT QMetaObject
                              QGenericArgument val8 = QGenericArgument(),
                              QGenericArgument val9 = QGenericArgument())
     {
-        return invokeMember(obj, member, Qt::AutoConnection, QGenericReturnArgument(), val0,
+        return invokeMethod(obj, member, Qt::AutoConnection, QGenericReturnArgument(), val0,
                 val1, val2, val3, val4, val5, val6, val7, val8, val9);
     }
 

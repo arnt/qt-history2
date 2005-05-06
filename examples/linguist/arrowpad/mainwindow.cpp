@@ -8,7 +8,7 @@ MainWindow::MainWindow()
     arrowPad = new ArrowPad;
     setCentralWidget(arrowPad);
 
-    exitAct = new QAction(tr("E&xit"));
+    exitAct = new QAction(tr("E&xit"), this);
     exitAct->setShortcut(tr("Ctrl+Q"));
     connect(exitAct, SIGNAL(triggered()), this, SLOT(close()));
 

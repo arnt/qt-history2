@@ -53,56 +53,56 @@ MainWindow::MainWindow()
     connect(actionHome, SIGNAL(triggered()), WebBrowser, SLOT(GoHome()));
     connect(actionSearch, SIGNAL(triggered()), WebBrowser, SLOT(GoSearch()));
 
-    pb = new QProgressBar( statusBar() );
-    pb->setTextVisible( FALSE );
+    pb = new QProgressBar(statusBar());
+    pb->setTextVisible(false);
     pb->hide();
-    statusBar()->addWidget( pb, 0, TRUE );
+    statusBar()->addPermanentWidget(pb);
 
-    WebBrowser->dynamicCall( "GoHome()" );
+    WebBrowser->dynamicCall("GoHome()");
 }
 
-void MainWindow::on_WebBrowser_TitleChange( const QString &title )
+void MainWindow::on_WebBrowser_TitleChange(const QString &title)
 {
-    setWindowTitle( "Qt WebBrowser - " + title );
+    setWindowTitle("Qt WebBrowser - " + title);
 }
 
-void MainWindow::on_WebBrowser_ProgressChange( int a, int b )
+void MainWindow::on_WebBrowser_ProgressChange(int a, int b)
 {
-    if ( a <= 0 || b <= 0 ) {
+    if (a <= 0 || b <= 0) {
 	pb->hide();
 	return;
     }
     pb->show();
-    pb->setRange(0, b );
-    pb->setValue( a );
+    pb->setRange(0, b);
+    pb->setValue(a);
 }
 
 
-void MainWindow::on_WebBrowser_CommandStateChange( int cmd, bool on )
+void MainWindow::on_WebBrowser_CommandStateChange(int cmd, bool on)
 {
-    switch ( cmd ) {
+    switch (cmd) {
     case 1:
-	actionForward->setEnabled( on );
+	actionForward->setEnabled(on);
 	break;
     case 2:
-	actionBack->setEnabled( on );
+	actionBack->setEnabled(on);
 	break;
     }
 }
 
 void MainWindow::on_WebBrowser_BeforeNavigate()
 {
-    actionStop->setEnabled( TRUE );
+    actionStop->setEnabled(true);
 }
 
 void MainWindow::on_WebBrowser_NavigateComplete(QString)
 {
-    actionStop->setEnabled( FALSE );
+    actionStop->setEnabled(false);
 }
 
 void MainWindow::on_actionGo_triggered()
 {
-    WebBrowser->dynamicCall( "Navigate(const QString&)", addressEdit->text() );
+    WebBrowser->dynamicCall("Navigate(const QString&)", addressEdit->text());
 }
 
 
@@ -110,10 +110,10 @@ void MainWindow::on_actionNewWindow_triggered()
 {
     MainWindow *window = new MainWindow;
     window->show();
-    if ( addressEdit->text().isEmpty() )
+    if (addressEdit->text().isEmpty())
 	return;
-    window->addressEdit->setText( addressEdit->text() );
-    window->actionStop->setEnabled( TRUE );
+    window->addressEdit->setText(addressEdit->text());
+    window->actionStop->setEnabled(true);
     window->on_actionGo_triggered();
 }
 
@@ -133,9 +133,9 @@ void MainWindow::on_actionAboutQt_triggered()
 
 #include "main.moc"
 
-int main( int argc, char ** argv )
+int main(int argc, char ** argv)
 {
-    QApplication a( argc, argv );
+    QApplication a(argc, argv);
     MainWindow w;
     w.show();
     return a.exec();

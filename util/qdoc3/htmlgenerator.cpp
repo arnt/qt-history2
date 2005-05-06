@@ -251,7 +251,10 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	    generateLegaleseList(relative, marker);
 	} else if (atom->string() == "mainclasses") {
 	    generateCompactList(relative, marker, mainClasses);
-	}
+	} else if (atom->string() == "overviews") {
+            generateOverviewList(relative, marker);
+        }
+
 	break;
     case Atom::Image:
     case Atom::InlineImage:
@@ -1449,6 +1452,45 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
         marked.replace("</@type>", "");
     }
     out() << highlightedCode( marked, marker, relative );
+}
+
+void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker *marker)
+{
+    QMap<QString, FakeNode *> fakeNodeMap;
+    QRegExp singleDigit("\\b([0-9])\\b");
+
+    const NodeList children = tre->root()->childNodes();
+    foreach (Node *child, children) {
+        if (child->type() == Node::Fake && child != relative) {
+            FakeNode *fakeNode = static_cast<FakeNode *>(child);
+
+            // there are too many examples; they would clutter the list
+            if (fakeNode->subType() == FakeNode::Example)
+                continue;
+
+            // not interested either in individial (Qt Designer etc.) manual chapters
+            if (fakeNode->links().contains(Node::PreviousLink))
+                continue;
+
+            QString sortKey = fakeNode->fullTitle().toLower();
+            if (sortKey.startsWith("the "))
+                sortKey.remove(0, 4);
+            sortKey.replace(singleDigit, "0\\1");
+            fakeNodeMap.insert(sortKey, fakeNode);
+        }
+    }
+
+    if (!fakeNodeMap.isEmpty()) {
+        out() << "<ul>\n";
+        foreach (FakeNode *fakeNode, fakeNodeMap) {
+            QString title = fakeNode->fullTitle();
+            if (title.startsWith("The "))
+                title.remove(0, 4);
+            out() << "<li><a href=\"" << linkForNode(fakeNode, relative) << "\">"
+                  << protect(title) << "</li>\n";
+        }
+        out() << "</ul>\n";
+    }
 }
 
 void HtmlGenerator::generateSectionList(const Section& section, const Node *relative,

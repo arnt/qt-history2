@@ -1236,7 +1236,7 @@ void QTreeView::updateGeometries()
     if (d->header->isHidden()
         && (d->header->stretchSectionCount() || d->header->stretchLastSection())) {
         d->header->viewport()->setGeometry(geometryRect);
-        QMetaObject::invokeMember(d->header, "resizeSections");
+        QMetaObject::invokeMethod(d->header, "resizeSections");
     }
 
     // update scrollbars

@@ -1710,6 +1710,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             } else {
                 QPixmap pm = opt->palette.brush(QPalette::Light).texture();
                 br = !pm.isNull() ? QBrush(pm) : QBrush(opt->palette.light().color(), Qt::Dense4Pattern);
+                p->setBackground(opt->palette.background().color());
                 p->setBrush(br);
             }
             p->drawRect(opt->rect);

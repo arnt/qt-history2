@@ -28,7 +28,7 @@ Browser::Browser(QWidget *parent)
                                     "Please check the documentation how to build the "
                                     "Qt SQL plugins."));
     else
-        QMetaObject::invokeMember(this, "addConnection", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(this, "addConnection", Qt::QueuedConnection);
 
     emit statusMessage(tr("Ready."));
 }

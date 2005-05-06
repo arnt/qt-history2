@@ -64,7 +64,7 @@ inline T qt_extension(QAbstractExtensionManager* manager, QObject *object)
 #define Q_DECLARE_EXTENSION_INTERFACE(IFace, IId) \
 Q_DECLARE_INTERFACE(IFace, IId) \
 template <> inline IFace *qt_extension<IFace *>(QAbstractExtensionManager *manager, QObject *object) \
-{ QObject *extension = manager->extension(object, Q_TYPEID(IFace)); return (IFace *)(extension ? extension->qt_metacast(IFace##_iid) : 0); }
+{ QObject *extension = manager->extension(object, Q_TYPEID(IFace)); return extension ? static_cast<IFace *>(extension->qt_metacast(IFace##_iid)) : static_cast<IFace *>(0); }
 
 #endif
 

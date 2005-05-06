@@ -840,7 +840,7 @@ bool QObject::event(QEvent *e)
             QList<QPair<int, int> > timers = eventDispatcher->registeredTimers(this);
             if (!timers.isEmpty()) {
                 eventDispatcher->unregisterTimers(this);
-                QMetaObject::invokeMember(this, "reregisterTimers", Qt::QueuedConnection,
+                QMetaObject::invokeMethod(this, "reregisterTimers", Qt::QueuedConnection,
                                           Q_ARG(void*, (new QList<QPair<int, int> >(timers))));
             }
         }

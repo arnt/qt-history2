@@ -72,6 +72,7 @@ private:
 			     const QMap<QString, const Node *> &classMap);
     void generateFunctionIndex(const Node *relative, CodeMarker *marker);
     void generateLegaleseList(const Node *relative, CodeMarker *marker);
+    void generateOverviewList(const Node *relative, CodeMarker *marker);
     void generateSynopsis(const Node *node, const Node *relative, CodeMarker *marker,
 			  CodeMarker::SynopsisStyle style);
     void generateSectionList(const Section& section, const Node *relative,

@@ -1414,7 +1414,7 @@ void QHttpPrivate::init()
 {
     Q_Q(QHttp);
     errorString = QT_TRANSLATE_NOOP("QHttp", "Unknown error");
-    QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(q, "slotDoFinished", Qt::QueuedConnection);
 }
 
 /*!
@@ -2046,7 +2046,7 @@ int QHttpPrivate::addRequest(QHttpRequest *req)
 
     if (pending.count() == 1) {
         // don't emit the requestStarted() signal before the id is returned
-        QMetaObject::invokeMember(q, "startNextRequest", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(q, "startNextRequest", Qt::QueuedConnection);
     }
     return req->id;
 }
@@ -2180,7 +2180,7 @@ void QHttpPrivate::slotClosed()
 
     postDevice = 0;
     setState(QHttp::Closing);
-    QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
+    QMetaObject::invokeMethod(q, "slotDoFinished", Qt::QueuedConnection);
 }
 
 void QHttpPrivate::slotConnected()
@@ -2442,7 +2442,7 @@ void QHttpPrivate::slotReadyRead()
                 setState(QHttp::Connected);
                 // Start a timer, so that we emit the keep alive signal
                 // "after" this method returned.
-                QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
+                QMetaObject::invokeMethod(q, "slotDoFinished", Qt::QueuedConnection);
             }
         }
     }
@@ -2518,7 +2518,7 @@ void QHttpPrivate::closeConn()
 
     // Already closed ?
     if (!socket || !socket->isOpen()) {
-        QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
+        QMetaObject::invokeMethod(q, "slotDoFinished", Qt::QueuedConnection);
     } else {
         // Close now.
         socket->close();
@@ -2526,7 +2526,7 @@ void QHttpPrivate::closeConn()
         // Did close succeed immediately ?
         if (socket->state() == QTcpSocket::UnconnectedState) {
             // Prepare to emit the requestFinished() signal.
-            QMetaObject::invokeMember(q, "slotDoFinished", Qt::QueuedConnection);
+            QMetaObject::invokeMethod(q, "slotDoFinished", Qt::QueuedConnection);
         }
     }
 }

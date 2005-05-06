@@ -50,12 +50,12 @@ inline int q_atomic_test_and_set_int(volatile int *ptr, int expected, int newval
 
 inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *newval)
 {
-    void *val = (void *) q_atomic_lock_ptr(ptr);
+    void *val = reinterpret_cast<void *>(q_atomic_lock_ptr(ptr));
     if (val == expected) {
-        q_atomic_unlock(ptr, (int) newval);
+        q_atomic_unlock(ptr, reinterpret_cast<int>(newval));
         return 1;
     }
-    q_atomic_unlock(ptr, (int) val);
+    q_atomic_unlock(ptr, reinterpret_cast<int>(val));
     return 0;
 }
 

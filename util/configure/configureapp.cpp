@@ -1538,20 +1538,13 @@ void Configure::findProjects( const QString& dirName )
 	int makeListNumber;
 	ProjectType qmakeTemplate;
 
-        static QString qtSourceDir;
-        if (qtSourceDir.isEmpty()) {
-            qtSourceDir = QDir(dictionary["QT_SOURCE_TREE"]).absoluteFilePath("src");
-            qtSourceDir.replace("\\", "/");
-        }
 	const QFileInfoList &list = dir.entryInfoList();
 	for(int i = 0; i < list.size(); ++i) {
 	    const QFileInfo &fi = list.at(i);
 	    if( fi.fileName()[ 0 ] != '.' && fi.fileName() != "qmake.pro" ) {
 		entryName = dirName + "/" + fi.fileName();
-		if(fi.isDir()) {
-		    if (fi.absoluteFilePath() != qtSourceDir) {
-			findProjects( entryName );
-		    }
+                if(fi.isDir()) {
+                    findProjects( entryName );
 		} else {
 		    if( fi.fileName().right( 4 ) == ".pro" ) {
 			qmakeTemplate = projectType( fi.absoluteFilePath() );
@@ -1564,32 +1557,10 @@ void Configure::findProjects( const QString& dirName )
 			    makeListNumber = 2;
 			    break;
 			}
-			makeList[makeListNumber].append( new MakeItem(
-								      dirName,
+			makeList[makeListNumber].append( new MakeItem(dirName,
 								      fi.fileName(),
 								      "Makefile",
 								      qmakeTemplate ) );
-			if( dictionary[ "DSPFILES" ] == "yes" ) {
-			    makeList[makeListNumber].append( new MakeItem(
-									  dirName,
-									  fi.fileName(),
-									  fi.fileName().left( fi.fileName().length() - 4 ) + ".dsp",
-									  qmakeTemplate ) );
-			}
-			if( dictionary[ "VCPFILES" ] == "yes" ) {
-			    makeList[makeListNumber].append( new MakeItem(
-									  dirName,
-									  fi.fileName(),
-									  fi.fileName().left( fi.fileName().length() - 4 ) + ".vcp",
-									  qmakeTemplate ) );
-			}
-			if( dictionary[ "VCPROJFILES" ] == "yes" ) {
-			    makeList[makeListNumber].append( new MakeItem(
-									  dirName,
-									  fi.fileName(),
-									  fi.fileName().left( fi.fileName().length() - 4 ) + ".vcproj",
-									  qmakeTemplate ) );
-			}
 		    }
 		}
 	    }
@@ -1688,39 +1659,26 @@ void Configure::generateMakefiles()
                     args << QDir::convertSeparators( dictionary[ "QT_INSTALL_BINS" ] + "/qmake" );
                     args << projectName;
                     args << dictionary[ "QMAKE_ALL_ARGS" ];
-                    
-                    if ( makefileName.endsWith( ".dsp" ) ||
-                        makefileName.endsWith( ".vcp" ) ||
-                        makefileName.endsWith( ".vcproj" ) ) {
-                        // We don't create projects for sub directories, continue
-                        if ( it->qmakeTemplate == Subdirs )
-                            continue;
-                        if( dictionary[ "DEPENDENCIES" ] == "no" )
-                            args << "-nodepend";
-                        args << "-tp vc";
-                    } else {
-                        cout << "For " << qPrintable(projectName) << endl;
-                        args << "-o";
-                        args << makefileName;
-                    }
+
+                    cout << "For " << qPrintable(projectName) << endl;
+                    args << "-o";
+                    args << makefileName;
                     args << "-spec";
                     args << dictionary[ "QMAKESPEC" ];
                     
                     QDir::setCurrent( QDir::convertSeparators( dirPath ) );
                     
-                    if (dirPath != qtDir) {
-                        QFile file(makefileName);
-                        if (!file.open(QFile::WriteOnly)) {
-                            printf("failed on dirPath=%s, makefile=%s\n",
-                                qPrintable(dirPath), qPrintable(makefileName));
-                            continue;
-                        }
-                        QTextStream txt(&file);
-                        txt << "all:\n";
-                        txt << "\t" << args.join(" ") << "\n";
-                        txt << "\t" << dictionary[ "MAKE" ] << " -f " << makefileName << "\n";
-                        txt << "first: all\n";
+                    QFile file(makefileName);
+                    if (!file.open(QFile::WriteOnly)) {
+                        printf("failed on dirPath=%s, makefile=%s\n",
+                            qPrintable(dirPath), qPrintable(makefileName));
+                        continue;
                     }
+                    QTextStream txt(&file);
+                    txt << "all:\n";
+                    txt << "\t" << args.join(" ") << "\n";
+                    txt << "\t" << dictionary[ "MAKE" ] << " -f " << makefileName << "\n";
+                    txt << "first: all\n";
                 }
             }
         }

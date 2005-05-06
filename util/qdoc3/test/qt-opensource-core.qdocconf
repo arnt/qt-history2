@@ -1,0 +1,3 @@
+include(qt-opensource.qdocconf)
+
+defines += core

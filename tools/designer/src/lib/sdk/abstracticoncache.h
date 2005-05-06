@@ -26,8 +26,8 @@ class QT_SDK_EXPORT QDesignerIconCacheInterface : public QObject
 {
     Q_OBJECT
 public:
-    QDesignerIconCacheInterface(QObject *parent)
-        : QObject(parent) {}
+    QDesignerIconCacheInterface(QObject *parent_)
+        : QObject(parent_) {}
 
     virtual QIcon nameToIcon(const QString &filePath, const QString &qrcPath = QString()) = 0;
     virtual QPixmap nameToPixmap(const QString &filePath, const QString &qrcPath = QString()) = 0;

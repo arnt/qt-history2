@@ -1,8 +1,8 @@
 MUST HAVES:
 
-  * fix wrong links to constructor
-  * setters in Qt Assistant
   * FakeNodes in .dcf
+  * fix wrong links to constructor
+  * setters and setters in .dcf
 
   * get rid of spurious 'global' functions
   * Make automatic links in code work
@@ -23,6 +23,7 @@ MUST HAVES:
   * turn \c into links?
   * warning for unnamed parameters in property access functions
   * \center...\endcenter
+
 
 LINKS:
 
@@ -51,6 +52,7 @@ NICE FEATURES:
   * prevent macros from having same name as commands
   * be smart about enum types Foo::Bar vs. Bar when comparing functions
   * be smart about const & non-const when comparing functions
+
 
 OTHER:
   * make qdoc run faster

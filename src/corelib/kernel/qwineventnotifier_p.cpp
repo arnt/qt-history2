@@ -86,7 +86,7 @@ bool QWinEventNotifier::event(QEvent * e)
 {
     if (e->type() == QEvent::ThreadChange) {
         if (enabled) {
-            QMetaObject::invokeMember(this, "setEnabled", Qt::QueuedConnection,
+            QMetaObject::invokeMethod(this, "setEnabled", Qt::QueuedConnection,
                                       Q_ARG(bool, enabled));
             setEnabled(false);
         }

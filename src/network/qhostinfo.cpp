@@ -165,14 +165,14 @@ int QHostInfo::lookupHost(const QString &name, QObject *receiver,
         // To mimic the same behavior that the lookup would have if it was not
         // an IP, we need to choose a Qt::QueuedConnection if there is thread support;
         // otherwise Qt::DirectConnection.
-        if (!QMetaObject::invokeMember(receiver, arr,
+        if (!QMetaObject::invokeMethod(receiver, arr,
 #if !defined QT_NO_THREAD
                          Qt::QueuedConnection,
 #else
                          Qt::DirectConnection,
 #endif
                          QGenericArgument("QHostInfo", &info))) {
-            qWarning("QHostInfo::lookupHost() called with invalid slot (QMetaObject::invokeMember failed)");
+            qWarning("QHostInfo::lookupHost() called with invalid slot (QMetaObject::invokeMethod failed)");
         }
         return info.lookupId();
     }

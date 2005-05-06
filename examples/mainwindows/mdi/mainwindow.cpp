@@ -1,3 +1,4 @@
+//depot/qt/4.0/examples/mainwindows/mdi/mainwindow.cpp#6 - edit change 177740 (text)
 #include <QtGui>
 
 #include "mainwindow.h"
