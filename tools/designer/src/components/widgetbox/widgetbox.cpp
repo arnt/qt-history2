@@ -540,7 +540,6 @@ WidgetBoxTreeView::CategoryList WidgetBoxTreeView::loadCustomCategoryList() cons
     CategoryList result;
 
     PluginManager *pm = m_core->pluginManager();
-    QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
 
     QList<QDesignerCustomWidgetInterface*> customWidgets = pm->registeredCustomWidgets();
 
@@ -721,7 +720,7 @@ void WidgetBoxTreeView::removeCurrentItem()
         setItemExpanded(parent, true);
         if (parent->data(0, Qt::UserRole).toInt() == SCRATCHPAD_ITEM
                 && parent->childCount() == 0) {
-            QMetaObject::invokeMember(this, "deleteScratchpad",
+            QMetaObject::invokeMethod(this, "deleteScratchpad",
                                         Qt::QueuedConnection);
         }
     }
@@ -826,7 +825,6 @@ void WidgetBoxTreeView::dropWidgets(const QList<QDesignerDnDItemInterface*> &ite
         save();
         QApplication::setActiveWindow(this);
         setCurrentItem(last_item);
-//        editCurrentItem();
     }
 }
 

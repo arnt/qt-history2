@@ -116,7 +116,7 @@ QString LanguageChooser::languageName(const QString &qmFile)
     QTranslator translator;
     translator.load(qmFile);
 
-    return translator.findMessage("MainWindow", "English").translation();
+    return translator.translate("MainWindow", "English");
 }
 
 QColor LanguageChooser::colorForLanguage(const QString &language)
