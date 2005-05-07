@@ -3284,7 +3284,7 @@ QDateTimeParser::QDateTimeParser(const QString &f, QVariant::Type t)
     parseFormat(f, t);
 }
 
-bool QDateTimeParser::bounds(QDateTimeParser::Section t, int num)
+bool QDateTimeParser::withinBounds(QDateTimeParser::Section t, int num)
 {
     int min, max;
     if (t == QDateTimeParser::Year2) {
@@ -3306,7 +3306,7 @@ bool QDateTimeParser::bounds(QDateTimeParser::Section t, int num)
     } else if (t & QDateTimeParser::MSecondMask) {
         min = 0; max = 999;
     } else {
-        qWarning("%s:%d QDateTimeParser::bounds() %d should never be called here", __FILE__, __LINE__, t);
+        qWarning("%s:%d QDateTimeParser::withinBounds() %0x should never be called with this argument", __FILE__, __LINE__, t);
         return false;
     }
 
@@ -3584,7 +3584,7 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
             bool ok;
             int digits;
             int number = getNumber(index, string, min, max, &ok, &digits);
-            if (!ok || !bounds(s.type, number) || (*num != -1 && *num != number)) {
+            if (!ok || !withinBounds(s.type, number) || (*num != -1 && *num != number)) {
                 return false;
             }
 

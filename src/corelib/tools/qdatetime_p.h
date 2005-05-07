@@ -104,7 +104,7 @@ public:
     void parseFormat(const QString &format, QVariant::Type t);
     bool fromString(const QString &string, QDate *dateIn, QTime *timeIn);
 
-    static bool bounds(QDateTimeParser::Section t, int num);
+    static bool withinBounds(QDateTimeParser::Section t, int num);
     static int getNumber(int index, const QString &str, int mindigits, int maxdigits, bool *ok, int *digits);
 
     static QFormatSection firstSection;
