@@ -191,7 +191,7 @@ public:
 	        }
                 else
                 {
-		    key = QString::fromUtf16(bKey);
+		    key = QString::fromUtf16((ushort *)bKey);
 	        }
                 cf2->Release();
             }
