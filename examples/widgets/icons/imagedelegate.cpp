@@ -34,7 +34,7 @@ void ImageDelegate::setEditorData(QWidget *editor,
         return;
 
     int pos = comboBox->findText(index.model()->data(index).toString(),
-                                 QAbstractItemModel::MatchExactly);
+                                 Qt::MatchExactly);
     comboBox->setCurrentIndex(pos);
 }
 
