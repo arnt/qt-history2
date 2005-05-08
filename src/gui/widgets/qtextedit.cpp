@@ -48,14 +48,6 @@
 #define ACCEL_KEY(k) "\t" + QString("Ctrl+" #k)
 #endif
 
-static bool dataHasText(const QMimeData *data)
-{
-    return data->hasText()
-        || data->hasHtml()
-        || data->hasFormat("application/x-qrichtext")
-        || data->hasFormat("application/x-qt-richtext");
-}
-
 // could go into QTextCursor...
 static QTextLine currentTextLine(const QTextCursor &cursor)
 {
@@ -1871,7 +1863,7 @@ void QTextEdit::contextMenuEvent(QContextMenuEvent *e)
 void QTextEdit::dragEnterEvent(QDragEnterEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->readOnly || !dataHasText(e->mimeData())) {
+    if (d->readOnly || !canInsertFromMimeData(e->mimeData())) {
         e->ignore();
         return;
     }
@@ -1899,7 +1891,7 @@ void QTextEdit::dragLeaveEvent(QDragLeaveEvent *)
 void QTextEdit::dragMoveEvent(QDragMoveEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->readOnly || !dataHasText(e->mimeData())) {
+    if (d->readOnly || !canInsertFromMimeData(e->mimeData())) {
         e->ignore();
         return;
     }
@@ -1927,7 +1919,7 @@ void QTextEdit::dropEvent(QDropEvent *e)
     Q_D(QTextEdit);
     d->dndFeedbackCursor = QTextCursor();
 
-    if (d->readOnly || !dataHasText(e->mimeData()))
+    if (d->readOnly || !canInsertFromMimeData(e->mimeData()))
         return;
 
     e->acceptProposedAction();
@@ -2109,7 +2101,7 @@ QMenu *QTextEdit::createStandardContextMenu()
 
     if (!d->readOnly) {
         a = menu->addAction(tr("&Paste") + ACCEL_KEY(V), this, SLOT(paste()));
-        a->setEnabled(!QApplication::clipboard()->text().isEmpty());
+        a->setEnabled(canInsertFromMimeData(QApplication::clipboard()->mimeData()));
     }
 
     menu->addSeparator();
@@ -2211,6 +2203,20 @@ QMimeData *QTextEdit::createMimeDataFromSelection() const
     data->setText(txt);
     return data;
 };
+
+/*!
+    This function returns true if the contents of the MIME data object, specified
+    by \a source, can be decoded and inserted into the document. It is called
+    for example when during a drag operation the mouse enters this widget and it 
+    is necessary to determine whether it is possible to accept the drag.
+ */
+bool QTextEdit::canInsertFromMimeData(const QMimeData *source) const
+{
+    return source->hasText()
+        || source->hasHtml()
+        || source->hasFormat("application/x-qrichtext")
+        || source->hasFormat("application/x-qt-richtext");
+}
 
 /*!
     This function inserts the contents of the MIME data object, specified

@@ -214,7 +214,8 @@ protected:
     virtual void wheelEvent(QWheelEvent *e);
 
     virtual QMimeData *createMimeDataFromSelection() const;
-    virtual void insertFromMimeData(const QMimeData *data);
+    virtual bool canInsertFromMimeData(const QMimeData *source) const;
+    virtual void insertFromMimeData(const QMimeData *source);
 
     virtual void inputMethodEvent(QInputMethodEvent *);
     QVariant inputMethodQuery(Qt::InputMethodQuery property) const;
