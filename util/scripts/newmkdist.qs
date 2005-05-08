@@ -95,7 +95,7 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^configure"),
 			  new RegExp("^LICENSE.PREVIEW"),
-			  new RegExp("^README.qws") ];
+			  new RegExp("\\.qws") ];
 
 platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^doc/src"),
@@ -110,7 +110,7 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^bin/configure.exe"),
-			  new RegExp("^README.qws") ];
+			  new RegExp("\\.qws") ];
 
 platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("^doc/src"),
@@ -124,7 +124,7 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^bin/configure.exe"),
-			  new RegExp("^README.qws") ];
+			  new RegExp("\\.qws") ];
 
 platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("^doc/src"),
@@ -139,7 +139,7 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 
 var licenseRemove = new Array();
 
-licenseRemove["commercial"] = [ new RegExp("GPL") ];
+licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
 
 licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^src/plugins/sqldrivers/db2"),
@@ -887,10 +887,6 @@ function replaceTags(packageDir, fileList, platform, license, platName, addition
  */
 function packageExists(platform, license, edition)
 {
-    // no windows opensource packages yet
-    if (platform == "win" && license == "opensource")
-	return false;
-
     // core only exists for commercial and opensource license
     if (edition == "core" && (license == "commercial" || license == "opensource"))
 	return true;
