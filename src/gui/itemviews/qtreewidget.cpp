@@ -69,8 +69,6 @@ public:
     static bool itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
     static bool itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
 
-    QList<QTreeWidgetItem*> find(const QRegExp &rx, int column) const;
-
     void insertInTopLevel(int row, QTreeWidgetItem *item);
     void removeFromTopLevel(QTreeWidgetItem *item);
     QTreeWidgetItem *takeFromTopLevel(int row);
@@ -531,25 +529,6 @@ bool QTreeModel::itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem
 bool QTreeModel::itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
 {
     return !(*left < *right);
-}
-
-/*!
-  \internal
-*/
-
-QList<QTreeWidgetItem*> QTreeModel::find(const QRegExp &rx, int column) const
-{
-    QList<QTreeWidgetItem*> result;
-    QList<QTreeWidgetItem*> remaining = tree;
-    while (!remaining.isEmpty()) {
-        QTreeWidgetItem *item = remaining.last();
-        remaining.pop_back();
-        Q_ASSERT(item);
-        if (rx.exactMatch(item->text(column)))
-            result << item;
-        remaining += item->children;
-    }
-    return result;
 }
 
 /*!
@@ -1836,13 +1815,18 @@ QList<QTreeWidgetItem*> QTreeWidget::selectedItems() const
 }
 
 /*!
-  Returns a list of items that match the given \a rx.
+  Returns a list of items that match the given \a text, using the given \a flags, in the given \a column.
 */
 
-QList<QTreeWidgetItem*> QTreeWidget::findItems(const QRegExp &rx) const
+QList<QTreeWidgetItem*> QTreeWidget::findItems(const QString &text, Qt::MatchFlags flags, int column) const
 {
     Q_D(const QTreeWidget);
-    return d->model()->find(rx, 0); // FIXME: search in column 0
+    QModelIndexList indexes = d->model()->match(model()->index(0, column, QModelIndex()),
+                                                Qt::DisplayRole, text, -1, flags);
+    QList<QTreeWidgetItem*> items;
+    for (int i = 0; i < indexes.size(); ++i)
+        items.append(d->model()->item(indexes.at(i)));
+    return items;
 }
 
 /*!

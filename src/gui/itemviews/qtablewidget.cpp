@@ -74,7 +74,6 @@ public:
     void sort(int column, Qt::SortOrder order);
     static bool itemLessThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
     static bool itemGreaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
-    QList<QTableWidgetItem*> find(const QRegExp &rx) const;
 
     bool isValid(const QModelIndex &index) const;
     inline long tableIndex(int row, int column) const
@@ -432,17 +431,6 @@ bool QTableModel::itemLessThan(const QTableWidgetItem *left, const QTableWidgetI
 bool QTableModel::itemGreaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right)
 {
     return !(*left < *right);
-}
-
-QList<QTableWidgetItem*> QTableModel::find(const QRegExp &rx) const
-{
-    QList<QTableWidgetItem*> result;
-    QVector<QTableWidgetItem*>::const_iterator it = table.begin();
-    for (; it != table.end(); ++it) {
-        if (*it && rx.exactMatch((*it)->text()))
-            result << (*it);
-    }
-    return result;
 }
 
 QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -1591,13 +1579,20 @@ QList<QTableWidgetItem*> QTableWidget::selectedItems()
 }
 
 /*!
-  Finds items that matches the \a rx.
+  Finds items that matches the \a text using the given \a flags.
 */
 
-QList<QTableWidgetItem*> QTableWidget::findItems(const QRegExp &rx) const
+QList<QTableWidgetItem*> QTableWidget::findItems(const QString &text, Qt::MatchFlags flags) const
 {
     Q_D(const QTableWidget);
-    return d->model()->find(rx);
+    QModelIndexList indexes;
+    for (int column = 0; column < columnCount(); ++column)
+        indexes += d->model()->match(model()->index(0, column, QModelIndex()),
+                                     Qt::DisplayRole, text, -1, flags);
+    QList<QTableWidgetItem*> items;
+    for (int i = 0; i < indexes.size(); ++i)
+        items.append(d->model()->item(indexes.at(i)));
+    return items;
 }
 
 /*!

@@ -199,7 +199,7 @@ public:
     bool isItemSelected(const QTreeWidgetItem *item) const;
     void setItemSelected(const QTreeWidgetItem *item, bool select);
     QList<QTreeWidgetItem*> selectedItems() const;
-    QList<QTreeWidgetItem*> findItems(const QRegExp &rx) const;
+    QList<QTreeWidgetItem*> findItems(const QString &text, Qt::MatchFlags flags, int column = 0) const;
 
     bool isItemHidden(const QTreeWidgetItem *item) const;
     void setItemHidden(const QTreeWidgetItem *item, bool hide);

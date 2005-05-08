@@ -56,7 +56,6 @@ public:
     void sort(int column, Qt::SortOrder order);
     static bool itemLessThan(const QListWidgetItem *left, const QListWidgetItem *right);
     static bool itemGreaterThan(const QListWidgetItem *left, const QListWidgetItem *right);
-    QList<QListWidgetItem*> find(const QRegExp &rx) const;
 
     void itemChanged(QListWidgetItem *item);
 
@@ -241,17 +240,6 @@ bool QListModel::itemLessThan(const QListWidgetItem *left, const QListWidgetItem
 bool QListModel::itemGreaterThan(const QListWidgetItem *left, const QListWidgetItem *right)
 {
     return !(*left < *right);
-}
-
-QList<QListWidgetItem*> QListModel::find(const QRegExp &rx) const
-{
-    QList<QListWidgetItem*> result;
-    QList<QListWidgetItem*>::const_iterator it = lst.begin();
-    for (; it != lst.end(); ++it) {
-        if (rx.exactMatch((*it)->text()))
-            result << (*it);
-    }
-    return result;
 }
 
 void QListModel::itemChanged(QListWidgetItem *item)
@@ -1180,13 +1168,18 @@ QList<QListWidgetItem*> QListWidget::selectedItems() const
 }
 
 /*!
-  Finds items with the text that matches the regular expression \a rx.
+  Finds items with the text that matches the string \a text using the given \a flags.
 */
 
-QList<QListWidgetItem*> QListWidget::findItems(const QRegExp &rx) const
+QList<QListWidgetItem*> QListWidget::findItems(const QString &text, Qt::MatchFlags flags) const
 {
     Q_D(const QListWidget);
-    return d->model()->find(rx);
+    QModelIndexList indexes = d->model()->match(model()->index(0, 0, QModelIndex()),
+                                                Qt::DisplayRole, text, -1, flags);
+    QList<QListWidgetItem*> items;
+    for (int i = 0; i < indexes.size(); ++i)
+        items.append(d->model()->at(indexes.at(i).row()));
+    return items;
 }
 
 /*!

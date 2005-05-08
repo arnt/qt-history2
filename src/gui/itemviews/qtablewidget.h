@@ -200,7 +200,7 @@ public:
 
     QList<QTableWidgetSelectionRange> selectedRanges() const;
     QList<QTableWidgetItem*> selectedItems();
-    QList<QTableWidgetItem*> findItems(const QRegExp &rx) const;
+    QList<QTableWidgetItem*> findItems(const QString &text, Qt::MatchFlags flags) const;
 
     int visualRow(int logicalRow) const;
     int visualColumn(int logicalColumn) const;
