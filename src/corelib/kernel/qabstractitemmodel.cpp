@@ -1314,13 +1314,14 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
     bool caseSesitive = flags & Qt::MatchCaseSensitive;
     bool recurse = flags & Qt::MatchRecursive;
     bool wrap = flags & Qt::MatchWrap;
+    bool allHits = (hits == -1);
     QString text; // only convert to a string if it is needed
     QModelIndex p = parent(start);
     int from = start.row();
     int to = rowCount(p);
     // iterates twice if wrapping
-    for (int i = 0; ((wrap && i < 2) || (!wrap && i < 1)) && (result.count() < hits); ++i) {
-        for (int r = from; (r < to) && (result.count() < hits); ++r) {
+    for (int i = 0; (wrap && i < 2) || (!wrap && i < 1); ++i) {
+        for (int r = from; (r < to) && (allHits || result.count() < hits); ++r) {
             QModelIndex idx = index(r, start.column(), p);
             QVariant v = data(idx, role);
             // QVariant based matching
@@ -1358,10 +1359,11 @@ QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                     if (t.contains(text))
                         result.append(idx);
                 }
-                if (recurse) // search the hierarchy
-                    result += match(index(0, start.column(), idx), role,
-                                    (text.isEmpty() ? value : text),
-                                    hits - result.count(), flags);
+            }
+            if (recurse && hasChildren(idx)) { // search the hierarchy
+                result += match(index(0, idx.column(), idx), role,
+                                (text.isEmpty() ? value : text),
+                                (allHits ? -1 : hits - result.count()), flags);
             }
         }
         // prepare for the next iteration
