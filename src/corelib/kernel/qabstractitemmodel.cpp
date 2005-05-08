@@ -166,7 +166,8 @@ void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
     if (d && !d->ref.deref())
         QPersistentModelIndexData::destroy(d);
     d = other.d;
-    d->ref.ref();
+    if (d)
+        d->ref.ref();
 }
 
 /*!
