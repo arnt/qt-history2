@@ -595,6 +595,11 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
             else
                 r = drawBlock(off, painter, context, it.currentBlock());
 
+            // floats do not necessarily follow vertical ordering, so don't
+            // let them influence the optimization below
+            if (c && c->frameFormat().position() != QTextFrameFormat::InFlow)
+                continue;
+
             // assume vertical ordering and thus stop when we reached
             // unreachable parts
             if (previousDrawResult == Drawn && r == OutsideClipRect)
