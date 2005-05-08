@@ -60,7 +60,7 @@ public:
     void sort(int column, Qt::SortOrder order);
 
     QModelIndexList match(const QModelIndex &start, int role, const QVariant &value,
-                          int hits, QAbstractItemModel::MatchFlags flags) const;
+                          int hits, Qt::MatchFlags flags) const;
 
     QSize span(const QModelIndex &index) const;
 

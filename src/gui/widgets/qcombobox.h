@@ -65,12 +65,10 @@ public:
     bool hasFrame() const;
 
     inline int findText(const QString &text,
-                        QAbstractItemModel::MatchFlags flags =
-                        QAbstractItemModel::MatchExactly | QAbstractItemModel::MatchCase) const
+                        Qt::MatchFlags flags = Qt::MatchExactly|Qt::MatchCaseSensitive) const
         { return findData(text, Qt::EditRole, flags); }
     int findData(const QVariant &data, int role = Qt::UserRole,
-                 QAbstractItemModel::MatchFlags flags =
-                 QAbstractItemModel::MatchExactly | QAbstractItemModel::MatchCase) const;
+                 Qt::MatchFlags flags = Qt::MatchExactly|Qt::MatchCaseSensitive) const;
 
     enum InsertPolicy {
         NoInsert,

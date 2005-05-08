@@ -926,7 +926,7 @@ void QComboBox::setDuplicatesEnabled(bool enable)
 
   The \a flags specify how the items in the combobox are searched.
 */
-int QComboBox::findData(const QVariant &data, int role, QAbstractItemModel::MatchFlags flags) const
+int QComboBox::findData(const QVariant &data, int role, Qt::MatchFlags flags) const
 {
     Q_D(const QComboBox);
     QModelIndexList result;

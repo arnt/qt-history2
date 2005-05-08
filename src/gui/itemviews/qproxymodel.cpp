@@ -352,9 +352,9 @@ void QProxyModel::sort(int column, Qt::SortOrder order)
 
     \sa QAbstractItemModel::match()
 */
-QModelIndexList QProxyModel::match(const QModelIndex &start, int role,
-                                   const QVariant &value,
-                                   int hits, QAbstractItemModel::MatchFlags flags) const
+QModelIndexList QProxyModel::match(const QModelIndex &start,
+                                   int role, const QVariant &value,
+                                   int hits, Qt::MatchFlags flags) const
 {
     Q_D(const QProxyModel);
     return d->model->match(start, role, value, hits, flags);

@@ -1884,6 +1884,23 @@
 */
 
 /*!
+    \enum Qt::MatchFlag
+
+    This enum describes the type of matches that can be used when searching
+    for items in a model.
+
+    \value MatchExactly   The value matches the item exactly.
+    \value MatchContains  The value is contained in the item.
+    \value MatchStartsWith  The value matches the start of the item.
+    \value MatchEndsWith   The value matches the end of the item.
+    \value MatchCaseSensitive  The search is case sensitive.
+    \value MatchRegExp  The value is a regular expression.
+    \value MatchWildcard  The value is a string with wildcards.
+    \value MatchWrap  The search wraps around.
+    \value MatchRecursive  The the entire hierarchy is searched.
+*/
+
+/*!
     \enum Qt::TextElideMode
 
     This enum specifies where the ellipsis should appear when

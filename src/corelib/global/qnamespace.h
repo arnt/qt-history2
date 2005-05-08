@@ -1216,6 +1216,19 @@ public:
     };
     Q_DECLARE_FLAGS(ItemFlags, ItemFlag)
 
+    enum MatchFlag {
+        MatchExactly = 0,
+        MatchContains = 1,
+        MatchStartsWith = 2,
+        MatchEndsWith = 3,
+        MatchRegExp = 4,
+        MatchWildcard = 5,
+        MatchCaseSensitive = 16,
+        MatchWrap = 32,
+        MatchRecursive = 64
+    };
+    Q_DECLARE_FLAGS(MatchFlags, MatchFlag)
+
 #if defined(Q_WS_MAC)
     typedef void * HANDLE;
 #elif defined(Q_WS_WIN)
@@ -1239,6 +1252,7 @@ Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ToolBarAreas)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::WindowStates)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::DropActions)
 Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::ItemFlags)
+Q_DECLARE_OPERATORS_FOR_FLAGS(Qt::MatchFlags)
 
 class Q_CORE_EXPORT QInternal {
 public:

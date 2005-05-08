@@ -1293,20 +1293,6 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
 }
 
 /*!
-    \enum QAbstractItemModel::MatchFlag
-
-    This enum describes the type of matches that can be used when searching
-    for items in a model.
-
-    \value MatchContains  The value is contained in the item.
-    \value MatchFromStart The value matches the start of the item.
-    \value MatchFromEnd   The value matches the end of the item.
-    \value MatchExactly   The value matches the item exactly.
-    \value MatchCase      The search is case sensitive.
-    \value MatchWrap      The search wraps around.
-*/
-
-/*!
     Returns a list of indexes for the items where the data stored under
     the given \a role matches the specified \a value. The way the search
     is performed is defined by the \a flags given. The list that is
@@ -1321,53 +1307,66 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
 */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                                           const QVariant &value, int hits,
-                                          MatchFlags flags) const
+                                          Qt::MatchFlags flags) const
 {
-    QString val = value.toString();
-
-    if (!(flags & MatchCase))
-        val = val.toLower();
-
     QModelIndexList result;
-    QModelIndex idx;
-    QModelIndex par = parent(start);
-    QString itemText;
-    int col = start.column();
-    int matchType = flags & MatchExactly;
-    int rc = rowCount(par);
-
+    uint matchType = flags & 0x0F;
+    bool caseSesitive = flags & Qt::MatchCaseSensitive;
+    bool recurse = flags & Qt::MatchRecursive;
+    bool wrap = flags & Qt::MatchWrap;
+    QString text; // only convert to a string if it is needed
+    QModelIndex p = parent(start);
+    int from = start.row();
+    int to = rowCount(p);
     // iterates twice if wrapping
-    for (int i = 0; i < 2 && result.count() < hits; ++i) {
-        if (!(flags & MatchWrap) && i == 1)
-            break;
-        int rowStart = (i == 0) ? start.row() : 0;
-        int rowEnd = (i == 0) ? rc : start.row();
-
-        for (int row = rowStart; row < rowEnd && result.count() < hits; ++row) {
-            idx = index(row, col, par);
-            itemText = data(idx, role).toString();
-            if (!(flags & MatchCase))
-                itemText = itemText.toLower();
-
-            switch (matchType) {
-            case MatchExactly:
-                if (itemText == val)
+    for (int i = 0; ((wrap && i < 2) || (!wrap && i < 1)) && (result.count() < hits); ++i) {
+        for (int r = from; (r < to) && (result.count() < hits); ++r) {
+            QModelIndex idx = index(r, start.column(), p);
+            QVariant v = data(idx, role);
+            // QVariant based matching
+            if (matchType == Qt::MatchExactly) {
+                if (value == v)
                     result.append(idx);
-                break;
-            case MatchFromStart:
-                if (itemText.startsWith(val))
-                    result.append(idx);
-                break;
-            case MatchFromEnd:
-                if (itemText.endsWith(val))
-                    result.append(idx);
-                break;
-            case MatchContains:
-            default:
-                if (itemText.contains(val))
-                    result.append(idx);
+            } else { // QString based matching
+                if (text.isEmpty()) { // lazy conversion
+                    text = value.toString();
+                    if (!caseSesitive)
+                        text = text.toLower();
+                }
+                QString t = v.toString();
+                if (!caseSesitive)
+                    t = t.toLower();
+                switch (matchType) {
+                case Qt::MatchRegExp:
+                    if (QRegExp(text).exactMatch(t))
+                        result.append(idx);
+                    break;
+                case Qt::MatchWildcard:
+                    if (QRegExp(text, Qt::CaseSensitive, QRegExp::Wildcard).exactMatch(t))
+                        result.append(idx);
+                    break;
+                case Qt::MatchStartsWith:
+                    if (t.startsWith(text))
+                        result.append(idx);
+                    break;
+                case Qt::MatchEndsWith:
+                    if (t.endsWith(text))
+                        result.append(idx);
+                    break;
+                case Qt::MatchContains:
+                default:
+                    if (t.contains(text))
+                        result.append(idx);
+                }
+                if (recurse) // search the hierarchy
+                    result += match(index(0, start.column(), idx), role,
+                                    (text.isEmpty() ? value : text),
+                                    hits - result.count(), flags);
             }
         }
+        // prepare for the next iteration
+        from = 0;
+        to = start.row();
     }
     return result;
 }

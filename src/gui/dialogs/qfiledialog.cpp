@@ -1789,9 +1789,7 @@ QModelIndex QFileDialogPrivate::matchDir(const QString &text, const QModelIndex 
 {
     QModelIndexList matches = model->match(first, Qt::DisplayRole,
                                            text, model->rowCount(first.parent()),
-                                           QAbstractItemModel::MatchFromStart
-                                           |QAbstractItemModel::MatchWrap
-                                           |QAbstractItemModel::MatchCase);
+                                           Qt::MatchStartsWith|Qt::MatchCaseSensitive|Qt::MatchWrap);
     for (int i = 0; i < matches.count(); ++i)
         if (model->isDir(matches.at(i)))
             return matches.at(i);
@@ -1801,9 +1799,7 @@ QModelIndex QFileDialogPrivate::matchDir(const QString &text, const QModelIndex 
 QModelIndex QFileDialogPrivate::matchName(const QString &name, const QModelIndex &first) const
 {
     QModelIndexList matches = model->match(first, Qt::DisplayRole, name, 1,
-                                           QAbstractItemModel::MatchFromStart
-                                           |QAbstractItemModel::MatchWrap
-                                           |QAbstractItemModel::MatchCase);
+                                           Qt::MatchStartsWith|Qt::MatchCaseSensitive|Qt::MatchWrap);
     if (matches.count() <= 0)
         return QModelIndex();
     return matches.first();

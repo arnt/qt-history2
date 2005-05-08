@@ -109,16 +109,6 @@ class Q_CORE_EXPORT QAbstractItemModel : public QObject
     friend class QPersistentModelIndexData;
 public:
 
-    enum MatchFlag {
-        MatchContains = 0,
-        MatchFromStart = 1,
-        MatchFromEnd = 2,
-        MatchExactly = MatchFromStart | MatchFromEnd,
-        MatchCase = 4,
-        MatchWrap = 8
-    };
-    Q_DECLARE_FLAGS(MatchFlags, MatchFlag)
-
     explicit QAbstractItemModel(QObject *parent = 0);
     virtual ~QAbstractItemModel();
 
@@ -168,7 +158,8 @@ public:
     virtual QModelIndex buddy(const QModelIndex &index) const;
     virtual QModelIndexList match(const QModelIndex &start, int role,
                                   const QVariant &value, int hits = 1,
-                                  MatchFlags flags = MatchFlags(MatchFromStart | MatchWrap)) const;
+                                  Qt::MatchFlags flags =
+                                  Qt::MatchFlags(Qt::MatchStartsWith|Qt::MatchWrap)) const;
     virtual QSize span(const QModelIndex &index) const;
 
 signals:
@@ -238,8 +229,6 @@ inline QModelIndex QAbstractItemModel::createIndex(int arow, int acolumn, void *
 { return QModelIndex(arow, acolumn, adata, this); }
 inline QModelIndex QAbstractItemModel::createIndex(int arow, int acolumn, int aid) const
 { return QModelIndex(arow, acolumn, reinterpret_cast<void*>(aid), this); }
-
-Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractItemModel::MatchFlags)
 
 class Q_CORE_EXPORT QAbstractTableModel : public QAbstractItemModel
 {
