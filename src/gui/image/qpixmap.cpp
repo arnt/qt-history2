@@ -639,7 +639,7 @@ bool QPixmap::save(const QString &fileName, const char *format, int quality) con
     QByteArray bytes;
     QBuffer buffer(&bytes);
     buffer.open(QIODevice::WriteOnly);
-    pixmap.save(&buffer, "PNG"); // writes pixmap into ba in PNG format
+    pixmap.save(&buffer, "PNG"); // writes pixmap into bytes in PNG format
     \endcode
 */
 
