@@ -389,7 +389,7 @@ QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPointF &point, int *po
     int off = 0;
     for (int i = 0; i < tl->lineCount(); ++i) {
         QTextLine line = tl->lineAt(i);
-        const QRectF lr = line.naturalTextRect().toRect();
+        const QRectF lr = line.naturalTextRect();
         if (lr.top() > pos.y()) {
             off = qMin(off, line.textStart());
         } else if (lr.bottom() <= pos.y()) {

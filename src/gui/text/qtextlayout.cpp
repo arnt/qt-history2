@@ -947,7 +947,11 @@ QRectF QTextLine::naturalTextRect() const
     const QScriptLine& sl = eng->lines[i];
     qreal x = sl.x + alignLine(eng, sl);
 
-    return QRectF(x, sl.y, sl.textWidth, sl.height());
+    qreal width = sl.textWidth;
+    if (sl.justified)
+        width = sl.width;
+
+    return QRectF(x, sl.y, width, sl.height());
 }
 
 /*!
@@ -1709,7 +1713,8 @@ int QTextLine::xToCursor(qreal x, CursorPosition cpos) const
         pos = qMax(line.from, pos);
         pos = qMin(line.from + line_length, pos);
         return pos;
-    } else if (x < line.textWidth) {
+    } else if (x < line.textWidth
+               || (line.justified && x < line.width)) {
         // has to be in one of the runs
         qreal pos = 0;
 
