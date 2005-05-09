@@ -511,6 +511,24 @@ void QPixmap::setMask(const QBitmap &newmask)
         // trying to selfmask
         return;
 
+    if (newmask.isNull()) { // clear mask
+#ifndef QT_NO_XRENDER
+        if (X11->use_xrender) {
+            QPixmap pixmap(data->w, data->h);
+            pixmap.fill(Qt::black);
+            XRenderComposite(X11->display, PictOpOver,
+                             data->picture, 0,
+                             pixmap.data->picture, 0, 0, 0, 0, 0, 0, data->w, data->h);
+            *this = pixmap;
+        } else
+#endif
+            if (data->x11_mask) {
+                XFreePixmap(X11->display, data->x11_mask);
+                data->x11_mask = 0;
+            }
+        return;
+    }
+
     if (newmask.width() != width() || newmask.height() != height()) {
         qWarning("QPixmap::setMask: The pixmap and the mask must have the same size");
         return;
@@ -525,17 +543,17 @@ void QPixmap::setMask(const QBitmap &newmask)
                          data->picture, 0, 0, 0, 0, 0, 0, data->w, data->h);
     } else
 #endif
-    if (depth() == 1) {
-        XGCValues vals;
-        vals.function = GXand;
-        GC gc = XCreateGC(X11->display, data->hd, GCFunction, &vals);
-        XCopyArea(X11->display, newmask.handle(), data->hd, gc, 0, 0, width(), height(), 0, 0);
-        XFreeGC(X11->display, gc);
-    } else {
-        if (data->x11_mask)
-            XFreePixmap(X11->display, data->x11_mask);
-        data->x11_mask = QPixmapData::bitmap_to_mask(newmask, data->xinfo.screen());
-    }
+        if (depth() == 1) {
+            XGCValues vals;
+            vals.function = GXand;
+            GC gc = XCreateGC(X11->display, data->hd, GCFunction, &vals);
+            XCopyArea(X11->display, newmask.handle(), data->hd, gc, 0, 0, width(), height(), 0, 0);
+            XFreeGC(X11->display, gc);
+        } else {
+            if (data->x11_mask)
+                XFreePixmap(X11->display, data->x11_mask);
+            data->x11_mask = QPixmapData::bitmap_to_mask(newmask, data->xinfo.screen());
+        }
 }
 
 /*!
