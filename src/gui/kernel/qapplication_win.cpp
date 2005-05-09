@@ -1282,7 +1282,7 @@ LRESULT CALLBACK QtWndProc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam
         if (endsession) {
             // since the process will be killed immediately quit() has no real effect
             int index = QApplication::staticMetaObject.indexOfSignal("aboutToQuit()");
-            qApp->qt_metacall(QMetaObject::InvokeMetaMember, index,0);
+            qApp->qt_metacall(QMetaObject::InvokeMetaMethod, index,0);
             qApp->quit();
         }
 

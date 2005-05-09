@@ -132,7 +132,6 @@ private:
 
 class QObject;
 class QMetaMethod;
-typedef QMetaMethod QMetaMember; // ### remove me
 class QMetaEnum;
 class QMetaProperty;
 class QMetaClassInfo;
@@ -191,19 +190,16 @@ struct Q_CORE_EXPORT QMetaObject
 #endif // QT_NO_TRANSLATION
 
     int methodOffset() const;
-    inline int memberOffset() const { return methodOffset(); } // ### remove me
     int enumeratorOffset() const;
     int propertyOffset() const;
     int classInfoOffset() const;
 
     int methodCount() const;
-    inline int memberCount() const { return methodCount(); } // ### remove me
     int enumeratorCount() const;
     int propertyCount() const;
     int classInfoCount() const;
 
     int indexOfMethod(const char *method) const;
-    inline int indexOfMember(const char *member) const { return indexOfMethod(member); } // ### remove me
     int indexOfSignal(const char *signal) const;
     int indexOfSlot(const char *slot) const;
     int indexOfEnumerator(const char *name) const;
@@ -211,7 +207,6 @@ struct Q_CORE_EXPORT QMetaObject
     int indexOfClassInfo(const char *name) const;
 
     QMetaMethod method(int index) const;
-    QMetaMethod member(int index) const; // ### remove me
     QMetaEnum enumerator(int index) const;
     QMetaProperty property(int index) const;
     QMetaClassInfo classInfo(int index) const;
@@ -304,7 +299,6 @@ struct Q_CORE_EXPORT QMetaObject
 
     enum Call {
         InvokeMetaMethod,
-        InvokeMetaMember = InvokeMetaMethod, // ### remove me
         ReadProperty,
         WriteProperty,
         ResetProperty,

@@ -533,11 +533,6 @@ QMetaMethod QMetaObject::method(int index) const
     return result;
 }
 
-QMetaMethod QMetaObject::member(int index) const  // ### remove me
-{
-    return method(index);
-}
-
 /*!
     Returns the meta data for the enumerator with the given \a index.
 
@@ -908,10 +903,10 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
         sig[sig.size() - 1] = ')';
     sig.append('\0');
 
-    int idx = obj->metaObject()->indexOfMember(sig.constData());
+    int idx = obj->metaObject()->indexOfMethod(sig.constData());
     if (idx < 0) {
         QByteArray norm = QMetaObject::normalizedSignature(sig.constData());
-        idx = obj->metaObject()->indexOfMember(norm.constData());
+        idx = obj->metaObject()->indexOfMethod(norm.constData());
     }
     if (idx < 0)
         return false;
@@ -931,7 +926,7 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
     }
 
     if (type != Qt::QueuedConnection) {
-        return obj->qt_metacall(QMetaObject::InvokeMetaMember, idx, param) < 0;
+        return obj->qt_metacall(QMetaObject::InvokeMetaMethod, idx, param) < 0;
     } else {
         if (ret.data()) {
             qWarning("QMetaObject::invokeMethod: Unable to invoke methods with return values in queued "

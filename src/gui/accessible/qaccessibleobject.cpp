@@ -42,9 +42,9 @@ QList<QByteArray> QAccessibleObjectPrivate::actionList() const
     QByteArray defaultAction = QMetaObject::normalizedSignature(
         mo->classInfo(mo->indexOfClassInfo("DefaultSlot")).value());
 
-    for (int i = 0; i < mo->memberCount(); ++i) {
-        const QMetaMember member = mo->member(i);
-        if (member.memberType() != QMetaMember::Slot && member.access() != QMetaMember::Public)
+    for (int i = 0; i < mo->methodCount(); ++i) {
+        const QMetaMethod member = mo->method(i);
+        if (member.methodType() != QMetaMethod::Slot && member.access() != QMetaMethod::Public)
             continue;
 
         if (!qstrcmp(member.tag(), "QACCESSIBLE_SLOT")) {

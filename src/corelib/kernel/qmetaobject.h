@@ -33,7 +33,6 @@ public:
     Access access() const;
     enum MethodType { Method, Signal, Slot };
     MethodType methodType() const;
-    inline MethodType memberType() const { return methodType(); } // ### remove me
     enum Attributes { Compatibility = 0x1, Cloned = 0x2, Scriptable = 0x4 };
     int attributes() const;
 

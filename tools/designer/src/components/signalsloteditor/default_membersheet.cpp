@@ -39,7 +39,7 @@ int QDesignerMemberSheet::count() const
 
 int QDesignerMemberSheet::indexOf(const QString &name) const
 {
-    return meta->indexOfMember(name.toUtf8());
+    return meta->indexOfMethod(name.toUtf8());
 }
 
 QString QDesignerMemberSheet::memberName(int index) const
@@ -57,7 +57,7 @@ QString QDesignerMemberSheet::declaredInClass(int index) const
         const QMetaObject *tmp = meta_obj->superClass();
         if (tmp == 0)
             break;
-        if (tmp->indexOfMember(member) == -1)
+        if (tmp->indexOfMethod(member) == -1)
             break;
         meta_obj = tmp;
     }
@@ -102,18 +102,18 @@ void QDesignerMemberSheet::setVisible(int index, bool visible)
 
 bool QDesignerMemberSheet::isSignal(int index) const
 {
-    return meta->method(index).memberType() == QMetaMethod::Signal;
+    return meta->method(index).methodType() == QMetaMethod::Signal;
 }
 
 bool QDesignerMemberSheet::isSlot(int index) const
 {
-    return meta->method(index).memberType() == QMetaMethod::Slot;
+    return meta->method(index).methodType() == QMetaMethod::Slot;
 }
 
 bool QDesignerMemberSheet::inheritedFromWidget(int index) const
 {
     const char *name = meta->method(index).signature();
-    return someWidget()->metaObject()->indexOfMember(name) != -1;
+    return someWidget()->metaObject()->indexOfMethod(name) != -1;
 }
 
 
