@@ -52,10 +52,6 @@ QDesignerFormWindowInterface *WidgetEditorTool::formWindow() const
 
 bool WidgetEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QEvent *event)
 {
-    if (core()->widgetFactory()->isPassiveInteractor(widget)) {
-        return false;
-    }
-
     switch (event->type()) {
 
 #if 0 // ### check me
@@ -70,30 +66,51 @@ bool WidgetEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QEve
 #endif
 
     case QEvent::FocusOut:
-    case QEvent::FocusIn: {
+    case QEvent::FocusIn:
         if (widget == m_formWindow)
             break;
-    } return true;
+        return true;
 
     case QEvent::KeyPress:
+        if (core()->widgetFactory()->isPassiveInteractor(widget)) {
+            return false;
+        }
         return handleKeyPressEvent(widget, managedWidget, static_cast<QKeyEvent*>(event));
 
     case QEvent::KeyRelease:
+        if (core()->widgetFactory()->isPassiveInteractor(widget)) {
+            return false;
+        }
         return handleKeyReleaseEvent(widget, managedWidget, static_cast<QKeyEvent*>(event));
 
     case QEvent::MouseMove:
+        if (core()->widgetFactory()->isPassiveInteractor(widget)) {
+            return false;
+        }
         return handleMouseMoveEvent(widget, managedWidget, static_cast<QMouseEvent*>(event));
 
     case QEvent::MouseButtonPress:
+        if (core()->widgetFactory()->isPassiveInteractor(widget)) {
+            return false;
+        }
         return handleMousePressEvent(widget, managedWidget, static_cast<QMouseEvent*>(event));
 
     case QEvent::MouseButtonRelease:
+        if (core()->widgetFactory()->isPassiveInteractor(widget)) {
+            return false;
+        }
         return handleMouseReleaseEvent(widget, managedWidget, static_cast<QMouseEvent*>(event));
 
     case QEvent::MouseButtonDblClick:
+        if (core()->widgetFactory()->isPassiveInteractor(widget)) {
+            return false;
+        }
         return handleMouseButtonDblClickEvent(widget, managedWidget, static_cast<QMouseEvent*>(event));
 
     case QEvent::ContextMenu:
+        if (core()->widgetFactory()->isPassiveInteractor(widget)) {
+            return false;
+        }
         return handleContextMenu(widget, managedWidget, static_cast<QContextMenuEvent*>(event));
 
     default: break;

@@ -233,11 +233,21 @@ void TabOrderEditor::mousePressEvent(QMouseEvent *e)
 
     if (!m_indicator_region.contains(e->pos())) {
         if (QWidget *child = m_bg_widget->childAt(e->pos())) {
-            if (m_form_window->core()->widgetFactory()->isPassiveInteractor(child)) {
+            QDesignerFormEditorInterface *core = m_form_window->core();
+            if (core->widgetFactory()->isPassiveInteractor(child)) {
+
                 QMouseEvent event(QEvent::MouseButtonPress,
                                     child->mapFromGlobal(e->globalPos()),
                                     e->button(), e->buttons(), e->modifiers());
+
                 qApp->sendEvent(child, &event);
+
+                QMouseEvent event2(QEvent::MouseButtonRelease,
+                                    child->mapFromGlobal(e->globalPos()),
+                                    e->button(), e->buttons(), e->modifiers());
+
+                qApp->sendEvent(child, &event2);
+
                 updateBackground();
             }
         }
@@ -245,7 +255,6 @@ void TabOrderEditor::mousePressEvent(QMouseEvent *e)
     }
 
     int target_index = widgetIndexAt(e->pos());
-    qDebug() << "TabOrderEditor::mousePressEvent():" << m_current_index << target_index;
     if (target_index == -1)
         return;
 
@@ -267,7 +276,6 @@ void TabOrderEditor::mousePressEvent(QMouseEvent *e)
 void TabOrderEditor::mouseDoubleClickEvent(QMouseEvent *e)
 {
     m_current_index = 0;
-    qDebug() << "TabOrderEditor::mouseDoubleClickEvent():" << m_current_index;
     mousePressEvent(e);
 }
 

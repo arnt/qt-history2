@@ -324,6 +324,8 @@ bool WidgetFactory::isPassiveInteractor(QWidget *widget)
 
     if (QApplication::activePopupWidget()) // if a popup is open, we have to make sure that this one is closed, else X might do funny things
         return (m_lastWasAPassiveInteractor = true);
+    else if (widget == 0)
+        return m_lastWasAPassiveInteractor;
 
     if (qobject_cast<QTabBar*>(widget))
         return (m_lastWasAPassiveInteractor = true);

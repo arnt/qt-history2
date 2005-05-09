@@ -91,15 +91,12 @@ QDesignerFormWindowInterface *FormWindowManager::formWindow(int index) const
 
 static bool isMouseMoveOrRelease(QEvent *e)
 {
-    return e->type() == QEvent::MouseButtonRelease
-            || e->type() == QEvent::MouseMove;
+    return e->type() == QEvent::MouseButtonRelease || e->type() == QEvent::MouseMove;
 }
 
 bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 {
-    if (o == m_core->topLevel()
-            && !m_drag_item_list.isEmpty()
-            && isMouseMoveOrRelease(e)) {
+    if (o == m_core->topLevel() && !m_drag_item_list.isEmpty() && isMouseMoveOrRelease(e)) {
         // We're dragging
         QMouseEvent *me = static_cast<QMouseEvent*>(e);
         me->accept();
@@ -111,11 +108,10 @@ bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
         return true;
     }
 
-    QWidget *widget = static_cast<QWidget*>(o);
-
-    if (!o->isWidgetType()) {
+    if (!o->isWidgetType())
         return false;
-    }
+
+    QWidget *widget = static_cast<QWidget*>(o);
 
     if (qobject_cast<WidgetHandle*>(widget)) { // ### remove me
         return false;
