@@ -7,5 +7,5 @@ contains(CONFIG, debug_and_release_target) {
 	LIBS+=-l$$SHARED_FOLDER/release/demo_shared
     }
 } else {
-    LIBS += -l$$SHARED_FOLDER/demo_shared
+    LIBS += -L$$SHARED_FOLDER -ldemo_shared
 }
