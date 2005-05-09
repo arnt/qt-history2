@@ -667,7 +667,7 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
         return false;
     bool restored = d_func()->layout->restoreState(stream);
     if (isVisible())
-        d_func()->layout->relayout();
+        QApplication::postEvent(this, new QResizeEvent(size(), size()));
     return restored;
 }
 
