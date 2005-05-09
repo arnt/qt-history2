@@ -21,7 +21,8 @@ DEPENDPATH += q3buttongroup \
               q3toolbar \
               q3widgetstack \
               q3wizard \
-              q3listbox
+              q3listbox \
+              q3table
 
 INCLUDEPATH += . \
                q3buttongroup \
@@ -33,7 +34,8 @@ INCLUDEPATH += . \
                q3toolbar \
                q3widgetstack \
                q3wizard \
-               q3listbox
+               q3listbox \
+               q3table
 
 
 SOURCES += qt3supportwidgets.cpp
@@ -55,7 +57,9 @@ HEADERS += q3buttongroup/q3buttongroup_plugin.h \
            q3wizard/q3wizard_container.h \
            q3wizard/q3wizard_plugin.h \
            q3listbox/q3listbox_extrainfo.h \
-           q3listbox/q3listbox_plugin.h
+           q3listbox/q3listbox_plugin.h \
+           q3table/q3table_extrainfo.h \
+           q3table/q3table_plugin.h
 
 SOURCES += q3buttongroup/q3buttongroup_plugin.cpp \
            q3frame/q3frame_plugin.cpp \
@@ -73,4 +77,6 @@ SOURCES += q3buttongroup/q3buttongroup_plugin.cpp \
            q3wizard/q3wizard_container.cpp \
            q3wizard/q3wizard_plugin.cpp \
            q3listbox/q3listbox_extrainfo.cpp \
-           q3listbox/q3listbox_plugin.cpp
+           q3listbox/q3listbox_plugin.cpp \
+           q3table/q3table_extrainfo.cpp \
+           q3table/q3table_plugin.cpp
