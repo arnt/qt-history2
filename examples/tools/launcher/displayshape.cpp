@@ -1,0 +1,348 @@
+#include <QtGui>
+
+#include "displayshape.h"
+
+DisplayShape::DisplayShape(const QPointF &position, const QSizeF &maxSize)
+    : pos(position), maxSize(maxSize)
+{
+    Q_UNUSED(position);
+}
+
+bool DisplayShape::animate(const QRect &boundingRect)
+{
+    Q_UNUSED(boundingRect);
+
+    if (meta.contains("target")) {
+        QPointF target = meta["target"].toPointF();
+        QLineF displacement(pos, target);
+        pos = displacement.pointAt(0.25);
+        return true;
+    }
+
+    return false;
+}
+
+bool DisplayShape::contains(const QString &key) const
+{
+    return meta.contains(key);
+}
+
+QVariant DisplayShape::metaData(const QString &key) const
+{
+    return meta.value(key);
+}
+
+void DisplayShape::paint(QPainter *painter) const
+{
+    painter->save();
+    painter->drawImage(pos, image);
+    painter->restore();
+}
+
+QPointF DisplayShape::position() const
+{
+    return pos;
+}
+
+QRectF DisplayShape::rect() const
+{
+    return QRectF(pos, image.size());
+}
+
+void DisplayShape::removeMetaData(const QString &key)
+{
+    meta.remove(key);
+}
+
+void DisplayShape::setMetaData(const QString &key, const QVariant &value)
+{
+    meta[key] = value;
+}
+
+void DisplayShape::setPosition(const QPointF &position)
+{
+    pos = position;
+}
+
+QSizeF DisplayShape::size() const
+{
+    return maxSize;
+}
+
+PathShape::PathShape(const QPainterPath &path, const QBrush &brush,
+                     const QPen &pen, const QPointF &position,
+                     const QSizeF &maxSize)
+    : DisplayShape(position, maxSize), brush(brush), path(path), pen(pen)
+{
+}
+
+bool PathShape::animate(const QRect &boundingRect)
+{
+    bool updated = false;
+
+    if (!meta.contains("destroy")) {
+        if (meta.contains("fade")) {
+            QColor penColor = pen.color();
+            QColor brushColor = brush.color();
+            int penAlpha = penColor.alpha();
+            int brushAlpha = brushColor.alpha();
+
+            penAlpha += meta.value("fade").toInt();
+            brushAlpha += meta.value("fade").toInt();
+
+            penColor.setAlpha(qBound(0, penAlpha, 255));
+            brushColor.setAlpha(qBound(0, brushAlpha, 255));
+            pen.setColor(penColor);
+            brush.setColor(brushColor);
+
+            if (penAlpha == 0 && brushAlpha == 0) {
+                meta["destroy"] = true;
+                meta.remove("fade");
+            } else if (penAlpha == 255 && brushAlpha == 255)
+                meta.remove("fade");
+
+            updated = true;
+        }
+    }
+
+    return DisplayShape::animate(boundingRect) || updated;
+}
+
+void PathShape::paint(QPainter *painter) const
+{
+    painter->save();
+    painter->setRenderHint(QPainter::Antialiasing);
+    painter->setBrush(brush);
+    painter->setPen(pen);
+    painter->translate(pos);
+    painter->drawPath(path);
+    painter->restore();
+}
+
+QRectF PathShape::rect() const
+{
+    return QRectF(pos + path.boundingRect().topLeft(),
+                  path.boundingRect().size());
+}
+
+TitleShape::TitleShape(const QString &text, const QFont &f,
+                       const QPen &pen, const QPointF &position,
+                       const QSizeF &maxSize)
+    : DisplayShape(position, maxSize), font(f), text(text), pen(pen)
+{
+    QFontMetrics fm(font);
+    QSize textSize = fm.boundingRect(QRect(pos.toPoint(), maxSize.toSize()),
+        Qt::AlignVCenter, text).size();
+    qreal scale = qMin(maxSize.width()/textSize.width(),
+                       maxSize.height()/textSize.height());
+
+    font.setPointSizeF(font.pointSizeF() * scale);
+}
+
+bool TitleShape::animate(const QRect &boundingRect)
+{
+    bool updated = false;
+
+    if (!meta.contains("destroy")) {
+        if (meta.contains("fade")) {
+            QColor penColor = pen.color();
+            int penAlpha = penColor.alpha();
+
+            penAlpha = qBound(0, penAlpha + meta.value("fade").toInt(), 255);
+
+            penColor.setAlpha(penAlpha);
+            pen.setColor(penColor);
+
+            if (penAlpha == 0) {
+                meta["destroy"] = true;
+                meta.remove("fade");
+            } else if (penAlpha == 255)
+                meta.remove("fade");
+
+            updated = true;
+        }
+    }
+
+    return DisplayShape::animate(boundingRect) || updated;
+}
+
+void TitleShape::paint(QPainter *painter) const
+{
+    QFontMetrics fm(font);
+    painter->save();
+    painter->setRenderHint(QPainter::TextAntialiasing);
+    painter->setPen(pen);
+    painter->setFont(font);
+    painter->drawText(QRectF(pos, maxSize), Qt::AlignVCenter, text);
+    painter->restore();
+}
+
+QRectF TitleShape::rect() const
+{
+    QFontMetrics fm(font);
+    return QRectF(fm.boundingRect(QRect(pos.toPoint(), maxSize.toSize()),
+                  Qt::AlignVCenter, text));
+}
+
+ImageShape::ImageShape(const QImage &image, const QPointF &position,
+                       const QSizeF &maxSize, int alpha)
+    : DisplayShape(position, maxSize), alpha(alpha)
+{
+    source = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    redraw();
+}
+
+void ImageShape::redraw()
+{
+    qreal scale = qMin(qMin(maxSize.width()/source.width(),
+                            maxSize.height()/source.height()), 1.0);
+    image = QImage(int(scale * source.width()), int(scale * source.height()),
+                   QImage::Format_ARGB32_Premultiplied);
+    image.fill(qRgba(255, 255, 255, alpha));
+
+    QPainter painter;
+    painter.begin(&image);
+    painter.setRenderHint(QPainter::SmoothPixmapTransform);
+    painter.setCompositionMode(QPainter::CompositionMode_SourceIn);
+    painter.scale(scale, scale);
+    painter.drawImage(0, 0, source);
+    painter.end();
+
+    offset = QPointF((maxSize.width() - image.width())/2,
+                     (maxSize.height() - image.height())/2);
+}
+
+void ImageShape::paint(QPainter *painter) const
+{
+    painter->drawImage(pos + offset, image);
+}
+
+QRectF ImageShape::rect() const
+{
+    return QRectF(pos, maxSize);
+}
+
+bool ImageShape::animate(const QRect &boundingRect)
+{
+    bool updated = false;
+
+    if (!meta.contains("destroy")) {
+        if (meta.contains("fade")) {
+            alpha = qBound(0, alpha + meta.value("fade").toInt(), 255);
+            redraw();
+
+            if (alpha == 0) {
+                meta["destroy"] = true;
+                meta.remove("fade");
+            } else if (alpha == 255)
+                meta.remove("fade");
+
+            updated = true;
+        }
+    }
+
+    return DisplayShape::animate(boundingRect) || updated;
+}
+
+DocumentShape::DocumentShape(const QString &text, const QFont &f,
+                       const QPen &pen, const QPointF &position,
+                       const QSizeF &maxSize)
+    : DisplayShape(position, maxSize), font(f), pen(pen)
+{
+    QFontMetrics fm(font);
+    qreal scale = qMax(maxSize.height()/(fm.lineSpacing()*20), 1.0);
+
+    font.setPointSizeF(font.pointSizeF() * scale);
+
+    paragraphs = text.split("\n", QString::SkipEmptyParts);
+    formatText();
+}
+
+DocumentShape::~DocumentShape()
+{
+    qDeleteAll(layouts);
+    layouts.clear();
+}
+
+bool DocumentShape::animate(const QRect &boundingRect)
+{
+    bool updated = false;
+
+    if (!meta.contains("destroy")) {
+        if (meta.contains("fade")) {
+            QColor penColor = pen.color();
+            int penAlpha = penColor.alpha();
+
+            penAlpha = qBound(0, penAlpha + meta.value("fade").toInt(), 255);
+
+            penColor.setAlpha(penAlpha);
+            pen.setColor(penColor);
+
+            if (penAlpha == 0) {
+                meta["destroy"] = true;
+                meta.remove("fade");
+            } else if (penAlpha == 255)
+                meta.remove("fade");
+
+            updated = true;
+        }
+    }
+
+    return DisplayShape::animate(boundingRect) || updated;
+}
+
+void DocumentShape::formatText()
+{
+    qDeleteAll(layouts);
+    layouts.clear();
+
+    QFontMetrics fm(font);
+    qreal lineHeight = fm.height();
+    qreal y = 0.0;
+    qreal leftMargin = 0.0;
+    qreal rightMargin = maxSize.width();
+    qreal bottomMargin = maxSize.height() - lineHeight;
+
+    foreach (QString paragraph, paragraphs) {
+
+        QTextLayout *textLayout = new QTextLayout(paragraph, font);
+        textLayout->beginLayout();
+
+        while (y < bottomMargin) {
+            // create a new line
+            QTextLine line = textLayout->createLine();
+            if (!line.isValid())
+                break;
+
+            line.setLineWidth(rightMargin - leftMargin);
+            line.setPosition(QPointF(leftMargin, y));
+            y += line.height();
+        }
+
+        textLayout->endLayout();
+        layouts.append(textLayout);
+
+        y += lineHeight;
+
+        if (y >= bottomMargin)
+            break;
+    }
+
+    maxSize.setHeight(y);
+}
+
+void DocumentShape::paint(QPainter *painter) const
+{
+    painter->save();
+    painter->setRenderHint(QPainter::TextAntialiasing);
+    painter->setPen(pen);
+    painter->setFont(font);
+    foreach (QTextLayout *layout, layouts)
+        layout->draw(painter, pos);
+    painter->restore();
+}
+
+QRectF DocumentShape::rect() const
+{
+    return QRectF(pos, maxSize);
+}

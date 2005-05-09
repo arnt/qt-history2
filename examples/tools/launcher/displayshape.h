@@ -1,0 +1,107 @@
+#ifndef DISPLAYSHAPE_H
+#define DISPLAYSHAPE_H
+
+#include <QBrush>
+#include <QFont>
+#include <QHash>
+#include <QPainterPath>
+#include <QPen>
+#include <QPointF>
+#include <QSizeF>
+#include <QWidget>
+
+class DisplayShape
+{
+public:
+    DisplayShape(const QPointF &position, const QSizeF &maxSize);
+    virtual ~DisplayShape() {};
+
+    virtual bool animate(const QRect &boundingRect);
+    virtual bool contains(const QString &key) const;
+    virtual QVariant metaData(const QString &key) const;
+    virtual void paint(QPainter *painter) const;
+    virtual QPointF position() const;
+    virtual QRectF rect() const;
+    virtual QSizeF size() const;
+    virtual void removeMetaData(const QString &key);
+    virtual void setMetaData(const QString &key, const QVariant &value);
+    virtual void setPosition(const QPointF &point);
+
+protected:
+    QHash<QString,QVariant> meta;
+    QImage image;
+    QPointF pos;
+    QSizeF maxSize;
+};
+
+class PathShape : public DisplayShape
+{
+public:
+    PathShape(const QPainterPath &path, const QBrush &brush,
+              const QPen &pen, const QPointF &position, const QSizeF &maxSize);
+
+    bool animate(const QRect &boundingRect);
+    void paint(QPainter *painter) const;
+    QRectF rect() const;
+
+private:
+    QBrush brush;
+    QPainterPath path;
+    QPen pen;
+};
+
+class TitleShape : public DisplayShape
+{
+public:
+    TitleShape(const QString &text, const QFont &font, const QPen &pen,
+               const QPointF &position, const QSizeF &maxSize);
+
+    virtual bool animate(const QRect &boundingRect);
+    virtual void paint(QPainter *painter) const;
+    virtual QRectF rect() const;
+
+private:
+    QFont font;
+    QString text;
+    QPen pen;
+};
+
+class ImageShape : public DisplayShape
+{
+public:
+    ImageShape(const QImage &image, const QPointF &position,
+               const QSizeF &maxSize, int alpha = 0);
+
+    virtual bool animate(const QRect &boundingRect);
+    virtual void paint(QPainter *painter) const;
+    virtual QRectF rect() const;
+
+private:
+    void redraw();
+
+    QImage source;
+    int alpha;
+    QPointF offset;
+};
+
+class DocumentShape : public DisplayShape
+{
+public:
+    DocumentShape(const QString &text, const QFont &font, const QPen &pen,
+                  const QPointF &position, const QSizeF &maxSize);
+    DocumentShape::~DocumentShape();
+
+    virtual bool animate(const QRect &boundingRect);
+    virtual void paint(QPainter *painter) const;
+    virtual QRectF rect() const;
+
+private:
+    void formatText();
+
+    QFont font;
+    QStringList paragraphs;
+    QList<QTextLayout*> layouts;
+    QPen pen;
+};
+
+#endif

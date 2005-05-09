@@ -1,0 +1,178 @@
+<categories>
+  <description>
+<![CDATA[Qt is supplied with a number of example applications that have been written to provide developers with examples of the Qt API in use, highlight good practise, and showcase features found in each of Qt's core technologies.
+
+Click on a category to see the examples that are available for that area.]]>
+  </description>
+  <category dirname="designer" name="Qt Designer">
+    <description>
+<![CDATA[Qt Designer is a capable graphical user interface designer that lets you create and configure forms without writing code. GUIs created with Qt Designer can be compiled into an application or created at run-time. ]]>
+    </description>
+    <example filename="calculatorbuilder" name="Calculator Builder" />
+    <example filename="calculatorform:" name="Calculator Form" />
+    <example filename="worldtimeclock:" name="World Time Clock" />
+  </category>
+  <category dirname="dialogs" name="Dialogs">
+    <description>
+<![CDATA[Qt provides extensive support for dialog-based user interfaces.]]>
+    </description>
+    <example filename="complexwizard" name="Complex Wizard" />
+    <example filename="configdialog" name="Configuration Dialog" />
+    <example filename="extension" name="Extension Dialog" />
+    <example filename="findfiles" name="Find Files Dialog" />
+    <example filename="simplewizard" name="Simple Wizard" />
+    <example filename="standarddialogs" name="Standard Dialogs" />
+    <example filename="tabdialog" name="Tab Dialog" />
+  </category>
+  <category dirname="draganddrop" name="Drag and Drop">
+    <description>
+<![CDATA[Qt supports native drag and drop on all platforms via an extensible MIME-based system.]]>
+    </description>
+    <example filename="draggableicons" name="Draggable Icons" />
+    <example filename="draggabletext" name="Draggable Text" />
+    <example filename="fridgemagnets" name="Fridge Magnets" />
+    <example filename="puzzle" name="Puzzle" />
+  </category>
+  <category dirname="itemviews" name="Item Views">
+    <description>
+<![CDATA[Item views are widgets that typically display data sets. Qt 4's model/view framework lets you handle large data sets by separating the underlying data from the way it is represented to the user, and provides support for customized rendering through the use of delegates.]]>
+    </description>
+    <example filename="chart" name="Chart" />
+    <example filename="dirview" name="Directory View" />
+    <example filename="pixelator" name="Pixelator" />
+    <example filename="simpletreemodel" name="Simple Tree Model" />
+    <example filename="spinboxdelegate" name="Spin Box Delegate" />
+  </category>
+  <category dirname="layouts" name="Layouts">
+    <description>
+<![CDATA[Qt uses a layout-based approach to widget management. Widgets are arranged in the optimal positions in windows based on simple layout rules.]]>
+    </description>
+    <example filename="basiclayouts" name="Basic Layouts" />
+    <example filename="borderlayout" name="Border Layout" />
+    <example filename="flowlayout" name="Flow Layout" />
+  </category>
+  <category dirname="linguist" name="Qt Linguist">
+    <description>
+<![CDATA[Internationalization is a core feature of Qt. These examples show how to access translation and localization facilities at run-time.]]>
+    </description>
+    <example filename="arrowpad" name="Arrow Pad" />
+    <example filename="hellotr" name="Hello World" />
+    <example filename="trollprint" name="Troll Print" />
+  </category>
+  <category dirname="mainwindows" name="Main Windows">
+    <description>
+<![CDATA[All the standard features of application main windows are provided by Qt.
+
+Main windows can have pull down menus, tool bars, and dock windows. These separate forms of user input are unified in an integrated action system that also supports keyboard shortcuts and accelerator keys in menu items.]]>
+    </description>
+    <example filename="application" name="Application" />
+    <example filename="mdi" name="Multiple Document Interface" />
+    <example filename="menus" name="Menus" />
+    <example filename="recentfiles" name="Recent Files" />
+    <example filename="sdi" name="Single Document Interface" />
+  </category>
+  <category dirname="network" name="Networking">
+    <description>
+<![CDATA[Qt is provided with an extensive set of network classes to support both client-based and server side network programming.
+
+These examples demonstrate the fundamental aspects of network programming with Qt.]]>
+    </description>
+    <example filename="blockingfortuneclient" name="Blocking Fortune Client" />
+    <example filename="broadcastreceiver" name="Broadcast Receiver" />
+    <example filename="broadcastsender" name="Broadcast Sender" />
+    <example filename="fortuneclient" name="Fortune Client" />
+    <example filename="fortuneserver" name="Fortune Server" />
+    <example filename="http" name="HTTP" />
+    <example filename="loopback" name="Loopback" />
+    <example filename="threadedfortuneserver" name="Threaded Fortune Server" />
+  </category>
+  <category dirname="opengl" name="Open GL">
+    <description>
+<![CDATA[Qt provides support for integration with Open GL implementations on all platforms.]]>
+    </description>
+    <example filename="grabber" name="Grabber" />
+    <example filename="hellogl" name="Hello GL" />
+    <example filename="textures" name="Textures" />
+  </category>
+  <category dirname="painting" name="Painting">
+    <description>
+<![CDATA[Qt's painting system is able to render vector graphics, images, and outline font-based text with sub-pixel accuracy accuracy using anti-aliasing to improve rendering quality.
+
+These examples show the most common techniques that are used when painting with Qt, from basic concepts such as drawing simple primitives to the use of transformations.]]>
+    </description>
+    <example filename="basicdrawing" name="Basic Drawing" />
+    <example filename="concentriccircles" name="Concentric Circles" />
+    <example filename="painterpaths" name="Painter Paths" />
+    <example filename="transformations" name="Transformations" />
+  </category>
+  <category dirname="richtext" name="Rich Text">
+    <description>
+<![CDATA[]]>
+    </description>
+    <example filename="calendar" name="Calendar" />
+    <example filename="orderform" name="Order Form" />
+    <example filename="syntaxhighlighter" name="Syntax Highlighter" />
+  </category>
+  <category dirname="sql" name="SQL">
+    <description>
+<![CDATA[]]>
+    </description>
+    <example filename="cachedtable" name="Cached Table" />
+    <example filename="querymodel" name="Query Model" />
+    <example filename="relationaltablemodel" name="Relational Table Model" />
+    <example filename="tablemodel" name="Table Model" />
+  </category>
+  <category dirname="threads" name="Threading">
+    <description>
+<![CDATA[]]>
+    </description>
+    <example filename="mandelbrot" name="Mandelbrot" />
+    <example filename="semaphores" name="Semaphores" />
+    <example filename="waitconditions" name="Wait Conditions" />
+  </category>
+  <category dirname="tools" name="Tools">
+    <description>
+<![CDATA[Qt is equipped with a range of capable tool classes, from containers and iterators to classes for string handling and manipulation.
+
+Other classes provide application infrastructure support, handling plugin loading and managing configuration files.]]>
+    </description>
+    <example filename="i18n" name="Internationalization" />
+    <example filename="settingseditor" name="Settings Editor" />
+    <example filename="plugandpaint" name="Plug and Paint" />
+    <example filename="codecs" name="Codecs" />
+    <example filename="regexp" name="Regular Expressions" />
+  </category>
+  <category dirname="widgets" name="Widgets">
+    <description>
+<![CDATA[Qt comes with a large range of standard widgets that users of modern application have come to expect.
+
+You can also develop your own custom widgets and controls, and use them alongside standard widgets.
+
+It is even possible to provide custom styles and themes for widgets that can be used to change the appearance of standard widgets and appropriately written custom widgets.]]>
+    </description>
+    <example filename="analogclock" name="Analog Clock" />
+    <example filename="calculator" name="Calculator" />
+    <example filename="charactermap" name="Character Map" />
+    <example filename="digitalclock" name="Digital Clock" />
+    <example filename="groupbox" name="Group Box" />
+    <example filename="icons" name="Icons" />
+    <example filename="imageviewer" name="Image Viewer" />
+    <example filename="lineedits" name="Line Edits" />
+    <example filename="screenshot" name="Screenshot" />
+    <example filename="scribble" name="Scribble" />
+    <example filename="sliders" name="Sliders" />
+    <example filename="spinboxes" name="Spin Boxes" />
+    <example filename="styles" name="Styles" />
+    <example filename="tetrix" name="Tetrix" />
+    <example filename="tooltips" name="Tool Tips" />
+    <example filename="wiggly" name="Wiggly" />
+    <example filename="windowflags" name="Window Flags" />
+  </category>
+  <category dirname="xml" name="XML">
+    <description>
+<![CDATA[XML parsing and handling is supported through SAX and DOM compliant APIs.]]>
+    </description>
+    <example filename="saxbookmarks" name="SAX Bookmarks" />
+    <example filename="dombookmarks" name="DOM Bookmarks" />
+  </category>
+</categories>
