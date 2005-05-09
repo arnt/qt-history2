@@ -451,10 +451,9 @@ void Launcher::showExamples(const QString &category)
     QSizeF maxSize(0.27 * width(), textHeight);
 
     DisplayShape *caption = new TitleShape(tr("Main Menu"), font(),
-        QPen(QColor("#9c9cff")), startPosition, maxSize);
+        QPen(Qt::white), startPosition, maxSize);
 
     caption->setMetaData("target", finishPosition);
-    caption->setMetaData("menu", "main");
     display->appendShape(caption);
 
     qreal maxWidth = qMax(maxWidth, caption->rect().width());
@@ -472,16 +471,30 @@ void Launcher::showExamples(const QString &category)
         maxWidth = qMax(maxWidth, caption->rect().width());
     }
 
-    startPosition = QPointF(width(), topMargin + step);
+    startPosition = QPointF(width(), topMargin);
     qreal extra = (step - textHeight)/4;
 
+    QPainterPath path;
+    path.setFillRule(Qt::WindingFill);
+    path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
+
+    DisplayShape *background = new PathShape(path,
+        QBrush(QColor("#8c8cef")), Qt::NoPen, startPosition,
+        QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
+
+    background->setMetaData("menu", "main");
+    background->setMetaData("target", QPointF(
+                            0.05 * width(), background->position().y()));
+    display->insertShape(0, background);
+
     foreach (QString example, examples[currentCategory]) {
+        startPosition += QPointF(0.0, step);
 
         QPainterPath path;
         path.setFillRule(Qt::WindingFill);
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
-        DisplayShape *background = new PathShape(path,
+        background = new PathShape(path,
             QBrush(QColor(240, 240, 240, 255)), Qt::NoPen, startPosition,
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
@@ -489,7 +502,6 @@ void Launcher::showExamples(const QString &category)
         background->setMetaData("target", QPointF(0.05 * width(),
                                                   background->position().y()));
         display->insertShape(0, background);
-        startPosition += QPointF(0.0, step);
     }
 
     qreal leftMargin = 0.075*width() + maxWidth;
