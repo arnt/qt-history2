@@ -1,8 +1,5 @@
 MUST HAVES:
 
-  * assert
-  * fix wrong links to constructor
-
   * get rid of spurious 'global' functions
   * Make automatic links in code work
 
