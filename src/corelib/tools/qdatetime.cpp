@@ -3340,7 +3340,7 @@ bool QDateTimeParser::isSpecial(const QChar &c) const
     switch (c.cell()) {
     case 'd': case 'M': case 'y':
         return (formatType == QVariant::Date || formatType == QVariant::DateTime);
-    case 'h': case 'm': case 's': case 'z': case 'a': case 'p':
+    case 'h': case 'm': case 's': case 'z': case 'a': case 'p': case 'A': case 'P':
         return (formatType == QVariant::Time || formatType == QVariant::DateTime);
     case '\'': return true;
     default: return false;
