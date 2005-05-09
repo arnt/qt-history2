@@ -702,13 +702,24 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
 	while ( m != (*s).members.end() ) {
 	    if ( (*m)->access() != Node::Private ) { // ### check necessary?
 		generateDetailedMember(*m, inner, marker);
-                bool ok = true;
+                QStringList names;
+                names << (*m)->name();
                 if ((*m)->type() == Node::Function) {
                     const FunctionNode *func = reinterpret_cast<const FunctionNode *>(*m);
-                    ok = (func->metaness() != FunctionNode::Ctor) && func->overloadNumber() == 1;
+                    if (func->metaness() == FunctionNode::Ctor || func->metaness() == FunctionNode::Dtor
+                            || func->overloadNumber() != 1)
+                        names.clear();
+                } else if ((*m)->type() == Node::Property) {
+                    const PropertyNode *prop = reinterpret_cast<const PropertyNode *>(*m);
+                    if (!prop->getters().isEmpty() && !names.contains(prop->getters().first()->name()))
+                        names << prop->getters().first()->name();
+                    if (!prop->setters().isEmpty())
+                        names << prop->setters().first()->name();
+                    if (!prop->resetters().isEmpty())
+                        names << prop->resetters().first()->name();
                 }
-                if (ok)
-                    classSection.keywords += qMakePair((*m)->name(), linkForNode(*m, 0));
+                foreach (QString name, names)
+                    classSection.keywords += qMakePair(name, linkForNode(*m, 0));
             }
 	    ++m;
 	}
@@ -759,7 +770,6 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     DcfSection fakeSection;
     fakeSection.title = fake->fullTitle();
     fakeSection.ref = linkForNode(fake, 0);
-    fakeSection.keywords += qMakePair(fake->name(), fakeSection.ref);
 
     QList<Section> sections;
     QList<Section>::const_iterator s;
