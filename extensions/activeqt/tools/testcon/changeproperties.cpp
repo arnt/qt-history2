@@ -148,7 +148,7 @@ void ChangeProperties::on_buttonSet_clicked()
  
     Q_ASSERT(activex->setProperty(prop.toLatin1(), value));
     setControl(activex);
-    listProperties->setCurrentItem(listProperties->findItems(QRegExp(prop)).at(0));
+    listProperties->setCurrentItem(listProperties->findItems(prop, Qt::MatchExactly).at(0));
 }
 
 void ChangeProperties::on_listEditRequests_itemChanged(QTreeWidgetItem *item)
