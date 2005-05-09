@@ -298,7 +298,7 @@ style.
 
 /*! \defgroup shared
 
-\title Implicitly and Explicitly Shared Classes
+\title Implicitly Shared Classes
 
 These classes are normally-heavy classes which in Qt have been
 optimized by the use of reference counter and common data so they can

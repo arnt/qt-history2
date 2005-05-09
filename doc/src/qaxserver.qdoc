@@ -548,7 +548,7 @@
     \i [in, out] struct QPoint (user defined)
     \endtable
 
-    Also supported are exported enums and sets (see Q_ENUMS and Q_SETS).
+    Also supported are exported enums and flags (see \l Q_ENUMS and \l Q_FLAGS).
     The in-parameter types are also supported as return values.
 
     Properties and signals/slots that have parameters using any other
@@ -898,7 +898,7 @@
     class MyLicensedControl : public QWidget
     {
         Q_OBJECT
-        Q_CLASSINFO("LicenseKey", "&lt;key string&gt;")
+        Q_CLASSINFO("LicenseKey", "<key string>")
     ...
     };
     \endcode

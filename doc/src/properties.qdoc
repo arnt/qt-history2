@@ -1,6 +1,5 @@
 /*!
     \page properties.html
-
     \title Qt's Property System
 
     Qt provides a sophisticated property system similar to those supplied
@@ -9,10 +8,10 @@
     features like \c __property or \c [property]. Our solution works with
     \e any standard C++ compiler on every platform we support. It's based
     on the meta-object system that also provides object communication
-    through \link signalsandslots.html signals and slots\endlink.
+    through \l{signals and slots}.
 
-    The \c Q_PROPERTY macro in a class declaration declares a property.
-    Properties can only be declared in classes that inherit \l QObject. 
+    The \c Q_PROPERTY() macro in a class declaration declares a property.
+    Properties can only be declared in classes that inherit QObject. 
 
     To the outer world, a property appears to be similar to a data member.
     But properties have several features that distinguish them from
@@ -21,25 +20,25 @@
     \list
     \o A read function. This always exists.
 
-    \o A write function. This is optional; read-only properties like \l
+    \o A write function. This is optional; read-only properties like
     QWidget::isDesktop() do not have one.
 
-    \o An attribute "stored" that indicates persistence. Most properties
-    are stored, but a few virtual properties are not. For example, \l
-    QWidget::minimumWidth() isn't stored, since it's just a view of
-    \l QWidget::minimumSize(), and has no data of its own.
+    \o A "stored" attribute that indicates persistence. Most
+    properties are stored, but a few virtual properties are not. For
+    example, QWidget::minimumWidth() isn't stored, since it's just
+    a view of QWidget::minimumSize(), and has no data of its own.
 
     \o A reset function to set a property back to its context specific
-    default value. This is very rare, but for example, \l QWidget::cursor
-    needs this, since no call to \l QWidget::setCursor() can mean 'reset to
-    the context specific cursor'.
+    default value. This is very rare, but for example, QWidget::cursor
+    needs this, since no call to QWidget::setCursor() can mean "reset to
+    the context specific cursor".
 
-    \o An attribute "designable" that indicates whether it makes sense to
-    make the property available in a GUI builder (e.g. \link
-    designer-manual.html Qt Designer\endlink). For most properties this 
-    makes sense, but not for all, e.g. \l QAbstractButton::down. The user can
-    press buttons, and the application programmer can make the program
-    press its own buttons, but a GUI design tool can't press buttons.
+    \o A "designable" attribute that indicates whether it makes sense to
+    make the property available in a GUI builder (e.g., \l{Qt
+    Designer}). For most properties this  makes sense, but not for
+    all, e.g. QAbstractButton::down. The user can press buttons,
+    and the application programmer can make the program press its own
+    buttons, but a GUI design tool can't press buttons.
 
     \endlist
 
@@ -51,7 +50,7 @@
     Properties can be read and written through generic functions in
     QObject without knowing anything about the class in use. In the
     code snippet below, the QObject::setProperty() call is equivalent
-    QButton::setDown() call is equivalent to the
+    QAbstractButton::setDown() call is equivalent to the
     QObject::setProperty() call:
 
     \code
@@ -66,15 +65,15 @@
     Equivalent, that is, except that the first is faster, and provides
     much better diagnostics at compile time. When practical, the first is
     better. However, since you can get a list of all available properties
-    for any QObject through its \l QMetaObject, \l QObject::setProperty()
+    for any QObject through its QMetaObject, QObject::setProperty()
     can give you control over classes that weren't available at compile
     time.
 
-    As well as QObject::setProperty(), there is a corresponding \l
-    QObject::property() function. \l QMetaObject::propertyCount() returns
-    the number of all available properties. \l QMetaObject::property()
-    returns the property data for a given property index: a \l
-    QMetaProperty object.
+    As well as QObject::setProperty(), there is a corresponding
+    QObject::property() function. QMetaObject::propertyCount()
+    returns the number of all available properties.
+    QMetaObject::property() returns the property data for a given
+    property index: a QMetaProperty object.
 
     Here's a simple example that shows the most important property
     functions in use:
@@ -95,8 +94,8 @@
     \endcode
 
     The class has a property \c priority that is not yet known to the
-    meta object system. In order to make the property known, you must
-    declare it with the \c Q_PROPERTY macro. The syntax is as
+    meta-object system. In order to make the property known, you must
+    declare it with the \c Q_PROPERTY() macro. The syntax is as
     follows:
 
     \code
@@ -113,18 +112,17 @@
     to return either the type itself, a pointer to it, or a reference to
     it. The optional write function must return void and must take exactly
     one argument, either the type itself, a pointer or a const reference
-    to it. The meta object compiler enforces this.
+    to it. The meta-object compiler enforces this.
 
-    The type of a property can be any \l QVariant supported type or an
+    The type of a property can be any QVariant supported type or an
     enumeration type declared in the class itself. Since \c MyClass uses
     the enumeration type \c Priority for the property, this type must be
     registered with the property system as well.
 
-    There are two exceptions to the above: The type of a property can also
-    be either \link QList QList\<QVariant\>\endlink or \link
-    QMap QMap\<QString,QVariant\>\endlink. In
-    these cases the type must be specified as \c QList or as \c QMap
-    (i.e. without their template parameters).
+    There are two exceptions to the above: The type of a property can
+    also be either QList<QVariant> or QMap<QString, QVariant>. In
+    these cases the type must be specified as \c QList or as \c QMap,
+    without any template parameters.
 
     It is possible to set a value by name, like this:
 
@@ -135,7 +133,7 @@
     In the case of \c QList and \c QMap properties the value passes
     is a QVariant whose value is the entire list or map.
 
-    Enumeration types are registered with the \c Q_ENUMS macro. Here's the
+    Enumeration types are registered with the \c Q_ENUMS() macro. Here's the
     final class declaration including the property related declarations:
 
     \code
@@ -155,18 +153,17 @@
         };
     \endcode
 
-    Another similar macro is \c Q_SETS. Like \c Q_ENUMS, it registers
-    an enumeration type but marks it in addition as a "set", i.e. the
-    enumeration values can be OR'd together. An I/O class might have
-    enumeration values \c Read and \c Write and accept \c{Read |
-    Write}: such an enum is best handled with \c Q_SETS, rather than
-    \c Q_ENUMS.
+    Another similar macro is \c Q_FLAGS(). Like \c Q_ENUMS(), it
+    registers an enumeration type but marks it in addition as a set
+    of "flags", i.e. the enumeration values can be OR'd together. An
+    I/O class might have enumeration values \c Read and \c Write and
+    accept \c{Read | Write}: such an enum is best handled with \c
+    Q_FLAGS(), rather than \c Q_ENUMS().
 
-    The remaining keywords in the \c Q_PROPERTY section are \c RESET, \c
+    The remaining keywords in the \c Q_PROPERTY() section are \c RESET, \c
     DESIGNABLE, \c SCRIPTABLE, and \c STORED.
 
     \list
-
     \o  \c RESET names a function that will set the property to its default
         state (which may have changed since initialization). The function
         must return void and take no arguments.
@@ -189,14 +186,15 @@
     \endlist
 
     Connected to the property system is an additional macro, \c
-    Q_CLASSINFO, that can be used to attach additional
-    name/value-pairs to a class' meta object, for example:
+    Q_CLASSINFO(), that can be used to attach additional
+    \e{name}--\e{value} pairs to a class's meta-object, for example:
 
     \code
         Q_CLASSINFO("Version", "3.0.0")
     \endcode
 
-    Like other meta data, class information is accessible at runtime
-    through the meta object, see \l QMetaObject::classInfo() for details.
+    Like other meta-data, class information is accessible at run-time
+    through the meta-object; see QMetaObject::classInfo() for details.
 
+    \sa {Meta-Object System}, {Signals and Slots}
 */

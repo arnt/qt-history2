@@ -3128,6 +3128,13 @@
 
     Then type \c make or \c nmake depending on the compiler you use.
 
+    For Visual Studio users, \c qmake can also generate \c .dsp or \c
+    .vcproj files, for example:
+
+    \code
+        qmake -tp vc -o hello.dsp hello.pro
+    \endcode
+
     \section1 Making an Application Debuggable
 
     The release version of an application doesn't contain any debugging
@@ -3276,135 +3283,24 @@
     ready to write project files for your development projects.
 */
 
-/*!
-    \page qmake-quickguide.html
-    \title The Ten-Minute Guide to Using qmake
 
-    \section1 Creating a Project File
 
-    \c qmake uses information stored in project (.pro) files to determine
-    what should go in the makefiles it generates.
 
-    A basic project file contains information about the application. It
-    declares the resources that are required to build the application,
-    such as the files used to compile the application, any user interface
-    descriptions, and which configuration settings to use.
 
-    Here's a simple example project file:
 
-    \code
-        SOURCES = hello.cpp
-        HEADERS = hello.h
-        CONFIG += qt warn_on release
-    \endcode
 
-    We'll provide a brief line-by-line explanation, deferring the detail
-    until later on in the manual.
 
-    \code
-        SOURCES = hello.cpp
-    \endcode
 
-    This line specifies the source files that implement the application. In this
-    case there is just one file, \c hello.cpp. Most applications require
-    multiple files; this situation is dealt with by listing all the files
-    on the same line space separated, like this:
 
-    \code
-        SOURCES = hello.cpp main.cpp
-    \endcode
 
-    Alternatively, each file can be listed on a separate line, by escaping
-    the newlines, like this:
 
-    \code
-        SOURCES = hello.cpp \
-                  main.cpp
-    \endcode
 
-    A more verbose approach is to list each file separately, like this:
 
-    \code
-        SOURCES += hello.cpp
-        SOURCES += main.cpp
-    \endcode
 
-    This approach uses "+=" rather than "=" which is safer, because it
-    always adds a new file to the existing list rather than replacing the
-    list.
 
-    The HEADERS line is used to specify the header files created for use
-    by the application, e.g.
 
-    \code
-        HEADERS += hello.h
-    \endcode
 
-    Any of the approaches used to list source files may be used for header
-    files.
 
-    The CONFIG line is used to give \c qmake information about the
-    application's configuration.
-
-    \code
-        CONFIG += qt warn_on release
-    \endcode
-
-    The "+=" is used here, because we add our configuration options to any
-    that are already present. This is safer than using "=" which replaces
-    all options with just those specified.
-
-    The \c qt part of the CONFIG line tells \c qmake that the application
-    is built using Qt.  This means that \c qmake will link against the Qt
-    libraries when linking and add in the neccesary include paths for
-    compiling.
-
-    The \c warn_on part of the CONFIG line tells \c qmake that it should
-    set the compiler flags so that warnings are output.
-
-    The \c release part of the CONFIG line tells \c qmake that the
-    application must be built as a release application. During
-    development, programmers may prefer to replace \c release with \c
-    debug, which is discussed later.
-
-    \omit
-    The last line in the project file is the TARGET line:
-
-    \code
-        TARGET = hello
-    \endcode
-
-    The target line simply specifies what the name of the target should be
-    for the application.  You shouldn't put an extension here because \c
-    qmake will do this for you.
-    \endomit
-
-    Project files are plain text (i.e. use an editor like notepad, vim
-    or xemacs) and must be saved with a \c .pro extension. The name of the
-    application's executable will be the same as the project file's name,
-    but with an extension appropriate to the platform. For example, a
-    project file called \c hello.pro will produce \c hello.exe on Windows
-    and \c hello on Unix.
-
-    \section1 Generating a Makefile
-
-    When you have created your project file it is very easy to generate a
-    makefile, all you need to do is go to where you have created your
-    project file and type:
-
-    Makefiles are generated from the \c .pro files like this:
-
-    \code
-        qmake -o Makefile hello.pro
-    \endcode
-
-    For Visual Studio users, \c qmake can also generate \c .dsp files, for
-    example:
-
-    \code
-        qmake -t vcapp -o hello.dsp hello.pro
-    \endcode
-*/
 
 /*!
     \page qmake-common-projects.html
