@@ -1225,7 +1225,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
     case CE_DockWidgetTitle:
         if (const QStyleOptionDockWidget *dwOpt = qstyleoption_cast<const QStyleOptionDockWidget *>(opt)) {
             QRect r = dwOpt->rect.adjusted(0, 0, -1, -1);
-            if (dwOpt->moveable) {
+            if (dwOpt->movable) {
                 p->setPen(dwOpt->palette.color(QPalette::Dark));
                 p->drawRect(r);
             }

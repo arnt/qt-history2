@@ -1696,7 +1696,7 @@ QSize Q3CheckTableItem::sizeHint() const
     removeRow() and removeColumn(). Multiple rows and columns can be
     removed with removeRows() and removeColumns().
 
-    Rows and columns can be set to be moveable using
+    Rows and columns can be set to be movable using
     rowMovingEnabled() and columnMovingEnabled(). The user can drag
     them to reorder them holding down the Ctrl key and dragging the
     mouse. For performance reasons, the default behavior of Q3Header

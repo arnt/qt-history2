@@ -406,7 +406,7 @@ void QDockWidgetTitle::paintEvent(QPaintEvent *)
     }
     opt.title = dockwidget->windowTitle();
     opt.closable = hasFeature(dockwidget, QDockWidget::DockWidgetClosable);
-    opt.moveable = hasFeature(dockwidget, QDockWidget::DockWidgetMovable);
+    opt.movable = hasFeature(dockwidget, QDockWidget::DockWidgetMovable);
     opt.floatable = hasFeature(dockwidget, QDockWidget::DockWidgetFloatable);
     style()->drawControl(QStyle::CE_DockWidgetTitle, &opt, &p, this);
 }

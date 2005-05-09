@@ -57,18 +57,9 @@ public:
 
     void init(const QWidget *w);
     QStyleOption &operator=(const QStyleOption &other);
-
-    QDOC_PROPERTY(int version)
-    QDOC_PROPERTY(int type)
-    QDOC_PROPERTY(Qt::LayoutDirection direction)
-    QDOC_PROPERTY(QFontMetrics fontMetrics)
-    QDOC_PROPERTY(QStyle::State state)
-    QDOC_PROPERTY(QRect rect)
-    QDOC_PROPERTY(QPalette palette)
-
 };
 
-class Q_GUI_EXPORT QStyleOptionFocusRect  : public QStyleOption
+class Q_GUI_EXPORT QStyleOptionFocusRect : public QStyleOption
 {
 public:
     enum { Type = SO_FocusRect };
@@ -78,8 +69,6 @@ public:
 
     QStyleOptionFocusRect();
     QStyleOptionFocusRect(const QStyleOptionFocusRect &other) : QStyleOption(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(QColor backgroundColor)
 
 protected:
     QStyleOptionFocusRect(int version);
@@ -96,9 +85,6 @@ public:
 
     QStyleOptionFrame();
     QStyleOptionFrame(const QStyleOptionFrame &other) : QStyleOption(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(int lineWidth)
-    QDOC_PROPERTY(int midLineWidth)
 
 protected:
     QStyleOptionFrame(int version);
@@ -119,9 +105,6 @@ public:
 
     QStyleOptionTabWidgetFrame();
     QStyleOptionTabWidgetFrame(const QStyleOptionTabWidgetFrame &other) : QStyleOption(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(int lineWidth)
-    QDOC_PROPERTY(int midLineWidth)
 
 protected:
     QStyleOptionTabWidgetFrame(int version);
@@ -168,13 +151,6 @@ public:
     QStyleOptionHeader();
     QStyleOptionHeader(const QStyleOptionHeader &other) : QStyleOption(Version, Type) { *this = other; }
 
-    QDOC_PROPERTY(int section)
-    QDOC_PROPERTY(QString text)
-    QDOC_PROPERTY(Qt::Alignment textAlignment)
-    QDOC_PROPERTY(QIcon icon)
-    QDOC_PROPERTY(Qt::Alignment iconAlignment)
-    QDOC_PROPERTY(Qt::Orientation orientation)
-
 protected:
     QStyleOptionHeader(int version);
 };
@@ -195,10 +171,6 @@ public:
 
     QStyleOptionButton();
     QStyleOptionButton(const QStyleOptionButton &other) : QStyleOption(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(ButtonFeatures features)
-    QDOC_PROPERTY(QString text)
-    QDOC_PROPERTY(QIcon icon)
 
 protected:
     QStyleOptionButton(int version);
@@ -229,14 +201,6 @@ public:
     QStyleOptionTab();
     QStyleOptionTab(const QStyleOptionTab &other) : QStyleOption(Version, Type) { *this = other; }
 
-    QDOC_PROPERTY(QTabBar::Shape shape)
-    QDOC_PROPERTY(QString text)
-    QDOC_PROPERTY(QIcon icon)
-    QDOC_PROPERTY(int row)
-    QDOC_PROPERTY(TabPosition position)
-    QDOC_PROPERTY(SelectedPosition selectedPosition)
-    QDOC_PROPERTY(CornerWidgets cornerWidgets)
-
 protected:
     QStyleOptionTab(int version);
 };
@@ -252,21 +216,12 @@ public:
     int minimum;
     int maximum;
     int progress;
-
     QString text;
     Qt::Alignment textAlignment;
     bool textVisible;
 
-
     QStyleOptionProgressBar();
     QStyleOptionProgressBar(const QStyleOptionProgressBar &other) : QStyleOption(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(int minimum)
-    QDOC_PROPERTY(int maximum)
-    QDOC_PROPERTY(int progress)
-    QDOC_PROPERTY(QString text)
-    QDOC_PROPERTY(Qt::Alignment textAlignment)
-    QDOC_PROPERTY(bool textVisible)
 
 protected:
     QStyleOptionProgressBar(int version);
@@ -296,17 +251,6 @@ public:
     QStyleOptionMenuItem();
     QStyleOptionMenuItem(const QStyleOptionMenuItem &other) : QStyleOption(Version, Type) { *this = other; }
 
-    QDOC_PROPERTY(MenuItemType menuItemType)
-    QDOC_PROPERTY(CheckType checkType)
-    QDOC_PROPERTY(bool checked)
-    QDOC_PROPERTY(bool menuHasCheckableItems)
-    QDOC_PROPERTY(QRect menuRect)
-    QDOC_PROPERTY(QString text)
-    QDOC_PROPERTY(QIcon icon)
-    QDOC_PROPERTY(int maxIconWidth)
-    QDOC_PROPERTY(int tabWidth)
-    QDOC_PROPERTY(QFont font)
-
 protected:
     QStyleOptionMenuItem(int version);
 };
@@ -330,12 +274,6 @@ public:
     QStyleOptionQ3ListViewItem();
     QStyleOptionQ3ListViewItem(const QStyleOptionQ3ListViewItem &other) : QStyleOption(Version, Type) { *this = other; }
 
-    QDOC_PROPERTY(ListViewItemFeatures features)
-    QDOC_PROPERTY(int height)
-    QDOC_PROPERTY(int totalHeight)
-    QDOC_PROPERTY(int itemY)
-    QDOC_PROPERTY(int childCount)
-
 protected:
     QStyleOptionQ3ListViewItem(int version);
 };
@@ -354,9 +292,6 @@ public:
     QStyleOptionQ3DockWindow();
     QStyleOptionQ3DockWindow(const QStyleOptionQ3DockWindow &other) : QStyleOption(Version, Type) { *this = other; }
 
-    QDOC_PROPERTY(bool docked)
-    QDOC_PROPERTY(bool closeEnabled)
-
 protected:
     QStyleOptionQ3DockWindow(int version);
 };
@@ -369,16 +304,11 @@ public:
 
     QString title;
     bool closable;
-    bool moveable;
+    bool movable;
     bool floatable;
 
     QStyleOptionDockWidget();
     QStyleOptionDockWidget(const QStyleOptionDockWidget &other) : QStyleOption(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(QString title)
-    QDOC_PROPERTY(bool closable)
-    QDOC_PROPERTY(bool moveable)
-    QDOC_PROPERTY(bool floatable)
 
 protected:
     QStyleOptionDockWidget(int version);
@@ -403,14 +333,6 @@ public:
     QStyleOptionViewItem();
     QStyleOptionViewItem(const QStyleOptionViewItem &other) : QStyleOption(Version, Type) { *this = other; }
 
-    QDOC_PROPERTY(Qt::Alignment displayAlignment)
-    QDOC_PROPERTY(Qt::Alignment decorationAlignment)
-    QDOC_PROPERTY(Qt::TextElideMode textElideMode)
-    QDOC_PROPERTY(Position decorationPosition)
-    QDOC_PROPERTY(QSize decorationSize)
-    QDOC_PROPERTY(QFont font)
-    QDOC_PROPERTY(showDecorationSelected)
-
 protected:
     QStyleOptionViewItem(int version);
 };
@@ -426,9 +348,6 @@ public:
 
     QStyleOptionToolBox();
     QStyleOptionToolBox(const QStyleOptionToolBox &other) : QStyleOption(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(QString text)
-    QDOC_PROPERTY(QIcon icon)
 
 protected:
     QStyleOptionToolBox(int version);
@@ -446,9 +365,6 @@ public:
     QStyleOptionRubberBand();
     QStyleOptionRubberBand(const QStyleOptionRubberBand &other) : QStyleOption(Version, Type) { *this = other; }
 
-    QDOC_PROPERTY(QRubberBand::Shape shape)
-    QDOC_PROPERTY(bool opaque)
-
 protected:
     QStyleOptionRubberBand(int version);
 };
@@ -465,9 +381,6 @@ public:
 
     QStyleOptionComplex(int version = QStyleOptionComplex::Version, int type = SO_Complex);
     QStyleOptionComplex(const QStyleOptionComplex &other) : QStyleOption(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(QStyle::SubControls subControls)
-    QDOC_PROPERTY(QStyle::SubControls activeSubControls)
 };
 
 class Q_GUI_EXPORT QStyleOptionSlider : public QStyleOptionComplex
@@ -492,19 +405,6 @@ public:
     QStyleOptionSlider();
     QStyleOptionSlider(const QStyleOptionSlider &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 
-    QDOC_PROPERTY(Qt::Orientation orientation)
-    QDOC_PROPERTY(int minimum)
-    QDOC_PROPERTY(int maximum)
-    QDOC_PROPERTY(QSlider::TickPosition tickPosition)
-    QDOC_PROPERTY(int tickInterval)
-    QDOC_PROPERTY(bool upsideDown)
-    QDOC_PROPERTY(int sliderPosition)
-    QDOC_PROPERTY(int sliderValue)
-    QDOC_PROPERTY(int singleStep)
-    QDOC_PROPERTY(int pageStep)
-    QDOC_PROPERTY(double notchTarget)
-    QDOC_PROPERTY(bool dialWrapping)
-
 protected:
     QStyleOptionSlider(int version);
 };
@@ -521,10 +421,6 @@ public:
 
     QStyleOptionSpinBox();
     QStyleOptionSpinBox(const QStyleOptionSpinBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(QAbstractSpinBox::ButtonSymbols buttonSymbols)
-    QDOC_PROPERTY(QAbstractSpinBox::StepEnabled stepEnabled)
-    QDOC_PROPERTY(bool frame)
 
 protected:
     QStyleOptionSpinBox(int version);
@@ -546,14 +442,6 @@ public:
 
     QStyleOptionQ3ListView();
     QStyleOptionQ3ListView(const QStyleOptionQ3ListView &other) : QStyleOptionComplex(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(QList<QStyleOptionQ3ListViewItem> items)
-    QDOC_PROPERTY(QPalette viewportPalette)
-    QDOC_PROPERTY(QPalette::ColorRole viewportBGRole)
-    QDOC_PROPERTY(int sortColumn)
-    QDOC_PROPERTY(int itemMargin)
-    QDOC_PROPERTY(int treeStepSize)
-    QDOC_PROPERTY(bool rootIsDecorated)
 
 protected:
     QStyleOptionQ3ListView(int version);
@@ -580,15 +468,6 @@ public:
     QStyleOptionToolButton();
     QStyleOptionToolButton(const QStyleOptionToolButton &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 
-    QDOC_PROPERTY(ToolButtonFeatures features)
-    QDOC_PROPERTY(QIcon icon)
-    QDOC_PROPERTY(QString text)
-    QDOC_PROPERTY(Qt::ArrowType arrowType)
-    QDOC_PROPERTY(Qt::ToolButtonStyle toolButtonStyle)
-    QDOC_PROPERTY(QPoint pos)
-    QDOC_PROPERTY(QFont font)
-    QDOC_PROPERTY(QSize iconSize)
-
 protected:
     QStyleOptionToolButton(int version);
 };
@@ -611,13 +490,6 @@ public:
     QStyleOptionComboBox();
     QStyleOptionComboBox(const QStyleOptionComboBox &other) : QStyleOptionComplex(Version, Type) { *this = other; }
 
-    QDOC_PROPERTY(bool editable)
-    QDOC_PROPERTY(QRect popupRect)
-    QDOC_PROPERTY(bool frame)
-    QDOC_PROPERTY(QString currentText)
-    QDOC_PROPERTY(QIcon currentIcon)
-    QDOC_PROPERTY(QSize iconSize)
-
 protected:
     QStyleOptionComboBox(int version);
 };
@@ -635,11 +507,6 @@ public:
 
     QStyleOptionTitleBar();
     QStyleOptionTitleBar(const QStyleOptionTitleBar &other) : QStyleOptionComplex(Version, Type) { *this = other; }
-
-    QDOC_PROPERTY(QString text)
-    QDOC_PROPERTY(QIcon icon)
-    QDOC_PROPERTY(int titleBarState)
-    QDOC_PROPERTY(Qt::WFlags titleBarFlags)
 
 protected:
     QStyleOptionTitleBar(int version);
@@ -682,9 +549,6 @@ public:
 
     int version;
     int type;
-
-    QDOC_PROPERTY(int version)
-    QDOC_PROPERTY(int type)
 };
 
 class Q_GUI_EXPORT QStyleHintReturnMask : public QStyleHintReturn {

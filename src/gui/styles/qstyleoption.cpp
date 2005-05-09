@@ -209,22 +209,22 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 
 
 /*!
-    \property QStyleOption::palette
+    \variable QStyleOption::palette
     \brief the palette that should be used when painting the control
 */
 
 /*!
-    \property QStyleOption::direction
+    \variable QStyleOption::direction
     \brief the text layout direction that should be used when drawing text in the control
 */
 
 /*!
-    \property QStyleOption::fontMetrics
+    \variable QStyleOption::fontMetrics
     \brief the font metrics that should be used when drawing text in the control
 */
 
 /*!
-    \property QStyleOption::rect
+    \variable QStyleOption::rect
     \brief the area that should be used for various calculations and painting.
 
     This can have different meanings for different types of elements.
@@ -235,7 +235,7 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 */
 
 /*!
-    \property QStyleOption::state
+    \variable QStyleOption::state
     \brief the style flags that are used when drawing the control
 
     \sa QStyle::drawPrimitive(), QStyle::drawControl(), QStyle::drawComplexControl(),
@@ -243,14 +243,14 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
 */
 
 /*!
-    \property QStyleOption::type
+    \variable QStyleOption::type
     \brief the option type of the style option
 
     \sa OptionType
 */
 
 /*!
-    \property QStyleOption::version
+    \variable QStyleOption::version
     \brief the version of the style option
 
     This value can be used by subclasses to implement extensions
@@ -291,7 +291,7 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
 */
 
 /*!
-    \property QStyleOptionFocusRect::backgroundColor
+    \variable QStyleOptionFocusRect::backgroundColor
     \brief The background color on which the focus rectangle is being drawn.
 */
 
@@ -329,12 +329,12 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 */
 
 /*!
-    \property QStyleOptionFrame::lineWidth
+    \variable QStyleOptionFrame::lineWidth
     \brief The line width for drawing the panel.
 */
 
 /*!
-    \property QStyleOptionFrame::midLineWidth
+    \variable QStyleOptionFrame::midLineWidth
     \brief The mid-line width for drawing the panel. This is usually used in
     drawing sunken or raised frames.
 */
@@ -375,7 +375,7 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 }
 
 /*!
-    \property QStyleOptionHeader::orientation
+    \variable QStyleOptionHeader::orientation
     \brief the header's orientation (horizontal or vertical)
 
     \sa Qt::Orientation
@@ -388,38 +388,53 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 */
 
 /*!
-    \property QStyleOptionHeader::section
+    \variable QStyleOptionHeader::section
     \brief Which section of the header is being painted.
 */
 
 /*!
-    \property QStyleOptionHeader::text
+    \variable QStyleOptionHeader::text
     \brief The text of the header.
 */
 
 /*!
-    \property QStyleOptionHeader::textAlignment
+    \variable QStyleOptionHeader::textAlignment
     \brief The alignment flags for the text of the header.
 
     \sa Qt::Alignment
 */
 
 /*!
-    \property QStyleOptionHeader::icon
+    \variable QStyleOptionHeader::icon
     \brief The icon of the header.
 */
 
 /*!
-    \property QStyleOptionHeader::iconAlignment
+    \variable QStyleOptionHeader::iconAlignment
     \brief The alignment flags for the icon of the header.
 
     \sa Qt::Alignment
 */
 
 /*!
+    \variable QStyleOptionHeader::position
+    \brief the section's position in relation to the other sections
+*/
+
+/*!
+    \variable QStyleOptionHeader::selectedPosition
+    \brief the section's position in relation to the selected section
+*/
+
+/*!
+    \variable QStyleOptionHeader::sortIndicator
+    \brief the direction the sort indicator should be drawn
+*/
+
+/*!
     \enum QStyleOptionHeader::SectionPosition
 
-    This enum lets you know where the section's position is in relation to the other sections
+    This enum lets you know where the section's position is in relation to the other sections.
 
     \value Beginning At the beginining of the header
     \value Middle In the middle of the header
@@ -430,7 +445,7 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 /*!
     \enum QStyleOptionHeader::SelectedPosition
 
-    This enum lets you know where the section's position is in relation to the selected section
+    This enum lets you know where the section's position is in relation to the selected section.
 
     \value NotAdjacent Not adjacent to the selected section
     \value NextIsSelected The next section is selected
@@ -497,7 +512,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
 */
 
 /*!
-    \property QStyleOptionButton::features
+    \variable QStyleOptionButton::features
     \brief The features for the button
 
     This variable is a bitwise OR of the features that describe this button.
@@ -506,12 +521,12 @@ QStyleOptionButton::QStyleOptionButton(int version)
 */
 
 /*!
-    \property QStyleOptionButton::text
+    \variable QStyleOptionButton::text
     \brief The text of the button.
 */
 
 /*!
-    \property QStyleOptionButton::icon
+    \variable QStyleOptionButton::icon
     \brief The icon of the button.
 */
 
@@ -588,7 +603,7 @@ QStyleOptionTab::QStyleOptionTab(int version)
 */
 
 /*!
-    \property QStyleOptionTab::selectedPosition
+    \variable QStyleOptionTab::selectedPosition
 
     \brief The position of the selected tab in relation to this tab. Some styles
     need to draw a tab differently depending on whether or not it is adjacent
@@ -596,7 +611,7 @@ QStyleOptionTab::QStyleOptionTab(int version)
 */
 
 /*!
-    \property QStyleOptionTab::cornerWidgets
+    \variable QStyleOptionTab::cornerWidgets
 
     \brief Information on the cornerwidgets of the tab bar.
 
@@ -605,23 +620,23 @@ QStyleOptionTab::QStyleOptionTab(int version)
 
 
 /*!
-    \property QStyleOptionTab::shape
+    \variable QStyleOptionTab::shape
     \brief The tab shape used to draw the tab.
     \sa QTabBar::Shape
 */
 
 /*!
-    \property QStyleOptionTab::text
+    \variable QStyleOptionTab::text
     \brief The text of the tab.
 */
 
 /*!
-    \property QStyleOptionTab::icon
+    \variable QStyleOptionTab::icon
     \brief The icon for the tab.
 */
 
 /*!
-    \property QStyleOptionTab::row
+    \variable QStyleOptionTab::row
     \brief which row the tab is currently in
 
     0 indicates the front row.
@@ -630,7 +645,7 @@ QStyleOptionTab::QStyleOptionTab(int version)
 */
 
 /*!
-    \property QStyleOptionTab::position
+    \variable QStyleOptionTab::position
     \brief the position of the tab in the tab bar
 */
 
@@ -669,7 +684,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 */
 
 /*!
-    \property QStyleOptionProgressBar::minimum
+    \variable QStyleOptionProgressBar::minimum
     \brief The minimum value for the progress bar
 
     This is the minimum value in the progress bar.
@@ -677,7 +692,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 */
 
 /*!
-    \property QStyleOptionProgressBar::maximum
+    \variable QStyleOptionProgressBar::maximum
     \brief The maximum value for the progress bar
 
     This is the maximum value in the progress bar.
@@ -685,7 +700,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 */
 
 /*!
-    \property QStyleOptionProgressBar::text
+    \variable QStyleOptionProgressBar::text
     \brief The text for the progress bar.
 
     The progress bar text is usually just the progress expressed as a string.
@@ -695,7 +710,7 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 */
 
 /*!
-    \property QStyleOptionProgressBar::textVisible
+    \variable QStyleOptionProgressBar::textVisible
     \brief A flag indicating whether or not text is visible.
 
     If this flag is true then the text is visible. Otherwise, the text is not visible.
@@ -705,14 +720,14 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 
 
 /*!
-    \property QStyleOptionProgressBar::textAlignment
+    \variable QStyleOptionProgressBar::textAlignment
     \brief The text alignment for the text in the QProgressBar
 
     This can be used as a guide on where the text should be in the progressbar.
 */
 
 /*!
-    \property QStyleOptionProgressBar::progress
+    \variable QStyleOptionProgressBar::progress
     \brief the current progress for the progress bar.
 
     The current progress. A value of QStyleOptionProgressBar::minimum - 1
@@ -785,7 +800,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 */
 
 /*!
-    \property QStyleOptionMenuItem::menuItemType
+    \variable QStyleOptionMenuItem::menuItemType
 
     \brief the type of menu item
 
@@ -793,18 +808,18 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 */
 
 /*!
-    \property QStyleOptionMenuItem::checkType
+    \variable QStyleOptionMenuItem::checkType
     \brief The type of checkmark of the menu item
     \sa CheckType
 */
 
 /*!
-    \property QStyleOptionMenuItem::checked
+    \variable QStyleOptionMenuItem::checked
     \brief whether the menu item is checked or not.
 */
 
 /*!
-    \property QStyleOptionMenuItem::menuHasCheckableItems
+    \variable QStyleOptionMenuItem::menuHasCheckableItems
     \brief whether the menu as a whole has checkable items or not.
 
     If this option is set to false, then the menu has no checkable
@@ -813,12 +828,12 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 */
 
 /*!
-    \property QStyleOptionMenuItem::menuRect
+    \variable QStyleOptionMenuItem::menuRect
     \brief The rectangle for the entire menu.
 */
 
 /*!
-    \property QStyleOptionMenuItem::text
+    \variable QStyleOptionMenuItem::text
     \brief The text for the menu item.
 
     Note that the text format is something like this "Menu
@@ -829,12 +844,12 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 */
 
 /*!
-    \property QStyleOptionMenuItem::icon
+    \variable QStyleOptionMenuItem::icon
     \brief The icon for the menu item.
 */
 
 /*!
-    \property QStyleOptionMenuItem::maxIconWidth
+    \variable QStyleOptionMenuItem::maxIconWidth
     \brief the maximum icon width for the icon in the menu item.
 
     This can be used for drawing the icon into the correct place or
@@ -843,7 +858,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 */
 
 /*!
-    \property QStyleOptionMenuItem::tabWidth
+    \variable QStyleOptionMenuItem::tabWidth
     \brief The tab width for the menu item.
 
     The tab width is the distance between the text of the menu item
@@ -852,7 +867,7 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 
 
 /*!
-    \property QStyleOptionMenuItem::font
+    \variable QStyleOptionMenuItem::font
     \brief The font used for the menu item text.
 
     This is the font that should be used for drawing the menu text minus the
@@ -890,7 +905,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 */
 
 /*!
-    \property QStyleOptionComplex::subControls
+    \variable QStyleOptionComplex::subControls
     \brief The sub-controls that need to be painted.
 
     This is a bitwise OR of the various sub-controls that need to be drawn for the complex control.
@@ -899,7 +914,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 */
 
 /*!
-    \property QStyleOptionComplex::activeSubControls
+    \variable QStyleOptionComplex::activeSubControls
     \brief The sub-controls that are active for the complex control.
 
     This a bitwise OR of the various sub-controls that are active (pressed) for the complex control.
@@ -947,50 +962,50 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 */
 
 /*!
-    \property QStyleOptionSlider::orientation
+    \variable QStyleOptionSlider::orientation
     \brief the slider's orientation (horizontal or vertical)
 
     \sa Qt::Orientation
 */
 
 /*!
-    \property QStyleOptionSlider::minimum
+    \variable QStyleOptionSlider::minimum
     \brief The minimum value for the slider.
 */
 
 /*!
-    \property QStyleOptionSlider::maximum
+    \variable QStyleOptionSlider::maximum
     \brief The maximum value for the slider.
 */
 
 /*!
-    \property QStyleOptionSlider::tickPosition
+    \variable QStyleOptionSlider::tickPosition
     \brief the position of the slider's tick marks, if any.
 
     \sa QSlider::TickPosition
 */
 
 /*!
-    \property QStyleOptionSlider::tickInterval
+    \variable QStyleOptionSlider::tickInterval
     \brief The interval that should be drawn between tick marks.
 */
 
 /*!
-    \property QStyleOptionSlider::notchTarget
+    \variable QStyleOptionSlider::notchTarget
     \brief The number of pixel between notches
 
     \sa QDial::notchTarget()
 */
 
 /*!
-    \property QStyleOptionSlider::dialWrapping
+    \variable QStyleOptionSlider::dialWrapping
     \brief Indicates whether or not the dial should wrap or not
 
     \sa QDial::wrapping()
 */
 
 /*!
-    \property QStyleOptionSlider::upsideDown
+    \variable QStyleOptionSlider::upsideDown
     \brief Indicates slider control orientation.
 
     Normally a slider increases as it moves up or to the right; upsideDown
@@ -1002,7 +1017,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 */
 
 /*!
-    \property QStyleOptionSlider::sliderPosition
+    \variable QStyleOptionSlider::sliderPosition
     \brief The position of the slider handle.
 
     If the slider has active feedback (i.e.,
@@ -1014,7 +1029,7 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 */
 
 /*!
-    \property QStyleOptionSlider::sliderValue
+    \variable QStyleOptionSlider::sliderValue
     \brief The value of the slider.
 
     If the slider has active feedback (i.e.,
@@ -1026,14 +1041,14 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 */
 
 /*!
-    \property QStyleOptionSlider::singleStep
+    \variable QStyleOptionSlider::singleStep
     \brief The size of the single step of the slider.
 
     \sa QAbstractSlider::singleStep
 */
 
 /*!
-    \property QStyleOptionSlider::pageStep
+    \variable QStyleOptionSlider::pageStep
     \brief The size of the page step of the slider.
 
     \sa QAbstractSlider::pageStep
@@ -1074,21 +1089,21 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 */
 
 /*!
-    \property QStyleOptionSpinBox::buttonSymbols
+    \variable QStyleOptionSpinBox::buttonSymbols
     \brief The type of button symbols to draw for the spin box.
 
     \sa QAbstractSpinBox::ButtonSymbols
 */
 
 /*!
-    \property QStyleOptionSpinBox::stepEnabled
+    \variable QStyleOptionSpinBox::stepEnabled
     \brief Indicates which buttons of the spin box are enabled.
 
     \sa QAbstractSpinBox::StepEnabled
 */
 
 /*!
-    \property QStyleOptionSpinBox::frame
+    \variable QStyleOptionSpinBox::frame
     \brief Indicates whether whether the spin box has a frame.
 
 */
@@ -1146,7 +1161,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 */
 
 /*!
-    \property QStyleOptionQ3ListViewItem::features
+    \variable QStyleOptionQ3ListViewItem::features
     \brief The features for this item
 
     This variable is a bitwise OR of the features of the item.
@@ -1155,7 +1170,7 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 */
 
 /*!
-    \property QStyleOptionQ3ListViewItem::height
+    \variable QStyleOptionQ3ListViewItem::height
     \brief The height of the item
 
     This doesn't include the height of the item's children.
@@ -1164,21 +1179,21 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 */
 
 /*!
-    \property QStyleOptionQ3ListViewItem::totalHeight
+    \variable QStyleOptionQ3ListViewItem::totalHeight
     \brief The total height of the item, including its children
 
     \sa Q3ListViewItem::totalHeight()
 */
 
 /*!
-    \property QStyleOptionQ3ListViewItem::itemY
+    \variable QStyleOptionQ3ListViewItem::itemY
     \brief The Y-coordinate for the item
 
     \sa Q3ListViewItem::itemPos()
 */
 
 /*!
-    \property QStyleOptionQ3ListViewItem::childCount
+    \variable QStyleOptionQ3ListViewItem::childCount
     \brief The number of children the item has.
 */
 
@@ -1218,7 +1233,7 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 */
 
 /*!
-    \property QStyleOptionQ3ListView::items
+    \variable QStyleOptionQ3ListView::items
     \brief A list of items in the \l Q3ListView.
 
     This is a list of \l {QStyleOptionQ3ListViewItem}s. The first item
@@ -1230,40 +1245,40 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 */
 
 /*!
-    \property QStyleOptionQ3ListView::viewportPalette
+    \variable QStyleOptionQ3ListView::viewportPalette
     \brief The palette of Q3ListView's viewport.
 */
 
 /*!
-    \property QStyleOptionQ3ListView::viewportBGRole
+    \variable QStyleOptionQ3ListView::viewportBGRole
     \brief The background role of \l Q3ListView's viewport.
 
     \sa QWidget::backgroundRole()
 */
 
 /*!
-    \property QStyleOptionQ3ListView::sortColumn
+    \variable QStyleOptionQ3ListView::sortColumn
     \brief The sort column of the list view.
 
     \sa Q3ListView::sortColumn()
 */
 
 /*!
-    \property QStyleOptionQ3ListView::itemMargin
+    \variable QStyleOptionQ3ListView::itemMargin
     \brief The margin for items in the list view.
 
     \sa Q3ListView::itemMargin()
 */
 
 /*!
-    \property QStyleOptionQ3ListView::treeStepSize
+    \variable QStyleOptionQ3ListView::treeStepSize
     \brief The number of pixel to offset children items from their parents.
 
     \sa Q3ListView::treeStepSize()
 */
 
 /*!
-    \property QStyleOptionQ3ListView::rootIsDecorated
+    \variable QStyleOptionQ3ListView::rootIsDecorated
     \brief Whether root items are decorated
 
     \sa Q3ListView::rootIsDecorated()
@@ -1303,12 +1318,12 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
 */
 
 /*!
-    \property QStyleOptionQ3DockWindow::docked
+    \variable QStyleOptionQ3DockWindow::docked
     \brief Indicates that the dock window is currently docked.
 */
 
 /*!
-    \property QStyleOptionQ3DockWindow::closeEnabled
+    \variable QStyleOptionQ3DockWindow::closeEnabled
     \brief Indicates that the dock window has a close button.
 */
 
@@ -1324,7 +1339,7 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
 */
 
 QStyleOptionDockWidget::QStyleOptionDockWidget()
-    : QStyleOption(Version, SO_DockWidget), moveable(false)
+    : QStyleOption(Version, SO_DockWidget), movable(false)
 {
 }
 
@@ -1333,7 +1348,7 @@ QStyleOptionDockWidget::QStyleOptionDockWidget()
 */
 QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
     : QStyleOption(version, SO_DockWidget), closable(false),
-      moveable(false), floatable(false)
+      movable(false), floatable(false)
 {
 }
 
@@ -1344,22 +1359,22 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
 */
 
 /*!
-    \property QStyleOptionDockWidget::title
+    \variable QStyleOptionDockWidget::title
     \brief The title of the dock window
 */
 
 /*!
-    \property QStyleOptionDockWidget::closable
+    \variable QStyleOptionDockWidget::closable
     \brief Indicates that the dock window is closable.
 */
 
 /*!
-    \property QStyleOptionDockWidget::moveable
-    \brief Indicates that the dock window is moveable.
+    \variable QStyleOptionDockWidget::movable
+    \brief Indicates that the dock window is movable.
 */
 
 /*!
-    \property QStyleOptionDockWidget::floatable
+    \variable QStyleOptionDockWidget::floatable
     \brief Indicates that the dock window is floatable.
 */
 
@@ -1411,7 +1426,7 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 */
 
 /*!
-    \property QStyleOptionToolButton::features
+    \variable QStyleOptionToolButton::features
     \brief The features of the tool button.
 
     This variable is a bitwise OR describing the features of the button.
@@ -1420,12 +1435,19 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 */
 
 /*!
-    \property QStyleOptionToolButton::icon
+    \variable QStyleOptionToolButton::icon
     \brief The icon for the tool button.
+
+    \sa QToolButton::iconSize()
 */
 
 /*!
-    \property QStyleOptionToolButton::text
+    \variable QStyleOptionToolButton::iconSize
+    \brief the size of the icon for the tool button
+*/
+
+/*!
+    \variable QStyleOptionToolButton::text
     \brief The text of the tool button.
 
     This value is only used if toolButtonStyle is Qt::ToolButtonTextUnderIcon,
@@ -1433,33 +1455,26 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 */
 
 /*!
-    \property QStyleOptionToolButton::iconSize
-    \brief The size of the icon
-
-    \sa QToolButton::iconSize()
-*/
-
-/*!
-    \property QStyleOptionToolButton::arrowType
+    \variable QStyleOptionToolButton::arrowType
     \brief The direction of the arrow for the tool button
 
     This value is only used if \l features includes \l Arrow.
 */
 
 /*!
-    \property QStyleOptionToolButton::toolButtonStyle
+    \variable QStyleOptionToolButton::toolButtonStyle
     \brief Used to describe the appearance of a tool button
 
     \sa QToolButton::toolButtonStyle()
 */
 
 /*!
-    \property QStyleOptionToolButton::pos
+    \variable QStyleOptionToolButton::pos
     \brief The position of the tool button
 */
 
 /*!
-    \property QStyleOptionToolButton::font
+    \variable QStyleOptionToolButton::font
     \brief The font that is used for the text.
 
     This value is only used if toolButtonStyle is Qt::ToolButtonTextUnderIcon,
@@ -1499,7 +1514,7 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 */
 
 /*!
-    \property QStyleOptionComboBox::editable
+    \variable QStyleOptionComboBox::editable
     \brief whether or not the combobox is editable or not.
 
     \sa QComboBox::isEditable()
@@ -1507,27 +1522,27 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 
 
 /*!
-    \property QStyleOptionComboBox::frame
+    \variable QStyleOptionComboBox::frame
     \brief Indicates whether whether the combo box has a frame.
 */
 
 /*!
-    \property QStyleOptionComboBox::currentText
+    \variable QStyleOptionComboBox::currentText
     \brief The text for the current item of the combo box
 */
 
 /*!
-    \property QStyleOptionComboBox::currentIcon
+    \variable QStyleOptionComboBox::currentIcon
     \brief The icon for the current item of the combo box
 */
 
 /*!
-    \property QStyleOptionComboBox::iconSize
+    \variable QStyleOptionComboBox::iconSize
     \brief The icon size for the current item of the combo box
 */
 
 /*!
-    \property QStyleOptionComboBox::popupRect
+    \variable QStyleOptionComboBox::popupRect
     \brief The popup rectangle for the combobox.
 */
 
@@ -1564,12 +1579,12 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 */
 
 /*!
-    \property QStyleOptionToolBox::icon
+    \variable QStyleOptionToolBox::icon
     \brief The icon for the tool box tab.
 */
 
 /*!
-    \property QStyleOptionToolBox::text
+    \variable QStyleOptionToolBox::text
     \brief The text for the tool box tab.
 */
 
@@ -1607,12 +1622,12 @@ QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
 */
 
 /*!
-    \property QStyleOptionRubberBand::shape
+    \variable QStyleOptionRubberBand::shape
     \brief The shape of the rubber band.
 */
 
 /*!
-    \property QStyleOptionRubberBand::opaque
+    \variable QStyleOptionRubberBand::opaque
     \brief Whether the rubber band is required to be drawn in an opque style.
 */
 
@@ -1651,17 +1666,17 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 
 
 /*!
-    \property QStyleOptionTitleBar::text
+    \variable QStyleOptionTitleBar::text
     \brief The text of the title bar.
 */
 
 /*!
-    \property QStyleOptionTitleBar::icon
+    \variable QStyleOptionTitleBar::icon
     \brief The icon for the title bar.
 */
 
 /*!
-    \property QStyleOptionTitleBar::titleBarState
+    \variable QStyleOptionTitleBar::titleBarState
     \brief The state of the title bar.
 
     This is basically the window state of the underlying widget.
@@ -1670,7 +1685,7 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 */
 
 /*!
-    \property QStyleOptionTitleBar::titleBarFlags
+    \variable QStyleOptionTitleBar::titleBarFlags
     \brief The widget flags for the title bar.
 
     \sa Qt::WFlags
@@ -1731,31 +1746,31 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
 */
 
 /*!
-    \property QStyleOptionViewItem::displayAlignment
+    \variable QStyleOptionViewItem::displayAlignment
     \brief The alignment of the display value for the item.
 */
 
 /*!
-    \property QStyleOptionViewItem::decorationAlignment
+    \variable QStyleOptionViewItem::decorationAlignment
     \brief The alignment of the decoration for the item.
 */
 
 /*!
-    \property QStyleOptionViewItem::decorationPosition
+    \variable QStyleOptionViewItem::decorationPosition
     \brief The position of the decoration for the item.
 
     \sa Position
 */
 
 /*!
-    \property QStyleOptionViewItem::decorationSize
+    \variable QStyleOptionViewItem::decorationSize
     \brief The size of the decoration for the item.
 
     \sa decorationAlignment, decorationPosition
 */
 
 /*!
-    \property QStyleOptionViewItem::font
+    \variable QStyleOptionViewItem::font
     \brief The font used for the item
 
     \sa QFont
@@ -1847,14 +1862,14 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 */
 
 /*!
-    \property QStyleHintReturn::type
+    \variable QStyleHintReturn::type
     \brief the type of the style hint container
 
     \sa HintReturnType
 */
 
 /*!
-    \property QStyleHintReturn::version
+    \variable QStyleHintReturn::version
     \brief the version of the style hint return container
 
     This value can be used by subclasses to implement extensions
