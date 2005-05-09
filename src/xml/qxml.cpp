@@ -1144,8 +1144,8 @@ void QXmlAttributes::append(const QString &qName, const QString &uri, const QStr
 */
 
 // the following two are guaranteed not to be a character
-const QChar QXmlInputSource::EndOfData = QChar((ushort)0xfffe);
-const QChar QXmlInputSource::EndOfDocument = QChar((ushort)0xffff);
+const ushort QXmlInputSource::EndOfData = 0xfffe;
+const ushort QXmlInputSource::EndOfDocument = 0xffff;
 
 /*
     Common part of the constructors.
@@ -1329,7 +1329,7 @@ void QXmlInputSource::fetchData()
 
     if (d->inputDevice || d->inputStream) {
         QIODevice *device = d->inputDevice ? d->inputDevice : d->inputStream->device();
-        
+
         if (!device) {
             if (d->inputStream && d->inputStream->string()) {
                 QString *s = d->inputStream->string();

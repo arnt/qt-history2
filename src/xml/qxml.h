@@ -133,8 +133,8 @@ public:
     virtual QChar next();
     virtual void reset();
 
-    static const QChar EndOfData;
-    static const QChar EndOfDocument;
+    static const ushort EndOfData;
+    static const ushort EndOfDocument;
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QXmlInputSource(QFile& file);
