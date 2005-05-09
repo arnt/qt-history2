@@ -336,9 +336,9 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
 
     // slots - but not property setters
     int defaultArguments = 0;
-    for (int islot = mo->memberOffset(); islot < mo->memberCount(); ++islot) {
-        const QMetaMember slot(mo->member(islot));
-        if (slot.memberType() != QMetaMember::Slot)
+    for (int islot = mo->methodOffset(); islot < mo->methodCount(); ++islot) {
+        const QMetaMethod slot(mo->method(islot));
+        if (slot.methodType() != QMetaMethod::Slot)
             continue;
 
 #if 0
@@ -449,7 +449,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             }
             out << "};" << endl;
 
-            out << indent << "    qt_metacall(QMetaObject::InvokeMetaMember, " << islot << ", _a);" << endl;
+            out << indent << "    qt_metacall(QMetaObject::InvokeMetaMethod, " << islot << ", _a);" << endl;
             if (!slotType.isEmpty())
                 out << indent << "    return qax_result;" << endl;
             out << indent << "}" << endl;
@@ -495,7 +495,7 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
 
     int classInfoCount = mo->classInfoCount() - mo->classInfoOffset();
     int enumCount = mo->enumeratorCount() - mo->enumeratorOffset();
-    int memberCount = mo->memberCount() - mo->memberOffset();
+    int methodCount = mo->methodCount() - mo->methodOffset();
     int propertyCount = mo->propertyCount() - mo->propertyOffset();
     int enumStart = 10;
 
@@ -506,8 +506,8 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
     out << "       0,       // classname" << endl;
     out << "       " << classInfoCount << ",    " << (classInfoCount ? enumStart : 0) << ", // classinfo" << endl;
     enumStart += classInfoCount * 2;
-    out << "       " << memberCount << ",    " << (memberCount ? enumStart : 0) << ", // members" << endl;
-    enumStart += memberCount * 5;
+    out << "       " << methodCount << ",    " << (methodCount ? enumStart : 0) << ", // methods" << endl;
+    enumStart += methodCount * 5;
     out << "       " << propertyCount << ",    " << (propertyCount ? enumStart : 0) << ", // properties" << endl;
     enumStart += propertyCount * 3;
     out << "       " << enumCount << ",    " << (enumCount ? enumStart : 0)
@@ -527,12 +527,12 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
         stringData += "\"\n";
         out << endl;
     }
-    if (memberCount) {
+    if (methodCount) {
         out << " // signals: signature, parameters, type, tag, flags" << endl;
         stringData += "    \"";
-        for (int i = 0; i < memberCount; ++i) {
-            const QMetaMember signal(mo->member(i + mo->memberOffset()));
-            if (signal.memberType() != QMetaMember::Signal)
+        for (int i = 0; i < methodCount; ++i) {
+            const QMetaMethod signal(mo->method(i + mo->methodOffset()));
+            if (signal.methodType() != QMetaMethod::Signal)
                 continue;
             out << "       ";
             addString(signal.signature());
@@ -546,9 +546,9 @@ void generateClassImpl(QTextStream &out, const QMetaObject *mo, const QByteArray
 
         out << " // slots: signature, parameters, type, tag, flags" << endl;
         stringData += "    \"";
-        for (int i = 0; i < memberCount; ++i) {
-            const QMetaMember slot(mo->member(i + mo->memberOffset()));
-            if (slot.memberType() != QMetaMember::Slot)
+        for (int i = 0; i < methodCount; ++i) {
+            const QMetaMethod slot(mo->method(i + mo->methodOffset()));
+            if (slot.methodType() != QMetaMethod::Slot)
                 continue;
             out << "       ";
             addString(slot.signature());
