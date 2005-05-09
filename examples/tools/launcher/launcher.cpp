@@ -54,6 +54,8 @@ Launcher::Launcher(QWidget *parent)
 
     assistant = new QAssistantClient("assistant", this);
 
+    connect(display, SIGNAL(menuRequested(const QString &)),
+            this, SLOT(reset()));
     connect(display, SIGNAL(categoryRequested(const QString &)),
             this, SLOT(showExamples(const QString &)));
     connect(display, SIGNAL(documentationRequested(const QString &)),
@@ -201,18 +203,26 @@ void Launcher::loadExampleInfo()
 
             for (int j = 0; j < int(exampleNodes.length()); ++j) {
 
+                QDir exampleDir = categoryDir;
+                QStringList pieces = examplePieces;
+
                 QDomNode exampleNode = exampleNodes.item(j);
                 element = exampleNode.toElement();
                 QString exampleName = element.attribute("name");
                 QString exampleFileName = element.attribute("filename");
+                QString exampleDirName = element.attribute("dirname");
 
-                QDir exampleDir = categoryDir;
+                if (!exampleDirName.isEmpty())
+                    pieces.push_front(exampleDirName);
 
-                for (int p = 0; p < examplePieces.size(); ++p) {
-                    QString name = examplePieces[p].arg(exampleFileName
-                                        ).replace("%?", "%");
+                for (int p = 0; p < pieces.size(); ++p) {
+                    QString name = pieces[p];
+                    if (name.contains("%1"))
+                        name = name.arg(exampleFileName);
 
-                    if (p == examplePieces.size()-1) {
+                    name = name.replace("%?", "%");
+
+                    if (p == pieces.size()-1) {
                         QFileInfo binary(exampleDir.absoluteFilePath(name));
                         if (binary.exists() && binary.isExecutable()) {
                             examples[categoryName].append(exampleName);
@@ -334,7 +344,7 @@ void Launcher::createCategories()
     qreal textHeight = fontRatio * step;
 
     QPointF startPosition = QPointF(0.0, topMargin);
-    QSizeF maxSize(0.25 * width(), textHeight);
+    QSizeF maxSize(0.27 * width(), textHeight);
     qreal maxWidth = 0.0;
 
     QList<DisplayShape*> newShapes;
@@ -378,9 +388,7 @@ void Launcher::createCategories()
         QPointF position = caption->metaData("target").toPointF();
         QSizeF size = caption->rect().size();
         caption->setPosition(
-            QPointF(-maxWidth - size.width()/2, position.y()));
-        caption->setMetaData("target",
-            QPointF(position.x() + (maxWidth - size.width())/2, position.y()));
+            QPointF(-maxWidth, position.y()));
         display->appendShape(caption);
     }
 
@@ -432,7 +440,7 @@ void Launcher::showExamples(const QString &category)
     display->insertShape(0, titleBackground);
     display->appendShape(newTitle);
 
-    qreal topMargin = 0.05 * height() + titleBackground->rect().bottom();
+    qreal topMargin = 0.1 * height() + titleBackground->rect().bottom();
     qreal space = 0.95*height() - topMargin;
     qreal step = qMin(newTitle->rect().height() / fontRatio,
                       space/qreal(maximumLabels));
@@ -440,24 +448,31 @@ void Launcher::showExamples(const QString &category)
 
     QPointF startPosition = QPointF(0.05*width(), height() + topMargin);
     QPointF finishPosition = QPointF(0.05*width(), topMargin);
-    QSizeF maxSize(0.25 * width(), textHeight);
-    qreal maxWidth = 0.0;
+    QSizeF maxSize(0.27 * width(), textHeight);
 
-    QList<DisplayShape*> newShapes;
+    DisplayShape *caption = new TitleShape(tr("Main Menu"), font(),
+        QPen(QColor("#9c9cff")), startPosition, maxSize);
+
+    caption->setMetaData("target", finishPosition);
+    caption->setMetaData("menu", "main");
+    display->appendShape(caption);
+
+    qreal maxWidth = qMax(maxWidth, caption->rect().width());
 
     foreach (QString example, examples[currentCategory]) {
-        DisplayShape *caption = new TitleShape(example, font(), QPen(),
-            startPosition, maxSize);
-        caption->setMetaData("target", finishPosition);
-
-        newShapes.append(caption);
-
         startPosition += QPointF(0.0, step);
         finishPosition += QPointF(0.0, step);
+
+        caption = new TitleShape(example, font(), QPen(), startPosition,
+                                 maxSize);
+        caption->setMetaData("target", finishPosition);
+
+        display->appendShape(caption);
+
         maxWidth = qMax(maxWidth, caption->rect().width());
     }
 
-    startPosition = QPointF(width(), topMargin);
+    startPosition = QPointF(width(), topMargin + step);
     qreal extra = (step - textHeight)/4;
 
     foreach (QString example, examples[currentCategory]) {
@@ -475,17 +490,6 @@ void Launcher::showExamples(const QString &category)
                                                   background->position().y()));
         display->insertShape(0, background);
         startPosition += QPointF(0.0, step);
-    }
-
-    foreach (DisplayShape *caption, newShapes) {
-        QPointF position = caption->metaData("target").toPointF();
-        QSizeF size = caption->rect().size();
-        caption->setPosition(QPointF(
-            position.x() + (maxWidth - size.width())/2,
-            caption->position().y()));
-        caption->setMetaData("target",
-            QPointF(position.x() + (maxWidth - size.width())/2, position.y()));
-        display->appendShape(caption);
     }
 
     qreal leftMargin = 0.075*width() + maxWidth;
@@ -591,15 +595,44 @@ void Launcher::showExampleSummary(const QString &example)
         }
     }
 
-    QSizeF maxSize(0.45 * width(), 0.05 * height());
-    qreal margin = 0.0;
+    QSizeF maxSize(0.3 * width(), 0.05 * height());
+    leftMargin = 0.0;
+    rightMargin = 0.0;
+
+    if (true) {
+        DisplayShape *backButton = new TitleShape(currentCategory, font(),
+            QPen(Qt::white), QPointF(0.1*width(), height()), maxSize);
+        backButton->setMetaData("target", QPointF(
+            backButton->position().x(), 0.85 * height()));
+
+        display->appendShape(backButton);
+
+        qreal maxWidth = backButton->rect().width();
+        qreal textHeight = backButton->rect().height();
+        qreal extra = (0.075*height() - textHeight)/4;
+
+        QPainterPath path;
+        path.setFillRule(Qt::WindingFill);
+        path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
+
+        DisplayShape *buttonBackground = new PathShape(path,
+            QBrush(QColor("#a6ce39")), Qt::NoPen,
+            backButton->position(),
+            QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
+        buttonBackground->setMetaData("target", backButton->metaData("target"));
+        buttonBackground->setMetaData("category", currentCategory);
+
+        display->insertShape(0, buttonBackground);
+
+        leftMargin = buttonBackground->rect().right();
+    }
 
     if (examplePaths.contains(example)) {
 
         DisplayShape *launchCaption = new TitleShape(tr("Launch Example"),
             font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize);
         launchCaption->setPosition(QPointF(
-            0.23*width() - launchCaption->rect().width()/2, height()));
+            0.9*width() - launchCaption->rect().width(), height()));
         launchCaption->setMetaData("target", QPointF(
             launchCaption->position().x(), 0.85 * height()));
 
@@ -614,14 +647,15 @@ void Launcher::showExampleSummary(const QString &example)
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         DisplayShape *background = new PathShape(path,
-            QBrush(QColor("#a6ce39")), Qt::NoPen,
-            QPointF(0.23*width() - maxWidth/2, height()),
+            QBrush(QColor("#a63e39")), Qt::NoPen,
+            launchCaption->position(),
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
         background->setMetaData("target", launchCaption->metaData("target"));
         background->setMetaData("launch", example);
 
-        margin = background->rect().left() - 0.05 * width();
         display->insertShape(0, background);
+
+        rightMargin = background->rect().left();
     }
 
     if (documentPaths.contains(example)) {
@@ -629,9 +663,8 @@ void Launcher::showExampleSummary(const QString &example)
         DisplayShape *documentCaption = new TitleShape(tr("Show Documentation"),
             font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize);
         documentCaption->setPosition(QPointF(
-            qMax(qMin(0.77*width() - documentCaption->rect().width()/2,
-                      0.95*width() - margin - documentCaption->rect().width()),
-                 0.55*width()), height()));
+            leftMargin/2 + rightMargin/2 - documentCaption->rect().width()/2,
+            height()));
         documentCaption->setMetaData("target", QPointF(
             documentCaption->position().x(), 0.85 * height()));
 
@@ -647,8 +680,7 @@ void Launcher::showExampleSummary(const QString &example)
 
         DisplayShape *background = new PathShape(path,
             QBrush(QColor("#9c9cff")), Qt::NoPen,
-            QPointF(0.77*width() - documentCaption->rect().width()/2,
-                    height()),
+            documentCaption->position(),
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
         background->setMetaData("target", documentCaption->metaData("target"));
         background->setMetaData("documentation", example);
@@ -683,6 +715,9 @@ void Launcher::updateExampleSummary()
 
 void Launcher::toggleFullScreen()
 {
+    if (inFullScreenResize)
+        return;
+
     connect(display, SIGNAL(displayEmpty()), this, SLOT(resizeWindow()),
             Qt::QueuedConnection);
     display->reset();
@@ -690,6 +725,7 @@ void Launcher::toggleFullScreen()
 
 void Launcher::resizeEvent(QResizeEvent *event)
 {
+    Q_UNUSED(event);
     if (inFullScreenResize) {
         emit windowResized();
         inFullScreenResize = false;

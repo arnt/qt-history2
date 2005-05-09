@@ -38,6 +38,7 @@ protected:
 signals:
     void displayEmpty();
     void targetReached(DisplayShape *shape);
+    void menuRequested(const QString &name);
     void categoryRequested(const QString &name);
     void documentationRequested(const QString &name);
     void exampleRequested(const QString &name);

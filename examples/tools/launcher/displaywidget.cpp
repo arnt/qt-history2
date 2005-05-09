@@ -26,6 +26,8 @@ DisplayWidget::DisplayWidget(QWidget *parent)
     connect(timer, SIGNAL(timeout()), this, SLOT(updateShapes()));
     timer->setSingleShot(false);
     startTimer();
+
+    setBackgroundRole(QPalette::Base);
 }
 
 void DisplayWidget::appendShape(DisplayShape *shape)
@@ -55,17 +57,19 @@ void DisplayWidget::mousePressEvent(QMouseEvent *event)
     foreach (DisplayShape *shape, shapes) {
         if (shape->rect().contains(event->pos()) && !emptying \
             && !shape->contains("fade")) {
-            if (shape->contains("launch")) {
-                emit launchRequested(shape->metaData("launch").toString());
-                shape->setMetaData("fade", -5);
-                startTimer();
-            } else if (shape->contains("category"))
+            if (shape->contains("menu"))
+                emit menuRequested(shape->metaData("menu").toString());
+            else if (shape->contains("category"))
                 emit categoryRequested(shape->metaData("category").toString());
             else if (shape->contains("example"))
                 emit exampleRequested(shape->metaData("example").toString());
             else if (shape->contains("documentation")) {
                 emit documentationRequested(
                     shape->metaData("documentation").toString());
+                shape->setMetaData("fade", -5);
+                startTimer();
+            } else if (shape->contains("launch")) {
+                emit launchRequested(shape->metaData("launch").toString());
                 shape->setMetaData("fade", -5);
                 startTimer();
             }

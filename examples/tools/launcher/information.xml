@@ -9,7 +9,10 @@ Click on a category to see the examples that are available for that area.]]>
     <description>
 <![CDATA[These demonstrations highlight Qt's capabilities in different areas.]]>
     </description>
-    <example filename="arthur" name="Arthur" />
+    <example dirname="arthur" filename="deform" name="Vector Deformation" />
+    <example dirname="arthur" filename="gradients" name="Gradients" />
+    <example dirname="arthur" filename="stroke" name="Outline Drawing" />
+    <example dirname="arthur" filename="xform" name="Advanced Transformations" />
   </category>
   <category dirname="designer" name="Qt Designer">
     <description>
