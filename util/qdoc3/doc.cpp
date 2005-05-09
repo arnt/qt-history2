@@ -1280,13 +1280,13 @@ bool DocParser::openCommand( int command )
 
 bool DocParser::closeCommand( int endCommand )
 {
-    if ( endCommandFor(openedCommands.top()) == endCommand ) {
+    if ( endCommandFor(openedCommands.top()) == endCommand && openedCommands.size() > 1 ) {
 	openedCommands.pop();
 	return true;
     } else {
 	bool contains = false;
 	QStack<int> opened2 = openedCommands;
-	while ( !opened2.isEmpty() ) {
+	while ( opened2.size() > 1 ) {
 	    if ( endCommandFor(opened2.top()) == endCommand ) {
 		contains = true;
 		break;
@@ -1295,7 +1295,7 @@ bool DocParser::closeCommand( int endCommand )
 	}
 
 	if ( contains ) {
-	    while ( endCommandFor(openedCommands.top()) != endCommand ) {
+	    while (endCommandFor(openedCommands.top()) != endCommand && openedCommands.size() > 1) {
 		location().warning( tr("Missing '\\%1' before '\\%2'")
 				    .arg(endCommandName(openedCommands.top()))
 				    .arg(commandName(endCommand)) );
