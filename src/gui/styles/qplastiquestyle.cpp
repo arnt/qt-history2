@@ -1475,7 +1475,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         if (option->state & State_Horizontal) {
             int width = option->rect.width() / 3;
             QRect rect(option->rect.center().x() - width / 2,
-                       option->rect.left() + (option->rect.width() / 2) - 1, width, 3);
+                       option->rect.top() + (option->rect.height() / 2) - 1, width, 3);
             qt_plastique_draw_handle(painter, option, rect, Qt::Vertical);
         } else {
             int height = option->rect.height() / 3;
@@ -4165,7 +4165,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     case PM_TitleBarHeight:
         return qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 30);
     case PM_DefaultChildMargin:
-        if (const QStyleOptionToolBox *box = qstyleoption_cast<const QStyleOptionToolBox *>(option)) 
+        if (qstyleoption_cast<const QStyleOptionToolBox *>(option))
             return 0;
         break;
     default:
