@@ -20,7 +20,7 @@ class Node
 {
 public:
     enum Type { Namespace, Class, Fake, Enum, Typedef, Function, Property,
-                Target };
+                Variable, Target };
     enum Access { Public, Protected, Private };
     enum Status { Compat, Obsolete, Deprecated, Preliminary, Commendable, Main }; // don't reorder
     enum ThreadSafeness { UnspecifiedSafeness, NonReentrant, Reentrant, ThreadSafe };
@@ -69,7 +69,7 @@ private:
     Status sta;
     ThreadSafeness saf;
 #else
-    Type typ : 3;
+    Type typ : 4;
     Access acc : 2;
     Status sta : 3;
     ThreadSafeness saf : 2;
@@ -401,6 +401,24 @@ inline NodeList PropertyNode::functions() const
     for (int i = 0; i < NumFunctionRoles; ++i)
 	list += funcs[i];
     return list;
+}
+
+class VariableNode : public LeafNode
+{
+public:
+    VariableNode(InnerNode *parent, const QString &name);
+
+    void setDataType(const QString &dataType) { dt = dataType; }
+
+    const QString &dataType() const { return dt; }
+
+private:
+    QString dt;
+};
+
+inline VariableNode::VariableNode(InnerNode *parent, const QString &name)
+    : LeafNode(Variable, parent, name)
+{
 }
 
 class TargetNode : public LeafNode

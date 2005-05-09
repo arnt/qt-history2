@@ -69,6 +69,7 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
     const int MaxEnumValues = 6;
     const FunctionNode *func;
     const PropertyNode *property;
+    const VariableNode *variable;
     const EnumNode *enume;
     const TypedefNode *typedeff;
     QString synopsis;
@@ -197,6 +198,14 @@ QString CppCodeMarker::markedUpSynopsis(const Node *node, const Node *relative,
 	property = static_cast<const PropertyNode *>(node);
 	synopsis = name + " : " + typified(property->qualifiedDataType());
 	break;
+    case Node::Variable:
+	variable = static_cast<const VariableNode *>(node);
+        if (style == SeparateList) {
+            synopsis = name + " : " + typified(variable->dataType());
+        } else {
+            synopsis = typified(variable->dataType()) + " " + name;
+        }
+	break;
     default:
 	synopsis = name;
     }
@@ -299,11 +308,13 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 				           "protected functions");
 	    FastSection protectedSlots(classe, "Protected Slots", "protected slot", "protected slots");
 	    FastSection protectedTypes(classe, "Protected Types", "protected type", "protected types");
+	    FastSection protectedVariables(classe, "Protected Variables", "protected type", "protected variables");
 	    FastSection publicFunctions(classe, "Public Functions", "public function",
 				        "public functions");
 	    FastSection publicSignals(classe, "Signals", "signal", "signals" );
 	    FastSection publicSlots(classe, "Public Slots", "public slot", "public slots");
 	    FastSection publicTypes(classe, "Public Types", "public type", "public types");
+	    FastSection publicVariables(classe, "Public Variables", "public type", "public variables");
 	    FastSection properties(classe, "Properties", "property", "properties");
 	    FastSection relatedNonMembers(classe, "Related Non-Members", "related non-member",
                                           "related non-members");
@@ -348,6 +359,8 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 		            insert( staticPublicMembers, *c, style, status);
 		        } else if ( (*c)->type() == Node::Property ) {
                             insert(properties, *c, style, status);
+		        } else if ( (*c)->type() == Node::Variable ) {
+                            insert(publicVariables, *c, style, status);
 		        } else if ( (*c)->type() == Node::Function ) {
                             insert(publicFunctions, *c, style, status);
 		        } else {
@@ -359,6 +372,8 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 		            insert( protectedSlots, *c, style, status );
 		        } else if ( isStatic ) {
 		            insert( staticProtectedMembers, *c, style, status );
+		        } else if ( (*c)->type() == Node::Variable ) {
+                            insert(protectedVariables, *c, style, status);
 		        } else if ( (*c)->type() == Node::Function ) {
 		            insert( protectedFunctions, *c, style, status );
 		        } else {
@@ -391,10 +406,12 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 	    append( sections, publicFunctions );
 	    append( sections, publicSlots );
 	    append( sections, publicSignals );
+	    append( sections, publicVariables );
 	    append( sections, staticPublicMembers );
 	    append( sections, protectedTypes );
 	    append( sections, protectedFunctions );
 	    append( sections, protectedSlots );
+	    append( sections, protectedVariables );
 	    append( sections, staticProtectedMembers );
 	    append( sections, privateTypes );
 	    append( sections, privateFunctions );
@@ -404,6 +421,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
         } else if (style == Detailed) {
 	    FastSection memberFunctions(classe, "Member Function Documentation");
 	    FastSection memberTypes(classe, "Member Type Documentation");
+	    FastSection memberVariables(classe, "Member Variable Documentation");
 	    FastSection properties(classe, "Property Documentation");
 	    FastSection relatedNonMembers(classe, "Related Non-Members");
 
@@ -419,6 +437,8 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 		    insert( memberTypes, *c, style, status );
 	        } else if ( (*c)->type() == Node::Property ) {
 		    insert( properties, *c, style, status );
+	        } else if ( (*c)->type() == Node::Variable ) {
+		    insert( memberVariables, *c, style, status );
 	        } else if ( (*c)->type() == Node::Function ) {
 		    FunctionNode *function = static_cast<FunctionNode *>(*c);
                     if (!function->associatedProperty())
@@ -430,6 +450,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 	    append( sections, memberTypes );
 	    append( sections, properties );
 	    append( sections, memberFunctions );
+	    append( sections, memberVariables );
 	    append( sections, relatedNonMembers );
         } else {
 	    FastSection all( classe );

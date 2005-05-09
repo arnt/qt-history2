@@ -213,6 +213,8 @@ QString CodeMarker::sortName( const Node *node )
 	return sortNo + nodeName + " " + QString::number(func->overloadNumber(), 36);
     } else if (node->type() == Node::Class) {
 	return "A" + nodeName;
+    } else if (node->type() == Node::Property || node->type() == Node::Variable) {
+        return "E" + nodeName;
     } else {
 	return "B" + nodeName;
     }

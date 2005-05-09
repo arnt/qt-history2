@@ -36,6 +36,7 @@
 #define COMMAND_RELATES                 Doc::alias("relates")
 #define COMMAND_STARTPAGE               Doc::alias("startpage")
 #define COMMAND_TYPEDEF                 Doc::alias("typedef")
+#define COMMAND_VARIABLE                Doc::alias("variable")
 
 QStringList CppCodeParser::exampleFiles;
 QStringList CppCodeParser::exampleDirs;
@@ -89,6 +90,7 @@ void CppCodeParser::initializeParser(const Config &config)
     nodeTypeMap.insert(COMMAND_TYPEDEF, Node::Typedef);
     nodeTypeMap.insert(COMMAND_FN, Node::Function);
     nodeTypeMap.insert(COMMAND_PROPERTY, Node::Property);
+    nodeTypeMap.insert(COMMAND_VARIABLE, Node::Variable);
 
     exampleFiles = config.getStringList(CONFIG_EXAMPLES);
     exampleDirs = config.getStringList(CONFIG_EXAMPLEDIRS);
@@ -218,7 +220,7 @@ QSet<QString> CppCodeParser::topicCommands()
     return QSet<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_EXAMPLE << COMMAND_FILE
                            << COMMAND_FN << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MODULE
 			   << COMMAND_NAMESPACE << COMMAND_PAGE << COMMAND_PROPERTY
-			   << COMMAND_TYPEDEF;
+			   << COMMAND_TYPEDEF << COMMAND_VARIABLE;
 }
 
 Node *CppCodeParser::processTopicCommand( const Doc& doc,
@@ -677,6 +679,16 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 		    break;
 	    }
 	}
+        if (parent && tok == Tok_Semicolon && access != Node::Private) {
+            VariableNode *var = new VariableNode(parent, name);
+            var->setAccess(access);
+            var->setLocation(location());
+            var->setDataType(returnType.toString());
+            if (compat)
+                var->setStatus(Node::Compat);
+            // var->setStatic(sta);
+            return false;
+        }
 	if ( tok != Tok_LeftParen )
 	    return false;
     }

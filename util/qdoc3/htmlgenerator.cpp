@@ -155,7 +155,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	break;
     case Atom::BriefLeft:
 	out() << "<p>";
-	if ( relative->type() == Node::Property ) {
+	if ( relative->type() == Node::Property || relative->type() == Node::Variable ) {
 	    QString str;
 	    atom = atom->next();
 	    while ( atom != 0 && atom->type() != Atom::BriefRight ) {
@@ -167,7 +167,12 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	    str[0] = str[0].toLower();
 	    if ( str.right(1) == "." )
 		str.truncate( str.length() - 1 );
-	    out() << "This property holds " << str << ".";
+	    out() << "This ";
+	    if (relative->type() == Node::Property)
+		out() << "property";
+	    else
+		out() << "variable";
+	    out() << " holds " << str << ".";
 	}
 	break;
     case Atom::BriefRight:
@@ -1851,6 +1856,9 @@ QString HtmlGenerator::refForNode(const Node *node)
 	break;
     case Node::Property:
 	ref = node->name() + "-prop";
+        break;
+    case Node::Variable:
+        ref = node->name() + "-var";
     case Node::Target:
         return protect(node->name());
     }
