@@ -913,14 +913,5 @@ QOpenGLPaintEngine::handle() const
 
 void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
-#if defined(Q_WS_WIN) || defined (Q_WS_MAC)
     QPaintEngine::drawTextItem(p, ti);
-#else
-    Q_D(QOpenGLPaintEngine);
-    // much faster for X11, but has lower quality for win/mac so don't do it there
-    if (d->txop > QPainterPrivate::TxTranslate)
-        QPaintEngine::drawTextItem(p, ti);
-    else
-        dgl->renderText(qRound(p.x()), qRound(p.y()), ti.text(), painter()->font());
-#endif
 }
