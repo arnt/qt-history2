@@ -39,6 +39,12 @@
 
 #include <private/qnumeric_p.h>
 
+#if defined(Q_CC_GNU) && defined(Q_OS_WIN)
+#   define NEEDS_VOLATILE volatile
+#else
+#   define NEEDS_VOLATILE
+#endif
+
 // Sizes as defined by the ISO C99 standard - fallback
 #ifndef LLONG_MAX
 #   define LLONG_MAX Q_INT64_C(0x7fffffffffffffff)
@@ -55,7 +61,7 @@
 #ifndef QT_QLOCALE_USES_FCVT
 static char *qdtoa(double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
-static char *_qdtoa(double d, int mode, int ndigits, int *decpt,
+static char *_qdtoa( NEEDS_VOLATILE double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
 static double qstrtod(const char *s00, char const **se, bool *ok);
 #endif
@@ -4026,9 +4032,9 @@ __RCSID("$NetBSD: strtod.c,v 1.26 1998/02/03 18:44:21 perry Exp $");
 #error Exactly one of IEEE_BIG_OR_LITTLE_ENDIAN, VAX, or IBM should be defined.
 #endif
 
-inline ULong getWord0(const double x)
+inline ULong getWord0(const NEEDS_VOLATILE double x)
 {
-    const uchar *ptr = reinterpret_cast<const uchar *>(&x);
+    const NEEDS_VOLATILE uchar *ptr = reinterpret_cast<const NEEDS_VOLATILE uchar *>(&x);
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
         return (ptr[0]<<24) + (ptr[1]<<16) + (ptr[2]<<8) + ptr[3];
     } else {
@@ -4036,9 +4042,9 @@ inline ULong getWord0(const double x)
     }
 }
 
-inline void setWord0(double *x, ULong l)
+inline void setWord0(NEEDS_VOLATILE double *x, ULong l)
 {
-    uchar *ptr = reinterpret_cast<uchar *>(x);
+    NEEDS_VOLATILE uchar *ptr = reinterpret_cast<NEEDS_VOLATILE uchar *>(x);
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
         ptr[0] = uchar(l>>24);
         ptr[1] = uchar(l>>16);
@@ -4052,18 +4058,18 @@ inline void setWord0(double *x, ULong l)
     }
 }
 
-inline ULong getWord1(const double x)
+inline ULong getWord1(const NEEDS_VOLATILE double x)
 {
-    const uchar *ptr = reinterpret_cast<const uchar *>(&x);
+    const NEEDS_VOLATILE uchar *ptr = reinterpret_cast<const NEEDS_VOLATILE uchar *>(&x);
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
         return (ptr[4]<<24) + (ptr[5]<<16) + (ptr[6]<<8) + ptr[7];
     } else {
         return (ptr[3]<<24) + (ptr[2]<<16) + (ptr[1]<<8) + ptr[0];
     }
 }
-inline void setWord1(double *x, ULong l)
+inline void setWord1(NEEDS_VOLATILE double *x, ULong l)
 {
-    uchar *ptr = reinterpret_cast<uchar *>(x);
+    NEEDS_VOLATILE uchar *ptr = reinterpret_cast<uchar NEEDS_VOLATILE *>(x);
     if (QSysInfo::ByteOrder == QSysInfo::BigEndian) {
         ptr[4] = uchar(l>>24);
         ptr[5] = uchar(l>>16);
@@ -5662,7 +5668,7 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
     return s;
 }
 
-static char *_qdtoa( double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
+static char *_qdtoa( NEEDS_VOLATILE double d, int mode, int ndigits, int *decpt, int *sign, char **rve, char **resultp)
 {
     /*
       Arguments ndigits, decpt, sign are similar to those
