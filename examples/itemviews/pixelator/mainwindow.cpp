@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 2004-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <QtGui>
 
 #include "imagemodel.h"
@@ -6,6 +19,7 @@
 
 MainWindow::MainWindow()
 {
+    currentPath = QDir::home().absolutePath();
     model = 0;
 
     view = new QTableView;
@@ -16,10 +30,10 @@ MainWindow::MainWindow()
     setCentralWidget(view);
 
     QMenu *fileMenu = new QMenu(tr("&File"), this);
-    QAction *openAction = fileMenu->addAction(tr("&Open"));
+    QAction *openAction = fileMenu->addAction(tr("&Open..."));
     openAction->setShortcut(QKeySequence(tr("Ctrl+O")));
 
-    printAction = fileMenu->addAction(tr("&Print"));
+    printAction = fileMenu->addAction(tr("&Print..."));
     printAction->setEnabled(false);
     printAction->setShortcut(QKeySequence(tr("Ctrl+P")));
 
@@ -45,13 +59,15 @@ MainWindow::MainWindow()
 void MainWindow::chooseImage()
 {
     QString fileName = QFileDialog::getOpenFileName(this,
-        tr("Choose an image"), "", "*");
+        tr("Choose an image"), currentPath, "*");
 
-    if (!fileName.isEmpty())
-        openImage(fileName);
+    if (!fileName.isEmpty()) {
+        if (openImage(fileName))
+            currentPath = fileName;
+    }
 }
 
-void MainWindow::openImage(const QString &fileName)
+bool MainWindow::openImage(const QString &fileName)
 {
     QImage image;
 
@@ -70,7 +86,10 @@ void MainWindow::openImage(const QString &fileName)
             view->resizeRowToContents(row);
         for (int column = 0; column < columns; ++column)
             view->resizeColumnToContents(column);
+
+        return true;
     }
+    return false;
 }
 
 void MainWindow::printImage()
