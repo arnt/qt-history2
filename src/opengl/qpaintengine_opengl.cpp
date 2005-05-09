@@ -56,7 +56,9 @@
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
-    QOpenGLPaintEnginePrivate() : bgmode(Qt::TransparentMode) {}
+    QOpenGLPaintEnginePrivate()
+        : bgmode(Qt::TransparentMode)
+        , txop(QPainterPrivate::TxNone) {}
 
     QPen cpen;
     QBrush cbrush;
@@ -65,9 +67,8 @@ public:
     QRegion crgn;
     bool has_clipping : 1;
     QMatrix matrix;
+    QPainterPrivate::TransformationCodes txop;
 };
-
-static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush);
 
 #define dgl ((QGLWidget *)(d_func()->pdev))
 
@@ -457,6 +458,15 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     mat[3][2] = 0;
     mat[3][3] = 1;
 
+    if (mtx.m12() != 0 || mtx.m21() != 0)
+        d->txop = QPainterPrivate::TxRotShear;
+    else if (mtx.m11() != 1 || mtx.m22() != 1)
+        d->txop = QPainterPrivate::TxScale;
+    else if (mtx.dx() != 0 || mtx.dy() != 0)
+        d->txop = QPainterPrivate::TxTranslate;
+    else
+        d->txop = QPainterPrivate::TxNone;
+
     dgl->makeCurrent();
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(&mat[0][0]);
@@ -552,15 +562,7 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
         double y = qToDouble(r.y());
         double w = qToDouble(r.width());
         double h = qToDouble(r.height());
-        if (d->cbrush.style() == Qt::LinearGradientPattern) {
-            painter()->save();
-            painter()->setClipRect(r, Qt::IntersectClip);
-            syncState();
-            qt_fill_linear_gradient(r, d->cbrush);
-            painter()->restore();
-            if (d->cpen.style() == Qt::NoPen)
-                return;
-        } else if (d->cbrush.style() != Qt::NoBrush) {
+        if (d->cbrush.style() != Qt::NoBrush) {
             dgl->qglColor(d->cbrush.color());
             glRectf(x, y, x+w, y+h);
             if (d->cpen.style() == Qt::NoPen)
@@ -909,157 +911,16 @@ QOpenGLPaintEngine::handle() const
     return 0;
 }
 
-static void qt_fill_linear_gradient(const QRectF &rect, const QBrush &brush)
-{
-    Q_ASSERT(brush.style() == Qt::LinearGradientPattern);
-
-    const QLinearGradient *lg = static_cast<const QLinearGradient *>(brush.gradient());
-
-    QPointF gstart = lg->start();
-    QPointF gstop  = lg->finalStop();
-
-    // save GL state
-    glPushAttrib(GL_ALL_ATTRIB_BITS);
-    glMatrixMode(GL_MODELVIEW);
-    glPushMatrix();
-    glTranslatef(qToDouble(rect.x()), qToDouble(rect.y()), .0);
-    glShadeModel(GL_SMOOTH);
-
-    QPoint goff = QPoint(qRound(rect.x()), qRound(rect.y()));
-
-    gstart -= goff;
-    gstop -= goff;
-
-    QColor gcol1 = lg->stops().first().second;
-    QColor gcol2 = lg->stops().last().second;
-
-    int dx = qRound(gstop.x() - gstart.x());
-    int dy = qRound(gstop.y() - gstart.y());
-
-    qreal rw = rect.width();
-    qreal rh = rect.height();
-
-    if (qAbs(dx) > qAbs(dy)) { // Fill horizontally
-        // Make sure we fill left to right.
-        if (gstop.x() < gstart.x()) {
-            qSwap(gcol1, gcol2);
-            qSwap(gstart, gstop);
-        }
-        // Find the location where the lines covering the gradient intersect
-        // the lines making up the top and bottom of the target rectangle.
-        // Note: This might be outside the target rect, but that is ok.
-        int xtop1, xtop2, xbot1, xbot2;
-        if (dy == 0) {
-            xtop1 = xbot1 = qRound(gstart.x());
-            xtop2 = xbot2 = qRound(gstop.x());
-        } else {
-            double gamma = double(dx) / double(-dy);
-            xtop1 = qRound((-gstart.y() + gamma * gstart.x() ) / gamma);
-            xtop2 = qRound((-gstop.y()  + gamma * gstop.x()  ) / gamma);
-            xbot1 = qRound((rh - gstart.y() + gamma * gstart.x() ) / gamma);
-            xbot2 = qRound((rh - gstop.y()  + gamma * gstop.x()  ) / gamma);
-            Q_ASSERT(xtop2 > xtop1);
-        }
-
-#ifndef QT_GRAD_NO_POLY
-        // Fill the area to the left of the gradient
-        QPolygonF leftFill;
-	if (xtop1 > 0)
-	    leftFill << QPointF(0, 0);
-	leftFill << QPointF(xtop1+1, 0)
-		 << QPointF(xbot1+1, rh);
-        if (xbot1 > 0)
-            leftFill << QPointF(0, rh);
-	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	qgl_draw_poly(leftFill.data(), leftFill.size());
-
-        // Fill the area to the right of the gradient
-        QPolygonF rightFill;
-	rightFill << QPointF(xtop2-1, 0);
-	if (xtop2 < rw)
-	    rightFill << QPointF(rw, 0);
-	if (xbot2 < rw)
-	    rightFill << QPointF(rw, rh);
-	rightFill << QPointF(xbot2-1, rh);
-	glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	qgl_draw_poly(rightFill.data(), rightFill.size());
-#endif // QT_GRAD_NO_POLY
-
-	glBegin(GL_POLYGON);
-	{
-	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	    glVertex2d(xbot1, qToDouble(rect.height()));
-	    glVertex2d(xtop1, 0);
-	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	    glVertex2d(xtop2, 0);
-	    glVertex2d(xbot2, qToDouble(rect.height()));
-	}
-	glEnd();
-    } else {
-        // Fill Vertically
-        // Code below is a conceptually equal to the one above except that all
-        // coords are swapped x <-> y.
-        // Make sure we fill top to bottom...
-        if (gstop.y() < gstart.y()) {
-            qSwap(gstart, gstop);
-            qSwap(gcol1, gcol2);
-        }
-        int yleft1, yleft2, yright1, yright2;
-        if (dx == 0) {
-            yleft1 = yright1 = qRound(gstart.y());
-            yleft2 = yright2 = qRound(gstop.y());
-        } else {
-            double gamma = double(dy) / double(-dx);
-            yleft1 = qRound((-gstart.x() + gamma * gstart.y()) / gamma);
-            yleft2 = qRound((-gstop.x() + gamma * gstop.y()) / gamma);
-            yright1 = qRound((rw - gstart.x() + gamma*gstart.y()) / gamma);
-            yright2 = qRound((rw - gstop.x() + gamma*gstop.y()) / gamma);
-            Q_ASSERT(yleft2 > yleft1);
-        }
-
-#ifndef QT_GRAD_NO_POLY
-        QPolygonF topFill;
-        topFill << QPointF(0, yleft1+1);
-	if (yleft1 > 0)
-	    topFill << QPointF(0, 0);
-	if (yright1 > 0)
-	    topFill << QPointF(rw, 0);
-	topFill << QPointF(rw, yright1+1);
-	glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	qgl_draw_poly(topFill.data(), topFill.size());
-
-        QPolygonF bottomFill;
-	bottomFill << QPointF(0, yleft2-1);
-	if (yleft2 < rh)
-	    bottomFill << QPointF(0, rh);
-	if (yright2 < rh)
-	    bottomFill << QPointF(rw, rh);
-	bottomFill << QPointF(rw, yright2-1);
-	glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	qgl_draw_poly(bottomFill.data(), bottomFill.size());
-#endif // QT_GRAD_NO_POLY
-
-	glBegin(GL_POLYGON);
-	{
-	    glColor4ub(gcol1.red(), gcol1.green(), gcol1.blue(), gcol1.alpha());
-	    glVertex2d(0, yleft1);
-	    glVertex2d(qToDouble(rect.width()), yright1);
-	    glColor4ub(gcol2.red(), gcol2.green(), gcol2.blue(), gcol2.alpha());
-	    glVertex2d(qToDouble(rect.width()), yright2);
-	    glVertex2d(0, yleft2);
-	}
-	glEnd();
-    }
-
-    glPopMatrix();
-    glPopAttrib();
-}
-
 void QOpenGLPaintEngine::drawTextItem(const QPointF &p, const QTextItem &ti)
 {
 #if defined(Q_WS_WIN) || defined (Q_WS_MAC)
     QPaintEngine::drawTextItem(p, ti);
 #else
-    dgl->renderText(qRound(p.x()), qRound(p.y()), ti.text(), painter()->font());
+    Q_D(QOpenGLPaintEngine);
+    // much faster for X11, but has lower quality for win/mac so don't do it there
+    if (d->txop > QPainterPrivate::TxTranslate)
+        QPaintEngine::drawTextItem(p, ti);
+    else
+        dgl->renderText(qRound(p.x()), qRound(p.y()), ti.text(), painter()->font());
 #endif
 }
