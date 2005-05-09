@@ -432,6 +432,7 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
     }
 
     QDomElement e = w.firstChild().toElement();
+    bool inQ3ToolBar = className == QLatin1String("Q3ToolBar");
 
     while (!e.isNull()) {
         QString t = e.tagName().toLower();
@@ -478,6 +479,12 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
                 ui_mainwindow_child_list.append(ui_child);
             } else {
                 ui_child_list.append(ui_child);
+            }
+
+            if (inQ3ToolBar) {
+                DomActionRef *ui_action_ref = new DomActionRef();
+                ui_action_ref->setAttributeName(ui_child->attributeName());
+                ui_action_list.append(ui_action_ref);
             }
         } else if (t == QLatin1String("action")) {
             DomActionRef *a = new DomActionRef();

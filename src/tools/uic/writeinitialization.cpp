@@ -447,19 +447,24 @@ void WriteInitialization::acceptActionRef(DomActionRef *node)
     bool isSeparator = actionName == QLatin1String("separator");
     bool isMenu = false;
 
+    QString varName = driver->findOrInsertWidget(m_widgetChain.top());
+
     if (actionName.isEmpty() || !m_widgetChain.top()) {
         return;
     } else if (driver->actionGroupByName(actionName)) {
         return;
     } else if (DomWidget *w = driver->widgetByName(actionName)) {
         isMenu = uic->isMenu(w->attributeClass());
+        bool inQ3ToolBar = uic->customWidgetsInfo()->extends(m_widgetChain.top()->attributeClass(), QLatin1String("Q3ToolBar"));
+        if (!isMenu && inQ3ToolBar) {
+            actionOut << option.indent << actionName << "->setParent(0);\n";
+            actionOut << option.indent << actionName << "->setParent(" << varName << ");\n";
+            return;
+        }
     } else if (!(driver->actionByName(actionName) || isSeparator)) {
-        fprintf(stderr, "Warning: action `%s' not declared\n",
-            actionName.toLatin1().data());
+        fprintf(stderr, "Warning: action `%s' not declared\n", actionName.toLatin1().data());
         return;
     }
-
-    QString varName = driver->findOrInsertWidget(m_widgetChain.top());
 
     if (m_widgetChain.top() && isSeparator) {
         // separator is always reserved!
