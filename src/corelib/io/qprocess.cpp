@@ -1160,32 +1160,8 @@ void QProcess::start(const QString &program, const QStringList &arguments, OpenM
     d->startProcess();
 }
 
-/*!
-    \overload
 
-    Starts the program \a program in a new process. \a program is a
-    single string of text containing both the program name and its
-    arguments. The arguments are separated by one or more
-    spaces. For example:
-
-    \code
-        QProcess process;
-        process.start("del /s *.txt");
-        // same as process.start("del", QStringList() << "/s" << "*.txt");
-        ...
-    \endcode
-
-    The \a program string can also contain quotes, to ensure that arguments
-    containing spaces are correctly supplied to the new process. For example:
-
-    \code
-        QProcess process;
-        process.start("dir \"My Documents\"");
-    \endcode
-
-    The OpenMode is set to \a mode.
-*/
-void QProcess::start(const QString &program, OpenMode mode)
+static QStringList parseCombinedArgString(const QString &program)
 {
     QStringList args;
     QString tmp;
@@ -1222,6 +1198,38 @@ void QProcess::start(const QString &program, OpenMode mode)
     if (!tmp.isEmpty())
         args += tmp;
     
+    return args;
+}
+
+/*!
+    \overload
+
+    Starts the program \a program in a new process. \a program is a
+    single string of text containing both the program name and its
+    arguments. The arguments are separated by one or more
+    spaces. For example:
+
+    \code
+        QProcess process;
+        process.start("del /s *.txt");
+        // same as process.start("del", QStringList() << "/s" << "*.txt");
+        ...
+    \endcode
+
+    The \a program string can also contain quotes, to ensure that arguments
+    containing spaces are correctly supplied to the new process. For example:
+
+    \code
+        QProcess process;
+        process.start("dir \"My Documents\"");
+    \endcode
+
+    The OpenMode is set to \a mode.
+*/
+void QProcess::start(const QString &program, OpenMode mode)
+{
+    QStringList args = parseCombinedArgString(program);
+        
     QString prog = args.first();
     args.removeFirst();
     
@@ -1301,12 +1309,17 @@ bool QProcess::startDetached(const QString &program, const QStringList &argument
     Starts the program \a program in a new process. \a program is a
     single string of text containing both the program name and its
     arguments. The arguments are separated by one or more spaces.
+
+    The \a program string can also contain quotes, to ensure that arguments
+    containing spaces are correctly supplied to the new process.
 */
 bool QProcess::startDetached(const QString &program)
 {
-    QStringList args = program.split(QLatin1Char(' '));
+    QStringList args = parseCombinedArgString(program);
+        
     QString prog = args.first();
     args.removeFirst();
+
     return QProcessPrivate::startDetached(prog, args);
 }
 
