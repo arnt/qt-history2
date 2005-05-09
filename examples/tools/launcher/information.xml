@@ -1,16 +1,23 @@
 <categories>
   <description>
-<![CDATA[Qt is supplied with a number of example applications that have been written to provide developers with examples of the Qt API in use, highlight good practise, and showcase features found in each of Qt's core technologies.
+<![CDATA[Qt is supplied with a number of example applications and demonstrations
+that have been written to provide developers with examples of the Qt API in use, highlight good practise, and showcase features found in each of Qt's core technologies.
 
 Click on a category to see the examples that are available for that area.]]>
   </description>
+  <category dirname="../demos" name="Demonstrations">
+    <description>
+<![CDATA[These demonstrations highlight Qt's capabilities in different areas.]]>
+    </description>
+    <example filename="arthur" name="Arthur" />
+  </category>
   <category dirname="designer" name="Qt Designer">
     <description>
 <![CDATA[Qt Designer is a capable graphical user interface designer that lets you create and configure forms without writing code. GUIs created with Qt Designer can be compiled into an application or created at run-time. ]]>
     </description>
     <example filename="calculatorbuilder" name="Calculator Builder" />
-    <example filename="calculatorform:" name="Calculator Form" />
-    <example filename="worldtimeclock:" name="World Time Clock" />
+    <example filename="calculatorform" name="Calculator Form" />
+    <example filename="worldtimeclock" name="World Time Clock" />
   </category>
   <category dirname="dialogs" name="Dialogs">
     <description>
