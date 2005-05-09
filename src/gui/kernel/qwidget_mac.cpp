@@ -1028,7 +1028,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             InstallWindowEventHandler(window, make_win_eventUPP(), GetEventTypeCount(window_events),
                                       window_events, static_cast<void *>(qApp), &window_event);
         }
-	if((flags & Qt::WindowStaysOnTopHint) || !parentWidget)
+	if((flags & Qt::WindowStaysOnTopHint))
 	    ChangeWindowAttributes(window, kWindowNoAttributes, kWindowHideOnSuspendAttribute);
         if(qt_mac_is_macdrawer(q) && parentWidget)
             SetDrawerParent(window, qt_mac_window_for(parentWidget));
