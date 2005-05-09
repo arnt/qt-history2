@@ -631,7 +631,7 @@ QMetaProperty QMetaObject::property(int index) const
         public:
             ...
         };
-    \endocde
+    \endcode
 
     \sa classInfoCount(), classInfoOffset(), indexOfClassInfo()
  */

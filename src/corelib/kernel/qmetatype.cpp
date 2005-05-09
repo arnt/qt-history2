@@ -17,35 +17,103 @@
 #include "qvector.h"
 
 /*!
-    \class QMetaType qmetaobject.h
+    \enum QMetaType::Type
+
+    These are the built-in types supported by QMetaType:
+
+    \value Void \c void
+    \value Bool \c bool
+    \value Int \c int
+    \value UInt \c{unsigned int}
+    \value Double \c double
+    \value QChar QChar
+    \value QString QString
+    \value QByteArray QByteArray
+
+    \value VoidStar \c{void *}
+    \value Long \c{long}
+    \value Short \c{short}
+    \value Char \c{char}
+    \value ULong \c{unsigned long}
+    \value UShort \c{unsigned short}
+    \value UChar \c{unsigned char}
+    \value Float \c float
+    \value QObjectStar QObject *
+    \value QWidgetStar QWidget *
+
+    \value User  Base value for user types
+
+    Additional types can be registered using qRegisterMetaType().
+
+    \sa type(), typeName()
+*/
+
+/*!
+    \class QMetaType
     \brief The QMetaType class manages named types in the meta object system.
 
     \ingroup objectmodel
 
-    The class is used as a helper to marshall types in QVariant and in queued
-    signals and slots connections. It associates a type name to a type so that
-    it can be created and destructed dynamically at runtime.
+    The class is used as a helper to marshall types in QVariant and
+    in queued signals and slots connections. It associates a type
+    name to a type so that it can be created and destructed
+    dynamically at run-time. Register new types with
+    qRegisterMetaType().
 
-    Register new types with qRegisterMetaType().
-
-    The following code allocates and destructs an instance of \c{MyClass}:
+    The following code allocates and destructs an instance of
+    \c{MyClass}:
 
     \code
-    if (QMetaType::isRegistered("MyClass")) {
-        int id = QMetaType::type("MyClass");
-        void *myClassPtr = QMetaType::construct(id);
-        // myClassPtr is now a pointer to a default constructed MyClass
+        if (QMetaType::isRegistered("MyClass")) {
+            int id = QMetaType::type("MyClass");
+            void *myClassPtr = QMetaType::construct(id);
+            ...
+            QMetaType::destroy(id, myClassPtr);
+            myClassPtr = 0;
+        }
+    \endcode
+
+    \section1 The Q_DECLARE_METATYPE() Macro
+
+    The \c Q_DECLARE_METATYPE() macro makes the type \a T known to
+    QMetaType. It is needed to use the type \a T as a custom type
+    in QVariant.
+
+    Ideally, this macro should be placed below the declaration of
+    the class or struct. If that is not possible, it can be put in
+    a private header file which has to be included every time that
+    type is used in a QVariant.
+
+    This example shows a typical use case of \c Q_DECLARE_METATYPE():
+
+    \code
+        struct MyStruct
+        {
+            int i;
+            ...
+        };
+
+        Q_DECLARE_METATYPE(MyStruct)
+    \endcode
+
+    Since \c{MyStruct} is now known to QMetaType, it can be used in QVariant:
+
+    \code
+        MyStruct s;
+        QVariant var;
+        var.setValue(s); // copy s into the variant
 
         ...
 
-        QMetaType::destroy(id, myClassPtr);
-        myClassPtr = 0;
-    }
+        // retrieve the value
+        MyStruct s2 = var.value<MyStruct>();
     \endcode
 
-    \sa qRegisterMetaType()
-*/
+    Note that \c Q_DECLARE_METATYPE() doesn't actually register the
+    type; you must still use qRegisterMetaType() for that.
 
+    \sa QVariant::setValue(), QVariant::value(), QVariant::fromValue()
+*/
 
 static const struct { const char * typeName; int type; } types[] = {
     {"void*", QMetaType::VoidStar},
@@ -109,9 +177,11 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
 }
 
 /*!
-   Returns the type name associated with the given \a type, or 0 if no
-   matching type was found. The returned pointer must not be deleted.
- */
+    Returns the type name associated with the given \a type, or 0 if no
+    matching type was found. The returned pointer must not be deleted.
+
+    \sa type(), isRegistered(), Type
+*/
 const char *QMetaType::typeName(int type)
 {
     if (type >= User) {
@@ -161,7 +231,9 @@ int QMetaType::registerType(const char *typeName, Destructor destructor,
 /*!
     Returns true if the custom datatype with ID \a type is registered;
     otherwise returns false.
- */
+
+    \sa type(), typeName(), Type
+*/
 bool QMetaType::isRegistered(int type)
 {
     const QVector<QCustomTypeInfo> * const ct = customTypes();
@@ -171,7 +243,9 @@ bool QMetaType::isRegistered(int type)
 /*!
     Returns a handle to the type called \a typeName, or 0 if there is
     no such type.
- */
+
+    \sa isRegistered(), typeName(), Type
+*/
 int QMetaType::type(const char *typeName)
 {
     if (!typeName)
@@ -190,7 +264,7 @@ int QMetaType::type(const char *typeName)
 }
 
 /*! \internal
- */
+*/
 bool QMetaType::save(QDataStream &stream, int type, const void *data)
 {
     // FIXME - also stream simple types?
@@ -224,9 +298,11 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
 }
 
 /*!
-  Returns a copy of \a copy, assuming it is of type \a type. If \a
-  copy is zero, creates a default type.
- */
+    Returns a copy of \a copy, assuming it is of type \a type. If \a
+    copy is zero, creates a default type.
+
+    \sa destroy(), isRegistered(), Type
+*/
 void *QMetaType::construct(int type, const void *copy)
 {
     if (copy) {
@@ -317,7 +393,9 @@ void *QMetaType::construct(int type, const void *copy)
 
 /*!
     Destroys the \a data, assuming it is of the \a type given.
- */
+
+    \sa construct(), isRegistered(), Type
+*/
 void QMetaType::destroy(int type, void *data)
 {
     if (!data)
@@ -382,61 +460,26 @@ void QMetaType::destroy(int type, void *data)
     }
 }
 
-/*! \fn int qRegisterMetaType(const char *typeName, T * = 0)
-
+/*!
+    \fn int qRegisterMetaType(const char *typeName, T *dummy = 0)
     \relates QMetaType
 
     Registers the type name \a typeName to the type \c{T}.
-    Returns the internal id used by QMetaType.
+    Returns the internal ID used by QMetaType.
 
     After a type has been registered, you can create and destroy
-    objects of that type dynamically at runtime.
+    objects of that type dynamically at run-time.
 
     This example registers the class \c{MyClass}:
 
     \code
-    qRegisterMetaType<MyClass>("MyClass");
-    \endcode
-*/
-
-/*! \fn Q_DECLARE_METATYPE(TYPE)
-
-    \relates QMetaType
-
-    This macro makes the type \a TYPE known to QMetaType. It
-    is needed to use the type \a TYPE as a custom type in QVariant.
-
-    Ideally, this macro should be placed below the declaration of
-    the class or struct. If that is not possible, it can be put in
-    a private header file which has to be included every time that
-    type is used in a QVariant.
-
-    This example shows a typical use case of Q_DECLARE_METATYPE:
-
-    \code
-    struct MyStruct
-    {
-        int i;
-        ...
-    };
-
-    Q_DECLARE_METATYPE(MyStruct)
+        qRegisterMetaType<MyClass>("MyClass");
     \endcode
 
-    Since \c{MyStruct} is now known to QMetaType, it can be used in QVariant:
+    You don't need to pass any value for the \a dummy parameter. It
+    is there because of an MSVC 6 limitation.
 
-    \code
-    MyStruct s;
-    QVariant var;
-    var.setValue(s); // copy s into the variant
-
-    ...
-
-    // retrieve the value
-    MyStruct s2 = var.value<MyStruct>();
-    \endcode
-
-    \sa QVariant::setValue(), QVariant::value(), QVariant::fromValue()
+    \sa QMetaType::isRegistered()
 */
 
 /*! \typedef QMetaType::Destructor
