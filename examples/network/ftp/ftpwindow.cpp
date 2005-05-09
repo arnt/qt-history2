@@ -131,6 +131,7 @@ void FtpWindow::ftpCommandFinished(int, bool error)
 {
     if (ftp->currentCommand() == QFtp::ConnectToHost) {
         if (error) {
+            QApplication::restoreOverrideCursor();
             QMessageBox::information(this, tr("FTP"),
                                      tr("Unable to connect to the FTP server "
                                         "at %1. Please check that the host "
