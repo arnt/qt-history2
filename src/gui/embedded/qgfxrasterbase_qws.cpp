@@ -142,7 +142,7 @@ void QGfxRasterBase::setBrush(const QBrush &b)
 
 void QGfxRasterBase::setClipDeviceRegion(const QRegion &r)
 {
-    cliprgn=r;
+    cliprgn=r & QRect(0, 0, width, height);
     _XRegion* cr = (_XRegion*) cliprgn.handle();
 
      if (cr->numRects==1) {
