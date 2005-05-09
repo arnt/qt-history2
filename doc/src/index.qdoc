@@ -22,6 +22,8 @@
     \title Qt Reference Documentation (Open Source Edition)
     \endif
 
+    \keyword Qt Reference Documentation
+
     \if defined(noncommercial)
     \bold{Note:} This
     edition is for the development of non-commercial software in

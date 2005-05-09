@@ -1,73 +1,103 @@
-/*! \headerfile <QtGlobal>
+/*!
+    \headerfile <QtGlobal>
+    \title Global Qt Declarations
 
+    \brief The <QtGlobal> header file provides basic declarations and is included by all other Qt headers.
 */
 
 /*! \typedef uchar
     \relates <QtGlobal>
+
+    Convenience typedef for \c{unsigned char}.
 */
 
 /*! \typedef ushort
     \relates <QtGlobal>
+
+    Convenience typedef for \c{unsigned short}.
 */
 
 /*! \typedef uint
     \relates <QtGlobal>
+
+    Convenience typedef for \c{unsigned int}.
 */
 
 /*! \typedef ulong
     \relates <QtGlobal>
-*/
 
-/*! \typedef pchar
-    \relates <QtGlobal>
-*/
-
-/*! \typedef puchar
-    \relates <QtGlobal>
-*/
-
-/*! \typedef pcchar
-    \relates <QtGlobal>
+    Convenience typedef for \c{unsigned long}.
 */
 
 /*! \typedef qint8
     \relates <QtGlobal>
+
+    Typedef for \c{signed char}. This type is guaranteed to be 8-bit
+    on all platforms supported by Qt.
 */
 
 /*! \typedef quint8
     \relates <QtGlobal>
+
+    Typedef for \c{unsigned signed char}. This type is guaranteed to
+    be 8-bit on all platforms supported by Qt.
 */
 
 /*! \typedef qint16
     \relates <QtGlobal>
+
+    Typedef for \c{signed short}. This type is guaranteed to be
+    16-bit on all platforms supported by Qt.
 */
 
 /*! \typedef quint16
     \relates <QtGlobal>
+
+    Typedef for \c{unsigned signed short}. This type is guaranteed to
+    be 16-bit on all platforms supported by Qt.
 */
 
 /*! \typedef qint32
     \relates <QtGlobal>
+
+    Typedef for \c{signed int}. This type is guaranteed to be 32-bit
+    on all platforms supported by Qt.
 */
 
 /*! \typedef quint32
     \relates <QtGlobal>
+
+    Typedef for \c{unsigned signed int}. This type is guaranteed to
+    be 32-bit on all platforms supported by Qt.
 */
 
 /*! \typedef qint64
     \relates <QtGlobal>
+
+    Typedef for \c{long long int} (\c __int64 on Windows). This type
+    is guaranteed to be 64-bit on all platforms supported by Qt.
+
+    Literals of that type can be created using the \c Q_INT64_C()
+    macro:
+
+    \code
+        qint64 value = Q_INT64_C(932838457459459);
+    \endcode
 */
 
 /*! \typedef quint64
     \relates <QtGlobal>
-*/
 
-/*! \typedef qlonglong
-    \relates <QtGlobal>
-*/
+    Typedef for \c{unsigned long long int} (\c{unsigned __int64} on
+    Windows). This type is guaranteed to be 64-bit on all platforms
+    supported by Qt.
 
-/*! \typedef qulonglong
-    \relates <QtGlobal>
+    Literals of that type can be created using the \c Q_UINT64_C()
+    macro:
+
+    \code
+        quint64 value = Q_UINT64_C(932838457459459);
+    \endcode
 */
 
 /*! \macro Q_INT64_C(constant)
@@ -78,22 +108,190 @@
     \relates <QtGlobal>
 */
 
-/*! \macro QABS(value)
-    \relates <QtGlobal>
 */
 
-/*! \fn int qRound(double d)
+/*! \typedef qlonglong
     \relates <QtGlobal>
+
+    Typedef for \c{long long int} (\c __int64 on Windows). This is
+    the same as \l qint64.
 */
 
-/*! \fn T qMin(T a, T b)
+/*! \typedef qulonglong
     \relates <QtGlobal>
+
+    Typedef for \c{unsigned long long int} (\c{unsigned __int64} on
+    Windows). This is the same as \l quint64.
 */
 
-/*! \fn T qMax(T a, T b)
+/*! \fn const T &qAbs(const T &value)
     \relates <QtGlobal>
+
+    Returns the absolute value of \a value.
 */
 
-/*! \fn T qBound(T min, T val, T max)
+/*! \fn int qRound(double value)
     \relates <QtGlobal>
+
+    Rounds \a value up to the nearest integer.
+*/
+
+/*! \fn qint64 qRound64(double d)
+    \relates <QtGlobal>
+
+    Rounds \a value up to the nearest 64-bit integer.
+*/
+
+/*! \fn const T &qMin(const T &value1, const T &value2)
+    \relates <QtGlobal>
+
+    Returns the minimum of \a value1 and \a value2.
+
+    \sa qMax(), qBound()
+*/
+
+/*! \fn const T &qMax(const T &a, const T &b)
+    \relates <QtGlobal>
+
+    Returns the maximum of \a value1 and \a value2.
+
+    \sa qMin(), qBound()
+*/
+
+/*! \fn const T &qBound(const T &min, const T &value, const T &max)
+    \relates <QtGlobal>
+
+    Returns \a value bounded by \a min and \a max. This is equivalent
+    to qMax(\a min, qMin(\a value, \a max)).
+
+    \sa qMin(), qMax()
+*/
+
+/*!
+    \typedef Q_INT8
+    \relates <QtGlobal>
+    \compat
+
+    Use \l qint8 instead.
+*/
+
+/*!
+    \typedef Q_UINT8
+    \relates <QtGlobal>
+    \compat
+
+    Use \l quint8 instead.
+*/
+
+/*!
+    \typedef Q_INT16
+    \relates <QtGlobal>
+    \compat
+
+    Use \l qint16 instead.
+*/
+
+/*!
+    \typedef Q_UINT16
+    \relates <QtGlobal>
+    \compat
+
+    Use \l quint16 instead.
+*/
+
+/*!
+    \typedef Q_INT32
+    \relates <QtGlobal>
+    \compat
+
+    Use \l qint32 instead.
+*/
+
+/*!
+    \typedef Q_UINT32
+    \relates <QtGlobal>
+    \compat
+
+    Use \l quint32 instead.
+*/
+
+/*!
+    \typedef Q_INT64
+    \relates <QtGlobal>
+    \compat
+
+    Use \l qint64 instead.
+*/
+
+/*!
+    \typedef Q_UINT64
+    \relates <QtGlobal>
+    \compat
+
+    Use \l quint64 instead.
+*/
+
+/*!
+    \typedef Q_LLONG
+    \relates <QtGlobal>
+    \compat
+
+    Use \l qint64 instead.
+*/
+
+/*!
+    \typedef Q_ULLONG
+    \relates <QtGlobal>
+    \compat
+
+    Use \l quint64 instead.
+*/
+
+/*!
+    \typedef Q_LONG
+    \relates <QtGlobal>
+    \compat
+
+    Use \c{void *} instead.
+*/
+
+/*!
+    \typedef Q_ULONG
+    \relates <QtGlobal>
+    \compat
+
+    Use \c{void *} instead.
+*/
+
+/*! \fn bool qSysInfo(int *wordSize, bool *bigEndian)
+    \relates <QtGlobal>
+
+    Use QSysInfo::WordSize and QSysInfo::ByteOrder instead.
+*/
+
+/*!
+    \fn bool qt_winUnicode()
+    \relates <QtGlobal>
+
+    Use !(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) instead.
+
+    \sa QSysInfo
+*/
+
+/*!
+    \fn int qWinVersion()
+    \relates <QtGlobal>
+
+    Use QSysInfo::WindowsVersion instead.
+
+    \sa QSysInfo
+*/
+
+/*!
+    \fn int qMacVersion()
+    \relates <QtGlobal>
+
+    Use QSysInfo::MacintoshVersion instead.
+
+    \sa QSysInfo
 */
