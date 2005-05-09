@@ -23,8 +23,8 @@
 #define QT_TITLE         QLatin1String("Qt Reference Documentation")
 #define DESIGNER_TITLE   QLatin1String("Qt Designer Manual")
 #define ASSISTANT_TITLE  QLatin1String("Qt Assistant Manual")
-#define LINGUIST_TITLE   QLatin1String("Guide to the Qt Translation Tools")
-#define QMAKE_TITLE      QLatin1String("qmake User Guide")
+#define LINGUIST_TITLE   QLatin1String("Qt Linguist Manual")
+#define QMAKE_TITLE      QLatin1String("qmake Manual")
 
 Profile *Profile::createDefaultProfile()
 {
@@ -41,27 +41,27 @@ Profile *Profile::createDefaultProfile()
     profile->props[QLatin1String("startpage")] = path + QLatin1String("index.html");
 
     profile->addDCFTitle( path + QLatin1String("qt.dcf"), QT_TITLE );
-//    profile->addDCFTitle( path + QLatin1String("designer.dcf"), DESIGNER_TITLE );
-//    profile->addDCFTitle( path + QLatin1String("assistant.dcf"), ASSISTANT_TITLE );
-//    profile->addDCFTitle( path + QLatin1String("linguist.dcf"), LINGUIST_TITLE );
-//    profile->addDCFTitle( path + QLatin1String("qmake.dcf"), QMAKE_TITLE );
+    profile->addDCFTitle( path + QLatin1String("designer.dcf"), DESIGNER_TITLE );
+    profile->addDCFTitle( path + QLatin1String("assistant.dcf"), ASSISTANT_TITLE );
+    profile->addDCFTitle( path + QLatin1String("linguist.dcf"), LINGUIST_TITLE );
+    profile->addDCFTitle( path + QLatin1String("qmake.dcf"), QMAKE_TITLE );
 
     profile->addDCFIcon( QT_TITLE, QLatin1String("qt.png") );
-//    profile->addDCFIcon( DESIGNER_TITLE, QLatin1String("designer.png") );
-//    profile->addDCFIcon( ASSISTANT_TITLE, QLatin1String("assistant.png") );
-//    profile->addDCFIcon( LINGUIST_TITLE, QLatin1String("linguist.png") );
+    profile->addDCFIcon( DESIGNER_TITLE, QLatin1String("designer.png") );
+    profile->addDCFIcon( ASSISTANT_TITLE, QLatin1String("assistant.png") );
+    profile->addDCFIcon( LINGUIST_TITLE, QLatin1String("linguist.png") );
 
     profile->addDCFIndexPage( QT_TITLE, path + QLatin1String("index.html") );
-//    profile->addDCFIndexPage( DESIGNER_TITLE, path + QLatin1String("designer-manual.html") );
-//    profile->addDCFIndexPage( ASSISTANT_TITLE, path + QLatin1String("assistant.html") );
-//    profile->addDCFIndexPage( LINGUIST_TITLE, path + QLatin1String("linguist-manual.html") );
-//    profile->addDCFIndexPage( QMAKE_TITLE, path + QLatin1String("qmake-manual.html") );
+    profile->addDCFIndexPage( DESIGNER_TITLE, path + QLatin1String("designer-manual.html") );
+    profile->addDCFIndexPage( ASSISTANT_TITLE, path + QLatin1String("assistant.html") );
+    profile->addDCFIndexPage( LINGUIST_TITLE, path + QLatin1String("linguist-manual.html") );
+    profile->addDCFIndexPage( QMAKE_TITLE, path + QLatin1String("qmake-manual.html") );
 
     profile->addDCFImageDir( QT_TITLE, QLatin1String("../../gif/") );
-//    profile->addDCFImageDir( DESIGNER_TITLE, QLatin1String("../../gif/") );
-//    profile->addDCFImageDir( ASSISTANT_TITLE, QLatin1String("../../gif/") );
-//    profile->addDCFImageDir( LINGUIST_TITLE, QLatin1String("../../gif/") );
-//    profile->addDCFImageDir( QMAKE_TITLE, QLatin1String("../../gif/") );
+    profile->addDCFImageDir( DESIGNER_TITLE, QLatin1String("../../gif/") );
+    profile->addDCFImageDir( ASSISTANT_TITLE, QLatin1String("../../gif/") );
+    profile->addDCFImageDir( LINGUIST_TITLE, QLatin1String("../../gif/") );
+    profile->addDCFImageDir( QMAKE_TITLE, QLatin1String("../../gif/") );
 
     return profile;
 }

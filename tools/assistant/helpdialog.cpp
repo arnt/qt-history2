@@ -428,8 +428,8 @@ void HelpDialog::setupTitleMap()
 
     titleMapDone = true;
     titleMap.clear();
-    for(QHash<QString, ContentList>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
-        ContentList lst = it.value();
+    for(QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+        ContentList lst = (*it).second;
         foreach (ContentItem item, lst) {
             titleMap[item.reference] = item.title.trimmed();
         }
@@ -460,7 +460,7 @@ void HelpDialog::getAllContents()
     while (!ds.atEnd()) {
         ds >> key;
         ds >> lst;
-        contentList.insert(key, QList<ContentItem>(lst));
+        contentList += qMakePair(key, QList<ContentItem>(lst));
     }
     contentFile.close();
     processEvents();
@@ -491,7 +491,7 @@ void HelpDialog::buildContentDict()
         bool ok = handler->parse(&file);
         file.close();
         if(ok) {
-            contentList.insert(*it, QList<ContentItem>(handler->getContentItems()));
+            contentList += qMakePair(*it, QList<ContentItem>(handler->getContentItems()));
             delete handler;
         } else {
             QString msg = QString::fromLatin1("In file %1:\n%2")
@@ -507,9 +507,8 @@ void HelpDialog::buildContentDict()
     if (contentOut.open(QFile::WriteOnly)) {
         QDataStream s(&contentOut);
         s << fileAges;
-        for(QHash<QString, ContentList>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
-            s << it.key();
-            s << it.value();
+        for(QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+            s << *it;
         }
         contentOut.close();
     }
@@ -758,7 +757,7 @@ void HelpDialog::insertContents()
     ui.listContents->setSorting(-1);
 #endif
 
-    for(QHash<QString, ContentList>::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
+    for(QList<QPair<QString, ContentList> >::Iterator it = contentList.begin(); it != contentList.end(); ++it) {
         QTreeWidgetItem *newEntry;
 
         QTreeWidgetItem *contentEntry;
@@ -771,7 +770,7 @@ void HelpDialog::insertContents()
         for(int j = 0; j < 64; ++j)
             lastItem[j] = 0;
 
-        ContentList lst = it.value();
+        ContentList lst = (*it).second;
         for (ContentList::ConstIterator it = lst.begin(); it != lst.end(); ++it) {
             ContentItem item = *it;
             if (item.depth == 0) {

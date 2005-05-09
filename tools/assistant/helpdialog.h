@@ -19,6 +19,8 @@
 #include "helpwindow.h"
 #include "docuparser.h"
 
+#include <qlist.h>
+#include <qpair.h>
 #include <qlistwidget.h>
 #include <qtreewidget.h>
 #include <qmap.h>
@@ -132,7 +134,7 @@ private:
     QStringList terms, foundDocs;
     bool initDoneMsgShown;
     void getAllContents();
-    QHash<QString, ContentList> contentList;
+    QList<QPair<QString, ContentList> > contentList;
     QMenu *itemPopup;
     QString cacheFilesPath;
 
