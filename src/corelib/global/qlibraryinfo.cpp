@@ -30,6 +30,10 @@
 
 Q_GLOBAL_STATIC(QString, qt_library_config_file)
 Q_CORE_EXPORT void qt_set_library_config_file(const QString &p) { *(qt_library_config_file()) = p; }
+#ifdef QT_NO_QOBJECT
+static const char * argv0 = 0;
+Q_CORE_EXPORT void qt_set_library_argv0(const char *c) { argv0 = c; }
+#endif
 
 
 struct QLibrarySettings
@@ -88,69 +92,75 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
             return (new QSettings(qtconfig, QSettings::IniFormat));
     }
 #ifndef QT_NO_QOBJECT
+    const char *argv0 = 0;
     if(QCoreApplication *app = QCoreApplication::instance()) { //walk up the file system from the exe to (a) root
-        if(app->argv() && app->argv()[0]) {
-            bool trySearch = true;
-            QString exe;
+        if (app->argv())
+            argv0 = app->argv()[0];
+    }
+#endif
+    if(argv0) {
+        bool trySearch = true;
+        QString exe;
 #ifndef Q_OS_WIN
-            exe = QString::fromLocal8Bit(app->argv()[0]);
+        exe = QString::fromLocal8Bit(argv0);
 #else
-            QT_WA({
+        QT_WA({
                 unsigned short module_name[256];
                 GetModuleFileNameW(0, reinterpret_cast<wchar_t *>(module_name), sizeof(module_name));
                 exe = QString::fromUtf16(module_name);
             }, {
-                char module_name[256];
-                GetModuleFileNameA(0, module_name, sizeof(module_name));
-                exe = QString::fromLocal8Bit(module_name);
-            });
+                  char module_name[256];
+                  GetModuleFileNameA(0, module_name, sizeof(module_name));
+                  exe = QString::fromLocal8Bit(module_name);
+              });
 #endif // Q_OS_WIN
-            if(QDir::isRelativePath(exe)) {
-                if((exe.indexOf(QLatin1Char('/')) != -1
+        if(!QDir::isRelativePath(exe)) {
+            trySearch = true;
+        } else {
+            if((exe.indexOf(QLatin1Char('/')) != -1
 #ifdef Q_OS_WIN
-                    || exe.indexOf(QLatin1Char('\\')) != -1
+                || exe.indexOf(QLatin1Char('\\')) != -1
 #endif
-                       ) && QFile::exists(exe)) {
-                    exe.prepend(QDir::currentPath() + QLatin1Char('/'));
-                } else if(char *path = qgetenv("PATH")) {
+                   ) && QFile::exists(exe)) {
+                exe.prepend(QDir::currentPath() + QLatin1Char('/'));
+            } else if(char *path = qgetenv("PATH")) {
 #ifdef Q_OS_WIN
-                    QStringList paths = QString::fromLocal8Bit(path).split(QLatin1Char(';'));
+                QStringList paths = QString::fromLocal8Bit(path).split(QLatin1Char(';'));
 #else
-                    QStringList paths = QString::fromLocal8Bit(path).split(QLatin1Char(':'));
+                QStringList paths = QString::fromLocal8Bit(path).split(QLatin1Char(':'));
 #endif
-                    bool found = false;
-                    for(int i = 0; i < paths.size(); ++i) {
-                        const QString fexe = paths.at(i) + QLatin1Char('/') + exe;
-                        if(QFile::exists(fexe)) {
-                            found = true;
-                            exe = fexe;
-                            break;
-                        }
-                    }
-                    trySearch = found;
-                }
-            }
-            if(trySearch) {
-                QDir pwd(QFileInfo(exe).path());
-                for(int count = 0; count < 64; ++count) {
-                    if(pwd.exists(QLatin1String("qt.conf")))
-                        return (new QSettings(pwd.filePath(QLatin1String("qt.conf")),
-                                 QSettings::IniFormat));
-                    if(pwd.isRoot())
+                bool found = false;
+                for(int i = 0; i < paths.size(); ++i) {
+                    const QString fexe = paths.at(i) + QLatin1Char('/') + exe;
+                    if(QFile::exists(fexe)) {
+                        found = true;
+                        exe = fexe;
                         break;
-                    pwd.cdUp();
+                    }
                 }
+                trySearch = found;
+            }
+        }
+        if(trySearch) {
+            QFileInfo info(QFileInfo(exe).canonicalFilePath());
+            QDir pwd(info.path());
+            for(int count = 0; count < 64; ++count) {
+                if(pwd.exists(QLatin1String("qt.conf")))
+                    return (new QSettings(pwd.filePath(QLatin1String("qt.conf")),
+                                          QSettings::IniFormat));
+                if(pwd.isRoot())
+                    break;
+                pwd.cdUp();
             }
         }
     }
-#endif
-    if(char *qtdir = qgetenv("QTDIR")) {     //look in QTDIR
-        const QString qtconfig = QString::fromUtf8(qtdir) + QLatin1String("/qt.conf");
+    if(char *qtconfig_str = qgetenv("QTCONFIG")) {     //look in QTCONFIG
+        const QString qtconfig = QString::fromUtf8(qtconfig_str);
         if(QFile::exists(qtconfig))
             return (new QSettings(qtconfig, QSettings::IniFormat));
     }
-    if(char *qtconfig_str = qgetenv("QTCONFIG")) {     //look in QTCONFIG
-        const QString qtconfig = QString::fromUtf8(qtconfig_str);
+    if(char *qtdir = qgetenv("QTDIR")) {     //look in QTDIR
+        const QString qtconfig = QString::fromUtf8(qtdir) + QLatin1String("/qt.conf");
         if(QFile::exists(qtconfig))
             return (new QSettings(qtconfig, QSettings::IniFormat));
     }
@@ -158,17 +168,6 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
         const QString qtconfig = QDir::homePath() + QLatin1String("/.qt.conf");
         if(QFile::exists(qtconfig))
             return (new QSettings(qtconfig, QSettings::IniFormat));
-    }
-    { //walk up the file system from PWD to (a) root
-        QDir pwd = QDir::current();
-        for(int count = 0; count < 64; ++count) {
-            if(pwd.exists(QLatin1String("qt.conf")))
-                return (new QSettings(pwd.filePath(QLatin1String("qt.conf")),
-                              QSettings::IniFormat));
-            if(pwd.isRoot())
-                break;
-            pwd.cdUp();
-        }
     }
 #ifdef Q_OS_UNIX
     { //look in the /etc
@@ -272,10 +271,6 @@ QLibraryInfo::buildKey()
   \o A file of the name qt.conf in the directory from which your
   application executable lives. The file system will be walked up from
   that directory to the root.
-
-  \o A file of the name qt.conf in the directory from which your
-  application executable was run. The filesystem will be walked up
-  from that directory to the root.
 
   \o An environment variable \c QTCONFIG.
 
