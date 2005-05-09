@@ -87,10 +87,10 @@ static qreal alignLine(QTextEngine *eng, const QScriptLine &line)
 
     \sa ascent() descent() width()
 */
-QRect QTextInlineObject::rect() const
+QRectF QTextInlineObject::rect() const
 {
     QScriptItem& si = eng->layoutData->items[itm];
-    return QRect(0, qRound(-si.ascent), qRound(si.width), qRound(si.height()));
+    return QRectF(0, -si.ascent, si.width, si.height());
 }
 
 /*!

@@ -37,7 +37,7 @@ public:
     inline QTextInlineObject() : itm(0), eng(0) {}
     inline bool isValid() const { return eng; }
 
-    QRect rect() const;
+    QRectF rect() const;
     qreal width() const;
     qreal ascent() const;
     qreal descent() const;
