@@ -65,7 +65,7 @@ private:
     bool matchBaseList( ClassNode *classe );
     bool matchClassDecl( InnerNode *parent );
     bool matchNamespaceDecl(InnerNode *parent);
-    bool matchEnumItem( EnumNode *enume );
+    bool matchEnumItem( InnerNode *parent, EnumNode *enume );
     bool matchEnumDecl( InnerNode *parent );
     bool matchTypedefDecl( InnerNode *parent );
     bool matchProperty( InnerNode *parent );

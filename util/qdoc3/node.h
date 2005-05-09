@@ -409,15 +409,18 @@ public:
     VariableNode(InnerNode *parent, const QString &name);
 
     void setDataType(const QString &dataType) { dt = dataType; }
+    void setStatic(bool statique) { sta = statique; }
 
     const QString &dataType() const { return dt; }
+    bool isStatic() const { return sta; }
 
 private:
     QString dt;
+    bool sta;
 };
 
 inline VariableNode::VariableNode(InnerNode *parent, const QString &name)
-    : LeafNode(Variable, parent, name)
+    : LeafNode(Variable, parent, name), sta(false)
 {
 }
 

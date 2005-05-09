@@ -347,7 +347,10 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 		        isSlot = ( func->metaness() == FunctionNode::Slot );
 		        isSignal = ( func->metaness() == FunctionNode::Signal );
 		        isStatic = func->isStatic();
-	            }
+	            } else if ((*c)->type() == Node::Variable) {
+                        const VariableNode *var = static_cast<const VariableNode *>(*c);
+                        isStatic = var->isStatic();
+                    }
 
 	            switch ( (*c)->access() ) {
 	            case Node::Public:

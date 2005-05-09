@@ -686,7 +686,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
             var->setDataType(returnType.toString());
             if (compat)
                 var->setStatus(Node::Compat);
-            // var->setStatic(sta);
+            var->setStatic(sta);
             return false;
         }
 	if ( tok != Tok_LeftParen )
@@ -858,7 +858,7 @@ bool CppCodeParser::matchNamespaceDecl(InnerNode *parent)
     return matchDeclList(namespasse) && match(Tok_RightBrace);
 }
 
-bool CppCodeParser::matchEnumItem( EnumNode *enume )
+bool CppCodeParser::matchEnumItem( InnerNode *parent, EnumNode *enume )
 {
     if ( !match(Tok_Ident) )
 	return false;
@@ -874,28 +874,36 @@ bool CppCodeParser::matchEnumItem( EnumNode *enume )
 	}
     }
 
-    QString strVal = val.toString();
-    if (strVal.isEmpty()) {
-        if (enume->items().isEmpty()) {
-            strVal = "0";
-        } else {
-            QString last = enume->items().last().value();
-            bool ok;
-            int n = last.toInt(&ok);
-            if (ok) {
-                if (last.startsWith("0") && last.size() > 1) {
-                    if (last.startsWith("0x") || last.startsWith("0X"))
-                        strVal = last.left(2) + QString::number(n + 1, 16);
-                    else
-                        strVal = "0" + QString::number(n + 1, 8);
-                } else {
-                    strVal = QString::number(n + 1);
+    if (enume) {
+        QString strVal = val.toString();
+        if (strVal.isEmpty()) {
+            if (enume->items().isEmpty()) {
+                strVal = "0";
+            } else {
+                QString last = enume->items().last().value();
+                bool ok;
+                int n = last.toInt(&ok);
+                if (ok) {
+                    if (last.startsWith("0") && last.size() > 1) {
+                        if (last.startsWith("0x") || last.startsWith("0X"))
+                            strVal = last.left(2) + QString::number(n + 1, 16);
+                        else
+                            strVal = "0" + QString::number(n + 1, 8);
+                    } else {
+                        strVal = QString::number(n + 1);
+                    }
                 }
             }
         }
-    }
 
-    enume->addItem( EnumItem(name, strVal) );
+        enume->addItem( EnumItem(name, strVal) );
+    } else {
+        VariableNode *var = new VariableNode(parent, name);
+        var->setAccess(access);
+        var->setLocation(location());
+        var->setDataType("const int");
+        var->setStatic(true);
+    }
     return true;
 }
 
@@ -905,23 +913,26 @@ bool CppCodeParser::matchEnumDecl( InnerNode *parent )
 
     if ( !match(Tok_enum) )
 	return false;
-    if ( !match(Tok_Ident) )
-	return false;
-    name = previousLexeme();
+    if ( match(Tok_Ident) )
+        name = previousLexeme();
     if ( tok != Tok_LeftBrace )
 	return false;
 
-    EnumNode *enume = new EnumNode( parent, name );
-    enume->setAccess( access );
-    enume->setLocation( location() );
+    EnumNode *enume = 0;
+
+    if (!name.isEmpty()) {
+        enume = new EnumNode( parent, name );
+        enume->setAccess( access );
+        enume->setLocation( location() );
+    }
 
     readToken();
 
-    if ( !matchEnumItem(enume) )
+    if ( !matchEnumItem(parent, enume) )
 	return false;
 
     while ( match(Tok_Comma) ) {
-	if ( !matchEnumItem(enume) )
+	if ( !matchEnumItem(parent, enume) )
 	    return false;
     }
     return match( Tok_RightBrace ) && match( Tok_Semicolon );

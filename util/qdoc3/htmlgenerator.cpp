@@ -1859,6 +1859,7 @@ QString HtmlGenerator::refForNode(const Node *node)
         break;
     case Node::Variable:
         ref = node->name() + "-var";
+	break;
     case Node::Target:
         return protect(node->name());
     }

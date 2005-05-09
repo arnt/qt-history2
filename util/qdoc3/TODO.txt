@@ -2,6 +2,7 @@ MUST HAVES:
 
   * get rid of spurious 'global' functions
   * Make automatic links in code work
+  * make links to base class enums work (e.g. SO_DockWindow)
 
   * Fix encoding bug (see Important email from Simon Hausmann)
   * Make links to QFoo::bar().baz() work
@@ -9,17 +10,9 @@ MUST HAVES:
   * Provide a "List of all properties" page.
 
   * expand QObjectList -> QList<QObject *>
-  * qhboxwidget.html#sizeHint is broken (apparently)
-
-  * support <qglobal.h>'s typedefs with \typedef (qglobal.qdoc)
-
   * make \macro work (?)
-  * many broken links, e.g. "See also QFrame::style()" at the end of QFrame's detailed description
-  * add some magic for properties in \sa's?
-  * turn \c into links?
   * warning for unnamed parameters in property access functions
   * \center...\endcenter
-
 
 LINKS:
 
@@ -48,7 +41,6 @@ NICE FEATURES:
   * prevent macros from having same name as commands
   * be smart about enum types Foo::Bar vs. Bar when comparing functions
   * be smart about const & non-const when comparing functions
-
 
 OTHER:
   * make qdoc run faster
