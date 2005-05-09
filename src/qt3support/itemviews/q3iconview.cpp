@@ -3365,7 +3365,7 @@ void Q3IconView::drawContents(QPainter *p, int cx, int cy, int cw, int ch)
             //
             // NOTE: the item could override this cliprect in it's
             // paintItem() implementation, which makes this useless
-            p->setClipRect(QRect(contentsToViewport(r2.topLeft()), r2.size()));
+            p->setClipRect(r2);
             for (int i = 0; i < c->items.size(); ++i) {
                 Q3IconViewItem *item = c->items.at(i);
                 if (item->rect().intersects(r) && !item->dirty) {
