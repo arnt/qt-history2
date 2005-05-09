@@ -32,6 +32,7 @@ public:
     void setSaveSettingsOnClose(bool save);
     bool saveSettingsOnClose() const;
 
+    virtual Qt::DockWidgetArea dockWidgetAreaHint() const;
     virtual QRect geometryHint() const;
 
 private slots:

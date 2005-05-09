@@ -25,6 +25,7 @@ public:
     QDesignerWidgetBox(QDesignerWorkbench *workbench);
     virtual ~QDesignerWidgetBox();
 
+    virtual Qt::DockWidgetArea dockWidgetAreaHint() const;
     virtual QRect geometryHint() const;
 };
 

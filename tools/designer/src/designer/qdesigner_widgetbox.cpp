@@ -53,3 +53,8 @@ QRect QDesignerWidgetBox::geometryHint() const
     return QRect(workbench()->marginHint(), workbench()->marginHint(),
                  g.width() * 1/4, g.height() * 5/6);
 }
+
+Qt::DockWidgetArea QDesignerWidgetBox::dockWidgetAreaHint() const
+{
+    return Qt::LeftDockWidgetArea;
+}

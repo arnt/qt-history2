@@ -204,14 +204,24 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     m_uiMode = new QActionGroup(this);
     m_uiMode->setExclusive(true);
+
     m_sdiAction = m_uiMode->addAction(tr("Multiple Top-Level Windows"));
     m_sdiAction->setCheckable(true);
-    m_mdiAction = m_uiMode->addAction(tr("All-in-One Window"));
-    m_mdiAction->setCheckable(true);
-    if (settings.uiMode() == QDesignerWorkbench::WorkspaceMode)
-        m_mdiAction->setChecked(true);
-    else
-        m_sdiAction->setChecked(true);
+
+    m_dockedMdiAction = m_uiMode->addAction(tr("Docked Window"));
+    m_dockedMdiAction->setCheckable(true);
+
+    switch (settings.uiMode()) {
+        default: Q_ASSERT(0); break;
+
+        case QDesignerWorkbench::TopLevelMode:
+            m_sdiAction->setChecked(true);
+            break;
+        case QDesignerWorkbench::DockedMode:
+            m_dockedMdiAction->setChecked(true);
+            break;
+    }
+
     connect(m_uiMode, SIGNAL(triggered(QAction*)), this, SLOT(updateUIMode(QAction*)));
 
 //
@@ -538,8 +548,13 @@ void QDesignerActions::notImplementedYet()
 
 void QDesignerActions::updateUIMode(QAction *act)
 {
+    QDesignerWorkbench::UIMode mode = QDesignerWorkbench::TopLevelMode;
+    if (act == m_dockedMdiAction)
+        mode = QDesignerWorkbench::DockedMode;
+
     QDesignerSettings settings;
-    settings.setUIMode(act == m_sdiAction ? QDesignerWorkbench::TopLevelMode : QDesignerWorkbench::WorkspaceMode);
+    settings.setUIMode(mode);
+
     m_workbench->setUIMode(QDesignerWorkbench::UIMode(settings.uiMode()));
 }
 

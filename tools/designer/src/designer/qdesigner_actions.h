@@ -201,8 +201,8 @@ private:
     QAction *m_whatsNewAction;
     QAction *m_aboutQtAction;
     QAction *m_aboutDesignerAction;
-    QAction *m_mdiAction;
     QAction *m_sdiAction;
+    QAction *m_dockedMdiAction;
 
     QAction *m_useBigIcons;
 };

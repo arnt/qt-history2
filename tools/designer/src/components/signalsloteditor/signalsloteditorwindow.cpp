@@ -491,9 +491,11 @@ SignalSlotEditorWindow::SignalSlotEditorWindow(QDesignerFormEditorInterface *cor
     connect(m_view, SIGNAL(activated(const QModelIndex&)), this, SLOT(updateUi()));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
+    layout->setMargin(0);
     layout->addWidget(m_view);
 
     QHBoxLayout *layout2 = new QHBoxLayout;
+    layout2->setMargin(3);
     layout->addLayout(layout2);
     layout2->addStretch();
 

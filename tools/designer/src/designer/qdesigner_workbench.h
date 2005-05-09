@@ -28,6 +28,7 @@ class QDesignerIntegration;
 
 class QAction;
 class QActionGroup;
+class QDockWidget;
 class QMenu;
 class QMenuBar;
 class QVariant;
@@ -47,8 +48,7 @@ public:
     {
         NeutralMode,
         TopLevelMode,
-        WorkspaceMode
-        //### more (i.e. TabMode)
+        DockedMode
     };
 
 public:
@@ -99,7 +99,7 @@ public slots:
 
 // ### private slots:
     void switchToNeutralMode();
-    void switchToWorkspaceMode();
+    void switchToDockedMode();
     void switchToTopLevelMode();
 
     void initializeCorePlugins();
@@ -115,6 +115,8 @@ private slots:
 private:
     QWidget *magicalParent() const;
     Qt::WindowFlags magicalWindowFlags(const QWidget *widgetForFlags) const;
+    QDockWidget *magicalDockWidget(QWidget *widget) const;
+
     QDesignerFormWindowManagerInterface *formWindowManager() const;
     void changeBringToFrontVisiblity(bool visible);
     void changeToolBarIconSize(bool big);
@@ -139,10 +141,6 @@ private:
     QToolBar *m_toolToolBar;
     QToolBar *m_formToolBar;
     QToolBar *m_editToolBar;
-
-    QActionGroup *m_modeActionGroup;
-    QAction *m_topLevelModeAction;
-    QAction *m_workspaceModeAction;
 
     UIMode m_mode;
 

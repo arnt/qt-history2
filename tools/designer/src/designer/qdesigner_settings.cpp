@@ -165,3 +165,14 @@ bool QDesignerSettings::useBigIcons() const
 #endif
             ).toBool();
 }
+
+QByteArray QDesignerSettings::mainWindowState() const
+{
+    return value(QLatin1String("MainWindowState")).toByteArray();
+}
+
+void QDesignerSettings::setMainWindowState(const QByteArray &mainWindowState)
+{
+    setValue(QLatin1String("MainWindowState"), mainWindowState);
+}
+

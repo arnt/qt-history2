@@ -33,6 +33,7 @@
 #include <QtDesigner/abstractwidgetbox.h>
 #include <qdesigner_integration.h>
 
+#include <QtGui/QDockWidget>
 #include <QtGui/QWorkspace>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QDesktopWidget>
@@ -61,6 +62,15 @@ QDesignerWorkbench::QDesignerWorkbench()
 
 QDesignerWorkbench::~QDesignerWorkbench()
 {
+    if (m_mode == DockedMode) {
+        Q_ASSERT(m_workspace != 0);
+        QMainWindow *mw = qobject_cast<QMainWindow*>(m_workspace->window());
+        Q_ASSERT(mw != 0);
+
+        QDesignerSettings settings;
+        settings.setMainWindowState(mw->saveState());
+    }
+
     while (!m_toolWindows.isEmpty())
         delete m_toolWindows.takeLast();
 }
@@ -199,19 +209,6 @@ void QDesignerWorkbench::initialize()
     tw->setObjectName(QLatin1String("qt_designer_resourceeditor"));
     addToolWindow(tw);
 
-    m_modeActionGroup = new QActionGroup(this);
-    m_modeActionGroup->setExclusive(true);
-
-    QAction *modeAction = 0;
-
-    modeAction = m_modeActionGroup->addAction(tr("&Top Level Mode"));
-    modeAction->setCheckable(true);
-    connect(modeAction, SIGNAL(triggered()), this, SLOT(switchToTopLevelMode()));
-
-    modeAction = m_modeActionGroup->addAction(tr("&Workspace Mode"));
-    modeAction->setCheckable(true);
-    connect(modeAction, SIGNAL(triggered()), this, SLOT(switchToWorkspaceMode()));
-
     m_integration = new QDesignerIntegration(core(), this);
     connect(m_integration, SIGNAL(propertyChanged(QDesignerFormWindowInterface*,QString,QVariant)),
             this, SLOT(updateWorkbench(QDesignerFormWindowInterface*,QString,QVariant)));
@@ -266,7 +263,7 @@ Qt::WindowFlags QDesignerWorkbench::magicalWindowFlags(const QWidget *widgetForF
 #endif
             return Qt::Window;
         }
-        case WorkspaceMode:
+        case DockedMode:
             Q_ASSERT(m_workspace != 0);
             return Qt::Window | Qt::WindowShadeButtonHint | Qt::WindowSystemMenuHint | Qt::WindowTitleHint;
         case NeutralMode:
@@ -282,7 +279,7 @@ QWidget *QDesignerWorkbench::magicalParent() const
     switch (m_mode) {
         case TopLevelMode:
             return 0;
-        case WorkspaceMode:
+        case DockedMode:
             Q_ASSERT(m_workspace != 0);
             return m_workspace;
         case NeutralMode:
@@ -295,8 +292,14 @@ QWidget *QDesignerWorkbench::magicalParent() const
 
 void QDesignerWorkbench::switchToNeutralMode()
 {
-     if (m_mode == NeutralMode)
-         return;
+    if (m_mode == NeutralMode) {
+        return;
+    } else if (m_mode == DockedMode) {
+        Q_ASSERT(m_workspace != 0);
+        QMainWindow *mw = qobject_cast<QMainWindow*>(m_workspace->window());
+        QDesignerSettings settings;
+        settings.setMainWindowState(mw->saveState());
+    }
 
     QPoint desktopOffset;
     if (m_mode == TopLevelMode)
@@ -351,13 +354,13 @@ void QDesignerWorkbench::switchToNeutralMode()
     m_workspace = 0;
 }
 
-void QDesignerWorkbench::switchToWorkspaceMode()
+void QDesignerWorkbench::switchToDockedMode()
 {
-    if (m_mode == WorkspaceMode)
+    if (m_mode == DockedMode)
         return;
 
     switchToNeutralMode();
-    m_mode = WorkspaceMode;
+    m_mode = DockedMode;
 
     QDesignerToolWindow *widgetBoxWrapper = 0;
     if (0 != (widgetBoxWrapper = findToolWindow(core()->widgetBox()))) {
@@ -397,18 +400,21 @@ void QDesignerWorkbench::switchToWorkspaceMode()
     changeToolBarIconSize(QDesignerSettings().useBigIcons());
 
     qDesigner->setMainWindow(mw);
+    (void) mw->statusBar();
 
     foreach (QDesignerToolWindow *tw, m_toolWindows) {
-        QWidget *frame = m_workspace->addWindow(tw, magicalWindowFlags(tw));
-        if (m_geometries.isEmpty()) {
-            settings.setGeometryFor(tw, tw->geometryHint());
-        } else {
-            QRect g = m_geometries.value(tw, tw->geometryHint());
-            tw->resize(g.size());
-            frame->move(g.topLeft());
-            tw->setVisible(m_visibilities.value(tw, true));
+        QDockWidget *dockWidget = magicalDockWidget(tw);
+        if (dockWidget == 0) {
+            dockWidget = new QDockWidget(mw);
+            dockWidget->setWindowTitle(tw->windowTitle());
+            mw->addDockWidget(tw->dockWidgetAreaHint(), dockWidget);
         }
+
+        dockWidget->setWidget(tw);
+        dockWidget->setVisible(m_visibilities.value(tw, true));
     }
+
+    mw->restoreState(settings.mainWindowState());
 
     foreach (QDesignerFormWindow *fw, m_formWindows) {
         QWidget *frame = m_workspace->addWindow(fw, magicalWindowFlags(fw));
@@ -421,6 +427,7 @@ void QDesignerWorkbench::switchToWorkspaceMode()
 
     mw->show();
 }
+
 
 void QDesignerWorkbench::changeBringToFrontVisiblity(bool visible)
 {
@@ -515,11 +522,6 @@ QDesignerFormWindowManagerInterface *QDesignerWorkbench::formWindowManager() con
 QDesignerFormEditorInterface *QDesignerWorkbench::core() const
 {
     return m_core;
-}
-
-QActionGroup *QDesignerWorkbench::modeActionGroup() const
-{
-    return m_modeActionGroup;
 }
 
 int QDesignerWorkbench::toolWindowCount() const
@@ -724,11 +726,16 @@ QDesignerActions *QDesignerWorkbench::actionManager() const
 
 void QDesignerWorkbench::setUIMode(UIMode mode)
 {
-    Q_ASSERT(mode > NeutralMode && mode <= WorkspaceMode);
-    if (mode == WorkspaceMode)
-        switchToWorkspaceMode();
-    else
-        switchToTopLevelMode();
+    switch (mode) {
+        case TopLevelMode:
+            switchToTopLevelMode();
+            break;
+        case DockedMode:
+            switchToDockedMode();
+            break;
+
+        default: Q_ASSERT(0);
+    }
 }
 
 void QDesignerWorkbench::updateWindowMenu(QDesignerFormWindowInterface *fw)
@@ -783,3 +790,15 @@ void QDesignerWorkbench::closeAllToolWindows()
     foreach (QDesignerToolWindow *tw, m_toolWindows)
         tw->hide();
 }
+
+QDockWidget *QDesignerWorkbench::magicalDockWidget(QWidget *widget) const
+{
+    if (!m_workspace)
+        return 0;
+
+    Q_ASSERT(widget->windowTitle().isEmpty() == false);
+
+    QDockWidget *dockWidget = qFindChild<QDockWidget*>(m_workspace->window(), widget->windowTitle());
+    return dockWidget;
+}
+

@@ -17,7 +17,6 @@
 #include <QtCore/QRect>
 #include <QtCore/QSettings>
 
-class QHeaderView;
 class QDesignerSettings : public QSettings
 {
 public:
@@ -43,6 +42,9 @@ public:
 
     void setUseBigIcons(bool useBig);
     bool useBigIcons() const;
+
+    QByteArray mainWindowState() const;
+    void setMainWindowState(const QByteArray &mainWindowState);
 
 private:
     QStringList defaultFormTemplatePaths() const;

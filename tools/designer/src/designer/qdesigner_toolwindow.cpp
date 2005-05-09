@@ -17,6 +17,7 @@
 #include "qdesigner_workbench.h"
 
 #include <QtCore/QEvent>
+#include <QtCore/qdebug.h>
 #include <QtGui/QAction>
 #include <QtGui/QCloseEvent>
 #include <QtGui/QWorkspace>
@@ -43,10 +44,12 @@ QDesignerToolWindow::~QDesignerToolWindow()
 
 void QDesignerToolWindow::showMe(bool v)
 {
-    if (v)
-        setWindowState(windowState() & ~Qt::WindowMinimized);
+    QWidget *target = parentWidget() == 0 ? this : parentWidget();
 
-    setVisible(v);
+    if (v)
+        target->setWindowState(target->windowState() & ~Qt::WindowMinimized);
+
+    target->setVisible(v);
 }
 
 void QDesignerToolWindow::showEvent(QShowEvent *e)
@@ -123,3 +126,9 @@ void QDesignerToolWindow::setSaveSettingsOnClose(bool save)
 {
     m_saveSettings = save;
 }
+
+Qt::DockWidgetArea QDesignerToolWindow::dockWidgetAreaHint() const
+{
+    return Qt::RightDockWidgetArea;
+}
+
