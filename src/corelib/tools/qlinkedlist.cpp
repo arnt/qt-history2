@@ -345,9 +345,40 @@ QLinkedListData QLinkedListData::shared_null = {
     Qt-style synonym for QList::const_iterator.
 */
 
-/*! \typedef QLinkedList::size_type
+/*!
+    \typedef QLinkedList::size_type
 
-    \internal
+    Typedef for int. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QLinkedList::value_type
+
+    Typedef for T. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QLinkedList::pointer
+
+    Typedef for T *. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QLinkedList::const_pointer
+
+    Typedef for const T *. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QLinkedList::reference
+
+    Typedef for T &. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QLinkedList::const_reference
+
+    Typedef for const T &. Provided for STL compatibility.
 */
 
 /*! \fn int QLinkedList::count() const
@@ -477,6 +508,13 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa operator+(), append()
 */
 
+/*! \fn void QLinkedList::operator+=(const T &value)
+
+    \overload
+
+    Appends \a value to the list.
+*/
+
 /*! \fn QLinkedList QLinkedList::operator+(const QLinkedList &other) const
 
     Returns a list that contains all the items in this list followed
@@ -485,21 +523,19 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa operator+=()
 */
 
-/*! \fn void QLinkedList::operator+=(const T &value)
+/*! \fn QLinkedList &QLinkedList::operator<<(const QLinkedList &other)
 
-    \overload
+    Appends the items of the \a other list to this list and returns a
+    reference to this list.
 
-    Appends \a value to the list.
-
-    \sa append(), operator<<()
+    \sa operator+=(), append()
 */
 
 /*! \fn QLinkedList &QLinkedList::operator<<(const T &value)
 
-    Appends \a value to the list and returns a reference to this
-    list.
+    \overload
 
-    \sa append(), operator+=()
+    Appends \a value to the list.
 */
 
 /*! \class QLinkedList::iterator

@@ -810,9 +810,40 @@ void **QListData::erase(void **xi)
     Qt-style synonym for QList::const_iterator.
 */
 
-/*! \typedef QList::size_type
+/*!
+    \typedef QList::size_type
 
-    \internal
+    Typedef for int. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QList::value_type
+
+    Typedef for T. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QList::pointer
+
+    Typedef for T *. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QList::const_pointer
+
+    Typedef for const T *. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QList::reference
+
+    Typedef for T &. Provided for STL compatibility.
+*/
+
+/*!
+    \typedef QList::const_reference
+
+    Typedef for const T &. Provided for STL compatibility.
 */
 
 /*! \fn int QList::count() const
@@ -962,12 +993,19 @@ void **QListData::erase(void **xi)
     \sa operator+=()
 */
 
-/*! \fn QList &QList::operator<<(const T &value)
+/*! \fn QList &QList::operator<<(const QList &other)
 
-    Appends \a value to the list and returns a reference to this
-    list.
+    Appends the items of the \a other list to this list and returns a
+    reference to this list.
 
-    \sa append(), operator+=()
+    \sa operator+=(), append()
+*/
+
+/*! \fn void QList::operator<<(const T &value)
+
+    \overload
+
+    Appends \a value to the list.
 */
 
 /*! \class QList::iterator

@@ -185,7 +185,7 @@ void QStyleOption::init(const QWidget *widget)
 }
 
 /*!
-   Copy the QStyleOption \a other.
+   Constructs a copy of \a other.
 */
 QStyleOption::QStyleOption(const QStyleOption &other)
     : version(Version), type(Type), state(other.state),
@@ -207,6 +207,17 @@ QStyleOption &QStyleOption::operator=(const QStyleOption &other)
     return *this;
 }
 
+/*!
+    \variable QStyleOption::Type
+
+    Equals SO_Default.
+*/
+
+/*!
+    \variable QStyleOption::Version
+
+    Equals 1.
+*/
 
 /*!
     \variable QStyleOption::palette
@@ -285,9 +296,21 @@ QStyleOptionFocusRect::QStyleOptionFocusRect(int version)
 }
 
 /*!
-  \fn QStyleOptionFocusRect::QStyleOptionFocusRect(const QStyleOptionFocusRect &other)
+    \variable QStyleOptionFocusRect::Type
 
-  Constructs a copy of the \a other style option.
+    Equals SO_FocusRect.
+*/
+
+/*!
+    \variable QStyleOptionFocusRect::Version
+
+    Equals 1.
+*/
+
+/*!
+    \fn QStyleOptionFocusRect::QStyleOptionFocusRect(const QStyleOptionFocusRect &other)
+
+    Constructs a copy of the \a other style option.
 */
 
 /*!
@@ -323,9 +346,21 @@ QStyleOptionFrame::QStyleOptionFrame(int version)
 }
 
 /*!
-  \fn QStyleOptionFrame::QStyleOptionFrame(const QStyleOptionFrame &other)
+    \fn QStyleOptionFrame::QStyleOptionFrame(const QStyleOptionFrame &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionFrame::Type
+
+    Equals SO_Frame.
+*/
+
+/*!
+    \variable QStyleOptionFrame::Version
+
+    Equals 1.
 */
 
 /*!
@@ -382,9 +417,21 @@ QStyleOptionHeader::QStyleOptionHeader(int version)
 */
 
 /*!
-  \fn QStyleOptionHeader::QStyleOptionHeader(const QStyleOptionHeader &other)
+    \fn QStyleOptionHeader::QStyleOptionHeader(const QStyleOptionHeader &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionHeader::Type
+
+    Equals SO_Header.
+*/
+
+/*!
+    \variable QStyleOptionHeader::Version
+
+    Equals 1.
 */
 
 /*!
@@ -506,9 +553,21 @@ QStyleOptionButton::QStyleOptionButton(int version)
 }
 
 /*!
-  \fn QStyleOptionButton::QStyleOptionButton(const QStyleOptionButton &other)
+    \fn QStyleOptionButton::QStyleOptionButton(const QStyleOptionButton &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionButton::Type
+
+    Equals SO_Button.
+*/
+
+/*!
+    \variable QStyleOptionButton::Version
+
+    Equals 1.
 */
 
 /*!
@@ -566,9 +625,21 @@ QStyleOptionTab::QStyleOptionTab(int version)
 }
 
 /*!
-  \fn QStyleOptionTab::QStyleOptionTab(const QStyleOptionTab &other)
+    \fn QStyleOptionTab::QStyleOptionTab(const QStyleOptionTab &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionTab::Type
+
+    Equals SO_Tab.
+*/
+
+/*!
+    \variable QStyleOptionTab::Version
+
+    Equals 1.
 */
 
 /*! \enum QStyleOptionTab::TabPosition
@@ -678,9 +749,21 @@ QStyleOptionProgressBar::QStyleOptionProgressBar(int version)
 }
 
 /*!
-  \fn QStyleOptionProgressBar::QStyleOptionProgressBar(const QStyleOptionProgressBar &other)
+    \fn QStyleOptionProgressBar::QStyleOptionProgressBar(const QStyleOptionProgressBar &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionProgressBar::Type
+
+    Equals SO_ProgressBar.
+*/
+
+/*!
+    \variable QStyleOptionProgressBar::Version
+
+    Equals 1.
 */
 
 /*!
@@ -766,9 +849,21 @@ QStyleOptionMenuItem::QStyleOptionMenuItem(int version)
 }
 
 /*!
-  \fn QStyleOptionMenuItem::QStyleOptionMenuItem(const QStyleOptionMenuItem &other)
+    \fn QStyleOptionMenuItem::QStyleOptionMenuItem(const QStyleOptionMenuItem &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionMenuItem::Type
+
+    Equals SO_MenuItem.
+*/
+
+/*!
+    \variable QStyleOptionMenuItem::Version
+
+    Equals 1.
 */
 
 /*!
@@ -899,9 +994,21 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 }
 
 /*!
-  \fn QStyleOptionComplex::QStyleOptionComplex(const QStyleOptionComplex &other)
+    \fn QStyleOptionComplex::QStyleOptionComplex(const QStyleOptionComplex &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionComplex::Type
+
+    Equals SO_Complex.
+*/
+
+/*!
+    \variable QStyleOptionComplex::Version
+
+    Equals 1.
 */
 
 /*!
@@ -956,9 +1063,21 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 }
 
 /*!
-  \fn QStyleOptionSlider::QStyleOptionSlider(const QStyleOptionSlider &other)
+    \fn QStyleOptionSlider::QStyleOptionSlider(const QStyleOptionSlider &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionSlider::Type
+
+    Equals SO_Slider.
+*/
+
+/*!
+    \variable QStyleOptionSlider::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1083,9 +1202,21 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
 }
 
 /*!
-  \fn QStyleOptionSpinBox::QStyleOptionSpinBox(const QStyleOptionSpinBox &other)
+    \fn QStyleOptionSpinBox::QStyleOptionSpinBox(const QStyleOptionSpinBox &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionSpinBox::Type
+
+    Equals SO_SpinBox.
+*/
+
+/*!
+    \variable QStyleOptionSpinBox::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1155,9 +1286,21 @@ QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(int version)
 }
 
 /*!
-  \fn QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(const QStyleOptionQ3ListViewItem &other)
+    \fn QStyleOptionQ3ListViewItem::QStyleOptionQ3ListViewItem(const QStyleOptionQ3ListViewItem &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionQ3ListViewItem::Type
+
+    Equals SO_Q3ListViewItem.
+*/
+
+/*!
+    \variable QStyleOptionQ3ListViewItem::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1227,9 +1370,21 @@ QStyleOptionQ3ListView::QStyleOptionQ3ListView(int version)
 }
 
 /*!
-  \fn QStyleOptionQ3ListView::QStyleOptionQ3ListView(const QStyleOptionQ3ListView &other)
+    \fn QStyleOptionQ3ListView::QStyleOptionQ3ListView(const QStyleOptionQ3ListView &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionQ3ListView::Type
+
+    Equals SO_Q3ListView.
+*/
+
+/*!
+    \variable QStyleOptionQ3ListView::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1312,9 +1467,21 @@ QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(int version)
 }
 
 /*!
-  \fn QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(const QStyleOptionQ3DockWindow &other)
+    \fn QStyleOptionQ3DockWindow::QStyleOptionQ3DockWindow(const QStyleOptionQ3DockWindow &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionQ3DockWindow::Type
+
+    Equals SO_Q3DockWindow.
+*/
+
+/*!
+    \variable QStyleOptionQ3DockWindow::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1353,9 +1520,21 @@ QStyleOptionDockWidget::QStyleOptionDockWidget(int version)
 }
 
 /*!
-  \fn QStyleOptionDockWidget::QStyleOptionDockWidget(const QStyleOptionDockWidget &other)
+    \fn QStyleOptionDockWidget::QStyleOptionDockWidget(const QStyleOptionDockWidget &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionDockWidget::Type
+
+    Equals SO_DockWidget.
+*/
+
+/*!
+    \variable QStyleOptionDockWidget::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1420,9 +1599,21 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
 }
 
 /*!
-  \fn QStyleOptionToolButton::QStyleOptionToolButton(const QStyleOptionToolButton &other)
+    \fn QStyleOptionToolButton::QStyleOptionToolButton(const QStyleOptionToolButton &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionToolButton::Type
+
+    Equals SO_ToolButton.
+*/
+
+/*!
+    \variable QStyleOptionToolButton::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1508,9 +1699,21 @@ QStyleOptionComboBox::QStyleOptionComboBox(int version)
 }
 
 /*!
-  \fn QStyleOptionComboBox::QStyleOptionComboBox(const QStyleOptionComboBox &other)
+    \fn QStyleOptionComboBox::QStyleOptionComboBox(const QStyleOptionComboBox &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionComboBox::Type
+
+    Equals SO_ComboBox.
+*/
+
+/*!
+    \variable QStyleOptionComboBox::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1573,9 +1776,21 @@ QStyleOptionToolBox::QStyleOptionToolBox(int version)
 }
 
 /*!
-  \fn QStyleOptionToolBox::QStyleOptionToolBox(const QStyleOptionToolBox &other)
+    \fn QStyleOptionToolBox::QStyleOptionToolBox(const QStyleOptionToolBox &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionToolBox::Type
+
+    Equals SO_ToolBox.
+*/
+
+/*!
+    \variable QStyleOptionToolBox::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1616,9 +1831,21 @@ QStyleOptionRubberBand::QStyleOptionRubberBand(int version)
 }
 
 /*!
-  \fn QStyleOptionRubberBand::QStyleOptionRubberBand(const QStyleOptionRubberBand &other)
+    \fn QStyleOptionRubberBand::QStyleOptionRubberBand(const QStyleOptionRubberBand &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionRubberBand::Type
+
+    Equals SO_RubberBand.
+*/
+
+/*!
+    \variable QStyleOptionRubberBand::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1651,9 +1878,21 @@ QStyleOptionTitleBar::QStyleOptionTitleBar()
 }
 
 /*!
-  \fn QStyleOptionTitleBar::QStyleOptionTitleBar(const QStyleOptionTitleBar &other)
+    \fn QStyleOptionTitleBar::QStyleOptionTitleBar(const QStyleOptionTitleBar &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionTitleBar::Type
+
+    Equals SO_TitleBar.
+*/
+
+/*!
+    \variable QStyleOptionTitleBar::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1740,9 +1979,21 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
 }
 
 /*!
-  \fn QStyleOptionViewItem::QStyleOptionViewItem(const QStyleOptionViewItem &other)
+    \fn QStyleOptionViewItem::QStyleOptionViewItem(const QStyleOptionViewItem &other)
 
-  Constructs a copy of the \a other style option.
+    Constructs a copy of the \a other style option.
+*/
+
+/*!
+    \variable QStyleOptionViewItem::Type
+
+    Equals SO_ViewItem.
+*/
+
+/*!
+    \variable QStyleOptionViewItem::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1813,6 +2064,18 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
     Returns a T or 0 depending on the type of \a option.
 */
 
+/*!
+    \class QStyleOptionTabWidgetFrame
+    \brief The QStyleOptionTabWidgetFrame class is used to describe the
+    parameters for drawing the frame around a tab widget.
+
+    QStyleOptionTabWidgetFrame is used for drawing QTabWidget.
+*/
+
+/*!
+    Constructs a QStyleOptionTabWidgetFrame. The members variables
+    are initialized to default values.
+*/
 QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame()
     : QStyleOption(Version, SO_TabWidgetFrame), lineWidth(0), midLineWidth(0),
       shape(QTabBar::RoundedNorth)
@@ -1826,6 +2089,48 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 {
 }
 
+/*!
+    \variable QStyleOptionTabWidgetFrame::Type
+
+    Equals SO_TabWidgetFrame.
+*/
+
+/*!
+    \variable QStyleOptionTabWidgetFrame::Version
+
+    Equals 1.
+*/
+
+/*!
+    \variable QStyleOptionTabWidgetFrame::lineWidth
+    \brief The line width for drawing the panel.
+*/
+
+/*!
+    \variable QStyleOptionTabWidgetFrame::midLineWidth
+    \brief The mid-line width for drawing the panel. This is usually used in
+    drawing sunken or raised frames.
+*/
+
+/*!
+    \variable QStyleOptionTabWidgetFrame::shape
+    \brief The tab shape used to draw the tabs.
+*/
+
+/*!
+    \variable QStyleOptionTabWidgetFrame::tabBarSize
+    \brief The size of the tab bar.
+*/
+
+/*!
+    \variable QStyleOptionTabWidgetFrame::rightCornerWidgetSize
+    \brief The size of the right-corner widget.
+*/
+
+/*! \variable QStyleOptionTabWidgetFrame::leftCornerWidgetSize
+    \brief The size of the left-corner widget.
+*/
+
 QStyleOptionTabBarBase::QStyleOptionTabBarBase()
     : QStyleOption(Version, SO_TabBarBase), shape(QTabBar::RoundedNorth)
 {
@@ -1836,6 +2141,18 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
     : QStyleOption(version, SO_TabBarBase), shape(QTabBar::RoundedNorth)
 {
 }
+
+/*!
+    \variable QStyleOptionTabBarBase::Type
+
+    Equals SO_TabBarBase.
+*/
+
+/*!
+    \variable QStyleOptionTabBarBase::Version
+
+    Equals 1.
+*/
 
 /*!
     \class QStyleHintReturn
@@ -1859,6 +2176,18 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 
     \value SH_Default QStyleHintReturn
     \value SH_Mask \l QStyle::SH_RubberBand_Mask QStyle::SH_FocusFrame_Mask
+*/
+
+/*!
+    \variable QStyleHintReturn::Type
+
+    Equals SH_Default.
+*/
+
+/*!
+    \variable QStyleHintReturn::Version
+
+    Equals 1.
 */
 
 /*!
@@ -1902,10 +2231,36 @@ QStyleHintReturn::~QStyleHintReturn()
 
 }
 
+/*!
+    \class QStyleHintReturnMask
+    \brief The QStyleHintReturnMask class provides style hints that return a QRegion.
+
+    \ingroup appearance
+
+    \omit
+    ### --Sam
+    \endomit
+*/
+
+/*!
+    Constructs a QStyleHintReturnMask. The member variables are
+    initialized to default values.
+*/
 QStyleHintReturnMask::QStyleHintReturnMask() : QStyleHintReturn(Version, Type)
 {
-
 }
+
+/*!
+    \variable QStyleHintReturnMask::Type
+
+    Equals SH_Mask.
+*/
+
+/*!
+    \variable QStyleHintReturnMask::Version
+
+    Equals 1.
+*/
 
 /*!
     \fn T qstyleoption_cast<T>(const QStyleHintReturn *hint)

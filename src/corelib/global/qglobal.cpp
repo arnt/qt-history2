@@ -26,7 +26,7 @@
 #endif
 
 /*!
-    \relates QApplication
+    \relates <QtGlobal>
 
     Returns the Qt version number as a string, for example, "2.3.0" or
     "3.0.5".
@@ -58,31 +58,29 @@ bool qSharedBuild()
     \class QSysInfo
     \brief The QSysInfo class provides information about the system.
 
-    \ingroup misc
-
-    \table
-    \header \o Constant \o Description
-    \row \o \c QSysInfo::WordSize
-         \o The size in bits of a pointer for the platform on which
-            the application is compiled (32 or 64).
-
-    \row \o \c QSysInfo::ByteOrder
-         \o The byte order of the machine on which the application is
-            compiled (QSysInfo::BigEndian or QSysInfo::LittleEndian).
-
-    \row \o \c QSysInfo::WindowsVersion
-         \o The version of the Windows operating system on which the
-            application is run (Windows only).
-
-    \row \o \c QSysInfo::MacVersion
-         \o The version of the Macintosh operating system on which
-            the application is run (Mac only).
-    \endtable
-
-    You can use the preprocessor symbols \c Q_WS_WIN and \c Q_WS_MAC
-    to test that the application is compiled under Windows or Mac.
+    Some constants are defined only on certain platforms. You can use
+    the preprocessor symbols \c Q_WS_WIN and \c Q_WS_MAC to test that
+    the application is compiled under Windows or Mac.
 
     \sa QLibraryInfo
+*/
+
+/*!
+    \variable QSysInfo::WordSize
+    \brief the size in bits of a pointer for the platform on which
+           the application is compiled (32 or 64)
+*/
+
+/*!
+    \variable QSysInfo::WindowsVersion
+    \brief the version of the Windows operating system on which the
+           application is run (Windows only)
+*/
+
+/*!
+    \variable QSysInfo::MacintoshVersion
+    \brief the version of the Macintosh operating system on which
+           the application is run (Mac only).
 */
 
 /*!
@@ -126,7 +124,7 @@ bool qSharedBuild()
     \value WV_NT_based  NT-based version of Windows
     \value WV_CE_based  CE-based version of Windows
 
-    On Windows, the \c QSysInfo::WindowsVersion variable gives the
+    On Windows, the QSysInfo::WindowsVersion variable gives the
     version of the system on which the application is run.
 
     \sa MacVersion
@@ -146,7 +144,7 @@ bool qSharedBuild()
     \value MV_10_4     Mac OS X 10.4
     \value MV_Unknown  Other
 
-    On Mac, the \c QSysInfo::MacintoshVersion variable gives the
+    On Mac, the QSysInfo::MacintoshVersion variable gives the
     version of the system on which the application is run.
 
     \sa WinVersion
@@ -306,17 +304,14 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 
 /*!
     \macro void Q_ASSERT(bool test)
-
-    \relates QApplication
+    \relates <QtGlobal>
 
     Prints a warning message containing the source code file name and
     line number if \a test is false.
 
-    This is really a macro defined in \c qglobal.h.
-
-    Q_ASSERT is useful for testing pre- and post-conditions during
-    development. It does nothing if \c QT_NO_DEBUG was defined during
-    compilation.
+    \c Q_ASSERT() is useful for testing pre- and post-conditions
+    during development. It does nothing if \c QT_NO_DEBUG was defined
+    during compilation.
 
     Example:
     \code
@@ -344,8 +339,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 
 /*!
     \macro void Q_ASSERT_X(bool test, const char *where, const char *what)
-
-    \relates QApplication
+    \relates <QtGlobal>
 
     Prints the message \a what together with the location \a where,
     the source file name and line number if \a test is false.
@@ -382,8 +376,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 
 /*!
     \macro void Q_CHECK_PTR(void *p)
-
-    \relates QApplication
+    \relates <QtGlobal>
 
     If \a p is 0, prints a warning message containing the source code file
     name and line number, saying that the program ran out of memory.
@@ -558,7 +551,7 @@ QString qt_error_string(int errorCode)
 }
 
 /*!
-    \relates QApplication
+    \relates <QtGlobal>
 
     Installs a Qt message handler \a h. Returns a pointer to the
     message handler previously defined.
@@ -661,7 +654,7 @@ void qt_message_output(QtMsgType msgType, const char *buf)
 
 #undef qDebug
 /*!
-    \relates QApplication
+    \relates <QtGlobal>
 
     Calls the message handler with the debug message \a msg. If no
     message handler has been installed, the message is printed to
@@ -708,7 +701,7 @@ void qDebug(const char *msg, ...)
 
 #undef qWarning
 /*!
-    \relates QApplication
+    \relates <QtGlobal>
 
     Calls the message handler with the warning message \a msg. If no
     message handler has been installed, the message is printed to
@@ -751,7 +744,7 @@ void qWarning(const char *msg, ...)
 }
 
 /*!
-    \relates QApplication
+    \relates <QtGlobal>
 
     Calls the message handler with the critical message \a msg. If no
     message handler has been installed, the message is printed to
@@ -821,7 +814,7 @@ void qErrnoWarning(int code, const char *msg, ...)
 }
 
 /*!
-    \relates QApplication
+    \relates <QtGlobal>
 
     Calls the message handler with the fatal message \a msg. If no
     message handler has been installed, the message is printed to
