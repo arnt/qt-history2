@@ -733,7 +733,7 @@ static void qgl_use_font(QFontEngineFT *engine, int first, int count, int listBa
     glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
     glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
 
-    FcBool antialiased = False;
+    FcBool antialiased = True;
     FcPatternGetBool(engine->pattern(), FC_ANTIALIAS, 0, &antialiased);
     FT_Face face = engine->lockFace();
 
