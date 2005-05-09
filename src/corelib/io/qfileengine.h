@@ -122,7 +122,7 @@ private:
     Q_DECLARE_PRIVATE(QFileEngine)
 };
 
-class QFileEngineHandler
+class Q_CORE_EXPORT QFileEngineHandler
 {
 protected:
     QFileEngineHandler();
