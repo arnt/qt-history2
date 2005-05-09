@@ -66,12 +66,28 @@ void HtmlGenerator::initializeGenerator(const Config &config)
 
 void HtmlGenerator::terminateGenerator()
 {
-    dcfRoot.ref = "index.html";
-    dcfRoot.title = "Qt Reference Documentation";
-    qSort(dcfRoot.subsections);
-    generateDcfSections(dcfRoot, outputDir() + "/" +
-			project.toLower().replace(QRegExp("[\\s/]"), "-") + ".dcf",
-                        project.toLower() + "/reference");
+    dcfClassesRoot.ref = "classes.html";
+    dcfClassesRoot.title = "Classes";
+    qSort(dcfClassesRoot.subsections);
+
+    dcfOverviewsRoot.ref = "overviews.html";
+    dcfOverviewsRoot.title = "Overviews";
+    qSort(dcfOverviewsRoot.subsections);
+
+    dcfExamplesRoot.ref = "examples.html";
+    dcfExamplesRoot.title = "Tutorial & Examples";
+    qSort(dcfExamplesRoot.subsections);
+
+    DcfSection qtRoot;
+    appendDcfSubSection(&qtRoot, dcfClassesRoot);
+    appendDcfSubSection(&qtRoot, dcfOverviewsRoot);
+    appendDcfSubSection(&qtRoot, dcfExamplesRoot);
+
+    generateDcf("qt", "index.html", "Qt Reference Documentation", qtRoot);
+    generateDcf("designer", "designer-manual.html", "Qt Designer Manual", dcfDesignerRoot);
+    generateDcf("linguist", "linguist-manual.html", "Qt Linguist Manual", dcfLinguistRoot);
+    generateDcf("assistant", "assistant-manual.html", "Qt Assistant Manual", dcfAssistantRoot);
+    generateDcf("qmake", "qmake-manual.html", "qmake Manual", dcfQmakeRoot);
 
     Generator::terminateGenerator();
 }
@@ -719,7 +735,7 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
         appendDcfSubSection(&classSection, compatSection);
     }
 
-    appendDcfSubSection(&dcfRoot, classSection);
+    appendDcfSubSection(&dcfClassesRoot, classSection);
 }
 
 void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
@@ -739,6 +755,11 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
     generateNavigationBar( bar, fake, marker );
     generateFooter( fake );
 */
+
+    DcfSection fakeSection;
+    fakeSection.title = fake->fullTitle();
+    fakeSection.ref = linkForNode(fake, 0);
+    fakeSection.keywords += qMakePair(fake->name(), fakeSection.ref);
 
     QList<Section> sections;
     QList<Section>::const_iterator s;
@@ -789,11 +810,30 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
 	NodeList::ConstIterator m = (*s).members.begin();
 	while ( m != (*s).members.end() ) {
 	    generateDetailedMember(*m, fake, marker);
+            fakeSection.keywords += qMakePair((*m)->name(), linkForNode(*m, 0));
 	    ++m;
 	}
 	++s;
     }
     generateFooter(fake);
+
+    if (fake->subType() == FakeNode::Example) {
+        appendDcfSubSection(&dcfExamplesRoot, fakeSection);
+    } else if (fake->subType() != FakeNode::File) {
+        QString contentsPage = fake->links().value(Node::ContentsLink).first;
+
+        if (contentsPage == "Qt Designer Manual") {
+            appendDcfSubSection(&dcfDesignerRoot, fakeSection);
+        } else if (contentsPage == "Qt Linguist Manual") {
+            appendDcfSubSection(&dcfLinguistRoot, fakeSection);
+        } else if (contentsPage == "Qt Assistant Manual") {
+            appendDcfSubSection(&dcfAssistantRoot, fakeSection);
+        } else if (contentsPage == "qmake Manual") {
+            appendDcfSubSection(&dcfQmakeRoot, fakeSection);
+        } else {
+            appendDcfSubSection(&dcfOverviewsRoot, fakeSection);
+        }
+    }
 }
 
 QString HtmlGenerator::fileExtension()
@@ -804,7 +844,6 @@ QString HtmlGenerator::fileExtension()
 void HtmlGenerator::generateHeader(const QString& title, const Node *node,
                                    CodeMarker *marker)
 {
-
     out() << "<?xml version=\"1.0\" encoding=\"iso-8859-1\"?>\n";
 
     out() << "<!DOCTYPE html\n"
@@ -1454,7 +1493,7 @@ void HtmlGenerator::generateSynopsis(const Node *node, const Node *relative,
     out() << highlightedCode( marked, marker, relative );
 }
 
-void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker *marker)
+void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* marker */)
 {
     QMap<QString, FakeNode *> fakeNodeMap;
     QRegExp singleDigit("\\b([0-9])\\b");
@@ -2088,4 +2127,12 @@ QString HtmlGenerator::getLink(const Atom *atom, const Node *relative, CodeMarke
         }
     }
     return link;
+}
+
+void HtmlGenerator::generateDcf(const QString &fileBase, const QString &startPage,
+                                const QString &title, DcfSection &dcfRoot)
+{
+    dcfRoot.ref = startPage;
+    dcfRoot.title = title;
+    generateDcfSections(dcfRoot, outputDir() + "/" + fileBase + ".dcf", fileBase + "/reference");
 }

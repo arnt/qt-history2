@@ -100,12 +100,20 @@ private:
     static int hOffset(const Node *node);
     static bool isThreeColumnEnumValueTable(const Atom *atom);
     QString getLink(const Atom *atom, const Node *relative, CodeMarker *marker);
+    void generateDcf(const QString &fileBase, const QString &startPage, const QString &title,
+                     DcfSection &dcfRoot);
 
 #if 0
     NavigationBar currentNavigationBar;
 #endif
     QMap<QString, QString> refMap;
-    DcfSection dcfRoot;
+    DcfSection dcfClassesRoot;
+    DcfSection dcfOverviewsRoot;
+    DcfSection dcfExamplesRoot;
+    DcfSection dcfDesignerRoot;
+    DcfSection dcfLinguistRoot;
+    DcfSection dcfAssistantRoot;
+    DcfSection dcfQmakeRoot;
     bool inLink;
     bool inContents;
     bool inSectionHeading;

@@ -1,8 +1,10 @@
 MUST HAVES:
 
+  * assert
   * FakeNodes in .dcf
+  * setters and fake nodes in .dcf
+  * Manuals in Qt Assistant?
   * fix wrong links to constructor
-  * setters and setters in .dcf
 
   * get rid of spurious 'global' functions
   * Make automatic links in code work

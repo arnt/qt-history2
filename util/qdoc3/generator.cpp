@@ -414,7 +414,7 @@ void Generator::generateModuleName(const ClassNode *classe, CodeMarker *marker)
     QString module = classe->moduleName();
     if (!module.isEmpty()) {
         Text text;
-        if (Tokenizer::isTrue("core") && module != "QtCore"
+        if (Tokenizer::isTrue("defined(core)") && module != "QtCore"
                 && module != "QtNetwork" && module != "QtSql"
                 && module != "QtXml") {
             text << Atom::ParaLeft

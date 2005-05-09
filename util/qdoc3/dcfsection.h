@@ -16,9 +16,18 @@ struct DcfSection
 };
 
 inline bool operator<( const DcfSection& s1, const DcfSection& s2 ) {
-    int delta = s1.title.toLower().compare( s2.title.toLower() );
+    QString title1 = s1.title;
+    QString title2 = s2.title;
+
+    // cheat with Q3 classes
+    if (title1.startsWith("Q3"))
+        title1.insert(1, '~');
+    if (title2.startsWith("Q3"))
+        title2.insert(1, '~');
+
+    int delta = title1.toLower().compare( title2.toLower() );
     if ( delta == 0 ) {
-	delta = s1.title.compare( s2.title );
+	delta = title1.compare( title2 );
 	if ( delta == 0 )
 	    delta = s1.ref.localeAwareCompare( s2.ref );
     }
