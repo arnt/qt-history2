@@ -51,6 +51,7 @@ public:
     void updateRenderHints(QPainter::RenderHints hints);
 
     void drawPath(const QPainterPath &path);
+    void drawPolygon(const QPointF *points, int numPoints, PolygonDrawMode mode);
 
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);

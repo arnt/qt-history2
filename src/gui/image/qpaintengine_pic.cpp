@@ -270,6 +270,30 @@ void QPicturePaintEngine::drawPath(const QPainterPath &path)
     writeCmdLength(pos, path.boundingRect(), true);
 }
 
+void QPicturePaintEngine::drawPolygon(const QPointF *points, int numPoints, PolygonDrawMode mode)
+{
+    Q_D(QPicturePaintEngine);
+#ifdef QT_PICTURE_DEBUG
+    qDebug() << " -> drawPolygon(): size=" << numPoints;
+#endif
+    int pos;
+
+    QPolygonF polygon;
+    for (int i=0; i<numPoints; ++i)
+        polygon << points[i];
+
+    if (mode == PolylineMode) {
+        SERIALIZE_CMD(QPicturePrivate::PdcDrawPolyline);
+        d->s << polygon;
+    } else {
+        SERIALIZE_CMD(QPicturePrivate::PdcDrawPolygon);
+        d->s << polygon;
+        d->s << (qint8)(mode == OddEvenMode ? 0 : 1);
+    }
+
+    writeCmdLength(pos, polygon.boundingRect(), true);
+}
+
 // ### Stream out sr
 void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF & /* sr */)
 {
