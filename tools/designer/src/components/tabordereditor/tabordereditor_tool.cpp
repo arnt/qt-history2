@@ -16,6 +16,7 @@
 
 #include <QtDesigner/QtDesigner>
 
+#include <QtCore/QEvent>
 #include <QtGui/QAction>
 
 using namespace qdesigner_internal;
@@ -45,7 +46,9 @@ bool TabOrderEditorTool::handleEvent(QWidget *widget, QWidget *managedWidget, QE
 {
     Q_UNUSED(widget);
     Q_UNUSED(managedWidget);
-    Q_UNUSED(event);
+
+    if (event->type() == QEvent::KeyPress || event->type() == QEvent::KeyRelease)
+        return true;
 
     return false;
 }
