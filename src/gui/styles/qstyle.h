@@ -528,7 +528,7 @@ public:
         SH_Menu_FillScreenWithScroll,
         SH_ToolTipLabel_Opacity,
         SH_DrawMenuBarSeparator,
-        SH_TitleBarModifyNotification,
+        SH_TitleBar_ModifyNotification,
         SH_Button_FocusPolicy,
         SH_MenuBar_DismissOnSecondClick,
         SH_MessageBox_UseBorderForButtonSpacing,

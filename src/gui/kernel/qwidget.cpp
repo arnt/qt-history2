@@ -3153,7 +3153,7 @@ QString qt_setWindowTitle_helperHelper(const QString &title, QWidget *widget)
         if (count%2) { // odd number of [*] -> replace last one
             int lastIndex = cap.lastIndexOf(placeHolder, index - 1);
             if (widget->isWindowModified() 
-             && widget->style()->styleHint(QStyle::SH_TitleBarModifyNotification, 0, widget))
+             && widget->style()->styleHint(QStyle::SH_TitleBar_ModifyNotification, 0, widget))
                 cap.replace(lastIndex, 3, QWidget::tr("*"));
             else
                 cap.replace(lastIndex, 3, QLatin1String(""));
