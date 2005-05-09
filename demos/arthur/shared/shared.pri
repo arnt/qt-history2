@@ -1,11 +1,13 @@
 INCLUDEPATH += $$SHARED_FOLDER
 
-contains(CONFIG, debug_and_release_target) {
+contains(CONFIG, debug_and_release_target) {    
     debug { 
-	LIBS+=-l$$SHARED_FOLDER/debug/demo_shared
+	LIBS+=-L$$SHARED_FOLDER/debug
     } else {
-	LIBS+=-l$$SHARED_FOLDER/release/demo_shared
+	LIBS+=-L$$SHARED_FOLDER/release
     }
 } else {
-    LIBS += -L$$SHARED_FOLDER -ldemo_shared
+    LIBS += -L$$SHARED_FOLDER
 }
+
+LIBS += -ldemo_shared
