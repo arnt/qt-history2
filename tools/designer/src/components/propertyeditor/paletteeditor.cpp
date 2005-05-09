@@ -22,6 +22,7 @@ PaletteEditor::PaletteEditor(QWidget *parent)
     : QDialog(parent)
 {
     ui.setupUi(this);
+    ui.btnAdvanced->hide(); // ### not implemented yet
 }
 
 PaletteEditor::~PaletteEditor()
