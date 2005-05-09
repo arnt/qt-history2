@@ -933,10 +933,10 @@ void QTextLayout::drawCursor(QPainter *p, const QPointF &pos, int cursorPosition
 
     \sa x() y() textLength() width()
 */
-QRect QTextLine::rect() const
+QRectF QTextLine::rect() const
 {
     const QScriptLine& sl = eng->lines[i];
-    return QRect(qRound(sl.x), qRound(sl.y), qRound(sl.width), qRound(sl.height()));
+    return QRectF(sl.x, sl.y, sl.width, sl.height());
 }
 
 /*!

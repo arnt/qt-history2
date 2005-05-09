@@ -147,7 +147,7 @@ public:
     inline QTextLine() : i(0), eng(0) {}
     inline bool isValid() const { return eng; }
 
-    QRect rect() const;
+    QRectF rect() const;
     qreal x() const;
     qreal y() const;
     qreal width() const;
