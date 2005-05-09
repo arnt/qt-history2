@@ -1899,7 +1899,7 @@ void QVariant::save(QDataStream &s) const
         int i;
         for (i = 0; i < MapFromThreeCount; ++i) {
             if (map_from_three[i] == tp) {
-                tp = map_from_three[i];
+                tp = i;
                 break;
             }
         }
