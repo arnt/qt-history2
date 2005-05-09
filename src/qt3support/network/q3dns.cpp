@@ -2488,10 +2488,12 @@ void Q3Dns::doSynchronousLookup()
 static int q3dns_res_init()
 {
 #ifdef Q_OS_MAC
+    extern void *qt_mac_resolve_sys(void *handle, const char *symbol);
+
     typedef int (*PtrRes_init)();
     static PtrRes_init ptrRes_init = 0;
     if (!ptrRes_init)
-	ptrRes_init = (PtrRes_init)DL_PREFIX(dlsym)(RTLD_NEXT, "res_init");
+	ptrRes_init = (PtrRes_init)qt_mac_resolve_sys(RTLD_NEXT, "res_init");
     if (ptrRes_init)
 	return (*ptrRes_init)();
     else

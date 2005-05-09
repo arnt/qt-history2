@@ -142,6 +142,13 @@ bool QLibraryPrivate::unload_sys()
     return true;
 }
 
+#ifdef Q_OS_MAC
+Q_CORE_EXPORT void *qt_mac_resolve_sys(void *handle, const char *symbol)
+{
+    return DL_PREFIX(dlsym)(handle, symbol);
+}
+#endif
+
 void* QLibraryPrivate::resolve_sys(const char* symbol)
 {
 #if defined(QT_AOUT_UNDERSCORE)
