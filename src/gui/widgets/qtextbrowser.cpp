@@ -58,6 +58,9 @@ public:
     }
 
     void activateAnchor(const QString &href);
+
+    void setSource(const QUrl &url);
+
 };
 
 static bool isAbsoluteFileName(const QString &name)
@@ -113,6 +116,70 @@ void QTextBrowserPrivate::activateAnchor(const QString &href)
 
     if (!textOrSourceChanged)
         q->setSource(url);
+}
+
+void QTextBrowserPrivate::setSource(const QUrl &url)
+{
+    Q_Q(QTextBrowser);
+    if (q->isVisible())
+        qApp->setOverrideCursor(Qt::WaitCursor);
+
+    textOrSourceChanged = true;
+
+    QString txt;
+
+    bool doSetText = false;
+
+    QUrl currentUrlWithoutFragment = currentURL;
+    currentUrlWithoutFragment.setFragment(QString());
+    QUrl urlWithoutFragment = url;
+    urlWithoutFragment.setFragment(QString());
+
+    if (url.isValid()
+        && (urlWithoutFragment != currentUrlWithoutFragment || forceLoadOnSourceChange)) {
+        QVariant data = q->loadResource(QTextDocument::HtmlResource, url);
+        if (data.type() == QVariant::String) {
+            txt = data.toString();
+        } else if (data.type() == QVariant::ByteArray) {
+            QByteArray ba = data.toByteArray();
+            QTextCodec *codec = Qt::codecForHtml(ba);
+            txt = codec->toUnicode(ba);
+        }
+        if (txt.isEmpty())
+            qWarning("QTextBrowser: no document for %s", url.toString().toLatin1().constData());
+
+        if (q->isVisible()) {
+            QString firstTag = txt.left(txt.indexOf('>') + 1);
+            if (firstTag.left(3) == "<qt" && firstTag.contains("type") && firstTag.contains("detail")) {
+                qApp->restoreOverrideCursor();
+                QWhatsThis::showText(QCursor::pos(), txt, q);
+                return;
+            }
+        }
+
+        currentURL = url;
+        doSetText = true;
+    }
+
+    if (!home.isValid())
+        home = url;
+
+    if (doSetText)
+        q->QTextEdit::setHtml(txt);
+
+    forceLoadOnSourceChange = false;
+
+    if (!url.fragment().isEmpty()) {
+        q->scrollToAnchor(url.fragment());
+    } else {
+        hbar->setValue(0);
+        vbar->setValue(0);
+    }
+
+    if (q->isVisible())
+        qApp->restoreOverrideCursor();
+
+    emit q->sourceChanged(url);
 }
 
 /*!
@@ -263,14 +330,8 @@ void QTextBrowser::reload()
 void QTextBrowser::setSource(const QUrl &url)
 {
     Q_D(QTextBrowser);
-    if (isVisible())
-        qApp->setOverrideCursor(Qt::WaitCursor);
 
-    d->textOrSourceChanged = true;
-
-    QString txt;
-
-    bool doSetText = false;
+    d->setSource(url);
 
     QUrl currentUrlWithoutFragment = d->currentURL;
     currentUrlWithoutFragment.setFragment(QString());
@@ -278,63 +339,23 @@ void QTextBrowser::setSource(const QUrl &url)
     urlWithoutFragment.setFragment(QString());
 
     if (url.isValid()
-        && (urlWithoutFragment != currentUrlWithoutFragment || d->forceLoadOnSourceChange)) {
-        QVariant data = loadResource(QTextDocument::HtmlResource, url);
-        if (data.type() == QVariant::String) {
-            txt = data.toString();
-        } else if (data.type() == QVariant::ByteArray) {
-            QByteArray ba = data.toByteArray();
-            QTextCodec *codec = Qt::codecForHtml(ba);
-            txt = codec->toUnicode(ba);
-        }
-        if (txt.isEmpty())
-            qWarning("QTextBrowser: no document for %s", url.toString().toLatin1().constData());
+        && (urlWithoutFragment == currentUrlWithoutFragment)) {
+        if (!d->stack.isEmpty() && d->stack.top() == url) {
+            // the same url you are already watching
+        } else {
+            d->stack.push(url);
 
-        if (isVisible()) {
-            QString firstTag = txt.left(txt.indexOf('>') + 1);
-            if (firstTag.left(3) == "<qt" && firstTag.contains("type") && firstTag.contains("detail")) {
-                qApp->restoreOverrideCursor();
-                QWhatsThis::showText(QCursor::pos(), txt, this);
-                return;
+            emit backwardAvailable(d->stack.count() > 1);
+
+            if (!d->forwardStack.isEmpty() && d->forwardStack.top() == url) {
+                d->forwardStack.pop();
+                emit forwardAvailable(d->forwardStack.count() > 0);
+            } else {
+                d->forwardStack.clear();
+                emit forwardAvailable(false);
             }
         }
-
-        d->currentURL = url;
-        doSetText = true;
     }
-
-    if (!d->home.isValid())
-        d->home = url;
-
-    if (d->stack.isEmpty() || d->stack.top() != url)
-        d->stack.push(url);
-
-    int stackCount = d->stack.count();
-    if (d->stack.top() == url)
-        stackCount--;
-    emit backwardAvailable(stackCount > 0);
-
-    stackCount = d->forwardStack.count();
-    if (d->forwardStack.isEmpty() || d->forwardStack.top() == url)
-        stackCount--;
-    emit forwardAvailable(stackCount > 0);
-
-    if (doSetText)
-        QTextEdit::setHtml(txt);
-
-    d->forceLoadOnSourceChange = false;
-
-    if (!url.fragment().isEmpty()) {
-        scrollToAnchor(url.fragment());
-    } else {
-        d->hbar->setValue(0);
-        d->vbar->setValue(0);
-    }
-
-    if (isVisible())
-        qApp->restoreOverrideCursor();
-
-    emit sourceChanged(url);
 }
 
 /*!
@@ -400,7 +421,8 @@ void QTextBrowser::backward()
     if (d->stack.count() <= 1)
         return;
     d->forwardStack.push(d->stack.pop());
-    setSource(d->stack.pop());
+    d->setSource(d->stack.top());
+    emit backwardAvailable(d->stack.count() > 1);
     emit forwardAvailable(true);
 }
 
@@ -416,7 +438,9 @@ void QTextBrowser::forward()
     Q_D(QTextBrowser);
     if (d->forwardStack.isEmpty())
         return;
-    setSource(d->forwardStack.pop());
+    d->stack.push(d->forwardStack.pop());
+    setSource(d->stack.top());
+    emit backwardAvailable(true);
     emit forwardAvailable(!d->forwardStack.isEmpty());
 }
 
