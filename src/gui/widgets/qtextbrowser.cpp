@@ -35,8 +35,14 @@ public:
 
     void init();
 
-    QStack<QUrl> stack;
-    QStack<QUrl> forwardStack;
+    struct HistoryEntry {
+        QUrl url;
+        int hpos;
+        int vpos;
+    };
+
+    QStack<HistoryEntry> stack;
+    QStack<HistoryEntry> forwardStack;
     QUrl home;
     QUrl currentURL;
 
@@ -293,7 +299,7 @@ QUrl QTextBrowser::source() const
     if (d->stack.isEmpty())
         return QUrl();
     else
-        return d->stack.top();
+        return d->stack.top().url;
 }
 
 /*!
@@ -331,6 +337,9 @@ void QTextBrowser::setSource(const QUrl &url)
 {
     Q_D(QTextBrowser);
 
+    int hpos = d->hbar->value();
+    int vpos = d->vbar->value();
+
     d->setSource(url);
 
     QUrl currentUrlWithoutFragment = d->currentURL;
@@ -340,14 +349,19 @@ void QTextBrowser::setSource(const QUrl &url)
 
     if (url.isValid()
         && (urlWithoutFragment == currentUrlWithoutFragment)) {
-        if (!d->stack.isEmpty() && d->stack.top() == url) {
+        if (!d->stack.isEmpty() && d->stack.top().url == url) {
             // the same url you are already watching
         } else {
-            d->stack.push(url);
+            if (!d->stack.isEmpty()) {
+                d->stack.top().hpos = hpos;
+                d->stack.top().vpos = vpos;
+            }
+            QTextBrowserPrivate::HistoryEntry entry = {url, 0, 0};
+            d->stack.push(entry);
 
             emit backwardAvailable(d->stack.count() > 1);
 
-            if (!d->forwardStack.isEmpty() && d->forwardStack.top() == url) {
+            if (!d->forwardStack.isEmpty() && d->forwardStack.top().url == url) {
                 d->forwardStack.pop();
                 emit forwardAvailable(d->forwardStack.count() > 0);
             } else {
@@ -421,7 +435,11 @@ void QTextBrowser::backward()
     if (d->stack.count() <= 1)
         return;
     d->forwardStack.push(d->stack.pop());
-    d->setSource(d->stack.top());
+    d->forwardStack.top().hpos = d->hbar->value();
+    d->forwardStack.top().vpos = d->vbar->value();
+    d->setSource(d->stack.top().url);
+    d->hbar->setValue(d->stack.top().hpos);
+    d->vbar->setValue(d->stack.top().vpos);
     emit backwardAvailable(d->stack.count() > 1);
     emit forwardAvailable(true);
 }
@@ -438,8 +456,14 @@ void QTextBrowser::forward()
     Q_D(QTextBrowser);
     if (d->forwardStack.isEmpty())
         return;
+    if (!d->stack.isEmpty()) {
+        d->stack.top().hpos = d->hbar->value();
+        d->stack.top().vpos = d->vbar->value();
+    }
     d->stack.push(d->forwardStack.pop());
-    setSource(d->stack.top());
+    setSource(d->stack.top().url);
+    d->hbar->setValue(d->stack.top().hpos);
+    d->vbar->setValue(d->stack.top().vpos);
     emit backwardAvailable(true);
     emit forwardAvailable(!d->forwardStack.isEmpty());
 }
