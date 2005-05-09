@@ -12,7 +12,7 @@ ItemDialog::ItemDialog(QWidget *parent, const Item *item)
     setAttribute(Qt::WA_DeleteOnClose);
     QGridLayout *layout = new QGridLayout(this);
     QLabel *lblPix = new QLabel();
-    const BusinessCard *bcard = dynamic_cast<const BusinessCard *>(item);
+    const BusinessCard *bcard = static_cast<const BusinessCard *>(item);
     if (bcard) {
         QPixmap pm(bcard->bigPicture());
         if (pm.isNull())
