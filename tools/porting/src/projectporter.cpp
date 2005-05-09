@@ -12,97 +12,97 @@
 ****************************************************************************/
 
 #include "projectporter.h"
-#include <iostream>
+#include <QDebug>
 #include <QFile>
 #include <QDir>
 #include <QStringList>
 #include <QFileInfo>
-#include "qtsimplexml.h"
+#include <QBuffer>
 #include "proparser.h"
 #include "textreplacement.h"
 #include "fileporter.h"
 #include "logger.h"
 #include "translationunit.h"
-#include "codemodelwalker.h"
+#include "codemodelattributes.h"
 
-using std::cout;
-using std::endl;
+using namespace TokenEngine;
 
-
-ProjectPorter::ProjectPorter(QString basePath, QStringList includeDirectories)
+ProjectPorter::ProjectPorter(QString basePath, QStringList includeDirectories, QString qt3HeadersFilename)
 :basePath(basePath)
-,analyze(false)
-,includeFiles(0)
-,preprocessorController(0)
+,includeDirectories(includeDirectories)
+,defaultDefinitions(defaultMacros(preprocessorCache))
 ,filePorter(preprocessorCache)
-{
-    if(!includeDirectories.isEmpty()) {
-        analyze = true;
-        includeFiles = new IncludeFiles(basePath, includeDirectories);
-        Rpp::DefineMap *defaultDefinitions = defaultMacros(preprocessorCache);
-        cout << defaultDefinitions->count() << endl;
-        preprocessorController =
-            new PreprocessorController(*includeFiles, preprocessorCache, defaultDefinitions);
+,qt3HeadersFilename(qt3HeadersFilename)
+,analyze(true)
+,warnings(false)
+{}
 
-        connect(preprocessorController, SIGNAL(error(QString,QString)),
-                SLOT(error(QString,QString)));
-    }
+void ProjectPorter::enableCppParsing(bool enable)
+{
+    analyze = enable;
+}
+
+void ProjectPorter::enableMissingFilesWarnings(bool enable)
+{
+    warnings = enable;
 }
 
 void ProjectPorter::portProject(QString fileName)
 {
-    cout <<"porting a project " << fileName.toLatin1().constData() << endl;
     QFileInfo fileInfo(fileName);
-//    cout << fileInfo.path().toLatin1().constData() << endl;
-//    cout << fileInfo.fileName().toLatin1().constData() << endl;
     portProject(fileInfo.path(), fileInfo.fileName());
 }
 
+/*
+    Port a single file
+*/
 void ProjectPorter::portFile(QString fileName)
 {
-    cout << "porting a file " << fileName.toLatin1().constData() << endl;
-    if(analyze) {
-        cout << "preprocessing" << endl;
-        TokenEngine::TokenSectionSequence translationUnit =
-            preprocessorController->evaluate(fileName);
-        TranslationUnit translationUnitData =
-            translationUnitAnalyzer.analyze(translationUnit);
-        codeModelAttributes.createAttributes(translationUnitData);
+    if (analyze) {
+        IncludeFiles includeFiles(basePath, includeDirectories);
+
+        PreprocessorController preprocessor(includeFiles, preprocessorCache, qt3HeadersFilename);
+        connect(&preprocessor, SIGNAL(error(QString, QString)), SLOT(error(QString, QString)));
+
+        Rpp::DefineMap definitionsCopy = *defaultDefinitions;
+        // Preprocess
+        TokenSectionSequence translationUnit = preprocessor.evaluate(fileName, &definitionsCopy);
+        // Parse
+        TranslationUnit translationUnitData = TranslationUnitAnalyzer().analyze(translationUnit);
+
+        // Enable attribute generation for this file.
+        enableAttributes(includeFiles, fileName);
+        // Generate attributes.
+        CodeModelAttributes().createAttributes(translationUnitData);
     }
+
     portFiles(QString(), QStringList() << fileName);
 }
 
 void ProjectPorter::error(QString type, QString text)
 {
-    if(type == "Error")
-        cout << type.toLocal8Bit().constData() << " " << text.toLocal8Bit().constData() << endl;
+   if (warnings && type == "Error")
+        cout << "Warning: " << text.toLocal8Bit().constData() << endl;
 }
 
 void ProjectPorter::portProject(QString basePath, QString proFileName)
 {
     QString fullInFileName = basePath + "/" + proFileName;
     QFileInfo infileInfo(fullInFileName);
-    if(!infileInfo.exists()) {
-        cout<<"Could not open file: " << QDir::convertSeparators(fullInFileName).toLocal8Bit().constData() << endl;
+    if (!infileInfo.exists()) {
+        cout << "Could not open file: " << QDir::convertSeparators(fullInFileName).toLocal8Bit().constData() << endl;
         return;
     }
 
     QString proFileContents = loadFile(fullInFileName);
     QMap<QString, QString> proFileMap = proFileTagMap(proFileContents, QDir(basePath).absolutePath());
-#if 0
-    puts(proFileContents.latin1());
-    puts(proFileMap["SOURCES"].latin1());
-    puts(proFileMap["HEADERS"].latin1());
-    puts(proFileMap["INCLUDEPATH"].latin1());
-    puts(proFileMap["DEPENDPATH"].latin1());
-#endif
 
-    /*
-        Check if this is a TEMPLATE = subdirs .pro file, in that case we
-        process each subdir (recursively)
-    */
+
+    // Check if this is a TEMPLATE = subdirs .pro file, in that case we
+    // process each subdir (recursively).
+
     QString templateTag = proFileMap["TEMPLATE"];
-    if(templateTag == "subdirs") {
+    if (templateTag == "subdirs") {
         QStringList subdirs = proFileMap["SUBDIRS"].split(" ", QString::SkipEmptyParts);
         foreach(QString subdir, subdirs) {
             QString newBasePath  = basePath + "/" + subdir;
@@ -110,7 +110,8 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
             QString newProFileName = dirsInSubdir.last() + ".pro";
             portProject(newBasePath, newProFileName);
         }
-     }
+        return;
+    }
 
     // Get headers and sources file names from .pro file.
     QStringList sources = proFileMap["SOURCES"].split(" ", QString::SkipEmptyParts);
@@ -123,16 +124,43 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
             uidoth += ui_h;
     }
 
-    // Create translation units for each cpp file and analyze it
-    if(analyze) {
+    if (analyze) {
+        cout << "Parsing";
+        // Get include paths from the pro file.
+        QStringList includeProPaths = proFileMap["INCLUDEPATH"].split(" ", QString::SkipEmptyParts);
+        IncludeFiles includeFiles(basePath, includeDirectories + includeProPaths);
+
+        PreprocessorController preprocessorController(includeFiles, preprocessorCache, qt3HeadersFilename);
+        connect(&preprocessorController, SIGNAL(error(QString, QString)), SLOT(error(QString, QString)));
+
+        TranslationUnitAnalyzer translationUnitAnalyzer;
+        CodeModelAttributes codeModelAttributes;
+
+        // Enable attribute generation for header files.
+        foreach(QString headerFile, headers)
+            enableAttributes(includeFiles, headerFile);
+
+        // Enable attribute generation for ui.h files.
+        foreach(QString headerFile, uidoth)
+            enableAttributes(includeFiles, headerFile);
+
+        // Analyze each translation unit. (one per cpp file)
         foreach(QString sourceFile, sources) {
-            TokenEngine::TokenSectionSequence translationUnit =
-                preprocessorController->evaluate(sourceFile);
+            cout << "." << std::flush;
+            Rpp::DefineMap definitionsCopy = *defaultDefinitions;
+            TokenSectionSequence translationUnit =
+                preprocessorController.evaluate(sourceFile, &definitionsCopy);
             TranslationUnit translationUnitData =
                 translationUnitAnalyzer.analyze(translationUnit);
+
+            // Enable attribute generation for this file.
+            enableAttributes(includeFiles, sourceFile);
+
             codeModelAttributes.createAttributes(translationUnitData);
         }
+        cout << endl;
     }
+
 
     // Port files.
     portFiles(basePath, sources);
@@ -142,24 +170,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
 
     Logger::instance()->globalState["currentFileName"] = proFileName;
     Logger::instance()->beginSection();
-    QString portedProFile = portProFile(proFileContents, proFileMap);
-
-    //check if any changes has been made.
-    if(portedProFile  == proFileContents) {
-        Logger::instance()->addEntry(
-            new PlainLogEntry("Info", "Porting",  QLatin1String("No changes made to file ") + fullInFileName));
-        Logger::instance()->commitSection();
-        return;
-    }
-
-    //Write file, commit log if write was successful
-    if (FileWriter::instance()->writeFileVerbously(fullInFileName , portedProFile.toLocal8Bit().constData())) {
-         Logger::instance()->commitSection();
-    } else {
-        Logger::instance()->revertSection();
-        Logger::instance()->addEntry(
-            new PlainLogEntry("Error", "Porting",  QLatin1String("Error writing to file ") + fullInFileName));
-    }
+    portProFile(fullInFileName, proFileMap);
 }
 
 /*
@@ -178,54 +189,90 @@ void ProjectPorter::portFiles(QString basePath, QStringList fileNames)
         }
 
         QFileInfo fullFilePathInfo(fullFilePath);
-        if(!fullFilePathInfo.exists()) {
+        if (!fullFilePathInfo.exists()) {
             cout << "Could not find file:" <<
                 QDir::convertSeparators(fullFilePath).toLocal8Bit().constData() <<endl;
             continue;
         }
 
-        if(!processedFilesSet.contains(fullFilePath)){
-            Logger::instance()->globalState["currentFileName"] = fileName;
+        if (!processedFilesSet.contains(fullFilePath)){
+            Logger::instance()->globalState["currentFileName"] = fullFilePath;
             filePorter.port(fullFilePath);
-            processedFilesSet.insert(fullFilePath, 0);
+            processedFilesSet.insert(fullFilePath);
         }
     }
 }
 
-QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagMap)
+void ProjectPorter::portProFile(QString fileName, QMap<QString, QString> tagMap)
 {
+    // Read pro file.
+    QFile proFile(fileName);
+    if (!proFile.open(QIODevice::ReadOnly))
+        return;
+    QTextStream proTextStream(&proFile);
+    QStringList lines;
+    while (!proTextStream.atEnd())
+        lines += proTextStream.readLine();
 
-    Logger *logger = Logger::instance();
+    proFile.close();
 
-    //add qt3support to the Qt tag
-    QStringList QTTagAdd;
-    QStringList qt = tagMap["QT"].split(" ", QString::SkipEmptyParts);
-    if (!qt.contains("qt3support"))
-        QTTagAdd.append("qt3support");
+    // Find out what modules we should add to the QT variable.
+     QSet<QByteArray> qtModules;
+
+    // Add qt3support to the Qt tag
+    qtModules.insert("qt3support");
+
+    // Read CONFIG and add other modules.
     QStringList config = tagMap["CONFIG"].split(" ", QString::SkipEmptyParts);
     if (config.contains("opengl"))
-        QTTagAdd.append("opengl");
+        qtModules.insert("opengl");
     if (config.contains("xml"))
-        QTTagAdd.append("xml");
+        qtModules.insert("xml");
     if (config.contains("sql"))
-        QTTagAdd.append("sql");
+        qtModules.insert("sql");
     if (config.contains("network"))
-        QTTagAdd.append("network");
+        qtModules.insert("network");
 
-    if (!QTTagAdd.isEmpty()) {
-        contents += "\n#The following line was inserted by the Qt porting tool\n";
-        QString insertText = "QT += " + QTTagAdd.join(" ");
-        contents += insertText;
+    // Get set of used modules from the file porter.
+    qtModules += filePorter.usedQtModules();
+
+    // Remove gui and core.
+    qtModules.remove("gui");
+    qtModules.remove("core");
+
+    // Qt3Support is already added.
+    qtModules.remove("3support");
+
+    // Remove modules already present in the QT variable.
+    QStringList qt = tagMap["QT"].split(" ", QString::SkipEmptyParts);
+    foreach(QString name, qt) {
+        qtModules.remove(name.toLatin1());
+    }
+
+    Logger *logger = Logger::instance();
+    bool changesMade = false;
+
+    if (!qtModules.isEmpty()) {
+        changesMade = true;
+        QString insertText = "QT += ";
+        foreach(QByteArray module, qtModules) {
+            insertText += module + QLatin1Char(' ');
+        }
+        lines += QString("#The following line was inserted by qt3to4");
+        lines += insertText;
          QString logText = "In file "
                         + logger->globalState.value("currentFileName")
                         + ": Added entry "
                         + insertText;
         logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
     }
+
+    // Add uic3 if we have forms.
     if (!tagMap["FORMS"].isEmpty() || !tagMap["INTERFACES"].isEmpty()) {
-        contents += "\n#The following line was inserted by the Qt porting tool\n";
+        changesMade = true;
+        lines += QString("#The following line was inserted by qt3to4");
         QString insertText = "CONFIG += uic3\n";
-        contents += insertText;
+        lines += insertText;
         QString logText = "In file "
                         + logger->globalState.value("currentFileName")
                         + ": Added entry "
@@ -233,21 +280,63 @@ QString ProjectPorter::portProFile(QString contents, QMap<QString, QString> tagM
         logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
     }
 
-    //comment out any REQUIRES tag
-    //TODO: make this more intelligent by checking if REQUIRES really is a tag and
-    //not the name of a source file for example
-    if(!tagMap["REQUIRES"].isEmpty()) {
-        int j=0;
-        while ((j = contents.indexOf("REQUIRES", j)) != -1) {
-            QString insertText("#The following line was commented out by the Qt Porting tool\n#");
-            QString logText = "In file "
+    // Comment out any REQUIRES tag.
+    if (!tagMap["REQUIRES"].isEmpty()) {
+        changesMade = true;
+        QString insertText("#The following line was commented out by qt3to4");
+        for (int i = 0; i < lines.count(); ++i) {
+            if (lines.at(i).startsWith("REQUIRES")) {
+                QString lineCopy = lines.at(i);
+                lineCopy.prepend('#');
+                lines[i] = lineCopy;
+                lines.insert(i, insertText);
+                ++i; //skip ahead, we just insertet a line at i.
+                QString logText = "In file "
                             + logger->globalState.value("currentFileName")
                             + ": Commented out REQUIRES section";
-            logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
-            contents.insert(j, insertText);
-            j+=insertText.size() + 1;
+                logger->addEntry(new PlainLogEntry("Info", "Porting", logText));
+            }
         }
     }
 
-    return contents;
+    // Check if any changes has been made.
+    if (!changesMade) {
+        Logger::instance()->addEntry(
+            new PlainLogEntry("Info", "Porting",  QLatin1String("No changes made to file ") + fileName));
+        Logger::instance()->commitSection();
+        return;
+    }
+
+    // Write lines to array.
+    QByteArray bob;
+    QTextStream outProFileStream(&bob);
+    foreach(QString line, lines)
+        outProFileStream << line << QLatin1Char('\n');
+    outProFileStream.flush();
+
+    // Write array to file, commit log if write was successful.
+    if (FileWriter::instance()->writeFileVerbously(fileName , bob)) {
+        Logger::instance()->commitSection();
+    } else {
+        Logger::instance()->revertSection();
+        Logger::instance()->addEntry(
+            new PlainLogEntry("Error", "Porting",  QLatin1String("Error writing to file ") + fileName));
+    }
+}
+
+/*
+    Enables attribute generation for fileName. The file is looked up using the
+    provied includeFiles object.
+*/
+void ProjectPorter::enableAttributes(const IncludeFiles &includeFiles, const QString &fileName)
+{
+    QString resolvedFilePath = includeFiles.resolve(fileName);
+    if (!QFile::exists(resolvedFilePath))
+            resolvedFilePath = includeFiles.angleBracketLookup(fileName);
+    if (!QFile::exists(resolvedFilePath))
+        return;
+
+    TokenContainer tokenContainer = preprocessorCache.sourceTokens(resolvedFilePath);
+    TokenAttributes *attributes = tokenContainer.tokenAttributes();
+    attributes->addAttribute("CreateAttributes", "True");
 }

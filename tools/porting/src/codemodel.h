@@ -14,12 +14,14 @@
 #ifndef CODEMODEL_H
 #define CODEMODEL_H
 
+#include <iostream>
 #include <QByteArray>
 #include <QList>
 #include <QMap>
+#include <QHash>
 
 #include "smallobject.h"
-#include <ast.h>
+#include "tokenengine.h"
 
 namespace CodeModel
 {
@@ -27,7 +29,7 @@ namespace CodeModel
 // types
 struct Type;
 struct EnumType;
-struct EnumType;
+struct EnumeratorType;
 struct ClassType;
 struct BuiltinType;
 struct PointerType;
@@ -37,38 +39,41 @@ struct AliasType;
 struct FunctionType;
 struct UnknownType;
 
-// scope
+// Scopes contain child scopes, members and types.
 struct Scope;
 struct ClassScope;
 struct NamespaceScope;
 struct BlockScope;
 
-// members
+// Members introduces names into scopes, and are also linked to a specific
+// token in a source file.
 struct Member;
 struct FunctionMember;
 struct VariableMember;
-struct UsingDeclarationMember; //using declaration
-struct UsingDirectiveMember;   //using directive;
-struct TypeMember; //for types declared in this scope
-struct Argument;
+struct UsingDeclarationMember;
+struct NamespaceMember;
+struct TypeMember;
 
-// Declaration / use information
-struct Declaration;
+// Name uses links uses of a name to its declaration (a Member), and also to a
+// token in a source file.
 struct NameUse;
 
-// collections
-struct TypeCollection;
-struct ScopeCollection;
-struct MemberCollection;
-struct ArgumentCollection;
-struct NameUseCollection;
+struct Argument;
+struct UsingDirectiveLink;
 
-//builders
-struct TypeCollectionBuilder;
-struct ScopeCollectionBuilder;
-struct MemberCollectionBuilder;
-struct ArgumentCollectionBuilder;
-struct NameUseCollectionBuilder;
+template <typename CollectedType>
+class Collection: public QMultiHash<QByteArray, CollectedType *>
+{
+public:
+     void add(CollectedType *collectedItem)
+    { insert(collectedItem->name(), collectedItem); }
+};
+
+typedef Collection<Scope> ScopeCollection;
+typedef Collection<Member> MemberCollection;
+typedef Collection<Type> TypeCollection;
+typedef Collection<NameUse> NameUseCollection;
+typedef Collection<Argument> ArgumentCollection;
 
 struct SemanticInfo
 {
@@ -85,16 +90,6 @@ struct Item
     Item()  {}
     virtual ~Item() {}
     virtual QByteArray name() const = 0;
-protected:
-};
-
-struct ItemCollection: public Item
-{
-    virtual QByteArray name() const
-    { return QByteArray(); }
-
-    virtual int count() const = 0;
-    virtual int indexOf(Item *item) const = 0;
 };
 
 struct Type: public Item
@@ -128,13 +123,20 @@ struct Type: public Item
 
 struct Scope: public Item
 {
-    Scope();
+    Scope()
+     : m_parent(0) {}
 
     void setParent(Scope *parent)
     { m_parent = parent; }
 
-    virtual Scope *parent() const
+    Scope *parent() const
     { return m_parent; }
+
+    QByteArray name() const
+    { return m_name; }
+
+    void setName(const QByteArray &name)
+    { m_name=name; }
 
     virtual NamespaceScope *toNamespaceScope() const
     { return 0; }
@@ -145,38 +147,27 @@ struct Scope: public Item
     virtual BlockScope *toBlockScope() const
     { return 0; }
 
-    virtual ScopeCollection *scopes() const;
-    virtual TypeCollection *types() const;
-    virtual MemberCollection *members() const;
-    virtual NameUseCollection *nameUses() const;
+    const Collection<Scope> scopes() const
+    { return m_scopes; }
+    const Collection<Type> types() const
+    { return m_types; }
+    const Collection<Member> members() const
+    { return m_members; }
+    const Collection<NameUse> nameUses() const
+    { return m_nameUses; }
 
     void addScope(Scope *scope);
     void addType(Type *type);
     void addMember(Member *member);
     void addNameUse(NameUse *nameUse);
-
-    QList<Type*> findType(const QByteArray &name) ; // ### unfinished
-    QList<Scope*> findScope(const QByteArray &name) ;
-    QList<Member*> findMember(const QByteArray &name);
-    QList<FunctionMember*> findFunctionMember(const QByteArray &name);
-    QList<VariableMember*> findVariableMember(const QByteArray &name);
-
-    // nestedNameSpecifier:  A,B, ... ,X, where A,B .. are scopes or classes,
-    // or ::,A,B, ... ,X, to lookup from the global scope
-    // returns a pointer to a the C scope if it can be found from currentScope,
-    // 0 othervise
-    Scope *lookUpScope( const QList<QByteArray> &nestedNameSpecifier);
-
 private:
     Scope *m_parent;
-    ScopeCollectionBuilder *m_scopes;
-    TypeCollectionBuilder *m_types;
-    MemberCollectionBuilder *m_members;
-    NameUseCollectionBuilder *m_nameUses;
+    QByteArray m_name;
+    Collection<Scope> m_scopes;
+    Collection<Type> m_types;
+    Collection<Member> m_members;
+    Collection<NameUse> m_nameUses;
 };
-
-
-
 
 struct Member: public Item
 {
@@ -195,7 +186,7 @@ struct Member: public Item
 
     Member()
         : m_binding(Static), m_access(Public),
-          m_parent(0), m_nameAST(0), m_constant(0), m_static(0)   {}
+        m_parent(0), m_constant(0), m_static(0)   {}
 
     QByteArray name() const
     { return m_name; }
@@ -203,11 +194,11 @@ struct Member: public Item
     void setName(const QByteArray &name)
     { m_name = name; }
 
-    AST * nameAST() const
-    { return m_nameAST; }
+    TokenEngine::TokenRef nameToken() const
+    { return m_nameToken; }
 
-    void setNameAST(AST *name)
-    { m_nameAST = name; }
+    void setNameToken(TokenEngine::TokenRef nameToken)
+    { m_nameToken = nameToken; }
 
     Binding binding() const
     { return m_binding; }
@@ -239,7 +230,6 @@ struct Member: public Item
     void setParent(Scope *parent)
     { m_parent = parent; }
 
-
     virtual FunctionMember *toFunctionMember() const
     { return 0; }
 
@@ -249,83 +239,65 @@ struct Member: public Item
     virtual UsingDeclarationMember *toUsingDeclarationMember() const
     { return 0; }
 
-    virtual UsingDirectiveMember *toUsingDirectiveMember() const
+    virtual NamespaceMember *toNamespaceMember() const
     { return 0; }
 
     virtual TypeMember *toTypeMember() const
     { return 0; }
 
-private:
-    Binding m_binding;
-    Access m_access;
-    Scope *m_parent;
-    QByteArray m_name;
-    AST *m_nameAST;
-    uint m_constant : 1;
-    uint m_static : 1;
-};
-
-struct NamespaceScope: public Scope
-{
-    NamespaceScope() {}
-
-    QByteArray name() const
-    { return m_name; }
-
-    void setName(const QByteArray &name)
-    {
-        m_name=name;
-    }
-
-    virtual NamespaceScope *toNamespaceScope() const
-    { return const_cast<NamespaceScope*>(this); }
-
-    /*
-        Finds namespaces in the current scope
-    */
-    NamespaceScope * findNamespace(const QByteArray name);
-
-private:
-    QByteArray m_name;
+ private:
+     Binding m_binding;
+     Access m_access;
+     Scope *m_parent;
+     QByteArray m_name;
+     TokenEngine::TokenRef m_nameToken;
+     uint m_constant : 1;
+     uint m_static : 1;
 };
 
 struct ClassScope: public Scope
 {
-    ClassScope();
+    const Collection<Type> baseClasses() const
+    { return m_baseClasses; }
 
-    TypeCollection *baseClasses() const;
-
-    QByteArray name() const
-    { return m_name; }
-
-    void setName(const QByteArray &name)
-    { m_name = name; }
-
-    void addBaseClass(Type *baseClass);
+    void addBaseClass(Type *baseClass)
+    {
+        Q_ASSERT(baseClass->toClassType());
+        m_baseClasses.add(baseClass);
+    }
 
     virtual ClassScope *toClassScope() const
     { return const_cast<ClassScope*>(this); }
 
 private:
-    QByteArray m_name;
-    TypeCollectionBuilder *m_baseClasses;
+    Collection<Type> m_baseClasses;
 };
 
-struct BlockScope: public Scope
+struct UsingDirectiveLinkable : public Scope
+{
+    const QList<UsingDirectiveLink *> usingDirectiveLinks() const
+    { return m_usingDirectiveLinks; }
+
+    void addUsingDirectiveLink(UsingDirectiveLink *usingDirectiveLink)
+    { m_usingDirectiveLinks.append(usingDirectiveLink); }
+private:
+    QList<UsingDirectiveLink *> m_usingDirectiveLinks;
+};
+
+struct NamespaceScope: public UsingDirectiveLinkable
+{
+    NamespaceScope() {}
+
+    virtual NamespaceScope *toNamespaceScope() const
+    { return const_cast<NamespaceScope*>(this); }
+};
+
+struct BlockScope: public UsingDirectiveLinkable
 {
     BlockScope() {}
 
-    QByteArray name() const
-    { return m_name; }
-
-    void setName(const QByteArray &name)
-    { m_name = name; }
-
     virtual BlockScope *toBlockScope() const
     { return const_cast<BlockScope*>(this); }
-
-private:
-    QByteArray m_name;
 };
 
 struct EnumType: public Type
@@ -339,7 +311,7 @@ struct EnumType: public Type
     void setName(const QByteArray &name)
     { m_name = name; }
 
-    virtual Scope *parent() const
+    Scope *parent() const
     { return m_parent; }
 
     void setParent(Scope *parent)
@@ -364,7 +336,7 @@ struct UnknownType: public Type
     void setName(const QByteArray &name)
     { m_name = name; }
 
-    virtual Scope *parent() const
+    Scope *parent() const
     { return m_parent; }
 
     void setParent(Scope *parent)
@@ -389,10 +361,10 @@ struct ClassType: public Type
     void setScope(ClassScope *scope)
     { m_scope = scope; }
 
-    virtual QByteArray name() const
+    QByteArray name() const
     { return m_scope ? m_scope->name() : /*anonymous*/ QByteArray(); }
 
-    virtual Scope *parent() const
+    Scope *parent() const
     { return m_parent; }
 
     void setParent(Scope *parent)
@@ -414,10 +386,10 @@ protected:
         : m_name(name), m_parent(parent) {}
 
 public:
-    virtual QByteArray name() const
+    QByteArray name() const
     { return m_name; }
 
-    virtual Scope *parent() const
+    Scope *parent() const
     { return m_parent; }
 
     virtual BuiltinType *toBuiltinType() const
@@ -451,10 +423,10 @@ struct PointerType: public Type
     void setBaseType(Type *baseType)
     { m_baseType = baseType; }
 
-    virtual QByteArray name() const
+    QByteArray name() const
     { return m_baseType->name(); }
 
-    virtual Scope *parent() const
+    Scope *parent() const
     { return m_parent; }
 
     void setParent(Scope *parent)
@@ -479,10 +451,10 @@ struct ReferenceType: public Type
     void setBaseType(Type *baseType)
     { m_baseType = baseType; }
 
-    virtual QByteArray name() const
+    QByteArray name() const
     { return m_baseType->name(); }
 
-    virtual Scope *parent() const
+    Scope *parent() const
     { return m_parent; }
 
     void setParent(Scope *parent)
@@ -505,12 +477,12 @@ struct GenericType: public Type // ### implement me
 struct AliasType: public Type // ### implement me
 {
     AliasType ()
-        :m_parent(0) {}
-    
-	virtual QByteArray name() const
+        : m_parent(0) {}
+
+    QByteArray name() const
     {  return m_name;  }
-    
-	virtual Scope *parent() const
+
+    Scope *parent() const
     {  return m_parent;  }
 
     virtual AliasType *toAliasType() const
@@ -520,9 +492,52 @@ private:
     Scope *m_parent;
 };
 
+struct Argument: public Item
+{
+    Argument()
+        : m_parent(0), m_type(0) {}
+
+    Type *type() const
+    { return m_type; }
+
+    void setType(Type *type)
+    { m_type = type; }
+
+    QByteArray name() const
+    { return m_name; }
+
+    void setName(const QByteArray &name)
+    { m_name = name; }
+
+    TokenEngine::TokenRef nameToken() const
+    { return m_nameToken; }
+
+    void setNameToken(TokenEngine::TokenRef nameToken)
+    { m_nameToken = nameToken; }
+
+    virtual FunctionMember *parent() const
+    { return m_parent; }
+
+    void setParent(FunctionMember *parent)
+    { m_parent = parent; }
+
+private:
+    FunctionMember *m_parent;
+    Type *m_type;
+    QByteArray m_name;
+    TokenEngine::TokenRef m_nameToken;
+};
+
 struct FunctionMember: public Member
 {
-    FunctionMember();
+    FunctionMember()
+        : m_returnType(0),
+          m_functionBodyScope(0),
+          m_signal(0), m_slot(0),
+          m_virtual(0), m_abstract(0) {}
+
+    virtual FunctionMember *toFunctionMember() const
+    { return const_cast<FunctionMember*>(this); }
 
     Type *returnType() const
     { return m_returnType; }
@@ -530,8 +545,11 @@ struct FunctionMember: public Member
     void setReturnType(Type *type)
     { m_returnType = type; }
 
-    ArgumentCollection *arguments() const;
-    void addArgument(Argument *argument);
+    const Collection<Argument> arguments() const
+    { return m_arguments; }
+
+    void addArgument(Argument *argument)
+    { m_arguments.insert(argument->name(), argument); }
 
     void setFunctionBodyScope(BlockScope *functionBodyScope)
     { m_functionBodyScope = functionBodyScope; }
@@ -563,12 +581,9 @@ struct FunctionMember: public Member
     void setAbstract(bool b)
     { m_abstract = b; }
 
-    virtual FunctionMember *toFunctionMember() const
-    { return const_cast<FunctionMember*>(this); }
-
 private:
     Type *m_returnType;
-    ArgumentCollectionBuilder *m_argument;
+    Collection<Argument> m_arguments;
     BlockScope *m_functionBodyScope;
     uint m_signal: 1;
     uint m_slot: 1;
@@ -594,28 +609,10 @@ private:
     Type *m_type;
 };
 
-struct UsingDirectiveMember: public Member
-{
-    UsingDirectiveMember()
-        : m_targetScope(0) {}
-
-    virtual UsingDirectiveMember *toUsingDirectiveMember() const
-    { return const_cast<UsingDirectiveMember*>(this); }
-
-    virtual Scope *targetScope() const
-    { return m_targetScope; }
-
-    void setTargetScope(Scope *targetScope)
-    { m_targetScope = targetScope; }
-
-private:
-    Scope *m_targetScope;
-};
-
 struct UsingDeclarationMember: public Member
 {
     UsingDeclarationMember()
-        : m_member(0) {}
+    : m_member(0) {}
 
     virtual UsingDeclarationMember *toUsingDeclarationMember() const
     { return const_cast<UsingDeclarationMember*>(this); }
@@ -630,12 +627,29 @@ private:
     Member *m_member;
 };
 
+struct NamespaceMember: public Member
+{
+    NamespaceMember()
+        :m_namespaceScope(0) {}
+
+    virtual NamespaceMember *toNamespaceMember() const
+    { return const_cast<NamespaceMember*>(this); }
+
+    NamespaceScope *namespaceScope() const
+    { return m_namespaceScope; }
+
+    void setNamespaceScope(NamespaceScope *namespaceScope)
+    { m_namespaceScope = namespaceScope; }
+private:
+    NamespaceScope *m_namespaceScope;
+};
+
 struct TypeMember: public Member
 {
     TypeMember()
         :m_type(0) {}
 
-     virtual TypeMember *toTypeMember() const
+    virtual TypeMember *toTypeMember() const
     { return const_cast<TypeMember*>(this); }
 
     Type *type() const
@@ -648,47 +662,10 @@ private:
 
 };
 
-struct Argument: public Item
-{
-    Argument()
-        :  m_parent(0), m_type(0), m_nameAST(0) {}
-
-    Type *type() const
-    { return m_type; }
-
-    void setType(Type *type)
-    { m_type = type; }
-
-    QByteArray name() const
-    { return m_name; }
-
-    void setName(const QByteArray &name)
-    { m_name = name; }
-
-    AST * nameAST() const
-    { return m_nameAST; }
-
-    void setNameAST(AST *name)
-    { m_nameAST = name; }
-
-    virtual FunctionMember *parent() const
-    { return m_parent; }
-
-    void setParent(FunctionMember *parent)
-    { m_parent = parent; }
-
-private:
-    FunctionMember *m_parent;
-    Type *m_type;
-    QByteArray m_name;
-    AST *m_nameAST;
-};
-
-
 struct NameUse: public Item
 {
     NameUse()
-    : m_nameAST(0), m_declaration(0), m_parent(0) {}
+    : m_declaration(0), m_parent(0) {}
 
     QByteArray name() const
     { return m_name; }
@@ -696,19 +673,19 @@ struct NameUse: public Item
     void setName(const QByteArray &name)
     {  m_name = name; }
 
-    AST * nameAST() const
-    { return m_nameAST; }
+     TokenEngine::TokenRef nameToken() const
+    { return m_nameToken; }
 
-    void setNameAST(AST *name)
-    { m_nameAST = name; }
+    void setNameToken(TokenEngine::TokenRef nameToken)
+    { m_nameToken = nameToken; }
 
-     virtual Scope *parent() const
+    Scope *parent() const
     { return m_parent; }
 
     void setParent(Scope *parent)
     { m_parent = parent; }
 
-    virtual Member *declaration() const
+    Member *declaration() const
     { return m_declaration; }
 
     void setDeclaration(Member *parent)
@@ -716,165 +693,45 @@ struct NameUse: public Item
 
 private:
     QByteArray m_name;
-    AST *m_nameAST;
+    TokenEngine::TokenRef m_nameToken;
     Member *m_declaration;
     Scope *m_parent;
 };
 
-struct ScopeCollection: public ItemCollection
+struct UsingDirectiveLink: public Item
 {
-    ScopeCollection(Scope *parent)
-        : m_parent(parent) {}
+    UsingDirectiveLink()
+        : m_parent(0) {}
 
-    virtual Scope *parent() const
+    QByteArray name() const
+    { return QByteArray(); }
+
+    Scope *parent() const
     { return m_parent; }
 
-    virtual Scope *item(int index) const
-    { return m_scope.at(index); }
+    void setParent(Scope *parent)
+    { m_parent = parent; }
 
-    virtual int count() const
-    { return m_scope.count(); }
+    NamespaceScope *targetNamespace() const
+    { return m_targetNamespace; }
 
-    virtual int indexOf(Item *item) const
-    { return m_scope.indexOf(static_cast<Scope*>(item)); }
+    void setTargetNamespace(NamespaceScope *targetNamespace)
+    { m_targetNamespace = targetNamespace; }
 
-protected:
+    NamespaceScope *insertionNamespace() const
+    { return m_insertionNamespace; }
+
+    void setInsertionNamespace(NamespaceScope *insertionNamespace)
+    { m_insertionNamespace = insertionNamespace; }
+private:
     Scope *m_parent;
-    QList<Scope*> m_scope;
-};
-
-struct ScopeCollectionBuilder: public ScopeCollection
-{
-    ScopeCollectionBuilder(Scope *parent)
-        : ScopeCollection(parent) {}
-
-    void add(Scope *scope)
-    { m_scope.append(scope); }
-};
-
-struct MemberCollection: public ItemCollection
-{
-    MemberCollection(Scope *parent)
-        : m_parent(parent) {}
-
-    virtual Scope *parent() const
-    { return m_parent; }
-
-    virtual Member *item(int index) const
-    { return m_member.at(index); }
-
-    virtual int count() const
-    { return m_member.count(); }
-
-    virtual int indexOf(Item *item) const
-    { return m_member.indexOf(static_cast<Member*>(item)); }
-
-protected:
-    Scope *m_parent;
-    QList<Member*> m_member;
-};
-
-struct MemberCollectionBuilder: public MemberCollection
-{
-    MemberCollectionBuilder(Scope *parent)
-        : MemberCollection(parent) {}
-
-    void add(Member *member)
-    { m_member.append(member); }
-};
-
-struct ArgumentCollection: public ItemCollection
-{
-    ArgumentCollection(FunctionMember *parent)
-        : m_parent(parent) {}
-
-    virtual FunctionMember *parent() const
-    { return m_parent; }
-
-    virtual Argument *item(int index) const
-    { return m_argument.at(index); }
-
-    virtual int count() const
-    { return m_argument.count(); }
-
-    virtual int indexOf(Item *item) const
-    { return m_argument.indexOf(static_cast<Argument*>(item)); }
-
-protected:
-    FunctionMember *m_parent;
-    QList<Argument*> m_argument;
-};
-
-struct ArgumentCollectionBuilder: public ArgumentCollection
-{
-    ArgumentCollectionBuilder(FunctionMember *parent)
-        : ArgumentCollection(parent) {}
-
-    void add(Argument *argument)
-    { m_argument.append(argument); }
-};
-
-struct TypeCollection: public ItemCollection
-{
-    TypeCollection(Scope *parent)
-        : m_parent(parent) {}
-
-    virtual Scope *parent() const
-    { return m_parent; }
-
-    virtual Type *item(int index) const
-    { return m_type.at(index); }
-
-    virtual int count() const
-    { return m_type.count(); }
-
-    virtual int indexOf(Item *item) const
-    { return m_type.indexOf(static_cast<Type*>(item)); }
-
-protected:
-    Scope *m_parent;
-    QList<Type*> m_type;
-};
-
-struct TypeCollectionBuilder: public TypeCollection
-{
-    TypeCollectionBuilder(Scope *parent)
-        : TypeCollection(parent) {}
-
-    void add(Type *type)
-    { m_type.append(type); }
-};
-
-
-struct NameUseCollection: public ItemCollection
-{
-    NameUseCollection(Scope *parent)
-        : m_parent(parent) {}
-
-    virtual Scope *parent() const
-    { return m_parent; }
-
-    virtual NameUse *item(int index) const
-    { return m_nameUse.at(index); }
-
-    virtual int count() const
-    { return m_nameUse.count(); }
-
-    virtual int indexOf(Item *item) const
-    { return m_nameUse.indexOf(static_cast<NameUse*>(item)); }
-
-protected:
-    Scope *m_parent;
-    QList<NameUse*> m_nameUse;
-};
-
-struct NameUseCollectionBuilder: public NameUseCollection
-{
-    NameUseCollectionBuilder(Scope *parent)
-        : NameUseCollection(parent) {}
-
-    void add(NameUse *nameUse)
-    { m_nameUse.append(nameUse); }
+    // targetNamespace is the namespace specified by the using directive.
+    NamespaceScope *m_targetNamespace;
+    // m_insertionNamespace is the namespace where the names from
+    // targetNamespace will be inserted. The C++ standard (7.3.4.1)
+    // defines this as the nearest namespace that includes both m_parent
+    // and m_targetNamespace.
+    NamespaceScope *m_insertionNamespace;
 };
 
 template <class T>

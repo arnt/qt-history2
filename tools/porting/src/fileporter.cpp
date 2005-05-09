@@ -14,6 +14,8 @@
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
+#include <QHash>
+#include <QDebug>
 #include "preprocessorcontrol.h"
 #include "fileporter.h"
 #include "replacetoken.h"
@@ -21,25 +23,17 @@
 #include "tokenizer.h"
 
 using namespace TokenEngine;
+using namespace Rpp;
 using std::cout;
 using std::endl;
 
-/*
-QByteArray FilePorter::loadFile(const QString &filePath)
-{
-    QFile f(filePath);
-    f.open(QIODevice::ReadOnly);
-    return f.readAll();
-}
-*/
 FilePorter::FilePorter(PreprocessorCache &preprocessorCache)
 :preprocessorCache(preprocessorCache)
 ,tokenReplacementRules(PortingRules::instance()->getTokenReplacementRules())
 ,replaceToken(tokenReplacementRules)
 {
-    int dummy=0;
     foreach(QString headerName, PortingRules::instance()->getHeaderList(PortingRules::Qt4)) {
-        qt4HeaderNames.insert(headerName, dummy);
+        qt4HeaderNames.insert(headerName.toLatin1());
     }
 }
 
@@ -81,113 +75,164 @@ void FilePorter::port(QString fileName)
     }
 }
 
+QSet<QByteArray> FilePorter::usedQtModules()
+{
+    return m_usedQtModules;
+}
+
 QByteArray FilePorter::includeAnalyse(QByteArray fileContents)
 {
-    //tokenize file contents agein, since it has changed.
-    QList<TokenEngine::Token> tokens  = tokenizer.tokenize(fileContents);
+    // Tokenize file contents agein, since it has changed.
+    QVector<TokenEngine::Token> tokens  = tokenizer.tokenize(fileContents);
     TokenEngine::TokenContainer tokenContainer(fileContents, tokens);
+    IncludeDirectiveAnalyzer includeDirectiveAnalyzer(tokenContainer);
 
-    QMap<QByteArray, int> classes;
-    QMap<QByteArray, int> headers;
+    // Get list of used classes.
+    QSet<QByteArray> classes = includeDirectiveAnalyzer.usedClasses();
 
-    //Get list of used classes and included headers
-    int t = 0;
-    const int numTokens = tokenContainer.count();
-    while(t < numTokens )
-    {
-        QByteArray tokenText = tokenContainer.text(t);
-        if(tokenText[0] =='Q' && qt4HeaderNames.contains(tokenText))
-            classes.insert(tokenText, 0);
-        else if(tokenText.startsWith("#include")) {
-            QString tokenString(tokenText);
-            QStringList subTokenList = tokenString.split(QRegExp("<|>|\""), QString::SkipEmptyParts);
-            foreach(QString subToken, subTokenList) {
-                if(subToken[0] == 'Q' || subToken[0] == 'q')
-                    headers.insert(subToken.toLatin1(), 0);
-            }
-        }
-        ++t;
+    // Iterate class list and find which modules are used. This info is used elswhere
+    // by when porting the .pro file.
+    const QHash<QByteArray, QByteArray> classLibraryList = PortingRules::instance()->getClassLibraryList();
+    foreach(const QByteArray className, classes) {
+        m_usedQtModules.insert(classLibraryList.value(className));
     }
 
-    //compare class and header names, find classes that lacks a
-    //curresponding include directive
-    QStringList neededHeaders = PortingRules::instance()->getNeededHeaderList();
-    QStringList headersToInsert;
-    QMapIterator<QByteArray, int> c(classes);
-    //loop through classes
-    while (c.hasNext()) {
-        c.next();
-        bool foundHeader=false;
-        QMapIterator<QByteArray, int> h(headers);
-        //loop through headers
-        while (h.hasNext() && !foundHeader) {
-            h.next();
-            if(h.key().toLower().startsWith(c.key().toLower()))
-                foundHeader=true; //we found a header for class c
-        }
-        if(!foundHeader){
-            //we have a class without a coresponding header.
-            bool needHeader=false;
-            //loop through list of headers
-            foreach(QString header, neededHeaders) {
-                //compare class name with header
-                //TODO: assumes that only new-style headers are specified in the
-                //rules. This is ok for now.
-                if(header.toLatin1() == c.key()) {
-                    needHeader=true;
-                    break;
-                }
-            }
-            if(needHeader) {
-                headersToInsert.push_back(QString("#include <" + c.key() + ">"));
-             //   printf("Must insert header file for class  %s \n ", c.key().constData());
-            }
+    // Get list of included headers.
+    QSet<QByteArray> headers = includeDirectiveAnalyzer.includedHeaders();
+
+    // Find classes that is missing an include directive and that has a needHeader rule.
+    const QHash<QByteArray, QByteArray> neededHeaders = PortingRules::instance()->getNeededHeaders();
+    QList<QByteArray> insertHeaders;
+    foreach(const QByteArray className, classes) {
+        if (!headers.contains(className.toLower() + ".h") &&
+            !headers.contains(className)) {
+            const QByteArray insertHeader = neededHeaders.value(className);
+            if (insertHeader != QByteArray())
+                insertHeaders.append("#include <" + insertHeader + ">");
         }
     }
 
-    //insert headers in files, at the end of the first block of
-    //include files
-    //TODO: make this more intelligent by not inserting inside #ifdefs
-    bool includeEnd = false;
-    bool includeStart = false;
-    t = 0;
-    while(t < numTokens && !includeEnd)
-    {
-        QByteArray tokenText = tokenContainer.text(t);
-        if(tokenText.trimmed().startsWith("#include"))
-            includeStart=true;
-        else if(includeStart &&(!tokenText.trimmed().isEmpty() || tokenText == "\n" ))
-            includeEnd=true;
-        ++t;
-    }
-    /*
-    //back up a bit to get just at the end of the last include
-    while(inStream->currentTokenText().trimmed())  ) {
-        inStream->rewind(inStream->cursor()-1);
-    }
-    */
-    int insertPos=0;
-    if(includeStart != false)
-        insertPos = tokenContainer.token(t).start;
-
-    int insertCount = headersToInsert.count();
-    if(insertCount>0) {
+    // Insert include directives undeclared classes.
+    int insertCount = insertHeaders.count();
+    if (insertCount > 0) {
         QByteArray insertText;
         QByteArray logText;
 
-        insertText+="\n//Added by the Qt porting tool:\n";
+        insertText += "//Added by qt3to4:\n";
         logText += "In file ";
         logText += Logger::instance()->globalState.value("currentFileName");
         logText += ": Added the following include directives:\n";
-        foreach(QString headerName, headersToInsert) {
-            insertText = insertText + headerName.toLatin1() + "\n";
-            logText +="\t";
-            logText += headerName.toLatin1() + " ";
+        foreach (QByteArray headerName, insertHeaders) {
+            insertText = insertText + headerName + "\n";
+            logText += "\t";
+            logText += headerName + " ";
         }
-        insertText+="\n";
+
+        const int insertLine = 0;
+        Logger::instance()->updateLineNumbers(insertLine, insertCount + 1);
+        const int insertPos = includeDirectiveAnalyzer.insertPos();
         fileContents.insert(insertPos, insertText);
         Logger::instance()->addEntry(new PlainLogEntry("Info", "Porting", logText));
     }
 
     return fileContents;
+}
+
+IncludeDirectiveAnalyzer::IncludeDirectiveAnalyzer(const TokenEngine::TokenContainer &fileContents)
+:fileContents(fileContents)
+{
+    const QVector<Type> lexical = RppLexer().lex(fileContents);
+    source = Preprocessor().parse(fileContents, lexical, &mempool);
+    foundInsertPos = false;
+    foundQtHeader = false;
+    ifSectionCount = 0;
+    insertTokenIndex = 0;
+
+    evaluateItem(source);
+}
+
+/*
+    Returns a position indicating where new include directives should be inserted.
+*/
+int IncludeDirectiveAnalyzer::insertPos()
+{
+    const TokenEngine::Token insertToken = fileContents.token(insertTokenIndex);
+    return insertToken.start;
+}
+
+/*
+    Returns a set of all headers included from this file.
+*/
+QSet<QByteArray> IncludeDirectiveAnalyzer::includedHeaders()
+{
+    return m_includedHeaders;
+}
+
+/*
+    Returns a list of used Qt classes.
+*/
+QSet<QByteArray> IncludeDirectiveAnalyzer::usedClasses()
+{
+    return m_usedClasses;
+}
+
+/*
+    Set insetionTokenindex to a token near other #include directives, preferably
+    just after a block of include directives that includes other Qt headers.
+*/
+void IncludeDirectiveAnalyzer::evaluateIncludeDirective(const IncludeDirective *directive)
+{
+    const QByteArray filename = directive->filename();
+    if (filename.isEmpty())
+        return;
+
+    m_includedHeaders.insert(filename);
+
+    if (foundInsertPos || ifSectionCount > 1)
+        return;
+
+    const bool isQtHeader = (filename.at(0) == 'q' || filename.at(0) == 'Q');
+    if (!isQtHeader && foundQtHeader) {
+        foundInsertPos = true;
+        return;
+    }
+
+    if (isQtHeader)
+        foundQtHeader = true;
+
+    // Get the last token for this directive.
+    TokenEngine::TokenSection tokenSection = directive->text();
+    const int newLineToken = 1;
+    insertTokenIndex = tokenSection.containerIndex(tokenSection.count() - 1) + newLineToken;
+}
+
+/*
+    Avoid inserting inside IfSections, except in the first one
+    we see, which probably is the header multiple inclusion guard.
+*/
+void IncludeDirectiveAnalyzer::evaluateIfSection(const IfSection *ifSection)
+{
+    ++ifSectionCount;
+    RppTreeWalker::evaluateIfSection(ifSection);
+    --ifSectionCount;
+}
+
+/*
+    Read all IdTokens and look for Qt class names.  Also, on
+    the first IdToken set foundInsertPos to true
+
+*/
+void IncludeDirectiveAnalyzer::evaluateText(const Text *textLine)
+{
+    const int numTokens = textLine->count();
+    for (int t = 0; t < numTokens; ++t) {
+        Rpp::Token *token = textLine->token(t);
+        if (token->toIdToken()) {
+            foundInsertPos = true;
+            const int containerIndex = token->index();
+            const QByteArray tokenText = fileContents.text(containerIndex);
+            if (tokenText[0] == 'Q')
+                m_usedClasses.insert(tokenText);
+        }
+    }
 }

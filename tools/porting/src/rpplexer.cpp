@@ -15,8 +15,6 @@
 #include <iostream>
 #include <locale>
 #include <QChar>
-#include <QList>
-
 
 using namespace std;
 using namespace TokenEngine;
@@ -49,7 +47,8 @@ void RppLexer::setupScanTable()
             s_scan_table[i] = &RppLexer::scanOperator;
             break;
 
-        case '\n':
+        case '\r':
+		case '\n':
             s_scan_table[i] = &RppLexer::scanNewline;
             break;
 
@@ -86,10 +85,11 @@ void RppLexer::setupScanTable()
     s_scan_table[128] = &RppLexer::scanUnicodeChar;
 }
 
-QList<Type> RppLexer::lex(const TokenContainer &tokenContainer)
+QVector<Type> RppLexer::lex(const TokenContainer &tokenContainer)
 {
-    QList<Type> tokenTypes;
+    QVector<Type> tokenTypes;
     const int numTokens = tokenContainer.count();
+    tokenTypes.reserve(numTokens);
     QByteArray text = tokenContainer.fullText();
     m_buffer = text.constData();
     for(int t=0; t<numTokens; ++t) {
@@ -129,7 +129,7 @@ void RppLexer::scanWhiteSpaces(int *kind)
 
 void RppLexer::scanNewline(int *kind)
 {
-    *kind = m_buffer[m_ptr];
+    *kind = '\n';
 }
 
 void RppLexer::scanUnicodeChar(int *kind)
@@ -301,10 +301,10 @@ void RppLexer::scanOperator(int *kind)
 
 bool RppLexer::match(char *buf, int len)
 {
-    for(int i=0; i < len; ++i) {
-        if(i >= m_len)
-            return false;
-        if(m_buffer[m_ptr +i] != buf[i])
+    if (m_len != len)
+        return false;
+    for (int i = 0; i < len; ++i) {
+        if(m_buffer[m_ptr + i] != buf[i])
             return false;
     }
     return true;

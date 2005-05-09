@@ -15,36 +15,36 @@
 #define PROJECTPORTER_H
 
 #include <QString>
-#include <QMap>
+#include <QSet>
 #include "fileporter.h"
-#include "filewriter.h"
 #include "preprocessorcontrol.h"
-#include "translationunit.h"
-#include "codemodelattributes.h"
 
 class ProjectPorter : public QObject
 {
 Q_OBJECT
 public:
-    ProjectPorter(QString basePath, QStringList includeDirectories);
+    ProjectPorter(QString basePath, QStringList includeDirectories, QString qt3HeadersFilename = QString());
+    void enableCppParsing(bool enable);
+    void enableMissingFilesWarnings(bool enable);
     void portProject(QString filePath);
     void portFile(QString filePath);
 private slots:
     void error(QString type, QString text);
 private:
     void portProject(QString inPath, QString proFileName);
-    QString portProFile(QString contents, QMap<QString, QString> tagMap);
+    void portProFile(QString fileName, QMap<QString, QString> tagMap);
     void portFiles(QString basePath, QStringList fileNames);
+    void enableAttributes(const IncludeFiles &includeFiles, const QString &fileName);
 
-    QMap<QString, int> processedFilesSet;
+    QSet<QString> processedFilesSet;
     QString basePath;
-    bool analyze;
-    IncludeFiles *includeFiles;
-    PreprocessorController *preprocessorController;
+    QStringList includeDirectories;
     PreprocessorCache preprocessorCache;
-    TranslationUnitAnalyzer translationUnitAnalyzer;
-    CodeModelAttributes codeModelAttributes;
+    Rpp::DefineMap *defaultDefinitions;
     FilePorter filePorter;
+    QString qt3HeadersFilename;
+    bool analyze;
+    bool warnings;
 };
 
 #endif

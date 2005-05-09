@@ -37,7 +37,6 @@ public:
     virtual void parseFunctionMember(CodeModel::FunctionMember *);
     virtual void parseVariableMember(CodeModel::VariableMember *){};
     virtual void parseUsingDeclarationMember(CodeModel::UsingDeclarationMember *){};
-    virtual void parseUsingDirectiveMember(CodeModel::UsingDirectiveMember *){};
     virtual void parseTypeMember(CodeModel::TypeMember *){};
 
     virtual void parseArgument(CodeModel::Argument *){};

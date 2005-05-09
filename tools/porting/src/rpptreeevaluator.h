@@ -15,18 +15,20 @@
 
 #include <QObject>
 #include <QList>
+#include <QHash>
+#include <QSet>
 #include "tokenengine.h"
 #include "rpp.h"
+#include "rpptreewalker.h"
 
 namespace Rpp {
 
-class DefineMap : public QMap<QByteArray, const DefineDirective *>
+class DefineMap : public QHash<QByteArray, const DefineDirective *>
 {
 
 };
 
-
-class RppTreeEvaluator: public QObject
+class RppTreeEvaluator: public QObject, public RppTreeWalker
 {
 Q_OBJECT
 public:
@@ -39,35 +41,40 @@ signals:
     void includeCallback(Source *&includee, const Source *includer,
                          const QString &filename, IncludeType includeType);
 protected:
-    void evaluateItem(const Item *item);
-    void evaluateSource(const Source *source);
-    void evaluateDirective(const Directive *directive);
     void evaluateIncludeDirective(const IncludeDirective *directive);
     void evaluateDefineDirective(const DefineDirective *directive);
     void evaluateUndefDirective(const UndefDirective *directive);
-    void evaluateIfdefDirective(const IfdefDirective *directive);
-    void evaluateIfndefDirective(const IfndefDirective *directive);
-    void evaluateIfDirective(const IfDirective *directive);
-    void evaluateElseDirective(const ElseDirective *directive);
-    void evaluateEndifDirective(const EndifDirective *directive);
-    void evaluateErrorDirective(const ErrorDirective *directive);
-    void evaluatePragmaDirective(const PragmaDirective *directive);
     void evaluateIfSection(const IfSection *ifSection);
-    void evaluateConditionalDirective(const ConditionalDirective *conditionalDirective);
     void evaluateText(const Text *text);
-    void evaluateItemComposite(const ItemComposite *itemComposite);
     bool evaluateCondition(const ConditionalDirective *conditionalDirective);
     int evaluateExpression(Expression *expression);
 
     TokenEngine::TokenContainer evaluateMacro(TokenEngine::TokenContainer tokenContainer, int &identiferTokenIndex);
+    TokenEngine::TokenContainer evaluateMacroInternal(QSet<QByteArray> skip, TokenEngine::TokenContainer tokenContainer);
     TokenEngine::TokenContainer cloneTokenList(const TokenEngine::TokenList &list);
     Source *getParentSource(const Item *item) const;
     IncludeType includeTypeFromDirective(
                     const IncludeDirective *includeDirective) const;
 private:
-    QList<TokenEngine::TokenSection> m_tokenSections;
+    QVector<TokenEngine::TokenSection> m_tokenSections;
     DefineMap *m_activeDefinitions;
     TokenEngine::TokenSection *newlineSection;
+};
+
+class MacroFunctionParser
+{
+public:
+    MacroFunctionParser(const TokenEngine::TokenContainer &tokenContainer, int startToken);
+    bool isValid();
+    int tokenCount();
+    int argumentCount();
+    TokenEngine::TokenSection argument(int argumentIndex);
+private:
+    const TokenEngine::TokenContainer &m_tokenContainer;
+    const int m_startToken;
+    int m_numTokens;
+    bool m_valid;
+    QVector<TokenEngine::TokenSection> m_arguments;
 };
 
 }//namespace Rpp

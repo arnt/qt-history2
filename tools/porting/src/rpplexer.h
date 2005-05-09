@@ -15,7 +15,7 @@
 #define RPPLEXER_H
 
 #include <QByteArray>
-#include <QList>
+#include <QVector>
 #include "tokens.h"
 #include "tokenengine.h"
 namespace Rpp {
@@ -25,7 +25,7 @@ class RppLexer
 public:
 
     RppLexer();
-    QList<Type> lex(const TokenEngine::TokenContainer &tokenContainer);
+    QVector<Type> lex(const TokenEngine::TokenContainer &tokenContainer);
 private:
     Type indentify(int pos, int length);
     void setupScanTable();

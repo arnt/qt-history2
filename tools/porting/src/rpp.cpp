@@ -27,8 +27,8 @@ Preprocessor::Preprocessor()
 
 }
 
-Source *Preprocessor::parse(TokenEngine::TokenContainer tokenContainer,
-                            QList<Type> tokenTypeList, TypedPool<Item> *memoryPool)
+Source *Preprocessor::parse(const TokenEngine::TokenContainer &tokenContainer,
+                            const QVector<Type> &tokenTypeList, TypedPool<Item> *memoryPool)
 {
     m_memoryPool = memoryPool;
     Source *m_source = createNode<Source>(m_memoryPool); //node whith no parent
@@ -43,7 +43,7 @@ Source *Preprocessor::parse(TokenEngine::TokenContainer tokenContainer,
     }
 
     if(tokenTypeList.isEmpty()) {
-        emit error("Warning:", "Trying to parse empty source file");
+    //    emit error("Warning:", "Trying to parse empty source file");
         return m_source;
     }
     Q_ASSERT(m_source->toItemComposite());
@@ -168,8 +168,10 @@ bool Preprocessor::parseTextLine(Item *group)
     group->toItemComposite()->add(text);
     text->setTokenSection(tokenSection);
 
-    // create Token-derived nodes and atach to text
-    for (int t=0; t<tokenSection.count(); ++t) {
+    // Create Token-derived nodes and atach to text
+    QVector<Token *> tokens;
+    tokens.reserve(tokenSection.count());
+    for (int t = 0; t < tokenSection.count(); ++t) {
         Token *node = 0;
         const int containerIndex = tokenSection.containerIndex(t);
         switch(m_tokenTypeList.at(containerIndex)) {
@@ -201,8 +203,10 @@ bool Preprocessor::parseTextLine(Item *group)
         }
         Q_ASSERT(node);
         node->setToken(containerIndex);
-        text->addToken(node);
+        tokens.append(node);
     }
+
+    text->setTokens(tokens);
 
     return true;
 }
@@ -289,13 +293,13 @@ bool Preprocessor::parseIfdefLikeDirective(IfdefLikeDirective *node)
 {
     Q_ASSERT(node->toItemComposite());
     const TokenSection tokenSection = readLine();
-    const QList<int> cleanedLine = cleanTokenRange(tokenSection);
+    const QVector<int> cleanedLine = cleanTokenRange(tokenSection);
 
     if(cleanedLine.count() < 3)
         return false;
 
     node->setTokenSection(tokenSection);
-    node->setIdentifier(TokenList(m_tokenContainer, QList<int>() << cleanedLine.at(2)));
+    node->setIdentifier(TokenList(m_tokenContainer, QVector<int>() << cleanedLine.at(2)));
     parseGroup(node);
 
     return true;
@@ -307,13 +311,12 @@ bool Preprocessor::parseIfLikeDirective(IfLikeDirective *node)
     //cout << "parse if-like directive" << endl;
     Q_ASSERT(node->toItemComposite());
     TokenSection tokenSection = readLine();
-    QList<int> cleanedSection = cleanTokenRange(tokenSection);
+    QVector<int> cleanedSection = cleanTokenRange(tokenSection);
     if(cleanedSection.count() < 3)
         return false;
 
-    cleanedSection.removeFirst(); //remove #
-    cleanedSection.removeFirst(); //remove if
-    cleanedSection.removeLast(); //remove endl;
+    cleanedSection.erase(cleanedSection.begin(), cleanedSection.begin() + 2); //remove # and if
+    cleanedSection.pop_back(); //remove endl;
 
     const TokenList sectionList(m_tokenContainer, cleanedSection);
     ExpressionBuilder expressionBuilder(sectionList, m_tokenTypeList, m_memoryPool);
@@ -335,34 +338,66 @@ bool Preprocessor::parseDefineDirective(Item *group)
 {
     Q_ASSERT(group->toItemComposite());
     const TokenSection line = readLine();
-    const QList<int> cleanedLine = cleanTokenRange(line);
+    const QVector<int> cleanedLine = cleanTokenRange(line);
     if(cleanedLine.count() < 3)
         return false;
 
     // get identifier
     const int identifier = cleanedLine.at(2); //skip "#" and "define"
+    DefineDirective *defineDirective = 0;
+    int replacementListStart;
 
     // check if this is a macro function
-    MacroDefinition *macro;
-    macro =  createNode<MacroDefinition>(m_memoryPool, group);
-    int replacementListStart;
-    if(m_tokenContainer.text(cleanedLine.at(3)) == "("
+    if (cleanedLine.count() >= 4
+        && m_tokenContainer.text(cleanedLine.at(3)) == "("
         && !isWhiteSpace(cleanedLine.at(3) - 1)) {
-        //TODO: Handle macro function definition here
-        replacementListStart = 3;
-    } else {
+        MacroFunctionDefinition *macro;
+        macro = createNode<MacroFunctionDefinition>(m_memoryPool, group);
 
+        int tokenIndex = 4; //point to first argument or ')'
+        QVector<int> macroParameterList;
+        while(tokenIndex < cleanedLine.count()) {
+            QByteArray currentText = m_tokenContainer.text(cleanedLine.at(tokenIndex));
+            ++tokenIndex;
+            if(currentText == ")")
+                break;
+            if(currentText == ",")
+                continue;
+            macroParameterList.append(cleanedLine.at(tokenIndex - 1));
+        }
+        macro->setParameters(TokenList(m_tokenContainer, macroParameterList));
+        defineDirective = macro;
+        replacementListStart = tokenIndex;
+    } else {
+        MacroDefinition *macro;
+        macro = createNode<MacroDefinition>(m_memoryPool, group);
+        defineDirective = macro;
         replacementListStart = 3;
     }
+    Q_ASSERT(defineDirective);
 
-    const int skipNewLine = 1;
-    QList<int> replacementList = cleanedLine.mid(
-            replacementListStart, cleanedLine.count() - replacementListStart - skipNewLine );
+    // This is a bit hackish.. we want the replacement list with whitepspace
+    // tokens, but cleanedLine() has already removed those. And we can't use
+    // the original line, because that may contain escaped newline tokens.
+    // So we remove the esacped newlines and search for the token number
+    // given by cleanedLine.at(replacementListStart)
+    QVector<int> replacementList;
+    const QVector<int> noEscNewline = cleanEscapedNewLines(line);
+    if (replacementListStart < cleanedLine.count()) {
+        const int cleanedLineReplacementListStart = cleanedLine.at(replacementListStart);
+        const int rListStart = noEscNewline.indexOf(cleanedLineReplacementListStart);
+        if (rListStart != -1) {
+            const int skipNewLineToken = 1;
+            for (int i = rListStart; i < noEscNewline.count() - skipNewLineToken; ++i) {
+                replacementList.append(noEscNewline.at(i));
+            }
+        }
+    }
 
-    macro->setTokenSection(line);
-    macro->setIdentifier(TokenList(m_tokenContainer, QList<int>() << identifier));
-    macro->setReplacementList(TokenList(m_tokenContainer, replacementList));
-    group->toItemComposite()->add(macro);
+    defineDirective->setTokenSection(line);
+    defineDirective->setIdentifier(TokenList(m_tokenContainer, QVector<int>() << identifier));
+    defineDirective->setReplacementList(TokenList(m_tokenContainer, replacementList));
+    group->toItemComposite()->add(defineDirective);
     return true;
 }
 
@@ -372,14 +407,14 @@ bool Preprocessor::parseUndefDirective(Item *group)
 {
     Q_ASSERT(group->toItemComposite());
     const TokenSection tokenSection = readLine();
-    const QList<int> cleanedLine = cleanTokenRange(tokenSection);
+    const QVector<int> cleanedLine = cleanTokenRange(tokenSection);
 
     if(cleanedLine.count() < 3)
         return false;
 
     UndefDirective *undefDirective = createNode<UndefDirective>(m_memoryPool, group);
     group->toItemComposite()->add(undefDirective);
-    undefDirective->setIdentifier(TokenList(m_tokenContainer, QList<int>() << cleanedLine.at(2)));
+    undefDirective->setIdentifier(TokenList(m_tokenContainer, QVector<int>() << cleanedLine.at(2)));
     undefDirective->setTokenSection(tokenSection);
     return true;
 }
@@ -461,7 +496,11 @@ bool Preprocessor::parsePragmaDirective(Item *group)
     pragmaDirective->setTokenSection(tokenSection);
     return true;
 }
-
+/*
+    Reads a preprocessor line from the source by advancing lexerTokenIndex and
+    returing a TokenSection containg the read line. Text lines separated by
+    an escaped newline are joined.
+*/
 TokenSection Preprocessor::readLine()
 {
     const int startIndex = lexerTokenIndex;
@@ -469,7 +508,6 @@ TokenSection Preprocessor::readLine()
 
     while(isValidIndex(lexerTokenIndex) && !gotNewline) {
         if(m_tokenTypeList.at(lexerTokenIndex) == Token_newline) {
-
             if (lexerTokenIndex == 0 || m_tokenTypeList.at(lexerTokenIndex-1) != '\\') {
                 gotNewline = true;
                 break;
@@ -486,16 +524,26 @@ TokenSection Preprocessor::readLine()
     return TokenSection(m_tokenContainer, startIndex, lexerTokenIndex - startIndex);
 }
 
+/*
+    Returns false if index is past the end of m_tokenContainer.
+*/
 inline bool Preprocessor::isValidIndex(const int index) const
 {
     return  (index < m_tokenContainer.count());
 }
 
+/*
+    Returns true if the token at index is a whitepsace token.
+*/
 inline bool Preprocessor::isWhiteSpace(const int index) const
 {
     return (m_tokenTypeList.at(index) == Token_whitespaces);
 }
 
+/*
+    Looks ahead from lexerTokenIndex, returns the token type found at the first
+    token that is not a comment or whitespace token.
+*/
 Type Preprocessor::lookAhead() const
 {
     const int index = skipWhiteSpaceAndComments();
@@ -503,7 +551,10 @@ Type Preprocessor::lookAhead() const
         return Token_eof;
     return m_tokenTypeList.at(index);
 }
-
+/*
+    Looks ahead from lexerTokenIndex, returns the token type found at the first
+    token that is not a comment, whitespace or '#' token.
+*/
 Type Preprocessor::lookAheadSkipHash() const
 {
      const int index = skipWhiteSpaceCommentsHash();
@@ -512,6 +563,10 @@ Type Preprocessor::lookAheadSkipHash() const
     return m_tokenTypeList.at(index);
 }
 
+/*
+    Returns the index for the first token after lexerTokenIndex that is not a
+    whitespace or comment token.
+*/
 inline int Preprocessor::skipWhiteSpaceAndComments() const
 {
     int index = lexerTokenIndex;
@@ -528,6 +583,10 @@ inline int Preprocessor::skipWhiteSpaceAndComments() const
     return index;
 }
 
+/*
+    Returns the index for the first token after lexerTokenIndex that is not a
+    whitespace, comment or '#' token.
+*/
 inline int Preprocessor::skipWhiteSpaceCommentsHash() const
 {
     int index = lexerTokenIndex;
@@ -545,9 +604,38 @@ inline int Preprocessor::skipWhiteSpaceCommentsHash() const
     return index;
 }
 
-QList<int> Preprocessor::cleanTokenRange(const TokenSection &tokenSection) const
+/*
+    Removes escaped newlines from tokenSection. Both the escape token ('\')
+    and the newline token ('\n') are removed.
+*/
+QVector<int> Preprocessor::cleanEscapedNewLines(const TokenSection &tokenSection) const
 {
-    QList<int> indexList;
+    QVector<int> indexList;
+
+    int t = 0;
+    const int numTokens = tokenSection.count();
+    while (t < numTokens) {
+        const int containerIndex = tokenSection.containerIndex(t);
+        const int currentToken = t;
+        ++t;
+
+        //handle escaped newlines
+		if (tokenSection.text(currentToken) == "\\"
+           && currentToken + 1 < numTokens
+           && m_tokenTypeList.at(containerIndex + 1) == Token_newline)
+             continue;
+
+        indexList.append(containerIndex);
+    }
+    return indexList;
+}
+
+/*
+    Removes escaped newlines, whitespace and comment tokens from tokenSection
+*/
+QVector<int> Preprocessor::cleanTokenRange(const TokenSection &tokenSection) const
+{
+    QVector<int> indexList;
 
     int t = 0;
     const int numTokens = tokenSection.count();
@@ -565,14 +653,16 @@ QList<int> Preprocessor::cleanTokenRange(const TokenSection &tokenSection) const
         //handle escaped newlines
         if(tokenSection.text(currentToken) == "\\" &&
            currentToken + 1 < numTokens &&
-           tokenSection.text(currentToken+1) == "\n")
+           m_tokenTypeList.at(containerIndex + 1) == Token_newline)
             continue;
 
         indexList.append(containerIndex);
     }
     return indexList;
 }
-
+/*
+    Returns the text for an Item node and all its children.
+*/
 QByteArray visitGetText(Item *item)
 {
     QByteArray text;

@@ -34,7 +34,7 @@ public:
 
 //    TranslationUnitAST *parse(FileSymbol *file, pool *p);
     TranslationUnitAST *parse(TokenStreamAdapter::TokenStream *tokenStream, pool *p);
-
+    TranslationUnitAST *parse(TokenStreamAdapter::TokenStream *tokenStream, pool *p, int targetMaxASTnodes, bool &done);
 private:
     bool reportError(const Error& err);
     /** @todo remove*/ bool reportError(const QString& msg);

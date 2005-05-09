@@ -24,7 +24,15 @@ public:
 protected:
     void parseNameUse(CodeModel::NameUse *);
     void parseMember(CodeModel::Member *member);
+
+    void createNameTypeAttribute(CodeModel::Member *member);
+    void createNameTypeAttribute(CodeModel::NameUse *nameUse);
+
 private:
+    void createNameTypeAttributeAtIndex(TokenEngine::TokenAttributes *attributes,
+                                        int index, CodeModel::Member *member);
+    bool areAttributesEnabled(const TokenEngine::TokenAttributes *attributes) const;
+
     TranslationUnit  m_translationUnit;
 };
 

@@ -71,7 +71,7 @@ QStringList PortingRules::getHeaderList(QtVersion qtVersion)
         return qt4Headers;
 }
 
-QStringList PortingRules::getNeededHeaderList()
+QHash<QByteArray, QByteArray> PortingRules::getNeededHeaders()
 {
     if(neededHeaders.isEmpty())
          addLogWarning("Warning: needed headers list is empty");
@@ -85,6 +85,12 @@ QStringList PortingRules::getInheritsQt()
     return inheritsQtClass;
 }
 
+QHash<QByteArray, QByteArray> PortingRules::getClassLibraryList()
+{
+    if(classLibraryList.isEmpty())
+        addLogWarning("Warning: classLibraryList list is empty");
+    return classLibraryList;
+}
 /*
     Loads rule xml file given by fileName, and sets up data structures.
     The rules can generally be divided into to types, replacement rules and
@@ -130,7 +136,9 @@ void PortingRules::parseXml(QString fileName)
                 checkScopeAddRule(currentRule);
             }
         } else if(ruleType == "NeedHeader") {
-            neededHeaders += currentRule["Header"].text();
+            const QByteArray className = currentRule["Class"].text().toLatin1();
+            const QByteArray headerName = currentRule["Header"].text().toLatin1();
+            neededHeaders.insert(className, headerName);
         }
         else if(ruleType == "qt3Header") {
             qt3Headers += currentRule.text();
@@ -140,6 +148,11 @@ void PortingRules::parseXml(QString fileName)
         }
         else if(ruleType == "InheritsQt") {
             inheritsQtClass += currentRule.text();
+        }
+        else if(ruleType == "Qt4Class") {
+            // Get library name, make it lowercase and chop of the "Qt" prefix.
+            const QByteArray libraryName = currentRule["Library"].text().toLatin1().toLower().mid(2);
+            classLibraryList.insert(currentRule["Name"].text().toLatin1(), libraryName);
         }
     }
 

@@ -61,8 +61,6 @@
 #define UPDATE_POS(_node, start, end) \
   do { \
       (_node)->setPosition(start, end); \
-      if (tokenStream->nodeAt(start) == 0) \
-          tokenStream->setNodeAt(start, _node); \
   } while (0)
 
 #define AST_FROM_TOKEN(node, tk) \
@@ -103,18 +101,6 @@ Parser::~Parser()
 {
 }
 
-/*
-TranslationUnitAST *Parser::parse(FileSymbol *file, pool *p)
-{
-    m_pool = p;
-    m_file = file;
-    tokenStream = file->tokenStream;
-    TranslationUnitAST *ast = 0;
-    parseTranslationUnit(ast);
-    return ast;
-}
-*/
-
 TranslationUnitAST *Parser::parse(TokenStreamAdapter::TokenStream *p_tokenStream, pool *p)
 {
    //tokenStream->rewind(0);
@@ -124,6 +110,50 @@ TranslationUnitAST *Parser::parse(TokenStreamAdapter::TokenStream *p_tokenStream
     parseTranslationUnit(ast);
     return ast;
 }
+
+/*
+    Parses a part of the translation unit given by tokenStream. When the number
+    of nodes in the AST exeeds targetMaxASTnodes, this function will return as
+    soon as possible. The progress is stored by updating the cursor inside
+    tokenStream. done is set to true if the parser finished parsing the
+    tokenStream, and to false otherwise.
+*/
+TranslationUnitAST *Parser::parse(TokenStreamAdapter::TokenStream *p_tokenStream, pool *p, int targetMaxASTNodes, bool &done)
+{
+    m_pool = p;
+    tokenStream = p_tokenStream;
+    TranslationUnitAST *ast = 0;
+    // we always create one node, so target max nodes cannot be < 2.
+    if (targetMaxASTNodes < 2)
+        targetMaxASTNodes = 2;
+
+    // Advance past whitespace and comment tokens at the start.
+    while (tokenStream->isHidden(tokenStream->cursor())) {
+        tokenStream->nextToken();
+    }
+    int start = tokenStream->cursor();
+
+    AST::N = 0;
+    m_problems = 0;
+    ast = CreateNode<TranslationUnitAST>(m_pool);
+    while (tokenStream->lookAhead() && AST::N < targetMaxASTNodes) {
+        DeclarationAST *def = 0;
+        int startDecl = tokenStream->cursor();
+        if (!parseDeclaration(def)) {
+            // error recovery
+            if (startDecl == tokenStream->cursor())
+                advance(); // skip at least one token
+            skipUntilDeclaration();
+        }
+        ast->addDeclaration(def);
+    }
+
+    UPDATE_POS(ast, start, tokenStream->cursor());
+
+    done = tokenStream->tokenAtEnd();
+    return ast;
+}
+
 
 bool Parser::reportError(const Error& err)
 {

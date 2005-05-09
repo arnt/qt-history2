@@ -14,7 +14,7 @@
 #ifndef CPPLEXER_H
 #define CPPLEXER_H
 
-#include <QList>
+#include <QVector>
 #include "tokenengine.h"
 #include "tokens.h"
 
@@ -23,9 +23,9 @@ class CppLexer
 public:
     CppLexer();
     typedef void (CppLexer::*scan_fun_ptr)(int *kind);
-    QList<Type> lex(TokenEngine::TokenSectionSequence tokenContainer);
+    QVector<Type> lex(TokenEngine::TokenSectionSequence tokenContainer);
 private:
-    Type identify(QByteArray tokenText);
+    Type identify(const TokenEngine::TokenTempRef &tokenTempRef);
     void setupScanTable();
 
     void scanChar(int *kind);
@@ -66,8 +66,9 @@ private:
         A_Whitespace = 0x04
     };
 
-    QByteArray m_buffer;
+    const char *m_buffer;
     int m_ptr;
+    int m_len;
 };
 
 #endif

@@ -23,18 +23,13 @@
 #include "parser.h"
 #include "semantic.h"
 
-
 class TranslationUnitData : public QSharedData
 {
 public:
     TranslationUnitData(const TokenEngine::TokenSectionSequence &t)
-    :tokens(t), syntaxTree(0), globalScope(0), tokenStream(0) {};
-    ~TranslationUnitData();
+    :tokens(t),  globalScope(0) {};
     TokenEngine::TokenSectionSequence tokens;
-    const TranslationUnitAST *syntaxTree;
-    const CodeModel::NamespaceScope *globalScope;
-    const TokenStreamAdapter::TokenStream *tokenStream;
-    pool memoryPool;
+    CodeModel::NamespaceScope *globalScope;
     TypedPool<CodeModel::Item> codeModelMemoryPool;
 };
 
@@ -44,16 +39,11 @@ public:
     TranslationUnit();
     TranslationUnit(const TokenEngine::TokenSectionSequence &tokens);
     TokenEngine::TokenSectionSequence tokens() const;
-    const TokenStreamAdapter::TokenStream *tokenStream() const;
-    const TranslationUnitAST *syntaxTree() const;
-    const CodeModel::NamespaceScope *codeModel() const;
-    pool *memoryPool();
+    CodeModel::NamespaceScope *codeModel();
     TypedPool<CodeModel::Item> *codeModelMemoryPool();
 private:
     friend class TranslationUnitAnalyzer;
-    void setTokenStream(const TokenStreamAdapter::TokenStream *tokenStream);
-    void setSyntaxTree(const TranslationUnitAST *syntaxTree);
-    void setCodeModel(const CodeModel::NamespaceScope *globalScope);
+    void setCodeModel(CodeModel::NamespaceScope *globalScope);
     QExplicitlySharedDataPointer<TranslationUnitData> d;
 };
 
@@ -61,11 +51,10 @@ class TranslationUnitAnalyzer
 {
 public:
     TranslationUnit analyze
-            (const TokenEngine::TokenSectionSequence &translationUnitTokens);
+            (const TokenEngine::TokenSectionSequence &translationUnitTokens, int targetMaxASTNodes = 10000);
 private:
     CppLexer lexer;
     Parser parser;
-    Semantic semantic;
 };
 
 #endif

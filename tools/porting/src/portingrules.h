@@ -16,6 +16,8 @@
 
 #include <QList>
 #include <QPair>
+#include <QHash>
+#include <QSet>
 #include <QStringList>
 #include "qtsimplexml.h"
 #include "tokenreplacements.h"
@@ -48,17 +50,21 @@ public:
     PortingRules(QString xmlFilePath);
     QList<TokenReplacement*> getTokenReplacementRules();
     QStringList getHeaderList(QtVersion qtVersion);
-    QStringList getNeededHeaderList();
+    QHash<QByteArray, QByteArray> getNeededHeaders();
     QStringList getInheritsQt();
+    QHash<QByteArray, QByteArray> getClassLibraryList();
 private:
     static PortingRules *theInstance;
 
     QList<TokenReplacement*> tokenRules;
     QStringList qt3Headers;
     QStringList qt4Headers;
-    QStringList neededHeaders;
+    QHash<QByteArray, QByteArray> neededHeaders;
     QStringList inheritsQtClass;
     QList<RuleDescription> disabledRules;
+    QHash<QByteArray, QByteArray> classLibraryList;
+
+
     void parseXml(const QString fileName);
     void checkScopeAddRule(/*const */QtSimpleXml &currentRule);
     QtSimpleXml *loadXml(const QString fileName) const ;

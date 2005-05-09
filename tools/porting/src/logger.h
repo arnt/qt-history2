@@ -26,8 +26,9 @@ class LogEntry
 {
 public:
     LogEntry(QString type, QString location);
-    virtual QString description() const =0;
     virtual ~LogEntry(){};
+    virtual QString description() const =0;
+    virtual void updateLinePos(int threshold, int delta) {Q_UNUSED(threshold); Q_UNUSED(delta)};
 protected:
     QString type; // Error, Warning, Info, etc
     QString location;// preprocessor, c++parser, porting, etc
@@ -50,6 +51,7 @@ class SourcePointLogEntry : public LogEntry
 public:
     SourcePointLogEntry(QString type, QString location, QString file, int line, int column, QString text);
     QString description() const;
+    void updateLinePos(int threshold, int delta);
 protected:
     QString file;
     int line;
@@ -73,6 +75,7 @@ public:
 
     QStringList fullReport();
     int numEntries();
+    void updateLineNumbers(int insertLine, int numLines);
     /*
         glabalState can be used for storage of application state
         together with the logger. This can be useful in some cases,

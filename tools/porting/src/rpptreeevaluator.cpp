@@ -12,17 +12,19 @@
 **
 ****************************************************************************/
 #include "rpptreeevaluator.h"
+#include <QChar>
+#include <QDebug>
 
 using namespace TokenEngine;
 namespace Rpp {
 
 RppTreeEvaluator::RppTreeEvaluator()
 {
-    QByteArray text("\n");
+    QByteArray text(" ");
     TokenEngine::Token token;
     token.start = 0;
     token.length = 1;
-    QList<TokenEngine::Token> tokenList;
+    QVector<TokenEngine::Token> tokenList;
     tokenList.append(token);
     TokenContainer newLineContainer(text, tokenList, new TokenEngine::GeneratedInfo());
     newlineSection= new TokenSection(newLineContainer, 0, 1);
@@ -42,79 +44,66 @@ TokenSectionSequence RppTreeEvaluator::evaluate(const Source *source,
     return TokenSectionSequence(m_tokenSections);
 }
 
-
-void RppTreeEvaluator::evaluateItem(const Item *item)
-{
-    if(Directive *directive = item->toDirective())
-        evaluateDirective(directive);
-    else if(IfSection *ifSection = item->toIfSection())
-        evaluateIfSection(ifSection);
-    else if (Text *text = item->toText())
-        evaluateText(text);
-}
-
-void RppTreeEvaluator::evaluateItemComposite(const ItemComposite *itemComposite)
-{
-    for(int i=0; i<itemComposite->count(); ++i) {
-        evaluateItem(itemComposite->item(i));
-    }
-}
-
-void RppTreeEvaluator::evaluateSource(const Source *source)
-{
-    evaluateItemComposite(source->toItemComposite());
-}
-
 void RppTreeEvaluator::evaluateText(const Text *textLine)
 {
     const int numTokens = textLine->count();
-   // cout << "numtokens:" << numTokens << endl;;
-    TokenContainer tokenContainer = textLine->text().tokenContainer(0);
+    const TokenContainer tokenContainer = textLine->text().tokenContainer(0);
 
     int t = 0;
     int startTokenRun = 0;
     while(t < numTokens) {
         const Token *currentToken = textLine->token(t);
         int currentContainerIndex = currentToken->index();
+        //handle macro replacements
+        if(currentToken->toIdToken()) {
+            const int tokenIndex = currentToken->index();
+            const QByteArray tokenText = tokenContainer.tempText(tokenIndex);
+            if(m_activeDefinitions->contains(tokenText)) {
+                //crate section
+                TokenSection section(tokenContainer, textLine->token(startTokenRun)->index(), t - startTokenRun);
+                m_tokenSections.append(section);
+                //evaluate macro
+                const int oldContainerIndex = currentContainerIndex;
+                TokenContainer evaluatedText = evaluateMacro(tokenContainer, currentContainerIndex);
+                TokenSection evalSection(evaluatedText, 0, evaluatedText.count());
+                m_tokenSections.append(evalSection);
+                t += currentContainerIndex - oldContainerIndex;
+                startTokenRun = t;
+            }
+            ++t;
+            continue;
+        }
 
         //handle comments
         if(currentToken->toLineComment() || currentToken->toMultiLineComment()) {
             //create section
             TokenSection section(tokenContainer, textLine->token(startTokenRun)->index(), t - startTokenRun );
             m_tokenSections.append(section);
-            ++t; //skip comment
+            t++; //skip comment
             startTokenRun = t;
+            t++;
+            continue;
         }
 
         // handle escaped newlines
-        // TODO handle other escaped stuff
-        if (tokenContainer.text(currentContainerIndex) == "\\" )   {
-            if(tokenContainer.text(currentContainerIndex + 1 ) == "\n") {
-                //create section
+		if (currentContainerIndex + 1 < numTokens) {
+            const TokenTempRef tokenRef1 = tokenContainer.tokenTempRef(currentContainerIndex);
+            const TokenTempRef tokenRef2 = tokenContainer.tokenTempRef(currentContainerIndex + 1);
+			// This is i slight hack. We want to check if the next token is a newline token,
+			// but since we don't have any lexical info at this point we just check if it starts
+			// with \r or \n
+			if (tokenRef1.at(0) == '\\' && (tokenRef2.at(0) == '\n' || tokenRef2.at(0) == '\r')) {
+				//create section
                 TokenSection section(tokenContainer, textLine->token(startTokenRun)->index(), t - startTokenRun );
                 m_tokenSections.append(section);
                 t += 2;
                 startTokenRun = t;
+                t++;
+                continue;
             }
         }
 
-        //handle macro replacements
-        if(currentToken->toIdToken()) {
-            const int tokenIndex = currentToken->index();
-            const QByteArray tokenText = tokenContainer.text(tokenIndex);
-            if(m_activeDefinitions->contains(tokenText)) {
-                //crate section
-                TokenSection section(tokenContainer, textLine->token(startTokenRun)->index(), t - startTokenRun  );
-                m_tokenSections.append(section);
-                //evaluate macro
-                TokenContainer evaluatedText = evaluateMacro(tokenContainer, currentContainerIndex);
-                TokenSection evalSection(evaluatedText, 0, evaluatedText.count());
-                m_tokenSections.append(evalSection);
-                t = currentContainerIndex;
-                startTokenRun = t;
-            }
-        }
-        ++t;
+        t++;
     }
     //round up any tokens at the end and put them in a section
     if(t - startTokenRun > 1) {
@@ -123,17 +112,6 @@ void RppTreeEvaluator::evaluateText(const Text *textLine)
     }
 
     m_tokenSections.append(*newlineSection);
-}
-
-void RppTreeEvaluator::evaluateDirective(const Directive *directive)
-{
-    Q_ASSERT(directive);
-    if(IncludeDirective *dir = directive->toIncludeDirective())
-        evaluateIncludeDirective(dir);
-    else if(DefineDirective *dir = directive->toDefineDirective())
-        evaluateDefineDirective(dir);
-    else if(UndefDirective *dir = directive->toUndefDirective())
-        evaluateUndefDirective(dir);
 }
 
 /*
@@ -148,7 +126,7 @@ void RppTreeEvaluator::evaluateIfSection(const IfSection *ifSection)
         return;
     }
 
-    QList<ConditionalDirective *> elifGroups = ifSection->elifGroups();
+    QVector<ConditionalDirective *> elifGroups = ifSection->elifGroups();
     foreach(ConditionalDirective *elifGroup, elifGroups) {
         if(evaluateCondition(elifGroup)) {
             evaluateConditionalDirective(elifGroup);
@@ -160,18 +138,10 @@ void RppTreeEvaluator::evaluateIfSection(const IfSection *ifSection)
     if(elseGroup)
         evaluateConditionalDirective(elseGroup);
 }
-/*
-    Every conditionaldirective is an ItemComposite, so we evaluate that.
-*/
-void RppTreeEvaluator::evaluateConditionalDirective(const ConditionalDirective *conditionalDirective)
-{
-    if (ItemComposite *itemComposite = conditionalDirective->toItemComposite())
-        evaluateItemComposite(itemComposite);
-}
 
 /*
     Evaluate an IncludeDirective by evaluating the Source for the included
-    file. The source is found by emitting the  includeCallback signal, which
+    file. The source is found by emitting the includeCallback signal, which
     must be handled outside RppTreeEvaluator.
 */
 void RppTreeEvaluator::evaluateIncludeDirective(const IncludeDirective *directive)
@@ -181,7 +151,7 @@ void RppTreeEvaluator::evaluateIncludeDirective(const IncludeDirective *directiv
     Source *newSource = 0;
     emit includeCallback(newSource, currentSource, directive->filename(), includeType);
     Q_ASSERT(newSource);    // If you get an assert here you probably
-                            // forgot to connect to the includeCallack signal
+                            // forgot to connect to the includeCallback signal
     evaluateSource(newSource);
 }
 
@@ -263,7 +233,7 @@ int RppTreeEvaluator::evaluateExpression(Expression *expression)
         switch (e->op()) {
             case '/': { return v2 ? v1 / v2 : 0; } //avoid division by zero
             case '*':                  return v1 * v2;
-            case '%':                  return v1 % v2;
+            case '%': { return v2 ? v1 % v2 : 0; } //avoid modulus by zero
             case '+':                  return v1 + v2;
             case '-':                  return v1 - v2;
             case '<':                  return v1 < v2;
@@ -287,31 +257,127 @@ int RppTreeEvaluator::evaluateExpression(Expression *expression)
     }
     return 0;
 }
+/*
+    Expands a macro at index identiferTokenIndex in tokenContainer. Returns
+    the expanded macro text, and updates identiferTokenIndex to point after
+    the last token consumed.
 
+    Given the construct 'FN(a)', the '(a)' part will be consumed if FN is
+    defined to be a macro function, but not if it is an ordenary macro.
+*/
 TokenContainer RppTreeEvaluator::evaluateMacro(TokenContainer tokenContainer, int &identiferTokenIndex)
 {
     QByteArray identifierText = tokenContainer.text(identiferTokenIndex);
-
     if(!m_activeDefinitions->contains(identifierText))
         return TokenContainer();
 
     const Rpp::DefineDirective *directive = m_activeDefinitions->value(identifierText);
     Q_ASSERT(directive);
 
-    if(Rpp::MacroDefinition *macro = directive->toMacroDefinition()) {
-        ++identiferTokenIndex;
-        return cloneTokenList(macro->replacementList());
-    } else if (Rpp::MacroFunctionDefinition *macro = directive->toMacroFunctionDefinition()) {
-        Q_UNUSED(macro);
-    }
+    // To prevent infinite recursive macro expansions, the skip set contains
+    // a set of identifers already seen.
+    QSet<QByteArray> skip;
 
+    if(directive->toMacroDefinition()) {
+        ++identiferTokenIndex;
+        QVector<TokenEngine::Token> tokenList;
+        tokenList.append(TokenEngine::Token(0, identifierText.count()));
+        return evaluateMacroInternal(skip, TokenContainer(identifierText, tokenList));
+    } else if (Rpp::MacroFunctionDefinition *macro = directive->toMacroFunctionDefinition()) {
+        MacroFunctionParser macroFunctionParser(tokenContainer, identiferTokenIndex);
+        if (macroFunctionParser.isValid() && macro->parameters().count() ==  macroFunctionParser.argumentCount()) {
+            TokenContainer macroFunctionContainer =
+                TokenEngine::copy(tokenContainer, identiferTokenIndex, macroFunctionParser.tokenCount());
+            identiferTokenIndex += macroFunctionParser.tokenCount();
+            return evaluateMacroInternal(skip, macroFunctionContainer);
+        } else {
+            // Error case, such as calling a macro function with the wrong number of parameters,
+            // or calling a macro function witout a parameter list.
+            return TokenEngine::copy(tokenContainer, identiferTokenIndex++, 1);
+        }
+    }
     return TokenContainer();
+}
+
+/*
+    Recursively expands all macroes in macroInvokeTokens, returns a
+    TokenContainer with the new tokens.
+*/
+TokenEngine::TokenContainer RppTreeEvaluator::evaluateMacroInternal(QSet<QByteArray> skip, TokenEngine::TokenContainer macroInvokeTokens)
+{
+    bool changed = false;
+    QByteArray tokenText;
+    QVector<TokenEngine::Token> tokenList;
+    const int numTokens = macroInvokeTokens.count();
+
+    for (int t = 0; t < numTokens; ++t) {
+        const QByteArray identifierText = macroInvokeTokens.text(t);
+
+        // if the current token text is not a part of a macro definition we just copy it.
+        if (!m_activeDefinitions->contains(identifierText)) {
+            tokenList.append(TokenEngine::Token(tokenText.count(), identifierText.count()));
+            tokenText.append(identifierText);
+            continue;
+        }
+
+        // If the token text is in the skip list we copy it.
+         if (skip.contains(identifierText)) {
+            tokenList.append(TokenEngine::Token(tokenText.count(), identifierText.count()));
+            tokenText.append(identifierText);
+            continue;
+        }
+
+        skip.insert(identifierText);
+        changed = true;
+        const Rpp::DefineDirective *directive = m_activeDefinitions->value(identifierText);
+        Q_ASSERT(directive);
+        // if it is a macro, we copy in the replacement list.
+        if (Rpp::MacroDefinition *macro = directive->toMacroDefinition()) {
+            TokenList replacementList = macro->replacementList();
+            TokenEngine::copy(tokenText, tokenList, replacementList, 0, replacementList.count());
+
+            // To avoid infinite loops, set changed to false if the replacement
+            // text is identical to the identifier text.
+            if (replacementList.fullText().simplified() == identifierText.simplified())
+                changed = false;
+        } else if (Rpp::MacroFunctionDefinition *macro = directive->toMacroFunctionDefinition()) {
+            TokenList replacementList = macro->replacementList();
+            TokenList paramenterList =  macro->parameters();
+
+            MacroFunctionParser macroFunctionParser(macroInvokeTokens, t);
+            if (macroFunctionParser.isValid() && macro->parameters().count() == macroFunctionParser.argumentCount()) {
+                t += macroFunctionParser.tokenCount();
+                // For each token in the replacement list: If the token matches a
+                // token in the parameter list, replace it with the
+                // corresponding argument tokens from the argument list.
+                for (int replacementToken = 0; replacementToken < replacementList.count(); ++replacementToken) {
+                    const QByteArray replacementTokenText = replacementList.text(replacementToken);
+                    bool replaced = false;
+                    for (int parameterToken = 0; parameterToken < paramenterList.count(); ++parameterToken) {
+                        const QByteArray parameterTokenText = paramenterList.text(parameterToken);
+                        if (parameterTokenText == replacementTokenText) {
+                            TokenSection argumentTokenSection = macroFunctionParser.argument(parameterToken);
+                            TokenEngine::copy(tokenText, tokenList, argumentTokenSection, 0, argumentTokenSection.count());
+                            replaced = true;
+                            break;
+                        }
+                    }
+                    if (! replaced) {
+                        TokenEngine::copy(tokenText, tokenList, replacementList, replacementToken, 1);
+                    }
+                }
+            }
+        }
+    }
+    if (!changed)
+        return macroInvokeTokens;
+    return evaluateMacroInternal(skip, TokenContainer(tokenText, tokenList));
 }
 
 TokenContainer RppTreeEvaluator::cloneTokenList(const TokenList &list)
 {
     QByteArray text;
-    QList<TokenEngine::Token> tokens;
+    QVector<TokenEngine::Token> tokens;
     int index = 0;
     for (int t = 0; t<list.count(); ++t) {
         const QByteArray tokenText = list.text(t);
@@ -328,7 +394,7 @@ TokenContainer RppTreeEvaluator::cloneTokenList(const TokenList &list)
 }
 
 /*
-    returns the parent Source for a given item.
+    Returns the parent Source for a given item.
 */
 Source *RppTreeEvaluator::getParentSource(const Item *item) const
 {
@@ -341,7 +407,7 @@ Source *RppTreeEvaluator::getParentSource(const Item *item) const
     return item->toSource();
 }
 /*
-    We have to IncludeType enums, one in IncludeDirective and one in
+    We have two IncludeType enums, one in IncludeDirective and one in
     RppTreeEvaluator. This function translates between them.
 */
 RppTreeEvaluator::IncludeType RppTreeEvaluator::includeTypeFromDirective(
@@ -351,6 +417,105 @@ RppTreeEvaluator::IncludeType RppTreeEvaluator::includeTypeFromDirective(
         return QuoteInclude;
     else
         return AngleBracketInclude;
+}
+
+/*
+    The MacrofunctionParser class is used to parse a macro function call (not
+    a macro function definition.)
+
+    startToken should give the token index for the identifier token for the macro function.
+*/
+MacroFunctionParser::MacroFunctionParser(const TokenEngine::TokenContainer &tokenContainer, int startToken)
+:m_tokenContainer(tokenContainer)
+,m_startToken(startToken)
+,m_numTokens(0)
+,m_valid(false)
+{
+    int tokenIndex = startToken;
+    ++tokenIndex; //skip identifier token
+    int parenthesisCount = 0;
+    int currentArgumentStartToken = tokenIndex;
+
+    // Parse argument tokens, add arguments to the m_arguments list.
+    // Arguments may consist of multiple tokens. Parenthesis in arguments
+    // are allowed, as long as they match. Inside a pair of argument
+    // parenthesis, ',' no longer signals a new argument. For example,
+    // FN((a,b)) is legal and contains one argument.
+    while(tokenIndex < tokenContainer.count()) {
+        QByteArray currentText = tokenContainer.text(tokenIndex);
+        ++tokenIndex;
+        if (currentText == "(") {
+            ++parenthesisCount;
+            if (parenthesisCount == 1) {
+                // first parenthesis
+                currentArgumentStartToken = tokenIndex;
+                continue;
+            }
+        }
+        if (currentText == ")") {
+            --parenthesisCount;
+            if (parenthesisCount == 0) {
+                //end of argument
+                m_arguments.append(TokenSection(tokenContainer, currentArgumentStartToken, tokenIndex - currentArgumentStartToken - 1));
+                currentArgumentStartToken = tokenIndex;
+                //end of argument list
+                break;
+            }
+        }
+        if (currentText == "," && parenthesisCount == 1) {
+            //end of argument
+            m_arguments.append(TokenSection(tokenContainer, currentArgumentStartToken, tokenIndex - currentArgumentStartToken - 1));
+            currentArgumentStartToken = tokenIndex;
+            continue;
+        }
+
+        if (QChar(currentText.at(0)).isSpace()) {
+            continue;
+        }
+
+        // If we get here without having seen a paranthesis we have a syntax
+        // error in the macro function call.
+        if (parenthesisCount == 0) {
+            parenthesisCount = -1;
+            break;
+        }
+    }
+    m_numTokens = tokenIndex - startToken;
+    m_valid = (parenthesisCount == 0);
+}
+
+/*
+    Returns true if the MacroFunctionParser contains a valid macro function
+*/
+bool MacroFunctionParser::isValid()
+{
+    return m_valid;
+}
+
+/*
+    Returns the number of tokens in the tokenContainer that is covered by
+    the macro function.
+*/
+int MacroFunctionParser::tokenCount()
+{
+    return m_numTokens;
+}
+
+/*
+    Returns the number of arguments for the macro function.
+*/
+int MacroFunctionParser::argumentCount()
+{
+    return m_arguments.count();
+}
+
+/*
+    Returns the tokens for the argument given by argumentIndex.
+*/
+TokenSection MacroFunctionParser::argument(int argumentIndex)
+{
+    Q_ASSERT(argumentIndex < m_arguments.count());
+    return m_arguments.at(argumentIndex);
 }
 
 

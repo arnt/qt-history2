@@ -29,6 +29,7 @@ public:
                 QString overwriteMessage = QString());
     bool writeFile(QString filePath, QByteArray contents);
     bool writeFileVerbously(QString filePath, QByteArray contents);
+    void setOverwriteFiles(OverWriteFiles writeMode);
 private:    
     QMap<QString, int> processedFilesSet;
     OverWriteFiles overWriteFiles;

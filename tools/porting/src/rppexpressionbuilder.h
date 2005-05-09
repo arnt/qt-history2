@@ -24,13 +24,14 @@ namespace Rpp {
 class ExpressionBuilder
 {
 public:
-    ExpressionBuilder(const TokenEngine::TokenList &tokenList, const QList<Type> &typeList, TypedPool<Item> *memoryPool);
+    ExpressionBuilder(const TokenEngine::TokenList &tokenList, const QVector<Type> &typeList, TypedPool<Item> *memoryPool);
     Rpp::Expression *parse();
 private:
 
     inline bool hasNext() const { return (i < m_tokenList.count()); }
     Type next();
     bool test(int);
+    bool moreTokens(int delta);
     inline void prev() {--i;}
     Type lookup(int k = 1);
     inline Type token() { return typeAt(i-1);}
@@ -64,7 +65,7 @@ private:
 
     int i;
     TokenEngine::TokenList m_tokenList;
-    QList<Type> m_typeList;
+    QVector<Type> m_typeList;
     TypedPool<Item> *m_memoryPool;
 };
 

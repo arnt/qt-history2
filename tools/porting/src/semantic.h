@@ -23,85 +23,73 @@
 #include "codemodel.h"
 #include "tokenstreamadapter.h"
 
-class TokenStream;
-class QByteArray;
-
 class Semantic: public QObject, public TreeWalker
 {
 Q_OBJECT
 public:
-    Semantic();
-    virtual ~Semantic();
+    Semantic(CodeModel::NamespaceScope *globalScope,
+             TokenStreamAdapter::TokenStream *tokenStream,
+             TypedPool<CodeModel::Item> *storage);
 
-    CodeModel::NamespaceScope *parseTranslationUnit( TranslationUnitAST *node,
-            TokenStreamAdapter::TokenStream *tokenStream, TypedPool<CodeModel::Item> *storage);
+    void parseAST(TranslationUnitAST *node);
 signals:
     void error(const QByteArray &message);
     void warning(const QByteArray &message);
 protected:
     virtual void parseNamespace(NamespaceAST *);
     virtual void parseClassSpecifier(ClassSpecifierAST *);
-
+    virtual void parseElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *node);
     virtual void parseSimpleDeclaration(SimpleDeclarationAST *);
     virtual void parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST *typeSpec, InitDeclaratorAST *decl);
     virtual void parseFunctionDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST *typeSpec, InitDeclaratorAST *decl);
     virtual void parseFunctionArguments(const DeclaratorAST *declarator, CodeModel::FunctionMember *method);
-
     virtual void parseFunctionDefinition(FunctionDefinitionAST *);
     virtual void parseStatementList(StatementListAST *);
-
     virtual void parseBaseClause(BaseClauseAST *baseClause, CodeModel::ClassScope * klass);
-
     virtual void parseLinkageSpecification(LinkageSpecificationAST *);
     virtual void parseUsing(UsingAST *);
     virtual void parseUsingDirective(UsingDirectiveAST *);
-
     virtual void parseExpression(AbstractExpressionAST*);
     virtual void parseExpressionStatement(ExpressionStatementAST *node);
     virtual void parseClassMemberAccess(ClassMemberAccessAST *node);
-
     virtual void parseNameUse(NameAST*);
-
     virtual void parseEnumSpecifier(EnumSpecifierAST *);
     virtual void parseTypedef(TypedefAST *);
-
     virtual void parseTypeSpecifier(TypeSpecifierAST *);
-    CodeModel::Scope *lookupScope(CodeModel::Scope *baseScope, const NameAST* name);
 
     QList<CodeModel::Member *> nameLookup(CodeModel::Scope *baseScope, const NameAST* name);
     QList<CodeModel::Member *> unqualifiedNameLookup(CodeModel::Scope *baseScope, const NameAST* name);
     QList<CodeModel::Member *> qualifiedNameLookup(CodeModel::Scope *baseScope, const NameAST* name);
     QList<CodeModel::Member *> lookupNameInScope(CodeModel::Scope *scope, const NameAST* name);
-    CodeModel::TypeMember *typeLookup(CodeModel::Scope *baseScope, const NameAST* name);
 
+    CodeModel::TypeMember *typeLookup(CodeModel::Scope *baseScope, const NameAST* name);
     CodeModel::FunctionMember *functionLookup(CodeModel::Scope *baseScope,  const DeclaratorAST *functionDeclarator);
+    CodeModel::Scope *scopeLookup(CodeModel::Scope *baseScope, const NameAST* name);
     CodeModel::FunctionMember *selectFunction(QList<CodeModel::Member*> candidatateList, const DeclaratorAST *functionDeclarator);
-private:
-    CodeModel::NamespaceScope *findOrInsertNamespace(NamespaceAST *ast, const QByteArray &name);
+
     QByteArray typeOfDeclaration(TypeSpecifierAST *typeSpec, DeclaratorAST *declarator);
     QList<QByteArray> scopeOfName(NameAST *id, const QList<QByteArray> &scope);
     QList<QByteArray> scopeOfDeclarator(DeclaratorAST *d, const QList<QByteArray> &scope);
-
     QByteArray declaratorToString(DeclaratorAST* declarator, const QByteArray& scope = QByteArray(), bool skipPtrOp = false);
     QByteArray typeSpecToString(TypeSpecifierAST* typeSpec);
-    QByteArray textOf(AST *node) const;
+
+    QByteArray textOf(const AST *node) const;
     void createNameUse(CodeModel::Member *member, NameAST *name);
     void addNameUse(AST *node, CodeModel::NameUse *nameUse);
     CodeModel::NameUse *findNameUse(AST *node);
+    TokenEngine::TokenRef tokenRefFromAST(AST *node);
 private:
     TokenStreamAdapter::TokenStream *m_tokenStream;
     TypedPool<CodeModel::Item> *m_storage;
-
-    QList<QList<QByteArray> > m_imports;
     CodeModel::Member::Access m_currentAccess;
     bool m_inSlots;
     bool m_inSignals;
-    int m_anon;
     bool m_inStorageSpec;
     bool m_inTypedef;
 
     QMap<int, CodeModel::NameUse *> m_nameUses;
     QStack<CodeModel::Scope *> currentScope;
+    CodeModel::TypeMember *m_sharedUnknownMember;
 private:
     Semantic(const Semantic &source);
     void operator = (const Semantic &source);

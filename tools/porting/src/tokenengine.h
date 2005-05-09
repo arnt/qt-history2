@@ -15,7 +15,7 @@
 
 #include <iostream>
 #include <QByteArray>
-#include <QList>
+#include <QVector>
 #include <QString>
 #include <QSharedData>
 #include <QSharedDataPointer>
@@ -73,8 +73,13 @@ class TokenContainer;
     storage is not reffered to here, Token needs to be used together with
     a TokenContainer in order to be useful.
 */
-struct Token
+class Token
 {
+public:
+    Token()
+    :start(0), length(0) {}
+    Token(int p_start, int p_lenght)
+    :start(p_start), length(p_lenght) {}
     int start;
     int length;
 };
@@ -119,6 +124,8 @@ public:
 class TokenAttributes
 {
 public:
+    void addAttribute(const QByteArray &name,  const QByteArray &value);
+    QByteArray attribute(const QByteArray &name) const;
     void addAttribute(const int index, const QByteArray &name,  const QByteArray &value);
     QByteArray attribute(const int index, const QByteArray &name) const;
 
@@ -129,26 +136,8 @@ private:
 
 
 /*
-    Main interface for the tokenEngine classes. The classes does not actually
-    inheret this interface, they implement the same functions. Use the
-    TokenSequenceAdapter to get a class that inherits TokenSequence.
-*/
-class TokenSequence
-{
-public:
-    virtual ~TokenSequence() {}
-    virtual int count() const = 0;
-    virtual QByteArray text(const int index) const = 0;
-    virtual TokenContainer tokenContainer(const int index) const = 0;
-    virtual int containerIndex(const int index) const = 0;
-
-//a bi-directional iterator, wich will be faster that the above random-access interface
-//  TokenSequenceIterator iterator(int index)
-};
-
-/*
     A TokenSequence that stores text and tokens referencing
-    that text;
+    that text.
 */
 class TokenContainerData : public QSharedData
 {
@@ -158,18 +147,19 @@ public:
     ~TokenContainerData()
     {delete tokenAttributes; delete typeInfo; }
     QByteArray text;
-    QList<Token> tokens;
+    QVector<Token> tokens;
     TypeInfo *typeInfo;
     TokenAttributes *tokenAttributes;
 };
-
+class TokenTempRef;
 class TokenContainer
 {
 public:
     TokenContainer();
-    TokenContainer(QByteArray text, QList<Token> tokens, TypeInfo *typeInfo = 0);
+    TokenContainer(QByteArray text, QVector<Token> tokens, TypeInfo *typeInfo = 0);
     int count() const;
     QByteArray text(const int index) const;
+    QByteArray tempText(const int index) const;
     QByteArray fullText() const;
     TokenContainer tokenContainer(const int index) const;
     inline int containerIndex(const int index) const
@@ -180,7 +170,10 @@ public:
     const TokenAttributes *tokenAttributes() const;
     int line(int index) const;
     int column(int index) const;
+    TokenTempRef tokenTempRef(const int index) const;
 private:
+    const QByteArray &textRef()
+    { return d->text; }
     QExplicitlySharedDataPointer<TokenContainerData> d;
 };
 
@@ -197,6 +190,8 @@ public:
     { return m_index == -1 ? 0 : 1; }
     inline QByteArray text(const int index = 0) const
     { Q_UNUSED(index); return m_tokenContainer.text(m_index);  }
+    inline QByteArray tempText(const int index) const
+    { Q_UNUSED(index); return m_tokenContainer.tempText(m_index);  }
     inline QByteArray fullText() const
     { return text(); }
     inline TokenContainer tokenContainer(const int index = 0) const
@@ -206,6 +201,26 @@ public:
 private:
     TokenContainer m_tokenContainer;
     int m_index;
+};
+
+/*
+    A temporary reference to a single token in a container. This reference does
+    not increase the refcount on the TokenContainer.
+*/
+class TokenTempRef
+{
+public:
+    TokenTempRef(const char *text, int length)
+    : m_text(text), m_length(length) {}
+    inline const char *constData() const
+    { return m_text; }
+    inline int length() const
+    { return m_length; }
+    char at(int index) const
+    { Q_ASSERT(index < m_length);  return m_text[index]; }
+private:
+    const char *m_text;
+    int m_length;
 };
 
 /*
@@ -227,12 +242,23 @@ public:
         Q_ASSERT(cIndex < m_tokenContainer.count());
         return m_tokenContainer.text(cIndex);
     }
+    inline QByteArray tempText(const int index) const
+    {
+        const int cIndex = containerIndex(index);
+        Q_ASSERT(cIndex < m_tokenContainer.count());
+        return m_tokenContainer.tempText(cIndex);
+    }
     QByteArray fullText() const;
-    inline TokenContainer tokenContainer(const int index) const
+    inline TokenContainer tokenContainer(const int index = 0) const
     { Q_UNUSED(index); return m_tokenContainer; }
     inline int containerIndex(const int index) const
     { return m_start + index; }
-
+    TokenTempRef tokenTempRef(const int index) const
+    {
+        const int cIndex = containerIndex(index);
+        Q_ASSERT(cIndex < m_tokenContainer.count());
+        return m_tokenContainer.tokenTempRef(cIndex);
+    }
 private:
     TokenContainer m_tokenContainer;
     int m_start;
@@ -246,7 +272,7 @@ class TokenList
 {
 public:
     TokenList() {};
-    TokenList(TokenContainer tokenContainer, QList<int> tokenList)
+    TokenList(TokenContainer tokenContainer, QVector<int> tokenList)
     :m_tokenContainer(tokenContainer), m_tokenList(tokenList) {}
     inline int count() const
     { return m_tokenList.count(); }
@@ -256,6 +282,12 @@ public:
         Q_ASSERT(cIndex < m_tokenContainer.count());
         return m_tokenContainer.text(cIndex);
     }
+    inline QByteArray tempText(const int index) const
+    {
+        const int cIndex = containerIndex(index);
+        Q_ASSERT(cIndex < m_tokenContainer.count());
+        return m_tokenContainer.tempText(cIndex);
+    }
     QByteArray fullText() const;
     inline TokenContainer tokenContainer(const int index) const
     { Q_UNUSED(index); return m_tokenContainer; }
@@ -264,51 +296,56 @@ public:
 
 private:
     TokenContainer m_tokenContainer;
-    QList<int> m_tokenList;
+    QVector<int> m_tokenList;
 };
 
 /*
-    Combines a list of TokenSequences into one TokenSequence
+    Combines a list of TokenSequences into one TokenSectionSequence
 */
+class TokenSectionSequenceIterator;
 class TokenSectionSequence
 {
 public:
     TokenSectionSequence() :m_count(0) {};
-    TokenSectionSequence(QList<TokenSection> tokenSections);
-    int count() const;
-    QByteArray text(const int index) const;
+    TokenSectionSequence(QVector<TokenSection> tokenSections);
+
     QByteArray fullText() const;
+    int count() const;
+    QVector<TokenSection> tokenSections() const;
+
+    //random access interface, access time is linear on the number of sections
+    QByteArray text(const int index) const;
+    QByteArray tempText(const int index) const;
     TokenContainer tokenContainer(const int index) const;
     int containerIndex(const int index) const;
+
 protected:
     int findSection(const int index) const;
     int calculateInternalIndex(const int index, const int sectionIndex) const;
 private:
-    QList<TokenSection> m_tokenSections;
-    QList<int> m_startIndexes;
+    QVector<TokenSection> m_tokenSections;
+    QVector<int> m_startIndexes;
     int m_count;
+    friend class TokenSectionSequenceIterator;
 };
 
-/*
-      Adapts classes that provides the TokenSequence interface
-      to a TokenSequence derived class.
-*/
-template <typename TokenSequenceType>
-class TokenSequenceAdapter : public TokenSequence
+//sequental access interface, constant access time.
+class TokenSectionSequenceIterator
 {
 public:
-    TokenSequenceAdapter(const TokenSequenceType &tokenSequenceObject)
-    :m_tokenSequenceObject(tokenSequenceObject) {}
-    int count() const
-    { return m_tokenSequenceObject.count(); }
-    QByteArray text(const int index) const
-    { return m_tokenSequenceObject.text(index); }
-    TokenContainer tokenContainer(const int index) const
-    { return m_tokenSequenceObject.tokenContainer(index); }
-    int containerIndex(const int index) const
-    { return m_tokenSequenceObject.containerIndex(index); }
+    TokenSectionSequenceIterator(const TokenSectionSequence &tokenSectionSequence);
+    void reset();
+    bool nextToken();
+    QByteArray text() const;
+    QByteArray tempText() const;
+    TokenContainer tokenContainer() const;
+    int containerIndex() const;
+    TokenTempRef tokenTempRef() const;
 private:
-    TokenSequenceType m_tokenSequenceObject;
+    int m_currentSection;
+    int m_currentToken;    // token index in currentTokenSequence;
+    const int m_numSections;
+    const TokenSectionSequence &m_tokenSectionSequence;
 };
 
 template <typename TokenSequence>
@@ -321,6 +358,38 @@ QByteArray getText(TokenSequence tokenSequence)
     return text;
 }
 
+/*
+    Append the text and the tokens from the range [startToken, startToken + numTokens>
+    to text and tokenList.
+*/
+template <typename TokenSequenceType>
+void copy(QByteArray &text, QVector<TokenEngine::Token> &tokenList, const TokenSequenceType &tokenSequence, int startToken, int numTokens)
+{
+    const int endToken = startToken + numTokens;
+    int textIndex = text.count();
+    for(int t = startToken; t < endToken; ++t) {
+        const QByteArray tokenText = tokenSequence.text(t);
+        const int tokenLength = tokenText.count();
+        TokenEngine::Token token(textIndex, tokenLength);
+        tokenList.append(token);
+        text += tokenSequence.text(t);
+        textIndex += tokenText.count();
+    }
+}
+
+/*
+    Copy a the range [startToken, startToken + numTokens> from a tokenSequence to a new
+    TokenConrtainer.
+*/
+template <typename TokenSequenceType>
+TokenContainer copy(const TokenSequenceType &tokenSequence, int startToken, int numTokens)
+{
+    QByteArray containerText;
+    QVector<Token> tokens;
+    tokens.reserve(numTokens);
+    TokenEngine::copy(containerText, tokens, tokenSequence, startToken, numTokens);
+    return TokenContainer(containerText, tokens);
+}
 
 } //namespace TokenEngine
 

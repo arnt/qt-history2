@@ -62,6 +62,7 @@ void CppLexer::setupScanTable()
             s_scan_table[i] = &CppLexer::scanOperator;
             break;
 
+        case '\r':
         case '\n':
             s_scan_table[i] = &CppLexer::scanNewline;
             break;
@@ -92,22 +93,24 @@ void CppLexer::setupScanTable()
     s_scan_table[128] = &CppLexer::scanUnicodeChar;
 }
 
-QList<Type> CppLexer::lex(TokenSectionSequence tokenContainer)
+QVector<Type> CppLexer::lex(TokenSectionSequence tokenSectionSequence)
 {
-    QList<Type> tokenTypes;
-    const int numTokens = tokenContainer.count();
-    for(int t=0; t<numTokens; ++t) {
-        tokenTypes.append(identify(tokenContainer.text(t)));
+    QVector<Type> tokenTypes;
+    tokenTypes.reserve(tokenSectionSequence.count());
+    TokenSectionSequenceIterator it(tokenSectionSequence);
+    while(it.nextToken()) {
+        tokenTypes.append(identify(it.tokenTempRef()));
     }
     return tokenTypes;
 }
 
-Type CppLexer::identify(QByteArray tokenText)
+Type CppLexer::identify(const TokenTempRef &tokenTempRef)
 {
-    Q_ASSERT(tokenText.count() > 0 );
-    const unsigned char ch = tokenText[0];
-    m_buffer = tokenText;
+    Q_ASSERT(tokenTempRef.length() >= 0 );
+    m_buffer = tokenTempRef.constData();
+    m_len = tokenTempRef.length();
     m_ptr = 0;
+    const unsigned char ch = m_buffer[0];
     int kind = 0;
     (this->*s_scan_table[ch < 128 ? ch : 128])(&kind);
     return (Type)kind;
@@ -1105,18 +1108,11 @@ void CppLexer::scanChar(int *kind)
 void CppLexer::scanWhiteSpaces(int *kind)
 {
     *kind = Token_whitespaces;
-
-    while (unsigned char ch = m_buffer[m_ptr]) {
-        if (s_attr_table[ch] & A_Whitespace)
-            ++m_ptr;
-        else
-            break;
-    }
 }
 
 void CppLexer::scanNewline(int *kind)
 {
-    *kind = m_buffer[0];
+    *kind = '\n';
 }
 
 void CppLexer::scanUnicodeChar(int *kind)
@@ -1136,9 +1132,8 @@ void CppLexer::scanStringLiteral(int *kind)
 
 void CppLexer::scanIdentifier(int *kind)
 {
-    int len = m_buffer.count();
-    if (len <16)
-        (this->*s_scan_keyword_table[len])(kind);
+    if (m_len <16)
+        (this->*s_scan_keyword_table[m_len])(kind);
     else
         (this->*s_scan_keyword_table[0])(kind);
 }

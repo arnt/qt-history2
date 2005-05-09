@@ -104,3 +104,12 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
     cout << ". Is it write protected?" << endl;
     return false;
 }
+
+/*
+    Sets the write mode for the file writer. writeMode is one of
+    DontOverWrite, AlwaysOverWrite, AskOnOverWrite.
+*/
+void FileWriter::setOverwriteFiles(OverWriteFiles writeMode)
+{
+    overWriteFiles = writeMode;
+}

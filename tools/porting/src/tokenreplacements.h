@@ -101,13 +101,16 @@ private:
 class ScopedTokenReplacement : public TokenReplacement
 {
 public:
-    ScopedTokenReplacement(QByteArray oldToken, QByteArray newToken);
+    ScopedTokenReplacement(const QByteArray &oldToken, const QByteArray &newToken);
     bool doReplace(const TokenEngine::TokenContainer &tokenContainer,
                    int tokenIndex, TextReplacements &textReplacements);
     QByteArray getReplaceKey();
 private:
-    QByteArray oldToken;
-    QByteArray newToken;
+    QByteArray oldName;
+    QByteArray oldScope;
+    QByteArray newName;
+    QByteArray newScope;
+    QByteArray newScopedName;
 };
 
 class QualifiedNameParser

@@ -21,7 +21,6 @@
 #include <QFile>
 #include <QByteArray>
 #include <QDir>
-#include <QMap>
 #include <QMultiMap>
 #include "tokenengine.h"
 #include "rpplexer.h"
@@ -255,10 +254,13 @@ struct Text: public Item
     TokenEngine::TokenSection text() const
     { return m_tokenSection; }
 
-    QList<TokenEngine::TokenSection> cleanedText() const
+    QVector<TokenEngine::TokenSection> cleanedText() const
     { return m_cleanedSection; }
 
-     void addToken(Token *token)
+    void setTokens( const QVector<Token *> &tokens )
+    { m_tokens = tokens; }
+
+    void addToken(Token *token)
     {m_tokens.append(token);}
 
     Token *token(int index) const
@@ -267,14 +269,14 @@ struct Text: public Item
     inline int count() const
     {return m_tokens.count();}
 
-    QList<Token *> tokenList() const
+    QVector<Token *> tokenList() const
     { return m_tokens; }
 
 protected:
     Item *m_parent;
     TokenEngine::TokenSection m_tokenSection;    // all tokens
-    QList<TokenEngine::TokenSection> m_cleanedSection; //comments removed
-    QList<Token *> m_tokens;
+    QVector<TokenEngine::TokenSection> m_cleanedSection; //comments removed
+    QVector<Token *> m_tokens;
 };
 
 struct IdToken: public Token
@@ -353,7 +355,7 @@ struct Source: public Item, public ItemComposite
 
 private:
     Item *m_parent;
-    QList<Item *> m_items;
+    QVector<Item *> m_items;
     QString m_fileName;
 };
 
@@ -454,7 +456,7 @@ struct ConditionalDirective: public Directive, public ItemComposite
     void add(Item *item)
     { m_items.append(item); }
 protected:
-    QList<Item *> m_items;
+    QVector<Item *> m_items;
 };
 
 struct IfSection: public Item, public ItemComposite
@@ -483,7 +485,7 @@ struct IfSection: public Item, public ItemComposite
     void addElifGroup(ConditionalDirective *elifGroup)
     { m_elifGroups.append(elifGroup); m_items.append(elifGroup); }
 
-    QList<ConditionalDirective *> elifGroups() const
+    QVector<ConditionalDirective *> elifGroups() const
     { return m_elifGroups; }
 
     void setElseGroup(ConditionalDirective *elseGroup)
@@ -509,9 +511,9 @@ struct IfSection: public Item, public ItemComposite
     { Q_UNUSED(item); }
 
     Item *m_parent;
-    QList<Item *> m_items;
+    QVector<Item *> m_items;
     ConditionalDirective *m_ifGroup;
-    QList<ConditionalDirective *> m_elifGroups;
+    QVector<ConditionalDirective *> m_elifGroups;
     ConditionalDirective *m_elseGroup;
     Directive *m_endifLine;
 };
@@ -923,7 +925,7 @@ struct MacroParameters: public Item, public ItemComposite
 */
 private:
     MacroFunctionDefinition *m_parent;
-    QList<MacroParameter*> m_items;
+    QVector<MacroParameter*> m_items;
 };
 
 struct UndefDirective: public Directive
@@ -966,8 +968,8 @@ class Preprocessor : public QObject
 Q_OBJECT
 public:
     Preprocessor();
-    Source *parse(TokenEngine::TokenContainer tokenContainer,
-                  QList<Type> tokenTypeList, TypedPool<Item> *memoryPool);
+    Source *parse(const TokenEngine::TokenContainer &tokenContainer,
+                  const QVector<Type> &tokenTypeList, TypedPool<Item> *memoryPool);
 signals:
     void error(const QString type, const QString message);
 private:
@@ -1000,15 +1002,15 @@ private:
     Type lookAheadSkipHash() const;
     inline int skipWhiteSpaceAndComments() const;
     inline int skipWhiteSpaceCommentsHash() const;
-    QList<int> cleanTokenRange(const TokenEngine::TokenSection &tokenSection) const;
+    QVector<int> cleanEscapedNewLines(const TokenEngine::TokenSection &tokenSection) const;
+    QVector<int> cleanTokenRange(const TokenEngine::TokenSection &tokenSection) const;
 
     Source *m_source;
     TokenEngine::TokenContainer m_tokenContainer;
-    QList<Type> m_tokenTypeList;
+    QVector<Type> m_tokenTypeList;
     TypedPool<Item> *m_memoryPool;
     int lexerTokenIndex;
     int numTokens;
-
 };
 
 /*

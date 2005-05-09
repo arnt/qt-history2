@@ -11,11 +11,11 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
+#include "semantic.h"
 #include <QDebug>
 #include <QString>
 #include <QRegExp>
 
-#include "semantic.h"
 #include "smallobject.h"
 #include "tokenengine.h"
 
@@ -24,7 +24,1003 @@ using namespace TokenEngine;
 using namespace CodeModel;
 using namespace std;
 
-// ### FIXME!! typeSpecToString is invoked only for sub-declarators?!!?
+Semantic::Semantic(CodeModel::NamespaceScope *globalScope,
+                   TokenStreamAdapter::TokenStream *tokenStream,
+                   TypedPool<CodeModel::Item> *storage)
+{
+    m_storage = storage;
+    m_tokenStream = tokenStream;
+
+    m_currentAccess = CodeModel::Member::Public;
+    m_inSlots = false;
+    m_inSignals = false;
+    m_inStorageSpec = false;
+    m_inTypedef = false;
+
+    globalScope->setName("::");
+    currentScope.push(globalScope);
+
+    //create global UnknownType and UnknownTypeMember
+    UnknownType *type = Create<UnknownType>(m_storage);
+    type->setName("__UnknownType");
+    globalScope->addType(type);
+    type->setParent(globalScope);
+
+    m_sharedUnknownMember = Create<TypeMember>(m_storage);
+    m_sharedUnknownMember->setNameToken(TokenRef());
+    m_sharedUnknownMember->setName("Unknown");
+    m_sharedUnknownMember->setType(type);
+    globalScope->addMember(m_sharedUnknownMember);
+    m_sharedUnknownMember->setParent(globalScope);
+
+}
+
+void Semantic::parseAST(TranslationUnitAST *node)
+{
+    TreeWalker::parseTranslationUnit(node);
+}
+
+
+void Semantic::parseLinkageSpecification(LinkageSpecificationAST *ast)
+{
+    if(!ast)
+        return;
+    int inStorageSpec = m_inStorageSpec;
+    m_inStorageSpec = true;
+    TreeWalker::parseLinkageSpecification(ast);
+    m_inStorageSpec = inStorageSpec;
+}
+
+void Semantic::parseNamespace(NamespaceAST *ast)
+{
+    CodeModel::NamespaceScope *parent = currentScope.top()->toNamespaceScope();
+    if(!parent->toNamespaceScope()) {
+        emit error("Error in Semantic::parseNamespace: parent scope was not a namespace");
+        return;
+    }
+
+    QByteArray nsName;
+    if (!ast->namespaceName() || textOf(ast->namespaceName()).isEmpty()){
+        nsName = "(__QT_ANON_NAMESPACE)";
+    } else {
+        nsName = textOf(ast->namespaceName());
+    }
+
+    CodeModel::NamespaceScope *namespaceScope = 0;
+
+    // Look up namespace scope in case it is already defined.
+    // (Unlike classes, C++ namespaces are "open" and can be added to.)
+    CodeModel::Scope *scope = parent->scopes().value(nsName);
+    if (scope)
+        namespaceScope = scope->toNamespaceScope();
+
+    // Create new namespace if not found.
+    if (!namespaceScope) {
+        namespaceScope = CodeModel::Create<CodeModel::NamespaceScope>(m_storage);
+        namespaceScope->setName(nsName);
+        parent->addScope(namespaceScope);
+
+        NamespaceMember *namespaceMember = Create<NamespaceMember>(m_storage);
+        namespaceMember->setNameToken(tokenRefFromAST(ast->namespaceName()));
+        namespaceMember->setName(nsName);
+        namespaceMember->setNamespaceScope(namespaceScope);
+        currentScope.top()->addMember(namespaceMember);
+        namespaceMember->setParent(currentScope.top());
+    }
+
+    currentScope.push(namespaceScope);
+    TreeWalker::parseNamespace(ast);
+    currentScope.pop();
+}
+
+void Semantic::parseClassSpecifier(ClassSpecifierAST *ast)
+{
+    if (!ast->name()){
+        return;
+    }
+
+    QByteArray kind = textOf(ast->classKey());
+    if (kind == "class")
+        m_currentAccess = CodeModel::Member::Private;
+    else // kind =="struct"
+        m_currentAccess = CodeModel::Member::Public;
+
+    QByteArray className = textOf(ast->name()->unqualifiedName());
+
+    //create ClassScope
+    CodeModel::ClassScope *klass = CodeModel::Create<CodeModel::ClassScope>(m_storage);
+    klass->setName(className);
+    currentScope.top()->addScope(klass);
+
+    //create ClassType
+    CodeModel::ClassType *type = CodeModel::Create<CodeModel::ClassType>(m_storage);
+    type->setScope(klass);
+    currentScope.top()->addType(type);
+    type->setParent(currentScope.top());
+
+    //create TypeMember
+    CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
+    typeMember->setNameToken(tokenRefFromAST(ast->name()->unqualifiedName()));
+    typeMember->setName(className);
+    typeMember->setType(type);
+    currentScope.top()->addMember(typeMember);
+    typeMember->setParent(currentScope.top());
+
+    currentScope.push(klass);
+    if (ast->baseClause())
+        parseBaseClause(ast->baseClause(), klass);
+
+    //TreeWalker::parseClassSpecifier(ast);
+    parseNode(ast->winDeclSpec());
+    parseNode(ast->classKey());
+    parseNode(ast->baseClause());
+
+    // Here's the trick for parsing c++ classes:
+    // All inline function definitions must be interpreted as if they were
+    // written after any other declarations in the class.
+    QList<DeclarationAST *> functionDefinitions;
+    if (ast->declarationList())
+        foreach(DeclarationAST *decl, *ast->declarationList()) {
+            if(decl->nodeType() == NodeType_FunctionDefinition)
+                functionDefinitions.append(decl);
+            else
+            parseNode(decl);
+        }
+    foreach(DeclarationAST *decl, functionDefinitions)
+        parseNode(decl);
+
+    currentScope.pop();
+}
+/*
+    Parse a class, struct or enum forward decalration.
+*/
+void Semantic::parseElaboratedTypeSpecifier(ElaboratedTypeSpecifierAST *node)
+{
+    if (!node)
+        return;
+    AST *kind = node->kind();
+    if (!kind)
+        return;
+
+    const QByteArray kindText = textOf(kind);
+    const QByteArray nameText = textOf(node->name());
+
+    if (kindText == "class" || kindText == "struct") {
+        // Create ClassType.
+        CodeModel::ClassType *type = CodeModel::Create<CodeModel::ClassType>(m_storage);
+        type->setScope(0);
+        currentScope.top()->addType(type);
+        type->setParent(currentScope.top());
+
+        // Create TypeMember.
+        CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
+        typeMember->setNameToken(tokenRefFromAST(node->name()->unqualifiedName()));
+        typeMember->setName(nameText);
+        typeMember->setType(type);
+        currentScope.top()->addMember(typeMember);
+        typeMember->setParent(currentScope.top());
+    } else if (kindText == "enum") {
+        //create a Type
+        CodeModel::EnumType *enumType = CodeModel::Create<CodeModel::EnumType>(m_storage);
+        enumType->setName(nameText);
+        currentScope.top()->addType(enumType);
+        enumType->setParent(currentScope.top());
+
+        //create a TypeMember
+        CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
+        if(node->name())
+            typeMember->setNameToken(tokenRefFromAST(node->name()->unqualifiedName()));
+        typeMember->setName(nameText);
+        typeMember->setType(enumType);
+        currentScope.top()->addMember(typeMember);
+        typeMember->setParent(currentScope.top());
+    }
+}
+
+void Semantic::parseSimpleDeclaration(SimpleDeclarationAST *ast)
+{
+    TypeSpecifierAST *typeSpec = ast->typeSpec();
+    InitDeclaratorListAST *declarators = ast->initDeclaratorList();
+
+    if (typeSpec)
+        parseTypeSpecifier(typeSpec);
+
+    if (declarators){
+        List<InitDeclaratorAST*> l = *declarators->initDeclaratorList();
+
+        foreach (InitDeclaratorAST *current, l) {
+            parseDeclaration(ast->functionSpecifier(), ast->storageSpecifier(), typeSpec, current);
+        }
+    }
+}
+
+void Semantic::parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST *typeSpec, InitDeclaratorAST *decl)
+{
+    if (m_inStorageSpec)
+            return;
+
+    if(!decl)
+        return;
+
+    DeclaratorAST *d = decl->declarator();
+    if (!d)
+        return;
+
+    if (!d->subDeclarator() && d->parameterDeclarationClause()) {
+        parseFunctionDeclaration(funSpec, storageSpec, typeSpec, decl);
+		return;
+	}
+    if(!typeSpec || !typeSpec->name())
+        return;
+
+    DeclaratorAST *t = d;
+    while (t && t->subDeclarator())
+        t = t->subDeclarator();
+
+    QByteArray id;
+    if (t && t->declaratorId() && t->declaratorId()->unqualifiedName())
+        id = textOf(t->declaratorId()->unqualifiedName());
+
+    if (!t || !t->declaratorId() || !t->declaratorId()->unqualifiedName())
+        return;
+    AST *nameAST = t->declaratorId()->unqualifiedName();
+    QByteArray name = textOf(nameAST);
+
+
+    if (!scopeOfDeclarator(d, QList<QByteArray>()).isEmpty()){
+        return;
+    }
+
+    //create VariableMember
+    CodeModel::VariableMember *variableMember = CodeModel::Create<CodeModel::VariableMember>(m_storage);
+    variableMember->setNameToken(tokenRefFromAST(nameAST));
+    variableMember->setName(name);
+    variableMember->setAccess(m_currentAccess);
+    variableMember->setParent(currentScope.top());
+    currentScope.top()->addMember(variableMember);
+
+    //look up type of variableMember,
+
+    TypeMember *typeMember = typeLookup(currentScope.top(), typeSpec->name());
+    if(typeMember) {
+        variableMember->setType(typeMember->type());
+    } else {
+        QByteArray text = typeOfDeclaration(typeSpec, d);
+        CodeModel::UnknownType *type = CodeModel::Create<CodeModel::UnknownType>(m_storage);
+        type->setName(text);
+        variableMember->setType(type);
+    }
+
+    if (decl)
+        parseNode(decl->initializer());
+
+}
+
+void Semantic::parseFunctionDeclaration(AST *funSpec, AST *storageSpec,
+                                        TypeSpecifierAST * typeSpec, InitDeclaratorAST * initDeclarator)
+{
+    bool isFriend = false;
+    bool isVirtual = false;
+    bool isStatic = false;
+    bool isInline = false;
+    bool isPure = initDeclarator->initializer() != 0;
+
+    if (funSpec){
+        List<AST*> l = *funSpec->children();
+        foreach (AST *current, l) {
+            QByteArray text = textOf(current);
+            if (text == "virtual") isVirtual = true;
+            else if (text == "inline") isInline = true;
+        }
+    }
+
+    if (storageSpec){
+        List<AST*> l = *storageSpec->children();
+        foreach (AST *current, l) {
+            QByteArray text = textOf(current);
+            if (text == "friend") isFriend = true;
+            else if (text == "static") isStatic = true;
+        }
+    }
+    DeclaratorAST *declarator = initDeclarator->declarator();
+    if(!declarator || !declarator->declaratorId())
+        return;
+    AST *nameAST = declarator->declaratorId()->unqualifiedName();
+    QByteArray name = textOf(nameAST);
+
+    CodeModel::FunctionMember *method = CodeModel::Create<CodeModel::FunctionMember>(m_storage);
+    method->setNameToken(tokenRefFromAST(nameAST));
+    method->setName(name);
+    method->setAccess(m_currentAccess);
+    method->setStatic(isStatic);
+    method->setVirtual(isVirtual);
+    method->setAbstract(isPure);
+
+    parseFunctionArguments(declarator, method);
+
+    if (m_inSignals)
+        method->setSignal(true);
+
+    if (m_inSlots)
+        method->setSlot(true);
+
+    method->setConstant(declarator->constant() != 0);
+
+    QByteArray text = typeOfDeclaration(typeSpec, declarator);
+    if (!text.isEmpty()) {
+        CodeModel::UnknownType *type = CodeModel::Create<CodeModel::UnknownType>(m_storage);
+        type->setName(text);
+        method->setReturnType(type);
+    }
+
+    method->setParent(currentScope.top());
+    currentScope.top()->addMember(method);
+}
+
+
+void Semantic::parseBaseClause(BaseClauseAST * baseClause, CodeModel::ClassScope *klass)
+{
+    if(!baseClause)
+        return;
+    if(!klass)
+        return;
+    List<BaseSpecifierAST*> *l = baseClause->baseSpecifierList();
+    if (!l)
+        return;
+    foreach (BaseSpecifierAST *baseSpecifier, *l) {
+        QByteArray baseName;
+        if (!baseSpecifier->name())
+            continue;
+
+        // Look up a class with the correct name.
+        QList<Member *> candidates = nameLookup(klass, baseSpecifier->name());
+        if (candidates.count() == 1 ) {
+            Member *member = candidates.at(0);
+            Q_ASSERT(member);
+            TypeMember *typeMember = member->toTypeMember();
+            if (typeMember) {
+                Q_ASSERT(typeMember->type());
+                ClassType *classType = typeMember->type()->toClassType();
+                if (classType) {
+                    klass->addBaseClass(classType);
+                }
+            }
+        }
+    }
+}
+void Semantic::parseFunctionArguments(const DeclaratorAST *declarator, CodeModel::FunctionMember *method)
+{
+    if(!declarator || !method)
+        return;
+
+    ParameterDeclarationClauseAST *clause = declarator->parameterDeclarationClause();
+
+    if (clause && clause->parameterDeclarationList()){
+        ParameterDeclarationListAST *params = clause->parameterDeclarationList();
+        List<ParameterDeclarationAST*> *l = params->parameterList();
+        if (!l)
+            return;
+        foreach (ParameterDeclarationAST *param, *l) {
+            CodeModel::Argument *arg = CodeModel::Create<CodeModel::Argument>(m_storage);
+            arg->setParent(method);
+
+            if (param->declarator()){
+                QByteArray text = declaratorToString(param->declarator(), QByteArray(), true);
+                if(param->declarator()->declaratorId())
+                    arg->setNameToken(tokenRefFromAST(param->declarator()->declaratorId()->unqualifiedName()));
+                if (!text.isEmpty())
+                    arg->setName(text);
+            }
+
+            QByteArray tp = typeOfDeclaration(param->typeSpec(), param->declarator());
+            if (!tp.isEmpty()) {
+                CodeModel::UnknownType *type = CodeModel::Create<CodeModel::UnknownType>(m_storage);
+                type->setName(tp);
+                arg->setType(type);
+            }
+
+            method->addArgument(arg);
+        }
+    }
+}
+
+// using directive (using namespace A)
+void Semantic::parseUsingDirective(UsingDirectiveAST *ast)
+{
+    QByteArray qualifiedname = textOf(ast->name());
+    QByteArray name = textOf(ast->name()->unqualifiedName());
+
+    //look up target namespace name
+    QList<Member *> memberList = nameLookup(currentScope.top(), ast->name());
+
+    NamespaceScope *targetNamespace = 0;
+
+    // search for namespace in member list.
+    QList<Member *>::ConstIterator it = memberList.constBegin();
+    while(it != memberList.constEnd()) {
+        if (NamespaceMember *namespaceMember = (*it)->toNamespaceMember()) {
+            targetNamespace = namespaceMember->namespaceScope();
+            break;
+        }
+        ++it;
+    }
+
+    if (targetNamespace == 0)
+        return;
+
+    // Find the insertion namespace, wich is the first common
+    // ancesotor namespace for the current sope and the insertion namespace
+
+    // currentScope might be a block scope, find the first namespace parent
+    CodeModel::Scope *currentParent = currentScope.top();
+    while (currentParent->toNamespaceScope() == 0) {
+        currentParent = currentParent->parent();
+    }
+
+    CodeModel::Scope *namespaceA = currentParent;
+    while (namespaceA != 0) {
+        CodeModel::Scope *namespaceB = targetNamespace;
+        while (namespaceB != 0) {
+            if (namespaceB == namespaceA)
+                break;
+            namespaceB = namespaceB->parent();
+        }
+        if (namespaceB == namespaceA)
+            break;
+        namespaceA = namespaceA->parent();
+    }
+
+    if (namespaceA == 0 || namespaceA->toNamespaceScope() == 0)
+        return;
+
+    NamespaceScope *insertionNamespace = namespaceA->toNamespaceScope();
+
+    // Create using directive link
+    UsingDirectiveLink *usingDirectiveLink = Create<UsingDirectiveLink>(m_storage);
+    usingDirectiveLink->setParent(currentScope.top());
+    usingDirectiveLink->setTargetNamespace(targetNamespace);
+    usingDirectiveLink->setInsertionNamespace(insertionNamespace);
+
+    // add it to current namespace
+    if (NamespaceScope *namespaceScope = currentScope.top()->toNamespaceScope())
+        namespaceScope->addUsingDirectiveLink(usingDirectiveLink);
+    else if (BlockScope *blockScope = currentScope.top()->toBlockScope())
+        blockScope->addUsingDirectiveLink(usingDirectiveLink);
+}
+
+void Semantic::parseFunctionDefinition(FunctionDefinitionAST *ast)
+{
+    AST *funSpec = ast->functionSpecifier();
+    AST *storageSpec = ast->storageSpecifier();
+    TypeSpecifierAST *typeSpec = ast->typeSpec();
+    InitDeclaratorAST *initDeclarator = ast->initDeclarator();
+    if (!ast->initDeclarator())
+        return;
+
+    DeclaratorAST *d = initDeclarator->declarator();
+
+    if (!d->declaratorId())
+        return;
+
+
+    // Check if function already has been declared, if not then this is also a declaration.
+    CodeModel::FunctionMember *method = functionLookup(currentScope.top(), d);
+    if (!method)
+        parseFunctionDeclaration(funSpec, storageSpec, typeSpec, initDeclarator);
+    method = functionLookup(currentScope.top(), d);
+
+    if(!method) {
+        emit error("Error in Semantic::parseFunctionDefinition: Could not find declaration for function definition");
+        return;
+    }
+
+    CodeModel::Scope *parent = method->parent();
+
+    if(!ast->functionBody()) {
+        emit error("Error in Semantic::parseFunctionDefinition: no function body in function definition");
+        return;
+    }
+
+    //create child function scope
+    QByteArray id = textOf(d->declaratorId()->unqualifiedName());
+    CodeModel::BlockScope *functionScope = CodeModel::Create<CodeModel::BlockScope>(m_storage);
+    functionScope->setName(QByteArray("__QT_ANON_BLOCK_SCOPE(Function: ") + id + QByteArray(")"));
+    functionScope->setParent(parent);
+    method->setFunctionBodyScope(functionScope);
+
+    //add arguments to child scope
+     ArgumentCollection arguments = method->arguments();
+     ArgumentCollection::ConstIterator it = arguments.constBegin();
+     while(it != arguments.constEnd()) {
+         CodeModel::Argument *argument = *it;
+         CodeModel::VariableMember *variableMember = CodeModel::Create<CodeModel::VariableMember>(m_storage);
+         variableMember->setNameToken(argument->nameToken());
+         variableMember->setType(argument->type());
+         variableMember->setName(argument->name());
+         variableMember->setParent(functionScope);
+         functionScope->addMember(variableMember);
+         ++it;
+     }
+
+    //push function scope and parse function body
+    currentScope.push(functionScope);
+    parseStatementList(ast->functionBody());
+    currentScope.pop();
+}
+
+void Semantic::parseStatementList(StatementListAST *statemenList)
+{
+    if(!statemenList)
+        return;
+    CodeModel::BlockScope *blockScope = CodeModel::Create<CodeModel::BlockScope>(m_storage);
+    blockScope->setName("__QT_ANON_BLOCK_SCOPE");
+    blockScope->setParent(currentScope.top());
+    currentScope.top()->addScope(blockScope);
+
+    currentScope.push(blockScope);
+    TreeWalker::parseStatementList(statemenList);
+    currentScope.pop();
+}
+
+void Semantic::parseExpression(AbstractExpressionAST* node)
+{
+    if(!node)
+        return;
+    if(node->nodeType() == NodeType_ClassMemberAccess)
+        parseClassMemberAccess(static_cast<ClassMemberAccessAST *>(node));
+    else
+        TreeWalker::parseExpression(node);
+}
+
+/*
+    Pretty hardwired code for handling class member access of the types:
+    object.member and objectPtr->member.
+
+    This function creates a name use for object to its declaration, and a
+    name use from member to its declaration in the class.
+*/
+void Semantic::parseClassMemberAccess(ClassMemberAccessAST *node)
+{
+    if(!node)
+        return;
+    parseExpression(node->expression());
+    NameUse *nameUse = findNameUse(node->expression());
+    if(!nameUse)
+        return;
+    if(    nameUse
+        && nameUse->declaration()
+        && nameUse->declaration()->toVariableMember()
+        && nameUse->declaration()->toVariableMember()->type()
+        && nameUse->declaration()->toVariableMember()->type()->toClassType()
+        && nameUse->declaration()->toVariableMember()->type()->toClassType()->scope())   {
+
+        CodeModel::Scope *scope = nameUse->declaration()->toVariableMember()->type()->toClassType()->scope();
+        QList<CodeModel::Member *> members = lookupNameInScope(scope, node->name());
+            if(members.count() != 0)
+                createNameUse(members.at(0), node->name());
+    }
+}
+
+void Semantic::parseExpressionStatement(ExpressionStatementAST *node)
+{
+    TreeWalker::parseExpressionStatement(node);
+}
+
+// using declaration (using A::b)
+void Semantic::parseUsing(UsingAST *ast)
+{
+    //CodeModel::Scope *s = lookUpScope(currentScope.top(), ast->name());
+    QList<CodeModel::Member *> members = nameLookup(currentScope.top(), ast->name());
+    if(members.isEmpty()) {
+        emit error("Error in Semantic::parseUsing: could not look up using target");
+        return;
+    }
+    //TODO: handle multiple members (when nameLookup returns a set of overloded functions)
+    CodeModel::Member *member = members[0];
+    CodeModel::Scope *targetScope = member->parent();
+    if(!targetScope) {
+        emit error("Error in Semantic::parseUsing: target has no parent scope");
+        return;
+    }
+
+    if(!ast->name())
+        return;
+    AST *nameAST = ast->name()->unqualifiedName();
+    if(!nameAST)
+        return;
+    QByteArray name = textOf(nameAST);
+}
+
+void Semantic::parseEnumSpecifier(EnumSpecifierAST *ast)
+{
+    if (!ast->name())
+         return;
+
+    QByteArray name = textOf(ast->name());
+
+    //create a Type
+    CodeModel::EnumType *enumType = CodeModel::Create<CodeModel::EnumType>(m_storage);
+    enumType->setName(name);
+    currentScope.top()->addType(enumType);
+    enumType->setParent(currentScope.top());
+
+    //create a TypeMember
+    CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
+    if(ast->name())
+        typeMember->setNameToken(tokenRefFromAST(ast->name()->unqualifiedName()));
+    typeMember->setName(name);
+    typeMember->setType(enumType);
+    currentScope.top()->addMember(typeMember);
+    typeMember->setParent(currentScope.top());
+
+    //parse the eneumerators
+    List<EnumeratorAST*> *list = ast->enumeratorList();
+    if (!list)
+        return;
+    foreach (EnumeratorAST *current, *list) {
+        CodeModel::VariableMember *enumerator = CodeModel::Create<CodeModel::VariableMember>(m_storage);
+        enumerator->setNameToken(tokenRefFromAST(current->id()));
+        enumerator->setName(textOf(current->id()));
+        enumerator->setAccess(m_currentAccess);
+        enumerator->setStatic(true);
+        enumerator->setType(enumType);
+        currentScope.top()->addMember(enumerator);
+        enumerator->setParent(currentScope.top());
+    }
+
+}
+
+void Semantic::parseTypedef(TypedefAST *ast)
+{
+    TypeSpecifierAST *typeSpec = ast->typeSpec();
+    InitDeclaratorListAST *declarators = ast->initDeclaratorList();
+
+    if (typeSpec && declarators){
+        QByteArray typeId;
+
+        if (typeSpec->name())
+            typeId = textOf(typeSpec->name());
+
+        List<InitDeclaratorAST*> *l = declarators->initDeclaratorList();
+        if (!l)
+            return;
+        foreach (InitDeclaratorAST *initDecl, *l) {
+            QByteArray type, id;
+            if (initDecl->declarator()){
+               type = typeOfDeclaration(typeSpec, initDecl->declarator());
+
+               DeclaratorAST *d = initDecl->declarator();
+               while (d->subDeclarator()){
+                   d = d->subDeclarator();
+               }
+
+               if (d->declaratorId())
+                  id = textOf(d->declaratorId());
+            }
+
+            //create a type
+            CodeModel::Scope *scope = currentScope.top();
+            CodeModel::AliasType *typeAlias = CodeModel::Create<CodeModel::AliasType>(m_storage);
+            //typeAlias->setName(id);
+            //typeAlias->setParent(scope);
+            scope->addType(typeAlias);
+
+            //create a TypeMember
+            CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
+            if(typeSpec->name())
+                typeMember->setNameToken(tokenRefFromAST(typeSpec->name()->unqualifiedName()));
+            typeMember->setName(id);
+            typeMember->setType(typeAlias);
+            currentScope.top()->addMember(typeMember);
+            typeMember->setParent(currentScope.top());
+
+        }
+
+    }
+}
+
+void Semantic::parseTypeSpecifier(TypeSpecifierAST *ast)
+{
+    // If this is a classSpecifier or a EnumSpecifier we skip the name lookup,
+    // becuase looking up the name "E" in a class definition like
+    // "class E { ..." makes no sense. (There might be a variable named E
+    // already declared, but that variable is now shadowed by the class type.)
+    if(   ast->nodeType() != NodeType_EnumSpecifier
+       && ast->nodeType() != NodeType_ClassSpecifier
+       && ast->nodeType() != NodeType_ElaboratedTypeSpecifier )
+        parseNameUse(ast->name());
+    TreeWalker::parseTypeSpecifier(ast);
+}
+
+/*
+    Parses a name: looks up name, creates name use.
+*/
+void Semantic::parseNameUse(NameAST* name)
+{
+    if(!name)
+        return;
+
+    // Look up name
+    QList<CodeModel::Member *> members = nameLookup(currentScope.top(), name);
+    if(members.isEmpty()) {
+        //cout << "no declaration found for " << textOf(name).constData() << endl;
+        // Create NameUse that refer to a shared UnknownMember
+        createNameUse(m_sharedUnknownMember, name);
+        return;
+    }
+
+    //TODO: handle multiple members (when nameLookup returns a set of overloaded functions)
+    CodeModel::Member *member = members[0];
+    if(!member->parent()) {
+        emit error("Error in Semantic::parseUsing: target has no parent scope");
+        return;
+    }
+
+    createNameUse(member, name);
+}
+
+/*
+    looks up name used in basescope. If name->isGlobal() is true or if classOrNamespaceList()
+    returns a non-emty list, the C++ qualified name lookup rules are used. Otherwise the
+    unquialified name lookup rules are used.  Returns the a list of members that was found,
+    In most cases this list will contain zero or one element, exept in the case of overloaded functions.
+    TODO: Argument-dependent name lookup
+*/
+QList<CodeModel::Member *> Semantic::nameLookup(CodeModel::Scope *baseScope, const NameAST* name)
+{
+    if (name->isGlobal() || (name->classOrNamespaceNameList()
+                              && name->classOrNamespaceNameList()->size()>0 )) {
+        return qualifiedNameLookup(baseScope, name);
+    } else {
+        return unqualifiedNameLookup(baseScope, name);
+    }
+}
+
+//look up an unqualified name
+QList<CodeModel::Member *> Semantic::unqualifiedNameLookup(CodeModel::Scope *baseScope, const NameAST* name)
+{
+    QList<UsingDirectiveLink *> usingDirectiveLinks;
+    CodeModel::Scope *currentScope = baseScope;
+    QList<CodeModel::Member *>  entities;
+
+    while (currentScope != 0) {
+        // Add any "using namespace" directive links for the current scope to
+        // usingDirectiveLinks
+        if (NamespaceScope *namespaceScope = currentScope->toNamespaceScope())
+            usingDirectiveLinks += namespaceScope->usingDirectiveLinks();
+        if (BlockScope *blockScope = currentScope->toBlockScope())
+            usingDirectiveLinks += blockScope->usingDirectiveLinks();
+
+        // Search usingDirectiveLinks for a link where currentScope is the
+        // insertion namespace. If found look up name in the target namespace
+        // for that link.
+        if (NamespaceScope *namespaceScope = currentScope->toNamespaceScope()) {
+            QList<UsingDirectiveLink *>::ConstIterator it = usingDirectiveLinks.constBegin();
+            while (it != usingDirectiveLinks.constEnd()) {
+                if ((*it)->insertionNamespace() == namespaceScope)
+                    entities = lookupNameInScope((*it)->targetNamespace(), name);
+                ++it;
+            }
+        }
+
+        // Look up names in this scope.
+        entities += lookupNameInScope(currentScope, name);
+        if (!entities.isEmpty())
+            break;
+        currentScope = currentScope->parent();
+    }
+    return entities;
+}
+
+//look up a qualified name
+QList<CodeModel::Member *> Semantic::qualifiedNameLookup(CodeModel::Scope *baseScope, const NameAST* name)
+{
+    QList<CodeModel::Member *> entities;
+    CodeModel::Scope *currentScope = baseScope;
+
+    // Check if the global ("::") scope has been specified.
+    if(name->isGlobal()) {
+        while (currentScope->parent())
+            currentScope = currentScope->parent();
+    }
+
+    while (entities.isEmpty() && currentScope != 0) {
+        CodeModel::Scope *targetScope = scopeLookup(currentScope, name);
+        entities = lookupNameInScope(targetScope, name);
+        currentScope = currentScope->parent();
+    }
+
+    return entities;
+}
+
+//looks up a name in a scope, includes base classes if scope is a class scope
+QList<CodeModel::Member *> Semantic::lookupNameInScope(CodeModel::Scope *scope, const NameAST* name)
+{
+    QList<CodeModel::Member *> entities;
+
+    if(!scope || !name)
+        return entities;
+
+    QByteArray nameText = textOf(name->unqualifiedName()->name());
+    //look up name in members of current scope
+    const CodeModel::MemberCollection members = scope->members();
+    if (members.contains(nameText))
+        entities.append(members.value(nameText));
+
+    // if not found, look up name in  base classes (if any)
+    CodeModel::ClassScope *classScope = scope->toClassScope();
+    if (entities.isEmpty() && classScope) {
+        const TypeCollection baseClasses = classScope->baseClasses();
+        TypeCollection::ConstIterator it = baseClasses.constBegin();
+        while (it != baseClasses.constEnd()) {
+            CodeModel::Scope *baseClass = it.value()->toClassType()->scope();
+            if (scope != baseClass)
+                entities += lookupNameInScope(baseClass, name);
+            ++it;
+        }
+
+        if (entities.count() > 1)
+            emit error("Error in Semantic::lookupNameInScope: name "
+            + nameText + " is ambigous");
+    }
+    return entities;
+}
+
+/*
+    Resolves the classOrNamespaceNameList part of a NameAST against a base scope.
+*/
+CodeModel::Scope *Semantic::scopeLookup(CodeModel::Scope *baseScope, const NameAST* name)
+{
+    CodeModel::Scope *currentScope = baseScope;
+    const List<ClassOrNamespaceNameAST *> *scopeList = name->classOrNamespaceNameList();
+    // if there is no scope list, then the scope we are looking for is baseScope
+    if (!scopeList)
+        return baseScope;
+
+    // Check if the global ("::") scope has been specified.
+    if(name->isGlobal()) {
+        while (currentScope->parent())
+            currentScope = currentScope->parent();
+    }
+
+    while(currentScope != 0) {
+        int nestingCounter = 0;
+        CodeModel::Scope *nestedScope = currentScope;
+        while (nestingCounter < scopeList->count()) {
+            const QByteArray nameText = textOf((*scopeList)[nestingCounter]->name());
+            nestedScope = nestedScope->scopes().value(nameText);
+            if (!nestedScope)
+                break;
+            ++nestingCounter;
+        }
+        if(nestedScope) // found target scope?
+            return nestedScope;
+
+        currentScope = currentScope->parent(); //look in parent scope
+    }
+
+    return 0;
+}
+
+TypeMember *Semantic::typeLookup(CodeModel::Scope *baseScope, const NameAST* name)
+{
+    QList<CodeModel::Member *> memberList = nameLookup(baseScope, name);
+
+    foreach(Member *member, memberList) {
+        if(TypeMember *typeMember = member->toTypeMember())
+            return typeMember;
+    }
+    return 0;
+}
+
+FunctionMember *Semantic::functionLookup(CodeModel::Scope *baseScope,
+                                          const DeclaratorAST *functionDeclarator)
+{
+
+    QList<CodeModel::Member*> candidateList =
+                nameLookup(baseScope, functionDeclarator->declaratorId());
+    return selectFunction(candidateList, functionDeclarator);
+}
+
+/*
+    This is a simplified function lookup routine, for matching member function
+    definitions with member function declarations. It does not implement
+    the general C++ function overload resolution rules.
+*/
+FunctionMember *Semantic::selectFunction(QList<CodeModel::Member*> candidatateList, const DeclaratorAST *functionDeclarator)
+{
+    // get arguments for funciton we are looking for
+    FunctionMember testFunction;
+    parseFunctionArguments(functionDeclarator, &testFunction);
+    const ArgumentCollection testArgumentCollection = testFunction.arguments();
+
+    //test againts functions in overload list.
+    foreach(Member* member, candidatateList) {
+        FunctionMember *function = member->toFunctionMember();
+        if (!function)
+            continue;
+        const ArgumentCollection argumentCollection = function->arguments();
+
+        //test argument types and number of arguments
+        ArgumentCollection::ConstIterator arg1 = argumentCollection.constBegin();
+        ArgumentCollection::ConstIterator arg2 = testArgumentCollection.constBegin();
+        bool match = true;
+        while(arg1 != argumentCollection.constEnd() && arg2 != testArgumentCollection.constEnd()) {
+            if( arg1.value()->type()->name() != arg2.value()->type()->name() ) {
+                match = false;
+                break;
+            }
+            ++arg1;
+            ++arg2;
+        }
+        if(match)
+            return function;
+    }
+    return 0;
+}
+
+QByteArray Semantic::typeOfDeclaration(TypeSpecifierAST *typeSpec, DeclaratorAST *declarator)
+{
+    if (!typeSpec)
+        return QByteArray();
+
+    QByteArray text;
+
+    if (typeSpec->cvQualify()) {
+        List<AST*> cv = *typeSpec->cvQualify()->children();
+        foreach (AST *current, cv) {
+            text += " " + textOf(current);
+        }
+        text += " ";
+    }
+
+
+    text += textOf(typeSpec);
+
+    if (typeSpec->cv2Qualify()) {
+        List<AST*> cv = *typeSpec->cv2Qualify()->children();
+        foreach (AST *current, cv) {
+            text += textOf(current) + " ";
+        }
+    }
+
+    if (declarator && declarator->ptrOpList()) {
+        List<AST*> ptrOpList = *declarator->ptrOpList();
+        foreach (AST *current, ptrOpList) {
+            text += " " + textOf(current);
+        }
+        text += " ";
+    }
+
+    return text.trimmed().simplified();
+}
+
+
+
+QList<QByteArray> Semantic::scopeOfName(NameAST *id, const QList<QByteArray>& startScope)
+{
+    QList<QByteArray> scope = startScope;
+    if (id && id->classOrNamespaceNameList()){
+        if (id->isGlobal())
+            scope.clear();
+
+        List<ClassOrNamespaceNameAST*> l = *id->classOrNamespaceNameList();
+        foreach (ClassOrNamespaceNameAST *current, l) {
+            if (current->name())
+               scope << textOf(current->name());
+        }
+    }
+
+    return scope;
+}
+
+QList<QByteArray> Semantic::scopeOfDeclarator(DeclaratorAST *d, const QList<QByteArray>& startScope)
+{
+    if(!d)
+        return QList<QByteArray>();
+    return scopeOfName(d->declaratorId(), startScope);
+}
+
 QByteArray Semantic::typeSpecToString(TypeSpecifierAST* typeSpec)
 {
     if (!typeSpec)
@@ -97,214 +1093,7 @@ QByteArray Semantic::declaratorToString(DeclaratorAST* declarator, const QByteAr
     return QString(text).replace(QRegExp(" :: "), "::").simplified().toLatin1();
 }
 
-/*
-    looks up name used in basescope. If name->isGlobal() is true or if classOrNamespaceList()
-    returns a non-emty list, the C++ qualified name lookup rules are used. Otherwise the
-    unquialified name lookup rules are used.  Returns the a list of members that was found,
-    In most cases this list will contain zero or one element, exept in the case of overloaded functions.
-    TODO: Argument-dependent name lookup
-*/
-QList<CodeModel::Member *> Semantic::nameLookup(CodeModel::Scope *baseScope, const NameAST* name)
-{
-    if (name->isGlobal() || (name->classOrNamespaceNameList()
-                              && name->classOrNamespaceNameList()->size()>0 )) {
-        return qualifiedNameLookup(baseScope, name);
-    } else {
-        return unqualifiedNameLookup(baseScope, name);
-    }
-}
-
-//look up an unqualified name
-QList<CodeModel::Member *> Semantic::unqualifiedNameLookup(CodeModel::Scope *baseScope, const NameAST* name)
-{
-    //TODO: handle using-directives
-    CodeModel::Scope *currentScope = baseScope;
-    QList<CodeModel::Member *>  entities;
-    while (currentScope != 0 && entities.isEmpty()) {
-        entities = lookupNameInScope(currentScope, name);
-        currentScope = currentScope->parent();
-    }
-    return entities;
-}
-
-//look up a qualified name
-QList<CodeModel::Member *> Semantic::qualifiedNameLookup(CodeModel::Scope *baseScope, const NameAST* name)
-{
-    //TODO: handle using-directives
-    QList<CodeModel::Member *> entities;
-    CodeModel::Scope *currentScope = baseScope;
-
-    if(name->isGlobal()) {
-        while (currentScope->parent())
-            currentScope = currentScope->parent();
-    }
-
-    while (entities.isEmpty() && currentScope != 0) {
-        CodeModel::Scope *targetScope = lookupScope(currentScope, name);
-        entities = lookupNameInScope(targetScope, name);
-        currentScope = currentScope->parent();
-    }
-
-    return entities;
-}
-
-//looks up a name in a scope, includes base classes if scope is a class scope
-QList<CodeModel::Member *> Semantic::lookupNameInScope(CodeModel::Scope *scope, const NameAST* name)
-{
-    QList<CodeModel::Member *> entities;
-
-    if(!scope || !name)
-        return entities;
-
-    QByteArray nameText = textOf(name->unqualifiedName()->name());
-
-
-    //look up name in members of current scope
-    CodeModel::MemberCollection *members = scope->members();
-    if(members)
-    for (int i=0; i<members->count(); ++i) {
-        CodeModel::Member *member = members->item(i);
-        Q_ASSERT(member);
-        if (member->name() == nameText)
-            entities.append(member);
-    }
-
-    // if not found, look up name in  base classes (if any)
-    CodeModel::ClassScope *classScope = scope->toClassScope();
-    if(entities.isEmpty() && classScope )  {
-        CodeModel::TypeCollection *baseClasses = classScope->baseClasses();
-        if(baseClasses) {
-            for(int i=0; i<baseClasses->count(); ++i) {
-                CodeModel::Type *baseClass = baseClasses->item(i);
-                Q_ASSERT(baseClass);
-                if(!baseClass->toClassType()) {
-                    emit error("Error in Semantic::lookupNameInScope: base class"
-                               + baseClass->name() + " undeclared");
-                    break;
-                }
-                entities += lookupNameInScope(baseClass->toClassType()->scope(), name);
-            }
-        }
-        if(entities.count()>1)
-            emit error("Error in Semantic::lookupNameInScope: name "
-            + nameText + " is ambigous");
-    }
-    return entities;
-}
-
-CodeModel::Scope *Semantic::lookupScope(CodeModel::Scope *baseScope, const NameAST* name)
-{
-    CodeModel::Scope *currentScope = baseScope;
-
-    List<ClassOrNamespaceNameAST *> *namespaceList = name->classOrNamespaceNameList();
-    if(!namespaceList)
-        return currentScope;
-
-    CodeModel::Scope *targetScope = 0;
-    while(currentScope!=0 && targetScope == 0)
-    {
-        //look for targetScope
-        int nestingCounter = 0;
-        CodeModel::Scope *nestedScope = currentScope;
-
-        do {
-            CodeModel::ScopeCollection *childScopes = nestedScope->scopes();
-            nestedScope = 0;
-
-            for (int i=0; i<childScopes->count(); ++i) {
-                CodeModel::Scope *childScope = childScopes->item(i);
-                Q_ASSERT(childScope);
-
-                if (childScope->name() == textOf((*namespaceList)[nestingCounter]->name())) {
-                    nestedScope = childScope;
-                    break;
-                }
-            }
-            ++nestingCounter;
-        } while (nestedScope != 0 && nestingCounter <  namespaceList->count());
-
-        targetScope =  nestedScope;
-        if(!targetScope)
-            currentScope = currentScope->parent();
-    }
-
-    return targetScope;
-}
-
-TypeMember *Semantic::typeLookup(CodeModel::Scope *baseScope, const NameAST* name)
-{
-    QList<CodeModel::Member *> memberList = nameLookup(baseScope, name);
-
-    foreach(Member *member, memberList) {
-        if(TypeMember *typeMember = member->toTypeMember())
-            return typeMember;
-    }
-    return 0;
-}
-
-FunctionMember *Semantic::functionLookup(CodeModel::Scope *baseScope,
-                                          const DeclaratorAST *functionDeclarator)
-{
-
-    QList<CodeModel::Member*> candidateList =
-                nameLookup(baseScope, functionDeclarator->declaratorId());
-    return selectFunction(candidateList, functionDeclarator);
-}
-
-/*
-    This is a simplified function lookup routine, for matching member function
-    definitions with member function declarations. It does not implement
-    the general C++ function overload resolution rules.
-*/
-FunctionMember *Semantic::selectFunction(QList<CodeModel::Member*> candidatateList, const DeclaratorAST *functionDeclarator)
-{
-    // get arguments for funciton we are looking for
-    FunctionMember testFunction;
-    parseFunctionArguments(functionDeclarator, &testFunction);
-    ArgumentCollection *testArgumentCollection = testFunction.arguments();
-    if(!testArgumentCollection)
-        return 0;
-
-    //test againts functions in overload list.
-    foreach(Member* member, candidatateList) {
-        FunctionMember *function = member->toFunctionMember();
-        if (!function)
-            continue;
-        ArgumentCollection *argumentCollection = function->arguments();
-        if(!argumentCollection)
-            continue;
-        //test number of arguments
-        if(testArgumentCollection->count() != argumentCollection->count())
-            continue;
-        //test argument types
-        bool mismatch = false;
-        for(int a = 0; a < testArgumentCollection->count(); ++a) {
-            //cout <<testArgumentCollection->item(a)->type()->name().constData()
-            // << " | " << argumentCollection->item(a)->type()->name().constData() << endl;
-            // So.. here we get different type objects with the same name.. hm
-            if (testArgumentCollection->item(a)->type()->name() != argumentCollection->item(a)->type()->name())
-                mismatch = true;
-        }
-        if(!mismatch)
-            return function;
-    }
-    return 0;
-}
-
-
-
-/// =======================================================
-
-Semantic::Semantic()
-{
-
-}
-
-Semantic::~Semantic()
-{
-}
-
-QByteArray Semantic::textOf(AST *node) const
+QByteArray Semantic::textOf(const AST *node) const
 {
     if (!node)
         return QByteArray();
@@ -319,612 +1108,6 @@ QByteArray Semantic::textOf(AST *node) const
     return text;
 }
 
-CodeModel::NamespaceScope *Semantic::parseTranslationUnit(TranslationUnitAST *node,
-            TokenStreamAdapter::TokenStream *tokenStream, TypedPool<CodeModel::Item> *storage)
-{
-    m_storage = storage;
-    m_tokenStream =tokenStream;
-    m_currentAccess = CodeModel::Member::Public;
-    m_inSlots = false;
-    m_inSignals = false;
-    m_inStorageSpec = false;
-    m_inTypedef = false;
-    m_anon = 0;
-    m_imports.clear();
-    m_nameUses.clear();
-
-    NamespaceScope *globalScope = CodeModel::Create<NamespaceScope>(m_storage);
-    globalScope->setName("::");
-    currentScope.push(globalScope);
-
-    m_imports << QList<QByteArray>();
-    TreeWalker::parseTranslationUnit(node);
-    m_imports.pop_back();
-    return globalScope;
-}
-
-
-void Semantic::parseLinkageSpecification(LinkageSpecificationAST *ast)
-{
-    if(!ast)
-        return;
-    int inStorageSpec = m_inStorageSpec;
-    m_inStorageSpec = true;
-    TreeWalker::parseLinkageSpecification(ast);
-    m_inStorageSpec = inStorageSpec;
-}
-
-
-#if 0
-void Semantic::parseDeclaration(DeclarationAST *ast)
-{
-    TreeWalker::parseDeclaration(ast);
-}
-#endif
-
-void Semantic::parseNamespace(NamespaceAST *ast)
-{
-    if(currentScope.isEmpty()) {
-        emit error("Error in Semantic::parseNamespace: no parent scope");
-        return;
-    }
-
-    CodeModel::NamespaceScope *parent = currentScope.top()->toNamespaceScope();
-    if(!parent->toNamespaceScope()) {
-        emit error("Error in Semantic::parseNamespace: parent scope was not a namespace");
-        return;
-    }
-
-    QByteArray nsName;
-    if (!ast->namespaceName() || textOf(ast->namespaceName()).isEmpty()){
-        nsName = "(__QT_ANON_NAMESPACE)";
-    } else {
-        nsName = textOf(ast->namespaceName());
-    }
-
-    CodeModel::NamespaceScope *ns = parent->findNamespace(nsName);
-    if (!ns) {
-        ns = CodeModel::Create<CodeModel::NamespaceScope>(m_storage);
-        parent->addScope(ns);
-        ns->setName(nsName);
-    }
-
-    currentScope.push(ns);
-    TreeWalker::parseNamespace(ast);
-    currentScope.pop();
-}
-
-void Semantic::parseClassSpecifier(ClassSpecifierAST *ast)
-{
-    if (!ast->name()){
-        //emit error("Error in Semantic::parseClassSpecifier: class has no name");
-        return;
-    }
-
-    if(currentScope.isEmpty()) {
-        QByteArray errorText = QByteArray("Error in Semantic::parseClassSpecifier parsing class ")
-                            +textOf(ast->name()->unqualifiedName())
-                            +QByteArray(": no parent scope");
-        emit error(errorText);
-        return;
-    }
-
-    QByteArray kind = textOf(ast->classKey());
-    if (kind == "class")
-        m_currentAccess = CodeModel::Member::Private;
-    else // kind =="struct"
-        m_currentAccess = CodeModel::Member::Public;
-
-    QByteArray className = textOf(ast->name()->unqualifiedName());
-
-    //create ClassScope
-    CodeModel::ClassScope *klass = CodeModel::Create<CodeModel::ClassScope>(m_storage);
-    klass->setName(className);
-    currentScope.top()->addScope(klass);
-
-    //create ClassType
-    CodeModel::ClassType *type = CodeModel::Create<CodeModel::ClassType>(m_storage);
-    type->setScope(klass);
-    currentScope.top()->addType(type);
-    type->setParent(currentScope.top());
-
-    //create TypeMember
-    CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
-    typeMember->setNameAST(ast->name()->unqualifiedName());
-    typeMember->setName(className);
-    typeMember->setType(type);
-    currentScope.top()->addMember(typeMember);
-    typeMember->setParent(currentScope.top());
-
-    currentScope.push(klass);
-    if (ast->baseClause())
-        parseBaseClause(ast->baseClause(), klass);
-
-    //TreeWalker::parseClassSpecifier(ast);
-    parseNode(ast->winDeclSpec());
-    parseNode(ast->classKey());
-    parseNode(ast->baseClause());
-
-    // Here's the trick for parsing c++ classes:
-    // All inline function definitions must be interpreted as if they were
-    // written after any other declarations in the class.
-    QList<DeclarationAST *> functionDefinitions;
-    if (ast->declarationList())
-        foreach(DeclarationAST *decl, *ast->declarationList()) {
-            if(decl->nodeType() == NodeType_FunctionDefinition)
-                functionDefinitions.append(decl);
-            else
-                parseNode(decl);
-        }
-    foreach(DeclarationAST *decl, functionDefinitions)
-        parseNode(decl);
-
-    currentScope.pop();
-}
-
-
-void Semantic::parseSimpleDeclaration(SimpleDeclarationAST *ast)
-{
-    if(currentScope.isEmpty()) {
-        emit error("Error in Semantic::parseSimpleDeclaration: no current Scope");
-        return;
-    }
-
-    TypeSpecifierAST *typeSpec = ast->typeSpec();
-    InitDeclaratorListAST *declarators = ast->initDeclaratorList();
-
-    if (typeSpec)
-        parseTypeSpecifier(typeSpec);
-
-    if (declarators){
-        List<InitDeclaratorAST*> l = *declarators->initDeclaratorList();
-
-        foreach (InitDeclaratorAST *current, l) {
-            parseDeclaration(ast->functionSpecifier(), ast->storageSpecifier(), typeSpec, current);
-        }
-    }
-}
-
-void Semantic::parseDeclaration(AST *funSpec, AST *storageSpec, TypeSpecifierAST *typeSpec, InitDeclaratorAST *decl)
-{
-    if (m_inStorageSpec)
-            return;
-
-    if(!decl)
-        return;
-
-    DeclaratorAST *d = decl->declarator();
-    if (!d)
-        return;
-
-    if (!d->subDeclarator() && d->parameterDeclarationClause()) {
-        parseFunctionDeclaration(funSpec, storageSpec, typeSpec, decl);
-		return;
-	}
-    if(!typeSpec || !typeSpec->name())
-        return;
-
-    DeclaratorAST *t = d;
-    while (t && t->subDeclarator())
-        t = t->subDeclarator();
-
-    QByteArray id;
-    if (t && t->declaratorId() && t->declaratorId()->unqualifiedName())
-        id = textOf(t->declaratorId()->unqualifiedName());
-
-    if (!t || !t->declaratorId() || !t->declaratorId()->unqualifiedName())
-        return;
-    AST *nameAST = t->declaratorId()->unqualifiedName();
-    QByteArray name = textOf(nameAST);
-
-
-    if (!scopeOfDeclarator(d, QList<QByteArray>()).isEmpty()){
-        return;
-    }
-
-    //create VariableMember
-    CodeModel::VariableMember *variableMember = CodeModel::Create<CodeModel::VariableMember>(m_storage);
-    variableMember->setNameAST(nameAST);
-    variableMember->setName(name);
-    variableMember->setAccess(m_currentAccess);
-    variableMember->setParent(currentScope.top());
-    currentScope.top()->addMember(variableMember);
-
-    //look up type of variableMember,
-
-    TypeMember *typeMember = typeLookup(currentScope.top(), typeSpec->name());
-    if(typeMember) {
-        variableMember->setType(typeMember->type());
-  //      createNameUse(typeMember, typeSpec->name());
-    } else {
-        QByteArray text = typeOfDeclaration(typeSpec, d);
-        CodeModel::UnknownType *type = CodeModel::Create<CodeModel::UnknownType>(m_storage);
-        type->setName(text);
-        variableMember->setType(type);
-    }
-
-    if (decl)
-        parseNode(decl->initializer());
-
-}
-
-void Semantic::parseFunctionDeclaration(AST *funSpec, AST *storageSpec,
-                                        TypeSpecifierAST * typeSpec, InitDeclaratorAST * initDeclarator)
-{
-    bool isFriend = false;
-    bool isVirtual = false;
-    bool isStatic = false;
-    bool isInline = false;
-    bool isPure = initDeclarator->initializer() != 0;
-
-    if (funSpec){
-        List<AST*> l = *funSpec->children();
-        foreach (AST *current, l) {
-            QByteArray text = textOf(current);
-            if (text == "virtual") isVirtual = true;
-            else if (text == "inline") isInline = true;
-        }
-    }
-
-    if (storageSpec){
-        List<AST*> l = *storageSpec->children();
-        foreach (AST *current, l) {
-            QByteArray text = textOf(current);
-            if (text == "friend") isFriend = true;
-            else if (text == "static") isStatic = true;
-        }
-    }
-    DeclaratorAST *declarator = initDeclarator->declarator();
-    if(!declarator || !declarator->declaratorId())
-        return;
-    AST *nameAST = declarator->declaratorId()->unqualifiedName();
-    QByteArray name = textOf(nameAST);
-
-    CodeModel::FunctionMember *method = CodeModel::Create<CodeModel::FunctionMember>(m_storage);
-    method->setNameAST(nameAST);
-    method->setName(name);
-    method->setAccess(m_currentAccess);
-    method->setStatic(isStatic);
-    method->setVirtual(isVirtual);
-    method->setAbstract(isPure);
-
-    parseFunctionArguments(declarator, method);
-
-    if (m_inSignals)
-        method->setSignal(true);
-
-    if (m_inSlots)
-        method->setSlot(true);
-
-    method->setConstant(declarator->constant() != 0);
-
-    QByteArray text = typeOfDeclaration(typeSpec, declarator);
-    if (!text.isEmpty()) {
-        CodeModel::UnknownType *type = CodeModel::Create<CodeModel::UnknownType>(m_storage);
-        type->setName(text);
-        method->setReturnType(type);
-    }
-
-    method->setParent(currentScope.top());
-    currentScope.top()->addMember(method);
-}
-
-
-void Semantic::parseBaseClause(BaseClauseAST * baseClause, CodeModel::ClassScope *klass)
-{
-    if(!baseClause)
-        return;
-    if(!klass)
-        return;
-    List<BaseSpecifierAST*> l = *baseClause->baseSpecifierList();
-    foreach (BaseSpecifierAST *baseSpecifier, l) {
-        QByteArray baseName;
-        if (baseSpecifier->name())
-            baseName = textOf(baseSpecifier->name());
-
-        QList<CodeModel::Scope*> candidates = klass->findScope(baseName);
-        if (!candidates.isEmpty()) {
-            CodeModel::ClassType *type = CodeModel::Create<CodeModel::ClassType>(m_storage);
-            type->setScope(candidates.first()->toClassScope());
-            klass->addBaseClass(type);
-        } else {
-            CodeModel::UnknownType *type = CodeModel::Create<CodeModel::UnknownType>(m_storage);
-            type->setName(baseName);
-            klass->addBaseClass(type);
-        }
-    }
-}
-void Semantic::parseFunctionArguments(const DeclaratorAST *declarator, CodeModel::FunctionMember *method)
-{
-    if(!declarator || !method)
-        return;
-
-    ParameterDeclarationClauseAST *clause = declarator->parameterDeclarationClause();
-
-    if (clause && clause->parameterDeclarationList()){
-        ParameterDeclarationListAST *params = clause->parameterDeclarationList();
-        List<ParameterDeclarationAST*> l = *params->parameterList();
-        foreach (ParameterDeclarationAST *param, l) {
-            CodeModel::Argument *arg = CodeModel::Create<CodeModel::Argument>(m_storage);
-            arg->setParent(method);
-
-            if (param->declarator()){
-                QByteArray text = declaratorToString(param->declarator(), QByteArray(), true);
-                if(param->declarator()->declaratorId())
-                    arg->setNameAST(param->declarator()->declaratorId()->unqualifiedName());
-                if (!text.isEmpty())
-                    arg->setName(text);
-            }
-
-            QByteArray tp = typeOfDeclaration(param->typeSpec(), param->declarator());
-            if (!tp.isEmpty()) {
-                CodeModel::UnknownType *type = CodeModel::Create<CodeModel::UnknownType>(m_storage);
-                type->setName(tp);
-                arg->setType(type);
-            }
-
-            method->addArgument(arg);
-        }
-    }
-}
-
-QByteArray Semantic::typeOfDeclaration(TypeSpecifierAST *typeSpec, DeclaratorAST *declarator)
-{
-    if (!typeSpec)
-        return QByteArray();
-
-    QByteArray text;
-
-    if (typeSpec->cvQualify()) {
-        List<AST*> cv = *typeSpec->cvQualify()->children();
-        foreach (AST *current, cv) {
-            text += " " + textOf(current);
-        }
-        text += " ";
-    }
-
-
-    text += textOf(typeSpec);
-
-    if (typeSpec->cv2Qualify()) {
-        List<AST*> cv = *typeSpec->cv2Qualify()->children();
-        foreach (AST *current, cv) {
-            text += textOf(current) + " ";
-        }
-    }
-
-    if (declarator && declarator->ptrOpList()) {
-        List<AST*> ptrOpList = *declarator->ptrOpList();
-        foreach (AST *current, ptrOpList) {
-            text += " " + textOf(current);
-        }
-        text += " ";
-    }
-
-    return text.trimmed().simplified();
-}
-
-
-
-QList<QByteArray> Semantic::scopeOfName(NameAST *id, const QList<QByteArray>& startScope)
-{
-    QList<QByteArray> scope = startScope;
-    if (id && id->classOrNamespaceNameList()){
-        if (id->isGlobal())
-            scope.clear();
-
-        List<ClassOrNamespaceNameAST*> l = *id->classOrNamespaceNameList();
-        foreach (ClassOrNamespaceNameAST *current, l) {
-            if (current->name())
-               scope << textOf(current->name());
-        }
-    }
-
-    return scope;
-}
-
-QList<QByteArray> Semantic::scopeOfDeclarator(DeclaratorAST *d, const QList<QByteArray>& startScope)
-{
-    if(!d)
-        return QList<QByteArray>();
-    return scopeOfName(d->declaratorId(), startScope);
-}
-
-void Semantic::parseUsing(UsingAST *ast)
-{
-    if(currentScope.isEmpty()) {
-        emit error("Error in Semantic::parseUsing: no current Scope");
-        return;
-    }
-
-    //CodeModel::Scope *s = lookUpScope(currentScope.top(), ast->name());
-    QList<CodeModel::Member *> members = nameLookup(currentScope.top(), ast->name());
-    if(members.isEmpty()) {
-        emit error("Error in Semantic::parseUsing: could not look up using target");
-        return;
-    }
-    //TODO: handle multiple members (when nameLookup returns a set of overloded functions)
-    CodeModel::Member *member = members[0];
-    CodeModel::Scope *targetScope = member->parent();
-    if(!targetScope) {
-        emit error("Error in Semantic::parseUsing: target has no parent scope");
-        return;
-    }
-
-    if(!ast->name())
-        return;
-    AST *nameAST = ast->name()->unqualifiedName();
-    if(!nameAST)
-        return;
-    QByteArray name = textOf(nameAST);
-    CodeModel::UsingDirectiveMember *usingMember = CodeModel::Create<CodeModel::UsingDirectiveMember>(m_storage);
-    usingMember->setNameAST(nameAST);
-    usingMember->setName(name);
-    usingMember->setParent(currentScope.top());
-    usingMember->setTargetScope(targetScope);
-    currentScope.top()->addMember(usingMember);
-}
-
-void Semantic::parseUsingDirective(UsingDirectiveAST *ast)
-{
-  //  cout << "parse using directive" << endl;
-
-    QByteArray name = textOf(ast->name()->unqualifiedName());
- //   cout << "I'm going to use: " << name.constData() << endl;
-}
-
-
-
-void Semantic::parseFunctionDefinition(FunctionDefinitionAST *ast)
-{
-    if(!currentScope.top()){
-        emit error("Error in Semantic::parseFunctionDefinition: No current scope");
-        return;
-    }
-
-    AST *funSpec = ast->functionSpecifier();
-    AST *storageSpec = ast->storageSpecifier();
-    TypeSpecifierAST *typeSpec = ast->typeSpec();
-    InitDeclaratorAST *initDeclarator = ast->initDeclarator();
-    if (!ast->initDeclarator())
-        return;
-
-    DeclaratorAST *d = initDeclarator->declarator();
-
-    if (!d->declaratorId())
-        return;
-
-
-    // Check if function already has been declared, if not then this is also a declaration.
-    CodeModel::FunctionMember *method = functionLookup(currentScope.top(), d);
-    if (!method)
-        parseFunctionDeclaration(funSpec, storageSpec, typeSpec, initDeclarator);
-    method = functionLookup(currentScope.top(), d);
-
-    if(!method) {
-        emit error("Error in Semantic::parseFunctionDefinition: Could not find declaration for function definition");
-        return;
-    }
-
-    CodeModel::Scope *parent = method->parent();
-
-    if(!ast->functionBody()) {
-        emit error("Error in Semantic::parseFunctionDefinition: no function body in function definition");
-        return;
-    }
-
-    //create child function scope
-    QByteArray id = textOf(d->declaratorId()->unqualifiedName());
-    CodeModel::BlockScope *functionScope = CodeModel::Create<CodeModel::BlockScope>(m_storage);
-    functionScope->setName(QByteArray("__QT_ANON_BLOCK_SCOPE(Function: ") + id + QByteArray(")"));
-    functionScope->setParent(parent);
-    method->setFunctionBodyScope(functionScope);
-
-    //add arguments to child scope
-     CodeModel::ArgumentCollection *arguments = method->arguments();
-     for(int i=0; i<arguments->count(); ++i) {
-         CodeModel::Argument *argument = arguments->item(i);
-         CodeModel::VariableMember *variableMember = CodeModel::Create<CodeModel::VariableMember>(m_storage);
-         variableMember->setNameAST(argument->nameAST());
-         variableMember->setType(argument->type());
-         variableMember->setName(argument->name());
-         variableMember->setParent(functionScope);
-         functionScope->addMember(variableMember);
-     }
-
-    //push function scope and parse function body
-    currentScope.push(functionScope);
-    parseStatementList(ast->functionBody());
-    currentScope.pop();
-}
-
-void Semantic::parseStatementList(StatementListAST *statemenList)
-{
-    if(!statemenList)
-        return;
-    CodeModel::BlockScope *blockScope = CodeModel::Create<CodeModel::BlockScope>(m_storage);
-    blockScope->setName("__QT_ANON_BLOCK_SCOPE");
-    blockScope->setParent(currentScope.top());
-    currentScope.top()->addScope(blockScope);
-
-    currentScope.push(blockScope);
-    TreeWalker::parseStatementList(statemenList);
-    currentScope.pop();
-}
-
-void Semantic::parseExpression(AbstractExpressionAST* node)
-{
-    if(!node)
-        return;
-    if(node->nodeType() == NodeType_ClassMemberAccess)
-        parseClassMemberAccess(static_cast<ClassMemberAccessAST *>(node));
-    else
-        TreeWalker::parseExpression(node);
-}
-
-/*
-    Pretty hardwired code for handling class member access of the types:
-    object.member and objectPtr->member.
-
-    This function creates a name use for object to its declaration, and a
-    name use from member to its declaration in the class.
-*/
-void Semantic::parseClassMemberAccess(ClassMemberAccessAST *node)
-{
-    if(!node)
-        return;
-    parseExpression(node->expression());
-    NameUse *nameUse = findNameUse(node->expression());
-    if(!nameUse)
-        return;
-    if(    nameUse
-        && nameUse->declaration()
-        && nameUse->declaration()->toVariableMember()
-        && nameUse->declaration()->toVariableMember()->type()
-        && nameUse->declaration()->toVariableMember()->type()->toClassType()
-        && nameUse->declaration()->toVariableMember()->type()->toClassType()->scope())   {
-
-        CodeModel::Scope *scope = nameUse->declaration()->toVariableMember()->type()->toClassType()->scope();
-        QList<CodeModel::Member *> members = lookupNameInScope(scope, node->name());
-            if(members.count() != 0)
-                createNameUse(members.at(0), node->name());
-    }
-}
-
-void Semantic::parseExpressionStatement(ExpressionStatementAST *node)
-{
-    TreeWalker::parseExpressionStatement(node);
-}
-
-
-/*
-    Parses a name: looks up name, creates name use.
-*/
-void Semantic::parseNameUse(NameAST* name)
-{
-    if(!name)
-        return;
-    if(currentScope.isEmpty()) {
-        emit error("Error in Semantic::parseUsing: no current Scope");
-        return;
-    }
-
-    // Look up name
-    QList<CodeModel::Member *> members = nameLookup(currentScope.top(), name);
-    if(members.isEmpty()) {
-        emit error("Error in Semantic::parseUsing: could not look up using target");
-        return;
-    }
-    //TODO: handle multiple members (when nameLookup returns a set of overloaded functions)
-    CodeModel::Member *member = members[0];
-    if(!member->parent()) {
-        emit error("Error in Semantic::parseUsing: target has no parent scope");
-        return;
-    }
-
-    createNameUse(member, name);
-}
-
 void Semantic::createNameUse(Member *member, NameAST *name)
 {
     AST *unqualifedName = name->unqualifiedName()->name();
@@ -934,7 +1117,7 @@ void Semantic::createNameUse(Member *member, NameAST *name)
 
     CodeModel::NameUse *nameUse = CodeModel::Create<CodeModel::NameUse>(m_storage);
     nameUse->setParent(currentScope.top());
-    nameUse->setNameAST(unqualifedName);
+    nameUse->setNameToken(tokenRefFromAST(unqualifedName));
     nameUse->setName(textOf(unqualifedName));
     nameUse->setDeclaration(member);
 
@@ -948,7 +1131,11 @@ void Semantic::addNameUse(AST *node, NameUse *nameUse)
     m_nameUses.insert(tokenIndex, nameUse);
 }
 
-
+/*
+    Searches a AST node and all its children for a nameUse. The name use is
+    found by looking up each node's tokens in the m_nameUses map. A depth-first
+    search is used.
+*/
 NameUse *Semantic::findNameUse(AST *node)
 {
     if(!node)
@@ -974,100 +1161,16 @@ NameUse *Semantic::findNameUse(AST *node)
     return 0;
 }
 
-
-void Semantic::parseEnumSpecifier(EnumSpecifierAST *ast)
+/*
+    Gets a TokenRef from an AST node.
+    Assumes that the node only covers one token, which means that
+    node->statToken() == node->endToken(). If this is not the case
+    then the TokenRef will reference the token at startToken.
+*/
+TokenEngine::TokenRef Semantic::tokenRefFromAST(AST *node)
 {
-    if(!currentScope.top()){
-        emit error("Error in Semantic::parseEnumSpecifier: No current scope");
-        return;
-    }
-
-    if (!ast->name())
-         return;
-
-    QByteArray name = textOf(ast->name());
-
-    //create a Type
-    CodeModel::EnumType *type = CodeModel::Create<CodeModel::EnumType>(m_storage);
-    type->setName(name);
-    currentScope.top()->addType(type);
-    type->setParent(currentScope.top());
-
-
-
-    //create a TypeMember
-    CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
-    if(ast->name())
-        typeMember->setNameAST(ast->name()->unqualifiedName());
-    typeMember->setName(name);
-    typeMember->setType(type);
-    currentScope.top()->addMember(typeMember);
-    typeMember->setParent(currentScope.top());
-
-    //parse the eneumerators
-    List<EnumeratorAST*> l = *ast->enumeratorList();
-    foreach (EnumeratorAST *current, l) {
-        CodeModel::VariableMember *attr = CodeModel::Create<CodeModel::VariableMember>(m_storage);
-        typeMember->setNameAST(current->id());
-        attr->setName(textOf(current->id()));
-        attr->setAccess(m_currentAccess);
-        attr->setStatic(true);
-
-        attr->setType(&CodeModel::BuiltinType::Int);
-        currentScope.top()->addMember(attr);
-    }
+    const int startTokenIndex = node->startToken();
+    const TokenEngine::TokenContainer tokenContainer = m_tokenStream->tokenContainer(startTokenIndex);
+    const int containerIndex = m_tokenStream->containerIndex(startTokenIndex);
+    return TokenEngine::TokenRef(tokenContainer, containerIndex);
 }
-
-void Semantic::parseTypedef(TypedefAST *ast)
-{
-    TypeSpecifierAST *typeSpec = ast->typeSpec();
-    InitDeclaratorListAST *declarators = ast->initDeclaratorList();
-
-    if (typeSpec && declarators){
-        QByteArray typeId;
-
-        if (typeSpec->name())
-            typeId = textOf(typeSpec->name());
-
-        List<InitDeclaratorAST*> l = *declarators->initDeclaratorList();
-        foreach (InitDeclaratorAST *initDecl, l) {
-            QByteArray type, id;
-            if (initDecl->declarator()){
-               type = typeOfDeclaration(typeSpec, initDecl->declarator());
-
-               DeclaratorAST *d = initDecl->declarator();
-               while (d->subDeclarator()){
-                   d = d->subDeclarator();
-               }
-
-               if (d->declaratorId())
-                  id = textOf(d->declaratorId());
-            }
-
-            //create a type
-            CodeModel::Scope *scope = currentScope.top();
-            CodeModel::AliasType *typeAlias = CodeModel::Create<CodeModel::AliasType>(m_storage);
-            //typeAlias->setName(id);
-            //typeAlias->setParent(scope);
-            scope->addType(typeAlias);
-
-            //create a TypeMember
-            CodeModel::TypeMember *typeMember = CodeModel::Create<CodeModel::TypeMember>(m_storage);
-            if(typeSpec->name())
-                typeMember->setNameAST(typeSpec->name()->unqualifiedName());
-            typeMember->setName(id);
-            typeMember->setType(typeAlias);
-            currentScope.top()->addMember(typeMember);
-            typeMember->setParent(currentScope.top());
-
-        }
-
-    }
-}
-
-void Semantic::parseTypeSpecifier(TypeSpecifierAST *ast)
-{
-    parseNameUse(ast->name());
-    TreeWalker::parseTypeSpecifier(ast);
-}
-

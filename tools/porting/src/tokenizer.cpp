@@ -67,6 +67,7 @@ void Tokenizer::setupScanTable()
             s_scan_table[i] = &Tokenizer::scanOperator;
             break;
 
+        case '\r':
         case '\n':
             s_scan_table[i] = &Tokenizer::scanNewline;
             break;
@@ -105,7 +106,7 @@ void Tokenizer::setupScanTable()
     s_scan_table[128] = &Tokenizer::scanUnicodeChar;
 }
 
-QList<TokenEngine::Token> Tokenizer::tokenize(QByteArray text)
+QVector<TokenEngine::Token> Tokenizer::tokenize(QByteArray text)
 {
     m_tokens.clear();
 
@@ -157,7 +158,22 @@ void Tokenizer::scanWhiteSpaces(int *kind)
 
 void Tokenizer::scanNewline(int *kind)
 {
-    *kind = m_buffer[m_ptr++];
+    Q_UNUSED(kind);
+    const unsigned char ch = m_buffer[m_ptr++];
+    // Check for \n.
+    if (ch == '\n') {
+        *kind = '\n';
+        return;
+    }
+
+    // Check for \r\n.
+    if (ch == '\r' && m_buffer[m_ptr] == '\n') {
+        *kind = '\n';
+        ++ m_ptr;
+        return;
+    }
+
+    *kind = ch;
 }
 
 void Tokenizer::scanUnicodeChar(int *kind)
@@ -266,6 +282,7 @@ void Tokenizer::scanComment(int *kind)
 
     while (m_buffer[m_ptr]) {
         switch (m_buffer[m_ptr]) {
+        case '\r':
         case '\n':
             if (!multiLineComment) {
                 *kind = Token_comment;

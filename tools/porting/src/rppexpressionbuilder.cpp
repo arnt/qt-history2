@@ -17,7 +17,7 @@
 using namespace TokenEngine;
 namespace Rpp {
 
-ExpressionBuilder::ExpressionBuilder(const TokenList &tokenList, const QList<Type> &typeList, TypedPool<Item> *memoryPool)
+ExpressionBuilder::ExpressionBuilder(const TokenList &tokenList, const QVector<Type> &typeList, TypedPool<Item> *memoryPool)
 :i(0)
 ,m_tokenList(tokenList)
 ,m_typeList(typeList)
@@ -45,6 +45,11 @@ inline bool ExpressionBuilder::test(int token)
         return true;
     }
     return false;
+}
+
+inline bool ExpressionBuilder::moreTokens(int delta)
+{
+    return (i + delta < m_tokenList.count());
 }
 
 inline Type ExpressionBuilder::lookup(int k)
@@ -228,7 +233,10 @@ Expression *ExpressionBuilder::primary_expression()
 {
     Expression *value;
     if (test('(')) {
-        value = conditional_expression();
+        if (moreTokens(1))
+            value = conditional_expression();
+        else
+            value = createIntLiteral(0); // Syntax error.
         test(')');
     } else {
         next();
@@ -256,7 +264,7 @@ bool ExpressionBuilder::primary_expression_lookup()
 TokenList ExpressionBuilder::createTokenList(int tokenIndex) const
 {
     return TokenList(m_tokenList.tokenContainer(tokenIndex),
-        QList<int>() << m_tokenList.containerIndex(tokenIndex));
+        QVector<int>() << m_tokenList.containerIndex(tokenIndex));
 }
 /*
     Node cration helper functions

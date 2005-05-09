@@ -13,6 +13,7 @@
 #include "codemodelwalker.h"
 #include <iostream>
 using namespace std;
+using namespace CodeModel;
 
 
 void CodeModelWalker::parseScope(CodeModel::Scope *scope)
@@ -27,21 +28,25 @@ void CodeModelWalker::parseScope(CodeModel::Scope *scope)
     if(scope->toBlockScope())
         parseBlockScope(scope->toBlockScope());
 
-    CodeModel::MemberCollection *m = scope->members();
-    if(m)
-        for (int i=0; i<m->count(); ++i)
-            parseMember(m->item(i));
 
-    CodeModel::ScopeCollection *c = scope->scopes();
-    if(c)
-        for (int i=0; i<c->count(); ++i)
-            parseScope(c->item(i));
-
-    CodeModel::NameUseCollection *n = scope->nameUses();
-    if(n)
-        for (int i=0; i <n->count(); ++i) {
-            parseNameUse(n->item(i));
-        }
+    {
+        MemberCollection collection = scope->members();
+        MemberCollection::ConstIterator it = collection.constBegin();
+        while(it != collection.constEnd())
+            parseMember(*it++);
+    }
+    {
+        ScopeCollection collection = scope->scopes();
+        ScopeCollection::ConstIterator it = collection.constBegin();
+        while(it != collection.constEnd())
+            parseScope(*it++);
+    }
+    {
+        NameUseCollection collection = scope->nameUses();
+        NameUseCollection::ConstIterator it = collection.constBegin();
+        while(it != collection.constEnd())
+            parseNameUse(*it++);
+    }
 }
 
 void CodeModelWalker::parseType(CodeModel::Type *type)
@@ -77,8 +82,6 @@ void CodeModelWalker::parseMember(CodeModel::Member *member)
         parseVariableMember(member->toVariableMember());
     else if (member->toUsingDeclarationMember())
         parseUsingDeclarationMember(member->toUsingDeclarationMember());
-    else if (member->toUsingDirectiveMember())
-        parseUsingDirectiveMember(member->toUsingDirectiveMember());
     else if (member->toTypeMember())
         parseTypeMember(member->toTypeMember());
 }

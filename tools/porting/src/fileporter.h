@@ -15,6 +15,7 @@
 #define FILEPORTER_H
 
 #include <QString>
+#include <QSet>
 #include <QMap>
 #include "portingrules.h"
 #include "replacetoken.h"
@@ -26,6 +27,7 @@ class FilePorter
 public:
     FilePorter(PreprocessorCache &preprocessorCache);
     void port(QString fileName);
+    QSet<QByteArray> usedQtModules();
 private:
     QByteArray loadFile(const QString &fileName);
     QByteArray includeAnalyse(QByteArray fileContents);
@@ -33,8 +35,35 @@ private:
     PreprocessorCache &preprocessorCache;
     QList<TokenReplacement*> tokenReplacementRules;
     ReplaceToken replaceToken;
-    QMap<QString, int> qt4HeaderNames;
     Tokenizer tokenizer;    //used by includeAnalyse
+
+    QSet<QByteArray> qt4HeaderNames;
+    QSet<QByteArray> m_usedQtModules;
 };
+
+class IncludeDirectiveAnalyzer : public Rpp::RppTreeWalker
+{
+public:
+    IncludeDirectiveAnalyzer(const TokenEngine::TokenContainer &fileContents);
+    int insertPos();
+    QSet<QByteArray> includedHeaders();
+    QSet<QByteArray> usedClasses();
+private:
+    void evaluateIncludeDirective(const Rpp::IncludeDirective *directive);
+    void evaluateIfSection(const Rpp::IfSection *ifSection);
+    void evaluateText(const Rpp::Text *textLine);
+
+    int insertTokenIndex;
+    bool foundInsertPos;
+    bool foundQtHeader;
+    int ifSectionCount;
+
+    const TokenEngine::TokenContainer &fileContents;
+    Rpp::Source *source;
+    TypedPool<Rpp::Item> mempool;
+    QSet<QByteArray> m_includedHeaders;
+    QSet<QByteArray> m_usedClasses;
+};
+
 
 #endif

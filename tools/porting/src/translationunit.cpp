@@ -11,17 +11,12 @@
 **
 ****************************************************************************/
 #include "translationunit.h"
+#include <iostream>
 
-
+using namespace std;
 using namespace TokenEngine;
 using namespace CodeModel;
 using namespace TokenStreamAdapter;
-
-TranslationUnitData::~TranslationUnitData()
-{
-    if(tokenStream)
-        delete tokenStream;
-}
 
 TranslationUnit::TranslationUnit()
 {
@@ -35,57 +30,42 @@ TranslationUnit::TranslationUnit(const TokenEngine::TokenSectionSequence &tokens
 TokenSectionSequence TranslationUnit::tokens() const
 { return d->tokens; }
 
-void TranslationUnit::setTokenStream(const TokenStreamAdapter::TokenStream *tokenStream)
-{ d->tokenStream = tokenStream;}
-
-const TokenStreamAdapter::TokenStream *TranslationUnit::tokenStream() const
-{ return d->tokenStream; }
-
-void TranslationUnit::setSyntaxTree(const TranslationUnitAST *syntaxTree)
-{ d->syntaxTree = syntaxTree; }
-
-const TranslationUnitAST *TranslationUnit::syntaxTree() const
-{ return d->syntaxTree; }
-
-void TranslationUnit::setCodeModel(const NamespaceScope *globalScope)
+void TranslationUnit::setCodeModel(NamespaceScope *globalScope)
 { d->globalScope = globalScope; }
 
-const NamespaceScope *TranslationUnit::codeModel() const
+NamespaceScope *TranslationUnit::codeModel()
 { return d->globalScope; }
-
-pool *TranslationUnit::memoryPool()
-{ return &d->memoryPool; }
 
 TypedPool<CodeModel::Item> *TranslationUnit::codeModelMemoryPool()
 { return &d->codeModelMemoryPool; }
+
+
 
 /*
     Performs C++ parsing and semantic analysis on a translation unit.
     Returns a TranslationUnit, which contains all the data.
 */
 TranslationUnit TranslationUnitAnalyzer::analyze
-        (const TokenSectionSequence &translationUnitTokens)
+        (const TokenSectionSequence &translationUnitTokens, int targetMaxASTNodes)
 {
     TranslationUnit translationUnit(translationUnitTokens);
+    CodeModel::NamespaceScope *codeModel =
+        CodeModel::Create<CodeModel::NamespaceScope>(translationUnit.codeModelMemoryPool());
+    translationUnit.setCodeModel(codeModel);
 
     // run lexical analysis
-    QList< ::Type> typeList = lexer.lex(translationUnitTokens);
-    TokenStreamAdapter::TokenStream *tokenStream
-            = new TokenStreamAdapter::TokenStream(translationUnitTokens, typeList);
+    QVector< ::Type> typeList = lexer.lex(translationUnitTokens);
+    TokenStreamAdapter::TokenStream tokenStream(translationUnitTokens, typeList);
 
-    translationUnit.setTokenStream(tokenStream);
+    Semantic semantic(codeModel, &tokenStream, translationUnit.codeModelMemoryPool());
 
-    // run C++ parser, create AST
-    TranslationUnitAST *node = parser.parse
-            (tokenStream, translationUnit.memoryPool());
-
-    translationUnit.setSyntaxTree(node);
-
-    // run semantic analysis
-    CodeModel::NamespaceScope *codeModel = semantic.parseTranslationUnit
-                    (node, tokenStream, translationUnit.codeModelMemoryPool());
-
-    translationUnit.setCodeModel(codeModel);
+    // parse and run semantic on the translation unit
+    bool done = false;
+    while(!done) {
+        pool p;
+        TranslationUnitAST *node = parser.parse(&tokenStream, &p, targetMaxASTNodes, done);
+        semantic.parseTranslationUnit(node);
+    }
 
     return translationUnit;
 }

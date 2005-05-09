@@ -17,7 +17,6 @@
 
 #include <QVector>
 #include <QByteArray>
-#include <QList>
 #include "tokenengine.h"
 
 class Tokenizer
@@ -26,7 +25,7 @@ public:
     Tokenizer();
     ~Tokenizer();
     typedef void (Tokenizer::*scan_fun_ptr)(int *kind);
-    QList<TokenEngine::Token> tokenize(QByteArray text);
+    QVector<TokenEngine::Token> tokenize(QByteArray text);
 private:
     bool nextToken(TokenEngine::Token &tok);
 
@@ -51,7 +50,7 @@ private:
     const char *m_buffer;
     int m_ptr;
 
-    QList<TokenEngine::Token> m_tokens;
+    QVector<TokenEngine::Token> m_tokens;
 };
 
 #endif

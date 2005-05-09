@@ -14,7 +14,7 @@
 #define PREPROCESSORCONTROL_H
 #include <QString>
 #include <QStringList>
-#include <QMap>
+#include <QHash>
 #include "tokenengine.h"
 #include "tokenizer.h"
 #include "rpplexer.h"
@@ -42,16 +42,19 @@ public:
     PreprocessorCache();
     TokenEngine::TokenContainer sourceTokens(const QString &filename);
     Rpp::Source *sourceTree(const QString &filename);
+    bool containsSourceTokens(const QString &filename);
+    bool containsSourceTree(const QString &filename);
 signals:
     void error(QString type, QString text);
+    void readFile(QByteArray &contents, QString filename);
 private:
     QByteArray readFile(const QString & filename) const;
     Tokenizer m_tokenizer;
     Rpp::RppLexer m_lexer;
     Rpp::Preprocessor m_preprocessor;
     TypedPool<Rpp::Item> m_memoryPool;
-    QMap<QString, Rpp::Source *> m_sourceTrees;
-    QMap<QString, TokenEngine::TokenContainer> m_sourceTokens;
+    QHash<QString, Rpp::Source *> m_sourceTrees;
+    QHash<QString, TokenEngine::TokenContainer> m_sourceTokens;
 };
 
 class PreprocessorController: public QObject
@@ -59,23 +62,46 @@ class PreprocessorController: public QObject
 Q_OBJECT
 public:
     PreprocessorController(IncludeFiles includefiles,
-                           PreprocessorCache &preprocessorCahce,
-                           Rpp::DefineMap *activedefinitions);
+                           PreprocessorCache &preprocessorCache,
+                           QString preLoadFilesFilename = QString());
 
-    TokenEngine::TokenSectionSequence evaluate(const QString &filename);
+    TokenEngine::TokenSectionSequence evaluate(const QString &filename, Rpp::DefineMap *activedefinitions);
 public slots:
     void includeSlot(Rpp::Source *&includee, const Rpp::Source *includer,
          const QString &filename, Rpp::RppTreeEvaluator::IncludeType includeType);
+    void readFile(QByteArray &contents, QString filename);
 signals:
     void error(QString type, QString text);
 private:
     IncludeFiles m_includeFiles;
     Rpp::RppTreeEvaluator m_rppTreeEvaluator;
     PreprocessorCache &m_preprocessorCache;
-    Rpp::DefineMap *m_activeDefinitions;
+    QHash<QString, QByteArray> m_preLoadFiles;
 };
 
 Rpp::DefineMap *defaultMacros(PreprocessorCache &preprocessorCache);
+
+class StandardOutErrorHandler : public QObject
+{
+Q_OBJECT
+public slots:
+    void error(QString type, QString text);
+};
+
+class RppPreprocessor
+{
+public:
+    RppPreprocessor(QString basePath, QStringList includePaths, QString preLoadFilesFilename = QString());
+    ~RppPreprocessor();
+    TokenEngine::TokenSectionSequence evaluate(const QString &filename);
+private:
+    IncludeFiles m_includeFiles;
+    PreprocessorCache m_cache;
+    Rpp::DefineMap *m_activeDefinitions;
+    PreprocessorController m_controller;
+    StandardOutErrorHandler m_errorHandler;
+};
+
 
 #endif
 

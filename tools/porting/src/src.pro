@@ -13,6 +13,7 @@ HEADERS +=  smallobject.h             \
             tokenizer.h               \
             rpplexer.h                \
             rpp.h                     \
+            rpptreewalker.h           \
             rpptreeevaluator.h        \
             rppexpressionbuilder.h    \
             preprocessorcontrol.h     \
@@ -45,6 +46,7 @@ SOURCES += port.cpp                  \
            tokenizer.cpp             \
            rpplexer.cpp              \
            rpp.cpp                   \
+           rpptreewalker.cpp         \
            rpptreeevaluator.cpp      \
            rppexpressionbuilder.cpp  \
            preprocessorcontrol.cpp   \
@@ -68,6 +70,8 @@ SOURCES += port.cpp                  \
            codemodel.cpp             \
            codemodelwalker.cpp       \
            codemodelattributes.cpp
+
+RESOURCES += qt3headers.qrc
 
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target

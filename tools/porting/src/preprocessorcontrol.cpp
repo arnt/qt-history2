@@ -118,9 +118,21 @@ QString IncludeFiles::searchIncludePaths(const QString &includeFile) const
 
 QByteArray PreprocessorCache::readFile(const QString &filename) const
 {
+    // If anybody is connected to the readFile signal we tell them to
+    // read the file for us.
+    if (receivers(SIGNAL(readFile(QByteArray &, QString))) > 0) {
+        QByteArray array;
+        // Workaround for "not beeing able to emit from const function"
+        PreprocessorCache *cache = const_cast<PreprocessorCache *>(this);
+        emit cache->readFile(array, filename);
+        return array;
+    }
+
     QFile f(filename);
+    if (!f.exists())
+        return QByteArray();
     f.open(QIODevice::ReadOnly);
-    if(!f.isOpen())
+    if (!f.isOpen())
         return QByteArray();
     return f.readAll();
 }
@@ -141,15 +153,25 @@ PreprocessorCache::PreprocessorCache()
 */
 TokenContainer PreprocessorCache::sourceTokens(const QString &filename)
 {
-//    cout << "sourceTokens: " << filename.toLatin1().constData() << endl;
+    // Check if the source tokens are already in the cache.
     if(m_sourceTokens.contains(filename))
         return m_sourceTokens.value(filename);
-    if(!QFile::exists(filename))
+
+    // Read and tokenize file.
+    QByteArray fileContents = readFile(filename);
+    if(fileContents == QByteArray())
         return TokenContainer();
 
-    QByteArray fileContents = readFile(filename);
-    QList<TokenEngine::Token> tokenList = m_tokenizer.tokenize(fileContents);
-    TokenContainer tokenContainer(fileContents, tokenList);
+    QVector<TokenEngine::Token> tokenList = m_tokenizer.tokenize(fileContents);
+
+    // Create a FileInfo object that holds the filename for this container.
+    FileInfo *containterFileInfo = new FileInfo;
+    containterFileInfo->filename = filename;
+
+    // Create container.
+    TokenContainer tokenContainer(fileContents, tokenList, containterFileInfo);
+
+    // Insert into cache.
     m_sourceTokens.insert(filename, tokenContainer);
     return tokenContainer;
 }
@@ -163,38 +185,72 @@ TokenContainer PreprocessorCache::sourceTokens(const QString &filename)
 */
 Source *PreprocessorCache::sourceTree(const QString &filename)
 {
+    // Check if the Rpp tree for this file is already in the cache.
     if(m_sourceTrees.contains(filename))
         return m_sourceTrees.value(filename);
+
+    // Get the tokens for the contents of this file.
     TokenContainer tokenContainer = sourceTokens(filename);
-    QList<Type> tokenTypes = m_lexer.lex(tokenContainer);
+
+    // Run lexer and the preprocessor-parser.
+    QVector<Type> tokenTypes = m_lexer.lex(tokenContainer);
     Source *source = m_preprocessor.parse(tokenContainer, tokenTypes, &m_memoryPool);
     source->setFileName(filename);
 
-    if(tokenContainer.count() > 0) //don't cache empty files
+    // Insert into cache.
+    if(tokenContainer.count() > 0) //don't cache empty files.
         m_sourceTrees.insert(filename, source);
 
     return source;
 }
 
-PreprocessorController::PreprocessorController(IncludeFiles includeFiles,
-        PreprocessorCache &preprocessorCache, DefineMap *activeDefinitions)
-:m_includeFiles(includeFiles),
- m_preprocessorCache(preprocessorCache),
- m_activeDefinitions(activeDefinitions)
+
+/*
+    Returns whether the cache contains a TokenContainer for the given filename.
+*/
+bool PreprocessorCache::containsSourceTokens(const QString &filename)
 {
+    return m_sourceTokens.contains(filename);
+}
+
+/*
+    Returns whether the cache contains a Preprocessor tree for the given filename.
+*/
+bool PreprocessorCache::containsSourceTree(const QString &filename)
+{
+    return m_sourceTrees.contains(filename);
+}
+
+PreprocessorController::PreprocessorController(IncludeFiles includeFiles,
+        PreprocessorCache &preprocessorCache,
+        QString preLoadFilesFilename)
+:m_includeFiles(includeFiles),
+ m_preprocessorCache(preprocessorCache)
+ {
+    if (preLoadFilesFilename != QString()) {
+        QFile f(preLoadFilesFilename);
+        if (f.open(QIODevice::ReadOnly)) {
+            QByteArray buffer = f.readAll();
+            f.close();
+            QDataStream stream(buffer);
+            stream >> m_preLoadFiles;
+        }
+    }
+
     //connect include callback
     connect(&m_rppTreeEvaluator,
         SIGNAL(includeCallback(Source *&, const Source *,
         const QString &, RppTreeEvaluator::IncludeType)),
-        this,
         SLOT(includeSlot(Source *&, const Source *,
         const QString &, RppTreeEvaluator::IncludeType)));
+
+    // connect readFile callback
+    connect(&m_preprocessorCache, SIGNAL(readFile(QByteArray &, QString)),
+        SLOT(readFile(QByteArray &, QString)));
 
     //connect error handlers
     connect(&m_preprocessorCache , SIGNAL(error(QString,QString)),
             this, SIGNAL(error(QString,QString)));
-
-
 }
 
 /*
@@ -208,32 +264,62 @@ void PreprocessorController::includeSlot(Source *&includee,
                                          RppTreeEvaluator::IncludeType includeType)
 {
     QString newFilename;
-    if(includeType==RppTreeEvaluator::QuoteInclude)
+    if(includeType == RppTreeEvaluator::QuoteInclude)
         newFilename = m_includeFiles.quoteLookup(includer->fileName(), filename);
     else //AngleBracketInclude
         newFilename = m_includeFiles.angleBracketLookup(filename);
 
-    if (!QFile::exists(newFilename))
-        emit error("Error", "Could not find file " + filename);
+    if (QFile::exists(newFilename)) {
+        includee = m_preprocessorCache.sourceTree(newFilename);
+        return;
+    }
+
+    if (m_preLoadFiles.contains(filename)) {
+        includee = m_preprocessorCache.sourceTree(filename);
+        return;
+    }
 
     includee = m_preprocessorCache.sourceTree(newFilename);
+    emit error("Error", "Could not find file " + filename);
+}
+
+/*
+    Callback connected to preprocessorCache. Tries to load a file from
+    m_preLoadFiles before going to disk.
+*/
+void PreprocessorController::readFile(QByteArray &contents, QString filename)
+{
+    if (m_preLoadFiles.contains(filename)) {
+        contents = m_preLoadFiles.value(filename);
+        return;
+    }
+
+    QFile f(filename);
+    if (!f.exists())
+        return;
+    f.open(QIODevice::ReadOnly);
+    if (!f.isOpen())
+        return;
+    contents = f.readAll();
 }
 
 /*
     Preprocess file give by filename. Filename is resloved agains the basepath
     set in IncludeFiles.
 */
-TokenSectionSequence PreprocessorController::evaluate(const QString &filename)
+TokenSectionSequence PreprocessorController::evaluate(const QString &filename, Rpp::DefineMap *activedefinitions)
 {
     QString resolvedFilename = m_includeFiles.resolve(filename);
     if(!QFile::exists(resolvedFilename))
         emit error("Error", "Could not find file: " + filename);
     Source *source  = m_preprocessorCache.sourceTree(resolvedFilename);
-    return m_rppTreeEvaluator.evaluate(source, m_activeDefinitions);
+
+    return m_rppTreeEvaluator.evaluate(source, activedefinitions);
 }
 
 QByteArray defaultDefines =
     "#define __attribute__(a...)  \n \
+         #define __attribute__ \n \
          #define __extension \n \
          #define __extension__ \n \
          #define __restrict \n \
@@ -247,12 +333,14 @@ QByteArray defaultDefines =
          #define __asm               asm\n \
          #define __asm__             asm\n \
          #define __GNUC__                 2\n \
-         #define __GNUC_MINOR__          95\n  ";
+         #define __GNUC_MINOR__          95\n  \
+         #define __cplusplus \n \
+         #define __linux__ \n";
 
 
 /*
-    Returns a DefineMap containing the above macro definitions.
-    The DefineMap will contain pointers to data stored in the cache
+    Returns a DefineMap containing the above macro definitions. The DefineMap
+    will contain pointers to data stored in the provided cache object.
 */
 Rpp::DefineMap *defaultMacros(PreprocessorCache &cache)
 {
@@ -263,9 +351,38 @@ Rpp::DefineMap *defaultMacros(PreprocessorCache &cache)
     tempfile.write(defaultDefines);
 
     IncludeFiles *includeFiles = new IncludeFiles(QString(), QStringList());
-    PreprocessorController preprocessorController(*includeFiles, cache, defineMap);
+    PreprocessorController preprocessorController(*includeFiles, cache);
     //evaluate default macro file.
-    preprocessorController.evaluate(tempfile.fileName());
+    preprocessorController.evaluate(tempfile.fileName(), defineMap);
     delete includeFiles;
     return defineMap;
+}
+
+void StandardOutErrorHandler::error(QString type, QString text)
+{
+    Q_UNUSED(type);
+    cout << qPrintable(text) << endl;
+}
+
+/*
+    RppPreprocessor is a convenience class that contains all the components
+    needed to preprocess files. Error messages are printed to standard out.
+*/
+RppPreprocessor::RppPreprocessor(QString basePath, QStringList includePaths, QString preLoadFilesFilename)
+:m_includeFiles(basePath, includePaths)
+,m_activeDefinitions(defaultMacros(m_cache))
+,m_controller(m_includeFiles, m_cache, preLoadFilesFilename)
+{
+    QObject::connect(&m_controller, SIGNAL(error(QString, QString)), &m_errorHandler, SLOT(error(QString, QString)));
+}
+
+RppPreprocessor::~RppPreprocessor()
+{
+    delete m_activeDefinitions;
+}
+
+TokenEngine::TokenSectionSequence RppPreprocessor::evaluate(const QString &filename)
+{
+    DefineMap defMap = *m_activeDefinitions;
+    return m_controller.evaluate(filename, &defMap);
 }

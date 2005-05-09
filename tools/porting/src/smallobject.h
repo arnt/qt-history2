@@ -30,7 +30,7 @@ struct block_t
     char *ptr;
     char *end;
 
-    inline void init(int block_size=256)
+    inline void init(int block_size = 256)
     {
         ++N;
         chain = 0;
@@ -58,12 +58,14 @@ struct block_t
 
     inline void *allocate(size_t size, block_t **right_most)
     {
+        const unsigned int block_size = 1 << 16;
         if (end < ptr + size) {
-//            assert( size < block_size );
+            assert( size < block_size );
 
             if (!chain) {
                 chain = (block_t*) malloc(sizeof(block_t));
-                chain->init(1 << (8 + N));
+                Q_ASSERT(chain);
+                chain->init(block_size);
             }
 
             return chain->allocate(size, right_most);
@@ -91,16 +93,19 @@ struct pool
 
     inline void *allocate(size_t size)
     {
-//         return ::malloc(size);
-        return right_most->allocate(size, &right_most);
+        void *ptr = right_most->allocate(size, &right_most);
+        Q_ASSERT(ptr);
+        return ptr;
+
     }
     inline void *reallocate(void *old, size_t old_size, size_t size)
     {
-//         return ::realloc(old, size);
         void *alloc = right_most->allocate(size, &right_most);
         memcpy(alloc, old, old_size);
         return alloc;
     }
+private:
+   Q_DISABLE_COPY(pool)
 };
 
 /*
@@ -130,6 +135,7 @@ public:
         Q_ASSERT(memory);
     }
 private:
+    Q_DISABLE_COPY(TypedPool)
     block_t blk;
     block_t *right_most;
     QList<BaseType *> allocated;

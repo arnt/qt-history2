@@ -14,7 +14,7 @@
 #include "logger.h"
 #include <iostream>
 #include <QFile>
-#include <stdio.h>
+
 
 LogEntry::LogEntry(QString type, QString location)
 :type(type), location(location)
@@ -34,6 +34,12 @@ QString SourcePointLogEntry::description() const
            " at line " + QString("%1").arg(line + 1) + //line count is zero based, adjust here.
            " column "  + QString("%1").arg(column) +
            ": " + text ;
+}
+
+void SourcePointLogEntry::updateLinePos(int threshold,  int delta)
+{
+    if (line >= threshold)
+        line += delta;
 }
 
 /////////////////////////////////////////////////////
@@ -96,4 +102,15 @@ QStringList Logger::fullReport()
         report << logEntry->description();
     }
     return report;
+}
+
+/*
+    Update the line for all SourcePointLogEntrys in the list of pending log
+    entries located on or after insertLine.
+*/
+void Logger::updateLineNumbers(int insertLine, int numLines)
+{
+    foreach(LogEntry *logEntry, pendingLogEntries) {
+        logEntry->updateLinePos(insertLine, numLines);
+    }
 }
