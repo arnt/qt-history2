@@ -32,7 +32,8 @@ extern int qInitResources_widgetbox();
 
 QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
-      m_server(0)
+      m_server(0),
+      m_client(0)
 {
     setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
@@ -47,6 +48,7 @@ QDesigner::~QDesigner()
 {
     delete m_workbench;
     delete m_server;
+    delete m_client;
 }
 
 QDesignerWorkbench *QDesigner::workbench() const
@@ -72,6 +74,13 @@ void QDesigner::initialize()
             m_server = new QDesignerServer();
             printf("%d\n", m_server->serverPort());
             fflush(stdout);
+        } if (QString::fromLocal8Bit(argv()[i]) == QLatin1String("-client")) {
+            bool ok = true;
+            if (i + 1 < argc()) {
+                quint16 port = QString::fromLocal8Bit(argv()[++i]).toUShort(&ok);
+                if (ok)
+                    m_client = new QDesignerClient(port, this);
+            }
         } else if (QString::fromLocal8Bit(argv()[i]) == QLatin1String("-resourcedir")) {
             if (i + 1 < argc()) {
                 resourceDir = QFile::decodeName(argv()[++i]);

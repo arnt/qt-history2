@@ -40,4 +40,18 @@ private:
     QTcpSocket *m_socket;
 };
 
+class QDesignerClient: public QObject
+{
+    Q_OBJECT
+public:
+    QDesignerClient(quint16 port, QObject *parent = 0);
+    virtual ~QDesignerClient();
+
+private slots:
+    void readFromSocket();
+
+private:
+    QTcpSocket *m_socket;
+};
+
 #endif // QDESIGNER_SERVER_H

@@ -93,3 +93,34 @@ void QDesignerServer::handleNewConnection()
                 this, SLOT(socketClosed()));
     }
 }
+
+
+QDesignerClient::QDesignerClient(quint16 port, QObject *parent)
+: QObject(parent)
+{
+    m_socket = new QTcpSocket(this);
+    m_socket->connectToHost(QHostAddress::LocalHost, port);
+    connect(m_socket, SIGNAL(readyRead()),
+                this, SLOT(readFromSocket()));
+ 
+}
+
+QDesignerClient::~QDesignerClient()
+{
+    m_socket->close();
+    m_socket->flush();
+}
+
+void QDesignerClient::readFromSocket()
+{
+    QString file = QString();
+    while (m_socket->canReadLine()) {
+        QString file = QString::fromUtf8(m_socket->readLine());
+        if (!file.isNull()) {
+            file = file.replace(QLatin1String("\n"), QLatin1String(""));
+            file = file.replace(QLatin1String("\r"), QLatin1String(""));
+            if (QFile::exists(file))
+                qDesigner->postEvent(qDesigner, new QFileOpenEvent(file));
+        }
+    }
+}

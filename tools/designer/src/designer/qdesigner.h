@@ -25,6 +25,7 @@
 class QDesignerSettings;
 class QDesignerWorkbench;
 class QDesignerServer;
+class QDesignerClient;
 
 class QDesigner: public QApplication
 {
@@ -49,6 +50,7 @@ private slots:
 
 private:
     QDesignerServer *m_server;
+    QDesignerClient *m_client;
     QDesignerWorkbench *m_workbench;
     QPointer<QDesignerToolWindow> m_mainWindow;
 };
