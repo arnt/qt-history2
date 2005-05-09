@@ -514,13 +514,6 @@
 #endif
 
 
-
-#if 0 /* ### remove me */
-typedef char *pchar;
-typedef uchar *puchar;
-typedef const char *pcchar;
-#endif
-
 /*
   Size-dependent types (architechture-dependent byte order)
 */
