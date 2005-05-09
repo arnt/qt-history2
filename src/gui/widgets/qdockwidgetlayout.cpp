@@ -44,6 +44,7 @@
 static inline bool canGrow(Qt::Orientation o, const QSizePolicy &sp)
 { return (o == Qt::Horizontal ? sp.horizontalPolicy() : sp.verticalPolicy()) & QSizePolicy::GrowFlag; }
 
+enum { StateFlagVisible = 1, StateFlagFloating = 2 };
 
 QDockWidgetLayout::QDockWidgetLayout(Qt::DockWidgetArea a, Qt::Orientation o)
     : QLayout(static_cast<QWidget*>(0)), area(a), orientation(o), save_layout_info(0),
@@ -71,14 +72,27 @@ void QDockWidgetLayout::saveState(QDataStream &stream) const
 	if (info.is_sep)
             continue;
 	if (info.item->widget()) {
-            const QWidget * const widget = info.item->widget();
+            const QDockWidget * const widget =
+                qobject_cast<QDockWidget *>(info.item->widget());
             stream << (uchar) WidgetMarker;
             stream << widget->windowTitle();
-            stream << (uchar) !widget->isHidden();
-            stream << info.cur_pos;
-            stream << info.cur_size;
-            stream << info.min_size;
-            stream << info.max_size;
+            uchar flags = 0;
+            if (!widget->isHidden())
+                flags |= StateFlagVisible;
+            if (widget->isFloating())
+                flags |= StateFlagFloating;
+            stream << flags;
+            if (widget->isFloating()) {
+                stream << widget->x();
+                stream << widget->y();
+                stream << widget->width();
+                stream << widget->height();
+            } else {
+                stream << info.cur_pos;
+                stream << info.cur_size;
+                stream << info.min_size;
+                stream << info.max_size;
+            }
         } else if (info.item->layout()) {
             stream << (uchar) Marker;
             stream << info.cur_pos;
@@ -106,7 +120,7 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
     stream >> o;
     orientation = static_cast<Qt::Orientation>(o);
     stream >> size;
-    QList<QWidget *> widgets = qFindChildren<QWidget *>(parentWidget());
+    QList<QDockWidget *> widgets = qFindChildren<QDockWidget *>(parentWidget());
     for (int i = 0; i < size; ++i) {
         uchar nextMarker;
         stream >> nextMarker;
@@ -115,11 +129,11 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
             {
                 QString windowTitle;
                 stream >> windowTitle;
-                uchar shown;
-                stream >> shown;
+                uchar flags;
+                stream >> flags;
 
                 // find widget
-                QWidget *widget = 0;
+                QDockWidget *widget = 0;
                 for (int t = 0; t < widgets.size(); ++t) {
                     if (widgets.at(t)->windowTitle() == windowTitle) {
                         widget = widgets.at(t);
@@ -137,11 +151,25 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
                 }
 
                 QDockWidgetLayoutInfo &info = insert(-1, new QWidgetItem(widget));
-                widget->setVisible(shown);
-                stream >> info.cur_pos;
-                stream >> info.cur_size;
-                stream >> info.min_size;
-                stream >> info.max_size;
+                if (flags & StateFlagFloating) {
+                    widget->hide();
+                    widget->setFloating(true);
+                    int x, y, w, h;
+                    stream >> x;
+                    stream >> y;
+                    stream >> w;
+                    stream >> h;
+                    widget->move(x, y);
+                    widget->resize(w, h);
+                    widget->setVisible(flags & StateFlagVisible);
+                } else {
+                    stream >> info.cur_pos;
+                    stream >> info.cur_size;
+                    stream >> info.min_size;
+                    stream >> info.max_size;
+                    widget->setFloating(false);
+                    widget->setVisible(flags & StateFlagVisible);
+                }
                 break;
             }
 
@@ -169,7 +197,6 @@ bool QDockWidgetLayout::restoreState(QDataStream &stream)
     }
 
     relayout_type = QInternal::RelayoutNormal;
-
     return true;
 }
 
