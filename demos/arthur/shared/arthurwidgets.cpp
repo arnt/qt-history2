@@ -225,10 +225,8 @@ void ArthurFrame::loadSourceFile(const QString &sourceFile)
 void ArthurFrame::showSource()
 {
     // Check for existing source
-    QObjectList c = children();
-    for (int i=0; i<c.size(); ++i)
-        if (qobject_cast<QTextBrowser *>(c.at(i)))
-            return;
+    if (qFindChild<QTextBrowser *>(this))
+        return;
 
     QString contents;
     if (m_sourceFileName.isEmpty()) {
