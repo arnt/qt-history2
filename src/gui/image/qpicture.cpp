@@ -141,8 +141,10 @@ QPicture::QPicture(QPicturePrivate &dptr)
 */
 QPicture::~QPicture()
 {
-    if (!d_func()->ref.deref())
+    if (!d_func()->ref.deref()) {
+        delete d_func()->paintEngine;
         delete d_func();
+    }
 }
 
 /*!
@@ -553,8 +555,9 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
                 s >> p >> pixmap;
                 painter->drawPixmap(p, pixmap);
             } else {
-                s >> r >> pixmap;
-                painter->drawPixmap(r, pixmap, QRectF(0, 0, r.width(), r.height()));
+                QRectF sr;
+                s >> r >> pixmap >> sr;
+                painter->drawPixmap(r, pixmap, sr);
             }
         }
             break;
@@ -685,9 +688,19 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
             s >> rgn >> i_8;
             painter->setClipRegion(rgn);
             break;
+        case QPicturePrivate::PdcSetClipPath:
+            {
+                QPainterPath path;
+                s >> path >> i_8;
+                painter->setClipPath(path, Qt::ClipOperation(i_8));
+                break;
+            }
         case QPicturePrivate::PdcSetRenderHint:
             s >> ul;
-            painter->setRenderHint(QPainter::RenderHint(ul & QPainter::Antialiasing));
+            painter->setRenderHint(QPainter::Antialiasing,
+                                   bool(ul & QPainter::Antialiasing));
+            painter->setRenderHint(QPainter::SmoothPixmapTransform,
+                                   bool(ul & QPainter::SmoothPixmapTransform));
             break;
         default:
             qWarning("QPicture::play: Invalid command %d", c);

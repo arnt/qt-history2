@@ -24,9 +24,7 @@
 #include "qrect.h"
 
 // #define QT_PICTURE_DEBUG
-#ifdef QT_PICTURE_DEBUG
 #include <qdebug.h>
-#endif
 
 class QPicturePaintEnginePrivate : public QPaintEnginePrivate
 {
@@ -207,6 +205,21 @@ void QPicturePaintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperat
     writeCmdLength(pos, QRectF(), false);
 }
 
+void QPicturePaintEngine::updateClipPath(const QPainterPath &path, Qt::ClipOperation op)
+{
+    Q_D(QPicturePaintEngine);
+#ifdef QT_PICTURE_DEBUG
+    qDebug() << " -> updateClipPath(): op:" << op
+             << "bounding rect:" << path.boundingRect();
+#endif
+    Q_UNUSED(op);
+    int pos;
+
+    SERIALIZE_CMD(QPicturePrivate::PdcSetClipPath);
+    d->s << path << (qint8) op;
+    writeCmdLength(pos, QRectF(), false);
+}
+
 void QPicturePaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
     Q_D(QPicturePaintEngine);
@@ -294,8 +307,7 @@ void QPicturePaintEngine::drawPolygon(const QPointF *points, int numPoints, Poly
     writeCmdLength(pos, polygon.boundingRect(), true);
 }
 
-// ### Stream out sr
-void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF & /* sr */)
+void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
     Q_D(QPicturePaintEngine);
 #ifdef QT_PICTURE_DEBUG
@@ -303,7 +315,7 @@ void QPicturePaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
 #endif
     int pos;
     SERIALIZE_CMD(QPicturePrivate::PdcDrawPixmap);
-    d->s << r << pm;
+    d->s << r << pm << sr;
     writeCmdLength(pos, r, false);
 }
 
@@ -339,6 +351,7 @@ void QPicturePaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
     if (flags & DirtyFont) updateFont(state.font());
     if (flags & DirtyTransform) updateMatrix(state.matrix());
-// ###    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
+    if (flags & DirtyClipPath) updateClipPath(state.clipPath(), state.clipOperation());
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+    if (flags & DirtyHints) updateRenderHints(state.renderHints());
 }
