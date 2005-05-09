@@ -514,7 +514,11 @@ void QPixmap::setMask(const QBitmap &newmask)
     if (newmask.isNull()) { // clear mask
 #ifndef QT_NO_XRENDER
         if (X11->use_xrender) {
-            QPixmap pixmap(data->w, data->h);
+            QPixmap pixmap;
+            if (data->type == QPixmap::BitmapType)
+                pixmap = QBitmap(data->w, data->h);
+            else
+                pixmap = QPixmap(data->w, data->h);
             pixmap.fill(Qt::black);
             XRenderComposite(X11->display, PictOpOver,
                              data->picture, 0,
