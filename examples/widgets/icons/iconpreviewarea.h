@@ -5,7 +5,6 @@
 #include <QWidget>
 
 class QLabel;
-class QLabel;
 
 class IconPreviewArea : public QWidget
 {
