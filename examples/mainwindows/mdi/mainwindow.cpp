@@ -1,4 +1,16 @@
-//depot/qt/4.0/examples/mainwindows/mdi/mainwindow.cpp#6 - edit change 177740 (text)
+/****************************************************************************
+**
+** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <QtGui>
 
 #include "mainwindow.h"

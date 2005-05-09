@@ -1,6 +1,6 @@
 #include <QtGui>
 
-#include <../../tools/assistant/lib/qassistantclient.h> // ###
+#include <QtAssistant/qassistantclient.h>
 
 #include "launcherpanel.h"
 
@@ -23,9 +23,7 @@ LauncherPanel::LauncherPanel()
     popupButtonLayout->addWidget(showDocumentationCheckBox);
     setLayout(popupButtonLayout);
 
-#if 0
     assistantClient = new QAssistantClient("", this);
-#endif
 
     setWindowTitle(tr("Launcher"));
 }
@@ -35,10 +33,8 @@ void LauncherPanel::launchExample(QAction *action)
     QString program = programForActionMap.value(action);
     QProcess::startDetached(program);
 
-#if 0
     if (showDocumentationCheckBox->isChecked())
         assistantClient->showPage(helpPageForActionMap.value(action));
-#endif
 }
 
 void LauncherPanel::findAllExamples()
