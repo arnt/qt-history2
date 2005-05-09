@@ -174,7 +174,7 @@ QTcpServer::~QTcpServer()
 
 /*!
     Tells the server to listen for incoming connections on address \a
-    address and port \a port. If \a port is 0, a port is chosed
+    address and port \a port. If \a port is 0, a port is chosen
     automatically. If \a address is QHostAddress::Any, the server
     will listen on all network interfaces.
 
