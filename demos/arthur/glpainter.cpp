@@ -13,6 +13,7 @@
 
 #include <qgl.h>
 #include <qpainter.h>
+#include <qpainterpath.h>
 #include <qlayout.h>
 
 #include "glpainter.h"
@@ -35,6 +36,7 @@ private:
     GLuint cubeList;
     GLuint cubeTextureId;
     QImage bg;
+    QPainterPath path;
 };
 
 extern void drawPrimitives(DemoWidget *dw, QPainter *p, int count, double distance, int step);
@@ -46,6 +48,9 @@ GLWidget::GLWidget(QWidget *parent)
     dw = qobject_cast<DemoWidget *>(parent);
     step = 0;
     Q_ASSERT(dw);
+
+    QFont f("times new roman,utopia", 18, QFont::Bold, true);
+    path.addText(QPointF(0, 0), f, "Arthur & OpenGL - together in harmony");
 }
 
 void GLWidget::initializeGL()
@@ -133,6 +138,7 @@ void GLWidget::initializeGL()
     glEnd();
 
     glEndList();
+
 }
 
 void GLWidget::timerEvent(QTimerEvent *)
@@ -158,10 +164,9 @@ void GLWidget::paintEvent(QPaintEvent *)
     p.resetMatrix();
 
     drawPrimitives(dw, &p, 150, 0.3, step);
-    p.setFont(QFont("helvetica", 14, QFont::Bold, true));
-    p.setPen(Qt::white);
-    p.drawText(75, height() - 75/3, "Arthur & OpenGL - together in harmony");
-
+    p.setBrush(Qt::white);
+    p.translate(75, height() - 75/3);
+    p.fillPath(path, Qt::white);
 
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     glViewport(0, 0, 75, 75);
