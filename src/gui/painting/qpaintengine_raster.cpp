@@ -1094,23 +1094,103 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 #endif
     Q_D(QRasterPaintEngine);
 
-    if (ti.fontEngine->type() == QFontEngine::Freetype || d->txop > QPainterPrivate::TxTranslate) {
-        bool aa = d->antialiased;
-        d->antialiased = true;
-        QPaintEngine::drawTextItem(p, ti);
-        d->antialiased = aa;
-        return;
+    switch(ti.fontEngine->type()) {
+    case QFontEngine::Multi:
+        d->drawMulti(p, ti);
+        break;
+    case QFontEngine::XLFD:
+        d->drawXLFD(p, ti);
+        break;
+    case QFontEngine::Box:
+        d->drawBox(p, ti);
+        break;
+#ifndef QT_NO_FONTCONFIG
+    case QFontEngine::Freetype: {
+            bool aa = d->antialiased;
+            d->antialiased = true;
+            QPaintEngine::drawTextItem(p, ti);
+            d->antialiased = aa;
+        }
+        break;
+#endif
+    default:
+        Q_ASSERT(false);
     }
+}
+
+void QRasterPaintEnginePrivate::drawMulti(const QPointF &p, const QTextItem &textItem)
+{
+    Q_Q(QRasterPaintEngine);
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+    QFontEngineMulti *multi = static_cast<QFontEngineMulti *>(ti.fontEngine);
+    QGlyphLayout *glyphs = ti.glyphs;
+    int which = glyphs[0].glyph >> 24;
+
+    qreal x = p.x();
+    qreal y = p.y();
+
+    int start = 0;
+    int end, i;
+    for (end = 0; end < ti.num_glyphs; ++end) {
+        const int e = glyphs[end].glyph >> 24;
+        if (e == which)
+            continue;
+
+        // set the high byte to zero
+        for (i = start; i < end; ++i)
+            glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+
+        // draw the text
+        QTextItemInt ti2 = ti;
+        ti2.glyphs = ti.glyphs + start;
+        ti2.num_glyphs = end - start;
+        ti2.fontEngine = multi->engine(which);
+        ti2.f = ti.f;
+        q->drawTextItem(QPointF(x, y), ti2);
+
+        // reset the high byte for all glyphs and advance to the next sub-string
+        const int hi = which << 24;
+        for (i = start; i < end; ++i) {
+            glyphs[i].glyph = hi | glyphs[i].glyph;
+            x += glyphs[i].advance.x();
+        }
+
+        // change engine
+        start = end;
+        which = e;
+    }
+
+    // set the high byte to zero
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = glyphs[i].glyph & 0xffffff;
+
+    // draw the text
+    QTextItemInt ti2 = ti;
+    ti2.glyphs = ti.glyphs + start;
+    ti2.num_glyphs = end - start;
+    ti2.fontEngine = multi->engine(which);
+    ti2.f = ti.f;
+    q->drawTextItem(QPointF(x,y), ti2);
+
+    // reset the high byte for all glyphs
+    const int hi = which << 24;
+    for (i = start; i < end; ++i)
+        glyphs[i].glyph = hi | glyphs[i].glyph;
+}
+
+void QRasterPaintEnginePrivate::drawXLFD(const QPointF &p, const QTextItem &textItem)
+{
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
     // xlfd: draw into bitmap, convert to image and rasterize that
 
     // Decide on which span func to use
-    FillData fillData = d->fillForBrush(d->pen.brush(), 0);
+    FillData fillData = fillForBrush(pen.brush(), 0);
     if (!fillData.callback)
         return;
 
     QRectF logRect(p.x(), p.y() - ti.ascent, ti.width, ti.ascent + ti.descent);
-    QRect devRect = d->matrix.mapRect(logRect).toRect();
+    QRect devRect = matrix.mapRect(logRect).toRect();
 
     if(devRect.width() == 0 || devRect.height() == 0)
         return;
@@ -1138,9 +1218,13 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         painter.drawTextItem(QPointF(0, ti.ascent), item);
     }
 
-    d->drawBitmap(devRect.topLeft(), bm, &fillData);
+    drawBitmap(devRect.topLeft(), bm, &fillData);
 }
 
+void QRasterPaintEnginePrivate::drawBox(const QPointF &, const QTextItem &)
+{
+    // nothing for now
+}
 
 #else
 
