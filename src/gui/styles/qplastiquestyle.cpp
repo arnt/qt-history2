@@ -1090,12 +1090,18 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         break;
     }
     case PE_IndicatorToolBarSeparator: {
-        painter->save();
+        QPen oldPen = painter->pen();
         painter->setPen(alphaCornerColor);
-        painter->drawLine(option->rect.left(), option->rect.top() + 1, option->rect.left(), option->rect.bottom() - 2);
-        painter->setPen(option->palette.base().color());
-        painter->drawLine(option->rect.right(), option->rect.top() + 1, option->rect.right(), option->rect.bottom() - 2);
-        painter->restore();
+        if (option->state & State_Horizontal) {
+            painter->drawLine(option->rect.left(), option->rect.top() + 1, option->rect.left(), option->rect.bottom() - 2);
+            painter->setPen(option->palette.base().color());
+            painter->drawLine(option->rect.right(), option->rect.top() + 1, option->rect.right(), option->rect.bottom() - 2);
+        } else {
+            painter->drawLine(option->rect.left() + 1, option->rect.top(), option->rect.right() - 2, option->rect.top());
+            painter->setPen(option->palette.base().color());
+            painter->drawLine(option->rect.left() + 1, option->rect.bottom(), option->rect.right() - 2, option->rect.bottom());
+        }
+        painter->setPen(oldPen);
         break;
     }
     case PE_PanelButtonCommand:
@@ -2317,7 +2323,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             // Check
             QRect checkRect(option->rect.left() + 7, option->rect.center().y() - 6, 13, 13);
             checkRect = visualRect(menuItem->direction, menuItem->rect, checkRect);
-            if (checkable && checked) {
+            if (checkable) {
                 if (menuItem->icon.isNull()) {
                     painter->setPen(borderColor);
                     painter->drawRect(checkRect.adjusted(0, 0, -1, -1));
@@ -2330,15 +2336,18 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
                     painter->drawPoint(checkRect.bottomRight());
                     painter->fillRect(checkRect.adjusted(1, 1, -1, -1), option->palette.base().color());
 
-                    QImage image(qt_plastique_check);
-                    image.setColor(0, option->palette.text().color().rgba());
-                    image.setColor(1, alphaTextColor.rgba());
-                    painter->drawImage(QPoint(checkRect.center().x() - image.width() / 2,
-                                              checkRect.center().y() - image.height() / 2), image);
-                } else {
-                    int iconSize = pixelMetric(PM_SmallIconSize);
-                    QRect sunkenRect(option->rect.left() + iconSize / 2,
-                                     option->rect.center().y() - iconSize / 2, iconSize, iconSize);
+                    if (checked) {
+                        QImage image(qt_plastique_check);
+                        image.setColor(0, option->palette.text().color().rgba());
+                        image.setColor(1, alphaTextColor.rgba());
+                        painter->drawImage(QPoint(checkRect.center().x() - image.width() / 2,
+                                                  checkRect.center().y() - image.height() / 2), image);
+                    }
+                } else if (checked) {
+                    int iconSize = qMax(menuItem->maxIconWidth, 20);
+                    QRect sunkenRect(option->rect.left() + 2,
+                                     option->rect.top() + (option->rect.height() - iconSize) / 2,
+                                     iconSize, iconSize);
                     sunkenRect = visualRect(menuItem->direction, menuItem->rect, sunkenRect);
 
                     QStyleOption opt = *option;
@@ -2724,12 +2733,12 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     if (horizontal) {
                         QPainterPath path;
                         if (ticksAbove && !ticksBelow) {
-                            path.moveTo(QPoint(pixmapRect.right(), pixmapRect.bottom() - 1));
+                            path.moveTo(QPoint(pixmapRect.right(), pixmapRect.bottom()));
                             path.lineTo(QPoint(pixmapRect.right(), pixmapRect.bottom() - 10));
                             path.lineTo(QPoint(pixmapRect.right() - 5, pixmapRect.bottom() - 14));
                             path.lineTo(QPoint(pixmapRect.left() + 1, pixmapRect.bottom() - 10));
-                            path.lineTo(QPoint(pixmapRect.left() + 1, pixmapRect.bottom() - 1));
-                            path.lineTo(QPoint(pixmapRect.right(), pixmapRect.bottom() - 1));
+                            path.lineTo(QPoint(pixmapRect.left() + 1, pixmapRect.bottom()));
+                            path.lineTo(QPoint(pixmapRect.right(), pixmapRect.bottom()));
                         } else {
                             path.moveTo(QPoint(pixmapRect.right(), pixmapRect.top() + 1));
                             path.lineTo(QPoint(pixmapRect.right(), pixmapRect.top() + 10));
@@ -2750,12 +2759,12 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     } else {
                         QPainterPath path;
                         if (ticksAbove && !ticksBelow) {
-                            path.moveTo(QPoint(pixmapRect.right() - 1, pixmapRect.top() + 1));
+                            path.moveTo(QPoint(pixmapRect.right(), pixmapRect.top() + 1));
                             path.lineTo(QPoint(pixmapRect.right() - 10, pixmapRect.top() + 1));
                             path.lineTo(QPoint(pixmapRect.right() - 14, pixmapRect.top() + 5));
                             path.lineTo(QPoint(pixmapRect.right() - 10, pixmapRect.bottom()));
-                            path.lineTo(QPoint(pixmapRect.right() - 1, pixmapRect.bottom()));
-                            path.lineTo(QPoint(pixmapRect.right() - 1, pixmapRect.top() + 1));
+                            path.lineTo(QPoint(pixmapRect.right(), pixmapRect.bottom()));
+                            path.lineTo(QPoint(pixmapRect.right(), pixmapRect.top() + 1));
                         } else {
                             path.moveTo(QPoint(pixmapRect.left() + 1, pixmapRect.top() + 1));
                             path.lineTo(QPoint(pixmapRect.left() + 10, pixmapRect.top() + 1));
