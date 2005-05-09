@@ -24,9 +24,9 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
 
     Q_ENUMS(Section)
     Q_FLAGS(Sections)
-    Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime)
-    Q_PROPERTY(QDate date READ date WRITE setDate)
-    Q_PROPERTY(QTime time READ time WRITE setTime)
+    Q_PROPERTY(QDateTime dateTime READ dateTime WRITE setDateTime NOTIFY dateTimeChanged)
+    Q_PROPERTY(QDate date READ date WRITE setDate NOTIFY dateChanged)
+    Q_PROPERTY(QTime time READ time WRITE setTime NOTIFY timeChangedu)
     Q_PROPERTY(QDate maximumDate READ maximumDate WRITE setMaximumDate RESET clearMaximumDate)
     Q_PROPERTY(QDate minimumDate READ minimumDate WRITE setMinimumDate RESET clearMinimumDate)
     Q_PROPERTY(QTime maximumTime READ maximumTime WRITE setMaximumTime RESET clearMaximumTime)
@@ -37,15 +37,15 @@ class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
 
 public:
     enum Section {
-	NoSection = 0x0000,
-	AmPmSection = 0x0001,
-	MSecSection = 0x0002,
-	SecondSection = 0x0004,
-	MinuteSection = 0x0008,
-	HourSection   = 0x0010,
-	DaySection    = 0x0100,
-	MonthSection  = 0x0200,
-	YearSection   = 0x0400,
+        NoSection = 0x0000,
+        AmPmSection = 0x0001,
+        MSecSection = 0x0002,
+        SecondSection = 0x0004,
+        MinuteSection = 0x0008,
+        HourSection   = 0x0010,
+        DaySection    = 0x0100,
+        MonthSection  = 0x0200,
+        YearSection   = 0x0400,
         TimeSections_Mask = AmPmSection|MSecSection|SecondSection|MinuteSection|HourSection,
         DateSections_Mask = DaySection|MonthSection|YearSection
     };
