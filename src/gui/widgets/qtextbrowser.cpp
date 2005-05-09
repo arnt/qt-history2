@@ -356,7 +356,10 @@ void QTextBrowser::setSource(const QUrl &url)
                 d->stack.top().hpos = hpos;
                 d->stack.top().vpos = vpos;
             }
-            QTextBrowserPrivate::HistoryEntry entry = {url, 0, 0};
+            QTextBrowserPrivate::HistoryEntry entry;
+            entry.url = url;
+            entry.hpos = 0;
+            entry.vpos = 0;
             d->stack.push(entry);
 
             emit backwardAvailable(d->stack.count() > 1);
