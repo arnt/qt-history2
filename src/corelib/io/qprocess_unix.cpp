@@ -271,9 +271,7 @@ void QProcessPrivate::startProcess()
     qDebug("QProcessPrivate::startProcess()");
 #endif
 
-    // ### RACE CONDITION
-    if (!processManager()->isRunning())
-        processManager()->start();
+    processManager()->start();
 
     // Initialize pipes
     qt_create_pipe(childStartedPipe);
