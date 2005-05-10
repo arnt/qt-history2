@@ -72,7 +72,7 @@ bool Uic::printDependencies()
     if (version < 4.0) {
         delete ui;
 
-        fprintf(stderr, "Impossible to convert a file from the stdin\n");
+        fprintf(stderr, "uic: File generated with too old version of Qt Designer\n");
         return false;
     }
 
@@ -124,7 +124,7 @@ bool Uic::write(QIODevice *in)
     if (version < 4.0) {
         delete ui;
 
-        fprintf(stderr, "Impossible to convert a file from the stdin\n");
+        fprintf(stderr, "uic: File generated with too old version of Qt Designer\n");
         return false;
     }
 
