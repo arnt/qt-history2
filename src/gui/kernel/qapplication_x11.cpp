@@ -3627,7 +3627,7 @@ bool QETWidget::translateXinputEvent(const XEvent *ev, const TabletDeviceData *t
         yTilt = 0,
         z = 0;
     qreal tangentialPressure = 0;
-    qreal rotation;
+    qreal rotation = 0;
     int deviceType = QTabletEvent::NoDevice;
     int pointerType = QTabletEvent::UnknownPointer;
     XEvent xinputMotionEvent;
