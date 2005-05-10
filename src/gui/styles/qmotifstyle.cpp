@@ -725,17 +725,17 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
             bool isRadio = (element == CE_RadioButton);
             QStyleOptionButton subopt = *btn;
             subopt.rect = subElementRect(isRadio ? SE_RadioButtonIndicator
-                                                 : SE_CheckBoxIndicator, btn, widget);
+                                         : SE_CheckBoxIndicator, btn, widget);
             drawPrimitive(isRadio ? PE_IndicatorRadioButton : PE_IndicatorCheckBox,
                           &subopt, p, widget);
             subopt.rect = subElementRect(isRadio ? SE_RadioButtonContents
-                                                 : SE_CheckBoxContents, btn, widget);
+                                         : SE_CheckBoxContents, btn, widget);
             drawControl(isRadio ? CE_RadioButtonLabel : CE_CheckBoxLabel, &subopt, p, widget);
             if ((btn->state & State_HasFocus) && (!focus || !focus->isVisible())) {
                 QStyleOptionFocusRect fropt;
                 fropt.QStyleOption::operator=(*btn);
                 fropt.rect = subElementRect(isRadio ? SE_RadioButtonFocusRect
-                                                    : SE_CheckBoxFocusRect, btn, widget);
+                                            : SE_CheckBoxFocusRect, btn, widget);
                 drawPrimitive(PE_FrameFocusRect, &fropt, p, widget);
             }
         }
@@ -1079,12 +1079,15 @@ void QMotifStyle::drawControl(ControlElement element, const QStyleOption *opt, Q
         p->restore();
         break;
     case CE_RubberBand: {
+        p->save();
+        p->setClipping(false);
         QPainterPath path;
         path.addRect(opt->rect);
         path.addRect(opt->rect.adjusted(4, 4, -4, -4));
 
         p->fillPath(path, opt->palette.base());
         p->fillPath(path, QBrush(opt->palette.foreground().color(), Qt::Dense4Pattern));
+        p->restore();
         }
         break;
     default:
