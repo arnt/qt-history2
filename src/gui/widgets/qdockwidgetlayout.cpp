@@ -1126,12 +1126,6 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
 {
     DEBUG("QDockWidgetLayout::drop");
 
-    if (dockwidget->isFloating()) {
-        QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
-        Q_ASSERT(layout != 0);
-        layout->removeRecursive(dockwidget);
-    }
-
     const QPoint p = parentWidget()->mapFromGlobal(mouse);
     Location location = locate(p - geometry().topLeft());
     const QDockWidgetLayoutInfo &info = layout_info.at(location.index);
@@ -1171,15 +1165,17 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
       reordering until the mouse is closer to the center of the
       adjacent item then the current one
     */
+    int found = -1;
     int which = -1;
     for (int i = 0; which == -1 && i < layout_info.count(); ++i) {
         const QDockWidgetLayoutInfo &info = layout_info.at(i);
         if (info.is_sep)
             continue;
-        if (info.item->isEmpty())
-            continue;
-        if (dockwidget == info.item->widget())
-            which = i;
+        if (dockwidget == info.item->widget()) {
+            found = i;
+            if (!info.item->isEmpty())
+                which = i;
+        }
     }
     if (which != -1) {
         DEBUG() << "  drop after in-place reorder, only allowing perpendicular splits";
@@ -1194,12 +1190,15 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
     QRect target = ::trySplit(orientation, location.area, allowedAreas,
                               info.item->geometry(), p, separatorExtent);
     if (!target.isEmpty()) {
-        if (!dockwidget->isFloating()) {
-            QMainWindowLayout *layout =
-                qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
-            Q_ASSERT(layout != 0);
-            layout->removeRecursive(dockwidget);
-        }
+        QMainWindowLayout *layout =
+            qobject_cast<QMainWindowLayout *>(parentWidget()->layout());
+        Q_ASSERT(layout != 0);
+        layout->removeRecursive(dockwidget);
+
+        // if we removed a dock widget in this layout, adjust the
+        // insertion index
+        if (found != -1 && found < location.index)
+            location.index -= 2;
 
         bool nested = false;
         switch (orientation) {
