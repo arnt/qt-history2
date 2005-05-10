@@ -1214,28 +1214,28 @@ void QStyle::drawItemPixmap(QPainter *painter, const QRect &rect, int alignment,
     This enum represents a ContentsType. It is used to calculate sizes
     for the contents of various widgets.
 
-    \value CT_CheckBox
-    \value CT_ComboBox
-    \value CT_DialogButtons
+    \value CT_CheckBox A check box, like QCheckBox
+    \value CT_ComboBox A combo box, like QComboBox
+    \value CT_DialogButtons 
     \value CT_Q3DockWindow
-    \value CT_HeaderSection
-    \value CT_LineEdit
-    \value CT_Menu
-    \value CT_Q3Header
-    \value CT_MenuBar
-    \value CT_MenuBarItem
-    \value CT_MenuItem
-    \value CT_ProgressBar
-    \value CT_PushButton
-    \value CT_RadioButton
-    \value CT_SizeGrip
-    \value CT_Slider
-    \value CT_ScrollBar
-    \value CT_SpinBox
-    \value CT_Splitter
-    \value CT_TabBarTab
-    \value CT_TabWidget
-    \value CT_ToolButton
+    \value CT_HeaderSection A header section, like QHeader
+    \value CT_LineEdit A line edit, like QLineEdit
+    \value CT_Menu A menu, like QMenu
+    \value CT_Q3Header A Qt 3 header section, like Q3Header
+    \value CT_MenuBar A menu bar, like QMenuBar
+    \value CT_MenuBarItem A menu bar item, like the buttons in a QMenuBar
+    \value CT_MenuItem A menu item, like QMenuItem
+    \value CT_ProgressBar A progress bar, like QProgressBar
+    \value CT_PushButton A push button, like QPushButton
+    \value CT_RadioButton A radio button, like QRadioButton
+    \value CT_SizeGrip A size grip, like QSizeGrip
+    \value CT_Slider A slider, like QSlider
+    \value CT_ScrollBar A scroll bar, like QScrollBar
+    \value CT_SpinBox A spin box, like QSpinBox
+    \value CT_Splitter A splitter, like QSplitter
+    \value CT_TabBarTab A tab on a tab bar, like QTabBar
+    \value CT_TabWidget A tab widget, like QTabWidget
+    \value CT_ToolButton A tool button, like QToolButton
 
     \value CT_CustomBase  Base value for custom ControlElements.
     Custom values must be greater than this value.

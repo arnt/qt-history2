@@ -1017,10 +1017,13 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
     because it makes use of Windows XP's style engine.
 
     Most of the functions are documented in the base classes
-    \l{QWindowsStyle}, \l{QCommonStyle}, and \l{QStyle}, but the
+    QWindowsStyle, QCommonStyle, and QStyle, but the
     QWindowsXPStyle overloads of drawComplexControl(), drawControl(),
     drawControlMask(), drawPrimitive(), subControlRect(), and
     sizeFromContents(), are documented here.
+
+    \img qwindowsxpstyle.png
+    \sa QMacStyle, QWindowsStyle, QPlastiqueStyle, QCDEStyle, QMotifStyle
 */
 
 /*!
@@ -2873,7 +2876,7 @@ int QWindowsXPStyle::styleHint(StyleHint hint, const QStyleOption *option, const
     return res;
 }
 
-/* \reimp */
+/*! \reimp */
 QPalette QWindowsXPStyle::standardPalette() const
 {
     return QWindowsStyle::standardPalette();

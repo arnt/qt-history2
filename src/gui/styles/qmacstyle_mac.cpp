@@ -4662,6 +4662,9 @@ void QMacStylePrivate::AppManAdjustButtonSize(QStyle::ContentsType ct, QSize &sz
     Note that the functions provided by QMacStyle are
     reimplementations of QStyle functions; see QStyle for their
     documentation.
+
+    \img qmacstyle.png
+    \sa QWindowsXPStyle, QWindowsStyle, QPlastiqueStyle, QCDEStyle, QMotifStyle
 */
 
 
@@ -4996,7 +4999,7 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     return ret;
 }
 
-/* \reimp */
+/*! \reimp */
 QPalette QMacStyle::standardPalette() const
 {
     return QWindowsStyle::standardPalette();

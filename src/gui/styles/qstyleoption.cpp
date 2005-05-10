@@ -1955,6 +1955,27 @@ QStyleOptionTitleBar::QStyleOptionTitleBar(int version)
 */
 
 /*!
+    \variable QStyleOptionViewItem::showDecorationSelected
+
+    \brief Whether the decoration should be highlighted on selected items.
+
+    If this option is true, the branch and any decorations on selected items
+    should be highlighted, indicating that the item is selected; otherwise, no
+    highlighting is required.
+
+    \sa QStyle::SH_ItemView_ShowDecorationSelected, QAbstractItemView
+*/
+
+/*!
+    \variable QStyleOptionViewItem::textElideMode
+
+    \brief Where ellipsis should be added for text that is too long to fit
+    into an item.
+
+    \sa Qt::TextElideMode, QStyle::SH_ItemView_EllipsisLocation
+*/
+
+/*!
     Constructs a QStyleOptionViewItem. The members variables are
     initialized to default values.
 */
@@ -2081,6 +2102,12 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame()
       shape(QTabBar::RoundedNorth)
 {
 }
+
+/*!
+    \fn QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(const QStyleOptionTabWidgetFrame &other)
+
+    Constructs a copy of \a other.
+*/
 
 /*! \internal */
 QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
@@ -2240,6 +2267,14 @@ QStyleHintReturn::~QStyleHintReturn()
     \omit
     ### --Sam
     \endomit
+*/
+
+/*!
+    \variable QStyleHintReturnMask::region
+
+    \brief The returned region.
+
+    This variable contains the region for style hints that return a QRegion.
 */
 
 /*!

@@ -65,11 +65,19 @@ static const int motifCheckMarkSpace    = 12;
   GUI style on UNIX platforms.
 
   Most of the functions are documented in the base classes,
-  \l{QCommonStyle} and \l{QStyle}, but the functions overloaded by
+  QCommonStyle} and QStyle, but the functions overloaded by
   QMotifStyle, drawComplexControl(), drawControl(), drawPrimitive(),
   subControlRect(), setUseHighlightColors(),
   sizeFromContents(), subElementRect(), and useHighlightColors(), are
   documented here.
+
+  \img qmotifstyle.png
+  \sa QWindowsXPStyle, QMacStyle, QWindowsStyle, QPlastiqueStyle, QCDEStyle
+*/
+
+/*!
+    \variable QMotifStyle::focus
+    \internal
 */
 
 /*!

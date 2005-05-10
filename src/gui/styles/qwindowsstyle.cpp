@@ -140,6 +140,9 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
     \ingroup appearance
 
     This style is Qt's default GUI style on Windows.
+
+    \img qwindowsstyle.png
+    \sa QWindowsXPStyle, QMacStyle, QPlastiqueStyle, QCDEStyle, QMotifStyle
 */
 
 /*!

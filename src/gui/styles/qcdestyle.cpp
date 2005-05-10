@@ -56,6 +56,9 @@
     reimplementations of QStyle functions; see QStyle for their
     documentation. QCDEStyle provides overloads for drawControl() and
     drawPrimitive() which are documented here.
+
+    \img qcdestyle.png
+    \sa QWindowsXPStyle, QMacStyle, QWindowsStyle, QPlastiqueStyle, QMotifStyle
 */
 
 /*!

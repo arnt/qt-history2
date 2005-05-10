@@ -694,8 +694,12 @@ QPlastiqueStylePrivate::~QPlastiqueStylePrivate()
     \brief The QPlastiqueStyle class provides a widget style similar to the
     Plastik style available in KDE.
 
-    The Plastique style provides a default look and feel for widgets on
-    X11 that closely resembles the Plastik style introduced in KDE 3.2.
+    The Plastique style provides a default look and feel for widgets on X11
+    that closely resembles the Plastik style, introduced by Sandro Giessl in
+    KDE 3.2.
+
+    \img qplastiquestyle.png
+    \sa QWindowsXPStyle, QMacStyle, QWindowsStyle, QCDEStyle, QMotifStyle
 */
 
 /*!
@@ -4302,6 +4306,9 @@ void QPlastiqueStyle::polish(QPalette &pal)
     pal.setBrush(QPalette::AlternateBase, pal.base().color().dark(110));
 }
 
+/*!
+  \reimp
+*/
 void QPlastiqueStyle::unpolish(QApplication *app)
 {
     QWindowsStyle::unpolish(app);

@@ -104,7 +104,8 @@ public:
     QSize leftCornerWidgetSize;
 
     QStyleOptionTabWidgetFrame();
-    QStyleOptionTabWidgetFrame(const QStyleOptionTabWidgetFrame &other) : QStyleOption(Version, Type) { *this = other; }
+    inline QStyleOptionTabWidgetFrame(const QStyleOptionTabWidgetFrame &other)
+        : QStyleOption(Version, Type) { *this = other; }
 
 protected:
     QStyleOptionTabWidgetFrame(int version);
