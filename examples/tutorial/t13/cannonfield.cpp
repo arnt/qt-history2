@@ -73,7 +73,7 @@ void CannonField::shoot()
     timerCount = 0;
     shoot_ang = ang;
     shoot_f = f;
-    autoShootTimer->start(50);
+    autoShootTimer->start(5);
     emit canShoot(false);
 }
 
@@ -186,7 +186,7 @@ QRect CannonField::shotRect() const
 {
     const double gravity = 4;
 
-    double time = timerCount / 4.0;
+    double time = timerCount / 40.0;
     double velocity = shoot_f;
     double radians = shoot_ang * 3.14159265 / 180;
 
