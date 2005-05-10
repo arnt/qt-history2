@@ -187,6 +187,8 @@ private:
     bool waitForDtpToClose;
 
     QByteArray bytesFromSocket;
+
+    friend class QFtpDTP;
 };
 
 /**********************************************************************
@@ -425,7 +427,7 @@ bool QFtpDTP::parseDir(const QString &buffer, const QString &userName, QUrlInfo 
 
     if (lst.count() < 9)
         return false;
-
+    
     QString tmp;
 
     // permissions
@@ -574,6 +576,9 @@ void QFtpDTP::socketReadyRead()
         emit connectState(QFtpDTP::CsClosed);
         return;
     }
+
+    if (pi->abortState == QFtpPI::AbortStarted)
+        return;
 
     if (pi->currentCommand().startsWith("LIST")) {
         while (socket->canReadLine()) {
