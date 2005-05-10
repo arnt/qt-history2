@@ -62,7 +62,7 @@
     \i do not display the X11 cursor in the framebuffer window.
     \row
     \i \c -qwsdisplay \e :id 
-    \i the Qt/Embedded display id to provide (default: :0).
+    \i the Qt/Embedded display ID to provide (default: :0).
     \endtable
 
     \section1 Virtual Framebuffer Design
