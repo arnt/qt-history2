@@ -523,9 +523,11 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     handled_event = true;
 #if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
                 if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                    if(ekind == kEventControlDragEnter)
+                    if(ekind == kEventControlDragEnter) {
+                        const Boolean wouldAccept = handled_event ? true : false;
                         SetEventParameter(event, kEventParamControlWouldAcceptDrop, typeBoolean,
-                                          sizeof(handled_event), &handled_event);
+                                          sizeof(wouldAccept), &wouldAccept);
+                    }
                 }
 #endif
             }
@@ -1886,9 +1888,8 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
     const bool isResize = (olds != QSize(w, h));
     if(!q->isWindow() && !isResize && QPoint(x, y) == oldp)
         return;
-    if(isResize && q->isMaximized()) {
+    if(isResize && q->isMaximized())
         data.window_state = data.window_state & ~Qt::WindowMaximized;
-    }
     const bool visible = q->isVisible();
     data.crect = QRect(x, y, w, h);
 
@@ -2042,12 +2043,8 @@ void QWidgetPrivate::updateFrameStrut() const
         WindowPtr window = qt_mac_window_for(q);
         Rect window_r, content_r;
         //get bounding rects
-        RgnHandle rgn = qt_mac_get_rgn();
-        GetWindowRegion(window, kWindowStructureRgn, rgn);
-        GetRegionBounds(rgn, &window_r);
-        GetWindowRegion(window, kWindowContentRgn, rgn);
-        GetRegionBounds(rgn, &content_r);
-        qt_mac_dispose_rgn(rgn);
+        GetWindowBounds(window, kWindowTitleBarRgn, &window_r);
+        GetWindowBounds(window, kWindowGlobalPortRgn, &content_r);
         //put into qt structure
         top->fleft = content_r.left - window_r.left;
         top->ftop = content_r.top - window_r.top;

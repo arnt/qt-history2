@@ -422,7 +422,7 @@ bool QWidgetPrivate::qt_mac_dnd_event(uint kind, DragRef dragRef)
             QPoint pos(q->mapFromGlobal(QPoint(mouse.h, mouse.v)));
             qDebug("Sending <%s>(%d, %d) event to %s %s [%d] (%p)",
                    desc, pos.x(), pos.y(), q->metaObject()->className(),
-                   q->objectName().local8Bit(), ret, dragRef);
+                   q->objectName().toLocal8Bit().constData(), ret, dragRef);
         }
     }
 #endif
