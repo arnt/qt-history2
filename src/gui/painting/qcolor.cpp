@@ -1155,7 +1155,7 @@ QColor QColor::toHsv() const
         color.ct.ahsv.saturation = 0;
     } else {
         // chromatic case
-        qreal hue;
+        qreal hue = 0;
         color.ct.ahsv.saturation = qRound((delta / max) * USHRT_MAX);
         if (r == max) {
             hue = ((g - b) /delta);
