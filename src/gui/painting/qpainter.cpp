@@ -1058,20 +1058,70 @@ void QPainter::setBrushOrigin(const QPointF &p)
 /*!
   \enum QPainter::CompositionMode
 
-  Defines one of the Porter Duff composition operations.
+  Defines one of the Porter Duff composition operator. Composition
+  modes are used to specify how a source and destination pixel are
+  merged together.
 
-  \value CompositionMode_SourceOver
-  \value CompositionMode_DestinationOver
-  \value CompositionMode_Clear
-  \value CompositionMode_Source
-  \value CompositionMode_Destination
-  \value CompositionMode_SourceIn
-  \value CompositionMode_DestinationIn
-  \value CompositionMode_SourceOut
-  \value CompositionMode_DestinationOut
-  \value CompositionMode_SourceAtop
-  \value CompositionMode_DestinationAtop
-  \value CompositionMode_Xor
+  The most common type is SourceOver (often referred to as just alpha
+  blending) where the source pixel is blended on top of the
+  destination pixel in such a way that the alpha component of the
+  source defines the translucensy of the pixel.
+
+  Porter Duff operator will only work when the paint device is a
+  QImage in Format::ARGB32_Premultiplied or Format::ARGB32, where
+  the premultiplied version is the preferred format.
+
+  When a composition mode is set it applies to all painting
+  operator, pens, brushes, gradients and pixmap/image drawing.
+
+  \value CompositionMode_SourceOver This is the default mode. The
+  alpha of the source is used to blend the pixel on top of the
+  destination.
+
+  \value CompositionMode_DestinationOver The alpha of the destination
+  is used to blend it on top of the source pixels. This mode is
+  the inverse of CompositionMode_SourceOver.
+
+  \value CompositionMode_Clear The pixels in the destination are
+  cleared (set to fully transparent) independent of the source.
+
+  \value CompositionMode_Source The output is the source pixel. (This
+  means a basic copy operation and is identical to SourceOver when the
+  source pixel is opaque).
+
+  \value CompositionMode_Destination The output is the destination
+  pixel. This means that the blending has no effect. This mode is
+  the inverse of CompositionMode_Source.
+
+  \value CompositionMode_SourceIn The output is the source, where the
+  alpha is reduced by that of the destination.
+
+  \value CompositionMode_DestinationIn The output is the destination,
+  where the alpha is reduced by that of the source. This mode is the
+  inverse of CompositionMode_SourceIn.
+
+  \value CompositionMode_SourceOut The output is the source, where the
+  alpha is reduced by the inverse of destination.
+
+  \value CompositionMode_DestinationOut The output is the
+  destionation, where the alpha is reduced byt eh inverse of the
+  source. This mode is the inverse of Compositionmode_SourceOut.
+
+  \value CompositionMode_SourceAtop The source pixel is blended on top
+  of the destination, with the alpha of the source pixel reduced by
+  the alpha of the destination pixel.
+
+  \value CompositionMode_DestinationAtop The destination pixel is
+  blended on top of the source, with the alpha of the destination
+  pixel is reduced by the alpha of the destination pixel. This mode is
+  the inverse of CompositionMode_SourceAtop.
+
+  \value CompositionMode_Xor The source which alpha reduced with the
+  inverse of the destination is merged with the destination which
+  alpha is reduced by the inverse of the source.
+
+  This op
+
 */
 
 /*!
