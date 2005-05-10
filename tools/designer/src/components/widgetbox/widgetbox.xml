@@ -246,13 +246,13 @@
             <property name="objectName">
                 <string notr="true">toolBox</string>
             </property>
-            <widget class="QWidget">
-                <attribute name="label" >
+            <widget class="QWidget" name="page" >
+                <attribute name="label">
                     <string>Page 1</string>
                 </attribute>
             </widget>
-            <widget class="QWidget">
-                <attribute name="label" >
+            <widget class="QWidget" name="page" >
+                <attribute name="label">
                     <string>Page 2</string>
                 </attribute>
             </widget>
@@ -270,13 +270,13 @@
             <property name="objectName">
                 <string notr="true">tabWidget</string>
             </property>
-            <widget class="QWidget">
-                <attribute name="title" >
+            <widget class="QWidget" name="tab">
+                <attribute name="title">
                     <string>Tab 1</string>
                 </attribute>
             </widget>
-            <widget class="QWidget">
-                <attribute name="title" >
+            <widget class="QWidget" name="tab">
+                <attribute name="title">
                     <string>Tab 2</string>
                 </attribute>
             </widget>
@@ -294,8 +294,8 @@
             <property name="objectName">
                 <string notr="true">stackedWidget</string>
             </property>
-            <widget class="QWidget" />
-            <widget class="QWidget" />
+            <widget class="QWidget" name="page" />
+            <widget class="QWidget" name="page" />
         </widget>
 
         <widget class="QFrame" name="Frame" icon="widgets/frame.png">

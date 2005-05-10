@@ -925,6 +925,8 @@ void AddToolBoxPageCommand::init(QToolBox *toolBox)
     m_widget = new QDesignerWidget(formWindow(), m_toolBox);
     m_itemText = tr("Page");
     m_itemIcon = QIcon();
+    m_widget->setObjectName(tr("page"));
+    formWindow()->ensureUniqueObjectName(m_widget);
 
     setDescription(tr("Add Page"));
 
@@ -1021,6 +1023,8 @@ void AddTabPageCommand::init(QTabWidget *tabWidget)
     m_widget = new QDesignerWidget(formWindow(), m_tabWidget);
     m_itemText = tr("Page");
     m_itemIcon = QIcon();
+    m_widget->setObjectName(tr("tab"));
+    formWindow()->ensureUniqueObjectName(m_widget);
 
     setDescription(tr("Add Page"));
 
@@ -1150,6 +1154,8 @@ void AddStackedWidgetPageCommand::init(QStackedWidget *stackedWidget)
 
     m_index = m_stackedWidget->currentIndex();
     m_widget = new QDesignerWidget(formWindow(), m_stackedWidget);
+    m_widget->setObjectName(tr("page"));
+    formWindow()->ensureUniqueObjectName(m_widget);
 
     setDescription(tr("Add Page"));
 

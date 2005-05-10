@@ -25,6 +25,7 @@ class QToolButton;
 class QT_SHARED_EXPORT QDesignerStackedWidget : public QStackedWidget
 {
     Q_OBJECT
+    Q_PROPERTY(QString currentPageName READ currentPageName WRITE setCurrentPageName STORED false DESIGNABLE true)
 public:
     QDesignerStackedWidget(QWidget *parent);
 
@@ -39,6 +40,9 @@ public:
 
     inline QAction *actionInsertPage() const
     { return m_actionInsertPage; }
+
+    QString currentPageName() const;
+    void setCurrentPageName(const QString &pageName);
 
 public slots:
     void updateButtons();

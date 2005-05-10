@@ -26,6 +26,7 @@
 #include <QtGui/QToolButton>
 #include <QtGui/QAction>
 #include <QtGui/qevent.h>
+#include <QtCore/qdebug.h>
 
 QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
     : QStackedWidget(parent)
@@ -118,6 +119,7 @@ void QDesignerStackedWidget::prevPage()
         cmd->init(this, QLatin1String("currentIndex"), newIndex);
         fw->commandHistory()->push(cmd);
         updateButtons();
+        fw->emitSelectionChanged();
     } else {
         setCurrentIndex(qMax(0, currentIndex() - 1));
         updateButtons();
@@ -136,6 +138,7 @@ void QDesignerStackedWidget::nextPage()
         cmd->init(this, QLatin1String("currentIndex"), (currentIndex() + 1) % count());
         fw->commandHistory()->push(cmd);
         updateButtons();
+        fw->emitSelectionChanged();
     } else {
         setCurrentIndex((currentIndex() + 1) % count());
         updateButtons();
@@ -158,4 +161,22 @@ void QDesignerStackedWidget::showEvent(QShowEvent *e)
 {
     QStackedWidget::showEvent(e);
     updateButtons();
+}
+
+QString QDesignerStackedWidget::currentPageName() const
+{
+    if (currentIndex() == -1)
+        return QString();
+
+    return widget(currentIndex())->objectName();
+}
+
+void QDesignerStackedWidget::setCurrentPageName(const QString &pageName)
+{
+    if (currentIndex() == -1)
+        return;
+
+    if (QWidget *w = widget(currentIndex())) {
+        w->setObjectName(pageName);
+    }
 }

@@ -80,14 +80,6 @@ QDesignerResource::QDesignerResource(FormWindow *formWindow)
 
         m_qt_to_internal.insert(it.value(), it.key());
     }
-
-
-    QStringList plugins = m_core->pluginManager()->registeredPlugins();
-
-    QList<QDesignerCustomWidgetInterface*> lst = m_core->pluginManager()->registeredCustomWidgets();
-    foreach (QDesignerCustomWidgetInterface *c, lst) {
-        m_customFactory.insert(c->name(), c);
-    }
 }
 
 QDesignerResource::~QDesignerResource()
@@ -258,8 +250,7 @@ QLayoutItem *QDesignerResource::create(DomLayoutItem *ui_layoutItem, QLayout *la
 
 void QDesignerResource::changeObjectName(QObject *o, QString objName)
 {
-    if (m_formWindow)
-        m_formWindow->unify(o, objName, true);
+    m_formWindow->unify(o, objName, true);
 
     if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o)) {
         if (objName.startsWith(QLatin1String("__qt__promoted_"))) {
@@ -358,12 +349,11 @@ QLayout *QDesignerResource::createLayout(const QString &layoutName, QObject *par
     else if (layoutName == QLatin1String("QStackedLayout"))
         layoutType = LayoutInfo::Stacked;
 
-    if (QLayout *lay = m_core->widgetFactory()->createLayout(layoutBase, layout, layoutType)) {
+    QLayout *lay = m_core->widgetFactory()->createLayout(layoutBase, layout, layoutType);
+    if (lay != 0)
         changeObjectName(lay, name);
-        return lay;
-    }
 
-    return 0;
+    return lay;
 }
 
 // save

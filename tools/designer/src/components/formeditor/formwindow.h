@@ -96,6 +96,8 @@ public:
 
     virtual void simplifySelection(QList<QWidget*> *sel) const;
 
+    virtual void ensureUniqueObjectName(QObject *object);
+
     virtual QWidget *mainContainer() const;
     void setMainContainer(QWidget *mainContainer);
     bool isMainContainer(const QWidget *w) const;

@@ -124,7 +124,6 @@ private:
     QDesignerFormEditorInterface *m_core;
     QHash<QString, QString> m_internal_to_qt;
     QHash<QString, QString> m_qt_to_internal;
-    QHash<QString, QDesignerCustomWidgetInterface*> m_customFactory;
     QStack<QLayout*> m_chain;
     QHash<QDesignerWidgetDataBaseItemInterface*, bool> m_usedCustomWidgets;
     int m_topLevelSpacerCount;

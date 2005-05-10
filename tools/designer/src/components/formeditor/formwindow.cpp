@@ -663,6 +663,14 @@ bool FormWindow::isCentralWidget(QWidget *w) const
     return false;
 }
 
+void FormWindow::ensureUniqueObjectName(QObject *object)
+{
+    QString name = object->objectName();
+
+    if (unify(object, name, true))
+        object->setObjectName(name);
+}
+
 bool FormWindow::unify(QObject *w, QString &s, bool changeIt)
 {
     bool found = !isMainContainer(static_cast<QWidget*>(w)) && objectName() == s;
