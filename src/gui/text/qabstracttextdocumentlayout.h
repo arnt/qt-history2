@@ -101,6 +101,6 @@ public:
     virtual QSizeF intrinsicSize(QTextDocument *doc, const QTextFormat &format) = 0;
     virtual void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc, const QTextFormat &format) = 0;
 };
-Q_DECLARE_INTERFACE(QTextObjectInterface, "http://trolltech.com/Qt/QTextObjectInterface")
+Q_DECLARE_INTERFACE(QTextObjectInterface, "com.trolltech.Qt.QTextObjectInterface")
 
 #endif // QABSTRACTTEXTDOCUMENTLAYOUT_H

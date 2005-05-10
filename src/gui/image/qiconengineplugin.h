@@ -24,7 +24,7 @@ struct Q_GUI_EXPORT QIconEngineFactoryInterface : public QFactoryInterface
     virtual QIconEngine *create(const QString &filename) = 0;
 };
 
-Q_DECLARE_INTERFACE(QIconEngineFactoryInterface, "http://trolltech.com/Qt/QIconEngineFactoryInterface")
+Q_DECLARE_INTERFACE(QIconEngineFactoryInterface, "com.trolltech.Qt.QIconEngineFactoryInterface")
 
 class Q_GUI_EXPORT QIconEnginePlugin : public QObject, public QIconEngineFactoryInterface
 {

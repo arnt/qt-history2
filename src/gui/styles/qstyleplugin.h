@@ -24,7 +24,7 @@ struct Q_GUI_EXPORT QStyleFactoryInterface : public QFactoryInterface
     virtual QStyle *create(const QString &key) = 0;
 };
 
-Q_DECLARE_INTERFACE(QStyleFactoryInterface, "http://trolltech.com/Qt/QStyleFactoryInterface")
+Q_DECLARE_INTERFACE(QStyleFactoryInterface, "com.trolltech.Qt.QStyleFactoryInterface")
 
 class Q_GUI_EXPORT QStylePlugin : public QObject, public QStyleFactoryInterface
 {

@@ -43,7 +43,7 @@ public:
 private:
     QString m_workingDirectory;
 };
-Q_DECLARE_EXTENSION_INTERFACE(QDesignerExtraInfoExtension, "http://trolltech.com/Qt/Designer/ExtraInfo")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerExtraInfoExtension, "com.trolltech.Qt.Designer.ExtraInfo")
 
 
 #endif // EXTRAINFO_H

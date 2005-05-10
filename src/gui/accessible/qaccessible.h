@@ -291,7 +291,7 @@ public:
     virtual bool doAction(int action, int child, const QVariantList &params = QVariantList()) = 0;
 };
 
-Q_DECLARE_INTERFACE(QAccessibleInterface, "http://trolltech.com/Qt/QAccessibleInterface")
+Q_DECLARE_INTERFACE(QAccessibleInterface, "com.trolltech.Qt.QAccessibleInterface")
 
 
 class Q_GUI_EXPORT QAccessibleEvent: public QEvent

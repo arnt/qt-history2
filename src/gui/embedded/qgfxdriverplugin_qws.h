@@ -26,7 +26,7 @@ struct Q_GUI_EXPORT QGfxDriverFactoryInterface : public QFactoryInterface
     virtual QScreen* create(const QString& driver, int displayId) = 0;
 };
 
-Q_DECLARE_INTERFACE(QGfxDriverFactoryInterface, "http://trolltech.com/Qt/QGfxDriverFactoryInterface")
+Q_DECLARE_INTERFACE(QGfxDriverFactoryInterface, "com.trolltech.Qt.QGfxDriverFactoryInterface")
 
 
 class Q_GUI_EXPORT QGfxDriverPlugin : public QObject, public QGfxDriverFactoryInterface

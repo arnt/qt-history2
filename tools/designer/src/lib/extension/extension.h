@@ -26,7 +26,7 @@ public:
 
     virtual QObject *extension(QObject *object, const QString &iid) const = 0;
 };
-Q_DECLARE_INTERFACE(QAbstractExtensionFactory, "http://trolltech.com/Qt/QAbstractExtensionFactory")
+Q_DECLARE_INTERFACE(QAbstractExtensionFactory, "com.trolltech.Qt.QAbstractExtensionFactory")
 
 class QAbstractExtensionManager
 {
@@ -38,7 +38,7 @@ public:
 
     virtual QObject *extension(QObject *object, const QString &iid) const = 0;
 };
-Q_DECLARE_INTERFACE(QAbstractExtensionManager, "http://trolltech.com/Qt/QAbstractExtensionManager")
+Q_DECLARE_INTERFACE(QAbstractExtensionManager, "com.trolltech.Qt.QAbstractExtensionManager")
 
 #if defined(Q_CC_MSVC) && (_MSC_VER < 1300)
 

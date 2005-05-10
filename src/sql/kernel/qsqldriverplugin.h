@@ -24,7 +24,7 @@ struct Q_SQL_EXPORT QSqlDriverFactoryInterface : public QFactoryInterface
     virtual QSqlDriver *create(const QString &name) = 0;
 };
 
-Q_DECLARE_INTERFACE(QSqlDriverFactoryInterface, "http://trolltech.com/Qt/QSqlDriverFactoryInterface")
+Q_DECLARE_INTERFACE(QSqlDriverFactoryInterface, "com.trolltech.Qt.QSqlDriverFactoryInterface")
 
 class Q_SQL_EXPORT QSqlDriverPlugin : public QObject, public QSqlDriverFactoryInterface
 {

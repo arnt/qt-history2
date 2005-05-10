@@ -53,7 +53,7 @@ struct QWidgetFactoryInterface : public QFactoryInterface
     virtual bool isContainer(const QString &widget) const = 0;
 };
 
-Q_DECLARE_INTERFACE(QWidgetFactoryInterface, "http://trolltech.com/Qt/QWidgetFactoryInterface")
+Q_DECLARE_INTERFACE(QWidgetFactoryInterface, "com.trolltech.Qt.QWidgetFactoryInterface")
 
 struct QWidgetContainerInterfacePrivate
 {
@@ -80,7 +80,7 @@ struct QWidgetContainerInterfacePrivate
                                 const QString &page, const QString &pageName) const = 0;
 };
 
-Q_DECLARE_INTERFACE(QWidgetContainerInterfacePrivate, "http://trolltech.com/Qt/QWidgetContainerInterfacePrivate")
+Q_DECLARE_INTERFACE(QWidgetContainerInterfacePrivate, "com.trolltech.Qt.QWidgetContainerInterfacePrivate")
 
 #ifndef QT_NO_WIDGETPLUGIN
 

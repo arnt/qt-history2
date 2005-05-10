@@ -58,6 +58,6 @@ public:
 
     virtual void adjustIndicator(const QPoint &pos, int index) = 0;
 };
-Q_DECLARE_EXTENSION_INTERFACE(QDesignerLayoutDecorationExtension, "http://trolltech.com/Qt/Designer/LayoutDecoration")
+Q_DECLARE_EXTENSION_INTERFACE(QDesignerLayoutDecorationExtension, "com.trolltech.Qt.Designer.LayoutDecoration")
 
 #endif // LAYOUTDECORATION_H

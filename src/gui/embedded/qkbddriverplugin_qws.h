@@ -26,7 +26,7 @@ struct Q_GUI_EXPORT QWSKeyboardHandlerFactoryInterface : public QFactoryInterfac
     virtual QWSKeyboardHandler* create(const QString& name) = 0;
 };
 
-Q_DECLARE_INTERFACE(QWSKeyboardHandlerFactoryInterface, "http://trolltech.com/Qt/QWSKeyboardHandlerFactoryInterface")
+Q_DECLARE_INTERFACE(QWSKeyboardHandlerFactoryInterface, "com.trolltech.Qt.QWSKeyboardHandlerFactoryInterface")
 
 class Q_GUI_EXPORT QKbdDriverPlugin : public QObject, public QWSKeyboardHandlerFactoryInterface
 {

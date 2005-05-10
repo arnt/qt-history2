@@ -46,7 +46,7 @@ struct Q_GUI_EXPORT QInputContextFactoryInterface : public QFactoryInterface
     virtual QString description( const QString &key ) = 0;
 };
 
-Q_DECLARE_INTERFACE(QInputContextFactoryInterface, "http://trolltech.com/Qt/QInputContextFactoryInterface")
+Q_DECLARE_INTERFACE(QInputContextFactoryInterface, "com.trolltech.Qt.QInputContextFactoryInterface")
 
 class Q_GUI_EXPORT QInputContextPlugin : public QObject, public QInputContextFactoryInterface
 {

@@ -16,6 +16,8 @@ INCLUDEPATH += \
     ../components/widgetbox \
     ../components/propertyeditor \
     ../components/taskmenu \
+    /home/shausman/dev/qt-4.0/tools/designer/src/components/resourceeditor \
+    /home/shausman/dev/qt-build-4.0-x11/tools/designer/src/components/resourceeditor \
 
 LIBS += -L../../lib \
     -L../../../../lib \

@@ -26,7 +26,7 @@ struct Q_GUI_EXPORT QWSMouseHandlerFactoryInterface : public QFactoryInterface
     virtual QWSMouseHandler* create(const QString& name) = 0;
 };
 
-Q_DECLARE_INTERFACE(QWSMouseHandlerFactoryInterface, "http://trolltech.com/Qt/QWSMouseHandlerFactoryInterface")
+Q_DECLARE_INTERFACE(QWSMouseHandlerFactoryInterface, "com.trolltech.Qt.QWSMouseHandlerFactoryInterface")
 
 
 class Q_GUI_EXPORT QMouseDriverPlugin : public QObject, public QWSMouseHandlerFactoryInterface

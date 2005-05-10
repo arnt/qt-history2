@@ -79,17 +79,18 @@
     function that applies a filter to an image.
 
     \skipto Q_DECLARE
-    \printuntil FilterInterface");
+    \printuntil FilterInterface
 
     To make it possible to query at run-time whether a plugin
     implements a given interface, we must use the \c
     Q_DECLARE_INTERFACE() macro. The first argument is the name of
     the interface. The second argument is a string identifying the
-    interface in a unique way. By convention, we use fictitious URLs
-    to identify interfaces. If we later change the interfaces, we
-    must use a different URL to identify the new interface;
-    otherwise, the application might crash. It is therefore a good
-    idea to include a version number in the URL, as we did above.
+    interface in a unique way. By convention, we use a "Java package
+    name" syntax to identify interfaces. If we later change the
+    interfaces, we must use a different string to identify the new
+    interface; otherwise, the application might crash. It is therefore
+    a good idea to include a version number in the string, as we did
+    above.
 
     The \l{tools/plugandpaintplugins/basictools}{Basic Tools} plugin
     and the \l{tools/plugandpaintplugins/extrafilters}{Extra Filters}

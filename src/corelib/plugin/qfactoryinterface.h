@@ -23,6 +23,6 @@ struct QFactoryInterface
     virtual QStringList keys() const = 0;
 };
 
-Q_DECLARE_INTERFACE(QFactoryInterface, "http://trolltech.com/Qt/QFactoryInterface")
+Q_DECLARE_INTERFACE(QFactoryInterface, "com.trolltech.Qt.QFactoryInterface")
 
 #endif // QFACTORYINTERFACE_H

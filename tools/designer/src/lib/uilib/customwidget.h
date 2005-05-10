@@ -44,7 +44,7 @@ public:
     virtual QString codeTemplate() const { return QString(); }
     virtual QString domXml() const { return QString(); }
 };
-Q_DECLARE_INTERFACE(QDesignerCustomWidgetInterface, "http://trolltech.com/Qt/Designer/CustomWidget")
+Q_DECLARE_INTERFACE(QDesignerCustomWidgetInterface, "com.trolltech.Qt.Designer.CustomWidget")
 
 
 class QDesignerCustomWidgetCollectionInterface
@@ -54,6 +54,6 @@ public:
 
     virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const = 0;
 };
-Q_DECLARE_INTERFACE(QDesignerCustomWidgetCollectionInterface, "http://trolltech.com/Qt/Designer/CustomWidgetCollection")
+Q_DECLARE_INTERFACE(QDesignerCustomWidgetCollectionInterface, "com.trolltech.Qt.Designer.CustomWidgetCollection")
 
 #endif // CUSTOMWIDGET_H
