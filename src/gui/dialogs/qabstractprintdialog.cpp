@@ -41,7 +41,7 @@
     \item PrintPageRange The page range selection option is enabled.
     \item PrintCollateCopies
     };
-
+*/
 
 /*!
     Constructs an abstract print dialog for \a printer with \a parent
