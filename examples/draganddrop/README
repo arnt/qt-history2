@@ -1,0 +1,20 @@
+Qt supports native drag and drop on all platforms via an extensible MIME-based
+system.
+
+
+The example launcher provided with Qt can be used to explore each of the
+examples in this directory.
+
+
+Finding the launcher
+====================
+
+On Windows:
+
+
+On Mac OS X:
+
+
+On Unix/Linux:
+
+

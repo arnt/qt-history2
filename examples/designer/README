@@ -1,0 +1,20 @@
+Qt Designer is a capable graphical user interface designer that lets you create
+and configure forms without writing code. GUIs created with Qt Designer can be
+compiled into an application or created at run-time.
+
+
+Some of the examples in this directory can be run from the example launcher;
+others can only be used from within Qt Designer.
+
+Finding the launcher
+====================
+
+On Windows:
+
+
+On Mac OS X:
+
+
+On Unix/Linux:
+
+

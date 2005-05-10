@@ -1,0 +1,20 @@
+Qt provides support for integration with Open GL implementations on all
+platforms.
+
+
+The example launcher provided with Qt can be used to explore each of the
+examples in this directory.
+
+
+Finding the launcher
+====================
+
+On Windows:
+
+
+On Mac OS X:
+
+
+On Unix/Linux:
+
+

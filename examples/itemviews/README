@@ -1,0 +1,22 @@
+Item views are widgets that typically display data sets. Qt 4's model/view
+framework lets you handle large data sets by separating the underlying data
+from the way it is represented to the user, and provides support for customized
+rendering through the use of delegates.
+
+
+The example launcher provided with Qt can be used to explore each of the
+examples in this directory.
+
+
+Finding the launcher
+====================
+
+On Windows:
+
+
+On Mac OS X:
+
+
+On Unix/Linux:
+
+

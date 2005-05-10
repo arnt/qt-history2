@@ -1,0 +1,23 @@
+Qt is provided with an extensive set of network classes to support both
+client-based and server side network programming.
+
+These examples demonstrate the fundamental aspects of network programming with
+Qt.
+
+
+The example launcher provided with Qt can be used to explore each of the
+examples in this directory.
+
+
+Finding the launcher
+====================
+
+On Windows:
+
+
+On Mac OS X:
+
+
+On Unix/Linux:
+
+

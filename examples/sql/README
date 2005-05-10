@@ -1,0 +1,23 @@
+Qt provides extensive database interoperability, with support for products from both open
+source and proprietary vendors.
+
+SQL support is integrated with Qt's model/view architecture, making it easier
+to provide GUI integration for your database applications.
+
+
+The example launcher provided with Qt can be used to explore each of the
+examples in this directory.
+
+
+Finding the launcher
+====================
+
+On Windows:
+
+
+On Mac OS X:
+
+
+On Unix/Linux:
+
+

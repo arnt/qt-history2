@@ -1,0 +1,25 @@
+Qt's painting system is able to render vector graphics, images, and outline
+font-based text with sub-pixel accuracy accuracy using anti-aliasing to improve
+rendering quality.
+
+These examples show the most common techniques that are used when painting with
+Qt, from basic concepts such as drawing simple primitives to the use of
+transformations.
+
+
+The example launcher provided with Qt can be used to explore each of the
+examples in this directory.
+
+
+Finding the launcher
+====================
+
+On Windows:
+
+
+On Mac OS X:
+
+
+On Unix/Linux:
+
+
