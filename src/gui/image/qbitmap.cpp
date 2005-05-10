@@ -26,22 +26,23 @@
 
     \ingroup multimedia
 
-    The QBitmap class is a monochrome off-screen paint device used
-    mainly for creating custom QCursor and QBrush objects, in
-    QPixmap::setMask() and for QRegion.
+    The QBitmap class is a monochrome off-screen paint device used mainly for
+    creating custom QCursor and QBrush objects, settings masks for \link
+    QPixmap::setMask() pixmaps \endlink and \link QWidget::setMask() widgets
+    \endlink, and for QRegion.
 
     A QBitmap is a QPixmap with a \link QPixmap::depth() depth\endlink
     of 1. If a pixmap with a depth greater than 1 is assigned to a
     bitmap, the bitmap will be dithered automatically. A QBitmap is
     guaranteed to always have the depth 1, unless it is
-    QPixmap::isNull() which has depth 0.
+    \link QPixmap::isNull() null \endlink since null pixmaps have depth 0.
 
     When drawing in a QBitmap (or QPixmap with depth 1), we recommend
     using the QColor objects Qt::color0 and Qt::color1.
     Painting with Qt::color0 sets the bitmap bits to 0, and painting
     with Qt::color1 sets the bits to 1. For a bitmap, 0-bits indicate
     background (or transparent pixels) and 1-bits indicate foreground (or
-    opaque pixels). Using the Qt::black and Qt::white colors makes no
+    opaque pixels). Using the Qt::black and Qt::white colors make no
     sense because the QColor::pixel() value is not necessarily 0 for
     black and 1 for white.
 
@@ -68,12 +69,11 @@ QBitmap::QBitmap()
 }
 
 /*!
-    \fn QBitmap::QBitmap(int width, int height, bool clear)
+    \fn QBitmap::QBitmap(int width, int height)
 
-    Constructs a bitmap with the given \a width and \a height.
+    Constructs a bitmap with the given \a width and \a height. The pixels
+    inside are uninitialized.
 
-    If \a clear is true, the bitmap is filled with pixel value 0 (the
-    QColor \c Qt::color0); otherwise the pixels are uninitialized.
 */
 
 QBitmap::QBitmap(int w, int h)
@@ -81,6 +81,11 @@ QBitmap::QBitmap(int w, int h)
 {
 }
 
+/*!
+    \fn QBitmap::clear()
+
+    Clear the bitmap to Qt::color0.
+*/
 
 /*!
     \overload
