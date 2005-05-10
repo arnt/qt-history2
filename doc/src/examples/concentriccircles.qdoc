@@ -1,4 +1,9 @@
 /*!
     \example painting/concentriccircles
     \title Concentric Circles Example
+
+    The Concentric Circles example shows the improved rendernig quality that can be obtained
+    when using floating point precision and anti-aliasing when drawing custom widgets.
+
+    \image concentriccircles-example.png
 */
