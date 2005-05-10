@@ -3838,9 +3838,9 @@ for file in .projects .projects.3; do
 # All changes made to this file will be lost.
 
 all clean install qmake first Makefile: FORCE
-        $QMAKE_EXEC
-        cd $OUTDIR
-        \$(MAKE) \$@
+	$QMAKE_EXEC
+	cd $OUTDIR
+	\$(MAKE) \$@
 
 FORCE:
 
