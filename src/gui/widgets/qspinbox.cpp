@@ -1198,6 +1198,10 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
     } else if (len > 1) {
         const int dec = findDelimiter(copy);
         if (dec != -1) {
+            if (copy.size() - dec > decimals + 1) {
+                state = QValidator::Invalid;
+                goto end;
+            }
             for (int i=dec + 1; i<copy.size(); ++i) {
                 if (copy.at(i).isSpace() || copy.at(i) == thousand) {
                     state = QValidator::Invalid;
