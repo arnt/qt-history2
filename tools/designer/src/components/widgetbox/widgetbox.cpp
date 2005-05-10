@@ -379,7 +379,6 @@ bool WidgetBoxTreeView::load()
 
     QFile f(name);
     if (!f.open(QIODevice::ReadOnly)) {
-        qWarning("WidgetBox: failed to open \"%s\"", name.toUtf8().constData());
         return false;
     }
 
