@@ -12,11 +12,14 @@
 ****************************************************************************/
 
 #include <QtCore/QFile>
-#include <QtXml/QDomDocument>
 #include <QtCore/QTextStream>
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
+
 #include <QtGui/QIcon>
+#include <QtGui/QApplication>
+
+#include <QtXml/QDomDocument>
 
 #include "resourcefile.h"
 #include <QtDesigner/abstractformbuilder.h>
@@ -53,7 +56,7 @@ bool ResourceFile::load()
     m_error_message.clear();
 
     if (m_file_name.isEmpty()) {
-        m_error_message = QObject::tr("file name is empty");
+        m_error_message = QApplication::translate("Designer", "file name is empty");
         return false;
     }
 
@@ -70,14 +73,14 @@ bool ResourceFile::load()
     QString error_msg;
     int error_line, error_col;
     if (!doc.setContent(&file, &error_msg, &error_line, &error_col)) {
-        m_error_message = QObject::tr("XML error on line %1, col %2: %3")
+        m_error_message = QApplication::translate("Designer", "XML error on line %1, col %2: %3")
                     .arg(error_line).arg(error_col).arg(error_msg);
         return false;
     }
 
     QDomElement root = doc.firstChildElement(QLatin1String("RCC"));
     if (root.isNull()) {
-        m_error_message = QObject::tr("no <RCC> root element");
+        m_error_message = QApplication::translate("Designer", "no <RCC> root element");
         return false;
     }
 
@@ -107,7 +110,7 @@ bool ResourceFile::save()
     m_error_message.clear();
 
     if (m_file_name.isEmpty()) {
-        m_error_message = QObject::tr("file name is empty");
+        m_error_message = QApplication::translate("Designer", "file name is empty");
         return false;
     }
 

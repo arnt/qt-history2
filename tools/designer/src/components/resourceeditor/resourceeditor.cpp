@@ -356,8 +356,8 @@ ResourceModel *ModelCache::model(const QString &file)
 
     ResourceFile rf(file);
     if (!rf.load()) {
-        QMessageBox::warning(0, QObject::tr("Error opening resource file"),
-                                QObject::tr("Failed to open \"%1\":\n%2")
+        QMessageBox::warning(0, QApplication::translate("Designer", "Error opening resource file"),
+                                QApplication::translate("Designer", "Failed to open \"%1\":\n%2")
                                     .arg(file).arg(rf.errorMessage()),
                                 QMessageBox::Ok, QMessageBox::NoButton);
         return 0;

@@ -41,6 +41,7 @@
 #include <QtGui/QTabBar>
 #include <QtGui/QAction>
 #include <QtGui/QActionGroup>
+#include <QtGui/QApplication>
 
 #include <QtCore/QBuffer>
 #include <QtCore/QDir>
@@ -93,8 +94,8 @@ void QDesignerResource::save(QIODevice *dev, QWidget *widget)
     QAbstractFormBuilder::save(dev, widget);
 
     if (m_topLevelSpacerCount != 0) {
-        QMessageBox::warning(widget->window(), QObject::tr("Qt Designer"),
-               QObject::tr("This file contains top level spacers.<br>"
+        QMessageBox::warning(widget->window(), QApplication::translate("Designer", "Qt Designer"),
+               QApplication::translate("Designer", "This file contains top level spacers.<br>"
                            "They have <b>NOT</b> been saved into the form.<br>"
                            "Perhaps you forgot to create a layout?"),
                            QMessageBox::Ok, 0);
@@ -133,8 +134,8 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
             if (!w) {
                 allOK = false;
             } else {
-                QMessageBox::information(parentWidget->window(), QObject::tr("Qt Designer"),
-                   QObject::tr("This file was created using Designer from Qt-%1 and"
+                QMessageBox::information(parentWidget->window(), QApplication::translate("Designer", "Qt Designer"),
+                   QApplication::translate("Designer", "This file was created using Designer from Qt-%1 and"
                                " will be converted to a new form by Qt Designer.\n"
                                "The old form has been untouched, but you will have to save this form"
                                " under a new name.").arg(version), QMessageBox::Ok, 0);
@@ -143,8 +144,8 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
         }
 
         if (!allOK) {
-            QMessageBox::warning(parentWidget->window(), QObject::tr("Qt Designer"),
-               QObject::tr("This file was created using designer from Qt-%1 and "
+            QMessageBox::warning(parentWidget->window(), QApplication::translate("Designer", "Qt Designer"),
+               QApplication::translate("Designer", "This file was created using designer from Qt-%1 and "
                            "could not be read. "
                            "Please run it through <b>uic3 -convert</b> to convert "
                            "it to Qt-4's ui format.").arg(version),
@@ -519,8 +520,8 @@ void QDesignerResource::createCustomWidgets(DomCustomWidgets *dom_custom_widgets
         QString base_class = custom_widget->elementExtends();
         item->setExtends(base_class);
         item->setPromoted(!base_class.isEmpty());
-        item->setGroup(base_class.isEmpty() ? QObject::tr("Custom Widgets")
-                                                : QObject::tr("Promoted Widgets"));
+        item->setGroup(base_class.isEmpty() ? QApplication::translate("Designer", "Custom Widgets")
+                                                : QApplication::translate("Designer", "Promoted Widgets"));
         if (DomHeader *header = custom_widget->elementHeader())
             item->setIncludeFile(header->text());
         item->setContainer(custom_widget->elementContainer());
