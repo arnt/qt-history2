@@ -753,9 +753,9 @@ void Moc::parseProperty(ClassDef *def)
     else if (type == "QValueList")
         type = "QValueList<QVariant>";
     else if (type == "LongLong")
-        type = "qint64";
+        type = "qlonglong";
     else if (type == "ULongLong")
-        type = "quint64";
+        type = "qulonglong";
     propDef.type = type;
 
     next();
