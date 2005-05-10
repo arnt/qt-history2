@@ -1443,11 +1443,17 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
 process:
     switch( e->key() ) {
     case Qt::Key_Backspace: {
+        QTextBlockFormat blockFmt = d->cursor.blockFormat();
+
         QTextList *list = d->cursor.currentList();
-        if (list && d->cursor.atBlockStart())
+        if (list && d->cursor.atBlockStart()) {
             list->remove(d->cursor.block());
-        else
+        } else if (d->cursor.atBlockStart() && blockFmt.indent() > 0) {
+            blockFmt.setIndent(blockFmt.indent() - 1);
+            d->cursor.setBlockFormat(blockFmt);
+        } else {
             d->cursor.deletePreviousChar();
+        }
         break;
     }
     case Qt::Key_Delete:
