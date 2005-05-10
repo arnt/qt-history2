@@ -707,7 +707,7 @@ QTextLine QTextLayout::lineForTextPosition(int pos) const
             return QTextLine(i, d);
     }
     if (!d->layoutData)
-        d->validate();
+        d->itemize();
     if (pos == d->layoutData->string.length() && d->lines.size())
         return QTextLine(d->lines.size()-1, d);
     return QTextLine();
