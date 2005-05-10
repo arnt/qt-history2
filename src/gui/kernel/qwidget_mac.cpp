@@ -1194,7 +1194,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     }
 
     //get new hd, now move
-    q->setGeometry(0, 0, s.width(), s.height());
+    q->resize(s.width(), s.height());
 
     //reset flags and show (if neccesary)
     setEnabled_helper(enable); //preserving WA_ForceDisabled
