@@ -1028,8 +1028,9 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
             }
             return true;
         }
+        return false;
     }
-    return false;
+    return QCoreApplication::compressEvent(event, receiver, postedEvents);
 }
 
 #ifndef QT_NO_STYLE

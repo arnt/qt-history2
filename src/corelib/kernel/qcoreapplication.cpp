@@ -747,8 +747,29 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
   \internal
   Returns true if \a event should be blocked and deleted
 */
-bool QCoreApplication::compressEvent(QEvent *, QObject *, QPostEventList *)
+bool QCoreApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventList *postedEvents)
 {
+#ifdef Q_WS_WIN
+    Q_ASSERT(event);
+    Q_ASSERT(receiver);
+    Q_ASSERT(postedEvents);
+
+    // compress posted timers to this object.
+    if (event->type() == QEvent::Timer && receiver->d_func()->postedEvents > 0) {
+        int timerId = ((QTimerEvent *) event)->timerId();
+        for (int i=0; i<postedEvents->size(); ++i) {
+            const QPostEvent &e = postedEvents->at(i);
+            if (e.receiver == receiver && e.event->type() == QEvent::Timer
+                && ((QTimerEvent *) e.event)->timerId() == timerId)
+                return true;
+        }
+    }
+#else
+    Q_UNUSED(event);
+    Q_UNUSED(receiver);
+    Q_UNUSED(postedEvents);
+#endif
+
     return false;
 }
 
