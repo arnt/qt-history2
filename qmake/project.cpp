@@ -1516,8 +1516,13 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
         if(Option::output_dir != qmake_getpwd())
             include_roots << qmake_getpwd();
         for(int root = 0; root < include_roots.size(); ++root) {
-            if(QFile::exists(include_roots[root] + QDir::separator() + file)) {
-                file = include_roots[root] + QDir::separator() + file;
+		QString testName = QDir::convertSeparators(include_roots[root]);
+		if (!testName.endsWith(QString(QDir::separator())))
+			testName += QDir::separator();
+		testName += file;
+
+            if(QFile::exists(testName)) {
+                file = testName;
                 break;
             }
         }
