@@ -301,9 +301,12 @@ void QDesignerWorkbench::switchToNeutralMode()
         settings.setMainWindowState(mw->saveState());
     }
 
-    QPoint desktopOffset;
+    QPoint desktopOffset = QPoint(0, 0);
+    QPoint workspaceOffset = QPoint(0, 0);
     if (m_mode == TopLevelMode)
         desktopOffset = QApplication::desktop()->availableGeometry().topLeft();
+    else if (m_mode == DockedMode)
+        workspaceOffset = m_workspace->mapToGlobal(QPoint(0, 0));
     m_mode = NeutralMode;
 
     m_geometries.clear();
@@ -333,7 +336,8 @@ void QDesignerWorkbench::switchToNeutralMode()
                 if (QWidget *p = fw->parentWidget())
                     pos = p->pos(); // in workspace
 
-            m_geometries.insert(fw, QRect(pos - desktopOffset, fw->size()));
+            m_geometries.insert(fw, QRect(pos - desktopOffset + workspaceOffset,
+                                            fw->size()));
         }
 
         fw->setParent(0);
@@ -416,18 +420,34 @@ void QDesignerWorkbench::switchToDockedMode()
 
     mw->restoreState(settings.mainWindowState());
 
-    foreach (QDesignerFormWindow *fw, m_formWindows) {
-        QWidget *frame = m_workspace->addWindow(fw, magicalWindowFlags(fw));
-        QRect g = m_geometries.value(fw, fw->geometryHint());
-        fw->resize(g.size());
-        frame->move(g.topLeft());
-        fw->show();
-    }
+    foreach (QDesignerFormWindow *fw, m_formWindows)
+        m_workspace->addWindow(fw, magicalWindowFlags(fw))->hide();
+    // will be shown in adjustFormPositions
+
     changeBringToFrontVisiblity(false);
 
     mw->show();
+
+    QMetaObject::invokeMethod(this, "adjustFormPositions", Qt::QueuedConnection);
 }
 
+void QDesignerWorkbench::adjustFormPositions()
+{
+    if (m_workspace == 0)
+        return;
+
+    QPoint workspace_tl = m_workspace->mapToGlobal(QPoint(0, 0));
+
+    foreach (QDesignerFormWindow *fw, m_formWindows) {
+        QWidget *frame = fw->parentWidget();
+        if (frame == 0)
+            continue;
+        QRect g = m_geometries.value(fw, fw->geometryHint());
+        frame->move(g.topLeft() - workspace_tl);
+        fw->resize(g.size());
+        frame->show();
+    }
+}
 
 void QDesignerWorkbench::changeBringToFrontVisiblity(bool visible)
 {
@@ -437,8 +457,6 @@ void QDesignerWorkbench::changeBringToFrontVisiblity(bool visible)
     QAction *sep = actionList.at(actionList.indexOf(btf) - 1);
     if (sep->isSeparator())
         sep->setVisible(visible);
-
-
 }
 
 void QDesignerWorkbench::switchToTopLevelMode()
@@ -801,4 +819,3 @@ QDockWidget *QDesignerWorkbench::magicalDockWidget(QWidget *widget) const
     QDockWidget *dockWidget = qFindChild<QDockWidget*>(m_workspace->window(), widget->windowTitle());
     return dockWidget;
 }
-

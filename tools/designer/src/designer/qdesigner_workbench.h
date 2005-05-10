@@ -111,6 +111,7 @@ private slots:
     void updateWindowMenu(QDesignerFormWindowInterface *fw);
     void formWindowActionTriggered(QAction *a);
     void showToolBars();
+    void adjustFormPositions();
 
 private:
     QWidget *magicalParent() const;
