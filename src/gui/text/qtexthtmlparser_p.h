@@ -191,18 +191,6 @@ struct QTextHtmlParserNode {
             case Html_tr: return (parentId == Html_table);
             case Html_th:
             case Html_td: return (parentId == Html_tr);
-            /*
-               The end tag for li may be omitted, so turn
-               <ul>
-                <li>Blah
-                 <ul>
-               Into
-               <ul>
-                <li>Blah</li>
-                <ul>
-             */
-            case Html_ul:
-            case Html_ol: return (parentId != Html_li);
             default: break;
         }
         return true;
