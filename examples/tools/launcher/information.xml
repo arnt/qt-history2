@@ -1,8 +1,5 @@
 <categories>
   <category dirname="../demos" docname="demos" name="Demonstrations">
-    <description>
-<![CDATA[These demonstrations highlight Qt's capabilities in different areas.]]>
-    </description>
     <example dirname="arthur" filename="deform" name="Vector Deformation" />
     <example dirname="arthur" filename="gradients" name="Gradients" />
     <example dirname="arthur" filename="pathstroke" name="Path Stroking" />
@@ -117,4 +114,20 @@
     <example filename="saxbookmarks" name="SAX Bookmarks" />
     <example filename="dombookmarks" name="DOM Bookmarks" />
   </category>
+<!--  <category dirname="tutorial" name="Qt Tutorial">
+    <example filename="t1" name="Hello World!" />
+    <example filename="t2" name="Calling it Quits" />
+    <example filename="t3" name="Family Values" />
+    <example filename="t4" name="Let There Be Widgets" />
+    <example filename="t5" name="Building Blocks" />
+    <example filename="t6" name="Building Blocks Galore!" />
+    <example filename="t7" name="One Thing Leads to Another" />
+    <example filename="t8" name="Preparing for Battle" />
+    <example filename="t9" name="With Cannon You Can" />
+    <example filename="t10" name="Smooth as Silk" />
+    <example filename="t11" name="Giving It a Shot" />
+    <example filename="t12" name="Hanging in the Air the Way Bricks Don't" />
+    <example filename="t13" name="Game Over" />
+    <example filename="t14" name="Facing the Wall" />
+  </category> -->
 </categories>

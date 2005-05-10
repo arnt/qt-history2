@@ -350,7 +350,10 @@ void Launcher::reset()
 
 void Launcher::showCategories()
 {
+    slideshowTimer->stop();
+    disconnect(slideshowTimer, SIGNAL(timeout()), this, 0);
     disconnect(display, SIGNAL(displayEmpty()), this, 0);
+
     currentCategory = "";
     currentExample = "";
     connect(display, SIGNAL(displayEmpty()), this, SLOT(createCategories()),
@@ -440,7 +443,10 @@ void Launcher::createCategories()
 
 void Launcher::showExamples(const QString &category)
 {
+    slideshowTimer->stop();
+    disconnect(slideshowTimer, SIGNAL(timeout()), this, 0);
     disconnect(display, SIGNAL(displayEmpty()), this, 0);
+
     currentCategory = category;
     currentExample = "";
 
@@ -568,7 +574,10 @@ void Launcher::showExampleDocumentation(const QString &example)
 
 void Launcher::showExampleSummary(const QString &example)
 {
+    slideshowTimer->stop();
+    disconnect(slideshowTimer, SIGNAL(timeout()), this, 0);
     disconnect(display, SIGNAL(displayEmpty()), this, 0);
+
     currentExample = example;
 
     for (int i = 0; i < display->shapesCount(); ++i) {
