@@ -1228,8 +1228,8 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
     Returns the directory that contains the application executable.
 
     For example, if you have installed Qt in the \c{C:\Trolltech\Qt}
-    directory, and you run the \c{demo} example, this function will
-    return "C:/Trolltech/Qt/examples/demo".
+    directory, and you run the \c{launcher} example, this function will
+    return "C:/Trolltech/Qt/examples/tools/launcher".
 
     On Mac OS X this will point to the directory actually containing the
     executable, which may be inside of an application bundle (if the
@@ -1250,9 +1250,9 @@ QString QCoreApplication::applicationDirPath()
 /*!
     Returns the file path of the application executable.
 
-    For example, if you have installed Qt in the \c{C:\Trolltech\Qt}
-    directory, and you run the \c{demo} example, this function will
-    return "C:/Trolltech/Qt/examples/demo/demo.exe".
+    For example, if you have installed Qt in the \c{/usr/local/qt}
+    directory, and you run the \c{launcher} example, this function will
+    return "/usr/local/qt/examples/tools/launcher".
 
     \warning On Unix, this function assumes that argv[0] contains the file
     name of the executable (which it normally does). It also assumes that
