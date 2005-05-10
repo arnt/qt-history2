@@ -1,4 +1,8 @@
 /*!
     \example layouts/basiclayouts
     \title Basic Layouts Example
+
+    The Basic Layouts example shows the standard layout managers that are available in Qt.
+
+    \image basiclayouts-example.png
 */

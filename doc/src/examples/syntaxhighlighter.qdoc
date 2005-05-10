@@ -1,4 +1,9 @@
 /*!
     \example richtext/syntaxhighlighter
     \title Syntax Highlighter Example
+
+    The Syntax Highlighter example demonstrates simple syntax highlighting in a rich text
+    editor using regular expressions to describe highlighting rules.
+
+    \image syntaxhighlighter-example.png
 */

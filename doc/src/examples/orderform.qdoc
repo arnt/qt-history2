@@ -1,4 +1,9 @@
 /*!
     \example richtext/orderform
     \title Order Form Example
+
+    The Order Form example shows how to generate rich text documents by combining a simple
+    template with data input by the user in a dialog.
+
+    \image orderform-example.png
 */

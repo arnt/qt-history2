@@ -1,0 +1,9 @@
+/*!
+    \example draganddrop/puzzle
+    \title Puzzle Example
+
+    The Puzzle example demonstrates a way of using the drag and drop system with
+    item view widgets.
+
+    \image puzzle-example.png
+*/

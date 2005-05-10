@@ -2,4 +2,8 @@
     \example widgets/tooltips
     \title Tooltips Example
 
+    The Tooltips example shows how to provide tooltips that change depending on the cursor's
+    position in a widget.
+
+    \image tooltips-example.png
 */
