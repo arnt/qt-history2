@@ -100,8 +100,10 @@ bool PathShape::animate(const QRect &boundingRect)
             int penAlpha = penColor.alpha();
             int brushAlpha = brushColor.alpha();
 
-            penAlpha += meta.value("fade").toInt();
-            brushAlpha += meta.value("fade").toInt();
+            penAlpha = qBound(meta.value("fade minimum").toInt(),
+                              penAlpha + meta.value("fade").toInt(), 255);
+            brushAlpha = qBound(meta.value("fade minimum").toInt(),
+                              brushAlpha + meta.value("fade").toInt(), 255);
 
             penColor.setAlpha(qBound(0, penAlpha, 255));
             brushColor.setAlpha(qBound(0, brushAlpha, 255));
@@ -161,7 +163,8 @@ bool TitleShape::animate(const QRect &boundingRect)
             QColor penColor = pen.color();
             int penAlpha = penColor.alpha();
 
-            penAlpha = qBound(0, penAlpha + meta.value("fade").toInt(), 255);
+            penAlpha = qBound(meta.value("fade minimum").toInt(),
+                              penAlpha + meta.value("fade").toInt(), 255);
 
             penColor.setAlpha(penAlpha);
             pen.setColor(penColor);
@@ -241,7 +244,8 @@ bool ImageShape::animate(const QRect &boundingRect)
 
     if (!meta.contains("destroy")) {
         if (meta.contains("fade")) {
-            alpha = qBound(0, alpha + meta.value("fade").toInt(), 255);
+            alpha = qBound(meta.value("fade minimum").toInt(),
+                           alpha + meta.value("fade").toInt(), 255);
             redraw();
 
             if (alpha == 0) {
@@ -286,7 +290,8 @@ bool DocumentShape::animate(const QRect &boundingRect)
             QColor penColor = pen.color();
             int penAlpha = penColor.alpha();
 
-            penAlpha = qBound(0, penAlpha + meta.value("fade").toInt(), 255);
+            penAlpha = qBound(meta.value("fade minimum").toInt(),
+                              penAlpha + meta.value("fade").toInt(), 255);
 
             penColor.setAlpha(penAlpha);
             pen.setColor(penColor);
@@ -322,7 +327,6 @@ void DocumentShape::formatText()
         textLayout->beginLayout();
 
         while (y < bottomMargin) {
-            // create a new line
             QTextLine line = textLayout->createLine();
             if (!line.isValid())
                 break;

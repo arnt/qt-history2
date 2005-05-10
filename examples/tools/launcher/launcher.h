@@ -24,6 +24,7 @@
 class DisplayShape;
 class DisplayWidget;
 class QAssistantClient;
+class QProcess;
 
 class Launcher : public QMainWindow
 {
@@ -31,9 +32,11 @@ class Launcher : public QMainWindow
 
 public:
     Launcher(QWidget *parent = 0);
+    bool setup();
 
 public slots:
     void createCategories();
+    void enableLaunching();
     void launchExample(const QString &example);
     void reset();
     void showCategories();
@@ -43,6 +46,7 @@ public slots:
     void updateExampleSummary();
 
 protected:
+    void closeEvent(QCloseEvent *event);
     void resizeEvent(QResizeEvent *event);
 
 signals:
@@ -55,14 +59,13 @@ private slots:
     void resizeWindow();
 
 private:
-    QString readCategoryDescription(const QDomNode &parentNode) const;
     QString readExampleDescription(const QDomNode &parentNode) const;
     void findDescriptionAndImages(const QString &exampleName,
                                   const QString &docName);
-    void findResources();
     void loadExampleInfo();
+    void readCategoryDescription(const QDir &categoryDir,
+                                 const QString &categoryName);
 
-    bool launched;
     bool inFullScreenResize;
     int maximumLabels;
     int slideshowFrame;
@@ -76,6 +79,7 @@ private:
     QFont buttonFont;
     QFont textFont;
     QFont titleFont;
+    QMap<QProcess*,QString> runningProcesses;
     QMap<QString,QString> categoryDescriptions;
     QMap<QString,QString> exampleDescriptions;
     QMap<QString,QString> documentPaths;
@@ -84,7 +88,7 @@ private:
     QMap<QString,QStringList> imagePaths;
     QString currentCategory;
     QString currentExample;
-    QString mainDescription;
+    QStringList runningExamples;
     QStringList categories;
     QStringList examplePieces;
     QTimer *slideshowTimer;

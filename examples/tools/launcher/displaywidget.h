@@ -24,12 +24,13 @@ class DisplayWidget : public QWidget
 
 public:
     DisplayWidget::DisplayWidget(QWidget *parent = 0);
-    void appendShape(DisplayShape *shape);
-    void insertShape(int position, DisplayShape *shape);
     QSize minimumSizeHint() const;
-    void reset();
     DisplayShape *shape(int index) const;
     int shapesCount() const;
+    void appendShape(DisplayShape *shape);
+    void enableUpdates();
+    void insertShape(int position, DisplayShape *shape);
+    void reset();
 
 protected:
     void mousePressEvent(QMouseEvent *event);
@@ -48,8 +49,6 @@ private slots:
     void updateShapes();
 
 private:
-    void startTimer();
-
     bool empty;
     bool emptying;
     QList<DisplayShape*> shapes;

@@ -18,7 +18,10 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    Launcher window;
-    window.show();
+    Launcher launcher;
+    if (!launcher.setup())
+        return 1;
+
+    launcher.show();
     return app.exec();
 }

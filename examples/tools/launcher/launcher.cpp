@@ -28,8 +28,6 @@ Launcher::Launcher(QWidget *parent)
     fontRatio = 0.8;
     inFullScreenResize = false;
 
-    findResources();
-
     QAction *restartAction = new QAction(tr("Restart"), this);
     restartAction->setShortcut(QKeySequence(tr("Escape")));
 
@@ -42,7 +40,7 @@ Launcher::Launcher(QWidget *parent)
     connect(restartAction, SIGNAL(triggered()), this, SIGNAL(restart()));
     connect(fullScreenAction, SIGNAL(triggered()),
             this, SLOT(toggleFullScreen()));
-    connect(exitAction, SIGNAL(triggered()), qApp, SLOT(quit()));
+    connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
     display = new DisplayWidget;
 
@@ -63,7 +61,6 @@ Launcher::Launcher(QWidget *parent)
     connect(display, SIGNAL(exampleRequested(const QString &)),
             this, SLOT(showExampleSummary(const QString &)));
 
-    launched = false;
     connect(display, SIGNAL(launchRequested(const QString &)),
             this, SLOT(launchExample(const QString &)));
 
@@ -72,14 +69,22 @@ Launcher::Launcher(QWidget *parent)
     connect(this, SIGNAL(windowResized()), this, SLOT(redisplayWindow()),
             Qt::QueuedConnection);
 
-    loadExampleInfo();
-
     setCentralWidget(display);
     layout()->setSizeConstraint(QLayout::SetFixedSize);
     setWindowTitle(tr("Launcher"));
 }
 
-void Launcher::findResources()
+void Launcher::closeEvent(QCloseEvent *event)
+{
+    if (runningExamples.size() > 0) {
+        if (QMessageBox::warning(this, tr("Examples Running"),
+                tr("There are examples running. Do you really want to exit?"),
+                QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+            event->ignore();
+    }
+}
+
+bool Launcher::setup()
 {
     documentationDir = QDir(QLibraryInfo::location(
                             QLibraryInfo::DocumentationPath));
@@ -114,7 +119,7 @@ void Launcher::findResources()
         QMessageBox::warning(this, tr("No Examples Found"),
             tr("I could not find any Qt examples."),
             QMessageBox::Cancel, QMessageBox::NoButton);
-        close();
+        return false;
     }
 
     examplesDir = QDir(launcherPath.left(index));
@@ -132,6 +137,11 @@ void Launcher::findResources()
         else
             examplePieces.append(subDir.replace("%", "%?"));
     }
+
+    loadExampleInfo();
+    emit restart();
+
+    return true;
 }
 
 void Launcher::findDescriptionAndImages(const QString &exampleName,
@@ -175,11 +185,8 @@ void Launcher::loadExampleInfo()
     document.setContent(&categoriesFile);
     QDomElement documentElement = document.documentElement();
     QDomNodeList categoryNodes = documentElement.elementsByTagName("category");
-    QDomElement descriptionElement = documentElement.elementsByTagName(
-        "description").item(0).toElement();
 
-    mainDescription = descriptionElement.childNodes(
-        ).item(0).toCDATASection().nodeValue();
+    readCategoryDescription(examplesDir, "[main]");
 
     maximumLabels = int(categoryNodes.length()+1);
 
@@ -189,12 +196,12 @@ void Launcher::loadExampleInfo()
         QDomElement element = categoryNode.toElement();
         QString categoryName = element.attribute("name");
         QString categoryDirName = element.attribute("dirname");
-
-        categoryDescriptions[categoryName] = readCategoryDescription(
-            element.elementsByTagName("description").item(0));
+        QString categoryDocName = element.attribute("docname");
 
         QDir categoryDir = examplesDir;
         if (categoryDir.cd(categoryDirName)) {
+
+            readCategoryDescription(categoryDir, categoryName);
 
             examples[categoryName] = QStringList();
 
@@ -234,43 +241,49 @@ void Launcher::loadExampleInfo()
                     }
                 }
 
-                QString docName = categoryDirName+"-"+exampleFileName+".html";
+                QString docName;
+                if (!categoryDocName.isEmpty())
+                    docName = categoryDocName+"-"+exampleFileName+".html";
+                else
+                    docName = categoryDirName+"-"+exampleFileName+".html";
                 findDescriptionAndImages(exampleName, docName);
             }
 
             categories.append(categoryName);
         }
     }
-
-    if (categories.size() == 0) {
-        QMessageBox::warning(this, tr("No Examples Found"),
-                             tr("I could not find any Qt examples."),
-                                QMessageBox::Cancel, QMessageBox::NoButton);
-    } else {
-        emit restart();
-    }
 }
 
-QString Launcher::readCategoryDescription(const QDomNode &parentNode) const
+void Launcher::readCategoryDescription(const QDir &categoryDir,
+                                       const QString &categoryName)
 {
-    QString text;
-    QDomNode node = parentNode.firstChild();
+    if (categoryDir.exists("README")) {
+        QFile file(categoryDir.absoluteFilePath("README"));
+        if (!file.open(QFile::ReadOnly))
+            return;
 
-    while (!node.isNull()) {
-        text += node.toCDATASection().nodeValue();
-        node = node.nextSibling();
+        QTextStream inputStream(&file);
+
+        QStringList paragraphs;
+        QStringList currentPara;
+
+        while (!inputStream.atEnd()) {
+            QString line = inputStream.readLine();
+
+            if (!line.trimmed().isEmpty()) {
+                currentPara.append(line.trimmed());
+            } else if (!currentPara.isEmpty()) {
+                paragraphs.append(currentPara.join(" "));
+                currentPara.clear();
+            } else
+                break;
+        }
+
+        if (!currentPara.isEmpty())
+            paragraphs.append(currentPara.join(" "));
+
+        categoryDescriptions[categoryName] = paragraphs.join("\n");
     }
-
-    QStringList lines = text.split("\n", QString::KeepEmptyParts);
-    QStringList newLines;
-    foreach (QString line, lines) {
-        if (line.trimmed().size() == 0)
-            newLines.append("\n");
-        else
-            newLines.append(line);
-    }
-
-    return newLines.join("");
 }
 
 QString Launcher::readExampleDescription(const QDomNode &parentNode) const
@@ -292,17 +305,40 @@ QString Launcher::readExampleDescription(const QDomNode &parentNode) const
 
 void Launcher::launchExample(const QString &example)
 {
-    if (launched)  // Don't launch if one is already out there.
+    if (runningExamples.contains(example))
         return;
 
-    launched = QProcess::startDetached(examplePaths[example]);
+    QProcess *process = new QProcess(this);
+    connect(process, SIGNAL(finished(int)),
+            this, SLOT(enableLaunching()));
+
+    runningExamples.append(example);
+    runningProcesses[process] = example;
+    process->start(examplePaths[example]);
+}
+
+void Launcher::enableLaunching()
+{
+    QProcess *process = static_cast<QProcess*>(sender());
+    QString example = runningProcesses.take(process);
+    delete process;
+    runningExamples.removeAll(example);
+
+    if (example == currentExample) {
+        for (int i = 0; i < display->shapesCount(); ++i) {
+            DisplayShape *shape = display->shape(i);
+            if (shape->metaData("launch").toString() == example) {
+                shape->setMetaData("fade", 15);
+                display->enableUpdates();
+            }
+        }
+    }
 }
 
 void Launcher::reset()
 {
     slideshowTimer->stop();
     disconnect(slideshowTimer, SIGNAL(timeout()), this, 0);
-    launched = false;
 
     if (!currentExample.isEmpty())
         showExamples(currentCategory);
@@ -370,7 +406,6 @@ void Launcher::createCategories()
     foreach (QString category, categories) {
 
         QPainterPath path;
-        path.setFillRule(Qt::WindingFill);
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         DisplayShape *background = new PathShape(path,
@@ -394,8 +429,8 @@ void Launcher::createCategories()
 
     qreal leftMargin = 0.075*width() + maxWidth;
 
-    DocumentShape *description = new DocumentShape(mainDescription, font(),
-        QPen(QColor(0,0,0,0)), QPointF(leftMargin, topMargin),
+    DocumentShape *description = new DocumentShape(categoryDescriptions["[main]"],
+        font(), QPen(QColor(0,0,0,0)), QPointF(leftMargin, topMargin),
         QSizeF(0.9*width() - maxWidth, space));
 
     description->setMetaData("fade", 10);
@@ -413,6 +448,7 @@ void Launcher::showExamples(const QString &category)
         DisplayShape *shape = display->shape(i);
 
         shape->setMetaData("fade", -15);
+        shape->setMetaData("fade minimum", 0);
     }
 
     QPointF titlePosition = QPointF(0.0, 0.05*height());
@@ -475,12 +511,16 @@ void Launcher::showExamples(const QString &category)
     qreal extra = (step - textHeight)/4;
 
     QPainterPath path;
-    path.setFillRule(Qt::WindingFill);
-    path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
+    path.moveTo(-2*extra, -extra);
+    path.lineTo(-8*extra, textHeight/2);
+    path.lineTo(-extra, textHeight + extra);
+    path.lineTo(maxWidth + 2*extra, textHeight + extra);
+    path.lineTo(maxWidth + 2*extra, -extra);
+    path.closeSubpath();
 
     DisplayShape *background = new PathShape(path,
-        QBrush(QColor("#8c8cef")), Qt::NoPen, startPosition,
-        QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
+        QBrush(QColor("#a6ce39")), Qt::NoPen, startPosition,
+        QSizeF(maxWidth + 10*extra, textHeight + 2*extra));
 
     background->setMetaData("menu", "main");
     background->setMetaData("target", QPointF(
@@ -491,7 +531,6 @@ void Launcher::showExamples(const QString &category)
         startPosition += QPointF(0.0, step);
 
         QPainterPath path;
-        path.setFillRule(Qt::WindingFill);
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         background = new PathShape(path,
@@ -536,6 +575,7 @@ void Launcher::showExampleSummary(const QString &example)
         DisplayShape *shape = display->shape(i);
 
         shape->setMetaData("fade", -15);
+        shape->setMetaData("fade minimum", 0);
     }
 
     QPointF titlePosition = QPointF(0.0, 0.05*height());
@@ -624,13 +664,17 @@ void Launcher::showExampleSummary(const QString &example)
         qreal extra = (0.075*height() - textHeight)/4;
 
         QPainterPath path;
-        path.setFillRule(Qt::WindingFill);
-        path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
+        path.moveTo(-extra, -extra);
+        path.lineTo(-4*extra, textHeight/2);
+        path.lineTo(-extra, textHeight + extra);
+        path.lineTo(maxWidth + 2*extra, textHeight + extra);
+        path.lineTo(maxWidth + 2*extra, -extra);
+        path.closeSubpath();
 
         DisplayShape *buttonBackground = new PathShape(path,
             QBrush(QColor("#a6ce39")), Qt::NoPen,
             backButton->position(),
-            QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
+            QSizeF(maxWidth + 6*extra, textHeight + 2*extra));
         buttonBackground->setMetaData("target", backButton->metaData("target"));
         buttonBackground->setMetaData("category", currentCategory);
 
@@ -655,14 +699,20 @@ void Launcher::showExampleSummary(const QString &example)
         qreal extra = (0.075*height() - textHeight)/4;
 
         QPainterPath path;
-        path.setFillRule(Qt::WindingFill);
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
+        QColor backgroundColor;
+        if (runningExamples.contains(example))
+            backgroundColor = QColor(0xa6,0x3e,0x39,15);
+        else
+            backgroundColor = QColor("#a63e39");
+
         DisplayShape *background = new PathShape(path,
-            QBrush(QColor("#a63e39")), Qt::NoPen,
+            QBrush(backgroundColor), Qt::NoPen,
             launchCaption->position(),
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
         background->setMetaData("target", launchCaption->metaData("target"));
+        background->setMetaData("fade minimum", 15);
         background->setMetaData("launch", example);
 
         display->insertShape(0, background);
@@ -687,7 +737,6 @@ void Launcher::showExampleSummary(const QString &example)
         qreal extra = (0.075*height() - textHeight)/4;
 
         QPainterPath path;
-        path.setFillRule(Qt::WindingFill);
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         DisplayShape *background = new PathShape(path,

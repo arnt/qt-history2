@@ -25,7 +25,7 @@ DisplayWidget::DisplayWidget(QWidget *parent)
     timer = new QTimer(this);
     connect(timer, SIGNAL(timeout()), this, SLOT(updateShapes()));
     timer->setSingleShot(false);
-    startTimer();
+    enableUpdates();
 
     setBackgroundRole(QPalette::Base);
 }
@@ -34,14 +34,14 @@ void DisplayWidget::appendShape(DisplayShape *shape)
 {
     shapes.append(shape);
     empty = false;
-    startTimer();
+    enableUpdates();
 }
 
 void DisplayWidget::insertShape(int position, DisplayShape *shape)
 {
     shapes.insert(position, shape);
     empty = false;
-    startTimer();
+    enableUpdates();
 }
 
 QSize DisplayWidget::minimumSizeHint() const
@@ -67,11 +67,11 @@ void DisplayWidget::mousePressEvent(QMouseEvent *event)
                 emit documentationRequested(
                     shape->metaData("documentation").toString());
                 shape->setMetaData("fade", -5);
-                startTimer();
+                enableUpdates();
             } else if (shape->contains("launch")) {
                 emit launchRequested(shape->metaData("launch").toString());
                 shape->setMetaData("fade", -5);
-                startTimer();
+                enableUpdates();
             }
         }
     }
@@ -98,11 +98,13 @@ void DisplayWidget::reset()
         timer->stop();
         emit displayEmpty();    // Note: synchronous signal
     } else {
-        startTimer();
+        enableUpdates();
         emptying = true;
         empty = false;
-        foreach (DisplayShape *shape, shapes)
+        foreach (DisplayShape *shape, shapes) {
             shape->setMetaData("fade", -15);
+            shape->setMetaData("fade minimum", 0);
+        }
     }
 }
 
@@ -116,7 +118,7 @@ int DisplayWidget::shapesCount() const
     return shapes.size();
 }
 
-void DisplayWidget::startTimer()
+void DisplayWidget::enableUpdates()
 {
     if (!timer->isActive())
         timer->start(50);
