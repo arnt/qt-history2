@@ -1172,12 +1172,6 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     type that cannot be generated from the stored type, the result
     depends on the type (see the function documentation for details).
 
-    Note that two data types supported by QVariant are explicitly
-    shared, namely QImage and QPolygon, and in these
-    cases the toT() methods return a shallow copy. In almost all cases
-    you must make a deep copy of the returned values before modifying
-    them.
-
     Here is some example code to demonstrate the use of QVariant:
 
     \code
@@ -1338,9 +1332,7 @@ QVariant::~QVariant()
   \fn QVariant::QVariant(const QVariant &p)
 
     Constructs a copy of the variant, \a p, passed as the argument to
-    this constructor. Usually this is a deep copy, but a shallow copy
-    is made if the stored data type is explicitly shared, as e.g.
-    QImage is.
+    this constructor.
 */
 
 QVariant::QVariant(const QVariant &p)
@@ -1627,10 +1619,6 @@ int QVariant::userType() const
 
 /*!
     Assigns the value of the variant \a variant to this variant.
-
-    This is a deep copy of the variant, but note that if the variant
-    holds an explicitly shared type such as QImage, a shallow copy is
-    performed.
 */
 QVariant& QVariant::operator=(const QVariant &variant)
 {
