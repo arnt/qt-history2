@@ -1,7 +1,7 @@
 INCLUDEPATH += $$SHARED_FOLDER
 
 contains(CONFIG, debug_and_release_target) {    
-    debug { 
+    CONFIG(debug, debug|release) { 
 	LIBS+=-L$$SHARED_FOLDER/debug
     } else {
 	LIBS+=-L$$SHARED_FOLDER/release
