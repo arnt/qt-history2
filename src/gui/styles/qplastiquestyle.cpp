@@ -3053,12 +3053,18 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     cache = QPixmap(scrollBarSlider.size());
                     QRect pixmapRect(0, 0, cache.width(), cache.height());
                     QPainter sliderPainter(&cache);
+                    bool sunken = (scrollBar->activeSubControls & SC_ScrollBarSlider) && (scrollBar->state & State_Sunken);
 
                     if (isEnabled) {
                         QLinearGradient gradient(pixmapRect.center().x(), pixmapRect.top(),
                                                  pixmapRect.center().x(), pixmapRect.bottom());
-                        gradient.setColorAt(0, gradientStartColor.light(105));
-                        gradient.setColorAt(1, gradientStopColor);
+                        if (sunken) {
+                            gradient.setColorAt(0, gradientStartColor.light(110));
+                            gradient.setColorAt(1, gradientStopColor.light(105));
+                        } else {
+                            gradient.setColorAt(0, gradientStartColor.light(105));
+                            gradient.setColorAt(1, gradientStopColor);
+                        }
                         sliderPainter.fillRect(pixmapRect.adjusted(2, 2, -2, -2), gradient);
                     } else {
                         sliderPainter.fillRect(pixmapRect.adjusted(2, 2, -2, -2), option->palette.background());
@@ -3072,13 +3078,13 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     sliderPainter.drawPoint(pixmapRect.right(), pixmapRect.top());
                     sliderPainter.drawPoint(pixmapRect.right(), pixmapRect.bottom());
 
-                    sliderPainter.setPen(gradientStartColor.light(105));
+                    sliderPainter.setPen(sunken ? gradientStartColor.light(110) : gradientStartColor.light(105));
                     sliderPainter.drawLine(pixmapRect.left() + 1, pixmapRect.top() + 1,
                                            pixmapRect.right() - 1, pixmapRect.top() + 1);
                     sliderPainter.drawLine(pixmapRect.left() + 1, pixmapRect.top() + 2,
                                            pixmapRect.left() + 1, pixmapRect.bottom() - 2);
 
-                    sliderPainter.setPen(gradientStopColor);
+                    sliderPainter.setPen(sunken ? gradientStopColor.light(105) : gradientStopColor);
                     sliderPainter.drawLine(pixmapRect.left() + 1, pixmapRect.bottom() - 1,
                                            pixmapRect.right() - 1, pixmapRect.bottom() - 1);
                     sliderPainter.drawLine(pixmapRect.right() - 1, pixmapRect.top() + 2,
@@ -3089,7 +3095,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                         || (!horizontal && scrollBar->rect.height() > (16 * 3 + sliderMinLength))) {
                         QImage pattern(qt_scrollbar_slider_pattern);
                         pattern.setColor(1, alphaCornerColor.rgba());
-                        pattern.setColor(2, gradientStartColor.light(105).rgba());
+                        pattern.setColor(2, (sunken ? gradientStartColor.light(110) : gradientStartColor.light(105)).rgba());
 
                         if (horizontal) {
                             sliderPainter.drawImage(pixmapRect.center().x() - pattern.width() / 2 + 1,
