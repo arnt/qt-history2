@@ -401,6 +401,7 @@ private:
     void doClient(QWSClient *);
     typedef QMap<int,QWSClient*>::Iterator ClientIterator;
     typedef QMap<int,QWSClient*> ClientMap;
+    void handleWindowClose(QWSWindow *w);
     void releaseMouse(QWSWindow* w);
     void releaseKeyboard(QWSWindow* w);
     void updateClientCursorPos();

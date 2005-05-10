@@ -862,6 +862,17 @@ void QWSServer::releaseKeyboard(QWSWindow* w)
     }
 }
 
+void QWSServer::handleWindowClose(QWSWindow *w)
+{
+    if (focusw == w)
+        setFocus(w,false);
+    if (mouseGrabber == w)
+        releaseMouse(w);
+    if (keyboardGrabber == w)
+        releaseKeyboard(w);
+    w->shuttingDown();
+}
+
 
 #ifndef QT_NO_QWS_MULTIPROCESS
 /*!
@@ -935,6 +946,8 @@ void QWSServer::clientClosed()
 //                rgnMan->remove(w->allocationIndex());
                 if (focusw == w)
                     setFocus(focusw,0);
+                if (mouseGrabber == w)
+                    releaseMouse(w);
                 windows.removeAll(w);
 #ifndef QT_NO_QWS_PROPERTIES
                 manager()->removeProperties(w->winId());
@@ -1761,9 +1774,8 @@ void QWSServer::invokeRegion(QWSRegionCommand *cmd, QWSClient *client)
         emit windowEvent(changingw, Geometry);
     else
         emit windowEvent(changingw, Hide);
-    if (focusw == changingw && region.isEmpty())
-        setFocus(changingw,false);
-
+    if (region.isEmpty())
+        handleWindowClose(changingw);
     // if the window under our mouse changes, send update.
 //##########     if (containsMouse != changingw->allocatedRegion().contains(mousePosition))
 //         updateClientCursorPos();
@@ -1807,10 +1819,7 @@ void QWSServer::invokeRegionDestroy(const QWSRegionDestroyCommand *cmd, QWSClien
         }
     }
 //    syncRegions();
-    if (focusw == changingw) {
-        changingw->shuttingDown();
-        setFocus(changingw,false);
-    }
+    handleWindowClose(changingw);
 #ifndef QT_NO_QWS_PROPERTIES
     manager()->removeProperties(changingw->winId());
 #endif
@@ -2527,8 +2536,8 @@ void QWSServer::request_region(int wid, int shmid, bool opaque, QRegion region)
         emit windowEvent(changingw, Geometry);
     else
         emit windowEvent(changingw, Hide);
-    if (focusw == changingw && region.isEmpty())
-        setFocus(changingw,false);
+    if (region.isEmpty())
+        handleWindowClose(changingw);
 }
 
 void QWSServer::destroy_region(const QWSRegionDestroyCommand *cmd)
