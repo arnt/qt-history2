@@ -1792,6 +1792,8 @@ QString QDir::cleanPath(const QString &path)
             if(len >= dotcount && p[dotcount] == QLatin1Char('/')) {
                 if(dotcount == 1) {
                     i++;
+                    while(i+1 < len-1 && p[i+1] == QLatin1Char('/'))
+                        i++;
                     continue;
                 }
             }
