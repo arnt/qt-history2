@@ -11,10 +11,9 @@
     have a look at the \l{mainwindows/application}{Application}
     example.
 
-    In addition to the examples and the tutorial, Qt includes a \c
-    demos directory that contains demo applications, i.e.,
-    applications that deliberately show off Qt's features. You might
-    want to look at these as well.
+    In addition to the examples and the tutorial, Qt includes a
+    \l{Qt Demonstrations}{selection of demos} that deliberately show off
+    Qt's features. You might want to look at these as well.
 
     Examples marked with an asterisk (\raisedaster) are fully
     documented. It is our goal to fully document all examples in a

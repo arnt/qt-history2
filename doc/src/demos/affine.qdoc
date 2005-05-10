@@ -1,0 +1,9 @@
+/*!
+    \example demos/affine
+    \title Affine Transformations
+
+    In this demo we demonstrate Qt's ability to perform affine transformations
+    on painting operations.
+
+    \image affine-demo.png
+*/

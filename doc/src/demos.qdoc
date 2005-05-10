@@ -1,0 +1,24 @@
+/*!
+    \page demos.html
+    \title Qt Demonstrations
+
+    This is the list of demonstrations in Qt's \c demos directory.
+    These are larger and more complicated programs than the
+    \l{Qt Examples} and are used to highlight certain features of
+    Qt.
+
+    If you are new to Qt, and want to start developing applications,
+    you should probably start by going through the
+    \l{tutorial.html}{Tutorial}.
+
+    \tableofcontents
+
+    \section1 Painting
+
+    \list
+    \o \l{demos/deform}{Vector Deformation}
+    \o \l{demos/gradients}{Gradients}
+    \o \l{demos/outlines}{Outline Drawing}
+    \o \l{demos/affine}{Affine Transformations}
+    \endlist
+*/

@@ -1,4 +1,8 @@
 /*!
     \example itemviews/pixelator
     \title Pixelator Example
+
+    The Pixelator example shows how delegates can be used to customize item view rendering.
+
+    \image pixelator-example.png
 */
