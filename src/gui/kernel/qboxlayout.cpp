@@ -350,7 +350,7 @@ void QBoxLayoutPrivate::calcHfw(int w)
 
 /*!
     Constructs a new QBoxLayout with direction \a dir and parent widget \a
-    parent. \a parent may not be 0.
+    parent.
 
     \sa direction()
 */
@@ -360,19 +360,6 @@ QBoxLayout::QBoxLayout(Direction dir, QWidget *parent)
     Q_D(QBoxLayout);
     d->dir = dir;
 }
-
-/*!
-    Constructs a new QBoxLayout with direction \a dir.
-
-    You must insert this box layout into another layout.
-*/
-QBoxLayout::QBoxLayout(Direction dir)
-    : QLayout(*new QBoxLayoutPrivate, 0, 0)
-{
-    Q_D(QBoxLayout);
-    d->dir = dir;
-}
-
 
 #ifdef QT3_SUPPORT
 /*!
@@ -1063,10 +1050,14 @@ QHBoxLayout::QHBoxLayout(QWidget *parent, int margin,
 */
 QHBoxLayout::QHBoxLayout(QLayout *parentLayout, int spacing,
                           const char *name)
-    : QBoxLayout(parentLayout, LeftToRight)
+    : QBoxLayout(LeftToRight)
 {
-       setSpacing(spacing);
-       setObjectName(name);
+    setSpacing(spacing);
+    setObjectName(name);
+    if (parentLayout) {
+        setParent(parentLayout);
+        parentLayout->addItem(this);
+    }
 }
 
 /*!
@@ -1170,10 +1161,14 @@ QVBoxLayout::QVBoxLayout(QWidget *parent, int margin, int spacing,
 */
 QVBoxLayout::QVBoxLayout(QLayout *parentLayout, int spacing,
                           const char *name)
-    : QBoxLayout(parentLayout, TopToBottom)
+    : QBoxLayout(TopToBottom)
 {
     setSpacing(spacing);
     setObjectName(name);
+    if (parentLayout) {
+        setParent(parentLayout);
+        parentLayout->addItem(this);
+    }
 }
 
 /*!

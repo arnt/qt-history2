@@ -33,8 +33,7 @@ public:
     enum Direction { LeftToRight, RightToLeft, TopToBottom, BottomToTop,
                      Down = TopToBottom, Up = BottomToTop };
 
-    explicit QBoxLayout(Direction, QWidget *parent);
-    explicit QBoxLayout(Direction);
+    explicit QBoxLayout(Direction, QWidget *parent = 0);
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QBoxLayout(QWidget *parent, Direction, int border = 0, int spacing = -1,
