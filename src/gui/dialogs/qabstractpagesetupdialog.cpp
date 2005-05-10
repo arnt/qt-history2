@@ -14,6 +14,17 @@
 #include "qabstractpagesetupdialog.h"
 #include "qabstractpagesetupdialog_p.h"
 
+/*!
+    \class QAbstractPageSetupDialog
+
+    \brief The QAbstractPageSetupDialog class provides a base for
+    implementations of page setup dialogs.
+*/
+
+/*!
+    Constructs the page setup dialog for the printer \a printer with
+    \a parent as parent widget.
+*/
 QAbstractPageSetupDialog::QAbstractPageSetupDialog(QPrinter *printer, QWidget *parent)
     : QDialog(*(new QAbstractPageSetupDialogPrivate), parent)
 {
@@ -21,6 +32,9 @@ QAbstractPageSetupDialog::QAbstractPageSetupDialog(QPrinter *printer, QWidget *p
     d->printer = printer;
 }
 
+/*!
+    \internal
+*/
 QAbstractPageSetupDialog::QAbstractPageSetupDialog(QAbstractPageSetupDialogPrivate &ptr,
                                                    QPrinter *printer, QWidget *parent)
     : QDialog(ptr, parent)
@@ -29,6 +43,9 @@ QAbstractPageSetupDialog::QAbstractPageSetupDialog(QAbstractPageSetupDialogPriva
     d->printer = printer;
 }
 
+/*!
+    Returns the printer that this page setup dialog is operating on.
+*/
 QPrinter *QAbstractPageSetupDialog::printer()
 {
     Q_D(QAbstractPageSetupDialog);

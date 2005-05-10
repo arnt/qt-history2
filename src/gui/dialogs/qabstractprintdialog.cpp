@@ -14,6 +14,39 @@
 #include "qabstractprintdialog.h"
 #include "qabstractprintdialog_p.h"
 
+/*!
+    \class QAbstractPrintDialog
+    \brief The QAbstractPrintDialog class provides a base implementation for
+    print dialogs used to configure printers.
+*/
+
+/*!
+    \enum QAbstractPrintDialog::PrintRange
+
+    Used to specify the print range selection option.
+
+    \item AllPages All pages should be printed.
+    \item Selection Only the selection should be printed.
+    \item PageRange The specified page range should be printed.
+*/
+
+/*!
+    \enum QAbstractPrintDialog::PrintDialogOption
+
+    Used to specify which parts of the print dialog should be enabled.
+
+    \item None None of the options are enabled.
+    \item PrintToFile The print to file option is enabled.
+    \item PrintSelection The print selection option is enalbed.
+    \item PrintPageRange The page range selection option is enabled.
+    \item PrintCollateCopies
+    };
+
+
+/*!
+    Constructs an abstract print dialog for \a printer with \a parent
+    as parent widget
+*/
 QAbstractPrintDialog::QAbstractPrintDialog(QPrinter *printer, QWidget *parent)
     : QDialog(*(new QAbstractPrintDialogPrivate), parent)
 {
@@ -21,6 +54,9 @@ QAbstractPrintDialog::QAbstractPrintDialog(QPrinter *printer, QWidget *parent)
     d->printer = printer;
 }
 
+/*!
+     \internal
+*/
 QAbstractPrintDialog::QAbstractPrintDialog(QAbstractPrintDialogPrivate &ptr,
                                            QPrinter *printer,
                                            QWidget *parent)
@@ -30,42 +66,66 @@ QAbstractPrintDialog::QAbstractPrintDialog(QAbstractPrintDialogPrivate &ptr,
     d->printer = printer;
 }
 
+
+/*!
+    Sets the set of options that should be enabled in the print dialog
+    to \a options.
+*/
 void QAbstractPrintDialog::setEnabledOptions(PrintDialogOptions options)
 {
     Q_D(QAbstractPrintDialog);
     d->options = options;
 }
 
+/*!
+    Adds the option \a option to the set of enabled options in this dialog.
+*/
 void QAbstractPrintDialog::addEnabledOption(PrintDialogOption option)
 {
     Q_D(QAbstractPrintDialog);
     d->options |= option;
 }
 
+/*!
+    Returns the set of enabled options in this dialog.
+*/
 QAbstractPrintDialog::PrintDialogOptions QAbstractPrintDialog::enabledOptions() const
 {
     Q_D(const QAbstractPrintDialog);
     return d->options;
 }
 
+/*!
+    Returns true if the option \a option is enabled; otherwise returns false
+*/
 bool QAbstractPrintDialog::isOptionEnabled(PrintDialogOption option) const
 {
     Q_D(const QAbstractPrintDialog);
     return d->options & option;
 }
 
+/*!
+    Sets the print range option in to be \a range.
+ */
 void QAbstractPrintDialog::setPrintRange(PrintRange range)
 {
     Q_D(QAbstractPrintDialog);
     d->printRange = range;
 }
 
+/*!
+    Returns the print range.
+*/
 QAbstractPrintDialog::PrintRange QAbstractPrintDialog::printRange() const
 {
     Q_D(const QAbstractPrintDialog);
     return d->printRange;
 }
 
+/*!
+    Sets the page range in this dialog to be from \a min to \a max. This also
+    enables the PrintPageRange option.
+*/
 void QAbstractPrintDialog::setMinMax(int min, int max)
 {
     Q_D(QAbstractPrintDialog);
@@ -76,18 +136,27 @@ void QAbstractPrintDialog::setMinMax(int min, int max)
     d->options |= PrintPageRange;
 }
 
+/*!
+    Returns the minimum page in the page range.
+*/
 int QAbstractPrintDialog::minPage() const
 {
     Q_D(const QAbstractPrintDialog);
     return d->minPage;
 }
 
+/*!
+    Returns the maximum page in the page range.
+*/
 int QAbstractPrintDialog::maxPage() const
 {
     Q_D(const QAbstractPrintDialog);
     return d->maxPage;
 }
 
+/*!
+    Sets the range in the print dialog to be from \a from to \a to.
+*/
 void QAbstractPrintDialog::setFromTo(int from, int to)
 {
     Q_D(QAbstractPrintDialog);
@@ -100,18 +169,28 @@ void QAbstractPrintDialog::setFromTo(int from, int to)
         setMinMax(1, to);
 }
 
+/*!
+    Returns the first page to be printed
+*/
 int QAbstractPrintDialog::fromPage() const
 {
     Q_D(const QAbstractPrintDialog);
     return d->fromPage;
 }
 
+/*!
+    Returns the last page to be printed.
+*/
 int QAbstractPrintDialog::toPage() const
 {
     Q_D(const QAbstractPrintDialog);
     return d->toPage;
 }
 
+/*!
+    Returns the printer that this printer dialog operates
+    on.
+*/
 QPrinter *QAbstractPrintDialog::printer() const
 {
     Q_D(const QAbstractPrintDialog);

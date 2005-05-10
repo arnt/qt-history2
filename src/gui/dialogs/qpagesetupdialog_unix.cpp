@@ -96,6 +96,20 @@ public:
     QComboBox *orientation;
 };
 
+/*!
+    \class QPageSetupDialog
+
+    The QPageSetupDialog offers configuration for the page related
+    options on a printer.
+
+    On Windows and Mac OS X the page setup dialog is implemented using
+    the native page setup dialogs.
+*/
+
+/*!
+    Constructs a page setup dialog that configures \a printer with \a
+    parent as the parent widget.
+*/
 QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPageSetupDialog(*(new QPageSetupDialogPrivate), printer, parent)
 {
@@ -174,6 +188,13 @@ QPageSetupDialog::QPageSetupDialog(QPrinter *printer, QWidget *parent)
     connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
     connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 }
+
+/*!
+    \fn int QPageSetupDialog::exec()
+
+    Executes the the page setup dialog. The printer will be configure
+    according to the users choices when the function exists.
+*/
 
 int QPageSetupDialog::exec()
 {
