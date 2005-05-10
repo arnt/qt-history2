@@ -4,7 +4,8 @@
 # other commented out snippets were probably not designed to be built.
 
 TEMPLATE        = subdirs
-SUBDIRS         = buffer \
+SUBDIRS         = brush \
+                  buffer \
 #                  clipboard \      # broken
                   coordsys \
 #                  customstyle \
