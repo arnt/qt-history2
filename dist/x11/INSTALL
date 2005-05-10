@@ -29,6 +29,12 @@ the directories where you choose to install Qt.
 	PATH		   - to locate the moc program and other Qt tools
 	LD_LIBRARY_PATH	   - for the shared Qt library
 
+    Note that under IRIX the additional LD_LIBRARYN32_PATH and
+    LD_LIBRARY64_PATH variables are used for specifying library
+    search paths. Set the variable that matches your configuration, or
+    see the rld(5) man page for more information.
+    On AIX set LIBPATH and on HP-UX set SHLIB_PATH instead of LD_LIBRARY_PATH.
+
     This is done like this:
 
     In .profile (if your shell is bash, ksh, zsh or sh), add the
