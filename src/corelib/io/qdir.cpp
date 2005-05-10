@@ -376,11 +376,13 @@ void QDirPrivate::detach(bool createFileEngine)
 
     A program that lists all the files in the current directory
     (excluding symbolic links), sorted by size, smallest first:
-    \code
-    #include <stdio.h>
-    #include <qdir.h>
 
-    int main(int argc, char **argv)
+    \code
+    #include <QDir>
+
+    #include <stdio.h>
+
+    int main(int argc, char *argv[])
     {
         QDir dir;
         dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
@@ -389,8 +391,8 @@ void QDirPrivate::detach(bool createFileEngine)
         QFileInfoList list = dir.entryInfoList();
         printf("     Bytes Filename\n");
         for (int i = 0; i < list.size(); ++i) {
-            QFileInfo fi = list.at(i);
-            printf("%10li %s\n", fi.size(), fi.fileName().latin1());
+            QFileInfo fileInfo = list.at(i);
+            printf("%10li %s\n", fileInfo.size(), qPrintable(fileInfo.fileName()));
         }
         return 0;
     }
@@ -424,13 +426,6 @@ QDir::QDir(const QString &path) : d_ptr(new QDirPrivate(this))
     nothing; the default \a filters is \c TypeMask, which also means
     exclude nothing. The default \a sort is \c Name|IgnoreCase,
     i.e. sort by name case-insensitively.
-
-    Example that lists all the files in "/tmp":
-    \code
-    QDir d( "/tmp" );
-    for ( int i = 0; i < d.count(); i++ )
-	printf( "%s\n", d[i] );
-    \endcode
 
     If \a path is an empty string, QDir uses "." (the current
     directory). If \a nameFilter is an empty string, QDir uses the

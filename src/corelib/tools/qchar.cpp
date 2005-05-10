@@ -45,6 +45,8 @@
 
     Converts a Latin-1 character to an 8-bit ASCII representation of
     the character.
+
+    \sa toAscii()
 */
 
 /*!
@@ -118,7 +120,7 @@
     QString::localeAwareCompare().
 
     The conversion functions include unicode() (to a scalar),
-    latin1() (to scalar, but converts all non-Latin-1 characters to
+    toLatin1() (to scalar, but converts all non-Latin-1 characters to
     0), row() (gives the Unicode row), cell() (gives the Unicode
     cell), digitValue() (gives the integer value of any of the
     numerous digit characters), and a host of constructors.
@@ -129,12 +131,9 @@
     explained in the QString documentation, you will need to
     explicitly call fromAscii() or fromLatin1(), or use QLatin1Char,
     to construct a QChar from an 8-bit \c char, and you will need to
-    call ascii() or latin1() to get the 8-bit value back.
+    call toAscii() or toLatin1() to get the 8-bit value back.
 
-    More information can be found in the document \link unicode.html
-    About Unicode. \endlink
-
-    \sa QString
+    \sa QString, Unicode
 */
 
 /*!
@@ -717,10 +716,22 @@ QChar QChar::toUpper() const
 /*!
     \fn char QChar::latin1() const
 
+    Use toLatin1() instead.
+*/
+
+/*!
+    \fn char QChar::ascii() const
+
+    Use toAscii() instead.
+*/
+
+/*!
+    \fn char QChar::toLatin1() const
+
     Returns the Latin-1 character equivalent to the QChar, or 0. This
     is mainly useful for non-internationalized software.
 
-    \sa ascii(), unicode(), QTextCodec::codecForCStrings()
+    \sa toAscii(), unicode(), QTextCodec::codecForCStrings()
 */
 
 /*!
@@ -728,7 +739,7 @@ QChar QChar::toUpper() const
     character is not representable as ASCII (i.e., if unicode() \>=
     128). This is mainly useful for non-internationalized software.
 
-    \sa latin1(), unicode(), QTextCodec::codecForCStrings()
+    \sa toLatin1(), unicode(), QTextCodec::codecForCStrings()
 */
 const char QChar::toAscii() const
 {
@@ -750,7 +761,7 @@ const char QChar::toAscii() const
 */
 
 /*!
-    Converts the ascii character \a c to its equivalent QChar. This
+    Converts the ASCII character \a c to its equivalent QChar. This
     is mainly useful for non-internationalized software.
 
 \omit

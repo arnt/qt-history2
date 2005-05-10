@@ -11,9 +11,8 @@
 **
 ****************************************************************************/
 
-/*! \class QJpUnicodeConv qjpunicode.h
+/*! \class QJpUnicodeConv
     \reentrant
-    \ingroup i18n
 
   \brief The QJpUnicodeConv class provides implementation support for
   QJisCodec, QSjisCodec, and QEucJpCodec.

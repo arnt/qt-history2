@@ -394,8 +394,8 @@ const QString::Null QString::null = QString::Null();
         QString url = QLatin1String("http://www.unicode.org/");
     \endcode
 
-    Similarly, you must call ascii(), latin1(), utf8(), or
-    local8Bit() explicitly to convert the QString to an 8-bit string.
+    Similarly, you must call toAscii(), toLatin1(), toUtf8(), or
+    toLocal8Bit() explicitly to convert the QString to an 8-bit string.
     (Other encodings are supported through QTextCodec.)
 
     \section1 Note for C programmers
@@ -443,9 +443,9 @@ const QString::Null QString::null = QString::Null();
     \endcode
 
     All functions except isNull() treat null strings the same as
-    empty strings. For example, ascii() returns a pointer to a '\\0'
-    character for a null string (\e not a null pointer), and
-    QString() compares equal to QString(""). We recommend that you
+    empty strings. For example, toAscii().constData() returns a
+    pointer to a '\\0' character for a null string (\e not a null pointer),
+    and QString() compares equal to QString(""). We recommend that you
     always use isEmpty() and avoid isNull().
 
     \sa fromRawData(), QChar, QLatin1String, QByteArray
@@ -2841,59 +2841,22 @@ bool QString::endsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
 
 /*! \fn const char *QString::ascii() const
 
-    Returns an 8-bit ASCII representation of the string as a \c{const
-    char *}.
-
-    If a codec has been set using QTextCodec::setCodecForCStrings(),
-    it is used to convert Unicode to 8-bit char; otherwise this
-    function does the same as latin1().
-
-    The result remains valid as long as one unmodified copy of the
-    source string exists and no other 8-bit representations of the
-    same string are requested.
-
-    \sa fromAscii(), latin1(), utf8(), local8Bit(), QTextCodec
+    Use toAscii() instead.
 */
 
 /*! \fn const char *QString::latin1() const
 
-    Returns a Latin-1 representation of the string as a \c{const char
-    *}. The returned string is undefined if the string contains
-    non-Latin1 characters.
-
-    The result remains valid as long as one unmodified copy of the
-    source string exists and no other 8-bit representations of the
-    same string are requested.
-
-    \sa fromLatin1(), ascii(), utf8(), local8Bit(), QTextCodec
+    Use toLatin1() instead.
 */
 
 /*! \fn const char *QString::utf8() const
 
-    Returns a UTF-8 representation of the string as a \c{const char
-    *}.
-
-    The result remains valid as long as one unmodified copy of the
-    source string exists and no other 8-bit representations of the
-    same string are requested.
-
-    \sa fromUtf8(), ascii(), latin1(), local8Bit(), QTextCodec
+    Use toUtf8() instead.
 */
 
 /*! \fn const char *QString::local8Bit() const
 
-    Returns the local 8-bit representation of the string as a
-    \c{const char *}. The returned string is undefined if the string
-    contains characters not supported by the local 8-bit encoding.
-
-    QTextCodec::codecForLocale() is used to perform the conversion
-    from Unicode.
-
-    The result remains valid as long as one unmodified copy of the
-    source string exists and no other 8-bit representations of the
-    same string are requested.
-
-    \sa fromLocal8Bit(), ascii(), latin1(), utf8(), QTextCodec
+    Use toLocal8Bit() instead.
 */
 
 /*!
@@ -2924,7 +2887,7 @@ QByteArray QString::toLatin1() const
 
     If a codec has been set using QTextCodec::setCodecForCStrings(),
     it is used to convert Unicode to 8-bit char; otherwise this
-    function does the same as latin1().
+    function does the same as toLatin1().
 
     \sa fromAscii(), toLatin1(), toUtf8(), toLocal8Bit(), QTextCodec
 */
@@ -3020,7 +2983,7 @@ QByteArray QString::toUtf8() const
     If \a size is -1 (the default), it is taken to be qstrlen(\a
     str).
 
-    \sa latin1(), fromAscii(), fromUtf8(), fromLocal8Bit()
+    \sa toLatin1(), fromAscii(), fromUtf8(), fromLocal8Bit()
 */
 QString QString::fromLatin1(const char *str, int size)
 {
@@ -3181,7 +3144,7 @@ QString qt_winMB2QString(const char *mb, int mblen)
     QTextCodec::codecForLocale() is used to perform the conversion
     from Unicode.
 
-    \sa local8Bit(), fromAscii(), fromLatin1(), fromUtf8()
+    \sa toLocal8Bit(), fromAscii(), fromLatin1(), fromUtf8()
 */
 QString QString::fromLocal8Bit(const char *str, int size)
 {
@@ -3217,7 +3180,7 @@ QString QString::fromLocal8Bit(const char *str, int size)
     it is used to convert \a str to Unicode; otherwise this function
     does the same as fromLatin1().
 
-    \sa ascii(), fromLatin1(), fromUtf8(), fromLocal8Bit()
+    \sa toAscii(), fromLatin1(), fromUtf8(), fromLocal8Bit()
 */
 QString QString::fromAscii(const char *str, int size)
 {
@@ -3249,7 +3212,7 @@ static ushort *addOne(ushort *qch, QString &str)
     If \a size is -1 (the default), it is taken to be qstrlen(\a
     str).
 
-    \sa utf8(), fromAscii(), fromLatin1(), fromLocal8Bit()
+    \sa toUtf8(), fromAscii(), fromLatin1(), fromLocal8Bit()
 */
 QString QString::fromUtf8(const char *str, int size)
 {
@@ -3284,7 +3247,7 @@ QString QString::fromUtf8(const char *str, int size)
                     }
                 }
             } else {
-                // See QString::utf8() for explanation.
+                // See QString::toUtf8() for explanation.
                 //
                 // The surrogate below corresponds to a Unicode value of (0x10fe00+ch) which
                 // is in one of the private use areas of Unicode.
@@ -6064,25 +6027,6 @@ void QString::updateProperties() const
     Same as append(\a ch).
 */
 
-/*! \fn QString::operator const char *() const
-
-    Returns an 8-bit ASCII representation of the string as a \c{const
-    char *}.
-
-    This operator performs the same as ascii(), except that it is
-    invoked automatically when a QString is used in place of a
-    \c{const char *}.
-
-    If the QString contains non-ASCII Unicode characters, using this
-    operator can lead to loss of information. You can disable this
-    operator by defining \c QT_NO_CAST_TO_ASCII when you compile your
-    applications. You then need to call ascii() (or latin1() or
-    utf8() or local8Bit()) explicitly if you want to convert the data
-    to \c{const char *}.
-
-    \sa ascii(), latin1(), utf8(), local8Bit()
-*/
-
 /*! \fn std::string QString::toStdString() const
 
     Returns a std::string object with the data contained in this
@@ -6095,15 +6039,15 @@ void QString::updateProperties() const
     If the QString contains non-ASCII Unicode characters, using this
     operator can lead to loss of information. You can disable this
     operator by defining \c QT_NO_CAST_TO_ASCII when you compile your
-    applications. You then need to call ascii() (or latin1() or
-    utf8() or local8Bit()) explicitly if you want to convert the data
+    applications. You then need to call toAscii() (or toLatin1() or
+    toUtf8() or toLocal8Bit()) explicitly if you want to convert the data
     to \c{const char *} and pass the return value on to the
     std::string constructor.
 
     This operator is only available if Qt is configured with STL
     compabitility enabled.
 
-    \sa ascii(), latin1(), utf8(), local8Bit()
+    \sa toAscii(), toLatin1(), toUtf8(), toLocal8Bit()
 */
 
 /*!

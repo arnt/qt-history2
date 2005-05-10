@@ -20,7 +20,6 @@
     \class QIsciiCodec
     \brief The QIsciiCodec class provides conversion to and from the ISCII encoding.
 
-    \ingroup i18n
     \internal
 */
 

@@ -185,7 +185,7 @@ int qstrcmp(const char *str1, const char *str2)
     A safe stricmp() function.
 
     Compares \a str1 and \a str2 ignoring the case of the
-    characters. The encoding of the strings is assumed to be latin1.
+    characters. The encoding of the strings is assumed to be Latin-1.
 
     Returns a negative value if \a str1 is less than \a str2, 0 if \a
     str1 is equal to \a str2 or a positive value if \a str1 is greater
@@ -220,7 +220,7 @@ int qstricmp(const char *str1, const char *str2)
 
     Compares at most \a len bytes of \a str1 and \a str2 ignoring the
     case of the characters. The encoding of the strings is assumed to
-    be latin1.
+    be Latin-1.
 
     Returns a negative value if \a str1 is less than \a str2, 0 if \a str1
     is equal to \a str2 or a positive value if \a str1 is greater than \a
@@ -1112,8 +1112,8 @@ void QByteArray::chop(int n)
     If the QString contains non-ASCII Unicode characters, using this
     operator can lead to loss of information. You can disable this
     operator by defining \c QT_NO_CAST_TO_ASCII when you compile your
-    applications. You then need to call QString::ascii() (or
-    QString::latin1() or QString::utf8() or QString::local8Bit())
+    applications. You then need to call QString::toAscii() (or
+    QString::toLatin1() or QString::toUtf8() or QString::toLocal8Bit())
     explicitly if you want to convert the data to \c{const char *}.
 */
 
@@ -1449,8 +1449,8 @@ QByteArray &QByteArray::append(const QByteArray &ba)
     If the QString contains non-ASCII Unicode characters, using this
     function can lead to loss of information. You can disable this
     function by defining \c QT_NO_CAST_TO_ASCII when you compile your
-    applications. You then need to call QString::ascii() (or
-    QString::latin1() or QString::utf8() or QString::local8Bit())
+    applications. You then need to call QString::toAscii() (or
+    QString::toLatin1() or QString::toUtf8() or QString::toLocal8Bit())
     explicitly if you want to convert the data to \c{const char *}.
 */
 
@@ -1547,8 +1547,8 @@ QByteArray &QByteArray::insert(int i, const QByteArray &ba)
     If the QString contains non-ASCII Unicode characters, using this
     function can lead to loss of information. You can disable this
     function by defining \c QT_NO_CAST_TO_ASCII when you compile your
-    applications. You then need to call QString::ascii() (or
-    QString::latin1() or QString::utf8() or QString::local8Bit())
+    applications. You then need to call QString::toAscii() (or
+    QString::toLatin1() or QString::toUtf8() or QString::toLocal8Bit())
     explicitly if you want to convert the data to \c{const char *}.
 */
 
@@ -1773,8 +1773,8 @@ QByteArray &QByteArray::replace(const QByteArray &before, const QByteArray &afte
     If the QString contains non-ASCII Unicode characters, using this
     function can lead to loss of information. You can disable this
     function by defining \c QT_NO_CAST_TO_ASCII when you compile your
-    applications. You then need to call QString::ascii() (or
-    QString::latin1() or QString::utf8() or QString::local8Bit())
+    applications. You then need to call QString::toAscii() (or
+    QString::toLatin1() or QString::toUtf8() or QString::toLocal8Bit())
     explicitly if you want to convert the data to \c{const char *}.
 */
 
@@ -1818,8 +1818,8 @@ QByteArray &QByteArray::replace(char before, const QByteArray &after)
     If the QString contains non-ASCII Unicode characters, using this
     function can lead to loss of information. You can disable this
     function by defining \c QT_NO_CAST_TO_ASCII when you compile your
-    applications. You then need to call QString::ascii() (or
-    QString::latin1() or QString::utf8() or QString::local8Bit())
+    applications. You then need to call QString::toAscii() (or
+    QString::toLatin1() or QString::toUtf8() or QString::toLocal8Bit())
     explicitly if you want to convert the data to \c{const char *}.
 */
 
@@ -1945,8 +1945,8 @@ int QByteArray::indexOf(const QByteArray &ba, int from) const
     If the QString contains non-ASCII Unicode characters, using this
     function can lead to loss of information. You can disable this
     function by defining \c QT_NO_CAST_TO_ASCII when you compile your
-    applications. You then need to call QString::ascii() (or
-    QString::latin1() or QString::utf8() or QString::local8Bit())
+    applications. You then need to call QString::toAscii() (or
+    QString::toLatin1() or QString::toUtf8() or QString::toLocal8Bit())
     explicitly if you want to convert the data to \c{const char *}.
 */
 
@@ -2064,8 +2064,8 @@ int QByteArray::lastIndexOf(const QByteArray &ba, int from) const
     If the QString contains non-ASCII Unicode characters, using this
     function can lead to loss of information. You can disable this
     function by defining \c QT_NO_CAST_TO_ASCII when you compile your
-    applications. You then need to call QString::ascii() (or
-    QString::latin1() or QString::utf8() or QString::local8Bit())
+    applications. You then need to call QString::toAscii() (or
+    QString::toLatin1() or QString::toUtf8() or QString::toLocal8Bit())
     explicitly if you want to convert the data to \c{const char *}.
 */
 
@@ -2366,7 +2366,7 @@ QByteArray QByteArray::mid(int pos, int len) const
 
 /*!
     Returns a lowercase copy of the byte array. The bytearray is
-    interpreted as a latin1 encoded string.
+    interpreted as a Latin-1 encoded string.
 
     Example:
     \code
@@ -2392,7 +2392,7 @@ QByteArray QByteArray::toLower() const
 
 /*!
     Returns an uppercase copy of the byte array. The bytearray is
-    interpreted as a latin1 encoded string.
+    interpreted as a Latin-1 encoded string.
 
     Example:
     \code
@@ -3520,7 +3520,7 @@ QByteArray QByteArray::fromRawData(const char *data, int size)
 
     \code
         QByteArray text = QByteArray::fromBase64("UXQgaXMgZ3JlYXRcIQo=");
-        // text.data() now contains the ascii string "Qt is great!"
+        // text.data() now contains the ASCII string "Qt is great!"
     \endcode
 */
 QByteArray QByteArray::fromBase64(const QByteArray &base64)

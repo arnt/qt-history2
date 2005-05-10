@@ -15,9 +15,9 @@
 // and is included in Qt with the author's permission, and the grateful
 // thanks of the Trolltech team.
 
-/*! \class QTsciiCodec qtsciicodec.h
+/*! \class QTsciiCodec
     \reentrant
-    \ingroup i18n
+    \internal
 
   \brief The QTsciiCodec class provides conversion to and from the Tamil TSCII encoding.
 
