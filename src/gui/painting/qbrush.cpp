@@ -109,20 +109,12 @@ struct QGradientBrushData : public QBrushData
     Use the QPen class for specifying line/outline styles.
 
     Example:
-    \code
-        QPainter painter;
-        QBrush   brush(yellow);           // yellow solid pattern
-        painter.begin(&anyPaintDevice);   // paint something
-        painter.setBrush(brush);          // set the yellow brush
-        painter.setPen(Qt::NoPen);        // do not draw outline
-        painter.drawRect(40,30, 200,100); // draw filled rectangle
-        painter.setBrush(Qt::NoBrush);    // do not fill
-        painter.setPen(black);            // set black pen, 0 pixel width
-        painter.drawRect(10,10, 30,20);   // draw rectangle outline
-        painter.end();                    // painting done
-    \endcode
+    \quotefromfile snippets/brush/brush.cpp
+    \skipto BRUSH
+    \skipto QPainter
+    \printuntil end()
 
-    See the setStyle() function for a complete list of brush styles.
+    See the Qt::BrushStyle for a complete list of brush styles.
 
     \img brush-styles.png Brush Styles
 
@@ -163,7 +155,7 @@ void QBrush::init(const QColor &color, Qt::BrushStyle style)
 }
 
 /*!
-    Constructs a default black brush with the style \c Qt::NoBrush (will
+    Constructs a default black brush with the style \c Qt::NoBrush (this brush will
     not fill shapes).
 */
 
@@ -222,10 +214,7 @@ QBrush::QBrush(Qt::GlobalColor color, Qt::BrushStyle style)
     Constructs a brush with the color \a color and a custom pattern
     stored in \a pixmap.
 
-    The color will only have an effect for monochrome pixmaps, i.e.
-    for QPixmap::depth() == 1.
-
-    Pixmap brushes are currently not supported when printing on X11.
+    The color will only have an effect for QBitmaps.
 
     \sa setColor(), setPixmap()
 */
@@ -240,10 +229,7 @@ QBrush::QBrush(const QColor &color, const QPixmap &pixmap)
     Constructs a brush with the color \a color and a custom pattern
     stored in \a pixmap.
 
-    The color will only have an effect for monochrome pixmaps, i.e.
-    for QPixmap::depth() == 1.
-
-    Pixmap brushes are currently not supported when printing on X11.
+    The color will only have an effect for QBitmaps.
 
     \sa setColor(), setPixmap()
 */
@@ -374,8 +360,6 @@ QBrush::operator QVariant() const
 /*!
     Sets the brush style to \a style.
 
-    On Windows, dense and custom patterns cannot be transparent.
-
     \sa style()
 */
 
@@ -467,8 +451,6 @@ QPixmap QBrush::texture() const
     The current brush color will only have an effect for monochrome
     pixmaps, i.e. for QPixmap::depth() == 1.
 
-    Pixmap brushes are currently not supported when printing on X11.
-
     \sa pixmap(), color()
 */
 
@@ -499,9 +481,10 @@ const QGradient *QBrush::gradient() const
 
 
 /*!
-    Returns true if the brush is fully opaque otherwise false.
-    The various pattern brushes are considered opaque for the
-    purpose of this function.
+    Returns true if the brush is fully opaque otherwise false. A brush is considered opaque if:
+    the alpha component of the color() is 255,
+    its pixmap() has no alpha chanel
+    the colors in the gradiant() have an alpha component that is 255.
 */
 
 bool QBrush::isOpaque() const
@@ -740,22 +723,19 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     black at (100, 100) to white at (200, 200) could be specified like
     this:
 
-    \code
-    QLinearGradient grad(QPointF(100, 100), QPointF(200, 200));
-    grad.setColorAt(0, Qt::black);
-    grad.setColorAt(1, Qt::white);
-    \endcode
+    \quotefromfile snippets/brush/brush.cpp
+    \skipto LINEAR
+    \skipto QLinearGradient
+    \printuntil Qt::white
 
     A gradient can have an arbitrary number of stop points. The
     following gradient would create a radial gradient starting with
     red in the center, blue and then green on the edges:
 
-    \code
-    QRadialGradient grad(QPointF(100, 100), 100);
-    grad.setColorAt(0, Qt::red);
-    grad.setColorAt(0.5, Qt::blue);
-    grad.setColorAt(1, Qt::green);
-    \endcode
+    \quotefromfile snippets/brush/brush.cpp
+    \skipto RADIAL
+    \skipto QRadialGradient
+    \printuntil Qt::green
 
     It is possible to repeat or reflect the gradient outside the area
     by specifiying spread. The default is to pad the outside area with
