@@ -485,9 +485,9 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
 void QTextHtmlParser::dumpHtml()
 {
     for (int i = 0; i < count(); ++i) {
-        qDebug().nospace() << QString(depth(i)*4, ' ')
-                           << at(i).tag << ":"
-                           << "\"" << quoteNewline(at(i).text) << "\" "
+        qDebug().nospace() << qPrintable(QString(depth(i)*4, ' '))
+                           << qPrintable(at(i).tag) << ":"
+                           << quoteNewline(at(i).text);
             ;
     }
 }
