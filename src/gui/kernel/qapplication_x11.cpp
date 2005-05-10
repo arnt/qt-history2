@@ -259,12 +259,6 @@ static bool        app_save_rootinfo = false;        // save root info
 static bool        app_do_modal        = false;        // modal mode
 static Window        curWin = 0;                        // current window
 
-static GC*        app_gc_ro        = 0;                // read-only GC
-static GC*        app_gc_tmp        = 0;                // temporary GC
-static GC*        app_gc_ro_m        = 0;                // read-only GC (monochrome)
-static GC*        app_gc_tmp_m        = 0;                // temporary GC (monochrome)
-
-
 // detect broken window managers
 bool                qt_broken_wm                = false;
 static void qt_detect_broken_window_manager();
@@ -1965,13 +1959,6 @@ void qt_cleanup()
     delete QApplicationPrivate::inputContext;
     QApplicationPrivate::inputContext = 0;
 #endif
-
-#define QT_CLEANUP_GC(g) if (g) { for (int i=0;i<X11->screenCount;i++){if(g[i])XFreeGC(X11->display,g[i]);} delete [] g; g = 0; }
-    QT_CLEANUP_GC(app_gc_ro);
-    QT_CLEANUP_GC(app_gc_ro_m);
-    QT_CLEANUP_GC(app_gc_tmp);
-    QT_CLEANUP_GC(app_gc_tmp_m);
-#undef QT_CLEANUP_GC
 
     // Reset the error handlers
     XSetErrorHandler(original_x_errhandler);
