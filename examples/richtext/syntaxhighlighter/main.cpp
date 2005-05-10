@@ -21,6 +21,6 @@ int main(int argc, char *argv[])
     MainWindow *window = new MainWindow;
     window->resize(640, 512);
     window->show();
-    window->openFile(":/examples/example.pro");
+    window->openFile(":/examples/example");
     return app.exec();
 }
