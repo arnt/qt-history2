@@ -33,8 +33,10 @@
 
 #include "private/qvariant_p.h"
 
+#ifdef QT3_SUPPORT
 extern QDataStream &qt_stream_out_qcolorgroup(QDataStream &s, const QColorGroup &g);
 extern QDataStream &qt_stream_in_qcolorgroup(QDataStream &s, QColorGroup &g);
+#endif
 
 Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler();
 
