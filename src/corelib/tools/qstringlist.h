@@ -43,11 +43,9 @@ public:
     inline QString join(const QString &sep) const;
 
     inline QStringList filter(const QString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
-    inline QStringList filter(const QRegExp &rx) const;
     inline QBool contains(const QString &str, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
 
     inline QStringList &replaceInStrings(const QString &before, const QString &after, Qt::CaseSensitivity cs = Qt::CaseSensitive);
-    inline QStringList &replaceInStrings(const QRegExp &rx, const QString &after);
 
     inline QStringList operator+(const QStringList &other) const
     { QStringList n = *this; n += other; return n; }
@@ -57,6 +55,8 @@ public:
     { *this += l; return *this; }
 
 #ifndef QT_NO_REGEXP
+    inline QStringList filter(const QRegExp &rx) const;
+    inline QStringList &replaceInStrings(const QRegExp &rx, const QString &after);
     inline int indexOf(const QRegExp &rx, int from = 0) const;
     inline int lastIndexOf(const QRegExp &rx, int from = -1) const;
 #endif
@@ -72,14 +72,18 @@ public:
 #ifdef QT3_SUPPORT
     static inline QT3_SUPPORT QStringList split(const QString &sep, const QString &str, bool allowEmptyEntries = false);
     static inline QT3_SUPPORT QStringList split(const QChar &sep, const QString &str, bool allowEmptyEntries = false);
-    static inline QT3_SUPPORT QStringList split(const QRegExp &sep, const QString &str, bool allowEmptyEntries = false);
     inline QT3_SUPPORT QStringList grep(const QString &str, bool cs = true) const
         { return filter(str, cs ? Qt::CaseSensitive : Qt::CaseInsensitive); }
+
+#ifndef QT_NO_REGEXP
+    static inline QT3_SUPPORT QStringList split(const QRegExp &sep, const QString &str, bool allowEmptyEntries = false);
     inline QT3_SUPPORT QStringList grep(const QRegExp &rx) const { return filter(rx); }
-    inline QT3_SUPPORT QStringList &gres(const QString &before, const QString &after, bool cs = true)
-        { return replaceInStrings(before, after, cs ? Qt::CaseSensitive : Qt::CaseInsensitive); }
     inline QT3_SUPPORT QStringList &gres(const QRegExp &rx, const QString &after)
         { return replaceInStrings(rx, after); }
+#endif
+    inline QT3_SUPPORT QStringList &gres(const QString &before, const QString &after, bool cs = true)
+        { return replaceInStrings(before, after, cs ? Qt::CaseSensitive : Qt::CaseInsensitive); }
+
     inline Iterator QT3_SUPPORT fromLast() { return (isEmpty() ? end() : --end()); }
     inline ConstIterator QT3_SUPPORT fromLast() const { return (isEmpty() ? end() : --end()); }
 #endif
@@ -90,14 +94,14 @@ namespace QtPrivate {
     QString Q_CORE_EXPORT QStringList_join(const QStringList *that, const QString &sep);
     QStringList Q_CORE_EXPORT QStringList_filter(const QStringList *that, const QString &str,
                                                Qt::CaseSensitivity cs);
-    QStringList Q_CORE_EXPORT QStringList_filter(const QStringList *that, const QRegExp &re);
 
     QBool Q_CORE_EXPORT QStringList_contains(const QStringList *that, const QString &str, Qt::CaseSensitivity cs);
     void Q_CORE_EXPORT QStringList_replaceInStrings(QStringList *that, const QString &before, const QString &after,
                                       Qt::CaseSensitivity cs);
-    void Q_CORE_EXPORT QStringList_replaceInStrings(QStringList *that, const QRegExp &rx, const QString &after);
 
 #ifndef QT_NO_REGEXP
+    void Q_CORE_EXPORT QStringList_replaceInStrings(QStringList *that, const QRegExp &rx, const QString &after);
+    QStringList Q_CORE_EXPORT QStringList_filter(const QStringList *that, const QRegExp &re);
     int Q_CORE_EXPORT QStringList_indexOf(const QStringList *that, const QRegExp &rx, int from);
     int Q_CORE_EXPORT QStringList_lastIndexOf(const QStringList *that, const QRegExp &rx, int from);
 #endif
@@ -118,11 +122,6 @@ inline QStringList QStringList::filter(const QString &str, Qt::CaseSensitivity c
     return QtPrivate::QStringList_filter(this, str, cs);
 }
 
-inline QStringList QStringList::filter(const QRegExp &rx) const
-{
-    return QtPrivate::QStringList_filter(this, rx);
-}
-
 inline QBool QStringList::contains(const QString &str, Qt::CaseSensitivity cs) const
 {
     return QtPrivate::QStringList_contains(this, str, cs);
@@ -134,13 +133,18 @@ inline QStringList &QStringList::replaceInStrings(const QString &before, const Q
     return *this;
 }
 
+#ifndef QT_NO_REGEXP
 inline QStringList &QStringList::replaceInStrings(const QRegExp &rx, const QString &after)
 {
     QtPrivate::QStringList_replaceInStrings(this, rx, after);
     return *this;
 }
 
-#ifndef QT_NO_REGEXP
+inline QStringList QStringList::filter(const QRegExp &rx) const
+{
+    return QtPrivate::QStringList_filter(this, rx);
+}
+
 inline int QStringList::indexOf(const QRegExp &rx, int from) const
 {
     return QtPrivate::QStringList_indexOf(this, rx, from);
