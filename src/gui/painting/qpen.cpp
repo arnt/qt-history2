@@ -46,28 +46,21 @@
     Use the QBrush class to specify fill styles.
 
     Example:
-    \code
-    QPainter painter;
-    QPen pen(red, 2);                 // red solid line, 2 pixels wide
-    painter.begin(&anyPaintDevice);   // paint something
-    painter.setPen(pen);              // set the red, wide pen
-    painter.drawRect(40,30, 200,100); // draw a rectangle
-    painter.setPen(blue);             // set blue pen, 0 pixel width
-    painter.drawLine(40,30, 240,130); // draw a diagonal in rectangle
-    painter.end();                    // painting done
-    \endcode
+    \quotefromfile snippets/brush/brush.cpp
+    \skipto PEN
+    \skipto QPainter
+    \printuntil end
 
     See the \l Qt::PenStyle enum type for a complete list of pen
     styles.
 
-    With reference to the end points of lines, for wide (non-0-width)
-    pens it depends on the cap style whether the end point is drawn or
-    not. QPainter will try to make sure that the end point is drawn
-    for 0-width pens, but this cannot be absolutely guaranteed because
-    the underlying drawing engine is free to use any (typically
-    accelerated) algorithm for drawing 0-width lines. On all tested
-    systems, however, the end point of at least all non-diagonal lines
-    are drawn.
+    Whether or not end points of lines are drawn depend on several factors. For
+    pens with a non-zero width it depends on the cap style. For pens with zero
+    widths, QPainter will try to make sure the end point is drawn, but this
+    cannot be absolutely guaranteed because the underlying drawing engine is
+    free to use any (typically accelerated) algorithm for drawing lines with
+    zero width. The end point for all non-diagonal lines are drawn on all our
+    tested systems.
 
     A pen's color(), brush(), width(), style(), capStyle() and
     joinStyle() can be set in the constructor or later with
@@ -113,8 +106,7 @@ void QPenPrivate::init(const QBrush &brush, qreal width, Qt::PenStyle penStyle,
 }
 
 /*!
-    Constructs a default black solid line pen with 0 width, which
-    renders lines 1 pixel wide (fast diagonals).
+    Constructs a default black solid line pen with 0 width.
 */
 
 QPen::QPen()
@@ -252,10 +244,6 @@ Qt::PenStyle QPen::style() const
     See the \l Qt::PenStyle documentation for a list of all the
     styles.
 
-    \warning On Windows 95/98 and Macintosh, the style setting (other
-    than \c Qt::NoPen and \c Qt::SolidLine) has no effect for lines with width
-    greater than 1.
-
     \sa style()
 */
 
@@ -286,7 +274,7 @@ int QPen::width() const
 
     Returns the pen width with floating point precision.
 
-    \sa setWidthF()
+    \sa setWidthF() width()
 */
 qreal QPen::widthF() const
 {
@@ -296,17 +284,7 @@ qreal QPen::widthF() const
 /*!
     \fn QPen::setWidth(int width)
 
-    \overload
-
     Sets the pen width to \a width
-*/
-void QPen::setWidth(int width)
-{
-    d->width = width;
-}
-
-/*!
-    Sets the pen width to \a width.
 
     A line width of 0 will produce a 1 pixel wide line using a fast
     algorithm for diagonals. A line width of 1 will also produce a 1
@@ -317,7 +295,19 @@ void QPen::setWidth(int width)
 
     Setting a pen width with a negative value is not supported.
 
-    \sa width()
+    \sa setWidthF() width()
+*/
+void QPen::setWidth(int width)
+{
+    d->width = width;
+}
+
+/*!
+    Sets the pen width to \a width.
+
+    \overload
+
+    \sa setWidth() widthF()
 */
 
 void QPen::setWidthF(qreal width)
@@ -348,10 +338,6 @@ Qt::PenCapStyle QPen::capStyle() const
     0-width pens.
 
     \img pen-cap-styles.png Pen Cap Styles
-
-    \warning On Windows 95/98 and Macintosh, the cap style setting has
-    no effect. Wide lines are rendered as if the cap style was \c
-    Qt::SquareCap.
 
     \sa capStyle()
 */
