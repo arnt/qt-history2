@@ -637,18 +637,31 @@ void QWSDisplay::Data::fillQueue()
                 QWSMouseEvent *me = static_cast<QWSMouseEvent*>(e);
                 if (mouseFilter)
                     mouseFilter(me);
+#ifdef QAPPLICATION_EXTRA_DEBUG
+                static const char *defaultAction= "INITIAL";
+                const char * action = defaultAction;
+#endif
                 if (mouse_event) {
                     if ((mouse_event->window() != e->window ()
                           || mouse_event->simpleData.state !=
                           me->simpleData.state)) {
                         queue.append(mouse_event);
                         mouse_event_count = 0;
+#ifdef QAPPLICATION_EXTRA_DEBUG
+                        action = "CHANGE";
+#endif
                     } else if (mouse_event_count == 1) {
                         // make sure the position of the press is not
                         // compressed away.
                         queue.append(mouse_event);
+#ifdef QAPPLICATION_EXTRA_DEBUG
+                        action = "POSITION";
+#endif
                     } else {
                         delete mouse_event;
+#ifdef QAPPLICATION_EXTRA_DEBUG
+                        action = "COMPRESS";
+#endif
                     }
                 }
                 QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
@@ -657,6 +670,12 @@ void QWSDisplay::Data::fillQueue()
                 me->simpleData.x_root = p.x();
                 me->simpleData.y_root = p.y();
                 mouse_event = me;
+#ifdef QAPPLICATION_EXTRA_DEBUG
+                if (me->simpleData.state !=0 || action != defaultAction || mouse_event_count != 0)
+                    qDebug("fillQueue %s (%d,%d), state %x win %d count %d", action,
+                           p.x(), p.y(), me->simpleData.state, me->window(), mouse_event_count);
+#endif
+
                 mouse_event_count++;
             }
         } else if (e->type == QWSEvent::RegionModified) {
@@ -2135,7 +2154,7 @@ QWidget *QApplicationPrivate::findChildWidget(const QWidget *p, const QPoint &po
 
 QWidget *QApplication::topLevelAt(const QPoint &pos)
 {
-
+//### does not take other processes into account
 #warning "allocatedRegion problem"
     QWidgetList list = topLevelWidgets();
 
@@ -2143,7 +2162,7 @@ QWidget *QApplication::topLevelAt(const QPoint &pos)
         QWidget *w = list[i];
         if (w != QApplication::desktop() &&
              w->isVisible() && w->geometry().contains(pos)
-            // && w->d_func()->allocatedRegion().contains(qt_screen->mapToDevice(w->mapToGlobal(w->mapFromParent(pos)), QSize(qt_screen->width(), qt_screen->height())))
+            && w->d_func()->localRequestedRegion().contains(w->mapFromParent(pos)) //was alloc_region
             )
             return w;
     }
