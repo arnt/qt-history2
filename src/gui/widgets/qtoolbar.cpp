@@ -722,6 +722,7 @@ void QToolBar::changeEvent(QEvent *event)
     default:
         break;
     }
+    QWidget::changeEvent(event);
 }
 
 /*! \reimp */

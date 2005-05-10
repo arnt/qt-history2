@@ -979,6 +979,7 @@ void QMenuBar::changeEvent(QEvent *e)
             resize(parentWidget()->width(), heightForWidth(parentWidget()->width()));
     } else if (e->type() == QEvent::ParentChange)
         d->handleReparent();
+    QWidget::changeEvent(e);
 }
 
 /*!
