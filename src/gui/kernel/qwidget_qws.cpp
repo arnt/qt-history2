@@ -1151,11 +1151,9 @@ void QWidget::scroll(int dx, int dy)
 
 void QWidget::scroll(int dx, int dy, const QRect& r)
 {
-    //@@@@
-    qDebug("QWidget::scroll ### not implemented ###");
     if (!updatesEnabled() && children().size() == 0)
         return;
-#if 0
+
     bool valid_rect = r.isValid();
     QRect sr = valid_rect?r:rect();
     int x1, y1, x2, y2, w=sr.width(), h=sr.height();
@@ -1180,7 +1178,9 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
 
     if (dx == 0 && dy == 0)
         return;
-
+#if 0
+    //@@@@
+//    qDebug("QWidget::scroll ### not implemented ###");
     QSize s(qt_screen->width(), qt_screen->height());
     QRegion alloc = valid_rect ? d->paintableRegion() : d->allocatedRegion();
 
@@ -1205,11 +1205,11 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
             setAttribute(Qt::WA_PaintUnclipped,false);
     }
     data->paintable_region_dirty = true;
-
+#endif
     QPoint gpos = mapToGlobal(QPoint());
 
     if (!valid_rect && children().size() > 0) {        // scroll children
-        d->setChildrenAllocatedDirty();
+//        d->setChildrenAllocatedDirty();
         QPoint pd(dx, dy);
         QObjectList childObjects = children();
         for (int i = 0; i < childObjects.size(); ++i) { // move all children
@@ -1225,13 +1225,15 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
             }
         }
     }
-
+#if 0
     QSize ds(qt_screen->deviceWidth(), qt_screen->deviceHeight());
     scrollRegion = qt_screen->mapFromDevice(scrollRegion, ds);
     scrollRegion.translate(-gpos.x(), -gpos.y());
-
+#endif
     QRegion update(sr);
+#if 0
     update -= scrollRegion;
+#endif
     if (dx) {
         int x = x2 == sr.x() ? sr.x()+w : sr.x();
         update |= QRect(x, sr.y(), qAbs(dx), sr.height());
@@ -1241,9 +1243,9 @@ void QWidget::scroll(int dx, int dy, const QRect& r)
         update |= QRect(sr.x(), y, sr.width(), qAbs(dy));
     }
     repaint(update);
-    if (!valid_rect)
-        paint_children(this, update, false);
-#endif
+//    if (!valid_rect)
+//        paint_children(this, update, false);
+
 }
 
 
