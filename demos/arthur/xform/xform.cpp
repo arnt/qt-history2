@@ -128,13 +128,13 @@ void XFormView::changeRotation(int r)
 void XFormView::changeScale(int s)
 {
     scale = double(s/1000.0);
-    repaint();
+    update();
 }
 
 void XFormView::changeShear(int s)
 {
     shear = double(s/1000.0);
-    repaint();
+    update();
 }
 
 void XFormView::timerEvent(QTimerEvent *e)
@@ -709,7 +709,7 @@ XFormWidget::XFormWidget(QWidget *parent)
     shearGroup->setAttribute(Qt::WA_ContentsPropagated);
     shearGroup->setTitle("Shear");
     QSlider *shearSlider = new QSlider(Qt::Horizontal, shearGroup);
-    shearSlider->setRange(-1000, 1000);
+    shearSlider->setRange(-990, 990);
     shearSlider->setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Fixed);
 
     ArthurGroupBox *typeGroup = new ArthurGroupBox(mainGroup);
@@ -776,7 +776,7 @@ XFormWidget::XFormWidget(QWidget *parent)
     connect(pixmapType, SIGNAL(clicked()), view, SLOT(setPixmapType()));
     connect(textType, SIGNAL(clicked()), view, SLOT(setTextType()));
     connect(textType, SIGNAL(toggled(bool)), view->textEditor, SLOT(setEnabled(bool)));
-    connect(view->textEditor, SIGNAL(textChanged(const QString &)), view, SLOT(repaint()));
+    connect(view->textEditor, SIGNAL(textChanged(const QString &)), view, SLOT(update()));
 
     connect(view, SIGNAL(rotationChanged(int)), rotateSlider, SLOT(setValue(int)));
     connect(view, SIGNAL(scaleChanged(int)), scaleSlider, SLOT(setValue(int)));
