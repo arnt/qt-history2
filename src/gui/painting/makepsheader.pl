@@ -126,7 +126,7 @@ while(<INPUT>) {
 
 print $string.";\n\n";
 
-print "static const struct { Q_UINT16 u; Q_UINT16 index; } unicodetoglyph[] = {\n    ";
+print "static const struct { quint16 u; quint16 index; } unicodetoglyph[] = {\n    ";
 
 $loop = 0;
 while( @qchar ) {

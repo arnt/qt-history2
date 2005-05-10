@@ -122,23 +122,22 @@ static const char *const ps_header =
 "0 RL 0 h neg RL CP BF QS}D/xr D0/yr D0/rx D0/ry D0/rx2 D0/ry2 D0/E{/h ED/w\n"
 "ED/y ED/x ED mat CM pop x w 2 div add y h 2 div add TR 1 h w div scale NP 0\n"
 "0 w 2 div 0 360 arc mat SM BF QS}D/BC{/BkCol ED}D/BR{/BCol ED/BSt ED}D/NB{0\n"
-"[0 0 0]BR}D/PE{setlinejoin setlinecap/PCol ED/LWi ED/PSt ED LWi 0 eq{0.25\n"
-"/LWi ED}if PCol SC}D/P1{1 0 3 2 roll 0 0 PE}D/ST{defM SM concat}D/MF{true\n"
-"exch true exch{exch pop exch pop dup 0 get dup findfont dup/FontName get 3\n"
-"-1 roll eq{exit}if}forall exch dup 1 get/fxscale ED 2 get/fslant ED exch\n"
-"/fencoding ED[fxscale 0 fslant 1 0 0]makefont fencoding false eq{}{dup\n"
-"maxlength dict begin{1 i/FID ne{def}{pop pop}ifelse}forall/Encoding\n"
-"fencoding d currentdict end}ie definefont pop}D/MFEmb{findfont dup length\n"
-"dict begin{1 i/FID ne{d}{pop pop}ifelse}forall/Encoding ED currentdict end\n"
-"definefont pop}D/DF{findfont/fs 3 -1 roll d[fs 0 0 fs -1 mul 0 0]makefont d}\n"
-"D/ty 0 d/Y{/ty ED}D/Tl{gsave SW NP 1 i exch MT 1 i 0 RL S grestore}D/XYT{ty\n"
-"MT/xyshow where{pop pop xyshow}{exch pop 1 i dup length 2 div exch\n"
-"stringwidth pop 3 -1 roll exch sub exch div exch 0 exch ashow}ie}D/AT{ty MT\n"
-"1 i dup length 2 div exch stringwidth pop 3 -1 roll exch sub exch div exch 0\n"
-"exch ashow}D/QI{/C save d pageinit/OMo false d}D/QP{C restore showpage}D/SPD\n"
-"{/setpagedevice where{<< 3 1 roll >> setpagedevice}{pop pop}ie}D/CLS{gsave\n"
-"NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0 h neg RL CP}D/CLO{\n"
-"grestore}D\n";
+"[0 0 0]BR}D/PE{setlinejoin setlinecap/PCol ED/LWi ED/PSt ED PCol SC}D/P1{1 0\n"
+"3 2 roll 0 0 PE}D/ST{defM SM concat}D/MF{true exch true exch{exch pop exch\n"
+"pop dup 0 get dup findfont dup/FontName get 3 -1 roll eq{exit}if}forall exch\n"
+"dup 1 get/fxscale ED 2 get/fslant ED exch/fencoding ED[fxscale 0 fslant 1 0\n"
+"0]makefont fencoding false eq{}{dup maxlength dict begin{1 i/FID ne{def}{pop\n"
+"pop}ifelse}forall/Encoding fencoding d currentdict end}ie definefont pop}D\n"
+"/MFEmb{findfont dup length dict begin{1 i/FID ne{d}{pop pop}ifelse}forall\n"
+"/Encoding ED currentdict end definefont pop}D/DF{findfont/fs 3 -1 roll d[fs\n"
+"0 0 fs -1 mul 0 0]makefont d}D/ty 0 d/Y{/ty ED}D/Tl{gsave SW NP 1 i exch MT\n"
+"1 i 0 RL S grestore}D/XYT{ty MT/xyshow where{pop pop xyshow}{exch pop 1 i\n"
+"dup length 2 div exch stringwidth pop 3 -1 roll exch sub exch div exch 0\n"
+"exch ashow}ie}D/AT{ty MT 1 i dup length 2 div exch stringwidth pop 3 -1 roll\n"
+"exch sub exch div exch 0 exch ashow}D/QI{/C save d pageinit/OMo false d}D/QP\n"
+"{C restore showpage}D/SPD{/setpagedevice where{<< 3 1 roll >> setpagedevice}\n"
+"{pop pop}ie}D/CLS{gsave NP}D/ACR{/h ED/w ED/y ED/x ED x y MT 0 h RL w 0 RL 0\n"
+"h neg RL CP}D/CLO{grestore}D\n";
 
 static const char * const agl =
 ".notdef\0space\0exclam\0quotedbl\0numbersign\0dollar\0percent\0ampersand\0"
@@ -496,7 +495,6 @@ static const struct { quint16 u; quint16 index; } unicodetoglyph[] = {
     {0xFB04, 8083}, {0xFB1F, 8087}, {0xFB2A, 8097}, {0xFB2B, 8107},
     {0xFB35, 8117}, {0xFB4B, 8127}, {0xFFFF, 8137}
 };
-
 
 
 
