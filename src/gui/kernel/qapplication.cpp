@@ -790,7 +790,7 @@ void QApplicationPrivate::initialize()
     Returns the type of application, Tty, GuiClient or GuiServer.
 */
 
-QApplication::Type QApplication::type() const
+QApplication::Type QApplication::type()
 {
     return qt_appType;
 }

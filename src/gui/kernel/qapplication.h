@@ -74,7 +74,7 @@ public:
 #endif
     virtual ~QApplication();
 
-    Type type() const;
+    static Type type();
 
 #ifndef QT_NO_STYLE
     static QStyle *style();
