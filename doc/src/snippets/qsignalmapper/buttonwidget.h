@@ -12,10 +12,10 @@ class ButtonWidget : public QWidget
     Q_OBJECT
 
 public:
-    ButtonWidget(QStringList captions, QWidget *parent=0, const char *name=0);
+    ButtonWidget(QStringList texts, QWidget *parent = 0);
 
 signals:
-    void clicked(const QString &chosen);
+    void clicked(const QString &text);
 
 private:
     QSignalMapper *signalMapper;

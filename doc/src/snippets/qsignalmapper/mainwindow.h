@@ -1,22 +1,19 @@
-#include <qmainwindow.h>
-#include <qstatusbar.h>
+#include <QMainWindow>
+#include <QStatusBar>
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
+
 public:
-    MainWindow(QWidget *parent=0, const char *name=0)
-        : QMainWindow(parent, name)
+    MainWindow()
     {
-        setCaption("QSignalMapper");
-        statusBar()->message("Ready");
+        statusBar()->showMessage(tr("Ready"));
     }
 
 public slots:
-    void buttonPressed(const QString &caption)
+    void buttonPressed(const QString &text)
     {
-        statusBar()->message(QString("Chose %1").arg(caption));
+        statusBar()->showMessage(tr("Chose %1").arg(text));
     }
 };
-
-

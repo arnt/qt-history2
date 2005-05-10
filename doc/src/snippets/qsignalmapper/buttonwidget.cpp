@@ -1,28 +1,22 @@
-#include <qlayout.h>
-#include <qpushbutton.h>
-#include <qsignalmapper.h>
+#include <QtGui>
 
 #include "buttonwidget.h"
 
-ButtonWidget::ButtonWidget(QStringList captions,
-                           QWidget *parent, const char *name)
-    : QWidget(parent, name)
+ButtonWidget::ButtonWidget(QStringList texts, QWidget *parent)
+    : QWidget(parent)
 {
-    int row = 0;
-    int col = 0;
     signalMapper = new QSignalMapper(this);
-    QGridLayout *grid = new QGridLayout(this);
-    QPushButton *button = 0;
-    for (uint i = 0; i < captions.count(); i++) {
-	button = new QPushButton(captions[i], this);
+
+    QGridLayout *gridLayout = new QGridLayout;
+    for (int i = 0; i < texts.size(); ++i) {
+	QPushButton *button = new QPushButton(texts[i]);
 	connect(button, SIGNAL(clicked()), signalMapper, SLOT(map()));
-	signalMapper->setMapping(button, captions[i]);
-	grid->addWidget(button, row, col++);
-	if (col == 3) {
-	    ++row;
-	    col = 0;
-	}
+	signalMapper->setMapping(button, texts[i]);
+	gridLayout->addWidget(button, i / 3, i % 3);
     }
-    connect(signalMapper, SIGNAL(mapped(const QString&)),
-            this, SIGNAL(clicked(const QString&)));
+
+    connect(signalMapper, SIGNAL(mapped(const QString &)),
+            this, SIGNAL(clicked(const QString &)));
+
+    setLayout(gridLayout);
 }
