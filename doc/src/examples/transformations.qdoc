@@ -2,4 +2,8 @@
     \example painting/transformations
     \title Transformations Example
 
+    The Transformations example shows how transformations influence the
+    way that QPainter renders graphics primitives.
+
+    \image transformations-example.png
 */

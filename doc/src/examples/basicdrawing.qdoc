@@ -2,4 +2,8 @@
     \example painting/basicdrawing
     \title Basic Drawing Example
 
+    The Basic Drawing examples shows how to display basic graphics primitives
+    in a variety of styles.
+
+    \image basicdrawing-example.png
 */

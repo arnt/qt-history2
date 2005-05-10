@@ -2,7 +2,7 @@
     \example dialogs/complexwizard
     \title Complex Wizard Example
 
-    The Complex Wizard example shows to implement complex wizards in
+    The Complex Wizard example shows how to implement complex wizards in
     Qt.
 
     A wizard is a special type of input dialog that consists of a
