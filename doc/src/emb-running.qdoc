@@ -82,7 +82,7 @@
 
     \i Press \bold{Ctrl+Alt+F1} - back to display 0. You can also start
     additional applications on a particular display by specifying the
-    display id. Change to VC 3:
+    display ID. Change to VC 3:
 
     \code
         $ cd examples/widgets
