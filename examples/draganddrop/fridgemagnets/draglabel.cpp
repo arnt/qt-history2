@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <QtGui>
 
 #include "draglabel.h"
@@ -13,13 +26,16 @@ DragLabel::DragLabel(const QString &text, QWidget *parent)
     QImage image(size.width() + 12, size.height() + 12, QImage::Format_ARGB32);
     image.fill(qRgba(255, 255, 255, 0));
 
+    QFont font;
+    font.setStyleStrategy(QFont::ForceOutline);
+
     QPainter painter;
     painter.begin(&image);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(Qt::white);
     painter.drawRoundRect(0, 0, image.width()-1, image.height()-1, 25, 25);
 
-    painter.setFont(font());
+    painter.setFont(font);
     painter.setBrush(Qt::black);
     painter.drawText(QRect(QPoint(6, 6), size), Qt::AlignCenter, text);
     painter.end();

@@ -150,7 +150,7 @@ void PuzzleWidget::paintEvent(QPaintEvent *event)
 
     if (highlightedRect.isValid()) {
         painter.setBrush(QColor("#ffcccc"));
-        painter.setPen(QPen(Qt::DotLine));
+        painter.setPen(Qt::NoPen);
         painter.drawRect(highlightedRect.adjusted(0, 0, -1, -1));
     }
 
