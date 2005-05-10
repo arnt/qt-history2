@@ -44,6 +44,7 @@
 
 // #define QAX_SUPPORT_WINDOWLESS
 // #define QAX_SUPPORT_BORDERSPACE
+// #define QAX_SUPPORT_DOCUMENTSITE
 
 // missing interface from win32api
 #if defined(Q_CC_GNU)
@@ -700,8 +701,10 @@ HRESULT WINAPI QAxClientSite::QueryInterface(REFIID iid, void **iface)
             *iface = (IOleInPlaceFrame*)this;
         else if (iid == IID_IOleInPlaceUIWindow)
             *iface = (IOleInPlaceUIWindow*)this;
+#ifdef QAX_SUPPORT_DOCUMENTSITE
         else if (iid == IID_IOleDocumentSite)
             *iface = (IOleDocumentSite*)this;
+#endif
         else if (iid == IID_IAdviseSink)
             *iface = (IAdviseSink*)this;
     }
