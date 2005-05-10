@@ -1032,7 +1032,7 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
 	bool ok = false;
         bool removedThousand = false;
         num = QLocale().toInt(copy, &ok, 10);
-        if (!ok && copy.contains(thousand)) {
+        if (!ok && copy.contains(thousand) && (t >= 1000 || b <= -1000)) {
             copy.remove(thousand);
             removedThousand = true;
             num = QLocale().toInt(copy, &ok, 10);
@@ -1239,6 +1239,11 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
 	    }
 
 	    if (thousand.isPrint()) {
+                if (t < 1000 && b > -1000 && copy.contains(thousand)) {
+                    state = QValidator::Invalid;
+                    goto end;
+                }
+
 		const int len = copy.size();
 		for (int i=0; i<len- 1; ++i) {
 		    if (copy.at(i) == thousand && copy.at(i + 1) == thousand) {
@@ -1266,8 +1271,7 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
 	if (!ok || (num < 0 && b >= 0)) {
 	    state = QValidator::Invalid;
 	} else if (num >= b && num <= t) {
-	    state = notAcceptable
-                    ? QValidator::Intermediate : QValidator::Acceptable;
+	    state = notAcceptable ? QValidator::Intermediate : QValidator::Acceptable;
 	} else {
 	    if (num >= 0) {
 		if (num > b) {
