@@ -360,11 +360,12 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 
         if(rgb != st->rgb) {
             st->rgb = rgb;
-            const ATSUAttributeTag color_tag = kATSUColorTag;
-            ::RGBColor fcolor;
-            fcolor.red = rgb.red()*256;
-            fcolor.green = rgb.green()*256;
-            fcolor.blue = rgb.blue()*256;
+            const ATSUAttributeTag color_tag = kATSURGBAlphaColorTag;
+            ATSURGBAlphaColor fcolor;
+            fcolor.red = float(rgb.redF());
+            fcolor.green = float(rgb.greenF());
+            fcolor.blue = float(rgb.blueF());
+            fcolor.alpha = float(rgb.alphaF());
             ByteCount color_size = sizeof(fcolor);
             ATSUAttributeValuePtr color_value = &fcolor;
             if(OSStatus e = ATSUSetAttributes(st->style, 1, &color_tag, &color_size, &color_value)) {
