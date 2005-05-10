@@ -512,11 +512,7 @@ QDataStream &operator<<(QDataStream &s, const QPen &p)
         s << (quint8)p.width();
         s << p.color();
     } else {
-#ifdef QT_USE_FIXED_POINT
-        s << p.widthF().toDouble();
-#else
         s << p.widthF();
-#endif
         s << p.brush();
     }
     return s;

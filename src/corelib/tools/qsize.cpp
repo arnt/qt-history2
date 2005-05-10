@@ -796,11 +796,7 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
 QDataStream &operator<<(QDataStream &s, const QSizeF &sz)
 {
-#ifdef QT_USE_FIXED_POINT
-    s << sz.width().toDouble() << sz.height().toDouble();
-#else
     s << sz.width() << sz.height();
-#endif
     return s;
 }
 

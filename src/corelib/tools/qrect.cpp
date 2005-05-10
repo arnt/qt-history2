@@ -1729,14 +1729,7 @@ bool QRectF::intersects(const QRectF &r) const
 
 QDataStream &operator<<(QDataStream &s, const QRectF &r)
 {
-#ifdef QT_USE_FIXED_POINT
-    s << r.x().toDouble()
-      << r.y().toDouble()
-      << r.width().toDouble()
-      << r.height().toDouble();
-#else
     s << r.x() << r.y() << r.width() << r.height();
-#endif
     return s;
 }
 

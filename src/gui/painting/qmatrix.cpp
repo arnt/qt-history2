@@ -492,10 +492,9 @@ QPolygon QMatrix::map(const QPolygon &a) const
     QPolygonF p(size);
     const QPoint *da = a.constData();
     QPointF *dp = p.data();
-    // ##### divide by 256 for QFixedPoint.
-    qreal xmin = qreal(INT_MAX/256);
+    qreal xmin = qreal(INT_MAX);
     qreal ymin = xmin;
-    qreal xmax = qreal(INT_MIN/256);
+    qreal xmax = qreal(INT_MIN);
     qreal ymax = xmax;
     int xminp = 0;
     int yminp = 0;
@@ -983,29 +982,15 @@ Q_GUI_EXPORT QPainterPath operator *(const QPainterPath &p, const QMatrix &m)
 QDataStream &operator<<(QDataStream &s, const QMatrix &m)
 {
     if (s.version() == 1) {
-#ifdef QT_USE_FIXED_POINT
-        s << (float)m.m11().toDouble() << (float)m.m12().toDouble() << (float)m.m21().toDouble()
-          << (float)m.m22().toDouble() << (float)m.dx().toDouble()  << (float)m.dy().toDouble();
-#else
         s << (float)m.m11() << (float)m.m12() << (float)m.m21()
           << (float)m.m22() << (float)m.dx()  << (float)m.dy();
-#endif
     } else {
-#ifdef QT_USE_FIXED_POINT
-        s << m.m11().toDouble()
-          << m.m12().toDouble()
-          << m.m21().toDouble()
-          << m.m22().toDouble()
-          << m.dx().toDouble()
-          << m.dy().toDouble();
-#else
         s << m.m11()
           << m.m12()
           << m.m21()
           << m.m22()
           << m.dx()
           << m.dy();
-#endif
     }
     return s;
 }

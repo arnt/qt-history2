@@ -47,11 +47,7 @@
 
 //#define QT_GL_NO_CONCAVE_POLYGONS
 
-#ifdef QT_USE_FIXED_POINT
-#define qToDouble(x) (x).toDouble()
-#else
 #define qToDouble(x) x
-#endif
 
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)

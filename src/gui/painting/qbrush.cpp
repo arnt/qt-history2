@@ -633,14 +633,7 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
                || b.style() == Qt::ConicalGradientPattern) {
         const QGradient *gradient = b.gradient();
         s << gradient->type();
-#ifdef QT_USE_FIXED_POINT
-        s << gradient->m_stops.size();
-        for (int i=0; i<gradient->m_stops.size(); ++i) {
-            s << gradient->m_stops.at(i).first.toDouble();
-            s << gradient->m_stops.at(i).second;
-#else
         s << gradient->m_stops;
-#endif
 
         if (gradient->type() == QGradient::LinearGradient) {
             s << static_cast<const QLinearGradient *>(gradient)->start();
@@ -648,18 +641,10 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
         } else if (gradient->type() == QGradient::RadialGradient) {
             s << static_cast<const QRadialGradient *>(gradient)->center();
             s << static_cast<const QRadialGradient *>(gradient)->focalPoint();
-#ifdef QT_USE_FIXED_POINT
-            s << static_cast<const QRadialGradient *>(gradient)->radius().toDouble();
-#else
             s << static_cast<const QRadialGradient *>(gradient)->radius();
-#endif
         } else { // type == Conical
             s << static_cast<const QConicalGradient *>(gradient)->center();
-#ifdef QT_USE_FIXED_POINT
-            s << static_cast<const QConicalGradient *>(gradient)->angle().toDouble();
-#else
             s << static_cast<const QConicalGradient *>(gradient)->angle();
-#endif
         }
     }
     return s;
@@ -699,22 +684,7 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
         s >> type_as_int;
         type = QGradient::Type(type_as_int);
 
-#ifdef QT_USE_FIXED_POINT
-        int stopCount;
-        s >> stopCount;
-        for (int i=0; i<stopCount; ++i) {
-            double pos;
-            QColor color;
-            s >> pos;
-            s >> color;
-            QGradientStop stop;
-            stop.first = pos;
-            stop.second = color;
-            stops << stop;
-        }
-#else
         s >> stops;
-#endif
 
         if (type == QGradient::LinearGradient) {
             QPointF p1, p2;

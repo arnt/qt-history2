@@ -101,9 +101,6 @@ public:
     QDataStream &operator>>(bool &i);
     QDataStream &operator>>(float &f);
     QDataStream &operator>>(double &f);
-#ifdef QT_USE_FIXED_POINT
-    inline QDataStream &operator>>(QFixedPoint &f) { double d; operator>>(d); f = d; return *this; }
-#endif
     QDataStream &operator>>(char *&str);
 
     QDataStream &operator<<(qint8 i);
@@ -117,9 +114,6 @@ public:
     QDataStream &operator<<(bool i);
     QDataStream &operator<<(float f);
     QDataStream &operator<<(double f);
-#ifdef QT_USE_FIXED_POINT
-    inline QDataStream &operator<<(QFixedPoint f) { return operator<<(f.toDouble()); }
-#endif
     QDataStream &operator<<(const char *str);
 
     QDataStream &readBytes(char *&, uint &len);

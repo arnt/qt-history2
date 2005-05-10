@@ -112,17 +112,8 @@ QPolygonF QBezier::toPolygon() const
         QBezierLineSegment s = lines[--pos]; // pop
         qreal t_half = (s.t_start + s.t_end) / 2.0f;
         QPointF curvePt = pointAt(t_half);
-#ifdef QT_USE_FIXED_POINT
-        QPointF linePt = s.l.pointAt(QFixedPointLong(0.5));
-#else
         QPointF linePt = s.l.pointAt(0.5);
-#endif
-        if (mlen(curvePt, linePt) < distance
-#ifdef QT_USE_FIXED_POINT
-            // #### FIXME: algorithm is not numerically stable for fixed points
-            || (s.t_end - s.t_start).value() == 1
-#endif
-            ) {
+        if (mlen(curvePt, linePt) < distance) {
             polygon.append(s.l.p2());
         } else {
             if (pos >= alloc - 2) {

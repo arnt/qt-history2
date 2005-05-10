@@ -1219,11 +1219,7 @@ QDataStream &operator<<(QDataStream &s, const QPainterPath &p)
     for (int i=0; i < p.d_func()->elements.size(); ++i) {
         const QPainterPath::Element &e = p.d_func()->elements.at(i);
         s << int(e.type);
-#ifdef QT_USE_FIXED_POINT
-        s << e.x.toDouble() << e.y.toDouble();
-#else
         s << e.x << e.y;
-#endif
     }
     s << p.d_func()->cStart;
     s << int(p.d_func()->fillRule);

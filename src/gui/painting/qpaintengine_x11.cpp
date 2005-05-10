@@ -226,12 +226,7 @@ static inline bool compareIntersections(const QIntersectionPoint &i1, const QInt
     }
 }
 
-#ifdef QT_USE_FIXED_POINT
-inline int qrealToXFixed(qreal f)
-{ return f.value() << 8; }
-#else
 #define qrealToXFixed FloatToXFixed
-#endif
 
 static XTrapezoid QT_FASTCALL toXTrapezoid(XFixed y1, XFixed y2, const QEdge &left, const QEdge &right)
 {
@@ -408,10 +403,7 @@ static void qt_tesselate_polygon(QVector<XTrapezoid> *traps, const QPointF *pg, 
                     continue;
 
                 // ### intersect is not calculated correctly when optimized with -O2 (gcc)
-#ifndef QT_USE_FIXED_POINT
-                volatile
-#endif
-                    qreal intersect;
+                volatile qreal intersect;
                 if (!qIsFinite(b1))
                     intersect = (1.f / m2) * XFixedToDouble(edgeI->p1.x) + b2;
                 else if (!qIsFinite(b2))

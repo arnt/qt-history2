@@ -170,9 +170,6 @@ public:
     qreal angle(const QLineF &l) const;
 
     QPointF pointAt(qreal t) const;
-#ifdef QT_USE_FIXED_POINT
-    QPointF pointAt(QFixedPointLong t) const;
-#endif
     inline void translate(const QPointF &p);
     inline void translate(qreal dx, qreal dy);
 
@@ -268,21 +265,12 @@ inline void QLineF::setLength(qreal len)
     pt2 = QPointF(pt1.x() + v.dx() * len, pt1.y() + v.dy() * len);
 }
 
-#ifndef QT_USE_FIXED_POINT
 inline QPointF QLineF::pointAt(qreal t) const
 {
     qreal vx = pt2.x() - pt1.x();
     qreal vy = pt2.y() - pt1.y();
     return QPointF(pt1.x() + vx * t, pt1.y() + vy * t);
 }
-#else
-inline QPointF QLineF::pointAt(QFixedPointLong t) const
-{
-    QFixedPointLong vx = pt2.x() - pt1.x();
-    QFixedPointLong vy = pt2.y() - pt1.y();
-    return QPointF((pt1.x() + vx * t).toFixed(), (pt1.y() + vy * t).toFixed());
-}
-#endif
 
 inline QLine QLineF::toLine() const
 {

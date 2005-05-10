@@ -143,11 +143,6 @@ public:
     QTextStream &operator<<(const char *c);
     QTextStream &operator<<(const void *ptr);
 
-#ifdef QT_USE_FIXED_POINT
-    inline QTextStream &operator>>(QFixedPoint &f) { double d; operator>>(d); f = QFixedPoint(d); return *this; }
-    inline QTextStream &operator<<(QFixedPoint f) { return operator<<(f.toDouble()); }
-#endif
-
 #ifdef QT3_SUPPORT
     // not marked as QT3_SUPPORT to avoid double compiler warnings, as
     // they are used in the QT3_SUPPORT functions below.

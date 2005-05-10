@@ -123,28 +123,4 @@ static inline bool qFuzzyCompare(float p1, float p2)
     return qAbs(p1 - p2) < 0.000001;
 }
 
-#ifdef QT_USE_FIXED_POINT
-
-static inline bool qIsFinite(QFixedPoint f)
-{
-    return f.value() != 0x7fffffff;
-}
-
-static inline bool qIsInf(QFixedPoint f)
-{
-    return f.value() == 0x7fffffff;
-}
-
-static inline bool qIsNan(QFixedPoint)
-{
-    return false;
-}
-
-static inline bool qFuzzyCompare(QFixedPoint p1, QFixedPoint p2)
-{
-    return (p1 - p2) == 0;
-}
-
-#endif
-
 #endif // QNUMERIC_P_H

@@ -38,11 +38,7 @@ public:
             qreal p3x, qreal p3y, qreal p4x, qreal p4y);
     QBezier(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4);
 
-#ifdef QT_USE_FIXED_POINT
-    inline QPointF pointAt(QFixedPointLong t) const;
-#else
     inline QPointF pointAt(qreal t) const;
-#endif
     QPolygonF toPolygon() const;
 
     QPointF pt1() const { Q_ASSERT(valid); return QPointF(x1, y1); }
@@ -77,20 +73,6 @@ inline QLineF QBezier::midTangent() const
                   mid.x() + dir.dx(), mid.y() + dir.dy());
 }
 
-#ifdef QT_USE_FIXED_POINT
-inline QPointF QBezier::pointAt(QFixedPointLong _t) const
-{
-    Q_ASSERT(valid);
-    QFixedPointLong _ax = ax;
-    QFixedPointLong _ay = ay;
-    QFixedPointLong _bx = bx;
-    QFixedPointLong _by = by;
-    QFixedPointLong _cx = cx;
-    QFixedPointLong _cy = cy;
-    return QPointF((_ax*_t*_t*_t + _bx*_t*_t + _cx*_t).toFixed() + dx,
-                   (_ay*_t*_t*_t + _by*_t*_t + _cy*_t).toFixed() + dy);
-}
-#else
 inline QPointF QBezier::pointAt(qreal t) const
 {
     Q_ASSERT(valid);
@@ -99,6 +81,5 @@ inline QPointF QBezier::pointAt(qreal t) const
     return QPointF(ax*t*t*t + bx*t*t + cx*t + dx,
                    ay*t*t*t + by*t*t + cy*t + dy);
 }
-#endif
 
 #endif // QBEZIER_P_H

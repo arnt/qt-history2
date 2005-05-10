@@ -2,12 +2,10 @@
 
 HEADERS +=  \
 	global/qglobal.h \
-	global/qfixedpoint.h \
 	global/qnamespace.h 
 
 SOURCES += \
 	global/qglobal.cpp \
-	global/qfixedpoint.cpp \
         global/qlibraryinfo.cpp 
 
 # qlibraryinfo.cpp includes qconfig.cpp

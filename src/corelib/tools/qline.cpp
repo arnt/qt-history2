@@ -371,40 +371,6 @@ qreal QLineF::length() const
     return sqrt(x*x + y*y);
 }
 
-#ifdef QT_USE_FIXED_POINT
-/*
-
-Returns sqrt(x / (1 <<56)) * (1<<56)
-
-*/
-
-static qint64 sqrt_64(qint64  x)
-{
-    if (x <= 0)
-        return 0;
-
-    quint64 root = 0;
-
-    quint64 rem_hi = 0;
-    quint64 rem_lo = x;
-    int count  = 60;
-    do
-    {
-        rem_hi   = ( rem_hi << 2 ) | ( rem_lo >> 62 );
-        rem_lo <<= 2;
-        root   <<= 1;
-        quint64 test_div = ( root << 1 ) + 1;
-
-        if ( rem_hi >= test_div )
-        {
-            rem_hi -= test_div;
-            root   += 1;
-        }
-    } while ( --count );
-
-    return root;
-}
-#endif
 
 /*!
     Returns a normalized version of this line, starting at the same
@@ -415,22 +381,9 @@ QLineF QLineF::unitVector() const
 {
     qreal x = pt2.x() - pt1.x();
     qreal y = pt2.y() - pt1.y();
-#ifndef QT_USE_FIXED_POINT
 
     qreal len = sqrt(x*x + y*y);
     QLineF f(p1(), QPointF(pt1.x() + x/len, pt1.y() + y/len));
-#else
-
-    qint64 xx = x.value();
-    qint64 yy = y.value();
-
-    qint64 len = sqrt_64(xx*xx + yy*yy); // in 28.36 fixed point
-
-    qreal dx = QFixedPoint(int((xx<<36)/len), QFixedPoint::FixedPoint);
-    qreal dy = QFixedPoint(int((yy<<36)/len), QFixedPoint::FixedPoint);
-
-    QLineF f(p1(), QPointF(pt1.x() + dx, pt1.y() + dy));
-#endif
 
 #ifndef QT_NO_DEBUG
     if (qAbs(f.length() - 1) >= 0.001)
