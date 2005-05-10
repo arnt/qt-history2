@@ -2499,52 +2499,58 @@ QString QString::section(const QString &sep, int start, int end, SectionFlags fl
 {
     QStringList sections = split(sep, KeepEmptyParts,
                                  (flags & SectionCaseInsensitiveSeps) ? Qt::CaseInsensitive : Qt::CaseSensitive);
-    if(sections.isEmpty())
+    if (sections.isEmpty())
         return QString();
-    if(!(flags & SectionSkipEmpty)) {
-        if(start < 0)
+    if (!(flags & SectionSkipEmpty)) {
+        if (start < 0)
             start += sections.count();
-        if(end < 0)
+        if (end < 0)
             end += sections.count();
     } else {
         int skip = 0;
-        for(QStringList::ConstIterator it = sections.constBegin(); it != sections.constEnd(); ++it) {
-            if((*it).isEmpty())
+        for (int k=0; k<sections.size(); ++k) {
+            if (sections.at(k).isEmpty())
                 skip++;
         }
-        if(start < 0)
+        if (start < 0)
             start += sections.count() - skip;
-        if(end < 0)
+        if (end < 0)
             end += sections.count() - skip;
     }
     int x = 0;
     QString ret;
-    for(int i = 0, atSep = 0; x <= end && i < sections.size(); ++i) {
+    bool prevWasEmpty = false;
+    for (int i = 0; x <= end && i < sections.size(); ++i) {
         QString section = sections.at(i);
-        if(x >= start) {
-            if(!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
+        const bool empty = section.isEmpty();
+        if (x >= start) {
+            if (!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
                 int i_end = 0;
-                if(section.isEmpty()) {
-                    if(x < end || x == start)
+                if (empty) {
+                    if (x < end || x == start)
                         i_end++;
-                } else if(!atSep){
-                    if(!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
+                } else if (!prevWasEmpty){
+                    if (!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
                         i_end++;
-                    else if((flags & SectionIncludeLeadingSep) && i && x == start)
+                    else if ((flags & SectionIncludeLeadingSep) && i && x == start)
                         i_end++;
                 }
-                for(int i = 0; i < i_end; i++)
+                for (int j = 0; j < i_end; j++)
                     ret += sep;
-            } else if((flags & SectionIncludeLeadingSep) && i) {
+            } else if ((flags & SectionIncludeLeadingSep) && i) {
                 ret += sep;
             }
             ret += section;
-            if(!(atSep=section.isEmpty()) && (flags & SectionIncludeTrailingSep) && i != sections.size()-1) {
+            if (!empty && (flags & SectionIncludeTrailingSep) && i != sections.size()-1) {
                 ret += sep;
             }
+            prevWasEmpty = empty;
         }
-        if(!section.isEmpty() || !(flags & SectionSkipEmpty))
+        if (!empty || !(flags & SectionSkipEmpty))
             x++;
+    }
+    if (prevWasEmpty && flags & SectionIncludeTrailingSep) {
+        ret += sep;
     }
     return ret;
 }
