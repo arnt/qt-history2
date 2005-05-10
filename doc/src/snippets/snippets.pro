@@ -41,12 +41,12 @@ SUBDIRS         = buffer \
                   shareddirmodel \
                   sharedemployee \
                   sharedtablemodel \
-                  signalsandslots \
+#                  signalsandslots \
                   simplemodel-use \
 #                  splitter \
                   sqldatabase \
                   stringlistmodel \
-                  styles \
+#                  styles \
                   textblock-formats \
                   textblock-fragments \
                   textdocument-blocks \
@@ -61,7 +61,7 @@ SUBDIRS         = buffer \
                   textdocument-printing \
                   textdocument-selections \
                   textdocument-tables \
-                  threads \
+#                  threads \
                   timers \
                   updating-selections \
 #                  whatsthis \

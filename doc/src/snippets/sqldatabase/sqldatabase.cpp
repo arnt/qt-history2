@@ -26,13 +26,13 @@ void QSqlField_snippets()
 {
 #if 0
     {
-    QSqlField field("age", QCoreVariant::Int);
+    QSqlField field("age", QVariant::Int);
     field.setValue(QPixmap());  // WRONG
     }
 #endif
 
     {
-    QSqlField field("age", QCoreVariant::Int);
+    QSqlField field("age", QVariant::Int);
     field.setValue(QString("123"));  // casts QString to int
     }
 
@@ -127,18 +127,19 @@ void QSqlQuery_snippets()
 
     {
     // examine with named binding
-    QMapIterator<QString, QCoreVariant> i(query.boundValues());
+    QMapIterator<QString, QVariant> i(query.boundValues());
     while (i.hasNext()) {
         i.next();
-        cout << i.key().ascii() << ": " << i.value().toString().ascii() << endl;
+        cout << i.key().toAscii().data() << ": "
+             << i.value().toString().toAscii().data() << endl;
     }
     }
 
     {
     // examine with positional binding
-    QList<QCoreVariant> list = query.boundValues().values();
+    QList<QVariant> list = query.boundValues().values();
     for (int i = 0; i < list.size(); ++i)
-        cout << i << ": " << list.at(i).toString().ascii() << endl;
+        cout << i << ": " << list.at(i).toString().toAscii().data() << endl;
     }
 }
 
@@ -370,7 +371,7 @@ void sql_intro_snippets()
     model.setData(model.index(row, 2), 68500);
     model.submitAll();
 
-    model.deleteRows(row, 5);
+    model.removeRows(row, 5);
     model.submitAll();
     }
 }
@@ -383,7 +384,7 @@ public:
     ~XyzResult() {}
 
 protected:
-    QCoreVariant data(int /* index */) { return QCoreVariant(); }
+    QVariant data(int /* index */) { return QVariant(); }
     bool isNull(int /* index */) { return false; }
     bool reset(const QString & /* query */) { return false; }
     bool fetch(int /* index */) { return false; }
