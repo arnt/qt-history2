@@ -31,8 +31,8 @@ class CannonField : public QWidget
 public:
     CannonField(QWidget *parent = 0);
 
-    int angle() const { return ang; }
-    int force() const { return f; }
+    int angle() const { return currentAngle; }
+    int force() const { return currentForce; }
     bool gameOver() const { return gameEnded; }
     bool isShooting() const;
     QSize sizeHint() const;
@@ -72,13 +72,13 @@ private:
     QRect barrierRect() const;
     bool barrelHit(const QPoint &pos) const;
 
-    int ang;
-    int f;
+    int currentAngle;
+    int currentForce;
 
     int timerCount;
     QTimer *autoShootTimer;
-    float shoot_ang;
-    float shoot_f;
+    float shootAngle;
+    float shootForce;
 
     QPoint target;
 

@@ -30,13 +30,13 @@
 CannonField::CannonField(QWidget *parent)
     : QWidget(parent)
 {
-    ang = 45;
-    f = 0;
+    currentAngle = 45;
+    currentForce = 0;
     timerCount = 0;
     autoShootTimer = new QTimer(this);
     connect(autoShootTimer, SIGNAL(timeout()), this, SLOT(moveShot()));
-    shoot_ang = 0;
-    shoot_f = 0;
+    shootAngle = 0;
+    shootForce = 0;
     target = QPoint(0, 0);
     setPalette(QPalette(QColor(250, 250, 200)));
     newTarget();
@@ -48,21 +48,21 @@ void CannonField::setAngle(int angle)
         angle = 5;
     if (angle > 70)
         angle = 70;
-    if (ang == angle)
+    if (currentAngle == angle)
         return;
-    ang = angle;
+    currentAngle = angle;
     update(cannonRect());
-    emit angleChanged(ang);
+    emit angleChanged(currentAngle);
 }
 
 void CannonField::setForce(int force)
 {
     if (force < 0)
         force = 0;
-    if (f == force)
+    if (currentForce == force)
         return;
-    f = force;
-    emit forceChanged(f);
+    currentForce = force;
+    emit forceChanged(currentForce);
 }
 
 void CannonField::shoot()
@@ -70,8 +70,8 @@ void CannonField::shoot()
     if (autoShootTimer->isActive())
         return;
     timerCount = 0;
-    shoot_ang = ang;
-    shoot_f = f;
+    shootAngle = currentAngle;
+    shootForce = currentForce;
     autoShootTimer->start(5);
 }
 
@@ -141,7 +141,7 @@ void CannonField::paintCannon(QPainter &painter)
     painter.save();
     painter.translate(0, height());
     painter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
-    painter.rotate(-ang);
+    painter.rotate(-currentAngle);
     painter.drawRect(barrelRect);
     painter.restore();
 }
@@ -158,8 +158,8 @@ QRect CannonField::shotRect() const
     const double gravity = 4;
 
     double time = timerCount / 40.0;
-    double velocity = shoot_f;
-    double radians = shoot_ang * 3.14159265 / 180;
+    double velocity = shootForce;
+    double radians = shootAngle * 3.14159265 / 180;
 
     double velx = velocity * cos(radians);
     double vely = velocity * sin(radians);

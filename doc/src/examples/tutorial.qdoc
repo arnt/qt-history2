@@ -73,7 +73,7 @@
     the bare minimum you need to get a Qt application up and running.
     The picture below is a screenshot of this program.
 
-    \image t1.png Screenshot of chapter 1
+    \image t1.png Screenshot of Chapter 1
 
     Here's the complete source code for the application:
 
@@ -519,7 +519,7 @@
 
     \c MyWidget now uses a QVBoxLayout to manage the geometry of its
     child widgets. For that reason, we don't need to specify the
-    screen coordinates for each widget like we did in chapter 4. In
+    screen coordinates for each widget like we did in Chapter 4. In
     addition, using a layout ensures that the child widgets are
     resized when the window is resized. Then we add the \c quit, \c
     lcd and \c slider widgets to the layout using
@@ -1166,8 +1166,8 @@
     The QPainter::rotate() function rotates the coordinate system of
     the QPainter around the origin. The rotation argument is a \c
     float given in degrees (not given in sixteenths of a degree as
-    above) and clockwise. Here we rotate the coordinate system \c ang
-    degrees counter-clockwise.
+    above) and clockwise. Here we rotate the coordinate system
+    \c currentAngle degrees counter-clockwise.
 
     \printline drawRect
 
@@ -1239,10 +1239,10 @@
     We have put the definition of the cannon's enclosing rectangle in a
     separate function.
 
-    \skipto ang
+    \skipto currentAngle
     \printuntil };
 
-    The force is stored in the integer \c f.
+    The force is stored in the \c currentForce variable.
 
     \section2 \l{tutorial/t10/cannonfield.cpp}{t10/cannonfield.cpp}
 
@@ -1251,7 +1251,7 @@
     \skipto ::CannonField
     \printuntil }
 
-    The force (\c f) is initialized to zero.
+    The force is initialized to zero.
 
     \skipto ::setAngle
     \printuntil }
@@ -1388,12 +1388,12 @@
     one is in the air; otherwise the returned rectangle is undefined.
 
     \skipto timerCount
-    \printuntil shoot_f
+    \printuntil shootForce
     \printline };
 
     These private variables contain information that describes the shot. The
     \c timerCount keeps track of the time passed since the shot was fired.
-    The \c shoot_ang is the cannon angle and \c shoot_f is the cannon force
+    The \c shootAngle is the cannon angle and \c shootForce is the cannon force
     when the shot was fired.
 
     \section2 \l{tutorial/t11/cannonfield.cpp}{t11/cannonfield.cpp}
@@ -1426,14 +1426,14 @@
     \printline }
 
     This function shoots a shot unless a shot is in the air. The \c timerCount
-    is reset to zero. The \c shoot_ang and \c shoot_f are set to the current
-    cannon angle and force. Finally, we start the timer.
+    is reset to zero. The \c shootAngle and \c shootForce variables are set to
+    the current cannon angle and force. Finally, we start the timer.
 
     \skipto ::moveShot
     \printuntil update
     \printline }
 
-    \c moveShot() is the slot that moves the shot, called every 50
+    \c moveShot() is the slot that moves the shot, called every 5
     milliseconds when the QTimer fires.
 
     Its tasks are to compute the new position, update the screen with the
@@ -1702,7 +1702,7 @@
     calls to the function.
 
     The \c if test will succeed only the first time this function is called
-    because we set \c first_time to \c false inside the \c if block.
+    because we set \c firstTime to \c false inside the \c if block.
 
     Then we create the QTime object \c midnight, which represents the time
     00:00:00. Next we fetch the number of seconds from midnight until

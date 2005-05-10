@@ -29,7 +29,7 @@ class CannonField : public QWidget
 public:
     CannonField(QWidget *parent = 0);
 
-    int angle() const { return ang; }
+    int angle() const { return currentAngle; }
 
 public slots:
     void setAngle(int angle);
@@ -41,7 +41,7 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 private:
-    int ang;
+    int currentAngle;
 };
 
 #endif // CANNON_H

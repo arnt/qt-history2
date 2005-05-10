@@ -25,8 +25,8 @@
 CannonField::CannonField(QWidget *parent)
     : QWidget(parent)
 {
-    ang = 45;
-    f = 0;
+    currentAngle = 45;
+    currentForce = 0;
     setPalette(QPalette(QColor(250, 250, 200)));
 }
 
@@ -36,21 +36,21 @@ void CannonField::setAngle(int angle)
         angle = 5;
     if (angle > 70)
         angle = 70;
-    if (ang == angle)
+    if (currentAngle == angle)
         return;
-    ang = angle;
+    currentAngle = angle;
     update(cannonRect());
-    emit angleChanged(ang);
+    emit angleChanged(currentAngle);
 }
 
 void CannonField::setForce(int force)
 {
     if (force < 0)
         force = 0;
-    if (f == force)
+    if (currentForce == force)
         return;
-    f = force;
-    emit forceChanged(f);
+    currentForce = force;
+    emit forceChanged(currentForce);
 }
 
 void CannonField::paintEvent(QPaintEvent * /* event */)
@@ -62,7 +62,7 @@ void CannonField::paintEvent(QPaintEvent * /* event */)
 
     painter.translate(0, height());
     painter.drawPie(QRect(-35, -35, 70, 70), 0, 90 * 16);
-    painter.rotate(-ang);
+    painter.rotate(-currentAngle);
     painter.drawRect(QRect(33, -4, 15, 8));
 }
 
