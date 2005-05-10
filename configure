@@ -227,6 +227,7 @@ QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\"" # adjust
 unset QTDIR
 
 # initalize internal variables
+CFG_LIBRARY_PATH=LD_LIBRARY_PATH
 CFG_CONFIGURE_EXIT_ON_ERROR=yes
 CFG_PROFILE=no
 CFG_EXCEPTION_SUPPORT=unspecified
@@ -1324,6 +1325,7 @@ if [ -z "$PLATFORM" ]; then
     PLATFORM_NOTES=
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      Darwin:*)
+	CFG_LIBRARY_PATH=DYLD_LIBRARY_PATH
         if [ "$PLATFORM_MAC" = "yes" ]; then
           PLATFORM=macx-g++
         # PLATFORM=macx-pbuilder
@@ -3454,8 +3456,8 @@ QMAKE_MOC_SRC    = \$\$QT_BUILD_TREE/src/moc
 
 #local paths that cannot be queried from the QT_INSTALL_* properties while building QTDIR
 QMAKE_MOC        = \$\$QT_BUILD_TREE/bin/moc
-QMAKE_UIC        = LD_LIBRARY_PATH=\$\$QT_BUILD_TREE/lib:\$(LD_LIBRARY_PATH) \$\$QT_BUILD_TREE/bin/uic
-QMAKE_UIC3       = LD_LIBRARY_PATH=\$\$QT_BUILD_TREE/lib:\$(LD_LIBRARY_PATH) \$\$QT_BUILD_TREE/bin/uic3
+QMAKE_UIC        = $CFG_LIBRARY_PATH=\$\$QT_BUILD_TREE/lib:\$($CFG_LIBRARY_PATH) \$\$QT_BUILD_TREE/bin/uic
+QMAKE_UIC3       = $CFG_LIBRARY_PATH=\$\$QT_BUILD_TREE/lib:\$($CFG_LIBRARY_PATH) \$\$QT_BUILD_TREE/bin/uic3
 QMAKE_RCC        = \$\$QT_BUILD_TREE/bin/rcc
 QMAKE_INCDIR_QT  = \$\$QT_BUILD_TREE/include
 QMAKE_LIBDIR_QT  = \$\$QT_BUILD_TREE/lib
