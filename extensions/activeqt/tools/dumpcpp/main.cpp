@@ -874,6 +874,22 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                 case TKIND_DISPATCH:
                     metaObject = qax_readInterfaceInfo(typelib, typeinfo, &QObject::staticMetaObject);
                     break;
+                case TKIND_RECORD:
+                case TKIND_INTERFACE: // only for forward declarations
+                    {
+                        QByteArray className;
+                        BSTR bstr;
+                        if (S_OK != typeinfo->GetDocumentation(-1, &bstr, 0, 0, 0))
+                            break;
+                        className = QString::fromUtf16((const ushort *)bstr).toLatin1();
+                        SysFreeString(bstr);
+                        if (typekind == TKIND_RECORD)
+                            className = "struct " + className;
+                        namespaces[libName.toLatin1()].append(className);
+                        if (!qax_qualified_usertypes.contains(className))
+                            qax_qualified_usertypes << className;
+                    }
+                    break;
                 default:
                     break;
                 }
@@ -893,7 +909,7 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                     namespaces[refTypeLib].append(refType);
                 } else {
                     namespaces[libName.toLatin1()].append(refType);
-                }                
+                }
             }
 
             QList<QByteArray> keys = namespaces.keys();
@@ -903,7 +919,11 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                     declOut << "namespace " << nspace << " {" << endl;
                     QList<QByteArray> classList = namespaces.value(nspace);
                     for (int c = 0; c < classList.count(); ++c) {
-                        declOut << "    class " << classList.at(c) << ";" << endl;
+                        QByteArray className = classList.at(c);
+                        if (className.contains(' '))
+                            declOut << "    " << className << ";" << endl;
+                        else
+                            declOut << "    class " << className << ";" << endl;
                     }
                     declOut << "}" << endl << endl;
                 }
@@ -916,8 +936,13 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
         QList<QByteArray> classList = namespaces.value(libName.toLatin1());
         if (classList.count())
             declOut << "// forward declarations" << endl;
-        for (int c = 0; c < classList.count(); ++c)
-            declOut << "    class " << classList.at(c) << ";" << endl;
+        for (int c = 0; c < classList.count(); ++c) {
+            QByteArray className = classList.at(c);
+            if (className.contains(' '))
+                declOut << "    " << className << ";" << endl;
+            else
+                declOut << "    class " << className << ";" << endl;
+        }
 
         declOut << endl;
     }
@@ -956,6 +981,19 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
             break;
         case TKIND_DISPATCH:
             metaObject = qax_readInterfaceInfo(typelib, typeinfo, &QObject::staticMetaObject);
+            break;
+        case TKIND_INTERFACE: // only stub
+            {
+                QByteArray className;
+                BSTR bstr;
+                if (S_OK != typeinfo->GetDocumentation(-1, &bstr, 0, 0, 0))
+                    break;
+                className = QString::fromUtf16((const ushort *)bstr).toLatin1();
+                SysFreeString(bstr);
+
+                declOut << "// stub for vtable-only interface" << endl;
+                declOut << "class " << className << " : public QAxObject {};" << endl << endl;
+            }
             break;
         default:
             break;

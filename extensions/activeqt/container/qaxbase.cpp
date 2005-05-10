@@ -1797,9 +1797,12 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
                 TYPEATTR *typeattr = 0;
                 usertypeinfo->GetTypeAttr(&typeattr);
                 if (typeattr) {
-                    if (typeattr->typekind == TKIND_ALIAS) {
+                    switch(typeattr->typekind) {
+                    case TKIND_ALIAS:
                         userTypeName = guessTypes(typeattr->tdescAlias, usertypeinfo, function);
-                    } else if (typeattr->typekind == TKIND_DISPATCH || typeattr->typekind == TKIND_COCLASS) {
+                        break;
+                    case TKIND_DISPATCH:
+                    case TKIND_COCLASS:
                         if (qax_dispatchEqualsIDispatch) {
                             userTypeName = "IDispatch";
                         } else {
@@ -1807,7 +1810,20 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
                                 userTypeName = typeLibName + "::" + userTypeName;
                             if (!qax_qualified_usertypes.contains(userTypeName))
                                 qax_qualified_usertypes << userTypeName;
-                        }                                
+                        }
+                        break;
+                    case TKIND_INTERFACE:
+                        if (typeLibName != current_typelib)
+                            userTypeName = typeLibName + "::" + userTypeName;
+                        if (!qax_qualified_usertypes.contains(userTypeName))
+                            qax_qualified_usertypes << userTypeName;
+                        break;
+                    case TKIND_RECORD:
+                        if (!qax_qualified_usertypes.contains("struct " + userTypeName))
+                            qax_qualified_usertypes << "struct "+ userTypeName;
+                        break;
+                    default:
+                        break;
                     }
                 }
 
@@ -1818,14 +1834,21 @@ QByteArray MetaObjectGenerator::usertypeToString(const TYPEDESC &tdesc, ITypeInf
         }
         usertypeinfo->Release();
     }
+
     return typeName;
 }
+
+#define VT_UNHANDLED(x) case VT_##x: qWarning("Unhandled Type %s", #x); str = #x; break;
 
 QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *info, const QByteArray &function)
 {
     QByteArray str;
     switch (tdesc.vt) {
+    case VT_EMPTY:
     case VT_VOID:
+        break;
+    case VT_LPWSTR:
+        str = "wchar_t *";
         break;
     case VT_BSTR:
         str = "QString";
@@ -1843,11 +1866,17 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
     case VT_INT:
         str = "int";
         break;
+    case VT_I8:
+        str = "qlonglong";
+        break;
     case VT_UI1:
     case VT_UI2:
     case VT_UI4:
     case VT_UINT:
         str = "uint";
+        break;
+    case VT_UI8:
+        str = "qulonglong";
         break;
     case VT_CY:
         str = "qlonglong";
@@ -1876,13 +1905,18 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
     case VT_PTR:
         str = guessTypes(*tdesc.lptdesc, info, function);
         switch(tdesc.lptdesc->vt) {
+        case VT_VOID:
+            str = "void*";
+            break;
         case VT_BSTR:
         case VT_I1:
         case VT_I2:
         case VT_I4:
+        case VT_I8:
         case VT_UI1:
         case VT_UI2:
         case VT_UI4:
+        case VT_UI8:
         case VT_BOOL:
         case VT_R4:
         case VT_R8:
@@ -1894,6 +1928,9 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
         case VT_PTR:
             if (str == "QFont" || str == "QPixmap") {
                 str += "&";
+                break;
+            } else if (str == "void*") {
+                str = "void **";
                 break;
             }
             // FALLTHROUGH
@@ -1940,6 +1977,11 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
         str = usertypeToString(tdesc, info, function);
         break;
 
+    VT_UNHANDLED(FILETIME);
+    VT_UNHANDLED(BLOB);
+    VT_UNHANDLED(ERROR);
+    VT_UNHANDLED(DECIMAL);
+    VT_UNHANDLED(LPSTR);
     default:
         break;
     }
@@ -1947,6 +1989,7 @@ QByteArray MetaObjectGenerator::guessTypes(const TYPEDESC &tdesc, ITypeInfo *inf
     if (tdesc.vt & VT_BYREF)
         str += "&";
 
+    str.replace("&*", "**");
     return str;
 }
 
