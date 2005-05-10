@@ -42,12 +42,12 @@
 
 #include <limits.h>
 
-class Scroller : public QWidget
+class QComboBoxPrivateScroller : public QWidget
 {
     Q_OBJECT
 
 public:
-    Scroller(QAbstractSlider::SliderAction action, QWidget *parent)
+    QComboBoxPrivateScroller(QAbstractSlider::SliderAction action, QWidget *parent)
         : QWidget(parent), sliderAction(action) {
         setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     }
@@ -72,16 +72,14 @@ protected:
     void paintEvent(QPaintEvent *) {
         QPainter p(this);
         QStyleOptionMenuItem menuOpt;
-        menuOpt.palette = palette();
-        menuOpt.state = QStyle::State_None;
+        menuOpt.init(this);
         menuOpt.checkType = QStyleOptionMenuItem::NotCheckable;
         menuOpt.menuRect = rect();
-        menuOpt.rect = rect();
         menuOpt.maxIconWidth = 0;
         menuOpt.tabWidth = 0;
         menuOpt.menuItemType = QStyleOptionMenuItem::Scroller;
         if (sliderAction == QAbstractSlider::SliderSingleStepAdd)
-            menuOpt.state = QStyle::State_DownArrow;
+            menuOpt.state |= QStyle::State_DownArrow;
         p.eraseRect(rect());
         style()->drawControl(QStyle::CE_MenuScroller, &menuOpt, &p);
     }
@@ -124,8 +122,8 @@ signals:
 private:
     QComboBox *combo;
     QAbstractItemView *view;
-    Scroller *top;
-    Scroller *bottom;
+    QComboBoxPrivateScroller *top;
+    QComboBoxPrivateScroller *bottom;
 };
 
 class QComboMenuDelegate : public QAbstractItemDelegate

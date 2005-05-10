@@ -144,8 +144,8 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
     // add scroller arrows if style needs them
     QStyleOptionComboBox opt = comboStyleOption();
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, this)) {
-        top = new Scroller(QAbstractSlider::SliderSingleStepSub, this);
-        bottom = new Scroller(QAbstractSlider::SliderSingleStepAdd, this);
+        top = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepSub, this);
+        bottom = new QComboBoxPrivateScroller(QAbstractSlider::SliderSingleStepAdd, this);
     }
     if (top) {
         layout->insertWidget(0, top);
