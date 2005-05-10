@@ -134,7 +134,7 @@
 
     In the following code snippet, we create two \c Counter objects
     and connect the first object's \c valueChanged() signal to the
-    second object's \c setValue() slot:
+    second object's \c setValue() slot using QObject::connect():
 
     \skipto Counter a
     \printline Counter a

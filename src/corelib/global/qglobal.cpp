@@ -58,6 +58,17 @@ bool qSharedBuild()
     \class QSysInfo
     \brief The QSysInfo class provides information about the system.
 
+    \list
+    \o \l WordSize specifies the size of a pointer for the platform
+       on which the application is compiled.
+    \o \l ByteOrder specifies whether the platform is big-endian or
+       little-endian.
+    \o \l WindowsVersion specifies the version of the Windows operating
+       system on which the application is run (Windows only)
+    \o \l MacintoshVersion specifies the version of the Macintosh
+       operating system on which the application is run (Mac only).
+    \endlist
+
     Some constants are defined only on certain platforms. You can use
     the preprocessor symbols \c Q_WS_WIN and \c Q_WS_MAC to test that
     the application is compiled under Windows or Mac.
@@ -96,7 +107,9 @@ bool qSharedBuild()
     \enum QSysInfo::WinVersion
 
     This enum provides symbolic names for the various versions of the
-    Windows operating system.
+    Windows operating system. On Windows, the
+    QSysInfo::WindowsVersion variable gives the version of the system
+    on which the application is run.
 
     MS-DOS-based versions:
 
@@ -124,9 +137,6 @@ bool qSharedBuild()
     \value WV_NT_based  NT-based version of Windows
     \value WV_CE_based  CE-based version of Windows
 
-    On Windows, the QSysInfo::WindowsVersion variable gives the
-    version of the system on which the application is run.
-
     \sa MacVersion
 */
 
@@ -134,7 +144,9 @@ bool qSharedBuild()
     \enum QSysInfo::MacVersion
 
     This enum provides symbolic names for the various versions of the
-    Macintosh operating system.
+    Macintosh operating system. On Mac, the
+    QSysInfo::MacintoshVersion variable gives the version of the
+    system on which the application is run.
 
     \value MV_9        MacOS 9 (unsupported)
     \value MV_10_0     Mac OS X 10.0
@@ -143,9 +155,6 @@ bool qSharedBuild()
     \value MV_10_3     Mac OS X 10.3
     \value MV_10_4     Mac OS X 10.4
     \value MV_Unknown  Other
-
-    On Mac, the QSysInfo::MacintoshVersion variable gives the
-    version of the system on which the application is run.
 
     \sa WinVersion
 */

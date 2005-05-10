@@ -637,9 +637,9 @@ bool QAbstractButton::autoRepeat() const
 
 /*!
 \property QAbstractButton::autoExclusive
-\brief whether autoExclusive is enabled
+\brief whether auto-exclusivity is enabled
 
-If autoExclusive is enabled, checkable buttons that belong to the
+If auto-exclusivity is enabled, checkable buttons that belong to the
 same parent widget behave as if they were part of the same
 exclusive button group. In an exclusive button group, only one button
 can be checked at any time; checking another button automatically

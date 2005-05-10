@@ -14,7 +14,7 @@
 #include "qobjectcleanuphandler.h"
 
 /*!
-    \class QObjectCleanupHandler qobjectcleanuphandler.h
+    \class QObjectCleanupHandler
     \brief The QObjectCleanupHandler class watches the lifetime of multiple QObjects.
 
     \ingroup objectmodel
@@ -35,46 +35,7 @@
     returns true if the QObjectCleanupHandler has no objects to keep
     track of.
 
-    Example:
-
-    \code
-    class FactoryComponent : public FactoryInterface, public QLibraryInterface
-    {
-    public:
-        ...
-
-        QObject *createObject();
-
-        bool init();
-        void cleanup();
-        bool canUnload() const;
-
-    private:
-        QObjectCleanupHandler objects;
-    };
-
-    // allocate a new object, and add it to the cleanup handler
-    QObject *FactoryComponent::createObject()
-    {
-        return objects.add(new QObject());
-    }
-
-    // QLibraryInterface implementation
-    bool FactoryComponent::init()
-    {
-        return true;
-    }
-
-    void FactoryComponent::cleanup()
-    {
-    }
-
-    // it is only safe to unload the library when all QObject's have been destroyed
-    bool FactoryComponent::canUnload() const
-    {
-        return objects.isEmpty();
-    }
-    \endcode
+    \sa QPointer
 */
 
 /*!
@@ -141,7 +102,7 @@ bool QObjectCleanupHandler::isEmpty() const
     Deletes all objects in this cleanup handler. The cleanup handler
     becomes empty.
 
-    \sa isEmpty() ~QObjectCleanupHandler()
+    \sa isEmpty()
 */
 void QObjectCleanupHandler::clear()
 {

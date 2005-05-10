@@ -3195,7 +3195,8 @@ void QWidget::setWindowTitle(const QString &title)
     \brief the widget's icon
 
     This property only makes sense for windows. If no icon
-    has been set, windowIcon() returns the application icon.
+    has been set, windowIcon() returns the application icon
+    (QApplication::windowIcon()).
 
     \sa windowIconText, windowTitle \link appicon.html Setting the Application Icon\endlink
 */

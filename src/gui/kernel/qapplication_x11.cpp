@@ -2226,7 +2226,7 @@ void QApplication::setOverrideCursor(const QCursor &cursor)
     Calling this function a second time restores the original widgets'
     cursors.
 
-    \sa setOverrideCursor(), overrideCursor().
+    \sa setOverrideCursor(), overrideCursor()
 */
 
 void QApplication::restoreOverrideCursor()
@@ -5075,49 +5075,43 @@ bool QETWidget::translateCloseEvent(const XEvent *)
 
 
 /*!
-    Sets the text cursor's flash (blink) time to \a msecs
-    milliseconds. The flash time is the time required to display,
-    invert and restore the caret display. Usually the text cursor is
-    displayed for \a{msecs}/2 milliseconds, then hidden for \a{msecs}/2
-    milliseconds, but this may vary.
+    \property QApplication::cursorFlashTime
+    \brief the text cursor's flash (blink) time in milliseconds
 
-    Note that on Microsoft Windows, calling this function sets the
-    cursor flash time for all windows.
+    The flash time is the time required to display, invert and
+    restore the caret display. Usually the text cursor is displayed
+    for half the cursor flash time, then hidden for the same amount
+    of time, but this may vary.
 
-    \sa cursorFlashTime()
+    The default value on X11 is 1000 milliseconds. On Windows, the
+    control panel value is used. Widgets should not cache this value
+    since it may be changed at any time by the user changing the
+    global desktop settings.
+
+    Note that on Microsoft Windows, setting this property sets the
+    cursor flash time for all applications.
 */
-void  QApplication::setCursorFlashTime(int msecs)
+
+void QApplication::setCursorFlashTime(int msecs)
 {
     QApplicationPrivate::cursor_flash_time = msecs;
 }
 
-
-/*!
-    Returns the text cursor's flash (blink) time in milliseconds. The
-    flash time is the time required to display, invert and restore the
-    caret display.
-
-    The default value on X11 is 1000 milliseconds. On Windows, the
-    control panel value is used.
-
-    Widgets should not cache this value since it may be changed at any
-    time by the user changing the global desktop settings.
-
-    \sa setCursorFlashTime()
-*/
 int QApplication::cursorFlashTime()
 {
     return QApplicationPrivate::cursor_flash_time;
 }
 
 /*!
-    Sets the time limit that distinguishes a double click from two
-    consecutive mouse clicks to \a ms milliseconds.
+    \property QApplication::doubleClickInterval
+    \brief the time limit in milliseconds that distinguishes a double click from two
+    consecutive mouse clicks
+
+    The default value on X11 is 400 milliseconds. On Windows and Mac
+    OS X, the operating system's value is used.
 
     On Microsoft Windows, calling this function sets the
-    double click interval for all windows.
-
-    \sa doubleClickInterval()
+    double click interval for all applications.
 */
 
 void QApplication::setDoubleClickInterval(int ms)
@@ -5125,41 +5119,24 @@ void QApplication::setDoubleClickInterval(int ms)
     QApplicationPrivate::mouse_double_click_time = ms;
 }
 
-/*!
-    Returns the maximum duration for a double click.
-
-    The default value on X11 is 400 milliseconds. On Windows and Mac OS X, the
-    operating system's value is used.
-
-    \sa setDoubleClickInterval()
-*/
-
 int QApplication::doubleClickInterval()
 {
     return QApplicationPrivate::mouse_double_click_time;
 }
 
-
 /*!
-    Sets the time limit that distinguishes a key press from two
-    consecutive key presses to \a ms milliseconds.
+    \property QApplication::keyboardInputInterval
+    \brief the time limit in milliseconds that distinguishes a key press
+    from two consecutive key presses
 
-    \sa keyboardInputInterval()
+    The default value on X11 is 400 milliseconds. On Windows and Mac OS X, the
+    operating system's value is used.
 */
 
 void QApplication::setKeyboardInputInterval(int ms)
 {
     QApplicationPrivate::keyboard_input_time = ms;
 }
-
-/*!
-    Returns the maximum duration for a key press.
-
-    The default value on X11 is 400 milliseconds. On Windows and Mac OS X, the
-    operating system's value is used.
-
-    \sa setKeyboardInputInterval()
-*/
 
 int QApplication::keyboardInputInterval()
 {
@@ -5168,26 +5145,18 @@ int QApplication::keyboardInputInterval()
 
 
 /*!
-    Sets the number of lines to scroll when the mouse wheel is rotated
-    to \a n.
+    \property QApplication::wheelScrollLines
+    \brief the number of lines to scroll when the mouse wheel is rotated
 
     If this number exceeds the number of visible lines in a certain
     widget, the widget should interpret the scroll operation as a
-    single page up / page down operation instead.
-
-    \sa wheelScrollLines()
+    single "page up" or "page down" operation instead.
 */
 void QApplication::setWheelScrollLines(int n)
 {
     QApplicationPrivate::wheel_scroll_lines = n;
 }
 
-/*!
-    Returns the number of lines to scroll when the mouse wheel is
-    rotated.
-
-    \sa setWheelScrollLines()
-*/
 int QApplication::wheelScrollLines()
 {
     return QApplicationPrivate::wheel_scroll_lines;

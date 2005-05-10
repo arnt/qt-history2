@@ -37,7 +37,7 @@ public:
 };
 
 /*!
-    \class QCopChannel qcopchannel_qws.h
+    \class QCopChannel
 
     \brief The QCopChannel class provides communication capabilities
     between several clients.
@@ -158,21 +158,26 @@ QString QCopChannel::channel() const
     extract the information it contains.
 
     Example:
+
     \code
-    void MyClass::receive(const QString& msg, const QByteArray &data)
-    {
-        QDataStream stream(data, QIODevice::ReadOnly);
-        if (msg == "execute(QString,QString)") {
-            QString cmd, arg;
-            stream >> cmd >> arg;
-            ...
-        } else if (msg == "delete(QString)") {
-            QString filenname;
-            stream >> filename;
-            ...
-        } else ...
-    }
+        void MyClass::receive(const QString &msg, const QByteArray &data)
+        {
+            QDataStream in(data);
+            if (msg == "execute(QString,QString)") {
+                QString cmd;
+                QString arg;
+                in >> cmd >> arg;
+                ...
+            } else if (msg == "delete(QString)") {
+                QString fileName;
+                in >> fileName;
+                ...
+            } else {
+                ...
+            }
+        }
     \endcode
+
     This example assumes that the \a msg is a DCOP-style function
     signature and the \a data contains the function's arguments. (See
     send().)
@@ -238,16 +243,19 @@ bool QCopChannel::send(const QString& channel, const QString& msg)
     array with auxiliary data.
 
     Example:
+
     \code
-    QByteArray ba;
-    QDataStream stream(ba, QIODevice::WriteOnly);
-    stream << QString("cat") << QString("file.txt");
-    QCopChannel::send("System/Shell", "execute(QString,QString)", ba);
+        QByteArray data;
+        QDataStream out(&data, QIODevice::WriteOnly);
+        out << QString("cat") << QString("file.txt");
+        QCopChannel::send("System/Shell", "execute(QString,QString)",
+                          data);
     \endcode
+
     Here the channel is "System/Shell". The \a msg is an arbitrary
     string, but in the example we've used the DCOP convention of
     passing a function signature. Such a signature is formatted as
-    functionname(types) where types is a list of zero or more
+    "functionname(types)" where types is a list of zero or more
     comma-separated type names, with no whitespace, no consts and no
     pointer or reference marks, i.e. no "*" or "&".
 

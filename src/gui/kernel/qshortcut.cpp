@@ -22,18 +22,18 @@
 #include <private/qshortcutmap_p.h>
 
 /*!
-    \class QShortcut qshortcut.h
+    \class QShortcut
     \brief The QShortcut class is used to create keyboard shortcuts.
 
     \ingroup events
     \mainclass
 
-    The QShortcut class provides a way of connecting keyboard shortcuts
-    to Qt's \link signalsandslots.html signal/slot \endlink mechanism,
-    so that objects can be informed when a shortcut is executed.
-    The shortcut can be set up to contain all the key presses necessary
-    to describe a keyboard shortcut, including the states of modifier
-    keys such as Shift, Ctrl, and Alt.
+    The QShortcut class provides a way of connecting keyboard
+    shortcuts to Qt's \l{signals and slots} mechanism, so that
+    objects can be informed when a shortcut is executed. The shortcut
+    can be set up to contain all the key presses necessary to
+    describe a keyboard shortcut, including the states of modifier
+    keys such as \gui Shift, \gui Ctrl, and \gui Alt.
 
     For applications that use menus, it may be more convenient to
     use the convenience functions provided in the QMenu class to
@@ -49,7 +49,7 @@
                              parent);
     \endcode
 
-    When the user types the \link QKeySequence key sequence\endlink
+    When the user types the \l{QKeySequence}{key sequence}
     for a given shortcut, the shortcut's activated() signal is
     emitted. (In the case of ambiguity, the activatedAmbiguously()
     signal is emitted.) A shortcut is "listened for" by Qt's event
@@ -60,7 +60,7 @@
     setEnabled(), and can have "What's This?" help text set with
     setWhatsThis().
 
-    \sa QKeySequence QAction
+    \sa QShortcutEvent, QKeySequence, QAction
 */
 
 /*!
@@ -188,8 +188,6 @@ QShortcut::~QShortcut()
         setKey(Qt::CTRL + Qt::Key_P);       // Ctrl+P, e.g. to print document
         setKey("Ctrl+P");           // Ctrl+P, e.g. to print document
     \endcode
-
-    \sa QKeySequence
 */
 void QShortcut::setKey(const QKeySequence &key)
 {
@@ -200,11 +198,6 @@ void QShortcut::setKey(const QKeySequence &key)
     d->redoGrab(qApp->d_func()->shortcutMap);
 }
 
-/*!
-    Returns the shortcut's key sequence.
-
-    \sa setKey(), QKeySequence
-*/
 QKeySequence QShortcut::key() const
 {
     Q_D(const QShortcut);
@@ -233,13 +226,6 @@ void QShortcut::setEnabled(bool enable)
     qApp->d_func()->shortcutMap.setShortcutEnabled(enable, d->sc_id, this);
 }
 
-/*!
-    Returns true if this shortcut is enabled, and will emit the
-    corresponding signals on a QShortcutEvent (assuming that the key()
-    sequence is not empty); otherwise returns false.
-
-    \sa setEnabled() enabled
-*/
 bool QShortcut::isEnabled() const
 {
     Q_D(const QShortcut);
@@ -251,12 +237,10 @@ bool QShortcut::isEnabled() const
     \brief the context in which the shortcut is valid
 
     A shortcut's context decides in which circumstances a shortcut is
-    allowed to be triggered. The normal context is Qt::WindowContext,
+    allowed to be triggered. The normal context is Qt::WindowShortcut,
     which allows the shortcut to trigger if the parent (the widget
     containing the shortcut) is a subwidget of the active top-level
     window.
-
-    \sa Qt::ShortcutContext
 */
 void QShortcut::setContext(Qt::ShortcutContext context)
 {
@@ -267,11 +251,6 @@ void QShortcut::setContext(Qt::ShortcutContext context)
     d->redoGrab(qApp->d_func()->shortcutMap);
 }
 
-/*!
-Returns the context in which the shortcut will be activated.
-
-\sa setContext
-*/
 Qt::ShortcutContext QShortcut::context()
 {
     Q_D(QShortcut);
@@ -296,11 +275,6 @@ void QShortcut::setWhatsThis(const QString &text)
     d->sc_whatsthis = text;
 }
 
-/*!
-    Returns the shortcut's "What's This?" help text.
-
-    \sa setWhatsThis()
-*/
 QString QShortcut::whatsThis() const
 {
     Q_D(const QShortcut);
@@ -309,6 +283,8 @@ QString QShortcut::whatsThis() const
 
 /*!
     Returns the shortcut's ID.
+
+    \sa QShortcutEvent::shortcutId()
 */
 int QShortcut::id() const
 {

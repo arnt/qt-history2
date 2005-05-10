@@ -72,7 +72,7 @@
     only happen when every instance has called unload().
 
     A typical use of QLibrary is to resolve an exported symbol in a
-    library, and to call the C-function that this symbol represents.
+    library, and to call the C function that this symbol represents.
     This is called "explicit linking" in contrast to "implicit
     linking", which is done by the link step in the build process when
     linking an executable against a library.
@@ -84,15 +84,14 @@
     called.
 
     \code
-    QLibrary myLib("mylib"); // mylib.dll or mylib.so or mylib.dylib etc
-    typedef void (*MyPrototype)();
-    MyPrototype myFunction = (MyPrototype) myLib.resolve("mysymbol");
-    if (myFunction) {
-        myFunction();
-    }
+        QLibrary myLib("mylib");
+        typedef void (*MyPrototype)();
+        MyPrototype myFunction = (MyPrototype) myLib.resolve("mysymbol");
+        if (myFunction)
+            myFunction();
     \endcode
 
-    The symbol must be exported as a C-function from the library for
+    The symbol must be exported as a C function from the library for
     resolve() to work. This means that the function must be wrapped in
     an \c{extern "C"} block if the library is compiled with a C++
     compiler. On Windows, this also requires the use of a \c dllexport
@@ -102,13 +101,14 @@
     explicitly loading the library first:
 
     \code
-    typedef void (*MyPrototype)();
-    if (MyPrototype myFunction = (MyPrototype) QLibrary::resolve("mylib", "mysymbol"))
-        myFunction();
+        typedef void (*MyPrototype)();
+        MyPrototype myFunction =
+                (MyPrototype) QLibrary::resolve("mylib", "mysymbol");
+        if (myFunction)
+            myFunction();
     \endcode
 
     \sa QPluginLoader
-
 */
 
 struct qt_token_info
@@ -636,12 +636,12 @@ QLibrary::~QLibrary()
     suffix in accordance with the following list:
 
     \table
-    \header \i Platform \i Supported suffixes
-    \row \i Windows     \i dll
-    \row \i Unix/Linux  \i so
-    \row \i HP-UX       \i sl
-    \row \i Mac OS X    \i dylib, bundle, so
-    \endtable.
+    \header \o Platform \o Supported suffixes
+    \row \o Windows     \o \c .dll
+    \row \o Unix/Linux  \o \c .so
+    \row \o HP-UX       \o \c .sl
+    \row \o Mac OS X    \o \c .dylib, \c .bundle, \c .so
+    \endtable
 
     When loading the library, QLibrary searches in all system-specific
     library locations (e.g. \c LD_LIBRARY_PATH on Unix), unless the
@@ -679,36 +679,36 @@ QString QLibrary::fileName() const
 
     Example:
     \code
-    typedef int (*avgProc)(int, int);
+        typedef int (*AvgFunction)(int, int);
 
-    avgProc avg = (avgProc) library->resolve("avg");
-    if (avg)
-        return avg(5, 8);
-    else
-        return -1;
+        AvgFunction avg = (AvgFunction) library->resolve("avg");
+        if (avg)
+            return avg(5, 8);
+        else
+            return -1;
     \endcode
 
-    The symbol must be exported as a C-function from the library. This
+    The symbol must be exported as a C function from the library. This
     means that the function must be wrapped in an \c{extern "C"} if
     the library is compiled with a C++ compiler. On Windows you must
     also explicitly export the function from the DLL using the
     \c{__declspec(dllexport)} compiler directive, for example:
 
     \code
-    extern "C" MY_EXPORT int avg(int a, int b)
-    {
-        return (a + b) / 2;
-    }
+        extern "C" MY_EXPORT int avg(int a, int b)
+        {
+            return (a + b) / 2;
+        }
     \endcode
 
     with \c MY_EXPORT defined as
 
     \code
-    #ifdef Q_WS_WIN
-    # define MY_EXPORT __declspec(dllexport)
-    #else
-    # define MY_EXPORT
-    #endif
+        #ifdef Q_WS_WIN
+        #define MY_EXPORT __declspec(dllexport)
+        #else
+        #define MY_EXPORT
+        #endif
     \endcode
 
     On Darwin and Mac OS X this function uses code from dlcompat, part of the

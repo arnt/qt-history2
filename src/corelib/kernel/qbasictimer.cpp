@@ -17,7 +17,7 @@
 
 /*!
     \class QBasicTimer
-    \brief The QBasicTimer class provides timer events for \l{QObject}s.
+    \brief The QBasicTimer class provides timer events for objects.
 
     \ingroup time
     \ingroup events
@@ -39,7 +39,7 @@
     The \l{widgets/wiggly}{Wiggly} example uses QBasicTimer to repaint
     a widget at regular intervals.
 
-    \sa QTimer, QTimerEvent, QObject::timerEvent(), {timers.html}{Timers Overview}
+    \sa QTimer, QTimerEvent, QObject::timerEvent(), Timers
 */
 
 
@@ -68,7 +68,7 @@
 /*!
     \fn int QBasicTimer::timerId() const
 
-    Returns the timer's id.
+    Returns the timer's ID.
 
     \sa QTimerEvent::timerId()
 */

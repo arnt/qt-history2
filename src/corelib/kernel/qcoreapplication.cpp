@@ -140,7 +140,7 @@ QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc, char **aargv)
     static const char *const empty = "";
     if (argc == 0 || argv == 0) {
         argc = 0;
-        argv = (char **)&empty; // ouch! careful with QApplication::argv()!
+        argv = (char **)&empty; // ouch! careful with QCoreApplication::argv()!
     }
     QCoreApplicationPrivate::is_app_closing = false;
 
@@ -257,41 +257,59 @@ void QCoreApplicationPrivate::checkReceiverThread(QObject *receiver)
 
 /*!
     \class QCoreApplication
-    \brief The QCoreApplication class provides an event loop for Qt
+    \brief The QCoreApplication class provides an event loop for console Qt
     applications.
 
     \ingroup application
     \mainclass
 
     This class is used by non-GUI applications to provide their event
-    loop. For GUI applications see QApplication.
+    loop. For non-GUI application that uses Qt, there should be exactly
+    one QCoreApplication object. For GUI applications, see
+    QApplication.
+
+    QCoreApplication contains the main event loop, where all events
+    from the operating system (e.g., timer and network events) and
+    other sources are processed and dispatched. It also handles the
+    application's initialization and finalization, as well as
+    system-wide and application-wide settings.
 
     The command line arguments which QCoreApplication's constructor
     should be called with are accessible using argc() and argv(). The
     event loop is started with a call to exec(). Long running
     operations can call processEvents() to keep the application
-    responsive. An application has an applicationDirPath() and an
-    applicationFilePath(). Translators can be added or removed using
-    installTranslator() and removeTranslator().
+    responsive.
 
-    The class provides one signal, aboutToQuit(), and one slot,
-    quit().
+    Some Qt classes (e.g., QString) can be used without a
+    QCoreApplication object. However, in general, we recommend that
+    you create a QCoreApplication or a QApplication object in your \c
+    main() function as early as possible.
+
+    An application has an applicationDirPath() and an
+    applicationFilePath(). Translation files can be added or removed
+    using installTranslator() and removeTranslator(). Application
+    strings can be translated using translate(). The QObject::tr()
+    and QObject::trUtf8() functions are implemented in terms of
+    translate().
+
+    The class provides a quit() slot and an aboutToQuit() signal.
 
     Several static convenience functions are also provided. The
-    QCoreApplication object is available from instance(), and the
-    event loop from eventLoop(). Events can be sent or posted using
-    sendEvent(), postEvent(), and sendPostedEvents(). Pending events
-    can be removed with removePostedEvents() or flushed with flush().
-    Library paths (see QLibrary) can be retrieved with libraryPaths()
-    and manipulated by setLibraryPaths(), addLibraryPath(), and
-    removeLibraryPath(). Application strings can be translated using
-    translate().
+    QCoreApplication object is available from instance(). Events can
+    be sent or posted using sendEvent(), postEvent(), and
+    sendPostedEvents(). Pending events can be removed with
+    removePostedEvents() or flushed with flush(). Library paths (see
+    QLibrary) can be retrieved with libraryPaths() and manipulated by
+    setLibraryPaths(), addLibraryPath(), and removeLibraryPath().
+
+    \sa QApplication, QAbstractEventDispatcher, QEventLoop
 */
 
 /*!
     \fn static QCoreApplication *QCoreApplication::instance()
 
-    Returns a pointer to the application's QCoreApplication.
+    Returns a pointer to the application's QCoreApplication (or
+    QApplication) instance.
 */
 
 /*!\internal
@@ -397,7 +415,7 @@ void QCoreApplication::init()
 }
 
 /*!
-    Destructor.
+    Destroys the QCoreApplication object.
 */
 QCoreApplication::~QCoreApplication()
 {
@@ -421,7 +439,7 @@ QCoreApplication::~QCoreApplication()
 }
 
 /*!
-  Sends event \a e to \a receiver: \a {receiver}->event(\a e).
+  Sends \a event to \a receiver: \a {receiver}->event(\a event).
   Returns the value that is returned from the receiver's event handler.
 
   For certain types of events (e.g. mouse and key events),
@@ -457,7 +475,7 @@ QCoreApplication::~QCoreApplication()
   \sa QObject::event(), installEventFilter()
 */
 
-bool QCoreApplication::notify(QObject *receiver, QEvent *e)
+bool QCoreApplication::notify(QObject *receiver, QEvent *event)
 {
     Q_D(QCoreApplication);
     // no events are delivered after ~QCoreApplication() has started
@@ -472,24 +490,24 @@ bool QCoreApplication::notify(QObject *receiver, QEvent *e)
     d->checkReceiverThread(receiver);
 
 #ifdef QT3_SUPPORT
-    if (e->type() == QEvent::ChildRemoved && receiver->d_func()->postedChildInsertedEvents)
-        d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(e)->child());
+    if (event->type() == QEvent::ChildRemoved && receiver->d_func()->postedChildInsertedEvents)
+        d->removePostedChildInsertedEvents(receiver, static_cast<QChildEvent *>(event)->child());
 #endif // QT3_SUPPORT
 
-    return receiver->isWidgetType() ? false : d->notify_helper(receiver, e);
+    return receiver->isWidgetType() ? false : d->notify_helper(receiver, event);
 }
 
 /*!\internal
 
   Helper function called by notify()
  */
-bool QCoreApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
+bool QCoreApplicationPrivate::notify_helper(QObject *receiver, QEvent * event)
 {
     Q_Q(QCoreApplication);
     // send to all application event filters
     for (int i = 0; i < eventFilters.size(); ++i) {
         register QObject *obj = eventFilters.at(i);
-        if (obj && obj->eventFilter(receiver,e))
+        if (obj && obj->eventFilter(receiver, event))
             return true;
     }
 
@@ -497,12 +515,12 @@ bool QCoreApplicationPrivate::notify_helper(QObject *receiver, QEvent * e)
     if (receiver != q) {
         for (int i = 0; i < receiver->d_func()->eventFilters.size(); ++i) {
             register QObject *obj = receiver->d_func()->eventFilters.at(i);
-            if (obj && obj->eventFilter(receiver,e))
+            if (obj && obj->eventFilter(receiver, event))
                 return true;
         }
     }
 
-    return receiver->event(e);
+    return receiver->event(event);
 }
 
 /*!
@@ -657,30 +675,30 @@ void QCoreApplication::exit(int returnCode)
     event handler.
 
     The event is \e not deleted when the event has been sent. The normal
-    approach is to create the event on the stack, e.g.
+    approach is to create the event on the stack, for example:
+
     \code
-    QMouseEvent me(QEvent::MouseButtonPress, pos, 0, 0);
-    QApplication::sendEvent(mainWindow, &me);
+        QMouseEvent event(QEvent::MouseButtonPress, pos, 0, 0);
+        QApplication::sendEvent(mainWindow, &event);
     \endcode
-    If you create the event on the heap you must delete it.
 
     \sa postEvent(), notify()
 */
 
 /*!
-  Adds the event \a event with the object \a receiver as the receiver of the
-  event, to an event queue and returns immediately.
+    Adds the event \a event with the object \a receiver as the receiver of the
+    event, to an event queue and returns immediately.
 
-  The event must be allocated on the heap since the post event queue
-  will take ownership of the event and delete it once it has been posted.
-  It is \e {not safe} to modify or delete the event after it has been posted.
+    The event must be allocated on the heap since the post event queue
+    will take ownership of the event and delete it once it has been posted.
+    It is \e {not safe} to modify or delete the event after it has been posted.
 
-  When control returns to the main event loop, all events that are
-  stored in the queue will be sent using the notify() function.
+    When control returns to the main event loop, all events that are
+    stored in the queue will be sent using the notify() function.
 
-  \threadsafe
+    \threadsafe
 
-  \sa sendEvent(), notify()
+    \sa sendEvent(), notify()
 */
 
 void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
@@ -1063,9 +1081,9 @@ bool QCoreApplication::event(QEvent *e)
   This enum type defines the 8-bit encoding of character string
   arguments to translate():
 
-  \value DefaultCodec - the encoding specified by
+  \value DefaultCodec  The encoding specified by
   QTextCodec::codecForTr() (Latin1 if none has been set)
-  \value UnicodeUTF8 - UTF-8
+  \value UnicodeUTF8  UTF-8
 
   \sa QObject::tr(), QObject::trUtf8(), QString::fromUtf8()
 */
@@ -1073,20 +1091,21 @@ bool QCoreApplication::event(QEvent *e)
 
 
 /*!
-  Tells the application to exit with return code 0 (success).
-  Equivalent to calling QApplication::exit(0).
+    Tells the application to exit with return code 0 (success).
+    Equivalent to calling QCoreApplication::exit(0).
 
-  It's common to connect the QApplication::lastWindowClosed() signal
-  to quit(), and you also often connect e.g. QAbstractButton::clicked() or
-  signals in QAction, QMenu, or QMenuBar to it.
+    It's common to connect the QApplication::lastWindowClosed() signal
+    to quit(), and you also often connect e.g. QAbstractButton::clicked() or
+    signals in QAction, QMenu, or QMenuBar to it.
 
-  Example:
-  \code
-    QPushButton *quitButton = new QPushButton("Quit");
-    connect(quitButton, SIGNAL(clicked()), qApp, SLOT(quit()));
-  \endcode
+    Example:
 
-  \sa exit() aboutToQuit() QApplication::lastWindowClosed() QAction
+    \code
+        QPushButton *quitButton = new QPushButton("Quit");
+        connect(quitButton, SIGNAL(clicked()), &app, SLOT(quit()));
+    \endcode
+
+    \sa exit(), aboutToQuit(), QApplication::lastWindowClosed()
 */
 
 void QCoreApplication::quit()
@@ -1327,7 +1346,7 @@ QString QCoreApplication::applicationFilePath()
     The documentation for argv() describes how to process command line
     arguments.
 
-    \sa argv(), QApplication::QApplication()
+    \sa argv()
 */
 int QCoreApplication::argc() const
 {
@@ -1342,40 +1361,17 @@ int QCoreApplication::argc() const
     argv()[0] is the program name, argv()[1] is the first
     argument, and argv()[argc() - 1] is the last argument.
 
-    A QApplication object is constructed by passing \e argc and \e
-    argv from the \c main() function. Some of the arguments may be
-    recognized as Qt options and removed from the argument vector. For
-    example, the X11 version of Qt knows about \c -display, \c -font,
-    and a few more options.
+    A QCoreApplication object is constructed by passing \e argc and
+    \e argv from the \c main() function. Some of the arguments may be
+    recognized as Qt options and removed from the argument vector.
+    For example, the X11 version of QApplication knows about \c
+    -display, \c -font, and a few more options.
 
-    Example:
-    \code
-        // showargs.cpp - displays program arguments in a list box
+    QCoreApplication::instance() points to the QCoreApplication
+    object, and through which you can access argc() and argv() in
+    functions other than main().
 
-        #include <qapplication.h>
-        #include <qlistbox.h>
-
-        int main(int argc, char **argv)
-        {
-            QApplication a(argc, argv);
-            QListBox b;
-            a.setMainWidget(&b);
-            for (int i = 0; i < a.argc(); i++)  // a.argc() == argc
-                b.insertItem(a.argv()[i]);      // a.argv()[i] == argv[i]
-            b.show();
-            return a.exec();
-        }
-    \endcode
-
-    If you run \c{showargs -display unix:0 -font 9x15bold hello world}
-    under X11, the list box contains the three strings "showargs",
-    "hello", and "world".
-
-    Qt provides a global pointer, \c qApp, that points to the
-    QApplication object, and through which you can access argc() and
-    argv() in functions other than main().
-
-    \sa argc(), QApplication::QApplication()
+    \sa argc()
 */
 char **QCoreApplication::argv() const
 {
@@ -1460,29 +1456,24 @@ QString QCoreApplication::applicationName()
 #ifndef QT_NO_COMPONENT
 
 /*!
-  Returns a list of paths that the application will search when
-  dynamically loading libraries.
-  The installation directory for plugins is the only entry if no
-  paths have been set.  The default installation directory for plugins
-  is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
-  installed. The directory of the application executable (NOT the
-  working directory) is also added to the plugin paths.
+    Returns a list of paths that the application will search when
+    dynamically loading libraries.
+    The installation directory for plugins is the only entry if no
+    paths have been set.  The default installation directory for plugins
+    is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
+    installed. The directory of the application executable (NOT the
+    working directory) is also added to the plugin paths.
 
-  If you want to iterate over the list, you should iterate over a
-  copy, e.g.
+    If you want to iterate over the list, you can use the \l foreach
+    pseudo-keyword:
+
     \code
-    QStringList list = app.libraryPaths();
-    QStringList::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
+        foreach (QString path, app.libraryPaths())
+            do_something(path);
     \endcode
 
-  See the \link plugins-howto.html plugins documentation\endlink for a
-  description of how the library paths are used.
-
-  \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary
+    \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary,
+        {How to Create Plugins}
 */
 QStringList QCoreApplication::libraryPaths()
 {
@@ -1546,10 +1537,10 @@ void QCoreApplication::addLibraryPath(const QString &path)
 }
 
 /*!
-  Removes \a path from the library path list. If \a path is empty or not
-  in the path list, the list is not changed.
+    Removes \a path from the library path list. If \a path is empty or not
+    in the path list, the list is not changed.
 
-  \sa addLibraryPath(), libraryPaths(), setLibraryPaths()
+    \sa addLibraryPath(), libraryPaths(), setLibraryPaths()
 */
 void QCoreApplication::removeLibraryPath(const QString &path)
 {
@@ -1571,8 +1562,10 @@ void QCoreApplication::removeLibraryPath(const QString &path)
     event filter:
 
     \code
-    bool (*EventFilter)(void *message, long *result);
+        bool myEventFilter(void *message, long *result);
     \endcode
+
+    \sa setEventFilter()
 */
 
 /*!
@@ -1590,7 +1583,9 @@ void QCoreApplication::removeLibraryPath(const QString &path)
 
     Only one filter can be defined, but the filter can use the return
     value to call the previously set event filter. By default, no
-    filter is set (ie.  the function returns 0).
+    filter is set (i.e., the function returns 0).
+
+    \sa installEventFilter()
 */
 QCoreApplication::EventFilter
 QCoreApplication::setEventFilter(QCoreApplication::EventFilter filter)
@@ -1625,8 +1620,8 @@ bool QCoreApplication::filterEvent(void *message, long *result)
 
 /*!
     This function returns true if there are pending events; otherwise
-    returns false. Pending events can be either from the window system
-    or posted events using QApplication::postEvent().
+    returns false. Pending events can be either from the window
+    system or posted events using postEvent().
 
     \sa QAbstractEventDispatcher::hasPendingEvents()
 */
@@ -1756,4 +1751,74 @@ int QCoreApplication::loopLevel()
 
     This signal is emitted whenever a Unix signal is received by the
     application. The Unix signal received is specified by its \a number.
+*/
+
+/*!
+    \fn qAddPostRoutine(QtCleanUpFunction ptr)
+    \relates QCoreApplication
+
+    Adds a global routine that will be called from the QApplication
+    destructor. This function is normally used to add cleanup routines
+    for program-wide functionality.
+
+    The function specified by \a ptr should take no arguments and should
+    return nothing. For example:
+
+    \code
+        static int *global_ptr = 0;
+
+        static void cleanup_ptr()
+        {
+            delete [] global_ptr;
+            global_ptr = 0;
+        }
+
+        void init_ptr()
+        {
+            global_ptr = new int[100];      // allocate data
+            qAddPostRoutine(cleanup_ptr);   // delete later
+        }
+    \endcode
+
+    Note that for an application- or module-wide cleanup,
+    qAddPostRoutine() is often not suitable. For example, if the
+    program is split into dynamically loaded modules, the relevant
+    module may be unloaded long before the QApplication destructor is
+    called.
+
+    For modules and libraries, using a reference-counted
+    initialization manager or Qt's parent-child deletion mechanism may
+    be better. Here is an example of a private class which uses the
+    parent-child mechanism to call a cleanup function at the right
+    time:
+
+    \code
+        class MyPrivateInitStuff : public QObject
+        {
+        public:
+            static MyPrivateInitStuff *initStuff(QObject *parent)
+            {
+                if (!p)
+                    p = new MyPrivateInitStuff(parent);
+                return p;
+            }
+
+            ~MyPrivateInitStuff()
+            {
+                // cleanup goes here
+            }
+
+        private:
+            MyPrivateInitStuff(QObject *parent)
+                : QObject(parent)
+            {
+                // initialization goes here
+            }
+
+            MyPrivateInitStuff *p;
+        };
+    \endcode
+
+    By selecting the right parent object, this can often be made to
+    clean up the module's data at the exactly the right moment.
 */

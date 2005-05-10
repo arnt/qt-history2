@@ -332,9 +332,8 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     (Disabled widgets are often called \e inaccessible or \e{grayed
     out}.)
 
-    In Motif style, Active and Inactive look the same. In Windows
-    2000 style and Macintosh Platinum style, the two styles look
-    slightly different.
+    In most styles, Active and Inactive look the same. In Windows
+    2000 style, the two styles look slightly different.
 
     Colors and brushes can be set for particular roles in any of a
     palette's color groups with setColor() and setBrush().  A color

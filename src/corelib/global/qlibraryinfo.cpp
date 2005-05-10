@@ -27,7 +27,6 @@
 
 #include "qconfig.cpp"
 
-
 Q_GLOBAL_STATIC(QString, qt_library_config_file)
 Q_CORE_EXPORT void qt_set_library_config_file(const QString &p) { *(qt_library_config_file()) = p; }
 #ifdef QT_NO_QOBJECT
@@ -202,6 +201,20 @@ static QLibraryInfoPrivate qt_library_data;
     key. This class provides an abstraction for accessing this
     information.
 
+    \table
+    \header \o Function           \o Return value
+    \row    \o buildKey()         \o A string that identifies the Qt version and
+                                     the configuration. This key is used to ensure
+                                     that \l{plugins} link against the same version
+                                     of Qt as the application.
+    \row    \o configuration()    \o A QSettings object containing Qt's
+                                     configuration.
+    \row    \o location()         \o The path to a certain Qt
+                                     component (e.g., documentation, header files).
+    \row    \o licensee(),
+               licensedProducts() \o Licensing information.
+    \endtable
+
     \sa QSysInfo
 */
 
@@ -243,10 +256,12 @@ QLibraryInfo::licensedProducts()
 }
 
 /*!
-  Returns a unique key identifying this build of Qt and its
-  configurations. This key is not globally unique, rather only useful
-  for establishing of two configurations are compatible. This can be
-  used to compare with the \c QT_BUILD_KEY preprocessor symbol.
+    Returns a unique key identifying this build of Qt and its
+    configurations. This key is not globally unique, rather only useful
+    for establishing of two configurations are compatible. This can be
+    used to compare with the \c QT_BUILD_KEY preprocessor symbol.
+
+    \sa location()
 */
 
 QString
@@ -286,7 +301,7 @@ QLibraryInfo::buildKey()
 
   If no configuration can be found then zero will be returned.
 
-  \sa location(), QSettings
+  \sa location()
 */
 
 QSettings
@@ -407,9 +422,7 @@ QLibraryInfo::location(LibraryLocation loc)
     \keyword library location
 
     This enum type is used to specify a specific location
-    specifier. This for use with QLibraryInfo::location.
-
-    The locations are:
+    specifier:
 
     \value PrefixPath The default prefix for all paths.
     \value DocumentationPath The location for documentation upon install.

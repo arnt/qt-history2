@@ -61,33 +61,35 @@ void QAbstractEventDispatcherPrivate::init()
     \ingroup events
 
     It receives events from the window system and other sources. It
-    then sends them to QApplication for processing and delivery.
-    QAbstractEventDispatcher provides fine-grained control over event
-    delivery.
+    then sends them to the QCoreApplication or QApplication instance
+    for processing and delivery. QAbstractEventDispatcher provides
+    fine-grained control over event delivery.
 
     For simple control of event processing use
-    QApplication::processEvents().
+    QCoreApplication::processEvents().
 
-    For finer control of the application's event loop call
-    QApplication::eventLoop() and call functions on the
-    QAbstractEventDispatcher object that is returned. If you want to
-    use your own instance of QAbstractEventDispatcher, QGuiEventLoop,
-    or a QAbstractEventDispatcher subclass, you must create your
-    instance \e before you create the QApplication object.
+    For finer control of the application's event loop, call
+    instance() and call functions on the QAbstractEventDispatcher
+    object that is returned. If you want to use your own instance of
+    QAbstractEventDispatcher or of a QAbstractEventDispatcher
+    subclass, you must create your instance \e before you create the
+    QApplication object.
 
-    The event loop is started by calling exec(), and stopped by
-    calling exit().
+    The main event loop is started by calling
+    QCoreApplication::exec(), and stopped by calling
+    QCoreApplication::exit(). Local event loops can be created using
+    QEventLoop.
 
     Programs that perform long operations can call processEvents()
-    with various \c ProcessEvents values OR'ed together to control
-    which events should be delivered.
+    with various QEventLoop::ProcessEventsFlag values OR'ed together to
+    control which events should be delivered.
 
     QAbstractEventDispatcher also allows the integration of an
     external event loop with the Qt event loop. For example, the Motif
     Extension included with Qt includes a reimplementation of
     QAbstractEventDispatcher that merges Qt and Motif events together.
 
-    \sa QEventLoop
+    \sa QEventLoop, QCoreApplication
 */
 
 /*!
@@ -142,10 +144,10 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
 
     This function is especially useful if you have a long running
     operation and want to show its progress without allowing user
-    input, i.e. by using the \c ExcludeUserInputEvents flag.
+    input, i.e. by using the QEventLoop::ExcludeUserInputEvents flag.
 
-    If the \c WaitForMoreEvents flag is set in \a flags, the behavior of
-    this function is as follows:
+    If the QEventLoop::WaitForMoreEvents flag is set in \a flags, the
+    behavior of this function is as follows:
 
     \list
 
@@ -157,8 +159,9 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
 
     \endlist
 
-    If the \c WaitForMoreEvents flag is \e not set in \a flags, and no
-    events are available, this function will return immediately.
+    If the QEventLoop::WaitForMoreEvents flag is not set in \a flags,
+    and no events are available, this function will return
+    immediately.
 
     Note: This function does not process events continuously; it
     returns after all available events are processed.

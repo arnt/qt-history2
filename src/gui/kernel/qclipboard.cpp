@@ -22,7 +22,7 @@
 #include "qvariant.h"
 
 /*!
-    \class QClipboard qclipboard.h
+    \class QClipboard
     \brief The QClipboard class provides access to the window system clipboard.
 
     \ingroup io
@@ -32,41 +32,31 @@
     The clipboard offers a simple mechanism to copy and paste data
     between applications.
 
-    QClipboard supports the same data types that QDrag does, and
-    uses similar mechanisms. For advanced clipboard usage
-    read \link dnd.html the drag-and-drop documentation\endlink.
+    QClipboard supports the same data types that QDrag does, and uses
+    similar mechanisms. For advanced clipboard usage read \l{Drag and
+    Drop}.
 
-    There is a single QClipboard object in an application, and you can
-    access it using QApplication::clipboard().
+    There is a single QClipboard object in an application, accessible
+    as QApplication::clipboard().
 
     Example:
     \code
-    QClipboard *cb = QApplication::clipboard();
-
-    // Copy text from the clipboard (paste)
-    QString text = cb->text(QClipboard::Clipboard);
-    if (!text.isNull())
-        qDebug("The clipboard contains: " + text);
-
-    // Copy text into the clipboard
-    cb->setText("This text can be pasted by other programs",
-                 QClipboard::Clipboard);
+        QClipboard *clipboard = QApplication::clipboard();
+        QString originalText = clipboard->text();
+        ...
+        clipboard->setText(newText);
     \endcode
 
-    QClipboard features some convenience functions to access common data
-    types: setText() allows the exchange of Unicode text and
-    setPixmap() and setImage() allows the exchange of QPixmaps
-    and QImages between applications. The setMimeData() function is the
-    ultimate in flexibility: it allows you to add any QMimeData into the
-    clipboard. There are corresponding getters for each of these, e.g.
-    text(), image() and pixmap().
+    QClipboard features some convenience functions to access common
+    data types: setText() allows the exchange of Unicode text and
+    setPixmap() and setImage() allows the exchange of QPixmaps and
+    QImages between applications. The setMimeData() function is the
+    ultimate in flexibility: it allows you to add any QMimeData into
+    the clipboard. There are corresponding getters for each of these,
+    e.g. text(), image() and pixmap(). You can clear the clipboard by
+    calling clear().
 
-    You can clear the clipboard by calling clear().
-
-
-    \section1 Platform Specific Information
-
-    \section2 X11
+    \section1 Notes for X11 Users
 
     \list
 
@@ -91,25 +81,23 @@
 
     \endlist
 
-    \section2 Windows
+    \section1 Notes for Windows and Mac OS X Users
 
     \list
 
-    \i Microsoft Windows does not support the global mouse selection;
-    it only supports the global clipboard, e.g. Windows only adds text
-    to the clipboard when an explicit copy or cut is made.
+    \i Windows and Mac OS X do not support the global mouse
+    selection; they only supports the global clipboard, i.e. they
+    only adds text to the clipboard when an explicit copy or cut is
+    made.
 
-    \i Windows does not have the concept of ownership; the clipboard
-    is a fully global resource so all applications are notified of
-    changes.
+    \i Windows and Mac OS X does not have the concept of ownership;
+    the clipboard is a fully global resource so all applications are
+    notified of changes.
 
     \endlist
 
-    See the multiclip example in the \e{Qt Designer} examples
-    directory for an example of a cross-platform clipboard application
-    that also demonstrates selection handling.
+    \sa QApplication
 */
-
 
 /*!
     \internal
@@ -294,10 +282,11 @@ QImage QClipboard::image(Mode mode) const
     mouse selection.
 
     This is shorthand for:
+
     \code
         QMimeData *data = new QMimeData;
         data->setPixmap(image);
-        setMimeData(data, mode);
+        clipboard->setMimeData(data, mode);
     \endcode
 
     \sa image(), setPixmap() setData()

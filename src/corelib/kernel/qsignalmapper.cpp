@@ -51,13 +51,13 @@ public:
 
     Example: Suppose we want to create a custom widget that contains
     a group of buttons (like a tool palette). One approach is to
-    connect each button's clicked() signal to its own custom slot;
+    connect each button's \c clicked() signal to its own custom slot;
     but in this example we want to connect all the buttons to a
     single slot and parameterize the slot by the button that was
     clicked.
 
     Here's the definition of a simple custom widget that has a single
-    signal, clicked(), which is emitted with the caption of the button
+    signal, \c clicked(), which is emitted with the text of the button
     that was clicked:
 
     \quotefromfile snippets/qsignalmapper/buttonwidget.h
@@ -73,16 +73,17 @@ public:
     \printuntil connect
     \printuntil }
 
-    A list of captions is passed to the constructor. A signal mapper
-    is constructed and for each caption in the list a QPushButton is
-    created. We connect each button's clicked() signal to the signal
-    mapper's map() slot, and create a mapping in the signal mapper
-    from each button to the text of its caption. Finally we connect
-    the signal mapper's mapped() signal to the custom widget's
-    clicked() signal. When the user clicks a button, the custom widget
-    will emit a single clicked() signal whose argument is the text of
-    the button the user clicked.
+    A list of texts is passed to the constructor. A signal mapper is
+    constructed and for each text in the list a QPushButton is
+    created. We connect each button's \c clicked() signal to the
+    signal mapper's map() slot, and create a mapping in the signal
+    mapper from each button to the button's text. Finally we connect
+    the signal mapper's mapped() signal to the custom widget's \c
+    clicked() signal. When the user clicks a button, the custom
+    widget will emit a single \c clicked() signal whose argument is
+    the text of the button the user clicked.
 
+    \sa QObject, QButtonGroup, QActionGroup
 */
 
 /*!

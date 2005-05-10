@@ -2645,6 +2645,54 @@ QClipboardEvent::~QClipboardEvent()
 }
 
 /*!
+    \class QShortcutEvent
+    \brief The QShortcutEvent class provides an event which is generated when
+    the user presses a key combination.
+
+    \ingroup events
+
+    Normally you don't need to use this class directly; QShortcut
+    provides a higher-level interface to handle shortcut keys.
+
+    \sa QShortcut
+*/
+
+/*!
+    \fn QShortcutEvent::QShortcutEvent(const QKeySequence &key, int id, bool ambiguous = false)
+
+*/
+
+/*!
+    \fn QShortcutEvent::~QShortcutEvent()
+
+    Destroys the event object.
+*/
+
+/*!
+    \fn const QKeySequence &QShortcutEvent::key()
+
+    Returns the key sequence that triggered the event.
+*/
+
+/*!
+    \fn int QShortcutEvent::shortcutId()
+
+    Returns the ID of the QShortcut object for which this event was
+    generated.
+
+    \sa QShortcut::id()
+*/
+
+/*!
+    \fn bool QShortcutEvent::isAmbiguous()
+
+    Returns true if the key sequence that triggered the event is
+    ambiguous.
+
+    \sa QShortcut::activatedAmbiguously()
+*/
+
+/*!
     \class QWindowStateChangeEvent
     \ingroup events
 

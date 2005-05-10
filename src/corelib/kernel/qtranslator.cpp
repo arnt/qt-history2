@@ -161,79 +161,37 @@ public:
     \ingroup environment
     \mainclass
 
-    An object of this class contains a set of QTranslatorMessage
-    objects, each of which specifies a translation from a source
-    language to a target language. QTranslator provides functions to
-    look up translations, add new ones, remove them, load and save
-    them, etc.
+    An object of this class contains a set of translations from a
+    source language to a target language. QTranslator provides
+    functions to look up translations in a translation file.
+    Translation files are created using \l{Qt Linguist}.
 
-    The most common use of QTranslator is to: load a translator file
-    created with \l{Qt Linguist Manual}, install it using
-    QApplication::installTranslator(), and use it via QObject::tr().
-    For example:
+    The most common use of QTranslator is to: load a translation
+    file, install it using QApplication::installTranslator(), and use
+    it via QObject::tr(). Here's the \c main() function from the
+    \l{linguist/hellotr}{Hello tr()} example:
 
-    \code
-    int main(int argc, char ** argv)
-    {
-        QApplication app(argc, argv);
+    \quotefromfile linguist/hellotr/main.cpp
+    \skipto main(
+    \printuntil }
 
-        QTranslator translator(0);
-        translator.load("french.qm", ".");
-        app.installTranslator(&translator);
-
-        MyWidget m;
-        app.setMainWidget(&m);
-        m.show();
-
-        return app.exec();
-    }
-    \endcode
     Note that the translator must be created \e before the
-    application's main window.
+    application's widgets.
 
     Most applications will never need to do anything else with this
     class. The other functions provided by this class are useful for
     applications that work on translator files.
 
-    We call a translation a "messsage". For this reason, translation
-    files are sometimes referred to as "message files".
-
-    It is possible to lookup a translation using findMessage() (as
-    tr() and QApplication::translate() do) and contains(), to insert a
-    new translation messsage using insert(), and to remove one using
-    remove().
-
-    Translation tools often need more information than the bare source
-    text and translation, for example, context information to help
-    the translator. But end-user programs that are using translations
-    usually only need lookup. To cater for these different needs,
-    QTranslator can use stripped translator files that use the minimum
-    of memory and which support little more functionality than
-    findMessage().
-
-    Thus, load() may not load enough information to make anything more
-    than findMessage() work. save() has an argument indicating
-    whether to save just this minimum of information or to save
-    everything.
-
-    "Everything" means that for each translation item the following
-    information is kept:
+    It is possible to lookup a translation using translate() (as tr()
+    and QApplication::translate() do). The translate() function takes
+    up to three parameters:
 
     \list
-    \i The \e {translated text} - the return value from tr().
-    \i The input key:
-        \list
-        \i The \e {source text} - usually the argument to tr().
-        \i The \e context - usually the class name for the tr() caller.
-        \i The \e comment - a comment that helps disambiguate different uses
-           of the same text in the same context.
-        \endlist
+    \o The \e context - usually the class name for the tr() caller.
+    \o The \e {source text} - usually the argument to tr().
+    \o The \e comment - an optional comment that helps disambiguate
+       different uses of the same text in the same context.
     \endlist
-
-    The minimum for each item is just the information necessary for
-    findMessage() to return the right text. This may include the
-    source, context and comment, but usually it is just a hash value
-    and the translated text.
 
     For example, the "Cancel" in a dialog might have "Anuluj" when the
     program runs in Polish (in this case the source text would be
@@ -252,12 +210,8 @@ public:
     for the Spanish version, and enables Qt to distinguish between
     translations.
 
-    Note that when QTranslator loads a stripped file, most functions
-    do not work. The functions that do work with stripped files are
-    explicitly documented as such.
-
-    \sa QTranslatorMessage QApplication::installTranslator()
-    QApplication::removeTranslator() QObject::tr() QApplication::translate()
+    \sa QApplication::installTranslator(), QApplication::removeTranslator(),
+        QObject::tr(), QApplication::translate()
 */
 
 /*!
@@ -304,12 +258,12 @@ QTranslator::~QTranslator()
     in the following order:
 
     \list 1
-    \i File name without \a suffix appended.
-    \i File name with text after a character in \a search_delimiters
+    \o File name without \a suffix appended.
+    \o File name with text after a character in \a search_delimiters
        stripped ("_." is the default for \a search_delimiters if it is
        an empty string) and \a suffix.
-    \i File name stripped without \a suffix appended.
-    \i File name stripped further, etc.
+    \o File name stripped without \a suffix appended.
+    \o File name stripped further, etc.
     \endlist
 
     For example, an application running in the fr_CA locale
@@ -318,12 +272,12 @@ QTranslator::~QTranslator()
     readable file from this list:
 
     \list 1
-    \i /opt/foolib/foo.fr_ca.qm
-    \i /opt/foolib/foo.fr_ca
-    \i /opt/foolib/foo.fr.qm
-    \i /opt/foolib/foo.fr
-    \i /opt/foolib/foo.qm
-    \i /opt/foolib/foo
+    \o \c /opt/foolib/foo.fr_ca.qm
+    \o \c /opt/foolib/foo.fr_ca
+    \o \c /opt/foolib/foo.fr.qm
+    \o \c /opt/foolib/foo.fr
+    \o \c /opt/foolib/foo.qm
+    \o \c /opt/foolib/foo
     \endlist
 
     \sa save()
@@ -617,11 +571,12 @@ end:
 
 
 /*!
-  Returns the translation for the key (\a context, \a sourceText,
-  \a comment). If none is found, also tries (\a context, \a
-  sourceText, "").
-*/
+    Returns the translation for the key (\a context, \a sourceText,
+    \a comment). If none is found, also tries (\a context, \a
+    sourceText, ""). If that still fails, returns an empty string.
 
+    \sa load()
+*/
 QString QTranslator::translate(const char *context, const char *sourceText, const char *comment) const
 {
     Q_D(const QTranslator);

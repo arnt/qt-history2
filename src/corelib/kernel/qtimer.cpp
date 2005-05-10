@@ -89,7 +89,7 @@
     Some operating systems limit the number of timers that may be
     used; Qt tries to work around these limitations.
 
-    \sa QBasicTimer, QTimerEvent, QObject::timerEvent()
+    \sa QBasicTimer, QTimerEvent, QObject::timerEvent(), Timers
 */
 
 
@@ -271,15 +271,15 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
 
     Example:
     \code
-        #include <qapplication.h>
-        #include <qtimer.h>
+        #include <QApplication>
+        #include <QTimer>
 
-        int main(int argc, char **argv)
+        int main(int argc, char *argv[])
         {
-            QApplication a(argc, argv);
-            QTimer::singleShot(10*60*1000, &a, SLOT(quit()));
-                ... // create and show your widgets
-            return a.exec();
+            QApplication app(argc, argv);
+            QTimer::singleShot(60000, &app, SLOT(quit()));
+            ...
+            return app.exec();
         }
     \endcode
 
@@ -288,6 +288,8 @@ void QSingleShotTimer::timerEvent(QTimerEvent *)
 
     The \a receiver is the receiving object and the \a member is the
     slot. The time interval is \a msec milliseconds.
+
+    \sa start()
 */
 
 void QTimer::singleShot(int msec, QObject *receiver, const char *member)
@@ -296,24 +298,27 @@ void QTimer::singleShot(int msec, QObject *receiver, const char *member)
         (void) new QSingleShotTimer(msec, receiver, member);
 }
 
-/*
+/*!
     \property QTimer::singleShot
     \brief whether the timer is a single-shot timer
 
     A single-shot timer fires only once, non-single-shot timers fire
     every \l interval milliseconds.
- */
 
-/*\property QTimer::interval
-  \brief the timeout interval in milliseconds
+    \sa interval, singleShot()
+*/
 
-  The default value for this property is 0.  A QTimer with a timeout
-  interval of 0 will time out as soon as all the events in the window
-  system's event queue have been processed.
+/*!
+    \property QTimer::interval
+    \brief the timeout interval in milliseconds
 
-  Setting the interval of an active timer changes its timerId().
+    The default value for this property is 0.  A QTimer with a timeout
+    interval of 0 will time out as soon as all the events in the window
+    system's event queue have been processed.
 
-  \sa singleShot
+    Setting the interval of an active timer changes its timerId().
+
+    \sa singleShot
 */
 void QTimer::setInterval(int msec)
 {
@@ -327,4 +332,4 @@ void QTimer::setInterval(int msec)
 /*! \fn void QTimer::changeInterval(int msec)
 
    Use setInterval(msec) or start(msec) instead.
- */
+*/

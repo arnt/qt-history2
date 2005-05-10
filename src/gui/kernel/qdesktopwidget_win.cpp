@@ -221,7 +221,7 @@ void QDesktopWidgetPrivate::cleanup()
 */
 
 /*!
-    \class QDesktopWidget qdesktopwidget.h
+    \class QDesktopWidget
     \brief The QDesktopWidget class provides access to screen information on multi-head systems.
 
     \ingroup advanced
@@ -257,7 +257,7 @@ void QDesktopWidgetPrivate::cleanup()
     In the illustration above, Application One's primary screen is
     screen 0, and App Two's primary screen is screen 1.
 
-
+    \sa QApplication, QX11Info::appRootWindow()
 */
 
 /*!
@@ -318,15 +318,6 @@ int QDesktopWidget::numScreens() const
 
 /*!
     Returns a widget that represents the screen with index \a screen.
-    This widget can be used to draw directly on the desktop, using an
-    unclipped painter like this:
-
-    \code
-    QPainter paint(QApplication::desktop()->screen(0), true);
-    paint.draw...
-    ...
-    paint.end();
-    \endcode
 
     If the system uses a virtual desktop, the returned widget will
     have the geometry of the entire virtual desktop i.e. bounding
@@ -334,7 +325,7 @@ int QDesktopWidget::numScreens() const
 
     \sa primaryScreen(), numScreens(), isVirtualDesktop()
 */
-QWidget *QDesktopWidget::screen(int /*screen*/)
+QWidget *QDesktopWidget::screen(int /* screen */)
 {
     // It seems that a Qt::WType_Desktop cannot be moved?
     return this;
@@ -343,7 +334,7 @@ QWidget *QDesktopWidget::screen(int /*screen*/)
 /*!
   Returns the available geometry of the screen with index \a screen. What
   is available will be subrect of screenGeometry() based on what the
-  platform decides is available (for example excludes the Qt::Dock and Menubar
+  platform decides is available (for example excludes the Qt::Dock and menu bar
   on Mac OS X, or the taskbar on Windows).
 
   \sa screenNumber(), screenGeometry()

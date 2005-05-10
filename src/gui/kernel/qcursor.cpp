@@ -59,6 +59,8 @@
     \sa QWidget \link guibooks.html#fowler GUI Design Handbook:
     Cursors\endlink
 
+    \section1 A Note for X11 Users
+
     On X11, Qt supports the \link
     http://www.xfree86.org/4.3.0/Xcursor.3.html Xcursor\endlink
     library, which allows for full color icon themes. The table below
@@ -71,22 +73,22 @@
 
     \table
     \header \i Qt::CursorShape Values   \i Cursor Names
-    \row \i Qt::ArrowCursor             \i left_ptr
-    \row \i Qt::UpArrowCursor           \i up_arrow
-    \row \i Qt::CrossCursor             \i cross
-    \row \i Qt::WaitCursor              \i wait
-    \row \i Qt::BusyCursor              \i left_ptr_watch
-    \row \i Qt::IBeamCursor             \i ibeam
-    \row \i Qt::SizeVerCursor           \i size_ver
-    \row \i Qt::SizeHorCursor           \i size_hor
-    \row \i Qt::SizeBDiagCursor         \i size_bdiag
-    \row \i Qt::SizeFDiagCursor         \i size_fdiag
-    \row \i Qt::SizeAllCursor           \i size_all
-    \row \i Qt::SplitVCursor            \i split_v
-    \row \i Qt::SplitHCursor            \i split_h
-    \row \i Qt::PointingHandCursor      \i pointing_hand
-    \row \i Qt::ForbiddenCursor         \i forbidden
-    \row \i Qt::WhatsThisCursor         \i whats_this
+    \row \i Qt::ArrowCursor             \i \c left_ptr
+    \row \i Qt::UpArrowCursor           \i \c up_arrow
+    \row \i Qt::CrossCursor             \i \c cross
+    \row \i Qt::WaitCursor              \i \c wait
+    \row \i Qt::BusyCursor              \i \c left_ptr_watch
+    \row \i Qt::IBeamCursor             \i \c ibeam
+    \row \i Qt::SizeVerCursor           \i \c size_ver
+    \row \i Qt::SizeHorCursor           \i \c size_hor
+    \row \i Qt::SizeBDiagCursor         \i \c size_bdiag
+    \row \i Qt::SizeFDiagCursor         \i \c size_fdiag
+    \row \i Qt::SizeAllCursor           \i \c size_all
+    \row \i Qt::SplitVCursor            \i \c split_v
+    \row \i Qt::SplitHCursor            \i \c split_h
+    \row \i Qt::PointingHandCursor      \i \c pointing_hand
+    \row \i Qt::ForbiddenCursor         \i \c forbidden
+    \row \i Qt::WhatsThisCursor         \i \c whats_this
     \endtable
 */
 
@@ -112,7 +114,7 @@
 
     Writes the \a cursor to the \a stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
 QDataStream &operator<<(QDataStream &s, const QCursor &c)
@@ -143,7 +145,7 @@ QDataStream &operator<<(QDataStream &s, const QCursor &c)
 
     Reads the \a cursor from the \a stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
 QDataStream &operator>>(QDataStream &s, QCursor &c)
@@ -188,9 +190,9 @@ QDataStream &operator>>(QDataStream &s, QCursor &c)
     If \a hotY is negative, it is set to the \c{pixmap().height()/2}.
 
     Valid cursor sizes depend on the display hardware (or the
-    underlying window system). We recommend using 32x32 cursors,
+    underlying window system). We recommend using 32 x 32 cursors,
     because this size is supported on all platforms. Some platforms
-    also support 16x16, 48x48 and 64x64 cursors.
+    also support 16 x 16, 48 x 48, and 64 x 64 cursors.
 
     \sa QPixmap::QPixmap(), QPixmap::setMask()
 */
@@ -243,9 +245,9 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
     draw 1-pixels in the bitmaps.
 
     Valid cursor sizes depend on the display hardware (or the
-    underlying window system). We recommend using 32x32 cursors,
+    underlying window system). We recommend using 32 x 32 cursors,
     because this size is supported on all platforms. Some platforms
-    also support 16x16, 48x48 and 64x64 cursors.
+    also support 16 x 16, 48 x 48, and 64 x 64 cursors.
 
     \sa QBitmap::QBitmap(), QBitmap::setMask()
 */
@@ -439,7 +441,7 @@ QCursor &QCursor::operator=(const QCursor &c)
 }
 
 /*!
-   Returns the cursor as a QVariant
+   Returns the cursor as a QVariant.
 */
 QCursor::operator QVariant() const
 {
@@ -450,5 +452,3 @@ QCursor::operator QVariant() const
 }
 
 #endif // QT_NO_CURSOR
-
-

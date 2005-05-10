@@ -67,7 +67,7 @@
     Note that class \c T must inherit QObject, or a compilation or
     link error will result.
 
-    \sa QObject
+    \sa QObject, QObjectCleanupHandler
 */
 
 /*!

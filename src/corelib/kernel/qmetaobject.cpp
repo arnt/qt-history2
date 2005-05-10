@@ -625,8 +625,8 @@ QMetaProperty QMetaObject::property(int index) const
         class MyClass
         {
             Q_OBJECT
-            Q_CLASSINFO(author, Sabrina Schweinsteiger);
-            Q_CLASSINFO(url, http://doc.moosesoft.co.uk/1.0/);
+            Q_CLASSINFO("author", "Sabrina Schweinsteiger");
+            Q_CLASSINFO("url", "http://doc.moosesoft.co.uk/1.0/");
 
         public:
             ...
@@ -1867,8 +1867,8 @@ bool QMetaProperty::isEditable(const QObject *object) const
         class MyClass
         {
             Q_OBJECT
-            Q_CLASSINFO(author, Sabrina Schweinsteiger);
-            Q_CLASSINFO(url, http://doc.moosesoft.co.uk/1.0/);
+            Q_CLASSINFO("author", "Sabrina Schweinsteiger");
+            Q_CLASSINFO("url", "http://doc.moosesoft.co.uk/1.0/");
 
         public:
             ...

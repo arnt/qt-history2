@@ -2618,10 +2618,7 @@ void QApplication::qwsSetDecoration(QDecoration *dec)
 
   Requests a QDecoration object for \a decoration from the QDecorationFactory.
 
-  The string must be one of the QStyleFactory::keys(), typically one
-  of "windows", "motif", "cde", "motifplus", "platinum", "sgi" and
-  "compact". Depending on the platform, "windowsxp", "aqua" or
-  "macintosh" may be available.
+  The string must be one of the QStyleFactory::keys().
 
   A later call to the QApplication constructor will override the
   requested style when a "-style" option is passed in as a commandline

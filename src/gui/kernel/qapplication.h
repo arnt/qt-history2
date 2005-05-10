@@ -49,10 +49,7 @@ class QApplicationPrivate;
 class Q_GUI_EXPORT QApplication : public QCoreApplication
 {
     Q_OBJECT
-    Q_PROPERTY(bool desktopSettingsAware READ desktopSettingsAware WRITE setDesktopSettingsAware)
     Q_PROPERTY(Qt::LayoutDirection layoutDirection READ layoutDirection WRITE setLayoutDirection)
-    Q_PROPERTY(QPalette palette READ palette WRITE setPalette)
-    Q_PROPERTY(QFont font READ font WRITE setFont)
     Q_PROPERTY(QIcon windowIcon READ windowIcon WRITE setWindowIcon)
     Q_PROPERTY(int cursorFlashTime READ cursorFlashTime WRITE setCursorFlashTime)
     Q_PROPERTY(int doubleClickInterval  READ doubleClickInterval WRITE setDoubleClickInterval)

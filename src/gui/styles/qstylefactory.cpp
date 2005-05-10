@@ -51,9 +51,11 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     plugin (see \l QStylePlugin).
 
     QStyleFactory::keys() returns a list of valid keys, typically
-    including "windows", "motif", "cde", "motifplus", "platinum",
-    "sgi" and "compact". Depending on the platform, "windowsxp",
-    "aqua" or "macintosh" may be available.
+    including "windows", "motif", "cde", and "plastique".
+    Depending on the platform, "windowsxp" and "macintosh" may be
+    available.
+
+    \sa QStyle
 */
 
 /*!

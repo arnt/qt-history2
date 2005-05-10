@@ -88,14 +88,6 @@
     components can be accessed in one go with rgb() and hsv(), or
     individually with red(), green(), and blue().
 
-    Use maxColors() and numBitPlanes() to determine the maximum number
-    of colors and the number of bit planes supported by the underlying
-    window system,
-
-    If you need to allocate many colors temporarily, for example in an
-    image viewer application, enterAllocContext(), leaveAllocContext() and
-    destroyAllocContext() will prove useful.
-
     \section1 HSV Colors
 
     Because many people don't know the HSV color model very well, we'll
