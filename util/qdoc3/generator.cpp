@@ -646,7 +646,7 @@ void Generator::generateThreadSafeness(const Node *node, CodeMarker *marker)
                 }
             }
 	} else {
-            text << typeString(node) << " is " << theStockLink << ".";
+            text << "This " << typeString(node) << " is " << theStockLink << ".";
         }
         text << Atom::ParaRight;
     }

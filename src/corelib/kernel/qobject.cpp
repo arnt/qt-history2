@@ -471,7 +471,8 @@ QMetaCallEvent::~QMetaCallEvent()
     Some QObject functions, e.g. children(), return a \c QObjectList.
     \c QObjectList is a typedef for QList<QObject *>.
 
-    \sa QMetaObject, QPointer, QObjectCleanupHandler
+    \sa QMetaObject, QPointer, QObjectCleanupHandler,
+        {Object Trees and Object Ownership}
 */
 
 /*!

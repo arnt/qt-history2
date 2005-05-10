@@ -3198,7 +3198,7 @@ void QWidget::setWindowTitle(const QString &title)
     has been set, windowIcon() returns the application icon
     (QApplication::windowIcon()).
 
-    \sa windowIconText, windowTitle \link appicon.html Setting the Application Icon\endlink
+    \sa windowIconText, windowTitle, {Setting the Application}
 */
 QIcon QWidget::windowIcon() const
 {
@@ -3377,7 +3377,7 @@ bool QWidget::hasFocus() const
 
     \sa hasFocus() clearFocus() focusInEvent() focusOutEvent()
     setFocusPolicy() QApplication::focusWidget() grabKeyboard()
-    grabMouse()
+    grabMouse(), {Keyboard Focus}
 */
 
 void QWidget::setFocus(Qt::FocusReason reason)
@@ -3690,7 +3690,7 @@ bool QWidget::isActiveWindow() const
     If \a first or \a second has a focus proxy, setTabOrder()
     correctly substitutes the proxy.
 
-    \sa setFocusPolicy(), setFocusProxy()
+    \sa setFocusPolicy(), setFocusProxy(), {Keyboard Focus}
 */
 void QWidget::setTabOrder(QWidget* first, QWidget *second)
 {

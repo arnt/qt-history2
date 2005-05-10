@@ -185,7 +185,7 @@
     QList, QLinkedList, and QVector's non-const iterator types are
     random access iterators.
 
-    \sa {container classes}
+    \sa {container classes}, \sa <QtGlobal>
 */
 
 /*! \fn OutputIterator qCopy(InputIterator begin1, InputIterator end1, OutputIterator begin2)

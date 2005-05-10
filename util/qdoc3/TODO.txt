@@ -1,5 +1,6 @@
 MUST HAVES:
 
+  * get rid of spurious public + protected variables
   * get rid of spurious 'global' functions
   * Make automatic links in code work
   * make links to base class enums work (e.g. SO_DockWindow)

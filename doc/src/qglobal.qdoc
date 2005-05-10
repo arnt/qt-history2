@@ -3,6 +3,8 @@
     \title Global Qt Declarations
 
     \brief The <QtGlobal> header file provides basic declarations and is included by all other Qt headers.
+
+    \sa <QtAlgorithms>
 */
 
 /*! \typedef uchar

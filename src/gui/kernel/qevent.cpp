@@ -726,7 +726,7 @@ Qt::KeyboardModifiers QKeyEvent::modifiers() const
     The event handlers QWidget::focusInEvent() and
     QWidget::focusOutEvent() receive focus events.
 
-    \sa QWidget::setFocus(), QWidget::setFocusPolicy()
+    \sa QWidget::setFocus(), QWidget::setFocusPolicy(), {Keyboard Focus}
 */
 
 /*!

@@ -34,16 +34,17 @@
 
     \tableofcontents
 
-    \section1 X Window System Peculiarities
+    \section1 X11 Peculiarities
 
     On X11, a window does not have a frame until the window manager
-    decorates it. This happens asynchronously at some point in time after
-    calling QWidget::show() and the first paint event the window receives: or it
-    does not happen at all. Bear in mind that X11 is policy-free (others
-    call it flexible). Thus you cannot make any safe assumption about the
-    decoration frame your window will get. Basic rule: there's always one
-    user who uses a window manager that breaks your assumption, and who
-    will complain to you.
+    decorates it. This happens asynchronously at some point in time
+    after calling QWidget::show() and the first paint event the
+    window receives, or it does not happen at all. Bear in mind that
+    X11 is policy-free (others call it flexible). Thus you cannot
+    make any safe assumption about the decoration frame your window
+    will get. Basic rule: There's always one user who uses a window
+    manager that breaks your assumption, and who will complain to
+    you.
 
     Furthermore, a toolkit cannot simply place windows on the screen. All
     Qt can do is to send certain hints to the window manager. The window
@@ -87,7 +88,8 @@
     restore the geometry using \l{QWidget::resize()} and
     \l{QWidget::move()}{move()} before calling
     \l{QWidget::show()}{show()}, as demonstrated in the following
-    code snippets (from the \l mainwindows/application example):
+    code snippets (from the \l{mainwindows/application}{Application}
+    example):
 
     \quotefromfile mainwindows/application/mainwindow.cpp
     \skipto ::readSettings(

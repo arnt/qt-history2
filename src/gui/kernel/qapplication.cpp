@@ -1465,7 +1465,7 @@ void QApplication::setFont(const QFont &font, const char* className)
     \property QApplication::windowIcon
     \brief the default window icon
 
-    \sa QWidget::setWindowIcon()
+    \sa QWidget::setWindowIcon(), {Setting the Application Icon}
 */
 QIcon QApplication::windowIcon()
 {

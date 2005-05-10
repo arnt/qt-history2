@@ -343,7 +343,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     ASSERT: "b == 0" in file div.cpp, line 9
     \endcode
 
-    \sa Q_ASSERT_X(), qFatal(), \link debug.html Debugging\endlink
+    \sa Q_ASSERT_X(), qFatal(), {Debugging Techniques}
 */
 
 /*!
@@ -380,7 +380,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     ASSERT failure in divide: "division by zero", file div.cpp, line 9
     \endcode
 
-    \sa Q_ASSERT(), qFatal(), \link debug.html Debugging\endlink
+    \sa Q_ASSERT(), qFatal(), {Debugging Techniques}
 */
 
 /*!
@@ -405,7 +405,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
         Q_CHECK_PTR(a);
     \endcode
 
-    \sa qWarning(), \link debug.html Debugging\endlink
+    \sa qWarning(), {Debugging Techniques}
 */
 
 
@@ -614,7 +614,7 @@ QString qt_error_string(int errorCode)
         }
     \endcode
 
-    \sa qDebug(), qWarning(), qFatal(), \link debug.html Debugging\endlink
+    \sa qDebug(), qWarning(), qFatal(), {Debugging Techniques}
 */
 QtMsgHandler qInstallMsgHandler(QtMsgHandler h)
 {
@@ -694,7 +694,7 @@ void qt_message_output(QtMsgType msgType, const char *buf)
     to crashes on certain platforms due to the platform's printf() implementation.
 
     \sa qWarning(), qCritical(), qFatal(), qInstallMsgHandler(),
-        \link debug.html Debugging\endlink
+        {Debugging Techniques}
 */
 void qDebug(const char *msg, ...)
 {
@@ -738,7 +738,7 @@ void qDebug(const char *msg, ...)
     to crashes on certain platforms due to the platforms printf implementation.
 
     \sa qDebug(), qCritical(), qFatal(), qInstallMsgHandler(),
-        \link debug.html Debugging\endlink
+        {Debugging Techniques}
 */
 void qWarning(const char *msg, ...)
 {
@@ -780,7 +780,7 @@ void qWarning(const char *msg, ...)
     implementation.
 
     \sa qDebug(), qWarning(), qFatal(), qInstallMsgHandler(),
-        \link debug.html Debugging\endlink
+        {Debugging Techniques}
 */
 void qCritical(const char *msg, ...)
 {
@@ -855,7 +855,7 @@ void qErrnoWarning(int code, const char *msg, ...)
     to crashes on certain platforms due to the platforms printf implementation.
 
     \sa qDebug(), qCritical(), qWarning(), qInstallMsgHandler(),
-        \link debug.html Debugging\endlink
+        {Debugging Techniques}
 */
 void qFatal(const char *msg, ...)
 {

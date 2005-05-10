@@ -2,20 +2,20 @@
     \page timers.html
     \title Timers
 
-    QObject, the base class of all Qt objects, provides the basic timer
-    support in Qt. With QObject::startTimer(), you start a timer with
-    an \e interval in milliseconds as argument. The function returns a
-    unique integer timer id. The timer will now "fire" every \e interval
-    milliseconds, until you explicitly call QObject::killTimer() with
-    the timer ID.
+    QObject, the base class of all Qt objects, provides the basic
+    timer support in Qt. With QObject::startTimer(), you start a
+    timer with an interval in milliseconds as argument. The function
+    returns a unique integer timer ID. The timer will now fire at
+    regular intervals until you explicitly call QObject::killTimer()
+    with the timer ID.
 
     For this mechanism to work, the application must run in an event
     loop. You start an event loop with QApplication::exec(). When a
     timer fires, the application sends a QTimerEvent, and the flow of
-    control leaves the event loop until the timer event is processed. This
-    implies that a timer cannot fire while your application is busy doing
-    something else. In other words: the accuracy of timers depends on the
-    granularity of your application.
+    control leaves the event loop until the timer event is processed.
+    This implies that a timer cannot fire while your application is
+    busy doing something else. In other words: the accuracy of timers
+    depends on the granularity of your application.
 
     There is practically no upper limit for the interval value (more
     than one year is possible). The accuracy depends on the
@@ -78,5 +78,6 @@
     optimization, you can use QBasicTimer instead of QTimer. With
     QBasicTimer, you must reimplement
     \l{QObject::timerEvent()}{timerEvent()} in your QObject subclass
-    and handle the timeout there.
+    and handle the timeout there. The \l{widgets/wiggly}{Wiggly}
+    example shows how to use QBasicTimer.
 */
