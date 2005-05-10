@@ -155,13 +155,13 @@ void FtpWindow::ftpCommandFinished(int, bool error)
                                  .arg(file->fileName()));
             file->close();
             file->remove();
-            enableDownloadButton();
         } else {
             statusLabel->setText(tr("Downloaded %1 to current directory.")
                                  .arg(file->fileName()));
             file->close();
         }
         delete file;
+        enableDownloadButton();
     } else if (ftp->currentCommand() == QFtp::List) {
         QApplication::restoreOverrideCursor();
         if (isDirectory.isEmpty()) {
