@@ -6,9 +6,11 @@ int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
 
-    app.setStyle(new ArthurStyle());
-
     GradientWidget gradientWidget(0);
+    QStyle *arthurStyle = new ArthurStyle();
+    gradientWidget.setStyle(arthurStyle);
+    foreach (QWidget *w, qFindChildren<QWidget *>(&gradientWidget))
+        w->setStyle(arthurStyle);
     gradientWidget.show();
 
     return app.exec();
