@@ -1109,7 +1109,7 @@ QString QAbstractSpinBoxPrivate::stripped(const QString &t) const
             changed = true;
         }
         if (changed)
-            text = text.mid(from, length).simplified();
+            text = text.mid(from, length);
     }
     return text;
 }
@@ -1567,14 +1567,16 @@ QSpinBoxValidator::QSpinBoxValidator(QAbstractSpinBox *qp, QAbstractSpinBoxPriva
 
 QValidator::State QSpinBoxValidator::validate(QString &input, int &pos) const
 {
-    if (dptr->specialValueText.size() > 0 && input == dptr->specialValueText) {
+    if (dptr->specialValueText.size() > 0 && input == dptr->specialValueText)
         return QValidator::Acceptable;
-    } else if ((!dptr->prefix.isEmpty() && !input.startsWith(dptr->prefix))
-	       || (!dptr->suffix.isEmpty() && !input.endsWith(dptr->suffix))) {
-        return QValidator::Invalid;
-    } else {
-	return qptr->validate(input, pos);
-    }
+
+    if (!dptr->prefix.isEmpty() && !input.startsWith(dptr->prefix))
+        input.prepend(dptr->prefix);
+
+    if (!dptr->suffix.isEmpty() && !input.endsWith(dptr->suffix))
+        input.append(dptr->suffix);
+
+    return qptr->validate(input, pos);
 }
 /*!
     \internal
