@@ -577,8 +577,11 @@ void QFtpDTP::socketReadyRead()
         return;
     }
 
-    if (pi->abortState == QFtpPI::AbortStarted)
+    if (pi->abortState == QFtpPI::AbortStarted) {
+        // discard data
+        socket->readAll();
         return;
+    }
 
     if (pi->currentCommand().startsWith("LIST")) {
         while (socket->canReadLine()) {
