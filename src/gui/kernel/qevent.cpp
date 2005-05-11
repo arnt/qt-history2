@@ -2285,6 +2285,17 @@ QDragLeaveEvent::~QDragLeaveEvent()
 }
 
 /*!
+    \class QHelpEvent
+    \brief The QHelpEvent class provides an event that is used to request helpful information
+    about a particular point in a widget.
+
+    This event can be intercepted in applications to provide tool tips or "What's This?"
+    help for custom widgets.
+
+    \sa QToolTip, QWhatsThis
+*/
+
+/*!
     Constructs a help event with the given \a type corresponding to the
     widget-relative position specified by \a pos and the global position
     specified by \a globalPos.
