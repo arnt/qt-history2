@@ -234,6 +234,7 @@ public:
     uint drawActiveSelection : 1;
     uint inMenuMode : 1;
 
+    QPoint dragPos;
     Q3IconViewToolTip *toolTip;
     QPixmapCache maskCache;
     QHash<Q3IconViewItem *, Q3IconViewItem *> selectedItems;
@@ -3269,34 +3270,16 @@ void Q3IconView::doAutoScroll()
 
     QRect r = *d->rubber;
     *d->rubber = oldRubber;
-
-    // ### fix this and use qrubberband instead
-    QPainter p;
-    p.begin(viewport());
-    p.setPen(QPen(Qt::color0, 1));
-    p.setBrush(Qt::NoBrush);
-    drawRubber(&p);
     d->dragging = false;
-    p.end();
-
     *d->rubber = r;
-
     if (changed) {
         d->drawAllBack = false;
         d->clipRegion = region;
         repaintContents(rr);
         d->drawAllBack = true;
     }
-
     ensureVisible(pos.x(), pos.y());
-
-    p.begin(viewport());
-    p.setPen(QPen(Qt::color0, 1));
-    p.setBrush(Qt::NoBrush);
-    drawRubber(&p);
     d->dragging = true;
-
-    p.end();
 
     if (changed) {
         emit selectionChanged();
@@ -4496,14 +4479,8 @@ void Q3IconView::contentsMouseReleaseEvent(QMouseEvent *e)
     d->startDragItem = 0;
 
     if (d->rubber) {
-        QPainter p;
-        p.begin(viewport());
-        p.setPen(QPen(Qt::color0, 1));
-        p.setBrush(Qt::NoBrush);
-
-        drawRubber(&p);
         d->dragging = false;
-        p.end();
+        viewport()->update();
 
         if ((d->rubber->topLeft() - d->rubber->bottomRight()).manhattanLength() >
              QApplication::startDragDistance())
@@ -4657,11 +4634,7 @@ void Q3IconView::contentsDragMoveEvent(QDragMoveEvent *e)
         }
 
         d->tmpCurrentItem = item;
-        QPainter p;
-        p.begin(viewport());
-        p.translate(-contentsX(), -contentsY());
-        item->paintFocus(&p, palette());
-        p.end();
+        viewport()->update();
     } else {
         e->acceptAction();
         d->oldDragAcceptAction = true;
@@ -5254,12 +5227,9 @@ void Q3IconView::drawRubber(QPainter *p)
 {
     if (!p || !d->rubber)
         return;
-
-    QPoint pnt(d->rubber->x(), d->rubber->y());
-    pnt = contentsToViewport(pnt);
-    // ### this needs qrubberband too.
-    QStyleOption opt(0, QStyleOption::SO_Default);
-    opt.rect.setRect(pnt.x(), pnt.y(), d->rubber->width(), d->rubber->height());
+    QStyleOptionRubberBand opt;
+    opt.rect = d->rubber->normalized();
+    opt.shape = QRubberBand::Rectangle;
     opt.palette = palette();
     opt.state = QStyle::State_None;
     style()->drawControl(QStyle::CE_RubberBand, &opt, p, this);
@@ -5456,37 +5426,8 @@ void Q3IconView::drawDragShapes(const QPoint &pos)
         return;
     }
 
-    QPainter p;
-    p.begin(viewport());
-    p.translate(-contentsX(), -contentsY());
-    p.setPen(QPen(Qt::color0));
-    QStyleOptionFocusRect opt;
-    opt.palette = palette();
-    opt.state = QStyle::State_None;
-    opt.backgroundColor = palette().base().color();
-    if (d->isIconDrag) {
-        QLinkedList<Q3IconDragDataItem>::Iterator it = d->iconDragData.begin();
-        for (; it != d->iconDragData.end(); ++it) {
-            QRect ir = (*it).item.pixmapRect();
-            QRect tr = (*it).item.textRect();
-            tr.moveBy(pos.x(), pos.y());
-            ir.moveBy(pos.x(), pos.y());
-            if (!ir.intersects(QRect(contentsX(), contentsY(), visibleWidth(), visibleHeight())))
-                continue;
-
-            opt.rect = ir;
-            style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
-            opt.rect = tr;
-            style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
-        }
-    } else if (d->numDragItems > 0) {
-        for (int i = 0; i < d->numDragItems; ++i) {
-            opt.rect.setRect(pos.x() + i * 40, pos.y(), 35, 35);
-            style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
-        }
-
-    }
-    p.end();
+    d->dragPos = pos;
+    viewport()->update();
 #endif
 }
 
@@ -5550,14 +5491,42 @@ bool Q3IconView::eventFilter(QObject * o, QEvent * e)
             return true;
         case QEvent::Paint:
             if (o == viewport()) {
-                if (d->dragging) {
-                    if (!d->rubber)
-                        drawDragShapes(d->oldDragPos);
-                }
                 viewportPaintEvent((QPaintEvent*)e);
+                QPainter p(viewport());
                 if (d->dragging) {
-                    if (!d->rubber)
-                        drawDragShapes(d->oldDragPos);
+                    if (!d->rubber && d->drawDragShapes) {
+                        p.setPen(QPen(Qt::color0));
+                        QStyleOptionFocusRect opt;
+                        opt.palette = palette();
+                        opt.state = QStyle::State_KeyboardFocusChange;
+                        opt.backgroundColor = palette().base().color();
+                        if (d->isIconDrag) {
+                            d->dragPos = contentsToViewport(d->dragPos);
+                            QLinkedList<Q3IconDragDataItem>::Iterator it = d->iconDragData.begin();
+                            for (; it != d->iconDragData.end(); ++it) {
+                                QRect ir = (*it).item.pixmapRect();
+                                QRect tr = (*it).item.textRect();
+                                tr.moveBy(d->dragPos.x(), d->dragPos.y());
+                                ir.moveBy(d->dragPos.x(), d->dragPos.y());
+                                if (!ir.intersects(QRect(0, 0, visibleWidth(), visibleHeight())))
+                                    continue;
+                                opt.rect = ir;
+                                style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
+                                opt.rect = tr;
+                                p.drawRect(tr);
+                                style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
+                            }
+                        } else if (d->numDragItems > 0) {
+                            for (int i = 0; i < d->numDragItems; ++i) {
+                                opt.rect.setRect(d->dragPos.x() + i * 40, d->dragPos.y(), 35, 35);
+                                style()->drawPrimitive(QStyle::PE_FrameFocusRect, &opt, &p, this);
+                            }
+
+                        }
+                        p.end();
+                    }
+                } else {
+                    drawRubber(&p);
                 }
             }
             return true;
