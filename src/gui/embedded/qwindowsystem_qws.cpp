@@ -639,9 +639,9 @@ void QWSClient::sendSelectionRequestEvent(QWSConvertSelectionCommand *cmd, int w
 
     \internal
 
-    \value InputMethodStart  Starting to compose.
-    \value InputMethodCompose Composing.
-    \value InputMethodEnd Finished composing.
+    \value InputMethodPreedit Composing.
+    \value InputMethodCommit Finished composing.
+    \omitvalue InputMethodCommitToPrev
 */
 
 /*!
@@ -2931,18 +2931,11 @@ void QWSServer::updateClientCursorPos()
     from physical or virtual keyboards by implementing the filter()
     function.
 
-    Use sendIMEvent() to send composition events. Composition starts
-    with the input method sending an \c InputMethodStart event, followed by a
-    number of \c InputMethodCompose events and ending with an \c InputMethodEnd event or
-    when the virtual reset() function is called.
-
-    The function setMicroFocus() is called when the focus widget changes
-    its cursor position.
-
-    The functions font() and inputRect() provide more information about
-    the state of the focus widget.
+    Use sendIMEvent() to send composition events.
 
     Use QWSServer::setCurrentInputMethod() to install an input method.
+
+    This class is still subject to change.
 */
 
 /*!
@@ -2975,9 +2968,6 @@ QWSInputMethod::~QWSInputMethod()
     If \a isPress is true this is a key press; otherwise it is a key
     release. If \a autoRepeat is true this is an auto-repeated key
     press.
-
-    All normal key events should be blocked while in compose mode
-    (i.e., between \c InputMethodStart and \c InputMethodEnd).
 */
 
 
@@ -3061,14 +3051,12 @@ void QWSInputMethod::mouseHandler(int, int state)
 /*!
     \fn QWSInputMethod::sendIMEvent(QWSServer::IMState state, const QString &txt, int cpos, int selLen)
 
-    Causes a QIMEvent to be sent to the focus widget. \a state may be
-    one of \c QWSServer::InputMethodStart, \c QWSServer::InputMethodCompose or \c
-    QWSServer::InputMethodEnd.
+    Causes a QIMEvent to be sent to the focus widget.
 
     \a txt is the text being composed (or the finished text if state
-    is \c InputMethodEnd). \a cpos is the current cursor position.
+    is \c InputMethodCommit). \a cpos is the current cursor position.
 
-    If state is \c InputMethodCompose, \a selLen is the number of characters in
+    If state is \c InputMethodPreedit, \a selLen is the number of characters in
     the composition string (starting at \a cpos) that should be
     marked as selected by the input widget receiving the event.
 */
@@ -3125,17 +3113,6 @@ void QWSInputMethod::mouseHandler(int, int state)
     \value DisableMouse Ignore all mouse input.
 */
 
-/*!
-    \enum QWSServer::GUIMode
-
-    This determines what sort of QWS server to create:
-
-    \value NoGui This is used for non-graphical Qt applications.
-    \value NormalGUI A normal Qt/Embedded application (not the server).
-    \value Server A Qt/Embedded server (e.g. if \c -qws has been specified
-                    on the command line.
-*/
-
 /*
     \class QWSServer::KeyMap
     \brief The QWSServer::KeyMap class is used for mapping scancodes.
@@ -3178,8 +3155,7 @@ void QWSInputMethod::mouseHandler(int, int state)
     release. If \a autoRepeat is true this is an auto-repeated key
     press.
 
-    All normal key events should be blocked while in compose mode
-    (i.e., between \c InputMethodStart and \c InputMethodEnd).
+    All normal key events should be blocked while in compose mode.
 */
 
 /*!
