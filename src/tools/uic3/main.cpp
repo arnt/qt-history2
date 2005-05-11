@@ -14,7 +14,7 @@
 #include "ui3reader.h"
 #include "domtool.h"
 
-#include <qcoreapplication.h>
+#include <qapplication.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qstringlist.h>
@@ -47,7 +47,7 @@ int main(int argc, char * argv[])
     bool nofwd = false;
     bool fix = false;
     QByteArray pchFile;
-    QCoreApplication app(argc, argv);
+    QApplication app(argc, argv, false);
 
     for (int n = 1; n < argc && error == 0; n++) {
         QByteArray arg = argv[n];
