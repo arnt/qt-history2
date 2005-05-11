@@ -2467,8 +2467,6 @@ void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData)
     case Qt::NoClip:
         break;
     }
-
-    fflush(stdout);
 }
 
 void qt_scanconvert(QT_FT_Outline *outline, qt_span_func callback, void *userData,
