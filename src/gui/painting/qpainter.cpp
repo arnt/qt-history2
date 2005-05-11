@@ -355,6 +355,7 @@ void QPainterPrivate::updateState(QPainterState *newState)
     } else if (newState->state() || engine->state!=newState) {
 
         if (engine->state->painter() != newState->painter)
+            // ### this could break with clip regions vs paths.
             engine->setDirty(QPaintEngine::AllDirty);
 
         // Upon restore, revert all changes since last save
@@ -765,7 +766,7 @@ void QPainter::restore()
         d->state->clipRegion = clipRegion();
         d->state->clipOperation = Qt::ReplaceClip;
         //Since we're updating the clip region anyway, pretend that the clip path hasn't changed:
-        tmp->dirtyFlags &= ~QPaintEngine::DirtyClipPath;
+        d->state->dirtyFlags &= ~QPaintEngine::DirtyClipPath;
         d->state->dirtyFlags |= QPaintEngine::DirtyClipRegion;
     }
 
