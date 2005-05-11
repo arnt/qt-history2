@@ -48,7 +48,7 @@ public:
     it is important to ensure that the \l{QWidget::sizeHint}{size hint} of the
     child widget is set to a suitable value. If a standard QWidget is used
     for the child widget, it may be necessary to call
-    \l{QWidget::setMinimumSize} to ensure that the contents of the widget are
+    QWidget::setMinimumSize() to ensure that the contents of the widget are
     shown correctly within the scroll area.
 */
 

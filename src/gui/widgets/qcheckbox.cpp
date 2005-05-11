@@ -92,7 +92,7 @@ public:
     This signal is emitted whenever the check box's state changes,
     i.e. whenever the user checks or unchecks it.
 
-    \a state contains the check box's new \c ToggleState.
+    \a state contains the check box's new ToggleState.
 */
 
 /*!

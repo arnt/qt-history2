@@ -1104,8 +1104,8 @@ QTimeEdit::QTimeEdit(QWidget *parent)
   to \a time.
 */
 
-QTimeEdit::QTimeEdit(const QTime &t, QWidget *parent)
-    : QDateTimeEdit(t, parent)
+QTimeEdit::QTimeEdit(const QTime &time, QWidget *parent)
+    : QDateTimeEdit(time, parent)
 {
 }
 

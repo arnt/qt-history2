@@ -38,7 +38,7 @@
 
 /*!
     \class QAbstractSpinBox
-    \brief The QAbstractSpinBox class provides a spinwidget and a line edit to
+    \brief The QAbstractSpinBox class provides a spinbox and a line edit to
     display values.
 
     \ingroup abstractwidgets
@@ -117,12 +117,14 @@ QAbstractSpinBox::~QAbstractSpinBox()
 /*!
     \enum QAbstractSpinBox::ButtonSymbols
 
-    This enum type determines what the buttons in a spin box show.
+    This enum type describes the symbols that can be displayed on the buttons
+    in a spin box.
 
-    \value UpDownArrows the buttons show little arrows in the classic
-    style.
+    \inlineimage qspinbox-updown.png
+    \inlineimage qspinbox-plusminus.png
 
-    \value PlusMinus the buttons show \bold{+} and \bold{-} symbols.
+    \value UpDownArrows Little arrows in the classic style.
+    \value PlusMinus \bold{+} and \bold{-} symbols.
 
     \sa QAbstractSpinBox::buttonSymbols
 */
@@ -154,9 +156,11 @@ void QAbstractSpinBox::setButtonSymbols(ButtonSymbols bs)
 /*!
     \property QAbstractSpinBox::text
 
-    \brief the spin box's text, including any prefix() and suffix()
+    \brief the spin box's text, including any prefix and suffix
 
     There is no default text.
+
+   \sa QAbstractSpinBox::prefix, QAbstractSpinBox::suffix
 */
 
 QString QAbstractSpinBox::text() const
@@ -265,7 +269,7 @@ void QAbstractSpinBox::setWrapping(bool w)
     The QLineEdit in the QAbstractSpinBox does not show a cursor in
     read-only mode.
 
-    \sa QLineEdit::setReadOnly, QLineEdit::readOnly
+    \sa QLineEdit::readOnly
 */
 
 bool QAbstractSpinBox::isReadOnly() const
@@ -339,7 +343,7 @@ void QAbstractSpinBox::setAlignment(Qt::Alignment flag)
 }
 
 /*!
-    Selects all the text in the spinbox except the prefix and suffix
+    Selects all the text in the spinbox except the prefix and suffix.
 */
 
 void QAbstractSpinBox::selectAll()
@@ -356,8 +360,9 @@ void QAbstractSpinBox::selectAll()
         d->edit->selectAll();
     }
 }
+
 /*!
-    Clears the lineedit of all text but prefix and suffix
+    Clears the lineedit of all text but prefix and suffix.
 */
 
 void QAbstractSpinBox::clear()
@@ -509,8 +514,8 @@ QLineEdit *QAbstractSpinBox::lineEdit() const
 
     QAbstractSpinBox takes ownership of the new lineEdit
 
-    If validator() for the \a lineEdit returns 0, the internal validator
-    of the spinbox will be set on the line edit.
+    If QLineEdit::validator() for the \a lineEdit returns 0, the internal
+    validator of the spinbox will be set on the line edit.
 */
 
 void QAbstractSpinBox::setLineEdit(QLineEdit *lineEdit)

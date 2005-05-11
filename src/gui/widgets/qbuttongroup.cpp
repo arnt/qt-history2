@@ -99,7 +99,7 @@
     Returns the button group's checked button, or 0 if no buttons are
     checked.
 
-    \sa buttonChecked()
+    \sa buttonClicked()
 */
 
 

@@ -912,7 +912,7 @@ void QComboBox::setDuplicatesEnabled(bool enable)
     d->duplicatesEnabled = enable;
 }
 
-/*!  \fn int QComboBox::findText(const QString &text, QAbstractItemModel::MatchFlags flags) const
+/*!  \fn int QComboBox::findText(const QString &text, Qt::MatchFlags flags = Qt::MatchExactly|Qt::MatchCaseSensitive) const
 
   Returns the index of the item containing the given \a text; otherwise
   returns -1.
@@ -996,7 +996,7 @@ void QComboBox::setSizeAdjustPolicy(QComboBox::SizeAdjustPolicy policy)
     This value is ignored if \c AdjustToMinimumContentsLength is not
     set. The default value is 0.
 
-    \sa setSizeAdjustPolicy
+    \sa sizeAdjustPolicy
 */
 
 int QComboBox::minimumContentsLength() const
@@ -1572,6 +1572,10 @@ void QComboBox::showPopup()
     view()->setFocus();
 }
 
+/*!
+    Hides the list of items in the combobox if it is currently visible;
+    otherwise this function does nothing.
+*/
 void QComboBox::hidePopup()
 {
     Q_D(QComboBox);
@@ -1580,7 +1584,7 @@ void QComboBox::hidePopup()
 }
 
 /*!
-    \reimp
+    Calls hidePopup(), then QWidget::hide().
 */
 void QComboBox::hide()
 {
@@ -2072,5 +2076,36 @@ void QComboBox::setModelColumn(int visibleColumn)
     if (lv)
         lv->setModelColumn(visibleColumn);
 }
+
+/*!
+    \fn int QComboBox::currentItem() const
+
+    Use currentIndex() instead.
+*/
+
+/*!
+    \fn void QComboBox::setCurrentItem(int)
+
+    Use setCurrentIndex(int) instead.
+*/
+
+/*!
+    \fn void QComboBox::popup()
+
+    Use showPopup() instead.
+*/
+
+/*!
+    \fn void QComboBox::textChanged(const QString &text)
+
+    Use the editTextChanged(const QString &text) signal instead.
+*/
+
+/*!
+    \variable QComboBox::Policy
+
+    Use QComboBox::InsertPolicy instead.
+*/
+
 
 #include "moc_qcombobox.cpp"

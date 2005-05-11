@@ -1326,23 +1326,21 @@ void QTextEdit::setPlainText(const QString &text)
 
     Returns the text of the text edit as plain text.
 
-    \sa setPlainText
- */
-/*!
-    \fn QString QTextEdit::toHtml() const
-
-    Returns the text of the text edit as html.
-
-    \sa setHtml
+    \sa QTextEdit::setPlainText()
  */
 
+
 /*!
-    Changes the text of the text edit to the string \a text.
-    Any previous text is removed.
+    \property QTextEdit::html
 
-    \a text is interpreted as rich text in html format.
+    This property provides an HTML interface to the text of the text edit.
 
-    Note that the undo/redo history is cleared by this function.
+    toHtml() returns the text of the text edit as html.
+
+    setHtml() changes the text of the text edit.  Any previous text is
+    removed. The input text is interpreted as rich text in html format.
+
+    Note that the undo/redo history is cleared by calling setHtml().
 */
 
 void QTextEdit::setHtml(const QString &text)
@@ -1541,7 +1539,7 @@ process:
 
     This function is an extension of QTextDocument::loadResource().
 
-    \sa QTextDocument::loadResource
+    \sa QTextDocument::loadResource()
 */
 QVariant QTextEdit::loadResource(int type, const QUrl &name)
 {
@@ -2292,7 +2290,7 @@ void QTextEdit::setReadOnly(bool ro)
     to the word under the cursor. In addition they are always merged into
     the current char format.
 
-    \sa QTextCursor::mergeCharFormat
+    \sa QTextCursor::mergeCharFormat()
  */
 void QTextEdit::mergeCurrentCharFormat(const QTextCharFormat &modifier)
 {
@@ -2537,6 +2535,13 @@ void QTextEdit::setLineWrapColumnOrWidth(int w)
     d->lineWrapColumnOrWidth = w;
     resizeEvent(0);
 }
+
+/*!
+    \property QTextEdit::wordWrapMode
+    \brief the mode QTextEdit will use when wrapping text by words
+
+    \sa QTextOption::WrapMode
+*/
 
 QTextOption::WrapMode QTextEdit::wordWrapMode() const
 {

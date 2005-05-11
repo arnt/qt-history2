@@ -406,10 +406,10 @@ void QWidget::resetInputContext()
     must use special flags.
     \endlist
 
-    The tictac/tictac.cpp example program is good example of a simple
-    widget. It contains a few event handlers (as all widgets must), a
-    few custom routines that are specific to it (as all useful widgets
-    do), and has a few children and connections. Everything it does
+    The \l widgets/calculator example program is good example of a simple
+    widget. It contains event handlers (as all widgets must), a
+    routines that are specific to it (as all useful widgets
+    do), and has children and connections. Everything it does
     is done in response to an event: this is by far the most common way
     to design GUI applications.
 
@@ -2090,7 +2090,7 @@ QPoint QWidget::pos() const
 
     For child widgets this property always holds an empty rect.
 
-    \sa windowState, geometry
+    \sa QWidget::windowState(), QWidget::geometry
 */
 
 /*!
@@ -2217,8 +2217,7 @@ QRegion QWidget::childrenRegion() const
 
     The minimum size set by this function will override the minimum size defined by QLayout.
 
-    \sa minimumWidth, minimumHeight, maximumSize, sizeIncrement,
-    QLayout::resizeMode
+    \sa minimumWidth, minimumHeight, maximumSize, sizeIncrement
 */
 
 QSize QWidget::minimumSize() const
@@ -2234,8 +2233,7 @@ QSize QWidget::minimumSize() const
     The widget cannot be resized to a larger size than the maximum
     widget size.
 
-    \sa maximumWidth, maximumHeight, minimumSize, sizeIncrement,
-    QLayout::resizeMode
+    \sa maximumWidth, maximumHeight, minimumSize, sizeIncrement
 */
 
 QSize QWidget::maximumSize() const
@@ -2465,7 +2463,7 @@ void QWidget::setBaseSize(int basew, int baseh)
     fixed size based on its contents, you can call
     QLayout::setSizeConstraint(QLayout::SetFixedSize);
 
-    \sa maximumSize, minimumSize, QLayout::resizeMode
+    \sa maximumSize, minimumSize
 */
 
 void QWidget::setFixedSize(const QSize & s)
@@ -3198,7 +3196,7 @@ void QWidget::setWindowTitle(const QString &title)
     has been set, windowIcon() returns the application icon
     (QApplication::windowIcon()).
 
-    \sa windowIconText, windowTitle, {Setting the Application}
+    \sa windowIconText, windowTitle
 */
 QIcon QWidget::windowIcon() const
 {
@@ -6544,7 +6542,7 @@ QString QWidget::whatsThis() const
 
   \brief the widget's name as seen by assistive technologies
 
-  \sa QAccessibleInterface::text
+  \sa QAccessibleInterface::text()
 */
 void QWidget::setAccessibleName(const QString &name)
 {
@@ -6563,7 +6561,7 @@ QString QWidget::accessibleName() const
 
   \brief the widget's description as seen by assistive technologies
 
-  \sa QAccessibleInterface::text
+  \sa QAccessibleInterface::text()
 */
 void QWidget::setAccessibleDescription(const QString &description)
 {

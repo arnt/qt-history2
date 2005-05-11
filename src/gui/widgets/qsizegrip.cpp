@@ -172,10 +172,11 @@ QSize QSizeGrip::sizeHint() const
 /*!
     Paints the resize grip. Resize grips are usually rendered as small
     diagonal textured lines in the lower-right corner. The event is in
-    \a e.
+    \a event.
 */
-void QSizeGrip::paintEvent(QPaintEvent *)
+void QSizeGrip::paintEvent(QPaintEvent *event)
 {
+    Q_UNUSED(event);
     QPainter painter(this);
     QStyleOption opt(0);
     opt.init(this);

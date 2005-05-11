@@ -317,7 +317,7 @@ void QLabelPrivate::init()
     in read-only mode instead. QTextEdit will flicker less on resize
     and can also provide a scrollbar when necessary.
 
-    \sa text, setTextFormat(), setBuddy(), alignment
+    \sa setTextFormat(), setBuddy(), alignment
 */
 
 void QLabel::setText(const QString &text)
@@ -1090,13 +1090,6 @@ QMovie *QLabel::movie() const
 }
 
 #endif  // QT_NO_MOVIE
-
-/*!
-    \property QLabel::backgroundMode
-    \brief the label's background mode
-
-    Get this property with backgroundMode().
-*/
 
 /*!
     \property QLabel::textFormat

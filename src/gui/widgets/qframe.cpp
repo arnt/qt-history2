@@ -108,7 +108,6 @@ QFramePrivate::QFramePrivate()
     \omitvalue PopupPanel
     \omitvalue LineEditPanel
     \omitvalue TabWidgetPanel
-    \omitvalue Shape_Mask
 
     When it does not call QStyle, Shape interacts with QFrame::Shadow,
     the lineWidth() and the midLineWidth() to create the total result.
@@ -132,7 +131,6 @@ QFramePrivate::QFramePrivate()
     \value Sunken the frame and contents appear sunken; draws a 3D
     sunken line using the light and dark colors of the current color
     group
-    \omitvalue Shadow_Mask
 
     Shadow interacts with QFrame::Shape, the lineWidth() and the
     midLineWidth(). See the picture of the frames in the main class
@@ -141,6 +139,21 @@ QFramePrivate::QFramePrivate()
     \sa QFrame::Shape lineWidth() midLineWidth()
 */
 
+/*!
+    \variable QFrame::Shadow_Mask
+
+    The mask of the QFrame's shadow.
+
+    \sa QFrame::frameShadow
+*/
+
+/*!
+    \variable QFrame::Shape_Mask
+
+    The mask of the QFrame's shape.
+
+    \sa QFrame::frameShape
+*/
 
 /*!
     Constructs a frame widget with frame style \c NoFrame and a

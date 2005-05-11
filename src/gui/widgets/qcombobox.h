@@ -160,12 +160,12 @@ public:
     virtual void showPopup();
     virtual void hidePopup();
 
-    void hide();
     bool event(QEvent *event);
 
 public slots:
     void clear();
     void clearEditText();
+    void hide();
     void setEditText(const QString &text);
 
 signals:

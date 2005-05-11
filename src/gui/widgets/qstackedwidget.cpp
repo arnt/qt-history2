@@ -193,7 +193,7 @@ QWidget *QStackedWidget::currentWidget() const
 
 /*!
 
-  Sets \a w to be the current widget. \w must be contained in this
+  Sets \a w to be the current widget. \a w must be contained in this
   stacked widget.
 
   Equivalent to

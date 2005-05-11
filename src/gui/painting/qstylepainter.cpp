@@ -116,13 +116,13 @@
 /*!
     \fn void QStylePainter::drawItemText(const QRect &rect, int flags, const QPalette &pal,
                                          bool enabled, const QString &text,
-                                         const QColor *penColor = 0)
+                                         QPalette::ColorRole textRole = QPalette::NoRole)
 
     Draws the \a text in rectangle \a rect and palette \a pal.
     The text is aligned and wrapped according to \a
     flags.
 
-    The pen color is specified with \a penColor. The \a enabled bool
+    The pen color is specified with \a textRole. The \a enabled bool
     indicates whether or not the item is enabled; when reimplementing
     this bool should influence how the item is drawn.
 

@@ -458,7 +458,7 @@ QIcon::operator QVariant() const
     QIcon object. This means that multiple QIcon objects can have
     the same serial number as long as they refer to the same contents.
 
-    A null icon always have a serial number of 0.
+    A null icon always has a serial number of 0.
 
     \sa QPixmap::serialNumber()
 */

@@ -191,8 +191,8 @@ int QToolBarPrivate::indexOf(QAction *action) const
     QMainWindow and QMainWindow subclasses.
 
     A toolbar can be fixed in place in a particular area() (e.g. at
-    the top of the window), or it can be movable() between toolbar
-    areas: see \l{allowedAreas} and isAreaAllowed().
+    the top of the window), or it can be movable (isMovable()) between toolbar
+    areas: see QToolBar::allowedAreas and isAreaAllowed().
 
 */
 

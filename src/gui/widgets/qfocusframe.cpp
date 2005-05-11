@@ -102,7 +102,7 @@ QStyleOption QFocusFramePrivate::getStyleOption() const
     QFocusFrame inside of a QSplitter or other child event monitoring
     widget.
 
-    \sa QFocusFrame::setWidget
+    \sa QFocusFrame::setWidget()
 */
 
 QFocusFrame::QFocusFrame(QWidget *parent)
@@ -128,7 +128,7 @@ QFocusFrame::~QFocusFrame()
   destructed QFocusFrame will follow the widget and place itself
   around the widget automatically.
 
-  \sa QFocusFrame::widget
+  \sa QFocusFrame::widget()
 */
 
 void
@@ -154,7 +154,7 @@ QFocusFrame::setWidget(QWidget *widget)
   Returns the currently monitored widget for automatically resize and
   update.
 
-   \sa QFocusFrame::setWidget
+   \sa QFocusFrame::setWidget()
 */
 
 QWidget *

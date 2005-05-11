@@ -137,7 +137,7 @@ bool QProgressBarPrivate::repaintRequired() const
 
     By default, the minimum step value is set to 0, and the maximum to 100.
 
-    \sa setTotalSteps()
+    \sa setRange()
 */
 
 QProgressBar::QProgressBar(QWidget *parent)

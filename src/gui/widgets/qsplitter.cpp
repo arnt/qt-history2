@@ -1625,7 +1625,7 @@ static const qint32 SplitterMagic = 0xff;
     Saves the state of the splitter's layout.
 
     Typically this is used in conjunction with QSettings to remember the size
-    for a future session. The \a version number is stored as part of the data.
+    for a future session. A version number is stored as part of the data.
     Here is an example:
 
     \quotefromfile snippets/splitter/splitter.cpp

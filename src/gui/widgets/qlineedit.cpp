@@ -2045,9 +2045,9 @@ void QLineEditPrivate::drag()
   createStandardContextMenu() and extend the menu returned.
 
     \code
-    void LineEdit::contextMenuEvent(QContextMenuEvent * e) {
+    void LineEdit::contextMenuEvent(QContextMenuEvent *e) {
             QMenu *menu = createStandardContextMenu();
-            menu->addAction(My Menu Item");
+            menu->addAction(tr("My Menu Item"));
             //...
             menu->exec(e->globalPos());
             delete menu;

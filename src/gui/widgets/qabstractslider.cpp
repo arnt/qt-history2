@@ -47,6 +47,8 @@
     slider provides and typically corresponds to the user pressing
     PageUp or PageDown.
 
+    \i \l tracking: Whether slider tracking is enabled.
+    
     \i \l sliderPosition: The current position of the slider. If \l
     tracking is enabled (the default), this is identical to \l value.
 
@@ -81,8 +83,8 @@
     QAbstractSlider provides a virtual sliderChange() function that is
     well suited for updating the on-screen representation of
     sliders. By calling triggerAction(), subclasses trigger slider
-    actions. Two helper functions QStyle::positionFromValue() and
-    QStyle::valueFromPosition() help subclasses and styles to map
+    actions. Two helper functions QStyle::sliderPositionFromValue() and
+    QStyle::sliderValueFromPosition() help subclasses and styles to map
     screen coordinates to logical range values.
 
 */
@@ -412,9 +414,10 @@ bool QAbstractSlider::isSliderDown() const
 
 
 /*!
-    Sets the current slider position to the given \a position.
+    \property QAbstractSlider::sliderPosition
+    \brief the current slider position
 
-    \sa sliderPosition()
+    If \l tracking is enabled (the default), this is identical to \l value.
 */
 void QAbstractSlider::setSliderPosition(int position)
 {
@@ -430,14 +433,6 @@ void QAbstractSlider::setSliderPosition(int position)
         triggerAction(SliderMove);
 }
 
-/*!
-    Returns the slider position.
-
-    If \l tracking is enabled (the default), this is identical to \l
-    value.
-
-    \sa setSliderPosition()
-*/
 int QAbstractSlider::sliderPosition() const
 {
     Q_D(const QAbstractSlider);
@@ -480,7 +475,7 @@ void QAbstractSlider::setValue(int value)
 
 /*!
     \property QAbstractSlider::invertedAppearance
-    \brief whether or not a slider shows its values inverted or not.
+    \brief whether or not a slider shows its values inverted.
 
     If this property is false (the default), the minimum and maximum will
     be shown in its classic position for the inherited widget. If the

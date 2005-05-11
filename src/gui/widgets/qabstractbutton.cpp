@@ -518,7 +518,7 @@ QKeySequence QAbstractButton::shortcut() const
 \property QAbstractButton::checkable
 \brief whether the button is checkable
 
-By default, this is false (the button is not checkable).
+By default, the button is not checkable.
 
 \sa checked
 */
@@ -539,8 +539,7 @@ bool QAbstractButton::isCheckable() const
 \property QAbstractButton::checked
 \brief whether the button is checked
 
-Only checkable buttons can be checked.  By default, this is false
-(the button is unchecked).
+Only checkable buttons can be checked. By default, the button is unchecked.
 
 \sa checkable
 */
