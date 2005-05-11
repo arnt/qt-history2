@@ -481,10 +481,14 @@ const QGradient *QBrush::gradient() const
 
 
 /*!
-    Returns true if the brush is fully opaque otherwise false. A brush is considered opaque if:
-    the alpha component of the color() is 255,
-    its pixmap() has no alpha chanel
-    the colors in the gradiant() have an alpha component that is 255.
+    Returns true if the brush is fully opaque otherwise false. A brush
+    is considered opaque if:
+
+    \list
+    \i The alpha component of the color() is 255.
+    \i Its texture() does not an alpha channel and is not a QBitmap.
+    \i The colors in the gradient() all have an alpha component that is 255.
+    \endlist
 */
 
 bool QBrush::isOpaque() const
