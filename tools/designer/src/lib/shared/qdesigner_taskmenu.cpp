@@ -103,7 +103,7 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
         actions.append(m_createDockWidgetAction);
 #endif
 
-    if (m_widget != formWindow) {
+    if (static_cast<void*>(m_widget) != static_cast<void*>(formWindow)) {
         actions.append(m_separator);
         if (qobject_cast<const QDesignerPromotedWidget*>(m_widget) == 0)
             actions.append(m_promoteToCustomWidgetAction);
