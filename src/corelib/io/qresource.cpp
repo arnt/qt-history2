@@ -316,7 +316,7 @@ QStringList QResourceInfo::children() const
     return mChildren;
 }
 
-bool qRegisterResourceData(int version, const unsigned char *tree,
+Q_CORE_EXPORT bool qRegisterResourceData(int version, const unsigned char *tree,
                            const unsigned char *name, const unsigned char *data)
 {
     if(version == 0x01) {
