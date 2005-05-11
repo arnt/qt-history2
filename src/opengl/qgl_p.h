@@ -87,6 +87,8 @@ public:
     WId        win;
     int pixelFormatId;
     QGLCmap* cmap;
+    HBITMAP hbitmap;
+    HDC hbitmap_hdc;
 #elif defined(Q_WS_X11) || defined(Q_WS_MAC)
     void* vi;
     void* cx;

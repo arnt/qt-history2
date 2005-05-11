@@ -899,6 +899,8 @@ void QGLContextPrivate::init(QPaintDevice *dev, const QGLFormat &format)
     win = 0;
     pixelFormatId = 0;
     cmap = 0;
+    hbitmap = 0;
+    hbitmap_hdc = 0;
 #endif
     crWin = false;
     initDone = false;
@@ -2441,6 +2443,10 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
         updateGL();
     else
         success = false;
+
+#if defined(Q_WS_WIN)
+    pm = QPixmap::fromWinHBITMAP(d->glcx->d_func()->hbitmap);
+#endif
 
     delete d->glcx;
     d->glcx = ocx;

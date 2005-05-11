@@ -560,16 +560,16 @@ static QGLFormat pfiToQGLFormat(HDC hdc, int pfi)
     }
 #if 0
     qDebug() << "values for pfi:" << pfi;
-    qDebug() << "0:" << fmt.doubleBuffer();
-    qDebug() << "1:" << fmt.depthBufferSize();
-    qDebug() << "2:" << fmt.rgba();
-    qDebug() << "3:" << fmt.alphaBufferSize();
-    qDebug() << "4:" << fmt.accumBufferSize();
-    qDebug() << "5:" << fmt.stencilBufferSize();
-    qDebug() << "6:" << fmt.stereo();
-    qDebug() << "7:" << fmt.directRendering();
-    qDebug() << "8:" << fmt.sampleBuffers();
-    qDebug() << "9:" << fmt.samples();
+    qDebug() << "doublebuffer  0:" << fmt.doubleBuffer();
+    qDebug() << "depthbuffer   1:" << fmt.depthBufferSize();
+    qDebug() << "rgba          2:" << fmt.rgba();
+    qDebug() << "alpha size    3:" << fmt.alphaBufferSize();
+    qDebug() << "accum size    4:" << fmt.accumBufferSize();
+    qDebug() << "stencil size  5:" << fmt.stencilBufferSize();
+    qDebug() << "stereo        6:" << fmt.stereo();
+    qDebug() << "direct        7:" << fmt.directRendering();
+    qDebug() << "sample buffer 8:" << fmt.sampleBuffers();
+    qDebug() << "num samples   9:" << fmt.samples();
 #endif
     return fmt;
 }
@@ -587,14 +587,16 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 
     bool result = true;
     HDC myDc;
-
+    
     if (deviceIsPixmap()) {
         if (d->glFormat.plane())
             return false;                // Pixmaps can't have overlay
         d->win = 0;
-        myDc = d->paintDevice->getDC();
-    }
-    else {
+	myDc = d->hbitmap_hdc = CreateCompatibleDC(qt_win_display_dc());
+	QPixmap *px = static_cast<QPixmap *>(d->paintDevice);
+	d->hbitmap = CreateCompatibleBitmap(qt_win_display_dc(), px->width(), px->height());
+	SelectObject(myDc, d->hbitmap);
+    } else {
         d->win = ((QWidget*)d->paintDevice)->winId();
         myDc = GetDC(d->win);
     }
@@ -727,8 +729,6 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
 end:
     if (d->win)
         ReleaseDC(d->win, myDc);
-    else if (deviceIsPixmap())
-        d->paintDevice->releaseDC(myDc);
     return result;
 }
 
@@ -772,14 +772,14 @@ int QGLContext::choosePixelFormat(void* dummyPfd, HDC pdc)
 	QVarLengthArray<int> iAttributes(40);
 	int i = 0;
 	iAttributes[i++] = WGL_ACCELERATION_ARB;
-	iAttributes[i++] = WGL_FULL_ACCELERATION_ARB;
+	iAttributes[i++] = deviceIsPixmap() ? WGL_GENERIC_ACCELERATION_ARB : WGL_FULL_ACCELERATION_ARB;
 	iAttributes[i++] = WGL_SUPPORT_OPENGL_ARB;
 	iAttributes[i++] = GL_TRUE;
-	iAttributes[i++] = WGL_DRAW_TO_WINDOW_ARB;
+	iAttributes[i++] = deviceIsPixmap() ? WGL_DRAW_TO_BITMAP_ARB : WGL_DRAW_TO_WINDOW_ARB;
 	iAttributes[i++] = GL_TRUE;
 	iAttributes[i++] = WGL_COLOR_BITS_ARB;
 	iAttributes[i++] = 32;
-	if (d->glFormat.doubleBuffer()) {
+	if (d->glFormat.doubleBuffer() && !deviceIsPixmap()) {
 	    iAttributes[i++] = WGL_DOUBLE_BUFFER_ARB;
 	    iAttributes[i++] = GL_TRUE;
 	}
@@ -962,6 +962,12 @@ void QGLContext::reset()
     d->rc  = 0;
     if (d->win && d->dc)
         ReleaseDC(d->win, d->dc);
+    if (deviceIsPixmap()) {
+	DeleteDC(d->hbitmap_hdc);
+	DeleteObject(d->hbitmap);
+	d->hbitmap_hdc = 0;
+	d->hbitmap = 0;
+    }
     d->dc  = 0;
     d->win = 0;
     d->pixelFormatId = 0;
@@ -986,10 +992,16 @@ void QGLContext::makeCurrent()
     Q_D(QGLContext);
     if (d->rc == wglGetCurrentContext() || !d->valid)        // already current
         return;
-    if (d->win)
+    if (d->win) {
         d->dc = GetDC(d->win);
-    else
-        d->dc = d->paintDevice->getDC();
+	if (!d->dc) {
+	    qwglError("QGLContext::makeCurrent()", "GetDC()");
+	    return;
+	}
+    } else if (deviceIsPixmap()) {
+        d->dc = d->hbitmap_hdc;
+    }
+
     HPALETTE hpal = QColormap::hPal();
     if (hpal) {
         SelectPalette(d->dc, hpal, false);
@@ -1014,8 +1026,6 @@ void QGLContext::doneCurrent()
     wglMakeCurrent(0, 0);
     if (d->win && d->dc)
         ReleaseDC(d->win, d->dc);
-    else if (d->dc)
-        d->paintDevice->releaseDC(d->dc);
     d->dc = 0;
 }
 
@@ -1131,8 +1141,21 @@ void QGLWidgetPrivate::init(QGLContext *ctx, const QGLWidget* shareWidget)
 bool QGLWidget::event(QEvent *e)
 {
     Q_D(QGLWidget);
-    if (e->type() == QEvent::ParentChange)
+    if (e->type() == QEvent::ParentChange) {
         setContext(new QGLContext(d->glcx->requestedFormat(), this));
+	// the overlay needs to be recreated as well
+	delete d->olcx;
+	if (isValid() && context()->format().hasOverlay()) {
+	    d->olcx = new QGLContext(QGLFormat::defaultOverlayFormat(), this);
+	    if (!d->olcx->create(isSharing() ? d->glcx : 0)) {
+		delete d->olcx;
+		d->olcx = 0;
+		d->glcx->d_func()->glFormat.setOverlay(false);
+	    }
+	} else {
+	    d->olcx = 0;
+	}
+    }
     return QWidget::event(e);
 }
 
@@ -1324,7 +1347,7 @@ void QGLExtensions::init()
     QWidget dmy(0);
     HDC dmy_pdc = GetDC(dmy.winId());
     PIXELFORMATDESCRIPTOR dmy_pfd = {
-	sizeof(PIXELFORMATDESCRIPTOR), 1, PFD_SUPPORT_OPENGL,
+	sizeof(PIXELFORMATDESCRIPTOR), 1, PFD_SUPPORT_OPENGL | PFD_DRAW_TO_BITMAP,
 	PFD_TYPE_RGBA, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 	0, 0, 0, 0, PFD_MAIN_PLANE, 0, 0, 0, 0
     };
