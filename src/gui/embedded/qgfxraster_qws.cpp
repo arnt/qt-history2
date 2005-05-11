@@ -189,13 +189,17 @@ void QScreenCursor::init(SWCursorData *da, bool init)
         d = 8;
         cols = 16;
     }
-
+#if 0
     imgunder = new QImage(data->under, 64, 64, d, 0,
                 cols, QImage::LittleEndian);
     if (d <= 8) {
+        imgunder->setNumColors(cols);
         for (int i = 0; i < cols; i++)
             imgunder->setColor(i, qt_screen->clut()[i]);
     }
+#else
+    imgunder = new QImage(data->under, 64, 64, QImage::Format_RGB32); //############
+#endif
     gfxunder = (QGfxRasterBase*)graphicsContext(imgunder);
 }
 
@@ -916,7 +920,8 @@ void QGfxRaster<depth,type>::setSource(const QImage *i)
     if(srcdepth==0)
         abort();
     srcbits=i->scanLine(0);
-    src_little_endian=(i->bitOrder()==QImage::LittleEndian);
+    src_little_endian= (i->format()==QImage::Format_MonoLSB);
+
     QSize s = gfx_screen->mapToDevice(QSize(i->width(), i->height()));
     srcwidth=s.width();
     srcheight=s.height();
@@ -931,7 +936,7 @@ void QGfxRaster<depth,type>::setSource(const QImage *i)
 template <const int depth, const int type>
 void QGfxRaster<depth,type>::setSource(const QPixmap *pix)
 {
-    setSource(&pix->toImage()); //###
+    setSource(&pix->toImage()); //### address of temporary, but we know that the implementation makes it safe
 }
 
 

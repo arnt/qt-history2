@@ -232,7 +232,7 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
             if (!bgImage) {
                 p.fillRect(clipRgn.boundingRect(), *bgColor);
             }  else if (!bgImage->isNull()) {
-                QPixmap pix(*bgImage);
+                QPixmap pix = QPixmap::fromImage(*bgImage);
                 QBrush brush(pix);
                 p.setBrushOrigin(-blendOffset);
                 p.fillRect(clipRgn.boundingRect(), brush);

@@ -456,7 +456,8 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
     hot.setX(hx);
     hot.setY(hy);
 
-    cursor.create(width, height, 8, 3);
+    cursor  =  QImage(width,height, QImage::Format_Indexed8);
+    cursor.setNumColors(3);
 
     if (!width || !height || !data || !mask)
         return;
@@ -514,7 +515,8 @@ void QWSCursor::set(const uchar *data, const uchar *mask,
 // now we're really silly
 void QWSCursor::createDropShadow(int dropx, int dropy)
 {
-#if !defined(QT_NO_QWS_CURSOR) && !defined(QT_NO_QWS_ALPHA_CURSOR)
+    //####
+#if 0 && !defined(QT_NO_QWS_CURSOR) && !defined(QT_NO_QWS_ALPHA_CURSOR)
     if (cursor.width() + dropx > 64 || cursor.height() + dropy > 64)
         return;
 

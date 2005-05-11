@@ -678,7 +678,7 @@ void QVNCServer::setPixelFormat()
             discardClient();
         }
         handleMsg = false;
-        sameEndian = (QImage::systemByteOrder() == QImage::BigEndian) == !!pixelFormat.bigEndian;
+        sameEndian = (QSysInfo::ByteOrder == QSysInfo::BigEndian) == !!pixelFormat.bigEndian;
     }
 }
 
@@ -868,7 +868,7 @@ int QVNCServer::getPixel(uchar **data)
                 (g << pixelFormat.greenShift) |
                 (b << pixelFormat.blueShift);
 
-    if ( QImage::systemByteOrder() == QImage::BigEndian ) { // server runs on a big endian system
+    if ( QSysInfo::ByteOrder == QSysInfo::BigEndian ) { // server runs on a big endian system
       if ( pixelFormat.bitsPerPixel == 16 ) {
            if ( pixelFormat.bigEndian ) { // client expects big endian
               pixel = ((pixel & 0x0000ffff) << 16);

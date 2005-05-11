@@ -37,13 +37,14 @@ QPixmap::QPixmap()
     init(0, 0);
 }
 
+#ifdef QT3_SUPPORT
 QPixmap::QPixmap(const QImage& image)
     : QPaintDevice()
 {
     init(0, 0);
     *this = fromImage(image);
 }
-
+#endif
 QPixmap::QPixmap(int w, int h)
     : QPaintDevice()
 {
@@ -121,13 +122,13 @@ QPixmap &QPixmap::operator=(const QPixmap &pixmap)
     }
     return *this;
 }
-
+#ifdef QT3_SUPPORT
 QPixmap &QPixmap::operator=(const QImage &image)
 {
     (*this) = fromImage(image);
     return *this;
 }
-
+#endif
 QPixmap::operator QVariant() const
 {
     extern bool qRegisterGuiVariant();
@@ -204,7 +205,7 @@ void QPixmap::fill(const QColor &fillColor)
 
     data->image.fill(pixel);
 }
-
+#ifdef QT3_SUPPORT
 void QPixmap::resize_helper(const QSize &size)
 {
     if (size == data->image.size())
@@ -229,7 +230,7 @@ void QPixmap::resize_helper(const QSize &size)
     // replace with new data.
     data->image = image;
 }
-
+#endif
 
 const uchar qt_pixmap_bit_mask[] = { 0x01, 0x02, 0x04, 0x08, 0x10, 0x20, 0x40, 0x80 };
 
