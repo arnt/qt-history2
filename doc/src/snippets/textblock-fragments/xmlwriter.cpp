@@ -26,10 +26,9 @@ QDomDocument *XmlWriter::toXml()
         document->appendChild(blockElement);
 
         readFragment(currentBlock, blockElement, document);
-        /* Include some text here for easy quoting:
+
         processBlock(currentBlock);
-        ...
-        */
+
         currentBlock = currentBlock.next();
     }
 
@@ -43,19 +42,26 @@ void XmlWriter::readFragment(const QTextBlock &currentBlock,
     QTextBlock::iterator it;
     for (it = currentBlock.begin(); !(it.atEnd()); ++it) {
 
-        QTextFragment fragment = it.fragment();
-        if (fragment.isValid()) {
+        QTextFragment currentFragment = it.fragment();
+        if (currentFragment.isValid())
+            processFragment(currentFragment);
+
+        if (currentFragment.isValid()) {
             QDomElement fragmentElement = document->createElement("fragment");
             blockElement.appendChild(fragmentElement);
 
-            fragmentElement.setAttribute("length", fragment.length());
-            QDomText fragmentText = document->createTextNode(fragment.text());
+            fragmentElement.setAttribute("length", currentFragment.length());
+            QDomText fragmentText = document->createTextNode(currentFragment.text());
 
             fragmentElement.appendChild(fragmentText);
-            /* Include some text here for easy quoting:
-            processFragment(currentBlock);
-            ...
-            */
         }
     }
+}
+
+void XmlWriter::processBlock(const QTextBlock &currentBlock)
+{
+}
+
+void XmlWriter::processFragment(const QTextFragment &currentFragment)
+{
 }

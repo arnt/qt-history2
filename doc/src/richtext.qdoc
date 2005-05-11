@@ -149,13 +149,11 @@ QTextBlock::iterator to traverse the block's internal structure:
 
 \quotefromfile snippets/textblock-fragments/xmlwriter.cpp
 \skipto QTextBlock::iterator
-\printuntil if (fragment.isValid())
+\printuntil if (currentFragment.isValid())
 \skipto processFragment(
-\printuntil ...
-\skipto }
-\printuntil }
-\skipto }
-\printuntil }
+\printuntil processFragment(
+\skipto /    \}/
+\printto /^\}/
 
 Blocks are also used to represent list items. As a result, blocks can
 define their own character formats which contain information about

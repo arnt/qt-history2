@@ -14,6 +14,8 @@ public:
 private:
     void readFragment(const QTextBlock &currentBlock, QDomElement blockElement,
                       QDomDocument *document);
+    void processBlock(const QTextBlock &currentBlock);
+    void processFragment(const QTextFragment &currentFragment);
 
     QDomDocument *document;
     QTextDocument *textDocument;
