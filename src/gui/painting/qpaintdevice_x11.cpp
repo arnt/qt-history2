@@ -28,7 +28,7 @@
 
     A paint device is an abstraction of a two-dimensional space that
     can be drawn using a QPainter. The drawing capabilities are
-    implemented by the subclasses QWidget, QPixmap, QPicture and
+    implemented by the subclasses QWidget, QPixmap, QPicture, QImage, and
     QPrinter.
 
     The default coordinate system of a paint device has its origin
@@ -36,24 +36,6 @@
     increases downward. The unit is one pixel. There are several ways
     to set up a user-defined coordinate system using the painter, for
     example, using QPainter::setMatrix().
-
-    Example (draw on a paint device):
-
-    \code
-        void MyWidget::paintEvent(QPaintEvent *)
-        {
-            QPainter painter;
-            painter.begin(this);
-            painter.setPen(Qt::red);
-            painter.setBrush(Qt::yellow);
-            painter.drawEllipse(10, 20, 100, 100);
-            painter.end();
-        }
-    \endcode
-
-    The bit block transfer is an extremely useful operation for
-    copying pixels from one paint device to another (or to itself). It
-    is implemented as the global function bitBlt().
 
     \warning Qt requires that a QApplication object exists before
     any paint devices can be created. Paint devices access window
@@ -108,7 +90,7 @@ QPaintDevice::~QPaintDevice()
 /*!
     \fn bool QPaintDevice::paintingActive() const
 
-    Returns true if the device is being painted, i.e. someone has
+    Returns true if the device is currently being painted on, i.e. someone has
     called QPainter::begin() but not yet called QPainter::end() for
     this device; otherwise returns false.
 
@@ -510,21 +492,21 @@ int QPaintDevice::x11AppDpiY(int screen)
 /*!
     \fn int QPaintDevice::widthMM() const
 
-    Returns the width of the paint device, measured in millimeters.
+    Returns the width of the paint device in millimeters.
 */
 
 /*!
     \fn int QPaintDevice::heightMM() const
 
-    Returns the height of the paint device, measured in millimeters.
+    Returns the height of the paint device in millimeters.
 */
 
 /*!
     \fn int QPaintDevice::numColors() const
 
     Returns the number of different colors available for the paint
-    device. Since this value is an int will not be sufficient to represent
-    the number of colors on 32 bit displays, in which case INT_MAX is
+    device. Since this value is an int, it will not be sufficient to represent
+    the number of colors on 32 bit displays, in this case INT_MAX is
     returned instead.
 */
 
@@ -538,7 +520,7 @@ int QPaintDevice::x11AppDpiY(int screen)
     \fn int QPaintDevice::logicalDpiX() const
 
     Returns the horizontal resolution of the device in dots per inch,
-    which is used when computing font sizes. For X, this is usually
+    which is used when computing font sizes. For X11, this is usually
     the same as could be computed from widthMM(), but it varies on
     Windows.
 */
@@ -547,7 +529,7 @@ int QPaintDevice::x11AppDpiY(int screen)
     \fn int QPaintDevice::logicalDpiY() const
 
     Returns the vertical resolution of the device in dots per inch,
-    which is used when computing font sizes. For X, this is usually
+    which is used when computing font sizes. For X11, this is usually
     the same as could be computed from heightMM(), but it varies on
     Windows.
 */
