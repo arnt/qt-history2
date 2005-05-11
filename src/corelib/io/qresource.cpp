@@ -117,11 +117,11 @@ QResource *QResourceNode::localeResource()
         return resources.first(); //containers do not get localized
     } else if(!resources.isEmpty()) {
         QResource *ret = 0;
-        QLocale systemLocale = QLocale::system();
+        QLocale defaultLocale;
         for(int i = 0; i < resources.count(); i++) {
             QResource *resource = resources.at(i);
-            if(resource->d_func()->lang == systemLocale.language() &&
-               resource->d_func()->country == systemLocale.country())
+            if(resource->d_func()->lang == defaultLocale.language() &&
+               resource->d_func()->country == defaultLocale.country())
                 return resource;
             if(!ret && resource->d_func()->lang == QLocale::C && //default
                resource->d_func()->country == QLocale::AnyCountry)
