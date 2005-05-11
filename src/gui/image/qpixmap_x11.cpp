@@ -393,7 +393,7 @@ void QPixmap::detach()
 
 int QPixmap::defaultDepth()
 {
-    return QX11Info::appDepth();
+    return X11->use_xrender ? 32 : QX11Info::appDepth();
 }
 
 /*!
