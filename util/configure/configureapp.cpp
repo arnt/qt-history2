@@ -1244,7 +1244,7 @@ void Configure::generateConfigfiles()
 	qDebug("Couldn't reset writable file attribute for qatomic.h");
 
     // Create qatomic.h "symlinks"
-    QString atomicContents = QString("#include \"../../src/corelib/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h\"\n");
+    QString atomicContents = QString("#include \"../../../src/corelib/arch/" + dictionary[ "ARCHITECTURE" ] + "/arch/qatomic.h\"\n");
     if (!writeToFile(atomicContents.toLocal8Bit(),
                      dictionary[ "QT_INSTALL_HEADERS" ] + "/QtCore/arch/qatomic.h")
         || !writeToFile(atomicContents.toLocal8Bit(),
