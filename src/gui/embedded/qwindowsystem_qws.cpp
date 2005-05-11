@@ -282,17 +282,14 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
     This class maintains information about each window and allows
     operations to be performed on the windows.
 
-    You can get the window's name(), windowCaption() and winId(), along with
+    You can get the window's name(), caption() and winId(), along with
     the client() that owns the window.
 
-    The region the window wants to draw on is returned by requested();
-    the region that the window is allowed to draw on is returned by
-    allocation().
+    The region the window wants to draw on is returned by requestedRegion().
 
-    The visibility of the window can be determined using isVisible(),
-    isPartiallyObscured() and isFullyObscured(). Visibility can be
-    changed using raise(), lower(), show(), hide() and
-    setActiveWindow().
+    The visibility of the window can be determined using
+    isVisible(). Visibility can be changed using raise(), lower(), show(),
+    hide() and setActiveWindow().
 */
 
 /*!
