@@ -42,7 +42,6 @@
 #include "qsettings.h"
 #include "qmap.h"
 #include "qfontdatabase.h"
-#include "qregexp.h"
 #include "qbitmap.h"
 #include "qregion.h"
 #include <private/qunicodetables_p.h>
@@ -780,6 +779,7 @@ public:
     void flushPage(bool last = false);
     QRect paperRect() const;
     QRect pageRect() const;
+    QRegion getClip();
 
     QPrinter   *printer;
     int         pageCount;
@@ -814,6 +814,9 @@ public:
     QBuffer * fontBuffer;
     QTextStream fontStream;
     bool clipOn;
+    QRegion clip;
+    QMatrix clip_matrix;
+    QMatrix matrix;
     QRect boundingBox;
     QPen cpen;
     QBrush cbrush;
@@ -3297,9 +3300,9 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
                          " [m s s s] [s m s s]"      //   dash dot line
                          " [m s s s s] [s m s s s s]"         //   dash dot dot line
                          "] d\n";
-    lineStyles.replace(QRegExp("w"), toString(10./scale));
-    lineStyles.replace(QRegExp("m"), toString(5./scale));
-    lineStyles.replace(QRegExp("s"), toString(3./scale));
+    lineStyles.replace(QLatin1String("w"), toString(10./scale));
+    lineStyles.replace(QLatin1String("m"), toString(5./scale));
+    lineStyles.replace(QLatin1String("s"), toString(3./scale));
 
     outStream << lineStyles;
 
@@ -3639,16 +3642,17 @@ void QPSPrintEngine::updateState(const QPaintEngineState &state)
 {
     QPaintEngine::DirtyFlags flags = state.state();
     if (flags & DirtyTransform) updateMatrix(state.matrix());
-    if (flags & DirtyPen) updatePen(state.pen());
-    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
-    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
-    if (flags & DirtyFont) updateFont(state.font());
     if (flags & DirtyClipPath) {
         updateClipRegion(QRegion(state.clipPath().toFillPolygon().toPolygon(),
                                  state.clipPath().fillRule()),
                          state.clipOperation());
     }
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
+    flags = state.state(); // updateClipRegion modifies the state
+    if (flags & DirtyPen) updatePen(state.pen());
+    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
+    if (flags & DirtyBackground) updateBackground(state.backgroundMode(), state.backgroundBrush());
+    if (flags & DirtyFont) updateFont(state.font());
 // ### if (flags & DirtyCompositionMode) updateCompositionMode(state.clipRegion(), state.clipOperation());p
 }
 
@@ -3724,45 +3728,59 @@ void QPSPrintEngine::updateMatrix(const QMatrix &matrix)
                   << matrix.m21() << ' ' << matrix.m22() << ' '
                   << matrix.dx()  << ' ' << matrix.dy()
                   << "]ST\n";
+    d->matrix = matrix;
 }
 
-void QPSPrintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation /*op*/)
+QRegion QPSPrintEnginePrivate::getClip()
+{
+    return clip * clip_matrix * matrix.inverted();
+}
+
+void QPSPrintEngine::updateClipRegion(const QRegion &region, Qt::ClipOperation op)
 {
     Q_D(QPSPrintEngine);
-    bool clipEnabled = !region.isEmpty();
-    if (!d->clipOn && !clipEnabled)
-        return;
-
     if (d->clipOn) {
         d->pageStream << "CLO\n";              // clipping off, includes a restore
+        setDirty(QFlag(AllDirty & ~DirtyClipRegion & ~DirtyClipPath));
+        // the next line is needed again in case we set clipping
+        updateMatrix(d->matrix);
+    }
+    if (op == Qt::NoClip) {
+        d->clip = QRegion();
         d->clipOn = false;
-        setDirty(AllDirty); // so we must force a complete state update
         return;
     }
 
-    if (clipEnabled) {
-        QVector<QRect> rects = region.rects();
-        int i;
-        d->pageStream<< "CLS\n";           // start clipping
-        for(i = 0 ; i < rects.size() ; i++) {
-            putRect(d->pageStream, rects[i]);
-            d->pageStream << "ACR\n";          // add clip rect
-            if (d->pageCount == 1)
-                d->boundingBox = d->boundingBox.unite(rects[i]);
+    switch (op) {
+    case Qt::IntersectClip:
+        if (!d->clip.isEmpty()) {
+            d->clip  &= region & d->getClip();
+            d->clip_matrix = d->matrix;
+            break;
         }
-        d->pageStream << "clip\n";            // end clipping
-        d->clipOn = true;
+        // fall through
+    case Qt::ReplaceClip:
+        d->clip = region;
+        d->clip_matrix = d->matrix;
+        break;
+    case Qt::UniteClip:
+        d->clip = region | d->getClip();
+        d->clip_matrix = d->matrix;
+        break;
+    default:
+        break;
     }
-#if 0
-    // ###
-    else {
-        // if we're painting without clipping, the bounding box must
-        // be everything.  NOTE: this assumes that this function is
-        // only ever called when something is to be painted.
-        if (!boundingBox.isValid())
-            boundingBox.setRect(0, 0, printer->width(), printer->height());
+
+    QVector<QRect> rects = d->clip.rects();
+    d->pageStream<< "CLS\n";           // start clipping
+    for(int i = 0 ; i < rects.size() ; i++) {
+        putRect(d->pageStream, rects[i]);
+        d->pageStream << "ACR\n";          // add clip rect
+        if (d->pageCount == 1)
+            d->boundingBox = d->boundingBox.unite(rects[i]);
     }
-#endif
+    d->pageStream << "clip\n";            // end clipping
+    d->clipOn = true;
 }
 
 void QPSPrintEngine::drawLine(const QLineF &line)
@@ -3959,7 +3977,6 @@ bool QPSPrintEngine::newPage()
     d->pageStream.setDevice(d->pageBuffer);
 
     d->currentFont = 0; // reset current font
-    setDirty(AllDirty);
     d->pageFontNumber = d->headerFontNumber;
 
     return true;
