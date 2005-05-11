@@ -74,10 +74,10 @@ void GLWidget::setZRotation(int angle)
 
 void GLWidget::initializeGL()
 {
-    static const GLfloat lightPos[4] = { 5.0, 5.0, 10.0, 1.0 };
-    static const GLfloat reflectance1[4] = { 0.8, 0.1, 0.0, 1.0 };
-    static const GLfloat reflectance2[4] = { 0.0, 0.8, 0.2, 1.0 };
-    static const GLfloat reflectance3[4] = { 0.2, 0.2, 1.0, 1.0 };
+    static const GLfloat lightPos[4] = { 5.0f, 5.0f, 10.0f, 1.0f };
+    static const GLfloat reflectance1[4] = { 0.8f, 0.1f, 0.0f, 1.0f };
+    static const GLfloat reflectance2[4] = { 0.0f, 0.8f, 0.2f, 1.0f };
+    static const GLfloat reflectance3[4] = { 0.2f, 0.2f, 1.0f, 1.0f };
 
     glLightfv(GL_LIGHT0, GL_POSITION, lightPos);
     glEnable(GL_LIGHTING);
