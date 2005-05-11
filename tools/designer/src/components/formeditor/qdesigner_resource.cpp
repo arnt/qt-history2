@@ -106,6 +106,11 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
 {
     QAbstractFormBuilder::saveDom(ui, widget);
 
+    QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), widget);
+    Q_ASSERT(sheet != 0);
+
+    ui->setElementClass(sheet->property(sheet->indexOf(QLatin1String("objectName"))).toString());
+
     if (m_formWindow) {
         for (int index = 0; index < m_formWindow->toolCount(); ++index) {
             QDesignerFormWindowToolInterface *tool = m_formWindow->tool(index);
