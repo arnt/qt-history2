@@ -16,7 +16,6 @@ int main()
     {
         // 8-BIT ACCESS
         QImage image;
-
         // set entry 19 in the color table to yellow
         image.setColor(19, qRgb(255, 255, 0));
 
@@ -27,10 +26,19 @@ int main()
     {
         // 32-BIT
         QImage image;
-
         // sets 32 bit pixel at (x,y) to yellow.
         uint *ptr = reinterpret_cast<uint *>(image.scanLine(y)) + x;
         *ptr = qRgb(255, 255, 0);
     }
+
+    {
+        // SAVE
+        QImage image;
+        QByteArray ba;
+        QBuffer buffer(&ba);
+        buffer.open(QIODevice::WriteOnly);
+        image.save(&buffer, "PNG"); // writes image into ba in PNG format
+    }
+
 
 }

@@ -231,15 +231,10 @@ QImageData::~QImageData()
     There are functions to convert between QImage and QPixmap:
     QPixmap::convertToImage() and QPixmap::convertFromImage().
 
-    An image has the parameters \l{width()}{width}, \l{height()}{height}
-    and \l{depth()}{depth} (bits per pixel, bpp), a color table, and the
-    actual \l{bits()}{pixels}. QImage supports 1-bpp, 8-bpp, and 32-bpp
-    image data. 1-bpp and 8-bpp images use a color lookup table; the pixel
-    value is a color table index.
-
-    32-bpp images contain RGB values encoded in 24 bits, and do not use a
-    color table. The most significant byte is used for the
-    \l{setAlphaBuffer()}{alpha buffer}.
+    QImage supports a number of \link QImage::Format formats\endlink. These
+    include monochrome images, 8-bit images, and 32-bit images with an optional
+    alpha channel. Monochrome and 8-bit images are indexed based and use a
+    color lookup table, while 32-bit images use RGB or ARGB values.
 
     An entry in the color table is an RGB triplet encoded as an \c qRgb
     value. Use the color() function to obtain an entry from the table,
@@ -247,47 +242,32 @@ QImageData::~QImageData()
     the components. The qRgb() function is used to make an RGB triplet
     suitable for use with the setColor() function.
 
-    1-bpp (monochrome) images have a color table with a most two
-    colors. There are two different formats: big endian (MSB first) or
+    Monochrome images have a color table with at most two
+    colors. There are two different types of monochrome images: big endian (MSB first) or
     little endian (LSB first) bit order. To access a single bit you
-    will must do some bit shifts:
+    must do some bit shifts:
 
-    \code
-        QImage image;
-        // sets bit at (x, y) to 1
-        if (image.bitOrder() == QImage::LittleEndian)
-            image.scanLine(y)[x >> 3] |= 1 << (x & 7);
-        else
-            image.scanLine(y)[x >> 3] |= 1 << (7 - (x & 7));
-    \endcode
+    \quotefromfile snippets/image/image.cpp
+    \skipto BIT
+    \skipto QImage
+    \printuntil 7));
 
-    If this looks complicated, it might be a good idea to convert the
-    1-bpp image to an 8-bpp image using convertDepth().
+    If this looks complicated, you can convert the monochrome image to an 8-bit indexed
+    image using convertToFormat().  8-bit images are much easier to work with than
+    1-bit images because they have a single byte per pixel:
 
-    8-bpp images are much easier to work with than 1-bpp images
-    because they have a single byte per pixel:
+    \quotefromfile snippets/image/image.cpp
+    \skipto 8-BIT
+    \skipto QImage
+    \printuntil scanLine
 
-    \code
-        QImage image;
-
-        // set entry 19 in the color table to yellow
-        image.setColor(19, qRgb(255, 255, 0));
-
-        // set 8 bit pixel at (x,y) to value yellow (in color table)
-        image.scanLine(y)[x] = 19;
-    \endcode
-
-    32-bpp images ignore the color table; instead, each pixel contains
-    the RGB triplet. 24 bits contain the RGB value; the most
+    32-bit images have no color table; instead, each pixel contains
+    an ARGB value. 24 bits contain the RGB value; the most
     significant byte is reserved for the alpha buffer.
 
-    \code
-        QImage image;
-
-        // sets 32 bit pixel at (x,y) to yellow.
-        uint *ptr = reinterpret_cast<uint *>(image.scanLine(y)) + x;
-        *ptr = qRgb(255, 255, 0);
-    \endcode
+    \skipto 32-BIT
+    \skipto QImage
+    \printuntil qRgb
 
     On Qt/Embedded, scanlines are aligned to the pixel depth and may
     be padded to any degree, while on all other platforms, the
@@ -303,20 +283,18 @@ QImageData::~QImageData()
     dotsPerMeterY() provide information about the image size and resolution.
     The depth(), numColors(), isGrayscale(), and colorTable() functions
     provide information about the color depth and available color components
-    used to store the image data. The hasAlphaBuffer() function indicates
-    whether the image has an associated alpha buffer.
+    used to store the image data.
 
     It is possible to determine whether a color image can be safely
     converted to a grayscale image by using the allGray() function. The
-    bitOrder(), bytesPerLine(), and numBytes() functions provide low-level
+    format(), bytesPerLine(), and numBytes() functions provide low-level
     information about the data stored in the image.
 
     QImage also supports a number of functions for creating a new
     image that is a transformed version of the original. For example,
-    copy(), convertBitOrder(), convertDepth(), createAlphaMask(),
-    createHeuristicMask(), mirror(), scale(), swapRGB()
-    and transform(). There are also functions for changing attributes of
-    an image in-place, for example, setAlphaBuffer(), setColor(),
+    convertToFormat(), createAlphaMask(), createHeuristicMask(), mirrored(), scaled(), rgbSwapped()
+    and transformed(). There are also functions for changing attributes of
+    an image in-place, for example, setAlphaChannel(), setColor(),
     setDotsPerMeterX() and setDotsPerMeterY() and setNumColors().
 
     Images can be loaded and saved in the supported formats. Images
@@ -324,7 +302,7 @@ QImageData::~QImageData()
     with load() (or in the constructor) or from an array of data with
     loadFromData(). The lists of supported formats are available from
     QImageReader::supportedImageFormats() and
-    QImageWriter::supportedImageFormat().
+    QImageWriter::supportedImageFormats().
 
     When loading an image, the file name can be either refer to an
     actual file on disk or to one of the application's embedded
@@ -347,12 +325,12 @@ QImageData::~QImageData()
     \enum QImage::Endian
 
     This enum type is used to describe the endianness of the CPU and
-    graphics hardware.
+    graphics hardware. It is provided here for compatibility with earlier versions of Qt.
 
     \value IgnoreEndian  Endianness does not matter. Useful for some
                          operations that are independent of endianness.
-    \value BigEndian     Network byte order, as on SPARC and Motorola CPUs.
-    \value LittleEndian  Little endian byte order, as on Intel x86.
+    \value BigEndian     Most significant bit first or network byte order, as on SPARC, PowerPC, and Motorola CPUs.
+    \value LittleEndian  Least significant bit first or little endian byte order, as on Intel x86.
 */
 
 /*!
@@ -483,8 +461,6 @@ QImage::QImage(const QSize &size, Format format)
 
     If the image is in an indexed color format, set the color table
     for the image using setColorTable().
-
-    \sa setColorTable
 */
 QImage::QImage(uchar* data, int width, int height, Format format)
     : QPaintDevice()
@@ -539,6 +515,7 @@ QImage::QImage(const QString &fileName, const char *format)
 }
 
 /*!
+    \overload
     Constructs an image and tries to load the image from the file \a
     fileName.
 
@@ -1334,7 +1311,7 @@ void QImage::fill(uint pixel)
 /*!
     Inverts all pixel values in the image.
 
-    If the depth is 32: if \a mode is InvertRgba, the alpha bits are
+    If the depth is 32: if \a mode is InvertRgba (the default), the alpha bits are
     also inverted, otherwise they are left unchanged.
 
     If the depth is not 32, the argument \a mode has no meaning. The
@@ -2972,7 +2949,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     flags argument.
 
     The returned image has little-endian bit order, which you can
-    convert to big-endianness using convertBitOrder().
+    convert to big-endianness using convertToFormat().
 
     \sa createHeuristicMask() hasAlphaBuffer() setAlphaBuffer()
 */
@@ -3005,12 +2982,12 @@ QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
     applicable to the image), the result is arbitrary.
 
     The returned image has little-endian bit order, which you can
-    convert to big-endianness using convertBitOrder().
+    convert to big-endianness using convertToFormat().
 
-    If \a clipTight is true the mask is just large enough to cover the
+    If \a clipTight is true (the default) the mask is just large enough to cover the
     pixels; otherwise, the mask is larger than the data pixels.
 
-    This function disregards the \link hasAlphaBuffer() alpha buffer
+    This function disregards the alpha buffer
     \endlink.
 
     \sa createAlphaMask()
@@ -3390,13 +3367,10 @@ bool QImage::save(const QString &fileName, const char *format, int quality) cons
     can be used, for example, to save an image directly into a
     QByteArray:
 
-    \code
-        QImage image;
-        QByteArray ba;
-        QBuffer buffer(ba);
-        buffer.open(QIODevice::WriteOnly);
-        image.save(&buffer, "PNG"); // writes image into ba in PNG format
-    \endcode
+    \quotefromfile snippets/image/image.cpp
+    \skipto SAVE
+    \skipto QImage
+    \printuntil save
 */
 
 bool QImage::save(QIODevice* device, const char* format, int quality) const
