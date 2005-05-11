@@ -1485,7 +1485,7 @@ inline QFlags<Flags::enum_type> operator|(Flags::enum_type f1, QFlags<Flags::enu
 #else // Q_NO_TYPESAFE_FLAGS
 
 #define Q_DECLARE_FLAGS(Flags, Enum)\
-typedef uint Flags
+typedef uint Flags;
 #define Q_DECLARE_OPERATORS_FOR_FLAGS(Flags)
 
 #endif // Q_NO_TYPESAFE_FLAGS
