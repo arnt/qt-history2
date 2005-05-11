@@ -240,22 +240,24 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     bool columnsChanged = (newRec != d->rec);
     bool hasQuerySize = d->query.driver()->hasFeature(QSqlDriver::QuerySize);
 
-    if (d->bottom.isValid()) {
-        beginRemoveColumns(QModelIndex(), 0, d->bottom.column());
-        if (columnsChanged)
-            endRemoveColumns();
-    }
-
     if (d->colOffsets.size() != newRec.count() || columnsChanged) {
         d->colOffsets.resize(newRec.count());
         memset(d->colOffsets.data(), 0, d->colOffsets.size() * sizeof(int));
     }
+
+    beginRemoveRows(QModelIndex(), 0, d->bottom.row());
 
     d->bottom = QModelIndex();
     d->error = QSqlError();
     d->atEnd = false;
     d->query = query;
     d->rec = newRec;
+
+    endRemoveRows();
+
+    if (columnsChanged)
+        reset();
+
     if (!query.isActive() || query.isForwardOnly()) {
         d->atEnd = true;
         d->bottom = QModelIndex();
@@ -269,26 +271,26 @@ void QSqlQueryModel::setQuery(const QSqlQuery &query)
     }
     QModelIndex newBottom;
     if (hasQuerySize) {
-        newBottom = createIndex(d->query.size() - 1, d->rec.count() - 1);
         beginInsertRows(QModelIndex(), 0, newBottom.row());
+        newBottom = createIndex(d->query.size() - 1, d->rec.count() - 1);
+        d->bottom = createIndex(d->query.size() - 1, columnsChanged ? 0 : d->rec.count() - 1);
         d->atEnd = true;
+        endInsertRows();
     } else {
         newBottom = createIndex(0, d->rec.count() - 1);
     }
-    if (columnsChanged)
+    if (columnsChanged) {
         beginInsertColumns(QModelIndex(), 0, newBottom.column());
-    d->bottom = newBottom;
+        d->bottom = newBottom;
+        endInsertColumns();
+    } else {
+        d->bottom = newBottom;
+    }
 
     queryChange();
 
-    if (hasQuerySize) {
-        endInsertRows();
-    } else {
-        // fetchMore does the rowsInserted stuff
-        fetchMore();
-    }
-    if (columnsChanged)
-        endInsertColumns();
+    // fetchMore does the rowsInserted stuff for incremental models
+    fetchMore();
 }
 
 /*! \overload
