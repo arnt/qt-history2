@@ -54,13 +54,9 @@
     See the \l Qt::PenStyle enum type for a complete list of pen
     styles.
 
-    Whether or not end points of lines are drawn depend on several factors. For
-    pens with a non-zero width it depends on the cap style. For pens with zero
-    widths, QPainter will try to make sure the end point is drawn, but this
-    cannot be absolutely guaranteed because the underlying drawing engine is
-    free to use any (typically accelerated) algorithm for drawing lines with
-    zero width. The end point for all non-diagonal lines are drawn on all our
-    tested systems.
+    Whether or not end points are drawn when the pen width is zero or one
+    depends on the cap style. Using SquareCap (the default) or
+    RoundCap they are drawn, using FlatCap they are not drawn.
 
     A pen's color(), brush(), width(), style(), capStyle() and
     joinStyle() can be set in the constructor or later with
@@ -286,12 +282,9 @@ qreal QPen::widthF() const
 
     Sets the pen width to \a width
 
-    A line width of 0 will produce a 1 pixel wide line using a fast
-    algorithm for diagonals. A line width of 1 will also produce a 1
-    pixel wide line, but uses a slower more accurate algorithm for
-    diagonals. For horizontal and vertical lines a line width of 0 is
-    the same as a line width of 1. The cap and join style have no
-    effect on 0-width lines.
+    A line width of zero indicates cosmetic pen. This means that the
+    pen width is always drawn one pixel wide, independent of the
+    transformation set on the painter.
 
     Setting a pen width with a negative value is not supported.
 
@@ -299,6 +292,8 @@ qreal QPen::widthF() const
 */
 void QPen::setWidth(int width)
 {
+    if (width < 0)
+        qWarning("QPen::setWidth(): Setting a pen width with a negative value is not defined.");
     d->width = width;
 }
 
@@ -334,8 +329,7 @@ Qt::PenCapStyle QPen::capStyle() const
 /*!
     Sets the pen's cap style to \a c.
 
-    The default value is \c Qt::FlatCap. The cap style has no effect on
-    0-width pens.
+    The default value is \c Qt::SquareCap.
 
     \img pen-cap-styles.png Pen Cap Styles
 
@@ -363,8 +357,7 @@ Qt::PenJoinStyle QPen::joinStyle() const
 /*!
     Sets the pen's join style to \a j.
 
-    The default value is \c Qt::MiterJoin. The join style has no effect on
-    0-width pens.
+    The default value is \c Qt::BevelJoin.
 
     \img pen-join-styles.png Pen Join Styles
 
