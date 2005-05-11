@@ -26,15 +26,15 @@
 
     \section1 Information about Unicode on the Web
 
-    The \link http://www.unicode.org Unicode Consortium\endlink
-    has a number of documents available, including
+    The \l{http://www.unicode.org/}{Unicode Consortium} has a number
+    of documents available, including
 
     \list
 
-    \i \link http://www.unicode.org/unicode/standard/principles.html
-    A technical introduction to Unicode\endlink
-    \i \link http://www.unicode.org/unicode/standard/standard.html
-    The home page for the standard\endlink
+    \i \l{http://www.unicode.org/unicode/standard/principles.html}{A
+    technical introduction to Unicode}
+    \i \l{http://www.unicode.org/unicode/standard/standard.html}{The
+    home page for the standard}
 
     \endlist
 
@@ -66,11 +66,11 @@
 
     \list
 
-    \i Translation to/from legacy encodings for file I/O: see \l
-    QTextCodec and \l QTextStream.
+    \i Translation to/from legacy encodings for file I/O: see
+    QTextCodec and QTextStream.
     \i Translation from Input Methods and 8-bit keyboard input.
     \i Translation to legacy character sets for on-screen display.
-    \i A string class, \l QString, that stores Unicode characters, with
+    \i A string class, QString, that stores Unicode characters, with
     support for migrating from C strings including fast (cached)
     translation to and from US-ASCII, and all the usual string
     operations.
@@ -82,32 +82,31 @@
 
     To fully benefit from Unicode, we recommend using QString for storing
     all user-visible strings, and performing all text file I/O using
-    QTextStream. Use \l QKeyEvent::text() for keyboard input in any custom
+    QTextStream. Use QKeyEvent::text() for keyboard input in any custom
     widgets you write; it does not make much difference for slow typists
     in Western Europe or North America, but for fast typists or people
     using special input methods using text() is beneficial.
 
-    All the function arguments in Qt that may be user-visible strings, \l
+    All the function arguments in Qt that may be user-visible strings,
     QLabel::setText() and a many others, take \c{const QString &}s.
-    \l QString provides implicit casting from \c{const char *}
+    QString provides implicit casting from \c{const char *}
     so that things like
 
     \code
         label->setText("Password:");
     \endcode
 
-    will work. There is also a function, \l QObject::tr(), that provides
+    will work. There is also a function, QObject::tr(), that provides
     translation support, like this:
 
     \code
         label->setText(tr("Password:"));
     \endcode
 
-    tr() (simplifying somewhat) maps from \c{const char *} to a
-    Unicode string, and uses installable \l QTranslator objects to do the
-    mapping.
+    QObject::tr() maps from \c{const char *} to a Unicode string, and
+    uses installable QTranslator objects to do the mapping.
 
-    Qt provides a number of built-in \l QTextCodec classes, that is,
+    Qt provides a number of built-in QTextCodec classes, that is,
     classes that know how to translate between Unicode and legacy
     encodings to support programs that must talk to other programs or
     read/write files in legacy file formats.
@@ -127,10 +126,18 @@
         QFile file(QString::fromLatin1("appicon.png"));
     \endcode
 
+    or
+
+    \code
+        QFile file(QLatin1String("appicon.png"));
+    \endcode
+
     Regarding output, Qt will do a best-effort conversion from
     Unicode to whatever encoding the system and fonts provide.
     Depending on operating system, locale, font availability, and Qt's
     support for the characters used, this conversion may be good or bad.
     We will extend this in upcoming versions, with emphasis on the most
     common locales first.
+
+    \sa {Internationalization with Qt}
 */

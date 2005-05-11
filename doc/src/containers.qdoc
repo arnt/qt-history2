@@ -733,6 +733,85 @@
     Additional non-template types that compete with Qt's template
     containers are QBitArray, QByteArray, QString, and QStringList.
 
+    \section1 Algoritmic Complexity
+
+    Algorithmic complexity is concerned about how fast (or slow) each
+    function is as the number of items in the container grow. For
+    example, inserting an item in the middle of a QLinkedList is an
+    extremely fast operation, irrespective of the number of items
+    stored in the QLinkedList. On the other hand, inserting an item
+    in the middle of a QVector is potentially very expensive if the
+    QVector contains many items, since half of the items must be
+    moved one position in memory.
+
+    To describe algorithmic complexity, we use the following
+    terminology, based on the "big Oh" notation:
+
+    \keyword constant time
+    \keyword logarithmic time
+    \keyword linear time
+    \keyword linear-logarithmic time
+    \keyword quadratic time
+
+    \list
+    \o \bold{Constant time:} O(1). A function is said to run in constant
+       time if it requires the same amount of time no matter how many
+       items are present in the container. One example is
+       QLinkedList::insert().
+
+    \o \bold{Logarithmic time:} O(log \e n). A function that runs in
+       logarithmic time is a function whose running time is
+       proportional to the logarithm of the number of items in the
+       container. One example is qBinaryFind().
+
+    \o \bold{Linear time:} O(\e n). A function that runs in linear time
+       will execute in a time directly proportional to the number of
+       items stored in the container. One example is
+       QVector::insert().
+
+    \o \bold{Linear-logarithmic time:} O(\e{n} log \e n). A function
+       that runs in linear-logarithmic time is asymptotically slower
+       than a linear-time function, but faster than a quadratic-time
+       function.
+
+    \o \bold{Quadratic time:} O(\e{n}²). A quadratic-time function
+       executes in a time that is proportional to the square of the
+       number of items stored in the container.
+    \endlist
+
+    The following table summarizes the algorithmic complexity of Qt's
+    squential container classes:
+
+    \table
+    \header \o                \o Index lookup \o Insertion \o Prepending         \o Appending
+    \row    \o QLinkedList<T> \o O(\e n)      \o O(1)      \o O(1)               \o O(1)
+    \row    \o QList<T>       \o O(1)         \o O(n)      \o Amort. O(log \e n) \o Amort. O(log \e n)
+    \row    \o QVector<T>     \o O(1)         \o O(n)      \o O(n)               \o Amort. O(log \e n)
+    \endtable
+
+    In the table, "Amort." stands for "amortized behavior". For
+    example, "Amort. O(log \e n)" means that if you call the function
+    only once, you might get O(\e n) behavior, but if you call it
+    multiple times (e.g., \e n times), the average behavior will be
+    O(log \e n).
+
+    The following table summarizes the algorithmic complexity of Qt's
+    associative containers and sets:
+
+    \table
+    \header \o{1,2}          \o{2,1} Key lookup            \o{2,1} Insertion
+    \header                  \o Average     \o Worst case  \o Average            \o Worst case
+    \row    \o QMap<Key, T>  \o O(log \e n) \o O(log \e n) \o O(log \e n)        \o O(log \e n)
+    \row    \o QHash<Key, T> \o Amort. O(1) \o O(\e n)     \o Amort. O(log \e n) \o O(\e n)
+    \row    \o QSet<Key>     \o Amort. O(1) \o O(\e n)     \o Amort. O(log \e n) \o O(\e n)
+    \endtable
+
+    With QVector, QHash, and QSet, the performance of appending items
+    is amortized O(log \e n). It can be brought down to O(1) by
+    calling QVector::reserve(), QHash::reserve(), or QSet::reserve()
+    with the expected number of items before you insert the items.
+    The next section discusses this topic in more depth.
+
     \section1 Growth Strategies
 
     QVector<T>, QString, and QByteArray store their items
@@ -822,50 +901,4 @@
     container, you can start by calling reserve(), and when you are
     done populating the container, you can call squeeze() to release
     the extra preallocated memory.
-
-    \section1 Performance Terminology
-
-    The containers documentation provides information about how fast
-    (or slow) each function is as the number of items in the
-    container grow. For example, inserting an item in the middle of a
-    QLinkedList is an extremely fast operation, irrespective of the
-    number of items stored in the QLinkedList. On the other hand,
-    inserting an item in the middle of a QVector is potentially very
-    expensive if the QVector contains many items, since half of the
-    items must be moved one position in memory.
-
-    In the documentation, we sometimes use the following terminology,
-    based on the "big Oh" notation:
-
-    \keyword constant time
-    \keyword logarithmic time
-    \keyword linear time
-    \keyword linear-logarithmic time
-    \keyword quadratic time
-
-    \list
-    \o \e{constant time}: O(1). A function is said to run in constant
-       time if it requires the same amount of time no matter how many
-       items are present in the container. One example is
-       QLinkedList::insert().
-
-    \o \e{logarithmic time}: O(log \e n). A function that runs in
-       logarithmic time is a function whose running time is
-       proportional to the logarithm of the number of items in the
-       container. One example is qBinaryFind().
-
-    \o \e{linear time}: O(\e n). A function that runs in linear time
-       will execute in a time directly proportional to the number of
-       items stored in the container. One example is
-       QVector::insert().
-
-    \o \e{linear-logarithmic time}: O(\e{n} log \e n). A function
-       that runs in linear-logarithmic time is asymptotically slower
-       than a linear-time function, but faster than a quadratic-time
-       function.
-
-    \o \e{quadratic time}: O(\e{n}^2). A quadratic-time function
-       executes in a time that is proportional to the square of the
-       number of items stored in the container.
-    \endlist
 */

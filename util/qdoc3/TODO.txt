@@ -1,6 +1,20 @@
 MUST HAVES:
 
-  * get rid of spurious public + protected variables
+  * No links to Porting Guide sections (e.g. QStringList)
+  * \sa QStyle from QMotifStyle
+  * warning for undocumented enum values
+  * fix autolink problem in \brief
+  * link toggled(bool)
+  * autolink foo(1)
+  * hide public/protected vars
+  * handle using correctly
+  * kill undocumented public/protected vars
+  * QObject "reentrant" list: duplicates
+  * operator<< \overload
+  * \compat \overload
+  * qWarning() link
+  * operator<<() autolink
+
   * get rid of spurious 'global' functions
   * Make automatic links in code work
   * make links to base class enums work (e.g. SO_DockWindow)

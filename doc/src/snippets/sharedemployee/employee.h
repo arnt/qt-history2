@@ -1,8 +1,8 @@
 #ifndef EMPLOYEE_H
 #define EMPLOYEE_H
 
-#include <qshareddata.h>
-#include <qstring.h>
+#include <QSharedData>
+#include <QString>
 
 class EmployeeData : public QSharedData
 {

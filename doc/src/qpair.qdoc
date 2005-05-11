@@ -38,8 +38,8 @@
         QPair<QString, double> pair;
     \endcode
 
-    The components are accessible as public data members called \c
-    first and \c second. For example:
+    The components are accessible as public data members called \l
+    first and \l second. For example:
 
     \code
         pair.first = "pi";
@@ -57,14 +57,27 @@
 
 /*! \enum QPair::first_type
 
-    The type of the first element in the pair.
+    The type of the first element in the pair (T1).
+
+    \sa first
 */
 
 /*! \enum QPair::second_type
 
-    The type of the second element in the pair.
+    The type of the second element in the pair (T2).
+
+    \sa second
 */
 
+/*! \variable QPair::first
+
+    The first element in the pair.
+*/
+
+/*! \variable QPair::second
+
+    The second element in the pair.
+*/
 
 /*! \fn QPair::QPair()
 

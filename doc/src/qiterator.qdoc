@@ -173,7 +173,7 @@
     will continue iterating over the original vector, ignoring the
     modified copy.
 
-    \sa QVectorIterator, QVector::const_iterator
+    \sa QMutableVectorIterator, QVector::const_iterator
 */
 
 /*! \class QSetIterator
@@ -1415,7 +1415,7 @@
     of the traversal functions (next(), previous(), findNext(),
     findPrevious()).
 
-    After a call to next() or findNext() or findNextKey(), value() is
+    After a call to next() or findNext(), value() is
     equivalent to peekPrevious().value(). After a call to previous()
     or findPrevious(), value() is equivalent to peekNext().value().
 
@@ -1430,7 +1430,7 @@
     of the traversal functions (next(), previous(), findNext(),
     findPrevious()).
 
-    After a call to next() or findNext() or findNextKey(), value() is
+    After a call to next() or findNext(), value() is
     equivalent to peekPrevious().value(). After a call to previous()
     or findPrevious(), value() is equivalent to peekNext().value().
 
@@ -1446,7 +1446,7 @@
     of the traversal functions (next(), previous(), findNext(),
     findPrevious()).
 
-    After a call to next() or findNext() or findNextKey(), key() is
+    After a call to next() or findNext(), key() is
     equivalent to peekPrevious().key(). After a call to previous() or
     findPrevious(), key() is equivalent to peekNext().key().
 

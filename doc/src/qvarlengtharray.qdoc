@@ -73,12 +73,8 @@
     \i QVector uses \l{implicit sharing} as a memory optimization.
        QVarLengthArray doesn't provide that feature; however, it
        usually produces slightly better performance due to reduced
-       overhead.
+       overhead, especially in tight loops.
     \endlist
-
-    \warning QVector (or QList) is the right class for most
-    applications, but if you need to write highly optimized code,
-    QVarLengthArray may be appropriate.
 
     \sa QVector, QList, QLinkedList
 */
