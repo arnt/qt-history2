@@ -1091,3 +1091,17 @@ qreal QConicalGradient::angle() const
     Q_ASSERT(m_type == ConicalGradient);
     return m_data.conical.angle;
 }
+
+/*!
+    \typedef QGradientStop
+    \relates QGradient
+
+    Typedef for QPair<qreal, QColor>.
+*/
+
+/*!
+    \typedef QGradientStops
+    \relates QGradient
+
+    Typedef for QVector<QGradientStop>.
+*/
