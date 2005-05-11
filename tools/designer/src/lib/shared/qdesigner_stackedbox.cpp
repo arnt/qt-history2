@@ -29,7 +29,7 @@
 #include <QtCore/qdebug.h>
 
 QDesignerStackedWidget::QDesignerStackedWidget(QWidget *parent)
-    : QStackedWidget(parent)
+    : QStackedWidget(parent), m_actionDeletePage(0)
 {
     prev = new QToolButton();
     prev->setAttribute(Qt::WA_NoChildEventsForParent, true);
@@ -143,6 +143,17 @@ void QDesignerStackedWidget::nextPage()
         setCurrentIndex((currentIndex() + 1) % count());
         updateButtons();
     }
+}
+
+bool QDesignerStackedWidget::event(QEvent *e)
+{
+    if (e->type() == QEvent::LayoutRequest) {
+        if (m_actionDeletePage)
+            m_actionDeletePage->setEnabled(count() > 1);
+        updateButtons();
+    }
+
+    return QStackedWidget::event(e);
 }
 
 void QDesignerStackedWidget::childEvent(QChildEvent *e)

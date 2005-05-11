@@ -149,6 +149,9 @@ QWidget *WidgetFactory::createWidget(const QString &widgetName, QWidget *parentW
 
 const char *WidgetFactory::classNameOf(QObject* o)
 {
+    if (o == 0)
+        return 0;
+
     if (qobject_cast<QDesignerTabWidget*>(o))
         return "QTabWidget";
     else if (qobject_cast<QDesignerStackedWidget*>(o))
@@ -163,9 +166,9 @@ const char *WidgetFactory::classNameOf(QObject* o)
         return "QLabel";
     else if (qstrcmp(o->metaObject()->className(), "QAxBase") == 0)
         return "QAxWidget";
-    else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o)) {
+    else if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(o))
         return promoted->customClassName();
-    }
+
     return o->metaObject()->className();
 }
 

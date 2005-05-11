@@ -48,9 +48,10 @@ public slots:
     void updateButtons();
 
 protected:
-    void childEvent(QChildEvent *e);
-    void resizeEvent(QResizeEvent *e);
-    void showEvent(QShowEvent *e);
+    virtual void childEvent(QChildEvent *e);
+    virtual void resizeEvent(QResizeEvent *e);
+    virtual void showEvent(QShowEvent *e);
+    virtual bool event(QEvent *e);
 
 private slots:
     void prevPage();
