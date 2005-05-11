@@ -163,131 +163,139 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
 */
 
 /*!
-    \fn const QColor & QPalette::foreground() const
+    \fn const QBrush & QPalette::foreground() const
 
-    Returns the foreground color of the current color group.
+    Returns the foreground brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::button() const
+    \fn const QBrush & QPalette::button() const
 
-    Returns the button color of the current color group.
+    Returns the button brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::light() const
+    \fn const QBrush & QPalette::light() const
 
-    Returns the light color of the current color group.
+    Returns the light brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor& QPalette::midlight() const
+    \fn const QBrush& QPalette::midlight() const
 
-    Returns the midlight color of the current color group.
+    Returns the midlight brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::dark() const
+    \fn const QBrush & QPalette::dark() const
 
-    Returns the dark color of the current color group.
+    Returns the dark brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::mid() const
+    \fn const QBrush & QPalette::mid() const
 
-    Returns the mid color of the current color group.
+    Returns the mid brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::text() const
+    \fn const QBrush & QPalette::text() const
 
-    Returns the text foreground color of the current color group.
+    Returns the text foreground brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::brightText() const
+    \fn const QBrush & QPalette::brightText() const
 
-    Returns the bright text foreground color of the current color group.
+    Returns the bright text foreground brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::buttonText() const
+    \fn const QBrush & QPalette::buttonText() const
 
-    Returns the button text foreground color of the current color group.
+    Returns the button text foreground brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::base() const
+    \fn const QBrush & QPalette::base() const
 
-    Returns the base color of the current color group.
+    Returns the base brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::background() const
+    \fn const QBrush & QPalette::alternateBase() const
 
-    Returns the background color of the current color group.
+    Returns the alternate base brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::shadow() const
+    \fn const QBrush & QPalette::background() const
 
-    Returns the shadow color of the current color group.
+    Returns the background brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::highlight() const
+    \fn const QBrush & QPalette::shadow() const
 
-    Returns the highlight color of the current color group.
+    Returns the shadow brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::highlightedText() const
+    \fn const QBrush & QPalette::highlight() const
 
-    Returns the highlighted text color of the current color group.
+    Returns the highlight brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::link() const
+    \fn const QBrush & QPalette::highlightedText() const
 
-    Returns the unvisited link text color of the current color group.
+    Returns the highlighted text brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
 */
 
 /*!
-    \fn const QColor & QPalette::linkVisited() const
+    \fn const QBrush & QPalette::link() const
 
-    Returns the visited link text color of the current color group.
+    Returns the unvisited link text brush of the current color group.
 
-    \sa ColorRole
+    \sa ColorRole brush()
+*/
+
+/*!
+    \fn const QBrush & QPalette::linkVisited() const
+
+    Returns the visited link text brush of the current color group.
+
+    \sa ColorRole brush()
 */
 
 /*!
@@ -313,8 +321,8 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     \mainclass
 
     A palette consists of three color groups: \e Active, \e Disabled,
-    and \e Inactive. All widgets contain a palette, and all widgets in
-    Qt use their palette to draw themselves. This makes the user
+    and \e Inactive. All widgets in Qt contain a palette and
+    use their palette to draw themselves. This makes the user
     interface easily configurable and easier to keep consistent.
 
     If you create a new widget we strongly recommend that you use the
@@ -332,30 +340,32 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     (Disabled widgets are often called \e inaccessible or \e{grayed
     out}.)
 
-    In most styles, Active and Inactive look the same. In Windows
-    2000 style, the two styles look slightly different.
+    In most styles, Active and Inactive look the same.
 
-    Colors and brushes can be set for particular roles in any of a
-    palette's color groups with setColor() and setBrush().  A color
-    group contains a group of colors used by widgets for drawing
-    themselves. We recommend that widgets use color group roles such
-    as "foreground" and "base" rather than literal colors like "red"
-    or "turquoise". The color roles are enumerated and defined in the
-    \l ColorRole documentation.
+    Colors and brushes can be set for particular roles in any of a palette's
+    color groups with setColor() and setBrush().  A color group contains a
+    group of colors used by widgets for drawing themselves. We recommend that
+    widgets use color group roles from the palette such as "foreground" and
+    "base" rather than literal colors like "red" or "turquoise". The color
+    roles are enumerated and defined in the \l ColorRole documentation.
 
     We strongly recommend that you use a system-supplied color group
     and modify that as necessary.
 
-    You modify a color group by calling the access functions
+    To modify a color group you call the functions
     setColor() and setBrush(), depending on whether you want a pure
     color or a pixmap pattern.
 
     There are also corresponding color() and brush() getters, and a
-    commonly used convenience function to get each ColorRole:
+    commonly used convenience function to get the ColorRole for the current ColorGroup:
     background(), foreground(), base(), etc.
 
     You can copy a palette using the copy constructor and test to see
     if two palettes are \e identical using isCopyOf().
+
+    QPalette is optimized by the use of \link shclass.html implicit
+    sharing\endlink, so it is very efficient to pass QPalette objects as
+    arguments.
 
     \sa QApplication::setPalette(), QWidget::setPalette(), QColor
 */
@@ -396,14 +406,16 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
                  the same as the \c Foreground, in which case it must provide
                  good contrast with \c Background and \c Base.
 
-    \value Button  The general button background color in which buttons need a
-                   background that is different from \c Background, as in the
-                   Macintosh style.
+    \value Button The general button background color. This background can be different from
+                  \c Background as some styles require a different background color for buttons.
 
     \value ButtonText  A foreground color used with the \c Button color.
 
-    There are some color roles used mostly for 3D bevel and shadow
-    effects:
+    There are some color roles used mostly for 3D bevel and shadow effects.
+    All of these are normally derived from \c Background, and used in ways that
+    depend on that relationship. For example, buttons depend on it to make the
+    bevels look attractive, and Motif scroll bars depend on \c Mid to be
+    slightly different from \c Background.
 
     \value Light  Lighter than \c Button color.
 
@@ -416,10 +428,6 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     \value Shadow  A very dark color. By default, the shadow color is
                    \c Qt::black.
 
-    All of these are normally derived from \c Background, and used in
-    ways that depend on that relationship. For example, buttons depend
-    on it to make the bevels look attractive, and Motif scroll bars
-    depend on \c Mid to be slightly different from \c Background.
 
     Selected (marked) items have two roles:
 
@@ -430,9 +438,11 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     \value HighlightedText  A text color that contrasts with \c Highlight.
     By default, the highlighted text color is \c Qt::white.
 
-    Finally, there is a special role for text that needs to be
-    drawn where \c Text or \c Foreground would give poor contrast,
-    such as on pressed push buttons:
+    Finally, there is a special role for text that needs to be drawn where \c
+    Text or \c Foreground would give poor contrast, such as on pressed push
+    buttons.  Note that text colors can be used for things other than just
+    words; text colors are \e usually used for text, but it's quite common to
+    use the text color roles for lines, icons, etc.
 
     \value BrightText  A text color that is very different from
                        \c Foreground, and contrasts well with e.g. \c Dark.
@@ -446,9 +456,6 @@ void QPalette::setColorGroup(ColorGroup cg, const QColorGroup &g)
     \omitvalue NColorRoles
     \omitvalue NoRole
 
-    Note that text colors can be used for things other than just
-    words; text colors are \e usually used for text, but it's quite
-    common to use the text color roles for lines, icons, etc.
 
     This image shows most of the color roles in use:
     \img palette.png Color Roles
@@ -586,7 +593,7 @@ QPalette::QPalette(const QColor &button, const QColor &background)
 /*!
     Constructs a copy of \a p.
 
-    This constructor is fast (it uses copy-on-write).
+    This constructor is fast because of \link shclass.html implicit sharing\endlink.
 */
 QPalette::QPalette(const QPalette &p)
 {
@@ -616,7 +623,7 @@ void QPalette::init() {
     Assigns \a p to this palette and returns a reference to this
     palette.
 
-    This is fast (it uses copy-on-write).
+    This operation is fast because of \link shclass.html implicit sharing\endlink.
 */
 QPalette &QPalette::operator=(const QPalette &p)
 {
@@ -706,6 +713,7 @@ void QPalette::setBrush(ColorGroup cg, ColorRole cr, const QBrush &b)
 
 
 /*!
+    \internal
     \fn void QPalette::detach()
     Detaches this palette from any other QPalette objects with which
     it might implicitly share QColorGroup objects. In essence, does
@@ -816,9 +824,9 @@ bool QPalette::isEqual(QPalette::ColorGroup group1, QPalette::ColorGroup group2)
     The serial number is intended for caching. Its value may not be
     used for anything other than equality testing.
 
-    Note that QPalette uses copy-on-write, and the serial number
-    changes during the lazy copy operation (detach()), not during a
-    shallow copy (copy constructor or assignment).
+    Note that QPalette uses implicit sharing, and the serial number changes
+    during the lazy copy operation (when the palette is actually modified), not
+    during a shallow copy (copy constructor or assignment).
 
     \sa QPixmap QPixmapCache QCache
 */
