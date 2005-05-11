@@ -31,7 +31,7 @@
 class Q_CORE_EXPORT QPersistentModelIndexData
 {
 public:
-    QPersistentModelIndexData() : model (0) { ref = 0; }
+    QPersistentModelIndexData() : model (0) {}
     QModelIndex index;
     QAtomic ref;
     const QAbstractItemModel *model;

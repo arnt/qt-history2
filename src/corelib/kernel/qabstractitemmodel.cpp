@@ -33,29 +33,29 @@ QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &
             break;
         }
     }
-    if (d == 0) { // not found
+    if (!d) { // not found
         d = new QPersistentModelIndexData();
         d->model = model;
         d->index = index;
         persistentIndexes->append(d);
     }
+    Q_ASSERT(d);
     return d;
 }
 
 void QPersistentModelIndexData::destroy(QPersistentModelIndexData *data)
 {
-    if (data) {
-        QAbstractItemModel *model = const_cast<QAbstractItemModel*>(data->model);
-        // a valid persistent model index with a null model pointer can only happen if the model was destroyed
-        if (model) {
-            QAbstractItemModelPrivate *p = model->d_func();
-            int position = p->persistent.indexes.indexOf(data);
-            p->persistent.changed.removeAll(position);
-            p->persistent.invalidated.removeAll(position);
-            p->persistent.indexes.removeAll(data);
-        }
-        delete data;
+    Q_ASSERT(data);
+    QAbstractItemModel *model = const_cast<QAbstractItemModel*>(data->model);
+    // a valid persistent model index with a null model pointer can only happen if the model was destroyed
+    if (model) {
+        QAbstractItemModelPrivate *p = model->d_func();
+        int position = p->persistent.indexes.indexOf(data);
+        p->persistent.changed.removeAll(position);
+        p->persistent.invalidated.removeAll(position);
+        p->persistent.indexes.removeAll(data);
     }
+    delete data;
 }
 
 /*!
@@ -166,8 +166,7 @@ void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
     if (d && !d->ref.deref())
         QPersistentModelIndexData::destroy(d);
     d = other.d;
-    if (d)
-        d->ref.ref();
+    if (d) d->ref.ref();
 }
 
 /*!
@@ -181,7 +180,7 @@ void QPersistentModelIndex::operator=(const QModelIndex &other)
         QPersistentModelIndexData::destroy(d);
     if (other.isValid()) {
         d = QPersistentModelIndexData::create(other);
-        d->ref.ref();
+        if (d) d->ref.ref();
     } else {
         d = 0;
     }
@@ -397,7 +396,7 @@ void QAbstractItemModelPrivate::invalidate(int position)
 }
 
 void QAbstractItemModelPrivate::rowsAboutToBeInserted(const QModelIndex &parent,
-                                                         int first, int last)
+                                                      int first, int last)
 {
     Q_UNUSED(last);
     persistent.changed.clear();
@@ -409,7 +408,7 @@ void QAbstractItemModelPrivate::rowsAboutToBeInserted(const QModelIndex &parent,
 }
 
 void QAbstractItemModelPrivate::rowsInserted(const QModelIndex &parent,
-                                                int first, int last)
+                                             int first, int last)
 {
     int count = (last - first) + 1;
     for (int i = 0; i < persistent.changed.count(); ++i) {
@@ -454,7 +453,7 @@ void QAbstractItemModelPrivate::rowsRemoved(const QModelIndex &parent,
 }
 
 void QAbstractItemModelPrivate::columnsAboutToBeInserted(const QModelIndex &parent,
-                                                            int first, int last)
+                                                         int first, int last)
 {
     Q_UNUSED(last);
     persistent.changed.clear();
@@ -466,7 +465,7 @@ void QAbstractItemModelPrivate::columnsAboutToBeInserted(const QModelIndex &pare
 }
 
 void QAbstractItemModelPrivate::columnsInserted(const QModelIndex &parent,
-                                                   int first, int last)
+                                                int first, int last)
 {
     int count = (last - first) + 1;
     for (int i = 0; i < persistent.changed.count(); ++i) {
@@ -479,7 +478,7 @@ void QAbstractItemModelPrivate::columnsInserted(const QModelIndex &parent,
 }
 
 void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &parent,
-                                                           int first, int last)
+                                                        int first, int last)
 {
     persistent.changed.clear();
     persistent.invalidated.clear();
@@ -495,7 +494,7 @@ void QAbstractItemModelPrivate::columnsAboutToBeRemoved(const QModelIndex &paren
 }
 
 void QAbstractItemModelPrivate::columnsRemoved(const QModelIndex &parent,
-                                                  int first, int last)
+                                               int first, int last)
 {
     int count = (last - first) + 1;
     for (int i = 0; i < persistent.changed.count(); ++i) {
