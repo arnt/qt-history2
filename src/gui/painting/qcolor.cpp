@@ -45,8 +45,7 @@
     The validity (isValid()) indicates whether the color is legal at
     all. For example, a RGB color with RGB values out of range is
     illegal. For performance reasons, QColor mostly disregards illegal
-    colors. The result of using an invalid color is unspecified and
-    will usually be surprising.
+    colors. Therefore, the result of using an invalid color is unspecified.
 
     There are 20 predefined QColor objects: \c white, \c black, \c
     red, \c darkRed, \c green, \c darkGreen, \c blue, \c darkBlue, \c
@@ -58,10 +57,9 @@
     \img qt-colors.png Qt Colors
 
     The colors \c Qt::color0 (zero pixel value) and \c Qt::color1 (non-zero
-    pixel value) are special colors for drawing in \link QBitmap
-    bitmaps\endlink. Painting with \c Qt::color0 sets the bitmap bits to 0
-    (transparent, i.e. background), and painting with \c Qt::color1 sets the
-    bits to 1 (opaque, i.e. foreground).
+    pixel value) are special colors for drawing in QBitmaps. Painting with \c
+    Qt::color0 sets the bitmap bits to 0 (transparent, i.e. background), and
+    painting with \c Qt::color1 sets the bits to 1 (opaque, i.e. foreground).
 
     For displays with a color table (typically 8-bit displays), the
     QColor class has an efficient, dynamic color allocation strategy.
@@ -82,7 +80,7 @@
 
     A color can be set by passing an RGB string to setNamedColor() (such
     as "#112233"), or a color name (such as "blue"). The names are taken
-    from X11's rgb.txt database but can also be used under Windows. To get
+    from X11's rgb.txt database but can also be used on all platforms. To get
     a lighter or darker color use light() and dark() respectively.
     Colors can also be set using setRgb() and setHsv(). The color
     components can be accessed in one go with rgb() and hsv(), or
@@ -247,6 +245,8 @@ QColor::QColor(Qt::GlobalColor color)
 /*!
     Constructs a color with the value \a color. The alpha component is
     ignored and set to solid.
+
+    \sa fromRgb()
 */
 
 QColor::QColor(QRgb color)
@@ -326,8 +326,7 @@ QString QColor::name() const
     \i #RRRGGGBBB
     \i #RRRRGGGGBBBB
     \i A name from the X color database (rgb.txt) (e.g.
-    "steelblue" or "gainsboro"). These color names also work
-    under Windows.
+    "steelblue" or "gainsboro"). These color names work on all platforms.
     \endlist
 
     The color is invalid if \a name cannot be parsed.
@@ -608,14 +607,14 @@ void QColor::setRgb(int r, int g, int b, int a)
     \fn QRgb QColor::rgba() const
 
     Returns the RGB value of the color. Note that unlike rgb(), the
-    alpha is not stripped for compatibility.
+    alpha is not stripped.
 
     The return type \e QRgb is equivalent to \c unsigned \c int.
 
     For an invalid color, the alpha value of the returned color is
     unspecified.
 
-    \sa setRgb(), getHsv(), qRed(), qBlue(), qGreen(), isValid()
+    \sa setRgb(), setRgba(), getHsv(), qRed(), qBlue(), qGreen(), isValid()
 */
 
 QRgb QColor::rgba() const
@@ -1820,7 +1819,7 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \fn int qRed(QRgb rgb)
     \relates QColor
 
-    Returns the red component of the RGB triplet \a rgb.
+    Returns the red component of the RGBA quadruplet \a rgb.
     \sa qRgb(), QColor::red()
 */
 
@@ -1828,7 +1827,7 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \fn int qGreen(QRgb rgb)
     \relates QColor
 
-    Returns the green component of the RGB triplet \a rgb.
+    Returns the green component of the RGBA quadruplet \a rgb.
     \sa qRgb(), QColor::green()
 */
 
@@ -1836,7 +1835,7 @@ QDataStream &operator>>(QDataStream &stream, QColor &color)
     \fn int qBlue(QRgb rgb)
     \relates QColor
 
-    Returns the blue component of the RGB triplet \a rgb.
+    Returns the blue component of the RGBA quadruplet \a rgb.
     \sa qRgb(), QColor::blue()
 */
 
