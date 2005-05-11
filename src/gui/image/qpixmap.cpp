@@ -551,6 +551,8 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
     if (QPixmapCache::find(key, *this))
             return true;
     QImage image = QImageReader(fileName, format).read();
+    if (image.isNull())
+        return false;
     QPixmap pm;
     if (data->type == BitmapType)
         pm = QBitmap::fromImage(image, flags);
