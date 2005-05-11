@@ -1,12 +1,41 @@
-This is Qt version %VERSION%
+This is Qt version %VERSION%.
 
-Qt is a cross-platform C++ GUI application framework.
+Qt is a cross-platform C++ GUI toolkit. Qt 4.0 introduces new features
+and many improvements over the 3.x series. See
+http://doc.trolltech.com/4.0/qt4-intro.html for details.
 
-Qt 4.0 introduces new features and many improvements over the 3.x.x
-series. See the changes file for details.
+The Qt 4.x series is not binary compatible or source compatible with
+the 3.x series. For more information on porting from Qt 3 to Qt 4, see
+http://doc.trolltech.com/4.0/porting4.html.
 
-The Qt version 4.0 series is not binary compatible nor source
-compatible with the 3.x.x series.
+
+INSTALLING Qt
+
+On Windows and Mac OS X, if you want to install the precompiled binary
+packages, simply launch the package and follow the instructions in the
+installation wizard.
+
+If you have a source package (a .tar.gz, .tar.bz2, or .zip file),
+follow the instructions in the INSTALL file.
+
+
+DEMOS AND EXAMPLES
+
+Once Qt is installed, we suggest that you take a look at the demos and
+examples to see Qt in action. Run the Qt Launcher program either by
+typing 'launcher' on the command line or through the desktop's Start
+menu.
+
+
+REFERENCE DOCUMENTATION
+
+The Qt reference documentation is available locally in Qt's doc/html
+directory. You can use Qt Assistant to view it; to launch Assistant,
+type 'assistant' on the command line or use the Start menu. The latest
+documentation is available at http://doc.trolltech.com/.
+
+
+SUPPORTED PLATFORMS
 
 For this release, the following platforms have been tested:
 
@@ -34,54 +63,28 @@ For this release, the following platforms have been tested:
 
   macx-g++
 
-If you want to use Qt 4 on an unsupported version of Unix, please
-contact us at qt-bugs@trolltech.com so that we can assist you.
+For a complete list of supported platforms, see
+http://www.trolltech.com/products/qt/qt4-platforms.html.
 
 
-How to get the release:
+HOW TO REPORT A BUG
 
-Qt Open Source Edition: Download the .tar.gz archive from
-ftp.trolltech.com. For faster download times, use ftpsearch and search
-for %DISTNAME% to find it on a mirror ftp site
-near you.
+If you think you have found a bug in Qt, we would like to hear about
+it so that we can fix it. Before reporting a bug, please check
+http://www.trolltech.com/developer/faqs/ and
+http://www.trolltech.com/developer/platforms/ to see if the to see if
+the issue is already known.
 
-Qt Professional Edition, Qt Enterprise Edition: Holders of valid
-licenses should have received an e-mail with instructions on how to
-get the new release. Contact sales@trolltech.com if you are a
-Professional or Enterprise Edition licensee and have not received this
-e-mail.
-
-Trolltech has set up a special mailing list, qt4-preview-feedback, for
-discussion of issues relating to the Qt 4 beta releases. To subscribe,
-send a message containing just the word subscribe to
-qt4-preview-feedback-request@trolltech.com.  We encourage you to use
-this mailing list instead of qt-interest for Qt 4 specific issues. See
-http://lists.trolltech.com/ for more information on Trolltech's
-mailing lists, including archived discussions.
-
-If you think you have found an actual bug in Qt, we would like to hear
-about it so that we can fix it. In that case, please send the bug
-report to qt-bugs@trolltech.com. Be aware that we cannot guarantee a
-personal reply for all bug reports.
-
-Before reporting a bug, please check the Known Issues page,
-http://doc.trolltech.com/4.0/known-issues.html, on our web site to see
-if the issue is already known.
-
-Always include the following information in your bug report:
-
-  The name and version number of your compiler
-  The name and version number of your operating system
-  The version of Qt you are using, and what configure options it was
-  compiled with.
-
+Always include the following information in your bug report: the name
+and version number of your compiler; the name and version number of
+your operating system; the version of Qt you are using, and what
+configure options it was compiled with.
+ 
 If the problem you are reporting is only visible at run-time, try to
 create a small test program that shows the problem when run. Often,
 such a program can be created with some minor changes to one of the
-many example programs in Qt's examples directory.
+many example programs in Qt's examples directory. Please send the bug
+report to qt-bugs@trolltech.com.
 
-If you are a licensed customer, be aware that we cannot provide
-technical support for beta releases. Use the qt4-preview-feedback
-mailing list for questions related to the Qt 4 beta.
 
 Qt is a trademark of Trolltech AS.
