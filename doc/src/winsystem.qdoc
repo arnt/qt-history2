@@ -21,6 +21,10 @@
     source tree, you should protect the platform-specific code using the
     appropriate \c{#ifdef} directives (see below).
 
+    Qt provides a few low-level global functions for fine-tuning
+    applications on specific platforms. See \l{Special-Purpose Global
+    Functions Exported by Qt} for details.
+
     \tableofcontents
 
     For information about which platforms are supported by Qt, see the

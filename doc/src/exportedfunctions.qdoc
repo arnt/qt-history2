@@ -53,18 +53,6 @@
     the QKeySequence::mnemonic() function always returns an empty
     string.
 
-    \section1 HDC qt_win_display_dc()
-
-    Returns the Windows device context for the display. Use this at
-    your own risks and perils.
-
-    \section1 void qt_x11_set_fallback_font_family(int \e{script}, const QString &\e{family})
-
-    Sets the font family to be used for a given script as the
-    fallback when the current font doesn't contain a character. The
-    values for the \e{script} parameter are defined by the \c Script
-    enum, located in \c <private/qunicodetable_p.h>.
-
     \section1 void qt_x11_wait_for_window_manager(QWidget *\e{widget})
 
     Blocks until the X11 window manager has shown the widget after a
@@ -110,9 +98,4 @@
 
     Turns emulation of the right mouse button by clicking and holding
     the left mouse button on or off. This feature is off by default.
-*/
-
-/*
-    * link to this document from appropriate places: Jasmin
-    * find out about qt_find_ellipse_coords(): Jasmin
 */
