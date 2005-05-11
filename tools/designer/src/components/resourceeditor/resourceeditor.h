@@ -4,7 +4,6 @@
 #include <QtGui/QWidget>
 
 #include "resourceeditor_global.h"
-#include "ui_resourceeditor.h"
 
 class QDesignerFormEditorInterface;
 class QDesignerFormWindowInterface;
@@ -19,7 +18,7 @@ class QTreeView;
 
 namespace qdesigner_internal {
 
-class QT_RESOURCEEDITOR_EXPORT ResourceEditor : public QWidget, public Ui::ResourceEditor
+class QT_RESOURCEEDITOR_EXPORT ResourceEditor : public QWidget
 {
     Q_OBJECT
 
@@ -62,6 +61,14 @@ private:
 
     void insertEmptyComboItem();
     void removeEmptyComboItem();
+
+private:
+    QComboBox *m_qrc_combo;
+    QStackedWidget *m_qrc_stack;
+    QToolButton *m_add_button;
+    QToolButton *m_remove_button;
+    QPushButton *m_add_files_button;
+    QToolButton *m_remove_qrc_button;
 };
 
 } // namespace qdesigner_internal

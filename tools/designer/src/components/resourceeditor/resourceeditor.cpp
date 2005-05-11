@@ -24,6 +24,7 @@
 #include <resourcefile.h>
 #include <iconloader.h>
 
+#include "ui_resourceeditor.h"
 #include "resourceeditor.h"
 
 #define COMBO_EMPTY_DATA 0
@@ -375,7 +376,15 @@ ResourceModel *ModelCache::model(const QString &file)
 ResourceEditor::ResourceEditor(QDesignerFormEditorInterface *core, QWidget *parent)
     : QWidget(parent)
 {
-    setupUi(this);
+    Ui::ResourceEditor ui;
+    ui.setupUi(this);
+
+    m_qrc_combo = ui.m_qrc_combo;
+    m_qrc_stack = ui.m_qrc_stack;
+    m_add_button = ui.m_add_button;
+    m_remove_button = ui.m_remove_button;
+    m_add_files_button = ui.m_add_files_button;
+    m_remove_qrc_button = ui.m_remove_qrc_button;
 
     m_form = 0;
     setEnabled(false);
