@@ -59,8 +59,10 @@ private slots:
     void addPage();
     void slotCurrentChanged(int index);
 
-private:
+protected:
     bool canMove(QMouseEvent *e) const;
+    virtual void tabInserted(int index);
+    virtual void tabRemoved(int index);
 
 private:
     QPoint pressPoint;

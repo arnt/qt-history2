@@ -25,7 +25,7 @@
 #include <QtCore/qdebug.h>
 
 QDesignerTabWidget::QDesignerTabWidget(QWidget *parent)
-    : QTabWidget(parent)
+    : QTabWidget(parent), m_actionDeletePage(0)
 {
     dropIndicator = 0;
     dragPage = 0;
@@ -291,5 +291,22 @@ QDesignerFormWindowInterface *QDesignerTabWidget::formWindow() const
 {
     return QDesignerFormWindowInterface::findFormWindow(const_cast<QDesignerTabWidget*>(this));
 }
+
+void QDesignerTabWidget::tabInserted(int index)
+{
+    QTabWidget::tabInserted(index);
+
+    if (m_actionDeletePage)
+        m_actionDeletePage->setEnabled(count() > 1);
+}
+
+void QDesignerTabWidget::tabRemoved(int index)
+{
+    QTabWidget::tabRemoved(index);
+
+    if (m_actionDeletePage)
+        m_actionDeletePage->setEnabled(count() > 1);
+}
+
 
 #include "qdesigner_tabwidget.moc"
