@@ -24,6 +24,7 @@
 #include "qstringmatcher.h"
 #include "qtools_p.h"
 #include "qhash.h"
+#include "qdebug.h"
 
 #include <limits.h>
 #include <string.h>
@@ -2519,39 +2520,26 @@ QString QString::section(const QString &sep, int start, int end, SectionFlags fl
     }
     int x = 0;
     QString ret;
-    bool prevWasEmpty = false;
+    int first_i = start, last_i = end;
     for (int i = 0; x <= end && i < sections.size(); ++i) {
         QString section = sections.at(i);
         const bool empty = section.isEmpty();
         if (x >= start) {
-            if (!ret.isEmpty() || !(flags & SectionSkipEmpty)) {
-                int i_end = 0;
-                if (empty) {
-                    if (x < end || x == start)
-                        i_end++;
-                } else if (!prevWasEmpty){
-                    if (!ret.isEmpty() && !(flags & SectionIncludeTrailingSep))
-                        i_end++;
-                    else if ((flags & SectionIncludeLeadingSep) && i && x == start)
-                        i_end++;
-                }
-                for (int j = 0; j < i_end; j++)
-                    ret += sep;
-            } else if ((flags & SectionIncludeLeadingSep) && i) {
+            if(x == start)
+                first_i = i;
+            if(x == end)
+                last_i = i;
+            if(x > start)
                 ret += sep;
-            }
             ret += section;
-            if (!empty && (flags & SectionIncludeTrailingSep) && i != sections.size()-1) {
-                ret += sep;
-            }
-            prevWasEmpty = empty;
         }
         if (!empty || !(flags & SectionSkipEmpty))
             x++;
     }
-    if (prevWasEmpty && flags & SectionIncludeTrailingSep) {
+    if((flags & SectionIncludeLeadingSep) && first_i)
+        ret.prepend(sep);
+    if((flags & SectionIncludeTrailingSep) && last_i < sections.size()-1)
         ret += sep;
-    }
     return ret;
 }
 
@@ -2596,43 +2584,47 @@ QString QString::section(const QRegExp &reg, int start, int end, SectionFlags fl
     sep.setCaseSensitivity((flags & SectionCaseInsensitiveSeps) ? Qt::CaseInsensitive
                                                                 : Qt::CaseSensitive);
 
-    QList<section_chunk> l;
-    int n = length(), m = 0, last_m = 0, last = 0, last_len = 0;
-
+    QList<section_chunk> sections;
+    int n = length(), m = 0, last_m = 0, last_len = 0;
     while ((m = sep.indexIn(*this, m)) != -1) {
-        l.append(section_chunk(last_len, QString(uc + last_m, m - last_m)));
+        sections.append(section_chunk(last_len, QString(uc + last_m, m - last_m)));
         last_m = m;
         last_len = sep.matchedLength();
-        if((m += sep.matchedLength()) >= n)
-            break;
+        m += sep.matchedLength();
     }
-    if(!last)
-        l.append(section_chunk(last_len, QString(uc + last_m, n - last_m)));
+    sections.append(section_chunk(last_len, QString(uc + last_m, n - last_m)));
 
     if(start < 0)
-        start += l.count();
+        start += sections.count();
     if(end < 0)
-        end += l.count();
+        end += sections.count();
 
     QString ret;
-    for (int idx = 0; idx < l.size(); ++idx) {
-        const section_chunk &chk = l.at(idx);
-        const bool isEmpty = (chk.length == chk.string.length());
-        if((flags & SectionSkipEmpty) && isEmpty) {
-            if(idx <= start)
-                start++;
-            end++;
+    int x = 0;
+    int first_i = start, last_i = end;
+    for (int i = 0; x <= end && i < sections.size(); ++i) {
+        const section_chunk &section = sections.at(i);
+        const bool empty = (section.length == section.string.length());
+        if (x >= start) {
+            if(x == start)
+                first_i = i;
+            if(x == end)
+                last_i = i;
+            if(x != start)
+                ret += section.string;
+            else
+                ret += section.string.mid(section.length);
         }
-        if(idx == start)
-            ret += (flags & SectionIncludeLeadingSep) ? chk.string : chk.string.mid(chk.length);
-        else if(idx > start && (!isEmpty || idx < end))
-            ret += chk.string;
-        if(idx >= start && idx < l.size()-1 && flags & SectionIncludeTrailingSep) {
-            const section_chunk &next = l.at(idx+1);
-            ret += next.string.left(next.length);
-        }
-        if(idx == end)
-            break;
+        if (!empty || !(flags & SectionSkipEmpty))
+            x++;
+    }
+    if((flags & SectionIncludeLeadingSep)) {
+        const section_chunk &section = sections.at(first_i);
+        ret.prepend(section.string.left(section.length));
+    }
+    if((flags & SectionIncludeTrailingSep) && last_i+1 <= sections.size()-1) {
+        const section_chunk &section = sections.at(last_i+1);
+        ret += section.string.left(section.length);
     }
     return ret;
 }
