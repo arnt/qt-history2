@@ -758,6 +758,8 @@ QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
     if(qgetenv("QT_MAC_NO_NATIVE_MENUBAR"))
         qt_mac_no_native_menubar = true;
     if(!qt_mac_no_native_menubar) {
+        extern void qt_event_request_menubarupdate(); //qapplication_mac.cpp
+        qt_event_request_menubarupdate();
         if(!parent && !fallback) {
             fallback = q;
             mac_menubar = new QMacMenuBarPrivate;
@@ -785,11 +787,14 @@ MenuRef QMenuBarPrivate::macMenu()
     if(!mac_menubar) {
         return 0;
     } else if(!mac_menubar->menu) {
-        mac_menubar->menu = qt_mac_create_menu(q);
+        ProcessSerialNumber mine, front;
+        if(GetCurrentProcess(&mine) == noErr && GetFrontProcess(&front) == noErr) {
+            mac_menubar->menu = qt_mac_create_menu(q);
 
-        QList<QAction*> items = q->actions();
-        for(int i = 0; i < items.count(); i++)
-            mac_menubar->addAction(items[i]);
+            QList<QAction*> items = q->actions();
+            for(int i = 0; i < items.count(); i++)
+                mac_menubar->addAction(items[i]);
+        }
     }
     return mac_menubar->menu;
 }
@@ -837,6 +842,17 @@ bool QMenuBar::macUpdateMenuBar()
             break;
         }
     }
+    if(!w) {
+        QWidgetList tlws = QApplication::topLevelWidgets();
+        for(int i = 0; i < tlws.size(); ++i) {
+            QWidget *tlw = tlws.at(i);
+            if((tlw->isVisible() && tlw->windowType() != Qt::Tool &&
+                tlw->windowType() != Qt::Popup)) {
+                w = tlw;
+                break;
+            }
+        }
+    }
     if(w) {
         mb = menubars()->value(w);
 #ifndef QT_NO_MAINWINDOW
@@ -863,12 +879,6 @@ bool QMenuBar::macUpdateMenuBar()
                 qt_mac_set_modal_state(menu, QApplicationPrivate::modalState());
         }
         ret = true;
-    } else if(fall_back_to_empty) {
-        static bool first = true;
-        if(first) {
-            first = false;
-            qt_mac_clear_menubar();
-        }
     }
     return ret;
 }
