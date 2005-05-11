@@ -12,7 +12,8 @@ INCLUDEPATH	 = ../../corelib/arch/generic $$QT_BUILD_TREE/include . \
                    $$QT_BUILD_TREE/include/QtCore $$QT_BUILD_TREE/include/QtXml
 DEPENDPATH	+= $$INCLUDEPATH ../../corelib/base ../../corelib/tools ../../corelib/io ../../corelib/codecs ../../xml
 
-SOURCES += main.cpp
+HEADERS += rcc.h
+SOURCES += main.cpp rcc.cpp
 
 # Qt tools needed to link rcc
 SOURCES	+= ../../corelib/global/qglobal.cpp \

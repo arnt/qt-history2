@@ -17,8 +17,7 @@ HEADERS +=  \
         io/qprocess_p.h \
 	io/qtextstream.h \
 	io/qtemporaryfile.h \
-        io/qresource.h \
-        io/qresourceengine_p.h \
+        io/qresource_p.h \
 	io/qurl.h \
 	io/qsettings.h \
 	io/qsettings_p.h
@@ -39,7 +38,6 @@ SOURCES += \
 	io/qtextstream.cpp \
 	io/qtemporaryfile.cpp \
         io/qresource.cpp \
-        io/qresourceengine.cpp \
 	io/qurl.cpp \
 	io/qsettings.cpp
 

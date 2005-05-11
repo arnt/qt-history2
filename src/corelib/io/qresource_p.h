@@ -10,26 +10,10 @@
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **
 ****************************************************************************/
-
-#ifndef QRESOURCEENGINE_P_H
-#define QRESOURCEENGINE_P_H
-
-//
-//  W A R N I N G
-//  -------------
-//
-// This file is not part of the Qt API.  It exists for the convenience
-// of other Qt classes.  This header file may change from version to
-// version without notice, or even be removed.
-//
-// We mean it.
-//
+#ifndef __QRESOURCE_P_H__
+#define __QRESOURCE_P_H__
 
 #include <qfileengine.h>
-
-#ifdef open
-#error qresourceengine_p.h must be included before any system header that defines open
-#endif
 
 class QResourceFileEnginePrivate;
 class QResourceFileEngine : public QFileEngine
@@ -85,4 +69,4 @@ public:
     virtual Type type() const;
 };
 
-#endif // QRESOURCEENGINE_P_H
+#endif /* __QRESOURCE_P_H__ */
