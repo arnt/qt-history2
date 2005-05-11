@@ -17,6 +17,10 @@
 #include <qregexp.h>
 #include <private/qfileengine_p.h>
 
+#if defined(Q_OS_SOLARIS)
+static const QAtomic qt_static_workaround; // ### remove me when changing the resource engine
+#endif
+
 inline static QResource *qt_find_resource(const QString &path)
 {
     if (path.size() > 0 && path[0] == QLatin1Char(':'))
