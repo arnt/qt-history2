@@ -288,8 +288,10 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
 {
     QFile file(library);
     if (!file.open(QIODevice::ReadOnly)) {
+#if defined(QT_DEBUG_COMPONENT)
         qWarning("%s: %s", (const char*) QFile::encodeName(library),
             strerror(errno));
+#endif
         return false;
     }
 
@@ -307,7 +309,9 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
         fdlen = maplen;
     } else {
         // mmap failed
+#if defined(QT_DEBUG_COMPONENT)
         qWarning("mmap: %s", strerror(errno));
+#endif
 #endif // USE_MMAP
         // try reading the data into memory instead
         data = file.readAll();
@@ -328,7 +332,9 @@ static bool qt_unix_query(const QString &library, uint *version, bool *debug, QB
 
 #ifdef USE_MMAP
     if (mapaddr != MAP_FAILED && munmap(mapaddr, maplen) != 0) {
+#if defined(QT_DEBUG_COMPONENT)
         qWarning("munmap: %s", strerror(errno));
+#endif
     }
 #endif // USE_MMAP
 
@@ -410,16 +416,62 @@ bool QLibraryPrivate::loadPlugin()
     return false;
 }
 
+/*!
+    Returns true if \a fileName has a valid suffix for a loadable
+    library; otherwise returns false.
+
+    \table
+    \header \i Platform \i Valid suffixes
+    \row \i Windows     \i \c .dll
+    \row \i Unix/Linux  \i \c .so
+    \row \i AIX  \i \c .a
+    \row \i HP-UX       \i \c .sl
+    \row \i Mac OS X    \i \c .dylib, \c .bundle, \c .so
+    \endtable
+
+    Trailing versioning numbers on Unix are ignored.
+ */
+bool QLibrary::isLibrary(const QString &fileName)
+{
+    QString completeSuffix = QFileInfo(fileName).completeSuffix();
+    if (completeSuffix.isEmpty())
+        return false;
+    QStringList suffixes = completeSuffix.split(QLatin1Char('.'));
+    QString suffix = suffixes.first();
+#if defined(Q_OS_WIN32)
+    bool valid = (suffix == "dll");
+#elif defined(Q_OS_DARWIN)
+    bool valid = (suffix == "dylib"
+            || suffix == "so"
+            || suffix == "bundle");
+#elif defined(Q_OS_HPUX)
+    bool valid = (suffix == "sl");
+#elif defined(Q_OS_UNIX)
+    bool valid = (suffix == "so");
+#else
+    bool valid = false;
+#endif
+
+    for (int i = 1; i < suffixes.count() && valid; ++i)
+        suffixes.at(i).toInt(&valid);
+
+    return valid;
+}
+
 bool QLibraryPrivate::isPlugin()
 {
     if (pluginState != MightBeAPlugin)
         return pluginState == IsAPlugin;
+
+    if (!QLibrary::isLibrary(fileName))
+        return false;
 
     bool debug = !QLIBRARY_AS_DEBUG;
     QByteArray key;
     bool success = false;
 
     QFileInfo fileinfo(fileName);
+
     lastModified  = fileinfo.lastModified().toString(Qt::ISODate);
     QString regkey = QString::fromLatin1("Qt Plugin Cache %1.%2.%3/%4")
                      .arg((QT_VERSION & 0xff0000) >> 16)
@@ -478,22 +530,23 @@ bool QLibraryPrivate::isPlugin()
 
     pluginState = IsNotAPlugin; // be pessimistic
 
-    bool warn = true;
     if ((qt_version > QT_VERSION) || ((QT_VERSION & 0xff0000) > (qt_version & 0xff0000))) {
-        if (warn)
-            qWarning("In %s:\n"
-                     "  Plugin uses incompatible Qt library (%d.%d.%d) [%s]",
-                     (const char*) QFile::encodeName(fileName),
-                     (qt_version&0xff0000) >> 16, (qt_version&0xff00) >> 8, qt_version&0xff,
-                     debug ? "debug" : "release");
+#if defined(QT_DEBUG_COMPONENT)
+        qWarning("In %s:\n"
+                 "  Plugin uses incompatible Qt library (%d.%d.%d) [%s]",
+                 (const char*) QFile::encodeName(fileName),
+                 (qt_version&0xff0000) >> 16, (qt_version&0xff00) >> 8, qt_version&0xff,
+                 debug ? "debug" : "release");
+#endif
     } else if (key != QT_BUILD_KEY) {
-        if (warn)
-            qWarning("In %s:\n"
-                     "  Plugin uses incompatible Qt library\n"
-                     "  expected build key \"%s\", got \"%s\"",
-                     (const char*) QFile::encodeName(fileName),
-                     QT_BUILD_KEY,
-                     key.isEmpty() ? "<null>" : (const char *) key);
+#if defined(QT_DEBUG_COMPONENT)
+        qWarning("In %s:\n"
+                 "  Plugin uses incompatible Qt library\n"
+                 "  expected build key \"%s\", got \"%s\"",
+                 (const char*) QFile::encodeName(fileName),
+                 QT_BUILD_KEY,
+                 key.isEmpty() ? "<null>" : (const char *) key);
+#endif
 #ifndef QT_NO_DEBUG_PLUGIN_CHECK
     } else if(debug != QLIBRARY_AS_DEBUG) {
         //don't issue a qWarning since we will hopefully find a non-debug? --Sam
@@ -633,15 +686,7 @@ QLibrary::~QLibrary()
 
     We recommend omitting the file's suffix in the file name, since
     QLibrary will automatically look for the file with the appropriate
-    suffix in accordance with the following list:
-
-    \table
-    \header \o Platform \o Supported suffixes
-    \row \o Windows     \o \c .dll
-    \row \o Unix/Linux  \o \c .so
-    \row \o HP-UX       \o \c .sl
-    \row \o Mac OS X    \o \c .dylib, \c .bundle, \c .so
-    \endtable
+    suffix (see isLibrary()).
 
     When loading the library, QLibrary searches in all system-specific
     library locations (e.g. \c LD_LIBRARY_PATH on Unix), unless the

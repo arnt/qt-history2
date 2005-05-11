@@ -126,17 +126,14 @@
     this file is usually located in a subdirectory, so we need to
     take this into account.
 
-    \printline QStringList fileFilters
-    \printuntil foreach
-    \printuntil SLOT(applyFilter())
+    \printline foreach
+    \printuntil pluginFileNames +=
     \printline }
     \printline }
 
     We use QDir::entryList() to get a list of all files in that
-    directory that match the wildcard filter \c pnp_* or \c libpnp_*.
-    (The \c pnp prefix stands for Plug & Paint.) Then we iterate
-    over the result using \l foreach and try to load the plugin using
-    QPluginLoader.
+    directory. Then we iterate over the result using \l foreach and
+    try to load the plugin using QPluginLoader.
 
     To the application that loads the plugin, a Qt plugin is simply a
     QObject. That QObject may implement extra interfaces using

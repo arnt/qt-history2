@@ -20,6 +20,7 @@
 #include <QtCore/QFile>
 #include <QtCore/QSet>
 #include <QtCore/QPluginLoader>
+#include <QtCore/QLibrary>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/qdebug.h>
 
@@ -72,22 +73,11 @@ QStringList PluginManager::findPlugins(const QString &path)
     QDir dir(path);
     if (!dir.exists())
         return result;
-
-    QStringList filters;
-#if defined(Q_OS_WIN32)
-    filters << QLatin1String("*.dll");
-#elif defined(Q_OS_DARWIN)
-    filters << QLatin1String("*.dylib") << QLatin1String("*.so") << QLatin1String("*.bundle");
-#elif defined(Q_OS_HPUX)
-    filters << QLatin1String("*.sl");
-#elif defined(Q_OS_UNIX)
-    filters << QLatin1String("*.so");
-#endif
-
-    QStringList candidates = dir.entryList(filters);
+    QStringList candidates = dir.entryList(QDir::Files);
     foreach (QString plugin, candidates) {
-        QString fileName = dir.absoluteFilePath(plugin);
-        result.append(fileName);
+        if (!QLibrary::isLibrary(plugin))
+            continue;
+        result.append(dir.absoluteFilePath(plugin));
     }
 
     return result;
@@ -126,10 +116,7 @@ QObject *PluginManager::instance(const QString &plugin) const
         return 0;
 
     QPluginLoader loader(plugin);
-    if (loader.load())
-        return loader.instance();
-
-    return 0;
+    return loader.instance();
 }
 
 void PluginManager::updateRegisteredPlugins()

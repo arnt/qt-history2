@@ -46,10 +46,7 @@
     library file, which we call a plugin. It provides access to the
     functionality in the plugin in a platform-independent way. To
     specify which plugin to load, you can either pass a file name in
-    the constructor or set it with setFileName(). If the file cannot
-    be found, QPluginLoader tries the name with different
-    platform-specific file suffixes (e.g., \c .so on Unix, \c .dylib
-    on Mac OS X, \c .dll on Windows).
+    the constructor or set it with setFileName().
 
     The most important functions are load() to dynamically load the
     plugin file, isLoaded() to check whether loading was successful,
@@ -82,10 +79,10 @@ QPluginLoader::QPluginLoader(QObject *parent)
     Constructs a plugin loader with the given \a parent that will
     load the plugin specified by \a fileName.
 
-    We recommend omitting the file's suffix in \a fileName, since
-    QPluginLoader will automatically look for the file with the appropriate
-    suffix in accordance with the platform, e.g. \c .so on Unix,
-    \c .dylib on Mac OS X, and \c .dll on Windows.
+    To be loadable, the file's suffix must be a valid suffix for a
+    loadable library in accordance with the platform, e.g. \c .so on
+    Unix, - \c .dylib on Mac OS X, and \c .dll on Windows. The suffix
+    can be verified with QLibrary::isLibrary().
 
     \sa setFileName()
 */
@@ -116,8 +113,8 @@ QPluginLoader::~QPluginLoader()
     instantiated.
 
     If the root component object was destroyed, calling this function
-    creates a new instance. 
-    
+    creates a new instance.
+
     The instance is not deleted when the QPluginLoader is destroyed.
 
     The component object is a QObject. Use qobject_cast() to access
@@ -223,17 +220,10 @@ bool QPluginLoader::isLoaded() const
     \property QPluginLoader::fileName
     \brief the file name of the plugin
 
-    We recommend omitting the file's suffix in the file name, since
-    QPluginLoader will automatically look for the file with the appropriate
-    suffix in accordance with the following list:
-
-    \table
-    \header \i Platform \i Supported suffixes
-    \row \i Windows     \i \c .dll
-    \row \i Unix/Linux  \i \c .so
-    \row \i HP-UX       \i \c .sl
-    \row \i Mac OS X    \i \c .dylib, \c .bundle, \c .so
-    \endtable
+    To be loadable, the file's suffix must be a valid suffix for a
+    loadable library in accordance with the platform, e.g. \c .so on
+    Unix, - \c .dylib on Mac OS X, and \c .dll on Windows. The suffix
+    can be verified with QLibrary::isLibrary().
 
     \sa load()
 */
@@ -264,7 +254,7 @@ void Q_CORE_EXPORT qRegisterStaticPluginInstanceFunction(QtPluginInstanceFunctio
 }
 
 /*!
-    
+
 */
 QObjectList QPluginLoader::staticInstances()
 {

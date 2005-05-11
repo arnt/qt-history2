@@ -23,19 +23,23 @@ extern QString qt_error_string(int code);
 bool QLibraryPrivate::load_sys()
 {
     QString attempt = fileName;
-    QT_WA({
-        pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
-    } , {
-        pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
-    });
-
-    if (!pHnd) {
-        attempt += ".dll";
+    if (QLibrary::isLibrary(fileName)) {
         QT_WA({
-            pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
-        } , {
-            pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
-        });
+                pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
+            } , {
+                  pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
+              });
+    }
+
+    if (pluginState != IsAPlugin) {
+        if (!pHnd) {
+            attempt += ".dll";
+            QT_WA({
+                    pHnd = LoadLibraryW((TCHAR*)attempt.utf16());
+                } , {
+                      pHnd = LoadLibraryA(QFile::encodeName(attempt).data());
+                  });
+        }
     }
 
 #if defined(QT_DEBUG_COMPONENT)
@@ -53,9 +57,11 @@ bool QLibraryPrivate::load_sys()
 bool QLibraryPrivate::unload_sys()
 {
     if (!FreeLibrary(pHnd)) {
+#if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary::unload_sys: Cannot unload %s (%s)",
                  QFile::encodeName(fileName).constData(),
                  qt_error_string(GetLastError()).toLatin1().data());
+#endif
         return false;
     }
     return true;

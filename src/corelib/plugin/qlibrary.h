@@ -34,6 +34,8 @@ public:
     bool unload();
     bool isLoaded() const;
 
+    static bool isLibrary(const QString &fileName);
+
     void setFileName(const QString &fileName);
     QString fileName() const;
 

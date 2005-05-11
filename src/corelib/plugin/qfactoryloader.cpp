@@ -43,16 +43,6 @@ QFactoryLoader::QFactoryLoader(const char *iid,
     QCoreApplicationPrivate::moveToMainThread(this);
     Q_D(QFactoryLoader);
     d->iid = iid;
-    QStringList filters;
-#if defined(Q_OS_WIN32)
-    filters << QLatin1String("*.dll");
-#elif defined(Q_OS_DARWIN)
-    filters << QLatin1String("*.dylib") << QLatin1String("*.so") << QLatin1String("*.bundle");
-#elif defined(Q_OS_HPUX)
-    filters << QLatin1String("*.sl");
-#elif defined(Q_OS_UNIX)
-    filters << QLatin1String("*.so");
-#endif
 
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
 
@@ -60,7 +50,7 @@ QFactoryLoader::QFactoryLoader(const char *iid,
         QString path = paths.at(i) + suffix;
         if (!QDir(path).exists(QLatin1String(".")))
             continue;
-        QStringList plugins = QDir(path).entryList(filters);
+        QStringList plugins = QDir(path).entryList(QDir::Files);
         QLibraryPrivate *library = 0;
         for (int j = 0; j < plugins.count(); ++j) {
             QString fileName = QDir::cleanPath(path + QLatin1Char('/') + plugins.at(j));
@@ -95,25 +85,24 @@ QFactoryLoader::QFactoryLoader(const char *iid,
                 reg += keys;
                 settings.setValue(regkey, reg);
             }
-            if (!keys.isEmpty()) {
-                d->libraryList += library;
-                for (int k = 0; k < keys.count(); ++k) {
-                    // first come first serve, unless the first
-                    // library was built with a future Qt version,
-                    // whereas the new one has a Qt version that fits
-                    // better
-                    QString key = keys.at(k);
-                    if (!cs)
-                        key = key.toLower();
-                    QLibraryPrivate *previous = d->keyMap.value(key);
-                    if (!previous || (previous->qt_version > QT_VERSION && library->qt_version <= QT_VERSION)) {
-                        d->keyMap[key] = library;
-                        d->keyList += keys.at(k);
-                    }
-                }
-            } else {
-                qWarning("In %s:\n Plugin does not implement factory interface %s", QFile::encodeName(fileName).constData(), iid);
+            if (keys.isEmpty()) {
                 library->release();
+                continue;
+            }
+            d->libraryList += library;
+            for (int k = 0; k < keys.count(); ++k) {
+                // first come first serve, unless the first
+                // library was built with a future Qt version,
+                // whereas the new one has a Qt version that fits
+                // better
+                QString key = keys.at(k);
+                if (!cs)
+                    key = key.toLower();
+                QLibraryPrivate *previous = d->keyMap.value(key);
+                if (!previous || (previous->qt_version > QT_VERSION && library->qt_version <= QT_VERSION)) {
+                    d->keyMap[key] = library;
+                    d->keyList += keys.at(k);
+                }
             }
         }
     }

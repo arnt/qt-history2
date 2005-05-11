@@ -199,12 +199,7 @@ void MainWindow::loadPlugins()
 #endif
     pluginsDir.cd("plugins");
 
-    QStringList fileFilters;
-    fileFilters << "pnp_*" << "libpnp_*";
-
-    pluginFileNames = pluginsDir.entryList(fileFilters, QDir::Files);
-
-    foreach (QString fileName, pluginFileNames) {
+    foreach (QString fileName, pluginsDir.entryList(QDir::Files)) {
         QPluginLoader loader(pluginsDir.absoluteFilePath(fileName));
         QObject *plugin = loader.instance();
         if (plugin) {
@@ -222,6 +217,9 @@ void MainWindow::loadPlugins()
             if (iFilter)
                 addToMenu(plugin, iFilter->filters(), filterMenu,
                           SLOT(applyFilter()));
+
+            if (iBrush || iShape || iFilter)
+                pluginFileNames += fileName;
         }
     }
 

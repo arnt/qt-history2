@@ -17,7 +17,6 @@
 #include "qlibrary_p.h"
 #include <qfileinfo.h>
 
-#define QT_DEBUG_COMPONENT
 #ifdef Q_OS_MAC
 #  include <private/qcore_mac_p.h>
 #endif
@@ -30,13 +29,16 @@
 
 bool QLibraryPrivate::load_sys()
 {
-    pHnd = (void*)shl_load(QFile::encodeName(fileName), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
-    if (!pHnd)
-        pHnd = (void*)shl_load(QFile::encodeName(fileName + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
-    if (!pHnd) {
-        QFileInfo fi(fileName);
-        pHnd = (void*)shl_load(QFile::encodeName(fi.path() + "/lib" + fi.fileName() + ".sl"),
-                               BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+    if (QLibrary::isLibrary(fileName))
+        pHnd = (void*)shl_load(QFile::encodeName(fileName), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+    if (pluginState != IsAPlugin) {
+        if (!pHnd)
+            pHnd = (void*)shl_load(QFile::encodeName(fileName + ".sl"), BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+        if (!pHnd) {
+            QFileInfo fi(fileName);
+            pHnd = (void*)shl_load(QFile::encodeName(fi.path() + "/lib" + fi.fileName() + ".sl"),
+                                   BIND_DEFERRED | BIND_NONFATAL | DYNAMIC_PATH, 0);
+        }
     }
 #if defined(QT_DEBUG_COMPONENT)
     if (!pHnd)
@@ -72,11 +74,13 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 #  define DL_PREFIX(x) x
 #endif
 
+#if defined(QT_DEBUG_COMPONENT)
 static const char *qdlerror()
 {
     const char *err = DL_PREFIX(dlerror)();
     return err ? err : "";
 }
+#endif
 
 bool QLibraryPrivate::load_sys()
 {
@@ -88,18 +92,22 @@ bool QLibraryPrivate::load_sys()
     else
         path += QLatin1Char('/');
 
-    QStringList suffixes(""), prefixes("");
-    prefixes << "lib";
+    QStringList suffixes, prefixes("");
+    if (QLibrary::isLibrary(fileName))
+        suffixes << "";
+    if (pluginState != IsAPlugin) {
+        prefixes << "lib";
 #if defined(Q_OS_HPUX)
-    suffixes << ".sl";
+        suffixes << ".sl";
 #elif defined(Q_OS_AIX)
-    suffixes << ".a";
+        suffixes << ".a";
 #else
-    suffixes << ".so";
+        suffixes << ".so";
 #endif
 # ifdef Q_OS_MAC
-    suffixes << ".bundle" << ".dylib";
+        suffixes << ".bundle" << ".dylib";
 #endif
+    }
     QString attempt;
     for(int prefix = 0; !pHnd && prefix < prefixes.size(); prefix++) {
         for(int suffix = 0; !pHnd && suffix < suffixes.size(); suffix++) {
@@ -135,8 +143,10 @@ bool QLibraryPrivate::load_sys()
 bool QLibraryPrivate::unload_sys()
 {
     if (DL_PREFIX(dlclose)(pHnd)) {
+#if defined(QT_DEBUG_COMPONENT)
         qWarning("QLibrary: Cannot unload '%s': %s", QFile::encodeName(fileName).constData(),
                  qdlerror());
+#endif
         return false;
     }
     return true;
