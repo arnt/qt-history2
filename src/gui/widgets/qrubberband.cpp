@@ -75,7 +75,7 @@ QStyleOptionRubberBand QRubberBandPrivate::getStyleOption() const
     Constructs a rubber band of shape \a s, with parent \a p.
 
     By default a rectangular QRubberBand (\a s is \c Rectangle) will
-    be set to auto mask, so that the boundry of the rectangle is all
+    be set to auto mask, so that the boundary of the rectangle is all
     that is visible. Some styles (for example native Mac OS X) will
     change this and call QWidget::setWindowOpacity() to make the
     window only partially opaque.

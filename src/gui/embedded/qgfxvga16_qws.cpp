@@ -502,9 +502,9 @@ static void vga16_bltScrToScr(int dst_x, int dst_y, int src_x, int src_y, int w,
     // We copy the pixels from the double buffer in src to the dst
     // we then copy the double buffer to the screen at the 8 pixel
     // boundraies on either side of the changed region to the screen
-    // (PS some mouse boundry checks may need to take this into account)
+    // (PS some mouse boundary checks may need to take this into account)
     // This approach is better than others in that the 8 pixel
-    // boundry problem has to be handled some how and this fixes it in
+    // boundary problem has to be handled some how and this fixes it in
     // the most economical way for this case
     if (!w || !h) return;
 
