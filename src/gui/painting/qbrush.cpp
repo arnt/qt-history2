@@ -733,7 +733,7 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     \printuntil Qt::white
 
     A gradient can have an arbitrary number of stop points. The
-    following gradient would create a radial gradient starting with
+    following would create a radial gradient starting with
     red in the center, blue and then green on the edges:
 
     \quotefromfile snippets/brush/brush.cpp
@@ -794,7 +794,7 @@ QGradient::QGradient()
     \fn QGradient::Spread QGradient::spread() const
 
     Returns the spread method use by this gradient. The default is
-    Pad
+    PadSpread.
 */
 
 /*!
@@ -822,7 +822,7 @@ void QGradient::setColorAt(qreal pos, const QColor &color)
 
 /*!
     Replaces the current set of stop points with \a stops. The
-    positions of the stop points must in the range 0 to 1 and must be
+    positions of the stop points must be in the range 0 to 1 and must be
     sorted with the lowest point first.
 */
 void QGradient::setStops(const QGradientStops &stops)
