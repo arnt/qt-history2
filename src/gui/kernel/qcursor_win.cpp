@@ -93,15 +93,13 @@ static HCURSOR create32BitCursor(const QPixmap &pixmap, int hx, int hy)
 {
     HCURSOR cur = 0;
 
-    QBitmap mask;
-    if (!pixmap.mask().isNull()) {
-        mask = pixmap.mask();
-    } else {
+    QBitmap mask = pixmap.mask();
+    if (mask.isNull()) {
         mask = QBitmap(pixmap.size());
         mask.fill(Qt::color1);
     }
 
-    HBITMAP ic = pixmap.toWinHBITMAP();
+    HBITMAP ic = pixmap.toWinHBITMAP(QPixmap::PremultipliedAlpha);
     HBITMAP im = qt_createIconMask(mask);
 
     ICONINFO ii;

@@ -710,12 +710,16 @@ HICON qt_createIcon(QIcon icon, int xSize, int ySize, QPixmap **cache)
             return 0;
 
         QBitmap mask = pm.mask();
+        if (mask.isNull()) {
+            mask = QBitmap(pm.size());
+            mask.fill(Qt::color1);
+        }
 
         HBITMAP im = qt_createIconMask(mask);
         ICONINFO ii;
         ii.fIcon    = true;
         ii.hbmMask  = im;
-        ii.hbmColor = pm.toWinHBITMAP();
+        ii.hbmColor = pm.toWinHBITMAP(QPixmap::PremultipliedAlpha);
         ii.xHotspot = 0;
         ii.yHotspot = 0;
         result = CreateIconIndirect(&ii);
