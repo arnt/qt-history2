@@ -203,8 +203,9 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
                 || (c.receiver == receiver && (method < 0 || method == c.method)))) {
             if (c.signal == GUARDED_SIGNAL)
                 *c.guarded = 0;
-            if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
-                qFree(c.types);
+            if (c.types) {
+                if (c.types != &DIRECT_CONNECTION_ONLY)
+                    qFree(c.types);
                 c.types = 0;
             }
             it = sendersHash.erase(it);
@@ -220,8 +221,6 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
                 }
             }
 
-            if (c.types)
-                qFree(c.types);
             memset(&c, 0, sizeof(c));
             unusedConnections << at;
             success = true;
