@@ -1936,6 +1936,7 @@ void QRasterBuffer::init()
     m_clipSpanCount = 0;
     m_clipSpanCapacity = 0;
     m_clipSpans = 0;
+    m_clipSpanHeight = 0;
 }
 
 
@@ -1992,27 +1993,34 @@ void QRasterBuffer::prepare(QPixmap *pixmap)
 
 void QRasterBuffer::prepareClip(int /*width*/, int height)
 {
-    // clean up.. Should reuse old_height first elements for improved reallocs.
-    if (m_clipSpanCount || m_clipSpanCapacity || m_clipSpans) {
-        Q_ASSERT(m_clipSpanCount);
-        qFree(m_clipSpanCount);
+    if (height <= m_clipSpanHeight) {
+        resetClipSpans(0, height);
+    } else {
 
-        Q_ASSERT(m_clipSpanCapacity);
-        qFree(m_clipSpanCapacity);
+        m_clipSpanHeight = height;
 
-        Q_ASSERT(m_clipSpans);
-        for (int y=0; y<m_height; ++y)
-            qFree((QT_FT_Span *)m_clipSpans[y]);
-        qFree(m_clipSpans);
-    }
+        // clean up.. Should reuse old_height first elements for improved reallocs.
+        if (m_clipSpanCount || m_clipSpanCapacity || m_clipSpans) {
+            Q_ASSERT(m_clipSpanCount);
+            qFree(m_clipSpanCount);
 
-    m_clipSpanCount = (int *) qMalloc(height * sizeof(int));
-    m_clipSpanCapacity = (int *) qMalloc(height * sizeof(int));
-    m_clipSpans = (QSpan **) qMalloc(height * sizeof(QT_FT_Span *));
-    for (int y=0; y<height; ++y) {
-        m_clipSpanCapacity[y] = 4;
-        m_clipSpanCount[y] = 0;
-        m_clipSpans[y] = (QSpan *) qMalloc(m_clipSpanCapacity[y] * sizeof(QSpan));
+            Q_ASSERT(m_clipSpanCapacity);
+            qFree(m_clipSpanCapacity);
+
+            Q_ASSERT(m_clipSpans);
+            for (int y=0; y<m_height; ++y)
+                qFree((QT_FT_Span *)m_clipSpans[y]);
+            qFree(m_clipSpans);
+        }
+
+        m_clipSpanCount = (int *) qMalloc(height * sizeof(int));
+        m_clipSpanCapacity = (int *) qMalloc(height * sizeof(int));
+        m_clipSpans = (QSpan **) qMalloc(height * sizeof(QT_FT_Span *));
+        for (int y=0; y<height; ++y) {
+            m_clipSpanCapacity[y] = 4;
+            m_clipSpanCount[y] = 0;
+            m_clipSpans[y] = (QSpan *) qMalloc(m_clipSpanCapacity[y] * sizeof(QSpan));
+        }
     }
 }
 
@@ -2106,20 +2114,21 @@ void QRasterBuffer::appendClipSpan(int x, int y, int len, int coverage)
 
     QSpan *span = 0;
 
-    if (m_clipSpanCount[y] == m_clipSpanCapacity[y])
-        resizeClipSpan(y, m_clipSpanCapacity[y] * 2);
+    int clipSpanCount = m_clipSpanCount[y];
 
-#ifdef QT_DEBUG
-    for (int i=0; i<m_clipSpanCount[y]; ++i) {
-        QSpan *s = m_clipSpans[y] + i;
-        if (x < s->x + s->len) {
-            printf("bad append clip for: x=%d, y=%d, len=%d, cov=%d\n", x, y, len, coverage);
-            Q_ASSERT(0);
-        }
-    }
-#endif
+    if (clipSpanCount == m_clipSpanCapacity[y])
+        resizeClipSpan(y, clipSpanCount << 1);
 
-    span = m_clipSpans[y] + m_clipSpanCount[y];
+//     Uncomment for sanity checking
+//     for (int i=0; i<m_clipSpanCount[y]; ++i) {
+//         QSpan *s = m_clipSpans[y] + i;
+//         if (x < s->x + s->len) {
+//             printf("bad append clip for: x=%d, y=%d, len=%d, cov=%d\n", x, y, len, coverage);
+//             Q_ASSERT(0);
+//         }
+//     }
+
+    span = m_clipSpans[y] + clipSpanCount;
 
     span->x = x;
     span->len = len;

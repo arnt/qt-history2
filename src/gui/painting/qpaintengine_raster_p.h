@@ -231,6 +231,7 @@ private:
     int m_height;
     uint *m_buffer;
 
+    int m_clipSpanHeight;
     int *m_clipSpanCount;
     int *m_clipSpanCapacity;
     QSpan **m_clipSpans;
