@@ -73,14 +73,14 @@ QStyleOption QFocusFramePrivate::getStyleOption() const
 
 /*!
     \class QFocusFrame
-    \brief The QFocusFrame widget provides focus frame which can be
+    \brief The QFocusFrame widget provides a focus frame which can be
     outside of a widget's normal paintable area.
 
     \ingroup basic
     \mainclass
 
     Normally an application will not need to create its own
-    QFocusFrame and rather the QStyle will handle this detail for
+    QFocusFrame as QStyle will handle this detail for
     you. A style writer can optionally use a QFocusFrame to have a
     focus area outside of the widget's paintable geometry. In this way
     space need not be reserved for the widget to have focus but only
@@ -96,7 +96,7 @@ QStyleOption QFocusFramePrivate::getStyleOption() const
 
     The focus frame will not monitor \a parent for updates but rather
     can be placed manually or by using QFocusFrame::setWidget. A
-    QFocusFrame sets Qt::WA_NoChildEventsForParent attribute as a
+    QFocusFrame sets Qt::WA_NoChildEventsForParent attribute; as a
     result the parent will not receive a QEvent::ChildInserted event,
     this will make it possible to manually set the geometry of the
     QFocusFrame inside of a QSplitter or other child event monitoring
@@ -123,10 +123,10 @@ QFocusFrame::~QFocusFrame()
 }
 
 /*!
-  QFocusFrame will track changes to \a widget and resize itself
-  automatically. If the monitored widget's parent changes or it is
-  destructed QFocusFrame will follow the widget and place itself
-  around the widget automatically.
+  QFocusFrame will track changes to \a widget and resize itself automatically.
+  If the monitored widget's parent changes, QFocusFrame will follow the widget
+  and place itself around the widget automatically. If the monitored widget is deleted,
+  QFocusFrame will set it to zero.
 
   \sa QFocusFrame::widget()
 */
