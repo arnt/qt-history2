@@ -27,9 +27,14 @@ Launcher::Launcher(QWidget *parent)
     buttonFont = font();
     fontRatio = 0.8;
     inFullScreenResize = false;
+    currentCategory = "[starting]";
 
-    QAction *restartAction = new QAction(tr("Restart"), this);
-    restartAction->setShortcut(QKeySequence(tr("Escape")));
+    QAction *parentPageAction1 = new QAction(tr("Show Parent Page"), this);
+    QAction *parentPageAction2 = new QAction(tr("Show Parent Page"), this);
+    QAction *parentPageAction3 = new QAction(tr("Show Parent Page"), this);
+    parentPageAction1->setShortcut(QKeySequence(tr("Escape")));
+    parentPageAction2->setShortcut(QKeySequence(tr("Backspace")));
+    parentPageAction3->setShortcut(QKeySequence(tr("Alt+Left")));
 
     QAction *fullScreenAction = new QAction(tr("Toggle &Full Screen"), this);
     fullScreenAction->setShortcut(QKeySequence(tr("Ctrl+F")));
@@ -37,14 +42,18 @@ Launcher::Launcher(QWidget *parent)
     QAction *exitAction = new QAction(tr("E&xit"), this);
     exitAction->setShortcut(QKeySequence(tr("Ctrl+Q")));
 
-    connect(restartAction, SIGNAL(triggered()), this, SIGNAL(restart()));
+    connect(parentPageAction1, SIGNAL(triggered()), this, SIGNAL(showPage()));
+    connect(parentPageAction2, SIGNAL(triggered()), this, SIGNAL(showPage()));
+    connect(parentPageAction3, SIGNAL(triggered()), this, SIGNAL(showPage()));
     connect(fullScreenAction, SIGNAL(triggered()),
             this, SLOT(toggleFullScreen()));
     connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
 
     display = new DisplayWidget;
 
-    addAction(restartAction);
+    addAction(parentPageAction1);
+    addAction(parentPageAction2);
+    addAction(parentPageAction3);
     addAction(fullScreenAction);
     addAction(exitAction);
 
@@ -53,7 +62,7 @@ Launcher::Launcher(QWidget *parent)
     assistant = new QAssistantClient("assistant", this);
 
     connect(display, SIGNAL(menuRequested(const QString &)),
-            this, SLOT(reset()));
+            this, SLOT(showParentPage()));
     connect(display, SIGNAL(categoryRequested(const QString &)),
             this, SLOT(showExamples(const QString &)));
     connect(display, SIGNAL(documentationRequested(const QString &)),
@@ -64,7 +73,7 @@ Launcher::Launcher(QWidget *parent)
     connect(display, SIGNAL(launchRequested(const QString &)),
             this, SLOT(launchExample(const QString &)));
 
-    connect(this, SIGNAL(restart()), this, SLOT(reset()),
+    connect(this, SIGNAL(showPage()), this, SLOT(showParentPage()),
             Qt::QueuedConnection);
     connect(this, SIGNAL(windowResized()), this, SLOT(redisplayWindow()),
             Qt::QueuedConnection);
@@ -145,10 +154,11 @@ bool Launcher::setup()
         mainDescription += tr("\n");
 
     categoryDescriptions["[main]"] = mainDescription + tr(
-        "Press Ctrl+F to switch between normal and full screen mode.\n"
+        "Press Escape, Backspace, or Alt+Left to return to a previous menu.\n"
+        "Press Ctrl+F to switch between normal and full screen modes.\n"
         "Use Ctrl+Q to exit the launcher.");
 
-    emit restart();
+    emit showPage();
     return true;
 }
 
@@ -164,11 +174,18 @@ void Launcher::findDescriptionAndImages(const QString &exampleName,
         exampleDoc.setContent(&exampleFile);
 
         QDomNodeList paragraphs = exampleDoc.elementsByTagName("p");
+        QString description;
 
-        if (paragraphs.length() >= 2) {
-            QDomNode descriptionNode = paragraphs.item(1);
-            exampleDescriptions[exampleName] = readExampleDescription(
-                descriptionNode);
+        for (int p = 0; p < int(paragraphs.length()); ++p) {
+            QDomNode descriptionNode = paragraphs.item(p);
+            description = readExampleDescription(descriptionNode);
+
+            if (description.indexOf(QRegExp(QString(
+                "((The|This) )?(%1 )?.*(example|demo)").arg(exampleName),
+                Qt::CaseInsensitive)) != -1) {
+                exampleDescriptions[exampleName] = description;
+                break;
+            }
         }
 
         QDomNodeList images = exampleDoc.elementsByTagName("img");
@@ -343,17 +360,18 @@ void Launcher::enableLaunching()
     }
 }
 
-void Launcher::reset()
+void Launcher::showParentPage()
 {
     slideshowTimer->stop();
     disconnect(slideshowTimer, SIGNAL(timeout()), this, 0);
 
-    if (!currentExample.isEmpty())
-        showExamples(currentCategory);
-    else if (!currentCategory.isEmpty())
-        showCategories();
-    else
-        showCategories();
+    if (!currentExample.isEmpty()) {
+        currentExample = "";
+        redisplayWindow();
+    } else if (!currentCategory.isEmpty()) {
+        currentCategory = "";
+        redisplayWindow();
+    }
 }
 
 void Launcher::newPage()
@@ -423,8 +441,8 @@ void Launcher::showCategories()
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         DisplayShape *background = new PathShape(path,
-            QBrush(QColor(240, 240, 240, 255)), Qt::NoPen, startPosition,
-            QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
+            QBrush(QColor("#f0f0f0")), QBrush(QColor("#e0e0ff")), Qt::NoPen,
+            startPosition, QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
         background->setMetaData("category", category);
         background->setMetaData("target", QPointF(0.05 * width(),
@@ -482,7 +500,7 @@ void Launcher::showExamples(const QString &category)
                            width(), newTitle->rect().height()*1.6);
 
     DisplayShape *titleBackground = new PathShape(backgroundPath,
-        QBrush(QColor("#a6ce39")), Qt::NoPen,
+        QBrush(QColor("#a6ce39")), QBrush(QColor("#a6ce39")), Qt::NoPen,
             QPointF(width(), titlePosition.y()),
             backgroundPath.boundingRect().size());
 
@@ -534,8 +552,8 @@ void Launcher::showExamples(const QString &category)
     path.closeSubpath();
 
     DisplayShape *background = new PathShape(path,
-        QBrush(QColor("#a6ce39")), Qt::NoPen, startPosition,
-        QSizeF(maxWidth + 10*extra, textHeight + 2*extra));
+        QBrush(QColor("#a6ce39")), QBrush(QColor("#c7f745")), Qt::NoPen,
+        startPosition, QSizeF(maxWidth + 10*extra, textHeight + 2*extra));
 
     background->setMetaData("menu", "main");
     background->setMetaData("target", QPointF(
@@ -549,8 +567,8 @@ void Launcher::showExamples(const QString &category)
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         background = new PathShape(path,
-            QBrush(QColor(240, 240, 240, 255)), Qt::NoPen, startPosition,
-            QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
+            QBrush(QColor("#f0f0f0")), QBrush(QColor("#e0e0ff")), Qt::NoPen,
+            startPosition, QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
         background->setMetaData("example", example);
         background->setMetaData("target", QPointF(0.05 * width(),
@@ -577,9 +595,6 @@ void Launcher::showExampleDocumentation(const QString &example)
     currentExample = example;
 
     assistant->showPage(documentPaths[example]);
-/*    connect(display, SIGNAL(displayEmpty()),
-            this, SLOT(createExampleDocumentation()));
-    display->reset();*/
 }
 
 void Launcher::showExampleSummary(const QString &example)
@@ -610,7 +625,7 @@ void Launcher::showExampleSummary(const QString &example)
                            width(), newTitle->rect().height()*1.6);
 
     DisplayShape *titleBackground = new PathShape(backgroundPath,
-        QBrush(QColor("#a6ce39")), Qt::NoPen,
+        QBrush(QColor("#a6ce39")), QBrush(QColor("#a6ce39")), Qt::NoPen,
             QPointF(width(), titlePosition.y()),
             backgroundPath.boundingRect().size());
     titleBackground->setMetaData("target", QPointF(0.0, titlePosition.y()));
@@ -688,7 +703,7 @@ void Launcher::showExampleSummary(const QString &example)
         path.closeSubpath();
 
         DisplayShape *buttonBackground = new PathShape(path,
-            QBrush(QColor("#a6ce39")), Qt::NoPen,
+            QBrush(QColor("#a6ce39")), QBrush(QColor("#c7f745")), Qt::NoPen,
             backButton->position(),
             QSizeF(maxWidth + 6*extra, textHeight + 2*extra));
         buttonBackground->setMetaData("target", backButton->metaData("target"));
@@ -717,14 +732,15 @@ void Launcher::showExampleSummary(const QString &example)
         QPainterPath path;
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
-        QColor backgroundColor;
-        if (runningExamples.contains(example))
-            backgroundColor = QColor(0xa6,0x3e,0x39,15);
-        else
-            backgroundColor = QColor("#a63e39");
+        QColor backgroundColor = QColor("#a63e39");
+        QColor highlightedColor = QColor("#f95e56");
+        if (runningExamples.contains(example)) {
+            backgroundColor.setAlpha(15);
+            highlightedColor.setAlpha(15);
+        }
 
         DisplayShape *background = new PathShape(path,
-            QBrush(backgroundColor), Qt::NoPen,
+            QBrush(backgroundColor), QBrush(highlightedColor), Qt::NoPen,
             launchCaption->position(),
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
         background->setMetaData("target", launchCaption->metaData("target"));
@@ -756,7 +772,7 @@ void Launcher::showExampleSummary(const QString &example)
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         DisplayShape *background = new PathShape(path,
-            QBrush(QColor("#9c9cff")), Qt::NoPen,
+            QBrush(QColor("#9c9cff")), QBrush(QColor("#cfcfff")), Qt::NoPen,
             documentCaption->position(),
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
         background->setMetaData("target", documentCaption->metaData("target"));

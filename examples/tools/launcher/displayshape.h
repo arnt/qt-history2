@@ -29,7 +29,7 @@ public:
     DisplayShape(const QPointF &position, const QSizeF &maxSize);
     virtual ~DisplayShape() {};
 
-    virtual bool animate(const QRect &boundingRect);
+    virtual bool animate();
     virtual bool contains(const QString &key) const;
     virtual QVariant metaData(const QString &key) const;
     virtual void paint(QPainter *painter) const;
@@ -50,15 +50,18 @@ protected:
 class PathShape : public DisplayShape
 {
 public:
-    PathShape(const QPainterPath &path, const QBrush &brush,
-              const QPen &pen, const QPointF &position, const QSizeF &maxSize);
+    PathShape(const QPainterPath &path, const QBrush &normal,
+              const QBrush &highlighted, const QPen &pen,
+              const QPointF &position, const QSizeF &maxSize);
 
-    bool animate(const QRect &boundingRect);
+    bool animate();
     void paint(QPainter *painter) const;
     QRectF rect() const;
 
 private:
     QBrush brush;
+    QBrush highlightedBrush;
+    QBrush normalBrush;
     QPainterPath path;
     QPen pen;
 };
@@ -69,9 +72,9 @@ public:
     TitleShape(const QString &text, const QFont &font, const QPen &pen,
                const QPointF &position, const QSizeF &maxSize);
 
-    virtual bool animate(const QRect &boundingRect);
-    virtual void paint(QPainter *painter) const;
-    virtual QRectF rect() const;
+    bool animate();
+    void paint(QPainter *painter) const;
+    QRectF rect() const;
 
 private:
     QFont font;
@@ -85,9 +88,9 @@ public:
     ImageShape(const QImage &image, const QPointF &position,
                const QSizeF &maxSize, int alpha = 0);
 
-    virtual bool animate(const QRect &boundingRect);
-    virtual void paint(QPainter *painter) const;
-    virtual QRectF rect() const;
+    bool animate();
+    void paint(QPainter *painter) const;
+    QRectF rect() const;
 
 private:
     void redraw();
@@ -104,9 +107,9 @@ public:
                   const QPointF &position, const QSizeF &maxSize);
     ~DocumentShape();
 
-    virtual bool animate(const QRect &boundingRect);
-    virtual void paint(QPainter *painter) const;
-    virtual QRectF rect() const;
+    bool animate();
+    void paint(QPainter *painter) const;
+    QRectF rect() const;
 
 private:
     void formatText();

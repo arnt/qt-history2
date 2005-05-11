@@ -21,14 +21,18 @@ DisplayShape::DisplayShape(const QPointF &position, const QSizeF &maxSize)
     Q_UNUSED(position);
 }
 
-bool DisplayShape::animate(const QRect &boundingRect)
+bool DisplayShape::animate()
 {
-    Q_UNUSED(boundingRect);
-
     if (meta.contains("target")) {
         QPointF target = meta["target"].toPointF();
         QLineF displacement(pos, target);
-        pos = displacement.pointAt(0.25);
+        QPointF newPosition = displacement.pointAt(0.25);
+        if (pos.toPoint() == newPosition.toPoint()) {
+            meta.remove("target");
+            pos = target;
+        } else {
+            pos = newPosition;
+        }
         return true;
     }
 
@@ -82,14 +86,16 @@ QSizeF DisplayShape::size() const
     return maxSize;
 }
 
-PathShape::PathShape(const QPainterPath &path, const QBrush &brush,
-                     const QPen &pen, const QPointF &position,
-                     const QSizeF &maxSize)
-    : DisplayShape(position, maxSize), brush(brush), path(path), pen(pen)
+PathShape::PathShape(const QPainterPath &path, const QBrush &normal,
+                     const QBrush &highlighted, const QPen &pen,
+                     const QPointF &position, const QSizeF &maxSize)
+    : DisplayShape(position, maxSize), highlightedBrush(highlighted),
+      normalBrush(normal), path(path), pen(pen)
 {
+    brush = normalBrush;
 }
 
-bool PathShape::animate(const QRect &boundingRect)
+bool PathShape::animate()
 {
     bool updated = false;
 
@@ -117,10 +123,22 @@ bool PathShape::animate(const QRect &boundingRect)
                 meta.remove("fade");
 
             updated = true;
+        } else if (meta.contains("highlight")) {
+            int alpha = brush.color().alpha();
+            if (meta.value("highlight").toBool()) {
+                brush = highlightedBrush;
+            } else {
+                brush = normalBrush;
+                meta.remove("highlight");
+            }
+            QColor brushColor = brush.color();
+            brushColor.setAlpha(alpha);
+            brush.setColor(brushColor);
+            updated = true;
         }
     }
 
-    return DisplayShape::animate(boundingRect) || updated;
+    return DisplayShape::animate() || updated;
 }
 
 void PathShape::paint(QPainter *painter) const
@@ -154,7 +172,7 @@ TitleShape::TitleShape(const QString &text, const QFont &f,
     font.setPointSizeF(font.pointSizeF() * scale);
 }
 
-bool TitleShape::animate(const QRect &boundingRect)
+bool TitleShape::animate()
 {
     bool updated = false;
 
@@ -179,7 +197,7 @@ bool TitleShape::animate(const QRect &boundingRect)
         }
     }
 
-    return DisplayShape::animate(boundingRect) || updated;
+    return DisplayShape::animate() || updated;
 }
 
 void TitleShape::paint(QPainter *painter) const
@@ -238,7 +256,7 @@ QRectF ImageShape::rect() const
     return QRectF(pos, maxSize);
 }
 
-bool ImageShape::animate(const QRect &boundingRect)
+bool ImageShape::animate()
 {
     bool updated = false;
 
@@ -258,7 +276,7 @@ bool ImageShape::animate(const QRect &boundingRect)
         }
     }
 
-    return DisplayShape::animate(boundingRect) || updated;
+    return DisplayShape::animate() || updated;
 }
 
 DocumentShape::DocumentShape(const QString &text, const QFont &f,
@@ -281,7 +299,7 @@ DocumentShape::~DocumentShape()
     layouts.clear();
 }
 
-bool DocumentShape::animate(const QRect &boundingRect)
+bool DocumentShape::animate()
 {
     bool updated = false;
 
@@ -306,7 +324,7 @@ bool DocumentShape::animate(const QRect &boundingRect)
         }
     }
 
-    return DisplayShape::animate(boundingRect) || updated;
+    return DisplayShape::animate() || updated;
 }
 
 void DocumentShape::formatText()

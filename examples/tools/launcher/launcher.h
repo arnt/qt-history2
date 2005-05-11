@@ -37,11 +37,11 @@ public:
 public slots:
     void enableLaunching();
     void launchExample(const QString &example);
-    void reset();
     void showCategories();
     void showExampleDocumentation(const QString &example);
     void showExamples(const QString &category);
     void showExampleSummary(const QString &example);
+    void showParentPage();
     void updateExampleSummary();
 
 protected:
@@ -49,7 +49,7 @@ protected:
     void resizeEvent(QResizeEvent *event);
 
 signals:
-    void restart();
+    void showPage();
     void windowResized();
 
 private slots:

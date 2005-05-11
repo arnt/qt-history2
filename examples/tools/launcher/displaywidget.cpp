@@ -28,6 +28,7 @@ DisplayWidget::DisplayWidget(QWidget *parent)
     enableUpdates();
 
     setBackgroundRole(QPalette::Base);
+    setMouseTracking(true);
 }
 
 void DisplayWidget::appendShape(DisplayShape *shape)
@@ -46,7 +47,28 @@ void DisplayWidget::insertShape(int position, DisplayShape *shape)
 
 QSize DisplayWidget::minimumSizeHint() const
 {
-    return QSize(640, 480);
+    return QSize(800, 600);
+}
+
+void DisplayWidget::mouseMoveEvent(QMouseEvent *event)
+{
+    if (emptying)
+        return;
+
+    bool updated = false;
+
+    foreach (DisplayShape *shape, shapes) {
+        if (shape->rect().contains(event->pos()) && !shape->contains("fade")) {
+            shape->setMetaData("highlight", true);
+            updated = true;
+        } else if (shape->contains("highlight")) {
+            shape->setMetaData("highlight", false);
+            updated = true;
+        }
+    }
+
+    if (updated)
+        enableUpdates();
 }
 
 void DisplayWidget::mousePressEvent(QMouseEvent *event)
@@ -54,9 +76,11 @@ void DisplayWidget::mousePressEvent(QMouseEvent *event)
     if (event->button() != Qt::LeftButton)
         return;
 
+    if (emptying)
+        return;
+
     foreach (DisplayShape *shape, shapes) {
-        if (shape->rect().contains(event->pos()) && !emptying \
-            && !shape->contains("fade")) {
+        if (shape->rect().contains(event->pos()) && !shape->contains("fade")) {
             if (shape->contains("menu"))
                 emit menuRequested(shape->metaData("menu").toString());
             else if (shape->contains("category"))
@@ -81,7 +105,6 @@ void DisplayWidget::paintEvent(QPaintEvent *event)
 {
     QPainter painter;
     painter.begin(this);
-    //painter.setRenderHint(QPainter::Antialiasing);
     painter.fillRect(event->rect(), Qt::white);
     foreach (DisplayShape *shape, shapes)
         shape->paint(&painter);
@@ -132,17 +155,8 @@ void DisplayWidget::updateShapes()
 
     foreach (DisplayShape *shape, shapes) {
         update(shape->rect().toRect().adjusted(-1,-1,1,1));
-        if (shape->animate(rect()))
+        if (shape->animate())
             ++updated;
-
-        if (shape->contains("target")) {
-            QPointF target = shape->metaData("target").toPointF();
-            if (shape->position().toPoint() == target.toPoint()) {
-                shape->removeMetaData("target");
-                if (!emptying)
-                    emit targetReached(shape);
-            }
-        }
 
         if (shape->contains("destroy")) {
             discard.append(shape);
