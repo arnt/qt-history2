@@ -19,6 +19,7 @@ SUBDIRS         = brush \
                   droprectangle \
                   events \
 #                  file \
+                  image \
                   itemselection \
                   layouts \
                   moc \
