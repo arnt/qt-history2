@@ -669,9 +669,9 @@ QFSFileEngine::setCurrentPath(const QString &path)
 
     int r;
     QT_WA({
-        r = ::SetCurrentDirectory((WCHAR*)path.utf16());
+        r = ::SetCurrentDirectoryW((WCHAR*)path.utf16());
     } , {
-        r = QT_CHDIR(QFSFileEnginePrivate::win95Name(path));
+        r = ::SetCurrentDirectoryA(QFSFileEnginePrivate::win95Name(path));
     });
     return r >= 0;
 }
@@ -699,24 +699,25 @@ QFSFileEngine::currentPath(const QString &fileName)
     if (ret.isEmpty()) {
 	//just the pwd
 	QT_WA({
-            DWORD size = 0;
+        DWORD size = 0;
 	    WCHAR currentName[PATH_MAX];
             size = ::GetCurrentDirectoryW(PATH_MAX, currentName);
 	    if (size !=0) {
-                if (size > PATH_MAX) {
-                    WCHAR * newCurrentName = new WCHAR[size];
-                    if (::GetCurrentDirectoryW(PATH_MAX, newCurrentName) != 0)
-                        ret = QString::fromUtf16((ushort*)newCurrentName);
-                    delete [] newCurrentName;
-                } else {
-                    ret = QString::fromUtf16((ushort*)currentName);
-                }
+            if (size > PATH_MAX) {
+                WCHAR * newCurrentName = new WCHAR[size];
+                if (::GetCurrentDirectoryW(PATH_MAX, newCurrentName) != 0)
+                    ret = QString::fromUtf16((ushort*)newCurrentName);
+                delete [] newCurrentName;
+            } else {
+                ret = QString::fromUtf16((ushort*)currentName);
+            }
 	    }
 	} , {
-	    char currentName[PATH_MAX];
-	    if (QT_GETCWD(currentName,PATH_MAX) != 0) {
-		ret = QString::fromLocal8Bit(currentName);
-	    }
+        DWORD size = 0;
+        char currentName[PATH_MAX];
+        size = ::GetCurrentDirectoryA(PATH_MAX, currentName);
+        if (size !=0)
+            ret = QString::fromLocal8Bit(currentName);
 	});
     }
     if (ret.length() >= 2 && ret[1] == ':')
@@ -926,7 +927,7 @@ QFSFileEnginePrivate::getLink() const
         if(neededCoInit)
             CoUninitialize();
     } , {
-        bool neededCoInit = false;
+	    bool neededCoInit = false;
         IShellLinkA *psl;                            // pointer to IShellLink i/f
         HRESULT hres;
         WIN32_FIND_DATAA wfd;
@@ -1008,32 +1009,40 @@ bool QFSFileEngine::link(const QString &newName)
         if(neededCoInit)
                 CoUninitialize();
     } , {
+        // the SetPath() call _sometimes_ changes the current path and when it does it sometimes
+        // does not let us change it back unless we call currentPath() many times.
+        QString cwd = currentPath();
         HRESULT hres;
         IShellLinkA *psl;
         bool neededCoInit = false;
-
+        
         hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
         if(hres == CO_E_NOTINITIALIZED) { // COM was not initalized
-	    neededCoInit = true;
-	    CoInitialize(NULL);
-	    hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
+            neededCoInit = true;
+            CoInitialize(NULL);
+            hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
         }
         if (SUCCEEDED(hres)) {
+            currentPath();
             hres = psl->SetPath((char *)QString::fromLocal8Bit(QFSFileEnginePrivate::win95Name(fileName(AbsoluteName))).utf16());
+            currentPath();
             if (SUCCEEDED(hres)) {
-		IPersistFile *ppf;
+                IPersistFile *ppf;
                 hres = psl->QueryInterface(IID_IPersistFile, (void **)&ppf);
                 if (SUCCEEDED(hres)) {
+                    currentPath();
                     hres = ppf->Save((LPCOLESTR)linkName.utf16(), TRUE);
+                    currentPath();
                     if (SUCCEEDED(hres))
-                         ret = true;
-		    ppf->Release();
+                        ret = true;
+                    ppf->Release();
                 }
             }
             psl->Release();
         }
         if(neededCoInit)
-	    CoUninitialize();
+            CoUninitialize();
+        setCurrentPath(cwd);
     });
     return ret;
 #else
