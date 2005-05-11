@@ -107,44 +107,7 @@ public:
 
     void publish() { filter(QString()); }
 
-    QModelIndex filter(const QString &s)
-    {
-        QMapIterator<QString, QString> it(contents);
-        QStringList lst;
-        QString lastKey;
-
-        int goodMatch = -1;
-        int perfectMatch = -1;
-        if (s.isEmpty())
-            perfectMatch = 0;
-
-        while (it.hasNext()) {
-            it.next();
-
-            if (it.key() == lastKey)
-                continue;
-
-            lastKey = it.key();
-
-            if (it.key().contains(s, Qt::CaseInsensitive))
-                lst.append(it.key());
-
-            if (perfectMatch == -1 && it.key().startsWith(s, Qt::CaseInsensitive)) {
-                if (goodMatch == -1)
-                    goodMatch = lst.count() - 1;
-                if (s.length() == it.key().length())
-                    perfectMatch = lst.count() - 1;
-            }
-        }
-
-        setStringList(lst);
-
-        int bestMatch = perfectMatch;
-        if (bestMatch == -1)
-            bestMatch = goodMatch;
-
-        return index(qMax(0, bestMatch), 0, QModelIndex());
-    }
+    QModelIndex filter(const QString &s);
 
     virtual Qt::ItemFlags flags(const QModelIndex &index) const
     { return QStringListModel::flags(index) & ~Qt::ItemIsEditable; }
@@ -152,6 +115,45 @@ public:
 private:
     QMultiMap<QString, QString> contents;
 };
+
+QModelIndex IndexListModel::filter(const QString &s)
+{
+    QMapIterator<QString, QString> it(contents);
+    QStringList lst;
+    QString lastKey, lastValue;
+
+    int goodMatch = -1;
+    int perfectMatch = -1;
+    if (s.isEmpty())
+        perfectMatch = 0;
+
+    while (it.hasNext()) {
+        it.next();
+
+        if (it.key() == lastKey || it.value() == lastValue)
+            continue;
+
+        lastKey = it.key();
+        lastValue = it.value();
+
+        if (lastKey.contains(s, Qt::CaseInsensitive))
+            lst.append(lastKey);
+
+        if (perfectMatch == -1 && lastKey.startsWith(s, Qt::CaseInsensitive)) {
+            if (goodMatch == -1)
+                goodMatch = lst.count() - 1;
+            if (s.length() == lastKey.length())
+                perfectMatch = lst.count() - 1;
+        }
+    }
+    setStringList(lst);
+
+    int bestMatch = perfectMatch;
+    if (bestMatch == -1)
+        bestMatch = goodMatch;
+
+    return index(qMax(0, bestMatch), 0, QModelIndex());
+}
 
 HelpNavigationListItem::HelpNavigationListItem(QListWidget *ls, const QString &txt)
     : QListWidgetItem(txt, ls)
