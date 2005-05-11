@@ -6013,6 +6013,8 @@ QWidget *QWidget::childAt(const QPoint &p) const
         --i;
         QWidget *w = qobject_cast<QWidget *>(d->children.at(i));
         if (w && !w->isWindow() && !w->isHidden() && w->geometry().contains(p)) {
+            if (w->testAttribute(Qt::WA_TransparentForMouseEvents))
+                continue;
             if (QWidget *t = w->childAt(p.x() - w->x(), p.y() - w->y()))
                 return t;
             // if WMouseNoMask is set the widget mask is ignored, if
