@@ -452,7 +452,7 @@ void QPrinter::setOutputFileName(const QString &fileName)
   Returns the name of the program that sends the print output to the
   printer.
 
-  The default is to return a null string; meaning that QPrinter will
+  The default is to return an empty string; meaning that QPrinter will
   try to be smart in a system-dependent way. On X11 only, you can
   set it to something different to use a specific print program. On
   Windows, this function returns the name of the printer device
@@ -1148,7 +1148,7 @@ void QPrinter::releaseDC(HDC hdc) const
     Returns the printer options selection string. This is useful only
     if the print command has been explicitly set.
 
-    The default value (a null string) implies that the printer should
+    The default value (an empty string) implies that the printer should
     be selected in a system-dependent manner.
 
     Any other value implies that the given value should be used.

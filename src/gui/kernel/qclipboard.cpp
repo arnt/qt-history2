@@ -176,7 +176,7 @@ QClipboard::~QClipboard()
 /*!
     \overload
 
-    Returns the clipboard text in subtype \a subtype, or a null string
+    Returns the clipboard text in subtype \a subtype, or an empty string
     if the clipboard does not contain any text. If \a subtype is null,
     any subtype is acceptable, and \a subtype is set to the chosen
     subtype.
@@ -216,7 +216,7 @@ QString QClipboard::text(QString &subtype, Mode mode) const
 }
 
 /*!
-    Returns the clipboard text as plain text, or a null string if the
+    Returns the clipboard text as plain text, or an empty string if the
     clipboard does not contain any text.
 
     The \a mode argument is used to control which part of the system

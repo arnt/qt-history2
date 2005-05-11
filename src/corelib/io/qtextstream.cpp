@@ -115,14 +115,14 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     \row    \o \c oct             \o Same as setIntegerBase(8).
     \row    \o \c dec             \o Same as setIntegerBase(10).
     \row    \o \c hex             \o Same as setIntegerBase(16).
-    \row    \o \c showbase        \o Same as setNumberFlags(ShowBase).
-    \row    \o \c forcesign       \o Same as setNumberFlags(ForceSign).
-    \row    \o \c forcepoint      \o Same as setNumberFlags(ForcePoint).
+    \row    \o \c showbase        \o Same as setNumberFlags(numberFlags() | ShowBase).
+    \row    \o \c forcesign       \o Same as setNumberFlags(numberFlags() | ForceSign).
+    \row    \o \c forcepoint      \o Same as setNumberFlags(numberFlags() | ForcePoint).
     \row    \o \c noshowbase      \o Same as setNumberFlags(numberFlags() & ~ShowBase).
     \row    \o \c noforcesign     \o Same as setNumberFlags(numberFlags() & ~ForceSign).
     \row    \o \c noforcepoint    \o Same as setNumberFlags(numberFlags() & ~ForcePoint).
-    \row    \o \c uppercasebase   \o Same as setNumberFlags(UppercaseBase).
-    \row    \o \c uppercasedigits \o Same as setNumberFlags(UppercaseDigits).
+    \row    \o \c uppercasebase   \o Same as setNumberFlags(numberFlags() | UppercaseBase).
+    \row    \o \c uppercasedigits \o Same as setNumberFlags(numberFlags() | UppercaseDigits).
     \row    \o \c lowercasebase   \o Same as setNumberFlags(numberFlags() & ~UppercaseBase).
     \row    \o \c lowercasedigits \o Same as setNumberFlags(numberFlags() & ~UppercaseDigits).
     \row    \o \c fixed           \o Same as setRealNumberNotation(FixedNotation).
@@ -142,26 +142,45 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
 
 /*! \enum QTextStream::RealNumberNotation
 
-    \value SmartNotation
-    \value FixedNotation
-    \value ScientificNotation
+    This enum specifies which notations to use for expressing \c
+    float and \c double as strings.
+
+    \value ScientificNotation Scientific notation (\c{printf()}'s \c %e flag).
+    \value FixedNotation Fixed-point notation (\c{printf()}'s \c %f flag).
+    \value SmartNotation Scientific or fixed-point notation, depending on which makes most sense (\c{printf()}'s \c %g flag).
+
+    \sa setRealNumberNotation()
 */
 
 /*! \enum QTextStream::FieldAlignment
 
-    \value AlignLeft
-    \value AlignRight
-    \value AlignCenter
-    \value AlignAccountingStyle
+    This enum specifies how to align text in fields when the field is
+    wider than the text that occupies it.
+
+    \value AlignLeft  Pad on the right side of fields.
+    \value AlignRight  Pad on the left side of fields.
+    \value AlignCenter  Pad on both sides of field.
+    \value AlignAccountingStyle  Same as AlignRight, except that the
+                                 sign of a number is flush left.
+
+    \sa setFieldAlignment()
 */
 
 /*! \enum QTextStream::NumberFlag
 
-    \value ShowBase
-    \value ForcePoint
-    \value ForceSign
-    \value UppercaseBase
-    \value UppercaseDigits
+    This enum specifies various flags that can be set to affect the
+    output of integers, \c{float}s, and \c{double}s.
+
+    \value ShowBase  Show the base as a prefix if the base
+                     is 16 ("0x"), 8 ("0"), or 2 ("0b").
+    \value ForcePoint  Always put the decimal separator in numbers, even if
+                       there are no decimals.
+    \value ForceSign  Always put the sign in numbers, even for positive numbers.
+    \value UppercaseBase  Use uppercase versions of base prefixes ("0X", "0B").
+    \value UppercaseDigits  Use uppercare letters for expressing
+                            digits 10 to 35 instead of lowercase.
+
+    \sa setNumberFlags()
 */
 
 #include "qtextstream.h"
@@ -2807,6 +2826,29 @@ void QTextStream::setEncoding(Encoding encoding)
     \fn int QTextStream::unsetDevice()
 
     This function does nothing anymore; don't call it.
+*/
+
+/*!
+    \variable QTextStream::skipws
+    \variable QTextStream::left 
+    \variable QTextStream::right
+    \variable QTextStream::internal
+    \variable QTextStream::bin  
+    \variable QTextStream::oct  
+    \variable QTextStream::dec  
+    \variable QTextStream::hex  
+    \variable QTextStream::showbase
+    \variable QTextStream::showpoint
+    \variable QTextStream::uppercase
+    \variable QTextStream::showpos
+    \variable QTextStream::scientific
+    \variable QTextStream::fixed
+    \variable QTextStream::basefield
+    \variable QTextStream::adjustfield
+    \variable QTextStream::floatfield
+    \compat
+
+    Use the new \l{QTextStream manipulators} instead.
 */
 
 #endif

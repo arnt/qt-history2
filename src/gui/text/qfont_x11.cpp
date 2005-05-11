@@ -348,7 +348,7 @@ void QFont::setRawName(const QString &name)
 
     The current implementation tries a wide variety of common fonts,
     returning the first one it finds. Is is possible that no family is
-    found in which case a null string is returned.
+    found in which case an empty string is returned.
 
     \sa lastResortFont()
 */

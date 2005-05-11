@@ -2,6 +2,8 @@
     \page resources.html
     \title The Qt Resource System
 
+    \keyword resource system
+
     The Qt resource system is a platform-independent mechanism for
     storing binary files in the application's executable. This is
     useful if your application always needs a certain set of files

@@ -658,7 +658,7 @@ double QTextFormat::doubleProperty(int propertyId) const
 
 /*!
     Returns the value of the property given by \a propertyId; if the
-    property isn't of \c QVariant::String type, a null string is
+    property isn't of \c QVariant::String type, an empty string is
     returned instead.
 
     \sa setProperty() boolProperty() intProperty() doubleProperty() colorProperty() lengthProperty() lengthVectorProperty() Property

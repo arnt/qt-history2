@@ -332,7 +332,7 @@ void Q3SimpleRichText::draw(QPainter *p, int x, int y, const QRect& clipRect,
 
 /*!
     Returns the context of the rich text object. If no context has
-    been specified in the constructor, a null string is returned. The
+    been specified in the constructor, an empty string is returned. The
     context is the path to use to look up relative links, such as
     image tags and anchor references.
 */

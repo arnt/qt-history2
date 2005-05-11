@@ -194,7 +194,7 @@ bool QMimeData::hasText() const
 
 /*!
     Returns a string if the data stored in the object is HTML;
-    otherwise returns a null string.
+    otherwise returns an empty string.
 */
 QString QMimeData::html() const
 {

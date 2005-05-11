@@ -52,7 +52,7 @@
     \list 1
     \o QSocketNotifier::Read - There is data to be read.
     \o QSocketNotifier::Write - Data can be written.
-    \o QSocketNofifier::Exception - An exception has occurred.
+    \o QSocketNotifier::Exception - An exception has occurred.
        We recommend against using this.
     \endlist
 
@@ -159,11 +159,11 @@ QSocketNotifier::~QSocketNotifier()
     \list 1
     \i QSocketNotifier::Read - There is data to be read (socket read event).
     \i QSocketNotifier::Write - Data can be written (socket write event).
-    \i QSocketNofifier::Exception - An exception has occurred (socket
+    \i QSocketNotifier::Exception - An exception has occurred (socket
     exception event).
     \endlist
 
-    The \a socket is the \link socket() socket\endlink identifier.
+    The \a socket is the socket identifier.
 
     \sa type(), socket()
 */
@@ -180,9 +180,7 @@ QSocketNotifier::~QSocketNotifier()
 /*!
     \fn Type QSocketNotifier::type() const
 
-    Returns the socket event type specified to the constructor: \c
-    QSocketNotifier::Read, \c QSocketNotifier::Write, or \c
-    QSocketNotifier::Exception.
+    Returns the socket event type specified to the constructor.
 
     \sa socket()
 */
@@ -203,9 +201,9 @@ QSocketNotifier::~QSocketNotifier()
     The notifier is enabled by default.
 
     If the notifier is enabled, it emits the activated() signal
-    whenever a socket event corresponding to its \link type()
-    type\endlink occurs. If it is disabled, it ignores socket events
-    (the same effect as not creating the socket notifier).
+    whenever a socket event corresponding to its \l{type()}{type}
+    occurs. If it is disabled, it ignores socket events (the same
+    effect as not creating the socket notifier).
 
     Write notifiers should normally be disabled immediately after the
     activated() signal has been emitted; see discussion of write
@@ -236,7 +234,7 @@ void QSocketNotifier::setEnabled(bool enable)
 */
 bool QSocketNotifier::event(QEvent *e)
 {
-    // Emits the activated() signal when a \c QEvent::SockAct is
+    // Emits the activated() signal when a QEvent::SockAct is
     // received.
     if (e->type() == QEvent::ThreadChange) {
         if (snenabled) {

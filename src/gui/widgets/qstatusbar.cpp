@@ -431,7 +431,7 @@ void QStatusBar::clearMessage()
 
 /*!
     Returns the temporary message currently shown,
-    or the null string if there is no such message.
+    or an empty string if there is no such message.
 */
 QString QStatusBar::currentMessage() const
 {

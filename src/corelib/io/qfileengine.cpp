@@ -32,6 +32,7 @@
 /*!
     \class QFileEngineHandler
     \reentrant
+    \internal
 
     \brief The QFileEngineHandler class allows custom QFileEngines to be
     plugged into Qt.
@@ -102,6 +103,7 @@ QFileEngineHandler::~QFileEngineHandler()
 /*!
     \class QFileEngine
     \reentrant
+    \internal
 
     \brief The QFileEngine class provides an abstraction for accessing
     the filesystem.

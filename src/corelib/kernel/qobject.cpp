@@ -1408,12 +1408,13 @@ QObjectList QObject::queryList(const char *inheritsClass,
 
     Returns the child of this object that can be casted into type T and
     that is called \a name, or 0 if there is no such object.
-    A null string matches all object names.
+    An empty string matches all object names.
     The search is performed recursively.
 
-    If there is more than one child matching the search, the most direct ancestor
-    is returned. If there are several direct ancestors, it is undefined which one
-    will be returned. In that case, findChildren() should be used.
+    If there is more than one child matching the search, the most
+    direct ancestor is returned. If there are several direct
+    ancestors, it is undefined which one will be returned. In that
+    case, findChildren() should be used.
 
     This example returns a child \l{QPushButton} of \c{parentWidget}
     named \c{"button1"}:
@@ -1440,7 +1441,7 @@ QObjectList QObject::queryList(const char *inheritsClass,
 
     Returns all children of this object with the given \a name that can be
     cast to type T, or an empty list if there are no such objects.
-    A null string matches all object names.
+    An empty string matches all object names.
     The search is performed recursively.
 
     The following example shows how to find a list of child \l{QWidget}s of

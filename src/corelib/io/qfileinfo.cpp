@@ -167,7 +167,9 @@ QDateTime
     QFileInfo provides information about a file's name and position
     (path) in the file system, its access rights and whether it is a
     directory or symbolic link, etc. The file's size and last
-    modified/read times are also available.
+    modified/read times are also available. QFileInfo can also be
+    used to optain information about a Qt \l{resource
+    system}{resource}.
 
     A QFileInfo can point to a file with either a relative or an
     absolute file path. Absolute file paths begin with the directory
@@ -206,7 +208,7 @@ QDateTime
     groupId(). You can examine a file's permissions and ownership in a
     single statement using the permission() function.
 
-    If you need to read and traverse directories, see the QDir class.
+    \sa QDir, QFile
 */
 
 /*!
@@ -452,7 +454,7 @@ QFileInfo::absoluteFilePath() const
     the canonical path does not exist (normally due to dangling
     symbolic links) canonicalFilePath() returns an empty string.
 
-    \sa filePath(), absoluteFilePath(), QString::isNull()
+    \sa filePath(), absoluteFilePath()
 */
 
 QString
@@ -468,7 +470,7 @@ QFileInfo::canonicalFilePath() const
 /*!
     Returns the file's path absolute path.
 
-    This does not include the filename. ###
+    This does not include the file name.
 
     \sa dir(), filePath(), fileName(), isRelative(), path()
 */
@@ -491,7 +493,7 @@ QFileInfo::absolutePath() const
     canonical path does not exist (normally due to dangling symbolic
     links) canonicalPath() returns an empty string.
 
-    \sa absolutePath(), QString::isNull()
+    \sa absolutePath()
 */
 
 QString
@@ -507,7 +509,7 @@ QFileInfo::canonicalPath() const
 /*!
     Returns the file's path.
 
-y    \sa dir(), filePath(), fileName(), isRelative(), absolutePath()
+    \sa dir(), filePath(), fileName(), isRelative(), absolutePath()
 */
 
 QString
@@ -1006,7 +1008,7 @@ QFileInfo::groupId() const
             qWarning("The group or others can change the file");
     \endcode
 
-    \sa isReadable(), isWritable(), isExecutable(), QFile::Permissions
+    \sa isReadable(), isWritable(), isExecutable()
 */
 
 bool
@@ -1021,8 +1023,6 @@ QFileInfo::permission(QFile::Permissions permissions) const
 /*!
     Returns the complete OR-ed together combination of
     QFile::Permissions for the file.
-
-    \sa QFileInfo::permission(), QFile::Permissions
 */
 
 QFile::Permissions

@@ -1337,7 +1337,7 @@ QString Q3UriDrag::uriToUnicodeUri(const char* uri)
     \fn QString Q3UriDrag::uriToLocalFile(const char *string)
 
     Returns the name of a local file equivalent to the URI given in the
-    \a string, or a null string if it does not refer to a local file.
+    \a string, or an empty string if it does not refer to a local file.
 
     Note that URIs are always in escaped UTF8 encoding.
 

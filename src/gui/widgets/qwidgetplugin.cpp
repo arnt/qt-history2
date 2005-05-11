@@ -251,7 +251,7 @@ int QWidgetContainerPlugin::currentIndex(const QString &, QWidget *) const
     index. If the custom widget is a tab widget, this function returns
     the current tab's label.
 
-    The default implementation returns a null string.
+    The default implementation returns an empty string.
 */
 
 QString QWidgetContainerPlugin::pageLabel(const QString &, QWidget *, int) const

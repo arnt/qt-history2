@@ -73,8 +73,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 
     To start a process, pass the name and command line arguments of
     the program you want to run as arguments to start(). QProcess then
-    enters the \c Starting state, and when the program has started,
-    QProcess enters the \c Running state and emits started().
+    enters the \l Starting state, and when the program has started,
+    QProcess enters the \l Running state and emits started().
 
     QProcess allows you to treat a process as a sequential I/O
     device. You can write to and read from the process just as you
@@ -85,7 +85,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     used as an input source for QXmlReader, or for generating data to
     be uploaded using QFtp.
 
-    When the process exits, QProcess reenters the \c NotRunning state
+    When the process exits, QProcess reenters the \l NotRunning state
     (the initial state), and emits finished().
 
     The finished() signal provides the exit code of the process as an
@@ -105,7 +105,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     readyReadStandardOutput() when new standard output data is
     available, and when new standard error data is available,
     readyReadStandardError() is emitted. Instead of calling read(),
-    readLine(), or readChar(), you can explicitly read all data from
+    readLine(), or getChar(), you can explicitly read all data from
     either of the two channels by calling readAllStandardOutput() or
     readAllStandardError().
 
@@ -119,10 +119,10 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     QProcess can merge the two output channels, so that standard
     output and standard error data from the running process both use
     the standard output channel. Call setReadChannelMode() with
-    QProcess::MergedOutputChannels before starting the process to activative
+    MergedChannels before starting the process to activative
     this feature. You also have the option of forwarding the output of
     the running process to the calling, main process, by passing
-    QProcess::ForwardedOutputChannels as the argument.
+    ForwardedChannels as the argument.
 
     Certain processes need special environment settings in order to
     operate. You can set environment variables for your process by
@@ -260,7 +260,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
     \fn QProcess::started()
 
     This signal is emitted by QProcess when the process has started,
-    and state() returns \c Running.
+    and state() returns \l Running.
 */
 
 /*!

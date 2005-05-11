@@ -1027,6 +1027,8 @@ bool QIODevice::waitForBytesWritten(int msecs)
 /*!
     Sets the human readable description of the last device error that
     occurred to \a str.
+
+    \sa errorString()
 */
 void QIODevice::setErrorString(const QString &str)
 {
@@ -1036,6 +1038,8 @@ void QIODevice::setErrorString(const QString &str)
 /*!
     Returns a human-readable description of the last device error that
     occurred.
+
+    \sa setErrorString()
 */
 QString QIODevice::errorString() const
 {

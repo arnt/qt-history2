@@ -286,7 +286,7 @@ void QDirPrivate::detach(bool createFileEngine)
 
     A QDir is used to manipulate path names, access information
     regarding paths and files, and manipulate the underlying file
-    system.
+    system. It can also be used to access Qt's \l{resource system}.
 
     A QDir can point to a file using either a relative or an absolute
     path. Absolute paths begin with the directory separator "/"
@@ -351,54 +351,55 @@ void QDirPrivate::detach(bool createFileEngine)
     for a function in the underlying operating system use
     convertSeparators().
 
-    Examples:
+    Example (check if a directory exists):
 
-    See if a directory exists.
     \code
-    QDir dir("example");                     // "./example"
-    if (!dir.exists())
-        qWarning("Cannot find the example directory");
+        QDir dir("example");
+        if (!dir.exists())
+            qWarning("Cannot find the example directory");
     \endcode
-    (Alternatively, we could use the static convenience function
-     QFile::exists().)
 
-    Traversing directories and reading a file.
+    (We could also use the static convenience function
+    QFile::exists().)
+
+    Example (traversing directories and reading a file):
+
     \code
-    QDir dir = QDir::root();                 // "/"
-    if (!dir.cd("tmp")) {                    // "/tmp"
-        qWarning("Cannot find the \"/tmp\" directory");
-    } else {
-        QFile file(dir.filePath("ex1.txt")); // "/tmp/ex1.txt"
-        if (!file.open(QIODevice::ReadWrite))
-            qWarning("Cannot create the file %s", file.name());
-    }
+        QDir dir = QDir::root();                 // "/"
+        if (!dir.cd("tmp")) {                    // "/tmp"
+            qWarning("Cannot find the \"/tmp\" directory");
+        } else {
+            QFile file(dir.filePath("ex1.txt")); // "/tmp/ex1.txt"
+            if (!file.open(QIODevice::ReadWrite))
+                qWarning("Cannot create the file %s", file.name());
+        }
     \endcode
 
     A program that lists all the files in the current directory
     (excluding symbolic links), sorted by size, smallest first:
 
     \code
-    #include <QDir>
+        #include <QDir>
 
-    #include <stdio.h>
+        #include <stdio.h>
 
-    int main(int argc, char *argv[])
-    {
-        QDir dir;
-        dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
-        dir.setSorting(QDir::Size | QDir::Reversed);
+        int main(int argc, char *argv[])
+        {
+            QDir dir;
+            dir.setFilter(QDir::Files | QDir::Hidden | QDir::NoSymLinks);
+            dir.setSorting(QDir::Size | QDir::Reversed);
 
-        QFileInfoList list = dir.entryInfoList();
-        printf("     Bytes Filename\n");
-        for (int i = 0; i < list.size(); ++i) {
-            QFileInfo fileInfo = list.at(i);
-            printf("%10li %s\n", fileInfo.size(), qPrintable(fileInfo.fileName()));
+            QFileInfoList list = dir.entryInfoList();
+            printf("     Bytes Filename\n");
+            for (int i = 0; i < list.size(); ++i) {
+                QFileInfo fileInfo = list.at(i);
+                printf("%10li %s\n", fileInfo.size(), qPrintable(fileInfo.fileName()));
+            }
+            return 0;
         }
-        return 0;
-    }
     \endcode
 
-    \sa QApplication::applicationDirPath()
+    \sa QFileInfo, QFile, QApplication::applicationDirPath()
 */
 
 /*!
@@ -538,20 +539,21 @@ QString QDir::absolutePath() const
     links) canonicalPath() returns an empty string.
 
     Example:
-    \code
-    QString bin = "/local/bin";         // where /local/bin is a symlink to /usr/bin
-    QDir binDir(bin);
-    QString canonicalBin = binDir.canonicalPath();
-    // canonicalBin now equals "/usr/bin"
 
-    QString ls = "/local/bin/ls";       // where ls is the executable "ls"
-    QDir lsDir(ls);
-    QString canonicalLs = lsDir.canonicalPath();
-    // canonicalLS now equals "/usr/bin/ls".
+    \code
+        QString bin = "/local/bin";         // where /local/bin is a symlink to /usr/bin
+        QDir binDir(bin);
+        QString canonicalBin = binDir.canonicalPath();
+        // canonicalBin now equals "/usr/bin"
+
+        QString ls = "/local/bin/ls";       // where ls is the executable "ls"
+        QDir lsDir(ls);
+        QString canonicalLs = lsDir.canonicalPath();
+        // canonicalLS now equals "/usr/bin/ls".
     \endcode
 
     \sa path(), absolutePath(), exists(), cleanPath(), dirName(),
-        absoluteFilePath(), QString::isNull()
+        absoluteFilePath()
 */
 
 QString QDir::canonicalPath() const
@@ -646,11 +648,11 @@ QString QDir::absoluteFilePath(const QString &fileName) const
     Returns the path to \a fileName relative to the directory.
 
     \code
-    QDir dir("/home/bob");
-    QString s;
+        QDir dir("/home/bob");
+        QString s;
 
-    s = dir.relativePath("images/file.jpg");     // s is "images/file.jpg"
-    s = dir.relativePath("/home/mary/file.txt"); // s is "../mary/file.txt"
+        s = dir.relativePath("images/file.jpg");     // s is "images/file.jpg"
+        s = dir.relativePath("/home/mary/file.txt"); // s is "../mary/file.txt"
     \endcode
 
     \sa absoluteFilePath() filePath() canonicalPath()
@@ -1272,11 +1274,12 @@ bool QDir::exists() const
     Note: If the directory is a symbolic link to the root directory
     this function returns false. If you want to test for this use
     canonicalPath(), e.g.
+
     \code
-    QDir dir("/tmp/root_link");
-    dir = dir.canonicalPath();
-    if (dir.isRoot())
-        qWarning("It is a root link");
+        QDir dir("/tmp/root_link");
+        dir = dir.canonicalPath();
+        if (dir.isRoot())
+            qWarning("It is a root link");
     \endcode
 
     \sa root(), rootPath()
@@ -1358,12 +1361,13 @@ bool QDir::makeAbsolute() // ### What do the return values signify?
     returns false.
 
     Example:
+
     \code
-    // The current directory is "/usr/local"
-    QDir d1("/usr/local/bin");
-    QDir d2("bin");
-    if (d1 == d2)
-        qDebug("They're the same");
+        // The current directory is "/usr/local"
+        QDir d1("/usr/local/bin");
+        QDir d2("bin");
+        if (d1 == d2)
+            qDebug("They're the same");
     \endcode
 */
 
@@ -1435,12 +1439,13 @@ QDir &QDir::operator=(const QString &path)
     false.
 
     Example:
+
     \code
-    // The current directory is "/usr/local"
-    QDir d1("/usr/local/bin");
-    QDir d2("bin");
-    if (d1 != d2)
-        qDebug("They differ");
+        // The current directory is "/usr/local"
+        QDir d1("/usr/local/bin");
+        QDir d2("bin");
+        if (d1 != d2)
+            qDebug("They differ");
     \endcode
 */
 

@@ -34,60 +34,62 @@
     byte order. For example, a data stream that is written by a PC
     under Windows can be read by a Sun SPARC running Solaris.
 
-    You can also use a data stream to read/write \link #raw raw
-    unencoded binary data\endlink. If you want a "parsing" input
-    stream, see QTextStream.
+    You can also use a data stream to read/write \l{raw}{raw
+    unencoded binary data}. If you want a "parsing" input stream, see
+    QTextStream.
 
     The QDataStream class implements the serialization of C++'s basic
-    data types, like \c char, \c short, \c int, \c char*, etc.
+    data types, like \c char, \c short, \c int, \c{char *}, etc.
     Serialization of more complex data is accomplished by breaking up
     the data into primitive units.
 
     A data stream cooperates closely with a QIODevice. A QIODevice
     represents an input/output medium one can read data from and write
-    data to. The QFile class is an example of an IO device.
+    data to. The QFile class is an example of an I/O device.
 
     Example (write binary data to a stream):
+
     \code
         QFile file("file.dat");
         file.open(QIODevice::WriteOnly);
-        QDataStream stream(&file);   // we will serialize the data into the file
-        stream << "the answer is";   // serialize a string
-        stream << (qint32)42;       // serialize an integer
+        QDataStream out(&file);   // we will serialize the data into the file
+        out << "the answer is";   // serialize a string
+        out << (qint32)42;        // serialize an integer
     \endcode
 
     Example (read binary data from a stream):
+
     \code
         QFile file("file.dat");
         file.open(QIODevice::ReadOnly);
-        QDataStream stream(&file);   // read the data serialized from the file
+        QDataStream in(&file);    // read the data serialized from the file
         QString str;
         qint32 a;
-        stream >> str >> a;          // extract "the answer is" and 42
+        in >> str >> a;           // extract "the answer is" and 42
     \endcode
 
     Each item written to the stream is written in a predefined binary
     format that varies depending on the item's type. Supported Qt
     types include QBrush, QColor, QDateTime, QFont, QPixmap, QString,
     QVariant and many others. For the complete list of all Qt types
-    supporting data streaming see the \link datastreamformat.html
-    Format of the QDataStream operators \endlink.
+    supporting data streaming see the \l{Format of the QDataStream
+    operators}.
 
     For integers it is best to always cast to a Qt integer type for
     writing, and to read back into the same Qt integer type. This
     ensures that you get integers of the size you want and insulates
     you from compiler and platform differences.
 
-    To take one example, a \c char* string is written as a 32-bit
-    integer equal to the length of the string including the NUL byte
-    ('\0'), followed by all the characters of the string including the
-    NUL byte. When reading a \c char* string, 4 bytes are read to
+    To take one example, a \c{char *} string is written as a 32-bit
+    integer equal to the length of the string including the '\\0' byte,
+    followed by all the characters of the string including the
+    '\\0' byte. When reading a \c{char *} string, 4 bytes are read to
     create the 32-bit length value, then that many characters for the
-    \c char* string including the NUL are read.
+    \c {char *} string including the '\\0' terminator are read.
 
-    The initial IODevice is usually set in the constructor, but can be
+    The initial I/O device is usually set in the constructor, but can be
     changed with setDevice(). If you've reached the end of the data
-    (or if there is no IODevice set) atEnd() will return true.
+    (or if there is no I/O device set) atEnd() will return true.
 
     \section1 Versioning
 
@@ -112,15 +114,16 @@
     \code
         QFile file("file.xxx");
         file.open(QIODevice::WriteOnly);
-        QDataStream stream(&file);
+        QDataStream out(&file);
 
         // Write a header with a "magic number" and a version
-        stream << (quint32)0xA0B0C0D0;
-        stream << (qint32)123;
-        stream.setVersion(QDataStream::Qt_4_0);
+        out << (quint32)0xA0B0C0D0;
+        out << (qint32)123;
+
+        out.setVersion(QDataStream::Qt_4_0);
 
         // Write the data
-        stream << lots_of_interesting_data;
+        out << lots_of_interesting_data;
     \endcode
 
     Then read it in with:
@@ -128,32 +131,32 @@
     \code
         QFile file("file.xxx");
         file.open(QIODevice::ReadOnly);
-        QDataStream stream(&file);
+        QDataStream in(&file);
 
         // Read and check the header
         quint32 magic;
-        stream >> magic;
+        in >> magic;
         if (magic != 0xA0B0C0D0)
             return XXX_BAD_FILE_FORMAT;
 
         // Read the version
         qint32 version;
-        stream >> version;
+        in >> version;
         if (version < 100)
             return XXX_BAD_FILE_TOO_OLD;
         if (version > 123)
             return XXX_BAD_FILE_TOO_NEW;
 
         if (version <= 110)
-            stream.setVersion(QDataStream::Qt_3_2);
+            in.setVersion(QDataStream::Qt_3_2);
         else
-            stream.setVersion(QDataStream::Qt_4_0);
+            in.setVersion(QDataStream::Qt_4_0);
 
         // Read the data
-        stream >> lots_of_interesting_data;
+        in >> lots_of_interesting_data;
         if (version >= 120)
-            stream >> data_new_in_XXX_version_1_2;
-        stream >> other_interesting_data;
+            in >> data_new_in_XXX_version_1_2;
+        in >> other_interesting_data;
     \endcode
 
     You can select which byte order to use when serializing data. The
@@ -167,7 +170,7 @@
 
     You may wish to read/write your own raw binary data to/from the
     data stream directly. Data may be read from the stream into a
-    preallocated char * using readRawData(). Similarly data can be
+    preallocated \c{char *} using readRawData(). Similarly data can be
     written to the stream using writeRawData(). Note that any
     encoding/decoding of the data must be done by you.
 
@@ -175,7 +178,7 @@
     differ from their \e raw counterparts as follows: readBytes()
     reads a quint32 which is taken to be the length of the data to be
     read, then that number of bytes is read into the preallocated
-    char*; writeBytes() writes a quint32 containing the length of the
+    \c{char *}; writeBytes() writes a quint32 containing the length of the
     data, followed by the data. Note that any encoding/decoding of
     the data (apart from the length quint32) must be done by you.
 
@@ -225,7 +228,7 @@ enum {
 // be written, no "data" after it
 
 /*!
-    Constructs a data stream that has no IO device.
+    Constructs a data stream that has no I/O device.
 
     \sa setDevice()
 */
@@ -241,9 +244,9 @@ QDataStream::QDataStream()
 }
 
 /*!
-    Constructs a data stream that uses the IO device \a d.
+    Constructs a data stream that uses the I/O device \a d.
 
-    \warning If you use QSocket or QSocketDevice as the IO device \a d
+    \warning If you use QSocket or QSocketDevice as the I/O device \a d
     for reading data, you must make sure that enough data is available
     on the socket for the operation to successfully proceed;
     QDataStream does not have any means to handle or recover from
@@ -333,9 +336,9 @@ QDataStream::QDataStream(const QByteArray &a)
 /*!
     Destroys the data stream.
 
-    The destructor will not affect the current IO device, unless it is
-    an internal IO device (e.g. a QBuffer) processing a QByteArray
-    passed in the \e constructor, in which case the internal IO device
+    The destructor will not affect the current I/O device, unless it is
+    an internal I/O device (e.g. a QBuffer) processing a QByteArray
+    passed in the \e constructor, in which case the internal I/O device
     is destroyed.
 */
 
@@ -349,7 +352,7 @@ QDataStream::~QDataStream()
 /*!
     \fn QIODevice *QDataStream::device() const
 
-    Returns the IO device currently set.
+    Returns the I/O device currently set.
 
     \sa setDevice(), unsetDevice()
 */
@@ -357,7 +360,7 @@ QDataStream::~QDataStream()
 /*!
     void QDataStream::setDevice(QIODevice *d)
 
-    Sets the IO device to \a d.
+    Sets the I/O device to \a d.
 
     \sa device(), unsetDevice()
 */
@@ -372,7 +375,7 @@ void QDataStream::setDevice(QIODevice *d)
 }
 
 /*!
-    Unsets the IO device. This is the same as calling setDevice(0).
+    Unsets the I/O device. This is the same as calling setDevice(0).
 
     \sa device(), setDevice()
 */
@@ -386,8 +389,8 @@ void QDataStream::unsetDevice()
 /*!
     \fn bool QDataStream::atEnd() const
 
-    Returns true if the IO device has reached the end position (end of
-    the stream or file) or if there is no IO device set; otherwise
+    Returns true if the I/O device has reached the end position (end of
+    the stream or file) or if there is no I/O device set; otherwise
     returns false.
 
     \sa QIODevice::atEnd()
@@ -792,7 +795,7 @@ QDataStream &QDataStream::operator>>(double &f)
     a reference to the stream.
 
     Space for the string is allocated using \c new -- the caller must
-    destroy it with delete[].
+    destroy it with \c{delete[]}.
 */
 
 QDataStream &QDataStream::operator>>(char *&s)

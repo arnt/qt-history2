@@ -1628,13 +1628,12 @@ bool QConfFileSettingsPrivate::writeIniFile(QIODevice &device, const SettingsKey
     QPixmap, which are part of \l QtGui. In other words, there is no
     \c QVariant::toColor() function.
 
-    Instead, you can use the qvariant_value<T>() global function. For
-    example:
+    Instead, you can use the QVariant::value() or the qVariantValue()
+    template function. For example:
 
     \code
         QSettings settings("MySoft", "Star Runner");
-        QColor color = qvariant_value<QColor>(
-                settings.value("DataPump/bgcolor"));
+        QColor color = settings.value("DataPump/bgcolor").value<QColor>();
     \endcode
 
     The inverse conversion (e.g., from QColor to QVariant) is

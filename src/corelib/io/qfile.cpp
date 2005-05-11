@@ -118,8 +118,9 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
     \reentrant
 
     QFile is an I/O device for reading and writing text and binary
-    files and \l{resources.html}{resources}. A QFile may be used by
-    itself or, more conveniently, with a QTextStream or QDataStream.
+    files and \l{The Qt Resource System}{resources}. A QFile may be
+    used by itself or, more conveniently, with a QTextStream or
+    QDataStream.
 
     The file name is usually passed in the constructor, but it can be
     set at any time using setFileName(). You can check for a file's
@@ -162,8 +163,7 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
     disk into a 16-bit Unicode QString. By default, it assumes that
     the user system's local 8-bit encoding is used (e.g., ISO 8859-1
     for most of Europe; see QTextCodec::codecForLocale() for
-    details). This can be changed using QTextCodec::setEncoding() or
-    QTextCodec::setCodec().
+    details). This can be changed using setCodec().
 
     To write text, we can use operator<<(), which is overloaded to
     take a QTextStream on the left and various data types (including
@@ -185,7 +185,7 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
     use the encodeName() and decodeName() functions to convert
     between Unicode file names and 8-bit file names.
 
-    \sa QTextStream, QDataStream, QFileInfo, QDir, {resources.html}{Qt's Resource System}
+    \sa QTextStream, QDataStream, QFileInfo, QDir, {The Qt Resource System}
 */
 
 /*!
@@ -233,14 +233,11 @@ QFilePrivate::setError(QFile::FileError err, int errNum)
     \value WriteOther The file is writable by anyone.
     \value ExeOther The file is executable by anyone.
 
-    \warning The semantics of \c ReadUser, \c WriteUser and \c ExeUser are
-    unfortunately not platform independent: on Unix, the rights of the owner of
-    the file are returned and on Windows the rights of the current user are
-    returned. This behavior might change in a future Qt version. If you want to
-    find the rights of the owner of the file, you should use the flags \c
-    ReadOwner, \c WriteOwner and \c ExeOwner. If you want to find out the
-    rights of the current user, you should use isReadable(), isWritable() and
-    isExecutable().
+    \warning Because of differences in the platforms supported by Qt,
+    the semantics of ReadUser, WriteUser and ExeUser are
+    platform-dependent: On Unix, the rights of the owner of the file
+    are returned and on Windows the rights of the current user are
+    returned. This behavior might change in a future Qt version.
 */
 
 #ifdef QT3_SUPPORT
@@ -402,17 +399,22 @@ QFile::encodeName(const QString &fileName)
 }
 
 /*!
-    \enum QFile::EncoderFn
+    \typedef QFile::EncoderFn
 
-    This is used by QFile::setEncodingFunction() to specify how Unicode
-    file names are converted to the appropriate local encoding.
+    This is a typedef for a pointer to a function with the following
+    signature:
+
+    \code
+        QByteArray myEncoderFunc(const QString &fileName);
+    \endcode
+
+    \sa setEncodingFunction(), encodeName()
 */
-
 
 /*!
     This does the reverse of QFile::encodeName() using \a localFileName.
 
-    \sa setDecodingFunction()
+    \sa setDecodingFunction(), encodeName()
 */
 
 QString
@@ -429,7 +431,7 @@ QFile::decodeName(const QByteArray &localFileName)
     Sets the \a function for encoding Unicode file names. The
     default encodes in the locale-specific 8-bit encoding.
 
-    \sa encodeName()
+    \sa encodeName(), setDecodingFunction()
 */
 
 void
@@ -439,10 +441,16 @@ QFile::setEncodingFunction(EncoderFn f)
 }
 
 /*!
-    \enum QFile::DecoderFn
+    \typedef QFile::DecoderFn
 
-    This is used by QFile::setDecodingFunction() to specify how file names
-    are converted from the local encoding to Unicode.
+    This is a typedef for a pointer to a function with the following
+    signature:
+
+    \code
+        QString myDecoderFunc(const QByteArray &localFileName);
+    \endcode
+
+    \sa setDecodingFunction()
 */
 
 /*!
@@ -453,7 +461,7 @@ QFile::setEncodingFunction(EncoderFn f)
     Sets the \a function for decoding 8-bit file names. The
     default uses the locale-specific 8-bit encoding.
 
-    \sa encodeName(), decodeName()
+    \sa setEncodingFunction(), decodeName()
 */
 
 void
@@ -468,7 +476,7 @@ QFile::setDecodingFunction(DecoderFn f)
     Returns true if the file specified by fileName() exists; otherwise
     returns false.
 
-    \sa fileName() setFileName()
+    \sa fileName(), setFileName()
 */
 
 bool
@@ -878,9 +886,9 @@ bool QFile::open(FILE *fh, OpenMode mode)
     are slow. If you run into performance issues, you should try to
     use one of the other open functions.
 
-    \warning If \a fd is 0 (stdin), 1 (stdout), or 2 (stderr),
-    you may not be able to seek(). size() is set to \c LLONG_MAX (in
-    \c limits.h).
+    \warning If \a fd is 0 (\c stdin), 1 (\c stdout), or 2 (\c
+    stderr), you may not be able to seek(). size() is set to \c
+    LLONG_MAX (in \c <climits>).
 
     \sa close()
 */
@@ -947,7 +955,7 @@ QFile::handle() const
     currently is the new bytes will be set to 0, if \a sz is smaller the
     file is simply truncated.
 
-    \sa QFile::size(), setFileName()
+    \sa size(), setFileName()
 */
 
 bool
@@ -983,7 +991,7 @@ QFile::resize(const QString &fileName, qint64 sz)
     Returns the complete OR-ed together combination of
     QFile::Permission for the file.
 
-    \sa QFile::setPermissions, QFile::Permission, setFileName()
+    \sa setPermissions(), setFileName()
 */
 
 QFile::Permissions
@@ -998,8 +1006,6 @@ QFile::permissions() const
 
     Returns the complete OR-ed together combination of
     QFile::Permission for \a fileName.
-
-    \sa permissions(), QFile::Permission
 */
 
 QFile::Permissions
@@ -1011,7 +1017,7 @@ QFile::permissions(const QString &fileName)
 /*!
     Sets the permissions for the file to \a permissions.
 
-    \sa permissions(), QFile::Permission, setFileName()
+    \sa permissions(), setFileName()
 */
 
 bool
@@ -1030,8 +1036,6 @@ QFile::setPermissions(Permissions permissions)
     \overload
 
     Sets the permissions for \a fileName file to \a permissions.
-
-    \sa setPermissions(), QFile::Permission
 */
 
 bool
@@ -1313,6 +1317,7 @@ QFile::writeData(const char *data, qint64 len)
 }
 
 /*!
+  \internal
   Returns the QIOEngine for this QFile object.
 */
 
@@ -1328,33 +1333,9 @@ QFileEngine
 /*!
     Returns the file error status.
 
-    \keyword QFile::NoError
-    \keyword QFile::ReadError
-    \keyword QFile::WriteError
-    \keyword QFile::FatalError
-    \keyword QFile::OpenError
-    \keyword QFile::ConnectError
-    \keyword QFile::AbortError
-    \keyword QFile::TimeOutError
-    \keyword QFile::UnspecifiedError
-
     The I/O device status returns an error code. For example, if open()
     returns false, or a read/write operation returns -1, this function can
     be called to find out the reason why the operation failed.
-
-    The status codes are:
-    \table
-    \header \i Status code \i Meaning
-    \row \i \c QFile::NoError \i The operation was successful.
-    \row \i \c QFile::ReadError \i Could not read from the device.
-    \row \i \c QFile::WriteError \i Could not write to the device.
-    \row \i \c QFile::FatalError \i A fatal unrecoverable error occurred.
-    \row \i \c QFile::OpenError \i Could not open the device.
-    \row \i \c QFile::ConnectError \i Could not connect to the device.
-    \row \i \c QFile::AbortError \i The operation was unexpectedly aborted.
-    \row \i \c QFile::TimeOutError \i The operation timed out.
-    \row \i \c QFile::UnspecifiedError \i An unspecified error happened on close.
-    \endtable
 
     \sa unsetError()
 */
@@ -1367,7 +1348,7 @@ QFile::error() const
 }
 
 /*!
-    Sets the file's error to \c QFile::NoError.
+    Sets the file's error to QFile::NoError.
 
     \sa error()
 */

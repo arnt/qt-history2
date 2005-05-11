@@ -345,7 +345,7 @@ QTemporaryFile *QTemporaryFile::createLocalFile(QFile &file)
 }
 
 /*!
-   \reimp
+   \internal
 */
 
 QFileEngine *QTemporaryFile::fileEngine() const

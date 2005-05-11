@@ -1031,7 +1031,7 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
 #if !defined(QT_NO_DEBUG_STREAM) && !defined(Q_BROKEN_DEBUG_STREAM)
 void streamDebug(QDebug dbg, const QVariant &v)
 {
-    switch(v.type()) {
+    switch (v.type()) {
     case QVariant::Int:
         dbg.nospace() << v.toInt();
         break;
@@ -1144,7 +1144,7 @@ Q_CORE_EXPORT const QVariant::Handler *qcoreVariantHandler()
 const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
 
 /*!
-    \class QVariant qvariant.h
+    \class QVariant
     \brief The QVariant class acts like a union for the most common Qt data types.
 
     \ingroup objectmodel
@@ -1159,56 +1159,60 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     A QVariant object holds a single value of a single type() at a
     time. (Some type()s are multi-valued, for example a string list.)
     You can find out what type, T, the variant holds, convert it to a
-    different type using one of the asT() functions, e.g. asSize(),
-    get its value using one of the toT() functions, e.g. toSize(), and
-    check whether the type can be converted to a particular type using
-    canConvert().
+    different type using convert(), get its value using one of the
+    toT() functions (e.g., toSize()) and check whether the type can
+    be converted to a particular type using canConvert().
 
-    The methods named toT() (for any supported T, see the \c Type
+    The methods named toT() (for any supported T, see the \l Type
     documentation for a list) are const. If you ask for the stored
     type, they return a copy of the stored object. If you ask for a
     type that can be generated from the stored type, toT() copies and
     converts and leaves the object itself unchanged. If you ask for a
     type that cannot be generated from the stored type, the result
-    depends on the type (see the function documentation for details).
+    depends on the type; see the function documentation for details.
 
     Here is some example code to demonstrate the use of QVariant:
 
     \code
-    QDataStream out(...);
-    QVariant v(123);            // The variant now contains an int
-    int x = v.toInt();              // x = 123
-    out << v;                       // Writes a type tag and an int to out
-    v = QVariant("hello");      // The variant now contains a QByteArray
-    v = QVariant(tr("hello"));  // The variant now contains a QString
-    int y = v.toInt();              // y = 0 since v cannot be converted to an int
-    QString s = v.toString();       // s = tr("hello")  (see QObject::tr())
-    out << v;                       // Writes a type tag and a QString to out
-    ...
-    QDataStream in(...);            // (opening the previously written stream)
-    in >> v;                        // Reads an Int variant
-    int z = v.toInt();              // z = 123
-    qDebug("Type is %s",            // prints "Type is int"
-            v.typeName());
-    v = v.toInt() + 100;            // The variant now hold the value 223.
-    v = QVariant(QStringList());
+        QDataStream out(...);
+        QVariant v(123);            // The variant now contains an int
+        int x = v.toInt();              // x = 123
+        out << v;                       // Writes a type tag and an int to out
+        v = QVariant("hello");      // The variant now contains a QByteArray
+        v = QVariant(tr("hello"));  // The variant now contains a QString
+        int y = v.toInt();              // y = 0 since v cannot be converted to an int
+        QString s = v.toString();       // s = tr("hello")  (see QObject::tr())
+        out << v;                       // Writes a type tag and a QString to out
+        ...
+        QDataStream in(...);            // (opening the previously written stream)
+        in >> v;                        // Reads an Int variant
+        int z = v.toInt();              // z = 123
+        qDebug("Type is %s",            // prints "Type is int"
+                v.typeName());
+        v = v.toInt() + 100;            // The variant now hold the value 223.
+        v = QVariant(QStringList());
     \endcode
 
-    You can even store QVariantLists and
-    QMap<QString,QVariant>s in a variant, so you can easily construct
-    arbitrarily complex data structures of arbitrary types. This is
-    very powerful and versatile, but may prove less memory and speed
-    efficient than storing specific types in standard data structures.
+    You can even store QList<QVariant> and QMap<QString, QVariant>
+    values in a variant, so you can easily construct arbitrarily
+    complex data structures of arbitrary types. This is very powerful
+    and versatile, but may prove less memory and speed efficient than
+    storing specific types in standard data structures.
 
-    QVariant also supports the notion of NULL values, where you have a
-    defined type with no value set.
+    QVariant also supports the notion of null values, where you have
+    a defined type with no value set.
+
     \code
-    QVariant x, y(QString()), z(QString(""));
-    x.convert(QVariant::Int);
-    // x.isNull() == true,
-    // y.isNull() == true, z.isNull() == false
-    // y.isEmpty() == true, z.Empty() == true
+        QVariant x, y(QString()), z(QString(""));
+        x.convert(QVariant::Int);
+        // x.isNull() == true
+        // y.isNull() == true, z.isNull() == false
+        // y.isEmpty() == true, z.Empty() == true
     \endcode
+
+    QVariant can be extended to support other types than those
+    mentioned in the \l Type enum. See the \l QMetaType documentation
+    for details.
 */
 
 /*!
@@ -1235,10 +1239,10 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value KeySequence  a QKeySequence
     \value LineF  a QLineF
     \value Line  a QLine
-    \value List  a QVariantList
+    \value List  a QVariantList (QList<QVariant>)
     \value LongLong a long long
     \value ULongLong an unsigned long long
-    \value Map  a QMap<QString,QVariant>
+    \value Map  a QVariantMap (QMap<QString, QVariant>)
     \value Palette  a QPalette
     \value Pen  a QPen
     \value Pixmap  a QPixmap
@@ -1262,15 +1266,12 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     \value Url  a QUrl
     \value PointArray  a QPointArray
 
-    \value UserType
+    \value UserType Base value for user-defined types.
 
     \omitvalue CString
     \omitvalue ColorGroup
     \omitvalue IconSet
     \omitvalue LastType
-
-    Note that Qt's definition of bool depends on the compiler.
-    \c qglobal.h has the system-dependent definition of bool.
 */
 
 /*!
@@ -1312,7 +1313,7 @@ void QVariant::create(int type, const void *copy)
 }
 
 /*!
-  \fn QVariant::~QVariant()
+    \fn QVariant::~QVariant()
 
     Destroys the QVariant and the contained object.
 
@@ -1392,7 +1393,7 @@ QVariant::QVariant(const char *val)
 */
 
 /*!
-  \fn QVariant::QVariant(const QMap<QString,QVariant> &val)
+  \fn QVariant::QVariant(const QMap<QString, QVariant> &val)
 
     Constructs a new variant with a map of QVariants, \a val.
 */
@@ -1578,7 +1579,7 @@ QVariant::QVariant(const QDateTime &val)
 #ifndef QT_NO_TEMPLATE_VARIANT
 QVariant::QVariant(const QList<QVariant> &list)
 { create(List, &list); }
-QVariant::QVariant(const QMap<QString,QVariant> &map)
+QVariant::QVariant(const QMap<QString, QVariant> &map)
 { create(Map, &map); }
 #endif
 #ifndef QT_NO_GEOM_VARIANT
@@ -1987,35 +1988,18 @@ Q_VARIANT_TO(RectF)
 #endif
 
 /*!
-  \fn QString QVariant::toString() const
-
-    Returns the variant as a QString if the variant has type() String,
-    ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
-    KeySequence, Font or Color; otherwise returns an empty string.
-*/
-
-
-/*!
-  \fn QStringList QVariant::toStringList() const
+    \fn QStringList QVariant::toStringList() const
 
     Returns the variant as a QStringList if the variant has type()
     StringList or List of a type that can be converted to QString;
     otherwise returns an empty list.
-
-    Note that if you want to iterate over the list, you should iterate
-    over a copy, e.g.
-    \code
-    QStringList list = myVariant.toStringList();
-    QStringList::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
-    \endcode
 */
 
-
-
+/*!
+    Returns the variant as a QString if the variant has type()
+    String, ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
+    KeySequence, Font or Color; otherwise returns an empty string.
+*/
 QString QVariant::toString() const
 {
     if (d.type == String)
@@ -2027,7 +2011,7 @@ QString QVariant::toString() const
 }
 #ifndef QT_NO_TEMPLATE_VARIANT
 /*!
-    Returns the variant as a QMap<QString,QVariant> if the variant has
+    Returns the variant as a QMap<QString, QVariant> if the variant has
     type() Map; otherwise returns an empty map.
 
     Note that if you want to iterate over the map, you should iterate
@@ -2044,7 +2028,7 @@ QString QVariant::toString() const
 QVariantMap QVariant::toMap() const
 {
     if (d.type != Map)
-        return QMap<QString,QVariant>();
+        return QMap<QString, QVariant>();
 
     return *v_cast<QVariantMap>(&d);
 }
@@ -2375,23 +2359,22 @@ QVariantList QVariant::toList() const
 
     The following casts are done automatically:
     \table
-    \header \i Type \i Automatically Cast To
-    \row \i Bool \i Double, Int, UInt, LongLong, ULongLong
-    \row \i Color \i String
-    \row \i Date \i String, DateTime
-    \row \i DateTime \i String, Date, Time
-    \row \i Double \i String, Int, Bool, UInt
-    \row \i Font \i String
-    \row \i Int \i String, Double, Bool, UInt
-    \row \i List \i StringList (if the list contains strings or
-    something that can be cast to a string)
-    \row \i String \i CString, Int, Uint, Bool, Double, Date,
-    Time, DateTime, KeySequence, Font, Color
-    \row \i CString \i String
-    \row \i StringList \i List
-    \row \i Time \i String
-    \row \i UInt \i String, Double, Bool, Int
-    \row \i KeySequence \i String, Int
+    \header \o Type \o Automatically Cast To
+    \row \o \l Bool \o \l Double, \l Int, \l UInt, \l LongLong, \l ULongLong
+    \row \o \l Color \o \l String
+    \row \o \l Date \o \l String, \l DateTime
+    \row \o \l DateTime \o \l String, \l Date, \l Time
+    \row \o \l Double \o \l String, \l Int, \l Bool, \l UInt
+    \row \o \l Font \o \l String
+    \row \o \l Int \o \l String, \l Double, \l Bool, \l UInt
+    \row \o \l List \o \l StringList (if the list contains strings or something that can be cast to a string)
+    \row \o \l String \o \l CString, \l Int, \l Uint, \l Bool, \l Double, \l Date,
+    \l Time, \l DateTime, \l KeySequence, \l Font, \l Color
+    \row \o \l CString \o \l String
+    \row \o \l StringList \o \l List
+    \row \o \l Time \o \l String
+    \row \o \l UInt \o \l String, \l Double, \l Bool, \l Int
+    \row \o \l KeySequence \o \l String, \l Int
     \endtable
 */
 bool QVariant::canConvert(Type t) const
@@ -2638,7 +2621,7 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
 */
 
 /*!
-    \fn QMap<QString,QVariant> &QVariant::asMap()
+    \fn QMap<QString, QVariant> &QVariant::asMap()
 
     Use toMap() instead.
 */
@@ -2689,19 +2672,23 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     Example:
 
     \code
-    QVariant v;
+        QVariant v;
 
-    v.setValue(5);
-    int i = v.toInt(); // i is now 5
-    QString s = v.toString() // s is now "5"
+        v.setValue(5);
+        int i = v.toInt(); // i is now 5
+        QString s = v.toString() // s is now "5"
 
-    MyCustomStruct c;
-    v.setValue(c);
+        MyCustomStruct c;
+        v.setValue(c);
 
-    ...
+        ...
 
-    MyCustomStruct c2 = v.value<MyCustomStruct>();
+        MyCustomStruct c2 = v.value<MyCustomStruct>();
     \endcode
+
+    \warning This function is not available with MSVC 6. Use
+    qVariantSetValue() instead if you need to support that version of
+    the compiler.
 
     \sa value(), fromValue(), canConvert()
  */
@@ -2719,17 +2706,21 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     Example:
 
     \code
-    QVariant v;
+        QVariant v;
 
-    MyCustomStruct c;
-    if (v.canConvert<MyCustomStruct>())
-        c = v.value<MyCustomStruct>(v);
+        MyCustomStruct c;
+        if (v.canConvert<MyCustomStruct>())
+            c = v.value<MyCustomStruct>(v);
 
-    v = 7;
-    int i = v.value<int>(); // same as v.toInt()
-    QString s = v.value<QString>(); // same as v.toString(), s is now "7"
-    MyCustomStruct c2 = v.value<MyCustomStruct>(); // conversion failed, c2 is empty
+        v = 7;
+        int i = v.value<int>(); // same as v.toInt()
+        QString s = v.value<QString>(); // same as v.toString(), s is now "7"
+        MyCustomStruct c2 = v.value<MyCustomStruct>(); // conversion failed, c2 is empty
     \endcode
+
+    \warning This function is not available with MSVC 6. Use
+    qVariantValue() instead if you need to support that version of
+    the compiler.
 
     \sa setValue(), fromValue(), canConvert()
 */
@@ -2740,18 +2731,23 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     otherwise false.
 
     Example:
+
     \code
-    QVariant v = 42;
+        QVariant v = 42;
 
-    v.canConvert<int>(); // returns true
-    v.canConvert<QString>(); // returns true
+        v.canConvert<int>(); // returns true
+        v.canConvert<QString>(); // returns true
 
-    MyCustomStruct s;
-    v.setValue(s);
+        MyCustomStruct s;
+        v.setValue(s);
 
-    v.canConvert<int>(); // returns false
-    v.canConvert<MyCustomStruct>(); // returns true
+        v.canConvert<int>(); // returns false
+        v.canConvert<MyCustomStruct>(); // returns true
     \endcode
+
+    \warning This function is not available with MSVC 6. Use
+    qVariantCanConvert() instead if you need to support that version
+    of the compiler.
 
     \sa convert()
 */
@@ -2762,61 +2758,67 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     exactly like setValue() otherwise.
 
     Example:
+
     \code
-    MyCustomStruct s;
-    return QVariant::fromValue(s);
+        MyCustomStruct s;
+        return QVariant::fromValue(s);
     \endcode
+
+    \warning This function is not available with MSVC 6. Use
+    qVariantFromValue() instead if you need to support that version
+    of the compiler.
 
     \sa setValue(), value()
 */
 
 /*! \fn QVariant qVariantFromValue(const T &value)
-
     \relates QVariant
 
     Returns a variant containing a copy of the given \a value
     with template type \c{T}.
 
-    Replacement function for QVariant::fromValue() for compilers
-    that do not support template member methods.
+    This function is equivalent to QVariant::fromValue(\a value). It
+    is provided as a work-around for MSVC 6, which doesn't support
+    member template functions.
 
     \sa QVariant::fromValue()
 */
 
 /*! \fn void qVariantSetValue(QVariant &variant, const T &value)
-
     \relates QVariant
 
     Sets the contents of the given \a variant to a copy of the
     \a value with the specified template type \c{T}.
 
-    Replacement function for QVariant::setValue() for compilers
-    that do not support template member methods.
+    This function is equivalent to QVariant::setValue(\a value). It
+    is provided as a work-around for MSVC 6, which doesn't support
+    member template functions.
 
     \sa QVariant::setValue()
 */
 
 /*! \fn T qVariantValue(const QVariant &value)
-
     \relates QVariant
 
     Returns the given \a value converted to the template type \c{T}.
 
-    Replacement function for QVariant::value() for compilers
-    that do not support template member methods.
+    This function is equivalent to
+    \l{QVariant::value()}{QVariant::value}<T>(\a value). It is
+    provided as a work-around for MSVC 6, which doesn't support
+    member template functions.
 
     \sa QVariant::value()
 */
 
 /*! \fn bool qVariantCanConvert(const QVariant &value)
-
     \relates QVariant
 
     Returns true if the given \a value can be converted to the
     template type specified; otherwise returns false.
 
-    Replacement function for QVariant::canConvert() for compilers
-    that do not support template member methods.
+    This function is equivalent to QVariant::canConvert(\a value). It
+    is provided as a work-around for MSVC 6, which doesn't support
+    member template functions.
 
     \sa QVariant::canConvert()
 */
