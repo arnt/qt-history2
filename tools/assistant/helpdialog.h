@@ -32,6 +32,7 @@
 class QProgressBar;
 class MainWindow;
 class QTextBrowser;
+class IndexListModel;
 
 class HelpNavigationListItem : public QListWidgetItem
 {
@@ -95,7 +96,6 @@ private slots:
     void insertContents();
     void setupFullTextIndex();
     void currentTabChanged(int index);
-    void currentIndexChanged(QListWidgetItem *i);
     void showTopic();
     void searchInIndex(const QString &s);
     void toggleContents();
@@ -121,10 +121,11 @@ private:
     void showContentsTopic();
     void showInitDoneMessage();
     void buildContentDict();
-    
+
 private:
     Ui::HelpDialog ui;
 
+    IndexListModel *indexModel;
     QMap<QString, QString> titleMap;
     bool indexDone, bookmarksInserted, titleMapDone, contentsInserted;
     bool lwClosed;

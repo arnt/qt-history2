@@ -19,31 +19,8 @@
 #include "config.h"
 #include "tabbedbrowser.h"
 
-#include <qapplication.h>
-#include <qcursor.h>
-#include <qdir.h>
-#include <qevent.h>
-#include <qeventloop.h>
-#include <qfile.h>
-#include <qfileinfo.h>
-#include <qlabel.h>
-#include <qlineedit.h>
-#include <qmessagebox.h>
-#include <qpixmap.h>
-#include <qprogressbar.h>
-#include <qlist.h>
-#include <qstack.h>
-#include <qregexp.h>
-#include <qsettings.h>
-#include <qstatusbar.h>
-#include <qtabwidget.h>
-#include <qtextbrowser.h>
-#include <qtextstream.h>
-#include <qtimer.h>
-#include <qurl.h>
-#include <qvalidator.h>
-#include <qdatetime.h>
-#include <qdebug.h>
+#include <QtGui/QtGui>
+#include <QtCore/qdebug.h>
 
 #include <stdlib.h>
 #include <limits.h>
@@ -116,6 +93,66 @@ QValidator::State SearchValidator::validate(QString &str, int &) const
     return QValidator::Acceptable;
 }
 
+class IndexListModel: public QStringListModel
+{
+public:
+    IndexListModel(QObject *parent = 0)
+        : QStringListModel(parent) {}
+
+    void clear() { contents.clear(); setStringList(QStringList()); }
+
+    QString description(int index) const { return stringList().at(index); }
+    QStringList links(int index) const { return contents.values(stringList().at(index)); }
+    void addLink(const QString &description, const QString &link) { contents.insert(description, link); }
+
+    void publish() { filter(QString()); }
+
+    QModelIndex filter(const QString &s)
+    {
+        QMapIterator<QString, QString> it(contents);
+        QStringList lst;
+        QString lastKey;
+
+        int goodMatch = -1;
+        int perfectMatch = -1;
+        if (s.isEmpty())
+            perfectMatch = 0;
+
+        while (it.hasNext()) {
+            it.next();
+
+            if (it.key() == lastKey)
+                continue;
+
+            lastKey = it.key();
+
+            if (it.key().contains(s, Qt::CaseInsensitive))
+                lst.append(it.key());
+
+            if (perfectMatch == -1 && it.key().startsWith(s, Qt::CaseInsensitive)) {
+                if (goodMatch == -1)
+                    goodMatch = lst.count() - 1;
+                if (s.length() == it.key().length())
+                    perfectMatch = lst.count() - 1;
+            }
+        }
+
+        setStringList(lst);
+
+        int bestMatch = perfectMatch;
+        if (bestMatch == -1)
+            bestMatch = goodMatch;
+
+        return index(qMax(0, bestMatch), 0, QModelIndex());
+    }
+
+    virtual Qt::ItemFlags flags(const QModelIndex &index) const
+    { return QStringListModel::flags(index) & ~Qt::ItemIsEditable; }
+
+private:
+    QMultiMap<QString, QString> contents;
+};
+
 HelpNavigationListItem::HelpNavigationListItem(QListWidget *ls, const QString &txt)
     : QListWidgetItem(txt, ls)
 {
@@ -123,10 +160,10 @@ HelpNavigationListItem::HelpNavigationListItem(QListWidget *ls, const QString &t
 
 void HelpNavigationListItem::addLink(const QString &link)
 {
-    QString lnk = HelpDialog::removeAnchorFromLink(link);    
+    QString lnk = HelpDialog::removeAnchorFromLink(link);
     if (linkList.filter(lnk, Qt::CaseInsensitive).count() > 0)
         return;
-    linkList << link;   
+    linkList << link;
 }
 
 HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
@@ -135,36 +172,29 @@ HelpDialog::HelpDialog(QWidget *parent, MainWindow *h)
     ui.setupUi(this);
     ui.listContents->setUniformRowHeights(true);
     ui.listBookmarks->setUniformRowHeights(true);
+
+    indexModel = new IndexListModel(this);
+    ui.listIndex->setModel(indexModel);
 }
 
 void HelpDialog::initialize()
 {
-    connect(ui.tabWidget, SIGNAL(currentChanged(int)),
-             this, SLOT(currentTabChanged(int)));
-    connect(ui.listContents, SIGNAL(itemClicked(QTreeWidgetItem*,int)),
-             this, SLOT(showTopic(QTreeWidgetItem*)));
-    connect(ui.listContents, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
-             this, SLOT(showTopic(QTreeWidgetItem*)));
+    connect(ui.tabWidget, SIGNAL(currentChanged(int)), this, SLOT(currentTabChanged(int)));
+
+    connect(ui.listContents, SIGNAL(itemClicked(QTreeWidgetItem*,int)), this, SLOT(showTopic(QTreeWidgetItem*)));
+    connect(ui.listContents, SIGNAL(itemActivated(QTreeWidgetItem*,int)), this, SLOT(showTopic(QTreeWidgetItem*)));
     connect(ui.listContents, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTreeItemMenu(QPoint)));
+
     connect(ui.editIndex, SIGNAL(returnPressed()), this, SLOT(showTopic()));
     connect(ui.editIndex, SIGNAL(textChanged(QString)), this, SLOT(searchInIndex(QString)));
 
-    connect(ui.listIndex, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-             this, SLOT(currentIndexChanged(QListWidgetItem*)));
-    connect(ui.listIndex, SIGNAL(itemActivated(QListWidgetItem*)),
-             this, SLOT(showTopic()));
-    connect(ui.listIndex, SIGNAL(currentItemChanged(QListWidgetItem*,QListWidgetItem*)),
-             this, SLOT(currentIndexChanged(QListWidgetItem*)));
-    connect(ui.listIndex, SIGNAL(customContextMenuRequested(QPoint)),
-             this, SLOT(showListItemMenu(QPoint)));
+    connect(ui.listIndex, SIGNAL(activated(QModelIndex)), this, SLOT(showTopic()));
+    connect(ui.listIndex, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showListItemMenu(QPoint)));
 
-    connect(ui.listBookmarks, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
-             this, SLOT(showTopic(QTreeWidgetItem*)));
-    connect(ui.listBookmarks, SIGNAL(customContextMenuRequested(QPoint)),
-             this, SLOT(showTreeItemMenu(QPoint)));
+    connect(ui.listBookmarks, SIGNAL(itemActivated(QTreeWidgetItem*,int)), this, SLOT(showTopic(QTreeWidgetItem*)));
+    connect(ui.listBookmarks, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTreeItemMenu(QPoint)));
 
-    connect(ui.resultBox, SIGNAL(customContextMenuRequested(QPoint)),
-             this, SLOT(showListItemMenu(QPoint)));
+    connect(ui.resultBox, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showListItemMenu(QPoint)));
 
     cacheFilesPath = QDir::homePath() + QLatin1String("/.assistant"); //### Find a better location for the dbs
 
@@ -301,30 +331,13 @@ void HelpDialog::loadIndexFile()
     bar->setValue(bar->maximum());
     processEvents();
 
-    ui.listIndex->clear();
-
-    HelpNavigationListItem *oneAgo = 0;
-    HelpNavigationListItem *twoAgo = 0;
-    QString oneAgoStr;
-    QString twoAgoStr;
-
     for (int i=0; i<lst.count(); ++i) {
         const IndexKeyword &idx = lst.at(i);
 
-        if (idx.keyword == twoAgoStr) {
-            twoAgo->addLink(idx.link);
-        } else if (idx.keyword == oneAgoStr) {
-            oneAgo->addLink(idx.link);
-        } else {
-            if (oneAgo) {
-                twoAgo = oneAgo;
-                twoAgoStr = oneAgoStr;
-            }
-            oneAgo = new HelpNavigationListItem(ui.listIndex, idx.keyword);
-            oneAgo->addLink(idx.link);
-            oneAgoStr = idx.keyword;
-        }
+        indexModel->addLink(idx.keyword, idx.link);
     }
+
+    indexModel->publish();
 
     ui.framePrepare->hide();
     showInitDoneMessage();
@@ -535,10 +548,6 @@ void HelpDialog::showInitDoneMessage()
     help->statusBar()->showMessage(tr("Done"), 3000);
 }
 
-void HelpDialog::currentIndexChanged(QListWidgetItem *)
-{
-}
-
 void HelpDialog::showTopic(QTreeWidgetItem *item)
 {
     if(item)
@@ -559,17 +568,17 @@ void HelpDialog::showTopic()
 
 void HelpDialog::showIndexTopic()
 {
-    QListWidgetItem *i = ui.listIndex->item(ui.listIndex->currentRow());
-    if (!i)
+    int row = ui.listIndex->currentIndex().row();
+    if (row == -1)
         return;
 
+    QString description = indexModel->description(row);
+
     bool blocked = ui.editIndex->blockSignals(true);
-    ui.editIndex->setText(i->text());
+    ui.editIndex->setText(description);
     ui.editIndex->blockSignals(blocked);
 
-    HelpNavigationListItem *item = (HelpNavigationListItem*)i;
-
-    QStringList links = item->links();
+    QStringList links = indexModel->links(row);
     if (links.count() == 1) {
         emit showLink(links.first());
     } else {
@@ -581,25 +590,19 @@ void HelpDialog::showIndexTopic()
             linkList << *it;
             linkNames << titleOfLink(*it);
         }
-        QString link = TopicChooser::getLink(this, linkNames, linkList, i->text());
+        QString link = TopicChooser::getLink(this, linkNames, linkList, description);
         if (!link.isEmpty())
             emit showLink(link);
     }
+
+    indexModel->publish();
+    ui.listIndex->setCurrentIndex(indexModel->index(indexModel->stringList().indexOf(description)));
+    ui.listIndex->scrollTo(ui.listIndex->currentIndex(), QAbstractItemView::PositionAtTop);
 }
 
 void HelpDialog::searchInIndex(const QString &s)
 {
-    QString sl = s.toLower();
-
-    for (int index = 0; index<ui.listIndex->count(); ++index) {
-        QListWidgetItem *i = ui.listIndex->item(index);
-        QString t = i->text();
-        if (t.length() >= sl.length() && i->text().left(s.length()).toLower() == sl) {
-            ui.listIndex->setCurrentItem(i);
-            ui.listIndex->scrollToItem(i, QListWidget::PositionAtTop);
-            break;
-        }
-    }
+    ui.listIndex->setCurrentIndex(indexModel->filter(s));
 }
 
 QString HelpDialog::titleOfLink(const QString &link)
@@ -619,28 +622,32 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
     if (o == ui.editIndex && e->type() == QEvent::KeyPress) {
         QKeyEvent *ke = (QKeyEvent*)e;
         if (ke->key() == Qt::Key_Up) {
-            int i = ui.listIndex->currentRow();
-            if (--i >= 0) {
-                ui.listIndex->setCurrentRow(i);
+            QModelIndex index = ui.listIndex->currentIndex();
+            int row = index.row();
+            if (--row >= 0) {
+                ui.listIndex->setCurrentIndex(indexModel->index(row, 0, QModelIndex()));
                 bool blocked = ui.editIndex->blockSignals(true);
-                ui.editIndex->setText(ui.listIndex->item(ui.listIndex->currentRow())->text());
+                ui.editIndex->setText(indexModel->description(row));
                 ui.editIndex->blockSignals(blocked);
             }
             return true;
         } else if (ke->key() == Qt::Key_Down) {
-            int i = ui.listIndex->currentRow();
-            if (++i < int(ui.listIndex->count())) {
-                ui.listIndex->setCurrentRow(i);
+            QModelIndex index = ui.listIndex->currentIndex();
+            int row = index.row();
+            if (++row < indexModel->rowCount()) {
+                ui.listIndex->setCurrentIndex(indexModel->index(row, 0, QModelIndex()));
                 bool blocked = ui.editIndex->blockSignals(true);
-                ui.editIndex->setText(ui.listIndex->item(ui.listIndex->currentRow())->text());
+                ui.editIndex->setText(indexModel->description(row));
                 ui.editIndex->blockSignals(blocked);
             }
             return true;
         } else if (ke->key() == Qt::Key_PageDown || ke->key() == Qt::Key_PageUp) {
+            QModelIndex index = ui.listIndex->currentIndex();
+            int row = index.row();
             QApplication::sendEvent(ui.listIndex, e);
-            if (ui.listIndex->currentRow() != -1) {
+            if (row != -1) {
                 bool blocked = ui.editIndex->blockSignals(true);
-                ui.editIndex->setText(ui.listIndex->item(ui.listIndex->currentRow())->text());
+                ui.editIndex->setText(indexModel->description(row));
                 ui.editIndex->blockSignals(blocked);
             }
         }
@@ -1121,7 +1128,7 @@ QString HelpDialog::removeAnchorFromLink(const QString &link)
 		QString fileName = link.mid(j+1);
 		int k = fileName.lastIndexOf('#');
 		if (k > -1)
-			i = j + k + 1;		
+			i = j + k + 1;
 	}
 	return link.left(i);
 }

@@ -148,6 +148,7 @@ bool DocuParser310::startElement(const QString &, const QString &,
         title = attr.value(QLatin1String("title"));
         depth++;
         contentList.append(ContentItem(title, contentRef, depth));
+        indexList.append(new IndexItem(title, contentRef));
     } else if (qname == QLatin1String("keyword") && state == StateSect) {
         state = StateKeyword;
         indexRef = absolutify(attr.value(QLatin1String("ref")));

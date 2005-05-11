@@ -19,8 +19,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>274</width>
+    <height>417</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -38,26 +38,10 @@
    </property>
    <item>
     <widget class="QTabWidget" name="tabWidget" >
-     <property name="geometry" >
-      <rect>
-       <x>0</x>
-       <y>0</y>
-       <width>400</width>
-       <height>259</height>
-      </rect>
-     </property>
      <property name="whatsThis" >
       <string>Displays help topics organized by category, index or bookmarks. Another tab inherits the full text search.</string>
      </property>
      <widget class="QWidget" name="contentPage" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>396</width>
-        <height>232</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>Con&amp;tents</string>
       </attribute>
@@ -70,19 +54,6 @@
        </property>
        <item>
         <widget class="QTreeWidget" name="listContents" >
-         <column>
-             <property name="text" >
-                 <string>column 1</string>
-             </property>
-         </column>
-         <property name="geometry" >
-          <rect>
-           <x>5</x>
-           <y>5</y>
-           <width>386</width>
-           <height>222</height>
-          </rect>
-         </property>
          <property name="contextMenuPolicy" >
           <enum>Qt::CustomContextMenu</enum>
          </property>
@@ -92,19 +63,16 @@
          <property name="rootIsDecorated" >
           <bool>true</bool>
          </property>
+         <column>
+          <property name="text" >
+           <string>column 1</string>
+          </property>
+         </column>
         </widget>
        </item>
       </layout>
      </widget>
      <widget class="QWidget" name="Widget8" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>396</width>
-        <height>232</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>&amp;Index</string>
       </attribute>
@@ -117,14 +85,6 @@
        </property>
        <item>
         <widget class="QLabel" name="TextLabel1" >
-         <property name="geometry" >
-          <rect>
-           <x>5</x>
-           <y>5</y>
-           <width>386</width>
-           <height>16</height>
-          </rect>
-         </property>
          <property name="text" >
           <string>&amp;Look For:</string>
          </property>
@@ -135,14 +95,6 @@
        </item>
        <item>
         <widget class="QLineEdit" name="editIndex" >
-         <property name="geometry" >
-          <rect>
-           <x>5</x>
-           <y>27</y>
-           <width>386</width>
-           <height>23</height>
-          </rect>
-         </property>
          <property name="toolTip" >
           <string>Enter keyword</string>
          </property>
@@ -152,15 +104,7 @@
         </widget>
        </item>
        <item>
-        <widget class="QListWidget" name="listIndex" >
-         <property name="geometry" >
-          <rect>
-           <x>5</x>
-           <y>56</y>
-           <width>386</width>
-           <height>171</height>
-          </rect>
-         </property>
+        <widget class="QListView" name="listIndex" >
          <property name="contextMenuPolicy" >
           <enum>Qt::CustomContextMenu</enum>
          </property>
@@ -172,14 +116,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="Widget9" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>396</width>
-        <height>232</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>&amp;Bookmarks</string>
       </attribute>
@@ -192,25 +128,17 @@
        </property>
        <item>
         <widget class="QTreeWidget" name="listBookmarks" >
-        <column>
-            <property name="text" >
-                <string>column 1</string>
-            </property>
-        </column>
-         <property name="geometry" >
-          <rect>
-           <x>5</x>
-           <y>5</y>
-           <width>386</width>
-           <height>190</height>
-          </rect>
-         </property>
          <property name="contextMenuPolicy" >
           <enum>Qt::CustomContextMenu</enum>
          </property>
          <property name="whatsThis" >
           <string>Displays the list of bookmarks.</string>
          </property>
+         <column>
+          <property name="text" >
+           <string>column 1</string>
+          </property>
+         </column>
         </widget>
        </item>
        <item>
@@ -223,14 +151,6 @@
          </property>
          <item>
           <spacer>
-           <property name="geometry" >
-            <rect>
-             <x>0</x>
-             <y>0</y>
-             <width>224</width>
-             <height>26</height>
-            </rect>
-           </property>
            <property name="orientation" >
             <enum>Qt::Horizontal</enum>
            </property>
@@ -247,14 +167,6 @@
          </item>
          <item>
           <widget class="QPushButton" name="buttonAdd" >
-           <property name="geometry" >
-            <rect>
-             <x>230</x>
-             <y>0</y>
-             <width>75</width>
-             <height>26</height>
-            </rect>
-           </property>
            <property name="toolTip" >
             <string>Add new bookmark</string>
            </property>
@@ -268,14 +180,6 @@
          </item>
          <item>
           <widget class="QPushButton" name="buttonRemove" >
-           <property name="geometry" >
-            <rect>
-             <x>311</x>
-             <y>0</y>
-             <width>75</width>
-             <height>26</height>
-            </rect>
-           </property>
            <property name="toolTip" >
             <string>Delete bookmark</string>
            </property>
@@ -292,14 +196,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="searchTab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>396</width>
-        <height>232</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>&amp;Search</string>
       </attribute>
@@ -312,14 +208,6 @@
        </property>
        <item row="3" column="0" >
         <spacer>
-         <property name="geometry" >
-          <rect>
-           <x>5</x>
-           <y>90</y>
-           <width>386</width>
-           <height>20</height>
-          </rect>
-         </property>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
@@ -336,14 +224,6 @@
        </item>
        <item row="0" column="0" >
         <widget class="QLabel" name="TextLabel1_2" >
-         <property name="geometry" >
-          <rect>
-           <x>5</x>
-           <y>5</y>
-           <width>386</width>
-           <height>16</height>
-          </rect>
-         </property>
          <property name="text" >
           <string>Searching f&amp;or:</string>
          </property>
@@ -354,14 +234,6 @@
        </item>
        <item row="1" column="0" >
         <widget class="QLineEdit" name="termsEdit" >
-         <property name="geometry" >
-          <rect>
-           <x>5</x>
-           <y>27</y>
-           <width>386</width>
-           <height>23</height>
-          </rect>
-         </property>
          <property name="toolTip" >
           <string>Enter searchword(s).</string>
          </property>
@@ -372,14 +244,6 @@
        </item>
        <item row="5" column="0" >
         <widget class="QListWidget" name="resultBox" >
-         <property name="geometry" >
-          <rect>
-           <x>5</x>
-           <y>138</y>
-           <width>386</width>
-           <height>89</height>
-          </rect>
-         </property>
          <property name="contextMenuPolicy" >
           <enum>Qt::CustomContextMenu</enum>
          </property>
@@ -390,14 +254,6 @@
        </item>
        <item row="4" column="0" >
         <widget class="QLabel" name="TextLabel2" >
-         <property name="geometry" >
-          <rect>
-           <x>5</x>
-           <y>116</y>
-           <width>386</width>
-           <height>16</height>
-          </rect>
-         </property>
          <property name="text" >
           <string>Found &amp;Documents:</string>
          </property>
@@ -416,14 +272,6 @@
          </property>
          <item>
           <widget class="QPushButton" name="helpButton" >
-           <property name="geometry" >
-            <rect>
-             <x>1</x>
-             <y>1</y>
-             <width>75</width>
-             <height>26</height>
-            </rect>
-           </property>
            <property name="toolTip" >
             <string>Display the help page.</string>
            </property>
@@ -437,14 +285,6 @@
          </item>
          <item>
           <spacer>
-           <property name="geometry" >
-            <rect>
-             <x>82</x>
-             <y>1</y>
-             <width>222</width>
-             <height>26</height>
-            </rect>
-           </property>
            <property name="orientation" >
             <enum>Qt::Horizontal</enum>
            </property>
@@ -461,14 +301,6 @@
          </item>
          <item>
           <widget class="QPushButton" name="searchButton" >
-           <property name="geometry" >
-            <rect>
-             <x>310</x>
-             <y>1</y>
-             <width>75</width>
-             <height>26</height>
-            </rect>
-           </property>
            <property name="toolTip" >
             <string>Start searching.</string>
            </property>
@@ -488,14 +320,6 @@
    </item>
    <item>
     <widget class="QFrame" name="framePrepare" >
-     <property name="geometry" >
-      <rect>
-       <x>0</x>
-       <y>265</y>
-       <width>400</width>
-       <height>35</height>
-      </rect>
-     </property>
      <property name="frameShape" >
       <enum>QFrame::StyledPanel</enum>
      </property>
@@ -511,30 +335,13 @@
       </property>
       <item>
        <widget class="QLabel" name="labelPrepare" >
-        <property name="geometry" >
-         <rect>
-          <x>5</x>
-          <y>5</y>
-          <width>63</width>
-          <height>25</height>
-         </rect>
-        </property>
         <property name="text" >
          <string>Preparing...</string>
         </property>
        </widget>
       </item>
       <item>
-       <widget class="QProgressBar" name="progressPrepare" >
-        <property name="geometry" >
-         <rect>
-          <x>74</x>
-          <y>5</y>
-          <width>321</width>
-          <height>25</height>
-         </rect>
-        </property>
-       </widget>
+       <widget class="QProgressBar" name="progressPrepare" />
       </item>
      </layout>
     </widget>
