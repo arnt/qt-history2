@@ -2207,7 +2207,6 @@ QMimeData *QTextEdit::createMimeDataFromSelection() const
     data->setHtml(fragment.toHtml());
 
     QString txt = fragment.toPlainText();
-    txt.replace(QChar::Nbsp, ' ');
     data->setText(txt);
     return data;
 };

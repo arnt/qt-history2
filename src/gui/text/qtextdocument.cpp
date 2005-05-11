@@ -210,6 +210,17 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
     return c;
 }
 
+// internal, do not Q_EXPORT
+// can go away when QTextDocumentFragment uses QTextDocument
+void qt_replace_special_text_characters(QString *text)
+{
+    text->replace(QTextBeginningOfFrame, '\n');
+    text->replace(QTextEndOfFrame, '\n');
+    text->replace(QChar::ParagraphSeparator, '\n');
+    text->replace(QChar::LineSeparator, '\n');
+    text->replace(QChar::Nbsp, ' ');
+}
+
 /*!
     \class QTextDocument qtextdocument.h
     \brief The QTextDocument class holds formatted text that can be
@@ -514,7 +525,7 @@ QString QTextDocument::toPlainText() const
 {
     Q_D(const QTextDocument);
     QString txt = d->plainText();
-    txt.replace(QChar::ParagraphSeparator, '\n');
+    qt_replace_special_text_characters(&txt);
     return txt;
 }
 

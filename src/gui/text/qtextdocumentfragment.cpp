@@ -364,6 +364,9 @@ bool QTextDocumentFragment::isEmpty() const
     return !d || d->fragments.isEmpty();
 }
 
+// pull in from qtextdocument.cpp
+void qt_replace_special_text_characters(QString *text);
+
 /*!
     Returns the document fragment's text as plain text (i.e. with no
     formatting information).
@@ -376,10 +379,7 @@ QString QTextDocumentFragment::toPlainText() const
         return QString();
 
     QString result = d->localBuffer;
-
-    result.replace(QTextBeginningOfFrame, QChar::ParagraphSeparator);
-    result.replace(QTextEndOfFrame, QChar::ParagraphSeparator);
-
+    qt_replace_special_text_characters(&result);
     return result;
 }
 
