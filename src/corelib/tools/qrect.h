@@ -416,28 +416,12 @@ inline void QRect::setSize(const QSize &s)
 
 inline bool QRect::contains(int ax, int ay, bool aproper) const
 {
-    if (aproper)
-        return ax > x1 && ax < x2 &&
-               ay > y1 && ay < y2;
-    else
-        return ax >= x1 && ax <= x2 &&
-               ay >= y1 && ay <= y2;
+    return contains(QPoint(ax, ay), aproper);
 }
 
 inline bool QRect::contains(int ax, int ay) const
 {
-    return ax >= x1 && ax <= x2 &&
-           ay >= y1 && ay <= y2;
-}
-
-inline bool QRect::contains(const QPoint &p, bool proper) const
-{
-    if (proper)
-        return p.x() > x1 && p.x() < x2 &&
-               p.y() > y1 && p.y() < y2;
-    else
-        return p.x() >= x1 && p.x() <= x2 &&
-               p.y() >= y1 && p.y() <= y2;
+    return contains(QPoint(ax, ay), false);
 }
 
 inline QRect& QRect::operator|=(const QRect &r)
@@ -751,14 +735,7 @@ inline void QRectF::setSize(const QSizeF &s)
 
 inline bool QRectF::contains(qreal ax, qreal ay) const
 {
-    return ax >= xp && ax < xp + w &&
-           ay >= yp && ay < yp + h;
-}
-
-inline bool QRectF::contains(const QPointF &p) const
-{
-    return p.x() >= xp && p.x() < xp + w &&
-           p.y() >= yp && p.y() < yp + h;
+    return contains(QPointF(ax, ay));
 }
 
 inline QRectF& QRectF::operator|=(const QRectF &r)

@@ -732,6 +732,17 @@ void QRect::moveCenter(const QPoint &p)
     inside (not on the edge).
 */
 
+bool QRect::contains(const QPoint &p, bool proper) const
+{
+    QRect r = normalized();
+    if (proper)
+        return p.x() > r.x1 && p.x() < r.x2 &&
+               p.y() > r.y1 && p.y() < r.y2;
+    else
+        return p.x() >= r.x1 && p.x() <= r.x2 &&
+               p.y() >= r.y1 && p.y() <= r.y2;
+}
+
 
 /*!
     \fn bool QRect::contains(int x, int y, bool proper) const
@@ -766,10 +777,12 @@ void QRect::moveCenter(const QPoint &p)
 
 bool QRect::contains(const QRect &r, bool proper) const
 {
+    QRect r1 = normalized();
+    QRect r2 = r.normalized();
     if (proper)
-        return r.x1 > x1 && r.x2 < x2 && r.y1 > y1 && r.y2 < y2;
+        return r2.x1 > r1.x1 && r2.x2 < r1.x2 && r2.y1 > r1.y1 && r2.y2 < r1.y2;
     else
-        return r.x1 >= x1 && r.x2 <= x2 && r.y1 >= y1 && r.y2 <= y2;
+        return r2.x1 >= r1.x1 && r2.x2 <= r1.x2 && r2.y1 >= r1.y1 && r2.y2 <= r1.y2;
 }
 
 /*!
@@ -789,28 +802,19 @@ bool QRect::contains(const QRect &r, bool proper) const
     Returns the bounding rectangle of this rectangle and rectangle \a
     r.
 
-    The bounding rectangle of a nonempty rectangle and an empty or
-    invalid rectangle is defined to be the nonempty rectangle.
-
     \sa operator|=(), operator&(), intersects(), contains()
 */
 
 QRect QRect::operator|(const QRect &r) const
 {
-    if (isValid()) {
-        if (r.isValid()) {
-            QRect tmp;
-            tmp.setLeft(  qMin(x1, r.x1));
-            tmp.setRight( qMax(x2, r.x2));
-            tmp.setTop(          qMin(y1, r.y1));
-            tmp.setBottom(qMax(y2, r.y2));
-            return tmp;
-        } else {
-            return *this;
-        }
-    } else {
-        return r;
-    }
+    QRect r1 = normalized();
+    QRect r2 = r.normalized();
+    QRect tmp;
+    tmp.x1 = qMin(r1.x1, r2.x1);
+    tmp.x2 = qMax(r1.x2, r2.x2);
+    tmp.y1 = qMin(r1.y1, r2.y1);
+    tmp.y2 = qMax(r1.y2, r2.y2);
+    return tmp;
 }
 
 /*!
@@ -831,11 +835,13 @@ QRect QRect::operator|(const QRect &r) const
 
 QRect QRect::operator&(const QRect &r) const
 {
+    QRect r1 = normalized();
+    QRect r2 = r.normalized();
     QRect tmp;
-    tmp.x1 = qMax(x1, r.x1);
-    tmp.x2 = qMin(x2, r.x2);
-    tmp.y1 = qMax(y1, r.y1);
-    tmp.y2 = qMin(y2, r.y2);
+    tmp.x1 = qMax(r1.x1, r2.x1);
+    tmp.x2 = qMin(r1.x2, r2.x2);
+    tmp.y1 = qMax(r1.y1, r2.y1);
+    tmp.y2 = qMin(r1.y2, r2.y2);
     return tmp;
 }
 
@@ -856,8 +862,10 @@ QRect QRect::operator&(const QRect &r) const
 
 bool QRect::intersects(const QRect &r) const
 {
-    return (qMax(x1, r.x1) <= qMin(x2, r.x2) &&
-             qMax(y1, r.y1) <= qMin(y2, r.y2));
+    QRect r1 = normalized();
+    QRect r2 = r.normalized();
+    return (qMax(r1.x1, r2.x1) <= qMin(r1.x2, r2.x2) &&
+             qMax(r1.y1, r2.y1) <= qMin(r1.y2, r2.y2));
 }
 
 
@@ -961,16 +969,13 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     and bottom-right corners, but it is normally expressed as the position of
     its upper-left corner and a size.
 
-    Note that the size (width and height) of a rectangle might be
-    different from what you expect. If the top-left corner and
+    Note that the size (width and height) of a QRectF is
+    different from size of QRect. If the top-left corner and
     the bottom-right corner are the same, the height and the width of
-    the rectangle will both be 1.
+    the rectangle will both be 0.
 
-    Generally, \e{width = right - left + 1} and \e{height = bottom -
-    top + 1}. We designed it this way to make it correspond to
-    rectangular spaces used by drawing functions where the width
-    and height denote a whole number of pixels. For example, drawing a
-    rectangle with width and height 1 draws a single pixel.
+    Generally, \e{width = right - left} and \e{height = bottom -
+    top}.
 
     The default coordinate system has origin (0, 0) in the top-left
     corner. The positive direction of the x axis is from left to right,
@@ -1495,6 +1500,13 @@ QRectF QRectF::normalized() const
     rectangle; otherwise returns false.
 */
 
+bool QRectF::contains(const QPointF &p) const
+{
+    QRectF r = normalized();
+    return p.x() >= r.xp && p.x() <= r.xp + r.w &&
+           p.y() >= r.yp && p.y() <= r.yp + r.h;
+}
+
 
 /*!
     \fn bool QRectF::contains(qreal x, qreal y) const
@@ -1517,8 +1529,10 @@ QRectF QRectF::normalized() const
 
 bool QRectF::contains(const QRectF &r) const
 {
-        return r.xp >= xp && r.xp + r.w <= xp + w
-            && r.yp >= yp && r.yp + r.h <= yp + h;
+    QRectF r1 = normalized();
+    QRectF r2 = r.normalized();
+        return r2.xp >= r1.xp && r2.xp + r2.w <= r1.xp + r1.w
+            && r2.yp >= r1.yp && r2.yp + r2.h <= r1.yp + r1.h;
 }
 
 /*!
@@ -1608,24 +1622,18 @@ bool QRectF::contains(const QRectF &r) const
 
     Returns the bounding rectangle of this rectangle and the \a other rectangle.
 
-    The bounding rectangle of a non-empty rectangle and an empty (or
-    invalid) rectangle is defined to be the non-empty rectangle.
-
     \sa operator|=() operator&() intersects() contains()
 */
 
 QRectF QRectF::operator|(const QRectF &r) const
 {
-    if (!isValid())
-        return r;
-    if (!r.isValid())
-        return *this;
-
+    QRectF r1 = normalized();
+    QRectF r2 = r.normalized();
     QRectF tmp;
-    tmp.xp = qMin(xp, r.xp);
-    tmp.yp = qMin(yp, r.yp);
-    tmp.w = qMax(xp + w, r.xp + r.w) - tmp.xp;
-    tmp.h = qMax(yp + h, r.yp + r.h) - tmp.yp;
+    tmp.xp = qMin(r1.xp, r2.xp);
+    tmp.yp = qMin(r1.yp, r2.yp);
+    tmp.w = qMax(r1.xp + r1.w, r2.xp + r2.w) - tmp.xp;
+    tmp.h = qMax(r1.yp + r1.h, r2.yp + r2.h) - tmp.yp;
     return tmp;
 }
 
@@ -1651,11 +1659,13 @@ QRectF QRectF::operator|(const QRectF &r) const
 
 QRectF QRectF::operator&(const QRectF &r) const
 {
+    QRectF r1 = normalized();
+    QRectF r2 = r.normalized();
     QRectF tmp;
-    tmp.xp = qMax(xp, r.xp);
-    tmp.yp = qMax(yp, r.yp);
-    tmp.w = qMin(xp + w, r.xp + r.w) - tmp.xp;
-    tmp.h = qMin(yp + h, r.yp + r.h) - tmp.yp;
+    tmp.xp = qMax(r1.xp, r2.xp);
+    tmp.yp = qMax(r1.yp, r2.yp);
+    tmp.w = qMin(r1.xp + r1.w, r2.xp + r2.w) - tmp.xp;
+    tmp.h = qMin(r1.yp + r1.h, r2.yp + r2.h) - tmp.yp;
     return tmp;
 }
 
@@ -1680,8 +1690,10 @@ QRectF QRectF::operator&(const QRectF &r) const
 
 bool QRectF::intersects(const QRectF &r) const
 {
-    return qMax(xp, r.xp) <= qMin(xp + w, r.xp + r.w)
-        && qMax(yp, r.yp) <= qMin(yp + h, r.yp + r.h);
+    QRectF r1 = normalized();
+    QRectF r2 = r.normalized();
+    return qMax(r1.xp, r2.xp) <= qMin(r1.xp + r1.w, r2.xp + r2.w)
+        && qMax(r1.yp, r2.yp) <= qMin(r1.yp + r1.h, r2.yp + r2.h);
 }
 
 /*!
