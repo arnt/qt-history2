@@ -1688,7 +1688,7 @@ fi
 
 # auto-detect SQL-modules support
 MYSQL_REQ="-lmysqlclient mysql.h"
-OCI_REQ="-lclntsh -lwtc8 oci.h"
+OCI_REQ="-lclntsh oci.h"
 PSQL_REQ="-lpq libpq-fe.h"
 ODBC_REQ="-lodbc sql.h sqlext.h"
 TDS_REQ="-lsybdb sybfront.h sybdb.h"
