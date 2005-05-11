@@ -1167,6 +1167,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     bool     dropable = q->acceptDrops();
     bool     enable = q->isEnabled();
     Qt::FocusPolicy fp = q->focusPolicy();
+    QPoint   pt = q->pos();
     QSize    s = q->size();
     QString capt = q->windowTitle();
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
@@ -1194,7 +1195,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     }
 
     //get new hd, now move
-    q->resize(s.width(), s.height());
+    q->setGeometry(pt.x(), pt.y(), s.width(), s.height());
 
     //reset flags and show (if neccesary)
     setEnabled_helper(enable); //preserving WA_ForceDisabled
