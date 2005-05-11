@@ -352,6 +352,10 @@ void ArthurStyle::polish(QWidget *widget)
         widget->setAttribute(Qt::WA_Hover);
     }
 
+    QPalette pal = widget->palette();
+    pal.setColor(QPalette::Background, QColor(241, 241, 241));
+    widget->setPalette(pal);
+
 }
 
 void ArthurStyle::unpolish(QWidget *widget)
