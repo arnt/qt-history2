@@ -138,11 +138,11 @@
     To the application that loads the plugin, a Qt plugin is simply a
     QObject. That QObject may implement extra interfaces using
     multiple inheritance. The object is accessible through
-    QObject::instance(). If the dynamic library isn't a Qt plugin, or
+    QPluginLoader::instance(). If the dynamic library isn't a Qt plugin, or
     if it was compiled against an incompatible version of the Qt
-    library, QObject::instance() returns a null pointer.
+    library, QPluginLoader::instance() returns a null pointer.
 
-    If QObject::instance() is non-null, we check which interfaces it
+    If QPluginLoader::instance() is non-null, we check which interfaces it
     implements using \l qobject_cast(). First, we try to cast the
     plugin instance to a \c BrushInterface; if it works, we call the
     private function \c addToMenu() with the list of brushes returned
