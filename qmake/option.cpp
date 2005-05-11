@@ -167,8 +167,6 @@ int
 Option::parseCommandLine(int argc, char **argv, int skip)
 {
     bool before = true;
-    if (argc)
-        qt_set_library_argv0(argv[0]);
     for(int x = skip; x < argc; x++) {
         if(*argv[x] == '-' && strlen(argv[x]) > 1) { /* options */
             QString opt = argv[x] + 1;
@@ -338,6 +336,7 @@ Option::init(int argc, char **argv)
     Option::field_sep = ' ';
 
     if(argc && argv) {
+        qt_set_library_argv0(argv[0]);
         QString argv0 = argv[0];
         if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
             Option::qmake_mode = default_mode(argv0);
