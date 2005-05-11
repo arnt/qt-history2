@@ -2102,7 +2102,8 @@ void QComboBox::setModelColumn(int visibleColumn)
 */
 
 /*!
-    \variable QComboBox::Policy
+    \typedef QComboBox::Policy
+    \compat
 
     Use QComboBox::InsertPolicy instead.
 */
