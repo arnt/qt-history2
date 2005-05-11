@@ -809,9 +809,9 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
         QTextFrame *frame = t->childFrames().at(i);
         if (isFrameInCell(cell, frame)) {
             QTextFrameData *cd = data(frame);
-            if (cd->sizeDirty)
+            cd->sizeDirty = true;
                 layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
-            layoutStruct.minimumWidth = qMax(layoutStruct.minimumWidth, cd->size.width());
+            layoutStruct.minimumWidth = qMax(layoutStruct.minimumWidth, cd->minimumWidth);
 
             if (cd->flow_position != QTextFrameFormat::InFlow)
                 floats.append(frame);
