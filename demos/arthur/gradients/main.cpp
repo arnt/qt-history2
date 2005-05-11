@@ -9,7 +9,8 @@ int main(int argc, char **argv)
     GradientWidget gradientWidget(0);
     QStyle *arthurStyle = new ArthurStyle();
     gradientWidget.setStyle(arthurStyle);
-    foreach (QWidget *w, qFindChildren<QWidget *>(&gradientWidget))
+    QList<QWidget *> widgets = qFindChildren<QWidget *>(&gradientWidget);
+    foreach (QWidget *w, widgets)
         w->setStyle(arthurStyle);
     gradientWidget.show();
 

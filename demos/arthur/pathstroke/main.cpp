@@ -9,7 +9,8 @@ int main(int argc, char **argv)
     PathStrokeWidget pathStrokeWidget;
     QStyle *arthurStyle = new ArthurStyle();
     pathStrokeWidget.setStyle(arthurStyle);
-    foreach (QWidget *w, qFindChildren<QWidget *>(&pathStrokeWidget))
+    QList<QWidget *> widgets = qFindChildren<QWidget *>(&pathStrokeWidget);
+    foreach (QWidget *w, widgets)
         w->setStyle(arthurStyle);
     pathStrokeWidget.show();
 

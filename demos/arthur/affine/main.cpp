@@ -9,8 +9,11 @@ int main(int argc, char **argv)
     XFormWidget xformWidget(0);
     QStyle *arthurStyle = new ArthurStyle();
     xformWidget.setStyle(arthurStyle);
-    foreach (QWidget *w, qFindChildren<QWidget *>(&xformWidget))
+
+    QList<QWidget *> widgets = qFindChildren<QWidget *>(&xformWidget);
+    foreach (QWidget *w, widgets)
         w->setStyle(arthurStyle);
+
     xformWidget.show();
 
     return app.exec();

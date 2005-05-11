@@ -9,7 +9,9 @@ int main(int argc, char **argv)
     PathDeformWidget deformWidget(0);
     QStyle *arthurStyle = new ArthurStyle();
     deformWidget.setStyle(arthurStyle);
-    foreach (QWidget *w, qFindChildren<QWidget *>(&deformWidget))
+
+    QList<QWidget *> widgets = qFindChildren<QWidget *>(&deformWidget);
+    foreach (QWidget *w, widgets)
         w->setStyle(arthurStyle);
     deformWidget.show();
 
