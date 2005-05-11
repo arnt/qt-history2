@@ -35,7 +35,6 @@ public:
     bool setup();
 
 public slots:
-    void createCategories();
     void enableLaunching();
     void launchExample(const QString &example);
     void reset();
@@ -63,6 +62,7 @@ private:
     void findDescriptionAndImages(const QString &exampleName,
                                   const QString &docName);
     void loadExampleInfo();
+    void newPage();
     void readCategoryDescription(const QDir &categoryDir,
                                  const QString &categoryName);
 

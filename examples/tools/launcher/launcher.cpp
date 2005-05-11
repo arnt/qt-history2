@@ -139,8 +139,16 @@ bool Launcher::setup()
     }
 
     loadExampleInfo();
-    emit restart();
 
+    QString mainDescription = categoryDescriptions["[main]"];
+    if (!mainDescription.isEmpty())
+        mainDescription += tr("\n");
+
+    categoryDescriptions["[main]"] = mainDescription + tr(
+        "Press Ctrl+F to switch between normal and full screen mode.\n"
+        "Use Ctrl+Q to exit the launcher.");
+
+    emit restart();
     return true;
 }
 
@@ -348,22 +356,25 @@ void Launcher::reset()
         showCategories();
 }
 
-void Launcher::showCategories()
+void Launcher::newPage()
 {
     slideshowTimer->stop();
     disconnect(slideshowTimer, SIGNAL(timeout()), this, 0);
     disconnect(display, SIGNAL(displayEmpty()), this, 0);
-
-    currentCategory = "";
-    currentExample = "";
-    connect(display, SIGNAL(displayEmpty()), this, SLOT(createCategories()),
-            Qt::QueuedConnection);
-    display->reset();
 }
 
-void Launcher::createCategories()
+void Launcher::showCategories()
 {
-    disconnect(display, SIGNAL(displayEmpty()), this, 0);
+    newPage();
+    currentCategory = "";
+    currentExample = "";
+
+    for (int i = 0; i < display->shapesCount(); ++i) {
+        DisplayShape *shape = display->shape(i);
+
+        shape->setMetaData("fade", -15);
+        shape->setMetaData("fade minimum", 0);
+    }
 
     DisplayShape *title = new TitleShape(tr("Qt Examples"), titleFont,
         QPen(QColor("#a6ce39")), QPointF(),
@@ -371,12 +382,12 @@ void Launcher::createCategories()
 
     title->setPosition(QPointF(width()/2 - title->rect().width()/2,
                                -title->rect().height()));
-    title->setMetaData("target", QPointF(title->position().x(), 0.05 * height()));
+    title->setMetaData("target", QPointF(title->position().x(), 0.025 * height()));
 
     display->appendShape(title);
 
     QFontMetrics buttonMetrics(buttonFont);
-    qreal topMargin = 0.1 * height() + title->rect().height();
+    qreal topMargin = 0.075 * height() + title->rect().height();
     qreal space = 0.95*height() - topMargin;
     qreal step = qMin(title->rect().height() / fontRatio,
                       space/qreal(maximumLabels));
@@ -431,10 +442,11 @@ void Launcher::createCategories()
     }
 
     qreal leftMargin = 0.075*width() + maxWidth;
+    qreal rightMargin = 0.925*width();
 
     DocumentShape *description = new DocumentShape(categoryDescriptions["[main]"],
         font(), QPen(QColor(0,0,0,0)), QPointF(leftMargin, topMargin),
-        QSizeF(0.9*width() - maxWidth, space));
+        QSizeF(rightMargin - leftMargin, space));
 
     description->setMetaData("fade", 10);
 
@@ -443,10 +455,7 @@ void Launcher::createCategories()
 
 void Launcher::showExamples(const QString &category)
 {
-    slideshowTimer->stop();
-    disconnect(slideshowTimer, SIGNAL(timeout()), this, 0);
-    disconnect(display, SIGNAL(displayEmpty()), this, 0);
-
+    newPage();
     currentCategory = category;
     currentExample = "";
 
@@ -550,11 +559,12 @@ void Launcher::showExamples(const QString &category)
     }
 
     qreal leftMargin = 0.075*width() + maxWidth;
+    qreal rightMargin = 0.925*width();
 
     DocumentShape *description = new DocumentShape(
         categoryDescriptions[currentCategory], font(),
         QPen(QColor(0,0,0,0)), QPointF(leftMargin, topMargin),
-        QSizeF(0.9*width() - maxWidth, space));
+        QSizeF(rightMargin - leftMargin, space));
 
     description->setMetaData("fade", 10);
 
@@ -574,10 +584,7 @@ void Launcher::showExampleDocumentation(const QString &example)
 
 void Launcher::showExampleSummary(const QString &example)
 {
-    slideshowTimer->stop();
-    disconnect(slideshowTimer, SIGNAL(timeout()), this, 0);
-    disconnect(display, SIGNAL(displayEmpty()), this, 0);
-
+    newPage();
     currentExample = example;
 
     for (int i = 0; i < display->shapesCount(); ++i) {
@@ -694,7 +701,7 @@ void Launcher::showExampleSummary(const QString &example)
 
     if (examplePaths.contains(example)) {
 
-        DisplayShape *launchCaption = new TitleShape(tr("Launch Example"),
+        DisplayShape *launchCaption = new TitleShape(tr("Launch"),
             font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize);
         launchCaption->setPosition(QPointF(
             0.9*width() - launchCaption->rect().width(), height()));
@@ -793,15 +800,6 @@ void Launcher::toggleFullScreen()
     display->reset();
 }
 
-void Launcher::resizeEvent(QResizeEvent *event)
-{
-    Q_UNUSED(event);
-    if (inFullScreenResize) {
-        emit windowResized();
-        inFullScreenResize = false;
-    }
-}
-
 void Launcher::resizeWindow()
 {
     disconnect(display, SIGNAL(displayEmpty()), this, 0);
@@ -812,6 +810,15 @@ void Launcher::resizeWindow()
         showNormal();
     else
         showFullScreen();
+}
+
+void Launcher::resizeEvent(QResizeEvent *event)
+{
+    Q_UNUSED(event);
+    if (inFullScreenResize) {
+        emit windowResized();
+        inFullScreenResize = false;
+    }
 }
 
 void Launcher::redisplayWindow()
