@@ -1038,7 +1038,7 @@ void QWidgetPrivate::setWindowIcon_sys()
 
         extra->topextra->iconPixmap = pm;
 
-        h->icon_pixmap = pm->handle();
+        h->icon_pixmap = pm->data->x11ConvertToDefaultDepth();
         h->flags |= IconPixmapHint;
         if (!mask.isNull()) {
             h->icon_mask = mask.handle();
