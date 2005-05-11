@@ -102,7 +102,7 @@ class DocumentShape : public DisplayShape
 public:
     DocumentShape(const QString &text, const QFont &font, const QPen &pen,
                   const QPointF &position, const QSizeF &maxSize);
-    DocumentShape::~DocumentShape();
+    ~DocumentShape();
 
     virtual bool animate(const QRect &boundingRect);
     virtual void paint(QPainter *painter) const;
