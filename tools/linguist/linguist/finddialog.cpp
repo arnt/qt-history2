@@ -31,7 +31,6 @@ FindDialog::FindDialog(QWidget *parent)
 {
     setupUi(this);
 
-    sourceText = 0;
     findWhat->setBuddy(led);
 
     connect(findNxt, SIGNAL(clicked()), this, SLOT(emitFindNext()));

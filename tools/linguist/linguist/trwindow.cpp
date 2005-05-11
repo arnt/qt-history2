@@ -504,7 +504,7 @@ void TrWindow::findAgain()
 
     QModelIndex indxItem = stv->currentIndex();
     if (indxItem.isValid())
-        itemNo = indxItem.row();
+        itemNo = indxItem.row() + 1;      // The for-loop condition for the ContextItem will rule this potential overflow on itemNo
     QModelIndex indxScope = tv->currentIndex();
     if (indxScope.isValid())
         scopeNo = indxScope.row();
@@ -525,8 +525,11 @@ void TrWindow::findAgain()
     foundOffset++;
 #endif
 
-    while (pass < cmdl->contextsInList()) {
-        for (int mit = itemNo; mit < c->messageItemsInList(); ++mit) {
+    // We want to search the scope we started from *again*, since we did not necessarily search that *completely* when we started.
+    // (Problaby we started somewhere in the middle of it.)
+    // Therefore, "pass <=" and not "pass < " 
+    while (pass <= cmdl->contextsInList()) {
+        for (int mit = itemNo; mit < c->messageItemsInList() ; ++mit) {
             m = c->messageItem(mit);
             switch (foundWhere) {
                 case 0:
@@ -564,6 +567,7 @@ void TrWindow::findAgain()
                     foundOffset = 0;
             }
         }
+        itemNo = 0;
         ++pass;
 
         ++scopeNo;
@@ -571,6 +575,7 @@ void TrWindow::findAgain()
             scopeNo = 0;
             delayedMsg = tr("Search wrapped.");
         }
+
         c = cmdl->contextItem(cmdl->index(scopeNo, 1));
     }
 
@@ -1335,6 +1340,7 @@ void TrWindow::setupMenuBar()
     doneAndNextAlt->setShortcut(QKeySequence("Ctrl+Return"));
     doneAndNextAlt->setEnabled(false);
     connect(doneAndNextAlt, SIGNAL(triggered()), this, SLOT(doneAndNext()));
+    addAction(doneAndNextAlt);
 
     beginFromSourceAct = translationp->addAction(tr("&Begin from Source"),
         me, SLOT(beginFromSource()));
