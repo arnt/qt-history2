@@ -23,7 +23,7 @@ class DisplayWidget : public QWidget
     Q_OBJECT
 
 public:
-    DisplayWidget::DisplayWidget(QWidget *parent = 0);
+    DisplayWidget(QWidget *parent = 0);
     QSize minimumSizeHint() const;
     DisplayShape *shape(int index) const;
     int shapesCount() const;
