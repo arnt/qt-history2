@@ -195,9 +195,8 @@ void QMapData::dump()
     \endcode
 
     This inserts the following three (key, value) pairs into the
-    QMap: ("one", 1), ("three", 3), and ("seven", 7).
-
-    Another way to insert items into the map is to use insert():
+    QMap: ("one", 1), ("three", 3), and ("seven", 7). Another way to
+    insert items into the map is to use insert():
 
     \code
         map.insert("twelve", 12);
@@ -299,20 +298,9 @@ void QMapData::dump()
     \endcode
 
     The items that share the same key are available from most
-    recently to least recently inserted.
-
-    A more efficient approach is to use QMapIterator::findNextKey() or
-    QMutableMapIterator::findNextKey():
-
-    \code
-        QMapIterator<QString, int> i(map);
-        while (i.findNextKey("plenty"))
-            cout << i.value() << endl;
-    \endcode
-
-    If you prefer the STL-style iterators, you can call find() to get
-    the iterator for the first item with a key and iterate from
-    there:
+    recently to least recently inserted. Another approach is to call
+    find() to get the STL-style iterator for the first item with a
+    key and iterate from there:
 
     \code
         QMap<QString, int>::iterator i = map.find("plenty");
@@ -1446,15 +1434,6 @@ void QMapData::dump()
     The items that share the same key are available from most
     recently to least recently inserted.
 
-    A more efficient approach is to use QMapIterator::findNextKey() or
-    QMutableMapIterator::findNextKey():
-
-    \code
-        QMapIterator<QString, int> i(map);
-        while (i.findNextKey("plenty"))
-            cout << i.value() << endl;
-    \endcode
-
     If you prefer the STL-style iterators, you can call find() to get
     the iterator for the first item with a key and iterate from
     there:
@@ -1473,7 +1452,7 @@ void QMapData::dump()
     value; instead, store a QWidget *. In addition, QMultiMap's key type
     must provide operator<(). See the QMap documentation for details.
 
-    \sa QMap, QMapIterator, QMutableMapIterator, QMultiMap
+    \sa QMap, QMapIterator, QMutableMapIterator, QMultiHash
 */
 
 /*! \fn QMultiMap::QMultiMap()

@@ -13,7 +13,6 @@
 
 #include "qplatformdefs.h"
 
-
 #include "qtextcodec.h"
 
 #ifndef QT_NO_TEXTCODEC
@@ -482,59 +481,45 @@ static void setup()
 
     Qt uses Unicode to store, draw and manipulate strings. In many
     situations you may wish to deal with data that uses a different
-    encoding. For example, most Japanese documents are still stored in
-    Shift-JIS or ISO2022, while Russian users often have their
-    documents in KOI8-R or CP1251.
+    encoding. For example, most Japanese documents are still stored
+    in Shift-JIS or ISO 2022-JP, while Russian users often have their
+    documents in KOI8-R or Windows-1251.
 
     Qt provides a set of QTextCodec classes to help with converting
     non-Unicode formats to and from Unicode. You can also create your
-    own codec classes (\link #subclassing see later\endlink).
+    own codec classes.
 
     The supported encodings are:
+
     \list
-    \i Latin1
-    \i Big5 -- Chinese
-    \i Big5-HKSCS -- Chinese
-    \i eucJP -- Japanese
-    \i eucKR -- Korean
-    \i GB2312 -- Chinese
-    \i GBK -- Chinese
-    \i GB18030 -- Chinese
-    \i JIS7 -- Japanese
-    \i Shift-JIS -- Japanese
-    \i TSCII -- Tamil
-    \i utf8 -- Unicode, 8-bit
-    \i utf16 -- Unicode
-    \i KOI8-R -- Russian
-    \i KOI8-U -- Ukrainian
-    \i ISO8859-1 -- Western
-    \i ISO8859-2 -- Central European
-    \i ISO8859-3 -- Central European
-    \i ISO8859-4 -- Baltic
-    \i ISO8859-5 -- Cyrillic
-    \i ISO8859-6 -- Arabic
-    \i ISO8859-7 -- Greek
-    \i ISO8859-8 -- Hebrew, visually ordered
-    \i ISO8859-8-i -- Hebrew, logically ordered
-    \i ISO8859-9 -- Turkish
-    \i ISO8859-10
-    \i ISO8859-13
-    \i ISO8859-14
-    \i ISO8859-15 -- Western
-    \i IBM 850
-    \i IBM 866
-    \i CP874
-    \i CP1250 -- Central European
-    \i CP1251 -- Cyrillic
-    \i CP1252 -- Western
-    \i CP1253 -- Greek
-    \i CP1254 -- Turkish
-    \i CP1255 -- Hebrew
-    \i CP1256 -- Arabic
-    \i CP1257 -- Baltic
-    \i CP1258
-    \i Apple Roman
-    \i TIS-620 -- Thai
+    \o Apple Roman
+    \o Big5
+    \o Big5-HKSCS
+    \o EUC-JP
+    \o EUC-KR
+    \o GB18030-0
+    \o IBM 850
+    \o IBM 866
+    \o IBM 874
+    \o ISO 2022-JP
+    \o ISO 8859-1 to 10
+    \o ISO 8859-13 to 16
+    \o Iscii-Bng, Dev, Gjr, Knd, Mlm, Ori, Pnj, Tlg, and Tml
+    \o JIS X 0201
+    \o JIS X 0208
+    \o KOI8-R
+    \o KOI8-U
+    \o MuleLao-1
+    \o ROMAN8
+    \o Shift-JIS
+    \o TIS-620
+    \o TSCII
+    \o UTF-8
+    \o UTF-16
+    \o UTF-16BE
+    \o UTF-16LE
+    \o Windows-1250 to 1258
+    \o WINSAMI2
     \endlist
 
     QTextCodecs can be used as follows to convert some locally encoded
@@ -543,20 +528,25 @@ static void setup()
     to do it is like this:
 
     \code
-    QByteArray locallyEncoded = "..."; // text to convert
-    QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
-    QString unicodeString = codec->toUnicode(locallyEncoded);
+        QByteArray encodedString = "...";
+        QTextCodec *codec = QTextCodec::codecForName("KOI8-R");
+        QString string = codec->toUnicode(encodedString);
     \endcode
 
-    After this, \c{unicodeString} holds the text converted to Unicode.
+    After this, \c string holds the text converted to Unicode.
     Converting a string from Unicode to the local encoding is just as
     easy:
 
     \code
-    QString unicodeString = "..."; // any Unicode text
-    QTextCodec *codec = QTextCodec::codecForName("KOI8-R"); // get the codec for KOI8-R
-    QByteArray locallyEncoded = codec->fromUnicode(unicodeString);
+        QString string = "...";
+        QTextCodec *codec = QTextCodec::codecForName("KOI8-R");
+        QByteArray encodedString = codec->fromUnicode(string);
     \endcode
+
+    To read or write files in various encodings, use QTextStream and
+    its \l{QTextStream::setCodec()}{setCodec()} function. See the
+    \l{tools/codecs}{Codecs} example for an application of QTextCodec
+    to file I/O.
 
     Some care must be taken when trying to convert the data in chunks,
     for example, when receiving it over a network. In such cases it is
@@ -569,79 +559,66 @@ static void setup()
     decoding process, as shown below:
 
     \code
-    QTextCodec *codec = QTextCodec::codecForName("Shift-JIS");
-    QTextDecoder *decoder = codec->makeDecoder();
+        QTextCodec *codec = QTextCodec::codecForName("Shift-JIS");
+        QTextDecoder *decoder = codec->makeDecoder();
 
-    QString unicodeString;
-    while(receiving_data) {
-        QByteArray chunk = new_data;
-        unicodeString += decoder->toUnicode(chunk.data(), chunk.length());
-    }
+        QString string;
+        while (new_data_available()) {
+            QByteArray chunk = get_new_data();
+            string += decoder->toUnicode(chunk);
+        }
     \endcode
 
     The QTextDecoder object maintains state between chunks and therefore
     works correctly even if a multi-byte character is split between
     chunks.
 
-    \target subclassing
-    \section1 Creating your own Codec class
+    \section1 Creating Your Own Codec Class
 
     Support for new text encodings can be added to Qt by creating
     QTextCodec subclasses.
 
-    You may find it more convenient to make your codec class available
-    as a plugin; see the \link plugins-howto.html plugin
-    documentation\endlink for more details.
+    The pure virtual functions describe the encoder to the system and
+    the coder is used as required in the different text file formats
+    supported by QTextStream, and under X11, for the locale-specific
+    character input and output.
 
-    The abstract virtual functions describe the encoder to the
-    system and the coder is used as required in the different
-    text file formats supported by QTextStream, and under X11, for the
-    locale-specific character input and output.
+    To add support for another encoding to Qt, make a subclass of
+    QTextCodec and implement the functions listed in the table below.
 
-    To add support for another encoding to Qt, make a subclass
-    of QTextCodec and implement at least the following methods:
+    \table
+    \header \o Function \o Description
 
-    \code
-    QByteArray name() const
-    \endcode
-    Return the official name for the encoding. If the encoding is
-    listed in the \link http://www.iana.org/assignments/character-sets
-    IANA character-sets encoding file\endlink, the name should be the
-    preferred mime name for the encoding.
+    \row \o name()
+         \o Returns the official name for the encoding. If the
+            encoding is listed in the
+            \l{http://www.iana.org/assignments/character-sets}{IANA
+            character-sets encoding file}, the name should be the
+            preferred MIME name for the encoding.
 
-    \code
-    int mibEnum() const
-    \endcode
-    Return the MIB enum for the encoding if it is listed in the
-        \link http://www.iana.org/assignments/character-sets
-        IANA character-sets encoding file\endlink.
+    \row \o aliases()
+         \o Returns a list of alternative names for the encoding.
+            QTextCodec provides a default implementation that returns
+            an empty list. For example, "ISO-8859" has "latin1",
+            "US_ASCII", and "iso-ir-100" as aliases.
 
-    \code
-    QString convertToUnicode(const char* chars, int len, ConverterState *state) const
-    \endcode
-    Converts \e len characters from \e chars to Unicode. The
-    ConverterState structure contains some conversion flags and is
-    used by the QTextDecoder to keep state. Some methods call the
-    method with a 0 state pointer.
+    \row \o mibEnum()
+         \o Return the MIB enum for the encoding if it is listed in
+            the \l{http://www.iana.org/assignments/character-sets}{IANA
+            character-sets encoding file}.
 
-    \code
-    QByteArray convertFromUnicode(const QChar *uc, int len, ConverterState *state) const
-    \endcode
+    \row \o convertToUnicode()
+         \o Converts an 8-bit character string to Unicode.
 
-    Converts \e len characters (of type QChar) from the start of the
-    array \e uc, returning a QByteArray result.  ConverterState
-    structure contains some conversion flags and is used by the
-    QTextEncoder to keep state. Some methods call the method with a 0
-    state pointer.
+    \row \o convertFromUnicode()
+         \o Converts a Unicode string to an 8-bit character string.
+    \endtable
 
-    \code
-    QList<QByteArray> aliases() const
-    \endcode
-    This method can be reimplemented if your codec is known by several
-    names. The codec for "ISO-8859-1" does for example return (amongst
-    others) "latin1", "US_ASCII" and "iso-ir-100" as aliases.
+    You may find it more convenient to make your codec class
+    available as a plugin; see \l{How to Create Qt Plugins} for
+    details.
 
-    Codecs can also be created as \link plugins-howto.html plugins\endlink.
+    \sa QTextStream, QTextDecoder, QTextEncoder
 */
 
 /*!
@@ -1037,7 +1014,7 @@ QString QTextCodec::toUnicode(const char* chars) const
 
 
 /*!
-    \class QTextEncoder qtextcodec.h
+    \class QTextEncoder
     \brief The QTextEncoder class provides a state-based encoder.
     \reentrant
     \ingroup i18n
@@ -1048,7 +1025,7 @@ QString QTextCodec::toUnicode(const char* chars) const
     The encoder converts Unicode into another format, remembering any
     state that is required between calls.
 
-    \sa QTextCodec::makeEncoder()
+    \sa QTextCodec::makeEncoder(), QTextDecoder
 */
 
 /*!
@@ -1102,7 +1079,7 @@ QByteArray QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
 #endif
 
 /*!
-    \class QTextDecoder qtextcodec.h
+    \class QTextDecoder
     \brief The QTextDecoder class provides a state-based decoder.
     \reentrant
     \ingroup i18n
@@ -1113,7 +1090,7 @@ QByteArray QTextEncoder::fromUnicode(const QString& uc, int& lenInOut)
     The decoder converts text in this format into Unicode, remembering any
     state that is required between calls.
 
-    \sa QTextCodec::makeEncoder()
+    \sa QTextCodec::makeDecoder(), QTextEncoder
 */
 
 /*!
@@ -1179,13 +1156,13 @@ QString QTextDecoder::toUnicode(const QByteArray &ba)
     main() function might look like this:
 
     \code
-    int main(int argc, char** argv)
-    {
-        QApplication app(argc, argv);
-        ... install any additional codecs ...
-        QTextCodec::setCodecForTr(QTextCodec::codecForName("eucKR"));
-        ...
-    }
+        int main(int argc, char** argv)
+        {
+            QApplication app(argc, argv);
+            ... install any additional codecs ...
+            QTextCodec::setCodecForTr(QTextCodec::codecForName("eucKR"));
+            ...
+        }
     \endcode
 
     Note that this is not the way to select the encoding that the \e

@@ -2289,20 +2289,72 @@ QDragLeaveEvent::~QDragLeaveEvent()
     \brief The QHelpEvent class provides an event that is used to request helpful information
     about a particular point in a widget.
 
-    This event can be intercepted in applications to provide tool tips or "What's This?"
-    help for custom widgets.
+    This event can be intercepted in applications to provide tooltips
+    or "What's This?" help for custom widgets.
 
-    \sa QToolTip, QWhatsThis
+    \sa QToolTip, QWhatsThis, QStatusTipEvent, QWhatsThisClickedEvent
 */
 
 /*!
     Constructs a help event with the given \a type corresponding to the
     widget-relative position specified by \a pos and the global position
     specified by \a globalPos.
+
+    \sa pos(), globalPos()
 */
 QHelpEvent::QHelpEvent(Type type, const QPoint &pos, const QPoint &globalPos)
     : QEvent(type), p(pos), gp(globalPos)
 {}
+
+/*!
+    \fn int QHelpEvent::x() const
+
+    Same as pos().x().
+
+    \sa y(), pos(), globalPos()
+*/
+
+/*!
+    \fn int QHelpEvent::y() const
+
+    Same as pos().y().
+
+    \sa x(), pos(), globalPos()
+*/
+
+/*!
+    \fn int QHelpEvent::globalX() const
+
+    Same as globalPos().x().
+
+    \sa x(), globalY(), globalPos()
+*/
+
+/*!
+    \fn int QHelpEvent::globalY() const
+
+    Same as globalPos().y().
+
+    \sa y(), globalX(), globalPos()
+*/
+
+/*!
+    \fn const QPoint &QHelpEvent::pos()  const
+
+    Returns the mouse cursor position when the event was generated,
+    relative to the widget to which the event is dispatched.
+
+    \sa globalPos(), x(), y()
+*/
+
+/*!
+    \fn const QPoint &QHelpEvent::globalPos() const
+
+    Returns the mouse cursor position when the event was generated
+    in global coordinates.
+
+    \sa pos(), globalX(), globalY()
+*/
 
 /*! \internal
 */
@@ -2311,7 +2363,22 @@ QHelpEvent::~QHelpEvent()
 }
 
 /*!
+    \class QStatusTipEvent
+    \brief The QStatusTipEvent class provides an event that is used to show messages in a status bar.
+
+    Status tips can be set on a widget using QWidget::setStatusTip().
+    They are shown in the status bar when the mouse cursor enters the
+    widget. Status tips can also be set on actions using
+    QAction::setStatusTip(), and they are supported for the item view
+    classes through Qt::StatusTipRole.
+
+    \sa QStatusBar, QHelpEvent, QWhatsThisClickedEvent
+*/
+
+/*!
     Constructs a status tip event with text specified by \a tip.
+
+    \sa tip()
 */
 QStatusTipEvent::QStatusTipEvent(const QString &tip)
     : QEvent(StatusTip), s(tip)
@@ -2324,8 +2391,26 @@ QStatusTipEvent::~QStatusTipEvent()
 }
 
 /*!
+    \fn QString QStatusTipEvent::tip() const
+
+    Returns the message to show in the status bar.
+
+    \sa QStatusBar::showMessage()
+*/
+
+/*!
+    \class QWhatsThisClickedEvent
+    \brief The QWhatsThisClickedEvent class provides an event that
+    can be used to handle hyperlinks in a "What's This?" text.
+
+    \sa QWhatsThis, QHelpEvent, QStatusTipEvent
+*/
+
+/*!
     Constructs an event containing a URL specified by \a href when a link
     is clicked in a "What's This?" message.
+
+    \sa href()
 */
 QWhatsThisClickedEvent::QWhatsThisClickedEvent(const QString &href)
     : QEvent(WhatsThisClicked), s(href)
@@ -2337,7 +2422,35 @@ QWhatsThisClickedEvent::~QWhatsThisClickedEvent()
 {
 }
 
+/*!
+    \fn QString QWhatsThisClickedEvent::href() const
 
+    Returns the URL that was clicked by the user in the "What's
+    This?" text.
+*/
+
+/*!
+    \class QActionEvent
+    \brief The QActionEvent class provides an event that is generated
+    when a QAction is added, removed, or changed.
+
+    Actions can be added to widgets using QWidget::addAction(). This
+    generates an ActionAdded event, which you can handle to provide
+    custom behavior. For example, QToolBar reimplements
+    QWidget::actionEvent() to create \l{QToolButton}s for the
+    actions.
+
+    \sa QAction, QWidget::addAction(), QWidget::removeAction(), QWidget::action()
+*/
+
+/*!
+    Constructs an action event. The \a type can be ActionChanged,
+    ActionAdded, or ActionRemoved.
+
+    \a action is the action that is changed, added, or removed. If \a
+    type is ActionAdded, the action is to be inserted before the
+    action \a before. If \a before is 0, the action is appended.
+*/
 QActionEvent::QActionEvent(int type, QAction *action, QAction *before)
     : QEvent(static_cast<QEvent::Type>(type)), act(action), bef(before)
 {}
@@ -2347,6 +2460,24 @@ QActionEvent::QActionEvent(int type, QAction *action, QAction *before)
 QActionEvent::~QActionEvent()
 {
 }
+
+/*!
+    \fn QAction *QActionEvent::action() const
+
+    Returns the action that is changed, added, or removed.
+
+    \sa before()
+*/
+
+/*!
+    \fn QAction *QActionEvent::before() const
+
+    If type() is ActionAdded, returns the action that should appear
+    before action(). If this function returns 0, the action should be
+    appended to already existing actions on the same widget.
+
+    \sa action(), QWidget::actions()
+*/
 
 /*!
     \class QHideEvent

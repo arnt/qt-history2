@@ -422,6 +422,8 @@ QString QtPrivate::QStringList_join(const QStringList *that, const QString &sep)
 
     Returns a string list that is the concatenation of this string
     list with the \a other string list.
+
+    \sa append()
 */
 
 /*!
@@ -429,25 +431,27 @@ QString QtPrivate::QStringList_join(const QStringList *that, const QString &sep)
 
     Appends string \a str to the string list and returns a reference
     to the string list.
+
+    \sa append()
 */
 
 #ifndef QT_NO_DATASTREAM
 /*!
     \fn QDataStream &operator>>(QDataStream &in, QStringList &list)
-
     \relates QStringList
 
     Reads a string list from stream \a in into \a list.
 
-    \sa \link datastreamformat.html Format of the QDataStrea operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
 /*!
     \fn QDataStream &operator<<(QDataStream &out, const QStringList &list)
+    \relates QStringList
 
     Writes the string list \a list to stream \a out.
 
-    \sa \link datastreamformat.html Format of the QDataStrea operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 #endif // QT_NO_DATASTREAM
 

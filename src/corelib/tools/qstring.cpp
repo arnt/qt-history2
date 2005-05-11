@@ -4513,22 +4513,17 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
 /*!
     Returns the string converted to a \c{long long} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
-
-    If \a base is 0, the base is determined automatically using the
-    following rules:
-    <ul>
-    <li>If the string begins with "0x", it is assumed to
-    be hexadecimal;
-    <li>If it begins with "0", it is assumed to be octal;
-    <li>Otherwise it is assumed to be decimal.
-    </ul>
-
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
     false; otherwise *\a{ok} is set to true.
 
+    If \a base is 0, the C language convention is used: If the string
+    begins with "0x", base 16 is used; if the string begins with "0",
+    base 8 is used; otherwise, base 10 is used.
+
     Example:
+
     \code
         QString str = "FF";
         bool ok;
@@ -4571,23 +4566,17 @@ qint64 QString::toLongLong(bool *ok, int base) const
 /*!
     Returns the string converted to an \c{unsigned long long} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
-
-    If \a base is 0, the base is determined automatically using the
-    following rules:
-    <ul>
-    <li>If the string begins with "0x", it is assumed to
-    be hexadecimal;
-    <li>If it begins with "0", it is assumed to be octal;
-    <li>Otherwise it is assumed to be decimal.
-    </ul>
-
-
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
     false; otherwise *\a{ok} is set to true.
 
+    If \a base is 0, the C language convention is used: If the string
+    begins with "0x", base 16 is used; if the string begins with "0",
+    base 8 is used; otherwise, base 10 is used.
+
     Example:
+
     \code
         QString str = "FF";
         bool ok;
@@ -4632,23 +4621,17 @@ quint64 QString::toULongLong(bool *ok, int base) const
 
     Returns the string converted to a \c long using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
-
-    If \a base is 0, the base is determined automatically using the
-    following rules:
-    <ul>
-    <li>If the string begins with "0x", it is assumed to
-    be hexadecimal;
-    <li>If it begins with "0", it is assumed to be octal;
-    <li>Otherwise it is assumed to be decimal.
-    </ul>
-
-
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
     false; otherwise *\a{ok} is set to true.
 
+    If \a base is 0, the C language convention is used: If the string
+    begins with "0x", base 16 is used; if the string begins with "0",
+    base 8 is used; otherwise, base 10 is used.
+
     Example:
+
     \code
         QString str = "FF";
         bool ok;
@@ -4671,26 +4654,21 @@ long QString::toLong(bool *ok, int base) const
 }
 
 /*!
-  \fn ulong QString::toULong(bool *ok, int base) const
+    \fn ulong QString::toULong(bool *ok, int base) const
 
     Returns the string converted to an \c{unsigned long} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
-
-    If \a base is 0, the base is determined automatically using the
-    following rules:
-    <ul>
-    <li>If the string begins with "0x", it is assumed to
-    be hexadecimal;
-    <li>If it begins with "0", it is assumed to be octal;
-    <li>Otherwise it is assumed to be decimal.
-    </ul>
-
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
     false; otherwise *\a{ok} is set to true.
 
+    If \a base is 0, the C language convention is used: If the string
+    begins with "0x", base 16 is used; if the string begins with "0",
+    base 8 is used; otherwise, base 10 is used.
+
     Example:
+
     \code
         QString str = "FF";
         bool ok;
@@ -4716,22 +4694,17 @@ ulong QString::toULong(bool *ok, int base) const
 /*!
     Returns the string converted to an \c int using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
-
-    If \a base is 0, the base is determined automatically using the
-    following rules:
-    <ul>
-    <li>If the string begins with "0x", it is assumed to
-    be hexadecimal;
-    <li>If it begins with "0", it is assumed to be octal;
-    <li>Otherwise it is assumed to be decimal.
-    </ul>
-
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
     false; otherwise *\a{ok} is set to true.
 
+    If \a base is 0, the C language convention is used: If the string
+    begins with "0x", base 16 is used; if the string begins with "0",
+    base 8 is used; otherwise, base 10 is used.
+
     Example:
+
     \code
         QString str = "FF";
         bool ok;
@@ -4756,22 +4729,17 @@ int QString::toInt(bool *ok, int base) const
 /*!
     Returns the string converted to an \c{unsigned int} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
-
-    If \a base is 0, the base is determined automatically using the
-    following rules:
-    <ul>
-    <li>If the string begins with "0x", it is assumed to
-    be hexadecimal;
-    <li>If it begins with "0", it is assumed to be octal;
-    <li>Otherwise it is assumed to be decimal.
-    </ul>
-
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
     false; otherwise *\a{ok} is set to true.
 
+    If \a base is 0, the C language convention is used: If the string
+    begins with "0x", base 16 is used; if the string begins with "0",
+    base 8 is used; otherwise, base 10 is used.
+
     Example:
+
     \code
         QString str = "FF";
         bool ok;
@@ -4796,22 +4764,17 @@ uint QString::toUInt(bool *ok, int base) const
 /*!
     Returns the string converted to a \c short using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
-
-    If \a base is 0, the base is determined automatically using the
-    following rules:
-    <ul>
-    <li>If the string begins with "0x", it is assumed to
-    be hexadecimal;
-    <li>If it begins with "0", it is assumed to be octal;
-    <li>Otherwise it is assumed to be decimal.
-    </ul>
-
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
     false; otherwise *\a{ok} is set to true.
 
+    If \a base is 0, the C language convention is used: If the string
+    begins with "0x", base 16 is used; if the string begins with "0",
+    base 8 is used; otherwise, base 10 is used.
+
     Example:
+
     \code
         QString str = "FF";
         bool ok;
@@ -4836,23 +4799,17 @@ short QString::toShort(bool *ok, int base) const
 /*!
     Returns the string converted to an \c{unsigned short} using base \a
     base, which is 10 by default and must be between 2 and 36, or 0.
-
-    If \a base is 0, the base is determined automatically using the
-    following rules:
-    <ul>
-    <li>If the string begins with "0x", it is assumed to
-    be hexadecimal;
-    <li>If it begins with "0", it is assumed to be octal;
-    <li>Otherwise it is assumed to be decimal.
-    </ul>
-
-
     Returns 0 if the conversion fails.
 
     If \a ok is not 0: if a conversion error occurs, *\a{ok} is set to
     false; otherwise *\a{ok} is set to true.
 
+    If \a base is 0, the C language convention is used: If the string
+    begins with "0x", base 16 is used; if the string begins with "0",
+    base 8 is used; otherwise, base 10 is used.
+
     Example:
+
     \code
         QString str = "FF";
         bool ok;
@@ -6155,7 +6112,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
         QLabel *label = new QLabel(QLatin1String("MOD"), this);
     \endcode
 
-    \sa QString
+    \sa QString, QLatin1Char
 */
 
 /*! \fn QLatin1String::QLatin1String(const char *str)
@@ -6182,7 +6139,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
     expect. Consider sorting user-interface strings with
-    localeAwareCompare().
+    QString::localeAwareCompare().
 */
 
 /*! \fn bool QLatin1String::operator!=(const QString &other) const
@@ -6193,7 +6150,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
     expect. Consider sorting user-interface strings with
-    localeAwareCompare().
+    QString::localeAwareCompare().
 */
 
 /*! \fn bool QLatin1String::operator>(const QString &other) const
@@ -6204,7 +6161,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
     expect. Consider sorting user-interface strings with
-    localeAwareCompare().
+    QString::localeAwareCompare().
 */
 
 /*! \fn bool QLatin1String::operator<(const QString &other) const
@@ -6215,7 +6172,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
     expect. Consider sorting user-interface strings with
-    localeAwareCompare().
+    QString::localeAwareCompare().
 */
 
 /*! \fn bool QLatin1String::operator>=(const QString &other) const
@@ -6226,7 +6183,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
     expect. Consider sorting user-interface strings with
-    localeAwareCompare().
+    QString::localeAwareCompare().
 */
 
 /*! \fn bool QLatin1String::operator<=(const QString &other) const
@@ -6237,7 +6194,7 @@ QString QString::fromRawData(const QChar *unicode, int size)
     The comparison is based exclusively on the numeric Unicode values
     of the characters and is very fast, but is not what a human would
     expect. Consider sorting user-interface strings with
-    localeAwareCompare().
+    QString::localeAwareCompare().
 */
 
 #ifndef QT_NO_DATASTREAM

@@ -290,7 +290,7 @@ void QHashData::destroyAndFree()
        key. With QHash, the items are arbitrarily ordered.
     \i The key type of a QMap must provide operator<(). The key
        type of a QHash must provide operator==() and a global
-       qHash(Key) function.
+       \l{qHash()}{qHash}(Key) function.
     \endlist
 
     Here's an example QHash with QString keys and \c int values:
@@ -307,9 +307,8 @@ void QHashData::destroyAndFree()
     \endcode
 
     This inserts the following three (key, value) pairs into the
-    QHash: ("one", 1), ("three", 3), and ("seven", 7).
-
-    Another way to insert items into the hash is to use insert():
+    QHash: ("one", 1), ("three", 3), and ("seven", 7). Another way to
+    insert items into the hash is to use insert():
 
     \code
         hash.insert("twelve", 12);
@@ -412,20 +411,9 @@ void QHashData::destroyAndFree()
     \endcode
 
     The items that share the same key are available from most
-    recently to least recently inserted.
-
-    A more efficient approach is to use QHashIterator::findNextKey() or
-    QMutableHashIterator::findNextKey():
-
-    \code
-        QHashIterator<QString, int> i(hash);
-        while (i.findNextKey("plenty"))
-            cout << i.value() << endl;
-    \endcode
-
-    If you prefer the STL-style iterators, you can call find() to get
-    the iterator for the first item with a key and iterate from
-    there:
+    recently to least recently inserted. A more efficient approach is
+    to call find() to get the iterator for the first item with a key
+    and iterate from there:
 
     \code
         QHash<QString, int>::iterator i = hash.find("plenty");
@@ -459,10 +447,11 @@ void QHashData::destroyAndFree()
 
     Here's a list of the C++ and Qt types that can serve as keys in a
     QHash: any integer type (char, unsigned long, etc.), any pointer
-    type, QChar, QString, and QByteArray. For all of these, \c
-    <QHash> defines a qHash() function that computes an adequate
-    hash value. If you want to use other types as the key, make sure
-    that you provide operator==() and a qHash() implementation.
+    type, QChar, QString, and QByteArray. For all of these, the \c
+    <QHash> header defines a qHash() function that computes an
+    adequate hash value. If you want to use other types as the key,
+    make sure that you provide operator==() and a qHash()
+    implementation.
 
     Example:
     \code
@@ -509,13 +498,13 @@ void QHashData::destroyAndFree()
     hashes for people with the same name.
 
     Internally, QHash uses a hash table to perform lookups. Unlike Qt
-    3's QDict, which needed to be initialized with a prime number,
-    QHash's hash table automatically grows and shrinks to provide fast
-    lookups without wasting too much memory. You can still control the
-    size of the hash table by calling reserve() if you already know
-    approximately how many items the QHash will contain, but this isn't
-    necessary to obtain good performance. You can also call capacity()
-    to retrieve the hash table's size.
+    3's \c QDict class, which needed to be initialized with a prime
+    number, QHash's hash table automatically grows and shrinks to
+    provide fast lookups without wasting too much memory. You can
+    still control the size of the hash table by calling reserve() if
+    you already know approximately how many items the QHash will
+    contain, but this isn't necessary to obtain good performance. You
+    can also call capacity() to retrieve the hash table's size.
 
     \sa QHashIterator, QMutableHashIterator, QMap, QSet
 */
@@ -678,9 +667,9 @@ void QHashData::destroyAndFree()
 /*! \fn int QHash::remove(const Key &key)
 
     Removes all the items that have the key \a key from the hash.
-    Returns the number of items removed which is usually 1 but will be
-    0 if the key isn't in the hash, or \> 1 if insertMulti() has been
-    used with the \a key.
+    Returns the number of items removed which is usually 1 but will
+    be 0 if the key isn't in the hash, or greater than 1 if
+    insertMulti() has been used with the \a key.
 
     \sa clear(), take()
 */
@@ -1569,7 +1558,7 @@ void QHashData::destroyAndFree()
     This function requires the key and value types to implement \c
     operator<<().
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
 /*! \fn QDataStream &operator>>(QDataStream &in, QHash<Key, T> &hash)
@@ -1580,7 +1569,7 @@ void QHashData::destroyAndFree()
     This function requires the key and value types to implement \c
     operator>>().
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
 /*! \class QMultiHash

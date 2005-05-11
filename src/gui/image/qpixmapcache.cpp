@@ -30,20 +30,6 @@
     to insert pixmaps, find() to find them, and clear() to empty the
     cache.
 
-    For example, QRadioButton has a non-trivial visual representation
-    so we don't want to regenerate a pixmap whenever a radio button is
-    displayed or changes state. In the function
-    QRadioButton::drawButton(), we do not draw the radio button
-    directly. Instead, we first check the global pixmap cache for a
-    pixmap with the key "$qt_radio_nnn_", where \c nnn is a numerical
-    value that specifies the the radio button state. If a pixmap is
-    found, we bitBlt() it onto the widget and return. Otherwise, we
-    create a new pixmap, draw the radio button in the pixmap, and
-    finally insert the pixmap in the global pixmap cache, using the
-    key above. The bitBlt() is ten times faster than drawing the
-    radio button. All radio buttons in the program share the cached
-    pixmap since QPixmapCache is global.
-
     QPixmapCache contains no member data, only static functions to
     access the global pixmap cache. It creates an internal QCache
     object for caching the pixmaps.
@@ -58,12 +44,15 @@
     MB); it is changed with setCacheLimit(). A pixmap takes roughly
     (\e{width} * \e{height} * \e{depth})/8 bytes of memory.
 
-    See the \l QCache documentation for more details about the cache
-    mechanism.
+    The \e{Qt Quarterly} article
+    \l{http://doc.trolltech.com/qq/qq12-qpixmapcache.html}{Optimizing
+    with QPixmapCache} explains how to use QPixmapCache to speed up
+    applications by caching the results of painting.
+
+    \sa QCache, QPixmap
 */
 
 static int cache_limit = 1024;                        // 1024 KB cache limit
-
 
 class QPMCache : public QObject, public QCache<int, QPixmap>
 {

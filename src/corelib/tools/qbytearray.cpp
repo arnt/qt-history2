@@ -2437,7 +2437,7 @@ void QByteArray::clear()
     Writes byte array \a ba to the stream \a out and returns a reference
     to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 #ifndef QT_NO_DATASTREAM
 
@@ -2455,7 +2455,7 @@ QDataStream &operator<<(QDataStream &out, const QByteArray &ba)
     Reads a byte array into \a ba from the stream \a in and returns a
     reference to the stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
 QDataStream &operator>>(QDataStream &in, QByteArray &ba)
@@ -3190,8 +3190,10 @@ float QByteArray::toFloat(bool *ok) const
 
     \code
         QByteArray text("Qt is great!");
-        // text.toBase64() now returns an array with the string "UXQgaXMgZ3JlYXRcIQo="
+        text.toBase64();        // returns "UXQgaXMgZ3JlYXRcIQo="
     \endcode
+
+    \sa fromBase64()
 */
 QByteArray QByteArray::toBase64() const
 {
@@ -3498,6 +3500,7 @@ QByteArray QByteArray::number(double n, char f, int prec)
     that accepts a \c{const char *} and expects it to be
     '\\0'-terminated leads into trouble.
 
+    \sa data(), constData()
 */
 
 QByteArray QByteArray::fromRawData(const char *data, int size)
@@ -3520,8 +3523,10 @@ QByteArray QByteArray::fromRawData(const char *data, int size)
 
     \code
         QByteArray text = QByteArray::fromBase64("UXQgaXMgZ3JlYXRcIQo=");
-        // text.data() now contains the ASCII string "Qt is great!"
+        text.data();            // returns "Qt is great!"
     \endcode
+
+    \sa toBase64()
 */
 QByteArray QByteArray::fromBase64(const QByteArray &base64)
 {

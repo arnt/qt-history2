@@ -53,35 +53,35 @@
     speed efficiency of pointers with the ease of use of value types.
     See the \l{Shared Classes} page for more information.
 
-    Let's suppose that you want to make an Employee class implicitly
-    shared. The procedure is:
+    Let's suppose that you want to make an \c Employee class
+    implicitly shared. The procedure is:
 
     \list
-    \i Define the Employee class with a single data member variable of
-       type QSharedDataPointer<EmployeeData>.
-    \i Define an EmployeeData class that derives from \l QSharedData
+    \i Define the \c Employee class with a single data member variable of
+       type QSharedDataPointer<\c{EmployeeData}>.
+    \i Define an \c EmployeeData class that derives from \l QSharedData
        and that contains all the variables that you would normally
-       put in Employee.
+       put in \c Employee.
     \endlist
 
     To show how this works in practice, we will review the entire
-    source code for an implicitly shared Employee class. Here's the
-    header file that defines the Employee class:
+    source code for an implicitly shared \c Employee class. Here's the
+    header file that defines the \c Employee class:
 
     \include snippets/sharedemployee/employee.h
 
     All accesses to the data in the setter and getter functions are
     made through the QSharedDataPointer object \c d. For non-const
     functions, operator->() automatically calls detach(), ensuring
-    that modifications to one Employee object don't affect other
-    Employee objects.
+    that modifications to one \c Employee object don't affect other
+    \c Employee objects.
 
-    In this example, the EmployeeData type is a simple class with a
+    In this example, the \c EmployeeData type is a simple class with a
     default constructor and a copy constructor provided by C++. If
     member-per-member copy isn't sufficient for your own data type,
     you must implement your own copy constructor.
 
-    Let's now see how to implement the Employee constructors:
+    Let's now see how to implement the \c Employee constructors:
 
     \quotefile snippets/sharedemployee/employee.cpp
 
@@ -89,17 +89,17 @@
     \printuntil }
 
     In the default constructor, we create an object of type
-    EmployeeData and assign it to the \c d pointer using operator=().
+    \c EmployeeData and assign it to the \c d pointer using operator=().
 
     \skipto ::Employee(int
     \printuntil }
 
     In the constructor that takes an ID and an employee's name, we
-    also create an object of type EmployeeData and assign it to the
+    also create an object of type \c EmployeeData and assign it to the
     \c d pointer.
 
     In this example, we don't need to provide a copy constructor, an
-    assignment operator, or a destructor for Employee. The default
+    assignment operator, or a destructor for \c Employee. The default
     implementations provided by C++, which invoke QSharedDataPointer's
     copy constructor, assignment operator, or destructor, are
     sufficient. And this is true in general, i.e. for any QSharedData

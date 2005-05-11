@@ -94,7 +94,6 @@ public:
 
         Punctuation_Connector,    //   Pc
         Punctuation_Dash,         //   Pd
-        Punctuation_Dask = Punctuation_Dash, // oops
         Punctuation_Open,         //   Ps
         Punctuation_Close,        //   Pe
         Punctuation_InitialQuote, //   Pi
@@ -104,7 +103,9 @@ public:
         Symbol_Math,              //   Sm
         Symbol_Currency,          //   Sc
         Symbol_Modifier,          //   Sk
-        Symbol_Other              //   So
+        Symbol_Other,             //   So
+
+        Punctuation_Dask = Punctuation_Dash // oops
     };
 
     enum Direction
@@ -116,12 +117,27 @@ public:
     enum Decomposition
     {
         NoDecomposition,
+        Canonical,
+        Font,
+        NoBreak,
+        Initial,
+        Medial,
+        Final,
+        Isolated,
+        Circle,
+        Super,
+        Sub,
+        Vertical,
+        Wide,
+        Narrow,
+        Small,
+        Square,
+        Compat,
+        Fraction
+
 #ifdef QT3_SUPPORT
-        Single = NoDecomposition,
+        , Single = NoDecomposition
 #endif
-        Canonical, Font, NoBreak, Initial, Medial,
-        Final, Isolated, Circle, Super, Sub, Vertical,
-        Wide, Narrow, Small, Square, Compat, Fraction
     };
 
     enum Joining

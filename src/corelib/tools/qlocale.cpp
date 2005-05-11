@@ -65,8 +65,8 @@ static char *_qdtoa( NEEDS_VOLATILE double d, int mode, int ndigits, int *decpt,
                         int *sign, char **rve, char **digits_str);
 static double qstrtod(const char *s00, char const **se, bool *ok);
 #endif
-static qint64 qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
-static quint64 qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
+static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok);
+static qulonglong qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok);
 
 static const uint locale_index[] = {
      0, // unused
@@ -1894,17 +1894,19 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \ingroup text
     \mainclass
 
-    It is initialized with a language/country pair in its constructor
-    and offers number-to-string and string-to-number conversion
-    functions similar to those in QString.
+    QLocale is initialized with a language/country pair in its
+    constructor and offers number-to-string and string-to-number
+    conversion functions similar to those in QString.
+
+    Example:
 
     \code
-    QLocale egyptian(QLocale::Arabic, QLocale::Egypt);
-    QString s1 = egyptian.toString(1.571429E+07, 'e');
-    QString s2 = egyptian.toString(10);
+        QLocale egyptian(QLocale::Arabic, QLocale::Egypt);
+        QString s1 = egyptian.toString(1.571429E+07, 'e');
+        QString s2 = egyptian.toString(10);
 
-    double d = egyptian.toDouble(s1);
-    int i = egyptian.toInt(s2);
+        double d = egyptian.toDouble(s1);
+        int i = egyptian.toInt(s2);
     \endcode
 
     QLocale supports the concept of a default locale, which is
@@ -1916,35 +1918,36 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \list
     \i If a QLocale object is constructed with the default constructor,
        it will use the default locale's settings.
-    \i QString::to*() interprets the string according to the default
-       locale. If this fails, it falls back on the "C" locale.
+    \i QString::toInt(), QString::toDouble(), etc., interpret the
+       string according to the default locale. If this fails, it
+       falls back on the "C" locale.
     \i QString::arg() uses the default locale to format a number when
        its position specifier in the format string contains an 'L',
        e.g. "%L1".
     \endlist
 
+    The following example illustrates how to use QLocale directly:
+
     \code
-    QLocale::setDefault(QLocale::Hebrew, QLocale::Israel);
-    QLocale hebrew; // Constructs a default QLocale
-    QString s1 = hebrew.toString(15714.3, 'e');
+        QLocale::setDefault(QLocale::Hebrew, QLocale::Israel);
+        QLocale hebrew; // Constructs a default QLocale
+        QString s1 = hebrew.toString(15714.3, 'e');
 
-    bool ok;
-    double d;
+        bool ok;
+        double d;
 
-    QLocale::setDefault(QLocale::C);
-    d = QString( "1234,56" ).toDouble(&ok); // ok == false
-    d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
+        QLocale::setDefault(QLocale::C);
+        d = QString("1234,56").toDouble(&ok);   // ok == false
+        d = QString("1234.56").toDouble(&ok);   // ok == true, d == 1234.56
 
-    QLocale::setDefault(QLocale::German);
-    d = QString( "1234,56" ).toDouble(&ok); // ok == true, d == 1234.56
-    d = QString( "1234.56" ).toDouble(&ok); // ok == true, d == 1234.56
+        QLocale::setDefault(QLocale::German);
+        d = QString("1234,56").toDouble(&ok);   // ok == true, d == 1234.56
+        d = QString("1234.56").toDouble(&ok);   // ok == true, d == 1234.56
 
-    QLocale::setDefault(QLocale::English, QLocale::UnitedStates);
-    str = QString( "%1 %L2 %L3" )
-            .arg( 12345 )
-            .arg( 12345 )
-            .arg( 12345, 0, 16 );
-    // str == "12345 12,345 3039"
+        QLocale::setDefault(QLocale::English, QLocale::UnitedStates);
+        str = QString("%1 %L2 %L3")
+              .arg(12345).arg(12345).arg(12345, 0, 16);
+        // str == "12345 12,345 3039"
     \endcode
 
     When a language/country pair is specified in the constructor, one
@@ -1959,7 +1962,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
        defaults to the default locale (see setDefault()).
     \endlist
 
-    The "C" locale is identical to English/UnitedStates.
+    The "C" locale is identical to \l{English}/\l{UnitedStates}.
 
     Use language() and country() to determine the actual language and
     country values used.
@@ -1968,17 +1971,12 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     specifying the locale name.
 
     \code
-    QLocale korean("ko");
-    QLocale swiss("de_CH");
+        QLocale korean("ko");
+        QLocale swiss("de_CH");
     \endcode
 
     This constructor converts the locale name to a language/country
     pair; it does not use the system locale database.
-
-    All the methods in QLocale, with the exception of setDefault(),
-    are reentrant.
-
-    \sa QString::toDouble() QString::arg()
 
     The double-to-string and string-to-double conversion functions are
     covered by the following licenses:
@@ -2002,6 +2000,8 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     This product includes software developed by the University of
     California, Berkeley and its contributors.
     \endcode
+
+    \sa QString::arg(), QString::toInt(), QString::toDouble()
 */
 
 /*!
@@ -2009,7 +2009,7 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
 
     This enumerated type is used to specify a language.
 
-    \value C Identical to English/UnitedStates
+    \value C
     \value Abkhazian
     \value Afan
     \value Afar
@@ -2151,6 +2151,8 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \value Zhuang
     \value Zulu
     \omitvalue LastLanguage
+
+    \sa language()
 */
 
 /*!
@@ -2400,6 +2402,8 @@ static const QLocalePrivate *findLocale(QLocale::Language language,
     \value Zambia
     \value Zimbabwe
     \omitvalue LastCountry
+
+    \sa country()
 */
 
 /*!
@@ -2569,7 +2573,7 @@ void QLocale::setDefault(const QLocale &locale)
 /*!
     Returns the language of this locale.
 
-    \sa QLocale()
+    \sa country(), languageToString(), name()
 */
 QLocale::Language QLocale::language() const
 {
@@ -2579,7 +2583,7 @@ QLocale::Language QLocale::language() const
 /*!
     Returns the country of this locale.
 
-    \sa QLocale()
+    \sa language(), countryToString(), name()
 */
 QLocale::Country QLocale::country() const
 {
@@ -2592,7 +2596,7 @@ QLocale::Country QLocale::country() const
     language is a lowercase, two-letter ISO 639 language code,
     and country is an uppercase, two-letter ISO 3166 country code.
 
-    \sa QLocale()
+    \sa language(), country()
 */
 
 QString QLocale::name() const
@@ -2616,6 +2620,8 @@ QString QLocale::name() const
 
 /*!
     Returns a QString containing the name of \a language.
+
+    \sa countryToString(), name()
 */
 
 QString QLocale::languageToString(Language language)
@@ -2627,6 +2633,8 @@ QString QLocale::languageToString(Language language)
 
 /*!
     Returns a QString containing the name of \a country.
+
+    \sa country(), name()
 */
 
 QString QLocale::countryToString(Country country)
@@ -2650,7 +2658,7 @@ QString QLocale::countryToString(Country country)
 
     This function ignores leading and trailing whitespace.
 
-    \sa toString()
+    \sa toUShort(), toString()
 */
 
 short QLocale::toShort(const QString &s, bool *ok, int base) const
@@ -2678,7 +2686,7 @@ short QLocale::toShort(const QString &s, bool *ok, int base) const
 
     This function ignores leading and trailing whitespace.
 
-    \sa toString()
+    \sa toShort(), toString()
 */
 
 ushort QLocale::toUShort(const QString &s, bool *ok, int base) const
@@ -2706,7 +2714,7 @@ ushort QLocale::toUShort(const QString &s, bool *ok, int base) const
 
     This function ignores leading and trailing whitespace.
 
-    \sa toString()
+    \sa toUInt(), toString()
 */
 
 int QLocale::toInt(const QString &s, bool *ok, int base) const
@@ -2734,7 +2742,7 @@ int QLocale::toInt(const QString &s, bool *ok, int base) const
 
     This function ignores leading and trailing whitespace.
 
-    \sa toString()
+    \sa toInt(), toString()
 */
 
 uint QLocale::toUInt(const QString &s, bool *ok, int base) const
@@ -2762,11 +2770,11 @@ uint QLocale::toUInt(const QString &s, bool *ok, int base) const
 
     This function ignores leading and trailing whitespace.
 
-    \sa toString()
+    \sa toInt(), toULongLong(), toDouble(), toString()
 */
 
 
-qint64 QLocale::toLongLong(const QString &s, bool *ok, int base) const
+qlonglong QLocale::toLongLong(const QString &s, bool *ok, int base) const
 {
     return d->stringToLongLong(s, base, ok, QLocalePrivate::ParseGroupSeparators);
 }
@@ -2786,9 +2794,8 @@ qint64 QLocale::toLongLong(const QString &s, bool *ok, int base) const
 
     This function ignores leading and trailing whitespace.
 
-    \sa toString()
+    \sa toLongLong(), toInt(), toDouble(), toString()
 */
-
 
 qlonglong QLocale::toULongLong(const QString &s, bool *ok, int base) const
 {
@@ -2804,7 +2811,7 @@ qlonglong QLocale::toULongLong(const QString &s, bool *ok, int base) const
 
     This function ignores leading and trailing whitespace.
 
-    \sa toString()
+    \sa toDouble(), toInt(), toString()
 */
 
 #define QT_MAX_FLOAT 3.4028234663852886e+38
@@ -2856,7 +2863,7 @@ float QLocale::toFloat(const QString &s, bool *ok) const
 
     This function ignores leading and trailing whitespace.
 
-    \sa toString() QString::toDouble()
+    \sa toFloat(), toInt(), toString()
 */
 
 double QLocale::toDouble(const QString &s, bool *ok) const
@@ -2870,7 +2877,7 @@ double QLocale::toDouble(const QString &s, bool *ok) const
     \sa toLongLong()
 */
 
-QString QLocale::toString(qint64 i) const
+QString QLocale::toString(qlonglong i) const
 {
     return d->longLongToString(i, -1, 10, -1, QLocalePrivate::ThousandsGroup);
 }
@@ -2881,7 +2888,7 @@ QString QLocale::toString(qint64 i) const
     \sa toULongLong()
 */
 
-QString QLocale::toString(quint64 i) const
+QString QLocale::toString(qulonglong i) const
 {
     return d->unsLongLongToString(i, -1, 10, -1, QLocalePrivate::ThousandsGroup);
 }
@@ -3030,7 +3037,7 @@ static inline char digitToCLocale(QChar zero, QChar d)
     return 0;
 }
 
-static QString qulltoa(quint64 l, int base, const QLocalePrivate &locale)
+static QString qulltoa(qulonglong l, int base, const QLocalePrivate &locale)
 {
     QChar buff[65]; // length of MAX_ULLONG in base 2
     QChar *p = buff + 65;
@@ -3062,7 +3069,7 @@ static QString qulltoa(quint64 l, int base, const QLocalePrivate &locale)
     return QString(p, 65 - (p - buff));
 }
 
-static QString qlltoa(qint64 l, int base, const QLocalePrivate &locale)
+static QString qlltoa(qlonglong l, int base, const QLocalePrivate &locale)
 {
     return qulltoa(l < 0 ? -l : l, base, locale);
 }
@@ -3297,7 +3304,7 @@ QString QLocalePrivate::doubleToString(double d,
     return num_str;
 }
 
-QString QLocalePrivate::longLongToString(qint64 l, int precision,
+QString QLocalePrivate::longLongToString(qlonglong l, int precision,
                                             int base, int width,
                                             unsigned flags) const
 {
@@ -3381,7 +3388,7 @@ QString QLocalePrivate::longLongToString(qint64 l, int precision,
     return num_str;
 }
 
-QString QLocalePrivate::unsLongLongToString(quint64 l, int precision,
+QString QLocalePrivate::unsLongLongToString(qulonglong l, int precision,
                                             int base, int width,
                                             unsigned flags) const
 {
@@ -3599,8 +3606,8 @@ double QLocalePrivate::stringToDouble(const QString &number, bool *ok,
     return bytearrayToDouble(buff.constData(), ok);
 }
 
-qint64 QLocalePrivate::stringToLongLong(const QString &number, int base,
-                                            bool *ok, GroupSeparatorMode group_sep_mode) const
+qlonglong QLocalePrivate::stringToLongLong(const QString &number, int base,
+                                           bool *ok, GroupSeparatorMode group_sep_mode) const
 {
     CharBuff buff;
     if (!numberToCLocale(number, group_sep_mode, &buff)) {
@@ -3612,8 +3619,8 @@ qint64 QLocalePrivate::stringToLongLong(const QString &number, int base,
     return bytearrayToLongLong(buff.constData(), base, ok);
 }
 
-quint64 QLocalePrivate::stringToUnsLongLong(const QString &number, int base,
-                                                bool *ok, GroupSeparatorMode group_sep_mode) const
+qulonglong QLocalePrivate::stringToUnsLongLong(const QString &number, int base,
+                                               bool *ok, GroupSeparatorMode group_sep_mode) const
 {
     CharBuff buff;
     if (!numberToCLocale(number, group_sep_mode, &buff)) {
@@ -3659,11 +3666,11 @@ double QLocalePrivate::bytearrayToDouble(const char *num, bool *ok)
         return d;
 }
 
-qint64 QLocalePrivate::bytearrayToLongLong(const char *num, int base, bool *ok)
+qlonglong QLocalePrivate::bytearrayToLongLong(const char *num, int base, bool *ok)
 {
     bool _ok;
     const char *endptr;
-    qint64 l = qstrtoll(num, &endptr, base, &_ok);
+    qlonglong l = qstrtoll(num, &endptr, base, &_ok);
 
     if (!_ok || *endptr != '\0') {
         if (ok != 0)
@@ -3676,11 +3683,11 @@ qint64 QLocalePrivate::bytearrayToLongLong(const char *num, int base, bool *ok)
     return l;
 }
 
-quint64 QLocalePrivate::bytearrayToUnsLongLong(const char *num, int base, bool *ok)
+qulonglong QLocalePrivate::bytearrayToUnsLongLong(const char *num, int base, bool *ok)
 {
     bool _ok;
     const char *endptr;
-    quint64 l = qstrtoull(num, &endptr, base, &_ok);
+    qulonglong l = qstrtoull(num, &endptr, base, &_ok);
 
     if (!_ok || *endptr != '\0') {
         if (ok != 0)
@@ -3730,17 +3737,17 @@ quint64 QLocalePrivate::bytearrayToUnsLongLong(const char *num, int base, bool *
 //  "$FreeBSD: src/lib/libc/stdlib/strtoull.c,v 1.5.2.1 2001/03/02 09:45:20 obrien Exp $";
 
 /*
- * Convert a string to an quint64 integer.
+ * Convert a string to an unsigned long long integer.
  *
  * Ignores `locale' stuff.  Assumes that the upper and lower case
  * alphabets and digits are each contiguous.
  */
-static quint64 qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok)
+static qulonglong qstrtoull(const char *nptr, const char **endptr, register int base, bool *ok)
 {
     register const char *s = nptr;
-    register quint64 acc;
+    register qulonglong acc;
     register unsigned char c;
-    register quint64 qbase, cutoff;
+    register qulonglong qbase, cutoff;
     register int neg, any, cutlim;
 
     if (ok != 0)
@@ -3773,8 +3780,8 @@ static quint64 qstrtoull(const char *nptr, const char **endptr, register int bas
     if (base == 0)
         base = c == '0' ? 8 : 10;
     qbase = unsigned(base);
-    cutoff = quint64(ULLONG_MAX) / qbase;
-    cutlim = quint64(ULLONG_MAX) % qbase;
+    cutoff = qulonglong(ULLONG_MAX) / qbase;
+    cutlim = qulonglong(ULLONG_MAX) % qbase;
     for (acc = 0, any = 0;; c = *s++) {
         if (!isascii(c))
             break;
@@ -3811,17 +3818,17 @@ static quint64 qstrtoull(const char *nptr, const char **endptr, register int bas
 
 
 /*
- * Convert a string to a qint64 integer.
+ * Convert a string to a long long integer.
  *
  * Ignores `locale' stuff.  Assumes that the upper and lower case
  * alphabets and digits are each contiguous.
  */
-static qint64 qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok)
+static qlonglong qstrtoll(const char *nptr, const char **endptr, register int base, bool *ok)
 {
     register const char *s;
-    register quint64 acc;
+    register qulonglong acc;
     register unsigned char c;
-    register quint64 qbase, cutoff;
+    register qulonglong qbase, cutoff;
     register int neg, any, cutlim;
 
     if (ok != 0)
@@ -3872,7 +3879,7 @@ static qint64 qstrtoll(const char *nptr, const char **endptr, register int base,
      * overflow.
      */
     qbase = unsigned(base);
-    cutoff = neg ? quint64(0-(LLONG_MIN + LLONG_MAX)) + LLONG_MAX : LLONG_MAX;
+    cutoff = neg ? qulonglong(0-(LLONG_MIN + LLONG_MAX)) + LLONG_MAX : LLONG_MAX;
     cutlim = cutoff % qbase;
     cutoff /= qbase;
     for (acc = 0, any = 0;; c = *s++) {

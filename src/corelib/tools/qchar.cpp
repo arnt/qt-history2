@@ -33,11 +33,13 @@
 /*! \class QLatin1Char
     \brief The QLatin1Char class provides an 8-bit ASCII/Latin-1 character.
 
+    \ingroup text
+
     This class is only useful to avoid the codec for C strings business
     in the QChar(ch) constructor. You can avoid it by writing
     QChar(ch, 0).
 
-    \ingroup text
+    \sa QChar, QLatin1String, QString
 */
 
 /*!
@@ -72,12 +74,10 @@
     \ingroup text
     \reentrant
 
-    Unicode characters are (so far) 16-bit entities without any
-    markup or structure. This class represents such an entity. It is
+    In Qt, Unicode characters are 16-bit entities without any markup
+    or structure. This class represents such an entity. It is
     lightweight, so it can be used everywhere. Most compilers treat
-    it like a "short int".  (In a few years, it may be necessary to
-    make QChar 32-bit when more than 65536 Unicode code points have
-    been defined and come into use.)
+    it like a \c{unsigned short}.
 
     QChar provides a full complement of testing/classification
     functions, converting to and from other formats, converting from
@@ -105,7 +105,7 @@
     whether the character needs to be mirrored when it is printed in
     its "unnatural" writing direction.
 
-    Composed Unicode characters (like &aring;) can be converted to
+    Composed Unicode characters (like å) can be converted to
     decomposed Unicode ("a" followed by "ring above") by using
     decomposition().
 
@@ -115,7 +115,7 @@
     sorting problems. operator==() and friends will do comparison
     based purely on the numeric Unicode value (code point) of the
     characters, and toUpper() and toLower() will do case changes when
-    the character has a well-defined upper-/lower-case equivalent.
+    the character has a well-defined uppercase/lowercase equivalent.
     For locale-dependent comparisons, use
     QString::localeAwareCompare().
 
@@ -133,7 +133,7 @@
     to construct a QChar from an 8-bit \c char, and you will need to
     call toAscii() or toLatin1() to get the 8-bit value back.
 
-    \sa QString, Unicode
+    \sa QString, Unicode, QLatin1Char
 */
 
 /*!
@@ -225,21 +225,19 @@
 
     \value Symbol_Other  Unicode class name So
 
-
-    There are two categories that are specific to Qt:
-
     \value NoCategory  Qt cannot find an appropriate category for the character.
 
-    \value Punctuation_Dask  An alias for Punctuation_Dash
+    \omitvalue Punctuation_Dask
 
+    \sa category()
 */
 
 /*!
     \enum QChar::Direction
 
-    This enum type defines the Unicode direction attributes. See \link
-    http://www.unicode.org/ the Unicode Standard\endlink for a
-    description of the values.
+    This enum type defines the Unicode direction attributes. See the
+    \l{http://www.unicode.org/}{Unicode Standard} for a description
+    of the values.
 
     In order to conform to C/C++ naming conventions "Dir" is prepended
     to the codes used in the Unicode Standard.
@@ -264,13 +262,14 @@
     \value DirS
     \value DirWS
 
+    \sa direction()
 */
 
 /*!
     \enum QChar::Decomposition
 
     This enum type defines the Unicode decomposition attributes. See
-    \link http://www.unicode.org/ the Unicode Standard\endlink for a
+    the \l{http://www.unicode.org/}{Unicode Standard} for a
     description of the values.
 
     \value NoDecomposition
@@ -294,28 +293,32 @@
 
     \omitvalue Single
 
+    \sa decomposition()
 */
 
 /*!
     \enum QChar::Joining
 
-    This enum type defines the Unicode joining attributes. See \link
-    http://www.unicode.org/ the Unicode Standard\endlink for a
-    description of the values.
+    This enum type defines the Unicode joining attributes. See the
+    \l{http://www.unicode.org/}{Unicode Standard} for a description
+    of the values.
 
     \value Center
     \value Dual
     \value OtherJoining
     \value Right
 
+    \sa joining()
 */
 
 /*!
     \enum QChar::CombiningClass
 
+    \internal
+
     This enum type defines names for some of the Unicode combining
-    classes. See \link http://www.unicode.org/ the Unicode
-    Standard\endlink for a description of the values.
+    classes. See the \l{http://www.unicode.org/}{Unicode Standard}
+    for a description of the values.
 
     \value Combining_Above
     \value Combining_AboveAttached
@@ -341,8 +344,8 @@
 /*!
     \enum QChar::SpecialCharacter
 
-    \value Null Character 0x0000 A QChar with this value isNull().
-    \value Nbsp Non-breaking space
+    \value Null A QChar with this value isNull().
+    \value Nbsp Non-breaking space.
     \value ReplacementCharacter
     \value ObjectReplacementCharacter
     \value ByteOrderMark
@@ -587,7 +590,7 @@ int QChar::digitValue() const
 }
 
 /*!
-    Returns the character's \link Category category \endlink.
+    Returns the character's category.
 */
 QChar::Category QChar::category() const
 {
@@ -764,10 +767,7 @@ const char QChar::toAscii() const
     Converts the ASCII character \a c to its equivalent QChar. This
     is mainly useful for non-internationalized software.
 
-\omit
-###
-\endomit
-    An alternative is to use QLatin1Char().
+    An alternative is to use QLatin1Char.
 
     \sa fromLatin1(), unicode(), QTextCodec::codecForCStrings()
 */
@@ -787,7 +787,7 @@ QChar QChar::fromAscii(char c)
 
   Writes the char \a chr to the stream \a out.
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+  \sa {Format of the QDataStream operators}
  */
 
 QDataStream &operator<<(QDataStream &out, const QChar &chr)
@@ -802,7 +802,7 @@ QDataStream &operator<<(QDataStream &out, const QChar &chr)
 
   Reads a char from the stream \a in into char \a chr.
 
-  \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+  \sa {Format of the QDataStream operators}
  */
 
 QDataStream &operator>>(QDataStream &in, QChar &chr)
@@ -907,4 +907,3 @@ QDataStream &operator>>(QDataStream &in, QChar &chr)
 
     See if QSysInfo::ByteOrder == QSysInfo::BigEndian instead.
 */
-

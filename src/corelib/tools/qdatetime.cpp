@@ -30,12 +30,12 @@
 
 #if defined(Q_WS_MAC)
 #include <private/qcore_mac_p.h>
-extern QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
+extern QString qt_mac_from_pascal_string(const Str255); // qglobal.cpp
 #endif
 
 enum {
     FIRST_DAY = 2361222,        // Julian day for 1752-09-14
-    FIRST_YEAR = 1752,     // wrong for many countries
+    FIRST_YEAR = 1752,
     SECS_PER_DAY = 86400,
     MSECS_PER_DAY = 86400000,
     SECS_PER_HOUR = 3600,
@@ -64,7 +64,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
  *****************************************************************************/
 
 /*!
-    \class QDate qdatetime.h
+    \class QDate
     \reentrant
     \brief The QDate class provides date functions.
 
@@ -104,7 +104,7 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
 
     Note that QDate should not be used for date calculations for dates
     prior to the introduction of the Gregorian calendar. This calendar
-    was adopted by England from the 14th September 1752 (hence this is
+    was adopted by England from the 14 September 1752 (hence this is
     the earliest valid QDate), and subsequently by most other Western
     countries, by 1923.
 
@@ -746,13 +746,14 @@ QString QDate::toString(Qt::DateFormat f) const
     are enclosed in singlequotes will be treated as text and not be used as an
     expression.
 
-    Example format strings (assuming that the QDate is the
-    20<sup><small>th</small></sup> July 1969):
+    Example format strings (assuming that the QDate is the 20 July
+    1969):
+
     \table
-    \header \i Format \i Result
-    \row \i dd.MM.yyyy    \i 20.07.1969
-    \row \i ddd MMMM d yy \i Sun July 20 69
-    \row \i 'The day is' dddd \i The day is Sunday
+    \header \o Format            \o Result
+    \row    \o dd.MM.yyyy        \o 20.07.1969
+    \row    \o ddd MMMM d yy     \o Sun July 20 69
+    \row    \o 'The day is' dddd \o The day is Sunday
     \endtable
 
     If the datetime is invalid, an empty string will be returned.
@@ -880,8 +881,8 @@ QDate QDate::addYears(int nyears) const
 
     Example:
     \code
-        QDate d1(1995, 5, 17);  // May 17th 1995
-        QDate d2(1995, 5, 20);  // May 20th 1995
+        QDate d1(1995, 5, 17);  // May 17, 1995
+        QDate d2(1995, 5, 20);  // May 20, 1995
         d1.daysTo(d2);          // returns 3
         d2.daysTo(d1);          // returns -3
     \endcode
@@ -1085,19 +1086,20 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
     treated as text and will not be used as an expression. For example:
 
     \code
-    QDate date = QDate::fromString("1MM12car2003", "d'MM'MMcaryyyy"); // date is 1st of Dec 2003
+        QDate date = QDate::fromString("1MM12car2003", "d'MM'MMcaryyyy");
+        // date is 1 December 2003
     \endcode
 
     If the format is not satisfied, an invalid QDate is returned. The
-    expressions that don't expect leading zeroes (d, M) will be greedy.
-    This means that they will use two digits even if this will put
-    them outside the accepted range of values and leaves too few digits
-    for other sections. For example, the following format
-    string could have meant 30th of January but the M will grab two
+    expressions that don't expect leading zeroes (d, M) will be
+    greedy. This means that they will use two digits even if this
+    will put them outside the accepted range of values and leaves too
+    few digits for other sections. For example, the following format
+    string could have meant January 30 but the M will grab two
     digits, resulting in an invalid date:
 
     \code
-    QDate date = QDate::fromString("130", "Md"); // invalid.
+        QDate date = QDate::fromString("130", "Md"); // invalid
     \endcode
 
     For any field that is not represented in the format the following
@@ -1106,20 +1108,20 @@ QDate QDate::fromString(const QString& s, Qt::DateFormat f)
     \table
     \header \i Field  \i Default value
     \row    \i Year   \i The current year
-    \row    \i Month  \i 1 (January)
-    \row    \i Day    \i 1 (1st)
+    \row    \i Month  \i 1
+    \row    \i Day    \i 1
     \endtable
 
     The following examples demonstrate the default values:
 
     \code
-    QDate date = QDate::fromString("1.30", "M.d"); // date is 30th of January in the current year
-    QDate date = QDate::fromString("20000110", "yyyyMMdd"); // date is 10th Jan 2000
-    QDate date = QDate::fromString("20000110", "yyyyMd"); // date is 10th Jan 2000
+        QDate::fromString("1.30", "M.d");           // January 30 in the current year
+        QDate::fromString("20000110", "yyyyMMdd");  // January 10, 2000
+        QDate::fromString("20000110", "yyyyMd");    // January 10, 2000
     \endcode
 
-    \sa QDateTime::fromString() QTime::fromString() QDate::toString()
-    QDateTime::toString() QTime::toString()
+    \sa QDateTime::fromString(), QTime::fromString(), QDate::toString(),
+        QDateTime::toString(), QTime::toString()
 */
 
 QDate QDate::fromString(const QString &string, const QString &format)
@@ -1137,10 +1139,10 @@ QDate QDate::fromString(const QString &string, const QString &format)
 
     Example:
     \code
-    QDate::isValid(2002, 5, 17);  // true   May 17th 2002 is valid
-    QDate::isValid(2002, 2, 30);  // false  Feb 30th does not exist
-    QDate::isValid(2004, 2, 29);  // true   2004 is a leap year
-    QDate::isValid(1202, 6, 6);   // false  1202 is pre-Gregorian
+        QDate::isValid(2002, 5, 17);  // true
+        QDate::isValid(2002, 2, 30);  // false (Feb 30 does not exist)
+        QDate::isValid(2004, 2, 29);  // true (2004 is a leap year)
+        QDate::isValid(1202, 6, 6);   // false (1202 is pre-Gregorian)
     \endcode
 
     \warning A \a y value in the range 00 to 99 is interpreted as
@@ -1226,14 +1228,16 @@ void QDate::julianToGregorian(uint jd, int &y, int &m, int &d)
 
 /*! \fn static QDate QDate::fromJulianDay(int jd)
 
-Converts the Julian day \a jd to a QDate.
+    Converts the Julian day \a jd to a QDate.
 
-\sa toJulianDay
+    \sa toJulianDay()
 */
 
 /*! \fn int QDate::toJulianDay() const
 
-Converts the date to a julian day.
+    Converts the date to a Julian day.
+
+    \sa fromJulianDay()
 */
 
 /*****************************************************************************
@@ -1241,7 +1245,7 @@ Converts the date to a julian day.
  *****************************************************************************/
 
 /*!
-    \class QTime qdatetime.h
+    \class QTime
     \reentrant
 
     \brief The QTime class provides clock time functions.
@@ -1335,6 +1339,8 @@ bool QTime::isValid() const
 
 /*!
     Returns the hour part (0 to 23) of the time.
+
+    \sa minute(), second(), msec()
 */
 
 int QTime::hour() const
@@ -1344,6 +1350,8 @@ int QTime::hour() const
 
 /*!
     Returns the minute part (0 to 59) of the time.
+
+    \sa hour(), second(), msec()
 */
 
 int QTime::minute() const
@@ -1353,6 +1361,8 @@ int QTime::minute() const
 
 /*!
     Returns the second part (0 to 59) of the time.
+
+    \sa hour(), minute(), msec()
 */
 
 int QTime::second() const
@@ -1362,6 +1372,8 @@ int QTime::second() const
 
 /*!
     Returns the millisecond part (0 to 999) of the time.
+
+    \sa hour(), minute(), second()
 */
 
 int QTime::msec() const
@@ -1548,13 +1560,14 @@ bool QTime::setHMS(int h, int m, int s, int ms)
     Note that the time will wrap if it passes midnight.
 
     Example:
+
     \code
-    QTime n(14, 0, 0);                // n == 14:00:00
-    QTime t;
-    t = n.addSecs(70);                // t == 14:01:10
-    t = n.addSecs(-70);               // t == 13:58:50
-    t = n.addSecs(10*60*60 + 5);      // t == 00:00:05
-    t = n.addSecs(-15*60*60);         // t == 23:00:00
+        QTime n(14, 0, 0);                // n == 14:00:00
+        QTime t;
+        t = n.addSecs(70);                // t == 14:01:10
+        t = n.addSecs(-70);               // t == 13:58:50
+        t = n.addSecs(10 * 60 * 60 + 5);  // t == 00:00:05
+        t = n.addSecs(-15 * 60 * 60);     // t == 23:00:00
     \endcode
 
     \sa addMSecs(), secsTo(), QDateTime::addSecs()
@@ -1573,7 +1586,7 @@ QTime QTime::addSecs(int nsecs) const
     Because QTime measures time within a day and there are 86400
     seconds in a day, the result is always between -86400 and 86400.
 
-    \sa addSecs() QDateTime::secsTo()
+    \sa addSecs(), QDateTime::secsTo()
 */
 
 int QTime::secsTo(const QTime &t) const
@@ -1614,7 +1627,7 @@ QTime QTime::addMSecs(int ms) const
     seconds in a day, the result is always between -86400000 and
     86400000 msec.
 
-    \sa secsTo()
+    \sa secsTo(), addMSecs()
 */
 
 int QTime::msecsTo(const QTime &t) const
@@ -1660,8 +1673,6 @@ int QTime::msecsTo(const QTime &t) const
     Returns true if this time is later than or equal to \a t;
     otherwise returns false.
 */
-
-
 
 /*!
     \overload
@@ -1767,7 +1778,8 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
     treated as text and not be used as an expression.
 
     \code
-    QTime time = QTime::fromString("1mm12car00", "m'mm'hcarss"); // time is 12:01.00
+        QTime time = QTime::fromString("1mm12car00", "m'mm'hcarss");
+        // time is 12:01.00
     \endcode
 
     If the format is not satisfied an invalid QTime is returned.
@@ -1779,14 +1791,15 @@ QTime QTime::fromString(const QString& s, Qt::DateFormat f)
     in an invalid time:
 
     \code
-    QTime time = QTime::fromString("00:710", "hh:ms"); // invalid.
+        QTime time = QTime::fromString("00:710", "hh:ms"); // invalid
     \endcode
 
     Any field that is not represented in the format will be set to zero.
     For example:
 
     \code
-    QTime time = QTime::fromString("1.30", "m.s"); // time is 00:01:30.000
+        QTime time = QTime::fromString("1.30", "m.s");
+        // time is 00:01:30.000
     \endcode
 
     \sa QDateTime::fromString() QDate::fromString() QDate::toString()
@@ -1810,9 +1823,10 @@ QTime QTime::fromString(const QString &string, const QString &format)
     \a s are in the range 0 to 59, and \a ms is in the range 0 to 999.
 
     Example:
+
     \code
-    QTime::isValid(21, 10, 30); // returns true
-    QTime::isValid(22, 5,  62); // returns false
+        QTime::isValid(21, 10, 30); // returns true
+        QTime::isValid(22, 5,  62); // returns false
     \endcode
 */
 
@@ -1939,12 +1953,15 @@ int QTime::elapsed() const
     number of days between two datetimes, and secsTo() returns the
     number of seconds between two datetimes.
 
-    The range of a datetime object is constrained to the ranges of the
-    QDate and QTime objects which it encapsulates.
+    QDateTime can store datetimes as \l{Qt::LocalTime}{local time} or
+    as \l{Qt::UTC}{UTC}. QDateTime::currentDateTime() returns a
+    QDateTime expressed as local time; use toUTC() to convert it to
+    UTC. You can also use timeSpec() to find out if a QDateTime
+    object stores a UTC time or a local time. Operations such as
+    addSecs() and secsTo() are aware of daylight saving time (DST).
 
     \sa QDate QTime QDateTimeEdit
 */
-
 
 /*!
     Constructs a null datetime (i.e. null date and null time). A null
@@ -2295,8 +2312,8 @@ QString QDateTime::toString(Qt::DateFormat f) const
     are enclosed in singlequotes will be treated as text and not be used as an
     expression.
 
-    Example format strings (assumed that the QDateTime is
-    21<small><sup>st</sup></small> May 2001 14:13:09)
+    Example format strings (assumed that the QDateTime is 21 May 2001
+    14:13:09):
 
     \table
     \header \i Format       \i Result
@@ -2413,10 +2430,14 @@ int QDateTime::daysTo(const QDateTime &other) const
     datetime. If the \a other datetime is earlier than this datetime,
     the value returned is negative.
 
+    Before performing the comparison, the two datetimes are converted
+    to Qt::UTC to ensure that the result is correct if one of the two
+    datetimes has daylight saving time (DST) and the other doesn't.
+
     Example:
     \code
-        QDateTime dt = QDateTime();
-        QDateTime xmas(QDate(dt.date().year(), 12, 25), QTime(17, 00));
+        QDateTime now = QDateTime::currentDateTime();
+        QDateTime xmas(QDate(dt.date().year(), 12, 25), QTime(0, 0));
         qDebug("There are %d seconds to Christmas", dt.secsTo(xmas));
     \endcode
 
@@ -2435,10 +2456,12 @@ int QDateTime::secsTo(const QDateTime &other) const
 }
 
 /*!
-  \fn QDateTime QDateTime::toTimeSpec(Qt::TimeSpec specification) const
+    \fn QDateTime QDateTime::toTimeSpec(Qt::TimeSpec specification) const
 
-  Returns a copy of this datetime configured to use the given time
-  \a specification.
+    Returns a copy of this datetime configured to use the given time
+    \a specification.
+
+    \sa timeSpec(), toUTC(), toLocalTime()
 */
 
 QDateTime QDateTime::toTimeSpec(Qt::TimeSpec spec) const
@@ -2538,9 +2561,10 @@ bool QDateTime::operator<(const QDateTime &other) const
 */
 
 /*!
-    Returns the current datetime, as reported by the system clock.
+    Returns the current datetime, as reported by the system clock, in
+    the local time zone.
 
-    \sa QDate::currentDate(), QTime::currentTime(), Qt::TimeSpec
+    \sa QDate::currentDate(), QTime::currentTime(), toTimeSpec()
 */
 
 QDateTime QDateTime::currentDateTime()
@@ -2688,8 +2712,9 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
     treated as text and not be used as an expression.
 
     \code
-    QDateTime dateTime = QDateTime::fromString("M1d1y9800:01:02", "'M'M'd'd'y'yyhh:mm:ss");
-    // dateTime is 1st of Jan 1998 00:01:02
+        QDateTime dateTime = QDateTime::fromString("M1d1y9800:01:02",
+                                                   "'M'M'd'd'y'yyhh:mm:ss");
+        // dateTime is 1 January 1998 00:01:02
     \endcode
 
     If the format is not satisfied an invalid QDateTime is returned.
@@ -2699,9 +2724,11 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
     sections.
 
     \code
-    QDateTime dateTime = QDateTime::fromString("130", "Mm"); // invalid.
+        QDateTime dateTime = QDateTime::fromString("130", "Mm"); // invalid
     \endcode
-    This could have meant 1st of January 00:30.00 but the M will grab two digits.
+
+    This could have meant 1 January 00:30.00 but the M will grab
+    two digits.
 
     For any field that is not represented in the format the following
     defaults are used:
@@ -2710,7 +2737,7 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
     \header \i Field  \i Default value
     \row    \i Year   \i The current year
     \row    \i Month  \i 1 (January)
-    \row    \i Day    \i 1 (1st)
+    \row    \i Day    \i 1
     \row    \i Hour   \i 0
     \row    \i Minute \i 0
     \row    \i Second \i 0
@@ -2719,8 +2746,8 @@ QDateTime QDateTime::fromString(const QString& s, Qt::DateFormat f)
     For example:
 
     \code
-    QDateTime dateTime = QDateTime::fromString("1.30.1", "M.d.s");
-    // dateTime is 30th of January in the current year 00:00:01
+        QDateTime dateTime = QDateTime::fromString("1.30.1", "M.d.s");
+        // dateTime is January 30 in the current year 00:00:01
     \endcode
 
     \sa QDate::fromString() QTime::fromString() QDate::toString()
@@ -2741,7 +2768,7 @@ QDateTime QDateTime::fromString(const QString &string, const QString &format)
     Returns a datetime containing the date and time information in
     this datetime, but specified using the Qt::LocalTime definition.
 
-    \sa Qt::TimeSpec
+    \sa toTimeSpec()
 */
 
 /*!
@@ -2750,7 +2777,7 @@ QDateTime QDateTime::fromString(const QString &string, const QString &format)
     Returns a datetime containing the date and time information in
     this datetime, but specified using the Qt::UTC definition.
 
-    \sa Qt::TimeSpec
+    \sa toTimeSpec()
 */
 
 /*! \internal
@@ -2766,108 +2793,95 @@ void QDateTime::detach()
 
 #ifndef QT_NO_DATASTREAM
 /*!
-    \fn QDataStream &operator<<(QDataStream &stream, const QDate &date)
-
     \relates QDate
 
-    Writes the \a date to the given \a stream.
+    Writes the \a date to stream \a out.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
-QDataStream &operator<<(QDataStream &s, const QDate &d)
+QDataStream &operator<<(QDataStream &out, const QDate &date)
 {
-    return s << (quint32)(d.jd);
+    return out << (quint32)(date.jd);
 }
 
 /*!
-    \fn QDataStream &operator>>(QDataStream &stream, QDate &date)
-
     \relates QDate
 
-    Reads a date from the \a stream into the \a date.
+    Reads a date from stream \a in into the \a date.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
-QDataStream &operator>>(QDataStream &s, QDate &d)
+QDataStream &operator>>(QDataStream &in, QDate &date)
 {
     quint32 jd;
-    s >> jd;
-    d.jd = jd;
-    return s;
+    in >> jd;
+    date.jd = jd;
+    return in;
 }
 
 /*!
-    \fn QDataStream &operator<<(QDataStream &stream, const QTime &time)
-
     \relates QTime
 
-    Writes the \a time to the given \a stream.
+    Writes \a time to stream \a out.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
-QDataStream &operator<<(QDataStream &s, const QTime &t)
+QDataStream &operator<<(QDataStream &out, const QTime &time)
 {
-    return s << (quint32)(t.ds);
+    return out << (quint32)time.ds;
 }
 
 /*!
-    \fn QDataStream &operator>>(QDataStream &stream, QTime &time)
-
     \relates QTime
 
-    Reads a time from the \a stream into the given \a time.
+    Reads a time from stream \a in into the given \a time.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
-QDataStream &operator>>(QDataStream &s, QTime &t)
+QDataStream &operator>>(QDataStream &in, QTime &time)
 {
     quint32 ds;
-    s >> ds;
-    t.ds = ds;
-    return s;
+    in >> ds;
+    time.ds = ds;
+    return in;
 }
 
 /*!
-    \fn QDataStream &operator<<(QDataStream &stream, const QDateTime &datetime)
-
     \relates QDateTime
 
-    Writes the \a datetime to the given \a stream.
+    Writes \a dateTime to the \a out stream.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
-
-QDataStream &operator<<(QDataStream &out, const QDateTime &dt)
+QDataStream &operator<<(QDataStream &out, const QDateTime &dateTime)
 {
-    out << dt.d->date << dt.d->time;
+    out << dateTime.d->date << dateTime.d->time;
     if (out.version() >= 7)
-        out << (qint8)dt.d->spec;
+        out << (qint8)dateTime.d->spec;
     return out;
 }
 
 /*!
-    \fn QDataStream &operator>>(QDataStream &stream, QDateTime &datetime)
-
     \relates QDateTime
 
-    Reads a datetime from the \a stream into the given \a datetime.
+    Reads a datetime from the stream \a in into \a dateTime.
 
-    \sa \link datastreamformat.html Format of the QDataStream operators \endlink
+    \sa {Format of the QDataStream operators}
 */
 
-QDataStream &operator>>(QDataStream &in, QDateTime &dt)
+QDataStream &operator>>(QDataStream &in, QDateTime &dateTime)
 {
-    dt.detach();
+    dateTime.detach();
 
     qint8 ts = (qint8)QDateTimePrivate::LocalUnknown;
-    in >> dt.d->date >> dt.d->time;
+    in >> dateTime.d->date >> dateTime.d->time;
     if (in.version() >= 7)
         in >> ts;
-    dt.d->spec = (QDateTimePrivate::Spec)ts;
+    dateTime.d->spec = (QDateTimePrivate::Spec)ts;
     return in;
 }
 #endif // QT_NO_DATASTREAM

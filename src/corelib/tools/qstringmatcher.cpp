@@ -95,28 +95,68 @@ static inline int bm_find(const QChar *uc, uint l, int index, const QChar *puc, 
     return -1; // not found
 }
 
+/*! \class QStringMatcher
+    \brief The QStringMatcher class holds a sequence of characters that
+    can be quickly matched in a Unicode string.
+
+    \ingroup tools
+    \ingroup text
+
+    This class is useful when you have a sequence of \l{QChar}s that
+    you want to repeatedly match against some strings (perhaps in a
+    loop), or when you want to search for the same sequence of
+    characters multiple times in the same string. Using a matcher
+    object and indexIn() is faster than matching a plain QString with
+    QString::indexOf() if repeated matching takes place. This class
+    offers no benefit if you are doing one-off string matches.
+
+    Create the QStringMatcher with the QString you want to search
+    for. Then call indexIn() on the QString that you want to search.
+
+    \sa QString, QByteArrayMatcher, QRegExp
+*/
+
+/*!
+    Constructs an empty string matcher that won't match anything.
+    Call setPattern() to give it a pattern to match.
+*/
 QStringMatcher::QStringMatcher()
     : d_ptr(0)
 {
     qMemSet(q_skiptable, 0, sizeof(q_skiptable));
 }
 
+/*!
+    Constructs a string matcher that will search for \a pattern, with
+    case sensitivity \a cs.
+
+    Call indexIn() to perform a search.
+*/
 QStringMatcher::QStringMatcher(const QString &pattern, Qt::CaseSensitivity cs)
     : d_ptr(0), q_pattern(pattern), q_cs(cs)
 {
     bm_init_skiptable(pattern.unicode(), pattern.size(), q_skiptable, cs);
 }
 
+/*!
+    Copies the \a other string matcher to this string matcher.
+*/
 QStringMatcher::QStringMatcher(const QStringMatcher &other)
     : d_ptr(0)
 {
     operator=(other);
 }
 
+/*!
+    Destroys the string matcher.
+*/
 QStringMatcher::~QStringMatcher()
 {
 }
 
+/*!
+    Assigns the \a other string matcher to this string matcher.
+*/
 QStringMatcher &QStringMatcher::operator=(const QStringMatcher &other)
 {
     q_pattern = other.q_pattern;
@@ -125,12 +165,24 @@ QStringMatcher &QStringMatcher::operator=(const QStringMatcher &other)
     return *this;
 }
 
+/*!
+    Sets the string that this string matcher will search for to \a
+    pattern.
+
+    \sa pattern(), setCaseSensitivity(), indexIn()
+*/
 void QStringMatcher::setPattern(const QString &pattern)
 {
     bm_init_skiptable(pattern.unicode(), pattern.size(), q_skiptable, q_cs);
     q_pattern = pattern;
 }
 
+/*!
+    Sets the case sensitivity setting of this string matcher to \a
+    cs.
+
+    \sa caseSensitivity(), setPattern(), indexIn()
+*/
 void QStringMatcher::setCaseSensitivity(Qt::CaseSensitivity cs)
 {
     if (cs == q_cs)
@@ -139,9 +191,36 @@ void QStringMatcher::setCaseSensitivity(Qt::CaseSensitivity cs)
     q_cs = cs;
 }
 
+/*!
+    Searches the string \a str from character position \a from
+    (default 0, i.e. from the first character), for the string
+    pattern() that was set in the constructor or in the most recent
+    call to setPattern(). Returns the position where the pattern()
+    matched in \a str, or -1 if no match was found.
+
+    \sa setPattern(), setCaseSensitivity()
+*/
 int QStringMatcher::indexIn(const QString &str, int from) const
 {
-    // ### what if (from < 1)
+    if (from < 0)
+        from = 0;
     return bm_find(str.unicode(), str.size(), from, q_pattern.unicode(), q_pattern.size(),
                    q_skiptable, q_cs);
 }
+
+/*!
+    \fn QString QStringMatcher::pattern() const
+
+    Returns the string pattern that this string matcher will search
+    for.
+
+    \sa setPattern()
+*/
+
+/*!
+    \fn Qt::CaseSensitivity QStringMatcher::caseSensitivity() const
+
+    Returns the case sensitivity setting for this string matcher.
+
+    \sa setCaseSensitivity()
+*/
