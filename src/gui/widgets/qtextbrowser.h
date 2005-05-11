@@ -58,6 +58,7 @@ signals:
 protected:
     virtual void keyPressEvent(QKeyEvent *ev);
     virtual void mouseMoveEvent(QMouseEvent *ev);
+    virtual void mousePressEvent(QMouseEvent *ev);
     virtual void mouseReleaseEvent(QMouseEvent *ev);
     virtual void focusOutEvent(QFocusEvent *ev);
     virtual bool focusNextPrevChild(bool next);

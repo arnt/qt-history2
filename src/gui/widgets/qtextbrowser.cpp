@@ -31,7 +31,9 @@ class QTextBrowserPrivate : public QTextEditPrivate
 {
     Q_DECLARE_PUBLIC(QTextBrowser)
 public:
-    QTextBrowserPrivate() : textOrSourceChanged(false), forceLoadOnSourceChange(false) {}
+    QTextBrowserPrivate() 
+        : textOrSourceChanged(false), forceLoadOnSourceChange(false),
+          hadSelectionOnMousePress(false) {}
 
     void init();
 
@@ -67,6 +69,8 @@ public:
 
     void setSource(const QUrl &url);
 
+    QString anchorOnMousePress;
+    bool hadSelectionOnMousePress;
 };
 
 static bool isAbsoluteFileName(const QString &name)
@@ -555,16 +559,34 @@ void QTextBrowser::mouseMoveEvent(QMouseEvent *e)
 /*!
     \reimp
 */
+void QTextBrowser::mousePressEvent(QMouseEvent *e)
+{
+    QTextEdit::mousePressEvent(e);
+
+    Q_D(QTextBrowser);
+    d->anchorOnMousePress = anchorAt(e->pos());
+    d->hadSelectionOnMousePress = d->cursor.hasSelection();
+}
+
+/*!
+    \reimp
+*/
 void QTextBrowser::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QTextBrowser);
     QTextEdit::mouseReleaseEvent(e);
 
-    if (!(e->button() & Qt::LeftButton) || d->cursor.hasSelection())
+    if (!(e->button() & Qt::LeftButton))
         return;
 
     const QString anchor = anchorAt(e->pos());
-    d->activateAnchor(anchor);
+
+    if (anchor.isEmpty())
+        return;
+
+    if (!d->cursor.hasSelection()
+        || (anchor == d->anchorOnMousePress && d->hadSelectionOnMousePress))
+        d->activateAnchor(anchor);
 }
 
 /*!

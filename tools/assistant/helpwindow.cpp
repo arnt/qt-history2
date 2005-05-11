@@ -261,8 +261,7 @@ void HelpWindow::ensureCursorVisible()
 void HelpWindow::mousePressEvent(QMouseEvent *e)
 {
     shiftPressed = e->modifiers() & Qt::ShiftModifier;
-    if (anchorAt(e->pos()).isEmpty())
-        QTextBrowser::mousePressEvent(e);
+    QTextBrowser::mousePressEvent(e);
 }
 
 void HelpWindow::keyPressEvent(QKeyEvent *e)
