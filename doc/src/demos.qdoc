@@ -11,14 +11,17 @@
     you should probably start by going through the
     \l{tutorial.html}{Tutorial}.
 
-    \tableofcontents
-
     \section1 Painting
 
     \list
-    \o \l{demos/deform}{Vector Deformation}
-    \o \l{demos/gradients}{Gradients}
-    \o \l{demos/outlines}{Outline Drawing}
-    \o \l{demos/affine}{Affine Transformations}
+    \o \l{demos/deform}{Vector Deformation} demonstrates effects that are made
+       possible with a vector-oriented paint engine.
+    \o \l{demos/gradients}{Gradients} shows the different types of gradients
+       that are available in Qt.
+    \o \l{demos/pathstroke}{Path Stroking} shows Qt's built-in dash patterns
+       and shows how custom patterns can be used to extend the range of
+       available patterns.
+    \o \l{demos/affine}{Affine Transformations} demonstrates the different
+       affine transformations that can be used to influence painting operations.
     \endlist
 */
