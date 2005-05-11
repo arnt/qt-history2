@@ -1991,6 +1991,8 @@ int QWidget::metric(PaintDeviceMetric m) const
         return (int)rect.size.height; }
     case PdmDepth:
         return 32;
+    case PdmNumColors:
+        return INT_MAX;
     case PdmDpiX:
     case PdmPhysicalDpiX: {
         short dpix, dpiy;
