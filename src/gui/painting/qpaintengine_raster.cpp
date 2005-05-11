@@ -1249,7 +1249,8 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
         return;
     }
 
-    QRectF logRect(p.x(), p.y() - ti.ascent, ti.width, ti.ascent + ti.descent);
+    int x_buffering = ti.ascent;
+    QRectF logRect(p.x(), p.y() - ti.ascent, ti.width + x_buffering, ti.ascent + ti.descent);
     QRect devRect = d->matrix.mapRect(logRect).toRect();
 
     if(devRect.width() == 0 || devRect.height() == 0)
