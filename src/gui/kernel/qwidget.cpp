@@ -6147,7 +6147,7 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
     Q_D(QWidget);
     bool resized = testAttribute(Qt::WA_Resized);
     QWidget *oldtlw = window();
-    bool newParent = parent == parentWidget();
+    bool newParent = (parent != parentWidget());
     d->setParent_sys(parent, f);
     d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
@@ -6156,7 +6156,6 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
     d->resolveLayoutDirection();
 
     if (newParent) {
-
         // send and post remaining QObject events
         if (parent && d->sendChildEvents) {
             QChildEvent e(QEvent::ChildAdded, this);
