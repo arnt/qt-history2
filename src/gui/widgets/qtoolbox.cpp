@@ -285,6 +285,7 @@ QToolBox::QToolBox(QWidget *parent, const char *name, Qt::WFlags f)
     Q_D(QToolBox);
     setObjectName(name);
     d->layout = new QVBoxLayout(this);
+    d->layout->setMargin(0);
     setBackgroundRole(QPalette::Button);
 }
 #endif
@@ -297,6 +298,7 @@ QToolBox::QToolBox(QWidget *parent, Qt::WFlags f)
 {
     Q_D(QToolBox);
     d->layout = new QVBoxLayout(this);
+    d->layout->setMargin(0);
     setBackgroundRole(QPalette::Button);
 }
 

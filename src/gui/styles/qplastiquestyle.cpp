@@ -653,7 +653,7 @@ static void qt_plastique_draw_handle(QPainter *painter, const QStyleOption *opti
     handle.setColor(3, option->palette.base().color().rgba());
 
     const int spacing = 2;
-    
+
     if (orientation == Qt::Vertical) {
         int nchunks = rect.width() / (handle.width() + spacing);
         for (int i = 0; i < nchunks; ++i)
@@ -1068,7 +1068,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 cachePainter.fillRect(option->rect, option->palette.brush(widget->backgroundRole()));
             else
                 cachePainter.fillRect(option->rect, option->palette.background());
-            
+
             QImage handle(qt_toolbarhandle);
             handle.setColor(1, alphaCornerColor.rgba());
             handle.setColor(2, mergedColors(alphaCornerColor, option->palette.base().color()).rgba());
@@ -2579,7 +2579,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->drawLine(rightMost + downOne, rightEdge + downOne);
             painter->drawLine(rightEdge + leftOne + downOne, leftEdge + downOne);
             painter->drawLine(leftEdge + leftOne + downOne, leftMost + downOne);
-            
+
             painter->restore();
         }
         break;
@@ -2639,7 +2639,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->setFont(font);
             painter->setPen(dockWidget->palette.text().color());
             painter->drawText(titleRect, title, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
-            
+
             painter->restore();
         }
         break;
@@ -3301,8 +3301,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 cachePainter.fillRect(pixmapRect, painter->brush());
 
                 QStyleOptionComboBox comboBoxCopy = *comboBox;
-                comboBoxCopy.rect = pixmapRect;                
-                
+                comboBoxCopy.rect = pixmapRect;
+
                 QRect rect = pixmapRect;
                 QRect downArrowRect = subControlRect(CC_ComboBox, &comboBoxCopy, SC_ComboBoxArrow, widget);
                 if (comboBox->direction == Qt::RightToLeft)
@@ -3354,7 +3354,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                         cachePainter.drawLine(downArrowRect.right(), downArrowRect.top() + 2,
                                               downArrowRect.right(), downArrowRect.bottom() - 2);
                     }
-                    
+
                 } else {
                     QStyleOptionButton buttonOption;
                     buttonOption.rect = rect;
@@ -4183,10 +4183,6 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         return 4;
     case PM_TitleBarHeight:
         return qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 30);
-    case PM_DefaultChildMargin:
-        if (qstyleoption_cast<const QStyleOptionToolBox *>(option))
-            return 0;
-        break;
     default:
         break;
     }
