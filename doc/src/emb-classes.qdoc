@@ -19,7 +19,7 @@
     every Qt/Embedded program, and some are only used by the Qt/Embedded server. 
     The Qt/Embedded server program can also be a client, as in the case of a
     single-process installation. All Qt/Embedded specific source files are
-    in \c src/kernel and are suffixed \c{_qws}. The > symbol
+    in \c src/gui and are suffixed \c{_qws}. The > symbol
     indicates inheritance.
 
     \tableofcontents
@@ -98,40 +98,12 @@
     would also need to modify \c QGfxRaster.
     \endomit
 
-    \section1 QMemoryManagerPixmap/QMemoryManager
-
-    This handles requests for space for pixmaps. 
-
-    There should be no need to modify this class.
-
     \section1 QScreen > QLinuxFbScreen > accelerated screens, QTransformedScreen > QVfbScreen
 
     These encapsulate the framebuffer Qt/Embedded is drawing to, provide
     support for mapping of coordinates for rotating framebuffers, allow
     manipulation of the colour palette and provide access to offscreen
     graphics memory for devices with separate framebuffer memories.
-
-    This is used for caching pixmaps and allowing accelerated
-    pixmap-to-screen bit block transfers (blt's). \c QLinuxFbScreen and
-    the accelerated screens use the Linux \c /dev/fb interface to get
-    access to graphics memory and information about the characteristics of
-    the device. The framebuffer device to open is specified by \c
-    QWS_DISPLAY. Only \c QTransformedScreen implements the support for
-    rotated framebuffers. \c QVfbScreen provides an X window containing an
-    emulated framebuffer (a chunk of shared memory is set aside as the
-    'framebuffer' and blt'd into the X window): this is intended as a
-    debugging device allowing users to debug their applications under
-    Qt/Embedded without leaving X. The accelerated screen drivers check to
-    see if they can drive the device specified by \c QWS_CARD_SLOT (which
-    defaults to the usual position of an AGP slot if not specified) and
-    mmap its on-chip registers from \c /dev/mem. They may also do
-    chip-specific setup (initialising registers to known values and so
-    on). Finally, \c QScreen's are used to create new \c QScreenCursors
-    and \c{QGfx}es. 
-
-    If you wish to modify the way pixmaps are allocated in memory,
-    subclass or modify \c QLinuxFbScreen. If you're writing an accelerated
-    driver you will need to subclass \c QScreen or \c QLinuxFbScreen.
 
     \section1 QScreenCursor > accelerated cursor > QVfbCursor
 
@@ -141,6 +113,7 @@
     Subclassing \c QScreenCursor is optional in an accelerated driver (you
     would only want to do so if the hardware supports a hardware cursor).
 
+    \omit ### QGfx has changed a lot
     \section1 QGfx > RasterBase > Raster > accelerated driver > QGfxVfb > QGfxTransformedRaster
 
     This class encapsulates drawing operations, a little like a low-level
@@ -152,6 +125,7 @@
 
     If you're brave, modifying \c QGfxRaster would allow you to customise how
     drawing is done or add support for a new bit depth/pixel format.
+    \endomit
 
     \section1 QLock, QLockHolder
 
@@ -162,6 +136,7 @@
     There should be no need to modify this class unless porting
     Qt/Embedded to an operating system without System V IPC.
 
+    \omit ### Not implemented in 4.0
     \section1 QDirectPainter
 
     This is a \c QPainter which also gives you a pointer to the framebuffer
@@ -170,6 +145,7 @@
     of window contents. 
 
     There should be no reason to modify this class.
+    \endomit
 
     \section1 QWSSoundServer, Client
 
@@ -198,14 +174,14 @@
     keyboard is supported); subclassing it is the preferred way to handle
     non-pointer input devices.
 
-    \section1 QWSMouseHandler > QCalibratedMouseHandler > mouse types
+    \section1 QWSMouseHandler > QWSCalibratedMouseHandler > mouse types
 
-    This handles mouse/touch-panel input. Descendants of \c QCalibratedMouseHandler
+    This handles mouse/touch-panel input. Descendants of \c QWSCalibratedMouseHandler
     make use of filtering code which prevents 'jittering' of the pointer on
     touchscreens; some embedded devices do this filtering in the kernel in
-    which case the driver doesn't need to inherit from \c QCalibratedMouseHandler.
+    which case the driver doesn't need to inherit from \c QWSCalibratedMouseHandler.
 
-    Subclassing \c QCalibratedMouseHandler is preferred for touch-panels without
+    Subclassing \c QWSCalibratedMouseHandler is preferred for touch-panels without
     kernel filtering; inheriting \c QWSMouseHandler is the way to add any other
     type of pointing device (pen tablets, touchscreens, mice, trackballs
     and so forth).
@@ -243,11 +219,11 @@
 
     \section1 QWSDisplayData
 
-    This manages a client's \c QWSClient, reading and interpreting events
+    This manages a client's QWSClient, reading and interpreting events
     from the QWS server. It connects to the QWS server on application
     startup, getting information about the framebuffer and creating the
     memory manager. Other information about the framebuffer comes directly
-    from \c /dev/fb in \c QLinuxFbScreen. 
+    from \c /dev/fb in QLinuxFbScreen. 
 
     There should be no reason to modify this class.
 
@@ -289,12 +265,6 @@
     This provides the QWS client's interface to the QWS property system
     (a simpler version of the X property system, it allows you to attach
     arbitrary data to top-level windows, keyed by an integer). 
-
-    There should be no reason to modify this class.
-
-    \section1 QWSRegionManager
-
-    Used by both client and server to help manage top-level window regions.
 
     There should be no reason to modify this class.
 

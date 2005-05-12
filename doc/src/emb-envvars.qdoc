@@ -25,23 +25,17 @@
 
     \row
     \i \c QWS_DISPLAY
-    \i Defines the display type and framebuffer, e.g.
-    \c{Voodoo3 Mach64:/dev/fb1}.
+    \i Defines the display type and framebuffer.
     Defaults to an unaccelerated Linux framebuffer driver on \c /dev/fb0.
-    Valid drivers are \c QVfb, VGA16, LinuxFb (unaccelerated Linux framebuffer),
-    Mach64 (accelerated for ATI Mach64 cards such as the Rage Pro),
-    Voodoo3 (accelerated for the 3dfx Voodoo 3, should also work on Voodoo
-    Banshee), Matrox (should work on all Matrox graphics cards since the
-    Matrox Millennium), Transformed (for rotated displays), SVGALIB and
-    VNC. Transformed displays have a special format: the specification
-    should include a rotation as a multiple of 90 degrees given as
-    Rot\<x\>, for instance Transformed:Rot90.
+    Valid drivers are QVFb, LinuxFb (unaccelerated Linux framebuffer),
+    Transformed (for rotated displays), and VNC. Transformed displays have a
+    special format: the specification should include a rotation as a multiple
+    of 90 degrees given as Rot\<x\>, for instance Transformed:Rot90.
 
     \row
     \i \c QTDIR
     \i If defined this tells Qt/Embedded to where to find its fonts:
-    fontdir should be in \c $QTDIR/etc/fonts/. If undefined it's assumed
-    to be \c /usr/local/qt-embedded
+    fontdir should be in \c $QTDIR/lib/fonts/.
 
     \row
     \i \c QWS_SIZE
@@ -52,13 +46,6 @@
     \i \c QWS_NOMTRR
     \i If defined, don't use Memory Type Range Registers to define the framebuffer
     as write-combined on x86. Write-combining speeds up graphics output.
-
-    \row
-    \i \c QWS_CARD_SLOT
-    \i Tells the accelerated drivers which card to attempt to accelerate.
-    This should be a path in \c /proc/bus/pci. It defaults to
-    \c /proc/bus/pci/01/00.0 -- the first device on the second PCI bus in the
-    system, which is normally the AGP card.
 
     \row
     \i \c QWS_USB_KEYBOARD
@@ -79,8 +66,8 @@
     \i \c QWS_KEYBOARD
     \i Defines the keyboard type. Multiple keyboards can be handled at once;
     input will be read from all of them. Valid values:
-    Buttons (an iPaq button device if \c QT_QWS_IPAQ is compiled, otherwise
-    one for the Cassiopeia), \c QVfbKeyboard (only useful with \c QVfb),
+    Buttons (an iPaq button device if \c QT_QWS_IPAQ is compiled),
+    QVfbKeyboard (only useful with \c QVfb),
     and TTY (either a USB keyboard or \c /dev/tty depending if \c QWS_USB_KEYBOARD
     is defined)
 

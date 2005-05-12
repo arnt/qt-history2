@@ -75,31 +75,6 @@
     and call QWSPC101KeyboardHandler::doKey() with the keycodes as
     keys are pressed.
 
-    \section1 Key event filters (input methods)
-
-    When the server receives a key event from a keyboard driver, it first
-    passes it through a filter. 
-
-    This can be used to implement input methods, providing input of
-    characters that are not on the keyboard.
-
-    To make an input method, subclass QWSServer::KeyboardFilter (in \c
-    src/kernel/qwindowsystem_qws.h) and implement the virtual function \c
-    filter(). If \c filter() returns \c false, the event will be sent to
-    the clients (using QWSServer::sendKeyEvent()). If \c filter() returns
-    \c true, the event will be stopped. To generate new key events, use
-    QWSServer::sendKeyEvent(). (Do not use processKeyEvent(), since this
-    will lead to infinite recursion.)
-
-    To install a keyboard event filter, use
-    \c{QWSServer::setKeyboardFilter()}. Currently, only one filter
-    can be installed at a time.
-
-    Filtering must be done in the server process.
-
-    The launcher example contains an example of a simple input method,
-    \c{SimpleIM} which reads a substitution table from a file.
-
     \section1 Pen input
 
     Key events do not need to come from a keyboard device. The server
@@ -111,8 +86,7 @@
     \bold{Note:} The key input widget should not take focus, since the
     server would then just send the key events back to the input widget.
     One way to make sure that the input widget never takes focus is to set
-    the \c{WStyle_Customize} and \c{WStyle_Tool} widget flags in
-    the QWidget constructor.
+    the Qt::Tool widget flag in the QWidget constructor.
 
     The \link http://www.trolltech.com/products/qtopia/ Qtopia\endlink
     environment contains various input widgets such as

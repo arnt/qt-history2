@@ -56,26 +56,20 @@
         [gfx driver][:driver specific options][:display number]
     \endcode
 
-    For example, if you want to use the mach64 driver on fb1 as display 2:
-
-    \code
-        $ ./launcher -display Mach64:/dev/fb1:2
-    \endcode
-
     To try this functionality you can do the following:
     \list 1
-    \i Change to VC 1 (virtual console one) and run the launcher:
+    \i Change to VC 1 (virtual console one) and run the launcher example:
 
     \code
-        $ cd examples/launcher
-        $ ./launcher
+        $ cd examples/tools/launcher
+        $ ./launcher -qws
     \endcode
 
     \i Switch to VC 2 and run another one:
 
     \code
-        $ cd examples/launcher
-        $ ./launcher -display :1
+        $ cd examples/tools/launcher
+        $ ./launcher -qws -display :1
     \endcode
 
     Another launcher will be started. Start an application in this launcher.
@@ -85,11 +79,11 @@
     display ID. Change to VC 3:
 
     \code
-        $ cd examples/widgets
-        $ ./widgets -display :1
+        $ cd examples/widgets/styles
+        $ ./styles -display :1
     \endcode
 
-    will display the widgets example on dislpay :1 (VC 2).
+    will display the widgets example on display :1 (VC 2).
     \endlist
 
     Only the master process needs to specify the driver/device part
@@ -113,7 +107,11 @@
     The mouse autodetection opens the serial devices and psaux which
     may cause conflicts with other programs using those devices.  If
     this is the case then specify the mouse driver protocol and device
-    explicitly.
+    explicitly:
+
+    \code
+        export QWS_MOUSE_PROTO=MouseMan:/dev/inputs/mice
+    \endcode
 
     \sa \link emb-pointer.html Qt/Embedded Pointer Handling \endlink
 */

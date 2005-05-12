@@ -19,7 +19,7 @@
     \row \i Qt/X11 \i Q_WS_X11
     \endtable
 
-    Qt/Embedded also requires the following flags to be defined when compiling
+    The default configuration of Qt/Embedded requires the following flags to be defined when compiling
     applications:
     \code
     -DQWS -fno-exceptions -fno-rtti

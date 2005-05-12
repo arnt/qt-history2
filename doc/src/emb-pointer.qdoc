@@ -43,6 +43,6 @@
 
     Qt/Embedded ships with support for the NEC Vr41XX touch panel and the
     emerging linux touch panel standard used by the iPAQ and Zaurus. These
-    are subclasses of QCalibratedMouseHandler which is in turn a subclass
-    of QMouseHandler in \c kernel/qwsmouse_qws.cpp.
+    are subclasses of QWSCalibratedMouseHandler which is in turn a subclass
+    of QWSMouseHandler in \c src/gui/kernel/qmouse_qws.cpp.
 */

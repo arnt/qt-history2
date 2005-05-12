@@ -57,15 +57,6 @@
 
     Modify \c qgfxlinuxfb_qws.cpp.
 
-    \i \bold{The accelerated drivers} currently use the Linux QScreen and use
-    \c /proc/bus/pci to map in PCI config space. However, these are only
-    example drivers; you will probably need to write your own driver in
-    any case, and you will need to provide your own way to map in control
-    registers. 
-
-    Modify \c qgfxmach64_qws.cpp, \c qgfxvoodoo_qws.cpp and \c
-    qgfxmatrox_qws.cpp.
-
     \i \bold{Sound} uses a Linux \c /dev/dsp style device. If you want to use
     the Qt/Embedded sound server you'll need to reimplement it.
 
