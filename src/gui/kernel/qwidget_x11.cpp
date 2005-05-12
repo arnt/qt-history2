@@ -1053,20 +1053,14 @@ void QWidgetPrivate::setWindowIcon_sys()
         XFree((char *)h);
 }
 
-void QWidget::setWindowIconText(const QString &iconText)
+void QWidgetPrivate::setWindowIconText_sys(const QString &iconText)
 {
-    Q_D(QWidget);
-    d->createTLExtra();
-    d->extra->topextra->iconText = iconText;
-
-    XSetWMIconName(X11->display, winId(), qstring_to_xtp(iconText));
+    Q_Q(QWidget);
+    XSetWMIconName(X11->display, q->winId(), qstring_to_xtp(iconText));
 
     QByteArray icon_name = iconText.toUtf8();
-    XChangeProperty(X11->display, winId(), ATOM(_NET_WM_ICON_NAME), ATOM(UTF8_STRING), 8,
-                    PropModeReplace, (unsigned char *) icon_name.data(), icon_name.size());
-
-    QEvent e(QEvent::IconTextChange);
-    QApplication::sendEvent(this, &e);
+    XChangeProperty(X11->display, q->winId(), ATOM(_NET_WM_ICON_NAME), ATOM(UTF8_STRING), 8,
+                    PropModeReplace, (unsigned char *) icon_name.constData(), icon_name.size());
 }
 
 

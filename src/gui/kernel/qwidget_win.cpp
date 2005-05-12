@@ -761,9 +761,9 @@ void QWidgetPrivate::setWindowIcon_sys()
 }
 
 
-void QWidget::setWindowIconText(const QString &iconText)
+void QWidgetPrivate::setWindowIconText_sys(const QString &iconText)
 {
-    d_func()->topData()->iconText = iconText;
+    Q_UNUSED(iconText);    
 }
 
 

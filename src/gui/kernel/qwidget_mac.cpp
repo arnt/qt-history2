@@ -1342,14 +1342,10 @@ void QWidgetPrivate::setWindowIcon_sys()
     }
 }
 
-void QWidget::setWindowIconText(const QString &iconText)
+void QWidgetPrivate::setWindowIconText_sys(const QString &iconText)
 {
-    Q_D(QWidget);
-    d->topData()->iconText = iconText;
     if(isWindow() && !iconText.isEmpty())
         SetWindowAlternateTitle(qt_mac_window_for(this), QCFString(iconText));
-    QEvent e(QEvent::IconTextChange);
-    QApplication::sendEvent(this, &e);
 }
 
 void QWidget::grabMouse()

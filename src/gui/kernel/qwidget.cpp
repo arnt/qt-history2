@@ -3173,6 +3173,25 @@ void QWidgetPrivate::setWindowTitle_helper(const QString &title)
 }
 #endif
 
+void QWidgetPrivate::setWindowIconText_helper(const QString &title)
+{
+    Q_Q(QWidget);
+    setWindowIconText_sys(qt_setWindowTitle_helperHelper(title, q));
+}
+
+void QWidget::setWindowIconText(const QString &iconText)
+{
+    if (QWidget::windowIconText() == iconText)
+        return;
+            
+    Q_D(QWidget);
+    d->topData()->iconText = iconText;
+    d->setWindowIconText_helper(iconText);
+
+    QEvent e(QEvent::IconTextChange);
+    QApplication::sendEvent(this, &e);
+}
+
 void QWidget::setWindowTitle(const QString &title)
 {
     if (QWidget::windowTitle() == title)
@@ -6472,7 +6491,8 @@ void QWidget::setWindowModified(bool mod)
     if (!windowTitle().contains("[*]") && mod)
         qWarning("QWidget::setWindowModified: The window title does not contain a '[*]' placeholder!");
     d->setWindowTitle_helper(windowTitle());
-
+    d->setWindowIconText_helper(windowIconText());    
+    
     QEvent e(QEvent::ModifiedChange);
     QApplication::sendEvent(this, &e);
 }

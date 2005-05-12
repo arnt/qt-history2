@@ -447,13 +447,9 @@ void QWidgetPrivate::setWindowIcon_sys()
 }
 
 
-void QWidget::setWindowIconText(const QString &iconText)
+void QWidgetPrivate::setWindowIconText_sys(const QString &iconText)
 {
-    Q_D(QWidget);
-    d->createTLExtra();
-    d->extra->topextra->iconText = iconText;
-    QEvent e(QEvent::IconTextChange);
-    QApplication::sendEvent(this, &e);
+    Q_UNUSED(iconText);    
 }
 #endif
 

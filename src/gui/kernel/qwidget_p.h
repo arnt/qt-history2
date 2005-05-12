@@ -240,6 +240,8 @@ public:
     bool setAcceptDrops_sys(bool);
     void setAcceptDrops_helper(bool);
     void updateFrameStrut() const;
+    void setWindowIconText_sys(const QString &cap);
+    void setWindowIconText_helper(const QString &cap);
     void setWindowTitle_sys(const QString &cap);
     void setWindowTitle_helper(const QString &cap);
 
