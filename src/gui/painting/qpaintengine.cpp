@@ -65,13 +65,14 @@ QFont QTextItem::font() const
   \brief The QPaintEngine class provides an abstract definition of how
   QPainter draws to a given device on a given platform.
 
-  Qt 4.0 provides several premade implementations of QPaintEngine for
-  the different painter backends we support. We provide one paint
-  engine for each window system and painting framework we
-  support. This includes X11 on Unix/Linux, GDI/GDI+ on Windows and
-  QuickDraw/CoreGraphics on Mac OS X. In addition we provide
-  QPaintEngine implementations for OpenGL (accessible through
-  QGLWidget) and PostScript (accessible through QPSPrinter on X11).
+  Qt 4.0 provides several premade implementations of QPaintEngine for the
+  different painter backends we support. We provide one paint engine for each
+  window system and painting framework we support. This includes X11 on
+  Unix/Linux and CoreGraphics on Mac OS X. In addition we provide QPaintEngine
+  implementations for OpenGL (accessible through QGLWidget) and PostScript
+  (accessible through QPSPrinter on X11). Additionally there is a raster-based
+  paint engine that is a fallback for when an engine does not support a certain
+  capability.
 
   If one wants to use QPainter to draw to a different backend, such as
   PDF, one must subclass QPaintEngine and reimplement all its virtual
@@ -81,10 +82,10 @@ QFont QTextItem::font() const
 
   QPaintEngine is created and owned by the QPaintDevice that created it.
 
-  The big advantage of the QPaintEngine approach opposed to the
-  previous QPainter/QPaintDevice::cmd() approach is that it is now
+  The big advantage of the QPaintEngine approach opposed to
+  Qt 3's QPainter/QPaintDevice::cmd() approach is that it is now
   possible to adapt to multiple technologies on each platform and take
-  advantage of the to the fullest.
+  advantage of each to the fullest.
 
   \sa QPainter, QPaintDevice::paintEngine()
 */
@@ -96,7 +97,7 @@ QFont QTextItem::font() const
   paint engine has. If a feature is not supported by the engine,
   QPainter will do a best effort to emulate that feature through other
   means and pass on an alpha blended QImage to the engine with the
-  emulated results. Some features cannot be emulated: AlphaBlend, PorterDuff.
+  emulated results. Some features cannot be emulated: AlphaBlend and PorterDuff.
 
   \value PrimitiveTransform The engine has support for transforming
                             drawing primitives.
@@ -106,16 +107,15 @@ QFont QTextItem::font() const
                             rotation and shearing.
   \value PatternBrush       The engine is capable of rendering brushes with
                             the brush patterns specified in Qt::BrushStyle.
-  \value LinearGradientFill Linear gradient fills are supported.
-  \value RadialGradientFill Radial gradient fills are supported.
-  \value ConicalGradientFill Conical gradient fills are supported.
+  \value LinearGradientFill The engine supports linear gradient fills.
+  \value RadialGradientFill The engine supports radial gradient fills.
+  \value ConicalGradientFill The engine supports conical gradient fills.
   \value AlphaBlend         The engine can alpha blend primitives.
-  \value PorterDuff
+  \value PorterDuff         The engine supports Porter-Duff operations
   \value PainterPaths       The engine has path support.
-  \value Antialiasing       Antialising can be used to improve the appearance
+  \value Antialiasing       The engine can use antialising to improve the appearance
                             of rendered primitives.
   \value BrushStroke
-  \value UsesFontEngine
   \value PaintOutsidePaintEvent The engine is capable of painting outside of
                                 paint events.
   \value AllFeatures
@@ -179,7 +179,7 @@ struct QT_Point {
 
     The default implementation of this function will try to use drawPath
     if the engine supports the feature QPaintEngine::PainterPaths or try
-    the int based drawPolygon() implementation if not.
+    the float based drawPolygon() implementation if not.
 */
 void QPaintEngine::drawPolygon(const QPointF *points, int pointCount, PolygonDrawMode mode)
 {
@@ -208,7 +208,7 @@ struct QT_PointF {
 
     The default implementation of this function will try to use drawPath()
     if the engine supports the feature QPaintEngine::PainterPaths or try
-    the float based drawPolygon() implementation if not.
+    the int based drawPolygon() implementation if not.
 */
 void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDrawMode mode)
 {
@@ -231,8 +231,8 @@ void QPaintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDraw
     \value X11
     \value Windows
     \value MacPrinter
-    \value CoreGraphics Mac OS X
-    \value QuickDraw (same as CoreGraphics)
+    \value CoreGraphics Mac OS X's Quartz2D (CoreGraphics)
+    \value QuickDraw Mac OS X's older QuickDraw-based painting
     \value QWindowSystem Qt/Embedded
     \value PostScript
     \value OpenGL
@@ -295,6 +295,10 @@ void QPaintEngine::drawPoints(const QPointF *points, int pointCount)
 
 /*!
     Draws the first \a pointCount points in the buffer \a points
+
+    The default implementation converts the first \a pointCount QPoints in \a points
+    to QPointFs and calls the floating point version of drawPoints.
+
 */
 void QPaintEngine::drawPoints(const QPoint *points, int pointCount)
 {
@@ -322,8 +326,6 @@ void QPaintEngine::drawPoints(const QPoint *points, int pointCount)
     contained within rectangle \a rect.
 
     The default implementation calls drawPolygon().
-
-    \sa drawPolygon
 */
 void QPaintEngine::drawEllipse(const QRectF &rect)
 {
@@ -488,7 +490,7 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
 */
 
 /*!
-    \fn void QPaintEngine::updateState(QPainterState *state, bool updateGC)
+    \fn void QPaintEngine::updateState(QPainterState *state)
 
     \internal
 */
@@ -716,8 +718,8 @@ void QPaintEngine::drawRects(const QRect *rects, int rectCount)
 
 /*!
     Draws the first \a rectCount rectangles in the buffer \a
-    rects. The default implementation of this function calls drawPath
-    or drawPolygon depending on the feature set of the paint engine.
+    rects. The default implementation of this function calls drawPath()
+    or drawPolygon() depending on the feature set of the paint engine.
 */
 void QPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
