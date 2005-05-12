@@ -1116,6 +1116,8 @@ void QTextLine::layout_helper(int maxGlyphs)
             line.length++;
             ++item;
             ++glyphCount;
+            line.ascent = qMax(line.ascent, current.ascent);
+            line.descent = qMax(line.descent, current.descent);
             continue;
         }
 
