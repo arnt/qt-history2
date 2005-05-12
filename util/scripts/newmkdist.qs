@@ -70,7 +70,7 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tools/qev"),
 		       new RegExp("^tools/designer/data"),
 		       new RegExp("^tools/designer/tests"),
-		       new RegExp("^src/gui/itemviews/qheaderwidget"),
+ 		       new RegExp("^tools/linguist/.*\\.1"),
 		       new RegExp("^src/gui/painting/makepsheader.pl"),
 		       new RegExp("^src/gui/painting/qpsprinter"),
 		       new RegExp("^LICENSE.TROLL") ];
