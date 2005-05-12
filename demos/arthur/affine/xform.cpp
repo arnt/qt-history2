@@ -798,4 +798,6 @@ XFormWidget::XFormWidget(QWidget *parent)
     vectorType->setChecked(true);
     view->textEditor->setText("Trolltech");
     view->textEditor->setEnabled(false);
+
+    animateButton->animateClick();
 }
