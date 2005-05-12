@@ -2351,7 +2351,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 targetRule += "-ordered";
             t << " " << targetRule;
         }
-        if(suffix == "all")
+        if(suffix == "all" || suffix == "make_first")
             t << varGlue("ALL_DEPS"," "," ","");
         if(suffix == "clean")
             t << varGlue("CLEAN_DEPS"," "," ","");
