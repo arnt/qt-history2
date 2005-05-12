@@ -160,20 +160,8 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
 
 QSize QPropertyEditorDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const
 {
-    QStyleOptionViewItem option = opt;
-
-    const QAbstractItemModel *model = index.model();
-    IProperty *property = static_cast<const QPropertyEditorModel*>(model)->privateData(index);
-    if (index.column() == 0 && property && property->changed()) {
-        option.font.setBold(true);
-    }
-
-    option.state &= ~(QStyle::State_Selected | QStyle::State_HasFocus);
-
-    QSize sz = QItemDelegate::sizeHint(option, index) + QSize(4, 4); // ####
-    return sz;
+    return QItemDelegate::sizeHint(opt, index) + QSize(4, 4);
 }
-
 
 bool QPropertyEditorDelegate::isReadOnly() const
 {

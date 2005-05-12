@@ -14,13 +14,8 @@
 #include "qdesigner_integration.h"
 
 // sdk
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowcursor.h>
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractpropertyeditor.h>
-#include <QtDesigner/abstractwidgetbox.h>
-#include <QtDesigner/abstractobjectinspector.h>
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtCore/QVariant>
 
@@ -84,6 +79,14 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
         }
 
         emit propertyChanged(formWindow, name, value);
+
+        if (core()->propertyEditor() && core()->propertyEditor()->object()) {
+            QObject *o = core()->propertyEditor()->object();
+            QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(core()->extensionManager(), o);
+            int index = sheet->indexOf(name);
+            if (index != -1)
+                core()->propertyEditor()->setPropertyValue(name, sheet->property(index));
+        }
     }
 }
 
