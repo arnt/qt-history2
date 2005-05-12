@@ -21,8 +21,13 @@
 #define ATTRIBUTE_LANG "lang"
 #define ATTRIBUTE_PREFIX "prefix"
 #define ATTRIBUTE_ALIAS "alias"
+#define ATTRIBUTE_THRESHOLD "threshold"
+#define ATTRIBUTE_COMPRESS "compress"
+
 
 #define CONSTANT_HEADER_SIZE 8
+#define CONSTANT_COMPRESSLEVEL_DEFAULT 0
+#define CONSTANT_COMPRESSTHRESHOLD_DEFAULT 70
 
 struct RCCFileInfo;
 
@@ -100,7 +105,8 @@ struct RCCFileInfo
     };
 
     inline RCCFileInfo(QString name = QString(), QFileInfo fileInfo = QFileInfo(),
-                       QLocale locale = QLocale(), uint flags = NoFlags);
+                       QLocale locale = QLocale(), uint flags = NoFlags, 
+                       int compressLevel = CONSTANT_COMPRESSLEVEL_DEFAULT, int compressThreshold = CONSTANT_COMPRESSTHRESHOLD_DEFAULT);
     ~RCCFileInfo() { qDeleteAll(children); }
     inline QString resourceName() {
         QString resource = name;
@@ -115,15 +121,17 @@ struct RCCFileInfo
     QFileInfo fileInfo;
     RCCFileInfo *parent;
     QHash<QString, RCCFileInfo*> children;
+    int mCompressLevel;
+    int mCompressThreshold;
 
     qint64 nameOffset, dataOffset, childOffset;
-    qint64 writeDataBlob(FILE *out, qint64 offset, int compression,
-                         RCCResourceLibrary::Format format);
+    qint64 writeDataBlob(FILE *out, qint64 offset, RCCResourceLibrary::Format format);
     qint64 writeDataName(FILE *out, qint64 offset, RCCResourceLibrary::Format format);
     bool   writeDataInfo(FILE *out, RCCResourceLibrary::Format format);
 };
 
-inline RCCFileInfo::RCCFileInfo(QString name, QFileInfo fileInfo, QLocale locale, uint flags)
+inline RCCFileInfo::RCCFileInfo(QString name, QFileInfo fileInfo, QLocale locale, uint flags, 
+                                int compressLevel, int compressThreshold)
 {
     this->name = name;
     this->fileInfo = fileInfo;
@@ -131,6 +139,8 @@ inline RCCFileInfo::RCCFileInfo(QString name, QFileInfo fileInfo, QLocale locale
     this->flags = flags;
     this->parent = 0;
     this->nameOffset = this->dataOffset = this->childOffset = 0;
+    this->mCompressLevel = compressLevel;
+    this->mCompressThreshold = compressThreshold;
 }
 
 #endif

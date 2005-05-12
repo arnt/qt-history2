@@ -16,8 +16,8 @@
 static bool writeBinary = false;
 static QString initName;
 static bool verbose = false;
-static int compressLevel = -1;
-static int compressThreshold = 70;
+static int compressLevel = CONSTANT_COMPRESSLEVEL_DEFAULT;
+static int compressThreshold = CONSTANT_COMPRESSTHRESHOLD_DEFAULT;
 static QString resourceRoot;
 
 bool processResourceFile(const QStringList &filenamesIn, const QString &filenameOut, bool list)
@@ -137,7 +137,7 @@ int main(int argc, char *argv[])
             } else if(opt == "help" || opt == "h") {
                 helpRequested = true;
             } else if(opt == "no-compress") {
-                compressLevel = 0;
+                compressLevel = -2;
             } else {
                 errorMsg = QString(QLatin1String("Unknown option: '%1'")).arg(argv[i]);
             }

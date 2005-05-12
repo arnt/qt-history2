@@ -105,7 +105,7 @@ bool RCCFileInfo::writeDataInfo(FILE *out, RCCResourceLibrary::Format format)
     return true;
 }
 
-qint64 RCCFileInfo::writeDataBlob(FILE *out, qint64 offset, int compression, RCCResourceLibrary::Format format)
+qint64 RCCFileInfo::writeDataBlob(FILE *out, qint64 offset, RCCResourceLibrary::Format format)
 {
     //capture the offset
     dataOffset = offset;
@@ -117,8 +117,17 @@ qint64 RCCFileInfo::writeDataBlob(FILE *out, qint64 offset, int compression, RCC
         return false;
     }
     QByteArray data = file.readAll();
-    if (flags & RCCFileInfo::Compressed)
-        data = qCompress(reinterpret_cast<uchar *>(data.data()), data.size(), compression);
+
+    // Check if compression is useful for this file        
+    if (mCompressLevel != 0) {            
+        QByteArray compressed = qCompress(reinterpret_cast<uchar *>(data.data()), data.size(), mCompressLevel);
+
+        int compressRatio = int(100.0f * (float(data.size() - compressed.size()) / float(data.size())));
+        if (compressRatio >= mCompressThreshold) {
+            data = compressed;
+            flags |= Compressed;
+        }
+    }
 
     //some info
     if(format == RCCResourceLibrary::C_Code)
@@ -211,12 +220,17 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString c
             if (child.hasAttribute(ATTRIBUTE_LANG))
                 lang = QLocale(child.attribute(ATTRIBUTE_LANG));
 
-            QString prefix = child.attribute(ATTRIBUTE_PREFIX);
+            QString prefix;
+            if (child.hasAttribute(ATTRIBUTE_PREFIX)) {
+                prefix = child.attribute(ATTRIBUTE_PREFIX);
+            }
             if (!prefix.endsWith(QLatin1String("/")))
                 prefix += '/';
 
+
             for (QDomNode res = child.firstChild(); !res.isNull(); res = res.nextSibling()) {
                 if (res.toElement().tagName() == QLatin1String(TAG_FILE)) {
+
                     QString fileName(res.firstChild().toText().data());
                     if (fileName.isEmpty())
                         fprintf(stderr, "Warning: Null node in XML\n");
@@ -226,6 +240,18 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString c
                         alias = res.toElement().attribute(ATTRIBUTE_ALIAS);
                     else
                         alias = fileName;
+
+                    int compressLevel = mCompressLevel;
+                    if (res.toElement().hasAttribute(ATTRIBUTE_COMPRESS)) 
+                        compressLevel = res.toElement().attribute(ATTRIBUTE_COMPRESS).toInt();
+                    int compressThreshold = mCompressThreshold;
+                    if (res.toElement().hasAttribute(ATTRIBUTE_THRESHOLD))
+                        compressThreshold = res.toElement().attribute(ATTRIBUTE_THRESHOLD).toInt();
+
+                    // Special case for -no-compress. Overrides all other settings.
+                    if (mCompressLevel == -2) 
+                        compressLevel = 0;
+                    
                     alias = QDir::cleanPath(alias);
                     while (alias.startsWith("../"))
                         alias.remove(0, 3);
@@ -236,7 +262,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString c
                         fprintf(stderr, "Cannot find file: %s\n", fileName.toLatin1().constData());
                         continue ;
                     } else if (file.isFile()) {
-                        addFile(alias, RCCFileInfo(alias.section('/', -1), file, lang));
+                        addFile(alias, RCCFileInfo(alias.section('/', -1), file, lang, RCCFileInfo::NoFlags, compressLevel, compressThreshold));
                     } else {
                         QDir dir;
                         if(file.isDir()) {
@@ -254,7 +280,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString c
                             if(children[i].fileName() != QLatin1String(".") &&
                                children[i].fileName() != QLatin1String(".."))
                                 addFile(alias + children[i].fileName(),
-                                        RCCFileInfo(children[i].fileName(), children[i], lang));
+                                        RCCFileInfo(children[i].fileName(), children[i], lang, RCCFileInfo::NoFlags, compressLevel, compressThreshold));
                         }
                     }
                 }
@@ -413,7 +439,7 @@ RCCResourceLibrary::writeDataBlobs(FILE *out)
             if(child->flags & RCCFileInfo::Directory)
                 pending.push(child);
             else
-                offset = child->writeDataBlob(out, offset, mCompressLevel, mFormat);
+                offset = child->writeDataBlob(out, offset, mFormat);
         }
     }
     if(mFormat == C_Code)
