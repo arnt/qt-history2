@@ -513,7 +513,7 @@ void FormWindowManager::slotUpdateActions()
                                 && layout == 0;
 
             m_layoutChilds = layoutAvailable;
-            breakAvailable = layout != 0;
+            breakAvailable = layout != 0 || LayoutInfo::isWidgetLaidout(m_core, widget);
         } else {
             layoutAvailable = unlaidoutWidgetCount > 1;
             breakAvailable = false;
