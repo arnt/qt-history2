@@ -2923,7 +2923,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
             p.setRenderHint(QPainter::Antialiasing);
             p.setRenderHint(QPainter::SmoothPixmapTransform);
         }
-        p.setMatrix(matrix);
+        p.setMatrix(mat);
         p.drawImage(QPoint(0, 0), *this);
     } else {
         bool invertible;
