@@ -27,8 +27,8 @@
 
 #include <qplatformdefs.h>
 #include <qiodevice.h>
+#include <qfileengine.h>
 
-class QFileEngine;
 class QFileEnginePrivate
 {
 public:
