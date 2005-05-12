@@ -410,7 +410,7 @@ void QBrush::setColor(const QColor &c)
 
     Sets a custom pattern for this brush. Use setTexture() instead.
 
-    \sa setTexture
+    \sa setTexture()
 */
 
 /*!

@@ -412,7 +412,7 @@ void QColor::getHsv(int *h, int *s, int *v, int *a) const
 /*!
     \overload
 
-    The value of \a h, \a s and \a v must all be in the range 0.0-1.0.
+    The value of \a h, \a s, \a v, and \a a must all be in the range 0.0-1.0.
 */
 void QColor::setHsvF(qreal h, qreal s, qreal v, qreal a)
 {

@@ -50,8 +50,8 @@
 */
 
 /*!
-    Constructs a paint device with internal flags \a devflags. This
-    constructor can be invoked only from QPaintDevice subclasses.
+    Constructs a paint device. This constructor can be invoked only from
+    subclasses of QPaintDevice.
 */
 
 QPaintDevice::QPaintDevice()

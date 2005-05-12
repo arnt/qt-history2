@@ -407,7 +407,8 @@ QBrush QPen::brush() const
 
 
 /*!
-    Sets the brush used to fill strokes generated with this pen.
+    Sets the brush used to fill strokes generated with this pen to the given
+    \a brush.
 */
 void QPen::setBrush(const QBrush &brush)
 {
