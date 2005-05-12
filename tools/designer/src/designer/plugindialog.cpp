@@ -87,6 +87,8 @@ void PluginDialog::populateTreeWidget()
                     QTreeWidgetItem *item = new QTreeWidgetItem(pluginItem);
                     item->setText(0, p->name());
                     item->setIcon(0, pluginIcon(p->icon()));
+                    item->setToolTip(0, p->toolTip());
+                    item->setWhatsThis(0, p->whatsThis());
                 }
             }
 
@@ -95,6 +97,8 @@ void PluginDialog::populateTreeWidget()
                 QTreeWidgetItem *item = new QTreeWidgetItem(pluginItem);
                 item->setText(0, p->name());
                 item->setIcon(0, pluginIcon(p->icon()));
+                item->setToolTip(0, p->toolTip());
+                item->setWhatsThis(0, p->whatsThis());
             }
         }
     }
