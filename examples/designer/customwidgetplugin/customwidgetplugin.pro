@@ -1,4 +1,4 @@
-CONFIG      += designer
+CONFIG      += designer plugin
 TEMPLATE    = lib
 DESTDIR     = $$[QT_INSTALL_PLUGINS]/designer
 

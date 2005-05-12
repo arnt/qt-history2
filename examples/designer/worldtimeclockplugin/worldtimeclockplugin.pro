@@ -1,4 +1,4 @@
-CONFIG      += designer
+CONFIG      += designer plugin
 QT          += xml
 TEMPLATE    = lib
 
