@@ -57,7 +57,7 @@ inline void Q3Membuf::append(QByteArray *ba)
 { buf.append(ba); _size += ba->size(); }
 
 inline void Q3Membuf::clear()
-{ buf.clear(); _size=0; _index=0; }
+{ qDeleteAll(buf); buf.clear(); _size=0; _index=0; }
 
 inline QByteArray Q3Membuf::readAll()
 { QByteArray ba; ba.resize(_size); consumeBytes(_size,ba.data()); return ba; }

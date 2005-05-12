@@ -53,6 +53,7 @@ bool Q3Membuf::consumeBytes(Q_ULONG nbytes, char *sink)
             }
             nbytes -= len;
             buf.removeFirst();
+	    delete a;
             _index = 0;
             if (nbytes == 0)
                 break;
