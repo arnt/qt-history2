@@ -22,9 +22,12 @@ struct LinearGradientData;
 struct ConicalGradientData;
 extern uint qt_gradient_pixel(const GradientData *data, double pos);
 
+struct BlendColorData {
+    int y;
+    uint color;
+};
 
-typedef void (*BlendColor)(void *target, const QSpan *span, uint color,
-                           QPainter::CompositionMode mode);
+typedef void (*BlendColor)(void *target, const QSpan *span, QPainter::CompositionMode mode, const BlendColorData *data);
 
 typedef void (*Blend)(void *target, const QSpan *span,
                       const qreal dx, const qreal dy,
@@ -41,7 +44,7 @@ typedef void (*BlendTransformed)(void *target, const QSpan *span,
 typedef void (*BlendLinearGradient)(void *target,
                                     const QSpan *span,
                                     LinearGradientData *data,
-                                    qreal ybase,
+                                    qreal ybase, int y,
                                     QPainter::CompositionMode mode);
 
 typedef void (*BlendConicalGradient)(void *target,
@@ -54,6 +57,8 @@ struct DrawHelper {
     enum Layout {
         Layout_ARGB,
         Layout_RGB32,
+        Layout_Mono,
+        Layout_MonoLSB,
         Layout_Count
     };
     BlendColor blendColor;

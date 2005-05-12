@@ -162,6 +162,7 @@ public:
     uint antialiased : 1;
     uint bilinear : 1;
     uint flushOnEnd : 1;
+    uint mono_surface : 1;
 };
 
 /*******************************************************************************
@@ -204,14 +205,13 @@ public:
     void replaceClipSpans(int y, QSpan *spans, int spanCount);
     void resetClipSpans(int y, int count);
 
-    uint *scanLine(int y) { Q_ASSERT(y>=0); Q_ASSERT(y<m_height); return m_buffer + y * m_width; }
+    uchar *scanLine(int y) { Q_ASSERT(y>=0); Q_ASSERT(y<m_height); return m_buffer + y * bytes_per_line; }
 
 #ifndef QT_NO_DEBUG
     QImage clipImage() const;
     QImage bufferImage() const;
 #endif
 
-    void flushTo1BitImage(QImage *image) const;
     void flushToARGBImage(QImage *image) const;
 
     QSpan *clipSpans(int y) const { Q_ASSERT(y >= 0 && y < m_height); return m_clipSpans[y]; }
@@ -219,8 +219,9 @@ public:
 
     int width() const { return m_width; }
     int height() const { return m_height; }
+    int bytesPerLine() const { return bytes_per_line; }
 
-    uint *buffer() const { return m_buffer; }
+    uchar *buffer() const { return m_buffer; }
 
 private:
 #if defined(Q_WS_WIN)
@@ -230,7 +231,8 @@ private:
 
     int m_width;
     int m_height;
-    uint *m_buffer;
+    int bytes_per_line;
+    uchar *m_buffer;
 
     int m_clipSpanHeight;
     int *m_clipSpanCount;

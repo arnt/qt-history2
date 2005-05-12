@@ -448,6 +448,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
     d->bilinear = false;
     d->opaqueBackground = false;
     d->bgBrush = Qt::white;
+    d->mono_surface = false;
     d->compositionMode = QPainter::CompositionMode_SourceOver;
 
     d->deviceRect = QRect(0, 0, device->width(), device->height());
@@ -485,7 +486,11 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         d->flushOnEnd = image->format() != QImage::Format_ARGB32_Premultiplied
                         && image->format() != QImage::Format_RGB32;
         d->rasterBuffer->prepare(image);
-        if (image->format() != QImage::Format_RGB32)
+        int format = image->format();
+        if (format == QImage::Format_Mono || format == QImage::Format_MonoLSB) {
+            layout = format == QImage::Format_Mono ? DrawHelper::Layout_Mono : DrawHelper::Layout_MonoLSB;
+            d->mono_surface = true;
+        } else if (image->format() != QImage::Format_RGB32)
             layout = DrawHelper::Layout_ARGB;
 #ifdef Q_WS_QWS
     } else if (device->devType() == QInternal::Pixmap) {
@@ -601,10 +606,6 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
                  target->format() != QImage::Format_ARGB32_Premultiplied);
 
         switch (target->format()) {
-        case QImage::Format_Mono:
-        case QImage::Format_MonoLSB:
-            d->rasterBuffer->flushTo1BitImage(target);
-            break;
 
         case QImage::Format_ARGB32:
             d->rasterBuffer->flushToARGBImage(target);
@@ -682,13 +683,15 @@ void QRasterPaintEngine::updateState(const QPaintEngineState &state)
         updateClipRegion(state.clipRegion(), state.clipOperation());
     }
 
-    if (flags & DirtyHints) {
-        d->antialiased = bool(state.renderHints() & QPainter::Antialiasing);
-        d->bilinear = bool(state.renderHints() & QPainter::SmoothPixmapTransform);
-    }
+    if (!d->mono_surface) {
+        if (flags & DirtyHints) {
+            d->antialiased = bool(state.renderHints() & QPainter::Antialiasing);
+            d->bilinear = bool(state.renderHints() & QPainter::SmoothPixmapTransform);
+        }
 
-    if (flags & DirtyCompositionMode) {
-        d->compositionMode = state.compositionMode();
+        if (flags & DirtyCompositionMode) {
+            d->compositionMode = state.compositionMode();
+        }
     }
 }
 
@@ -1107,7 +1110,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 #ifndef QT_NO_FONTCONFIG
     case QFontEngine::Freetype: {
             bool aa = d->antialiased;
-            d->antialiased = true;
+            d->antialiased = !d->mono_surface;
             QPaintEngine::drawTextItem(p, ti);
             d->antialiased = aa;
         }
@@ -1997,6 +2000,7 @@ void QRasterBuffer::prepare(int w, int h)
 
     m_width = w;
     m_height = h;
+    bytes_per_line = 4*m_width;
 }
 
 
@@ -2006,24 +2010,16 @@ void QRasterBuffer::prepare(QImage *image)
     int depth = image->depth();
     if (depth == 32) {
         prepareClip(image->width(), image->height());
-        m_buffer = (uint *)image->bits();
+        m_buffer = (uchar *)image->bits();
     } else if (depth == 1) {
-        int w = image->width();
-        int h = image->height();
-        prepare(w, h);
-        uint table[2] = { image->color(0), image->color(1) };
-        for (int y=0; y<h; ++y) {
-            uint *bscan = scanLine(y);
-            const uchar *src = image->scanLine(y);
-            for (int x=0; x<w; ++x) {
-                bscan[x] = table[(src[x>>3] >> (x&7)) & 1];
-            }
-        }
+        prepareClip(image->width(), image->height());
+        m_buffer = (uchar *)image->bits();
     } else {
         qWarning("QRasterBuffer::prepare() cannot prepare from image of depth=%d", depth);
     }
     m_width = image->width();
     m_height = image->height();
+    bytes_per_line = 4*(depth == 32 ? m_width : (m_width + 31)/32);
 }
 
 #ifdef Q_WS_QWS
@@ -2035,6 +2031,7 @@ void QRasterBuffer::prepare(QPixmap *pixmap)
 
     m_width = pixmap->width();
     m_height = pixmap->height();
+    bytes_per_line = 4*m_width;
 }
 #endif
 
@@ -2117,7 +2114,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
     delete[] m_buffer;
-    m_buffer = new uint[width*height];
+    m_buffer = new uchar[width*height];
     memset(m_buffer, 255, width*height*sizeof(uint));
 }
 #elif defined(Q_WS_MAC)
@@ -2211,21 +2208,23 @@ void QRasterBuffer::resizeClipSpan(int y, int size)
 void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData)
 {
     SolidFillData *data = reinterpret_cast<SolidFillData *>(userData);
-//     fprintf(stdout, "qt_span_solidfill, y=%d, count=%d\n", y, count);
-//     fflush(stdout);
-    uint color = data->color;
     QRasterBuffer *rb = data->rasterBuffer;
-    uint *rasterBuffer = rb->scanLine(y);
+    uchar *rasterBuffer = rb->scanLine(y);
+//     fprintf(stdout, "qt_span_solidfill, y=%d, count=%d rb->width=%d rb->bytes_per_line=%d\n", y, count, rb->width(), rb->bytesPerLine());
+//     fflush(stdout);
 
     Q_ASSERT(y >= 0);
     Q_ASSERT(y < rb->height());
+
+    BlendColorData bd;
+    bd.color = data->color;
+    bd.y = y;
 
     for (int span=0; span<count; ++span) {
         Q_ASSERT(spans->x >= 0);
         Q_ASSERT(spans->len > 0);
         Q_ASSERT(spans->x + spans->len <= rb->width());
-        uint *target = rasterBuffer + (int) spans->x;
-        data->blendColor(target, (const QSpan *)spans, color, data->compositionMode);
+        data->blendColor(rasterBuffer, (const QSpan *)spans, data->compositionMode, &bd);
         ++spans;
     }
 }
@@ -2246,13 +2245,14 @@ void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
         yoff += image_height;
 
     const uint *scanline = (const uint *)data->imageData + ((y+yoff) % image_height) * image_width;
-    uint *baseTarget = rb->scanLine(y);
+    uchar *baseTarget = rb->scanLine(y);
     bool opaque = !data->hasAlpha || data->compositionMode == QPainter::CompositionMode_Source;
     while (count--) {
-        uint *target = baseTarget + spans->x;
-        if (opaque && spans->coverage == 255) {
+        // ############# move to drawhelper
+        if (0 && opaque && spans->coverage == 255) {
             int span_x = spans->x;
             int span_len = spans->len;
+            uint *target = ((uint *)baseTarget) + span_x;
             while (span_len > 0) {
                 int image_x = (span_x + xoff) % image_width;
                 int len = qMin(image_width - image_x, span_len);
@@ -2265,7 +2265,7 @@ void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
                 target += len;
             }
         } else {
-            data->blend(target, (const QSpan *)spans, (xoff + spans->x)%image_width,
+            data->blend(baseTarget, (const QSpan *)spans, (xoff + spans->x)%image_width,
                         ((y + yoff) % image_height), data->imageData, image_width, image_height,
                         data->compositionMode);
         }
@@ -2279,7 +2279,7 @@ void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userDa
     QRasterBuffer *rb = data->rasterBuffer;
     int image_width = data->width;
     int image_height = data->height;
-    uint *baseTarget = rb->scanLine(y);
+    uchar *baseTarget = rb->scanLine(y);
 
     // Base point for the inversed transform
     qreal ix = data->m21 * y + data->dx;
@@ -2290,7 +2290,7 @@ void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userDa
     qreal dy = data->m12;
 
     while (count--) {
-        data->blendFunc(baseTarget + spans->x, (const QSpan *)spans,
+        data->blendFunc(baseTarget, (const QSpan *)spans,
                         ix, iy, dx, dy,
                         data->imageData, image_width, image_height,
                         data->compositionMode);
@@ -2331,13 +2331,12 @@ uint qt_gradient_pixel(const GradientData *data, double pos)
 void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData)
 {
     LinearGradientData *data = reinterpret_cast<LinearGradientData *>(userData);
-    uint *baseTarget = data->rasterBuffer->scanLine(y);
+    uchar *baseTarget = data->rasterBuffer->scanLine(y);
 
     qreal ybase = (y - data->origin.y()) * data->yincr;
 
     while (count--) {
-        uint *target = baseTarget + spans->x;
-        data->blendFunc(target, (const QSpan *)spans, data, ybase, data->compositionMode);
+        data->blendFunc(baseTarget, (const QSpan *)spans, data, ybase, y, data->compositionMode);
         ++spans;
     }
 }
@@ -2346,11 +2345,10 @@ void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData
 void qt_span_conical_gradient(int y, int count, QT_FT_Span *spans, void *userData)
 {
     ConicalGradientData *data = reinterpret_cast<ConicalGradientData *>(userData);
-    uint *baseTarget = data->rasterBuffer->scanLine(y);
+    uchar *baseTarget = data->rasterBuffer->scanLine(y);
 
     while (count--) {
-        uint *target = baseTarget + spans->x;
-        data->blendFunc(target, (const QSpan *)spans, data, y, data->compositionMode);
+        data->blendFunc(baseTarget, (const QSpan *)spans, data, y, data->compositionMode);
         ++spans;
     }
 }
@@ -2587,7 +2585,7 @@ QImage QRasterBuffer::bufferImage() const
     QImage image(m_width, m_height, QImage::Format_ARGB32_Premultiplied);
 
     for (int y = 0; y < m_height; ++y) {
-        uint *span = const_cast<QRasterBuffer *>(this)->scanLine(y);
+        uint *span = (uint *)const_cast<QRasterBuffer *>(this)->scanLine(y);
 
         for (int x=0; x<m_width; ++x) {
             uint argb = span[x];
@@ -2605,7 +2603,7 @@ void QRasterBuffer::flushToARGBImage(QImage *target) const
     int h = qMin(m_height, target->height());
 
     for (int y=0; y<h; ++y) {
-        uint *sourceLine = const_cast<QRasterBuffer *>(this)->scanLine(y);
+        uint *sourceLine = (uint *)const_cast<QRasterBuffer *>(this)->scanLine(y);
         QRgb *dest = (QRgb *) target->scanLine(y);
         for (int x=0; x<w; ++x) {
             QRgb pixel = sourceLine[x];
@@ -2620,24 +2618,6 @@ void QRasterBuffer::flushToARGBImage(QImage *target) const
             }
         }
     }
-}
-
-void QRasterBuffer::flushTo1BitImage(QImage *target) const
-{
-    int w = qMin(m_width, target->width());
-    int h = qMin(m_height, target->height());
-
-    for (int y=0; y<h; ++y) {
-        const uint *sourceLine = const_cast<QRasterBuffer *>(this)->scanLine(y);
-        uchar *dest = target->scanLine(y);
-        memset(dest, 0, (w+7)/8);
-        for (int x=0; x<w; ++x) {
-            uint p = sourceLine[x];
-            if (qGray(p) < int(qt_bayer_matrix[y&15][x&15]))
-                dest[x>>3] |= 1 << (x&7);
-        }
-    }
-
 }
 
 void TextureFillData::init(QRasterBuffer *raster, const QImage *image, const QMatrix &matrix,
