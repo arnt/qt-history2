@@ -551,7 +551,7 @@ void Launcher::showExamples(const QString &category)
     display->insertShape(0, titleBackground);
     display->appendShape(newTitle);
 
-    qreal topMargin = 0.1 * height() + titleBackground->rect().bottom();
+    qreal topMargin = 0.075 * height() + titleBackground->rect().bottom();
     qreal space = 0.95*height() - topMargin;
     qreal step = qMin(newTitle->rect().height() / fontRatio,
                       space/qreal(maximumLabels));
@@ -560,55 +560,37 @@ void Launcher::showExamples(const QString &category)
     QPointF startPosition = QPointF(0.05*width(), height() + topMargin);
     QPointF finishPosition = QPointF(0.05*width(), topMargin);
     QSizeF maxSize(0.27 * width(), textHeight);
-
-    DisplayShape *caption = new TitleShape(tr("Main Menu"), font(),
-        QPen(Qt::white), startPosition, maxSize);
-
-    caption->setMetaData("target", finishPosition);
-    display->appendShape(caption);
-
-    qreal maxWidth = qMax(maxWidth, caption->rect().width());
+    qreal maxWidth = 0.0;
 
     foreach (QString example, examples[currentCategory]) {
-        startPosition += QPointF(0.0, step);
-        finishPosition += QPointF(0.0, step);
 
-        caption = new TitleShape(example, font(), QPen(), startPosition,
-                                 maxSize);
+        DisplayShape *caption = new TitleShape(example, font(), QPen(),
+            startPosition, maxSize);
         caption->setMetaData("target", finishPosition);
 
         display->appendShape(caption);
 
+        startPosition += QPointF(0.0, step);
+        finishPosition += QPointF(0.0, step);
         maxWidth = qMax(maxWidth, caption->rect().width());
     }
+
+    DisplayShape *menuButton = new TitleShape(tr("Main Menu"), font(),
+        QPen(Qt::white), startPosition, maxSize);
+    menuButton->setMetaData("target", finishPosition);
+
+    display->appendShape(menuButton);
+    maxWidth = qMax(maxWidth, menuButton->rect().width());
 
     startPosition = QPointF(width(), topMargin);
     qreal extra = (step - textHeight)/4;
 
-    QPainterPath path;
-    path.moveTo(-2*extra, -extra);
-    path.lineTo(-8*extra, textHeight/2);
-    path.lineTo(-extra, textHeight + extra);
-    path.lineTo(maxWidth + 2*extra, textHeight + extra);
-    path.lineTo(maxWidth + 2*extra, -extra);
-    path.closeSubpath();
-
-    DisplayShape *background = new PathShape(path,
-        QBrush(QColor("#a6ce39")), QBrush(QColor("#c7f745")), Qt::NoPen,
-        startPosition, QSizeF(maxWidth + 10*extra, textHeight + 2*extra));
-
-    background->setMetaData("action", "parent");
-    background->setMetaData("target", QPointF(
-                            0.05 * width(), background->position().y()));
-    display->insertShape(0, background);
-
     foreach (QString example, examples[currentCategory]) {
-        startPosition += QPointF(0.0, step);
 
         QPainterPath path;
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
-        background = new PathShape(path,
+        DisplayShape *background = new PathShape(path,
             QBrush(exampleColors[example]), QBrush(QColor("#e0e0ff")),
             Qt::NoPen, startPosition,
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
@@ -617,7 +599,25 @@ void Launcher::showExamples(const QString &category)
         background->setMetaData("target", QPointF(0.05 * width(),
                                                   background->position().y()));
         display->insertShape(0, background);
+        startPosition += QPointF(0.0, step);
     }
+
+    QPainterPath backPath;
+    backPath.moveTo(-2*extra, -extra);
+    backPath.lineTo(-8*extra, textHeight/2);
+    backPath.lineTo(-extra, textHeight + extra);
+    backPath.lineTo(maxWidth + 2*extra, textHeight + extra);
+    backPath.lineTo(maxWidth + 2*extra, -extra);
+    backPath.closeSubpath();
+
+    DisplayShape *buttonBackground = new PathShape(backPath,
+        QBrush(QColor("#a6ce39")), QBrush(QColor("#c7f745")), Qt::NoPen,
+        startPosition, QSizeF(maxWidth + 10*extra, textHeight + 2*extra));
+
+    buttonBackground->setMetaData("action", "parent");
+    buttonBackground->setMetaData("target", QPointF(
+                            0.05 * width(), buttonBackground->position().y()));
+    display->insertShape(0, buttonBackground);
 
     qreal leftMargin = 0.075*width() + maxWidth;
     qreal rightMargin = 0.925*width();
