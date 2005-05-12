@@ -1185,7 +1185,7 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
     const double b = minimum.toDouble();
     QString copy = stripped(input);
     int len = copy.size();
-    double num;
+    double num = 0.0;
 
     if (checkIntermediate(copy)) {
         state = QValidator::Intermediate;
