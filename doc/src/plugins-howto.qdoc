@@ -18,7 +18,7 @@
 
     \list
     \o A higher-level API for writing extensions to Qt itself: custom database
-       drivers, image formats, text codecs, styles, and widgets.
+       drivers, image formats, text codecs, and styles.
     \o A lower-lever API for extending Qt applications.
     \endlist
 
@@ -59,9 +59,6 @@
     \row
     \o \l QTextCodecPlugin
     \o \c{pluginsbase/codecs}
-    \row
-    \o \l QWidgetPlugin
-    \o \c{pluginsbase/designer}
     \endtable
 
     But where is the \c{pluginsbase} directory? When the application is
@@ -100,8 +97,7 @@
     \endcode
 
     (Note that QStyleFactory is case-insensitive, and the lower case
-    version of the key is used; other factories, e.g. QWidgetFactory, are
-    case sensitive.)
+    version of the key is used; other factories are case sensitive.)
 
     The constructor and destructor do not need to do anything, so are left
     empty. There are only two virtual functions that must be implemented.
@@ -112,7 +108,7 @@
     class that it doesn't implement). For QStylePlugin, this second
     function is called create().
 
-    For database drivers, image formats, custom widgets and text codecs,
+    For database drivers, image formats and text codecs,
     no explicit object creation is required. Qt will find and create them
     as required. Styles are an exception, since you might want to set a
     style explicitly in code. To apply a style, use code like this:
@@ -140,7 +136,7 @@
     e.g. using QSettings, for the application to read when it runs. The
     application can then call QCoreApplication::addLibraryPath() with this
     path and your plugins will be available to the application. Note that
-    the final part of the path, i.e. \c styles, \c widgets, etc., cannot
+    the final part of the path, i.e. \c styles, etc., cannot
     be changed.
 
     The normal way to include a plugin with an application is either to 
@@ -156,7 +152,7 @@
     application to detect and load plugins using QPluginLoader. In
     that context, plugins may provide arbitrary functionality and are
     not limited to database drivers, image formats, text codecs,
-    styles, and widgets.
+    and styles.
 
     The \l{tools/plugandpaint}{Plug & Paint} example documentation
     explains this process in detail.
