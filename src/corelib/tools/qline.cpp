@@ -22,17 +22,17 @@
     \class QLine
 
     \brief The QLine class provides a two-dimensional vector that
-    uses integer point coordinates for accuracy.
+    uses integer point accuracy for coordinates.
 
-    A QLine describes a finite length line on a two-dimensional surface.
-    The start and end points of the line are specified using floating point
-    coordinates for accuracy.
+    A QLine describes a finite length line (or line segment) on a two-dimensional surface.
+    The start and end points of the line are specified using integer point
+    coordinates.
 
     Use isNull() to determine whether the QLine represents a valid line
     or a null line.
 
-    The positions of the line's end points can be found with the x1(),
-    y1(), x2(), and y2() functions. The horizontal and vertical
+    The positions of the line's end points can be found with the p1(),
+    x1(), y1(), p2(), x2(), and y2() functions. The horizontal and vertical
     components of the line are returned by the dx() and dy() functions.
 
     The line can be translated along the length of another line with the
@@ -72,48 +72,73 @@
     \fn QPoint QLine::p1() const
 
     Returns the line's start point.
+
+    \sa x1() y1() p2()
 */
 
 /*!
     \fn QPoint QLine::p2() const
 
     Returns the line's end point.
+
+    \sa x2() y2() p1()
 */
 
 /*!
     \fn int QLine::x1() const
 
     Returns the x-coordinate of the line's start point.
+
+    \sa y1() x2() p1()
 */
 
 /*!
     \fn int QLine::y1() const
 
     Returns the y-coordinate of the line's start point.
+
+    \sa x1() y2() p1()
 */
 
 /*!
     \fn int QLine::x2() const
 
     Returns the x-coordinate of the line's end point.
+
+    \sa y2() x1() p2()
 */
 
 /*!
     \fn int QLine::y2() const
 
     Returns the y-coordinate of the line's end point.
+
+    \sa x2() y1() p2()
 */
 
 /*!
     \fn int QLine::dx() const
 
     Returns the horizontal component of the line's vector.
+
+    \sa dy()
 */
 
 /*!
     \fn int QLine::dy() const
 
     Returns the vertical component of the line's vector.
+
+    \sa dx()
+*/
+
+/*!
+    \fn bool QLine::operator!=(const QLine &other) const
+
+    Returns true if \a other is not the same as this line.
+
+    A line is different from another line if any of their points are
+    different or their order is different.
 */
 
 /*!
@@ -121,7 +146,7 @@
 
     Returns true if \a other is the same line as this line.
 
-    A line is identical if the two points are the same and their
+    A line is identical to another line if the points are the same and their
     order is the same.
 */
 
@@ -193,17 +218,17 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
     \class QLineF
 
     \brief The QLineF class provides a two-dimensional vector that
-    uses floating point coordinates for accuracy.
+    uses floating point accuracy for coordinates.
 
-    A QLineF describes a finite length line on a two-dimensional surface.
+    A QLineF describes a finite length line (or line segment) on a two-dimensional surface.
     The start and end points of the line are specified using floating point
-    coordinates for accuracy.
+    coordinates.
 
     Use isNull() to determine whether the QLineF represents a valid line
     or a null line.
 
-    The positions of the line's end points can be found with the x1(),
-    y1(), x2(), and y2() functions. The horizontal and vertical
+    The positions of the line's end points can be found with the p1(), x1(),
+    y1(), p2(), x2(), and y2() functions. The horizontal and vertical
     components of the line are returned by the dx() and dy() functions.
 
     Convenience functions are provided for finding the lines's length(),
@@ -218,7 +243,7 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
     moveBy() function, and can be traversed using a parameter with the
     pointAt() function.
 
-    \sa QPointF QSizeF QRectF
+    \sa QPointF QSizeF QRectF QLine
 */
 
 /*!
@@ -261,6 +286,12 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
 */
 
 /*!
+    \fn QLineF::QLineF(const QLine &line)
+
+    Construct a line object from a integer-based QLine.
+*/
+
+/*!
     Returns true if the line is not set up with valid start and end point;
     otherwise returns false.
 */
@@ -275,48 +306,71 @@ bool QLineF::isNull() const
     \fn QPointF QLineF::p1() const
 
     Returns the line's start point.
+
+    \sa x1() y1() p2()
 */
 
 /*!
     \fn QPointF QLineF::p2() const
 
     Returns the line's end point.
+
+    \sa x2() y2() p1()
 */
 
+/*!
+    \fn QLine QLineF::toLine() const
+
+    Returns a QLine. The returned QLine's starting and end points are rounded to
+    the nearest integer.
+
+*/
 /*!
     \fn qreal QLineF::x1() const
 
     Returns the x-coordinate of the line's start point.
+
+    \sa y1() p1() x2()
 */
 
 /*!
     \fn qreal QLineF::y1() const
 
     Returns the y-coordinate of the line's start point.
+
+    \sa x1() p1() x2()
 */
 
 /*!
     \fn qreal QLineF::x2() const
 
     Returns the x-coordinate of the line's end point.
+
+    \sa y2() p2() x1()
 */
 
 /*!
     \fn qreal QLineF::y2() const
 
     Returns the y-coordinate of the line's end point.
+
+    \sa x2() p2() y1()
 */
 
 /*!
     \fn qreal QLineF::dx() const
 
     Returns the horizontal component of the line's vector.
+
+    \sa dy() pointAt()
 */
 
 /*!
     \fn qreal QLineF::dy() const
 
     Returns the vertical component of the line's vector.
+
+    \sa dx() pointAt()
 */
 
 /*!
@@ -333,7 +387,18 @@ bool QLineF::isNull() const
     Returns a line that is perpendicular to this line with the same starting
     point and length.
 
+    \sa unitVector()
+
     \img qlinef-normalvector.png
+*/
+
+/*!
+    \fn bool QLineF::operator!=(const QLineF &other) const
+
+    Returns true if \a other is not the same as this line.
+
+    A line is different from another line if any of their points are
+    different or their order is different.
 */
 
 /*!
@@ -350,6 +415,8 @@ bool QLineF::isNull() const
 
   Returns the point at the parameterized position \a t, where
   the start and end point are defined to be at positions t=0 and t=1.
+
+  \sa dx() dy()
 */
 
 /*!
@@ -376,6 +443,8 @@ qreal QLineF::length() const
     Returns a normalized version of this line, starting at the same
     point as this line. A normalized line is a line of unit length
     (length() is equal to 1.0).
+
+    \sa normalVector()
 */
 QLineF QLineF::unitVector() const
 {
@@ -429,7 +498,7 @@ static bool qt_linef_intersect(qreal x1, qreal y1, qreal x2, qreal y2,
     \fn QLineF::IntersectType QLineF::intersect(const QLineF &other, QPointF *intersectionPoint) const
 
     Returns a value indicating whether or not this line intersects the
-    \a other line. By passing a valid object as \a intersectionPoint, it
+    \a other line. By passing a valid pointer as \a intersectionPoint, it
     is possible to get the actual intersection point. The intersection
     point is undefined if the lines are parallel.
 */
@@ -489,6 +558,8 @@ QLineF::IntersectType QLineF::intersect(const QLineF &l, QPointF *intersectionPo
   Returns the smallest angle between the given \a line and this line, not
   taking into account whether the lines intersect or not. The angle is
   specified in degrees.
+
+  \sa intersect()
 */
 qreal QLineF::angle(const QLineF &l) const
 {
