@@ -73,7 +73,7 @@ QStringList PluginManager::findPlugins(const QString &path)
     QDir dir(path);
     if (!dir.exists())
         return result;
-    QStringList candidates = dir.entryList(QDir::Files);
+    QStringList candidates = dir.entryList(QDir::Files | QDir::NoSymLinks);
     foreach (QString plugin, candidates) {
         if (!QLibrary::isLibrary(plugin))
             continue;
