@@ -24,7 +24,7 @@
 
 #define CONSTANT_HEADER_SIZE 8
 
-class RCCFileInfo;
+struct RCCFileInfo;
 
 class RCCResourceLibrary
 {

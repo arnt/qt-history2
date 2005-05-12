@@ -322,6 +322,10 @@ RCCResourceLibrary::dataFiles() const
 {
     QStringList ret;
     QStack<RCCFileInfo*> pending;
+
+    if (!root) 
+        return ret;
+
     pending.push(root);
     while(!pending.isEmpty()) {
         RCCFileInfo *file = pending.pop();
@@ -393,8 +397,11 @@ RCCResourceLibrary::writeDataBlobs(FILE *out)
         fprintf(out, "static const unsigned char qt_resource_data[] = {\n");
     else if(mFormat == Binary)
         mDataOffset = ftell(out);
-
     QStack<RCCFileInfo*> pending;
+
+    if (!root)
+        return false;
+
     pending.push(root);
     qint64 offset = 0;
     while(!pending.isEmpty()) {
@@ -423,6 +430,10 @@ RCCResourceLibrary::writeDataNames(FILE *out)
 
     QHash<QString, int> names;
     QStack<RCCFileInfo*> pending;
+
+    if (!root)
+        return false;
+
     pending.push(root);
     qint64 offset = 0;
     while(!pending.isEmpty()) {
@@ -458,6 +469,9 @@ RCCResourceLibrary::writeDataStructure(FILE *out)
     else if(mFormat == Binary)
         mTreeOffset = ftell(out);
     QStack<RCCFileInfo*> pending;
+
+    if (!root)
+        return false;
 
     //calculate the child offsets (flat)
     pending.push(root);
