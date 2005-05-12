@@ -463,7 +463,7 @@ void FormWindow::startRectDraw(const QPoint &pos, QWidget *, RectType t)
 
     rectAnchor = (t == Insert) ? gridPoint(pos) : pos;
 
-    currRect = QRect(rectAnchor, QPoint(0, 0));
+    currRect = QRect(rectAnchor, QSize(0, 0));
     m_rubberBand->setGeometry(currRect);
     m_rubberBand->show();
 }
