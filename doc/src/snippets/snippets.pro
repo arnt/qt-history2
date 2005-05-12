@@ -22,6 +22,7 @@ SUBDIRS         = brush \
                   image \
                   itemselection \
                   layouts \
+                  matrix \
                   moc \
 #                  modelview-subclasses \   # broken
                   persistentindexes \
