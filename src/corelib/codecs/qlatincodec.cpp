@@ -58,7 +58,7 @@ QList<QByteArray> QLatin1Codec::aliases() const
     QList<QByteArray> list;
     list << "latin1"
          << "CP819"
-         << "IBM918"
+         << "IBM819"
          << "iso-ir-100";
     return list;
 }
