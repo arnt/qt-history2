@@ -552,7 +552,7 @@ void HelpDialog::showInitDoneMessage()
 
 void HelpDialog::showTopic(QTreeWidgetItem *item)
 {
-    if(item)
+    if (item)
         showTopic();
 }
 
@@ -571,14 +571,16 @@ void HelpDialog::showTopic()
 void HelpDialog::showIndexTopic()
 {
     int row = ui.listIndex->currentIndex().row();
-    if (row == -1)
+    if (row == -1 || row >= indexModel->rowCount())
         return;
 
     QString description = indexModel->description(row);
-
-    ui.editIndex->setText(description);
-
     QStringList links = indexModel->links(row);
+
+    bool blocked = ui.editIndex->blockSignals(true);
+    ui.editIndex->setText(description);
+    ui.editIndex->blockSignals(blocked);
+
     if (links.count() == 1) {
         emit showLink(links.first());
     } else {
@@ -616,34 +618,17 @@ QString HelpDialog::titleOfLink(const QString &link)
 
 bool HelpDialog::eventFilter(QObject * o, QEvent * e)
 {
-    if (!o || !e)
-        return true;
-
     if (o == ui.editIndex && e->type() == QEvent::KeyPress) {
-        QKeyEvent *ke = (QKeyEvent*)e;
-        if (ke->key() == Qt::Key_Up) {
-            QModelIndex index = ui.listIndex->currentIndex();
-            int row = index.row();
-            if (--row >= 0) {
-                ui.listIndex->setCurrentIndex(indexModel->index(row, 0, QModelIndex()));
-                ui.editIndex->setText(indexModel->description(row));
-            }
-            return true;
-        } else if (ke->key() == Qt::Key_Down) {
-            QModelIndex index = ui.listIndex->currentIndex();
-            int row = index.row();
-            if (++row < indexModel->rowCount()) {
-                ui.listIndex->setCurrentIndex(indexModel->index(row, 0, QModelIndex()));
-                ui.editIndex->setText(indexModel->description(row));
-            }
-            return true;
-        } else if (ke->key() == Qt::Key_PageDown || ke->key() == Qt::Key_PageUp) {
-            QModelIndex index = ui.listIndex->currentIndex();
-            int row = index.row();
-            QApplication::sendEvent(ui.listIndex, e);
-            if (row != -1) {
-                ui.editIndex->setText(indexModel->description(row));
-            }
+        switch (static_cast<QKeyEvent*>(e)->key()) {
+            case Qt::Key_Up:
+            case Qt::Key_Down:
+            case Qt::Key_PageDown:
+            case Qt::Key_PageUp:
+                QApplication::sendEvent(ui.listIndex, e);
+                break;
+
+            default:
+                break;
         }
     }
 
