@@ -469,6 +469,7 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         }
     }
 
+    bool isBitmap = false;
 #ifdef Q_WS_WIN
     if (device->devType() == QInternal::Pixmap) {
         QPixmap *pixmap = static_cast<QPixmap *>(device);
@@ -478,20 +479,32 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         }
         QPixmapData *data = static_cast<QPixmap *>(device)->data;
         device = &data->image;
+        isBitmap = pixmap->depth() == 1;
     }
 #endif
 
     if (device->devType() == QInternal::Image) {
         QImage *image = static_cast<QImage *>(device);
-        d->flushOnEnd = image->format() != QImage::Format_ARGB32_Premultiplied
-                        && image->format() != QImage::Format_RGB32;
-        d->rasterBuffer->prepare(image);
         int format = image->format();
-        if (format == QImage::Format_Mono || format == QImage::Format_MonoLSB) {
-            layout = format == QImage::Format_Mono ? DrawHelper::Layout_Mono : DrawHelper::Layout_MonoLSB;
+        d->flushOnEnd = (format != QImage::Format_ARGB32_Premultiplied
+                         && format != QImage::Format_RGB32
+                         && !isBitmap);
+
+        d->rasterBuffer->prepare(image);
+
+        if (format == QImage::Format_MonoLSB && isBitmap) {
             d->mono_surface = true;
-        } else if (image->format() != QImage::Format_RGB32)
+            layout = DrawHelper::Layout_MonoLSB;
+        } else if (format == QImage::Format_RGB32) {
+            layout = DrawHelper::Layout_RGB32;
+        } else if (format == QImage::Format_ARGB32_Premultiplied) {
             layout = DrawHelper::Layout_ARGB;
+        } else {
+            qWarning("QRasterPaintEngine::begin(), unsupported image format\n"
+                     "Supported image formats: Format_RGB32 and Format_ARGB32_Premultiplied");
+            return false;
+        }
+
 #ifdef Q_WS_QWS
     } else if (device->devType() == QInternal::Pixmap) {
         QPixmap *pix = static_cast<QPixmap *>(device);
@@ -1278,29 +1291,54 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     int xmin = qMax(devRect.x(), 0);
 
     static QDataBuffer<QT_FT_Span> spans;
-    for (int y=ymin; y<ymax; ++y) {
-        QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
-        // Generate spans for this y coord
-        spans.reset();
-        for (int x = xmin; x<xmax; ) {
-            // Skip those with 0 coverage (black on white so inverted)
-            while (x < xmax && qGray(scanline[x]) == 255) ++x;
-            if (x >= xmax) break;
 
-            int prev = qGray(scanline[x]);
-	    QT_FT_Span span = { x, 0, 255 - prev };
+    if (d->mono_surface) {
+        for (int y=ymin; y<ymax; ++y) {
+            QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
+            // Generate spans for this y coord
+            spans.reset();
+            for (int x = xmin; x<xmax; ) {
+                // Skip those with 0 coverage (black on white so inverted)
+                while (x < xmax && qGray(scanline[x]) > 0x80) ++x;
+                if (x >= xmax) break;
 
-            // extend span until we find a different one.
-            while (x < xmax && qGray(scanline[x]) == prev) ++x;
-            span.len = x - span.x;
+                QT_FT_Span span = { x, 0, 255 };
 
-            spans.add(span);
+                // extend span until we find a different one.
+                while (x < xmax && qGray(scanline[x]) < 0x80) ++x;
+                span.len = x - span.x;
+
+                spans.add(span);
+            }
+
+            // Call span func for current set of spans.
+            fillData.callback(y, spans.size(), spans.data(), fillData.data);
         }
 
-        // Call span func for current set of spans.
-        fillData.callback(y, spans.size(), spans.data(), fillData.data);
-    }
+    } else {
+        for (int y=ymin; y<ymax; ++y) {
+            QRgb *scanline = (QRgb *) d->fontRasterBuffer->scanLine(y - devRect.y()) - devRect.x();
+            // Generate spans for this y coord
+            spans.reset();
+            for (int x = xmin; x<xmax; ) {
+                // Skip those with 0 coverage (black on white so inverted)
+                while (x < xmax && qGray(scanline[x]) == 255) ++x;
+                if (x >= xmax) break;
 
+                int prev = qGray(scanline[x]);
+                QT_FT_Span span = { x, 0, 255 - prev };
+
+                // extend span until we find a different one.
+                while (x < xmax && qGray(scanline[x]) == prev) ++x;
+                span.len = x - span.x;
+
+                spans.add(span);
+            }
+
+            // Call span func for current set of spans.
+            fillData.callback(y, spans.size(), spans.data(), fillData.data);
+        }
+    }
 #else
     bool aa = d->antialiased;
     d->antialiased = true;
@@ -2244,31 +2282,15 @@ void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData)
     if (yoff < 0)
         yoff += image_height;
 
-    const uint *scanline = (const uint *)data->imageData + ((y+yoff) % image_height) * image_width;
     uchar *baseTarget = rb->scanLine(y);
-    bool opaque = !data->hasAlpha || data->compositionMode == QPainter::CompositionMode_Source;
     while (count--) {
-        // ############# move to drawhelper
-        if (0 && opaque && spans->coverage == 255) {
-            int span_x = spans->x;
-            int span_len = spans->len;
-            uint *target = ((uint *)baseTarget) + span_x;
-            while (span_len > 0) {
-                int image_x = (span_x + xoff) % image_width;
-                int len = qMin(image_width - image_x, span_len);
-                Q_ASSERT(image_x >= 0);
-                Q_ASSERT(image_x + len <= image_width); // inclusive since it is used as upper bound.
-                Q_ASSERT(span_x + len <= rb->width());
-                memcpy(target, scanline + image_x, len * sizeof(uint));
-                span_x += len;
-                span_len -= len;
-                target += len;
-            }
-        } else {
-            data->blend(baseTarget, (const QSpan *)spans, (xoff + spans->x)%image_width,
-                        ((y + yoff) % image_height), data->imageData, image_width, image_height,
-                        data->compositionMode);
-        }
+        QPainter::CompositionMode mode = data->compositionMode;
+        if (!data->hasAlpha && mode == QPainter::CompositionMode_SourceOver
+            && spans->coverage == 255)
+            mode = QPainter::CompositionMode_Source;
+        data->blend(baseTarget, (const QSpan *)spans, (xoff + spans->x)%image_width,
+                    ((y + yoff) % image_height), data->imageData, image_width, image_height,
+                    mode);
         ++spans;
     }
 }

@@ -216,6 +216,14 @@ static void blend_argb(void *t, const QSpan *span, const qreal dx, const qreal d
     if (end - target > image_width)
         end = target + image_width;
 
+    if (mode == QPainter::CompositionMode_Source && span->coverage == 255) {
+        while (target < end) {
+            *target++ = *src++;
+        }
+        return;
+    }
+
+
     CompositionFunction func = functionForMode(mode);
     if (span->coverage == 255) {
         while (target < end) {
@@ -568,16 +576,35 @@ static void blend_color_rgb32(void *t, const QSpan *span, QPainter::CompositionM
 
 static void blend_rgb32(void *t, const QSpan *span,
                         const qreal dx, const qreal dy,
-                        const void *ibits, const int image_width, const int image_height, QPainter::CompositionMode)
+                        const void *ibits, const int image_width, const int image_height, QPainter::CompositionMode mode)
 {
     uint *target = ((uint *)t) + span->x;
     uint *image_bits = (uint *)ibits;
     // #### take care of non integer dx/dy
     int x = qRound(dx);
     int y = qRound(dy);
-//     qDebug("x=%f,y=%f %d/%d image_height=%d", dx, dy, x, y, image_height);
+    //     qDebug("x=%f,y=%f %d/%d image_height=%d", dx, dy, x, y, image_height);
     if (y < 0 || y >= image_height)
         return;
+
+#if 0
+    if (mode == QPainter::CompositionMode_Source && span->coverage == 255) {
+        int span_x = span->x;
+        int span_len = span->len;
+        while (span_len > 0) {
+            int image_x = (span_x + xoff) % image_width;
+            int len = qMin(image_width - image_x, span_len);
+            Q_ASSERT(image_x >= 0);
+            Q_ASSERT(image_x + len <= image_width); // inclusive since it is used as upper bound.
+            Q_ASSERT(span_x + len <= rb->width());
+            memcpy(target, scanline + image_x, len * sizeof(uint));
+            span_x += len;
+            span_len -= len;
+            target += len;
+        }
+        return;
+    }
+#endif
 
     const uint *src = image_bits + y*image_width + x;
     const uint *end = target + span->len;
@@ -589,10 +616,16 @@ static void blend_rgb32(void *t, const QSpan *span,
     if (end - target > image_width)
         end = target + image_width;
 
-    while (target < end) {
-        *target = qt_blend_pixel_rgb32(*target, *src, span->coverage);
-        ++target;
-        ++src;
+    if (mode == QPainter::CompositionMode_Source && span->coverage == 255) {
+        while (target < end) {
+            *target++ = *src++;
+        }
+    } else {
+        while (target < end) {
+            *target = qt_blend_pixel_rgb32(*target, *src, span->coverage);
+            ++target;
+            ++src;
+        }
     }
 }
 
@@ -824,11 +857,11 @@ static void blend_color_mono(void *t, const QSpan *span, QPainter::CompositionMo
     uchar *target = (uchar *)t;
     uint color = data->color;
 
-    if (color == 0xffffffff) {
+    if (color == 0xff000000) {
         for (int i = span->x; i < span->x + span->len; ++i) {
             target[i>>3] |= 0x80 >> (i & 7);
         }
-    } else if (color == 0xff000000) {
+    } else if (color == 0xffffffff) {
         for (int i = span->x; i < span->x + span->len; ++i) {
             target[i>>3] &= ~(0x80 >> (i & 7));
         }
@@ -1040,11 +1073,11 @@ static void blend_color_mono_lsb(void *t, const QSpan *span, QPainter::Compositi
 
     if (color == 0xffffffff) {
         for (int i = span->x; i < span->x + span->len; ++i) {
-            target[i>>3] |= 1 << (i & 7);
+            target[i>>3] &= ~(1 << (i & 7));
         }
     } else if (color == 0xff000000) {
         for (int i = span->x; i < span->x + span->len; ++i) {
-            target[i>>3] &= ~(1 << (i & 7));
+            target[i>>3] |= 1 << (i & 7);
         }
     } else {
         uint g = qGray(color);
