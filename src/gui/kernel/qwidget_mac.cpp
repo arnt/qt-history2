@@ -437,11 +437,13 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                         engine->setSystemClip(qrgn);
 
                     //handle the erase
+                    const QBrush bg = widget->palette().brush(widget->backgroundRole());
                     if(engine && !widget->testAttribute(Qt::WA_NoBackground) &&
-                       !widget->d_func()->isBackgroundInherited()) {
+                       !widget->testAttribute(Qt::WA_NoSystemBackground) &&
+                       (!widget->d_func()->isBackgroundInherited() ||
+                        !bg.isOpaque() && widget->testAttribute(Qt::WA_SetPalette))) {
                         if (!redirectionOffset.isNull())
                             QPainter::setRedirected(widget, widget, redirectionOffset);
-                        QBrush bg = widget->palette().brush(widget->backgroundRole());
                         QRect rr = qrgn.boundingRect();
                         bool was_unclipped = widget->testAttribute(Qt::WA_PaintUnclipped);
                         widget->setAttribute(Qt::WA_PaintUnclipped, false);
