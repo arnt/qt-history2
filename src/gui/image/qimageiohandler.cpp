@@ -346,7 +346,7 @@ QVariant QImageIOHandler::option(ImageOption option) const
     supports the \l Size option, supportsOption(Size) must return
     true.
 
-    \sa setOption(), option(), ImageOption
+    \sa setOption(), option()
 */
 bool QImageIOHandler::supportsOption(ImageOption option) const
 {
