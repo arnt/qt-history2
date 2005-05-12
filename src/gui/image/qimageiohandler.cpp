@@ -165,7 +165,7 @@
     Creates and returns a QImageIOHandler subclass, with \a device and
     \a format set.
 
-    \sa QImageIOPlugin
+    \sa QImageIOPlugin, keys()
 */
 
 #include "qimageiohandler.h"
@@ -459,3 +459,15 @@ QImageIOPlugin::~QImageIOPlugin()
     both reading and writing, this function should return \l CanRead |
     \l CanWrite.
 */
+
+/*!
+    \fn QImageIOPlugin::keys() const
+
+    Returns the list of image keys this plugin supports.
+
+    These keys are usually the names of the image formats that are implemented
+    in the plugin (e.g., "jpg" or "gif").
+
+    \sa QImageIOHandlerFactoryInterface, capabilities()
+*/
+

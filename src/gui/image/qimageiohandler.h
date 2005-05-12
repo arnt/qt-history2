@@ -97,6 +97,7 @@ public:
     Q_DECLARE_FLAGS(Capabilities, Capability)
 
     virtual Capabilities capabilities(QIODevice *device, const QByteArray &format) const = 0;
+    virtual QStringList keys() const = 0;
 };
 
 #endif
