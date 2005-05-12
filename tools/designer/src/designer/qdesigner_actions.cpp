@@ -20,6 +20,7 @@
 #include "versiondialog.h"
 #include "oublietteview.h"
 #include "saveformastemplate.h"
+#include "plugindialog.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -330,9 +331,14 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     sep->setSeparator(true);
     m_helpActions->addAction(sep);
 #endif
+    m_aboutPluginsAction = new QAction(tr("About Plugins"), this);
+    connect(m_aboutPluginsAction, SIGNAL(triggered()), this, SLOT(aboutPlugins()));
+    m_helpActions->addAction(m_aboutPluginsAction);
+
     m_aboutDesignerAction = new QAction(tr("About Qt Designer"), this);
     connect(m_aboutDesignerAction, SIGNAL(triggered()), this, SLOT(aboutDesigner()));
     m_helpActions->addAction(m_aboutDesignerAction);
+
     m_aboutQtAction = new QAction(tr("About Qt"), this);
     connect(m_aboutQtAction, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
     m_helpActions->addAction(m_aboutQtAction);
@@ -905,8 +911,7 @@ void QDesignerActions::showWidgetSpecificHelp()
         className = ps->propertyGroup(ps->indexOf(currentPropertyName));
     } else {
         QDesignerWidgetDataBaseInterface *db = core()->widgetDataBase();
-        QDesignerWidgetDataBaseItemInterface *dbi = db->item(db->indexOfObject(fw->cursor()->selectedWidget(0),
-                                                                               true));
+        QDesignerWidgetDataBaseItemInterface *dbi = db->item(db->indexOfObject(fw->cursor()->selectedWidget(0), true));
         className = dbi->name();
     }
 
@@ -920,4 +925,10 @@ void QDesignerActions::showWidgetSpecificHelp()
 QAction *QDesignerActions::widgetHelpAction() const
 {
     return m_widgetHelp;
+}
+
+void QDesignerActions::aboutPlugins()
+{
+    PluginDialog dlg(core(), core()->topLevel());
+    dlg.exec();
 }

@@ -136,6 +136,7 @@ private slots:
     void bringAllToFront();
     void showDesignerHelp();
     void showWhatsNew();
+    void aboutPlugins();
     void aboutDesigner();
     void updateUIMode(QAction *act);
     void showWidgetSpecificHelp();
@@ -200,6 +201,7 @@ private:
     QAction *m_widgetHelp;
     QAction *m_whatsNewAction;
     QAction *m_aboutQtAction;
+    QAction *m_aboutPluginsAction;
     QAction *m_aboutDesignerAction;
     QAction *m_sdiAction;
     QAction *m_dockedMdiAction;

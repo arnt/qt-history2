@@ -54,6 +54,7 @@ HEADERS += \
     newform.h \
     versiondialog.h \
     qdesigner_signalsloteditor.h \
+    plugindialog.h \
     extra/cursor.h \
     extra/fov.h \
     extra/itemdialog.h \
@@ -78,6 +79,7 @@ SOURCES += main.cpp \
     newform.cpp \
     versiondialog.cpp \
     qdesigner_signalsloteditor.cpp \
+    plugindialog.cpp \
     extra/cursor.cpp \
     extra/fov.cpp \
     extra/itemdialog.cpp \
