@@ -8,6 +8,7 @@
 #include "q3widgetstack/q3widgetstack_plugin.h"
 #include "q3buttongroup/q3buttongroup_plugin.h"
 #include "q3listview/q3listview_plugin.h"
+#include "q3listbox/q3listbox_plugin.h"
 
 #include <QtDesigner/QtDesigner>
 #include <QtCore/qplugin.h>
@@ -37,7 +38,7 @@ Qt3SupportWidgets::Qt3SupportWidgets(QObject *parent)
     m_plugins.append(new Q3MainWindowPlugin(this));
     m_plugins.append(new Q3WidgetStackPlugin(this));
     m_plugins.append(new Q3ButtonGroupPlugin(this));
-    m_plugins.append(new Q3ListViewPlugin(this));
+    m_plugins.append(new Q3ListBoxPlugin(this));
 }
 
 QList<QDesignerCustomWidgetInterface*> Qt3SupportWidgets::customWidgets() const
