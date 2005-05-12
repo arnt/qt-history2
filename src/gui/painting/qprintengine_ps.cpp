@@ -2880,12 +2880,12 @@ void QPSPrintEnginePrivate::setFont(QFontEngine *fe)
 static void ps_r7(QTextStream& stream, const char * s, int l)
 {
     int i = 0;
-    uchar line[79];
+    uchar line[80];
     int col = 0;
 
     while(i < l) {
         line[col++] = s[i++];
-        if (col >= 76) {
+        if (i < l - 1 && col >= 76) {
             line[col++] = '\n';
             line[col++] = '\0';
             stream << (const char *)line;
@@ -2900,18 +2900,6 @@ static void ps_r7(QTextStream& stream, const char * s, int l)
         stream << (const char *)line;
     }
 }
-
-enum {
-    quoteSize = 3, // 1-8 pixels
-    maxQuoteLength = 4+16+32+64+128+256, // magic extended quote
-    quoteReach = 10, // ... 1-1024 pixels back
-    tableSize = 1024, // 2 ** quoteReach;
-    numAttempts = 128,
-
-    hashSize = 71,
-
-    None = INT_MAX
-};
 
 static QByteArray runlengthEncode(const QByteArray &input)
 {
@@ -2932,41 +2920,46 @@ static QByteArray runlengthEncode(const QByteArray &input)
     State state = Undef;
 
     int i = 1;
+    int written = 0;
     while (1) {
-        bool flush = false;
-        switch(state) {
-        case Undef:
-            state = (last == data[i]) ? Equal : Diff;
-            break;
-        case Equal:
-            if (data[i] != last)
-                flush = true;
-            break;
-        case Diff:
-            if (data[i] == last) {
-                --i;
-                flush = true;
+        bool flush = (i == input.size());
+        if (!flush) {
+            switch(state) {
+            case Undef:
+                state = (last == data[i]) ? Equal : Diff;
+                break;
+            case Equal:
+                if (data[i] != last)
+                    flush = true;
+                break;
+            case Diff:
+                if (data[i] == last) {
+                    --i;
+                    flush = true;
+                }
             }
         }
-        if (flush || i == input.size() - 1 || i - start == 128) {
+        if (flush || i - start == 128) {
             int size = i - start;
             if (state == Equal) {
                 out.append((char)(uchar)(257-size));
                 out.append(last);
+                written += size;
             } else {
                 out.append((char)(uchar)size-1);
                 while (start < i)
                     out.append(data[start++]);
+                written += size;
             }
             state = Undef;
             start = i;
-            if (i == input.size() - 1)
+            if (i == input.size())
                 break;
         }
         last = data[i];
         ++i;
     };
-    out.append((char)128);
+    out.append((char)(uchar)128);
     return out;
 }
 
@@ -3002,29 +2995,35 @@ static QByteArray ascii85Encode(const QByteArray &input)
     }
     //write the last few bytes
     int remaining = input.size() - isize;
-    uint val = 0;
-    for (int i = isize; i < input.size(); ++i)
-        val = val << 8 + in[i];
-    val <<= 8*(4-remaining);
-    char base[5];
-    base[4] = val % 85;
-    val /= 85;
-    base[3] = val % 85;
-    val /= 85;
-    base[2] = val % 85;
-    val /= 85;
-    base[1] = val % 85;
-    val /= 85;
-    base[0] = val % 85;
-    for (int i = 0; i < remaining+1; ++i)
-        *(out++) = base[i] + '!';
+    if (remaining) {
+        uint val = 0;
+        for (int i = isize; i < input.size(); ++i)
+            val = (val << 8) + in[i];
+        val <<= 8*(4-remaining);
+        char base[5];
+        base[4] = val % 85;
+        val /= 85;
+        base[3] = val % 85;
+        val /= 85;
+        base[2] = val % 85;
+        val /= 85;
+        base[1] = val % 85;
+        val /= 85;
+        base[0] = val % 85;
+        for (int i = 0; i < remaining+1; ++i)
+            *(out++) = base[i] + '!';
+    }
     *(out++) = '~';
     *(out++) = '>';
     output.resize(out-output.data());
     return output;
 }
 
-static QByteArray compress(const QImage & image, bool gray) {
+static QByteArray compress(const QImage &img, bool gray) {
+    // we can't use premultiplied here
+    QImage image = img;
+    if (image.format() == QImage::Format_ARGB32_Premultiplied)
+        image = image.convertToFormat(QImage::Format_ARGB32);
     int width = image.width();
     int height = image.height();
     int depth = image.depth();
@@ -3036,7 +3035,7 @@ static QByteArray compress(const QImage & image, bool gray) {
         size = size*3;
 
     QByteArray pixelData;
-    pixelData.resize(size+1);
+    pixelData.resize(size);
     uchar *pixel = (uchar *)pixelData.data();
     int i = 0;
     if (depth == 1) {
@@ -3073,13 +3072,10 @@ static QByteArray compress(const QImage & image, bool gray) {
             }
         }
     } else {
-        bool alpha = image.format() != QImage::Format_RGB32;
         for(int y=0; y < height; y++) {
             QRgb * s = (QRgb*)(image.scanLine(y));
             for(int x=0; x < width; x++) {
                 QRgb rgb = (*s++);
-                if (alpha && qAlpha(rgb) < 0x40) // 25% alpha, convert to white -
-                    rgb = qRgb(0xff, 0xff, 0xff);
                 if (gray) {
                     pixel[i] = (unsigned char) qGray(rgb);
                     i++;
@@ -3092,8 +3088,6 @@ static QByteArray compress(const QImage & image, bool gray) {
             }
         }
     }
-
-    pixel[size] = 0;
 
     QByteArray runlength = runlengthEncode(pixelData);
     QByteArray outarr = ascii85Encode(runlength);
@@ -3403,7 +3397,14 @@ void QPSPrintEnginePrivate::flushPage(bool last)
 
 // ### Implementation LinearGradients
 QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
-    : QPaintEngine(*(new QPSPrintEnginePrivate(m)), AllFeatures)
+    : QPaintEngine(*(new QPSPrintEnginePrivate(m)),
+                   PrimitiveTransform
+                   | PatternTransform
+                   | PixmapTransform
+                   | PainterPaths
+                   | AlphaBlend
+                   | LinearGradientFill
+        )
 {
 }
 
@@ -3853,7 +3854,7 @@ void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF
     QImage img = pm.toImage();
     QImage mask;
     if (pm.hasAlphaChannel())
-        mask = pm.mask().toImage();
+        mask = img.createAlphaMask(Qt::OrderedAlphaDither);
     d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr.toRect()), mask.copy(sr.toRect()));
 }
 
