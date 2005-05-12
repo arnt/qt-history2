@@ -39,7 +39,7 @@ QPixmap cached(const QString &img)
 ArthurStyle::ArthurStyle()
     : QWindowsStyle()
 {
-    extern int qInitResources_shared();
+    extern bool qInitResources_shared();
     qInitResources_shared();
 }
 
