@@ -17,7 +17,11 @@ public:
     void validateArgs();
 #endif
     bool displayHelp();
+
+    QString defaultTo(const QString &option);
+    bool checkAvailability(const QString &part);
     void autoDetection();
+
     void generateOutputVars();
 #if !defined(EVAL)
     void generateCachefile();
@@ -84,6 +88,11 @@ private:
 
     QTextStream outStream;
 
+    // Variables for usage output
+    int optionIndent;
+    int descIndent;
+    int outputWidth;
+
     static bool findFile(const QString &fileName);
     static bool findFileInPaths(const QString &fileName, const QStringList &paths);
 #if !defined(EVAL)
@@ -91,6 +100,11 @@ private:
     void saveCmdLine();
 #endif
 
+    void desc(const char *description, int startingAt = 0, int wrapIndent = 0);
+    void desc(const char *option, const char *description, bool skipIndent = false, char fillChar = '.');
+    void desc(const char *mark_option, const char *mark, const char *option, const char *description, char fillChar = '.');
+    void dWCE(const char *option, const char *description, bool skipIndent = false, char fillChar = '.');
+    void dWCE(const char *mark_option, const char *mark, const char *option, const char *description, char fillChar = '.');
 };
 
 class MakeItem

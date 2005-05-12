@@ -1,5 +1,26 @@
-CONFIG   = console release flat no_batch
+TARGET    = configure
+DESTDIR   = ../../bin
+
+CONFIG   += console flat no_batch
+CONFIG   -= moc qt
 DEFINES  = QT_NODLL QT_NO_CODECS QT_NO_TEXTCODEC QT_NO_UNICODETABLES QT_LITE_COMPONENT QT_NO_STL QT_NO_COMPRESS QT_BUILD_QMAKE QT_NO_THREAD QT_NO_QOBJECT
+
+
+win32 : LIBS += -lole32 -ladvapi32
+win32-msvc.net : QMAKE_CXXFLAGS += /EHsc
+win32-g++ : LIBS += -luuid
+
+win32-msvc* {
+    QMAKE_CFLAGS_RELEASE -= -MD
+    QMAKE_CFLAGS_DEBUG -= -MDd
+    QMAKE_CXXFLAGS_RELEASE -= -MD
+    QMAKE_CXXFLAGS_DEBUG -= -MDd
+
+    QMAKE_CFLAGS_RELEASE += -ML
+    QMAKE_CFLAGS_DEBUG += -MLd
+    QMAKE_CXXFLAGS_RELEASE += -ML
+    QMAKE_CXXFLAGS_DEBUG += -MLd
+}
 
 PRECOMPILED_HEADER = configure_pch.h
 
@@ -18,12 +39,11 @@ HEADERS	 = configureapp.h \
            $$QT_SOURCE_TREE/src/corelib/codecs/qtextcodec.h \
            $$QT_SOURCE_TREE/src/corelib/global/qglobal.h \
            $$QT_SOURCE_TREE/src/corelib/io/qbuffer.h \
-	   $$QT_SOURCE_TREE/src/corelib/io/qbufferedfsfileengine.h \
            $$QT_SOURCE_TREE/src/corelib/io/qdatastream.h \
            $$QT_SOURCE_TREE/src/corelib/io/qdir.h \
            $$QT_SOURCE_TREE/src/corelib/io/qfile.h \
            $$QT_SOURCE_TREE/src/corelib/io/qfileinfo.h \
-           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine.h \
+           $$QT_SOURCE_TREE/src/corelib/io/qfsfileengine_p.h \
            $$QT_SOURCE_TREE/src/corelib/io/qiodevice.h \
            $$QT_SOURCE_TREE/src/corelib/io/qtextstream.h \
            $$QT_SOURCE_TREE/src/corelib/io/qtemporaryfile.h \
@@ -74,24 +94,3 @@ SOURCES += $$QT_SOURCE_TREE/util/install/keygen/keyinfo.cpp
 INCLUDEPATH += $$QT_SOURCE_TREE/src/corelib/arch/generic \
 	       $$QT_SOURCE_TREE/include/QtCore \
 	       $$QT_SOURCE_TREE/util/install/keygen
-
-
-INTERFACES=
-TARGET=configure
-DESTDIR=../../bin
-win32-msvc.net : QMAKE_CXXFLAGS += /EHsc
-win32-g++:LIBS += -luuid
-win32:LIBS += -lole32 -ladvapi32
-win32:CONFIG+=console
-
-win32-msvc* {
-    QMAKE_CFLAGS_RELEASE -= -MD
-    QMAKE_CFLAGS_DEBUG -= -MDd
-    QMAKE_CXXFLAGS_RELEASE -= -MD
-    QMAKE_CXXFLAGS_DEBUG -= -MDd
-
-    QMAKE_CFLAGS_RELEASE += -ML
-    QMAKE_CFLAGS_DEBUG += -MLd
-    QMAKE_CXXFLAGS_RELEASE += -ML
-    QMAKE_CXXFLAGS_DEBUG += -MLd
-}

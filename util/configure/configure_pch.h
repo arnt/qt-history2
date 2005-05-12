@@ -15,7 +15,7 @@
 #if defined __cplusplus
 #include <qglobal.h>
 #include <qlist.h>
-#include <qcorevariant.h>  // All moc genereated code has this include
+#include <qvariant.h>  // All moc genereated code has this include
 #include <qplatformdefs.h>
 #include <qregexp.h>
 #include <qstring.h>
