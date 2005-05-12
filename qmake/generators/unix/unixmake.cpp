@@ -664,14 +664,32 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
         if(!destdir.isEmpty())
             src_targ = Option::fixPathToTargetOS(destdir + target, false);
         QString dst_targ = filePrefixRoot(root, fileFixify(targetdir + target, FileFixifyAbsolute));
-        if(!ret.isEmpty())
-            ret += "\n\t";
-        if(bundle)
+        if(bundle) {
+            if(!ret.isEmpty())
+                ret += "\n\t";
             ret += "$(DEL_FILE) -r \"" + dst_targ + "\"\n\t";
+        }
         if(!ret.isEmpty())
             ret += "\n\t";
-        ret += QString(bundle ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
-               src_targ + "\" \"" + dst_targ + "\"";
+
+        const QString copy_cmd = QString(bundle ? "-$(INSTALL_DIR)" : "-$(INSTALL_FILE)") + " \"" +
+                                 src_targ + "\" \"" + dst_targ + "\"";
+        if(project->first("TEMPLATE") == "lib" && !project->isActiveConfig("staticlib")
+           && project->values(t + ".CONFIG").indexOf("fix_rpath") != -1) {
+            if(!project->isEmpty("QMAKE_FIX_RPATH")) {
+                ret += copy_cmd;
+                ret += "\n\t-" + var("QMAKE_FIX_RPATH") + " \"" +
+                       dst_targ + "\" \"" + dst_targ + "\"";
+            } else if(!project->isEmpty("QMAKE_LFLAGS_RPATH")) {
+                ret += "-$(LINK) $(LFLAGS) " + var("QMAKE_LFLAGS_RPATH") + targetdir + " -o \"" +
+                       dst_targ + "\" $(OBJECTS) $(LIBS) $(OBJCOMP)";
+            } else {
+                ret += copy_cmd;
+            }
+        } else {
+            ret += copy_cmd;
+        }
+
         if(!project->isActiveConfig("debug") && !project->isEmpty("QMAKE_STRIP") &&
            (project->first("TEMPLATE") != "lib" || !project->isActiveConfig("staticlib"))) {
             ret += "\n\t-" + var("QMAKE_STRIP");
