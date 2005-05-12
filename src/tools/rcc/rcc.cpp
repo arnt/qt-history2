@@ -221,9 +221,10 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString c
                 lang = QLocale(child.attribute(ATTRIBUTE_LANG));
 
             QString prefix;
-            if (child.hasAttribute(ATTRIBUTE_PREFIX)) {
+            if (child.hasAttribute(ATTRIBUTE_PREFIX))
                 prefix = child.attribute(ATTRIBUTE_PREFIX);
-            }
+            if (!prefix.startsWith(QLatin1String("/")))
+                prefix.prepend('/');
             if (!prefix.endsWith(QLatin1String("/")))
                 prefix += '/';
 
