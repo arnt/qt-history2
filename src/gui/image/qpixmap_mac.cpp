@@ -474,11 +474,6 @@ QPixmapData::macQDUpdateAlpha()
 
 QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
-    if (mode == Qt::SmoothTransformation) {
-        // ###### do this efficiently! --Sam
-        QImage image = toImage();
-        return QPixmap::fromImage(image.transformed(matrix, mode));
-    }
     if(isNull())
         return copy();
 
@@ -491,39 +486,49 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
          matrix.m11() >= 0.0F  && matrix.m22() >= 0.0F) {
         if(mat.m11() == 1.0F && mat.m22() == 1.0F) // identity matrix
             return *this;
-        h = qRound(mat.m22()*hs);
-        w = qRound(mat.m11()*ws);
+        h = int(qAbs(mat.m22()) * hs + 0.9999);
+        w = int(qAbs(mat.m11()) * ws + 0.9999);
         h = qAbs(h);
         w = qAbs(w);
     } else { // rotation or shearing
-        QPolygon a(QRect(0,0,ws+1,hs+1));
+        QPolygonF a(QRectF(0,0,ws+1,hs+1));
         a = mat.map(a);
-        QRect r = a.boundingRect().normalized();
-        w = r.width()-1;
-        h = r.height()-1;
+        QRectF r = a.boundingRect().normalized();
+        w = int(r.width() + 0.9999);
+        h = int(r.height() + 0.9999);
     }
     mat = trueMatrix(mat, ws, hs);
-    bool invertible;
-    mat = mat.inverted(&invertible);
-    if(!h || !w || !invertible) // error
+    if(!h || !w)
         return QPixmap();
 
     //create destination
     QPixmap pm = depth() == 1 ? QPixmap(QBitmap(w, h)) : QPixmap(w, h);
-    memset(pm.data->pixels, 0, pm.data->nbytes);
-    const uchar *sptr = (uchar *)data->pixels;
-    uchar *dptr = (uchar *)pm.data->pixels;
-
-    const int bpp = 32;
-    const int xbpl = bpp == 1 ? ((w+7)/8) : ((w*bpp)/8);
 
     //do the transform
-    if(!qt_xForm_helper(mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp,
-                        dptr, xbpl, (pm.data->nbytes / pm.data->h) - xbpl, h, sptr,
-                        (data->nbytes / data->h), ws, hs)){
-        qWarning("Qt: QPixmap::transform: display not supported (bpp=%d)",bpp);
-        QPixmap pm;
-        return pm;
+    if(mode == Qt::SmoothTransformation) {
+        QPainter p(&pm);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.setRenderHint(QPainter::SmoothPixmapTransform);
+        p.setMatrix(mat);
+        p.drawPixmap(0, 0, *this);
+    } else {
+        bool invertible;
+        mat = mat.inverted(&invertible);
+        if(!invertible)
+            return QPixmap();
+
+        const uchar *sptr = (uchar *)data->pixels;
+        uchar *dptr = (uchar *)pm.data->pixels;
+        memset(dptr, 0, pm.data->nbytes);
+
+        const int bpp = 32;
+        const int xbpl = (w * bpp) / 8;
+        if(!qt_xForm_helper(mat, 0, QT_XFORM_TYPE_MSBFIRST, bpp,
+                            dptr, xbpl, (pm.data->nbytes / pm.data->h) - xbpl,
+                            h, sptr, (data->nbytes / data->h), ws, hs)) {
+            qWarning("Qt: QPixmap::transform: failure");
+            return QPixmap();
+        }
     }
 
     //update the alpha
