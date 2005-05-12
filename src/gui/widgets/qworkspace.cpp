@@ -1208,6 +1208,8 @@ void QWorkspace::setActiveWindow(QWidget *w)
 {
     Q_D(QWorkspace);
     d->activateWindow(w, true);
+    if (w && w->isMinimized())
+        w->setWindowState(w->windowState() & ~Qt::WindowMinimized);
 }
 
 void QWorkspacePrivate::place(QWidget *w)
