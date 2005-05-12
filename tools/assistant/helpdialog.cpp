@@ -122,9 +122,10 @@ QModelIndex IndexListModel::filter(const QString &s)
     QStringList lst;
     QString lastKey, lastValue;
 
-    int bestMatch = -1;
+    int goodMatch = -1;
+    int perfectMatch = -1;
     if (s.isEmpty())
-        bestMatch = 0;
+        perfectMatch = 0;
 
     while (it.hasNext()) {
         it.next();
@@ -138,10 +139,18 @@ QModelIndex IndexListModel::filter(const QString &s)
         if (lastKey.contains(s, Qt::CaseInsensitive))
             lst.append(lastKey);
 
-        if (bestMatch == -1 && lastKey.startsWith(s, Qt::CaseInsensitive))
-            bestMatch = lst.count() - 1;
+        if (perfectMatch == -1 && lastKey.startsWith(s, Qt::CaseInsensitive)) {
+            if (goodMatch == -1)
+                goodMatch = lst.count() - 1;
+            if (s.length() == lastKey.length())
+                perfectMatch = lst.count() - 1;
+        }
     }
     setStringList(lst);
+
+    int bestMatch = perfectMatch;
+    if (bestMatch == -1)
+        bestMatch = goodMatch;
 
     return index(qMax(0, bestMatch), 0, QModelIndex());
 }
