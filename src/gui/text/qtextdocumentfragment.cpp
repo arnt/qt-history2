@@ -466,13 +466,10 @@ void QTextHTMLImporter::import()
             if (blockTagClosed
                 && !hasBlock
                 && !node->isBlock
-                && !node->text.isEmpty()) {
-                QTextBlockFormat block;
+                && !node->text.isEmpty()
+                && node->text != QLatin1String(" ")) {
 
-                if (node->alignment)
-                    block.setAlignment(node->alignment);
-                if (node->direction < 2)
-                    block.setLayoutDirection(Qt::LayoutDirection(node->direction));
+                QTextBlockFormat block = node->blockFormat();
                 block.setIndent(indent);
 
                 appendBlock(block, node->charFormat());
@@ -573,16 +570,7 @@ void QTextHTMLImporter::import()
                 block.setIndent(indent);
             }
 
-            if (node->hasCssBlockIndent)
-                block.setIndent(node->cssBlockIndent);
-            if (node->text_indent != 0.)
-                block.setTextIndent(node->text_indent);
-
-            if (node->alignment)
-                block.setAlignment(node->alignment);
-            if (node->direction < 2)
-                block.setLayoutDirection(Qt::LayoutDirection(node->direction));
-
+            block.merge(node->blockFormat());
             charFmt.merge(node->charFormat());
 
             if (node->isTableCell && !tables.isEmpty()) {

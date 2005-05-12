@@ -482,6 +482,23 @@ QTextCharFormat QTextHtmlParserNode::charFormat() const
     return format;
 }
 
+QTextBlockFormat QTextHtmlParserNode::blockFormat() const
+{
+    QTextBlockFormat format;
+
+    if (alignment)
+        format.setAlignment(alignment);
+    if (direction < 2)
+        format.setLayoutDirection(Qt::LayoutDirection(direction));
+
+    if (hasCssBlockIndent)
+        format.setIndent(cssBlockIndent);
+    if (text_indent != 0.)
+        format.setTextIndent(text_indent);
+
+    return format;
+}
+
 void QTextHtmlParser::dumpHtml()
 {
     for (int i = 0; i < count(); ++i) {

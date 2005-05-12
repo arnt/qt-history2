@@ -177,6 +177,7 @@ struct QTextHtmlParserNode {
     qreal text_indent;
 
     QTextCharFormat charFormat() const;
+    QTextBlockFormat blockFormat() const;
 
     WhiteSpaceMode wsm;
 
