@@ -95,8 +95,8 @@ QFont QTextItem::font() const
   This enum is used to describe the features or capabilities that the
   paint engine has. If a feature is not supported by the engine,
   QPainter will do a best effort to emulate that feature through other
-  means. The features that are currently emulated are \c PixmapTransform
-  and \c LinearGradientFill.
+  means and pass on an alpha blended QImage to the engine with the
+  emulated results. Some features cannot be emulated: AlphaBlend, PorterDuff.
 
   \value PrimitiveTransform The engine has support for transforming
                             drawing primitives.
