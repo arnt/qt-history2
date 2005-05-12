@@ -165,8 +165,6 @@ public:
     enum ServerFlags { DisableKeyboard = 0x01,
                        DisableMouse = 0x02 };
 
-    enum GUIMode { NoGui = false, NormalGUI = true, Server };
-
     static void sendKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
                              bool isPress, bool autoRepeat);
     static void processKeyEvent(int unicode, int keycode, Qt::KeyboardModifiers modifiers,
