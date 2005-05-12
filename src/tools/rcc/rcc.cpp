@@ -118,8 +118,8 @@ qint64 RCCFileInfo::writeDataBlob(FILE *out, qint64 offset, RCCResourceLibrary::
     }
     QByteArray data = file.readAll();
 
-    // Check if compression is useful for this file        
-    if (mCompressLevel != 0) {            
+    // Check if compression is useful for this file
+    if (mCompressLevel != 0) {
         QByteArray compressed = qCompress(reinterpret_cast<uchar *>(data.data()), data.size(), mCompressLevel);
 
         int compressRatio = int(100.0f * (float(data.size() - compressed.size()) / float(data.size())));
@@ -243,16 +243,16 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString c
                         alias = fileName;
 
                     int compressLevel = mCompressLevel;
-                    if (res.toElement().hasAttribute(ATTRIBUTE_COMPRESS)) 
+                    if (res.toElement().hasAttribute(ATTRIBUTE_COMPRESS))
                         compressLevel = res.toElement().attribute(ATTRIBUTE_COMPRESS).toInt();
                     int compressThreshold = mCompressThreshold;
                     if (res.toElement().hasAttribute(ATTRIBUTE_THRESHOLD))
                         compressThreshold = res.toElement().attribute(ATTRIBUTE_THRESHOLD).toInt();
 
                     // Special case for -no-compress. Overrides all other settings.
-                    if (mCompressLevel == -2) 
+                    if (mCompressLevel == -2)
                         compressLevel = 0;
-                    
+
                     alias = QDir::cleanPath(alias);
                     while (alias.startsWith("../"))
                         alias.remove(0, 3);
@@ -288,7 +288,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString c
             }
         }
     }
-    
+
     return (this->root != 0);
 }
 
@@ -351,7 +351,7 @@ RCCResourceLibrary::dataFiles() const
     QStringList ret;
     QStack<RCCFileInfo*> pending;
 
-    if (!root) 
+    if (!root)
         return ret;
 
     pending.push(root);
@@ -374,23 +374,23 @@ bool RCCResourceLibrary::output(FILE *out)
     if (mVerbose)
         fprintf(stderr, "Outputting code\n");
     if (!writeHeader(out)) {
-        fprintf(stderr, "Couldn't write header");
+        fprintf(stderr, "Couldn't write header\n");
         return false;
     }
     if (!writeDataBlobs(out)) {
-        fprintf(stderr, "Couldn't write data blob");
+        fprintf(stderr, "Couldn't write data blob\n");
         return false;
     }
     if (!writeDataNames(out)) {
-        fprintf(stderr, "Couldn't write file names");
+        fprintf(stderr, "Couldn't write file names\n");
         return false;
     }
     if (!writeDataStructure(out)) {
-        fprintf(stderr, "Couldn't write file names");
+        fprintf(stderr, "Couldn't write data tree\n");
         return false;
     }
     if (!writeInitializer(out)) {
-        fprintf(stderr, "Couldn't write footer");
+        fprintf(stderr, "Couldn't write footer\n");
         return false;
     }
     return true;
