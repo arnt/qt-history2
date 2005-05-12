@@ -270,10 +270,33 @@ static void init_indexed(QColormapPrivate *d, int screen)
     query_colormap(d, screen);
 }
 
+/*!
+    \class QColormap
+    \brief The QColormap class maps device independent QColors to device dependent pixel values.
+*/
+
+/*! \enum QColormap::Mode
+
+    This enum describes how QColormap maps device independent RGB
+    values to device dependent pixel values.
+
+    \value Direct Pixel values are derived directly from the RGB
+    values, also known as "True Color."
+
+    \value Indexed Pixel values represent indexes into a vector of
+    available colors, i.e. QColormap uses the index of the color that
+    most closely matches an RGB value.
+
+    \value Gray Similar to \c Indexed, pixel values represent a vector
+    of available gray tones.  QColormap uses the index of the gray
+    tone that most closely matches the computed gray tone of an RGB
+    value.
+*/
 
 static QColormap **cmaps = 0;
 
-
+/*! \internal
+*/
 void QColormap::initialize()
 {
     Display *display = QX11Info::display();
@@ -467,6 +490,8 @@ void QColormap::initialize()
     }
 }
 
+/*! \internal
+*/
 void QColormap::cleanup()
 {
     Display *display = QX11Info::display();
@@ -479,6 +504,10 @@ void QColormap::cleanup()
     cmaps = 0;
 }
 
+/*!
+    Returns the colormap for the specified \a screen.  If \a screen is
+    -1, this function returns the colormap for the default screen.
+*/
 QColormap QColormap::instance(int screen)
 {
     if (screen == -1)
@@ -486,14 +515,23 @@ QColormap QColormap::instance(int screen)
     return *cmaps[screen];
 }
 
+/*! \internal
+    Constructs a new colormap.
+*/
 QColormap::QColormap()
     : d(new QColormapPrivate)
 { d->ref = 1; }
 
+/*!
+    Constructs a copy of another \a colormap.
+ */
 QColormap::QColormap(const QColormap &colormap)
     :d (colormap.d)
 { d->ref.ref(); }
 
+/*!
+    Destroys the colormap.
+*/
 QColormap::~QColormap()
 {
     if (!d->ref.deref()) {
@@ -503,12 +541,28 @@ QColormap::~QColormap()
     }
 }
 
+/*!
+    Returns the mode of this colormap.
+
+    \sa QColormap::Mode
+*/
 QColormap::Mode QColormap::mode() const
 { return d->mode; }
 
+/*!
+    Returns the depth of the device.
+
+    \sa size()
+*/
 int QColormap::depth() const
 { return d->depth; }
 
+/*!
+    Returns the size of the colormap for \c Indexed and \c Gray modes;
+    Returns -1 for \c Direct mode.
+
+    \sa colormap()
+*/
 int QColormap::size() const
 {
     return (d->mode == Gray
@@ -518,6 +572,11 @@ int QColormap::size() const
                : -1));
 }
 
+/*!
+    Returns a device dependent pixel value for the \a color.
+
+    \sa colorAt()
+*/
 uint QColormap::pixel(const QColor &color) const
 {
     const QColor c = color.toRgb();
@@ -532,6 +591,11 @@ uint QColormap::pixel(const QColor &color) const
     return (r << d->r_shift) + (g << d->g_shift) + (b << d->b_shift);
 }
 
+/*!
+    Returns a QColor for the \a pixel.
+
+    \sa pixel()
+*/
 const QColor QColormap::colorAt(uint pixel) const
 {
     if (d->mode != Direct) {
@@ -545,5 +609,20 @@ const QColor QColormap::colorAt(uint pixel) const
     return QColor(r, g, b);
 }
 
+/*!
+    Returns a vector of colors which represents the devices colormap
+    for \c Indexed and \c Gray modes.  This function returns an empty
+    vector for \c Direct mode.
+
+    \sa size()
+*/
 const QVector<QColor> QColormap::colormap() const
 { return d->colors; }
+
+/*! \fn HPALETTE QColormap::hPal()
+
+    This function is only available on Windows.
+
+    Returns an handle to the HPALETTE used by this colormap.  If no
+    HPALETTE is being used, this function returns zero.
+*/
