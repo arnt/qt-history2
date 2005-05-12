@@ -91,7 +91,7 @@ CGContextRef qt_mac_cg_context(const QPaintDevice *pdev)
         CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
         CGContextRef ret = CGBitmapContextCreate(pm->data->pixels, pm->data->w, pm->data->h,
                                                  8, pm->data->nbytes / pm->data->h, colorspace,
-                                                 kCGImageAlphaNoneSkipFirst);
+                                                 CGImageGetAlphaInfo((CGImageRef)pm->macCGHandle()));
         CGColorSpaceRelease(colorspace);
         if(!ret)
             qWarning("Unable to create context for pixmap (%d/%d/%d)", pm->data->w, pm->data->h, pm->data->nbytes);

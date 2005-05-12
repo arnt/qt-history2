@@ -41,9 +41,9 @@ extern QRegion qt_mac_convert_mac_region(RgnHandle rgn); //qregion_mac.cpp
 
 static int qt_pixmap_serial = 0;
 
-static void qt_mac_cgimage_data_free(void *, const void *data, size_t)
+static void qt_mac_cgimage_data_free(void *memory, const void *, size_t)
 {
-    free(const_cast<void *>(data));
+    free(memory);
 }
 
 /*****************************************************************************
@@ -560,12 +560,14 @@ void QPixmap::init(int w, int h, Type type)
     data->h=h;
 
     //create the pixels
-    data->nbytes = (w*h*4) + (h*4); // ### testing for alignment --Sam
-    data->pixels = (uint*)malloc(data->nbytes);
+    data->nbytes = (w*h*4);
+    uchar *base_pixels = (uchar*)malloc(data->nbytes);
+    data->pixels = (uint*)base_pixels;
 
     //create the cg data
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    CGDataProviderRef provider = CGDataProviderCreateWithData(0, data->pixels, data->nbytes, qt_mac_cgimage_data_free);
+    CGDataProviderRef provider = CGDataProviderCreateWithData(base_pixels, data->pixels, data->nbytes,
+                                                              qt_mac_cgimage_data_free);
     data->cg_data = CGImageCreate(w, h, 8, 32, data->nbytes / h, colorspace,
                                   kCGImageAlphaPremultipliedFirst, provider, 0, 0, kCGRenderingIntentDefault);
     CGColorSpaceRelease(colorspace);
