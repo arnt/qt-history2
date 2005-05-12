@@ -51,9 +51,9 @@
 
     \list
 
-    \i For a line edit that accepts integers from 0 to 999 inclusive,
-    42 and 123 are \c Acceptable, the empty string and 1114 are \c
-    Intermediate, and "asdf" is \c Invalid.
+    \i For a line edit that accepts integers from 10 to 999 inclusive,
+    42 and 123 are \c Acceptable, the empty string and 5 are \c
+    Intermediate, and "asdf" and 1114 is \c Invalid.
 
     \i For an editable combobox that accepts URLs, any well-formed URL
     is \c Acceptable, "http://www.trolltech.com/," is \c Intermediate
