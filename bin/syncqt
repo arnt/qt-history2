@@ -136,6 +136,10 @@ sub classNames {
 	push @ret, "QtGlobal";
     } elsif(basename($iheader) eq "qalgorithms.h") {
 	push @ret, "QtAlgorithms";
+    } elsif(basename($iheader) eq "qdebug.h") {
+        push @ret, "QtDebug";
+    } elsif(basename($iheader) eq "qnamespace.h") {
+        push @ret, "Qt"
     }
 
     my $parsable = "";
