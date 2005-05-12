@@ -457,6 +457,7 @@ void QWin32PrintEngine::updateClipPath(const QPainterPath &clipPath, Qt::ClipOpe
 
     if (op == Qt::NoClip) {
         SelectClipRgn(d->hdc, 0);
+        return;
     }
 
     QPainterPath xformed = clipPath * d->matrix;
