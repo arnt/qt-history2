@@ -344,6 +344,9 @@ void Tree::resolveGroups()
     GroupMap::const_iterator i;
     QString prevGroup;
     for (i = priv->groupMap.constBegin(); i != priv->groupMap.constEnd(); ++i) {
+        if (i.key()->access() == Node::Private)
+            continue;
+
         FakeNode *fake = static_cast<FakeNode *>(findNode(QStringList(i.key()), Node::Fake));
         if (fake && fake->subType() == FakeNode::Group) {
             fake->addGroupMember(i.value());

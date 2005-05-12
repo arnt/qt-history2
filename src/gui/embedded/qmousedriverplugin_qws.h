@@ -28,7 +28,6 @@ struct Q_GUI_EXPORT QWSMouseHandlerFactoryInterface : public QFactoryInterface
 
 Q_DECLARE_INTERFACE(QWSMouseHandlerFactoryInterface, "com.trolltech.Qt.QWSMouseHandlerFactoryInterface")
 
-
 class Q_GUI_EXPORT QMouseDriverPlugin : public QObject, public QWSMouseHandlerFactoryInterface
 {
     Q_OBJECT

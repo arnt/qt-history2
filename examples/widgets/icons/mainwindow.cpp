@@ -58,7 +58,7 @@ void MainWindow::changeStyle(bool checked)
         return;
 
     QAction *action = qobject_cast<QAction *>(sender());
-    QStyle *style = QStyleFactory::create(action->iconText());
+    QStyle *style = QStyleFactory::create(action->data().toString());
     Q_ASSERT(style);
     QApplication::setStyle(style);
 
@@ -283,7 +283,7 @@ void MainWindow::createActions()
     foreach (QString styleName, QStyleFactory::keys()) {
         QAction *action = new QAction(styleActionGroup);
         action->setText(tr("%1 Style").arg(styleName));
-        action->setIconText(styleName);
+        action->setData(styleName);
         action->setCheckable(true);
         connect(action, SIGNAL(triggered(bool)), this, SLOT(changeStyle(bool)));
     }
@@ -330,7 +330,7 @@ void MainWindow::createContextMenu()
 void MainWindow::checkCurrentStyle()
 {
     foreach (QAction *action, styleActionGroup->actions()) {
-        QString styleName = action->iconText();
+        QString styleName = action->data().toString();
         QStyle *candidate = QStyleFactory::create(styleName);
         Q_ASSERT(candidate);
         if (candidate->metaObject()->className()

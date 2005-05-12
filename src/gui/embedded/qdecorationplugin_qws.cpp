@@ -15,7 +15,7 @@
 #include "qdecoration_qws.h"
 
 /*!
-    \class QDecorationPlugin qdecorationplugin.h
+    \class QDecorationPlugin
     \brief The QDecorationPlugin class provides an abstract base for custom QDecoration plugins.
 
     \ingroup plugins
@@ -26,9 +26,10 @@
 
     Writing a decoration plugin is achieved by subclassing this base class,
     reimplementing the pure virtual functions keys() and create(), and
-    exporting the class with the \c Q_EXPORT_PLUGIN macro. See the
-    \link plugins-howto.html plugins documentation\endlink for an
-    example.
+    exporting the class with the \c Q_EXPORT_PLUGIN() macro. See
+    \l{How to Create Qt Plugins} for details.
+
+    This class is only available on Qt/Embedded.
 */
 
 /*!
@@ -52,8 +53,8 @@
 */
 
 /*!
-    Constructs a decoration plugin with parent \a parent. This is invoked automatically by the
-    \c Q_EXPORT_PLUGIN macro.
+    Constructs a decoration plugin with parent \a parent. This is
+    invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
 */
 QDecorationPlugin::QDecorationPlugin(QObject *parent)
     : QObject(parent)

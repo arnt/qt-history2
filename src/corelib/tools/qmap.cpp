@@ -565,9 +565,10 @@ void QMapData::dump()
 
 /*! \fn QList<Key> QMap::keys() const
 
-    Returns a list containing all the keys in the map, in ascending
-    order. Keys that occur multiple times in the map also occur
-    multiple times in the list.
+    Returns a list containing all the keys in the map, in an
+    arbitrary order. Keys that occur multiple times in the map
+    (because items were inserted with insertMulti(), or unite() was
+    used), also occur multiple times in the list.
 
     The order is guaranteed to be the same as that used by values().
 

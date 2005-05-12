@@ -184,14 +184,14 @@
     \code
         inline QDataStream &operator<<(QDataStream &out, const Movie &movie)
         {
-            out << (Q_UINT32)movie.id << movie.title
-                << (Q_UINT32)movie.year;
+            out << (quint32)movie.id << movie.title
+                << (quint32)movie.year;
             return out;
         }
 
         inline QDataStream &operator>>(QDataStream &in, Movie &movie)
         {
-            Q_UINT32 id, year;
+            quint32 id, year;
             in >> id >> movie.title >> year;
             movie.id = (int)id;
             movie.year = (int)year;
@@ -271,7 +271,7 @@
 
         QListIterator<QString> i(list);
         while (i.hasNext())
-            cout << i.next().ascii() << endl;
+            qDebug() << i.next();
     \endcode
 
     It works as follows: The QList to iterate over is passed to the
@@ -289,7 +289,7 @@
         QListIterator<QString> i(list);
         i.toBack();
         while (i.hasPrevious())
-            cout << i.previous().ascii() << endl;
+            qDebug() << i.previous();
     \endcode
 
     The code is symmetric with iterating forward, except that we
@@ -543,7 +543,7 @@
     \code
         QList<QString>::const_iterator i;
         for (i = list.constBegin(); i != list.constEnd(); ++i)
-            cout << (*i).ascii() << endl;
+            qDebug() << *i;
     \endcode
 
     The following table summarizes the STL-style iterators' API:
@@ -581,7 +581,7 @@
         ...
         QMap<int, int>::const_iterator i;
         for (i = map.constBegin(); i != map.constEnd(); ++i)
-            cout << i.key() << ": " << i.value() << endl;
+            qDebug() << i.key() << ":" << i.value();
     \endcode
 
     Thanks to \l{implicit sharing}, it is very inexpensive for a
@@ -631,7 +631,7 @@
         ...
         QString str;
         foreach (str, list)
-            cout << str.ascii() << endl;
+            qDebug() << str;
     \endcode
 
     The \c foreach code is significantly shorter than the equivalent
@@ -642,7 +642,7 @@
         ...
         QLinkedListIterator<QString> i(list);
         while (i.hasNext())
-            cout << i.next().ascii() << endl;
+            qDebug() << i.next();
     \endcode
 
     Just like C++'s \c for loop, the variable used for iteration
@@ -652,7 +652,7 @@
         QLinkedList<QString> list;
         ...
         foreach (QString str, list)
-            cout << str.ascii() << endl;
+            qDebug() << str;
     \endcode
 
     And like any other C++ loop construct, you can use braces around
@@ -665,7 +665,7 @@
         foreach (QString str, list) {
             if (str.isEmpty())
                 break;
-            cout << str.ascii() << endl;
+            qDebug() << str;
         }
     \endcode
 
@@ -678,7 +678,7 @@
         QMap<QString, int> map;
         ...
         foreach (QString str, map.keys())
-            cout << str.ascii() << ": " << map.value(str) << endl;
+            qDebug() << str << ":" << map.value(str);
     \endcode
 
     For a multi-valued map:
@@ -686,9 +686,9 @@
     \code
         QMultiMap<QString, int> map;
         ...
-        foreach (QString str, map.keys())
+        foreach (QString str, map.uniqueKeys())
             foreach (int i, map.values(str))
-                cout << str.ascii() << ": " << i << endl;
+                qDebug() << str << ":" << i;
     \endcode
 
     Qt automatically takes a copy of the container when it enters a

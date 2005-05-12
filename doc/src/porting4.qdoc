@@ -3247,11 +3247,6 @@
         been renamed \c QT_NO_CAST_TO_ASCII and \c
         QT_NO_CAST_FROM_ASCII, respectively.
 
-    \o  QString::ascii() and QString::latin1() now
-        return "" (the empty string) rather than 0 (the null
-        pointer). The new behavior prevents crashes when interfacing
-        with the standard C++ library.
-
     \o  QString::utf8() and QString::local8Bit() used to return a
         QByteArray. They now return a \c{const char *}, to be
         consistent with QString::ascii() and QString::latin1(). Call

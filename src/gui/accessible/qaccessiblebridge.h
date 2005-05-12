@@ -31,7 +31,7 @@ public:
 
 struct Q_GUI_EXPORT QAccessibleBridgeFactoryInterface : public QFactoryInterface
 {
-    virtual QAccessibleBridge* create(const QString& name) = 0;
+    virtual QAccessibleBridge *create(const QString& name) = 0;
 };
 
 Q_DECLARE_INTERFACE(QAccessibleBridgeFactoryInterface, "com.trolltech.Qt.QAccessibleBridgeFactoryInterface")
@@ -48,6 +48,6 @@ public:
     virtual QAccessibleBridge *create(const QString &key) = 0;
 };
 
-#endif // QT_NO_SQL
+#endif // QT_NO_ACCESSIBILITY
 
 #endif // QSQLDRIVERPLUGIN_H

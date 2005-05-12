@@ -18,32 +18,38 @@
 #include "qaccessible.h"
 
 /*!
-    \class QAccessiblePlugin qaccessibleplugin.h
+    \class QAccessiblePlugin
     \brief The QAccessiblePlugin class provides an abstract base for
     accessibility plugins.
 
     \ingroup plugins
     \ingroup accessibility
+
+    Writing an accessibility plugin is achieved by subclassing this
+    base class, reimplementing the pure virtual functions keys() and
+    create(), and exporting the class with the \c Q_EXPORT_PLUGIN()
+    macro.
+
+    \sa QAccessibleBridgePlugin, {How to Create Qt Plugins}
 */
 
 /*!
     Constructs an accessibility plugin with the given \a parent. This
-    is invoked automatically by the \c Q_EXPORT_PLUGIN macro.
+    is invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
 */
 QAccessiblePlugin::QAccessiblePlugin(QObject *parent)
-: QObject(parent)
+    : QObject(parent)
 {
 }
 
 /*!
-    Destroys the widget plugin.
+    Destroys the accessibility plugin.
 
     You never have to call this explicitly. Qt destroys a plugin
     automatically when it is no longer used.
 */
 QAccessiblePlugin::~QAccessiblePlugin()
 {
-    // don't delete d, as this is deleted by d
 }
 
 /*!

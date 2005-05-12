@@ -102,7 +102,7 @@ QAccessible::State Q3AccessibleHeader::state(int child) const
 /*!
   \class Q3AccessibleTitleBar qaccessiblewidget.h
   \brief The Q3AccessibleTitleBar class implements the QAccessibleInterface for title bars.
-  \compat
+  \internal
 
   \ingroup accessibility
 */

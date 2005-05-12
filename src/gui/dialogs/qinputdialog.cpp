@@ -83,9 +83,9 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     hbox->setSpacing(6);
     vbox->addLayout(hbox, Qt::AlignRight);
 
-    ok = new QPushButton(q->tr("OK"), q);
+    ok = new QPushButton(QInputDialog::tr("OK"), q);
     ok->setDefault(true);
-    QPushButton *cancel = new QPushButton(q->tr("Cancel"), q);
+    QPushButton *cancel = new QPushButton(QInputDialog::tr("Cancel"), q);
 
     QSize bs = ok->sizeHint().expandedTo(cancel->sizeHint());
     ok->setFixedSize(bs);
@@ -114,20 +114,21 @@ void QInputDialogPrivate::init(const QString &lbl, QInputDialog::Type type)
     Four static convenience functions are provided:
     getText(), getInteger(), getDouble() and getItem(). All the
     functions can be used in a similar way, for example:
-    \code
-    bool ok;
-    QString text = QInputDialog::getText(this,
-            "MyApp 3000", "Enter your name:", QLineEdit::Normal, "", &ok);
-    if (ok && !text.isEmpty()) {
-        // user entered something and pressed OK
-    } else {
-        // user entered nothing or pressed Cancel
-    }
-    \endcode
-    The \c ok variable is set to true if the user clicked OK, or to
-    false if they cancelled.
+
+    \quotefromfile dialogs/standarddialogs/dialog.cpp
+    \skipuntil Dialog::setText
+    \skipline {
+    \printto }
+
+    The \c ok variable is set to true if the user clicks \gui OK;
+    otherwise it is set to false.
 
     \img inputdialogs.png Input Dialogs
+
+    The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
+    how to use QInputDialog as well as other built-in Qt dialogs.
+
+    \sa QMessageBox
 */
 
 /*!
@@ -184,26 +185,22 @@ QInputDialog::~QInputDialog()
     dialog. \a label is the text which is shown to the user (it should
     say what should be entered). \a text is the default text which is
     placed in the line edit. The \a mode is the echo mode the line
-    edit will use. If \a ok is not-null \e *\a ok will be set to true
-    if the user pressed OK and to false if the user pressed
-    Cancel. The dialog's parent is \a parent. The dialog will be modal
-    and uses the widget flags \a f.
+    edit will use. If \a ok is non-null \e *\a ok will be set to true
+    if the user pressed \gui OK and to false if the user pressed
+    \gui Cancel. The dialog's parent is \a parent. The dialog will be
+    modal and uses the widget flags \a f.
 
     This function returns the text which has been entered in the line
     edit. It will not return an empty string.
 
     Use this static function like this:
 
-    \code
-    bool ok;
-    QString text = QInputDialog::getText(this,
-            "MyApp 3000", "Enter your name:", QLineEdit::Normal, "", &ok);
-    if (ok && !text.isEmpty()) {
-        // user entered something and pressed OK
-    } else {
-        // user entered nothing or pressed Cancel
-    }
-    \endcode
+    \quotefromfile dialogs/standarddialogs/dialog.cpp
+    \skipuntil Dialog::setText
+    \skipline {
+    \printto }
+
+    \sa getInteger(), getDouble(), getItem()
 */
 
 QString QInputDialog::getText(QWidget *parent, const QString &title, const QString &label,
@@ -240,26 +237,21 @@ QString QInputDialog::getText(QWidget *parent, const QString &title, const QStri
     and \a step is the amount by which the values change as the user
     presses the arrow buttons to increment or decrement the value.
 
-    If \a ok is not-null *\a ok will be set to true if the user
-    pressed OK and to false if the user pressed Cancel. The dialog's
-    parent is \a parent. The dialog will be modal and uses the widget
-    flags \a f.
+    If \a ok is non-null *\a ok will be set to true if the user
+    pressed \gui OK and to false if the user pressed \gui Cancel. The
+    dialog's parent is \a parent. The dialog will be modal and uses
+    the widget flags \a f.
 
     This function returns the integer which has been entered by the user.
 
     Use this static function like this:
 
-    \code
-    bool ok;
-    int res = QInputDialog::getInteger( this,
-            "MyApp 3000", "Enter a number:", 22, 0, 1000, 2,
-            &ok;
-    if (ok) {
-        // user entered something and pressed OK
-    } else {
-        // user pressed Cancel
-    }
-    \endcode
+    \quotefromfile dialogs/standarddialogs/dialog.cpp
+    \skipuntil Dialog::setInteger
+    \skipline {
+    \printto }
+
+    \sa getText(), getDouble(), getItem()
 */
 
 int QInputDialog::getInteger(QWidget *parent, const QString &title, const QString &label,
@@ -293,27 +285,22 @@ int QInputDialog::getInteger(QWidget *parent, const QString &title, const QStrin
     user may choose, and \a decimals is the maximum number of decimal
     places the number may have.
 
-    If \a ok is not-null, *\a ok will be set to true if the user
-    pressed OK and to false if the user pressed Cancel. The dialog's
-    parent is \a parent. The dialog will be modal and uses the widget
-    flags \a f.
+    If \a ok is non-null, *\a ok will be set to true if the user
+    pressed OK and to false if the user pressed \gui Cancel. The
+    dialog's parent is \a parent. The dialog will be modal and uses
+    the widget flags \a f.
 
     This function returns the floating point number which has been
     entered by the user.
 
     Use this static function like this:
 
-    \code
-    bool ok;
-    double res = QInputDialog::getDouble(this,
-            "MyApp 3000", "Enter a decimal number:", 33.7, 0,
-            1000, 2, &ok);
-    if (ok) {
-        // user entered something and pressed OK
-    } else {
-        // user pressed Cancel
-    }
-    \endcode
+    \quotefromfile dialogs/standarddialogs/dialog.cpp
+    \skipuntil Dialog::setDouble
+    \skipline {
+    \printto }
+
+    \sa getText(), getInteger(), getItem()
 */
 
 double QInputDialog::getDouble( QWidget *parent, const QString &title, const QString &label,
@@ -346,28 +333,22 @@ double QInputDialog::getDouble( QWidget *parent, const QString &title, const QSt
     the user can enter their own text; if \a editable is false the user
     may only select one of the existing items.
 
-    If \a ok is not-null \e *\a ok will be set to true if the user
-    pressed OK and to false if the user pressed Cancel. The dialog's
-    parent is \a parent. The dialog will be modal and uses the widget
-    flags \a f.
+    If \a ok is non-null \e *\a ok will be set to true if the user
+    pressed OK and to false if the user pressed \gui Cancel. The
+    dialog's parent is \a parent. The dialog will be modal and uses
+    the widget flags \a f.
 
     This function returns the text of the current item, or if \a
     editable is true, the current text of the combobox.
 
     Use this static function like this:
 
-    \code
-    QStringList lst;
-    lst << "First" << "Second" << "Third" << "Fourth" << "Fifth";
-    bool ok;
-    QString res = QInputDialog::getItem(this,
-            "MyApp 3000", "Select an item:", lst, 1, true, &ok);
-    if (ok) {
-        // user selected an item and pressed OK
-    } else {
-        // user pressed Cancel
-    }
-    \endcode
+    \quotefromfile dialogs/standarddialogs/dialog.cpp
+    \skipuntil Dialog::setItem
+    \skipline {
+    \printto }
+
+    \sa getText(), getInteger(), getDouble()
 */
 
 QString QInputDialog::getItem(QWidget *parent, const QString &title, const QString &label, const QStringList &list,

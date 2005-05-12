@@ -117,9 +117,17 @@
     \brief The QImageIOPlugin class defines an interface for writing
     an image format plugin.
 
+    \ingroup plugins
+
     QImageIOPlugin is a factory for creating QImageIOHandler objects,
     which are used internally by QImageReader and QImageWriter to add
     support for different image formats to Qt.
+
+    Writing an picture format plugin is achieved by subclassing this
+    base class, reimplementing the pure virtual functions keys(),
+    loadPicture(), savePicture(), and installIOHandler(), and
+    exporting the class with the \c Q_EXPORT_PLUGIN() macro. See
+    \l{How to Create Qt Plugins} for details.
 
     An image format plugin can support three capabilities: reading (\l
     CanRead), writing (\l CanWrite) and \e incremental reading (\l
@@ -138,7 +146,7 @@
     several plugins support the same capability, Qt will select one
     arbitrarily.
 
-    \sa QImageIOHandler
+    \sa QImageIOHandler, {How to Write Qt Plugins}
 */
 
 /*!
@@ -156,16 +164,9 @@
     \brief The QImageIOHandlerFactoryInterface class provides the factory
     interface for QImageIOPlugin.
 
+    \internal
+
     \sa QImageIOPlugin
-*/
-
-/*!
-    \fn QImageIOHandlerFactoryInterface::create(QIODevice *device, const QByteArray &format) const = 0
-
-    Creates and returns a QImageIOHandler subclass, with \a device and
-    \a format set.
-
-    \sa QImageIOPlugin, keys()
 */
 
 #include "qimageiohandler.h"
@@ -434,8 +435,8 @@ int QImageIOHandler::nextImageDelay() const
 }
 
 /*!
-    Constructs a QImageIOPlugin object. The \a parent argument is
-    passed to QObject's constructor.
+    Constructs an image plugin with the given \a parent. This is
+    invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
 */
 QImageIOPlugin::QImageIOPlugin(QObject *parent)
     : QObject(parent)
@@ -443,7 +444,10 @@ QImageIOPlugin::QImageIOPlugin(QObject *parent)
 }
 
 /*!
-    Destructs the QImageIOPlugin object.
+    Destroys the picture format plugin.
+
+    You never have to call this explicitly. Qt destroys a plugin
+    automatically when it is no longer used.
 */
 QImageIOPlugin::~QImageIOPlugin()
 {
@@ -468,6 +472,20 @@ QImageIOPlugin::~QImageIOPlugin()
     These keys are usually the names of the image formats that are implemented
     in the plugin (e.g., "jpg" or "gif").
 
-    \sa QImageIOHandlerFactoryInterface, capabilities()
+    \sa capabilities()
 */
 
+/*!
+    \fn QImageIOHandler *QImageIOPlugin::create(QIODevice *device, const QByteArray &format) const
+
+    \sa keys()    
+*/
+
+/*!
+    \fn QImageIOHandler::create(QIODevice *device, const QByteArray &format) const
+
+    Creates and returns a QImageIOHandler subclass, with \a device
+    and \a format set.
+
+    \sa keys()
+*/

@@ -18,6 +18,7 @@
     \brief The QSqlDriverPlugin class provides an abstract base for custom QSqlDriver plugins.
 
     \ingroup plugins
+    \ingroup sql
 
     The SQL driver plugin is a simple plugin interface that makes it
     easy to create your own SQL driver plugins that can be loaded
@@ -25,11 +26,12 @@
 
     Writing a SQL plugin is achieved by subclassing this base class,
     reimplementing the pure virtual functions keys() and create(), and
-    exporting the class with the \c Q_EXPORT_PLUGIN macro. See the SQL
+    exporting the class with the \c Q_EXPORT_PLUGIN() macro. See the SQL
     plugins that come with Qt for example implementations (in the
     \c{plugins/src/sqldrivers} subdirectory of the source
-    distribution). Read the \link plugins-howto.html plugins
-    documentation\endlink for more information on plugins.
+    distribution).
+    
+    \sa {How to Create Qt Plugins}
 */
 
 /*!
@@ -44,7 +46,7 @@
 */
 
 /*!
-    \fn QSqlDriver* QSqlDriverPlugin::create(const QString& key)
+    \fn QSqlDriver *QSqlDriverPlugin::create(const QString& key)
 
     Creates and returns a QSqlDriver object for the driver called \a
     key. The driver key is usually the class name of the required
@@ -55,7 +57,7 @@
 
 /*!
     Constructs a SQL driver plugin and sets the parent to \a parent.
-    This is invoked automatically by the \c Q_EXPORT_PLUGIN macro.
+    This is invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
 */
 
 QSqlDriverPlugin::QSqlDriverPlugin(QObject *parent)
@@ -72,4 +74,3 @@ QSqlDriverPlugin::QSqlDriverPlugin(QObject *parent)
 QSqlDriverPlugin::~QSqlDriverPlugin()
 {
 }
-

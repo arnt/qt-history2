@@ -137,6 +137,10 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
     \row    \o \c bom             \o Same as setGenerateByteOrderMark(true).
     \endtable
 
+    In addition, Qt provides three global manipulators that take a
+    parameter: qSetFieldWidth(), qSetPadChar(), and
+    qSetRealNumberPrecision().
+
     \sa QDataStream, QIODevice, QFile, QBuffer, QTcpSocket
 */
 
@@ -2424,6 +2428,27 @@ QTextStream &ws(QTextStream &stream)
     stream.skipWhiteSpace();
     return stream;
 }
+
+/*!
+    \fn QTextStreamManipulator qSetFieldWidth(int width)
+    \relates QTextStream
+
+    Equivalent to QTextStream::setFieldWidth(\a width).
+*/
+
+/*!
+    \fn QTextStreamManipulator qSetPadChar(QChar ch)
+    \relates QTextStream
+
+    Equivalent to QTextStream::setPadChar(\a ch).
+*/
+
+/*!
+    \fn QTextStreamManipulator qSetRealNumberPrecision(int precision)
+    \relates QTextStream
+
+    Equivalent to QTextStream::setRealNumberPrecision(\a precision).
+*/
 
 #ifndef QT_NO_TEXTCODEC
 /*!

@@ -19,9 +19,10 @@
 
 #define Q_TRANSPARENT 0x00ffffff
 
-/* -- NOTDOC
+/*!
   \class QGIFFormat
   \brief Incremental image decoder for GIF image format.
+  \internal
 
   \ingroup multimedia
 

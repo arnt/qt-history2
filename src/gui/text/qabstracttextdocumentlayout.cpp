@@ -20,7 +20,7 @@
 
 
 /*!
-    \class QAbstractTextDocumentLayout qabstracttextdocumentlayout.h
+    \class QAbstractTextDocumentLayout
     \brief The QAbstractTextDocumentLayout class is an abstract base
     class used to implement custom layouts for QTextDocuments.
 

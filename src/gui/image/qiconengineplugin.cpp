@@ -15,7 +15,7 @@
 #include "qiconengine.h"
 
 /*!
-    \class QIconEnginePlugin qiconengineplugin.h
+    \class QIconEnginePlugin
     \brief The QIconEnginePlugin class provides an abstract base for custom QIconEngine plugins.
 
     \ingroup plugins
@@ -27,8 +27,9 @@
 
     Writing a icon engine plugin is achieved by subclassing this base class,
     reimplementing the pure virtual functions keys() and create(), and
-    exporting the class with the \c Q_EXPORT_PLUGIN macro. See the
-    \l{plugins-howto.html}{plugins documentation} for an example.
+    exporting the class with the \c Q_EXPORT_PLUGIN() macro.
+
+    \sa {How to Create Qt Plugins}
 */
 
 /*!
@@ -51,7 +52,7 @@
 
 /*!
     Constructs a icon engine plugin with the given \a parent. This is invoked
-    automatically by the \c Q_EXPORT_PLUGIN macro.
+    automatically by the \c Q_EXPORT_PLUGIN() macro.
 */
 QIconEnginePlugin::QIconEnginePlugin(QObject *parent)
     : QObject(parent)
@@ -67,4 +68,3 @@ QIconEnginePlugin::QIconEnginePlugin(QObject *parent)
 QIconEnginePlugin::~QIconEnginePlugin()
 {
 }
-

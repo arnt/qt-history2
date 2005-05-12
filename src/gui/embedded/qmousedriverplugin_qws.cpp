@@ -18,7 +18,7 @@
 #include "qmouse_qws.h"
 
 /*!
-    \class QMouseDriverPlugin qmousedriverplugin_qws.h
+    \class QMouseDriverPlugin
     \brief The QMouseDriverPlugin class provides an abstract base for
     Qt/Embedded mouse driver plugins.
 
@@ -27,11 +27,10 @@
     The mouse driver plugin is a simple plugin interface that makes it
     easy to create custom mouse drivers.
 
-    Writing a mouse driver plugin is achieved by subclassing this base
-    class, reimplementing the pure virtual functions keys() and
-    create(), and exporting the class with the \c Q_EXPORT_PLUGIN
-    macro. See the \link plugins-howto.html Plugins
-    documentation\endlink for details.
+    Writing a mouse driver plugin is achieved by subclassing this
+    base class, reimplementing the pure virtual functions keys() and
+    create(), and exporting the class with the \c Q_EXPORT_PLUGIN()
+    macro. See \l{How to Create Qt Plugins} for details.
 
     This class is only available in Qt/Embedded.
 */
@@ -44,10 +43,9 @@
     \sa create()
 */
 
-
 /*!
     Constructs a mouse driver plugin with the given \a parent. This is
-    invoked automatically by the \c Q_EXPORT_PLUGIN macro.
+    invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
 */
 QMouseDriverPlugin::QMouseDriverPlugin(QObject *parent)
     : QObject(parent)
@@ -63,7 +61,6 @@ QMouseDriverPlugin::QMouseDriverPlugin(QObject *parent)
 QMouseDriverPlugin::~QMouseDriverPlugin()
 {
 }
-
 
 /*!
     \fn QScreen* QMouseDriverPlugin::create(const QString &driver, const QString& device)

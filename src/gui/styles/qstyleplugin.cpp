@@ -15,7 +15,7 @@
 #include "qstyle.h"
 
 /*!
-    \class QStylePlugin qstyleplugin.h
+    \class QStylePlugin
     \brief The QStylePlugin class provides an abstract base for custom QStyle plugins.
 
     \ingroup plugins
@@ -26,9 +26,9 @@
 
     Writing a style plugin is achieved by subclassing this base class,
     reimplementing the pure virtual functions keys() and create(), and
-    exporting the class with the \c Q_EXPORT_PLUGIN macro. See the
-    \link plugins-howto.html plugins documentation\endlink for an
-    example.
+    exporting the class with the \c Q_EXPORT_PLUGIN() macro.
+
+    \sa {How to Create Qt Plugins}
 */
 
 /*!
@@ -53,7 +53,7 @@
 
 /*!
     Constructs a style plugin with parent \a parent. This is invoked automatically by the
-    \c Q_EXPORT_PLUGIN macro.
+    \c Q_EXPORT_PLUGIN() macro.
 */
 QStylePlugin::QStylePlugin(QObject *parent)
     : QObject(parent)
@@ -69,4 +69,3 @@ QStylePlugin::QStylePlugin(QObject *parent)
 QStylePlugin::~QStylePlugin()
 {
 }
-

@@ -58,7 +58,7 @@ public:
 
 
 /*!
-    \class QInputContext qinputcontext.h
+    \class QInputContext
     \brief The QInputContext class abstracts the input method dependent data and composing state.
 
     \ingroup i18n
@@ -84,177 +84,33 @@ public:
     instance which contains different state information such as
     partially composed text.
 
-    \section1 Groups of functions:
+    \section1 Groups of Functions
 
     \table
-    \header \i Context \i Functions
+    \header \o Context \o Functions
 
-    \row \i Receiving information \i
+    \row \o Receiving information \o
 	x11FilterEvent(),
 	filterEvent(),
 	mouseHandler()
 
-    \row \i Sending back composed text \i
-	sendIMEvent(),
+    \row \o Sending back composed text \o
+	sendEvent()
 
-    \row \i State change notification \i
-	setFocus(),
-	unsetFocus(),
+    \row \o State change notification \o
+	setFocusWidget(),
 	reset()
 
-    \row \i Context information \i
+    \row \o Context information \o
 	identifierName(),
 	language(),
 	font(),
-	isComposing(),
+	isComposing()
 
     \endtable
 
-
-    \section1 Sharing input context between text widgets
-
-    Any input context can be shared between several text widgets to
-    reduce resource consumption. In ideal case, each text widgets
-    should be allocated dedicated input context. But some complex
-    input contexts require slightly heavy resource such as 100
-    kilobytes of memory. It prevents quite many text widgets from
-    being used concurrently.
-
-    To resolve such problem, we can share an input context. There is
-    one 'input context holder widget' per text widgets that shares
-    identical input context. In this model, the holder widget owns the
-    shared input context. Other text widgets access the input context
-    via QApplication::locateICHolderWidget(). But the access
-    convention is transparently hidden into QWidget, so developers are
-    not required to aware of it.
-
-    What developer should know is only the mapping function
-    QApplication::locateICHolderWidget(). It accepts a widget as
-    argument and returns its holder widget. Default implementation
-    returns the top-level widget of the widget as reasonable
-    assumption.  But some applications should reimplement the function
-    to fit application specific usability. See
-    QApplication::locateICHolderWidget() for further information.
-
-
-    \section1 Preedit preservation
-
-    As described above, input contexts have wide variety of amount of
-    the state information in accordance with belonging input
-    method. It is ranging from 2-3 keystrokes of sequence in
-    deterministic input methods to hundreds of keystrokes with
-    semantic text refinement in complex input methods such as ordinary
-    Japanese input method. The difference requires the different reset
-    policies in losing input focus.
-
-    The former simple input method case, users will prefer resetting
-    the context to back to the neutral state when something
-    happened. Suppose a web browsing. The user scroll the page by
-    scrollbar after he or she has typed a half of the valid key
-    sequence into a text widget. In the case, the input context should
-    be reset in losing focus when he or she has dragged the
-    scrollbar. He or she will be confused if the input context is
-    still preserved until focused back to the text widget because he
-    or she will restart typing with first key of the sequence as a
-    habitual operation.
-
-    On the other hand, we should choose completely different policy
-    for the latter complex input method case. Suppose same situation
-    as above but he or she is using a complex input method. In the
-    case, he or she will be angry if the input context has been lost
-    when he or she has dragged the scrollbar because the input context
-    contained a valuably composed text made up by considerable input
-    cost. So we should not reset the input context in the case. And
-    the input context should be preserved until focused back to the
-    text widget. This behavior is named as 'preedit preservation'.
-
-    The two policies can be switched by calling or not calling reset()
-    in unsetFocus(). Default implementation of unsetFocus() calls
-    reset() to fit the simple input methods. The implementation is
-    expressed as 'preedit preservation is disabled'.
-
-
-    \section1 Preedit relocation
-
-    Although the most case of the preedit preservation problem for
-    complex input methods is resolved as described above, there is a
-    special case. Suppose the case that matches all of the following
-    conditions.
-
-    \list
-
-    \i a input focus has been moved from a text widget to another text
-    widget directly
-
-    \i the input context is shared between the two text widgets
-
-    \i preedit preservation is enabled for the input context
-
-    \endlist
-
-    In the case, there are the following two requirements that
-    contradicts each other. The input context sharing causes it.
-
-    \list
-
-    \i the input context has to be reset to prepare to input to the
-    newly focused text widget
-
-    \i the input context has to be preserved until focused back to the
-    previous text widget
-
-    \endlist
-
-    A intrinsic feature named 'preedit relocation' is available to
-    compromise the requirements. If the feature is enabled for the
-    input context, it is simply moved to the new text widget with the
-    preedit string. The user continues the input on the new text
-    widget, or relocate it to another text widget. The preedit of
-    previous text widget is automatically cleared to back to the
-    neutral state of the widget.
-
-    This strange behavior is just a compromise. As described in
-    previous section, complex input method user should not be exposed
-    to the risk losing the input context because it contains valuable
-    long text made up with considerable input cost. The user will
-    immediately focus back to the previous text widget to continue the
-    input in the correct text widget if the preedit relocation
-    occurred. The feature is mainly existing as safety.
-
-    The feature properly works even if the focus is moved as
-    following. Input method developers are not required to be aware of
-    the relocation protocol since QInputContext transparently handles
-    it.
-
-    a text widget -> a non-text widget -> another text widget
-
-    To enable the preedit relocation feature, the input context class
-    have to reimplement isPreeditRelocationEnabled() as returns true.
-    The implementation requires that the preedit preservation is also
-    enabled since preedit relocation is a special case of the preedit
-    preservation. If the preedit relocation is disabled, the input
-    context is simply reset in the relocation case.
-
-
-    \section1 Input context instanciation
-    \section1 Input method switching
-
-    \section1 Text widget implementor's guide
-
-    Add following code fragment into createPopupMenu() to add input
-    method dependent submenus.
-
-    \code
-    #ifndef QT_NO_IM
-        QInputContext *qic = getInputContext();
-        if (qic)
-            qic->addActionsTo(popup);
-    #endif
-    \endcode
-
-    \sa QInputContextPlugin, QInputContextFactory, QApplication::locateICHolderWidget(), QApplication::defaultInputMethod()
+    \sa QInputContextPlugin, QInputContextFactory, QApplication::locateICHolderWidget(), QApplication::setInputContext()
 */
-
 
 /*!
     Constructs an input context with the given \a parent.

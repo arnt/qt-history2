@@ -1395,9 +1395,8 @@
 
 /*!
     \typedef Qt::WFlags
-    \obsolete
 
-    Use Qt::WindowFlags instead.
+    Synonym for Qt::WindowFlags.
 */
 
 /*!

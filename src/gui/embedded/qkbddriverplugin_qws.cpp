@@ -18,7 +18,7 @@
 #include "qkbd_qws.h"
 
 /*!
-    \class QKbdDriverPlugin qkbddriverplugin_qws.h
+    \class QKbdDriverPlugin
     \brief The QKbdDriverPlugin class provides an abstract base for
     Qt/Embedded keyboard driver plugins.
 
@@ -29,9 +29,8 @@
 
     Writing a keyboard driver plugin is achieved by subclassing this
     base class, reimplementing the pure virtual functions keys() and
-    create(), and exporting the class with the \c Q_EXPORT_PLUGIN
-    macro. See the \link plugins-howto.html Plugins
-    documentation\endlink for details.
+    create(), and exporting the class with the \c Q_EXPORT_PLUGIN()
+    macro. See \l{How to Create Qt Plugins} for details.
 
     This class is only available in Qt/Embedded.
 */
@@ -44,10 +43,9 @@
     \sa create()
 */
 
-
 /*!
     Constructs a keyboard driver plugin with the given \a parent. This
-    is invoked automatically by the \c Q_EXPORT_PLUGIN macro.
+    is invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
 */
 QKbdDriverPlugin::QKbdDriverPlugin(QObject *parent)
     : QObject(parent)
@@ -64,9 +62,8 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
 {
 }
 
-
 /*!
-    \fn QScreen* QKbdDriverPlugin::create(const QString &driver, const QString &device)
+    \fn QScreen *QKbdDriverPlugin::create(const QString &driver, const QString &device)
 
     Creates a driver matching the type specified by \a driver and \a device.
 

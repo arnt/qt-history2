@@ -16,7 +16,7 @@
 #include "qpicture.h"
 
 /*!
-    \class QPictureFormatPlugin qpictureformatplugin.h
+    \class QPictureFormatPlugin
     \brief The QPictureFormatPlugin class provides an abstract base for custom picture format plugins.
 
     \ingroup plugins
@@ -26,10 +26,11 @@
     transparently by applications.
 
     Writing an picture format plugin is achieved by subclassing this
-    base class, reimplementing the pure virtual functions keys() and
-    installIOHandler(), and exporting the class with the
-    Q_EXPORT_PLUGIN macro.  See the \link plugins-howto.html Plugins
-    documentation\endlink for details.
+    base class, reimplementing the pure virtual functions keys(),
+    loadPicture(), savePicture(), and installIOHandler(), and
+    exporting the class with the \c Q_EXPORT_PLUGIN() macro.
+
+    \sa {How to Create Qt Plugins}
 */
 
 /*!
@@ -39,7 +40,6 @@
 
     \sa installIOHandler()
 */
-
 
 /*!
     \fn  bool QPictureFormatPlugin::installIOHandler(const QString &format)
@@ -52,8 +52,8 @@
 
 
 /*!
-    Constructs an picture format plugin with the given \a parent. This
-    is invoked automatically by the Q_EXPORT_PLUGIN macro.
+    Constructs an picture format plugin with the given \a parent.
+    This is invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
 */
 QPictureFormatPlugin::QPictureFormatPlugin(QObject *parent)
     : QObject(parent)

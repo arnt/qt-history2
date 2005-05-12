@@ -59,7 +59,7 @@ QList<QByteArray> QAccessibleObjectPrivate::actionList() const
 }
 
 /*!
-    \class QAccessibleObject qaccessibleobject.h
+    \class QAccessibleObject
     \brief The QAccessibleObject class implements parts of the
     QAccessibleInterface for QObjects.
 
@@ -160,7 +160,7 @@ QString QAccessibleObject::actionText(int action, Text t, int child) const
 
 
 /*!
-    \class QAccessibleApplication qaccessibleobject.h
+    \class QAccessibleApplication
     \brief The QAccessibleApplication class implements the QAccessibleInterface for QApplication.
 
     \internal

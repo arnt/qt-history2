@@ -128,6 +128,7 @@ QVector<int> QAccessibleViewport::selection() const
 /*!
   \class QAccessibleScrollView qaccessiblewidget.h
   \brief The QAccessibleScrollView class implements the QAccessibleInterface for scrolled widgets.
+  \internal
 
   \ingroup accessibility
 */

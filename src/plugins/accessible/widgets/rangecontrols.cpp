@@ -25,6 +25,7 @@ QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 /*!
   \class QAccessibleSpinBox qaccessiblewidget.h
   \brief The QAccessibleSpinBox class implements the QAccessibleInterface for spinbox widgets.
+  \internal
 
   \ingroup accessibility
 */
@@ -198,6 +199,7 @@ bool QAccessibleSpinBox::doAction(int action, int /*child*/, const QVariantList 
 /*!
   \class QAccessibleScrollBar qaccessiblewidget.h
   \brief The QAccessibleScrollBar class implements the QAccessibleInterface for scroll bars.
+  \internal
 
   \ingroup accessibility
 */
@@ -348,6 +350,7 @@ bool QAccessibleScrollBar::doAction(int /*action*/, int /*child*/, const QVarian
 /*!
   \class QAccessibleSlider qaccessiblewidget.h
   \brief The QAccessibleSlider class implements the QAccessibleInterface for sliders.
+  \internal
 
   \ingroup accessibility
 */

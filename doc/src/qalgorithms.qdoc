@@ -85,7 +85,7 @@
 	    static const QLatin1String name_table[] = {
 	        "AElig", "Aacute", ..., "zwnj"
             };
-            static const Q_UINT16 value_table[] = {
+            static const ushort value_table[] = {
 	        0x0061, 0x00c1, ..., 0x200c
             };
             int N = sizeof(name_table) / sizeof(name_table[0]);

@@ -31,7 +31,7 @@
 #ifndef QT_NO_COMPONENT
 
 /*!
-    \class QInputContextPlugin qinputcontextplugin.h
+    \class QInputContextPlugin
     \brief The QInputContextPlugin class provides an abstract base for custom QInputContext plugins.
     \reentrant
     \ingroup plugins
@@ -42,11 +42,10 @@
 
     Writing a input context plugin is achieved by subclassing this
     base class, reimplementing the pure virtual functions keys(),
-    create(), languages(), displayName() description() and exporting
-    the class with the \c Q_EXPORT_PLUGIN macro.  See the \link
-    plugins-howto.html Qt Plugins documentation \endlink for details.
+    create(), languages(), displayName(), and description(), and
+    exporting the class with the \c Q_EXPORT_PLUGIN() macro.
 
-    \sa QInputContext
+    \sa QInputContext, {How to Create Qt Plugins}
 */
 
 /*!
@@ -125,7 +124,7 @@
 
 /*!
     Constructs a input context plugin. This is invoked automatically by the
-    \c Q_EXPORT_PLUGIN macro.
+    \c Q_EXPORT_PLUGIN() macro.
 */
 QInputContextPlugin::QInputContextPlugin(QObject *parent)
     :QObject(parent)

@@ -1,5 +1,6 @@
 MUST HAVES:
 
+  * .dcf entries for enum values
   * No links to Porting Guide sections (e.g. QStringList)
   * \sa QStyle from QMotifStyle
   * warning for undocumented enum values

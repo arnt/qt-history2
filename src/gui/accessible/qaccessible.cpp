@@ -65,7 +65,6 @@
 
     \value DefaultAction
     \value Press
-    \value FirstStandardAction
     \value SetFocus
     \value Increase
     \value Decrease
@@ -76,6 +75,8 @@
     \value RemoveSelection
     \value ExtendSelection
     \value AddToSelection
+
+    \value FirstStandardAction
     \value LastStandardAction
 */
 
@@ -476,11 +477,6 @@ QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
 
     Use this function to prevent potentially expensive notifications via
     updateAccessibility().
-
-    \omit
-    QListView uses this function to prevent index-lookups for item based
-    notifications.
-    \endomit
 */
 bool QAccessible::isActive()
 {
@@ -509,6 +505,7 @@ bool QAccessible::isActive()
     \class QAccessibleInterface
     \brief The QAccessibleInterface class defines an interface that exposes information
     about accessible objects.
+
     \ingroup accessibility
 
     Accessibility tools (also called AT Clients), such as screen readers
@@ -612,32 +609,6 @@ bool QAccessible::isActive()
     referenced by the implementation, and the caller must release()
     the interface when it is no longer in use. addRef() must be
     called if new references to the interface are added.
-
-\omit
-    Qt provides implementations of the QAccessibleInterface for most
-    widget classes in a plugin. This plugin is located in the \e
-    accessible subdirectory of the plugins installation directory.
-    The default installation directory for plugins is \c INSTALL/plugins,
-    where \c INSTALL is the directory where Qt was installed. Calling
-    queryAccessibleInterface(QObject *object, QAccessibleInterface
-    **iface) will ask all plugins located in this directory for an
-    implementation that exposes the information for objects of the
-    class of \e object.
-
-    To make a Qt application accessible you must distribute the
-    accessibility plugin provded with Qt together with your
-    application. Simply add the plugins created in
-    \c INSTALL/plugins/accessible to your distribution process. Use \l
-    QApplication::addLibraryPath() to specify a plugin directory for
-    your application, and copy the files into an \c accessible
-    subdirectory of one of those plugin directories. Qt's
-    accessibility framework will load the plugins upon request and use
-    the implementations provided to expose an object's accessibility
-    information.
-
-    See the \link plugins-howto.html plugin documentation \endlink for
-    more details about how to redistribute Qt plugins.
-\endomit
 */
 
 /*!
@@ -889,6 +860,46 @@ const QAccessibleInterface *other, int otherChild) const
     \a action can be a predefined or a custom action.
 
     \sa userActionCount(), actionText()
+*/
+
+/*!
+    \class QAccessibleEvent
+    \brief The QAccessibleEvent class is used to query addition
+    accessibility information about complex widgets
+
+    \ingroup accessibility
+    \ingroup events
+*/
+
+/*!
+    \enum QAccessibleEvent::TextType
+
+    \value Description
+    \value Help
+*/
+
+/*!
+    \fn QAccessibleEvent::QAccessibleEvent(TextType textType, int child)
+*/
+
+/*!
+    \fn TextType QAccessibleEvent::textType() const
+*/
+
+/*!
+    \fn int QAccessibleEvent::child() const
+*/
+
+/*!
+    \fn QString QAccessibleEvent::value() const
+
+    \sa setValue()
+*/
+
+/*!
+    \fn void QAccessibleEvent::setValue(const QString &aText)
+
+    \sa value()
 */
 
 #endif

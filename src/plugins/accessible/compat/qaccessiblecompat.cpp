@@ -58,6 +58,7 @@ int Q3AccessibleScrollView::itemCount() const
 /*!
   \class QAccessibleListView qaccessiblewidget.h
   \brief The QAccessibleListView class implements the QAccessibleInterface for list views.
+  \internal
 */
 
 static Q3ListViewItem *findLVItem(Q3ListView* listView, int child)
@@ -285,6 +286,7 @@ QVector<int> QAccessibleListView::selection() const
 /*!
   \class QAccessibleIconView qaccessiblewidget.h
   \brief The QAccessibleIconView class implements the QAccessibleInterface for icon views.
+  \internal
 */
 
 static Q3IconViewItem *findIVItem(Q3IconView *iconView, int child)
@@ -487,6 +489,7 @@ QVector<int> QAccessibleIconView::selection() const
 /*!
   \class QAccessibleTextEdit qaccessiblewidget.h
   \brief The QAccessibleTextEdit class implements the QAccessibleInterface for richtext editors.
+  \internal
 */
 
 /*!
@@ -570,6 +573,7 @@ QAccessible::Role QAccessibleTextEdit::role(int child) const
   \brief The QAccessibleWidgetStack class implements the QAccessibleInterface for widget stacks.
 
   \ingroup accessibility
+  \internal
 */
 
 /*!
@@ -640,6 +644,7 @@ int QAccessibleWidgetStack::navigate(RelationFlag rel, int entry,
   \brief The QAccessibleListBox class implements the QAccessibleInterface for list boxes.
 
   \ingroup accessibility
+  \internal
 */
 
 /*!
