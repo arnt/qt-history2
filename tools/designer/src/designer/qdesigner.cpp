@@ -74,7 +74,7 @@ void QDesigner::initialize()
             m_server = new QDesignerServer();
             printf("%d\n", m_server->serverPort());
             fflush(stdout);
-        } if (QString::fromLocal8Bit(argv()[i]) == QLatin1String("-client")) {
+        } else if (QString::fromLocal8Bit(argv()[i]) == QLatin1String("-client")) {
             bool ok = true;
             if (i + 1 < argc()) {
                 quint16 port = QString::fromLocal8Bit(argv()[++i]).toUShort(&ok);
