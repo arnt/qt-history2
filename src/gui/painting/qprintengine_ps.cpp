@@ -3402,8 +3402,6 @@ QPSPrintEngine::QPSPrintEngine(QPrinter::PrinterMode m)
                    | PatternTransform
                    | PixmapTransform
                    | PainterPaths
-                   | AlphaBlend
-                   | LinearGradientFill
         )
 {
 }
@@ -3848,14 +3846,29 @@ void QPSPrintEngine::drawPolygon(const QPoint *points, int pointCount, PolygonDr
     drawPolygon(p.data(), pointCount, mode);
 }
 
+
+void QPSPrintEngine::drawImage(const QRectF &r, const QImage &img, const QRectF &sr,
+                               Qt::ImageConversionFlags)
+{
+    QImage image = img.copy(sr.toRect());
+    QImage mask;
+    if (image.hasAlphaChannel()) {
+        // get better alpha dithering
+        int xscale = image.width();
+        xscale *= xscale <= 800 ? 4 : (xscale <= 1600 ? 2 : 1);
+        int yscale = image.height();
+        yscale *= yscale <= 800 ? 4 : (yscale <= 1600 ? 2 : 1);
+        image = image.scaled(xscale, yscale);
+        mask = image.createAlphaMask(Qt::OrderedAlphaDither);
+    }
+    Q_D(QPSPrintEngine);
+    d->drawImage(r.x(), r.y(), r.width(), r.height(), image, mask);
+}
+
 void QPSPrintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr)
 {
-    Q_D(QPSPrintEngine);
     QImage img = pm.toImage();
-    QImage mask;
-    if (pm.hasAlphaChannel())
-        mask = img.createAlphaMask(Qt::OrderedAlphaDither);
-    d->drawImage(r.x(), r.y(), r.width(), r.height(), img.copy(sr.toRect()), mask.copy(sr.toRect()));
+    drawImage(r, img, sr, Qt::AutoColor);
 }
 
 void QPSPrintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
