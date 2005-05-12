@@ -81,7 +81,7 @@ static const char *const ps_header =
 "D/RL{rlineto}D/NP{newpath}D/CM{currentmatrix}D/SM{setmatrix}D/TR{translate}D\n"
 "/SD{setdash}D/SC{aload pop setrgbcolor}D/CR{currentfile read pop}D/i{index}D\n"
 "/bs{bitshift}D/scs{setcolorspace}D/DB{dict dup begin}D/DE{end d}D/ie{ifelse}\n"
-"D/BSt 0 d/LWi 1 d/PSt 1 d/WFi false d/OMo false d/BCol[1 1 1]d/PCol[0 0 0]d\n"
+"D/BSt 0 d/LWi 0 d/PSt 1 d/WFi false d/OMo false d/BCol[1 1 1]d/PCol[0 0 0]d\n"
 "/BkCol[1 1 1]d/BDArr[0.94 0.88 0.63 0.50 0.37 0.12 0.06]d/defM matrix d\n"
 "/level3{/languagelevel where{pop languagelevel 3 ge}{false}ie}D/GPS{PSt 1 ge\n"
 "PSt 5 le and{{LArr PSt 1 sub 2 mul get}{LArr PSt 2 mul 1 sub get}ie}{[]}ie}D\n"
