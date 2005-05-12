@@ -35,7 +35,7 @@ QDesignerResourceEditor::QDesignerResourceEditor(QDesignerWorkbench *workbench)
 
     setCentralWidget(widget);
 
-    setWindowTitle(tr("Resouce Editor"));
+    setWindowTitle(tr("Resource Editor"));
 }
 
 QDesignerResourceEditor::~QDesignerResourceEditor()
