@@ -36,8 +36,14 @@ public slots:
 
     void on_connectionWidget_tableActivated(const QString &table)
     { showTable(table); }
-    void on_submitButton_clicked()
-    { exec(); }
+    void on_submitButton_clicked() {
+        exec();
+        sqlEdit->setFocus();
+    }
+    void on_clearButton_clicked() {
+        sqlEdit->clear();
+        sqlEdit->setFocus();
+    }
 
 signals:
     void statusMessage(const QString &message);

@@ -29,10 +29,10 @@ int main(int argc, char *argv[])
     Browser browser(&mainWin);
     mainWin.setCentralWidget(&browser);
 
-    QMenu *menu = mainWin.menuBar()->addMenu(QObject::tr("SqlBrowser"));
-    menu->addAction(QObject::tr("Add connection"), &browser, SLOT(addConnection()));
+    QMenu *menu = mainWin.menuBar()->addMenu(QObject::tr("&File"));
+    menu->addAction(QObject::tr("Add &connection"), &browser, SLOT(addConnection()));
     menu->addSeparator();
-    menu->addAction(QObject::tr("Quit"), &app, SLOT(quit()));
+    menu->addAction(QObject::tr("&Quit"), &app, SLOT(quit()));
 
     QObject::connect(&browser, SIGNAL(statusMessage(QString)),
                      mainWin.statusBar(), SLOT(showMessage(QString)));

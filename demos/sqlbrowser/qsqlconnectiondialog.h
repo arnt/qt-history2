@@ -32,10 +32,12 @@ public:
     QString password() const;
     QString hostName() const;
     int port() const;
+    bool useInMemoryDatabase() const;
 
 private slots:
     void on_okButton_clicked();
     void on_cancelButton_clicked() { reject(); }
+    void on_dbCheckBox_clicked() { ui.connGroupBox->setEnabled(!ui.dbCheckBox->isChecked()); }
 
 private:
     Ui::QSqlConnectionDialogUi ui;

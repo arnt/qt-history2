@@ -21,7 +21,11 @@ QSqlConnectionDialog::QSqlConnectionDialog(QWidget *parent)
 {
     ui.setupUi(this);
 
-    ui.comboDriver->addItems(QSqlDatabase::drivers());
+    QStringList drivers(QSqlDatabase::drivers());
+    if (!drivers.contains("QSQLITE"))
+        ui.dbCheckBox->setEnabled(false);
+
+    ui.comboDriver->addItems(drivers);
 }
 
 QSqlConnectionDialog::~QSqlConnectionDialog()
@@ -56,6 +60,11 @@ QString QSqlConnectionDialog::hostName() const
 int QSqlConnectionDialog::port() const
 {
     return ui.portSpinBox->value();
+}
+
+bool QSqlConnectionDialog::useInMemoryDatabase() const
+{
+    return ui.dbCheckBox->isChecked();
 }
 
 void QSqlConnectionDialog::on_okButton_clicked()
