@@ -37,15 +37,10 @@
     and value) or set a color name (the names are copied from from the
     X11 color database).
 
-    In addition to the RGB value, a QColor also has a pixel value and a
-    validity. The pixel value is used by the underlying window system
-    to refer to a color. It can be thought of as an index into the
-    display hardware's color table.
-
-    The validity (isValid()) indicates whether the color is legal at
+    QColor's validity (isValid()) indicates whether it is legal at
     all. For example, a RGB color with RGB values out of range is
     illegal. For performance reasons, QColor mostly disregards illegal
-    colors. Therefore, the result of using an invalid color is unspecified.
+    colors. Therefore, the result of using an invalid color is undefined.
 
     There are 20 predefined QColor objects: \c white, \c black, \c
     red, \c darkRed, \c green, \c darkGreen, \c blue, \c darkBlue, \c
@@ -61,22 +56,8 @@
     Qt::color0 sets the bitmap bits to 0 (transparent, i.e. background), and
     painting with \c Qt::color1 sets the bits to 1 (opaque, i.e. foreground).
 
-    For displays with a color table (typically 8-bit displays), the
-    QColor class has an efficient, dynamic color allocation strategy.
-    A color is normally allocated the first time it is used (lazy
-    allocation), that is, whenever the pixel() function is called:
-
-    \list 1
-    \i Is the pixel value valid? If it is, just return it; otherwise,
-    allocate a pixel value.
-    \i Check an internal hash table to see if we allocated an equal RGB
-    value earlier. If we did, set the pixel value and return.
-    \i Try to allocate the RGB value. If we succeed, we get a pixel value
-    that we save in the internal table with the RGB value.
-    Return the pixel value.
-    \i The color could not be allocated. Find the closest matching
-    color, and save it in the internal table.
-    \endlist
+    QColor is platform and device independent. The QColormap class maps the
+    color to the hardware.
 
     A color can be set by passing an RGB string to setNamedColor() (such
     as "#112233"), or a color name (such as "blue"). The names are taken
