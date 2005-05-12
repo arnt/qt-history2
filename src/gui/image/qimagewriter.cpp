@@ -36,7 +36,7 @@
 
     If any error occurs when writing the image, write() will return
     false. You can then call error() to find the type of error that
-    occurred, of errorString() to get a human readable description of
+    occurred, or errorString() to get a human readable description of
     what went wrong.
 
     Call supportedImageFormats() for a list of formats that

@@ -40,7 +40,7 @@
 
     If any error occurs when reading the image, read() will return a
     null QImage. You can then call error() to find the type of error
-    that occurred, of errorString() to get a human readable
+    that occurred, or errorString() to get a human readable
     description of what went wrong.
 
     Call supportedImageFormats() for a list of formats that
@@ -368,13 +368,12 @@ QIODevice *QImageReader::device() const
 
 /*!
     Sets the file name of QImageReader to \a fileName. Internally,
-    QImageWriter will create a QFile and open it in \l
-    QIODevice::ReadOnly mode, and use this file when writing images.
+    QImageReader will create a QFile object and open it in \l
+    QIODevice::ReadOnly mode, and use this when reading images.
 
-    \a fileName may or may not include the file extension (i.e., .png
-    or .bmp). If no extension is provided, QImageReader will choose
-    the first file it finds with an extension that matches an image
-    format that it supports.
+    If \a fileName does not include a file extension (e.g., .png or .bmp),
+    QImageReader will cycle through all supported extensions until it finds
+    a matching file.
 
     \sa fileName(), setDevice(), supportedImageFormats()
 */
