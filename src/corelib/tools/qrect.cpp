@@ -157,6 +157,8 @@
 
 QRect QRect::normalized() const
 {
+    if (isNull())
+        return *this;
     QRect r;
     if (x2 < x1) {                                // swap bad x values
         r.x1 = x2;
@@ -777,6 +779,8 @@ bool QRect::contains(const QPoint &p, bool proper) const
 
 bool QRect::contains(const QRect &r, bool proper) const
 {
+    if (isNull() || r.isNull())
+        return false;
     QRect r1 = normalized();
     QRect r2 = r.normalized();
     if (proper)
@@ -807,6 +811,10 @@ bool QRect::contains(const QRect &r, bool proper) const
 
 QRect QRect::operator|(const QRect &r) const
 {
+    if (isNull())
+        return r;
+    if (r.isNull())
+        return *this;
     QRect r1 = normalized();
     QRect r2 = r.normalized();
     QRect tmp;
@@ -835,6 +843,8 @@ QRect QRect::operator|(const QRect &r) const
 
 QRect QRect::operator&(const QRect &r) const
 {
+    if (isNull() || r.isNull())
+        return QRect();
     QRect r1 = normalized();
     QRect r2 = r.normalized();
     QRect tmp;
@@ -862,6 +872,8 @@ QRect QRect::operator&(const QRect &r) const
 
 bool QRect::intersects(const QRect &r) const
 {
+    if (isNull() || r.isNull())
+        return false;
     QRect r1 = normalized();
     QRect r2 = r.normalized();
     return (qMax(r1.x1, r2.x1) <= qMin(r1.x2, r2.x2) &&
@@ -1502,6 +1514,8 @@ QRectF QRectF::normalized() const
 
 bool QRectF::contains(const QPointF &p) const
 {
+    if (isNull())
+        return false;
     QRectF r = normalized();
     return p.x() >= r.xp && p.x() <= r.xp + r.w &&
            p.y() >= r.yp && p.y() <= r.yp + r.h;
@@ -1529,10 +1543,12 @@ bool QRectF::contains(const QPointF &p) const
 
 bool QRectF::contains(const QRectF &r) const
 {
+    if (isNull() || r.isNull())
+        return false;
     QRectF r1 = normalized();
     QRectF r2 = r.normalized();
-        return r2.xp >= r1.xp && r2.xp + r2.w <= r1.xp + r1.w
-            && r2.yp >= r1.yp && r2.yp + r2.h <= r1.yp + r1.h;
+    return r2.xp >= r1.xp && r2.xp + r2.w <= r1.xp + r1.w
+        && r2.yp >= r1.yp && r2.yp + r2.h <= r1.yp + r1.h;
 }
 
 /*!
@@ -1627,6 +1643,10 @@ bool QRectF::contains(const QRectF &r) const
 
 QRectF QRectF::operator|(const QRectF &r) const
 {
+    if (isNull())
+        return r;
+    if (r.isNull())
+        return *this;
     QRectF r1 = normalized();
     QRectF r2 = r.normalized();
     QRectF tmp;
@@ -1659,6 +1679,8 @@ QRectF QRectF::operator|(const QRectF &r) const
 
 QRectF QRectF::operator&(const QRectF &r) const
 {
+    if (isNull() || r.isNull())
+        return QRectF();
     QRectF r1 = normalized();
     QRectF r2 = r.normalized();
     QRectF tmp;
@@ -1690,6 +1712,8 @@ QRectF QRectF::operator&(const QRectF &r) const
 
 bool QRectF::intersects(const QRectF &r) const
 {
+    if (isNull() || r.isNull())
+        return false;
     QRectF r1 = normalized();
     QRectF r2 = r.normalized();
     return qMax(r1.xp, r2.xp) <= qMin(r1.xp + r1.w, r2.xp + r2.w)
