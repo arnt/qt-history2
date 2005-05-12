@@ -1037,7 +1037,16 @@ fi
 #-------------------------------------------------------------------------------
 
 #prefix
-[ -z "$QT_INSTALL_PREFIX" ] && QT_INSTALL_PREFIX=$outpath  #default
+if [ -z "$QT_INSTALL_PREFIX" ]; then
+    if [ ${Products} = "qt-internal" ]; then
+        # At Trolltech, we use sandboxed builds by default
+	QT_INSTALL_PREFIX=$outpath
+    else
+        # the default install prefix is /usr/local/Trolltech/Qt-$QT_VERSION
+        QT_VERSION=`grep ^VERSION= $relpath/src/qbase.pri | sed -e 's,^VERSION=,,'`
+        QT_INSTALL_PREFIX=/usr/local/Trolltech/Qt-${QT_VERSION}
+    fi
+fi
 QT_INSTALL_PREFIX=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_PREFIX"`
 
 #docs
