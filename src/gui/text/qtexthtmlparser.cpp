@@ -311,12 +311,7 @@ static QChar resolveEntity(const QString &entity)
 
 // the displayMode value is according to the what are blocks in the piecetable, not
 // what the w3c defines.
-static const struct QTextHtmlElement
-{
-    const char *name;
-    int id;
-    enum DisplayMode { DisplayBlock, DisplayInline, DisplayNone } displayMode;
-} elements[Html_NumElements+1]= {
+static const QTextHtmlElement elements[Html_NumElements+1]= {
     { "a", Html_a, QTextHtmlElement::DisplayInline },
     { "b", Html_b, QTextHtmlElement::DisplayInline },
     { "big", Html_big, QTextHtmlElement::DisplayInline },
@@ -443,7 +438,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false),
       hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), direction(3),
-      fontPointSize(DefaultFontSize),
+      displayMode(QTextHtmlElement::DisplayInline), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
       tableCellRowSpan(1), tableCellColSpan(1), tableCellSpacing(2), tableCellPadding(0), cssBlockIndent(0),
@@ -511,19 +506,54 @@ void QTextHtmlParser::dumpHtml()
 
 QTextHtmlParserNode *QTextHtmlParser::newNode(int parent)
 {
-    QTextHtmlParserNode *node = &nodes.last();
-    // create new new, or reuse the last one
-    if (nodes.count() == 1 || node->tag.size()
-        || node->text.size()) {
-        nodes.resize(nodes.size() + 1);
-        node = &nodes.last();
+    QTextHtmlParserNode *lastNode = &nodes.last();
+    QTextHtmlParserNode *newNode = 0;
+
+    bool reuseLastNode = true;
+
+    if (nodes.count() == 1) {
+        reuseLastNode = false;
+    } else if (lastNode->tag.isEmpty()) {
+
+        if (lastNode->text.isEmpty()) {
+            reuseLastNode = true;
+        } else { // last node is a text node (empty tag) with some text
+
+            if (lastNode->text == QLatin1String(" ")) {
+
+                // re-use last node if whitspace'ed, unless it's part of a
+                // <span>Foo</span> <span>Bar</span> alike sequence
+                const QTextHtmlParserNode *secondLastNode = &at(count() - 2);
+                if (secondLastNode->displayMode == QTextHtmlElement::DisplayInline
+                    && secondLastNode->parent == lastNode->parent) {
+                    reuseLastNode = false;
+                } else {
+                    reuseLastNode = true;
+                }
+            } else {
+                // text node with real (non-whitespace) text -> nothing to re-use
+                reuseLastNode = false;
+            }
+
+        }
+
     } else {
-        node->tag.clear();
-        node->text.clear();
-        node->id = -1;
+        // last node had a proper tag -> nothing to re-use
+        reuseLastNode = false;
     }
-    node->parent = parent;
-    return node;
+
+    if (reuseLastNode) {
+        newNode = lastNode;
+        newNode->tag.clear();
+        newNode->text.clear();
+        newNode->id = -1;
+    } else {
+        nodes.resize(nodes.size() + 1);
+        newNode = &nodes.last();
+    }
+
+    newNode->parent = parent;
+    return newNode;
 }
 
 void QTextHtmlParser::parse(const QString &text)
@@ -704,6 +734,7 @@ void QTextHtmlParser::parseTag()
     if (elem->name) {
         node->id = elem->id;
         node->isBlock = (elem->displayMode == QTextHtmlElement::DisplayBlock);
+        node->displayMode = elem->displayMode;
     } else {
         node->id = -1;
     }

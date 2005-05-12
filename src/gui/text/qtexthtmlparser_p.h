@@ -98,6 +98,13 @@ enum QTextHTMLElements {
     Html_NumElements
 };
 
+struct QTextHtmlElement
+{
+    const char *name;
+    int id;
+    enum DisplayMode { DisplayBlock, DisplayInline, DisplayNone } displayMode;
+};
+
 class QTextHtmlParser;
 struct QTextHtmlParserAttribute {
     enum {
@@ -152,6 +159,7 @@ struct QTextHtmlParserNode {
     uint hasCssListIndent : 1;
     uint isEmptyParagraph : 1;
     uint direction : 2; // 3 means unset
+    uint displayMode : 3; // QTextHtmlElement::DisplayMode
     QString fontFamily;
     int fontPointSize;
     int fontWeight;

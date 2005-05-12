@@ -451,6 +451,19 @@ void QTextHTMLImporter::import()
     for (int i = 0; i < count(); ++i) {
         const QTextHtmlParserNode *node = &at(i);
 
+        /*
+         * process each node in three stages:
+         * 1) check if the hierarchy changed and we therefore passed the
+         *    equivalent of a closing tag -> we may need to finish off
+         *    some structures like tables
+         *
+         * 2) check if the current node is a special node like a
+         *    <table>, <ul> or <img> tag that requires special processing
+         *
+         * 3) if the node should result in a QTextBlock create one and
+         *    finally insert text that may be attached to the node
+         */
+
         /* emit 'closing' table blocks or adjust current indent level
          * if we
          *  1) are beyond the first node
@@ -467,7 +480,7 @@ void QTextHTMLImporter::import()
                 && !hasBlock
                 && !node->isBlock
                 && !node->text.isEmpty()
-                && node->text != QLatin1String(" ")) {
+                && node->displayMode != QTextHtmlElement::DisplayNone) {
 
                 QTextBlockFormat block = node->blockFormat();
                 block.setIndent(indent);
@@ -478,8 +491,12 @@ void QTextHTMLImporter::import()
             }
         }
 
-        if (node->id == Html_style) {
-            // ignore the body of style tags
+        if (node->displayMode == QTextHtmlElement::DisplayNone) {
+            if (node->id == Html_title) {
+                d->hasTitle = true;
+                d->title = node->text;
+            }
+            // ignore explicitly 'invisible' elements
             continue;
         } else if (node->id == Html_body) {
             d->containsCompleteDocument = true;
@@ -518,12 +535,29 @@ void QTextHTMLImporter::import()
         } else if (node->id == Html_table) {
             Table t;
             if (scanTable(i, &t)) {
-		tables.append(t);
-		hasBlock = false;
+                tables.append(t);
+                hasBlock = false;
             }
             continue;
         } else if (node->id == Html_tr && !tables.isEmpty()) {
             tables[tables.size() - 1].currentRow++;
+            continue;
+        } else if (node->id == Html_img) {
+            QTextImageFormat fmt;
+            fmt.setName(node->imageName);
+
+            if (node->imageWidth >= 0)
+                fmt.setWidth(node->imageWidth);
+            if (node->imageHeight >= 0)
+                fmt.setHeight(node->imageHeight);
+            QTextFrameFormat::Position f = QTextFrameFormat::Position(node->cssFloat);
+            QTextFrameFormat ffmt;
+            ffmt.setPosition(f);
+            int objIndex = d->formatCollection.createObjectIndex(ffmt);
+            fmt.setObjectIndex(objIndex);
+
+            appendImage(fmt);
+            hasBlock = false;
             continue;
         }
 
@@ -610,28 +644,8 @@ void QTextHTMLImporter::import()
                 continue;
 
             hasBlock = true;
-        } else if (node->id == Html_img) {
-            QTextImageFormat fmt;
-            fmt.setName(node->imageName);
+        } 
 
-            if (node->imageWidth >= 0)
-                fmt.setWidth(node->imageWidth);
-            if (node->imageHeight >= 0)
-                fmt.setHeight(node->imageHeight);
-            QTextFrameFormat::Position f = QTextFrameFormat::Position(node->cssFloat);
-            QTextFrameFormat ffmt;
-            ffmt.setPosition(f);
-            int objIndex = d->formatCollection.createObjectIndex(ffmt);
-            fmt.setObjectIndex(objIndex);
-
-            appendImage(fmt);
-            hasBlock = false;
-            continue;
-        } else if (node->id == Html_title) {
-            d->hasTitle = true;
-            d->title = node->text;
-            continue;
-        }
         if (node->isAnchor && !node->anchorName.isEmpty()) {
             setNamedAnchorInNextOutput = true;
             namedAnchor = node->anchorName;
@@ -679,7 +693,10 @@ bool QTextHTMLImporter::closeTag(int i)
             QTextBlockFormat fmt;
             appendBlock(fmt, charFmt, QTextEndOfFrame);
             tables.resize(tables.size() - 1);
-            blockTagClosed = true;
+            // we don't need an extra block after tables, so we don't
+            // claim to have closed one for the creation of a new one
+            // in import()
+            blockTagClosed = false;
         } else if (closedNode->isListStart) {
 
             Q_ASSERT(!listReferences.isEmpty());
