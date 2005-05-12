@@ -23,7 +23,15 @@
 /*!
     \class QItemEditorFactory
     \brief The QItemEditorFactory class provides widgets for editing item data
-    in views.
+    in views and delegates.
+
+    When editing the data shown by an item delegate, the QItemDelegate responsible
+    requests an editor widget from its item editor factory. The default factory is
+    provided by this class, but it is possible to implement subclasses that provide
+    specialized editing behavior, such as row or column-specific editors, or editors
+    for certain types of data.
+
+    \sa QItemDelegate
 */
 
 /*!
@@ -184,3 +192,36 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     delete q_default_factory;
     q_default_factory = factory;
 }
+
+/*!
+    \class QItemEditorCreatorBase
+    \brief The QItemEditorCreatorBase class provides an abstract base class that
+    must be subclassed when implementing new item editor creators.
+
+    Item editor creators are specialized widget factories that provide editor widgets
+    for specific types of item data. QItemEditorFactory finds the appropriate factory
+    for editors using a QVariant-based scheme to associate data types with editor
+    creators.
+
+    \sa QItemEditorFactory
+*/
+
+/*!
+    \fn QWidget *QItemEditorCreatorBase::createWidget(QWidget *parent) const
+
+    Returns an editor widget with the given \a parent.
+
+    When implementing this function in subclasses of this class, you must
+    construct and return new editor widgets with the parent widget specified.
+*/
+
+/*!
+    \fn QByteArray QItemEditorCreatorBase::valuePropertyName() const
+
+    Returns the name of the property associated with the creator's editor
+    widgets.
+
+    When implementing this function in subclasses, the property name you
+    must return corresponds to the type of value that your editor widgets
+    are designed to edit.
+*/
