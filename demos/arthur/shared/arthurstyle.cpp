@@ -353,8 +353,10 @@ void ArthurStyle::polish(QWidget *widget)
     }
 
     QPalette pal = widget->palette();
-    pal.setColor(QPalette::Background, QColor(241, 241, 241));
-    widget->setPalette(pal);
+    if (widget->isWindow()) {
+        pal.setColor(QPalette::Background, QColor(241, 241, 241));
+        widget->setPalette(pal);
+    }
 
 }
 
