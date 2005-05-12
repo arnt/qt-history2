@@ -218,8 +218,7 @@ void MainWindow::loadPlugins()
                 addToMenu(plugin, iFilter->filters(), filterMenu,
                           SLOT(applyFilter()));
 
-            if (iBrush || iShape || iFilter)
-                pluginFileNames += fileName;
+            pluginFileNames += fileName;
         }
     }
 
