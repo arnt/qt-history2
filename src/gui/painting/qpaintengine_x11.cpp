@@ -1278,9 +1278,9 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     if (d->pdev->devType() == QInternal::Pixmap) {
         const QPixmap *px = static_cast<const QPixmap*>(d->pdev);
         Pixmap src_mask = pixmap.data->x11_mask;
-        Pixmap dst_mask = static_cast<const QPixmap*>(d->pdev)->data->x11_mask;
+        Pixmap dst_mask = px->data->x11_mask;
         if (dst_mask) {
-            GC cgc = XCreateGC(d->dpy, src_mask, 0, 0);
+            GC cgc = XCreateGC(d->dpy, dst_mask, 0, 0);
             if (src_mask) { // copy src mask into dst mask
                 XCopyArea(d->dpy, pixmap.data->x11_mask, px->data->x11_mask, cgc, sx, sy, sw, sh, x, y);
             } else { // no src mask, but make sure the area copied is opaque in dest
