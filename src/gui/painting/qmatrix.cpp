@@ -38,18 +38,10 @@
     system can be specified by setting a QMatrix for the painter.
 
     Example:
-    \code
-        MyWidget::paintEvent(QPaintEvent *)
-        {
-            QPainter p;                   // our painter
-            QMatrix m;                    // our transformation matrix
-            m.rotate(22.5);               // rotated coordinate system
-            p.begin(this);                // start painting
-            p.setMatrix(m);               // use rotated coordinate system
-            p.drawText(30,20, "detator"); // draw rotated text at 30,20
-            p.end();                      // painting done
-        }
-    \endcode
+    \quotefromfile snippets/matrix/matrix.cpp
+    \skipto PAINT
+    \skipto paintEvent
+    \printuntil }
 
     A matrix specifies how to translate, scale, shear or rotate the
     graphics; the actual transformation is performed by the drawing
@@ -98,25 +90,16 @@
     that sets \link rotate() rotation \endlink directly.
 
     QMatrix lets you combine transformations like this:
-    \code
-        QMatrix m;            // identity matrix
-        m.translate(10, -20); // first translate (10,-20)
-        m.rotate(25);         // then rotate 25 degrees
-        m.scale(1.2, 0.7);    // finally scale it
-    \endcode
+    \quotefromfile snippets/matrix/matrix.cpp
+    \skipto COMBINE
+    \skipto QMatrix
+    \printuntil scale
 
     Here's the same example using basic matrix operations:
-    \code
-        double a    = pi/180 * 25;         // convert 25 to radians
-        double sina = sin(a);
-        double cosa = cos(a);
-        QMatrix m1(1, 0, 0, 1, 10, -20);   // translation matrix
-        QMatrix m2(cosa, sina,             // rotation matrix
-                    -sina, cosa, 0, 0);
-        QMatrix m3(1.2, 0, 0, 0.7, 0, 0);  // scaling matrix
-        QMatrix m;
-        m = m3 * m2 * m1;                  // combine all transformations
-    \endcode
+    \quotefromfile snippets/matrix/matrix.cpp
+    \skipto OPERATIONS
+    \skipto double
+    \printuntil combine
 
     The matrix can also be transformed using the map() functions, and
     transformed points, rectangles, etc., can be obtained using map(),
@@ -272,7 +255,7 @@ void QMatrix::map(int x, int y, int *tx, int *ty) const
 
 
 /*!
-    Returns the transformed rectangle \a rect.
+    Returns the transformed rectangle \a rect rounded to the neares integer.
 
     The bounding rectangle is returned if rotation or shearing has
     been specified.
@@ -422,7 +405,9 @@ QPoint QMatrix::map(const QPoint &p) const
 
   \relates QMatrix
 
-  Same as m.map(p).
+  Same as \a{m}.map(\a{p}).
+
+  \sa QMatrix::map()
 */
 
 /*!
@@ -463,8 +448,8 @@ QLineF QMatrix::map(const QLineF &line) const
     Transforms both ends of \a line using these formulas:
 
     \code
-        retx = m11 * px + m21 * py + dx
-        rety = m22 * py + m12 * px + dy
+        retx = m11 * px + m21 * py + dx (rounded to the nearest integer)
+        rety = m22 * py + m12 * px + dy (rounded to the nearest integer)
     \endcode
 */
 QLine QMatrix::map(const QLine &line) const
@@ -478,6 +463,8 @@ QLine QMatrix::map(const QLine &line) const
     \relates QMatrix
 
     This is the same as \a{m}.mapRect(\a{a}).
+
+    \sa QMatrix::mapRect()
 */
 
 /*!
@@ -567,6 +554,8 @@ QPolygonF QMatrix::map(const QPolygonF &a) const
     \relates QMatrix
 
     This is the same as \a{m}.mapRect(\a{r}).
+
+    \sa QMatrix::mapRect()
 */
 
 /*!
