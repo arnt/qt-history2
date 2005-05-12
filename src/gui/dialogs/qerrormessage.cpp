@@ -93,6 +93,9 @@ QSize QErrorMessageTextView::sizeHint() const
     message is not to be shown again it is automatically skipped, and the
     dialog will show the next appropriate message in the queue.
 
+    The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
+    how to use QErrorMessage as well as other built-in Qt dialogs.
+    
     \img qerrormessage.png
 
     \sa QMessageBox QStatusBar::showMessage()

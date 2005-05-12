@@ -1392,6 +1392,9 @@ void QColorDialogPrivate::addCustom()
     http://www.trolltech.com/products/solutions/index.html Qt
     Solutions\endlink.
 
+    The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
+    how to use QColorDialog as well as other built-in Qt dialogs.
+
     \img qcolordlg-w.png
 */
 

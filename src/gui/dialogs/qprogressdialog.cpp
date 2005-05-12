@@ -171,8 +171,8 @@ void QProgressDialogPrivate::layout()
   must call QApplication::processEvents() or
   QEventLoop::processEvents(ExcludeUserInput) to keep the event loop
   running to ensure that the application doesn't freeze. Do the
-  operation in a loop, call \l setProgress() at intervals, and check
-  for cancellation with wasCanceled(). For example:
+  operation in a loop, call \l setValue() at intervals, and check
+  for cancelation with wasCanceled(). For example:
 
     \code
         QProgressDialog progress("Copying files...", "Abort Copy", 0, numFiles, this);
@@ -196,7 +196,7 @@ void QProgressDialogPrivate::layout()
 
   You need to have an event loop to be running, connect the
   canceled() signal to a slot that stops the operation, and call \l
-  setProgress() at intervals. For example:
+  setValue() at intervals. For example:
 
     \code
         Operation::Operation(QObject *parent)
@@ -231,6 +231,9 @@ void QProgressDialogPrivate::layout()
   The functions setLabelText() and setCancelButtonText()
   set the texts shown.
 
+  The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
+  how to use QProgressDialog as well as other built-in Qt dialogs.
+
   \inlineimage qprogdlg-m.png Screenshot in Motif style
   \inlineimage qprogdlg-w.png Screenshot in Windows style
 
@@ -253,7 +256,7 @@ void QProgressDialogPrivate::layout()
   The \a parent argument is dialog's parent widget. The widget flags, \a f, are
   passed to the QDialog::QDialog() constructor.
 
-  \sa setLabelText(), setd->label, setCancelButtonText(), setCancelButton(),
+  \sa setLabelText(), setCancelButtonText(), setCancelButton(),
   setMinimum(), setMaximum()
 */
 

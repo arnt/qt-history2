@@ -45,7 +45,7 @@ public:
                 QWidget *parent = 0, Qt::WFlags f = Qt::Dialog | Qt::MSWindowsFixedSizeDialogHint);
     ~QMessageBox();
 
-    enum { NoButton = 0, Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5,
+    enum Button { NoButton = 0, Ok = 1, Cancel = 2, Yes = 3, No = 4, Abort = 5,
            Retry = 6, Ignore = 7, YesAll = 8, NoAll = 9, ButtonMask = 0xff,
            Default = 0x100, Escape = 0x200, FlagMask = 0x300 };
 

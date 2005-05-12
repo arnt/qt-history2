@@ -379,6 +379,9 @@ static const char * const qtlogo_xpm[] = {
 
     QMessageBox has no signals or slots.
 
+    The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
+    how to use QMessageBox as well as other built-in Qt dialogs.
+    
     \inlineimage qmsgbox-m.png Screenshot in Motif style
     \inlineimage qmsgbox-w.png Screenshot in Windows style
 
@@ -387,6 +390,37 @@ static const char * const qtlogo_xpm[] = {
         \link guibooks.html#fowler GUI Design Handbook: Message Box \endlink
 */
 
+/*!
+    \enum QMessageBox::Button
+
+    This enum describes the predefined buttons and button flags you can assign
+    to a QMessageBox.
+
+    \value Ok An "Ok" button.
+    \value Cancel A "Cancel" button.
+    \value Yes A "Yes" button.
+    \value No A "No" button.
+    \value Abort An "Abort" button.
+    \value Retry A "Retry" button.
+    \value Ignore An "Ignore" button.
+    \value YesAll A "Yes to all" button.
+    \value NoAll A "No to all" button.
+
+    The following values are flags that can be OR'ed with the button values.
+    
+    \value Default The button is default (i.e., QPushButton::default).
+    \value Escape The button is activated by pressing the Escape key.
+
+    The following values are masks that can be used to separate buttons from
+    flags.
+    
+    \value ButtonMask A bitmask that covers all button types.
+    \value FlagMask A bitmask that covers all button flags.
+
+    Finally, the last value is often used as a default value.
+    
+    \value NoButton
+*/
 
 /*!
     \enum QMessageBox::Icon

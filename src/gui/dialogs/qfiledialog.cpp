@@ -158,10 +158,8 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
   In the above example, the filter is set to "Images (*.png *.xpm
   *.jpg)", this means that only files with the extension \c png, \c xpm,
   or \c jpg will be shown in the QFileDialog. You can apply
-  several filters by using setFilters(), and add additional filters with
-  addFilter(). Use setSelectedFilter() to select one of the filters
-  you've given as the file dialog's default filter. Whenever the user
-  changes the filter the filterSelected() signal is emitted.
+  several filters by using setFilters(). Use selectFilter() to select one of the filters
+  you've given as the file dialog's default filter.
 
   The file dialog has two view modes: QFileDialog::List and
   QFileDialog::Detail.
@@ -188,77 +186,11 @@ void QFileDialogLineEdit::keyPressEvent(QKeyEvent *e)
   the user clicked OK, the file they selected is put in \c fileName.
 
   The dialog's working directory can be set with setDirectory().
-  The display of hidden files is controlled with showHidden().
-  The dialog can be forced to refresh the directory display with reload()
-  and sort the directory with sortByDate(), sortByName(), and
-  sortBySize(). Each file in the current directory can be selected using
+  Each file in the current directory can be selected using
   the selectFile() function.
 
-  \section1 Creating and using preview widgets
-
-  A preview widget is a widget that is placed inside a QFileDialog so
-  that the user can see either the contents of the file, or information
-  about the file.
-
-  There are two kinds of preview widgets that can be used with
-  QFileDialogs: \e content preview widgets and \e information preview
-  widgets. They are created and used with the setContentsPreview() and
-  setInfoPreview() functions.
-
-  \code
-    class Preview : public QLabel, public QFilePreview
-    {
-    public:
-        Preview(QWidget *parent=0) : QLabel(parent) {}
-
-        void previewUrl(const QUrl &u) {
-            QString path = u.path();
-            QPixmap pix(path);
-            if (pix.isNull())
-                setText("This is not a pixmap");
-            else
-                setPixmap(pix);
-        }
-    };
-  \endcode
-
-  In the above snippet, we create a preview widget which inherits from
-  QLabel and QFilePreview. File preview widgets \e must inherit from
-  QFilePreview.
-
-  Inside the class we reimplement QFilePreview::previewUrl(); this is
-  where we determine what happens when a file is selected. In the
-  above example we only show a preview of the file if it is a valid
-  pixmap. Here's how to make a file dialog use a preview widget:
-
-  \code
-    Preview* preview = new Preview;
-
-    QFileDialog* dialog = new QFileDialog(this);
-    dialog->setContentsPreviewEnabled(true);
-    dialog->setContentsPreview(preview, preview);
-    dialog->setPreviewMode(QFileDialog::Contents);
-    dialog->show();
-  \endcode
-
-  The first line creates an instance of our preview widget. We create
-  our file dialog, and call setContentsPreviewEnabled(true) to preview
-  the contents of the currently selected file. We then call
-  setContentsPreview() -- note that we pass the same preview widget
-  twice. Finally, before showing the file dialog, we call
-  setPreviewMode(), setting the mode to \e Contents. As a result, the
-  file dialog will show the contents preview of the file that the user
-  has selected.
-
-  If you create another preview widget that is used for displaying
-  information about a file, create it in the same way as the contents
-  preview widget then call setInfoPreviewEnabled() and setInfoPreview().
-  The user will be able to switch between the two preview modes.
-
-  For more information about creating a QFilePreview widget see
-  \l{QFilePreview}.
-
-  <img src=qfiledlg-m.png> <img src=qfiledlg-w.png>
+  The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
+  how to use QFileDialog as well as other built-in Qt dialogs.
 */
 
 /*!
@@ -463,9 +395,9 @@ void QFileDialog::selectFile(const QString &filename)
 /*!
   Returns a list of strings containing the absolute paths of the
   selected files in the dialog. If no files are selected, or
-  the mode is not ExistingFiles, selectedFiles() is an empty list.
+  the mode is not ExistingFiles, selectedFiles() is an empty string list.
 
-  \sa selectedFilter, QValueList::empty()
+  \sa selectedFilter()
 */
 
 QStringList QFileDialog::selectedFiles() const
@@ -584,20 +516,12 @@ void QFileDialog::selectFilter(const QString &filter)
 /*!
   Returns the filter that the user selected in the file dialog.
 
-  \sa filterSelected(), selectedFiles
+  \sa selectedFiles()
 */
 
 QString QFileDialog::selectedFilter() const
 {
     return d_func()->fileTypeCombo->currentText();
-}
-
-void QFileDialog::setViewMode(ViewMode mode)
-{
-    if (mode == Detail)
-        d_func()->showDetails();
-    else
-        d_func()->showList();
 }
 
 /*!
@@ -607,14 +531,32 @@ void QFileDialog::setViewMode(ViewMode mode)
     By default, the \c Detail mode is used to display information about
     files and directories.
 
-    \sa ViewMode viewMode() setViewMode()
+    \sa ViewMode
 */
+
+void QFileDialog::setViewMode(ViewMode mode)
+{
+    if (mode == Detail)
+        d_func()->showDetails();
+    else
+        d_func()->showList();
+}
 
 QFileDialog::ViewMode QFileDialog::viewMode() const
 {
     Q_D(const QFileDialog);
     return d->viewMode();
 }
+
+/*!
+    \property QFileDialog::fileMode
+    \brief the file mode of the dialog
+
+    The file mode defines the number and type of items that the user is
+    expected to select in the dialog.
+
+    \sa FileMode
+*/
 
 void QFileDialog::setFileMode(FileMode mode)
 {
@@ -637,29 +579,9 @@ void QFileDialog::setFileMode(FileMode mode)
     }
 }
 
-/*!
-    \property QFileDialog::fileMode
-    \brief the file mode of the dialog
-
-    The file mode defines the number and type of items that the user is
-    expected to select in the dialog.
-
-    By default,
-
-    \sa FileMode fileMode() setFileMode()
-*/
-
 QFileDialog::FileMode QFileDialog::fileMode() const
 {
     return d_func()->fileMode;
-}
-
-void QFileDialog::setAcceptMode(AcceptMode mode)
-{
-    Q_D(QFileDialog);
-    d->acceptMode = mode;
-    d->openAction->setText(mode == AcceptOpen ? tr("&Open") : tr("&Save"));
-    d->acceptButton->setText(mode == AcceptOpen ? tr("Open") : tr("Save"));
 }
 
 /*!
@@ -668,8 +590,16 @@ void QFileDialog::setAcceptMode(AcceptMode mode)
 
     The action mode defines whether the dialog is for opening or saving files.
 
-    \sa AcceptMode acceptMode() setAcceptMode()
+    \sa AcceptMode
 */
+
+void QFileDialog::setAcceptMode(AcceptMode mode)
+{
+    Q_D(QFileDialog);
+    d->acceptMode = mode;
+    d->openAction->setText(mode == AcceptOpen ? tr("&Open") : tr("&Save"));
+    d->acceptButton->setText(mode == AcceptOpen ? tr("Open") : tr("Save"));
+}
 
 QFileDialog::AcceptMode QFileDialog::acceptMode() const
 {
