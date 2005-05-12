@@ -25,6 +25,7 @@ static const bool UsePixmapCache = true;
 #include <qimage.h>
 #include <qlineedit.h>
 #include <qmenu.h>
+#include <qmenubar.h>
 #include <qpainter.h>
 #include <qpaintengine.h>
 #include <qpainterpath.h>
@@ -420,8 +421,8 @@ static const char * const qt_scrollbar_button_down[] = {
     ".+<<<<<<<<<<<<+.",
     " .++++++++++++. "};
 
-static const char * const qt_scrollbar_slider_pattern[] = {
-    "10 10 3 1",
+static const char * const qt_scrollbar_slider_pattern_vertical[] = {
+    "10 18 3 1",
     " 	c None",
     ".	c #BFBFBF",
     "+	c #979797",
@@ -434,8 +435,31 @@ static const char * const qt_scrollbar_slider_pattern[] = {
     "          ",
     "          ",
     "..  ..  ..",
+    ".+  .+  .+",
+    "          ",
+    "          ",
+    "..  ..  ..",
+    ".+  .+  .+",
+    "          ",
+    "          ",
+    "..  ..  ..",
     ".+  .+  .+"};
 
+static const char * const qt_scrollbar_slider_pattern_horizontal[] = {
+    "18 10 3 1",
+    " 	c None",
+    ".	c #BFBFBF",
+    "+	c #979797",
+    "..  ..  ..  ..  ..",
+    ".+  .+  .+  .+  .+",
+    "                  ",
+    "                  ",
+    "..  ..  ..  ..  ..",
+    ".+  .+  .+  .+  .+",
+    "                  ",
+    "                  ",
+    "..  ..  ..  ..  ..",
+    ".+  .+  .+  .+  .+"};
 
 static const char * const qt_toolbarhandle[] = {
     "6 6 4 1",
@@ -914,7 +938,12 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
             painter->save();
 
-            bool focus = (element == PE_FrameLineEdit || qobject_cast<const QTextEdit *>(widget))
+            bool isTextEdit = qobject_cast<const QTextEdit *>(widget);
+#ifdef QT3_SUPPORT
+            if (widget->inherits("Q3TextEdit"))
+                isTextEdit = true;
+#endif
+            bool focus = (element == PE_FrameLineEdit || isTextEdit)
                              && (frame->state & State_Enabled) && (frame->state & State_HasFocus);
             bool groupbox = element == PE_FrameGroupBox;
 
@@ -1028,6 +1057,16 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         painter->drawPoint(option->rect.bottomLeft());
         painter->drawPoint(option->rect.bottomRight());
         painter->setPen(oldPen);
+        break;
+    }
+    case PE_Q3DockWindowSeparator:
+    case PE_Q3Separator: {
+        QPen oldPen = painter->pen();
+        painter->setPen(alphaCornerColor);
+        if (option->state & State_Horizontal)
+            painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
+        else
+            painter->drawLine(option->rect.topRight(), option->rect.bottomRight());
         break;
     }
     case PE_PanelMenuBar:
@@ -2520,10 +2559,6 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         QCommonStyle::drawControl(element, option, painter, widget);
         break;
-    case CE_MenuBarEmptyArea:
-        // Draws the area in a menu bar that is not populated by menu items.
-        painter->fillRect(option->rect, option->palette.background());
-        break;
     case CE_ToolBoxTab:
         if (const QStyleOptionToolBox *toolBox = qstyleoption_cast<const QStyleOptionToolBox *>(option)) {
             painter->save();
@@ -3049,6 +3084,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             // The slider
             if ((scrollBar->subControls & SC_ScrollBarSlider) && scrollBarSlider.isValid()) {
                 QString sliderPixmapName = uniqueName("scrollbar_slider", option, scrollBarSlider.size());
+                if (horizontal)
+                    sliderPixmapName += QLatin1String("-horizontal");
                 if (!UsePixmapCache || !QPixmapCache::find(sliderPixmapName, cache)) {
                     cache = QPixmap(scrollBarSlider.size());
                     QRect pixmapRect(0, 0, cache.width(), cache.height());
@@ -3093,7 +3130,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                     int sliderMinLength = pixelMetric(PM_ScrollBarSliderMin, scrollBar, widget);
                     if ((horizontal && scrollBar->rect.width() > (16 * 3 + sliderMinLength))
                         || (!horizontal && scrollBar->rect.height() > (16 * 3 + sliderMinLength))) {
-                        QImage pattern(qt_scrollbar_slider_pattern);
+                        QImage pattern(horizontal ? qt_scrollbar_slider_pattern_horizontal : qt_scrollbar_slider_pattern_vertical);
                         pattern.setColor(1, alphaCornerColor.rgba());
                         pattern.setColor(2, (sunken ? gradientStartColor.light(110) : gradientStartColor.light(105)).rgba());
 
@@ -3103,7 +3140,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                                                     pattern);
                         } else {
                             sliderPainter.drawImage(pixmapRect.center().x() - 4,
-                                                    pixmapRect.center().y() - pattern.width() / 2 + 1,
+                                                    pixmapRect.center().y() - pattern.height() / 2 + 1,
                                                     pattern);
                         }
                     }
@@ -4147,7 +4184,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     case PM_ScrollBarExtent:
         return 16;
     case PM_ScrollBarSliderMin:
-        return 22;
+        return 26;
     case PM_ProgressBarChunkWidth:
         return 1;
     case PM_MenuBarItemSpacing:
@@ -4264,9 +4301,18 @@ void QPlastiqueStyle::polish(QWidget *widget)
     if (widget->inherits("QWorkspaceTitleBar"))
         widget->setAttribute(Qt::WA_Hover);
 
-    QToolBox *box = qobject_cast<QToolBox *>(widget);
-    if (box)
-        box->setBackgroundRole(QPalette::Background);
+    if (qobject_cast<QToolBox *>(widget)
+#ifdef QT3_SUPPORT
+        || widget->inherits("Q3ToolBar")
+#endif
+        || qobject_cast<QMenuBar *>(widget)) {
+        widget->setBackgroundRole(QPalette::Background);
+    }
+
+#ifdef QT3_SUPPORT
+    if (widget->inherits("Q3ToolBar"))
+        qobject_cast<QFrame *>(widget)->setFrameShape(QFrame::NoFrame);
+#endif
 }
 
 /*!
@@ -4286,9 +4332,18 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
     else if (qobject_cast<QTabBar *>(widget))
         widget->setAttribute(Qt::WA_Hover, false);
 
-    QToolBox *box = qobject_cast<QToolBox *>(widget);
-    if (box)
-        box->setBackgroundRole(QPalette::Button);
+    if (qobject_cast<QToolBox *>(widget)
+#ifdef QT3_SUPPORT
+        || widget->inherits("Q3ToolBar")
+#endif
+        || qobject_cast<QMenuBar *>(widget)) {
+        widget->setBackgroundRole(QPalette::Button);
+    }
+
+#ifdef QT3_SUPPORT
+    if (widget->inherits("Q3ToolBar"))
+        qobject_cast<QFrame *>(widget)->setFrameShape(QFrame::StyledPanel);
+#endif
 }
 
 /*!
