@@ -122,10 +122,9 @@ QModelIndex IndexListModel::filter(const QString &s)
     QStringList lst;
     QString lastKey, lastValue;
 
-    int goodMatch = -1;
-    int perfectMatch = -1;
+    int bestMatch = -1;
     if (s.isEmpty())
-        perfectMatch = 0;
+        bestMatch = 0;
 
     while (it.hasNext()) {
         it.next();
@@ -139,18 +138,10 @@ QModelIndex IndexListModel::filter(const QString &s)
         if (lastKey.contains(s, Qt::CaseInsensitive))
             lst.append(lastKey);
 
-        if (perfectMatch == -1 && lastKey.startsWith(s, Qt::CaseInsensitive)) {
-            if (goodMatch == -1)
-                goodMatch = lst.count() - 1;
-            if (s.length() == lastKey.length())
-                perfectMatch = lst.count() - 1;
-        }
+        if (bestMatch == -1 && lastKey.startsWith(s, Qt::CaseInsensitive))
+            bestMatch = lst.count() - 1;
     }
     setStringList(lst);
-
-    int bestMatch = perfectMatch;
-    if (bestMatch == -1)
-        bestMatch = goodMatch;
 
     return index(qMax(0, bestMatch), 0, QModelIndex());
 }
@@ -188,7 +179,7 @@ void HelpDialog::initialize()
     connect(ui.listContents, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showTreeItemMenu(QPoint)));
 
     connect(ui.editIndex, SIGNAL(returnPressed()), this, SLOT(showTopic()));
-    connect(ui.editIndex, SIGNAL(textChanged(QString)), this, SLOT(searchInIndex(QString)));
+    connect(ui.editIndex, SIGNAL(textEdited(QString)), this, SLOT(searchInIndex(QString)));
 
     connect(ui.listIndex, SIGNAL(activated(QModelIndex)), this, SLOT(showTopic()));
     connect(ui.listIndex, SIGNAL(customContextMenuRequested(QPoint)), this, SLOT(showListItemMenu(QPoint)));
@@ -576,9 +567,7 @@ void HelpDialog::showIndexTopic()
 
     QString description = indexModel->description(row);
 
-    bool blocked = ui.editIndex->blockSignals(true);
     ui.editIndex->setText(description);
-    ui.editIndex->blockSignals(blocked);
 
     QStringList links = indexModel->links(row);
     if (links.count() == 1) {
@@ -628,9 +617,7 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
             int row = index.row();
             if (--row >= 0) {
                 ui.listIndex->setCurrentIndex(indexModel->index(row, 0, QModelIndex()));
-                bool blocked = ui.editIndex->blockSignals(true);
                 ui.editIndex->setText(indexModel->description(row));
-                ui.editIndex->blockSignals(blocked);
             }
             return true;
         } else if (ke->key() == Qt::Key_Down) {
@@ -638,9 +625,7 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
             int row = index.row();
             if (++row < indexModel->rowCount()) {
                 ui.listIndex->setCurrentIndex(indexModel->index(row, 0, QModelIndex()));
-                bool blocked = ui.editIndex->blockSignals(true);
                 ui.editIndex->setText(indexModel->description(row));
-                ui.editIndex->blockSignals(blocked);
             }
             return true;
         } else if (ke->key() == Qt::Key_PageDown || ke->key() == Qt::Key_PageUp) {
@@ -648,9 +633,7 @@ bool HelpDialog::eventFilter(QObject * o, QEvent * e)
             int row = index.row();
             QApplication::sendEvent(ui.listIndex, e);
             if (row != -1) {
-                bool blocked = ui.editIndex->blockSignals(true);
                 ui.editIndex->setText(indexModel->description(row));
-                ui.editIndex->blockSignals(blocked);
             }
         }
     }
@@ -1044,9 +1027,7 @@ void HelpDialog::showListItemMenu(const QPoint &pos)
     } else if (action) {
         HelpWindow *hw = help->browsers()->currentBrowser();
         if (stripAmpersand(currentTabText).contains(tr("Index"))) {
-            bool blocked = ui.editIndex->blockSignals(true);
             ui.editIndex->setText(item->text());
-            ui.editIndex->blockSignals(blocked);
 
             HelpNavigationListItem *hi = (HelpNavigationListItem*)item;
 

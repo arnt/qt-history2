@@ -42,7 +42,7 @@ public:
           dragEnabled(0), contextMenuEnabled(1), alignment(Qt::AlignLeading),
           echoMode(0), textDirty(0), selDirty(0), validInput(1),
           ascent(0), maxLength(32767), hscroll(0), lastCursorPos(-1), maskData(0),
-          modifiedState(0), undoState(0), selstart(0), selend(0)
+          modifiedState(0), undoState(0), selstart(0), selend(0), userInput(false)
         {}
     ~QLineEditPrivate()
     {
@@ -78,7 +78,7 @@ public:
     inline void emitCursorPositionChanged();
     bool sendMouseEventToInputContext(QMouseEvent *e);
 
-    void finishChange(int validateFromState = -1, bool update = false);
+    void finishChange(int validateFromState = -1, bool update = false, bool edited = true);
 
     QPointer<QValidator> validator;
     struct MaskInputData {
@@ -156,7 +156,7 @@ public:
     QTextLayout textLayout;
     void updateTextLayout();
     void moveCursor(int pos, bool mark = false);
-    void setText(const QString& txt, int pos = -1);
+    void setText(const QString& txt, int pos = -1, bool edited = true);
     int xToPosInternal( int x, QTextLine::CursorPosition ) const;
     int xToPos(int x, QTextLine::CursorPosition = QTextLine::CursorBetweenCharacters) const;
     QRect cursorRect() const;
@@ -169,6 +169,7 @@ public:
 #endif
 
     void clipboardChanged();
+    bool userInput;
 };
 
 #endif // QLINEEDIT_P_H

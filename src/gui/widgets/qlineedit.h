@@ -132,6 +132,7 @@ public:
 
 signals:
     void textChanged(const QString &);
+    void textEdited(const QString &);
     void cursorPositionChanged(int, int);
     void returnPressed();
     void editingFinished();

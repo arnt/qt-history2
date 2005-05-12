@@ -102,9 +102,10 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     setAlignment().
 
     When the text changes the textChanged() signal is emitted; when
-    the cursor is moved the cursorPositionChanged() signal is emitted
-    and when the Return or Enter key is pressed the returnPressed()
-    signal is emitted.
+    the text changes other than by calling setText() the textEdited()
+    signal is emitted; when the cursor is moved the
+    cursorPositionChanged() signal is emitted; and when the Return or
+    Enter key is pressed the returnPressed() signal is emitted.
 
     When editing is finished, either because the line edit lost focus
     or Return/Enter is pressed the editingFinished() signal is
@@ -167,6 +168,19 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
 
     This signal is emitted whenever the text changes. The \a text
     argument is the new text.
+
+    Unlike textEdited(), this signal is also emitted when
+    programmatically setting the text via setText().
+*/
+
+/*!
+    \fn void QLineEdit::textEdited(const QString &text)
+
+    This signal is emitted whenever the text is edited. The \a text
+    argument is the next text.
+
+    Unlike textChanged(), this signal is \e not emitted when
+    programmatically setting the text via setText().
 */
 
 /*!
@@ -1874,7 +1888,7 @@ void QLineEdit::paintEvent(QPaintEvent *)
         r.adjust(frameWidth, frameWidth, -frameWidth, -frameWidth);
     }
     p.setClipRect(r);
-    
+
     QStyleOptionFrame panel = d->getStyleOption();
     panel.state |= (isEnabled() ? QStyle::State_Enabled : QStyle::State_None);
     style()->drawPrimitive(QStyle::PE_PanelLineEdit, &panel, &p, this);
@@ -2263,7 +2277,7 @@ void QLineEditPrivate::moveCursor(int pos, bool mark)
     emitCursorPositionChanged();
 }
 
-void QLineEditPrivate::finishChange(int validateFromState, bool update)
+void QLineEditPrivate::finishChange(int validateFromState, bool update, bool edited)
 {
     Q_Q(QLineEdit);
     bool lineDirty = selDirty;
@@ -2297,7 +2311,10 @@ void QLineEditPrivate::finishChange(int validateFromState, bool update)
         lineDirty |= textDirty;
         if (textDirty) {
             textDirty = false;
-            emit q->textChanged(maskData ? stripString(text) : text);
+            QString actualText = maskData ? stripString(text) : text;
+            if (edited)
+                emit q->textEdited(actualText);
+            emit q->textChanged(actualText);
         }
 #ifndef QT_NO_ACCESSIBILITY
         QAccessible::updateAccessibility(q, 0, QAccessible::ValueChanged);
@@ -2322,7 +2339,7 @@ void QLineEditPrivate::emitCursorPositionChanged()
     }
 }
 
-void QLineEditPrivate::setText(const QString& txt, int pos)
+void QLineEditPrivate::setText(const QString& txt, int pos, bool edited)
 {
     Q_Q(QLineEdit);
     q->resetInputContext();
@@ -2338,7 +2355,7 @@ void QLineEditPrivate::setText(const QString& txt, int pos)
     modifiedState =  undoState = 0;
     cursor = (pos < 0 || pos > text.length()) ? text.length() : pos;
     textDirty = (oldText != text);
-    finishChange(-1, true);
+    finishChange(-1, true, edited);
 }
 
 
@@ -2441,7 +2458,7 @@ void QLineEditPrivate::parseInputMask(const QString &maskFields)
             delete [] maskData;
             maskData = 0;
             maxLength = 32767;
-            q->setText(QString());
+            setText(QString());
         }
         return;
     }
@@ -2523,7 +2540,7 @@ void QLineEditPrivate::parseInputMask(const QString &maskFields)
             }
         }
     }
-    q->setText(text);
+    setText(text);
 }
 
 
