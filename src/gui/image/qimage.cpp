@@ -489,7 +489,7 @@ QImage::QImage(uchar* data, int width, int height, Format format)
 
     If \a format is specified, the loader attempts to read the image
     using the specified format. If \a format is not specified (which
-    is the default), the loader reads a few bytes from the header to
+    is the default), the loader probes the file for a header to
     guess the file format.
 
     If the loading of the image failed, this object is a \link
@@ -521,7 +521,7 @@ QImage::QImage(const QString &fileName, const char *format)
 
     If \a format is specified, the loader attempts to read the image
     using the specified format. If \a format is not specified (which
-    is the default), the loader reads a few bytes from the header to
+    is the default), the loader probes the files for a header to
     guess the file format.
 
     If the loading of the image failed, this object is a \link
@@ -2949,9 +2949,9 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     flags argument.
 
     The returned image has little-endian bit order, which you can
-    convert to big-endianness using convertToFormat().
+    convert to big-endian using convertToFormat().
 
-    \sa createHeuristicMask() hasAlphaBuffer() setAlphaBuffer()
+    \sa createHeuristicMask()
 */
 #ifndef QT_NO_IMAGE_DITHER_TO_1
 QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
@@ -2982,7 +2982,7 @@ QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
     applicable to the image), the result is arbitrary.
 
     The returned image has little-endian bit order, which you can
-    convert to big-endianness using convertToFormat().
+    convert to big-endian using convertToFormat().
 
     If \a clipTight is true (the default) the mask is just large enough to cover the
     pixels; otherwise, the mask is larger than the data pixels.
@@ -3243,13 +3243,13 @@ QImage QImage::rgbSwapped() const
 
     If \a format is specified, the loader attempts to read the image
     using the specified format. If \a format is not specified (which
-    is the default), the loader reads a few bytes from the header to
+    is the default), the loader probes the file for a header to
     guess the file format.
 
     The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
-    The file name can be either refer to an actual file on disk or to
+    The file name can either refer to an actual file on disk or to
     one of the application's embedded resources. See the
     \l{resources.html}{Resource System} overview for details on how
     to embed images and other resource files in the application's
@@ -3276,7 +3276,7 @@ bool QImage::load(const QString &fileName, const char* format)
 
     If \a format is specified, the loader attempts to read the image
     using the specified format. If \a format is not specified (which
-    is the default), the loader reads a few bytes from the header to
+    is the default), the loader probes the file for a header to
     guess the file format.
 
     The QImageReader documentation lists the supported image formats and
@@ -3313,7 +3313,7 @@ bool QImage::loadFromData(const uchar *data, int len, const char *format)
 
     If \a format is specified, the loader attempts to read the image
     using the specified format. If \a format is not specified (which
-    is the default), the loader reads a few bytes from the header to
+    is the default), the loader probes the file for a header to
     guess the file format.
 
     The QImageReader documentation lists the supported image formats and
