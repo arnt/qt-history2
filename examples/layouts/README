@@ -1,9 +1,16 @@
 Qt uses a layout-based approach to widget management. Widgets are arranged in
-the optimal positions in windows based on simple layout rules.
+the optimal positions in windows based on simple layout rules, leading to a
+consistent look and feel.
+
+Custom layouts can be used to provide more control over the positions and
+sizes of child widgets.
 
 
 The example launcher provided with Qt can be used to explore each of the
 examples in this directory.
+
+Documentation for these examples can be found via the "Tutorial and Examples"
+link in the main Qt documentation.
 
 
 Finding the launcher
@@ -18,3 +25,8 @@ On Mac OS X:
 On Unix/Linux:
 
 
+On all platforms:
+
+The source code for the launcher can be found in the examples/tools/launcher
+directory in the Qt package. This example is built at the same time as the
+Qt libraries, tools, examples, and demonstrations.

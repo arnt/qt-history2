@@ -3,12 +3,15 @@ and right-to-left scripts. Documents can be manipulated using a cursor-based
 API, and their contents can be imported and exported as both HTML and in a
 custom XML format.
 
-Text is rendered using anti-aliased outline fonts to provide the best possible
-on-screen representation.
+Text is rendered using anti-aliased outline fonts to provide the best
+possible on-screen representation.
 
 
 The example launcher provided with Qt can be used to explore each of the
 examples in this directory.
+
+Documentation for these examples can be found via the "Tutorial and Examples"
+link in the main Qt documentation.
 
 
 Finding the launcher
@@ -23,3 +26,8 @@ On Mac OS X:
 On Unix/Linux:
 
 
+On all platforms:
+
+The source code for the launcher can be found in the examples/tools/launcher
+directory in the Qt package. This example is built at the same time as the
+Qt libraries, tools, examples, and demonstrations.

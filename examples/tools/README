@@ -4,8 +4,12 @@ iterators to classes for string handling and manipulation.
 Other classes provide application infrastructure support, handling plugin
 loading and managing configuration files.
 
+
 The example launcher provided with Qt can be used to explore each of the
 examples in this directory.
+
+Documentation for these examples can be found via the "Tutorial and Examples"
+link in the main Qt documentation.
 
 
 Finding the launcher
@@ -20,3 +24,8 @@ On Mac OS X:
 On Unix/Linux:
 
 
+On all platforms:
+
+The source code for the launcher can be found in the examples/tools/launcher
+directory in the Qt package. This example is built at the same time as the
+Qt libraries, tools, examples, and demonstrations.
