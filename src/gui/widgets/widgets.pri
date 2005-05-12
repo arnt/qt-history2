@@ -57,7 +57,6 @@ HEADERS += \
         widgets/qvalidator.h \
         widgets/qabstractscrollarea.h \
         widgets/qabstractscrollarea_p.h \
-        widgets/qwidgetplugin.h \
         widgets/qwidgetresizehandler_p.h \
         widgets/qfocusframe.h \
         widgets/qscrollarea.h \
@@ -111,7 +110,6 @@ SOURCES += \
         widgets/qtoolbutton.cpp \
         widgets/qvalidator.cpp \
         widgets/qabstractscrollarea.cpp \
-        widgets/qwidgetplugin.cpp \
         widgets/qwidgetresizehandler.cpp \
         widgets/qfocusframe.cpp \
         widgets/qscrollarea.cpp \
