@@ -284,7 +284,7 @@ CFG_ACCESSIBILITY=auto
 CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
-CFG_FRAMEWORK=no
+CFG_FRAMEWORK=yes
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -595,8 +595,8 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     framework)
-        if [ "$PLATFORM_MAC" = "yes" ] && [ "$VAL" = "yes" ]; then
-            CFG_FRAMEWORK=yes
+        if [ "$PLATFORM_MAC" = "yes" ]; then
+            CFG_FRAMEWORK="$VAL"
         else
             UNKNOWN_OPT=yes
         fi
@@ -2165,8 +2165,9 @@ if [ "$PLATFORM_MAC" = "yes" ]; then
 
 Qt/Mac only:
 
-    -framework ......... Build Qt as a series of frameworks and
-                         link tools against those frameworks
+ *  -framework ......... Build Qt as a series of frameworks and
+                         link tools against those frameworks.
+    -no-framework ...... Do not build Qt as a series of frameworks.
 EOF
 fi
 
