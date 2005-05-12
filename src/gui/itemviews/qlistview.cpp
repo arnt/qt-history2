@@ -1213,7 +1213,7 @@ bool QListView::isIndexHidden(const QModelIndex &index) const
 void QListView::setModelColumn(int column)
 {
     Q_D(QListView);
-    if (column < 0 || column >= model()->columnCount(rootIndex()))
+    if (column < 0 || !model() || column >= model()->columnCount(rootIndex()))
         return;
     d->column = column;
     d->doDelayedItemsLayout();
@@ -1248,7 +1248,7 @@ void QListViewPrivate::prepareItemsLayout()
     batchSavedPosition = 0;
     batchSavedDeltaSeg = 0;
     layoutBounds = viewport->rect();
-        
+
     int rowCount = model ? model->rowCount(root) : 0;
     int colCount = model ? model->columnCount(root) : 0;
     if (colCount <= 0)
