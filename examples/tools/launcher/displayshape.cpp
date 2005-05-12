@@ -124,16 +124,36 @@ bool PathShape::animate()
 
             updated = true;
         } else if (meta.contains("highlight")) {
-            int alpha = brush.color().alpha();
-            if (meta.value("highlight").toBool()) {
-                brush = highlightedBrush;
-            } else {
+            qreal scale = meta.value("highlight scale").toDouble();
+            QColor color = brush.color();
+
+            if (meta.value("highlight").toBool())
+                scale = qBound(0.0, scale + 0.5, 1.0);
+            else
+                scale = qBound(0.0, scale - 0.2, 1.0);
+
+            if (scale == 0.0) {
                 brush = normalBrush;
                 meta.remove("highlight");
+                meta.remove("highlight scale");
+            } else {
+                meta["highlight scale"] = scale;
+
+                if (scale == 1.0)
+                    brush = highlightedBrush;
+                else {
+                    QColor normal = normalBrush.color();
+                    QColor highlighted = highlightedBrush.color();
+
+                    color.setRedF((1.0-scale) * normal.redF()
+                                  + scale*highlighted.redF());
+                    color.setGreenF((1.0-scale) * normal.greenF()
+                                    + scale*highlighted.greenF());
+                    color.setBlueF((1.0-scale) * normal.blueF()
+                                   + scale*highlighted.blueF());
+                    brush.setColor(color);
+                }
             }
-            QColor brushColor = brush.color();
-            brushColor.setAlpha(alpha);
-            brush.setColor(brushColor);
             updated = true;
         }
     }
