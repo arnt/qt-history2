@@ -27,8 +27,8 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_toolwindow.h"
 
-extern int qInitResources_formeditor();
-extern int qInitResources_widgetbox();
+extern bool qInitResources_formeditor();
+extern bool qInitResources_widgetbox();
 
 QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
