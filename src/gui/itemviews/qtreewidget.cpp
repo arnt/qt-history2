@@ -1706,15 +1706,21 @@ void QTreeWidget::sortItems(int column, Qt::SortOrder order)
 
 /*!
   If \a enable is true, the items in the widget will be sorted if the user
-  clicks on a header section; otherwise sorting is disabled.
+  clicks on a header section; otherwise sorting by clicking on the
+  header section is disabled.
 */
 
 void QTreeWidget::setSortingEnabled(bool enable)
 {
     Q_D(QTreeWidget);
     d->sortingEnabled = enable;
-    if (!enable && header()->isSortIndicatorShown())
+    if (!enable && header()->isSortIndicatorShown()) {
         header()->setSortIndicatorShown(false);
+        header()->setClickable(false);
+    } else {
+        // don't set the sorting indicator until the data has actually been sorted
+        header()->setClickable(true);
+    }
 }
 
 /*!
