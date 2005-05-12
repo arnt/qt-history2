@@ -1344,8 +1344,9 @@ void QWidgetPrivate::setWindowIcon_sys()
 
 void QWidgetPrivate::setWindowIconText_sys(const QString &iconText)
 {
-    if(isWindow() && !iconText.isEmpty())
-        SetWindowAlternateTitle(qt_mac_window_for(this), QCFString(iconText));
+    Q_Q(QWidget);
+    if(q->isWindow() && !iconText.isEmpty())
+        SetWindowAlternateTitle(qt_mac_window_for(q), QCFString(iconText));
 }
 
 void QWidget::grabMouse()
