@@ -263,7 +263,8 @@ public:
     void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo);
     void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, qreal frameWidth, qreal frameHeight);
 
-    void layoutBlock(const QTextBlock &block, LayoutStruct *layoutStruct, int layoutFrom, int layoutTo);
+    void layoutBlock(const QTextBlock &block, LayoutStruct *layoutStruct, int layoutFrom, int layoutTo,
+                     bool isFirstBlockInFlow, bool isLastBlockInFlow);
     void layoutFlow(QTextFrame::Iterator it, LayoutStruct *layoutStruct, int layoutFrom, int layoutTo);
 
 
@@ -1279,7 +1280,9 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
 
     fd->currentLayoutStruct = layoutStruct;
 
-    for ( ; !it.atEnd(); ++it) {
+    bool firstIteration = true;
+
+    while (!it.atEnd()) {
         QTextFrame *c = it.currentFrame();
 
         if (c) {
@@ -1305,20 +1308,24 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
             } else {
                 positionFloat(c);
             }
+            ++it;
         } else {
-//            QTextBlock block = it.currentBlock();
-//             if (block.position() + block.length() < layoutFrom)
-//                 continue;
+            QTextBlock block = it.currentBlock();
+            ++it;
+            bool lastBlockInFlow = (it.atEnd());
+
             // layout and position child block
-            layoutBlock(it.currentBlock(), layoutStruct, layoutFrom, layoutTo);
+            layoutBlock(block, layoutStruct, layoutFrom, layoutTo, firstIteration, lastBlockInFlow);
         }
+
+        firstIteration = false;
     }
 
     fd->currentLayoutStruct = 0;
 }
 
 void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct *layoutStruct,
-                                             int layoutFrom, int layoutTo)
+                                             int layoutFrom, int layoutTo, bool firstBlockInFlow, bool lastBlockInFlow)
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
@@ -1347,6 +1354,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
 //    qDebug() << "layoutBlock; width" << layoutStruct->x_right - layoutStruct->x_left << "(maxWidth is btw" << tl->maximumWidth() << ")";
 
+    if (!firstBlockInFlow)
     layoutStruct->y += blockFormat.topMargin();
 
     //QTextFrameData *fd = data(layoutStruct->frame);
@@ -1449,7 +1457,9 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
         layoutStruct->y += qRound(tl->boundingRect().height());
     }
 
+    if (!lastBlockInFlow)
     layoutStruct->y += blockFormat.bottomMargin();
+
     // ### doesn't take floats into account. would need to do it per line. but how to retrieve then? (Simon)
     layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, tl->minimumWidth() + blockFormat.leftMargin() + indent);
 
