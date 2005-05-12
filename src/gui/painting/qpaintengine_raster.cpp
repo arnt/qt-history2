@@ -399,7 +399,12 @@ QHash<int, QImage> qt_raster_image_cache;
 
 QRasterPaintEngine::QRasterPaintEngine()
     : QPaintEngine(*(new QRasterPaintEnginePrivate),
-                   QPaintEngine::PaintEngineFeatures(AllFeatures))
+#ifdef Q_WS_MAC
+                   QPaintEngine::PaintEngineFeatures(AllFeatures & (~UsesFontEngine))
+#else
+                   QPaintEngine::PaintEngineFeatures(AllFeatures)
+#endif
+        )
 {
     Q_D(QRasterPaintEngine);
 
@@ -1247,10 +1252,6 @@ void QRasterPaintEnginePrivate::drawBox(const QPointF &, const QTextItem &)
 void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
-
-#if defined(Q_WS_MAC)
-    return;
-#endif
 
 #ifdef QT_DEBUG_DRAW
     printf(" - QRasterPaintEngine::drawTextItem(), (%.2f,%.2f), string=%s\n",
