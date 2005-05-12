@@ -734,6 +734,8 @@ public:
 
     void show();
 
+    bool isWindowOrIconVisible() const;
+
 signals:
     void showOperationMenu();
     void popupOperationMenu(const QPoint&);
@@ -1613,7 +1615,7 @@ QWidgetList QWorkspace::windowList(WindowOrder order) const
         QObjectList cl = children();
         for (int i = 0; i < cl.size(); ++i) {
             QWorkspaceChild *c = qobject_cast<QWorkspaceChild*>(cl.at(i));
-            if (c && c->windowWidget())
+            if (c && c->isWindowOrIconVisible())
                 windows.append(c->windowWidget());
         }
     } else {
@@ -1621,7 +1623,7 @@ QWidgetList QWorkspace::windowList(WindowOrder order) const
         while (it != d->windows.end()) {
             QWorkspaceChild* c = *it;
             ++it;
-            if (c->windowWidget())
+            if (c && c->isWindowOrIconVisible())
                 windows.append(c->windowWidget());
         }
     }
@@ -2777,6 +2779,10 @@ QWidget* QWorkspaceChild::windowWidget() const
     return childWidget;
 }
 
+bool QWorkspaceChild::isWindowOrIconVisible() const
+{
+    return childWidget && (!isHidden()  || (iconw && !iconw->isHidden()));
+}
 
 QWidget* QWorkspaceChild::iconWidget() const
 {

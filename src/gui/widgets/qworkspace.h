@@ -36,7 +36,6 @@ public:
     enum WindowOrder { CreationOrder, StackingOrder };
 
     QWidget* activeWindow() const;
-    void setActiveWindow(QWidget *w);
     QWidgetList windowList(WindowOrder order = CreationOrder) const;
 
     QWidget * addWindow(QWidget *w, Qt::WFlags flags = 0);
@@ -59,6 +58,7 @@ signals:
     void windowActivated(QWidget* w);
 
 public slots:
+    void setActiveWindow(QWidget *w);
     void cascade();
     void tile();
     void closeActiveWindow();
