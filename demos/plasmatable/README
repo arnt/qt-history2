@@ -1,4 +1,0 @@
-The plasmatable demo shows a custom delegate (PlasmaDelegate) painting
-items in a table where the model (PlasmaModel) constantly changes the
-item data and signals the view about this.
-
