@@ -399,9 +399,8 @@ void QPainterPrivate::updateState(QPainterState *newState)
     \i Destroy the painter.
     \endlist
 
-    This is usually done inside a paint event. Since painting in
-    QWidget::paintEvent() is so typical, the painter is heavily optimized for
-    such use. Here's one very simple example:
+    The common use of QPainter is inside a widget's paint
+    event. Here's one simple example:
 
     \code
     void SimpleExampleWidget::paintEvent()
@@ -490,21 +489,18 @@ void QPainterPrivate::updateState(QPainterState *newState)
     matrix().
 
     setViewport() sets the rectangle on which QPainter operates. The
-    default is the entire device, which is usually fine, except on
-    printers. setWindow() sets the coordinate system, that is, the
-    rectangle that maps to viewport(). What's drawn inside the
-    window() ends up being inside the viewport(). The window's
-    default is the same as the viewport, and if you don't use the
-    transformations, they are optimized away.
+    default is the entire device, which is usually fine. setWindow()
+    sets the coordinate system, that is, the rectangle that maps to
+    viewport(). What's drawn inside the window() ends up being inside
+    the viewport(). The window's default is the same as the viewport.
 
-    After all the coordinate transformation is done, QPainter can clip
-    the drawing to an arbitrary rectangle or region. If hasClipping() is
-    true then QPainter clips, and clipRegion() returns the clip region.
-    You can set it using either setClipRegion() or setClipRect().
-    Note that the clipping can be slow. It's all system-dependent,
-    but as a rule of thumb, you can assume that drawing speed is
-    inversely proportional to the number of rectangles in the clip
-    region.
+    QPainter can clip any drawing operation to a rectangle, a region,
+    or a vector path. The current clip is available using the
+    functions clipRegion() and clipPath(). Wether paths or regions are
+    preferred (faster) depends on the underlying paintEngine(). For
+    example, the QImage paint engine prefers paths while the X11 paint
+    engine prefers regions. Setting a clip is done in the painters
+    logical coordinates.
 
     After QPainter's clipping, the paint device may also clip. For
     example, most widgets clip away the pixels used by child widgets,
