@@ -734,7 +734,7 @@ XFormWidget::XFormWidget(QWidget *parent)
     showSourceButton->setText("Show Source");
 
     QPushButton *whatsThisButton = new QPushButton(mainGroup);
-    whatsThisButton->setText("Whats this?");
+    whatsThisButton->setText("What's This?");
     whatsThisButton->setCheckable(true);
 
     QHBoxLayout *viewLayout = new QHBoxLayout(this);

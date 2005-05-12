@@ -103,7 +103,7 @@ PathStrokeWidget::PathStrokeWidget()
     showSourceButton->setText("Show Source");
 
     QPushButton *whatsThisButton = new QPushButton(mainGroup);
-    whatsThisButton->setText("Whats this?");
+    whatsThisButton->setText("What's This?");
     whatsThisButton->setCheckable(true);
 
     // Layouting
