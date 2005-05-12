@@ -75,6 +75,7 @@ public:
     void drawTextItem(const QPointF &p, const QTextItem &textItem);
 
     void drawLines(const QLineF *line, int lineCount);
+    void drawPoints(const QPointF *points, int pointCount);
 
     void setFlushOnEnd(bool flush);
     void flush(QPaintDevice *device);

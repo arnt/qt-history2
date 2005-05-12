@@ -1511,6 +1511,53 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
     }
 }
 
+void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
+{
+    Q_D(QRasterPaintEngine);
+
+    double pw = d->pen.widthF();
+
+    if (d->txop > QPainterPrivate::TxTranslate || pw > 1) {
+        QBrush oldBrush = d->brush;
+        d->brush = Qt::NoBrush;
+
+        const QPointF *end = points + pointCount;
+        while (points < end) {
+            QPainterPath path;
+            path.moveTo(*points);
+            path.lineTo(points->x() + 0.001, points->y());
+            drawPath(path);
+            ++points;
+        }
+
+        d->brush = oldBrush;
+
+    } else {
+        FillData fillData = d->fillForBrush(d->pen.brush(), 0);
+        if (!fillData.callback)
+            return;
+
+        QT_FT_Span span = { 0, 1, 255 };
+        qreal dx = d->matrix.dx();
+        qreal dy = d->matrix.dy();
+        const QPointF *end = points + pointCount;
+        int x, y;
+        int left = d->deviceRect.x();
+        int right = d->deviceRect.x() + d->deviceRect.width();
+        int top = d->deviceRect.y();
+        int bottom = d->deviceRect.y() + d->deviceRect.height();
+        while (points < end) {
+            x = qRound(points->x() + dx);
+            y = qRound(points->y() + dy);
+            if (x >= left && x < right && y >= top && y < bottom) {
+                span.x = x;
+                fillData.callback(y, 1, &span, fillData.data);
+            }
+            ++points;
+        }
+    }
+}
+
 void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
 #ifdef QT_DEBUG_DRAW
