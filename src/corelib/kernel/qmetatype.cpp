@@ -58,7 +58,9 @@
     in queued signals and slots connections. It associates a type
     name to a type so that it can be created and destructed
     dynamically at run-time. Register new types with
-    qRegisterMetaType().
+    qRegisterMetaType(). Any class or struct that has a public
+    constructor, a public copy constructor, and a public destructor
+    can be registered.
 
     The following code allocates and destructs an instance of
     \c{MyClass}:
@@ -464,8 +466,10 @@ void QMetaType::destroy(int type, void *data)
     \fn int qRegisterMetaType(const char *typeName, T *dummy = 0)
     \relates QMetaType
 
-    Registers the type name \a typeName to the type \c{T}.
-    Returns the internal ID used by QMetaType.
+    Registers the type name \a typeName to the type \c{T}. Returns
+    the internal ID used by QMetaType. Any class or struct that has a
+    public constructor, a public copy constructor, and a public
+    destructor can be registered.
 
     After a type has been registered, you can create and destroy
     objects of that type dynamically at run-time.
