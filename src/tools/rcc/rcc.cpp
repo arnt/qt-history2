@@ -261,7 +261,8 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString c
             }
         }
     }
-    return true;
+    
+    return (this->root != 0);
 }
 
 bool RCCResourceLibrary::addFile(const QString &alias, const RCCFileInfo &file)
