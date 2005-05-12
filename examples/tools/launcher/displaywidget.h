@@ -38,8 +38,8 @@ protected:
     void paintEvent(QPaintEvent *event);
 
 signals:
+    void actionRequested(const QString &name);
     void displayEmpty();
-    void menuRequested(const QString &name);
     void categoryRequested(const QString &name);
     void documentationRequested(const QString &name);
     void exampleRequested(const QString &name);

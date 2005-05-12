@@ -61,8 +61,8 @@ Launcher::Launcher(QWidget *parent)
 
     assistant = new QAssistantClient("assistant", this);
 
-    connect(display, SIGNAL(menuRequested(const QString &)),
-            this, SLOT(showParentPage()));
+    connect(display, SIGNAL(actionRequested(const QString &)),
+            this, SLOT(executeAction(const QString &)));
     connect(display, SIGNAL(categoryRequested(const QString &)),
             this, SLOT(showExamples(const QString &)));
     connect(display, SIGNAL(documentationRequested(const QString &)),
@@ -81,16 +81,6 @@ Launcher::Launcher(QWidget *parent)
     setCentralWidget(display);
     layout()->setSizeConstraint(QLayout::SetFixedSize);
     setWindowTitle(tr("Launcher"));
-}
-
-void Launcher::closeEvent(QCloseEvent *event)
-{
-    if (runningExamples.size() > 0) {
-        if (QMessageBox::warning(this, tr("Examples Running"),
-                tr("There are examples running. Do you really want to exit?"),
-                QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
-            event->ignore();
-    }
 }
 
 bool Launcher::setup()
@@ -222,6 +212,7 @@ void Launcher::loadExampleInfo()
         QString categoryName = element.attribute("name");
         QString categoryDirName = element.attribute("dirname");
         QString categoryDocName = element.attribute("docname");
+        QString categoryColor = element.attribute("color", "#f0f0f0");
 
         QDir categoryDir = examplesDir;
         if (categoryDir.cd(categoryDirName)) {
@@ -243,6 +234,7 @@ void Launcher::loadExampleInfo()
                 QString exampleName = element.attribute("name");
                 QString exampleFileName = element.attribute("filename");
                 QString exampleDirName = element.attribute("dirname");
+                QString exampleColor = element.attribute("color", "#f0f0f0");
 
                 if (!exampleDirName.isEmpty())
                     pieces.push_front(exampleDirName);
@@ -271,10 +263,13 @@ void Launcher::loadExampleInfo()
                     docName = categoryDocName+"-"+exampleFileName+".html";
                 else
                     docName = categoryDirName+"-"+exampleFileName+".html";
+
+                exampleColors[exampleName] = exampleColor;
                 findDescriptionAndImages(exampleName, docName);
             }
 
             categories.append(categoryName);
+            categoryColors[categoryName] = categoryColor;
         }
     }
 }
@@ -360,6 +355,29 @@ void Launcher::enableLaunching()
     }
 }
 
+void Launcher::executeAction(const QString &action)
+{
+    if (action == "parent")
+        showParentPage();
+    else if (action == "exit") {
+        if (runningExamples.size() == 0) {
+            connect(display, SIGNAL(displayEmpty()), this, SLOT(close()));
+            display->reset();
+        } else
+            close();
+    }
+}
+
+void Launcher::closeEvent(QCloseEvent *event)
+{
+    if (runningExamples.size() > 0) {
+        if (QMessageBox::warning(this, tr("Examples Running"),
+                tr("There are examples running. Do you really want to exit?"),
+                QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
+            event->ignore();
+    }
+}
+
 void Launcher::showParentPage()
 {
     slideshowTimer->stop();
@@ -432,6 +450,13 @@ void Launcher::showCategories()
         maxWidth = qMax(maxWidth, caption->rect().width());
     }
 
+    DisplayShape *exitButton = new TitleShape(tr("Exit"), font(),
+        QPen(Qt::white), startPosition, maxSize);
+
+    exitButton->setMetaData("target", QPointF(0.05 * width(),
+                            exitButton->position().y()));
+    newShapes.append(exitButton);
+
     startPosition = QPointF(width(), topMargin);
     qreal extra = (step - textHeight)/4;
 
@@ -441,8 +466,9 @@ void Launcher::showCategories()
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         DisplayShape *background = new PathShape(path,
-            QBrush(QColor("#f0f0f0")), QBrush(QColor("#e0e0ff")), Qt::NoPen,
-            startPosition, QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
+            QBrush(categoryColors[category]), QBrush(QColor("#e0e0ff")),
+            Qt::NoPen, startPosition,
+            QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
         background->setMetaData("category", category);
         background->setMetaData("target", QPointF(0.05 * width(),
@@ -451,11 +477,27 @@ void Launcher::showCategories()
         startPosition += QPointF(0.0, step);
     }
 
+    QPainterPath exitPath;
+    exitPath.moveTo(-2*extra, -extra);
+    exitPath.lineTo(-8*extra, textHeight/2);
+    exitPath.lineTo(-extra, textHeight + extra);
+    exitPath.lineTo(maxWidth + 2*extra, textHeight + extra);
+    exitPath.lineTo(maxWidth + 2*extra, -extra);
+    exitPath.closeSubpath();
+
+    DisplayShape *exitBackground = new PathShape(exitPath,
+        QBrush(QColor("#a6ce39")), QBrush(QColor("#c7f745")), Qt::NoPen,
+        startPosition, QSizeF(maxWidth + 10*extra, textHeight + 2*extra));
+
+    exitBackground->setMetaData("action", "exit");
+    exitBackground->setMetaData("target", QPointF(0.05 * width(),
+                                exitBackground->position().y()));
+    display->insertShape(0, exitBackground);
+
     foreach (DisplayShape *caption, newShapes) {
         QPointF position = caption->metaData("target").toPointF();
         QSizeF size = caption->rect().size();
-        caption->setPosition(
-            QPointF(-maxWidth, position.y()));
+        caption->setPosition(QPointF(-maxWidth, position.y()));
         display->appendShape(caption);
     }
 
@@ -555,7 +597,7 @@ void Launcher::showExamples(const QString &category)
         QBrush(QColor("#a6ce39")), QBrush(QColor("#c7f745")), Qt::NoPen,
         startPosition, QSizeF(maxWidth + 10*extra, textHeight + 2*extra));
 
-    background->setMetaData("menu", "main");
+    background->setMetaData("action", "parent");
     background->setMetaData("target", QPointF(
                             0.05 * width(), background->position().y()));
     display->insertShape(0, background);
@@ -567,8 +609,9 @@ void Launcher::showExamples(const QString &category)
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
         background = new PathShape(path,
-            QBrush(QColor("#f0f0f0")), QBrush(QColor("#e0e0ff")), Qt::NoPen,
-            startPosition, QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
+            QBrush(exampleColors[example]), QBrush(QColor("#e0e0ff")),
+            Qt::NoPen, startPosition,
+            QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
         background->setMetaData("example", example);
         background->setMetaData("target", QPointF(0.05 * width(),

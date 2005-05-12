@@ -81,8 +81,8 @@ void DisplayWidget::mousePressEvent(QMouseEvent *event)
 
     foreach (DisplayShape *shape, shapes) {
         if (shape->rect().contains(event->pos()) && !shape->contains("fade")) {
-            if (shape->contains("menu"))
-                emit menuRequested(shape->metaData("menu").toString());
+            if (shape->contains("action"))
+                emit actionRequested(shape->metaData("action").toString());
             else if (shape->contains("category"))
                 emit categoryRequested(shape->metaData("category").toString());
             else if (shape->contains("example"))

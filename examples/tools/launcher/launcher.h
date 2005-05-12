@@ -36,6 +36,7 @@ public:
 
 public slots:
     void enableLaunching();
+    void executeAction(const QString &action);
     void launchExample(const QString &example);
     void showCategories();
     void showExampleDocumentation(const QString &example);
@@ -79,6 +80,8 @@ private:
     QFont buttonFont;
     QFont textFont;
     QFont titleFont;
+    QMap<QString,QColor> categoryColors;
+    QMap<QString,QColor> exampleColors;
     QMap<QProcess*,QString> runningProcesses;
     QMap<QString,QString> categoryDescriptions;
     QMap<QString,QString> exampleDescriptions;
