@@ -2118,14 +2118,14 @@ void QRasterBuffer::prepareBuffer(int width, int height)
     memset(m_buffer, 255, width*height*sizeof(uint));
 }
 #elif defined(Q_WS_MAC)
-static void qt_mac_raster_data_free(void *, const void *data, size_t)
+static void qt_mac_raster_data_free(void *memory, const void *, size_t)
 {
-    free(const_cast<void *>(data));
+    free(memory);
 }
 
 void QRasterBuffer::prepareBuffer(int width, int height)
 {
-    m_buffer = new uint[width*height*sizeof(uint)];
+    m_buffer = new uchar[width*height*sizeof(uint)];
     memset(m_buffer, 255, width*height*sizeof(uint));
 
 #ifdef QMAC_NO_COREGRAPHICS
@@ -2134,7 +2134,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
     if (m_data)
         CGImageRelease(m_data);
     CGColorSpaceRef colorspace = CGColorSpaceCreateDeviceRGB();
-    CGDataProviderRef provider = CGDataProviderCreateWithData(0, m_buffer, width*height,
+    CGDataProviderRef provider = CGDataProviderCreateWithData(m_buffer, m_buffer, width*height,
                                                               qt_mac_raster_data_free);
     m_data = CGImageCreate(width, height, 8, 32, width, colorspace,
                            kCGImageAlphaFirst, provider, 0, 0, kCGRenderingIntentDefault);
