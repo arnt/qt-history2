@@ -670,6 +670,9 @@ while [ "$#" -gt 0 ]; do
     xplatform)
         XPLATFORM="$VAL"
         ;;
+    debug-and-release)
+        CFG_DEBUG="auto"
+        ;;
     release)
         if [ "$VAL" = "yes" ]; then
             CFG_DEBUG=no
@@ -1158,6 +1161,7 @@ if [ "$CFG_JPEG" = "auto" ]; then
         CFG_JPEG=yes
     fi
 fi
+#detect jpeg
 if [ "$CFG_LIBJPEG" = "auto" ]; then
     if $unixtests/checkavail "libjpeg" $OPT_VERBOSE -ljpeg jpeglib.h; then
        CFG_LIBJPEG=system
@@ -1166,7 +1170,7 @@ if [ "$CFG_LIBJPEG" = "auto" ]; then
     fi
 fi
 
-#detect how png should be built
+#detect png
 if [ "$CFG_LIBPNG" = "auto" ]; then
     if $unixtests/checkavail "libpng" $OPT_VERBOSE -lpng png.h; then
        CFG_LIBPNG=system
@@ -2018,12 +2022,12 @@ if [ "$OPT_HELP" = "yes" ]; then
 Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
         [-libdir dir] [-bindir dir] [-plugindir dir ] [-datadir dir]
         [-translationdir dir] [-sysconfdir dir] [-debug] [-release]
-        [-no-gif] [-qt-gif] [-no-sm] [-sm] [-qt-zlib] [-system-zlib]
-        [-qt-libjpeg] [-system-libjpeg] [-qt-libpng] [-system-libpng]
-        [-no-nis] [-nis] [-no-cups] [-cups] [-no-largefile] [-largefile]
-        [-no-stl] [-stl] [-no-pch] [-pch] [-Istring] [-lstring]
-        [-Lstring] [-Rstring] [-disable-<module>] [-with-<module setting>]
-        [-without-<module setting>] [-fast] [-no-fast]
+        [-debug-and-release] [-no-gif] [-qt-gif] [-no-sm] [-sm] [-no-zlib]
+        [-qt-zlib] [-system-zlib] [-no-libjpeg] [-qt-libjpeg] [-system-libjpeg]
+        [-no-libpng] [-qt-libpng] [-system-libpng] [-no-nis] [-nis] [-no-cups]
+        [-cups] [-no-largefile] [-largefile] [-no-stl] [-stl] [-no-pch] [-pch]
+        [-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
+        [-with-<module setting>] [-without-<module setting>] [-fast] [-no-fast]
 
 Installation options:
 
@@ -2064,58 +2068,43 @@ Configure options:
  plus simply denotes the default value. Here is a short explanation of each
  option:
 
- *  -release ........... Compile and link Qt with debugging turned off.
+    -release ........... Compile and link Qt with debugging turned off.
     -debug ............. Compile and link Qt with debugging turned on.
+ *  -debug-and-release . Compile and link two versions of Qt, with and without
+                         debugging turned on.
 
  *  -shared ............ Create and use shared Qt libraries.
     -static ............ Create and use static Qt libraries.
 
- *  -no-gif ............ Do not compile in GIF reading support.
-    -qt-gif ............ Compile in GIF reading support.
-                         See src/gui/image/qgif.h
-
-    -qt-zlib ........... Use the zlib bundled with Qt.
- *  -system-zlib ....... Use zlib from the operating system.
-                         See http://www.gzip.org/zlib
-
+ *  -no-fast ........... Configure Qt normally by generating Makefiles for all
+                         project files.
     -fast .............. Configure Qt quickly by generating Makefiles only for
                          library and subdirectory targets.  All other Makefiles
                          are created as wrappers, which will in turn run qmake.
- *  -no-fast ........... Configure Qt normally by generating Makefiles for all
-                         project files.
 
 EOF
 if [ "$PLATFORM_QWS" = "yes" ]; then
-    cat << EOF
-    -exceptions ........ Enable exceptions on platforms that support it.
- *  -no-exceptions ..... Disable exceptions on platforms that support it.
-
-EOF
+    EXCN="*"
+    EXCY=" "
 else
-    cat << EOF
-    -no-exceptions ..... Disable exceptions on platforms that support it.
-
-EOF
+    EXCN=" "
+    EXCY="*"
 fi
     cat << EOF
-    -platform target ... The operating system and compiler you are building
-                         on ($PLATFORM).
-    -xplatform target .. The target platform when cross-compiling.
+ $EXCN  -no-exceptions ..... Disable exceptions on platforms that support it.
+ $EXCY  -exceptions ........ Enable exceptions on platforms that support it.
 
-                         See the PLATFORMS file for a list of supported
-                         operating systems and compilers.
+    -no-accessibility .. Do not compile Accessibility support.
+ *  -accessibility ..... Compile Accessibility support.
 
-    -Dstring ........... Add an explicit define to the preprocessor.
-    -Istring ........... Add an explicit include path.
-    -Lstring ........... Add an explicit library path.
-    -Rstring ........... Add an explicit dynamic library runtime search path.
-    -lstring ........... Add an explicit library.
+ $SHN  -no-stl ............ Do not compile STL support.
+ $SHY  -stl ............... Compile STL support.
 
+    -no-sql-<driver> ... Disable SQL <driver> entirely.
     -qt-sql-<driver> ... Enable a SQL <driver> in the Qt Library, by default
                          none are turned on.
     -plugin-sql-<driver> Enable SQL <driver> as a plugin to be linked to
                          at run time.
-    -no-sql-<driver> ... Disable SQL <driver> entirely.
 
                          Possible values for <driver>:
                          [ $CFG_SQL_AVAILABLE ]
@@ -2126,50 +2115,59 @@ fi
                          By default none of the SQL drivers are built,
                          even if they are auto-detected.
 
+    -platform target ... The operating system and compiler you are building
+                         on ($PLATFORM).
+
+                         See the PLATFORMS file for a list of supported
+                         operating systems and compilers.
+
+    -Dstring ........... Add an explicit define to the preprocessor.
+    -Istring ........... Add an explicit include path.
+    -Lstring ........... Add an explicit library path.
+
+    -help, -h .......... Display this information.
+
+Third Party Libraries:
+
+    -no-zlib ........... Do not compile in ZLIB support. Implies -no-libpng.
+    -qt-zlib ........... Use the zlib bundled with Qt.
+ +  -system-zlib ....... Use zlib from the operating system.
+                         See http://www.gzip.org/zlib
+
+ *  -no-gif ............ Do not compile in GIF reading support.
+    -qt-gif ............ Compile in GIF reading support.
+                         See src/gui/image/qgif.h
+                         
+    -no-libpng ......... Do not compile in PNG support.
+    -qt-libpng ......... Use the libpng bundled with Qt.
+ +  -system-libpng ..... Use libpng from the operating system.
+                         See http://www.libpng.org/pub/png
+
+    -no-libjpeg ........ Do not compile in JPEG support.
+    -qt-libjpeg ........ Use the libjpeg bundled with Qt.
+ +  -system-libjpeg .... Use jpeglib from the operating system.
+                         See http://www.ijg.org
+
+Additional options:
+
+    -Rstring ........... Add an explicit dynamic library runtime search path.
+    -lstring ........... Add an explicit library.
+
+    -continue........... Continue as far as possible if an error occurs.
+
+    -verbose, -v ....... Print verbose information about each step of the
+                         configure process.
+
  $NSN  -no-nis ............ Do not compile NIS support.
  $NSY  -nis ............... Compile NIS support.
 
  $CUN  -no-cups............ Do not compile CUPS support.
  $CUY  -cups .............. Compile CUPS support.
 
- $SHN  -no-stl ............ Do not compile STL support.
- $SHY  -stl ............... Compile STL support.
-
  $PHN  -no-pch ............ Do not use precompiled header support.
  $PHY  -pch ............... Use precompiled header support.
 
-    -no-accessibility .. Do not compile Accessibility support.
- *  -accessibility ..... Compile Accessibility support.
-
-    -verbose, -v ....... Print verbose information about each step of the
-                         configure process.
-
-    -continue........... Continue as far as possible if an error occurs.
-
-    -help, -h .......... Display this information.
-
-Third Party Image Loading Libraries:
-
-    -qt-libpng ......... Use the libpng bundled with Qt.
- *  -system-libpng ..... Use libpng from the operating system.
-                         See http://www.libpng.org/pub/png
-
-    -qt-libjpeg ........ Use the libjpeg bundled with Qt.
- *  -system-libjpeg .... Use jpeglib from the operating system.
-                         See http://www.ijg.org
-
 EOF
-
-if [ "$PLATFORM_MAC" = "yes" ]; then
-    cat << EOF
-
-Qt/Mac only:
-
- *  -framework ......... Build Qt as a series of frameworks and
-                         link tools against those frameworks.
-    -no-framework ...... Do not build Qt as a series of frameworks.
-EOF
-fi
 
 if [ "$PLATFORM_X11" = "yes" ]; then
     if [ "$CFG_SM" = "no" ]; then
@@ -2289,10 +2287,23 @@ Qt/X11 only:
 EOF
 fi
 
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    cat << EOF
+
+Qt/Mac only:
+
+ *  -framework ......... Build Qt as a series of frameworks and
+                         link tools against those frameworks.
+    -no-framework ...... Do not build Qt as a series of frameworks.
+EOF
+fi
+
 if [ "$PLATFORM_QWS" = "yes" ]; then
     cat << EOF
 
 Qt/Embedded only:
+
+    -xplatform target .. The target platform when cross-compiling.
 
     -embedded arch...... This will enable the embedded build, you must have a
                          proper license for this switch to work.
@@ -2306,8 +2317,6 @@ Qt/Embedded only:
 
     -no-freetype ....... Qt/Embedded only: do not compile in FreeType2 support.
  *  -freetype .......... Qt/Embedded only: add FreeType2 font support.
-
-    -no-zlib ........... No compression library -- implies -no-libpng
 
     -qconfig local ..... Use src/tools/qconfig-local.h rather than the
                          default ($CFG_QCONFIG).
