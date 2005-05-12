@@ -19,8 +19,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>207</height>
+    <width>434</width>
+    <height>325</height>
    </rect>
   </property>
   <property name="windowTitle" >
@@ -38,14 +38,6 @@
    </property>
    <item>
     <widget class="QTabWidget" name="settingsTab" >
-     <property name="geometry" >
-      <rect>
-       <x>10</x>
-       <y>10</y>
-       <width>380</width>
-       <height>152</height>
-      </rect>
-     </property>
      <property name="sizePolicy" >
       <sizepolicy>
        <hsizetype>5</hsizetype>
@@ -55,14 +47,6 @@
       </sizepolicy>
      </property>
      <widget class="QWidget" name="tab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>376</width>
-        <height>128</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>&amp;General</string>
       </attribute>
@@ -75,14 +59,6 @@
        </property>
        <item row="2" column="1" >
         <widget class="QToolButton" name="colorButton" >
-         <property name="geometry" >
-          <rect>
-           <x>107</x>
-           <y>61</y>
-           <width>40</width>
-           <height>20</height>
-          </rect>
-         </property>
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>0</hsizetype>
@@ -107,14 +83,6 @@
        </item>
        <item row="1" column="0" >
         <widget class="QLabel" name="TextLabel1" >
-         <property name="geometry" >
-          <rect>
-           <x>9</x>
-           <y>35</y>
-           <width>92</width>
-           <height>20</height>
-          </rect>
-         </property>
          <property name="text" >
           <string>Fix&amp;ed font:</string>
          </property>
@@ -125,14 +93,6 @@
        </item>
        <item row="0" column="1" >
         <widget class="QComboBox" name="fontCombo" >
-         <property name="geometry" >
-          <rect>
-           <x>107</x>
-           <y>9</y>
-           <width>260</width>
-           <height>20</height>
-          </rect>
-         </property>
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>7</hsizetype>
@@ -148,14 +108,6 @@
        </item>
        <item row="3" column="0" >
         <widget class="QCheckBox" name="linkUnderlineCB" >
-         <property name="geometry" >
-          <rect>
-           <x>9</x>
-           <y>88</y>
-           <width>92</width>
-           <height>18</height>
-          </rect>
-         </property>
          <property name="text" >
           <string>&amp;Underline links</string>
          </property>
@@ -166,14 +118,6 @@
        </item>
        <item row="0" column="0" >
         <widget class="QLabel" name="fontLabel" >
-         <property name="geometry" >
-          <rect>
-           <x>9</x>
-           <y>9</y>
-           <width>92</width>
-           <height>20</height>
-          </rect>
-         </property>
          <property name="text" >
           <string>&amp;Font:</string>
          </property>
@@ -184,14 +128,6 @@
        </item>
        <item row="2" column="0" >
         <widget class="QLabel" name="TextLabel2" >
-         <property name="geometry" >
-          <rect>
-           <x>9</x>
-           <y>61</y>
-           <width>92</width>
-           <height>20</height>
-          </rect>
-         </property>
          <property name="text" >
           <string>Link color:</string>
          </property>
@@ -199,14 +135,6 @@
        </item>
        <item row="1" column="1" >
         <widget class="QComboBox" name="fixedfontCombo" >
-         <property name="geometry" >
-          <rect>
-           <x>107</x>
-           <y>35</y>
-           <width>260</width>
-           <height>20</height>
-          </rect>
-         </property>
          <property name="sizePolicy" >
           <sizepolicy>
            <hsizetype>7</hsizetype>
@@ -222,14 +150,6 @@
        </item>
        <item row="4" column="0" colspan="2" >
         <spacer>
-         <property name="geometry" >
-          <rect>
-           <x>183</x>
-           <y>113</y>
-           <width>10</width>
-           <height>6</height>
-          </rect>
-         </property>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
@@ -244,14 +164,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="tab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>376</width>
-        <height>128</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>&amp;Web</string>
       </attribute>
@@ -264,14 +176,6 @@
        </property>
        <item>
         <widget class="QLabel" name="TextLabel1_3" >
-         <property name="geometry" >
-          <rect>
-           <x>10</x>
-           <y>10</y>
-           <width>356</width>
-           <height>13</height>
-          </rect>
-         </property>
          <property name="text" >
           <string>Web &amp;Browser Application:</string>
          </property>
@@ -289,27 +193,10 @@
           <number>6</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="browserApp" >
-           <property name="geometry" >
-            <rect>
-             <x>2</x>
-             <y>4</y>
-             <width>316</width>
-             <height>18</height>
-            </rect>
-           </property>
-          </widget>
+          <widget class="QLineEdit" name="browserApp" />
          </item>
          <item>
           <widget class="QPushButton" name="buttonBrowse" >
-           <property name="geometry" >
-            <rect>
-             <x>324</x>
-             <y>2</y>
-             <width>30</width>
-             <height>23</height>
-            </rect>
-           </property>
            <property name="sizePolicy" >
             <sizepolicy>
              <hsizetype>1</hsizetype>
@@ -333,14 +220,6 @@
        </item>
        <item>
         <widget class="QLabel" name="TextLabel1_3_3" >
-         <property name="geometry" >
-          <rect>
-           <x>10</x>
-           <y>62</y>
-           <width>356</width>
-           <height>13</height>
-          </rect>
-         </property>
          <property name="text" >
           <string>&amp;Home page</string>
          </property>
@@ -358,27 +237,10 @@
           <number>6</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="homePage" >
-           <property name="geometry" >
-            <rect>
-             <x>2</x>
-             <y>4</y>
-             <width>316</width>
-             <height>18</height>
-            </rect>
-           </property>
-          </widget>
+          <widget class="QLineEdit" name="homePage" />
          </item>
          <item>
           <widget class="QPushButton" name="buttonHome" >
-           <property name="geometry" >
-            <rect>
-             <x>324</x>
-             <y>2</y>
-             <width>30</width>
-             <height>23</height>
-            </rect>
-           </property>
            <property name="sizePolicy" >
             <sizepolicy>
              <hsizetype>1</hsizetype>
@@ -402,14 +264,6 @@
        </item>
        <item>
         <spacer>
-         <property name="geometry" >
-          <rect>
-           <x>10</x>
-           <y>114</y>
-           <width>356</width>
-           <height>4</height>
-          </rect>
-         </property>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
@@ -427,14 +281,6 @@
       </layout>
      </widget>
      <widget class="QWidget" name="pdfTab" >
-      <property name="geometry" >
-       <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>376</width>
-        <height>128</height>
-       </rect>
-      </property>
       <attribute name="title" >
        <string>&amp;PDF</string>
       </attribute>
@@ -447,14 +293,6 @@
        </property>
        <item>
         <widget class="QLabel" name="TextLabel1_3_2" >
-         <property name="geometry" >
-          <rect>
-           <x>10</x>
-           <y>10</y>
-           <width>356</width>
-           <height>13</height>
-          </rect>
-         </property>
          <property name="text" >
           <string>PDF &amp;Application</string>
          </property>
@@ -472,27 +310,10 @@
           <number>6</number>
          </property>
          <item>
-          <widget class="QLineEdit" name="pdfApp" >
-           <property name="geometry" >
-            <rect>
-             <x>2</x>
-             <y>4</y>
-             <width>316</width>
-             <height>18</height>
-            </rect>
-           </property>
-          </widget>
+          <widget class="QLineEdit" name="pdfApp" />
          </item>
          <item>
           <widget class="QPushButton" name="buttonPDF" >
-           <property name="geometry" >
-            <rect>
-             <x>324</x>
-             <y>2</y>
-             <width>30</width>
-             <height>23</height>
-            </rect>
-           </property>
            <property name="sizePolicy" >
             <sizepolicy>
              <hsizetype>1</hsizetype>
@@ -516,14 +337,6 @@
        </item>
        <item>
         <spacer>
-         <property name="geometry" >
-          <rect>
-           <x>10</x>
-           <y>62</y>
-           <width>356</width>
-           <height>56</height>
-          </rect>
-         </property>
          <property name="orientation" >
           <enum>Qt::Vertical</enum>
          </property>
@@ -552,14 +365,6 @@
      </property>
      <item>
       <spacer>
-       <property name="geometry" >
-        <rect>
-         <x>2</x>
-         <y>2</y>
-         <width>210</width>
-         <height>25</height>
-        </rect>
-       </property>
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
@@ -576,14 +381,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="buttonOk" >
-       <property name="geometry" >
-        <rect>
-         <x>218</x>
-         <y>2</y>
-         <width>77</width>
-         <height>25</height>
-        </rect>
-       </property>
        <property name="text" >
         <string>&amp;OK</string>
        </property>
@@ -597,14 +394,6 @@
      </item>
      <item>
       <widget class="QPushButton" name="buttonCancel" >
-       <property name="geometry" >
-        <rect>
-         <x>301</x>
-         <y>2</y>
-         <width>77</width>
-         <height>25</height>
-        </rect>
-       </property>
        <property name="text" >
         <string>&amp;Cancel</string>
        </property>

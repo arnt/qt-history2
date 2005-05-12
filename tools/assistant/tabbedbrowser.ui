@@ -1,5 +1,5 @@
-<UI version="4.0" stdsetdef="1" >
- <class>TabbedBrowser</class>
+<ui version="4.0" >
+ <author></author>
  <comment>*********************************************************************
  **
  ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -12,10 +12,9 @@
  ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  **
  *********************************************************************</comment>
+ <exportmacro></exportmacro>
+ <class>TabbedBrowser</class>
  <widget class="QWidget" name="TabbedBrowser" >
-  <property name="objectName" >
-   <string notr="true">TabbedBrowser</string>
-  </property>
   <property name="geometry" >
    <rect>
     <x>0</x>
@@ -28,9 +27,6 @@
    <string>TabbedBrowser</string>
   </property>
   <layout class="QGridLayout" >
-   <property name="objectName" >
-    <string notr="true">unnamed</string>
-   </property>
    <property name="margin" >
     <number>0</number>
    </property>
@@ -39,19 +35,16 @@
    </property>
    <item row="0" column="0" >
     <widget class="QTabWidget" name="tab" >
-     <property name="objectName" >
-      <string notr="true">tab</string>
-     </property>
      <widget class="QWidget" name="frontpage" >
-      <property name="objectName" >
-       <string notr="true">frontpage</string>
-      </property>
       <attribute name="title" >
        <string>Untitled</string>
       </attribute>
       <layout class="QGridLayout" >
-       <property name="objectName" >
-        <string notr="true">unnamed</string>
+       <property name="margin" >
+        <number>8</number>
+       </property>
+       <property name="spacing" >
+        <number>6</number>
        </property>
       </layout>
      </widget>
@@ -59,4 +52,7 @@
    </item>
   </layout>
  </widget>
-</UI>
+ <pixmapfunction></pixmapfunction>
+ <resources/>
+ <connections/>
+</ui>
