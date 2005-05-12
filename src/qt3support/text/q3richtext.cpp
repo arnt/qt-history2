@@ -6147,7 +6147,7 @@ void Q3TextFormatCollection::remove(Q3TextFormat *f)
     if (cachedFormat == f)
         cachedFormat = 0;
     if (cKey.value(f->key()) == f)
-        cKey.remove(f->key());
+        delete cKey.take(f->key());
 }
 
 #define UPDATE(up, lo, rest) \
