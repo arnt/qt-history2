@@ -608,6 +608,8 @@ void QDesignerActions::previewForm(QAction *action)
                 fakeTopLevel->setPalette(style->standardPalette());
                 QList<QWidget*> lst = qFindChildren<QWidget*>(fakeTopLevel);
                 foreach (QWidget *w, lst) {
+                    if (w->windowType() == Qt::Popup)
+                        w->setPalette(style->standardPalette());
                     w->setStyle(style);
                 }
             }
