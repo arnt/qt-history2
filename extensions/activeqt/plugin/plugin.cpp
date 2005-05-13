@@ -19,6 +19,7 @@
 #include <QtDesigner/QExtensionManager>
 #include <QtDesigner/QDesignerTaskMenuExtension>
 #include <QtDesigner/QExtensionFactory>
+#include <QtDesigner/ui4.h>
 
 #include <qdesigner_propertysheet.h>
 
@@ -124,9 +125,18 @@ public:
     QActiveXPropertySheet(QAxWidget *object, QObject *parent = 0)
         : QDesignerPropertySheet(object, parent)
     { 
-        createFakeProperty(QLatin1String("control"), QString());
-//        int index = indexOf("control");
-//        setVisible(index, false);
+        int index = indexOf(QLatin1String("control"));
+        if (index == -1) {
+            createFakeProperty(QLatin1String("control"), QString());
+            index = indexOf(QLatin1String("control"));
+        }
+
+        setVisible(index, false);
+    }
+
+    virtual ~QActiveXPropertySheet()
+    {
+
     }
 
     void setProperty(int index, const QVariant &value)
@@ -136,12 +146,78 @@ public:
         if (isAdditionalProperty(index) 
             && (propertyName(index) == QLatin1String("control")))
         {
-            if (!value.toString().isEmpty())
-                static_cast<QActiveXPluginObject*>(m_object)->setControl(value.toString());
+            QString clsid = value.toString();
+            if (!clsid.isEmpty()) {
+                static_cast<QActiveXPluginObject*>(m_object)->setControl(clsid);
+                
+                // don't update the property sheet if the widget isn't in a form (preview)
+                if (QDesignerFormWindowInterface::findFormWindow(static_cast<QWidget*>(m_object)))
+                {
+                    m_currentProperties.clsid = clsid;
+                    m_currentProperties.widget = static_cast<QWidget*>(m_object);
+
+                    QTimer::singleShot(100, this, SLOT(updatePropertySheet()));
+                }
+            }
         }
     }
 
-    virtual ~QActiveXPropertySheet() { }
+    int indexOf(const QString &name) const
+    {
+        int index = QDesignerPropertySheet::indexOf(name);
+        if (index == -1) {
+            // since metaobject is different, we must store the values in fake properties
+            index = count();
+            (const_cast<QActiveXPropertySheet *>(this))->m_addIndex.insert(name, index);
+            (const_cast<QActiveXPropertySheet *>(this))->m_addProperties.insert(index, QVariant());
+        }
+
+        return index;
+    }
+
+private slots:
+    void updatePropertySheet()
+    {
+        // compute the changed properties
+        for (int i = 0; i<count(); ++i) {
+            if (isChanged(i))
+                m_currentProperties.changedProperties[propertyName(i)] = property(i);
+        }
+
+        // refresh the property sheet (we are deleting m_currentProperties)
+        struct SavedProperties tmp = m_currentProperties;
+        delete this;
+        reloadPropertySheet(tmp);
+    }
+
+private:
+    struct SavedProperties {
+        QMap<QString, QVariant> changedProperties;
+        QWidget *widget;
+        QString clsid;
+    } m_currentProperties;
+
+    static void reloadPropertySheet(struct SavedProperties properties)
+    {
+        QDesignerFormWindowInterface *formWin = QDesignerFormWindowInterface::findFormWindow(properties.widget);
+        Q_ASSERT(formWin != 0);
+
+        QDesignerFormEditorInterface *core = formWin->core();
+        QDesignerPropertySheetExtension *sheet = 0;
+
+        sheet = qt_extension<QDesignerPropertySheetExtension *>(core->extensionManager(), properties.widget);
+
+        QMap<QString, QVariant>::const_iterator i = properties.changedProperties.constBegin();
+        while (i != properties.changedProperties.constEnd()) {
+            int index = sheet->indexOf(i.key());
+            sheet->setChanged(index, true);
+            sheet->setProperty(index, i.value());
+            ++i;
+        }
+
+        formWin->clearSelection(true);
+        formWin->selectWidget(properties.widget);
+    }
 };
 
 class QActiveXTaskMenu: public QObject, public QDesignerTaskMenuExtension
@@ -169,78 +245,52 @@ public:
         return m_taskActions;
     }
 
-    static void setActiveXControl(QActiveXPluginObject *widget)
+private slots:
+    void setActiveXControl()
     {
-       QAxSelect *dialog = new QAxSelect(widget->topLevelWidget());
+        QAxSelect *dialog = new QAxSelect(m_axwidget->topLevelWidget());
 
         if (dialog->exec())
         {
-	    QUuid clsid = dialog->clsid();
-	    QString key;
+            QUuid clsid = dialog->clsid();
+            QString key;
 
-	    IClassFactory2 *cf2 = 0;
-	    CoGetClassObject(clsid, CLSCTX_SERVER, 0, IID_IClassFactory2, (void**)&cf2);
-	    if (cf2)
+            IClassFactory2 *cf2 = 0;
+            CoGetClassObject(clsid, CLSCTX_SERVER, 0, IID_IClassFactory2, (void**)&cf2);
+
+            if (cf2)
             {
-	        BSTR bKey;
-	        HRESULT hres = cf2->RequestLicKey(0, &bKey);
-	        if (hres == CLASS_E_NOTLICENSED) {
-		    QMessageBox::warning(widget->topLevelWidget(), tr("Licensed Control"),
-		        tr("The control requires a design-time license"));
-		    clsid = QUuid();
-	        }
+                BSTR bKey;
+                HRESULT hres = cf2->RequestLicKey(0, &bKey);
+                if (hres == CLASS_E_NOTLICENSED)
+                {
+                    QMessageBox::warning(m_axwidget->topLevelWidget(), tr("Licensed Control"),
+                        tr("The control requires a design-time license"));
+                    clsid = QUuid();
+                }
                 else
                 {
-		    key = QString::fromUtf16((ushort *)bKey);
-	        }
+                    key = QString::fromUtf16((ushort *)bKey);
+                }
+
                 cf2->Release();
             }
 
-	    if (!clsid.isNull())
+            if (!clsid.isNull())
             {
-                QDesignerFormWindowInterface *formWin = QDesignerFormWindowInterface::findFormWindow(widget);
-				Q_ASSERT(formWin != 0);
+                QDesignerFormWindowInterface *formWin = QDesignerFormWindowInterface::findFormWindow(m_axwidget);
+                Q_ASSERT(formWin != 0);
 
-                formWin->selectWidget(widget, true);
+                formWin->selectWidget(m_axwidget, true);
 
-				if (key.isEmpty())
-					formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString());
-				else
-					formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString() + ":" + key);
-
-				QDesignerFormEditorInterface *core = formWin->core();
-				QDesignerPropertySheetExtension *sheet = 0;
-
-				// compute the changed properties
-				QStringList changedProperties;
-				sheet = qt_extension<QDesignerPropertySheetExtension *>(core->extensionManager(), widget);
-				for (int i = 0; i<sheet->count(); ++i)
-					if (sheet->isChanged(i))
-						changedProperties.append(sheet->propertyName(i));
-				
-				// refresh the property sheet
-				delete sheet;
-				sheet = qt_extension<QDesignerPropertySheetExtension *>(core->extensionManager(), widget);
-
-				foreach (QString p, changedProperties)
-					sheet->setChanged(sheet->indexOf(p), true);
-
-				sheet->setProperty(sheet->indexOf(QLatin1String("control")), clsid.toString()); 
-
-                formWin->clearSelection(true);
-                formWin->selectWidget(widget);
+                if (key.isEmpty())
+                    formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString());
+                else
+                    formWin->cursor()->setProperty(QLatin1String("control"), clsid.toString() + ":" + key);
             }
         }
-
         delete dialog;
     }
-
-private slots:
-    void setActiveXControl()
-    { QTimer::singleShot(100, this, SLOT(openLater())); }
-
-    void openLater()
-    { setActiveXControl(static_cast<QActiveXPluginObject*>(m_axwidget)); }
 
 private:
     QAxWidget *m_axwidget;
@@ -252,8 +302,8 @@ class QActiveXExtensionFactory: public QExtensionFactory
     Q_OBJECT
     Q_INTERFACES(QAbstractExtensionFactory)
 public:
-    QActiveXExtensionFactory(QExtensionManager *parent = 0)
-        : QExtensionFactory(parent) { }
+    QActiveXExtensionFactory(QExtensionManager *parent, QDesignerFormEditorInterface *core)
+        : QExtensionFactory(parent) { m_core = core; }
 
 protected:
     virtual QObject *createExtension(QObject *object, const QString &iid, QObject *parent) const
@@ -271,6 +321,9 @@ protected:
         
         return 0;
     }
+
+private:
+    QDesignerFormEditorInterface *m_core;
 };
 
 class QActiveXPlugin : public QObject, public QDesignerCustomWidgetInterface
@@ -321,7 +374,7 @@ public:
         m_core = core;
 
         QExtensionManager *mgr = core->extensionManager();
-        QActiveXExtensionFactory *axf = new QActiveXExtensionFactory(mgr);
+        QActiveXExtensionFactory *axf = new QActiveXExtensionFactory(mgr, core);
         mgr->registerExtensions(axf, Q_TYPEID(QDesignerPropertySheetExtension));
         mgr->registerExtensions(axf, Q_TYPEID(QDesignerTaskMenuExtension));
     }
