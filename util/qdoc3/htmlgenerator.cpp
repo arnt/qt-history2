@@ -821,6 +821,8 @@ void HtmlGenerator::generateFakeNode( const FakeNode *fake, CodeMarker *marker )
         generateAnnotatedList(fake, marker, groupMembersMap);
     }
 
+    fakeSection.keywords += qMakePair(fakeSection.title, fakeSection.ref);
+
     sections = marker->sections(fake, CodeMarker::Detailed, CodeMarker::Okay);
     s = sections.begin();
     while (s != sections.end()) {
