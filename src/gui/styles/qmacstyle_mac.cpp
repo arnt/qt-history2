@@ -5150,6 +5150,9 @@ int QMacStyle::styleHint(StyleHint sh, const QStyleOption *opt, const QWidget *w
     case SH_ItemView_ShowDecorationSelected:
         ret = true;
         break;
+    case SH_TitleBar_ModifyNotification:
+        ret = false;
+        break;
     default:
         ret = QWindowsStyle::styleHint(sh, opt, w, hret);
         break;

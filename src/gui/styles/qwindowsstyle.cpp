@@ -826,7 +826,6 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
     case SH_Menu_MouseTracking:
     case SH_ComboBox_ListMouseTracking:
     case SH_ScrollBar_StopMouseOverSlider:
-    case SH_TitleBar_ModifyNotification:
         ret = 1;
         break;
     case SH_ItemView_ChangeHighlightOnFocus:
