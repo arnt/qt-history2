@@ -408,6 +408,7 @@
 \row \o void QSqlIndex::setCursorName(const QString &) \o Value type.
 \row \o void QSqlIndex::setDescending(int, bool) \o Value type.
 \row \o void QSqlIndex::setName(const QString &) \o Value type.
+\row \o QVariant QSqlQuery::value(int) const \o Exists as a non-virtual function.
 \row \o void QSqlRecord::append(const QSqlField &) \o Value type.
 \row \o void QSqlRecord::clear() \o Value type.
 \row \o void QSqlRecord::clearValues(bool) \o Value type.

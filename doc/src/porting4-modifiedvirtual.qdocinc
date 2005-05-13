@@ -21,8 +21,7 @@
 \row \o bool QSqlDriver::open(const QString &, const QString &, const QString &, const QString &, int) \o bool QSqlDriver::open(const QString &, const QString &, const QString &, const QString &, int, const QString &)
 \row \o QStringList QSqlDriver::tables(const QString &) const \o QStringList QSqlDriver::tables(QSql::TableType) const
 \row \o bool QSqlQuery::prev() \o bool QSqlQuery::previous()
-\row \o QVariant QSqlQuery::value(int) const \o QCoreVariant QSqlQuery::value(int) const
-\row \o QVariant QSqlResult::data(int) \o QCoreVariant QSqlResult::data(int)
+\row \o QVariant QSqlResult::data(int) \o QVariant QSqlResult::data(int)
 \row \o bool QSqlResult::fetchPrev() \o bool QSqlResult::fetchPrevious()
 \row \o void QStyle::drawComplexControl(ComplexControl, QPainter *, const QWidget *, const QRect &, const QColorGroup &, SFlags, SCFlags, SCFlags, const QStyleOption &) const \o void QStyle::drawComplexControl(ComplexControl, const QStyleOptionComplex *, QPainter *, const QWidget *) const
 \row \o void QStyle::drawComplexControlMask(ComplexControl, QPainter *, const QWidget *, const QRect &, const QStyleOption &) const \o void QStyle::drawComplexControlMask(ComplexControl, const QStyleOptionComplex *, QPainter *, const QWidget *) const
