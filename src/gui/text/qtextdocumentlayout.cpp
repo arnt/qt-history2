@@ -1289,12 +1289,22 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
             QTextFrameData *cd = data(c);
             Q_ASSERT(!cd->sizeDirty);
             if (cd->flow_position == QTextFrameFormat::InFlow) {
+                qreal left, right;
+                floatMargins(layoutStruct->y, layoutStruct, &left, &right);
+                left = qMax(left, layoutStruct->x_left);
+                right = qMin(right, layoutStruct->x_right);
+
+                if (right - left < cd->size.width()) {
+                    layoutStruct->y = findY(layoutStruct->y, layoutStruct, cd->size.width());
+                    floatMargins(layoutStruct->y, layoutStruct, &left, &right);
+                }
+
+                QPointF pos(left, layoutStruct->y);
+
                 Qt::Alignment align = Qt::AlignLeft;
 
                 if (QTextTable *table = qobject_cast<QTextTable *>(c))
                     align = table->format().alignment();
-
-                QPointF pos(layoutStruct->x_left, layoutStruct->y);
 
                 if (align == Qt::AlignRight)
                     pos.rx() += layoutStruct->x_right - cd->size.width();
@@ -1424,7 +1434,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
                 if (line.naturalTextWidth() > right-left) {
                     layoutStruct->pendingFloats.clear();
                     // lines min width more than what we have
-                    layoutStruct->y = findY(layoutStruct->y, layoutStruct, qRound(line.naturalTextWidth()));
+                    layoutStruct->y = findY(layoutStruct->y, layoutStruct, line.naturalTextWidth());
                     floatMargins(layoutStruct->y, layoutStruct, &left, &right);
                     if (dir == Qt::LeftToRight)
                         left += text_indent;
