@@ -1216,7 +1216,7 @@
 
     \skipto class
     \printuntil headerData
-    \printline
+    \printuntil const;
     \skipto /^\};/
     \printuntil /^\};/
 
