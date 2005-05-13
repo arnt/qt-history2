@@ -1,6 +1,6 @@
 <!DOCTYPE RCC>
 <RCC version="1.0">
     <qresource>
-        <file>qt3headers.resource</file>
+        <file compress="9">qt3headers.resource</file>
     </qresource>
 </RCC>
