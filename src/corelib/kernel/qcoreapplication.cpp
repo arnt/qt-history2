@@ -355,7 +355,6 @@ QCoreApplication::QCoreApplication(int &argc, char **argv)
 }
 
 extern void set_winapp_name();
-extern void qt_set_library_config_file(const QString &); //qlibraryinfo.cpp
 
 // ### move to QCoreApplicationPrivate constructor?
 void QCoreApplication::init()
@@ -388,28 +387,6 @@ void QCoreApplication::init()
     // thread.
     QProcessPrivate::initializeProcessManager();
 #endif
-
-    if(d->argc) {
-        int j = 1;
-        for (int i=1; i<d->argc; i++) {
-            if (d->argv[i] && *d->argv[i] != '-') {
-                d->argv[j++] = d->argv[i];
-                continue;
-            }
-            QByteArray arg = d->argv[i];
-            if (arg.indexOf("-qtconfig=", 0) != -1) {
-                qt_set_library_config_file(arg.right(arg.length() - 10));
-            } else if (arg == "-qtconfig" && i < d->argc-1) {
-                qt_set_library_config_file(d->argv[++i]);
-            } else {
-                d->argv[j++] = d->argv[i];
-            }
-        }
-        if(j < d->argc) {
-            d->argv[j] = 0;
-            d->argc = j;
-        }
-    }
 
     qt_startup_hook();
 }
