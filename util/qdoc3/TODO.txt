@@ -1,11 +1,9 @@
 MUST HAVES:
 
+  * hide public/protected vars
   * No links to Porting Guide sections (e.g. QStringList)
-  * make links to base class enums work (e.g. SO_DockWindow)
-  * fix autolink problem in \brief
   * link toggled(bool)
   * autolink foo(1)
-  * hide public/protected vars
   * handle using correctly
   * kill undocumented public/protected vars
   * QObject "reentrant" list: duplicates

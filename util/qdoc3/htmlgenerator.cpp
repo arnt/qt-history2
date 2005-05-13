@@ -159,7 +159,7 @@ int HtmlGenerator::generateAtom(const Atom *atom, const Node *relative, CodeMark
 	    QString str;
 	    atom = atom->next();
 	    while ( atom != 0 && atom->type() != Atom::BriefRight ) {
-		if ( atom->type() == Atom::String )
+		if ( atom->type() == Atom::String || atom->type() == Atom::AutoLink )
 		    str += atom->string();
 		skipAhead++;
 		atom = atom->next();
