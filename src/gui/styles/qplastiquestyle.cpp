@@ -3978,6 +3978,8 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             rect = visualRect(option->direction, option->rect, rect);
             break;
         }
+        default:
+            break;
         }
         break;
     case CC_TitleBar:
