@@ -18,6 +18,7 @@
 #include <qdatetime.h>
 #include <qbytearray.h>
 #include <qstringlist.h>
+#include <qvector.h>
 #include <private/qfileengine_p.h>
 
 #include "qresource_p.h"
@@ -31,18 +32,23 @@ class QResource
         Directory = 0x02
     };
     const uchar *tree, *names, *payloads;
-    int findNode(const QString &path);
-    inline int findOffset(int node) { return node * 14; } //sizeof each tree element
-    inline int hash(int offset);
-    inline QString name(int offset);
+    int findNode(const QString &path) const;
+    inline int findOffset(int node) const { return node * 14; } //sizeof each tree element
+    inline int hash(int offset) const;
+    inline QString name(int offset) const;
 public:
-    QResource(const uchar *t, const uchar *n, const uchar *d) : tree(t), names(n), payloads(d) { }
-    bool isContainer(const QString &path);
-    bool exists(const QString &path);
-    QByteArray data(const QString &path);
-    QStringList children(const QString &path);
+    inline QResource(): tree(0), names(0), payloads(0) {}
+    inline QResource(const uchar *t, const uchar *n, const uchar *d)
+        : tree(t), names(n), payloads(d) {}
+    bool isContainer(const QString &path) const;
+    bool exists(const QString &path) const;
+    QByteArray data(const QString &path) const;
+    QStringList children(const QString &path) const;
 };
-inline int QResource::hash(int node)
+
+Q_DECLARE_TYPEINFO(QResource, Q_MOVABLE_TYPE);
+
+inline int QResource::hash(int node) const
 {
     if(!node) //root
         return 0;
@@ -53,7 +59,7 @@ inline int QResource::hash(int node)
     return (names[name_offset+0] << 24) + (names[name_offset+1] << 16) +
            (names[name_offset+2] << 8) + (names[name_offset+3] << 0);
 }
-inline QString QResource::name(int node)
+inline QString QResource::name(int node) const
 {
     if(!node) // root
         return QString();
@@ -70,7 +76,7 @@ inline QString QResource::name(int node)
         ret += QChar(names[name_offset+i+1], names[name_offset+i]);
     return ret;
 }
-int QResource::findNode(const QString &path)
+int QResource::findNode(const QString &path) const
 {
     if(path == QLatin1String("/"))
         return 0;
@@ -156,7 +162,7 @@ int QResource::findNode(const QString &path)
     }
     return node;
 }
-bool QResource::isContainer(const QString &path)
+bool QResource::isContainer(const QString &path) const
 {
     int node = findNode(path);
     if(node == -1)
@@ -165,11 +171,11 @@ bool QResource::isContainer(const QString &path)
     const short flags = (tree[offset+0] << 8) + (tree[offset+1] << 0);
     return flags & Directory;
 }
-bool QResource::exists(const QString &path)
+bool QResource::exists(const QString &path) const
 {
     return findNode(path) != -1;
 }
-QByteArray QResource::data(const QString &path)
+QByteArray QResource::data(const QString &path) const
 {
     const int node = findNode(path);
     if(node == -1)
@@ -195,7 +201,7 @@ QByteArray QResource::data(const QString &path)
     }
     return ret;
 }
-QStringList QResource::children(const QString &path)
+QStringList QResource::children(const QString &path) const
 {
     int node = findNode(path);
     if(node == -1)
@@ -218,18 +224,13 @@ QStringList QResource::children(const QString &path)
     return ret;
 }
 
-typedef QList<QResource*> QResourceList;
-class ResourceList: public QResourceList
-{
-public:
-    ~ResourceList() { qDeleteAll(*this); }
-};
+typedef QVector<QResource> ResourceList;
 Q_GLOBAL_STATIC(ResourceList, resourceList)
 
 class QResourceInfo
 {
     QString file;
-    QList<QResource*> related;
+    ResourceList related;
     uint container : 1;
 
     mutable uint hasData : 1;
@@ -271,11 +272,11 @@ QResourceInfo::setFileName(const QString &f)
         path = path.mid(1);
     ResourceList *list = resourceList();
     for(int i = 0; i < list->size(); ++i) {
-        QResource *res = list->at(i);
-        if(res->exists(path)) {
+        QResource res = list->at(i);
+        if(res.exists(path)) {
             if(related.isEmpty())
-                container = res->isContainer(path);
-            else if(res->isContainer(path) != container)
+                container = res.isContainer(path);
+            else if(res.isContainer(path) != container)
                 qWarning("Resource [%s] has both data and children!", file.toLatin1().constData());
             related.append(res);
         }
@@ -291,7 +292,7 @@ QByteArray QResourceInfo::data() const
         QString path = file;
         if(path.startsWith(":"))
             path = path.mid(1);
-        mData = related.at(0)->data(path);
+        mData = related.at(0).data(path);
     }
     return mData;
 }
@@ -308,7 +309,7 @@ QStringList QResourceInfo::children() const
             path = path.mid(1);
         QSet<QString> kids;
         for(int i = 0; i < related.size(); ++i) {
-            QStringList related_children = related.at(i)->children(path);
+            QStringList related_children = related.at(i).children(path);
             for(int kid = 0; kid < related_children.size(); ++kid) {
                 QString k = related_children.at(kid);
                 if(!kids.contains(k)) {
@@ -325,7 +326,7 @@ Q_CORE_EXPORT bool qRegisterResourceData(int version, const unsigned char *tree,
                            const unsigned char *name, const unsigned char *data)
 {
     if(version == 0x01) {
-        resourceList()->append(new QResource(tree, name, data));
+        resourceList()->append(QResource(tree, name, data));
         return true;
     }
     return false;
