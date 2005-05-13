@@ -606,7 +606,7 @@ bool MessageEditor::eventFilter(QObject *o, QEvent *e)
         }
     }
 
-    return QWidget::eventFilter(o, e);
+    return QScrollArea::eventFilter(o, e);
 }
 
 void MessageEditor::updatePageHeight(int height)
