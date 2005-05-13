@@ -3,7 +3,7 @@ MUST HAVES:
   * .dcf entries for enum values
   * No links to Porting Guide sections (e.g. QStringList)
   * \sa QStyle from QMotifStyle
-  * warning for undocumented enum values
+  * make links to base class enums work (e.g. SO_DockWindow)
   * fix autolink problem in \brief
   * link toggled(bool)
   * autolink foo(1)
@@ -18,7 +18,6 @@ MUST HAVES:
 
   * get rid of spurious 'global' functions
   * Make automatic links in code work
-  * make links to base class enums work (e.g. SO_DockWindow)
 
   * Fix encoding bug (see Important email from Simon Hausmann)
   * Make links to QFoo::bar().baz() work
@@ -29,6 +28,8 @@ MUST HAVES:
   * make \macro work (?)
   * warning for unnamed parameters in property access functions
   * \center...\endcenter
+
+  * warning for undocumented enum values
 
 LINKS:
 

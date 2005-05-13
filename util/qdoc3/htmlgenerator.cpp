@@ -722,6 +722,11 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
                         names << prop->setters().first()->name();
                     if (!prop->resetters().isEmpty())
                         names << prop->resetters().first()->name();
+                } else if ((*m)->type() == Node::Enum) {
+                    const EnumNode *enume = reinterpret_cast<const EnumNode *>(*m);
+                    if (enume->flagsType())
+                        names << enume->flagsType()->name();
+                    names << enume->doc().enumItemNames();
                 }
                 foreach (QString name, names)
                     classSection.keywords += qMakePair(name, linkForNode(*m, 0));
