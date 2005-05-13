@@ -1614,19 +1614,26 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     // somebody tries to grab us!
     QPixmap pm(size());
     pm.fill();
-    HDC hdc = pm.getDC();
+
+    HBITMAP hBmp = pm.toWinHBITMAP();
+    HDC hBmp_hdc = CreateCompatibleDC(qt_win_display_dc());
+    HGDIOBJ old_hBmp = SelectObject(hBmp_hdc, hBmp);
 
     RECTL bounds;
     bounds.left = 0;
     bounds.right = pm.width();
     bounds.top = 0;
     bounds.bottom = pm.height();
-    view->Draw(DVASPECT_CONTENT, -1, 0, 0, 0, hdc, &bounds, 0, 0 /*fptr*/, 0);
+
+    view->Draw(DVASPECT_CONTENT, -1, 0, 0, 0, hBmp_hdc, &bounds, 0, 0 /*fptr*/, 0);
     view->Release();
-    pm.releaseDC(hdc);
 
     QPainter painter(this);
-    painter.drawPixmap(0, 0, pm);
+    painter.drawPixmap(0, 0, QPixmap::fromWinHBITMAP(hBmp));
+
+    SelectObject(hBmp_hdc, old_hBmp);
+    DeleteObject(hBmp);
+    DeleteDC(hBmp_hdc);
 }
 
 /*!
