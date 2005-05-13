@@ -423,21 +423,25 @@ void QItemSelection::split(const QItemSelectionRange &range,
         QModelIndex tl = model->index(top, left, parent);
         QModelIndex br = model->index(other_top - 1, right, parent);
         result->append(QItemSelectionRange(tl, br));
+        top = other_top;
     }
     if (other_bottom < bottom) {
         QModelIndex tl = model->index(other_bottom + 1, left, parent);
         QModelIndex br = model->index(bottom, right, parent);
         result->append(QItemSelectionRange(tl, br));
+        bottom = other_bottom;
     }
     if (other_left > left) {
         QModelIndex tl = model->index(top, left, parent);
         QModelIndex br = model->index(bottom, other_left - 1, parent);
         result->append(QItemSelectionRange(tl, br));
+        left = other_left;
     }
     if (other_right < right) {
         QModelIndex tl = model->index(top, other_right + 1, parent);
         QModelIndex br = model->index(bottom, right, parent);
         result->append(QItemSelectionRange(tl, br));
+        right = other_right;
     }
 }
 
