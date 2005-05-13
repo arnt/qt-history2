@@ -548,12 +548,12 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     removeItem() and all items can be removed with clear(). The text
     of the current item is returned by currentText(), and the text of
     a numbered item is returned with text(). The current item can be
-    set with setCurrentIndex() or setCurrentText(). The number of items
-    in the combobox is returned by count(); the maximum number of
-    items can be set with setMaxCount(). You can allow editing using
-    setEditable(). For editable comboboxes you can set auto-completion
-    using setAutoCompletion() and whether or not the user can add
-    duplicates is set with setDuplicatesEnabled().
+    set with setCurrentIndex(). The number of items in the combobox is
+    returned by count(); the maximum number of items can be set with
+    setMaxCount(). You can allow editing using setEditable(). For
+    editable comboboxes you can set auto-completion using
+    setAutoCompletion() and whether or not the user can add duplicates
+    is set with setDuplicatesEnabled().
 
     \inlineimage macintosh-combobox.png Screenshot in Macintosh style
     \inlineimage windows-combobox.png Screenshot in Windows style
