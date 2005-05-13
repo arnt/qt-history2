@@ -27,7 +27,7 @@ bool DisplayShape::animate()
         QPointF target = meta["target"].toPointF();
         QLineF displacement(pos, target);
         QPointF newPosition = displacement.pointAt(0.25);
-        if (pos.toPoint() == newPosition.toPoint()) {
+        if (displacement.length() <= 1.0) {
             meta.remove("target");
             pos = target;
         } else {
