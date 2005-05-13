@@ -150,4 +150,23 @@ private:
 
 inline QString fixEnvVariables(const QString &x) { return Option::fixString(x, Option::FixEnvVars); }
 
+// this is a stripped down version of the one found in QtCore
+class QLibraryInfo
+{
+public:
+    enum LibraryLocation
+    {
+        PrefixPath,
+        DocumentationPath,
+        HeadersPath,
+        LibrariesPath,
+        BinariesPath,
+        PluginsPath,
+        DataPath,
+        TranslationsPath,
+        SettingsPath
+    };
+    static QString location(LibraryLocation);
+};
+
 #endif /* __OPTION_H__ */

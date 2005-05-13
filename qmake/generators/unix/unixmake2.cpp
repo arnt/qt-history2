@@ -16,7 +16,6 @@
 #include "meta.h"
 #include <qregexp.h>
 #include <qbytearray.h>
-#include <qlibraryinfo.h>
 #include <qfile.h>
 #include <qdir.h>
 #include <time.h>

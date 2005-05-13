@@ -80,7 +80,6 @@ QTOBJS= \
 	qhash.obj \
 	qiodevice.obj \
 	qinternal.obj \
-	qlibraryinfo.obj \
 	qlistdata.obj \
 	qlocale.obj \
 	qmap.obj \
@@ -125,7 +124,6 @@ clean::
 	-del qhash.obj
 	-del qiodevice.obj
 	-del qinternal.obj
-	-del qlibraryinfo.obj
 	-del qlistdata.obj
 	-del qlocale.obj
 	-del qmap.obj
@@ -209,9 +207,6 @@ qiodevice.obj: ..\src\corelib\io\qiodevice.cpp
 
 qinternal.obj: ..\src\corelib\kernel\qinternal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\kernel\qinternal.cpp
-
-qlibraryinfo.obj: ..\src\corelib\global\qlibraryinfo.cpp
-	$(CXX) $(CXXFLAGS) ..\src\corelib\global\qlibraryinfo.cpp
 
 qglobal.obj: ..\src\corelib\global\qglobal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\global\qglobal.cpp

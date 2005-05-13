@@ -45,7 +45,6 @@ bootstrap { #Qt code
         qfileinfo.cpp \
         qfsfileengine.cpp \
         qglobal.cpp \
-        qlibraryinfo.cpp \
         qhash.cpp \
         qiodevice.cpp \
         qlistdata.cpp \
@@ -80,7 +79,6 @@ bootstrap { #Qt code
         qfileengine.h \
         qfileinfo.h \
         qglobal.h \
-	qlibraryinfo.h \
         qhash.h \
         qiodevice.h \
         qlist.h \

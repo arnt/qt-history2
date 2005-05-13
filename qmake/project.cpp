@@ -20,7 +20,6 @@
 #include <qdir.h>
 #include <qregexp.h>
 #include <qtextstream.h>
-#include <qlibraryinfo.h>
 #include <qstack.h>
 #include <qhash.h>
 #ifdef Q_OS_UNIX

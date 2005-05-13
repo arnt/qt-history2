@@ -18,7 +18,6 @@
 #include <stdio.h>
 #include <qsettings.h>
 #include <qstringlist.h>
-#include <qlibraryinfo.h>
 
 QStringList qmake_mkspec_paths(); //project.cpp
 

@@ -10,7 +10,7 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
       qfsfileengine_unix.o qfsfileengine.o qregexp.o qvector.o qbitarray.o qdir.o quuid.o qhash.o \
       qfileinfo.o qdatetime.o qstringlist.o qfileengine.o qbufferedfsfileengine.o qtemporaryfile.o \
       qmap.o qunicodetables.o qmetatype.o qsettings.o qvariant.o qvsnprintf.o \
-      qlocale.o qlinkedlist.o qurl.o qlibraryinfo.o @QMAKE_QTOBJS@
+      qlocale.o qlinkedlist.o qurl.o @QMAKE_QTOBJS@
 
 #all sources, used for the depend target
 DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makefile.cpp generators/unix/unixmake2.cpp \
@@ -77,9 +77,6 @@ qiodevice.o: @SOURCE_PATH@/src/corelib/io/qiodevice.cpp
 
 qglobal.o: @SOURCE_PATH@/src/corelib/global/qglobal.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/corelib/global/qglobal.cpp
-
-qlibraryinfo.o: @SOURCE_PATH@/src/corelib/global/qlibraryinfo.cpp
-	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/corelib/global/qlibraryinfo.cpp
 
 qbytearray.o: @SOURCE_PATH@/src/corelib/tools/qbytearray.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) @SOURCE_PATH@/src/corelib/tools/qbytearray.cpp

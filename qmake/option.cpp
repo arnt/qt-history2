@@ -16,11 +16,8 @@
 #include <qregexp.h>
 #include <stdlib.h>
 #include <stdarg.h>
-#include <qlibraryinfo.h>
 #include <qhash.h>
 #include <qsettings.h>
-
-extern void qt_set_library_argv0(const char *c);  //qlibraryinfo.cpp
 
 //convenience
 QString Option::prf_ext;
@@ -323,7 +320,6 @@ Option::init(int argc, char **argv)
     Option::field_sep = ' ';
 
     if(argc && argv) {
-        qt_set_library_argv0(argv[0]);
         QString argv0 = argv[0];
         if(Option::qmake_mode == Option::QMAKE_GENERATE_NOTHING)
             Option::qmake_mode = default_mode(argv0);
@@ -606,4 +602,74 @@ void warn_msg(QMakeWarn type, const char *fmt, ...)
         va_end(ap);
     }
     fprintf(stderr, "\n");
+}
+
+#include "../src/corelib/global/qconfig.cpp"
+QString QLibraryInfo::location(QLibraryInfo::LibraryLocation loc)
+{
+    QString ret;
+    const char *path = 0;
+    switch (loc) {
+#ifdef QT_CONFIGURE_PREFIX_PATH
+    case PrefixPath:
+        path = QT_CONFIGURE_PREFIX_PATH;
+        break;
+#endif
+#ifdef QT_CONFIGURE_DOCUMENTATION_PATH
+    case DocumentationPath:
+        path = QT_CONFIGURE_DOCUMENTATION_PATH;
+        break;
+#endif
+#ifdef QT_CONFIGURE_HEADERS_PATH
+    case HeadersPath:
+        path = QT_CONFIGURE_HEADERS_PATH;
+        break;
+#endif
+#ifdef QT_CONFIGURE_LIBRARIES_PATH
+    case LibrariesPath:
+        path = QT_CONFIGURE_LIBRARIES_PATH;
+        break;
+#endif
+#ifdef QT_CONFIGURE_BINARIES_PATH
+    case BinariesPath:
+        path = QT_CONFIGURE_BINARIES_PATH;
+        break;
+#endif
+#ifdef QT_CONFIGURE_PLUGINS_PATH
+    case PluginsPath:
+        path = QT_CONFIGURE_PLUGINS_PATH;
+        break;
+#endif
+#ifdef QT_CONFIGURE_DATA_PATH
+    case DataPath:
+        path = QT_CONFIGURE_DATA_PATH;
+        break;
+#endif
+#ifdef QT_CONFIGURE_TRANSLATIONS_PATH
+    case TranslationsPath:
+        path = QT_CONFIGURE_TRANSLATIONS_PATH;
+        break;
+#endif
+#ifdef QT_CONFIGURE_SETTINGS_PATH
+    case SettingsPath:
+        path = QT_CONFIGURE_SETTINGS_PATH;
+        break;
+#endif
+    default:
+        break;
+    }
+
+    if (path)
+        ret = QString::fromLocal8Bit(path);
+
+    if (QDir::isRelativePath(ret)) {
+        if (loc == PrefixPath) {
+            // we make the prefix path absolute to the current directory
+            return QDir::current().absoluteFilePath(ret);
+        } else {
+            // we make any other path absolute to the prefix directory
+            return QDir(location(PrefixPath)).absoluteFilePath(ret);
+        }
+    }
+    return ret;
 }

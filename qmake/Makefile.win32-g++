@@ -46,7 +46,6 @@ QTOBJS= \
 	qhash.o \
 	qiodevice.o \
 	qinternal.o \
-	qlibraryinfo.o \
 	qlistdata.o \
 	qlocale.o \
 	qmap.o \
@@ -104,9 +103,6 @@ qiodevice.o: ..\src\corelib\io\qiodevice.cpp
 qinternal.o: ..\src\corelib\kernel\qinternal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\kernel\qinternal.cpp
 
-qlibraryinfo.o: ..\src\corelib\global\qlibraryinfo.cpp
-	$(CXX) $(CXXFLAGS) ..\src\corelib\global\qlibraryinfo.cpp
-
 qglobal.o: ..\src\corelib\global\qglobal.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\global\qglobal.cpp
 
@@ -160,7 +156,7 @@ qfsfileengine_win.o: ..\src\corelib\io\qfsfileengine_win.cpp
 
 qfsfileengine.o: ..\src\corelib\io\qfsfileengine.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qfsfileengine.cpp
-	
+
 qbufferedfsfileengine.o: ..\src\corelib\io\qbufferedfsfileengine.cpp
 	$(CXX) $(CXXFLAGS) ..\src\corelib\io\qbufferedfsfileengine.cpp
 
