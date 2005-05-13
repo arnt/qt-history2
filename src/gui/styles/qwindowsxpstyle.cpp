@@ -62,6 +62,27 @@
 #ifndef TMT_BORDERCOLORHINT
 #  define TMT_BORDERCOLORHINT 3822
 #endif
+#ifndef TMT_BORDERONLY
+#  define TMT_BORDERONLY 2203
+#endif
+#ifndef TMT_TRANSPARENTCOLOR
+#  define TMT_TRANSPARENTCOLOR 3809
+#endif
+#ifndef TMT_CAPTIONMARGINS
+#  define TMT_CAPTIONMARGINS 3603
+#endif
+#ifndef TMT_SIZINGMARGINS
+#  define TMT_SIZINGMARGINS 3601
+#endif
+#ifndef GT_NONE
+#  define GT_NONE 0
+#endif
+#ifndef GT_IMAGEGLYPH
+#  define GT_IMAGEGLYPH 1
+#endif
+#ifndef TMT_GLYPHTYPE
+#  define TMT_GLYPHTYPE 2
+#endif
 
 // These defines are missing from the tmschema, but still exist as
 // states for their parts
@@ -193,8 +214,8 @@ public:
     XPThemeData(const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString(),
                 int part = 0, int state = 0, const QRect &r = QRect())
         : widget(w), painter(p), name(theme), htheme(0), partId(part), stateId(state), 
-          rect(r), mirrorHorizontally(false), mirrorVertically(false), noBorder(false),
-          noContent(false), rotate(0)
+          mirrorHorizontally(false), mirrorVertically(false), noBorder(false),
+          noContent(false), rotate(0), rect(r)
     {}
 
     HRGN mask();
@@ -589,9 +610,9 @@ bool QWindowsXPStylePrivate::isTransparent(XPThemeData &themeData)
 QRegion QWindowsXPStylePrivate::region(XPThemeData &themeData)
 {
     HRGN hRgn = 0;
+    RECT rect = themeData.toRECT(themeData.rect);
     if (!SUCCEEDED(pGetThemeBackgroundRegion(themeData.handle(), bufferHDC(), themeData.partId, 
-                                             themeData.stateId, &themeData.toRECT(themeData.rect), 
-                                             &hRgn)))
+                                             themeData.stateId, &rect, &hRgn)))
         return QRegion();
     
     QRegion rgn = QRegion(0,0,1,1);
@@ -710,7 +731,7 @@ bool QWindowsXPStylePrivate::swapAlphaChannel(const QRect &rect)
     for (int y = startY; y < h; ++y) {
         register DWORD *buffer = (DWORD*)bufferPixels + (y * bufferW);
         for (register int x = startX; x < w; ++x, ++buffer) {
-            register int alphaValue = (*buffer) & 0xFF000000;
+            register unsigned int alphaValue = (*buffer) & 0xFF000000;
             if (alphaValue == 0xFF000000) {
                 *buffer &= 0x00FFFFFF;
                 valueChange = true;
@@ -762,8 +783,8 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
     QPainter *painter = themeData.painter;
     HDC dc = painter->paintEngine()->getDC();
     
-    QPoint redirectionDelta(painter->deviceMatrix().dx() - painter->matrix().dx(),
-                            painter->deviceMatrix().dy() - painter->matrix().dy());
+    QPoint redirectionDelta(int(painter->deviceMatrix().dx() - painter->matrix().dx()),
+                            int(painter->deviceMatrix().dy() - painter->matrix().dy()));
     QRect area = themeData.rect.translated(redirectionDelta);
 
     if (painter->hasClipping()) {
@@ -1129,7 +1150,7 @@ QRect QWindowsXPStyle::subElementRect(SubElement sr, const QStyleOption *option,
     QRect rect(option->rect);
     switch(sr) {
     case SE_TabWidgetTabContents:
-        if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option))
+        if (qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option))
         {
             rect = QWindowsStyle::subElementRect(sr, option, widget);
             if (sr == SE_TabWidgetTabContents)
@@ -1256,7 +1277,7 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
         break;
 
     case PE_FrameLineEdit:
-        if (const QStyleOptionFrame *tab = qstyleoption_cast<const QStyleOptionFrame *>(option))
+        if (qstyleoption_cast<const QStyleOptionFrame *>(option))
         {
             name = "EDIT";
             partId = EP_EDITTEXT;
@@ -2077,7 +2098,8 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     const int sheight = theme.rect.height();
 
                     MARGINS contentsMargin;
-                    pGetThemeMargins(theme.handle(), 0, theme.partId, theme.stateId, TMT_SIZINGMARGINS, &theme.toRECT(theme.rect), &contentsMargin);
+                    RECT rect = theme.toRECT(theme.rect);
+                    pGetThemeMargins(theme.handle(), 0, theme.partId, theme.stateId, TMT_SIZINGMARGINS, &rect, &contentsMargin);
 
                     SIZE size;
                     theme.partId = flags & State_Horizontal ? SBP_GRIPPERHORZ : SBP_GRIPPERVERT;
