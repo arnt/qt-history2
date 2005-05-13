@@ -350,12 +350,10 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SLOT(updateCurrentCharFormatAndSelection()));
         QObject::connect(doc, SIGNAL(cursorPositionChanged(QTextCursor)), q, SLOT(emitCursorPosChanged(QTextCursor)));
 
-#if defined(QT3_SUPPORT)
-        // compat signals
+        // convenience signal forwards
         QObject::connect(doc, SIGNAL(contentsChanged()), q, SIGNAL(textChanged()));
         QObject::connect(doc, SIGNAL(undoAvailable(bool)), q, SIGNAL(undoAvailable(bool)));
         QObject::connect(doc, SIGNAL(redoAvailable(bool)), q, SIGNAL(redoAvailable(bool)));
-#endif
 
         viewport->setBackgroundRole(QPalette::Base);
         viewport->setAcceptDrops(true);
@@ -2935,19 +2933,22 @@ void QTextEdit::ensureCursorVisible()
 /*!
     \fn void QTextEdit::textChanged();
 
-###
+    This signal is emitted whenever the document's content changes; for
+    example, when text is inserted or deleted, or when formatting is applied.
 */
 
 /*!
     \fn void QTextEdit::undoAvailable(bool b);
 
-###
+    This signal is emitted whenever undo operations become available
+    (\a available is true) or unavailable (\a available is false).
 */
 
 /*!
     \fn void QTextEdit::redoAvailable(bool b);
 
-###
+    This signal is emitted whenever redo operations become available
+    (\a available is true) or unavailable (\a available is false).
 */
 
 /*!

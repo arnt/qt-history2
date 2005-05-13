@@ -187,6 +187,9 @@ public slots:
     void zoomOut(int range = 1);
 
 signals:
+    void textChanged();
+    void undoAvailable(bool b);
+    void redoAvailable(bool b);
     void currentCharFormatChanged(const QTextCharFormat &format);
     void copyAvailable(bool b);
     void selectionChanged();
@@ -224,9 +227,6 @@ protected:
 
 #ifdef QT3_SUPPORT
 signals:
-    QT_MOC_COMPAT void textChanged();
-    QT_MOC_COMPAT void undoAvailable(bool b);
-    QT_MOC_COMPAT void redoAvailable(bool b);
     QT_MOC_COMPAT void currentFontChanged(const QFont &f);
     QT_MOC_COMPAT void currentColorChanged(const QColor &c);
 
