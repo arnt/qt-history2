@@ -1039,7 +1039,6 @@ void FormWindow::paste()
             InsertWidgetCommand *cmd = new InsertWidgetCommand(this);
             cmd->init(w);
             m_commandHistory->push(cmd);
-            selectWidget(w, true);
         }
         endCommand();
 

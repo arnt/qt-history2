@@ -969,14 +969,15 @@ void TabWidgetCommand::removePage()
 
     m_widget->hide();
     m_widget->setParent(formWindow());
+    m_tabWidget->setCurrentIndex(qMin(m_index, m_tabWidget->count()));
 }
 
 void TabWidgetCommand::addPage()
 {
-    m_widget->setParent(m_tabWidget);
+    m_widget->setParent(0);
     m_tabWidget->insertTab(m_index, m_widget, m_itemIcon, m_itemText);
-
     m_widget->show();
+    m_tabWidget->setCurrentIndex(m_index);
 }
 
 // ---- DeleteTabPageCommand ----
