@@ -353,21 +353,24 @@ void QGroupBoxPrivate::calculateFrame()
     int va = q->style()->styleHint(QStyle::SH_GroupBox_TextLabelVerticalAlignment, 0, q);
 
     topMargin = 0;
+    int topHeight = 0;
     QFontMetrics fm = q->fontMetrics();
     if (checkbox) {
+        topHeight = checkbox->sizeHint().height();
         if (va & Qt::AlignTop)
-            topMargin = checkbox->sizeHint().height();
-	else
-	    topMargin = checkbox->sizeHint().height()/2;
+            topMargin = topHeight;
+        else
+            topMargin = topHeight / 2;
     } else if (title.size()) {
+        topHeight = fm.height();
         if (va & Qt::AlignVCenter)
-            topMargin = fm.height()/2;
+            topMargin = topHeight/2;
         else if (va & Qt::AlignTop)
-            topMargin = fm.height();
+            topMargin = topHeight;
     }
 
     int marg = bFlat ? 0 : 2; // ###NEEDS TO BE A STYLE ATTRIBUTE
-    q->setContentsMargins(marg, topMargin + marg + 2, marg, marg);
+    q->setContentsMargins(marg, topHeight + marg, marg, marg);
 }
 
 
