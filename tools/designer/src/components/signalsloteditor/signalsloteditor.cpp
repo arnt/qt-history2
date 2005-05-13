@@ -708,6 +708,12 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
             }
         }
 
+        qDebug() << "SignalSlotEditor::fromUi():"
+                    << dom_con->elementSignal()
+                    << sp << widgetRect(source)
+                    << dom_con->elementSlot()
+                    << tp << widgetRect(destination);
+
         SignalSlotConnection *con = new SignalSlotConnection(this);
 
         con->setEndPoint(EndPoint::Source, source, sp);
