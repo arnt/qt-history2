@@ -20,7 +20,6 @@
 #include <qhash.h>
 #include <qsettings.h>
 
-extern void qt_set_library_config_file(const QString &); //qlibraryinfo.cpp
 extern void qt_set_library_argv0(const char *c);  //qlibraryinfo.cpp
 
 //convenience
@@ -62,7 +61,6 @@ QStringList Option::user_configs;
 QStringList Option::after_user_configs;
 QString Option::user_template;
 QString Option::user_template_prefix;
-QString Option::qtconfig_commandline;
 #if defined(Q_OS_WIN32)
 Option::TARG_MODE Option::target_mode = Option::TARG_WIN_MODE;
 #elif defined(Q_OS_MAC)
@@ -143,8 +141,6 @@ bool usage(const char *a0)
             "\t-tp prefix     Overrides TEMPLATE so that prefix is prefixed into the value\n"
             "\t-help          This help\n"
             "\t-v             Version information\n"
-            "\t-qtconfig file Read Qt configuration from file\n"
-            "\t               (default %s)\n"
             "\t-after         All variable assignments after this will be\n"
             "\t               parsed after [files]\n"
             "\t-norecursive   Don't do a recursive search\n"
@@ -157,8 +153,7 @@ bool usage(const char *a0)
             "\t-nopwd         Don't look for files in pwd [project mode only]\n"
             ,a0,
             default_mode(a0) == Option::QMAKE_GENERATE_PROJECT  ? " (default)" : "", project_builtin_regx().toLatin1().constData(),
-            default_mode(a0) == Option::QMAKE_GENERATE_MAKEFILE ? " (default)" : "",
-            QLibraryInfo::configuration() ? QLibraryInfo::configuration()->fileName().toLatin1().constData() : "Not available"
+            default_mode(a0) == Option::QMAKE_GENERATE_MAKEFILE ? " (default)" : ""
         );
     return false;
 }
@@ -214,14 +209,10 @@ Option::parseCommandLine(int argc, char **argv, int skip)
                 Option::debug_level++;
             } else if(opt == "version" || opt == "v" || opt == "-version") {
                 fprintf(stderr, "QMake version: %s (Qt %s)\n", qmake_version(), QT_VERSION_STR);
-                if (QSettings *settings = QLibraryInfo::configuration())
-                    fprintf(stderr, "Using %s\n", settings->fileName().toLatin1().constData());
 #ifdef QMAKE_OPENSOURCE_VERSION
                 fprintf(stderr, "QMake is Open Source software from Trolltech AS.\n");
 #endif
                 return Option::QMAKE_CMDLINE_BAIL;
-            } else if(opt == "qtconfig") {
-                qt_set_library_config_file(Option::qtconfig_commandline = argv[++x]);
             } else if(opt == "h" || opt == "help") {
                 return Option::QMAKE_CMDLINE_SHOW_USAGE;
             } else if(opt == "Wall") {
@@ -300,10 +291,6 @@ Option::parseCommandLine(int argc, char **argv, int skip)
         }
     }
 
-    if(!QLibraryInfo::configuration()) {
-        fprintf(stderr, "Unable to find a Qt configuration. Use -qtconfig to specify one.\n");
-        return Option::QMAKE_CMDLINE_BAIL | Option::QMAKE_CMDLINE_ERROR;
-    }
     return Option::QMAKE_CMDLINE_SUCCESS;
 }
 

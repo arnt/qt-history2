@@ -118,7 +118,6 @@ struct Option
     enum TARG_MODE { TARG_UNIX_MODE, TARG_WIN_MODE, TARG_MACX_MODE, TARG_MAC9_MODE, TARG_QNX6_MODE };
     static TARG_MODE target_mode;
     static QString user_template, user_template_prefix;
-    static QString qtconfig_commandline;
 
     //QMAKE_*_PROPERTY options
     struct prop {
