@@ -1279,8 +1279,10 @@ QOpenType *QFontEngineFT::openType() const
          return _openType;
 
     FT_Face face = lockFace();
-    if (!face || !FT_IS_SFNT(face))
+    if (!face || !FT_IS_SFNT(face)) {
+        unlockFace();
         return 0;
+    }
 
     _openType = new QOpenType(const_cast<QFontEngineFT *>(this), face);
     unlockFace();
