@@ -16,73 +16,58 @@
 #include <qmainwindow.h>
 #include <qmenu.h>
 #include <qpainter.h>
+#include <qpainterpath.h>
 #include <qspinbox.h>
 
 #include <stdlib.h>
 
-static QPixmap genIcon(const QSize &iconSize, const QString &string, const QColor &color)
+static QPixmap genIcon(const QSize &iconSize, const QString &, const QColor &color, const QColor &bg)
 {
-    QFont font;
-    font.setBold(true);
-    font.setPixelSize(iconSize.height() * 3 / 4);
+    QImage image(iconSize, QImage::Format_RGB32);
+    image.fill(bg.rgb());
+    QColor c(color);
+    QPainter p(&image);
+    p.setRenderHint(QPainter::Antialiasing);
+    QRect r(QPoint(0, 0), iconSize);
+    QFont f("times new roman,utopia", 10);
+    p.setFont(f);
 
-    QFontMetrics fm(font);
-    int w = qMax(iconSize.width(), fm.width(string));
-    int h = qMax(iconSize.height(), fm.lineSpacing());
-
-    QPixmap pixmap(w, h);
-    pixmap.fill(Qt::white);
-
-    QPainter p(&pixmap);
-    p.setPen(Qt::black);
-    p.setFont(font);
-    p.drawText(0, 0, w, h, Qt::AlignCenter, string);
+    p.setPen(QColor(0,0,0,127));
+    p.drawText(r.adjusted(1, 1, 1, 1), Qt::AlignCenter, "Qt");
+    p.setPen(QColor(255,255,255,127));
+    p.drawText(r.adjusted(-1, -1, -1, -1), Qt::AlignCenter, "Qt");
+    c.setAlphaF(1.0);
+    p.setPen(c);
+    p.drawText(r, Qt::AlignCenter, "Qt");
     p.end();
-
-    QImage image = pixmap.toImage().convertToFormat(QImage::Format_ARGB32);
-    for (int y = 0; y < image.height(); ++y) {
-        for (int x = 0; x < image.width(); ++x) {
-            const QRgb rgba = image.pixel(x, y);
-            const int alpha = qMin(255, qMax(0, (qGray(rgba)+32)/64*64));
-            image.setPixel(x, y, qRgba(color.red(), color.green(), color.blue(), 255-alpha));
-        }
-    }
-    pixmap = QPixmap::fromImage(image);
-
-    return pixmap;
+    return QPixmap::fromImage(image, Qt::DiffuseDither | Qt::DiffuseAlphaDither);
 }
 
-static QPixmap genIcon(const QSize &iconSize, int number, const QColor &color)
-{ return genIcon(iconSize, QString::number(number), color); }
+static QPixmap genIcon(const QSize &iconSize, int number, const QColor &color, const QColor &bg)
+{ return genIcon(iconSize, QString::number(number), color, bg); }
 
 ToolBar::ToolBar(QWidget *parent)
     : QToolBar(parent), spinbox(0), spinboxAction(0)
 {
     setWindowTitle(tr("Main Tool Bar"));
 
+    QColor bg(palette().background().color());
     menu = new QMenu("One", this);
-    menu->setIcon(genIcon(iconSize(), 1, Qt::white));
-    menu->addAction(genIcon(iconSize(), "A", Qt::yellow), "A");
-    menu->addAction(genIcon(iconSize(), "B", Qt::yellow), "B");
-    menu->addAction(genIcon(iconSize(), "C", Qt::yellow), "C");
+    menu->setIcon(genIcon(iconSize(), 1, Qt::black, bg));
+    menu->addAction(genIcon(iconSize(), "A", Qt::blue, bg), "A");
+    menu->addAction(genIcon(iconSize(), "B", Qt::blue, bg), "B");
+    menu->addAction(genIcon(iconSize(), "C", Qt::blue, bg), "C");
     addAction(menu->menuAction());
 
-    QAction *two = addAction(genIcon(iconSize(), 2, QColor(0, 0, 160)), "Two");
+    QAction *two = addAction(genIcon(iconSize(), 2, Qt::white, bg), "Two");
     QFont boldFont;
     boldFont.setBold(true);
     two->setFont(boldFont);
 
-    addAction(genIcon(iconSize(), 3, QColor(0, 160, 0)), "Three");
-    addAction(genIcon(iconSize(), 4, QColor(160, 0, 0)), "Four");
-    addAction(genIcon(iconSize(), 5, QColor(80, 0, 80)), "Five");
-
-    QAction *six = addAction(genIcon(iconSize(), 6, QColor(0, 80, 80)), "Six");
-    six->setCheckable(true);
-    QAction *seven = addAction(genIcon(iconSize(), 7, QColor(80, 80, 0)), "Seven");
-    seven->setCheckable(true);
-    QAction *eight = addAction(genIcon(iconSize(), 8, Qt::black), "Eight");
-    eight->setCheckable(true);
-
+    addAction(genIcon(iconSize(), 3, Qt::red, bg), "Three");
+    addAction(genIcon(iconSize(), 4, Qt::green, bg), "Four");
+    addAction(genIcon(iconSize(), 5, Qt::blue, bg), "Five");
+    QAction *six = addAction(genIcon(iconSize(), 6, Qt::yellow, bg), "Six");
     orderAction = new QAction(this);
     orderAction->setText(tr("Order Items in Tool Bar"));
     connect(orderAction, SIGNAL(triggered()), SLOT(order()));
@@ -221,8 +206,6 @@ void ToolBar::order()
         actions1.removeAll(action);
         ordered.append(action);
     }
-    while (!actions1.isEmpty())
-	ordered.prepend(actions1.takeFirst());
 
     clear();
     addActions(ordered);

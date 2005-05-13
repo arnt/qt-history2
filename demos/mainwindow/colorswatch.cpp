@@ -18,7 +18,76 @@
 #include <qframe.h>
 #include <qmainwindow.h>
 #include <qmenu.h>
+#include <qpainter.h>
+#include <qimage.h>
+#include <qcolor.h>
+#include <qpainterpath.h>
 #include <qdebug.h>
+
+QColor bgColorForName(const QString &name)
+{
+    if (name == "Black")
+        return QColor("#D8D8D8");
+    else if (name == "White")
+        return QColor("#F1F1F1");
+    else if (name == "Red")
+        return QColor("#F1D8D8");
+    else if (name == "Green")
+        return QColor("#D8E4D8");
+    else if (name == "Blue")
+        return QColor("#D8D8F1");
+    else if (name == "Yellow")
+        return QColor("#F1F0D8");
+    return QColor();
+}
+
+QColor fgColorForName(const QString &name)
+{
+    if (name == "Black")
+        return QColor("#6C6C6C");
+    else if (name == "White")
+        return QColor("#F8F8F8");
+    else if (name == "Red")
+        return QColor("#F86C6C");
+    else if (name == "Green")
+        return QColor("#6CB26C");
+    else if (name == "Blue")
+        return QColor("#6C6CF8");
+    else if (name == "Yellow")
+        return QColor("#F8F76C");
+    return QColor();
+}
+
+class ColorDock : public QFrame
+{
+public:
+    ColorDock(const QString &c, QWidget *parent)
+        : QFrame(parent)
+        , color(c)
+    {
+        QFont f("times new roman,utopia", 28);
+        QFontMetrics fm(f);
+        text.addText(-fm.boundingRect("Qt").center(), f, "Qt");
+    }
+
+protected:
+    void paintEvent(QPaintEvent *) {
+        QPainter p(this);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.fillRect(rect(), bgColorForName(color));
+
+        p.setBrush(fgColorForName(color));
+        p.setPen(Qt::black);
+        p.translate(rect().center());
+        QRectF br(text.boundingRect().adjusted(2, 2, 4, 4));
+        double scale = qMin(width()/br.width(), height()/br.height());
+        p.scale(scale, scale);
+        p.drawPath(text);
+    }
+
+    QString color;
+    QPainterPath text;
+};
 
 ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags flags)
     : QDockWidget(parent, flags)
@@ -26,13 +95,9 @@ ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags f
     setObjectName(colorName + QLatin1String(" Dock Widget"));
     setWindowTitle(objectName());
 
-    QFrame *swatch = new QFrame(this);
+    QFrame *swatch = new ColorDock(colorName, this);
     swatch->setFrameStyle(QFrame::Box | QFrame::Sunken);
     swatch->setMinimumSize(125, 75);
-
-    QPalette pal = swatch->palette();
-    pal.setColor(swatch->backgroundRole(), QColor(colorName));
-    swatch->setPalette(pal);
 
     setWidget(swatch);
 
