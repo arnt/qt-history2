@@ -708,13 +708,6 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
             }
         }
 
-        QRect source_rect = widgetRect(source);
-        QRect dest_rect = widgetRect(destination);
-        if (!source_rect.contains(sp))
-            sp = source_rect.center();
-        if (!dest_rect.contains(tp))
-            tp = dest_rect.center();
-
         SignalSlotConnection *con = new SignalSlotConnection(this);
 
         con->setEndPoint(EndPoint::Source, source, sp);

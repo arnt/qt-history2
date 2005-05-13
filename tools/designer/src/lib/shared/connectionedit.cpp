@@ -345,9 +345,6 @@ void Connection::setSource(QWidget *source, const QPoint &pos)
 
 static QPoint lineEntryPos(const QPoint &p1, const QPoint &p2, const QRect &rect)
 {
-    Q_ASSERT(!rect.contains(p1));
-    Q_ASSERT(rect.contains(p2));
-
     QPoint result;
 
     CETypes::LineDir dir = classifyLine(p1, p2);
@@ -402,8 +399,6 @@ static QPolygonF arrowHead(const QPoint &p1, const QPoint &p2)
 
 static CETypes::LineDir closestEdge(const QPoint &p, const QRect &r)
 {
-    Q_ASSERT(r.contains(p));
-
     CETypes::LineDir result = CETypes::UpDir;
     int min = p.y() - r.top();
 
