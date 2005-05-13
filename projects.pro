@@ -6,7 +6,7 @@ CONFIG += ordered
 TEMPLATE = subdirs
 isEmpty(QT_PROJECTS) {
 #  QT_PROJECTS = qmake
-   QT_PROJECTS += src 
+   QT_PROJECTS += src
    !cross_compile:QT_PROJECTS += tools
    QT_PROJECTS += demos examples
    win32:QT_PROJECTS += extensions
@@ -56,7 +56,7 @@ INSTALLS += qmake
 
 #mkspecs
 mkspecs.path=$$[QT_INSTALL_DATA]/mkspecs
-mkspecs.files=$$QT_BUILD_TREE/mkspecs/qconfig.pri $$QT_SOURCE_TREE/mkspecs/* 
+mkspecs.files=$$QT_BUILD_TREE/mkspecs/qconfig.pri $$QT_SOURCE_TREE/mkspecs/*
 mkspecs.commands = $(SYMLINK) $$QMAKESPEC $(INSTALL_ROOT)$$mkspecs.path/default
 INSTALLS += mkspecs
 
@@ -66,3 +66,29 @@ false:macx { #mac install location
     INSTALLS += macdocs
 }
 
+
+### messages ####
+
+unix {
+    QMAKE_EXTRA_UNIX_TARGETS += compiled_message
+    compiled_message.commands += @echo \
+        ; echo "The Qt library is now built in ./lib" \
+        ; echo "The Qt examples are built in the directories in ./examples" \
+        ; echo "The Qt demos are built in the directories in ./demos" \
+        ; echo \
+        ; echo "Enjoy!   - the Trolltech team"
+
+    compiled_message.depends += FORCE
+
+    ALL_DEPS += compiled_message
+}
+
+unix {
+    installed_message.path = $$PWD
+    installed_message.commands += @echo \
+        ; echo "The Qt library is now installed" \
+        ; echo \
+        ; echo "Enjoy!   - the Trolltech team"
+
+    INSTALLS += installed_message
+}
