@@ -2066,7 +2066,7 @@ void QRasterBuffer::prepare(QPixmap *pixmap)
 {
     prepareClip(pixmap->width(), pixmap->height());
 
-    m_buffer = (uint *)pixmap->qwsScanLine(0);
+    m_buffer = (uchar *)pixmap->qwsScanLine(0);
 
     m_width = pixmap->width();
     m_height = pixmap->height();
