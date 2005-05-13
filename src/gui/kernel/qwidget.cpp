@@ -407,7 +407,7 @@ void QWidget::resetInputContext()
     \endlist
 
     The \l widgets/calculator example program is good example of a simple
-    widget. It contains event handlers (as all widgets must), a
+    widget. It contains event handlers (as all widgets must),
     routines that are specific to it (as all useful widgets
     do), and has children and connections. Everything it does
     is done in response to an event: this is by far the most common way
@@ -615,8 +615,7 @@ static QPalette qt_naturalWidgetPalette(QWidget* w) {
     The widget flags argument, \a f, is normally 0, but it can be set
     to customize the frame of a window (i.e. \a
     parent must be 0). To customize the frame, use a value composed
-    from the bitwise OR of \c Qt::WStyle_Customize flag and any of the
-    other \l{Qt::WindowFlags}{window flags}.
+    from the bitwise OR of any of the \l{Qt::WindowFlags}{window flags}.
 
     If you add a child widget to an already visible widget you must
     explicitly show the child to make it visible.
@@ -5829,21 +5828,24 @@ bool QWidget::qwsEvent(QWSEvent *)
 
 
 /*!
-    Ensures delayed initialization of a widget and its children.
+    Ensures that the widget has been polished by QStyle (i.e., has a
+    proper font and palette).
 
-    This function will be called \e after a widget has been fully
-    created and \e before it is shown the very first time.
+    QWidget calls this function after it has been fully constructed but
+    before it is shown the very first time. You can call this function if you
+    want to ensure that the widget is polished before doing an operation
+    (e.g., the correct font size might be needed in the widget's sizeHint()
+    reimplementation).
 
-    Polishing is useful for final initialization which depends on
-    having an instantiated widget. This is something a constructor
-    cannot guarantee since the initialization of the subclasses might
-    not be finished.
-
-    For widgets, this function makes sure the widget has a proper font
-    and palette and QApplication::polish() has been called.
+    Polishing is useful for final initialization that must happen after
+    all constructors (from base classes as well as from subclasses)
+    have been called.
 
     If you need to change some settings when a widget is polished,
-    use the Polish event delivered to event().
+    reimplement event() and handle the QEvent::Polish event type.
+
+    Note: The function is declared const so that it can be called from
+    other const functions (e.g., sizeHint()).
 
     \sa event()
 */

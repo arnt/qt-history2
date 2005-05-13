@@ -184,7 +184,7 @@
   of the dialog, pass Qt::WStyle_Customize | Qt::WStyle_NormalBorder |
   Qt::WStyle_Title | Qt::WStyle_SysMenu in \a f.
 
-  \sa QWidget::setWFlags()
+  \sa QWidget::setWindowFlags()
 */
 
 QDialog::QDialog(QWidget *parent, Qt::WFlags f)
@@ -329,7 +329,7 @@ void QDialog::hideSpecial()
   Returns the modal dialog's result code, \c Accepted or \c Rejected.
 
   Do not call this function if the dialog was constructed with the \c
-  Qt::WA_DeleteOnClose flag.
+  Qt::WA_DeleteOnClose attribute.
 */
 int QDialog::result() const
 {
