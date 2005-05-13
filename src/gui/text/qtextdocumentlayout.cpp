@@ -843,7 +843,7 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
 }
 
 // ##### shouldn't we just add a global offset to each cell instead?
-void QTextDocumentLayoutPrivate::setCellPosition(QTextTable *t, const QTextTableCell &cell, const QPointF &pos)
+void QTextDocumentLayoutPrivate::setCellPosition(QTextTable * /*t*/, const QTextTableCell &cell, const QPointF &pos)
 {
     for (QTextFrame::Iterator it = cell.begin(); !it.atEnd(); ++it) {
         if (QTextFrame *c = it.currentFrame()) {
