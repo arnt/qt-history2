@@ -982,7 +982,6 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
 
     if (parent->id != Html_table) {
         alignment = parent->alignment;
-        bgColor = parent->bgColor;
     }
 
     listStyle = parent->listStyle;

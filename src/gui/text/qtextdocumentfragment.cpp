@@ -500,8 +500,10 @@ void QTextHTMLImporter::import()
             continue;
         } else if (node->id == Html_body) {
             d->containsCompleteDocument = true;
-            if (node->bgColor.isValid())
+            if (node->bgColor.isValid()) {
                 d->rootFrameFormat.setBackground(QBrush(node->bgColor));
+                const_cast<QTextHtmlParserNode *>(node)->bgColor = QColor();
+            }
         } else if (node->isListStart) {
 
             QTextListFormat::Style style = node->listStyle;
