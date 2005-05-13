@@ -459,6 +459,8 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
 
     DrawHelper::Layout layout = DrawHelper::Layout_RGB32;
 
+    gccaps &= ~PorterDuff;
+
     // reset paintevent clip
     d->baseClip = QPainterPath();
     if (device->devType() == QInternal::Widget) {
@@ -503,9 +505,11 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
             layout = DrawHelper::Layout_RGB32;
         } else if (format == QImage::Format_ARGB32_Premultiplied) {
             layout = DrawHelper::Layout_ARGB;
+            gccaps |= PorterDuff;
         } else {
-            qWarning("QRasterPaintEngine::begin(), unsupported image format\n"
-                     "Supported image formats: Format_RGB32 and Format_ARGB32_Premultiplied");
+            qWarning("QRasterPaintEngine::begin(), unsupported image format (%d)\n"
+                     "Supported image formats: Format_RGB32 and Format_ARGB32_Premultiplied",
+                     format);
             return false;
         }
 
@@ -800,7 +804,7 @@ void QRasterPaintEngine::drawRects(const QRectF *rects, int rectCount)
             QRectF rect = rects[i].normalized();
             rect.translate(offset_x, offset_y);
 
-            FillData fillData = d->fillForBrush(oldBrush, 0);
+            FillData fillData = d->fillForBrush(oldBrush);
             int x1 = qMax(qRound(rect.x()), 0);
             int x2 = qMin(qRound(rect.width() + rect.x()), d->rasterBuffer->width());
             int y1 = qMax(qRound(rect.y()), 0);
@@ -844,7 +848,7 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
 
     if (d->brush.style() != Qt::NoBrush) {
         d->outlineMapper->setMatrix(d->matrix, d->txop);
-        FillData fillData = d->fillForBrush(d->brush, &path);
+        FillData fillData = d->fillForBrush(d->brush);
         fillPath(path, &fillData);
     }
 
@@ -870,7 +874,7 @@ void QRasterPaintEngine::drawPath(const QPainterPath &path)
             if (stroke.isEmpty())
                 return;
         }
-        FillData fillData = d->fillForBrush(QBrush(d->pen.brush()), &stroke);
+        FillData fillData = d->fillForBrush(QBrush(d->pen.brush()));
         fillPath(stroke, &fillData);
     }
 
@@ -909,7 +913,7 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
         if (d->txop <= QPainterPrivate::TxTranslate
             && !d->opaqueBackground
             && r.size() == sr.size()) {
-            FillData fill = d->fillForBrush(QBrush(d->pen.color()), 0);
+            FillData fill = d->fillForBrush(QBrush(d->pen.color()));
             d->drawBitmap(r.topLeft() + QPointF(d->matrix.dx(), d->matrix.dy()), pixmap, &fill);
             return;
         } else {
@@ -1038,7 +1042,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
     Q_D(QRasterPaintEngine);
 
     // Decide on which span func to use
-    FillData fillData = d->fillForBrush(d->pen.brush(), 0);
+    FillData fillData = d->fillForBrush(d->pen.brush());
 
     if (!fillData.callback)
         return;
@@ -1229,7 +1233,7 @@ void QRasterPaintEnginePrivate::drawXLFD(const QPointF &p, const QTextItem &text
     // xlfd: draw into bitmap, convert to image and rasterize that
 
     // Decide on which span func to use
-    FillData fillData = fillForBrush(pen.brush(), 0);
+    FillData fillData = fillForBrush(pen.brush());
     if (!fillData.callback)
         return;
 
@@ -1303,7 +1307,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
     qt_draw_text_item(QPoint(0, ti.ascent), ti, d->fontRasterBuffer->hdc(), d);
 
     // Decide on which span func to use
-    FillData fillData = d->fillForBrush(d->pen.brush(), 0);
+    FillData fillData = d->fillForBrush(d->pen.brush());
 
     if (!fillData.callback)
         return;
@@ -1598,7 +1602,7 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         d->brush = oldBrush;
 
     } else {
-        FillData fillData = d->fillForBrush(d->pen.brush(), 0);
+        FillData fillData = d->fillForBrush(d->pen.brush());
         if (!fillData.callback)
             return;
 
@@ -1646,7 +1650,7 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
             if (mode == LineDrawNormal && d->pen.capStyle() != Qt::FlatCap)
                 mode = LineDrawIncludeLastPixel;
 
-            FillData fillData = d->fillForBrush(QBrush(d->pen.brush()), 0);
+            FillData fillData = d->fillForBrush(QBrush(d->pen.brush()));
             drawLine_bresenham(line, fillData.callback, fillData.data, mode);
         }
         return;
@@ -1785,7 +1789,7 @@ FillData QRasterPaintEnginePrivate::clipForFill(FillData *data)
 }
 
 
-FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPainterPath *path)
+FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush)
 {
     Q_ASSERT(fillData);
 

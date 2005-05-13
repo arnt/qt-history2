@@ -104,7 +104,7 @@ class QRasterPaintEnginePrivate : public QPaintEnginePrivate
     Q_DECLARE_PUBLIC(QRasterPaintEngine)
 public:
 
-    FillData fillForBrush(const QBrush &brush, const QPainterPath *path);
+    FillData fillForBrush(const QBrush &brush);
     FillData clipForFill(FillData *data);
     void updateClip_helper(const QPainterPath &path, Qt::ClipOperation);
 

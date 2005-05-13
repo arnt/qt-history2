@@ -1102,7 +1102,14 @@ void QPainter::setBrushOrigin(const QPointF &p)
 void QPainter::setCompositionMode(CompositionMode mode)
 {
     Q_D(QPainter);
-    // #### check for feature
+    if (!isActive()) {
+        qWarning("QPainter::setCompositionMode(), painter not active");
+        return;
+    } else if (!d->engine->hasFeature(QPaintEngine::PorterDuff)) {
+        qWarning("QPainter::setCompositionMode(), composition modes not supported on device");
+        return;
+    }
+
     d->state->composition_mode = mode;
     d->state->dirtyFlags |= QPaintEngine::DirtyCompositionMode;
 }
