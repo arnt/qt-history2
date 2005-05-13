@@ -112,6 +112,8 @@ QEventDispatcherWin32Private::QEventDispatcherWin32Private()
 
     wakeUpNotifier.setHandle(QT_WA_INLINE(CreateEventW(0, false, false, L"Wakeup event"),
                                           CreateEventA(0, false, false, "Wakeup event")));
+    if (!wakeUpNotifier.handle())
+        qWarning("QEventDispatcherWin32Private::QEventDispatcherWin32Private(): Creating wakeup event failed");
 }
 
 QEventDispatcherWin32Private::~QEventDispatcherWin32Private()

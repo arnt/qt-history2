@@ -23,8 +23,14 @@ QReadWriteLock::QReadWriteLock()
     d->accessCount = 0;
     d->waitingWriters = 0;
     d->waitingReaders = 0;
-    d->readerWait = CreateEvent(0, false, false, 0);
-    d->writerWait = CreateEvent(0, false, false, 0);
+    d->readerWait = QT_WA_INLINE(CreateEventW(0, false, false, 0),
+                                 CreateEventA(0, false, false, 0));
+    if (!d->readerWait)
+        qWarning("QReadWriteLock::QReadWriteLock(): Creating reader event failed");
+    d->writerWait = QT_WA_INLINE(CreateEventW(0, false, false, 0),
+                                 CreateEventA(0, false, false, 0));
+    if (!d->writerWait)
+        qWarning("QReadWriteLock::QReadWriteLock(): Creating writer event failed");
 }
 
 QReadWriteLock::~QReadWriteLock()
@@ -43,7 +49,8 @@ void QReadWriteLock::lockForRead()
             if (q_atomic_test_and_set_int(&d->accessCount, localAccessCount, localAccessCount + 1))
                 break;
         } else {
-            WaitForSingleObject(d->readerWait, INFINITE);
+            if (WaitForSingleObject(d->readerWait, INFINITE) != WAIT_OBJECT_0)
+                qWarning("QReadWriteLock::lockForRead(): Waiting on event failed");
             continue;
         }
     }
@@ -77,7 +84,8 @@ void QReadWriteLock::lockForWrite()
             if (q_atomic_test_and_set_int(&d->accessCount, 0, -1))
                 break;
         } else {
-            WaitForSingleObject(d->writerWait, INFINITE);
+            if (WaitForSingleObject(d->writerWait, INFINITE) != WAIT_OBJECT_0)
+                qWarning("QReadWriteLock::lockForWrite(): Waiting on event failed");
         }
     }
     d->waitingWriters.deref();
