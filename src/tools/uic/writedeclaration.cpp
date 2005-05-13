@@ -31,10 +31,29 @@ WriteDeclaration::WriteDeclaration(Uic *uic)
 
 void WriteDeclaration::acceptUI(DomUI *node)
 {
-    QString className = node->elementClass() + option.postfix;
+    QString qualifiedClassName = node->elementClass() + option.postfix;
+    QString className = qualifiedClassName;
 
     QString varName = driver->findOrInsertWidget(node->elementWidget());
     QString widgetClassName = node->elementWidget()->attributeClass();
+
+    QStringList nsList = qualifiedClassName.split(QLatin1String("::"));
+    if (nsList.count()) {
+        className = nsList.last();
+        nsList.removeLast();
+    }
+
+    QListIterator<QString> it(nsList);
+    while (it.hasNext()) {
+        QString ns = it.next();
+        if (ns.isEmpty())
+            continue;
+
+        output << "namespace " << ns << " {\n";
+    }
+
+    if (nsList.count())
+        output << "\n";
 
     output << "class " << option.prefix << className << "\n"
            << "{\n"
@@ -71,12 +90,43 @@ void WriteDeclaration::acceptUI(DomUI *node)
 
     output << "};\n\n";
 
+    it.toBack();
+    while (it.hasPrevious()) {
+        QString ns = it.previous();
+        if (ns.isEmpty())
+            continue;
+
+        output << "} // namespace " << ns << "\n";
+    }
+
+    if (nsList.count())
+        output << "\n";
 
     if (option.generateNamespace && !option.prefix.isEmpty()) {
-        output << "namespace Ui\n"
-            << "{\n"
-            << option.indent << "class " << className << ": public " << option.prefix << className << " {};\n"
-            << "} // namespace Ui\n\n";
+        nsList.append(QLatin1String("Ui"));
+
+        QListIterator<QString> it(nsList);
+        while (it.hasNext()) {
+            QString ns = it.next();
+            if (ns.isEmpty())
+                continue;
+
+            output << "namespace " << ns << " {\n";
+        }
+
+        output << option.indent << "class " << className << ": public " << option.prefix << className << " {};\n";
+
+        it.toBack();
+        while (it.hasPrevious()) {
+            QString ns = it.previous();
+            if (ns.isEmpty())
+                continue;
+
+            output << "} // namespace " << ns << "\n";
+        }
+
+        if (nsList.count())
+            output << "\n";
     }
 }
 

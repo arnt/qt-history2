@@ -242,7 +242,7 @@ void Ui3Reader::createFormDecl(const QDomElement &e)
     out << "class ";
     if (!exportMacro.isEmpty())
         out << exportMacro << " ";
-    out << bareNameOfClass << " : public " << objClass << ", public Ui::" << objName << endl << "{" << endl;
+    out << bareNameOfClass << " : public " << objClass << ", public Ui::" << bareNameOfClass << endl << "{" << endl;
 
     /* qmake ignore Q_OBJECT */
     out << "    Q_OBJECT" << endl;
