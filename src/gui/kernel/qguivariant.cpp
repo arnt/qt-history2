@@ -686,4 +686,7 @@ bool qRegisterGuiVariant()
     return true;
 }
 
+// if this is not executed by the compiler, QApplication will call it again.
+// calling it multiple times is safe.
+static const bool _reg_gui_variant = qRegisterGuiVariant();
 
