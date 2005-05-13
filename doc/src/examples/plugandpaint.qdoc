@@ -49,16 +49,24 @@
     \printuntil };
 
     The \c BrushInterface class declares four pure virtual functions.
-    The first function, \c brushes(), returns a list of strings that
-    identify the brushes provided by the plugin. By returning a
-    QStringList instead of a QString, we make it possible for a
-    single plugin to provide multiple brushes. The other functions
-    have a \c brush parameter to identify which brush (among those
-    returned by \c brushes()) is used.
+    The first pure virtual function, \c brushes(), returns a list of
+    strings that identify the brushes provided by the plugin. By
+    returning a QStringList instead of a QString, we make it possible
+    for a single plugin to provide multiple brushes. The other
+    functions have a \c brush parameter to identify which brush
+    (among those returned by \c brushes()) is used.
 
     \c mousePress(), \c mouseMove(), and \c mouseRelease() take a
     QPainter and one or two \l{QPoint}s, and return a QRect
     identifying which portion of the image was altered by the brush.
+
+    The class also has a virtual destructor. Interface classes
+    usually don't need such a destructor (because it would make
+    little sense to \c delete the object that implements the
+    interface through a pointer to the interface), but some compilers
+    emit a warning for classes that declare virtual functions but no
+    virtual destructor. We provide the destructor to keep these
+    compilers happy.
 
     \skipto class ShapeInterface
     \printuntil };
@@ -419,9 +427,9 @@
     list, so that we can include \c <plugandpaint/interfaces.h>.
 
     The \c TARGET variable specifies which name we want to give the
-    target library. We use \c pnp_ as the prefix because Plug & Paint
-    expects its plugins to respect that naming convention. On Unix,
-    \c lib is also prepended to that name. On all platforms, a
+    target library. We use \c pnp_ as the prefix to show that the
+    plugin is designed to work with Plug & Paint. On Unix, \c lib is
+    also prepended to that name. On all platforms, a
     platform-specific suffix is appended (e.g., \c .dll on Windows).
 
     Finally, the \c DESTDIR variable specifies where we want to
