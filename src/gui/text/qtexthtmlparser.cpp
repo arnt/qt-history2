@@ -983,6 +983,11 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
     if (parent->id != Html_table) {
         alignment = parent->alignment;
     }
+    // we don't paint per-row background colors, yet. so as an
+    // exception inherit the background color here
+    if (parent->id == Html_tr && isTableCell) {
+        bgColor = parent->bgColor;
+    }
 
     listStyle = parent->listStyle;
     anchorHref = parent->anchorHref;
