@@ -65,44 +65,6 @@ static bool match(const uchar* found, const char* target, uint len)
     return !found || qstrncmp((const char *)found, target, len) == 0 && target[len] == '\0';
 }
 
-#if defined(Q_C_CALLBACKS)
-extern "C" {
-#endif
-
-/*
-  Yes, unfortunately, we have code here that depends on endianness.
-  The candidate is big endian (it comes from a .qm file) whereas the
-  target endianness depends on the system Qt is running on.
-*/
-#ifdef Q_OS_TEMP
-static int __cdecl cmp_uint32_little(const void* target, const void* candidate)
-#else
-static int cmp_uint32_little(const void* target, const void* candidate)
-#endif
-{
-    const uchar* t = (const uchar*) target;
-    const uchar* c = (const uchar*) candidate;
-    return t[3] != c[0] ? (int) t[3] - (int) c[0]
-         : t[2] != c[1] ? (int) t[2] - (int) c[1]
-         : t[1] != c[2] ? (int) t[1] - (int) c[2]
-                   : (int) t[0] - (int) c[3];
-}
-
-#ifdef Q_OS_TEMP
-static int __cdecl cmp_uint32_big(const void* target, const void* candidate)
-#else
-static int cmp_uint32_big(const void* target, const void* candidate)
-#endif
-{
-    const uint* t = (const uint*) target;
-    const uint* c = (const uint*) candidate;
-    return (*t > *c ? 1 : (*t == *c ? 0 : -1));
-}
-
-#if defined(Q_C_CALLBACKS)
-}
-#endif
-
 static uint elfHash(const char * name)
 {
     const uchar *k;
@@ -620,20 +582,34 @@ QString QTranslator::translate(const char *context, const char *sourceText, cons
 
     for (;;) {
         quint32 h = elfHash(QByteArray(sourceText) + comment);
-        uchar *r = (uchar *) bsearch(&h, d->offsetArray, numItems, 2 * sizeof(quint32),
-                                     (QSysInfo::ByteOrder == QSysInfo::BigEndian) ? cmp_uint32_big : cmp_uint32_little);
-        if (r != 0) {
-            // go back on equal key
-            while (r != d->offsetArray && cmp_uint32_big(r - 8, r) == 0)
-                r -= 8;
 
-            while (r < d->offsetArray + d->offsetLength) {
-                quint32 rh = read32(r);
-                r += 4;
+        const uchar *start = d->offsetArray;
+        const uchar *end = start + ((numItems-1) << 3);
+        while (start <= end) {
+            const uchar *middle = start + (((end - start) >> 3) << 3);
+            uint hash = read32(middle);
+            if (h == hash) {
+                start = middle;
+                break;
+            } else if (h < hash) {
+                start = middle + 8;
+            } else {
+                start = middle - 8;
+            }
+        }
+
+        if (start <= end) {
+            // go back on equal key
+            while (start != d->offsetArray && read32(start) == read32(start-8))
+                start -= 8;
+
+            while (start < d->offsetArray + d->offsetLength) {
+                quint32 rh = read32(start);
+                start += 4;
                 if (rh != h)
                     break;
-                quint32 ro = read32(r);
-                r += 4;
+                quint32 ro = read32(start);
+                start += 4;
                 QString tn = getMessage(d->messageArray + ro, d->messageArray + d->messageLength, context, sourceText, comment);
                 if (!tn.isNull())
                     return tn;
