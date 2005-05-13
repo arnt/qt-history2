@@ -507,7 +507,7 @@ static XRenderColor preMultiply(const QColor &c)
                B = c.blue();
     color.alpha = (A | A << 8);
     color.red   = (R | R << 8) * color.alpha / 0x10000;
-    color.green = (B | G << 8) * color.alpha / 0x10000;
+    color.green = (G | G << 8) * color.alpha / 0x10000;
     color.blue  = (B | B << 8) * color.alpha / 0x10000;
     return color;
 }
