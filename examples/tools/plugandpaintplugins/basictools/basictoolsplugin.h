@@ -14,7 +14,11 @@
 #ifndef BASICTOOLSPLUGIN_H
 #define BASICTOOLSPLUGIN_H
 
+#include <QRect>
 #include <QObject>
+#include <QStringList>
+#include <QPainterPath>
+#include <QImage>
 
 #include <plugandpaint/interfaces.h>
 

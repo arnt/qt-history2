@@ -15,6 +15,8 @@
 #define EXTRAFILTERSPLUGIN_H
 
 #include <QObject>
+#include <QStringList>
+#include <QImage>
 
 #include <plugandpaint/interfaces.h>
 
