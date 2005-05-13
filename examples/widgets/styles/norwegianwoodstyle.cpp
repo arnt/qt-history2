@@ -241,7 +241,7 @@ QPainterPath NorwegianWoodStyle::roundRectPath(const QRect &rect)
 
     QPainterPath path;
     path.moveTo(x2, y1 + radius);
-    path.arcTo(QRect(x2 - diam, y2 - diam, diam, diam), 0.0, +90.0);
+    path.arcTo(QRect(x2 - diam, y1, diam, diam), 0.0, +90.0);
     path.lineTo(x1 + radius, y1);
     path.arcTo(QRect(x1, y1, diam, diam), 90.0, +90.0);
     path.lineTo(x1, y2 - radius);
