@@ -185,37 +185,15 @@ static const char * const qtlogo_xpm[] = {
 
     question() is useful for simple yes/no questions:
 
-    \code
-    if (QFile::exists(filename) &&
-        QMessageBox::question(
-            this,
-            tr("Overwrite File? -- Application Name"),
-            tr("A file called %1 already exists."
-                "Do you want to overwrite it?")
-                .arg(filename),
-            tr("&Yes"), tr("&No"),
-            QString(), 0, 1))
-        return false;
-    \endcode
+    \quotefromfile snippets/dialogs/dialogs.cpp
+    \skipto if (QFile::exists(filename) &&
+    \printuntil return false;
 
     warning() can be used to tell the user about unusual errors, or
     errors which can't be easily fixed:
 
-    \code
-    switch(QMessageBox::warning(this, "Application name",
-        "Could not connect to the <mumble> server.\n"
-        "This program can't function correctly "
-        "without the server.\n\n",
-        "Retry",
-        "Quit", 0, 0, 1)) {
-    case 0: // The user clicked the Retry again button or pressed Enter
-        // try again
-        break;
-    case 1: // The user clicked the Quit or pressed Escape
-        // exit
-        break;
-    }
-    \endcode
+    \skipto switch(QMessageBox::warning(this, "Application name",
+    \printuntil }
 
     The text part of all message box messages can be either rich text
     or plain text. If you specify a rich text formatted string, it
@@ -238,24 +216,8 @@ static const char * const qtlogo_xpm[] = {
     unsaved data the user probably should be asked if they want to
     save the data. For example:
 
-    \code
-    switch(QMessageBox::information(this, "Application name here",
-        "The document contains unsaved changes\n"
-        "Do you want to save the changes before exiting?",
-        "&Save", "&Discard", "Cancel",
-        0,      // Enter == button 0
-        2)) { // Escape == button 2
-    case 0: // Save clicked or Alt+S pressed or Enter pressed.
-        // save
-        break;
-    case 1: // Discard clicked or Alt+D pressed
-        // don't save but exit
-        break;
-    case 2: // Cancel clicked or Escape pressed
-        // don't exit
-        break;
-    }
-    \endcode
+    \skipto switch(QMessageBox::information(this, "Application name here",
+    \printuntil }
 
     The Escape button cancels the entire exit operation, and pressing
     Enter causes the changes to be saved before the exit occurs.
@@ -264,48 +226,23 @@ static const char * const qtlogo_xpm[] = {
     correct. This example uses predefined buttons instead of
     hard-coded button texts:
 
-    \code
-    switch(QMessageBox::warning(this, "Application name here",
-        "Could not save the user preferences,\n"
-        "because the disk is full. You can delete\n"
-        "some files and press Retry, or you can\n"
-        "abort the Save Preferences operation.",
-        QMessageBox::Retry | QMessageBox::Default,
-        QMessageBox::Abort | QMessageBox::Escape)) {
-    case QMessageBox::Retry: // Retry clicked or Enter pressed
-        // try again
-        break;
-    case QMessageBox::Abort: // Abort clicked or Escape pressed
-        // abort
-        break;
-    }
-    \endcode
+    \skipto switch(QMessageBox::warning(this, "Application name here",
+    \printuntil }
 
     The critical() function should be reserved for critical errors. In
     this example errorDetails is a QString or const char*, and QString
     is used to concatenate several strings:
 
-    \code
-    QMessageBox::critical(0, "Application name here",
-        QString("An internal error occurred. Please ") +
-        "call technical support at 1234-56789 and report\n"+
-        "these numbers:\n\n" + errorDetails +
-        "\n\nApplication will now exit.");
-    \endcode
+    \skipto QMessageBox::critical(0, "Application name here",
+    \printuntil "\n\nApplication will now exit.");
 
     In this example an OK button is displayed.
 
     QMessageBox provides a very simple About box which displays an
     appropriate icon and the string you provide:
 
-    \code
-    QMessageBox::about(this, "About <Application>",
-        "<Application> is a <one-paragraph blurb>\n\n"
-        "Copyright 1991-2003 Such-and-such. "
-        "<License words here.>\n\n"
-        "For technical support, call 1234-56789 or see\n"
-        "http://www.such-and-such.com/Application/\n");
-    \endcode
+    \skipto QMessageBox::about(this, "About <Application>",
+    \printuntil "http://www.such-and-such.com/Application/\n");
 
     See about() for more information.
 
@@ -317,28 +254,8 @@ static const char * const qtlogo_xpm[] = {
     If none of the standard message boxes is suitable, you can create a
     QMessageBox from scratch and use custom button texts:
 
-    \code
-    QMessageBox mb("Application name here",
-        "Saving the file will overwrite the original file on the disk.\n"
-        "Do you really want to save?",
-        QMessageBox::Information,
-        QMessageBox::Yes | QMessageBox::Default,
-        QMessageBox::No,
-        QMessageBox::Cancel | QMessageBox::Escape);
-    mb.setButtonText(QMessageBox::Yes, "Save");
-    mb.setButtonText(QMessageBox::No, "Discard");
-    switch(mb.exec()) {
-    case QMessageBox::Yes:
-        // save and exit
-        break;
-    case QMessageBox::No:
-        // exit without saving
-        break;
-    case QMessageBox::Cancel:
-        // don't save and don't exit
-        break;
-    }
-    \endcode
+    \skipto QMessageBox mb("Application name here",
+    \printuntil }
 
     QMessageBox defines two enum types: Icon and an unnamed button type.
     Icon defines the \c Question, \c Information, \c Warning, and \c
@@ -528,16 +445,10 @@ QMessageBox::QMessageBox(QWidget *parent)
     flag to make it the cancel or close button (clicked when Escape is
     pressed).
 
-    Example:
-    \code
-    QMessageBox mb("Application Name",
-        "Hardware failure.\n\nDisk error detected\nDo you want to stop?",
-        QMessageBox::Question,
-        QMessageBox::Yes | QMessageBox::Default,
-        QMessageBox::No | QMessageBox::Escape);
-    if (mb.exec() == QMessageBox::No)
-        // try again
-    \endcode
+    \quotefromfile snippets/dialogs/dialogs.cpp
+    \skipto // hardware failure
+    \skipto QMessageBox mb("Application Name",
+    \printuntil // try again
 
     If \a parent is 0, the message box becomes an application-global
     modal dialog box. If \a parent is a widget, the message box

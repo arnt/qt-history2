@@ -174,18 +174,9 @@ void QProgressDialogPrivate::layout()
   operation in a loop, call \l setValue() at intervals, and check
   for cancelation with wasCanceled(). For example:
 
-    \code
-        QProgressDialog progress("Copying files...", "Abort Copy", 0, numFiles, this);
-        for (int i = 0; i < numFiles; i++) {
-            progress.setValue(i);
-            qApp->processEvents();
-
-            if (progress.wasCanceled())
-                break;
-            //... copy one file
-        }
-        progress.setValue(numFiles);
-    \endcode
+  \quotefromfile snippets/dialogs/dialogs.cpp
+  \skipto QProgressDialog progress("Copying files...", "Abort Copy", 0, numFiles, this);
+  \printuntil progress.setValue(numFiles);
 
   A modeless progress dialog is suitable for operations that take
   place in the background, where the user is able to interact with the
@@ -198,32 +189,10 @@ void QProgressDialogPrivate::layout()
   canceled() signal to a slot that stops the operation, and call \l
   setValue() at intervals. For example:
 
-    \code
-        Operation::Operation(QObject *parent)
-            : QObject(parent), steps(0)
-        {
-            pd = new QProgressDialog("Operation in progress.", "Cancel", 0, 100);
-            connect(pd, SIGNAL(canceled()), this, SLOT(cancel()));
-            t = new QTimer(this);
-            connect(t, SIGNAL(timeout()), this, SLOT(perform()));
-            t->start(0);
-        }
-
-        void Operation::perform()
-        {
-            pd->setValue(steps);
-            //... perform one percent of the operation
-            steps++;
-            if (steps > pd->maximum())
-                t->stop();
-        }
-
-        void Operation::cancel()
-        {
-            t->stop();
-            //... cleanup
-        }
-    \endcode
+  \skipto Operation constructor
+  \printuntil }
+  \printuntil }
+  \printuntil }
 
   In both modes the progress dialog may be customized by
   replacing the child widgets with custom widgets by using setLabel(),
