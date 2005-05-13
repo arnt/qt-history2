@@ -6,6 +6,8 @@
 void qInitDrawhelperAsm() {}
 #endif
 
+#include <math.h>
+
 #define MASK(src, a) src = BYTE_MUL(src, a)
 
 static const int fixed_scale = 1 << 16;
