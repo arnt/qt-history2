@@ -111,7 +111,7 @@ QPixmap::QPixmap(const QSize &s, Type type)
     path (e.g. the filename only) the relevant file must be found
     relative to the runtime working directory.
 
-    The file name can be either refer to an actual file on disk or to
+    The file name can either refer to an actual file on disk or to
     one of the application's embedded resources. See the
     \l{resources.html}{Resource System} overview for details on how
     to embed images and other resource files in the application's
@@ -167,9 +167,6 @@ QPixmap::QPixmap(const QPixmap &pixmap)
     The extra \c const makes the entire definition read-only, which is
     slightly more efficient (for example, when the code is in a shared
     library) and ROMable when the application is to be stored in ROM.
-
-    In order to use that sort of declaration you must cast the
-    variable back to \c{const char **} when you create the QPixmap.
 */
 
 QPixmap::QPixmap(const char * const xpm[])
@@ -479,7 +476,7 @@ void QPixmap::resize_helper(const QSize &s)
     QImage, non-trivial computations and a transformation back to a
     QBitmap.
 
-    If \a clipTight is true the mask is just large enough to cover the
+    If \a clipTight is true (the default) the mask is just large enough to cover the
     pixels; otherwise, the mask is larger than the data pixels.
 
     \sa QImage::createHeuristicMask()
@@ -526,19 +523,20 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
     (default), the loader reads a few bytes from the header to guess
     the file's format.
 
-    See the fromImage() documentation for a description of the
-    \a flags argument.
+    If the data needs to be modified to fit in a lower-resolution
+    result (e.g. converting from 32-bit to 8-bit), use the \a
+    flags to specify how you'd prefer this to happen.
 
     The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
-    The file name can be either refer to an actual file on disk or to
+    The file name can either refer to an actual file on disk or to
     one of the application's embedded resources. See the
     \l{resources.html}{Resource System} overview for details on how
     to embed images and other resource files in the application's
     executable.
 
-    \sa loadFromData(), save(), QImageReader::imageFormat(), QImage::load(),
+    \sa loadFromData(), save(), QImageReader::imageFormat(), QImage::load(), fromImage()
     QImageReader
 */
 
@@ -575,13 +573,14 @@ bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConvers
     (default), the loader reads a few bytes from the header to guess
     the file's format.
 
-    See the fromImage() documentation for a description of the
-    \a flags argument.
+    If the data needs to be modified to fit in a lower-resolution
+    result (e.g. converting from 32-bit to 8-bit), use the \a
+    flags to specify how you'd prefer this to happen.
 
     The QImageReader documentation lists the supported image formats and
     explains how to add extra formats.
 
-    \sa load(), save(), QImageReader::imageFormat(), QImage::loadFromData(),
+    \sa load(), save(), QImageReader::imageFormat(), QImage::loadFromData(), fromImage(),
     QImageReader
 */
 
@@ -607,6 +606,17 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Qt::I
 /*!
   \fn bool QPixmap::loadFromData(const QByteArray &buf, const char *format, Qt::ImageConversionFlags flags)
     \overload
+
+    Loads a pixmap from the binary data \a buf.
+
+    If \a format is specified, the loader attempts to read the pixmap
+    using the specified format. If \a format is not specified
+    (default), the loader reads a few bytes from the header to guess
+    the file's format.
+
+    If the data needs to be modified to fit in a lower-resolution
+    result (e.g. converting from 32-bit to 8-bit), use the \a
+    flags to specify how you'd prefer this to happen.
 */
 
 
@@ -633,16 +643,18 @@ bool QPixmap::save(const QString &fileName, const char *format, int quality) con
 /*!
     \overload
 
-    This function writes a QPixmap to the QIODevice, \a device. This
-    can be used, for example, to save a pixmap directly into a
-    QByteArray:
-    \code
-    QPixmap pixmap;
-    QByteArray bytes;
-    QBuffer buffer(&bytes);
-    buffer.open(QIODevice::WriteOnly);
-    pixmap.save(&buffer, "PNG"); // writes pixmap into bytes in PNG format
-    \endcode
+    This function writes a QPixmap to the QIODevice, \a device using the image
+    file format \a format. This can be used, for example, to save a pixmap
+    directly into a QByteArray:
+    \quotefromfile snippets/image/image.cpp
+    \skipto PIX SAVE
+    \skipto QPixmap
+    \printuntil save
+
+    The \a quality parameter is a quality factor \a quality. \a quality must
+    be in the range [0,100] or -1. Specify 0 to obtain small
+    compressed files, 100 for large uncompressed files, and -1 to use
+    the default settings.
 */
 
 bool QPixmap::save(QIODevice* device, const char* format, int quality) const
@@ -1144,7 +1156,7 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
         label->setPixmap(QPixmap("paste.png"));
     \endcode
 
-    The file name can be either refer to an actual file on disk or to
+    The file name can either refer to an actual file on disk or to
     one of the application's embedded resources. See the
     \l{resources.html}{Resource System} overview for details on how
     to embed images and other resource files in the application's
@@ -1152,7 +1164,7 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
 
     Pixel data in a pixmap is internal and is managed by the
     underlying window system. Pixels can be accessed only through
-    QPainter functions and by converting the QPixmap to a QImage.
+    QPainter functions or by converting the QPixmap to a QImage.
 
     You can easily display a QPixmap on the screen using QLabel or
     one of QAbstractButton's subclasses (such as QPushButton and

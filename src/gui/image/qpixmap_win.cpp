@@ -68,6 +68,8 @@ QPixmap QPixmap::grabWindow(WId winId, int x, int y, int w, int h )
     This enum defines how the conversion between \c HBITMAP
     and QPixmap is performed.
 
+    \warning This enum is only available on Windows.
+
     \value NoAlpha The alpha channel is ignored and always treated as
     being set to fully opaque. This is preferred if the \c HBITMAP is
     used with standard GDI calls, such as \c BitBlt().
@@ -75,8 +77,6 @@ QPixmap QPixmap::grabWindow(WId winId, int x, int y, int w, int h )
     \value PremultipliedAlpha The \c HBITMAP is treated as having a
     alpha channel and premultiplied colors. This is preferred if the
     \c HBITMAP is accessed through the \c AlphaBlend() GDI function.
-
-    \warning This enum is only available on Windows.
 
     \sa fromWinHBITMAP(), toWinHBITMAP()
 */

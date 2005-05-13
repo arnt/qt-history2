@@ -99,9 +99,6 @@ QPixmap::~QPixmap()
     deref();
 }
 
-/*!
-  \internal
-*/
 int QPixmap::devType() const
 {
     return QInternal::Pixmap;

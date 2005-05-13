@@ -40,5 +40,19 @@ int main()
         image.save(&buffer, "PNG"); // writes image into ba in PNG format
     }
 
+    {
+        // PIX SAVE
+        QPixmap pixmap;
+        QByteArray bytes;
+        QBuffer buffer(&bytes);
+        buffer.open(QIODevice::WriteOnly);
+        pixmap.save(&buffer, "PNG"); // writes pixmap into bytes in PNG format
+    }
 
+    {
+        // MASK
+        QPixmap alpha("image-with-alpha.png");
+        QPixmap alphacopy = alpha;
+        alphacopy.setMask(*alphacopy.mask());
+    }
 }

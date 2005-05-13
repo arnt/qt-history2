@@ -27,6 +27,7 @@ SUBDIRS         = brush \
 #                  modelview-subclasses \   # broken
                   painterpath \
                   persistentindexes \
+                  picture \
                   plaintextlayout \
 #                  pointer \
                   process \

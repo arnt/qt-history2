@@ -353,7 +353,7 @@ QPixmapData::~QPixmapData()
     This is a special-purpose function that detaches the pixmap from
     shared pixmap data.
 
-    A pixmap is automatically detached by Qt whenever its contents is
+    A pixmap is automatically detached by Qt whenever its contents are
     about to change. This is done in all QPixmap member functions that
     modify the pixmap (fill(), resize(), convertFromImage(), load(),
     etc.), and in QPainter::begin() on a pixmap.
@@ -494,11 +494,10 @@ QBitmap QPixmap::mask() const
 
     \warning Setting the mask on a pixmap will cause any alpha channel
     data to be cleared. For example:
-    \code
-        QPixmap alpha("image-with-alpha.png");
-        QPixmap alphacopy = alpha;
-        alphacopy.setMask(*alphacopy.mask());
-    \endcode
+    \quotefromfile snippets/image/image.cpp
+    \skipto MASK
+    \skipto QPixmap
+    \printuntil setMask
     Now, alpha and alphacopy are visually different.
 
     Setting a \link isNull() null\endlink mask resets the mask.
@@ -561,9 +560,7 @@ void QPixmap::setMask(const QBitmap &newmask)
 }
 
 /*!
-  Internal implementation of the virtual QX11Info::metric() function.
-
-  \a m is the metric to get.
+  \reimp
 */
 
 int QPixmap::metric(PaintDeviceMetric m) const
@@ -907,10 +904,9 @@ QImage QPixmap::toImage() const
     \l{Qt::ImageConversionFlags}. Passing 0 for \a flags sets all the
     default options.
 
-    If a pixmap with depth 1 is painted with Qt::color0 and Qt::color1 and
-    converted to an image, the pixels painted with Qt::color0 will produce
-    pixel index 0 in the image and those painted with Qt::color1 will
-    produce pixel index 1.
+    If the image is a monochrome image, it is converted to a 32-bit pixmap and
+    then filled with the colors in the color table. If this is too expensive an
+    operation, you can use QBitmap::fromImage() instead.
 
     \sa toImage(), isQBitmap(), QImage::convertDepth(),
     defaultDepth(), QImage::hasAlphaBuffer()
@@ -1712,14 +1708,14 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     The original pixmap is not changed.
 
     The transformation \a matrix is internally adjusted to compensate
-    for unwanted translation, i.e. transform() returns the smallest image
+    for unwanted translation, i.e. transformed() returns the smallest image
     that contains all the transformed points of the original image.
 
     This function is slow because it involves transformation to a
     QImage, non-trivial computations and a transformation back to a
     QPixmap.
 
-    \sa trueMatrix(), QMatrix, QPainter::setWorldMatrix() QImage::transform()
+    \sa trueMatrix(), QMatrix, QPainter::setWorldMatrix() QImage::transformed()
 */
 
 QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const

@@ -38,38 +38,26 @@
     \mainclass
 
     A picture serializes painter commands to an IO device in a
-    platform-independent format. For example, a picture created under
-    Windows can be read on a Sun SPARC.
-
-    Pictures are called meta-files on some platforms.
+    platform-independent format. They are sometimes referred to as meta-files.
 
     Qt pictures use a proprietary binary format. Unlike native picture
-    (meta-file) formats on many window systems, Qt pictures have no
-    limitations regarding their contents. Everything that can be
-    painted can also be stored in a picture, e.g. fonts, pixmaps,
-    regions, transformed graphics, etc.
-
+    (meta-file) formats on many window systems, Qt pictures have no limitations
+    regarding their contents. Everything that can be painted on a widget or
+    pixmap (e.g., fonts, pixmaps, regions, transformed graphics, etc.)
+    can also be stored in a picture.
     QPicture is an \link shclass.html implicitly shared\endlink class.
 
     Example of how to record a picture:
-    \code
-    QPicture  pic;
-    QPainter  p;
-    p.begin(&pic);               // paint in picture
-    p.drawEllipse(10,20, 80,70); // draw an ellipse
-    p.end();                     // painting done
-    pic.save("drawing.pic");     // save picture
-    \endcode
+    \quotefromfile snippets/picture/picture.cpp
+    \skipto RECORD
+    \skipto QPicture
+    printuntil save
 
     Example of how to replay a picture:
-    \code
-    QPicture  pic;
-    pic.load("drawing.pic");     // load picture
-    QPainter  p;
-    p.begin(&myWidget);          // paint in myWidget
-    p.drawPicture(pic);          // draw the picture
-    p.end();                     // painting done
-    \endcode
+    \quotefromfile snippets/picture/picture.cpp
+    \skipto REPLAY
+    \skipto QPicture
+    \printuntil end();
 
     Pictures can also be drawn using play(). Some basic data about a
     picture is available, for example, size(), isNull() and
@@ -998,14 +986,10 @@ static QStringList qToStringList(const QList<QByteArray> arr)
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
-    \code
-    QStringList list = myPicture.inputFormatList();
-    QStringList::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
-    \endcode
+    \quotefromfile snippets/picture/picture.cpp
+    \skipto FORMATS
+    \skipto QStringList
+    \printuntil myProcessing
 
     \sa outputFormatList() inputFormats() QPictureIO
 */
@@ -1021,14 +1005,10 @@ QStringList QPicture::inputFormatList()
 
     Note that if you want to iterate over the list, you should iterate
     over a copy, e.g.
-    \code
-    QStringList list = myPicture.outputFormatList();
-    QStringList::Iterator it = list.begin();
-    while(it != list.end()) {
-        myProcessing(*it);
-        ++it;
-    }
-    \endcode
+    \quotefromfile snippets/picture/picture.cpp
+    \skipto OUTPUT
+    \skipto QStringList
+    \printuntil myProcessing
 
     \sa inputFormatList() outputFormats() QPictureIO
 */
@@ -1066,7 +1046,7 @@ QList<QByteArray> QPicture::outputFormats()
     to those that Qt provides.
 
     You don't normally need to use this class; QPicture::load(),
-    QPiicture::save().
+    QPicture::save().
 
     \sa QPicture QPixmap QFile
 */
@@ -1226,8 +1206,8 @@ static QPictureHandler *get_picture_handler(const char *format)
 
 /*!
     Defines a picture I/O handler for the picture format called \a
-    format, which is recognized using the \l{QRegExp}{regular
-    expression} \a header, read using \a readPicture and
+    format, which is recognized using the regular
+    expression defined in \a header, read using \a readPicture and
     written using \a writePicture.
 
     \a flags is a string of single-character flags for this format.
@@ -1246,27 +1226,20 @@ static QPictureHandler *get_picture_handler(const char *format)
     both are null, the QPictureIO object is valid but useless.
 
     Example:
-    \code
-        void readSVG(QPictureIO *picture)
-        {
-        // read the picture using the picture->ioDevice()
-        }
+    \quotefromfile snippets/picture/picture.cpp
+    \skipto SVG READ
+    \skipto readSVG
+    \printuntil }
+    \skipto SVG WRITE
+    \skipto writeSVG
+    \printuntil }
+    \skipto USE SVG
+    \skipto add
+    \printuntil ...
 
-        void writeSVG(QPictureIO *picture)
-        {
-        // write the picture using the picture->ioDevice()
-        }
-
-        // add the SVG picture handler
-
-        QPictureIO::defineIOHandler("SVG",
-                                   0, 0,
-                                   readSVG, writeSVG);
-    \endcode
-
-    Before the regex test, all the 0 bytes in the file header are
-    converted to 1 bytes. This is done because when Qt was
-    ASCII-based, QRegExp could not handle 0 bytes in strings.
+    Before the regulare expression test, all the 0 bytes in the file header are
+    converted to 1 bytes. This is done because when Qt was ASCII-based, QRegExp
+    could not handle 0 bytes in strings.
 
     The regexp is only applied on the first 14 bytes of the file.
 
@@ -1619,13 +1592,10 @@ QList<QByteArray> QPictureIO::outputFormats()
 
     Example:
 
-    \code
-        QPictureIO iio;
-        QPixmap  pixmap;
-        iio.setFileName("vegeburger.bmp");
-        if (picture.read())        // ok
-            pixmap = iio.picture();  // convert to pixmap
-    \endcode
+    \quotefromfile snippets/picture/picture.cpp
+    \skipto PIC
+    \skipto QPictureIO
+    \printuntil convert
 
     \sa setIODevice() setFileName() setFormat() write() QPixmap::load()
 */
@@ -1694,16 +1664,10 @@ bool QPictureIO::read()
     The picture will be written using the specified picture format.
 
     Example:
-    \code
-        QPictureIO iio;
-        QPicture   im;
-        im = pixmap; // convert to picture
-        iio.setPicture(im);
-        iio.setFileName("vegeburger.bmp");
-        iio.setFormat("BMP");
-        if (iio.write())
-            // returned true if written successfully
-    \endcode
+    \quotefromfile snippets/picture/picture.cpp
+    \skipto PIC WRITE
+    \skipto QPictureIO
+    \printuntil returned
 
     \sa setIODevice() setFileName() setFormat() read() QPixmap::save()
 */
