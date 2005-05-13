@@ -1092,30 +1092,30 @@ fi
 #-------------------------------------------------------------------------------
 [ -d $outpath/src/corelib/global ] || mkdir -p $outpath/src/corelib/global
 
-LICENSE_USER_STR=`$relpath/config.tests/unix/padstring 256 "qt_lcnsuser=$Licensee" "\\0"`
-LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 256 "qt_lcnsprod=$Products" "\\0"`
-PREFIX_PATH_STR=`$relpath/config.tests/unix/padstring 256 "qt_prfxpath=$QT_INSTALL_PREFIX" "\\0"`
-DOCUMENTATION_PATH_STR=`$relpath/config.tests/unix/padstring 256 "qt_docspath=$QT_INSTALL_DOCS" "\\0"`
-HEADERS_PATH_STR=`$relpath/config.tests/unix/padstring 256 "qt_prfxpath=$QT_INSTALL_HEADERS" "\\0"`
-LIBRARIES_PATH_STR=`$relpath/config.tests/unix/padstring 256 "qt_libspath=$QT_INSTALL_LIBS" "\\0"`
-BINARIES_PATH_STR=`$relpath/config.tests/unix/padstring 256 "qt_binspath=$QT_INSTALL_BINS" "\\0"`
-PLUGINS_PATH_STR=`$relpath/config.tests/unix/padstring 256 "qt_plugpath=$QT_INSTALL_PLUGINS" "\\0"`
-DATA_PATH_STR=`$relpath/config.tests/unix/padstring 256 "qt_datapath=$QT_INSTALL_DATA" "\\0"`
-TRANSLATIONS_PATH_STR=`$relpath/config.tests/unix/padstring 256 "qt_trnspath=$QT_INSTALL_TRANSLATIONS" "\\0"`
-SETTINGS_PATH_STR=`$relpath/config.tests/unix/padstring 256 "qt_stngpath=$QT_INSTALL_SETTINGS" "\\0"`
+LICENSE_USER_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsuser=$Licensee" "\\0"`
+LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsprod=$Products" "\\0"`
+PREFIX_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_prfxpath=$QT_INSTALL_PREFIX" "\\0"`
+DOCUMENTATION_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_docspath=$QT_INSTALL_DOCS" "\\0"`
+HEADERS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_hdrspath=$QT_INSTALL_HEADERS" "\\0"`
+LIBRARIES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_libspath=$QT_INSTALL_LIBS" "\\0"`
+BINARIES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_binspath=$QT_INSTALL_BINS" "\\0"`
+PLUGINS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_plugpath=$QT_INSTALL_PLUGINS" "\\0"`
+DATA_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_datapath=$QT_INSTALL_DATA" "\\0"`
+TRANSLATIONS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_trnspath=$QT_INSTALL_TRANSLATIONS" "\\0"`
+SETTINGS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_stngpath=$QT_INSTALL_SETTINGS" "\\0"`
 cat > $outpath/src/corelib/global/qconfig.cpp.new <<EOF
 /* Licensed */
-static const char qt_configure_licensee_str          [256] = "$LICENSE_USER_STR";
-static const char qt_configure_licensed_products_str [256] = "$LICENSE_PRODUCTS_STR";
-static const char qt_configure_prefix_path_str       [256] = "$PREFIX_PATH_STR";
-static const char qt_configure_documentation_path_str[256] = "$DOCUMENTATION_PATH_STR";
-static const char qt_configure_headers_path_str      [256] = "$HEADERS_PATH_STR";
-static const char qt_configure_libraries_path_str    [256] = "$LIBRARIES_PATH_STR";
-static const char qt_configure_binaries_path_str     [256] = "$BINARIES_PATH_STR";
-static const char qt_configure_plugins_path_str      [256] = "$PLUGINS_PATH_STR";
-static const char qt_configure_data_path_str         [256] = "$DATA_PATH_STR";
-static const char qt_configure_translations_path_str [256] = "$TRANSLATIONS_PATH_STR";
-static const char qt_configure_settings_path_str     [256] = "$SETTINGS_PATH_STR";
+static const char qt_configure_licensee_str          [256 + 12] = "$LICENSE_USER_STR";
+static const char qt_configure_licensed_products_str [256 + 12] = "$LICENSE_PRODUCTS_STR";
+static const char qt_configure_prefix_path_str       [256 + 12] = "$PREFIX_PATH_STR";
+static const char qt_configure_documentation_path_str[256 + 12] = "$DOCUMENTATION_PATH_STR";
+static const char qt_configure_headers_path_str      [256 + 12] = "$HEADERS_PATH_STR";
+static const char qt_configure_libraries_path_str    [256 + 12] = "$LIBRARIES_PATH_STR";
+static const char qt_configure_binaries_path_str     [256 + 12] = "$BINARIES_PATH_STR";
+static const char qt_configure_plugins_path_str      [256 + 12] = "$PLUGINS_PATH_STR";
+static const char qt_configure_data_path_str         [256 + 12] = "$DATA_PATH_STR";
+static const char qt_configure_translations_path_str [256 + 12] = "$TRANSLATIONS_PATH_STR";
+static const char qt_configure_settings_path_str     [256 + 12] = "$SETTINGS_PATH_STR";
 /* strlen( "qt_lcnsxxxx" ) == 12 */
 #define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;
 #define QT_CONFIGURE_LICENSED_PRODUCTS qt_configure_licensed_products_str + 12;
@@ -2164,7 +2164,7 @@ Third Party Libraries:
  *  -no-gif ............ Do not compile in GIF reading support.
     -qt-gif ............ Compile in GIF reading support.
                          See src/gui/image/qgif.h
-                         
+
     -no-libpng ......... Do not compile in PNG support.
     -qt-libpng ......... Use the libpng bundled with Qt.
  +  -system-libpng ..... Use libpng from the operating system.
