@@ -146,7 +146,7 @@
     several plugins support the same capability, Qt will select one
     arbitrarily.
 
-    \sa QImageIOHandler, {How to Write Qt Plugins}
+    \sa QImageIOHandler, {How to Create Qt Plugins}
 */
 
 /*!

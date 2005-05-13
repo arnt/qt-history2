@@ -81,12 +81,12 @@ QString QAccessibleHeader::text(Text t, int child) const
             str = header()->model()->headerData(child - 1, header()->orientation()).toString();
             break;
         case Description: {
-            QAccessibleEvent event(QAccessibleEvent::Description, child);
+            QAccessibleEvent event(QEvent::AccessibilityDescription, child);
             if (QApplication::sendEvent(widget(), &event))
                 str = event.value();
             break; }
         case Help: {
-            QAccessibleEvent event(QAccessibleEvent::Help, child);
+            QAccessibleEvent event(QEvent::AccessibilityHelp, child);
             if (QApplication::sendEvent(widget(), &event))
                 str = event.value();
             break; }

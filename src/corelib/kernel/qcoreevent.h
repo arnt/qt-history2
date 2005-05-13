@@ -98,7 +98,7 @@ public:
         DeactivateControl = 81,                 // ActiveX deactivation
         ContextMenu = 82,                       // context popup menu
         InputMethod = 83,                       // input method
-        Accessibility = 86,                     // accessibility information is requested
+        AccessibilityPrepare = 86,              // accessibility information is requested
         TabletMove = 87,                        // Wacom tablet event
         LocaleChange = 88,                      // the system locale changed
         LanguageChange = 89,                    // the application language changed
@@ -143,7 +143,6 @@ public:
 #endif
 
         WhatsThisClicked = 118,
-        AccessibilityHelp = 119,                // accessibility help request
 
 #ifdef QT3_SUPPORT
         CaptionChange = WindowTitleChange,
@@ -163,6 +162,9 @@ public:
         HoverEnter = 127,                       // mouse cursor enters a hover widget
         HoverLeave = 128,                       // mouse cursor leaves a hover widget
         HoverMove = 129,                        // mouse cursor move inside a hover widget
+
+        AccessibilityHelp = 119,                // accessibility help text request
+        AccessibilityDescription = 130,         // accessibility description text request
 
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id

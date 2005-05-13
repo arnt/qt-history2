@@ -130,6 +130,8 @@ public:
     provided for various aspects of the interface implementation, for
     example setValue(), setDescription(), setAccelerator(), and
     setHelp().
+
+    \sa QAccessible, QAccessibleObject
 */
 
 /*!

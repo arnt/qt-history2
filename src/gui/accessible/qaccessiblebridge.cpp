@@ -15,22 +15,54 @@
 
 /*!
     \class QAccessibleBridge
+    \brief The QAccessibleBridge class is the base class for
+    accessibility back-ends.
 
     \ingroup accessibility
 
+    Qt supports Microsoft Active Accessibility (MSAA), Mac OS X
+    Accessibility, and the Unix/X11 AT-SPI standard. By subclassing
+    QAccessibleBridge, you can support other backends than the
+    predefined ones.
+
+    Currently, custom bridges are only supported on Unix. We might
+    add support for them on other platforms as well if there is
+    enough demand.
+
+    \sa QAccessible, QAccessibleBridgePlugin
 */
 
 /*!
     \fn QAccessibleBridge::~QAccessibleBridge()
 
+    Destroys the accessibility bridge object.
 */
 
 /*!
-    \fn void QAccessibleBridge::setRootObject(QAccessibleInterface *)
+    \fn void QAccessibleBridge::setRootObject(QAccessibleInterface *object)
+
+    This function is called by Qt at application startup to set the
+    root accessible object of the application to \a object. All other
+    accessible objects in the application can be reached by the
+    client using object navigation.
+
+    \sa QAccessible::setRootObject()
 */
 
 /*!
-    \fn void QAccessibleBridge::notifyAccessibilityUpdate(int, QAccessibleInterface *, int)
+    \fn void QAccessibleBridge::notifyAccessibilityUpdate(int reason, QAccessibleInterface *interface, int child)
+
+    This function is called by Qt to notify the bridge about a change
+    in the accessibility information for object wrapped by the given
+    \a interface.
+
+    \a reason specifies the cause of the change. It can take values
+    of type QAccessible::Event.
+
+    \a child is the (1-based) index of the child element that has
+    changed. When \a child is 0, the object itself has changed.
+
+    \sa QAccessible::updateAccessibility()
 */
 
 /*!
@@ -46,7 +78,7 @@
     and create(), and exporting the class with the \c
     Q_EXPORT_PLUGIN() macro.
 
-    \sa QAccessibleBridge, QAccessiblePlugin, {How to Write Qt Plugins}
+    \sa QAccessibleBridge, QAccessiblePlugin, {How to Create Qt Plugins}
 */
 
 /*!
@@ -54,7 +86,8 @@
     parent. This is invoked automatically by the \c Q_EXPORT_PLUGIN()
     macro.
 */
-QAccessibleBridgePlugin::QAccessibleBridgePlugin(QObject *parent): QObject(parent)
+QAccessibleBridgePlugin::QAccessibleBridgePlugin(QObject *parent)
+    : QObject(parent)
 {
 
 }

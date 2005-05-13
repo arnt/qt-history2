@@ -68,6 +68,8 @@ QList<QByteArray> QAccessibleObjectPrivate::actionList() const
     This class is mainly provided for convenience. All subclasses of
     the QAccessibleInterface that provide implementations of non-widget objects
     should use this class as their base class.
+
+    \sa QAccessible, QAccessibleWidget
 */
 
 /*!

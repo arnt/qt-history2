@@ -42,20 +42,49 @@
     braille displays. Clients and servers communicate in the following way:
 
     \list
-    \i  \e{AT Servers} notify the clients about events through calls to the
+    \o  \e{AT Servers} notify the clients about events through calls to the
         updateAccessibility() function.
 
-    \i  \e{AT Clients} request information about the objects in the server.
+    \o  \e{AT Clients} request information about the objects in the server.
         The QAccessibleInterface class is the core interface, and encapsulates
         this information in a pure virtual API. Implementations of the interface
         are provided by Qt through the queryAccessibleInterface() API.
     \endlist
 
-    The communication between servers and clients is initialized by the
-    setRootObject() function.
+    The communication between servers and clients is initialized by
+    the setRootObject() function. Function pointers can be installed
+    to replace or extend the default behavior of the static functions
+    in QAccessible.
 
-    Function pointers can be installed to replace or extend the default
-    behavior of the static functions in QAccessible.
+    Qt supports Microsoft Active Accessibility (MSAA), Mac OS X
+    Accessibility, and the Unix/X11 AT-SPI standard. Other backends
+    can be supported using QAccessibilityBridge.
+
+    In addition to QAccessible's static functions, Qt offers one
+    generic interface, QAccessibleInterface, that can be used to wrap
+    all widgets and objects (e.g., QPushButton). This single
+    interface provides all the metadata necessary for the assistive
+    technologies. Qt provides implementations of this interface for
+    its built-in widgets as plugins.
+
+    When you develop custom widgets, you can create custom subclasses
+    of QAccessibleInterface and distribute them as plugins (using
+    QAccessiblePlugin) or compile them into the application.
+    Likewise, Qt's predefined accessibility support can be built as
+    plugin (the default) or directly into the Qt library. The main
+    advantage of using plugins is that the accessibility classes are
+    only loaded into memory if they are actually used; they don't
+    slow down the common case where no assistive technology is being
+    used.
+
+    Qt also includes two convenience classes, QAccessibleObject and
+    QAccessibleWidget, that inherit from QAccessibleInterface and
+    provide the lowest common denominator of metadata (e.g., widget
+    geometry, window title, basic help text). You can use them as
+    base classes when wrapping your custom QObject or QWidget
+    subclasses.
+
+    \sa QAccessibleInterface
 */
 
 /*!
@@ -430,7 +459,8 @@ QAccessible::RootObjectHandler QAccessible::installRootObjectHandler(RootObjectH
     function tries to find an implementation for the object's parent
     class, using the above strategy.
 
-    \warning The caller must call release() on the returned interface.
+    \warning The caller is responsible for deleting the returned
+    interface after use.
 */
 QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
 {
@@ -439,7 +469,7 @@ QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
     if (!object)
         return 0;
 
-    QEvent e(QEvent::Accessibility);
+    QEvent e(QEvent::AccessibilityPrepare);
     QApplication::sendEvent(object, &e);
 
     const QMetaObject *mo = object->metaObject();
@@ -601,14 +631,7 @@ bool QAccessible::isActive()
     (which can be retrieved through navigation) asking the parent for
     information about that child will usually not succeed.
 
-    \section2 Reference counting
-
-    The lifetime of QAccessibleInterface implementations is controlled
-    by reference counting. Interfaces provided by
-    QAccessible::queryAccessibleInterface() or through navigate() are
-    referenced by the implementation, and the caller must release()
-    the interface when it is no longer in use. addRef() must be
-    called if new references to the interface are added.
+    \sa QAccessible
 */
 
 /*!
@@ -694,9 +717,10 @@ const QAccessibleInterface *other, int otherChild) const
     \fn int QAccessibleInterface::navigate(RelationFlag relation, int entry, QAccessibleInterface
 **target) const
 
-    Navigates from this object to an object that has a relationship \a
-    relation to this object, and returns the respective object in \a
-    target.
+    Navigates from this object to an object that has a relationship
+    \a relation to this object, and returns the respective object in
+    \a target. It is the caller's responsibility to delete *\a target
+    after use.
 
     If an object is found \a target is set to point to the object, and
     the index of the child in \a target is returned. The return value
@@ -718,12 +742,12 @@ const QAccessibleInterface *other, int otherChild) const
     navigate to the first child of an object:
 
     \code
-    QAccessibleInterface *child = 0;
-    int targetChild = object->navigate(Child, 1, &child);
-    if (child) {
-        // ...
-        child->release();
-    }
+        QAccessibleInterface *child = 0;
+        int targetChild = object->navigate(Child, 1, &child);
+        if (child) {
+            // ...
+            delete child;
+        }
     \endcode
 
     \i \e{Geometric relationships} -- the index of the child from
@@ -746,11 +770,11 @@ const QAccessibleInterface *other, int otherChild) const
     Returns the value of the text property \a t of the object, or of
     the object's child if \a child is not 0.
 
-    The \e Name is a string used by clients to identify, find or
+    The \l Name is a string used by clients to identify, find or
     announce an accessible object for the user. All objects must have
     a name that is unique within their container.
 
-    An accessible object's \e Description provides textual information
+    An accessible object's \l Description provides textual information
     about an object's visual appearance. The description is primarily
     used to provide greater context for vision-impaired users, but is
     also used for context searching or other applications. Not all
@@ -758,17 +782,17 @@ const QAccessibleInterface *other, int otherChild) const
     description, but a toolbutton that shows a picture of a smiley
     would.
 
-    The \e Value of an accessible object represents visual information
+    The \l Value of an accessible object represents visual information
     contained by the object, e.g. the text in a line edit. Usually,
     the value can be modified by the user. Not all objects have a
     value, e.g. static text labels don't, and some objects have a
     state that already is the value, e.g. toggle buttons.
 
-    The \e Help text provides information about the function and
+    The \l Help text provides information about the function and
     usage of an accessible object. Not all objects provide this
     information.
 
-    The \e Accelerator is a keyboard shortcut that activates the
+    The \l Accelerator is a keyboard shortcut that activates the
     object's default action. A keyboard shortcut is the underlined
     character in the text of a menu, menu item or widget, and is
     either the character itself, or a combination of this character
@@ -776,7 +800,7 @@ const QAccessibleInterface *other, int otherChild) const
     tool buttons also have shortcut keys and usually display them in
     their tooltip.
 
-    All objects provide a string for \e Name.
+    All objects provide a string for \l Name.
 
     \sa role(), state()
 */
@@ -865,39 +889,59 @@ const QAccessibleInterface *other, int otherChild) const
 /*!
     \class QAccessibleEvent
     \brief The QAccessibleEvent class is used to query addition
-    accessibility information about complex widgets
+    accessibility information about complex widgets.
+
+    The event can be of type QEvent::AccessibilityDescription or
+    QEvent::AccessibilityHelp.
+
+    Some QAccessibleInterface implementations send QAccessibleEvents
+    to the widget they wrap to obtain the description or help text of
+    a widget or of its children. The widget can answer by calling
+    setValue() with the requested information.
+
+    The default QWidget::event() implementation simply sets the text
+    to be the widget's \l{QWidget::toolTip}{tooltip} (for \l
+    AccessibilityDescription event) or its
+    \l{QWidget::whatsThis}{"What's This?" text} (for \l
+    AccessibilityHelp event).
 
     \ingroup accessibility
     \ingroup events
 */
 
 /*!
-    \enum QAccessibleEvent::TextType
+    \fn QAccessibleEvent::QAccessibleEvent(Type type, int child)
 
-    \value Description
-    \value Help
-*/
+    Constructs an accessibility event of the given \a type, which
+    must be QEvent::AccessibilityDescription or
+    QEvent::AccessibilityHelp.
 
-/*!
-    \fn QAccessibleEvent::QAccessibleEvent(TextType textType, int child)
-*/
+    \a child is the (1-based) index of the child to which the request
+    applies. If \a child is 0, the request is for the widget itself.
 
-/*!
-    \fn TextType QAccessibleEvent::textType() const
+    \sa child()
 */
 
 /*!
     \fn int QAccessibleEvent::child() const
+
+    Returns the (1-based) index of the child to which the request
+    applies. If \a child is 0, the request is for the widget itself.
 */
 
 /*!
     \fn QString QAccessibleEvent::value() const
 
+    Returns the text set using setValue().
+
     \sa setValue()
 */
 
 /*!
-    \fn void QAccessibleEvent::setValue(const QString &aText)
+    \fn void QAccessibleEvent::setValue(const QString &text)
+
+    Set the description or help text for the given child() to \a
+    text, thereby answering the request.
 
     \sa value()
 */

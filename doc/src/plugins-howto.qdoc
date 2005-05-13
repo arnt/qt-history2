@@ -18,14 +18,14 @@
 
     \list
     \o A higher-level API for writing extensions to Qt itself: custom database
-       drivers, image formats, text codecs, and styles.
+       drivers, image formats, text codecs, custom styles, etc.
     \o A lower-lever API for extending Qt applications.
     \endlist
 
     For example, if you want to write a custom QStyle subclass and
     have Qt applications load it dynamically, you would then use the
-    higher-level API; whereas if you want to extend Qt Designer, you
-    would use the lower-level API.
+    higher-level API; whereas if you want to extend \e{Qt Designer},
+    you would use the lower-level API.
 
     Since the higher-level API is built on top of the lower-level API,
     some issues are common to both.
@@ -38,56 +38,58 @@
 
     Writing a plugin that extends Qt itself is achieved by
     subclassing the appropriate plugin base clase, implementing a few
-    functions, and adding a macro. 
+    functions, and adding a macro.
 
-    There are five plugin base classes. Derived plugins are stored
+    There are several plugin base classes. Derived plugins are stored
     by default in the standard plugin directory.
 
     \table
-    \header
-    \o Base Class
-    \o Default Path
-    \row
-    \o \l QImageIOPlugin
-    \o \c{pluginsbase/imageformats}
-    \row
-    \o \l QSqlDriverPlugin
-    \o \c{pluginsbase/sqldrivers}
-    \row
-    \o \l QStylePlugin
-    \o \c{pluginsbase/styles}
-    \row
-    \o \l QTextCodecPlugin
-    \o \c{pluginsbase/codecs}
+    \header \o Base Class              \o Default Path                \o Case Sensitive Keys?
+    \row    \o QAccessibleBridgePlugin \o \c plugins/accessiblebridge \o Yes
+    \row    \o QAccessiblePlugin       \o \c plugins/accessible       \o Yes
+    \row    \o QDecorationPlugin       \o \c plugins/decorations      \o Yes
+    \row    \o QGfxDriverPlugin        \o \c plugins/gfxdrivers       \o Yes
+    \row    \o QIconEnginePlugin       \o \c plugins/iconengines      \o No
+    \row    \o QImageIOPlugin          \o \c plugins/imageformats     \o Yes
+    \row    \o QInputContextPlugin     \o \c plugins/inputmethods     \o Yes
+    \row    \o QKbdDriverPlugin        \o \c plugins/kbddrivers       \o Yes
+    \row    \o QMouseDriverPlugin      \o \c plugins/mousedrivers     \o Yes
+    \row    \o QPictureFormatPlugin    \o \c plugins/pictureformats   \o Yes
+    \row    \o QSqlDriverPlugin        \o \c plugins/sqldrivers       \o Yes
+    \row    \o QStylePlugin            \o \c plugins/styles           \o No
+    \row    \o QTextCodecPlugin        \o \c plugins/codecs           \o Yes
     \endtable
 
-    But where is the \c{pluginsbase} directory? When the application is
-    run, Qt will first treat the application's executable directory as the
-    \c{pluginsbase}. For example if the application is in \c{C:\Program
-    Files\MyApp} and has a style plugin, Qt will look in \c{C:\Program
-    Files\MyApp\styles}. (See QCoreApplication::applicationDirPath() for
-    how to find out where the application's executable is.) Qt will also
-    look in the directory specified by \c{qInstallPathPlugins()}. If you want
-    Qt to look in additional places you can add as many paths as you need
-    with calls to QCoreApplication::addLibraryPath(). And if you want to
+    But where is the \c{plugins} directory? When the application is
+    run, Qt will first treat the application's executable directory
+    as the \c{pluginsbase}. For example if the application is in
+    \c{C:\Program Files\MyApp} and has a style plugin, Qt will look
+    in \c{C:\Program Files\MyApp\styles}. (See
+    QCoreApplication::applicationDirPath() for how to find out where
+    the application's executable is.) Qt will also look in the
+    directory specified by
+    QLibraryInfo::location(QLibraryInfo::PluginsPath), which
+    typically is located in \c QTDIR/plugins (where \c QTDIR is the
+    directory where Qt is installed). If you want Qt to look in
+    additional places you can add as many paths as you need with
+    calls to QCoreApplication::addLibraryPath(). And if you want to
     set your own path or paths you can use
     QCoreApplication::setLibraryPaths().
 
-    Suppose that you have a new style class called 'MyStyle' that you want
-    to make available as a plugin. The required code is straightforward:
+    Suppose that you have a new style class called \c MyStyle that
+    you want to make available as a plugin. The required code is
+    straightforward:
+
     \code
         class MyStylePlugin : public QStylePlugin
         {
         public:
-	    MyStylePlugin() {}
-	    ~MyStylePlugin() {}
-
-	    QStringList keys() const { 
+	    QStringList keys() const {
 	        return QStringList() << "mystyle"; 
 	    }
 
-	    QStyle* create( const QString& key ) { 
-	        if ( key == "mystyle" ) 
+	    QStyle *create(const QString &key) { 
+	        if (key == "mystyle")
 		    return new MyStyle;
 	        return 0;
 	    }
@@ -96,22 +98,15 @@
         Q_EXPORT_PLUGIN(MyStylePlugin)
     \endcode
 
-    (Note that QStyleFactory is case-insensitive, and the lower case
-    version of the key is used; other factories are case sensitive.)
+    (Note that QStylePlugin is case-insensitive, and the lower-case
+    version of the key is used; most other plugins are case
+    sensitive.)
 
-    The constructor and destructor do not need to do anything, so are left
-    empty. There are only two virtual functions that must be implemented.
-    The first is keys() which returns a string list of the classes
-    implemented in the plugin. (We've just implemented one class in the
-    example above.) The second is a function that returns an object of the
-    required class (or 0 if the plugin is asked to create an object of a
-    class that it doesn't implement). For QStylePlugin, this second
-    function is called create().
-
-    For database drivers, image formats and text codecs,
-    no explicit object creation is required. Qt will find and create them
-    as required. Styles are an exception, since you might want to set a
-    style explicitly in code. To apply a style, use code like this:
+    For database drivers, image formats, text codecs, and most other
+    plugin types, no explicit object creation is required. Qt will
+    find and create them as required. Styles are an exception, since
+    you might want to set a style explicitly in code. To apply a
+    style, use code like this:
 
     \code
         QApplication::setStyle(QStyleFactory::create("MyStyle"));
@@ -127,32 +122,72 @@
     Because of this applications don't require any code to find and load
     plugins, since Qt handles them automatically.
 
-    The default directory for plugins is \c{QTDIR/plugins} (where QTDIR
-    is the directory where Qt is installed),
-    with each type of plugin in a subdirectory for that type, e.g. \c
-    styles. If you want your applications to use plugins and you don't
-    want to use the standard plugins path, have your installation process
-    determine the path you want to use for the plugins, and save the path,
-    e.g. using QSettings, for the application to read when it runs. The
-    application can then call QCoreApplication::addLibraryPath() with this
-    path and your plugins will be available to the application. Note that
-    the final part of the path, i.e. \c styles, etc., cannot
-    be changed.
+    The default directory for plugins is \c{QTDIR/plugins} (where \c
+    QTDIR is the directory where Qt is installed), with each type of
+    plugin in a subdirectory for that type, e.g. \c styles. If you
+    want your applications to use plugins and you don't want to use
+    the standard plugins path, have your installation process
+    determine the path you want to use for the plugins, and save the
+    path, e.g. using QSettings, for the application to read when it
+    runs. The application can then call
+    QCoreApplication::addLibraryPath() with this path and your
+    plugins will be available to the application. Note that the final
+    part of the path (e.g., \c styles) cannot be changed.
 
-    The normal way to include a plugin with an application is either to 
-    compile it in with the application, or to compile it into a \c DLL (or
-    \c so or other platform specific library type) and use it like any
-    other library. If you want the plugin to be loadable then one approach
-    is to create a subdirectory under the application, e.g. \c
-    appdir/plugins/designer, and place the plugin in that directory.
+    The normal way to include a plugin with an application is either
+    to compile it in with the application or to compile it into a
+    dynamic library and use it like any other library. If you want
+    the plugin to be loadable then one approach is to create a
+    subdirectory under the application and place the plugin in that
+    directory.
 
     \section1 The Lower-Level API: Extending Qt Applications
 
-    Qt application can be extended through plugins. This requires the
-    application to detect and load plugins using QPluginLoader. In
-    that context, plugins may provide arbitrary functionality and are
-    not limited to database drivers, image formats, text codecs,
-    and styles.
+    Not only Qt itself but also Qt application can be extended
+    through plugins. This requires the application to detect and load
+    plugins using QPluginLoader. In that context, plugins may provide
+    arbitrary functionality and are not limited to database drivers,
+    image formats, text codecs, styles, and the other types of plugin
+    that extend Qt's functionality.
+
+    Making an application extensible through plugins involves the
+    following steps:
+
+    \list 1
+    \o Define a set of interfaces (classes with only pure virtual
+       functions) used to talk to the plugins.
+    \o Use the \c Q_DECLARE_INTERFACE() macro to tell Qt's
+       \l{meta-object system} about the interface.
+    \o Use QPluginLoader in the application to load the plugins.
+    \o Use qobject_cast() to test whether a plugin implements a given
+       interface.
+    \endlist
+
+    Writing a plugin involves these steps:
+
+    \list 1
+    \o Declare a plugin class that inherits from QObject and from the
+       interfaces that the plugin wants to provide.
+    \o Use the \c Q_INTERFACES() macro to tell Qt's \l{meta-object
+       system} about the interfaces.
+    \o Export the plugin using the \c Q_EXPORT_PLUGIN() macro.
+    \o Build the plugin using an adequate \c .pro file.
+    \endlist
+
+    For example, here's the definition of an interface class:
+
+    \quotefromfile tools/plugandpaint/interfaces.h
+    \skipto class FilterInterface
+    \printuntil };
+    \skipto Q_DECLARE_INTERFACE(FilterInterface
+    \printuntil com.trolltech
+
+    Here's the definition of a plugin class that implements that
+    interface:
+
+    \quotefromfile tools/plugandpaintplugins/extrafilters/extrafiltersplugin.h
+    \skipto #include
+    \printuntil };
 
     The \l{tools/plugandpaint}{Plug & Paint} example documentation
     explains this process in detail.
@@ -227,4 +262,6 @@
        plugins that can only be loaded by the library with which the
        plugins were linked.
     \endlist
+
+    \sa QPluginLoader, QLibrary
 */

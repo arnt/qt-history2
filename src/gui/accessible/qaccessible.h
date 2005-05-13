@@ -294,25 +294,21 @@ public:
 Q_DECLARE_INTERFACE(QAccessibleInterface, "com.trolltech.Qt.QAccessibleInterface")
 
 
-class Q_GUI_EXPORT QAccessibleEvent: public QEvent
+class Q_GUI_EXPORT QAccessibleEvent : public QEvent
 {
 public:
-    enum TextType { Description, Help };
-
-    inline QAccessibleEvent(TextType textType, int child);
-    inline TextType textType() const { return t; }
+    inline QAccessibleEvent(Type type, int child);
     inline int child() const { return c; }
     inline QString value() const { return val; }
     inline void setValue(const QString &aText) { val = aText; }
 
 private:
-    TextType t;
     int c;
     QString val;
 };
 
-inline QAccessibleEvent::QAccessibleEvent(TextType atextType, int achild)
-    : QEvent(AccessibilityHelp), t(atextType), c(achild) {}
+inline QAccessibleEvent::QAccessibleEvent(Type type, int achild)
+    : QEvent(type), c(achild) {}
 
 #endif // QT_NO_ACCESSIBILITY
 

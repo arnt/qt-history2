@@ -5101,15 +5101,16 @@ bool QWidget::event(QEvent *e)
         break;
 #endif
 #ifndef QT_NO_ACCESSIBILITY
+    case QEvent::AccessibilityDescription:
     case QEvent::AccessibilityHelp: {
         QAccessibleEvent *ev = static_cast<QAccessibleEvent *>(e);
         if (ev->child())
             return false;
-        switch (ev->textType()) {
-        case QAccessibleEvent::Description:
+        switch (ev->type()) {
+        case QEvent::AccessibilityDescription:
             ev->setValue(d->toolTip);
             break;
-        case QAccessibleEvent::Help:
+        case QEvent::AccessibilityHelp:
             ev->setValue(d->whatsThis);
             break;
         default:

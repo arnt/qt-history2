@@ -56,12 +56,12 @@ QString Q3AccessibleHeader::text(Text t, int child) const
                 str = header()->label(child - 1);
                 break;
             case Description: {
-                QAccessibleEvent event(QAccessibleEvent::Description, child);
+                QAccessibleEvent event(QEvent::AccessibilityDescription, child);
                 if (QApplication::sendEvent(widget(), &event))
                     str = event.value();
                 break; }
             case Help: {
-                QAccessibleEvent event(QAccessibleEvent::Help, child);
+                QAccessibleEvent event(QEvent::AccessibilityHelp, child);
                 if (QApplication::sendEvent(widget(), &event))
                     str = event.value();
                 break; }
