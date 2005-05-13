@@ -1,52 +1,44 @@
-                    INSTALLING Qt/Windows Version %VERSION%
+                          INSTALLING Qt/Windows Version %VERSION%
 
-    The source package of Qt %VERSION% must be built manually. Please
-    follow the following steps:
+1.  If you have the commercial edition of Qt, copy the license file
+    from your account on dist.trolltech.com into your home directory
+    (this may be known as the userprofile environment variable) and
+    rename it to .qt-license. For example on Windows 2000,
+    %USERPROFILE% should be something like C:\Documents and
+    Settings\username
 
-    1. Uncompress the files into the directory you want to use, e.g.
-       C:\Qt\%VERSION%
+    For the open source version you do not need a license file.
 
-    2. Copy the license file from your account on dist.trolltech.com
-       into your home directory (this may be known as the userprofile
-       environment variable) and rename it to .qt-license 
+2.  Uncompress the files into the directory you want Qt installed,
+    e.g. C:\Qt\%VERSION%
 
-       For example on Windows 2000, %USERPROFILE% should be something
-       like c:\documents and settings\username
+3.  Building
 
-    3. You need to set up certain environment variables for Qt:
+    To configure the Qt library for your machine type:
 
-       a. Set QTDIR to the directory where the Qt files have been
-	  installed. All other paths needed by the build system or Qt
-	  development tools will be derived from this variable.
+	C:
+	cd \Qt\%VERSION%
+	configure
 
-       b. Set QMAKESPEC depending on the compiler you are using to build Qt.
-	    - Microsoft Visual Studio: 		win32-msvc
-	    - Microsoft Visual Studio .NET: 	win32-msvc.net
-	    - Intel C++ Compiler: 		win32-icc
-	    - MingGW: 				win32-g++
-          Please see the PLATFORMS file for all supported Windows platforms
-          in this release.
+    Type "configure -help" to get a list of all available options.
 
-       c. Extend your PATH variable by %QTDIR%\bin to make sure that the Qt
-          tools are found.
+    The actual commands needed to build Qt depends on your development
+    system. For Microsoft Visual Studio to create the library and
+    compile all the demos, examples, tools and tutorials type:
 
-    4. The next step is to configure your Qt library:
+	nmake
 
-       a. Change the directory in the command prompt to the directory where
-          you unpacked the Qt files ("cd %QTDIR%").
+3. Environment variables
 
-       b. Execute the configure tool in the command prompt with the desired
-	  options. For example, use "configure -release -shared" to build
-	  Qt as a shared library, without debug information.
+   In order to use Qt, some environment variables needs to be
+   extended.
 
-	  Type "configure -help" to get a list of all available options
+	PATH		   - to locate qmake, moc and other Qt tools
 
-	  The configure tool scans through all the Qt files, and generates
-	  makefiles for your configuration.
+   This is done by adding c:\Qt\%VERSION%\bin to the PATH variable.
 
-    5. The actual commands needed to build Qt depends on your development
-       system. For Microsoft Visual Studio, type the command "nmake"
-       at the command prompt. This builds all the different parts of the
-       toolkit.
+   For newer versions of Windows, PATH can be extended through
+   "Control Panel->System->Advanced->Environment variables" and for
+   older versions by editing c:\autoexec.bat.
 
-    Qt should now be built and installed.
+That's all.  Qt is now installed.

@@ -1,149 +1,60 @@
-			  INSTALLING Qt/Mac Version %VERSION% (for Mac OS X)
+			  INSTALLING Qt/Mac Version %VERSION%
 
-See the PLATFORMS file for details pertaining to your environment, especially
-if something doesn't work here.
+1.  If you have the commercial edition of Qt, install your license
+    file as $HOME/.qt-license.
 
-1.  Unpack the archive if you have not done so already:
+    For the open source version you do not need a license file.
 
-	cd /Developer
-	tar xzvf Full_Path_to_Directory_You_Unpacked_To/%DISTNAME%.tar.gz
+2.  Unpack the archive if you have not done so already:
 
-    This creates the directory /Developer/%DISTNAME% containing the
-    files from the main archive.
+	cd /tmp
+	gunzip %DISTNAME%.tar.gz	# uncompress the archive
+	tar xvf %DISTNAME%.tar		# unpack it
 
-    The rest of this file assumes that Qt is unpacked in /Developer/qt.
+    This creates the directory /tmp/%DISTNAME% containing the files
+    from the archive.
 
-2.  Set some environment variables in the file .login (or .profile or
-    something else depending on your shell) in your home directory.
-    Create this file if it is not already there. You can check your shell
-    by typing:
+3.  Building
 
-    finger Your_Login
+    To configure the Qt library for your machine type:
 
-    The variables that you must set are:
+	cd /tmp/%DISTNAME%
+	./configure
 
-	QTDIR		   - wherever you installed Qt
-	PATH		   - to locate the moc program and other Qt tools
-	DYLD_LIBRARY_PATH  - for the shared Qt library
+    Type "./configure -help" to get a list of all available options.
+
+    To create the library and compile all the demos, examples, tools
+    and tutorials type:
+
+	make
+
+    To install the library, demos, examples, tools
+    and tutorials type:
+
+	make install
+
+    Qt is by default installed into /Developer/Qt but this can be
+    changed by using the -prefix parameter.
+
+4.  Environment variables
+
+    In order to use Qt, some environment variables needs to be
+    extended.
+
+	PATH		   - to locate qmake, moc and other Qt tools
 
     This is done like this:
 
-    In .login (in case your shell is csh or tcsh), add the following lines:
+    In .profile (if your shell is bash), add the following line:
 
-	setenv QTDIR /Developer/qt
-	setenv PATH $QTDIR/bin:$PATH
-	setenv DYLD_LIBRARY_PATH $QTDIR/lib:$DYLD_LIBRARY_PATH
+	PATH=/Developer/Qt/bin:$PATH
+	export PATH
 
-        ***************************WARNING******************************
-        * Some versions of tcsh do not understand the expansion of empty
-        * variables. If you experience any error messages with the above
-        * instructions, you may want to replace them with:
-        *
-	*  setenv QTDIR /Developer/qt
-	*  setenv PATH $QTDIR/bin:$PATH
-	*  setenv DYLD_LIBRARY_PATH $QTDIR/lib
+    In .login (in case your shell is csh or tcsh), add the following line:
 
-    In .profile (if your shell is bash), add the following lines:
-
-	QTDIR=/Developer/qt
-	PATH=$QTDIR/bin:$PATH
-	DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
-
-	export QTDIR PATH DYLD_LIBRARY_PATH
+	setenv PATH /Developer/Qt/bin:$PATH
 
     If you use a different shell, please modify your environment variables
     accordingly.
 
-3.  Make a symbolic link from $QTDIR/doc/man to $QTDIR/man by typing the following:
-
-        ln -s $QTDIR/doc/man $QTDIR/man
-
-    This will give you the man pages for the commandline Qt programs.
-
-4.  If you have the commercial edition of Qt, install your license
-    file as $HOME/.qt-license.
-
-5.  Building.
-
-    This step compiles the Qt libraries, the demo programs, and the
-    tools (e.g. Qt Linguist, etc.).
-
-    Type:
-
-        cd $QTDIR
-	./configure
-
-    This will configure the Qt libraries for your machine.  Run ./configure -help
-    to get a list of configuration options. 
-
-    To create compile everything, simply type:
-
-	/usr/bin/make
-
-    This release was tested on Mac OS X 10.3 (Panther) and 10.2
-    (Jaguar). If your OS version or compiler is not supported, please
-    contact us at qt-bugs@trolltech.com so that we can assist you. If
-    it is supported but you have problems, see
-    http://www.trolltech.com/platforms/ for information on known
-    issues.
-
-6.  Launching Qt applications from the Finder.
-
-    If you built Qt using the -static option, your executables will contain the
-    Qt library and can be run from Finder automatically. Otherwise, your
-    executables will need to use the Qt library on your system. You can achieve
-    this by using symbolic links. In the examples below, if you've only built a
-    debug version of the Qt libraries, you just need to do the links for the
-    libraries that end with _debug (example libQtCore_debug.4.dylib instead of
-    libQtCore.4.dylib.)
-
-    We recommend making these symbolic links:
-
-    ln -sf $QTDIR/lib/libQtCore.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtGui.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtNetwork.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtSql.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtOpenGL.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtXml.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQt3Support.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtDesigner.1.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtCore_debug.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtGui_debug.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtNetwork_debug.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtSql_debug.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtOpenGL_debug.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtXml_debug.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQt3Support_debug.4.dylib /usr/lib
-    ln -sf $QTDIR/lib/libQtDesigner_debug.1.dylib /usr/lib
-
-    You may need to have 'administrator' access to do this, (in which
-    case, precede each command with 'sudo', e.g. 'sudo ln -s ...'). If
-    you use sudo you'll be prompted for your password.
-
-    If you do not have administrator access, or you would prefer to do
-    a user install (rather than system install) of the libraries you 
-    can do:
-
-    ln -sf $QTDIR/lib/libQtCore.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtGui.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtNetwork.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtSql.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtOpenGL.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtXml.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQt3Support.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtDesigner.1.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtCore_debug.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtGui_debug.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtNetwork_debug.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtSql_debug.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtOpenGL_debug.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtXml_debug.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQt3Support_debug.4.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libQtDesigner_debug.1.dylib $HOME/lib
-
-    Note: you can also achieve similar functionality by adding your
-    DYLD_LIBRARY_PATH to the GUI's environment.
-
-That's all! Qt is now installed. Qt's documentation can be read with
-Qt Assistant or by any web browser; the contents page is:
-    $QTDIR/doc/html/index.html
+That's all.  Qt is now installed.
