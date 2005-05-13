@@ -107,7 +107,6 @@ public slots:
 private slots:
     void initialize();
     void activateWorkspaceChildWindow(QWidget *widget);
-    void updateWorkbench(QDesignerFormWindowInterface *formWindow, const QString &name, const QVariant &value);
     void updateWindowMenu(QDesignerFormWindowInterface *fw);
     void formWindowActionTriggered(QAction *a);
     void showToolBars();

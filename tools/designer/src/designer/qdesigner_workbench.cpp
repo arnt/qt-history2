@@ -210,8 +210,6 @@ void QDesignerWorkbench::initialize()
     addToolWindow(tw);
 
     m_integration = new QDesignerIntegration(core(), this);
-    connect(m_integration, SIGNAL(propertyChanged(QDesignerFormWindowInterface*,QString,QVariant)),
-            this, SLOT(updateWorkbench(QDesignerFormWindowInterface*,QString,QVariant)));
 
     (void) new TaskMenuComponent(core(), this);
 
@@ -581,14 +579,6 @@ void QDesignerWorkbench::activateWorkspaceChildWindow(QWidget *widget)
         core()->formWindowManager()->setActiveFormWindow(fw->editor());
         m_workspace->setActiveWindow(widget);
     }
-}
-
-void QDesignerWorkbench::updateWorkbench(QDesignerFormWindowInterface *fw, const QString &name,
-                                         const QVariant &value)
-{
-    Q_UNUSED(fw);
-    Q_UNUSED(name);
-    Q_UNUSED(value);
 }
 
 void QDesignerWorkbench::removeToolWindow(QDesignerToolWindow *toolWindow)
