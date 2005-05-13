@@ -21,14 +21,14 @@ void BookDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
         if (option.state & QStyle::State_Selected)
             painter->fillRect(option.rect, option.palette.color(cg, QPalette::Highlight));
 
-            int rating = model->data(index, Qt::DisplayRole).toInt();
-            int width = star.width();
-            int height = star.height();
-            int x = option.rect.x();
-            int y = option.rect.y() + (option.rect.height() / 2) - (height / 2);
-            for (int i = 0; i < rating; ++i) {
-                painter->drawPixmap(x, y, star);
-                x += width;
+        int rating = model->data(index, Qt::DisplayRole).toInt();
+        int width = star.width();
+        int height = star.height();
+        int x = option.rect.x();
+        int y = option.rect.y() + (option.rect.height() / 2) - (height / 2);
+        for (int i = 0; i < rating; ++i) {
+            painter->drawPixmap(x, y, star);
+            x += width;
         }
         drawFocus(painter, option, option.rect.adjusted(0, 0, -1, -1)); // since we draw the grid ourselves
     }
@@ -43,56 +43,32 @@ void BookDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option,
 QSize BookDelegate::sizeHint(const QStyleOptionViewItem &option,
                                  const QModelIndex &index) const
 {
-    if (index.column() == 5) {
-        int rating = index.model()->data(index, Qt::DisplayRole).toInt();
-        return QSize(rating * star.width(), star.height()) + QSize(1, 1);
-    }
+    if (index.column() == 5)
+        return QSize(5 * star.width(), star.height()) + QSize(1, 1);
 
     return QSqlRelationalDelegate::sizeHint(option, index) + QSize(1, 1); // since we draw the grid ourselves
 }
 
-QWidget *BookDelegate::createEditor(QWidget *parent,
-    const QStyleOptionViewItem &option, const QModelIndex &index) const
+bool BookDelegate::editorEvent(QEvent *event, QAbstractItemModel *model,
+                               const QStyleOptionViewItem &option,
+                               const QModelIndex &index)
 {
-    if (index.column() == 5) {
-        QSpinBox *editor = new QSpinBox(parent);
-        editor->setMinimum(0);
-        editor->setMaximum(5);
-        editor->installEventFilter(const_cast<BookDelegate*>(this));
+    if (index.column() != 5)
+        return false;
 
-        return editor;
-    } else
-        return QSqlRelationalDelegate::createEditor(parent, option, index);
-}
+    QMouseEvent *mouseEvent;
+    int stars;
 
-void BookDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
-{
-    if (index.column() == 5) {
-        int value = index.model()->data(index, Qt::DisplayRole).toInt();
+    switch (event->type()) {
+        case QEvent::MouseButtonPress:
+            mouseEvent = static_cast<QMouseEvent*>(event);
+            stars = qBound(0, int(0.7 + qreal(mouseEvent->pos().x()
+                              - option.rect.x()) / star.width()), 5);
+            model->setData(index, QVariant(stars));
+            break;
+        default:
+            break;
+    }
 
-        QSpinBox *spinBox = static_cast<QSpinBox*>(editor);
-        spinBox->setValue(value);
-    } else
-        QSqlRelationalDelegate::setEditorData(editor, index);
-}
-
-void BookDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
-                                const QModelIndex &index) const
-{
-    if (index.column() == 5) {
-        QSpinBox *spinBox = static_cast<QSpinBox*>(editor);
-        spinBox->interpretText();
-        int value = spinBox->value();
-
-        model->setData(index, value);
-    } else
-        QSqlRelationalDelegate::setModelData(editor, model, index);
-}
-
-void BookDelegate::updateEditorGeometry(QWidget *editor,
-                                            const QStyleOptionViewItem &option,
-                                            const QModelIndex &index) const
-{
-    QSqlRelationalDelegate::updateEditorGeometry(editor, option, index);
-    editor->setGeometry(editor->geometry().adjusted(0, 0, -1, -1)); // since we draw the grid ourselves
+    return true;
 }
