@@ -16,41 +16,22 @@
 #include "qconfig.h"
 #include "qsettings.h"
 #include "qlibraryinfo.h"
-#ifndef QT_NO_QOBJECT
 #include "qpointer.h"
 #include "qcoreapplication.h"
-#endif
-
-#ifdef Q_OS_WIN
-#include "qt_windows.h"
-#endif
 
 #include "qconfig.cpp"
-
-Q_GLOBAL_STATIC(QString, qt_library_config_file)
-Q_CORE_EXPORT void qt_set_library_config_file(const QString &p) { *(qt_library_config_file()) = p; }
-#ifdef QT_NO_QOBJECT
-static const char * argv0 = 0;
-Q_CORE_EXPORT void qt_set_library_argv0(const char *c) { argv0 = c; }
-#endif
 
 
 struct QLibrarySettings
 {
     QLibrarySettings();
     ~QLibrarySettings() { delete static_cast<QSettings *>(settings); }
-
-#ifdef QT_NO_QOBJECT
     QSettings *settings;
-#else
-    QPointer<QSettings> settings;
-#endif
 };
 
 class QLibraryInfoPrivate
 {
-    friend struct QLibrarySettings;
-private:
+public:
     static QSettings *findConfiguration();
     static void cleanup()
     {
@@ -60,8 +41,6 @@ private:
             ls->settings = 0;
         }
     }
-
-public:
     static QSettings *configuration()
     {
         QLibrarySettings *ls = qt_library_settings();
@@ -71,123 +50,23 @@ public:
     Q_GLOBAL_STATIC(QLibrarySettings, qt_library_settings)
 };
 
-
 QLibrarySettings::QLibrarySettings()
 {
     settings = QLibraryInfoPrivate::findConfiguration();
-#ifndef QT_NO_QOBJECT
     qAddPostRoutine(QLibraryInfoPrivate::cleanup);
-#endif
 }
 
 QSettings *QLibraryInfoPrivate::findConfiguration()
 {
-    if(!qt_library_config_file()->isNull())
-        return (new QSettings(*qt_library_config_file(), QSettings::IniFormat));
-
-    { //look in the binary itself
-        const QString qtconfig = QLatin1String(":/qt/etc/qt.conf");
-        if(QFile::exists(qtconfig))
-            return (new QSettings(qtconfig, QSettings::IniFormat));
+    QString qtconfig = QLatin1String(":/qt/etc/qt.conf");
+    if (!QFile::exists(qtconfig) && QCoreApplication::instance()) {
+        QDir pwd(QCoreApplication::instance()->applicationDirPath());
+        qtconfig = pwd.filePath(QLatin1String("qt.conf"));
     }
-#ifndef QT_NO_QOBJECT
-    const char *argv0 = 0;
-    if(QCoreApplication *app = QCoreApplication::instance()) { //walk up the file system from the exe to (a) root
-        if (app->argv())
-            argv0 = app->argv()[0];
-    }
-#endif
-    if(argv0) {
-        bool trySearch = true;
-        QString exe;
-#ifndef Q_OS_WIN
-        exe = QString::fromLocal8Bit(argv0);
-#else
-        QT_WA({
-                unsigned short module_name[256];
-                GetModuleFileNameW(0, reinterpret_cast<wchar_t *>(module_name), sizeof(module_name));
-                exe = QString::fromUtf16(module_name);
-            }, {
-                  char module_name[256];
-                  GetModuleFileNameA(0, module_name, sizeof(module_name));
-                  exe = QString::fromLocal8Bit(module_name);
-              });
-#endif // Q_OS_WIN
-        if(!QDir::isRelativePath(exe)) {
-            trySearch = true;
-        } else {
-            if((exe.indexOf(QLatin1Char('/')) != -1
-#ifdef Q_OS_WIN
-                || exe.indexOf(QLatin1Char('\\')) != -1
-#endif
-                   ) && QFile::exists(exe)) {
-                exe.prepend(QDir::currentPath() + QLatin1Char('/'));
-            } else if(char *path = qgetenv("PATH")) {
-#ifdef Q_OS_WIN
-                QStringList paths = QString::fromLocal8Bit(path).split(QLatin1Char(';'));
-#else
-                QStringList paths = QString::fromLocal8Bit(path).split(QLatin1Char(':'));
-#endif
-                bool found = false;
-                for(int i = 0; i < paths.size(); ++i) {
-                    const QString fexe = paths.at(i) + QLatin1Char('/') + exe;
-                    if(QFile::exists(fexe)) {
-                        found = true;
-                        exe = fexe;
-                        break;
-                    }
-                }
-                trySearch = found;
-            }
-        }
-        if(trySearch) {
-            QFileInfo info(QFileInfo(exe).canonicalFilePath());
-            QDir pwd(info.path());
-            for(int count = 0; count < 64; ++count) {
-                if(pwd.exists(QLatin1String("qt.conf")))
-                    return (new QSettings(pwd.filePath(QLatin1String("qt.conf")),
-                                          QSettings::IniFormat));
-                if(pwd.isRoot())
-                    break;
-                pwd.cdUp();
-            }
-        }
-    }
-    if(char *qtconfig_str = qgetenv("QTCONFIG")) {     //look in QTCONFIG
-        const QString qtconfig = QString::fromUtf8(qtconfig_str);
-        if(QFile::exists(qtconfig))
-            return (new QSettings(qtconfig, QSettings::IniFormat));
-    }
-    if(char *qtdir = qgetenv("QTDIR")) {     //look in QTDIR
-        const QString qtconfig = QString::fromUtf8(qtdir) + QLatin1String("/qt.conf");
-        if(QFile::exists(qtconfig))
-            return (new QSettings(qtconfig, QSettings::IniFormat));
-    }
-    { //look in the home dir
-        const QString qtconfig = QDir::homePath() + QLatin1String("/.qt.conf");
-        if(QFile::exists(qtconfig))
-            return (new QSettings(qtconfig, QSettings::IniFormat));
-    }
-#ifdef Q_OS_UNIX
-    { //look in the /etc
-        const QString qtconfig = QLatin1String("/etc/qt.conf");
-        if(QFile::exists(qtconfig))
-            return (new QSettings(qtconfig, QSettings::IniFormat));
-    }
-    { //look in the /usr/local/etc
-        const QString qtconfig = QLatin1String("/usr/local/etc/qt.conf");
-        if(QFile::exists(qtconfig))
-            return (new QSettings(qtconfig, QSettings::IniFormat));
-    }
-#endif
-#ifdef Q_OS_WIN
-    { //registry key
-        //###TDB
-    }
-#endif
+    if (QFile::exists(qtconfig))
+        return new QSettings(qtconfig, QSettings::IniFormat);
     return 0;     //no luck
 }
-static QLibraryInfoPrivate qt_library_data;
 
 /*!
     \class QLibraryInfo
@@ -225,9 +104,7 @@ static QLibraryInfoPrivate qt_library_data;
 */
 
 QLibraryInfo::QLibraryInfo()
-{
-
-}
+{ }
 
 /*!
   Returns the person to whom this build of Qt is licensed.
@@ -271,147 +148,193 @@ QLibraryInfo::buildKey()
 }
 
 /*!
-  Returns the active configuration information settings. This is
-  normally only usefull for debugging but could be usefull to retrieve
-  custom information. Do not destruct the return value as QLibrary
-  retains ownership. Qt will automatically find the configuration file
-  by looking (in order):
-
-  \list
-
-  \o A user argument to your application of \c{-qtconfig <config_location>}.
-
-  \o A resource of the name \c{:/qt/etc/qt.conf}.
-
-  \o A file of the name qt.conf in the directory from which your
-  application executable lives. The file system will be walked up from
-  that directory to the root.
-
-  \o An environment variable \c QTCONFIG.
-
-  \o An environment variable \c QTDIR/qt.conf.
-
-  \o A file in \c HOME/.qt.conf.
-
-  \o A file in \c /etc/qt.conf (Unix only).
-
-  \o A file in \c /usr/local/etc/qt.conf (Unix only).
-
-  \endlist
-
-  If no configuration can be found then zero will be returned.
-
-  \sa location()
-*/
-
-QSettings
-*QLibraryInfo::configuration()
-{
-    return qt_library_data.configuration();
-}
-
-/*!
   Returns the location specified by \a loc.
 
-  \sa configuration()
 */
 
 QString
 QLibraryInfo::location(LibraryLocation loc)
 {
-    if(!QLibraryInfoPrivate::configuration())
-        return QString();
-
-    QString key;
-    switch(loc) {
-    case PrefixPath:
-        key = QLatin1String("Prefix");
-        break;
-    case DocumentationPath:
-        key = QLatin1String("Documentation");
-        break;
-    case HeadersPath:
-        key = QLatin1String("Headers");
-        break;
-    case LibrariesPath:
-        key = QLatin1String("Libraries");
-        break;
-    case BinariesPath:
-        key = QLatin1String("Binaries");
-        break;
-    case PluginsPath:
-        key = QLatin1String("Plugins");
-        break;
-    case DataPath:
-        key = QLatin1String("Data");
-        break;
-    case TranslationsPath:
-        key = QLatin1String("Translations");
-        break;
-    case SettingsPath:
-        key = QLatin1String("Settings");
-        break;
-    default:
-        break;
-    }
-
     QString ret;
-    if(!key.isNull()) {
-        QSettings *config = QLibraryInfoPrivate::configuration();
-        config->beginGroup(QLatin1String("Paths"));
+    if(!QLibraryInfoPrivate::configuration()) {
+        const char *path = 0;
+        switch (loc) {
+#ifdef QT_CONFIGURE_PREFIX_PATH
+        case PrefixPath:
+            path = QT_CONFIGURE_PREFIX_PATH;
+            break;
+#endif
+#ifdef QT_CONFIGURE_DOCUMENTATION_PATH
+        case DocumentationPath:
+            path = QT_CONFIGURE_DOCUMENTATION_PATH;
+            break;
+#endif
+#ifdef QT_CONFIGURE_HEADERS_PATH
+        case HeadersPath:
+            path = QT_CONFIGURE_HEADERS_PATH;
+            break;
+#endif
+#ifdef QT_CONFIGURE_LIBRARIES_PATH
+        case LibrariesPath:
+            path = QT_CONFIGURE_LIBRARIES_PATH;
+            break;
+#endif
+#ifdef QT_CONFIGURE_BINARIES_PATH
+        case BinariesPath:
+            path = QT_CONFIGURE_BINARIES_PATH;
+            break;
+#endif
+#ifdef QT_CONFIGURE_PLUGINS_PATH
+        case PluginsPath:
+            path = QT_CONFIGURE_PLUGINS_PATH;
+            break;
+#endif
+#ifdef QT_CONFIGURE_DATA_PATH
+        case DataPath:
+            path = QT_CONFIGURE_DATA_PATH;
+            break;
+#endif
+#ifdef QT_CONFIGURE_TRANSLATIONS_PATH
+        case TranslationsPath:
+            path = QT_CONFIGURE_TRANSLATIONS_PATH;
+            break;
+#endif
+#ifdef QT_CONFIGURE_SETTINGS_PATH
+        case SettingsPath:
+            path = QT_CONFIGURE_SETTINGS_PATH;
+            break;
+#endif
+        default:
+            break;
+        }
 
-        QString subKey;
-        {
-            int maj = 0, min = 0, pat = 0;
-            QStringList children = config->childGroups();
-            for(int child = 0; child < children.size(); ++child) {
-                QString cver = children.at(child);
-                QStringList cver_list = cver.split(QLatin1Char('.'));
-                if(cver_list.size() > 0 && cver_list.size() < 4) {
-                    bool ok;
-                    int cmaj = -1, cmin = -1, cpat = -1;
-                    cmaj = cver_list[0].toInt(&ok);
-                    if(!ok || cmaj < 0)
-                        continue;
-                    if(cver_list.size() >= 2) {
-                        cmin = cver_list[1].toInt(&ok);
-                        if(!ok)
+        if (path)
+            ret = QString::fromLocal8Bit(path);
+    } else {
+        QString key;
+        QString defaultValue;
+        switch(loc) {
+        case PrefixPath:
+            key = QLatin1String("Prefix");
+            break;
+        case DocumentationPath:
+            key = QLatin1String("Documentation");
+            defaultValue = QLatin1String("doc");
+            break;
+        case HeadersPath:
+            key = QLatin1String("Headers");
+            defaultValue = QLatin1String("include");
+            break;
+        case LibrariesPath:
+            key = QLatin1String("Libraries");
+            defaultValue = QLatin1String("lib");
+            break;
+        case BinariesPath:
+            key = QLatin1String("Binaries");
+            defaultValue = QLatin1String("bin");
+            break;
+        case PluginsPath:
+            key = QLatin1String("Plugins");
+            defaultValue = QLatin1String("plugins");
+            break;
+        case DataPath:
+            key = QLatin1String("Data");
+            break;
+        case TranslationsPath:
+            key = QLatin1String("Translations");
+            defaultValue = QLatin1String("translations");
+            break;
+        case SettingsPath:
+            key = QLatin1String("Settings");
+            break;
+        default:
+            break;
+        }
+
+        if(!key.isNull()) {
+            QSettings *config = QLibraryInfoPrivate::configuration();
+            config->beginGroup(QLatin1String("Paths"));
+
+            QString subKey;
+            {
+                /*
+                  find the child group whose version number is closest
+                  to the library version.  for example and we have the
+                  following groups:
+
+                  Paths
+                  Paths/4.0.0
+                  Paths/4.1.0
+
+                  if QT_VERSION is 4.0.1, then we use 'Paths'; if
+                  QT_VERSION is 4.1.2, then we use Paths/4.1.0
+
+                  note: any of the trailing version numbers may be
+                  omitted (in which case, they default to zero),
+                  i.e. 4 == 4.0.0, 4.1 == 4.1.0, and so on
+                */
+                int maj = 0, min = 0, pat = 0;
+                QStringList children = config->childGroups();
+                for(int child = 0; child < children.size(); ++child) {
+                    QString cver = children.at(child);
+                    QStringList cver_list = cver.split(QLatin1Char('.'));
+                    if(cver_list.size() > 0 && cver_list.size() < 4) {
+                        bool ok;
+                        int cmaj = -1, cmin = -1, cpat = -1;
+                        cmaj = cver_list[0].toInt(&ok);
+                        if(!ok || cmaj < 0)
                             continue;
-                        if(cmin < 0)
-                            cmin = -1;
-                    }
-                    if(cver_list.size() >= 3) {
-                        cpat = cver_list[2].toInt(&ok);
-                        if(!ok)
-                            continue;
-                        if(cpat < 0)
-                            cpat = -1;
-                    }
-                    if((cmaj >= maj && cmaj <= ((QT_VERSION >> 16) & 0xFF)) &&
-                       (cmin == -1 || (cmin >= min && cmin <= ((QT_VERSION >> 8) & 0xFF))) &&
-                       (cpat == -1 || (cpat >= pat && cpat <= (QT_VERSION & 0xFF))) &&
-                       config->contains(cver + QLatin1Char('/') + key)) {
-                        subKey = cver + QLatin1Char('/');
-                        maj = cmaj;
-                        min = cmin;
-                        pat = cpat;
+                        if(cver_list.size() >= 2) {
+                            cmin = cver_list[1].toInt(&ok);
+                            if(!ok)
+                                continue;
+                            if(cmin < 0)
+                                cmin = -1;
+                        }
+                        if(cver_list.size() >= 3) {
+                            cpat = cver_list[2].toInt(&ok);
+                            if(!ok)
+                                continue;
+                            if(cpat < 0)
+                                cpat = -1;
+                        }
+                        if((cmaj >= maj && cmaj <= ((QT_VERSION >> 16) & 0xFF)) &&
+                           (cmin == -1 || (cmin >= min && cmin <= ((QT_VERSION >> 8) & 0xFF))) &&
+                           (cpat == -1 || (cpat >= pat && cpat <= (QT_VERSION & 0xFF))) &&
+                           config->contains(cver + QLatin1Char('/') + key)) {
+                            subKey = cver + QLatin1Char('/');
+                            maj = cmaj;
+                            min = cmin;
+                            pat = cpat;
+                        }
                     }
                 }
             }
-        }
-        if(config->contains(subKey + key)) {
-            ret = config->value(subKey + key).toString();
+            ret = config->value(subKey + key, defaultValue).toString();
+            // expand environment variables in the form $(ENVVAR)
             int rep;
             QRegExp reg_var(QLatin1String("\\$\\(.*\\)"));
             reg_var.setMinimal(true);
-            while((rep = reg_var.indexIn(ret)) != -1)
+            while((rep = reg_var.indexIn(ret)) != -1) {
                 ret.replace(rep, reg_var.matchedLength(),
-                               QString::fromLocal8Bit(qgetenv(ret.mid(rep + 2,
-                                           reg_var.matchedLength() - 3).toLatin1().constData())));
-        } else {
-            ret = QDir::currentPath();
+                            QString::fromLocal8Bit(qgetenv(ret.mid(rep + 2,
+                                                                   reg_var.matchedLength() - 3).toLatin1().constData())));
+            }
+            config->endGroup();
         }
-        config->endGroup();
+    }
+
+    if (QDir::isRelativePath(ret)) {
+        if (loc == PrefixPath) {
+            // we make the prefix path absolute to the executable's directory
+            if (QCoreApplication *app = QCoreApplication::instance())
+                return QDir(app->applicationDirPath()).absoluteFilePath(ret);
+            else
+                return QDir::current().absoluteFilePath(ret);
+        } else {
+            // we make any other path absolute to the prefix directory
+            return QDir(location(PrefixPath)).absoluteFilePath(ret);
+        }
     }
     return ret;
 }

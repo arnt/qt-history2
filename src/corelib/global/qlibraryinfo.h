@@ -16,8 +16,6 @@
 
 #include <QtCore/qstring.h>
 
-class QSettings;
-
 class Q_CORE_EXPORT QLibraryInfo
 {
 public:
@@ -39,8 +37,6 @@ public:
         SettingsPath
     };
     static QString location(LibraryLocation);
-
-    static QSettings *configuration();
 
 private:
     QLibraryInfo();
