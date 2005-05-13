@@ -69,7 +69,7 @@ public:
     example:
 
     \code
-        QComboBox *pageComboBox = new QComboBox(this);
+        QComboBox *pageComboBox = new QComboBox;
         pageComboBox->addItem(tr("Page 1"));
         pageComboBox->addItem(tr("Page 2"));
         pageComboBox->addItem(tr("Page 3"));

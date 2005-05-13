@@ -107,8 +107,7 @@ public:
     \inlineimage qstatusbar-m.png Screenshot in Motif style
     \inlineimage qstatusbar-w.png Screenshot in Windows style
 
-    \sa QToolBar QMainWindow QLabel
-    \link guibooks.html#fowler GUI Design Handbook: Status Bar.\endlink
+    \sa QToolBar, QMainWindow, QLabel, {fowler}{GUI Design Handbook: Status Bar}
 */
 
 #ifdef QT3_SUPPORT

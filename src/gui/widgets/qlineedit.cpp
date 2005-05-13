@@ -158,8 +158,7 @@ QStyleOptionFrame QLineEditPrivate::getStyleOption() const
     \inlineimage macintosh-lineedit.png Screenshot in Macintosh style
     \inlineimage windows-lineedit.png Screenshot in Windows style
 
-    \sa QTextEdit QLabel QComboBox
-        \link guibooks.html#fowler GUI Design Handbook: Field, Entry\endlink
+    \sa QTextEdit, QLabel, QComboBox, {fowler}{GUI Design Handbook: Field, Entry}
 */
 
 

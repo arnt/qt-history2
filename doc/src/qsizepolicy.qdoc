@@ -19,14 +19,16 @@
     also contains a flag to indicate whether the height and width of
     its preferred size are related.
 
-    The horizontal and vertical \l{Policy}{policies} are set in the
-    usual constructor and can be queried using a variety of
-    functions.
+    The horizontal and vertical policies are set in the usual
+    constructor and can be queried using horizontalPolicy() and
+    verticalPolicy().
 
-    The hasHeightForWidth() flag indicates whether the widget's sizeHint()
-    is width-dependent (such as a word-wrapping label) or not.
+    The hasHeightForWidth() flag indicates whether the widget's
+    \l{QWidget::sizeHint()}{sizeHint()} is width-dependent (such as a
+    menu bar or a word-wrapping label).
 
-    \sa Policy
+    \sa QSize, QWidget::sizeHint(), QWidget::sizePolicy(),
+        QLayoutItem::sizeHint()
 */
 
 /*!

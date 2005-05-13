@@ -141,8 +141,7 @@ public:
     and other API, and QPushButton provides GUI logic.
     See QAbstractButton for more information about the API.
 
-    \sa QToolButton, QRadioButton QCheckBox
-    \link guibooks.html#fowler GUI Design Handbook: Push Button\endlink
+    \sa QToolButton, QRadioButton, QCheckBox, {fowler}{GUI Design Handbook: Push Button}
 */
 
 /*!

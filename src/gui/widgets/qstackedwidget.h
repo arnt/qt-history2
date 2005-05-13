@@ -40,7 +40,7 @@ public:
     int count() const;
 
 public slots:
-    void setCurrentIndex(int);
+    void setCurrentIndex(int index);
     void setCurrentWidget(QWidget *w);
 
 signals:

@@ -56,9 +56,6 @@
 
     \img cursors.png Cursor Shapes
 
-    \sa QWidget \link guibooks.html#fowler GUI Design Handbook:
-    Cursors\endlink
-
     \section1 A Note for X11 Users
 
     On X11, Qt supports the \link
@@ -90,6 +87,8 @@
     \row \i Qt::ForbiddenCursor         \i \c forbidden
     \row \i Qt::WhatsThisCursor         \i \c whats_this
     \endtable
+
+    \sa QWidget, {fowler}{GUI Design Handbook: Cursors}
 */
 
 /*!

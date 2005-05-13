@@ -74,8 +74,7 @@ public:
     \inlineimage macintosh-checkbox.png Screenshot in Macintosh style
     \inlineimage windows-checkbox.png Screenshot in Windows style
 
-    \sa QAbstractButton QRadioButton
-    \link guibooks.html#fowler Fowler: Check Box \endlink
+    \sa QAbstractButton, QRadioButton, {fowler}{GUI Design Handbook: Check Box}
 */
 
 /*!

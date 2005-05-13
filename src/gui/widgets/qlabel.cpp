@@ -140,7 +140,7 @@ public:
     \inlineimage windows-label.png Screenshot in Windows style
 
     \sa QLineEdit, QTextEdit, QPixmap, QMovie,
-    \link guibooks.html#fowler GUI Design Handbook: Label\endlink
+        {fowler}{GUI Design Handbook: Label}
 */
 
 #ifndef QT_NO_PICTURE

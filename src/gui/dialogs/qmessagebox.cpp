@@ -302,9 +302,7 @@ static const char * const qtlogo_xpm[] = {
     \inlineimage qmsgbox-m.png Screenshot in Motif style
     \inlineimage qmsgbox-w.png Screenshot in Windows style
 
-    \sa QDialog,
-        \link http://www.iarchitect.com/errormsg.htm Isys on error messages \endlink,
-        \link guibooks.html#fowler GUI Design Handbook: Message Box \endlink
+    \sa QDialog, {fowler}{GUI Design Handbook: Message Box}
 */
 
 /*!

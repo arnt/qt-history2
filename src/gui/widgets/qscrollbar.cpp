@@ -158,12 +158,8 @@
     Most GUI styles use the pageStep() value to calculate the size of the
     slider.
 
-    \sa QScrollArea QSlider QDial QSpinBox
-    \link guibooks.html#fowler GUI Design Handbook: Scroll Bar\endlink
+    \sa QScrollArea, QSlider, QDial, QSpinBox, {fowler}{GUI Design Handbook: Scroll Bar}
 */
-
-
-
 
 class QScrollBarPrivate : public QAbstractSliderPrivate
 {

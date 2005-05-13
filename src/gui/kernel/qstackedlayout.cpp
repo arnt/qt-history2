@@ -44,15 +44,16 @@ public:
     ("pages"):
 
     \code
-        QWidget *firstPageWidget = new QWidget(this);
-        QWidget *secondPageWidget = new QWidget(this);
-        QWidget *thirdPageWidget = new QWidget(this);
+        QWidget *firstPageWidget = new QWidget;
+        QWidget *secondPageWidget = new QWidget;
+        QWidget *thirdPageWidget = new QWidget;
         ...
 
-        QStackedLayout *layout = new QStackedLayout(this);
+        QStackedLayout *layout = new QStackedLayout;
         layout->addWidget(firstPageWidget);
         layout->addWidget(secondPageWidget);
         layout->addWidget(thirdPageWidget);
+        setLayout(layout);
     \endcode
 
     When inserted, the widgets are added to an internal list. The
@@ -67,7 +68,7 @@ public:
     example:
 
     \code
-        QComboBox *pageComboBox = new QComboBox(this);
+        QComboBox *pageComboBox = new QComboBox;
         pageComboBox->addItem(tr("Page 1"));
         pageComboBox->addItem(tr("Page 2"));
         pageComboBox->addItem(tr("Page 3"));

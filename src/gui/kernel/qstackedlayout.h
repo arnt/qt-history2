@@ -57,7 +57,7 @@ signals:
     void currentChanged(int index);
 
 public slots:
-    void setCurrentIndex(int);
+    void setCurrentIndex(int index);
     void setCurrentWidget(QWidget *w);
 
 private:

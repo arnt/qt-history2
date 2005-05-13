@@ -174,8 +174,7 @@ void Operation::cancel()
   \inlineimage qprogdlg-m.png Screenshot in Motif style
   \inlineimage qprogdlg-w.png Screenshot in Windows style
 
-  \sa QDialog, Q3ProgressBar,
-      \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
+  \sa QDialog, Q3ProgressBar, {fowler}{GUI Design Handbook: Progress Indicator}
 */
 
 

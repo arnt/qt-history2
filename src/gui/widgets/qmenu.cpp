@@ -790,8 +790,7 @@ QStyleOptionMenuItem QMenuPrivate::getStyleOption(const QAction *action) const
     Important inherited functions: addAction(), removeAction(), clear(),
     addSeparator(), and addMenu().
 
-    \sa QMenuBar \link guibooks.html#fowler GUI Design Handbook: Menu, Drop-Down and
-    Pop-Up\endlink
+    \sa QMenuBar, {fowler}{GUI Design Handbook: Menu, Drop-Down and Pop-Up}
 */
 
 

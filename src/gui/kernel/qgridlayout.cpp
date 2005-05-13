@@ -37,9 +37,6 @@ public:
     QGridBox(QLayoutItem *lit) { item_ = lit; }
 
     QGridBox(QWidget *wid) { item_ = new QWidgetItem(wid); }
-    QGridBox(int w, int h, QSizePolicy::Policy hData = QSizePolicy::Minimum,
-              QSizePolicy::Policy vData = QSizePolicy::Minimum)
-    { item_ = new QSpacerItem(w, h, hData, vData); }
     ~QGridBox() { delete item_; }
 
     QSize sizeHint() const { return item_->sizeHint(); }
@@ -816,7 +813,7 @@ QRect QGridLayoutPrivate::cellRect(int row, int col) const
     This illustration shows a fragment of a dialog with a five-column,
     three-row grid (the grid is shown overlaid in magenta):
 
-    \img gridlayout.png
+    \image gridlayout.png A grid layout
 
     Columns 0, 2 and 4 in this dialog fragment are made up of a
     QLabel, a QLineEdit, and a QListBox. Columns 1 and 3 are
@@ -834,7 +831,7 @@ QRect QGridLayoutPrivate::cellRect(int row, int col) const
     manage all of the widget's area and children), you must add it to
     its parent layout when you create it, but before you do anything
     with it. The normal way to add a layout is by calling
-    parentLayout-\>addLayout().
+    addLayout() on the parent layout.
 
     Once you have added your layout you can start putting widgets and
     other layouts into the cells of your grid layout using
@@ -848,15 +845,14 @@ QRect QGridLayoutPrivate::cellRect(int row, int col) const
     Both the border and the spacing are parameters of the constructor
     and default to 0.
 
-    \sa QGrid, \link layout.html Layout Overview \endlink
+    \sa QBoxLayout, QStackedLayout, {Layout Classes}
 */
 
 
 /*!
     Constructs a new QGridLayout with parent widget, \a parent.  The
     layout has one row and one column initially, and will expand when
-    new items are inserted, or setColumnCount()/setRowCount() is
-    called.
+    new items are inserted.
 */
 QGridLayout::QGridLayout(QWidget *parent)
     : QLayout(*new QGridLayoutPrivate, 0, parent)
@@ -1131,14 +1127,14 @@ void QGridLayout::getItemPosition(int idx, int *row, int *column, int *rowSpan, 
 
 
 /*!
-    Resizes managed widgets within the rectangle \a r.
+    Resizes managed widgets within the rectangle \a rect.
 */
-void QGridLayout::setGeometry(const QRect &r)
+void QGridLayout::setGeometry(const QRect &rect)
 {
     Q_D(QGridLayout);
-    if (d->isDirty() || r != geometry()) {
-        QLayout::setGeometry(r);
-        QRect cr = alignment() ? alignmentRect(r) : r;
+    if (d->isDirty() || rect != geometry()) {
+        QLayout::setGeometry(rect);
+        QRect cr = alignment() ? alignmentRect(rect) : rect;
         int m = margin();
         QRect s(cr.x() + m, cr.y() + m,
                  cr.width() - 2 * m, cr.height() - 2 * m);
@@ -1222,25 +1218,25 @@ static bool checkWidget(QLayout *l, QWidget *w)
 }
 
 /*!
-    Adds the widget \a w to the cell grid at \a row, \a column. The
+    Adds the given \a widget to the cell grid at \a row, \a column. The
     top-left position is (0, 0) by default.
 
     The alignment is specified by \a alignment. The default
     alignment is 0, which means that the widget fills the entire cell.
 
 */
-void QGridLayout::addWidget(QWidget *w, int row, int column, Qt::Alignment alignment)
+void QGridLayout::addWidget(QWidget *widget, int row, int column, Qt::Alignment alignment)
 {
-    if (!checkWidget(this, w))
+    if (!checkWidget(this, widget))
         return;
     if (row < 0 || column < 0) {
         qWarning("QGridLayout: Cannot add %s/%s to %s/%s at row %d column %d",
-                  w->metaObject()->className(), w->objectName().toLocal8Bit().data(),
+                 widget->metaObject()->className(), widget->objectName().toLocal8Bit().data(),
                  metaObject()->className(), objectName().toLocal8Bit().data(), row, column);
         return;
     }
-    addChildWidget(w);
-    QWidgetItem *b = new QWidgetItem(w);
+    addChildWidget(widget);
+    QWidgetItem *b = new QWidgetItem(widget);
     b->setAlignment(alignment);
     addItem(b, row, column);
 }
@@ -1248,7 +1244,7 @@ void QGridLayout::addWidget(QWidget *w, int row, int column, Qt::Alignment align
 /*!
     \overload
 
-    This version adds the widget \a w to the cell grid, spanning
+    This version adds the given \a widget to the cell grid, spanning
     multiple rows/columns. The cell will start at \a fromRow, \a
     fromColumn spanning \a rowSpan rows and \a columnSpan columns. The
     grid will have the given \a alignment.
@@ -1257,22 +1253,22 @@ void QGridLayout::addWidget(QWidget *w, int row, int column, Qt::Alignment align
     extend to the bottom and/or right edge, respectively.
 
 */
-void QGridLayout::addWidget(QWidget *w, int fromRow, int fromColumn,
-                             int rowSpan, int columnSpan, Qt::Alignment alignment)
+void QGridLayout::addWidget(QWidget *widget, int fromRow, int fromColumn,
+                            int rowSpan, int columnSpan, Qt::Alignment alignment)
 {
     Q_D(QGridLayout);
-    if (!checkWidget(this, w))
+    if (!checkWidget(this, widget))
         return;
     int toRow = (rowSpan < 0) ? -1 : fromRow + rowSpan - 1;
     int toColumn = (columnSpan < 0) ? -1 : fromColumn + columnSpan - 1;
-    addChildWidget(w);
-    QGridBox *b = new QGridBox(w);
+    addChildWidget(widget);
+    QGridBox *b = new QGridBox(widget);
     b->setAlignment(alignment);
     d->add(b, fromRow, toRow, fromColumn, toColumn);
 }
 
 /*!
-    \fn void QGridLayout::addWidget(QWidget *w)
+    \fn void QGridLayout::addWidget(QWidget *widget)
 
     \internal
 */
@@ -1442,13 +1438,13 @@ Qt::Orientations QGridLayout::expandingDirections() const
 }
 
 /*!
-    Sets the grid's origin corner, i.e. position (0, 0), to \a c.
+    Sets the grid's origin corner, i.e. position (0, 0), to \a corner.
 */
-void QGridLayout::setOriginCorner(Qt::Corner c)
+void QGridLayout::setOriginCorner(Qt::Corner corner)
 {
     Q_D(QGridLayout);
-    d->setReversed(c == Qt::BottomLeftCorner || c == Qt::BottomRightCorner,
-                       c == Qt::TopRightCorner || c == Qt::BottomRightCorner);
+    d->setReversed(corner == Qt::BottomLeftCorner || corner == Qt::BottomRightCorner,
+                   corner == Qt::TopRightCorner || corner == Qt::BottomRightCorner);
 }
 
 /*!
@@ -1488,7 +1484,7 @@ void QGridLayout::invalidate()
 */
 
 /*!
-    \fn void QGridLayout::addMultiCellWidget(QWidget *w, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
+    \fn void QGridLayout::addMultiCellWidget(QWidget *widget, int fromRow, int toRow, int fromCol, int toCol, Qt::Alignment align = 0)
 
     Use an addWidget() overload that allows you to specify row and
     column spans instead.

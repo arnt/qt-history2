@@ -212,8 +212,7 @@ QStyle::SubControl QSliderPrivate::newHoverControl(const QPoint &pos)
 
     \image macintosh-slider.png Screenshot in Macintosh style
 
-    \sa QScrollBar QSpinBox
-    \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
+    \sa QScrollBar, QSpinBox, {fowler}{GUI Design Handbook: Slider}
 */
 
 

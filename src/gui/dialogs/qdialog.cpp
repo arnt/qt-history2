@@ -152,7 +152,7 @@
     \quotefunction snippets/dialogs/dialogs.cpp void EditorWindow::find()
 
     \sa QTabDialog, QWidget, QProgressDialog,
-        \link guibooks.html#fowler GUI Design Handbook: Dialogs, Standard\endlink
+        {fowler}{GUI Design Handbook: Dialogs, Standard}
 */
 
 /*! \enum QDialog::DialogCode

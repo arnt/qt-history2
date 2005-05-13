@@ -121,8 +121,7 @@ bool QProgressBarPrivate::repaintRequired() const
     \inlineimage macintosh-progressbar.png Screenshot in Macintosh style
     \inlineimage windows-progressbar.png Screenshot in Windows style
 
-    \sa QProgressDialog
-    \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
+    \sa QProgressDialog, {fowler}{GUI Design Handbook: Progress Indicator}
 */
 
 /*!

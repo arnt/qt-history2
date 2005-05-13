@@ -142,7 +142,7 @@ public:
     QT3_SUPPORT bool isTopLevel() const;
 #endif
 
-    static QSize closestAcceptableSize(const QWidget *w, QSize s);
+    static QSize closestAcceptableSize(const QWidget *w, const QSize &s);
 
 protected:
     void widgetEvent(QEvent *);

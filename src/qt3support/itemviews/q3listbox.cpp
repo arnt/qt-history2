@@ -675,9 +675,7 @@ int Q3ListBoxPixmap::rtti() const
     \inlineimage qlistbox-m.png Screenshot in Motif style
     \inlineimage qlistbox-w.png Screenshot in Windows style
 
-    \sa Q3ListView QComboBox QButtonGroup
-    \link guibooks.html#fowler GUI Design Handbook: List Box (two
-    sections)\endlink
+    \sa Q3ListView, QComboBox, QButtonGroup
 */
 
 /*!

@@ -346,7 +346,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
   \img icon.png QIcon
 
-  \sa \link guibooks.html#fowler GUI Design Handbook: Iconic Label \endlink
+  \sa {fowler}{GUI Design Handbook: Iconic Label}
 */
 
 

@@ -176,8 +176,7 @@ int QDialPrivate::valueFromPoint(const QPoint &p) const
     \inlineimage qdial-m.png Screenshot in Motif style
     \inlineimage qdial-w.png Screenshot in Windows style
 
-    \sa QScrollBar QSpinBox
-    \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
+    \sa QScrollBar, QSpinBox, {fowler}{GUI Design Handbook: Slider}
 */
 
 /*!

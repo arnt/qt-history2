@@ -68,8 +68,8 @@ public:
     \mainclass
 
     QSpinBox is designed to handle integers and discrete sets of
-    values (such as \l{#monthexample}{month names}); use QDoubleSpinBox
-    for floating point values.
+    values (e.g., month names); use QDoubleSpinBox for floating point
+    values.
 
     QSpinBox allows the user to choose a value by clicking the up/down
     buttons or pressing up/down on the keyboard to increase/decrease
@@ -110,77 +110,27 @@ public:
     choice in addition to the range of numeric values. See
     setSpecialValueText() for how to do this with QSpinBox.
 
-    If using prefix(), suffix() and specialValueText() don't provide
-    enough control, you can ignore them and subclass QSpinBox
-    instead.
-
-    Here's an example QSpinBox subclass that provides a month picker.
-
-    \target monthexample
-    \code
-    class monthSpin : public QSpinBox
-    {
-        Q_OBJECT
-    public:
-        monthSpin(QWidget *parent = 0)
-            : QSpinBox(0, 12, 1, parent)
-        {
-            setSpecialValueText("None");
-            setValue(0);
-        }
-
-        QString textFromValue(int v) const
-        {
-            return QDate::longMonthName(v);
-        }
-
-        int valueFromText(const QString &text) const
-        {
-            for (int i = 1; i <= 12; ++i) {
-                if (text == QDate::longMonthName(i) || text == QDate::shortMonthName(i)) {
-                    return i;
-                }
-            }
-            return 0;
-        }
-
-        QValidator::State validate(QString &str, int &) const
-        {
-            if (text.isEmpty())
-                return QValidator::Intermediate;
-            for (int i = 1; i <= 12; ++i) {
-                QString short = QDate::shortMonthName(i);
-                QString long = QDate::longMonthName(i);
-                if (text == long || text == short) {
-                    return QValidator::Acceptable;
-                } else if (long.startsWith(text) || short.startsWith(text)) {
-                    return QValidator::Intermediate;
-                }
-            }
-            return QValidator::Invalid;
-        }
-
-        void keyPressEvent(QKeyEvent *e)
-        {
-            StepEnabled se = stepEnabled();
-
-            if (e->key() == Qt::Key_P && (se & StepUpEnabled)) {
-                stepBy(1);
-                e->accept();
-            } else if (e->key() == Qt::Key_N && (se & StepDownEnabled)) {
-                stepBy(-1);
-                e->accept();
-            } else {
-                QSpinBox::keyPressEvent(e);
-            }
-        }
-    \endcode
-
     \inlineimage macintosh-spinbox.png Screenshot in Macintosh style
     \inlineimage windows-spinbox.png Screenshot in Windows style
 
-    \sa QDoubleSpinBox QSlider
-    \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
+    \section1 Subclassing QSpinBox
+
+    If using prefix(), suffix(), and specialValueText() don't provide
+    enough control, you subclass QSpinBox and reimplement
+    valueFromText() and textFromValue(). For example, here's the code
+    for a custom spin box that allows the user to enter icon sizes
+    (e.g., "32 x 32"):
+
+    \quotefromfile widgets/icons/iconsizespinbox.cpp
+    \skipto ::valueFromText
+    \printuntil /^\}$/
+    \skipto ::textFromValue
+    \printuntil /^\}$/
+
+    See the \l{widgets/icons}{Icons} example for the full source
+    code.
+
+    \sa QDoubleSpinBox, QSlider, {fowler}{GUI Design Handbook: Slider}
 */
 
 /*!
@@ -584,8 +534,7 @@ void QSpinBox::fixup(QString &input) const
     choice in addition to the range of numeric values. See
     setSpecialValueText() for how to do this with QDoubleSpinBox.
 
-    \sa QSpinBox QSlider
-    \link guibooks.html#fowler GUI Design Handbook: Slider\endlink
+    \sa QSpinBox, QSlider, {fowler}{GUI Design Handbook: Slider}
 */
 
 /*!

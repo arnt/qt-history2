@@ -54,7 +54,6 @@
     \inlineimage qprogbar-w.png Screenshot in Windows style
 
     \sa QProgressDialog
-    \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
 */
 
 

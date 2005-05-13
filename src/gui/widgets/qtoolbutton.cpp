@@ -105,8 +105,7 @@ bool QToolButtonPrivate::hasMenu() const
     \img qdockwindow.png Toolbar with Toolbuttons \caption A floating
     QToolbar with QToolbuttons
 
-    \sa QPushButton QToolBar QMainWindow \link guibooks.html#fowler
-    GUI Design Handbook: Push Button\endlink
+    \sa QPushButton, QToolBar, QMainWindow, {fowler}{GUI Design Handbook: Push Button}
 */
 
 /*!

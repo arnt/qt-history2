@@ -206,8 +206,7 @@ void QProgressDialogPrivate::layout()
   \inlineimage qprogdlg-m.png Screenshot in Motif style
   \inlineimage qprogdlg-w.png Screenshot in Windows style
 
-  \sa QDialog, QProgressBar,
-      \link guibooks.html#fowler GUI Design Handbook: Progress Indicator\endlink
+  \sa QDialog, QProgressBar, {fowler}{GUI Design Handbook: Progress Indicator}
 */
 
 

@@ -558,9 +558,8 @@ QComboBox::QComboBox(bool rw, QWidget *parent, const char *name) :
     \inlineimage macintosh-combobox.png Screenshot in Macintosh style
     \inlineimage windows-combobox.png Screenshot in Windows style
 
-    \sa QLineEdit QSpinBox QRadioButton QButtonGroup
-    \link guibooks.html#fowler GUI Design Handbook: Combo Box,\endlink
-    \link guibooks.html#fowler GUI Design Handbook: Drop-Down List Box.\endlink
+    \sa QLineEdit, QSpinBox, QRadioButton, QButtonGroup,
+        {fowler}{GUI Design Handbook: Combo Box, Drop-Down List Box}
 */
 
 /*!

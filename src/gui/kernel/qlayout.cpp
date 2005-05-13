@@ -38,8 +38,8 @@ static int menuBarHeightForWidth(QWidget *menubar, int w)
     \ingroup appearance
     \ingroup geomanagement
 
-    This is an abstract base class inherited by the concrete classes,
-    QBoxLayout and QGridLayout.
+    This is an abstract base class inherited by the concrete classes
+    QBoxLayout, QGridLayout, and QStackedLayout.
 
     For users of QLayout subclasses or of QMainWindow there is seldom
     any need to use the basic functions provided by QLayout, such as
@@ -57,6 +57,8 @@ static int menuBarHeightForWidth(QWidget *menubar, int w)
     more information about implementing custom layout managers.
 
     Geometry management stops when the layout manager is deleted.
+
+    \sa QLayoutItem, {Layout Classes}
 */
 
 
@@ -65,7 +67,7 @@ static int menuBarHeightForWidth(QWidget *menubar, int w)
     \a parent may not be 0.
 
     There can be only one top-level layout for a widget. It is
-    returned by QWidget::layout()
+    returned by QWidget::layout().
 */
 QLayout::QLayout(QWidget *parent)
     : QObject(*new QLayoutPrivate, parent)
@@ -683,8 +685,8 @@ void QLayout::deleteAllItems()
 #endif
 
 /*!
-    This function is called from addLayout() functions in subclasses
-    to add layout \a l as a sub-layout.
+    This function is called from \c addLayout() functions in
+    subclasses to add layout \a l as a sub-layout.
 */
 void QLayout::addChildLayout(QLayout *l)
 {
@@ -728,8 +730,8 @@ void QLayoutPrivate::reparentChildWidgets(QWidget *mw)
 }
 
 /*!
-    This function is called from addWidget() functions in subclasses
-    to add \a w as a child widget.
+    This function is called from \c addWidget() functions in
+    subclasses to add \a w as a child widget.
 
     If \a w is already in a layout, this function will give a warning
     and remove \a w from the layout. This function must therefore be
@@ -803,16 +805,16 @@ void QLayout::freeze(int w, int h)
 
 
 /*!
-    Tells the geometry manager to place the menu bar \a w at the top
-    of parentWidget(), outside QWidget::contentsMargins(). All child
-    widgets are placed below the bottom edge of the menu bar.
+    Tells the geometry manager to place the menu bar \a widget at the
+    top of parentWidget(), outside QWidget::contentsMargins(). All
+    child widgets are placed below the bottom edge of the menu bar.
 */
-void QLayout::setMenuBar(QWidget *w)
+void QLayout::setMenuBar(QWidget *widget)
 {
     Q_D(QLayout);
-    if (w)
-        addChildWidget(w);
-    d->menubar = w;
+    if (widget)
+        addChildWidget(widget);
+    d->menubar = widget;
 }
 
 /*!
@@ -855,11 +857,11 @@ QSize QLayout::maximumSize() const
 
 /*!
     Returns whether this layout can make use of more space than
-    sizeHint(). A value of \c Qt::Vertical or \c Qt::Horizontal means that it wants
-    to grow in only one dimension, whereas \c { Qt::Vertical | Qt::Horizontal }  means that
-    it wants to grow in both dimensions.
+    sizeHint(). A value of Qt::Vertical or Qt::Horizontal means that
+    it wants to grow in only one dimension, whereas Qt::Vertical |
+    Qt::Horizontal means that it wants to grow in both dimensions.
 
-    The default implementation returns  \c { Qt::Vertical | Qt::Horizontal }
+    The default implementation returns Qt::Vertical | Qt::Horizontal.
 */
 Qt::Orientations QLayout::expandingDirections() const
 {
@@ -980,81 +982,83 @@ bool QLayout::activate()
 }
 
 /*!
-  \fn QLayoutItem *QLayout::itemAt(int index) const
+    \fn QLayoutItem *QLayout::itemAt(int index) const
 
-  Must be implemented in subclasses to return the layout item at \a
-  index. If there is no such item, the function must return 0.
-  Items are numbered consecutively from 0. If an item is deleted, other items will be renumbered.
+    Must be implemented in subclasses to return the layout item at \a
+    index. If there is no such item, the function must return 0.
+    Items are numbered consecutively from 0. If an item is deleted, other items will be renumbered.
 
-  This function can be used to iterate over a layout. The following
-  code will draw a rectangle for each layout item in the layout structure of the widget.
+    This function can be used to iterate over a layout. The following
+    code will draw a rectangle for each layout item in the layout structure of the widget.
+
     \code
-    static void paintLayout(QPainter *p, QLayoutItem *item)
-    {
-        QLayout *layout = item->layout();
-        if (layout) {
-            QLayoutItem *child;
-            int i = 0;
-            while ((child = layout->itemAt(i)) != 0) {
-                paintLayout(p, child);
-                ++i;
+        static void paintLayout(QPainter *painter, QLayoutItem *item)
+        {
+            QLayout *layout = item->layout();
+            if (layout) {
+                for (int i = 0; i < layout->count(); ++i)
+                    paintLayout(painter, layout->itemAt(i));
             }
+            painter->drawRect(lay->geometry());
         }
-        p->drawRect(lay->geometry());
-    }
-    void ExampleWidget::paintEvent(QPaintEvent *)
-    {
-        QPainter p(this);
-        if (layout())
-            paintLayout(&p, layout());
-    }
+
+        void MyWidget::paintEvent(QPaintEvent *)
+        {
+            QPainter painter(this);
+            if (layout())
+                paintLayout(&painter, layout());
+        }
     \endcode
 
-    \sa QLayout::takeAt()
+    \sa count(), takeAt()
 */
 
 /*!
- \fn QLayoutItem *QLayout::takeAt(int index)
+    \fn QLayoutItem *QLayout::takeAt(int index)
 
-  Must be implemented in subclasses to remove the layout item at \a
-  index from the layout, and return the item. If there is no such
-  item, the function must do nothing and return 0.  Items are numbered
-  consecutively from 0. If an item is deleted, other items will be
-  renumbered.
+    Must be implemented in subclasses to remove the layout item at \a
+    index from the layout, and return the item. If there is no such
+    item, the function must do nothing and return 0.  Items are numbered
+    consecutively from 0. If an item is deleted, other items will be
+    renumbered.
 
-  The following code fragment shows a safe way to remove all items from a layout:
-  \code
+    The following code fragment shows a safe way to remove all items
+    from a layout:
 
-  QLayoutItem *child;
-  while((child = layout->takeAt(0)) != 0) {
-     //process child...
-  }
-  \endcode
+    \code
+        QLayoutItem *child;
+        while ((child = layout->takeAt(0)) != 0) {
+            ...
+            delete child;
+        }
+    \endcode
 
-    \sa QLayout::itemAt()
+    \sa itemAt(), count()
 */
 
 /*!
- \fn int *QLayout::count() const
+    \fn int *QLayout::count() const
 
-  Must be implemented in subclasses to return the number of items in the layout.
+    Must be implemented in subclasses to return the number of items
+    in the layout.
 
+    \sa itemAt()
 */
 
 /*!
-      Searches for widget \a w in this layout (not including child
+    Searches for widget \a widget in this layout (not including child
     layouts).
 
-    Returns the index of \a w, or -1 if \a w is not found.
+    Returns the index of \a widget, or -1 if \a widget is not found.
 
     The default implementation iterates over all items using itemAt()
 */
-int QLayout::indexOf(QWidget *w) const
+int QLayout::indexOf(QWidget *widget) const
 {
     int i = 0;
     QLayoutItem *item = itemAt(i);
     while (item) {
-        if (item->widget() == w)
+        if (item->widget() == widget)
             return i;
         ++i;
         item = itemAt(i);
@@ -1242,17 +1246,18 @@ bool QLayout::isEnabled() const
 }
 
 /*!
-    Returns a size that satisfies all size constraints on \a w, including heightForWidth()
-    and that is as close as possible to \a s.
+    Returns a size that satisfies all size constraints on \a widget,
+    including heightForWidth() and that is as close as possible to \a
+    size.
 */
 
-QSize QLayout::closestAcceptableSize(const QWidget *w, QSize s)
+QSize QLayout::closestAcceptableSize(const QWidget *widget, const QSize &size)
 {
-    QSize result = s.boundedTo(qSmartMaxSize(w));
-    result = result.expandedTo(qSmartMinSize(w));
-    QLayout *l = w->layout();
+    QSize result = size.boundedTo(qSmartMaxSize(widget));
+    result = result.expandedTo(qSmartMinSize(widget));
+    QLayout *l = widget->layout();
     if (l && l->hasHeightForWidth() && result.height() < l->minimumHeightForWidth(result.width()) ) {
-        QSize current = w->size();
+        QSize current = widget->size();
         int currentHfw =  l->minimumHeightForWidth(current.width());
         int newHfw = l->minimumHeightForWidth(result.width());
         if (current.height() < currentHfw || currentHfw == newHfw) {
@@ -1262,10 +1267,10 @@ QSize QLayout::closestAcceptableSize(const QWidget *w, QSize s)
         } else {
             // binary search; assume hfw is decreasing ###
 
-            int maxw = qMax(w->width(),result.width());
-            int maxh = qMax(w->height(), result.height());
-            int minw = qMin(w->width(),result.width());
-            int minh = qMin(w->height(), result.height());
+            int maxw = qMax(widget->width(),result.width());
+            int maxh = qMax(widget->height(), result.height());
+            int minw = qMin(widget->width(),result.width());
+            int minh = qMin(widget->height(), result.height());
 
             int minhfw = l->minimumHeightForWidth(minw);
             int maxhfw = l->minimumHeightForWidth(maxw);

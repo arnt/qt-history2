@@ -424,7 +424,9 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
     The \l{mainwindows/menus}{Menus} example shows how to use
     QMenuBar and QMenu.
 
-    \sa QMenu QShortcut QAction \link http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html Aqua Style Guidelines \endlink \link guibooks.html#fowler GUI Design Handbook: Menu Bar \endlink
+    \sa QMenu, QShortcut, QAction,
+        {http://developer.apple.com/techpubs/macosx/Carbon/HumanInterfaceToolbox/Aqua/aqua.html}{Aqua Style Guidelines},
+        {fowler}{GUI Design Handbook: Menu Bar}
 */
 
 
