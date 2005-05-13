@@ -1101,6 +1101,30 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
         fillData.callback(y + ry, spans.size(), spans.data(), fillData.data);
     }
 }
+
+void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h, const QBrush &brush)
+{
+    Q_D(QRasterPaintEngine);
+    FillData fillData = d->fillForBrush(brush, 0);
+    int x1 = qMax(x,0);
+    int x2 = qMin(x+w, d->rasterBuffer->width());
+    int y1 = qMax(y, 0);
+    int y2 = qMin(y+h, d->rasterBuffer->height());;
+
+    int len = x2 - x1;
+
+    if (fillData.callback && len > 0) {
+        QT_FT_Span span;
+        span.x = x1;
+        span.len = x2 - x1;
+        span.coverage = 255;
+
+        // draw the fill
+        for (int y=y1; y<y2; ++y) {
+            fillData.callback(y, 1, &span, fillData.data);
+        }
+    }
+}
 #endif
 
 #ifdef Q_WS_X11

@@ -188,10 +188,12 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
 
 void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 {
+    QPaintEngineState *pState = p->state;
+    QRasterPaintEngine *paintEngine = static_cast<QRasterPaintEngine*>(p);
     //##### Q_ASSERT(p->d_func()->txop < QPainterPrivate::TxScale);
     if (1) { //####### p->d_func()->txop == QPainterPrivate::TxTranslate) {
         QPoint tmpPt(x, y);
-        tmpPt = tmpPt * p->state->matrix();
+        tmpPt = tmpPt * pState->matrix();
         x = tmpPt.x();
         y = tmpPt.y();
     }
@@ -199,23 +201,14 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
     if (si.flags) {
         int lw = qRound(lineThickness());
         lw = qMax(1, lw);
-        //copied from _mac:
         if(si.width && si.flags != 0) {
-            QPen oldPen = p->painter()->pen();
-            QBrush oldBrush = p->painter()->brush();
-            p->painter()->setBrush(p->painter()->pen().color());
-            p->painter()->setPen(Qt::NoPen);
-            const float lw = lineThickness();
             if(si.flags & QTextItem::Underline)
-                p->painter()->drawRect(QRectF(x, y + underlinePosition(), si.width, lw));
+                paintEngine->qwsFillRect(x, qRound(y + underlinePosition()), qRound(si.width), lw,  pState->pen().brush());
             if(si.flags & QTextItem::Overline)
-                p->painter()->drawRect(QRectF(x, y - (ascent() + 1), si.width, lw));
+                paintEngine->qwsFillRect(x, qRound(y - (ascent() + 1)), qRound(si.width), lw,  pState->pen().brush());
             if(si.flags & QTextItem::StrikeOut)
-                p->painter()->drawRect(QRectF(x, y - (ascent() / 3), si.width, lw));
-            p->painter()->setBrush(oldBrush);
-            p->painter()->setPen(oldPen);
+                paintEngine->qwsFillRect(x, qRound(y - (ascent() / 3)), qRound(si.width), lw,  pState->pen().brush());
         }
-
     }
 
     QGlyphLayout *glyphs = si.glyphs;
@@ -235,7 +228,7 @@ void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
         int myy = y + qRound(g->offset.y() - glyph->bearingy);
 
         if(glyph->width != 0 && glyph->height != 0 && glyph->pitch != 0) {
-            static_cast<QRasterPaintEngine*>(p)->alphaPenBlt(glyph->data, glyph->pitch, glyph->mono, myx,myy,myw,glyph->height);
+            paintEngine->alphaPenBlt(glyph->data, glyph->pitch, glyph->mono, myx,myy,myw,glyph->height);
         }
         x += qRound(g->advance.x());
     }
@@ -406,12 +399,28 @@ qreal QFontEngineFT::minRightBearing() const
 
 qreal QFontEngineFT::underlinePosition() const
 {
-    return FT_MulFix(face->underline_position, face->size->metrics.y_scale)/64.;
+    if (FT_IS_SCALABLE(face))
+        return -FT_MulFix(face->underline_position, face->size->metrics.y_scale)/64.;
+    else
+         return ((lineThickness() * 2) + 3) / 6;
 }
 
 qreal QFontEngineFT::lineThickness() const
 {
-    return FT_MulFix(face->underline_thickness, face->size->metrics.y_scale)/64.;
+    if (FT_IS_SCALABLE(face))
+        return FT_MulFix(face->underline_thickness, face->size->metrics.y_scale)/64.;
+
+// copied from QFontEngineQPF
+
+    // ad hoc algorithm
+    int score = fontDef.weight * fontDef.pixelSize;
+    int lw = score / 700;
+
+    // looks better with thicker line for small pointsizes
+    if (lw < 2 && score >= 1050) lw = 2;
+    if (lw == 0) lw = 1;
+
+    return lw;
 }
 
 QFontEngine::Type QFontEngineFT::type() const
@@ -861,28 +870,24 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 
 void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
 {
+    QPaintEngineState *pState = p->state;
+    QRasterPaintEngine *paintEngine = static_cast<QRasterPaintEngine*>(p);
 //###    Q_ASSERT(p->painterState()->txop < QPainterPrivate::TxScale);
     if (1) { //### p->painterState()->txop == QPainterPrivate::TxTranslate) {
         QPoint tmpPt(x, y);
-        tmpPt = tmpPt * p->state->matrix();
+        tmpPt = tmpPt * pState->matrix();
         x = tmpPt.x();
         y = tmpPt.y();
     }
-    //copied from _mac:
     if(si.width && si.flags != 0) {
-        QPen oldPen = p->painter()->pen();
-        QBrush oldBrush = p->painter()->brush();
-        p->painter()->setBrush(p->painter()->pen().color());
-        p->painter()->setPen(Qt::NoPen);
-        const float lw = lineThickness();
+        int lw = qRound(lineThickness());
+        lw = qMax(1, lw);
         if(si.flags & QTextItem::Underline)
-            p->painter()->drawRect(QRectF(x, y + underlinePosition(), si.width, lw));
+            paintEngine->qwsFillRect(x, qRound(y + underlinePosition()), qRound(si.width), lw,  pState->pen().brush());
         if(si.flags & QTextItem::Overline)
-            p->painter()->drawRect(QRectF(x, y - (ascent() + 1), si.width, lw));
+            paintEngine->qwsFillRect(x, qRound(y - (ascent() + 1)), qRound(si.width), lw,  pState->pen().brush());
         if(si.flags & QTextItem::StrikeOut)
-            p->painter()->drawRect(QRectF(x, y - (ascent() / 3), si.width, lw));
-        p->painter()->setBrush(oldBrush);
-        p->painter()->setPen(oldPen);
+            paintEngine->qwsFillRect(x, qRound(y - (ascent() / 3)), qRound(si.width), lw,  pState->pen().brush());
     }
 
     QGlyphLayout *glyphs = si.glyphs;
@@ -905,12 +910,10 @@ void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
         int bpl = glyph->metrics->linestep;
 
         if(myw != 0 && myh != 0 && bpl != 0) {
-            static_cast<QRasterPaintEngine*>(p)->alphaPenBlt(glyph->data, bpl, mono, myx,myy,myw,myh);
+            paintEngine->alphaPenBlt(glyph->data, bpl, mono, myx,myy,myw,myh);
         }
         x += qRound(g->advance.x());
     }
-
-    //##### grab/ungrab
 }
 
 glyph_metrics_t QFontEngineQPF::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)

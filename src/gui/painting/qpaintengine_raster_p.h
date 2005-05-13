@@ -87,6 +87,7 @@ public:
 #ifdef Q_WS_QWS
     //QWS hack
     void alphaPenBlt(const void* src, int bpl, bool mono, int rx,int ry,int w,int h);
+    void qwsFillRect(int x, int y, int w, int h, const QBrush &brush);
 #endif
 
     Type type() const { return Raster; }
