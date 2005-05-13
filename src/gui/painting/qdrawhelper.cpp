@@ -495,6 +495,72 @@ static void blend_linear_gradient_argb(void *t, const QSpan *span, LinearGradien
     }
 }
 
+inline double determinant(double a, double b, double c)
+{
+    return (b * b) - (4 * a * c);
+}
+
+// function to evaluate real roots
+inline void realRoots(double a, double b, double detSqrt, double &s)
+{
+    double firstRoot =  (-b/(2 * a)) +
+                        (detSqrt/(2 * a));
+    s = firstRoot;
+}
+
+static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradientData *data,
+                                       int y, QPainter::CompositionMode mode)
+{
+    uint *target = ((uint *)t) + span->x;
+    uint *end = target + span->len;
+    int x = span->x;
+
+    double dx = data->center.x() - data->focal.x();
+    double dy = data->center.y() - data->focal.y();
+    double r  = data->radius;
+
+    QMatrix m = data->brushMatrix;
+    m = m.inverted();
+    double a = r*r - dx*dx - dy*dy;
+
+    if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor && span->coverage == 255) {
+        while (target < end) {
+            QPointF pt(x, y);
+            pt = m.map(pt);
+
+            double xr = pt.x() - data->focal.x();
+            double yr = pt.y() - data->focal.y();
+            double b  = 2*(xr*dx + yr *dy);
+            double det = determinant(a, b , -(xr*xr + yr*yr));
+            double s;
+            realRoots(a, b, sqrt(det), s);
+
+            *target = qt_gradient_pixel(data,  s);
+            ++target;
+            ++x;
+        }
+    } else {
+        CompositionFunction func = functionForMode(mode);
+        int icov = 255 - span->coverage;
+        while (target < end) {
+            QPointF pt(x, y);
+            pt = m.map(pt);
+
+            double xr = pt.x() - data->focal.x();
+            double yr = pt.y() - data->focal.y();
+            double b  = 2*(xr*dx + yr *dy);
+            double det = determinant(a, b , -(xr*xr + yr*yr));
+            double s;
+            realRoots(a, b, sqrt(det), s);
+
+            uint tmp = func(*target, qt_gradient_pixel(data, s));
+            *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
+            ++target;
+            ++x;
+        }
+    }
+}
+
 static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradientData *data,
                                         int y, QPainter::CompositionMode mode)
 {
@@ -1036,6 +1102,42 @@ static void blend_linear_gradient_mono(void *t, const QSpan *span, LinearGradien
     }
 }
 
+static void blend_radial_gradient_mono(void *t, const QSpan *span, RadialGradientData *data,
+                                       int y, QPainter::CompositionMode)
+{
+    if (!span->coverage)
+        return;
+    Q_ASSERT(span->coverage == 0xff);
+    uchar *target = (uchar *)t;
+
+    double dx = data->center.x() - data->focal.x();
+    double dy = data->center.y() - data->focal.y();
+    double r  = data->radius;
+
+    QMatrix m = data->brushMatrix;
+    m = m.inverted();
+    double a = r*r - dx*dx - dy*dy;
+
+    for (int x = span->x; x<span->x + span->len; x++) {
+        QPointF pt(x, y);
+        pt = m.map(pt);
+
+        double xr = pt.x() - data->focal.x();
+        double yr = pt.y() - data->focal.y();
+        double b  = 2*(xr*dx + yr *dy);
+        double det = determinant(a, b , -(xr*xr + yr*yr));
+        double s;
+        realRoots(a, b, sqrt(det), s);
+
+        uint p = qt_gradient_pixel(data, s);
+        if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
+            target[x >> 3] |= 0x80 >> (x & 7);
+        else
+            target[x >> 3] &= ~(0x80 >> (x & 7));
+        ++x;
+    }
+}
+
 static void blend_conical_gradient_mono(void *t, const QSpan *span, ConicalGradientData *data,
                                         int y, QPainter::CompositionMode)
 {
@@ -1250,6 +1352,43 @@ static void blend_linear_gradient_mono_lsb(void *t, const QSpan *span, LinearGra
     }
 }
 
+
+static void blend_radial_gradient_mono_lsb(void *t, const QSpan *span, RadialGradientData *data,
+                                           int y, QPainter::CompositionMode)
+{
+    if (!span->coverage)
+        return;
+    Q_ASSERT(span->coverage == 0xff);
+    uchar *target = (uchar *)t;
+
+    double dx = data->center.x() - data->focal.x();
+    double dy = data->center.y() - data->focal.y();
+    double r  = data->radius;
+
+    QMatrix m = data->brushMatrix;
+    m = m.inverted();
+    double a = r*r - dx*dx - dy*dy;
+
+    for (int x = span->x; x<span->x + span->len; x++) {
+        QPointF pt(x, y);
+        pt = m.map(pt);
+
+        double xr = pt.x() - data->focal.x();
+        double yr = pt.y() - data->focal.y();
+        double b  = 2*(xr*dx + yr *dy);
+        double det = determinant(a, b , -(xr*xr + yr*yr));
+        double s;
+        realRoots(a, b, sqrt(det), s);
+
+        uint p = qt_gradient_pixel(data, s);
+        if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
+            target[x >> 3] |= 1 >> (x & 7);
+        else
+            target[x >> 3] &= ~(1 >> (x & 7));
+        ++x;
+    }
+}
+
 static void blend_conical_gradient_mono_lsb(void *t, const QSpan *span, ConicalGradientData *data,
                                         int y, QPainter::CompositionMode)
 {
@@ -1285,6 +1424,7 @@ DrawHelper qDrawHelper[4] =
         blend_transformed_bilinear_argb,
         blend_transformed_bilinear_tiled_argb,
         blend_linear_gradient_argb,
+        blend_radial_gradient_argb,
         blend_conical_gradient_argb
     },
     { // Layout_RGB32
@@ -1296,6 +1436,7 @@ DrawHelper qDrawHelper[4] =
         blend_transformed_bilinear_rgb32,
         blend_transformed_bilinear_tiled_rgb32,
         blend_linear_gradient_rgb32,
+        blend_radial_gradient_argb,
         blend_conical_gradient_argb
     },
     { // Layout_Mono
@@ -1307,6 +1448,7 @@ DrawHelper qDrawHelper[4] =
         blend_transformed_mono,
         blend_transformed_tiled_mono,
         blend_linear_gradient_mono,
+        blend_radial_gradient_mono,
         blend_conical_gradient_mono
     },
     { // Layout_MonoLSB
@@ -1318,6 +1460,7 @@ DrawHelper qDrawHelper[4] =
         blend_transformed_mono_lsb,
         blend_transformed_tiled_mono_lsb,
         blend_linear_gradient_mono_lsb,
+        blend_radial_gradient_mono_lsb,
         blend_conical_gradient_mono_lsb
     }
 };

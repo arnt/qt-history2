@@ -19,6 +19,7 @@ struct QSpan
 
 struct GradientData;
 struct LinearGradientData;
+struct RadialGradientData;
 struct ConicalGradientData;
 extern uint qt_gradient_pixel(const GradientData *data, double pos);
 
@@ -47,6 +48,12 @@ typedef void (*BlendLinearGradient)(void *target,
                                     qreal ybase, int y,
                                     QPainter::CompositionMode mode);
 
+typedef void (*BlendRadialGradient)(void *target,
+                                    const QSpan *span,
+                                    RadialGradientData *data,
+                                    int y,
+                                    QPainter::CompositionMode mode);
+
 typedef void (*BlendConicalGradient)(void *target,
                                      const QSpan *span,
                                      ConicalGradientData *data,
@@ -69,6 +76,7 @@ struct DrawHelper {
     BlendTransformed blendTransformedBilinear;
     BlendTransformed blendTransformedBilinearTiled;
     BlendLinearGradient blendLinearGradient;
+    BlendRadialGradient blendRadialGradient;
     BlendConicalGradient blendConicalGradient;
 };
 
@@ -115,6 +123,10 @@ struct RadialGradientData : public GradientData
     QPointF center;
     qreal radius;
     QPointF focal;
+
+    BlendRadialGradient blendFunc;
+    QPainter::CompositionMode compositionMode;
+    QMatrix brushMatrix;
 };
 
 struct ConicalGradientData : public GradientData

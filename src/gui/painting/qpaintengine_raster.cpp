@@ -80,8 +80,6 @@ void qt_draw_text_item(const QPointF &point, const QTextItemInt &ti, HDC hdc,
                        QRasterPaintEnginePrivate *d);
 #endif
 
-QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rdata );
-
 // #define QT_DEBUG_DRAW
 // #define QT_DEBUG_CONVERT
 
@@ -95,6 +93,7 @@ void qt_span_solidfill(int y, int count, QT_FT_Span *spans, void *userData);
 void qt_span_texturefill(int y, int count, QT_FT_Span *spans, void *userData);
 void qt_span_texturefill_xform(int y, int count, QT_FT_Span *spans, void *userData);
 void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData);
+void qt_span_radial_gradient(int y, int count, QT_FT_Span *spans, void *userData);
 void qt_span_conical_gradient(int y, int count, QT_FT_Span *spans, void *userData);
 void qt_span_clip(int y, int count, QT_FT_Span *spans, void *userData);
 
@@ -1837,19 +1836,12 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush, const QPai
                 static_cast<const QRadialGradient *>(brush.gradient())->focalPoint();
             radialGradientData->alphaColor = !brush.isOpaque();
             radialGradientData->initColorTable();
-            QRectF bounds = path ? path->boundingRect() : QRectF(deviceRect);
-            tempImage = qt_draw_radial_gradient_image(bounds.toRect(), radialGradientData);
+            radialGradientData->brushMatrix = brushMatrix();
+            radialGradientData->blendFunc = drawHelper->blendRadialGradient;
+            radialGradientData->compositionMode = compositionMode;
 
-            fillData->data = textureFillData;
-            fillData->callback = txop > QPainterPrivate::TxTranslate
-                                 ? qt_span_texturefill_xform
-                                 : qt_span_texturefill;
-            textureFillData->compositionMode = compositionMode;
-            QMatrix m = matrix;
-            m.translate(bounds.x(), bounds.y());
-            textureFillData->init(rasterBuffer, &tempImage, m,
-                                  drawHelper->blendTiled,
-                                  drawHelper->blendTransformedBilinearTiled);
+            fillData->data = radialGradientData;
+            fillData->callback = qt_span_radial_gradient;
         }
         break;
 
@@ -2364,6 +2356,16 @@ void qt_span_linear_gradient(int y, int count, QT_FT_Span *spans, void *userData
     }
 }
 
+void qt_span_radial_gradient(int y, int count, QT_FT_Span *spans, void *userData)
+{
+    RadialGradientData *data = reinterpret_cast<RadialGradientData *>(userData);
+    uchar *baseTarget = data->rasterBuffer->scanLine(y);
+
+    while (count--) {
+        data->blendFunc(baseTarget, (const QSpan *)spans, data, y, data->compositionMode);
+        ++spans;
+    }
+}
 
 void qt_span_conical_gradient(int y, int count, QT_FT_Span *spans, void *userData)
 {
@@ -3057,69 +3059,3 @@ void qt_draw_text_item(const QPointF &pos, const QTextItemInt &ti, HDC hdc,
 
 
 #endif
-
-QImage qt_draw_radial_gradient_image( const QRect &rect, RadialGradientData *rdata )
-{
-    int width = rect.width();
-    int height = rect.height();
-
-    QImage image(width, height, rdata->alphaColor ? QImage::Format_ARGB32_Premultiplied : QImage::Format_RGB32);
-    if ( rdata->stopCount == 0 ) {
-        image.fill( 0 );
-        return image;
-    }
-
-    if ( rdata->radius <= 0. ) {
-        image.fill(qt_gradient_pixel(rdata, 0));
-        return image;
-    }
-
-    qreal r, x0, y0, fx, fy, sw, sh, a, b, c, dc, d2c, dba, ba, rad, dx, dy, drad, d2rad, p, d2y;
-    int i, j;
-    uint *line;
-
-    r = rdata->radius;
-    x0 = ( rect.left() - rdata->center.x() ) / r;
-    y0 = -( rect.top() - rdata->center.y() ) / r;
-    fx = ( rdata->focal.x() - rdata->center.x() ) / r;
-    fy = -( rdata->focal.y() - rdata->center.y() ) / r;
-    sw = width / r;
-    sh = height / r;
-
-    a = 1 - fx * fx - fy * fy;
-    if ( a <= 0 ) {
-        qreal f = sqrt( fx * fx + fy * fy );
-        fx = 0.999 * fx / f;
-        fy = 0.999 * fy / f;
-        a = 1 - fx * fx - fy * fy;
-    }
-
-    dx = x0 - fx;
-    dy = y0 - fy;
-    dc = 2 * dx / r + 1 / ( r * r );
-    d2c = 2 * 1 / ( r * r );
-    dba = fx / r / a;
-
-    d2y = -1. / r;
-
-    for ( i = 0; i < height; i++ ) {
-        line = (uint *) image.scanLine( i );
-        b = dx * fx + dy * fy;
-        c = dx * dx + dy * dy;
-        ba = b / a;
-        rad = ba * ba + c / a;
-        drad = 2 * ba * dba + dba * dba + dc / a;
-        d2rad = 2 * dba * dba + d2c / a;
-
-        for ( j = 0; j < width; j++ ) {
-            p = ba + ( rad < 0 ? 0 : sqrt( rad ) );
-            line[j] = qt_gradient_pixel( rdata, p );
-            ba += dba;
-            rad += drad;
-            drad += d2rad;
-        }
-        dy += d2y;
-    }
-
-    return image;
-} // qt_draw_gradient_pixmap
