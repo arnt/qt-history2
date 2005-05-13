@@ -191,7 +191,7 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
     }
 
     QAbstractSocket::NetworkLayerProtocol proto = address.protocol();
-#if defined(Q_NO_IPv6)
+#if defined(QT_NO_IPV6)
     if (proto == QAbstractSocket::IPv6Protocol) {
         // If we have no IPv6 support, then we will not be able to
         // listen on an IPv6 interface.

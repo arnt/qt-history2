@@ -717,8 +717,8 @@ void QAbstractSocketPrivate::connectToNextAddress()
 
         // Determine its protocol.
         QAbstractSocket::NetworkLayerProtocol protocol = host.protocol();
-#if defined(Q_NO_IPv6)
-        if (protocol == QAbstractSocket::IPv4Protocol) {
+#if defined(QT_NO_IPV6)
+        if (protocol == QAbstractSocket::IPv6Protocol) {
             // If we have no IPv6 support, then we will not be able to
             // connect. So we just pretend we didn't see this address.
             continue;
