@@ -119,19 +119,13 @@ static void qt_debug_path(const QPainterPath &path)
     \table
     \row
     \i \inlineimage qpainterpath-example.png
-    \i \code
-    QPainterPath path;
-    path.addRect(20, 20, 80, 80);
-
-    path.moveTo(0, 0);
-    path.cubicTo(99, 0,  50, 50,  99, 99);
-    path.cubicTo(0, 99,  50, 50,  0, 0);
-
-    painter.drawPath(path);
-    \endcode
+    \i \quotefromfile snippets/painterpath/painterpath.cpp
+    \skipto PATH
+    \skipto QPainterPath
+    \printuntil drawPath
     \endtable
 
-    \sa QPainter
+    \sa QPainter QRegion QPolygonF QRectF QPointF
 */
 
 /*!
@@ -855,9 +849,7 @@ void QPainterPath::setFillRule(Qt::FillRule fillRule)
     Returns the bounding rectangle of this painter path as a rectangle with
     floating point precision.
 
-    This function is costly. You may consider using controlPointRect instead.
-
-    \sa controlPointRect()
+    This function is costly. You may consider using controlPointRect() instead.
 */
 QRectF QPainterPath::boundingRect() const
 {
@@ -873,8 +865,6 @@ QRectF QPainterPath::boundingRect() const
 
     This function is significantly faster to compute than the exact
     boundingRect();
-
-    \sa boundingRect()
 */
 QRectF QPainterPath::controlPointRect() const
 {
@@ -1169,7 +1159,7 @@ bool QPainterPath::intersects(const QRectF &rect) const
 /*!
     Returns true if this painterpath is equal to \a path.
 
-    Comparing paths may involve a pr element comparrison which
+    Comparing paths may involve a per element comparison which
     can be slow for complex paths.
 */
 
@@ -1189,7 +1179,7 @@ bool QPainterPath::operator==(const QPainterPath &path) const
 /*!
     Returns true if this painterpath differs from \a path.
 
-    Comparing paths may involve a pr element comparrison which
+    Comparing paths may involve a per element comparison which
     can be slow for complex paths.
 */
 

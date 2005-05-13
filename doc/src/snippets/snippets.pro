@@ -25,6 +25,7 @@ SUBDIRS         = brush \
                   matrix \
                   moc \
 #                  modelview-subclasses \   # broken
+                  painterpath \
                   persistentindexes \
                   plaintextlayout \
 #                  pointer \
