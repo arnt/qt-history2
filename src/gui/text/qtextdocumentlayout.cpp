@@ -366,9 +366,8 @@ QTextDocumentLayoutPrivate::HitPoint
 QTextDocumentLayoutPrivate::hitTest(QTextBlock bl, const QPointF &point, int *position) const
 {
     const QTextLayout *tl = bl.layout();
-    QRectF br = tl->boundingRect();
-    br.translate(tl->position());
-    QRectF textrect = br.toRect();
+    QRectF textrect = tl->boundingRect();
+    textrect.translate(tl->position());
 //     LDEBUG << "    checking block" << bl.position() << "point=" << point
 //            << "    tlrect" << textrect;
     if (point.y() < textrect.top()) {
@@ -621,7 +620,7 @@ QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *painter,
 {
     Q_Q(const QTextDocumentLayout);
     const QTextLayout *tl = bl.layout();
-    QRectF r = tl->boundingRect().toRect();
+    QRectF r = tl->boundingRect();
     r.translate((offset + tl->position()).toPoint());
     if (context.clip.isValid() && !r.intersects(context.clip))
         return OutsideClipRect;
@@ -1674,7 +1673,7 @@ void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTex
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
     QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
-    QRectF r = rect.toRect();
+    QRectF r = rect;
     if (frame) {
         QTextFrameData *fd = data(frame);
         if (fd->flow_position != QTextFrameFormat::InFlow) {

@@ -898,7 +898,7 @@ void QTextDocument::print(QPrinter *printer) const
     do {
         QAbstractTextDocumentLayout::PaintContext ctx;
         p.setClipRect(view);
-        ctx.clip = view.toRect();
+        ctx.clip = view;
         layout->draw(&p, ctx);
 
         p.setClipping(false);
