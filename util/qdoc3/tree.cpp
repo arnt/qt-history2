@@ -64,6 +64,7 @@ const Node *Tree::findNode(const QStringList &path, const Node *relative, int fi
 {
     if (!relative)
         relative = root();
+
     do {
         const Node *node = relative;
         int i;
@@ -89,7 +90,7 @@ const Node *Tree::findNode(const QStringList &path, const Node *relative, int fi
             }
             node = next;
         }
-        if (node && i == path.size())
+        if (node && i == path.size() && (!(findFlags & NonFunction) || node->type() != Node::Function))
             return node;
         relative = relative->parent();
     } while (relative);

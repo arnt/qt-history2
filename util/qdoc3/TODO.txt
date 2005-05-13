@@ -1,8 +1,6 @@
 MUST HAVES:
 
-  * .dcf entries for enum values
   * No links to Porting Guide sections (e.g. QStringList)
-  * \sa QStyle from QMotifStyle
   * make links to base class enums work (e.g. SO_DockWindow)
   * fix autolink problem in \brief
   * link toggled(bool)

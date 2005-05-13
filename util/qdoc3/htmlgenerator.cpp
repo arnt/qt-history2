@@ -2118,7 +2118,7 @@ QString HtmlGenerator::getLink(const Atom *atom, const Node *relative, CodeMarke
         }
 
         const Node *node = 0;
-        Atom *atom = 0;
+        Atom *targetAtom = 0;
 
         QString first = path.first().trimmed();
         if (first.isEmpty()) {
@@ -2130,7 +2130,7 @@ QString HtmlGenerator::getLink(const Atom *atom, const Node *relative, CodeMarke
             if (!node)
                 node = tre->findFakeNodeByTitle(first);
             if (!node)
-                node = tre->findUnambiguousTarget(first, atom);
+                node = tre->findUnambiguousTarget(first, targetAtom);
         }
 
         if (node) {
@@ -2140,16 +2140,16 @@ QString HtmlGenerator::getLink(const Atom *atom, const Node *relative, CodeMarke
         }
 
         while (!path.isEmpty()) {
-            atom = tre->findTarget(path.first(), node);
-            if (atom == 0)
+            targetAtom = tre->findTarget(path.first(), node);
+            if (targetAtom == 0)
                 break;
             path.removeFirst();
         }
 
         if (path.isEmpty()) {
             link = linkForNode(node, relative);
-            if (atom)
-                link += "#" + refForAtom(atom, node);
+            if (targetAtom)
+                link += "#" + refForAtom(targetAtom, node);
         }
     }
     return link;

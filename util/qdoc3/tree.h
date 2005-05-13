@@ -13,7 +13,7 @@ class TreePrivate;
 class Tree
 {
 public:
-    enum FindFlag { SearchBaseClasses = 0x1, SearchEnumValues = 0x2 };
+    enum FindFlag { SearchBaseClasses = 0x1, SearchEnumValues = 0x2, NonFunction = 0x4 };
 
     Tree();
     ~Tree();
