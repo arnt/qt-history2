@@ -783,9 +783,7 @@ function copyDist(packageDir, platform, license)
     }
 
     //check that key files are present
-    var keyFiles = ["README",
-		    "INSTALL",
-		    "PLATFORMS"];
+    var keyFiles = ["README", "INSTALL"];
     if (!options["snapshots"] && (license != "preview" || license != "beta"))
 	keyFiles.push("changes-" + options["version"]);
     if (license == "opensource") {
