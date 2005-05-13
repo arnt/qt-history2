@@ -218,7 +218,12 @@ QStringList QResource::children(const QString &path)
     return ret;
 }
 
-typedef QList<QResource*> ResourceList;
+typedef QList<QResource*> QResourceList;
+class ResourceList: public QResourceList
+{
+public:
+    ~ResourceList() { qDeleteAll(*this); }
+};
 Q_GLOBAL_STATIC(ResourceList, resourceList)
 
 class QResourceInfo
