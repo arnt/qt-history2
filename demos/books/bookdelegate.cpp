@@ -45,11 +45,48 @@ QSize BookDelegate::sizeHint(const QStyleOptionViewItem &option,
 {
     if (index.column() == 5) {
         int rating = index.model()->data(index, Qt::DisplayRole).toInt();
-        qDebug() << index.column() << rating;
         return QSize(rating * star.width(), star.height()) + QSize(1, 1);
     }
 
     return QSqlRelationalDelegate::sizeHint(option, index) + QSize(1, 1); // since we draw the grid ourselves
+}
+
+QWidget *BookDelegate::createEditor(QWidget *parent,
+    const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    if (index.column() == 5) {
+        QSpinBox *editor = new QSpinBox(parent);
+        editor->setMinimum(0);
+        editor->setMaximum(5);
+        editor->installEventFilter(const_cast<BookDelegate*>(this));
+
+        return editor;
+    } else
+        return QSqlRelationalDelegate::createEditor(parent, option, index);
+}
+
+void BookDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    if (index.column() == 5) {
+        int value = index.model()->data(index, Qt::DisplayRole).toInt();
+
+        QSpinBox *spinBox = static_cast<QSpinBox*>(editor);
+        spinBox->setValue(value);
+    } else
+        QSqlRelationalDelegate::setEditorData(editor, index);
+}
+
+void BookDelegate::setModelData(QWidget *editor, QAbstractItemModel *model,
+                                const QModelIndex &index) const
+{
+    if (index.column() == 5) {
+        QSpinBox *spinBox = static_cast<QSpinBox*>(editor);
+        spinBox->interpretText();
+        int value = spinBox->value();
+
+        model->setData(index, value);
+    } else
+        QSqlRelationalDelegate::setModelData(editor, model, index);
 }
 
 void BookDelegate::updateEditorGeometry(QWidget *editor,
