@@ -470,6 +470,11 @@ bool QSocketLayerPrivate::fetchConnectionParameters()
 
 bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 port)
 {
+
+#if defined (QSOCKETLAYER_DEBUG)
+    qDebug("QSocketLayerPrivate::nativeConnect() to %s :: %i", address.toString().toLatin1().constData(), port);
+#endif
+
     struct sockaddr_in sockAddrIPv4;
     qt_sockaddr_in6 sockAddrIPv6;
     struct sockaddr *sockAddrPtr;
@@ -484,9 +489,6 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 por
         case WSANOTINITIALISED:
             //###
             break;
-        case WSAEINVAL: //### this should not be needed but untill all of Qt uses only ws2_32.lib it should be there
-            if (socketState != QAbstractSocket::ConnectingState)
-                break;
         case WSAEISCONN:
             socketState = QAbstractSocket::ConnectedState;
             break;
@@ -509,6 +511,9 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 por
             break;
         case WSAENETUNREACH:
             setError(QAbstractSocket::NetworkError, UnreachableErrorString);
+            break;
+        case WSAEINVAL:
+            setError(QAbstractSocket::NetworkError, InvalidSocketErrorString);
             break;
         default:
             break;
