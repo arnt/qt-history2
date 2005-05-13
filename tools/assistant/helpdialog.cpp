@@ -120,7 +120,7 @@ QModelIndex IndexListModel::filter(const QString &s)
 {
     QMapIterator<QString, QString> it(contents);
     QStringList lst;
-    QString lastKey, lastValue;
+    QString lastKey;
 
     int goodMatch = -1;
     int perfectMatch = -1;
@@ -130,11 +130,10 @@ QModelIndex IndexListModel::filter(const QString &s)
     while (it.hasNext()) {
         it.next();
 
-        if (it.key() == lastKey || it.value() == lastValue)
+        if (it.key() == lastKey)
             continue;
 
         lastKey = it.key();
-        lastValue = it.value();
 
         if (lastKey.contains(s, Qt::CaseInsensitive))
             lst.append(lastKey);
