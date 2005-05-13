@@ -65,30 +65,3 @@ false:macx { #mac install location
     macdocs.path = /Developer/Documentation/Qt
     INSTALLS += macdocs
 }
-
-
-### messages ####
-
-unix {
-    QMAKE_EXTRA_UNIX_TARGETS += compiled_message
-    compiled_message.commands += @echo \
-        ; echo "The Qt library is now built in ./lib" \
-        ; echo "The Qt examples are built in the directories in ./examples" \
-        ; echo "The Qt demos are built in the directories in ./demos" \
-        ; echo \
-        ; echo "Enjoy!   - the Trolltech team"
-
-    compiled_message.depends += FORCE
-
-    ALL_DEPS += compiled_message
-}
-
-unix {
-    installed_message.path = $$PWD
-    installed_message.commands += @echo \
-        ; echo "The Qt library is now installed" \
-        ; echo \
-        ; echo "Enjoy!   - the Trolltech team"
-
-    INSTALLS += installed_message
-}
