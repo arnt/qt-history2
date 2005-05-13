@@ -231,6 +231,51 @@ void QX11Info::setAppDpiY(int screen, int ydpi)
 }
 
 /*!
+    Returns the X11 time.
+
+    \sa setAppTime(), appUserTime()
+*/
+unsigned long QX11Info::appTime()
+{
+    return X11 ? X11->time : 0;
+}
+
+/*!
+    Sets the X11 time to the value specified by \a time.
+
+    \sa appTime(), setAppUserTime()
+*/
+void QX11Info::setAppTime(unsigned long time)
+{
+    if (X11) {
+        X11->time = time;
+    }
+}
+
+/*!
+    Returns the X11 user time.
+
+    \sa setAppUserTime(), appUserTime()
+*/
+unsigned long QX11Info::appUserTime()
+{
+    return X11 ? X11->userTime : 0;
+}
+
+/*!
+    Sets the X11 user time as specified by \a time.
+
+    \sa appUserTime(), setAppTime()
+*/
+void QX11Info::setAppUserTime(unsigned long time)
+{
+    if (X11) {
+        X11->userTime = time;
+    }
+}
+
+
+/*!
     \fn const char *QX11Info::appClass()
 
     Returns the X11 application class.
@@ -364,7 +409,7 @@ Qt::HANDLE QX11Info::colormap() const
 /*!
     Returns true if there is a default color map; otherwise returns false.
 
-    \sa colormap()    
+    \sa colormap()
 */
 
 bool QX11Info::defaultColormap() const

@@ -53,6 +53,10 @@ public:
     static int appDpiY(int screen = -1);
     static void setAppDpiX(int screen, int dpi);
     static void setAppDpiY(int screen, int dpi);
+    static unsigned long appTime();
+    static unsigned long appUserTime();
+    static void setAppTime(unsigned long time);
+    static void setAppUserTime(unsigned long time);
 
 protected:
     void copyX11Data(const QPaintDevice *);
