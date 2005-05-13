@@ -679,7 +679,7 @@ static const QVariant::Handler *qRegisterGuiVariantHandler(const QVariant::Handl
     return handler;
 }
 
-bool qRegisterGuiVariant()
+bool Q_CONSTRUCTOR_FUNCTION qRegisterGuiVariant()
 {
     static const QVariant::Handler *h = qRegisterGuiVariantHandler(QVariant::handler);
     Q_UNUSED(h);

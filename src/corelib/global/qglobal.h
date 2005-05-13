@@ -279,6 +279,7 @@
 #      define Q_PACKED __attribute__ ((__packed__))
 #      define Q_NO_PACKED_REFERENCE
 #    endif
+#    define Q_CONSTRUCTOR_FUNCTION __attribute__((constructor))
 #  endif /* __INTEL_COMPILER */
 
 /* IBM compiler versions are a bit messy. There are actually two products:
@@ -474,6 +475,9 @@
 #  undef Q_NO_PACKED_REFERENCE
 #endif
 
+#ifndef Q_CONSTRUCTOR_FUNCTION
+#  define Q_CONSTRUCTOR_FUNCTION
+#endif
 
 /*
    The window system, must be one of: (Q_WS_x)
