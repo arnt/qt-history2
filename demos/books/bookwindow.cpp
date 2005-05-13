@@ -1,5 +1,6 @@
 #include <QtSql>
 
+#include "bookdelegate.h"
 #include "bookwindow.h"
 #include "initdb.h"
 
@@ -34,6 +35,7 @@ BookWindow::BookWindow()
     model->setHeaderData(genreIdx, Qt::Horizontal, tr("Genre"));
     model->setHeaderData(model->fieldIndex("title"), Qt::Horizontal, tr("Title"));
     model->setHeaderData(model->fieldIndex("year"), Qt::Horizontal, tr("Year"));
+    model->setHeaderData(model->fieldIndex("rating"), Qt::Horizontal, tr("Rating"));
 
     // Populate the model
     if (!model->select()) {
@@ -43,7 +45,7 @@ BookWindow::BookWindow()
 
     // Set the model and hide the ID column
     ui.bookTable->setModel(model);
-    ui.bookTable->setItemDelegate(new QSqlRelationalDelegate(ui.bookTable));
+    ui.bookTable->setItemDelegate(new BookDelegate(ui.bookTable));
     ui.bookTable->setColumnHidden(model->fieldIndex("id"), true);
 
     // Initialize the Author combo box
@@ -72,12 +74,14 @@ void BookWindow::currentBookChanged(const QModelIndex &index)
     ui.yearEdit->setEnabled(enabled);
     ui.authorEdit->setEnabled(enabled);
     ui.genreEdit->setEnabled(enabled);
+    ui.ratingEdit->setEnabled(enabled);
 
     QSqlRecord rec = model->record(index.row());
     ui.titleEdit->setText(rec.value("title").toString());
     ui.yearEdit->setValue(rec.value("year").toInt());
     ui.authorEdit->setCurrentIndex(ui.authorEdit->findText(rec.value(authorIdx).toString()));
     ui.genreEdit->setCurrentIndex(ui.genreEdit->findText(rec.value(genreIdx).toString()));
+    ui.ratingEdit->setCurrentIndex(rec.value("rating").toInt());
 }
 
 void BookWindow::on_authorEdit_activated(const QString &text)
@@ -92,6 +96,14 @@ void BookWindow::on_genreEdit_activated(const QString &text)
     QModelIndex currentIndex = model->index(ui.bookTable->currentIndex().row(), genreIdx);
     if (model->data(currentIndex).toString() != text)
         ui.bookTable->itemDelegate()->setModelData(ui.genreEdit, model, currentIndex);
+}
+
+void BookWindow::on_ratingEdit_activated(int value)
+{
+    QModelIndex currentIndex = model->index(ui.bookTable->currentIndex().row(),
+            model->fieldIndex("rating"));
+    if (model->data(currentIndex).toInt() != value)
+        model->setData(currentIndex, value);
 }
 
 void BookWindow::on_titleEdit_textChanged(const QString &text)

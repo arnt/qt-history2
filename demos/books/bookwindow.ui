@@ -8,22 +8,14 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>601</width>
+    <height>420</height>
    </rect>
   </property>
   <property name="windowTitle" >
    <string>Books</string>
   </property>
   <widget class="QWidget" name="centralWidget" >
-   <property name="geometry" >
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>400</width>
-     <height>300</height>
-    </rect>
-   </property>
    <layout class="QVBoxLayout" >
     <property name="margin" >
      <number>9</number>
@@ -33,14 +25,6 @@
     </property>
     <item>
      <widget class="QGroupBox" name="groupBox" >
-      <property name="geometry" >
-       <rect>
-        <x>9</x>
-        <y>9</y>
-        <width>382</width>
-        <height>282</height>
-       </rect>
-      </property>
       <property name="title" >
        <string>Books</string>
       </property>
@@ -53,14 +37,6 @@
        </property>
        <item>
         <widget class="QTableView" name="bookTable" >
-         <property name="geometry" >
-          <rect>
-           <x>11</x>
-           <y>22</y>
-           <width>360</width>
-           <height>102</height>
-          </rect>
-         </property>
          <property name="selectionBehavior" >
           <enum>QAbstractItemView::SelectRows</enum>
          </property>
@@ -68,18 +44,10 @@
        </item>
        <item>
         <widget class="QGroupBox" name="groupBox_2" >
-         <property name="geometry" >
-          <rect>
-           <x>11</x>
-           <y>130</y>
-           <width>360</width>
-           <height>141</height>
-          </rect>
-         </property>
          <property name="minimumSize" >
           <size>
-           <width>145</width>
-           <height>141</height>
+           <width>16</width>
+           <height>16</height>
           </size>
          </property>
          <property name="title" >
@@ -87,83 +55,22 @@
          </property>
          <layout class="QGridLayout" >
           <property name="margin" >
-           <number>9</number>
+           <number>8</number>
           </property>
           <property name="spacing" >
            <number>6</number>
           </property>
-          <item row="0" column="0" >
-           <widget class="QLabel" name="label_5" >
-            <property name="geometry" >
-             <rect>
-              <x>11</x>
-              <y>22</y>
-              <width>49</width>
-              <height>21</height>
-             </rect>
-            </property>
-            <property name="text" >
-             <string>&lt;b>Title:&lt;/b></string>
-            </property>
-           </widget>
-          </item>
-          <item row="1" column="0" >
-           <widget class="QLabel" name="label_2_2_2_2" >
-            <property name="geometry" >
-             <rect>
-              <x>11</x>
-              <y>49</y>
-              <width>49</width>
-              <height>23</height>
-             </rect>
-            </property>
-            <property name="text" >
-             <string>&lt;b>Author: &lt;/b></string>
+          <item row="2" column="1" >
+           <widget class="QComboBox" name="genreEdit" >
+            <property name="enabled" >
+             <bool>false</bool>
             </property>
            </widget>
           </item>
           <item row="3" column="0" >
            <widget class="QLabel" name="label_4" >
-            <property name="geometry" >
-             <rect>
-              <x>11</x>
-              <y>107</y>
-              <width>49</width>
-              <height>23</height>
-             </rect>
-            </property>
             <property name="text" >
              <string>&lt;b>Year:&lt;/b></string>
-            </property>
-           </widget>
-          </item>
-          <item row="2" column="0" >
-           <widget class="QLabel" name="label_3" >
-            <property name="geometry" >
-             <rect>
-              <x>11</x>
-              <y>78</y>
-              <width>49</width>
-              <height>23</height>
-             </rect>
-            </property>
-            <property name="text" >
-             <string>&lt;b>Genre:&lt;/b></string>
-            </property>
-           </widget>
-          </item>
-          <item row="0" column="1" >
-           <widget class="QLineEdit" name="titleEdit" >
-            <property name="enabled" >
-             <bool>false</bool>
-            </property>
-            <property name="geometry" >
-             <rect>
-              <x>66</x>
-              <y>22</y>
-              <width>283</width>
-              <height>21</height>
-             </rect>
             </property>
            </widget>
           </item>
@@ -172,28 +79,26 @@
             <property name="enabled" >
              <bool>false</bool>
             </property>
-            <property name="geometry" >
-             <rect>
-              <x>66</x>
-              <y>49</y>
-              <width>283</width>
-              <height>23</height>
-             </rect>
+           </widget>
+          </item>
+          <item row="0" column="0" >
+           <widget class="QLabel" name="label_5" >
+            <property name="text" >
+             <string>&lt;b>Title:&lt;/b></string>
             </property>
            </widget>
           </item>
-          <item row="2" column="1" >
-           <widget class="QComboBox" name="genreEdit" >
+          <item row="0" column="1" >
+           <widget class="QLineEdit" name="titleEdit" >
             <property name="enabled" >
              <bool>false</bool>
             </property>
-            <property name="geometry" >
-             <rect>
-              <x>66</x>
-              <y>78</y>
-              <width>283</width>
-              <height>23</height>
-             </rect>
+           </widget>
+          </item>
+          <item row="1" column="0" >
+           <widget class="QLabel" name="label_2_2_2_2" >
+            <property name="text" >
+             <string>&lt;b>Author: &lt;/b></string>
             </property>
            </widget>
           </item>
@@ -201,14 +106,6 @@
            <widget class="QSpinBox" name="yearEdit" >
             <property name="enabled" >
              <bool>false</bool>
-            </property>
-            <property name="geometry" >
-             <rect>
-              <x>66</x>
-              <y>107</y>
-              <width>283</width>
-              <height>23</height>
-             </rect>
             </property>
             <property name="maximum" >
              <number>2100</number>
@@ -219,6 +116,57 @@
             <property name="prefix" >
              <string/>
             </property>
+           </widget>
+          </item>
+          <item row="2" column="0" >
+           <widget class="QLabel" name="label_3" >
+            <property name="text" >
+             <string>&lt;b>Genre:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="0" >
+           <widget class="QLabel" name="label" >
+            <property name="text" >
+             <string>&lt;b>Rating:&lt;/b></string>
+            </property>
+           </widget>
+          </item>
+          <item row="4" column="1" >
+           <widget class="QComboBox" name="ratingEdit" >
+            <property name="enabled" >
+             <bool>false</bool>
+            </property>
+            <item>
+             <property name="text" >
+              <string>No stars</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>1 star</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>2 stars</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>3 stars</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>4 stars</string>
+             </property>
+            </item>
+            <item>
+             <property name="text" >
+              <string>5 stars</string>
+             </property>
+            </item>
            </widget>
           </item>
          </layout>

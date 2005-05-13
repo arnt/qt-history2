@@ -18,6 +18,7 @@ private slots:
     void dataChanged(const QModelIndex &index);
     void on_authorEdit_activated(const QString &text);
     void on_genreEdit_activated(const QString &text);
+    void on_ratingEdit_activated(int value);
     void on_titleEdit_textChanged(const QString &text);
     void on_yearEdit_valueChanged(int value);
 
