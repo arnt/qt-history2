@@ -397,8 +397,6 @@ void QSqlRelationalTableModel::clear()
 */
 bool QSqlRelationalTableModel::select()
 {
-    Q_D(QSqlRelationalTableModel);
-    d->clearChanges();
     return QSqlTableModel::select();
 }
 
