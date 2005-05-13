@@ -157,9 +157,9 @@ public:
         { return (this->isEmpty() ? this->end() : --this->end()); }
 
     typename Q3ValueList<T>::Iterator append(const T& x)
-        { QLinkedList<T>::append(x); return this->begin(); }
+        { QLinkedList<T>::append(x); return --this->end(); }
     typename Q3ValueList<T>::Iterator prepend(const T& x)
-        { QLinkedList<T>::prepend(x); return --this->end(); }
+        { QLinkedList<T>::prepend(x); return this->begin(); }
 
     typename Q3ValueList<T>::Iterator at(typename Q3ValueList<T>::size_type i)
         { Q_ASSERT(i < this->size()); this->detach(); return this->begin()+i; }
