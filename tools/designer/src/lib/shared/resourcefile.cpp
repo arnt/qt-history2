@@ -92,6 +92,8 @@ bool ResourceFile::load()
             file_list.append(absolutePath(felt.text()));
 
         QString prefix = fixPrefix(relt.attribute(QLatin1String("prefix")));
+        if (prefix.isEmpty())
+            prefix = QLatin1String("/");
         int idx = indexOfPrefix(prefix);
         if (idx == -1) {
             m_prefix_list.append(Prefix(prefix, uniqueItems(file_list)));
@@ -186,7 +188,10 @@ bool ResourceFile::split(const QString &_path, QString *prefix, QString *file) c
             continue;
 
         *prefix = pref.name;
-        *file = path.mid(pref.name.size() + 1);
+        if (pref.name == QLatin1String("/"))
+            *file = path.mid(1);
+        else
+            *file = path.mid(pref.name.size() + 1);
 
         if (pref.file_list.contains(absolutePath(*file)))
             return true;
