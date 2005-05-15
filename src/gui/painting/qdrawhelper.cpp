@@ -515,23 +515,26 @@ static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradien
 {
     uint *target = ((uint *)t) + span->x;
     uint *end = target + span->len;
-    int x = span->x;
-
     double dx = data->center.x() - data->focal.x();
     double dy = data->center.y() - data->focal.y();
     double r  = data->radius;
+    double a = r*r - dx*dx - dy*dy;
 
     QMatrix m = data->brushMatrix;
     m = m.inverted();
-    double a = r*r - dx*dx - dy*dy;
+    qreal ix = m.m21() * y + m.dx();
+    qreal iy = m.m22() * y + m.dy();
+    qreal cx = m.m11();
+    qreal cy = m.m12();
+    qreal rx = ix + cx * span->x;
+    qreal ry = iy + cy * span->x;
+    qreal fdx = cx;
+    qreal fdy = cy;
 
     if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor && span->coverage == 255) {
         while (target < end) {
-            QPointF pt(x, y);
-            pt = m.map(pt);
-
-            double xr = pt.x() - data->focal.x();
-            double yr = pt.y() - data->focal.y();
+            double xr = rx - data->focal.x();
+            double yr = ry - data->focal.y();
             double b  = 2*(xr*dx + yr *dy);
             double det = determinant(a, b , -(xr*xr + yr*yr));
             double s;
@@ -539,17 +542,15 @@ static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradien
 
             *target = qt_gradient_pixel(data,  s);
             ++target;
-            ++x;
+            rx += fdx;
+            ry += fdy;
         }
     } else {
         CompositionFunction func = functionForMode(mode);
         int icov = 255 - span->coverage;
         while (target < end) {
-            QPointF pt(x, y);
-            pt = m.map(pt);
-
-            double xr = pt.x() - data->focal.x();
-            double yr = pt.y() - data->focal.y();
+            double xr = rx - data->focal.x();
+            double yr = ry - data->focal.y();
             double b  = 2*(xr*dx + yr *dy);
             double det = determinant(a, b , -(xr*xr + yr*yr));
             double s;
@@ -558,7 +559,8 @@ static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradien
             uint tmp = func(*target, qt_gradient_pixel(data, s));
             *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
             ++target;
-            ++x;
+            rx += fdx;
+            ry += fdy;
         }
     }
 }
@@ -1115,10 +1117,10 @@ static void blend_radial_gradient_mono(void *t, const QSpan *span, RadialGradien
     double dx = data->center.x() - data->focal.x();
     double dy = data->center.y() - data->focal.y();
     double r  = data->radius;
+    double a = r*r - dx*dx - dy*dy;
 
     QMatrix m = data->brushMatrix;
     m = m.inverted();
-    double a = r*r - dx*dx - dy*dy;
 
     for (int x = span->x; x<span->x + span->len; x++) {
         QPointF pt(x, y);
