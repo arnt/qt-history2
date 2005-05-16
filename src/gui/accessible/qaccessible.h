@@ -307,8 +307,8 @@ private:
     QString val;
 };
 
-inline QAccessibleEvent::QAccessibleEvent(Type type, int achild)
-    : QEvent(type), c(achild) {}
+inline QAccessibleEvent::QAccessibleEvent(Type atype, int achild)
+    : QEvent(atype), c(achild) {}
 
 #endif // QT_NO_ACCESSIBILITY
 
