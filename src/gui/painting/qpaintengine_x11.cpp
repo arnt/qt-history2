@@ -804,7 +804,6 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
                 xrects[i].width = ushort(r.width());
                 xrects[i].height = ushort(r.height());
             }
-
             d->setupAdaptedOrigin(rects[0].topLeft());
             if (has_brush && !has_pen)
                 XFillRectangles(d->dpy, d->hd, d->gc_brush, xrects.data(), rectCount);
@@ -881,6 +880,7 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     d->cpen = pen;
     int cp = CapButt;
     int jn = JoinMiter;
+    int ps = pen.style();
 
     switch (pen.capStyle()) {
     case Qt::SquareCap:
@@ -908,8 +908,62 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     }
 
     d->adapted_pen_origin = false;
+
+    char dashes[10];                            // custom pen dashes
+    int dash_len = 0;                           // length of dash list
+    int xStyle = LineSolid;
+
+    /*
+      We are emulating Windows here.  Windows treats cpen.width() == 1
+      (or 0) as a very special case.  The fudge variable unifies this
+      case with the general case.
+    */
+    int dot = pen.width();                     // width of a dot
+    int fudge = 1;
+    if (dot <= 1) {
+        dot = 3;
+        fudge = 2;
+    }
+
+    switch (ps) {
+    case Qt::NoPen:
+    case Qt::SolidLine:
+        xStyle = LineSolid;
+	break;
+    case Qt::DashLine:
+	dashes[0] = fudge * 3 * dot;
+	dashes[1] = fudge * dot;
+	dash_len = 2;
+        xStyle = LineOnOffDash;
+	break;
+    case Qt::DotLine:
+	dashes[0] = dot;
+	dashes[1] = dot;
+	dash_len = 2;
+        xStyle = LineOnOffDash;
+	break;
+    case Qt::DashDotLine:
+	dashes[0] = 3 * dot;
+	dashes[1] = fudge * dot;
+	dashes[2] = dot;
+	dashes[3] = fudge * dot;
+	dash_len = 4;
+        xStyle = LineOnOffDash;
+	break;
+    case Qt::DashDotDotLine:
+	dashes[0] = 3 * dot;
+	dashes[1] = dot;
+	dashes[2] = dot;
+	dashes[3] = dot;
+	dashes[4] = dot;
+	dashes[5] = dot;
+	dash_len = 6;
+        xStyle = LineOnOffDash;
+        break;
+    }
+
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures | GCLineWidth
-                 | GCCapStyle | GCJoinStyle;
+                 | GCCapStyle | GCJoinStyle | GCLineStyle;
     XGCValues vals;
     vals.graphics_exposures = false;
     if (d->pdev->depth() == 1) {
@@ -924,10 +978,18 @@ void QX11PaintEngine::updatePen(const QPen &pen)
         vals.foreground = cmap.pixel(pen.color());
         vals.background = cmap.pixel(d->bg_col);
     }
+
+
     vals.line_width = qRound(pen.widthF());
     vals.cap_style = cp;
     vals.join_style = jn;
+    vals.line_style = xStyle;
+
     XChangeGC(d->dpy, d->gc, mask, &vals);
+
+    if (dash_len) { // make dash list
+        XSetDashes(d->dpy, d->gc, 0, dashes, dash_len);
+    }
 
     if (!d->has_clipping) { // if clipping is set the paintevent clip region is merged with the clip region
         QRegion sysClip = systemClip();
@@ -1037,7 +1099,6 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
         fill = QBrush(cpen.brush());
         fill_gc = gc;
     }
-
 #if !defined(QT_NO_XRENDER)
     bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
