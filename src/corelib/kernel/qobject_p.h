@@ -56,7 +56,7 @@ class Q_CORE_EXPORT QObjectPrivate : public QObjectData
 
 public:
     // use this lock when implementing thread-safe QObject things (e.g. postEvent())
-    Q_GLOBAL_STATIC(QReadWriteLock, readWriteLock)
+    static QReadWriteLock *readWriteLock();
     // note: must lockForRead() before calling isValidObject()
     static bool isValidObject(QObject *object);
 

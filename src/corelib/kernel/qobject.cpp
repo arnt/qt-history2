@@ -36,6 +36,9 @@
 static const int GUARDED_SIGNAL = INT_MIN;
 static int DIRECT_CONNECTION_ONLY = 0;
 
+Q_GLOBAL_STATIC(QReadWriteLock, qt_object_read_write_lock)
+QReadWriteLock *QObjectPrivate::readWriteLock() { return qt_object_read_write_lock(); }
+
 static int *queuedConnectionTypes(const char *signal)
 {
     int *types = 0;
