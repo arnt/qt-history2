@@ -126,13 +126,14 @@ struct RadialGradientData : public GradientData
 
     BlendRadialGradient blendFunc;
     QPainter::CompositionMode compositionMode;
-    QMatrix brushMatrix;
+    QMatrix imatrix;
 };
 
 struct ConicalGradientData : public GradientData
 {
     QPointF center;
     qreal angle;
+    QMatrix imatrix;
     void init(const QPointF &center, qreal angle, const QMatrix &matrix);
     BlendConicalGradient blendFunc;
     QPainter::CompositionMode compositionMode;

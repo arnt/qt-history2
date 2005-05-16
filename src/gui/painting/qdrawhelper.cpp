@@ -7,7 +7,7 @@ void qInitDrawhelperAsm() {}
 #endif
 
 #include <math.h>
-
+#include <private/qmath_p.h>
 #define MASK(src, a) src = BYTE_MUL(src, a)
 
 static const int fixed_scale = 1 << 16;
@@ -503,11 +503,9 @@ inline double determinant(double a, double b, double c)
 }
 
 // function to evaluate real roots
-inline void realRoots(double a, double b, double detSqrt, double &s)
+inline double realRoots(double a, double b, double detSqrt)
 {
-    double firstRoot =  (-b/(2 * a)) +
-                        (detSqrt/(2 * a));
-    s = firstRoot;
+    return (-b + detSqrt)/(2 * a);
 }
 
 static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradientData *data,
@@ -520,47 +518,38 @@ static void blend_radial_gradient_argb(void *t, const QSpan *span, RadialGradien
     double r  = data->radius;
     double a = r*r - dx*dx - dy*dy;
 
-    QMatrix m = data->brushMatrix;
-    m = m.inverted();
+    QMatrix m = data->imatrix;
     qreal ix = m.m21() * y + m.dx();
     qreal iy = m.m22() * y + m.dy();
     qreal cx = m.m11();
     qreal cy = m.m12();
-    qreal rx = ix + cx * span->x;
-    qreal ry = iy + cy * span->x;
-    qreal fdx = cx;
-    qreal fdy = cy;
+    qreal rx = ix + cx * span->x - data->focal.x();
+    qreal ry = iy + cy * span->x - data->focal.y();
 
     if (mode == QPainter::CompositionMode_SourceOver && !data->alphaColor && span->coverage == 255) {
         while (target < end) {
-            double xr = rx - data->focal.x();
-            double yr = ry - data->focal.y();
-            double b  = 2*(xr*dx + yr *dy);
-            double det = determinant(a, b , -(xr*xr + yr*yr));
-            double s;
-            realRoots(a, b, sqrt(det), s);
+            double b  = 2*(rx*dx + ry*dy);
+            double det = determinant(a, b , -(rx*rx + ry*ry));
+            double s = realRoots(a, b, sqrt(det));
 
             *target = qt_gradient_pixel(data,  s);
             ++target;
-            rx += fdx;
-            ry += fdy;
+            rx += cx;
+            ry += cy;
         }
     } else {
         CompositionFunction func = functionForMode(mode);
         int icov = 255 - span->coverage;
         while (target < end) {
-            double xr = rx - data->focal.x();
-            double yr = ry - data->focal.y();
-            double b  = 2*(xr*dx + yr *dy);
-            double det = determinant(a, b , -(xr*xr + yr*yr));
-            double s;
-            realRoots(a, b, sqrt(det), s);
+            double b  = 2*(rx*dx + ry*dy);
+            double det = determinant(a, b , -(rx*rx + ry*ry));
+            double s = realRoots(a, b, sqrt(det));
 
             uint tmp = func(*target, qt_gradient_pixel(data, s));
             *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
             ++target;
-            rx += fdx;
-            ry += fdy;
+            rx += cx;
+            ry += cy;
         }
     }
 }
@@ -569,35 +558,41 @@ static void blend_conical_gradient_argb(void *t, const QSpan *span, ConicalGradi
                                         int y, QPainter::CompositionMode mode)
 {
     uint *target = ((uint *)t) + span->x;
-    QLineF x_axis(0, 0, 1, 0);
     uint *end = target + span->len;
+
+    QMatrix m = data->imatrix;
+    qreal ix = m.m21() * y + m.dx();
+    qreal iy = m.m22() * y + m.dy();
+    qreal cx = m.m11();
+    qreal cy = m.m12();
+    qreal rx = ix + cx * span->x - data->center.x();
+    qreal ry = iy + cy * span->x - data->center.y();
+
     int x = span->x;
     if (mode == QPainter::CompositionMode_SourceOver
         && !data->alphaColor
         && span->coverage == 255) {
         while (target < end) {
-            QLineF line(data->center, QPoint(x, y));
-            double angle = x_axis.angle(line);
-            if (line.dy() < 0)
-                angle = 360 - angle;
+            double angle = atan2(ry, rx);
             angle += data->angle;
-            *target = qt_gradient_pixel(data, angle / 360.0);
+            *target = qt_gradient_pixel(data, angle / (2*Q_PI));
             ++target;
             ++x;
+            rx += cx;
+            ry += cy;
         }
     } else {
         CompositionFunction func = functionForMode(mode);
         int icov = 255 - span->coverage;
         while (target < end) {
-            QLineF line(data->center, QPoint(x, y));
-            double angle = x_axis.angle(line);
-            if (line.dy() < 0)
-                angle = 360 - angle;
+            double angle = atan2(ry, rx);
             angle += data->angle;
-            uint tmp = func(*target, qt_gradient_pixel(data, angle / 360.0));
+            uint tmp = func(*target, qt_gradient_pixel(data, angle / (2*Q_PI)));
             *target = INTERPOLATE_PIXEL_255(tmp, span->coverage, *target, icov);
             ++target;
             ++x;
+            rx += cx;
+            ry += cy;
         }
     }
 }
@@ -1119,19 +1114,18 @@ static void blend_radial_gradient_mono(void *t, const QSpan *span, RadialGradien
     double r  = data->radius;
     double a = r*r - dx*dx - dy*dy;
 
-    QMatrix m = data->brushMatrix;
-    m = m.inverted();
+    QMatrix m = data->imatrix;
+    qreal ix = m.m21() * y + m.dx();
+    qreal iy = m.m22() * y + m.dy();
+    qreal cx = m.m11();
+    qreal cy = m.m12();
+    qreal rx = ix + cx * span->x - data->focal.x();
+    qreal ry = iy + cy * span->x - data->focal.y();
 
     for (int x = span->x; x<span->x + span->len; x++) {
-        QPointF pt(x, y);
-        pt = m.map(pt);
-
-        double xr = pt.x() - data->focal.x();
-        double yr = pt.y() - data->focal.y();
-        double b  = 2*(xr*dx + yr *dy);
-        double det = determinant(a, b , -(xr*xr + yr*yr));
-        double s;
-        realRoots(a, b, sqrt(det), s);
+        double b  = 2*(rx*dx + ry*dy);
+        double det = determinant(a, b , -(rx*rx + ry*ry));
+        double s = realRoots(a, b, sqrt(det));
 
         uint p = qt_gradient_pixel(data, s);
         if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
@@ -1139,6 +1133,8 @@ static void blend_radial_gradient_mono(void *t, const QSpan *span, RadialGradien
         else
             target[x >> 3] &= ~(0x80 >> (x & 7));
         ++x;
+        rx += cx;
+        ry += cy;
     }
 }
 
@@ -1150,12 +1146,16 @@ static void blend_conical_gradient_mono(void *t, const QSpan *span, ConicalGradi
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
 
-    QLineF x_axis(0, 0, 1, 0);
+    QMatrix m = data->imatrix;
+    qreal ix = m.m21() * y + m.dx();
+    qreal iy = m.m22() * y + m.dy();
+    qreal cx = m.m11();
+    qreal cy = m.m12();
+    qreal rx = ix + cx * span->x - data->center.x();
+    qreal ry = iy + cy * span->x - data->center.y();
+
     for (int x = span->x; x<span->x + span->len; x++) {
-        QLineF line(data->center, QPoint(x, y));
-        double angle = x_axis.angle(line);
-        if (line.dy() < 0)
-            angle = 360 - angle;
+        double angle = atan2(ry, rx);
         angle += data->angle;
         uint p = qt_gradient_pixel(data, angle / 360.0);
         if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
@@ -1163,6 +1163,8 @@ static void blend_conical_gradient_mono(void *t, const QSpan *span, ConicalGradi
         else
             target[x >> 3] &= ~(0x80 >> (x & 7));
         ++x;
+        rx += cx;
+        ry += cy;
     }
 }
 
@@ -1368,21 +1370,20 @@ static void blend_radial_gradient_mono_lsb(void *t, const QSpan *span, RadialGra
     double dx = data->center.x() - data->focal.x();
     double dy = data->center.y() - data->focal.y();
     double r  = data->radius;
-
-    QMatrix m = data->brushMatrix;
-    m = m.inverted();
     double a = r*r - dx*dx - dy*dy;
 
-    for (int x = span->x; x<span->x + span->len; x++) {
-        QPointF pt(x, y);
-        pt = m.map(pt);
+    QMatrix m = data->imatrix;
+    qreal ix = m.m21() * y + m.dx();
+    qreal iy = m.m22() * y + m.dy();
+    qreal cx = m.m11();
+    qreal cy = m.m12();
+    qreal rx = ix + cx * span->x - data->focal.x();
+    qreal ry = iy + cy * span->x - data->focal.y();
 
-        double xr = pt.x() - data->focal.x();
-        double yr = pt.y() - data->focal.y();
-        double b  = 2*(xr*dx + yr *dy);
-        double det = determinant(a, b , -(xr*xr + yr*yr));
-        double s;
-        realRoots(a, b, sqrt(det), s);
+    for (int x = span->x; x<span->x + span->len; x++) {
+        double b  = 2*(rx*dx + ry*dy);
+        double det = determinant(a, b , -(rx*rx + ry*ry));
+        double s = realRoots(a, b, sqrt(det));
 
         uint p = qt_gradient_pixel(data, s);
         if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
@@ -1390,6 +1391,8 @@ static void blend_radial_gradient_mono_lsb(void *t, const QSpan *span, RadialGra
         else
             target[x >> 3] &= ~(1 >> (x & 7));
         ++x;
+        rx += cx;
+        ry += cy;
     }
 }
 
@@ -1401,12 +1404,16 @@ static void blend_conical_gradient_mono_lsb(void *t, const QSpan *span, ConicalG
     Q_ASSERT(span->coverage == 0xff);
     uchar *target = (uchar *)t;
 
-    QLineF x_axis(0, 0, 1, 0);
+    QMatrix m = data->imatrix;
+    qreal ix = m.m21() * y + m.dx();
+    qreal iy = m.m22() * y + m.dy();
+    qreal cx = m.m11();
+    qreal cy = m.m12();
+    qreal rx = ix + cx * span->x - data->center.x();
+    qreal ry = iy + cy * span->x - data->center.y();
+
     for (int x = span->x; x<span->x + span->len; x++) {
-        QLineF line(data->center, QPoint(x, y));
-        double angle = x_axis.angle(line);
-        if (line.dy() < 0)
-            angle = 360 - angle;
+        double angle = atan2(ry, rx);
         angle += data->angle;
         uint p = qt_gradient_pixel(data, angle / 360.0);
         if (qGray(p) < int(qt_bayer_matrix[y & 15][x & 15]))
@@ -1414,6 +1421,8 @@ static void blend_conical_gradient_mono_lsb(void *t, const QSpan *span, ConicalG
         else
             target[x >> 3] &= ~(1 << (x & 7));
         ++x;
+        rx += cx;
+        ry += cy;
     }
 }
 

@@ -1864,7 +1864,7 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush)
                 static_cast<const QRadialGradient *>(brush.gradient())->focalPoint();
             radialGradientData->alphaColor = !brush.isOpaque();
             radialGradientData->initColorTable();
-            radialGradientData->brushMatrix = brushMatrix();
+            radialGradientData->imatrix = brushMatrix().inverted();
             radialGradientData->blendFunc = drawHelper->blendRadialGradient;
             radialGradientData->compositionMode = compositionMode;
 
@@ -2818,12 +2818,9 @@ void LinearGradientData::init()
 
 void ConicalGradientData::init(const QPointF &pt, qreal a, const QMatrix &matrix)
 {
-    center = pt * matrix;
-    double rad_angle = a * 2 * Q_PI / 360.0;
-    QLineF l = QLineF(0, 0, qCos(rad_angle), qSin(rad_angle)) * matrix;
-    angle = l.angle(QLineF(0, 0, 1, 0));
-    if (l.dy() < 0)
-        angle = 360 - angle;
+    center = pt;
+    angle = a * 2 * Q_PI / 360.0;
+    imatrix = matrix.inverted();
 
     initColorTable();
 };
