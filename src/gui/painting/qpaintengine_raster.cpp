@@ -1109,7 +1109,7 @@ void QRasterPaintEngine::alphaPenBlt(const void* src, int bpl, bool mono, int rx
 void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h, const QBrush &brush)
 {
     Q_D(QRasterPaintEngine);
-    FillData fillData = d->fillForBrush(brush, 0);
+    FillData fillData = d->fillForBrush(brush);
     int x1 = qMax(x,0);
     int x2 = qMin(x+w, d->rasterBuffer->width());
     int y1 = qMax(y, 0);
@@ -2203,7 +2203,7 @@ void QRasterBuffer::prepareBuffer(int width, int height)
 
 }
 #elif defined(Q_WS_QWS)
-void QRasterBuffer::prepareBuffer(int width, int height)
+void QRasterBuffer::prepareBuffer(int /*width*/, int /*height*/)
 {
     qFatal("QRasterBuffer::prepareBuffer not implemented on embedded");
     m_buffer = 0;
