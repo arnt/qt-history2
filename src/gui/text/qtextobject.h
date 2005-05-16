@@ -116,10 +116,12 @@ public:
 
         friend class QTextFrame;
         friend class QTextTableCell;
+        friend class QTextDocumentLayoutPrivate;
         iterator(QTextFrame *frame, int block, int begin, int end);
     public:
         iterator();
         iterator(const iterator &o);
+        iterator &operator=(const iterator &o);
 
         QTextFrame *parentFrame() const { return f; }
 

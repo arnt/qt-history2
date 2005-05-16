@@ -637,6 +637,16 @@ QTextFrame::iterator::iterator(const iterator &o)
     cb = o.cb;
 }
 
+QTextFrame::iterator &QTextFrame::iterator::operator=(const iterator &o)
+{
+    f = o.f;
+    b = o.b;
+    e = o.e;
+    cf = o.cf;
+    cb = o.cb;
+    return *this;
+}
+
 /*!
     Returns the current frame pointed to by the iterator, or 0 if the
     iterator currently points to a block.
@@ -734,10 +744,6 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
  end:
     return *this;
 }
-
-
-
-
 
 /*!
     \class QTextBlock qtextblock.h

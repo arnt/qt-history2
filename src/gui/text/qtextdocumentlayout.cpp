@@ -202,6 +202,17 @@ enum {
     TextIndentValue = 40
 };
 
+struct CheckPoint
+{
+    qreal y;
+    int positionInFrame;
+};
+
+static bool operator<(const CheckPoint &checkPoint, qreal y)
+{
+    return checkPoint.y < y;
+}
+
 class QTextDocumentLayoutPrivate : public QAbstractTextDocumentLayoutPrivate
 {
     Q_DECLARE_PUBLIC(QTextDocumentLayout)
@@ -270,7 +281,53 @@ public:
 
     void floatMargins(qreal y, const LayoutStruct *layoutStruct, qreal *left, qreal *right) const;
     qreal findY(qreal yFrom, const LayoutStruct *layoutStruct, qreal requiredWidth) const;
+
+    QVector<CheckPoint> checkPoints;
+
+    QTextFrame::Iterator iteratorForYPosition(qreal y) const;
 };
+
+QTextFrame::Iterator QTextDocumentLayoutPrivate::iteratorForYPosition(qreal y) const
+{
+    Q_Q(const QTextDocumentLayout);
+
+    const QTextDocumentPrivate *doc = q->document()->docHandle();
+    QTextFrame *rootFrame = doc->rootFrame();
+
+    if (checkPoints.isEmpty()
+        || y < 0 || y > data(rootFrame)->size.height())
+        return rootFrame->begin();
+
+    QVector<CheckPoint>::ConstIterator checkPoint = qLowerBound(checkPoints.begin(), checkPoints.end(), y);
+    if (checkPoint == checkPoints.end())
+        return rootFrame->begin();
+
+    if (checkPoint != checkPoints.begin())
+        --checkPoint;
+
+    const int position = rootFrame->firstPosition() + checkPoint->positionInFrame;
+    const QTextDocumentPrivate::BlockMap &map = doc->blockMap();
+    const int begin = map.findNode(rootFrame->firstPosition());
+    const int end = map.findNode(rootFrame->lastPosition()+1);
+
+    const int block = map.findNode(position);
+    const int blockPos = map.position(block);
+
+    QTextFrame::iterator it(rootFrame, block, begin, end);
+
+    QTextFrame *containingFrame = doc->frameAt(blockPos);
+    if (containingFrame != rootFrame) {
+        while (containingFrame->parentFrame() != rootFrame) {
+            containingFrame = containingFrame->parentFrame();
+            Q_ASSERT(containingFrame);
+        }
+
+        it.cf = containingFrame;
+        it.cb = 0;
+    }
+
+    return it;
+}
 
 QTextDocumentLayoutPrivate::HitPoint
 QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPointF &point, int *position) const
@@ -281,9 +338,11 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPointF &point, int
     Q_ASSERT(!fd->sizeDirty);
     QPointF p = point - fd->position;
 
+    QTextFrame *rootFrame = q->document()->rootFrame();
+
 //     LDEBUG << "checking frame" << frame->firstPosition() << "point=" << point
 //            << "position" << fd->position << "size" << fd->size;
-    if (frame != q->document()->rootFrame()) {
+    if (frame != rootFrame) {
         if (p.y() < 0 || p.x() < 0) {
             *position = frame->firstPosition() - 1;
 //             LDEBUG << "before pos=" << *position;
@@ -311,6 +370,19 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPointF &point, int
     do {
         QTextFrame::Iterator it = frame->begin();
         QTextFrame::Iterator end = frame->end();
+
+        if (frame == rootFrame) {
+            it = iteratorForYPosition(p.y());
+
+            Q_ASSERT(it.parentFrame() == frame);
+
+            if (it.currentFrame())
+                pos = it.currentFrame()->firstPosition();
+            else
+                pos = it.currentBlock().position();
+            *position = pos;
+            hit = PointBefore;
+        }
 
         if (table) {
             QTextTableCell cell = table->cellAt(row, col);
@@ -587,7 +659,13 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
 
     } else {
         DrawResult previousDrawResult = OutsideClipRect;
-        for (QTextFrame::Iterator it = frame->begin(); !it.atEnd(); ++it) {
+
+        QTextFrame::Iterator it = frame->begin();
+
+        if (frame == q->document()->rootFrame())
+            it = iteratorForYPosition(context.clip.top());
+
+        for (; !it.atEnd(); ++it) {
             QTextFrame *c = it.currentFrame();
             DrawResult r;
             if (c)
@@ -1274,15 +1352,41 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
 void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruct *layoutStruct,
                                             int layoutFrom, int layoutTo)
 {
+    Q_Q(QTextDocumentLayout);
     LDEBUG << "layoutFlow from=" << layoutFrom << "to=" << layoutTo;
     QTextFrameData *fd = data(layoutStruct->frame);
 
     fd->currentLayoutStruct = layoutStruct;
 
+    const bool inRootFrame = (it.parentFrame() == q->document()->rootFrame());
+    if (inRootFrame) {
+        checkPoints.clear();
+        CheckPoint cp;
+        cp.y = 0;
+        cp.positionInFrame = 0;
+        checkPoints << cp;
+    }
+
     bool firstIteration = true;
 
     while (!it.atEnd()) {
         QTextFrame *c = it.currentFrame();
+
+        if (inRootFrame && qAbs(layoutStruct->y - checkPoints.last().y) > 2000) {
+            qreal left, right;
+            floatMargins(layoutStruct->y, layoutStruct, &left, &right);
+            if (left == layoutStruct->x_left && right == layoutStruct->x_right) {
+                CheckPoint p;
+                p.y = layoutStruct->y;
+                if (it.currentFrame()) {
+                    p.positionInFrame = it.currentFrame()->firstPosition();
+                } else {
+                    p.positionInFrame = it.currentBlock().position();
+                }
+
+                checkPoints.append(p);
+            }
+        }
 
         if (c) {
             // position child frame
@@ -1329,6 +1433,14 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
 
         firstIteration = false;
     }
+
+    if (inRootFrame) {
+        CheckPoint cp;
+        cp.y = layoutStruct->y;
+        cp.positionInFrame = q->document()->docHandle()->length();
+        checkPoints.append(cp);
+    }
+
 
     fd->currentLayoutStruct = 0;
 }
@@ -1534,7 +1646,6 @@ qreal QTextDocumentLayoutPrivate::findY(qreal yFrom, const LayoutStruct *layoutS
     }
     return yFrom;
 }
-
 
 QTextDocumentLayout::QTextDocumentLayout(QTextDocument *doc)
     : QAbstractTextDocumentLayout(*new QTextDocumentLayoutPrivate, doc)
