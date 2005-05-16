@@ -1134,15 +1134,13 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
     const double b = minimum.toDouble();
     QString copy = stripped(input);
     int len = copy.size();
-    double num = 0.0;
+    double num = b;
 
     if (checkIntermediate(copy)) {
         state = QValidator::Intermediate;
-	num = b;
 	goto end;
     } else if (copy.at(0).isSpace() || copy.at(0) == thousand) {
         state = QValidator::Invalid;
-	num = b;
 	goto end;
     } else if (len > 1) {
         const int dec = findDelimiter(copy);
@@ -1154,7 +1152,6 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
             for (int i=dec + 1; i<copy.size(); ++i) {
                 if (copy.at(i).isSpace() || copy.at(i) == thousand) {
                     state = QValidator::Invalid;
-		    num = b;
 		    goto end;
                 }
             }
@@ -1164,11 +1161,9 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
             if ((last == thousand || last.isSpace())
 		&& (secondLast == thousand || secondLast.isSpace())) {
                 state = QValidator::Invalid;
-		num = b;
 		goto end;
             } else if (last.isSpace() && (!thousand.isSpace() || secondLast.isSpace())) {
                 state = QValidator::Invalid;
-		num = b;
 		goto end;
 	    }
 	}
