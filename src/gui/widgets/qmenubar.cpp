@@ -1355,7 +1355,7 @@ int QMenuBar::insertAny(const QIcon *icon, const QString *text, const QObject *r
         act->setShortcut(*shortcut);
     if(receiver && member)
         QObject::connect(act, SIGNAL(triggered()), receiver, member);
-    if(index == -1)
+    if(index == -1 || index >= actions().count())
         addAction(act);
     else
         insertAction(act, actions().value(index+1));

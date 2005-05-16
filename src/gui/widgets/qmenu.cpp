@@ -2181,7 +2181,7 @@ int QMenu::insertAny(const QIcon *icon, const QString *text, const QObject *rece
         act->setShortcut(*shortcut);
     if (receiver && member)
         QObject::connect(act, SIGNAL(activated(int)), receiver, member);
-    if (index == -1)
+    if (index == -1 || index >= actions().count())
         addAction(act);
     else
         insertAction(actions().value(index+1), act);
