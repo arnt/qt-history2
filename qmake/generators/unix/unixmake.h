@@ -26,7 +26,6 @@ class UnixMakefileGenerator : public MakefileGenerator
     QString pkgConfigFileName();
     QString pkgConfigFixPath(QString) const;
     void writePkgConfigFile();   // for pkg-config
-    QStringList combineSetLFlags(const QStringList &list1, const QStringList &list2);
     void writePrlFile(QTextStream &);
 
 public:

@@ -258,82 +258,12 @@ UnixMakefileGenerator::init()
     }
 }
 
-QStringList
-UnixMakefileGenerator::combineSetLFlags(const QStringList &list1, const QStringList &list2)
-{
-    if(project->isActiveConfig("no_smart_library_merge") || project->isActiveConfig("no_lflags_merge"))
-        return list1 + list2;
-
-    QStringList ret;
-    for(int i = 0; i < 2; i++) {
-        const QStringList *lst = i ? &list2 : &list1;
-        for(QStringList::ConstIterator it = lst->begin(); it != lst->end(); ++it) {
-            if((*it).startsWith("-")) {
-                if((*it).startsWith("-L")) {
-                    if(ret.indexOf((*it)) == -1)
-                        ret.append((*it));
-                } else if((*it).startsWith("-l")) {
-                    ret.removeAll(*it);
-                    ret.append(*it);
-                } else if(project->isActiveConfig("macx") && (*it).startsWith("-F")) {
-                    if(ret.indexOf((*it)) == -1)
-                        ret.append((*it));
-                } else if(project->isActiveConfig("macx") && (*it).startsWith("-framework")) {
-                    int as_one = true;
-                    QString framework_in;
-                    if((*it).length() > 11) {
-                        framework_in = (*it).mid(11);
-                    } else {
-                        if(it != lst->end()) {
-                            ++it;
-                            as_one = false;
-                            framework_in = (*it);
-                        }
-                    }
-                    if(!framework_in.isEmpty()) {
-                        for(int outit = 0; outit < ret.size(); ++outit) {
-                            if(ret.at(outit).startsWith("-framework")) {
-                                int found = 0;
-                                if(ret.at(outit).length() > 11) {
-                                    if(framework_in == ret.at(outit).mid(11))
-                                        found = 1;
-                                } else if(outit < ret.size()-1) {
-                                    if(framework_in == ret.at(outit+1))
-                                        found = 2;
-                                }
-                                for(int i = 0; i < found; i++)
-                                    ret.removeAt(outit);
-                            }
-                        }
-                        if(as_one) {
-                            ret.append("-framework " + framework_in);
-                        } else {
-                            ret.append("-framework");
-                            ret.append(framework_in);
-                        }
-                    }
-                } else {
-#if 1
-                    remove((*it).toLatin1());
-#endif
-                    ret.append((*it));
-                }
-            } else /*if(QFile::exists((*it)))*/ {
-                ret.removeAll(*it);
-                ret.append(*it);
-            }
-        }
-    }
-    return ret;
-}
-
 void
 UnixMakefileGenerator::processPrlVariable(const QString &var, const QStringList &l)
 {
-    if(var == "QMAKE_PRL_LIBS")
-        project->variables()["QMAKE_CURRENT_PRL_LIBS"] = combineSetLFlags(project->variables()["QMAKE_CURRENT_PRL_LIBS"] +
-                                                                          project->variables()["QMAKE_LIBS"], l);
-    else
+    if(var == "QMAKE_PRL_LIBS") {
+        project->variables()["QMAKE_CURRENT_PRL_LIBS"] += l;
+    } else
         MakefileGenerator::processPrlVariable(var, l);
 }
 
@@ -468,29 +398,25 @@ QString linkLib(const QString &file, const QString &libName) {
 void
 UnixMakefileGenerator::processPrlFiles()
 {
-    QHash<QString, void*> processed;
     QList<QMakeLocalFileName> libdirs, frameworkdirs;
     frameworkdirs.append(QMakeLocalFileName("/System/Library/Frameworks"));
     frameworkdirs.append(QMakeLocalFileName("/Library/Frameworks"));
     const QString lflags[] = { "QMAKE_LIBDIR_FLAGS", "QMAKE_LIBS", QString() };
     for(int i = 0; !lflags[i].isNull(); i++) {
-        for(bool ret = false; true; ret = false) {
-            QStringList l_out;
             QStringList &l = project->variables()[lflags[i]];
-            for(QStringList::Iterator it = l.begin(); it != l.end(); ++it) {
-                project->variables()["QMAKE_CURRENT_PRL_LIBS"].clear();
-                QString opt = (*it).trimmed();
+        for(int lit = 0; lit < l.size(); ++lit) {
+            QString opt = l.at(lit).trimmed();
                 if(opt.startsWith("-")) {
                     if(opt.startsWith("-L")) {
                         libdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
-                    } else if(opt.startsWith("-l") && !processed[opt]) {
+                } else if(opt.startsWith("-l")) {
                         QString lib = opt.right(opt.length() - 2);
                         for(QList<QMakeLocalFileName>::Iterator dep_it = libdirs.begin(); dep_it != libdirs.end(); ++dep_it) {
                             if(!project->isActiveConfig("compile_libtool")) { //give them the .libs..
                                 QString la = (*dep_it).local() + Option::dir_sep + "lib" + lib + Option::libtool_ext;
                                 if(exists(la) && QFile::exists((*dep_it).local() + Option::dir_sep + ".libs")) {
                                     QString dot_libs = (*dep_it).real() + Option::dir_sep + ".libs";
-                                    l_out.append("-L" + dot_libs);
+                                l.append("-L" + dot_libs);
                                     libdirs.append(QMakeLocalFileName(dot_libs));
                                 }
                             }
@@ -502,55 +428,89 @@ UnixMakefileGenerator::processPrlFiles()
                                 if(prl.startsWith((*dep_it).local()))
                                     prl.replace(0, (*dep_it).local().length(), (*dep_it).real());
                                 opt = linkLib(prl, lib);
-                                if(!opt.isNull())
-                                    processed.insertMulti(opt, (void*)1);
-                                ret = true;
                                 break;
                             }
                         }
                     } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-F")) {
                         frameworkdirs.append(QMakeLocalFileName(opt.right(opt.length()-2)));
                     } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-framework")) {
-                        if(opt.length() > 11) {
+                    if(opt.length() > 11)
                             opt = opt.mid(11);
-                        } else {
-                            ++it;
-                            opt = (*it);
-                        }
+                    else
+                        opt = l.at(++lit);
+                    opt = opt.trimmed();
                         for(QList<QMakeLocalFileName>::Iterator dep_it = frameworkdirs.begin();
                             dep_it != frameworkdirs.end(); ++dep_it) {
                             QString prl = (*dep_it).local() + "/" + opt + ".framework/" + opt + Option::prl_ext;
-                            if(!processed[prl] && processPrlFile(prl)) {
-                                processed.insertMulti(prl, (void*)1);
-                                ret = true;
+                        if(processPrlFile(prl))
                                 break;
                             }
-
-                        }
-                        l_out.append("-framework");
                     }
-                    if(!opt.isEmpty())
-                        l_out.append(opt);
-                    l_out = combineSetLFlags(l_out, project->variables()["QMAKE_CURRENT_PRL_LIBS"]);
                 } else if(!opt.isNull()) {
                     QString lib = opt;
-                    if(!processed[lib] && processPrlFile(lib)) {
-                      processed.insertMulti(lib, (void*)1);
-                      ret = true;
-                    }
+                processPrlFile(lib);
 #if 0
                     if(ret)
                       opt = linkLib(lib, "");
 #endif
                     if(!opt.isEmpty())
-                      l_out.append(opt);
-                    l_out = combineSetLFlags(l_out, project->variables()["QMAKE_CURRENT_PRL_LIBS"]);
+                    l.replaceInStrings(lib, opt);
+            }
+
+            QStringList &prl_libs = project->variables()["QMAKE_CURRENT_PRL_LIBS"];
+            if(!prl_libs.isEmpty()) {
+                for(int prl = 0; prl < prl_libs.size(); ++prl)
+                    l.insert(lit+prl+1, prl_libs.at(prl));
+                prl_libs.clear();
                 }
             }
-            if(ret && l != l_out)
-                l = l_out;
+
+        //merge them into a logical order
+        if(!project->isActiveConfig("no_smart_library_merge") && !project->isActiveConfig("no_lflags_merge")) {
+            QStringList lflags;
+            for(int lit = 0; lit < l.size(); ++lit) {
+                QString opt = l.at(lit).trimmed();
+                if(opt.startsWith("-")) {
+                    if(opt.startsWith("-L") ||
+                       (Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-F"))) {
+                        if(lit == 0 || l.lastIndexOf(opt, lit-1) == -1)
+                            lflags.append(opt);
+                    } else if(opt.startsWith("-l")) {
+                        if(lit == l.size()-1 || l.indexOf(opt, lit+1) == -1)
+                            lflags.append(opt);
+                    } else if(Option::target_mode == Option::TARG_MACX_MODE && opt.startsWith("-framework")) {
+                        if(opt.length() > 11)
+                            opt = opt.mid(11);
+                        else
+                            opt = l.at(++lit);
+                        bool found = false;
+                        for(int x = lit+1; x < l.size(); ++x) {
+                            QString xf = l.at(x);
+                            if(xf.startsWith("-framework")) {
+                                QString framework;
+                                if(xf.length() > 11)
+                                    framework = xf.mid(11);
             else
+                                    framework = l.at(++x);
+                                if(framework == opt) {
+                                    found = true;
                 break;
+        }
+    }
+                        }
+                        if(!found) {
+                            lflags.append("-framework");
+                            lflags.append(opt);
+                        }
+                    } else {
+                        lflags.append(opt);
+                    }
+                } else if(!opt.isNull()) {
+                    if(lit == 0 || l.lastIndexOf(opt, lit-1) == -1)
+                        lflags.append(opt);
+                }
+            }
+            l = lflags;
         }
     }
 }
