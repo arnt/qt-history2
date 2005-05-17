@@ -1284,6 +1284,18 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                 }
                 QString local_dirstr = Option::fixPathToLocalOS(dirstr, true);
                 QStringList files = QDir(local_dirstr).entryList(QStringList(filestr));
+                if(project->variables()[(*it) + ".CONFIG"].indexOf("no_check_exist") != -1) {
+                    if(!target.isEmpty())
+                        target += "\t";
+                    QString dst_file = filePrefixRoot(root, dst);
+                    QString cmd =  QString("-$(INSTALL_FILE)") + " \"" +
+                                   Option::fixPathToTargetOS(fileFixify(wild, FileFixifyAbsolute, false), false, false) +
+                                   "\" \"" + dst_file + "\"\n";
+                    target += cmd;
+                    if(!uninst.isEmpty())
+                        uninst.append("\n\t");
+                    uninst.append(rm_dir_contents + " \"" + filePrefixRoot(root, fileFixify(dst + filestr, FileFixifyAbsolute, false)) + "\"");
+                }
                 for(int x = 0; x < files.count(); x++) {
                     QString file = files[x];
                     if(file == "." || file == "..") //blah
