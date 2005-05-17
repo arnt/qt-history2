@@ -1284,7 +1284,7 @@ MakefileGenerator::writeInstalls(QTextStream &t, const QString &installs, bool n
                 }
                 QString local_dirstr = Option::fixPathToLocalOS(dirstr, true);
                 QStringList files = QDir(local_dirstr).entryList(QStringList(filestr));
-                if(project->variables()[(*it) + ".CONFIG"].indexOf("no_check_exist") != -1) {
+                if(project->variables()[(*it) + ".CONFIG"].indexOf("no_check_exist") != -1 && files.isEmpty()) {
                     if(!target.isEmpty())
                         target += "\t";
                     QString dst_file = filePrefixRoot(root, dst);
