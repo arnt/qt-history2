@@ -108,14 +108,14 @@ int QResource::findNode(const QString &path) const
                 l = sub_node;
             sub_node = (l + r + 1) / 2;
         }
+        sub_node += child;
 
         //now do the "harder" compares
         bool found = false;
-        if(hash(child+sub_node) == h) {
-            sub_node += child;
-            while(hash(sub_node-1) == h) //backup for collisions
+        if(hash(sub_node) == h) {
+            while(sub_node && hash(sub_node-1) == h) //backup for collisions
                 --sub_node;
-            for(; hash(sub_node) == h; ++sub_node) { //here we go...
+            for(; sub_node < child+child_count && hash(sub_node) == h; ++sub_node) { //here we go...
                 if(name(sub_node) == segment) {
                     found = true;
                     int offset = findOffset(sub_node) + 4; //jump past name
@@ -443,7 +443,7 @@ bool QResourceFileEngine::open(int flags)
         qWarning("QFSFileEngine::open: No file name specified");
         return false;
     }
-    if (flags & QIODevice::WriteOnly)
+    if(flags & QIODevice::WriteOnly)
         return false;
     if(!d->resource.exists())
        return false;
@@ -465,12 +465,11 @@ void QResourceFileEngine::flush()
 qint64 QResourceFileEngine::read(char *data, qint64 len)
 {
     Q_D(QResourceFileEngine);
-    if(len > d->resource.data().size()-d->offset) {
+    if(len > d->resource.data().size()-d->offset)
         len = d->resource.data().size()-d->offset;
-        if(!len)
-            return 0;
-    }
-    memcpy(data, d->resource.data().data()+d->offset, len);
+    if(len <= 0)
+        return 0;
+    memcpy(data, d->resource.data().constData()+d->offset, len);
     d->offset += len;
     return len;
 }
