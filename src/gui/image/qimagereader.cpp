@@ -120,6 +120,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
             handler = plugin->create(device, form);
             break;
         }
+        device->seek(0);
     }
 
     // check if we have built-in support for the format name
@@ -142,7 +143,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
             handler->setOption(QImageIOHandler::SubType, form);
         }
     }
-    
+
     // check if any of our built-in formats can read images from the device
     if (!handler) {
         QByteArray subType;
