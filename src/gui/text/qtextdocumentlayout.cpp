@@ -743,10 +743,14 @@ QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *painter,
     if (object && object->format().toListFormat().style() != QTextListFormat::ListStyleUndefined)
         drawListItem(offset, painter, context, bl, selFormat);
 
+    QPen oldPen = painter->pen();
     painter->setPen(context.palette.color(QPalette::Text));
+
     tl->draw(painter, offset, selections, context.clip);
     if (cursor >= 0 && tl->preeditAreaText().isEmpty())
         tl->drawCursor(painter, offset, cursor);
+
+    painter->setPen(oldPen);
 
     return Drawn;
 }
