@@ -279,7 +279,9 @@ bool QSocketLayerPrivate::createNewSocket(QAbstractSocket::SocketType socketType
 
     int protocol = (socketProtocol == QAbstractSocket::IPv6Protocol) ? AF_INET6 : AF_INET;
     int type = (socketType == QAbstractSocket::UdpSocket) ? SOCK_DGRAM : SOCK_STREAM;
-    SOCKET socket = ::WSASocket(protocol, type, 0, NULL, 0, 0);
+    // MSDN KB179942 states that on winnt 4 WSA_FLAG_OVERLAPPED is needed if socket is to be non blocking
+    // and recomends alwasy doing it for cross windows version comapablity.
+    SOCKET socket = ::WSASocket(protocol, type, 0, NULL, 0, WSA_FLAG_OVERLAPPED);
 
     if (socket == INVALID_SOCKET) {
         WS_ERROR_DEBUG
