@@ -578,10 +578,8 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 
     forever {
 
-        if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0))) {
-            if (canWrite())
-                return true;
-        }
+        if (!writeBuffer.isEmpty() && (!pipeWriter || pipeWriter->waitForWrite(0)))
+            return canWrite();
 
         if (bytesAvailableFromStdout() != 0) {
             canReadStandardOutput();
@@ -598,11 +596,6 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
         if (WaitForSingleObject(pid->hProcess, 0) == WAIT_OBJECT_0) {
             processDied();
             return false;
-        }
-
-        if (pipeWriter->waitForWrite(timer.nextSleepTime())) {
-             if (canWrite())
-                return true;
         }
 
         if (timer.hasTimedOut())
