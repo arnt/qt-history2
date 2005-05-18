@@ -2198,14 +2198,16 @@ static void convert_ARGB_PM_to_Indexed8(QImageData *dst, const QImageData *src, 
     QImageData *tmp = QImageData::create(QSize(src->width, src->height), QImage::Format_RGB32);
     convert_ARGB_PM_to_RGB(tmp, src, flags);
     convert_RGB_to_Indexed8(dst, tmp, flags);
- }
+    delete tmp;
+}
 
 static void convert_ARGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::ImageConversionFlags flags)
 {
     QImageData *tmp = QImageData::create(QSize(src->width, src->height), QImage::Format_RGB32);
     mask_alpha_converter(tmp, src, flags);
     convert_RGB_to_Indexed8(dst, tmp, flags);
- }
+    delete tmp;
+}
 
 static void convert_Indexed8_to_X32(QImageData *dest, const QImageData *src, Qt::ImageConversionFlags)
 {
