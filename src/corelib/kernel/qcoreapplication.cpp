@@ -1496,7 +1496,7 @@ void QCoreApplication::setLibraryPaths(const QStringList &paths)
 }
 
 /*!
-  Append \a path to the end of the library path list. If \a path is
+  Appends \a path to the end of the library path list. If \a path is
   empty or already in the path list, the path list is not changed.
 
   The default path list consists of a single entry, the installation
