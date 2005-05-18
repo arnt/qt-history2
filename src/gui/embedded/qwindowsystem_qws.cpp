@@ -2346,8 +2346,8 @@ void QWSServer::openMouse()
     closeMouse();
     bool needviscurs = true;
     if (mice != "None") {
-        QStringList mouse = mice.split(" ");
-        for (QStringList::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
+        QList<QByteArray> mouse = mice.split(' ');
+        for (QList<QByteArray>::Iterator m=mouse.begin(); m!=mouse.end(); ++m) {
             QString ms = *m;
             QWSMouseHandler* h = newMouseHandler(ms);
             (void)h;
