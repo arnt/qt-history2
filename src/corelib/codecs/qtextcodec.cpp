@@ -334,14 +334,14 @@ static void setupLocaleMapper()
 
         // Get the first nonempty value from $LC_ALL, $LC_CTYPE, and $LANG
         // environment variables.
-        char * lang = qstrdup(::getenv("LC_ALL"));
+        char * lang = qstrdup(qgetenv("LC_ALL").constData());
         if (!lang || lang[0] == 0 || strcmp(lang, "C") == 0) {
             if (lang) delete [] lang;
-            lang = qstrdup(::getenv("LC_CTYPE"));
+            lang = qstrdup(qgetenv("LC_CTYPE").constData());
         }
         if (!lang || lang[0] == 0 || strcmp(lang, "C") == 0) {
             if (lang) delete [] lang;
-            lang = qstrdup(::getenv("LANG"));
+            lang = qstrdup(qgetenv("LANG").constData());
         }
 
         // Now try these in order:
