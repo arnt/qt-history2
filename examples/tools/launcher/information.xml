@@ -13,7 +13,8 @@
   <category dirname="designer" name="Qt Designer">
     <example filename="calculatorbuilder" name="Calculator Builder" />
     <example filename="calculatorform" name="Calculator Form" />
-    <example filename="worldtimeclock" name="World Time Clock" />
+    <example filename="customwidgetplugin" name="Custom Widget Plugin" />
+    <example filename="worldtimeclockplugin" name="World Time Clock Plugin" />
   </category>
   <category dirname="dialogs" name="Dialogs">
     <example filename="complexwizard" name="Complex Wizard" />

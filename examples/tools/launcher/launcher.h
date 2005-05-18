@@ -16,6 +16,7 @@
 
 #include <QDir>
 #include <QDomNode>
+#include <QImage>
 #include <QMap>
 #include <QMainWindow>
 #include <QString>
@@ -62,6 +63,7 @@ private:
     QString readExampleDescription(const QDomNode &parentNode) const;
     void findDescriptionAndImages(const QString &exampleName,
                                   const QString &docName);
+    QString findExecutable(const QDir &dir) const;
     void loadExampleInfo();
     void newPage();
     void readCategoryDescription(const QDir &categoryDir,
@@ -80,6 +82,8 @@ private:
     QFont buttonFont;
     QFont textFont;
     QFont titleFont;
+    QImage qtLogo;
+    QImage trolltechLogo;
     QMap<QString,QColor> categoryColors;
     QMap<QString,QColor> exampleColors;
     QMap<QProcess*,QString> runningProcesses;
@@ -93,7 +97,6 @@ private:
     QString currentExample;
     QStringList runningExamples;
     QStringList categories;
-    QStringList examplePieces;
     QTimer *slideshowTimer;
 };
 

@@ -23,8 +23,10 @@ Launcher::Launcher(QWidget *parent)
     : QMainWindow(parent)
 {
     titleFont = font();
+    titleFont.setStyleStrategy(QFont::ForceOutline);
     titleFont.setWeight(QFont::Bold);
     buttonFont = font();
+    buttonFont.setStyleStrategy(QFont::ForceOutline);
     fontRatio = 0.8;
     inFullScreenResize = false;
     currentCategory = "[starting]";
@@ -105,36 +107,14 @@ bool Launcher::setup()
             QMessageBox::Cancel, QMessageBox::NoButton);
     }
 
-    // Assume that the current example resides on a path ending with
-    // .../examples/tools/launcher and try to locate the main examples
-    // directory. We record the names of the subdirectories as we
-    // move up the directory tree so that we can find the other example
-    // executables later.
-    QString launcherPath = qApp->applicationFilePath();
+    examplesDir = QDir(QLibraryInfo::location(QLibraryInfo::PrefixPath));
 
-    int index = launcherPath.lastIndexOf("examples");
-    if (index == -1) {
+    if (!examplesDir.cd("examples")) {
         // Failed to find the examples.
         QMessageBox::warning(this, tr("No Examples Found"),
             tr("I could not find any Qt examples."),
             QMessageBox::Cancel, QMessageBox::NoButton);
         return false;
-    }
-
-    examplesDir = QDir(launcherPath.left(index));
-    examplesDir.cd("examples");
-
-    QStringList subDirs = launcherPath.mid(index).split("/");
-    subDirs.pop_front(); // We should now be in the examples directory.
-    subDirs.pop_front(); // We should now be in the tools directory.
-
-    foreach (QString subDir, subDirs) {
-        int launchIndex = subDir.indexOf("launcher");
-        if (launchIndex != -1)
-            examplePieces.append(subDir.left(launchIndex).replace("%", "%?")
-                + "%1" + subDir.mid(launchIndex+8).replace("%", "%?"));
-        else
-            examplePieces.append(subDir.replace("%", "%?"));
     }
 
     loadExampleInfo();
@@ -202,6 +182,8 @@ void Launcher::loadExampleInfo()
     QDomNodeList categoryNodes = documentElement.elementsByTagName("category");
 
     readCategoryDescription(examplesDir, "[main]");
+    qtLogo.load(imagesDir.absoluteFilePath(":/images/qt-logo.png"));
+    trolltechLogo.load(imagesDir.absoluteFilePath(":/images/trolltech-logo.png"));
 
     maximumLabels = int(categoryNodes.length()+1);
 
@@ -227,7 +209,6 @@ void Launcher::loadExampleInfo()
             for (int j = 0; j < int(exampleNodes.length()); ++j) {
 
                 QDir exampleDir = categoryDir;
-                QStringList pieces = examplePieces;
 
                 QDomNode exampleNode = exampleNodes.item(j);
                 element = exampleNode.toElement();
@@ -236,27 +217,7 @@ void Launcher::loadExampleInfo()
                 QString exampleDirName = element.attribute("dirname");
                 QString exampleColor = element.attribute("color", "#f0f0f0");
 
-                if (!exampleDirName.isEmpty())
-                    pieces.push_front(exampleDirName);
-
-                for (int p = 0; p < pieces.size(); ++p) {
-                    QString name = pieces[p];
-                    if (name.contains("%1"))
-                        name = name.arg(exampleFileName);
-
-                    name = name.replace("%?", "%");
-
-                    if (p == pieces.size()-1) {
-                        QFileInfo binary(exampleDir.absoluteFilePath(name));
-                        if (binary.exists() && binary.isExecutable()) {
-                            examples[categoryName].append(exampleName);
-                            examplePaths[exampleName] = binary.absoluteFilePath();
-                        }
-                    } else {
-                        if (!exampleDir.cd(name))
-                            break;
-                    }
-                }
+                examples[categoryName].append(exampleName);
 
                 QString docName;
                 if (!categoryDocName.isEmpty())
@@ -266,12 +227,38 @@ void Launcher::loadExampleInfo()
 
                 exampleColors[exampleName] = exampleColor;
                 findDescriptionAndImages(exampleName, docName);
+
+                if (!exampleDirName.isEmpty() && !exampleDir.cd(exampleDirName))
+                    continue;
+
+                if (exampleDir.cd(exampleFileName)) {
+                    QString examplePath = findExecutable(exampleDir);
+                    if (!examplePath.isNull())
+                        examplePaths[exampleName] = examplePath;
+                }
             }
 
             categories.append(categoryName);
             categoryColors[categoryName] = categoryColor;
         }
     }
+}
+
+QString Launcher::findExecutable(const QDir &dir) const
+{
+    QDir parentDir = dir;
+    parentDir.cdUp();
+
+    foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs | QDir::Files)) {
+        if (info.isFile() && info.isExecutable())
+            return info.absoluteFilePath();
+        else if (info.isDir() && info.dir() != dir && info.dir() != parentDir) {
+            QString path = findExecutable(info.dir());
+            if (!path.isNull())
+                return path;
+        }
+    }
+    return QString();
 }
 
 void Launcher::readCategoryDescription(const QDir &categoryDir,
@@ -286,9 +273,18 @@ void Launcher::readCategoryDescription(const QDir &categoryDir,
 
         QStringList paragraphs;
         QStringList currentPara;
+        bool openQuote = true;
 
         while (!inputStream.atEnd()) {
             QString line = inputStream.readLine();
+            int at = 0;
+            while ((at = line.indexOf("\"", at)) != -1) {
+                if (openQuote)
+                    line[at] = QChar::Punctuation_InitialQuote;
+                else
+                    line[at] = QChar::Punctuation_FinalQuote;
+                openQuote = !openQuote;
+            }
 
             if (!line.trimmed().isEmpty()) {
                 currentPara.append(line.trimmed());
@@ -412,25 +408,53 @@ void Launcher::showCategories()
         shape->setMetaData("fade minimum", 0);
     }
 
-    DisplayShape *title = new TitleShape(tr("Qt Examples"), titleFont,
-        QPen(QColor("#a6ce39")), QPointF(),
-        QSizeF(0.5 * width(), 0.1 * height()));
+    qreal horizontalMargin = 0.025*width();
+    qreal verticalMargin = 0.025*height();
+
+    DisplayShape *title = new TitleShape(tr("Qt Examples and Demos"),
+        titleFont, QPen(QColor("#a6ce39")), QPointF(),
+        QSizeF(0.5*width(), 4*verticalMargin));
 
     title->setPosition(QPointF(width()/2 - title->rect().width()/2,
                                -title->rect().height()));
-    title->setTarget(QPointF(title->position().x(), 0.025 * height()));
+    title->setTarget(QPointF(title->position().x(), verticalMargin));
 
+    qreal imageHeight = title->rect().height() + verticalMargin;
+
+    qreal qtLength = qMin(imageHeight, title->rect().left()-2*horizontalMargin);
+    QSizeF qtMaxSize = QSizeF(qtLength, qtLength);
+
+    DisplayShape *qtShape = new ImageShape(qtLogo,
+        QPointF(horizontalMargin, -imageHeight), qtMaxSize);
+
+    qtShape->setMetaData("fade", 15);
+    qtShape->setTarget(QPointF(horizontalMargin, verticalMargin));
+
+    qreal trolltechScale = qMin(imageHeight/trolltechLogo.height(),
+        (width()-2*horizontalMargin-title->rect().right())/trolltechLogo.width());
+    QSizeF trolltechMaxSize = QSizeF(trolltechScale*trolltechLogo.width(),
+                                     trolltechScale*trolltechLogo.height());
+
+    DisplayShape *trolltechShape = new ImageShape(trolltechLogo,
+        QPointF(width()-horizontalMargin-trolltechMaxSize.width(), -imageHeight),
+        trolltechMaxSize);
+
+    trolltechShape->setMetaData("fade", 15);
+    trolltechShape->setTarget(QPointF(trolltechShape->rect().x(), verticalMargin));
+
+    display->appendShape(trolltechShape);
+    display->appendShape(qtShape);
     display->appendShape(title);
 
     QFontMetrics buttonMetrics(buttonFont);
-    qreal topMargin = 0.075 * height() + title->rect().height();
-    qreal space = 0.95*height() - topMargin;
+    qreal topMargin = 6*verticalMargin;
+    qreal space = height() - 3.2*verticalMargin - topMargin;
     qreal step = qMin(title->rect().height() / fontRatio,
                       space/qreal(maximumLabels));
     qreal textHeight = fontRatio * step;
 
     QPointF startPosition = QPointF(0.0, topMargin);
-    QSizeF maxSize(0.27 * width(), textHeight);
+    QSizeF maxSize(10.8*horizontalMargin, textHeight);
     qreal maxWidth = 0.0;
 
     QList<DisplayShape*> newShapes;
@@ -441,7 +465,7 @@ void Launcher::showCategories()
             startPosition, maxSize);
         caption->setPosition(QPointF(-caption->rect().width(),
                                      caption->position().y()));
-        caption->setTarget(QPointF(0.05 * width(), caption->position().y()));
+        caption->setTarget(QPointF(2*horizontalMargin, caption->position().y()));
 
         newShapes.append(caption);
 
@@ -452,7 +476,7 @@ void Launcher::showCategories()
     DisplayShape *exitButton = new TitleShape(tr("Exit"), font(),
         QPen(Qt::white), startPosition, maxSize);
 
-    exitButton->setTarget(QPointF(0.05 * width(), exitButton->position().y()));
+    exitButton->setTarget(QPointF(2*horizontalMargin, exitButton->position().y()));
     newShapes.append(exitButton);
 
     startPosition = QPointF(width(), topMargin);
@@ -470,7 +494,7 @@ void Launcher::showCategories()
 
         background->setMetaData("category", category);
         background->setInteractive(true);
-        background->setTarget(QPointF(0.05 * width(),
+        background->setTarget(QPointF(2*horizontalMargin,
                                       background->position().y()));
         display->insertShape(0, background);
         startPosition += QPointF(0.0, step);
@@ -490,7 +514,7 @@ void Launcher::showCategories()
 
     exitBackground->setMetaData("action", "exit");
     exitBackground->setInteractive(true);
-    exitBackground->setTarget(QPointF(0.05 * width(),
+    exitBackground->setTarget(QPointF(2*horizontalMargin,
                                       exitBackground->position().y()));
     display->insertShape(0, exitBackground);
 
@@ -501,8 +525,8 @@ void Launcher::showCategories()
         display->appendShape(caption);
     }
 
-    qreal leftMargin = 0.075*width() + maxWidth;
-    qreal rightMargin = 0.925*width();
+    qreal leftMargin = 3*horizontalMargin + maxWidth;
+    qreal rightMargin = width() - 3*horizontalMargin;
 
     DocumentShape *description = new DocumentShape(categoryDescriptions["[main]"],
         font(), QPen(QColor(0,0,0,0)), QPointF(leftMargin, topMargin),
@@ -806,9 +830,15 @@ void Launcher::showExampleSummary(const QString &example)
 
         DisplayShape *documentCaption = new TitleShape(tr("Show Documentation"),
             font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize);
-        documentCaption->setPosition(QPointF(
-            leftMargin/2 + rightMargin/2 - documentCaption->rect().width()/2,
-            height()));
+
+        if (rightMargin == 0.0) {
+            documentCaption->setPosition(QPointF(
+                0.9*width() - documentCaption->rect().width(), height()));
+        } else {
+            documentCaption->setPosition(QPointF(
+                leftMargin/2 + rightMargin/2 - documentCaption->rect().width()/2,
+                height()));
+        }
         documentCaption->setTarget(QPointF(documentCaption->position().x(),
                                            0.85 * height()));
 

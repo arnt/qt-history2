@@ -1,3 +1,4 @@
+DESTDIR       = ../../../bin
 HEADERS       = displayshape.h \
                 displaywidget.h \
                 launcher.h
@@ -7,5 +8,4 @@ SOURCES       = displayshape.cpp \
                 launcher.cpp \
                 main.cpp
 QT           += xml
-#QT           += network xml
 CONFIG       += assistant

@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <math.h>
 #include <QtGui>
 
 #include "displayshape.h"
@@ -202,12 +203,19 @@ TitleShape::TitleShape(const QString &text, const QFont &f,
     : DisplayShape(position, maxSize), font(f), text(text), pen(pen)
 {
     QFontMetrics fm(font);
-    QSize textSize = fm.boundingRect(QRect(pos.toPoint(), maxSize.toSize()),
-        Qt::AlignVCenter, text).size();
-    qreal scale = qMin(maxSize.width()/textSize.width(),
-                       maxSize.height()/textSize.height());
+    textRect = fm.boundingRect(QRect(QPoint(0, 0), maxSize.toSize()),
+        Qt::AlignLeft | Qt::AlignVCenter, text);
+
+    qreal textWidth = qMax(fm.width(text), textRect.width());
+    qreal textHeight = qMax(fm.height(), textRect.height());
+
+    qreal scale = qMin(maxSize.width()/textWidth,
+                       maxSize.height()/textHeight);
 
     font.setPointSizeF(font.pointSizeF() * scale);
+    fm = QFontMetrics(font);
+    textRect = fm.boundingRect(QRect(QPoint(0, 0), maxSize.toSize()),
+        Qt::AlignLeft | Qt::AlignVCenter, text);
 }
 
 bool TitleShape::animate()
@@ -241,19 +249,20 @@ bool TitleShape::animate()
 void TitleShape::paint(QPainter *painter) const
 {
     QFontMetrics fm(font);
+    QRect rect(pos.toPoint(), textRect.size());
     painter->save();
     painter->setRenderHint(QPainter::TextAntialiasing);
     painter->setPen(pen);
     painter->setFont(font);
-    painter->drawText(QRectF(pos, maxSize), Qt::AlignVCenter, text);
+    painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter,
+                      text);
     painter->restore();
 }
 
 QRectF TitleShape::rect() const
 {
     QFontMetrics fm(font);
-    return QRectF(fm.boundingRect(QRect(pos.toPoint(), maxSize.toSize()),
-                  Qt::AlignVCenter, text));
+    return QRectF(pos, QSizeF(textRect.width(), textRect.height()));
 }
 
 ImageShape::ImageShape(const QImage &image, const QPointF &position,
@@ -266,9 +275,10 @@ ImageShape::ImageShape(const QImage &image, const QPointF &position,
 
 void ImageShape::redraw()
 {
-    qreal scale = qMin(qMin(maxSize.width()/source.width(),
-                            maxSize.height()/source.height()), 1.0);
-    image = QImage(int(scale * source.width()), int(scale * source.height()),
+    qreal scale = qMin(qMin(floor(maxSize.width())/source.width(),
+                            floor(maxSize.height())/source.height()), 1.0);
+    image = QImage(int(ceil(scale * source.width())),
+                   int(ceil(scale * source.height())),
                    QImage::Format_ARGB32_Premultiplied);
     image.fill(qRgba(255, 255, 255, alpha));
 

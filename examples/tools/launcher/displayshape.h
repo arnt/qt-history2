@@ -86,6 +86,7 @@ private:
     QFont font;
     QString text;
     QPen pen;
+    QRect textRect;
 };
 
 class ImageShape : public DisplayShape
