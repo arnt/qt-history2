@@ -67,7 +67,6 @@ public:
 
     virtual bool open(OpenMode mode);
     virtual void close();
-    virtual bool flush();
 
     virtual qint64 pos() const;
     virtual qint64 size() const;

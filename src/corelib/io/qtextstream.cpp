@@ -557,8 +557,13 @@ bool QTextStreamPrivate::flushWriteBuffer()
         device->setTextModeEnabled(true);
 #endif
 
-    // flush the device
-    bool flushed = device->flush();
+    // flush the file
+#ifndef QT_NO_QOBJECT
+    QFile *file = qobject_cast<QFile *>(device);
+    bool flushed = file && file->flush();
+#else
+    bool flushed = true;
+#endif
 
 #if defined (QTEXTSTREAM_DEBUG)
     qDebug("QTextStreamPrivate::flushWriteBuffer() wrote %d bytes",
@@ -953,8 +958,7 @@ void QTextStream::reset()
 }
 
 /*!
-    Flushes any buffered data waiting to be written to the device,
-    then calls QIODevice::flush() on the device.
+    Flushes any buffered data waiting to be written to the device.
 
     If QTextStream operates on a string, this function does nothing.
 */

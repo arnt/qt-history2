@@ -796,8 +796,8 @@ bool QProcess::canReadLine() const
 void QProcess::close()
 {
     emit aboutToClose();
-    if (bytesToWrite() > 0)
-        flush();
+    while (waitForBytesWritten(-1))
+        ;
     terminate();
     waitForFinished(-1);
     setOpenMode(QIODevice::NotOpen);

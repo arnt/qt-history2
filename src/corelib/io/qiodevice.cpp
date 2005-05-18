@@ -127,10 +127,6 @@ QIODevicePrivate::~QIODevicePrivate()
     a separate thread:
 
     \list
-    \o flush() - This function suspends operation in the calling
-    thread until all outgoing buffered data has been written to the
-    device.
-
     \o waitForReadyRead() - This function suspends operation in the
     calling thread until new data is available for reading.
 
@@ -154,7 +150,6 @@ QIODevicePrivate::~QIODevicePrivate()
             return false;
 
         gzip.write("uncompressed data");
-        gzip.flush();
 
         QByteArray compressed;
         while (gzip.waitForReadyRead())
@@ -459,30 +454,6 @@ void QIODevice::close()
 }
 
 /*!
-    This function flushes any pending written data to the
-    device. Returns true on success; otherwise returns false.
-
-    If this function returns true, all data is guaranteed to have been
-    written to the device. If it returns false, the number of bytes
-    that have been written can be checked by calling bytesToWrite()
-    before and after the call, or by connecting to bytesWritten().
-
-    Calling this function is equivalent to calling
-    waitForBytesWritten(-1) until bytesToWrite() returns 0.
-*/
-bool QIODevice::flush()
-{
-    Q_D(QIODevice);
-    qint64 toWrite = bytesToWrite();
-    while (bytesToWrite() > 0) {
-        if (!waitForBytesWritten(-1))
-            return false;
-    }
-    d->ungetBuffer.chop(toWrite);
-    return true;
-}
-
-/*!
     For random-access devices, this function returns the position that
     data is written to or read from. For sequential devices or closed
     devices, where there is no concept of a "current position", 0 is
@@ -569,8 +540,6 @@ qint64 QIODevice::bytesAvailable() const
     For buffered devices, this function returns the number of bytes
     waiting to be written. For devices with no buffer, this function
     returns 0.
-
-    \sa flush()
 */
 qint64 QIODevice::bytesToWrite() const
 {

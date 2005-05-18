@@ -100,12 +100,8 @@ void CALLBACK_CALL_TYPE qpiw_write_fn(png_structp png_ptr, png_bytep data, png_s
 
 
 static
-void CALLBACK_CALL_TYPE qpiw_flush_fn(png_structp png_ptr)
+void CALLBACK_CALL_TYPE qpiw_flush_fn(png_structp /* png_ptr */)
 {
-    QPNGImageWriter* qpiw = (QPNGImageWriter*)png_get_io_ptr(png_ptr);
-    QIODevice* out = qpiw->device();
-
-    out->flush();
 }
 
 #if defined(Q_C_CALLBACKS)

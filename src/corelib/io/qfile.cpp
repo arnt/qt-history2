@@ -1045,7 +1045,7 @@ QFile::setPermissions(const QString &fileName, Permissions permissions)
 }
 
 /*!
-  \reimp
+    Flushes any buffered data to the file.
 */
 
 bool
