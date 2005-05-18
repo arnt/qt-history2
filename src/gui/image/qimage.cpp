@@ -2894,7 +2894,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     QImage dImage(wd, hd, d->format);
     dImage.d->colortable = d->colortable;
     if (dImage.d->format == Format_RGB32 && complex_xform)
-        dImage.d->format = Format_ARGB32;
+        dImage.d->format = Format_ARGB32_Premultiplied;
     dImage.d->dpmx = dotsPerMeterX();
     dImage.d->dpmy = dotsPerMeterY();
 
@@ -2917,7 +2917,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
             break;
     }
 
-    if (bpp == 32) {
+    if (d->format == QImage::Format_RGB32 || d->format == QImage::Format_ARGB32_Premultiplied) {
         QPainter p(&dImage);
         if (mode == Qt::SmoothTransformation) {
             p.setRenderHint(QPainter::Antialiasing);
