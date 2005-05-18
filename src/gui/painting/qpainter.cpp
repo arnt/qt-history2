@@ -237,8 +237,10 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
 
     bool skip = true;
 
-    // Pen properties
-    if (s->state() & QPaintEngine::DirtyPen) {
+    // Pen and brush properties (we have to check both if one changes because the
+    // one that's unchanged can still be in a state which requires emulation)
+    if (s->state() & QPaintEngine::DirtyPen ||
+        s->state() & QPaintEngine::DirtyBrush) {
         // Check Brush stroke emulation
         if (!s->pen.isSolid() && !engine->hasFeature(QPaintEngine::BrushStroke))
             s->emulationSpecifier |= QPaintEngine::BrushStroke;
@@ -248,26 +250,19 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         skip = false;
 
         QBrush penBrush = s->pen.brush();
-        alpha |= !penBrush.isOpaque();
-        linearGradient |= (penBrush.style() == Qt::LinearGradientPattern);
-        radialGradient |= (penBrush.style() == Qt::RadialGradientPattern);
-        conicalGradient |= (penBrush.style() == Qt::ConicalGradientPattern);
-        patternBrush |= (penBrush.style() > Qt::SolidPattern
-                         && penBrush.style() < Qt::LinearGradientPattern)
-                        || s->brush.style() == Qt::TexturePattern;
-    }
-
-    // Brush properties
-    if (s->state() & QPaintEngine::DirtyBrush) {
-        skip = false;
-
-        alpha |= !s->brush.isOpaque();
-        linearGradient |= (s->brush.style() == Qt::LinearGradientPattern);
-        radialGradient |= (s->brush.style() == Qt::RadialGradientPattern);
-        conicalGradient |= (s->brush.style() == Qt::ConicalGradientPattern);
-        patternBrush |= (s->brush.style() > Qt::SolidPattern
-                         && s->brush.style() < Qt::LinearGradientPattern)
-                        || s->brush.style() == Qt::TexturePattern;
+        alpha |= (!penBrush.isOpaque() || !s->brush.isOpaque());
+        linearGradient |= ((penBrush.style() == Qt::LinearGradientPattern) ||
+                           (s->brush.style() == Qt::LinearGradientPattern));
+        radialGradient |= ((penBrush.style() == Qt::RadialGradientPattern) ||
+                           (s->brush.style() == Qt::RadialGradientPattern));
+        conicalGradient |= ((penBrush.style() == Qt::ConicalGradientPattern) ||
+                            (s->brush.style() == Qt::ConicalGradientPattern));
+        patternBrush |= (((penBrush.style() > Qt::SolidPattern
+                           && penBrush.style() < Qt::LinearGradientPattern)
+                          || s->brush.style() == Qt::TexturePattern) ||
+                         ((s->brush.style() > Qt::SolidPattern
+                           && s->brush.style() < Qt::LinearGradientPattern)
+                          || s->brush.style() == Qt::TexturePattern));
     }
 
     if (s->state() & QPaintEngine::DirtyHints) {
@@ -278,7 +273,7 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
         return;
 
 #if 0
-    printf("QPainterPrivate::updateEmulationSpecifier, state=%p\n"
+    qDebug("QPainterPrivate::updateEmulationSpecifier, state=%p\n"
            " - alpha: %d\n"
            " - linearGradient: %d\n"
            " - radialGradient: %d\n"
