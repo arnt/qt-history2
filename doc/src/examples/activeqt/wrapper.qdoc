@@ -16,7 +16,7 @@
     example are the standard button classes QPushButton, QCheckBox
     and QRadioButton as provided by Qt.
 
-    \quotefile wrapper/main.cpp
+    \quotefromfile activeqt/wrapper/main.cpp
     \skipto class
     \printuntil };
     The factory implementation returns the list of supported controls,
@@ -26,12 +26,13 @@
     \printuntil }
     The factory is exported using the QAXFACTORY_EXPORT macro.
 
-    To build the example you must first build the \link qaxserver.html
-    QAxServer \endlink library. Then run qmake and your make tool in
-    \c examples/wrapper.
+    To build the example you must first build the QAxServer library.
+    Then run \c qmake and your make tool in \c
+    examples/activeqt/wrapper.
 
-    The \link qaxserver-demo-wrapper.html demonstration \endlink requires your
-    WebBrowser to support ActiveX controls, and scripting to be enabled.
+    The \l{qaxserver-demo-wrapper.html}{demonstration} requires your
+    WebBrowser to support ActiveX controls, and scripting to be
+    enabled.
 
     \quotefromfile examples/activeqt/wrapper-demo.qdocinc
     \skipto <SCRIPT

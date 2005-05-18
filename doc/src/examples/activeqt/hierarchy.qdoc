@@ -12,15 +12,15 @@
     control. The control is a QWidget subclass with child widgets
     that are accessible as sub-types.
 
-    \quotefile hierarchy/objects.h
+    \quotefromfile activeqt/hierarchy/objects.h
     \skipto class QParentWidget
     \printuntil };
     The \c QParentWidget class provides slots to create a widget
     with a name, and to return a pointer to a named widget. The class
-    declaration uses \c Q_CLASSINFO to provide the COM identifiers for
+    declaration uses \c Q_CLASSINFO() to provide the COM identifiers for
     this class.
 
-    \quotefile hierarchy/objects.cpp
+    \quotefromfile activeqt/hierarchy/objects.cpp
     \skipto QParentWidget::QParentWidget
     \printto ::createSubWidget
     The constructor of QParentWidget creates a vertical box layout.
@@ -36,7 +36,7 @@
     returns the first child of type \c QSubWidget that has the requested
     name.
 
-    \quotefile hierarchy/objects.h
+    \quotefromfile activeqt/hierarchy/objects.h
     \skipto class QSubWidget :
      \printuntil };
     The \c QSubWidget class has a single string-property \c label,
@@ -45,13 +45,13 @@
     the \e ToSuperClass attribute to \e QSubWidget, to ensure that only
     no slots of any superclasses (i.e. QWidget) are exposed.
 
-    \quotefile hierarchy/objects.cpp
+    \quotefromfile activeqt/hierarchy/objects.cpp
     \skipto QSubWidget::QSubWidget
     \printuntil .drawText
     \printuntil }
     The implementation of the QSubWidget class is self-explanatory.
 
-    \quotefile hierarchy/main.cpp
+    \quotefromfile activeqt/hierarchy/main.cpp
     \skipto #include
     \printuntil QAXFACTORY_END
     The classes are then exported using a QAxFactory. \c QParentWidget is
@@ -59,12 +59,13 @@
     only exported as a type, which can only be created indirectly through
     APIs of \c QParentWidget.
 
-    To build the example you must first build the \link qaxserver.html
-    QAxServer \endlink library. Then run qmake and your make tool in
-    \c examples/multiple.
+    To build the example you must first build the QAxServer library.
+    Then run qmake and your make tool in \c
+    examples/activeqt/multiple.
 
-    The \link qaxserver-demo-hierarchy.html demonstration \endlink requires your
-    WebBrowser to support ActiveX controls, and scripting to be enabled.
+    The \l{qaxserver-demo-hierarchy.html}{demonstration} requires
+    your WebBrowser to support ActiveX controls, and scripting to be
+    enabled.
 
     \quotefromfile examples/activeqt/hierarchy-demo.qdocinc
     \skipto <script

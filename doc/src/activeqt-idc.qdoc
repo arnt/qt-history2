@@ -1,7 +1,10 @@
 /*! 
-    \page activeqt-tools-idc.html
+    \page activeqt-idc.html
+    \title IDC - The Interface Description Compiler (ActiveQt)
+
     \ingroup activeqt-tools
-    \title The IDC Tool
+
+    \keyword idc
 
     The IDC tool is part of the ActiveQt build system and makes
     it possible to turn any Qt binary into a full COM object server 
@@ -31,9 +34,8 @@
     \i Unregister the COM server \e dll
     \endtable
 
-    It is usually never necessary to invoke IDC manually, as the
-    \c qmake build system takes care of adding the required post 
-    processing steps to the build process. See the 
-    \link qaxserver.html#4 ActiveQt build system \endlink 
+    It is usually never necessary to invoke IDC manually, as the \c
+    qmake build system takes care of adding the required post 
+    processing steps to the build process. See the  \l{ActiveQt}
     documentation for details.
 */

@@ -113,7 +113,7 @@ static Qt::KeyboardModifiers translateModifierState(int s)
     return bst;
 }
 
-/*  \class QAxHostWidget qaxwidget.cpp
+/*  \class QAxHostWidget
     \brief The QAxHostWidget class is the actual container widget.
 
     \internal
@@ -152,7 +152,7 @@ private:
     QAxClientSite *axhost;
 };
 
-/*  \class QAxClientSite qaxwidget.cpp
+/*  \class QAxClientSite
     \brief The QAxClientSite class implements the client site interfaces.
 
     \internal
@@ -1631,7 +1631,7 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
 }
 
 /*!
-    \class QAxWidget qaxwidget.h
+    \class QAxWidget
     \brief The QAxWidget class is a QWidget that wraps an ActiveX control.
 
     \inmodule QAxContainer
@@ -1639,10 +1639,10 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     A QAxWidget can be instantiated as an empty object, with the name
     of the ActiveX control it should wrap, or with an existing
     interface pointer to the ActiveX control. The ActiveX control's
-    properties, methods and events which only use \link QAxBase
-    supported data types\endlink, become available as Qt properties,
+    properties, methods and events which only use QAxBase
+    supported data types, become available as Qt properties,
     slots and signals. The base class QAxBase provides an API to
-    access the ActiveX directly through the IUnknown pointer.
+    access the ActiveX directly through the \c IUnknown pointer.
 
     QAxWidget is a QWidget and can be used as such, e.g. it can be
     organized in a widget hierarchy, receive events or act as an event
@@ -1651,21 +1651,24 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
     control to implement support for ambient properties like e.g.
     palette or font. QAxWidget tries to provide the necessary hints.
 
+    QAxWidget also inherits most of its ActiveX-related functionality
+    from QAxBase, notably dynamicCall() and querySubObject().
+
     \warning
-    You can subclass QAxWidget, but you cannot use the Q_OBJECT macro
+    You can subclass QAxWidget, but you cannot use the \c Q_OBJECT macro
     in the subclass (the generated moc-file will not compile), so you
     cannot add further signals, slots or properties. This limitation
     is due to the metaobject information generated in runtime. To work
     around this problem, aggregate the QAxWidget as a member of the
     QObject subclass.
 
-    \important dynamicCall() querySubObject()
+    \sa QAxBase, QAxObject, QAxScript, {ActiveQt Framework}
 */
 
 /*!
-    Creates an empty QAxWidget widget and propagates \a parent, \a
-    name and \a f to the QWidget constructor. To initialize a control,
-    call \link QAxBase::setControl() setControl \endlink.
+    Creates an empty QAxWidget widget and propagates \a parent
+    and \a f to the QWidget constructor. To initialize a control,
+    call setControl().
 */
 QAxWidget::QAxWidget(QWidget *parent, Qt::WFlags f)
 : QWidget(parent, f), container(0)
@@ -1674,7 +1677,7 @@ QAxWidget::QAxWidget(QWidget *parent, Qt::WFlags f)
 
 /*!
     Creates an QAxWidget widget and initializes the ActiveX control \a c.
-    \a parent, \a name and \a f are propagated to the QWidget contructor.
+    \a parent and \a f are propagated to the QWidget contructor.
 
     \sa setControl()
 */
@@ -1686,7 +1689,7 @@ QAxWidget::QAxWidget(const QString &c, QWidget *parent, Qt::WFlags f)
 
 /*!
     Creates a QAxWidget that wraps the COM object referenced by \a iface.
-    \a parent, \a name and \a f are propagated to the QWidget contructor.
+    \a parent and \a f are propagated to the QWidget contructor.
 */
 QAxWidget::QAxWidget(IUnknown *iface, QWidget *parent, Qt::WFlags f)
 : QWidget(parent, f), QAxBase(iface), container(0)
@@ -1793,8 +1796,8 @@ void QAxWidget::clear()
 }
 
 /*!
-    \fn QObject *QAxWidget::qObject()
-    \reimp
+    \fn QObject *QAxWidget::qObject() const
+    \internal
 */
 
 /*!
@@ -1814,7 +1817,7 @@ const QMetaObject *QAxWidget::parentMetaObject() const
 }
 
 /*!
-    \reimp
+    \internal
 */
 void *QAxWidget::qt_metacast(const char *cname)
 {

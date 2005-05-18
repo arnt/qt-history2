@@ -1,7 +1,10 @@
 /*! 
-    \page activeqt-tools-testcon.html
+    \page activeqt-testcon.html
+    \title testcon - An ActiveX Test Container (ActiveQt)
+
     \ingroup activeqt-tools
-    \title An ActiveX Test Container
+
+    \keyword testcon
 
     This application implements a generic test container for ActiveX
     controls. You can insert ActiveX controls installed on your
@@ -27,8 +30,7 @@
     ActiveX controls (ie. Shockwave ActiveX Controls), which might crash
     or misbehave otherwise if such version information is missing.
 
-    To build the tool you must first build the
-    \link qaxcontainer.html QAxContainer \endlink and the
-    \link qaxserver.html QAxServer \endlink libraries. Then run your make 
-    tool in \c tools/testcon and run the resulting \c testcon.exe.
+    To build the tool you must first build the QAxContainer and the
+    QAxServer libraries. Then run your make  tool in \c tools/testcon
+    and run the resulting \c testcon.exe.
 */

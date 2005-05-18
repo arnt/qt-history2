@@ -239,9 +239,7 @@ and with Qt plugins.
 
 See the \link plugins-howto.html plugins documentation\endlink.
 
-
-See also the \link activeqt.html ActiveQt framework\endlink for
-Windows.
+See also the \l{ActiveQt framework} for Windows.
 
 */
 
@@ -459,6 +457,6 @@ is presented and manipulated by the user (in the view). See also
 
 These tools provide support for integrating Qt with Active X components.
 
-\link activeqt.html ActiveQt\endlink.
+\sa {ActiveQt Framework}
 
 */

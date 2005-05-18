@@ -1,7 +1,10 @@
 /*! 
-    \page activeqt-tools-dumpdoc.html
+    \page activeqt-dumpdoc.html
+    \title The dumpdoc Tool (ActiveQt)
+
     \ingroup activeqt-tools
-    \title The dumpdoc Tool
+
+    \keyword dumpdoc
 
     The \c dumpdoc tool generates Qt-style documentation for any
     COM object and writes it into the file specified.
@@ -34,7 +37,6 @@
     The generated file will be an HTML file using Qt documentation
     style.
 
-    To build the tool you must first build the
-    \link qaxcontainer.html QAxContainer \endlink library.
+    To build the tool you must first build the QAxContainer library.
     Then run your make tool in \c tools/dumpdoc.
 */

@@ -9,7 +9,7 @@
     has been designed to resemble the APIs of standard COM
     applications, i.e. those from Microsoft Office.
 
-    \quotefile comapp/main.cpp
+    \quotefromfile activeqt/comapp/main.cpp
     \skipto class Application :
     \printuntil };
     The first class \c Application represents the application object. It
@@ -21,14 +21,14 @@
     The \e RegisterObject attribute is set to make sure that instances of this
     class are registered in COM's running object table (ROT).
 
-    \quotefile comapp/main.cpp
+    \quotefromfile activeqt/comapp/main.cpp
     \skipto class DocumentList :
     \printuntil };
     The \c DocumentList class stores a list of documents. It provides an API
     to read the number of documents, to access each document by index and to 
     create a new document. The \c application property returns the root object.
 
-    \quotefile comapp/main.cpp
+    \quotefromfile activeqt/comapp/main.cpp
     \skipto class Document :
     \printuntil };
     

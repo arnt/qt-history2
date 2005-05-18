@@ -348,6 +348,8 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
 
     \warning This class is not available with the bcc5.5 and MingW
     compilers.
+
+    \sa QAxScript, QAxScriptManager, QAxBase, {ActiveQt Framework}
 */
 
 /*!
@@ -567,7 +569,7 @@ void QAxScriptEngine::addItem(const QString &name)
 }
 
 /*!
-    \class QAxScript qaxscript.h
+    \class QAxScript
     \brief The QAxScript class provides a wrapper around script code.
     \inmodule QAxContainer
 
@@ -583,6 +585,8 @@ void QAxScriptEngine::addItem(const QString &name)
 
     \warning This class is not available with the bcc5.5 and MingW
     compilers.
+
+    \sa QAxScriptEngine, QAxScriptManager, QAxBase, {ActiveQt Framework}
 */
 
 /*!
@@ -590,8 +594,8 @@ void QAxScriptEngine::addItem(const QString &name)
 
     This FunctionFlags enum describes formatting for function introspection.
 
-    \value FunctionNames - Only function names are returned.
-    \value FunctionSignatures - Returns the functions with signatures.
+    \value FunctionNames Only function names are returned.
+    \value FunctionSignatures Returns the functions with signatures.
 */
 
 /*!
@@ -803,14 +807,17 @@ QAxBase *QAxScript::findObject(const QString &name)
     This signal is emitted when a script engine has finished executing code.
 */
 
-/*! \overload void QAxScript::finished(const QVariant &result)
+/*!
+    \fn void QAxScript::finished(const QVariant &result)
+    \overload
 
     \a result contains the script's result. This will be an invalid
     QVariant if the script has no return value.
 */
 
-/*! \overload void QAxScript::finished(int code, const QString &source,
-    const QString &description, const QString &help)
+/*! \fn void QAxScript::finished(int code, const QString &source,
+                                 const QString &description, const QString &help)
+    \overload
 
     \a code, \a source, \a description and \a help contain exception information
     when the script terminated.
@@ -836,7 +843,7 @@ QAxBase *QAxScript::findObject(const QString &name)
 
 
 /*!
-    \class QAxScriptManager qaxscript.h
+    \class QAxScriptManager
     \brief The QAxScriptManager class provides a bridge between application objects
     and script code.
     \inmodule QAxContainer
@@ -853,11 +860,13 @@ QAxBase *QAxScript::findObject(const QString &name)
 
     \warning This class is not available with the bcc5.5 and MingW
     compilers.
+
+    \sa QAxScript, QAxScriptEngine, QAxBase, {ActiveQt Framework}
 */
 
 /*!
-    Creates a QAxScriptManager object. \a parent and \a name are passed
-    on to the QObject constructor.
+    Creates a QAxScriptManager object. \a parent is passed on to the
+    QObject constructor.
 
     It is usual to create one QAxScriptManager for each document in an
     application.
@@ -924,9 +933,9 @@ QAxScript *QAxScriptManager::script(const QString &name) const
 }
 
 /*!
-    Adds \a object to the manager. Scripts handled by this
-    manager can access the object in the code using the object's \link
-    QObject::name name \endlink property.
+    Adds \a object to the manager. Scripts handled by this manager
+    can access the object in the code using the object's
+    \l{QObject::objectName}{objectName} property.
 
     You must add all the necessary objects before loading any scripts.
 */
@@ -941,11 +950,12 @@ void QAxScriptManager::addObject(QAxBase *object)
     connect(obj, SIGNAL(destroyed(QObject*)), this, SLOT(objectDestroyed(QObject*)));
 }
 
-/*! \overload void QAxScriptManager::addObject(QObject *object)
+/*! \fn void QAxScriptManager::addObject(QObject *object)
+    \overload
 
     Adds a generic COM wrapper for \a object to the manager. \a object
     must be exposed as a COM object using the functionality provided
-    by the \link qaxserver.html QAxServer module. \endlink. Applications
+    by the QAxServer module. Applications
     using this function you must link against the qaxserver library.
 */
 

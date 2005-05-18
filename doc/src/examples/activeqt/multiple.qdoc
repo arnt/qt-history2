@@ -1,10 +1,12 @@
-/*! \page qaxserver-demo-multiple.html
+/*!
+    \page qaxserver-demo-multiple.html
     \title Two simple Qt widgets
 
     \input examples/activeqt/multiple-demo.qdocinc
 */
 
-/*! \example activeqt/multiple
+/*!
+    \example activeqt/multiple
     \title Multiple Example (ActiveQt)
 
     The Multiple example demonstrates the implementation of a
@@ -13,31 +15,35 @@
     The ActiveX controls in this example are simple QWidget
     subclasses that reimplement QWidget::paintEvent().
 
-    \quotefile multiple/ax1.h
+    \quotefromfile activeqt/multiple/ax1.h
     \skipto class
     \printuntil };
-    The first control draws a filled rectangle. The fill color is exposed
-    as a property. \c Q_CLASSINFO is used to specify the COM identifiers.
 
-    \quotefile multiple/ax2.h
+    The first control draws a filled rectangle. The fill color is exposed
+    as a property. \c Q_CLASSINFO() is used to specify the COM identifiers.
+
+    \quotefromfile activeqt/multiple/ax2.h
     \skipto class
     \printuntil };
+
     The second control draws a circle. The linewith is exposed as a property.
-    \c Q_CLASSINFO is used to specify the COM identifiers, and to set the
+    \c Q_CLASSINFO() is used to specify the COM identifiers, and to set the
     attributes \e ToSuperClass and \e StockEvents to expose only the API of
     the class itself, and to add COM stock events to the ActiveX control.
 
-    \quotefile multiple/main.cpp
+    \quotefromfile activeqt/multiple/main.cpp
     \skipto #include
     \printuntil QAXFACTORY_END
+
     The classes are exported from the server using the QAxFactory macros.
 
-    To build the example you must first build the \link qaxserver.html
-    QAxServer \endlink library. Then run qmake and your make tool in 
-    \c examples/multiple.
+    To build the example you must first build the QAxServer library.
+    Then run \c qmake and your make tool in  \c
+    examples/activeqt/multiple.
 
-    The \link qaxserver-demo-multiple.html demonstration \endlink requires your
-    WebBrowser to support ActiveX controls, and scripting to be enabled.
+    The \l{qaxserver-demo-multiple.html}{demonstration} requires your
+    WebBrowser to support ActiveX controls, and scripting to be
+    enabled.
 
     \quotefromfile examples/activeqt/multiple-demo.qdocinc
     \skipto <script

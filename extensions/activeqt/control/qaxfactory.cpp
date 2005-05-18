@@ -21,13 +21,11 @@
 #include <qt_windows.h>
 
 
-/*!
-    \class QAxFactoryInterface qaxfactory.h
+/*
+    \class QAxFactoryInterface
     \brief The QAxFactoryInterface class is an interface for the creation of COM components.
 
     \internal
-
-    \inmodule QAxServer
 
     Implement this interface once in your ActiveX server to provide
     information about the components the server can create. The
@@ -35,19 +33,19 @@
     A key in this interface is the class name of the ActiveX object.
 
     To instantiate and export your implementation of the factory
-    interface, use the \c Q_EXPORT_COMPONENT and \c Q_CREATE_INSTANCE
-    macros:
+    interface, use the \c Q_EXPORT_COMPONENT() and \c
+    Q_CREATE_INSTANCE() macros:
 
     \code
-    class MyFactory : public QAxFactoryInterface
-    {
-        ...
-    };
+        class MyFactory : public QAxFactoryInterface
+        {
+            ...
+        };
 
-    Q_EXPORT_COMPONENT()
-    {
-        Q_CREATE_INSTANCE(MyFactory)
-    }
+        Q_EXPORT_COMPONENT()
+        {
+            Q_CREATE_INSTANCE(MyFactory)
+        }
     \endcode
 
     The QAxFactory class provides a convenient implementation of this
@@ -55,7 +53,7 @@
 */
 
 /*!
-    \class QAxFactory qaxfactory.h
+    \class QAxFactory
     \brief The QAxFactory class defines a factory for the creation of COM components.
 
     \inmodule QAxServer
@@ -69,95 +67,95 @@
     information about the components the server can create. If your
     server supports just a single ActiveX control, you can use the
     default factory implementation instead of implementing the factory
-    yourself. Use the \c QAXFACTORY_DEFAULT macro in any
+    yourself. Use the \c QAXFACTORY_DEFAULT() macro in any
     implementation file (e.g. main.cpp) to instantiate and export the
     default factory:
 
     \code
-    #include <qapplication.h>
-    #include <qaxfactory.h>
+        #include <qapplication.h>
+        #include <qaxfactory.h>
 
-    #include "theactivex.h"
+        #include "theactivex.h"
 
-    QAXFACTORY_DEFAULT(
-        TheActiveX,				  // widget class
-        "{01234567-89AB-CDEF-0123-456789ABCDEF}", // class ID
-        "{01234567-89AB-CDEF-0123-456789ABCDEF}", // interface ID
-        "{01234567-89AB-CDEF-0123-456789ABCDEF}", // event interface ID
-        "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
-        "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
-   )
+        QAXFACTORY_DEFAULT(
+            TheActiveX,				  // widget class
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // class ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // interface ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // event interface ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+        )
     \endcode
 
     If you implement your own factory reimplement the pure virtual
     functions, provide the unique identifiers for the ActiveX
-    controls, and use the \c QAXFACTORY_EXPORT macro to instantiate
+    controls, and use the \c QAXFACTORY_EXPORT() macro to instantiate
     and export it:
 
     \code
-    QStringList ActiveQtFactory::featureList() const
-    {
-        QStringList list;
-        list << "ActiveX1";
-        list << "ActiveX2";
-        ...
-        return list;
-    }
+        QStringList ActiveQtFactory::featureList() const
+        {
+            QStringList list;
+            list << "ActiveX1";
+            list << "ActiveX2";
+            ...
+            return list;
+        }
 
-    QWidget *ActiveQtFactory::create(const QString &key, QWidget *parent, const char *name)
-    {
-        if (key == "ActiveX1")
-            return new ActiveX1(parent, name);
-        if (key == "ActiveX2")
-            return new ActiveX2(parent, name);
-        ...
-        return 0;
-    }
+        QWidget *ActiveQtFactory::create(const QString &key, QWidget *parent, const char *name)
+        {
+            if (key == "ActiveX1")
+                return new ActiveX1(parent, name);
+            if (key == "ActiveX2")
+                return new ActiveX2(parent, name);
+            ...
+            return 0;
+        }
 
-    QUuid ActiveQtFactory::classID(const QString &key) const
-    {
-        if (key == "ActiveX1")
-            return "{01234567-89AB-CDEF-0123-456789ABCDEF}";
-        ...
-        return QUuid();
-    }
+        QUuid ActiveQtFactory::classID(const QString &key) const
+        {
+            if (key == "ActiveX1")
+                return "{01234567-89AB-CDEF-0123-456789ABCDEF}";
+            ...
+            return QUuid();
+        }
 
-    QUuid ActiveQtFactory::interfaceID(const QString &key) const
-    {
-        if (key == "ActiveX1")
-            return "{01234567-89AB-CDEF-0123-456789ABCDEF}";
-        ...
-        return QUuid();
-    }
+        QUuid ActiveQtFactory::interfaceID(const QString &key) const
+        {
+            if (key == "ActiveX1")
+                return "{01234567-89AB-CDEF-0123-456789ABCDEF}";
+            ...
+            return QUuid();
+        }
 
-    QUuid ActiveQtFactory::eventsID(const QString &key) const
-    {
-        if (key == "ActiveX1")
-            return "{01234567-89AB-CDEF-0123-456789ABCDEF}";
-        ...
-        return QUuid();
-    }
+        QUuid ActiveQtFactory::eventsID(const QString &key) const
+        {
+            if (key == "ActiveX1")
+                return "{01234567-89AB-CDEF-0123-456789ABCDEF}";
+            ...
+            return QUuid();
+        }
 
-    QAXFACTORY_EXPORT(
-        MyFactory,			          // factory class
-        "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
-        "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
-   )
+        QAXFACTORY_EXPORT(
+            MyFactory,			              // factory class
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+        )
     \endcode
 
-    If you use the \c Q_CLASSINFO macro to provide the unique identifiers
-    or other attributes for your class you can use the \c QAXFACTORY_BEGIN,
-    \c QAXCLASS and \c QAXFACTORY_END macros to expose one or more classes
-    as COM objects.
+    If you use the \c Q_CLASSINFO() macro to provide the unique
+    identifiers or other attributes for your class you can use the \c
+    QAXFACTORY_BEGIN(), \c QAXCLASS() and \c QAXFACTORY_END() macros to
+    expose one or more classes as COM objects.
 
     \code
-    QAXFACTORY_BEGIN(
-        "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
-        "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
-   )
-        QAXCLASS(Class1)
-        QAXCLASS(Class2)
-    QAXFACTORY_END()
+        QAXFACTORY_BEGIN(
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+        )
+            QAXCLASS(Class1)
+            QAXCLASS(Class2)
+        QAXFACTORY_END()
     \endcode
 
     Only one QAxFactory implementation may be instantiated and
@@ -169,6 +167,8 @@
     control in the registry. To limit the number of methods or
     properties a widget class exposes from its parent classes
     reimplement exposeToSuperClass().
+
+    \sa QAxAggregated, QAxBindable, {ActiveQt Framework}
 */
 
 /*!
@@ -253,7 +253,7 @@ QUuid QAxFactory::appID() const
     QUuid if this factory doesn't support the value of \a key.
 
     The default implementation interprets \a key as the class name,
-    and returns the value of the Q_CLASSINFO entry "ClassID".
+    and returns the value of the Q_CLASSINFO() entry "ClassID".
 */
 QUuid QAxFactory::classID(const QString &key) const
 {
@@ -271,7 +271,7 @@ QUuid QAxFactory::classID(const QString &key) const
     empty QUuid if this factory doesn't support the value of \a key.
 
     The default implementation interprets \a key as the class name,
-    and returns the value of the Q_CLASSINFO entry "InterfaceID".
+    and returns the value of the Q_CLASSINFO() entry "InterfaceID".
 */
 QUuid QAxFactory::interfaceID(const QString &key) const
 {
@@ -290,7 +290,7 @@ QUuid QAxFactory::interfaceID(const QString &key) const
     the value of \a key.
 
     The default implementation interprets \a key as the class name,
-    and returns the value of the Q_CLASSINFO entry "EventsID".
+    and returns the value of the Q_CLASSINFO() entry "EventsID".
 */
 QUuid QAxFactory::eventsID(const QString &key) const
 {
@@ -310,13 +310,16 @@ QUuid QAxFactory::eventsID(const QString &key) const
     this function.
 
     \code
-    settings->writeEntry("/CLSID/" + classID(key) + "/Implemented Categories/{00000000-0000-0000-000000000000}/.", QString());
+        settings->setValue("/CLSID/" + classID(key)
+                           + "/Implemented Categories/"
+                           + "/{00000000-0000-0000-000000000000}/.",
+                           QString());
     \endcode
 
     If you reimplement this function you must also reimplement
     unregisterClass() to remove the additional registry values.
 
-      \sa QSettings
+    \sa QSettings
 */
 void QAxFactory::registerClass(const QString &key, QSettings *settings) const
 {
@@ -329,10 +332,12 @@ void QAxFactory::registerClass(const QString &key, QSettings *settings) const
     system registry using the \a settings object.
 
     \code
-    settings->removeEntry("/CLSID/" + classID(key) + "/Implemented Categories/{00000000-0000-0000-000000000000}/.");
+        settings->remove("/CLSID/" + classID(key)
+                         + "/Implemented Categories"
+                         + "/{00000000-0000-0000-000000000000}/.");
     \endcode
 
-    \sa registerClass() QSettings
+    \sa registerClass(), QSettings
 */
 void QAxFactory::unregisterClass(const QString &key, QSettings *settings) const
 {
@@ -344,11 +349,11 @@ void QAxFactory::unregisterClass(const QString &key, QSettings *settings) const
     Reimplement this function to return true if \a licenseKey is a valid
     license for the class \a key, or if the current machine is licensed.
 
-    The default implementation returns true if the class \a key is not
-    licensed (ie. no Q_CLASSINFO attribute "LicenseKey"), or if 
-    \a licenseKey matches the value of the "LicenseKey" attribute, or
-    if the machine is licensed through a .LIC file with the same filename
-    as this COM server.
+    The default implementation returns true if the class \a key is
+    not licensed (ie. no \c Q_CLASSINFO() attribute "LicenseKey"), or
+    if  \a licenseKey matches the value of the "LicenseKey"
+    attribute, or if the machine is licensed through a .LIC file with
+    the same filename as this COM server.
 */
 bool QAxFactory::validateLicenseKey(const QString &key, const QString &licenseKey) const
 {
@@ -378,10 +383,10 @@ bool QAxFactory::validateLicenseKey(const QString &key, const QString &licenseKe
     ActiveX control.
 
     The default implementation interprets \a key as the class name,
-    and returns the value of the Q_CLASSINFO entry "ToSuperClass". If
-    no such value is set the null-string is returned, and the functions 
-    and properties of all the super classes including QWidget will be 
-    exposed.
+    and returns the value of the \c Q_CLASSINFO() entry
+    "ToSuperClass". If no such value is set the null-string is
+    returned, and the functions  and properties of all the super
+    classes including QWidget will be  exposed.
 
     To only expose the functions and properties of the class itself,
     reimplement this function to return \a key.
@@ -419,8 +424,8 @@ bool QAxFactory::stayTopLevel(const QString &key) const
     \endlist
 
     The default implementation interprets \a key as the class name,
-    and returns true if the value of the Q_CLASSINFO entry "StockEvents"
-    is "yes". Otherwise this function returns false.
+    and returns true if the value of the \c Q_CLASSINFO() entry
+    "StockEvents" is "yes". Otherwise this function returns false.
 */
 bool QAxFactory::hasStockEvents(const QString &key) const
 {
@@ -438,16 +443,14 @@ extern bool qAxIsServer;
     server, otherwise returns false.
 
     \code
-    int main(int argc, char**argv)
-    {
-        QApplication app(argc, argv);
-
-        if (!QAxFactory::isServer()) {
-            // initialize for stand-alone execution
+        int main(int argc, char *argv[])
+        {
+            QApplication app(argc, argv);
+            if (!QAxFactory::isServer()) {
+                // initialize for stand-alone execution
+            }
+            return app.exec();
         }
-
-        return app.exec() // standard event processing
-    }
     \endcode
 */
 

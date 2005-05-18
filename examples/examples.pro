@@ -15,10 +15,6 @@ SUBDIRS       = dialogs \
                 widgets \
                 xml
 
-!cross_compiler:SUBDIRS: += designer
 contains(QT_CONFIG, opengl): SUBDIRS += opengl
-
-contains(QT_PRODUCT, qt-(enterprise|internal|eval)) {
-    win32:SUBDIRS += activeqt
-    x11:SUBDIRS += motif
-}
+!cross_compiler:SUBDIRS: += designer
+win32:SUBDIRS += activeqt

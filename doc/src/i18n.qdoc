@@ -245,7 +245,7 @@
     correct idiom is
 
     \quotefromfile mainwindows/application/mainwindow.cpp
-    \skitpo exitAct = new QAction
+    \skipto exitAct = new QAction
     \printuntil setShortcut
 
     \section2 Use QString::arg() for Dynamic Text

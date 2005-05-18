@@ -1,3 +1,4 @@
 TEMPLATE      = subdirs
 SUBDIRS	     += customwidget \
-	        dialog
+                dialog \
+                walkthrough

@@ -1,7 +1,9 @@
 /*! 
-    \page activeqt-tools-dumpcpp.html
+    \page activeqt-dumpcpp.html
+    \title The dumpcpp Tool (ActiveQt)
+
     \ingroup activeqt-tools
-    \title The dumpcpp Tool
+
     \keyword dumpcpp
 
     The \c dumpcpp tool generates a C++ namespace for a type library.
@@ -44,7 +46,7 @@
     \c dumpcpp can be integrated into the \c qmake build system. In your .pro file, list the type 
     libraries you want to use in the TYPELIBS variable:
 
-    \quotefile qutlook/qutlook.pro
+    \quotefromfile activeqt/qutlook/qutlook.pro
     \printuntil TYPELIBS
 
     The generated namespace will declare all enumerations, as well as one QAxObject subclass 
@@ -108,7 +110,6 @@
     or import them from a DLL. To do that, declare the macro to expand to 
     \c __declspec(dllimport/export) before including the header file.
 
-    To build the tool you must first build the
-    \link qaxcontainer.html QAxContainer \endlink library.
+    To build the tool you must first build the QAxContainer library.
     Then run your make tool in \c tools/dumpcpp.
 */

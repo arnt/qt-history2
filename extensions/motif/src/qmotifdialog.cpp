@@ -455,7 +455,7 @@ void QMotifDialog::realize( Widget w )
 }
 
 /*! \internal
-    Sets the dialog widget for the QMotifDialog to \w.
+    Sets the dialog widget for the QMotifDialog to \a w.
 */
 void QMotifDialog::insertChild( Widget w )
 {
@@ -472,7 +472,7 @@ void QMotifDialog::insertChild( Widget w )
 
 /*! \internal
     Resets the dialog widget for the QMotifDialog if the current
-    dialog widget matches \w.
+    dialog widget matches \a w.
 */
 void QMotifDialog::deleteChild(Widget w)
 {

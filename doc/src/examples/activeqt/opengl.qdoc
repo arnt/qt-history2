@@ -19,7 +19,7 @@
     Qt to render an OpenGL scene in an ActiveX. The control exposes a few
     methods to change the scene.
 
-    \quotefile opengl/main.cpp
+    \quotefromfile activeqt/opengl/main.cpp
     \skipto <qaxfactory.h>
     The application uses the default factory as provided by the 
     QAXFACTORY_DEFAULT macro to expose the \c GLBox widget as an ActiveX 
@@ -32,7 +32,7 @@
     \printuntil return a.
     \printuntil }
 
-    \quotefile opengl/glbox.h
+    \quotefromfile activeqt/opengl/glbox.h
     \skipuntil #include
     The \c GLBox class inherits from both the \l QGLWidget class to be able
     to render OpenGL, and from \l QAxBindable.
@@ -43,7 +43,7 @@
     The rest of the class declaration and the implementation of the OpenGL
     rendering is identical to the original "box" example.
 
-    \quotefile opengl/glbox.cpp
+    \quotefromfile activeqt/opengl/glbox.cpp
     \skipto objsafe.h
     The implementation file of the \c GLBox class includes the \c objsafe.h
     system header, in which the \c IObjectSafety COM interface is defined.
@@ -69,12 +69,13 @@
     \c ObjectSafetyImpl object.
     \printuntil }
 
-    To build the example you must first build the \link qaxserver.html
-    QAxServer \endlink library. Then run qmake and your make tool in 
-    \c examples/wrapper.
+    To build the example you must first build the QAxServer library.
+    Then run \c qmake and your make tool in  \c
+    examples/activeqt/wrapper.
 
-    The \link qaxserver-demo-opengl.html demonstration \endlink requires your
-    WebBrowser to support ActiveX controls, and scripting to be enabled.
+    The \l{qaxserver-demo-opengl.html}{demonstration} requires your
+    WebBrowser to support ActiveX controls, and scripting to be
+    enabled.
 
     In contrast to the other QAxServer examples Internet Explorer will not
     open a dialog box to ask the user whether or not the scripting of the GLBox

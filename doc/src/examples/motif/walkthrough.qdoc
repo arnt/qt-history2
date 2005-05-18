@@ -1,5 +1,5 @@
 /*!
-    \page motif-walkthrough.html
+    \example motif/walkthrough
     \title Qt Motif Extension - A Migration Walkthrough
 
     \startpage motif-walkthrough-1.html Getting Started
@@ -157,7 +157,7 @@
     Next, we add the appropriate includes for the QMotif and QApplication
     classes.
 
-    \quotefromfile walkthrough/start/todo.cpp
+    \quotefromfile motif/walkthrough/start/todo.cpp
     \skipto // Qt includes
     \printuntil #include <qmotif.h>
 
@@ -190,7 +190,7 @@
     existing C projects are not C++ compatible, so we make them compatible
     by wrapping them in an \c {extern "C"} block.
 
-    \quotefromfile walkthrough/start/todo.cpp
+    \quotefromfile motif/walkthrough/start/todo.cpp
 
     \skipuntil Wrap non-standard includes
     \printuntil } // extern "C"
@@ -328,7 +328,7 @@
     We need to include the appropriate headers for QMotifWidget and
     QFileDialog in \c todo.cpp.
 
-    \quotefromfile walkthrough/dialogs/todo.cpp
+    \quotefromfile motif/walkthrough/dialogs/todo.cpp
     \skipto Qt includes
     \printuntil qmotifwidget.h
 
@@ -360,7 +360,7 @@
 
     First we must change the declaration of these two functions.
 
-    \quotefromfile walkthrough/dialogs/todo.cpp
+    \quotefromfile motif/walkthrough/dialogs/todo.cpp
 
     \skipto Wrap extern/callback functions and global variables with extern "C"
     \skipto void Open
@@ -401,7 +401,7 @@
     need to wrap more C header files and global variables in an \c {extern
     "C"} block.
 
-    \quotefromfile walkthrough/dialogs/actions.cpp
+    \quotefromfile motif/walkthrough/dialogs/actions.cpp
 
     \skipuntil Wrap non-standard includes and global variables with extern "C"
     \printuntil extern int maxpages
@@ -427,7 +427,7 @@
     First, we need to make sure we include the proper header for
     QMessageBox.
 
-    \quotefromfile walkthrough/dialogs/actions.cpp
+    \quotefromfile motif/walkthrough/dialogs/actions.cpp
     \skipto Qt includes
     \printuntil #include <qmessagebox.h>
 
@@ -444,7 +444,7 @@
     Next, we change \c {todo.cpp} to pass the top-level QMotifWidget as the
     \c client_data tot he \c DeletePage() function.
 
-    \quotefromfile walkthrough/dialogs/todo.cpp
+    \quotefromfile motif/walkthrough/dialogs/todo.cpp
 
     \skipto // XtAddCallback(selected_menu[SELECTED_DELETE], XmNactivateCallback,
     \printuntil (XtCallbackProc) DeletePage, (XtPointer) &toplevel
@@ -457,7 +457,7 @@
     to wrap more C header files and global variables in an \c {extern "C"}
     block.
 
-    \quotefromfile walkthrough/dialogs/io.cpp
+    \quotefromfile motif/walkthrough/dialogs/io.cpp
 
     \skipuntil Wrap non-standard includes and global variables with extern "C"
     \printuntil Page AllocPage()
@@ -484,7 +484,7 @@
 
     First, we need to make sure we include the proper header for QMessageBox.
 
-    \quotefromfile walkthrough/dialogs/io.cpp
+    \quotefromfile motif/walkthrough/dialogs/io.cpp
     \skipto Qt includes
     \printline
     \printline
@@ -541,7 +541,7 @@
     for our new \c PageEditDialog. We do this the same way as we have
     done for the \e Open and \e {Save As} dialogs in \c todo.cpp.
 
-    \quotefromfile walkthrough/dialogs/todo.cpp
+    \quotefromfile motif/walkthrough/dialogs/todo.cpp
 
     \skipto // XtAddCallback(selected_menu[SELECTED_PROPERTIES], XmNactivateCallback,
     \printuntil (XtCallbackProc) EditPage, (XtPointer) &toplevel );
@@ -549,7 +549,7 @@
     The \c EditPage() function is implemented in \c actions.cpp. We start
     by adding the includes needed for the \c PageEditDialog and QLineEdit.
 
-    \quotefromfile walkthrough/dialogs/actions.cpp
+    \quotefromfile motif/walkthrough/dialogs/actions.cpp
 
     \skipto // PageEditDialog includes
     \printline
@@ -625,7 +625,7 @@
     This is easily done. We add an \c XtCallbackList for the \c
     XmNcancelCallback callback in \c Xmd/PrintP.h:
 
-    \quotefromfile walkthrough/Xmd/PrintP.h
+    \quotefromfile motif/walkthrough/Xmd/PrintP.h
     \skipto print_callback
     \printline
     \printline
@@ -633,7 +633,7 @@
     We add the \c XmNcancelCallback callback to the list of resources for
     the \c XmdPrint widget class in \c Xmd/Print.c:
 
-    \quotefromfile walkthrough/Xmd/Print.c
+    \quotefromfile motif/walkthrough/Xmd/Print.c
     \skipto XmdNprintCallback
     \printuntil XmRPointer, (XtPointer) NULL }
     \printuntil XmRPointer, (XtPointer) NULL }
@@ -658,7 +658,7 @@
     reject callbacks, we can use QMotifDialog. First we need to include
     the QMotifDialog header in \c todo.cpp.
 
-    \quotefromfile walkthrough/dialogs/todo.cpp
+    \quotefromfile motif/walkthrough/dialogs/todo.cpp
 
     \skipto qmotifdialog.h
     \printline
@@ -723,7 +723,7 @@
     We begin by adding the necessary includes for QApplication
     and QMotifWidget.
 
-    \quotefromfile walkthrough/mainwindow/mainwindow.ui.h
+    \quotefromfile motif/walkthrough/mainwindow/mainwindow.ui.h
 
     \skipuntil Qt includes
     \printuntil qmotifwidget.h
@@ -781,7 +781,7 @@
 
     First, we add the include for our new \e {Main Window}.
 
-    \quotefromfile walkthrough/mainwindow/todo.cpp
+    \quotefromfile motif/walkthrough/mainwindow/todo.cpp
 
     \skipuntil Qt based Main Window
     \printuntil mainwindow.h
@@ -804,7 +804,7 @@
     In \c main(), we make the large changes. First, we use our new \c
     MainWindow instead of QMotifWidget with \c XmMainWindow.
 
-    \quotefromfile walkthrough/mainwindow/todo.cpp
+    \quotefromfile motif/walkthrough/mainwindow/todo.cpp
 
     \skipto QMotif integrator
     \printuntil app.setMainWidget( &mainwindow );
@@ -854,7 +854,7 @@
     declare a \c Page struct with the same data members as \c PageRec, a
     constructor and a destructor.
 
-    \quotefromfile walkthrough/refactor/page.h
+    \quotefromfile motif/walkthrough/refactor/page.h
     \skipto struct Page {
     \printuntil int lastcursorpos;
     \printline
@@ -911,7 +911,7 @@
     and cursor position of current page before calling \c SetPage(). We
     use \e new and \e delete when modifying members of the \c Page struct.
 
-    \quotefromfile walkthrough/refactor/todo.cpp
+    \quotefromfile motif/walkthrough/refactor/todo.cpp
     \skipto PageChange(Widget, XtPointer, XmNotebookCallbackStruct *cs)
     \printuntil delete [] pages[currentPage] -> page;
 
@@ -928,7 +928,7 @@
 
     This needs to be done just after opening the file.
 
-    \quotefromfile walkthrough/refactor/io.cpp
+    \quotefromfile motif/walkthrough/refactor/io.cpp
     \skipto if (input != NULL) {
     \printuntil pages[0] = new Page();
 
@@ -976,7 +976,7 @@
     Finally, We need to replace two occurrences of \c XtNewString() in the \c
     main() function in \c todo.cpp.
 
-    \quotefromfile walkthrough/refactor/todo.cpp
+    \quotefromfile motif/walkthrough/refactor/todo.cpp
     \skipto if (options.todoFile == NULL) {
     \printuntil options.todoFile = qstrdup( options.todoFile );
     \printline
@@ -1035,13 +1035,13 @@
 
     Includes for \c actions.cpp:
 
-    \quotefromfile walkthrough/refactor/actions.cpp
+    \quotefromfile motif/walkthrough/refactor/actions.cpp
     \skipuntil // Motif includes
     \printuntil #include "page.h"
 
     Includes for \c io.cpp:
 
-    \quotefromfile walkthrough/refactor/io.cpp
+    \quotefromfile motif/walkthrough/refactor/io.cpp
     \skipuntil // Qt includes
     \printto // Motif includes
     \skipline
@@ -1051,7 +1051,7 @@
 
     Includes for \c todo.cpp:
 
-    \quotefromfile walkthrough/refactor/todo.cpp
+    \quotefromfile motif/walkthrough/refactor/todo.cpp
     \skipuntil // MainWindow includes
     \printline
     \skipuntil // Qt includes
@@ -1061,7 +1061,7 @@
 
     Includes for \c mainwindow.ui.h:
 
-    \quotefromfile walkthrough/refactor/mainwindow.ui.h
+    \quotefromfile motif/walkthrough/refactor/mainwindow.ui.h
     \skipuntil // PageEditDialog includes
     \printline
     \skipuntil // Qt includes
@@ -1148,7 +1148,7 @@
     the existing version. The new version will not have any tabs, so we
     remove them.
 
-    \quotefromfile walkthrough/view/page.h
+    \quotefromfile motif/walkthrough/view/page.h
     \skipto struct Page {
     \printuntil int lastcursorpos;
     \printline
@@ -1177,7 +1177,7 @@
     MainWindow::setPage() work correctly, we need to modify the code to
     use the new widgets in our \e {Main Window} widget.
 
-    \quotefromfile walkthrough/view/mainwindow.ui.h
+    \quotefromfile motif/walkthrough/view/mainwindow.ui.h
     \skipto void MainWindow::setPage( int pageNumber )
     \printto if ( pageNumber <= maxpages )
 
@@ -1250,7 +1250,7 @@
     First, We add \c #include statements for the \c MainWindow, QSpinBox
     and QTextEdit classes.
 
-    \quotefromfile walkthrough/view/io.cpp
+    \quotefromfile motif/walkthrough/view/io.cpp
     \skipuntil // Local includes
     \printuntil page.h
     \skipuntil // Qt includes
@@ -1272,7 +1272,7 @@
     the current and maximum values of the \c spinbox to the appropriate
     values.
 
-    \quotefromfile walkthrough/view/io.cpp
+    \quotefromfile motif/walkthrough/view/io.cpp
 
     \skipto void MainWindow::readDB( char *filename )
     \skipto maxpages = number;
@@ -1317,7 +1317,7 @@
     Since we will not be using any Motif widgets, we remove all Motif \c
     #include statements, including \c qmotifwidget.h. 
 
-    \quotefromfile walkthrough/view/todo.cpp
+    \quotefromfile motif/walkthrough/view/todo.cpp
     \skipuntil // Local includes
     \printuntil page.h
     \skipuntil // Qt includes
@@ -1374,7 +1374,7 @@
 
     For completeness, the code to initialize a QPrinter object is included below.
 
-    \quotefromfile walkthrough/print/mainwindow.ui.h
+    \quotefromfile motif/walkthrough/print/mainwindow.ui.h
     \skipto void MainWindow::filePrint()
     \printto qApp->setOverrideCursor( QCursor( Qt::WaitCursor ) );
 
@@ -1414,7 +1414,7 @@
 
     First, we cleanup the \c #include statements in \c mainwindow.ui.h.
 
-    \quotefromfile walkthrough/print/mainwindow.ui.h
+    \quotefromfile motif/walkthrough/print/mainwindow.ui.h
 
     \skipuntil // Local includes
     \printuntil page.h
@@ -1459,7 +1459,7 @@
     us support for most of the written languages around the world. Our \c
     Page and \c Options structs look much simpler now.
 
-    \quotefromfile walkthrough/page.h
+    \quotefromfile motif/walkthrough/page.h
 
     \skipto struct Page
     \printuntil };
@@ -1478,7 +1478,7 @@
     functions from \c mainwindow.ui.h. Notice that the code no longer
     uses \e delete or \c qstrdup() when storing text.
 
-    \quotefromfile walkthrough/mainwindow.ui.h
+    \quotefromfile motif/walkthrough/mainwindow.ui.h
 
     \skipto void MainWindow::fileOpen()
     \printuntil setPage( currentPage );

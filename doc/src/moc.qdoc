@@ -43,6 +43,9 @@
     \skipto class
     \printuntil /^\};$/
 
+    \keyword Q_ENUMS()
+    \keyword Q_FLAGS()
+
     In addition to the signals and slots shown above, \c moc also
     implements object properties as in the next example. The \c
     Q_PROPERTY() macro declares an object property, while \c

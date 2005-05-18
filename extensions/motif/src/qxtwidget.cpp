@@ -134,12 +134,12 @@ static WidgetClass qWidgetClass = (WidgetClass)&qwidgetClassRec;
   a special Xt widget class that is a QWidget.  See the constructors
   for the different behaviors.
 
-  \section2 Known QXtWidget Problems
+  \section1 Known Issues
 
   This class is unsupported and has many known problems and
-  limitations.  It is provided only to keep existing source working;
-  it should not be used in new code.  Note: These problems will \e not
-  be fixed in future releases.
+  limitations. It is provided only to keep existing source working;
+  it should not be used in new code. These problems will \e not be
+  fixed in future releases.
 
   Below is an imcomplete list of know issues:
 

@@ -17,7 +17,7 @@
 #include <qmetaobject.h>
 
 /*!
-    \class QAxObject qaxobject.h
+    \class QAxObject
     \brief The QAxObject class provides a QObject that wraps a COM object.
 
     \inmodule QAxContainer
@@ -25,7 +25,7 @@
     A QAxObject can be instantiated as an empty object, with the name
     of the COM object it should wrap, or with a pointer to the
     IUnknown that represents an existing COM object. If the COM object
-    implements the IDispatch interface, the properties, methods and
+    implements the \c IDispatch interface, the properties, methods and
     events of that object become available as Qt properties, slots and
     signals. The base class, QAxBase, provides an API to access the
     COM object directly through the IUnknown pointer.
@@ -33,6 +33,9 @@
     QAxObject is a QObject and can be used as such, e.g. it can be
     organized in an object hierarchy, receive events and connect to
     signals and slots.
+
+    QAxObject also inherits most of its ActiveX-related functionality
+    from QAxBase, notably dynamicCall() and querySubObject().
 
     \warning
     You can subclass QAxObject, but you cannot use the Q_OBJECT macro
@@ -42,12 +45,12 @@
     To work around this problem, aggregate the QAxObject as a member of 
     the QObject subclass.
 
-    \important dynamicCall() querySubObject()
+    \sa QAxBase, QAxWidget, QAxScript, {ActiveQt Framework}
 */
 
 /*!
-    Creates an empty COM object and propagates \a parent and \a name
-    to the QObject constructor. To initialize the object, call \link
+    Creates an empty COM object and propagates \a parent to the
+    QObject constructor. To initialize the object, call \link
     QAxBase::setControl() setControl \endlink.
 */
 QAxObject::QAxObject(QObject *parent)
@@ -56,8 +59,8 @@ QAxObject::QAxObject(QObject *parent)
 }
 
 /*!
-    Creates a QAxObject that wraps the COM object \a c. \a parent and
-    \a name are propagated to the QWidget contructor.
+    Creates a QAxObject that wraps the COM object \a c. \a parent is
+    propagated to the QWidget contructor.
 
     \sa setControl()
 */
@@ -69,8 +72,7 @@ QAxObject::QAxObject(const QString &c, QObject *parent)
 
 /*!
     Creates a QAxObject that wraps the COM object referenced by \a
-    iface. \a parent and \a name are propagated to the QObject
-    contructor.
+    iface. \a parent is propagated to the QObject contructor.
 */
 QAxObject::QAxObject(IUnknown *iface, QObject *parent)
 : QObject(parent), QAxBase(iface)
@@ -102,7 +104,7 @@ const QMetaObject *QAxObject::parentMetaObject() const
 }
 
 /*!
-    \reimp
+    \internal
 */
 void *QAxObject::qt_metacast(const char *cname)
 {
@@ -131,8 +133,8 @@ int QAxObject::qt_metacall(QMetaObject::Call call, int id, void **v)
 }
 
 /*!
-    \fn QObject *QAxObject::qObject()
-    \reimp
+    \fn QObject *QAxObject::qObject() const
+    \internal
 */
 
 /*!

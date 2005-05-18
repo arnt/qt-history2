@@ -21,12 +21,13 @@
     The Menus example demonstrates the use of QMenuBar and QStatusBar
     in a QMainWindow to implement an in-place active control.
 
-    To build the example you must first build the \link qaxserver.html
-    QAxServer \endlink library. Then run qmake and your make tool in 
-    \c examples/menus.
+    To build the example you must first build the QAxServer library.
+    Then run \c qmake and your make tool in  \c
+    examples/activeqt/menus.
 
-    The \link qaxserver-demo-menus.html demonstration \endlink requires your
-    WebBrowser to support ActiveX controls, and scripting to be enabled.
+    The \l{qaxserver-demo-menus.html}{demonstration} requires your
+    WebBrowser to support ActiveX controls, and scripting to be
+    enabled.
 
     \raw HTML
     <object ID="QMenus" CLASSID="CLSID:4dc3f340-a6f7-44e4-a79b-3e9217695fbd"

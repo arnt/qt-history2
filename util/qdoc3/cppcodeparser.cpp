@@ -435,16 +435,24 @@ bool CppCodeParser::matchTemplateAngles( CodeChunk *dataType )
 {
     bool matches = ( tok == Tok_LeftAngle );
     if ( matches ) {
-	int depth = 0;
+	int leftAngleDepth = 0;
+        int parenAndBraceDepth = 0;
 	do {
-	    if ( tok == Tok_LeftAngle )
-		depth++;
-	    else if ( tok == Tok_RightAngle )
-		depth--;
+	    if ( tok == Tok_LeftAngle ) {
+		leftAngleDepth++;
+	    } else if ( tok == Tok_RightAngle ) {
+		leftAngleDepth--;
+            } else if (tok == Tok_LeftParen || tok == Tok_LeftBrace) {
+                ++parenAndBraceDepth;
+            } else if (tok == Tok_RightParen || tok == Tok_RightBrace) {
+                if (--parenAndBraceDepth < 0)
+                    return false;
+            } 
+
 	    if ( dataType != 0 )
 		dataType->append( lexeme() );
 	    readToken();
-	} while ( depth > 0 && tok != Tok_Eoi );
+	} while ( leftAngleDepth > 0 && tok != Tok_Eoi );
     }
     return matches;
 }

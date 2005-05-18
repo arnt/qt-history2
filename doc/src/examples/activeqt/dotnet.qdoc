@@ -57,11 +57,11 @@
     developer of dealing with the conversion between managed and normal
     data objects.
 
-    The impatient reader, who right away wants to see a QPushButton and a
-    custom Qt widget (\link qaxserver-example-multiple.html QAxWidget2
-    \endlink) run in a .NET GUI application is referred to the example
-    directory of ActiveQt. It contains the result of this walkthrough
-    using both C# and VB.NET, created with Visual Studio.NET (not 2003).
+    The impatient reader, who right away wants to see a QPushButton
+    and a custom Qt widget (\l{activeqt/multiple}{QAxWidget2}) run in
+    a .NET GUI application is referred to the example directory of
+    ActiveQt. It contains the result of this walkthrough using both
+    C# and VB.NET, created with Visual Studio .NET (not 2003).
     Load \c {examples/dotnet/walkthrough/csharp.csproj}, 
     \c {examples/dotnet/walkthrough/vb.vbproj}
     \footnote
@@ -88,7 +88,7 @@
     managed .NET application, whether written in C#, VB.NET, MC++ or other
     managed programming language.
 
-    \quotefile dotnet/wrapper/lib/worker.h
+    \quotefromfile activeqt/dotnet/wrapper/lib/worker.h
     \skipto class
     \printuntil };
 
@@ -97,7 +97,7 @@
     implemented with straight C++ they don't cause any trouble when
     compiling this class with any C++ compiler.
    
-    \quotefile dotnet/wrapper/lib/networker.h
+    \quotefromfile activeqt/dotnet/wrapper/lib/networker.h
     \skipto class
     \printuntil };
 
@@ -133,7 +133,7 @@
     to the String object, even if it has been moved by the garbage
     collector, and it can be used just like a normal pointer.
 
-    \quotefile dotnet/wrapper/lib/tools.cpp
+    \quotefromfile activeqt/dotnet/wrapper/lib/tools.cpp
     \printuntil }
 
     \printuntil }
@@ -141,7 +141,7 @@
     The convertor functions can then be used in the wrapper class 
     implementation to call the functions in the native C++ class.
 
-    \quotefile dotnet/wrapper/lib/networker.cpp
+    \quotefromfile activeqt/dotnet/wrapper/lib/networker.cpp
     \printuntil }
 
     \printuntil }
@@ -165,7 +165,7 @@
     This wrapper class can now be used in .NET code, e.g. using C++, C#,
     Visual Basic or any other programming language available for .NET.
 
-    \quotefile dotnet/wrapper/main.cs
+    \quotefromfile activeqt/dotnet/wrapper/main.cs
     \printuntil [STAThread]
     \printuntil }
     \printuntil }
@@ -180,11 +180,12 @@
     objects in a .NET Framework project.
 
     Making a QObject class into a COM object is easily achieved with 
-    ActiveQt and demonstrated in the \l{The QAxServer Examples}{examples}.
-    The walkthrough will use the Qt classes implemented
-    in those examples, so the first thing to do is to make sure that those 
-    examples have been built correctly, e.g. by opening the \link 
-    qaxserver-demo-multiple.html demonstration pages \endlink in Internet
+    ActiveQt and demonstrated in the QAxServer examples (e.g., the
+    \l{activeqt/simple}{Simple} example). The walkthrough will use
+    the Qt classes implemented in those examples, so the first thing
+    to do is to make sure that those  examples have been built
+    correctly, e.g. by opening the
+    \l{qaxserver-demo-multiple.html}{demonstration pages} in Internet
     Explorer to verify that the controls are functional.
 
     \section2 Starting a Project
@@ -246,7 +247,7 @@
     the event handler \c circleClicked for the \c ClickEvent to increase 
     the line width by one for every click:
 
-    \quotefile dotnet/walkthrough/Form1.cs
+    \quotefromfile activeqt/dotnet/walkthrough/Form1.cs
     \skipto private void circleClicked
     \printuntil }
 
@@ -289,8 +290,8 @@
     since this includes subclasses of QObject and QWidget we can wrap 
     any of our datatypes into a QObject subclass to make its API 
     available to .NET. This has the positive side effect that the same 
-    API is automatically available in \link 
-    http://www.trolltech.com/products/qsa QSA \endlink, the cross platform 
+    API is automatically available in
+    \l{http://www.trolltech.com/products/qsa}{QSA}, the cross platform 
     scripting solution for Qt applications, and to COM clients in general.
 
     When using the "IJW" method, in priciple the only limitation is the
@@ -316,4 +317,4 @@
     kicks in, ActiveQt becomes a valid choice for making even non-visual
     parts of your application accessible to .NET.
 
-*
+*/

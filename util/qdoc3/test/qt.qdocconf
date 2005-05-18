@@ -3,18 +3,17 @@ include(compat.qdocconf)
 project                 = Qt
 language                = Cpp
 headerdirs              = $QTDIR/src \
-                          $QTDIR/extensions
+                          $QTDIR/extensions/activeqt \
+                          $QTDIR/extensions/motif
 sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
-                          $QTDIR/extensions
+                          $QTDIR/extensions/activeqt \
+                          $QTDIR/extensions/motif
 sources.fileextensions  = "*.cpp *.qdoc"
 exampledirs             = $QTDIR/doc/src \
                           $QTDIR/examples \
                           $QTDIR \
-                          $QTDIR/extensions/activeqt/examples \
-                          $QTDIR/extensions/motif/examples \
-                          $QTDIR/qmake/examples \
-                          $QTDIR/tools/linguist/tutorial
+                          $QTDIR/qmake/examples
 imagedirs               = $QTDIR/doc/src/images \
                           $QTDIR/examples
 outputdir               = $QTDIR/doc/html

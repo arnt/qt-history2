@@ -15,7 +15,7 @@
 
 #include <qmetaobject.h>
 
-#include <qt_windows.h> //IUnknown
+#include <qt_windows.h> // for IUnknown
 #include "../shared/qaxtypes.h"
 
 /*!
@@ -28,9 +28,9 @@
     The functions provided by this class allow an ActiveX control to
     communicate property changes to a client application. Inherit
     your control class from both QWidget (directly or indirectly) and
-    this class to get access to this class's functions. The \link
-    moc.html meta object compiler\endlink requires you to inherit from
-    QWidget \e first.
+    this class to get access to this class's functions. The
+    \l{moc}{meta-object compiler} requires you to inherit from
+    QWidget first.
 
     \code
         class MyActiveX : public QWidget, public QAxBindable
@@ -58,6 +58,11 @@
     client. To implement additional COM interfaces in your ActiveX
     control, reimplement createAggregate() to return a new object of a
     QAxAggregated subclass.
+
+    The ActiveQt \l{activeqt/opengl}{OpenGL} example shows how to use
+    QAxBindable to implement additional COM interfaces.
+
+    \sa QAxAggregated, QAxFactory, {ActiveQt Framework}
 */
 
 /*!
@@ -127,8 +132,8 @@ void QAxBindable::propertyChanged(const char *property)
     Returns a pointer to the client site interface for this ActiveX object,
     or null if no client site has been set.
 
-    Call QueryInterface() on the returned interface to get the interface you
-    want to call.
+    Call \c QueryInterface() on the returned interface to get the
+    interface you want to call.
 */
 IUnknown *QAxBindable::clientSite() const
 {
@@ -182,12 +187,14 @@ QAxAggregated *QAxBindable::createAggregate()
     implementing the ActiveX control. You must not store that pointer
     in your subclass (unless you use QPointer), as the QWidget can
     be destroyed by the ActiveQt framework at any time.
+
+    \sa QAxBindable, QAxFactory, {ActiveQt Framework}
 */
 
 /*!
     \fn QAxAggregated::~QAxAggregated()
 
-    The destructor is called by the QAxServerBase, which is a friend.
+    The destructor is called internally by Qt.
 */
 
 /*!
@@ -212,22 +219,22 @@ QAxAggregated *QAxBindable::createAggregate()
         }
     \endcode
 
-    Return the standard COM results S_OK (interface is supported) or
-    E_NOINTERFACE (requested interface is not supported).
+    Return the standard COM results \c S_OK (interface is supported)
+    or \c E_NOINTERFACE (requested interface is not supported).
 
     \warning
-    Even though you must implement the IUnknown interface if you
-    implement any COM interface you must not support the IUnknown
+    Even though you must implement the \c IUnknown interface if you
+    implement any COM interface you must not support the \c IUnknown
     interface in your queryInterface() implementation.
 */
 
 /*!
     \fn IUnknown *QAxAggregated::controllingUnknown() const
 
-    Returns the IUnknown interface of the ActiveX control. Implement
-    the IUnknown interface in your QAxAggregated subclass to delegate
-    calls to QueryInterface(), AddRef() and Release() to the interface
-    provided by this function.
+    Returns the \c IUnknown interface of the ActiveX control. Implement
+    the \c IUnknown interface in your QAxAggregated subclass to
+    delegate calls to \c QueryInterface(), \c AddRef(), and \c
+    Release() to the interface provided by this function.
 
     \code
         HRESULT AxImpl::QueryInterface(REFIID iid, void **iface)
@@ -235,19 +242,20 @@ QAxAggregated *QAxBindable::createAggregate()
             return controllingUnknown()->QueryInterface(iid, iface);
         }
 
-        unsigned long AxImpl::AddRef()
+        ulong AxImpl::AddRef()
         {
             return controllingUnknown()->AddRef();
         }
 
-        unsigned long AxImpl::Release()
+        ulong AxImpl::Release()
         {
             return controllingUnknown()->Release();
         }
     \endcode
 
-    The QAXAGG_IUNKNOWN macro expands to the code above, and you can
-    use it in the class declaration of your subclass.
+    Instead of declaring and implementing these three functions
+    manually, you can use the \c QAXAGG_IUNKNOWN macro in the class
+    declaration of your subclass.
 */
 
 /*!

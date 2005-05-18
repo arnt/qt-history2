@@ -609,19 +609,18 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     become available as Qt properties and slots.
 
     \code
-    connect(buttonBack, SIGNAL(clicked()), webBrowser, SLOT(GoBack()));
+        connect(buttonBack, SIGNAL(clicked()), webBrowser, SLOT(GoBack()));
     \endcode
 
-    Properties exposed by the object's IDispatch implementation can be
-    read and written through the property system provided by the Qt
-    Object Model (both subclasses are QObjects, so you can use \link
-    QObject::setProperty() setProperty() \endlink and \link
-    QObject::property() property() \endlink as with QObject). Properties
-    with multiple parameters are not supported.
+    Properties exposed by the object's IDispatch implementation can
+    be read and written through the property system provided by the
+    Qt Object Model (both subclasses are QObjects, so you can use
+    QObject::setProperty() and QObject::property()). Properties with
+    multiple parameters are not supported.
 
     \code
-    activeX->setProperty("text", "some text");
-    int value = activeX->property("value");
+        activeX->setProperty("text", "some text");
+        int value = activeX->property("value");
     \endcode
 
     Write-functions for properties and other methods exposed by the
@@ -629,15 +628,15 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     dynamicCall(), or indirectly as slots connected to a signal.
 
     \code
-    webBrowser->dynamicCall("GoHome()");
+        webBrowser->dynamicCall("GoHome()");
     \endcode
 
     Outgoing events supported by the COM object are emitted as
     standard Qt signals.
 
     \code
-    connect(webBrowser, SIGNAL(TitleChanged(const QString&)),
-	     this, SLOT(setCaption(const QString&)));
+        connect(webBrowser, SIGNAL(TitleChanged(const QString&)),
+	        this, SLOT(setCaption(const QString&)));
     \endcode
 
     QAxBase transparently converts between COM data types and the
@@ -744,53 +743,56 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     Supported are also enumerations, and typedefs to supported types.
 
     To call the methods of a COM interface described by the following IDL
-    \code
-    dispinterface IControl
-    {
-    properties:
-        [id(1)] BSTR text;
-	[id(2)] IFontDisp *font;
 
-    methods:
-	[id(6)] void showColumn([in] int i);
-        [id(3)] bool addColumn([in] BSTR t);
-	[id(4)] int fillList([in, out] SAFEARRAY(VARIANT) *list);
-	[id(5)] IDispatch *item([in] int i);
-    };
+    \code
+        dispinterface IControl
+        {
+        properties:
+            [id(1)] BSTR text;
+	    [id(2)] IFontDisp *font;
+
+        methods:
+	    [id(6)] void showColumn([in] int i);
+            [id(3)] bool addColumn([in] BSTR t);
+	    [id(4)] int fillList([in, out] SAFEARRAY(VARIANT) *list);
+	    [id(5)] IDispatch *item([in] int i);
+        };
     \endcode
+
     use the QAxBase API like this:
+
     \code
-    QAxObject object("<CLSID>");
+        QAxObject object("<CLSID>");
 
-    QString text = object.property("text").toString();
-    object.setProperty("font", QFont("Times New Roman", 12));
+        QString text = object.property("text").toString();
+        object.setProperty("font", QFont("Times New Roman", 12));
 
-    connect(this, SIGNAL(clicked(int)), &object, SLOT(showColumn(int)));
-    bool ok = object.dynamicCall("addColumn(const QString&)", "Column 1").toBool();
+        connect(this, SIGNAL(clicked(int)), &object, SLOT(showColumn(int)));
+        bool ok = object.dynamicCall("addColumn(const QString&)", "Column 1").toBool();
 
-    QList<QVariant> varlist;
-    QList<QVariant> parameters;
-    parameters << QVariant(varlist);
-    int n = object.dynamicCall("fillList(QList<QVariant>&)", parameters).toInt();
+        QList<QVariant> varlist;
+        QList<QVariant> parameters;
+        parameters << QVariant(varlist);
+        int n = object.dynamicCall("fillList(QList<QVariant>&)", parameters).toInt();
 
-    QAxObject *item = object.querySubItem("item(int)", 5);
+        QAxObject *item = object.querySubItem("item(int)", 5);
     \endcode
 
     Note that the QList the object should fill has to be provided as an
-    element in the parameter list of QVariants.
+    element in the parameter list of \l{QVariant}s.
 
-    If you need to access properties or pass parameters of unsupported
-    datatypes you must access the COM object directly through its
-    IDispatch implementation or other interfaces. Those interfaces can be
-    retrieved through queryInterface().
+    If you need to access properties or pass parameters of
+    unsupported datatypes you must access the COM object directly
+    through its \c IDispatch implementation or other interfaces.
+    Those interfaces can be retrieved through queryInterface().
 
     \code
-    IUnknown *iface = 0;
-    activeX->queryInterface(IID_IUnknown, (void**)&iface);
-    if (iface) {
-        // use the interface
-	iface->Release();
-    }
+        IUnknown *iface = 0;
+        activeX->queryInterface(IID_IUnknown, (void**)&iface);
+        if (iface) {
+            // use the interface
+	    iface->Release();
+        }
     \endcode
 
     To get the definition of the COM interfaces you will have to use the header
@@ -802,6 +804,8 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
     If you need to react to events that pass parameters of unsupported
     datatypes you can use the generic signal that delivers the event
     data as provided by the COM event.
+
+    \sa QAxObject, QAxWidget, QAxScript, {ActiveQt Framework}
 */
 
 /*!
@@ -881,23 +885,29 @@ QAxMetaObject *QAxBase::internalMetaObject() const
 
     The most efficient way to set this property is by using the
     registered component's UUID, e.g.
+
     \code
-    ctrl->setControl("{8E27C92B-1264-101C-8A2F-040224009C02}");
+        ctrl->setControl("{8E27C92B-1264-101C-8A2F-040224009C02}");
     \endcode
+
     The second fastest way is to use the registered control's class
     name (with or without version number), e.g.
+
     \code
-    ctrl->setControl("MSCal.Calendar");
+        ctrl->setControl("MSCal.Calendar");
     \endcode
+
     The slowest, but easiest way to use is to use the control's full
     name, e.g.
+
     \code
-    ctrl->setControl("Calendar Control 9.0");
+        ctrl->setControl("Calendar Control 9.0");
     \endcode
 
     It is also possible to initialize the object from a file, e.g.
+
     \code
-    ctrl->setControl("c:/files/file.doc");
+        ctrl->setControl("c:/files/file.doc");
     \endcode
 
     If the component's UUID is used the following patterns can be used
@@ -906,22 +916,29 @@ QAxMetaObject *QAxBase::internalMetaObject() const
     \list
     \i To initialize the control on a different machine use the following
     pattern:
+
     \code
-    <domain/username>:<password>@server/{8E27C92B-1264-101C-8A2F-040224009C02}
+        <domain/username>:<password>@server/{8E27C92B-1264-101C-8A2F-040224009C02}
     \endcode
+
     \i To initialize a licensed control use the following pattern:
+
     \code
-    {8E27C92B-1264-101C-8A2F-040224009C02}:<LicenseKey>
+        {8E27C92B-1264-101C-8A2F-040224009C02}:<LicenseKey>
     \endcode
+
     \i To connect to an already running object use the following pattern:
+
     \code
-    {8E27C92B-1264-101C-8A2F-040224009C02}&
+        {8E27C92B-1264-101C-8A2F-040224009C02}&
     \endcode
+
     \endlist
     The first two patterns can be combined, e.g. to initialize a licensed
     control on a remote machine:
+
     \code
-    ctrl->setControl("DOMAIN/user:password@server/{8E27C92B-1264-101C-8A2F-040224009C02}:LicenseKey");
+        ctrl->setControl("DOMAIN/user:password@server/{8E27C92B-1264-101C-8A2F-040224009C02}:LicenseKey");
     \endcode
 
     The control's read function always returns the control's UUID, if provided including the license
@@ -1070,14 +1087,14 @@ void QAxBase::clear()
     }
 }
 
-/*!
+/*
     Returns the list of verbs that the COM object can execute. If
     the object does not implement IOleObject, or does not support
     any verbs, then this function returns an empty stringlist.
 
     Note that the OLE default verbs (OLEIVERB_SHOW etc) are not 
     included in the list.
-*
+
 QStringList QAxBase::verbs() const
 {
     if (d->verbs.isEmpty()) {
@@ -1232,6 +1249,7 @@ bool QAxBase::initializeActive(IUnknown** ptr)
 #   define OLERENDER_NONE 0
 #   endif
 #endif
+
 /*!
     Creates the COM object handling the filename in the control property, and
     returns the IUnknown interface to the object in \a ptr. This function returns
@@ -1240,7 +1258,7 @@ bool QAxBase::initializeActive(IUnknown** ptr)
     This function is called by initialize() if the control string is the name of
     an existing file.
 
-    \sa initialize
+    \sa initialize()
 */
 bool QAxBase::initializeFromFile(IUnknown** ptr)
 {
@@ -2987,7 +3005,7 @@ static const char qt_meta_stringdata_QAxBase[] = {
 };
 
 /*!
-    \reimp
+    \internal
 
     The metaobject is generated on the fly from the information
     provided by the IDispatch and ITypeInfo interface implementations
@@ -3721,15 +3739,18 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     If \a function is a method of the object the string must be provided
     as the full prototype, for example as it would be written in a
     QObject::connect() call.
+
     \code
-    activeX->dynamicCall("Navigate(const QString&)", "www.trolltech.com");
+        activeX->dynamicCall("Navigate(const QString&)", "www.trolltech.com");
     \endcode
 
     Alternatively a function can be called passing the parameters embedded
     in the string, e.g. above function can also be invoked using
+
     \code
-    activeX->dynamicCall("Navigate(\"www.trolltech.com\");
+        activeX->dynamicCall("Navigate(\"www.trolltech.com\");
     \endcode
+
     All parameters are passed as strings; it depends on the control whether
     they are interpreted correctly, and is slower than using the prototype
     with correctly typed parameters.
@@ -3737,15 +3758,17 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     If \a function is a property the string has to be the name of the
     property. The property setter is called when \a var1 is a valid QVariant,
     otherwise the getter is called.
+
     \code
-    activeX->dynamicCall("Value", 5);
-    QString text = activeX->dynamicCall("Text").toString();
+        activeX->dynamicCall("Value", 5);
+        QString text = activeX->dynamicCall("Text").toString();
     \endcode
+
     Note that it is faster to get and set properties using
     QObject::property() and QObject::setProperty().
 
     dynamicCall() can also be used to call objects with a
-    \link QAxBase::disableMetaObject() disabled metaobject \endlink wrapper,
+    \l{QAxBase::disableMetaObject()}{disabled metaobject} wrapper,
     which can improve performance significantely, esp. when calling many
     different objects of different types during an automation process.
     ActiveQt will then however not validate parameters.
@@ -3759,12 +3782,12 @@ bool QAxBase::dynamicCallHelper(const char *name, void *inout, QList<QVariant> &
     use the function directly.
 
     \code
-    IWebBrowser2 *webBrowser = 0;
-    activeX->queryInterface(IID_IWebBrowser2, (void**)&webBrowser);
-    if (webBrowser) {
-        webBrowser->Navigate2(pvarURL);
-	webBrowser->Release();
-    }
+        IWebBrowser2 *webBrowser = 0;
+        activeX->queryInterface(IID_IWebBrowser2, (void **)&webBrowser);
+        if (webBrowser) {
+            webBrowser->Navigate2(pvarURL);
+	    webBrowser->Release();
+        }
     \endcode
 
     This is also more efficient.
@@ -3849,14 +3872,14 @@ QVariant QAxBase::dynamicCall(const char *function, QList<QVariant> &vars)
     this method to navigate the hierarchy of the object model, e.g.
 
     \code
-    QAxWidget outlook("Outlook.Application");
-    QAxObject *session = outlook.querySubObject("Session");
-    if (session) {
-	QAxObject *defFolder = session->querySubObject(
-				"GetDefaultFolder(OlDefaultFolders)",
-				"olFolderContacts");
-	//...
-    }
+        QAxWidget outlook("Outlook.Application");
+        QAxObject *session = outlook.querySubObject("Session");
+        if (session) {
+	    QAxObject *defFolder = session->querySubObject(
+				    "GetDefaultFolder(OlDefaultFolders)",
+				    "olFolderContacts");
+	    //...
+        }
     \endcode
 */
 QAxObject *QAxBase::querySubObject(const char *name,
@@ -4186,11 +4209,6 @@ void *qax_createObjectWrapper(int metaType, IUnknown *iface)
 }
 
 /*!
-    \fn QObject *QAxBase::qObject()
-    \internal
-*/
-
-/*!
     \fn void QAxBase::signal(const QString &name, int argc, void *argv)
 
     This generic signal gets emitted when the COM object issues the
@@ -4201,19 +4219,19 @@ void *qax_createObjectWrapper(int metaType, IUnknown *iface)
     parameter in the function.
 
     \code
-    void Receiver::slot(const QString &name, int argc, void *argv)
-    {
-	VARIANTARG *params = (VARIANTARG*)argv;
-	if (name.startsWith("BeforeNavigate2(")) {
-	    IDispatch *pDisp = params[argc-1].pdispVal;
-	    VARIANTARG URL = *params[argc-2].pvarVal;
-	    VARIANTARG Flags = *params[argc-3].pvarVal;
-	    VARIANTARG TargetFrameName = *params[argc-4].pvarVal;
-	    VARIANTARG PostData = *params[argc-5].pvarVal;
-	    VARIANTARG Headers = *params[argc-6].pvarVal;
-	    bool *Cancel = params[argc-7].pboolVal;
-	}
-    }
+        void Receiver::slot(const QString &name, int argc, void *argv)
+        {
+	    VARIANTARG *params = (VARIANTARG*)argv;
+	    if (name.startsWith("BeforeNavigate2(")) {
+	        IDispatch *pDisp = params[argc-1].pdispVal;
+	        VARIANTARG URL = *params[argc-2].pvarVal;
+	        VARIANTARG Flags = *params[argc-3].pvarVal;
+	        VARIANTARG TargetFrameName = *params[argc-4].pvarVal;
+	        VARIANTARG PostData = *params[argc-5].pvarVal;
+	        VARIANTARG Headers = *params[argc-6].pvarVal;
+	        bool *Cancel = params[argc-7].pboolVal;
+	    }
+        }
     \endcode
 
     Use this signal if the event has parameters of unsupported data
@@ -4234,4 +4252,15 @@ void *qax_createObjectWrapper(int metaType, IUnknown *iface)
     interface IDispatch. \a code, \a source, \a desc and \a help provide information about the exception as
     provided by the COM server and can be used to provide useful feedback to the end user. \a help includes
     the help file, and the help context ID in brackets, e.g. "filename [id]".
+*/
+
+/*!
+    \fn QObject *QAxBase::qObject() const
+    \internal
+*/
+
+/*!
+    \fn const char *QAxBase::className() const
+
+    \internal
 */

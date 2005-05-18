@@ -3,12 +3,11 @@
     \title Qutlook Example (ActiveQt)
 
     The Qutlook example demonstrates the use of ActiveQt to automate
-    Outlook. The example makes use of the \link
-    activeqt-tools-dumpcpp.html dumpcpp \endlink tool to generate a
-    C++ namespace for the type library describing the Outlook Object
-    Model.
+    Outlook. The example makes use of the \l dumpcpp tool to generate
+    a C++ namespace for the type library describing the Outlook
+    Object Model.
 
-    \quotefile qutlook/qutlook.pro
+    \quotefromfile activeqt/qutlook/qutlook.pro
     \printuntil else
     \printuntil }
 
@@ -18,14 +17,14 @@
     generate a header and a cpp file (in this case, \c msoutl.h and \c msoutl.cpp) that 
     declares and implement an easy to use API to the Outlook objects.
 
-    \quotefile qutlook/addressview.h
+    \quotefromfile activeqt/qutlook/addressview.h
     \skipto class AddressView
     \printuntil };
 
     The AddressView class is a QWidget subclass for the user interface. The QTreeView widget
     will display the contents of Outlook's Contact folder as provided by the \c{model}.
 
-    \quotefile qutlook/addressview.cpp
+    \quotefromfile activeqt/qutlook/addressview.cpp
     \skipto #include
     \printuntil };
     The AddressBookModel class is a QAbstractListModel subclass that communicates directly with 
@@ -68,13 +67,14 @@
     The rest of the file implements the user interface using only Qt APIs, i.e. without communicating
     with Outlook directly.
 
-    \quotefile qutlook/main.cpp
+    \quotefromfile activeqt/qutlook/main.cpp
     \skipto #include
     \printuntil }
 
     The \c main() entry point function finally instantiates the user interface and enters the
     event loop.
 
-    To build the example you must first build the \link qaxcontainer.html QAxContainer \endlink 
-    library. Then run your make tool in \c examples/qutlook and run the resulting \c qutlok.exe.
+    To build the example you must first build the QAxContainer
+    library. Then run your make tool in \c examples/activeqt/qutlook
+    and run the resulting \c qutlook.exe.
 */
