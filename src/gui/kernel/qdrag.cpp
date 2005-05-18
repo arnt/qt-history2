@@ -90,17 +90,22 @@ QDrag::QDrag(QWidget *dragSource)
 */
 QDrag::~QDrag()
 {
+    Q_D(QDrag);
+    delete d->data;
     QDragManager *manager = QDragManager::self();
     if (manager && manager->object == this)
         manager->cancel(false);
 }
 
 /*!
-    Sets the data to be sent to the given MIME \a data.
+    Sets the data to be sent to the given MIME \a data. Ownership of the data is
+    transferred to the QDrag object. 
 */
 void QDrag::setMimeData(QMimeData *data)
 {
     Q_D(QDrag);
+    if (d->data != 0)
+        delete d->data;
     d->data = data;
 }
 
