@@ -18,12 +18,10 @@
 DragLabel::DragLabel(const QString &text, QWidget *parent)
     : QLabel(parent)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
-
     QFontMetrics fm(font());
     QSize size = fm.size(Qt::TextSingleLine, text);
 
-    QImage image(size.width() + 12, size.height() + 12, QImage::Format_ARGB32);
+    QImage image(size.width() + 12, size.height() + 12, QImage::Format_ARGB32_Premultiplied);
     image.fill(qRgba(255, 255, 255, 0));
 
     QFont font;
