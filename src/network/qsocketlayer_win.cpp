@@ -482,52 +482,62 @@ bool QSocketLayerPrivate::nativeConnect(const QHostAddress &address, quint16 por
 
     qt_socket_setPortAndAddress(socketDescriptor, &sockAddrIPv4, &sockAddrIPv6, port, address, &sockAddrPtr, &sockAddrSize);
 
-    int connectResult = ::WSAConnect(socketDescriptor, sockAddrPtr, sockAddrSize, 0,0,0,0);
-    if (connectResult == SOCKET_ERROR) {
-        WS_ERROR_DEBUG
-        switch (WSAGetLastError()) {
-        case WSANOTINITIALISED:
-            //###
-            break;
-        case WSAEISCONN:
-            socketState = QAbstractSocket::ConnectedState;
-            break;
-        case WSAEINPROGRESS:
-        case WSAEALREADY:
-        case WSAEWOULDBLOCK:
-            socketState = QAbstractSocket::ConnectingState;
-            break;
-        case WSAEADDRINUSE:
-            setError(QAbstractSocket::NetworkError, AddressInuseErrorString);
-            break;
-        case WSAECONNREFUSED:
-            setError(QAbstractSocket::ConnectionRefusedError, ConnectionRefusedErrorString);
-            break;
-        case WSAETIMEDOUT:
-            setError(QAbstractSocket::NetworkError, ConnectionTimeOutErrorString);
-            break;
-        case WSAEACCES:
-            setError(QAbstractSocket::SocketAccessError, AccessErrorString);
-            break;
-        case WSAENETUNREACH:
-            setError(QAbstractSocket::NetworkError, UnreachableErrorString);
-            break;
-        case WSAEINVAL:
-            setError(QAbstractSocket::NetworkError, InvalidSocketErrorString);
-            break;
-        default:
-            break;
-        }
-
-        if (socketState != QAbstractSocket::ConnectedState) {
+    bool firstChanceWSAEINVAL = false;
+    forever {
+        int connectResult = ::WSAConnect(socketDescriptor, sockAddrPtr, sockAddrSize, 0,0,0,0);
+        if (connectResult == SOCKET_ERROR) {
+            WS_ERROR_DEBUG
+            switch (WSAGetLastError()) {
+            case WSANOTINITIALISED:
+                //###
+                break;
+            case WSAEISCONN:
+                socketState = QAbstractSocket::ConnectedState;
+                break;
+            case WSAEINPROGRESS:
+            case WSAEALREADY:
+            case WSAEWOULDBLOCK:
+                socketState = QAbstractSocket::ConnectingState;
+                break;
+            case WSAEADDRINUSE:
+                setError(QAbstractSocket::NetworkError, AddressInuseErrorString);
+                break;
+            case WSAECONNREFUSED:
+                setError(QAbstractSocket::ConnectionRefusedError, ConnectionRefusedErrorString);
+                break;
+            case WSAETIMEDOUT:
+                setError(QAbstractSocket::NetworkError, ConnectionTimeOutErrorString);
+                break;
+            case WSAEACCES:
+                setError(QAbstractSocket::SocketAccessError, AccessErrorString);
+                break;
+            case WSAENETUNREACH:
+                setError(QAbstractSocket::NetworkError, UnreachableErrorString);
+                break;
+            case WSAEINVAL:
+                if (!firstChanceWSAEINVAL) {
 #if defined (QSOCKETLAYER_DEBUG)
-            qDebug("QSocketLayerPrivate::nativeConnect(%s, %i) == false (%s)",
-                   address.toString().toLatin1().constData(), port,
-                   socketState == QAbstractSocket::ConnectingState
-                   ? "Connection in progress" : socketErrorString.toLatin1().constData());
+                    qDebug("QSocketLayerPrivate::nativeConnect got WSAEINVAL trying again.");
 #endif
-            return false;
+                    firstChanceWSAEINVAL = true;
+                    continue;
+                }
+                setError(QAbstractSocket::NetworkError, InvalidSocketErrorString);
+                break;
+            default:
+                break;
+            }
+            if (socketState != QAbstractSocket::ConnectedState) {
+#if defined (QSOCKETLAYER_DEBUG)
+                qDebug("QSocketLayerPrivate::nativeConnect(%s, %i) == false (%s)",
+                        address.toString().toLatin1().constData(), port,
+                        socketState == QAbstractSocket::ConnectingState
+                        ? "Connection in progress" : socketErrorString.toLatin1().constData());
+#endif
+                return false;
+            }
         }
+        break;
     }
 
 #if defined (QSOCKETLAYER_DEBUG)
