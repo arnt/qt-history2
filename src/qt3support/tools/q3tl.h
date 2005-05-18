@@ -90,13 +90,15 @@ inline void qHeapSortHelper(BiIterator begin, BiIterator end, const T &dummy)
 template <typename BiIterator, typename LessThan>
 inline void qHeapSort(BiIterator begin, BiIterator end, LessThan lessThan)
 {
-    qHeapSortHelper(begin, end, *begin, lessThan);
+    if (begin != end)
+        qHeapSortHelper(begin, end, *begin, lessThan);
 }
 
 template <typename BiIterator>
 inline void qHeapSort(BiIterator begin, BiIterator end)
 {
-    qHeapSortHelper(begin, end, *begin);
+    if (begin != end)
+        qHeapSortHelper(begin, end, *begin);
 }
 
 template <typename Container>
@@ -106,7 +108,8 @@ inline void qHeapSort(Container &c)
     // Work around Borland 5.5 optimizer bug
     c.detach();
 #endif
-    qHeapSortHelper(c.begin(), c.end(), *c.begin());
+    if (!c.empty())
+        qHeapSortHelper(c.begin(), c.end(), *c.begin());
 }
 
 
@@ -157,7 +160,8 @@ void qBubbleSortHelper(BiIterator begin, BiIterator end, T)
 template <typename BiIterator>
 void qBubbleSort(BiIterator begin, BiIterator end)
 {
-    qBubbleSortHelper(begin, end, *begin);
+    if (begin != end)
+        qBubbleSortHelper(begin, end, *begin);
 }
 
 template <typename Container>
