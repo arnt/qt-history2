@@ -237,7 +237,7 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
 
 Q_GLOBAL_STATIC(QSet<QObject *>, allObjects)
 
-static void newObject(QObject *object)
+extern "C" Q_CORE_EXPORT void qt_addObject(QObject *object)
 {
     QWriteLocker locker(QObjectPrivate::readWriteLock());
     QSet<QObject *> *set = allObjects();
@@ -245,7 +245,7 @@ static void newObject(QObject *object)
         set->insert(object);
 }
 
-static void removeObject(QObject *object)
+extern "C" Q_CORE_EXPORT void qt_removeObject(QObject *object)
 {
     QWriteLocker locker(QObjectPrivate::readWriteLock());
     QSet<QObject *> *set = allObjects();
@@ -529,7 +529,7 @@ QObject::QObject(QObject *parent)
     : d_ptr(new QObjectPrivate)
 {
     Q_D(QObject);
-    ::newObject(d_ptr->q_ptr = this);
+    ::qt_addObject(d_ptr->q_ptr = this);
     if (parent) {
         d->thread = parent->d_func()->thread;
     } else {
@@ -550,7 +550,7 @@ QObject::QObject(QObject *parent, const char *name)
     : d_ptr(new QObjectPrivate)
 {
     Q_D(QObject);
-    ::newObject(d_ptr->q_ptr = this);
+    ::qt_addObject(d_ptr->q_ptr = this);
     if (parent) {
         d->thread = parent->d_func()->thread;
     } else {
@@ -568,7 +568,7 @@ QObject::QObject(QObjectPrivate &dd, QObject *parent)
     : d_ptr(&dd)
 {
     Q_D(QObject);
-    ::newObject(d_ptr->q_ptr = this);
+    ::qt_addObject(d_ptr->q_ptr = this);
     if (parent) {
         d->thread = parent->d_func()->thread;
     } else {
@@ -643,7 +643,7 @@ QObject::~QObject()
     while (!d->children.isEmpty())                        // delete children objects
         delete d->children.takeFirst();
 
-    ::removeObject(this);
+    ::qt_removeObject(this);
     QCoreApplication::removePostedEvents(this);
 
     if (d->parent)                                // remove it from parent object
