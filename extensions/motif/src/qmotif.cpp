@@ -343,11 +343,8 @@ Boolean qmotif_event_dispatcher(XEvent *event)
 /*!
     \class QMotif
     \brief The QMotif class provides the basis of the Motif Extension.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
-    \extension Motif
+    \inmodule QtMotif
 
     QMotif only provides a few public functions, but it is at the
     heart of the integration. QMotif is responsible for initializing

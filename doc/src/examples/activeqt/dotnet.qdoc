@@ -1,17 +1,16 @@
 /*!
-    \page activeqt-dotnet.html
-    \ingroup qaxserver-examples
-    \title Walkthrough: Using Qt objects in Microsoft .NET
+    \example activeqt/dotnet
+    \title Dot Net Example (ActiveQt)
+
+    The Dot Net example demonstrates how Qt objects can be used in a
+    .NET environment, and how .NET objects can be used in a Qt
+    environment.
+
+    Contents:
 
     \tableofcontents
 
-    \section1 Introduction
-
-    In the following walkthrough we will show how Qt objects can be used
-    in a .NET environment, and how .NET objects can be used in a Qt
-    environment.
-
-    \section2 Qt vs .NET
+    \section1 Qt vs .NET
 
     Qt is a C++ library and is compiled into traditional, native
     binaries that make full use of the performance provided by the
@@ -78,7 +77,6 @@
     \endfootnote
     or \c {examples/dotnet/wrapper/wrapper.sln} into the IDE and run 
     the solution.
-
 
     \section1 Walkthrough: .NET interop with MC++ and IJW
 
@@ -318,4 +316,4 @@
     kicks in, ActiveQt becomes a valid choice for making even non-visual
     parts of your application accessible to .NET.
 
-*/
+*

@@ -115,9 +115,6 @@ static Qt::KeyboardModifiers translateModifierState(int s)
 
 /*  \class QAxHostWidget qaxwidget.cpp
     \brief The QAxHostWidget class is the actual container widget.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \internal
 */
@@ -157,9 +154,6 @@ private:
 
 /*  \class QAxClientSite qaxwidget.cpp
     \brief The QAxClientSite class implements the client site interfaces.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \internal
 */
@@ -1639,12 +1633,8 @@ void QAxHostWidget::paintEvent(QPaintEvent*)
 /*!
     \class QAxWidget qaxwidget.h
     \brief The QAxWidget class is a QWidget that wraps an ActiveX control.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
-    \extension ActiveQt
-    \module QAxContainer
+    \inmodule QAxContainer
 
     A QAxWidget can be instantiated as an empty object, with the name
     of the ActiveX control it should wrap, or with an existing

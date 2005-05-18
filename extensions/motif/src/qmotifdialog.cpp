@@ -162,11 +162,8 @@ public:
 /*!
     \class QMotifDialog
     \brief The QMotifDialog class provides the QDialog API for Motif-based dialogs.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
-    \extension Motif
+    \inmodule QtMotif
 
     QMotifDialog provides two separate modes of operation. The
     application programmer can use QMotifDialog with an existing

@@ -204,4 +204,27 @@
     \o \l{linguist/arrowpad}{Arrow Pad}\raisedaster
     \o \l{linguist/trollprint}{Troll Print}\raisedaster
     \endlist
+
+    \section1 ActiveQt Examples
+
+    \list
+    \o {activeqt/comapp}{COM App}
+    \o {activeqt/dotnet}{Dot Net}
+    \o {activeqt/hierarchy}{Hierarchy}
+    \o {activeqt/menus}{Menus}
+    \o {activeqt/multiple}{Multiple}
+    \o {activeqt/opengl}{OpenGL}
+    \o {activeqt/qutlook}{Qutlook}
+    \o {activeqt/simple}{Simple}
+    \o {activeqt/webbrowser}{Web Browser}
+    \o {activeqt/wrapper}{Wrapper}
+    \endlist
+
+    \section1 Motif Examples
+
+    \list
+    \o {motif/customwidget}{Custom Widget}
+    \o {motif/dialog}{Dialog}
+    \o {motif/walkthrough}{Walkthrough}
+    \endlist
 */

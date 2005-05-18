@@ -341,8 +341,11 @@ void InnerNode::removeChild( Node *child )
     and examine everything between "src/" and the filename.
     This is dirty because we are using hardcoded separators.
 */
-const QString Node::moduleName() const
+QString Node::moduleName() const
 {
+    if (!mod.isEmpty())
+        return mod;
+
     QString path = location().filePath();
     int start = path.lastIndexOf("src" + QDir::separator());
     if (start == -1)

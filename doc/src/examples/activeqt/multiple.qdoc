@@ -1,21 +1,17 @@
 /*! \page qaxserver-demo-multiple.html
-
     \title Two simple Qt widgets
 
     \input examples/activeqt/multiple-demo.qdocinc
 */
 
-/*! \page qaxserver-example-multiple.html
-    \ingroup qaxserver-examples
-    \title Two simple Qt widgets (in-process)
+/*! \example activeqt/multiple
+    \title Multiple Example (ActiveQt)
 
-
+    The Multiple example demonstrates the implementation of a
+    QAxFactory to provide multiple ActiveX controls in a single in
+    process ActiveX server using the \c QAXFACTORY_EXPORT() macro.
     The ActiveX controls in this example are simple QWidget
-    subclasses reimplementing the paintEvent() method.
-
-    It demonstrates the implementation of a QAxFactory to provide multiple
-    ActiveX controls in a single in process ActiveX server, and the use of
-    the QAXFACTORY_EXPORT macro.
+    subclasses that reimplement QWidget::paintEvent().
 
     \quotefile multiple/ax1.h
     \skipto class

@@ -6,19 +6,17 @@
     \input examples/activeqt/wrapper-demo.qdocinc
 */
 
-/*! \page qaxserver-example-wrapper.html
-    \ingroup qaxserver-examples
-    \title Standard Qt widgets as ActiveX controls (in-process)
+/*!
+    \example activeqt/wrapper
+    \title Wrapper Example (ActiveQt)
 
-    The ActiveX controls in this example are the standard button
-    classes QPushButton, QCheckBox and QRadioButton as provided by 
-    Qt.
+    The Wrapper example demonstrates how to export existing QWidget
+    classes as ActiveX controls, and the use of QAxFactory together
+    with the \c QAXFACTORY_EXPORT() macro. ActiveX controls in this
+    example are the standard button classes QPushButton, QCheckBox
+    and QRadioButton as provided by Qt.
 
-    It demonstrates how to export existing QWidget classes as ActiveX
-    controls, and the use of QAxFactory together with the QAXFACTORY_EXPORT
-    macro.
-
-    \quotefile wrapper/main.cpp 
+    \quotefile wrapper/main.cpp
     \skipto class
     \printuntil };
     The factory implementation returns the list of supported controls,
@@ -29,7 +27,7 @@
     The factory is exported using the QAXFACTORY_EXPORT macro.
 
     To build the example you must first build the \link qaxserver.html
-    QAxServer \endlink library. Then run qmake and your make tool in 
+    QAxServer \endlink library. Then run qmake and your make tool in
     \c examples/wrapper.
 
     The \link qaxserver-demo-wrapper.html demonstration \endlink requires your

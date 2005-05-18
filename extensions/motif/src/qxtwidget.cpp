@@ -122,11 +122,11 @@ static WidgetClass qWidgetClass = (WidgetClass)&qwidgetClassRec;
 
 
 /*!
-  \class QXtWidget qxt.h
+  \class QXtWidget
   \brief The QXtWidget class allows mixing of Xt/Motif and Qt widgets.
   \obsolete
 
-  \extension Motif
+  \inmodule QtMotif
 
   QXtWidget acts as a bridge between Xt and Qt. For utilizing old Xt
   widgets, it can be a QWidget based on a Xt widget class. For

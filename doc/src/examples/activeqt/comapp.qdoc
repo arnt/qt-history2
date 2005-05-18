@@ -1,13 +1,13 @@
-/*! \page qaxserver-example-comapp.html
-    \ingroup qaxserver-examples
-    \title Supporting COM in a Qt Application
+/*!
+    \example activeqt/comapp
+    \title COM App Example (ActiveQt)
 
-    This examples shows how to use ActiveQt to develop a Qt application
-    that can be automated via COM. Different QObject based classes are
-    exposed as COM object that communicate with the GUI of the running Qt 
-    application. The APIs of those COM objects has been designed to
-    resemble the APIs of standard COM applications, i.e. those from Microsoft
-    Office.
+    The COM App example shows how to use ActiveQt to develop a Qt
+    application that can be automated via COM. Different QObject
+    based classes are exposed as COM object that communicate with the
+    GUI of the running Qt  application. The APIs of those COM objects
+    has been designed to resemble the APIs of standard COM
+    applications, i.e. those from Microsoft Office.
 
     \quotefile comapp/main.cpp
     \skipto class Application :
@@ -44,7 +44,7 @@
     is deleted when the document is deleted.
 
     \printto Application::Application(
-    The \c DocumentList implementation is straight forward.
+    The \c DocumentList implementation is straightforward.
 
     \printuntil #include
     The \c Application class initializes the user interface in the constructor,
@@ -76,46 +76,46 @@
     a command button "NewDocument". Then implement the code of the form like this:
 
     \code
-    Private Application As comappLib.Application
-    Private MyApp As Boolean
+        Private Application As comappLib.Application
+        Private MyApp As Boolean
 
-    Private Sub UpdateList()
-        DocumentList.Clear
-        DocumentsCount.Caption = Application.documents.Count
-        For Index = 0 To Application.documents.Count - 1
-           DocumentList.AddItem (Application.documents.Item(Index).Title)
-        Next
-    End Sub
+        Private Sub UpdateList()
+            DocumentList.Clear
+            DocumentsCount.Caption = Application.documents.Count
+            For Index = 0 To Application.documents.Count - 1
+               DocumentList.AddItem (Application.documents.Item(Index).Title)
+            Next
+        End Sub
 
-    Private Sub Form_Load()
-        On Error GoTo CreateNew
-        Set Application = GetObject(, "comapp.Application")
-        MyApp = False
-        GoTo Initialized
-    CreateNew:
-        On Error GoTo InitializeFailed
-        Set Application = New Application
-        Application.Visible = True
-        MyApp = True
-    Initialized:
-        Caption = Application.id
-        UpdateList
-    InitializeFailed:
-    End Sub
+        Private Sub Form_Load()
+            On Error GoTo CreateNew
+            Set Application = GetObject(, "comapp.Application")
+            MyApp = False
+            GoTo Initialized
+        CreateNew:
+            On Error GoTo InitializeFailed
+            Set Application = New Application
+            Application.Visible = True
+            MyApp = True
+        Initialized:
+            Caption = Application.id
+            UpdateList
+        InitializeFailed:
+        End Sub
 
-    Private Sub Form_Unload(Cancel As Integer)
-        If MyApp Then
-            Application.quit
-        End If
-    End Sub
+        Private Sub Form_Unload(Cancel As Integer)
+            If MyApp Then
+                Application.quit
+            End If
+        End Sub
 
-    Private Sub NewDocument_Click()
-        Application.documents.addDocument
-        UpdateList
-    End Sub
+        Private Sub NewDocument_Click()
+            Application.documents.addDocument
+            UpdateList
+        End Sub
     \endcode
 
-    To build the example you must first build the \link qaxserver.html
-    QAxServer \endlink library. Then run qmake and your make tool in 
-    \c examples/comapp.
+    To build the example you must first build the QAxServer library.
+    Then run \c qmake and your make tool in
+    \c{examples\activeqt\comapp}.
 */

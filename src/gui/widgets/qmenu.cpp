@@ -984,7 +984,7 @@ QAction *QMenu::addSeparator()
     This convenience function inserts \a menu before action \a before
     and returns the menus menuAction().
 
-    \sa QWidget::insertAction() addMenu()
+    \sa QWidget::insertAction(), addMenu()
 */
 QAction *QMenu::insertMenu(QAction *before, QMenu *menu)
 {
@@ -999,7 +999,7 @@ QAction *QMenu::insertMenu(QAction *before, QMenu *menu)
     the newly created action into this menu's list of actions before
     action \a before and returns it.
 
-    \sa QWidget::insertAction() addSeparator()
+    \sa QWidget::insertAction(), addSeparator()
 */
 QAction *QMenu::insertSeparator(QAction *before)
 {

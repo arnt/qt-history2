@@ -19,12 +19,8 @@
 /*!
     \class QAxObject qaxobject.h
     \brief The QAxObject class provides a QObject that wraps a COM object.
-    \if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-    \endif
 
-    \module QAxContainer
-    \extension ActiveQt
+    \inmodule QAxContainer
 
     A QAxObject can be instantiated as an empty object, with the name
     of the COM object it should wrap, or with a pointer to the

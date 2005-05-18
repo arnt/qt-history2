@@ -1,70 +1,70 @@
 /*! \page qaxserver-demo-hierarchy.html
-
     \title Qt Widget Hierarchy
 
     \input examples/activeqt/hierarchy-demo.qdocinc
 */
 
-/*! \page qaxserver-example-hierarchy.html
-    \ingroup qaxserver-examples
-  \title Qt Widget Hierarchy (in-process)
+/*!
+    \example activeqt/hierarchy
+    \title Hierarchy Example (ActiveQt)
 
-  The ActiveX control in this example is a QWidget
-  subclass with child widgets that are accessible as sub types.
+    The Hierarchy example is shows how to write an in-process ActiveX
+    control. The control is a QWidget subclass with child widgets
+    that are accessible as sub-types.
 
-  \quotefile hierarchy/objects.h
-  \skipto class QParentWidget
-  \printuntil };
-  The \c QParentWidget class provides slots to create a widget
-  with a name, and to return a pointer to a named widget. The class
-  declaration uses \c Q_CLASSINFO to provide the COM identifiers for
-  this class.
+    \quotefile hierarchy/objects.h
+    \skipto class QParentWidget
+    \printuntil };
+    The \c QParentWidget class provides slots to create a widget
+    with a name, and to return a pointer to a named widget. The class
+    declaration uses \c Q_CLASSINFO to provide the COM identifiers for
+    this class.
 
-  \quotefile hierarchy/objects.cpp
-  \skipto QParentWidget::QParentWidget
-  \printto ::createSubWidget
-  The constructor of QParentWidget creates a vertical box layout.
-  New child widgets are automatically added to the layout.
+    \quotefile hierarchy/objects.cpp
+    \skipto QParentWidget::QParentWidget
+    \printto ::createSubWidget
+    The constructor of QParentWidget creates a vertical box layout.
+    New child widgets are automatically added to the layout.
 
-  \printto ::subWidget
-  The \c createSubWidget slot creates a new \c QSubWidget with
-  the name provided in the parameter, and sets the label to that
-  name. The widget is also shown explicitly.
+    \printto ::subWidget
+    The \c createSubWidget slot creates a new \c QSubWidget with
+    the name provided in the parameter, and sets the label to that
+    name. The widget is also shown explicitly.
 
-  \printto ::sizeHint
-  The \c subWidget slot uses the \c QObject::child() function and
-  returns the first child of type \c QSubWidget that has the requested
-  name.
+    \printto ::sizeHint
+    The \c subWidget slot uses the \c QObject::child() function and
+    returns the first child of type \c QSubWidget that has the requested
+    name.
 
-  \quotefile hierarchy/objects.h
-  \skipto class QSubWidget :
-   \printuntil };
-  The \c QSubWidget class has a single string-property \c label,
-  and implements the paintEvent to draw the label. The class uses
-  again \c Q_CLASSINFO to provide the COM identifiers, and also sets
-  the \e ToSuperClass attribute to \e QSubWidget, to ensure that only
-  no slots of any superclasses (i.e. QWidget) are exposed.
+    \quotefile hierarchy/objects.h
+    \skipto class QSubWidget :
+     \printuntil };
+    The \c QSubWidget class has a single string-property \c label,
+    and implements the paintEvent to draw the label. The class uses
+    again \c Q_CLASSINFO to provide the COM identifiers, and also sets
+    the \e ToSuperClass attribute to \e QSubWidget, to ensure that only
+    no slots of any superclasses (i.e. QWidget) are exposed.
 
-  \quotefile hierarchy/objects.cpp
-  \skipto QSubWidget::QSubWidget
-  \printuntil .drawText
-  \printuntil }
-  The implementation of the QSubWidget class is self-explanatory.
+    \quotefile hierarchy/objects.cpp
+    \skipto QSubWidget::QSubWidget
+    \printuntil .drawText
+    \printuntil }
+    The implementation of the QSubWidget class is self-explanatory.
 
-  \quotefile hierarchy/main.cpp
-  \skipto #include
-  \printuntil QAXFACTORY_END
-  The classes are then exported using a QAxFactory. \c QParentWidget is
-  exported as a full class (which can be created ), while \c QSubWidget is
-  only exported as a type, which can only be created indirectly through
-  APIs of \c QParentWidget.
+    \quotefile hierarchy/main.cpp
+    \skipto #include
+    \printuntil QAXFACTORY_END
+    The classes are then exported using a QAxFactory. \c QParentWidget is
+    exported as a full class (which can be created ), while \c QSubWidget is
+    only exported as a type, which can only be created indirectly through
+    APIs of \c QParentWidget.
 
-  To build the example you must first build the \link qaxserver.html
-  QAxServer \endlink library. Then run qmake and your make tool in 
-  \c examples/multiple.
+    To build the example you must first build the \link qaxserver.html
+    QAxServer \endlink library. Then run qmake and your make tool in
+    \c examples/multiple.
 
-  The \link qaxserver-demo-hierarchy.html demonstration \endlink requires your
-  WebBrowser to support ActiveX controls, and scripting to be enabled.
+    The \link qaxserver-demo-hierarchy.html demonstration \endlink requires your
+    WebBrowser to support ActiveX controls, and scripting to be enabled.
 
     \quotefromfile examples/activeqt/hierarchy-demo.qdocinc
     \skipto <script

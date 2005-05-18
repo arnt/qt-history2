@@ -62,14 +62,7 @@ static const int motifCheckMarkSpace    = 12;
   This class implements the Motif look and feel. It closely
   resembles the original Motif look as defined by the Open Group,
   but with some minor improvements. The Motif style is Qt's default
-  GUI style on UNIX platforms.
-
-  Most of the functions are documented in the base classes,
-  QCommonStyle} and QStyle, but the functions overloaded by
-  QMotifStyle, drawComplexControl(), drawControl(), drawPrimitive(),
-  subControlRect(), setUseHighlightColors(),
-  sizeFromContents(), subElementRect(), and useHighlightColors(), are
-  documented here.
+  GUI style on Unix platforms.
 
   \img qmotifstyle.png
   \sa QWindowsXPStyle, QMacStyle, QWindowsStyle, QPlastiqueStyle, QCDEStyle

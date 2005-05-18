@@ -159,9 +159,6 @@ static const char *const type_conversion[][2] =
 
     \brief The QAxEventSink class implements the event sink for all
 	   IConnectionPoints implemented in the COM object.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 */
 
 class QAxEventSink : public IDispatch, public IPropertyNotifySink
@@ -598,16 +595,11 @@ QByteArray QAxEventSink::findProperty(DISPID dispID)
 }
 
 /*!
-    \class QAxBase qaxbase.h
-
+    \class QAxBase
     \brief The QAxBase class is an abstract class that provides an API
     to initalize and access a COM object.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
-    \module QAxContainer
-    \extension ActiveQt
+    \inmodule QAxContainer
 
     QAxBase is an abstract class that cannot be used directly, and is
     instantiated through the subclasses QAxObject and QAxWidget. This

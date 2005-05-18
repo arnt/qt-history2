@@ -231,7 +231,7 @@
 
     \list
     \o subControlRect() and subElementRect() return rectangles in screen coordinates
-    \o \c{QStyleOption::direction} indicates in which direction the item should be drawn in
+    \o QStyleOption::direction indicates in which direction the item should be drawn in
     \o If a style is not right-to-left aware it will display items as if it were left-to-right
     \o visualRect(), visualPos(), and visualAlignment() are helpful functions that will
        translate from logical to screen representations.

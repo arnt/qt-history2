@@ -5,21 +5,19 @@
     \input examples/activeqt/opengl-demo.qdocinc
 */
 
-/*! \page qaxserver-example-opengl.html
-    \ingroup qaxserver-examples
-    \title Qt's OpenGL widgets as an ActiveX (executable)
+/*!
+    \example activeqt/opengl
+    \title OpenGL Example (ActiveQt)
 
+    The OpenGL example demonstrates the use of the default factory
+    and  QAxFactory::isServer(), and the implementation of an
+    additional COM interface using QAxBindable and QAxAggregated.
+    The server executable  can run both as an ActiveX server and as a
+    stand-alone application.
 
     The ActiveX control in this example uses the QGlWidget class in
     Qt to render an OpenGL scene in an ActiveX. The control exposes a few
-    methods to change the scene. The example is based on the 
-    \link opengl-box-example.html "box" example \endlink from the standard 
-    Qt distribution.
-
-    The example demonstrates the use of the default factory and 
-    QAxFactory::isServer(), and the implementation of an additional COM 
-    interface using QAxBindable and QAxAggregated. The server executable 
-    can run both as an ActiveX server and as a stand alone application.
+    methods to change the scene.
 
     \quotefile opengl/main.cpp
     \skipto <qaxfactory.h>

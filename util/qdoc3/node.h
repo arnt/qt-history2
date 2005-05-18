@@ -26,7 +26,7 @@ public:
     enum ThreadSafeness { UnspecifiedSafeness, NonReentrant, Reentrant, ThreadSafe };
     enum LinkType { StartLink, NextLink, PreviousLink,
                     ContentsLink, IndexLink /*, GlossaryLink, CopyrightLink,
-                    ChapterLink, SectionLink, SubsectionLink, AppendixLink*/ };
+                    ChapterLink, SectionLink, SubsectionLink, AppendixLink */ };
 
     virtual ~Node();
 
@@ -36,6 +36,7 @@ public:
     void setStatus( Status status ) { sta = status; }
     void setThreadSafeness(ThreadSafeness safeness) { saf = safeness; }
     void setRelates(InnerNode *pseudoParent);
+    void setModuleName(const QString &module) { mod = module; }
     void setLink(LinkType linkType, const QString &link, const QString &desc);
 
     virtual bool isInnerNode() const = 0;
@@ -44,7 +45,7 @@ public:
     InnerNode *relates() const { return rel; }
     const QString& name() const { return nam; }
     QMap<LinkType, QPair<QString,QString> > links() const { return linkMap; }
-    const QString moduleName() const;
+    QString moduleName() const;
 
     Access access() const { return acc; }
     const Location& location() const { return loc; }
@@ -56,11 +57,8 @@ public:
 
     void clearRelated() { rel = 0; }
 
-    
-
 protected:
     Node( Type type, InnerNode *parent, const QString& name );
-    
 
 private:
 #ifdef Q_WS_WIN
@@ -74,12 +72,13 @@ private:
     Status sta : 3;
     ThreadSafeness saf : 2;
 #endif
-    InnerNode *par;    
+    InnerNode *par;
     InnerNode *rel;
     QString nam;
     Location loc;
-    Doc d;    
+    Doc d;
     QMap<LinkType, QPair<QString, QString> > linkMap;
+    QString mod;
 };
 
 class FunctionNode;

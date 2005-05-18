@@ -6,14 +6,14 @@
     \nextpage motif-walkthrough-1.html Getting Started
 
     This walkthrough covers a complete migration of a Motif based program
-    to the Qt toolkit using the \e {Qt Motif Extension}.
+    to the Qt toolkit using the Qt Motif extension.
 
     It is rarely practical for a large project with hundreds of thousands
     or even millions of lines of code to be migrated all at once; such an
     endeavor would require too many development resources and would incur
     significant risks. Every line of code would have to be rewritten,
     every user interface redesigned, and quality assurance tests and
-    procedures all rewritten. The \e {Qt Motif Extension} provides a
+    procedures all rewritten. The Qt Motif extension provides a
     complete and working solution for incremental migration that can be
     paced to suit each individual project and the available resources. The
     user interface and related code can be migrated in steps while the
@@ -57,20 +57,20 @@
 
     \section1 Prerequisites
 
-    Before we can start using the \e {Qt Motif Extension}, we must satisfy
+    Before we can start using the Qt Motif extension, we must satisfy
     these requirements:
 
     \list 1
     \o We are using the X11R6.x and Motif 2.x libraries.
     \o The project is compilable by a C++ compiler.
-    \o We have built and installed the \e {Qt Motif Extension}.
-    \o We have built and linked the project with the Qt toolkit and the \e
-    {Qt Motif Extension}
+    \o We have built and installed the Qt Motif extension.
+    \o We have built and linked the project with the Qt toolkit and the
+    Qt Motif extension.
     \endlist
 
     \section2 X11R6.x and Motif 2.x Libraries
 
-    The mechanisms used by the \e {Qt Motif Extension} require development
+    The mechanisms used by the Qt Motif extension require development
     headers and libraries from the X11R6 release and the Motif 2.0
     release. Newer versions of these can also be used.
 
@@ -89,7 +89,7 @@
 
     \section2 Build and Install the Qt Motif Extension
 
-    The \e {Qt Motif Extension} is not built and installed along with the
+    The Qt Motif extension is not built and installed along with the
     Qt toolkit. The extension resides in the \c extensions/motif
     subdirectory. Run \e make in this directory to build the extension
     and the examples. Once the extension has been built, run \e {make
@@ -101,7 +101,7 @@
         $ make install
     \endcode
 
-    The \e {Qt Motif Extension} is now installed and ready to use.
+    The Qt Motif extension is now installed and ready to use.
 
     \section2 Build and Link the Project with the Qt Toolkit and the Qt Motif Extension
 
@@ -120,7 +120,7 @@
     Everything builds correctly, but fails to link because we don't link
     with the Motif library. We tell \e qmake to do this by adding the \c
     -lXm to the \c LIBS variable in our project file. Since we are
-    planning to use the \e {Qt Motif Extension} in this project as well,
+    planning to use the Qt Motif extension in this project as well,
     we should also add \c -lqmotif to the list of libraries.
 
     \code
@@ -131,7 +131,7 @@
     rebuild using \c make. This time, our project successfully links, and
     the application runs as expected.
 
-    We are now ready to start using the \e {Qt Motif Extension}.
+    We are now ready to start using the Qt Motif extension.
 */
 
 /*!
@@ -147,7 +147,7 @@
     To be able to use Qt, we need to create a QApplication object. The
     QApplication class controls all the event delivery and display
     management for all other Qt objects and widgets. We need to use the
-    QMotif class from the \e {Qt Motif Extension} to allow QApplication
+    QMotif class from the Qt Motif extension to allow QApplication
     and the \c XtAppContext to coexist.
 
     The QApplication object must be created in the \c main() function.
@@ -169,7 +169,7 @@
     \printuntil QApplication
 
     The next change is not yet necessary, but it is included to show that
-    the \e {Qt Motif Extension} provides a complete integration.
+    the Qt Motif extension provides a complete integration.
     Normally, a Motif based program would use the \c XtAppMainLoop()
     function to run the application's event loop. This is still possible,
     but since we are migrating to the Qt toolkit, we prefer to use the
@@ -1500,8 +1500,8 @@
     Qt provides many \l{Input/Output and Networking}{input and output}
     classes. We can use these in \c MainWindow::readDB() and
     \c MainWindow::saveDB().
-    Currently, these functions use functions only found on UNIX machines.
-    Using QFile and QTextStream removes this dependency on UNIX, and we can
+    Currently, these functions use functions only found on Unix machines.
+    Using QFile and QTextStream removes this dependency on Unix, and we can
     begin building and testing our application on Microsoft Windows and
     Apple Mac OS X.
 

@@ -17,8 +17,8 @@
     \title Qt's Classes
 
     For a shorter list that only includes the most frequently used
-    classes, see \link mainclasses.html Qt's Main Classes \endlink.
-    For a list of Qt 3 support classes, see \l{The Qt 3 Support Classes}.
+    classes, see \l{Qt's Main Classes}. For a list of Qt 3 support
+    classes, see \l{The Qt 3 Support Classes}.
 
     \generatelist classes
 */
@@ -27,15 +27,18 @@
     \page modules.html
     \title Qt Classes by Module
     \startpage index.html Qt Reference Documentation
-    \nextpage qtcore.html QtCore Classes
+    \nextpage QtCore Classes
 
     \table
-    \row \i \l{qtcore.html}{QtCore} \i Core classes used by other modules.
-    \row \i \l{qtgui.html}{QtGui} \i Graphical User Interface components
-    \row \i \l{qtnetwork.html}{QtNetwork} \i Classes for network programming.
-    \row \i \l{qtopengl.html}{QtOpenGL} \i OpenGL support classes.
-    \row \i \l{qtsql.html}{QtSql} \i Classes for database integration using SQL.
-    \row \i \l{qtxml.html}{QtXml} \i Classes for handling XML.
+    \row \i \l{QtCore} \i Core classes used by other modules.
+    \row \i \l{QtGui} \i Graphical User Interface components
+    \row \i \l{QtNetwork} \i Classes for network programming.
+    \row \i \l{QtOpenGL} \i OpenGL support classes.
+    \row \i \l{QtSql} \i Classes for database integration using SQL.
+    \row \i \l{QtXml} \i Classes for handling XML.
+    \row \i \l{QAxContainer} \i Extension for accessing ActiveX controls.
+    \row \i \l{QAxServer} \i Extension for writing ActiveX servers.
+    \row \i \l{QtMotif} \i Extension for migrating Motif applications to Qt.
     \endtable
 
     For a list of Qt 3 support classes, see \l{The Qt 3 Support Classes}.
@@ -44,9 +47,9 @@
 /*!
     \page qtcore.html
     \title QtCore Classes
-    \contentspage modules.html Qt Classes by Module
-    \previouspage modules.html Qt Classes by Module
-    \nextpage qtgui.html QtGui Classes
+    \contentspage Qt Classes by Module
+    \previouspage Qt Classes by Module
+    \nextpage QtGui Classes
 
     \keyword QtCore
 
@@ -56,9 +59,9 @@
 /*!
     \page qtgui.html
     \title QtGui Classes
-    \contentspage modules.html Qt Classes by Module
-    \previouspage qtcore.html QtCore Classes
-    \nextpage qtnetwork.html QtNetwork Classes
+    \contentspage Qt Classes by Module
+    \previouspage QtCore Classes
+    \nextpage QtNetwork Classes
 
     \keyword QtGui
 
@@ -68,46 +71,96 @@
 /*!
     \page qtnetwork.html
     \title QtNetwork Classes
-    \contentspage modules.html Qt Classes by Module
-    \previouspage qtgui.html QtGui Classes
-    \nextpage qtopengl.html QtOpenGL Classes
+    \contentspage Qt Classes by Module
+    \previouspage QtGui Classes
+    \nextpage QtOpenGL Classes
 
     \keyword QtNetwork
 
     \generatelist {classesbymodule QtNetwork}
+
+    \sa {Network Module}
 */
 
 /*!
     \page qtopengl.html
     \title QtOpenGL Classes
-    \contentspage modules.html Qt Classes by Module
-    \previouspage qtnetwork.html QtNetwork Classes
-    \nextpage qtsql.html QtSql Classes
+    \contentspage Qt Classes by Module
+    \previouspage QtNetwork Classes
+    \nextpage QtSql Classes
 
     \keyword QtOpenGL
 
     \generatelist {classesbymodule QtOpenGL}
+
+    \sa {OpenGL Module}
 */
 
 /*!
     \page qtsql.html
     \title QtSql Classes
-    \contentspage modules.html Qt Classes by Module
-    \previouspage qtopengl.html QtOpenGL Classes
-    \nextpage qtxml.html QtXml Classes
+    \contentspage Qt Classes by Module
+    \previouspage QtOpenGL Classes
+    \nextpage QtXml Classes
 
     \keyword QtSql
 
     \generatelist {classesbymodule QtSql}
+
+    \sa {SQL Module}
 */
 
 /*!
     \page qtxml.html
     \title QtXml Classes
-    \contentspage modules.html Qt Classes by Module
-    \previouspage qtsql.html QtSql Classes
+    \contentspage Qt Classes by Module
+    \previouspage QtSql Classes
+    \nextpage QAxContainer Classes
 
     \keyword QtXml
 
     \generatelist {classesbymodule QtXml}
+
+    \sa {XML Module}
+*/
+
+/*!
+    \page qaxcontainer.html
+    \title QAxContainer Classes
+    \contentspage Qt Classes by Module
+    \previouspage QtXml Classes
+    \nextpage QAxServer Classes
+
+    \keyword QAxContainer
+
+    \generatelist {classesbymodule QAxContainer}
+
+    \sa {ActiveQt Framework}
+*/
+
+/*!
+    \page qaxserver.html
+    \title QAxServer Classes
+    \contentspage Qt Classes by Module
+    \previouspage QAxContainer Classes
+    \nextpage QtMotif Classes
+
+    \keyword QAxServer
+
+    \generatelist {classesbymodule QAxServer}
+
+    \sa {ActiveQt Framework}
+*/
+
+/*!
+    \page qtmotif.html
+    \title QtMotif Classes
+    \contentspage Qt Classes by Module
+    \previouspage QAxServer Classes
+
+    \keyword QtMotif
+
+    \generatelist {classesbymodule QtMotif}
+
+    \sa {Qt Motif Extension}
 */

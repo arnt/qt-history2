@@ -84,9 +84,6 @@ void QAxBindable::reportError(int code, const QString &src, const QString &desc,
 /*
     \class QAxServerBase qaxserverbase.cpp
     \brief The QAxServerBase class is an ActiveX control hosting a QWidget.
-\if defined(commercial_edition)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \internal
 */

@@ -336,8 +336,7 @@ HRESULT WINAPI QAxScriptSite::EnableModeless(BOOL fEnable)
 /*!
     \class QAxScriptEngine
     \brief The QAxScriptEngine class provides a wrapper around a script engine.
-    \module QAxContainer
-    \extension ActiveQt
+    \inmodule QAxContainer
 
     Every instance of the QAxScriptEngine class represents an interpreter
     for script code in a particular scripting language. The class is usually
@@ -570,8 +569,7 @@ void QAxScriptEngine::addItem(const QString &name)
 /*!
     \class QAxScript qaxscript.h
     \brief The QAxScript class provides a wrapper around script code.
-    \module QAxContainer
-    \extension ActiveQt
+    \inmodule QAxContainer
 
     Every instance of the QAxScript class represents a piece of
     scripting code in a particular scripting language. The code is
@@ -841,8 +839,7 @@ QAxBase *QAxScript::findObject(const QString &name)
     \class QAxScriptManager qaxscript.h
     \brief The QAxScriptManager class provides a bridge between application objects
     and script code.
-    \module QAxContainer
-    \extension ActiveQt
+    \inmodule QAxContainer
 
     The QAxScriptManager acts as a bridge between the COM objects embedded 
     in the Qt application through QAxObject or QAxWidget, and the scripting 

@@ -19,15 +19,11 @@
 #include "../shared/qaxtypes.h"
 
 /*!
-    \class QAxBindable qaxbindable.h
+    \class QAxBindable
     \brief The QAxBindable class provides an interface between a
     QWidget and an ActiveX client.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
-    \module QAxServer
-    \extension ActiveQt
+    \inmodule QAxServer
 
     The functions provided by this class allow an ActiveX control to
     communicate property changes to a client application. Inherit
@@ -37,17 +33,18 @@
     QWidget \e first.
 
     \code
-    class MyActiveX : public QWidget, public QAxBindable
-    {
-        Q_OBJECT
-        Q_PROPERTY(int value READ value WRITE setValue)
-    public:
-        MyActiveX(QWidget *parent = 0, const char *name = 0);
-        ...
+        class MyActiveX : public QWidget, public QAxBindable
+        {
+            Q_OBJECT
+            Q_PROPERTY(int value READ value WRITE setValue)
 
-        int value() const;
-        void setValue(int);
-    };
+        public:
+            MyActiveX(QWidget *parent = 0);
+            ...
+
+            int value() const;
+            void setValue(int);
+        };
     \endcode
 
     When implementing the property write function, use
@@ -88,15 +85,15 @@ QAxBindable::~QAxBindable()
     property, and writing is abandoned if the function returns false.
 
     \code
-    void MyActiveQt::setText(const QString &text)
-    {
-        if (!requestPropertyChange("text"))
-            return;
+        void MyActiveQt::setText(const QString &text)
+        {
+            if (!requestPropertyChange("text"))
+                return;
 
-        // update property
+            // update property
 
-        propertyChanged("text");
-    }
+            propertyChanged("text");
+        }
     \endcode
 
     \sa propertyChanged()
@@ -168,26 +165,22 @@ QAxAggregated *QAxBindable::createAggregate()
 */
 
 /*!
-    \class QAxAggregated qaxaggregated.h
+    \class QAxAggregated
     \brief The QAxAggregated class is an abstract base class for implementations of
     additional COM interfaces.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
-    \module QAxServer
-    \extension ActiveQt
+    \inmodule QAxServer
 
     Create a subclass of QAxAggregated and reimplement
     queryInterface() to support additional COM interfaces. Use
     multiple inheritance from those COM interfaces. Implement the
-    IUnknown interface of those COM interfaces by delegating the calls
-    to QueryInterface(), AddRef() and Release() to the interface
-    provided by controllingUnknown().
+    IUnknown interface of those COM interfaces by delegating the
+    calls to \c QueryInterface(), \c AddRef() and \c Release() to the
+    interface provided by controllingUnknown().
 
     Use the widget() method if you need to make calls to the QWidget
     implementing the ActiveX control. You must not store that pointer
-    in your subclass (unless you use QGuardedPtr), as the QWidget can
+    in your subclass (unless you use QPointer), as the QWidget can
     be destroyed by the ActiveQt framework at any time.
 */
 
@@ -206,17 +199,17 @@ QAxAggregated *QAxBindable::createAggregate()
     this pointer to the appropriate superclass.
 
     \code
-    long AxImpl::queryInterface(const QUuid &iid, void **iface)
-    {
-        *iface = 0;
-        if (iid == IID_ISomeCOMInterface)
-            *iface = (ISomeCOMInterface*)this;
-        else
-            return E_NOINTERFACE;
+        long AxImpl::queryInterface(const QUuid &iid, void **iface)
+        {
+            *iface = 0;
+            if (iid == IID_ISomeCOMInterface)
+                *iface = (ISomeCOMInterface*)this;
+            else
+                return E_NOINTERFACE;
 
-        AddRef();
-        return S_OK;
-    }
+            AddRef();
+            return S_OK;
+        }
     \endcode
 
     Return the standard COM results S_OK (interface is supported) or
@@ -237,20 +230,20 @@ QAxAggregated *QAxBindable::createAggregate()
     provided by this function.
 
     \code
-    HRESULT AxImpl::QueryInterface(REFIID iid, void **iface)
-    {
-        return controllingUnknown()->QueryInterface(iid, iface);
-    }
+        HRESULT AxImpl::QueryInterface(REFIID iid, void **iface)
+        {
+            return controllingUnknown()->QueryInterface(iid, iface);
+        }
 
-    unsigned long AxImpl::AddRef()
-    {
-        return controllingUnknown()->AddRef();
-    }
+        unsigned long AxImpl::AddRef()
+        {
+            return controllingUnknown()->AddRef();
+        }
 
-    unsigned long AxImpl::Release()
-    {
-        return controllingUnknown()->Release();
-    }
+        unsigned long AxImpl::Release()
+        {
+            return controllingUnknown()->Release();
+        }
     \endcode
 
     The QAXAGG_IUNKNOWN macro expands to the code above, and you can
@@ -265,7 +258,7 @@ QAxAggregated *QAxBindable::createAggregate()
 
     \warning
     You must not store the returned pointer, unless you use a
-    QGuardedPtr, since the QObject can be destroyed by ActiveQt at any
+    QPointer, since the QObject can be destroyed by ActiveQt at any
     time.
 */
 
@@ -277,6 +270,6 @@ QAxAggregated *QAxBindable::createAggregate()
 
     \warning
     You must not store the returned pointer, unless you use a
-    QGuardedPtr, since the QWidget can be destroyed by ActiveQt at any
+    QPointer, since the QWidget can be destroyed by ActiveQt at any
     time.
 */

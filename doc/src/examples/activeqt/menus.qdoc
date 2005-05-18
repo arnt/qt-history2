@@ -15,14 +15,11 @@
 */
 
 /*!
-    \page qaxserver-example-menus.html
-    \ingroup qaxserver-examples
-    \preliminary
+    \example activeqt/menus
+    \title Menus Example (ActiveQt)
 
-    \title Menubar Merging
-
-    This example demonstrates the use of QMenuBar and QStatusBar in
-    a QMainWindow to implement an in-place active control.
+    The Menus example demonstrates the use of QMenuBar and QStatusBar
+    in a QMainWindow to implement an in-place active control.
 
     To build the example you must first build the \link qaxserver.html
     QAxServer \endlink library. Then run qmake and your make tool in 

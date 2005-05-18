@@ -102,7 +102,7 @@ void CodeParser::processCommonMetaCommand(const Location &location, const QStrin
     } else if ( command == COMMAND_INGROUP ) {
 	tree->addToGroup(node, arg);
     } else if ( command == COMMAND_INMODULE ) {
-	/* ... */
+	node->setModuleName(arg);
     } else if (command == COMMAND_MAINCLASS) {
 	node->setStatus(Node::Main);
     } else if ( command == COMMAND_OBSOLETE ) {

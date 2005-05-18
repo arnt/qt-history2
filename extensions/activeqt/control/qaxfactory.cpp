@@ -24,14 +24,10 @@
 /*!
     \class QAxFactoryInterface qaxfactory.h
     \brief The QAxFactoryInterface class is an interface for the creation of COM components.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
     \internal
 
-    \module QAxServer
-    \extension ActiveQt
+    \inmodule QAxServer
 
     Implement this interface once in your ActiveX server to provide
     information about the components the server can create. The
@@ -61,12 +57,8 @@
 /*!
     \class QAxFactory qaxfactory.h
     \brief The QAxFactory class defines a factory for the creation of COM components.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
-    \module QAxServer
-    \extension ActiveQt
+    \inmodule QAxServer
     \keyword QAXFACTORY_DEFAULT
     \keyword QAXFACTORY_EXPORT
     \keyword QAXFACTORY_BEGIN

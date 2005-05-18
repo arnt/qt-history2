@@ -8,15 +8,15 @@ Edition \endlink and is \e not part of the Qt Open Source Edition.
 
 \section1 Introduction
 
-The Qt Motif Extension assists the migration of old Xt and Motif based
+The Qt Motif extension assists the migration of old Xt and Motif based
 applications to the more comfortable Qt toolkit.  This extension
 replaces the older Xt/Motif Support Extension included with earlier
 versions of Qt.
 
-The Qt Motif Extension consists of the following classes:
+The Qt Motif extension consists of the following classes:
 
 \list
-\i \l QMotif - Provides the basis of the Qt Motif Extension.
+\i \l QMotif - Provides the basis of the Qt Motif extension.
 \i \l QMotifWidget - Provides the QWidget API for Motif widgets.
 \i \l QMotifDialog - Provides the QDialog API for Motif dialogs.
 \i \l QXtWidget - The Xt/Motif integration widget from the previous

@@ -264,11 +264,8 @@ public:
 /*!
     \class QMotifWidget
     \brief The QMotifWidget class provides the QWidget API for Xt/Motif widgets.
-\if defined(commercial)
-    It is part of the <a href="commercialeditions.html">Qt Enterprise Edition</a>.
-\endif
 
-    \extension Motif
+    \inmodule QtMotif
 
     QMotifWidget exists to provide a QWidget that can act as a parent
     for any Xt/Motif widget. Since the QMotifWidget is a proper

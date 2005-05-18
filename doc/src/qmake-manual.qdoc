@@ -1139,7 +1139,7 @@
     header file, to increase the compilation speed of a project.
     Precompiled headers are currently only supported on some platforms
     (Windows - all MSVC project types, Mac OS X - Xcode, Makefile,
-    UNIX - gcc 3.3 and up).
+    Unix - gcc 3.3 and up).
 
     On other platforms, this variable has different meaning, as noted
     below.
@@ -2311,7 +2311,7 @@
     \target INSTALLS
     \section1 INSTALLS
 
-    It is common on UNIX to be able to install from the same utility as
+    It is common on Unix to be able to install from the same utility as
     you build with (e.g make install). For this \c qmake has introduce the
     concept of an install set. The notation for this is quite simple,
     first you fill in an "object" in qmake for example:
@@ -2458,7 +2458,7 @@
     \c qmake often tries to be all things to all build tools, this is often less
     than ideal when you really need to run special platform dependent
     commands. This can be achieved with specific instructions to the different
-    \c qmake backends (currently this is only supported by the UNIX
+    \c qmake backends (currently this is only supported by the Unix
     \l{qmake Variable Reference#MAKEFILE_GENERATOR}{generator}).
 
     The interfaces to customizing the Makefile are done through "objects" as in
@@ -2492,7 +2492,7 @@
     include your Makefile target in the list of
     \l{qmake Variable Reference#PRE_TARGETDEPS}{PRE_TARGETDEPS}.
 
-    For convenience there is also a method of customizing (UNIX) projects
+    For convenience there is also a method of customizing (Unix) projects
     for generic new compilers (or even preprocessors).
 
     \code
