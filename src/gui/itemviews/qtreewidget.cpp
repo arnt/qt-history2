@@ -914,8 +914,7 @@ void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
 */
 
 /*!
-  \internal
-  Constructs a tree widget item. The item must be inserted into a tree view.
+  Constructs a tree widget item. The item must be inserted into a tree widget.
 
 */
 

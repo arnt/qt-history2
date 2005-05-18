@@ -28,6 +28,7 @@ class Q_GUI_EXPORT QTreeWidgetItem
     friend class QTreeWidget;
 public:
     enum { Type = 0, UserType = 1000 };
+    QTreeWidgetItem(int type = Type);
     explicit QTreeWidgetItem(QTreeWidget *view, int type = Type);
     QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int type = Type);
     explicit QTreeWidgetItem(QTreeWidgetItem *parent, int type = Type);
@@ -110,7 +111,6 @@ public:
     inline int type() const { return rtti; }
 
 private:
-    QTreeWidgetItem(int type = Type);
     void sortChildren(int column, Qt::SortOrder order, bool climb);
     QVariant childrenCheckState(int column) const;
 
