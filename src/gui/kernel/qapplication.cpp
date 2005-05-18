@@ -1969,6 +1969,11 @@ void QApplicationPrivate::dispatchEnterLeave(QWidget* enter, QWidget* leave) {
     }
 }
 
+/* exported for the benefit of testing tools */
+Q_GUI_EXPORT bool qt_tryModalHelper(QWidget *widget, QWidget **rettop)
+{
+    return QApplicationPrivate::tryModalHelper(widget, rettop);
+}
 
 /*!\internal
 
