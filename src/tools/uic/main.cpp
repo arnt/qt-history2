@@ -33,7 +33,7 @@ void showHelp(const char *appName)
             "  -o <file>                 place the output into <file>\n"
             "  -tr <func>                use func() for i18n\n"
             "  -p, -no-protection        disable header protection\n"
-            "\n");
+            "\n", appName);
 }
 
 int main(int argc, char *argv[])
