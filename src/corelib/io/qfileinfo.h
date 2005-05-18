@@ -125,8 +125,10 @@ public:
     }
     QT3_SUPPORT QDir dir(bool absPath) const;
     inline QT3_SUPPORT bool convertToAbs() { return makeAbsolute(); }
+#if !defined(Q_NO_TYPESAFE_FLAGS)
     inline QT3_SUPPORT bool permission(PermissionSpec permissions) const
     { return permission(QFile::Permissions((int)permissions)); }
+#endif
 #endif
 
 protected:
