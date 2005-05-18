@@ -695,7 +695,10 @@ void QTextHtmlParser::parse() {
                     while (pos < len && txt.at(pos).isSpace()
                            && txt.at(pos) != QChar::Nbsp)
                         pos++;
-                    c = QLatin1Char(' ');
+                    if (wsm == QTextHtmlParserNode::WhiteSpaceNoWrap)
+                        c = QChar::Nbsp;
+                    else
+                        c = QLatin1Char(' ');
                 }
             }
             nodes.last().text += c;
