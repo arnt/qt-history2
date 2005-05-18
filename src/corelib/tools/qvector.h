@@ -153,8 +153,8 @@ public:
     QVector &operator+=(const QVector &l);
     inline QVector operator+(const QVector &l) const
     { QVector n = *this; n += l; return n; }
-    inline void operator+=(const T &t)
-    { append(t); }
+    inline QVector &operator+=(const T &t)
+    { append(t); return *this; }
     inline QVector &operator<< (const T &t)
     { append(t); return *this; }
     inline QVector &operator<<(const QVector &l)

@@ -189,7 +189,7 @@ public:
     // comfort
     QLinkedList &operator+=(const QLinkedList &l);
     QLinkedList operator+(const QLinkedList &l) const;
-    inline void operator+=(const T &t) { append(t); }
+    inline QLinkedList &operator+=(const T &t) { append(t); return *this; }
     inline QLinkedList &operator<< (const T &t) { append(t); return *this; }
     inline QLinkedList &operator<<(const QLinkedList &l) { *this += l; return *this; }
 

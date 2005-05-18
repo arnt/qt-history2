@@ -356,11 +356,23 @@
 
 /*!
     \fn QSet<T> &QSet::operator<<(const T &value)
+    \fn QSet<T> &QSet::operator+=(const T &value)
+    \fn QSet<T> &QSet::operator|=(const T &value)
 
     Inserts a new item \a value and returns a reference to this set.
     If \a value already exists in the set, the set is left unchanged.
 
     \sa insert()
+*/
+
+/*!
+    \fn QSet<T> &QSet::operator-=(const T &value)
+
+    Removes any occurrence of item \a value from the set and returns a
+    reference to this set. If \a value didn't exist in the set, the
+    set is left unchanged.
+
+    \sa remove()
 */
 
 /*!
@@ -379,6 +391,16 @@
 
     \sa operator&(), operator|=(), operator-=()
 */
+
+/*!
+    \fn QSet<T> &QSet::operator&=(const T &value)
+
+    \overload
+
+    Syntactic sugar for intersect(\e other), with \e other being a
+    set that only contains \a value.
+*/
+
 
 /*!
     \fn QSet<T> &QSet::operator-=(const QSet<T> &other)

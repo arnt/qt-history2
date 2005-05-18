@@ -102,9 +102,14 @@ public:
     // comfort
     inline QSet<T> &operator<<(const T &value) { insert(value); return *this; }
     inline QSet<T> &operator|=(const QSet<T> &other) { unite(other); return *this; }
+    inline QSet<T> &operator|=(const T &value) { insert(value); return *this; }
     inline QSet<T> &operator&=(const QSet<T> &other) { intersect(other); return *this; }
+    inline QSet<T> &operator&=(const T &value)
+        { QSet<T> result; if (contains(value)) result.insert(value); return (*this = result); }
     inline QSet<T> &operator+=(const QSet<T> &other) { unite(other); return *this; }
+    inline QSet<T> &operator+=(const T &value) { insert(value); return *this; }
     inline QSet<T> &operator-=(const QSet<T> &other) { subtract(other); return *this; }
+    inline QSet<T> &operator-=(const T &value) { subtract(value); return *this; }
     inline QSet<T> operator|(const QSet<T> &other)
         { QSet<T> result = *this; result |= other; return result; }
     inline QSet<T> operator&(const QSet<T> &other)

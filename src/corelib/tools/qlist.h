@@ -249,8 +249,8 @@ public:
     QList &operator+=(const QList &l);
     inline QList operator+(const QList &l) const
     { QList n = *this; n += l; return n; }
-    inline void operator+=(const T &t)
-    { append(t); }
+    inline QList &operator+=(const T &t)
+    { append(t); return *this; }
     inline QList &operator<< (const T &t)
     { append(t); return *this; }
     inline QList &operator<<(const QList &l)
