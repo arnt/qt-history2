@@ -55,14 +55,10 @@ class QStdModelRow {
 public:
     explicit QStdModelRow(QStdModelRow *parent) : p(parent), childrenColumns(0) {}
     ~QStdModelRow()
-        {
-            for (int i=0; i<items.count(); ++i)
-                delete items.at(i);
-            items.clear();
-            for (int i=0; i<childrenRows.count(); ++i)
-                delete childrenRows.at(i);
-            childrenRows.clear();
-        }
+    {
+        qDeleteAll(items);
+        qDeleteAll(childrenRows);
+    }
 
     QStdModelRow *p;
     QVector<QStdModelItem*> items;
@@ -77,9 +73,10 @@ class QStandardItemModelPrivate : public QAbstractItemModelPrivate
 
 public:
     QStandardItemModelPrivate(int rows, int columns) : topLevelRows(rows), topLevelColumns(columns) {}
-    virtual ~QStandardItemModelPrivate() {}
+    virtual ~QStandardItemModelPrivate();
 
     QStdModelRow *containedRow(const QModelIndex &index, bool createIfMissing) const;
+    void clear();
 
     QVector<QStdModelRow*> topLevelRows;
     QVector<QStdModelItem*> horizontalHeader, verticalHeader;

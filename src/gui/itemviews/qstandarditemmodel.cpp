@@ -62,16 +62,6 @@ QStandardItemModel::QStandardItemModel(int rows, int columns, QObject *parent)
 */
 QStandardItemModel::~QStandardItemModel()
 {
-    Q_D(QStandardItemModel);
-    for (int i=0; i<d->topLevelRows.count(); ++i)
-        delete d->topLevelRows.at(i);
-    d->topLevelRows.clear();
-    for (int i=0; i<d->horizontalHeader.count(); ++i)
-        delete d->horizontalHeader.at(i);
-    d->horizontalHeader.clear();
-    for (int i=0; i<d->verticalHeader.count(); ++i)
-        delete d->verticalHeader.at(i);
-    d->verticalHeader.clear();
 }
 
 /*!
@@ -444,6 +434,25 @@ Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
 }
 
 /*!
+    Clears the model, removing all items.
+*/
+void QStandardItemModel::clear()
+{
+    Q_D(QStandardItemModel);
+
+    d->clear();
+    reset();
+}
+
+/*!
+    \internal
+*/
+QStandardItemModelPrivate::~QStandardItemModelPrivate()
+{
+    clear();
+}
+
+/*!
     \internal
 */
 QStdModelRow *QStandardItemModelPrivate::containedRow(const QModelIndex &index,
@@ -462,3 +471,17 @@ QStdModelRow *QStandardItemModelPrivate::containedRow(const QModelIndex &index,
         rowList->replace(index.row() , new QStdModelRow(parentRow));
     return rowList->at(index.row());
 }
+
+/*!
+    \internal
+*/
+void QStandardItemModelPrivate::clear()
+{
+    qDeleteAll(topLevelRows);
+    topLevelRows.clear();
+    qDeleteAll(horizontalHeader);
+    horizontalHeader.clear();
+    qDeleteAll(verticalHeader);
+    verticalHeader.clear();
+}
+
