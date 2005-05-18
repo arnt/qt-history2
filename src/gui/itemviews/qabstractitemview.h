@@ -27,6 +27,8 @@ class QAbstractItemViewPrivate;
 class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
 {
     Q_OBJECT
+    Q_ENUMS(SelectionMode SelectionBehavior ScrollHint)
+    Q_FLAGS(EditTriggers)
     Q_PROPERTY(bool autoScroll READ hasAutoScroll WRITE setAutoScroll)
     Q_PROPERTY(EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
     Q_PROPERTY(bool tabKeyNavigation READ tabKeyNavigation WRITE setTabKeyNavigation)
@@ -37,8 +39,6 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
     Q_PROPERTY(SelectionBehavior selectionBehavior READ selectionBehavior WRITE setSelectionBehavior)
     Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(Qt::TextElideMode textElideMode READ textElideMode WRITE setTextElideMode)
-    Q_ENUMS(SelectionMode SelectionBehavior ScrollHint)
-    Q_FLAGS(EditTriggers)
 
 public:
     enum SelectionMode {
