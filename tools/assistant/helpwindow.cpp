@@ -105,13 +105,20 @@ void HelpWindow::setSource(const QUrl &name)
         if (pdfbrowser.isEmpty()) {
 #if defined(Q_OS_MAC)
             pdfbrowser = "/usr/bin/open";
+#elif defined(Q_OS_WIN32)
+            QT_WA({
+                ShellExecute(winId(), 0, (TCHAR*)name.toString().utf16(), 0, 0, SW_SHOWNORMAL);
+            } , {
+                ShellExecuteA(winId(), 0, name.toString().toLocal8Bit(), 0, 0, SW_SHOWNORMAL);
+            });
 #else
             QMessageBox::information(mw,
                                       tr("Help"),
                                       tr("No PDF Viewer has been specified\n"
                                           "Please use the settings dialog to specify one!\n"));
-            return;
 #endif
+            if (pdfbrowser.isEmpty())
+                return;
         }
         QFileInfo info(pdfbrowser);
         if(!info.exists()) {
@@ -147,8 +154,8 @@ void HelpWindow::setSource(const QUrl &name)
             */
 
         QTextBrowser::setSource(name);
-        updateFormat();        
-        
+        updateFormat();
+
         return;
     }
     mw->statusBar()->showMessage(tr("Failed to open link: '%1'").arg(name.toString()), 5000);
@@ -162,7 +169,7 @@ void HelpWindow::updateFormat()
     QString fixedFontFamily = mw->browsers()->fixedFontFamily();
     QColor linkColor = mw->browsers()->linkColor();
     bool underlineLinks = mw->browsers()->underlineLink();
-        
+
     QTextDocument *doc = QTextBrowser::document();
     for (QTextBlock block = doc->begin(); block != doc->end(); block = block.next()) {
         QTextLayout *layout = block.layout();
@@ -188,7 +195,7 @@ void HelpWindow::updateFormat()
                 range.length = fragment.length();
                 fmt.setFontFamily(fixedFontFamily);
                 range.format = fmt;
-                overrides.append(range);                    
+                overrides.append(range);
             }
         }
         layout->setAdditionalFormats(overrides);
