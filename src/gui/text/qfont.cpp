@@ -375,8 +375,8 @@ QFontEngineData::~QFontEngineData()
     To find out font metrics use a QFontMetrics object, e.g.
     \code
     QFontMetrics fm(f1);
-    int pixelWidth = fm.width("How many pixels wide is this text?");
-    int pixelHeight = fm.height();
+    int textWidthInPixels = fm.width("How many pixels wide is this text?");
+    int textHeightInPixels = fm.height();
     \endcode
 
     For more general information on fonts, see the
