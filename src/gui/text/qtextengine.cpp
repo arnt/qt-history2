@@ -820,6 +820,7 @@ QTextEngine::~QTextEngine()
     if (fnt && !fnt->ref.deref())
         delete fnt;
     delete layoutData;
+    delete specialData;
 }
 
 void QTextEngine::reallocate(int totalGlyphs)
