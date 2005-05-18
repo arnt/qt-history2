@@ -4,10 +4,6 @@
 #Versions/Current is wrong
 #examples .xcodes do not work for non-admin types
 #arch in QtCore.framework is probably wrong
-#version commandline options (and maybe from qglobal.h)
-#maybe a License.rtf generator, maybe applescript textedit?
-#make the package non-relocatable
-#add a README to the root .dmg
 
 #options
 OUTPUT_DIR=`pwd`/outputs
@@ -17,11 +13,17 @@ TMP_DIR=/tmp/qt-stuff
 PACKAGE_DIR=`(cd ../install && pwd)`
 PACKAGE_OPTIONS=
 PACKAGES=
-COMMAND_PAX=/System/Library/PrivateFrameworks/Installation.framework/Resources/pax #yes that pax, don't ask!
+COMMAND_PAX="/System/Library/PrivateFrameworks/Installation.framework/Resources/pax" #yes that pax, don't ask!
+if [ '!' -x "$COMMAND_PAX" ]; then
+   COMMAND_PAX=pax
+fi
+README=
+LICENSE=
 MAKE_META=
 MAKE_IMAGE=no
 
 #versioning
+QT_SET_VERSION=no
 QT_MAJOR_VERSION=4
 QT_MINOR_VERSION=0
 QT_PATCH_VERSION=0
@@ -47,7 +49,7 @@ while [ -n "$1" ]; do
      OPTION=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\1,'`
      ARG=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\2,'`
      ;;
-   -output|-packages|-qtbins|-qtsrcs|-qtdir|-qtpackage) #second arg style
+   -output|-packages|-qtbins|-qtsrcs|-qtdir|-qtpackage|-version|-license|-readme) #second arg style
      OPTION=`echo $1 | sed 's,-\([^=]*\),\1,'`
      shift
      ARG=$1
@@ -67,6 +69,8 @@ while [ -n "$1" ]; do
    esac
    shift
    case "$OPTION" in
+   readme) README="$VAL" ;;
+   license) LICENSE="$VAL" ;;
    all) USE_SEPARATE="$VAL" ;;
    qtpackage) SOURCE_PACKAGE="$ARG" ;;
    qtsrcs) SOURCE_DIR="$ARG" ;;
@@ -76,6 +80,21 @@ while [ -n "$1" ]; do
    meta) MAKE_META="$ARG" ;;
    package) PACKAGES="$PACKAGES $ARG" ;;
    image) MAKE_IMAGE="$ARG" ;;
+   version) 
+       MAJOR=`echo $ARG | cut -d. -f1`
+       if [ -z "$MAJOR" ]; then
+           echo "Invalid version: $ARG"
+       else
+	   MINOR=`echo $ARG | cut -d. -f2`
+	   [ -z "$MINOR" ] && MINOR=0
+	   PATCH=`echo $ARG | cut -d. -f3`
+	   [ -z "$PATCH" ] && PATCH=0
+	   QT_MAJOR_VERSION=$MAJOR
+	   QT_MINOR_VERSION=$MINOR
+	   QT_PATCH_VERSION=$PATCH
+	   QT_SET_VERSION=yes
+       fi
+       ;;
    help|*)
        [ "$OPTION" = "help" ] || echo "Unknown option $CACHE_1!" 
        echo "Help!!"
@@ -116,6 +135,34 @@ else
    exit 1   
 fi
 
+#find the license
+if [ -z "$LICENSE" ] && [ -e "$SOURCE_DIR/dist/commercial/LICENSE" ]; then
+   LICENSE="$SOURCE_DIR/dist/commercial/LICENSE"
+fi
+
+#find the README
+if [ -z "$README" ] && [ -e "$SOURCE_DIR/dist/README" ]; then
+    README="$SOURCE_DIR/dist/README"
+fi
+
+#find the version from the source package
+if [ "$QT_SET_VERSION" = "no" ] && [ ! -z "$SOURCE_DIR" ]; then
+     QT_VERSION_STR=`grep ^VERSION= $SOURCE_DIR/src/qbase.pri`
+     if [ -n "$QT_VERSION_STR" ]; then
+        QT_VERSION_STR=`echo $QT_VERSION_STR | cut -d= -f2`
+	MAJOR=`echo $QT_VERSION_STR | cut -d. -f1`
+	if [ -n "$MAJOR" ]; then
+	    MINOR=`echo $QT_VERSION_STR | cut -d. -f2`
+	    [ -z "$MINOR" ] && MINOR=0
+	    PATCH=`echo $QT_VERSION_STR | cut -d. -f3`
+	    [ -z "$PATCH" ] && PATCH=0
+	    QT_MAJOR_VERSION=$MAJOR
+	    QT_MINOR_VERSION=$MINOR
+	    QT_PATCH_VERSION=$PATCH
+	fi
+    fi
+fi
+
 #just do all the packages
 if [ -z "$PACKAGES" ]; then
     [ -z "$MAKE_META" ] && MAKE_META=yes
@@ -135,6 +182,84 @@ fi
 
 mkdir -p "$TMP_DIR"
 find .. -name '*~' -exec rm {} \; #just get rid of these before they end up in my package
+
+#create the license information
+if [ -e "$LICENSE" ]; then
+   mkdir -p "$TMP_DIR/licenses"
+
+   if [ "$MAKE_IMAGE" = "yes" ]; then
+       echo "Creating disk image license"
+       rm -f "$TMP_DIR/licenses/dmg_license.r"
+       cat >>"$TMP_DIR/licenses/dmg_license.r" <<EOF
+data 'LPic' (5000) {
+    $"0002 0011 0003 0001 0000 0000 0002 0000"
+    $"0008 0003 0000 0001 0004 0000 0004 0005"
+    $"0000 000E 0006 0001 0005 0007 0000 0007"
+    $"0008 0000 0047 0009 0000 0034 000A 0001"
+    $"0035 000B 0001 0020 000C 0000 0011 000D"
+    $"0000 005B 0004 0000 0033 000F 0001 000C"
+    $"0010 0000 000B 000E 0000"
+};
+data 'TEXT' (5002, "English") {
+EOF
+       exec 3<"$LICENSE"
+       while read line <&3; do
+            echo $line | sed -e "s,\",',g" -e 's,^\(.*\)$,"\1\\n",g' >>"$TMP_DIR/licenses/dmg_license.r"
+       done
+       exec 3>&-
+       cat >>"$TMP_DIR/licenses/dmg_license.r" <<EOF
+};
+
+resource 'STR#' (5002, "English") {
+    {   /* array StringArray: 9 elements */
+        /* [1] */
+        "English",
+        /* [2] */
+        "Agree",
+        /* [3] */
+        "Disagree",
+        /* [4] */
+        "Print",
+        /* [5] */
+        "Save...",
+        /* [6] */
+        "IMPORTANT - Read this License Agreement carefully before clicking on "
+        "the \"Agree\" button.  By clicking on the \"Agree\" button, you agree "
+        "to be bound by the terms of the License Agreement.",
+        /* [7] */
+        "Software License Agreement",
+        /* [8] */
+        "This text cannot be saved. This disk may be full or locked, or the file "
+        "may be locked.",
+        /* [9] */
+        "Unable to print. Make sure you<D5>ve selected a printer."
+    }
+};
+EOF
+   fi
+
+   echo "Creating license richtext"
+   rm -f "$TMP_DIR/licenses/License.rtf"
+   cat >>"$TMP_DIR/licenses/License.rtf" <<EOF
+{\rtf1\mac\ansicpg10000\cocoartf102
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;\f1\fswiss\fcharset77 Helvetica-Oblique;\f2\fswiss\fcharset77 Helvetica-Bold;
+}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww9000\viewh9000\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+EOF
+   sed -e 's,^\(Qt COMMERCIAL\) \(LICENSE AGREEMENT\)$,\\f0\\fs24 \\cf0 \\ul \\ulc0 \1 \\ulnone \2 \\f0\\i0,g' \
+       -e 's,^\([0-9]*\)\. ,\\f2\\b \1 \\f0\\b0. ,g' \
+       -e 's,\(^[A-Z][A-Z :]*$\),\\f2\\b \1 \\f0\\b0,g' \
+       -e 's,\(^Agreement version [0-9].[0-9]$\),\\f1\\i \1 \\f0\\i0,g' \
+       -e 's,^\(.*\)$,\1\\,g' \
+       "$LICENSE" >>"$TMP_DIR/licenses/License.rtf"
+   echo "}" >>"$TMP_DIR/licenses/License.rtf"
+
+else
+   echo "No license file found!"
+   exit 1
+fi
 
 #create the packages
 PKG_CREATED=
@@ -176,6 +301,7 @@ for package in $PACKAGES; do
     #merge resources
     cp -r Resources/* "$package_dir/Contents/Resources"
     cp -r $PACKAGE_DIR/$package/Resources/* "$package_dir/Contents/Resources"
+    cp "$TMP_DIR/licenses/License.rtf" "$package_dir/Contents/Resources"
     for a in $package_dir/Contents/Resources/*.plist $package_dir/Contents/Resources/*.info $package_dir/Contents/Resources/*flight $package_dir/Contents/Resources/*.rtf; do
 	[ -e "$a" ] && doStringReplace "$a" "$a"
     done
@@ -213,12 +339,13 @@ if [ "$MAKE_META" = "yes" ]; then
     cp -r "MetaPackage" "$OUTPUT_DIR/Qt.mpkg/Contents"
     mkdir -p "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     cp -r Resources/* "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
+    cp "$TMP_DIR/licenses/License.rtf" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     for a in $OUTPUT_DIR/Qt.mpkg/Contents/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.info $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.rtf; do
 	doStringReplace "$a" "$a"
     done
 
     PACKAGE_DICT="$TMP_DIR/pkg.dict"
-    rm -f "$PACKAGE_DICT"
+    >"$PACKAGE_DICT"
     for package in $PKG_CREATED; do
 	package_name=`basename $package`
 	package_type=selected
@@ -256,29 +383,19 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     IMAGE="$OUTPUT_DIR/QtPackages.dmg"
     rm -f "$IMAGE" #remove old
 
-    #mount
-    SIZE=0
-    for package in $PKG_CREATED; do
-	[ -z "$package" ] && continue
-	PACKAGESIZE=`/usr/bin/du -s -k $package 2>/dev/null | awk '{print $1}'`
-	echo "  $package == $PACKAGESIZE"
-	SIZE=$((SIZE + `/usr/bin/du -s -k $package 2>/dev/null | awk '{print $1}'`))
-    done
-#   SIZE=$(((SIZE * 2) + 10000));  #some fudge...
-#   SIZE=$((SIZE / 1000)) #bytes
-#   hdiutil create "${IMAGE}.sparseimage" -volname "$IMAGE_NAME" -megabytes $SIZE -type SPARSE -fs HFS+ >/dev/null 2>&1
-#   MOUNTPOINT=`hdid ${IMAGE}.sparseimage 2>&1 | grep "$IMAGE_NAME" | awk '{print $1}'`
-#    echo "  Mounted $MOUNTPOINT [$SIZE]"
-
     #copy
-    echo -n "  Copying..."
-    hdiutil create -srcfolder $OUTPUT_DIR $IMAGE
-#    for package in $PKG_CREATED; do 
-#	[ -z "$package" ] && continue
-#	OUT_PACKAGE=`echo $package | sed "s,^$OUTPUT_DIR,/Volumes/$IMAGE_NAME/,"`
-#	mkdir -p "`dirname "$OUT_PACKAGE"`"
-#	cp -r "$package" "$OUT_PACKAGE"
-#    done
+    echo "  Copying..."
+    mkdir -p "$TMP_DIR/diskimage"
+    for package in $PKG_CREATED; do 
+	[ -z "$package" ] && continue
+	OUT_PACKAGE=`echo $package | sed "s,^$OUTPUT_DIR,$TMP_DIR/diskimage/,"`
+	mkdir -p "`dirname "$OUT_PACKAGE"`"
+	cp -r "$package" "$OUT_PACKAGE"
+    done
+    [ -e "$README" ] && cp "$README" "$TMP_DIR/diskimage/ReadMe.txt"
+
+    echo -n "  Creating Image..."
+    hdiutil create -volname "$IMAGE_NAME" -srcfolder "$TMP_DIR/diskimage" "$IMAGE" | grep -v ^created:
     echo " done!"
 
     #do evilness
@@ -299,24 +416,10 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     #set background color of icon view options of container window of mountedDiskImage to { 155*65545, 196*65565, 40*65535 } 
     #echo " done!"
 
-    #unmount
-#    echo -n "  Unmounting..."
-#    hdiutil detach $MOUNTPOINT >/dev/null 2>&1
-#    rm -rf "/Volumes/$IMAGE_NAME/" >/dev/null 2>&1
-#    echo " done!"
-
-    #compress
-#    echo -n "  Compressing.."
-#    hdiutil convert ${IMAGE}.sparseimage -format UDZO -o "$IMAGE" -imagekey zlib-level=9 >/dev/null 2>&1
-#    echo " done!"
-
-    #cleanup
- #   rm ${IMAGE}.sparseimage
-
     #license
     echo -n "  Licensing..."
     hdiutil unflatten "$IMAGE" >/dev/null 2>&1
-    /Developer/Tools/Rez /Developer/Headers/FlatCarbon/*.r dmg_license.r -a -o "$IMAGE"
+    /Developer/Tools/Rez /Developer/Headers/FlatCarbon/*.r "$TMP_DIR/licenses/dmg_license.r" -a -o "$IMAGE"
     hdiutil flatten "$IMAGE" >/dev/null 2>&1
     echo " done!"
 fi

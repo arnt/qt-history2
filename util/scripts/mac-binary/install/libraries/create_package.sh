@@ -27,8 +27,15 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support; do
 	echo "No framework for $lib!"
         continue
     fi
-    cp -r "$BINDIR/lib/${lib}.framework" "$FRAMEWORK_DIR/"
-    [ "$DO_DEBUG" = "no" ]  && find "$BINDIR/lib/${lib}.framework" -name '*_debug*' -exec rm -f {} \; >/dev/null 2>&1
+    cp -r "$BINDIR/lib/${lib}.framework" "$FRAMEWORK_DIR/" >/dev/null 2>&1
+    ./fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/$lib" "$FRAMEWORK_DIR/${lib}.framework/${lib}.fixed" 
+    mv "$FRAMEWORK_DIR/${lib}.framework/${lib}.fixed" "$FRAMEWORK_DIR/${lib}.framework/$lib" 
+    if [ "$DO_DEBUG" = "no" ]; then
+	find "$BINDIR/lib/${lib}.framework" -name '*_debug*' -exec rm -f {} \; >/dev/null 2>&1
+    elif [ -e "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug" ]; then
+	./fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug" "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.fixed" 
+	mv "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug.fixed" "$FRAMEWORK_DIR/${lib}.framework/${lib}_debug" 
+    fi
     #no headers
     find "$FRAMEWORK_DIR/${lib}.framework/" -name Headers -exec rm -rf {} \; >/dev/null 2>&1
 done

@@ -50,11 +50,17 @@ for a in qmake uic uic3 rcc moc assistant Linguist Designer rccdump lrelease qm2
 CONFIG += no_mocdepend
 EOF
 	(cd "$OUTDIR/usr/local/Qt${VERSION_MAJOR}.${VERSION_MINOR}/mkspecs"; rm -f default; ln -s macx-xcode default)
+	../libraries/fix_config_paths.pl -data "/usr/local/Qt${VERSION_MAJOR}.${VERSION_MINOR}" "$EXE" "tmp.exe"
+	mv "tmp.exe" "$EXE"
     elif [ "$a" = "Designer" ]; then
 	mkdir -p "$OUTDIR/usr/lib/"
 	[ -e "${BINDIR}/lib/libQtDesigner.1.dylib" ] && cp "${BINDIR}/lib/libQtDesigner.1.dylib" "$OUTDIR/usr/lib/"
 	[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtDesigner_debug.1.dylib" ] && cp "${BINDIR}/lib/libQtDesigner_debug.1.dylib" "$OUTDIR/usr/lib/"
-
+	../libraries/fix_config_paths.pl "$EXE" "tmp.exe"
+	mv "tmp.exe" "$EXE"
+    else
+	../libraries/fix_config_paths.pl "$EXE" "tmp.exe"
+	mv "tmp.exe" "$EXE"
     fi
 
     #perms
