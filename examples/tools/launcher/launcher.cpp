@@ -418,7 +418,7 @@ void Launcher::showCategories()
 
     title->setPosition(QPointF(width()/2 - title->rect().width()/2,
                                -title->rect().height()));
-    title->setMetaData("target", QPointF(title->position().x(), 0.025 * height()));
+    title->setTarget(QPointF(title->position().x(), 0.025 * height()));
 
     display->appendShape(title);
 
@@ -441,8 +441,7 @@ void Launcher::showCategories()
             startPosition, maxSize);
         caption->setPosition(QPointF(-caption->rect().width(),
                                      caption->position().y()));
-        caption->setMetaData("target", QPointF(0.05 * width(),
-                                               caption->position().y()));
+        caption->setTarget(QPointF(0.05 * width(), caption->position().y()));
 
         newShapes.append(caption);
 
@@ -453,8 +452,7 @@ void Launcher::showCategories()
     DisplayShape *exitButton = new TitleShape(tr("Exit"), font(),
         QPen(Qt::white), startPosition, maxSize);
 
-    exitButton->setMetaData("target", QPointF(0.05 * width(),
-                            exitButton->position().y()));
+    exitButton->setTarget(QPointF(0.05 * width(), exitButton->position().y()));
     newShapes.append(exitButton);
 
     startPosition = QPointF(width(), topMargin);
@@ -465,14 +463,15 @@ void Launcher::showCategories()
         QPainterPath path;
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
-        DisplayShape *background = new PathShape(path,
+        DisplayShape *background = new PanelShape(path,
             QBrush(categoryColors[category]), QBrush(QColor("#e0e0ff")),
             Qt::NoPen, startPosition,
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
         background->setMetaData("category", category);
-        background->setMetaData("target", QPointF(0.05 * width(),
-                                                  background->position().y()));
+        background->setInteractive(true);
+        background->setTarget(QPointF(0.05 * width(),
+                                      background->position().y()));
         display->insertShape(0, background);
         startPosition += QPointF(0.0, step);
     }
@@ -485,17 +484,18 @@ void Launcher::showCategories()
     exitPath.lineTo(maxWidth + 2*extra, -extra);
     exitPath.closeSubpath();
 
-    DisplayShape *exitBackground = new PathShape(exitPath,
+    DisplayShape *exitBackground = new PanelShape(exitPath,
         QBrush(QColor("#a6ce39")), QBrush(QColor("#c7f745")), Qt::NoPen,
         startPosition, QSizeF(maxWidth + 10*extra, textHeight + 2*extra));
 
     exitBackground->setMetaData("action", "exit");
-    exitBackground->setMetaData("target", QPointF(0.05 * width(),
-                                exitBackground->position().y()));
+    exitBackground->setInteractive(true);
+    exitBackground->setTarget(QPointF(0.05 * width(),
+                                      exitBackground->position().y()));
     display->insertShape(0, exitBackground);
 
     foreach (DisplayShape *caption, newShapes) {
-        QPointF position = caption->metaData("target").toPointF();
+        QPointF position = caption->target();
         QSizeF size = caption->rect().size();
         caption->setPosition(QPointF(-maxWidth, position.y()));
         display->appendShape(caption);
@@ -533,20 +533,20 @@ void Launcher::showExamples(const QString &category)
         QSizeF(0.5 * width(), 0.05 * height()));
 
     newTitle->setPosition(QPointF(-newTitle->rect().width(), titlePosition.y()));
-    newTitle->setMetaData("target",
-        QPointF(width()/2 - newTitle->rect().width()/2, titlePosition.y()));
+    newTitle->setTarget(QPointF(width()/2 - newTitle->rect().width()/2,
+                                titlePosition.y()));
     newTitle->setMetaData("fade", 15);
 
     QPainterPath backgroundPath;
     backgroundPath.addRect(0, -newTitle->rect().height()*0.3,
                            width(), newTitle->rect().height()*1.6);
 
-    DisplayShape *titleBackground = new PathShape(backgroundPath,
+    DisplayShape *titleBackground = new PanelShape(backgroundPath,
         QBrush(QColor("#a6ce39")), QBrush(QColor("#a6ce39")), Qt::NoPen,
             QPointF(width(), titlePosition.y()),
             backgroundPath.boundingRect().size());
 
-    titleBackground->setMetaData("target", QPointF(0.0, titlePosition.y()));
+    titleBackground->setTarget(QPointF(0.0, titlePosition.y()));
 
     display->insertShape(0, titleBackground);
     display->appendShape(newTitle);
@@ -566,7 +566,7 @@ void Launcher::showExamples(const QString &category)
 
         DisplayShape *caption = new TitleShape(example, font(), QPen(),
             startPosition, maxSize);
-        caption->setMetaData("target", finishPosition);
+        caption->setTarget(finishPosition);
 
         display->appendShape(caption);
 
@@ -577,7 +577,7 @@ void Launcher::showExamples(const QString &category)
 
     DisplayShape *menuButton = new TitleShape(tr("Main Menu"), font(),
         QPen(Qt::white), startPosition, maxSize);
-    menuButton->setMetaData("target", finishPosition);
+    menuButton->setTarget(finishPosition);
 
     display->appendShape(menuButton);
     maxWidth = qMax(maxWidth, menuButton->rect().width());
@@ -590,14 +590,15 @@ void Launcher::showExamples(const QString &category)
         QPainterPath path;
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
-        DisplayShape *background = new PathShape(path,
+        DisplayShape *background = new PanelShape(path,
             QBrush(exampleColors[example]), QBrush(QColor("#e0e0ff")),
             Qt::NoPen, startPosition,
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
 
         background->setMetaData("example", example);
-        background->setMetaData("target", QPointF(0.05 * width(),
-                                                  background->position().y()));
+        background->setInteractive(true);
+        background->setTarget(QPointF(0.05 * width(),
+                                      background->position().y()));
         display->insertShape(0, background);
         startPosition += QPointF(0.0, step);
     }
@@ -610,13 +611,14 @@ void Launcher::showExamples(const QString &category)
     backPath.lineTo(maxWidth + 2*extra, -extra);
     backPath.closeSubpath();
 
-    DisplayShape *buttonBackground = new PathShape(backPath,
+    DisplayShape *buttonBackground = new PanelShape(backPath,
         QBrush(QColor("#a6ce39")), QBrush(QColor("#c7f745")), Qt::NoPen,
         startPosition, QSizeF(maxWidth + 10*extra, textHeight + 2*extra));
 
     buttonBackground->setMetaData("action", "parent");
-    buttonBackground->setMetaData("target", QPointF(
-                            0.05 * width(), buttonBackground->position().y()));
+    buttonBackground->setInteractive(true);
+    buttonBackground->setTarget(QPointF(0.05 * width(),
+                                        buttonBackground->position().y()));
     display->insertShape(0, buttonBackground);
 
     qreal leftMargin = 0.075*width() + maxWidth;
@@ -659,19 +661,20 @@ void Launcher::showExampleSummary(const QString &example)
         QSizeF(0.5 * width(), 0.05 * height()));
 
     newTitle->setPosition(QPointF(-newTitle->rect().width(), titlePosition.y()));
-    newTitle->setMetaData("target",
-        QPointF(width()/2 - newTitle->rect().width()/2, titlePosition.y()));
+    newTitle->setTarget(QPointF(width()/2 - newTitle->rect().width()/2,
+                                titlePosition.y()));
     newTitle->setMetaData("fade", 15);
 
     QPainterPath backgroundPath;
     backgroundPath.addRect(0, -newTitle->rect().height()*0.3,
                            width(), newTitle->rect().height()*1.6);
 
-    DisplayShape *titleBackground = new PathShape(backgroundPath,
+    DisplayShape *titleBackground = new PanelShape(backgroundPath,
         QBrush(QColor("#a6ce39")), QBrush(QColor("#a6ce39")), Qt::NoPen,
             QPointF(width(), titlePosition.y()),
             backgroundPath.boundingRect().size());
-    titleBackground->setMetaData("target", QPointF(0.0, titlePosition.y()));
+
+    titleBackground->setTarget(QPointF(0.0, titlePosition.y()));
     display->insertShape(0, titleBackground);
     display->appendShape(newTitle);
 
@@ -707,8 +710,8 @@ void Launcher::showExampleSummary(const QString &example)
             imageMaxSize);
 
         currentFrame->setMetaData("fade", 15);
-        currentFrame->setMetaData("target", QPointF(
-            width()/2 - imageMaxSize.width()/2, topMargin));
+        currentFrame->setTarget(QPointF(width()/2 - imageMaxSize.width()/2,
+                                        topMargin));
 
         display->appendShape(currentFrame);
 
@@ -728,8 +731,8 @@ void Launcher::showExampleSummary(const QString &example)
     if (true) {
         DisplayShape *backButton = new TitleShape(currentCategory, font(),
             QPen(Qt::white), QPointF(0.1*width(), height()), maxSize);
-        backButton->setMetaData("target", QPointF(
-            backButton->position().x(), 0.85 * height()));
+        backButton->setTarget(QPointF(backButton->position().x(),
+                                      0.85 * height()));
 
         display->appendShape(backButton);
 
@@ -745,12 +748,14 @@ void Launcher::showExampleSummary(const QString &example)
         path.lineTo(maxWidth + 2*extra, -extra);
         path.closeSubpath();
 
-        DisplayShape *buttonBackground = new PathShape(path,
+        DisplayShape *buttonBackground = new PanelShape(path,
             QBrush(QColor("#a6ce39")), QBrush(QColor("#c7f745")), Qt::NoPen,
             backButton->position(),
             QSizeF(maxWidth + 6*extra, textHeight + 2*extra));
-        buttonBackground->setMetaData("target", backButton->metaData("target"));
+
         buttonBackground->setMetaData("category", currentCategory);
+        buttonBackground->setInteractive(true);
+        buttonBackground->setTarget(backButton->target());
 
         display->insertShape(0, buttonBackground);
 
@@ -763,8 +768,8 @@ void Launcher::showExampleSummary(const QString &example)
             font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize);
         launchCaption->setPosition(QPointF(
             0.9*width() - launchCaption->rect().width(), height()));
-        launchCaption->setMetaData("target", QPointF(
-            launchCaption->position().x(), 0.85 * height()));
+        launchCaption->setTarget(QPointF(launchCaption->position().x(),
+                                         0.85 * height()));
 
         display->appendShape(launchCaption);
 
@@ -782,13 +787,15 @@ void Launcher::showExampleSummary(const QString &example)
             highlightedColor.setAlpha(15);
         }
 
-        DisplayShape *background = new PathShape(path,
+        DisplayShape *background = new PanelShape(path,
             QBrush(backgroundColor), QBrush(highlightedColor), Qt::NoPen,
             launchCaption->position(),
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
-        background->setMetaData("target", launchCaption->metaData("target"));
-        background->setMetaData("fade minimum", 15);
+
+        background->setMetaData("fade minimum", 120);
         background->setMetaData("launch", example);
+        background->setInteractive(true);
+        background->setTarget(launchCaption->target());
 
         display->insertShape(0, background);
 
@@ -802,8 +809,8 @@ void Launcher::showExampleSummary(const QString &example)
         documentCaption->setPosition(QPointF(
             leftMargin/2 + rightMargin/2 - documentCaption->rect().width()/2,
             height()));
-        documentCaption->setMetaData("target", QPointF(
-            documentCaption->position().x(), 0.85 * height()));
+        documentCaption->setTarget(QPointF(documentCaption->position().x(),
+                                           0.85 * height()));
 
         display->appendShape(documentCaption);
 
@@ -814,12 +821,15 @@ void Launcher::showExampleSummary(const QString &example)
         QPainterPath path;
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
 
-        DisplayShape *background = new PathShape(path,
+        DisplayShape *background = new PanelShape(path,
             QBrush(QColor("#9c9cff")), QBrush(QColor("#cfcfff")), Qt::NoPen,
             documentCaption->position(),
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
-        background->setMetaData("target", documentCaption->metaData("target"));
+
+        background->setMetaData("fade minimum", 120);
         background->setMetaData("documentation", example);
+        background->setInteractive(true);
+        background->setTarget(documentCaption->target());
 
         display->insertShape(0, background);
     }
@@ -830,8 +840,8 @@ void Launcher::updateExampleSummary()
     if (imagePaths.contains(currentExample)) {
 
         currentFrame->setMetaData("fade", -15);
-        currentFrame->setMetaData("target",
-            currentFrame->position() - QPointF(0.5*width(), 0));
+        currentFrame->setTarget(currentFrame->position() - QPointF(0.5*width(),
+                                0));
 
         slideshowFrame = (slideshowFrame+1) % imagePaths[currentExample].size();
         QImage image(imagePaths[currentExample][slideshowFrame]);
@@ -842,8 +852,8 @@ void Launcher::updateExampleSummary()
 
         currentFrame = new ImageShape(image, imagePosition, imageSize);
         currentFrame->setMetaData("fade", 15);
-        currentFrame->setMetaData("target", QPointF(
-            width()/2 - imageSize.width()/2, imagePosition.y()));
+        currentFrame->setTarget(QPointF(width()/2 - imageSize.width()/2,
+                                        imagePosition.y()));
 
         display->appendShape(currentFrame);
     }

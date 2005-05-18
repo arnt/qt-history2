@@ -58,10 +58,11 @@ void DisplayWidget::mouseMoveEvent(QMouseEvent *event)
     bool updated = false;
 
     foreach (DisplayShape *shape, shapes) {
-        if (shape->rect().contains(event->pos()) && !shape->contains("fade")) {
+        if (shape->isInteractive() && shape->rect().contains(event->pos())
+            && !shape->contains("fade")) {
             shape->setMetaData("highlight", true);
             updated = true;
-        } else if (shape->contains("highlight")) {
+        } else if (shape->isInteractive() && shape->contains("highlight")) {
             shape->setMetaData("highlight", false);
             updated = true;
         }
@@ -154,14 +155,18 @@ void DisplayWidget::updateShapes()
     int updated = 0;
 
     foreach (DisplayShape *shape, shapes) {
-        update(shape->rect().toRect().adjusted(-1,-1,1,1));
-        if (shape->animate())
+        QRect oldRect = shape->rect().toRect().adjusted(-1,-1,1,1);
+        if (shape->animate()) {
+
+            update(oldRect);
+            QRect newRect = shape->rect().toRect().adjusted(-1,-1,1,1);
             ++updated;
 
-        if (shape->contains("destroy")) {
-            discard.append(shape);
-        } else {
-            update(shape->rect().toRect().adjusted(-1,-1,1,1));
+            if (shape->contains("destroy")) {
+                discard.append(shape);
+            } else {
+                update(newRect);
+            }
         }
     }
 
