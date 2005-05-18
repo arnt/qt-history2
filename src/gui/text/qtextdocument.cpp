@@ -1096,7 +1096,8 @@ bool QTextHtmlExporter::emitCharFormatStyle(const QTextCharFormat &format)
         }
     }
 
-    if (format.fontPointSize() != defaultCharFormat.fontPointSize()) {
+    if (format.hasProperty(QTextFormat::FontPointSize)
+        && format.fontPointSize() != defaultCharFormat.fontPointSize()) {
         html += QLatin1String(" font-size:");
         html += QString::number(format.fontPointSize());
         html += QLatin1String("pt;");
