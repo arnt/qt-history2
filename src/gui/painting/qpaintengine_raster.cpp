@@ -1289,7 +1289,10 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
 
     if (d->txop >= QPainterPrivate::TxScale) {
+        bool antialiased = d->antialiased;
+        d->antialiased = true;
         QPaintEngine::drawTextItem(p, textItem);
+        d->antialiased = antialiased;
         return;
     }
 
