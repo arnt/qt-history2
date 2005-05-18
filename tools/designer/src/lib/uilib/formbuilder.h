@@ -15,15 +15,25 @@
 #define FORMBUILDER_H
 
 #include <QtDesigner/uilib_global.h>
-#include <QtDesigner/abstractformbuilder.h>
+#include <QtDesigner/QAbstractFormBuilder>
 
-class QListWidget;
-class QComboBox;
+#include <QtCore/QStringList>
+#include <QtCore/QMap>
+
+class QDesignerCustomWidgetInterface;
 
 class QT_UILIB_EXPORT QFormBuilder: public QAbstractFormBuilder
 {
 public:
     QFormBuilder();
+
+    QStringList pluginPaths() const;
+
+    void clearPluginPaths();
+    void addPluginPath(const QString &pluginPath);
+    void setPluginPath(const QStringList &pluginPaths);
+
+    QList<QDesignerCustomWidgetInterface*> customWidgets() const;
 
 protected:
     virtual QWidget *create(DomUI *ui, QWidget *parentWidget);
@@ -41,7 +51,13 @@ protected:
     virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);
     virtual bool addItem(DomWidget *ui_widget, QWidget *widget, QWidget *parentWidget);
 
+    virtual void updateCustomWidgets();
+
     static QWidget *widgetByName(QWidget *topLevel, const QString &name);
+
+private:
+    QStringList m_pluginPaths;
+    QMap<QString, QDesignerCustomWidgetInterface*> m_customWidgets;
 };
 
 #endif // FORMBUILDER_H

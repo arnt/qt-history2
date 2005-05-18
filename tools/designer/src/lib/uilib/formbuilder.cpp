@@ -11,9 +11,7 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/formbuilder.h>
-#include <QtDesigner/ui4.h>
-
+#include <QtDesigner/QtDesigner>
 #include <QtGui/QtGui>
 
 QFormBuilder::QFormBuilder()
@@ -48,14 +46,21 @@ QWidget *QFormBuilder::createWidget(const QString &widgetName, QWidget *parentWi
 #undef DECLARE_LAYOUT
 #undef DECLARE_WIDGET
 
-    if (w) {
-        w->setObjectName(name);
-    } else {
-        qWarning("widget `%s' not supported", widgetName.toUtf8().data());
+    if (w == 0) { // try with a registered custom widget
+        QDesignerCustomWidgetInterface *factory = m_customWidgets.value(widgetName);
+        if (factory != 0)
+            w = factory->createWidget(parentWidget);
     }
+
+    if (w == 0) { // nothing to do
+        return 0;
+    }
+
+    w->setObjectName(name);
 
     if (qobject_cast<QDialog *>(w))
         w->setParent(parentWidget, 0);
+
     return w;
 }
 
@@ -161,3 +166,65 @@ QActionGroup *QFormBuilder::create(DomActionGroup *ui_action_group, QObject *par
     return QAbstractFormBuilder::create(ui_action_group, parent);
 }
 
+QStringList QFormBuilder::pluginPaths() const
+{
+    return m_pluginPaths;
+}
+
+void QFormBuilder::clearPluginPaths()
+{
+    m_pluginPaths.clear();
+    updateCustomWidgets();
+}
+
+void QFormBuilder::addPluginPath(const QString &pluginPath)
+{
+    m_pluginPaths.append(pluginPath);
+    updateCustomWidgets();
+}
+
+void QFormBuilder::setPluginPath(const QStringList &pluginPaths)
+{
+    m_pluginPaths = pluginPaths;
+    updateCustomWidgets();
+}
+
+void QFormBuilder::updateCustomWidgets()
+{
+    m_customWidgets.clear();
+
+    foreach (QString path, m_pluginPaths) {
+        QDir dir(path);
+        QStringList candidates = dir.entryList(QDir::Files);
+
+        foreach (QString plugin, candidates) {
+            if (!QLibrary::isLibrary(plugin))
+                continue;
+
+            QPluginLoader loader(path + QLatin1String("/") + plugin);
+            if (loader.load()) {
+                // step 1) try with a normal plugin
+                QDesignerCustomWidgetInterface *iface = 0;
+                iface = qobject_cast<QDesignerCustomWidgetInterface *>(loader.instance());
+                if (iface != 0) {
+                    m_customWidgets.insert(iface->name(), iface);
+                    continue;
+                }
+
+                // step 2) try with a collection of plugins
+                QDesignerCustomWidgetCollectionInterface *c = 0;
+                c = qobject_cast<QDesignerCustomWidgetCollectionInterface *>(loader.instance());
+                if (c != 0) {
+                    foreach (QDesignerCustomWidgetInterface *iface, c->customWidgets()) {
+                        m_customWidgets.insert(iface->name(), iface);
+                    }
+                }
+            }
+        }
+    }
+}
+
+QList<QDesignerCustomWidgetInterface*> QFormBuilder::customWidgets() const
+{
+    return m_customWidgets.values();
+}

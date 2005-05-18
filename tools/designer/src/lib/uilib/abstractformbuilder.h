@@ -147,17 +147,17 @@ protected:
     QVariant toVariant(const QMetaObject *meta, DomProperty *property);
     static bool toBool(const QString &str);
     static QString toString(const DomString *str);
-
     static QHash<QString, DomProperty*> propertyMap(const QList<DomProperty*> &properties);
 
-    QHash<QObject*, bool> m_laidout;
-    QHash<QString, QAction*> m_actions;
-    QHash<QString, QActionGroup*> m_actionGroups;
-
-private:
     void setupColorGroup(QPalette &palette, DomColorGroup *group);
     DomColorGroup *saveColorGroup(const QPalette &palette);
 
+    void reset();
+
+protected:
+    QHash<QObject*, bool> m_laidout;
+    QHash<QString, QAction*> m_actions;
+    QHash<QString, QActionGroup*> m_actionGroups;
     int m_defaultMargin;
     int m_defaultSpacing;
     QDir m_workingDirectory;

@@ -90,16 +90,7 @@ QWidget *QAbstractFormBuilder::load(QIODevice *dev, QWidget *parentWidget)
     DomUI ui;
     ui.read(root); /// ### check the result
 
-    createCustomWidgets(ui.elementCustomWidgets());
-
-    QWidget *w = create(&ui, parentWidget);
-
-    createConnections(ui.elementConnections(), w);
-    createAuthor(ui.elementAuthor());
-    createComment(ui.elementComment());
-    createResources(ui.elementResources());
-
-    return w;
+    return create(&ui, parentWidget);
 }
 
 QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
@@ -113,9 +104,20 @@ QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
     if (!ui_widget)
         return 0;
 
-    QWidget *widget = create(ui_widget, parentWidget);
-    applyTabStops(widget, ui->elementTabStops());
-    return widget;
+    createCustomWidgets(ui->elementCustomWidgets());
+
+    if (QWidget *widget = create(ui_widget, parentWidget)) {
+        createConnections(ui->elementConnections(), widget);
+        createAuthor(ui->elementAuthor());
+        createComment(ui->elementComment());
+        createResources(ui->elementResources());
+        applyTabStops(widget, ui->elementTabStops());
+        reset();
+
+        return widget;
+    }
+
+    return 0;
 }
 
 QWidget *QAbstractFormBuilder::create(DomWidget *ui_widget, QWidget *parentWidget)
@@ -1505,5 +1507,16 @@ void QAbstractFormBuilder::addMenuAction(QAction *action)
 {
     Q_UNUSED(action);
 }
+
+void QAbstractFormBuilder::reset()
+{
+    m_laidout.clear();
+    m_actions.clear();
+    m_actionGroups.clear();
+    m_defaultMargin = INT_MIN;
+    m_defaultSpacing = INT_MIN;
+}
+
+
 
 #include "abstractformbuilder.moc"
