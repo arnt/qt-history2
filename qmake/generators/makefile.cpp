@@ -2450,8 +2450,9 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
         if(project->isEmpty("QMAKE_NOFORCE") &&
            project->variables()[(*qut_it) + ".CONFIG"].indexOf("phony") != -1)
             deps += " FORCE";
-        t << targ << ":" << deps << "\n\t"
-          << cmd << endl;
+        t << targ << ":" << deps << "\n";
+        if(!cmd.isEmpty())
+            t << "\t" << cmd << endl;
     }
 
     if(flags & SubTargetInstalls) {
