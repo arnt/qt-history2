@@ -3,7 +3,7 @@
     \title Icons Example
 
     The Icons example shows how QIcon can generate pixmaps reflecting
-    the icon's state, mode and size. These pixmaps are generated from
+    an icon's state, mode and size. These pixmaps are generated from
     the set of pixmaps made available to the icon, and are used by Qt
     widgets to show an icon representing a particular action.
 
@@ -56,20 +56,20 @@
     renders an icon in different modes and states.
 
     The application allows the user to manipulate the icon size with
-    some predefined sizes or using a spin box. The predefined sizes
-    are style dependent, but most of the styles have the same values:
-    Only the Mac style differ using 32 pixels, instead of 16 pixels,
-    for the \gui Toolbar size. The users can navigate between the
+    some predefined sizes and a spin box. The predefined sizes are
+    style dependent, but most of the styles have the same values: Only
+    the Mac style differ using 32 pixels, instead of 16 pixels, for
+    the \gui Toolbar size. The users can navigate between the
     available styles using the \gui View Menu.
 
     The \gui View menu also provide the option to make the application
-    guess an image file's preferred icon state and mode from the file
+    guess the preferred icon state and mode from an image's file
     name. The \gui File menu provide the options of adding an image
-    and removing all images. These are also available through a
-    context menu that appears if the user press the right mouse button
-    within the table of images. In addition the \gui File menu provide
-    an \gui Exit option, and the \gui Help menu provide information
-    about the example and about Qt.
+    and removing all images. These last options are also available
+    through a context menu that appears if the user press the right
+    mouse button within the table of image files. In addition the \gui
+    File menu provide an \gui Exit option, and the \gui Help menu
+    provide information about the example and about Qt.
 
     \image icons_find_normal.png
 
@@ -81,7 +81,7 @@
     is used for all the states and modes. In this case the pixmap's
     preferred icon mode is normal, and the generated pixmaps for the
     normal and active modes will look the same. But in disabled mode
-    Qt will generate disabled pixmaps, i.e. the generated pixmaps get
+    Qt will generate disabled pixmaps, i.e. give the generated pixmaps
     a grey color scale.
 
     \image icons_find_normal_disabled.png
@@ -97,7 +97,7 @@
 
     When Qt renders the icon's pixmaps it searches through the set of
     available pixmaps following a particular algorithm. The algorithm
-    is documented in QIcon, but we describe some particular cases
+    is documented in QIcon, but we will describe some particular cases
     below.
 
     \image icons_find_mess.png
@@ -141,20 +141,23 @@
     but differ when it comes to the disabled mode:
 
     When rendering the \c {Disabled /Off} pixmap, Qt will first see if
-    any of the available pixmaps preferring this combination of icon
-    state and mode. If no one does, it will look for preferring \c
+    any of the available pixmaps prefer this combination of icon state
+    and mode. If no one does, it will look for pixmaps preferring \c
     {Normal/ Off}, and as long as it needs to it will look for a
     suitable pixmap following the line of search described in the
     table above. As before: If the best alternative is a pixmap that
     prefer another icon mode, QIcon will generate a disabled pixmap,
-    i.e. give the pixmap a grey color scale.
+    i.e. give the generated pixmap a grey color scale.
 
-    In the last screenshot above, we can see that the \c {Disabled
-    /Off} pixmap is rendered as a grey scaled \c {Active/ Off}
-    pixmap. Since that pixmap prefer the active mode, it is given a
-    grey color scale. But the image is originally grey colored, and
-    only get slightly lighter. The \c {Disabled/ On} pixmap, is
-    rendered as a grey colored \c {Normal/ On} pixmap.
+    In the last screenshot above, there are three differing grey
+    colored pixmaps: The first is the pixmap with an original grey
+    color scale, the \c {Active/ Off} pixmap. The second is the \c
+    {Disabled /Off} pixmap, rendered as a grey scaled \c {Active/ Off}
+    pixmap. Since that pixmap prefer the active mode, Qt tries to give
+    it a grey color scale. But the image is originally grey colored,
+    and becomes slightly lighter instead. The third is the \c
+    {Disabled/ On} pixmap, which is the \c {Normal/ On} pixmap given a
+    grey color scale.
 
     \table
     \row
@@ -199,24 +202,23 @@
     \endtable
 
     The last screenshots show how QIcon behaves when the size of the
-    icon changes. Here we have loaded the set of Qtopia images which
-    only differ in size. In these screenshots, we have played around
-    with the sizes.
+    icon changes. Here we have played around with the sizes using the
+    set of Qtopia images which only differ in size.
 
     QIcon can always generate a smaller pixmap from the set of pixmaps
     it is given, but can never scale them up. The pixmaps with sizes
-    written with the bold font above represent, original pixmaps, the
+    written with the bold font above represent original sizes, the
     others are scaled versions except the last one: The largest
     picture we have is 48 pixels, and since a pixmap cannot be scaled
-    up, the icon wil keep the same size even if the user tries to
+    up, the pixmap will keep the same size even if the user tries to
     enlarge it.
 
-    When generating a scaled version, QIcon always use the pixmap that
-    is the closest approximation as the base pixmap. The switch from
-    one base pixmap to another becomes visible when adding one pixel
-    to one of the original sizes: For example, while 32 pixels is an
-    original image, 33 pixels is a scaled version of the 48 pixels
-    pixmap and looks poorer.
+    When generating a scaled version, QIcon always use the closest
+    approximation as the base pixmap. The switch from one base pixmap
+    to another becomes visible when adding one pixel to one of the
+    original sizes: For example, while the 32 pixels pixmap is an
+    image in its original size, 33 pixels is a scaled version of the
+    48 pixels pixmap and looks poorer.
 
     \section1 Class Review
 
@@ -228,8 +230,8 @@
        and size.
     \o \c MainWindow inherits QMainWindow and is the main application
        window.
-    \o \c IconSizeSpinBox is a subclass of QSpinBox.
-    \o \c ImageDelegate is a subclass of QItemDelegate.
+    \o \c IconSizeSpinBox is a sub class of QSpinBox.
+    \o \c ImageDelegate is a sub class of QItemDelegate.
     \endlist
 
     We will start by reviewing the \c IconPreviewArea class before we
@@ -253,7 +255,7 @@
     updatePixmapLabels() function to update the generated pixmaps when
     the icon or the icon's size has changed.
 
-    The two enums \c NumModes and \c NumStates are reflecting QIcons
+    The two enums, \c NumModes and \c NumStates, are reflecting QIcons
     number of currently defined modes and states.
 
     \section1  IconPreviewArea Class Implementation
@@ -269,7 +271,7 @@
     NumModes and \c NumStates defined in the .h-file, correspond with
     the number of labels that we create. Then if the enums at some
     point are changed, the Q_ASSERT macro will alert that this part of
-    the .cpp-file needs to updated as well.
+    the .cpp-file needs to be updated as well.
 
     If the application is built in debug mode, the Q_ASSERT() macro
     will expand to
@@ -301,8 +303,8 @@
     \printuntil /^\}/
 
     The public \c setIcon() and \c setSize() functions change the icon
-    or the icon size, and make sure that generated pixmaps
-    are updated.
+    or the icon size, and make sure that the generated pixmaps are
+    updated.
 
     \skipto createHeaderLabel
     \printuntil /^\}/
@@ -310,9 +312,9 @@
     \printuntil /^\}/
 
     We use the \c createHeaderLabel() and \c createPixmapLabel()
-    functions to create the preview area's different labels displaying
-    the headers and the icon's generated pixmaps. Both functions
-    return the label that is created.
+    functions to create the preview area's labels displaying the
+    headers and the icon's generated pixmaps. Both functions return
+    the label that is created.
 
     \skipto updatePixmapLabel
     \printuntil /^\}/
@@ -371,10 +373,10 @@
     simple box with information about the example.
 
     The about() function looks for a suitable icon in four locations:
-    It prefers its parent's icon if that exists, and in this example
-    it does. If not, the function tries the top-level widget
-    containing parent. If that fails, it tries the active window. And
-    as a last resort it uses the QMessageBox's Information icon.
+    It prefers its parent's icon if that exists. If it doesn't, the
+    function tries the top-level widget containing parent, and if that
+    fails, it tries the active window. As a last resort it uses the
+    QMessageBox's Information icon.
 
     \skipto changeStyle
     \printuntil QAction
@@ -415,16 +417,16 @@
     \skipto changeSize
     \printuntil /^\}/
 
-    When the \c changeSize() slot is called, we set the size for the
-    preview area's icon.
+    With the \c changeSize() slot we set the size for the preview
+    area's icon.
 
     To determine the new size we first check if the spin box is
     enabled. If it is, we extract the extent of the new size from the
     box. If it's not, we search through the predefined size options,
     extract the QStyle::PixelMetric and use the QStyle::pixelMetric()
     function to determine the extent. Then we create a QSize object
-    based on the extent, and make that the size of the preview area's
-    icon.
+    based on the extent, and use that object to set the size of the
+    preview area's icon.
 
     If the slot is called as a respons to the user choosing one of the
     predefined size options, we also need to to disable the spin
@@ -439,6 +441,7 @@
     dialog is to use QFileDialog's static functions. Here we use the
     \l {QFileDialog::getOpenFileNames()}{getOpenFileNames()} function
     that will return one or more existing files selected by the user.
+
     For each of the files the file dialog returns, we add a row to the
     table widget. The table widget is listing the images the user has
     loaded into the application.
@@ -476,12 +479,12 @@
     for the second and third items. The editor remains open after
     editing.
 
-    We also make sure that the new image initially is enabled, and
-    automatically converted into a pixmap and made part of the set of
-    pixmaps available to the icon in the preview area. The latter is
-    due to the connection between the table widget's \l
+    Due to the the connection between the table widget's \l
     {QTableWidget::itemChanged()}{itemChanged()} signal and the \c
-    changeIcon() slot.
+    changeIcon() slot, the new image is automatically converted into a
+    pixmap and made part of the set of pixmaps available to the icon
+    in the preview area. So, corresponding to this fact, we need to
+    make sure that the new image's check box is enabled.
 
     \quotefromfile widgets/icons/mainwindow.cpp
     \skipto changeIcon
@@ -499,7 +502,7 @@
     \printline }
     \printline }
 
-    We also extract the image file's name. First as a QVariant using
+    We also extract the image file's name: First as a QVariant using
     the QTableWidgetItem::data() function. This function takes a
     Qt::DataItemRole as an argument to retrieve the right data;
     remember that an item can hold several pieces of information. Then
@@ -550,7 +553,7 @@
 
     Its size policy is set to expanding horizontally, and ignored
     vertically.  The \l {QSizePolicy::Ignored}{ignored} size policy
-    means that the widget's size hintis ignored, and the widget will
+    means that the widget's size hint is ignored, and the widget will
     get as much space as possible.
 
     We use QAbstractItemView::setSelectionMode() to set the inherited
@@ -569,13 +572,13 @@
     we make the item delegate for our view.
 
     The QItemDelegate class can be used to provide an editor for an item view
-    class that is subclassed from QAbstractItemView. Using a delegate
+    class that is sub classed from QAbstractItemView. Using a delegate
     for this purpose allows the editing mechanism to be customized and
     developed independently from the model and view.
 
-    In this example we subclass QItemDelegate as the \c ImageDelegate
-    class. QItemDelegate usually provides a line editor, while our
-    subclass \c ImageDelegate, provides a combo box.
+    In this example we sub class QItemDelegate with the \c
+    ImageDelegate class. QItemDelegate usually provides a line editor,
+    while our sub class \c ImageDelegate, provides a combo box.
 
     \skipto imagesTable
     \printuntil /^\}/
@@ -595,14 +598,15 @@
     The \c createIconSizeGroupBox() function is also implemented to
     simplify the constructor. The main purpose of the function is to
     create the widgets controlling the preferred size for the preview
-    area's icon.. First we create a group box that will contain all of
-    the widgets. Then we create the radio buttons and the spin box.
+    area's icon. First we create a group box that will contain all the
+    widgets. Then we create the radio buttons and the spin box.
 
     The spin box is not a regular QSpinBox but an \c
     IconSizeSpinBox. The \c IconSizeSpinBox class inherits QSpinBox
     and reimplements two functions: QSpinBox::textFromValue() and
-    QSpinBox::valueFromText(). We will come back to the \c
-    IconSizeSpinBox class later.
+    QSpinBox::valueFromText(). QSpinBox is designed to handle integers
+    and discrete sets of values. The \c IconSizeSpinBox is designed to
+    handle the spin box's values in a non-numeric way.
 
     \skipto connect
     \printuntil /^\}/
@@ -612,15 +616,15 @@
     \l {QSpinBox::valueChanged()}{valueChanged()} signal to the \c
     changeSize() slot to make sure that the size of the preview area's
     icon is updated whenever the user changes the icon size. In the
-    end we put the widgets in a layout that we install on the group
-    box we created previously.
+    end we put the widgets in a layout that we install on the
+    previously created group box.
 
     \skipto createActions
     \printuntil /^\}/
 
-    In the \c createActions() function we create and customize all of
-    the actions needed to implement the functionality associated with
-    the menu entries in the application.
+    In the \c createActions() function we create and customize all the
+    actions needed to implement the functionality associated with the
+    menu entries in the application.
 
     In particular we create the \c styleActionGroup based on the
     currently available GUI styles using
@@ -629,11 +633,6 @@
     "plastique". Depending on the platform, "windowsxp" and
     "macintosh" may be available. We create one action for each key,
     and adds the action to the action group.
-
-    We give all the actions a text and connect them to the appropiate
-    slots. In addition, we give some of the actions a short cut key,
-    and we make the actions in the \c styleActionGroup and the \c
-    guessModeStateAct checkable.
 
     \skipto createMenus
     \printuntil /^\}/
@@ -670,9 +669,10 @@
 
     For each action we first extract the style name using
     QAction::iconText(). Since this is only a key (and not a specific
-    class name) we need to create a QStyle candidate using the static
-    QStyleFactory::create() function to ensure a valid comparison. This
-    function creates a QStyle object that matches its parameter key.
+    class name), we need to create a QStyle candidate using the static
+    QStyleFactory::create() function to ensure a valid
+    comparison. This function creates a QStyle object that matches its
+    parameter key.
 
     Again, we can assume that the style is supported by QStyleFactory,
     but to be on the safe side we use the Q_ASSERT macro to make sure
@@ -684,12 +684,11 @@
     Then we check if the candidate is equivalent with the applications
     current style using the QApplication::style() function and the
     styles' meta objects. If they are, we trigger the associated
-    action, i.e. checking the corresponding entry in the \gui View
-    menu, and quit the search.
+    action and quit the search.
 
     Since the QStyle candidates are created without a parent, we must
     remember to delete them as the search is progressing and the
-    candidate fails to match the applications current style.
+    candidates fails to match the applications current style.
 
     \section1  IconSizeSpinBox Class Definition
 
@@ -697,10 +696,10 @@
     \skipto class IconSizeSpinBox
     \printuntil /^\};/
 
-    The \c IconSizeSpinBox class is a subclass of QSpinBox. QSpinBox
+    The \c IconSizeSpinBox class is a sub class of QSpinBox. QSpinBox
     is designed to handle integers and discrete sets of values. But
     since we want to display the spin box's values in a non-numeric
-    way we need to subclass QSpinBox and reimplement the
+    way we need to sub class QSpinBox and reimplement the
     QSpinBox::textFromValue() and QSpinBox::valueFromText() functions.
 
     \section1  IconSizeSpinBox Class Implementation
@@ -728,11 +727,23 @@
 
     The QSpinBox::valueFromText() function is used by the spin box
     whenever it needs to interpret text entered by the user as a
-    value.
+    value. Since we reimplement the \c textFromValue() function we
+    also need to reimplement the \c valueFromText() function to
+    interpret the parameter text and return the associated int value.
 
-    Since we reimplement the \c textFromValue() function we also need
-    to reimplement the \c valueFromText() function to interpret the
-    parameter text and return the associated int value.
+    We perform the interpretation using a QRegExp. The QRegExp class
+    provides pattern matching using regular expressions. We define an
+    expression as one or several digits followed by zero or several
+    white spaces, an "x" or the "times" sign, zero or several white
+    spaces and one or several digits again.
+
+    The first digits of the regular expression are captured within a
+    paranthesis. This enables us to use the QRegExp::cap() or
+    QRegExp::capturedTexts() functions to extract the matched
+    characters. In this function, this means that if the first and
+    second number of the spin box value differ for some reason, it is
+    the first number that will determine the value the function will
+    return.
 
     \section1  ImageDelegate Class Definition
 
@@ -740,12 +751,12 @@
     \skipto class ImageDelegate
     \printuntil parent
 
-    The \c ImageDelegate class is a subclass of QItemDelegate. The
+    The \c ImageDelegate class is a sub class of QItemDelegate. The
     QItemDelegate class provides display and editing facilities for
     data items from a model.
 
     A QItemDelegate can be used to provide an editor for an item view
-    class that is subclassed from QAbstractItemView. Using a delegate
+    class that is sub classed from QAbstractItemView. Using a delegate
     for this purpose allows the editing mechanism to be customized and
     developed independently from the model and view:
 
@@ -754,15 +765,15 @@
 
     The default implementation of QItemDelegate provides a line
     edit. Since we want the editor to be a combo box we need to
-    subclass QItemDelegate and reimplement the
+    sub class QItemDelegate and reimplement the
     QItemDelegate::createEditor(), QItemDelegate::setEditorData() and
     QItemDelegate::setModelData() functions.
 
     \skipto private
     \printuntil /^\};/
 
-    We also need to implement \c emitCommitData() slot to make our
-    delegate behave consistently with other item delegates.
+    We also need to implement the \c emitCommitData() slot to make our
+    image delegate behave consistently with other item delegates.
 
     \section1  ImageDelegate Class Implementation
 
@@ -782,8 +793,8 @@
     control how the editor widget appears.
 
     The same is valid for our reimplementation of the function; the
-    only difference is that we create and populate a QComboBox instead
-    of the default QLineEdit.
+    only difference is that we create and populate a combo box instead
+    of the default line edit.
 
     In addition we need to connect the combo box's \l
     {QComboBox::activated()}{activated()} signal with the \c
@@ -797,7 +808,7 @@
     be displayed and edited by the editor for the item specified by
     the model and item index.
 
-    The same is valid for our reimplementation of the function, and
+    The same is valid for our reimplementation of the function, which
     is only adjusted to fit a combo box editor.
 
     \skipto setModelData
@@ -807,7 +818,7 @@
     for the specified model and item index from that supplied by the
     editor.
 
-    The same is valid for our reimplementation of the function, and
+    The same is valid for our reimplementation of the function, which
     is only adjusted to fit a combo box editor.
 
     \skipto emitCommitData
