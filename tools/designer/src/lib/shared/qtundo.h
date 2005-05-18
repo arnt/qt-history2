@@ -1,3 +1,27 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
+//
+//  W A R N I N G
+//  -------------
+//
+// This file is not part of the Qt API.  It exists for the convenience
+// of Qt Designer.  This header
+// file may change from version to version without notice, or even be removed.
+//
+// We mean it.
+//
+
 #ifndef QTUNDO_H
 #define QTUNDO_H
 
@@ -72,9 +96,9 @@ public:
     void append(QtCommand *command);
     int count() const;
     QtCommand *command(int i) const;
-    
+
 private:
-    QList<QtCommand*> m_command_list;    
+    QList<QtCommand*> m_command_list;
 };
 
 class QtUndoState;
@@ -97,7 +121,7 @@ class QT_SHARED_EXPORT QtUndoStack : public QObject, private QList<QtCommand*>
         bool isClean() const;
 
         void setCurrent();
-        
+
         QAction *createUndoAction(QObject *parent) const;
         QAction *createRedoAction(QObject *parent) const;
 
