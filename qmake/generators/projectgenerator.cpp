@@ -25,11 +25,10 @@ QString project_builtin_regx() //calculate the builtin regular expression..
     QStringList builtin_exts(".c");
     builtin_exts << Option::ui_ext << Option::yacc_ext << Option::lex_ext << ".ts" << ".qrc";
     builtin_exts += Option::h_ext + Option::cpp_ext;
-    for(QStringList::Iterator ext_it = builtin_exts.begin();
-        ext_it != builtin_exts.end(); ++ext_it) {
+    for(int i = 0; i < builtin_exts.size(); ++i) {
         if(!ret.isEmpty())
             ret += "; ";
-        ret += QString("*") + (*ext_it);
+        ret += QString("*") + builtin_exts[i];
     }
     return ret;
 }
@@ -208,9 +207,9 @@ ProjectGenerator::init()
     //setup deplist
     QList<QMakeLocalFileName> deplist;
     {
-        QStringList &d = v["DEPENDPATH"];
-        for(QStringList::Iterator it = d.begin(); it != d.end(); ++it)
-            deplist.append(QMakeLocalFileName((*it)));
+        const QStringList &d = v["DEPENDPATH"];
+        for(int i = 0; i < d.size(); ++i)
+            deplist.append(QMakeLocalFileName(d[i]));
     }
     setDependencyPaths(deplist);
 
@@ -218,42 +217,41 @@ ProjectGenerator::init()
     bool no_qt_files = true;
     QString srcs[] = { "SOURCES", "YACCSOURCES", "LEXSOURCES", "FORMS", QString() };
     for(int i = 0; !srcs[i].isNull(); i++) {
-        QStringList &l = v[srcs[i]];
+        const QStringList &l = v[srcs[i]];
         QMakeSourceFileInfo::SourceFileType type = QMakeSourceFileInfo::TYPE_C;
         QMakeSourceFileInfo::addSourceFiles(l, QMakeSourceFileInfo::SEEK_DEPS, type);
-        for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it) {
-            QStringList tmp = QMakeSourceFileInfo::dependencies((*val_it));
+        for(int i = 0; i < l.size(); ++i) {
+            QStringList tmp = QMakeSourceFileInfo::dependencies(l[i]);
             if(!tmp.isEmpty()) {
-                for(QStringList::Iterator dep_it = tmp.begin(); dep_it != tmp.end(); ++dep_it) {
-                    QString file_dir = (*dep_it).section(Option::dir_sep, 0, -2),
-                        file_no_path = (*dep_it).section(Option::dir_sep, -1);
+                for(int dep_it = 0; dep_it < tmp.size(); ++dep_it) {
+                    QString dep = tmp[dep_it];
+                    QString file_dir = dep.section(Option::dir_sep, 0, -2),
+                        file_no_path = dep.section(Option::dir_sep, -1);
                     if(!file_dir.isEmpty()) {
-                        for(QList<QMakeLocalFileName>::Iterator it = deplist.begin(); it != deplist.end(); ++it) {
-                            if((*it).local() == file_dir && !v["INCLUDEPATH"].contains((*it).real()))
-                                v["INCLUDEPATH"] += (*it).real();
+                        for(int inc_it = 0; inc_it < deplist.size(); ++inc_it) {
+                            QMakeLocalFileName inc = deplist[inc_it];
+                            if(inc.local() == file_dir && !v["INCLUDEPATH"].contains(inc.real()))
+                                v["INCLUDEPATH"] += inc.real();
                         }
                     }
                     if(no_qt_files && file_no_path.indexOf(QRegExp("^q[a-z_0-9].h$")) != -1)
                         no_qt_files = false;
                     QString h_ext;
-                    for(QStringList::Iterator hit = Option::h_ext.begin();
-                        hit != Option::h_ext.end(); ++hit) {
-                        if((*dep_it).endsWith((*hit))) {
-                            h_ext = (*hit);
+                    for(int hit = 0; hit < Option::h_ext.size(); ++hit) {
+                        if(dep.endsWith(Option::h_ext.at(hit))) {
+                            h_ext = Option::h_ext.at(hit);
                             break;
                         }
                     }
                     if(!h_ext.isEmpty()) {
-                        for(QStringList::Iterator cppit = Option::cpp_ext.begin();
-                            cppit != Option::cpp_ext.end(); ++cppit) {
-                            QString src((*dep_it).left((*dep_it).length() - h_ext.length()) +
-                                        (*cppit));
+                        for(int cppit = 0; cppit < Option::cpp_ext.size(); ++cppit) {
+                            QString src(dep.left(dep.length() - h_ext.length()) +
+                                        Option::cpp_ext.at(cppit));
                             if(exists(src)) {
                                 bool exists = false;
                                 QStringList &srcl = v["SOURCES"];
-                                for(QStringList::Iterator src_it = srcl.begin();
-                                    src_it != srcl.end(); ++src_it) {
-                                    if((*src_it).toLower() == src.toLower()) {
+                                for(int src_it = 0; src_it < srcl.size(); ++src_it) {
+                                    if(srcl[src_it].toLower() == src.toLower()) {
                                         exists = true;
                                         break;
                                     }
@@ -262,12 +260,12 @@ ProjectGenerator::init()
                                     srcl.append(src);
                             }
                         }
-                    } else if((*dep_it).endsWith(Option::lex_ext) &&
+                    } else if(dep.endsWith(Option::lex_ext) &&
                               file_no_path.startsWith(Option::lex_mod)) {
                         addConfig("lex_included");
                     }
-                    if(!h.contains((*dep_it)))
-                        h += (*dep_it);
+                    if(!h.contains(dep))
+                        h += dep;
                 }
             }
         }
@@ -312,9 +310,9 @@ ProjectGenerator::writeMakefile(QTextStream &t)
     t << "######################################################################" << endl << endl;
     if(!Option::user_configs.isEmpty())
         t << "CONFIG += " << Option::user_configs.join(" ") << endl;
-    QStringList::Iterator it;
-    for(it = Option::before_user_vars.begin(); it != Option::before_user_vars.end(); ++it)
-        t << (*it) << endl;
+    int i;
+    for(i = 0; i < Option::before_user_vars.size(); ++i)
+        t << Option::before_user_vars[i] << endl;
     t << getWritableVar("TEMPLATE_ASSIGN", false);
     if(project->first("TEMPLATE_ASSIGN") == "subdirs") {
         t << endl << "# Directories" << "\n"
@@ -335,8 +333,8 @@ ProjectGenerator::writeMakefile(QTextStream &t)
           << getWritableVar("RESOURCES")
           << getWritableVar("TRANSLATIONS");
     }
-    for(it = Option::after_user_vars.begin(); it != Option::after_user_vars.end(); ++it)
-        t << (*it) << endl;
+    for(i = 0; i < Option::before_user_vars.size(); ++i)
+        t << Option::before_user_vars[i] << endl;
     return true;
 }
 
@@ -365,9 +363,9 @@ ProjectGenerator::addFile(QString file)
         return false;
 
     QString where;
-    for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
-        if(file.endsWith((*cppit))) {
-            if(exists(file.left(file.length() - (*cppit).length()) + Option::ui_ext))
+    for(int cppit = 0; cppit < Option::cpp_ext.size(); ++cppit) {
+        if(file.endsWith(Option::cpp_ext[cppit])) {
+            if(exists(file.left(file.length() - Option::cpp_ext[cppit].length()) + Option::ui_ext))
                 return false;
             else
                 where = "SOURCES";
@@ -375,12 +373,11 @@ ProjectGenerator::addFile(QString file)
         }
     }
     if(where.isEmpty()) {
-        for(QStringList::Iterator hit = Option::h_ext.begin(); hit != Option::h_ext.end(); ++hit) {
-            if(file.endsWith((*hit))) {
+        for(int hit = 0; hit < Option::h_ext.size(); ++hit)
+            if(file.endsWith(Option::h_ext.at(hit))) {
                 where = "HEADERS";
                 break;
             }
-        }
     }
     if(where.isEmpty()) {
         if(file.endsWith(Option::ui_ext))
