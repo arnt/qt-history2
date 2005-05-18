@@ -388,7 +388,6 @@ bool QTcpServer::waitForNewConnection(int msec, bool *timedOut)
 
     d->processIncomingConnection(0);
 
-    emit newConnection();
     return true;
 }
 
