@@ -97,7 +97,7 @@ void SortingBox::mousePressEvent(QMouseEvent *event)
         int index = itemAt(event->pos());
         if (index != -1) {
             itemInMotion = &shapeItems[index];
-            originalPosition = event->pos();
+            previousPosition = event->pos();
             shapeItems.move(index, shapeItems.size() - 1);
         }
     }
@@ -147,9 +147,9 @@ int SortingBox::itemAt(const QPoint &pos)
 
 void SortingBox::moveItemTo(const QPoint &pos)
 {
-    QPoint offset = pos - originalPosition;
+    QPoint offset = pos - previousPosition;
     itemInMotion->setPosition(itemInMotion->position() + offset);
-    originalPosition = pos;
+    previousPosition = pos;
     update();
 }
 

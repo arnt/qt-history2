@@ -60,7 +60,7 @@ private:
     QPainterPath squarePath;
     QPainterPath trianglePath;
 
-    QPoint originalPosition;
+    QPoint previousPosition;
     ShapeItem *itemInMotion;
 
     QToolButton *newCircleButton;
