@@ -1150,8 +1150,6 @@ void WriteInitialization::initializeTreeWidget(DomWidget *w)
         QHash<QString, DomProperty*> properties = propertyMap(column->elementProperty());
         DomProperty *text = properties.value(QLatin1String("text"));
         DomProperty *icon = properties.value(QLatin1String("icon"));
-        DomProperty *clickable = properties.value(QLatin1String("clickable"));
-        DomProperty *resizable = properties.value(QLatin1String("resizable"));
 
         QString txt = trCall(text->elementString(), className);
         refreshOut << option.indent << varName << "->headerItem()->setText(" << i << ", " << txt << ");\n";
@@ -1160,16 +1158,6 @@ void WriteInitialization::initializeTreeWidget(DomWidget *w)
             output << option.indent << varName << "->headerItem()->setIcon("
                    << varName << "->headerItem()->childCount() - 1, " << pixCall(icon->elementIconSet()) << ");\n";
         }
-
-#if 0 // ### port me
-        if (!clickable) {
-            output << option.indent << varName << "->header()->setClickEnabled(false, " << varName << "->header()->count() - 1);\n";
-        }
-
-        if (!resizable) {
-            output << option.indent << varName << "->header()->setResizeEnabled(false, " << varName << "->header()->count() - 1);\n";
-        }
-#endif
     }
 
     if (w->elementItem().size()) {
