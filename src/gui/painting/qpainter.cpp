@@ -294,6 +294,8 @@ void QPainterPrivate::updateEmulationSpecifier(QPainterState *s)
     // XForm properties
     if (s->state() & QPaintEngine::DirtyTransform) {
         xform = !s->matrix.isIdentity();
+    } else if (s->txop >= TxTranslate) {
+        xform = true;
     }
 
     // Check alphablending
