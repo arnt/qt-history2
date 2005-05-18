@@ -52,7 +52,12 @@ const int XKeyRelease = KeyRelease;
 #undef KeyPress
 #undef KeyRelease
 
-typedef QHash<XtIntervalId, QObject *> TimerHash;
+struct QMotifTimerInfo {
+    int timerId;
+    int interval;
+    QObject *object;
+};
+typedef QHash<XtIntervalId, QMotifTimerInfo> TimerHash;
 typedef QHash<int, QSocketNotifier *> SocketNotifierHash;
 
 Boolean qmotif_event_dispatcher(XEvent *event);
@@ -583,12 +588,12 @@ void qmotif_timer_handler(XtPointer pointer, XtIntervalId *)
 
 /*! \reimp
  */
-int QMotif::registerTimer(int interval, QObject *object)
+void QMotif::registerTimer(int timerId, int interval, QObject *object)
 {
     Q_D(QMotif);
     XtIntervalId id = XtAppAddTimeOut(d->appContext, interval, qmotif_timer_handler, object);
-    d->timerHash.insert(id, object);
-    return id;
+    QMotifTimerInfo timerInfo = { timerId, interval, object };
+    d->timerHash.insert(id, timerInfo);
 }
 
 /*! \reimp
@@ -596,9 +601,16 @@ int QMotif::registerTimer(int interval, QObject *object)
 bool QMotif::unregisterTimer(int timerId)
 {
     Q_D(QMotif);
-    XtRemoveTimeOut(timerId);
-    d->timerHash.remove(timerId);
-    return true;
+    TimerHash::iterator it = d->timerHash.begin();
+    const TimerHash::iterator end = d->timerHash.end();
+    for (; it != end; ++it) {
+        if (it.value().timerId == timerId) {
+            XtRemoveTimeOut(it.key());
+            (void) d->timerHash.erase(it);
+            return true;
+        }
+    }
+    return false;
 }
 
 /*! \reimp
@@ -609,12 +621,28 @@ bool QMotif::unregisterTimers(QObject *object)
     TimerHash::iterator it = d->timerHash.begin();
     const TimerHash::iterator end = d->timerHash.end();
     for (; it != end; ++it) {
-        if (it.value() == object) {
+        if (it.value().object == object) {
             XtRemoveTimeOut(it.key());
             it = d->timerHash.erase(it);
         }
     }
     return true;
+}
+
+/*! \reimp
+ */
+QList<QMotif::TimerInfo> QMotif::registeredTimers(QObject *object) const
+{
+    Q_D(const QMotif);
+    QList<QMotif::TimerInfo> list;
+    TimerHash::const_iterator it = d->timerHash.constBegin();
+    const TimerHash::const_iterator end = d->timerHash.constEnd();
+    for (; it != end; ++it) {
+        const QMotifTimerInfo &timerInfo = it.value();
+        if (timerInfo.object == object)
+            list << TimerInfo(timerInfo.timerId, timerInfo.interval);
+    }
+    return list;
 }
 
 /*! \internal
