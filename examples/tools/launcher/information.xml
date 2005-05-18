@@ -1,14 +1,14 @@
 <categories>
-  <category dirname="../demos" docname="demos" name="Demonstrations" color="#c0e0c0">
-    <example dirname="arthur" filename="deform" name="Vector Deformation" color="#c0e0c0" />
-    <example dirname="arthur" filename="gradients" name="Gradients" color="#c0e0c0" />
-    <example dirname="arthur" filename="pathstroke" name="Path Stroking" color="#c0e0c0" />
-    <example dirname="arthur" filename="affine" name="Affine Transformations" color="#c0e0c0" />
-    <example filename="books" name="Books" color="#f0e0c0" />
-    <example filename="mainwindow" name="Main Window" color="#f0f0f0" />
-    <example filename="spreadsheet" name="Spreadsheet" color="#e0e0c0" />
-    <example filename="sqlbrowser" name="SQL Browser" color="#e0c0c0" />
-    <example filename="textedit" name="Text Edit" color="#e0e0e0" />
+  <category dirname="../demos" docname="demos" name="Demonstrations">
+    <example dirname="arthur" filename="deform" name="Vector Deformation" />
+    <example dirname="arthur" filename="gradients" name="Gradients" />
+    <example dirname="arthur" filename="pathstroke" name="Path Stroking" />
+    <example dirname="arthur" filename="affine" name="Affine Transformations" />
+    <example filename="books" name="Books" />
+    <example filename="mainwindow" name="Main Window" />
+    <example filename="spreadsheet" name="Spreadsheet" />
+    <example filename="sqlbrowser" name="SQL Browser" />
+    <example filename="textedit" name="Text Edit" />
   </category>
   <category dirname="designer" name="Qt Designer">
     <example filename="calculatorbuilder" name="Calculator Builder" />
