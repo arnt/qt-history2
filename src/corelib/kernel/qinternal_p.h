@@ -147,33 +147,4 @@ private:
     int bufferSize;
 };
 
-class QVirtualDestructor {
-public:
-    virtual ~QVirtualDestructor() {}
-};
-
-template <class T>
-class QAutoDeleter : public QVirtualDestructor {
-public:
-    QAutoDeleter(T *p) : ptr(p) {}
-    ~QAutoDeleter() { delete ptr; }
-    T *data() const { return ptr; }
-private:
-    T *ptr;
-};
-
-template <class T>
-T* qAutoDeleterData(QAutoDeleter<T> *ad)
-{
-    if (!ad)
-       return 0;
-    return ad->data();
-}
-
-template <class T>
-QAutoDeleter<T> *qAutoDeleter(T *p)
-{
-    return new QAutoDeleter<T>(p);
-}
-
 #endif // QINTERNAL_P_H
