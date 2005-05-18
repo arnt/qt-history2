@@ -563,13 +563,22 @@ qint64 QProcessPrivate::writeToStdin(const char *data, qint64 maxlen)
     return written;
 }
 
-void QProcessPrivate::killProcess()
+void QProcessPrivate::terminateProcess()
 {
 #if defined (QPROCESS_DEBUG)
     qDebug("QProcessPrivate::killProcess()");
 #endif
     if (pid)
         ::kill(pid, SIGTERM);
+}
+
+void QProcessPrivate::killProcess()
+{
+#if defined (QPROCESS_DEBUG)
+    qDebug("QProcessPrivate::killProcess()");
+#endif
+    if (pid)
+        ::kill(pid, SIGKILL);
 }
 
 static int qt_native_select(fd_set *fdread, fd_set *fdwrite, int timeout)

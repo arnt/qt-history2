@@ -84,8 +84,6 @@ public:
     bool waitForBytesWritten(int msecs = 30000);
     bool waitForFinished(int msecs = 30000);
 
-    void terminate();
-
     QByteArray readAllStandardOutput();
     QByteArray readAllStandardError();
 
@@ -105,6 +103,10 @@ public:
     static bool startDetached(const QString &program, const QStringList &arguments);
     static bool startDetached(const QString &program);
 
+public slots:
+    void terminate();
+    void kill();
+    
 signals:
     void started();
     void finished(int exitCode);

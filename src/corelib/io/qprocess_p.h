@@ -107,6 +107,7 @@ public:
     void startProcess();
     void execChild(const QByteArray &encodedProgramName);
     bool processStarted();
+    void terminateProcess();
     void killProcess();
     void findExitCode();
 

@@ -501,15 +501,16 @@ qint64 QProcessPrivate::readFromStderr(char *data, qint64 maxlen)
     return bytesRead;
 }
 
+void QProcessPrivate::terminateProcess()
+{
+    if (pid)
+        PostThreadMessage(pid->dwThreadId, WM_CLOSE, 0, 0);
+}
+
 void QProcessPrivate::killProcess()
 {
-    if (pid) {
-        if (PostThreadMessage(pid->dwThreadId, WM_CLOSE, 0, 0)) {
-            if (WaitForSingleObject(pid->hProcess, SLEEPMIN * 2) == WAIT_OBJECT_0)
-                return;
-        }
+    if (pid)
         TerminateProcess(pid->hProcess, 0xf291);
-    }
 }
 
 bool QProcessPrivate::waitForStarted(int)

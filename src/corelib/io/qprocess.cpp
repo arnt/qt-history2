@@ -1237,9 +1237,31 @@ void QProcess::start(const QString &program, OpenMode mode)
 }
 
 /*!
-    Terminates the current process, causing it to crash.
+    Attempts to terminate the process.
+
+    The process may not exit as a result of calling this function (it is given
+    the chance to prompt the user for any unsaved files, etc).
+
+    On Windows, terminate() posts a WM_CLOSE message to the process, and on
+    Unix and Mac OS X the SIGTERM signal is sent.
+
+    \sa kill()
 */
 void QProcess::terminate()
+{
+    Q_D(QProcess);
+    d->terminateProcess();
+}
+
+/*!
+    Kills the current process, causing it to exit immediately.
+
+    On Windows, kill() uses TerminateProcess, and on Unix and Mac OS X, the
+    SIGKILL signal is sent to the process.
+
+    \sa terminate()
+*/
+void QProcess::kill()
 {
     Q_D(QProcess);
     d->killProcess();
