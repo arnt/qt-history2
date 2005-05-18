@@ -19,14 +19,14 @@ int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
 
-    QWidget *mainWidget = new QWidget;
+    QWidget mainWidget;
     QHBoxLayout *horizontalLayout = new QHBoxLayout;
     horizontalLayout->addWidget(new DragWidget);
     horizontalLayout->addWidget(new DragWidget);
 
-    mainWidget->setLayout(horizontalLayout);
-    mainWidget->setWindowTitle("Draggable Icons");
-    mainWidget->show();
+    mainWidget.setLayout(horizontalLayout);
+    mainWidget.setWindowTitle("Draggable Icons");
+    mainWidget.show();
 
     return app.exec();
 }
