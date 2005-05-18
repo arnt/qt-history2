@@ -1,5 +1,5 @@
 TARGET    = configure
-DESTDIR   = ../../bin
+DESTDIR   = ../..
 
 CONFIG   += console flat no_batch
 CONFIG   -= moc qt
@@ -28,7 +28,7 @@ INCPATH += $$QT_SOURCE_TREE/src/corelib/arch/generic \
            $$QT_SOURCE_TREE/include \
            $$QT_SOURCE_TREE/include/QtCore \
 
-HEADERS	 = configureapp.h \
+HEADERS	 = configureapp.h environment.h \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearray.h \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearraymatcher.h \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qchar.h \
@@ -57,7 +57,7 @@ HEADERS	 = configureapp.h \
            $$QT_SOURCE_TREE/src/corelib/tools/qunicodetables_p.h 
  	   
 
-SOURCES	 = main.cpp configureapp.cpp \
+SOURCES	 = main.cpp configureapp.cpp environment.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearray.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qbytearraymatcher.cpp \
 	   $$QT_SOURCE_TREE/src/corelib/tools/qchar.cpp \

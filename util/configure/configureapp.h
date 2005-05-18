@@ -87,6 +87,7 @@ private:
     QString outputLine;
 
     QTextStream outStream;
+    QString qtDir;
 
     // Variables for usage output
     int optionIndent;
