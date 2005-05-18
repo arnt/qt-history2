@@ -1666,7 +1666,7 @@ void QPainter::setClipPath(const QPainterPath &path, Qt::ClipOperation op)
                path.elementCount(), op, b.x(), b.y(), b.width(), b.height());
     }
 #endif
-    if (!isActive() || (!hasClipping() && path.isEmpty()))
+    if (!isActive())
         return;
 
     Q_D(QPainter);
