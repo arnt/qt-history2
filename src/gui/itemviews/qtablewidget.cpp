@@ -96,12 +96,17 @@ public:
                       int row, int column, const QModelIndex &parent);
     Qt::DropActions supportedDropActions() const;
     
+    QMimeData *internalMimeData()  const;
 private:
     const QTableWidgetItem *prototype;
     QVector<QTableWidgetItem*> table;
     QVector<QTableWidgetItem*> vertical;
     QVector<QTableWidgetItem*> horizontal;
     mutable QChar strbuf[65];
+
+    // A cache must be mutable if get-functions should have const modifiers
+    mutable QModelIndexList cachedIndexes;
+
 };
 
 #include "qtablewidget.moc"
@@ -509,13 +514,23 @@ QStringList QTableModel::mimeTypes() const
     return view->mimeTypes();
 }
 
+QMimeData *QTableModel::internalMimeData()  const
+{
+    return QAbstractItemModel::mimeData(cachedIndexes);
+}
+
 QMimeData *QTableModel::mimeData(const QModelIndexList &indexes) const
 {
     QList<QTableWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)
         items << item(indexes.at(i));
     const QTableWidget *view = ::qobject_cast<const QTableWidget*>(QObject::parent());
-    return view->mimeData(items);
+
+    // cachedIndexes is a little hack to avoid copying from QModelIndexList to QList<QTreeWidgetItem*> and back again in the view
+    cachedIndexes = indexes;
+    QMimeData *mimeData = view->mimeData(items);
+    cachedIndexes.clear();
+    return mimeData;
 }
 
 bool QTableModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
@@ -1728,7 +1743,7 @@ void QTableWidget::clear()
 */
 QStringList QTableWidget::mimeTypes() const
 {
-    return QStringList() << "application/x-qwidgetitemdatavector";
+    return model()->QAbstractItemModel::mimeTypes();
 }
 
 /*!
@@ -1741,17 +1756,8 @@ QStringList QTableWidget::mimeTypes() const
 */
 QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*> items) const
 {
-    if (items.isEmpty())
-        return 0;
-    QByteArray encodedData;
-    QDataStream dataStream(&encodedData, QIODevice::WriteOnly);
-    for (int i = 0; i < items.count(); ++i)
-        if (items.at(i))
-            dataStream << *items.at(i);
-    QTableWidgetMimeData *data = new QTableWidgetMimeData();
-    data->setData(mimeTypes().at(0), encodedData);
-    data->items = items;
-    return data;
+    // Get the cached QModelIndexList so that we dont have to build the QModelIndexList from items. (saves us one itaration)
+    return static_cast<QTableModel *>(model())->internalMimeData();
 }
 
 /*!
@@ -1762,16 +1768,7 @@ QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*> items) const
 */
 bool QTableWidget::dropMimeData(int row, int column, const QMimeData *data, Qt::DropAction action)
 {
-    if (action != Qt::CopyAction || !data->hasFormat(mimeTypes().at(0)))
-        return false;
-    QByteArray encoded = data->data(mimeTypes().at(0));
-    QDataStream stream(&encoded, QIODevice::ReadOnly);
-    while (!stream.atEnd()) {
-        QTableWidgetItem *item = new QTableWidgetItem();
-        stream >> *item;
-        setItem(row++, column, item);
-    }
-    return true;
+    return model()->QAbstractItemModel::dropMimeData(data, action , row, column, QModelIndex());
 }
 
 /*!
@@ -1781,7 +1778,7 @@ bool QTableWidget::dropMimeData(int row, int column, const QMimeData *data, Qt::
 */
 Qt::DropActions QTableWidget::supportedDropActions() const
 {
-    return Qt::CopyAction;
+    return model()->QAbstractItemModel::supportedDropActions();
 }
 
 /*!

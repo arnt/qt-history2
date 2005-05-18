@@ -187,6 +187,7 @@ bool QStandardItemModel::setData(const QModelIndex &index, const QVariant &value
     return false;
 }
 
+
 /*!
   \reimp
 */
@@ -430,7 +431,7 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
 */
 Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
 {
-    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable;
+    return QAbstractItemModel::flags(index) | Qt::ItemIsEditable | Qt::ItemIsDragEnabled | Qt::ItemIsDropEnabled;
 }
 
 /*!

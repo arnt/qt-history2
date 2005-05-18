@@ -80,6 +80,8 @@ public:
                       int row, int column, const QModelIndex &parent);
     Qt::DropActions supportedDropActions() const;
 
+    QMimeData *internalMimeData()  const;
+
 protected:
     void emitDataChanged(QTreeWidgetItem *item, int column);
     void beginInsertItem(QTreeWidgetItem *parent, int row);
@@ -89,6 +91,9 @@ private:
     QList<QTreeWidgetItem*> tree;
     QTreeWidgetItem *header;
     Qt::SortOrder sorting;
+    
+    // A cache must be mutable if get-functions should have const modifiers
+    mutable QModelIndexList cachedIndexes;
 };
 
 #include "qtreewidget.moc"
@@ -583,6 +588,11 @@ QStringList QTreeModel::mimeTypes() const
     return view->mimeTypes();
 }
 
+QMimeData *QTreeModel::internalMimeData()  const
+{
+    return QAbstractItemModel::mimeData(cachedIndexes);
+}
+
 QMimeData *QTreeModel::mimeData(const QModelIndexList &indexes) const
 {
     QList<QTreeWidgetItem*> items;
@@ -590,7 +600,12 @@ QMimeData *QTreeModel::mimeData(const QModelIndexList &indexes) const
         if (indexes.at(i).column() == 0) // only one item per row
             items << item(indexes.at(i));
     const QTreeWidget *view = ::qobject_cast<const QTreeWidget*>(QObject::parent());
-    return view->mimeData(items);
+
+    // cachedIndexes is a little hack to avoid copying from QModelIndexList to QList<QTreeWidgetItem*> and back again in the view
+    cachedIndexes = indexes;
+    QMimeData *mimeData = view->mimeData(items);
+    cachedIndexes.clear();
+    return mimeData;
 }
 
 bool QTreeModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
@@ -1950,8 +1965,11 @@ void QTreeWidget::clear()
 */
 QStringList QTreeWidget::mimeTypes() const
 {
-    return QStringList() << "application/x-qtreewidgetitemdatavector"
-                         << "application/x-qwidgetitemdatavector";
+    // ###  This should preferrably be optimized, since QTreeModel just converted from indices to
+    //      a QList right before QTreeModel called this function.
+    //      (Thus, now it performs O(2i) rather than O(i) )
+    //      (This can be fixed by a cache that holds the last QModelIndexList, which might not thread safe, but....)
+    return model()->QAbstractItemModel::mimeTypes();
 }
 
 /*!
@@ -1964,24 +1982,8 @@ QStringList QTreeWidget::mimeTypes() const
 */
 QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 {
-    if (items.isEmpty())
-        return 0;
-    // encodes both the qtreewidgetitemdata and qwidgetitemdata
-    QByteArray encodedRows;
-    QByteArray encodedData;
-    QDataStream rowsStream(&encodedRows, QIODevice::WriteOnly);
-    QDataStream dataStream(&encodedData, QIODevice::WriteOnly);
-    for (int i = 0; i < items.count(); ++i) {
-        QTreeWidgetItem *item = items.at(i);
-        rowsStream << *item;
-        for (int j = 0; j < item->values.count(); ++j) // for each column
-            dataStream << item->values.at(j);
-    }
-    QTreeWidgetMimeData *data = new QTreeWidgetMimeData();
-    data->setData(mimeTypes().at(0), encodedRows);
-    data->setData(mimeTypes().at(1), encodedData);
-    data->items = items;
-    return data;
+    // Get the cached QModelIndexList so that we dont have to build the QModelIndexList from items. (saves us one itaration)
+    return static_cast<QTreeModel *>(model())->internalMimeData();
 }
 
 /*!
@@ -1993,39 +1995,9 @@ QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 bool QTreeWidget::dropMimeData(QTreeWidgetItem *parent, int index,
                                const QMimeData *data, Qt::DropAction action)
 {
-    if (action != Qt::CopyAction)
-        return false;
-    if (data->hasFormat(mimeTypes().at(0))) {
-        QByteArray encoded = data->data(mimeTypes().at(0));
-        QDataStream stream(&encoded, QIODevice::ReadOnly);
-        while (!stream.atEnd()) {
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            stream >> *item;
-            if (parent)
-                parent->insertChild(index, item);
-            else
-                insertTopLevelItem(index, item);
-            ++index;
-        }
-        return true;
-    }
-    if (data->hasFormat(mimeTypes().at(1))) {
-        QByteArray encoded = data->data(mimeTypes().at(1));
-        QDataStream stream(&encoded, QIODevice::ReadOnly);
-        while (!stream.atEnd()) {
-            QVector <QWidgetItemData> values;
-            stream >> values;
-            QTreeWidgetItem *item = new QTreeWidgetItem();
-            item->values.append(values);
-            if (parent)
-                parent->insertChild(index, item);
-            else
-                insertTopLevelItem(index, item);
-            ++index;
-        }
-        return true;
-    }
-    return false;
+    QModelIndex idx;
+    if (parent) idx = indexFromItem(parent);
+    return model()->QAbstractItemModel::dropMimeData(data, action , index, 0, idx);
 }
 
 /*!
@@ -2035,7 +2007,7 @@ bool QTreeWidget::dropMimeData(QTreeWidgetItem *parent, int index,
 */
 Qt::DropActions QTreeWidget::supportedDropActions() const
 {
-    return Qt::CopyAction;
+    return model()->QAbstractItemModel::supportedDropActions();
 }
 
 /*!

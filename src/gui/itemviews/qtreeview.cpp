@@ -1331,7 +1331,8 @@ int QTreeView::indexRowSizeHint(const QModelIndex &index) const
     QAbstractItemDelegate *delegate = itemDelegate();
     for (int column = start; column <= end; ++column) {
         QModelIndex idx = index.sibling(index.row(), column);
-        height = qMax(height, delegate->sizeHint(option, idx).height());
+        if (idx.isValid() ) 
+            height = qMax(height, delegate->sizeHint(option, idx).height());
     }
 
     return height;

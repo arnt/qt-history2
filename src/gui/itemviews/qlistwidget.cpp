@@ -66,8 +66,12 @@ public:
                       int row, int column, const QModelIndex &parent);
     Qt::DropActions supportedDropActions() const;
 
+    QMimeData *internalMimeData()  const;
 private:
     QList<QListWidgetItem*> lst;
+
+    // A cache must be mutable if get-functions should have const modifiers
+    mutable QModelIndexList cachedIndexes;
 };
 
 #include "qlistwidget.moc"
@@ -254,13 +258,23 @@ QStringList QListModel::mimeTypes() const
     return view->mimeTypes();
 }
 
+QMimeData *QListModel::internalMimeData()  const
+{
+    return QAbstractItemModel::mimeData(cachedIndexes);
+}
+
 QMimeData *QListModel::mimeData(const QModelIndexList &indexes) const
 {
     QList<QListWidgetItem*> items;
     for (int i = 0; i < indexes.count(); ++i)
         items << at(indexes.at(i).row());
     const QListWidget *view = ::qobject_cast<const QListWidget*>(QObject::parent());
-    return view->mimeData(items);
+
+    // cachedIndexes is a little hack to avoid copying from QModelIndexList to QList<QTreeWidgetItem*> and back again in the view
+    cachedIndexes = indexes;
+    QMimeData *mimeData = view->mimeData(items);
+    cachedIndexes.clear();
+    return mimeData;
 }
 
 bool QListModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
@@ -1229,7 +1243,7 @@ void QListWidget::clear()
 */
 QStringList QListWidget::mimeTypes() const
 {
-    return QStringList() << "application/x-qwidgetitemdatavector";
+    return model()->QAbstractItemModel::mimeTypes();
 }
 
 /*!
@@ -1242,16 +1256,8 @@ QStringList QListWidget::mimeTypes() const
 */
 QMimeData *QListWidget::mimeData(const QList<QListWidgetItem*> items) const
 {
-    if (items.isEmpty())
-        return 0;
-    QByteArray encodedData;
-    QDataStream dataStream(&encodedData, QIODevice::WriteOnly);
-    for (int i = 0; i < items.count(); ++i)
-        dataStream << *items.at(i);
-    QListWidgetMimeData *data = new QListWidgetMimeData();
-    data->setData(mimeTypes().at(0), encodedData);
-    data->items = items;
-    return data;
+    // Get the cached QModelIndexList so that we dont have to build the QModelIndexList from items. (saves us one itaration)
+    return static_cast<QListModel *>(model())->internalMimeData();
 }
 
 /*!
@@ -1262,16 +1268,7 @@ QMimeData *QListWidget::mimeData(const QList<QListWidgetItem*> items) const
 */
 bool QListWidget::dropMimeData(int index, const QMimeData *data, Qt::DropAction action)
 {
-    if (action != Qt::CopyAction || !data->hasFormat(mimeTypes().at(0)))
-        return false;
-    QByteArray encoded = data->data(mimeTypes().at(0));
-    QDataStream stream(&encoded, QIODevice::ReadOnly);
-    while (!stream.atEnd()) {
-        QListWidgetItem *item = new QListWidgetItem();
-        stream >> *item;
-        insertItem(index++, item);
-    }
-    return true;
+    return model()->QAbstractItemModel::dropMimeData(data, action , index, 0, QModelIndex());
 }
 
 /*!
@@ -1281,7 +1278,7 @@ bool QListWidget::dropMimeData(int index, const QMimeData *data, Qt::DropAction 
 */
 Qt::DropActions QListWidget::supportedDropActions() const
 {
-    return Qt::CopyAction;
+    return model()->QAbstractItemModel::supportedDropActions();
 }
 
 /*!
