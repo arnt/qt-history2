@@ -708,18 +708,6 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
         return;
     const short index = qt_mac_menu_find_action(action->menu, action);
 
-    if(!action->action->isVisible()) {
-        ChangeMenuItemAttributes(action->menu, index, kMenuItemAttrHidden, 0);
-        return;
-    }
-    ChangeMenuItemAttributes(action->menu, index, 0, kMenuItemAttrHidden);
-
-    if(action->action->isSeparator()) {
-        ChangeMenuItemAttributes(action->menu, index, kMenuItemAttrSeparator, 0);
-        return;
-    }
-    ChangeMenuItemAttributes(action->menu, index, 0, kMenuItemAttrSeparator);
-
     MenuRef submenu = 0;
     bool release_submenu = false;
     if(action->action->menu()) {
@@ -735,6 +723,13 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
     if(submenu) {
         SetMenuItemHierarchicalMenu(action->menu, index, submenu);
         SetMenuTitleWithCFString(submenu, QCFString(qt_mac_no_ampersands(action->action->text())));
+
+        if(!action->action->isVisible()) {
+            ChangeMenuAttributes(submenu, kMenuAttrHidden, 0);
+            return;
+        }
+        ChangeMenuAttributes(submenu, 0, kMenuAttrHidden);
+
         if(release_submenu) //no pointers to it
             ReleaseMenu(submenu);
     } else {
