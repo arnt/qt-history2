@@ -1681,8 +1681,8 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
     inline const Class* q_func() const { return static_cast<const Class *>(q_ptr); } \
     friend class Class;
 
-#define Q_D(Class) Class##Private *d = d_func()
-#define Q_Q(Class) Class *q = q_func()
+#define Q_D(Class) Class##Private * const d = d_func()
+#define Q_Q(Class) Class * const q = q_func()
 
 #define QT_TR_NOOP(x) (x)
 #define QT_TRANSLATE_NOOP(scope, x) (x)
