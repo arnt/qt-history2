@@ -439,7 +439,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
     Returns the y-coordinate of the point.
 
-    \sa setX() y()
+    \sa setY() x()
 */
 
 /*!
@@ -515,23 +515,8 @@ QDebug operator<<(QDebug d, const QPointF &p)
 */
 
 /*!
-    \fn bool operator==(const QPointF &, const QPointF &)
-
-    Returns true if the \a point is the same as the \a other point given.
-
-    \sa operator!=()
-*/
-
-/*!
-    \fn bool operator!=(const QPointF &point, const QPointF &other)
-
-    Returns true if the \a point is not the same as the \a other point given.
-
-    \sa operator==()
-*/
-
-/*!
     \fn const QPointF operator+(const QPointF &point, const QPointF &other)
+    \relates QPointF
 
     Adds the coordinates of the \a point to the corresponding coordinates of
     the \a other point, and returns a point with the new coordinates. (Vector
@@ -542,6 +527,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
 /*!
     \fn const QPointF operator-(const QPointF &point, const QPointF &other)
+    \relates QPointF
 
     Subtracts the coordinates of the \a other point from the
     corresponding coordinates of the given \a point, and returns a point with
@@ -552,6 +538,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
 /*!
     \fn const QPointF operator*(const QPointF &point, qreal factor)
+    \relates QPointF
 
     \overload
 
@@ -564,6 +551,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
 /*!
     \fn const QPointF operator*(qreal factor, const QPointF &point)
+    \relates QPointF
 
     \overload
 
@@ -576,6 +564,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
 /*!
     \fn const QPointF operator-(const QPointF &point)
+    \relates QPointF
 
     Negates the coordinates of the \a point, and returns a point with the
     new coordinates. (Inversion).
@@ -583,6 +572,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
 /*!
     \fn const QPointF operator/(const QPointF &point, qreal factor)
+    \relates QPointF
 
     Divides the coordinates of the \a point by the given scale \a factor, and
     returns a point with the new coordinates. (Scalar division of a vector.)
@@ -605,7 +595,6 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
     Two points are equal to each other if both x-coordinates and both
     y-coordinates are the same.
-
 */
 
 /*!
@@ -613,42 +602,6 @@ QDebug operator<<(QDebug d, const QPointF &p)
     \relates QPointF
 
     Returns true if \a point1 is not equal to \a point2; otherwise returns false.
-*/
-/*!
-    \fn const QPointF operator+(const QPointF &point1, const QPointF &point2)
-    \relates QPointF
-
-    Returns the sum of \a point1 and \a point2. Each component is added separately.
-*/
-/*!
-    \fn const QPointF operator-(const QPointF &point1, const QPointF &point2)
-    \relates QPointF
-
-    Returns the difference of \a point2 subtracted from \a point1. Each component is subtracted separately.
-*/
-/*!
-    \fn const QPointF operator*(qreal c, const QPointF &point)
-    \relates QPointF
-
-    Returns the QPointF formed by multiplying both components of \a point by \a c
-*/
-/*!
-    \fn const QPointF operator*(const QPointF &point, qreal c);
-    \relates QPointF
-
-    Returns the QPointF formed by multiplying both components of \a point by \a c
-*/
-/*!
-    \fn const QPointF operator-(const QPointF &point);
-    \relates QPointF
-
-    Returns the QPointF formed by changed the sign of both components of \a point. This is equivalent to \code QPoint(0, 0) - p \endcode.
-*/
-/*!
-    \fn const QPointF operator/(const QPointF &point, qreal c);
-    \relates QPointF
-
-    Returns the QPointF formed by dividing both components of \a point by \a c.
 */
 
 #ifndef QT_NO_DATASTREAM
