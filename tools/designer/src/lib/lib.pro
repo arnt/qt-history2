@@ -5,6 +5,12 @@ CONFIG += qt dll debug_and_release
 DESTDIR = ../../../../lib
 DLLDESTDIR = ../../../../bin
 
+VERSION = 4.0.0
+QMAKE_TARGET_COMPANY = Trolltech AS
+QMAKE_TARGET_PRODUCT = Designer
+QMAKE_TARGET_DESCRIPTION = Graphical user interface designer.
+QMAKE_TARGET_COPYRIGHT = Copyright (c) 2003-2005 Trolltech
+
 DEFINES += \
     QT_SDK_LIBRARY \
     QT_EXTENSION_LIBRARY \
