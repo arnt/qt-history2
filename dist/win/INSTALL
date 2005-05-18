@@ -28,7 +28,7 @@
 
 	nmake
 
-3. Environment variables
+4. Environment variables
 
    In order to use Qt, some environment variables needs to be
    extended.
