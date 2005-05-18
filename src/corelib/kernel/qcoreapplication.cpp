@@ -1439,7 +1439,9 @@ QString QCoreApplication::applicationName()
     paths have been set.  The default installation directory for plugins
     is \c INSTALL/plugins, where \c INSTALL is the directory where Qt was
     installed. The directory of the application executable (NOT the
-    working directory) is also added to the plugin paths.
+    working directory) is also added to the plugin paths, as well as
+    the colon separated entries of the QT_PLUGIN_PATH environment
+    variable.
 
     If you want to iterate over the list, you can use the \l foreach
     pseudo-keyword:
@@ -1470,6 +1472,10 @@ QStringList QCoreApplication::libraryPaths()
         app_location.truncate(app_location.lastIndexOf(QLatin1Char('/')));
         if (app_location !=  QLibraryInfo::location(QLibraryInfo::PluginsPath) && QFile::exists(app_location))
             app_libpaths->append(app_location);
+
+        const QByteArray libPathEnv = qgetenv("QT_PLUGIN_PATH");
+        if (!libPathEnv.isEmpty())
+            (*app_libpaths) += QString::fromLocal8Bit(libPathEnv.constData()).split(QLatin1String(":"), QString::SkipEmptyParts);
     }
     return *self->d_func()->app_libpaths;
 }
