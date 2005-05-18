@@ -74,7 +74,7 @@ int showHelp(const char *argv0, const QString &error)
             "\t-name name        Create an external initialization function with name\n"
             "\t-threshold level  Threshold to consider compressing files\n"
             "\t-compress level   Compress input files by level\n"
-            "\t-root path        Prefix resource acesspath with root path\n"
+            "\t-root path        Prefix resource access path with root path\n"
             "\t-no-compress      Disable all compression\n"
             "\t-version          Display version\n"
             "\t-help             Display this information\n",
