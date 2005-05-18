@@ -16,20 +16,18 @@
 #include "displayshape.h"
 
 DisplayShape::DisplayShape(const QPointF &position, const QSizeF &maxSize)
-    : pos(position), maxSize(maxSize)
+    : pos(position), maxSize(maxSize), interactive(false)
 {
-    Q_UNUSED(position);
 }
 
 bool DisplayShape::animate()
 {
-    if (meta.contains("target")) {
-        QPointF target = meta["target"].toPointF();
-        QLineF displacement(pos, target);
+    if (!targetPos.isNull()) {
+        QLineF displacement(pos, targetPos);
         QPointF newPosition = displacement.pointAt(0.25);
         if (displacement.length() <= 1.0) {
-            meta.remove("target");
-            pos = target;
+            pos = targetPos;
+            targetPos = QPointF();
         } else {
             pos = newPosition;
         }
@@ -42,6 +40,11 @@ bool DisplayShape::animate()
 bool DisplayShape::contains(const QString &key) const
 {
     return meta.contains(key);
+}
+
+bool DisplayShape::isInteractive() const
+{
+    return interactive;
 }
 
 QVariant DisplayShape::metaData(const QString &key) const
@@ -71,6 +74,11 @@ void DisplayShape::removeMetaData(const QString &key)
     meta.remove(key);
 }
 
+void DisplayShape::setInteractive(bool enable)
+{
+    interactive = enable;
+}
+
 void DisplayShape::setMetaData(const QString &key, const QVariant &value)
 {
     meta[key] = value;
@@ -81,21 +89,31 @@ void DisplayShape::setPosition(const QPointF &position)
     pos = position;
 }
 
+void DisplayShape::setTarget(const QPointF &position)
+{
+    targetPos = position;
+}
+
 QSizeF DisplayShape::size() const
 {
     return maxSize;
 }
 
-PathShape::PathShape(const QPainterPath &path, const QBrush &normal,
-                     const QBrush &highlighted, const QPen &pen,
-                     const QPointF &position, const QSizeF &maxSize)
+QPointF DisplayShape::target() const
+{
+    return targetPos;
+}
+
+PanelShape::PanelShape(const QPainterPath &path, const QBrush &normal,
+                       const QBrush &highlighted, const QPen &pen,
+                       const QPointF &position, const QSizeF &maxSize)
     : DisplayShape(position, maxSize), highlightedBrush(highlighted),
       normalBrush(normal), path(path), pen(pen)
 {
     brush = normalBrush;
 }
 
-bool PathShape::animate()
+bool PanelShape::animate()
 {
     bool updated = false;
 
@@ -161,7 +179,7 @@ bool PathShape::animate()
     return DisplayShape::animate() || updated;
 }
 
-void PathShape::paint(QPainter *painter) const
+void PanelShape::paint(QPainter *painter) const
 {
     painter->save();
     painter->setRenderHint(QPainter::Antialiasing);
@@ -172,7 +190,7 @@ void PathShape::paint(QPainter *painter) const
     painter->restore();
 }
 
-QRectF PathShape::rect() const
+QRectF PanelShape::rect() const
 {
     return QRectF(pos + path.boundingRect().topLeft(),
                   path.boundingRect().size());

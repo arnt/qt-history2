@@ -31,26 +31,32 @@ public:
 
     virtual bool animate();
     virtual bool contains(const QString &key) const;
+    virtual bool isInteractive() const;
     virtual QVariant metaData(const QString &key) const;
     virtual void paint(QPainter *painter) const;
     virtual QPointF position() const;
+    virtual QPointF target() const;
     virtual QRectF rect() const;
     virtual QSizeF size() const;
     virtual void removeMetaData(const QString &key);
+    virtual void setInteractive(bool enable);
     virtual void setMetaData(const QString &key, const QVariant &value);
     virtual void setPosition(const QPointF &point);
+    virtual void setTarget(const QPointF &point);
 
 protected:
     QHash<QString,QVariant> meta;
     QImage image;
     QPointF pos;
+    QPointF targetPos;
     QSizeF maxSize;
+    bool interactive;
 };
 
-class PathShape : public DisplayShape
+class PanelShape : public DisplayShape
 {
 public:
-    PathShape(const QPainterPath &path, const QBrush &normal,
+    PanelShape(const QPainterPath &path, const QBrush &normal,
               const QBrush &highlighted, const QPen &pen,
               const QPointF &position, const QSizeF &maxSize);
 
