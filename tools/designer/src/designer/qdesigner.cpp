@@ -37,6 +37,7 @@ QDesigner::QDesigner(int &argc, char **argv)
 {
     setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
+    setWindowIcon(QIcon(QString::fromUtf8(":/trolltech/designer/images/designer.png")));
 
     qInitResources_formeditor();
     qInitResources_widgetbox();

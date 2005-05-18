@@ -50,8 +50,6 @@ QDesignerFormWindow::QDesignerFormWindow(QDesignerFormWindowInterface *editor, Q
     m_action = new QAction(this);
     m_action->setCheckable(true);
 
-    setWindowIcon(QIcon(QString::fromUtf8(":/trolltech/designer/images/designer.png")));
-
     connect(m_editor->commandHistory(), SIGNAL(commandExecuted()), this, SLOT(updateChanged()));
     connect(m_editor, SIGNAL(fileNameChanged(QString)), this, SLOT(updateWindowTitle(QString)));
 }
