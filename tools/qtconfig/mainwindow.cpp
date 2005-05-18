@@ -95,22 +95,6 @@ static const char *interface_text =
 "Japanese.";
 // ### What does the 'Enhanced support for languages written R2L do?
 
-static const char *libpath_text =
-"<p><b><font size+=2>Library Paths</font></b></p>"
-"<hr>"
-"<p>Use this tab to select additional directories where Qt should search "
-"for component plugins."
-"<p>These directories should be the base directory of where your plugins "
-"are stored.  For example, if you wish to store GUI Style plugins in "
-"$HOME/plugins/styles and Qt Designer plugins in $HOME/plugins/designer, "
-"you would add $HOME/plugins to your Library Path. <p>Notes:"
-"<ul><li>The Qt Configuration program does <i>not</i> support environment "
-"variables, so you must give full path names, for example "
-"<tt>/home/brad/myplugins</tt> not <tt>$HOME/myplugins</tt>"
-"<li> Qt automatically "
-"searches in the directory where you installed Qt for component plugins. "
-"Removing that path is not possible.</ul>";
-
 static const char *printer_text =
 "<p><b><font size+=2>Printer</font></b></p>"
 "<hr>"
@@ -294,9 +278,6 @@ MainWindow::MainWindow()
     strutwidth->setValue(globalStrut.width());
     strutheight->setValue(globalStrut.height());
 
-    libpathlistbox->clear();
-    libpathlistbox->insertStringList(QApplication::libraryPaths());
-
     // find the default family
     QStringList::Iterator sit = families.begin();
     int i = 0, possible = -1;
@@ -409,11 +390,6 @@ void MainWindow::fileSave()
         settings.setValue("Palette/active", actcg);
         settings.setValue("Palette/inactive", inactcg);
         settings.setValue("Palette/disabled", discg);
-
-        QStringList libpath = QApplication::libraryPaths();
-        QString libpathkey =
-            QString("%1.%2/libraryPath").arg( QT_VERSION >> 16 ).arg( (QT_VERSION & 0xff00 ) >> 8 );
-        settings.setValue(libpathkey, libpath);
 
         settings.setValue("fontPath", fontpaths);
         settings.setValue("embedFonts", fontembeddingcheckbox->isChecked());
@@ -811,102 +787,6 @@ void MainWindow::upSubstitute()
 }
 
 
-void MainWindow::removeLibpath()
-{
-    if (libpathlistbox->currentItem() < 0 ||
-        uint(libpathlistbox->currentItem()) > libpathlistbox->count())
-        return;
-
-    int item = libpathlistbox->currentItem();
-    QStringList paths = QApplication::libraryPaths();
-    paths.remove(paths.at(libpathlistbox->currentItem()));
-    libpathlistbox->clear();
-    libpathlistbox->insertStringList(paths);
-    if (uint(item) > libpathlistbox->count())
-        item = int(libpathlistbox->count()) - 1;
-    libpathlistbox->setCurrentItem(item);
-    QApplication::setLibraryPaths(paths);
-    setModified(true);
-}
-
-
-void MainWindow::addLibpath()
-{
-    if (libpathlineedit->text().isEmpty())
-        return;
-
-    if (libpathlistbox->currentItem() < 0 ||
-        uint(libpathlistbox->currentItem()) > libpathlistbox->count()) {
-        QStringList paths = QApplication::libraryPaths();
-        paths.append(libpathlineedit->text());
-        libpathlistbox->clear();
-        libpathlistbox->insertStringList(paths);
-        QApplication::setLibraryPaths(paths);
-        setModified(true);
-
-        return;
-    }
-
-    int item = libpathlistbox->currentItem();
-    QStringList paths =QApplication::libraryPaths();
-    paths.insert(libpathlistbox->currentItem()+1,
-                 libpathlineedit->text());
-    libpathlistbox->clear();
-    libpathlistbox->insertStringList(paths);
-    libpathlistbox->setCurrentItem(item);
-    QApplication::setLibraryPaths(paths);
-    setModified(true);
-}
-
-
-void MainWindow::downLibpath()
-{
-    if (libpathlistbox->currentItem() < 0 ||
-        uint(libpathlistbox->currentItem()) >= libpathlistbox->count() - 1)
-        return;
-
-    int item = libpathlistbox->currentItem();
-    QStringList paths = QApplication::libraryPaths();
-    QString fam = paths.at(item);
-    paths.removeAt(item);
-    paths.insert(item+1, fam);
-    libpathlistbox->clear();
-    libpathlistbox->insertStringList(paths);
-    libpathlistbox->setCurrentItem(item + 1);
-    QApplication::setLibraryPaths(paths);
-    setModified(true);
-}
-
-
-void MainWindow::upLibpath()
-{
-    if (libpathlistbox->currentItem() < 1)
-        return;
-
-    int item = libpathlistbox->currentItem();
-    QStringList paths = QApplication::libraryPaths();
-    QString fam = paths.at(item);
-    paths.removeAt(item);
-    paths.insert(item - 1, fam);
-    libpathlistbox->clear();
-    libpathlistbox->insertStringList(paths);
-    libpathlistbox->setCurrentItem(item - 1);
-    QApplication::setLibraryPaths(paths);
-    setModified(true);
-}
-
-
-void MainWindow::browseLibpath()
-{
-    QString dirname = QFileDialog::getExistingDirectory(QString(), this, 0,
-                                                        tr("Select a Directory"));
-    if (dirname.isNull())
-        return;
-
-    libpathlineedit->setText(dirname);
-}
-
-
 void MainWindow::removeFontpath()
 {
     if (fontpathlistbox->currentItem() < 0 ||
@@ -1021,8 +901,6 @@ void MainWindow::pageChanged(QWidget *page)
     else if (page == tab2)
         helpview->setText(tr(interface_text));
     else if (page == tab3)
-        helpview->setText(tr(libpath_text));
-    else if (page == tab4)
         helpview->setText(tr(printer_text));
 }
 

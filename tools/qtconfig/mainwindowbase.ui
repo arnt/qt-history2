@@ -22,9 +22,9 @@
    <property name="geometry" >
     <rect>
      <x>0</x>
-     <y>29</y>
+     <y>28</y>
      <width>724</width>
-     <height>586</height>
+     <height>587</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" >
@@ -884,125 +884,6 @@
       </widget>
       <widget class="QWidget" name="tab" >
        <attribute name="title" >
-        <string>Library Paths</string>
-       </attribute>
-       <layout class="QVBoxLayout" >
-        <property name="margin" >
-         <number>4</number>
-        </property>
-        <property name="spacing" >
-         <number>4</number>
-        </property>
-        <item>
-         <widget class="QGroupBox" name="GroupBox39" >
-          <property name="title" >
-           <string>Library Paths</string>
-          </property>
-          <layout class="QVBoxLayout" >
-           <property name="margin" >
-            <number>8</number>
-           </property>
-           <property name="spacing" >
-            <number>4</number>
-           </property>
-           <item>
-            <layout class="QGridLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>4</number>
-             </property>
-             <item row="1" column="1" >
-              <widget class="QPushButton" name="PushButton8" >
-               <property name="text" >
-                <string>Down</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="2" >
-              <widget class="QPushButton" name="PushButton9" >
-               <property name="text" >
-                <string>Remove</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" >
-              <widget class="QPushButton" name="PushButton7" >
-               <property name="text" >
-                <string>Up</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" colspan="3" >
-              <widget class="Q3ListBox" name="libpathlistbox" >
-               <property name="frameShape" >
-                <enum>QFrame::StyledPanel</enum>
-               </property>
-               <property name="frameShadow" >
-                <enum>QFrame::Sunken</enum>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </item>
-           <item>
-            <layout class="QGridLayout" >
-             <property name="margin" >
-              <number>0</number>
-             </property>
-             <property name="spacing" >
-              <number>4</number>
-             </property>
-             <item row="2" column="0" >
-              <spacer>
-               <property name="orientation" >
-                <enum>Qt::Horizontal</enum>
-               </property>
-               <property name="sizeType" >
-                <enum>QSizePolicy::Minimum</enum>
-               </property>
-               <property name="sizeHint" >
-                <size>
-                 <width>20</width>
-                 <height>20</height>
-                </size>
-               </property>
-              </spacer>
-             </item>
-             <item row="2" column="1" >
-              <widget class="QPushButton" name="PushButton5" >
-               <property name="text" >
-                <string>Browse...</string>
-               </property>
-              </widget>
-             </item>
-             <item row="2" column="2" >
-              <widget class="QPushButton" name="PushButton6" >
-               <property name="text" >
-                <string>Add</string>
-               </property>
-              </widget>
-             </item>
-             <item row="0" column="0" colspan="3" >
-              <widget class="QLabel" name="TextLabel15" >
-               <property name="text" >
-                <string>Press the &lt;b>Browse&lt;/b> button or enter a directory and press Enter to add them to the list.</string>
-               </property>
-              </widget>
-             </item>
-             <item row="1" column="0" colspan="3" >
-              <widget class="QLineEdit" name="libpathlineedit" />
-             </item>
-            </layout>
-           </item>
-          </layout>
-         </widget>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="tab" >
-       <attribute name="title" >
         <string>Printer</string>
        </attribute>
        <layout class="QVBoxLayout" >
@@ -1141,7 +1022,7 @@
      <x>0</x>
      <y>0</y>
      <width>724</width>
-     <height>28</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="PopupMenu" >
@@ -1156,6 +1037,7 @@
     <property name="title" >
      <string>&amp;File</string>
     </property>
+    <action name="" />
     <action name="" />
     <action name="" />
     <addaction name="fileSaveAction" />
@@ -1177,6 +1059,7 @@
     <addaction name="helpAboutAction" />
     <addaction name="helpAboutQtAction" />
    </widget>
+   <action name="" />
    <action name="" />
    <action name="" />
    <addaction name="PopupMenu" />
@@ -1231,6 +1114,13 @@
  <pixmapfunction></pixmapfunction>
  <customwidgets>
   <customwidget>
+   <class>Q3ListBox</class>
+   <extends></extends>
+   <header>q3listbox.h</header>
+   <container>0</container>
+   <pixmap></pixmap>
+  </customwidget>
+  <customwidget>
    <class>ColorButton</class>
    <extends></extends>
    <header>colorbutton.h</header>
@@ -1238,9 +1128,9 @@
    <pixmap></pixmap>
   </customwidget>
   <customwidget>
-   <class>Q3MainWindow</class>
+   <class>Q3Frame</class>
    <extends></extends>
-   <header>q3mainwindow.h</header>
+   <header>Qt3Support/Q3Frame</header>
    <container>1</container>
    <pixmap></pixmap>
   </customwidget>
@@ -1252,16 +1142,9 @@
    <pixmap></pixmap>
   </customwidget>
   <customwidget>
-   <class>Q3ListBox</class>
+   <class>Q3MainWindow</class>
    <extends></extends>
-   <header>q3listbox.h</header>
-   <container>0</container>
-   <pixmap></pixmap>
-  </customwidget>
-  <customwidget>
-   <class>Q3Frame</class>
-   <extends></extends>
-   <header>Qt3Support/Q3Frame</header>
+   <header>q3mainwindow.h</header>
    <container>1</container>
    <pixmap></pixmap>
   </customwidget>

@@ -21,15 +21,11 @@ MainWindowBase::MainWindowBase(QWidget* parent, const char* name, Qt::WFlags fl)
     // signals and slots connections
     connect(fontpathlineedit, SIGNAL(returnPressed()), this, SLOT(addFontpath()));
     connect(PushButton15, SIGNAL(clicked()), this, SLOT(addFontpath()));
-    connect(PushButton6, SIGNAL(clicked()), this, SLOT(addLibpath()));
-    connect(libpathlineedit, SIGNAL(returnPressed()), this, SLOT(addLibpath()));
     connect(PushButton1, SIGNAL(clicked()), this, SLOT(addSubstitute()));
     connect(PushButton14, SIGNAL(clicked()), this, SLOT(browseFontpath()));
-    connect(PushButton5, SIGNAL(clicked()), this, SLOT(browseLibpath()));
     connect(stylecombo, SIGNAL(activated(int)), this, SLOT(buildFont()));
     connect(psizecombo, SIGNAL(activated(int)), this, SLOT(buildFont()));
     connect(PushButton12, SIGNAL(clicked()), this, SLOT(downFontpath()));
-    connect(PushButton8, SIGNAL(clicked()), this, SLOT(downLibpath()));
     connect(PushButton3, SIGNAL(clicked()), this, SLOT(downSubstitute()));
     connect(familycombo, SIGNAL(activated(const QString&)), this, SLOT(familySelected(const QString&)));
     connect(fileExitAction, SIGNAL(activated()), this, SLOT(fileExit()));
@@ -39,7 +35,6 @@ MainWindowBase::MainWindowBase(QWidget* parent, const char* name, Qt::WFlags fl)
     connect(TabWidget3, SIGNAL(currentChanged(QWidget*)), this, SLOT(pageChanged(QWidget*)));
     connect(paletteCombo, SIGNAL(activated(int)), this, SLOT(paletteSelected(int)));
     connect(PushButton13, SIGNAL(clicked()), this, SLOT(removeFontpath()));
-    connect(PushButton9, SIGNAL(clicked()), this, SLOT(removeLibpath()));
     connect(PushButton4, SIGNAL(clicked()), this, SLOT(removeSubstitute()));
     connect(effectcheckbox, SIGNAL(toggled(bool)), effectbase, SLOT(setEnabled(bool)));
     connect(fontembeddingcheckbox, SIGNAL(toggled(bool)), GroupBox10, SLOT(setEnabled(bool)));
@@ -61,7 +56,6 @@ MainWindowBase::MainWindowBase(QWidget* parent, const char* name, Qt::WFlags fl)
     connect(familysubcombo, SIGNAL(activated(const QString&)), this, SLOT(substituteSelected(const QString&)));
     connect(btnAdvanced, SIGNAL(clicked()), this, SLOT(tunePalette()));
     connect(PushButton11, SIGNAL(clicked()), this, SLOT(upFontpath()));
-    connect(PushButton7, SIGNAL(clicked()), this, SLOT(upLibpath()));
     connect(PushButton2, SIGNAL(clicked()), this, SLOT(upSubstitute()));
     init();
 }
@@ -97,11 +91,6 @@ void MainWindowBase::addFontpath()
     qWarning("MainWindowBase::addFontpath(): Not implemented yet");
 }
 
-void MainWindowBase::addLibpath()
-{
-    qWarning("MainWindowBase::addLibpath(): Not implemented yet");
-}
-
 void MainWindowBase::addSubstitute()
 {
     qWarning("MainWindowBase::addSubstitute(): Not implemented yet");
@@ -110,11 +99,6 @@ void MainWindowBase::addSubstitute()
 void MainWindowBase::browseFontpath()
 {
     qWarning("MainWindowBase::browseFontpath(): Not implemented yet");
-}
-
-void MainWindowBase::browseLibpath()
-{
-    qWarning("MainWindowBase::browseLibpath(): Not implemented yet");
 }
 
 void MainWindowBase::buildFont()
@@ -130,11 +114,6 @@ void MainWindowBase::buildPalette()
 void MainWindowBase::downFontpath()
 {
     qWarning("MainWindowBase::downFontpath(): Not implemented yet");
-}
-
-void MainWindowBase::downLibpath()
-{
-    qWarning("MainWindowBase::downLibpath(): Not implemented yet");
 }
 
 void MainWindowBase::downSubstitute()
@@ -187,11 +166,6 @@ void MainWindowBase::removeFontpath()
     qWarning("MainWindowBase::removeFontpath(): Not implemented yet");
 }
 
-void MainWindowBase::removeLibpath()
-{
-    qWarning("MainWindowBase::removeLibpath(): Not implemented yet");
-}
-
 void MainWindowBase::removeSubstitute()
 {
     qWarning("MainWindowBase::removeSubstitute(): Not implemented yet");
@@ -220,11 +194,6 @@ void MainWindowBase::tunePalette()
 void MainWindowBase::upFontpath()
 {
     qWarning("MainWindowBase::upFontpath(): Not implemented yet");
-}
-
-void MainWindowBase::upLibpath()
-{
-    qWarning("MainWindowBase::upLibpath(): Not implemented yet");
 }
 
 void MainWindowBase::upSubstitute()

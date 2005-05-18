@@ -40,11 +40,6 @@ public slots:
     virtual void addSubstitute();
     virtual void downSubstitute();
     virtual void upSubstitute();
-    virtual void removeLibpath();
-    virtual void addLibpath();
-    virtual void downLibpath();
-    virtual void upLibpath();
-    virtual void browseLibpath();
     virtual void removeFontpath();
     virtual void addFontpath();
     virtual void downFontpath();

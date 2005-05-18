@@ -17,14 +17,11 @@ public:
 
 public slots:
     virtual void addFontpath();
-    virtual void addLibpath();
     virtual void addSubstitute();
     virtual void browseFontpath();
-    virtual void browseLibpath();
     virtual void buildFont();
     virtual void buildPalette();
     virtual void downFontpath();
-    virtual void downLibpath();
     virtual void downSubstitute();
     virtual void familySelected( const QString & );
     virtual void fileExit();
@@ -35,14 +32,12 @@ public slots:
     virtual void pageChanged( QWidget * );
     virtual void paletteSelected( int );
     virtual void removeFontpath();
-    virtual void removeLibpath();
     virtual void removeSubstitute();
     virtual void somethingModified();
     virtual void styleSelected( const QString & );
     virtual void substituteSelected( const QString & );
     virtual void tunePalette();
     virtual void upFontpath();
-    virtual void upLibpath();
     virtual void upSubstitute();
 
 protected slots:
