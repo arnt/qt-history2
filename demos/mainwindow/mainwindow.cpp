@@ -32,12 +32,6 @@ static const char * const message =
     "<p>The tool bar and dock widgets can be dragged around and rearranged "
     "using the mouse or via the menu.</p>"
 
-    "<p>The tool bar contains three different types of buttons:"
-    "<ul><li>Normal button with menu (button 1).</li>"
-    "<li>Normal buttons (buttons 2, 3, 4 and 5).</li>"
-    "<li>Checkable buttons (buttons 6, 7 and 8).</li>"
-    "</ul></p>"
-
     "<p>Each dock widget contains a colored frame and a context "
     "(right-click) menu.</p>"
 
@@ -60,7 +54,7 @@ MainWindow::MainWindow(QWidget *parent, Qt::WFlags flags)
     QTextEdit *center = new QTextEdit(this);
     center->setReadOnly(true);
     center->setHtml(tr(message));
-    center->setMinimumSize(400, 200);
+    center->setMinimumSize(400, 205);
     setCentralWidget(center);
 
     statusBar()->showMessage(tr("Status Bar"));
