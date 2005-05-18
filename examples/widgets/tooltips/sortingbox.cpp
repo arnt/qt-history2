@@ -85,7 +85,7 @@ void SortingBox::paintEvent(QPaintEvent * /* event */)
     QPainter painter(this);
     foreach (ShapeItem shapeItem, shapeItems) {
         painter.translate(shapeItem.position());
-        painter.fillPath(shapeItem.path(), shapeItem.color());
+        painter.setBrush(shapeItem.color());
         painter.drawPath(shapeItem.path());
         painter.translate(-shapeItem.position());
     }
