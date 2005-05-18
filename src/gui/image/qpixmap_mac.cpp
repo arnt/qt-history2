@@ -723,7 +723,7 @@ QPixmap qt_mac_convert_iconref(IconRef icon, int width, int height)
 {
     QPixmap ret(width, height);
 #if !defined(QMAC_NO_COREGRAPHICS)
-    if(!qgetenv("QT_MAC_USE_QUICKDRAW")) {
+    if(qgetenv("QT_MAC_USE_QUICKDRAW").isNull()) {
         ret.fill(QColor(0, 0, 0, 0));
 
         CGRect rect = CGRectMake(0, 0, width, height);
@@ -771,7 +771,7 @@ QPaintEngine *QPixmap::paintEngine() const
         data->paintEngine = new QRasterPaintEngine();
 #else
 #if !defined(QMAC_NO_COREGRAPHICS)
-        if(!qgetenv("QT_MAC_USE_QUICKDRAW"))
+        if(qgetenv("QT_MAC_USE_QUICKDRAW").isNull())
             data->paintEngine = new QCoreGraphicsPaintEngine();
         else
 #endif

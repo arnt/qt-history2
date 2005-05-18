@@ -33,6 +33,8 @@
 #include "qgfxsnap_qws.h"
 #include "qgfxraster_qws.h"
 
+#include <stdlib.h>
+
 // TODO: Can we eliminate these external references here, and just set up gfx_optype
 //       ourselves instead of using these values that are not referenced anywhere?
 
@@ -894,7 +896,7 @@ bool QSNAPScreen::connect(
             }
         }
     const char* qwssize;
-    if ((qwssize = qgetenv("QWS_SIZE")) != NULL) {
+    if ((qwssize = ::getenv("QWS_SIZE")) != NULL) {
         // First try to get the resolution and color depth, and if that fails
         // just try to get the resolution without the color depth
         if (sscanf(qwssize,"%dx%dx%d",&w,&h,&d) != 3)

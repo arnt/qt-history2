@@ -735,9 +735,8 @@ uint QJpUnicodeConv_Microsoft::unicodeToJisx0212(uint h, uint l) const
 /*! \internal */
 QJpUnicodeConv *QJpUnicodeConv::newConverter(int rule)
 {
-    const char * e = 0;
-    if (rule == Default && (e=qgetenv("UNICODEMAP_JP")) != 0) {
-        QByteArray env(e);
+    QByteArray env = qgetenv("UNICODEMAP_JP");
+    if (rule == Default && !env.isNull()) {
         for (int i = 0; i < (int)env.length();) {
             int j = env.indexOf(',', i);
             QByteArray s;

@@ -36,7 +36,7 @@ void QAccessible::initialize()
         return;
     isInit = true;
 
-    if (qstrcmp(qgetenv("QT_ACCESSIBILITY"), "1") != 0)
+    if (qgetenv("QT_ACCESSIBILITY") != "1")
         return;
 #ifndef QT_NO_COMPONENT
     const QStringList l = loader()->keys();

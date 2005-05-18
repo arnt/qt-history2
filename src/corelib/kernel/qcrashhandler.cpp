@@ -348,7 +348,7 @@ void qt_signal_handler(int sig)
         _exit(1);
     }
     FILE *outb = stderr;
-    if(char *crash_loc = qgetenv("QT_CRASH_OUTPUT")) {
+    if(char *crash_loc = ::getenv("QT_CRASH_OUTPUT")) {
         if(FILE *new_outb = fopen(crash_loc, "w")) {
             fprintf(stderr, "Crash (backtrace written to %s)!!!\n", crash_loc);
             outb = new_outb;

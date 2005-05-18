@@ -1210,13 +1210,12 @@ bool QVNCScreen::connect(const QString &displaySpec)
         virtualBuffer = true;
 
     if (virtualBuffer) {
-        const char *str;
-        if ((str = qgetenv("QWS_DEPTH")))
-            d = atoi(str);
-        if (!str || !d)
+        d = qgetenv("QWS_DEPTH").toInt();
+        if (!d)
             d = 16;
-        if((str=qgetenv("QWS_SIZE"))) {
-            sscanf(str,"%dx%d",&w,&h);
+        QByteArray str = qgetenv("QWS_SIZE");
+        if(!str.isEmpty()) {
+            sscanf(str.constData(), "%dx%d", &w, &h);
             dw=w;
             dh=h;
         } else {

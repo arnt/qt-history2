@@ -134,18 +134,11 @@ int QWSKeyboardHandler::transformDirKey(int key)
     static int dir_keyrot = -1;
     if (dir_keyrot < 0) {
         // get the rotation
-        char *kerot = qgetenv("QWS_CURSOR_ROTATION");
-        if (kerot) {
-            if (strcmp(kerot, "90") == 0)
-                dir_keyrot = 1;
-            else if (strcmp(kerot, "180") == 0)
-                dir_keyrot = 2;
-            else if (strcmp(kerot, "270") == 0)
-                dir_keyrot = 3;
-            else
-                dir_keyrot = 0;
-        } else {
-            dir_keyrot = 0;
+        switch (qgetenv("QWS_CURSOR_ROTATION").toInt()) {
+        case 90: dir_keyrot = 1; break;
+        case 180: dir_keyrot = 2; break;
+        case 270: dir_keyrot = 3; break;
+        default: dir_keyrot = 0; break;
         }
     }
     int xf = qt_screen->transformOrientation() + dir_keyrot;

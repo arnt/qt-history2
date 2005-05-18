@@ -750,7 +750,7 @@ void
 QMenuBarPrivate::macCreateMenuBar(QWidget *parent)
 {
     Q_Q(QMenuBar);
-    if(qgetenv("QT_MAC_NO_NATIVE_MENUBAR"))
+    if(!qgetenv("QT_MAC_NO_NATIVE_MENUBAR").isNull())
         qt_mac_no_native_menubar = true;
     if(!qt_mac_no_native_menubar) {
         extern void qt_event_request_menubarupdate(); //qapplication_mac.cpp

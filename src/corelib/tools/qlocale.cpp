@@ -1819,7 +1819,7 @@ static QString winIso3116CtryName()
 
 
 
-const char* QLocalePrivate::systemLocaleName()
+QByteArray QLocalePrivate::systemLocaleName()
 {
     static QByteArray lang;
     lang = qgetenv("LANG");
@@ -2957,15 +2957,15 @@ QString QLocale::toString(double i, char f, int prec) const
 
 QLocale QLocale::system()
 {
-    const char *s = 0;
+    QByteArray s = 0;
 #ifdef Q_OS_UNIX
     s = qgetenv("LC_ALL");
-    if (s == 0)
+    if (s.isNull())
         s = qgetenv("LC_NUMERIC");
-    if (s == 0)
+    if (s.isNull())
 #endif
         s = QLocalePrivate::systemLocaleName();
-    return QLocale(QLatin1String(s));
+    return QLocale(QString::fromLocal8Bit(s));
 }
 
 /*!

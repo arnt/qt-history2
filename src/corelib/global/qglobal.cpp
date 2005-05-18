@@ -938,7 +938,8 @@ void qt_message_output(QtMsgType msgType, const char *buf)
     }
 
     if (msgType == QtFatalMsg
-        || (msgType == QtWarningMsg && (qgetenv("QT_FATAL_WARNINGS") != 0)) ) {
+        || (msgType == QtWarningMsg
+            && (!qgetenv("QT_FATAL_WARNINGS").isNull())) ) {
 
 #if defined(Q_CC_MSVC) && defined(QT_DEBUG) && defined(_DEBUG) && defined(_CRT_ERROR)
         // get the current report mode
@@ -1169,21 +1170,19 @@ void qFatal(const char *msg, ...)
 
 // getenv is declared as deprecated in VS2005. This function
 // makes use of the new secure getenv function.
-char *qgetenv(const char *varName)
+QByteArray qgetenv(const char *varName)
 {
 #if defined(_MSC_VER) && _MSC_VER >= 1400
-	size_t requiredSize;
-	char *buffer = 0;
-	getenv_s(&requiredSize, buffer, 0, varName);
+    size_t requiredSize;
+    QByteArray buffer;
+    getenv_s(&requiredSize, buffer.data(), 0, varName);
     if (requiredSize == 0)
-        return 0;
-	buffer = (char*)qMalloc(requiredSize*sizeof(char));
-	if (!buffer)
-		return 0;
-	getenv_s(&requiredSize, buffer, requiredSize, varName);
-	return buffer;
+        return buffer;
+    buffer.resize(requiredSize);
+    getenv_s(&requiredSize, buffer.data(), requiredSize, varName);
+    return buffer;
 #else
-	return getenv(varName);
+    return QByteArray(::getenv(varName));
 #endif
 }
 

@@ -2335,7 +2335,7 @@ void QWSServer::closeMouse()
 */
 void QWSServer::openMouse()
 {
-    QString mice = qgetenv("QWS_MOUSE_PROTO");
+    QByteArray mice = qgetenv("QWS_MOUSE_PROTO");
     if (mice.isEmpty()) {
 #if defined(QT_QWS_CASSIOPEIA)
         mice = "TPanel:/dev/tpanel";

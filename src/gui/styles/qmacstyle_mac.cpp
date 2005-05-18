@@ -590,10 +590,10 @@ static QAquaWidgetSize qt_aqua_guess_size(const QWidget *widg, QSize large, QSiz
     }
 
 #ifndef QT_NO_MAINWINDOW
-    if (qobject_cast<QDockWidget *>(widg->window()) || qgetenv("QWIDGET_ALL_SMALL")) {
+    if (qobject_cast<QDockWidget *>(widg->window()) || !qgetenv("QWIDGET_ALL_SMALL").isNull()) {
         //if (small.width() != -1 || small.height() != -1)
         return QAquaSizeSmall;
-    } else if (qgetenv("QWIDGET_ALL_MINI")) {
+    } else if (!qgetenv("QWIDGET_ALL_MINI").isNull()) {
         return QAquaSizeMini;
     }
 #endif

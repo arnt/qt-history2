@@ -401,7 +401,7 @@ char *qt_qws_hardcoded_slot = "/proc/bus/pci/01/00.0";
 const unsigned char* qt_probe_bus()
 {
     const char * slot;
-    slot=qgetenv("QWS_CARD_SLOT");
+    slot=::getenv("QWS_CARD_SLOT");
     if(!slot)
         slot=qt_qws_hardcoded_slot;
     if (slot) {

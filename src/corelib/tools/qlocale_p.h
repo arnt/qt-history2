@@ -100,7 +100,7 @@ public:
     quint16 m_decimal, m_group, m_list, m_percent,
         m_zero, m_minus, m_exponential;
 
-    static const char *systemLocaleName();
+    static QByteArray systemLocaleName();
 };
 
 #endif // QLOCALE_P_H

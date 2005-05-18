@@ -147,8 +147,8 @@ extern "C" void dumpmem(const char* m)
 QString qws_dataDir()
 {
     QByteArray username = "unknown";
-    const char *logname = qgetenv("LOGNAME");
-    if (logname)
+    QByteArray logname = qgetenv("LOGNAME");
+    if (!logname.isEmpty())
         username = logname;
 
     QByteArray dataDir = "/tmp/qtembedded-" + username;
@@ -1675,7 +1675,7 @@ static bool read_bool_env_var(const char *var, bool defaultvalue)
     // returns true if env variable is set to non-zero
     // returns false if env var is set to zero
     // returns defaultvalue if env var not set
-    char *x = qgetenv(var);
+    char *x = ::getenv(var);
     return (x && *x) ? (strcmp(x,"0") != 0) : defaultvalue;
 }
 
@@ -1686,7 +1686,7 @@ void qt_init(QApplicationPrivate *priv, int type)
     qws_sw_cursor = read_bool_env_var("QWS_SW_CURSOR",qws_sw_cursor);
     qws_screen_is_interlaced = read_bool_env_var("QWS_INTERLACE",false);
 
-    const char *display = qgetenv("QWS_DISPLAY");
+    const char *display = ::getenv("QWS_DISPLAY");
     if (display)
         qws_display_spec = strdup(display); // since we setenv later!
 

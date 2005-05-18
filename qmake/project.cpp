@@ -278,13 +278,14 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
     }
     const QString mkspecs_concat = QDir::separator() + QString("mkspecs");
     QStringList feature_roots;
-    if(const char *mkspec_path = qgetenv("QMAKEFEATURES")) {
+    QByteArray mkspec_path = qgetenv("QMAKEFEATURES");
+    if(!mkspec_path.isNull()) {
 #ifdef Q_OS_WIN
-        QStringList lst = QString(mkspec_path).split(';');
+        QStringList lst = QString::fromLocal8Bit(mkspec_path).split(';');
         for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
             feature_roots += (*it).split(':');
 #else
-        feature_roots += QString(mkspec_path).split(':');
+        feature_roots += QString::fromLocal8Bit(mkspec_path).split(':');
 #endif
     }
     if(prop) {
@@ -305,9 +306,10 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
             concat_it != concat.end(); ++concat_it)
             feature_roots << (path + (*concat_it));
     }
-    if(const char *qmakepath = qgetenv("QMAKEPATH")) {
+    QByteArray qmakepath = qgetenv("QMAKEPATH");
+    if (!qmakepath.isNull()) {
 #ifdef Q_OS_WIN
-        QStringList lst = QString(qmakepath).split(';');
+        QStringList lst = QString::fromLocal8Bit(qmakepath).split(';');
         for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
             QStringList lst2 = (*it).split(':');
             for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2) {
@@ -317,7 +319,7 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
             }
         }
 #else
-        QStringList lst = QString(qmakepath).split(':');
+        QStringList lst = QString::fromLocal8Bit(qmakepath).split(':');
         for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
             for(QStringList::Iterator concat_it = concat.begin();
                 concat_it != concat.end(); ++concat_it)
@@ -327,10 +329,11 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
     }
     if(!Option::mkfile::qmakespec.isEmpty())
         feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
-    if(const char *qtdir = qgetenv("QTDIR")) {
+    QByteArray qtdir = qgetenv("QTDIR");
+    if (!qtdir.isNull()) {
         for(QStringList::Iterator concat_it = concat.begin();
             concat_it != concat.end(); ++concat_it)
-            feature_roots << (QString(qtdir) + mkspecs_concat + (*concat_it));
+            feature_roots << (QString::fromLocal8Bit(qtdir) + mkspecs_concat + (*concat_it));
     }
     if(!Option::mkfile::qmakespec.isEmpty()) {
         QFileInfo specfi(Option::mkfile::qmakespec);
@@ -361,28 +364,30 @@ QStringList qmake_mkspec_paths()
 {
     QStringList ret;
     const QString concat = QDir::separator() + QString("mkspecs");
-    if(const char *qmakepath = qgetenv("QMAKEPATH")) {
+    QByteArray qmakepath = qgetenv("QMAKEPATH");
+    if (!qmakepath.isEmpty()) {
 #ifdef Q_OS_WIN
-        QStringList lst = QString(qmakepath).split(';');
+        QStringList lst = QString::fromLocal8Bit(qmakepath).split(';');
         for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it) {
             QStringList lst2 = (*it).split(':');
             for(QStringList::Iterator it2 = lst2.begin(); it2 != lst2.end(); ++it2)
                 ret << ((*it2) + concat);
         }
 #else
-        QStringList lst = QString(qmakepath).split(':');
+        QStringList lst = QString::fromLocal8Bit(qmakepath).split(':');
         for(QStringList::Iterator it = lst.begin(); it != lst.end(); ++it)
             ret << ((*it) + concat);
 #endif
     }
-    if(const char *qtdir = qgetenv("QTDIR"))
-        ret << (QString(qtdir) + concat);
+    const QByteArray qtdir = qgetenv("QTDIR");
+    if(!qtdir.isNull())
+        ret << (QString::fromLocal8Bit(qtdir) + concat);
     ret << QLibraryInfo::location(QLibraryInfo::PrefixPath) + concat;
     ret << QLibraryInfo::location(QLibraryInfo::DataPath) + concat;
 
     // prefer $QTDIR if it is set
-    if(qgetenv("QTDIR"))
-        ret << qgetenv("QTDIR");
+    if(!qtdir.isNull())
+        ret << QString::fromLocal8Bit(qtdir);
     return ret;
 }
 
@@ -1348,7 +1353,7 @@ QMakeProject::read(uchar cmd)
     if(!Option::user_template_prefix.isEmpty() && !templ.first().startsWith(Option::user_template_prefix))
         templ.first().prepend(Option::user_template_prefix);
 
-    QString test_version = qgetenv("QTESTVERSION");
+    QString test_version = QString::fromLocal8Bit(qgetenv("QTESTVERSION"));
     if(!test_version.isEmpty()) {
         QString s = vars["TARGET"].first();
         if(s == "qt" || s == "qt-mt" || s == "qte" || s == "qte-mt") {
@@ -2509,7 +2514,7 @@ QMakeProject::doVariableReplace(QString &str, QMap<QString, QStringList> &place)
 
                 replacement.clear();
                 if(var_type == ENVIRON) {
-                    replacement = qgetenv(var.toLatin1().constData());
+                    replacement = QString::fromLocal8Bit(qgetenv(var.toLatin1().constData()));
                 } else if(var_type == PROPERTY) {
                     if(prop)
                         replacement = prop->value(var);

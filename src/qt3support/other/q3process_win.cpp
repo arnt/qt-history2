@@ -294,9 +294,9 @@ bool Q3Process::start( QStringList *env )
 	if ( env != 0 ) {
 	    int pos = 0;
 	    // add PATH if necessary (for DLL loading)
-	    char *path = qgetenv( "PATH" );
-	    if ( env->grep( QRegExp("^PATH=",FALSE) ).empty() && path ) {
-		QString tmp = QString( "PATH=%1" ).arg( qgetenv( "PATH" ) );
+	    QByteArray path = qgetenv( "PATH" );
+	    if ( env->grep( QRegExp("^PATH=",FALSE) ).empty() && !path.isNull() ) {
+		QString tmp = QString( "PATH=%1" ).arg(path);
 		uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
 		envlist.resize( envlist.size() + tmpSize );
 		memcpy( envlist.data()+pos, tmp.ucs2(), tmpSize );
@@ -342,9 +342,9 @@ bool Q3Process::start( QStringList *env )
 	if ( env != 0 ) {
 	    int pos = 0;
 	    // add PATH if necessary (for DLL loading)
-	    char *path = qgetenv( "PATH" );
-	    if ( env->grep( QRegExp("^PATH=",FALSE) ).empty() && path ) {
-		Q3CString tmp = QString( "PATH=%1" ).arg( qgetenv( "PATH" ) ).local8Bit();
+	    QByteArray path = qgetenv( "PATH" );
+	    if ( env->grep( QRegExp("^PATH=",FALSE) ).empty() && !path.isNull() ) {
+		Q3CString tmp = QString( "PATH=%1" ).arg(path).local8Bit();
 		uint tmpSize = tmp.length() + 1;
 		envlist.resize( envlist.size() + tmpSize );
 		memcpy( envlist.data()+pos, tmp.data(), tmpSize );

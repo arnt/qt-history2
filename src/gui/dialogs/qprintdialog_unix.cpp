@@ -997,10 +997,8 @@ QGroupBox *QPrintDialogPrivate::setupDestination()
     // all printers hopefully known.  try to find a good default
     QString dollarPrinter;
     {
-        const char *t = qgetenv("PRINTER");
-        if (!t || !*t)
-            t = qgetenv("LPDEST");
-        dollarPrinter = QLatin1String(t);
+        if (!qgetenv("PRINTER").isEmpty())
+            dollarPrinter = QString::fromLocal8Bit(qgetenv("LPDEST").constData());
         if (!dollarPrinter.isEmpty())
             perhapsAddPrinter(&printers, dollarPrinter,
                                QPrintDialog::tr("unknown"),
@@ -1262,7 +1260,7 @@ void QPrintDialogPrivate::printerOrFileSelected(QAbstractButton *b)
         ok->setEnabled(true);
         fileNameEditChanged(fileName->text());
         if (!fileName->isModified() && fileName->text().isEmpty()) {
-            QString home = QLatin1String(::qgetenv("HOME"));
+            QString home = QString::fromLocal8Bit(::qgetenv("HOME").constData());
             QString cur = QDir::currentPath();
             if (home.at(home.length()-1) != '/')
                 home += '/';

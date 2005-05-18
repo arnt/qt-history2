@@ -1702,8 +1702,8 @@ for (QForeachMemory<sizeof(qForeachSizeofContainerHelper(container))> _container
  #define Q_DISABLE_COPY(Class)
 #endif
 
-
-Q_CORE_EXPORT char *qgetenv(const char *varName);
+class QByteArray;
+Q_CORE_EXPORT QByteArray qgetenv(const char *varName);
 
 inline int qIntCast(double f) { return int(f); }
 inline int qIntCast(float f) { return int(f); }

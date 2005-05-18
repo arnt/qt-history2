@@ -328,7 +328,7 @@ Option::init(int argc, char **argv)
         } else if (argv0.contains(QLatin1Char('/'))) { //relative PWD
             Option::qmake_abslocation = QDir::current().absoluteFilePath(argv0);
         } else { //in the PATH
-            char *pEnv = qgetenv("PATH");
+            QByteArray pEnv = qgetenv("PATH");
             QDir currentDir = QDir::current();
 #ifdef Q_OS_WIN
             QStringList paths = QString::fromLocal8Bit(pEnv).split(QLatin1String(";"));
@@ -351,16 +351,17 @@ Option::init(int argc, char **argv)
         Option::qmake_mode = Option::QMAKE_GENERATE_MAKEFILE;
     }
 
-    if(const char *envflags = qgetenv("QMAKEFLAGS")) {
+    const QByteArray envflags = qgetenv("QMAKEFLAGS");
+    if (!envflags.isNull()) {
         int env_argc = 0, env_size = 0, currlen=0;
         char quote = 0, **env_argv = NULL;
-        for(int i = 0; envflags[i]; i++) {
-            if(!quote && (envflags[i] == '\'' || envflags[i] == '"')) {
-                quote = envflags[i];
-            } else if(envflags[i] == quote) {
+        for(int i = 0; envflags.at(i); i++) {
+            if (!quote && (envflags.at(i) == '\'' || envflags.at(i) == '"')) {
+                quote = envflags.at(i);
+            } else if (envflags.at(i) == quote) {
                 quote = 0;
-            } else if(!quote && envflags[i] == ' ') {
-                if(currlen && env_argv && env_argv[env_argc]) {
+            } else if (!quote && envflags.at(i) == ' ') {
+                if (currlen && env_argv && env_argv[env_argc]) {
                     env_argv[env_argc][currlen] = '\0';
                     currlen = 0;
                     env_argc++;
@@ -376,7 +377,7 @@ Option::init(int argc, char **argv)
                     env_argv[env_argc] = (char*)malloc(255);
                 }
                 if(currlen < 255)
-                    env_argv[env_argc][currlen++] = envflags[i];
+                    env_argv[env_argc][currlen++] = envflags.at(i);
             }
         }
         if(env_argv) {
@@ -407,7 +408,7 @@ Option::init(int argc, char **argv)
     if(Option::qmake_mode == Option::QMAKE_GENERATE_MAKEFILE ||
         Option::qmake_mode == Option::QMAKE_GENERATE_PRL) {
         if(Option::mkfile::qmakespec.isNull() || Option::mkfile::qmakespec.isEmpty())
-            Option::mkfile::qmakespec = qgetenv("QMAKESPEC");
+            Option::mkfile::qmakespec = QString::fromLocal8Bit(qgetenv("QMAKESPEC").constData());
 
         //try REALLY hard to do it for them, lazy..
         if(Option::mkfile::project_files.isEmpty()) {
@@ -534,7 +535,7 @@ Option::fixString(QString string, uchar flags)
         reg_var.setMinimal(true);
         while((rep = reg_var.indexIn(string)) != -1)
             string.replace(rep, reg_var.matchedLength(),
-                           QString(qgetenv(string.mid(rep + 2, reg_var.matchedLength() - 3).toLatin1().constData())));
+                           QString::fromLocal8Bit(qgetenv(string.mid(rep + 2, reg_var.matchedLength() - 3).toLatin1().constData()).constData()));
     }
 
     //canonicalize it (and treat as a path)

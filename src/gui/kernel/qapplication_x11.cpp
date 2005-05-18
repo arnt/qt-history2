@@ -1510,7 +1510,7 @@ void qt_init(QApplicationPrivate *priv, int,
             int major = 0;
             int minor = 0;
             XRenderQueryVersion(X11->display, &major, &minor);
-            if (!qgetenv("QT_X11_NO_XRENDER"))
+            if (qgetenv("QT_X11_NO_XRENDER").isNull())
                 X11->use_xrender = (major >= 0 && minor >= 5) && (format != 0);
         }
 #endif // QT_NO_XRENDER
@@ -5534,8 +5534,7 @@ QSessionManager::QSessionManager(QApplication * app, QString &id, QString& key)
     cb.shutdown_cancelled.client_data = (SmPointer) d;
 
     // avoid showing a warning message below
-    const char* session_manager = qgetenv("SESSION_MANAGER");
-    if (!session_manager || !session_manager[0])
+    if (qgetenv("SESSION_MANAGER").isEmpty())
         return;
 
     smcConnection = SmcOpenConnection(0, 0, 1, 0,

@@ -301,11 +301,12 @@ static QByteArray qt_create_environment(const QStringList &environment)
     if (environment.isEmpty()) {
 	int pos = 0;
 	// add PATH if necessary (for DLL loading)
-	char *path = qgetenv("PATH");
+	QByteArray path = qgetenv("PATH");
 #ifdef UNICODE
         if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
-	    if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
-                QString tmp = QString("PATH=%1").arg(qgetenv("PATH"));
+	    if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty()
+                && !path.isNull()) {
+                QString tmp = QString("PATH=%1").arg(path);
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
                 envlist.resize(envlist.size() + tmpSize );
                 memcpy(envlist.data()+pos, tmp.utf16(), tmpSize);
@@ -328,8 +329,8 @@ static QByteArray qt_create_environment(const QStringList &environment)
         } else
 #endif // UNICODE
         {
-            if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && path) {
-                QByteArray tmp = QString("PATH=%1").arg(qgetenv("PATH")).toLocal8Bit();
+            if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && !path.isNull()) {
+                QByteArray tmp = QString("PATH=%1").arg(path).toLocal8Bit();
                 uint tmpSize = tmp.length() + 1;
                 envlist.resize(envlist.size() + tmpSize);
                 memcpy(envlist.data()+pos, tmp.data(), tmpSize);
