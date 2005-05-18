@@ -355,7 +355,7 @@ Option::init(int argc, char **argv)
     if (!envflags.isNull()) {
         int env_argc = 0, env_size = 0, currlen=0;
         char quote = 0, **env_argv = NULL;
-        for(int i = 0; envflags.at(i); i++) {
+        for (int i = 0; i < envflags.size(); ++i) {
             if (!quote && (envflags.at(i) == '\'' || envflags.at(i) == '"')) {
                 quote = envflags.at(i);
             } else if (envflags.at(i) == quote) {
