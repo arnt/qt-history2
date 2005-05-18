@@ -1764,6 +1764,24 @@ void QAbstractItemModel::reset()
     d->reset();
 }
 
+
+/*!
+  Changes the QPersistentModelIndex that is equal to the given \a from
+  model index to the given \a to model index.
+
+  If no persistent model index equal to the given \a from model index was
+  found, nothing is changed.
+*/
+void QAbstractItemModel::changePersistentIndex(const QModelIndex &from, const QModelIndex &to)
+{
+    // ### optimize (use QMap ?)
+    Q_D(QAbstractItemModel);
+    QList<QPersistentModelIndexData*> persistentIndexes = d->persistent.indexes;
+    for (int i = 0; i < persistentIndexes.count(); ++i)
+        if (persistentIndexes.at(i)->index == from)
+            persistentIndexes.at(i)->index = to; // there could be more pointing to the same index
+}
+
 /*!
     \class QAbstractTableModel
     \brief The QAbstractTableModel class provides an abstract model that can be

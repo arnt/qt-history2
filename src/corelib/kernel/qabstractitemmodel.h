@@ -210,6 +210,8 @@ protected:
     void endRemoveColumns();
 
     void reset();
+
+    void changePersistentIndex(const QModelIndex &from, const QModelIndex &to);
     
 private:
     Q_DECLARE_PRIVATE(QAbstractItemModel)
