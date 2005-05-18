@@ -303,7 +303,6 @@ OPT_HELP=
 
 # initalize variables used for installation
 QT_INSTALL_PREFIX=
-QT_INSTALL_QTCONFIG=
 QT_INSTALL_DOCS=
 QT_INSTALL_HEADERS=
 QT_INSTALL_LIBS=
@@ -496,9 +495,6 @@ while [ "$#" -gt 0 ]; do
         ;;
     prefix)
         QT_INSTALL_PREFIX="$VAL"
-        ;;
-    qtconfigdir)
-        QT_INSTALL_QTCONFIG="$VAL"
         ;;
     docdir)
         QT_INSTALL_DOCS="$VAL"
@@ -3470,12 +3466,8 @@ if [ "$CFG_FRAMEWORK" = "no" ]; then
 else
     QT_CONFIG="$QT_CONFIG qt_framework"
 fi
-if [ -z "$QT_INSTALL_QTCONF" ]; then
-    QT_INSTALL_QTCONFIG=$QT_INSTALL_PREFIX
-fi
 cat >>$QTCONFIG.tmp <<EOF
 CONFIG += $QTCONFIG_CONFIG
-QT_INSTALL_QTCONFIG = $QT_INSTALL_QTCONFIG
 QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG
 EOF
