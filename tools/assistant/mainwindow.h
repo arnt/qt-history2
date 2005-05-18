@@ -69,6 +69,7 @@ private slots:
     void showLinkFromClient(const QString &link);
     void showQtHelp();
     void showWebBrowserSettings();
+    void showPDFReaderSettings();
     void showSettingsDialog(int page);
     void showSearchLink(const QString &link, const QStringList &terms);
     void showGoActionLink();

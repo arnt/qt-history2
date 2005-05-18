@@ -34,9 +34,13 @@
 #include <qtextcursor.h>
 #include <qtextobject.h>
 #include <qtextlayout.h>
+#include <qdebug.h>
 
 #if defined(Q_OS_WIN32)
-#include <windows.h>
+#  include <windows.h>
+#elif defined(Q_WS_X11)
+#  include <QtGui/QX11Info>
+#  include <QtGui/private/qt_x11_p.h>
 #endif
 
 HelpWindow::HelpWindow(MainWindow *w, QWidget *parent)
@@ -73,16 +77,29 @@ void HelpWindow::setSource(const QUrl &name)
 
     if (name.scheme() == QLatin1String("http") || name.scheme() == QLatin1String("ftp")) {
         QString webbrowser = Config::configuration()->webBrowser();
-        if (webbrowser.isEmpty()) {
+
 #if defined(Q_OS_WIN32)
+        if (webbrowser.isEmpty()) {
             QT_WA({
                 ShellExecute(winId(), 0, (TCHAR*)name.toString().utf16(), 0, 0, SW_SHOWNORMAL);
             } , {
                 ShellExecuteA(winId(), 0, name.toString().toLocal8Bit(), 0, 0, SW_SHOWNORMAL);
             });
-#elif defined(Q_OS_MAC)
-            webbrowser = "/usr/bin/open";
-#else
+            return;
+        }
+#endif
+
+        if (webbrowser.isEmpty()) {
+#if defined(Q_OS_MAC)
+            webbrowser = "open";
+#elif defined(Q_WS_X11)
+            if (isKDERunning()) {
+                webbrowser = "kfmclient";
+            }
+#endif
+        }
+
+        if (webbrowser.isEmpty()) {
             int result = QMessageBox::information(mw, tr("Help"),
                          tr("Currently no Web browser is selected.\nPlease use the settings dialog to specify one!\n"),
                          tr("Open"), tr("Cancel"));
@@ -90,36 +107,60 @@ void HelpWindow::setSource(const QUrl &name)
                 emit chooseWebBrowser();
                 webbrowser = Config::configuration()->webBrowser();
             }
-#endif
+
             if (webbrowser.isEmpty())
                 return;
         }
+
         QProcess *proc = new QProcess(this);
         QObject::connect(proc, SIGNAL(finished(int)), proc, SLOT(deleteLater()));
-        proc->start(webbrowser, QStringList() << name.toString());
+
+        QStringList args;
+        if (webbrowser == QLatin1String("kfmclient"))
+            args.append(QLatin1String("exec"));
+        args.append(name.toString());
+
+        proc->start(webbrowser, args);
         return;
     }
 
     if (name.path().right(3) == QLatin1String("pdf")) {
         QString pdfbrowser = Config::configuration()->pdfReader();
+
+#if defined(Q_OS_WIN32)
         if (pdfbrowser.isEmpty()) {
-#if defined(Q_OS_MAC)
-            pdfbrowser = "/usr/bin/open";
-#elif defined(Q_OS_WIN32)
             QT_WA({
                 ShellExecute(winId(), 0, (TCHAR*)name.toString().utf16(), 0, 0, SW_SHOWNORMAL);
             } , {
                 ShellExecuteA(winId(), 0, name.toString().toLocal8Bit(), 0, 0, SW_SHOWNORMAL);
             });
-#else
-            QMessageBox::information(mw,
-                                      tr("Help"),
-                                      tr("No PDF Viewer has been specified\n"
-                                          "Please use the settings dialog to specify one!\n"));
+            return;
+        }
 #endif
+
+        if (pdfbrowser.isEmpty()) {
+#if defined(Q_OS_MAC)
+            pdfbrowser = "open";
+#elif defined(Q_WS_X11)
+            if (isKDERunning()) {
+                pdfbrowser = "kfmclient";
+            }
+#endif
+        }
+
+        if (pdfbrowser.isEmpty()) {
+            int result = QMessageBox::information(mw, tr("Help"),
+                         tr("Currently no PDF viewer is selected.\nPlease use the settings dialog to specify one!\n"),
+                         tr("Open"), tr("Cancel"));
+            if (result == 0) {
+                emit choosePDFReader();
+                pdfbrowser = Config::configuration()->pdfReader();
+            }
+
             if (pdfbrowser.isEmpty())
                 return;
         }
+
         QFileInfo info(pdfbrowser);
         if(!info.exists()) {
             QMessageBox::information(mw,
@@ -132,7 +173,13 @@ void HelpWindow::setSource(const QUrl &name)
         }
         QProcess *proc = new QProcess(this);
         QObject::connect(proc, SIGNAL(finished()), proc, SLOT(deleteLater()));
-        proc->start(pdfbrowser, QStringList() << name.toString());
+
+        QStringList args;
+        if (pdfbrowser == QLatin1String("kfmclient"))
+            args.append(QLatin1String("exec"));
+        args.append(name.toString());
+
+        proc->start(pdfbrowser, args);
 
         return;
     }
@@ -286,3 +333,25 @@ void HelpWindow::updateBackward(bool back)
 {
     backAvail = back;
 }
+
+bool HelpWindow::isKDERunning() const
+{
+#if defined(Q_WS_X11)
+    Atom type;
+    int format;
+    unsigned long length, after;
+    uchar *data;
+
+    if (XGetWindowProperty(QX11Info::display(), QX11Info::appRootWindow(), ATOM(KWIN_RUNNING),
+                             0, 1, False, AnyPropertyType, &type, &format, &length,
+                             &after, &data) == Success && length) {
+        if (data)
+            XFree((char *)data);
+
+        return true;
+    }
+#endif
+
+    return false;
+}
+

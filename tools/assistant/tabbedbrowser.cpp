@@ -121,6 +121,7 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
     connect(win, SIGNAL(highlighted(QString)),
              (const QObject*) (mainWin->statusBar()), SLOT(showMessage(QString)));
     connect(win, SIGNAL(chooseWebBrowser()), mainWin, SLOT(showWebBrowserSettings()));
+    connect(win, SIGNAL(choosePDFReader()), mainWin, SLOT(showPDFReaderSettings()));
     connect(win, SIGNAL(backwardAvailable(bool)),
              mainWin, SLOT(backwardAvailable(bool)));
     connect(win, SIGNAL(forwardAvailable(bool)),
@@ -244,7 +245,7 @@ void TabbedBrowser::applySettings()
     if (config->fontSize() > 0)
         fnt.setPointSize(config->fontSize());
     setBrowserFont(fnt);
-    
+
     int cnt = ui.tab->count();
     for(int i=0; i<cnt; i++)
         ((HelpWindow*) ui.tab->widget(i))->updateFormat();
@@ -252,7 +253,7 @@ void TabbedBrowser::applySettings()
 
 void TabbedBrowser::setup()
 {
-    applySettings();    
+    applySettings();
     newTab(QString());
 }
 

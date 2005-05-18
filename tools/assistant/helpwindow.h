@@ -42,6 +42,7 @@ public:
 
 signals:
     void chooseWebBrowser();
+    void choosePDFReader();
 
 protected:
     virtual void contextMenuEvent(QContextMenuEvent *e);
@@ -54,6 +55,8 @@ private slots:
     void openLinkInNewPage();
     void updateForward(bool);
     void updateBackward(bool);
+
+    bool isKDERunning() const;
 
 private:
     MainWindow *mw;
