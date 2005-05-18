@@ -285,6 +285,7 @@ CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
 CFG_FRAMEWORK=yes
+CFG_RPATH=yes
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -445,7 +446,7 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     -R?*|-R)
-        VAR="rpath"
+        VAR="xpath"
         if [ "$1" = "-R" ]; then
             shift
             VAL="$1"
@@ -980,6 +981,9 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_OPT=yes
         fi
         ;;
+    rpath)
+	CFG_RPATH=$VAL
+        ;;
     define)
         D_FLAGS="$D_FLAGS $VAL"
         ;;
@@ -989,7 +993,7 @@ while [ "$#" -gt 0 ]; do
     lpath)
         L_FLAGS="$L_FLAGS -L${VAL}"
         ;;
-    rpath)
+    xpath)
         RPATH_FLAGS="$RPATH_FLAGS ${VAL}"
         ;;
     link)
@@ -2147,6 +2151,11 @@ fi
     -Dstring ........... Add an explicit define to the preprocessor.
     -Istring ........... Add an explicit include path.
     -Lstring ........... Add an explicit library path.
+    -Rstring ........... Add an explicit runtime library path.
+
+ +  -rpath ............. Link Qt libraries and executables using LIBDIR
+                         as a runtime library path. Equivalent to -R/LIBDIR
+    -no-rpath .......... Do not use LIBDIR as a runtime library path.
 
     -help, -h .......... Display this information.
 
@@ -3078,17 +3087,24 @@ fi
 [ '!' -z "$L_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_FLAGS+=$L_FLAGS\""
 [ '!' -z "$l_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"LIBS+=$l_FLAGS\""
 
-if [ '!' -z "$RPATH_FLAGS" ]; then
-    if [ '!' -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
-        echo # Using -R/-rpath, so no need to warn
-    else
+if [ -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
+    if [ -n "$RPATH_FLAGS" ]; then
         echo
         echo "ERROR: -R cannot be used on this platform as \$QMAKE_RPATH is"
         echo "       undefined."
         echo
         exit 1
+    else
+        RPATH_MESSAGE="NOTE: This platform does not support runtime library paths, using -no-rpath."
     fi
-    QMAKE_VARS="$QMAKE_VARS \"QMAKE_RPATHDIR+=$RPATH_FLAGS\""
+else
+    if [ "$CFG_RPATH" = "yes" ]; then
+        # set the default rpath
+        RPATH_FLAGS=" $QT_INSTALL_LIBS $RPATH_FLAGS"
+    fi
+    if [ -n "$RPATH_FLAGS" ]; then
+        QMAKE_VARS="$QMAKE_VARS \"QMAKE_RPATHDIR+=$RPATH_FLAGS\""
+    fi
 fi
 
 if [ '!' -z "$I_FLAGS" ]; then
@@ -3470,6 +3486,7 @@ cat >>$QTCONFIG.tmp <<EOF
 CONFIG += $QTCONFIG_CONFIG
 QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG
+QMAKE_RPATHDIR += $RPATH_FLAGS
 EOF
 # replace qconfig.pri if it differs from the newly created temp file
 if cmp -s $QTCONFIG.tmp $QTCONFIG; then
@@ -3494,8 +3511,8 @@ QMAKE_MOC_SRC    = \$\$QT_BUILD_TREE/src/moc
 
 #local paths that cannot be queried from the QT_INSTALL_* properties while building QTDIR
 QMAKE_MOC        = \$\$QT_BUILD_TREE/bin/moc
-QMAKE_UIC        = $CFG_LIBRARY_PATH=\$\$QT_BUILD_TREE/lib:\$($CFG_LIBRARY_PATH) \$\$QT_BUILD_TREE/bin/uic
-QMAKE_UIC3       = $CFG_LIBRARY_PATH=\$\$QT_BUILD_TREE/lib:\$($CFG_LIBRARY_PATH) \$\$QT_BUILD_TREE/bin/uic3
+QMAKE_UIC        = \$\$QT_BUILD_TREE/bin/uic
+QMAKE_UIC3       = \$\$QT_BUILD_TREE/bin/uic3
 QMAKE_RCC        = \$\$QT_BUILD_TREE/bin/rcc
 QMAKE_INCDIR_QT  = \$\$QT_BUILD_TREE/include
 QMAKE_LIBDIR_QT  = \$\$QT_BUILD_TREE/lib
@@ -3935,6 +3952,10 @@ if [ `basename $0` != "config.status" ]; then
     chmod +x $outpath/config.status
 fi
 
+if [ -n "$RPATH_MESSAGE" ]; then
+    echo 
+    echo "$RPATH_MESSAGE"
+fi
 echo
 echo Qt is now configured for building. Just run $MAKE.
 echo To reconfigure, run $MAKE confclean and configure.
