@@ -801,8 +801,8 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
             break;
         }
 #ifdef Q_WS_MAC
-        if (e->modifiers() & Qt::ShiftModifier) {
-            select = false;
+        else {
+            select = (e->modifiers() & Qt::ShiftModifier);
             break;
         }
 #endif
