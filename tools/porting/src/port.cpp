@@ -107,7 +107,7 @@ void usage(const OptionList &optionList)
     }
 
     cout << endl;
-    cout << "The porting documentation contains more information on how " << endl;
+    cout << "The porting documentation contains more information on how" << endl;
     cout << "to use qt3to4 as well as general porting information." << endl;
 }
 
@@ -128,7 +128,7 @@ int main(int argc, char**argv)
     const Option rulesFileOption("-rulesFile", "Specify the location for the rules file.");
     const Option includeDirectoryOption("-I", "Add directory to the list of directories to be searched for header files.");
     const Option disableCppParsingOption("-disableCppParsing", "Disable the C++ parsing component.");
-    const Option disableBuiltinQt3HeadersOption("-disableBuiltinQt3Headers", "Do not use the buildt in Qt 3 headers.");
+    const Option disableBuiltinQt3HeadersOption("-disableBuiltinQt3Headers", "Do not use the built-in Qt 3 headers.");
     const Option missingFileWarningsOption("-missingFileWarnings", "Warn about files not found while searching for header files.");
     const Option alwaysOverwriteOption("-alwaysOverwrite", "Port all files without prompting.");
 
