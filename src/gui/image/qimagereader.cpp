@@ -120,7 +120,6 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
             handler = plugin->create(device, form);
             break;
         }
-        device->seek(0);
     }
 
     // check if we have built-in support for the format name
