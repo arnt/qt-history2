@@ -42,6 +42,8 @@
 
 #include <limits.h>
 
+class QStandardItemModel;
+
 class QComboBoxPrivateScroller : public QWidget
 {
     Q_OBJECT
@@ -171,6 +173,7 @@ public:
     bool contains(const QString &text, int role);
     void emitActivated(const QModelIndex&);
     void emitHighlighted(const QModelIndex&);
+    void modelDestroyed();
     void resetButton();
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void rowsInserted(const QModelIndex & parent, int start, int end);

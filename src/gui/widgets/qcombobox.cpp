@@ -87,6 +87,16 @@ void QComboBoxPrivate::updateArrow(QStyle::StateFlag state)
 /*!
     \internal
 */
+void QComboBoxPrivate::modelDestroyed()
+{
+    Q_Q(QComboBox);
+    model = 0;
+    q->setModel(new QStandardItemModel(0, 1, q));
+}
+
+/*!
+    \internal
+*/
 bool QComboBoxPrivate::updateHoverControl(const QPoint &pos)
 {
 
@@ -815,10 +825,13 @@ void QComboBoxPrivate::emitHighlighted(const QModelIndex &index)
 /*!
     Destroys the combobox.
 */
-
 QComboBox::~QComboBox()
 {
     // ### check delegateparent and delete delegate if us?
+    Q_D(QComboBox);
+
+    disconnect(d->model, SIGNAL(destroyed()),
+               this, SLOT(modelDestroyed()));
 }
 
 /*!
@@ -1200,12 +1213,17 @@ QAbstractItemModel *QComboBox::model() const
 }
 
 /*!
-  Sets the model to be \a model,
+    Sets the model to be \a model. \a model must not be 0.
+    If you want to clear the contents of a model, call clear().
+
+    \sa clear()
 */
 
 void QComboBox::setModel(QAbstractItemModel *model)
 {
     Q_D(QComboBox);
+    Q_ASSERT(model);
+
     if (d->model) {
         disconnect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
                    this, SLOT(dataChanged(QModelIndex,QModelIndex)));
@@ -1213,25 +1231,29 @@ void QComboBox::setModel(QAbstractItemModel *model)
                    this, SLOT(rowsInserted(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                    this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+        disconnect(d->model, SIGNAL(destroyed()),
+                   this, SLOT(modelDestroyed()));
+        if (d->model->QObject::parent() == this)
+            delete d->model;
     }
 
     d->model = model;
 
-    if (d->model) {
-        connect(d->model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
-                this, SLOT(dataChanged(QModelIndex,QModelIndex)));
-        connect(d->model, SIGNAL(rowsInserted(QModelIndex,int,int)),
-                this, SLOT(rowsInserted(QModelIndex,int,int)));
-        connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
-                this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
-    }
+    connect(model, SIGNAL(dataChanged(QModelIndex,QModelIndex)),
+            this, SLOT(dataChanged(QModelIndex,QModelIndex)));
+    connect(model, SIGNAL(rowsInserted(QModelIndex,int,int)),
+            this, SLOT(rowsInserted(QModelIndex,int,int)));
+    connect(model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
+            this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
+    connect(model, SIGNAL(destroyed()),
+            this, SLOT(modelDestroyed()));
 
     if (d->container)
         d->container->itemView()->setModel(model);
 }
 
 /*!
-    \internal
+   \internal
 
     Returns the root model item index for the items in the combobox.
 
