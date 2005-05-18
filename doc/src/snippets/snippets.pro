@@ -30,6 +30,7 @@ SUBDIRS         = brush \
                   picture \
                   plaintextlayout \
 #                  pointer \
+                  polygon \
                   process \
                   qlistwidget-using \
 #                  qmake \                  # not designed to be built

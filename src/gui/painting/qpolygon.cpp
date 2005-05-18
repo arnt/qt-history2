@@ -33,12 +33,20 @@ const qreal Q_PI = qreal(3.14159265358979323846);
     \ingroup multimedia
     \ingroup shared
 
-    A QPolygon is a QVector\<QPoint\>. It is implicitly shared. In
+    A QPolygon is a QVector\<QPoint\>. It is \l{implicitly shared}. In
     addition to the functions provided by QVector, QPolygon
     provides some point-specific functions.
 
-    For convenient reading and writing of the point data use
-    setPoints(), putPoints(), point(), and setPoint().
+    The easiest way to add points to a QPolygon is to use QVector's streaming
+    operators, as illustrated below:
+
+    \quotefromfile snippets/polygon/polygon.cpp
+    \skipto STREAM
+    \skipto QPolygon
+    \printuntil QPoint
+
+    All other forms of manipulating a vector are available too, along with some
+    compatibilty functions from Qt 3.
 
     For geometry operations use boundingRect() and translate(). There
     is also the QMatrix::map() function for more general
@@ -48,7 +56,7 @@ const qreal Q_PI = qreal(3.14159265358979323846);
     QPainter::drawPolyline(), QPainter::drawPolygon() and
     QPainter::drawCubicBezier().
 
-    \sa QPainter QMatrix QVector
+    \sa QPainter QMatrix QVector QPolygonF
 */
 
 
@@ -59,7 +67,7 @@ const qreal Q_PI = qreal(3.14159265358979323846);
 /*!
     \fn QPolygon::QPolygon()
 
-    Constructs a null point array.
+    Constructs an empty point array.
 
     \sa QVector::isEmpty()
 */
@@ -67,8 +75,8 @@ const qreal Q_PI = qreal(3.14159265358979323846);
 /*!
     \fn QPolygon::QPolygon(int size)
 
-    Constructs a point array with room for \a size points. Makes a
-    null array if \a size == 0.
+    Constructs a point array with room for \a size points. Makes an
+    empty array if \a size == 0.
 
     \sa QVector::isEmpty()
 */
@@ -130,7 +138,7 @@ QPolygon::QPolygon(int nPoints, const int *points)
 
 
 /*!
-    Translates all points in the array by (\a{dx}, \a{dy}).
+    Translate all points in the array by (\a{dx}, \a{dy}).
 */
 
 void QPolygon::translate(int dx, int dy)
@@ -147,13 +155,13 @@ void QPolygon::translate(int dx, int dy)
 /*! \fn void QPolygon::translate(const QPoint &offset)
     \overload
 
-    Translates all points in the array by \a offset.
+    Translate all points in the array by \a offset.
 */
 
 
 /*!
-    Reads the coordinates of the point at position \a index within the
-    array and writes them into \c{*}\a{x} and \c{*}\a{y}.
+    Reads the coordinates of the point at position \a index within the array
+    and writes them into \c{*}\a{x} and \c{*}\a{y} if they are valid pointers.
 */
 
 void QPolygon::point(int index, int *x, int *y) const
@@ -179,12 +187,16 @@ void QPolygon::point(int index, int *x, int *y) const
     \overload
 
     Sets the point at array index \a i to \a p.
+
+    \sa putPoints() setPoints()
 */
 
 /*!
     \fn void QPolygon::setPoint(int index, int x, int y)
 
     Sets the point at position \a index in the array to (\a{x}, \a{y}).
+
+    \sa putPoints() setPoints()
 */
 
 /*!
@@ -194,13 +206,12 @@ void QPolygon::point(int index, int *x, int *y) const
     The example code creates an array with two points (10, 20) and
     (30, 40):
 
-    \code
-        static const int points[] = { 10, 20, 30, 40 };
-        QPolygon a;
-        a.setPoints(2, points);
-    \endcode
+    \quotefromfile snippets/polygon/polygon.cpp
+    \skipto SETPOINTS
+    \skipto static
+    \printuntil setPoints
 
-    \sa resize()
+    \sa resize() setPoint() putPoints()
 */
 
 void QPolygon::setPoints(int nPoints, const int *points)
@@ -222,15 +233,15 @@ void QPolygon::setPoints(int nPoints, const int *points)
     The example code creates an array with two points (10, 20) and
     (30, 40):
 
-    \code
-        QPolygon a;
-        a.setPoints(2, 10, 20, 30, 40);
-    \endcode
+    \quotefromfile snippets/polygon/polygon.cpp
+    \skipto SETPOINTS2
+    \skipto QPolygon
+    \printuntil setPoints
 
     The points are given as a sequence of integers, starting with \a
     firstx then \a firsty, and so on.
 
-    \sa resize(), putPoints()
+    \sa resize(), putPoints() setPoint()
 */
 
 void QPolygon::setPoints(int nPoints, int firstx, int firsty, ...)
@@ -248,12 +259,14 @@ void QPolygon::setPoints(int nPoints, int firstx, int firsty, ...)
     va_end(ap);
 }
 
-/*! \overload
+/*!
+  \overload
   \internal
   Copies \a nPoints points from the \a points coord array into
   this point array, and resizes the point array if
   \c{index+nPoints} exceeds the size of the array.
 
+    \sa resize() setPoint()
 */
 
 void QPolygon::putPoints(int index, int nPoints, const int *points)
@@ -275,22 +288,22 @@ void QPolygon::putPoints(int index, int nPoints, const int *points)
     The example code creates an array with three points (4,5), (6,7)
     and (8,9), by expanding the array from 1 to 3 points:
 
-    \code
-        QPolygon a(1);
-        a[0] = QPoint(4, 5);
-        a.putPoints(1, 2, 6,7, 8,9); // index == 1, points == 2
-    \endcode
+    \quotefromfile snippets/polygon/polygon.cpp
+    \skipto PUTPOINTS
+    \skipto QPolygon
+    \printuntil putPoints
 
     This has the same result, but here putPoints overwrites rather
     than extends:
-    \code
-        QPolygon a(3);
-        a.putPoints(0, 3, 4,5, 0,0, 8,9);
-        a.putPoints(1, 1, 6,7);
-    \endcode
+    \quotefromfile snippets/polygon/polygon.cpp
+    \skipto PUTPOINTS2
+    \skipto QPolygon
+    \printuntil putPoints(1, 1
 
     The points are given as a sequence of integers, starting with \a
     firstx then \a firsty, and so on.
+
+    \sa setPoints()
 */
 
 void QPolygon::putPoints(int index, int nPoints, int firstx, int firsty, ...)
@@ -319,16 +332,12 @@ void QPolygon::putPoints(int index, int nPoints, int firstx, int firsty, ...)
     this array, starting at \a index in this array and \a fromIndex in
     \a from. \a fromIndex is 0 by default.
 
-    \code
-        QPolygon a;
-        a.putPoints(0, 3, 1,2, 0,0, 5,6);
-        // a is now the three-point array (1,2, 0,0, 5,6);
-        QPolygon b;
-        b.putPoints(0, 3, 4,4, 5,5, 6,6);
-        // b is now (4,4, 5,5, 6,6);
-        a.putPoints(2, 3, b);
-        // a is now (1,2, 0,0, 4,4, 5,5, 6,6);
-    \endcode
+    \quotefromfile snippets/polygon/polygon.cpp
+    \skipto PUTPOINTS3
+    \skipto QPolygon
+    \printuntil polygon1 is now
+
+    \sa setPoints()
 */
 
 void QPolygon::putPoints(int index, int nPoints, const QPolygon & from, int fromIndex)
@@ -393,18 +402,25 @@ QDebug operator<<(QDebug dbg, const QPolygon &a)
 
 /*!
     \class QPolygonF qpolygon.h
-    \brief The QPolygonF class provides a vector of points.
+    \brief The QPolygonF class provides a vector of floating point points.
     \reentrant
 
     \ingroup multimedia
     \ingroup shared
 
-    A QPolygonF is a QVector\<QPoint\>. It is implicitly shared. In
+    A QPolygonF is a QVector\<QPointF\>. It is \l{implicitly shared}. In
     addition to the functions provided by QVector, QPolygonF
     provides some point-specific functions.
 
-    For convenient reading and writing of the point data use
-    setPoints(), putPoints(), point(), and setPoint().
+    The easiest way to add points to a QPolygonF is to use QVector's streaming
+    operators, as illustrated below:
+
+    \quotefromfile snippets/polygon/polygon.cpp
+    \skipto STREAMF
+    \skipto QPolygonF
+    \printuntil QPointF
+
+    All other forms of manipulating a vector are available too.
 
     For geometry operations use boundingRect() and translate(). There
     is also the QMatrix::map() function for more general
@@ -414,7 +430,7 @@ QDebug operator<<(QDebug dbg, const QPolygon &a)
     QPainter::drawPolyline(), QPainter::drawPolygon() and
     QPainter::drawCubicBezier().
 
-    \sa QPainter QMatrix QVector
+    \sa QPainter QMatrix QVector QPolygon
 */
 
 
@@ -459,6 +475,7 @@ QDebug operator<<(QDebug dbg, const QPolygon &a)
     The point array just contains the four vertices of the rectangle in
     clockwise order starting and ending with the top-left vertex.
 
+    \sa QPolygon::QPolygon() isClosed()
 */
 
 QPolygonF::QPolygonF(const QRectF &r)
@@ -476,6 +493,8 @@ QPolygonF::QPolygonF(const QRectF &r)
 
     Constructs a float based polygon from the int based polygon
     specified by \a a.
+
+    \sa toPolygon()
 */
 
 QPolygonF::QPolygonF(const QPolygon &a)
@@ -493,7 +512,7 @@ QPolygonF::QPolygonF(const QPolygon &a)
 
 
 /*!
-    Translates all points in the polygon by the given \a offset.
+    Translate all points in the polygon by the given \a offset.
 */
 
 void QPolygonF::translate(const QPointF &offset)
@@ -517,10 +536,14 @@ void QPolygonF::translate(const QPointF &offset)
     \fn bool QPolygonF::isClosed() const
 
     Returns true if the polygon is closed; otherwise returns false.
+
+    A polygon is said to be closed if its start point and end point are equal.
+
+    \sa QVector::first() QVector::last()
 */
 
 /*!
-    Returns the bounding rectangle of the polygon, or QRect(0,0,0,0) if the
+    Returns the bounding rectangle of the polygon, or QRectF(0,0,0,0) if the
     array is empty.
 */
 
@@ -548,7 +571,9 @@ QRectF QPolygonF::boundingRect() const
 }
 
 /*!
-    Returns an int based version of the polygon.
+    Returns a QPolygon by converting each QPointF to a QPoint.
+
+    \sa QPointF::toPoint()
 */
 
 QPolygon QPolygonF::toPolygon() const
