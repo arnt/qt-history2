@@ -186,7 +186,7 @@ meta.o: meta.cpp project.h option.h
 main.o: main.cpp project.h
 	$(CXX) -c -o $@ $(CXXFLAGS) main.cpp
 
-option.o: option.cpp option.h
+option.o: option.cpp option.h @SOURCE_PATH@/src/corelib/global/qconfig.cpp
 	$(CXX) -c -o $@ $(CXXFLAGS) option.cpp
 
 qtmd5.o: qtmd5.cpp
