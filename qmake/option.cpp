@@ -205,9 +205,13 @@ Option::parseCommandLine(int argc, char **argv, int skip)
             } else if(opt == "d") {
                 Option::debug_level++;
             } else if(opt == "version" || opt == "v" || opt == "-version") {
-                fprintf(stderr, "QMake version: %s (Qt %s)\n", qmake_version(), QT_VERSION_STR);
+                fprintf(stdout,
+                        "QMake version: %s\n"
+                        "Using Qt version %s in %s\n",
+                        qmake_version(), QT_VERSION_STR,
+                        QLibraryInfo::location(QLibraryInfo::LibrariesPath).toLatin1().constData());
 #ifdef QMAKE_OPENSOURCE_VERSION
-                fprintf(stderr, "QMake is Open Source software from Trolltech AS.\n");
+                fprintf(stdout, "QMake is Open Source software from Trolltech AS.\n");
 #endif
                 return Option::QMAKE_CMDLINE_BAIL;
             } else if(opt == "h" || opt == "help") {
