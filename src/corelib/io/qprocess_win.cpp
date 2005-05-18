@@ -306,7 +306,7 @@ static QByteArray qt_create_environment(const QStringList &environment)
         if (!(QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based)) {
 	    if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty()
                 && !path.isNull()) {
-                QString tmp = QString("PATH=%1").arg(path);
+                QString tmp = QString(QLatin1String("PATH=%1")).arg(QString(path));
                 uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
                 envlist.resize(envlist.size() + tmpSize );
                 memcpy(envlist.data()+pos, tmp.utf16(), tmpSize);
@@ -330,7 +330,7 @@ static QByteArray qt_create_environment(const QStringList &environment)
 #endif // UNICODE
         {
             if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && !path.isNull()) {
-                QByteArray tmp = QString("PATH=%1").arg(path).toLocal8Bit();
+                QByteArray tmp = QString("PATH=%1").arg(QString(path)).toLocal8Bit();
                 uint tmpSize = tmp.length() + 1;
                 envlist.resize(envlist.size() + tmpSize);
                 memcpy(envlist.data()+pos, tmp.data(), tmpSize);
