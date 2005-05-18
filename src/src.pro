@@ -3,11 +3,10 @@ CONFIG += ordered
 
 # this order is important
 win32:SUBDIRS += winmain
-SUBDIRS += tools/moc tools/rcc corelib xml gui sql network
+SUBDIRS += tools/moc tools/rcc tools/uic corelib xml gui sql network
 !embedded:contains(QT_CONFIG, opengl): SUBDIRS += opengl
-contains(QT_CONFIG, qt3support): SUBDIRS += qt3support 
+contains(QT_CONFIG, qt3support): SUBDIRS += qt3support
 !cross_compile {
-    SUBDIRS += tools/uic 
     contains(QT_CONFIG, qt3support): SUBDIRS += tools/uic3
 }
 SUBDIRS += plugins

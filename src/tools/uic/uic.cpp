@@ -22,8 +22,6 @@
 #include "writeincludes.h"
 #include "writedeclaration.h"
 
-#include <qcoreapplication.h>
-#include <qdebug.h>
 #include <qdom.h>
 #include <qfileinfo.h>
 #include <qregexp.h>

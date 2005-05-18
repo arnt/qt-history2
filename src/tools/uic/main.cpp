@@ -15,8 +15,6 @@
 #include "option.h"
 #include "driver.h"
 
-#include <qcoreapplication.h>
-#include <qlibraryinfo.h>
 #include <qfile.h>
 #include <qtextstream.h>
 
@@ -34,21 +32,15 @@ void showHelp(const char *appName)
             "  -d, -dependencies         display the dependencies\n"
             "  -o <file>                 place the output into <file>\n"
             "  -tr <func>                use func() for i18n\n"
-            "  -3 /path/to/uic3          change the path of uic3 [%s/uic3]\n"
             "  -p, -no-protection        disable header protection\n"
-            "\n", appName, QLibraryInfo::location(QLibraryInfo::BinariesPath).toLatin1().constData());
-
+            "\n");
 }
 
 int main(int argc, char *argv[])
 {
-    QCoreApplication app(argc, argv);
-
     Driver driver;
 
     const char *fileName = 0;
-
-    driver.option().uic3 = QLibraryInfo::location(QLibraryInfo::BinariesPath) + QLatin1String("/uic3");
 
     int arg = 1;
     while (arg < argc) {
