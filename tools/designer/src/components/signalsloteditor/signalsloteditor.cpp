@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include <qtundo.h>
+#include <qtundo_p.h>
 #include "signalsloteditor.h"
 #include "default_membersheet.h"
 #include "signalsloteditor_p.h"

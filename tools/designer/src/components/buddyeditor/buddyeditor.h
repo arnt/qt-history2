@@ -16,7 +16,7 @@
 
 #include "buddyeditor_global.h"
 
-#include <connectionedit.h>
+#include <connectionedit_p.h>
 #include <QtCore/QPointer>
 
 class QDesignerFormWindowInterface;

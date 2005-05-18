@@ -26,7 +26,7 @@
 #ifndef TREEWIDGET_H
 #define TREEWIDGET_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 #include <QTreeWidget>
 
 class QT_SHARED_EXPORT TreeWidget: public QTreeWidget

@@ -11,16 +11,13 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_widget.h"
-#include "qdesigner_command.h"
-#include "layout.h"
-#include "invisible_widget.h"
+#include "qdesigner_widget_p.h"
+#include "qdesigner_command_p.h"
+#include "layout_p.h"
+#include "invisible_widget_p.h"
 
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractwidgetfactory.h>
-#include <QtDesigner/propertysheet.h>
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QBitmap>
 #include <QtGui/QPixmapCache>

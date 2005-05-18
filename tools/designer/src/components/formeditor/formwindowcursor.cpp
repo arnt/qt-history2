@@ -16,8 +16,8 @@
 
 // sdk
 #include <QtDesigner/propertysheet.h>
-#include <QtDesigner/qextensionmanager.h>
-#include <qdesigner_command.h>
+#include <QtDesigner/QExtensionManager>
+#include <qdesigner_command_p.h>
 
 #include <QtCore/qdebug.h>
 

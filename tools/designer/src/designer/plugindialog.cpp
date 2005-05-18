@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include <QtDesigner/QtDesigner>
-#include <pluginmanager.h>
+#include <pluginmanager_p.h>
 
 #include <QtGui/QtGui>
 

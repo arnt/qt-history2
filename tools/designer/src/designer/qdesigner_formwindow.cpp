@@ -20,7 +20,7 @@
 #include <QtDesigner/QtDesigner>
 
 // shared
-#include <qtundo.h>
+#include <qtundo_p.h>
 
 #include <QtCore/QEvent>
 #include <QtCore/QFile>

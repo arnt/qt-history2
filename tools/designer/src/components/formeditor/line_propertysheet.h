@@ -14,7 +14,7 @@
 #ifndef LINE_PROPERTYSHEET_H
 #define LINE_PROPERTYSHEET_H
 
-#include <qdesigner_propertysheet.h>
+#include <qdesigner_propertysheet_p.h>
 
 class Line;
 

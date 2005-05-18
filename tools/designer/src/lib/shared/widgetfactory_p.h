@@ -26,10 +26,10 @@
 #ifndef WIDGETFACTORY_H
 #define WIDGETFACTORY_H
 
-#include "shared_global.h"
-#include <QtDesigner/abstractwidgetfactory.h>
+#include "shared_global_p.h"
+#include "pluginmanager_p.h"
 
-#include <pluginmanager.h>
+#include <QtDesigner/QDesignerWidgetFactoryInterface>
 
 #include <QtCore/QMap>
 #include <QtCore/QVariant>

@@ -17,9 +17,9 @@
 #include <QtDesigner/QtDesigner>
 
 // shared
-#include <pluginmanager.h>
-#include <sheet_delegate.h>
-#include <iconloader.h>
+#include <pluginmanager_p.h>
+#include <sheet_delegate_p.h>
+#include <iconloader_p.h>
 
 #include <QtGui/QtGui>
 #include <QtCore/qdebug.h>

@@ -30,7 +30,7 @@
 #include <QtCore/QMap>
 #include <QtCore/QAbstractItemModel>
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 class QT_SHARED_EXPORT ResourceFile
 {

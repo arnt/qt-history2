@@ -22,7 +22,7 @@
 
 #include <QtDesigner/abstractformwindow.h>
 
-#include "connectionedit.h"
+#include "connectionedit_p.h"
 
 #define BG_ALPHA                32
 #define LINE_PROXIMITY_RADIUS   3

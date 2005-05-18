@@ -12,9 +12,9 @@
 ****************************************************************************/
 
 #include "formeditor.h"
-#include "metadatabase.h"
-#include "widgetdatabase.h"
-#include "widgetfactory.h"
+#include "metadatabase_p.h"
+#include "widgetdatabase_p.h"
+#include "widgetfactory_p.h"
 #include "formwindowmanager.h"
 #include "qmainwindow_container.h"
 #include "qdockwidget_container.h"
@@ -27,13 +27,13 @@
 #include "iconcache.h"
 
 // sdk
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QExtensionManager>
 
 // shared
-#include <pluginmanager.h>
-#include <qdesigner_taskmenu.h>
-#include <qdesigner_propertysheet.h>
-#include <qdesigner_promotedwidget.h>
+#include <pluginmanager_p.h>
+#include <qdesigner_taskmenu_p.h>
+#include <qdesigner_propertysheet_p.h>
+#include <qdesigner_promotedwidget_p.h>
 
 using namespace qdesigner_internal;
 

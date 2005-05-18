@@ -24,8 +24,8 @@
 
 // sdk
 #include <QtDesigner/QtDesigner>
-#include <qdesigner_formbuilder.h>
-#include <qtundo.h>
+#include <qdesigner_formbuilder_p.h>
+#include <qtundo_p.h>
 
 #include <QtAssistant/QAssistantClient>
 

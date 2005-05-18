@@ -21,7 +21,7 @@
 #include <QtGui/QStyle>
 #include <QtGui/QStyleOption>
 #include <QtDesigner/QtDesigner>
-#include <qdesigner_taskmenu.h>
+#include <qdesigner_taskmenu_p.h>
 #include "button_taskmenu.h"
 #include "groupbox_taskmenu.h"
 #include "label_taskmenu.h"

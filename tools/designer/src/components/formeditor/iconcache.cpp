@@ -13,7 +13,7 @@
 
 #include "iconcache.h"
 
-#include <resourcefile.h>
+#include <resourcefile_p.h>
 #include <QtCore/QDir>
 #include <QtCore/QFileInfo>
 

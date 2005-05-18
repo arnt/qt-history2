@@ -25,9 +25,8 @@
 #ifndef LAYOUT_H
 #define LAYOUT_H
 
-#include "shared_global.h"
-
-#include <layoutinfo.h>
+#include "shared_global_p.h"
+#include "layoutinfo_p.h"
 
 #include <QtCore/QPointer>
 #include <QtCore/QObject>

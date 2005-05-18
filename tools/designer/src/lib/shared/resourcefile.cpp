@@ -21,7 +21,7 @@
 
 #include <QtXml/QDomDocument>
 
-#include "resourcefile.h"
+#include "resourcefile_p.h"
 #include <QtDesigner/abstractformbuilder.h>
 
 /******************************************************************************

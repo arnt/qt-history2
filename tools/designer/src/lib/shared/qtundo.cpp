@@ -3,7 +3,7 @@
 #include <qalgorithms.h>
 #include <QtCore/qdebug.h>
 
-#include "qtundo.h"
+#include "qtundo_p.h"
 
 Q_GLOBAL_STATIC(QtUndoManager, g_manager)
 

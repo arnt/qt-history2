@@ -26,10 +26,9 @@
 #ifndef WIDGETDATABASE_H
 #define WIDGETDATABASE_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractwidgetdatabase.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtGui/QIcon>
 #include <QtCore/QString>

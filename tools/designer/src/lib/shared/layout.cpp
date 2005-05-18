@@ -11,17 +11,13 @@
 **
 ****************************************************************************/
 
-#include "layout.h"
-#include "qdesigner_widget.h"
-#include "qlayout_widget.h"
-#include "spacer_widget.h"
+#include "layout_p.h"
+#include "qdesigner_widget_p.h"
+#include "qlayout_widget_p.h"
+#include "spacer_widget_p.h"
 #include "layoutdecoration.h"
 
-#include <QtDesigner/abstractwidgetdatabase.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractwidgetfactory.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QtDesigner>
 
 #include <QtCore/qdebug.h>
 #include <QtCore/QVector>

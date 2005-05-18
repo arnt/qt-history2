@@ -19,7 +19,7 @@
 
 #include <QtDesigner/propertysheet.h>
 
-#include <qdesigner_utils.h>
+#include <qdesigner_utils_p.h>
 
 #include <QtGui/QLineEdit>
 #include <QtGui/QListView>

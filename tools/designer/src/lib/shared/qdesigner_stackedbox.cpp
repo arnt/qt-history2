@@ -11,17 +11,13 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_stackedbox.h"
+#include "qdesigner_stackedbox_p.h"
 #include "abstractformwindow.h"
+#include "qdesigner_command_p.h"
+#include "qtundo_p.h"
 
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractpropertyeditor.h>
-#include <QtDesigner/abstractmetadatabase.h>
-
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/propertysheet.h>
-#include <qdesigner_command.h>
-#include <qtundo.h>
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QToolButton>
 #include <QtGui/QAction>

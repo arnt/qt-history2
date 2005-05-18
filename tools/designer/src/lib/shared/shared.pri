@@ -9,37 +9,37 @@ FORMS += \
     $$PWD/findicondialog.ui
 
 HEADERS += \
-    $$PWD/shared_global.h \
-    $$PWD/spacer_widget.h \
-    $$PWD/layoutinfo.h \
-    $$PWD/layout.h \
-    $$PWD/connectionedit.h \
-    $$PWD/qtundo.h \
-    $$PWD/pluginmanager.h \
-    $$PWD/metadatabase.h \
-    $$PWD/qdesigner_command.h \
-    $$PWD/qdesigner_formbuilder.h \
-    $$PWD/qdesigner_taskmenu.h \
-    $$PWD/qdesigner_widget.h \
-    $$PWD/qdesigner_propertysheet.h \
-    $$PWD/qdesigner_integration.h \
-    $$PWD/invisible_widget.h \
-    $$PWD/qlayout_widget.h \
-    $$PWD/tree_widget.h \
-    $$PWD/sheet_delegate.h \
-    $$PWD/qdesigner_promotedwidget.h \
-    $$PWD/qdesigner_stackedbox.h \
-    $$PWD/qdesigner_tabwidget.h \
-    $$PWD/qdesigner_dockwidget.h \
-    $$PWD/qdesigner_toolbox.h \
-    $$PWD/qdesigner_dnditem.h \
-    $$PWD/widgetfactory.h \
-    $$PWD/widgetdatabase.h \
-    $$PWD/promotetocustomwidgetdialog.h \
-    $$PWD/resourcefile.h \
-    $$PWD/iconloader.h \
-    $$PWD/findicondialog.h \
-    $$PWD/richtexteditor.h
+    $$PWD/shared_global_p.h \
+    $$PWD/spacer_widget_p.h \
+    $$PWD/layoutinfo_p.h \
+    $$PWD/layout_p.h \
+    $$PWD/connectionedit_p.h \
+    $$PWD/qtundo_p.h \
+    $$PWD/pluginmanager_p.h \
+    $$PWD/metadatabase_p.h \
+    $$PWD/qdesigner_command_p.h \
+    $$PWD/qdesigner_formbuilder_p.h \
+    $$PWD/qdesigner_taskmenu_p.h \
+    $$PWD/qdesigner_widget_p.h \
+    $$PWD/qdesigner_propertysheet_p.h \
+    $$PWD/qdesigner_integration_p.h \
+    $$PWD/invisible_widget_p.h \
+    $$PWD/qlayout_widget_p.h \
+    $$PWD/tree_widget_p.h \
+    $$PWD/sheet_delegate_p.h \
+    $$PWD/qdesigner_promotedwidget_p.h \
+    $$PWD/qdesigner_stackedbox_p.h \
+    $$PWD/qdesigner_tabwidget_p.h \
+    $$PWD/qdesigner_dockwidget_p.h \
+    $$PWD/qdesigner_toolbox_p.h \
+    $$PWD/qdesigner_dnditem_p.h \
+    $$PWD/widgetfactory_p.h \
+    $$PWD/widgetdatabase_p.h \
+    $$PWD/promotetocustomwidgetdialog_p.h \
+    $$PWD/resourcefile_p.h \
+    $$PWD/iconloader_p.h \
+    $$PWD/findicondialog_p.h \
+    $$PWD/richtexteditor_p.h
 
 
 SOURCES += \

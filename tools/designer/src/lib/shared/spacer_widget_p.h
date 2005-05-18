@@ -23,10 +23,10 @@
 //
 
 
-#ifndef SPACER_H
-#define SPACER_H
+#ifndef SPACER_WIDGET_H
+#define SPACER_WIDGET_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 #include <QtGui/QWidget>
 #include <QtGui/QSizePolicy>
@@ -73,4 +73,4 @@ private:
     QSize sh;
 };
 
-#endif // SPACER_H
+#endif // SPACER_WIDGET_H

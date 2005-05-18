@@ -25,9 +25,9 @@
 #ifndef QDESIGNER_COMMAND_H
 #define QDESIGNER_COMMAND_H
 
-#include "shared_global.h"
-#include "qtundo.h"
-#include "layoutinfo.h"
+#include "shared_global_p.h"
+#include "qtundo_p.h"
+#include "layoutinfo_p.h"
 
 #include <QtDesigner/layoutdecoration.h>
 

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "tree_widget.h"
+#include "tree_widget_p.h"
 
 #include <QtCore/QPair>
 #include <QtCore/QStack>

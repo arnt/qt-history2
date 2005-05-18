@@ -27,7 +27,7 @@
 
 #include <QtGui/QTextEdit>
 #include <QtGui/QDialog>
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 class QToolBar;
 

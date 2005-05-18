@@ -25,7 +25,7 @@
 #ifndef PLUGINMANAGER_H
 #define PLUGINMANAGER_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 #include <QtCore/QStringList>
 #include <QtCore/QSettings>

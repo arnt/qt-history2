@@ -14,7 +14,7 @@
 #ifndef SPACER_PROPERTYSHEET_H
 #define SPACER_PROPERTYSHEET_H
 
-#include <qdesigner_propertysheet.h>
+#include <qdesigner_propertysheet_p.h>
 
 class Spacer;
 

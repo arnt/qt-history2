@@ -41,8 +41,8 @@ public:
     virtual bool isInitialized() const { return false; }
     virtual void initialize(QDesignerFormEditorInterface *core) { Q_UNUSED(core); }
 
+    virtual QString domXml() const;
     virtual QString codeTemplate() const { return QString(); }
-    virtual QString domXml() const { return QString(); }
 };
 Q_DECLARE_INTERFACE(QDesignerCustomWidgetInterface, "com.trolltech.Qt.Designer.CustomWidget")
 
@@ -55,5 +55,11 @@ public:
     virtual QList<QDesignerCustomWidgetInterface*> customWidgets() const = 0;
 };
 Q_DECLARE_INTERFACE(QDesignerCustomWidgetCollectionInterface, "com.trolltech.Qt.Designer.CustomWidgetCollection")
+
+inline QString QDesignerCustomWidgetInterface::domXml() const
+{
+    return QString::fromUtf8("<widget class=\"%s\" name=\"%s\"/>")
+        .arg(name()).arg(name().toLower());
+}
 
 #endif // CUSTOMWIDGET_H

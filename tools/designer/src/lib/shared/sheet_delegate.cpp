@@ -11,13 +11,12 @@
 **
 ****************************************************************************/
 
-#include "sheet_delegate.h"
+#include "sheet_delegate_p.h"
 
-#include <QAbstractItemModel>
-#include <QTreeView>
-
-#include <QStyle>
-#include <QPainter>
+#include <QtCore/QAbstractItemModel>
+#include <QtGui/QTreeView>
+#include <QtGui/QStyle>
+#include <QtGui/QPainter>
 
 SheetDelegate::SheetDelegate(QTreeView *view, QWidget *parent)
     : QItemDelegate(parent),

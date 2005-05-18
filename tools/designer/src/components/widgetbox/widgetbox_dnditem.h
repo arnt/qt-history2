@@ -14,7 +14,7 @@
 #ifndef WIDGETBOX_DNDITEM_H
 #define WIDGETBOX_DNDITEM_H
 
-#include <qdesigner_dnditem.h>
+#include <qdesigner_dnditem_p.h>
 #include "widgetbox_global.h"
 
 class QDesignerFormEditorInterface;

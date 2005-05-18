@@ -25,7 +25,7 @@
 #ifndef QDESIGNER_TOOLBOX_H
 #define QDESIGNER_TOOLBOX_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 #include <QToolBox>
 

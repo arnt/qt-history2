@@ -17,11 +17,11 @@
 
 #include <QtDesigner/QtDesigner>
 
-#include <qtundo.h>
-#include <qdesigner_command.h>
-#include <qdesigner_widget.h>
-#include <qdesigner_utils.h>
-#include <qlayout_widget.h>
+#include <qtundo_p.h>
+#include <qdesigner_command_p.h>
+#include <qdesigner_widget_p.h>
+#include <qdesigner_utils_p.h>
+#include <qlayout_widget_p.h>
 
 using namespace qdesigner_internal;
 

@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "invisible_widget.h"
+#include "invisible_widget_p.h"
 
 InvisibleWidget::InvisibleWidget(QWidget *parent)
     : QWidget()

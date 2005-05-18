@@ -11,17 +11,9 @@
 **
 ****************************************************************************/
 
-#include <QtDesigner/QDesignerCustomWidgetInterface>
-#include <QtDesigner/QDesignerFormEditorInterface>
-#include <QtDesigner/QDesignerFormWindowManagerInterface>
-#include <QtDesigner/QDesignerFormWindowCursorInterface>
-#include <QtDesigner/QDesignerFormWindowInterface>
-#include <QtDesigner/QExtensionManager>
-#include <QtDesigner/QDesignerTaskMenuExtension>
+#include <QtDesigner/QtDesigner>
 #include <QtDesigner/QExtensionFactory>
-#include <QtDesigner/ui4.h>
-
-#include <qdesigner_propertysheet.h>
+#include <QtDesigner/private/qdesigner_propertysheet_p.h>
 
 #include <QtCore/qplugin.h>
 #include <QtCore/QObject>
@@ -76,12 +68,12 @@ class QActiveXPluginObject : public QAxWidget
 public:
     QActiveXPluginObject(QWidget *parent)
         : QAxWidget(parent), m_hasControl(false)
-    { 
+    {
         m_axImage = QPixmap(widgetIcon);
     }
-    
+
     ~QActiveXPluginObject()
-    { 
+    {
     }
 
     bool setControl(const QString &clsid)
@@ -124,7 +116,7 @@ class QActiveXPropertySheet: public QDesignerPropertySheet
 public:
     QActiveXPropertySheet(QAxWidget *object, QObject *parent = 0)
         : QDesignerPropertySheet(object, parent)
-    { 
+    {
         int index = indexOf(QLatin1String("control"));
         if (index == -1) {
             createFakeProperty(QLatin1String("control"), QString());
@@ -143,13 +135,13 @@ public:
     {
         QDesignerPropertySheet::setProperty(index, value);
 
-        if (isAdditionalProperty(index) 
+        if (isAdditionalProperty(index)
             && (propertyName(index) == QLatin1String("control")))
         {
             QString clsid = value.toString();
             if (!clsid.isEmpty()) {
                 static_cast<QActiveXPluginObject*>(m_object)->setControl(clsid);
-                
+
                 // don't update the property sheet if the widget isn't in a form (preview)
                 if (QDesignerFormWindowInterface::findFormWindow(static_cast<QWidget*>(m_object)))
                 {
@@ -241,7 +233,7 @@ public:
         action->setText(tr("Set Control"));
         connect(action, SIGNAL(triggered()), this, SLOT(setActiveXControl()));
         m_taskActions.append(action);
-        
+
         return m_taskActions;
     }
 
@@ -318,7 +310,7 @@ protected:
 
         if (iid == Q_TYPEID(QDesignerTaskMenuExtension))
             return new QActiveXTaskMenu(w, parent);
-        
+
         return 0;
     }
 
@@ -333,28 +325,28 @@ class QActiveXPlugin : public QObject, public QDesignerCustomWidgetInterface
 public:
     inline QActiveXPlugin(QObject *parent = 0)
         : QObject(parent), m_core(0) {}
-        
+
     virtual QString name() const
     { return QLatin1String("QAxWidget"); }
-    
+
     virtual QString group() const
     { return QLatin1String("Containers"); }
-    
+
     virtual QString toolTip() const
     { return tr("ActiveX control"); }
-    
+
     virtual QString whatsThis() const
     { return tr("ActiveX control widget"); }
-    
+
     virtual QString includeFile() const
     { return QLatin1String("qaxwidget.h"); }
-    
+
     virtual QIcon icon() const
     { return QIcon(widgetIcon); }
 
     virtual bool isContainer() const
     { return false; }
-    
+
     virtual bool isForm() const
     { return false; }
 
@@ -362,12 +354,12 @@ public:
     {
         return new QActiveXPluginObject(parent);
     }
-    
-    virtual bool isInitialized() const 
+
+    virtual bool isInitialized() const
     { return (m_core != 0); }
-    
-    virtual void initialize(QDesignerFormEditorInterface *core) 
-    { 
+
+    virtual void initialize(QDesignerFormEditorInterface *core)
+    {
         if (m_core != 0)
             return;
 
@@ -392,7 +384,7 @@ public:
             </property>\
         </widget>\
       "); }
-    
+
     virtual QString codeTemplate() const
     { return QString(); }
 

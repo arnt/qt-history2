@@ -20,9 +20,9 @@
 #include <QtDesigner/QExtensionManager>
 
 // shared
-#include <qdesigner_command.h>
-#include <layout.h>
-#include <layoutinfo.h>
+#include <qdesigner_command_p.h>
+#include <layout_p.h>
+#include <layoutinfo_p.h>
 
 #include <QtGui/QMenu>
 #include <QtGui/QWidget>

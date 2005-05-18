@@ -11,14 +11,14 @@
 **
 ****************************************************************************/
 
-#include "widgetdatabase.h"
-#include "widgetfactory.h"
-#include "spacer_widget.h"
+#include "widgetdatabase_p.h"
+#include "widgetfactory_p.h"
+#include "spacer_widget_p.h"
 
-#include <pluginmanager.h>
+#include <pluginmanager_p.h>
 #include <QtDesigner/customwidget.h>
 #include <QtDesigner/propertysheet.h>
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QExtensionManager>
 
 #include <qalgorithms.h>
 #include <QtCore/qdebug.h>

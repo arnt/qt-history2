@@ -34,8 +34,8 @@
 #include <QtGui/QPixmap>
 #include <QtGui/QPolygonF>
 
-#include "qtundo.h"
-#include "shared_global.h"
+#include "qtundo_p.h"
+#include "shared_global_p.h"
 
 class QDesignerFormWindowInterface;
 class QtUndoStack;

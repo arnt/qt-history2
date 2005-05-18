@@ -25,7 +25,7 @@
 #ifndef QDESIGNER_INTEGRATION_H
 #define QDESIGNER_INTEGRATION_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 #include <QtCore/QObject>
 

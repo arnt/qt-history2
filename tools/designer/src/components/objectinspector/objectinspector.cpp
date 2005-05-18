@@ -17,8 +17,8 @@
 #include <QtDesigner/QtDesigner>
 
 // shared
-#include <tree_widget.h>
-#include <qdesigner_promotedwidget.h>
+#include <tree_widget_p.h>
+#include <qdesigner_promotedwidget_p.h>
 
 // Qt
 #include <QtGui/QApplication>

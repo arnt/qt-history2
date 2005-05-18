@@ -25,7 +25,7 @@
 #ifndef LAYOUTINFO_H
 #define LAYOUTINFO_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 #include <QtCore/QList>
 

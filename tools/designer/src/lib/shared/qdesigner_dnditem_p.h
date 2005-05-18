@@ -27,7 +27,7 @@
 
 #include <QtCore/QPoint>
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 #include <QtDesigner/abstractdnditem.h>
 
 class QT_SHARED_EXPORT QDesignerDnDItem: public QDesignerDnDItemInterface

@@ -25,7 +25,7 @@
 #ifndef QDESIGNER_STACKEDBOX_H
 #define QDESIGNER_STACKEDBOX_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 #include <QtGui/QStackedWidget>
 #include <QtCore/QList>

@@ -12,8 +12,8 @@
 ****************************************************************************/
 
 #include "listwidgeteditor.h"
-#include <findicondialog.h>
-#include <iconloader.h>
+#include <findicondialog_p.h>
+#include <iconloader_p.h>
 #include <QtDesigner/QtDesigner>
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>

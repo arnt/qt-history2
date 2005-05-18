@@ -14,7 +14,7 @@
 #ifndef FORMWINDOW_DNDITEM_H
 #define FORMWINDOW_DNDITEM_H
 
-#include <qdesigner_dnditem.h>
+#include <qdesigner_dnditem_p.h>
 
 namespace qdesigner_internal {
 

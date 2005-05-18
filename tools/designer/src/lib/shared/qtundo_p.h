@@ -25,7 +25,7 @@
 #ifndef QTUNDO_H
 #define QTUNDO_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 #include <QAbstractItemModel>
 #include <QtCore/QMap>

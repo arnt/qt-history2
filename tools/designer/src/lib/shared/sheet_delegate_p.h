@@ -26,7 +26,7 @@
 #ifndef SHEET_DELEGATE_H
 #define SHEET_DELEGATE_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 #include <QItemDelegate>
 #include <QTreeView>

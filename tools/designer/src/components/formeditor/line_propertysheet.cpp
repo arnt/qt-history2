@@ -15,10 +15,10 @@
 #include "formwindow.h"
 
 // sdk
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QExtensionManager>
 
 // shared
-#include <qdesigner_widget.h>
+#include <qdesigner_widget_p.h>
 
 
 #include <QtGui/QLayout>

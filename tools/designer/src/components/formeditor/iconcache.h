@@ -18,7 +18,7 @@
 
 #include <QtDesigner/QtDesigner>
 
-#include <resourcefile.h>
+#include <resourcefile_p.h>
 
 #include <QtCore/QMap>
 #include <QtCore/QVariant>

@@ -12,11 +12,11 @@
 ****************************************************************************/
 
 #include "spacer_propertysheet.h"
-#include "qdesigner_widget.h"
+#include "qdesigner_widget_p.h"
 #include "formwindow.h"
-#include "spacer_widget.h"
+#include "spacer_widget_p.h"
 
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QLayout>
 #include <QtCore/QMetaObject>

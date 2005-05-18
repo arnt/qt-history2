@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_propertysheet.h"
-#include "qdesigner_utils.h"
+#include "qdesigner_propertysheet_p.h"
+#include "qdesigner_utils_p.h"
 
 #include <QtDesigner/QDesignerFormWindowInterface>
 

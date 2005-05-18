@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "spacer_widget.h"
-#include "layoutinfo.h"
+#include "spacer_widget_p.h"
+#include "layoutinfo_p.h"
 
 #include <QtDesigner/abstractformwindow.h>
 
-#include <QLayout>
-#include <QPainter>
+#include <QtGui/QLayout>
+#include <QtGui/QPainter>
 #include <QtCore/qdebug.h>
 
 Spacer::Spacer(QWidget *parent)

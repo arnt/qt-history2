@@ -13,16 +13,16 @@
 
 #include "formwindowmanager.h"
 #include "formwindow_dnditem.h"
-#include "widgetdatabase.h"
-#include "iconloader.h"
+#include "widgetdatabase_p.h"
+#include "iconloader_p.h"
 #include "widgetselection.h"
 #include "qdesigner_resource.h"
-#include "connectionedit.h"
+#include "connectionedit_p.h"
 
 #include <QtDesigner/QtDesigner>
-#include <qdesigner_promotedwidget.h>
-#include <qdesigner_command.h>
-#include <layoutinfo.h>
+#include <qdesigner_promotedwidget_p.h>
+#include <qdesigner_command_p.h>
+#include <layoutinfo_p.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QLayout>

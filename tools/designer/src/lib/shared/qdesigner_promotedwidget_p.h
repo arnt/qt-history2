@@ -30,11 +30,9 @@
 #include <QtGui/QWidget>
 #include <QtGui/QIcon>
 
-#include "shared_global.h"
-#include <QtDesigner/propertysheet.h>
-#include <QtDesigner/default_extensionfactory.h>
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractwidgetdatabase.h>
+#include "shared_global_p.h"
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QExtensionFactory>
 
 class QDesignerPromotedWidget;
 class QExtensionManager;

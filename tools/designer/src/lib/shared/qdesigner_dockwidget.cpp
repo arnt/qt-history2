@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_dockwidget.h"
+#include "qdesigner_dockwidget_p.h"
 #include <QtDesigner/QDesignerFormWindowInterface>
 
 #include <QtGui/QMainWindow>

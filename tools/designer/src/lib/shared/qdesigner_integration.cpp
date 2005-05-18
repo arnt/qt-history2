@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_integration.h"
+#include "qdesigner_integration_p.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>

@@ -19,7 +19,7 @@
 #include <QtCore/QList>
 #include <QtCore/QAbstractItemModel>
 
-#include <connectionedit.h>
+#include <connectionedit_p.h>
 
 class QDesignerFormWindowInterface;
 class DomConnection;

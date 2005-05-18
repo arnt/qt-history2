@@ -13,7 +13,7 @@
 
 #include "qpropertyeditor_delegate_p.h"
 #include "qpropertyeditor_model_p.h"
-#include <iconloader.h>
+#include <iconloader_p.h>
 
 #include <QtGui/QPainter>
 #include <QtGui/QFrame>

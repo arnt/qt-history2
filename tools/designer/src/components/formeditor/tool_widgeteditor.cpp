@@ -16,7 +16,7 @@
 
 // sdk
 #include <QtDesigner/QtDesigner>
-#include <layoutinfo.h>
+#include <layoutinfo_p.h>
 
 #include <QtGui/qevent.h>
 #include <QtGui/QAction>

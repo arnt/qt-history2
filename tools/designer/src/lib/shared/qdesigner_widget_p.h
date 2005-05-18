@@ -25,10 +25,10 @@
 #ifndef QDESIGNER_WIDGET_H
 #define QDESIGNER_WIDGET_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 #include "layoutdecoration.h"
 
-#include <QtDesigner/abstractmetadatabase.h>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
 
 #include <QtCore/QPointer>
 #include <QtCore/QPair>

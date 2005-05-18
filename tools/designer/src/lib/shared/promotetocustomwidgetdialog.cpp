@@ -14,8 +14,8 @@
 #include <QtGui/QRegExpValidator>
 #include <QtGui/QMessageBox>
 
-#include <QtDesigner/abstractwidgetdatabase.h>
-#include "promotetocustomwidgetdialog.h"
+#include <QtDesigner/QtDesigner>
+#include "promotetocustomwidgetdialog_p.h"
 
 #include <QtCore/qdebug.h>
 

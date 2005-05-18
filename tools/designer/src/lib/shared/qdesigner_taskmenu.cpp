@@ -11,17 +11,17 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_taskmenu.h"
-#include "qdesigner_command.h"
-#include "qdesigner_promotedwidget.h"
-#include "qtundo.h"
-#include "richtexteditor.h"
-#include "promotetocustomwidgetdialog.h"
-#include "widgetfactory.h"
-#include "widgetdatabase.h"
-#include "qlayout_widget.h"
-#include "spacer_widget.h"
-#include "layout.h"
+#include "qdesigner_taskmenu_p.h"
+#include "qdesigner_command_p.h"
+#include "qdesigner_promotedwidget_p.h"
+#include "qtundo_p.h"
+#include "richtexteditor_p.h"
+#include "promotetocustomwidgetdialog_p.h"
+#include "widgetfactory_p.h"
+#include "widgetdatabase_p.h"
+#include "qlayout_widget_p.h"
+#include "spacer_widget_p.h"
+#include "layout_p.h"
 
 #include <QtDesigner/QtDesigner>
 #include <QtDesigner/QExtensionManager>

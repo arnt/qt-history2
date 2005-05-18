@@ -12,8 +12,8 @@
 ****************************************************************************/
 
 #include <QtDesigner/ui4.h>
-#include <spacer_widget.h>
-#include <qdesigner_formbuilder.h>
+#include <spacer_widget_p.h>
+#include <qdesigner_formbuilder_p.h>
 
 #include "widgetbox_dnditem.h"
 

@@ -12,12 +12,12 @@
 ****************************************************************************/
 
 #include "qlayoutwidget_propertysheet.h"
-#include "qlayout_widget.h"
-#include "qdesigner_widget.h"
+#include "qlayout_widget_p.h"
+#include "qdesigner_widget_p.h"
 #include "formwindow.h"
 #include "formeditor.h"
 
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QExtensionManager>
 
 #include <QLayout>
 #include <QMetaObject>

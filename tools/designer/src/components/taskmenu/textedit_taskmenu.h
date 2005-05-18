@@ -17,7 +17,7 @@
 #include <QtGui/QTextEdit>
 #include <QtCore/QPointer>
 
-#include <qdesigner_taskmenu.h>
+#include <qdesigner_taskmenu_p.h>
 #include <QtDesigner/default_extensionfactory.h>
 
 class QDesignerFormWindowInterface;

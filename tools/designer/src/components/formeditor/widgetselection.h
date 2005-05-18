@@ -15,7 +15,7 @@
 #define WIDGETSELECTION_H
 
 #include "formeditor_global.h"
-#include <invisible_widget.h>
+#include <invisible_widget_p.h>
 
 #include <QtCore/QHash>
 #include <QtCore/QPointer>

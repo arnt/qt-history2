@@ -13,8 +13,8 @@
 
 #include "default_layoutdecoration.h"
 #include "formwindow.h"
-#include "qlayout_widget.h"
-#include "qdesigner_widget.h"
+#include "qlayout_widget_p.h"
+#include "qdesigner_widget_p.h"
 
 #include <QtGui/QGridLayout>
 #include <QtCore/qdebug.h>

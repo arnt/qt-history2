@@ -25,9 +25,9 @@
 #ifndef METADATABASE_H
 #define METADATABASE_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
-#include <QtDesigner/abstractmetadatabase.h>
+#include <QtDesigner/QDesignerMetaDataBaseInterface>
 
 #include <QtCore/QHash>
 #include <QtGui/QCursor>

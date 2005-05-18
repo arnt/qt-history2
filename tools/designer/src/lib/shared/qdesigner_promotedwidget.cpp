@@ -1,6 +1,6 @@
-#include "qdesigner_promotedwidget.h"
+#include "qdesigner_promotedwidget_p.h"
 
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QExtensionManager>
 
 #include <QtGui/QVBoxLayout>
 #include <QtCore/QEvent>

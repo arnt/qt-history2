@@ -25,7 +25,7 @@
 #ifndef QDESIGNER_TABWIDGET_H
 #define QDESIGNER_TABWIDGET_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 #include <QtGui/QTabWidget>
 

@@ -25,7 +25,7 @@
 #ifndef QDESIGNER_FORMBUILDER_H
 #define QDESIGNER_FORMBUILDER_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 
 #include <QtDesigner/formbuilder.h>
 #include <QtCore/QMap>

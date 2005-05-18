@@ -12,9 +12,9 @@
 ****************************************************************************/
 
 #include "default_container.h"
-#include "qdesigner_stackedbox.h"
-#include "qdesigner_tabwidget.h"
-#include "qdesigner_toolbox.h"
+#include "qdesigner_stackedbox_p.h"
+#include "qdesigner_tabwidget_p.h"
+#include "qdesigner_toolbox_p.h"
 
 using namespace qdesigner_internal;
 

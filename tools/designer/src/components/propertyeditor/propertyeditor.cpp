@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "propertyeditor.h"
-#include "findicondialog.h"
+#include "findicondialog_p.h"
 #include "qpropertyeditor_model_p.h"
 #include "qpropertyeditor_items_p.h"
 
@@ -21,9 +21,9 @@
 #include <QtDesigner/QExtensionManager>
 
 // shared
-#include <iconloader.h>
-#include <qdesigner_promotedwidget.h>
-#include <qdesigner_utils.h>
+#include <iconloader_p.h>
+#include <qdesigner_promotedwidget_p.h>
+#include <qdesigner_utils_p.h>
 
 #include <QtGui/QVBoxLayout>
 #include <QtCore/QMetaObject>

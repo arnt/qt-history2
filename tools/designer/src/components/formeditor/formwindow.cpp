@@ -20,19 +20,19 @@
 #include "widgetselection.h"
 
 // shared
-#include <qdesigner_promotedwidget.h>
-#include <qdesigner_tabwidget.h>
-#include <qdesigner_toolbox.h>
-#include <qdesigner_stackedbox.h>
+#include <qdesigner_promotedwidget_p.h>
+#include <qdesigner_tabwidget_p.h>
+#include <qdesigner_toolbox_p.h>
+#include <qdesigner_stackedbox_p.h>
 #include "qdesigner_resource.h"
-#include <qdesigner_command.h>
-#include <qdesigner_widget.h>
-#include <qdesigner_utils.h>
-#include <qlayout_widget.h>
-#include <spacer_widget.h>
-#include <invisible_widget.h>
-#include <layoutinfo.h>
-#include <connectionedit.h>
+#include <qdesigner_command_p.h>
+#include <qdesigner_widget_p.h>
+#include <qdesigner_utils_p.h>
+#include <qlayout_widget_p.h>
+#include <spacer_widget_p.h>
+#include <invisible_widget_p.h>
+#include <layoutinfo_p.h>
+#include <connectionedit_p.h>
 
 // sdk
 #include <QtDesigner/QtDesigner>

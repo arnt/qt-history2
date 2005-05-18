@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "pluginmanager.h"
+#include "pluginmanager_p.h"
 
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/QDesignerCustomWidgetInterface>

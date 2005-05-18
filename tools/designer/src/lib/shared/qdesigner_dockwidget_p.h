@@ -22,18 +22,24 @@
 // We mean it.
 //
 
-#ifndef INVISIBLE_WIDGET_H
-#define INVISIBLE_WIDGET_H
+#ifndef QDESIGNER_DOCKWIDGET_H
+#define QDESIGNER_DOCKWIDGET_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
+#include <QtGui/QDockWidget>
 
-#include <QtGui/QWidget>
-
-class QT_SHARED_EXPORT InvisibleWidget: public QWidget
+class QT_SHARED_EXPORT QDesignerDockWidget: public QDockWidget
 {
     Q_OBJECT
+    Q_PROPERTY(Qt::DockWidgetArea dockWidgetArea READ dockWidgetArea WRITE setDockWidgetArea DESIGNABLE inMainWindow)
 public:
-    InvisibleWidget(QWidget *parent = 0);
+    QDesignerDockWidget(QWidget *parent = 0);
+    virtual ~QDesignerDockWidget();
+
+    Qt::DockWidgetArea dockWidgetArea() const;
+    void setDockWidgetArea(Qt::DockWidgetArea dockWidgetArea);
+
+    bool inMainWindow() const;
 };
 
-#endif // INVISIBLE_WIDGET_H
+#endif // QDESIGNER_DOCKWIDGET_H

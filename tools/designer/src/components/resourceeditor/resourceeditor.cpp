@@ -21,8 +21,8 @@
 
 #include <QtDesigner/QtDesigner>
 
-#include <resourcefile.h>
-#include <iconloader.h>
+#include <resourcefile_p.h>
+#include <iconloader_p.h>
 
 #include "ui_resourceeditor.h"
 #include "resourceeditor.h"

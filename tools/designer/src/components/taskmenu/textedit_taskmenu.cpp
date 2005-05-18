@@ -15,7 +15,7 @@
 #include "inplace_editor.h"
 
 #include <QtDesigner/QtDesigner>
-#include <richtexteditor.h>
+#include <richtexteditor_p.h>
 
 #include <QtGui/QAction>
 #include <QtGui/QStyle>

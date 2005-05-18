@@ -9,7 +9,7 @@
 #include <QtGui/QVBoxLayout>
 #include <QtGui/QToolButton>
 
-#include <iconloader.h>
+#include <iconloader_p.h>
 
 #include <abstractformeditor.h>
 #include <abstractformwindowmanager.h>

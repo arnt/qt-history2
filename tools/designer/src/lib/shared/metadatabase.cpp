@@ -11,11 +11,10 @@
 **
 ****************************************************************************/
 
-#include "metadatabase.h"
+#include "metadatabase_p.h"
 
 // sdk
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractwidgetfactory.h>
+#include <QtDesigner/QtDesigner>
 
 // Qt
 #include <QtCore/qalgorithms.h>

@@ -25,7 +25,7 @@
 #ifndef FINDICONDIALOG_H
 #define FINDICONDIALOG_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 #include "ui_findicondialog.h"
 
 class QDesignerFormWindowInterface;

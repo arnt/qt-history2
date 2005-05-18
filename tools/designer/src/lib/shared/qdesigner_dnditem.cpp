@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_dnditem.h"
+#include "qdesigner_dnditem_p.h"
 
 #include <QtGui/QPainter>
 #include <QtGui/QBitmap>

@@ -31,7 +31,7 @@
 #include <QtDesigner/abstractformeditorplugin.h>
 #include <QtDesigner/abstractformwindowmanager.h>
 #include <QtDesigner/abstractwidgetbox.h>
-#include <qdesigner_integration.h>
+#include <qdesigner_integration_p.h>
 
 #include <QtGui/QDockWidget>
 #include <QtGui/QWorkspace>

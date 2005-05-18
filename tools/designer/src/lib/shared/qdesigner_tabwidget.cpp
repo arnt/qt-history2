@@ -11,11 +11,10 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_tabwidget.h"
+#include "qdesigner_tabwidget_p.h"
+#include "qdesigner_command_p.h"
 
 #include <QtDesigner/QDesignerFormWindowInterface>
-
-#include <qdesigner_command.h>
 
 #include <QtGui/QApplication>
 #include <QtGui/QTabBar>

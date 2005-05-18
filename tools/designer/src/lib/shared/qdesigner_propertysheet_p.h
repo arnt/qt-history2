@@ -25,7 +25,7 @@
 #ifndef DEFAULT_PROPERTYSHEET_H
 #define DEFAULT_PROPERTYSHEET_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 #include <QtDesigner/propertysheet.h>
 #include <QtDesigner/default_extensionfactory.h>
 #include <QtCore/QVariant>

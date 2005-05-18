@@ -11,20 +11,12 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_command.h"
-#include "layout.h"
-#include "qdesigner_widget.h"
+#include <QtDesigner/QtDesigner>
 
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformwindowcursor.h>
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractmetadatabase.h>
-#include <QtDesigner/abstractwidgetfactory.h>
-#include <QtDesigner/abstractpropertyeditor.h>
-#include <QtDesigner/qextensionmanager.h>
-#include <QtDesigner/propertysheet.h>
-#include <qdesigner_promotedwidget.h>
+#include "qdesigner_command_p.h"
+#include "layout_p.h"
+#include "qdesigner_widget_p.h"
+#include "qdesigner_promotedwidget_p.h"
 
 #include <QtCore/qdebug.h>
 

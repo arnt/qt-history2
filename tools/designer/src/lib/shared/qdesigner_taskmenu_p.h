@@ -25,7 +25,7 @@
 #ifndef QDESIGNER_TASKMENU_H
 #define QDESIGNER_TASKMENU_H
 
-#include "shared_global.h"
+#include "shared_global_p.h"
 #include <QtDesigner/taskmenu.h>
 
 #include <QtDesigner/default_extensionfactory.h>

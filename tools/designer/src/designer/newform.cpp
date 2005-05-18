@@ -18,8 +18,8 @@
 #include "qdesigner_formwindow.h"
 #include "qdesigner_settings.h"
 
-#include <qdesigner_formbuilder.h>
-#include <sheet_delegate.h>
+#include <qdesigner_formbuilder_p.h>
+#include <sheet_delegate_p.h>
 
 #include <QtDesigner/abstractformwindow.h>
 

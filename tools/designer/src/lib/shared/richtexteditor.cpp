@@ -1,3 +1,16 @@
+/****************************************************************************
+**
+** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 #include <QtCore/QPointer>
 #include <QtCore/QMap>
 
@@ -16,8 +29,8 @@
 
 #include <QtCore/qdebug.h>
 
-#include <iconloader.h>
-#include "richtexteditor.h"
+#include "iconloader_p.h"
+#include "richtexteditor_p.h"
 
 static bool operator < (const QColor &c1, const QColor &c2)
 {

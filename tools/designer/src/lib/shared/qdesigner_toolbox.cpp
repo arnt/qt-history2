@@ -11,12 +11,12 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_toolbox.h"
-#include "abstractformwindow.h"
+#include <QtDesigner/QtDesigner>
 
-#include <qdesigner_command.h>
+#include "qdesigner_toolbox_p.h"
+#include "qdesigner_command_p.h"
 
-#include <qaction.h>
+#include <QtGui/QAction>
 
 QDesignerToolBox::QDesignerToolBox(QWidget *parent)
     : QToolBox(parent)

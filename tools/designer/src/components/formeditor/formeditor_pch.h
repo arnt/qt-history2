@@ -15,11 +15,11 @@
 #include "formwindow.h"
 #include <QtCore/qdebug.h>
 #include "formeditor_global.h"
-#include <QtDesigner/qextensionmanager.h>
-#include <layoutinfo.h>
-#include <qdesigner_command.h>
+#include <QtDesigner/QExtensionManager>
+#include <layoutinfo_p.h>
+#include <qdesigner_command_p.h>
 #include <QtDesigner/QtDesigner>
 #include <QtGui/QWidget>
-#include "qdesigner_widget.h"
+#include "qdesigner_widget_p.h"
 #include "formwindowmanager.h"
 #endif

@@ -11,23 +11,23 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_formbuilder.h"
-#include "qdesigner_widget.h"
+#include "qdesigner_formbuilder_p.h"
+#include "qdesigner_widget_p.h"
 
 // sdk
 #include <QtDesigner/extrainfo.h>
 #include <QtDesigner/container.h>
 #include <QtDesigner/customwidget.h>
 #include <QtDesigner/propertysheet.h>
-#include <QtDesigner/qextensionmanager.h>
+#include <QtDesigner/QExtensionManager>
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/abstracticoncache.h>
 #include <QtDesigner/ui4.h>
 
 // shared
-#include <resourcefile.h>
-#include <widgetfactory.h>
-#include <pluginmanager.h>
+#include <resourcefile_p.h>
+#include <widgetfactory_p.h>
+#include <pluginmanager_p.h>
 
 #include <QtGui/QWidget>
 
