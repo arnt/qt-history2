@@ -122,13 +122,15 @@ public:
 template <typename BiIterator>
 inline void qSort(BiIterator start, BiIterator end)
 {
-    QAlgorithmsPrivate::qSortHelper(start, end, *start);
+    if (start != end)
+        QAlgorithmsPrivate::qSortHelper(start, end, *start);
 }
 
 template <typename BiIterator, typename LessThan>
 inline void qSort(BiIterator start, BiIterator end, LessThan lessThan)
 {
-    QAlgorithmsPrivate::qSortHelper(start, end, *start, lessThan);
+    if (start != end)
+        QAlgorithmsPrivate::qSortHelper(start, end, *start, lessThan);
 }
 
 template<typename Container>
@@ -138,19 +140,22 @@ inline void qSort(Container &c)
     // Work around Borland 5.5 optimizer bug
     c.detach();
 #endif
-    QAlgorithmsPrivate::qSortHelper(c.begin(), c.end(), *c.begin());
+    if (!c.empty())
+        QAlgorithmsPrivate::qSortHelper(c.begin(), c.end(), *c.begin());
 }
 
 template <typename BiIterator>
 inline void qStableSort(BiIterator start, BiIterator end)
 {
-    QAlgorithmsPrivate::qStableSortHelper(start, end, *start);
+    if (start != end)
+        QAlgorithmsPrivate::qStableSortHelper(start, end, *start);
 }
 
 template <typename BiIterator, typename LessThan>
 inline void qStableSort(BiIterator start, BiIterator end, LessThan lessThan)
 {
-    QAlgorithmsPrivate::qStableSortHelper(start, end, *start, lessThan);
+    if (start != end)
+        QAlgorithmsPrivate::qStableSortHelper(start, end, *start, lessThan);
 }
 
 template<typename Container>
@@ -160,7 +165,8 @@ inline void qStableSort(Container &c)
     // Work around Borland 5.5 optimizer bug
     c.detach();
 #endif
-    QAlgorithmsPrivate::qStableSortHelper(c.begin(), c.end(), *c.begin());
+    if (!c.empty())
+        QAlgorithmsPrivate::qStableSortHelper(c.begin(), c.end(), *c.begin());
 }
 
 template <typename RandomAccessIterator, typename T>
