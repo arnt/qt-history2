@@ -477,7 +477,7 @@ bool QSocketLayer::connectToHost(const QHostAddress &address, quint16 port)
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::connectToHost(), false);
 
 #if defined (QT_NO_IPV6)
-    if (address.isIPv6Address()) {
+    if (address.protocol() == QAbstractSocket::IPv6Protocol) {
         d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                     QSocketLayerPrivate::NoIpV6ErrorString);
         return false;
@@ -508,7 +508,7 @@ bool QSocketLayer::bind(const QHostAddress &address, quint16 port)
     Q_CHECK_VALID_SOCKETLAYER(QSocketLayer::bind(), false);
 
 #if defined (QT_NO_IPV6)
-    if (address.isIPv6Address()) {
+    if (address.protocol() == QAbstractSocket::IPv6Protocol) {
         d->setError(QAbstractSocket::UnsupportedSocketOperationError,
                     QSocketLayerPrivate::NoIpV6ErrorString);
         return false;

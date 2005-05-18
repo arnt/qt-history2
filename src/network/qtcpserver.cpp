@@ -195,7 +195,7 @@ bool QTcpServer::listen(const QHostAddress &address, quint16 port)
     if (proto == QAbstractSocket::IPv6Protocol) {
         // If we have no IPv6 support, then we will not be able to
         // listen on an IPv6 interface.
-        d->serverSocketError = QAbstractSocket::SocketOperationUnsupportedError;
+        d->serverSocketError = QAbstractSocket::UnsupportedSocketOperationError;
         d->serverSocketErrorString = tr("Socket operation unsupported");
         return false;
     }
