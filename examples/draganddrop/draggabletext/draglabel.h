@@ -24,7 +24,6 @@ class DragLabel : public QLabel
 {
 public:
     DragLabel(const QString &text, QWidget *parent);
-
 protected:
     void mousePressEvent(QMouseEvent *event);
 

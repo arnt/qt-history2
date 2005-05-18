@@ -18,7 +18,6 @@
 DragLabel::DragLabel(const QString &text, QWidget *parent)
     : QLabel(text, parent)
 {
-    setAttribute(Qt::WA_DeleteOnClose);
     setFrameShape(QFrame::Panel);
     setFrameShadow(QFrame::Raised);
 }
@@ -30,12 +29,12 @@ void DragLabel::mousePressEvent(QMouseEvent *event)
     QMimeData *mimeData = new QMimeData;
     mimeData->setText(plainText);
 
-    QDrag drag(this);
-    drag.setMimeData(mimeData);
-    drag.setHotSpot(event->pos() - rect().topLeft());
+    QDrag *drag = new QDrag(this);
+    drag->setMimeData(mimeData);
+    drag->setHotSpot(event->pos() - rect().topLeft());
 
-    Qt::DropAction dropAction = drag.start(Qt::CopyAction | Qt::MoveAction);
-
+    Qt::DropAction dropAction = drag->start(Qt::CopyAction | Qt::MoveAction);
+    
     if (dropAction == Qt::MoveAction) {
         close();
         update();
