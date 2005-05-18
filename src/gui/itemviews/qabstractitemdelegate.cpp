@@ -240,11 +240,16 @@ bool QAbstractItemDelegate::editorEvent(QEvent *,
 }
 
 /*!
-    Creates a string with an ellipses ("..."), for example,
-    "Trollte..." or "...olltech" depending on the \a mode. This is
-    used to display items that are too wide to fit. The font metrics
-    to be used are given by \a fontMetrics, the available width by \a
-    width, the mode by \a mode, and the string by \a text.
+    If the string \a text is wider than \a width, returns an elided
+    version of the string (i.e., a string with "..." in it).
+    Otherwise, returns the original string.
+
+    The \a mode parameter specifies whether the text is elided on the
+    left (e.g., "...tech"), in the middle (e.g., "Tr...ch"), or on
+    the right (e.g., "Trol...").
+
+    The \a width is specified in pixels, not characters. The font
+    metrics to be used are given by \a fontMetrics.
 */
 
 QString QAbstractItemDelegate::elidedText(const QFontMetrics &fontMetrics, int width,
