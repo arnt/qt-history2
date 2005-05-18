@@ -397,7 +397,6 @@ void qt_term_destination(j_compress_ptr cinfo)
     qint64 written = dest->device->write((char*)dest->buffer, n);
     if (written == -1)
         (*cinfo->err->error_exit)((j_common_ptr)cinfo);
-    dest->device->flush();
 }
 
 #if defined(Q_C_CALLBACKS)
