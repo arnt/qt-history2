@@ -646,9 +646,9 @@ QAquaWidgetSize qt_aqua_size_constrain(const QWidget *widg,
     if (!widg) {
         if (insz)
             *insz = QSize();
-        if (qgetenv("QWIDGET_ALL_SMALL").isNull())
+        if (!qgetenv("QWIDGET_ALL_SMALL").isNull())
             return QAquaSizeSmall;
-        if (qgetenv("QWIDGET_ALL_MINI").isNull())
+        if (!qgetenv("QWIDGET_ALL_MINI").isNull())
             return QAquaSizeMini;
         return QAquaSizeUnknown;
     }
@@ -857,8 +857,8 @@ QMacStylePrivate::QMacStylePrivate(QMacStyle *style)
 {
 #if !defined(QMAC_NO_COREGRAPHICS) && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3
-            && !qgetenv("QT_MAC_USE_APPMANAGER").isNull()
-            && !qgetenv("QT_MAC_USE_QUICKDRAW").isNull())
+            && qgetenv("QT_MAC_USE_APPMANAGER").isNull()
+            && qgetenv("QT_MAC_USE_QUICKDRAW").isNull())
         useHITheme = true;
 #endif
     defaultButtonStart = CFAbsoluteTimeGetCurrent();
