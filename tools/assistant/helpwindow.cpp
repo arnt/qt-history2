@@ -75,7 +75,7 @@ void HelpWindow::setSource(const QUrl &name)
         return;
     }
 
-    if (name.scheme() == QLatin1String("http") || name.scheme() == QLatin1String("ftp")) {
+    if (name.scheme() == QLatin1String("http") || name.scheme() == QLatin1String("ftp") || name.scheme() == QLatin1String("mailto")) {
         QString webbrowser = Config::configuration()->webBrowser();
 
 #if defined(Q_OS_WIN32)
