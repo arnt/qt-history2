@@ -22,7 +22,9 @@
 
     \ingroup multimedia
 
-    A point is specified by an x coordinate and a y coordinate.
+    A point is specified by an x coordinate and a y coordinate. The coordinates
+    are specified using integer numbers. QPointF provides points with floating point
+    accuracy.
 
     The coordinates are accessed by the functions x() and y(); they
     can be set by setX() and setY() or by the reference functions rx()
@@ -38,7 +40,7 @@
     A QPoint can also be used as a vector. Addition and subtraction
     of QPoints are defined as for vectors (each component is added
     separately). You can divide or multiply a QPoint by an \c int or a
-    \c double. The function manhattanLength() gives an inexpensive
+    \c qreal. The function manhattanLength() gives an inexpensive
     approximation of the length of the QPoint interpreted as a vector.
 
     Example:
@@ -55,7 +57,7 @@
     QPoints can be compared for equality or inequality, and they can
     be written to and read from a QStream.
 
-    \sa QPolygon QSize, QRect
+    \sa QPolygon QSize QRect QPointF
 */
 
 
@@ -128,7 +130,7 @@
         p.rx()--;         // p becomes (0, 2)
     \endcode
 
-    \sa ry()
+    \sa ry() setX()
 */
 
 /*!
@@ -144,7 +146,7 @@
         p.ry()++;         // p becomes (1, 3)
     \endcode
 
-    \sa rx()
+    \sa rx() setY()
 */
 
 
@@ -189,8 +191,10 @@
         p *= 2.5;          // p becomes (-3,10)
     \endcode
 
-    Note that the result is truncated because points are held as
+    Note that the result is rounded to the nearest integer as points are held as
     integers.
+
+    \sa QPointF
 */
 
 
@@ -236,8 +240,10 @@
     Returns the QPoint formed by multiplying both components of \a p
     by \a c.
 
-    Note that the result is truncated because points are held as
+    Note that the result is rounded to the nearest integer as points are held as
     integers.
+
+    \sa QPointF
 */
 
 /*!
@@ -249,8 +255,10 @@
     Returns the QPoint formed by multiplying both components of \a p
     by \a c.
 
-    Note that the result is truncated because points are held as
+    Note that the result is rounded to the nearest integer as points are held as
     integers.
+
+    \sa QPointF
 */
 
 /*!
@@ -276,8 +284,10 @@
         p /= 2.5;           // p becomes (-1,4)
     \endcode
 
-    Note that the result is truncated because points are held as
+    Note that the result is rounded to the nearest integer as points are held as
     integers.
+
+    \sa QPointF
 */
 
 /*!
@@ -289,8 +299,10 @@
     Returns the QPoint formed by dividing both components of \a p
     by \a c.
 
-    Note that the result is truncated because points are held as
+    Note that the result is rounded to the nearest integer as points are held as
     integers.
+
+    \sa QPointF
 */
 
 /*****************************************************************************
@@ -375,21 +387,22 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
     A QPointF describes a point on a two-dimensional surface. The
     coordinates of the point are specified using floating point numbers
-    for accuracy. If you only need the accuracy of integers, you may want to
-    use QPoint instead of this class.
+    for accuracy. QPoint provides points with integer accuracy.
 
     Convenience functions are provided for reading and writing the individual
     coordinates used to define the point: x(), y(), setX(), and setY().
     QPointF also provides support for the standard arithmetic operators,
     treating each point as a vector from the origin.
 
-    \sa QPoint
+    \sa QPolygonF QSizeF QRectF QPoint
 */
 
 /*!
     \fn QPointF::QPointF()
 
     Constructs a null point.
+
+    \sa isNull()
 */
 
 /*!
@@ -408,43 +421,57 @@ QDebug operator<<(QDebug d, const QPointF &p)
 /*!
     \fn bool QPointF::isNull() const
 
-    Returns true if the point is not set up; otherwise returns false.
+    Returns true if the point is null; otherwise returns false.
+
+    A point is considered to be null if both the x- and y-coordinates are equal to zero.
 */
 
 /*!
     \fn qreal QPointF::x() const
 
     Returns the x-coordinate of the point.
+
+    \sa setX() y()
 */
 
 /*!
     \fn qreal QPointF::y() const
 
     Returns the y-coordinate of the point.
+
+    \sa setX() y()
 */
 
 /*!
     \fn void QPointF::setX(qreal x)
 
     Sets the x-coordinate of the point to the value specified by \a x.
+
+    \sa setY() x() rx()
 */
 
 /*!
     \fn void QPointF::setY(qreal y)
 
     Sets the y-coordinate of the point to the value specified by \a y.
+
+    \sa setX() y() ry()
 */
 
 /*!
     \fn qreal& QPointF::rx()
 
     Returns a reference to the x-coordinate of the point.
+
+    \sa ry() setX()
 */
 
 /*!
     \fn qreal& QPointF::ry()
 
     Returns a reference to the y-coordinate of the point.
+
+    \sa rx() setY()
 */
 
 /*!
@@ -452,7 +479,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
     Adds the coordinates of this point to the corresponding coordinates of
     the \a other point, and returns a reference to this point with the new
-    coordinates. (Vector addition.)
+    coordinates. This is equivalent to vector addition.
 
     \sa operator+() operator-=()
 */
@@ -462,7 +489,7 @@ QDebug operator<<(QDebug d, const QPointF &p)
 
     Subtracts the coordinates of the \a other point from the
     corresponding coordinates of this point, and returns a reference to this
-    point with the new coordinates. (Vector subtraction.)
+    point with the new coordinates. This is equivalent to vector subtraction.
 
     \sa operator-() operator+=()
 */
@@ -471,8 +498,8 @@ QDebug operator<<(QDebug d, const QPointF &p)
     \fn QPointF& QPointF::operator*=(qreal factor)
 
     Multiplies the coordinates of this point by the given scale \a factor, and
-    returns a reference to this point with the new coordinates. (Scalar
-    multiplication of a vector.)
+    returns a reference to this point with the new coordinates. This is
+    equivalent to scalar multiplication of a vector.
 
     \sa operator*() operator/=()
 */
@@ -481,8 +508,8 @@ QDebug operator<<(QDebug d, const QPointF &p)
     \fn QPointF& QPointF::operator/=(qreal factor)
 
     Divides the coordinates of this point by the given scale \a factor, and
-    returns a references to this point with the new coordinates. (Scalar
-    division of a vector.)
+    returns a references to this point with the new coordinates. This is
+    equivalent to scalar division of a vector.
 
     \sa operator*()
 */
@@ -566,10 +593,62 @@ QDebug operator<<(QDebug d, const QPointF &p)
 /*!
     \fn QPoint QPointF::toPoint() const
 
-    Converts the coordinates of this point to integers and returns a QPoint
-    with these coordinates.
+    Rounds the coordinates of this point to the nearest integer and returns a QPoint
+    with these rounded coordinates.
+*/
 
-    \sa QPoint
+/*!
+    \fn bool operator==(const QPointF &point1, const QPointF &point2)
+    \relates QPointF
+
+    Returns true if \a point1 is equal to \a point2; otherwise returns false.
+
+    Two points are equal to each other if both x-coordinates and both
+    y-coordinates are the same.
+
+*/
+
+/*!
+    \fn bool operator!=(const QPointF &point1, const QPointF &point2);
+    \relates QPointF
+
+    Returns true if \a point1 is not equal to \a point2; otherwise returns false.
+*/
+/*!
+    \fn const QPointF operator+(const QPointF &point1, const QPointF &point2)
+    \relates QPointF
+
+    Returns the sum of \a point1 and \a point2. Each component is added separately.
+*/
+/*!
+    \fn const QPointF operator-(const QPointF &point1, const QPointF &point2)
+    \relates QPointF
+
+    Returns the difference of \a point2 subtracted from \a point1. Each component is subtracted separately.
+*/
+/*!
+    \fn const QPointF operator*(qreal c, const QPointF &point)
+    \relates QPointF
+
+    Returns the QPointF formed by multiplying both components of \a point by \a c
+*/
+/*!
+    \fn const QPointF operator*(const QPointF &point, qreal c);
+    \relates QPointF
+
+    Returns the QPointF formed by multiplying both components of \a point by \a c
+*/
+/*!
+    \fn const QPointF operator-(const QPointF &point);
+    \relates QPointF
+
+    Returns the QPointF formed by changed the sign of both components of \a point. This is equivalent to \code QPoint(0, 0) - p \endcode.
+*/
+/*!
+    \fn const QPointF operator/(const QPointF &point, qreal c);
+    \relates QPointF
+
+    Returns the QPointF formed by dividing both components of \a point by \a c.
 */
 
 #ifndef QT_NO_DATASTREAM
