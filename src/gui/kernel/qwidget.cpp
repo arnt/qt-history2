@@ -3149,7 +3149,7 @@ QString qt_setWindowTitle_helperHelper(const QString &title, QWidget *widget)
 
         if (count%2) { // odd number of [*] -> replace last one
             int lastIndex = cap.lastIndexOf(placeHolder, index - 1);
-            if (widget->isWindowModified() 
+            if (widget->isWindowModified()
              && widget->style()->styleHint(QStyle::SH_TitleBar_ModifyNotification, 0, widget))
                 cap.replace(lastIndex, 3, QWidget::tr("*"));
             else
@@ -3182,7 +3182,7 @@ void QWidget::setWindowIconText(const QString &iconText)
 {
     if (QWidget::windowIconText() == iconText)
         return;
-            
+
     Q_D(QWidget);
     d->topData()->iconText = iconText;
     d->setWindowIconText_helper(iconText);
@@ -6494,8 +6494,8 @@ void QWidget::setWindowModified(bool mod)
     if (!windowTitle().contains("[*]") && mod)
         qWarning("QWidget::setWindowModified: The window title does not contain a '[*]' placeholder!");
     d->setWindowTitle_helper(windowTitle());
-    d->setWindowIconText_helper(windowIconText());    
-    
+    d->setWindowIconText_helper(windowIconText());
+
     QEvent e(QEvent::ModifiedChange);
     QApplication::sendEvent(this, &e);
 }
@@ -7058,25 +7058,25 @@ void QWidget::languageChange() { }  // compat
 /*!
     \fn void QWidget::repaint(bool b)
 
-    Use the no-argument overload instead.
+   The boolean parameter \a is ignored. Use the no-argument overload instead.
 */
 
 /*!
     \fn void QWidget::repaint(int x, int y, int w, int h, bool b)
 
-    Use the four-argument overload instead.
+    The boolean parameter \a is ignored. Use the four-argument overload instead.
 */
 
 /*!
     \fn void QWidget::repaint(const QRect &r, bool b)
 
-    Use the single rect-argument overload instead.
+    The boolean parameter \a is ignored. Use the single rect-argument overload instead.
 */
 
 /*!
     \fn void QWidget::repaint(const QRegion &rgn, bool b)
 
-    Use the single region-argument overload instead.
+    The boolean parameter \a is ignored. Use the single region-argument overload instead.
 */
 
 /*!

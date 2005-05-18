@@ -449,7 +449,7 @@ void QWidgetPrivate::setWindowIcon_sys()
 
 void QWidgetPrivate::setWindowIconText_sys(const QString &iconText)
 {
-    Q_UNUSED(iconText);    
+    Q_UNUSED(iconText);
 }
 #endif
 
@@ -673,6 +673,9 @@ void QWidgetPrivate::doPaint(const QRegion &rgn)
     }
     // Send paint event to self
     QPaintEvent e(rgn);
+#ifdef QT3_SUPPORT
+    e.setErased(true);
+#endif
     QApplication::sendSpontaneousEvent(q, &e);
 
     // Clear the clipping again

@@ -763,7 +763,7 @@ void QWidgetPrivate::setWindowIcon_sys()
 
 void QWidgetPrivate::setWindowIconText_sys(const QString &iconText)
 {
-    Q_UNUSED(iconText);    
+    Q_UNUSED(iconText);
 }
 
 
@@ -925,12 +925,15 @@ void QWidget::repaint(const QRegion& rgn)
     if (rasterEngine && do_clipping)
         rasterEngine->setSystemClip(rgn);
 
+    QPaintEvent e(rgn);
     if (engine
         && !testAttribute(Qt::WA_NoBackground)
-        && !testAttribute(Qt::WA_NoSystemBackground))
+        && !testAttribute(Qt::WA_NoSystemBackground)) {
         d->composeBackground(br);
-
-    QPaintEvent e(rgn);
+#ifdef QT3_SUPPORT
+        e.setErased(true);
+#endif
+    }
     QApplication::sendSpontaneousEvent(this, &e);
 
     if (rasterEngine) {

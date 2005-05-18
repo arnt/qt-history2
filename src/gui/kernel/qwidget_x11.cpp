@@ -1469,10 +1469,15 @@ void QWidget::repaint(const QRegion& rgn)
         }
     }
 
-    if (engine && !testAttribute(Qt::WA_NoBackground) && !testAttribute(Qt::WA_NoSystemBackground))
-        d->composeBackground(br);
-
     QPaintEvent e(rgn);
+    if (engine
+        && !testAttribute(Qt::WA_NoBackground)
+        && !testAttribute(Qt::WA_NoSystemBackground)) {
+        d->composeBackground(br);
+#ifdef QT3_SUPPORT
+        e.setErased(true);
+#endif
+    }
     QApplication::sendSpontaneousEvent(this, &e);
 
     if (engine && do_system_clip)

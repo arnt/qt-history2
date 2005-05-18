@@ -236,14 +236,15 @@ class Q_GUI_EXPORT QPaintEvent : public QEvent
 public:
     QPaintEvent(const QRegion& paintRegion);
     QPaintEvent(const QRect &paintRect);
-    QPaintEvent(const QRegion &paintRegion, const QRect &paintRect);
     ~QPaintEvent();
 
     inline const QRect &rect() const { return m_rect; }
     inline const QRegion &region() const { return m_region; }
 
 #ifdef QT3_SUPPORT
-    inline QT3_SUPPORT bool erased() const { return true; }
+    QT_COMPAT_CONSTRUCTOR QPaintEvent(const QRegion &paintRegion, const QRect &paintRect);
+    inline QT3_SUPPORT bool erased() const { return m_erased; }
+    inline QT3_SUPPORT void setErased(bool b) { m_erased = b; }
 #endif
 
 protected:
@@ -251,6 +252,7 @@ protected:
     friend class QCoreApplication;
     QRect m_rect;
     QRegion m_region;
+    bool m_erased;
 };
 
 

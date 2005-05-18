@@ -815,15 +815,30 @@ Qt::FocusReason QFocusEvent::reason()
     \fn bool QPaintEvent::erased() const
     \compat
 
-    The region is always erased in Qt 4.
+    Returns true if the paint event region (or rectangle) has been
+    erased with the widget's background; otherwise returns false.
+
+    Qt 4 \e always erases regions that require painting. The exception
+    to this rule is if the widget sets the Qt::WA_NoBackground or
+    Qt::WA_NoSystemBackground attributes. If either one of those
+    attributes is set \e and the window system does not make use of
+    subwidget alpha composition (currently X11 and Windows, but this
+    may change), then the region is not erased.
 */
+
+/*!
+    \fn void setErased(bool b) { m_erased = b; }
+    \compat
+    \internal
+*/
+
 
 /*!
     Constructs a paint event object with the region that needs to
     be updated. The region is specified by \a paintRegion.
 */
 QPaintEvent::QPaintEvent(const QRegion& paintRegion)
-    : QEvent(Paint), m_rect(paintRegion.boundingRect()), m_region(paintRegion)
+    : QEvent(Paint), m_rect(paintRegion.boundingRect()), m_region(paintRegion), m_erased(false)
 {}
 
 /*!
@@ -831,18 +846,20 @@ QPaintEvent::QPaintEvent(const QRegion& paintRegion)
     to be updated. The region is specified by \a paintRect.
 */
 QPaintEvent::QPaintEvent(const QRect &paintRect)
-    : QEvent(Paint), m_rect(paintRect),m_region(paintRect)
+    : QEvent(Paint), m_rect(paintRect),m_region(paintRect), m_erased(false)
 {}
 
-/*!
+
+ /*!
     Constructs a paint event object with both a \a paintRegion and a
     \a paintRect, both of which represent the area of the widget that
     needs to be updated.
 
 */
 QPaintEvent::QPaintEvent(const QRegion &paintRegion, const QRect &paintRect)
-    : QEvent(Paint), m_rect(paintRect), m_region(paintRegion)
+    : QEvent(Paint), m_rect(paintRect), m_region(paintRegion), m_erased(false)
 {}
+
 
 /*!
   \internal
@@ -1852,7 +1869,7 @@ QDragMoveEvent::~QDragMoveEvent()
     \fn void QDragMoveEvent::accept()
 
     \overload
-    
+
     Calls QDropEvent::accept().
 */
 
