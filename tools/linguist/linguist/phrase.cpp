@@ -23,8 +23,8 @@
 static QByteArray protect(const QByteArray& str)
 {
     QByteArray p = str;
-    p.replace("\"", "&quot;");
     p.replace("&", "&amp;");
+    p.replace("\"", "&quot;");
     p.replace(">", "&gt;");
     p.replace("<", "&lt;");
     p.replace("'", "&apos;");
