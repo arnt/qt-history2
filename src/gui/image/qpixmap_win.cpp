@@ -145,7 +145,15 @@ QPixmap QPixmap::fromWinHBITMAP(HBITMAP bitmap, HBitmapFormat format)
     // Verify size
     BITMAP bitmap_info;
     memset(&bitmap_info, 0, sizeof(BITMAP));
-    if (!GetObject(bitmap, sizeof(BITMAP), &bitmap_info)) {
+
+    int res; 
+    QT_WA({
+        res = GetObjectW(bitmap, sizeof(BITMAP), &bitmap_info);
+    } , {
+        res = GetObjectA(bitmap, sizeof(BITMAP), &bitmap_info);
+    });
+
+    if (!res) {
         qErrnoWarning("QPixmap::fromWinHBITMAP(), failed to get bitmap info");
         return QPixmap();
     }
