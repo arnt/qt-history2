@@ -709,7 +709,7 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
     QTime stopWatch;
     stopWatch.start();
 
-    forever {
+    while (!writeBuffer.isEmpty()) {
         fd_set fdread;
         fd_set fdwrite;
 
