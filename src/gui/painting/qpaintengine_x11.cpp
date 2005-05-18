@@ -592,6 +592,7 @@ static QPaintEngine::PaintEngineFeatures qt_decide_features()
 {
     QPaintEngine::PaintEngineFeatures features =
         QPaintEngine::PrimitiveTransform
+        | QPaintEngine::PatternBrush
         | QPaintEngine::AlphaBlend
         | QPaintEngine::PainterPaths;
 
@@ -757,8 +758,9 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     Q_ASSERT(rectCount);
     Q_D(QX11PaintEngine);
 
-    bool has_brush = d->cbrush.style() != Qt::NoBrush;
-    bool has_pen = d->cpen.style() != Qt::NoPen;
+    bool has_brush = (d->cbrush.style() != Qt::NoBrush);
+    bool has_pen = (d->cpen.style() != Qt::NoPen);
+    bool has_texture = (d->cbrush.style() == Qt::TexturePattern);
 
     if (d->use_path_fallback || (has_pen && d->cpen.color().alpha() != 255)) {
         for (int i = 0; i < rectCount; ++i) {
@@ -773,12 +775,20 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     ::Picture pict = d->picture;
 
     if (X11->use_xrender && (d->pdev->depth() != 1) && pict && has_brush
-        && d->cbrush.color().alpha() != 255)
+        && (has_texture || d->cbrush.color().alpha() != 255))
     {
         XRenderColor xc = preMultiply(d->cbrush.color());
         for (int i = 0; i < rectCount; ++i) {
             QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalized();
-            XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
+            if (has_texture) {
+                XRenderComposite(d->dpy, PictOpOver,
+                                 d->cbrush.texture().x11PictureHandle(), 0, pict,
+                                 r.x() - d->bg_origin.x(), r.y() - d->bg_origin.y(),
+                                 0, 0,
+                                 r.x(), r.y(), r.width(), r.height());
+            } else {
+                XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
+            }
             if (d->cpen.style() != Qt::NoPen)
                 XDrawRectangle(d->dpy, d->hd, d->gc, r.x(), r.y(), r.width(), r.height());
         }
@@ -842,8 +852,8 @@ void QX11PaintEngine::updateState(const QPaintEngineState &state)
     QPaintEngine::DirtyFlags flags = state.state();
     if (flags & DirtyTransform) updateMatrix(state.matrix());
     if (flags & DirtyPen) updatePen(state.pen());
-    if (flags & DirtyBrush) updateBrush(state.brush(), state.brushOrigin());
-    if ((flags & DirtyBackground) || (flags & DirtyBackgroundMode))
+    if (flags & (DirtyBrush | DirtyBrushOrigin)) updateBrush(state.brush(), state.brushOrigin());
+    if (flags & (DirtyBackground | DirtyBackgroundMode))
         updateBackground(state.backgroundMode(), state.backgroundBrush());
     if (flags & DirtyFont) updateFont(state.font());
     if (flags & DirtyClipPath) {
@@ -1000,6 +1010,8 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     }
 }
 
+QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
+
 void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 {
     Q_D(QX11PaintEngine);
@@ -1008,6 +1020,8 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     d->adapted_brush_origin = false;
 
     int s  = FillSolid;
+    int  bs = d->cbrush.style();
+    bool has_pattern = (bs == Qt::TexturePattern || bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern);
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures
                  | GCLineStyle | GCCapStyle | GCJoinStyle | GCFillStyle;
     XGCValues vals;
@@ -1015,8 +1029,8 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     if (d->pdev->depth() == 1) {
         vals.foreground = qGray(d->cbrush.color().rgb()) > 127 ? 0 : 1;
         vals.background = qGray(d->bg_col.rgb()) > 127 ? 0 : 1;
-    } else if (d->pdev->devType() == QInternal::Pixmap && d->pdev->depth() == 32
-        && X11->use_xrender) {
+    } else if (X11->use_xrender && d->pdev->devType() == QInternal::Pixmap
+               && d->pdev->depth() == 32 ) {
         vals.foreground = d->cbrush.color().rgba();
         vals.background = d->bg_col.rgba();
     } else {
@@ -1024,7 +1038,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
         vals.foreground = cmap.pixel(d->cbrush.color());
         vals.background = cmap.pixel(d->bg_col);
 
-        if (!brush.isOpaque()) {
+        if (!has_pattern && !brush.isOpaque()) {
             QPixmap pattern = qt_patternForAlpha(brush.color().alpha());
             mask |= GCStipple;
             vals.stipple = pattern.handle();
@@ -1035,6 +1049,38 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     vals.cap_style = CapButt;
     vals.join_style = JoinMiter;
     vals.line_style = LineSolid;
+
+    if (has_pattern) {
+        QPixmap pm;
+        if (bs == Qt::TexturePattern) {
+            pm = d->cbrush.texture();
+#if !defined(QT_NO_XRENDER)
+            if (X11->use_xrender) {
+                XRenderPictureAttributes attrs;
+                attrs.repeat = true;
+                XRenderChangePicture(d->dpy, d->cbrush.texture().x11PictureHandle(), CPRepeat, &attrs);
+            }
+#endif
+        } else {
+            pm = qt_pixmapForBrush(bs, true);
+        }
+        pm.x11SetScreen(d->scrn);
+        if (pm.depth() == 1) {
+            mask |= GCStipple;
+            vals.stipple = pm.handle();
+            s = d->bg_mode == Qt::TransparentMode ? FillStippled : FillOpaqueStippled;
+        } else {
+            mask |= GCTile;
+            vals.tile = (pm.depth() == d->pdev->depth()
+                         ? pm.handle()
+                         : pm.data->x11ConvertToDefaultDepth());
+            s = FillTiled;
+        }
+
+        mask |= GCTileStipXOrigin | GCTileStipYOrigin;
+        vals.ts_x_origin = qRound(origin.x());
+        vals.ts_y_origin = qRound(origin.y());
+    }
 
     vals.fill_style = s;
     XChangeGC(d->dpy, d->gc_brush, mask, &vals);
@@ -1100,16 +1146,22 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
         fill_gc = gc;
     }
 #if !defined(QT_NO_XRENDER)
+    bool has_pattern = (fill.style() == Qt::TexturePattern);
     bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
-        (antialias || fill.color().alpha() != 255))
+        (has_pattern || antialias || fill.color().alpha() != 255))
     {
-        QPixmap gpix;
-        int x_offset = 0;
-        ::Picture src = getSolidFill(scrn, fill.color());
 
-        if (src && picture) {
+        if (picture) {
+            ::Picture src;
+            if (has_pattern)
+                src = fill.texture().x11PictureHandle();
+            else
+                src = getSolidFill(scrn, fill.color());
+
             int cCount;
+            int x_offset = 0;
+            int y_offset = 0;
             qt_float_point *cPoints;
             floatClipper.clipPolygon((qt_float_point *)polygonPoints, pointCount, &cPoints, &cCount);
             if (cCount > 0) {
@@ -1118,12 +1170,17 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
                 qt_tesselate_polygon(&traps, (QPointF *)cPoints, cCount,
                                      mode == QPaintEngine::WindingMode);
 
+                if (has_pattern) {
+                    x_offset = qRound(XFixedToDouble(traps.at(0).left.p1.x) - bg_origin.x());
+                    y_offset = qRound(XFixedToDouble(traps.at(0).left.p1.y) - bg_origin.y());
+                }
                 XRenderPictureAttributes attrs;
                 attrs.poly_edge = antialias ? PolyEdgeSmooth : PolyEdgeSharp;
                 XRenderChangePicture(dpy, picture, CPPolyEdge, &attrs);
                 XRenderCompositeTrapezoids(dpy, PictOpOver, src, picture,
                                            antialias ? XRenderFindStandardFormat(dpy, PictStandardA8) : 0,
-                                           x_offset, 0, traps.constData(), traps.size());
+                                           x_offset, y_offset,
+                                           traps.constData(), traps.size());
             }
         }
     } else
@@ -1144,13 +1201,13 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
         }
 }
 
-void QX11PaintEnginePrivate::strokePolygon(const QPointF *polygonPoints, int pointCount)
+void QX11PaintEnginePrivate::strokePolygon(const QPointF *polygonPoints, int pointCount, bool close)
 {
     if (cpen.style() != Qt::NoPen) {
        int clippedCount = 0;
        qt_XPoint *clippedPoints = 0;
        polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
-                                     &clippedPoints, &clippedCount, false);
+                                     &clippedPoints, &clippedCount, close);
        if (clippedCount > 0)
            XDrawLines(dpy, hd, gc, (XPoint *) clippedPoints, clippedCount, CoordModeOrigin);
     }
@@ -1180,7 +1237,7 @@ void QX11PaintEngine::drawPolygon(const QPointF *polygonPoints, int pointCount, 
         d->fillPolygon(polygonPoints, pointCount, QX11PaintEnginePrivate::BrushGC, mode);
 
     if (d->cpen.style() != Qt::NoPen)
-        d->strokePolygon(polygonPoints, pointCount);
+        d->strokePolygon(polygonPoints, pointCount, mode != PolylineMode);
 }
 
 
@@ -1233,7 +1290,7 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
         // if we have a pen width of 0 - use XDrawLine() for speed
         QList<QPolygonF> polys = path.toSubpathPolygons(d->matrix);
         for (int i = 0; i < polys.size(); ++i)
-            d->strokePolygon(polys.at(i).data(), polys.at(i).size());
+            d->strokePolygon(polys.at(i).data(), polys.at(i).size(), false);
     }
 }
 

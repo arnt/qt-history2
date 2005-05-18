@@ -149,7 +149,7 @@ public:
     void fillPolygon(const QPointF *points, int pointCount, GCMode gcMode,
                      QPaintEngine::PolygonDrawMode mode);
     void fillPath(const QPainterPath &path, GCMode gcmode, bool transform);
-    void strokePolygon(const QPointF *points, int pointCount);
+    void strokePolygon(const QPointF *points, int pointCount, bool close);
     void setupAdaptedOrigin(const QPoint &p);
     void resetAdaptedOrigin();
 
