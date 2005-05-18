@@ -38,9 +38,6 @@
 
 #if defined(Q_OS_WIN32)
 #  include <windows.h>
-#elif defined(Q_WS_X11)
-#  include <QtGui/QX11Info>
-#  include <QtGui/private/qt_x11_p.h>
 #endif
 
 HelpWindow::HelpWindow(MainWindow *w, QWidget *parent)
@@ -336,22 +333,6 @@ void HelpWindow::updateBackward(bool back)
 
 bool HelpWindow::isKDERunning() const
 {
-#if defined(Q_WS_X11)
-    Atom type;
-    int format;
-    unsigned long length, after;
-    uchar *data;
-
-    if (XGetWindowProperty(QX11Info::display(), QX11Info::appRootWindow(), ATOM(KWIN_RUNNING),
-                             0, 1, False, AnyPropertyType, &type, &format, &length,
-                             &after, &data) == Success && length) {
-        if (data)
-            XFree((char *)data);
-
-        return true;
-    }
-#endif
-
-    return false;
+    return !qgetenv("KDE_FULL_SESSION").isEmpty();
 }
 
