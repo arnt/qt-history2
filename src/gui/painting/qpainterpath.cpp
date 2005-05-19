@@ -239,6 +239,7 @@ void QPainterPath::detach_helper()
 void QPainterPath::ensureData_helper()
 {
     QPainterPathPrivate *data = new QPainterPathData;
+    data->elements.reserve(16);
     QPainterPath::Element e = { 0, 0, QPainterPath::MoveToElement };
     data->elements << e;
     data = qAtomicSetPtr(&d_ptr, data);
