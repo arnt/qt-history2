@@ -224,7 +224,12 @@ QStringList QResource::children(const QString &path) const
     return ret;
 }
 
-typedef QVector<QResource> ResourceList;
+typedef QList<QResource*> QResourceList;
+class ResourceList: public QResourceList
+{
+public:
+    ~ResourceList() { qDeleteAll(*this); }
+};
 Q_GLOBAL_STATIC(ResourceList, resourceList)
 
 class QResourceInfo
@@ -272,11 +277,11 @@ QResourceInfo::setFileName(const QString &f)
         path = path.mid(1);
     ResourceList *list = resourceList();
     for(int i = 0; i < list->size(); ++i) {
-        QResource res = list->at(i);
-        if(res.exists(path)) {
+        QResource *res = list->at(i);
+        if(res->exists(path)) {
             if(related.isEmpty())
-                container = res.isContainer(path);
-            else if(res.isContainer(path) != container)
+                container = res->isContainer(path);
+            else if(res->isContainer(path) != container)
                 qWarning("Resource [%s] has both data and children!", file.toLatin1().constData());
             related.append(res);
         }
@@ -292,7 +297,7 @@ QByteArray QResourceInfo::data() const
         QString path = file;
         if(path.startsWith(":"))
             path = path.mid(1);
-        mData = related.at(0).data(path);
+        mData = related.at(0)->data(path);
     }
     return mData;
 }
@@ -309,7 +314,7 @@ QStringList QResourceInfo::children() const
             path = path.mid(1);
         QSet<QString> kids;
         for(int i = 0; i < related.size(); ++i) {
-            QStringList related_children = related.at(i).children(path);
+            QStringList related_children = related.at(i)->children(path);
             for(int kid = 0; kid < related_children.size(); ++kid) {
                 QString k = related_children.at(kid);
                 if(!kids.contains(k)) {
@@ -326,7 +331,7 @@ Q_CORE_EXPORT bool qRegisterResourceData(int version, const unsigned char *tree,
                            const unsigned char *name, const unsigned char *data)
 {
     if(version == 0x01) {
-        resourceList()->append(QResource(tree, name, data));
+        resourceList()->append(new QResource(tree, name, data));
         return true;
     }
     return false;
@@ -616,6 +621,6 @@ QFileEngine::Type QResourceFileEngine::type() const
 Q_GLOBAL_STATIC(QResourceFileEngineHandler, resource_file_handler)
 //yuck, but this will force the auto init in shared libraries
 inline static int qt_force_resource_init() { resource_file_handler(); return 1; }
-void qInitNewResourceIO() { resource_file_handler(); }
+void qInitResourceIO() { resource_file_handler(); }
 static int qt_forced_resource_init = qt_force_resource_init();
 
