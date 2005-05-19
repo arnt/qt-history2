@@ -474,9 +474,17 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
                                                 -d->deviceRect.y());
         }
     }
+#if defined(Q_WS_QWS)
+    else if (device->devType() == QInternal::Pixmap) {
+        // Only embedded uses system clipping on pixmaps
+        QRegion sysClip = systemClip();
+        if (!sysClip.isEmpty())
+            d->baseClip.addRegion(sysClip);
+    }
+#endif
 
     bool isBitmap = false;
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS)
     if (device->devType() == QInternal::Pixmap) {
         QPixmap *pixmap = static_cast<QPixmap *>(device);
         if (pixmap->isNull()) {
@@ -512,26 +520,6 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
                      format);
             return false;
         }
-
-#ifdef Q_WS_QWS
-    } else if (device->devType() == QInternal::Pixmap) {
-        QPixmap *pix = static_cast<QPixmap *>(device);
-        if (pix->depth() != 32) {
-            qWarning("QRasterPaintEngine::begin(), only 32 bit pixmaps are supported at this time");
-            return false;
-        }
-        // is this the right place to do clipping ???
-        //### shouldn't this clipping be platform independent ???
-        QRegion sysClip = systemClip();
-        if (!sysClip.isEmpty()) {
-            d->baseClip.addRegion(sysClip);
-            // qDebug() << "adding to clip:" << sysClip;
-        }
-        d->flushOnEnd = false; // Direct access so no flush.
-        d->rasterBuffer->prepare(pix);
-        if (pix->hasAlphaChannel())
-            layout =  DrawHelper::Layout_ARGB;
-#endif
     } else {
         d->rasterBuffer->prepare(d->deviceRect.width(), d->deviceRect.height());
     }
@@ -2007,19 +1995,6 @@ void QRasterBuffer::prepare(QImage *image)
     m_height = image->height();
     bytes_per_line = 4*(depth == 32 ? m_width : (m_width + 31)/32);
 }
-
-#ifdef Q_WS_QWS
-void QRasterBuffer::prepare(QPixmap *pixmap)
-{
-    prepareClip(pixmap->width(), pixmap->height());
-
-    m_buffer = (uchar *)pixmap->qwsScanLine(0);
-
-    m_width = pixmap->width();
-    m_height = pixmap->height();
-    bytes_per_line = 4*m_width;
-}
-#endif
 
 void QRasterBuffer::prepareClip(int /*width*/, int height)
 {
