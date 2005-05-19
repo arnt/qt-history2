@@ -371,6 +371,8 @@ void QTreeView::setRowHidden(int row, const QModelIndex &parent, bool hide)
 void QTreeView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
 {
     Q_D(QTreeView);
+    if (!model())
+        return;
     // set the height to be 0, so we get a new sizehint next time we ask for the row height
     QModelIndex top = model()->sibling(topLeft.row(), 0, topLeft);
     QModelIndex bottom = model()->sibling(bottomRight.row(), 0, bottomRight);
@@ -586,7 +588,7 @@ void QTreeView::paintEvent(QPaintEvent *e)
 
     QVector<QRect> rects = e->region().rects();
     for (int ii = 0; ii < rects.size(); ++ii) {
-    
+
         QRect area = rects.at(ii);
         area.translate(offset);
 
@@ -899,7 +901,7 @@ int QTreeView::verticalOffset() const
     Q_D(const QTreeView);
     // gives an estimate
     int item = verticalScrollBar()->value() / verticalStepsPerItem();
-    if (model()->rowCount(rootIndex()) > 0 && model()->columnCount(rootIndex()) > 0)
+    if (model() && model()->rowCount(rootIndex()) > 0 && model()->columnCount(rootIndex()) > 0)
         return item * d->itemHeight;
     return item * 30;
 }
@@ -1018,7 +1020,9 @@ QRegion QTreeView::visualRegionForSelection(const QItemSelection &selection) con
 QModelIndexList QTreeView::selectedIndexes() const
 {
     QModelIndexList viewSelected;
-    QModelIndexList modelSelected = selectionModel()->selectedIndexes();
+    QModelIndexList modelSelected;
+    if (selectionModel())
+        modelSelected = selectionModel()->selectedIndexes();
     for (int i = 0; i < modelSelected.count(); ++i) {
         // check that neither the parents nor the index is hidden before we add
         QModelIndex index = modelSelected.at(i);

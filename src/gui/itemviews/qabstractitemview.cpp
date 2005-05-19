@@ -1485,6 +1485,8 @@ void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndE
 */
 void QAbstractItemView::commitData(QWidget *editor)
 {
+    if (!model())
+        return;
     QModelIndex index = d_func()->editors.key(editor);
     itemDelegate()->setModelData(editor, model(), index);
 }
@@ -1783,7 +1785,9 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
 void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
 {
     Q_D(QAbstractItemView);
-    QModelIndexList indexes = selectionModel()->selectedIndexes();
+    QModelIndexList indexes;
+    if (selectionModel())
+        indexes = selectionModel()->selectedIndexes();
     if (indexes.count() > 0) {
         // setup pixmap
         QRect rect = visualRect(indexes.at(0));

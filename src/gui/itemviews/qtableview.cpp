@@ -682,7 +682,9 @@ QRegion QTableView::visualRegionForSelection(const QItemSelection &selection) co
 QModelIndexList QTableView::selectedIndexes() const
 {
     QModelIndexList viewSelected;
-    QModelIndexList modelSelected = selectionModel()->selectedIndexes();
+    QModelIndexList modelSelected;
+    if (selectionModel())
+        modelSelected = selectionModel()->selectedIndexes();
     for (int i=0; i<modelSelected.count(); ++i) {
         QModelIndex index = modelSelected.at(i);
         if (!isIndexHidden(index) && index.parent() == rootIndex())
