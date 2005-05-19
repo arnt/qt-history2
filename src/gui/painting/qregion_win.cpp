@@ -274,7 +274,9 @@ bool QRegion::contains(const QPoint &p) const
 }
 
 /*!
-    Returns true if this region wholly contains the region \a r;
+    \overload
+
+    Returns true if this region wholly contains the rect \a r;
     otherwise returns false.
 */
 bool QRegion::contains(const QRect &r) const

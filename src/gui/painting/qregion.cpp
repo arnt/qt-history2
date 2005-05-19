@@ -35,7 +35,7 @@
     regions using unite(), intersect(), subtract(), or eor() (exclusive
     or). You can move a region using translate().
 
-    You can test whether a region isNull(), isEmpty() or if it
+    You can test whether a region isEmpty() or if it
     contains() a QPoint or QRect. The bounding rectangle can be found
     with boundingRect().
 
@@ -60,11 +60,13 @@
 
     QRegion is an \link shclass.html implicitly shared\endlink class.
 
-    \warning Due to window system limitations, the whole coordinate
-    space for a region is limited to the points between -32767 and
-    32767 on Windows 95/98/ME.
+    \warning Due to window system limitations, the whole coordinate space for a
+    region is limited to the points between -32767 and 32767 on Windows
+    95/98/ME. You can circumvent this limitation by using a QPainterPath.
 
     \sa QPainter::setClipRegion(), QPainter::setClipRect()
+
+    \sa QPainterPath
 */
 
 
@@ -86,9 +88,29 @@
 */
 
 /*!
-    \fn QRegion::RgnHandle QRegion::handle() const
+    \fn RgnHandle QRegion::handle() const
 
-    Returns the region's handle.
+    Returns a Mac OS X-specific region handle.
+    \warning This function is only available on Mac OS X.
+*/
+
+/*!
+    \internal
+    \fn RgnHandle QRegion::handle(bool require_rgn) const
+*/
+
+/*!
+    \fn HRGN QRegion::handle() const
+
+    Returns a Windows-specific region handle.
+    \warning This function is only available on Windows.
+*/
+
+/*!
+    \fn Region QRegion::handle() const
+
+    Returns an X11-specific region handle.
+    \warning This function is only available on X11.
 */
 
 /*****************************************************************************
