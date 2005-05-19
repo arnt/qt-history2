@@ -798,7 +798,7 @@ void QProcess::close()
     emit aboutToClose();
     while (waitForBytesWritten(-1))
         ;
-    terminate();
+    kill();
     waitForFinished(-1);
     setOpenMode(QIODevice::NotOpen);
 }
