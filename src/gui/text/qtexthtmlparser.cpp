@@ -785,6 +785,11 @@ void QTextHtmlParser::parseCloseTag()
 
     // find corresponding open node
     int p = last();
+    if (p > 0
+        && at(p - 1).tag == tag
+        && at(p - 1).mayNotHaveChildren())
+        p--;
+
     while (p && at(p).tag != tag)
         p = at(p).parent;
 
