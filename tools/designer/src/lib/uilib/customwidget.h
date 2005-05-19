@@ -43,7 +43,7 @@ public:
 
     virtual QString domXml() const
     {
-        return QString::fromUtf8("<widget class=\"%s\" name=\"%s\"/>")
+        return QString::fromUtf8("<widget class=\"%1\" name=\"%2\"/>")
             .arg(name()).arg(name().toLower());
     }
 
