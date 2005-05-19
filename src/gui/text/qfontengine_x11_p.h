@@ -145,6 +145,7 @@ public:
     qreal minLeftBearing() const;
     qreal minRightBearing() const;
     qreal lineThickness() const;
+    qreal underlinePosition() const;
 
     inline Type type() const
     { return QFontEngine::Freetype; }

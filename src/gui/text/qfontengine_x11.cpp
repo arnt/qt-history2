@@ -562,8 +562,25 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
     outline_drawing = xsize > (64<<6) || ysize > (64<<6);
 
     lockFace();
-    // #####
-    line_thickness = underline_position = 1.;
+
+    //underline metrics
+    FT_Face face = freetype->face;
+    if (FT_IS_SCALABLE(face)) {
+        line_thickness =  FT_MulFix(face->underline_thickness, face->size->metrics.y_scale)/64.;
+        underline_position = -FT_MulFix(face->underline_position, face->size->metrics.y_scale)/64.;
+    } else {
+        // copied from QFontEngineQPF
+        // ad hoc algorithm
+        int score = fontDef.weight * fontDef.pixelSize;
+        line_thickness = score / 700;
+        // looks better with thicker line for small pointsizes
+        if (line_thickness < 2 && score >= 1050)
+            line_thickness = 2;
+        underline_position =  ((line_thickness * 2) + 3) / 6;
+    }
+    if (line_thickness < 1)
+        line_thickness = 1;
+
     metrics = freetype->face->size->metrics;
 
     int load_flags = FT_LOAD_DEFAULT;
@@ -1270,6 +1287,11 @@ qreal QFontEngineFT::minRightBearing() const
 qreal QFontEngineFT::lineThickness() const
 {
     return line_thickness;
+}
+
+qreal QFontEngineFT::underlinePosition() const
+{
+    return underline_position;
 }
 
 

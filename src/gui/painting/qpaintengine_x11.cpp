@@ -1886,6 +1886,8 @@ void QX11PaintEngine::drawFreetype(const QPointF &p, const QTextItemInt &si)
         updateRenderHints(QFlag(hints|QPainter::Antialiasing));
         QPaintEngine::drawTextItem(p, si);
         updateRenderHints(QFlag(hints));
+        if (si.flags)
+            ::drawLines(this, si, p.toPoint().y(), p.toPoint().x(), qRound(si.width));
         return;
     }
 
