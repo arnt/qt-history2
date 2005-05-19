@@ -208,7 +208,6 @@ void **QListData::erase(void **xi)
 /*! \class QList
     \brief The QList class is a template class that provides lists.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     \mainclass

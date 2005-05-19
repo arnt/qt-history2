@@ -47,17 +47,23 @@ public:
     This enum controls the types of events processed by the
     processEvents() functions.
 
-    \value AllEvents - All events are processed
-    \value ExcludeUserInput - Do not process user input events, such
+    \value AllEvents All events are processed
+    \value ExcludeUserInput Do not process user input events, such
             as ButtonPress and KeyPress.
-    \value ExcludeSocketNotifiers - Do not process socket notifier
+    \value ExcludeSocketNotifiers Do not process socket notifier
            events.
-    \value WaitForMore - Wait for events if no pending events
+    \value WaitForMore Wait for events if no pending events
            are available.
+
+    \omitvalue ExcludeUserInputEvents
+    \omitvalue WaitForMoreEvents
 
     \sa processEvents()
 */
 
+/*!
+    Constructs an event loop object.
+*/
 QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate, parent)
 {
@@ -67,9 +73,25 @@ QEventLoop::QEventLoop(QObject *parent)
         qWarning("QEventLoop can only be used with threads started with QThread");
 }
 
+/*!
+    Destroys the event loop object.
+*/
 QEventLoop::~QEventLoop()
 { }
 
+
+/*!
+    Processes pending events that match \a flags until there are no
+    more events to process.
+
+    This function is especially useful if you have a long running
+    operation and want to show its progress without allowing user
+    input, i.e. by using the QEventLoop::ExcludeUserInputEvents flag.
+
+    This function is simply a wrapper for
+    QAbstractEventDispatcher::processEvents(). See the documentation
+    for that function for details.
+*/
 bool QEventLoop::processEvents(ProcessEventsFlags flags)
 {
     QThread *thr = thread();
@@ -168,7 +190,7 @@ void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)
     function \e does return to the caller -- it is event processing that
     stops.
 
-    \sa QApplication::quit(), exec()
+    \sa QCoreApplication::quit(), quit(), exec()
 */
 void QEventLoop::exit(int returnCode)
 {
@@ -184,6 +206,11 @@ void QEventLoop::exit(int returnCode)
         eventDispatcher->interrupt();
 }
 
+/*!
+    Wakes up the event loop.
+
+    \sa QAbstractEventDispatcher::wakeUp()
+*/
 void QEventLoop::wakeUp()
 {
     QThread *thr = thread();
@@ -195,5 +222,12 @@ void QEventLoop::wakeUp()
         eventDispatcher->wakeUp();
 }
 
+/*!
+    Tells the event loop to exit normally.
+
+    Same as exit(0).
+
+    \sa QCoreApplication::quit(), exit()
+*/
 void QEventLoop::quit()
 { exit(0); }

@@ -293,7 +293,7 @@ int QMetaObject::classInfoOffset() const
     Returns the number of methods in this class. These include
     ordinary methods, signals, and slots.
 
-    \sa methodCount(), methodOffset(), indexOfMethod()
+    \sa method(), methodOffset(), indexOfMethod()
 */
 int QMetaObject::methodCount() const
 {
@@ -993,24 +993,24 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
     return true;
 }
 
-/*! \fn static inline bool QMetaObject::invokeMethod(QObject *obj, const char *member,
-                                                     QGenericReturnArgument ret,
-                                                     QGenericArgument val0 = QGenericArgument(0),
-                                                     QGenericArgument val1 = QGenericArgument(),
-                                                     QGenericArgument val2 = QGenericArgument(),
-                                                     QGenericArgument val3 = QGenericArgument(),
-                                                     QGenericArgument val4 = QGenericArgument(),
-                                                     QGenericArgument val5 = QGenericArgument(),
-                                                     QGenericArgument val6 = QGenericArgument(),
-                                                     QGenericArgument val7 = QGenericArgument(),
-                                                     QGenericArgument val8 = QGenericArgument(),
-                                                     QGenericArgument val9 = QGenericArgument());
+/*! \fn bool QMetaObject::invokeMethod(QObject *obj, const char *member,
+                                       QGenericReturnArgument ret,
+                                       QGenericArgument val0 = QGenericArgument(0),
+                                       QGenericArgument val1 = QGenericArgument(),
+                                       QGenericArgument val2 = QGenericArgument(),
+                                       QGenericArgument val3 = QGenericArgument(),
+                                       QGenericArgument val4 = QGenericArgument(),
+                                       QGenericArgument val5 = QGenericArgument(),
+                                       QGenericArgument val6 = QGenericArgument(),
+                                       QGenericArgument val7 = QGenericArgument(),
+                                       QGenericArgument val8 = QGenericArgument(),
+                                       QGenericArgument val9 = QGenericArgument());
     \overload
 
     This overload always invokes the member using the connection type Qt::AutoConnection.
 */
 
-/*! \fn static inline bool QMetaObject::invokeMethod(QObject *obj, const char *member,
+/*! \fn bool QMetaObject::invokeMethod(QObject *obj, const char *member,
                              Qt::ConnectionType type,
                              QGenericArgument val0 = QGenericArgument(0),
                              QGenericArgument val1 = QGenericArgument(),
@@ -1021,14 +1021,15 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
                              QGenericArgument val6 = QGenericArgument(),
                              QGenericArgument val7 = QGenericArgument(),
                              QGenericArgument val8 = QGenericArgument(),
-                             QGenericArgument val9 = QGenericArgument());
+                             QGenericArgument val9 = QGenericArgument())
 
     \overload
 
     This overload can be used if the return value of the member is of no interest.
 */
 
-/* \fn static inline bool QMetaObject::invokeMethod(QObject *obj, const char *member,
+/*!
+    \fn bool QMetaObject::invokeMethod(QObject *obj, const char *member,
                              QGenericArgument val0 = QGenericArgument(0),
                              QGenericArgument val1 = QGenericArgument(),
                              QGenericArgument val2 = QGenericArgument(),
@@ -1038,7 +1039,8 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
                              QGenericArgument val6 = QGenericArgument(),
                              QGenericArgument val7 = QGenericArgument(),
                              QGenericArgument val8 = QGenericArgument(),
-                             QGenericArgument val9 = QGenericArgument());
+                             QGenericArgument val9 = QGenericArgument())
+
     \overload
 
     This overload invokes the member using the connection type Qt::AutoConnection and
@@ -1057,7 +1059,7 @@ bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionT
     parameterTypes() and parameterNames(), a return typeName(), a
     tag(), and an access() specifier.
 
-    \sa QMetaObject, QMetaEnum, QMetaProperty, \l{Qt's Property System}
+    \sa QMetaObject, QMetaEnum, QMetaProperty, {Qt's Property System}
 */
 
 /*!
@@ -1485,7 +1487,7 @@ QByteArray QMetaEnum::valueToKeys(int value) const
     QMetaObject::property() and QMetaObject::propertyCount() for
     details.
 
-    \sa QMetaObject, QMetaEnum, QMetaMethod, \l{Qt's Property System}
+    \sa QMetaObject, QMetaEnum, QMetaMethod, {Qt's Property System}
 */
 
 /*!
@@ -1536,7 +1538,7 @@ const char *QMetaProperty::typeName() const
     Returns this property's type. The return value is one
     of the values of the QVariant::Type enumeration.
 
-    \sa typeName(), namE()
+    \sa typeName(), name()
 */
 QVariant::Type QMetaProperty::type() const
 {
@@ -1761,7 +1763,7 @@ bool QMetaProperty::isWritable() const
     \c{Q_PROPERTY()}'s \c DESIGNABLE attribute is false; otherwise
     returns true (if the attribute is true or is a function or expression).
 
-    \sa isScripable(), isStored(), isEditable()
+    \sa isScriptable(), isStored(), isEditable()
 */
 bool QMetaProperty::isDesignable(const QObject *object) const
 {
@@ -1835,7 +1837,7 @@ bool QMetaProperty::isStored(const QObject *object) const
     \c{Q_PROPERTY()}'s \c DESIGNABLE attribute is false; otherwise returns
     true (if the attribute is true or is a function or expression).
 
-    \sa isDesignable(), isScriptable(), isStorable()
+    \sa isDesignable(), isScriptable(), isStored()
 */
 bool QMetaProperty::isEditable(const QObject *object) const
 {
@@ -1873,7 +1875,7 @@ bool QMetaProperty::isEditable(const QObject *object) const
         public:
             ...
         };
-    \endocde
+    \endcode
 
     This mechanism is free for you to use in your Qt applications. Qt
     doesn't use it for any of its classes.

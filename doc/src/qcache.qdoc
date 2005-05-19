@@ -2,7 +2,6 @@
     \class QCache
     \brief The QCache class is a template class that provides a cache.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     \mainclass

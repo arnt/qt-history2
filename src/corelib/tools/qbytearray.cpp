@@ -3275,7 +3275,7 @@ QByteArray QByteArray::toBase64() const
     \sa toLongLong()
 */
 
-QByteArray &QByteArray::setNum(qint64 n, int base)
+QByteArray &QByteArray::setNum(qlonglong n, int base)
 {
 #if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
@@ -3294,7 +3294,7 @@ QByteArray &QByteArray::setNum(qint64 n, int base)
     \sa toULongLong()
 */
 
-QByteArray &QByteArray::setNum(quint64 n, int base)
+QByteArray &QByteArray::setNum(qulonglong n, int base)
 {
 #if defined(QT_CHECK_RANGE)
     if (base < 2 || base > 36) {
@@ -3411,7 +3411,7 @@ QByteArray QByteArray::number(uint n, int base)
 
     \sa toLongLong()
 */
-QByteArray QByteArray::number(qint64 n, int base)
+QByteArray QByteArray::number(qlonglong n, int base)
 {
     QByteArray s;
     s.setNum(n, base);
@@ -3423,7 +3423,7 @@ QByteArray QByteArray::number(qint64 n, int base)
 
     \sa toULongLong()
 */
-QByteArray QByteArray::number(quint64 n, int base)
+QByteArray QByteArray::number(qulonglong n, int base)
 {
     QByteArray s;
     s.setNum(n, base);

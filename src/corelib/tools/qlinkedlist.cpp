@@ -20,7 +20,6 @@ QLinkedListData QLinkedListData::shared_null = {
 /*! \class QLinkedList
     \brief The QLinkedList class is a template class that provides linked lists.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     \mainclass

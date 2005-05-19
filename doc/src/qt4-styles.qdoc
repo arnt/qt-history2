@@ -101,11 +101,11 @@
     The next example shows how to derive from an existing style to
     customize the look of a graphical element:
 
-    \quotefile customstyle/customstyle.h
+    \quotefromfile snippets/customstyle/customstyle.h
     \skipto class CustomStyle
     \printuntil };
 
-    \quotefile customstyle/customstyle.cpp
+    \quotefromfile snippets/customstyle/customstyle.cpp
     \skipto CustomStyle::drawPrimitive
     \printuntil QWindowsStyle::drawPrimitive
     \printline }

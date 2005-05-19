@@ -49,12 +49,6 @@
        and an 8-bit \c PseudoColor (default) visual in the overlay plane.
     \endlist
 
-    The provided example program \link opengl-overlay-example.html X11
-    overlay\endlink will check for these and report if anything is wrong.
-    See \link #x11visuals About X11 Visuals\endlink, below for more
-    information.
-
-
     \section1 How it Works
 
     Assuming that the requirements mentioned above are met, a QGLWidget
@@ -68,18 +62,12 @@
 
     An overlay plane has a specific color called the transparent
     color. Pixels drawn in this color will not be visible; instead the
-    underlying OpenGL image will show through. In the example program
-    \link opengl-overlay-example.html X11 overlay\endlink, the file
-    \c main.cpp contains a routine that returns a QColor containing the
-    transparent color. For the overlay widget, you will typically want to
-    set the background color to the transparent color, so that the OpenGL
-    image shows through except where explicitly overpainted.
+    underlying OpenGL image will show through.
 
-    Note: to use this technique, you must not use the \c ManyColor or \c
+    Note: To use this technique, you must not use the \c ManyColor or \c
     TrueColor \c ColorSpec for QApplication, because this will force the
     normal Qt widgets to use a \c TrueColor visual, which will typically
     be in the main plane, not in the overlay plane as desired.
-
 
     \target x11visuals
     \section1 About X11 Visuals
@@ -97,9 +85,4 @@
 
     \c sovinfo lists all available visuals, and provides special
     transparency information for overlay visuals.
-
-    The \link opengl-overlay-example.html X11 overlay\endlink example
-    program will output what visual is used for the normal Qt widgets, and
-    what visual is used by the QGLWidget.
-
 */

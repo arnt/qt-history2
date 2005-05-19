@@ -57,7 +57,7 @@
 
     When we call the QLayout::setMenubar() function, the layout places
     the provided menu bar at the top of the parent widget, and outside
-    the widgets \l {QWidget::contentsMargins()}{content margins}. All
+    the widgets \l {QWidget::contentsRect()}{content margins}. All
     child widgets are placed below the bottom edge of the menu bar.
 
     \skipto addWidget
@@ -67,7 +67,7 @@
     the end of the main layout. Each widget will get at least its
     minimum size and at most its maximum size. It is possible to
     specify a stretch factor in the \l
-    {QBoxLayout::addWidget}{addWidget()} function, and any excess
+    {QBoxLayout::addWidget()}{addWidget()} function, and any excess
     space is shared according to these stretch factors. If it's not
     specified, a widget's stretch factor is 0 by default.
 

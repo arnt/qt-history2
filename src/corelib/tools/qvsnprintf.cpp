@@ -21,22 +21,25 @@
 #ifndef QT_VSNPRINTF
 
 /*!
-  \relates QByteArray
+    \relates QByteArray
 
-  A portable vsnprintf() function. Will call ::vsnprintf(),
-  ::_vsnprintf() or ::vsnprintf_s depending on the system
-  or fall back to an internal version.
+    A portable \c vsnprintf() function. Will call \c ::vsnprintf(), \c
+    ::_vsnprintf(), or \c ::vsnprintf_s depending on the system, or
+    fall back to an internal version.
 
-  The caller is responsible to call va_end on \a ap.
+    \a fmt is the \c printf() format string. The result is put into
+    \c str, which is a buffer of at least \a n bytes.
 
-  \warning Since vsnprintf() shows different behavior on certain
-  platforms, you should not rely on the return value or on the fact
-  that you will always get a 0 terminated string back.
+    The caller is responsible to call \c va_end() on \a ap.
 
-  Ideally, you should never call this function but use QString::sprintf()
-  instead.
+    \warning Since vsnprintf() shows different behavior on certain
+    platforms, you should not rely on the return value or on the fact
+    that you will always get a 0 terminated string back.
 
-  \sa qsnprintf(), QString::sprintf()
+    Ideally, you should never call this function but use QString::sprintf()
+    instead.
+
+    \sa qsnprintf(), QString::sprintf()
 */
 
 int qvsnprintf(char *str, size_t n, const char *fmt, va_list ap)
@@ -70,15 +73,18 @@ int qvsnprintf(char *str, size_t n, const char *fmt, va_list ap)
 #endif
 
 /*!
-  \relates QByteArray
+    \relates QByteArray
 
-  A portable snprintf() function, calls qvsnprintf.
+    A portable snprintf() function, calls qvsnprintf.
 
-  \warning Call this function only when you know what you are doing
-  since it shows different behavior on certain platforms.
-  Use QString::sprintf() to format a string instead.
+    \a fmt is the \c printf() format string. The result is put into
+    \c str, which is a buffer of at least \a n bytes.
 
-  \sa qvsnprintf(), QString::sprintf()
+    \warning Call this function only when you know what you are doing
+    since it shows different behavior on certain platforms.
+    Use QString::sprintf() to format a string instead.
+
+    \sa qvsnprintf(), QString::sprintf()
 */
 
 int qsnprintf(char *str, size_t n, const char *fmt, ...)

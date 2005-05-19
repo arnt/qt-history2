@@ -15,7 +15,6 @@
     \class QStack
     \brief The QStack class is a template class that provides a stack.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     \mainclass

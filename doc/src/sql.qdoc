@@ -355,10 +355,10 @@
 
     Here's how to delete five consecutive rows:
 
-    \printline deleteRows(
+    \printline removeRows(
     \printline submit
 
-    The first argument to QSqlTableModel::deleteRows() is the index
+    The first argument to QSqlTableModel::removeRows() is the index
     of the first row to delete.
 
     When you're done making a change to a record, you should always

@@ -63,11 +63,10 @@
 */
 
 /*!
-    \fn Q3SqlFieldInfo::Q3SqlFieldInfo(const QSqlField & other, bool generated)
+    \fn Q3SqlFieldInfo::Q3SqlFieldInfo(const QSqlField & other)
 
     Creates a Q3SqlFieldInfo object with the type and the name of the
-    QSqlField \a other. If \a generated is TRUE this field will be
-    included in auto-generated SQL statments, e.g. in Q3SqlCursor.
+    QSqlField \a other.
 */
 
 /*!

@@ -25,9 +25,9 @@
 
     Used to specify the print range selection option.
 
-    \item AllPages All pages should be printed.
-    \item Selection Only the selection should be printed.
-    \item PageRange The specified page range should be printed.
+    \value AllPages All pages should be printed.
+    \value Selection Only the selection should be printed.
+    \value PageRange The specified page range should be printed.
 */
 
 /*!
@@ -35,12 +35,11 @@
 
     Used to specify which parts of the print dialog should be enabled.
 
-    \item None None of the options are enabled.
-    \item PrintToFile The print to file option is enabled.
-    \item PrintSelection The print selection option is enalbed.
-    \item PrintPageRange The page range selection option is enabled.
-    \item PrintCollateCopies
-    };
+    \value None None of the options are enabled.
+    \value PrintToFile The print to file option is enabled.
+    \value PrintSelection The print selection option is enalbed.
+    \value PrintPageRange The page range selection option is enabled.
+    \value PrintCollateCopies
 */
 
 /*!

@@ -374,7 +374,7 @@
                                              features
     \row    \o gui  (included by default) \o Widgets and other GUI classes
     \row    \o network    \o \l{Network Module} classes
-    \row    \o opengl     \o \l{Qt OpenGL Module} classes
+    \row    \o opengl     \o \l{OpenGL Module} classes
     \row    \o sql        \o \l{SQL Module} classes
     \row    \o xml        \o \l{XML Module} classes
     \row    \o qt3support \o Enables the use of Qt 3 support classes (see the

@@ -197,7 +197,7 @@
     \printline QBoxLayout
     \printuntil /^\}/
 
-    Finally, depending on the \l {Qt::orientation}{orientation} given
+    Finally, depending on the \l {Qt::Orientation}{orientation} given
     at the time of construction, we choose and create the layout for
     the slider widgets within the group box.
 

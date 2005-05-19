@@ -1914,5 +1914,5 @@
     for other strings (e.g.,
     "\l{http://doc.trolltech.com/qq/qq09-mac-deployment.html}{Deploying Applications on Ma...}").
 
-    \sa QAbstractItemView::elideMode, QAbstractItemDelegate::elidedText()
+    \sa QAbstractItemView::textElideMode, QAbstractItemDelegate::elidedText()
 */

@@ -481,6 +481,21 @@ QPixmap QIcon::pixmap(const QSize &size, Mode mode, State state) const
     return d->engine->pixmap(size, mode, state);
 }
 
+/*!
+    \fn QPixmap QIcon::pixmap(int w, int h, Mode mode = Normal, State state = Off) const
+
+    \overload
+
+    Returns a pixmap of size QSize(\a w, \a h).
+*/
+
+/*!
+    \fn QPixmap QIcon::pixmap(int extent, Mode mode = Normal, State state = Off) const
+
+    \overload
+
+    Returns a pixmap of size QSize(\a extent, \a extent).
+*/
 
 /*!  Returns the actual size of the icon for the requested \a size, \a
   mode, and \a state. The result might be smaller than requested, but
@@ -498,7 +513,7 @@ QSize QIcon::actualSize(const QSize &size, Mode mode, State state) const
 
 /*!
     Uses the \a painter to paint the icon with specified \a alignment,
-    required \a mode, and \a state into the rectangle \a rect/
+    required \a mode, and \a state into the rectangle \a rect.
 
     \sa actualSize(), pixmap()
 */
@@ -608,7 +623,7 @@ static QSize pixmapSize(QIcon::Size which) {
 QPixmap QIcon::pixmap(Size size, Mode mode, State state) const
 { return pixmap(::pixmapSize(size), mode, state); }
 
-/*
+/*!
     Use pixmap(QSize(...), mode, \a state), where the first argument
     is an appropriate QSize instead of a \l Size value, and the
     second argument is QIcon::Normal or QIcon::Disabled, depending on

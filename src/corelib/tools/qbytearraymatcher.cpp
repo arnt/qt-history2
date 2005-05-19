@@ -164,5 +164,5 @@ int QByteArrayMatcher::indexIn(const QByteArray &ba, int from) const
     Returns the byte array pattern that this byte array matcher will
     search for.
 
-    \setPattern()
+    \sa setPattern()
 */

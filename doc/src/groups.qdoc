@@ -67,7 +67,7 @@ related classes together. Some classes may appear in more than one group.
 \o Classes used to create and handle events.
 
 \row 
-\o \l{Utility Classes}
+\o \l{Non-GUI Classes}
 \o Collection classes such as list, queue, stack and string, along
 with other classes that can be used without needing QApplication.
 
@@ -387,17 +387,6 @@ These classes are used to create and handle events.
 
 For more information see the \link object.html Object model\endlink
 and \link signalsandslots.html Signals and Slots\endlink.
-*/
-
-
-/*! \defgroup qtl
-
-\title Qt Template Library Classes
-
-The Qt Template Library (QTL) is a set of templates that provide
-object containers. See \link containers.html Generic Containers
-\endlink.
-
 */
 
 

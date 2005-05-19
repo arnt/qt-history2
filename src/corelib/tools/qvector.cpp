@@ -35,7 +35,6 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     \class QVector
     \brief The QVector class is a template class that provides a dynamic array.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     \mainclass
@@ -833,6 +832,12 @@ int QVectorData::grow(int sizeofTypedData, int size, int sizeofT, bool excessive
     vector.
 
     \sa append(), operator+=()
+*/
+
+/*! \fn QVector &QVector::operator<<(const QVector &other)
+
+    Appends \a other to the vector and returns a reference to the
+    vector.
 */
 
 /*! \typedef QVector::iterator

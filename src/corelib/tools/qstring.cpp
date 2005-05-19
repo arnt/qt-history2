@@ -6493,5 +6493,11 @@ QDataStream &operator>>(QDataStream &in, QString &str)
 /*!
     \fn QChar &QString::ref(uint i);
 
-###
+    Use operator[]() instead.
+*/
+
+/*!
+    \fn QString::operator const char *() const
+
+    Use toAscii().constData() instead.
 */

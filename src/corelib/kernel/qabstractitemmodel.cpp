@@ -1336,8 +1336,6 @@ QModelIndex QAbstractItemModel::buddy(const QModelIndex &index) const
     number of matching data items equals \a hits, the search reaches
     the last row, or the search reaches \a start again, depending on
     whether \c MatchWrap is specified in \a flags.
-
-    \sa QAbstractItemModel::MatchFlag
 */
 QModelIndexList QAbstractItemModel::match(const QModelIndex &start, int role,
                                           const QVariant &value, int hits,

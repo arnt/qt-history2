@@ -2989,8 +2989,7 @@ QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
     If \a clipTight is true (the default) the mask is just large enough to cover the
     pixels; otherwise, the mask is larger than the data pixels.
 
-    This function disregards the alpha buffer
-    \endlink.
+    This function disregards the alpha buffer.
 
     \sa createAlphaMask()
 */

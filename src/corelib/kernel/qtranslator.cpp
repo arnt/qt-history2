@@ -241,8 +241,6 @@ QTranslator::~QTranslator()
     \o \c /opt/foolib/foo.qm
     \o \c /opt/foolib/foo
     \endlist
-
-    \sa save()
 */
 
 bool QTranslator::load(const QString & filename, const QString & directory,
@@ -622,9 +620,6 @@ QString QTranslator::translate(const char *context, const char *sourceText, cons
     return QString();
 }
 
-
-
-
 /*!
     Returns true if this translator is empty, otherwise returns false.
     This function works with stripped and unstripped translation files.
@@ -636,5 +631,11 @@ bool QTranslator::isEmpty() const
            !d->offsetArray && !d->contextArray;
 }
 
+
+/*!
+    \fn QString QTranslator::find(const char *context, const char *sourceText, const char * comment = 0) const
+
+    Use translate(\a context, \a sourceText, \a comment) instead.
+*/
 
 #endif // QT_NO_TRANSLATION

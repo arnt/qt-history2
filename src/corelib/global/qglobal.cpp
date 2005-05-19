@@ -113,10 +113,6 @@
     \sa QFlag
 */
 
-#define Q_DECLARE_FLAGS(Flags, Enum)\
-typedef QFlags<Enum> Flags;
-#define Q_DECLARE_OPERATORS_FOR_FLAGS(Flags) \
-
 /*!
     \typedef QFlags::enum_type
 
@@ -417,7 +413,7 @@ typedef QFlags<Enum> Flags;
     Rounds \a value up to the nearest integer.
 */
 
-/*! \fn qint64 qRound64(double d)
+/*! \fn qint64 qRound64(double value)
     \relates <QtGlobal>
 
     Rounds \a value up to the nearest 64-bit integer.
@@ -431,7 +427,7 @@ typedef QFlags<Enum> Flags;
     \sa qMax(), qBound()
 */
 
-/*! \fn const T &qMax(const T &a, const T &b)
+/*! \fn const T &qMax(const T &value1, const T &value2)
     \relates <QtGlobal>
 
     Returns the maximum of \a value1 and \a value2.
@@ -580,12 +576,12 @@ typedef QFlags<Enum> Flags;
 /*!
     \relates <QtGlobal>
 
-    Returns the Qt version number as a string, for example, "2.3.0" or
-    "3.0.5".
+    Returns the Qt version number as a string, for example, "4.0.1" or
+    "4.1.3".
 
     The \c QT_VERSION define has the numeric value in the form:
-    0xMMIIPP (M = major, I = minor, B = patch). For example, Qt
-    3.0.5's \c QT_VERSION is 0x030005.
+    0xMMNNPP (MM = major, NN = minor, PP = patch). For example, Qt
+    4.0.1's \c QT_VERSION is 0x040001.
 */
 
 const char *qVersion()

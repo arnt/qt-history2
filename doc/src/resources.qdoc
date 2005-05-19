@@ -100,12 +100,12 @@
 
     In the application, resource paths can be used in most places
     instead of ordinary file system paths. In particular, you can
-    pass a resource path instead of a file name to the QPixmap or
-    QImage constructor:
+    pass a resource path instead of a file name to the QIcon, QImage,
+    or QPixmap constructor:
 
     \quotefromfile mainwindows/application/mainwindow.cpp
-    \skipto cutAct = new QAction(QPixmap(":/images/cut.png
-    \printline cutAct =
+    \skipto cutAct = new QAction(QIcon(":/images/cut.png
+    \printuntil ;
 
     See the \l{mainwindows/application}{Application} example for an
     actual application that uses Qt's resource system to store its

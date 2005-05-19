@@ -40,9 +40,9 @@
     QWidget::mouseMoveEvent(). QObject::installEventFilter() allows an
     object to intercept events destined for another object.
 
-    The basic QEvent contains only an event type parameter and an \l
-    accept flag.  The accept flag set with accept(), and cleared with
-    ignore(). It is set by default, but don't rely on this as
+    The basic QEvent contains only an event type parameter and an
+    "accept" flag.  The accept flag set with accept(), and cleared
+    with ignore(). It is set by default, but don't rely on this as
     subclasses may choose to clear it in their constructor.
 
     Subclasses of QEvent contain additional parameters that describe
@@ -310,9 +310,9 @@ QTimerEvent::~QTimerEvent()
 
     In both cases you can only rely on the child being a QObject (or,
     if QObject::isWidgetType() returns true, a QWidget). This is
-    because in the \l ChildAdded case the child is not yet fully
-    constructed; in the \l ChildRemoved case it might have already
-    been destructed.
+    because in the QEvent::ChildAdded case the child is not yet fully
+    constructed; in the QEvent::ChildRemoved case it might have
+    already been destructed.
 
     The handler for these events is QObject::childEvent().
 */

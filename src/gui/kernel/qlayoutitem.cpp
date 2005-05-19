@@ -23,7 +23,7 @@
 #include "qvariant.h"
 
 /*!
-   Returns the size policy as a QVariant
+   Returns a QVariant storing this QSizePolicy.
 */
 QSizePolicy::operator QVariant() const
 {

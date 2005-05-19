@@ -314,6 +314,12 @@
 */
 
 /*!
+    \fn QAccessibleInterface::~QAccessibleInterface()
+
+    Destroys the object.
+*/
+
+/*!
     \fn void QAccessible::initialize()
     \internal
 */
@@ -926,7 +932,7 @@ const QAccessibleInterface *other, int otherChild) const
     \fn int QAccessibleEvent::child() const
 
     Returns the (1-based) index of the child to which the request
-    applies. If \a child is 0, the request is for the widget itself.
+    applies. If the child is 0, the request is for the widget itself.
 */
 
 /*!

@@ -435,6 +435,15 @@ QString QtPrivate::QStringList_join(const QStringList *that, const QString &sep)
     \sa append()
 */
 
+/*!
+    \fn QStringList &QStringList::operator<<(const QStringList &other)
+
+    \overload
+
+    Appends \a other to the string list and returns a reference to
+    the string list.
+*/
+
 #ifndef QT_NO_DATASTREAM
 /*!
     \fn QDataStream &operator>>(QDataStream &in, QStringList &list)
@@ -514,7 +523,7 @@ QString QtPrivate::QStringList_join(const QStringList *that, const QString &sep)
     the list, searching forward from index position \a from. Returns
     -1 if no item matched.
 
-    \sa lastIndexOf, QRegExp::exactMatch
+    \sa lastIndexOf(), QRegExp::exactMatch()
 */
 int QtPrivate::QStringList_indexOf(const QStringList *that, const QRegExp &rx, int from)
 {
@@ -537,7 +546,7 @@ int QtPrivate::QStringList_indexOf(const QStringList *that, const QRegExp &rx, i
     from is -1 (the default), the search starts at the last item.
     Returns -1 if no item matched.
 
-    \sa indexOf, QRegExp::exactMatch
+    \sa indexOf(), QRegExp::exactMatch()
 */
 int QtPrivate::QStringList_lastIndexOf(const QStringList *that, const QRegExp &rx, int from)
 {

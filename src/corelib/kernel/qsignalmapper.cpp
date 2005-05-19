@@ -182,6 +182,9 @@ QObject *QSignalMapper::mapping(const QString &id) const
 
 /*!
     \overload
+
+    Returns the sender QObject that is associated with the given \a
+    widget.
 */
 QObject *QSignalMapper::mapping(QWidget *widget) const
 {

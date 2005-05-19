@@ -169,7 +169,7 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
     This function returns true if an event was processed; otherwise it
     returns false.
 
-    \sa ProcessEventsFlags hasPendingEvents()
+    \sa hasPendingEvents()
 */
 
 /*! \fn bool QAbstractEventDispatcher::hasPendingEvents()
@@ -226,7 +226,7 @@ int QAbstractEventDispatcher::registerTimer(int interval, QObject *object)
 */
 
 /*!
-    \fn QList<TimerInfo> registeredTimers(QObject *object) const
+    \fn QList<TimerInfo> QAbstractEventDispatcher::registeredTimers(QObject *object) const
 
     Returns a list of registered timers for \a object. The timer ID
     is the first member in each pair; the interval is the second.

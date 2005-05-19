@@ -185,7 +185,7 @@
     QList, QLinkedList, and QVector's non-const iterator types are
     random access iterators.
 
-    \sa {container classes}, \sa <QtGlobal>
+    \sa {container classes}, <QtGlobal>
 */
 
 /*! \fn OutputIterator qCopy(InputIterator begin1, InputIterator end1, OutputIterator begin2)
@@ -642,8 +642,8 @@
     This function requires the item type (in the example above,
     QString) to implement \c operator<().
 
-    See the \l{#binaryFind example}{detailed description} for an
-    example usage.
+    See the \l{<QtAlgorithms>#binaryFind example}{detailed
+    description} for an example usage.
 
     \sa qLowerBound(), qUpperBound(), {random access iterators}
 */

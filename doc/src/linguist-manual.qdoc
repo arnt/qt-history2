@@ -921,9 +921,8 @@
     Ctrl key accelerators are also translatable:
 
     \quotefromfile linguist/trollprint/mainwindow.cpp
-    \skipto quit()
-    \printline quit()
-    \printuntil Quit
+    \skipto exitAct = 
+    \printuntil Ctrl+Q
 
     It is strongly recommended that the two argument form of \c tr() is used
     for Ctrl key accelerators. The second argument is the only clue the

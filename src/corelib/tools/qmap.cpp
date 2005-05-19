@@ -159,7 +159,6 @@ void QMapData::dump()
     \class QMap
     \brief The QMap class is a template class that provides a skip-list-based dictionary.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     \mainclass
@@ -1382,7 +1381,6 @@ void QMapData::dump()
 /*! \class QMultiMap
     \brief The QMultiMap class is a convenience QMap subclass that provides multi-valued maps.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     \mainclass

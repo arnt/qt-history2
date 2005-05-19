@@ -193,9 +193,8 @@ public:
 
 /*!
     Creates a QMotifDialog which allows the application programmer to
-    use the Motif-based \a parent for a custom QDialog. The \a name,
-    \a modal and \a flags arguments are passed to the QDialog
-    constructor.
+    use the Motif-based \a parent for a custom QDialog. The \a flags
+    argument is passed to the QDialog constructor.
 
     This constructor creates a \c Shell widget, which is a special
     subclass of \c XmDialogShell. You can access the \c Shell widget
@@ -212,7 +211,7 @@ QMotifDialog::QMotifDialog( Widget parent, Qt::WFlags flags )
 /*!
     Creates a QMotifDialog which allows the application programmer to
     use a QWidget parent for an existing Motif-based dialog. The \a
-    parent, \a name, \a modal and \a flags arguments are passed to the
+    parent and \a flags arguments are passed to the
     QDialog constructor.
 
     This constructor creates a \c Shell widget, which is a special
@@ -378,9 +377,10 @@ void QMotifDialog::hideEvent(QHideEvent *event)
 /*!
     Convenient Xt/Motif callback to accept the QMotifDialog.
 
-    The data is passed in \a client_data.
+    The data is passed in \a client_data. The \a widget and \a ptr
+    parameters are ignored.
 */
-void QMotifDialog::acceptCallback( Widget, XtPointer client_data, XtPointer )
+void QMotifDialog::acceptCallback( Widget /* widget */, XtPointer client_data, XtPointer /* ptr *)
 {
     QMotifDialog *dialog = (QMotifDialog *) client_data;
     dialog->accept();
@@ -389,9 +389,10 @@ void QMotifDialog::acceptCallback( Widget, XtPointer client_data, XtPointer )
 /*!
     Convenient Xt/Motif callback to reject the QMotifDialog.
 
-    The data is passed in \a client_data.
+    The data is passed in \a client_data. The \a widget and \a ptr
+    parameters are ignored.
 */
-void QMotifDialog::rejectCallback( Widget, XtPointer client_data, XtPointer )
+void QMotifDialog::rejectCallback( Widget /* widget */, XtPointer client_data, XtPointer /* ptr */)
 {
     QMotifDialog *dialog = (QMotifDialog *) client_data;
     dialog->reject();

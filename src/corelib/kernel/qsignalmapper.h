@@ -45,8 +45,6 @@ public slots:
     void map();
     void map(QObject *sender);
 
-protected:
-    QSignalMapper(QSignalMapperPrivate &dd, QObject *parent = 0);
 private:
     Q_DISABLE_COPY(QSignalMapper)
     Q_PRIVATE_SLOT(d_func(), void senderDestroyed())

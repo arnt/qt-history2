@@ -21,7 +21,6 @@
     \class QPair
     \brief The QPair class is a template class that stores a pair of items.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     

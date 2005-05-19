@@ -1997,7 +1997,7 @@ Q_VARIANT_TO(RectF)
 
 /*!
     Returns the variant as a QString if the variant has type()
-    String, ByteArray, Int, Uint, Bool, Double, Date, Time, DateTime,
+    String, ByteArray, Int, UInt, Bool, Double, Date, Time, DateTime,
     KeySequence, Font or Color; otherwise returns an empty string.
 */
 QString QVariant::toString() const
@@ -2368,7 +2368,7 @@ QVariantList QVariant::toList() const
     \row \o \l Font \o \l String
     \row \o \l Int \o \l String, \l Double, \l Bool, \l UInt
     \row \o \l List \o \l StringList (if the list contains strings or something that can be cast to a string)
-    \row \o \l String \o \l CString, \l Int, \l Uint, \l Bool, \l Double, \l Date,
+    \row \o \l String \o \l CString, \l Int, \l UInt, \l Bool, \l Double, \l Date,
     \l Time, \l DateTime, \l KeySequence, \l Font, \l Color
     \row \o \l CString \o \l String
     \row \o \l StringList \o \l List

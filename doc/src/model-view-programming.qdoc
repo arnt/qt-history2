@@ -1665,9 +1665,9 @@
     to make this as consistent and simple as possible.
 
     Items are searched for by the text that they contain according to
-    criteria specified by a selection of values from
-    \l{QAbstractItemModel::MatchFlags}. We can obtain a list of matching
-    items with the \c findItems() function:
+    criteria specified by a selection of values from Qt::MatchFlags.
+    We can obtain a list of matching items with the \c findItems()
+    function:
 
     \quotefromfile snippets/qtreewidget-using/mainwindow.cpp
     \skipto void MainWindow::findItems()

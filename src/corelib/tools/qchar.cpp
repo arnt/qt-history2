@@ -47,8 +47,6 @@
 
     Converts a Latin-1 character to an 8-bit ASCII representation of
     the character.
-
-    \sa toAscii()
 */
 
 /*!
@@ -63,8 +61,6 @@
 
     Constructs a Latin-1 character for \a c. This constructor should be
     used when the encoding of the input character is known to be Latin-1.
-
-    \sa QChar::QChar(QLatin1Char)
 */
 
 /*!

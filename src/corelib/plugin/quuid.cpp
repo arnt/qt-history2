@@ -418,11 +418,16 @@ QUuid QUuid::createUuid()
 }
 #endif // !Q_OS_WIN32
 
+/*!
+    \fn bool QUuid::operator==(const GUID &guid) const
+
+    Returns true if this UUID is equal to the Windows GUID \a guid;
+    otherwise returns false.
+*/
 
 /*!
-    \variable QUuid::data1
-    \variable QUuid::data2
-    \variable QUuid::data3
+    \fn bool QUuid::operator!=(const GUID &guid) const
 
-    \internal
+    Returns true if this UUID is not equal to the Windows GUID \a
+    guid; otherwise returns false.
 */

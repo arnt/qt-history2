@@ -1198,7 +1198,7 @@ void QCoreApplication::removeTranslator(QTranslator * mf)
   translators while performing translations is not supported. Doing
   so will most likely result in crashes or other undesirable behavior.
 
-  \sa QObject::tr() installTranslator() defaultCodec()
+  \sa QObject::tr() installTranslator() QTextCodec::codecForTr()
 */
 
 QString QCoreApplication::translate(const char *context, const char *sourceText,
@@ -1475,7 +1475,7 @@ QString QCoreApplication::applicationName()
     \endcode
 
     \sa setLibraryPaths(), addLibraryPath(), removeLibraryPath(), QLibrary,
-        {How to Create Plugins}
+        {How to Create Qt Plugins}
 */
 QStringList QCoreApplication::libraryPaths()
 {
@@ -1741,11 +1741,6 @@ int QCoreApplication::loopLevel()
     return data->eventLoops.size();
 }
 #endif
-
-/*!
-    \fn bool QCoreApplication::winEventFilter(MSG *message, long *result)
-    \internal
-*/
 
 /*!
     \fn void QCoreApplication::watchUnixSignal(int signal, bool watch)

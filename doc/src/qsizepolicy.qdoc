@@ -190,12 +190,6 @@
 */
 
 /*!
-    \fn QSizePolicy::operator QVariant() const
-
-    Returns a QVariant storing this QSizePolicy.
-*/
-
-/*!
     \fn int QSizePolicy::horizontalStretch() const
 
     Returns the horizontal stretch factor of the size policy.

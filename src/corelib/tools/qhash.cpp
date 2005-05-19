@@ -271,7 +271,6 @@ void QHashData::destroyAndFree()
     \class QHash
     \brief The QHash class is a template class that provides a hash-table-based dictionary.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     \mainclass
@@ -1575,7 +1574,6 @@ void QHashData::destroyAndFree()
 /*! \class QMultiHash
     \brief The QMultiHash class is a convenience QHash subclass that provides multi-valued hashes.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     \mainclass

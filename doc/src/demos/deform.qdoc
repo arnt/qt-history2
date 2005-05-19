@@ -17,9 +17,8 @@
     convert the text to paths. This is done using the
     QPainterPath::addText() function.
 
-    The lens is drawn using a single call to
-    \l{QPainterPath::drawEllipse()}{drawEllipse()}, using a QRadialGradient
-    to fill it with a specialized color table, giving the effect of the
-    sun's reflection and a drop shadow. The lens is cached as a pixmap
-    for better performance.
+    The lens is drawn using a single call to QPainter::drawEllipse(),
+    using a QRadialGradient to fill it with a specialized color
+    table, giving the effect of the sun's reflection and a drop
+    shadow. The lens is cached as a pixmap for better performance.
 */

@@ -439,4 +439,10 @@ void QMutex::unlock()
     \sa unlock()
 */
 
+/*!
+    \fn QMutex::QMutex(bool recursive)
+
+    Use the constructor that takes a RecursionMode parameter instead.
+*/
+
 #endif // QT_NO_THREAD

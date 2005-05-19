@@ -17,25 +17,25 @@
     the image so that the user can place it precisely on the drop target. This level
     of detail means that we must create a custom MIME type for our data.
 
-    \section1 DragIcon Class Definition
+    \section1 DragWidget Class Definition
 
     The icon widgets that we use to display icons are subclassed from QLabel:
 
-    \quotefromfile draganddrop/draggableicons/dragicon.h
-    \skipto class DragIcon
+    \quotefromfile draganddrop/draggableicons/dragwidget.h
+    \skipto class DragWidget
     \printuntil /^\}/
 
     Since the QLabel class provides most of what we require for the icon, we
     only need to reimplement the \l QWidget::mousePressEvent() to provide
     drag and drop facilities.
 
-    \section1 DragIcon Class Implementation
+    \section1 DragWidget Class Implementation
 
-    The \c DragIcon constructor sets an attribute on the widget that ensures
+    The \c DragWidget constructor sets an attribute on the widget that ensures
     that it will be deleted when it is closed:
 
-    \quotefromfile draganddrop/draggableicons/dragicon.cpp
-    \skipto DragIcon::DragIcon
+    \quotefromfile draganddrop/draggableicons/dragwidget.cpp
+    \skipto DragWidget::DragWidget
     \printuntil /^\}/
 
     To enable dragging from the icon, we need to act on a mouse press event.

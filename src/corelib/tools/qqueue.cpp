@@ -15,7 +15,6 @@
     \class QQueue
     \brief The QQueue class is a generic container that provides a queue.
 
-    \ingroup qtl
     \ingroup tools
     \ingroup shared
     \mainclass

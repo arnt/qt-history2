@@ -67,7 +67,7 @@
     its work. This is the traditional way of implementing heavy work
     in GUI applications; multithreading is now becoming available on
     more and more platforms, and we expect that zero-milliseconds
-    \l{QTimer}s will gradually be replaced by \l{QThread}s.
+    QTimers will gradually be replaced by \l{QThread}s.
 
     Note that QTimer's accuracy depends on the underlying operating
     system and hardware. Most platforms support an accuracy of 1

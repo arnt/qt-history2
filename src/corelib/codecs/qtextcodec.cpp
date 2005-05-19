@@ -919,7 +919,7 @@ QByteArray QTextCodec::fromUnicode(const QString& str) const
     return convertFromUnicode(str.constData(), str.length(), 0);
 }
 
-/*
+/*!
     \fn QString QTextCodec::toUnicode(const char *in, int size,
                                       ConverterState *state) const
 
