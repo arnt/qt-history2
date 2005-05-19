@@ -11,7 +11,6 @@
 **
 ****************************************************************************/
 
-#include <math.h>
 #include <QtGui>
 
 #include "displayshape.h"
@@ -262,7 +261,8 @@ void TitleShape::paint(QPainter *painter) const
 QRectF TitleShape::rect() const
 {
     QFontMetrics fm(font);
-    return QRectF(pos, QSizeF(textRect.width(), textRect.height()));
+    return QRectF(pos + textRect.topLeft(),
+                  QSizeF(textRect.width(), textRect.height()));
 }
 
 ImageShape::ImageShape(const QImage &original, const QPointF &position,
@@ -271,10 +271,10 @@ ImageShape::ImageShape(const QImage &original, const QPointF &position,
     : DisplayShape(position, maxSize), alpha(alpha), alignment(alignment)
 {
     source = original.convertToFormat(QImage::Format_ARGB32_Premultiplied);
-    scale = qMin(qMin(floor(maxSize.width())/source.width(),
-                            floor(maxSize.height())/source.height()), 1.0);
-    image = QImage(int(ceil(scale * source.width())),
-                   int(ceil(scale * source.height())),
+    scale = qMin(qMin(maxSize.width()/source.width(),
+                      maxSize.height()/source.height()), 1.0);
+    image = QImage(int(scale * source.width()),
+                   int(scale * source.height()),
                    QImage::Format_ARGB32_Premultiplied);
 
     offset = QPointF(0.0, 0.0);
