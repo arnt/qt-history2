@@ -65,9 +65,6 @@ public:
         : QFrame(parent)
         , color(c)
     {
-        QFont f("times new roman,utopia", 28);
-        QFontMetrics fm(f);
-        text.addText(-fm.boundingRect("Qt").center(), f, "Qt");
     }
 
 protected:
@@ -76,17 +73,11 @@ protected:
         p.setRenderHint(QPainter::Antialiasing);
         p.fillRect(rect(), bgColorForName(color));
 
-        p.setBrush(fgColorForName(color));
-        p.setPen(Qt::black);
-        p.translate(rect().center());
-        QRectF br(text.boundingRect().adjusted(2, 2, 4, 4));
-        double scale = qMin(width()/br.width(), height()/br.height());
-        p.scale(scale, scale);
-        p.drawPath(text);
+        extern void render_qt_text(QPainter *, int, int, const QColor &);
+        render_qt_text(&p, width(), height(), fgColorForName(color));
     }
 
     QString color;
-    QPainterPath text;
 };
 
 ColorSwatch::ColorSwatch(const QString &colorName, QWidget *parent, Qt::WFlags flags)

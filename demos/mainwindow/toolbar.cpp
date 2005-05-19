@@ -23,23 +23,17 @@
 
 static QPixmap genIcon(const QSize &iconSize, const QString &, const QColor &color, const QColor &bg)
 {
-    QImage image(iconSize, QImage::Format_RGB32);
-    image.fill(bg.rgb());
-    QColor c(color);
-    QPainter p(&image);
-    p.setRenderHint(QPainter::Antialiasing);
-    QRect r(QPoint(0, 0), iconSize);
-    QFont f("times new roman,utopia", 10);
-    p.setFont(f);
+    int w = iconSize.width();
+    int h = iconSize.height();
 
-    p.setPen(QColor(0,0,0,127));
-    p.drawText(r.adjusted(1, 1, 1, 1), Qt::AlignCenter, "Qt");
-    p.setPen(QColor(255,255,255,127));
-    p.drawText(r.adjusted(-1, -1, -1, -1), Qt::AlignCenter, "Qt");
-    c.setAlphaF(1.0);
-    p.setPen(c);
-    p.drawText(r, Qt::AlignCenter, "Qt");
-    p.end();
+    QImage image(w, h, QImage::Format_RGB32);
+    image.fill(bg.rgb());
+
+    QPainter p(&image);
+
+    extern void render_qt_text(QPainter *, int, int, const QColor &);
+    render_qt_text(&p, w, h, color);
+
     return QPixmap::fromImage(image, Qt::DiffuseDither | Qt::DiffuseAlphaDither);
 }
 
@@ -50,6 +44,8 @@ ToolBar::ToolBar(QWidget *parent)
     : QToolBar(parent), spinbox(0), spinboxAction(0)
 {
     setWindowTitle(tr("Main Tool Bar"));
+
+    setIconSize(QSize(32, 32));
 
     QColor bg(palette().background().color());
     menu = new QMenu("One", this);
