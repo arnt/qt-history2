@@ -2983,9 +2983,30 @@ void QPainter::drawPolygon(const QPointF *points, int pointCount, Qt::FillRule f
 */
 void QPainter::drawPolygon(const QPoint *points, int pointCount, Qt::FillRule fillRule)
 {
-    // ### don't realloc
-    QVector<QPointF> pts = qt_convert_points(points, pointCount, QPointF());
-    drawPolygon(pts.data(), pts.size(), fillRule);
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawPolygon(), count=%d\n", pointCount);
+#endif
+
+    if (!isActive() || pointCount <= 0)
+        return;
+
+    Q_D(QPainter);
+    d->updateState(d->state);
+
+    uint emulationSpecifier = d->state->emulationSpecifier;
+
+    if (emulationSpecifier) {
+        QPainterPath polygonPath(points[0]);
+        for (int i=1; i<pointCount; ++i)
+            polygonPath.lineTo(points[i]);
+        polygonPath.closeSubpath();
+        polygonPath.setFillRule(fillRule);
+        d->draw_helper(polygonPath);
+        return;
+    }
+
+    d->engine->drawPolygon(points, pointCount, QPaintEngine::PolygonDrawMode(fillRule));
 }
 
 
