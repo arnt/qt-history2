@@ -199,12 +199,13 @@ QRectF PanelShape::rect() const
 
 TitleShape::TitleShape(const QString &text, const QFont &f,
                        const QPen &pen, const QPointF &position,
-                       const QSizeF &maxSize)
-    : DisplayShape(position, maxSize), font(f), text(text), pen(pen)
+                       const QSizeF &maxSize, Qt::Alignment alignment)
+    : DisplayShape(position, maxSize), font(f), text(text), pen(pen),
+      alignment(alignment)
 {
     QFontMetrics fm(font);
     textRect = fm.boundingRect(QRect(QPoint(0, 0), maxSize.toSize()),
-        Qt::AlignLeft | Qt::AlignVCenter, text);
+        alignment, text);
 
     qreal textWidth = qMax(fm.width(text), textRect.width());
     qreal textHeight = qMax(fm.height(), textRect.height());
@@ -215,7 +216,7 @@ TitleShape::TitleShape(const QString &text, const QFont &f,
     font.setPointSizeF(font.pointSizeF() * scale);
     fm = QFontMetrics(font);
     textRect = fm.boundingRect(QRect(QPoint(0, 0), maxSize.toSize()),
-        Qt::AlignLeft | Qt::AlignVCenter, text);
+        alignment, text);
 }
 
 bool TitleShape::animate()
@@ -254,8 +255,7 @@ void TitleShape::paint(QPainter *painter) const
     painter->setRenderHint(QPainter::TextAntialiasing);
     painter->setPen(pen);
     painter->setFont(font);
-    painter->drawText(rect, Qt::AlignLeft | Qt::AlignVCenter,
-                      text);
+    painter->drawText(rect, alignment, text);
     painter->restore();
 }
 
@@ -265,21 +265,35 @@ QRectF TitleShape::rect() const
     return QRectF(pos, QSizeF(textRect.width(), textRect.height()));
 }
 
-ImageShape::ImageShape(const QImage &image, const QPointF &position,
-                       const QSizeF &maxSize, int alpha)
-    : DisplayShape(position, maxSize), alpha(alpha)
+ImageShape::ImageShape(const QImage &original, const QPointF &position,
+                       const QSizeF &maxSize, int alpha,
+                       Qt::Alignment alignment)
+    : DisplayShape(position, maxSize), alpha(alpha), alignment(alignment)
 {
-    source = image.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    source = original.convertToFormat(QImage::Format_ARGB32_Premultiplied);
+    scale = qMin(qMin(floor(maxSize.width())/source.width(),
+                            floor(maxSize.height())/source.height()), 1.0);
+    image = QImage(int(ceil(scale * source.width())),
+                   int(ceil(scale * source.height())),
+                   QImage::Format_ARGB32_Premultiplied);
+
+    offset = QPointF(0.0, 0.0);
+
+    if (alignment & Qt::AlignHCenter)
+        offset.setX((maxSize.width() - image.width())/2);
+    else if (alignment & Qt::AlignRight)
+        offset.setX(maxSize.width() - image.width());
+
+    if (alignment & Qt::AlignVCenter)
+        offset.setY((maxSize.height() - image.height())/2);
+    else if (alignment & Qt::AlignBottom)
+        offset.setY(maxSize.height() - image.height());
+
     redraw();
 }
 
 void ImageShape::redraw()
 {
-    qreal scale = qMin(qMin(floor(maxSize.width())/source.width(),
-                            floor(maxSize.height())/source.height()), 1.0);
-    image = QImage(int(ceil(scale * source.width())),
-                   int(ceil(scale * source.height())),
-                   QImage::Format_ARGB32_Premultiplied);
     image.fill(qRgba(255, 255, 255, alpha));
 
     QPainter painter;
@@ -289,9 +303,6 @@ void ImageShape::redraw()
     painter.scale(scale, scale);
     painter.drawImage(0, 0, source);
     painter.end();
-
-    offset = QPointF((maxSize.width() - image.width())/2,
-                     (maxSize.height() - image.height())/2);
 }
 
 void ImageShape::paint(QPainter *painter) const

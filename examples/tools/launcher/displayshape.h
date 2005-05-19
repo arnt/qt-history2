@@ -76,7 +76,8 @@ class TitleShape : public DisplayShape
 {
 public:
     TitleShape(const QString &text, const QFont &font, const QPen &pen,
-               const QPointF &position, const QSizeF &maxSize);
+               const QPointF &position, const QSizeF &maxSize,
+               Qt::Alignment alignment = Qt::AlignVCenter | Qt::AlignLeft);
 
     bool animate();
     void paint(QPainter *painter) const;
@@ -87,13 +88,15 @@ private:
     QString text;
     QPen pen;
     QRect textRect;
+    Qt::Alignment alignment;
 };
 
 class ImageShape : public DisplayShape
 {
 public:
-    ImageShape(const QImage &image, const QPointF &position,
-               const QSizeF &maxSize, int alpha = 0);
+    ImageShape(const QImage &original, const QPointF &position,
+               const QSizeF &maxSize, int alpha = 0,
+               Qt::Alignment alignment = Qt::AlignCenter);
 
     bool animate();
     void paint(QPainter *painter) const;
@@ -102,9 +105,11 @@ public:
 private:
     void redraw();
 
-    QImage source;
     int alpha;
+    QImage source;
     QPointF offset;
+    Qt::Alignment alignment;
+    qreal scale;
 };
 
 class DocumentShape : public DisplayShape

@@ -23,10 +23,8 @@ Launcher::Launcher(QWidget *parent)
     : QMainWindow(parent)
 {
     titleFont = font();
-    titleFont.setStyleStrategy(QFont::ForceOutline);
     titleFont.setWeight(QFont::Bold);
     buttonFont = font();
-    buttonFont.setStyleStrategy(QFont::ForceOutline);
     fontRatio = 0.8;
     inFullScreenResize = false;
     currentCategory = "[starting]";
@@ -421,30 +419,34 @@ void Launcher::showCategories()
 
     qreal imageHeight = title->rect().height() + verticalMargin;
 
-    qreal qtLength = qMin(imageHeight, title->rect().left()-2*horizontalMargin);
+    qreal qtLength = qMin(imageHeight, title->rect().left()-3*horizontalMargin);
     QSizeF qtMaxSize = QSizeF(qtLength, qtLength);
 
     DisplayShape *qtShape = new ImageShape(qtLogo,
-        QPointF(horizontalMargin, -imageHeight), qtMaxSize);
+        QPointF(2*horizontalMargin, -imageHeight), qtMaxSize, 0,
+        Qt::AlignLeft | Qt::AlignTop);
 
     qtShape->setMetaData("fade", 15);
-    qtShape->setTarget(QPointF(horizontalMargin, verticalMargin));
+    qtShape->setTarget(QPointF(2*horizontalMargin, verticalMargin));
 
-    qreal trolltechScale = qMin(imageHeight/trolltechLogo.height(),
-        (width()-2*horizontalMargin-title->rect().right())/trolltechLogo.width());
-    QSizeF trolltechMaxSize = QSizeF(trolltechScale*trolltechLogo.width(),
-                                     trolltechScale*trolltechLogo.height());
+    //qreal trolltechScale = qMin(imageHeight/trolltechLogo.height(),
+    //    (width()-2*horizontalMargin-title->rect().right())/trolltechLogo.width());
+    //QSizeF trolltechMaxSize = QSizeF(trolltechScale*trolltechLogo.width(),
+    //                                 trolltechScale*trolltechLogo.height());
+    QSizeF trolltechMaxSize = QSizeF(
+        width()-3*horizontalMargin-title->rect().right(), imageHeight);
 
     DisplayShape *trolltechShape = new ImageShape(trolltechLogo,
-        QPointF(width()-horizontalMargin-trolltechMaxSize.width(), -imageHeight),
-        trolltechMaxSize);
+        QPointF(width()-2*horizontalMargin-trolltechMaxSize.width(),
+                -imageHeight),
+        trolltechMaxSize, 0, Qt::AlignRight | Qt::AlignTop);
 
     trolltechShape->setMetaData("fade", 15);
     trolltechShape->setTarget(QPointF(trolltechShape->rect().x(), verticalMargin));
 
-    display->appendShape(trolltechShape);
-    display->appendShape(qtShape);
-    display->appendShape(title);
+    display->insertShape(0, trolltechShape);
+    display->insertShape(0, qtShape);
+    display->insertShape(0, title);
 
     QFontMetrics buttonMetrics(buttonFont);
     qreal topMargin = 6*verticalMargin;
