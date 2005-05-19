@@ -2450,7 +2450,6 @@ void QLineEditPrivate::removeSelectedText()
 
 void QLineEditPrivate::parseInputMask(const QString &maskFields)
 {
-    Q_Q(QLineEdit);
     int delimiter = maskFields.indexOf(';');
     if (maskFields.isEmpty() || delimiter == 0) {
         if (maskData) {
