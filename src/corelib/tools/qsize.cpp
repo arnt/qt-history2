@@ -23,15 +23,14 @@
 
     A size is specified by a width and a height.
 
-    The size can be set in the constructor and changed with
-    setWidth(), setHeight(), or scale(), or using operator+=(),
-    operator-=(), operator*=() and operator/=(), etc. You can swap the
-    width and height with transpose(). You can get a size which holds
-    the maximum height and width of two sizes using expandedTo(), and
-    the minimum height and width of two sizes using boundedTo().
+    The size can be set in the constructor and changed with setWidth(),
+    setHeight(), or scale(), or using arithmetic operators. You can swap the
+    width and height with transpose(). You can get a size which holds the
+    maximum height and width of two sizes using expandedTo(), and the minimum
+    height and width of two sizes using boundedTo().
 
 
-    \sa QPoint, QRect
+    \sa QPoint, QRect QSizeF
 */
 
 
@@ -42,7 +41,7 @@
 /*!
     \fn QSize::QSize()
 
-    Constructs a size with invalid width and height.
+    Constructs a size with an invalid width and height.
 
     \sa isValid() setWidth() setHeight()
 */
@@ -85,7 +84,7 @@
 
     Returns the width.
 
-    \sa height()
+    \sa height() setWidth()
 */
 
 /*!
@@ -93,7 +92,7 @@
 
     Returns the height.
 
-    \sa width()
+    \sa width() setHeight()
 */
 
 /*!
@@ -101,7 +100,7 @@
 
     Sets the width to \a w.
 
-    \sa width() setHeight() expandedTo() boundedTo() scale() transpose()
+    \sa width() rwidth() setHeight() expandedTo() boundedTo() scale() transpose()
 */
 
 /*!
@@ -109,7 +108,7 @@
 
     Sets the height to \a h.
 
-    \sa height() setWidth() expandedTo() boundedTo() scale() transpose()
+    \sa height() rheight() setWidth() expandedTo() boundedTo() scale() transpose()
 */
 
 /*!
@@ -253,7 +252,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
     Multiplies both the width and height by \a coeff and returns a
     reference to the size.
 
-    Note that the result is truncated.
+    Note that the result is rounded to the nearest integer.
 */
 
 /*!
@@ -278,8 +277,6 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
     \relates QSize
 
     Returns the sum of \a s1 and \a s2; each component is added separately.
-
-    \sa QSize::scale()
 */
 
 /*!
@@ -289,8 +286,6 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
     Returns \a s2 subtracted from \a s1; each component is subtracted
     separately.
-
-    \sa QSize::scale()
 */
 
 /*!
@@ -298,7 +293,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
     \relates QSize
 
-    Multiplies \a size by \a coeff and returns the result.
+    Multiplies \a size by \a coeff and returns the result rounded to the nearest integer.
 
     \sa QSize::scale()
 */
@@ -309,7 +304,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
     \overload
     \relates QSize
 
-    Multiplies \a size by \a coeff and returns the result.
+    Multiplies \a size by \a coeff and returns the result rounded to the nearest integer.
 
     \sa QSize::scale()
 */
@@ -322,7 +317,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
     Divides both the width and height by \a coeff and returns a
     reference to the size.
 
-    Note that the result is truncated.
+    Note that the result is rounded to the nearest integer.
 
     \sa QSize::scale()
 */
@@ -335,7 +330,7 @@ void QSize::scale(const QSize &s, Qt::AspectRatioMode mode)
 
     Divides \a size by \a divisor and returns the result.
 
-    Note that the result is truncated.
+    Note that the result is rounded to the nearest integer.
 
     \sa QSize::scale()
 */
@@ -427,14 +422,13 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 
     A size is specified by a width and a height.
 
-    The coordinate type is float.
+    The coordinate type is qreal.
 
-    The size can be set in the constructor and changed with
-    setWidth(), setHeight(), or scale(), or using operator+=(),
-    operator-=(), operator*=() and operator/=(), etc. You can swap the
-    width and height with transpose(). You can get a size which holds
-    the maximum height and width of two sizes using expandedTo(), and
-    the minimum height and width of two sizes using boundedTo().
+    The size can be set in the constructor and changed with setWidth(),
+    setHeight(), or scale(), or using arithmetic operators.  You can swap the
+    width and height with transpose(). You can get a size which holds the
+    maximum height and width of two sizes using expandedTo(), and the minimum
+    height and width of two sizes using boundedTo().
 
     \sa QSize QPointF QRectF
 */
@@ -447,7 +441,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 /*!
     \fn QSizeF::QSizeF()
 
-    Constructs a size with invalid width and height.
+    Constructs an invalid size.
 
     \sa isValid() setWidth() setHeight()
 */
@@ -496,7 +490,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 
     Returns the width.
 
-    \sa height()
+    \sa height() setWidth()
 */
 
 /*!
@@ -504,7 +498,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 
     Returns the height.
 
-    \sa width()
+    \sa width() setHeight()
 */
 
 /*!
@@ -512,7 +506,7 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 
     Sets the width to \a width.
 
-    \sa width() setHeight() expandedTo() boundedTo() scale() transpose()
+    \sa width() rwidth() setHeight() expandedTo() boundedTo() scale() transpose()
 */
 
 /*!
@@ -526,9 +520,8 @@ QDebug operator<<(QDebug dbg, const QSize &s) {
 /*!
     \fn QSize QSizeF::toSize() const
 
-    Returns a size with integer precision.
-    Note that the coordinates in the returned size are less precise than
-    those in the floating point size.
+    Returns a size with integer precision. Note that the coordinates in the
+    returned size will be rounded to the nearest integer.
 */
 
 /*!
@@ -615,8 +608,8 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Example:
     \code
-        QSizeF s(100, 10);
-        s.rwidth() += 20;                // s becomes (120,10)
+        QSizeF s(100.3, 10);
+        s.rwidth() += 20.5;                // s becomes (120.8,10)
     \endcode
 
     \sa rheight() setWidth()
@@ -631,8 +624,8 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Example:
     \code
-        QSizeF s(100, 10);
-        s.rheight() += 5;                // s becomes (100,15)
+        QSizeF s(100, 10.2);
+        s.rheight() += 5.5;                // s becomes (100,15.7)
     \endcode
 
     \sa rwidth() setHeight()
@@ -671,8 +664,6 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Multiplies both the width and height by \a coeff and returns a
     reference to the size.
-
-    Note that the result is truncated.
 */
 
 /*!
@@ -697,8 +688,6 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     \relates QSizeF
 
     Returns the sum of \a s1 and \a s2; each component is added separately.
-
-    \sa QSize::scale()
 */
 
 /*!
@@ -708,8 +697,6 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
 
     Returns \a s2 subtracted from \a s1; each component is subtracted
     separately.
-
-    \sa QSize::scale()
 */
 
 /*!
@@ -742,8 +729,6 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     Divides both the width and height by \a divisor and returns a reference to the
     size.
 
-    Note that the result is truncated.
-
     \sa QSize::scale()
 */
 
@@ -754,8 +739,6 @@ void QSizeF::scale(const QSizeF &s, Qt::AspectRatioMode mode)
     \overload
 
     Divides \a size by \a divisor and returns the result.
-
-    Note that the result is truncated.
 
     \sa QSize::scale()
 */
