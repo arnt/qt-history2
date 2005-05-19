@@ -681,6 +681,26 @@ void Launcher::showExamples(const QString &category)
     description->setMetaData("fade", 10);
 
     display->appendShape(description);
+
+    DisplayShape *versionCaption = new TitleShape(
+        QString("Qt %1").arg(QT_VERSION_STR), font(), QPen(),
+        QPointF(0.5*width(), height()),
+        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
+        Qt::AlignRight | Qt::AlignVCenter);
+    versionCaption->setTarget(QPointF(0.5*width(),
+                                      height() - verticalMargin - textHeight));
+
+    display->appendShape(versionCaption);
+
+    DisplayShape *copyrightCaption = new TitleShape(
+        QString("Copyright \xa9 2005 Trolltech"), font(), QPen(),
+        QPointF(2*horizontalMargin, height()),
+        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
+        Qt::AlignLeft | Qt::AlignVCenter);
+    copyrightCaption->setTarget(QPointF(copyrightCaption->rect().x(),
+                                      height() - verticalMargin - textHeight));
+
+    display->appendShape(copyrightCaption);
 }
 
 void Launcher::showExampleDocumentation(const QString &example)
@@ -703,11 +723,14 @@ void Launcher::showExampleSummary(const QString &example)
         shape->setMetaData("fade minimum", 0);
     }
 
-    QPointF titlePosition = QPointF(0.0, 0.05*height());
+    qreal horizontalMargin = 0.025*width();
+    qreal verticalMargin = 0.025*height();
+
+    QPointF titlePosition = QPointF(0.0, 2*verticalMargin);
 
     DisplayShape *newTitle = new TitleShape(example, titleFont,
         QPen(Qt::white), titlePosition,
-        QSizeF(0.5 * width(), 0.05 * height()),
+        QSizeF(0.5 * width(), 2*verticalMargin),
         Qt::AlignHCenter | Qt::AlignTop);
 
     newTitle->setPosition(QPointF(-newTitle->rect().width(), titlePosition.y()));
@@ -727,11 +750,16 @@ void Launcher::showExampleSummary(const QString &example)
     display->insertShape(0, titleBackground);
     display->appendShape(newTitle);
 
-    qreal topMargin = 0.05 * height() + titleBackground->rect().bottom();
-    qreal space = 0.8 * height() - topMargin;
+    qreal topMargin = 2*verticalMargin + titleBackground->rect().bottom();
+    qreal bottomMargin = height() - 8*verticalMargin;
+    qreal space = bottomMargin - topMargin;
+    qreal step = qMin(newTitle->rect().height() / fontRatio,
+                      (bottomMargin + 4.8*verticalMargin - topMargin)
+                      /qreal(maximumLabels));
+    qreal textHeight = fontRatio * step;
 
-    qreal leftMargin = 0.075*width();
-    qreal rightMargin = 0.925*width();
+    qreal leftMargin = 3*horizontalMargin;
+    qreal rightMargin = width() - 3*horizontalMargin;
 
     if (exampleDescriptions.contains(example)) {
         DocumentShape *description = new DocumentShape(
@@ -745,14 +773,14 @@ void Launcher::showExampleSummary(const QString &example)
             0.8*height() - description->rect().height()));
 
         display->appendShape(description);
-        space = description->position().y() - topMargin - 0.05 * height();
+        space = description->position().y() - topMargin - 2*verticalMargin;
     }
 
     if (imagePaths.contains(example)) {
 
         QImage image(imagePaths[example][0]);
 
-        QSizeF imageMaxSize = QSizeF(0.8*width(), space);
+        QSizeF imageMaxSize = QSizeF(width() - 8*horizontalMargin, space);
 
         currentFrame = new ImageShape(image,
             QPointF(width() - imageMaxSize.width()/2, topMargin),
@@ -773,7 +801,7 @@ void Launcher::showExampleSummary(const QString &example)
         }
     }
 
-    QSizeF maxSize(0.3 * width(), 0.05 * height());
+    QSizeF maxSize(0.3 * width(), 2*verticalMargin);
     leftMargin = 0.0;
     rightMargin = 0.0;
 
@@ -782,13 +810,13 @@ void Launcher::showExampleSummary(const QString &example)
             QPen(Qt::white), QPointF(0.1*width(), height()), maxSize,
             Qt::AlignLeft | Qt::AlignTop);
         backButton->setTarget(QPointF(backButton->position().x(),
-                                      0.85 * height()));
+                                      height() - 5.2*verticalMargin));
 
         display->appendShape(backButton);
 
         qreal maxWidth = backButton->rect().width();
         qreal textHeight = backButton->rect().height();
-        qreal extra = (0.075*height() - textHeight)/4;
+        qreal extra = (3*verticalMargin - textHeight)/4;
 
         QPainterPath path;
         path.moveTo(-extra, -extra);
@@ -820,13 +848,13 @@ void Launcher::showExampleSummary(const QString &example)
         launchCaption->setPosition(QPointF(
             0.9*width() - launchCaption->rect().width(), height()));
         launchCaption->setTarget(QPointF(launchCaption->position().x(),
-                                         0.85 * height()));
+                                         height() - 5.2*verticalMargin));
 
         display->appendShape(launchCaption);
 
         qreal maxWidth = launchCaption->rect().width();
         qreal textHeight = launchCaption->rect().height();
-        qreal extra = (0.075*height() - textHeight)/4;
+        qreal extra = (3*verticalMargin - textHeight)/4;
 
         QPainterPath path;
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
@@ -868,13 +896,13 @@ void Launcher::showExampleSummary(const QString &example)
                 height()));
         }
         documentCaption->setTarget(QPointF(documentCaption->position().x(),
-                                           0.85 * height()));
+                                           height() - 5.2*verticalMargin));
 
         display->appendShape(documentCaption);
 
         qreal maxWidth = documentCaption->rect().width();
         qreal textHeight = documentCaption->rect().height();
-        qreal extra = (0.075*height() - textHeight)/4;
+        qreal extra = (3*verticalMargin - textHeight)/4;
 
         QPainterPath path;
         path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
@@ -891,6 +919,26 @@ void Launcher::showExampleSummary(const QString &example)
 
         display->insertShape(0, background);
     }
+
+    DisplayShape *versionCaption = new TitleShape(
+        QString("Qt %1").arg(QT_VERSION_STR), font(), QPen(),
+        QPointF(0.5*width(), height()),
+        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
+        Qt::AlignRight | Qt::AlignVCenter);
+    versionCaption->setTarget(QPointF(0.5*width(),
+                                      height() - verticalMargin - textHeight));
+
+    display->appendShape(versionCaption);
+
+    DisplayShape *copyrightCaption = new TitleShape(
+        QString("Copyright \xa9 2005 Trolltech"), font(), QPen(),
+        QPointF(2*horizontalMargin, height()),
+        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
+        Qt::AlignLeft | Qt::AlignVCenter);
+    copyrightCaption->setTarget(QPointF(copyrightCaption->rect().x(),
+                                      height() - verticalMargin - textHeight));
+
+    display->appendShape(copyrightCaption);
 }
 
 void Launcher::updateExampleSummary()
