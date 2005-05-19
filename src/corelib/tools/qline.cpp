@@ -236,9 +236,6 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
     the angle() between two lines. The line's length can be changed using
     setLength().
 
-    Vector addition of two lines is supported through the use of the
-    \l{operator+=()}{+= operator}.
-
     The line can be translated along the length of another line with the
     moveBy() function, and can be traversed using a parameter with the
     pointAt() function.
@@ -288,7 +285,7 @@ QDataStream &operator>>(QDataStream &stream, QLine &line)
 /*!
     \fn QLineF::QLineF(const QLine &line)
 
-    Construct a line object from a integer-based QLine.
+    Construct a QLineF from a integer-based QLine \a line.
 */
 
 /*!
@@ -417,13 +414,6 @@ bool QLineF::isNull() const
   the start and end point are defined to be at positions t=0 and t=1.
 
   \sa dx() dy()
-*/
-
-/*!
-  \fn QLine QLineF::toLine() const
-
-  Rounds the end points of the line to integer coordinates and
-  returns it as a QLine.
 */
 
 /*!
