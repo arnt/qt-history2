@@ -318,10 +318,6 @@ QString Ui3Reader::fixActionProperties(QList<DomProperty*> &properties,
 
         if (name == QLatin1String("name")) {
             objectName = prop->elementCstring();
-            prop->setAttributeName(QLatin1String("objectName"));
-            DomString *str = new DomString();
-            str->setText(objectName);
-            prop->setElementString(str);
         } else if (isActionGroup && name == QLatin1String("exclusive")) {
             // continue
         } else if (isActionGroup) {
@@ -514,15 +510,6 @@ DomWidget *Ui3Reader::createWidget(const QDomElement &w, const QString &widgetCl
             QString accel = e.attribute(QLatin1String("accel"));
 
             QList<DomProperty*> properties;
-
-            DomProperty *ptext = new DomProperty();
-            ptext = new DomProperty();
-            ptext->setAttributeName(QLatin1String("objectName"));
-            DomString *objName = new DomString();
-            objName->setText(name);
-            objName->setAttributeNotr(QLatin1String("true"));
-            ptext->setElementString(objName);
-            properties.append(ptext);
 
             DomProperty *atitle = new DomProperty();
             atitle->setAttributeName(QLatin1String("title"));
@@ -782,11 +769,7 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
             CONVERT_PROPERTY(QLatin1String("caption"), QLatin1String("windowTitle"));
 
             if (name == QLatin1String("name")) {
-                prop->setAttributeName(QLatin1String("objectName"));
-                DomString *str = new DomString();
-                str->setText(prop->elementCstring());
-                str->setAttributeNotr(QLatin1String("true"));
-                prop->setElementString(str);
+                continue; // skip the property name
             }
 
             if (name == QLatin1String("accel")) {
