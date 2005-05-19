@@ -298,7 +298,7 @@ static QString qt_create_commandline(const QString &program, const QStringList &
 static QByteArray qt_create_environment(const QStringList &environment)
 {
     QByteArray envlist;
-    if (environment.isEmpty()) {
+    if (!environment.isEmpty()) {
 	int pos = 0;
 	// add PATH if necessary (for DLL loading)
 	QByteArray path = qgetenv("PATH");
