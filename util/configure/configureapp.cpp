@@ -1869,7 +1869,7 @@ void Configure::generateMakefiles()
                 if (doDsp) {
                     if( dictionary[ "DEPENDENCIES" ] == "no" )
                         args << "-nodepend";
-                    args << "-tp vc";
+                    args << "-tp" <<  "vc";
                     doDsp = false; // DSP files will be done
                     printf("Generating Visual Studio project files...\n");
                 } else {
