@@ -23,7 +23,7 @@
 #include <QtCore/QLibrary>
 #include <QtCore/QLibraryInfo>
 #include <QtCore/qdebug.h>
-
+#include <QtCore/QCoreApplication>
 
 namespace qdesigner_internal {
 
@@ -36,9 +36,11 @@ static QStringList unique(const QStringList &lst)
 QStringList PluginManager::defaultPluginPaths() const
 {
     QStringList result;
-    result.append(QLibraryInfo::location(QLibraryInfo::PluginsPath)
-                    + QDir::separator()
-                    + QLatin1String("designer"));
+
+    QStringList path_list = QCoreApplication::libraryPaths();
+    foreach (const QString &path, path_list)
+        result.append(path + QDir::separator() + QLatin1String("designer"));
+
     result.append(QDir::homePath()
                     + QDir::separator()
                     + QLatin1String(".designer")
