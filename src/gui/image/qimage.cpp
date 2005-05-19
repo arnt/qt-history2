@@ -3608,7 +3608,7 @@ int QImage::dotsPerMeterY() const
 */
 void QImage::setDotsPerMeterX(int x)
 {
-    if (!d)
+    if (!d || !x)
         return;
     detach();
     d->dpmx = x;
@@ -3619,7 +3619,7 @@ void QImage::setDotsPerMeterX(int x)
 */
 void QImage::setDotsPerMeterY(int y)
 {
-    if (!d)
+    if (!d || !y)
         return;
     detach();
     d->dpmy = y;
