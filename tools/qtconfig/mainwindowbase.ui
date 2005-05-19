@@ -15,9 +15,6 @@
   <property name="windowTitle" >
    <string>Qt Configuration</string>
   </property>
-  <property name="windowIcon" >
-   <iconset/>
-  </property>
   <widget class="QWidget" name="widget" >
    <property name="geometry" >
     <rect>
@@ -1179,11 +1176,6 @@
   <tabstop>strutwidth</tabstop>
   <tabstop>strutheight</tabstop>
   <tabstop>libpathlineedit</tabstop>
-  <tabstop>PushButton5</tabstop>
-  <tabstop>PushButton6</tabstop>
-  <tabstop>PushButton7</tabstop>
-  <tabstop>PushButton8</tabstop>
-  <tabstop>PushButton9</tabstop>
   <tabstop>sublistbox</tabstop>
   <tabstop>libpathlistbox</tabstop>
  </tabstops>
