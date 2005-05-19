@@ -245,8 +245,7 @@ the directories where you choose to install Qt.
     configured with the -static option, then in order to be able to 
     launch Qt applications from the Finder you must place the relevant
     libraries in a directory where they can be found. We recommend
-    making these symbolic links (if you have configured Qt with -thread
-    please change the libqt below with libqt-mt):
+    making these symbolic links:
 
 \code
     ln -sf $QTDIR/lib/libqt.3.dylib /usr/lib
@@ -259,8 +258,7 @@ the directories where you choose to install Qt.
 
     If you do not have administrator access, or you would prefer to do
     a user install (rather than system install) of the libraries you 
-    can do (if you have configured Qt with -thread please change the libqt
-    below with libqt-mt):
+    can:
 
 \code
     ln -sf $QTDIR/lib/libqt.3.dylib $HOME/lib

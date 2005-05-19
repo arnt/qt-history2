@@ -32,9 +32,7 @@
     it will include the Qt OpenGL module in the Qt library. (If your
     OpenGL headers or libraries are placed in a non-standard directory,
     you may need to change the QMAKE_INCDIR_OPENGL and/or
-    QMAKE_LIBDIR_OPENGL in the config file for your system). Some
-    configurations require threading to be enabled for OpenGL, so if
-    OpenGL is not detected, try \c{configure -thread}.
+    QMAKE_LIBDIR_OPENGL in the config file for your system).
 
     When you install Qt for Windows, the Qt OpenGL module is always
     included.
