@@ -57,9 +57,10 @@ struct WriteInitialization : public TreeWalker
     void acceptCustomWidget(DomCustomWidget *node);
 
 //
-// layout defaults
+// layout defaults/functions
 //
     void acceptLayoutDefault(DomLayoutDefault *node);
+    void acceptLayoutFunction(DomLayoutFunction *node);
 
 //
 // signal/slot connections
@@ -137,8 +138,12 @@ private:
     QHash<QString, QString> m_buttonGroups;
     QHash<QString, DomWidget*> m_registeredWidgets;
     QHash<QString, DomImage*> m_registeredImages;
+
+    // layout defaults
     int m_defaultMargin;
     int m_defaultSpacing;
+    QString m_marginFunction;
+    QString m_spacingFunction;
 
     QString m_generatedClass;
 

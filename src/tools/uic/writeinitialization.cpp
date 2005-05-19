@@ -41,6 +41,7 @@ void WriteInitialization::acceptUI(DomUI *node)
     m_layoutChain.push(0);
 
     acceptLayoutDefault(node->elementLayoutDefault());
+    acceptLayoutFunction(node->elementLayoutFunction());
 
     if (node->elementCustomWidgets())
         TreeWalker::acceptCustomWidgets(node->elementCustomWidgets());
@@ -292,11 +293,22 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
             output << option.indent << parent << "->setColumnLayout(0, Qt::Vertical);\n";
 
-            if (spacing != INT_MIN)
-                output << option.indent << parent << "->layout()->setSpacing(" << spacing << ");\n";
+            if (spacing != INT_MIN) {
+                QString value = QString::number(spacing);
+                if (!m_spacingFunction.isEmpty() && spacing == m_defaultSpacing)
+                    value = m_spacingFunction + QLatin1String("()");
 
-            if (margin != INT_MIN)
+                output << option.indent << parent << "->layout()->setSpacing(" << value << ");\n";
+            }
+
+            if (margin != INT_MIN) {
+                QString value = QString::number(margin);
+                if (!m_marginFunction.isEmpty() && spacing == m_defaultMargin)
+                    value = m_marginFunction + QLatin1String("()");
+
                 output << option.indent << parent << "->layout()->setMargin(" << margin << ");\n";
+            }
+
         } else if (uic->isMainWindow(parentWidget)) {
             isMainWindow = true;
         }
@@ -312,17 +324,48 @@ void WriteInitialization::acceptLayout(DomLayout *node)
 
     output << ");\n";
 
-    if (isGroupBox)
-        output << option.indent << varName << "->setAlignment(Qt::AlignTop);\n";
-    else {
-        if (!m_layoutChain.top() && !properties.contains(QLatin1String("margin")) && m_defaultMargin != INT_MIN)
-                output << option.indent << varName << "->setMargin(" << m_defaultMargin << ");\n";
+    QList<DomProperty*> layoutProperties = node->elementProperty();
 
-        if (!properties.contains(QLatin1String("spacing")) && m_defaultSpacing != INT_MIN)
-            output << option.indent << varName << "->setSpacing(" << m_defaultSpacing << ");\n";
+    if (isGroupBox) {
+        output << option.indent << varName << "->setAlignment(Qt::AlignTop);\n";
+    } else {
+        int margin = m_defaultMargin;
+        int spacing = m_defaultSpacing;
+
+        if (properties.contains(QLatin1String("margin"))) {
+            DomProperty *p = properties.value(QLatin1String("margin"));
+            Q_ASSERT(p != 0);
+
+            margin = properties.value(QLatin1String("margin"))->elementNumber();
+            layoutProperties.removeAt(layoutProperties.indexOf(p));
+        }
+
+        if (properties.contains(QLatin1String("spacing"))) {
+            DomProperty *p = properties.value(QLatin1String("spacing"));
+            Q_ASSERT(p != 0);
+
+            spacing = properties.value(QLatin1String("spacing"))->elementNumber();
+            layoutProperties.removeAt(layoutProperties.indexOf(p));
+        }
+
+        if (spacing != INT_MIN) {
+            QString value = QString::number(spacing);
+            if (!m_spacingFunction.isEmpty() && spacing == m_defaultSpacing)
+                value = m_spacingFunction + QLatin1String("()");
+
+            output << option.indent << varName << "->setSpacing(" << value << ");\n";
+        }
+
+        if (margin != INT_MIN) {
+            QString value = QString::number(margin);
+            if (!m_marginFunction.isEmpty() && spacing == m_defaultMargin)
+                value = m_marginFunction + QLatin1String("()");
+
+            output << option.indent << varName << "->setMargin(" << margin << ");\n";
+        }
     }
 
-    writeProperties(varName, className, node->elementProperty());
+    writeProperties(varName, className, layoutProperties);
 
     m_layoutChain.push(node);
     TreeWalker::acceptLayout(node);
@@ -821,6 +864,21 @@ void WriteInitialization::acceptLayoutDefault(DomLayoutDefault *node)
 
     if (node->hasAttributeSpacing())
         m_defaultSpacing = node->attributeSpacing();
+}
+
+void WriteInitialization::acceptLayoutFunction(DomLayoutFunction *node)
+{
+    m_marginFunction.clear();
+    m_spacingFunction.clear();
+
+    if (!node)
+        return;
+
+    if (node->hasAttributeMargin())
+        m_marginFunction = node->attributeMargin();
+
+    if (node->hasAttributeSpacing())
+        m_spacingFunction = node->attributeSpacing();
 }
 
 void WriteInitialization::initializeQ3ListBox(DomWidget *w)
