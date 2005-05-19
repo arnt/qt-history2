@@ -1128,28 +1128,28 @@ void QTextEdit::setFontWeight(int w)
 }
 
 /*!
-    If \a b is true sets the current format to underline; otherwise
-    sets the current format to non-underline.
+    If \a underline is true, sets the current format to underline;
+    otherwise sets the current format to non-underline.
 
     \sa fontUnderline()
 */
-void QTextEdit::setFontUnderline(bool b)
+void QTextEdit::setFontUnderline(bool underline)
 {
     QTextCharFormat fmt;
-    fmt.setFontUnderline(b);
+    fmt.setFontUnderline(underline);
     mergeCurrentCharFormat(fmt);
 }
 
 /*!
-    If \a b is true sets the current format to italic; otherwise sets
-    the current format to non-italic.
+    If \a italic is true, sets the current format to italic;
+    otherwise sets the current format to non-italic.
 
     \sa fontItalic()
 */
-void QTextEdit::setFontItalic(bool b)
+void QTextEdit::setFontItalic(bool italic)
 {
     QTextCharFormat fmt;
-    fmt.setFontItalic(b);
+    fmt.setFontItalic(italic);
     mergeCurrentCharFormat(fmt);
 }
 
@@ -2454,10 +2454,10 @@ void QTextEdit::zoomOut(int range)
 }
 
 /*! \property QTextEdit::tabChangesFocus
-  \brief whether TAB changes focus or is accepted as input
+  \brief whether \gui Tab changes focus or is accepted as input
 
   In some occasions text edits should not allow the user to input
-  tabulators or change indentation using the TAB key, as this breaks
+  tabulators or change indentation using the \gui Tab key, as this breaks
   the focus chain. The default is false.
 
 */
@@ -2937,34 +2937,34 @@ void QTextEdit::ensureCursorVisible()
 */
 
 /*!
-    \fn void QTextEdit::textChanged();
+    \fn void QTextEdit::textChanged()
 
     This signal is emitted whenever the document's content changes; for
     example, when text is inserted or deleted, or when formatting is applied.
 */
 
 /*!
-    \fn void QTextEdit::undoAvailable(bool b);
+    \fn void QTextEdit::undoAvailable(bool available)
 
     This signal is emitted whenever undo operations become available
     (\a available is true) or unavailable (\a available is false).
 */
 
 /*!
-    \fn void QTextEdit::redoAvailable(bool b);
+    \fn void QTextEdit::redoAvailable(bool available)
 
     This signal is emitted whenever redo operations become available
     (\a available is true) or unavailable (\a available is false).
 */
 
 /*!
-    \fn void QTextEdit::currentFontChanged(const QFont &font);
+    \fn void QTextEdit::currentFontChanged(const QFont &font)
 
     Use currentCharFormatChanged() instead.
 */
 
 /*!
-    \fn void QTextEdit::currentColorChanged(const QColor &color);
+    \fn void QTextEdit::currentColorChanged(const QColor &color)
 
     Use currentCharFormatChanged() instead.
 */

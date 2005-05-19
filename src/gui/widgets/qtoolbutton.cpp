@@ -148,13 +148,13 @@ QToolButton::QToolButton(QWidget * parent, const char *name)
     Constructs a tool button called \a name, that is a child of \a
     parent.
 
-    The tool button will display \a iconSet, with its text label and
-    tool tip set to \a textLabel and its status bar message set to \a
-    statusTip. It will be connected to the \a slot in object \a
-    receiver.
+    The tool button will display the given \a icon, with its text
+    label and tool tip set to \a textLabel and its status bar message
+    set to \a statusTip. It will be connected to the \a slot in
+    object \a receiver.
 */
 
-QToolButton::QToolButton(const QIcon& iconSet, const QString &textLabel,
+QToolButton::QToolButton(const QIcon& icon, const QString &textLabel,
                           const QString& statusTip,
                           QObject * receiver, const char *slot,
                           QWidget * parent, const char *name)
@@ -163,7 +163,7 @@ QToolButton::QToolButton(const QIcon& iconSet, const QString &textLabel,
     Q_D(QToolButton);
     setObjectName(name);
     d->init();
-    setIcon(iconSet);
+    setIcon(icon);
     setText(textLabel);
     if (receiver && slot)
         connect(this, SIGNAL(clicked()), receiver, slot);
@@ -286,15 +286,6 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
 QToolButton::~QToolButton()
 {
 }
-
-
-/*!
-    \property QToolButton::backgroundMode
-    \brief the toolbutton's background mode
-
-    Get this property with backgroundMode().
-*/
-
 
 /*!
     \reimp
@@ -621,11 +612,11 @@ void QToolButton::setOffIconSet(const QIcon& set)
   Since Qt 3.0, QIcon contains both the On and Off icons.
 
   For ease of porting, this function ignores the \a on parameter and
-  sets the \l iconSet property. If you relied on the \a on parameter,
+  sets the \l icon property. If you relied on the \a on parameter,
   you probably want to update your code to use the QIcon On/Off
   mechanism.
 
-  \sa iconSet QIcon::State
+  \sa icon QIcon::State
 */
 
 void QToolButton::setIconSet(const QIcon & set, bool /* on */)
@@ -640,7 +631,7 @@ void QToolButton::setIconSet(const QIcon & set, bool /* on */)
   Since Qt 3.0, QIcon contains both the On and Off icons.
 
   For ease of porting, this function ignores the \a on parameter and
-  returns the \l iconSet property. If you relied on the \a on
+  returns the \l icon property. If you relied on the \a on
   parameter, you probably want to update your code to use the QIcon
   On/Off mechanism.
 */

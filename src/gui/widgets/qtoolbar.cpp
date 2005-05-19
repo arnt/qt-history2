@@ -173,7 +173,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
 }
 
 /*!
-    \class QToolBar qtoolbar.h
+    \class QToolBar
 
     \brief The QToolBar class provides a movable panel that contains a
     set of controls.
@@ -190,10 +190,11 @@ int QToolBarPrivate::indexOf(QAction *action) const
     emits the actionTriggered() signal. Toolbars may only be added to
     QMainWindow and QMainWindow subclasses.
 
-    A toolbar can be fixed in place in a particular area (e.g. at
-    the top of the window), or it can be movable (isMovable()) between toolbar
-    areas: see QToolBar::allowedAreas and isAreaAllowed().
+    A toolbar can be fixed in place in a particular area (e.g. at the
+    top of the window), or it can be movable (isMovable()) between
+    toolbar areas; see allowedAreas() and isAreaAllowed().
 
+    \sa QToolButton
 */
 
 /*!
@@ -217,7 +218,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     toolbar is changed. The new areas in which the toolbar can be positioned
     are specified by \a allowedAreas.
 
-    \sa QToolBar::allowedAreas
+    \sa allowedAreas
 */
 
 /*!
@@ -226,7 +227,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     This signal is emitted when the icon size is changed.  The \a
     iconSize parameter holds the toolbar's new icon size.
 
-    \sa QToolBar::iconSize QMainWindow::iconSize
+    \sa iconSize QMainWindow::iconSize
 */
 
 /*!
@@ -236,7 +237,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     If the toolbar can be moved, \a movable is true; otherwise it is
     false.
 
-    \sa QToolBar::movable
+    \sa movable
 */
 
 /*!
@@ -245,7 +246,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     This signal is emitted when the orientation of the toolbar changes.
     The new orientation is specified by the \a orientation given.
 
-    \sa QToolBar::orientation
+    \sa orientation
 */
 
 /*!
@@ -255,7 +256,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     \a toolButtonStyle parameter holds the toolbar's new tool button
     style.
 
-    \sa QToolBar::toolButtonStyle QMainWindow::toolButtonStyle
+    \sa toolButtonStyle QMainWindow::toolButtonStyle
 */
 
 /*!

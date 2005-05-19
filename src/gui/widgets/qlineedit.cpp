@@ -1452,21 +1452,21 @@ void QLineEdit::mouseDoubleClickEvent(QMouseEvent* e)
 */
 
 /*!
-    Converts key press event \a e into a line edit action.
+    Converts the given key press \a event into a line edit action.
 
     If Return or Enter is pressed and the current text is valid (or
     can be \link QValidator::fixup() made valid\endlink by the
     validator), the signal returnPressed() is emitted.
 
-    The default key bindings are listed in the \link #desc detailed
-    description.\endlink
+    The default key bindings are listed in the class's detailed
+    description.
 */
 
-void QLineEdit::keyPressEvent(QKeyEvent * e)
+void QLineEdit::keyPressEvent(QKeyEvent *event)
 {
     Q_D(QLineEdit);
     d->setCursorVisible(true);
-    if (e->key() == Qt::Key_Enter || e->key() == Qt::Key_Return) {
+    if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
         const QValidator * v = d->validator;
         if (hasAcceptableInput()) {
             emit returnPressed();
@@ -1487,22 +1487,22 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             }
         }
 #endif
-        e->ignore();
+        event->ignore();
         return;
     }
     bool unknown = false;
 
-    if (e->modifiers() & Qt::ControlModifier) {
-        switch (e->key()) {
+    if (event->modifiers() & Qt::ControlModifier) {
+        switch (event->key()) {
         case Qt::Key_A:
 #if defined(Q_WS_X11)
-            home(e->modifiers() & Qt::ShiftModifier);
+            home(event->modifiers() & Qt::ShiftModifier);
 #else
             selectAll();
 #endif
             break;
         case Qt::Key_B:
-            cursorForward(e->modifiers() & Qt::ShiftModifier, -1);
+            cursorForward(event->modifiers() & Qt::ShiftModifier, -1);
             break;
 #ifndef QT_NO_CLIPBOARD
         case Qt::Key_C:
@@ -1514,10 +1514,10 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
                 del();
             break;
         case Qt::Key_E:
-            end(e->modifiers() & Qt::ShiftModifier);
+            end(event->modifiers() & Qt::ShiftModifier);
             break;
         case Qt::Key_F:
-            cursorForward(e->modifiers() & Qt::ShiftModifier, 1);
+            cursorForward(event->modifiers() & Qt::ShiftModifier, 1);
             break;
         case Qt::Key_H:
             if (!d->readOnly)
@@ -1569,25 +1569,25 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
         case Qt::Key_Right:
         case Qt::Key_Left:
-            if ((layoutDirection() == Qt::RightToLeft) == (e->key() == Qt::Key_Right)) {
+            if ((layoutDirection() == Qt::RightToLeft) == (event->key() == Qt::Key_Right)) {
 #ifndef Q_WS_MAC
                 if (echoMode() == Normal)
-                    cursorWordBackward(e->modifiers() & Qt::ShiftModifier);
+                    cursorWordBackward(event->modifiers() & Qt::ShiftModifier);
                 else
 #endif
-                    home(e->modifiers() & Qt::ShiftModifier);
+                    home(event->modifiers() & Qt::ShiftModifier);
             } else {
 #ifndef Q_WS_MAC
                 if (echoMode() == Normal)
-                    cursorWordForward(e->modifiers() & Qt::ShiftModifier);
+                    cursorWordForward(event->modifiers() & Qt::ShiftModifier);
                 else
 #endif
-                    end(e->modifiers() & Qt::ShiftModifier);
+                    end(event->modifiers() & Qt::ShiftModifier);
             }
             break;
         case Qt::Key_Z:
             if (!d->readOnly) {
-                if(e->modifiers() & Qt::ShiftModifier)
+                if(event->modifiers() & Qt::ShiftModifier)
                     redo();
                 else
                     undo();
@@ -1601,28 +1601,28 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             unknown = true;
         }
     } else { // ### check for *no* modifier
-        switch (e->key()) {
+        switch (event->key()) {
         case Qt::Key_Shift:
             // ### TODO
             break;
         case Qt::Key_Left:
         case Qt::Key_Right: {
-            int step =  ((layoutDirection() == Qt::RightToLeft) == (e->key() == Qt::Key_Right)) ? -1 : 1;
+            int step =  ((layoutDirection() == Qt::RightToLeft) == (event->key() == Qt::Key_Right)) ? -1 : 1;
 #ifdef Q_WS_MAC
-            if (e->modifiers() & Qt::AltModifier) {
+            if (event->modifiers() & Qt::AltModifier) {
                 if (step < 0)
-                    cursorWordBackward(e->modifiers() & Qt::ShiftModifier);
+                    cursorWordBackward(event->modifiers() & Qt::ShiftModifier);
                 else
-                    cursorWordForward(e->modifiers() & Qt::ShiftModifier);
-            } else if (e->modifiers() & Qt::MetaModifier) {
+                    cursorWordForward(event->modifiers() & Qt::ShiftModifier);
+            } else if (event->modifiers() & Qt::MetaModifier) {
                 if (step < 0)
-                    home(e->modifiers() & Qt::ShiftModifier);
+                    home(event->modifiers() & Qt::ShiftModifier);
                 else
-                    end(e->modifiers() & Qt::ShiftModifier);
+                    end(event->modifiers() & Qt::ShiftModifier);
             } else
 #endif
             {
-                cursorForward(e->modifiers() & Qt::ShiftModifier, step);
+                cursorForward(event->modifiers() & Qt::ShiftModifier, step);
             }
         }
         break;
@@ -1635,19 +1635,19 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break; // Home and End do nothing on the mac (but Up and Down do).
         case Qt::Key_Up:
 #endif
-            home(e->modifiers() & Qt::ShiftModifier);
+            home(event->modifiers() & Qt::ShiftModifier);
             break;
         case Qt::Key_End:
 #ifdef Q_WS_MAC
             break;
         case Qt::Key_Down:
 #endif
-            end(e->modifiers() & Qt::ShiftModifier);
+            end(event->modifiers() & Qt::ShiftModifier);
             break;
         case Qt::Key_Delete:
             if (!d->readOnly) {
 #if !defined(Q_WS_MAC)
-                if (e->modifiers() & Qt::ShiftModifier) {
+                if (event->modifiers() & Qt::ShiftModifier) {
                     cut();
                     break;
                 }
@@ -1657,7 +1657,7 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             break;
 #if !defined(Q_WS_MAC)
         case Qt::Key_Insert:
-            if (!d->readOnly && e->modifiers() & Qt::ShiftModifier)
+            if (!d->readOnly && event->modifiers() & Qt::ShiftModifier)
                 paste();
             else
                 unknown = true;
@@ -1686,33 +1686,33 @@ void QLineEdit::keyPressEvent(QKeyEvent * e)
             unknown = true;
         }
     }
-    if (e->key() == Qt::Key_Direction_L || e->key() == Qt::Key_Direction_R) {
-        setLayoutDirection((e->key() == Qt::Key_Direction_L) ? Qt::LeftToRight : Qt::RightToLeft);
+    if (event->key() == Qt::Key_Direction_L || event->key() == Qt::Key_Direction_R) {
+        setLayoutDirection((event->key() == Qt::Key_Direction_L) ? Qt::LeftToRight : Qt::RightToLeft);
         d->updateTextLayout();
         update();
         unknown = false;
     }
 
     if (unknown && !d->readOnly) {
-        QString t = e->text();
+        QString t = event->text();
         if (!t.isEmpty() && t.at(0).isPrint()) {
             insert(t);
-            e->accept();
+            event->accept();
             return;
         }
     }
 
     if (unknown)
-        e->ignore();
+        event->ignore();
     else
-        e->accept();
+        event->accept();
 }
 
 /*!
   This function is not intended as polymorphic usage. Just a shared code
   fragment that calls QInputContext::mouseHandler for this
   class.
- */
+*/
 bool QLineEditPrivate::sendMouseEventToInputContext( QMouseEvent *e )
 {
     // ##### currently X11 only
@@ -2049,28 +2049,36 @@ void QLineEditPrivate::drag()
 
 #endif // QT_NO_DRAGANDDROP
 
-/*! Shows the standard context menu created with createStandardContextMenu().
+/*!
+    Shows the standard context menu created with
+    createStandardContextMenu().
 
-  If you do not want the line edit to have a context menu, you can set
-  its \l contextMenuPolicy to Qt::NoContextMenu. If you want to
-  customize the context menu, reimplement this function. If you want
-  to extend the standard context menu, reimplement this function, call
-  createStandardContextMenu() and extend the menu returned.
+    If you do not want the line edit to have a context menu, you can set
+    its \l contextMenuPolicy to Qt::NoContextMenu. If you want to
+    customize the context menu, reimplement this function. If you want
+    to extend the standard context menu, reimplement this function, call
+    createStandardContextMenu() and extend the menu returned.
 
     \code
-    void LineEdit::contextMenuEvent(QContextMenuEvent *e) {
+        void LineEdit::contextMenuEvent(QContextMenuEvent *event)
+        {
             QMenu *menu = createStandardContextMenu();
             menu->addAction(tr("My Menu Item"));
             //...
-            menu->exec(e->globalPos());
+            menu->exec(event->globalPos());
             delete menu;
-    }
+        }
     \endcode
+
+    The \a event parameter is used to obtain the position where
+    the mouse cursor was when the event was generated.
+
+    \sa setContextMenuPolicy()
 */
-void QLineEdit::contextMenuEvent(QContextMenuEvent * e)
+void QLineEdit::contextMenuEvent(QContextMenuEvent *event)
 {
     QMenu *menu = createStandardContextMenu();
-    menu->exec(e->globalPos());
+    menu->exec(event->globalPos());
     delete menu;
 }
 

@@ -987,10 +987,26 @@ bool CppCodeParser::matchProperty(InnerNode *parent)
 	if ( !match(Tok_Ident) )
 	    return false;
 	QString key = previousLexeme();
+        QString value;
 
-	if ( !match(Tok_Ident) )
-	    return false;
-	QString value = previousLexeme();
+	if ( match(Tok_Ident) ) {
+	    value = previousLexeme();
+        } else if (match(Tok_LeftParen)) {
+            int depth = 1;
+            while (tok != Tok_Eoi) {
+                if (tok == Tok_LeftParen) {
+                    readToken();
+                    ++depth;
+                } else if (tok == Tok_RightParen) {
+                    readToken();
+                    if (--depth == 0)
+                        break;
+                } else {
+                    readToken();                
+                }
+            }
+            value = "?";
+        }
 
 	if ( key == "READ" )
 	    tre->addPropertyFunction(property, value, PropertyNode::Getter);

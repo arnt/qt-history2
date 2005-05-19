@@ -955,12 +955,30 @@ void QMenuBarPrivate::handleReparent()
 }
 
 #ifdef QT3_SUPPORT
+/*!
+    Sets whether the menu bar should automatically resize itself
+    when its parent widget is resized.
+
+    This feature is provided to help porting to Qt 4. We recommend
+    against using it in new code.
+
+    \sa autoGeometry()
+*/
 void QMenuBar::setAutoGeometry(bool b)
 {
     Q_D(QMenuBar);
     d->doAutoResize = b;
 }
 
+/*!
+    Returns true if the menu bar automatically resizes itself
+    when its parent widget is resized; otherwise returns false.
+
+    This feature is provided to help porting to Qt 4. We recommend
+    against using it in new code.
+
+    \sa setAutoGeometry()
+*/
 bool QMenuBar::autoGeometry() const
 {
     Q_D(const QMenuBar);
