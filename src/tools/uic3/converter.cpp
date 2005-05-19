@@ -115,6 +115,20 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
                 layoutDefault->setAttributeSpacing(spacing.toInt());
 
             ui->setElementLayoutDefault(layoutDefault);
+        } else if (tagName == QLatin1String("layoutfunctions")) {
+            QString margin = n.attribute(QLatin1String("margin"));
+            QString spacing = n.attribute(QLatin1String("spacing"));
+
+
+            DomLayoutFunction *layoutDefault = new DomLayoutFunction();
+
+            if (!margin.isEmpty())
+                layoutDefault->setAttributeMargin(margin);
+
+            if (!spacing.isEmpty())
+                layoutDefault->setAttributeSpacing(spacing);
+
+            ui->setElementLayoutFunction(layoutDefault);
         } else if (tagName == QLatin1String("images")) {
             QDomNodeList nl = n.elementsByTagName(QLatin1String("image"));
             QList<DomImage*> ui_image_list;
