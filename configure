@@ -285,8 +285,13 @@ CFG_ACCESSIBILITY=auto
 CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
-CFG_FRAMEWORK=yes
-CFG_RPATH=yes
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    CFG_FRAMEWORK=yes
+    CFG_RPATH=no
+else
+    CFG_FRAMEWORKS=no
+    CFG_RPATH=yes
+fi
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -3082,7 +3087,7 @@ if [ -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
         echo "       undefined."
         echo
         exit 1
-    else
+    elif [ "$CFG_RPATH" = "yes" ]; then
         RPATH_MESSAGE="NOTE: This platform does not support runtime library paths, using -no-rpath."
     fi
 else
@@ -3090,8 +3095,6 @@ else
 	if [ "$PLATFORM_MAC" = "yes" ]; then
 	    # set install_name to the absolute path for the library
 	    QMAKE_CONFIG="$QMAKE_CONFIG absolute_library_soname"
-	    # Mac OS X doesn't have rpath
-	    CFG_RPATH=no
 	else
 	    # set the default rpath to the library installation directory 
             RPATH_FLAGS="$QT_INSTALL_LIBS $RPATH_FLAGS"
