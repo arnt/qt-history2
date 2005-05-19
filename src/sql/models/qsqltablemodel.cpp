@@ -590,7 +590,6 @@ bool QSqlTableModel::deleteRowFromTable(int row)
 bool QSqlTableModel::submitAll()
 {
     Q_D(QSqlTableModel);
-    bool isOk = true;
 
     switch (d->strategy) {
     case OnFieldChange:
@@ -608,34 +607,32 @@ bool QSqlTableModel::submitAll()
         d->clearEditBuffer();
         d->editIndex = -1;
         d->insertIndex = -1;
-        select();
-        break;
-    case OnManualSubmit: {
-        QSqlTableModelPrivate::CacheMap::ConstIterator it = d->cache.constBegin();
-        while (it != d->cache.constEnd()) {
+        return select();
+    case OnManualSubmit:
+        for (QSqlTableModelPrivate::CacheMap::ConstIterator it = d->cache.constBegin();
+             it != d->cache.constEnd(); ++it) {
             switch (it.value().op) {
             case QSqlTableModelPrivate::Insert:
-                isOk |= insertRowIntoTable(it.value().rec);
+                if (!insertRowIntoTable(it.value().rec))
+                    return false;
                 break;
             case QSqlTableModelPrivate::Update:
-                isOk |= updateRowInTable(it.key(), it.value().rec);
+                if (!updateRowInTable(it.key(), it.value().rec))
+                    return false;
                 break;
             case QSqlTableModelPrivate::Delete:
-                isOk |= deleteRowFromTable(it.key());
+                if (!deleteRowFromTable(it.key()))
+                    return false;
                 break;
             case QSqlTableModelPrivate::None:
-                qWarning("QSqlTableModel::submitAll: Invalid operation");
+                Q_ASSERT_X(false, "QSqlTableModel::submitAll()", "Invalid cache operation");
                 break;
             }
-            ++it;
         }
-        if (isOk) {
-            d->cache.clear();
-            select();
-        }
-        break; }
+        d->cache.clear();
+        return select();
     }
-    return isOk;
+    return false;
 }
 
 /*!
