@@ -186,7 +186,7 @@ public:
 
 private:
     ULONG m_refs;
-    QMimeData *data;
+    QPointer<QMimeData> data;
     int CF_PERFORMEDDROPEFFECT;
     DWORD performedEffect;
 };

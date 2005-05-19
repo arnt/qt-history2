@@ -331,10 +331,7 @@ QOleDataObject::QOleDataObject(QMimeData *mimeData)
 
 void QOleDataObject::releaseQt()
 {
-    if (data) {
-        delete data;
-        data = 0;
-    }
+    data = 0;
 }
 
 const QMimeData *QOleDataObject::mimeData() const

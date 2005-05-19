@@ -114,6 +114,7 @@ public:
     void releaseIData()
     {
         if (iData) {
+            delete iData->mimeData();
             iData->releaseQt();
             iData->Release();
             iData = 0;
