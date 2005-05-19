@@ -208,10 +208,12 @@ Win32MakefileGenerator::processPrlFiles()
                         tmp = opt;
                     for(QList<QMakeLocalFileName>::Iterator it = libdirs.begin(); it != libdirs.end(); ++it) {
                         QString prl = (*it).local() + Option::dir_sep + tmp;
+                        // the orignal is used as the key
+                        QString orgprl = prl;
                         if(processed.contains(prl)) {
                             break;
                         } else if(processPrlFile(prl)) {
-                            processed.insert(prl, true);
+                            processed.insert(orgprl, true);
                             ret = true;
                             break;
                         }
