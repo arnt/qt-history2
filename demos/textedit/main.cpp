@@ -17,10 +17,10 @@
 int main( int argc, char ** argv )
 {
     QApplication a( argc, argv );
-    TextEdit * mw = new TextEdit();
-    mw->setWindowTitle( "Richtext Editor" );
-    mw->resize( 640, 800 );
-    mw->show();
+    TextEdit mw;
+    mw.setWindowTitle( "Richtext Editor" );
+    mw.resize( 640, 800 );
+    mw.show();
     a.connect( &a, SIGNAL( lastWindowClosed() ), &a, SLOT( quit() ) );
     return a.exec();
 }
