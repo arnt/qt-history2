@@ -93,6 +93,8 @@ public:
     QString absolutePath() const;
     QString canonicalPath() const;
 
+    static void addResourceSearchPath(const QString &path);
+
     QString dirName() const;
     QString filePath(const QString &fileName) const;
     QString absoluteFilePath(const QString &fileName) const;

@@ -113,7 +113,7 @@ int QResource::findNode(const QString &path) const
         //now do the "harder" compares
         bool found = false;
         if(hash(sub_node) == h) {
-            while(sub_node && hash(sub_node-1) == h) //backup for collisions
+            while(sub_node > child && hash(sub_node-1) == h) //backup for collisions
                 --sub_node;
             for(; sub_node < child+child_count && hash(sub_node) == h; ++sub_node) { //here we go...
                 if(name(sub_node) == segment) {
@@ -224,12 +224,24 @@ QStringList QResource::children(const QString &path) const
     return ret;
 }
 
+Q_GLOBAL_STATIC(QStringList, qt_resource_search_paths)
+bool qt_resource_add_search_path(const QString &path)
+{
+    if(path[0] != QLatin1Char('/')) {
+        qWarning("QDir::addResourceSearchPath: Search paths must be absolute (start with /) [%s]",
+                 path.toLocal8Bit().data());
+        return false;
+    }
+    qt_resource_search_paths()->prepend(path);
+    return true;
+}
+
 typedef QVector<QResource> ResourceList;
 Q_GLOBAL_STATIC(ResourceList, resourceList)
 
 class QResourceInfo
 {
-    QString file;
+    QString file, searchFile;
     ResourceList related;
     uint container : 1;
 
@@ -240,37 +252,30 @@ class QResourceInfo
     mutable QStringList mChildren;
 
     inline void clear() {
+        searchFile.clear();
         file.clear();
         hasData = hasChildren = 0;
         container = 0;
         related.clear();
     }
+    bool loadResource(const QString &);
 public:
     QResourceInfo() { clear(); }
     QResourceInfo(const QString &f) { setFileName(f); }
 
     void setFileName(const QString &f);
     QString fileName() const { return file; }
+    QString searchFileName() const { return searchFile; }
 
     bool exists() const { return !related.isEmpty(); }
     bool isContainer() const { return container; }
     QByteArray data() const;
     QStringList children() const;
 };
-void
-QResourceInfo::setFileName(const QString &f)
+bool
+QResourceInfo::loadResource(const QString &path)
 {
-    if(file == f)
-        return;
-    clear();
-    file = f;
-    if(file == QLatin1String(":"))
-        file += "/";
-
-    QString path = file;
-    if(path.startsWith(QLatin1String(":")))
-        path = path.mid(1);
-    ResourceList *list = resourceList();
+    const ResourceList *list = resourceList();
     for(int i = 0; i < list->size(); ++i) {
         QResource res = list->at(i);
         if(res.exists(path)) {
@@ -281,6 +286,36 @@ QResourceInfo::setFileName(const QString &f)
             related.append(res);
         }
     }
+    return !related.isEmpty();
+}
+void
+QResourceInfo::setFileName(const QString &f)
+{
+    if(file == f)
+        return;
+    clear();
+    file = f;
+    if(file == QLatin1String(":"))
+        file += "/";
+    searchFile = file;
+
+    QString path = file;
+    if(path.startsWith(QLatin1String(":")))
+        path = path.mid(1);
+    if(path[0] == QLatin1Char('/')) {
+        loadResource(path);
+        return;
+    } else {
+        QStringList searchPaths = *qt_resource_search_paths();
+        searchPaths << QLatin1String("");
+        for(int i = 0; i < searchPaths.size(); ++i) {
+            const QString searchPath(searchPaths.at(i) + "/" + path);
+            if(loadResource(searchPath)) {
+                searchFile = ":" + searchPath;
+                break;
+            }
+        }
+    }
 }
 QByteArray QResourceInfo::data() const
 {
@@ -289,7 +324,7 @@ QByteArray QResourceInfo::data() const
 
     if(!hasData) {
         hasData = true;
-        QString path = file;
+        QString path = searchFile;
         if(path.startsWith(":"))
             path = path.mid(1);
         mData = related.at(0).data(path);
@@ -304,7 +339,7 @@ QStringList QResourceInfo::children() const
 
     if(!hasChildren) {
         hasChildren = true;
-        QString path = file;
+        QString path = searchFile;
         if(path.startsWith(":"))
             path = path.mid(1);
         QSet<QString> kids;
@@ -323,7 +358,7 @@ QStringList QResourceInfo::children() const
 }
 
 Q_CORE_EXPORT bool qRegisterResourceData(int version, const unsigned char *tree,
-                           const unsigned char *name, const unsigned char *data)
+                                         const unsigned char *name, const unsigned char *data)
 {
     if(version == 0x01) {
         resourceList()->append(QResource(tree, name, data));
@@ -579,9 +614,17 @@ QString QResourceFileEngine::fileName(FileName file) const
 	    return d->resource.fileName();
 	return d->resource.fileName().mid(slash + 1);
     } else if(file == PathName || file == AbsolutePathName) {
-	int slash = d->resource.fileName().lastIndexOf(QLatin1Char('/'));
+	const int slash = d->resource.fileName().lastIndexOf(QLatin1Char('/'));
 	if (slash != -1)
 	    return d->resource.fileName().left(slash);
+    } else if(file == CanonicalName || file == CanonicalPathName) {
+        const QString canonicalPath = d->resource.searchFileName();
+        if(file == CanonicalPathName) {
+            const int slash = canonicalPath.lastIndexOf(QLatin1Char('/'));
+            if (slash != -1)
+                return canonicalPath.left(slash);
+        }
+        return canonicalPath;
     }
     return d->resource.fileName();
 }

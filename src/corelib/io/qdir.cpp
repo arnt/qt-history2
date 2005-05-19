@@ -828,6 +828,25 @@ void QDir::setNameFilters(const QStringList &nameFilters)
 }
 
 /*!
+    Adds \a path to the search paths searched in to find resources
+    that are not specified with an absolute path. The default search
+    path is to search only in the root (\c{:/}).
+
+    \sa {The Qt Resource System}
+*/
+
+void QDir::addResourceSearchPath(const QString &path)
+{
+#ifdef QT_BUILD_CORE_LIB
+    extern bool qt_resource_add_search_path(const QString &);
+    qt_resource_add_search_path(path);
+#else
+    Q_UNUSED(path)
+#endif
+}
+
+
+/*!
     Returns the value set by setFilter()
 */
 
