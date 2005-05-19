@@ -53,7 +53,7 @@ QStyleOptionRubberBand QRubberBandPrivate::getStyleOption() const
     \mainclass
 
     A rubber band is often used to show a new bounding area (as in a
-    QSplitter or a QDockWidget that is undocking). Commonly this has
+    QSplitter or a QDockWidget that is undocking). Historically this has
     been implemented using a QPainter and XOR, but this approach
     doesn't always work properly since rendering can happen in the
     window below the rubber band, but before the rubber band has been
@@ -151,12 +151,16 @@ void QRubberBand::changeEvent(QEvent *e)
     \overload
 
     Moves the rubberband to point \a p.
+
+    \sa resize()
 */
 
 /*!
     \fn void QRubberBand::move(int x, int y);
 
     Moves the rubberband to point (\a x, \a y).
+
+    \sa resize()
 */
 
 /*!
@@ -165,6 +169,8 @@ void QRubberBand::changeEvent(QEvent *e)
     \overload
 
     Resizes the rubberband so that its new size is \a size.
+
+    \sa move()
 */
 
 /*!
@@ -172,6 +178,8 @@ void QRubberBand::changeEvent(QEvent *e)
 
     Resizes the rubberband so that its width is \a width, and its
     height is \a height.
+
+    \sa move()
 */
 
 /*!
@@ -181,6 +189,8 @@ void QRubberBand::changeEvent(QEvent *e)
 
     Changes the rubberband's geometry to have a top-left corner of (\a
     x, \a y), a width of \a w, and a height of \a h.
+
+    \sa move() resize()
 */
 
 /*!
@@ -188,6 +198,8 @@ void QRubberBand::changeEvent(QEvent *e)
 
     Changes the rubberband's geometry to the geometry of the rectangle
     \a rect.
+
+    \sa move() resize()
 */
 void QRubberBand::setGeometry(const QRect &geom)
 {
