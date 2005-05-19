@@ -1017,7 +1017,12 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         // find the row of the current path element in the list of children
         int row = entries.indexOf(pathElements.at(i));
         idx = index(row, column, idx); // will check row and lazily populate
-        Q_ASSERT(idx.isValid());
+        // hit an invalid element (could be hidden or just not found)
+        if (!idx.isValid()) {
+            qWarning() << "The file or directory" << pathElements.at(i)
+                       << "in the path" << path << "could not be found.";
+            break; // return an invalid index
+        }
     }
 
     return idx;
