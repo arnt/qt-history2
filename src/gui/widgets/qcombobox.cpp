@@ -1605,15 +1605,6 @@ void QComboBox::hidePopup()
 }
 
 /*!
-    Calls hidePopup(), then QWidget::hide().
-*/
-void QComboBox::hide()
-{
-    hidePopup();
-    QWidget::hide();
-}
-
-/*!
     \internal
 
     Clears the combobox, removing all items.
@@ -1751,6 +1742,13 @@ void QComboBox::showEvent(QShowEvent *e)
     QWidget::showEvent(e);
 }
 
+/*!
+    \reimp
+*/
+void QComboBox::hideEvent(QHideEvent *)
+{
+    hidePopup();
+}
 
 /*!
     \reimp

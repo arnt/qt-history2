@@ -165,7 +165,6 @@ public:
 public slots:
     void clear();
     void clearEditText();
-    void hide();
     void setEditText(const QString &text);
 
 signals:
@@ -182,6 +181,7 @@ protected:
     void resizeEvent(QResizeEvent *e);
     void paintEvent(QPaintEvent *e);
     void showEvent(QShowEvent *e);
+    void hideEvent(QHideEvent *e);
     void mousePressEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void keyPressEvent(QKeyEvent *e);
