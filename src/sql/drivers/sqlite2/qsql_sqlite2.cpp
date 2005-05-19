@@ -466,7 +466,7 @@ QSqlIndex QSQLite2Driver::primaryIndex(const QString &tblname) const
 
     q.exec(QLatin1String("PRAGMA index_info('") + indexname + QLatin1String("');"));
 
-    QSqlIndex index(indexname);
+    QSqlIndex index(tblname, indexname);
     while(q.next()) {
         QString name = q.value(2).toString();
         QVariant::Type type = QVariant::Invalid;
