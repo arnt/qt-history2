@@ -1621,10 +1621,10 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
         qreal dy = d->matrix.dy();
         const QPointF *end = points + pointCount;
         int x, y;
-        int left = d->deviceRect.x();
-        int right = d->deviceRect.x() + d->deviceRect.width();
-        int top = d->deviceRect.y();
-        int bottom = d->deviceRect.y() + d->deviceRect.height();
+        int left = 0;
+        int right = d->deviceRect.width();
+        int top = 0;
+        int bottom = d->deviceRect.height();
         while (points < end) {
             x = qRound(points->x() + dx);
             y = qRound(points->y() + dy);
