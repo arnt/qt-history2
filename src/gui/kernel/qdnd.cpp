@@ -432,30 +432,30 @@ QVariant QInternalMimeData::retrieveData(const QString &mimeType, QVariant::Type
 {
     QVariant data = retrieveData_sys(mimeType, type);
     if (mimeType == QLatin1String("application/x-qt-image")) {
-	if (data.isNull()) {
-	    // try to find an image
+        if (data.isNull()) {
+            // try to find an image
             QStringList imageFormats = imageReadMimeFormats();
             for (int i = 0; i < imageFormats.size(); ++i) {
-               data = retrieveData_sys(imageFormats.at(i), QVariant::ByteArray);
-		if (!data.isNull())
-		    break;
-	    }
-	}
-	if (type != data.type() && data.type() == QVariant::ByteArray) {
-	    QImage image = QImage::fromData(data.toByteArray());
-	    if (type == QVariant::Bitmap)
-		data = QPixmap::fromImage(image);
-	    else if (type == QVariant::Pixmap)
-	        data = QBitmap::fromImage(image);
-	    else
-	        data = image;
-	}
+                data = retrieveData_sys(imageFormats.at(i), QVariant::ByteArray);
+                if (!data.isNull())
+                    break;
+            }
+        }
+        if (type != data.type() && data.type() == QVariant::ByteArray) {
+            QImage image = QImage::fromData(data.toByteArray());
+            if (type == QVariant::Bitmap)
+                data = QPixmap::fromImage(image);
+            else if (type == QVariant::Pixmap)
+                data = QBitmap::fromImage(image);
+            else
+                data = image;
+        }
     } else if (data.type() != type && data.type() == QVariant::ByteArray) {
-	// try to use mime data's internal conversion stuf.
-	QInternalMimeData *that = const_cast<QInternalMimeData *>(this);
-	that->setData(mimeType, data.toByteArray());
-	data = QMimeData::retrieveData(mimeType, type);
-	that->clear();
+        // try to use mime data's internal conversion stuf.
+        QInternalMimeData *that = const_cast<QInternalMimeData *>(this);
+        that->setData(mimeType, data.toByteArray());
+        data = QMimeData::retrieveData(mimeType, type);
+        that->clear();
     }
     return data;
 }
@@ -485,16 +485,16 @@ bool QInternalMimeData::hasFormatHelper(const QString &mimeType, const QMimeData
 
     bool foundFormat = data->hasFormat(mimeType);
     if (!foundFormat) {
-       if (mimeType == QLatin1String("application/x-qt-image")) {
-	    // check all supported image formats
-	    QStringList imageFormats = imageWriteMimeFormats();
-	    for (int i = 0; i < imageFormats.size(); ++i) {
-		if ((foundFormat = data->hasFormat(imageFormats.at(i))))
-		    break;
-	    }
-	} else if (mimeType.startsWith(QLatin1String("image/"))) {
-		return data->hasImage() && imageWriteMimeFormats().contains(mimeType);
-	}
+        if (mimeType == QLatin1String("application/x-qt-image")) {
+            // check all supported image formats
+            QStringList imageFormats = imageWriteMimeFormats();
+            for (int i = 0; i < imageFormats.size(); ++i) {
+                if ((foundFormat = data->hasFormat(imageFormats.at(i))))
+                    break;
+            }
+        } else if (mimeType.startsWith(QLatin1String("image/"))) {
+            return data->hasImage() && imageWriteMimeFormats().contains(mimeType);
+        }
     }
     return foundFormat;
 }
