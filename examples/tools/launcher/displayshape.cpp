@@ -248,21 +248,21 @@ bool TitleShape::animate()
 
 void TitleShape::paint(QPainter *painter) const
 {
-    QFontMetrics fm(font);
-    QRect rect = textRect;
-    rect.moveTo(pos.toPoint());
+    //QRectF rect(textRect); // 2
+    //rect.translate(pos); // 2
     painter->save();
     painter->setRenderHint(QPainter::TextAntialiasing);
     painter->setPen(pen);
     painter->setFont(font);
-    painter->drawText(rect, alignment, text);
+    painter->drawText(QRectF(pos, maxSize), alignment, text); // 1
+    //painter->drawText(rect, Qt::AlignLeft | Qt::AlignTop, text); // 2
     painter->restore();
 }
 
 QRectF TitleShape::rect() const
 {
-    QFontMetrics fm(font);
-    return QRectF(pos, QSizeF(textRect.width(), textRect.height()));
+    QRectF rect(textRect);
+    return rect.translated(pos);
 }
 
 ImageShape::ImageShape(const QImage &original, const QPointF &position,

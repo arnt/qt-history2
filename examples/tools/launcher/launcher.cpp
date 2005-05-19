@@ -417,40 +417,12 @@ void Launcher::showCategories()
                                -title->rect().height()));
     title->setTarget(QPointF(title->position().x(), verticalMargin));
 
-    qreal imageHeight = title->rect().height() + verticalMargin;
-
-    qreal qtLength = qMin(imageHeight, title->rect().left()-3*horizontalMargin);
-    QSizeF qtMaxSize = QSizeF(qtLength, qtLength);
-
-    DisplayShape *qtShape = new ImageShape(qtLogo,
-        QPointF(2*horizontalMargin, -imageHeight), qtMaxSize, 0,
-        Qt::AlignLeft | Qt::AlignTop);
-
-    qtShape->setMetaData("fade", 15);
-    qtShape->setTarget(QPointF(2*horizontalMargin, verticalMargin));
-
-    //qreal trolltechScale = qMin(imageHeight/trolltechLogo.height(),
-    //    (width()-2*horizontalMargin-title->rect().right())/trolltechLogo.width());
-    //QSizeF trolltechMaxSize = QSizeF(trolltechScale*trolltechLogo.width(),
-    //                                 trolltechScale*trolltechLogo.height());
-    QSizeF trolltechMaxSize = QSizeF(
-        width()-3*horizontalMargin-title->rect().right(), imageHeight);
-
-    DisplayShape *trolltechShape = new ImageShape(trolltechLogo,
-        QPointF(width()-2*horizontalMargin-trolltechMaxSize.width(),
-                -imageHeight),
-        trolltechMaxSize, 0, Qt::AlignRight | Qt::AlignTop);
-
-    trolltechShape->setMetaData("fade", 15);
-    trolltechShape->setTarget(QPointF(trolltechShape->rect().x(), verticalMargin));
-
-    display->insertShape(0, trolltechShape);
-    display->insertShape(0, qtShape);
-    display->insertShape(0, title);
+    display->appendShape(title);
 
     QFontMetrics buttonMetrics(buttonFont);
     qreal topMargin = 6*verticalMargin;
-    qreal space = height() - 3.2*verticalMargin - topMargin;
+    qreal bottomMargin = height() - 3.2*verticalMargin;
+    qreal space = bottomMargin - topMargin;
     qreal step = qMin(title->rect().height() / fontRatio,
                       space/qreal(maximumLabels));
     qreal textHeight = fontRatio * step;
@@ -484,12 +456,12 @@ void Launcher::showCategories()
     startPosition = QPointF(width(), topMargin);
     qreal extra = (step - textHeight)/4;
 
+    QPainterPath backgroundPath;
+    backgroundPath.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
+
     foreach (QString category, categories) {
 
-        QPainterPath path;
-        path.addRect(-2*extra, -extra, maxWidth + 4*extra, textHeight + 2*extra);
-
-        DisplayShape *background = new PanelShape(path,
+        DisplayShape *background = new PanelShape(backgroundPath,
             QBrush(categoryColors[category]), QBrush(QColor("#e0e0ff")),
             Qt::NoPen, startPosition,
             QSizeF(maxWidth + 4*extra, textHeight + 2*extra));
@@ -535,8 +507,53 @@ void Launcher::showCategories()
         QSizeF(rightMargin - leftMargin, space));
 
     description->setMetaData("fade", 10);
-
     display->appendShape(description);
+
+    qreal imageHeight = title->rect().height() + verticalMargin;
+
+    qreal qtLength = qMin(imageHeight, title->rect().left()-3*horizontalMargin);
+    QSizeF qtMaxSize = QSizeF(qtLength, qtLength);
+
+    DisplayShape *qtShape = new ImageShape(qtLogo,
+        QPointF(2*horizontalMargin-extra, -imageHeight), qtMaxSize, 0,
+        Qt::AlignLeft | Qt::AlignTop);
+
+    qtShape->setMetaData("fade", 15);
+    qtShape->setTarget(QPointF(qtShape->rect().x(), verticalMargin));
+    display->insertShape(0, qtShape);
+
+    QSizeF trolltechMaxSize = QSizeF(
+        width()-3*horizontalMargin-title->rect().right(), imageHeight);
+
+    DisplayShape *trolltechShape = new ImageShape(trolltechLogo,
+        QPointF(width()-2*horizontalMargin-trolltechMaxSize.width()+extra,
+                -imageHeight),
+        trolltechMaxSize, 0, Qt::AlignRight | Qt::AlignTop);
+
+    trolltechShape->setMetaData("fade", 15);
+    trolltechShape->setTarget(QPointF(trolltechShape->rect().x(),
+                                      verticalMargin));
+    display->insertShape(0, trolltechShape);
+
+    DisplayShape *versionCaption = new TitleShape(
+        QString("Qt %1").arg(QT_VERSION_STR), font(), QPen(),
+        QPointF(0.5*width(), height()),
+        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
+        Qt::AlignRight | Qt::AlignVCenter);
+    versionCaption->setTarget(QPointF(0.5*width(),
+                                      height() - verticalMargin - textHeight));
+
+    display->appendShape(versionCaption);
+
+    DisplayShape *copyrightCaption = new TitleShape(
+        QString("Copyright \xa9 2005 Trolltech"), font(), QPen(),
+        QPointF(2*horizontalMargin, height()),
+        QSizeF(0.5*width()-2*horizontalMargin, textHeight),
+        Qt::AlignLeft | Qt::AlignVCenter);
+    copyrightCaption->setTarget(QPointF(copyrightCaption->rect().x(),
+                                      height() - verticalMargin - textHeight));
+
+    display->appendShape(copyrightCaption);
 }
 
 void Launcher::showExamples(const QString &category)
@@ -552,15 +569,18 @@ void Launcher::showExamples(const QString &category)
         shape->setMetaData("fade minimum", 0);
     }
 
-    QPointF titlePosition = QPointF(0.0, 0.05*height());
+    qreal horizontalMargin = 0.025*width();
+    qreal verticalMargin = 0.025*height();
+
+    QPointF titlePosition = QPointF(0.0, 2*verticalMargin);
 
     DisplayShape *newTitle = new TitleShape(category, titleFont,
         QPen(Qt::white), titlePosition,
-        QSizeF(0.5 * width(), 0.05 * height()));
+        QSizeF(0.5 * width(), 2*verticalMargin),
+        Qt::AlignHCenter | Qt::AlignTop);
 
     newTitle->setPosition(QPointF(-newTitle->rect().width(), titlePosition.y()));
-    newTitle->setTarget(QPointF(width()/2 - newTitle->rect().width()/2,
-                                titlePosition.y()));
+    newTitle->setTarget(QPointF(0.25*width(), titlePosition.y()));
     newTitle->setMetaData("fade", 15);
 
     QPainterPath backgroundPath;
@@ -577,15 +597,18 @@ void Launcher::showExamples(const QString &category)
     display->insertShape(0, titleBackground);
     display->appendShape(newTitle);
 
-    qreal topMargin = 0.075 * height() + titleBackground->rect().bottom();
-    qreal space = 0.95*height() - topMargin;
+    qreal topMargin = 6*verticalMargin;
+    qreal bottomMargin = height() - 3.2*verticalMargin;
+    qreal space = bottomMargin - topMargin;
+    //qreal topMargin = 0.075 * height() + titleBackground->rect().bottom();
+    //qreal space = 0.95*height() - topMargin;
     qreal step = qMin(newTitle->rect().height() / fontRatio,
                       space/qreal(maximumLabels));
     qreal textHeight = fontRatio * step;
 
-    QPointF startPosition = QPointF(0.05*width(), height() + topMargin);
-    QPointF finishPosition = QPointF(0.05*width(), topMargin);
-    QSizeF maxSize(0.27 * width(), textHeight);
+    QPointF startPosition = QPointF(2*horizontalMargin, height() + topMargin);
+    QPointF finishPosition = QPointF(2*horizontalMargin, topMargin);
+    QSizeF maxSize(32*horizontalMargin, textHeight);
     qreal maxWidth = 0.0;
 
     foreach (QString example, examples[currentCategory]) {
@@ -623,7 +646,7 @@ void Launcher::showExamples(const QString &category)
 
         background->setMetaData("example", example);
         background->setInteractive(true);
-        background->setTarget(QPointF(0.05 * width(),
+        background->setTarget(QPointF(2*horizontalMargin,
                                       background->position().y()));
         display->insertShape(0, background);
         startPosition += QPointF(0.0, step);
@@ -643,12 +666,12 @@ void Launcher::showExamples(const QString &category)
 
     buttonBackground->setMetaData("action", "parent");
     buttonBackground->setInteractive(true);
-    buttonBackground->setTarget(QPointF(0.05 * width(),
+    buttonBackground->setTarget(QPointF(2*horizontalMargin,
                                         buttonBackground->position().y()));
     display->insertShape(0, buttonBackground);
 
-    qreal leftMargin = 0.075*width() + maxWidth;
-    qreal rightMargin = 0.925*width();
+    qreal leftMargin = 3*horizontalMargin + maxWidth;
+    qreal rightMargin = width() - 3*horizontalMargin;
 
     DocumentShape *description = new DocumentShape(
         categoryDescriptions[currentCategory], font(),
@@ -684,11 +707,11 @@ void Launcher::showExampleSummary(const QString &example)
 
     DisplayShape *newTitle = new TitleShape(example, titleFont,
         QPen(Qt::white), titlePosition,
-        QSizeF(0.5 * width(), 0.05 * height()));
+        QSizeF(0.5 * width(), 0.05 * height()),
+        Qt::AlignHCenter | Qt::AlignTop);
 
     newTitle->setPosition(QPointF(-newTitle->rect().width(), titlePosition.y()));
-    newTitle->setTarget(QPointF(width()/2 - newTitle->rect().width()/2,
-                                titlePosition.y()));
+    newTitle->setTarget(QPointF(0.25*width(), titlePosition.y()));
     newTitle->setMetaData("fade", 15);
 
     QPainterPath backgroundPath;
@@ -756,7 +779,8 @@ void Launcher::showExampleSummary(const QString &example)
 
     if (true) {
         DisplayShape *backButton = new TitleShape(currentCategory, font(),
-            QPen(Qt::white), QPointF(0.1*width(), height()), maxSize);
+            QPen(Qt::white), QPointF(0.1*width(), height()), maxSize,
+            Qt::AlignLeft | Qt::AlignTop);
         backButton->setTarget(QPointF(backButton->position().x(),
                                       0.85 * height()));
 
@@ -791,7 +815,8 @@ void Launcher::showExampleSummary(const QString &example)
     if (examplePaths.contains(example)) {
 
         DisplayShape *launchCaption = new TitleShape(tr("Launch"),
-            font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize);
+            font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize,
+            Qt::AlignLeft | Qt::AlignTop);
         launchCaption->setPosition(QPointF(
             0.9*width() - launchCaption->rect().width(), height()));
         launchCaption->setTarget(QPointF(launchCaption->position().x(),
@@ -831,7 +856,8 @@ void Launcher::showExampleSummary(const QString &example)
     if (documentPaths.contains(example)) {
 
         DisplayShape *documentCaption = new TitleShape(tr("Show Documentation"),
-            font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize);
+            font(), QPen(Qt::white), QPointF(0.0, 0.0), maxSize,
+            Qt::AlignLeft | Qt::AlignTop);
 
         if (rightMargin == 0.0) {
             documentCaption->setPosition(QPointF(
