@@ -66,9 +66,6 @@ private:
     QToolButton *newCircleButton;
     QToolButton *newSquareButton;
     QToolButton *newTriangleButton;
-    QIcon *circleIcon;
-    QIcon *squareIcon;
-    QIcon *triangleIcon;
 };
 
 #endif
