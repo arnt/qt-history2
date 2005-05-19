@@ -274,7 +274,7 @@ public:
 
     inline void clear(QDirNode *parent) const {
         Q_ASSERT(parent);
-        parent->children = children(0);
+        parent->children.clear();
         parent->populated = false;
     }
 
@@ -451,7 +451,7 @@ int QDirModel::rowCount(const QModelIndex &parent) const
 
     bool isDir = !p || p->info.isDir(); // no node pointer means that it is the root
     if (!p) p = &(d->root);
-    if (isDir && p->children.isEmpty()) // lazy population
+    if (isDir && !p->populated) // lazy population
         d->populate(p);
     return p->children.count();
 }
@@ -1227,7 +1227,7 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::node(int row, QDirNode *parent) co
 
     bool isDir =  !parent || parent->info.isDir();
     QDirNode *p = (parent ? parent : &root);
-    if (isDir && p->children.isEmpty())
+    if (isDir && !p->populated)
         populate(p); // will also resolve symlinks
 
     if (row >= p->children.count()) {
@@ -1245,8 +1245,10 @@ QDirModelPrivate::QDirNode *QDirModelPrivate::parent(QDirNode *child) const
 
 QVector<QDirModelPrivate::QDirNode> QDirModelPrivate::children(QDirNode *parent) const
 {
+    Q_ASSERT(parent);
     QFileInfoList info;
-    if (!parent) {
+    if (parent == &root) {
+        parent = 0;
         info = QDir::drives();
     } else if (parent->info.isDir()) {
         if (resolveSymlinks && parent->info.isSymLink()) {
