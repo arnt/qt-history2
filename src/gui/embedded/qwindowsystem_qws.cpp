@@ -861,13 +861,13 @@ void QWSServer::releaseKeyboard(QWSWindow* w)
 
 void QWSServer::handleWindowClose(QWSWindow *w)
 {
+    w->shuttingDown();
     if (focusw == w)
         setFocus(w,false);
     if (mouseGrabber == w)
         releaseMouse(w);
     if (keyboardGrabber == w)
         releaseKeyboard(w);
-    w->shuttingDown();
 }
 
 
