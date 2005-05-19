@@ -500,6 +500,13 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
             QString icon_path = resource->text();
             QString qrc_path = resource->attributeResource();
 
+            if (icon_path.isEmpty()) {
+                if (p->kind() == DomProperty::IconSet)
+                    return QIcon();
+
+                return QPixmap();
+            }
+
             if (qrc_path.isEmpty())
                 icon_path = workingDirectory().absoluteFilePath(icon_path);
             else
@@ -507,6 +514,7 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
 
             if (p->kind() == DomProperty::IconSet) {
                 QIcon icon = nameToIcon(icon_path, qrc_path);
+
                 v = qVariantFromValue(icon);
             } else {
                 QPixmap pixmap = nameToPixmap(icon_path, qrc_path);
