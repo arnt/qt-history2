@@ -420,7 +420,7 @@ while [ "$#" -gt 0 ]; do
         VAL=`echo $1 | sed "s,^-\(.*\)-.*,\1,"`
         ;;
     -D?*|-D)
-        VAR="define"
+        VAR="add_define"
         if [ "$1" = "-D" ]; then
             shift
             VAL="$1"
@@ -429,7 +429,7 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     -I?*|-I)
-        VAR="ipath"
+        VAR="add_ipath"
         if [ "$1" = "-I" ]; then
             shift
             VAL="$1"
@@ -438,7 +438,7 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     -L?*|-L)
-        VAR="lpath"
+        VAR="add_lpath"
         if [ "$1" = "-L" ]; then
             shift
             VAL="$1"
@@ -447,7 +447,7 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     -R?*|-R)
-        VAR="xpath"
+        VAR="add_rpath"
         if [ "$1" = "-R" ]; then
             shift
             VAL="$1"
@@ -456,7 +456,7 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     -l?*)
-        VAR="link"
+        VAR="add_link"
         VAL=`echo $1 | sed 's,-l,,'`
         ;;
     -*)
@@ -983,21 +983,25 @@ while [ "$#" -gt 0 ]; do
         fi
         ;;
     rpath)
-	CFG_RPATH=$VAL
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_RPATH="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
         ;;
-    define)
+    add_define)
         D_FLAGS="$D_FLAGS $VAL"
         ;;
-    ipath)
+    add_ipath)
         I_FLAGS="$I_FLAGS -I${VAL}"
         ;;
-    lpath)
+    add_lpath)
         L_FLAGS="$L_FLAGS -L${VAL}"
         ;;
-    xpath)
+    add_rpath)
         RPATH_FLAGS="$RPATH_FLAGS ${VAL}"
         ;;
-    link)
+    add_link)
         l_FLAGS="$l_FLAGS -l${VAL}"
         ;;
     *)
@@ -1083,9 +1087,10 @@ DATA_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_datapath=$QT_INSTALL
 TRANSLATIONS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_trnspath=$QT_INSTALL_TRANSLATIONS" "\\0"`
 SETTINGS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_stngpath=$QT_INSTALL_SETTINGS" "\\0"`
 cat > $outpath/src/corelib/global/qconfig.cpp.new <<EOF
-/* Licensed */
+/* License Info */
 static const char qt_configure_licensee_str          [256 + 12] = "$LICENSE_USER_STR";
 static const char qt_configure_licensed_products_str [256 + 12] = "$LICENSE_PRODUCTS_STR";
+/* Installation Info */
 static const char qt_configure_prefix_path_str       [256 + 12] = "$PREFIX_PATH_STR";
 static const char qt_configure_documentation_path_str[256 + 12] = "$DOCUMENTATION_PATH_STR";
 static const char qt_configure_headers_path_str      [256 + 12] = "$HEADERS_PATH_STR";
@@ -2131,11 +2136,14 @@ fi
     -Dstring ........... Add an explicit define to the preprocessor.
     -Istring ........... Add an explicit include path.
     -Lstring ........... Add an explicit library path.
-    -Rstring ........... Add an explicit runtime library path.
+    -Rstring ........... Add an explicit runtime library path to the Qt
+                         libraries.
 
- +  -rpath ............. Link Qt libraries and executables using LIBDIR
-                         as a runtime library path. Equivalent to -R/LIBDIR
-    -no-rpath .......... Do not use LIBDIR as a runtime library path.
+    -no-rpath .......... Do not use the library install path as a runtime
+                         library path.
+ +  -rpath ............. Link Qt libraries and executables using the library
+                         install path as a runtime library path. Equivalent
+                         to -R install_libpath
 
     -help, -h .......... Display this information.
 
@@ -3078,16 +3086,25 @@ if [ -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
         RPATH_MESSAGE="NOTE: This platform does not support runtime library paths, using -no-rpath."
     fi
 else
-    if [ "$CFG_RPATH" = "yes" ]; then
-        # set the default rpath
-        RPATH_FLAGS=" $QT_INSTALL_LIBS $RPATH_FLAGS"
+    if [ "$CFG_RPATH" = "yes" ]; then  
+	if [ "$PLATFORM_MAC" = "yes" ]; then
+	    # set install_name to the absolute path for the library
+	    QMAKE_CONFIG="$QMAKE_CONFIG absolute_library_soname"
+	    # Mac OS X doesn't have rpath
+	    CFG_RPATH=no
+	else
+	    # set the default rpath to the library installation directory 
+            RPATH_FLAGS="$QT_INSTALL_LIBS $RPATH_FLAGS"
+	fi
     fi
     if [ -n "$RPATH_FLAGS" ]; then
-        QMAKE_VARS="$QMAKE_VARS \"QMAKE_RPATHDIR+=$RPATH_FLAGS\""
+	# add the user defined rpaths
+	QMAKE_VARS="$QMAKE_VARS \"QMAKE_RPATHDIR+=$RPATH_FLAGS\""
     fi
 fi
 
 if [ '!' -z "$I_FLAGS" ]; then
+    # add the user define include paths
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CFLAGS+=$I_FLAGS\""
     QMAKE_VARS="$QMAKE_VARS \"QMAKE_CXXFLAGS+=$I_FLAGS\""
 fi
@@ -3466,8 +3483,10 @@ cat >>$QTCONFIG.tmp <<EOF
 CONFIG += $QTCONFIG_CONFIG
 QT_PRODUCT = $Products
 QT_CONFIG += $QT_CONFIG
-QMAKE_RPATHDIR += $RPATH_FLAGS
 EOF
+if [ "$CFG_RPATH" = "yes" ]; then
+    echo "QMAKE_RPATHDIR += $QT_INSTALL_LIBS" >> $QTCONFIG.tmp
+fi
 # replace qconfig.pri if it differs from the newly created temp file
 if cmp -s $QTCONFIG.tmp $QTCONFIG; then
     rm -f $QTCONFIG.tmp
