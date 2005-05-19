@@ -57,8 +57,8 @@ mac {
 #    QMAKE_INFO_PLIST = Info_mac.plist
 }
 
-#target.path = $$[QT_INSTALL_BINS]
-#INSTALLS += target
+target.path=$$[QT_INSTALL_BINS]
+INSTALLS += target
 
 #assistanttranslations.files = *.qm
 #assistanttranslations.path = $$[QT_INSTALL_TRANSLATIONS]
@@ -69,7 +69,3 @@ TRANSLATIONS        = assistant_de.ts \
 
 
 unix:!contains(QT_CONFIG, zlib):LIBS += -lz
-
-
-target.path=$$[QT_INSTALL_BINS]
-INSTALLS += target
