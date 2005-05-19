@@ -211,7 +211,7 @@ signals:
     void lastWindowClosed();
 
 public slots:
-    void closeAllWindows();
+    static void closeAllWindows();
     static void aboutQt();
 
 protected:

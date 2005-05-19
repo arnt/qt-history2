@@ -43,6 +43,14 @@
 extern QString qAppFileName();
 #endif
 
+bool QCoreApplicationPrivate::checkInstance(const char *function)
+{
+    bool b = (QCoreApplication::self != 0);
+    if (!b)
+        qWarning("QApplication::%s() failed: please instantiate the QApplication object first.", function);
+    return b;
+}
+
 // Support for introspection
 
 QSignalSpyCallbackSet Q_CORE_EXPORT qt_signal_spy_callback_set = { 0, 0, 0, 0 };
@@ -589,10 +597,8 @@ void QCoreApplication::processEvents(QEventLoop::ProcessEventsFlags flags, int m
 */
 int QCoreApplication::exec()
 {
-    if (!self) {
-        qWarning("QApplication::exec() failed: create instantiate QApplication first");
+    if (!QCoreApplicationPrivate::checkInstance("exec"))
         return -1;
-    }
     QThread *currentThread = QThread::currentThread();
     if (currentThread != self->thread()) {
         qWarning("QApplication::exec() failed: must be called from the main thread.");
@@ -1120,10 +1126,12 @@ void QCoreApplication::quit()
 
 void QCoreApplication::installTranslator(QTranslator * mf)
 {
-    Q_D(QCoreApplication);
     if (!mf)
         return;
 
+    if (!QCoreApplicationPrivate::checkInstance("installTranslator"))
+        return;
+    QCoreApplicationPrivate *d = self->d_func();
     d->translators.prepend(mf);
 
 #ifndef QT_NO_TRANSLATION_BUILDER
@@ -1132,7 +1140,7 @@ void QCoreApplication::installTranslator(QTranslator * mf)
 #endif
 
     QEvent ev(QEvent::LanguageChange);
-    QCoreApplication::sendEvent(this, &ev);
+    QCoreApplication::sendEvent(self, &ev);
 }
 
 /*!
@@ -1145,13 +1153,14 @@ void QCoreApplication::installTranslator(QTranslator * mf)
 
 void QCoreApplication::removeTranslator(QTranslator * mf)
 {
-    Q_D(QCoreApplication);
     if (!mf)
         return;
-
+    if (!QCoreApplicationPrivate::checkInstance("removeTranslator"))
+        return;
+    QCoreApplicationPrivate *d = self->d_func();
     if (d->translators.removeAll(mf) && !self->closingDown()) {
         QEvent ev(QEvent::LanguageChange);
-        QCoreApplication::sendEvent(this, &ev);
+        QCoreApplication::sendEvent(self, &ev);
     }
 }
 
@@ -1239,6 +1248,10 @@ QString QCoreApplication::translate(const char *context, const char *sourceText,
 */
 QString QCoreApplication::applicationDirPath()
 {
+    if (!self) {
+        qWarning("QApplication::applicationDirPath() failed: please instantiate the QApplication object first");
+        return QString();
+    }
     return QFileInfo(applicationFilePath()).path();
 }
 
@@ -1258,6 +1271,10 @@ QString QCoreApplication::applicationDirPath()
 */
 QString QCoreApplication::applicationFilePath()
 {
+    if (!self) {
+        qWarning("QApplication::applicationFilePath() failed: please instantiate the QApplication object first");
+        return QString();
+    }
 #if defined( Q_WS_WIN )
     QFileInfo filePath;
     QT_WA({
@@ -1325,10 +1342,13 @@ QString QCoreApplication::applicationFilePath()
 
     \sa argv()
 */
-int QCoreApplication::argc() const
+int QCoreApplication::argc()
 {
-    Q_D(const QCoreApplication);
-    return d->argc;
+    if (!self) {
+        qWarning("QApplication::argc() failed: please instantiate the QApplication object first");
+        return 0;
+    }
+    return self->d_func()->argc;
 }
 
 
@@ -1350,10 +1370,13 @@ int QCoreApplication::argc() const
 
     \sa argc()
 */
-char **QCoreApplication::argv() const
+char **QCoreApplication::argv()
 {
-    Q_D(const QCoreApplication);
-    return d->argv;
+    if (!self) {
+        qWarning("QApplication::argv() failed: please instantiate the QApplication object first");
+        return 0;
+    }
+    return self->d_func()->argv;
 }
 
 /*!

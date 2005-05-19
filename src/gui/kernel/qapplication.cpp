@@ -1254,9 +1254,7 @@ void QApplication::setGlobalStrut(const QSize& strut)
 */
 QPalette QApplication::palette()
 {
-    if (!qApp)
-        qWarning("QApplication::palette: This function can only be "
-                  "called after the QApplication object has been created");
+    QApplicationPrivate::checkInstance("palette");
     if (!QApplicationPrivate::app_pal)
         QApplicationPrivate::app_pal = new QPalette(Qt::black);
     return *QApplicationPrivate::app_pal;

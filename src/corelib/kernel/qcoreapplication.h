@@ -44,8 +44,8 @@ public:
     QCoreApplication(int &argc, char **argv);
     ~QCoreApplication();
 
-    int argc() const;
-    char **argv() const;
+    static int argc();
+    static char **argv();
 
     static void setOrganizationDomain(const QString &orgDomain);
     static QString organizationDomain();
@@ -74,8 +74,8 @@ public:
     static bool closingDown();
 
 #ifndef QT_NO_DIR
-    QString applicationDirPath();
-    QString applicationFilePath();
+    static QString applicationDirPath();
+    static QString applicationFilePath();
 #endif
 
 #ifndef QT_NO_COMPONENT
@@ -86,8 +86,8 @@ public:
 #endif // QT_NO_COMPONENT
 
 #ifndef QT_NO_TRANSLATION
-    void installTranslator(QTranslator *);
-    void removeTranslator(QTranslator *);
+    static void installTranslator(QTranslator *);
+    static void removeTranslator(QTranslator *);
 #endif
     enum Encoding { DefaultCodec, UnicodeUTF8 };
     static QString translate(const char * context,
@@ -123,7 +123,7 @@ public:
     bool filterEvent(void *message, long *result);
 
 public slots:
-    void quit();
+    static void quit();
 
 signals:
     void aboutToQuit();

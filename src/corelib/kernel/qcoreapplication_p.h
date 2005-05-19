@@ -47,6 +47,7 @@ public:
     static void removePostedEvent(QEvent *);
 
     static QThread *mainThread();
+    static bool checkInstance(const char *method);
 
 #ifdef QT3_SUPPORT
     void removePostedChildInsertedEvents(QObject *receiver, QObject *child);
