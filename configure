@@ -1012,7 +1012,7 @@ while [ "$#" -gt 0 ]; do
 done
 
 #-------------------------------------------------------------------------------
-# post process QT_INSTALL_* variables, and generate qt.conf
+# post process QT_INSTALL_* variables
 #-------------------------------------------------------------------------------
 
 #prefix
@@ -1064,28 +1064,6 @@ else
 fi
 if mkdir -p "$QT_INSTALL_SETTINGS" >/dev/null 2>&1; then
   QT_INSTALL_SETTINGS=`(cd "$QT_INSTALL_SETTINGS"; /bin/pwd)` #absolute
-fi
-
-cat > $outpath/qt.conf.new <<EOF
-[Paths]
-Prefix = $QT_INSTALL_PREFIX
-Documentation = $QT_INSTALL_DOCS
-Headers = $QT_INSTALL_HEADERS
-Libraries = $QT_INSTALL_LIBS
-Binaries = $QT_INSTALL_BINS
-Plugins = $QT_INSTALL_PLUGINS
-Data = $QT_INSTALL_DATA
-Translations = $QT_INSTALL_TRANSLATIONS
-Settings = $QT_INSTALL_SETTINGS
-EOF
-
-# copy only if qt.conf has changed
-if cmp -s $outpath/qt.conf $outpath/qt.conf.new; then
-    rm -f $outpath/qt.conf.new
-else
-    [ -f $outpath/qt.conf ] && chmod +w $outpath/qt.conf
-    mv $outpath/qt.conf.new $outpath/qt.conf
-    chmod -w $outpath/qt.conf
 fi
 
 #-------------------------------------------------------------------------------
