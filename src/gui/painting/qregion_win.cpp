@@ -22,23 +22,12 @@
 
 QRegion::QRegionData QRegion::shared_empty = { Q_ATOMIC_INIT(1), 0 };
 
-/*!
-    Creates a new empty region.
-
-    \sa isEmpty()
-*/
 QRegion::QRegion()
     : d(&shared_empty)
 {
     d->ref.ref();
 }
 
-/*!
-    Creates a new region. If \a t is \c Rectangle the new region is a
-    rectangle occupying the area of the rectangle \a r; if \a t is
-    \c Ellipse the new region is the largest ellipse that fills the
-    area occupied by the rectangle \a r.
-*/
 QRegion::QRegion(const QRect &r, RegionType t)
 {
     if (r.isEmpty()) {
@@ -58,17 +47,6 @@ QRegion::QRegion(const QRect &r, RegionType t)
     }
 }
 
-/*!
-    Constructs a polygon region from the point array \a a with the fill rule
-    specified by \a fillRule.
-
-    If \a fillRule is \l{Qt::WindingFill}, the polygon region is defined
-    using the winding algorithm; if it is \l{Qt::OddEvenFill}, the odd-even fill
-    algorithm is used.
-
-    \warning This constructor can be used to create complex regions that will
-    slow down painting when used.
-*/
 QRegion::QRegion(const QPolygon &a, Qt::FillRule fillRule)
 {
     if (a.size() < 3) {
@@ -82,11 +60,6 @@ QRegion::QRegion(const QPolygon &a, Qt::FillRule fillRule)
     }
 }
 
-/*!
-    Creates a new region that is a copy of the region \a r.
-
-    This is fast because QRegion is implicitly shared.
-*/
 QRegion::QRegion(const QRegion &r)
 {
     d = r.d;
@@ -192,9 +165,6 @@ HRGN qt_win_bitmapToRegion(const QBitmap& bitmap)
 }
 
 
-/*!
-    Creates a new region based on the bitmap \a bm.
-*/
 QRegion::QRegion(const QBitmap &bm)
 {
     if (bm.isNull()) {
@@ -214,19 +184,12 @@ void QRegion::cleanUp(QRegion::QRegionData *x)
     delete x;
 }
 
-/*!
-    Destroys this region.
-*/
 QRegion::~QRegion()
 {
     if (!d->ref.deref())
         cleanUp(d);
 }
 
-/*!
-    Assigns region \a r to this region and returns a reference to this
-    region.
-*/
 QRegion &QRegion::operator=(const QRegion &r)
 {
     QRegionData *x = r.d;
@@ -255,30 +218,17 @@ QRegion QRegion::copy() const
     return r;
 }
 
-/*!
-    Returns true if this region is empty; otherwise returns false.
-*/
 bool QRegion::isEmpty() const
 {
     return d == &shared_empty || d->rgn == 0;
 }
 
 
-/*!
-    Returns true if this region contains the point \a p;
-    otherwise returns false.
-*/
 bool QRegion::contains(const QPoint &p) const
 {
     return d->rgn ? PtInRegion(d->rgn, p.x(), p.y()) : false;
 }
 
-/*!
-    \overload
-
-    Returns true if this region wholly contains the rect \a r;
-    otherwise returns false.
-*/
 bool QRegion::contains(const QRect &r) const
 {
     if (!d->rgn)
@@ -289,10 +239,6 @@ bool QRegion::contains(const QRect &r) const
 }
 
 
-/*!
-    Translates the region by \a dx on the x axis and by \a dy on the
-    y axis.
-*/
 void QRegion::translate(int dx, int dy)
 {
     if (!d->rgn)
@@ -363,46 +309,27 @@ QRegion QRegion::winCombine(const QRegion &r, int op) const
     return result;
 }
 
-/*!
-    Returns a region that is the result of performing a union of this
-    region with the region \a r.
-*/
 QRegion QRegion::unite(const QRegion &r) const
 {
     return winCombine(r, QRGN_OR);
 }
 
-/*!
-    Returns a region that is the result of intersecting this
-    region with the region \a r.
-*/
 QRegion QRegion::intersect(const QRegion &r) const
 {
      return winCombine(r, QRGN_AND);
 }
 
-/*!
-    Returns a region that is the result of subtracting
-    the region \a r from this region.
-*/
 QRegion QRegion::subtract(const QRegion &r) const
 {
     return winCombine(r, QRGN_SUB);
 }
 
-/*!
-    Returns a region that is the result of exclusive-OR-ing this
-    region with the region \a r.
-*/
 QRegion QRegion::eor(const QRegion &r) const
 {
     return winCombine(r, QRGN_XOR);
 }
 
 
-/*!
-    Returns the smallest bounding rectangle that contains this region.
-*/
 QRect QRegion::boundingRect() const
 {
     RECT r;
@@ -413,11 +340,6 @@ QRect QRegion::boundingRect() const
         return QRect(r.left, r.top, r.right - r.left, r.bottom - r.top);
 }
 
-
-/*!
-    Returns a (possibly empty) list of the rectangles that constitute
-    this region.
-*/
 QVector<QRect> QRegion::rects() const
 {
     QVector<QRect> a;
@@ -449,12 +371,6 @@ QVector<QRect> QRegion::rects() const
     return a;
 }
 
-/*!
-    \internal
-
-    Sets this region to be the area covered by the first \a num
-    rectangles in the \a rects array.
-*/
 void QRegion::setRects(const QRect *rects, int num)
 {
     *this = QRegion();
@@ -462,11 +378,6 @@ void QRegion::setRects(const QRect *rects, int num)
         *this |= rects[i];
 }
 
-
-/*!
-    Returns true if this region is the same as the region \a r;
-    otherwise returns false.
-*/
 bool QRegion::operator==(const QRegion &r) const
 {
     if (d == r.d)

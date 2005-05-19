@@ -7058,25 +7058,25 @@ void QWidget::languageChange() { }  // compat
 /*!
     \fn void QWidget::repaint(bool b)
 
-   The boolean parameter \a is ignored. Use the no-argument overload instead.
+    The boolean parameter \a b is ignored. Use the no-argument overload instead.
 */
 
 /*!
     \fn void QWidget::repaint(int x, int y, int w, int h, bool b)
 
-    The boolean parameter \a is ignored. Use the four-argument overload instead.
+    The boolean parameter \a b is ignored. Use the four-argument overload instead.
 */
 
 /*!
     \fn void QWidget::repaint(const QRect &r, bool b)
 
-    The boolean parameter \a is ignored. Use the single rect-argument overload instead.
+    The boolean parameter \a b is ignored. Use the single rect-argument overload instead.
 */
 
 /*!
     \fn void QWidget::repaint(const QRegion &rgn, bool b)
 
-    The boolean parameter \a is ignored. Use the single region-argument overload instead.
+    The boolean parameter \a b is ignored. Use the single region-argument overload instead.
 */
 
 /*!

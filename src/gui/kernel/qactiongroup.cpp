@@ -64,7 +64,7 @@ void QActionGroupPrivate::actionHovered()
 }
 
 /*!
-    \class QActionGroup qaction.h
+    \class QActionGroup
     \brief The QActionGroup class groups actions together.
 
     \ingroup basic
@@ -80,29 +80,23 @@ void QActionGroupPrivate::actionHovered()
     single unit, with all the actions within the action group
     appearing as separate menu options or toolbar buttons.
 
-    Here's an example from demos/textedit/textedit.cpp:
-    \quotefile textedit/textedit.cpp
-    \skipto QActionGroup
-    \printuntil connect
+    Here's a example (from the \l{mainwindows/menus}{Menus} example):
+
+    \quotefile mainwindows/menus/mainwindow.cpp
+    \skipto new QActionGroup
+    \printuntil leftAlignAct->setChecked
 
     Here we create a new action group. Since the action group is exclusive
     by default, only one of the actions in the group is ever active at any
-    one time. We then connect the group's triggered() signal to our
-    textAlign() slot.
-
-    \printuntil actionAlignLeft->setCheckable
-
-    We create a left align action, add it to the toolbar and the menu,
-    and make it a toggle action. We create center and right align
-    actions in exactly the same way.
+    one time.
 
     A QActionGroup emits an triggered() signal when one of its actions
     is activated. Each action in an action group emits its
     triggered() signal as usual.
 
     As stated above, an action group is \l exclusive by default; it
-    ensures that only one \c checkable action is active at any one
-    time. If you want to group checkable actions without making them
+    ensures that only one checkable action is active at any one time.
+    If you want to group checkable actions without making them
     exclusive, you can turn of exclusiveness by calling
     setExclusive(false).
 

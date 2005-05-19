@@ -879,8 +879,8 @@ QApplication::~QApplication()
 
 
 /*!
-    Returns a pointer to the widget at global screen position
-    \a p, or 0 if there is no Qt widget there.
+    Returns the widget at global screen position \a p, or 0 if there
+    is no Qt widget there.
 
     This function can be slow.
 
@@ -904,6 +904,14 @@ QWidget *QApplication::widgetAt(const QPoint &p)
     return ret;
 }
 
+/*!
+    \fn QWidget *QApplication::widgetAt(int x, int y)
+
+    \overload
+
+    Returns the widget at global screen position (\a x, \a y), or 0
+    if there is no Qt widget there.
+*/
 
 /*!
     \fn void QApplication::setArgs(int argc, char **argv)
@@ -1234,8 +1242,6 @@ void QApplication::setColorSpec(int spec)
             return QSize(80, 25).expandedTo(QApplication::globalStrut());
         }
     \endcode
-
-    \sa globalStrut()
 */
 QSize QApplication::globalStrut()
 {
@@ -1777,22 +1783,22 @@ void QApplication::syncX()        {}                // do nothing
 */
 
 /*!
-  Sets the active window to the \a act widget in response to a system
-  event. The function is called from the platform specific event
-  handlers.
+    Sets the active window to the \a act widget in response to a system
+    event. The function is called from the platform specific event
+    handlers.
 
-  \warning This function does \e not set the keyboard focus to the
-  active widget. Call QWidget::activateWindow() instead.
+    \warning This function does \e not set the keyboard focus to the
+    active widget. Call QWidget::activateWindow() instead.
 
-  It sets the activeWindow() and focusWidget() attributes and sends
-  proper \l{QEvent::WindowActivate}{WindowActivate}/\l{QEvent::WindowDeactivate}{WindowDeactivate}
-  and \l{QEvent::FocusIn}{FocusIn}/\l{QEvent::FocusOut}{FocusOut events
-  to all appropriate widgets. The window will then be painted in
-  active state (e.g. cursors in line edits will blink), and it will
-  have tool tips enabled.
+    It sets the activeWindow() and focusWidget() attributes and sends
+    proper \l{QEvent::WindowActivate}{WindowActivate}/\l{QEvent::WindowDeactivate}{WindowDeactivate}
+    and \l{QEvent::FocusIn}{FocusIn}/\l{QEvent::FocusOut}{FocusOut} events
+    to all appropriate widgets. The window will then be painted in
+    active state (e.g. cursors in line edits will blink), and it will
+    have tool tips enabled.
 
-  \sa activeWindow(), QWidget::activateWindow()
- */
+    \sa activeWindow(), QWidget::activateWindow()
+*/
 void QApplication::setActiveWindow(QWidget* act)
 {
     QWidget* window = act?act->window():0;
@@ -2292,21 +2298,21 @@ void QApplication::setStartDragTime(int ms)
 }
 
 /*!
-  \property QApplication::startDragTime
-  \brief the time in milliseconds that a mouse button must be held down
-  before a drag and drop operation will begin
+    \property QApplication::startDragTime
+    \brief the time in milliseconds that a mouse button must be held down
+    before a drag and drop operation will begin
 
-  If you support drag and drop in your application, and want to start a
-  drag and drop operation after the user has held down a mouse button for
-  a certain amount of time, you should use this property's value as the
-  delay.
+    If you support drag and drop in your application, and want to start a
+    drag and drop operation after the user has held down a mouse button for
+    a certain amount of time, you should use this property's value as the
+    delay.
 
-  Qt also uses this delay internally, e.g. in QTextEdit and QLineEdit,
-  for starting a drag.
+    Qt also uses this delay internally, e.g. in QTextEdit and QLineEdit,
+    for starting a drag.
 
-  The default value is 500 ms.
+    The default value is 500 ms.
 
-  \sa setStartDragTime() startDragDistance() \link dnd.html Drag and Drop\endlink
+    \sa startDragDistance(), {Drag and Drop}
 */
 
 int QApplication::startDragTime()
@@ -2453,7 +2459,7 @@ QCursor *QApplication::overrideCursor()
 
     This function has no effect if setOverrideCursor() wasn't called.
 
-    \sa setOverrideCursor() overrideCursor() restoreOverrideCursor() changeOverrideCursor() QWidget::setCursor()
+    \sa setOverrideCursor() overrideCursor() restoreOverrideCursor() QWidget::setCursor()
  */
 void QApplication::changeOverrideCursor(const QCursor &cursor)
 {
@@ -2462,9 +2468,14 @@ void QApplication::changeOverrideCursor(const QCursor &cursor)
     qApp->d_func()->cursor_list.removeFirst();
     setOverrideCursor(cursor);
 }
-
-
 #endif
+
+/*!
+    \fn void QApplication::setOverrideCursor(const QCursor &cursor, bool replace)
+
+    Use changeOverrideCursor(\a cursor) (if \a replace is true)
+    or setOverrideCursor(\a cursor) (if \a replace is false).
+*/
 
 /*!
     Enters the main event loop and waits until exit() is called or the

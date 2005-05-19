@@ -827,11 +827,9 @@ Qt::FocusReason QFocusEvent::reason()
 */
 
 /*!
-    \fn void setErased(bool b) { m_erased = b; }
-    \compat
+    \fn void QPaintEvent::setErased(bool b) { m_erased = b; }
     \internal
 */
-
 
 /*!
     Constructs a paint event object with the region that needs to
@@ -1431,7 +1429,7 @@ QInputMethodEvent::QInputMethodEvent()
     The commitString(), replacementStart(), and replacementLength()
     values can be set using setCommitString().
 
-    \sa preeditText(), attributes()
+    \sa preeditString(), attributes()
 */
 QInputMethodEvent::QInputMethodEvent(const QString &preeditText, const QList<Attribute> &attributes)
     : QEvent(QEvent::InputMethod), preedit(preeditText), attrs(attributes),
@@ -1840,11 +1838,6 @@ QDragMoveEvent::QDragMoveEvent(const QPoint& pos, Qt::DropActions actions, const
 QDragMoveEvent::~QDragMoveEvent()
 {
 }
-
-/*!
-    \fn void QDragMoveEvent::accept()
-\    \internal
-*/
 
 /*!
     \fn void QDragMoveEvent::accept(bool y)
@@ -2841,8 +2834,8 @@ QClipboardEvent::~QClipboardEvent()
 /*!
     \fn QShortcutEvent::QShortcutEvent(const QKeySequence &key, int id, bool ambiguous = false)
 
-    Constructs a shortcut event for the given \e key press,
-    associated with the QShortcut ID \e id.
+    Constructs a shortcut event for the given \a key press,
+    associated with the QShortcut ID \a id.
 
     \a ambiguous specifies whether there is more than one QShortcut
     for the same key sequence.

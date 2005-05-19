@@ -159,8 +159,6 @@ void QAbstractSpinBox::setButtonSymbols(ButtonSymbols bs)
     \brief the spin box's text, including any prefix and suffix
 
     There is no default text.
-
-   \sa QAbstractSpinBox::prefix, QAbstractSpinBox::suffix
 */
 
 QString QAbstractSpinBox::text() const
@@ -193,9 +191,9 @@ QString QAbstractSpinBox::text() const
     choose. Your code must then interpret the spin box value of -1 as
     the user requesting automatic margin width.
 
-    All values are displayed with the prefix() and suffix() (if set),
-    \e except for the special value, which only shows the special
-    value text.
+    All values are displayed with the prefix and suffix (if set), \e
+    except for the special value, which only shows the special value
+    text.
 
     To turn off the special-value text display, call this function
     with an empty string. The default is no special-value text, i.e.

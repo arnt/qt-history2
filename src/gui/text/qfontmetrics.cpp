@@ -1178,7 +1178,7 @@ qreal QFontMetricsF::width(const QString &str) const
     instead if you aren't looking for the width of isolated
     characters.
 
-    \sa boundingRect(), charWidth()
+    \sa boundingRect()
 */
 qreal QFontMetricsF::width(QChar ch) const
 {

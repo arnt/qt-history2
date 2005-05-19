@@ -33,7 +33,7 @@
     following way:
 
     \quotefromfile snippets/dragging/mainwindow.cpp
-    \skipto mouseMoveEvent
+    \skipto mousePressEvent
     \skipto QDrag
     \printuntil setMimeData
 
@@ -212,3 +212,20 @@ void QDrag::setDragCursor(const QPixmap &cursor, Qt::DropAction action)
         d->customCursors[action] = cursor;
 }
 
+/*!
+    \fn void QDrag::actionChanged(Qt::DropAction action)
+
+    This signal is emitted when the \a action associated with the
+    drag changes.
+
+    \sa targetChanged()
+*/
+
+/*!
+    \fn void QDrag::targetChanged(QWidget *newTarget)
+
+    This signal is emitted when the target of the drag and drop
+    operation changes, with \a newTarget the new target.
+
+    \sa target(), actionChanged()
+*/

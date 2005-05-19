@@ -1178,11 +1178,49 @@ QFontDatabase::QFontDatabase()
 }
 
 /*!
+    \enum QFontDatabase::WritingSystem
+
+    \value Any
+    \value Latin
+    \value Greek
+    \value Cyrillic
+    \value Armenian
+    \value Hebrew
+    \value Arabic
+    \value Syriac
+    \value Thaana
+    \value Devanagari
+    \value Bengali
+    \value Gurmukhi
+    \value Gujarati
+    \value Oriya
+    \value Tamil
+    \value Telugu
+    \value Kannada
+    \value Malayalam
+    \value Sinhala
+    \value Thai
+    \value Lao
+    \value Tibetan
+    \value Myanmar
+    \value Georgian
+    \value Khmer
+    \value SimplifiedChinese
+    \value TraditionalChinese
+    \value Japanese
+    \value Korean
+    \value Vietnamese
+    \value Other
+
+    \omitvalue WritingSystemsCount
+*/
+
+/*!
     Returns a sorted list of the available writing systems. This is
     list generated from information about all installed fonts on the
     system.
 
-    \sa QFontDatabase::WritingSystem families
+    \sa families()
 */
 QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
 {
@@ -1214,7 +1252,7 @@ QList<QFontDatabase::WritingSystem> QFontDatabase::writingSystems() const
     that font is in the form "family [foundry]". Examples: "Times
     [Adobe]", "Times [Cronyx]", "Palatino".
 
-    \sa writingSystems
+    \sa writingSystems()
 */
 QStringList QFontDatabase::families(WritingSystem writingSystem) const
 {
@@ -1250,7 +1288,7 @@ QStringList QFontDatabase::families(WritingSystem writingSystem) const
     family. Some example styles: "Light", "Light Italic", "Bold",
     "Oblique", "Demi". The list may be empty.
 
-    \sa families
+    \sa families()
 */
 QStringList QFontDatabase::styles(const QString &family) const
 {

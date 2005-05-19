@@ -255,7 +255,7 @@ void QX11Info::setAppTime(unsigned long time)
 /*!
     Returns the X11 user time.
 
-    \sa setAppUserTime(), appUserTime()
+    \sa setAppUserTime(), appTime()
 */
 unsigned long QX11Info::appUserTime()
 {

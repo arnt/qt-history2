@@ -439,7 +439,8 @@ QString QTextLayout::preeditAreaText() const
 
 
 /*!
-    Sets the additional formats supported by the text layout.
+    Sets the additional formats supported by the text layout to \a
+    formatList.
 
     \sa additionalFormats(), clearAdditionalFormats()
 */
