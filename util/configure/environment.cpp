@@ -324,6 +324,104 @@ bool Environment::detectExecutable(const QString &executable)
 }
 
 /*!
+    Creates a commandling from \a program and it \a arguments,
+    escaping characters that needs it.
+*/
+static QString qt_create_commandline(const QString &program, const QStringList &arguments)
+{
+    QString programName = program;
+    if (!programName.startsWith("\"") && !programName.endsWith("\"") && programName.contains(" "))
+        programName = "\"" + programName + "\"";
+    programName.replace("/", "\\");
+
+    QString args;
+    // add the prgram as the first arrg ... it works better
+    args = programName + " ";
+    for (int i=0; i<arguments.size(); ++i) {
+        QString tmp = arguments.at(i);
+        // in the case of \" already being in the string the \ must also be escaped
+        tmp.replace( "\\\"", "\\\\\"" );
+        // escape a single " because the arguments will be parsed
+        tmp.replace( "\"", "\\\"" );
+        if (tmp.isEmpty() || tmp.contains(' ') || tmp.contains('\t')) {
+            // The argument must not end with a \ since this would be interpreted
+            // as escaping the quote -- rather put the \ behind the quote: e.g.
+            // rather use "foo"\ than "foo\"
+            QString endQuote("\"");
+            int i = tmp.length();
+            while (i>0 && tmp.at(i-1) == '\\') {
+                --i;
+                endQuote += "\\";
+            }
+            args += QString(" \"") + tmp.left(i) + endQuote;
+        } else {
+            args += ' ' + tmp;
+        }
+    }
+    return args;
+}
+
+/*!
+    Creates a QByteArray of the \a environment in either UNICODE or
+    ansi representation.
+*/
+static QByteArray qt_create_environment(const QStringList &environment)
+{
+    QByteArray envlist;
+    if (!environment.isEmpty()) {
+	int pos = 0;
+	// add PATH if necessary (for DLL loading)
+	QByteArray path = qgetenv("PATH");
+        QT_WA({
+	    if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty()
+                && !path.isNull()) {
+                QString tmp = QString(QLatin1String("PATH=%1")).arg(QString::fromLocal8Bit(path));
+                uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
+                envlist.resize(envlist.size() + tmpSize );
+                memcpy(envlist.data()+pos, tmp.utf16(), tmpSize);
+                pos += tmpSize;
+	    }
+	    // add the user environment
+	    for (QStringList::ConstIterator it = environment.begin(); it != environment.end(); it++ ) {
+                QString tmp = *it;
+                uint tmpSize = sizeof(TCHAR) * (tmp.length()+1);
+                envlist.resize(envlist.size() + tmpSize);
+                memcpy(envlist.data()+pos, tmp.utf16(), tmpSize);
+                pos += tmpSize;
+	    }
+	    // add the 2 terminating 0 (actually 4, just to be on the safe side)
+	    envlist.resize( envlist.size()+4 );
+	    envlist[pos++] = 0;
+	    envlist[pos++] = 0;
+	    envlist[pos++] = 0;
+	    envlist[pos++] = 0;
+        }, {
+            if (environment.filter(QRegExp("^PATH=",Qt::CaseInsensitive)).isEmpty() && !path.isNull()) {
+                QByteArray tmp = QString("PATH=%1").arg(QString::fromLocal8Bit(path)).toLocal8Bit();
+                uint tmpSize = tmp.length() + 1;
+                envlist.resize(envlist.size() + tmpSize);
+                memcpy(envlist.data()+pos, tmp.data(), tmpSize);
+                pos += tmpSize;
+            }
+            // add the user environment
+            for (QStringList::ConstIterator it = environment.begin(); it != environment.end(); it++) {
+                QByteArray tmp = (*it).toLocal8Bit();
+                uint tmpSize = tmp.length() + 1;
+                envlist.resize(envlist.size() + tmpSize);
+                memcpy(envlist.data()+pos, tmp.data(), tmpSize);
+                pos += tmpSize;
+            }
+            // add the terminating 0 (actually 2, just to be on the safe side)
+            envlist.resize(envlist.size()+2);
+            envlist[pos++] = 0;
+            envlist[pos++] = 0;
+        })
+    }
+
+    return envlist;
+}
+
+/*!
     Executes the command described in \a arguments, in the
     environment inherited from the parent process, with the
     \a additionalEnv settings applied.
@@ -384,9 +482,11 @@ int Environment::execute(QStringList arguments, const QStringList &additionalEnv
         int sepIndex = str.indexOf('=');
         fullEnvMap.insert(str.left(sepIndex).toUpper(), str.mid(sepIndex +1));
     }
+
     // Remove removeEnv variables
     for (int j = 0; j < removeEnv.count(); ++j)
         fullEnvMap.remove(removeEnv.at(j).toUpper());
+
     // Add all variables to a QStringList
     QStringList fullEnv;
     QMapIterator<QString, QString> it(fullEnvMap);
@@ -395,64 +495,58 @@ int Environment::execute(QStringList arguments, const QStringList &additionalEnv
         fullEnv += QString(it.key() + "=" + it.value());
     }
 
-    // Normal to have the command two times on the command line.
-    if (arguments.count())
-        arguments.prepend(arguments.at(0));
+    // ----------------------------
+    QString program = arguments.takeAt(0);
+    QString args = qt_create_commandline(program, arguments);
+    QByteArray envlist = qt_create_environment(fullEnv);
 
-    int exitCode = -1;
-    int mode = _P_WAIT;
-    int numArgs = arguments.count();
-    int numEnvs = fullEnv.count();
+    DWORD exitCode = -1;
+    PROCESS_INFORMATION procInfo;
+    memset(&procInfo, 0, sizeof(procInfo));
 
+    bool couldExecute;
     QT_WA({
-        wchar_t *cmdname = (wchar_t*)arguments.at(0).utf16();
-        wchar_t **args = new wchar_t*[numArgs + 1];
-        wchar_t **envs = new wchar_t*[numEnvs + 1];
-        memset(args, 0, sizeof(wchar_t*) * (numArgs + 1));
-        memset(envs, 0, sizeof(wchar_t*) * (numEnvs + 1));
-        for(int i = 1; i < arguments.count(); ++i)
-            args[i-1] = (wchar_t*)arguments.at(i).utf16();
-        args[numArgs] = 0;
-        for(int j = 1; j < fullEnv.count(); ++j)
-            envs[j-1] = (wchar_t*)fullEnv.at(j).utf16();
-        envs[numEnvs] = 0;
+        // Unicode version
+        STARTUPINFOW startInfo;
+        memset(&startInfo, 0, sizeof(startInfo));
+        startInfo.cb = sizeof(startInfo);
 
-        exitCode = _wspawnvpe(mode, cmdname, args, envs);
-        delete args;
-        delete envs;
+        couldExecute = CreateProcessW(0, (WCHAR*)args.utf16(),
+                                      0, 0, false, CREATE_UNICODE_ENVIRONMENT,
+                                      envlist.isEmpty() ? 0 : envlist.data(),
+                                      0, &startInfo, &procInfo);
     }, {
-        char *cmdname = arguments.at(0).toLocal8Bit().data();
-        char **args = new char*[numArgs + 1];
-        char **envs = new char*[numEnvs + 1];
-        memset(args, 0, sizeof(char*) * (numArgs + 1));
-        memset(envs, 0, sizeof(char*) * (numEnvs + 1));
-        for(int i = 1; i < arguments.count(); ++i)
-            args[i-1] = arguments.at(i).toLocal8Bit().data();
-        args[numArgs] = 0;
-        for(int j = 1; j < fullEnv.count(); ++j)
-            envs[j-1] = fullEnv.at(j).toLocal8Bit().data();
-        envs[numEnvs] = 0;
-
-        exitCode = _spawnvpe(mode, cmdname, args, envs);
-        delete args;
-        delete envs;
+        // Ansi version 
+        STARTUPINFOA startInfo;
+        memset(&startInfo, 0, sizeof(startInfo));
+        startInfo.cb = sizeof(startInfo);
+        
+        couldExecute = CreateProcessA(0, args.toLocal8Bit().data(),
+                                      0, 0, false, 0,
+                                      envlist.isEmpty() ? 0 : envlist.data(),
+                                      0, &startInfo, &procInfo);
     })
 
+    if (couldExecute) {
+        WaitForSingleObject(procInfo.hProcess, INFINITE);
+        GetExitCodeProcess(procInfo.hProcess, &exitCode);
+        CloseHandle(procInfo.hThread);
+        CloseHandle(procInfo.hProcess);
+    }
+
+
     if (exitCode == -1) {
-        switch(errno) {
+        switch(GetLastError()) {
         case E2BIG:
             cerr << "execute: Argument list exceeds 1024 bytes" << endl;
             foreach(QString arg, arguments)
                 cerr << "   (" << arg.toLocal8Bit().constData() << ")" << endl;
             break;
-        case EINVAL:
-            cerr << "execute: mode argument is invalid. (0x" << hex << mode << ")" <<  endl;
-            break;
         case ENOENT:
-            cerr << "execute: File or path is not found (" << arguments.at(0).toLocal8Bit().constData() << ")" << endl;
+            cerr << "execute: File or path is not found (" << program.toLocal8Bit().constData() << ")" << endl;
             break;
         case ENOEXEC:
-            cerr << "execute: Specified file is not executable or has invalid executable-file format (" << arguments.at(0).toLocal8Bit().constData() << ")" << endl;
+            cerr << "execute: Specified file is not executable or has invalid executable-file format (" << program.toLocal8Bit().constData() << ")" << endl;
             break;
         case ENOMEM:
             cerr << "execute: Not enough memory is available to execute new process." << endl;
