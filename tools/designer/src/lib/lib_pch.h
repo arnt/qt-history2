@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #ifdef __cplusplus
-#include "shared_global.h"
+#include "shared_global_p.h"
 #include <QtCore/qdebug.h>
 #include <QtDesigner/abstractformeditor.h>
 #include <QtDesigner/sdk_global.h>
@@ -28,10 +28,10 @@
 #include <QtDesigner/abstractwidgetfactory.h>
 #include <QtDesigner/abstractwidgetdatabase.h>
 #include <QtGui/QWidget>
-#include "qdesigner_widget.h"
+#include "qdesigner_widget_p.h"
 #include <QtGui/QPainter>
 #include <QtGui/QMainWindow>
 #include <QtCore/qglobal.h>
 #include <QtCore/QPointer>
-#include "layout.h"
+#include "layout_p.h"
 #endif
