@@ -73,7 +73,9 @@ QWidget *AbstractPropertyGroup::createEditor(QWidget *parent, const QObject *tar
     Q_UNUSED(target);
     Q_UNUSED(receiver);
 
-    return new QLabel(parent);
+    QLabel *label = new QLabel(parent);
+    label->setIndent(2); // ### hardcode it should have the same value of textMargin in QItemDelegate
+    return label;
 }
 
 void AbstractPropertyGroup::updateEditorContents(QWidget *editor)

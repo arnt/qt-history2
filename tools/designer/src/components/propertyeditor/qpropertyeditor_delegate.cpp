@@ -147,15 +147,15 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         painter->fillRect(option.rect, QColor(230, 230, 230));
     }
 
-    painter->drawLine(option.rect.x(), option.rect.bottom(),
-            option.rect.right(), option.rect.bottom());
-
     if (index.column() == 1 || !property->isSeparator()) {
         painter->drawLine(option.rect.right(), option.rect.y(),
                 option.rect.right(), option.rect.bottom());
     }
 
     QItemDelegate::paint(painter, option, index);
+
+    painter->drawLine(option.rect.x(), option.rect.bottom(),
+            option.rect.right(), option.rect.bottom());
 }
 
 QSize QPropertyEditorDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const
