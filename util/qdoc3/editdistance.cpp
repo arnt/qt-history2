@@ -39,7 +39,7 @@ int editDistance( const QString& s, const QString& t )
 QString nearestName( const QString& actual, const QSet<QString>& candidates )
 {
     int deltaBest = 10000;
-    int numBest;
+    int numBest = 0;
     QString best;
 
     QSet<QString>::ConstIterator c = candidates.begin();

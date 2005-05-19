@@ -196,6 +196,19 @@ QString CodeMarker::linkTag( const Node *node, const QString& body )
 QString CodeMarker::sortName( const Node *node )
 {
     QString nodeName = node->name();
+    int numDigits = 0;
+    for (int i = nodeName.size() - 1; i > 0; --i) {
+        if (nodeName.at(i).digitValue() == -1)
+            break;
+        ++numDigits;
+    }
+
+    // we want 'qint8' to appear before 'qint16'
+    if (numDigits > 0) {
+        for (int i = 0; i < 4 - numDigits; ++i)
+            nodeName.insert(nodeName.size() - numDigits - 1, "0");
+    }
+
     if ( node->type() == Node::Function ) {
 	const FunctionNode *func = static_cast<const FunctionNode *>(node);
 	QString sortNo;

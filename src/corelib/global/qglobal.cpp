@@ -26,6 +26,260 @@
 #endif
 
 /*!
+    \class QFlag
+    \brief The QFlag class is a helper data type for QFlags.
+
+    It is equivalent to a plain \c int, except with respect to
+    function overloading and type conversions. You should never need
+    to use it in your applications.
+
+    \sa QFlags
+*/
+
+/*!
+    \fn QFlag::QFlag(int value)
+
+    Constructs a QFlag object that stores the given \a value.
+*/
+
+/*!
+    \fn QFlag::operator int() const
+
+    Returns the value stored by the QFlag object.
+*/
+
+/*!
+    \class QFlags
+    \brief The QFlags class provides a type-safe way of storing
+    OR-combinations of enum values.
+
+    \mainclass
+    \ingroup tools
+
+    The QFlags<Enum> class is a template class, where Enum is an enum
+    type. QFlags is used throughout Qt for storing combinations of
+    enum values.
+
+    The traditional C++ approach for storing OR-combinations of enum
+    values is to use a \c int or \c uint variable. The inconvenient
+    with that approach is that there's no type checking at all; any
+    enum value can be OR'd with any other enum value and passed on to
+    a function that takes a \c int or \c uint.
+
+    Qt uses QFlags to provide type safety. For example, the
+    Qt::Alignment type is simply a typedef for
+    QFlags<Qt::AlignmentFlag>. QLabel::setAlignment() takes a
+    Qt::Alignment parameter, which means that any combination of
+    Qt::AlignmentFlag values is legal:
+
+    \code
+        label->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    \endcode
+
+    If you try to pass a value from another enum, the compiler will
+    report an error.
+
+    If you want to use QFlags for your own enum types, you must use
+    the \c Q_DECLARE_FLAGS() and \c Q_DECLARE_OPERATORS_FOR_FLAGS().
+    For example:
+
+    \code
+        class MyClass
+        {
+        public:
+            enum Option {
+                NoOptions = 0x0,
+                ShowTabs = 0x1,
+                ShowAll = 0x2,
+                SqueezeBlank = 0x4
+            };
+            Q_DECLARE_FLAGS(Options, Option)
+            ...
+        };
+
+        Q_DECLARE_OPERATORS_FOR_FLAGS(MyClass::Options)
+    \endcode
+
+    You can then use the \c MyClass::Options type to store
+    combinations of \c MyClass::Option values.
+
+    A sensible naming convension for enum types and associated QFlags
+    types is to give a singular name to the enum type (e.g., \c
+    Option) and a plural name to the QFlags type (e.g., \c Options).
+    When a singular name is desired for the QFlags type (e.g., \c
+    Alignment), you can use \c Flag as the suffix for the enum type
+    (e.g., \c AlignmentFlag).
+
+    \sa QFlag
+*/
+
+#define Q_DECLARE_FLAGS(Flags, Enum)\
+typedef QFlags<Enum> Flags;
+#define Q_DECLARE_OPERATORS_FOR_FLAGS(Flags) \
+
+/*!
+    \typedef QFlags::enum_type
+
+    Typedef for the Enum template type.
+*/
+
+/*!
+    \fn QFlags::QFlags(const QFlags &other)
+
+    Constructs a copy of \a other.
+*/
+
+/*!
+    \fn QFlags::QFlags(Enum flag)
+
+    Constructs a QFlags object storing the given \a flag.
+*/
+
+/*!
+    \fn QFlags::QFlags(Zero zero)
+
+    Constructs a QFlags object with no flags set. \a zero must be a
+    literal 0 value.
+*/
+
+/*!
+    \fn QFlags::QFlags(QFlag value)
+
+    Constructs a QFlags object initialized with the given integer \a
+    value.
+
+    The QFlag type is a helper type. By using it here instead of \c
+    int, we effectively ensure that arbitrary enum values cannot be
+    cast to a QFlags, whereas untyped enum values (i.e., \c int
+    values) can.
+*/
+
+/*!
+    \fn QFlags &QFlags::operator=(const QFlags &other)
+
+    Assigns \a other to this object and returns a reference to this
+    object.
+*/
+
+/*!
+    \fn QFlags &QFlags::operator&=(int mask)
+
+    Performs a bitwise AND operation with \a mask and stores the
+    result in this QFlags object. Returns a reference to this object.
+
+    \sa operator&(), operator|=(), operator^=()
+*/
+
+/*!
+    \fn QFlags &QFlags::operator&=(uint mask)
+
+    \overload
+*/
+
+/*!
+    \fn QFlags &QFlags::operator|=(QFlags other)
+
+    Performs a bitwise OR operation with \a other and stores the
+    result in this QFlags object. Returns a reference to this object.
+
+    \sa operator|(), operator&=(), operator^=()
+*/
+
+/*!
+    \fn QFlags &QFlags::operator|=(Enum other)
+
+    \overload
+*/
+
+/*!
+    \fn QFlags &QFlags::operator^=(QFlags other)
+
+    Performs a bitwise XOR operation with \a other and stores the
+    result in this QFlags object. Returns a reference to this object.
+
+    \sa operator^(), operator&=(), operator|=()
+*/
+
+/*!
+    \fn QFlags &QFlags::operator^=(Enum other)
+
+    \overload
+*/
+
+/*!
+    \fn QFlags::operator int() const
+
+    Returns the value stored in the QFlags object as an integer.
+*/
+
+/*!
+    \fn QFlags QFlags::operator|(QFlags other) const
+
+    Returns a QFlags object containing the result of the bitwise OR
+    operation on this object and \a other.
+
+    \sa operator|=(), operator^(), operator&(), operator~()
+*/
+
+/*!
+    \fn QFlags QFlags::operator|(Enum other) const
+
+    \overload
+*/
+
+/*!
+    \fn QFlags QFlags::operator^(QFlags other) const
+
+    Returns a QFlags object containing the result of the bitwise XOR
+    operation on this object and \a other.
+
+    \sa operator^=(), operator&(), operator|(), operator~()
+*/
+
+/*!
+    \fn QFlags QFlags::operator^(Enum other) const
+
+    \overload
+*/
+
+/*!
+    \fn QFlags QFlags::operator&(int mask) const
+
+    Returns a QFlags object containing the result of the bitwise AND
+    operation on this object and \a mask.
+
+    \sa operator&=(), operator|(), operator^(), operator~()
+*/
+
+/*!
+    \fn QFlags QFlags::operator&(uint mask) const
+
+    \overload
+*/
+
+/*!
+    \fn QFlags QFlags::operator&(Enum mask) const
+
+    \overload
+*/
+
+/*!
+    \fn QFlags QFlags::operator~() const
+
+    Returns a QFlags object that contains the bitwise negation of
+    this object.
+
+    \sa operator&(), operator|(), operator^()
+*/
+
+/*!
+    \fn bool QFlags::operator!() const
+
+    Returns true if no flag is set (i.e., if the value stored by the
+    QFlags object is 0); otherwise returns false.
+*/
+
+/*!
     \headerfile <QtGlobal>
     \title Global Qt Declarations
 

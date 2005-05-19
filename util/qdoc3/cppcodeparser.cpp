@@ -488,7 +488,7 @@ bool CppCodeParser::matchDataType( CodeChunk *dataType, QString *var )
 	    while ( match(Tok_const) || match(Tok_volatile) )
 		dataType->append( previousLexeme() );
 	    while ( match(Tok_signed) || match(Tok_unsigned) ||
-		    match(Tok_short) || match(Tok_long) ) {
+		    match(Tok_short) || match(Tok_long) || match(Tok_int64)) {
 		dataType->append( previousLexeme() );
 		virgin = false;
 	    }

@@ -1446,13 +1446,13 @@ inline QFlag::QFlag(int ai) : i(ai) {}
 template<typename Enum>
 class QFlags
 {
-    typedef void *Zero;
+    typedef void **Zero;
     int i;
 public:
     typedef Enum enum_type;
     inline QFlags(const QFlags &f) : i(f.i) {}
     inline QFlags(Enum f) : i(f) {}
-    inline QFlags(Zero * = 0) : i(0) {}
+    inline QFlags(Zero = 0) : i(0) {}
     inline QFlags(QFlag f) : i(f) {}
 
     inline QFlags &operator=(const QFlags &f) { i = f.i; return *this; }

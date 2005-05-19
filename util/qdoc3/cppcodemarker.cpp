@@ -359,11 +359,14 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 		        } else if ( isSignal ) {
 		            insert(publicSignals, *c, style, status);
 		        } else if ( isStatic ) {
-		            insert( staticPublicMembers, *c, style, status);
+                            if ((*c)->type() != Node::Variable
+                                    || !(*c)->doc().isEmpty())
+		                insert( staticPublicMembers, *c, style, status);
 		        } else if ( (*c)->type() == Node::Property ) {
                             insert(properties, *c, style, status);
 		        } else if ( (*c)->type() == Node::Variable ) {
-                            insert(publicVariables, *c, style, status);
+                            if (!(*c)->doc().isEmpty())
+                                insert(publicVariables, *c, style, status);
 		        } else if ( (*c)->type() == Node::Function ) {
                             insert(publicFunctions, *c, style, status);
 		        } else {
@@ -374,9 +377,12 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 		        if ( isSlot ) {
 		            insert( protectedSlots, *c, style, status );
 		        } else if ( isStatic ) {
-		            insert( staticProtectedMembers, *c, style, status );
+                            if ((*c)->type() != Node::Variable
+                                    || !(*c)->doc().isEmpty())
+		                insert( staticProtectedMembers, *c, style, status );
 		        } else if ( (*c)->type() == Node::Variable ) {
-                            insert(protectedVariables, *c, style, status);
+                            if (!(*c)->doc().isEmpty())
+                                insert(protectedVariables, *c, style, status);
 		        } else if ( (*c)->type() == Node::Function ) {
 		            insert( protectedFunctions, *c, style, status );
 		        } else {
@@ -387,7 +393,9 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 		        if ( isSlot ) {
 		            insert( privateSlots, *c, style, status );
 		        } else if ( isStatic ) {
-		            insert( staticPrivateMembers, *c, style, status );
+                            if ((*c)->type() != Node::Variable
+                                    || !(*c)->doc().isEmpty())
+		                insert( staticPrivateMembers, *c, style, status );
 		        } else if ( (*c)->type() == Node::Function ) {
 		            insert( privateFunctions, *c, style, status );
 		        } else {
@@ -441,7 +449,8 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 	        } else if ( (*c)->type() == Node::Property ) {
 		    insert( properties, *c, style, status );
 	        } else if ( (*c)->type() == Node::Variable ) {
-		    insert( memberVariables, *c, style, status );
+                    if (!(*c)->doc().isEmpty())
+		        insert( memberVariables, *c, style, status );
 	        } else if ( (*c)->type() == Node::Function ) {
 		    FunctionNode *function = static_cast<FunctionNode *>(*c);
                     if (!function->associatedProperty())

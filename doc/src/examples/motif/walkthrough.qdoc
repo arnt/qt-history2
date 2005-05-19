@@ -19,14 +19,14 @@
     user interface and related code can be migrated in steps while the
     rest of the project need not be changed at all.
 
-    This walkthrough is intended for programmers who will be migrating an
-    existing Motif based project to the Qt toolkit. We assume that they
-    have experience with C/C++ and Xt/Motif. Some experience with the Qt
-    toolkit is also necessary. For developers completely new to Qt we
-    recommend following the learning plan outlined in
-    \l{how-to-learn-qt.html}{How to Learn Qt}; or to go on a Qt
-    training course. (See \l{http://www.trolltech.com/} for
-    details of training courses.)
+    This walkthrough is intended for programmers who will be
+    migrating an existing Motif based project to the Qt toolkit. We
+    assume that they have experience with C/C++ and Xt/Motif. Some
+    experience with the Qt toolkit is also necessary. For developers
+    completely new to Qt we recommend following the learning plan
+    outlined in \l{How to Learn Qt}; or to go on a Qt training
+    course. (See \l{http://www.trolltech.com/} for details of
+    training courses.)
 
     \section1 Goals for the Walkthrough
 
@@ -138,8 +138,8 @@
     \page motif-walkthrough-1.html
     \title Getting Started
 
-    \contentspage motif-walkthrough.html Home
-    \previouspage motif-walkthrough.html Home
+    \contentspage motif/walkthrough Home
+    \previouspage motif/walkthrough Home
     \nextpage motif-walkthrough-2.html Chapter 2
 
     \section1 Starting with QMotif and QApplication
@@ -224,7 +224,7 @@
     \page motif-walkthrough-2.html
     \title Preparing to Migrate the User Interface
 
-    \contentspage motif-walkthrough.html Home
+    \contentspage motif/walkthrough Home
     \previouspage motif-walkthrough-1.html Getting Started
     \nextpage motif-walkthrough-3.html Using Qt Standard Dialogs
 
@@ -271,14 +271,11 @@
     However, we cannot start using classes like QToolTip and QWhatsThis
     until we replace the \e {Main Window} and \e View widgets.
 
-    The help text included with the original project is very small and
-    only contains information about the \c XmNoteBook widget. The use of
-    tooltips and whats-this text will suffice for this example. If your
-    migration project has a large online help system, we recommend looking
-    at the \link helpviewer-example.html Simple HTML Help Browser\endlink
-    example for information on how to build an rich text help system with
-    hypertext navigation and full printing capabilities, or using
-    \l{Qt Assistant}.
+    The help text included with the original project is very small
+    and only contains information about the \c XmNoteBook widget. The
+    use of tooltips and whats-this text will suffice for this
+    example. If your migration project has a large online help
+    system, we recommend using \l{Qt Assistant}.
 
     Removing the existing \e Help dialog is relatively simple. We remove
     the \c Xmd/Help.h, \c Xmd/HelpP.h and \c Xmd/Help.c files from our
@@ -303,7 +300,7 @@
     \page motif-walkthrough-3.html
     \title Using Qt Standard Dialogs
 
-    \contentspage motif-walkthrough.html Home
+    \contentspage motif/walkthrough Home
     \previouspage motif-walkthrough-2.html Preparing to Migrate the User Interface
     \nextpage motif-walkthrough-4.html Using Custom QDialogs
 
@@ -510,7 +507,7 @@
     \page motif-walkthrough-4.html
     \title Using Custom QDialogs
 
-    \contentspage motif-walkthrough.html Home
+    \contentspage motif/walkthrough Home
     \previouspage motif-walkthrough-3.html Using Qt Standard Dialogs
     \nextpage motif-walkthrough-5.html Using Existing Dialogs with QMotifDialog
 
@@ -594,7 +591,7 @@
     \page motif-walkthrough-5.html
     \title Using Existing Dialogs with QMotifDialog
 
-    \contentspage motif-walkthrough.html Home
+    \contentspage motif/walkthrough Home
     \previouspage motif-walkthrough-4.html Using Custom QDialogs
     \nextpage motif-walkthrough-6.html Using Qt Main Window Classes
 
@@ -697,15 +694,14 @@
     \page motif-walkthrough-6.html
     \title Using Qt Main Window Classes
 
-    \contentspage motif-walkthrough.html Home
+    \contentspage motif/walkthrough Home
     \previouspage motif-walkthrough-5.html Using Existing Dialogs with QMotifDialog
     \nextpage motif-walkthrough-7.html Refactoring Existing Code
 
     After we have replaced all the dialogs, we are ready to begin replacing
-    the \e {Main Window}.  \link motif-walkthrough.html#4 As mentioned
-    above\endlink, we will replace the existing \c XmMainWindow and
-    popup-menu heirarchy with \link application.html Qt Main Window
-    Classes\endlink.
+    the \e {Main Window}. \l{motif-walkthrough-4.html}{As mentioned
+    above}, we will replace the existing \c XmMainWindow and
+    popup-menu hierarchy with QMainWindow and friends.
 
     We will use Qt Designer to design our new main window. 
 
@@ -829,7 +825,7 @@
     \page motif-walkthrough-7.html
     \title Refactoring Existing Code
 
-    \contentspage motif-walkthrough.html Home
+    \contentspage motif/walkthrough Home
     \previouspage motif-walkthrough-6.html Using Qt Main Window Classes
     \nextpage motif-walkthrough-8.html Replacing the View Widget
 
@@ -1078,7 +1074,7 @@
     \page motif-walkthrough-8.html
     \title Replacing the View Widget
 
-    \contentspage motif-walkthrough.html Home
+    \contentspage motif/walkthrough Home
     \previouspage motif-walkthrough-7.html Refactoring Existing Code
     \nextpage motif-walkthrough-9.html Replacing the Print Dialog
 
@@ -1353,7 +1349,7 @@
     \page motif-walkthrough-9.html
     \title Replacing the Print Dialog
 
-    \contentspage motif-walkthrough.html Home
+    \contentspage motif/walkthrough Home
     \previouspage motif-walkthrough-8.html Replacing the View Widget
     \nextpage motif-walkthrough-10.html Continuing Development
 
@@ -1366,11 +1362,8 @@
     write a new \c MainWindow::filePrint() implementation in \c
     mainwindow.ui.h.
 
-    Note: The steps involved in using the QPrinter class are beyond the
-    scope of this walkthrough and will not be discussed here. The
-    QPrinter Class Reference, QSimpleRichText Class Reference and the
-    \link simple-application.html Simple Application Walkthrough\endlink
-    contain information on the use of QPrinter.
+    Note: The steps involved in using the QPrinter class are beyond
+    the scope of this walkthrough and will not be discussed here.
 
     For completeness, the code to initialize a QPrinter object is included below.
 
@@ -1443,7 +1436,7 @@
     \page motif-walkthrough-10.html
     \title Continuing Development
 
-    \contentspage motif-walkthrough.html Home
+    \contentspage motif/walkthrough Home
     \previouspage motif-walkthrough-9.html Replacing the Print Dialog
 
     We have not quite finished with the migration to Qt, even though our
