@@ -61,6 +61,12 @@ PromoteToCustomWidgetDialog::PromoteToCustomWidgetDialog(QDesignerWidgetDataBase
     ui->m_class_name_input->setFocus();
 }
 
+PromoteToCustomWidgetDialog::~PromoteToCustomWidgetDialog()
+{
+    delete ui;
+    ui = 0;
+}
+
 void PromoteToCustomWidgetDialog::checkInputs()
 {
     bool blocked = ui->m_header_file_input->blockSignals(true);

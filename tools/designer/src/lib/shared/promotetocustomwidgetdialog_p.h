@@ -41,6 +41,8 @@ public:
     PromoteToCustomWidgetDialog(QDesignerWidgetDataBaseInterface *db,
                                 const QString &base_class_name,
                                 QWidget *parent = 0);
+    virtual ~PromoteToCustomWidgetDialog();
+
     virtual void accept();
     QString includeFile() const;
     QString customClassName() const;
