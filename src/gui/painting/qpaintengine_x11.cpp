@@ -783,7 +783,7 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
             if (has_texture) {
                 XRenderComposite(d->dpy, PictOpOver,
                                  d->cbrush.texture().x11PictureHandle(), 0, pict,
-                                 r.x() - d->bg_origin.x(), r.y() - d->bg_origin.y(),
+                                 qRound(r.x() - d->bg_origin.x()), qRound(r.y() - d->bg_origin.y()),
                                  0, 0,
                                  r.x(), r.y(), r.width(), r.height());
             } else {
@@ -1096,7 +1096,8 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 void QX11PaintEngine::drawEllipse(const QRect &rect)
 {
     Q_D(QX11PaintEngine);
-    if (d->use_path_fallback) {
+    if (d->use_path_fallback || !d->cpen.isSolid()
+        || (X11->use_xrender && (d->cpen.color().alpha() != 255 || d->cbrush.color() != 255))) {
         QPainterPath path;
         path.addEllipse(rect);
         drawPath(path);

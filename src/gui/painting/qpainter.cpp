@@ -2407,6 +2407,38 @@ void QPainter::drawEllipse(const QRectF &r)
     d->engine->drawEllipse(rect);
 }
 
+void QPainter::drawEllipse(const QRect &r)
+{
+#ifdef QT_DEBUG_DRAW
+    if (qt_show_painter_debug_output)
+        printf("QPainter::drawEllipse(), [%d,%d,%d,%d]\n", r.x(), r.y(), r.width(), r.height());
+#endif
+
+    if (!isActive())
+        return;
+    Q_D(QPainter);
+    d->updateState(d->state);
+
+    QRect rect(r.normalized());
+
+    if (rect.isEmpty())
+        return;
+
+    if (d->state->emulationSpecifier) {
+        if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
+            && d->state->txop == QPainterPrivate::TxTranslate) {
+            rect.translate(QPoint(d->state->matrix.dx(), d->state->matrix.dy()));
+        } else {
+            QPainterPath path;
+            path.addEllipse(rect);
+            d->draw_helper(path, QPainterPrivate::StrokeAndFillDraw);
+            return;
+        }
+    }
+
+    d->engine->drawEllipse(rect);
+}
+
 
 /*! \fn void QPainter::drawArc(const QRect &r, int startAngle,
                                int spanAngle)

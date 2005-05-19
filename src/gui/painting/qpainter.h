@@ -197,7 +197,7 @@ public:
     inline void drawRects(const QVector<QRect> &rectangles);
 
     void drawEllipse(const QRectF &r);
-    inline void drawEllipse(const QRect &r);
+    void drawEllipse(const QRect &r);
     inline void drawEllipse(int x, int y, int w, int h);
 
     void drawPolyline(const QPointF *points, int pointCount);
@@ -549,14 +549,9 @@ inline void QPainter::drawRoundRect(const QRect &rect, int xRnd, int yRnd)
     drawRoundRect(QRectF(rect), xRnd, yRnd);
 }
 
-inline void QPainter::drawEllipse(const QRect &rect)
-{
-    drawEllipse(QRectF(rect));
-}
-
 inline void QPainter::drawEllipse(int x, int y, int w, int h)
 {
-    drawEllipse(QRectF(x, y, w, h));
+    drawEllipse(QRect(x, y, w, h));
 }
 
 inline void QPainter::drawArc(const QRect &r, int a, int alen)
