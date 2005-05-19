@@ -224,7 +224,7 @@ bool QPixmapCache::find(const QString &key, QPixmap& pm)
     The function returns true if the object was inserted into the
     cache; otherwise it returns false.
 
-    \sa setCacheLimit().
+    \sa setCacheLimit()
 */
 
 bool QPixmapCache::insert(const QString &key, const QPixmap &pm)
@@ -237,7 +237,7 @@ bool QPixmapCache::insert(const QString &key, const QPixmap &pm)
 
     The default setting is 1024 kilobytes.
 
-    \sa setCacheLimit().
+    \sa setCacheLimit()
 */
 
 int QPixmapCache::cacheLimit()

@@ -260,4 +260,10 @@ void QErrorMessage::showMessage(const QString & message)
         show();
 }
 
+/*!
+    \fn void QErrorMessage::message(const QString & message)
+
+    Use showMessage(\a message) instead.
+*/
+
 #endif // QT_NO_ERRORMESSAGE

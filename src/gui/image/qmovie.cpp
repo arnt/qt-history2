@@ -387,7 +387,7 @@ QRect QMovie::frameRect() const
     Use setPaused(true) instead.
 */
 
-/*! \fn void QMovie::pause()
+/*! \fn void QMovie::unpause()
 
     Use setPaused(false) instead.
 */
@@ -454,9 +454,15 @@ bool QMovie::isValid() const
     Use state() instead.
 */
 
-/*! \fn void QMovie::restart() const
+/*! \fn void QMovie::restart()
 
     Use stop() and start() instead.
+*/
+
+/*!
+    \fn void QMovie::step()
+
+    Use jumpToNextFrame() instead.
 */
 
 /*!

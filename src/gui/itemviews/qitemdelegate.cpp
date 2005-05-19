@@ -105,7 +105,7 @@ QItemDelegate::~QItemDelegate()
 
 /*!
     Renders the delegate using the given \a painter and style \a option for
-    the item specified by the \a model and the item \a index.
+    the item specified by \a index.
 */
 
 void QItemDelegate::paint(QPainter *painter,
@@ -167,8 +167,8 @@ void QItemDelegate::paint(QPainter *painter,
 }
 
 /*!
-    Returns the size needed by the delegate to display the item specified by
-    the \a model and item \a index, taking into account the style information
+    Returns the size needed by the delegate to display the item
+    specified by \a index, taking into account the style information
     provided by \a option.
 */
 
@@ -196,9 +196,9 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
 }
 
 /*!
-    Returns the widget used to edit the item specified by the \a model and
-    item \a index for editing. The \a parent widget and style \a option are
-    used to control how the editor widget appears.
+    Returns the widget used to edit the item specified by \a index
+    for editing. The \a parent widget and style \a option are used to
+    control how the editor widget appears.
 
     \sa QAbstractItemDelegate::createEditor()
 */
@@ -222,7 +222,7 @@ QWidget *QItemDelegate::createEditor(QWidget *parent,
 
 /*!
     Sets the data to be displayed and edited by the \a editor for the
-    item specified by the \a model and item \a index.
+    item specified by \a index.
 */
 
 void QItemDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
@@ -252,9 +252,9 @@ void QItemDelegate::setModelData(QWidget *editor,
 }
 
 /*!
-    Updates the \a editor for the item specified by the \a model and
-    item \a index according to the style \a option given.
- */
+    Updates the \a editor for the item specified by \a index
+    according to the style \a option given.
+*/
 
 void QItemDelegate::updateEditorGeometry(QWidget *editor,
                                          const QStyleOptionViewItem &option,
@@ -375,8 +375,9 @@ void QItemDelegate::drawFocus(QPainter *painter,
 }
 
 /*!
-    Renders a check indicator within the rectangle specified by \a rect,
-    using the given \a painter and style \a option.
+    Renders a check indicator within the rectangle specified by \a
+    rect, using the given \a painter and style \a option, using the
+    given \a state.
 */
 
 void QItemDelegate::drawCheck(QPainter *painter,
@@ -571,15 +572,17 @@ QRect QItemDelegate::check(const QStyleOptionViewItem &option,
 }
 
 /*!
-  If the \a object is the current editor: if the \a event is an Esc
-  key press the current edit is cancelled and ended, or if the \a
-  event is an Enter or Return key press the current edit is accepted
-  and ended. If editing is ended the event filter returns true to
-  signify that it has handled the event; in all other cases it does
-  nothing and returns false to signify that the event hasn't been
-  handled.
+    \internal
 
-  \sa endEdit()
+    If the \a object is the current editor: if the \a event is an Esc
+    key press the current edit is cancelled and ended, or if the \a
+    event is an Enter or Return key press the current edit is accepted
+    and ended. If editing is ended the event filter returns true to
+    signify that it has handled the event; in all other cases it does
+    nothing and returns false to signify that the event hasn't been
+    handled.
+
+    \sa closeEditor()
 */
 
 bool QItemDelegate::eventFilter(QObject *object, QEvent *event)

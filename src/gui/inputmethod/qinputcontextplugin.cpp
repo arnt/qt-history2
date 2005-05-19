@@ -123,8 +123,8 @@
 
 
 /*!
-    Constructs a input context plugin. This is invoked automatically by the
-    \c Q_EXPORT_PLUGIN() macro.
+    Constructs a input context plugin with the given \a parent. This
+    is invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
 */
 QInputContextPlugin::QInputContextPlugin(QObject *parent)
     :QObject(parent)

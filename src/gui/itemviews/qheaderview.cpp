@@ -24,7 +24,7 @@
 #include <private/qheaderview_p.h>
 
 /*!
-    \class QHeaderView qheaderview.h
+    \class QHeaderView
 
     \brief The QHeaderView class provides a header row or header column for item views.
 
@@ -111,6 +111,13 @@
 
     This signal is emitted when a section is clicked. The section's logical
     index is specified by \a logicalIndex.
+*/
+
+/*!
+    \fn void QHeaderView::sectionDoubleClicked(int logicalIndex)
+
+    This signal is emitted when a section is double-clicked. The
+    section's logical index is specified by \a logicalIndex.
 */
 
 /*!
@@ -845,7 +852,7 @@ Qt::SortOrder QHeaderView::sortIndicatorOrder() const
 }
 
 /*
-  \property QHeaderView:: stretchLastSection
+  \property QHeaderView::stretchLastSection
   \brief whether the last section in the header takes up all the available space
 
 */

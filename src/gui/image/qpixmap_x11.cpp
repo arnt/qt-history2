@@ -427,10 +427,10 @@ void QPixmap::fill(const QColor &fillColor)
 }
 
 /*!
-  Returns the alpha channel of the pixmap. If the pixmap doesn't have an
-  alpha channel a null pixmap is returned.
+    Returns the alpha channel of the pixmap. If the pixmap doesn't have an
+    alpha channel a null pixmap is returned.
 
-  \sa hasAlphaChannel setAlphaChannel
+    \sa hasAlphaChannel() setAlphaChannel()
 */
 QPixmap QPixmap::alphaChannel() const
 {
@@ -1710,6 +1710,9 @@ QPixmap QPixmap::grabWindow(WId window, int x, int y, int w, int h)
     The transformation \a matrix is internally adjusted to compensate
     for unwanted translation, i.e. transformed() returns the smallest image
     that contains all the transformed points of the original image.
+
+    \a mode specifies whether the transformation should be smooth or
+    not.
 
     This function is slow because it involves transformation to a
     QImage, non-trivial computations and a transformation back to a

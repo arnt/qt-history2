@@ -51,3 +51,10 @@ QPrinter *QAbstractPageSetupDialog::printer()
     Q_D(QAbstractPageSetupDialog);
     return d->printer;
 }
+
+/*!
+    \fn int QAbstractPageSetupDialog::exec()
+
+    This virtual function is called to pop up the dialog. It must be
+    reimplemented in subclasses.
+*/

@@ -109,7 +109,7 @@ public:
 
     \endtable
 
-    \sa QInputContextPlugin, QInputContextFactory, QApplication::locateICHolderWidget(), QApplication::setInputContext()
+    \sa QInputContextPlugin, QInputContextFactory, QApplication::setInputContext()
 */
 
 /*!
@@ -170,9 +170,9 @@ void QInputContext::setFocusWidget(QWidget *widget)
     context can send InputMethodCompose or InputMethodEnd event safely
     if this function returned true.
 
-    The state is automatically being tracked through sendIMEvent().
+    The state is automatically being tracked through sendEvent().
 
-    \sa sendIMEvent()
+    \sa sendEvent()
 */
 
 /*!
@@ -243,23 +243,21 @@ void QInputContext::sendEvent(const QInputMethodEvent &event)
 
 /*!
     This function can be reimplemented in a subclass to handle mouse
-    presses/releases/doubleclicks/moves within the preedit text. You
-    can use the function to implement mouse-oriented user interface
-    such as text selection or popup menu for candidate selection.
+    press, release, double-click, and move events within the preedit
+    text. You can use the function to implement mouse-oriented user
+    interface such as text selection or popup menu for candidate
+    selection.
 
-    The parameter \a x is the offset within the string that was sent
-    with the InputMethodCompose event. The alteration boundary of \a x is
-    ensured as character boundary of preedit string accurately.
+    The \a x parameter is the offset within the string that was sent
+    with the InputMethodCompose event. The alteration boundary of \a
+    x is ensured as character boundary of preedit string accurately.
 
-    The event type is \c QEvent::MouseButtonPress,
-    \c QEvent::MouseButtonRelease, \c QEvent::MouseButtonDblClick or \c
+    The \e event parameter is the event that was sent to the editor
+    widget. The event type is \c QEvent::MouseButtonPress, \c
+    QEvent::MouseButtonRelease, \c QEvent::MouseButtonDblClick or \c
     QEvent::MouseButtonMove. The event's button and state indicate
     the kind of operation that was performed.
-
-    The method interface is imported from
-    QWSInputMethod::mouseHandler() of Qt/Embedded 2.3.7 and extended
-    for desktop system.
- */
+*/
 void QInputContext::mouseHandler(int /*x*/, QMouseEvent *event)
 {
     // Default behavior for simple ephemeral input contexts. Some
@@ -344,7 +342,7 @@ void QInputContext::widgetDestroyed(QWidget *widget)
 
 
 /*!
-  \fn QString QInputContext::language()
+    \fn QString QInputContext::language()
 
     This function must be implemented in any subclasses to return a
     language code (e.g. "zh_CN", "zh_TW", "zh_HK", "ja", "ko", ...)
@@ -358,8 +356,6 @@ void QInputContext::widgetDestroyed(QWidget *widget)
     handling. Suppose CJK-awared multilingual web browser
     (that automatically modifies fonts in CJK-mixed text) and XML editor
     (that automatically inserts lang attr).
-
-    \sa QInputContextPlugin::language()
 */
 
 
@@ -384,7 +380,7 @@ QList<QAction *> QInputContext::actions()
     Returns a QTextFormat object that specifies the format for
     component \a s.
 */
-QTextFormat QInputContext::standardFormat(QInputContext::StandardFormat s) const
+QTextFormat QInputContext::standardFormat(StandardFormat s) const
 {
     QWidget *focus = focusWidget();
     const QPalette &pal = focus ? focus->palette() : qApp->palette();

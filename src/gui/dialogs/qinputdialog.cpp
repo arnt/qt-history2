@@ -371,4 +371,52 @@ QString QInputDialog::getItem(QWidget *parent, const QString &title, const QStri
     return combo->currentText();
 }
 
+/*!
+    \fn QString QInputDialog::getText(const QString &title, const QString &label,
+                                      QLineEdit::EchoMode echo = QLineEdit::Normal,
+                                      const QString &text = QString(), bool *ok = 0,
+                                      QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0)
+
+    Call getText(\a parent, \a title, \a label, \a echo, \a text, \a
+    ok, \a flags) instead.
+
+    The \a name parameter is ignored.
+*/
+
+/*!
+    \fn int QInputDialog::getInteger(const QString &title, const QString &label, int value = 0,
+                                     int minValue = -2147483647, int maxValue = 2147483647,
+                                     int step = 1, bool *ok = 0,
+                                     QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0)
+
+
+    Call getInteger(\a parent, \a title, \a label, \a value, \a
+    minValue, \a maxValue, \a step, \a ok, \a f) instead.
+
+    The \a name parameter is ignored.
+*/
+
+/*!
+    \fn double QInputDialog::getDouble(const QString &title, const QString &label, double value = 0,
+                                       double minValue = -2147483647, double maxValue = 2147483647,
+                                       int decimals = 1, bool *ok = 0,
+                                       QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0)
+
+    Call getDouble(\a parent, \a title, \a label, \a value, \a
+    minValue, \a maxValue, \a decimals, \a ok, \a f).
+
+    The \a name parameter is ignored.
+*/
+
+/*!
+    \fn QString QInputDialog::getItem(const QString &title, const QString &label, const QStringList &list,
+                                      int current = 0, bool editable = true, bool *ok = 0,
+                                      QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0)
+
+    Call getItem(\a parent, \a title, \a label, \a list, \a current,
+    \a editable, \a ok, \a f) instead.
+
+    The \a name parameter is ignored.
+*/
+
 #endif

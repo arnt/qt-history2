@@ -2177,7 +2177,7 @@ int Q3ListViewItem::width(const QFontMetrics& fm,
 
 /*!
     Paints a focus indicator on the rectangle \a r using painter \a p
-    and colors \a pal.
+    and colors \a cg.
 
     \a p is already clipped.
 
@@ -2208,7 +2208,7 @@ void Q3ListViewItem::paintFocus(QPainter *p, const QColorGroup &cg, const QRect 
     Paints a set of branches from this item to (some of) its children.
 
     Painter \a p is set up with clipping and translation so that you
-    can only draw in the rectangle that needs redrawing; \a pal is the
+    can only draw in the rectangle that needs redrawing; \a cg is the
     color group to use; the update rectangle is at (0, 0) and has size
     width \a w by height \a h. The top of the rectangle you own is at
     \a y (which is never greater than 0 but can be outside the window
@@ -6478,7 +6478,7 @@ int Q3CheckListItem::width(const QFontMetrics& fm, const Q3ListView* lv, int col
 }
 
 /*!
-    Paints the item using the painter \a p and the color group \a pal.
+    Paints the item using the painter \a p and the color group \a cg.
     The item is in column \a column, has width \a width and has
     alignment \a align. (See \l Qt::Alignment for valid alignments.)
 */
@@ -6572,7 +6572,7 @@ void Q3CheckListItem::paintCell(QPainter * p, const QColorGroup & cg,
 }
 
 /*!
-    Draws the focus rectangle \a r using the color group \a pal on the
+    Draws the focus rectangle \a r using the color group \a cg on the
     painter \a p.
 */
 void Q3CheckListItem::paintFocus(QPainter *p, const QColorGroup & cg,

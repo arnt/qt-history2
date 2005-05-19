@@ -809,6 +809,18 @@ QFont QFontDialog::font() const
     return f;
 }
 
+/*!
+    \fn QFont QFontDialog::getFont(bool *ok, const QFont &def, QWidget* parent, const char* name)
+
+    Use one of the other getFont() overloads instead.
+*/
+
+/*!
+    \fn QFont QFontDialog::getFont(bool *ok, QWidget* parent, const char* name)
+
+    Use one of the other getFont() overloads instead.
+*/
+
 #include "qfontdialog.moc"
 #include "moc_qfontdialog.cpp"
 

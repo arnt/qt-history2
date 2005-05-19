@@ -340,15 +340,21 @@ QBitmap QBitmap::transformed(const QMatrix &matrix) const
 */
 
 /*!
-  \fn QBitmap::QBitmap(const QSize &size, bool clear)
+    \fn QBitmap::QBitmap(const QSize &size, bool clear)
 
-    \overload
+    Use the QBitmap(\a size) constructor. If \a clear is true, call
+    clear() afterward.
 
-    Constructs a bitmap with the given \a size.
+    \sa clear()
+*/
 
-    The pixels in the bitmap are uninitialized if \a clear is false;
-    otherwise it is filled with pixel value 0 (the QColor \c
-    Qt::color0).
+/*!
+    \fn QBitmap::QBitmap(int w, int h, bool clear)
+
+    Use the QBitmap(\a w, \a h) constructor. If \a clear is true, call
+    clear() afterward.
+
+    \sa clear()
 */
 
 /*!

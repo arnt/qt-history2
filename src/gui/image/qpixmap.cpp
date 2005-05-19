@@ -1158,7 +1158,7 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
 
     The file name can either refer to an actual file on disk or to
     one of the application's embedded resources. See the
-    \l{resources.html}{Resource System} overview for details on how
+    \l{Resource System} overview for details on how
     to embed images and other resource files in the application's
     executable.
 
@@ -1169,7 +1169,8 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
     You can easily display a QPixmap on the screen using QLabel or
     one of QAbstractButton's subclasses (such as QPushButton and
     QToolButton). QLabel has a \l{QLabel::pixmap}{pixmap} property,
-    whereas QAbstractButton has an \l{QLabel::icon}{icon} property.
+    whereas QAbstractButton has an \l{QAbstractButton::icon}{icon}
+    property.
 
     The QPixmap class uses \l{shclass.html}{implicit sharing}, so you
     can pass QPixmap objects around by value.

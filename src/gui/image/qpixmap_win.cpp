@@ -135,7 +135,7 @@ HBITMAP QPixmap::toWinHBITMAP(HBitmapFormat format) const
 }
 
 /*!
-    Returns a QPixmap that is equivalent to the given \c bitmap
+    Returns a QPixmap that is equivalent to the given \a bitmap
     which has the specified \a format.
 
     \sa toWinHBITMAP()

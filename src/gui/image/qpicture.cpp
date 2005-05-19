@@ -1595,7 +1595,7 @@ QList<QByteArray> QPictureIO::outputFormats()
     \quotefromfile snippets/picture/picture.cpp
     \skipto PIC
     \skipto QPictureIO
-    \printuntil convert
+    \printuntil }
 
     \sa setIODevice() setFileName() setFormat() write() QPixmap::load()
 */

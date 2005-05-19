@@ -48,7 +48,7 @@
     formats, in addition to any image format plugins that support
     reading.
 
-    \sa QImageReader, QImageIOHandler, QImageIOPlugin
+    \sa QImageWriter, QImageIOHandler, QImageIOPlugin
 */
 
 /*!
@@ -451,8 +451,8 @@ QRect QImageReader::clipRect() const
     performed after the initial clip rect, but before the scaled clip
     rect is applied. The algorithm used for scaling depends on the
     image format. By default (i.e., if the image format does not
-    support scaling), QImageReader will use QImage::scale() with \l
-    SmoothScaling.
+    support scaling), QImageReader will use QImage::scale() with
+    Qt::SmoothScaling.
 
     \sa scaledSize(), setClipRect(), setScaledClipRect()
 */

@@ -195,3 +195,10 @@ QPrinter *QAbstractPrintDialog::printer() const
     Q_D(const QAbstractPrintDialog);
     return d->printer;
 }
+
+/*!
+    \fn int QAbstractPrintDialog::exec()
+
+    This virtual function is called to pop up the dialog. It must be
+    reimplemented in subclasses.
+*/

@@ -265,16 +265,30 @@ void QAbstractItemViewPrivate::init()
 */
 
 /*!
-  \fn void QAbstractItemView::entered(const QModelIndex &index)
+    \fn void QAbstractItemView::activated(const QModelIndex &index)
 
-  This signal is emitted when the mouse cursor enters the item
-  specified by \a index.
+    This signal is emitted when the item specified by \a index is
+    activated by the user (e.g., by single- or double-clicking the
+    item, depending on the platform).
+
+    \sa clicked(), doubleClicked(), entered(), pressed()
 */
 
 /*!
-  \fn void QAbstractItemView::viewportEntered()
+    \fn void QAbstractItemView::entered(const QModelIndex &index)
 
-  This signal is emitted when the mouse cursor enters the viewport.
+    This signal is emitted when the mouse cursor enters the item
+    specified by \a index.
+
+    \sa viewportEntered(), activated(), clicked(), doubleClicked(), pressed()
+*/
+
+/*!
+    \fn void QAbstractItemView::viewportEntered()
+
+    This signal is emitted when the mouse cursor enters the viewport.
+
+    \sa entered()
 */
 
 /*!
@@ -283,6 +297,8 @@ void QAbstractItemViewPrivate::init()
     This signal is emitted when a mouse button is pressed. The item the
     mouse was pressed on is specified by \a index (which may be invalid if
     the mouse was not pressed on an item).
+
+    \sa activated(), clicked(), doubleClicked(), entered()
 */
 
 /*!
@@ -291,6 +307,8 @@ void QAbstractItemViewPrivate::init()
     This signal is emitted when a mouse button is clicked. The item the
     mouse was clicked on is specified by \a index (which may be invalid if
     the mouse was not clicked on an item).
+
+    \sa activated(), doubleClicked(), entered(), pressed()
 */
 
 /*!
@@ -1433,7 +1451,7 @@ void QAbstractItemView::horizontalScrollbarAction(int)
     operation. For example, the hint may indicate that the next item in
     the view should be opened for editing.
 
-    \sa edit() QAbstractItemDelegate::releaseEditor()
+    \sa edit()
 */
 
 void QAbstractItemView::closeEditor(QWidget *editor, QAbstractItemDelegate::EndEditHint hint)
@@ -1545,7 +1563,7 @@ void QAbstractItemView::setVerticalStepsPerItem(int steps)
 /*!
     Returns the vertical scrollbar's steps per item.
 
-    \sa setVerticalStepsPerIItem() horizontalStepsPerItem()
+    \sa setVerticalStepsPerItem() horizontalStepsPerItem()
 */
 int QAbstractItemView::verticalStepsPerItem() const
 {
@@ -1721,7 +1739,7 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     base class implementation calls fetchMore() on the model to check
     for more data.
 
-    \sa rowsRemoved()
+    \sa rowsAboutToBeRemoved()
 */
 void QAbstractItemView::rowsInserted(const QModelIndex &, int, int)
 {

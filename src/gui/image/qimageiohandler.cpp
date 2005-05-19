@@ -63,14 +63,14 @@
     \value ScaledSize The scaled size of the image. A handler that
     supports this option is expected to scale the image to the
     provided size (a QSize), after applying any clip rect
-    transformation (\l ClipRect). If the handler does not support this
+    transformation (ClipRect). If the handler does not support this
     option, QImageReader will perform the scaling after the image has
     been read.
 
     \value ScaledClipRect The scaled clip rect (or ROI, Region Of
     Interest) of the image. A handler that supports this option is
     expected to apply the provided clip rect (a QRect), after applying
-    any scaling (\l ScaleSize) or regular clipping (ClipRect). If the
+    any scaling (ScaleSize) or regular clipping (ClipRect). If the
     handler does not support this option, QImageReader will apply the
     scaled clip rect after the image has been read.
 
@@ -477,12 +477,6 @@ QImageIOPlugin::~QImageIOPlugin()
 
 /*!
     \fn QImageIOHandler *QImageIOPlugin::create(QIODevice *device, const QByteArray &format) const
-
-    \sa keys()    
-*/
-
-/*!
-    \fn QImageIOHandler::create(QIODevice *device, const QByteArray &format) const
 
     Creates and returns a QImageIOHandler subclass, with \a device
     and \a format set.

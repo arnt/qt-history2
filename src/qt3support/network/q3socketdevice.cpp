@@ -311,8 +311,6 @@ bool Q3SocketDevice::open( int mode )
 
 
 /*!
-    \reimp
-
     The current Q3SocketDevice implementation does not buffer at all,
     so this is a no-op.
 */

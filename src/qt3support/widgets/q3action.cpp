@@ -1386,26 +1386,6 @@ void Q3ActionGroupPrivate::update(const Q3ActionGroup* that)
     single unit, with all the actions within the action group
     appearing as separate menu options and toolbar buttons.
 
-    Here's an example from demos/textedit:
-    \quotefile textedit/textedit.cpp
-    \skipto ActionGroup
-    \printuntil connect
-
-    Here we create a new action group. Since the action group is exclusive
-    by default, only one of the actions in the group is ever active at any
-    one time. We then connect the group's selected() signal to our
-    textAlign() slot.
-
-    \printuntil actionAlignLeft->setCheckable
-
-    We create a left align action, add it to the toolbar and the menu
-    and make it a toggle action. We create center and right align
-    actions in exactly the same way.
-
-    \omit
-    A Q3ActionGroup emits an activated() signal when one of its actions
-    is activated.
-    \endomit
     The actions in an action group emit their activated() (and for
     toggle actions, toggled()) signals as usual.
 

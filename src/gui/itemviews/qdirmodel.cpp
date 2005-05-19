@@ -681,14 +681,14 @@ QMimeData *QDirModel::mimeData(const QModelIndexList &indexes) const
 
 /*!
     Handles the \a data supplied by a drag and drop operation that ended with
-    the given \a action over the row in the model specified by the \a row
-    and the \a parent index.
+    the given \a action over the row in the model specified by the \a row and
+    \a column and by the \a parent index.
 
     \sa supportedDropActions()
 */
 
 bool QDirModel::dropMimeData(const QMimeData *data, Qt::DropAction action,
-                             int row, int /*column*/, const QModelIndex &parent)
+                             int row, int /* column */, const QModelIndex &parent)
 {
     Q_D(QDirModel);
     if (!parent.isValid() || isReadOnly())
