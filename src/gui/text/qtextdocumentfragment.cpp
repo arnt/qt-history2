@@ -414,17 +414,31 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
 
     res.d = new QTextDocumentFragmentPrivate;
 
-    // split for [\n{ParagraphSeparator}]
-    QString s = QString::fromLatin1("[\\na]");
-    s[3] = QChar::ParagraphSeparator;
+    bool seenCRLF = false;
 
-    QStringList blocks = plainText.split(QRegExp(s));
-    for (int i = 0; i < blocks.count(); ++i) {
-        if (i > 0)
+    int textStart = 0;
+    for (int i = 0; i < plainText.length(); ++i) {
+        QChar ch = plainText.at(i);
+        if (ch == QLatin1Char('\n')
+            || ch == QChar::ParagraphSeparator) {
+
+            const int textEnd = (seenCRLF ? i - 1 : i);
+
+            if (textEnd > textStart)
+                res.d->appendText(QString::fromRawData(plainText.unicode() + textStart, textEnd - textStart), -1);
+
+            textStart = i + 1;
             res.d->appendText(QString(QChar::ParagraphSeparator), -1, -1);
-        // -1 as format idx means reuse current char format when inserting/pasting
-        res.d->appendText(blocks.at(i), -1);
+
+            seenCRLF = false;
+        } else if (ch == QLatin1Char('\r')
+                   && (i + 1) < plainText.length()
+                   && plainText.at(i + 1) == QLatin1Char('\n')) {
+            seenCRLF = true;
+        }
     }
+    if (textStart < plainText.length())
+        res.d->appendText(QString::fromRawData(plainText.unicode() + textStart, plainText.length() - textStart), -1);
 
     return res;
 }

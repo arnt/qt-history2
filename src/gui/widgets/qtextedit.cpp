@@ -2760,19 +2760,17 @@ void QTextEdit::append(const QString &text)
     if (!d->doc->isEmpty())
         cursor.insertBlock(d->cursor.blockFormat(), d->cursor.charFormat());
 
-    if (f == Qt::PlainText) {
-        QString txt = text;
-        txt.replace('\n', QChar::ParagraphSeparator);
-        cursor.insertText(txt);
-    } else {
-        // preserve the char format
-        QTextCharFormat oldCharFormat = d->cursor.charFormat();
+    QTextDocumentFragment fragment;
+    if (f == Qt::PlainText)
+        fragment = QTextDocumentFragment::fromPlainText(text);
+    else
+        fragment = QTextDocumentFragment::fromHtml(text);
 
-        QTextDocumentFragment frag = QTextDocumentFragment::fromHtml(text);
-        cursor.insertFragment(frag);
+    // preserve the char format
+    QTextCharFormat oldCharFormat = d->cursor.charFormat();
+    cursor.insertFragment(fragment);
+    d->cursor.setCharFormat(oldCharFormat);
 
-        d->cursor.setCharFormat(oldCharFormat);
-    }
     cursor.endEditBlock();
 
     if (atBottom && d->vbar->isVisible())
