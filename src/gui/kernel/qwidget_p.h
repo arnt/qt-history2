@@ -91,6 +91,7 @@ struct QTLWExtra {
     uint dnd : 1; // DND properties installed
     uint uspos : 1; // User defined position
     uint ussize : 1; // User defined size
+    QPoint fullScreenOffset;
 #endif
 #if defined(Q_WS_MAC)
     WindowGroupRef group;

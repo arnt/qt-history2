@@ -1583,7 +1583,9 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                 needShow = isVisible();
 
                 if (newstate & Qt::WindowFullScreen) {
-                    const QRect normalGeometry = QRect(pos(), size());
+                    d->updateFrameStrut();
+                    const QRect normalGeometry = geometry();
+                    const QPoint fullScreenOffset = QPoint(top->fleft, top->ftop);
 
                     top->savedFlags = windowFlags();
                     setParent(0, Qt::Window | Qt::FramelessWindowHint);
@@ -1591,8 +1593,10 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                     setGeometry(qApp->desktop()->screenGeometry(this));
                     top->normalGeometry = r;
 
-                    if (top->normalGeometry.width() < 0)
+                    if (top->normalGeometry.width() < 0) {
                         top->normalGeometry = normalGeometry;
+                        top->fullScreenOffset = fullScreenOffset;
+                    }
                 } else {
                     setParent(0, top->savedFlags);
 
@@ -1608,7 +1612,10 @@ void QWidget::setWindowState(Qt::WindowStates newstate)
                         top->normalGeometry = r;
                     } else {
                         // restore original geometry
-                        setGeometry(top->normalGeometry);
+                        setGeometry(top->normalGeometry.adjusted(-top->fullScreenOffset.x(),
+                                                                 -top->fullScreenOffset.y(),
+                                                                 -top->fullScreenOffset.x(),
+                                                                 -top->fullScreenOffset.y()));
                     }
                 }
             }
