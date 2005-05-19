@@ -1,5 +1,6 @@
 TEMPLATE = lib
 CONFIG += static
+build_all:CONFIG += release
 TARGET = demo_shared
 
 SOURCES += \
