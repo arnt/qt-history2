@@ -58,11 +58,19 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
         doc->addResource(QTextDocument::ImageResource, name, pm);
     }
 
+    qreal scale = 1.0;
+    QPaintDevice *pdev = doc->documentLayout()->paintDevice();
+    if (pdev)
+        scale = pdev->logicalDpiY() / pm.logicalDpiY();
+
     QSize size = pm.size();
     if (hasWidth)
         size.setWidth(width);
     if (hasHeight)
         size.setHeight(height);
+
+    size *= scale;
+
     if (size.isValid() && pm.size() != size)
         pm = pm.scaled(size);
 
