@@ -55,15 +55,15 @@ for package in $PACKAGES; do
          for file in `lsbom -f "$receipt/Contents/Resources/Archive.bom"`; do
              file=`echo $file | sed 's,^\\.,,'`
              [ -z "$file" ] && continue
-             [ -e "$file" ] && rm -f "$file"
+             [ -e "$file" ] && sudo rm -f "$file"
          done
 	 rm -rf "$receipt"
-         [ "$package" = "libraries" ] && rm -rf /Library/Frameworks/Qt*.framework >/dev/null
-	 [ "$package" = "tools" ] && rm -f /bin/moc /bin/rcc /bin/uic /bin/uic3 /bin/qmake >/dev/null #links
-	 [ "$package" = "headers" ] && rm -f rm -rf /Library/Frameworks/Qt*.framework/Headers /Library/Frameworks/Qt*.framework/PrivateHeaders >/dev/null #links
+         [ "$package" = "libraries" ] && sudo rm -rf /Library/Frameworks/Qt*.framework >/dev/null
+	 [ "$package" = "tools" ] && sudo rm -f /bin/moc /bin/rcc /bin/uic /bin/uic3 /bin/qmake >/dev/null #links
+	 [ "$package" = "headers" ] && sudo rm -f /Library/Frameworks/Qt*.framework/Headers /Library/Frameworks/Qt*.framework/PrivateHeaders >/dev/null #links
      else
         echo "$package not installed!"
      fi
 done
 
-rmdir /Developer/Examples/Qt /Developers/Applications/Qt /usr/local/mkspecs /Developer/Documentation/Qt >/dev/null 2>&1
+sudo rmdir /Developer/Examples/Qt /Developers/Applications/Qt /usr/local/mkspecs /Developer/Documentation/Qt >/dev/null 2>&1

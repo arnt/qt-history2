@@ -6,9 +6,11 @@
 
 #get the documentation into the index
 DOC_INDEX="/Developer/Documentation/Help/Developer Help Viewer/MacOSXDeveloper.pbHelpIndexerList"
-if grep "$3/Developer/Documentation/Qt" "$DOC_INDEX" >/dev/null 2>&1; then
-   true
-else
-   echo "$3/Developer/Documentation/Qt" >>"$$DOC_INDEX"
-   /Developer/Tools/pbhelpindexer
+if [ -e "$DOC_INDEX" ]; then
+    if grep "$3/Developer/Documentation/Qt" "$DOC_INDEX" >/dev/null 2>&1; then
+	true
+    else
+	echo "$3/Developer/Documentation/Qt" >>"$$DOC_INDEX"
+	/Developer/Tools/pbhelpindexer &
+    fi
 fi

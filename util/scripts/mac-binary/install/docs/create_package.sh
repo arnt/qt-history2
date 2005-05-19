@@ -19,8 +19,8 @@ done
 [ -z "$OUTDIR" ] && exit 1
 
 mkdir -p "$OUTDIR/Developer/Documentation/Qt"
-cp -r "$SRCDIR/doc/html/" "$OUTDIR/Developer/Documentation/Qt"
-[ "$SRCDIR" != "$BINDIR" ] && cp -r "$BINDIR/doc/html/" "$OUTDIR/Developer/Documentation/Qt"
+cp -R "$SRCDIR/doc/html/" "$OUTDIR/Developer/Documentation/Qt"
+[ "$SRCDIR" != "$BINDIR" ] && cp -R "$BINDIR/doc/html/" "$OUTDIR/Developer/Documentation/Qt"
 ln -s . "$OUTDIR/Developer/Documentation/Qt/html"
 
 exit 0

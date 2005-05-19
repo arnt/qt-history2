@@ -1,9 +1,7 @@
 #!/bin/sh 
 
 #bugs:
-#Versions/Current is wrong
 #examples .xcodes do not work for non-admin types
-#arch in QtCore.framework is probably wrong
 
 #options
 OUTPUT_DIR=`pwd`/outputs
@@ -296,13 +294,13 @@ for package in $PACKAGES; do
 	ln -sf "../Archive.bom" "$package_dir/Contents/Resources"
 	ln -sf "../Archive.pax.gz" "$package_dir/Contents/Resources"
     else
-	(cd "$TMP_DIR/package" && /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -p "$package_dir" -ds)
+	(cd "$TMP_DIR/package" && /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -p "$package_dir" -ds >/dev/null 2>&1)
     fi
     #Info.plist
     doStringReplace "$PACKAGE_DIR/$package/Info.plist" "$package_dir/Contents/Info.plist"
     #merge resources
-    cp -r Resources/* "$package_dir/Contents/Resources"
-    cp -r $PACKAGE_DIR/$package/Resources/* "$package_dir/Contents/Resources"
+    cp -R Resources/* "$package_dir/Contents/Resources"
+    cp -R $PACKAGE_DIR/$package/Resources/* "$package_dir/Contents/Resources"
     cp "$TMP_DIR/licenses/License.rtf" "$package_dir/Contents/Resources"
     for a in $package_dir/Contents/Resources/*.plist $package_dir/Contents/Resources/*.info $package_dir/Contents/Resources/*flight $package_dir/Contents/Resources/*.rtf; do
 	[ -e "$a" ] && doStringReplace "$a" "$a"
@@ -318,7 +316,7 @@ for package in $PACKAGES; do
 	    chmod a+x "$a"
 	    if [ -e "${a}.strings" ]; then
 		for lang in English Norwegian French; do
-		    mkdir "$package_dir/Contents/Resources/${lang}.lproj"
+		    mkdir -p "$package_dir/Contents/Resources/${lang}.lproj"
 		    cp "${a}.strings" "$package_dir/Contents/Resources/${lang}.lproj"
                 done
             fi
@@ -338,9 +336,9 @@ if [ "$MAKE_META" = "yes" ]; then
     echo "Creating meta package.."
     rm -rf "$OUTPUT_DIR/Qt.mpkg/"
     mkdir -p "$OUTPUT_DIR/Qt.mpkg/"
-    cp -r "MetaPackage" "$OUTPUT_DIR/Qt.mpkg/Contents"
+    cp -R "MetaPackage" "$OUTPUT_DIR/Qt.mpkg/Contents"
     mkdir -p "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
-    cp -r Resources/* "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
+    cp -R Resources/* "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     cp "$TMP_DIR/licenses/License.rtf" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     for a in $OUTPUT_DIR/Qt.mpkg/Contents/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.info $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.rtf; do
 	doStringReplace "$a" "$a"
@@ -392,7 +390,7 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
 	[ -z "$package" ] && continue
 	OUT_PACKAGE=`echo $package | sed "s,^$OUTPUT_DIR,$TMP_DIR/diskimage/,"`
 	mkdir -p "`dirname "$OUT_PACKAGE"`"
-	cp -r "$package" "$OUT_PACKAGE"
+	cp -R "$package" "$OUT_PACKAGE"
     done
     [ -e "$README" ] && cp "$README" "$TMP_DIR/diskimage/ReadMe.txt"
 

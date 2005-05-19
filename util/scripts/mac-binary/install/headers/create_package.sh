@@ -33,7 +33,7 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support; do
       if [ -L "$header" ]; then
 	  cp -RP "$header" "$FRAMEWORK_DIR/${lib}.framework/`dirname $header`"
       else
-	  cp -r "$header" "$FRAMEWORK_DIR/${lib}.framework/`dirname $header`"
+	  cp -R "$header" "$FRAMEWORK_DIR/${lib}.framework/`dirname $header`"
       fi
     done)
 done

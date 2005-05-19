@@ -25,7 +25,7 @@ for a in qmake uic uic3 rcc moc assistant Linguist Designer rccdump lrelease qm2
     EXE=
     if [ -d "${BINDIR}/bin/${a}.app" ]; then
 	mkdir -p "$OUTDIR/Developer/Applications/Qt/"
-	cp -r "${BINDIR}/bin/${a}.app" "$OUTDIR/Developer/Applications/Qt"
+	cp -R "${BINDIR}/bin/${a}.app" "$OUTDIR/Developer/Applications/Qt"
 	EXE="$OUTDIR/Developer/Applications/Qt/${a}.app/Contents/MacOS/$a" #in the bundle
 	#place it into the tools dir
 	mkdir -p "$OUTDIR/Developer/Tools/Qt/"
@@ -54,8 +54,8 @@ EOF
 	mv "tmp.exe" "$EXE"
     elif [ "$a" = "Designer" ]; then
 	mkdir -p "$OUTDIR/usr/lib/"
-	[ -e "${BINDIR}/lib/libQtDesigner.1.dylib" ] && cp "${BINDIR}/lib/libQtDesigner.1.dylib" "$OUTDIR/usr/lib/"
-	[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtDesigner_debug.1.dylib" ] && cp "${BINDIR}/lib/libQtDesigner_debug.1.dylib" "$OUTDIR/usr/lib/"
+	[ -e "${BINDIR}/lib/libQtDesigner.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesigner.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesigner.${VERSION_MAJOR}.dylib"
+	[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtDesigner_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesigner_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesigner_debug.${VERSION_MAJOR}.dylib"
 	../libraries/fix_config_paths.pl "$EXE" "tmp.exe"
 	mv "tmp.exe" "$EXE"
     else

@@ -51,12 +51,13 @@ for demo_dir in $BINDIR/demos/*; do
         cp "${demo}/${demo}" "$EXE"
     elif [ -d "${demo_dir}/${demo}.app" ]; then #in a bundle
         mkdir -p "${OUTDIR}/Developer/Examples/Qt/Demos/${demo}"
-        cp -r "${demo_dir}/${demo}.app" "${OUTDIR}/Developer/Examples/Qt/Demos/${demo}"
+        cp -R "${demo_dir}/${demo}.app" "${OUTDIR}/Developer/Examples/Qt/Demos/${demo}"
         EXE="${OUTDIR}/Developer/Examples/Qt/Demos/${demo}/${demo}.app/Contents/MacOS/$demo"
     fi
     if [ -x "$EXE" ]; then
 	../libraries/fix_config_paths.pl "$EXE" "tmp.exe"
 	mv "tmp.exe" "$EXE"
+	chmod a+x "$EXE" 
     fi
 done
 

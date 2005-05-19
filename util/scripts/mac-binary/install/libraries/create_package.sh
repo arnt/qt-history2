@@ -27,7 +27,7 @@ for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Support; do
 	echo "No framework for $lib!"
         continue
     fi
-    cp -r "$BINDIR/lib/${lib}.framework" "$FRAMEWORK_DIR/" >/dev/null 2>&1
+    cp -R "$BINDIR/lib/${lib}.framework" "$FRAMEWORK_DIR/" >/dev/null 2>&1
     ./fix_config_paths.pl "$FRAMEWORK_DIR/${lib}.framework/$lib" "$FRAMEWORK_DIR/${lib}.framework/${lib}.fixed" 
     mv "$FRAMEWORK_DIR/${lib}.framework/${lib}.fixed" "$FRAMEWORK_DIR/${lib}.framework/$lib" 
     if [ "$DO_DEBUG" = "no" ]; then
