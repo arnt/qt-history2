@@ -71,6 +71,8 @@ private:
     QStringList m_registeredPlugins;
     QStringList m_disabledPlugins;
     QList<QDesignerCustomWidgetInterface*> m_customWidgets;
+
+    QStringList defaultPluginPaths() const;
 };
 
 #endif // PLUGINMANAGER_H

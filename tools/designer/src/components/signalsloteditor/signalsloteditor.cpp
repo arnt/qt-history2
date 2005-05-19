@@ -45,9 +45,13 @@ QStringList objectNameList(QDesignerFormWindowInterface *form)
 {
     QDesignerFormWindowCursorInterface *cursor = form->cursor();
     QStringList result;
-    for (int i = 0; i < cursor->widgetCount(); ++i)
-        result.append(cursor->widget(i)->objectName());
+    for (int i = 0; i < cursor->widgetCount(); ++i) {
+        QString name = cursor->widget(i)->objectName().trimmed();
+        if (!name.isEmpty())
+            result.append(name);
+    }
     result.sort();
+
     return result;
 }
 

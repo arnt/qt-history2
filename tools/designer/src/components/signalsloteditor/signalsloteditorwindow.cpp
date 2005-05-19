@@ -456,6 +456,8 @@ QWidget *ConnectionDelegate::createEditor(QWidget *parent,
 
         inline_editor->addText(type == SignalMember ? tr("<signal>") : tr("<slot>"));
         foreach (const ClassInfo &class_info, class_list) {
+            if (class_info.class_name.isEmpty() || class_info.member_list.isEmpty())
+                continue;
             inline_editor->addTitle(class_info.class_name);
             inline_editor->addTextList(class_info.member_list);
         }

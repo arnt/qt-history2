@@ -33,6 +33,19 @@ static QStringList unique(const QStringList &lst)
     return s.toList();
 }
 
+QStringList PluginManager::defaultPluginPaths() const
+{
+    QStringList result;
+    result.append(QLibraryInfo::location(QLibraryInfo::PluginsPath)
+                    + QDir::separator()
+                    + QLatin1String("designer"));
+    result.append(QDir::homePath()
+                    + QDir::separator()
+                    + QLatin1String(".designer")
+                    + QDir::separator()
+                    + QLatin1String("plugins"));
+
+    return result;
 }
 
 PluginManager::PluginManager(QDesignerFormEditorInterface *core)
@@ -42,15 +55,10 @@ PluginManager::PluginManager(QDesignerFormEditorInterface *core)
 
     settings.beginGroup(QLatin1String("PluginManager"));
 
-    if (!settings.contains(QLatin1String("PluginPaths"))) {
-        // first time designer is run - set some defaults
-        QString path = QLibraryInfo::location(QLibraryInfo::PluginsPath)
-                            + QDir::separator() + QLatin1String("designer");
-        settings.setValue(QLatin1String("PluginPaths"), QStringList() << path);
-    }
-
-    m_pluginPaths = qdesigner_internal::unique(settings.value(QLatin1String("PluginPaths")).toStringList());
-    m_disabledPlugins = qdesigner_internal::unique(settings.value(QLatin1String("DisabledPlugins")).toStringList());
+    m_pluginPaths = defaultPluginPaths();
+    m_disabledPlugins
+        = qdesigner_internal::unique(
+            settings.value(QLatin1String("DisabledPlugins")).toStringList());
     updateRegisteredPlugins();
 
     settings.endGroup();
@@ -150,7 +158,6 @@ bool PluginManager::syncSettings()
 {
     QSettings settings;
     settings.beginGroup(QLatin1String("PluginManager"));
-    settings.setValue(QLatin1String("PluginPaths"), m_pluginPaths);
     settings.setValue(QLatin1String("DisabledPlugins"), m_disabledPlugins);
     settings.endGroup();
     return settings.status() == QSettings::NoError;
@@ -184,3 +191,4 @@ QList<QDesignerCustomWidgetInterface*> PluginManager::registeredCustomWidgets() 
     return m_customWidgets;
 }
 
+}
