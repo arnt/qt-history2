@@ -970,6 +970,9 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         return QModelIndex();
 
     QModelIndex idx; // start with "My Computer"
+    if (!d->root.populated) // make sure the root is populated
+        d->populate(&d->root);
+    
 #ifdef Q_OS_WIN
     if (absolutePath.startsWith("//")) { // UNC path
         QString host = pathElements.first();
