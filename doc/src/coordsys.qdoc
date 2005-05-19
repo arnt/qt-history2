@@ -43,9 +43,9 @@
 
     Note that although we specify 4 x 3 to QPainter::drawRect() as
     the size, the actual rectangle ends up emcompassing 5 x 4 pixels.
-    This is what most modern graphic APIs do.
+    This is in line with what most modern graphic APIs do.
     
-    the size you specify is the size of
+    The size you specify is the size of
     the mathematical rectangle, without considering the pen width.
     This makes sense when you apply transformations (scaling,
     shearing, etc.). This applies to all the relevant functions in
@@ -57,7 +57,7 @@
 
     Here are the classes that relate most closely to the coordinate
     system. Some classes exist in two versions: an \c{int}-based
-    version and a \c{float}-based version. For these, the \c float
+    version and a \c{qreal}-based version. For these, the \c qreal
     version's name is suffixed with an \c F.
 
     \table
@@ -65,22 +65,25 @@
     \row \o \l{QPoint}(\l{QPointF}{F})
          \o A single 2D point in the coordinate system. Most functions in
 	    Qt that deal with points can accept either a QPoint, a QPointF,
-            or two \c{int}s.
+            two \c{int}s, or two \c{qreal}s.
     \row \o \l{QSize}(\l{QSizeF}{F})
          \o A single 2D vector. Internally, QPoint and QSize are the same,
 	    but a point is not the same as a size, so both classes exist.
-	    Again, most functions accept either QSizeF, a QSize, or two 
-            \c{int}s.
+	    Again, most functions accept either QSizeF, a QSize, two 
+            \c{int}s, or two \c{qreal}s.
     \row \o \l{QRect}(\l{QRectF}{F})
          \o A 2D rectangle. Most functions accept either a QRectF, a
-            QRect, or four \c{int}s.
+            QRect, four \c{int}s, or four \c {qreal}s.
     \row \o \l{QLine}(\l{QLineF}{F})
          \o A 2D finite-length line, characterized by a start point
             and an end point.
-    \row \o QPolygon
-         \o A 2D polygon. A polygon is a vector of \c{QPointF}s. If
+    \row \o \l{QPolygon}(\{QPolygonF}{F})
+         \o A 2D polygon. A polygon is a vector of \c{QPoint(F)}s. If
             the first and last points are the same, the polygon is
             closed.
+    \row \o QPaintDevice
+         \o A device on which you can paint. There are several devices already
+            in Qt (widgets, pixmaps, images, painter) and other devices can be defined also.
     \row \o QPainter
          \o The class that paints. It can paint on any device with the
 	    same code. There are differences between devices, 
@@ -95,21 +98,14 @@
             any shape (rectange, ellipse, spline) or combination of
             shapes can be expressed as a path. A path specifies both
             an outline and an area.
-    \row \o QPaintDevice
-         \o A device on which QPainter can paint. There are two internal
-	    devices, both pixel-based, and two external devices,
-            QPrinter and QPicture (which records QPainter commands to a
-	    file or other QIODevice, and plays them back). Other
-	    devices can be defined.
     \row \o QPaintEngine
          \o The base class for painter backends. Qt includes several
             backends. You normally don't need to use this class
             directly.
     \row \o QRegion
          \o An area in a paint device, expressed as a list of
-            \l{QRect}s. In general, we recommend using the vectorial
-            QPainterPath class instead of QRegion for specifying
-            areas, because QPainterPath handles painter
+            \l{QRect}s. In general, we recommend using the vectorial QPainterPath class
+            instead of QRegion for specifying areas, because QPainterPath handles painter
             transformations much better.
     \endtable
 
