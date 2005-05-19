@@ -971,13 +971,25 @@ void UnixMakefileGenerator::init2()
         if(project->isEmpty("QMAKE_LN_SHLIB"))
             project->variables()["QMAKE_LN_SHLIB"].append("ln -s");
         if (!project->variables()["QMAKE_LFLAGS_SONAME"].isEmpty()) {
+            QString soname;
             if(project->isActiveConfig("plugin")) {
                 if(!project->variables()["TARGET"].isEmpty())
-                    project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->first("TARGET");
+                    soname += project->first("TARGET");
             } else if(!project->isEmpty("QMAKE_BUNDLE_NAME")) {
-                project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->first("TARGET_x.y");
+                soname += project->first("TARGET_x.y");
             } else if(!project->variables()["TARGET_x"].isEmpty()) {
-                  project->variables()["QMAKE_LFLAGS_SONAME"].first() += project->first("TARGET_x");
+                soname += project->first("TARGET_x");
+            }
+            if(!soname.isEmpty()) {
+                if(project->isActiveConfig("absolute_library_soname") &&
+                   project->values("INSTALLS").indexOf("target") != -1 &&
+                   !project->isEmpty("target.path")) {
+                    QString instpath = Option::fixPathToTargetOS(project->first("target.path"));
+                    if(!instpath.endsWith(Option::dir_sep))
+                        instpath += Option::dir_sep;
+                    soname.prepend(instpath);
+                }
+                project->variables()["QMAKE_LFLAGS_SONAME"].first() += soname;
             }
         }
         if (project->variables()["QMAKE_LINK_SHLIB_CMD"].isEmpty())
