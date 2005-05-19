@@ -894,8 +894,7 @@ Q3TextEdit::~Q3TextEdit()
     delete cursor;
     delete doc;
 #ifdef QT_TEXTEDIT_OPTIMIZATION
-    if (d->optimMode)
-        delete d->od;
+    delete d->od;
 #endif
     delete d;
 }
@@ -5842,8 +5841,8 @@ bool Q3TextEdit::checkOptimMode()
 {
     bool oldMode = d->optimMode;
     if (textFormat() == Qt::LogText) {
-        setReadOnly(true);
         d->optimMode = true;
+        setReadOnly(true);
     } else {
         d->optimMode = false;
     }
