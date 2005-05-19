@@ -10,4 +10,4 @@ HEADERS	 = glbox.h \
 SOURCES	 = glbox.cpp \
 	   globjwin.cpp \
 	   main.cpp
-RC_FILE	 = ../../control/qaxserver.rc
+RC_FILE	 = ../../../extensions/activeqt/control/qaxserver.rc
