@@ -251,6 +251,16 @@ void QDockWidgetTitle::mousePressEvent(QMouseEvent *event)
 
     state->rubberband->setGeometry(state->current);
     state->rubberband->show();
+
+#ifdef Q_WS_WIN
+    /* Work around windows expose bug when windows are partially covered by
+     * a top level transparent object.
+     */
+    dockwidget->update();
+    QWidgetList children = qFindChildren<QWidget *>(dockwidget);
+    for (int i=0; i<children.size(); ++i)
+        children.at(i)->update();
+#endif
 }
 
 void QDockWidgetTitle::mouseMoveEvent(QMouseEvent *event)
