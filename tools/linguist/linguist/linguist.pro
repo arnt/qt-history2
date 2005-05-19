@@ -43,7 +43,7 @@ TARGET                = linguist
 win32:RC_FILE        = linguist.rc
 
 mac {
-    static:CONFIG -= global_init_link_order #yuck
+    static:CONFIG -= global_init_link_order
     ICON = linguist.icns
     TARGET = Linguist
 }
