@@ -42,13 +42,6 @@ translations.path=$$[QT_INSTALL_TRANSLATIONS]
 translations.files = $$QT_BUILD_TREE/translations/*.qm
 INSTALLS += translations
 
-#qt.conf
-!isEmpty(QT_INSTALL_QTCONFIG) {
-    qt_conf.path=$$QT_INSTALL_QTCONFIG
-    qt_conf.files = $$QT_BUILD_TREE/qt.conf
-    INSTALLS += qt_conf
-}
-
 #qmake
 qmake.path=$$[QT_INSTALL_BINS]
 qmake.files=$$QT_BUILD_TREE/bin/qmake #exe itself
