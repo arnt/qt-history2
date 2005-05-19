@@ -96,6 +96,7 @@ public slots:
     {
         {
             QMutexLocker locker(&mutex);
+            qDeleteAll(queries);
             queries.clear();
             quit = true;
             cond.wakeOne();
