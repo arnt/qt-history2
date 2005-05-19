@@ -1465,6 +1465,25 @@ static LineDrawMode clipLine(QLineF *line, const QRect &rect)
     return mode;
 }
 
+
+static inline void clipped_to_device(const QRect &deviceRect,
+                              int y, QT_FT_Span *spans, qt_span_func func, void *userData)
+{
+    if (y >= 0 && y <= deviceRect.bottom()) {
+        int span_right = spans->x + spans->len;
+        int dev_right = deviceRect.right() + 1;
+        int sleft = qMax(int(spans->x), 0);
+        int sright = qMin(span_right, dev_right); // <=
+        int len = sright - sleft;
+
+        if (len > 0) {
+            QT_FT_Span span = { sleft, len, 255 };
+            func(y, 1, &span, userData);
+        }
+    }
+}
+
+
 // Bresenham algorithm from Graphics Gems
 static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void *data, LineDrawMode style)
 {
@@ -1479,15 +1498,7 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
     qreal y2 = line.y2();
 
     QRasterBuffer *rb = ((FillData *)data)->rasterBuffer;
-
-    Q_ASSERT(x1 >= 0);
-    Q_ASSERT(x1 < rb->width());
-    Q_ASSERT(x2 >= 0);
-    Q_ASSERT(x2 < rb->width());
-    Q_ASSERT(y1 >= 0);
-    Q_ASSERT(y1 < rb->height());
-    Q_ASSERT(y2 >= 0);
-    Q_ASSERT(y2 < rb->height());
+    QRect deviceRect(0, 0, rb->width(), rb->height());
 
     int ax = int(qAbs(x2-x1)*256);
     int ay = int(qAbs(y2-y1)*256);
@@ -1519,7 +1530,7 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
             while(x != xe) {
                 if(d >= 0) {
                     span.len = x - span.x + 1;
-                    span_func(y, 1, &span, data);
+                    clipped_to_device(deviceRect, y, &span, span_func, data);
                     span.x = x + 1;
                     y += sy;
                     d -= ax;
@@ -1530,14 +1541,13 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
             span.len = x - span.x;
             if (style == LineDrawIncludeLastPixel)
                 ++span.len;
-            if (span.len > 0 && span.x >= 0 && span.x + span.len <= rb->width() && y >= 0 && y < rb->height())
-                span_func(y, 1, &span, data);
+            clipped_to_device(deviceRect, y, &span, span_func, data);
         } else {
             while(x != xe) {
                 if(d >= 0) {
                     span.len = span.x - x + 1;
                     span.x = x;
-                    span_func(y, 1, &span, data);
+                    clipped_to_device(deviceRect, y, &span, span_func, data);
                     span.x = x - 1;
                     y += sy;
                     d -= ax;
@@ -1552,8 +1562,7 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
             else
                 ++span.len;
 
-            if (span.x >= 0 && span.x + span.len < rb->width() && y >= 0 && y < rb->height())
-                span_func(y, 1, &span, data);
+            clipped_to_device(deviceRect, y, &span, span_func, data);
         }
     } else {
         d += (ax - (ay >> 1));
@@ -1566,7 +1575,7 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
         while(y != ye) {
             // y is dominant so we can't optimise the spans
             span.x = x;
-            span_func(y, 1, &span, data);
+            clipped_to_device(deviceRect, y, &span, span_func, data);
             if(d > 0) {
                 x += sx;
                 d -= ay;
@@ -1575,10 +1584,8 @@ static void drawLine_bresenham(const QLineF &line, qt_span_func span_func, void 
             d += ax;
         }
         if (style == LineDrawIncludeLastPixel) {
-            if (x >= 0 && x < rb->width() && y >= 0 && y < rb->height()) {
-                span.x = x;
-                span_func(y, 1, &span, data);
-            }
+            span.x = x;
+            clipped_to_device(deviceRect, y, &span, span_func, data);
         }
     }
 }
@@ -1645,12 +1652,9 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 
         for (int i=0; i<lineCount; ++i) {
             QLineF line = lines[i] * d->matrix;
-            LineDrawMode mode = clipLine(&line, QRect(QPoint(0, 0), d->deviceRect.size()));
+            LineDrawMode mode = LineDrawNormal;
 
-            if (mode == LineDrawClipped)
-                continue;
-
-            if (mode == LineDrawNormal && d->pen.capStyle() != Qt::FlatCap)
+            if (d->pen.capStyle() != Qt::FlatCap)
                 mode = LineDrawIncludeLastPixel;
 
             FillData fillData = d->fillForBrush(QBrush(d->pen.brush()));
