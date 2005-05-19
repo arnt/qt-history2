@@ -173,6 +173,7 @@
     \section1 SlidersGroup Class Implementation
 
     \quotefromfile widgets/sliders/slidersgroup.cpp
+    \skipto SlidersGroup(
     \printto connect(dial, SIGNAL(valueChanged(int)), this, SIGNAL(valueChanged(int)));
 
     First we create the slider-like widgets with the appropiate

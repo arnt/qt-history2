@@ -34,14 +34,14 @@
     The implementation file is \c printpanel.cpp.
 
     \quotefromfile linguist/trollprint/printpanel.cpp
-    \skipto /^\//
+    \skipto PrintPanel
     \printuntil /^.\//
 
     Some of the code is commented out in Troll Print 1.0; you will
     uncomment it later, for Troll Print 1.1.
 
     \quotefromfile linguist/trollprint/printpanel.cpp
-    \skipto twoSidedGroupBox = 
+    \skipto twoSidedGroupBox =
     \printuntil "Disabled"
     \printuntil "Disabled"
 
@@ -182,7 +182,7 @@
     dialog classes, describing the navigation necessary to reach the
     dialogs. You could also add them to the example files, e.g. \c
     mainwindow.cpp and \c printpanel.cpp are appropriate files. Run \c
-    lupdate and then start \e {Qt Linguist} and load in \c trollprint_pt.ts. 
+    lupdate and then start \e {Qt Linguist} and load in \c trollprint_pt.ts.
     You should see the comments in the \gui {Source text and comments} area
     as you browse through the list of source texts.
 

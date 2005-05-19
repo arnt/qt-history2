@@ -32,7 +32,9 @@
 
     Here's the class definition:
 
-    \include mainwindows/application/mainwindow.h
+    \quotefromfile mainwindows/application/mainwindow.h
+    \skipto class MainWindow
+    \printuntil /^\};/
 
     The public API is restricted to the constructor. In the \c
     protected section, we reimplement QWidget::closeEvent() to detect
@@ -46,8 +48,8 @@
     \section1 MainWindow Class Implementation
 
     \quotefromfile mainwindows/application/mainwindow.cpp
-    \printline #include <QtGui>
-    \printline #include "mainwindow.h"
+    \skipto #include <QtGui>
+    \printuntil #include "mainwindow.h"
 
     We start by including \c <QtGui>, a header file that contains the
     definition of all classes in the \l QtCore and \l QtGui
@@ -161,7 +163,7 @@
     \c MainWindow constructor, creates \l{QAction}s. The code is very
     repetitive, so we show only the actions corresponding to
     \menu{File|New}, \menu{File|Open}, and \menu{Help|About Qt}.
-    
+
     A QAction is an object that represents one user action, such as
     saving a file or invoking a dialog. An action can be put in a
     QMenu or a QToolBar, or both, or in any other widget that
@@ -208,7 +210,9 @@
         application -style=cde
     \endcode
 
-    \printline ::createToolBars(
+    Let's now review the toolbars:
+
+    \skipto ::createToolBars(
     \printuntil /^\}/
 
     Creating toolbars is very similar to creating menus. The same
@@ -330,14 +334,16 @@
     The \c main() function for this application is typical of
     applications that contain one main window:
 
-    \include mainwindows/application/main.cpp
+    \quotefromfile mainwindows/application/main.cpp
+    \skipto #include
+    \printuntil /^\}/
 
     \section1 The Resource File
 
     As you will probably recall, for some of the actions, we
     specified icons with file names starting with \c{:} and mentioned
     that such file names aren't ordinary file names, but path in the
-    executable's stored resources. These resources are compiled 
+    executable's stored resources. These resources are compiled
 
     The resources associated with an application are specified in a
     \c .qrc file, an XML-based file format that lists files on the
