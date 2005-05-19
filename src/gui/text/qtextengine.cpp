@@ -1058,8 +1058,9 @@ QFont QTextEngine::font(const QScriptItem &si) const
         fnt = fnt.resolve(block.docHandle()->defaultFont);
 
         // Make sure we get the right dpi on printers
-        Q_ASSERT(block.docHandle()->layout()->paintDevice());
-        fnt = QFont(fnt, block.docHandle()->layout()->paintDevice());
+        QPaintDevice *pdev = block.docHandle()->layout()->paintDevice();
+        if (pdev)
+            fnt = QFont(fnt, pdev);
 
         if (chf.verticalAlignment() != QTextCharFormat::AlignNormal)
             fnt.setPointSize((fnt.pointSize() * 2) / 3);
