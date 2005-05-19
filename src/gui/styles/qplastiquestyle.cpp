@@ -38,6 +38,7 @@ static const bool UsePixmapCache = true;
 #include <qscrollbar.h>
 #include <qstyleoption.h>
 #include <qtextedit.h>
+#include <qtoolbar.h>
 #include <qtoolbox.h>
 #include <qtoolbutton.h>
 #include <qworkspace.h>
@@ -780,6 +781,9 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     QColor shadow = shadowGradientStartColor;
 
     switch (element) {
+    case PE_IndicatorButtonDropDown:
+        drawPrimitive(PE_PanelButtonTool, option, painter, widget);
+        break;
     case PE_FrameDefaultButton:
         // Draws the frame around a default button (drawn in
         // PE_PanelButtonCommand).
@@ -935,6 +939,12 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
 
     case PE_FrameGroupBox:
     case PE_Frame:
+#ifdef QT3_SUPPORT
+        if (widget && widget->inherits("Q3ToolBar")) {
+            drawPrimitive(PE_Q3Separator, option, painter, widget);
+            break;
+        }
+#endif
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
             painter->save();
 
@@ -1059,14 +1069,31 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         painter->setPen(oldPen);
         break;
     }
-    case PE_Q3DockWindowSeparator:
+    case PE_Q3DockWindowSeparator: {
+        QPen oldPen = painter->pen();
+        painter->setPen(alphaCornerColor);
+        QRect rect = option->rect;
+        if (option->state & State_Horizontal) {
+            painter->drawLine(rect.right(), rect.top() + 2, rect.right(), rect.bottom() - 1);
+        } else {
+            painter->drawLine(rect.left() + 2, rect.bottom(), rect.right() - 1, rect.bottom());
+        }
+        painter->setPen(oldPen);
+        break;
+    }
     case PE_Q3Separator: {
         QPen oldPen = painter->pen();
         painter->setPen(alphaCornerColor);
-        if (option->state & State_Horizontal)
+        if ((option->state & State_Horizontal) == 0)
             painter->drawLine(option->rect.bottomLeft(), option->rect.bottomRight());
         else
             painter->drawLine(option->rect.topRight(), option->rect.bottomRight());
+        painter->setPen(option->palette.background().color().light(104));
+        if ((option->state & State_Horizontal) == 0)
+            painter->drawLine(option->rect.topLeft(), option->rect.topRight());
+        else
+            painter->drawLine(option->rect.topLeft(), option->rect.bottomLeft());
+        painter->setPen(oldPen);
         break;
     }
     case PE_PanelMenuBar:
@@ -1429,7 +1456,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 }
 
                 // draw check mark when on
-                if ((button->state & (State_On | State_NoChange))) {
+                if ((button->state & (State_On | State_Sunken | State_NoChange))) {
                     QImage image((button->state & (State_NoChange | State_Sunken)
                                   ? qt_plastique_check_sunken : qt_plastique_check));
                     if ((button->state & (State_Sunken | State_NoChange))) {
@@ -1503,7 +1530,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
                 radioButtonPainter.drawImage(adjustedRect.topLeft(), image);
 
                 // draw check
-                if (button->state & State_On) {
+                if (button->state & (State_On | State_Sunken)) {
                     image = QImage(qt_plastique_radio_check);
                     if (button->state & State_Sunken) {
                         image.setColor(1, mergedColors(button->palette.background().color(), alphaTextColor).rgba());
@@ -4017,30 +4044,35 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
                     if (shadeHint)
                         ir.adjust(0, 0, -controlHeight-2, 0);
                 }
-                return ir;
+                rect = ir;
+                break;
             }
             case SC_TitleBarCloseButton:
-                return QRect(width - (controlHeight + 1) - controlTop,
-                            controlTop, controlHeight, controlHeight);
+                rect.setRect(width - (controlHeight + 1) - controlTop, controlTop, controlHeight, controlHeight);
+                break;
             case SC_TitleBarShadeButton:
-                if (!(titleBar->titleBarFlags & Qt::WindowShadeButtonHint))
-                    return QRect();
-                return QRect(width - ((controlHeight + 1) * 2) - controlTop,
-                            controlTop, controlHeight, controlHeight);
+                if (!(titleBar->titleBarFlags & Qt::WindowShadeButtonHint)) {
+                    rect = QRect();
+                    break;
+                }
+                rect.setRect(width - ((controlHeight + 1) * 2) - controlTop, controlTop, controlHeight, controlHeight);
+                break;
             case SC_TitleBarMaxButton:
             case SC_TitleBarUnshadeButton:
-                return QRect(width - ((controlHeight + 1) * 2) - controlTop,
-                            controlTop, controlHeight, controlHeight);
+                rect.setRect(width - ((controlHeight + 1) * 2) - controlTop, controlTop, controlHeight, controlHeight);
+                break;
             case SC_TitleBarMinButton: {
-                if (!(titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint))
-                    return QRect();
+                if (!(titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
+                    rect = QRect();
+                    break;
+                }
                 int offset = controlHeight + 1;
                 if (!maximizeHint)
                     offset *= 2;
                 else
                     offset *= 3;
-                return QRect(width - offset - controlTop,
-                            controlTop, controlHeight, controlHeight);
+                rect.setRect(width - offset - controlTop, controlTop, controlHeight, controlHeight);
+                break;
             }
             case SC_TitleBarNormalButton: {
                 int offset = controlHeight + 1;
@@ -4048,8 +4080,8 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
                     offset *= 2;
                 else
                     offset *= 3;
-                return QRect(width - offset - controlTop,
-                            controlTop, controlHeight, controlHeight);
+                rect.setRect(width - offset - controlTop, controlTop, controlHeight, controlHeight);
+                break;
             }
             case SC_TitleBarSysMenu: {
                 QSize iconSize = titleBar->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).size();
@@ -4057,8 +4089,8 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
                     iconSize = QSize(controlHeight, controlHeight);
                 int hPad = (controlHeight - iconSize.height())/2;
                 int vPad = (controlHeight - iconSize.width())/2;
-                QRect ret = QRect(6 + vPad, controlTop + hPad, iconSize.width(), controlHeight - hPad);
-                return ret;
+                rect.setRect(6 + vPad, controlTop + hPad, iconSize.width(), controlHeight - hPad);
+                break;
             }
             default:
                 break;
@@ -4123,37 +4155,49 @@ int QPlastiqueStyle::styleHint(StyleHint hint, const QStyleOption *option, const
 QStyle::SubControl QPlastiqueStyle::hitTestComplexControl(ComplexControl control, const QStyleOptionComplex *option,
                                                           const QPoint &pos, const QWidget *widget) const
 {
+    SubControl ret = SC_None;
     switch (control) {
     case CC_ComboBox:
-        return SC_ComboBoxArrow;
-   case CC_ScrollBar:
+        ret = SC_ComboBoxArrow;
+        break;
+    case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             QRect slider = subControlRect(control, scrollBar, SC_ScrollBarSlider, widget);
-            if (slider.contains(pos))
-                return SC_ScrollBarSlider;
+            if (slider.contains(pos)) {
+                ret = SC_ScrollBarSlider;
+                break;
+            }
 
             QRect scrollBarAddLine = subControlRect(control, scrollBar, SC_ScrollBarAddLine, widget);
-            if (scrollBarAddLine.contains(pos))
-                return SC_ScrollBarAddLine;
+            if (scrollBarAddLine.contains(pos)) {
+                ret = SC_ScrollBarAddLine;
+                break;
+            }
 
             QRect scrollBarSubPage = subControlRect(control, scrollBar, SC_ScrollBarSubPage, widget);
-            if (scrollBarSubPage.contains(pos))
-                return SC_ScrollBarSubPage;
+            if (scrollBarSubPage.contains(pos)) {
+                ret = SC_ScrollBarSubPage;
+                break;
+            }
 
             QRect scrollBarAddPage = subControlRect(control, scrollBar, SC_ScrollBarAddPage, widget);
-            if (scrollBarAddPage.contains(pos))
-                return SC_ScrollBarAddPage;
+            if (scrollBarAddPage.contains(pos)) {
+                ret = SC_ScrollBarAddPage;
+                break;
+            }
 
             QRect scrollBarSubLine = subControlRect(control, scrollBar, SC_ScrollBarSubLine, widget);
-            if (scrollBarSubLine.contains(pos))
-                return SC_ScrollBarSubLine;
+            if (scrollBarSubLine.contains(pos)) {
+                ret = SC_ScrollBarSubLine;
+                break;
+            }
         }
         break;
     default:
         break;
     }
 
-    return QWindowsStyle::hitTestComplexControl(control, option, pos, widget);
+    return ret != SC_None ? ret : QWindowsStyle::hitTestComplexControl(control, option, pos, widget);
 }
 
 /*!
@@ -4161,19 +4205,28 @@ QStyle::SubControl QPlastiqueStyle::hitTestComplexControl(ComplexControl control
 */
 int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option, const QWidget *widget) const
 {
+    int ret = -1;
     switch (metric) {
+    case PM_ToolBarIconSize:
+        ret = pixelMetric(PM_LargeIconSize);
+        break;
     case PM_ButtonShiftHorizontal:
     case PM_ButtonShiftVertical:
-        return 1;
+        ret = 1;
+        break;
     case PM_ButtonDefaultIndicator:
-        return 0;
+        ret = 0;
+        break;
     case PM_SliderThickness:
-        return 15;
+        ret = 15;
+        break;
     case PM_SliderLength:
     case PM_SliderControlThickness:
-        return 11;
+        ret = 11;
+        break;
     case PM_SliderTickmarkOffset:
-        return 5;
+        ret = 5;
+        break;
     case PM_SliderSpaceAvailable:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             int size = 15;
@@ -4181,52 +4234,74 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
                 ++size;
             if (slider->tickPosition & QSlider::TicksAbove)
                 ++size;
-            return size;
+            ret = size;
+            break;
         }
     case PM_ScrollBarExtent:
-        return 16;
+        ret = 16;
+        break;
     case PM_ScrollBarSliderMin:
-        return 26;
+        ret = 26;
+        break;
     case PM_ProgressBarChunkWidth:
-        return 1;
+        ret = 1;
+        break;
     case PM_MenuBarItemSpacing:
-        return 3;
+        ret = 3;
+        break;
     case PM_MenuBarVMargin:
-        return 3;
+        ret = 3;
+        break;
     case PM_MenuBarHMargin:
-        return 0;
+        ret = 0;
+        break;
     case PM_MenuBarPanelWidth:
-        return 1;
+        ret = 1;
+        break;
     case PM_ToolBarHandleExtent:
-        return 9;
+        ret = 9;
+        break;
     case PM_ToolBarSeparatorExtent:
-        return 2;
+        ret = 2;
+        break;
     case PM_ToolBarFrameWidth:
-        return 2;
+        ret = 2;
+        break;
     case PM_SplitterWidth:
-        return 6;
+        ret = 6;
+        break;
     case PM_DockWidgetSeparatorExtent:
-        return 6;
+        ret = 6;
+        break;
     case PM_DockWidgetHandleExtent:
-        return 20;
+        ret = 20;
+        break;
     case PM_DefaultFrameWidth:
-        if (qobject_cast<const QMenu *>(widget))
-            return 1;
-        return 2;
+        if (qobject_cast<const QMenu *>(widget)) {
+            ret = 1;
+            break;
+        }
+        ret = 2;
+        break;
     case PM_TabBarTabVSpace:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
-            if (!tab->icon.isNull()) return 15;
+            if (!tab->icon.isNull()) {
+                ret = 15;
+                break;
+            }
         }
         break;
     case PM_MDIFrameWidth:
-        return 4;
+        ret = 4;
+        break;
     case PM_TitleBarHeight:
-        return qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 30);
+        ret = qMax(widget ? widget->fontMetrics().lineSpacing() : 0, 30);
+        break;
     default:
         break;
     }
 
-    return QWindowsStyle::pixelMetric(metric, option, widget);
+    return ret != -1 ? ret : QWindowsStyle::pixelMetric(metric, option, widget);
 }
 
 /*!
@@ -4307,14 +4382,11 @@ void QPlastiqueStyle::polish(QWidget *widget)
 #ifdef QT3_SUPPORT
         || widget->inherits("Q3ToolBar")
 #endif
-        || qobject_cast<QMenuBar *>(widget)) {
+        || qobject_cast<QMenuBar *>(widget)
+        || qobject_cast<QToolBar *>(widget)
+        || qobject_cast<QToolButton *>(widget)) {
         widget->setBackgroundRole(QPalette::Background);
     }
-
-#ifdef QT3_SUPPORT
-    if (widget->inherits("Q3ToolBar"))
-        qobject_cast<QFrame *>(widget)->setFrameShape(QFrame::NoFrame);
-#endif
 }
 
 /*!
@@ -4338,14 +4410,11 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
 #ifdef QT3_SUPPORT
         || widget->inherits("Q3ToolBar")
 #endif
-        || qobject_cast<QMenuBar *>(widget)) {
+        || qobject_cast<QMenuBar *>(widget)
+        || qobject_cast<QToolBar *>(widget)
+        || qobject_cast<QToolButton *>(widget)) {
         widget->setBackgroundRole(QPalette::Button);
     }
-
-#ifdef QT3_SUPPORT
-    if (widget->inherits("Q3ToolBar"))
-        qobject_cast<QFrame *>(widget)->setFrameShape(QFrame::StyledPanel);
-#endif
 }
 
 /*!
