@@ -335,8 +335,7 @@ QString MainWindow::urlifyFileName(const QString &fileName)
 
 void MainWindow::on_actionFilePrint_triggered()
 {
-    // ### change back to highres, when it works
-    QPrinter printer(QPrinter::ScreenResolution);
+    QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
 
     QPrintDialog *dlg = new QPrintDialog(&printer, this);

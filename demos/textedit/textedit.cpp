@@ -339,8 +339,7 @@ void TextEdit::filePrint()
     if (!currentEditor)
         return;
 #ifndef QT_NO_PRINTER
-    // ### change back to highres, when it works
-    QPrinter printer(QPrinter::ScreenResolution);
+    QPrinter printer(QPrinter::HighResolution);
     printer.setFullPage(true);
 
     QPrintDialog *dlg = new QPrintDialog(&printer, this);

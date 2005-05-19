@@ -495,7 +495,13 @@ qreal QTextDocumentLayoutPrivate::indent(QTextBlock bl) const
     if (object)
         indent += object->format().toListFormat().indent();
 
-    return indent * TextIndentValue;
+    qreal scale = 1;
+    if (q->paintDevice()) {
+        extern int qt_defaultDpi();
+        scale = q->paintDevice()->logicalDpiY() / qt_defaultDpi();
+    }
+
+    return indent * TextIndentValue * scale;
 }
 
 QTextDocumentLayoutPrivate::DrawResult
@@ -763,8 +769,8 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
     Q_Q(const QTextDocumentLayout);
     const QTextBlockFormat blockFormat = bl.blockFormat();
     const QTextCharFormat charFormat = bl.charFormat();
-    const QFont font = charFormat.font();
-    const QFontMetrics fontMetrics(font);
+    const QFont font(charFormat.font(), painter->device());
+    const QFontMetrics fontMetrics(font, painter->device());
     QTextObject * const object = q->document()->objectForFormat(blockFormat);
     const QTextListFormat lf = object->format().toListFormat();
     const int style = lf.style();
