@@ -14,9 +14,6 @@ PACKAGE_DIR=`(cd ../install && pwd)`
 PACKAGE_OPTIONS=
 PACKAGES=
 COMMAND_PAX="/System/Library/PrivateFrameworks/Installation.framework/Resources/pax" #yes that pax, don't ask!
-if [ '!' -x "$COMMAND_PAX" ]; then
-   COMMAND_PAX=pax
-fi
 README=
 LICENSE=
 MAKE_META=
@@ -288,16 +285,21 @@ for package in $PACKAGES; do
     package_dir="$OUTPUT_DIR/packages/Qt_${package}.pkg"
     rm -rf "$package_dir"
     echo "  Creating installation.. ($package_dir)"
-    mkdir -p "$package_dir/Contents"
+    if [ -x "$COMMAND_PAX" ]; then
+	mkdir -p "$package_dir/Contents"
+	(cd "$TMP_DIR/package" && $COMMAND_PAX -w -x cpio -f "$package_dir/Contents/Archive.pax" "." >/dev/null 2>&1)
+	gzip "$package_dir/Contents/Archive.pax"
+	echo "pmkrpkg1" >"$package_dir/Contents/PkgInfo"
+	mkbom "$TMP_DIR/package" "$package_dir/Contents/Archive.bom"
+        #link the files (for compat)
+	mkdir -p "$package_dir/Contents/Resources"
+	ln -sf "../Archive.bom" "$package_dir/Contents/Resources"
+	ln -sf "../Archive.pax.gz" "$package_dir/Contents/Resources"
+    else
+	(cd "$TMP_DIR/package" && /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -p "$package_dir" -ds)
+    fi
+    #Info.plist
     doStringReplace "$PACKAGE_DIR/$package/Info.plist" "$package_dir/Contents/Info.plist"
-    (cd "$TMP_DIR/package" && $COMMAND_PAX -w -x cpio -f "$package_dir/Contents/Archive.pax" "." >/dev/null 2>&1)
-    gzip "$package_dir/Contents/Archive.pax"
-    echo "pmkrpkg1" >"$package_dir/Contents/PkgInfo"
-    mkbom "$TMP_DIR/package" "$package_dir/Contents/Archive.bom"
-    mkdir -p "$package_dir/Contents/Resources"
-    #link the files (for compat)
-    ln -sf "../Archive.bom" "$package_dir/Contents/Resources"
-    ln -sf "../Archive.pax.gz" "$package_dir/Contents/Resources"
     #merge resources
     cp -r Resources/* "$package_dir/Contents/Resources"
     cp -r $PACKAGE_DIR/$package/Resources/* "$package_dir/Contents/Resources"
