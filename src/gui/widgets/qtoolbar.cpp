@@ -190,7 +190,7 @@ int QToolBarPrivate::indexOf(QAction *action) const
     emits the actionTriggered() signal. Toolbars may only be added to
     QMainWindow and QMainWindow subclasses.
 
-    A toolbar can be fixed in place in a particular area() (e.g. at
+    A toolbar can be fixed in place in a particular area (e.g. at
     the top of the window), or it can be movable (isMovable()) between toolbar
     areas: see QToolBar::allowedAreas and isAreaAllowed().
 

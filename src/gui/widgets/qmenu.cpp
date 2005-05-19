@@ -966,7 +966,7 @@ QMenu *QMenu::addMenu(const QIcon &icon, const QString &title)
 
 /*!
     This convenience function creates a new separator action, i.e. an
-    action with QAction::separator() set to true, and adds the new
+    action with QAction::isSeparator() returning true, and adds the new
     action to this menu's list of actions. It returns the newly
     created action.
 
@@ -995,7 +995,7 @@ QAction *QMenu::insertMenu(QAction *before, QMenu *menu)
 
 /*!
     This convenience function creates a new separator action, i.e. an
-    action with QAction::separator() set to true. The function inserts
+    action with QAction::isSeparator() returning true. The function inserts
     the newly created action into this menu's list of actions before
     action \a before and returns it.
 

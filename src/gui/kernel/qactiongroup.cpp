@@ -80,7 +80,7 @@ void QActionGroupPrivate::actionHovered()
     single unit, with all the actions within the action group
     appearing as separate menu options or toolbar buttons.
 
-    Here's an example from demos/textedit:
+    Here's an example from demos/textedit/textedit.cpp:
     \quotefile textedit/textedit.cpp
     \skipto QActionGroup
     \printuntil connect

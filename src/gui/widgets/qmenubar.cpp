@@ -395,7 +395,7 @@ QStyleOptionMenuItem QMenuBarPrivate::getStyleOption(const QAction *action) cons
 
     QMenuBar on Qt/Mac is a wrapper for using the system-wide menubar.
     If you have multiple menubars in one dialog the outermost menubar
-    (normally inside a widget with widget flag \c Qt::WType_TopLevel) will
+    (normally inside a widget with widget flag Qt::Window) will
     be used for the system-wide menubar.
 
     Qt/Mac also provides a menubar merging feature to make QMenuBar

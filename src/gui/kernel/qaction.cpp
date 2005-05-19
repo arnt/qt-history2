@@ -447,7 +447,7 @@ QMenu *QAction::menu() const
   into. Under most circumstances the text, submenu, and icon will be
   ignored for separator actions.
 
-  \sa QAction::separator
+  \sa QAction::isSeparator()
 */
 void QAction::setSeparator(bool b)
 {
@@ -578,8 +578,7 @@ QString QAction::toolTip() const
     \brief the action's status tip
 
     The statusTip is displayed on all status bars provided by the
-    action's top-level parent widget. It can be set, and is provided as the parameter
-    of the showStatusMessage() signal.
+    action's top-level parent widget.
 
     There is no default statusTip text.
 
@@ -608,9 +607,6 @@ QString QAction::statusTip() const
     The "What's This?" text is used to provide a brief description of
     the action. The text may contain rich text. There is no default
     "What's This?" text.
-
-    If the text contains a hyperlink, the whatsThisClicked() signal is
-    emitted when the user clicks inside the "What's This?" window.
 
     \sa QWhatsThis QStyleSheet
 */

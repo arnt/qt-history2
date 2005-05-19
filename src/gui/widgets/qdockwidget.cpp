@@ -547,30 +547,6 @@ void QDockWidgetPrivate::toggleView(bool b)
     The visual appearance of the title bar and buttons is dependent
     on the \l{QStyle}{style} in use.
 
-    ### \e {screenshot of QDockWidget in a few styles should go here}
-
-    \section1 Behavior
-
-    \list
-
-    \i behaviour of QDockWidget while docked in QMainWindow:
-
-    \i behaviour of QDockWidget while floated:
-
-    \i behaviour while dragging QDockWidget:
-
-        \list
-
-        \i to an unoccupied dock widget area:
-
-        \i to an occupied dock widget area:
-
-        \i to top-level:
-
-        \endlist
-
-    \endlist
-
     \sa QMainWindow
 */
 
