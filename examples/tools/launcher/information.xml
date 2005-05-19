@@ -1,9 +1,9 @@
 <categories>
   <category dirname="../demos" docname="demos" name="Demonstrations">
-    <example dirname="arthur" filename="deform" name="Vector Deformation" />
-    <example dirname="arthur" filename="gradients" name="Gradients" />
-    <example dirname="arthur" filename="pathstroke" name="Path Stroking" />
-    <example dirname="arthur" filename="affine" name="Affine Transformations" />
+    <example dirname="deform" filename="deform" name="Vector Deformation" />
+    <example dirname="gradients" filename="gradients" name="Gradients" />
+    <example dirname="pathstroke" filename="pathstroke" name="Path Stroking" />
+    <example dirname="affine" filename="affine" name="Affine Transformations" />
     <example filename="books" name="Books" />
     <example filename="mainwindow" name="Main Window" />
     <example filename="spreadsheet" name="Spreadsheet" />
