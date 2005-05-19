@@ -21,7 +21,7 @@
 #error "qrect.h must be included before any header file that defines topLeft"
 #endif
 
-class Q_CORE_EXPORT QRect                                        // rectangle class
+class Q_CORE_EXPORT QRect
 {
 public:
     QRect() { x1 = y1 = 0; x2 = y2 = -1; }
@@ -460,7 +460,7 @@ Q_CORE_EXPORT QDebug operator<<(QDebug, const QRect &);
 #endif
 
 
-class Q_CORE_EXPORT QRectF                                        // rectangle class
+class Q_CORE_EXPORT QRectF
 {
 public:
     QRectF() { xp = yp = 0.; w = h = 0.; }

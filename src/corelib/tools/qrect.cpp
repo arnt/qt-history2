@@ -40,21 +40,30 @@
     corner. The positive direction of the y axis is down, and the
     positive x axis is from left to right.
 
-    A QRect can be constructed with a set of left, top, width and
-    height integers, from two \l{QPoint}s or from a QPoint and a QSize.
+    A QRect can be constructed with a set of left, top, width and height
+    integers, from two \l{QPoint}s or from a QPoint and a QSize.
+    The following code creates three identical triangles.
+
+    \code
+        QRect r1(QPoint(100,200), QPoint(110,215));
+        QRect r2(QPoint(100,200), QSize(11,16));
+        QRect r3(100, 200, 11, 16);
+    \endcode
+
     After creation the dimensions can be changed, e.g. with setLeft(),
     setRight(), setTop() and setBottom(), or by setting sizes, e.g.
-    setWidth(), setHeight() and setSize(). The dimensions can also be
-    changed with the move functions, e.g. moveBy(), moveCenter(),
-    moveBottomRight(), etc. You can also add coordinates to a
-    rectangle with adjust().
+    setWidth(), setHeight() and setSize(). The dimensions can also be changed
+    with the move functions, e.g. translate(), moveCenter(), moveBottomRight(),
+    etc. You can also add coordinates to a rectangle with adjust(). You can get
+    a new rectangle based on adjustments from the original rectangled with
+    adjusted().
 
     You can test to see if a QRect contains a specific point with
     contains(). You can also test to see if two QRects intersect with
     intersects() (see also intersect()). To get the bounding rectangle
     of two QRects use unite().
 
-    \sa QPoint, QSize
+    \sa QPoint QSize QPolygon QRectF
 */
 
 /*****************************************************************************
@@ -64,7 +73,9 @@
 /*!
     \fn QRect::QRect()
 
-    Constructs an invalid rectangle.
+    Constructs a null rectangle.
+
+    \sa isNull()
 */
 
 /*!
@@ -89,12 +100,6 @@
     Constructs a rectangle with the \a top, \a left corner and \a
     width and \a height.
 
-    Example (creates three identical rectangles):
-    \code
-        QRect r1(QPoint(100,200), QPoint(110,215));
-        QRect r2(QPoint(100,200), QSize(11,16));
-        QRect r3(100, 200, 11, 16);
-    \endcode
 */
 
 
@@ -179,11 +184,11 @@ QRect QRect::normalized() const
 
 
 /*!
-    \fn QRect QRect::normalized() const
+    \fn QRect QRect::normalize() const
 
     \compat
 
-    Use QRect::normalized instead
+    Use QRect::normalized() instead
 
     Returns a normalized rectangle, i.e. a rectangle that has a
     non-negative width and height.
@@ -425,7 +430,7 @@ QRect QRect::normalized() const
     Extracts the rectangle parameters as the position \c{*}\a{x},
     \c{*}\a{y} and width \c{*}\a{w} and height \c{*}\a{h}.
 
-    \sa setRect(), coords()
+    \sa setRect(), getCoords()
 */
 
 
@@ -436,11 +441,12 @@ QRect QRect::normalized() const
     \c{*}\a{xp1}, \c{*}\a{yp1} and the bottom-right point
     \c{*}\a{xp2}, \c{*}\a{yp2}.
 
-    \sa setCoords(), rect()
+    \sa setCoords(), getRect()
 */
 
 /*!
     \fn void QRect::rect(int *x, int *y, int *w, int *h) const
+    \compat
 
     Use getRect() instead.
 */
@@ -448,6 +454,7 @@ QRect QRect::normalized() const
 
 /*!
     \fn void QRect::coords(int *xp1, int *yp1, int *xp2, int *yp2) const
+    \compat
 
     Use getCoords() instead.
 */
@@ -566,6 +573,8 @@ void QRect::moveCenter(const QPoint &p)
 
     Moves the top left corner of the rectangle to \a x and \a y, without
     changing the rectangles size.
+
+    \sa translate() moveTopLeft()
 */
 
 /*!
@@ -573,6 +582,8 @@ void QRect::moveCenter(const QPoint &p)
 
     Moves the top left corner of the rectangle to \a pt, without
     changing the rectangles size.
+
+    \sa translate() moveTopLeft()
 */
 
 /*!
@@ -582,7 +593,7 @@ void QRect::moveCenter(const QPoint &p)
     axis, relative to the current position. Positive values move the
     rectangle to the right and down.
 
-    \sa moveTopLeft()
+    \sa moveTopLeft() moveTo() translated()
 */
 
 
@@ -607,6 +618,8 @@ void QRect::moveCenter(const QPoint &p)
     position. Positive values move the rectangle to the right and
     down.
 
+    \sa translate()
+
 */
 
 
@@ -619,6 +632,8 @@ void QRect::moveCenter(const QPoint &p)
     along the x axis and \a{p}\e{.y()} along the y axis, relative to
     the current position.  Positive values move the rectangle to the
     right and down.
+
+    \sa translate()
 */
 
 
@@ -628,7 +643,7 @@ void QRect::moveCenter(const QPoint &p)
     Sets the coordinates of the rectangle's top-left corner to (\a{x},
     \a{y}), and its size to (\a{w}, \a{h}).
 
-    \sa rect(), setCoords()
+    \sa getRect(), setCoords()
 */
 
 
@@ -639,12 +654,13 @@ void QRect::moveCenter(const QPoint &p)
     (\a{xp1}, \a{yp1}), and the coordinates of its bottom-right corner to
     (\a{xp2}, \a{yp2}).
 
-    \sa coords(), setRect()
+    \sa getCoords(), setRect()
 */
 
 
 /*!
     \fn void QRect::addCoords(int xp1, int yp1, int xp2, int yp2)
+    \compat
 
     Adds \a xp1, \a yp1, \a xp2 and \a yp2 respectively to the
     existing coordinates of the rectangle.
@@ -679,8 +695,7 @@ void QRect::moveCenter(const QPoint &p)
 /*!
     \fn int QRect::width() const
 
-    Returns the width of the rectangle. The width includes both the
-    left and right edges, i.e. width = right - left + 1.
+    Returns the width of the rectangle.
 
     \sa height(), size(), setHeight()
 */
@@ -806,7 +821,9 @@ bool QRect::contains(const QRect &r, bool proper) const
     Returns the bounding rectangle of this rectangle and rectangle \a
     r.
 
-    \sa operator|=(), operator&(), intersects(), contains()
+    This is the equivalent to calling \code unite(r) \endcode.
+
+    \sa operator|=(), operator&(), intersect(), contains() unite()
 */
 
 QRect QRect::operator|(const QRect &r) const
@@ -838,7 +855,9 @@ QRect QRect::operator|(const QRect &r) const
 
     Returns an empty rectangle if there is no intersection.
 
-    \sa operator&=(), operator|(), isEmpty(), intersects(), contains()
+    This is equivalent to calling \code intersect(r) \endcode.
+
+    \sa operator&=(), operator|(), isEmpty(), intersect(), contains() unite()
 */
 
 QRect QRect::operator&(const QRect &r) const
@@ -975,40 +994,33 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     items. They specify both the geometry of widgets and the extent of items
     that are painted using a QPainter. QRectF provides a variant of the QRect
     class that defines the position and dimension of the rectangle using
-    \c float values for accuracy.
+    \c qreal values for accuracy.
 
-    A rectangle is internally represented as the positions of its upper-left
-    and bottom-right corners, but it is normally expressed as the position of
-    its upper-left corner and a size.
-
-    Note that the size (width and height) of a QRectF is
-    different from size of QRect. If the top-left corner and
-    the bottom-right corner are the same, the height and the width of
-    the rectangle will both be 0.
-
-    Generally, \e{width = right - left} and \e{height = bottom -
-    top}.
+    A QRectF is represented internally as the positions of its upper-left
+    corner and its size. Because of this change in representation, QRectF has
+    slightly different behavior than QRect. In particular
+    \e{right = left + width} and {bottom = top + height}
 
     The default coordinate system has origin (0, 0) in the top-left
     corner. The positive direction of the x axis is from left to right,
     and the positive direction of the y axis is from top to bottom.
 
-    A QRectF can be constructed with a set of floats specifying the
+    A QRectF can be constructed with a set of qreals specifying the
     coordinates of the top-left corner of the rectangle and its
-    dimensions from two QPointF values, or from a QPointF and a QSizeF.
+    dimensions or from a QPointF and a QSizeF.
     After creation, the dimensions can be changed with setLeft(),
     setRight(), setTop(), and setBottom(), or by setting sizes with
     setWidth(), setHeight(), and setSize(). The dimensions can also be
     changed with the move functions, such as moveBy(), moveCenter(),
     and moveBottomRight(). You can also add coordinates to a rectangle
-    with addCoords().
+    with adjust().
 
-    You can test to see if a rectangle contains a specific point with
-    the contains() function. You can also test to see if two rectangles
-    intersect with the intersects() function (see also intersect()).
-    To get the bounding rectangle of two rectangles use unite().
+    You can test to see if a rectangle contains a specific point with the
+    contains() function. You can also test to see if two rectangles intersect
+    with the intersects() function. You can get the result of the intersection
+    with intersect() and the bounding rectangle of two rectangles with unite().
 
-    \sa QPointF QSizeF
+    \sa QPointF QSizeF QPolygonF QRect
 */
 
 /*****************************************************************************
@@ -1018,7 +1030,9 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
 /*!
     \fn QRectF::QRectF()
 
-    Constructs an invalid rectangle.
+    Constructs a null rectangle.
+
+    \sa isNull()
 */
 
 /*!
@@ -1034,19 +1048,12 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     Constructs a rectangle with the top-left corner at (\a x, \a y) and
     dimensions specified by the \a width and \a height.
 
-    Example (creates three identical rectangles):
-    \code
-        QRectF r1(QPoint(100,200), QPoint(110,215));
-        QRectF r2(QPoint(100,200), QSize(11,16));
-        QRectF r3(100, 200, 11, 16);
-    \endcode
 */
 
 /*!
     \fn QRectF::QRectF(const QRect &rect)
 
-    Constructs a rectangle with floating point accuracy from the given
-    \a rect.
+    Constructs a QRectF with from the given \a rect.
 */
 
 /*!
@@ -1252,7 +1259,7 @@ QRectF QRectF::normalized() const
     Extracts the position of the rectangle's top-left corner to \c{*}\a{x},
     \c{*}\a{y}, its width to \c{*}\a{w}, and its height to \c{*}\a{h}.
 
-    \sa setRect() coords()
+    \sa setRect() getCoords()
 */
 
 
@@ -1263,20 +1270,7 @@ QRectF QRectF::normalized() const
     \c{*}\a{xp1}, \c{*}\a{yp1} and the bottom-right point
     \c{*}\a{xp2}, \c{*}\a{yp2}.
 
-    \sa setCoords() rect()
-*/
-
-/*
-    \fn void QRectF::rect(qreal *x, qreal *y, qreal *w, qreal *h) const
-
-    Use getRect() instead.
-*/
-
-
-/*
-    \fn void QRectF::coords(qreal *xp1, qreal *yp1, qreal *xp2, qreal *yp2) const
-
-    Use getCoords() instead.
+    \sa setCoords() getRect()
 */
 
 /*!
@@ -1363,6 +1357,8 @@ QRectF QRectF::normalized() const
 
     Moves the top left corner of the rectangle to \a x and \a y, without
     changing the rectangles size.
+
+    \sa translate() moveTopLeft()
 */
 
 /*!
@@ -1370,14 +1366,18 @@ QRectF QRectF::normalized() const
 
     Moves the top left corner of the rectangle to \a pt, without
     changing the rectangles size.
+
+    \sa translate() moveTopLeft()
 */
 
 /*!
     \fn void QRectF::translate(qreal dx, qreal dy)
 
-    Moves the rectangle \a dx along the x axis and \a dy along the y
-    axis, relative to the current position. Positive values move the
-    rectangle to the right and downwards.
+    Moves the rectangle \a dx along the x-axis and \a dy along the y-axis,
+    relative to the current position. Positive values move the rectangle to the
+    right and downwards.
+
+    \sa moveTo() moveTopLeft() translated()
 */
 
 
@@ -1386,9 +1386,11 @@ QRectF QRectF::normalized() const
 
     \overload
 
-    Moves the rectangle \a{p}\e{.x()} along the x axis and
-    \a{p}\e{.y()} along the y axis, relative to the current position.
+    Moves the rectangle \a{p}\e{.x()} along the x-axis and
+    \a{p}\e{.y()} along the y-axis, relative to the current position.
     Positive values move the rectangle to the right and downwards.
+
+    \sa moveTo() moveTopLeft() translated()
 */
 
 
@@ -1400,6 +1402,7 @@ QRectF QRectF::normalized() const
     position. Positive values move the rectangle to the right and
     down.
 
+    \sa moveTo() moveTopLeft() translate()
 */
 
 
@@ -1412,6 +1415,8 @@ QRectF QRectF::normalized() const
     along the x axis and \a{p}\e{.y()} along the y axis, relative to
     the current position.  Positive values move the rectangle to the
     right and down.
+
+    \sa moveTo() moveTopLeft() translate()
 */
 
 
@@ -1421,7 +1426,7 @@ QRectF QRectF::normalized() const
     Sets the position of the rectangle's top-left corner to (\a{x},
     \a{y}), and resizes it to the specified \a width and \a height.
 
-    \sa rect(), setCoords()
+    \sa getRect(), setCoords()
 */
 
 
@@ -1432,7 +1437,7 @@ QRectF QRectF::normalized() const
     (\a{xp1}, \a{yp1}), and the position of its bottom-right corner to
     (\a{xp2}, \a{yp2}).
 
-    \sa coords() setRect()
+    \sa getCoords() setRect()
 */
 
 /*! \fn QRectF QRectF::adjusted(qreal xp1, qreal yp1, qreal xp2, qreal yp2) const
@@ -1440,6 +1445,8 @@ QRectF QRectF::normalized() const
     Returns a new rectangle with (\a xp1, \a yp1) added to the
     existing position of the rectangle's top-left corner, and (\a xp2,
     \a yp2) added to the position of its bottom-right corner.
+
+    \sa adjust()
 */
 
 /*! \fn void QRectF::adjust(qreal xp1, qreal yp1, qreal xp2, qreal yp2)
@@ -1461,7 +1468,7 @@ QRectF QRectF::normalized() const
     \fn qreal QRectF::width() const
 
     Returns the width of the rectangle. The width includes both the
-    left and right edges; i.e. width = right - left + 1.
+    left and right edges.
 
     \sa height() size() setHeight()
 */
@@ -1469,9 +1476,7 @@ QRectF QRectF::normalized() const
 /*!
     \fn qreal QRectF::height() const
 
-    Returns the height of the rectangle. The height includes both the
-    top and bottom edges; i.e. height = bottom - top + 1.
-
+    Returns the height of the rectangle.
     \sa width() size() setHeight()
 */
 
@@ -1510,6 +1515,8 @@ QRectF QRectF::normalized() const
 
     Returns true if the given \a point is inside or on the edge of the
     rectangle; otherwise returns false.
+
+    \sa unite() intersect() intersects()
 */
 
 bool QRectF::contains(const QPointF &p) const
@@ -1528,6 +1535,8 @@ bool QRectF::contains(const QPointF &p) const
 
     Returns true if the point (\a x, \a y) is inside this rectangle;
     otherwise returns false.
+
+    \sa unite() intersect() intersects()
 */
 
 /*!
@@ -1723,11 +1732,15 @@ bool QRectF::intersects(const QRectF &r) const
 /*!
     \fn QRect QRectF::toRect() const
 
-    Returns a rectangle with integer precision.
-    Note that the coordinates in the returned rectangle are less precise
-    than those in the floating point rectangle.
+    Returns a QRect based on the values of this rectangle.  Note that the
+    coordinates in the returned rectangle are rounded to the nearest integer.
 */
 
+/*!
+    \fn void QRectF::moveCenter(const QPointF &pos)
+
+    Set the center position of the rectangle to \a pos, leaving the size unchanged.
+*/
 
 /*!
     \fn bool operator==(const QRectF &r1, const QRectF &r2)
