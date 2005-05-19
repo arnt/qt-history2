@@ -54,7 +54,7 @@ ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *pa
     m_treeWidget->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     m_treeWidget->header()->setResizeMode(1, QHeaderView::Stretch);
 
-    connect(m_treeWidget, SIGNAL(itemActivated(QTreeWidgetItem*,int)),
+    connect(m_treeWidget, SIGNAL(itemPressed(QTreeWidgetItem*,int)),
             this, SLOT(slotSelectionChanged()));
 }
 
@@ -94,11 +94,15 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
     QStack< QPair<QTreeWidgetItem*, QObject*> > workingList;
     QObject *rootObject = fw->mainContainer();
     workingList.append(qMakePair(new QTreeWidgetItem(m_treeWidget), rootObject));
+    QTreeWidgetItem *theSelectedItem = 0;
 
     while (!workingList.isEmpty()) {
         QTreeWidgetItem *item = workingList.top().first;
         QObject *object = workingList.top().second;
         workingList.pop();
+
+        if (m_selected == object)
+            theSelectedItem = item;
 
         QString objectName;
         if (QDesignerPromotedWidget *promoted = qobject_cast<QDesignerPromotedWidget*>(object))
@@ -160,6 +164,9 @@ void ObjectInspector::setFormWindow(QDesignerFormWindowInterface *fw)
     m_treeWidget->viewport()->update();
 
     m_treeWidget->resizeColumnToContents(0);
+
+    if (theSelectedItem)
+        m_treeWidget->setCurrentItem(theSelectedItem);
 }
 
 void ObjectInspector::slotSelectionChanged()
@@ -172,6 +179,7 @@ void ObjectInspector::slotSelectionChanged()
     QList<QTreeWidgetItem*> items = m_treeWidget->selectedItems();
     foreach (QTreeWidgetItem *item, items) {
         QObject *object = qvariant_cast<QObject *>(item->data(0, 1000));
+        m_selected = object;
         if (QWidget *widget = qobject_cast<QWidget*>(object))
             m_formWindow->selectWidget(widget);
     }

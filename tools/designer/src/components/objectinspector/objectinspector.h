@@ -52,6 +52,7 @@ private:
     QPointer<QDesignerFormWindowInterface> m_formWindow;
     ObjectItem *m_root;
     bool m_ignoreUpdate;
+    QPointer<QObject> m_selected;
 };
 
 }  // namespace qdesigner_internal
