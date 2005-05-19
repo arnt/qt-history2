@@ -104,6 +104,7 @@ public:
     void close();
     bool isSequential() const;
     bool atEnd() const;
+    bool flush();
 
     // for synchronous access
     bool waitForConnected(int msecs = 30000);

@@ -1497,6 +1497,26 @@ bool QAbstractSocket::atEnd() const
     return !isOpen() || d_func()->readBuffer.isEmpty();
 }
 
+/*!
+    This function writes as much as possible from the internal write buffer to
+    the underlying network socket, without blocking. If any data was written,
+    this function returns true; otherwise false is returned.
+
+    Call this function if you need QAbstractSocket to start sending buffered
+    data immediately. The number of bytes successfully written depends on the
+    operating system. In most cases, you do not need to call this function,
+    because QAbstractSocket will start sending data automatically once control
+    goes back to the event loop. In the absence of an event loop, call
+    waitForBytesWritten() instead.
+
+    \sa write(), waitForBytesWritten()
+*/
+bool QAbstractSocket::flush()
+{
+    Q_D(QAbstractSocket);
+    return d->flush();
+}
+
 /*! \reimp
 */
 qint64 QAbstractSocket::readData(char *data, qint64 maxSize)
