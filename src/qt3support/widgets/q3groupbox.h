@@ -47,10 +47,9 @@ public:
 
     void addSpace(int);
 
-    enum DummyFrame{ Box, Sunken };
-    void setFrameShadow(DummyFrame){};
-    void setFrameShape(DummyFrame){};
-
+    enum DummyFrame { Box, Sunken };
+    void setFrameShadow(DummyFrame) {}
+    void setFrameShape(DummyFrame) {}
 
 protected:
     void childEvent(QChildEvent *);

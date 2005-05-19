@@ -834,6 +834,8 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 /*!
     Constructs a table item of the specified \a type that does not belong
     to any table.
+
+    \sa type()
 */
 QTableWidgetItem::QTableWidgetItem(int type)
     :  rtti(type), view(0), model(0),
@@ -848,6 +850,8 @@ QTableWidgetItem::QTableWidgetItem(int type)
 
 /*!
     Constructs a table item with the given \a text.
+
+    \sa type()
 */
 QTableWidgetItem::QTableWidgetItem(const QString &text, int type)
     :  rtti(type), view(0), model(0),
@@ -973,14 +977,15 @@ QDataStream &operator<<(QDataStream &out, const QTableWidgetItem &item)
 #endif // QT_NO_DATASTREAM
 
 /*!
-  \reimp
+    Assigns \a other to this object.
 */
-void QTableWidgetItem::operator=(const QTableWidgetItem &other)
+QTableWidgetItem &QTableWidgetItem::operator=(const QTableWidgetItem &other)
 {
     values = other.values;
     view = other.view;
     model = other.model;
     itemFlags = other.itemFlags;
+    return *this;
 }
 
 /*!
@@ -1205,9 +1210,26 @@ void QTableWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-    \fn int QTableWidget::type() const
+    \variable QTableWidgetItem::Type
 
-    Returns the table's type.
+    The default type for table widget items.
+
+    \sa UserType, type()
+*/
+
+/*!
+    \variable QTableWidgetItem::UserType
+
+    The minimum value for custom types. Values below UserType are
+    reserved by Qt.
+
+    \sa Type, type()
+*/
+
+/*!
+    \fn int QTableWidgetItem::type() const
+
+    Returns the type passed to the QTableWidgetItem constructor.
 */
 
 /*!
@@ -1651,7 +1673,9 @@ QRect QTableWidget::visualItemRect(const QTableWidgetItem *item) const
 }
 
 /*!
-  Scrolls the view if necessary to ensure that the \a item is visible.
+    Scrolls the view if necessary to ensure that the \a item is visible.
+    The \a hint parameter specifies more precisely where the
+    \a item should be located after the operation.
 */
 
 void QTableWidget::scrollToItem(const QTableWidgetItem *item, ScrollHint hint)
@@ -1666,7 +1690,7 @@ void QTableWidget::scrollToItem(const QTableWidgetItem *item, ScrollHint hint)
 /*!
     Returns the item prototype used by the table.
 
-    Copies of the item prototype are returned by the \a createItem()
+    Copies of the item prototype are returned by the createItem()
     function.
 
     \sa setItemPrototype()

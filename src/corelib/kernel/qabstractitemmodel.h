@@ -68,10 +68,10 @@ public:
     ~QPersistentModelIndex();
     bool operator<(const QPersistentModelIndex &other) const;
     bool operator==(const QPersistentModelIndex &other) const;
-    void operator=(const QPersistentModelIndex &other);
+    QPersistentModelIndex &operator=(const QPersistentModelIndex &other);
     bool operator==(const QModelIndex &other) const;
     bool operator!=(const QModelIndex &other) const;
-    void operator=(const QModelIndex &other);
+    QPersistentModelIndex &operator=(const QModelIndex &other);
     operator const QModelIndex&() const;
     int row() const;
     int column() const;

@@ -331,7 +331,30 @@ Qt::DropActions QListModel::supportedDropActions() const
     The isItemHidden() function can be used to determine whether the
     item is hidden.  Items can be hidden with setItemHidden().
 
-    \sa QListWidgetItem \link model-view-programming.html Model/View Programming\endlink
+    \sa QListWidget {Model/View Programming}
+*/
+
+/*!
+    \variable QListWidgetItem::Type
+
+    The default type for list widget items.
+
+    \sa UserType, type()
+*/
+
+/*!
+    \variable QListWidgetItem::UserType
+
+    The minimum value for custom types. Values below UserType are
+    reserved by Qt.
+
+    \sa Type, type()
+*/
+
+/*!
+    \fn int QListWidgetItem::type() const
+
+    Returns the type passed to the QListWidgetItem constructor.
 */
 
 /*!
@@ -347,6 +370,8 @@ Qt::DropActions QListModel::supportedDropActions() const
     given \a parent.
     If the parent is not specified, the item will need to be inserted into a
     list widget with QListWidget::insertItem().
+
+    \sa type()
 */
 QListWidgetItem::QListWidgetItem(QListWidget *view, int type)
     : rtti(type), view(view), model(0),
@@ -368,6 +393,8 @@ QListWidgetItem::QListWidgetItem(QListWidget *view, int type)
     given \a text and \a parent.
     If the parent is not specified, the item will need to be inserted into a
     list widget with QListWidget::insertItem().
+
+    \sa type()
 */
 QListWidgetItem::QListWidgetItem(const QString &text, QListWidget *view, int type)
     : rtti(type), view(view), model(0),
@@ -467,14 +494,15 @@ void QListWidgetItem::write(QDataStream &out) const
 }
 
 /*!
-  \reimp
+    Assigns \a other to this list widget item.
 */
-void QListWidgetItem::operator=(const QListWidgetItem &other)
+QListWidgetItem &QListWidgetItem::operator=(const QListWidgetItem &other)
 {
     values = other.values;
     view = other.view;
     model = other.model;
     itemFlags = other.itemFlags;
+    return *this;
 }
 
 /*!
@@ -864,14 +892,13 @@ void QListWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
 */
 
 /*!
-  \fn void QListWidget::itemActivated(QListWidgetItem *item)
+    \fn void QListWidget::itemActivated(QListWidgetItem *item)
 
-  This signal is emitted when the \a item is activated.
-  The \a is activated when the user clicks or double clicks on it, depending on
-  the system configuration. It is also activated  when the user presses the activation
-  key (on windows and X11 this is the return key, on Mac it is ctrl + '0' keys).
-  
-  \endomit
+    This signal is emitted when the \a item is activated. The \a item
+    is activated when the user clicks or double clicks on it,
+    depending on the system configuration. It is also activated when
+    the user presses the activation key (on Windows and X11 this is
+    the \gui Return key, on Mac OS X it is \key{Ctrl+0}).
 */
 
 /*!
@@ -1074,9 +1101,8 @@ void QListWidget::setCurrentRow(int row)
 }
 
 /*!
-  Returns a pointer to the item at the coordinates \a p.
+    Returns a pointer to the item at the coordinates \a p.
 */
-
 QListWidgetItem *QListWidget::itemAt(const QPoint &p) const
 {
     Q_D(const QListWidget);
@@ -1085,6 +1111,14 @@ QListWidgetItem *QListWidget::itemAt(const QPoint &p) const
         return d->model()->at(index.row());
     return 0;
 }
+
+/*!
+    \fn QListWidgetItem *QListWidget::itemAt(int x, int y)
+    \overload
+
+    Returns a pointer to the item at the coordinates (\a x, \a y).
+*/
+
 
 /*!
   Returns the rectangle on the viewport occupied by the item at \a item.
@@ -1213,7 +1247,9 @@ void QListWidget::setItemHidden(const QListWidgetItem *item, bool hide)
 }
 
 /*!
-  Scrolls the view if necessary to ensure that the \a item is visible.
+    Scrolls the view if necessary to ensure that the \a item is
+    visible. The \a hint parameter specifies more precisely where the
+    \a item should be located after the operation.
 */
 
 void QListWidget::scrollToItem(const QListWidgetItem *item, ScrollHint hint)

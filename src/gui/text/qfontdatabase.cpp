@@ -1288,7 +1288,7 @@ QStringList QFontDatabase::families(WritingSystem writingSystem) const
     family. Some example styles: "Light", "Light Italic", "Bold",
     "Oblique", "Demi". The list may be empty.
 
-    \sa families()
+    \sa families()
 */
 QStringList QFontDatabase::styles(const QString &family) const
 {

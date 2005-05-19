@@ -99,11 +99,11 @@ private:
 #include "qtreewidget.moc"
 
 /*
-  \class QTreeModel qtreewidget.h
- The QTreeModel class manages the items stored in a tree view.
+    \class QTreeModel
+    \brief The QTreeModel class manages the items stored in a tree view.
 
-  \ingroup model-view
-  \mainclass
+    \ingroup model-view
+    \mainclass
 */
 
 /*!
@@ -647,7 +647,7 @@ void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
 }
 
 /*!
-  \class QTreeWidgetItem qtreewidget.h
+  \class QTreeWidgetItem
 
   \brief The QTreeWidgetItem class provides an item for use with the
   QTreeWidget convenience class.
@@ -693,6 +693,29 @@ void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
   given index in the list of children with the insertChild() function.
 
   \sa QTreeWidget
+*/
+
+/*!
+    \variable QTreeWidgetItem::Type
+
+    The default type for tree widget items.
+
+    \sa UserType, type()
+*/
+
+/*!
+    \variable QTreeWidgetItem::UserType
+
+    The minimum value for custom types. Values below UserType are
+    reserved by Qt.
+
+    \sa Type, type()
+*/
+
+/*!
+    \fn int QListWidgetItem::type() const
+
+    Returns the type passed to the QTreeWidgetItem constructor.
 */
 
 /*!
@@ -914,10 +937,11 @@ void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
 */
 
 /*!
-  Constructs a tree widget item. The item must be inserted into a tree widget.
+    Constructs a tree widget item of the specified \a type. The item
+    must be inserted into a tree widget.
 
+    \sa type()
 */
-
 QTreeWidgetItem::QTreeWidgetItem(int type)
     : rtti(type), view(0), model(0), par(0),
       itemFlags(Qt::ItemIsSelectable
@@ -932,6 +956,8 @@ QTreeWidgetItem::QTreeWidgetItem(int type)
 
     Constructs a tree widget item of the specified \a type and appends it
     to the items in the given \a parent.
+
+    \sa type()
 */
 
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
@@ -947,12 +973,13 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
 }
 
 /*!
-  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, QTreeWidgetItem *preceding, int type)
+    \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, QTreeWidgetItem *preceding, int type)
 
-  Constructs a tree widget item of the specified \a type and inserts it into
-  the given \a parent after the \a preceding item.
+    Constructs a tree widget item of the specified \a type and inserts it into
+    the given \a parent after the \a preceding item.
+
+    \sa type()
 */
-
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int type)
     : rtti(type), view(view), model(0), par(0),
       itemFlags(Qt::ItemIsSelectable
@@ -972,8 +999,9 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int 
 
 /*!
     Constructs a tree widget item and append it to the given \a parent.
-*/
 
+    \sa type()
+*/
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, int type)
     : rtti(type), view(0), model(0), par(parent),
       itemFlags(Qt::ItemIsSelectable
@@ -987,12 +1015,13 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, int type)
 }
 
 /*!
-  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *preceding, int type)
+    \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *preceding, int type)
 
-  Constructs a tree widget item of the specified \a type that is inserted
-  into the \a parent after the \a preceding child item.
+    Constructs a tree widget item of the specified \a type that is inserted
+    into the \a parent after the \a preceding child item.
+
+    \sa type()
 */
-
 QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after, int type)
     : rtti(type), view(0), model(0), par(parent),
       itemFlags(Qt::ItemIsSelectable
@@ -1128,7 +1157,7 @@ void QTreeWidgetItem::write(QDataStream &out) const
 
   Creates a copy of the \a other item.
 */
-void QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
+QTreeWidgetItem &QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
 {
     values = other.values;
     view = other.view;
@@ -1136,6 +1165,7 @@ void QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
     par = other.par;
     //children = other.children; // ### don't copy the children
     itemFlags = other.itemFlags;
+    return *this;
 }
 
 #endif // QT_NO_DATASTREAM
@@ -1398,6 +1428,16 @@ void QTreeWidgetPrivate::emitCurrentItemChanged(const QModelIndex &current,
     \property QTreeWidget::sortingEnabled
     \brief whether the items in the tree widget can be sorted
     by clicking on the header
+*/
+
+/*!
+    \fn void QTreeWidget::itemActivated(QTreeWidgetItem *item, int column)
+
+    This signal is emitted when the user activates an item by single-
+    or double-clicking (depending on the platform) or pressing a
+    special key (e.g., \key Enter). The specified \a item is the item
+    that was clicked, or 0 if no item was clicked. The \a column is
+    the item's column that was clicked, or -1 if no item was clicked.
 */
 
 /*!
@@ -1695,6 +1735,13 @@ QTreeWidgetItem *QTreeWidget::itemAt(const QPoint &p) const
 }
 
 /*!
+    \fn QTreeWidgetItem *QTreeWidget::itemAt(int x, int y) const
+    \overload
+
+    Returns a pointer to the item at the coordinates (\a x, \a y).
+*/
+
+/*!
   Returns the rectangle on the viewport occupied by the item at \a item.
 */
 QRect QTreeWidget::visualItemRect(const QTreeWidgetItem *item) const
@@ -1890,10 +1937,10 @@ bool QTreeWidget::isItemExpanded(const QTreeWidgetItem *item) const
 }
 
 /*!
-  Sets the item referred to by \a item to either closed or opened,
-  depending on the value of \a expand.
+    Sets the item referred to by \a item to either closed or opened,
+    depending on the value of \a expand.
 
-  \sa expandItem, collapseItem
+    \sa expandItem(), collapseItem()
 */
 
 void QTreeWidget::setItemExpanded(const QTreeWidgetItem *item, bool expand)

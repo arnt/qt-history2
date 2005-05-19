@@ -483,7 +483,7 @@ void QSqlResult::setForwardOnly(bool forward)
     Prepares the given \a query, using the underlying database
     functionality where possible.
 
-    \sa prepare
+    \sa prepare()
 */
 bool QSqlResult::savePrepare(const QString& query)
 {

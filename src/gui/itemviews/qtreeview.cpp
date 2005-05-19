@@ -506,8 +506,10 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
 }
 
 /*!
-  Scroll the contents of the tree view until the given model item \a index
-  is visible.
+    Scroll the contents of the tree view until the given model item
+    \a index is visible. The \a hint parameter specifies more
+    precisely where the \a item should be located after the
+    operation.
 */
 void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
 {

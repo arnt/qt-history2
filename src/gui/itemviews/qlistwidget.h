@@ -91,7 +91,7 @@ public:
     virtual void read(QDataStream &in);
     virtual void write(QDataStream &out) const;
 #endif
-    void operator=(const QListWidgetItem &other);
+    QListWidgetItem &operator=(const QListWidgetItem &other);
 
     inline int type() const { return rtti; }
 

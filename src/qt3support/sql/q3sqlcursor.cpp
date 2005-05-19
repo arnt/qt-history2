@@ -1525,6 +1525,12 @@ bool Q3SqlCursor::next()
     return res;
 }
 
+/*!
+    \fn Q3SqlCursor::previous()
+
+    \internal
+*/
+
 /*! \internal */
 bool Q3SqlCursor::prev()
 {

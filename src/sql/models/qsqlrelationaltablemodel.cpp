@@ -183,7 +183,7 @@ void QSqlRelationalTableModelPrivate::clearChanges()
 
     \image relationaltable.png
 
-    \note The table's primary key may not contain a relation to
+    Note: The table's primary key may not contain a relation to
     another table.
 
     \sa QSqlRelation, QSqlRelationalDelegate

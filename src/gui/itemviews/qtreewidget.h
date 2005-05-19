@@ -95,7 +95,7 @@ public:
     virtual void read(QDataStream &in);
     virtual void write(QDataStream &out) const;
 #endif
-    void operator=(const QTreeWidgetItem &other);
+    QTreeWidgetItem &operator=(const QTreeWidgetItem &other);
 
     inline QTreeWidgetItem *parent() const { return par; }
     inline QTreeWidgetItem *child(int index) const

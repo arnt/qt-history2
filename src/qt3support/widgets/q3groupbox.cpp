@@ -27,7 +27,7 @@
 #include "qdebug.h"
 
 /*!
-    \class Q3GroupBox qgroupbox.h
+    \class Q3GroupBox
     \brief The Q3GroupBox widget provides a group box frame with a title.
 
     \compat
@@ -435,3 +435,21 @@ void Q3GroupBox::changeEvent(QEvent *ev)
         setTextSpacer();
     QGroupBox::changeEvent(ev);
 }
+
+/*!
+    \enum Q3GroupBox::DummyFrame
+    \internal
+
+    \value Box
+    \value Sunken
+*/
+
+/*!
+    \fn void Q3GroupBox::setFrameShadow(DummyFrame)
+    \internal
+*/
+
+/*!
+    \fn void Q3GroupBox::setFrameShape(DummyFrame)
+    \internal
+*/

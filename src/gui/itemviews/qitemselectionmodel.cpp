@@ -562,7 +562,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
    model item index is replaced by the \a current index as the selection's
    current item.
 
-   \sa currentIndex() setCurrentItem()
+   \sa currentIndex() setCurrentIndex()
 */
 
 /*!
@@ -571,7 +571,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
    This signal is emitted if the \a current item changes and its column is
    different to the column of the \a previous current item.
 
-   \sa currentChanged() currentRowChanged() currentIndex() setCurrentItem()
+   \sa currentChanged() currentRowChanged() currentIndex() setCurrentIndex()
 */
 
 /*!
@@ -580,7 +580,7 @@ void QItemSelectionModel::select(const QModelIndex &index, SelectionFlags comman
    This signal is emitted if the \a current item changes and its row is
    different to the row of the \a previous current item.
 
-   \sa currentChanged() currentColumnChanged() currentIndex() setCurrentItem()
+   \sa currentChanged() currentColumnChanged() currentIndex() setCurrentIndex()
 */
 
 /*!

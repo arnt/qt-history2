@@ -194,12 +194,13 @@ bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
     as the \a other persistent model index.
 */
 
-void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
+QPersistentModelIndex &QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
 {
     if (d && !d->ref.deref())
         QPersistentModelIndexData::destroy(d);
     d = other.d;
     if (d) d->ref.ref();
+    return *this;
 }
 
 /*!
@@ -207,7 +208,7 @@ void QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
     as the \a other model index.
 */
 
-void QPersistentModelIndex::operator=(const QModelIndex &other)
+QPersistentModelIndex &QPersistentModelIndex::operator=(const QModelIndex &other)
 {
     if (d && !d->ref.deref())
         QPersistentModelIndexData::destroy(d);
@@ -217,6 +218,7 @@ void QPersistentModelIndex::operator=(const QModelIndex &other)
     } else {
         d = 0;
     }
+    return *this;
 }
 
 /*!

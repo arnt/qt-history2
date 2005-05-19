@@ -487,14 +487,14 @@ void QTextLayout::clearAdditionalFormats()
 }
 
 /*!
-  Enables caching of the complete layout information if \a enable is
-  true; otherwise disables layout caching. Usually
-  QTextLayout throws most of the layouting information away after a
-  call to endLayout() to reduce memory consumption. If you however
-  want to draw the layouted text directly afterwards enabling caching
-  might speed up drawing significantly.
+    Enables caching of the complete layout information if \a enable is
+    true; otherwise disables layout caching. Usually
+    QTextLayout throws most of the layouting information away after a
+    call to endLayout() to reduce memory consumption. If you however
+    want to draw the layouted text directly afterwards enabling caching
+    might speed up drawing significantly.
 
-  \sa cacheEnabled
+    \sa cacheEnabled()
 */
 void QTextLayout::setCacheEnabled(bool enable)
 {
@@ -502,10 +502,10 @@ void QTextLayout::setCacheEnabled(bool enable)
 }
 
 /*!
-  Returns true if the complete layout information is cached; otherwise
-  returns false.
+    Returns true if the complete layout information is cached; otherwise
+    returns false.
 
-  \sa setCacheEnabled
+    \sa setCacheEnabled()
 */
 bool QTextLayout::cacheEnabled() const
 {

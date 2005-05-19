@@ -812,13 +812,17 @@ QFont QFontDialog::font() const
 /*!
     \fn QFont QFontDialog::getFont(bool *ok, const QFont &def, QWidget* parent, const char* name)
 
-    Use one of the other getFont() overloads instead.
+    Call getFont(\a ok, \a def, \a parent) instead.
+
+    The \a name parameter is ignored.
 */
 
 /*!
     \fn QFont QFontDialog::getFont(bool *ok, QWidget* parent, const char* name)
 
-    Use one of the other getFont() overloads instead.
+    Call getFont(\a ok, \a parent) instead.
+
+    The \a name parameter is ignored.
 */
 
 #include "qfontdialog.moc"

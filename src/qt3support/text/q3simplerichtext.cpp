@@ -286,7 +286,7 @@ void Q3SimpleRichText::adjustSize()
     y), clipped to \a clipRect. The clipping rectangle is given in the
     rich text object's coordinates translated by (\a x, \a y). Passing
     an null rectangle results in no clipping. Colors from the color
-    group \a pal are used as needed, and if not 0, \c{*}\a{paper} is
+    group \a cg are used as needed, and if not 0, *\a{paper} is
     used as the background brush.
 
     Note that the display code is highly optimized to reduce flicker,

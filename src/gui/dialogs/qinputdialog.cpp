@@ -378,7 +378,7 @@ QString QInputDialog::getItem(QWidget *parent, const QString &title, const QStri
                                       QWidget *parent = 0, const char *name = 0, Qt::WFlags f = 0)
 
     Call getText(\a parent, \a title, \a label, \a echo, \a text, \a
-    ok, \a flags) instead.
+    ok, \a f) instead.
 
     The \a name parameter is ignored.
 */
