@@ -53,8 +53,8 @@
   used. The big difference is that you must keep track of pages.
 
   QPrinter supports a number of settable parameters, most of which can be
-  changed by the end user through a QPrintDialog. In general, QPrinter passes
-  these functions onto the underlying QPrintEngine.
+  changed by the end user through a \l{QAbstractPrintDialog} print dialog. In
+  general, QPrinter passes these functions onto the underlying QPrintEngine.
 
   The most important parameters are:
   \list
@@ -79,7 +79,7 @@
   (e.g., you can't change the number of copies when you are halfway through
   printing). There are also some settings that the user sets (through the
   printer dialog) and that applications are expected to obey. See
-  QPrintDialog's documentation for more details.
+  QAbstractPrintDialog's documentation for more details.
 
   Once you start printing, calling newPage() is essential. You will
   probably also need to look at the device metrics for the
