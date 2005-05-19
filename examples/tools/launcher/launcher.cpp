@@ -328,6 +328,18 @@ void Launcher::launchExample(const QString &example)
 
     runningExamples.append(example);
     runningProcesses[process] = example;
+    QDir dir = QFileInfo(examplePaths[example]).dir();
+#if defined(Q_OS_WIN)
+    if (dir.dirName() == "debug" || dir.dirName() == "release")
+        dir.cdUp();
+#elif defined(Q_OS_MAC)
+    if (dir.dirName() == "MacOS") {
+        dir.cdUp();
+        dir.cdUp();
+        dir.cdUp();
+    }
+#endif
+    process->setWorkingDirectory(dir.absolutePath());
     process->start(examplePaths[example]);
 }
 
