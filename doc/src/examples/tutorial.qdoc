@@ -77,7 +77,11 @@
 
     Here's the complete source code for the application:
 
-    \include tutorial/t1/main.cpp
+    \quotefromfile tutorial/t1/main.cpp
+    \skipuntil PURPOSE
+    \skipline **
+    \skipline **
+    \printuntil /^\}/
 
     \section1 Line by Line Walkthrough
 
@@ -216,11 +220,15 @@
 
     We will also use a font that is more exciting than the default one.
 
-    \include tutorial/t2/main.cpp
     \quotefromfile tutorial/t2/main.cpp
+    \skipuntil PURPOSE
+    \skipline **
+    \skipline **
+    \printuntil /^\}/
 
     \section1 Line by Line Walkthrough
 
+    \quotefromfile tutorial/t2/main.cpp
     \skipto <QFont>
     \printline QFont
 
@@ -299,11 +307,15 @@
 
     We'll keep it simple and use just a single parent and a lone child.
 
-    \include tutorial/t3/main.cpp
     \quotefromfile tutorial/t3/main.cpp
+    \skipuntil PURPOSE
+    \skipline **
+    \skipline **
+    \printuntil /^\}/
 
     \section1 Line by Line Walkthrough
 
+    \quotefromfile tutorial/t3/main.cpp
     \skipto <QWidget>
     \printline QWidget
 
@@ -385,11 +397,17 @@
     This example shows how to create your own widget, and describes
     how to control the minimum and maximum sizes of a widget.
 
-    \include tutorial/t4/main.cpp
     \quotefromfile tutorial/t4/main.cpp
+    \skipuntil PURPOSE
+    \skipline **
+    \skipline **
+    \printuntil /^\}/
+    \printuntil /^\}/
+    \printuntil /^\}/
 
     \section1 Line by Line Walkthrough
 
+    \quotefromfile tutorial/t4/main.cpp
     \skipto MyWidget
     \printuntil }
 
@@ -474,11 +492,17 @@
     This example shows how to create and connect together several widgets
     by using signals and slots, and how to handle resizes.
 
-    \include tutorial/t5/main.cpp
     \quotefromfile tutorial/t5/main.cpp
+    \skipuntil PURPOSE
+    \skipline **
+    \skipline **
+    \printuntil /^\}/
+    \printuntil /^\}/
+    \printuntil /^\}/
 
     \section1 Line by Line Walkthrough
 
+    \quotefromfile tutorial/t5/main.cpp
     \skipto MyWidget
     \printuntil }
 
@@ -567,12 +591,19 @@
     how easy it is to use many widgets. For the first time, we use a custom
     widget as a child widget.
 
-    \target main
-    \include tutorial/t6/main.cpp
     \quotefromfile tutorial/t6/main.cpp
+    \skipuntil PURPOSE
+    \skipline **
+    \skipline **
+    \printuntil /^\}/
+    \printuntil /^\}/
+    \printuntil /^\}/
+    \printuntil /^\}/
+    \printuntil /^\}/
 
     \section1 Line by Line Walkthrough
 
+    \quotefromfile tutorial/t6/main.cpp
     \skipto LCDRange
     \printuntil };
 
