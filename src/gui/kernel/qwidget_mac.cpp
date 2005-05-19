@@ -1308,17 +1308,11 @@ void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
         SetWindowTitleWithCFString(qt_mac_window_for(q), QCFString(caption));
 }
 
-void QWidget::setWindowModified(bool mod)
+void QWidgetPrivate::setWindowModified_sys(bool mod)
 {
-    setAttribute(Qt::WA_WindowModified, mod);
-
-    if (!windowTitle().contains("[*]"))
-        qWarning("QWidget::setWindowModified: The window title does not contain a '[*]' placeholder!");
-    if(isWindow())
-        SetWindowModified(qt_mac_window_for(this), mod);
-
-    QEvent e(QEvent::ModifiedChange);
-    QApplication::sendEvent(this, &e);
+    Q_Q(QWidget);
+    if(q->isWindow())
+        SetWindowModified(qt_mac_window_for(q), mod);
 }
 
 void QWidgetPrivate::setWindowIcon_sys()
@@ -1549,11 +1543,11 @@ void QWidgetPrivate::hide_sys()
 void QWidget::setWindowState(Qt::WindowStates newstate)
 {
     Q_D(QWidget);
+    bool needShow = false;
     Qt::WindowStates oldstate = windowState();
     if (oldstate == newstate)
         return;
 
-    bool needShow = false;
     if(isWindow()) {
         WindowPtr window = qt_mac_window_for(this);
         if((oldstate & Qt::WindowFullScreen) != (newstate & Qt::WindowFullScreen)) {

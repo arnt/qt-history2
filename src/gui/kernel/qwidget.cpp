@@ -6485,7 +6485,6 @@ bool QWidget::isWindowModified() const
     return testAttribute(Qt::WA_WindowModified);
 }
 
-#ifndef Q_WS_MAC
 void QWidget::setWindowModified(bool mod)
 {
     Q_D(QWidget);
@@ -6495,11 +6494,13 @@ void QWidget::setWindowModified(bool mod)
         qWarning("QWidget::setWindowModified: The window title does not contain a '[*]' placeholder!");
     d->setWindowTitle_helper(windowTitle());
     d->setWindowIconText_helper(windowIconText());
+#ifdef Q_WS_MAC
+    d->setWindowModified_sys(mod);
+#endif
 
     QEvent e(QEvent::ModifiedChange);
     QApplication::sendEvent(this, &e);
 }
-#endif
 
 /*!
   \property QWidget::toolTip

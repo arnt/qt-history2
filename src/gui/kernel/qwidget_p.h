@@ -244,6 +244,9 @@ public:
     void setWindowIconText_sys(const QString &cap);
     void setWindowIconText_helper(const QString &cap);
     void setWindowTitle_sys(const QString &cap);
+#ifdef Q_WS_MAC
+    void setWindowModified_sys(bool b);
+#endif
     void setWindowTitle_helper(const QString &cap);
 
     void setConstraints_sys();
