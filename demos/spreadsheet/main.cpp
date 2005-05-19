@@ -744,10 +744,10 @@ void SpreadSheet::setupContents()
 const char *htmlText =
 "<HTML>"
 "<p><b>This demo shows use of <c>QTableWidget</c> with custom handling for"
-"individual cells.</b></p>"
+" individual cells.</b></p>"
 "<p>Using a customized table item we make it possible to have dynamic"
-"output in different cells. The content that is implemented for this"
-"particular demo is:"
+" output in different cells. The content that is implemented for this"
+" particular demo is:"
 "<ul>"
 "<li>Addition two cells.</li>"
 "<li>Subtracting one cell from another.</li>"
