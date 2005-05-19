@@ -999,7 +999,7 @@ QDebug operator<<(QDebug dbg, const QRect &r) {
     A QRectF is represented internally as the positions of its upper-left
     corner and its size. Because of this change in representation, QRectF has
     slightly different behavior than QRect. In particular
-    \e{right = left + width} and {bottom = top + height}
+    \e{right = left + width} and \e{bottom = top + height}
 
     The default coordinate system has origin (0, 0) in the top-left
     corner. The positive direction of the x axis is from left to right,
