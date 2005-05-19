@@ -1177,7 +1177,7 @@ Bezier_Up( RAS_ARGS Int        degree,
 Fin:
     ras.top  = top;
     ras.arc -= degree;
-    QT_FT_TRACE6("    currently %ld points in profile, start=%ld top=%p\n", ras.top - ras.cProfile->offset, ras.cProfile->start, ras.top);
+    QT_FT_TRACE6("    currently %d points in profile, start=%ld top=%p\n", (int)(ras.top - ras.cProfile->offset), ras.cProfile->start, ras.top);
     return SUCCESS;
 }
 
