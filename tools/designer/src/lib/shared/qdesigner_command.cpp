@@ -1329,10 +1329,6 @@ void ChangeLayoutItemGeometry::changeItemPosition(const QRect &g)
 
     add_to_grid_layout(grid, m_widget, g.top(), g.left(), g.height(), g.width());
 
-    if (QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(formWindow()->core()->extensionManager(), m_widget->parentWidget())) {
-        deco->simplify();
-    }
-
     grid->invalidate();
     grid->activate();
 
