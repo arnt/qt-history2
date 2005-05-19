@@ -25,15 +25,7 @@
 #include <qdesigner_promotedwidget_p.h>
 #include <qdesigner_utils_p.h>
 
-#include <QtGui/QVBoxLayout>
-#include <QtCore/QMetaObject>
-#include <QtCore/QMetaProperty>
-#include <QtCore/qdebug.h>
-#include <QtGui/QLineEdit>
-#include <QtGui/QToolButton>
-#include <QtGui/QFileDialog>
-#include <QtGui/qevent.h>
-
+#include <QtGui/QtGui>
 
 #ifndef Q_MOC_RUN
 using namespace qdesigner_internal;

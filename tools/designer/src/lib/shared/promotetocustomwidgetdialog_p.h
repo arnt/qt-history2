@@ -25,14 +25,16 @@
 #ifndef PROMOTETOCUSTOMWIDGETDIALOG_H
 #define PROMOTETOCUSTOMWIDGETDIALOG_H
 
+#include <QtGui/QDialog>
 #include <QtCore/QPair>
-
-#include "ui_promotetocustomwidgetdialog.h"
 
 class QDesignerWidgetDataBaseInterface;
 
-class PromoteToCustomWidgetDialog : public QDialog,
-                                    public Ui::PromoteToCustomWidgetDialog
+namespace Ui {
+    class PromoteToCustomWidgetDialog;
+} // namespace Ui
+
+class PromoteToCustomWidgetDialog : public QDialog
 {
     Q_OBJECT
 public:
@@ -48,6 +50,7 @@ private slots:
     void setIncludeForClass(const QString &name);
 
 private:
+    Ui::PromoteToCustomWidgetDialog *ui;
     bool m_automatic_include;
     QDesignerWidgetDataBaseInterface *m_db;
     typedef QPair<QString, QString> PromotedWidgetInfo;

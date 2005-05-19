@@ -14,7 +14,9 @@
 #include "listwidgeteditor.h"
 #include <findicondialog_p.h>
 #include <iconloader_p.h>
+
 #include <QtDesigner/QtDesigner>
+#include <QtGui/QComboBox>
 #include <QtCore/QDir>
 #include <QtCore/qdebug.h>
 

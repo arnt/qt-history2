@@ -26,17 +26,26 @@
 #define FINDICONDIALOG_H
 
 #include "shared_global_p.h"
-#include "ui_findicondialog.h"
+
+#include <QtGui/QDialog>
 
 class QDesignerFormWindowInterface;
+class QListWidgetItem;
+class QModelIndex;
 
-class QT_SHARED_EXPORT FindIconDialog : public QDialog,
-                                                public Ui::FindIconDialog
+namespace Ui
+{
+    class FindIconDialog;
+} // namespace Ui
+
+class QT_SHARED_EXPORT FindIconDialog : public QDialog
 {
     Q_OBJECT
 
 public:
     FindIconDialog(QDesignerFormWindowInterface *form, QWidget *parent);
+    virtual ~FindIconDialog();
+
     void setPaths(const QString &qrcPath, const QString &filePath);
     QString qrcPath() const;
     QString filePath() const;
@@ -55,6 +64,7 @@ private:
     void activateBox(InputBox box);
     InputBox activeBox() const;
 
+    Ui::FindIconDialog *ui;
     QString m_icon_file_name;
     QDesignerFormWindowInterface *m_form;
 };
