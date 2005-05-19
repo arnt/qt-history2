@@ -235,6 +235,7 @@ CFG_INCREMENTAL=auto
 CFG_QCONFIG=full
 CFG_EMBEDDED=no
 CFG_DEBUG=auto
+CFG_DEBUG_RELEASE=no
 CFG_SHARED=yes
 CFG_SM=auto
 CFG_XSHAPE=auto
@@ -1167,6 +1168,7 @@ fi
 
 #detect build style
 if [ "$CFG_DEBUG" = "auto" ]; then
+    CFG_DEBUG_RELEASE=yes
     CFG_DEBUG=yes
     QMAKE_CONFIG="$QMAKE_CONFIG build_all"
 fi
@@ -3688,6 +3690,11 @@ if [ "$CFG_SHARED" = "no" ]; then
     echo "Make sure you compile ALL needed modules into the library."
     echo
 fi
+if [ "$PLATFORM_MAC" = "yes" ] && [ "$CFG_FRAMEWORK" = "yes" ] && [ "$CFG_DEBUG" = "yes" ] && [ "$CFG_DEBUG_RELEASE" = "no" ]; then
+    echo
+    echo "NOTE: Mac OS X frameworks implicitely build debug and release Qt libraries."
+    echo
+fi 
 echo
 
 sepath=`echo $relpath | sed -e 's/\\./\\\\./g'`
