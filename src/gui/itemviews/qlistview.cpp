@@ -1242,7 +1242,6 @@ QListViewPrivate::QListViewPrivate()
 
 void QListViewPrivate::prepareItemsLayout()
 {
-    Q_Q(QListView);
     // initialization of data structs
     batchStartRow = 0;
     batchSavedPosition = 0;
