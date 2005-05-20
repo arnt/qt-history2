@@ -624,7 +624,7 @@ QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) 
             if(doExecable) {
                 QString ext = name.right(4).toLower();
                 if(ext == ".exe" || ext == ".com" || ext == ".bat" ||
-                     ext == ".pif" || ext == ".cmd")
+                     ext == ".pif" || ext == ".cmd" || isDir)
                     isExecable = true;
             }
 
@@ -1134,25 +1134,29 @@ QFSFileEnginePrivate::getPermissions() const
     	ret |= QFileEngine::ReadOtherPerm | QFileEngine::ReadGroupPerm
 	    | QFileEngine::ReadOwnerPerm | QFileEngine::ReadUserPerm
 	    | QFileEngine::WriteUserPerm | QFileEngine::WriteOwnerPerm
-	    | QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm
-	    | QFileEngine::ExeUserPerm | QFileEngine::ExeOwnerPerm
-	    | QFileEngine::ExeGroupPerm | QFileEngine::ExeOtherPerm;
+	    | QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm;
     }
 
-    if(ret & (QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
+    DWORD attr = 0;
+
+    QT_WA({
+	attr = GetFileAttributes((TCHAR*)file.utf16());
+    } , {
+	attr = GetFileAttributesA(file.toLocal8Bit());
+    });
+
+    if (ret & (QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
 	      QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm)) {
-	QT_WA({
-	    DWORD attr = GetFileAttributes((TCHAR*)file.utf16());
-	    if(attr & FILE_ATTRIBUTE_READONLY)
+	    if (attr & FILE_ATTRIBUTE_READONLY)
 	        ret &= ~(QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
 		       QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
-	} , {
-	    DWORD attr = GetFileAttributesA(file.toLocal8Bit());
-	    if(attr & FILE_ATTRIBUTE_READONLY)
-		ret &= ~(QFileEngine::WriteOwnerPerm | QFileEngine::WriteUserPerm |
-			 QFileEngine::WriteGroupPerm | QFileEngine::WriteOtherPerm);
-	});
     }
+
+    QString ext = file.right(4).toLower();
+    if (ext == ".exe" || ext == ".com" || ext == ".bat" ||
+            ext == ".pif" || ext == ".cmd" || (attr & FILE_ATTRIBUTE_DIRECTORY))
+            ret |= QFileEngine::ExeOwnerPerm | QFileEngine::ExeGroupPerm | 
+                QFileEngine::ExeOtherPerm | QFileEngine::ExeUserPerm;
 
     return ret;
 }
@@ -1217,6 +1221,7 @@ QFSFileEngine::fileName(FileName file) const
     } else if(file == PathName) {
         if(!d->file.size())
             return d->file;
+        
         int slash = d->file.lastIndexOf('/');
         if(slash == -1) {
             if(d->file.at(1) == ':')
