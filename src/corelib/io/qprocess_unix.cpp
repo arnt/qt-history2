@@ -16,6 +16,7 @@
 #if defined QPROCESS_DEBUG
 #include <qstring.h>
 #include <ctype.h>
+#include <qdebug.h>
 
 /*
     Returns a human readable representation of the first \a len
@@ -84,6 +85,8 @@ struct QProcessInfo {
     QProcess *process;
     int deathPipe;
     int exitResult;
+    int pid;
+    int serialNumber;
 };
 
 class QProcessManager : public QThread
@@ -100,7 +103,7 @@ public:
 
 private:
     QMutex mutex;
-    QMap<int, QProcessInfo> children;
+    QMap<int, QProcessInfo *> children;
 };
 
 Q_GLOBAL_STATIC(QProcessManager, processManager)
@@ -139,6 +142,9 @@ QProcessManager::~QProcessManager()
 
     qt_qprocess_deadChild_pipe[0] = -1;
     qt_qprocess_deadChild_pipe[1] = -1;
+
+    qDeleteAll(children.values());
+    children.clear();
 }
 
 void QProcessManager::run()
@@ -177,27 +183,37 @@ void QProcessManager::catchDeadChildren()
     // try to catch all children whose pid we have registered, and whose
     // deathPipe is still valid (i.e, we have not already notified it).
     int result;
-    QMap<int, QProcessInfo>::Iterator it = children.begin();
+    QMap<int, QProcessInfo *>::Iterator it = children.begin();
     while (it != children.end()) {
-        if (it.value().deathPipe != -1 && waitpid(it.key(), &result, WNOHANG) != 0) {
+        QProcessInfo *info = it.value();
+        if (info->deathPipe != -1 && waitpid(info->pid, &result, WNOHANG) != 0) {
             // store the exit result, and notify the QProcess through the
             // death pipe. The assigned QProcess will later get the exit
             // result by calling takeExitResult().
-            QProcessInfo &info = children[it.key()];
-            info.exitResult = result;
-            if (info.deathPipe != -1) {
-                ::write(info.deathPipe, "", 1);
-                info.deathPipe = -1;
-            }
-
 #if defined QPROCESS_DEBUG
             qDebug("QProcessManager(), caught child with pid %d, QProcess %p",
                    it.key(), info.process);
 #endif
+
+            info->exitResult = result;
+            ::write(info->deathPipe, "", 1);
+            info->deathPipe = -1;
         }
 
         ++it;
     }
+}
+
+static QBasicAtomic idCounter = Q_ATOMIC_INIT(1);
+static int qt_qprocess_nextId()
+{
+    register int id;
+    for (;;) {
+        id = idCounter;
+        if (idCounter.testAndSet(id, id + 1))
+            break;
+    }
+    return id;
 }
 
 void QProcessManager::add(int pid, QProcess *process)
@@ -205,31 +221,29 @@ void QProcessManager::add(int pid, QProcess *process)
     QMutexLocker locker(&mutex);
 
     // insert a new info structure for this process
-    QProcessInfo info;
-    info.process = process;
-    info.deathPipe = process->d_func()->deathPipe[1];
-    info.exitResult = 0;
-    children.insert(pid, info);
+    QProcessInfo *info = new QProcessInfo;
+    info->process = process;
+    info->deathPipe = process->d_func()->deathPipe[1];
+    info->exitResult = 0;
+    info->pid = pid;
+
+    int serial = qt_qprocess_nextId();
+    process->d_func()->serial = serial;
+    children.insert(serial, info);
 }
 
 int QProcessManager::takeExitResult(QProcess *process)
 {
     QMutexLocker locker(&mutex);
-
+    
     // get the exit result from this pid and sequence number, then remove the
     // entry from the manager's list and return the exit result.
-    QMultiMap<int, QProcessInfo>::Iterator it = children.begin();
-    while (it != children.end()) {
-        if (it.value().process == process) {
-            int tmp = it.value().exitResult;
-            children.erase(it);
-            return tmp;
-        }
-        ++it;
-    }
-
-    // never reached
-    return -1;
+    int serial = process->d_func()->serial;
+    QProcessInfo *info = children.value(serial);
+    int tmp = info->exitResult;
+    children.remove(serial);
+    delete info;
+    return tmp;
 }
 
 static void qt_create_pipe(int *pipe)

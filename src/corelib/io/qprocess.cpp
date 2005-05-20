@@ -337,6 +337,9 @@ QProcessPrivate::QProcessPrivate()
     pipeWriter = 0;
     processFinishedNotifier = 0;
 #endif // Q_WS_WIN
+#ifdef Q_OS_UNIX
+    serial = 0;
+#endif
 }
 
 /*! \internal
@@ -401,6 +404,9 @@ void QProcessPrivate::cleanup()
     destroyPipe(writePipe);
     destroyPipe(childStartedPipe);
     destroyPipe(deathPipe);
+#ifdef Q_OS_UNIX
+    serial = 0;
+#endif
 }
 
 /*! \internal
@@ -976,14 +982,15 @@ bool QProcess::waitForFinished(int msecs)
 {
     Q_D(QProcess);
     if (d->processState == QProcess::NotRunning)
-        return true;
+        return false;
     if (d->processState == QProcess::Starting) {
         QTime stopWatch;
         stopWatch.start();
         bool started = waitForStarted(msecs);
         if (!started)
             return false;
-        msecs -= stopWatch.elapsed();
+        if (msecs != -1)
+            msecs -= stopWatch.elapsed();
     }
 
     return d->waitForFinished(msecs);

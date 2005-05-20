@@ -115,6 +115,9 @@ public:
 
     int exitCode;
     bool crashed;
+#ifdef Q_OS_UNIX
+    int serial;
+#endif
 
     bool waitForStarted(int msecs = 30000);
     bool waitForReadyRead(int msecs = 30000);
