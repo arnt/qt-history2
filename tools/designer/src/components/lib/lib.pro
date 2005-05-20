@@ -19,7 +19,7 @@ HEADERS += qdesigner_components.h \
 SOURCES += qdesigner_components.cpp \
     qdesigner_plugins.cpp
 
-DEFINES += QDESIGNER_COMPONENTS_EXPORT
+DEFINES += QDESIGNER_COMPONENTS_LIBRARY
 
 INCLUDEPATH += . ..
 
@@ -37,3 +37,4 @@ LIBS += -L$$QT_BUILD_TREE/tools/designer/lib \
 
 
 include(../../sharedcomponents.pri)
+include(../component.pri)
