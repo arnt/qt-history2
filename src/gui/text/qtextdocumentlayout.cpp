@@ -819,6 +819,8 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
 
     painter->save();
 
+    painter->setRenderHint(QPainter::Antialiasing);
+
     if (selectionFormat) {
         painter->setPen(QPen(selectionFormat->foreground(), 0));
         painter->fillRect(r, selectionFormat->background());
