@@ -13,6 +13,11 @@ applications to the more comfortable Qt toolkit.  This extension
 replaces the older Xt/Motif Support Extension included with earlier
 versions of Qt.
 
+This extension is typically used by developers when incrementally
+migrating Motif-based applications to Qt. To take full advantage of
+Qt, we recommend that you ship complete Qt ports of your applications
+rather than rely on this extension in production software.
+
 The Qt Motif extension consists of the following classes:
 
 \list
