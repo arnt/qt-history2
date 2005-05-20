@@ -40,6 +40,10 @@
 #include <qdebug.h>
 #include <private/qfiledialog_p.h>
 
+#if defined(Q_WS_WIN) || defined(Q_WS_MAC)
+bool Q_GUI_EXPORT qt_use_native_dialogs = true; // for the benefit of testing tools, until we have a proper API
+#endif
+
 const char *qt_file_dialog_filter_reg_exp =
     "([a-zA-Z0-9]*)\\(([a-zA-Z0-9_.*? +;#\\[\\]]*)\\)$";
 
@@ -1880,13 +1884,13 @@ QString QFileDialog::getOpenFileName(QWidget *parent,
     args.options = options;
 
 #if defined(Q_WS_WIN)
-    if (!(args.options & DontUseNativeDialog)) {
+    if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
         args.directory = QFileDialogPrivate::workingDirectory(dir, false);
         args.selection = QFileDialogPrivate::initialSelection(dir, false);
         return qt_win_get_open_file_name(args, &directory, selectedFilter);
     }
 #elif defined(Q_WS_MAC)
-    if (!(args.options & DontUseNativeDialog)) {
+    if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
         QStringList files = qt_mac_get_open_file_names(args, &directory, selectedFilter);
         if (!files.isEmpty())
             return QUnicodeTables::normalize(files.first(), QString::NormalizationForm_C);
@@ -1981,13 +1985,13 @@ QString QFileDialog::getSaveFileName(QWidget *parent,
     args.options = options;
 
 #if defined(Q_WS_WIN)
-    if (!(args.options & DontUseNativeDialog)) {
+    if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
         args.directory = QFileDialogPrivate::workingDirectory(dir, false);
         args.selection = QFileDialogPrivate::initialSelection(dir, false);
         return qt_win_get_save_file_name(args, &directory, selectedFilter);
     }
 #elif defined(Q_WS_MAC)
-    if (!(args.options & DontUseNativeDialog)) {
+    if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
         QString result = qt_mac_get_save_file_name(args, &directory, selectedFilter);
         return QUnicodeTables::normalize(result, QString::NormalizationForm_C);
     }
@@ -2067,12 +2071,12 @@ QString QFileDialog::getExistingDirectory(QWidget *parent,
     args.options = options;
 
 #if defined(Q_WS_WIN)
-    if (!(args.options & DontUseNativeDialog) && (options & ShowDirsOnly)) {
+    if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog) && (options & ShowDirsOnly)) {
         args.directory = QFileDialogPrivate::workingDirectory(dir, false);
         return qt_win_get_existing_directory(args);
     }
 #elif defined(Q_WS_MAC)
-    if (!(args.options & DontUseNativeDialog)) {
+    if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
         QStringList files = qt_mac_get_open_file_names(args, 0, 0);
         if (!files.isEmpty())
             return QUnicodeTables::normalize(files.first(), QString::NormalizationForm_C);
@@ -2172,12 +2176,12 @@ QStringList QFileDialog::getOpenFileNames(QWidget *parent,
     args.options = options;
 
 #if defined(Q_WS_WIN)
-    if (!(args.options & DontUseNativeDialog)) {
+    if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
         args.directory = QFileDialogPrivate::workingDirectory(dir, false);
         return qt_win_get_open_file_names(args, &directory, selectedFilter);
     }
 #elif defined(Q_WS_MAC)
-    if (!(args.options & DontUseNativeDialog)) {
+    if (qt_use_native_dialogs && !(args.options & DontUseNativeDialog)) {
         QStringList result = qt_mac_get_open_file_names(args, &directory, selectedFilter);
         for (int i = 0; i < result.count(); ++i)
             result.replace(i, QUnicodeTables::normalize(result.at(i), QString::NormalizationForm_C));
