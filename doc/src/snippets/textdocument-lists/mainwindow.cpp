@@ -129,11 +129,12 @@ void MainWindow::insertList()
 
     QTextList *list = cursor.currentList();
     QTextListFormat listFormat;
-    if (list)
+    if (list) {
         listFormat = list->format();
+        listFormat.setIndent(listFormat.indent() + 1);
+    }
 
     listFormat.setStyle(QTextListFormat::ListDisc);
-    listFormat.setIndent(listFormat.indent() + 1);
     cursor.insertList(listFormat);
 
     cursor.endEditBlock();
