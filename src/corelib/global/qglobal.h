@@ -545,27 +545,6 @@ typedef unsigned long long quint64; /* 64 bit unsigned */
 typedef qint64 qlonglong;
 typedef quint64 qulonglong;
 
-#ifdef QT3_SUPPORT
-typedef qint8 Q_INT8;
-typedef quint8 Q_UINT8;
-typedef qint16 Q_INT16;
-typedef quint16 Q_UINT16;
-typedef qint32 Q_INT32;
-typedef quint32 Q_UINT32;
-typedef qint64 Q_INT64;
-typedef quint64 Q_UINT64;
-
-typedef qint64 Q_LLONG;
-typedef quint64 Q_ULLONG;
-#if defined(Q_OS_WIN64)
-typedef __int64 Q_LONG;             /* word up to 64 bit signed */
-typedef unsigned __int64 Q_ULONG;   /* word up to 64 bit unsigned */
-#else
-typedef long Q_LONG;                /* word up to 64 bit signed */
-typedef unsigned long Q_ULONG;      /* word up to 64 bit unsigned */
-#endif
-#endif
-
 #if defined(Q_OS_WIN64)
 # define QT_POINTER_SIZE 8
 #elif defined(Q_OS_WIN32)
@@ -640,9 +619,9 @@ typedef unsigned long ulong;
 #  if defined(Q_MOC_RUN)
 #    define Q_DECL_CONSTRUCTOR_DEPRECATED Q_DECL_CONSTRUCTOR_DEPRECATED
 #  elif defined(Q_NO_DEPRECATED_CONSTRUCTORS)
-#    define Q_DECL_CONSTRUCTOR_DEPRECATED explicit
+#    define Q_DECL_CONSTRUCTOR_DEPRECATED
 #  else
-#    define Q_DECL_CONSTRUCTOR_DEPRECATED explicit Q_DECL_DEPRECATED
+#    define Q_DECL_CONSTRUCTOR_DEPRECATED Q_DECL_DEPRECATED
 #  endif
 #endif
 #if defined(QT3_SUPPORT_WARNINGS)
@@ -654,7 +633,7 @@ typedef unsigned long ulong;
 #  undef QT3_SUPPORT_VARIABLE
 #  define QT3_SUPPORT_VARIABLE Q_DECL_VARIABLE_DEPRECATED
 #  undef QT3_SUPPORT_CONSTRUCTOR
-#  define QT3_SUPPORT_CONSTRUCTOR Q_DECL_CONSTRUCTOR_DEPRECATED
+#  define QT3_SUPPORT_CONSTRUCTOR explicit Q_DECL_CONSTRUCTOR_DEPRECATED
 #elif defined(QT3_SUPPORT) //define back to nothing
 #  if !defined(QT_COMPAT) //also enable qt3 support
 #    define QT_COMPAT
@@ -664,7 +643,7 @@ typedef unsigned long ulong;
 #  undef QT3_SUPPORT_VARIABLE
 #  define QT3_SUPPORT_VARIABLE
 #  undef QT3_SUPPORT_CONSTRUCTOR
-#  define QT3_SUPPORT_CONSTRUCTOR
+#  define QT3_SUPPORT_CONSTRUCTOR explicit
 #endif
 #if defined(QT_COMPAT_WARNINGS)
 #  undef QT_COMPAT
@@ -672,7 +651,7 @@ typedef unsigned long ulong;
 #  undef QT_COMPAT_VARIABLE
 #  define QT_COMPAT_VARIABLE Q_DECL_VARIABLE_DEPRECATED
 #  undef QT_COMPAT_CONSTRUCTOR
-#  define QT_COMPAT_CONSTRUCTOR Q_DECL_CONSTRUCTOR_DEPRECATED
+#  define QT_COMPAT_CONSTRUCTOR explicit Q_DECL_CONSTRUCTOR_DEPRECATED
 #elif defined(QT_COMPAT) //define back to nothing
 #  undef QT_COMPAT
 #  define QT_COMPAT
@@ -729,6 +708,25 @@ inline const T &qBound(const T &min, const T &val, const T &max)
 { return qMax(min, qMin(max, val)); }
 
 #ifdef QT3_SUPPORT
+typedef qint8 Q_INT8;
+typedef quint8 Q_UINT8;
+typedef qint16 Q_INT16;
+typedef quint16 Q_UINT16;
+typedef qint32 Q_INT32;
+typedef quint32 Q_UINT32;
+typedef qint64 Q_INT64;
+typedef quint64 Q_UINT64;
+
+typedef qint64 Q_LLONG;
+typedef quint64 Q_ULLONG;
+#if defined(Q_OS_WIN64)
+typedef __int64 Q_LONG;             /* word up to 64 bit signed */
+typedef unsigned __int64 Q_ULONG;   /* word up to 64 bit unsigned */
+#else
+typedef long Q_LONG;                /* word up to 64 bit signed */
+typedef unsigned long Q_ULONG;      /* word up to 64 bit unsigned */
+#endif
+
 #  define QABS(a) qAbs(a)
 #  define QMAX(a, b) qMax((a), (b))
 #  define QMIN(a, b) qMin((a), (b))
