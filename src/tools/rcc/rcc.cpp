@@ -407,7 +407,8 @@ RCCResourceLibrary::writeHeader(FILE *out)
         fprintf(out, "**      by: The Resource Compiler for Qt version %s\n", QT_VERSION_STR);
         fprintf(out, "**\n");
         fprintf(out, "** WARNING! All changes made in this file will be lost!\n");
-        fprintf(out,  "*****************************************************************************/\n\n\n");
+        fprintf(out,  "*****************************************************************************/\n");
+        fprintf(out, "#include <qglobal.h>\n\n");
     } else if(mFormat == Binary) {
         fprintf(out,"qres");
         qt_rcc_write_number(out, 0, 4, mFormat);
@@ -556,10 +557,13 @@ RCCResourceLibrary::writeInitializer(FILE *out)
             initName.prepend("_");
             initName.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
         }
-        fprintf(out, "bool qInitResources%s()\n{\n", initName.toLatin1().constData());
+        fprintf(out, "bool Q_CONSTRUCTOR_FUNCTION qInitResources%s()\n{\n", initName.toLatin1().constData());
         fprintf(out, "  extern bool qRegisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);\n");
-        fprintf(out, "  return qRegisterResourceData(0x01, qt_resource_struct, "
-                "qt_resource_name, qt_resource_data);\n");
+        fprintf(out, "  static bool guard = false;\n");
+        fprintf(out, "  if (!guard) \n");
+        fprintf(out, "    guard = qRegisterResourceData(0x01, qt_resource_struct, "
+                     "qt_resource_name, qt_resource_data);\n");
+        fprintf(out, "  return guard;\n");                
         fprintf(out, "}\nstatic const int %s_static_init = qInitResources%s();\n",
                 initName.toLatin1().constData(), initName.toLatin1().constData());
     } else if(mFormat == Binary) {
