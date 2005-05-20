@@ -659,5 +659,7 @@ QFileEngine::Type QResourceFileEngine::type() const
 Q_GLOBAL_STATIC(QResourceFileEngineHandler, resource_file_handler)
 
 static int qt_force_resource_init() { resource_file_handler(); return 1; }
+Q_CORE_EXPORT void qInitResourceIO() { resource_file_handler(); }
+static int qt_forced_resource_init = qt_force_resource_init();
 Q_CONSTRUCTOR_FUNCTION(qt_force_resource_init)
 
