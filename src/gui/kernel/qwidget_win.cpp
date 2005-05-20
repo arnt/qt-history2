@@ -1097,7 +1097,7 @@ void QWidgetPrivate::show_sys()
     if (q->isWindow()) {
         if (q->isMinimized())
             sm = SW_SHOWMINIMIZED;
-        else if (q->isMinimized())
+        else if (q->isMaximized())
             sm = SW_SHOWMAXIMIZED;
     }
     if ((q->windowType() == Qt::Tool) || (q->windowType() == Qt::Popup) || q->windowType() == Qt::ToolTip)
