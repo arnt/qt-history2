@@ -50,7 +50,7 @@
     \o \l{widgets/charactermap}{Character Map}\raisedaster
     \o \l{widgets/digitalclock}{Digital Clock}\raisedaster
     \o \l{widgets/groupbox}{Group Box}\raisedaster
-    \o \l{widgets/icons}{Icons}
+    \o \l{widgets/icons}{Icons}\raisedaster
     \o \l{widgets/imageviewer}{Image Viewer}\raisedaster
     \o \l{widgets/lineedits}{Line Edits}
     \o \l{widgets/screenshot}{Screenshot}
@@ -59,7 +59,7 @@
     \o \l{widgets/spinboxes}{Spin Boxes}
     \o \l{widgets/styles}{Styles}\raisedaster
     \o \l{widgets/tetrix}{Tetrix}
-    \o \l{widgets/tooltips}{Tooltips}
+    \o \l{widgets/tooltips}{Tooltips}\raisedaster
     \o \l{widgets/wiggly}{Wiggly}\raisedaster
     \o \l{widgets/windowflags}{Window Flags}
     \endlist
@@ -89,7 +89,7 @@
     \section1 Layout Examples
 
     \list
-    \o \l{layouts/basiclayouts}{Basic Layouts}
+    \o \l{layouts/basiclayouts}{Basic Layouts}\raisedaster
     \o \l{layouts/borderlayout}{Border Layout}
     \o \l{layouts/flowlayout}{Flow Layout}
     \endlist
