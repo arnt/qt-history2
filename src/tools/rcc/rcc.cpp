@@ -40,7 +40,7 @@ static bool qt_rcc_write_number(FILE *out, quint32 number, int width, RCCResourc
         } else if(format == RCCResourceLibrary::C_Code) {
             fprintf(out, "0x%x", tmp);
             if (dividend > 1)
-                fprintf(out, ", ");
+                fprintf(out, ",");
         }
         number -= tmp * dividend;
         dividend /= 256;
@@ -64,17 +64,17 @@ bool RCCFileInfo::writeDataInfo(FILE *out, RCCResourceLibrary::Format format)
         //name offset
         qt_rcc_write_number(out, nameOffset, 4, format);
         if(format == RCCResourceLibrary::C_Code)
-            fprintf(out, ", ");
+            fprintf(out, ",");
 
         //flags
         qt_rcc_write_number(out, flags, 2, format);
         if(format == RCCResourceLibrary::C_Code)
-            fprintf(out, ", ");
+            fprintf(out, ",");
 
         //child count
         qt_rcc_write_number(out, children.size(), 4, format);
         if(format == RCCResourceLibrary::C_Code)
-            fprintf(out, ", ");
+            fprintf(out, ",");
 
         //first child offset
         qt_rcc_write_number(out, childOffset, 4, format);
@@ -82,26 +82,26 @@ bool RCCFileInfo::writeDataInfo(FILE *out, RCCResourceLibrary::Format format)
         //name offset
         qt_rcc_write_number(out, nameOffset, 4, format);
         if(format == RCCResourceLibrary::C_Code)
-            fprintf(out, ", ");
+            fprintf(out, ",");
 
         //flags
         qt_rcc_write_number(out, flags, 2, format);
         if(format == RCCResourceLibrary::C_Code)
-            fprintf(out, ", ");
+            fprintf(out, ",");
 
         //locale
         qt_rcc_write_number(out, locale.country(), 2, format);
         if(format == RCCResourceLibrary::C_Code)
-            fprintf(out, ", ");
+            fprintf(out, ",");
         qt_rcc_write_number(out, locale.language(), 2, format);
         if(format == RCCResourceLibrary::C_Code)
-            fprintf(out, ", ");
+            fprintf(out, ",");
 
         //data offset
         qt_rcc_write_number(out, dataOffset, 4, format);
     }
     if(format == RCCResourceLibrary::C_Code)
-        fprintf(out, ",  \n");
+        fprintf(out, ",\n");
     return true;
 }
 
@@ -136,14 +136,14 @@ qint64 RCCFileInfo::writeDataBlob(FILE *out, qint64 offset, RCCResourceLibrary::
     //write the length
     qt_rcc_write_number(out, data.size(), 4, format);
     if(format == RCCResourceLibrary::C_Code)
-        fprintf(out, ", \n  ");
+        fprintf(out, ",\n  ");
     offset += 4;
 
     //write the payload
     for (int i=0; i<data.size(); i++) {
         qt_rcc_write_number(out, data.at(i), 1, format);
         if(format == RCCResourceLibrary::C_Code) {
-            fprintf(out, ", ");
+            fprintf(out, ",");
             if(!(i % 16))
                 fprintf(out, "\n  ");
         }
@@ -168,13 +168,13 @@ qint64 RCCFileInfo::writeDataName(FILE *out, qint64 offset, RCCResourceLibrary::
     //write the length
     qt_rcc_write_number(out, name.length(), 2, format);
     if(format == RCCResourceLibrary::C_Code)
-        fprintf(out, ", \n  ");
+        fprintf(out, ",\n  ");
     offset += 2;
 
     //write the hash
     qt_rcc_write_number(out, qHash(name), 4, format);
     if(format == RCCResourceLibrary::C_Code)
-        fprintf(out, ", \n  ");
+        fprintf(out, ",\n  ");
     offset += 4;
 
     //write the name
@@ -182,7 +182,7 @@ qint64 RCCFileInfo::writeDataName(FILE *out, qint64 offset, RCCResourceLibrary::
     for (int i=0; i<name.length(); i++) {
         qt_rcc_write_number(out, unicode[i].unicode(), 2, format);
         if(format == RCCResourceLibrary::C_Code) {
-            fprintf(out, ", ");
+            fprintf(out, ",");
             if(!(i % 16))
                 fprintf(out, "\n  ");
         }
@@ -557,7 +557,10 @@ RCCResourceLibrary::writeInitializer(FILE *out)
             initName.prepend("_");
             initName.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
         }
-        fprintf(out, "static int qInitResources%s()\n{\n", initName.toLatin1().constData());
+        fprintf(out, "int qInitResources%s()\n{\n", initName.toLatin1().constData());
+        fprintf(out, "    static bool initialized = false;\n");
+        fprintf(out, "    if (initialized) return 0;\n");
+        fprintf(out, "    initialized = true;\n");
         fprintf(out, "    extern bool qRegisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);\n");
         fprintf(out, "    qRegisterResourceData(0x01, qt_resource_struct, "
                      "qt_resource_name, qt_resource_data);\n");

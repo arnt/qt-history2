@@ -21,6 +21,15 @@
 #include <resourceeditor/resourceeditor.h>
 #include <signalsloteditor/signalsloteditorwindow.h>
 
+void QDesignerComponents::initializeResources()
+{
+    extern bool qInitResources_formeditor();
+    extern bool qInitResources_widgetbox();
+
+    qInitResources_formeditor();
+    qInitResources_widgetbox();
+}
+
 QDesignerFormEditorInterface *QDesignerComponents::createFormEditor(QObject *parent)
 {
     return new qdesigner_internal::FormEditor(parent);
