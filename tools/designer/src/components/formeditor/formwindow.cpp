@@ -1871,7 +1871,15 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
         } else {
             QWidget *widget = item->widget();
             Q_ASSERT(widget != 0);
-            if (parent == widget->parent()) {
+            QDesignerFormWindowInterface *dest = findFormWindow(widget);
+            if (dest == this) {
+
+                if (parent != widget->parent()) {
+                    ReparentWidgetCommand *cmd = new ReparentWidgetCommand(dest);
+                    cmd->init(widget, parent);
+                    commandHistory()->push(cmd);
+                }
+
                 geometry.moveTopLeft(parent->mapFromGlobal(geometry.topLeft()));
                 resizeWidget(widget, geometry);
                 selectWidget(widget, true);

@@ -1,6 +1,6 @@
 TEMPLATE = lib
 TARGET = QtDesignerComponents
-CONFIG += qt dll debug_and_release
+CONFIG += qt dll debug_and_release depend_prl
 DESTDIR = $$QT_BUILD_TREE/lib
 DLLDESTDIR = $$QT_BUILD_TREE/bin
 
@@ -35,16 +35,6 @@ LIBS += -L$$QT_BUILD_TREE/tools/designer/lib \
     -ltabordereditor \
     -lresourceeditor
 
-DEPENDPATH +=  \
-    ../propertyeditor \
-    ../objectinspector \
-    ../signalsloteditor \
-    ../formeditor \
-    ../widgetbox \
-    ../buddyeditor \
-    ../taskmenu \
-    ../tabordereditor \
-    ../resourceeditor
 
 include(../../sharedcomponents.pri)
 include(../component.pri)
