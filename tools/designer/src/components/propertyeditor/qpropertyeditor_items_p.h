@@ -481,19 +481,6 @@ private:
     void addCursor(QComboBox *combo, int shape) const;
 };
 
-class QT_PROPERTYEDITOR_EXPORT KeySequenceProperty: public AbstractProperty<QKeySequence>
-{
-public:
-    KeySequenceProperty(const QKeySequence &value, const QString &name);
-
-    void setValue(const QVariant &value);
-    QString toString() const;
-
-    QWidget *createEditor(QWidget *parent, const QObject *target, const char *receiver) const;
-    void updateEditorContents(QWidget *editor);
-    void updateValue(QWidget *editor);
-};
-
 class QT_PROPERTYEDITOR_EXPORT PaletteProperty: public AbstractProperty<QPalette>
 {
 public:

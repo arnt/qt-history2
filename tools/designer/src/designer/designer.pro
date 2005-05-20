@@ -32,7 +32,6 @@ HEADERS += \
     qdesigner_objectinspector.h \
     qdesigner_actions.h \
     qdesigner_resourceeditor.h \
-    preferenceinterface.h \
     saveformastemplate.h \
     newform.h \
     versiondialog.h \

@@ -8,7 +8,6 @@ HEADERS += $$PWD/qpropertyeditor.h \
     $$PWD/propertyeditor_global.h \
     $$PWD/flagbox_p.h \
     $$PWD/flagbox_model_p.h \
-    $$PWD/keysequenceeditor.h \
     $$PWD/defs.h
 
 SOURCES += $$PWD/qpropertyeditor.cpp \
@@ -17,7 +16,6 @@ SOURCES += $$PWD/qpropertyeditor.cpp \
     $$PWD/qpropertyeditor_delegate.cpp \
     $$PWD/flagbox.cpp \
     $$PWD/flagbox_model.cpp \
-    $$PWD/keysequenceeditor.cpp \
     $$PWD/defs.cpp
 
 

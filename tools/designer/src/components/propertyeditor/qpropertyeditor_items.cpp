@@ -13,7 +13,6 @@
 
 #include "qpropertyeditor_items_p.h"
 #include "flagbox_p.h"
-#include "keysequenceeditor.h"
 #include "paletteeditorbutton.h"
 #include "defs.h"
 
@@ -1088,50 +1087,6 @@ void CursorProperty::addCursor(QComboBox *combo, int shape) const
 {
     combo->addItem(cursorPixmap(shape), cursorName(shape), shape);
 }
-
-
-// -------------------------------------------------------------------------
-KeySequenceProperty::KeySequenceProperty(const QKeySequence &value, const QString &name)
-    : AbstractProperty<QKeySequence>(value, name)
-{
-}
-
-void KeySequenceProperty::setValue(const QVariant &value)
-{
-    m_value = qvariant_cast<QKeySequence>(value);
-}
-
-QString KeySequenceProperty::toString() const
-{
-    return m_value;
-}
-
-QWidget *KeySequenceProperty::createEditor(QWidget *parent, const QObject *target, const char *receiver) const
-{
-    KeySequenceEditor *lineEdit = new KeySequenceEditor(parent);
-    QObject::connect(lineEdit, SIGNAL(changed()), target, receiver);
-    return lineEdit;
-}
-
-void KeySequenceProperty::updateEditorContents(QWidget *editor)
-{
-    if (KeySequenceEditor *lineEdit = qobject_cast<KeySequenceEditor*>(editor)) {
-        lineEdit->setKeySequence(m_value);
-    }
-}
-
-void KeySequenceProperty::updateValue(QWidget *editor)
-{
-    if (KeySequenceEditor *lineEdit = qobject_cast<KeySequenceEditor*>(editor)) {
-        QKeySequence newValue = lineEdit->keySequence();
-
-        if (newValue != m_value) {
-            m_value = newValue;
-            setChanged(true);
-        }
-    }
-}
-
 
 // -------------------------------------------------------------------------
 AlignmentProperty::AlignmentProperty(const QMap<QString, QVariant> &items, Qt::Alignment value, const QString &name)
