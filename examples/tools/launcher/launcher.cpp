@@ -232,7 +232,7 @@ void Launcher::loadExampleInfo()
                 if (exampleDir.cd(exampleFileName)) {
                     QString examplePath = findExecutable(exampleDir);
                     if (!examplePath.isNull())
-                        examplePaths[exampleName] = examplePath;
+                        examplePaths[exampleName] = QPair<QString,QString>(exampleDir.absolutePath(), examplePath);
                 }
             }
 
@@ -328,19 +328,8 @@ void Launcher::launchExample(const QString &example)
 
     runningExamples.append(example);
     runningProcesses[process] = example;
-    QDir dir = QFileInfo(examplePaths[example]).dir();
-#if defined(Q_OS_WIN)
-    if (dir.dirName() == "debug" || dir.dirName() == "release")
-        dir.cdUp();
-#elif defined(Q_OS_MAC)
-    if (dir.dirName() == "MacOS") {
-        dir.cdUp();
-        dir.cdUp();
-        dir.cdUp();
-    }
-#endif
-    process->setWorkingDirectory(dir.absolutePath());
-    process->start(examplePaths[example]);
+    process->setWorkingDirectory(examplePaths[example].first);
+    process->start(examplePaths[example].second);
 }
 
 void Launcher::enableLaunching()

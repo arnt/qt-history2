@@ -90,7 +90,7 @@ private:
     QMap<QString,QString> categoryDescriptions;
     QMap<QString,QString> exampleDescriptions;
     QMap<QString,QString> documentPaths;
-    QMap<QString,QString> examplePaths;
+    QMap<QString,QPair<QString,QString> > examplePaths;
     QMap<QString,QStringList> examples;
     QMap<QString,QStringList> imagePaths;
     QString currentCategory;
