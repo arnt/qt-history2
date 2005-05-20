@@ -685,7 +685,9 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
             //get Handle data
             const int dbpr = images[i].width * (images[i].depth/8);
             Handle hdl = NewHandle(dbpr*images[i].height);
-            if(images[i].mask) {
+            if(!sptr) { //handle null pixmap
+                memset((*hdl), '\0', dbpr*images[i].height);
+            } else if(images[i].mask) {
                 if(images[i].mac_type == kThumbnail8BitMask) {
                     for(int y = 0, hindex = 0; y < images[i].height; ++y) {
                         const uchar *srow = ((const uchar*)sptr + (sbpr*y));
