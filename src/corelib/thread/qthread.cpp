@@ -103,8 +103,6 @@ QThread *QThreadPrivate::threadForId(int id)
     \class QThread
     \brief The QThread class provides platform-independent threads.
 
-    \threadsafe
-
     \ingroup thread
     \ingroup environment
     \mainclass

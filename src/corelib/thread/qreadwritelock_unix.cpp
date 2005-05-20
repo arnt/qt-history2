@@ -269,7 +269,7 @@ void QReadWriteLock::unlock()
     \ingroup thread
     \ingroup environment
 
-    The purpose of QReadLock (and QWriteLock) is to simplify
+    The purpose of QReadLocker (and QWriteLocker) is to simplify
     QReadWriteLock locking and unlocking. Locking and unlocking
     statements or in exception handling code is error-prone and
     difficult to debug. QReadLocker can be used in such situations
@@ -361,7 +361,7 @@ void QReadWriteLock::unlock()
     \ingroup thread
     \ingroup environment
 
-    The purpose of QWriteLock (and QReadLock) is to simplify
+    The purpose of QWriteLocker (and QReadLocker is to simplify
     QReadWriteLock locking and unlocking. Locking and unlocking
     statements or in exception handling code is error-prone and
     difficult to debug. QWriteLocker can be used in such situations
