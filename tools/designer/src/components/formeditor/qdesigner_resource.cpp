@@ -551,8 +551,10 @@ DomTabStops *QDesignerResource::saveTabStops()
     Q_ASSERT(item);
 
     QStringList tabStops;
-    foreach (QWidget *widget, item->tabOrder())
-        tabStops.append(widget->objectName());
+    foreach (QWidget *widget, item->tabOrder()) {
+        if (m_formWindow->mainContainer()->isAncestorOf(widget))
+            tabStops.append(widget->objectName());
+    }
 
     if (tabStops.count()) {
         DomTabStops *dom = new DomTabStops;

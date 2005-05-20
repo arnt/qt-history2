@@ -661,6 +661,21 @@ DomConnections *SignalSlotEditor::toUi() const
     for (int i = 0; i < connectionCount(); ++i) {
         SignalSlotConnection *con = static_cast<SignalSlotConnection*>(connection(i));
         Q_ASSERT(con != 0);
+
+        // If a widget's parent has been removed, and the parent was not a managed widget
+        // (a page in a tab widget), we never get a widgetRemoved(). So we filter out
+        // these child widgets here.
+        QWidget *source = con->widget(EndPoint::Source);
+        if (source == 0)
+            continue;
+        if (!background()->isAncestorOf(source))
+            continue;
+        QWidget *target = con->widget(EndPoint::Target);
+        if (target == 0)
+            continue;
+        if (!background()->isAncestorOf(target))
+            continue;
+
         list.append(con->toUi());
     }
     result->setElementConnection(list);

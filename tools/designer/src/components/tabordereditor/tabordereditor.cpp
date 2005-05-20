@@ -186,6 +186,16 @@ void TabOrderEditor::initTabOrder()
         m_tab_order_list = item->tabOrder();
     }
 
+    // Remove any widgets that have been removed form the form
+    for (int i = 0; i < m_tab_order_list.size(); ) {
+        QWidget *w = m_tab_order_list.at(i);
+        if (!formWindow()->mainContainer()->isAncestorOf(w))
+            m_tab_order_list.removeAt(i);
+        else
+            ++i;
+    }
+
+    // Append any widgets that are in the form but are not in the tab order
     QDesignerFormWindowCursorInterface *cursor = formWindow()->cursor();
     for (int i = 0; i < cursor->widgetCount(); ++i) {
         QWidget *widget = cursor->widget(i);
