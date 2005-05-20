@@ -49,6 +49,7 @@
 
 extern Drawable qt_x11Handle(const QPaintDevice *pd);
 extern const QX11Info *qt_x11Info(const QPaintDevice *pd);
+extern QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
 
 // hack, so we don't have to make QRegion::clipRectangles() public or include
 // X11 headers in qregion.h
@@ -547,6 +548,69 @@ static Picture getSolidFill(int screen, const QColor &c)
     return X11->solid_fills[i].picture;
 }
 
+static Picture getPatternFill(int screen, const QBrush &b, const QBrush &bg, bool opaque_bg)
+{
+    XRenderColor color = preMultiply(b.color());
+    XRenderColor bg_color;
+
+    if (opaque_bg)
+        bg_color = preMultiply(bg.color());
+    else
+        bg_color = preMultiply(QColor(0, 0, 0, 0));
+
+    for (int i = 0; i < X11->pattern_fill_count; ++i) {
+        if (X11->pattern_fills[i].screen == screen
+            && X11->pattern_fills[i].opaque == opaque_bg
+            && X11->pattern_fills[i].style == b.style()
+            && X11->pattern_fills[i].color.alpha == color.alpha
+            && X11->pattern_fills[i].color.red == color.red
+            && X11->pattern_fills[i].color.green == color.green
+            && X11->pattern_fills[i].color.blue == color.blue
+            && X11->pattern_fills[i].bg_color.alpha == bg_color.alpha
+            && X11->pattern_fills[i].bg_color.red == bg_color.red
+            && X11->pattern_fills[i].bg_color.green == bg_color.green
+            && X11->pattern_fills[i].bg_color.blue == bg_color.blue)
+            return X11->pattern_fills[i].picture;
+    }
+    // none found, replace one
+    int i = rand() % 16;
+
+    if (X11->pattern_fills[i].screen != screen && X11->pattern_fills[i].picture) {
+	XRenderFreePicture (X11->display, X11->pattern_fills[i].picture);
+	X11->pattern_fills[i].picture = 0;
+    }
+
+    if (!X11->pattern_fills[i].picture) {
+        Pixmap pixmap = XCreatePixmap (X11->display, RootWindow (X11->display, screen), 8, 8, 32);
+        XRenderPictureAttributes attrs;
+        attrs.repeat = True;
+        X11->pattern_fills[i].picture = XRenderCreatePicture (X11->display, pixmap,
+                                                              XRenderFindStandardFormat(X11->display, PictStandardARGB32),
+                                                              CPRepeat, &attrs);
+        XFreePixmap (X11->display, pixmap);
+    }
+
+    X11->pattern_fills[i].screen = screen;
+    X11->pattern_fills[i].color = color;
+    X11->pattern_fills[i].bg_color = bg_color;
+    X11->pattern_fills[i].opaque = opaque_bg;
+    X11->pattern_fills[i].style = b.style();
+
+    XRenderFillRectangle(X11->display, PictOpSrc, X11->pattern_fills[i].picture, &bg_color, 0, 0, 8, 8);
+
+    QPixmap pattern(qt_pixmapForBrush(b.style(), true));
+    XRenderPictureAttributes attrs;
+    attrs.repeat = true;
+    XRenderChangePicture(X11->display, pattern.x11PictureHandle(), CPRepeat, &attrs);
+
+    Picture fill_fg = getSolidFill(screen, b.color());
+    XRenderComposite(X11->display, PictOpOver, fill_fg, pattern.x11PictureHandle(),
+                     X11->pattern_fills[i].picture,
+                     0, 0, 0, 0, 0, 0, 8, 8);
+
+    return X11->pattern_fills[i].picture;
+}
+
 static void qt_render_bitmap(Display *dpy, int scrn, Picture src, Picture dst,
                       int sx, int sy, int x, int y, int sw, int sh,
                       const QPen &pen, const QBrush &brush, bool opaque_bg)
@@ -757,9 +821,11 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     Q_ASSERT(rectCount);
     Q_D(QX11PaintEngine);
 
-    bool has_brush = (d->cbrush.style() != Qt::NoBrush);
+    Qt::BrushStyle bs = d->cbrush.style();
+    bool has_brush = (bs != Qt::NoBrush);
     bool has_pen = (d->cpen.style() != Qt::NoPen);
-    bool has_texture = (d->cbrush.style() == Qt::TexturePattern);
+    bool has_texture = (bs == Qt::TexturePattern);
+    bool has_pattern = (bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern);
 
     if (d->use_path_fallback || (has_pen && d->cpen.color().alpha() != 255)) {
         for (int i = 0; i < rectCount; ++i) {
@@ -776,15 +842,21 @@ void QX11PaintEngine::drawRects(const QRect *rects, int rectCount)
     if (X11->use_xrender && (d->pdev->depth() != 1) && pict && has_brush
         && (has_texture || d->cbrush.color().alpha() != 255))
     {
-        XRenderColor xc = preMultiply(d->cbrush.color());
+        XRenderColor xc;
+        ::Picture fill;
+        if (has_texture)
+            fill = d->cbrush.texture().x11PictureHandle();
+        else if (has_pattern)
+            fill = getPatternFill(d->scrn, d->cbrush, d->bg_brush, d->bg_mode == Qt::OpaqueMode);
+        else
+            xc = preMultiply(d->cbrush.color());
+
         for (int i = 0; i < rectCount; ++i) {
             QRect r = rects[i].intersect(d->polygonClipper.boundingRect()).normalized();
-            if (has_texture) {
-                XRenderComposite(d->dpy, PictOpOver,
-                                 d->cbrush.texture().x11PictureHandle(), 0, pict,
+            if (has_texture || has_pattern) {
+                XRenderComposite(d->dpy, PictOpOver, fill, 0, pict,
                                  qRound(r.x() - d->bg_origin.x()), qRound(r.y() - d->bg_origin.y()),
-                                 0, 0,
-                                 r.x(), r.y(), r.width(), r.height());
+                                 0, 0, r.x(), r.y(), r.width(), r.height());
             } else {
                 XRenderFillRectangle(d->dpy, PictOpOver, pict, &xc, r.x(), r.y(), r.width(), r.height());
             }
@@ -1009,8 +1081,6 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     }
 }
 
-QPixmap qt_pixmapForBrush(int brushStyle, bool invert); //in qbrush.cpp
-
 void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 {
     Q_D(QX11PaintEngine);
@@ -1095,8 +1165,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 void QX11PaintEngine::drawEllipse(const QRect &rect)
 {
     Q_D(QX11PaintEngine);
-    if (d->use_path_fallback || !d->cpen.isSolid()
-        || (X11->use_xrender && (d->cpen.color().alpha() != 255 || d->cbrush.color() != 255))) {
+    if (d->use_path_fallback || d->cpen.color().alpha() != 255 || d->cbrush.color() != 255) {
         QPainterPath path;
         path.addEllipse(rect);
         drawPath(path);
@@ -1146,7 +1215,8 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
         fill_gc = gc;
     }
 #if !defined(QT_NO_XRENDER)
-    bool has_pattern = (fill.style() == Qt::TexturePattern);
+    bool has_texture = (fill.style() == Qt::TexturePattern);
+    bool has_pattern = (fill.style() >= Qt::Dense1Pattern && fill.style() <= Qt::DiagCrossPattern);
     bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
         (has_pattern || antialias || fill.color().alpha() != 255))
@@ -1154,8 +1224,10 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
 
         if (picture) {
             ::Picture src;
-            if (has_pattern)
+            if (has_texture)
                 src = fill.texture().x11PictureHandle();
+            else if (has_pattern)
+                src = getPatternFill(scrn, cbrush, bg_brush, bg_mode == Qt::OpaqueMode);
             else
                 src = getSolidFill(scrn, fill.color());
 

@@ -362,6 +362,15 @@ struct QX11Data
         int screen;
         Picture picture;
     } solid_fills[solid_fill_count];
+    enum { pattern_fill_count = 16 };
+    struct PatternFills {
+        XRenderColor color;
+        XRenderColor bg_color;
+        int screen;
+        int style;
+        bool opaque;
+        Picture picture;
+    } pattern_fills[pattern_fill_count];
 #endif
 
     bool has_fontconfig;

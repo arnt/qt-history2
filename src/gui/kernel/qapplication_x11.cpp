@@ -1278,6 +1278,9 @@ void qt_init(QApplicationPrivate *priv, int,
     memset(X11->solid_fills, 0, sizeof(X11->solid_fills));
     for (int i = 0; i < X11->solid_fill_count; ++i)
         X11->solid_fills[i].screen = -1;
+    memset(X11->pattern_fills, 0, sizeof(X11->pattern_fills));
+    for (int i = 0; i < X11->pattern_fill_count; ++i)
+        X11->pattern_fills[i].screen = -1;
 #endif
 
     int argc = priv->argc;
@@ -1947,6 +1950,10 @@ void qt_cleanup()
     for (int i = 0; i < X11->solid_fill_count; ++i) {
         if (X11->solid_fills[i].picture)
             XRenderFreePicture(X11->display, X11->solid_fills[i].picture);
+    }
+    for (int i = 0; i < X11->pattern_fill_count; ++i) {
+        if (X11->pattern_fills[i].picture)
+            XRenderFreePicture(X11->display, X11->pattern_fills[i].picture);
     }
 #endif
 #if !defined (QT_NO_TABLET_SUPPORT)
