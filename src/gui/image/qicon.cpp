@@ -25,11 +25,10 @@
 #include "qdebug.h"
 
 /*!
-  \enum QIcon::Mode
+    \enum QIcon::Mode
 
-  This enum type describes the mode for which a pixmap is intended to be
-  used.
-  The currently defined modes are:
+    This enum type describes the mode for which a pixmap is intended
+    to be used. The currently defined modes are:
 
     \value Normal
          Display the pixmap when the user is

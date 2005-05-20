@@ -72,7 +72,7 @@ private:
     bool matchDeclList( InnerNode *parent );
     bool matchDocsAndStuff();
     bool makeFunctionNode(const QString &synopsis, QStringList *parentPathPtr,
-			  FunctionNode **funcPtr);
+			  FunctionNode **funcPtr, InnerNode *root = 0);
     void parseQiteratorDotH(const Location &location, const QString &filePath);
     void instantiateIteratorMacro(const QString &container, const QString &includeFile,
 				  const QString &macroDef, Tree *tree);

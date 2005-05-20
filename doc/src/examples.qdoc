@@ -225,6 +225,5 @@
     \list
     \o \l{motif/customwidget}{Custom Widget}
     \o \l{motif/dialog}{Dialog}
-    \o \l{motif/walkthrough}{Walkthrough}\raisedaster
     \endlist
 */

@@ -2,15 +2,14 @@
     \example layouts/basiclayouts
     \title Basic Layouts Example
 
-    The Basic layout example shows how to use the standard layout
+    The Basic Layouts example shows how to use the standard layout
     managers that are available in Qt: QBoxLayout and QGridLayout.
 
     \image basiclayouts-example.png Screenshot of the Basic Layouts example
 
     The QBoxLayout class lines up widgets horizontally or
-    vertically. QHBoxLayout and QVBoxLayout are convenience classes
-    corresponding to the layout's orientation. They inherit
-    QBoxLayout, and are the easiest way to use QBoxLayout.
+    vertically. QHBoxLayout and QVBoxLayout are convenience subclasses
+    of QBoxLayout.
 
     \section1 Dialog Class Definition
 
@@ -18,18 +17,16 @@
     \skipto class Dialog
     \printuntil /^\}/
 
-    The Dialog class inherits QWidget. It is a custom widget that
+    The \c Dialog class inherits QWidget. It is a custom widget that
     displays its child widgets using the geometry managers:
-    QHBoxLayout, OVBoxLayout and QGridLayout.
+    QHBoxLayout, QVBoxLayout and QGridLayout.
 
-    We create three private functions to simplify the class
-    constructor:
-
-    The \c createMenu() function creates and populates a menu bar. The
-    \c createHorizontalGroupBox() function creates a group box
-    containing four buttons managed by a horizontal layout, and \c
-    createGridGroupBox() creates a group box containing three line
-    edits and a small editor managed by a grid layout.
+    We declare three private functions to simplify the class
+    constructor: The \c createMenu() function creates and populates a
+    menu bar. The \c createHorizontalGroupBox() function creates a
+    group box containing four buttons managed by a horizontal layout,
+    and \c createGridGroupBox() creates a group box containing three
+    line edits and a small editor managed by a grid layout.
 
     \section1 Dialog Class Implementation
 
@@ -39,7 +36,7 @@
 
     In the constructor, we create several widgets that the example
     uses to demonstrate how the layout affect their appearances. Some
-    of them are grouped together and given their own internal layouts.
+    of them are grouped together and given their own layouts.
 
     \printline mainLayout
 
@@ -48,16 +45,16 @@
     The QBoxLayout class takes in general the space it gets (from its
     parent layout or from the parent widget), divides it up into a
     series of boxes, and makes each managed widget fill one box.  If
-    the QBoxLayout's orientation is \c Qt::Horizontal the boxes are
-    placed in a row. If the orientation is \c Qt::Vertical, the boxes
+    the QBoxLayout's orientation is Qt::Horizontal the boxes are
+    placed in a row. If the orientation is Qt::Vertical, the boxes
     are placed in a column.  The corresponding convenience classes are
     QHBoxLayout and QVBoxLayout, respectively.
 
     \printline setMenuBar
 
-    When we call the QLayout::setMenubar() function, the layout places
+    When we call the QLayout::setMenuBar() function, the layout places
     the provided menu bar at the top of the parent widget, and outside
-    the widgets \l {QWidget::contentsRect()}{content margins}. All
+    the widget's \l {QWidget::contentsRect()}{content margins}. All
     child widgets are placed below the bottom edge of the menu bar.
 
     \skipto addWidget
@@ -68,13 +65,13 @@
     minimum size and at most its maximum size. It is possible to
     specify a stretch factor in the \l
     {QBoxLayout::addWidget()}{addWidget()} function, and any excess
-    space is shared according to these stretch factors. If it's not
-    specified, a widget's stretch factor is 0 by default.
+    space is shared according to these stretch factors. If not
+    specified, a widget's stretch factor is 0.
 
-    In the same way, we can use QBoxLayout::addLayout() to add another
-    layout, and its widgets, to the end of the main layout. Again it
-    is possible to specify a stretch factor which, if not specified,
-    is 0 by default.
+    In the same way, we can use QBoxLayout::addLayout() to add
+    another layout, and its widgets, to the end of the main layout.
+    Again it is possible to specify a stretch factor which, if not
+    specified, is 0.
 
     Then, when we call QWidget::setLayout() to install the main layout
     on the \c Dialog widget, we automatically reparent all of the
@@ -83,9 +80,8 @@
     \skipto createMenu
     \printuntil /^\}/
 
-    In the private \c createMenu() function we create a horizontal
-    menu bar, and add a pull down \gui File menu containing an \gui
-    Exit option.
+    In the private \c createMenu() function we create a menu bar, and
+    add a pull-down \gui File menu containing an \gui Exit option.
 
     \skipto createHorizontalGroupBox
     \printuntil /^\}/
@@ -116,10 +112,10 @@
     \skipto smallEditor
     \printuntil addWidget
 
-    QGridlayout::addWidget() can in addition take arguments specifying
-    the number of rows and columns the cell will be spanning. In this
-    example, we create a small editor which we span over three rows
-    and one column.
+    QGridLayout::addWidget() can in addition take arguments
+    specifying the number of rows and columns the cell will be
+    spanning. In this example, we create a small editor which spans
+    three rows and one column.
 
     For both the QBoxLayout::addWidget() and QGridLayout::addWidget()
     functions it is also possible to add a last argument specifying
@@ -133,19 +129,16 @@
     Each column in a grid layout has a stretch factor. The stretch
     factor is set using QGridLayout::setColumnStretch() and determines
     how much of the available space the column will get over and above
-    its necessary minimum. If not specified, the stretch factor is 0
-    by default.
+    its necessary minimum.
+
+    In this example, we set the stretch factors for columns 1 and 2.
+    The stretch factor is relative to the other columns in this grid;
+    columns with a higher stretch factor take more of the available
+    space. So column 2 in our grid layout will get more of the
+    available space than column 1, and column 0 will not grow at all
+    since its stretch factor is 0 (the default).
 
     Columns and rows behave identically; there is an equivalent
     stretch factor for rows, as well as a QGridLayout::setRowStretch()
     function.
-
-    In this example, we set the stretch factors for the second and
-    third column (the first column is number 0). The stretch factor is
-    relative to the other columns in this grid; columns with a higher
-    stretch factor take more of the available space. So the third
-    column in our grid layout will get more of the available space
-    than the second, and the first column will not grow at all since
-    its stretch factor has not been explicitly set and is 0 by
-    default.
 */

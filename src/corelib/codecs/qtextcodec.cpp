@@ -920,7 +920,7 @@ QByteArray QTextCodec::fromUnicode(const QString& str) const
 }
 
 /*!
-    \fn QString QTextCodec::toUnicode(const char *in, int size,
+    \fn QString QTextCodec::toUnicode(const char *input, int size,
                                       ConverterState *state) const
 
     Converts the first \a size characters from the \a input from the

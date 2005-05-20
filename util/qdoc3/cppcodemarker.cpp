@@ -496,6 +496,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 			      "types");
             FastSection functions(inner, style == Summary ? "Functions" : "Function Documentation",
 			          "function", "functions");
+            FastSection macros(inner, style == Summary ? "Macros" : "Macro Documentation", "macro", "macros");
 
 	    NodeList nodeList = inner->childNodes();
             nodeList += inner->relatedNodes();
@@ -514,7 +515,13 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 		    insert(types, *n, style, status);
                     break;
 	        case Node::Function:
-		    insert(functions, *n, style, status);
+                    {
+                        FunctionNode *func = static_cast<FunctionNode *>(*n);
+                        if (func->metaness() == FunctionNode::Macro)
+		            insert(macros, *n, style, status);
+                        else
+		            insert(functions, *n, style, status);
+                    }
                     break;
 	        default:
 		    ;
@@ -524,6 +531,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
             append(sections, namespaces);
             append(sections, classes);
             append(sections, types);
+            append(sections, macros);
             append(sections, functions);
         }
     }

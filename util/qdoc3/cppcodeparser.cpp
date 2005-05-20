@@ -25,6 +25,7 @@
 #define COMMAND_HEADERFILE              Doc::alias("headerfile")
 #define COMMAND_INDEXPAGE               Doc::alias("indexpage")
 #define COMMAND_INHEADERFILE            Doc::alias("inheaderfile")
+#define COMMAND_MACRO                   Doc::alias("macro")
 #define COMMAND_MODULE                  Doc::alias("module")
 #define COMMAND_NAMESPACE               Doc::alias("namespace")
 #define COMMAND_OVERLOAD                Doc::alias("overload")
@@ -88,7 +89,6 @@ void CppCodeParser::initializeParser(const Config &config)
     nodeTypeMap.insert(COMMAND_CLASS, Node::Class);
     nodeTypeMap.insert(COMMAND_ENUM, Node::Enum);
     nodeTypeMap.insert(COMMAND_TYPEDEF, Node::Typedef);
-    nodeTypeMap.insert(COMMAND_FN, Node::Function);
     nodeTypeMap.insert(COMMAND_PROPERTY, Node::Property);
     nodeTypeMap.insert(COMMAND_VARIABLE, Node::Variable);
 
@@ -218,9 +218,9 @@ const FunctionNode *CppCodeParser::findFunctionNode( const QString& synopsis,
 QSet<QString> CppCodeParser::topicCommands()
 {
     return QSet<QString>() << COMMAND_CLASS << COMMAND_ENUM << COMMAND_EXAMPLE << COMMAND_FILE
-                           << COMMAND_FN << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MODULE
-			   << COMMAND_NAMESPACE << COMMAND_PAGE << COMMAND_PROPERTY
-			   << COMMAND_TYPEDEF << COMMAND_VARIABLE;
+                           << COMMAND_FN << COMMAND_GROUP << COMMAND_HEADERFILE << COMMAND_MACRO
+                           << COMMAND_MODULE << COMMAND_NAMESPACE << COMMAND_PAGE
+                           << COMMAND_PROPERTY << COMMAND_TYPEDEF << COMMAND_VARIABLE;
 }
 
 Node *CppCodeParser::processTopicCommand( const Doc& doc,
@@ -230,7 +230,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
     if ( command == COMMAND_FN ) {
 	QStringList parentPath;
 	FunctionNode *func = 0;
-	FunctionNode *clone;
+	FunctionNode *clone = 0;
 
 	if ( !makeFunctionNode(arg, &parentPath, &clone) &&
 	     !makeFunctionNode("void " + arg, &parentPath, &clone) ) {
@@ -264,6 +264,29 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	    delete clone;
 	}
 	return func;
+    } else if (command == COMMAND_MACRO) {
+	QStringList parentPath;
+	FunctionNode *func = 0;
+
+	if ( !makeFunctionNode(arg, &parentPath, &func, tre->root()) &&
+	     !makeFunctionNode("void " + arg, &parentPath, &func, tre->root()) ) {
+	    doc.location().warning( tr("Invalid syntax in '\\%1'")
+				    .arg(COMMAND_MACRO) );
+        } else if (!parentPath.isEmpty()) {
+	    doc.location().warning( tr("Invalid syntax in '\\%1'")
+				    .arg(COMMAND_MACRO) );
+            delete func;
+            func = 0;
+        } else {
+            func->setMetaness(FunctionNode::Macro);
+            QList<Parameter> params = func->parameters();
+            for (int i = 0; i < params.size(); ++i) {
+                if (params[i].name().isEmpty() && !params[i].leftType().isEmpty())
+                    params[i] = Parameter("", "", params[i].leftType());
+            }
+            func->setParameters(params);
+        }
+        return func;
     } else if ( nodeTypeMap.contains(command) ) {
 	// ### split(" ") hack is there to support header file syntax
 	QStringList path = arg.split(" ")[0].split("::");
@@ -1240,7 +1263,7 @@ bool CppCodeParser::matchDocsAndStuff()
 }
 
 bool CppCodeParser::makeFunctionNode(const QString& synopsis, QStringList *parentPathPtr,
-				     FunctionNode **funcPtr)
+				     FunctionNode **funcPtr, InnerNode *root)
 {
     Tokenizer *outerTokenizer = tokenizer;
     int outerTok = tok;
@@ -1251,7 +1274,7 @@ bool CppCodeParser::makeFunctionNode(const QString& synopsis, QStringList *paren
     tokenizer = &stringTokenizer;
     readToken();
 
-    bool ok = matchFunctionDecl( 0, parentPathPtr, funcPtr );
+    bool ok = matchFunctionDecl( root, parentPathPtr, funcPtr );
     // potential memory leak with funcPtr
 
     tokenizer = outerTokenizer;

@@ -356,12 +356,13 @@
     Typedef for \c{long long int} (\c __int64 on Windows). This type
     is guaranteed to be 64-bit on all platforms supported by Qt.
 
-    Literals of that type can be created using the \c Q_INT64_C()
-    macro:
+    Literals of that type can be created using the Q_INT64_C() macro:
 
     \code
         qint64 value = Q_INT64_C(932838457459459);
     \endcode
+
+    \sa Q_INT64_C(), quint64
 */
 
 /*! \typedef quint64
@@ -371,20 +372,40 @@
     Windows). This type is guaranteed to be 64-bit on all platforms
     supported by Qt.
 
-    Literals of that type can be created using the \c Q_UINT64_C()
+    Literals of that type can be created using the Q_UINT64_C()
     macro:
 
     \code
         quint64 value = Q_UINT64_C(932838457459459);
     \endcode
+
+    \sa Q_UINT64_C(), qint64
 */
 
-/*! \macro Q_INT64_C(constant)
+/*! \macro qint64 Q_INT64_C(literal)
     \relates <QtGlobal>
+
+    Wraps the signed 64-bit integer \a literal in a
+    platform-independent way. For example:
+
+    \code
+        qint64 value = Q_INT64_C(932838457459459);
+    \endcode
+
+    \sa qint64, Q_UINT64_C()
 */
 
-/*! \macro Q_UINT64_C(constant)
+/*! \macro quint64 Q_UINT64_C(literal)
     \relates <QtGlobal>
+
+    Wraps the unsigned 64-bit integer \a literal in a
+    platform-independent way. For example:
+
+    \code
+        quint64 value = Q_UINT64_C(932838457459459);
+    \endcode
+
+    \sa quint64, Q_INT64_C()
 */
 
 /*! \typedef qlonglong
@@ -392,6 +413,8 @@
 
     Typedef for \c{long long int} (\c __int64 on Windows). This is
     the same as \l qint64.
+
+    \sa Q_INT64_C(), qulonglong
 */
 
 /*! \typedef qulonglong
@@ -399,6 +422,8 @@
 
     Typedef for \c{unsigned long long int} (\c{unsigned __int64} on
     Windows). This is the same as \l quint64.
+
+    \sa Q_UINT64_C(), qlonglong
 */
 
 /*! \fn const T &qAbs(const T &value)
@@ -876,19 +901,20 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
         // File: div.cpp
         //
 
-        #include <qglobal.h>
+        #include <QtGlobal>
 
         int divide(int a, int b)
         {
-            Q_ASSERT(b != 0);                        // this is line 9
-            return a/b;
+            Q_ASSERT(b != 0);
+            return a / b;
         }
     \endcode
 
     If \c b is zero, the Q_ASSERT statement will output the following
     message using the qFatal() function:
+
     \code
-    ASSERT: "b == 0" in file div.cpp, line 9
+        ASSERT: "b == 0" in file div.cpp, line 9
     \endcode
 
     \sa Q_ASSERT_X(), qFatal(), {Debugging Techniques}
@@ -901,8 +927,6 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     Prints the message \a what together with the location \a where,
     the source file name and line number if \a test is false.
 
-    This is really a macro defined in \c qglobal.h.
-
     Q_ASSERT_X is useful for testing pre- and post-conditions during
     development. It does nothing if \c QT_NO_DEBUG was defined during
     compilation.
@@ -913,19 +937,20 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
         // File: div.cpp
         //
 
-        #include <qglobal.h>
+        #include <QtGlobal>
 
         int divide(int a, int b)
         {
-            Q_ASSERT_X(b != 0, "divide", "division by zero");   // this is line 9
+            Q_ASSERT_X(b != 0, "divide", "division by zero");
             return a/b;
         }
     \endcode
 
     If \c b is zero, the Q_ASSERT_X statement will output the following
     message using the qFatal() function:
+
     \code
-    ASSERT failure in divide: "division by zero", file div.cpp, line 9
+        ASSERT failure in divide: "division by zero", file div.cpp, line 9
     \endcode
 
     \sa Q_ASSERT(), qFatal(), {Debugging Techniques}
@@ -937,8 +962,6 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
 
     If \a p is 0, prints a warning message containing the source code file
     name and line number, saying that the program ran out of memory.
-
-    This is really a macro defined in \c qglobal.h.
 
     Q_CHECK_PTR does nothing if \c QT_NO_DEBUG was defined during
     compilation.
