@@ -293,12 +293,6 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     if (type == Qt::ToolTip)
         flags |= Qt::WindowStaysOnTopHint | Qt::FramelessWindowHint | Qt::X11BypassWindowManagerHint;
 
-    // X11 doesn't have a "Drawer" window type
-    if (type == Qt::Drawer) {
-        type = Qt::Widget;
-        flags &= ~Qt::WindowType_Mask;
-    }
-
     bool topLevel = (flags & Qt::Window);
     bool popup = (type == Qt::Popup);
     bool dialog = (type == Qt::Dialog
@@ -306,7 +300,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                    || (flags & Qt::MSWindowsFixedSizeDialogHint));
     bool desktop = (type == Qt::Desktop);
     bool tool = (type == Qt::Tool || type == Qt::SplashScreen
-                 || type == Qt::ToolTip);
+                || type == Qt::ToolTip || type == Qt::Drawer);
 
     bool customize =  (flags & (
                                 Qt::X11BypassWindowManagerHint
@@ -494,7 +488,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             } else {
                 flags |= Qt::X11BypassWindowManagerHint | Qt::FramelessWindowHint;
             }
-        } else if (type == Qt::Tool) {
+        } else if (type == Qt::Tool || type == Qt::Drawer) {
             flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint;
         } else {
             flags |= Qt::WindowTitleHint | Qt::WindowSystemMenuHint | Qt::WindowMinimizeButtonHint | Qt::WindowMaximizeButtonHint;
@@ -511,7 +505,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         } else if (q->inherits("QToolBar")) {
             // toolbar netwm type
             net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_TOOLBAR);
-        } else if (type == Qt::Tool) {
+        } else if (type == Qt::Tool || type == Qt::Drawer) {
             // utility netwm type
             net_wintypes[curr_wintype++] = ATOM(_NET_WM_WINDOW_TYPE_UTILITY);
         }
@@ -813,7 +807,9 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
                        || (w->windowType() == Qt::Dialog)
                        || (w->windowType() == Qt::SplashScreen)
                        || (w->windowType() == Qt::ToolTip)
-                       || (w->windowType() == Qt::Tool)) {
+                       || (w->windowType() == Qt::Tool)
+                       || (w->windowType() == Qt::Drawer)
+                       || (w->windowType() == Qt::Sheet)) {
                 /*
                   when reparenting toplevel windows with toplevel-transient children,
                   we need to make sure that the window manager gets the updated

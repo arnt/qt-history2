@@ -203,20 +203,13 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     Qt::WindowType type = q->windowType();
     Qt::WindowFlags &flags = data.window_flags;
 
-    // Windows doesn't have a "Drawer" window type
-    if (type == Qt::Drawer) {
-        type = Qt::Widget;
-        flags &= ~Qt::WindowType_Mask;
-    }
-
     bool topLevel = (flags & Qt::Window);
     bool popup = (type == Qt::Popup);
     bool dialog = (type == Qt::Dialog
                    || type == Qt::Sheet
-                   || type == Qt::Drawer
                    || (flags & Qt::MSWindowsFixedSizeDialogHint));
     bool desktop = (type == Qt::Desktop);
-    bool tool = (type == Qt::Tool);
+    bool tool = (type == Qt::Tool || type == Qt::Drawer);
 
     bool customize =  (flags & (
                                 Qt::X11BypassWindowManagerHint
@@ -313,7 +306,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
         // this should be correct anyway, so dig some more into this
         style |= WS_CLIPSIBLINGS | WS_CLIPCHILDREN ;
         if (topLevel) {
-            if (type == Qt::Window || dialog || tool) {
+            if ((type == Qt::Window || dialog || tool) && !(flags & Qt::FramelessWindowHint)) {
                 if ((type == Qt::Window || dialog) && !(flags & Qt::MSWindowsFixedSizeDialogHint)) {
                     style |= WS_THICKFRAME;
                     if(!(flags &
