@@ -1362,7 +1362,7 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
 
 #elif defined Q_WS_QWS
     bool useFontEngine = true;
-    QMatrix matrix = d->matrix();
+    QMatrix matrix = d->matrix;
     bool simple = matrix.m11() == 1 && matrix.m12() == 0 && matrix.m21() == 0 && matrix.m22() == 1;
     if (!simple) {
         useFontEngine = false;
