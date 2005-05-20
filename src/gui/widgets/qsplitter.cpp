@@ -469,7 +469,7 @@ void QSplitterPrivate::doResize()
             }
             if (stretch) {
                 a[j].stretch = s->getWidgetSize(orient);
-                a[j].sizeHint = a[i].minimumSize;
+                a[j].sizeHint = a[j].minimumSize;
                 a[j].expansive = true;
             } else {
                 a[j].sizeHint = s->getWidgetSize(orient);
