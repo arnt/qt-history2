@@ -14,8 +14,7 @@
   <file>images/qt.png</file>
   <file>images/win/zoomin.png</file>
   <file>images/win/zoomout.png</file>
-  <file>images/splash.png</file>
-  <file>images/appicon.png</file>
+  <file>images/assistant-128.png</file>
   <file>images/addtab.png</file>
   <file>images/closetab.png</file>
 </qresource>

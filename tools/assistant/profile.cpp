@@ -33,7 +33,7 @@ Profile *Profile::createDefaultProfile()
     profile->valid = true;
     profile->type = DefaultProfile;
     profile->props[QLatin1String("name")] = QLatin1String("default");
-    profile->props[QLatin1String("applicationicon")] = QLatin1String("appicon.png");
+    profile->props[QLatin1String("applicationicon")] = QLatin1String("assistant.png");
     profile->props[QLatin1String("aboutmenutext")] = QLatin1String("About Qt");
     profile->props[QLatin1String("abouturl")] = QLatin1String("about_qt");
     profile->props[QLatin1String("title")] = QLatin1String("Qt Assistant");

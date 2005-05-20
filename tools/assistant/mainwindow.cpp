@@ -231,7 +231,7 @@ void MainWindow::closeEvent(QCloseEvent *e)
 void MainWindow::about()
 {
     QMessageBox box(this);
-    box.setText(QLatin1String("<center><img src=\"splash.png\">"
+    box.setText(QLatin1String("<center><img src=\":/trolltech/assistant/images/assistant-128.png\">"
                  "<p>Version ") + QLatin1String(QT_VERSION_STR) + QLatin1String("</p>"
                  "<p>Copyright (C) 2000-$THISYEAR$ Trolltech AS. All rights reserved."
                  "</p></center><p></p>"
