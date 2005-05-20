@@ -31,6 +31,7 @@
 #include "qprintengine.h"
 #include "qpaintengine.h"
 #include "qpaintengine_p.h"
+#include "qt_windows.h"
 
 class QWin32PrintEnginePrivate;
 class QPrinterPrivate;
