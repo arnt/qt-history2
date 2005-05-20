@@ -1376,7 +1376,7 @@ int QMenuBar::insertAny(const QIcon *icon, const QString *text, const QObject *r
     if(index == -1 || index >= actions().count())
         addAction(act);
     else
-        insertAction(act, actions().value(index));
+        insertAction(actions().value(index), act);
     return findIdForAction(act);
 }
 
@@ -1397,7 +1397,7 @@ int QMenuBar::insertSeparator(int index)
     if(index == -1 || index >= actions().count())
         addAction(act);
     else
-        insertAction(act, actions().value(index));
+        insertAction(actions().value(index), act);
     return findIdForAction(act);
 }
 
