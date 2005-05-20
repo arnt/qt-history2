@@ -99,7 +99,7 @@ public:
     virtual void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const {}
 
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
-    virtual void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si) = 0;
+    virtual void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si) = 0;
 #endif
     virtual void addOutlineToPath(qreal, qreal, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags flags);
     virtual void addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *, int, QPainterPath *, QTextItem::RenderFlags);
@@ -182,7 +182,7 @@ public:
     /* returns 0 as glyph index for non existant glyphs */
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-    void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si);
+    void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
     void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
 
@@ -223,7 +223,7 @@ public:
     FECaps capabilites() const;
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-    void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si);
+    void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
     glyph_metrics_t boundingBox(glyph_t glyph);
@@ -260,7 +260,7 @@ public:
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
 #if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
-    void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si);
+    void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
 #endif
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
@@ -309,7 +309,7 @@ public:
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
 
-    void draw(QPaintEngine *p, int x, int y, const QTextItemInt &si);
+    void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
 
     glyph_metrics_t boundingBox(const QGlyphLayout *glyphs, int numGlyphs);
@@ -331,7 +331,7 @@ public:
     FECaps capabilites() const { return FullTransformations; }
 
     enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04 };
-    int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, int =-1, int y=-1,
+    int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, qreal =-1, qreal y=-1,
                    QPaintEngine *p=NULL) const;
 };
 

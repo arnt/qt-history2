@@ -186,7 +186,7 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
 }
 
 
-void QFontEngineFT::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
+void QFontEngineFT::draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si)
 {
     QPaintEngineState *pState = p->state;
     QRasterPaintEngine *paintEngine = static_cast<QRasterPaintEngine*>(p);
@@ -868,7 +868,7 @@ bool QFontEngineQPF::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
     return true;
 }
 
-void QFontEngineQPF::draw(QPaintEngine *p, int x, int y, const QTextItemInt &si)
+void QFontEngineQPF::draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si)
 {
     QPaintEngineState *pState = p->state;
     QRasterPaintEngine *paintEngine = static_cast<QRasterPaintEngine*>(p);

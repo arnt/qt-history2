@@ -107,12 +107,12 @@ bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyph
 }
 
 void
-QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &si)
+QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemInt &si)
 {
     if(p->type() == QPaintEngine::MacPrinter)
         p = static_cast<QMacPrintEngine*>(p)->paintEngine();
     QPaintEngineState *pState = p->state;
-    int x = req_x, y = req_y;
+    qreal x = req_x, y = req_y;
 
 #if 1
     if(p->type() == QPaintEngine::QuickDraw && !pState->matrix().isIdentity()) {
@@ -123,7 +123,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &
         {
             QPainter paint(&bm);  // draw text in bitmap
             paint.setPen(Qt::color1);
-            paint.drawTextItem(QPoint(0, qRound(si.ascent)), si);
+            paint.drawTextItem(QPointF(0, si.ascent), si);
             paint.end();
         }
 
@@ -134,11 +134,11 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &
             pm.setMask(bm);
         } else {
             QPainter paint(&pm);
-            paint.fillRect(0, 0, pm.width(), pm.height(), pState->pen().color());
+            paint.fillRect(QRectF(0, 0, pm.width(), pm.height()), pState->pen().color());
             paint.end();
             pm.setMask(bm);
         }
-        pState->painter()->drawPixmap(x, y - qRound(si.ascent), pm);
+        pState->painter()->drawPixmap(QPointF(x, y - si.ascent), pm);
         return;
     }
 #endif
@@ -151,8 +151,8 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &
 
     if(pState->backgroundMode() == Qt::OpaqueMode) {
         glyph_metrics_t br = boundingBox(si.glyphs, si.num_glyphs);
-        pState->painter()->fillRect(x + int(br.x), y + int(br.y), int(br.width), int(br.height),
-                                  pState->backgroundBrush().color());
+        pState->painter()->fillRect(QRectF(x + br.x, y + br.y, br.width, br.height),
+                                    pState->backgroundBrush().color());
     }
 
     bool textAA = pState->renderHints() & QPainter::TextAntialiasing;
@@ -163,7 +163,7 @@ QFontEngineMac::draw(QPaintEngine *p, int req_x, int req_y, const QTextItemInt &
     if(si.flags & QTextItem::RightToLeft) {
         for(int i = si.num_glyphs-1; i >= 0; --i) {
             doTextTask((QChar*)(si.glyphs+i), 0, 1, 1, DRAW, x, y, p);
-            x += int(si.glyphs[i].advance.x());
+            x += si.glyphs[i].advance.x();
         }
     } else {
         QVarLengthArray<ushort> g(si.num_glyphs);
@@ -335,9 +335,9 @@ qreal QFontEngineMac::maxCharWidth() const
     }
     return st->maxWidth;
 }
-
+#define DoubleToFixed(x) int(x * (1 << 16))
 int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task,
-                               int x, int y, QPaintEngine *p) const
+                               qreal x, qreal y, QPaintEngine *p) const
 {
     QATSUStyle *st = getFontStyle();
     QPaintEngineState *pState = 0;
@@ -586,8 +586,8 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         if (qAbs(x) > SHRT_MAX || qAbs(y) > SHRT_MAX) { //bound to 16bit
             const float tx = newMatrix.tx, ty = newMatrix.ty;
             newMatrix = CGAffineTransformTranslate(newMatrix, -tx, ty);
-            x += qRound(tx);
-            y -= qRound(ty);
+            x += tx;
+            y -= ty;
             transform = true;
         }
         if(transform) {
@@ -595,19 +595,20 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             CGContextConcatCTM(ctx, newMatrix);
             CGContextSetTextMatrix(ctx, newMatrix);
             ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd,
-                         FixRatio(x, 1), FixRatio(y, 1));
+                         DoubleToFixed(x), DoubleToFixed(y));
             CGContextConcatCTM(ctx, CGAffineTransformInvert(CGContextGetCTM(ctx)));
             CGContextConcatCTM(ctx, oldMatrix);
             CGContextSetTextMatrix(ctx, oldMatrix);
         } else {
             ATSUDrawText(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd,
-                         FixRatio(x, 1), FixRatio(y, 1));
+                         DoubleToFixed(x), DoubleToFixed(y));
         }
     }
     if(ctx_port)
         QDEndCGContext(ctx_port, &ctx);
     return ret;
 }
+#undef DoubleToFixed
 
 class QMacFontPath
 {

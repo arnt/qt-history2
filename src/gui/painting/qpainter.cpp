@@ -2427,7 +2427,7 @@ void QPainter::drawEllipse(const QRect &r)
     if (d->state->emulationSpecifier) {
         if (d->state->emulationSpecifier == QPaintEngine::PrimitiveTransform
             && d->state->txop == QPainterPrivate::TxTranslate) {
-            rect.translate(QPoint(d->state->matrix.dx(), d->state->matrix.dy()));
+            rect.translate(QPoint(qRound(d->state->matrix.dx()), qRound(d->state->matrix.dy())));
         } else {
             QPainterPath path;
             path.addEllipse(rect);
