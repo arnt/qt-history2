@@ -805,9 +805,9 @@ MakefileGenerator::processPrlFile(QString &file)
         }
         if(ret) {
             QString mf = QMakeMetaInfo::findLib(meta_file);
-            if(project->variables()["QMAKE_PRL_INTERNAL_FILES"].findIndex(mf) == -1)
+            if(project->variables()["QMAKE_PRL_INTERNAL_FILES"].indexOf(mf) == -1)
                project->variables()["QMAKE_PRL_INTERNAL_FILES"].append(mf);
-            if(project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].findIndex(mf) == -1)
+            if(project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].indexOf(mf) == -1)
                project->variables()["QMAKE_INTERNAL_INCLUDED_FILES"].append(mf);
         }
     }
