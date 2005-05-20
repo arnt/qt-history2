@@ -16,3 +16,9 @@ SUBDIRS       = analogclock \
                 tooltips \
                 wiggly \
                 windowflags
+
+# install
+target.path = $$[QT_INSTALL_DATA]/examples/widgets
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS widgets.pro README
+sources.path = $$[QT_INSTALL_DATA]/examples/widgets
+INSTALLS += target sources

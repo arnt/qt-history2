@@ -11,3 +11,9 @@ isEmpty(TYPELIBS) {
     HEADERS  = addressview.h
     SOURCES  = addressview.cpp main.cpp
 }
+
+# install
+target.path = $$[QT_INSTALL_DATA]/examples/activeqt/qutlook
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qutlook.pro
+sources.path = $$[QT_INSTALL_DATA]/examples/activeqt/qutlook
+INSTALLS += target sources

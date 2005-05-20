@@ -9,3 +9,9 @@ SOURCES       = displayshape.cpp \
                 main.cpp
 QT           += xml
 CONFIG       += assistant
+
+# install
+target.path = $$[QT_INSTALL_DATA]/examples/tools/launcher
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS launcher.pro images
+sources.path = $$[QT_INSTALL_DATA]/examples/tools/launcher
+INSTALLS += target sources

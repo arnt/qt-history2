@@ -7,3 +7,9 @@ SOURCES		= cannonfield.cpp \
 		  main.cpp
 TARGET		= t8
 QTDIR_build:REQUIRES="contains(QT_CONFIG, large-config)"
+
+# install
+target.path = $$[QT_INSTALL_DATA]/examples/tutorial/t8
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS t8.pro
+sources.path = $$[QT_INSTALL_DATA]/examples/tutorial/t8
+INSTALLS += target sources

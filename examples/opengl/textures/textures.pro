@@ -5,3 +5,9 @@ SOURCES       = glwidget.cpp \
                 window.cpp
 RESOURCES     = textures.qrc
 QT           += opengl
+
+# install
+target.path = $$[QT_INSTALL_DATA]/examples/opengl/textures
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS textures.pro images
+sources.path = $$[QT_INSTALL_DATA]/examples/opengl/textures
+INSTALLS += target sources

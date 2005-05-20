@@ -8,3 +8,9 @@ SUBDIRS       = blockingfortuneclient \
                 http \
                 loopback \
                 threadedfortuneserver
+
+# install
+target.path = $$[QT_INSTALL_DATA]/examples/network
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS network.pro README
+sources.path = $$[QT_INSTALL_DATA]/examples/network
+INSTALLS += target sources

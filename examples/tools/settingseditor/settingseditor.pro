@@ -7,3 +7,9 @@ SOURCES       = locationdialog.cpp \
                 mainwindow.cpp \
                 settingstree.cpp \
                 variantdelegate.cpp
+
+# install
+target.path = $$[QT_INSTALL_DATA]/examples/tools/settingseditor
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS settingseditor.pro
+sources.path = $$[QT_INSTALL_DATA]/examples/tools/settingseditor
+INSTALLS += target sources
