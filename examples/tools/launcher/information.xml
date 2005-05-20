@@ -31,6 +31,19 @@
     <example filename="fridgemagnets" name="Fridge Magnets" />
     <example filename="puzzle" name="Puzzle" />
   </category>
+  <category dirname="" name="Extensions">
+    <example dirname="activeqt" name="comapp" name="COM Application" />
+    <example dirname="activeqt" name="hierarchy" name="Hierarchy" />
+    <example dirname="activeqt" name="menus" name="Menus" />
+    <example dirname="activeqt" name="multiple" name="Multiple" />
+    <example dirname="activeqt" name="opengl" name="OpenGL" />
+    <example dirname="activeqt" name="qutlook" name="Qutlook" />
+    <example dirname="activeqt" name="simple" name="Simple" />
+    <example dirname="activeqt" name="webbrowser" name="Web Browser" />
+    <example dirname="activeqt" name="wrapper" name="Wrapper" />
+    <example dirname="motif" name="customwidget" name="Custom Widget" />
+    <example dirname="motif" name="dialog" name="Dialog" />
+  </category>
   <category dirname="itemviews" name="Item Views">
     <example filename="chart" name="Chart" />
     <example filename="dirview" name="Directory View" />

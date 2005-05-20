@@ -80,7 +80,7 @@ Launcher::Launcher(QWidget *parent)
 
     setCentralWidget(display);
     layout()->setSizeConstraint(QLayout::SetFixedSize);
-    setWindowTitle(tr("Launcher"));
+    setWindowTitle(tr("Qt Examples and Demos"));
 }
 
 bool Launcher::setup()
@@ -374,6 +374,13 @@ void Launcher::closeEvent(QCloseEvent *event)
                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
             event->ignore();
     }
+
+    foreach (QProcess *example, runningProcesses.keys()) {
+        example->terminate();
+        example->waitForFinished(1000);
+    }
+
+    qDeleteAll(runningProcesses.keys());
 }
 
 void Launcher::showParentPage()
@@ -540,23 +547,23 @@ void Launcher::showCategories()
     display->insertShape(0, trolltechShape);
 
     DisplayShape *versionCaption = new TitleShape(
-        QString("Qt %1").arg(QT_VERSION_STR), font(), QPen(),
-        QPointF(0.5*width(), height()),
+        QString("Qt %1").arg(QT_VERSION_STR), font(),
+        QPen(QColor(0,0,0,0)),
+        QPointF(0.5*width(), height() - verticalMargin - textHeight),
         QSizeF(0.5*width()-2*horizontalMargin, textHeight),
         Qt::AlignRight | Qt::AlignVCenter);
-    versionCaption->setTarget(QPointF(0.5*width(),
-                                      height() - verticalMargin - textHeight));
 
+    versionCaption->setMetaData("fade", 15);
     display->appendShape(versionCaption);
 
     DisplayShape *copyrightCaption = new TitleShape(
-        QString("Copyright \xa9 2005 Trolltech"), font(), QPen(),
-        QPointF(2*horizontalMargin, height()),
+        QString("Copyright \xa9 2005 Trolltech"), font(),
+        QPen(QColor(0,0,0,0)),
+        QPointF(2*horizontalMargin, height() - verticalMargin - textHeight),
         QSizeF(0.5*width()-2*horizontalMargin, textHeight),
         Qt::AlignLeft | Qt::AlignVCenter);
-    copyrightCaption->setTarget(QPointF(copyrightCaption->rect().x(),
-                                      height() - verticalMargin - textHeight));
 
+    copyrightCaption->setMetaData("fade", 15);
     display->appendShape(copyrightCaption);
 }
 
@@ -687,23 +694,23 @@ void Launcher::showExamples(const QString &category)
     display->appendShape(description);
 
     DisplayShape *versionCaption = new TitleShape(
-        QString("Qt %1").arg(QT_VERSION_STR), font(), QPen(),
-        QPointF(0.5*width(), height()),
+        QString("Qt %1").arg(QT_VERSION_STR), font(),
+        QPen(QColor(0,0,0,0)),
+        QPointF(0.5*width(), height() - verticalMargin - textHeight),
         QSizeF(0.5*width()-2*horizontalMargin, textHeight),
         Qt::AlignRight | Qt::AlignVCenter);
-    versionCaption->setTarget(QPointF(0.5*width(),
-                                      height() - verticalMargin - textHeight));
 
+    versionCaption->setMetaData("fade", 15);
     display->appendShape(versionCaption);
 
     DisplayShape *copyrightCaption = new TitleShape(
-        QString("Copyright \xa9 2005 Trolltech"), font(), QPen(),
-        QPointF(2*horizontalMargin, height()),
+        QString("Copyright \xa9 2005 Trolltech"), font(),
+        QPen(QColor(0,0,0,0)),
+        QPointF(2*horizontalMargin, height() - verticalMargin - textHeight),
         QSizeF(0.5*width()-2*horizontalMargin, textHeight),
         Qt::AlignLeft | Qt::AlignVCenter);
-    copyrightCaption->setTarget(QPointF(copyrightCaption->rect().x(),
-                                      height() - verticalMargin - textHeight));
 
+    copyrightCaption->setMetaData("fade", 15);
     display->appendShape(copyrightCaption);
 }
 
@@ -925,23 +932,23 @@ void Launcher::showExampleSummary(const QString &example)
     }
 
     DisplayShape *versionCaption = new TitleShape(
-        QString("Qt %1").arg(QT_VERSION_STR), font(), QPen(),
-        QPointF(0.5*width(), height()),
+        QString("Qt %1").arg(QT_VERSION_STR), font(),
+        QPen(QColor(0,0,0,0)),
+        QPointF(0.5*width(), height() - verticalMargin - textHeight),
         QSizeF(0.5*width()-2*horizontalMargin, textHeight),
         Qt::AlignRight | Qt::AlignVCenter);
-    versionCaption->setTarget(QPointF(0.5*width(),
-                                      height() - verticalMargin - textHeight));
 
+    versionCaption->setMetaData("fade", 15);
     display->appendShape(versionCaption);
 
     DisplayShape *copyrightCaption = new TitleShape(
-        QString("Copyright \xa9 2005 Trolltech"), font(), QPen(),
-        QPointF(2*horizontalMargin, height()),
+        QString("Copyright \xa9 2005 Trolltech"), font(),
+        QPen(QColor(0,0,0,0)),
+        QPointF(2*horizontalMargin, height() - verticalMargin - textHeight),
         QSizeF(0.5*width()-2*horizontalMargin, textHeight),
         Qt::AlignLeft | Qt::AlignVCenter);
-    copyrightCaption->setTarget(QPointF(copyrightCaption->rect().x(),
-                                      height() - verticalMargin - textHeight));
 
+    copyrightCaption->setMetaData("fade", 15);
     display->appendShape(copyrightCaption);
 }
 

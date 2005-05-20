@@ -1,14 +1,15 @@
+CONFIG        += assistant
 DESTDIR       = ../../../bin
 HEADERS       = displayshape.h \
                 displaywidget.h \
                 launcher.h
+QT            += xml
 RESOURCES     = launcher.qrc
 SOURCES       = displayshape.cpp \
                 displaywidget.cpp \
                 launcher.cpp \
                 main.cpp
-QT           += xml
-CONFIG       += assistant
+TARGET        = qtdemo
 
 # install
 target.path = $$[QT_INSTALL_DATA]/examples/tools/launcher

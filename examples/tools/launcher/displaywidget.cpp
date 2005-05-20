@@ -91,7 +91,7 @@ void DisplayWidget::mousePressEvent(QMouseEvent *event)
             else if (shape->contains("documentation")) {
                 emit documentationRequested(
                     shape->metaData("documentation").toString());
-                shape->setMetaData("fade", -5);
+                shape->setMetaData("highlight", false);
                 enableUpdates();
             } else if (shape->contains("launch")) {
                 emit launchRequested(shape->metaData("launch").toString());
