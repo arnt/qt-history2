@@ -30,7 +30,10 @@ ArthurFrame::ArthurFrame(QWidget *parent)
 //     pal.setBrush(backgroundRole(), m_tile);
 //     setPalette(pal);
 
-    m_prefer_image = false;
+#ifdef Q_WS_X11
+    QPixmap xRenderPixmap(1, 1);
+    m_prefer_image = !xRenderPixmap.x11PictureHandle();
+#endif
 }
 
 
