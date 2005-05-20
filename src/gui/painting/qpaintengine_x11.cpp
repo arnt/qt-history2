@@ -1219,7 +1219,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
     bool has_pattern = (fill.style() >= Qt::Dense1Pattern && fill.style() <= Qt::DiagCrossPattern);
     bool antialias = render_hints & QPainter::Antialiasing;
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
-        (has_pattern || antialias || fill.color().alpha() != 255))
+        (has_texture || antialias || fill.color().alpha() != 255))
     {
 
         if (picture) {
@@ -1227,7 +1227,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
             if (has_texture)
                 src = fill.texture().x11PictureHandle();
             else if (has_pattern)
-                src = getPatternFill(scrn, cbrush, bg_brush, bg_mode == Qt::OpaqueMode);
+                src = getPatternFill(scrn, fill, bg_brush, bg_mode == Qt::OpaqueMode);
             else
                 src = getSolidFill(scrn, fill.color());
 
@@ -1242,7 +1242,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
                 qt_tesselate_polygon(&traps, (QPointF *)cPoints, cCount,
                                      mode == QPaintEngine::WindingMode);
 
-                if (has_pattern) {
+                if (has_pattern || has_texture) {
                     x_offset = qRound(XFixedToDouble(traps.at(0).left.p1.x) - bg_origin.x());
                     y_offset = qRound(XFixedToDouble(traps.at(0).left.p1.y) - bg_origin.y());
                 }
