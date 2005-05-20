@@ -11,7 +11,7 @@ for(QTSHAREDLIB, $$list($$unique(LIBS))) {
     else:isEqual(QTSHAREDLIB, -lbuddyeditor):sharedlib = -lbuddyeditor
     else:isEqual(QTSHAREDLIB, -ltaskmenu):sharedlib = -ltaskmenu
     else:isEqual(QTSHAREDLIB, -lQtDesigner):sharedlib = -lQtDesigner
-    else:isEqual(QTSHAREDLIB, -lQtDesignerCompnents):sharedlib = -lQtDesignerComponents
+    else:isEqual(QTSHAREDLIB, -lQtDesignerComponents):sharedlib = -lQtDesignerComponents
     else:isEqual(QTSHAREDLIB, -lQtOpenGL):sharedlib = -lQtOpenGL
 
     !isEmpty(sharedlib) {
