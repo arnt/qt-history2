@@ -91,8 +91,8 @@ void MainWindow::findItems()
     foreach (item, treeWidget->selectedItems())
         treeWidget->setItemSelected(item, false);
 
-    QList<QTreeWidgetItem *> found = treeWidget->findItems(QRegExp(
-        itemText, Qt::CaseSensitive, QRegExp::Wildcard));
+    QList<QTreeWidgetItem *> found = treeWidget->findItems(
+        itemText, Qt::MatchWildcard);
 
     foreach (item, found) {
         treeWidget->setItemSelected(item, true);
