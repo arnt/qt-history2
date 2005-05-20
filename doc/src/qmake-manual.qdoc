@@ -2532,13 +2532,13 @@
 
     \section1 Operators
 
-    In many project files, the assignment \c = append \c += operators can be used
-    to include all the information about a project. The typical pattern of use is
-    to assign a list of values to a variable, and append more values depending on
-    the result of various tests. Since \c qmake defines certain variables using
-    default values, it is sometimes necessary to use the removal \c -= operator
-    to filter out values that are not required. The following operators can be
-    used to manipulate the contents of variables.
+    In many project files, the assignment (\c{=}) and append (\c{+=}) operators can
+    be used to include all the information about a project. The typical pattern of
+    use is to assign a list of values to a variable, and append more values
+    depending on the result of various tests. Since \c qmake defines certain
+    variables using default values, it is sometimes necessary to use the removal
+    (\c{-=}) operator to filter out values that are not required. The following
+    operators can be used to manipulate the contents of variables.
 
     The \c = operator assigns a value to a variable:
 
