@@ -57,13 +57,11 @@ SOURCES += \
 
 win32 {
 	HEADERS += \
-		painting/qpaintengine_win_p.h \
 		painting/qprintengine_win_p.h
 
  	SOURCES += \
 		painting/qcolormap_win.cpp \
 		painting/qpaintdevice_win.cpp \
-		painting/qpaintengine_win.cpp \
 		painting/qprintengine_win.cpp \
 		painting/qregion_win.cpp
 

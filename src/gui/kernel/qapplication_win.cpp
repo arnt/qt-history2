@@ -38,7 +38,6 @@
 
 #include <private/qwininputcontext_p.h>
 
-#include <private/qpaintengine_win_p.h>
 #include <private/qcursor_p.h>
 #include <private/qmath_p.h>
 
@@ -599,7 +598,6 @@ void qt_init(QApplicationPrivate *priv, int)
     QColormap::initialize();
     QFont::initialize();
     QCursorData::initialize();
-    QWin32PaintEngine::initialize();
     qApp->setObjectName(appName);
 
     // default font
@@ -640,7 +638,6 @@ void qt_cleanup()
 {
     unregWinClasses();
     QPixmapCache::clear();
-    QWin32PaintEngine::cleanup();
 
     QCursorData::cleanup();
     QFont::cleanup();

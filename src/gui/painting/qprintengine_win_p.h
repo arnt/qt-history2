@@ -27,9 +27,10 @@
 
 #ifndef QT_NO_PRINTER
 
-#include <private/qpaintengine_win_p.h>
 #include "qprinter.h"
 #include "qprintengine.h"
+#include "qpaintengine.h"
+#include "qpaintengine_p.h"
 
 class QWin32PrintEnginePrivate;
 class QPrinterPrivate;
@@ -76,7 +77,7 @@ private:
     friend class QPageSetupDialog;
 };
 
-class QWin32PrintEnginePrivate : public QWin32PaintEnginePrivate
+class QWin32PrintEnginePrivate : public QPaintEnginePrivate
 {
     Q_DECLARE_PUBLIC(QWin32PrintEngine)
 public:
@@ -84,6 +85,7 @@ public:
 	hPrinter(0),
         globalDevMode(0),
 	devMode(0),
+        hdc(0),
 	pInfo(0),
         mode(QPrinter::ScreenResolution),
 	state(QPrinter::Idle),
@@ -153,6 +155,8 @@ public:
     HGLOBAL globalDevMode;
     void *devMode;
     void *pInfo;
+
+    HDC hdc;
 
     QPrinter::PrinterMode mode;
 

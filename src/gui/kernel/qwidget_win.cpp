@@ -31,7 +31,6 @@
 #include <private/qapplication_p.h>
 #include <private/qwininputcontext_p.h>
 #include <private/qpaintengine_raster_p.h>
-#include <private/qpaintengine_win_p.h>
 
 typedef BOOL    (WINAPI *PtrSetLayeredWindowAttributes)(HWND hwnd, COLORREF crKey, BYTE bAlpha, DWORD dwFlags);
 static PtrSetLayeredWindowAttributes ptrSetLayeredWindowAttributes = 0;
