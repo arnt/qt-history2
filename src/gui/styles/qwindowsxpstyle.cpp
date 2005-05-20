@@ -84,6 +84,38 @@
 #  define TMT_GLYPHTYPE 2
 #endif
 
+// Older Platform SDKs do not have the extended DrawThemeBackgroundEx
+// function. We add the needed parts here, and use the extended
+// function dynamically, if available in uxtheme.dll. Else, we revert
+// back to using the DrawThemeBackground function.
+#ifndef _DTBGOPTS
+#  ifndef DTBG_CLIPRECT
+#   define DTBG_CLIPRECT        0x00000001
+#  endif
+#  ifndef DTBG_DRAWSOLID
+#   define DTBG_DRAWSOLID       0x00000002
+#  endif
+#  ifndef DTBG_OMITBORDER
+#   define DTBG_OMITBORDER      0x00000004
+#  endif
+#  ifndef DTBG_OMITCONTENT
+#   define DTBG_OMITCONTENT     0x00000008
+#  endif
+#  ifndef DTBG_COMPUTINGREGION
+#   define DTBG_COMPUTINGREGION 0x00000010
+#  endif
+#  ifndef DTBG_MIRRORDC
+#   define DTBG_MIRRORDC        0x00000020
+#  endif
+    typedef struct _DTBGOPTS
+    {
+	DWORD dwSize;
+	DWORD dwFlags;
+	RECT rcClip;
+    }
+    DTBGOPTS, *PDTBGOPTS;
+#endif // _DTBGOPTS
+
 // These defines are missing from the tmschema, but still exist as
 // states for their parts
 #ifndef MINBS_INACTIVE
@@ -765,7 +797,10 @@ void QWindowsXPStylePrivate::drawBackground(XPThemeData &themeData)
 
     painter->save();
 
-    if (painter->paintEngine()->getDC() != 0 && !themeData.mirrorHorizontally)
+    bool useFallback = painter->paintEngine()->getDC() == 0 
+		       || themeData.mirrorHorizontally
+		       || (themeData.mirrorVertically && pDrawThemeBackgroundEx == 0);
+    if (!useFallback)
         drawBackgroundDirectly(themeData);
     else
         drawBackgroundThruNativeBuffer(themeData);
@@ -787,22 +822,64 @@ void QWindowsXPStylePrivate::drawBackgroundDirectly(XPThemeData &themeData)
                             int(painter->deviceMatrix().dy() - painter->matrix().dy()));
     QRect area = themeData.rect.translated(redirectionDelta);
 
-    if (painter->hasClipping()) {
-        QRegion sysRgn = painter->clipRegion();
+    QRegion sysRgn = area;
+    bool addClipping = painter->hasClipping();
+    if (addClipping) {
+        sysRgn = painter->clipRegion();
         sysRgn.translate(redirectionDelta);
         SelectClipRgn(dc, sysRgn.handle());
     }
+
+#ifdef DEBUG_XP_STYLE
+        printf("---[ DIRECT PAINTING ]------------------> Name(%-10s) Part(%d) State(%d)\n",
+               qPrintable(themeData.name), themeData.partId, themeData.stateId);
+        showProperties(themeData);
+#endif
 
     DTBGOPTS drawOptions;
     drawOptions.dwSize = sizeof(drawOptions);
     drawOptions.rcClip = themeData.toRECT(area);
     drawOptions.dwFlags = DTBG_CLIPRECT
-                          | (themeData.mirrorVertically ? DTBG_MIRRORDC : 0)
                           | (themeData.noBorder ? DTBG_OMITBORDER : 0)
                           | (themeData.noContent ? DTBG_OMITCONTENT : 0);
-    pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), &drawOptions);
+    if (pDrawThemeBackgroundEx != 0) {
+	pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), &drawOptions);
+    } else {
+	QRegion extraClip = sysRgn;
+	// We are running on a system where the uxtheme.dll does not have
+	// the DrawThemeBackgroundEx function, so we need to clip away
+	// borders or contents manually. All flips and mirrors uses the
+	// fallback implementation
 
-    if (painter->hasClipping())
+	int borderSize = 0;
+	PROPERTYORIGIN origin = PO_NOTFOUND;
+	pGetThemePropertyOrigin(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &origin);
+        pGetThemeInt(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &borderSize);
+
+	// Clip away border region
+	if ((origin == PO_CLASS || origin == PO_PART || origin == PO_STATE) && borderSize > 0) {
+	    if (themeData.noBorder) {
+		extraClip &= area;
+		drawOptions.rcClip = themeData.toRECT(area.adjusted(-borderSize, -borderSize, borderSize, borderSize));
+	    }
+
+	    // Clip away content region
+	    if (themeData.noContent) {
+		QRegion content = area.adjusted(borderSize, borderSize, -borderSize, -borderSize);
+		extraClip ^= content;
+	    }
+
+	    // Set the clip region, if used..
+	    if (themeData.noBorder || themeData.noContent) {
+		addClipping = true;
+		SelectClipRgn(dc, extraClip.handle());
+	    }
+	}
+
+	pDrawThemeBackground(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), 0);
+    }
+
+    if (addClipping)
         SelectClipRgn(dc, 0);
 }
 
@@ -889,28 +966,82 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
     bool wasAlphaSwapped = false;
     bool wasAlphaFixed = false;
 
-    // If the pixmap is not cached, we'll have to generate it
+    // OLD PSDK Workaround ------------------------------------------------------------------------
+    // See if we need extra clipping for the older PSDK, which does
+    // not have a DrawThemeBackgroundEx function for DTGB_OMITBORDER
+    // and DTGB_OMITCONTENT
+    bool addBorderContentClipping = false;
+    QRegion extraClip;
+    QRect area = rect;
+    if (pDrawThemeBackgroundEx == 0 && (themeData.noBorder || themeData.noContent)) {
+	extraClip = area;
+	// We are running on a system where the uxtheme.dll does not have
+	// the DrawThemeBackgroundEx function, so we need to clip away
+	// borders or contents manually. 
+
+	int borderSize = 0;
+	PROPERTYORIGIN origin = PO_NOTFOUND;
+	pGetThemePropertyOrigin(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &origin);
+	pGetThemeInt(themeData.handle(), themeData.partId, themeData.stateId, TMT_BORDERSIZE, &borderSize);
+
+	// Clip away border region
+	if ((origin == PO_CLASS || origin == PO_PART || origin == PO_STATE) && borderSize > 0) {
+	    if (themeData.noBorder) {
+		extraClip &= area;
+		area = area.adjusted(-borderSize, -borderSize, borderSize, borderSize);
+	    }
+
+	    // Clip away content region
+	    if (themeData.noContent) {
+		QRegion content = area.adjusted(borderSize, borderSize, -borderSize, -borderSize);
+		extraClip ^= content;
+	    }
+	}
+	addBorderContentClipping = (themeData.noBorder | themeData.noContent);
+    }
+
     QImage img;
-    if (!haveCachedPixmap) {
+    if (!haveCachedPixmap) { // If the pixmap is not cached, generate it! -------------------------
         buffer(w, h); // Ensure a buffer of at least (w, h) in size
         HDC dc = bufferHDC();
 
         // Clear the buffer
         if (alphaType != NoAlpha) {
-            // ################ Consider have separate "memset" function for small chunks ####################################################
+            // Consider have separate "memset" function for small chunks for more speedup
             memset(bufferPixels, inspectData ? 0xFF : 0x00, bufferW * h * 4);
         } 
 
-        // Drawing the part into the backing store
-        rect = QRect(QPoint(0,0), rect.size());
-        DTBGOPTS drawOptions;
+	// Difference between area and rect
+	int dx = area.x() - rect.x();
+	int dy = area.y() - rect.y();
+	int dr = area.right() - rect.right();
+	int db = area.bottom() - rect.bottom();
+
+	// Adjust so painting rect starts from Origo
+	rect = QRect(QPoint(0, 0), rect.size());
+	DTBGOPTS drawOptions;
         drawOptions.dwSize = sizeof(drawOptions);
         drawOptions.rcClip = themeData.toRECT(rect);
         drawOptions.dwFlags = DTBG_CLIPRECT
-                            | (themeData.mirrorVertically ? DTBG_MIRRORDC : 0)
                             | (themeData.noBorder ? DTBG_OMITBORDER : 0)
                             | (themeData.noContent ? DTBG_OMITCONTENT : 0);
-        pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), &drawOptions);
+
+	// Drawing the part into the backing store
+	if (pDrawThemeBackgroundEx != 0) {
+	    pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), &drawOptions);
+	} else {
+	    // Set the clip region, if used..
+	    if (addBorderContentClipping) {
+		SelectClipRgn(dc, extraClip.handle());
+		// Compensate for the noBorder area difference (noContent has the same area)
+		drawOptions.rcClip = themeData.toRECT(rect.adjusted(dx, dy, dr, db));
+	    }
+
+	    pDrawThemeBackground(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), 0);
+
+	    if (addBorderContentClipping)
+		SelectClipRgn(dc, 0);
+	}
 
         // If not cached, analyze the buffer data to figure
         // out alpha type, and if it contains data
@@ -974,6 +1105,9 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
 #endif
     }
 
+    if (addBorderContentClipping)
+	painter->setClipRegion(extraClip, Qt::IntersectClip);
+
     if (!themeData.mirrorHorizontally && !themeData.mirrorVertically) {
         if (!haveCachedPixmap)
             painter->drawImage(themeData.rect, img, rect);
@@ -994,7 +1128,7 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
                            imgCopy.mirrored(themeData.mirrorHorizontally, themeData.mirrorVertically));
     }
 
-    if (useRegion) {
+    if (useRegion || addBorderContentClipping) {
         if (oldRegion.isEmpty())
             painter->setClipping(false);
         else
