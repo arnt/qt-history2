@@ -2042,8 +2042,12 @@ void QWidgetPrivate::updateFrameStrut() const
         WindowPtr window = qt_mac_window_for(q);
         Rect window_r, content_r;
         //get bounding rects
-        GetWindowBounds(window, kWindowTitleBarRgn, &window_r);
-        GetWindowBounds(window, kWindowGlobalPortRgn, &content_r);
+        RgnHandle rgn = qt_mac_get_rgn();
+        GetWindowRegion(window, kWindowStructureRgn, rgn);
+        GetRegionBounds(rgn, &window_r);
+        GetWindowRegion(window, kWindowContentRgn, rgn);
+        GetRegionBounds(rgn, &content_r);
+        qt_mac_dispose_rgn(rgn);
         //put into qt structure
         top->fleft = content_r.left - window_r.left;
         top->ftop = content_r.top - window_r.top;
