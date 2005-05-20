@@ -1404,13 +1404,9 @@ bool QDir::operator==(const QDir &dir) const
        && d->data->sort == other->data->sort
        && d->data->nameFilters == other->data->nameFilters) {
         QString dir1 = absolutePath(), dir2 = dir.absolutePath();
-        if(!other->data->fileEngine->caseSensitive()) {
-            for(int i = 0; i < dir1.length(); i++) {
-                if(dir1.at(i).toLower() != dir2.at(i).toLower())
-                    return false;
-            }
-            return true;
-        }
+        if(!other->data->fileEngine->caseSensitive())
+            return (dir1.toLower() == dir2.toLower());
+
         return (dir1 == dir2);
 
     }
