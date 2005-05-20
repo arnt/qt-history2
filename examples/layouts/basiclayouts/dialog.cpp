@@ -29,8 +29,8 @@ Dialog::Dialog()
     cancelButton = new QPushButton(tr("Cancel"));
     okButton->setDefault(true);
 
-    connect(okButton, SIGNAL(clicked()), this, SLOT(close()));
-    connect(cancelButton, SIGNAL(clicked()), this, SLOT(close()));
+    connect(okButton, SIGNAL(clicked()), this, SLOT(accept()));
+    connect(cancelButton, SIGNAL(clicked()), this, SLOT(reject()));
 
     QHBoxLayout *buttonLayout = new QHBoxLayout;
     buttonLayout->addStretch(1);
@@ -56,7 +56,7 @@ void Dialog::createMenu()
     exitAction = fileMenu->addAction(tr("E&xit"));
     menuBar->addMenu(fileMenu);
 
-    connect(exitAction, SIGNAL(triggered()), this, SLOT(close()));
+    connect(exitAction, SIGNAL(triggered()), this, SLOT(accept()));
 }
 
 void Dialog::createHorizontalGroupBox()
