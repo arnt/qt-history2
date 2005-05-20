@@ -33,6 +33,8 @@ static QStringList unique(const QStringList &lst)
     return s.toList();
 }
 
+}
+
 QStringList PluginManager::defaultPluginPaths() const
 {
     QStringList result;
@@ -191,6 +193,4 @@ QList<QDesignerCustomWidgetInterface*> PluginManager::registeredCustomWidgets() 
 {
     const_cast<PluginManager*>(this)->ensureInitialized();
     return m_customWidgets;
-}
-
 }
