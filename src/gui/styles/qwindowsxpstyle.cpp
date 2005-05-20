@@ -62,6 +62,9 @@
 #ifndef TMT_BORDERCOLORHINT
 #  define TMT_BORDERCOLORHINT 3822
 #endif
+#ifndef TMT_BORDERSIZE
+#  define TMT_BORDERSIZE 2403
+#endif
 #ifndef TMT_BORDERONLY
 #  define TMT_BORDERONLY 2203
 #endif
