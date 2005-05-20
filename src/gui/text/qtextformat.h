@@ -420,7 +420,7 @@ inline void QTextBlockFormat::setIndent(qreal aindent)
 class Q_GUI_EXPORT QTextListFormat : public QTextFormat
 {
 public:
-    inline QTextListFormat() : QTextFormat(ListFormat) {}
+    QTextListFormat();
 
     bool isValid() const { return isListFormat(); }
 

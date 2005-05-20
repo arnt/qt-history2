@@ -1558,6 +1558,11 @@ QFont QTextCharFormat::font() const
 
     Constructs a new list format object.
 */
+QTextListFormat::QTextListFormat()
+    : QTextFormat(ListFormat)
+{
+    setIndent(1);
+}
 
 /*!
     \fn bool QTextListFormat::isValid() const
