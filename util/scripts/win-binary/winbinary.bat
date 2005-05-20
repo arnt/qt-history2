@@ -65,14 +65,14 @@ set QTDIR=%1\clean
 perl %1\clean\bin\syncqt -copy >> %1\log.txt 2>&1
 set QTDIR=%TMP_QTDIR%
 set TMP_QTDIR=
-
 echo - Removing source dir in clean
 rd /S /Q src
 
 :CopyFiles
 echo - Copying all .exe files
-del /S /Q bin\*.exe >> %1\log.txt
-xcopy /Q /I /S %1\%TMP_BUILDDIR%\*.exe %1\clean\ >> %1\log.txt
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\*.exe %1\clean\ >> %1\log.txt
+rem Delete activeqt examples!
+del /S /Q %1\clean\examples\activeqt\*.exe >> %1\log.txt
 
 echo - Copying dlls
 xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.dll %1\clean\bin >> %1\log.txt
@@ -146,7 +146,7 @@ echo - Creating license file
 type LICENSE.TROLL > LICENSE.TROLL
 
 echo - Running configure...
-configure -release -plugin-sql-sqlite -plugin-sql-odbc -qt-style-windowsxp -qt-zlib -qt-libpng -qt-libjpeg 1>>log.txt >> %1\log.txt 2>&1
+configure -release -plugin-sql-sqlite -plugin-sql-odbc -qt-style-windowsxp -qt-libpng -qt-libjpeg 1>>log.txt >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 echo - Building...
@@ -169,10 +169,6 @@ echo   * Demos (release)
 nmake sub-demos >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
-echo   * Examples (release)
-nmake sub-examples >> %1\log.txt 2>&1
-if not %errorlevel%==0 goto FAILED
-
 echo   * ActiveQt (release, no examples)
 cd %QTDIR%\extensions\activeqt\container
 nmake >> %1\log.txt 2>&1
@@ -188,6 +184,12 @@ if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%\extensions\activeqt\plugin
 nmake >> %1\log.txt 2>&1
+if not %errorlevel%==0 goto FAILED
+
+cd %QTDIR%
+
+echo   * Examples (release)
+nmake sub-examples >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%

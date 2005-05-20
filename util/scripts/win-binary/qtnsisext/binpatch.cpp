@@ -4,8 +4,8 @@
 
 #include "binpatch.h"
 
-// returns true if it finds a null termination inside the buffer
-long getPathLength(char *data, char *end)
+// returns positive value if it finds a null termination inside the buffer
+long BinPatch::getBufferStringLength(char *data, char *end)
 {
     long size = 0;
     while (data < end) {
@@ -19,16 +19,16 @@ long getPathLength(char *data, char *end)
 }
 
 // returns true if data ends with one of the tokens. (Sep. with ;)
-bool endsWithTokens(const char *data, const char *tokens)
+bool BinPatch::endsWithTokens(const char *data)
 {
-    if(strlen(tokens) > 0) {
+    if(strlen(endTokens) > 0) {
         char endstmp[1024];
         ulong tlen = ulong(strlen(data));
 
-        if(strlen(tokens) >= sizeof(endstmp))
+        if(strlen(endTokens) >= sizeof(endstmp))
             return false;
 
-        strcpy(endstmp, tokens);
+        strcpy(endstmp, endTokens);
 
         char *token = strtok(endstmp, ";");
 
@@ -46,7 +46,7 @@ bool endsWithTokens(const char *data, const char *tokens)
     return false; //no matching tokens
 }
 
-bool patchBuffer(char *inbuffer, const char *oldstr, const char *newstr, size_t len, long *rw, bool useLength, char *endTokens)
+bool BinPatch::patchHelper(char *inbuffer, const char *oldstr, const char *newstr, size_t len, long *rw)
 {
     char nc1 = *oldstr;
     char nc2 = 0;
@@ -84,7 +84,7 @@ bool patchBuffer(char *inbuffer, const char *oldstr, const char *newstr, size_t 
                             continue;
                         }
 
-                        oldsize = getPathLength(inbuffer, inend);
+                        oldsize = getBufferStringLength(inbuffer, inend);
                         
                         if (oldsize < 0) {
                             *rw = (long)(inend-inbuffer); //rewind, entire string not in buffer
@@ -97,7 +97,7 @@ bool patchBuffer(char *inbuffer, const char *oldstr, const char *newstr, size_t 
                         break;
                     }
                 } else { //VC7x
-                    oldsize = getPathLength(inbuffer, inend);
+                    oldsize = getBufferStringLength(inbuffer, inend);
                     if (oldsize < 0) {
                         *rw = (long)(inend-inbuffer); //rewind, entire string not in buffer
                         break;
@@ -110,10 +110,11 @@ bool patchBuffer(char *inbuffer, const char *oldstr, const char *newstr, size_t 
                 memset(oldPath, '\0', sizeof(oldPath));
                 strncpy(oldPath, newstr, newlen);
 
-                strncat(oldPath, inbuffer+oldlen, oldsize-oldlen);
+                if (insertReplace)
+                    strncat(oldPath, inbuffer+oldlen, oldsize-oldlen);
 
                 // just replace if it ends with a token in endTokens
-                if (endsWithTokens(oldPath, endTokens)) {
+                if (endsWithTokens(oldPath)) {
                     if (oldsize < (long)strlen(oldPath))
                         oldsize = (long)strlen(oldPath);
 
@@ -130,7 +131,7 @@ bool patchBuffer(char *inbuffer, const char *oldstr, const char *newstr, size_t 
     return write;
 }
 
-bool BinPatch::patchBinaryFile(const char *fileName, const char *oldstr, const char *newstr, bool useLength, char *endTokens)
+bool BinPatch::patch(const char *oldstr, const char *newstr)
 {
     size_t oldlen = strlen(oldstr);
 
@@ -155,7 +156,7 @@ bool BinPatch::patchBinaryFile(const char *fileName, const char *oldstr, const c
     len = fread(data, sizeof(char), sizeof(data), input);
 
     do {
-        if (patchBuffer(data, oldstr, newstr, len, &rw, useLength, endTokens)) {
+        if (patchHelper(data, oldstr, newstr, len, &rw)) {
             fseek(input, offset, SEEK_SET); //overwrite
             fwrite(data, sizeof(char), len, input);
         }

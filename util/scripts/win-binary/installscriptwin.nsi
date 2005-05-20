@@ -16,7 +16,7 @@
 !define MUI_HEADERIMAGE
 !define MUI_HEADERIMAGE_BITMAP "qt-header.bmp"
 !define MUI_HEADERIMAGE_UNBITMAP "qt-header.bmp"
-!define MUI_HEADERIMAGE_RIGHT
+!define MUI_HEADERIMAGE_BITMAP_NOSTRETCH
 
 !define MUI_WELCOMEFINISHPAGE_BITMAP "qt-wizard.bmp"
 !define MUI_UNWELCOMEFINISHPAGE_BITMAP "qt-wizard.bmp"
@@ -42,7 +42,8 @@
 
 ; Finish page
 !define MUI_FINISHPAGE_SHOWREADME
-!define MUI_FINISHPAGE_SHOWREADME_FUNCTION "ShowReadMe"
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show Documentation"
+!define MUI_FINISHPAGE_SHOWREADME_FUNCTION "ShowDocumentation"
 !insertmacro MUI_PAGE_FINISH
 
 ; Uninstaller pages
@@ -83,18 +84,18 @@ SectionEnd
 
 Section -AdditionalIcons
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
-  CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}"
+  CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}"
 
-  call AddDemoShortCuts
-
-  CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Assistant.lnk" "$INSTDIR\bin\assistant.exe"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Designer.lnk" "$INSTDIR\bin\designer.exe"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools\Qt Linguist.lnk" "$INSTDIR\bin\linguist.exe"
+  #call AddDemoShortCuts
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Assistant.lnk" "$INSTDIR\bin\assistant.exe"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Designer.lnk" "$INSTDIR\bin\designer.exe"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Linguist.lnk" "$INSTDIR\bin\linguist.exe"
   
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Website.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Uninstall.lnk" "$INSTDIR\uninst.exe"
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk" "%COMSPEC%" '/k "$INSTDIR\bin\qtvars.bat vsvars"'
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk" "%COMSPEC%" '/k "$INSTDIR\bin\qtvars.bat vsvars"'
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Examples and Demos.lnk" "$INSTDIR\bin\qtdemo.exe"
+  
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Trolltech.com.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Uninstall Qt ${PRODUCT_VERSION}.lnk" "$INSTDIR\uninst.exe"
 SectionEnd
 
 Section -Post
@@ -121,8 +122,8 @@ Section -Post
   !insertmacro TT_QTENV_REGISTER
 
   #creating the qt.conf file
-  push "$INSTDIR"
-  call MakeQtConfFile
+  #push "$INSTDIR"
+  #call MakeQtConfFile
 
   #creating the qtvars.bat file
   push "$INSTDIR"
@@ -133,15 +134,26 @@ Section -Post
   
   #patch the licencee information
   DetailPrint "Patching license information..."
+
   #### LICENSEE_REPLACENAME must reflect license used when compiling
-  
   push "$INSTDIR\include\QtCore\qconfig.h"
   push "${LICENSEE_REPLACENAME}"
   push "$LICENSEE"
   call PatchPath
   
-  qtnsisext::PatchBinary "$INSTDIR\bin\QtCored4.dll" "${LICENSEE_REPLACENAME}" "$LICENSEE"
-  qtnsisext::PatchBinary "$INSTDIR\bin\QtCore4.dll" "${LICENSEE_REPLACENAME}" "$LICENSEE"
+  push $0
+  push $1
+  FindFirst $0 $1 "$INSTDIR\bin\QtCore*.dll"
+  StrCmp $1 "" ErrorPatching
+  qtnsisext::PatchBinary /NOUNLOAD "$INSTDIR\bin\$1" "qt_lcnsuser=" "qt_lcnsuser=$LICENSEE"
+  
+  FindNext $0 $1
+  StrCmp $1 "" ErrorPatching
+  qtnsisext::PatchBinary "$INSTDIR\bin\$1" "qt_lcnsuser=" "qt_lcnsuser=$LICENSEE"
+
+  ErrorPatching:
+  pop $1
+  pop $0
   ####
 
   DetailPrint "Please wait while creating project files for examples..."
@@ -154,29 +166,29 @@ Function .onInit
   !insertmacro TT_QTENV_PAGE_INIT
 FunctionEnd
 
-Function AddDemoShortCuts
-  push $0
-  push $1
-
-  SetOutPath "$INSTDIR\bin" ;this becomes the Start In path (where the qt libs are)
-  CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos"
-
-  FindFirst $0 $1 "$INSTDIR\demos\*.*"
-  loop:
-    StrCmp $1 "" done
-    IfFileExists "$INSTDIR\demos\$1\$1.exe" 0 +2
-    CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos\$1.lnk" "$INSTDIR\demos\$1\$1.exe"
-    IfFileExists "$INSTDIR\demos\$1\release\$1.exe" 0 +2
-    CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos\$1.lnk" "$INSTDIR\demos\$1\release\$1.exe"
-    FindNext $0 $1
-    Goto loop
-
-  done:
-  
-  SetOutPath "$INSTDIR"
-  pop $1
-  pop $0
-FunctionEnd
+# Function AddDemoShortCuts
+#   push $0
+#   push $1
+#
+#   SetOutPath "$INSTDIR\bin" ;this becomes the Start In path (where the qt libs are)
+#   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos"
+#
+#   FindFirst $0 $1 "$INSTDIR\demos\*.*"
+#   loop:
+#     StrCmp $1 "" done
+#     IfFileExists "$INSTDIR\demos\$1\$1.exe" 0 +2
+#     CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos\$1.lnk" "$INSTDIR\demos\$1\$1.exe"
+#     IfFileExists "$INSTDIR\demos\$1\release\$1.exe" 0 +2
+#     CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos\$1.lnk" "$INSTDIR\demos\$1\release\$1.exe"
+#     FindNext $0 $1
+#     Goto loop
+#
+#   done:
+#
+#   SetOutPath "$INSTDIR"
+#   pop $1
+#   pop $0
+# FunctionEnd
 
 Function PatchPrlFiles
   #patching the prl files
@@ -217,14 +229,50 @@ Function PatchBinaryFiles
     FindNext $0 $1
     Goto loop
   done:
-  pop $1
-  pop $0
 
   DetailPrint "Patching qtmaind.lib..."
   StrCmp ${FORCE_MAKESPEC} "vc60" +3
   qtnsisext::PatchVC7Binary "$INSTDIR\lib\qtmaind.lib" "${QTBUILDDIR}" "$INSTDIR"
   Goto +2
   qtnsisext::PatchVC6Binary "$INSTDIR\lib\qtmaind.lib" "${QTBUILDDIR}" "$INSTDIR"
+
+  DetailPrint "Patching paths in qmake..."
+  push "$INSTDIR\bin\qmake.exe"
+  call PatchBinaryPaths
+  
+  DetailPrint "Patching paths in core..."
+  FindFirst $0 $1 "$INSTDIR\bin\QtCore*.dll"
+  StrCmp $1 "" ErrorPatching
+  push "$INSTDIR\bin\$1"
+  call PatchBinaryPaths
+
+  FindNext $0 $1
+  StrCmp $1 "" ErrorPatching
+  push "$INSTDIR\bin\$1"
+  call PatchBinaryPaths
+
+  ErrorPatching:
+  
+  pop $1
+  pop $0
+FunctionEnd
+
+### check if right
+Function PatchBinaryPaths
+  exch $0
+  push $1
+  
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_prfxpath=" "qt_prfxpath=$INSTDIR"
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_docspath=" "qt_docspath=$INSTDIR\doc"
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_hdrspath=" "qt_hdrspath=$INSTDIR\include"
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_libspath=" "qt_libspath=$INSTDIR\lib"
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_binspath=" "qt_binspath=$INSTDIR\bin"
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_plugpath=" "qt_plugpath=$INSTDIR\plugins"
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_datapath=" "qt_datapath=$INSTDIR"
+  qtnsisext::PatchBinary $0 "qt_trnspath=" "qt_trnspath=$INSTDIR\translations"
+  
+  pop $1
+  pop $0
 FunctionEnd
 
 Function CheckDirectory
@@ -289,8 +337,9 @@ directoryOk:
 done:
 FunctionEnd
 
-Function ShowReadMe
-  Exec 'notepad.exe "$INSTDIR\README"'
+Function ShowDocumentation
+  Exec '$INSTDIR\bin\assistant.exe'
+  Exec '$INSTDIR\bin\qtdemo.exe'
 FunctionEnd
 
 Function un.onInit
@@ -312,16 +361,18 @@ Section Uninstall
   AddSize 150000
   DetailPrint "Removing start menu shortcuts"
 
-  RMDir /r "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos"
-  RMDir /r "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Tools"
-  
-  Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Uninstall.lnk"
-  Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Website.lnk"
-  Delete "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Assistant.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Designer.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Linguist.lnk"
 
-  RMDir "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Examples and Demos.lnk"
+
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Trolltech.com.lnk"
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Uninstall Qt ${PRODUCT_VERSION}.lnk"
+
+  RMDir "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}"
   
-  #removing in more than one step (progressbar)
   DetailPrint "Removing installation directory..."
   RMDir /r "$INSTDIR"
 

@@ -101,7 +101,11 @@ EXPORT_NSIS_FUNCTION(PatchVC6Binary)
     popstring(oldStr);
     popstring(newStr);
 
-    BinPatch::patchBinaryFile(fileName, oldStr, newStr, true, ".cpp;.h;.moc;.pdb");
+    BinPatch binFile(fileName);
+    binFile.enableInsertReplace(true);
+    binFile.enableUseLength(true);
+    binFile.setEndTokens(".cpp;.h;.moc;.pdb");
+    binFile.patch(oldStr, newStr);
 
     LocalFree(newStr);
     LocalFree(oldStr);
@@ -121,7 +125,10 @@ EXPORT_NSIS_FUNCTION(PatchVC7Binary)
     popstring(oldStr);
     popstring(newStr);
 
-    BinPatch::patchBinaryFile(fileName, oldStr, newStr, false, ".cpp;.h;.moc;.pdb");
+    BinPatch binFile(fileName);
+    binFile.enableInsertReplace(true);
+    binFile.setEndTokens(".cpp;.h;.moc;.pdb");
+    binFile.patch(oldStr, newStr);
 
     LocalFree(newStr);
     LocalFree(oldStr);
@@ -141,7 +148,8 @@ EXPORT_NSIS_FUNCTION(PatchBinary)
     popstring(oldStr);
     popstring(newStr);
 
-    BinPatch::patchBinaryFile(fileName, oldStr, newStr, false, "");
+    BinPatch binFile(fileName);
+    binFile.patch(oldStr, newStr);
 
     LocalFree(newStr);
     LocalFree(oldStr);
