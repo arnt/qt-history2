@@ -72,6 +72,8 @@ public:
     void drawPixmap(const QRectF &r, const QPixmap &pm, const QRectF &sr);
     void drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPointF &s);
 
+    void drawTextItem(const QPointF &pos, const QTextItem &item);
+
     Type type() const { return QPaintEngine::QuickDraw; }
     static void initialize();
     static void cleanup();

@@ -398,11 +398,7 @@ QHash<int, QImage> qt_raster_image_cache;
 
 QRasterPaintEngine::QRasterPaintEngine()
     : QPaintEngine(*(new QRasterPaintEnginePrivate),
-#ifdef Q_WS_MAC
-                   QPaintEngine::PaintEngineFeatures(AllFeatures & (~UsesFontEngine))
-#else
                    QPaintEngine::PaintEngineFeatures(AllFeatures)
-#endif
         )
 {
     Q_D(QRasterPaintEngine);

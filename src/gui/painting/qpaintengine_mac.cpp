@@ -29,6 +29,7 @@
 #include <private/qpainterpath_p.h>
 #include <private/qpixmap_p.h>
 #include <private/qt_mac_p.h>
+#include <private/qtextengine_p.h>
 #include <private/qwidget_p.h>
 
 #include <string.h>
@@ -67,7 +68,7 @@ QMacCGContext::QMacCGContext(QPainter *p)
 
 inline static QPaintEngine::PaintEngineFeatures qt_mac_qd_features()
 {
-    return QPaintEngine::PaintEngineFeatures(QPaintEngine::UsesFontEngine);
+    return QPaintEngine::PaintEngineFeatures(0);
 }
 
 QQuickDrawPaintEngine::QQuickDrawPaintEngine()
@@ -620,6 +621,13 @@ QQuickDrawPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QRec
         CopyBits(srcbitmap, dstbitmap, &srcr, &dstr, copymode, 0);
     }
 }
+
+void QQuickDrawPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
+{
+    const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+    ti.fontEngine->draw(this, p.x(), p.y(), ti);
+}
+
 
 void
 QQuickDrawPaintEngine::initialize()

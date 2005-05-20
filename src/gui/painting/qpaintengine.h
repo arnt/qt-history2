@@ -69,7 +69,6 @@ public:
         PainterPaths              = 0x00000200, // Can fill, outline and clip paths
         Antialiasing              = 0x00000400, // Can antialias lines
         BrushStroke               = 0x00000800, // Can render brush based pens
-        UsesFontEngine            = 0x10000000, // Internal use, QWidget and QPixmap
         PaintOutsidePaintEvent    = 0x20000000, // Engine is capable of painting outside paint events
         AllFeatures               = 0xffffffff  // For convenience
     };

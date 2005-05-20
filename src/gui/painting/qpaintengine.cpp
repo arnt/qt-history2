@@ -119,7 +119,6 @@ QFont QTextItem::font() const
   \value PaintOutsidePaintEvent The engine is capable of painting outside of
                                 paint events.
   \value AllFeatures
-  \omitvalue UsesFontEngine
 */
 
 /*!
@@ -560,39 +559,6 @@ void QPaintEngine::drawPath(const QPainterPath &)
 void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
-#if !defined(Q_WS_X11) && !defined(Q_WS_WIN)
-    if (hasFeature(QPaintEngine::UsesFontEngine)) {
-	bool useFontEngine = true;
-        QMatrix matrix = state->matrix();
-        bool simple = matrix.m11() == 1 && matrix.m12() == 0
-                        && matrix.m21() == 0 && matrix.m22() == 1;
-        if (!simple) {
-            useFontEngine = false;
-            QFontEngine *fe = ti.fontEngine;
-            QFontEngine::FECaps fecaps = fe->capabilites();
-            useFontEngine = (fecaps == QFontEngine::FullTransformations);
-            if (!useFontEngine
-                    && matrix.m11() == matrix.m22()
-                    && matrix.m12() == -matrix.m21())
-                useFontEngine = (fecaps & QFontEngine::RotScale) == QFontEngine::RotScale;
-#if 0
-            if (state->txop == QPainterPrivate::TxRotShear) {
-                useFontEngine = (fecaps == QFontEngine::FullTransformations);
-                if (!useFontEngine
-                    && state->matrix.m11() == state->matrix.m22()
-                    && state->matrix.m12() == -state->matrix.m21())
-                    useFontEngine = (fecaps & QFontEngine::RotScale) == QFontEngine::RotScale;
-            } else if (state->txop == QPainterPrivate::TxScale) {
-                useFontEngine = (fecaps & QFontEngine::Scale);
-            }
-#endif
-        }
-        if (useFontEngine) {
-            ti.fontEngine->draw(this, qRound(p.x()), qRound(p.y()), ti);
-            return;
-        }
-    }
-#endif
 
     QPainterPath path;
     path.setFillRule(Qt::WindingFill);
