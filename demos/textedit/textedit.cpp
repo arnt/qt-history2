@@ -68,6 +68,8 @@ TextEdit::TextEdit(QWidget *parent)
         for (int i = 1; i < qApp->argc(); ++i)
             load(qApp->argv()[i]);
     }
+
+    setWindowTitle(tr("Rich Text"));
 }
 
 void TextEdit::setupFileActions()
@@ -114,6 +116,7 @@ void TextEdit::setupFileActions()
     menu->addAction(a);
 
     a = new QAction(tr("&Close"), this);
+    a->setShortcut(Qt::CTRL + Qt::Key_W);
     connect(a, SIGNAL(triggered()), this, SLOT(fileClose()));
     menu->addAction(a);
 
