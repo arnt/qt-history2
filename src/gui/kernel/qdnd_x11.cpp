@@ -1178,9 +1178,15 @@ void QX11Data::xdndHandleSelectionRequest(const XSelectionRequestEvent * req)
     QDragPrivate* dp = QDragManager::self()->dragPrivate();
     if (!format.isEmpty() && QInternalMimeData::hasFormatHelper(QLatin1String(format), dp->data)) {
         QByteArray a = QInternalMimeData::renderDataHelper(QLatin1String(format), dp->data);
+        int dataFormat = 8;
+        int dataSize = a.size();
+        if (format == "application/x-color") {
+            dataFormat = 16;
+            dataSize = a.size() / 2;
+        }
         XChangeProperty (X11->display, req->requestor, req->property,
-                         req->target, 8, PropModeReplace,
-                         (unsigned char *)a.data(), a.size());
+                         req->target, dataFormat, PropModeReplace,
+                         (unsigned char *)a.data(), dataSize);
         evt.xselection.property = req->property;
     }
     // ### this can die if req->requestor crashes at the wrong
