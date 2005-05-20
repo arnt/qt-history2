@@ -1118,6 +1118,9 @@ void QRasterPaintEngine::qwsFillRect(int x, int y, int w, int h, const QBrush &b
 #ifdef Q_WS_X11
 void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
+    QPaintEngine::drawTextItem(p, textItem);
+    return;
+
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
 
 #ifdef QT_DEBUG_DRAW
