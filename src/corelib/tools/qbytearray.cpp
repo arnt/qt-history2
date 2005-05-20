@@ -911,7 +911,7 @@ QByteArray &QByteArray::operator=(const char *str)
         QByteArray ba("Hello world");
         char *data = ba.data();
         while (*data) {
-            cout << "[" + *data + "]" << endl;
+            cout << "[" << *data << "]" << endl;
             ++data;
         }
     \endcode
