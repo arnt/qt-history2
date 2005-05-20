@@ -656,18 +656,15 @@ void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s, bool all
         r.setRect(contents.x(), p, contents.width(), s);
     }
     sls->rect = r;
-    sls->collapsed = false;
 
     /*
       Hide the child widget, but without calling hide() so that the
       splitter handle is still shown.
     */
     int minSize = pick(qSmartMinSize(w));
-    if (allowCollapse && !w->isHidden() && s <= 0 && minSize > 0) {
-        sls->collapsed = minSize > 1;
-        r.moveTopLeft(QPoint(-QWIDGETSIZE_MAX, -QWIDGETSIZE_MAX));
-    }
 
+    if (allowCollapse)
+        sls->collapsed = s <= 0 && minSize > 0 && !w->isHidden();
 
     if (orient == Qt::Horizontal && q->isRightToLeft())
         r.moveRight(contents.width() - r.left());
