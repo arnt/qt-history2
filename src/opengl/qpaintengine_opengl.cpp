@@ -71,8 +71,7 @@ public:
 QOpenGLPaintEngine::QOpenGLPaintEngine()
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
                    PaintEngineFeatures(AllFeatures
-                                       & ~(UsesFontEngine
-                                           | LinearGradientFill
+                                       & ~(LinearGradientFill
                                            | RadialGradientFill
                                            | ConicalGradientFill
                                            | PatternBrush)))
