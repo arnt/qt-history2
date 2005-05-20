@@ -1509,10 +1509,15 @@ QSize QMainWindowLayout::minimumSize() const
 
 void QMainWindowLayout::relayout(QInternal::RelayoutType type)
 {
-    QInternal::RelayoutType save_type = relayout_type;
-    relayout_type = type;
-    setGeometry(geometry());
-    relayout_type = save_type;
+    QRect g = geometry();
+    if (g.isValid()) {
+        QInternal::RelayoutType save_type = relayout_type;
+        relayout_type = type;
+        setGeometry(g);
+        relayout_type = save_type;
+    } else {
+        update();
+    }
 }
 
 void QMainWindowLayout::invalidate()
