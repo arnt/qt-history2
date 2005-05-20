@@ -289,7 +289,7 @@ if [ "$PLATFORM_MAC" = "yes" ]; then
     CFG_FRAMEWORK=yes
     CFG_RPATH=no
 else
-    CFG_FRAMEWORKS=no
+    CFG_FRAMEWORK=no
     CFG_RPATH=yes
 fi
 D_FLAGS=
@@ -2141,14 +2141,6 @@ fi
     -Dstring ........... Add an explicit define to the preprocessor.
     -Istring ........... Add an explicit include path.
     -Lstring ........... Add an explicit library path.
-    -Rstring ........... Add an explicit runtime library path to the Qt
-                         libraries.
-
-    -no-rpath .......... Do not use the library install path as a runtime
-                         library path.
- +  -rpath ............. Link Qt libraries and executables using the library
-                         install path as a runtime library path. Equivalent
-                         to -R install_libpath
 
     -help, -h .......... Display this information.
 
@@ -2175,8 +2167,15 @@ Third Party Libraries:
 
 Additional options:
 
-    -Rstring ........... Add an explicit dynamic library runtime search path.
+    -Rstring ........... Add an explicit runtime library path to the Qt
+                         libraries.
     -lstring ........... Add an explicit library.
+
+    -no-rpath .......... Do not use the library install path as a runtime
+                         library path.
+ +  -rpath ............. Link Qt libraries and executables using the library
+                         install path as a runtime library path. Equivalent
+                         to -R install_libpath
 
     -continue........... Continue as far as possible if an error occurs.
 
@@ -3088,21 +3087,18 @@ if [ -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
         echo
         exit 1
     elif [ "$CFG_RPATH" = "yes" ]; then
-        RPATH_MESSAGE="NOTE: This platform does not support runtime library paths, using -no-rpath."
+        RPATH_MESSAGE="        NOTE: This platform does not support runtime library paths,
+        using -no-rpath."
+        CFG_RPATH=no
     fi
 else
     if [ "$CFG_RPATH" = "yes" ]; then  
-	if [ "$PLATFORM_MAC" = "yes" ]; then
-	    # set install_name to the absolute path for the library
-	    QMAKE_CONFIG="$QMAKE_CONFIG absolute_library_soname"
-	else
-	    # set the default rpath to the library installation directory 
-            RPATH_FLAGS="$QT_INSTALL_LIBS $RPATH_FLAGS"
-	fi
+        # set the default rpath to the library installation directory 
+        RPATH_FLAGS="$QT_INSTALL_LIBS $RPATH_FLAGS"
     fi
     if [ -n "$RPATH_FLAGS" ]; then
-	# add the user defined rpaths
-	QMAKE_VARS="$QMAKE_VARS \"QMAKE_RPATHDIR+=$RPATH_FLAGS\""
+        # add the user defined rpaths
+        QMAKE_VARS="$QMAKE_VARS \"QMAKE_RPATHDIR+=$RPATH_FLAGS\""
     fi
 fi
 
