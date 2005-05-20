@@ -930,7 +930,6 @@ bool QLayout::activate()
         return false;
     }
     activateRecursiveHelper(this);
-    d->doResize(mw->size());
 
     QWidgetPrivate *md = mw->d_func();
     uint explMin = md->extra ? md->extra->explicitMinSize : 0;
@@ -974,6 +973,9 @@ bool QLayout::activate()
     case SetNoConstraint:
         break;
     }
+
+    d->doResize(mw->size());
+
     if (md->extra)
         md->extra->explicitMinSize = explMin;
     // ideally only if sizeHint() or sizePolicy() has changed
