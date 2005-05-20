@@ -63,8 +63,16 @@ int QTextImportHelper::appendFragment(int pos, int endPos, int objectIndex)
     QTextBlock nextBlock = priv->blocksFind(pos + 1);
 
     int blockIdx = -2;
-    if (nextBlock.position() == pos + 1)
+    if (nextBlock.position() == pos + 1) {
         blockIdx = convertFormatIndex(nextBlock.blockFormat());
+    } else // #### the initial paragraph doesn't have a dedicated text fragment, so
+           // we have to copy it manually. QTextDocumentFragmentPrivate::insert will take
+           // care of replacing an existing initial paragraph at insertion time with the one
+           // we create here. remove this hack as soon as the piecetable is fixed.
+        if (pos == 0 && docFragment->containsCompleteDocument) {
+        docFragment->appendText(QString(QChar::ParagraphSeparator),
+                                charFormatIndex, convertFormatIndex(priv->blocksBegin().blockFormat()));
+    }
 
     docFragment->appendText(QString(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy),
                             charFormatIndex, blockIdx);
@@ -379,6 +387,16 @@ QString QTextDocumentFragment::toPlainText() const
         return QString();
 
     QString result = d->localBuffer;
+
+    // if we have a complete document that contains the initial paragraph
+    // at the beginning then we don't want to see that one in the plaintext
+    // output, as otherwise all plaintext output would always start with a
+    // newline
+    if (d->containsCompleteDocument
+        && !result.isEmpty()
+        && result.at(0) == QChar::ParagraphSeparator)
+        result.remove(0, 1);
+
     qt_replace_special_text_characters(&result);
     return result;
 }
