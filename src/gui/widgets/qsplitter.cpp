@@ -95,7 +95,7 @@ public:
     QSplitterLayoutStruct *insertWidget(int index, QWidget *);
     void doMove(bool backwards, int pos, int index, int delta,
                 bool mayCollapse, int *positions, int *widths);
-    void setGeo(QSplitterLayoutStruct *s, int pos, int size);
+    void setGeo(QSplitterLayoutStruct *s, int pos, int size, bool allowCollapse);
     int findWidgetJustBeforeOrJustAfter(int index, int delta, int &collapsibleSize) const;
     void updateHandles();
 
@@ -497,7 +497,7 @@ void QSplitterPrivate::doResize()
 
     for (i = 0; i < n; ++i) {
         QSplitterLayoutStruct *s = list.at(i);
-        setGeo(s, a[i*2+1].pos, a[i*2+1].size);
+        setGeo(s, a[i*2+1].pos, a[i*2+1].size, false);
     }
 }
 
@@ -644,7 +644,7 @@ void QSplitterPrivate::updateHandles()
     recalc(q->isVisible());
 }
 
-void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s)
+void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s, bool allowCollapse)
 {
     Q_Q(QSplitter);
     QWidget *w = sls->widget;
@@ -663,7 +663,7 @@ void QSplitterPrivate::setGeo(QSplitterLayoutStruct *sls, int p, int s)
       splitter handle is still shown.
     */
     int minSize = pick(qSmartMinSize(w));
-    if (!w->isHidden() && s <= 0 && minSize > 0) {
+    if (allowCollapse && !w->isHidden() && s <= 0 && minSize > 0) {
         sls->collapsed = minSize > 1;
         r.moveTopLeft(QPoint(-QWIDGETSIZE_MAX, -QWIDGETSIZE_MAX));
     }
@@ -1351,7 +1351,7 @@ void QSplitter::moveSplitter(int pos, int index)
     for (; wid >= 0 && wid < count; wid += delta) {
         QSplitterLayoutStruct *sls = d->list.at( wid );
         if (!sls->widget->isHidden())
-            d->setGeo(sls, poss[wid], ws[wid]);
+            d->setGeo(sls, poss[wid], ws[wid], true);
     }
     d->storeSizes();
 
