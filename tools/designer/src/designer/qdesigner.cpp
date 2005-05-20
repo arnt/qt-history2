@@ -37,8 +37,6 @@ QDesigner::QDesigner(int &argc, char **argv)
     setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
 
-    QDesignerComponents::initializeResources();
-
 #ifndef Q_WS_MAC
     setWindowIcon(QIcon(QLatin1String(":/trolltech/designer/images/designer.png")));
 #endif
