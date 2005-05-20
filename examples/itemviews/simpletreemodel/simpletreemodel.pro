@@ -5,3 +5,9 @@ SOURCES     = treeitem.cpp \
               treemodel.cpp \
               main.cpp
 CONFIG  += qt
+
+# install
+target.path = $$[QT_INSTALL_DATA]/examples/itemviews/simpletreemodel
+sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.txt
+sources.path = $$[QT_INSTALL_DATA]/examples/itemviews/simpletreemodel
+INSTALLS += target sources

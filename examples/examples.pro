@@ -13,8 +13,14 @@ SUBDIRS       = dialogs \
                 tools \
                 tutorial \
                 widgets \
-                xml
+                xml \
+		designer
 
 contains(QT_CONFIG, opengl): SUBDIRS += opengl
-!cross_compiler:SUBDIRS: += designer
+#!cross_compiler:SUBDIRS: += designer
 win32:SUBDIRS += activeqt
+
+# install
+sources.files = README *.pro
+sources.path = $$[QT_INSTALL_DATA]/examples
+INSTALLS += sources

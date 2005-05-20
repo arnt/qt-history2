@@ -5,3 +5,9 @@ SOURCES     = main.cpp \
               mainwindow.cpp \
               pieview.cpp
 unix:!mac:LIBS+= -lm
+
+# install
+target.path = $$[QT_INSTALL_DATA]/examples/itemviews/chart
+sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.cht
+sources.path = $$[QT_INSTALL_DATA]/examples/itemviews/chart
+INSTALLS += target sources
