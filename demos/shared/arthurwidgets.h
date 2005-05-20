@@ -25,7 +25,10 @@ public:
 
     void loadSourceFile(const QString &fileName);
 
+    bool preferImage() const { return m_prefer_image; }
+
 public slots:
+    void setPreferImage(bool pi) { m_prefer_image = pi; }
     void setDescriptionEnabled(bool enabled);
     void showSource();
 
@@ -38,9 +41,11 @@ protected:
     QPixmap m_tile;
 
     bool m_show_doc;
+    bool m_prefer_image;
     QTextDocument *m_document;
 
     QString m_sourceFileName;
+
 };
 
 class ArthurGroupBox : public QGroupBox

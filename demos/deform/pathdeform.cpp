@@ -189,10 +189,17 @@ void PathDeformRenderer::generateLensPixmap()
 
     QRect bounds = circle_bounds(QPointF(), rad, 0);
 
-    m_pixmap = QPixmap(bounds.size());
-    m_pixmap.fill(QColor(0, 0, 0, 0));
+    QPainter painter;
 
-    QPainter painter(&m_pixmap);
+    if (preferImage()) {
+        m_lens_image = QImage(bounds.size(), QImage::Format_ARGB32_Premultiplied);
+        m_lens_image.fill(0);
+        painter.begin(&m_lens_image);
+    } else {
+        m_lens_pixmap = QPixmap(bounds.size());
+        m_lens_pixmap.fill(QColor(0, 0, 0, 0));
+        painter.begin(&m_lens_pixmap);
+    }
 
     QRadialGradient gr(rad, rad, rad, 3 * rad / 5, 3 * rad / 5);
     gr.setColorAt(0.0, QColor(255, 255, 255, 191));
@@ -373,9 +380,13 @@ void PathDeformRenderer::paint(QPainter *painter)
 
     }
 
-    painter->drawPixmap(m_pos - QPointF(m_radius + LENS_EXTENT, m_radius + LENS_EXTENT), m_pixmap);
-
-//     ++m_fpsCounter;
+    if (preferImage()) {
+        painter->drawImage(m_pos - QPointF(m_radius + LENS_EXTENT, m_radius + LENS_EXTENT),
+                           m_lens_image);
+    } else {
+        painter->drawPixmap(m_pos - QPointF(m_radius + LENS_EXTENT, m_radius + LENS_EXTENT),
+                            m_lens_pixmap);
+    }
 }
 
 

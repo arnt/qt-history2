@@ -29,20 +29,35 @@ ArthurFrame::ArthurFrame(QWidget *parent)
 //     QPalette pal = palette();
 //     pal.setBrush(backgroundRole(), m_tile);
 //     setPalette(pal);
+
+    m_prefer_image = false;
 }
 
-// #define IMAGE
+
 void ArthurFrame::paintEvent(QPaintEvent *e)
 {
 
-#ifdef IMAGE
-    static QImage image;
-    if (image.size() != size())
-        image = QImage(size(), QImage::Format_RGB32);
-    QPainter painter(&image);
-#else
-    QPainter painter(this);
-#endif
+    static QImage *static_image = 0;
+    QPainter painter;
+    if (preferImage()) {
+        if (!static_image) {
+            static_image = new QImage(size(), QImage::Format_RGB32);
+        } else if (static_image->size() != size()) {
+            delete static_image;
+            static_image = new QImage(size(), QImage::Format_RGB32);
+        }
+        painter.begin(static_image);
+
+        int o = 10;
+
+        QBrush bg = palette().brush(QPalette::Background);
+        painter.fillRect(0, 0, o, o, bg);
+        painter.fillRect(width() - o, 0, o, o, bg);
+        painter.fillRect(0, height() - o, o, o, bg);
+        painter.fillRect(width() - o, height() - o, o, o, bg);
+    } else {
+        painter.begin(this);
+    }
 
     painter.setClipRect(e->rect());
 
@@ -85,56 +100,10 @@ void ArthurFrame::paintEvent(QPaintEvent *e)
     painter.setBrush(Qt::NoBrush);
     painter.drawPath(clipPath);
 
-#ifdef IMAGE
-    painter.end();
-    painter.begin(this);
-    painter.drawImage(e->rect(), image, e->rect());
-#endif
-    return;
-
-    // draw frame
-    {
-        QPixmap topLeft = cached(":res/images/frame_topleft.png");
-        QPixmap topRight = cached(":res/images/frame_topright.png");
-        QPixmap bottomLeft = cached(":res/images/frame_bottomleft.png");
-        QPixmap bottomRight = cached(":res/images/frame_bottomright.png");
-        QPixmap leftStretch = cached(":res/images/frame_left.png");
-        QPixmap topStretch = cached(":res/images/frame_top.png");
-        QPixmap rightStretch = cached(":res/images/frame_right.png");
-        QPixmap bottomStretch = cached(":res/images/frame_bottom.png");
-
-        int topFrameOffset = 0;//titleStretch.height()/2 - 2;
-        painter.drawPixmap(r.topLeft() + QPoint(0, topFrameOffset), topLeft);
-        painter.drawPixmap(r.topRight() - QPoint(topRight.width()-1, 0)  + QPoint(0, topFrameOffset), topRight);
-        painter.drawPixmap(r.bottomLeft() - QPoint(0, bottomLeft.height()-1), bottomLeft);
-        painter.drawPixmap(r.bottomRight() - QPoint(bottomRight.width()-1, bottomRight.height()-1), bottomRight);
-
-        QRect left = r;
-        left.setY(r.y() + topLeft.height() + topFrameOffset);
-        left.setWidth(leftStretch.width());
-        left.setHeight(r.height() - topLeft.height() - bottomLeft.height() - topFrameOffset);
-        painter.drawTiledPixmap(left, leftStretch);
-
-        QRect top = r;
-        top.setX(r.x() + topLeft.width());
-        top.setY(r.y() + topFrameOffset);
-        top.setWidth(r.width() - topLeft.width() - topRight.width());
-        top.setHeight(topLeft.height());
-        painter.drawTiledPixmap(top, topStretch);
-
-        QRect right = r;
-        right.setX(r.right() - rightStretch.width()+1);
-        right.setY(r.y() + topRight.height() + topFrameOffset);
-        right.setWidth(rightStretch.width());
-        right.setHeight(r.height() - topRight.height() - bottomRight.height() - topFrameOffset);
-        painter.drawTiledPixmap(right, rightStretch);
-
-        QRect bottom = r;
-        bottom.setX(r.x() + bottomLeft.width());
-        bottom.setY(r.bottom() - bottomStretch.height()+1);
-        bottom.setWidth(r.width() - bottomLeft.width() - bottomRight.width());
-        bottom.setHeight(bottomLeft.height());
-        painter.drawTiledPixmap(bottom, bottomStretch);
+    if (preferImage()) {
+        painter.end();
+        painter.begin(this);
+        painter.drawImage(e->rect(), *static_image, e->rect());
     }
 }
 

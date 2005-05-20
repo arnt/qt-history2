@@ -48,7 +48,8 @@ private:
     QRectF m_pathBounds;
     QString m_text;
 
-    QPixmap m_pixmap;
+    QPixmap m_lens_pixmap;
+    QImage m_lens_image;
 
     int m_fontSize;
     bool m_animated;
