@@ -194,7 +194,6 @@ protected:
     inline QModelIndex createIndex(int row, int column, int id) const;
 
     void encodeData(const QModelIndexList &indexes, QDataStream &stream) const;
-    void encodeData(const QModelIndex &parent, QDataStream &stream) const;
     bool decodeData(int row, int column, const QModelIndex &parent, QDataStream &stream);
 
     void beginInsertRows(const QModelIndex &parent, int first, int last);
