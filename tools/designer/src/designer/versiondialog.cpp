@@ -34,14 +34,12 @@ VersionLabel::VersionLabel(QWidget *parent)
         : QLabel(parent), secondStage(false), m_pushed(false)
 {
     setPixmap(QPixmap(":/trolltech/designer/images/designer.png"));
-    hitPoints.append(QPoint(56, 21));
-    hitPoints.append(QPoint(8, 70));
-    hitPoints.append(QPoint(56, 118));
-    hitPoints.append(QPoint(105, 70));
-    hitPoints.append(QPoint(56, 69));
+    hitPoints.append(QPoint(56, 25));
+    hitPoints.append(QPoint(29, 55));
+    hitPoints.append(QPoint(56, 87));
+    hitPoints.append(QPoint(82, 55));
+    hitPoints.append(QPoint(58, 56));
 
-    missPoints.append(QPoint(10, 33));
-    missPoints.append(QPoint(99, 112));
     secondStage = false;
     m_pushed = false;
 }

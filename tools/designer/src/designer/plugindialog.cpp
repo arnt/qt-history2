@@ -19,7 +19,11 @@
 #include "plugindialog.h"
 
 PluginDialog::PluginDialog(QDesignerFormEditorInterface *core, QWidget *parent)
-    : QDialog(parent), m_core(core)
+    : QDialog(parent
+#ifdef Q_WS_MAC
+            , Qt::Tool
+#endif
+            ), m_core(core)
 {
     label = new QLabel;
     label->setWordWrap(true);

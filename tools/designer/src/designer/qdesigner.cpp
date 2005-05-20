@@ -39,7 +39,9 @@ QDesigner::QDesigner(int &argc, char **argv)
 
     QDesignerComponents::initializeResources();
 
-    setWindowIcon(QIcon(QString::fromUtf8(":/trolltech/designer/images/designer.png")));
+#ifndef Q_WS_MAC
+    setWindowIcon(QIcon(QLatin1String(":/trolltech/designer/images/designer.png")));
+#endif
 
     initialize();
 }
