@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
 <categories>
   <category dirname="../demos" docname="demos" name="Demonstrations">
     <example filename="deform" name="Vector Deformation" />
@@ -32,17 +33,17 @@
     <example filename="puzzle" name="Puzzle" />
   </category>
   <category dirname="" name="Extensions">
-    <example dirname="activeqt" name="comapp" name="COM Application" />
-    <example dirname="activeqt" name="hierarchy" name="Hierarchy" />
-    <example dirname="activeqt" name="menus" name="Menus" />
-    <example dirname="activeqt" name="multiple" name="Multiple" />
-    <example dirname="activeqt" name="opengl" name="OpenGL" />
-    <example dirname="activeqt" name="qutlook" name="Qutlook" />
-    <example dirname="activeqt" name="simple" name="Simple" />
-    <example dirname="activeqt" name="webbrowser" name="Web Browser" />
-    <example dirname="activeqt" name="wrapper" name="Wrapper" />
-    <example dirname="motif" name="customwidget" name="Custom Widget" />
-    <example dirname="motif" name="dialog" name="Dialog" />
+    <example dirname="activeqt" filename="comapp" name="COM Application" />
+    <example dirname="activeqt" filename="hierarchy" name="Hierarchy" />
+    <example dirname="activeqt" filename="menus" name="Menus" />
+    <example dirname="activeqt" filename="multiple" name="Multiple" />
+    <example dirname="activeqt" filename="opengl" name="OpenGL" />
+    <example dirname="activeqt" filename="qutlook" name="Qutlook" />
+    <example dirname="activeqt" filename="simple" name="Simple" />
+    <example dirname="activeqt" filename="webbrowser" name="Web Browser" />
+    <example dirname="activeqt" filename="wrapper" name="Wrapper" />
+    <example dirname="motif" filename="customwidget" name="Custom Widget" />
+    <example dirname="motif" filename="dialog" name="Dialog" />
   </category>
   <category dirname="itemviews" name="Item Views">
     <example filename="chart" name="Chart" />
