@@ -848,6 +848,7 @@ QPaintEvent::QPaintEvent(const QRect &paintRect)
 {}
 
 
+#ifdef QT3_SUPPORT
  /*!
     Constructs a paint event object with both a \a paintRegion and a
     \a paintRect, both of which represent the area of the widget that
@@ -857,7 +858,7 @@ QPaintEvent::QPaintEvent(const QRect &paintRect)
 QPaintEvent::QPaintEvent(const QRegion &paintRegion, const QRect &paintRect)
     : QEvent(Paint), m_rect(paintRect), m_region(paintRegion), m_erased(false)
 {}
-
+#endif
 
 /*!
   \internal
