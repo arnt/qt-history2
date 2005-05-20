@@ -657,8 +657,7 @@ QFileEngine::Type QResourceFileEngine::type() const
 
 //Initialization and cleanup
 Q_GLOBAL_STATIC(QResourceFileEngineHandler, resource_file_handler)
-//yuck, but this will force the auto init in shared libraries
-inline static int qt_force_resource_init() { resource_file_handler(); return 1; }
-void Q_CONSTRUCTOR_FUNCTION qInitResourceIO() { resource_file_handler(); }
-static int qt_forced_resource_init = qt_force_resource_init();
+
+static int qt_force_resource_init() { resource_file_handler(); return 1; }
+Q_CONSTRUCTOR_FUNCTION(qt_force_resource_init)
 

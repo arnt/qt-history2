@@ -279,7 +279,8 @@
 #      define Q_PACKED __attribute__ ((__packed__))
 #      define Q_NO_PACKED_REFERENCE
 #    endif
-#    define Q_CONSTRUCTOR_FUNCTION __attribute__((constructor))
+#    define Q_CONSTRUCTOR_FUNCTION(AFUNC) \
+         static void __attribute__((constructor)) AFUNC_init_func () { AFUNC (); }
 #  endif /* __INTEL_COMPILER */
 
 /* IBM compiler versions are a bit messy. There are actually two products:
@@ -476,7 +477,8 @@
 #endif
 
 #ifndef Q_CONSTRUCTOR_FUNCTION
-#  define Q_CONSTRUCTOR_FUNCTION
+# define Q_CONSTRUCTOR_FUNCTION(AFUNC) \
+   static const int AFUNC_init_var = AFUNC();
 #endif
 
 /*

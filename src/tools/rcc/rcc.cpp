@@ -557,15 +557,13 @@ RCCResourceLibrary::writeInitializer(FILE *out)
             initName.prepend("_");
             initName.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
         }
-        fprintf(out, "bool Q_CONSTRUCTOR_FUNCTION qInitResources%s()\n{\n", initName.toLatin1().constData());
-        fprintf(out, "  extern bool qRegisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);\n");
-        fprintf(out, "  static bool guard = false;\n");
-        fprintf(out, "  if (!guard) \n");
-        fprintf(out, "    guard = qRegisterResourceData(0x01, qt_resource_struct, "
+        fprintf(out, "static int qInitResources%s()\n{\n", initName.toLatin1().constData());
+        fprintf(out, "    extern bool qRegisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);\n");
+        fprintf(out, "    qRegisterResourceData(0x01, qt_resource_struct, "
                      "qt_resource_name, qt_resource_data);\n");
-        fprintf(out, "  return guard;\n");                
-        fprintf(out, "}\nstatic const int %s_static_init = qInitResources%s();\n",
-                initName.toLatin1().constData(), initName.toLatin1().constData());
+        fprintf(out, "    return 1;\n");
+        fprintf(out, "}\nQ_CONSTRUCTOR_FUNCTION(qInitResources%s)\n",
+                initName.toLatin1().constData());
     } else if(mFormat == Binary) {
         const long old_pos = ftell(out);
         fseek(out, 4, SEEK_SET);
