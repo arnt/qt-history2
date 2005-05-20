@@ -1,9 +1,9 @@
 TEMPLATE      = subdirs
 SUBDIRS       = codecs \
                 i18n \
-                launcher \
                 plugandpaint \
                 plugandpaintplugins \
+                qtdemo \
                 regexp \
                 settingseditor
 

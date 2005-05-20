@@ -1,0 +1,152 @@
+<categories>
+  <category dirname="../demos" docname="demos" name="Demonstrations">
+    <example filename="deform" name="Vector Deformation" />
+    <example filename="gradients" name="Gradients" />
+    <example filename="pathstroke" name="Path Stroking" />
+    <example filename="affine" name="Affine Transformations" />
+    <example filename="books" name="Books" />
+    <example filename="mainwindow" name="Main Window" />
+    <example filename="spreadsheet" name="Spreadsheet" />
+    <example filename="sqlbrowser" name="SQL Browser" />
+    <example filename="textedit" name="Text Edit" />
+  </category>
+  <category dirname="designer" name="Qt Designer">
+    <example filename="calculatorbuilder" name="Calculator Builder" />
+    <example filename="calculatorform" name="Calculator Form" />
+    <example filename="customwidgetplugin" name="Custom Widget Plugin" />
+    <example filename="worldtimeclockplugin" name="World Time Clock Plugin" />
+  </category>
+  <category dirname="dialogs" name="Dialogs">
+    <example filename="complexwizard" name="Complex Wizard" />
+    <example filename="configdialog" name="Configuration Dialog" />
+    <example filename="extension" name="Extension Dialog" />
+    <example filename="findfiles" name="Find Files Dialog" />
+    <example filename="simplewizard" name="Simple Wizard" />
+    <example filename="standarddialogs" name="Standard Dialogs" />
+    <example filename="tabdialog" name="Tab Dialog" />
+  </category>
+  <category dirname="draganddrop" name="Drag and Drop">
+    <example filename="draggableicons" name="Draggable Icons" />
+    <example filename="draggabletext" name="Draggable Text" />
+    <example filename="fridgemagnets" name="Fridge Magnets" />
+    <example filename="puzzle" name="Puzzle" />
+  </category>
+  <category dirname="" name="Extensions">
+    <example dirname="activeqt" name="comapp" name="COM Application" />
+    <example dirname="activeqt" name="hierarchy" name="Hierarchy" />
+    <example dirname="activeqt" name="menus" name="Menus" />
+    <example dirname="activeqt" name="multiple" name="Multiple" />
+    <example dirname="activeqt" name="opengl" name="OpenGL" />
+    <example dirname="activeqt" name="qutlook" name="Qutlook" />
+    <example dirname="activeqt" name="simple" name="Simple" />
+    <example dirname="activeqt" name="webbrowser" name="Web Browser" />
+    <example dirname="activeqt" name="wrapper" name="Wrapper" />
+    <example dirname="motif" name="customwidget" name="Custom Widget" />
+    <example dirname="motif" name="dialog" name="Dialog" />
+  </category>
+  <category dirname="itemviews" name="Item Views">
+    <example filename="chart" name="Chart" />
+    <example filename="dirview" name="Directory View" />
+    <example filename="pixelator" name="Pixelator" />
+    <example filename="simpletreemodel" name="Simple Tree Model" />
+    <example filename="spinboxdelegate" name="Spin Box Delegate" />
+  </category>
+  <category dirname="layouts" name="Layouts">
+    <example filename="basiclayouts" name="Basic Layouts" />
+    <example filename="borderlayout" name="Border Layout" />
+    <example filename="flowlayout" name="Flow Layout" />
+  </category>
+  <category dirname="linguist" name="Qt Linguist">
+    <example filename="arrowpad" name="Arrow Pad" />
+    <example filename="hellotr" name="Hello World" />
+    <example filename="trollprint" name="Troll Print" />
+  </category>
+  <category dirname="mainwindows" name="Main Windows">
+    <example filename="application" name="Application" />
+    <example filename="mdi" name="Multiple Document Interface" />
+    <example filename="menus" name="Menus" />
+    <example filename="recentfiles" name="Recent Files" />
+    <example filename="sdi" name="Single Document Interface" />
+  </category>
+  <category dirname="network" name="Networking">
+    <example filename="blockingfortuneclient" name="Blocking Fortune Client" />
+    <example filename="broadcastreceiver" name="Broadcast Receiver" />
+    <example filename="broadcastsender" name="Broadcast Sender" />
+    <example filename="fortuneclient" name="Fortune Client" />
+    <example filename="fortuneserver" name="Fortune Server" />
+    <example filename="http" name="HTTP" />
+    <example filename="loopback" name="Loopback" />
+    <example filename="threadedfortuneserver" name="Threaded Fortune Server" />
+  </category>
+  <category dirname="opengl" name="OpenGL">
+    <example filename="grabber" name="Grabber" />
+    <example filename="hellogl" name="Hello GL" />
+    <example filename="textures" name="Textures" />
+  </category>
+  <category dirname="painting" name="Painting">
+    <example filename="basicdrawing" name="Basic Drawing" />
+    <example filename="concentriccircles" name="Concentric Circles" />
+    <example filename="painterpaths" name="Painter Paths" />
+    <example filename="transformations" name="Transformations" />
+  </category>
+  <category dirname="richtext" name="Rich Text">
+    <example filename="calendar" name="Calendar" />
+    <example filename="orderform" name="Order Form" />
+    <example filename="syntaxhighlighter" name="Syntax Highlighter" />
+  </category>
+  <category dirname="sql" name="SQL">
+    <example filename="cachedtable" name="Cached Table" />
+    <example filename="querymodel" name="Query Model" />
+    <example filename="relationaltablemodel" name="Relational Table Model" />
+    <example filename="tablemodel" name="Table Model" />
+  </category>
+  <category dirname="threads" name="Threading">
+    <example filename="mandelbrot" name="Mandelbrot" />
+  </category>
+  <category dirname="tools" name="Tools">
+    <example filename="i18n" name="Internationalization" />
+    <example filename="settingseditor" name="Settings Editor" />
+    <example filename="plugandpaint" name="Plug and Paint" />
+    <example filename="codecs" name="Codecs" />
+    <example filename="regexp" name="Regular Expressions" />
+  </category>
+  <category dirname="widgets" name="Widgets">
+    <example filename="analogclock" name="Analog Clock" />
+    <example filename="calculator" name="Calculator" />
+    <example filename="charactermap" name="Character Map" />
+    <example filename="digitalclock" name="Digital Clock" />
+    <example filename="groupbox" name="Group Box" />
+    <example filename="icons" name="Icons" />
+    <example filename="imageviewer" name="Image Viewer" />
+    <example filename="lineedits" name="Line Edits" />
+    <example filename="screenshot" name="Screenshot" />
+    <example filename="scribble" name="Scribble" />
+    <example filename="sliders" name="Sliders" />
+    <example filename="spinboxes" name="Spin Boxes" />
+    <example filename="styles" name="Styles" />
+    <example filename="tetrix" name="Tetrix" />
+    <example filename="tooltips" name="Tool Tips" />
+    <example filename="wiggly" name="Wiggly" />
+    <example filename="windowflags" name="Window Flags" />
+  </category>
+  <category dirname="xml" name="XML">
+    <example filename="saxbookmarks" name="SAX Bookmarks" />
+    <example filename="dombookmarks" name="DOM Bookmarks" />
+  </category>
+<!--  <category dirname="tutorial" name="Qt Tutorial">
+    <example filename="t1" name="Hello World!" />
+    <example filename="t2" name="Calling it Quits" />
+    <example filename="t3" name="Family Values" />
+    <example filename="t4" name="Let There Be Widgets" />
+    <example filename="t5" name="Building Blocks" />
+    <example filename="t6" name="Building Blocks Galore!" />
+    <example filename="t7" name="One Thing Leads to Another" />
+    <example filename="t8" name="Preparing for Battle" />
+    <example filename="t9" name="With Cannon You Can" />
+    <example filename="t10" name="Smooth as Silk" />
+    <example filename="t11" name="Giving It a Shot" />
+    <example filename="t12" name="Hanging in the Air the Way Bricks Don't" />
+    <example filename="t13" name="Game Over" />
+    <example filename="t14" name="Facing the Wall" />
+  </category> -->
+</categories>
