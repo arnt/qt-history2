@@ -1357,13 +1357,35 @@ void QRasterPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textIte
             fillData.callback(y, spans.size(), spans.data(), fillData.data);
         }
     }
-#else
+
+    return;
+
+#elif defined Q_WS_QWS
+    bool useFontEngine = true;
+    QMatrix matrix = d->matrix();
+    bool simple = matrix.m11() == 1 && matrix.m12() == 0 && matrix.m21() == 0 && matrix.m22() == 1;
+    if (!simple) {
+        useFontEngine = false;
+        QFontEngine *fe = ti.fontEngine;
+        QFontEngine::FECaps fecaps = fe->capabilites();
+        useFontEngine = (fecaps == QFontEngine::FullTransformations);
+        if (!useFontEngine
+            && matrix.m11() == matrix.m22()
+            && matrix.m12() == -matrix.m21())
+            useFontEngine = (fecaps & QFontEngine::RotScale) == QFontEngine::RotScale;
+    }
+    if (useFontEngine) {
+        ti.fontEngine->draw(this, qRound(p.x()), qRound(p.y()), ti);
+        return;
+    }
+#endif // Q_WS_WIN
+
+    // Fallthrough for embedded and default for mac.
     bool aa = d->antialiased;
     d->antialiased = true;
     QPaintEngine::drawTextItem(p, ti);
     d->antialiased = aa;
     return;
-#endif // Q_WS_WIN
 }
 #endif
 
