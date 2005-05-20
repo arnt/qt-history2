@@ -58,7 +58,7 @@
     \o qFatal() is used for writing fatal error messages shortly before exiting.
     \endlist
 
-    Each of these functions can also be used as an output stream; for example:
+    The \c qDebug() function can also be used as an output stream; for example:
 
     \code
         qDebug() << "Widget" << widget << "at position" << widget->pos();
