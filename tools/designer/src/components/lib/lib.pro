@@ -33,8 +33,18 @@ LIBS += -L$$QT_BUILD_TREE/tools/designer/lib \
     -lbuddyeditor \
     -ltaskmenu \
     -ltabordereditor \
-    -lresourceeditor \
+    -lresourceeditor
 
+DEPENDPATH +=  \
+    ../propertyeditor \
+    ../objectinspector \
+    ../signalsloteditor \
+    ../formeditor \
+    ../widgetbox \
+    ../buddyeditor \
+    ../taskmenu \
+    ../tabordereditor \
+    ../resourceeditor
 
 include(../../sharedcomponents.pri)
 include(../component.pri)
