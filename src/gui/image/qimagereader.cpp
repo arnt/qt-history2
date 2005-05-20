@@ -114,12 +114,14 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
     // check if we have plugins that support the image format
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
+    const qint64 pos = device->pos();
     for (int i = 0; i < keys.count(); ++i) {
         QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
         if (plugin->capabilities(device, form) & QImageIOPlugin::CanRead) {
             handler = plugin->create(device, form);
             break;
         }
+        device->seek(pos);
     }
 
     // check if we have built-in support for the format name
