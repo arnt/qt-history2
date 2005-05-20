@@ -246,6 +246,18 @@ static inline QAbstractSocket::SocketType qt_socket_getType(int socketDescriptor
     return QAbstractSocket::UnknownSocketType;
 }
 
+/*! \internal
+
+*/
+static inline qt_socket_getMaxMsgSize(int socketDescriptor)
+{
+    int value = 0;
+    QT_SOCKLEN_T valueSize = sizeof(value);
+    if (::getsockopt(socketDescriptor, SOL_SOCKET, SO_MAX_MSG_SIZE, (char *) &value, &valueSize) != 0) {
+        WS_ERROR_DEBUG
+    }
+    return value;
+}
 
 QWindowsSockInit::QWindowsSockInit()
 :   version(0)
@@ -790,11 +802,17 @@ qint64 QSocketLayerPrivate::nativeReceiveDatagram(char *data, qint64 maxLength,
     buf.len = maxLength;
     DWORD flags = 0;
     DWORD bytesRead = 0;
-    if (::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &flags, (struct sockaddr *) &aa, &sz,0,0) == SOCKET_ERROR
-        && WSAGetLastError() != WSAEMSGSIZE) { // it is ok the buffer was to small
-        WS_ERROR_DEBUG
-        setError(QAbstractSocket::NetworkError, ReceiveDatagramErrorString);
-        ret = -1;
+    int wsaRet = ::WSARecvFrom(socketDescriptor, &buf, 1, &bytesRead, &flags, (struct sockaddr *) &aa, &sz,0,0);
+    if (wsaRet == SOCKET_ERROR) {
+        if (WSAGetLastError() == WSAEMSGSIZE) {
+            // it is ok the buffer was to small if bytesRead is larger than
+            // maxLength (win 9x) then assume bytes read is really maxLenth
+            ret = qint64(bytesRead) > maxLength ? maxLength : qint64(bytesRead);
+        } else {
+            WS_ERROR_DEBUG
+            setError(QAbstractSocket::NetworkError, ReceiveDatagramErrorString);
+            ret = -1;
+        }
     } else {
         ret = qint64(bytesRead);
     }
@@ -823,26 +841,30 @@ qint64 QSocketLayerPrivate::nativeSendDatagram(const char *data, qint64 len,
 
     qt_socket_setPortAndAddress(socketDescriptor, &sockAddrIPv4, &sockAddrIPv6, port, address, &sockAddrPtr, &sockAddrSize);
 
-    WSABUF buf;
-    buf.buf = (char*)data;
-    buf.len = len;
-    DWORD flags = 0;
-    DWORD bytesSent = 0;
-    if (::WSASendTo(socketDescriptor, &buf, 1, &bytesSent, flags, sockAddrPtr, sockAddrSize, 0,0) ==  SOCKET_ERROR) {
-        WS_ERROR_DEBUG
-        switch (WSAGetLastError()) {
-        case WSAEMSGSIZE:
-            setError(QAbstractSocket::DatagramTooLargeError, DatagramTooLargeErrorString);
-            break;
-        default:
-            setError(QAbstractSocket::NetworkError, SendDatagramErrorString);
-            break;
-        }
-        ret = -1;
+    if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based && len > qint64(qt_socket_getMaxMsgSize(socketDescriptor))) {
+        // WSAEMSGSIZE is not reliable enough (win 9x) so we check max size our self.
+        setError(QAbstractSocket::DatagramTooLargeError, DatagramTooLargeErrorString);
     } else {
-        ret = qint64(bytesSent);
+        WSABUF buf;
+        buf.buf = (char*)data;
+        buf.len = len;
+        DWORD flags = 0;
+        DWORD bytesSent = 0;
+        if (::WSASendTo(socketDescriptor, &buf, 1, &bytesSent, flags, sockAddrPtr, sockAddrSize, 0,0) ==  SOCKET_ERROR) {
+            WS_ERROR_DEBUG
+            switch (WSAGetLastError()) {
+            case WSAEMSGSIZE:
+                setError(QAbstractSocket::DatagramTooLargeError, DatagramTooLargeErrorString);
+                break;
+            default:
+                setError(QAbstractSocket::NetworkError, SendDatagramErrorString);
+                break;
+            }
+            ret = -1;
+        } else {
+            ret = qint64(bytesSent);
+        }
     }
-
 #if defined (QSOCKETLAYER_DEBUG)
     qDebug("QSocketLayerPrivate::nativeSendDatagram(%p \"%s\", %li, \"%s\", %i) == %li", data,
            qt_prettyDebug(data, qMin<qint64>(len, 16), len).data(), 0, address.toString().toLatin1().constData(),
