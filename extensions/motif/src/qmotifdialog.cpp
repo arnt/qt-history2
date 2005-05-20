@@ -380,7 +380,7 @@ void QMotifDialog::hideEvent(QHideEvent *event)
     The data is passed in \a client_data. The \a widget and \a ptr
     parameters are ignored.
 */
-void QMotifDialog::acceptCallback( Widget /* widget */, XtPointer client_data, XtPointer /* ptr *)
+void QMotifDialog::acceptCallback( Widget /* widget */, XtPointer client_data, XtPointer /* ptr */)
 {
     QMotifDialog *dialog = (QMotifDialog *) client_data;
     dialog->accept();
