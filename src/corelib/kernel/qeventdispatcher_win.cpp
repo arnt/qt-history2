@@ -175,7 +175,13 @@ void WINAPI CALLBACK qt_fast_timer_proc(uint timerId, uint /*reserved*/, DWORD_P
     }
     if (!t->pendingEvent) {
         t->pendingEvent = true;
-        PostMessage(t->dispatcher->internalHwnd, WM_TIMER, WPARAM(t->ind), 0);
+
+        QT_WA({
+            PostMessageW(t->dispatcher->internalHwnd, WM_TIMER, WPARAM(t->ind), 0);
+        }, {
+            PostMessageA(t->dispatcher->internalHwnd, WM_TIMER, WPARAM(t->ind), 0);
+        });
+
     }
     LeaveCriticalSection(&t->dispatcher->fastTimerCriticalSection);
 }
@@ -563,13 +569,15 @@ void QEventDispatcherWin32::registerTimer(int timerId, int interval, QObject *ob
     int ok = 0;
 
     if (interval > 10 || !interval || !qtimeSetEvent) {
-        if (!interval) // optimization for single-shot-zero-timer
-            PostMessage(d->internalHwnd, WM_TIMER, WPARAM(t->ind), 0);
-        ok = SetTimer(d->internalHwnd, t->ind, (uint) interval, 0);
-
+        ok = 1;
+        if (!interval)  // optimization for single-shot-zero-timer
+            QT_WA_INLINE(PostMessageW(d->internalHwnd, WM_TIMER, WPARAM(t->ind), 0),            
+                         PostMessageA(d->internalHwnd, WM_TIMER, WPARAM(t->ind), 0));
+        
+        ok = SetTimer(d->internalHwnd, t->ind, (uint) interval, 0);        
     } else {
         t->dispatcher = d;
-        t->type = ::TimerInfo::Fast;
+        t->type = ::TimerInfo::Fast;        
         t->fastInd = qtimeSetEvent(interval, 1, qt_fast_timer_proc, (DWORD_PTR)t, TIME_CALLBACK_FUNCTION|TIME_PERIODIC);
         ok = t->fastInd;
         if (ok == 0) { // fall back to normal timer if no more multimedia timers avaiable
