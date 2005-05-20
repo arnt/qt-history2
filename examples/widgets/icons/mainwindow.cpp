@@ -208,7 +208,6 @@ void MainWindow::createImagesGroupBox()
     imagesTable = new QTableWidget;
     imagesTable->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Ignored);
     imagesTable->setSelectionMode(QAbstractItemView::NoSelection);
-    imagesTable->setEditTriggers(QAbstractItemView::AllEditTriggers);
     imagesTable->setColumnCount(3);
     imagesTable->setHorizontalHeaderLabels(labels);
     imagesTable->setItemDelegate(new ImageDelegate(this));
