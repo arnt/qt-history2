@@ -747,8 +747,7 @@ void QX11PaintEngine::drawLines(const QLine *lines, int lineCount)
     if (d->cpen.style() != Qt::NoPen) {
         for (int i = 0; i < lineCount; ++i)
             XDrawLine(d->dpy, d->hd, d->gc,
-                      qRound(lines[i].x1()), qRound(lines[i].y1()),
-                      qRound(lines[i].x2()), qRound(lines[i].y2()));
+                      lines[i].x1(), lines[i].y1(), lines[i].x2(), lines[i].y2());
     }
 }
 
