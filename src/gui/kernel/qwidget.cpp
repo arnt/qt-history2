@@ -6064,7 +6064,7 @@ void QWidget::updateGeometry()
 #ifndef QT_NO_LAYOUT
     if (!isWindow() && !isHidden() && parentWidget()) {
         if (parentWidget()->d_func()->layout)
-            parentWidget()->d_func()->layout->update();
+            parentWidget()->d_func()->layout->invalidate();
         else if (parentWidget()->isVisible())
             QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
     }

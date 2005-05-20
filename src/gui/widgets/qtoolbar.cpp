@@ -462,7 +462,6 @@ void QToolBar::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
         return;
     d->toolButtonStyle = toolButtonStyle;
     emit toolButtonStyleChanged(d->toolButtonStyle);
-    layout()->invalidate(); // ### See 72944
 }
 
 /*!
