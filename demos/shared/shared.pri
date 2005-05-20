@@ -12,3 +12,4 @@ contains(CONFIG, debug_and_release_target) {
 }
 
 LIBS += -ldemo_shared
+RESOURCES += $$SHARED_FOLDER/shared.qrc
