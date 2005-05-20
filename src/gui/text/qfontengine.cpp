@@ -38,8 +38,7 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
 
     QTextItemInt item;
     item.flags = flags;
-    item.descent = descent();
-    item.ascent = ascent();
+    item.ascent = metrics.y;
     item.width = metrics.width;
     item.chars = 0;
     item.num_chars = 0;
@@ -48,11 +47,11 @@ void QFontEngine::addBitmapFontToPath(qreal x, qreal y, const QGlyphLayout *glyp
     item.fontEngine = this;
     item.f = 0;
 
-    p.drawTextItem(QPointF(0, ascent()), item);
+    p.drawTextItem(QPointF(0, -metrics.y), item);
     p.end();
 
     QRegion region(bm);
-    region.translate(qRound(x), qRound(y - ascent()));
+    region.translate(qRound(x), qRound(y + metrics.y));
     path->addRegion(region);
 }
 
@@ -323,7 +322,7 @@ void QFontEngineMulti::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *gl
 {
     if (numGlyphs <= 0)
         return;
-
+    
     QGlyphLayout *glyphs = const_cast<QGlyphLayout *>(glyphs_const);
     int which = highByte(glyphs[0].glyph);
     int start = 0;
