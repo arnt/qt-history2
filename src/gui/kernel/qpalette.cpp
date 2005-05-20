@@ -774,7 +774,7 @@ bool QColorGroup::operator==(const QColorGroup &other) const
 */
 QColorGroup::operator QVariant() const
 {
-    extern bool qRegisterGuiVariant();
+    extern int qRegisterGuiVariant();
     static const bool b = qRegisterGuiVariant();
     Q_UNUSED(b)
     return QVariant(QVariant::ColorGroup, this);
