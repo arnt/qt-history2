@@ -512,7 +512,7 @@ int Environment::execute(QStringList arguments, const QStringList &additionalEnv
         startInfo.cb = sizeof(startInfo);
 
         couldExecute = CreateProcessW(0, (WCHAR*)args.utf16(),
-                                      0, 0, false, CREATE_UNICODE_ENVIRONMENT,
+                                      0, 0, true, CREATE_UNICODE_ENVIRONMENT,
                                       envlist.isEmpty() ? 0 : envlist.data(),
                                       0, &startInfo, &procInfo);
     }, {
@@ -522,7 +522,7 @@ int Environment::execute(QStringList arguments, const QStringList &additionalEnv
         startInfo.cb = sizeof(startInfo);
         
         couldExecute = CreateProcessA(0, args.toLocal8Bit().data(),
-                                      0, 0, false, 0,
+                                      0, 0, true, 0,
                                       envlist.isEmpty() ? 0 : envlist.data(),
                                       0, &startInfo, &procInfo);
     })
