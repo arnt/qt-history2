@@ -88,7 +88,7 @@
 // function. We add the needed parts here, and use the extended
 // function dynamically, if available in uxtheme.dll. Else, we revert
 // back to using the DrawThemeBackground function.
-#ifndef _DTBGOPTS
+#ifndef DTBG_OMITBORDER
 #  ifndef DTBG_CLIPRECT
 #   define DTBG_CLIPRECT        0x00000001
 #  endif
@@ -112,8 +112,7 @@
 	DWORD dwSize;
 	DWORD dwFlags;
 	RECT rcClip;
-    }
-    DTBGOPTS, *PDTBGOPTS;
+    } DTBGOPTS, *PDTBGOPTS;
 #endif // _DTBGOPTS
 
 // These defines are missing from the tmschema, but still exist as
