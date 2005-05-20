@@ -1400,7 +1400,7 @@ void QWorkspace::resizeEvent(QResizeEvent *)
 void QWorkspace::showEvent(QShowEvent *e)
 {
     Q_D(QWorkspace);
-    if (d->maxWindow && !style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
+    if (d->maxWindow)
         d->showMaximizeControls();
     QWidget::showEvent(e);
     if (d->becomeActive) {
@@ -1425,7 +1425,7 @@ void QWorkspace::showEvent(QShowEvent *e)
 void QWorkspace::hideEvent(QHideEvent *)
 {
     Q_D(QWorkspace);
-    if (!isVisible() && !style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
+    if (!isVisible())
         d->hideMaximizeControls();
 }
 
@@ -1444,8 +1444,6 @@ void QWorkspace::paintEvent(QPaintEvent *)
 
 void QWorkspacePrivate::minimizeWindow(QWidget* w)
 {
-    Q_Q(QWorkspace);
-
     QWorkspaceChild* c = findChild(w);
 
     if (!w || !(w->windowFlags() & Qt::WindowMinimizeButtonHint))
@@ -1456,8 +1454,7 @@ void QWorkspacePrivate::minimizeWindow(QWidget* w)
         if (c == maxWindow) {
             wasMax = true;
             maxWindow = 0;
-            if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
-                hideMaximizeControls();
+            hideMaximizeControls();
             for (QList<QWorkspaceChild *>::Iterator it(windows.begin()); it != windows.end(); ++it) {
                 QWorkspaceChild* c = *it;
                 if (c->titlebar)
@@ -1490,10 +1487,8 @@ void QWorkspacePrivate::normalizeWindow(QWidget* w)
         return;
     if (c) {
         w->overrideWindowState(Qt::WindowNoState);
-        if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)
-            && maxWindow) {
-            hideMaximizeControls();
-        } else {
+        hideMaximizeControls();
+        if (q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q) || !maxWindow) {
             if (w->minimumSize() != w->maximumSize())
                 c->widgetResizeHandler->setActive(true);
             if (c->titlebar)
@@ -1511,8 +1506,7 @@ void QWorkspacePrivate::normalizeWindow(QWidget* w)
             c->show();
         }
 
-        if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q))
-            hideMaximizeControls();
+        hideMaximizeControls();
         for (QList<QWorkspaceChild *>::Iterator it(windows.begin()); it != windows.end(); ++it) {
             QWorkspaceChild* c = *it;
             if (c->titlebar)
@@ -1554,9 +1548,8 @@ void QWorkspacePrivate::maximizeWindow(QWidget* w)
     }
 
     activateWindow(w);
-    if(!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
-        showMaximizeControls();
-    } else {
+    showMaximizeControls();
+    if(q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
         if (!active && becomeActive) {
             active = (QWorkspaceChild*)becomeActive->parentWidget();
             active->setActive(true);
@@ -1739,100 +1732,102 @@ void QWorkspacePrivate::showMaximizeControls()
     }
     q->window()->setWindowModified(maxWindow->windowWidget()->isWindowModified());
 
-    QMenuBar* b = 0;
+    if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
+        QMenuBar* b = 0;
 
-    // Do a breadth-first search first on every parent,
-    QWidget* w = q->parentWidget();
-    QList<QMenuBar*> l;
-    while (l.isEmpty() && w) {
-        l = qFindChildren<QMenuBar*>(w);
-        w = w->parentWidget();
-    }
-
-    // and query recursively if nothing is found.
-    if (!l.size())
-        l = qFindChildren<QMenuBar*>(q->window());
-    if (l.size())
-        b = l.at(0);
-
-    if (!b)
-        return;
-
-    if (!maxcontrols) {
-        maxmenubar = b;
-        maxcontrols = new QFrame(q->window());
-        maxcontrols->setObjectName("qt_maxcontrols");
-        QHBoxLayout* l = new QHBoxLayout(maxcontrols);
-        l->setMargin(maxcontrols->frameWidth());
-        l->setSpacing(0);
-        if (maxWindow->windowWidget() &&
-            (maxWindow->windowWidget()->windowFlags() & Qt::WindowMinimizeButtonHint)) {
-            QToolButton* iconB = new QToolButton(maxcontrols);
-            iconB->setObjectName("iconify");
-            iconB->setToolTip(q->tr("Minimize"));
-            l->addWidget(iconB);
-            iconB->setFocusPolicy(Qt::NoFocus);
-            QPixmap pm = q->style()->standardPixmap(QStyle::SP_TitleBarMinButton);
-            iconB->setIcon(pm);
-            iconB->setIconSize(pm.size());
-            QObject::connect(iconB, SIGNAL(clicked()),
-                             q, SLOT(minimizeActiveWindow()));
+        // Do a breadth-first search first on every parent,
+        QWidget* w = q->parentWidget();
+        QList<QMenuBar*> l;
+        while (l.isEmpty() && w) {
+            l = qFindChildren<QMenuBar*>(w);
+            w = w->parentWidget();
         }
 
-        QToolButton* restoreB = new QToolButton(maxcontrols);
-        restoreB->setObjectName("restore");
-        restoreB->setToolTip(q->tr("Restore Down"));
-        l->addWidget(restoreB);
-        restoreB->setFocusPolicy(Qt::NoFocus);
-        QPixmap pm = q->style()->standardPixmap(QStyle::SP_TitleBarNormalButton);
-        restoreB->setIcon(pm);
-        restoreB->setIconSize(pm.size());
-        QObject::connect(restoreB, SIGNAL(clicked()),
-                         q, SLOT(normalizeActiveWindow()));
+        // and query recursively if nothing is found.
+        if (!l.size())
+            l = qFindChildren<QMenuBar*>(q->window());
+        if (l.size())
+            b = l.at(0);
 
-        l->addSpacing(2);
-        QToolButton* closeB = new QToolButton(maxcontrols);
-        closeB->setObjectName("close");
-        closeB->setToolTip(q->tr("Close"));
-        l->addWidget(closeB);
-        closeB->setFocusPolicy(Qt::NoFocus);
-        pm = q->style()->standardPixmap(QStyle::SP_TitleBarCloseButton);
-        closeB->setIcon(pm);
-        closeB->setIconSize(pm.size());
-        QObject::connect(closeB, SIGNAL(clicked()),
-                         q, SLOT(closeActiveWindow()));
+        if (!b)
+            return;
 
-        maxcontrols->setFixedSize(maxcontrols->minimumSizeHint());
-    }
-
-    b->setCornerWidget(maxcontrols);
-    maxcontrols->show();
-    if (!active && becomeActive) {
-        active = (QWorkspaceChild*)becomeActive->parentWidget();
-        active->setActive(true);
-        becomeActive = 0;
-        emit q->windowActivated(active->windowWidget());
-    }
-    if (active) {
-        if (!maxtools) {
-            maxtools = new QLabel(q->window());
-            maxtools->setObjectName("qt_maxtools");
-            maxtools->installEventFilter(q);
-        }
-        if (active->windowWidget() && !active->windowWidget()->windowIcon().isNull()) {
-            QIcon icon = active->windowWidget()->windowIcon();
-            int iconSize = maxcontrols->size().height();
-            maxtools->setPixmap(icon.pixmap(QSize(iconSize, iconSize)));
-        } else {
-            QPixmap pm = q->style()->standardPixmap(QStyle::SP_TitleBarMenuButton);
-            if (pm.isNull()) {
-                pm = QPixmap(14,14);
-                pm.fill(Qt::black);
+        if (!maxcontrols) {
+            maxmenubar = b;
+            maxcontrols = new QFrame(q->window());
+            maxcontrols->setObjectName("qt_maxcontrols");
+            QHBoxLayout* l = new QHBoxLayout(maxcontrols);
+            l->setMargin(maxcontrols->frameWidth());
+            l->setSpacing(0);
+            if (maxWindow->windowWidget() &&
+                (maxWindow->windowWidget()->windowFlags() & Qt::WindowMinimizeButtonHint)) {
+                QToolButton* iconB = new QToolButton(maxcontrols);
+                iconB->setObjectName("iconify");
+                iconB->setToolTip(q->tr("Minimize"));
+                l->addWidget(iconB);
+                iconB->setFocusPolicy(Qt::NoFocus);
+                QPixmap pm = q->style()->standardPixmap(QStyle::SP_TitleBarMinButton);
+                iconB->setIcon(pm);
+                iconB->setIconSize(pm.size());
+                QObject::connect(iconB, SIGNAL(clicked()),
+                                 q, SLOT(minimizeActiveWindow()));
             }
-            maxtools->setPixmap(pm);
+
+            QToolButton* restoreB = new QToolButton(maxcontrols);
+            restoreB->setObjectName("restore");
+            restoreB->setToolTip(q->tr("Restore Down"));
+            l->addWidget(restoreB);
+            restoreB->setFocusPolicy(Qt::NoFocus);
+            QPixmap pm = q->style()->standardPixmap(QStyle::SP_TitleBarNormalButton);
+            restoreB->setIcon(pm);
+            restoreB->setIconSize(pm.size());
+            QObject::connect(restoreB, SIGNAL(clicked()),
+                             q, SLOT(normalizeActiveWindow()));
+
+            l->addSpacing(2);
+            QToolButton* closeB = new QToolButton(maxcontrols);
+            closeB->setObjectName("close");
+            closeB->setToolTip(q->tr("Close"));
+            l->addWidget(closeB);
+            closeB->setFocusPolicy(Qt::NoFocus);
+            pm = q->style()->standardPixmap(QStyle::SP_TitleBarCloseButton);
+            closeB->setIcon(pm);
+            closeB->setIconSize(pm.size());
+            QObject::connect(closeB, SIGNAL(clicked()),
+                             q, SLOT(closeActiveWindow()));
+
+            maxcontrols->setFixedSize(maxcontrols->minimumSizeHint());
         }
-        b->setCornerWidget(maxtools, Qt::TopLeftCorner);
-        maxtools->show();
+
+        b->setCornerWidget(maxcontrols);
+        maxcontrols->show();
+        if (!active && becomeActive) {
+            active = (QWorkspaceChild*)becomeActive->parentWidget();
+            active->setActive(true);
+            becomeActive = 0;
+            emit q->windowActivated(active->windowWidget());
+        }
+        if (active) {
+            if (!maxtools) {
+                maxtools = new QLabel(q->window());
+                maxtools->setObjectName("qt_maxtools");
+                maxtools->installEventFilter(q);
+            }
+            if (active->windowWidget() && !active->windowWidget()->windowIcon().isNull()) {
+                QIcon icon = active->windowWidget()->windowIcon();
+                int iconSize = maxcontrols->size().height();
+                maxtools->setPixmap(icon.pixmap(QSize(iconSize, iconSize)));
+            } else {
+                QPixmap pm = q->style()->standardPixmap(QStyle::SP_TitleBarMenuButton);
+                if (pm.isNull()) {
+                    pm = QPixmap(14,14);
+                    pm.fill(Qt::black);
+                }
+                maxtools->setPixmap(pm);
+            }
+            b->setCornerWidget(maxtools, Qt::TopLeftCorner);
+            maxtools->show();
+        }
     }
 }
 
@@ -1840,15 +1835,18 @@ void QWorkspacePrivate::showMaximizeControls()
 void QWorkspacePrivate::hideMaximizeControls()
 {
     Q_Q(QWorkspace);
-    if (maxmenubar) {
-        maxmenubar->setCornerWidget(0, Qt::TopLeftCorner);
-        maxmenubar->setCornerWidget(0, Qt::TopRightCorner);
+    if (!q->style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, q)) {
+        if (maxmenubar) {
+            maxmenubar->setCornerWidget(0, Qt::TopLeftCorner);
+            maxmenubar->setCornerWidget(0, Qt::TopRightCorner);
+        }
+        delete maxcontrols;
+        maxcontrols = 0;
+        delete maxtools;
+        maxtools = 0;
     }
-    delete maxcontrols;
-    maxcontrols = 0;
-    delete maxtools;
-    maxtools = 0;
 
+    //unmerge the titlebar/modification state
     if (topTitle.size()) {
         inTitleChange = true;
         q->window()->setWindowTitle(topTitle);
@@ -3147,10 +3145,10 @@ void QWorkspace::changeEvent(QEvent *ev)
     Q_D(QWorkspace);
     if(ev->type() == QEvent::StyleChange) {
         if (isVisible() && d->maxWindow) {
-            if(style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this))
-                d->hideMaximizeControls();
-            else
-                d->showMaximizeControls();
+            if(style()->styleHint(QStyle::SH_Workspace_FillSpaceOnMaximize, 0, this)) {
+                d->hideMaximizeControls(); //hide any visible maximized controls
+                d->showMaximizeControls(); //updates the modification state as well
+            }
         }
     }
     QWidget::changeEvent(ev);
