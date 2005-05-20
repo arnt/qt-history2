@@ -128,9 +128,6 @@ QPixmap &QPixmap::operator=(const QImage &image)
 #endif
 QPixmap::operator QVariant() const
 {
-    extern bool qRegisterGuiVariant();
-    static const bool b = qRegisterGuiVariant();
-    Q_UNUSED(b)
     return QVariant(QVariant::Pixmap, this);
 }
 

@@ -447,9 +447,6 @@ QIcon &QIcon::operator=(const QIcon &other)
 */
 QIcon::operator QVariant() const
 {
-    extern bool qRegisterGuiVariant();
-    static const bool b = qRegisterGuiVariant();
-    Q_UNUSED(b)
     return QVariant(QVariant::Icon, this);
 }
 

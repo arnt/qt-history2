@@ -669,21 +669,10 @@ const QVariant::Handler qt_gui_variant_handler = {
 #endif
 };
 
-
-
-/*! \internal
- */
-static const QVariant::Handler *qRegisterGuiVariantHandler(const QVariant::Handler *&handler)
+int qRegisterGuiVariant()
 {
-    handler = &qt_gui_variant_handler;
-    return handler;
-}
-
-bool qRegisterGuiVariant()
-{
-    static const QVariant::Handler *h = qRegisterGuiVariantHandler(QVariant::handler);
-    Q_UNUSED(h);
-    return true;
+    QVariant::handler = &qt_gui_variant_handler;
+    return 1;
 }
 
 Q_CONSTRUCTOR_FUNCTION(qRegisterGuiVariant)

@@ -444,9 +444,6 @@ QCursor &QCursor::operator=(const QCursor &c)
 */
 QCursor::operator QVariant() const
 {
-    extern bool qRegisterGuiVariant();
-    static const bool b = qRegisterGuiVariant();
-    Q_UNUSED(b)
     return QVariant(QVariant::Cursor, this);
 }
 

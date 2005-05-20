@@ -703,7 +703,7 @@ void QApplicationPrivate::initialize()
         (void) QApplication::style();  // trigger creation of application style
 #ifndef QT_NO_VARIANT
     // trigger registering of QVariant's GUI types
-    extern bool qRegisterGuiVariant();
+    extern int qRegisterGuiVariant();
     qRegisterGuiVariant();
 #endif
 

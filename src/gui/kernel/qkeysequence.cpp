@@ -617,9 +617,6 @@ QKeySequence::operator QString() const
 */
 QKeySequence::operator QVariant() const
 {
-    extern bool qRegisterGuiVariant();
-    static const bool b = qRegisterGuiVariant();
-    Q_UNUSED(b)
     return QVariant(QVariant::KeySequence, this);
 }
 

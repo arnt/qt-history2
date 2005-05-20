@@ -784,9 +784,6 @@ int QImage::devType() const
 */
 QImage::operator QVariant() const
 {
-    extern bool qRegisterGuiVariant();
-    static const bool b = qRegisterGuiVariant();
-    Q_UNUSED(b)
     return QVariant(QVariant::Image, this);
 }
 

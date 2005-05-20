@@ -1646,9 +1646,6 @@ bool QColor::operator!=(const QColor &color) const
 */
 QColor::operator QVariant() const
 {
-    extern bool qRegisterGuiVariant();
-    static const bool b = qRegisterGuiVariant();
-    Q_UNUSED(b)
     return QVariant(QVariant::Color, this);
 }
 

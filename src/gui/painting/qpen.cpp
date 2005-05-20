@@ -215,9 +215,6 @@ QPen &QPen::operator=(const QPen &p)
 */
 QPen::operator QVariant() const
 {
-    extern bool qRegisterGuiVariant();
-    static const bool b = qRegisterGuiVariant();
-    Q_UNUSED(b)
     return QVariant(QVariant::Pen, this);
 }
 

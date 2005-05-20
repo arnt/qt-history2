@@ -1216,9 +1216,6 @@ bool QFont::operator!=(const QFont &f) const
 */
 QFont::operator QVariant() const
 {
-    extern bool qRegisterGuiVariant();
-    static const bool b = qRegisterGuiVariant();
-    Q_UNUSED(b)
     return QVariant(QVariant::Font, this);
 }
 

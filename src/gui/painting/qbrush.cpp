@@ -343,9 +343,6 @@ QBrush &QBrush::operator=(const QBrush &b)
 */
 QBrush::operator QVariant() const
 {
-    extern bool qRegisterGuiVariant();
-    static const bool b = qRegisterGuiVariant();
-    Q_UNUSED(b)
     return QVariant(QVariant::Brush, this);
 }
 
