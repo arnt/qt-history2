@@ -141,7 +141,8 @@ void MainWindow::changeIcon()
 void MainWindow::addImage()
 {
     QStringList fileNames = QFileDialog::getOpenFileNames(this,
-                                                          tr("Open Images"));
+                                                          tr("Open Images"), QString(),
+                                                          tr("Images (*.png *.xpm *.jpg);; All Files (*)"));
     if (!fileNames.isEmpty()) {
         foreach (QString fileName, fileNames) {
             int row = imagesTable->rowCount();
