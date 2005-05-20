@@ -15,17 +15,14 @@
 #include "qdesigner_objectinspector.h"
 #include "qdesigner_workbench.h"
 
-#include <objectinspector/objectinspector.h>
-
-#include <QtDesigner/abstractformeditor.h>
-
-using namespace qdesigner_internal;
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerComponents>
 
 QDesignerObjectInspector::QDesignerObjectInspector(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
     setObjectName(QLatin1String("ObjectInspector"));
-    ObjectInspector *widget = new ObjectInspector(workbench->core(), this);
+    QDesignerObjectInspectorInterface *widget = QDesignerComponents::createObjectInspector(workbench->core(), this);
     workbench->core()->setObjectInspector(widget);
 
     setCentralWidget(widget);

@@ -16,10 +16,8 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_settings.h"
 
-#include <signalsloteditor/signalsloteditorwindow.h>
-
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerComponents>
 
 #include <QtCore/qdebug.h>
 
@@ -27,11 +25,8 @@
 QDesignerSignalSlotEditor::QDesignerSignalSlotEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
-    using namespace qdesigner_internal;
-
     setObjectName(QLatin1String("SignalSlotEditorWindow"));
-    SignalSlotEditorWindow *widget
-        = new SignalSlotEditorWindow(workbench->core(), this);
+    QWidget *widget = QDesignerComponents::createSignalSlotEditor(workbench->core(), this);
 
     setCentralWidget(widget);
 

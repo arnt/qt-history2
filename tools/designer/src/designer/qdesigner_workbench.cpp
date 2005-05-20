@@ -23,14 +23,8 @@
 #include "qdesigner_signalsloteditor.h"
 #include "qdesigner_resourceeditor.h"
 
-// components
-#include <formeditor/formeditor.h>
-#include <taskmenu/taskmenu_component.h>
-
-#include <QtDesigner/abstractformwindow.h>
-#include <QtDesigner/abstractformeditorplugin.h>
-#include <QtDesigner/abstractformwindowmanager.h>
-#include <QtDesigner/abstractwidgetbox.h>
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerComponents>
 #include <qdesigner_integration_p.h>
 
 #include <QtGui/QDockWidget>
@@ -48,9 +42,6 @@
 #include <QtCore/QVariant>
 #include <QtCore/QPluginLoader>
 #include <QtCore/qdebug.h>
-
-using namespace qdesigner_internal;
-using namespace qdesigner_internal;
 
 QDesignerWorkbench::QDesignerWorkbench()
     : m_mode(QDesignerWorkbench::NeutralMode), m_workspace(0)
@@ -119,7 +110,7 @@ void QDesignerWorkbench::addFormWindow(QDesignerFormWindow *formWindow)
 void QDesignerWorkbench::initialize()
 {
     QDesignerSettings settings;
-    m_core = new FormEditor(this);
+    m_core = QDesignerComponents::createFormEditor(this);
 
     initializeCorePlugins();
 
@@ -211,7 +202,7 @@ void QDesignerWorkbench::initialize()
 
     m_integration = new QDesignerIntegration(core(), this);
 
-    (void) new TaskMenuComponent(core(), this);
+    (void) QDesignerComponents::createTaskMenu(core(), this);
 
     // create the toolbars
     m_editToolBar = new QToolBar;

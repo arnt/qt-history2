@@ -9,30 +9,14 @@ INCLUDEPATH += \
     ../lib/extension \
     ../lib/shared \
     ../lib/uilib \
-    ../components \
-    extra \
-    ../components/formeditor \
-    ../components/objectinspector \
-    ../components/widgetbox \
-    ../components/propertyeditor \
-    ../components/taskmenu \
-    ../components/resourceeditor
+    extra
 
 LIBS += -L../../lib \
     -L../../../../lib \
-    -lformeditor \
-    -lobjectinspector \
-    -lpropertyeditor \
-    -lwidgetbox \
-    -lsignalsloteditor \
-    -lbuddyeditor \
-    -ltabordereditor \
-    -ltaskmenu \
-    -lresourceeditor \
-    -lQtDesigner
+    -lQtDesigner \
+    -lQtDesignerComponents
 
 RESOURCES += designer.qrc
-
 
 TARGET = designer
 
@@ -72,7 +56,6 @@ SOURCES += main.cpp \
     qdesigner_propertyeditor.cpp \
     qdesigner_objectinspector.cpp \
     qdesigner_actions.cpp \
-    qdesigner_plugins.cpp \
     qdesigner_resourceeditor.cpp \
     saveformastemplate.cpp \
     newform.cpp \

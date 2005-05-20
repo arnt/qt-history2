@@ -16,20 +16,16 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_settings.h"
 
-#include <widgetbox/widgetbox.h>
-
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerComponents>
 
 #include <QtCore/qdebug.h>
-
-using namespace qdesigner_internal;
 
 QDesignerWidgetBox::QDesignerWidgetBox(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
     setObjectName(QLatin1String("WidgetBox"));
-    WidgetBox *widget = new WidgetBox(workbench->core(), this);
+    QDesignerWidgetBoxInterface *widget = QDesignerComponents::createWidgetBox(workbench->core(), this);
     widget->setFileName(QLatin1String(":/trolltech/widgetbox/widgetbox.xml"));
     widget->load();
     widget->setFileName(QDesignerSettings().defaultUserWidgetBoxXml());

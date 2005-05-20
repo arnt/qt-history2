@@ -16,10 +16,8 @@
 #include "qdesigner_resourceeditor.h"
 #include "qdesigner_settings.h"
 
-#include <resourceeditor/resourceeditor.h>
-
-#include <QtDesigner/abstractformeditor.h>
-#include <QtDesigner/abstractformwindowmanager.h>
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerComponents>
 
 #include <QtCore/qdebug.h>
 
@@ -27,11 +25,8 @@
 QDesignerResourceEditor::QDesignerResourceEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
-    using namespace qdesigner_internal;
-
     setObjectName(QLatin1String("ResourceEditor"));
-    ResourceEditor *widget
-        = new ResourceEditor(workbench->core(), this);
+    QWidget *widget = QDesignerComponents::createResourceEditor(workbench->core(), this);
 
     setCentralWidget(widget);
 

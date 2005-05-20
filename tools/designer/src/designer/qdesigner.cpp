@@ -19,6 +19,8 @@
 #include <QtCore/QTranslator>
 #include <QtCore/qdebug.h>
 
+#include <QtDesigner/QDesignerComponents>
+
 // designer
 #include "qdesigner.h"
 #include "qdesigner_actions.h"
@@ -27,9 +29,6 @@
 #include "qdesigner_workbench.h"
 #include "qdesigner_toolwindow.h"
 
-extern bool qInitResources_formeditor();
-extern bool qInitResources_widgetbox();
-
 QDesigner::QDesigner(int &argc, char **argv)
     : QApplication(argc, argv),
       m_server(0),
@@ -37,10 +36,10 @@ QDesigner::QDesigner(int &argc, char **argv)
 {
     setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
-    setWindowIcon(QIcon(QString::fromUtf8(":/trolltech/designer/images/designer.png")));
 
-    qInitResources_formeditor();
-    qInitResources_widgetbox();
+    QDesignerComponents::initializeResources();
+
+    setWindowIcon(QIcon(QString::fromUtf8(":/trolltech/designer/images/designer.png")));
 
     initialize();
 }

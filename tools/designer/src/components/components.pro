@@ -9,6 +9,8 @@ SUBDIRS = propertyeditor \
     buddyeditor \
     taskmenu \
     tabordereditor \
-    resourceeditor
+    resourceeditor \
+    lib
+
 
 

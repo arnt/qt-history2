@@ -16,17 +16,15 @@
 #include "qdesigner_workbench.h"
 
 #include <QtGui/QAction>
-#include <propertyeditor/propertyeditor.h>
 
-#include <QtDesigner/abstractformeditor.h>
-
-using namespace qdesigner_internal;
+#include <QtDesigner/QtDesigner>
+#include <QtDesigner/QDesignerComponents>
 
 QDesignerPropertyEditor::QDesignerPropertyEditor(QDesignerWorkbench *workbench)
     : QDesignerToolWindow(workbench)
 {
     setObjectName(QLatin1String("PropertyEditor"));
-    PropertyEditor *widget = new PropertyEditor(workbench->core(), this);
+    QDesignerPropertyEditorInterface *widget = QDesignerComponents::createPropertyEditor(workbench->core(), this);
     workbench->core()->setPropertyEditor(widget);
 
     setCentralWidget(widget);
