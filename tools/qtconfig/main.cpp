@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include "ui_previewwidgetbase.h"
 #include "mainwindow.h"
 #include <qapplication.h>
 
