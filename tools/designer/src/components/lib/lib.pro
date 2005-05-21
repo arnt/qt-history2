@@ -21,11 +21,11 @@ SOURCES += qdesigner_components.cpp \
 
 DEFINES += QDESIGNER_COMPONENTS_LIBRARY
 
-INCLUDEPATH += . \
+INCLUDEPATH += . .. \
     $$QT_SOURCE_TREE/tools/designer/src/lib/sdk \
     $$QT_SOURCE_TREE/tools/designer/src/lib/extension \
     $$QT_SOURCE_TREE/tools/designer/src/lib/uilib \
-    $$QT_SOURCE_TREE/tools/designer/src/lib/shared \
+    $$QT_SOURCE_TREE/tools/designer/src/lib/shared
 
 include(../propertyeditor/propertyeditor.pri)
 include(../objectinspector/objectinspector.pri)
