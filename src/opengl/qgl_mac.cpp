@@ -39,6 +39,7 @@
 #include <qapplication.h>
 #include <qstack.h>
 #include <qdesktopwidget.h>
+#include <qdebug.h>
 
 /*****************************************************************************
   QOpenGL debug facilities
@@ -279,31 +280,40 @@ void QGLContext::makeCurrent()
 
 static QRegion qt_mac_get_widget_rgn(const QWidget *widget)
 {
+    if(!widget->isVisible() || widget->isMinimized())
+        return QRegion();
+    const QRect wrect = QRect(qt_mac_posInWindow(widget), widget->size());
+    if(!wrect.isValid())
+        return QRegion();
+
     RgnHandle macr = qt_mac_get_rgn();
     GetControlRegion((HIViewRef)widget->winId(), kControlStructureMetaPart, macr);
-    QPoint wpos = qt_mac_posInWindow(widget);
-    OffsetRgn(macr, wpos.x(), wpos.y());
+    OffsetRgn(macr, wrect.x(), wrect.y());
     QRegion ret = qt_mac_convert_mac_region(macr);
-    QStack<const QWidget *> widgets;
-    widgets.push(widget);
-    for(const QWidget *last = 0; (widget = widgets.pop()); last = widget) {
-        const QObjectList &children = widget->children();
+
+    QPoint clip_pos = wrect.topLeft();
+    for(const QWidget *last_clip = 0, *clip = widget; clip; last_clip = clip, clip = clip->parentWidget()) {
+        if(clip != widget) {
+            GetControlRegion((HIViewRef)clip->winId(), kControlStructureMetaPart, macr);
+            OffsetRgn(macr, clip_pos.x(), clip_pos.y());
+            ret &= qt_mac_convert_mac_region(macr);
+        }
+        const QObjectList &children = clip->children();
         for(int i = children.size()-1; i >= 0; i--) {
-            QWidget *child = qobject_cast<QWidget*>(children.at(i));
-            if(child) {
-                if(child == last)
+            if(QWidget *child = qobject_cast<QWidget*>(children.at(i))) {
+                if(child == last_clip)
                     break;
-                if(child->isVisible() && !child->isTopLevel()) {
-                    GetControlRegion((HIViewRef)child->winId(), kControlStructureMetaPart, macr);
-                    wpos = qt_mac_posInWindow(child);
-                    OffsetRgn(macr, wpos.x(), wpos.y());
-                    ret -= qt_mac_convert_mac_region(macr);
+                if(child->isVisible() && !child->isMinimized() && !child->isTopLevel()) {
+                    const QRect childRect = QRect(clip_pos+child->pos(), child->size());
+                    if(childRect.isValid() && wrect.intersects(childRect)) {
+                        GetControlRegion((HIViewRef)child->winId(), kControlStructureMetaPart, macr);
+                        OffsetRgn(macr, childRect.x(), childRect.y());
+                        ret -= qt_mac_convert_mac_region(macr);
+                    }
                 }
             }
         }
-        if(!widget->parentWidget())
-            break;
-        widgets.push(widget->parentWidget());
+        clip_pos -= widget->pos();
     }
     qt_mac_dispose_rgn(macr);
     return ret;
@@ -558,10 +568,10 @@ void QGLWidget::resizeEvent(QResizeEvent *)
     Q_D(QGLWidget);
     if(!isValid())
         return;
+    d->updatePaintDevice();
     makeCurrent();
     if(!d->glcx->initialized())
         glInit();
-    aglUpdateContext((AGLContext)d->glcx->d_func()->cx);
     resizeGL(width(), height());
 
     if(d->olcx) {
@@ -630,7 +640,7 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
     glcx = olcx = 0;
     autoSwap = true;
 
-    q->setAttribute(Qt::WA_NoBackground);
+    q->setAttribute(Qt::WA_NoSystemBackground);
     q->setContext(context, shareWidget ? shareWidget->context() : 0);
 
     if(q->isValid() && glcx->format().hasOverlay()) {
@@ -641,6 +651,8 @@ void QGLWidgetPrivate::init(QGLContext *context, const QGLWidget* shareWidget)
             glcx->d_func()->glFormat.setOverlay(false);
         }
     }
+
+    updatePaintDevice();
 }
 
 bool QGLWidgetPrivate::renderCxPm(QPixmap*)
@@ -663,9 +675,11 @@ void QGLWidget::setColormap(const QGLColormap &)
 
 void QGLWidgetPrivate::updatePaintDevice()
 {
+    Q_Q(QGLWidget);
     glcx->updatePaintDevice();
     if(olcx)
         olcx->updatePaintDevice();
+    q->update();
 }
 
 void QGLExtensions::init()

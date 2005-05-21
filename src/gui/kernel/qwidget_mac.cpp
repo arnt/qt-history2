@@ -117,7 +117,7 @@ static QSize qt_initial_size(QWidget *w) {
 QPoint qt_mac_posInWindow(const QWidget *w)
 {
     QPoint ret = w->data->wrect.topLeft();
-    while (w && !w->isWindow()) {
+    while(w && !w->isWindow()) {
         ret += w->pos();
         w =  w->parentWidget();
     }
@@ -1199,7 +1199,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         }
     }
 
-    //get new hd, now move
+    //get new hd, now size
     q->setGeometry(pt.x(), pt.y(), s.width(), s.height());
 
     //reset flags and show (if neccesary)
@@ -1225,6 +1225,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         if(window)
             ReleaseWindow(window);
     }
+    qt_event_request_window_change();
 }
 
 QPoint QWidget::mapToGlobal(const QPoint &pos) const
@@ -1494,8 +1495,8 @@ void QWidgetPrivate::show_sys()
         qt_event_request_activate(q);
     } else if(!q->parentWidget() || q->parentWidget()->isVisible()) {
         HIViewSetVisible((HIViewRef)q->winId(), true);
-        qt_event_request_window_change();
     }
+    qt_event_request_window_change();
 }
 
 void QWidgetPrivate::hide_sys()
@@ -1534,8 +1535,8 @@ void QWidgetPrivate::hide_sys()
         }
     } else {
         HIViewSetVisible((HIViewRef)q->winId(), false);
-        qt_event_request_window_change();
     }
+    qt_event_request_window_change();
     deactivateWidgetCleanup();
     qt_mac_event_release(q);
 }
@@ -1894,17 +1895,9 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
         //update the widget also..
         HIRect bounds = CGRectMake(0, 0, w, h);
         HIViewSetFrame((HIViewRef)q->winId(), &bounds);
-        qt_event_request_window_change();
 
         Rect r; SetRect(&r, x, y, x+w, y+h);
-#if 0
-        HIViewSetDrawingEnabled((HIViewRef)q->winId(), false);
         SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
-        HIViewSetDrawingEnabled((HIViewRef)q->winId(), true);
-        q->update();
-#else
-        SetWindowBounds(qt_mac_window_for(q), kWindowContentRgn, &r);
-#endif
     } else {
         setWSGeometry();
     }
@@ -1926,6 +1919,7 @@ void QWidgetPrivate::setGeometry_sys(int x, int y, int w, int h, bool isMove)
             }
         }
     }
+    qt_event_request_window_change();
 }
 
 void QWidgetPrivate::setConstraints_sys()

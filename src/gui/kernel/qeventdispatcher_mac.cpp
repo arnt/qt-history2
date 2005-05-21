@@ -459,6 +459,9 @@ void QEventDispatcherMac::wakeUp()
 
 void QEventDispatcherMac::flush()
 {
+    extern void qt_event_send_window_change(); //qapplication_mac.cpp
+    qt_event_send_window_change();
+
 //    sendPostedEvents();
     if(qApp) {
         QWidgetList tlws = QApplication::topLevelWidgets();
@@ -481,7 +484,7 @@ class QMacBlockingFunction::Object : public QObject
 {
     QAtomic ref;
 public:
-    Object() { startTimer(100); }
+    Object() { startTimer(10); }
 
     void addRef() { ref.ref(); }
     bool subRef() { return (ref.deref()); }
