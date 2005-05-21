@@ -421,10 +421,10 @@ int QKeySequence::decodeString(const QString &str)
     }
 
     QList<ModifKeyName> modifs = *gmodifs;
-    modifs << ModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append('+'))
-           << ModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append('+'))
-           << ModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append('+'))
-           << ModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append('+'));
+    modifs << ModifKeyName(Qt::CTRL, QShortcut::tr("Ctrl").toLower().append(QLatin1Char('+')))
+           << ModifKeyName(Qt::SHIFT, QShortcut::tr("Shift").toLower().append(QLatin1Char('+')))
+           << ModifKeyName(Qt::ALT, QShortcut::tr("Alt").toLower().append(QLatin1Char('+')))
+           << ModifKeyName(Qt::ALT, QShortcut::tr("Meta").toLower().append(QLatin1Char('+')));
 
 
 
