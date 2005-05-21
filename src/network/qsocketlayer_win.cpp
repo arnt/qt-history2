@@ -249,7 +249,7 @@ static inline QAbstractSocket::SocketType qt_socket_getType(int socketDescriptor
 /*! \internal
 
 */
-static inline qt_socket_getMaxMsgSize(int socketDescriptor)
+static inline int qt_socket_getMaxMsgSize(int socketDescriptor)
 {
     int value = 0;
     QT_SOCKLEN_T valueSize = sizeof(value);
