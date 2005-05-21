@@ -2497,11 +2497,12 @@ QImage QGLWidget::grabFrameBuffer(bool withAlpha)
                     p++;
                 }
             } else {
-                while (p < end)
-                    *p++ >>= 8;
+                while (p < end) {
+                    *p = 0xFF000000 | (*p>>8);
+                    ++p;
+                }
             }
-        }
-        else {
+        } else {
             // OpenGL gives ABGR (i.e. RGBA backwards); Qt wants ARGB
             res = res.rgbSwapped();
         }
