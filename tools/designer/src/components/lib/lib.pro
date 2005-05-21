@@ -21,20 +21,23 @@ SOURCES += qdesigner_components.cpp \
 
 DEFINES += QDESIGNER_COMPONENTS_LIBRARY
 
-INCLUDEPATH += . ..
+INCLUDEPATH += . \
+    $$QT_SOURCE_TREE/tools/designer/src/lib/sdk \
+    $$QT_SOURCE_TREE/tools/designer/src/lib/extension \
+    $$QT_SOURCE_TREE/tools/designer/src/lib/uilib \
+    $$QT_SOURCE_TREE/tools/designer/src/lib/shared \
 
-LIBS += -L$$QT_BUILD_TREE/tools/designer/lib \
-    -lQtDesigner \
-    -lpropertyeditor \
-    -lobjectinspector \
-    -lsignalsloteditor \
-    -lformeditor \
-    -lwidgetbox \
-    -lbuddyeditor \
-    -ltaskmenu \
-    -ltabordereditor \
-    -lresourceeditor
+include(../propertyeditor/propertyeditor.pri)
+include(../objectinspector/objectinspector.pri)
+include(../signalsloteditor/signalsloteditor.pri)
+include(../formeditor/formeditor.pri)
+include(../widgetbox/widgetbox.pri)
+include(../buddyeditor/buddyeditor.pri)
+include(../taskmenu/taskmenu.pri)
+include(../tabordereditor/tabordereditor.pri)
+include(../resourceeditor/resourceeditor.pri)
 
+LIBS += -lQtDesigner
 
 include(../../sharedcomponents.pri)
 include(../component.pri)
