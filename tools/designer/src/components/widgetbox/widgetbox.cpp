@@ -194,6 +194,7 @@ private slots:
 private:
     QDesignerFormEditorInterface *m_core;
     QString m_file_name;
+    mutable QHash<QString, QIcon> m_pluginIcons;
 
     CategoryList domToCateogryList(const QDomDocument &doc) const;
     Category domToCategory(const QDomElement &cat_elt) const;
@@ -465,7 +466,9 @@ QDomDocument WidgetBoxTreeView::categoryListToDom(const CategoryList &cat_list) 
             DomWidget *dom_wgt = xmlToUi(widgetDomXml(wgt));
             QDomElement wgt_elt = dom_wgt->write(doc);
             wgt_elt.setAttribute(QLatin1String("name"), wgt.name());
-            wgt_elt.setAttribute(QLatin1String("icon"), wgt.iconName());
+	    QString iconName = wgt.iconName();
+	    if (!iconName.startsWith("__qt_icon__"))
+	      wgt_elt.setAttribute(QLatin1String("icon"), wgt.iconName());
             wgt_elt.setAttribute(QLatin1String("type"), QLatin1String("default"));
             cat_elt.appendChild(wgt_elt);
         }
@@ -513,6 +516,7 @@ WidgetBoxTreeView::Category WidgetBoxTreeView::domToCategory(const QDomElement &
         Widget::Type type = type_attr == QLatin1String("custom")
                                 ? Widget::Custom
                                 : Widget::Default;
+
         Widget w(widget_elt.attribute(QLatin1String("name")),
                     domToString(widget_elt),
                     widget_elt.attribute(QLatin1String("icon")),
@@ -559,11 +563,14 @@ WidgetBoxTreeView::CategoryList WidgetBoxTreeView::loadCustomCategoryList() cons
         Category &cat = result[idx];
 
         QIcon icon = c->icon();
+
         QString icon_name;
         if (icon.isNull())
-            icon_name = QLatin1String("qtlogo.png");
-        else
-            icon_name = m_core->iconCache()->iconToFilePath(icon);
+	    icon_name = QLatin1String("qtlogo.png");
+	else {
+	    icon_name = QLatin1String("__qt_icon__") + c->name();
+	    m_pluginIcons.insert(icon_name, icon);
+	}
 
         cat.addWidget(Widget(c->name(), dom_xml, icon_name, Widget::Custom));
     }
@@ -584,7 +591,13 @@ QTreeWidgetItem *WidgetBoxTreeView::widgetToItem(const Widget &wgt,
 
     bool block = blockSignals(true);
     item->setText(0, wgt.name());
-    item->setIcon(0, createIconSet(icon_name));
+
+    QIcon icon;
+    if (icon_name.startsWith("__qt_icon__"))
+      icon = m_pluginIcons.value(icon_name);
+    if (icon.isNull())
+      icon = createIconSet(icon_name);
+    item->setIcon(0, icon);
     item->setData(0, Qt::UserRole, qVariantFromValue(wgt));
     blockSignals(block);
 
