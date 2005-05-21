@@ -41,7 +41,8 @@ LayoutInfo::Type LayoutInfo::layoutType(QDesignerFormEditorInterface *core, QWid
     }
     layout = lay;
 
-    Q_ASSERT(lay == 0 || core->metaDataBase()->item(lay) != 0);
+    if (lay == 0 || core->metaDataBase()->item(lay) != 0)
+        return NoLayout;
 
     return layoutType(core, lay);
 }
