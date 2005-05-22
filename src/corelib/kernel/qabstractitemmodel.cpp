@@ -21,39 +21,6 @@
 #include <private/qabstractitemmodel_p.h>
 #include <qbitarray.h>
 
-// Used to deserialize mimeData that contains positions.
-struct AbstractModelItemWithPosition {
-    int m_x;
-    int m_y;
-    QMap<int, QVariant> m_itemdata;
-    AbstractModelItemWithPosition()
-    {
-        m_x = -1;
-        m_y = -1;
-    }
-
-    AbstractModelItemWithPosition(int x, int y, const QMap<int, QVariant> &itemdata)
-    {
-        m_x = x;
-        m_y = y;
-        m_itemdata = itemdata;
-    }
-
-    bool operator < (const AbstractModelItemWithPosition &other)
-    {
-        return *this < other;
-    }
-
-};
-
-bool operator < (const AbstractModelItemWithPosition &item, const AbstractModelItemWithPosition &other)
-{
-    // Sort all items primary on ascending y-position, secondary on ascending x-position
-    if (item.m_y < other.m_y) return true;
-    return item.m_y == other.m_y && item.m_x < other.m_x;
-}
-
-
 QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &index)
 {
     Q_ASSERT(index.isValid()); // we will _never_ insert an invalid index in the list
@@ -1151,11 +1118,12 @@ bool QAbstractItemModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
     QString format = mimeTypes().at(0);
     if (!data->hasFormat(format))
         return false;
-
-    if (row > rowCount(parent)) row = rowCount(parent);
-    if (row == -1) row = rowCount(parent);
-    if (column == -1) column = 0;
-
+    if (row > rowCount(parent))
+        row = rowCount(parent);
+    if (row == -1)
+        row = rowCount(parent);
+    if (column == -1)
+        column = 0;
     // decode and insert
     QByteArray encoded = data->data(format);
     QDataStream stream(&encoded, QIODevice::ReadOnly);
@@ -1498,93 +1466,81 @@ void QAbstractItemModel::encodeData(const QModelIndexList &indexes, QDataStream 
 {
     QModelIndexList::ConstIterator it = indexes.begin();
     for (; it != indexes.end(); ++it) {
-        stream << (*it).column();
         stream << (*it).row();
-
-        QMap<int, QVariant> data = itemData(*it);
-        stream << data;
+        stream << (*it).column();
+//        QMap<int, QVariant> data = ;
+        stream << itemData(*it);
     }
 }
 
 /*!
   \internal
- * This function deserializes the stream and puts it into a vector, sorts the vector (ascending y and x) and iterates over the vector of items to be inserted.
- * All insertions are inserted to the right and below, of column and row position. (This is why we need to find x_min.)
- * x_max is used to find the size of our column.
- * It always inserts new rows to avoid overwriting existing items.
- * It will insert a new row for the following conditions:
- *      1. The items y-coordinate differs from the previous one.
- *      2. The column is already written to, (thus we insert a new row and insert the item on the next row)
- *          This is because we can potentially get items with the same x,y coordinates (we might have a set that come from different tables)
- * If there is not enough room to insert the item, (x >= columnCount) it will insert it at the initial \a column position. (leftmost)
  */
 bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &parent,
                                     QDataStream &stream)
 {
-    QVariant value;
-    QModelIndex idx;
-
-    // stream the data into a QVector, (we need to sort the data)
-    QVector< AbstractModelItemWithPosition > items;
+    uint top = 0xFFFFFFFF;
+    uint left = 0xFFFFFFFF;
+    uint bottom = 0;
+    uint right = 0;
+    QVector<QMap<int, QVariant> > data;
+    QVector<int> rows;
+    QVector<int> columns;
+    // get data, positions and dimensions of the dragged data (the positions are from the source table)
     while (!stream.atEnd()) {
-        int x;
-        int y;
-        stream >> x;
-        stream >> y;
-        QMap<int, QVariant> data;
+        int r, c;
+        QMap<int, QVariant> d;
 
-        stream >> data;
-        items.append(AbstractModelItemWithPosition(x,y, data) );
+        stream >> r;
+        stream >> c;
+        stream >> d;
+        
+        rows.append(r);
+        columns.append(c);
+        data.append(d);
+    
+        top = qMin<uint>(r, top);
+        left = qMin<uint>(c, left);
+        bottom = qMax<uint>(r, bottom);
+        right = qMax<uint>(c, right);
     }
 
-    // find x_min and x_max
-    int x_min = items.at(0).m_x;
-    int x_max = items.at(0).m_x;
-    int i;
-    for (i = 1; i < items.size(); i++) {
-        int x = items.at(i).m_x;
-        x_min = qMin(x,x_min);
-        x_max = qMax(x,x_max);
+    // insert the dragged items into the table, use a bit array to avoid overwriting items,
+    // since items from different tables can have the same row and column
+    int dragRowCount = bottom - top + 1;
+    int dragColumnCount = right - left + 1;
+    QBitArray isWrittenTo(dragRowCount * dragColumnCount);
+
+    // make space in the table for the dropped data
+    int colCount = columnCount(parent);
+    if (colCount == 0) {
+        insertColumns(colCount, dragColumnCount - colCount, parent);
+        colCount = columnCount(parent);
     }
+    insertRows(row, dragRowCount, parent);
 
-    qSort(items.begin(), items.end());
+    row = qMax(0, row);
+    column = qMax(0, column);
 
-    // Now we can find y_min
-    int y_min = items.at(0).m_y;
-
-    // Only insert columns if parent have zero columns to ensure that data is actually inserted. (Important for "On" drops)
-    if (columnCount(parent) == 0) {
-        insertColumns( 0, x_max - x_min + column + 1, parent);
-    }
-
-    QBitArray isWrittenTo(columnCount(parent));  // used to keep track of if we have already written to a specific column
-    int y_prev = -1;    //used to track if we have moved to a new y coordinate (then we should insert a new row)
-
-    int ii;
-    for (ii = 0; ii < items.size(); ii++)
-    {
-        AbstractModelItemWithPosition item = items.at(ii);
-        int x = item.m_x - x_min + column;
-        int y = item.m_y - y_min;
-
-        if (x >= columnCount(parent)) {
-            // We dont resize the column, but insert it at the column.
-            // (So that it is kind of left-aligned in the group of items we insert)
-            x = column;
+    // set the data in the table
+    for (int j = 0; j < data.size(); ++j) {
+        int relativeRow = rows.at(j) - top;
+        int relativeColumn = columns.at(j) - left;
+        int destinationRow = relativeRow + row;
+        int destinationColumn = relativeColumn + column;
+        int flat = (relativeRow * dragColumnCount) + relativeColumn;
+        // if the item was already written to, or we just can't fit it in the table, create a new row
+        if (destinationColumn >= colCount || isWrittenTo.testBit(flat)) {
+            destinationColumn = qBound(column, destinationColumn, colCount - 1);
+            destinationRow = row + dragRowCount;
+            insertRows(row + dragRowCount, 1, parent);
+            flat = (dragRowCount * dragColumnCount) + relativeColumn;
+            isWrittenTo.resize(++dragRowCount * dragColumnCount);
         }
-
-        if (y != y_prev || isWrittenTo.testBit(x)) {
-            insertRows(row, 1, parent);
-            isWrittenTo.fill(false);    //We go to a new row, clear all bits 
-            y_prev = y;
-            row++;
-        }
-        if (isWrittenTo.testBit(x) == false) {
-            // insert data into the row
-            idx = index(row - 1, x, parent);
-            setItemData(idx, item.m_itemdata);
-
-            isWrittenTo.setBit(x);
+        if (!isWrittenTo.testBit(flat)) {
+            QModelIndex idx = index(destinationRow, destinationColumn, parent);
+            setItemData(idx, data.at(j));
+            isWrittenTo.setBit(flat);
         }
     }
 
