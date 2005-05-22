@@ -32,7 +32,9 @@
     \skipto HEADERS
     \printuntil customwidgetplugin.cpp
 
-    The custom widget is created as a library.
+    The custom widget is created as a library. Later, we will ensure that it
+    will be recognized as a plugin by \QD by using the \c Q_EXPORT_PLUGIN macro
+    to export the relevant widget information.
 
     \section1 AnalogClock Class Definition and Implementation
 
@@ -180,4 +182,7 @@
 
     \skipto Q_EXPORT_PLUGIN
     \printuntil Q_EXPORT_PLUGIN
+
+    This macro ensures that \QD can access and construct the custom widget.
+    Without this macro, there is no way for \QD to use the widget.
 */
