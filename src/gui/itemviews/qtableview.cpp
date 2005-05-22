@@ -1171,7 +1171,8 @@ void QTableView::showColumn(int column)
 }
 
 /*!
-    \internal
+    Resizes the given \a row based on the size hints of the delegates
+    used to render each item in the row.
 */
 void QTableView::resizeRowToContents(int row)
 {
@@ -1183,7 +1184,8 @@ void QTableView::resizeRowToContents(int row)
 }
 
 /*!
-    \internal
+    Resizes the given \a column based on the size hints of the delegates
+    used to render each item in the column.
 */
 void QTableView::resizeColumnToContents(int column)
 {
