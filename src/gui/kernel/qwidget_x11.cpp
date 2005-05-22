@@ -2397,6 +2397,17 @@ void QWidget::setMask(const QRegion& region)
     See \c examples/tux for an example of masking for transparency.
     \endomit
 
+    The following code shows how an image with an alpha channel can be
+    used to generate a mask for a widget:
+
+    \quotefromfile snippets/widget-mask/main.cpp
+    \skipto QLabel
+    \printuntil setMask
+
+    The label shown by this code is masked using the image it contains,
+    giving the appearance that an irregularly-shaped image is being drawn
+    directly onto the screen.
+
     \sa clearMask()
 */
 
