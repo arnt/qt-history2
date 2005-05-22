@@ -1479,8 +1479,8 @@ void QAbstractItemModel::encodeData(const QModelIndexList &indexes, QDataStream 
 bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &parent,
                                     QDataStream &stream)
 {
-    uint top = 0xFFFFFFFF;
-    uint left = 0xFFFFFFFF;
+    uint top = -1;
+    uint left = -1;
     uint bottom = 0;
     uint right = 0;
     QVector<QMap<int, QVariant> > data;
