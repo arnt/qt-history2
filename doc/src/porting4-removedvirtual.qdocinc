@@ -25,9 +25,9 @@
 \row \o void QButton::setDown(bool) \o Setter.
 \row \o void QButton::setPixmap(const QPixmap &) \o Setter.
 \row \o void QButton::setState(ToggleState) \o Setter.
-\row \o void QButton::setText(const QString &) \o Setter.
+\row \o void QButton::setText(const QString &) \o Use the QAbstractButton::setText() setter function.
 \row \o void QButton::setToggleType(ToggleType) \o Setter.
-\row \o void QButtonGroup::moveFocus(int) \o Setter.
+\row \o void QButtonGroup::moveFocus(int) \o Use the QWidget::setFocus() setter function.
 \row \o void QButtonGroup::setButton(int) \o Setter.
 \row \o void QButtonGroup::setExclusive(bool) \o Setter.
 \row \o void QButtonGroup::setRadioButtonExclusive(bool) \o Setter.
