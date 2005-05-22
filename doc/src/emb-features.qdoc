@@ -26,7 +26,7 @@
     platforms, where reducing the size of Qt is
     important and the application set is often fixed.
 
-    \bold{Note: Qt/Embedded 4.0 Beta 1 does not support the \c -qconfig option.}
+    \bold{Note: Qt/Embedded 4.0 does not support the \c -qconfig option.}
 
     \omit ### the set of features will change
     The \c qconfig.h definition file simply defines macros to disable
@@ -80,13 +80,13 @@
          \i
     \row \i \c QT_NO_UNICODETABLES
          \i Large tables defining such things as upper and lowercase conversions
-	    for all Unicode characters.
+     for all Unicode characters.
          \i
 
     \header \i31 MIME
     \row \i \c QT_NO_MIME
          \i Multipurpose Internet Mail Extensions, an Internet standard for encoding
-	    and tagging typed data (eg. text, images, colors) (\l QMimeSource)
+     and tagging typed data (eg. text, images, colors) (\l QMimeSource)
          \i
     \row \i \c QT_NO_RICHTEXT
          \i HTML-like text (\l QStyleSheet, \l QLabel)
@@ -111,15 +111,15 @@
     \header \i31 Qt/Embedded-specific
     \row \i \c QT_NO_QWS_CURSOR
          \i The cursor sprite on Qt/Embedded. Pen-operated devices would not
-	    normally need this feature.
+     normally need this feature.
          \i
     \row \i \c QT_NO_QWS_DEPTH_8GRAYSCALE
          \i11 8 bits per pixel: 256 levels of gray.
-	    Incompatible with \c QWS_DEPTH_8.
+     Incompatible with \c QWS_DEPTH_8.
          \i
     \row \i \c QT_NO_QWS_DEPTH_8
          \i11 8 bits per pixel: 216-color cube with 40 auxiliary colors.
-	    Incompatible with \c QWS_DEPTH_8GRAYSCALE.
+     Incompatible with \c QWS_DEPTH_8GRAYSCALE.
          \i
     \row \i \c QT_NO_QWS_DEPTH_15
          \i11 15 bits per pixel: 32 levels for each of red, green and blue.
@@ -140,7 +140,7 @@
     \header \i31 Networking
     \row \i \c QT_NO_NETWORKPROTOCOL
          \i Abstract multi-protocol data retrieval,
-	    with local file retrieval included (\l QNetworkProtocol)
+     with local file retrieval included (\l QNetworkProtocol)
          \i
     \row \i \c QT_NO_NETWORKPROTOCOL_FTP
          \i FTP-protocol data retrieval.
@@ -152,12 +152,12 @@
     \header \i31 Painting/drawing
     \row \i \c QT_NO_COLORNAMES
          \i Color names such as "red", used by some \l QColor constructors
-	    and by some HTML documents (\l QColor, \l QStyleSheet)
+     and by some HTML documents (\l QColor, \l QStyleSheet)
          \i
     \row \i \c QT_NO_TRANSFORMATIONS
          \i Used by a number of classes in Qt. With this, rotation and
-	    scaling are possible. Without it you can only do coordinate
-	    translation (\l QWMatrix)
+     scaling are possible. Without it you can only do coordinate
+     translation (\l QWMatrix)
          \i
     \row \i \c QT_NO_PSPRINTER
          \i PostScript printer support.
