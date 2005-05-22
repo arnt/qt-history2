@@ -71,4 +71,5 @@ SUBDIRS         = brush \
                   timers \
                   updating-selections \
 #                  whatsthis \
+                  widget-mask \
                   xml
