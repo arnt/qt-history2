@@ -44,20 +44,20 @@
     by default in the standard plugin directory.
 
     \table
-    \header \o Base Class              \o Default Path                \o Case Sensitive Keys?
-    \row    \o QAccessibleBridgePlugin \o \c plugins/accessiblebridge \o Yes
-    \row    \o QAccessiblePlugin       \o \c plugins/accessible       \o Yes
-    \row    \o QDecorationPlugin       \o \c plugins/decorations      \o Yes
-    \row    \o QGfxDriverPlugin        \o \c plugins/gfxdrivers       \o Yes
-    \row    \o QIconEnginePlugin       \o \c plugins/iconengines      \o No
-    \row    \o QImageIOPlugin          \o \c plugins/imageformats     \o Yes
-    \row    \o QInputContextPlugin     \o \c plugins/inputmethods     \o Yes
-    \row    \o QKbdDriverPlugin        \o \c plugins/kbddrivers       \o Yes
-    \row    \o QMouseDriverPlugin      \o \c plugins/mousedrivers     \o Yes
-    \row    \o QPictureFormatPlugin    \o \c plugins/pictureformats   \o Yes
-    \row    \o QSqlDriverPlugin        \o \c plugins/sqldrivers       \o Yes
-    \row    \o QStylePlugin            \o \c plugins/styles           \o No
-    \row    \o QTextCodecPlugin        \o \c plugins/codecs           \o Yes
+    \header \o Base Class              \o Default Path                \o Key Case Sensitivity
+    \row    \o QAccessibleBridgePlugin \o \c plugins/accessiblebridge \o Case Sensitive
+    \row    \o QAccessiblePlugin       \o \c plugins/accessible       \o Case Sensitive
+    \row    \o QDecorationPlugin       \o \c plugins/decorations      \o Case Sensitive
+    \row    \o QGfxDriverPlugin        \o \c plugins/gfxdrivers       \o Case Sensitive
+    \row    \o QIconEnginePlugin       \o \c plugins/iconengines      \o Case Insensitive
+    \row    \o QImageIOPlugin          \o \c plugins/imageformats     \o Case Sensitive
+    \row    \o QInputContextPlugin     \o \c plugins/inputmethods     \o Case Sensitive
+    \row    \o QKbdDriverPlugin        \o \c plugins/kbddrivers       \o Case Sensitive
+    \row    \o QMouseDriverPlugin      \o \c plugins/mousedrivers     \o Case Sensitive
+    \row    \o QPictureFormatPlugin    \o \c plugins/pictureformats   \o Case Sensitive
+    \row    \o QSqlDriverPlugin        \o \c plugins/sqldrivers       \o Case Sensitive
+    \row    \o QStylePlugin            \o \c plugins/styles           \o Case Insensitive
+    \row    \o QTextCodecPlugin        \o \c plugins/codecs           \o Case Sensitive
     \endtable
 
     But where is the \c{plugins} directory? When the application is
@@ -156,7 +156,7 @@
     \list 1
     \o Define a set of interfaces (classes with only pure virtual
        functions) used to talk to the plugins.
-    \o Use the \c Q_DECLARE_INTERFACE() macro to tell Qt's
+    \o Use the Q_DECLARE_INTERFACE() macro to tell Qt's
        \l{meta-object system} about the interface.
     \o Use QPluginLoader in the application to load the plugins.
     \o Use qobject_cast() to test whether a plugin implements a given
@@ -168,9 +168,9 @@
     \list 1
     \o Declare a plugin class that inherits from QObject and from the
        interfaces that the plugin wants to provide.
-    \o Use the \c Q_INTERFACES() macro to tell Qt's \l{meta-object
+    \o Use the Q_INTERFACES() macro to tell Qt's \l{meta-object
        system} about the interfaces.
-    \o Export the plugin using the \c Q_EXPORT_PLUGIN() macro.
+    \o Export the plugin using the Q_EXPORT_PLUGIN() macro.
     \o Build the plugin using an adequate \c .pro file.
     \endlist
 

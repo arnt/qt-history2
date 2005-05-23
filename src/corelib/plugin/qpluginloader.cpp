@@ -68,6 +68,51 @@
 */
 
 /*!
+    \macro Q_DECLARE_INTERFACE(ClassName, Identifier)
+    \relates QPluginLoader
+
+    This macro associates the given \a Identifier (a string literal)
+    to the interface class called \a ClassName.
+
+    Example:
+
+    \quotefromfile tools/plugandpaint/interfaces.h
+    \skipto Q_DECLARE_INTERFACE
+    \printuntil )
+
+    This macro is normally used right after the class definition for
+    \a ClassName, in a header file. See the
+    \l{tools/plugandpaint}{Plug & Paint} example for details.
+
+    \sa Q_INTERFACE(), Q_EXPORT_PLUGIN(), {How to Create Qt Plugins}
+*/
+
+/*!
+    \macro Q_EXPORT_PLUGIN(ClassName)
+    \relates QPluginLoader
+
+    This macro exports the plugin class \a ClassName. There should be
+    exactly one occurrence of this macro in a Qt plugin's source code
+    (in an implementation file).
+
+    Example:
+
+    \code
+        Q_EXPORT_PLUGIN(ExtraFiltersPlugin)
+    \endcode
+
+    See the \l{tools/plugandpaint}{Plug & Paint} example for details.
+
+    \sa Q_DECLARE_INTERFACE(), {How to Create Qt Plugins}
+*/
+
+/*!
+    \macro Q_EXPORT_STATIC_PLUGIN(ClassName)
+    \relates QPluginLoader
+    \internal
+*/
+
+/*!
     Constructs a plugin loader with the given \a parent.
 */
 QPluginLoader::QPluginLoader(QObject *parent)

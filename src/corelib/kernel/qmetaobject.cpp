@@ -870,9 +870,9 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
 
     \c QGenericArgument and \c QGenericReturnArgument are internal
     helper classes. Because signals and slots can be dynamically
-    invoked, you must enclose the arguments using the \c Q_ARG() and
-    \c Q_RETURN_ARG() macros. \c Q_ARG() takes a type name and a
-    const reference of that type; \c Q_RETURN_ARG() takes a type name
+    invoked, you must enclose the arguments using the Q_ARG() and
+    Q_RETURN_ARG() macros. Q_ARG() takes a type name and a
+    const reference of that type; Q_RETURN_ARG() takes a type name
     and a non-const reference.
 
     To asynchronously invoke the
@@ -898,6 +898,8 @@ QByteArray QMetaObject::normalizedSignature(const char *method)
 
     If the "compute" slot does not take exactly one QString, one int
     and one double in the specified order, the call will fail.
+
+    \sa Q_ARG(), Q_RETURN_ARG()
 */
 bool QMetaObject::invokeMethod(QObject *obj, const char *member, Qt::ConnectionType type,
                  QGenericReturnArgument ret,
@@ -1862,7 +1864,7 @@ bool QMetaProperty::isEditable(const QObject *object) const
     \ingroup objectmodel
 
     Class information items are simple \e{name}--\e{value} pairs that
-    are specified using \c Q_CLASSINFO() in the source code. The
+    are specified using Q_CLASSINFO() in the source code. The
     information can be retrieved using name() and value(). For example:
 
     \code
@@ -1912,3 +1914,25 @@ const char* QMetaClassInfo::value() const
         return 0;
     return mobj->d.stringdata + mobj->d.data[handle + 1];
 }
+
+/*!
+    \macro QGenericArgument Q_ARG(Type, const Type &value)
+    \relates QMetaObject
+
+    This macro takes a \a Type and a \a value of that type and
+    returns a \c QGenericArgument object that can be passed to
+    QMetaObject::invokeMethod().
+
+    \sa Q_RETURN_ARG()
+*/
+
+/*!
+    \macro QGenericReturnArgument Q_RETURN_ARG(Type, Type &value)
+    \relates QMetaObject
+
+    This macro takes a \a Type and a non-const reference to a \a
+    value of that type and returns a \c QGenericReturnArgument object
+    that can be passed to QMetaObject::invokeMethod().
+
+    \sa Q_ARG()
+*/

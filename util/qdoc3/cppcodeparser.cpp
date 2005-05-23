@@ -268,8 +268,7 @@ Node *CppCodeParser::processTopicCommand( const Doc& doc,
 	QStringList parentPath;
 	FunctionNode *func = 0;
 
-	if ( !makeFunctionNode(arg, &parentPath, &func, tre->root()) &&
-	     !makeFunctionNode("void " + arg, &parentPath, &func, tre->root()) ) {
+	if ( !makeFunctionNode(arg, &parentPath, &func, tre->root())) {
 	    doc.location().warning( tr("Invalid syntax in '\\%1'")
 				    .arg(COMMAND_MACRO) );
         } else if (!parentPath.isEmpty()) {
@@ -659,8 +658,13 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
             compat = true;
     }
 
-    if ( !matchDataType(&returnType) )
-	return false;
+    if ( !matchDataType(&returnType) ) {
+        if (tokenizer->parsingFnOrMacro()
+                && (match(Tok_Q_DECLARE_FLAGS) || match(Tok_Q_PROPERTY)))
+            returnType = CodeChunk(previousLexeme());
+        else
+            return false;
+    }
 
     if (returnType.toString() == "QBool")
 	returnType = CodeChunk("bool");
@@ -689,7 +693,7 @@ bool CppCodeParser::matchFunctionDecl(InnerNode *parent, QStringList *parentPath
 	}
 	returnType = CodeChunk();
     } else {
-	while ( match(Tok_Ident) ) {
+	while (match(Tok_Ident)) {
 	    name = previousLexeme();
 	    matchTemplateAngles();
 
@@ -1271,6 +1275,7 @@ bool CppCodeParser::makeFunctionNode(const QString& synopsis, QStringList *paren
     Location loc;
     QByteArray latin1 = synopsis.toLatin1();
     StringTokenizer stringTokenizer(loc, latin1.data(), latin1.size());
+    stringTokenizer.setParsingFnOrMacro(true);
     tokenizer = &stringTokenizer;
     readToken();
 

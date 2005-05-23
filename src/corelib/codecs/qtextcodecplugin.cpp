@@ -27,7 +27,7 @@
     Writing a text codec plugin is achieved by subclassing this base
     class, reimplementing the pure virtual functions names(),
     aliases(), createForName(), mibEnums() and createForMib(), and
-    exporting the class with the \c Q_EXPORT_PLUGIN() macro. See \l{How
+    exporting the class with the Q_EXPORT_PLUGIN() macro. See \l{How
     to Create Qt Plugins} for details.
 
     See the \l{http://www.iana.org/assignments/character-sets}{IANA
@@ -80,7 +80,7 @@
 
 /*!
     Constructs a text codec plugin with the given \a parent. This is
-    invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
+    invoked automatically by the Q_EXPORT_PLUGIN() macro.
 */
 QTextCodecPlugin::QTextCodecPlugin(QObject *parent)
     : QObject(parent)

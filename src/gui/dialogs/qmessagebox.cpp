@@ -1563,5 +1563,31 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
     d->label->setWordWrap(wordwrap);
 }
 
+/*!
+    \macro QT_REQUIRE_VERSION(int argc, char **argv, const char *version)
+    \relates QMessageBox
+
+    This macro can be used to ensure that the application is run
+    against a recent enough version of Qt. This is especially useful
+    if your application depends on a specific bug fix introduced in a
+    bug-fix release (e.g., 4.0.2).
+
+    Example:
+
+    \code
+        #include <QApplication>
+        #include <QMessageBox>
+
+        int main(int argc, char *argv[])
+        {
+            QT_REQUIRE_VERSION(argc, argv, "4.0.2")
+
+            QApplication app(argc, argv);
+            ...
+            return app.exec();
+        }
+    \endcode
+*/
+
 #include "moc_qmessagebox.cpp"
 #endif

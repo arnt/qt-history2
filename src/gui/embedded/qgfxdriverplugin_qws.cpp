@@ -28,7 +28,7 @@
 
     Writing a graphics driver plugin is achieved by subclassing this
     base class, reimplementing the pure virtual functions keys() and
-    create(), and exporting the class with the \c Q_EXPORT_PLUGIN()
+    create(), and exporting the class with the Q_EXPORT_PLUGIN()
     macro. See \l{How to Create Qt Plugins} for details.
 
     This class is only available in Qt/Embedded.
@@ -44,7 +44,7 @@
 
 /*!
     Constructs a graphics driver plugin with the given \a parent. This
-    is invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
+    is invoked automatically by the Q_EXPORT_PLUGIN() macro.
 */
 QGfxDriverPlugin::QGfxDriverPlugin(QObject *parent)
     : QObject(parent)

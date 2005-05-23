@@ -10,7 +10,7 @@
     on the meta-object system that also provides object communication
     through \l{signals and slots}.
 
-    The \c Q_PROPERTY() macro in a class declaration declares a property.
+    The Q_PROPERTY() macro in a class declaration declares a property.
     Properties can only be declared in classes that inherit QObject. 
 
     To the outer world, a property appears to be similar to a data member.
@@ -95,7 +95,7 @@
 
     The class has a property \c priority that is not yet known to the
     meta-object system. In order to make the property known, you must
-    declare it with the \c Q_PROPERTY() macro. The syntax is as
+    declare it with the Q_PROPERTY() macro. The syntax is as
     follows:
 
     \code
@@ -130,10 +130,10 @@
         obj->setProperty("priority", "VeryHigh");
     \endcode
 
-    In the case of \c QList and \c QMap properties the value passes
+    In the case of \c QList and \c QMap properties, the value passes
     is a QVariant whose value is the entire list or map.
 
-    Enumeration types are registered with the \c Q_ENUMS() macro. Here's the
+    Enumeration types are registered with the Q_ENUMS() macro. Here's the
     final class declaration including the property related declarations:
 
     \code
@@ -153,14 +153,14 @@
         };
     \endcode
 
-    Another similar macro is \c Q_FLAGS(). Like \c Q_ENUMS(), it
+    Another similar macro is Q_FLAGS(). Like Q_ENUMS(), it
     registers an enumeration type but marks it in addition as a set
     of "flags", i.e. the enumeration values can be OR'd together. An
     I/O class might have enumeration values \c Read and \c Write and
-    accept \c{Read | Write}: such an enum is best handled with \c
-    Q_FLAGS(), rather than \c Q_ENUMS().
+    accept \c{Read | Write}: such an enum is best handled with
+    Q_FLAGS(), rather than Q_ENUMS().
 
-    The remaining keywords in the \c Q_PROPERTY() section are \c RESET, \c
+    The remaining keywords in the Q_PROPERTY() section are \c RESET, \c
     DESIGNABLE, \c SCRIPTABLE, and \c STORED.
 
     \list
@@ -185,7 +185,7 @@
 
     \endlist
 
-    Connected to the property system is an additional macro, \c
+    Connected to the property system is an additional macro,
     Q_CLASSINFO(), that can be used to attach additional
     \e{name}--\e{value} pairs to a class's meta-object, for example:
 

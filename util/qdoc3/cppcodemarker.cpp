@@ -324,10 +324,19 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 					       "static protected member", "static protected members");
 	    FastSection staticPublicMembers(classe, "Static Public Members", "static public member",
 					    "static public members");
+            FastSection macros(inner, "Macros", "macro", "macros");
 
 	    NodeList::ConstIterator r = classe->relatedNodes().begin();
             while (r != classe->relatedNodes().end()) {
-	        insert(relatedNonMembers, *r, style, status);
+                if ((*r)->type() == Node::Function) {
+                    FunctionNode *func = static_cast<FunctionNode *>(*r);
+                    if (func->metaness() == FunctionNode::Macro)
+                        insert(macros, *r, style, status);
+                    else
+                        insert(relatedNonMembers, *r, style, status);
+                } else {
+                    insert(relatedNonMembers, *r, style, status);
+                }
 	        ++r;
             }
 
@@ -429,16 +438,26 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 	    append( sections, privateSlots );
 	    append( sections, staticPrivateMembers );
 	    append( sections, relatedNonMembers );
+            append( sections, macros );
         } else if (style == Detailed) {
 	    FastSection memberFunctions(classe, "Member Function Documentation");
 	    FastSection memberTypes(classe, "Member Type Documentation");
 	    FastSection memberVariables(classe, "Member Variable Documentation");
 	    FastSection properties(classe, "Property Documentation");
 	    FastSection relatedNonMembers(classe, "Related Non-Members");
+	    FastSection macros(classe, "Macro Documentation");
 
 	    NodeList::ConstIterator r = classe->relatedNodes().begin();
             while (r != classe->relatedNodes().end()) {
-                insert(relatedNonMembers, *r, style, status);
+                if ((*r)->type() == Node::Function) {
+                    FunctionNode *func = static_cast<FunctionNode *>(*r);
+                    if (func->metaness() == FunctionNode::Macro)
+                        insert(macros, *r, style, status);
+                    else
+                        insert(relatedNonMembers, *r, style, status);
+                } else {
+                    insert(relatedNonMembers, *r, style, status);
+                }
 	        ++r;
             }
 
@@ -464,6 +483,7 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
 	    append( sections, memberFunctions );
 	    append( sections, memberVariables );
 	    append( sections, relatedNonMembers );
+	    append( sections, macros );
         } else {
 	    FastSection all( classe );
 
@@ -531,8 +551,8 @@ QList<Section> CppCodeMarker::sections(const InnerNode *inner, SynopsisStyle sty
             append(sections, namespaces);
             append(sections, classes);
             append(sections, types);
-            append(sections, macros);
             append(sections, functions);
+            append(sections, macros);
         }
     }
 

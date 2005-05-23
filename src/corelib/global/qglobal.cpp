@@ -80,7 +80,7 @@
     report an error.
 
     If you want to use QFlags for your own enum types, you must use
-    the \c Q_DECLARE_FLAGS() and \c Q_DECLARE_OPERATORS_FOR_FLAGS().
+    the Q_DECLARE_FLAGS() and Q_DECLARE_OPERATORS_FOR_FLAGS().
     For example:
 
     \code
@@ -263,7 +263,7 @@
     \fn QFlags QFlags::operator~() const
 
     Returns a QFlags object that contains the bitwise negation of
-    this object.
+    this objec;t.
 
     \sa operator&(), operator|(), operator^()
 */
@@ -276,12 +276,49 @@
 */
 
 /*!
+    \macro Q_DECLARE_FLAGS(Flags, Enum)
+    \relates QFlags
+
+    The Q_DECLARE_FLAGS() macro expands to
+
+    \code
+        typedef QFlags<Enum> Flags;
+    \endcode
+
+    \a Enum is the name of an existing enum type, whereas \a Flags is
+    the name of the QFlags<\e{Enum}> typedef.
+
+    See the QFlags documentation for details.
+
+    \sa Q_DECLARE_OPERATORS_FOR_FLAGS()
+*/
+
+/*!
+    \macro Q_DECLARE_OPERATORS_FOR_FLAGS(Flags)
+    \relates QFlags
+
+    The Q_DECLARE_OPERATORS_FOR_FLAGS() macro declares global \c
+    operator|() functions for \a Flags, which is of type QFlags<T>.
+
+    See the QFlags documentation for details.
+
+    \sa Q_DECLARE_FLAGS()
+*/
+
+/*!
     \headerfile <QtGlobal>
     \title Global Qt Declarations
 
     \brief The <QtGlobal> header file provides basic declarations and is included by all other Qt headers.
 
     \sa <QtAlgorithms>
+*/
+
+/*!
+    \typedef qreal
+    \relates <QtGlobal>
+
+    Typedef for \c double.
 */
 
 /*! \typedef uchar
@@ -891,7 +928,7 @@ const QSysInfo::WinVersion QSysInfo::WindowsVersion = winVersion();
     Prints a warning message containing the source code file name and
     line number if \a test is false.
 
-    \c Q_ASSERT() is useful for testing pre- and post-conditions
+    Q_ASSERT() is useful for testing pre- and post-conditions
     during development. It does nothing if \c QT_NO_DEBUG was defined
     during compilation.
 
@@ -1459,11 +1496,90 @@ QByteArray qgetenv(const char *varName)
 #endif
 }
 
+/*!
+    \macro foreach(variable, container)
+    \relates <QtGlobal>
+
+    This macro is used to implement Qt's \c foreach loop. \a variable
+    is a variable name or variable definition; \a container is a Qt
+    container whose value type corresponds to the type of the
+    variable. See \l{The foreach Keyword} for details.
+
+    If you're worried about namespace pollution, you can disable this
+    macro by adding the following line to your \c .pro file:
+
+    \code
+        CONFIG += no_keywords
+    \endcode
+
+    \sa Q_FOREACH()
+*/
+
+/*!
+    \macro Q_FOREACH(variable, container)
+    \relates <QtGlobal>
+
+    Same as foreach(\a variable, \a container).
+*/
+
+/*!
+    \macro const char *QT_TR_NOOP(const char *sourceText)
+    \relates <QtGlobal>
+
+    Marks the string literal \a sourceText for translation in the
+    current context. Expands to \a sourceText.
+
+    Example:
+
+    \code
+        QString FriendlyConversation::greeting(int type)
+        {
+	    static const char *greeting_strings[] = {
+	        QT_TR_NOOP("Hello"),
+	        QT_TR_NOOP("Goodbye")
+	    };
+	    return tr(greeting_strings[type]);
+        }
+    \endcode
+
+    \sa QT_TRANSLATE_NOOP(), {Internationalization with Qt}
+*/
+
+/*!
+    \macro const char *QT_TRANSLATE_NOOP(const char *context, const char *sourceText)
+    \relates <QtGlobal>
+
+    Marks the string literal \a sourceText for translation in the
+    given \a context. Expands to \a sourceText.
+
+    Example:
+
+    \code
+        static const char *greeting_strings[] = {
+	    QT_TRANSLATE_NOOP("FriendlyConversation", "Hello"),
+	    QT_TRANSLATE_NOOP("FriendlyConversation", "Goodbye")
+        };
+
+        QString FriendlyConversation::greeting(int type)
+        {
+	    return tr(greeting_strings[type]);
+        }
+
+        QString global_greeting(int type)
+        {
+	    return qApp->translate("FriendlyConversation",
+				   greeting_strings[type]);
+        }
+    \endcode
+
+    \sa QT_TR_NOOP(), {Internationalization with Qt}
+*/
+
 #ifdef QT3_SUPPORT
 #include <qlibraryinfo.h>
 static const char *qInstallLocation(QLibraryInfo::LibraryLocation loc)
 {
-    static QByteArray ret; //yuck
+    static QByteArray ret;
     ret = QLibraryInfo::location(loc).toLatin1();
     return ret.constData();
 }

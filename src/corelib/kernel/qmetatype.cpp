@@ -17,6 +17,24 @@
 #include "qvector.h"
 
 /*!
+    \macro Q_DECLARE_METATYPE(Type)
+    \relates QMetaType
+
+    This macro makes the type \a Type known to QMetaType. It is
+    needed to use the type \a Type as a custom type in QVariant.
+
+    Ideally, this macro should be placed below the declaration of
+    the class or struct. If that is not possible, it can be put in
+    a private header file which has to be included every time that
+    type is used in a QVariant.
+
+    Q_DECLARE_METATYPE() doesn't actually register the
+    type; you must still use qRegisterMetaType() for that.
+
+    \sa qRegisterMetaType()
+*/
+
+/*!
     \enum QMetaType::Type
 
     These are the built-in types supported by QMetaType:
@@ -77,16 +95,16 @@
 
     \section1 The Q_DECLARE_METATYPE() Macro
 
-    The \c Q_DECLARE_METATYPE() macro makes the type \a T known to
-    QMetaType. It is needed to use the type \a T as a custom type
-    in QVariant.
+    The Q_DECLARE_METATYPE() macro makes a custom type known to
+    QMetaType. It is needed to use the type as a custom type in
+    QVariant.
 
     Ideally, this macro should be placed below the declaration of
     the class or struct. If that is not possible, it can be put in
     a private header file which has to be included every time that
     type is used in a QVariant.
 
-    This example shows a typical use case of \c Q_DECLARE_METATYPE():
+    This example shows a typical use case of Q_DECLARE_METATYPE():
 
     \code
         struct MyStruct
@@ -111,7 +129,7 @@
         MyStruct s2 = var.value<MyStruct>();
     \endcode
 
-    Note that \c Q_DECLARE_METATYPE() doesn't actually register the
+    Note that Q_DECLARE_METATYPE() doesn't actually register the
     type; you must still use qRegisterMetaType() for that.
 
     \sa QVariant::setValue(), QVariant::value(), QVariant::fromValue()
@@ -483,7 +501,7 @@ void QMetaType::destroy(int type, void *data)
     You don't need to pass any value for the \a dummy parameter. It
     is there because of an MSVC 6 limitation.
 
-    \sa QMetaType::isRegistered()
+    \sa QMetaType::isRegistered(), Q_DECLARE_METATYPE()
 */
 
 /*! \typedef QMetaType::Destructor
@@ -498,4 +516,3 @@ void QMetaType::destroy(int type, void *data)
 /*! \typedef QMetaType::LoadOperator
     \internal
 */
-

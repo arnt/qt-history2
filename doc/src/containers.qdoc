@@ -614,8 +614,7 @@
     non-const iterators are active on that container. Java-style
     iterators don't suffer from that limitation.
 
-    \target foreach
-    \section1 The \c foreach Keyword
+    \section1 The foreach Keyword
 
     If you just want to iterate over all the items in a container
     in order, you can use Qt's \c foreach keyword. The keyword is a
@@ -707,7 +706,7 @@
     \endcode
 
     If you're worried about namespace pollution, you can disable
-    these macros by adding the following line to your .pro file:
+    these macros by adding the following line to your \c .pro file:
 
     \code
         CONFIG += no_keywords

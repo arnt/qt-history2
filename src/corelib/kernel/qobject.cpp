@@ -2828,4 +2828,111 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
   \internal
 */
 
+/*!
+    \macro Q_CLASSINFO(Name, Value)
+    \relates QObject
+
+    This macro associates extra information to the class, which is
+    available using QObject::metaObject(). Except for the ActiveQt
+    extension, Qt doesn't use this information.
+
+    The extra information takes the form of a \a Name string and a \a
+    Value literal string.
+
+    Example:
+
+    \code
+        class MyClass : public QObject
+        {
+            Q_OBJECT
+            Q_CLASSINFO("Author", "Pierre Gendron")
+            Q_CLASSINFO("URL", "http://www.my-organization.qc.ca")
+
+        public:
+            ...
+        };
+    \endcode
+
+    \sa QMetaObject::classInfo()
+*/
+
+/*!
+    \macro Q_INTERFACES(...)
+    \relates QObject
+
+    This macro tells Qt which interfaces the class implements. This
+    is used when implementing plugins.
+
+    Example:
+
+    \quotefromfile tools/plugandpaintplugins/basictools/basictoolsplugin.h
+    \skipto class BasicToolsPlugin
+    \printuntil public:
+    \dots
+    \skipto };
+    \printline };
+
+    See the \l{tools/plugandpaintplugins/basictools}{Plug & Paint
+    Basic Tools} example for details.
+
+    \sa Q_DECLARE_INTERFACE(), Q_EXPORT_PLUGINS(), {How to Create Qt Plugins}
+*/
+
+/*!
+    \macro Q_PROPERTY(...)
+    \relates QObject
+
+    This macro declares a QObject property. The syntax is:
+
+    \code
+        Q_PROPERTY(type name
+                   READ getFunction
+                   [WRITE setFunction]
+                   [RESET resetFunction]
+                   [DESIGNABLE bool] 
+                   [SCRIPTABLE bool]
+                   [STORED bool])
+    \endcode
+
+    For example:
+
+    \code
+        Q_PROPERTY(QString title READ title WRITE setTitle)
+    \endcode
+
+    \sa {Qt's Property System}
+*/
+
+/*!
+    \macro Q_ENUMS(...)
+    \relates QObject
+
+    This macro registers one or several enum types to the meta-object
+    system.
+
+    Example:
+
+    \code
+        Q_ENUMS(Option AlignmentFlag EditMode TransformationMode)
+    \endcode
+
+    \sa {Qt's Property System}
+*/
+
+/*!
+    \macro Q_FLAGS(...)
+    \relates QObject
+
+    This macro registers one or several "flags" types to the
+    meta-object system.
+
+    Example:
+
+    \code
+        Q_FLAGS(Options Alignment)
+    \endcode
+
+    \sa {Qt's Property System}
+*/
+
 #include "moc_qobject.cpp"

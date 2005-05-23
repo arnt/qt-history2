@@ -26,7 +26,7 @@
 
     Writing a decoration plugin is achieved by subclassing this base class,
     reimplementing the pure virtual functions keys() and create(), and
-    exporting the class with the \c Q_EXPORT_PLUGIN() macro. See
+    exporting the class with the Q_EXPORT_PLUGIN() macro. See
     \l{How to Create Qt Plugins} for details.
 
     This class is only available on Qt/Embedded.
@@ -54,7 +54,7 @@
 
 /*!
     Constructs a decoration plugin with parent \a parent. This is
-    invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
+    invoked automatically by the Q_EXPORT_PLUGIN() macro.
 */
 QDecorationPlugin::QDecorationPlugin(QObject *parent)
     : QObject(parent)

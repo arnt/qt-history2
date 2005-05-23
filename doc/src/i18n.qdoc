@@ -188,12 +188,12 @@
     \endcode
 
     If you need to have translatable text completely
-    outside a function, there are two macros to help: \c QT_TR_NOOP()
-    and \c QT_TRANSLATE_NOOP(). They merely mark the text for
+    outside a function, there are two macros to help: QT_TR_NOOP()
+    and QT_TRANSLATE_NOOP(). They merely mark the text for
     extraction by the \c lupdate utility described below.
     The macros expand to just the text (without the context).
 
-    Example of \c QT_TR_NOOP():
+    Example of QT_TR_NOOP():
     \code
         QString FriendlyConversation::greeting(int type)
         {
@@ -205,7 +205,7 @@
         }
     \endcode
 
-    Example of \c QT_TRANSLATE_NOOP():
+    Example of QT_TRANSLATE_NOOP():
     \code
         static const char *greeting_strings[] = {
 	    QT_TRANSLATE_NOOP("FriendlyConversation", "Hello"),

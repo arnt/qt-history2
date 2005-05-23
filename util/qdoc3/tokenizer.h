@@ -54,6 +54,8 @@ public:
     virtual ~Tokenizer();
 
     int getToken();
+    void setParsingFnOrMacro(bool macro) { parsingMacro = macro; }
+    bool parsingFnOrMacro() const { return parsingMacro; }
 
     const Location &location() const { return yyTokLoc; }
     QString previousLexeme() const { return QString( yyPrevLex ); }
@@ -102,6 +104,7 @@ private:
     int yyCh;
 
     QString yyVersion;
+    bool parsingMacro;
 };
 
 inline int Tokenizer::getChar() {

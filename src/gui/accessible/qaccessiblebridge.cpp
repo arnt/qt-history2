@@ -75,7 +75,7 @@
 
     Writing an accessibility bridge plugin is achieved by subclassing
     this base class, reimplementing the pure virtual functions keys()
-    and create(), and exporting the class with the \c
+    and create(), and exporting the class with the
     Q_EXPORT_PLUGIN() macro.
 
     \sa QAccessibleBridge, QAccessiblePlugin, {How to Create Qt Plugins}
@@ -83,7 +83,7 @@
 
 /*!
     Constructs an accessibility bridge plugin with the given \a
-    parent. This is invoked automatically by the \c Q_EXPORT_PLUGIN()
+    parent. This is invoked automatically by the Q_EXPORT_PLUGIN()
     macro.
 */
 QAccessibleBridgePlugin::QAccessibleBridgePlugin(QObject *parent)

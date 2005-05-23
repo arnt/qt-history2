@@ -28,7 +28,7 @@
     Writing an picture format plugin is achieved by subclassing this
     base class, reimplementing the pure virtual functions keys(),
     loadPicture(), savePicture(), and installIOHandler(), and
-    exporting the class with the \c Q_EXPORT_PLUGIN() macro.
+    exporting the class with the Q_EXPORT_PLUGIN() macro.
 
     \sa {How to Create Qt Plugins}
 */
@@ -53,7 +53,7 @@
 
 /*!
     Constructs an picture format plugin with the given \a parent.
-    This is invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
+    This is invoked automatically by the Q_EXPORT_PLUGIN() macro.
 */
 QPictureFormatPlugin::QPictureFormatPlugin(QObject *parent)
     : QObject(parent)

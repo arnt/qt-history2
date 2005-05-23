@@ -43,7 +43,7 @@
     Writing a input context plugin is achieved by subclassing this
     base class, reimplementing the pure virtual functions keys(),
     create(), languages(), displayName(), and description(), and
-    exporting the class with the \c Q_EXPORT_PLUGIN() macro.
+    exporting the class with the Q_EXPORT_PLUGIN() macro.
 
     \sa QInputContext, {How to Create Qt Plugins}
 */
@@ -124,7 +124,7 @@
 
 /*!
     Constructs a input context plugin with the given \a parent. This
-    is invoked automatically by the \c Q_EXPORT_PLUGIN() macro.
+    is invoked automatically by the Q_EXPORT_PLUGIN() macro.
 */
 QInputContextPlugin::QInputContextPlugin(QObject *parent)
     :QObject(parent)

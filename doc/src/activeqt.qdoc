@@ -472,7 +472,7 @@
             Q_CLASSINFO("EventsID", "{0A3E9F27-E4F1-45bb-9E47-63099BCCD0E3}")
     \endcode
 
-    Use the \c Q_CLASSINFO() macro to specify the COM identifiers for the COM
+    Use the Q_CLASSINFO() macro to specify the COM identifiers for the COM
     object. \c ClassID and \c InterfaceID are required, while \c EventsID is
     only necessary when your object has signals. To generate these identifiers,
     use system tools like \c uuidgen or \c guidgen.
@@ -484,7 +484,7 @@
             Q_PROPERTY(int value READ value WRITE setValue)
     \endcode
 
-    Use the \c Q_PROPERTY() macro to declare properties for the ActiveX control.
+    Use the Q_PROPERTY() macro to declare properties for the ActiveX control.
 
     Declare a standard constructor taking a parent object, and functions, 
     signals and slots like for any QObject subclass.
@@ -1059,7 +1059,7 @@
     control is supposed to run needs to be licensed.
 
     To mark a Qt class as licensed specify a "LicenseKey" using the
-    \c Q_CLASSINFO() macro.
+    Q_CLASSINFO() macro.
 
     \code
         class MyLicensedControl : public QWidget

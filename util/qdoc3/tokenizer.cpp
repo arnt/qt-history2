@@ -90,7 +90,7 @@ int Tokenizer::getToken()
 		if ( i == 0 ) {
 		    return Tok_Ident;
 		} else if ( i == -1 ) {
-		    if (ignoredTokensAndDirectives->contains(yyLex)) {
+		    if (!parsingMacro && ignoredTokensAndDirectives->contains(yyLex)) {
                         if (ignoredTokensAndDirectives->value(yyLex)) { // it's a directive
                             int parenDepth = 0;
                             while (yyCh != EOF && (yyCh != ')' || parenDepth > 1)) {
@@ -443,6 +443,7 @@ Tokenizer::Tokenizer()
     yyParenDepth = 0;
     yyBracketDepth = 0;
     yyCh = '\0';
+    parsingMacro = false;
 }
 
 int Tokenizer::getch()
