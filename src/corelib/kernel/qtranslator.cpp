@@ -93,9 +93,10 @@ class QTranslatorPrivate : public QObjectPrivate
 public:
     enum { Contexts = 0x2f, Hashes = 0x42, Messages = 0x69 };
 
-    QTranslatorPrivate() : unmapPointer(0), unmapLength(0) {}
+    QTranslatorPrivate() : used_mmap(0), unmapPointer(0), unmapLength(0) {}
 
     // for mmap'ed files, this is what needs to be unmapped.
+    uint used_mmap : 1;
     char *unmapPointer;
     unsigned int unmapLength;
 
@@ -330,6 +331,7 @@ bool QTranslator::load(const QString & filename, const QString & directory,
                              MAP_FILE | MAP_PRIVATE,    // swap-backed map from file
                              fd, 0));                   // from offset 0 of fd
             if (ptr && ptr != reinterpret_cast<char *>(MAP_FAILED)) {
+                d->used_mmap = true;
                 d->unmapPointer = ptr;
                 d->unmapLength = st.st_size;
                 ok = true;
@@ -445,9 +447,11 @@ void QTranslatorPrivate::clear()
 {
     if (unmapPointer && unmapLength) {
 #if defined(QT_USE_MMAP)
-        munmap(unmapPointer, unmapLength);
+        if(used_mmap)
+            munmap(unmapPointer, unmapLength);
+        else
 #else
-        delete [] unmapPointer;
+            delete [] unmapPointer;
 #endif
         unmapPointer = 0;
         unmapLength = 0;
