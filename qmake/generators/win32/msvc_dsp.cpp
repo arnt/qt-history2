@@ -502,7 +502,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
     if(project->first("TEMPLATE") == "vcapp" ||
        project->first("TEMPLATE") == "vclib") {
         if (!mergedProjects.count()) {
-            warn_msg(WarnLogic, "Generator: MSVC.NET: no single configuration created, cannot output project!");
+            warn_msg(WarnLogic, "Generator: MSVC DSP: no single configuration created, cannot output project!");
             return false;
         }
         debug_msg(1, "Generator: MSVC 6: Writing project file");
