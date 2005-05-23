@@ -347,9 +347,6 @@ public:
     virtual bool isContainer() const
     { return false; }
 
-    virtual bool isForm() const
-    { return false; }
-
     virtual QWidget *createWidget(QWidget *parent)
     {
         return new QActiveXPluginObject(parent);
@@ -384,9 +381,6 @@ public:
             </property>\
         </widget>\
       "); }
-
-    virtual QString codeTemplate() const
-    { return QString(); }
 
 private:
     QDesignerFormEditorInterface *m_core;
