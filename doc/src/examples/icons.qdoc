@@ -42,7 +42,7 @@
     common usage of QIcon's states are when displaying checkable tool
     buttons or menu entries. When a tool button or menu entry is
     checked, the QIcon's state is On, otherwise it's Off. You can, for
-    example, use a QIcon's state to display differing pixmaps
+    example, use the QIcon's states to display differing pixmaps
     depending on whether the tool button or menu entry is checked or
     not.
 
@@ -76,7 +76,7 @@
     File menu provide the options of adding an image and removing all
     images. These last options are also available through a context
     menu that appears if you press the right mouse button within the
-    table of image files. In addition the \gui File menu provide an
+    table of image files. In addition, the \gui File menu provide an
     \gui Exit option, and the \gui Help menu provide information about
     the example and about Qt.
 
@@ -445,8 +445,6 @@
     based on the extent, and use that object to set the size of the
     preview area's icon.
 
-    We set the \gui{Other}
-
     \skipto addImage
     \printuntil imagesTable
 
@@ -479,13 +477,12 @@
     \printline }
 
     Then we create the second and third items in the row making the
-    default mode \gui Normal and the default state \gui Off. But if
-    the \gui {Guess Image Mode/State} option is checked, and the file
-    name contains "_act" or "_dis", the modes are changed to \gui
-    Active or \gui Disabled respectively. And if the file name
-    contains "on", the state is changed to \gui On. The sample files
-    in the example's \c images subdirectory respect this naming
-    convension.
+    default mode Normal and the default state Off. But if the \gui
+    {Guess Image Mode/State} option is checked, and the file name
+    contains "_act" or "_dis", the modes are changed to Active or
+    Disabled respectively. And if the file name contains "on", the
+    state is changed to On. The sample files in the example's \c
+    images subdirectory respect this naming convension.
 
     \skipto imagesTable
     \printuntil /^\}/
@@ -609,7 +606,7 @@
     \image icons_size_groupbox.png Screenshot of the icon size group box
 
     The \c createIconSizeGroupBox() function is called from the
-    constructor. It creates the widgets controlling the size for the
+    constructor. It creates the widgets controlling the size of the
     preview area's icon.
 
     \skipto createIconSizeGroupBox
