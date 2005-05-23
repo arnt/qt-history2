@@ -37,6 +37,8 @@ include(../taskmenu/taskmenu.pri)
 include(../tabordereditor/tabordereditor.pri)
 include(../resourceeditor/resourceeditor.pri)
 
+PRECOMPILED_HEADER= lib_pch.h
+
 LIBS += -lQtDesigner
 
 include(../../sharedcomponents.pri)
