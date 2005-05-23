@@ -37,7 +37,7 @@
     create and populate a menu bar, the private \c
     createHorizontalGroupBox() function to create a group box
     containing four buttons with a horizontal layout, and the private
-    createGridGroupBox() function to create a group box containing
+    \c createGridGroupBox() function to create a group box containing
     several line edits and a small text editor, displayed in a grid
     layout.
 

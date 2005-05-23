@@ -105,10 +105,9 @@
     \skipto setBackgroundRole
     \printuntil setBackgroundRole
 
-    We also set the \c SortingBox's background role to be
-    QPalette::Base. The background role defines the brush from the
-    widget's palette that is used to render the background, and
-    QPalette::Base is typically white.
+    A widget's background role defines the brush from the widget's
+    palette that is used to render the background, and QPalette::Base
+    is typically white.
 
     \skipto newCircleButton
     \printto setWindowTitle
@@ -135,7 +134,7 @@
     \skipto event
     \printuntil {
 
-    QWidget::event() is the main event handler, and receives all the
+    QWidget::event() is the main event handler and receives all the
     widget's events. Normally, we recommend reimplementing one of the
     specialized event handlers instead of this function. But here we
     want to catch the QEvent::ToolTip events, and since these are
@@ -184,12 +183,12 @@
     \printuntil shapeItem.position()
 
     The painter will by default draw all the shape items at position
-    (0,0) in the \c SortingBox widget. The call to the
-    QPainter::translate() function translates the coordinate system by
-    the given offset, making each shape item appear at its defined
-    position. But we must remember to translate the coordinate system
-    back when the item is drawn, otherwise the next shape item will
-    appear at a position relative to the item we drawed last.
+    (0,0) in the \c SortingBox widget. The QPainter::translate()
+    function translates the coordinate system by the given offset,
+    making each shape item appear at its defined position. But
+    remember to translate the coordinate system back when the item is
+    drawn, otherwise the next shape item will appear at a position
+    relative to the item we drawed last.
 
     \skipto setBrush
     \printuntil /^\}/
@@ -199,8 +198,7 @@
     calls the appropiate QBrush constructor which creates a brush with
     the specified color and Qt::SolidPattern style. The
     QPainter::drawPath() function draws the given path using the
-    current pen for outline and the current brush for filling. The
-    current pen is by default black.
+    current pen for outline and the current brush for filling.
 
     \skipto mousePressEvent
     \printuntil /^\}/
@@ -211,10 +209,14 @@
     items, using the private \c itemAt() function.
 
     If an item covers the position, we store a pointer to that item
-    and the event's position. And if several of the shape items cover
-    the position, we store the pointer to the uppermost item. Finally,
-    we move the shape item to the end of the list, making it appear on
-    top when a new paint event occurs.
+    and the event's position. If several of the shape items cover the
+    position, we store the pointer to the uppermost item. Finally, we
+    move the shape item to the end of the list, and make a call to the
+    QWidget::update() function to make the item appear on top.
+
+    The QWidget::update() function does not cause an immediate
+    repaint; instead it schedules a paint event for processing when Qt
+    returns to the main event loop.
 
     \skipto mouseMoveEvent
     \printuntil /^\}/
@@ -275,19 +277,17 @@
     It is tempting to simply set the position of the item to be the
     parameter \c pos. But an item's position defines the top left
     corner of the item's bounding rectangle, and the parameter \c pos
-    can be any point; The suggested shortcut would in most cases cause
-    the item to jump to a position where the cursor is pointing to the
-    bounding rectangle's top left corner, regardless of the item's
-    previous position.
+    can be any point; The suggested shortcut would cause the item to
+    jump to a position where the cursor is pointing to the bounding
+    rectangle's top left corner, regardless of the item's previous
+    position.
 
     \skipto previousPosition
     \printuntil /^\}/
 
     Finally, we update the previous mouse event position, and make a
     call to the QWidget::update() function to make the item appear at
-    its new position. The QWidget::update() function does not cause an
-    immediate repaint; instead it schedules a paint event for
-    processing when Qt returns to the main event loop.
+    its new position.
 
     \skipto updateButtonGeometry
     \printuntil /^\}/
@@ -318,19 +318,19 @@
     \skipto createToolButton
     \printuntil /^\}/
 
-    The \c createToolButton() function is implemented to simplify the
-    \c SortingBox constructor. We create a tool button with the given
+    The \c createToolButton() function is called from the \c
+    SortingBox constructor. We create a tool button with the given
     tooltip and icon. The button's parent is the \c SortingBox widget,
-    and its size is 32x32 pixels. Before we return the button, we connect
-    it to the given slot.
+    and its size is 32 x 32 pixels. Before we return the button, we
+    connect it to the given slot.
 
     \skipto initialItemPosition
     \printuntil /^\}/
 
-    The \c initialItemPosition() function is also implemented to
-    simplify the constructor. We want the three first items to
-    initially be centered in the middle of the \c SortingBox widget,
-    and we use this function to calculate their positions.
+    The \c initialItemPosition() function is also called from the
+    constructor. We want the three first items to initially be
+    centered in the middle of the \c SortingBox widget, and we use
+    this function to calculate their positions.
 
     \skipto randomItemPosition
     \printuntil /^\}/
@@ -346,9 +346,9 @@
     \printuntil /^\}/
 
     As with \c initialItemPosition(), the \c initialItemColor()
-    function is implemented to simplify the constructor. The purposes
-    of both functions are purely cosmetic: We want to control the
-    inital position and color of the three first items.
+    function is called from the constructor. The purposes of both
+    functions are purely cosmetic: We want to control the inital
+    position and color of the three first items.
 
     \skipto randomItemColor
     \printuntil /^\}/
@@ -362,7 +362,7 @@
     \skipto class ShapeItem
     \printuntil /^\};/
 
-    The \c ShapeItem widget is a custom widget representing one single
+    The \c ShapeItem class is a custom widget representing one single
     shape item. The widget has a path, a position, a color and a
     tooltip. We need functions to set or modify these objects, as well
     as functions that return them. We make the latter functions \c
