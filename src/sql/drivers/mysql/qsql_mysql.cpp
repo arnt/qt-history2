@@ -561,7 +561,7 @@ int QMYSQLResult::numRowsAffected()
     return d->rowsAffected;
 }
 
-QVariant QMYSQLResult::lastInsertId()
+QVariant QMYSQLResult::lastInsertId() const
 {
     if (!isActive())
         return QVariant();
