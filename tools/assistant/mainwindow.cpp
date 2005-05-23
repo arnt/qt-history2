@@ -70,6 +70,7 @@ MainWindow::MainWindow()
     dw = new QDockWidget(this);
     dw->setAllowedAreas(Qt::LeftDockWidgetArea | Qt::RightDockWidgetArea);
     dw->setWindowTitle(tr("Sidebar"));
+    dw->setObjectName(QLatin1String("sidebar"));
     helpDock = new HelpDialog(dw, this);
     dw->setWidget(helpDock);
 
