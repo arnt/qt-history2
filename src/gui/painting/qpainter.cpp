@@ -70,6 +70,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     if (originalPath.isEmpty())
         return;
 
+    Q_Q(QPainter);
     int devMinX = 0, devMaxX = 0, devMinY = 0, devMaxY = 0;
 
     qreal strokeOffsetX = 0, strokeOffsetY = 0;
@@ -106,8 +107,15 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
     devMinY = int(pathBounds.top() - strokeOffsetY);
     devMaxY = int(pathBounds.bottom() + strokeOffsetY + ROUND_UP_TRICK);
 
-    int devWidth = devMaxX - devMinX;
-    int devHeight = devMaxY - devMinY;
+    QRect absPathRect(devMinX, devMinY, devMaxX - devMinX, devMaxY - devMinY);
+
+    if (state->clipInfo.size() == 0) {
+        absPathRect = absPathRect.intersect(QRect(0, 0, device->width(), device->height()));
+    } else {
+        QRegion r = q->clipRegion() * q->deviceMatrix();
+        absPathRect = absPathRect.intersect(r.boundingRect());
+    }
+
 
 //     qDebug("\nQPainterPrivate::draw_helper(), x=%d, y=%d, w=%d, h=%d",
 //            devMinX, devMinY, devWidth, devHeight);
@@ -115,15 +123,15 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 //     qDebug() << " - originalPath.bounds" << originalPath.boundingRect();
 //     qDebug() << " - path.bounds" << path.boundingRect();
 
-    if (devWidth <= 0 || devHeight <= 0)
+    if (absPathRect.width() <= 0 || absPathRect.height() <= 0)
         return;
 
-    QImage image(devWidth, devHeight, QImage::Format_ARGB32_Premultiplied);
+    QImage image(absPathRect.width(), absPathRect.height(), QImage::Format_ARGB32_Premultiplied);
     image.fill(0);
 
     QPainter p(&image);
 
-    p.translate(-devMinX, -devMinY);
+    p.translate(-absPathRect.x(), -absPathRect.y());
     p.setMatrix(state->matrix, true);
     p.setPen(doStroke ? state->pen : QPen(Qt::NoPen));
     p.setBrush((op & FillDraw) ? state->brush : QBrush(Qt::NoBrush));
@@ -139,15 +147,13 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
 
     p.end();
 
-    Q_Q(QPainter);
-
     q->save();
     q->setMatrix(QMatrix(1, 0, 0, 1, -redirection_offset.x(), -redirection_offset.y()));
     updateState(state);
 
-    engine->drawImage(QRectF(devMinX, devMinY, devWidth, devHeight),
+    engine->drawImage(absPathRect,
                       image,
-                      QRectF(0, 0, devWidth, devHeight),
+                      QRectF(0, 0, absPathRect.width(), absPathRect.height()),
                       Qt::OrderedDither | Qt::OrderedAlphaDither);
 
     q->restore();
