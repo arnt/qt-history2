@@ -1708,6 +1708,19 @@ QHttpRequestHeader QHttp::currentRequest() const
 }
 
 /*!
+    Returns the received response header of the most recently finished HTTP
+    request. If no response has yet been received
+    QHttpResponseHeader::isValid() will return false.
+
+    \sa currentRequest()
+*/
+QHttpResponseHeader QHttp::lastResponse() const
+{
+    Q_D(const QHttp);
+    return d->response;
+}
+
+/*!
     Returns the QIODevice pointer that is used as the data source of the HTTP
     request being executed. If there is no current request or if the request
     does not use an IO device as the data source, this function returns 0.
@@ -2455,7 +2468,7 @@ void QHttpPrivate::slotDoFinished()
     } else if (state != QHttp::Unconnected) {
         setState(QHttp::Unconnected);
         finishedWithSuccess();
-    }   
+    }
 }
 
 

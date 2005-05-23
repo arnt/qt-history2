@@ -189,6 +189,7 @@ public:
     QIODevice *currentSourceDevice() const;
     QIODevice *currentDestinationDevice() const;
     QHttpRequestHeader currentRequest() const;
+    QHttpResponseHeader lastResponse() const;
     bool hasPendingRequests() const;
     void clearPendingRequests();
 
