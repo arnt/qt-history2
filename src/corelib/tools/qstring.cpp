@@ -5313,11 +5313,11 @@ QString QString::normalized(NormalizationForm form, QChar::UnicodeVersion versio
 
 struct ArgEscapeData
 {
-    uint min_escape;            // lowest escape sequence number
-    uint occurrences;           // number of occurences of the lowest escape sequence number
-    uint locale_occurrences;    // number of occurences of the lowest escape sequence number that
-                                // contain 'L'
-    uint escape_len;            // total length of escape sequences which will be replaced
+    int min_escape;            // lowest escape sequence number
+    int occurrences;           // number of occurrences of the lowest escape sequence number
+    int locale_occurrences;    // number of occurrences of the lowest escape sequence number that
+                               // contain 'L'
+    int escape_len;            // total length of escape sequences which will be replaced
 };
 
 static ArgEscapeData findArgEscapes(const QString &s)
@@ -5327,7 +5327,7 @@ static ArgEscapeData findArgEscapes(const QString &s)
 
     ArgEscapeData d;
 
-    d.min_escape = 10;
+    d.min_escape = INT_MAX;
     d.occurrences = 0;
     d.escape_len = 0;
     d.locale_occurrences = 0;
@@ -5337,7 +5337,10 @@ static ArgEscapeData findArgEscapes(const QString &s)
         while (c != uc_end && c->unicode() != '%')
             ++c;
 
-        if (c == uc_end || ++c == uc_end)
+        if (c == uc_end)
+            break;
+        const QChar *escape_start = c;
+        if (++c == uc_end)
             break;
 
         bool locale_arg = false;
@@ -5347,11 +5350,16 @@ static ArgEscapeData findArgEscapes(const QString &s)
                 break;
         }
 
-        if (c->unicode() < '0' || c->unicode() > '9')
+        if (c->digitValue() == -1)
             continue;
 
-        uint escape = c->unicode() - '0';
+        int escape = c->digitValue();
         ++c;
+
+        if (c != uc_end && c->digitValue() != -1) {
+            escape = (10 * escape) + c->digitValue();
+            ++c;
+        }
 
         if (escape > d.min_escape)
             continue;
@@ -5363,22 +5371,10 @@ static ArgEscapeData findArgEscapes(const QString &s)
             d.locale_occurrences = 0;
         }
 
-#if QT_VERSION < 0x040000
-        // ### remove preprocessor in Qt 4.0
-        /* Since in Qt < 4.0 only the first instance is replaced,
-           escape_len should hold the length of only the first escape
-           sequence */
-        if (d.occurrences == 0)
-#endif
-        {
-            ++d.occurrences;
-            if (locale_arg) {
-                ++d.locale_occurrences;
-                d.escape_len += 3;
-            }
-            else
-                d.escape_len += 2;
-        }
+        ++d.occurrences;
+        if (locale_arg)
+            ++d.locale_occurrences;
+        d.escape_len += c - escape_start;
     }
     return d;
 }
@@ -5403,7 +5399,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
 
     QChar *rc = result_buff;
     const QChar *c = uc_begin;
-    uint repl_cnt = 0;
+    int repl_cnt = 0;
     while (c != uc_end) {
         /* We don't have to check if we run off the end of the string with c,
            because as long as d.occurrences > 0 we KNOW there are valid escape
@@ -5422,7 +5418,15 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
             ++c;
         }
 
-        if (c->unicode() != '0' + d.min_escape) {
+        int escape = c->digitValue();
+        if (escape != -1) {
+            if (c + 1 != uc_end && (c + 1)->digitValue() != -1) {
+                escape = (10 * escape) + (c + 1)->digitValue();
+                ++c;
+            }
+        }
+
+        if (escape != d.min_escape) {
             memcpy(rc, text_start, (c - text_start)*sizeof(QChar));
             rc += c - text_start;
         }
@@ -5465,6 +5469,7 @@ static QString replaceArgEscapes(const QString &s, const ArgEscapeData &d, int f
             }
         }
     }
+    Q_ASSERT(rc == result_buff + result_len);
 
     return result;
 }
