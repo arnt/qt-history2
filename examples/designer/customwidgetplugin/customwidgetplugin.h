@@ -26,7 +26,6 @@ class AnalogClockPlugin : public QObject, public QDesignerCustomWidgetInterface
 public:
     AnalogClockPlugin(QObject *parent = 0);
     bool isContainer() const;
-    bool isForm() const;
     bool isInitialized() const;
     QIcon icon() const;
     QString codeTemplate() const;

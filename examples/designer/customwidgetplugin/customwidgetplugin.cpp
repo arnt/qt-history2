@@ -45,7 +45,7 @@ QString AnalogClockPlugin::name() const
 
 QString AnalogClockPlugin::group() const
 {
-    return QLatin1String("Display Widgets");
+    return QLatin1String("Display Widgets [Examples]");
 }
 
 QIcon AnalogClockPlugin::icon() const
@@ -64,11 +64,6 @@ QString AnalogClockPlugin::whatsThis() const
 }
 
 bool AnalogClockPlugin::isContainer() const
-{
-    return false;
-}
-
-bool AnalogClockPlugin::isForm() const
 {
     return false;
 }

@@ -24,7 +24,6 @@ class WorldTimeClockPlugin : public QObject, public QDesignerCustomWidgetInterfa
 public:
     WorldTimeClockPlugin(QObject *parent = 0);
     bool isContainer() const;
-    bool isForm() const;
     bool isInitialized() const;
     QIcon icon() const;
     QString codeTemplate() const;

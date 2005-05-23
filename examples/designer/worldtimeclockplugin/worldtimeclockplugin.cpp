@@ -45,7 +45,7 @@ QString WorldTimeClockPlugin::name() const
 
 QString WorldTimeClockPlugin::group() const
 {
-    return QLatin1String("Display Widgets");
+    return QLatin1String("Display Widgets [Examples]");
 }
 
 QIcon WorldTimeClockPlugin::icon() const
@@ -64,11 +64,6 @@ QString WorldTimeClockPlugin::whatsThis() const
 }
 
 bool WorldTimeClockPlugin::isContainer() const
-{
-    return false;
-}
-
-bool WorldTimeClockPlugin::isForm() const
 {
     return false;
 }
