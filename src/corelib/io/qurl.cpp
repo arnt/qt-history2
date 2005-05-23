@@ -2224,10 +2224,10 @@ QUrl QUrl::fromEncoded(const QByteArray &input)
 */
 QString QUrl::fromPercentEncoding(const QByteArray &input)
 {
-    QVarLengthArray<char> tmp(input.size());
+    QVarLengthArray<char> tmp(input.size() + 1);
 
     char *data = tmp.data();
-    const char *inputPtr = input.data();
+    const char *inputPtr = input.constData();
 
     int i = 0;
     int len = input.count();
