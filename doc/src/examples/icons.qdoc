@@ -38,7 +38,13 @@
     \endtable
 
     QIcon's states are QIcon::On and QIcon::Off, which will display
-    the pixmap when the widget is in the respective state.
+    the pixmap when the widget is in the respective state. The most
+    common usage of QIcon's states are when displaying checkable tool
+    buttons or menu entries. When a tool button or menu entry is
+    checked, the QIcon's state is On, otherwise it's Off. You can, for
+    example, use a QIcon's state to display differing pixmaps
+    depending on whether the tool button or menu entry is checked or
+    not.
 
     A QIcon can generate smaller, larger, active, and disabled pixmaps
     from the set of pixmaps it is given. Such pixmaps are used by Qt
@@ -46,7 +52,7 @@
 
     \section1 Overview of the Icons Application
 
-    With the Icons application the user gets a preview of an icon's
+    With the Icons application you get a preview of an icon's
     generated pixmaps reflecting its different states, modes and size.
 
     When an image is loaded into the application, it is converted into
@@ -56,25 +62,25 @@
     containing sets of images explicitly designed to illustrate how Qt
     renders an icon in different modes and states.
 
-    The application allows the user to manipulate the icon size with
-    some predefined sizes and a spin box. The predefined sizes are
-    style dependent, but most of the styles have the same values:
-    Only the Macintosh style differ by using 32 pixels, instead of 16
-    pixels, for toolbar buttons. The users can navigate between the
-    available styles using the \gui View menu.
+    The application allows you to manipulate the icon size with some
+    predefined sizes and a spin box. The predefined sizes are style
+    dependent, but most of the styles have the same values: Only the
+    Macintosh style differ by using 32 pixels, instead of 16 pixels,
+    for toolbar buttons. You can navigate between the available styles
+    using the \gui View menu.
 
-    \image icons-view-menu.png The View menu
+    \image icons-view-menu.png Screenshot of the View menu
 
     The \gui View menu also provide the option to make the application
-    guess the preferred icon state and mode from an image's file
-    name. The \gui File menu provide the options of adding an image
-    and removing all images. These last options are also available
-    through a context menu that appears if the user press the right
-    mouse button within the table of image files. In addition the \gui
-    File menu provide an \gui Exit option, and the \gui Help menu
-    provide information about the example and about Qt.
+    guess the icon state and mode from an image's file name. The \gui
+    File menu provide the options of adding an image and removing all
+    images. These last options are also available through a context
+    menu that appears if you press the right mouse button within the
+    table of image files. In addition the \gui File menu provide an
+    \gui Exit option, and the \gui Help menu provide information about
+    the example and about Qt.
 
-    \image icons_find_normal.png
+    \image icons_find_normal.png Screenshot of the Find Files
 
     The screenshot above shows the application with one image file
     loaded. The \gui {Guess Image Mode/State} is enabled and the
@@ -82,78 +88,92 @@
 
     When QIcon is provided with only one available pixmap, that pixmap
     is used for all the states and modes. In this case the pixmap's
-    preferred icon mode is normal, and the generated pixmaps for the
+    icon mode is set to normal, and the generated pixmaps for the
     normal and active modes will look the same. But in disabled mode
     Qt will generate disabled pixmaps, i.e. give the generated pixmaps
     a gray color scale.
 
-    \image icons_find_normal_disabled.png
+    \image icons_find_normal_disabled.png Screenshot of the Find Files
 
     The next screenshot shows the application with an additional file
     loaded, providing QIcon with two available pixmaps. Note that the
-    new image file's preferred mode is disabled. When rendering the
-    \gui Disabled mode pixmaps, Qt will now use the new image which
-    prefer the disabled mode. We can see the difference: The generated
-    disabled pixmap in the first screenshot is slightly darker than
-    the pixmap preferring the disabled mode (with an original gray
-    color scale) in the second screenshot.
+    new image file's mode is set to disabled. When rendering the \gui
+    Disabled mode pixmaps, Qt will now use the new image. We can see
+    the difference: The generated disabled pixmap in the first
+    screenshot is slightly darker than the pixmap with the originally
+    set disabled mode in the second screenshot.
 
     When Qt renders the icon's pixmaps it searches through the set of
     available pixmaps following a particular algorithm. The algorithm
     is documented in QIcon, but we will describe some particular cases
     below.
 
-    \image icons_find_mess.png
+    \image icons_find_mess.png Screenshot of the Find Files
 
-    In the screenshot above we have played around with the preferred
-    modes and states of the images. We changed the \c find_normal.png
-    image's state to on, and the \c find_disabled.png image's mode to
-    active.
+    In the screenshot above we have played around with the images'
+    modes and states. We changed the \c find_normal.png image's state
+    to on, and the \c find_disabled.png image's mode to active.
 
     When rendering the icon's pixmaps, the mentioned search algorithm
-    is essential: To render the \c {Normal/Off} pixmap, Qt will first
-    see if there is a pixmap set for this combination of icon state
-    and mode. If there isn't, Qt will look for other combinations
-    according to the table below:
+    is essential: To render the Normal/Off pixmap, Qt will first see
+    if there is a pixmap set for this combination of icon state and
+    mode. If there isn't, Qt will look for other combinations
+    according to the table below.
 
     \table
     \header \o{2,1} Requested Pixmap \o{6,1} Preferred Alternatives (mode/state)
     \header \o Mode \o State \o 1  \o 2 \o 3 \o 4 \o 5 \o 6
     \row
     \o Normal \o Off
-    \o N/Off     \o \bold {A/Off}
-    \o N/On      \o A/On
-    \o D/Off \o D/On
+    \o N/Off  \o \bold A/Off
+    \o N/On   \o A/On
+    \o D/Off  \o D/On
     \row
-    \o Disabled \o Off
-    \o D/Off \o gray(N/Off)
+    \o Normal \o On
+    \o \bold N/On  \o A/On
+    \o N/Off       \o A/Off
+    \o D/On        \o D/Off
+    \row
+    \o Active \o Off
+    \o \bold A/Off \o N/Off
+    \o A/On        \o N/On
+    \o D/Off       \o D/On
+    \row
+    \o Active \o On
+    \o A/On  \o \bold N/On
+    \o A/Off \o N/Off
+    \o D/On  \o D/Off
+    \row
+    \o Disabled            \o Off
+    \o D/Off               \o gray(N/Off)
     \o \bold {gray(A/Off)} \o D/On
-    \o gray(N/On) \o gray(A/On)
+    \o gray(N/On)          \o gray(A/On)
     \row
-    \o Disabled \o On
-    \o D/On \o \bold {gray(N/On)}
-    \o gray(A/On) \o D/Off
+    \o Disabled    \o On
+    \o D/On        \o \bold {gray(N/On)}
+    \o gray(A/On)  \o D/Off
     \o gray(N/Off) \o gray(A/Off)
     \endtable
 
-    The \c find_disabled image is now \c {Active/Off}, and is the
-    preferred alternative for the \c {Normal/Off} pixmap. The
-    algorithm is similar for all the normal and active mode pixmaps,
-    but differ when it comes to the disabled mode.
+    The alternatives used in the screenshot above are marked with a
+    bold font. For example, the \c find_disabled image is now
+    Active/Off, and is the preferred alternative for the Normal/Off
+    pixmap. The algorithm is similar for all the normal and active
+    mode pixmaps, but differ when it comes to the disabled mode.
 
-    When rendering the \c {Disabled/Off} pixmap, Qt will first see if
-    any of the available pixmaps prefer this combination of icon state
-    and mode. If no one does, it will look for pixmaps preferring \c
-    {Normal/Off}, and as long as it needs to it will look for a
-    suitable pixmap following the line of search described in the
-    table above. As before: If the best alternative is a pixmap that
-    prefer another icon mode, QIcon will generate a disabled pixmap,
+    When rendering the Disabled/Off pixmap, Qt will first see if any
+    of the available pixmaps are set for this combination of icon
+    state and mode. If no one is, it will look for pixmaps set for
+    Normal/Off, and as long as it needs to it will look for a suitable
+    pixmap following the line of search described in the table
+    above. As before: If the preferred alternative is a pixmap that is
+    set for another icon mode, QIcon will generate a disabled pixmap,
     i.e. give the generated pixmap a gray color scale.
 
     \table
     \row
-    \o \inlineimage icons_monkey.png
-    \o \inlineimage icons_monkey_mess.png
+    \o \inlineimage icons_monkey.png Screenshot of the Monkey Files
+    \o \inlineimage icons_monkey_mess.png Screenshot of the Monkey Files
     \endtable
 
     In the next screenshots we have loaded the set of monkey
@@ -168,19 +188,19 @@
     \table
     \row
     \o
-    \o \inlineimage icons_qtopia_8x8.png
-    \o \inlineimage icons_qtopia_16x16.png
-    \o \inlineimage icons_qtopia_17x17.png
+    \o \inlineimage icons_qtopia_8x8.png Screenshot of the Qtopia Files
+    \o \inlineimage icons_qtopia_16x16.png Screenshot of the Qtopia Files
+    \o \inlineimage icons_qtopia_17x17.png Screenshot of the Qtopia Files
     \row
     \o
     \o 8 x 8
     \o \bold {16 x 16}
     \o 17 x 17
     \row
-    \o \inlineimage icons_qtopia_32x32.png
-    \o \inlineimage icons_qtopia_33x33.png
-    \o \inlineimage icons_qtopia_48x48.png
-    \o \inlineimage icons_qtopia_64x64.png
+    \o \inlineimage icons_qtopia_32x32.png Screenshot of the Qtopia Files
+    \o \inlineimage icons_qtopia_33x33.png Screenshot of the Qtopia Files
+    \o \inlineimage icons_qtopia_48x48.png Screenshot of the Qtopia Files
+    \o \inlineimage icons_qtopia_64x64.png Screenshot of the Qtopia Files
     \row
     \o \bold {32 x 32}
     \o 33 x 33
@@ -225,6 +245,11 @@
 
     \section2 IconPreviewArea Class Definition
 
+    An \c IconPreviewArea widget consists of a group box containing a grid of
+    QLabel widgets displaying headers and pixmaps.
+
+    \image icons_preview_area.png Screenshot of IconPreviewArea.
+
     \quotefromfile widgets/icons/iconpreviewarea.h
     \skipto class IconPreviewArea
     \printuntil /^\};/
@@ -251,8 +276,6 @@
 
     In the constructor we create the labels displaying the headers and
     the icon's generated pixmaps, and add them to a grid layout.
-
-
 
     When creating the header labels, we make sure the enums \c
     NumModes and \c NumStates defined in the \c .h file, correspond
@@ -315,6 +338,11 @@
     to the given state, mode and size.
 
     \section2 MainWindow Class Definition
+
+    The \c MainWindow widget consists of three main elements: an
+    images group box, an icon size group box and a preview area.
+
+    \image icons-example.png Screenshot of the Icons example
 
     \quotefromfile widgets/icons/mainwindow.h
     \skipto class MainWindow
@@ -519,13 +547,15 @@
     available to the preview area's icon using the \c changeIcon()
     slot.
 
-    \skipto createImagesGroupBox
-    \printuntil Expanding);
+    \image icons_images_groupbox.png Screenshot of the images group box
 
     The \c createImagesGroupBox() function is implemented to simplify
     the constructor. The main purpose of the function is to create a
     QTableWidget that will keep track of the images the user has
     loaded into the application.
+
+    \skipto createImagesGroupBox
+    \printuntil Expanding);
 
     First we create a group box that will contain the table widget.
     We set the group box's size policy to be expanding both
@@ -576,14 +606,17 @@
     image, disables an image or makes changes to an image's mode or
     state.
 
-    \skipto createIconSizeGroupBox
-    \printuntil setValue
+    \image icons_size_groupbox.png Screenshot of the icon size group box
 
     The \c createIconSizeGroupBox() function is called from the
     constructor. It creates the widgets controlling the size for the
-    preview area's icon. First we create a group box that will
-    contain all the widgets; then we create the radio buttons and the
-    spin box.
+    preview area's icon.
+
+    \skipto createIconSizeGroupBox
+    \printuntil setValue
+
+    First we create a group box that will contain all the widgets;
+    then we create the radio buttons and the spin box.
 
     The spin box is not a regular QSpinBox but an \c IconSizeSpinBox.
     The \c IconSizeSpinBox class inherits QSpinBox and reimplements
@@ -681,6 +714,8 @@
     the spin box's values in a more sophisticated way, we need to
     subclass QSpinBox and reimplement the QSpinBox::textFromValue()
     and QSpinBox::valueFromText() functions.
+
+    \image icons_size_spinbox.png Screenshot of the icon size spinbox
 
     \section2 IconSizeSpinBox Class Implementation
 
