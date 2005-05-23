@@ -70,7 +70,7 @@ static char yyIdent[128];
 static size_t yyIdentLen;
 static char yyComment[65536];
 static size_t yyCommentLen;
-static char yyString[16384];
+static char yyString[65536];
 static size_t yyStringLen;
 static QStack<int> yySavedBraceDepth;
 static QStack<int> yySavedParenDepth;
