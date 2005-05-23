@@ -17,30 +17,45 @@
     \skipto class Dialog
     \printuntil /^\}/
 
-    The \c Dialog class inherits QWidget. It is a custom widget that
+    The \c Dialog class inherits QDialog. It is a custom widget that
     displays its child widgets using the geometry managers:
     QHBoxLayout, QVBoxLayout and QGridLayout.
 
     We declare three private functions to simplify the class
-    constructor: The \c createMenu() function creates and populates a
-    menu bar. The \c createHorizontalGroupBox() function creates a
-    group box containing four buttons managed by a horizontal layout,
-    and \c createGridGroupBox() creates a group box containing three
-    line edits and a small editor managed by a grid layout.
+    constructor: The \c createMenu(), \c createHorizontalGroupBox()
+    and \c createGridGroupBox() functions create several widgets that
+    the example uses to demonstrate how the layout affects their
+    appearances.
 
     \section1 Dialog Class Implementation
 
     \quotefromfile layouts/basiclayouts/dialog.cpp
     \skipto Dialog
-    \printto mainLayout
+    \printuntil reject()
 
-    In the constructor, we create several widgets that the example
-    uses to demonstrate how the layout affect their appearances. Some
-    of them are grouped together and given their own layouts.
+    In the constructor, we first use the \c createMenu() function to
+    create and populate a menu bar, the private \c
+    createHorizontalGroupBox() function to create a group box
+    containing four buttons with a horizontal layout, and the private
+    createGridGroupBox() function to create a group box containing
+    several line edits and a small text editor, displayed in a grid
+    layout.
 
-    \printline mainLayout
+    The menu bar and group boxes are in turn managed by the \c Dialog
+    widget's main layout. This outer layout also manages several other
+    widgets: We create a big text editor and a couple of buttons.
 
-    The main layout for the \c Dialog widget is a QVBoxLayout.
+    Note that we don't have to specify a parent for the widgets when
+    we create them. The reason is that all the widgets we create here
+    will be added to a layout, and when we add a widget to a layout,
+    it is automatically reparented to the widget the layout is
+    installed on.
+
+    \printline buttonLayout
+
+    Before we create and customize the main layout, we create a layout
+    for the \gui OK and \gui Cancel buttons. We use a QHBoxLayout for
+    this purpose.
 
     The QBoxLayout class takes in general the space it gets (from its
     parent layout or from the parent widget), divides it up into a
@@ -50,32 +65,57 @@
     are placed in a column.  The corresponding convenience classes are
     QHBoxLayout and QVBoxLayout, respectively.
 
-    \printline setMenuBar
+    \printline addStretch
+
+    In addition to adding the two buttons to the layout, we also add a
+    stretchable space to the layout using the QBoxLayout::addStretch()
+    function. The layout will display its widgets and its stretchable
+    spaces according to their \l {QWidget::sizePolicy()}{size policy},
+    \l{QBoxLayout::addWidget()}{strech factors} and
+    \l{QWidget::sizeHint()}{size hints}. Since we add the stretch
+    before we add the widgets, the buttons will be located in the
+    application's right corner.
+
+    \table
+    \row
+    \o \inlineimage basiclayouts_double_stretch.png Double stretch
+    \o \inlineimage basiclayouts_no_stretch.png No stretch
+    \endtable
+
+    If we also added another stretch after adding the buttons, the
+    buttons would be centered as shown in the left screenshot
+    above. The right screenshot shows how the buttons would appear if
+    we didn't add any stretchable space at all: The buttons would then
+    stretch to fill the avaliable space.
+
+    \skipto addWidget
+    \printuntil cancelButton
+
+    We use the QBoxLayout::addWidget() function to add the widgets to
+    the end of layout. Each widget will get at least its minimum size
+    and at most its maximum size. It is possible to specify a stretch
+    factor in the \l {QBoxLayout::addWidget()}{addWidget()} function,
+    and any excess space is shared according to these stretch
+    factors. If not specified, a widget's stretch factor is 0.
+
+    \skipto mainLayout
+    \printuntil /^\}/
+
+    The outer layout for the \c Dialog widget is a QVBoxLayout.
 
     When we call the QLayout::setMenuBar() function, the layout places
     the provided menu bar at the top of the parent widget, and outside
     the widget's \l {QWidget::contentsRect()}{content margins}. All
     child widgets are placed below the bottom edge of the menu bar.
 
-    \skipto addWidget
-    \printuntil /^\}/
+    In the same way we use QBoxLayout::addWidget(), we can use
+    QBoxLayout::addLayout() to add another layout, and its widgets, to
+    the end of the main layout.  Again it is possible to specify a
+    stretch factor which, if not specified, is 0.
 
-    We use the QBoxLayout::addWidget() function to add the widgets to
-    the end of the main layout. Each widget will get at least its
-    minimum size and at most its maximum size. It is possible to
-    specify a stretch factor in the \l
-    {QBoxLayout::addWidget()}{addWidget()} function, and any excess
-    space is shared according to these stretch factors. If not
-    specified, a widget's stretch factor is 0.
-
-    In the same way, we can use QBoxLayout::addLayout() to add
-    another layout, and its widgets, to the end of the main layout.
-    Again it is possible to specify a stretch factor which, if not
-    specified, is 0.
-
-    Then, when we call QWidget::setLayout() to install the main layout
-    on the \c Dialog widget, we automatically reparent all of the
-    layout's widgets to be children of the \c Dialog widget.
+    We install the main layout on the \c Dialog widget using the
+    QWidget::setLayout() function, and all of the layout's widgets are
+    automatically reparented to be children of the \c Dialog widget.
 
     \skipto createMenu
     \printuntil /^\}/
