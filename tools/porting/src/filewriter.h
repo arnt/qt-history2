@@ -22,15 +22,16 @@ class FileWriter
 {
 public:
     enum OverWriteFiles{DontOverWrite, AlwaysOverWrite, AskOnOverWrite};
+    enum WriteResult { WriteFailed = 0, WriteSucceeded = 1, WriteSkipped };
     static FileWriter *instance();
     static void deleteInstance();
-    
-    FileWriter(OverWriteFiles overWRite = AskOnOverWrite, 
+
+    FileWriter(OverWriteFiles overWRite = AskOnOverWrite,
                 QString overwriteMessage = QString());
-    bool writeFile(QString filePath, QByteArray contents);
-    bool writeFileVerbously(QString filePath, QByteArray contents);
+    WriteResult writeFile(QString filePath, QByteArray contents);
+    WriteResult writeFileVerbously(QString filePath, QByteArray contents);
     void setOverwriteFiles(OverWriteFiles writeMode);
-private:    
+private:
     QMap<QString, int> processedFilesSet;
     OverWriteFiles overWriteFiles;
     QString overwriteMessage;

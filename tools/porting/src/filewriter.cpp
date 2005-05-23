@@ -48,21 +48,21 @@ FileWriter::FileWriter(OverWriteFiles overWrite, QString overwriteMsg)
        overwriteMessage = "Convert file ";
 }
 
-bool FileWriter::writeFileVerbously(QString filePath, QByteArray contents)
+FileWriter::WriteResult FileWriter::writeFileVerbously(QString filePath, QByteArray contents)
 {
-    if( writeFile(filePath, contents)) {
+    const WriteResult result = writeFile(filePath, contents);
+    if (result == WriteSucceeded) {
         QString cleanPath = QDir::cleanPath(filePath);
         cout << "Wrote to file: ";
         cout << QDir::convertSeparators(cleanPath).toLocal8Bit().constData() << endl;
-        return true;
     }
-    return false;
+    return result;
 }
 
-bool FileWriter::writeFile(QString filePath, QByteArray contents)
+FileWriter::WriteResult FileWriter::writeFile(QString filePath, QByteArray contents)
 {
     if(filePath.isEmpty())
-        return false;
+        return WriteFailed;
     QString path = QFileInfo(filePath).path();
     if (!QDir().mkpath(path)){
          cout << "Error creating path " <<
@@ -76,7 +76,7 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
             cout << "Error writing file ";
             cout << QDir::convertSeparators(cleanPath).toLatin1().constData();
             cout << " It already exists" <<endl;
-            return false;
+            return WriteFailed;
         } else if(overWriteFiles == AskOnOverWrite) {
             cout << overwriteMessage.toLatin1().constData();
             cout << QDir::convertSeparators(cleanPath).toLatin1().constData();
@@ -89,7 +89,7 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
             }
 
             if(answer == 'n')
-                return false;
+                return WriteSkipped;
             else if(answer == 'a')
                 overWriteFiles=AlwaysOverWrite;
         }
@@ -97,12 +97,12 @@ bool FileWriter::writeFile(QString filePath, QByteArray contents)
 
     f.open(QFile::WriteOnly);
     if (f.isOpen() && f.write(contents) == contents.size())
-        return true;
+        return WriteSucceeded;
 
     cout << "Could not write to to file: ";
     cout << QDir::convertSeparators(filePath).toLatin1().constData();
     cout << ". Is it write protected?" << endl;
-    return false;
+    return WriteFailed;
 }
 
 /*

@@ -66,12 +66,23 @@ void FilePorter::port(QString fileName)
     }
 
     //Write file, commit log if write was successful
-    if (FileWriter::instance()->writeFileVerbously(fileName, portedContents)) {
-        Logger::instance()->commitSection();
-    } else {
-        Logger::instance()->revertSection();
-        Logger::instance()->addEntry(
+    FileWriter::WriteResult result = FileWriter::instance()->writeFileVerbously(fileName, portedContents);
+    Logger *logger = Logger::instance();
+    if (result == FileWriter::WriteSucceeded) {
+        logger->commitSection();
+    } else if (result == FileWriter::WriteFailed) {
+        logger->revertSection();
+        logger->addEntry(
             new PlainLogEntry("Error", "Porting",  QLatin1String("Error writing to file ") + fileName));
+    } else if (result == FileWriter::WriteSkipped) {
+        logger->revertSection();
+        logger->addEntry(
+            new PlainLogEntry("Error", "Porting",  QLatin1String("User skipped file ") + fileName));
+    } else {
+        // Internal error.
+        logger->revertSection();
+        const QString errorString = QLatin1String("Internal error in qt3to4 - FileWriter returned invalid result code while writing to ") + fileName;
+        logger->addEntry(new PlainLogEntry("Error", "Porting", errorString));
     }
 }
 
