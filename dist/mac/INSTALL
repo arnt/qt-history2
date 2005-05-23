@@ -33,8 +33,8 @@
 
         make install
 
-    Qt is by default installed into /Developer/Qt but this can be
-    changed by using the -prefix parameter.
+    Qt is by default installed into /usr/local/Trolltech/Qt-%VERSION%
+    but this can be changed by using the -prefix parameter.
 
 4.  Environment variables
 
@@ -47,12 +47,12 @@
 
     In .profile (if your shell is bash), add the following line:
 
-        PATH=/Developer/Qt/bin:$PATH
+        PATH=/usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
         export PATH
 
     In .login (in case your shell is csh or tcsh), add the following line:
 
-        setenv PATH /Developer/Qt/bin:$PATH
+        setenv PATH /usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
 
     If you use a different shell, please modify your environment variables
     accordingly.
