@@ -99,6 +99,7 @@ void SortingBox::mousePressEvent(QMouseEvent *event)
             itemInMotion = &shapeItems[index];
             previousPosition = event->pos();
             shapeItems.move(index, shapeItems.size() - 1);
+            update();
         }
     }
 }
