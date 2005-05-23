@@ -1322,56 +1322,36 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
         html += QLatin1String(" dir='rtl'");
     }
 
-    bool hasStyle = false;
     QLatin1String style(" style=\"");
     html += style;
 
     if (block.begin().atEnd()) {
         html += "-qt-paragraph-type:empty;";
-        hasStyle = true;
     }
 
-    if (format.hasProperty(QTextFormat::BlockTopMargin)) {
-        html += QLatin1String(" margin-top:");
-        html += QString::number(format.topMargin());
-        html += QLatin1String("px;");
-        hasStyle = true;
-    }
+    html += QLatin1String(" margin-top:");
+    html += QString::number(format.topMargin());
+    html += QLatin1String("px;");
 
-    if (format.hasProperty(QTextFormat::BlockBottomMargin)) {
-        html += QLatin1String(" margin-bottom:");
-        html += QString::number(format.bottomMargin());
-        html += QLatin1String("px;");
-        hasStyle = true;
-    }
+    html += QLatin1String(" margin-bottom:");
+    html += QString::number(format.bottomMargin());
+    html += QLatin1String("px;");
 
-    if (format.hasProperty(QTextFormat::BlockLeftMargin)) {
-        html += QLatin1String(" margin-left:");
-        html += QString::number(format.leftMargin());
-        html += QLatin1String("px;");
-        hasStyle = true;
-    }
+    html += QLatin1String(" margin-left:");
+    html += QString::number(format.leftMargin());
+    html += QLatin1String("px;");
 
-    if (format.hasProperty(QTextFormat::BlockRightMargin)) {
-        html += QLatin1String(" margin-right:");
-        html += QString::number(format.rightMargin());
-        html += QLatin1String("px;");
-        hasStyle = true;
-    }
+    html += QLatin1String(" margin-right:");
+    html += QString::number(format.rightMargin());
+    html += QLatin1String("px;");
 
-    if (format.hasProperty(QTextFormat::BlockIndent)) {
-        html += QLatin1String(" -qt-block-indent:");
-        html += QString::number(format.indent());
-        html += QLatin1Char(';');
-        hasStyle = true;
-    }
+    html += QLatin1String(" -qt-block-indent:");
+    html += QString::number(format.indent());
+    html += QLatin1Char(';');
 
-    if (format.hasProperty(QTextFormat::TextIndent)) {
-        html += QLatin1String(" text-indent:");
-        html += QString::number(format.indent());
-        html += QLatin1String("px;");
-        hasStyle = true;
-    }
+    html += QLatin1String(" text-indent:");
+    html += QString::number(format.indent());
+    html += QLatin1String("px;");
 
     // ### 'if' needed as long as the block char format of a block at pos == 0
     // is equivalent to the char format at that position.
@@ -1381,13 +1361,10 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
     if (block.position() > 0) {
         QTextCharFormat diff = formatDifference(defaultCharFormat, block.charFormat()).toCharFormat();
         if (!diff.properties().isEmpty())
-            hasStyle |= emitCharFormatStyle(diff);
+            emitCharFormatStyle(diff);
     }
 
-    if (hasStyle)
-        html += QLatin1Char('"');
-    else
-        html.chop(qstrlen(style.latin1()));
+    html += QLatin1Char('"');
 
     QBrush bg = format.background();
     if (bg != Qt::NoBrush)
