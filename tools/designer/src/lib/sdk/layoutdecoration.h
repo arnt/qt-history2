@@ -54,7 +54,7 @@ public:
     virtual void simplify() = 0;
 
     virtual int findItemAt(const QPoint &pos) const = 0;
-    virtual int findItemAt(int row, int column) const = 0; // ### atm only for grid.
+    virtual int findItemAt(int row, int column) const = 0; // atm only for grid.
 
     virtual void adjustIndicator(const QPoint &pos, int index) = 0;
 };

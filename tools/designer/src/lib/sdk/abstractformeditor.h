@@ -53,7 +53,7 @@ public:
     QDesignerWidgetFactoryInterface *widgetFactory() const;
     QDesignerIconCacheInterface *iconCache() const;
     PluginManager *pluginManager() const;
-    QString resourceLocation() const; // ### Remove me!!!
+    QString resourceLocation() const;
 
     void setTopLevel(QWidget *topLevel);
     void setWidgetBox(QDesignerWidgetBoxInterface *widgetBox);
@@ -80,7 +80,7 @@ private:
     QPointer<QDesignerWidgetFactoryInterface> m_widgetFactory;
     QPointer<QDesignerObjectInspectorInterface> m_objectInspector;
     QPointer<QDesignerIconCacheInterface> m_iconCache;
-    PluginManager *m_pluginManager; // ### QPointer!?
+    PluginManager *m_pluginManager;
 
 private:
     QDesignerFormEditorInterface(const QDesignerFormEditorInterface &other);

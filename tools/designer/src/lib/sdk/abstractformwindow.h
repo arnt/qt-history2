@@ -124,7 +124,7 @@ signals:
     void mainContainerChanged(QWidget *mainContainer);
     void toolChanged(int toolIndex);
     void fileNameChanged(const QString &fileName);
-    void featureChanged(Feature f); // ### rename me
+    void featureChanged(Feature f);
     void selectionChanged();
     void geometryChanged();
 
@@ -135,8 +135,8 @@ signals:
     void aboutToUnmanageWidget(QWidget *widget);
     void activated(QWidget *widget);
 
-    void changed(); // ### remove me
-    void widgetRemoved(QWidget *w); // ### remove me
+    void changed();
+    void widgetRemoved(QWidget *w);
 };
 
 #endif // ABSTRACTFORMWINDOW_H

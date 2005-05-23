@@ -172,7 +172,7 @@ public:
     { qSort(this->begin(), this->end(), WidgetHorizontalSorter()); }
 };
 
-namespace Utils // ### fix the namespace
+namespace Utils
 {
 
 inline int indexOfWidget(QLayout *layout, QWidget *widget)

@@ -47,7 +47,7 @@ public:
     { return m_core; }
 
 protected:
-    using QFormBuilder::createDom; // ### fixme
+    using QFormBuilder::createDom;
     using QFormBuilder::create;
 
     virtual DomWidget *createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive = true);
