@@ -80,7 +80,7 @@ void QDesignerMemberSheet::setMemberGroup(int index, const QString &group)
 
 QString QDesignerMemberSheet::signature(int index) const
 {
-    return QString::fromUtf8(meta->method(index).signature());
+    return QString::fromUtf8(QMetaObject::normalizedSignature(meta->method(index).signature()));
 }
 
 bool QDesignerMemberSheet::isVisible(int index) const
