@@ -713,7 +713,7 @@ void SignalSlotEditor::fromUi(DomConnections *connections, QWidget *parent)
             continue;
         }
 
-        QPoint sp = QPoint(-1, -1), tp = QPoint(-1, -1);
+        QPoint sp = QPoint(20, 20), tp = QPoint(20, 20);
         DomConnectionHints *dom_hints = dom_con->elementHints();
         if (dom_hints != 0) {
             QList<DomConnectionHint*> list = dom_hints->elementHint();
