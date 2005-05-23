@@ -251,7 +251,7 @@ QFontEngineData::~QFontEngineData()
 
     Use QApplication::setFont() to set the application's default font.
 
-    If a chosen X11 font does not include all the characters that
+    If a chosen font does not include all the characters that
     need to be displayed, QFont will try to find the characters in the
     nearest equivalent fonts. When a QPainter draws a character from a
     font the QFont will report whether or not it has the character; if
@@ -302,7 +302,7 @@ QFontEngineData::~QFontEngineData()
     setPointSize() has a similar effect and provides device
     independence.
 
-    Under the X Window System you can set a font using its system
+    Under X11 you can set a font using its system
     specific name with setRawName().
 
     Loading fonts can be expensive, especially on X11. QFont contains
@@ -323,6 +323,8 @@ QFontEngineData::~QFontEngineData()
     \i If the lastResortFamily() isn't found Qt will try the
        lastResortFont() which will always return a name of some kind.
     \endlist
+
+    Note that the actual font matching algorithm varies from platform to platform.
 
     Once a font is found, the remaining attributes are matched in order of
     priority:
@@ -358,11 +360,11 @@ QFontEngineData::~QFontEngineData()
     either.
 
     \code
-    QFont f1("Helvetica [Cronyx]");  // Qt 3.x
+    QFont f1("Helvetica [Cronyx]");  // Qt 4.x and 3.x
     QFont f2("Cronyx-Helvetica");    // Qt 2.x compatibility
     \endcode
     You can specify the foundry you want in the family name. Both fonts,
-    f1 and f2, in the above example will be set to  "Helvetica
+    f1 and f2, in the above example will be set to "Helvetica
     [Cronyx]".
 
     To determine the attributes of the font actually used in the window
