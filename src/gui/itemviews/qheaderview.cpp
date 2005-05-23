@@ -784,7 +784,8 @@ void QHeaderView::setSortIndicatorShown(bool show)
 {
     Q_D(QHeaderView);
     d->sortIndicatorShown = show;
-    if (d->sections.at(sortIndicatorSection()).mode == Custom) {
+    if (d->sections.size() > sortIndicatorSection()
+        && d->sections.at(sortIndicatorSection()).mode == Custom) {
         resizeSections();
         d->viewport->update();
     }
