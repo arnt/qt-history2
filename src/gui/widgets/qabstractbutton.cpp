@@ -553,9 +553,9 @@ void QAbstractButton::setChecked(bool checked)
     }
 
     if (!checked && d->queryCheckedButton() == this) {
-            // the checked button of an exclusive or autoexclusive group cannot be  unchecked
-            if ((d->group && d->group->d_func()->exclusive) || d->autoExclusive )
-                return;
+        // the checked button of an exclusive or autoexclusive group cannot be  unchecked
+        if (d->group ? d->group->d_func()->exclusive : d->autoExclusive)
+            return;
     }
 
     QObject *guard = this;
