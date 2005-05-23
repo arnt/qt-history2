@@ -39,7 +39,7 @@
 
 #include <private/qnumeric_p.h>
 
-#if defined(Q_CC_GNU) && defined(Q_OS_WIN)
+#if (defined(Q_CC_GNU) && defined(Q_OS_WIN)) || defined(QT_QLOCALE_NEEDS_VOLATILE)
 #   define NEEDS_VOLATILE volatile
 #else
 #   define NEEDS_VOLATILE
