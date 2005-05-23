@@ -12,7 +12,7 @@
 **
 **************************************************************************-->
 <Rules>
-    <Count>3574</Count>
+    <Count>3627</Count>
     <item Type="RenamedHeader" >
         <Qt4>q3accel.h</Qt4>
         <Qt3>qaccel.h</Qt3>
@@ -843,11 +843,23 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
+        <Name>Q3AsciiCache</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
         <Name>Q3AsciiCacheIterator</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
+        <Name>Q3AsciiDict</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
         <Name>Q3AsciiDictIterator</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
+        <Name>Q3BaseBucket</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
@@ -975,6 +987,10 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
+        <Name>Q3Dict</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
         <Name>Q3DictIterator</Name>
     </item>
     <item Type="Qt4Class" >
@@ -1031,7 +1047,15 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
+        <Name>Q3GArray</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
         <Name>Q3GCache</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
+        <Name>Q3GCacheIterator</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
@@ -1039,7 +1063,15 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
+        <Name>Q3GDictIterator</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
         <Name>Q3GList</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
+        <Name>Q3GListIterator</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
@@ -1115,7 +1147,15 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
+        <Name>Q3IntCache</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
         <Name>Q3IntCacheIterator</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
+        <Name>Q3IntDict</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
@@ -1239,7 +1279,19 @@
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
+        <Name>Q3PtrCollection</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
+        <Name>Q3PtrDict</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
         <Name>Q3PtrDictIterator</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
+        <Name>Q3PtrList</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
@@ -1248,6 +1300,10 @@
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
         <Name>Q3PtrListStdIterator</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>Qt3Support</Library>
+        <Name>Q3PtrVector</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>Qt3Support</Library>
@@ -1627,14 +1683,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
-        <Name>QFixedPoint</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
-        <Name>QFixedPointLong</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
         <Name>QFlag</Name>
     </item>
     <item Type="Qt4Class" >
@@ -1767,15 +1815,15 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
+        <Name>QMetaMethod</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtCore</Library>
         <Name>QMetaObject</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
         <Name>QMetaProperty</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
-        <Name>QMetaResource</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
@@ -1923,10 +1971,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
-        <Name>QResource</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
         <Name>QReturnArgument</Name>
     </item>
     <item Type="Qt4Class" >
@@ -1952,14 +1996,6 @@
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
         <Name>QSharedDataPointer</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
-        <Name>QSignal</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtCore</Library>
-        <Name>QSignalEmitter</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
@@ -2016,6 +2052,10 @@
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
         <Name>QTextCodecFactoryInterface</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtCore</Library>
+        <Name>QTextCodecPlugin</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtCore</Library>
@@ -2143,11 +2183,23 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtDesigner</Library>
+        <Name>QAbstractExtensionManager</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtDesigner</Library>
         <Name>QAbstractFormBuilder</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtDesigner</Library>
+        <Name>QDesignerComponents</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtDesigner</Library>
         <Name>QDesignerContainerExtension</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtDesigner</Library>
+        <Name>QDesignerCustomWidgetCollectionInterface</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtDesigner</Library>
@@ -2311,6 +2363,14 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
+        <Name>QAccessibleBridgePlugin</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
+        <Name>QAccessibleEvent</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
         <Name>QAccessibleFactoryInterface</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2411,10 +2471,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QCompactStyle</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QConicalGradient</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2460,6 +2516,10 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QDecorationFactoryInterface</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
+        <Name>QDecorationPlugin</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -2591,6 +2651,10 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
+        <Name>QGfxDriverPlugin</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
         <Name>QGfxRaster</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2659,6 +2723,10 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
+        <Name>QIconEnginePlugin</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
         <Name>QIconSet</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2672,6 +2740,10 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QImageIOHandlerFactoryInterface</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
+        <Name>QImageIOPlugin</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -2696,6 +2768,10 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QInputContextFactoryInterface</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
+        <Name>QInputContextPlugin</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -2744,6 +2820,10 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QKbdDriverFactory</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
+        <Name>QKbdDriverPlugin</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -2827,14 +2907,6 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QMemoryManager</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QMemoryManagerPixmap</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QMenu</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2851,15 +2923,15 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QMotifPlusStyle</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QMotifStyle</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QMouseDriverFactory</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
+        <Name>QMouseDriverPlugin</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -2927,6 +2999,10 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
+        <Name>QPictureFormatPlugin</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
         <Name>QPictureIO</Name>
     </item>
     <item Type="Qt4Class" >
@@ -2939,11 +3015,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QPlatinumStyle</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QPocketPCStyle</Name>
+        <Name>QPlastiqueStyle</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3036,10 +3108,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QSessionManager</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QSGIStyle</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3244,6 +3312,10 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QStylePainter</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtGui</Library>
+        <Name>QStylePlugin</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3475,15 +3547,7 @@
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
-        <Name>QWidgetContainerPlugin</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
         <Name>QWidgetData</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWidgetFactoryInterface</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3496,10 +3560,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QWidgetMapper</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWidgetPlugin</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3648,10 +3708,6 @@
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
         <Name>QWSPointerCalibrationData</Name>
-    </item>
-    <item Type="Qt4Class" >
-        <Library>QtGui</Library>
-        <Name>QWSPolygonScanner</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtGui</Library>
@@ -3960,6 +4016,10 @@
     <item Type="Qt4Class" >
         <Library>QtSql</Library>
         <Name>QSqlDriverFactoryInterface</Name>
+    </item>
+    <item Type="Qt4Class" >
+        <Library>QtSql</Library>
+        <Name>QSqlDriverPlugin</Name>
     </item>
     <item Type="Qt4Class" >
         <Library>QtSql</Library>
@@ -4584,8 +4644,11 @@
     <item Type="qt4Header" >Q3Action</item>
     <item Type="qt4Header" >Q3ActionGroup</item>
     <item Type="qt4Header" >Q3AsciiBucket</item>
+    <item Type="qt4Header" >Q3AsciiCache</item>
     <item Type="qt4Header" >Q3AsciiCacheIterator</item>
+    <item Type="qt4Header" >Q3AsciiDict</item>
     <item Type="qt4Header" >Q3AsciiDictIterator</item>
+    <item Type="qt4Header" >Q3BaseBucket</item>
     <item Type="qt4Header" >Q3Button</item>
     <item Type="qt4Header" >Q3ButtonGroup</item>
     <item Type="qt4Header" >Q3CString</item>
@@ -4617,6 +4680,7 @@
     <item Type="qt4Header" >Q3DateTimeEdit</item>
     <item Type="qt4Header" >Q3DateTimeEditBase</item>
     <item Type="qt4Header" >Q3DeepCopy</item>
+    <item Type="qt4Header" >Q3Dict</item>
     <item Type="qt4Header" >Q3DictIterator</item>
     <item Type="qt4Header" >Q3Dns</item>
     <item Type="qt4Header" >Q3DnsSocket</item>
@@ -4631,9 +4695,13 @@
     <item Type="qt4Header" >Q3FilePreview</item>
     <item Type="qt4Header" >Q3Frame</item>
     <item Type="qt4Header" >Q3Ftp</item>
+    <item Type="qt4Header" >Q3GArray</item>
     <item Type="qt4Header" >Q3GCache</item>
+    <item Type="qt4Header" >Q3GCacheIterator</item>
     <item Type="qt4Header" >Q3GDict</item>
+    <item Type="qt4Header" >Q3GDictIterator</item>
     <item Type="qt4Header" >Q3GList</item>
+    <item Type="qt4Header" >Q3GListIterator</item>
     <item Type="qt4Header" >Q3GListStdIterator</item>
     <item Type="qt4Header" >Q3GVector</item>
     <item Type="qt4Header" >Q3Grid</item>
@@ -4652,7 +4720,9 @@
     <item Type="qt4Header" >Q3IconViewItem</item>
     <item Type="qt4Header" >Q3ImageDrag</item>
     <item Type="qt4Header" >Q3IntBucket</item>
+    <item Type="qt4Header" >Q3IntCache</item>
     <item Type="qt4Header" >Q3IntCacheIterator</item>
+    <item Type="qt4Header" >Q3IntDict</item>
     <item Type="qt4Header" >Q3IntDictIterator</item>
     <item Type="qt4Header" >Q3LNode</item>
     <item Type="qt4Header" >Q3ListBox</item>
@@ -4683,9 +4753,13 @@
     <item Type="qt4Header" >Q3ProgressBar</item>
     <item Type="qt4Header" >Q3ProgressDialog</item>
     <item Type="qt4Header" >Q3PtrBucket</item>
+    <item Type="qt4Header" >Q3PtrCollection</item>
+    <item Type="qt4Header" >Q3PtrDict</item>
     <item Type="qt4Header" >Q3PtrDictIterator</item>
+    <item Type="qt4Header" >Q3PtrList</item>
     <item Type="qt4Header" >Q3PtrListIterator</item>
     <item Type="qt4Header" >Q3PtrListStdIterator</item>
+    <item Type="qt4Header" >Q3PtrVector</item>
     <item Type="qt4Header" >Q3RangeControl</item>
     <item Type="qt4Header" >Q3ScrollView</item>
     <item Type="qt4Header" >Q3Semaphore</item>
@@ -4743,6 +4817,7 @@
     <item Type="qt4Header" >QAbstractButton</item>
     <item Type="qt4Header" >QAbstractEventDispatcher</item>
     <item Type="qt4Header" >QAbstractExtensionFactory</item>
+    <item Type="qt4Header" >QAbstractExtensionManager</item>
     <item Type="qt4Header" >QAbstractFormBuilder</item>
     <item Type="qt4Header" >QAbstractItemDelegate</item>
     <item Type="qt4Header" >QAbstractItemModel</item>
@@ -4761,6 +4836,8 @@
     <item Type="qt4Header" >QAccessibleApplication</item>
     <item Type="qt4Header" >QAccessibleBridge</item>
     <item Type="qt4Header" >QAccessibleBridgeFactoryInterface</item>
+    <item Type="qt4Header" >QAccessibleBridgePlugin</item>
+    <item Type="qt4Header" >QAccessibleEvent</item>
     <item Type="qt4Header" >QAccessibleFactoryInterface</item>
     <item Type="qt4Header" >QAccessibleInterface</item>
     <item Type="qt4Header" >QAccessibleObject</item>
@@ -4815,7 +4892,6 @@
     <item Type="qt4Header" >QColormap</item>
     <item Type="qt4Header" >QComboBox</item>
     <item Type="qt4Header" >QCommonStyle</item>
-    <item Type="qt4Header" >QCompactStyle</item>
     <item Type="qt4Header" >QConicalGradient</item>
     <item Type="qt4Header" >QConstString</item>
     <item Type="qt4Header" >QContextMenuEvent</item>
@@ -4837,9 +4913,12 @@
     <item Type="qt4Header" >QDecorationDefault</item>
     <item Type="qt4Header" >QDecorationFactory</item>
     <item Type="qt4Header" >QDecorationFactoryInterface</item>
+    <item Type="qt4Header" >QDecorationPlugin</item>
     <item Type="qt4Header" >QDecorationStyled</item>
     <item Type="qt4Header" >QDecorationWindows</item>
+    <item Type="qt4Header" >QDesignerComponents</item>
     <item Type="qt4Header" >QDesignerContainerExtension</item>
+    <item Type="qt4Header" >QDesignerCustomWidgetCollectionInterface</item>
     <item Type="qt4Header" >QDesignerCustomWidgetInterface</item>
     <item Type="qt4Header" >QDesignerDnDItemInterface</item>
     <item Type="qt4Header" >QDesignerExtraInfoExtension</item>
@@ -4911,8 +4990,6 @@
     <item Type="qt4Header" >QFileInfoList</item>
     <item Type="qt4Header" >QFileInfoListIterator</item>
     <item Type="qt4Header" >QFileOpenEvent</item>
-    <item Type="qt4Header" >QFixedPoint</item>
-    <item Type="qt4Header" >QFixedPointLong</item>
     <item Type="qt4Header" >QFlag</item>
     <item Type="qt4Header" >QFlags</item>
     <item Type="qt4Header" >QFocusEvent</item>
@@ -4937,6 +5014,7 @@
     <item Type="qt4Header" >QGfx</item>
     <item Type="qt4Header" >QGfxDriverFactory</item>
     <item Type="qt4Header" >QGfxDriverFactoryInterface</item>
+    <item Type="qt4Header" >QGfxDriverPlugin</item>
     <item Type="qt4Header" >QGfxRaster</item>
     <item Type="qt4Header" >QGfxRasterBase</item>
     <item Type="qt4Header" >QGfxShadow</item>
@@ -4970,16 +5048,19 @@
     <item Type="qt4Header" >QIconDragEvent</item>
     <item Type="qt4Header" >QIconEngine</item>
     <item Type="qt4Header" >QIconEngineFactoryInterface</item>
+    <item Type="qt4Header" >QIconEnginePlugin</item>
     <item Type="qt4Header" >QIconSet</item>
     <item Type="qt4Header" >QImage</item>
     <item Type="qt4Header" >QImageIOHandler</item>
     <item Type="qt4Header" >QImageIOHandlerFactoryInterface</item>
+    <item Type="qt4Header" >QImageIOPlugin</item>
     <item Type="qt4Header" >QImageReader</item>
     <item Type="qt4Header" >QImageTextKeyLang</item>
     <item Type="qt4Header" >QImageWriter</item>
     <item Type="qt4Header" >QInputContext</item>
     <item Type="qt4Header" >QInputContextFactory</item>
     <item Type="qt4Header" >QInputContextFactoryInterface</item>
+    <item Type="qt4Header" >QInputContextPlugin</item>
     <item Type="qt4Header" >QInputDialog</item>
     <item Type="qt4Header" >QInputEvent</item>
     <item Type="qt4Header" >QInputMethodEvent</item>
@@ -4992,6 +5073,7 @@
     <item Type="qt4Header" >QItemSelectionModel</item>
     <item Type="qt4Header" >QItemSelectionRange</item>
     <item Type="qt4Header" >QKbdDriverFactory</item>
+    <item Type="qt4Header" >QKbdDriverPlugin</item>
     <item Type="qt4Header" >QKeyEvent</item>
     <item Type="qt4Header" >QKeySequence</item>
     <item Type="qt4Header" >QLCDNumber</item>
@@ -5031,8 +5113,6 @@
     <item Type="qt4Header" >QMapIterator</item>
     <item Type="qt4Header" >QMatrix</item>
     <item Type="qt4Header" >QMatroxScreen</item>
-    <item Type="qt4Header" >QMemoryManager</item>
-    <item Type="qt4Header" >QMemoryManagerPixmap</item>
     <item Type="qt4Header" >QMenu</item>
     <item Type="qt4Header" >QMenuBar</item>
     <item Type="qt4Header" >QMenuItem</item>
@@ -5040,9 +5120,9 @@
     <item Type="qt4Header" >QMetaClassInfo</item>
     <item Type="qt4Header" >QMetaEnum</item>
     <item Type="qt4Header" >QMetaMember</item>
+    <item Type="qt4Header" >QMetaMethod</item>
     <item Type="qt4Header" >QMetaObject</item>
     <item Type="qt4Header" >QMetaProperty</item>
-    <item Type="qt4Header" >QMetaResource</item>
     <item Type="qt4Header" >QMetaType</item>
     <item Type="qt4Header" >QMetaTypeId</item>
     <item Type="qt4Header" >QMimeData</item>
@@ -5050,10 +5130,10 @@
     <item Type="qt4Header" >QModelIndexList</item>
     <item Type="qt4Header" >QMotif</item>
     <item Type="qt4Header" >QMotifDialog</item>
-    <item Type="qt4Header" >QMotifPlusStyle</item>
     <item Type="qt4Header" >QMotifStyle</item>
     <item Type="qt4Header" >QMotifWidget</item>
     <item Type="qt4Header" >QMouseDriverFactory</item>
+    <item Type="qt4Header" >QMouseDriverPlugin</item>
     <item Type="qt4Header" >QMouseEvent</item>
     <item Type="qt4Header" >QMoveEvent</item>
     <item Type="qt4Header" >QMovie</item>
@@ -5100,12 +5180,12 @@
     <item Type="qt4Header" >QPersistentModelIndex</item>
     <item Type="qt4Header" >QPicture</item>
     <item Type="qt4Header" >QPictureFormatInterface</item>
+    <item Type="qt4Header" >QPictureFormatPlugin</item>
     <item Type="qt4Header" >QPictureIO</item>
     <item Type="qt4Header" >QPixmap</item>
     <item Type="qt4Header" >QPixmapCache</item>
-    <item Type="qt4Header" >QPlatinumStyle</item>
+    <item Type="qt4Header" >QPlastiqueStyle</item>
     <item Type="qt4Header" >QPluginLoader</item>
-    <item Type="qt4Header" >QPocketPCStyle</item>
     <item Type="qt4Header" >QPoint</item>
     <item Type="qt4Header" >QPointF</item>
     <item Type="qt4Header" >QPointer</item>
@@ -5132,11 +5212,9 @@
     <item Type="qt4Header" >QRegion</item>
     <item Type="qt4Header" >QRepeaterScreen</item>
     <item Type="qt4Header" >QResizeEvent</item>
-    <item Type="qt4Header" >QResource</item>
     <item Type="qt4Header" >QReturnArgument</item>
     <item Type="qt4Header" >QRgb</item>
     <item Type="qt4Header" >QRubberBand</item>
-    <item Type="qt4Header" >QSGIStyle</item>
     <item Type="qt4Header" >QSNAPScreen</item>
     <item Type="qt4Header" >QSQLite2Driver</item>
     <item Type="qt4Header" >QSQLite2Result</item>
@@ -5159,8 +5237,6 @@
     <item Type="qt4Header" >QShortcut</item>
     <item Type="qt4Header" >QShortcutEvent</item>
     <item Type="qt4Header" >QShowEvent</item>
-    <item Type="qt4Header" >QSignal</item>
-    <item Type="qt4Header" >QSignalEmitter</item>
     <item Type="qt4Header" >QSignalMapper</item>
     <item Type="qt4Header" >QSize</item>
     <item Type="qt4Header" >QSizeF</item>
@@ -5179,6 +5255,7 @@
     <item Type="qt4Header" >QSqlDriverCreator</item>
     <item Type="qt4Header" >QSqlDriverCreatorBase</item>
     <item Type="qt4Header" >QSqlDriverFactoryInterface</item>
+    <item Type="qt4Header" >QSqlDriverPlugin</item>
     <item Type="qt4Header" >QSqlError</item>
     <item Type="qt4Header" >QSqlField</item>
     <item Type="qt4Header" >QSqlIndex</item>
@@ -5231,6 +5308,7 @@
     <item Type="qt4Header" >QStyleOptionToolButton</item>
     <item Type="qt4Header" >QStyleOptionViewItem</item>
     <item Type="qt4Header" >QStylePainter</item>
+    <item Type="qt4Header" >QStylePlugin</item>
     <item Type="qt4Header" >QSysInfo</item>
     <item Type="qt4Header" >QTDSDriver</item>
     <item Type="qt4Header" >QTDSResult</item>
@@ -5252,6 +5330,7 @@
     <item Type="qt4Header" >QTextCharFormat</item>
     <item Type="qt4Header" >QTextCodec</item>
     <item Type="qt4Header" >QTextCodecFactoryInterface</item>
+    <item Type="qt4Header" >QTextCodecPlugin</item>
     <item Type="qt4Header" >QTextCursor</item>
     <item Type="qt4Header" >QTextDecoder</item>
     <item Type="qt4Header" >QTextDocument</item>
@@ -5354,7 +5433,6 @@
     <item Type="qt4Header" >QWSPcMouseHandler</item>
     <item Type="qt4Header" >QWSPlaySoundCommand</item>
     <item Type="qt4Header" >QWSPointerCalibrationData</item>
-    <item Type="qt4Header" >QWSPolygonScanner</item>
     <item Type="qt4Header" >QWSPositionCursorCommand</item>
     <item Type="qt4Header" >QWSPropertyManager</item>
     <item Type="qt4Header" >QWSProtocolItem</item>
@@ -5394,13 +5472,10 @@
     <item Type="qt4Header" >QWhatsThisClickedEvent</item>
     <item Type="qt4Header" >QWheelEvent</item>
     <item Type="qt4Header" >QWidget</item>
-    <item Type="qt4Header" >QWidgetContainerPlugin</item>
     <item Type="qt4Header" >QWidgetData</item>
-    <item Type="qt4Header" >QWidgetFactoryInterface</item>
     <item Type="qt4Header" >QWidgetItem</item>
     <item Type="qt4Header" >QWidgetList</item>
     <item Type="qt4Header" >QWidgetMapper</item>
-    <item Type="qt4Header" >QWidgetPlugin</item>
     <item Type="qt4Header" >QWindowStateChangeEvent</item>
     <item Type="qt4Header" >QWindowsMime</item>
     <item Type="qt4Header" >QWindowsStyle</item>
@@ -6415,12 +6490,20 @@
         <Qt3>QDir::DefaultSort</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
+        <Qt4>QEvent::Shortcut</Qt4>
+        <Qt3>QEvent::Accel</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
         <Qt4>QEvent::ShortcutOverride</Qt4>
         <Qt3>QEvent::AccelOverride</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>QEvent::WindowTitleChange</Qt4>
         <Qt3>QEvent::CaptionChange</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>QEvent::ChildAdded</Qt4>
+        <Qt3>QEvent::ChildInserted</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>QEvent::InputMethodCompose</Qt4>
@@ -6437,6 +6520,14 @@
     <item Type="RenamedEnumvalue" >
         <Qt4>QEvent::WindowIconChange</Qt4>
         <Qt3>QEvent::IconChange</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>QEvent::LayoutRequest</Qt4>
+        <Qt3>QEvent::LayoutHint</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>QEvent::ParentChange</Qt4>
+        <Qt3>QEvent::Reparent</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>QFile::ExeGroup</Qt4>
@@ -6521,6 +6612,26 @@
     <item Type="RenamedEnumvalue" >
         <Qt4>Qt::KeepAspectRatio</Qt4>
         <Qt3>QImage::ScaleMin</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>QKeySequence::ExactMatch</Qt4>
+        <Qt3>QKeySequence::Identical</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>QLayout::SetDefaultConstraint</Qt4>
+        <Qt3>QLayout::Auto</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>QLayout::SetFixedSize</Qt4>
+        <Qt3>QLayout::Fixed</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>QLayout::SetNoConstraint</Qt4>
+        <Qt3>QLayout::FreeResize</Qt3>
+    </item>
+    <item Type="RenamedEnumvalue" >
+        <Qt4>QLayout::SetMinimumSize</Qt4>
+        <Qt3>QLayout::Minimum</Qt3>
     </item>
     <item Type="RenamedEnumvalue" >
         <Qt4>QMacStyle::SizeDefault</Qt4>
@@ -9323,7 +9434,7 @@
         <Qt3>QGridWidget::Direction</Qt3>
     </item>
     <item Type="RenamedType" >
-        <Qt4>Q_LONGLONG</Qt4>
+        <Qt4>qlonglong</Qt4>
         <Qt3>QIODevice::Offset</Qt3>
     </item>
     <item Type="RenamedType" >
@@ -9363,11 +9474,11 @@
         <Qt3>QWidget::FocusPolicy</Qt3>
     </item>
     <item Type="RenamedType" >
-        <Qt4>Q_LONGLONG</Qt4>
+        <Qt4>qlonglong</Qt4>
         <Qt3>Q_LLONG</Qt3>
     </item>
     <item Type="RenamedType" >
-        <Qt4>Q_ULONGLONG</Qt4>
+        <Qt4>qulonglong</Qt4>
         <Qt3>Q_ULLONG</Qt3>
     </item>
     <item Type="RenamedType" >
@@ -9871,8 +9982,64 @@
         <Header>Q3Action</Header>
     </item>
     <item Type="NeedHeader" >
+        <Class>Q3ActionGroup</Class>
+        <Header>Q3ActionGroup</Header>
+    </item>
+    <item Type="NeedHeader" >
         <Class>qPixmapFromMimeSource</Class>
         <Header>q3mimefactory.h</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3SqlFiledInfo</Class>
+        <Header>Q3SqlFiledInfo</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3SqlFiledInfoList</Class>
+        <Header>Q3SqlFiledInfoList</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3SqlCursor</Class>
+        <Header>Q3SqlCursor</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3SqlEditorFactory</Class>
+        <Header>Q3SqlEditorFactory</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3SqlForm</Class>
+        <Header>Q3SqlForm</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3SqlPropertyMap</Class>
+        <Header>Q3SqlPropertyMap</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3SqlRecordInfo</Class>
+        <Header>Q3SqlRecordInfo</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3SqlSelectCursor</Class>
+        <Header>Q3SqlSelectCursor</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>QSqlError</Class>
+        <Header>QSqlError</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>QSqlQuery</Class>
+        <Header>QSqlQuery</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3PointArray</Class>
+        <Header>Q3PointArray</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3PopupMenu</Class>
+        <Header>Q3PopupMenu</Header>
+    </item>
+    <item Type="NeedHeader" >
+        <Class>Q3button</Class>
+        <Header>Q3button</Header>
     </item>
     <item Type="RenamedHeader" >
         <Qt4>qnamespace.h</Qt4>
