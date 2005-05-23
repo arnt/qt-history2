@@ -480,6 +480,7 @@ static QTextListFormat::Style nextListStyle(QTextListFormat::Style style)
 void QTextHTMLImporter::import()
 {
     bool hasBlock = false;
+    bool forceBlockMerging = false;
     for (int i = 0; i < count(); ++i) {
         const QTextHtmlParserNode *node = &at(i);
 
@@ -667,12 +668,16 @@ void QTextHTMLImporter::import()
             if (node->bgColor.isValid())
                 block.setBackground(QBrush(node->bgColor));
 
-            if (hasBlock && !node->isEmptyParagraph) {
+            if (hasBlock && (!node->isEmptyParagraph || forceBlockMerging)) {
                 d->fragments.last().blockFormat = d->formatCollection.indexForFormat(block);
                 d->fragments.last().charFormat = d->formatCollection.indexForFormat(charFmt);
             } else {
                 appendBlock(block, charFmt, separator);
             }
+
+            forceBlockMerging = false;
+            if (node->id == Html_body || node->id == Html_html)
+                forceBlockMerging = true;
 
             if (node->isEmptyParagraph)
                 continue;
