@@ -22,7 +22,7 @@ DragLabel::DragLabel(const QString &text, QWidget *parent)
     QSize size = fm.size(Qt::TextSingleLine, text);
 
     QImage image(size.width() + 12, size.height() + 12, QImage::Format_ARGB32_Premultiplied);
-    image.fill(qRgba(255, 255, 255, 0));
+    image.fill(qRgba(0, 0, 0, 0));
 
     QFont font;
     font.setStyleStrategy(QFont::ForceOutline);
@@ -31,7 +31,7 @@ DragLabel::DragLabel(const QString &text, QWidget *parent)
     painter.begin(&image);
     painter.setRenderHint(QPainter::Antialiasing);
     painter.setBrush(Qt::white);
-    painter.drawRoundRect(0, 0, image.width()-1, image.height()-1, 25, 25);
+    painter.drawRoundRect(QRectF(0.5, 0.5, image.width()-1, image.height()-1), 25, 25);
 
     painter.setFont(font);
     painter.setBrush(Qt::black);
