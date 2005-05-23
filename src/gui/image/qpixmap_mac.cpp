@@ -504,6 +504,10 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
     //create destination
     QPixmap pm = depth() == 1 ? QPixmap(QBitmap(w, h)) : QPixmap(w, h);
 
+    const uchar *sptr = (uchar *)data->pixels;
+    uchar *dptr = (uchar *)pm.data->pixels;
+    memset(dptr, 0, pm.data->nbytes);
+
     //do the transform
     if(mode == Qt::SmoothTransformation) {
         QPainter p(&pm);
@@ -517,9 +521,6 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
         if(!invertible)
             return QPixmap();
 
-        const uchar *sptr = (uchar *)data->pixels;
-        uchar *dptr = (uchar *)pm.data->pixels;
-        memset(dptr, 0, pm.data->nbytes);
 
         const int bpp = 32;
         const int xbpl = (w * bpp) / 8;
