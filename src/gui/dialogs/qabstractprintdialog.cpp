@@ -202,3 +202,44 @@ QPrinter *QAbstractPrintDialog::printer() const
     This virtual function is called to pop up the dialog. It must be
     reimplemented in subclasses.
 */
+
+/*!
+    \class QPrintDialog qprintdialog.h
+
+    \brief The QPrintDialog class provides a dialog for specifying
+    the printer's configuration.
+
+    \ingroup dialogs
+
+    It encompasses both the sort of details needed for doing a simple
+    print-out and some print configuration setup.
+
+    Typical use of the QPrintDialog is to construct it on a QPrinter
+    object and call exec() to execute it.
+
+    \code
+    QPrintDialog printDialog(printer, parent);
+    if (printDialog.exec() == QDialog::Accept) {
+        // print ...
+    }
+    \endcode
+
+    The printer dialog in Motif style:
+
+    \img qprintdlg-m.png
+*/
+
+/*!
+    \fn QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
+
+    Constructs a new modal printer dialog for the given \a printer
+    with the given \a parent.
+*/
+
+/*!
+    \fn int QPrintDialog::exec()
+
+    Launches the print dialog.
+
+    \sa QDialog::DialogCode, accept(), reject()
+*/

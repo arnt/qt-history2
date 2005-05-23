@@ -846,47 +846,6 @@ static char *parseCupsOutput(QList<QPrinterDescription> *printers)
 }
 #endif
 
-/*!
-  \class QPrintDialog qprintdialog.h
-
-  \brief The QPrintDialog class provides a dialog for specifying
-  the printer's configuration.
-
-  \internal
-
-  \ingroup dialogs
-
-  \warning The use of this class is not recommended since it is not
-  present on all platforms; use QPrinter::setup() instead.
-
-  \omit
-
-  (ingroup dialogs)
-
-  THIS DOCUMENTATION IS Not Revised. It must be revised before
-  becoming public API.
-
-  \endomit
-
-  It encompasses both the sort of details needed for doing a simple
-  print-out and some print configuration setup.
-
-  The easiest way to use the class is through the static
-  function getPrinterSetup().  You can also subclass the QPrintDialog
-  and add some custom buttons with addButton() to extend the
-  functionality of the print dialog.
-
-  The printer dialog in Motif style:
-
-  \img qprintdlg-m.png
-*/
-
-
-/*!
-    Constructs a new modal printer dialog for the given \a printer
-    with the given \a parent.
-*/
-
 QPrintDialog::QPrintDialog(QPrinter *printer, QWidget *parent)
     : QAbstractPrintDialog(*(new QPrintDialogPrivate), printer, parent)
 {
