@@ -20,6 +20,7 @@
 #include <private/qfsfileengine_p.h>
 #include <qfile.h>
 #include <qdir.h>
+#include <qdebug.h>
 
 #include <stdlib.h>
 #include <limits.h>
@@ -362,7 +363,10 @@ QString QFSFileEngine::fileName(FileName file) const
                 ret += QLatin1Char('/');
             ret += d->file;
         }
+        bool isDir = ret.endsWith(QLatin1String("/"));
         ret = QDir::cleanPath(ret);
+        if (isDir)
+            ret += QLatin1String("/");
         if(file == AbsolutePathName) {
             int slash = ret.lastIndexOf(QLatin1Char('/'));
             if(slash == -1)
