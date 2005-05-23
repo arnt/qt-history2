@@ -209,7 +209,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
 
     Q_ASSERT(item->num_glyphs <= item->length);
 
-//     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", num_glyphs);
+//     qDebug("QScriptEngine::heuristicSetGlyphAttributes, num_glyphs=%d", item->num_glyphs);
     QGlyphLayout *glyphs = item->glyphs;
     unsigned short *logClusters = item->log_clusters;
 
@@ -242,17 +242,25 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
     glyphs[0].attributes.mark = false;
     glyphs[0].attributes.clusterStart = true;
 
-    int pos = 1;
+    int pos = 0;
     QChar::Category lastCat = ::category(uc[0]);
-    while (pos < item->num_glyphs) {
-        QChar::Category cat = ::category(uc[logClusters[pos]]);
+    for (int i = 1; i < item->length; ++i) {
+        if (logClusters[i] == pos)
+            // same glyph
+            continue;
+        ++pos;
+        while (pos < logClusters[i]) {
+            glyphs[pos].attributes = glyphs[pos-1].attributes;
+            ++pos;
+        }
+        QChar::Category cat = ::category(uc[i]);
         if (cat != QChar::Mark_NonSpacing) {
             glyphs[pos].attributes.mark = false;
             glyphs[pos].attributes.clusterStart = true;
             glyphs[pos].attributes.combiningClass = 0;
-            cStart = logClusters[pos];
+            cStart = logClusters[i];
         } else {
-            int cmb = combiningClass(uc[logClusters[pos]]);
+            int cmb = combiningClass(uc[i]);
 
             if (cmb == 0) {
                 // Fix 0 combining classes
@@ -287,8 +295,7 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
             glyphs[pos].attributes.mark = true;
             glyphs[pos].attributes.clusterStart = false;
             glyphs[pos].attributes.combiningClass = cmb;
-            // qDebug("found a mark at position %d", pos);
-            logClusters[pos] = cStart;
+            logClusters[i] = cStart;
             glyphs[pos].advance = QPointF();
         }
 
@@ -300,12 +307,12 @@ static void heuristicSetGlyphAttributes(QShaperItem *item)
             glyphs[pos-1].attributes.justification = QGlyphLayout::NoJustification;
 
         lastCat = cat;
-        pos++;
     }
+    pos = logClusters[item->length-1];
     if (lastCat == QChar::Separator_Space)
-        glyphs[pos-1].attributes.justification = QGlyphLayout::Space;
+        glyphs[pos].attributes.justification = QGlyphLayout::Space;
     else
-        glyphs[pos-1].attributes.justification = QGlyphLayout::Character;
+        glyphs[pos].attributes.justification = QGlyphLayout::Character;
 }
 
 static bool basic_shape(QShaperItem *item)
