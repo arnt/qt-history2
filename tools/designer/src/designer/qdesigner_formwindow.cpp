@@ -126,10 +126,12 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
         box.setButtonText(QMessageBox::Yes, m_editor->fileName().isEmpty() ? tr("Save...") : tr("Save"));
         box.setButtonText(QMessageBox::No, tr("Don't Save"));
         switch (box.exec()) {
-            case QMessageBox::Yes:
-                ev->setAccepted(workbench()->saveForm(m_editor));
-                m_editor->setDirty(false);
+            case QMessageBox::Yes: {
+                bool ok = workbench()->saveForm(m_editor);
+                ev->setAccepted(ok);
+                m_editor->setDirty(!ok);
                 break;
+            }
             case QMessageBox::No:
                 m_editor->setDirty(false); // Not really necessary, but stops problems if we get close again.
                 ev->accept();
