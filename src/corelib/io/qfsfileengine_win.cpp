@@ -511,7 +511,7 @@ QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) 
     Q_D(const QFSFileEngine);
     QStringList ret;
 
-    bool doDirs     = (filters & QDir::Dirs)!= 0;
+    bool doDirs     = (filters & (QDir::Dirs | QDir::AllDirs)) != 0;
     bool doFiles    = (filters & QDir::Files) != 0;
     bool noSymLinks = (filters & QDir::NoSymLinks) != 0;
     bool doReadable = (filters & QDir::Readable) != 0;
