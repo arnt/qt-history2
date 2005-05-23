@@ -242,8 +242,7 @@ static void qmake_error_msg(const QString &msg)
    4) environment variable QMAKEPATH (as separated by colons) + /mkspecs/FEATURES_DIR
    5) your QMAKESPEC/features dir
    6) your data_install/mkspecs/FEATURES_DIR
-   7) environment variable QTDIR/mkspecs/FEATURES_DIR
-   8) your QMAKESPEC/../FEATURES_DIR dir
+   7) your QMAKESPEC/../FEATURES_DIR dir
 
    FEATURES_DIR is defined as:
 
@@ -329,12 +328,6 @@ QStringList qmake_feature_paths(QMakeProperty *prop=0)
     }
     if(!Option::mkfile::qmakespec.isEmpty())
         feature_roots << Option::mkfile::qmakespec + QDir::separator() + "features";
-    QByteArray qtdir = qgetenv("QTDIR");
-    if (!qtdir.isNull()) {
-        for(QStringList::Iterator concat_it = concat.begin();
-            concat_it != concat.end(); ++concat_it)
-            feature_roots << (QString::fromLocal8Bit(qtdir) + mkspecs_concat + (*concat_it));
-    }
     if(!Option::mkfile::qmakespec.isEmpty()) {
         QFileInfo specfi(Option::mkfile::qmakespec);
         QDir specdir(specfi.absoluteFilePath());
@@ -379,15 +372,8 @@ QStringList qmake_mkspec_paths()
             ret << ((*it) + concat);
 #endif
     }
-    const QByteArray qtdir = qgetenv("QTDIR");
-    if(!qtdir.isNull())
-        ret << (QString::fromLocal8Bit(qtdir) + concat);
-    ret << QLibraryInfo::location(QLibraryInfo::PrefixPath) + concat;
     ret << QLibraryInfo::location(QLibraryInfo::DataPath) + concat;
 
-    // prefer $QTDIR if it is set
-    if(!qtdir.isNull())
-        ret << QString::fromLocal8Bit(qtdir);
     return ret;
 }
 
