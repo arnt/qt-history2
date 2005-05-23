@@ -58,17 +58,17 @@
 
     \code
     <Rules>
-        <Include>/path/to/q3porting.xml</Include>
+      <Include>/path/to/q3porting.xml</Include>
 
-        <item Type="RenamedHeader" Disable="True" >
-            <Qt4>q3sqlselectcursor.h</Qt4>
-            <Qt3>qsqlselectcursor.h</Qt3>
-        </item>
+      <item Type="RenamedHeader" Disable="True" >
+        <Qt4>q3sqlselectcursor.h</Qt4>
+        <Qt3>qsqlselectcursor.h</Qt3>
+      </item>
 
-        <item Type="RenamedHeader" >
-            <Qt4>newclass.h</Qt4>
-            <Qt3>oldclass.h</Qt3>
-        </item>
+      <item Type="RenamedHeader" >
+        <Qt4>newclass.h</Qt4>
+        <Qt3>oldclass.h</Qt3>
+      </item>
     </Rules>
     \endcode
 
@@ -77,35 +77,4 @@
     The porting tool logs all changes to a file called \c
     portinglog.txt in the current directory. This file lists all
     changes made to the source files.
-
-    \section1 State of the Porting Tool
-
-    The current version of the \c qt3to4 tool is a beta version. It
-    is intended to demonstrate how the finished program will work.
-    You are encouraged to test it on your projects and
-    \l{mailto:qt-bugs@trolltech.com}{report issues to us}.
-
-    The following are known issues with this version that will be
-    addressed in the next release:
-
-    \list
-    \o  \e{Scoping of names isn't handled correctly.}
-        This version of the Qt porting tool might change names which
-        it shouldn't. For example, a user variable named \c lightGray
-        will be changed to \c Qt::lightGray, because the tool doesn't
-        parse user variable declarations yet.
-
-    \o  \e{The \c .pro file isn't always updated to take into account 
-	the Qt library split.}
-        Since the Qt library has been split into several smaller
-        libraries, a \c{QT} entry needs to be added to the \c .pro
-        file depending on witch classes are used. The
-        \l{qt3support.html}{qt3support} library is added if it's not
-        already specified.
-
-    \o  \e{Porting of designer \c .ui files is incomplete and might require
-	some manual work.}
-
-    \o  \e{The \c q3porting.xml file isn't complete.}
-    \endlist
 */
