@@ -679,7 +679,7 @@ void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
 
 HBITMAP qt_createIconMask(const QBitmap &bitmap)
 {
-    QImage bm = bitmap.toImage();
+    QImage bm = bitmap.toImage().convertToFormat(QImage::Format_Mono);
     int w = bm.width();
     int h = bm.height();
     int bpl = ((w+15)/16)*2;                        // bpl, 16 bit alignment
@@ -711,7 +711,7 @@ HICON qt_createIcon(QIcon icon, int xSize, int ySize, QPixmap **cache)
         ICONINFO ii;
         ii.fIcon    = true;
         ii.hbmMask  = im;
-        ii.hbmColor = pm.toWinHBITMAP(QPixmap::PremultipliedAlpha);
+        ii.hbmColor = pm.toWinHBITMAP();
         ii.xHotspot = 0;
         ii.yHotspot = 0;
         result = CreateIconIndirect(&ii);
