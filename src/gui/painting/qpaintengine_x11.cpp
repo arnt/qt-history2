@@ -1165,7 +1165,7 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 void QX11PaintEngine::drawEllipse(const QRect &rect)
 {
     Q_D(QX11PaintEngine);
-    if (d->use_path_fallback || d->cpen.color().alpha() != 255 || d->cbrush.color() != 255) {
+    if (d->use_path_fallback || d->cpen.color().alpha() != 255 || d->cbrush.color().alpha() != 255) {
         QPainterPath path;
         path.addEllipse(rect);
         drawPath(path);
