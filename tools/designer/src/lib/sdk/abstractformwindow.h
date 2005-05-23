@@ -45,26 +45,37 @@ public:
     virtual QString fileName() const = 0;
     virtual QDir absoluteDir() const = 0;
 
-    virtual bool hasFeature(Feature f) const = 0;
+    virtual QString contents() const = 0;
+    virtual void setContents(QIODevice *dev) = 0;
+
     virtual Feature features() const = 0;
+    virtual bool hasFeature(Feature f) const = 0;
+
+    virtual QString author() const = 0;
+    virtual void setAuthor(const QString &author) = 0;
+
+    virtual QString comment() const = 0;
+    virtual void setComment(const QString &comment) = 0;
+
+    virtual void layoutDefault(int *margin, int *spacing) = 0;
+    virtual void setLayoutDefault(int margin, int spacing) = 0;
+
+    virtual void layoutFunction(QString *margin, QString *spacing) = 0;
+    virtual void setLayoutFunction(const QString &margin, const QString &spacing) = 0;
+
+    virtual QString pixmapFunction() const = 0;
+    virtual void setPixmapFunction(const QString &pixmapFunction) = 0;
 
     virtual QDesignerFormEditorInterface *core() const;
-
     virtual QDesignerFormWindowCursorInterface *cursor() const = 0;
 
     virtual int toolCount() const = 0;
+
     virtual int currentTool() const = 0;
     virtual void setCurrentTool(int index) = 0;
+
     virtual QDesignerFormWindowToolInterface *tool(int index) const = 0;
     virtual void registerTool(QDesignerFormWindowToolInterface *tool) = 0;
-
-    virtual QString author() const = 0;
-    virtual QString comment() const = 0;
-    virtual void setAuthor(const QString &author) = 0;
-    virtual void setComment(const QString &comment) = 0;
-
-    virtual QString contents() const = 0;
-    virtual void setContents(QIODevice *dev) = 0;
 
     virtual QPoint grid() const = 0;
 
@@ -80,8 +91,6 @@ public:
     virtual QtUndoStack *commandHistory() const = 0;
     virtual void beginCommand(const QString &description) = 0;
     virtual void endCommand() = 0;
-
-    virtual void editWidgets() = 0;
 
     virtual void simplifySelection(QList<QWidget*> *widgets) const = 0;
 
@@ -105,6 +114,8 @@ public slots:
     virtual void setGrid(const QPoint &grid) = 0;
     virtual void setFileName(const QString &fileName) = 0;
     virtual void setContents(const QString &contents) = 0;
+
+    virtual void editWidgets() = 0;
 
 signals:
     void mainContainerChanged(QWidget *mainContainer);

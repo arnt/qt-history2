@@ -108,8 +108,6 @@ QWidget *QAbstractFormBuilder::create(DomUI *ui, QWidget *parentWidget)
 
     if (QWidget *widget = create(ui_widget, parentWidget)) {
         createConnections(ui->elementConnections(), widget);
-        createAuthor(ui->elementAuthor());
-        createComment(ui->elementComment());
         createResources(ui->elementResources());
         applyTabStops(widget, ui->elementTabStops());
         reset();
@@ -698,16 +696,6 @@ void QAbstractFormBuilder::saveDom(DomUI *ui, QWidget *widget)
         ui->setElementTabStops(ui_tabStops);
     }
 
-    QString author = saveAuthor();
-    if (!author.isEmpty()) {
-        ui->setElementAuthor(author);
-    }
-
-    QString comment = saveComment();
-    if (!comment.isEmpty()) {
-        ui->setElementComment(comment);
-    }
-
     if (DomResources *ui_resources = saveResources()) {
         ui->setElementResources(ui_resources);
     }
@@ -716,16 +704,6 @@ void QAbstractFormBuilder::saveDom(DomUI *ui, QWidget *widget)
 DomConnections *QAbstractFormBuilder::saveConnections()
 {
     return new DomConnections;
-}
-
-QString QAbstractFormBuilder::saveAuthor()
-{
-    return QString();
-}
-
-QString QAbstractFormBuilder::saveComment()
-{
-    return QString();
 }
 
 DomWidget *QAbstractFormBuilder::createDom(QWidget *widget, DomWidget *ui_parentWidget, bool recursive)

@@ -187,6 +187,9 @@ void FormWindow::init()
 {
     m_blockSelectionChanged = false;
 
+    m_defaultMargin = INT_MIN;
+    m_defaultSpacing = INT_MIN;
+
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setMargin(0);
 
@@ -1903,6 +1906,40 @@ QDir FormWindow::absoluteDir() const
         return QDir::current();
 
     return QFileInfo(fileName()).absoluteDir();
+}
+
+void FormWindow::layoutDefault(int *margin, int *spacing)
+{
+    *margin = m_defaultMargin;
+    *spacing = m_defaultSpacing;
+}
+
+void FormWindow::setLayoutDefault(int margin, int spacing)
+{
+    m_defaultMargin = margin;
+    m_defaultSpacing = spacing;
+}
+
+void FormWindow::layoutFunction(QString *margin, QString *spacing)
+{
+    *margin = m_marginFunction;
+    *spacing = m_spacingFunction;
+}
+
+void FormWindow::setLayoutFunction(const QString &margin, const QString &spacing)
+{
+    m_marginFunction = margin;
+    m_spacingFunction = spacing;
+}
+
+QString FormWindow::pixmapFunction() const
+{
+    return m_pixmapFunction;
+}
+
+void FormWindow::setPixmapFunction(const QString &pixmapFunction)
+{
+    m_pixmapFunction = pixmapFunction;
 }
 
 } // namespace

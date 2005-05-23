@@ -68,8 +68,6 @@ protected:
     virtual QWidget *createWidget(const QString &widgetName, QWidget *parentWidget, const QString &name);
     virtual QLayout *createLayout(const QString &layoutName, QObject *parent, const QString &name);
     virtual void createCustomWidgets(DomCustomWidgets *);
-    virtual void createAuthor(const QString&);
-    virtual void createComment(const QString&);
     virtual void createResources(DomResources*);
     virtual void applyTabStops(QWidget *widget, DomTabStops *tabStops);
 
@@ -109,8 +107,6 @@ protected:
 
     virtual DomCustomWidgets *saveCustomWidgets();
     virtual DomTabStops *saveTabStops();
-    virtual QString saveAuthor();
-    virtual QString saveComment();
     virtual DomResources *saveResources();
 
     virtual void layoutInfo(DomLayout *layout, QObject *parent, int *margin, int *spacing);

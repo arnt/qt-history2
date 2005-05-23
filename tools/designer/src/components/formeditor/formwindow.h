@@ -79,17 +79,28 @@ public:
     virtual void setFeatures(Feature f);
 
     virtual QString author() const;
-    virtual QString comment() const;
     virtual void setAuthor(const QString &author);
+
+    virtual QString comment() const;
     virtual void setComment(const QString &comment);
 
-    virtual QDir absoluteDir() const;
+    virtual void layoutDefault(int *margin, int *spacing);
+    virtual void setLayoutDefault(int margin, int spacing);
+
+    virtual void layoutFunction(QString *margin, QString *spacing);
+    virtual void setLayoutFunction(const QString &margin, const QString &spacing);
+
+    virtual QString pixmapFunction() const;
+    virtual void setPixmapFunction(const QString &pixmapFunction);
+
     virtual QString fileName() const;
     virtual void setFileName(const QString &fileName);
 
     virtual QString contents() const;
     virtual void setContents(const QString &contents);
     virtual void setContents(QIODevice *dev);
+
+    virtual QDir absoluteDir() const;
 
     virtual QPoint grid() const { return m_grid; }
     virtual void setGrid(const QPoint &grid) { m_grid = grid; }
@@ -294,7 +305,6 @@ private:
     QtUndoStack *m_commandHistory;
 
     QString m_fileName;
-    QString pixLoader;
 
     QList<QWidget*> orderedWidgets;
     QList<QWidget*> stackedWidgets;
@@ -310,13 +320,16 @@ private:
     int m_dirty;
     int m_lastIndex;
 
-    QString m_comment;
-    QString m_author;
-
     FormWindowWidgetStack *m_widgetStack;
     WidgetEditorTool *m_widgetEditor;
 
     QStringList m_resourceFiles;
+
+    QString m_comment;
+    QString m_author;
+    QString m_pixmapFunction;
+    int m_defaultMargin, m_defaultSpacing;
+    QString m_marginFunction, m_spacingFunction;
 
 private:
 //    friend class FormWindowManager;

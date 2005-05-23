@@ -90,8 +90,6 @@ protected:
 
     virtual void createCustomWidgets(DomCustomWidgets *) {}
     virtual void createConnections(DomConnections *, QWidget *) {}
-    virtual void createAuthor(const QString &) {}
-    virtual void createComment(const QString &) {}
     virtual void createResources(DomResources*) {}
 
     virtual bool addItem(DomLayoutItem *ui_item, QLayoutItem *item, QLayout *layout);
@@ -115,8 +113,6 @@ protected:
     virtual DomActionGroup *createDom(QActionGroup *actionGroup);
 
     virtual DomConnections *saveConnections();
-    virtual QString saveAuthor();
-    virtual QString saveComment();
     virtual DomCustomWidgets *saveCustomWidgets();
     virtual DomTabStops *saveTabStops();
     virtual DomResources *saveResources();

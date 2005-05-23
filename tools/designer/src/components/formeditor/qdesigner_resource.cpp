@@ -118,6 +118,45 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
             tool->saveToDom(ui, widget);
         }
     }
+
+    QString author = m_formWindow->author();
+    if (!author.isEmpty()) {
+        ui->setElementAuthor(author);
+    }
+
+    QString comment = m_formWindow->comment();
+    if (!comment.isEmpty()) {
+        ui->setElementComment(comment);
+    }
+
+    int defaultMargin = INT_MIN, defaultSpacing = INT_MIN;
+    m_formWindow->layoutDefault(&defaultMargin, &defaultSpacing);
+
+    if (defaultMargin != INT_MIN || defaultSpacing != INT_MIN) {
+        DomLayoutDefault *def = new DomLayoutDefault;
+        if (defaultMargin != INT_MIN)
+            def->setAttributeMargin(defaultMargin);
+        if (defaultSpacing != INT_MIN)
+            def->setAttributeSpacing(defaultSpacing);
+        ui->setElementLayoutDefault(def);
+    }
+
+    QString marginFunction, spacingFunction;
+    m_formWindow->layoutFunction(&marginFunction, &spacingFunction);
+    if (!marginFunction.isEmpty() || !spacingFunction.isEmpty()) {
+        DomLayoutFunction *def = new DomLayoutFunction;
+
+        if (!marginFunction.isEmpty())
+            def->setAttributeMargin(marginFunction);
+        if (!spacingFunction.isEmpty())
+            def->setAttributeSpacing(spacingFunction);
+        ui->setElementLayoutFunction(def);
+    }
+
+    QString pixFunction = m_formWindow->pixmapFunction();
+    if (!pixFunction.isEmpty()) {
+        ui->setElementPixmapFunction(pixFunction);
+    }
 }
 
 QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
@@ -165,6 +204,18 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
         return 0;
 
     if (m_formWindow) {
+        m_formWindow->setAuthor(ui->elementAuthor());
+        m_formWindow->setComment(ui->elementComment());
+        m_formWindow->setPixmapFunction(ui->elementPixmapFunction());
+
+        if (DomLayoutDefault *def = ui->elementLayoutDefault()) {
+            m_formWindow->setLayoutDefault(def->attributeMargin(), def->attributeSpacing());
+        }
+
+        if (DomLayoutFunction *fun = ui->elementLayoutFunction()) {
+            m_formWindow->setLayoutFunction(fun->attributeMargin(), fun->attributeSpacing());
+        }
+
         for (int index = 0; index < m_formWindow->toolCount(); ++index) {
             QDesignerFormWindowToolInterface *tool = m_formWindow->tool(index);
             Q_ASSERT(tool != 0);
@@ -502,17 +553,6 @@ DomLayoutItem *QDesignerResource::createDom(QLayoutItem *item, DomLayout *ui_lay
     return ui_item;
 }
 
-
-QString QDesignerResource::saveAuthor()
-{
-    return m_formWindow->author();
-}
-
-QString QDesignerResource::saveComment()
-{
-    return m_formWindow->comment();
-}
-
 void QDesignerResource::createCustomWidgets(DomCustomWidgets *dom_custom_widgets)
 {
     if (dom_custom_widgets == 0)
@@ -533,16 +573,6 @@ void QDesignerResource::createCustomWidgets(DomCustomWidgets *dom_custom_widgets
         item->setCustom(true);
         db->append(item);
     }
-}
-
-void QDesignerResource::createAuthor(const QString &author)
-{
-    m_formWindow->setAuthor(author);
-}
-
-void QDesignerResource::createComment(const QString &comment)
-{
-    m_formWindow->setComment(comment);
 }
 
 DomTabStops *QDesignerResource::saveTabStops()
