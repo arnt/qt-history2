@@ -644,16 +644,18 @@ bool QWidgetPrivate::qt_mac_update_sizer(QWidget *w, int up=0)
     if(!w || !w->isWindow())
         return false;
 
-    w->d_func()->extraData()->topextra->resizer += up;
+    QTLWExtra *topData = w->d_func()->topData();
+    QWExtra *extraData = w->d_func()->extraData();
+    topData->resizer += up;
     {
         WindowClass wclass;
         GetWindowClass(qt_mac_window_for(w), &wclass);
         if(!(GetAvailableWindowAttributes(wclass) & kWindowResizableAttribute))
             return true;
     }
-    bool remove_grip = (w->d_func()->extraData()->topextra->resizer ||
-                        (w->d_func()->extraData()->maxw && w->d_func()->extraData()->maxh &&
-                         w->d_func()->extraData()->maxw == w->d_func()->extraData()->minw && w->d_func()->extraData()->maxh == w->d_func()->extraData()->minh));
+    bool remove_grip = (topData->resizer ||
+                        (extraData->maxw && extraData->maxh &&
+                         extraData->maxw == extraData->minw && extraData->maxh == extraData->minh));
 
     WindowAttributes attr;
     GetWindowAttributes(qt_mac_window_for(w), &attr);
