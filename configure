@@ -3444,7 +3444,7 @@ EOF
     done
 fi
 
-if [ "$CFG_PRECOMPILE" = "yes" ]; then
+if [ "$CFG_REDUCE_EXPORTS" = "yes" ]; then
 cat >>$outpath/src/corelib/global/qconfig.h.new << EOF
 #define QT_VISIBILITY_AVAILABLE
 
