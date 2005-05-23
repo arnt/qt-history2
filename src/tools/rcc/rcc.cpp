@@ -564,8 +564,6 @@ RCCResourceLibrary::writeInitializer(FILE *out)
                      "qt_resource_name, qt_resource_data);\n");
         fprintf(out, "    return 1;\n");
         fprintf(out, "}\n");
-        fprintf(out, "static const int %s_static_init = qInitResources%s();\n",
-                initName.toLatin1().constData(), initName.toLatin1().constData());
         fprintf(out, "Q_CONSTRUCTOR_FUNCTION(qInitResources%s)\n",
                 initName.toLatin1().constData());
     } else if(mFormat == Binary) {

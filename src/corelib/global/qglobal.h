@@ -279,8 +279,10 @@
 #      define Q_PACKED __attribute__ ((__packed__))
 #      define Q_NO_PACKED_REFERENCE
 #    endif
-#    define Q_CONSTRUCTOR_FUNCTION(AFUNC) \
-         static void __attribute__((constructor)) AFUNC_init_func () { AFUNC (); }
+#    if !defined(Q_OS_MAC) || __GNUC__ >= 4
+#      define Q_CONSTRUCTOR_FUNCTION(AFUNC) \
+           static void __attribute__((constructor)) AFUNC_init_func () { AFUNC (); }
+#    endif
 #  endif /* __INTEL_COMPILER */
 
 /* IBM compiler versions are a bit messy. There are actually two products:
