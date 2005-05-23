@@ -98,6 +98,14 @@ void QMainWindowPrivate::init()
 
     \tableofcontents
 
+    \section1 Saving and restoring state
+
+    The saveState() and restoreState() functions provide a means to
+    save and restore the layout of the QToolBars and QDockWidgets in
+    the QMainWindow.  These functions work by storing the \link
+    QObject::objectName objectName\endlink of each QToolBar and
+    QDockWidget together with information about placement, size, etc.
+
     \section1 Behavior of Dock Widgets
 
     \target dock-widget-separators
@@ -631,6 +639,11 @@ Qt::DockWidgetArea QMainWindow::dockWidgetArea(QDockWidget *dockwidget) const
 /*!
     Saves the current state of this mainwindow's toolbars and
     dockwidgets. The \a version number is stored as part of the data.
+
+    The \link QObject::objectName objectName\endlink property is used
+    to identify each QToolBar and QDockWidget.  You should make sure
+    that this property is unique for each QToolBar and QDockWidget you
+    add to the QMainWindow
 
     To restore the saved state, pass the return value and \a version
     number to restoreState().

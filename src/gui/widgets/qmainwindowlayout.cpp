@@ -416,8 +416,16 @@ void QMainWindowLayout::saveState(QDataStream &stream) const
             stream << lineInfo.list.size();
             for (int i = 0; i < lineInfo.list.size(); ++i) {
                 const ToolBarLayoutInfo &info = lineInfo.list.at(i);
-                stream << info.item->widget()->windowTitle();
-                stream << (uchar) !info.item->widget()->isHidden();
+                QWidget *widget = info.item->widget();
+                if (widget->objectName().isEmpty()) {
+                    qWarning("QMainWindow::saveState(): 'objectName' not set for QToolBar "
+                             "%p '%s', using 'windowTitle' instead",
+                             widget, widget->windowTitle().toLocal8Bit().constData());
+                    stream << widget->windowTitle();
+                } else {
+                    stream << widget->objectName();
+                }
+                stream << (uchar) !widget->isHidden();
                 stream << info.pos;
                 stream << info.size;
                 stream << info.offset;
@@ -461,7 +469,7 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
     int lines;
     stream >> lines;
     QList<ToolBarLineInfo> toolBarState;
-    const QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(parentWidget());
+    QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(parentWidget());
     for (int line = 0; line < lines; ++line) {
         ToolBarLineInfo lineInfo;
         stream >> lineInfo.pos;
@@ -469,8 +477,8 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
         stream >> size;
         for (int i = 0; i < size; ++i) {
             ToolBarLayoutInfo info;
-            QString windowTitle;
-            stream >> windowTitle;
+            QString objectName;
+            stream >> objectName;
             uchar shown;
             stream >> shown;
             stream >> info.pos;
@@ -480,13 +488,32 @@ bool QMainWindowLayout::restoreState(QDataStream &stream)
             // find toolbar
             QToolBar *toolbar = 0;
             for (int t = 0; t < toolbars.size(); ++t) {
-                if (toolbars.at(t)->windowTitle() == windowTitle) {
-                    toolbar = toolbars.at(t);
+                QToolBar *tb = toolbars.at(t);
+                if (tb && tb->objectName() == objectName) {
+                    toolbar = tb;
+                    toolbars[t] = 0;
                     break;
                 }
             }
-            if (!toolbar)
-                continue;
+            if (!toolbar) {
+                qWarning("QMainWindow::restoreState(): cannot find a QToolBar named "
+                         "'%s', trying to match using 'windowTitle' instead.",
+                         objectName.toLocal8Bit().constData());
+                // try matching the window title
+                for (int t = 0; t < toolbars.size(); ++t) {
+                    QToolBar *tb = toolbars.at(t);
+                    if (tb && tb->windowTitle() == objectName) {
+                        toolbar = tb;
+                        break;
+                    }
+                }
+                if (!toolbar) {
+                    qWarning("QMainWindow::restoreState(): cannot find a QToolBar with "
+                             "matching 'windowTitle' (looking for '%s').",
+                             objectName.toLocal8Bit().constData());
+                    continue;
+                }
+            }
 
             info.item = new QWidgetItem(toolbar);
             toolbar->setVisible(shown);
