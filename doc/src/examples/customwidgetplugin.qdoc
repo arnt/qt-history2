@@ -161,6 +161,11 @@
     \skipto AnalogClockPlugin::domXml(
     \printuntil /^\}/
 
+    If the widget provides a reasonable size hint, it is not necessary to
+    define it here. In addition, returning an empty string instead of a
+    \c{<widget>} element will tell \QD not to install the widget in the
+    widget box.
+
     To make the analog clock widget usable by applications, we implement
     the \c includeFile() function to return the name of the header file
     containing the custom widget class definition:
