@@ -1749,7 +1749,12 @@ FillData QRasterPaintEnginePrivate::fillForBrush(const QBrush &brush)
 
     case Qt::TexturePattern:
         {
-            tempImage = qt_map_to_32bit(brush.texture());
+            QPixmap texture = brush.texture();
+            if (texture.depth() == 1) {
+                tempImage = colorizeBitmap(texture.toImage(), brush.color());
+            } else {
+                tempImage = qt_map_to_32bit(brush.texture());
+            }
             fillData->data = textureFillData;
             fillData->callback = txop > QPainterPrivate::TxTranslate
                                  ? qt_span_texturefill_xform
