@@ -42,8 +42,6 @@
         members of the Qt namespace (e.g., replace \c QWidget::red with
         \c{Qt::red}).
     \o  Add \c #include directives that might be needed in Qt 4.
-    \o  Perform miscellaneous trivial changes (e.g., replace \c TRUE
-        with \c true).
     \endlist
 
     \section2 Location of the qt3porting.xml File
