@@ -208,7 +208,7 @@ int Q3ButtonGroup::insert(QAbstractButton *button, int id)
 */
 int Q3ButtonGroup::count() const
 {
-    return group.count();
+    return group.buttons().count();
 }
 
 /*!

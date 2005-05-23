@@ -197,13 +197,10 @@ void QButtonGroup::removeButton(QAbstractButton *button)
     }
 }
 
-/*!
-    Returns the number of buttons in the group.
-*/
-int QButtonGroup::count() const
+QList<QAbstractButton*> QButtonGroup::buttons() const
 {
     Q_D(const QButtonGroup);
-    return d->buttonList.count();
+    return d->buttonList;
 }
 
 QAbstractButton *QButtonGroup::checkedButton() const

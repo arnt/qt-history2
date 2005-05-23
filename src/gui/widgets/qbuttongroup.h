@@ -35,7 +35,7 @@ public:
     void addButton(QAbstractButton *);
     void removeButton(QAbstractButton *);
 
-    int count() const;
+    QList<QAbstractButton*> buttons() const;
 
     QAbstractButton * checkedButton() const;
     // no setter on purpose!
