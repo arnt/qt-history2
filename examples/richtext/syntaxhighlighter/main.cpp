@@ -18,9 +18,9 @@
 int main(int argc, char *argv[])
 {
     QApplication app(argc, argv);
-    MainWindow *window = new MainWindow;
-    window->resize(640, 512);
-    window->show();
-    window->openFile(":/examples/example");
+    MainWindow window;
+    window.resize(640, 512);
+    window.show();
+    window.openFile(":/examples/example");
     return app.exec();
 }
