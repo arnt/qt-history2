@@ -806,12 +806,13 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
             break;
         }
 #endif
-
+        // fallthroughs intended
     case Qt::Key_Backtab:
     case Qt::Key_Tab: {
+        e->accept();
 	if (d->specialValue()) {
-	    select = false;
-	    break;
+            d->edit->setSelection(d->edit->cursorPosition(), 0);
+	    return;
 	}
         if (e->key() == Qt::Key_Backtab || (e->key() == Qt::Key_Tab && e->modifiers() & Qt::ShiftModifier)) {
             forward = false;
@@ -825,7 +826,6 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         }
         if (!select)
             d->edit->deselect();
-        e->accept();
         return; }
     default:
         select = !e->text().isEmpty() && e->text().at(0).isPrint();

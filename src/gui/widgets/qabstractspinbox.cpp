@@ -773,6 +773,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         steps *= 10;
     case Qt::Key_Up:
     case Qt::Key_Down: {
+        e->accept();
         const bool up = (e->key() == Qt::Key_PageUp || e->key() == Qt::Key_Up);
         if (!(stepEnabled() & (up ? StepUpEnabled : StepDownEnabled)))
             return;
@@ -792,12 +793,24 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
         emit editingFinished();
         return;
 
+#ifdef Q_WS_X11 // only X11
     case Qt::Key_U:
         if (e->modifiers() & Qt::ControlModifier) {
-            clear();
+            e->accept();
+            if (!isReadOnly())
+                clear();
+            return;
+        }
+        break;
+#else // Mac and Windows
+    case Qt::Key_A:
+        if (e->modifiers() & Qt::ControlModifier) {
+            selectAll();
             e->accept();
             return;
         }
+        break;
+#endif
 
     case Qt::Key_End:
     case Qt::Key_Home:
@@ -820,6 +833,7 @@ void QAbstractSpinBox::keyPressEvent(QKeyEvent *e)
             e->accept();
             return;
         }
+        break;
 
     case Qt::Key_Z:
     case Qt::Key_Y:
@@ -970,8 +984,8 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
             stepBy(-1);
         }
     }
-#endif
     e->accept();
+#endif
 }
 
 /*!
@@ -1005,30 +1019,33 @@ void QAbstractSpinBox::mousePressEvent(QMouseEvent *e)
 {
     Q_D(QAbstractSpinBox);
 
-    if (e->button() != Qt::LeftButton || d->buttonState != None)
+    if (e->button() != Qt::LeftButton || d->buttonState != None) {
         return;
+    }
 
     d->updateHoverControl(e->pos());
+    e->accept();
 
     const StepEnabled se = stepEnabled();
     if ((se & StepUpEnabled) && d->hoverControl == QStyle::SC_SpinBoxUp) {
         d->updateState(true);
-        e->accept();
     } else if ((se & StepDownEnabled) && d->hoverControl == QStyle::SC_SpinBoxDown) {
         d->updateState(false);
-        e->accept();
+    } else {
+        e->ignore();
     }
 }
 
 /*!
     \reimp
 */
-void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *)
+void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
 {
     Q_D(QAbstractSpinBox);
 
     if ((d->buttonState & Mouse) != 0)
         d->resetState();
+    e->accept();
 }
 
 // --- QAbstractSpinBoxPrivate ---
