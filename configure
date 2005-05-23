@@ -3444,6 +3444,13 @@ EOF
     done
 fi
 
+if [ "$CFG_PRECOMPILE" = "yes" ]; then
+cat >>$outpath/src/corelib/global/qconfig.h.new << EOF
+#define QT_VISIBILITY_AVAILABLE
+
+EOF
+fi
+
 # avoid unecessary rebuilds by copying only if qconfig.h has changed
 if cmp -s "$outpath/src/corelib/global/qconfig.h" "$outpath/src/corelib/global/qconfig.h.new"; then
     rm -f "$outpath/src/corelib/global/qconfig.h.new"
