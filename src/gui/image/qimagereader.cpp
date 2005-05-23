@@ -117,7 +117,7 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
     const qint64 pos = device->pos();
     for (int i = 0; i < keys.count(); ++i) {
         QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
-        if (plugin->capabilities(device, form) & QImageIOPlugin::CanRead) {
+        if (plugin && plugin->capabilities(device, form) & QImageIOPlugin::CanRead) {
             handler = plugin->create(device, form);
             break;
         }
@@ -761,7 +761,7 @@ QList<QByteArray> QImageReader::supportedImageFormats()
 
     for (int i = 0; i < keys.count(); ++i) {
         QImageIOPlugin *plugin = qobject_cast<QImageIOPlugin *>(l->instance(keys.at(i)));
-        if (plugin->capabilities(0, keys.at(i).toLatin1()) & QImageIOPlugin::CanRead)
+        if (plugin && plugin->capabilities(0, keys.at(i).toLatin1()) & QImageIOPlugin::CanRead)
             formats << keys.at(i).toLatin1();
     }
 
