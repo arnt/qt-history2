@@ -120,10 +120,8 @@ extern int qt_defaultDpi();
 /*!
     Constructs a font metrics object for \a font.
 
-    The font metrics will be screen-compatible, i.e. the metrics you
-    get if you use the font for drawing text on a \link QWidget
-    widgets\endlink or \link QPixmap pixmaps\endlink, not on a
-    QPicture or QPrinter.
+    The font metrics will be compatible with the paintdevice used to
+    create \a font.
 
     The font metrics object holds the information for the font that is
     passed in the constructor at the time it is created, and is not
@@ -135,14 +133,7 @@ extern int qt_defaultDpi();
 QFontMetrics::QFontMetrics(const QFont &font)
     : d(font.d)
 {
-    int dpi = qt_defaultDpi();
-    if (font.d->dpi != dpi) {
-        d = new QFontPrivate(*font.d);
-        d->dpi = dpi;
-        d->screen = 0;
-    } else {
-        d->ref.ref();
-    }
+    d->ref.ref();
 }
 
 /*!
@@ -833,10 +824,8 @@ int QFontMetrics::lineWidth() const
 /*!
     Constructs a font metrics object for \a font.
 
-    The font metrics will be screen-compatible, i.e. the metrics you
-    get if you use the font for drawing text on a \link QWidget
-    widgets\endlink or \link QPixmap pixmaps\endlink, not on a
-    QPicture or QPrinter.
+    The font metrics will be compatible with the paintdevice used to
+    create \a font.
 
     The font metrics object holds the information for the font that is
     passed in the constructor at the time it is created, and is not
@@ -848,14 +837,7 @@ int QFontMetrics::lineWidth() const
 QFontMetricsF::QFontMetricsF(const QFont &font)
     : d(font.d)
 {
-    int dpi = qt_defaultDpi();
-    if (font.d->dpi != dpi) {
-        d = new QFontPrivate(*font.d);
-        d->dpi = dpi;
-        d->screen = 0;
-    } else {
-        d->ref.ref();
-    }
+    d->ref.ref();
 }
 
 /*!

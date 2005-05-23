@@ -770,7 +770,7 @@ void QTextDocumentLayoutPrivate::drawListItem(const QPointF &offset, QPainter *p
     const QTextBlockFormat blockFormat = bl.blockFormat();
     const QTextCharFormat charFormat = bl.charFormat();
     const QFont font(charFormat.font(), painter->device());
-    const QFontMetrics fontMetrics(font, painter->device());
+    const QFontMetrics fontMetrics(font);
     QTextObject * const object = q->document()->objectForFormat(blockFormat);
     const QTextListFormat lf = object->format().toListFormat();
     const int style = lf.style();
