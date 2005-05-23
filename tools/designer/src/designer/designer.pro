@@ -36,6 +36,7 @@ HEADERS += \
     newform.h \
     versiondialog.h \
     qdesigner_signalsloteditor.h \
+    formwindowsettings.h \
     plugindialog.h \
     extra/cursor.h \
     extra/fov.h \
@@ -61,6 +62,7 @@ SOURCES += main.cpp \
     versiondialog.cpp \
     qdesigner_signalsloteditor.cpp \
     plugindialog.cpp \
+    formwindowsettings.cpp \
     extra/cursor.cpp \
     extra/fov.cpp \
     extra/itemdialog.cpp \
@@ -74,7 +76,8 @@ PRECOMPILED_HEADER=qdesigner_pch.h
 
 FORMS += \
     newform.ui \
-    saveformastemplate.ui
+    saveformastemplate.ui \
+    formwindowsettings.ui
 
 win32 {
    RC_FILE	= designer.rc

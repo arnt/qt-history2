@@ -96,6 +96,7 @@ public:
     QAction *breakLayoutAction() const;
     QAction *adjustSizeAction() const;
     QAction *previewFormAction() const;
+    QAction *formSettings() const;
 
 //
 // window actions
@@ -140,6 +141,7 @@ private slots:
     void aboutDesigner();
     void updateUIMode(QAction *act);
     void showWidgetSpecificHelp();
+    void showFormSettings();
 
 private:
     bool saveFormAs(QDesignerFormWindowInterface *fw);
@@ -193,6 +195,7 @@ private:
     QAction *m_breakLayoutAction;
     QAction *m_adjustSizeAction;
     QAction *m_previewFormAction;
+    QAction *m_formSettings;
 
     QAction *m_minimizeAction;
     QAction *m_bringAllToFrontAction;

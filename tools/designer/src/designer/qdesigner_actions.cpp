@@ -21,6 +21,7 @@
 #include "oublietteview.h"
 #include "saveformastemplate.h"
 #include "plugindialog.h"
+#include "formwindowsettings.h"
 
 // sdk
 #include <QtDesigner/QtDesigner>
@@ -251,6 +252,7 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
 
     sep = new QAction(this);
     sep->setSeparator(true);
+
     m_formActions->addAction(sep);
 
     m_previewFormAction = new QAction(tr("&Preview"), this);
@@ -261,6 +263,13 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_styleActions = new QActionGroup(this);
     m_styleActions->setExclusive(true);
     connect(m_styleActions, SIGNAL(triggered(QAction*)), this, SLOT(previewForm(QAction*)));
+
+    m_formActions->addAction(sep);
+
+    m_formSettings = new QAction(tr("Form &Settings..."), this);
+    m_formSettings->setEnabled(false);
+    connect(m_formSettings, SIGNAL(triggered()), this, SLOT(showFormSettings()));
+    m_formActions->addAction(m_formSettings);
 
     QStringList availableStyleList = QStyleFactory::keys();
     foreach (QString style, availableStyleList) {
@@ -465,6 +474,9 @@ QAction *QDesignerActions::adjustSizeAction() const
 
 QAction *QDesignerActions::previewFormAction() const
 { return m_previewFormAction; }
+
+QAction *QDesignerActions::formSettings() const
+{ return m_formSettings; }
 
 void QDesignerActions::editWidgetsSlot()
 {
@@ -753,6 +765,7 @@ void QDesignerActions::activeFormWindowChanged(QDesignerFormWindowInterface *for
     m_closeFormAction->setEnabled(enable);
 
     m_editWidgetsAction->setEnabled(enable);
+    m_formSettings->setEnabled(enable);
 
     m_previewFormAction->setEnabled(enable);
     m_styleActions->setEnabled(enable);
@@ -933,5 +946,11 @@ QAction *QDesignerActions::widgetHelpAction() const
 void QDesignerActions::aboutPlugins()
 {
     PluginDialog dlg(core(), core()->topLevel());
+    dlg.exec();
+}
+
+void QDesignerActions::showFormSettings()
+{
+    FormWindowSettings dlg(core()->formWindowManager()->activeFormWindow());
     dlg.exec();
 }
