@@ -613,6 +613,7 @@ SignalSlotEditor::SignalSlotEditor(QDesignerFormWindowInterface *form_window, QW
     QDesignerFormEditorInterface *core = form_window->core();
     QDesignerMemberSheetFactory *factory = new QDesignerMemberSheetFactory(core->extensionManager());
     core->extensionManager()->registerExtensions(factory, Q_TYPEID(QDesignerMemberSheetExtension));
+    connect(this, SIGNAL(widgetActivated(QWidget *)), form_window, SIGNAL(activated(QWidget *)));    
 }
 
 QAbstractItemModel *SignalSlotEditor::model() const
