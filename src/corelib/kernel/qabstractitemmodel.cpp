@@ -21,6 +21,8 @@
 #include <private/qabstractitemmodel_p.h>
 #include <qbitarray.h>
 
+#include <limits.h>
+
 QPersistentModelIndexData *QPersistentModelIndexData::create(const QModelIndex &index)
 {
     Q_ASSERT(index.isValid()); // we will _never_ insert an invalid index in the list
@@ -1478,10 +1480,10 @@ void QAbstractItemModel::encodeData(const QModelIndexList &indexes, QDataStream 
 bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &parent,
                                     QDataStream &stream)
 {
-    uint top = -1;
-    uint left = -1;
-    uint bottom = 0;
-    uint right = 0;
+    int top = INT_MAX;
+    int left = INT_MAX;
+    int bottom = 0;
+    int right = 0;
     QVector<QMap<int, QVariant> > data;
     QVector<int> rows;
     QVector<int> columns;
@@ -1493,15 +1495,15 @@ bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &pare
         stream >> r;
         stream >> c;
         stream >> d;
-        
+
         rows.append(r);
         columns.append(c);
         data.append(d);
-    
-        top = qMin<uint>(r, top);
-        left = qMin<uint>(c, left);
-        bottom = qMax<uint>(r, bottom);
-        right = qMax<uint>(c, right);
+
+        top = qMin(r, top);
+        left = qMin(c, left);
+        bottom = qMax(r, bottom);
+        right = qMax(c, right);
     }
 
     // insert the dragged items into the table, use a bit array to avoid overwriting items,
