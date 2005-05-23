@@ -956,7 +956,7 @@ QPaintEngine *QPainter::paintEngine() const
 QFontMetrics QPainter::fontMetrics() const
 {
     Q_D(const QPainter);
-    return QFontMetrics(d->state->pfont ? *d->state->pfont : d->state->font, d->device);
+    return QFontMetrics(d->state->font);
 }
 
 
@@ -970,7 +970,7 @@ QFontMetrics QPainter::fontMetrics() const
 QFontInfo QPainter::fontInfo() const
 {
     Q_D(const QPainter);
-    return QFontInfo(d->state->pfont ? *d->state->pfont : d->state->font);
+    return QFontInfo(d->state->font);
 }
 
 /*!
@@ -2272,7 +2272,7 @@ void QPainter::setFont(const QFont &font)
 const QFont &QPainter::font() const
 {
     Q_D(const QPainter);
-    return d->state->pfont ? *d->state->pfont : d->state->font;
+    return d->state->font;
 }
 
 /*!
@@ -3416,7 +3416,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
     Q_D(QPainter);
     d->updateState(d->state);
 
-    QTextLayout layout(str, d->state->pfont ? *d->state->pfont : d->state->font);
+    QTextLayout layout(str, d->state->font);
     QTextEngine *engine = layout.d;
     QTextOption option(Qt::AlignLeft|Qt::AlignAbsolute);
     option.setTextDirection(d->state->layoutDirection);
@@ -4574,11 +4574,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     int underlinePositionStack[32];
     int *underlinePositions = underlinePositionStack;
 
-    QFont fnt(painter
-              ? (painter->d_ptr->state->pfont
-                 ? *painter->d_ptr->state->pfont
-                 : painter->d_ptr->state->font)
-              : font);
+    QFont fnt(painter ? painter->d_ptr->state->font : font);
     QFontMetricsF fm(fnt);
 
     QString text = str;
@@ -4734,7 +4730,6 @@ QPainterState::QPainterState(const QPainterState *s)
 {
     font = s->font;
     deviceFont = s->deviceFont;
-    pfont = s->pfont ? new QFont(*s->pfont) : 0;
     pen = QPen(s->pen);
     brush = QBrush(s->brush);
     bgOrigin = s->bgOrigin;
@@ -4778,7 +4773,6 @@ QPainterState::QPainterState()
 
 QPainterState::~QPainterState()
 {
-        delete pfont;
 }
 
 void QPainterState::init(QPainter *p) {
@@ -4788,7 +4782,6 @@ void QPainterState::init(QPainter *p) {
     VxF = false;
     wx = wy = ww = wh = 0;
     vx = vy = vw = vh = 0;
-    pfont = 0;
     painter = p;
     pen = QPen();
     bgOrigin = QPointF(0, 0);

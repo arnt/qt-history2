@@ -184,8 +184,6 @@ public:
     int dpi_y;
     int dpi_display;
 
-    QFont pfont;
-
     uint printToFile : 1;
     uint fullPage : 1;
     uint reinit : 1;

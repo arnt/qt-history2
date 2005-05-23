@@ -67,7 +67,6 @@ public:
     QPointF bgOrigin;
     QFont font;
     QFont deviceFont;
-    QFont *pfont;
     QPen pen;
     QBrush brush;
     QBrush bgBrush;             // background brush
