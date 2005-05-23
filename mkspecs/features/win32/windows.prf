@@ -1,5 +1,5 @@
 CONFIG -= console
-contains(TEMPLATE, app){
+contains(TEMPLATE, ".*app"){
     QMAKE_LFLAGS += $$QMAKE_LFLAGS_WINDOWS
     win32-g++:DEFINES += QT_NEEDS_QMAIN
     win32-borland:DEFINES += QT_NEEDS_QMAIN
