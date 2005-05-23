@@ -1468,7 +1468,6 @@ void QAbstractItemModel::encodeData(const QModelIndexList &indexes, QDataStream 
     for (; it != indexes.end(); ++it) {
         stream << (*it).row();
         stream << (*it).column();
-//        QMap<int, QVariant> data = ;
         stream << itemData(*it);
     }
 }
@@ -1507,7 +1506,7 @@ bool QAbstractItemModel::decodeData(int row, int column, const QModelIndex &pare
 
     // insert the dragged items into the table, use a bit array to avoid overwriting items,
     // since items from different tables can have the same row and column
-    int dragRowCount = bottom - top + 1;
+    int dragRowCount = bottom - top + 1 ;
     int dragColumnCount = right - left + 1;
     QBitArray isWrittenTo(dragRowCount * dragColumnCount);
 
