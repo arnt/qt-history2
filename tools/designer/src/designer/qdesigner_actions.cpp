@@ -264,7 +264,9 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     m_styleActions->setExclusive(true);
     connect(m_styleActions, SIGNAL(triggered(QAction*)), this, SLOT(previewForm(QAction*)));
 
-    m_formActions->addAction(sep);
+    QAction *sep2 = new QAction(this);
+    sep2->setSeparator(true);
+    m_formActions->addAction(sep2);
 
     m_formSettings = new QAction(tr("Form &Settings..."), this);
     m_formSettings->setEnabled(false);

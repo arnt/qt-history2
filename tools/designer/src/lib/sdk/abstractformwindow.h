@@ -66,6 +66,9 @@ public:
     virtual QString pixmapFunction() const = 0;
     virtual void setPixmapFunction(const QString &pixmapFunction) = 0;
 
+    virtual QStringList includeHints() const = 0;
+    virtual void setIncludeHints(const QStringList &includeHints) = 0;
+
     virtual QDesignerFormEditorInterface *core() const;
     virtual QDesignerFormWindowCursorInterface *cursor() const = 0;
 

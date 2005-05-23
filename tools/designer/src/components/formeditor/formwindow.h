@@ -93,6 +93,9 @@ public:
     virtual QString pixmapFunction() const;
     virtual void setPixmapFunction(const QString &pixmapFunction);
 
+    virtual QStringList includeHints() const;
+    virtual void setIncludeHints(const QStringList &includeHints);
+
     virtual QString fileName() const;
     virtual void setFileName(const QString &fileName);
 
@@ -330,6 +333,7 @@ private:
     QString m_pixmapFunction;
     int m_defaultMargin, m_defaultSpacing;
     QString m_marginFunction, m_spacingFunction;
+    QStringList m_includeHints;
 
 private:
 //    friend class FormWindowManager;

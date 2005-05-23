@@ -54,6 +54,13 @@ FormWindowSettings::FormWindowSettings(QDesignerFormWindowInterface *parent)
     ui.pixmapFunctionLineEdit->setText(pixFunction);
 
     ui.authorLineEdit->setText(formWindow()->author());
+
+    foreach (QString includeHint, formWindow()->includeHints()) {
+        if (includeHint.isEmpty())
+            continue;
+
+        ui.includeHintsTextEdit->append(includeHint);
+    }
 }
 
 FormWindowSettings::~FormWindowSettings()
@@ -77,6 +84,8 @@ void FormWindowSettings::accept()
 
     if (ui.layoutFunctionGroupBox->isChecked())
         formWindow()->setLayoutFunction(ui.marginFunctionLineEdit->text(), ui.spacingFunctionLineEdit->text());
+
+    formWindow()->setIncludeHints(ui.includeHintsTextEdit->toPlainText().split(QLatin1String("\n")));
 
     QDialog::accept();
 }

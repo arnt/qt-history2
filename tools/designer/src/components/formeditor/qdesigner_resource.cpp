@@ -129,6 +129,32 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
         ui->setElementComment(comment);
     }
 
+    if (!m_formWindow->includeHints().isEmpty()) {
+        QList<DomInclude*> ui_includes;
+        foreach (QString includeHint, m_formWindow->includeHints()) {
+            if (includeHint.isEmpty())
+                continue;
+
+            DomInclude *incl = new DomInclude;
+            QString location = QLatin1String("local");
+            if (includeHint.at(0) == QLatin1Char('<'))
+                location = QLatin1String("global");
+
+            includeHint = includeHint
+                .replace(QLatin1Char('"'), "")
+                .replace(QLatin1Char('<'), "")
+                .replace(QLatin1Char('>'), "");
+
+            incl->setAttributeLocation(location);
+            incl->setText(includeHint);
+            ui_includes.append(incl);
+        }
+
+        DomIncludes *includes = new DomIncludes;
+        includes->setElementInclude(ui_includes);
+        ui->setElementIncludes(includes);
+    }
+
     int defaultMargin = INT_MIN, defaultSpacing = INT_MIN;
     m_formWindow->layoutDefault(&defaultMargin, &defaultSpacing);
 
@@ -214,6 +240,26 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
 
         if (DomLayoutFunction *fun = ui->elementLayoutFunction()) {
             m_formWindow->setLayoutFunction(fun->attributeMargin(), fun->attributeSpacing());
+        }
+
+        if (DomIncludes *includes = ui->elementIncludes()) {
+            QStringList includeHints;
+            foreach (DomInclude *incl, includes->elementInclude()) {
+                QString text = incl->text();
+
+                if (text.isEmpty())
+                    continue;
+
+                if (incl->hasAttributeLocation() && incl->attributeLocation() == QLatin1String("global")) {
+                    text = text.prepend('<').append('>');
+                } else {
+                    text = text.prepend('"').append('"');
+                }
+
+                includeHints.append(text);
+            }
+
+            m_formWindow->setIncludeHints(includeHints);
         }
 
         for (int index = 0; index < m_formWindow->toolCount(); ++index) {

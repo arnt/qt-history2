@@ -1942,4 +1942,14 @@ void FormWindow::setPixmapFunction(const QString &pixmapFunction)
     m_pixmapFunction = pixmapFunction;
 }
 
+QStringList FormWindow::includeHints() const
+{
+    return m_includeHints;
+}
+
+void FormWindow::setIncludeHints(const QStringList &includeHints)
+{
+    m_includeHints = includeHints;
+}
+
 } // namespace
