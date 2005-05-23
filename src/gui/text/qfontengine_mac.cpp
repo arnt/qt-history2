@@ -163,7 +163,8 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
 
     if(si.flags & QTextItem::RightToLeft) {
         for(int i = si.num_glyphs-1; i >= 0; --i) {
-            doTextTask((QChar*)(si.glyphs+i), 0, 1, 1, DRAW, x, y, p);
+            const QChar glyph((ushort)si.glyphs[i].glyph);
+            doTextTask(&glyph, 0, 1, 1, DRAW, x, y, p);
             x += si.glyphs[i].advance.x();
         }
     } else {
