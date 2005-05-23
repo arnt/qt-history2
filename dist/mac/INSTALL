@@ -1,4 +1,4 @@
-			  INSTALLING Qt/Mac Version %VERSION%
+                          INSTALLING Qt/Mac Version %VERSION%
 
 1.  If you have the commercial edition of Qt, install your license
     file as $HOME/.qt-license.
@@ -7,9 +7,9 @@
 
 2.  Unpack the archive if you have not done so already:
 
-	cd /tmp
-	gunzip %DISTNAME%.tar.gz	# uncompress the archive
-	tar xvf %DISTNAME%.tar		# unpack it
+        cd /tmp
+        gunzip %DISTNAME%.tar.gz        # uncompress the archive
+        tar xvf %DISTNAME%.tar          # unpack it
 
     This creates the directory /tmp/%DISTNAME% containing the files
     from the archive.
@@ -18,20 +18,20 @@
 
     To configure the Qt library for your machine type:
 
-	cd /tmp/%DISTNAME%
-	./configure
+        cd /tmp/%DISTNAME%
+        ./configure
 
     Type "./configure -help" to get a list of all available options.
 
     To create the library and compile all the demos, examples, tools
     and tutorials type:
 
-	make
+        make
 
     To install the library, demos, examples, tools
     and tutorials type:
 
-	make install
+        make install
 
     Qt is by default installed into /Developer/Qt but this can be
     changed by using the -prefix parameter.
@@ -41,20 +41,33 @@
     In order to use Qt, some environment variables needs to be
     extended.
 
-	PATH		   - to locate qmake, moc and other Qt tools
+        PATH               - to locate qmake, moc and other Qt tools
 
     This is done like this:
 
     In .profile (if your shell is bash), add the following line:
 
-	PATH=/Developer/Qt/bin:$PATH
-	export PATH
+        PATH=/Developer/Qt/bin:$PATH
+        export PATH
 
     In .login (in case your shell is csh or tcsh), add the following line:
 
-	setenv PATH /Developer/Qt/bin:$PATH
+        setenv PATH /Developer/Qt/bin:$PATH
 
     If you use a different shell, please modify your environment variables
     accordingly.
 
-That's all.  Qt is now installed.
+5.  That's all. Qt is now installed.
+
+    If you are new to Qt, we suggest that you take a look at the demos
+    and examples to see Qt in action. Run the Qt Examples and Demos
+    either by typing 'qtdemo' on the command line or through the
+    desktop's Start menu.
+
+    You might also want to try the following links:
+
+        http://doc.trolltech.com/4.0/how-to-learn-qt.html
+        http://doc.trolltech.com/4.0/tutorial.html
+        http://www.trolltech.com/developer
+
+    We hope you will enjoy using Qt. Good luck!

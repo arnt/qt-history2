@@ -16,9 +16,9 @@
 
     To configure the Qt library for your machine type:
 
-	C:
-	cd \Qt\%VERSION%
-	configure
+        C:
+        cd \Qt\%VERSION%
+        configure
 
     Type "configure -help" to get a list of all available options.
 
@@ -26,14 +26,14 @@
     system. For Microsoft Visual Studio to create the library and
     compile all the demos, examples, tools and tutorials type:
 
-	nmake
+        nmake
 
 4. Environment variables
 
    In order to use Qt, some environment variables needs to be
    extended.
 
-	PATH		   - to locate qmake, moc and other Qt tools
+        PATH               - to locate qmake, moc and other Qt tools
 
    This is done by adding c:\Qt\%VERSION%\bin to the PATH variable.
 
@@ -41,4 +41,17 @@
    "Control Panel->System->Advanced->Environment variables" and for
    older versions by editing c:\autoexec.bat.
 
-That's all.  Qt is now installed.
+5.  That's all. Qt is now installed.
+
+    If you are new to Qt, we suggest that you take a look at the demos
+    and examples to see Qt in action. Run the Qt Examples and Demos
+    either by typing 'qtdemo' on the command line or through the
+    desktop's Start menu.
+
+    You might also want to try the following links:
+
+        http://doc.trolltech.com/4.0/how-to-learn-qt.html
+        http://doc.trolltech.com/4.0/tutorial.html
+        http://www.trolltech.com/developer
+
+    We hope you will enjoy using Qt. Good luck!
