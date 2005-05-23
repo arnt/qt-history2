@@ -136,8 +136,8 @@ int QResource::findNode(const QString &path) const
 
                             if(country == locale.country() && language == locale.language())
                                 return sub_node;
-                            else if((!country && language == locale.language()) ||
-                                    (!country && !language && node == -1))
+                            else if((country == QLocale::AnyCountry && language == locale.language()) ||
+                                    (country == QLocale::AnyCountry && language == QLocale::C && node == -1))
                                 node = sub_node;
                             continue;
                         } else {

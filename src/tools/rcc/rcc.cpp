@@ -52,7 +52,7 @@ bool RCCFileInfo::writeDataInfo(FILE *out, RCCResourceLibrary::Format format)
 {
     //some info
     if(format == RCCResourceLibrary::C_Code) {
-        if(locale != QLocale())
+        if(locale != QLocale::c())
             fprintf(out, "  // %s [%d::%d]\n  ", resourceName().toLatin1().constData(),
                     locale.country(), locale.language());
         else
@@ -216,7 +216,7 @@ bool RCCResourceLibrary::interpretResourceFile(QIODevice *inputDevice, QString c
     for (QDomElement child = root.firstChild().toElement(); !child.isNull();
         child = child.nextSibling().toElement()) {
         if (child.tagName() == QLatin1String(TAG_RESOURCE)) {
-            QLocale lang;
+            QLocale lang = QLocale::c();
             if (child.hasAttribute(ATTRIBUTE_LANG))
                 lang = QLocale(child.attribute(ATTRIBUTE_LANG));
 
