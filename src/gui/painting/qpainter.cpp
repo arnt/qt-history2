@@ -4822,7 +4822,9 @@ static void bitBlt_helper(QPaintDevice *dst, const QPoint &dp,
     if (src->devType() == QInternal::Pixmap) {
         const QPixmap *pixmap = static_cast<const QPixmap *>(src);
         QPainter pt(dst);
-        pt.setCompositionMode(QPainter::CompositionMode_Source);
+        // quieten the warning for engines that don't support it.
+        if (pt.paintEngine()->hasFeature(QPaintEngine::PorterDuff))
+            pt.setCompositionMode(QPainter::CompositionMode_Source);
         pt.drawPixmap(dp, *pixmap, sr);
 
     } else {
