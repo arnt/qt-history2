@@ -330,8 +330,10 @@ QDesignerActions::QDesignerActions(QDesignerWorkbench *workbench)
     sep = new QAction(this);
     sep->setSeparator(true);
     m_helpActions->addAction(sep);
-#endif
     m_aboutPluginsAction = new QAction(tr("About Plugins"), this);
+#else
+    m_aboutPluginsAction = new QAction(tr("Plugin Information"), this);
+#endif
     connect(m_aboutPluginsAction, SIGNAL(triggered()), this, SLOT(aboutPlugins()));
     m_helpActions->addAction(m_aboutPluginsAction);
 
