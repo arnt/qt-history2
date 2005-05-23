@@ -391,9 +391,9 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
             debug_msg(1, "pbuilder: Creating file: %s", mkfile.toLatin1().constData());
             QTextStream mkt(&mkf);
             writeHeader(mkt);
-            mkt << "QMAKE    = "        <<
-                (project->isEmpty("QMAKE_QMAKE") ? QString("$(QTDIR)/bin/qmake") :
-                 var("QMAKE_QMAKE")) << endl;
+            mkt << "QMAKE    = "        << (project->isEmpty("QMAKE_QMAKE") ?
+                                            QString((QLibraryInfo::location(QLibraryInfo::BinariesPath) + "/qmake")) :
+                                            var("QMAKE_QMAKE")) << endl;
             writeMakeQmake(mkt);
             mkt.flush();
             mkf.close();

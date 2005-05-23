@@ -1276,8 +1276,6 @@ void VcprojGenerator::initOld()
     project->variables()["MSVCPROJ_TARGET"] = QStringList(project->first("TARGET"));
     Option::fixPathToTargetOS(project->first("TARGET"));
     dest = project->first("TARGET") + project->first("TARGET_EXT");
-    if(project->first("TARGET").startsWith("$(QTDIR)"))
-        dest.replace(QRegExp("\\$\\(QTDIR\\)"), qgetenv("QTDIR"));
     project->variables()["MSVCPROJ_TARGET"] = QStringList(dest);
 
     // DLL COPY ------------------------------------------------------
@@ -1375,7 +1373,7 @@ QString VcprojGenerator::findTemplate(QString file)
     QString ret;
     if(!exists((ret = file)) &&
        !exists((ret = QString(Option::mkfile::qmakespec + "/" + file))) &&
-       !exists((ret = QString(qgetenv("QTDIR")) + "/mkspecs/win32-msvc.net/" + file)) &&
+       !exists((ret = QString(QLibraryInfo::location(QLibraryInfo::DataPath) + "/win32-msvc.net/" + file))) &&
        !exists((ret = (QString(qgetenv("HOME")) + "/.tmake/" + file))))
         return "";
     debug_msg(1, "Generator: MSVC.NET: Found template \'%s\'", ret.toLatin1().constData());

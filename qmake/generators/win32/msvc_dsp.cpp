@@ -301,8 +301,6 @@ DspMakefileGenerator::init()
     // dont destroy the target, it is used by prl writer.
     if(!project->variables()["DESTDIR"].isEmpty()) {
         dest = project->first("DESTDIR");
-        if(dest.startsWith("$(QTDIR)"))
-            dest.replace("$(QTDIR)", qgetenv("QTDIR"));
         project->variables()["DESTDIR"].first() = dest;
         dest = project->variables()["TARGET"].first() + project->first("TARGET_EXT");
         dest.prepend(project->first("DESTDIR"));
@@ -746,7 +744,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
     }
 
     QString fileBase = QFileInfo(file).completeBaseName();
-    
+
     bool hasBuiltin = config->hasBuiltinCompiler(file);
     BuildStep allSteps;
 
