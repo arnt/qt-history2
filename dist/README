@@ -22,8 +22,8 @@ follow the instructions in the INSTALL file.
 DEMOS AND EXAMPLES
 
 Once Qt is installed, we suggest that you take a look at the demos and
-examples to see Qt in action. Run the Qt Launcher program either by
-typing 'launcher' on the command line or through the desktop's Start
+examples to see Qt in action. Run the Qt Examples and Demos either by
+typing 'qtdemo' on the command line or through the desktop's Start
 menu.
 
 
