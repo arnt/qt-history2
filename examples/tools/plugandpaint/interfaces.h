@@ -57,10 +57,10 @@ public:
 };
 
 Q_DECLARE_INTERFACE(BrushInterface,
-                    "com.trolltech.PlugAndPaint.BrushInterface/1.0");
+                    "com.trolltech.PlugAndPaint.BrushInterface/1.0")
 Q_DECLARE_INTERFACE(ShapeInterface,
-                    "com.trolltech.PlugAndPaint.ShapeInterface/1.0");
+                    "com.trolltech.PlugAndPaint.ShapeInterface/1.0")
 Q_DECLARE_INTERFACE(FilterInterface,
-                    "com.trolltech.PlugAndPaint.FilterInterface/1.0");
+                    "com.trolltech.PlugAndPaint.FilterInterface/1.0")
 
 #endif
