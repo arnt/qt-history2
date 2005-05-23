@@ -736,7 +736,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
                             pdev->width() + 2*BUFFERZONE, pdev->height() + 2 * BUFFERZONE);
     }
     d->polygonClipper.setBoundingRect(devClipRect);
-    d->floatClipper.setBoundingRect(devClipRect);
     setActive(true);
 
     QPixmap::x11SetDefaultScreen(d->xinfo->screen());
@@ -795,6 +794,78 @@ bool QX11PaintEngine::end()
     return true;
 }
 
+static bool clipLine(QLineF *line, const QRect &rect)
+{
+    qreal x1 = line->x1();
+    qreal x2 = line->x2();
+    qreal y1 = line->y1();
+    qreal y2 = line->y2();
+
+    qreal left = rect.x();
+    qreal right = rect.x() + rect.width() - 1;
+    qreal top = rect.y();
+    qreal bottom = rect.y() + rect.height() - 1;
+
+    enum { Left, Right, Top, Bottom };
+    // clip the lines, after cohen-sutherland, see e.g. http://www.nondot.org/~sabre/graphpro/line6.html
+    int p1 = ((x1 < left) << Left)
+             | ((x1 > right) << Right)
+             | ((y1 < top) << Top)
+             | ((y1 > bottom) << Bottom);
+    int p2 = ((x2 < left) << Left)
+             | ((x2 > right) << Right)
+             | ((y2 < top) << Top)
+             | ((y2 > bottom) << Bottom);
+
+    if (p1 & p2)
+        // completely outside
+        return false;
+
+    if (p1 | p2) {
+        qreal dx = x2 - x1;
+        qreal dy = y2 - y1;
+
+        // clip x coordinates
+        if (x1 < left) {
+            y1 += dy/dx * (left - x1);
+            x1 = left;
+        } else if (x1 > right) {
+            y1 -= dy/dx * (x1 - right);
+            x1 = right;
+        }
+        if (x2 < left) {
+            y2 += dy/dx * (left - x2);
+            x2 = left;
+        } else if (x2 > right) {
+            y2 -= dy/dx * (x2 - right);
+            x2 = right;
+        }
+        p1 = ((y1 < top) << Top)
+             | ((y1 > bottom) << Bottom);
+        p2 = ((y2 < top) << Top)
+             | ((y2 > bottom) << Bottom);
+        if (p1 & p2)
+            return false;
+        // clip y coordinates
+        if (y1 < top) {
+            x1 += dx/dy * (top - y1);
+            y1 = top;
+        } else if (y1 > bottom) {
+            x1 -= dx/dy * (y1 - bottom);
+            y1 = bottom;
+        }
+        if (y2 < top) {
+            x2 += dx/dy * (top - y2);
+            y2 = top;
+        } else if (y2 > bottom) {
+            x2 -= dx/dy * (y2 - bottom);
+            y2 = bottom;
+        }
+        *line = QLineF(QPointF(x1, y1), QPointF(x2, y2));
+    }
+    return true;
+}
+
 void QX11PaintEngine::drawLines(const QLine *lines, int lineCount)
 {
     Q_ASSERT(lines);
@@ -808,10 +879,16 @@ void QX11PaintEngine::drawLines(const QLine *lines, int lineCount)
         }
         return;
     }
+
     if (d->cpen.style() != Qt::NoPen) {
-        for (int i = 0; i < lineCount; ++i)
-            XDrawLine(d->dpy, d->hd, d->gc,
-                      lines[i].x1(), lines[i].y1(), lines[i].x2(), lines[i].y2());
+        for (int i = 0; i < lineCount; ++i) {
+            QLineF linef(lines[i]);
+            if (clipLine(&linef, d->polygonClipper.boundingRect())) {
+                XDrawLine(d->dpy, d->hd, d->gc,
+                          qRound(linef.x1()), qRound(linef.y1()),
+                          qRound(linef.x2()), qRound(linef.y2()));
+            }
+        }
     }
 }
 
@@ -905,7 +982,10 @@ void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
         return;
     for (int i = 0; i < pointCount; ++i) {
         QPointF xformed = d->matrix.map(points[i]);
-        XDrawPoint(d->dpy, d->hd, d->gc, qRound(xformed.x()), qRound(xformed.y()));
+        int x = qRound(xformed.x());
+        int y = qRound(xformed.y());
+        if (x >= SHRT_MIN && y >= SHRT_MIN && x < SHRT_MAX && y < SHRT_MAX)
+            XDrawPoint(d->dpy, d->hd, d->gc, qRound(xformed.x()), qRound(xformed.y()));
     }
 }
 
@@ -1165,7 +1245,10 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
 void QX11PaintEngine::drawEllipse(const QRect &rect)
 {
     Q_D(QX11PaintEngine);
-    if (d->use_path_fallback || d->cpen.color().alpha() != 255 || d->cbrush.color().alpha() != 255) {
+    QRect devclip(SHRT_MIN, SHRT_MIN, SHRT_MAX*2 - 1, SHRT_MAX*2 - 1);
+    if (d->use_path_fallback || d->cpen.color().alpha() != 255
+        || d->cbrush.color().alpha() != 255
+        || devclip.intersect(rect) != rect) {
         QPainterPath path;
         path.addEllipse(rect);
         drawPath(path);
@@ -1203,7 +1286,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
                                          QPaintEngine::PolygonDrawMode mode)
 {
     int clippedCount = 0;
-    qt_XPoint *clippedPoints = 0;
+    qt_float_point *clippedPoints = 0;
 
     QBrush fill;
     GC fill_gc;
@@ -1221,7 +1304,6 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
     if (X11->use_xrender && fill.style() != Qt::NoBrush &&
         (has_texture || antialias || fill.color().alpha() != 255))
     {
-
         if (picture) {
             ::Picture src;
             if (has_texture)
@@ -1235,7 +1317,7 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
             int x_offset = 0;
             int y_offset = 0;
             qt_float_point *cPoints;
-            floatClipper.clipPolygon((qt_float_point *)polygonPoints, pointCount, &cPoints, &cCount);
+            polygonClipper.clipPolygon((qt_float_point *)polygonPoints, pointCount, &cPoints, &cCount);
             if (cCount > 0) {
                 QVector<XTrapezoid> traps;
                 traps.reserve(128);
@@ -1262,10 +1344,15 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
                 XSetFillRule(dpy, fill_gc, WindingRule);
             polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
                                        &clippedPoints, &clippedCount);
-            setupAdaptedOrigin(QPoint(clippedPoints->x, clippedPoints->y));
+            QVarLengthArray<XPoint> xpoints(clippedCount);
+            for (int i = 0; i < clippedCount; ++i) {
+                xpoints[i].x = qRound(clippedPoints[i].x);
+                xpoints[i].y = qRound(clippedPoints[i].y);
+            }
+            setupAdaptedOrigin(QPoint(xpoints[0].x, xpoints[0].y));
             if (clippedCount > 0)
                 XFillPolygon(dpy, hd, fill_gc,
-                             (XPoint *) clippedPoints, clippedCount,
+                             xpoints.data(), clippedCount,
                              mode == QPaintEngine::ConvexMode ? Convex : Complex, CoordModeOrigin);
             resetAdaptedOrigin();
             if (mode == QPaintEngine::WindingMode)
@@ -1277,11 +1364,16 @@ void QX11PaintEnginePrivate::strokePolygon(const QPointF *polygonPoints, int poi
 {
     if (cpen.style() != Qt::NoPen) {
        int clippedCount = 0;
-       qt_XPoint *clippedPoints = 0;
+       qt_float_point *clippedPoints = 0;
        polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
-                                     &clippedPoints, &clippedCount, close);
+                                  &clippedPoints, &clippedCount, close);
+       QVarLengthArray<XPoint> xpoints(clippedCount);
+       for (int i = 0; i < clippedCount; ++i) {
+           xpoints[i].x = qRound(clippedPoints[i].x);
+           xpoints[i].y = qRound(clippedPoints[i].y);
+       }
        if (clippedCount > 0)
-           XDrawLines(dpy, hd, gc, (XPoint *) clippedPoints, clippedCount, CoordModeOrigin);
+           XDrawLines(dpy, hd, gc, xpoints.data(), clippedCount, CoordModeOrigin);
     }
 }
 

@@ -39,20 +39,9 @@ class QFontEngineFT;
 typedef unsigned long Picture;
 #include "qx11info_x11.h"
 
-struct qt_XPoint {
-    short x;
-    short y;
-};
-
 struct qt_float_point
 {
     qreal x, y;
-    operator qt_XPoint() const
-    {
-        qt_XPoint pt = { static_cast<short>(qRound(x)),
-                         static_cast<short>(qRound(y)) };
-        return pt;
-    }
 };
 
 class QX11PaintEngine : public QPaintEngine
@@ -182,8 +171,7 @@ public:
     const QX11Info *xinfo;
     QPointF bg_origin;
     QPainterPrivate::TransformationCodes txop;
-    QPolygonClipper<qt_float_point, qt_XPoint, short> polygonClipper;
-    QPolygonClipper<qt_float_point, qt_float_point, float> floatClipper;
+    QPolygonClipper<qt_float_point, qt_float_point, float> polygonClipper;
 };
 
 #endif // QPAINTENGINE_X11_P_H
