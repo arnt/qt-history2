@@ -17,9 +17,9 @@
     As a result, certain features such as the project editor and code editor have
     been removed from the version included with this release.
 
-    The current version of \QD is not feature complete. However, it is still
-    under continuous development. This document will explain what is already in
-    place and outlines features which we plan to add in future releases.
+    The current version of \QD is near feature complete and can be used for
+    many tasks. However, it is still under continuous development. This
+    document will explain what is already in place.
 
     See also the \l{designer-manual.html}{Qt Designer Manual}.
 
@@ -181,50 +181,9 @@
 
     The Software Development Toolkit is a library that developers can use to
     write extensions and plugins for \QD, and enables \QD components to be
-    embedded into Integrated Development Environments (IDEs).
+    embedded into Integrated Development Environments (IDEs). Documentation of
+    this API is currently underway and more should appear during the
+    maintenacne releases of Qt 4.
     \i \inlineimage designer-custom-widget-box.png
     \endtable
-
-    \omit
-    \section1 Future Improvements to Qt Designer
-
-    Each of the components provided with \QD is expected to improve significantly
-    in the next release of the application. Here are some of the features that
-    we hope to include in the future:
-
-    \list
-    \i Visual editing of custom widgets: A complex widget hierarchy may be dragged
-       from the form to the widget box, where it can be used just like a regular
-       widget.
-    \i Drag and drop properties: Properties can be set by dragging them from the
-       property editor to a widget.
-    \i More layout editing features:
-      \list
-      \i Create widgets that span multiple rows/columns in a layout.
-      \i Move widgets inside a layout.
-      \i Remove empty rows/columns from a layout.
-      \endlist
-    \i An editor for custom properties, signals, and slots.
-    \i Documentation for the SDK and \QD plugins.
-    \i An action editor for setting up QActions.
-    \endlist
-
-    \section1 Known Issues
-
-    We appreciate any comments and feedback that you may have about \QD. However,
-    please note that we have already been made aware of the following issues:
-
-    \list
-    \i The margin and spacing properties of a layout are not properly handled by
-       the form editor.
-    \i The tab order cannot be defined across a form containing container
-       widgets with multiple pages, such as tab widgets and stacked widgets.
-    \i \QD's resource editor can only load BMP, PNG, GIF, and JPEG images.
-    \i The current version of \QD does not support adding items to item views.
-       What's more, if they are present in an old .ui file, they will be lost when
-       the new file is saved.
-    \i "Fake" properties that existed in old versions of Designer (SQL connection
-       settings, etc.) are not currently supported.
-    \endlist
-    \endomit
 */
