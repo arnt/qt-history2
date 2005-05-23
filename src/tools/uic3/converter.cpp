@@ -803,12 +803,28 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             name = prop->attributeName(); // sync the name
 
+            // resolve the flags and enumerator
             if (prop->kind() == DomProperty::Set) {
-                prop->setElementEnum(prop->elementSet());
-            }
+                QStringList flags = prop->elementSet().split(QLatin1Char('|'));
+                QStringList v;
+                foreach (QString fl, flags) {
+                    QString e = WidgetInfo::resolveEnumerator(className, fl);
 
-            // resolve the enumerator
-            if (prop->kind() == DomProperty::Enum) {
+                    if (e.isEmpty()) {
+                        fprintf(stderr, "uic3: flag '%s' for widget '%s' is not supported\n", fl.latin1(), className.latin1());
+                        continue;
+                    }
+
+                    v.append(e);
+                }
+
+                if (v.isEmpty()) {
+                    delete prop;
+                    continue;
+                }
+
+                prop->setElementSet(v.join(QLatin1String("|")));
+            } else if (prop->kind() == DomProperty::Enum) {
                 QString e = WidgetInfo::resolveEnumerator(className, prop->elementEnum());
 
                 if (e.isEmpty()) {
