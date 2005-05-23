@@ -133,7 +133,7 @@ bool QFSFileEngine::rmdir(const QString &name, bool recurseParentDirectories) co
 QStringList QFSFileEngine::entryList(QDir::Filters filters, const QStringList &filterNames) const
 {
     Q_D(const QFSFileEngine);
-    const bool doDirs     = (filters & QDir::Dirs) != 0;
+    const bool doDirs     = (filters & (QDir::Dirs | QDir::AllDirs)) != 0;
     const bool doFiles    = (filters & QDir::Files) != 0;
     const bool doSymLinks = (filters & QDir::NoSymLinks) == 0;
     const bool doReadable = (filters & QDir::Readable) != 0;
