@@ -1572,6 +1572,11 @@ void QMessageBox::setTextFormat(Qt::TextFormat format)
     if your application depends on a specific bug fix introduced in a
     bug-fix release (e.g., 4.0.2).
 
+    The \a argc and \a argv parameters are the \c main() function's
+    \c argc and \c argv parameters. The \a version parameter is a
+    string literal that specifies which version of Qt the application
+    requires (e.g., "4.0.2").
+
     Example:
 
     \code

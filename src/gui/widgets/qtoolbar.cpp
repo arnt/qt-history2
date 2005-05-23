@@ -476,13 +476,6 @@ void QToolBar::clear()
         removeAction(actions.at(i));
 }
 
-/*! \fn void QToolBar::addAction(QAction *action)
-
-    Adds \a action to the end of the toolbar.
-
-    \sa addAction()
-*/
-
 /*!
     \overload
 

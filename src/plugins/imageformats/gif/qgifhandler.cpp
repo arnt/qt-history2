@@ -19,12 +19,8 @@
 
 #define Q_TRANSPARENT 0x00ffffff
 
-/*!
-  \class QGIFFormat
-  \brief Incremental image decoder for GIF image format.
-  \internal
-
-  \ingroup multimedia
+/*
+  Incremental image decoder for GIF image format.
 
   This subclass of QImageFormat decodes GIF format images,
   including animated GIFs. Internally in

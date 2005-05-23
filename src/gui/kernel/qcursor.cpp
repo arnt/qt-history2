@@ -69,35 +69,57 @@
     theme, while others will use an internal bitmap cursor.
 
     \table
-    \header \i Qt::CursorShape Values   \i Cursor Names
-    \row \i Qt::ArrowCursor             \i \c left_ptr
-    \row \i Qt::UpArrowCursor           \i \c up_arrow
-    \row \i Qt::CrossCursor             \i \c cross
-    \row \i Qt::WaitCursor              \i \c wait
-    \row \i Qt::BusyCursor              \i \c left_ptr_watch
-    \row \i Qt::IBeamCursor             \i \c ibeam
-    \row \i Qt::SizeVerCursor           \i \c size_ver
-    \row \i Qt::SizeHorCursor           \i \c size_hor
-    \row \i Qt::SizeBDiagCursor         \i \c size_bdiag
-    \row \i Qt::SizeFDiagCursor         \i \c size_fdiag
-    \row \i Qt::SizeAllCursor           \i \c size_all
-    \row \i Qt::SplitVCursor            \i \c split_v
-    \row \i Qt::SplitHCursor            \i \c split_h
-    \row \i Qt::PointingHandCursor      \i \c pointing_hand
-    \row \i Qt::ForbiddenCursor         \i \c forbidden
-    \row \i Qt::WhatsThisCursor         \i \c whats_this
+    \header \o Qt::CursorShape Values   \o Cursor Names
+    \row \o Qt::ArrowCursor             \o \c left_ptr
+    \row \o Qt::UpArrowCursor           \o \c up_arrow
+    \row \o Qt::CrossCursor             \o \c cross
+    \row \o Qt::WaitCursor              \o \c wait
+    \row \o Qt::BusyCursor              \o \c left_ptr_watch
+    \row \o Qt::IBeamCursor             \o \c ibeam
+    \row \o Qt::SizeVerCursor           \o \c size_ver
+    \row \o Qt::SizeHorCursor           \o \c size_hor
+    \row \o Qt::SizeBDiagCursor         \o \c size_bdiag
+    \row \o Qt::SizeFDiagCursor         \o \c size_fdiag
+    \row \o Qt::SizeAllCursor           \o \c size_all
+    \row \o Qt::SplitVCursor            \o \c split_v
+    \row \o Qt::SplitHCursor            \o \c split_h
+    \row \o Qt::PointingHandCursor      \o \c pointing_hand
+    \row \o Qt::ForbiddenCursor         \o \c forbidden
+    \row \o Qt::WhatsThisCursor         \o \c whats_this
     \endtable
 
     \sa QWidget, {fowler}{GUI Design Handbook: Cursors}
 */
 
 /*!
-    \fn Qt::HANDLE QCursor::handle() const
+    \fn HCURSOR_or_HANDLE QCursor::handle() const
 
     Returns a handle to the cursor.
 
     \warning Using the value returned by this function is not
     portable.
+
+    \sa Qt::HANDLE
+*/
+
+/*!
+    \fn QCursor::QCursor(HCURSOR cursor)
+
+    Constructs a Qt cursor from the given Windows \a cursor.
+
+    \warning This function is only available on Windows.
+
+    \sa handle()
+*/
+
+/*!
+    \fn QCursor::QCursor(Qt::HANDLE handle)
+
+    Constructs a Qt cursor from the given \a handle.
+
+    \warning This function is only available on X11.
+
+    \sa handle()
 */
 
 /*****************************************************************************
@@ -234,10 +256,10 @@ QCursor::QCursor(const QPixmap &pixmap, int hotX, int hotY)
 
     The cursor \a bitmap (B) and \a mask (M) bits are combined like this:
     \list
-    \i B=1 and M=1 gives black.
-    \i B=0 and M=1 gives white.
-    \i B=0 and M=0 gives transparent.
-    \i B=1 and M=0 gives an undefined result.
+    \o B=1 and M=1 gives black.
+    \o B=0 and M=1 gives white.
+    \o B=0 and M=0 gives transparent.
+    \o B=1 and M=0 gives an undefined result.
     \endlist
 
     Use the global Qt color \c Qt::color0 to draw 0-pixels and \c Qt::color1 to

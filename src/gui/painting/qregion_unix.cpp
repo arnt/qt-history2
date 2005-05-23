@@ -2399,14 +2399,6 @@ bool QRegion::contains(const QRect &r) const
 }
 
 
-/*!
-    \fn void QRegion::translate(const QPoint &p)
-    \overload
-
-    Translates (moves) the region by \a p.
-
-*/
-
 
 /*!
     Translates (moves) the region \a dx along the X axis and \a dy
@@ -2583,11 +2575,3 @@ bool QRegion::operator==(const QRegion &r) const
     else
         return EqualRegion(d->qt_rgn, r.d->qt_rgn);
 }
-
-/*!
-    \fn bool QRegion::operator!=(const QRegion &r) const
-
-    Returns true if the region is different from \a r; otherwise
-    returns false.
-*/
-

@@ -41,7 +41,6 @@ void XmlWriter::readFragment(const QTextBlock &currentBlock,
 {
     QTextBlock::iterator it;
     for (it = currentBlock.begin(); !(it.atEnd()); ++it) {
-
         QTextFragment currentFragment = it.fragment();
         if (currentFragment.isValid())
             processFragment(currentFragment);

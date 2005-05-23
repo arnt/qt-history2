@@ -481,13 +481,13 @@ void QTableView::paintEvent(QPaintEvent *e)
 
 /*!
     Returns the index position of the model item corresponding to the
-    table item at position (\a x, \a y) in contents coordinates.
+    table item at position \a pos in contents coordinates.
 */
-QModelIndex QTableView::indexAt(const QPoint &p) const
+QModelIndex QTableView::indexAt(const QPoint &pos) const
 {
     d_func()->executePostedLayout();
-    int r = rowAt(p.y());
-    int c = columnAt(p.x());
+    int r = rowAt(pos.y());
+    int c = columnAt(pos.x());
     if (r >= 0 && c >= 0)
         return model()->index(r, c, rootIndex());
     return QModelIndex();

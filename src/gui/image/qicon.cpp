@@ -521,6 +521,14 @@ void QIcon::paint(QPainter *painter, const QRect &rect, Qt::Alignment alignment,
     d->engine->paint(painter, alignedRect, mode, state);
 }
 
+/*!
+    \fn void QIcon::paint(QPainter *painter, int x, int y, int w, int h, Qt::Alignment alignment,
+                          Mode mode, State state) const
+
+    \overload
+
+    Paints the icon into the rectangle QRect(\a x, \a y, \a w, \a h).
+*/
 
 /*!
     Returns true if the icon is empty; otherwise returns false.

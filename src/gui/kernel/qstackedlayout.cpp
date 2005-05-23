@@ -98,15 +98,6 @@ public:
 */
 
 /*!
-    \fn void QStackedLayout::currentChanged(int index)
-
-    This signal is emitted when the widget at position \a index is
-    made the current widget.
-
-    \sa setCurrentIndex(), setCurrentWidget()
-*/
-
-/*!
     Constructs a QStackedLayout with no parent.
 
     This QStackedLayout must be added to another layout later on to

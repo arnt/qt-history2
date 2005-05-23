@@ -788,13 +788,16 @@ void QListView::startDrag(Qt::DropActions supportedActions)
 }
 
 /*!
-  Called whenever items from the view is dropped on the viewport.
- */
-void QListView::internalDrop(QDropEvent *e)
+    \internal
+
+    Called whenever items from the view is dropped on the viewport.
+    The \a event provides additional information.
+*/
+void QListView::internalDrop(QDropEvent *event)
 {
     Q_D(QListView);
     QPoint offset(horizontalOffset(), verticalOffset());
-    QPoint end = e->pos() + offset;
+    QPoint end = event->pos() + offset;
     QPoint start = d->pressedPosition;
     QPoint delta = (d->movement == Snap ?
                     d->snapToGrid(end) - d->snapToGrid(start) : end - start);
@@ -814,9 +817,11 @@ void QListView::internalDrop(QDropEvent *e)
 }
 
 /*!
-  Called whenever the user starts dragging items and the items are movable,
-  enabling internal dragging and dropping of items.
- */
+    \internal
+
+    Called whenever the user starts dragging items and the items are movable,
+    enabling internal dragging and dropping of items.
+*/
 void QListView::internalDrag(Qt::DropActions supportedActions)
 {
     // This function does the same thing as in QAbstractItemView::startDrag(),

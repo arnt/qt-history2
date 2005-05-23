@@ -1553,7 +1553,7 @@ QString QFont::key() const
     comma-separated list of the attributes, perfectly suited for use
     in QSettings.
 
-    \sa fromString() operator<<()
+    \sa fromString()
  */
 QString QFont::toString() const
 {
@@ -1576,7 +1576,7 @@ QString QFont::toString() const
     is a comma-separated list of the font attributes, as returned by
     toString().
 
-    \sa toString() operator>>()
+    \sa toString()
  */
 bool QFont::fromString(const QString &descrip)
 {

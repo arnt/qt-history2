@@ -489,7 +489,7 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
 */
 
 /*!
-    \fn void QPaintEngine::updateState(QPainterState *state)
+    \fn void QPaintEngine::updateState(QPaintEngineState *state)
 
     \internal
 */

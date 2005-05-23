@@ -210,7 +210,7 @@ void QSqlDriver::setOpen(bool open)
     of open(). Note that if \a error is true the open state of the
     database is set to closed (i.e., isOpen() returns false).
 
-    \sa open(), setOpenError()
+    \sa open(), setOpen()
 */
 
 void QSqlDriver::setOpenError(bool error)

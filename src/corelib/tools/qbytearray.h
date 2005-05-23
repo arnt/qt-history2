@@ -221,8 +221,8 @@ public:
 
     static QByteArray number(int, int base = 10);
     static QByteArray number(uint, int base = 10);
-    static QByteArray number(qint64, int base = 10);
-    static QByteArray number(quint64, int base = 10);
+    static QByteArray number(qlonglong, int base = 10);
+    static QByteArray number(qulonglong, int base = 10);
     static QByteArray number(double, char f = 'g', int prec = 6);
     static QByteArray fromRawData(const char *, int size);
     static QByteArray fromBase64(const QByteArray &base64);

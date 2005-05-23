@@ -274,6 +274,12 @@ void QSqlDatabasePrivate::disable()
 */
 
 /*!
+    \fn QSqlDriverCreatorBase::~QSqlDriverCreatorBase()
+
+    Destroys the SQL driver creator object.
+*/
+
+/*!
     \fn QSqlDriver *QSqlDriverCreatorBase::createObject() const
 
     Reimplement this function to returns a new instance of a

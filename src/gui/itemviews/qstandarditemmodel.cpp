@@ -424,10 +424,8 @@ bool QStandardItemModel::removeColumns(int column, int count, const QModelIndex 
     Returns the item flags for the given \a index.
 
     This model returns returns a combination of flags that
-    enables the item (\c ItemIsEnabled), allows it to be
-    selected (\c ItemIsSelectable) and edited (\c ItemIsEditable).
-
-    \sa ItemFlag
+    enables the item (Qt::ItemIsEnabled), allows it to be
+    selected (Qt::ItemIsSelectable) and edited (Qt::ItemIsEditable).
 */
 Qt::ItemFlags QStandardItemModel::flags(const QModelIndex &index) const
 {

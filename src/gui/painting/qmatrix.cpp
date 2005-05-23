@@ -582,7 +582,7 @@ QRegion QMatrix::map(const QRegion &r) const
     return p.toFillPolygon().toPolygon();
 }
 
-/*
+/*!
     \overload
 
     Transforms the painter path \a path.
@@ -835,6 +835,11 @@ QMatrix &QMatrix::rotate(qreal a)
     Returns the matrix's determinant.
 */
 
+/*!
+    \fn QMatrix QMatrix::invert(bool *invertible)
+
+    Call inverted(\a invertible) instead.
+*/
 
 /*!
     Returns the inverted matrix.

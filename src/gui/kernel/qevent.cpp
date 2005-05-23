@@ -2056,14 +2056,14 @@ void QDropEvent::setDropAction(Qt::DropAction action)
 */
 
 /*!
-    \fn void QDropEvent::accept(bool accept = true)
+    \fn void QDropEvent::accept()
+    \internal
+*/
 
-    Call this function to indicate whether the event provided data
-    that your widget processed. Set \a accept to true (the default) if
-    your widget could process the data, otherwise set \a accept to false.
-    To get the data, use mimeData().
+/*!
+    \fn void QDropEvent::accept(bool accept)
 
-    \sa acceptAction() QMimeData
+    Call setAccepted(\a accept) instead.
 */
 
 /*!

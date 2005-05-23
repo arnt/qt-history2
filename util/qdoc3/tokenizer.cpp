@@ -16,14 +16,14 @@
   Keep in sync with tokenizer.h.
 */
 static const char *kwords[] = {
-    "char", "class", "const", "double", "enum", "explicit", "friend", "int", "long", "namespace",
-    "operator", "private", "protected", "public", "short", "signals", "signed", "slots", "static",
-    "struct", "template", "typedef", "union", "unsigned", "virtual", "void", "volatile",
-    "__int64", "Q_OBJECT", "Q_OVERRIDE", "Q_PROPERTY", "Q_DECLARE_SEQUENTIAL_ITERATOR",
-    "Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR", "Q_DECLARE_ASSOCIATIVE_ITERATOR",
-    "Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR", "Q_DECLARE_FLAGS", "QT_COMPAT",
-    "QT_COMPAT_CONSTRUCTOR", "QT_MOC_COMPAT", "QT3_SUPPORT", "QT3_SUPPORT_CONSTRUCTOR",
-    "QT3_MOC_SUPPORT", "QDOC_PROPERTY"
+    "char", "class", "const", "double", "enum", "explicit", "friend", "inline", "int", "long",
+    "namespace", "operator", "private", "protected", "public", "short", "signals", "signed",
+    "slots", "static", "struct", "template", "typedef", "typename", "union", "unsigned", "virtual",
+    "void", "volatile", "__int64", "Q_OBJECT", "Q_OVERRIDE", "Q_PROPERTY",
+    "Q_DECLARE_SEQUENTIAL_ITERATOR", "Q_DECLARE_MUTABLE_SEQUENTIAL_ITERATOR",
+    "Q_DECLARE_ASSOCIATIVE_ITERATOR", "Q_DECLARE_MUTABLE_ASSOCIATIVE_ITERATOR", "Q_DECLARE_FLAGS",
+    "QT_COMPAT", "QT_COMPAT_CONSTRUCTOR", "QT_MOC_COMPAT", "QT3_SUPPORT",
+    "QT3_SUPPORT_CONSTRUCTOR", "QT3_MOC_SUPPORT", "QDOC_PROPERTY"
 };
 
 static const int KwordHashTableSize = 4096;
@@ -106,7 +106,10 @@ int Tokenizer::getToken()
 			break;
                     }
 		} else if ( strcmp(yyLex, kwords[i - 1]) == 0 ) {
-		    return (int) Tok_FirstKeyword + i - 1;
+                    int ret = (int) Tok_FirstKeyword + i - 1;
+                    if (ret != Tok_explicit && ret != Tok_inline && ret != Tok_typename)
+                        return ret;
+                    break;
 		}
 
 		if ( ++k == KwordHashTableSize )
@@ -395,10 +398,6 @@ void Tokenizer::initialize(const Config &config)
     ignoredTokensAndDirectives = new QHash<QByteArray, bool>;
 
     QStringList tokens = config.getStringList(LANGUAGE_CPP + Config::dot + CONFIG_IGNORETOKENS);
-    tokens.append("explicit");
-    tokens.append("inline");
-    tokens.append("typename");
-
     foreach (QString t, tokens) {
 	ignoredTokensAndDirectives->insert(t.toAscii(), false);
 	insertKwordIntoHash(t.toAscii().data(), -1);

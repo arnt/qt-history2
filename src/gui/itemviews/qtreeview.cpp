@@ -203,7 +203,6 @@ void QTreeView::setHeader(QHeaderView *header)
   \brief indentation of the items in the tree view.
 
   This property holds the indentation of the items for each level in the tree view.
-  \sa setIndentation()
 */
 int QTreeView::indentation() const
 {
@@ -467,7 +466,7 @@ bool QTreeView::isExpanded(const QModelIndex &index) const
   Sets the item referred to by \a index to either collapse or expanded,
   depending on the value of \a expanded.
 
-  \sa expanded, collapsed
+  \sa expanded()
 */
 void QTreeView::setExpanded(const QModelIndex &index, bool expanded)
 {
@@ -508,7 +507,7 @@ QRect QTreeView::visualRect(const QModelIndex &index) const
 /*!
     Scroll the contents of the tree view until the given model item
     \a index is visible. The \a hint parameter specifies more
-    precisely where the \a item should be located after the
+    precisely where the item should be located after the
     operation.
 */
 void QTreeView::scrollTo(const QModelIndex &index, ScrollHint hint)
@@ -909,10 +908,8 @@ int QTreeView::verticalOffset() const
 }
 
 /*!
-  Move the cursor in the way described by \a cursorAction, using the
-  information provided by the button \a state.
-
-  \sa QAbstractItemView::CursorAction
+    Move the cursor in the way described by \a cursorAction, using the
+    information provided by the button \a modifiers.
 */
 QModelIndex QTreeView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifiers modifiers)
 {
@@ -1209,9 +1206,11 @@ void QTreeView::selectAll()
 }
 
 /*!
-  This column is called whenever the column size is changed in the header.
+    This function is called whenever \a{column}'s size is changed in
+    the header. \a oldSize and \a newSize give the previous size and
+    the new size in pixels.
 */
-void QTreeView::columnResized(int column, int, int)
+void QTreeView::columnResized(int column, int /* oldSize */, int /* newSize */)
 {
     Q_D(QTreeView);
     int x = columnViewportPosition(column);

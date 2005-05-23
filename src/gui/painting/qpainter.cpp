@@ -1806,7 +1806,7 @@ void QPainter::drawPath(const QPainterPath &path)
 /*!
   \fn void QPainter::drawLine(const QLineF &line)
 
-  Draws a line defined by \a l.
+  Draws a line defined by \a line.
 
   \sa pen()
 */
@@ -1814,7 +1814,7 @@ void QPainter::drawPath(const QPainterPath &path)
 /*!
   \fn void QPainter::drawLine(const QLine &line)
 
-  Draws a line defined by \a l.
+  \overload
 
   \sa pen()
 */
@@ -4926,7 +4926,7 @@ void bitBlt(QPaintDevice *dst, int dx, int dy,
     result (e.g. converting from 32-bit to 8-bit), use the \a flags to
     specify how you would prefer this to happen.
 
-    \sa drawPimxap()
+    \sa drawPixmap()
 */
 
 /*!

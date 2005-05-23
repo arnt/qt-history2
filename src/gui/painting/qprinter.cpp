@@ -183,7 +183,7 @@
 */
 
 /*!
-    \enum PrinterOption
+    \enum QPrinter::PrinterOption
     This enum is here for compatibility
 
     \value PrintToFile
@@ -445,7 +445,7 @@ void QPrinter::setOutputFileName(const QString &fileName)
   different to use a specific print program. On the other platforms, this
   returns an empty string.
 
-  \sa setPrintProgram() setPrinterSelectionOption()
+  \sa setPrintProgram(), setPrinterSelectionOption()
 */
 QString QPrinter::printProgram() const
 {
@@ -1460,14 +1460,6 @@ void QPrinter::setCollateCopiesEnabled(bool enable)
 }
 
 /*!
-    \enum PrintRange
-    \compat
-    \value AllPages
-    \value Selection
-    \value PageRange
-*/
-
-/*!
     \compat
 
     Use QPrintDialog instead.
@@ -1504,14 +1496,6 @@ QPrinter::PrintRange QPrinter::printRange() const
         const_cast<QPrinter*>(this)->d_func()->printDialog = new QPrintDialog(const_cast<QPrinter*>(this));
     return PrintRange(const_cast<QPrinter*>(this)->d_func()->printDialog->printRange());
 }
-
-/*!
-    \enum PrinterOption
-    \compat
-    \value PrintToFile
-    \value PrintSelection
-    \value PrintPageRange
-*/
 
 /*!
     \compat

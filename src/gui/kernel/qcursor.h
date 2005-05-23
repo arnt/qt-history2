@@ -71,7 +71,11 @@ public:
     static void setPos(int x, int y);
     inline static void setPos(const QPoint &p) { setPos(p.x(), p.y()); }
 
-#if defined(Q_WS_WIN)
+#if defined(qdoc)
+    HCURSOR_or_HANDLE handle() const;
+    QCursor(HCURSOR cursor);
+    QCursor(Qt::HANDLE cursor);
+#elif defined(Q_WS_WIN)
     HCURSOR handle() const;
     QCursor(HCURSOR cursor);
 #elif defined(Q_WS_X11)

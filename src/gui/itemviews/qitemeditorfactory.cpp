@@ -183,9 +183,10 @@ const QItemEditorFactory *QItemEditorFactory::defaultFactory()
 }
 
 /*!
-Sets the default item editor factory to the given \a factory.
+    Sets the default item editor factory to the given \a factory.
 
-\sa defaultFactory()*/
+    \sa defaultFactory()
+*/
 void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
 {
     static const QDefaultFactoryCleaner cleaner;
@@ -204,6 +205,12 @@ void QItemEditorFactory::setDefaultFactory(QItemEditorFactory *factory)
     creators.
 
     \sa QItemEditorFactory
+*/
+
+/*!
+    \fn QItemEditorCreatorBase::~QItemEditorCreatorBase()
+
+    Destroys the editor creator object.
 */
 
 /*!

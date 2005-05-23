@@ -4,7 +4,7 @@
 
     \contentspage {What's New in Qt 4}{Home}
     \previouspage What's New in Qt 4
-    \nextpage The Interview Classes
+    \nextpage The Interview Framework
 
     Qt 4 introduces a new set of containers that will replace both the old
     QCollection pointer-based containers and the newer QTL value-based

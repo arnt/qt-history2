@@ -88,29 +88,13 @@
 */
 
 /*!
-    \fn RgnHandle QRegion::handle() const
+    \fn Handle QRegion::handle() const
 
-    Returns a Mac OS X-specific region handle.
-    \warning This function is only available on Mac OS X.
-*/
+    Returns a platform-specific region handle. The \c Handle type is
+    \c HRGN on Windows, \c Region on X11, and \c RgnHandle on Mac OS
+    X.
 
-/*!
-    \internal
-    \fn RgnHandle QRegion::handle(bool require_rgn) const
-*/
-
-/*!
-    \fn HRGN QRegion::handle() const
-
-    Returns a Windows-specific region handle.
-    \warning This function is only available on Windows.
-*/
-
-/*!
-    \fn Region QRegion::handle() const
-
-    Returns an X11-specific region handle.
-    \warning This function is only available on X11.
+    \warning This function is not portable.
 */
 
 /*****************************************************************************
@@ -133,6 +117,10 @@ QRegion::QRegion(int x, int y, int w, int h, RegionType t)
 }
 
 #ifdef QT3_SUPPORT
+/*!
+    Use the constructor tha takes a Qt::FillRule as the second
+    argument instead.
+*/
 QRegion::QRegion(const QPolygon &pa, bool winding)
 {
     new (this) QRegion(pa, winding ? Qt::WindingFill : Qt::OddEvenFill);
@@ -431,3 +419,8 @@ QRegion::operator QVariant() const
     return QVariant(QVariant::Region, this);
 }
 
+/*!
+    \fn bool QRegion::isNull() const
+
+    Use isEmpty() instead.
+*/

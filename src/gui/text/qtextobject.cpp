@@ -625,25 +625,28 @@ QTextFrame::iterator::iterator(QTextFrame *frame, int block, int begin, int end)
 }
 
 /*!
-    \fn QTextFrame::iterator::iterator(const iterator &other)
-
-    Copy constructor. Constructs a copy of the \a other iterator.*/
-QTextFrame::iterator::iterator(const iterator &o)
+    Copy constructor. Constructs a copy of the \a other iterator.
+*/
+QTextFrame::iterator::iterator(const iterator &other)
 {
-    f = o.f;
-    b = o.b;
-    e = o.e;
-    cf = o.cf;
-    cb = o.cb;
+    f = other.f;
+    b = other.b;
+    e = other.e;
+    cf = other.cf;
+    cb = other.cb;
 }
 
-QTextFrame::iterator &QTextFrame::iterator::operator=(const iterator &o)
+/*!
+    Assigns \a other to this iterator and returns a reference to
+    this iterator.
+*/
+QTextFrame::iterator &QTextFrame::iterator::operator=(const iterator &other)
 {
-    f = o.f;
-    b = o.b;
-    e = o.e;
-    cf = o.cf;
-    cb = o.cb;
+    f = other.f;
+    b = other.b;
+    e = other.e;
+    cf = other.cf;
+    cb = other.cb;
     return *this;
 }
 
@@ -848,13 +851,9 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
 
     \quotefromfile snippets/textblock-fragments/xmlwriter.cpp
     \skipto QTextBlock::iterator
-    \printuntil if (currentFragment.isValid())
-    \skipto processFragment
-    \printuntil ...
-    \skipto }
-    \printuntil }
-    \skipto }
-    \printuntil }
+    \printuntil processFragment
+    \skipuntil }
+    \printline }
 
     \sa QTextFragment
 */

@@ -473,13 +473,11 @@ QGb2312Codec::QGb2312Codec()
 {
 }
 
-/*! \reimp */
 int QGb2312Codec::_mibEnum()
 {
     return 2025;
 }
 
-/*! \reimp */
 QByteArray QGb2312Codec::_name()
 {
     return "GB2312";

@@ -705,7 +705,7 @@ void QDockWidget::setFloating(bool floating)
     \property QDockWidget::allowedAreas
     \brief areas where the dock widget may be placed
 
-    The default is \c Qt::AllDockWidgetAreas.
+    The default is Qt::AllDockWidgetAreas.
 
     \sa Qt::DockWidgetArea
 */
@@ -802,6 +802,30 @@ QAction * QDockWidget::toggleViewAction() const
     Q_D(const QDockWidget);
     return d->toggleViewAction;
 }
+
+/*!
+    \fn void QDockWidget::featuresChanged(DockWidgetFeatures features)
+
+    This signal is emitted when the \l features property changes. The
+    \a features parameter gives the new value of the property.
+*/
+
+/*!
+    \fn void QDockWidget::topLevelChanged(bool topLevel)
+
+    This signal is emitted when the \l floating property changes.
+    The \a topLevel parameter is true if the dock widget is now floating;
+    otherwise it is false.
+
+    \sa isWindow()
+*/
+
+/*!
+    \fn void QDockWidget::allowedAreasChanged(Qt::DockWidgetAreas allowedAreas)
+
+    This signal is emitted when the \l allowedAreas property changes. The
+    \a allowedAreas parameter gives the new value of the property.
+*/
 
 #include "qdockwidget.moc"
 #include "moc_qdockwidget.cpp"

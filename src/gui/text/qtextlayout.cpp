@@ -781,10 +781,6 @@ qreal QTextLayout::maximumWidth() const
 }
 
 /*!
-    \omit
-    \fn void QTextLayout::draw(QPainter *painter, const QPointF &position, const QVector &selections, const QRectF &clipRect) const
-    \endomit
-
     Draws the whole layout on the painter \a p at the position specified by
     \a pos.
     The rendered layout includes the given \a selections and is clipped within

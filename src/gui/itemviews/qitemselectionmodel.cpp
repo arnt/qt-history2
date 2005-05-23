@@ -43,8 +43,8 @@
     inequality, and the intersects() function allows you to determine
     whether two ranges overlap.
 
-    \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel QItemSelection QItemSelectionModel
-
+    \sa {Model/View Programming}, QAbstractItemModel, QItemSelection,
+        QItemSelectionModel
 */
 
 /*!
@@ -89,7 +89,6 @@
 
     Returns the column index corresponding to the leftmost selected column in the
     selection range.
-
 */
 
 /*!
@@ -126,6 +125,28 @@
     \fn const QAbstractItemModel *QItemSelectionRange::model() const
 
     Returns the model that the items in the selection range belong to.
+*/
+
+/*!
+    \fn QModelIndex QItemSelectionRange::topLeft() const
+
+    Returns the index for the item located at the top-left corner of
+    the selection range.
+
+    \sa top(), left(), bottomRight()
+*/
+
+/*!
+    \fn QModelIndex QItemSelectionRange::bottomRight() const
+
+    Returns the index for the item located at the bottom-right corner
+    of the selection range.
+
+    \sa bottom(), right(), topLeft()
+*/
+
+/*!
+    \fn QModelIndex QItemSelectionRange::bottomRight() const
 */
 
 /*!
@@ -269,7 +290,7 @@ QModelIndexList QItemSelectionRange::indexes() const
   overlapping ranges. Use split() to split one selection range into
   smaller ranges based on a another selection range.
 
-  \sa \link model-view-programming.html Model/View Programming\endlink QItemSelectionModel
+  \sa {Model/View Programming}, QItemSelectionModel
 
 */
 
@@ -513,7 +534,7 @@ QItemSelection QItemSelectionModelPrivate::expandSelection(const QItemSelection 
   selection. All functions operate on both layers; for example,
   selectedItems() will return items from both layers.
 
-  \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel
+  \sa {Model/View Programming}, QAbstractItemModel
 */
 
 /*!

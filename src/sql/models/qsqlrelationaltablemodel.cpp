@@ -434,6 +434,9 @@ bool QSqlRelationalTableModel::updateRowInTable(int row, const QSqlRecord &value
     return QSqlTableModel::updateRowInTable(row, rec);
 }
 
+/*!
+    \reimp
+*/
 QString QSqlRelationalTableModel::orderByClause() const
 {
     Q_D(const QSqlRelationalTableModel);

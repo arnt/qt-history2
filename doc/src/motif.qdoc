@@ -30,15 +30,7 @@ problems and limitations.  It is provided only to keep existing source
 working; it should not be used in new code.
 \endlist
 
-\section2 Additional Documentation
-
-\list
-
-\i \l{Motif Examples}.
-\i \l{motif/walkthrough}{Migration Walkthrough} - A
-complete migration of a Motif based program to the Qt toolkit.
-
-\endlist
+See also the \l{Motif Examples}.
 
 \section1 Common Problems
 

@@ -1113,7 +1113,7 @@ QListWidgetItem *QListWidget::itemAt(const QPoint &p) const
 }
 
 /*!
-    \fn QListWidgetItem *QListWidget::itemAt(int x, int y)
+    \fn QListWidgetItem *QListWidget::itemAt(int x, int y) const
     \overload
 
     Returns a pointer to the item at the coordinates (\a x, \a y).

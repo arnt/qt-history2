@@ -552,8 +552,8 @@ int QGLFormat::samples() const
 
 /*!
     Set the preferred number of samples per pixel when multisampling
-    is enabled. By default, the highest number of samples available is
-    used.
+    is enabled to \a numSamples. By default, the highest number of
+    samples available is used.
 
     \sa setSampleBuffers(), sampleBuffers(), samples()
 */

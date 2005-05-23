@@ -852,9 +852,9 @@ Qt::SortOrder QHeaderView::sortIndicatorOrder() const
     return d->sortIndicatorOrder;
 }
 
-/*
-  \property QHeaderView::stretchLastSection
-  \brief whether the last section in the header takes up all the available space
+/*!
+    \property QHeaderView::stretchLastSection
+    \brief whether the last section in the header takes up all the available space
 
 */
 bool QHeaderView::stretchLastSection() const

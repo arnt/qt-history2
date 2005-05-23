@@ -15,7 +15,7 @@
 
 /*!
     \class QSqlRelationalDelegate
-    \brief The QSqlRelationalDelegate provides a delegate that is used to
+    \brief The QSqlRelationalDelegate class provides a delegate that is used to
     display and edit data from a QSqlRelationalTableModel.
 
     Unlike the default delegate, QSqlRelationalDelegate provides a

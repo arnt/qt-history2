@@ -252,9 +252,9 @@ void QInputContext::sendEvent(const QInputMethodEvent &event)
     with the InputMethodCompose event. The alteration boundary of \a
     x is ensured as character boundary of preedit string accurately.
 
-    The \e event parameter is the event that was sent to the editor
-    widget. The event type is \c QEvent::MouseButtonPress, \c
-    QEvent::MouseButtonRelease, \c QEvent::MouseButtonDblClick or \c
+    The \a event parameter is the event that was sent to the editor
+    widget. The event type is QEvent::MouseButtonPress,
+    QEvent::MouseButtonRelease, QEvent::MouseButtonDblClick or
     QEvent::MouseButtonMove. The event's button and state indicate
     the kind of operation that was performed.
 */

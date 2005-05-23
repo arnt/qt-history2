@@ -130,22 +130,23 @@ Q_GLOBAL_STATIC(QWindowsMimeList, mimeList);
   proprietary clipboard formats to MIME formats.
 
   Qt has predefined support for the following Windows Clipboard formats:
-  \list
-  \i CF_UNICODETEXT - converted to "text/plain"
-  \i CF_TEXT - converted to "text/plain"
-  \i CF_DIB - converted to "image/...", where ... is
-     a \link QImage::outputFormats() Qt image format\endlink
-  \i CF_HDROP - converted to "text/uri-list"
-  \i CF_INETURL - converted to "text/uri-list"
-  \i CF_HTML - converted to "text/html"
+
+  \table
+  \header \o Windows Format \o Equivalent MIME type
+  \row \o \c CF_UNICODETEXT \o \c text/plain
+  \row \o \c CF_TEXT        \o \c text/plain
+  \row \o \c CF_DIB         \o \c{image/xyz}, where \c xyz is
+                               a \l{QImageWriter::supportedImageFormats()}{Qt image format}
+  \row \o \c CF_HDROP       \o \c text/uri-list
+  \row \o \c CF_INETURL     \o \c text/uri-list
+  \row \o \c CF_HTML        \o \c text/html
   \endlist
 
   An example use of this class would be to map the Windows Metafile
-  clipboard format (CF_METAFILEPICT) to and from the MIME type "image/x-wmf".
-  This conversion might simply be adding or removing a header, or even
-  just passing on the data.  See the
-  \link dnd.html Drag-and-Drop documentation\endlink for more information
-  on choosing and definition MIME types.
+  clipboard format (\c CF_METAFILEPICT) to and from the MIME type
+  \c{image/x-wmf}. This conversion might simply be adding or removing
+  a header, or even just passing on the data. See \l{Drag & Drop}
+  for more information on choosing and definition MIME types.
 
   You can check if a MIME type is convertible using canConvertFromMime() and
   can perform conversions with convertToMime() and convertFromMime().
@@ -171,6 +172,8 @@ QWindowsMime::~QWindowsMime()
 
 
 /*!
+    Registers the MIME type \a mime, and returns an ID number
+    identifying the format on Windows.
 */
 int QWindowsMime::registerMimeType(const QString &mime)
 {
@@ -199,7 +202,7 @@ int QWindowsMime::registerMimeType(const QString &mime)
   \fn bool QWindowsMime::canConvertToMime(const QString &mimeType, IDataObject *pDataObj) const
 
   Returns true if the converter can convert to the \a mimeType from
-  the available formats in \a pDataObject.
+  the available formats in \a pDataObj.
 
   All subclasses must reimplement this pure virtual function.
 */
@@ -224,12 +227,13 @@ int QWindowsMime::registerMimeType(const QString &mime)
 */
 
 /*!
-\fn QVariant QWindowsMime::convertToMime(const QString &mime, QVariant::Type preferredType, IDataObject *pDataObj) const
+    \fn QVariant QWindowsMime::convertToMime(const QString &mimeType, IDataObject *pDataObj,
+                                             QVariant::Type preferredType) const
 
-  Returns a QVariant containing the converted data for \a mime from \a pDataObject.
-  If possible the QVariant should be of the \a preferredType to avoid needless conversions.
+    Returns a QVariant containing the converted data for \a mime from \a pDataObject.
+    If possible the QVariant should be of the \a preferredType to avoid needless conversions.
 
-  All subclasses must reimplement this pure virtual function.
+    All subclasses must reimplement this pure virtual function.
 */
 
 /*!

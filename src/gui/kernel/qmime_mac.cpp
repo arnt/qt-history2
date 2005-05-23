@@ -915,15 +915,15 @@ QList<QMacMime*> QMacMime::all(QMacMimeType t)
 */
 
 /*!
-  \fn QVariant QMacMime::convertToMime(QList<QByteArray> data, const QString &mime, int flav)
+    \fn QVariant QMacMime::convertToMime(const QString &mime, QList<QByteArray> data, int flav)
 
-  Returns \a data converted from Mac flavor \a flav to MIME type \a
+    Returns \a data converted from Mac flavor \a flav to MIME type \a
     mime.
 
-  Note that Mac flavors must all be self-terminating.  The input \a
-  data may contain trailing data.
+    Note that Mac flavors must all be self-terminating. The input \a
+    data may contain trailing data.
 
-  All subclasses must reimplement this pure virtual function.
+    All subclasses must reimplement this pure virtual function.
 */
 
 /*!

@@ -713,7 +713,7 @@ void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
 */
 
 /*!
-    \fn int QListWidgetItem::type() const
+    \fn int QTreeWidgetItem::type() const
 
     Returns the type passed to the QTreeWidgetItem constructor.
 */
@@ -1153,9 +1153,7 @@ void QTreeWidgetItem::write(QDataStream &out) const
 }
 
 /*!
-  \reimp
-
-  Creates a copy of the \a other item.
+    Assigns the \a other item to this item.
 */
 QTreeWidgetItem &QTreeWidgetItem::operator=(const QTreeWidgetItem &other)
 {

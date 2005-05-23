@@ -6304,6 +6304,12 @@ Q3FilePreview::Q3FilePreview()
 }
 
 /*!
+    \fn Q3FilePreview::~Q3FilePreview()
+
+    Destroys the file preview object.
+*/
+
+/*!
   \fn void Q3FilePreview::previewUrl(const Q3Url &url)
 
   This function is called by Q3FileDialog if a preview

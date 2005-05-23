@@ -31,8 +31,8 @@
     iterators are slightly more efficient and can be used together
     with Qt's and STL's \l{generic algorithms}.
 
-    Qt also offers a \l{foreach} keyword that make it very easy to
-    iterate over all the items stored in a container.
+    Qt also offers a \l{foreach} keyword that make it very
+    easy to iterate over all the items stored in a container.
 
     \section1 The Container Classes
 
@@ -614,6 +614,7 @@
     non-const iterators are active on that container. Java-style
     iterators don't suffer from that limitation.
 
+    \keyword foreach
     \section1 The foreach Keyword
 
     If you just want to iterate over all the items in a container
