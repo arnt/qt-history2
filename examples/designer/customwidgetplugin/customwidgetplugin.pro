@@ -1,5 +1,6 @@
 CONFIG      += designer plugin
 TEMPLATE    = lib
+DESTDIR     = $$QT_BUILD_TREE/plugins/designer
 
 HEADERS     = analogclock.h \
               customwidgetplugin.h

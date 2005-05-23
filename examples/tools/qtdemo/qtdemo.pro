@@ -1,5 +1,5 @@
 CONFIG        += assistant
-DESTDIR       = ../../../bin
+DESTDIR       = $$QT_BUILD_TREE/bin
 HEADERS       = displayshape.h \
                 displaywidget.h \
                 launcher.h
@@ -12,7 +12,7 @@ SOURCES       = displayshape.cpp \
 TARGET        = qtdemo
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/tools/qtdemo
-sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qtdemo.pro images
+target.path = $$[QT_INSTALL_BIN]
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qtdemo.pro images *.xml
 sources.path = $$[QT_INSTALL_DATA]/examples/tools/qtdemo
 INSTALLS += target sources

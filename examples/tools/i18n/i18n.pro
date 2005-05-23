@@ -21,6 +21,6 @@ TRANSLATIONS += translations/i18n_ar.ts \
 
 # install
 target.path = $$[QT_INSTALL_DATA]/examples/tools/i18n
-sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS i18n.pro
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS translations i18n.pro
 sources.path = $$[QT_INSTALL_DATA]/examples/tools/i18n
 INSTALLS += target sources

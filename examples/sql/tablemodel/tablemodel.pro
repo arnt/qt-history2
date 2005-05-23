@@ -4,6 +4,6 @@ QT           += sql
 
 # install
 target.path = $$[QT_INSTALL_DATA]/examples/sql/tablemodel
-sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS tablemodel.pro
+sources.files = $$SOURCES *.h $$RESOURCES $$FORMS tablemodel.pro
 sources.path = $$[QT_INSTALL_DATA]/examples/sql/tablemodel
 INSTALLS += target sources

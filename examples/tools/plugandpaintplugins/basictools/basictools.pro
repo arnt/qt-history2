@@ -7,7 +7,7 @@ TARGET        = pnp_basictools
 DESTDIR       = ../../plugandpaint/plugins
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/tools/plugandpaintplugins/basictools
+target.path = $$[QT_INSTALL_DATA]/examples/tools/plugandpaint/plugins
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS basictools.pro
 sources.path = $$[QT_INSTALL_DATA]/examples/tools/plugandpaintplugins/basictools
 INSTALLS += target sources

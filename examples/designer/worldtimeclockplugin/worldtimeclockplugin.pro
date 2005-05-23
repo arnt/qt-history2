@@ -1,6 +1,7 @@
 CONFIG      += designer plugin
 QT          += xml
 TEMPLATE    = lib
+DESTDIR     = $$QT_BUILD_TREE/plugins/designer
 
 HEADERS     = worldtimeclock.h \
               worldtimeclockplugin.h
