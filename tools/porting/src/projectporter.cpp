@@ -128,7 +128,8 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
         cout << "Parsing";
         // Get include paths from the pro file.
         QStringList includeProPaths = proFileMap["INCLUDEPATH"].split(" ", QString::SkipEmptyParts);
-        IncludeFiles includeFiles(basePath, includeDirectories + includeProPaths);
+        QStringList dependProPaths = proFileMap["DEPENDPATH"].split(" ", QString::SkipEmptyParts);
+        IncludeFiles includeFiles(basePath, includeDirectories + includeProPaths + dependProPaths);
 
         PreprocessorController preprocessorController(includeFiles, preprocessorCache, qt3HeadersFilenames);
         connect(&preprocessorController, SIGNAL(error(QString, QString)), SLOT(error(QString, QString)));
