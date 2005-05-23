@@ -34,6 +34,7 @@
 #include <private/qpolygonclipper_p.h>
 
 class QX11PaintEnginePrivate;
+class QFontEngineFT;
 
 typedef unsigned long Picture;
 #include "qx11info_x11.h"
