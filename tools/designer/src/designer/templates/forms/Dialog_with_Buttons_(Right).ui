@@ -33,14 +33,6 @@
     </property>
     <item>
      <widget class="QPushButton" name="okButton" >
-      <property name="geometry" >
-       <rect>
-        <x>1</x>
-        <y>1</y>
-        <width>75</width>
-        <height>27</height>
-       </rect>
-      </property>
       <property name="text" >
        <string>&amp;OK</string>
       </property>
@@ -48,14 +40,6 @@
     </item>
     <item>
      <widget class="QPushButton" name="cancelButton" >
-      <property name="geometry" >
-       <rect>
-        <x>1</x>
-        <y>34</y>
-        <width>75</width>
-        <height>27</height>
-       </rect>
-      </property>
       <property name="text" >
        <string>&amp;Cancel</string>
       </property>
@@ -63,14 +47,6 @@
     </item>
     <item>
      <spacer>
-      <property name="geometry" >
-       <rect>
-        <x>1</x>
-        <y>67</y>
-        <width>75</width>
-        <height>38</height>
-       </rect>
-      </property>
       <property name="orientation" >
        <enum>Qt::Vertical</enum>
       </property>

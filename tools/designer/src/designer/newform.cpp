@@ -155,9 +155,12 @@ QIcon NewForm::formPreviewIcon(const QString &fileName)
             widget->show();
             f.close();
 
-            qDesigner->processEvents();
+            QList<QLayout*> layouts = qFindChildren<QLayout*>(widget);
+            foreach (QLayout *layout, layouts)
+                layout->activate();
 
             widget->ensurePolished();
+            qDesigner->processEvents();
 
             QPixmap pix = QPixmap::grabWidget(widget);
             QImage image = pix.toImage();
