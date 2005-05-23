@@ -5595,6 +5595,46 @@ QRect QMacStyle::subElementRect(SubElement sr, const QStyleOption *opt, const QW
         else
             rect = d->AppManSubElementRect(sr, opt, w);
         break;
+    case SE_TabWidgetLeftCorner:
+        if (const QStyleOptionTabWidgetFrame *twf
+                = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            switch (twf->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+                rect = QRect(QPoint(0, 0), twf->leftCornerWidgetSize);
+                break;
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+                rect = QRect(QPoint(0, twf->rect.height() - twf->leftCornerWidgetSize.height()),
+                          twf->leftCornerWidgetSize);
+                break;
+            default:
+                break;
+            }
+            rect = visualRect(twf->direction, twf->rect, rect);
+        }
+        break;
+    case SE_TabWidgetRightCorner:
+        if (const QStyleOptionTabWidgetFrame *twf
+                = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(opt)) {
+            switch (twf->shape) {
+            case QTabBar::RoundedNorth:
+            case QTabBar::TriangularNorth:
+                rect = QRect(QPoint(twf->rect.width() - twf->rightCornerWidgetSize.width(), 0),
+                          twf->rightCornerWidgetSize);
+                break;
+            case QTabBar::RoundedSouth:
+            case QTabBar::TriangularSouth:
+                rect = QRect(QPoint(twf->rect.width() - twf->rightCornerWidgetSize.width(),
+                                 twf->rect.height() - twf->rightCornerWidgetSize.height()),
+                          twf->rightCornerWidgetSize);
+                break;
+            default:
+                break;
+            }
+            rect = visualRect(twf->direction, twf->rect, rect);
+        }
+        break;
     case SE_TabWidgetTabContents:
         rect = QWindowsStyle::subElementRect(sr, opt, w);
         if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
