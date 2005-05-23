@@ -22,6 +22,9 @@ MainWindow::MainWindow()
     setCentralWidget(workspace);
     connect(workspace, SIGNAL(windowActivated(QWidget *)),
             this, SLOT(updateMenus()));
+    windowMapper = new QSignalMapper(this);
+    connect(windowMapper, SIGNAL(mapped(QWidget *)),
+            workspace, SLOT(setActiveWindow(QWidget *)));
 
     createActions();
     createMenus();
@@ -58,8 +61,7 @@ void MainWindow::open()
     if (!fileName.isEmpty()) {
         MdiChild *existing = findMdiChild(fileName);
         if (existing) {
-            existing->show();
-            existing->setFocus();
+            workspace->setActiveWindow(existing);
             return;
         }
 
@@ -129,6 +131,17 @@ void MainWindow::updateMenus()
 
 void MainWindow::updateWindowMenu()
 {
+    windowMenu->clear();
+    windowMenu->addAction(closeAct);
+    windowMenu->addAction(closeAllAct);
+    windowMenu->addSeparator();
+    windowMenu->addAction(tileAct);
+    windowMenu->addAction(cascadeAct);
+    windowMenu->addSeparator();
+    windowMenu->addAction(nextAct);
+    windowMenu->addAction(previousAct);
+    windowMenu->addAction(separatorAct);
+
     QList<QWidget *> windows = workspace->windowList();
     separatorAct->setVisible(!windows.isEmpty());
 
@@ -143,8 +156,11 @@ void MainWindow::updateWindowMenu()
             text = tr("%1. %2").arg(i + 1)
                                .arg(child->userFriendlyCurrentFile());
         }
-        child->windowMenuAction()->setText(text);
-        child->windowMenuAction()->setChecked(child == activeMdiChild());
+        QAction *action  = windowMenu->addAction(text);
+        action->setCheckable(true);
+        action ->setChecked(child == activeMdiChild());
+        connect(action, SIGNAL(triggered()), windowMapper, SLOT(map()));
+        windowMapper->setMapping(action, child);
     }
 }
 
@@ -152,7 +168,6 @@ MdiChild *MainWindow::createMdiChild()
 {
     MdiChild *child = new MdiChild;
     workspace->addWindow(child);
-    windowMenu->addAction(child->windowMenuAction());
 
     connect(child, SIGNAL(copyAvailable(bool)),
             cutAct, SLOT(setEnabled(bool)));
@@ -266,15 +281,6 @@ void MainWindow::createMenus()
     editMenu->addAction(pasteAct);
 
     windowMenu = menuBar()->addMenu(tr("&Window"));
-    windowMenu->addAction(closeAct);
-    windowMenu->addAction(closeAllAct);
-    windowMenu->addSeparator();
-    windowMenu->addAction(tileAct);
-    windowMenu->addAction(cascadeAct);
-    windowMenu->addSeparator();
-    windowMenu->addAction(nextAct);
-    windowMenu->addAction(previousAct);
-    windowMenu->addAction(separatorAct);
     connect(windowMenu, SIGNAL(aboutToShow()), this, SLOT(updateWindowMenu()));
 
     menuBar()->addSeparator();

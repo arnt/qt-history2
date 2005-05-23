@@ -21,11 +21,6 @@ MdiChild::MdiChild()
 
     connect(document(), SIGNAL(contentsChanged()),
             this, SLOT(documentWasModified()));
-
-    action = new QAction(this);
-    action->setCheckable(true);
-    connect(action, SIGNAL(triggered()), this, SLOT(show()));
-    connect(action, SIGNAL(triggered()), this, SLOT(setFocus()));
 }
 
 void MdiChild::newFile()

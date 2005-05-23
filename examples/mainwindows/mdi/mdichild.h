@@ -30,7 +30,6 @@ public:
     bool saveFile(const QString &fileName);
     QString userFriendlyCurrentFile();
     QString currentFile() { return curFile; }
-    QAction *windowMenuAction() { return action; }
 
 protected:
     void closeEvent(QCloseEvent *event);
@@ -44,7 +43,6 @@ private:
     QString strippedName(const QString &fullFileName);
 
     QString curFile;
-    QAction *action;
     bool isUntitled;
 };
 

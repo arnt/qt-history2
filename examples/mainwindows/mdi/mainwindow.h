@@ -20,6 +20,7 @@ class QAction;
 class QMenu;
 class QWorkspace;
 class MdiChild;
+class QSignalMapper;
 
 class MainWindow : public QMainWindow
 {
@@ -55,6 +56,7 @@ private:
     MdiChild *findMdiChild(const QString &fileName);
 
     QWorkspace *workspace;
+    QSignalMapper *windowMapper;
 
     QMenu *fileMenu;
     QMenu *editMenu;
