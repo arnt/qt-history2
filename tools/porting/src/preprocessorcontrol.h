@@ -63,7 +63,7 @@ Q_OBJECT
 public:
     PreprocessorController(IncludeFiles includefiles,
                            PreprocessorCache &preprocessorCache,
-                           QString preLoadFilesFilename = QString());
+                           QStringList preLoadFilesFilenames = QStringList());
 
     TokenEngine::TokenSectionSequence evaluate(const QString &filename, Rpp::DefineMap *activedefinitions);
 public slots:
@@ -91,7 +91,7 @@ public slots:
 class RppPreprocessor
 {
 public:
-    RppPreprocessor(QString basePath, QStringList includePaths, QString preLoadFilesFilename = QString());
+    RppPreprocessor(QString basePath, QStringList includePaths, QStringList preLoadFilesFilename = QStringList());
     ~RppPreprocessor();
     TokenEngine::TokenSectionSequence evaluate(const QString &filename);
 private:

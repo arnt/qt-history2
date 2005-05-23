@@ -71,7 +71,7 @@ SOURCES += port.cpp                  \
            codemodelwalker.cpp       \
            codemodelattributes.cpp
 
-RESOURCES += qt3headers.qrc
+RESOURCES += qt3headers0.qrc qt3headers1.qrc qt3headers2.qrc qt3headers3.qrc
 
 target.path=$$[QT_INSTALL_BINS]
 INSTALLS += target

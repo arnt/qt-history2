@@ -223,17 +223,24 @@ bool PreprocessorCache::containsSourceTree(const QString &filename)
 
 PreprocessorController::PreprocessorController(IncludeFiles includeFiles,
         PreprocessorCache &preprocessorCache,
-        QString preLoadFilesFilename)
+        QStringList preLoadFilesFilenames)
 :m_includeFiles(includeFiles),
  m_preprocessorCache(preprocessorCache)
  {
-    if (preLoadFilesFilename != QString()) {
-        QFile f(preLoadFilesFilename);
-        if (f.open(QIODevice::ReadOnly)) {
-            QByteArray buffer = f.readAll();
-            f.close();
-            QDataStream stream(buffer);
-            stream >> m_preLoadFiles;
+    // Load qt3 headers from resources. The headers are stored as
+    // QHash<QString, QByteArray>, serialized using QDataStream. The hash
+    // maps filename -> contents.
+    if (preLoadFilesFilenames != QStringList()) {
+        foreach (QString filename,  preLoadFilesFilenames) {
+            QFile f(filename);
+            if (f.open(QIODevice::ReadOnly)) {
+                QByteArray buffer = f.readAll();
+                f.close();
+                QDataStream stream(buffer);
+                QHash<QString, QByteArray> files;
+                stream >> files;
+                m_preLoadFiles.unite(files);
+            }
         }
     }
 
@@ -368,10 +375,10 @@ void StandardOutErrorHandler::error(QString type, QString text)
     RppPreprocessor is a convenience class that contains all the components
     needed to preprocess files. Error messages are printed to standard out.
 */
-RppPreprocessor::RppPreprocessor(QString basePath, QStringList includePaths, QString preLoadFilesFilename)
+RppPreprocessor::RppPreprocessor(QString basePath, QStringList includePaths, QStringList preLoadFilesFilenames)
 :m_includeFiles(basePath, includePaths)
 ,m_activeDefinitions(defaultMacros(m_cache))
-,m_controller(m_includeFiles, m_cache, preLoadFilesFilename)
+,m_controller(m_includeFiles, m_cache, preLoadFilesFilenames)
 {
     QObject::connect(&m_controller, SIGNAL(error(QString, QString)), &m_errorHandler, SLOT(error(QString, QString)));
 }

@@ -23,7 +23,7 @@ class ProjectPorter : public QObject
 {
 Q_OBJECT
 public:
-    ProjectPorter(QString basePath, QStringList includeDirectories, QString qt3HeadersFilename = QString());
+    ProjectPorter(QString basePath, QStringList includeDirectories, QStringList qt3HeadersFilenames = QStringList());
     void enableCppParsing(bool enable);
     void enableMissingFilesWarnings(bool enable);
     void portProject(QString filePath);
@@ -42,7 +42,7 @@ private:
     PreprocessorCache preprocessorCache;
     Rpp::DefineMap *defaultDefinitions;
     FilePorter filePorter;
-    QString qt3HeadersFilename;
+    QStringList qt3HeadersFilenames;
     bool analyze;
     bool warnings;
 };

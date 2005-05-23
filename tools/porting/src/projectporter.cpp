@@ -27,12 +27,12 @@
 
 using namespace TokenEngine;
 
-ProjectPorter::ProjectPorter(QString basePath, QStringList includeDirectories, QString qt3HeadersFilename)
+ProjectPorter::ProjectPorter(QString basePath, QStringList includeDirectories, QStringList qt3HeadersFilenames)
 :basePath(basePath)
 ,includeDirectories(includeDirectories)
 ,defaultDefinitions(defaultMacros(preprocessorCache))
 ,filePorter(preprocessorCache)
-,qt3HeadersFilename(qt3HeadersFilename)
+,qt3HeadersFilenames(qt3HeadersFilenames)
 ,analyze(true)
 ,warnings(false)
 {}
@@ -61,7 +61,7 @@ void ProjectPorter::portFile(QString fileName)
     if (analyze) {
         IncludeFiles includeFiles(basePath, includeDirectories);
 
-        PreprocessorController preprocessor(includeFiles, preprocessorCache, qt3HeadersFilename);
+        PreprocessorController preprocessor(includeFiles, preprocessorCache, qt3HeadersFilenames);
         connect(&preprocessor, SIGNAL(error(QString, QString)), SLOT(error(QString, QString)));
 
         Rpp::DefineMap definitionsCopy = *defaultDefinitions;
@@ -130,7 +130,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
         QStringList includeProPaths = proFileMap["INCLUDEPATH"].split(" ", QString::SkipEmptyParts);
         IncludeFiles includeFiles(basePath, includeDirectories + includeProPaths);
 
-        PreprocessorController preprocessorController(includeFiles, preprocessorCache, qt3HeadersFilename);
+        PreprocessorController preprocessorController(includeFiles, preprocessorCache, qt3HeadersFilenames);
         connect(&preprocessorController, SIGNAL(error(QString, QString)), SLOT(error(QString, QString)));
 
         TranslationUnitAnalyzer translationUnitAnalyzer;

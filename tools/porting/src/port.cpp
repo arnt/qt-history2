@@ -214,9 +214,13 @@ int main(int argc, char**argv)
 
 
     // Construct a ProjectPorter object add pass it the options.
-    QString builtinQtheaders;
-    if (useBuildtinQt3Headers)
-        builtinQtheaders = ":qt3headers.resource";
+    QStringList builtinQtheaders;
+    if (useBuildtinQt3Headers) {
+        builtinQtheaders += ":qt3headers0.resource";
+        builtinQtheaders += ":qt3headers1.resource";
+        builtinQtheaders += ":qt3headers2.resource";
+        builtinQtheaders += ":qt3headers3.resource";
+    }
 
     ProjectPorter porter(QDir::currentPath(), includeSearchDirectories, builtinQtheaders);
     porter.enableCppParsing(enableCppParsing);
