@@ -75,4 +75,29 @@
     The porting tool logs all changes to a file called \c
     portinglog.txt in the current directory. This file lists all
     changes made to the source files.
+    
+    \section1 Advanced Usage
+     
+    When porting, qt3to4 parses the source files and ports the contents according to
+    the C++ language rules. This C++ parsing step can be disabled with the
+    -disableCppParsing option.
+
+    If C++ parsing is enabled, qt3to4 must be able to locate the headers included
+    from the source files. Necessary headers include the public Qt headers and 
+    any headers that declares names that may conflict with names in the public
+    Qt headers. The standard C++ headers and system headers are usually not needed.
+    
+    You can tell qt3to4 where to look for headers by using the \c{-I} command
+    line option. Qt 3.3 header information is built in, so it is normaly not
+    neccesary to specify the location of the Qt headers. If you are porting
+    from a different version of Qt 3, you may want to disable the built-in
+    headers with \c{-disableBuiltInQt3Headers}, and then add the path to the
+    actual headers with the \c{-I} option.
+    
+    When porting a project, qt3to4 will read the INCLUDEPATH and DEPENDPATH
+    variables from the .pro file and add the paths specified here to the list
+    of include search directories.
+    
+    To see which headers that are not found, use the \c{-missingFileWarnings}
+    option.
 */
