@@ -995,6 +995,8 @@ QModelIndex QDirModel::index(const QString &path, int column) const
         }
         idx = index(r, 0, QModelIndex());
         pathElements.pop_front();
+    } else if (pathElements.at(0).endsWith(":")) {
+        pathElements[0] += "/";
     }
 #else
     // add the "/" item, since it is a valid path element on unix
