@@ -584,15 +584,15 @@ QString QTranslator::translate(const char *context, const char *sourceText, cons
         const uchar *start = d->offsetArray;
         const uchar *end = start + ((numItems-1) << 3);
         while (start <= end) {
-            const uchar *middle = start + (((end - start) >> 3) << 3);
+            const uchar *middle = start + (((end - start) >> 4) << 3);
             uint hash = read32(middle);
             if (h == hash) {
                 start = middle;
                 break;
-            } else if (h < hash) {
+            } else if (hash < h) {
                 start = middle + 8;
             } else {
-                start = middle - 8;
+                end = middle - 8;
             }
         }
 
