@@ -5,7 +5,10 @@ XPLATFORM=`basename $1`
 XCONFIG=$1/qmake.conf
 VERBOSE=$2
 
->fvisibility.c
+cat >>fvisibility.c << EOF
+__attribute__((visibility("default"))) void blah();
+EOF
+
 COMPILER=`grep QMAKE_CC $XCONFIG | sed "s,.*= *,,"`
 $COMPILER -c -fvisibility=hidden fvisibility.c >/dev/null 2>&1 && FVISIBILITY_SUPPORT=yes
 rm -f fvisibility.c fvisibility.o
