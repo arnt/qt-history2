@@ -2298,11 +2298,17 @@
     The standard Qt distribution comes with many of these files, located
     in the \c mkspecs subdirectory of the Qt installation.
 
-    The QMAKESPEC environment variable can contain any of the following:
+    The \c QMAKESPEC environment variable can contain any of the following:
 
     \list
-    \o A complete path to a directory containing a qmake.conf file.  In this case \c qmake will open the qmake.conf file from within that directory.  If the file does not exist, \c qmake will exit with an error.
-    \o The name of a platform-compiler combination.  In this case, \c qmake will search in the directory specified by the QTDIR environment variable.
+    \o A complete path to a directory containing a qmake.conf file.
+       In this case \c qmake will open the qmake.conf file from within that
+       directory.  If the file does not exist, \c qmake will exit with an
+       error.
+    \o The name of a platform-compiler combination. In this case, \c qmake
+       will search in the directory specified by the \c mkspecs subdirectory
+       of the data path specified when Qt was compiled (see
+       QLibraryInfo::DataPath).
     \endlist
 
     Note: the QMAKESPEC path will automatically be added to the
@@ -2504,14 +2510,14 @@
     \endcode
 
     With this you can create a new moc for qmake, the commands will be
-    executed over all arguments given to a NEW_HEADERS variable (from the
+    executed over all arguments given to a \c NEW_HEADERS variable (from the
     input variable), and write to output (and automatically hand this
     filename to the compiler to be linked into your target). Additionally
     \c qmake will execute depend_command to generate dependency information and
     place this in the project as well.
 
     These commands can easily be placed into a cache file, and subsequent
-    .pro files can give several arguments to NEW_HEADERS.
+    .pro files can give several arguments to \c NEW_HEADERS.
 */
 
 /*!
@@ -2769,21 +2775,21 @@
     use the \c $$(...) operator:
 
     \quotefromfile snippets/qmake/environment.pro
-    \skipto $$(QTDIR)
+    \skipto DESTDIR
     \printuntil message(
 
-    In the above assignment, the value of \c $QTDIR is read when the project
+    In the above assignment, the value of \c $PWD is read when the project
     file is processed.
 
     To obtain the contents of an environment value at the time when the
     generated Makefile is processed, use the \c $(...) operator:
 
     \quotefromfile snippets/qmake/environment.pro
-    \skipto $(QTDIR)
+    \skipto $(PWD)
     \printuntil message(when the Makefile
 
-    In the above assignment, the value of \c $QTDIR is read immediately
-    when the project file is processed, but \c $(QTDIR) is assigned to
+    In the above assignment, the value of \c $PWD is read immediately
+    when the project file is processed, but \c $(PWD) is assigned to
     \c DESTDIR in the generated Makefile. This makes the build process
     more flexible as long as the environment variable is set correctly
     when the Makefile is processed.

@@ -1,7 +1,7 @@
-DESTDIR = $$(QTDIR)
+DESTDIR = $$(PWD)
 message(The project will be installed in $$DESTDIR)
 
-DESTDIR = $(QTDIR)
-message(Qt is currently installed in $(QTDIR))
-message(The project will be installed in the value of QTDIR)
+DESTDIR = $(PWD)
+message(Qt is currently installed in $(PWD))
+message(The project will be installed in the value of PWD)
 message(when the Makefile is processed.)
