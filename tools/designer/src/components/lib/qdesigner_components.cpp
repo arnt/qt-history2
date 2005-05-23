@@ -23,8 +23,8 @@
 
 void QDesignerComponents::initializeResources()
 {
-    extern bool qInitResources_formeditor();
-    extern bool qInitResources_widgetbox();
+    extern int qInitResources_formeditor();
+    extern int qInitResources_widgetbox();
 
     qInitResources_formeditor();
     qInitResources_widgetbox();

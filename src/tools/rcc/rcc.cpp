@@ -551,9 +551,7 @@ RCCResourceLibrary::writeInitializer(FILE *out)
 {
     if(mFormat == C_Code) {
         QString initName = mInitName;
-        if(initName.isEmpty()) {
-            fprintf(out, "static ");
-        } else {
+        if(!initName.isEmpty()) {
             initName.prepend("_");
             initName.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
         }
