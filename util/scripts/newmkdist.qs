@@ -93,7 +93,7 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/styles/mac"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
-			  new RegExp("^configure"),
+			  new RegExp("^configure$"),
 			  new RegExp("^LICENSE.PREVIEW"),
 			  new RegExp("\\.qws") ];
 
@@ -109,7 +109,7 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/styles/mac"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
-			  new RegExp("configure.exe"),
+			  new RegExp("^configure.exe"),
 			  new RegExp("\\.qws") ];
 
 platformRemove["mac"] = [ new RegExp("^gif"),
@@ -123,7 +123,7 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("_x11"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
-			  new RegExp("configure.exe"),
+			  new RegExp("^configure.exe"),
 			  new RegExp("\\.qws") ];
 
 platformRemove["embedded"] = [ new RegExp("^gif"),
@@ -135,7 +135,7 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("^extensions/activeqt"),
 			       new RegExp("_qnx4"),
 			       new RegExp("_qnx6"),
-			       new RegExp("configure.exe") ];
+			       new RegExp("^configure.exe") ];
 
 var licenseRemove = new Array();
 
