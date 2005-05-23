@@ -1340,40 +1340,43 @@ void QX11PaintEnginePrivate::fillPolygon(const QPointF *polygonPoints, int point
     } else
 #endif
         if (fill.style() != Qt::NoBrush) {
-            if (mode == QPaintEngine::WindingMode)
-                XSetFillRule(dpy, fill_gc, WindingRule);
             polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
                                        &clippedPoints, &clippedCount);
-            QVarLengthArray<XPoint> xpoints(clippedCount);
-            for (int i = 0; i < clippedCount; ++i) {
-                xpoints[i].x = qRound(clippedPoints[i].x);
-                xpoints[i].y = qRound(clippedPoints[i].y);
-            }
-            setupAdaptedOrigin(QPoint(xpoints[0].x, xpoints[0].y));
-            if (clippedCount > 0)
+            if (clippedCount > 0) {
+                QVarLengthArray<XPoint> xpoints(clippedCount);
+                for (int i = 0; i < clippedCount; ++i) {
+                    xpoints[i].x = qRound(clippedPoints[i].x);
+                    xpoints[i].y = qRound(clippedPoints[i].y);
+                }
+                if (mode == QPaintEngine::WindingMode)
+                    XSetFillRule(dpy, fill_gc, WindingRule);
+                setupAdaptedOrigin(QPoint(xpoints[0].x, xpoints[0].y));
                 XFillPolygon(dpy, hd, fill_gc,
                              xpoints.data(), clippedCount,
                              mode == QPaintEngine::ConvexMode ? Convex : Complex, CoordModeOrigin);
-            resetAdaptedOrigin();
-            if (mode == QPaintEngine::WindingMode)
-                XSetFillRule(dpy, fill_gc, EvenOddRule);
+                resetAdaptedOrigin();
+                if (mode == QPaintEngine::WindingMode)
+                    XSetFillRule(dpy, fill_gc, EvenOddRule);
+            }
         }
 }
 
 void QX11PaintEnginePrivate::strokePolygon(const QPointF *polygonPoints, int pointCount, bool close)
 {
     if (cpen.style() != Qt::NoPen) {
-       int clippedCount = 0;
-       qt_float_point *clippedPoints = 0;
-       polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
-                                  &clippedPoints, &clippedCount, close);
-       QVarLengthArray<XPoint> xpoints(clippedCount);
-       for (int i = 0; i < clippedCount; ++i) {
-           xpoints[i].x = qRound(clippedPoints[i].x);
-           xpoints[i].y = qRound(clippedPoints[i].y);
-       }
-       if (clippedCount > 0)
-           XDrawLines(dpy, hd, gc, xpoints.data(), clippedCount, CoordModeOrigin);
+        int clippedCount = 0;
+        qt_float_point *clippedPoints = 0;
+        polygonClipper.clipPolygon((qt_float_point *) polygonPoints, pointCount,
+                                   &clippedPoints, &clippedCount, close);
+
+        if (clippedCount > 0) {
+            QVarLengthArray<XPoint> xpoints(clippedCount);
+            for (int i = 0; i < clippedCount; ++i) {
+                xpoints[i].x = qRound(clippedPoints[i].x);
+                xpoints[i].y = qRound(clippedPoints[i].y);
+            }
+            XDrawLines(dpy, hd, gc, xpoints.data(), clippedCount, CoordModeOrigin);
+        }
     }
 }
 
