@@ -14,7 +14,7 @@
 #ifndef DIALOG_H
 #define DIALOG_H
 
-#include <QWidget>
+#include <QDialog>
 
 class QAction;
 class QGroupBox;
@@ -25,7 +25,7 @@ class QMenuBar;
 class QPushButton;
 class QTextEdit;
 
-class Dialog : public QWidget
+class Dialog : public QDialog
 {
     Q_OBJECT
 
