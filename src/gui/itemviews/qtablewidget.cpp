@@ -1780,8 +1780,7 @@ QStringList QTableWidget::mimeTypes() const
 */
 QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*> items) const
 {
-    // Get the cached QModelIndexList so that we dont have to build the QModelIndexList from items. (saves us one itaration)
-    return static_cast<QTableModel *>(model())->internalMimeData();
+    return d_func()->model()->internalMimeData();
 }
 
 /*!

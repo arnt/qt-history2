@@ -2011,10 +2011,6 @@ void QTreeWidget::clear()
 */
 QStringList QTreeWidget::mimeTypes() const
 {
-    // ###  This should preferrably be optimized, since QTreeModel just converted from indices to
-    //      a QList right before QTreeModel called this function.
-    //      (Thus, now it performs O(2i) rather than O(i) )
-    //      (This can be fixed by a cache that holds the last QModelIndexList, which might not thread safe, but....)
     return model()->QAbstractItemModel::mimeTypes();
 }
 
@@ -2028,8 +2024,7 @@ QStringList QTreeWidget::mimeTypes() const
 */
 QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
 {
-    // Get the cached QModelIndexList so that we dont have to build the QModelIndexList from items. (saves us one itaration)
-    return static_cast<QTreeModel *>(model())->internalMimeData();
+    return d_func()->model()->internalMimeData();
 }
 
 /*!
