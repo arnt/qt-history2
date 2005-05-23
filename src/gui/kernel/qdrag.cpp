@@ -38,8 +38,9 @@
     \printuntil setMimeData
 
     Note that setMimeData() assigns ownership of the QMimeData object to the
-    QDrag object. The QDrag must be constructed with a parent QObject to ensure
-    that Qt can clean up after the drag and drop operation has been completed.
+    QDrag object. The QDrag must be constructed on the heap with a parent QObject
+    to ensure that Qt can clean up after the drag and drop operation has been
+    completed.
 
     A pixmap can be used to represent the data while the drag is in progress, and
     will move with the cursor to the drop target. This pixmap typically shows an

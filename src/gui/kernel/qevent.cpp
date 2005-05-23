@@ -2104,8 +2104,11 @@ void QDropEvent::setDropAction(Qt::DropAction action)
     \fn void QDropEvent::setDropAction(Qt::DropAction action)
 
     Sets the \a action to be performed on the data by the target.
-    This is used internally, you should not need to call this in your
-    code. The \e source decides the action, not the target.
+    Use this to override the \l{proposedAction()}{proposed action}
+    with one of the \l{possibleActions()}{possible actions}.
+
+    If you set a drop action that is not one of the possible actions, the
+    drag and drop operation will default to a copy operation.
 
     \sa dropAction()
 */
