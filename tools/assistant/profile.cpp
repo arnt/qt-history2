@@ -53,7 +53,7 @@ Profile *Profile::createDefaultProfile()
 
     profile->addDCFIndexPage( QT_TITLE, path + QLatin1String("index.html") );
     profile->addDCFIndexPage( DESIGNER_TITLE, path + QLatin1String("designer-manual.html") );
-    profile->addDCFIndexPage( ASSISTANT_TITLE, path + QLatin1String("assistant.html") );
+    profile->addDCFIndexPage( ASSISTANT_TITLE, path + QLatin1String("assistant-manual.html") );
     profile->addDCFIndexPage( LINGUIST_TITLE, path + QLatin1String("linguist-manual.html") );
     profile->addDCFIndexPage( QMAKE_TITLE, path + QLatin1String("qmake-manual.html") );
 
