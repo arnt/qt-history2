@@ -1,6 +1,10 @@
 /*!
     \page qt4-scribe.html
-    \title The Qt 4 Scribe Classes
+    \title The Scribe Classes
+
+    \contentspage {What's New in Qt 4}{Home}
+    \previouspage The Arthur Paint System
+    \nextpage The Qt 4 Main Window Classes
 
     Scribe introduces a set of text layout classes to Qt 4. These classes
     replace the old rich text engine found in Qt 3, and provide new features
@@ -200,33 +204,4 @@
     working example of an editor widget that uses the new API, showing that
     it is possible to completely implement a document editor based on the
     QTextCursor editing interface.
-
-    \section1 Known Issues
-
-    There are a few known problems with the framework:
-
-    \list
-    \i Support for varied document layouts is still being improved.
-    \i Text layout using design metrics (WYSIWYG) is disabled.
-    \i Memory consumption is still rather high (though lower than in Qt
-       3). The reasons are known to us and will be fixed before the release
-       of Qt 4.
-    \i The API of \c QAbstractTextDocumentLayout is subject to change.
-       The class is not guaranteed to be present in Qt 4.
-    \i HTML export is not yet complete.
-    \endlist
-
-    \section1 Future Work
-
-    The rich text support continues to evolve. Some ideas on what's planned
-    towards Qt 4 can be found below. Some of them might be implemented while
-    others might not. Feedback is welcome and encouraged.
-
-    \list
-    \i Lay out using design metrics (WYSIWYG)
-    \i Multiple views onto documents
-    \i Improved layout of rich text documents
-    \endlist
-
-    \link qt4-intro.html [Back to the Beta page] \endlink
 */

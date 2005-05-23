@@ -1,225 +1,230 @@
 /*!
-\page qt4-designer.html
+    \page qt4-designer.html
 
-\title Qt 4: Qt Designer
+    \title The New Qt Designer
 
-\QD has been completely re-written based on our experience with the previous
-versions of the product for Qt 3. One of the main new ideas behind this new
-version is to release the application as a collection of interchangeable
-components that include the form editor, widget box, and other useful tools
-for creating graphical user interfaces with Qt. These components can either
-be used together in the \QD application, or independently integrated into
-other systems.
-As a result, certain features such as the project editor and code editor have
-been removed from the version included with this release.
+    \contentspage {What's New in Qt 4}{Home}
+    \previouspage The Qt 4 Main Window Classes
+    \nextpage Cross-Platform Accessibility Support in Qt 4
 
-The current version of \QD is not feature complete. However, it is still
-under continuous development. This document will explain what is already in
-place and outlines features which we plan to add in future releases.
+    \QD has been completely re-written based on our experience with the previous
+    versions of the product for Qt 3. One of the main new ideas behind this new
+    version is to release the application as a collection of interchangeable
+    components that include the form editor, widget box, and other useful tools
+    for creating graphical user interfaces with Qt. These components can either
+    be used together in the \QD application, or independently integrated into
+    other systems.
+    As a result, certain features such as the project editor and code editor have
+    been removed from the version included with this release.
 
-See also the \l{designer-manual.html}{Qt Designer Manual}.
+    The current version of \QD is not feature complete. However, it is still
+    under continuous development. This document will explain what is already in
+    place and outlines features which we plan to add in future releases.
 
-\tableofcontents
+    See also the \l{designer-manual.html}{Qt Designer Manual}.
 
-\section1 The Current State of Qt Designer
+    \tableofcontents
 
-When used as a standalone application, \QD includes a number of components
-that work together to provide a flexible GUI design tool. Widgets and dialog
-windows can be composed using a form-based interface that fully supports drag
-and drop, clipboard operations, and an undo/redo stack.
+    \section1 The Current State of Qt Designer
 
-This version of \QD introduces a number of editing modes to make different
-types of editing more natural. Each editing mode displays the form in an
-appropriate way for that mode, and provides a specialized user interface for
-manipulating its contents.
-Examples of editing modes include Form Editing mode, Signals and Slots Editing
-mode, Buddy Editing mode, and Tab Order Editing mode.
+    When used as a standalone application, \QD includes a number of components
+    that work together to provide a flexible GUI design tool. Widgets and dialog
+    windows can be composed using a form-based interface that fully supports drag
+    and drop, clipboard operations, and an undo/redo stack.
 
-\section2 User Interface Features
+    This version of \QD introduces a number of editing modes to make different
+    types of editing more natural. Each editing mode displays the form in an
+    appropriate way for that mode, and provides a specialized user interface for
+    manipulating its contents.
+    Examples of editing modes include Form Editing mode, Signals and Slots Editing
+    mode, Buddy Editing mode, and Tab Order Editing mode.
 
-\table
-\row \i \inlineimage designer-main-window.png
-\i \bold{Widget Box}
+    \section2 User Interface Features
 
-The widget box displays a categorized list of widgets and other objects that
-can be placed on a form using drag and drop.
+    \table
+    \row \i \inlineimage designer-main-window.png
+    \i \bold{Widget Box}
 
-When \QD is in Top Level mode, the window containing the widget box also holds
-the main menu and tool bar. When in Workspace mode, the widget box
-becomes an independent window within the \QD workspace.
+    The widget box displays a categorized list of widgets and other objects that
+    can be placed on a form using drag and drop.
 
-The contents of the widget box are defined in an XML file that holds a
-collection of .ui documents for standard Qt widgets. This file can be extended,
-making it possible to add custom widgets to the widget box.
-\endtable
+    When \QD is in Top Level mode, the window containing the widget box also holds
+    the main menu and tool bar. When in Workspace mode, the widget box
+    becomes an independent window within the \QD workspace.
 
-\table
-\row \i \bold{Property Editor}
+    The contents of the widget box are defined in an XML file that holds a
+    collection of .ui documents for standard Qt widgets. This file can be extended,
+    making it possible to add custom widgets to the widget box.
+    \endtable
 
-The property editor allows designers to edit most properties of widgets and
-layout objects. The property names and values are presented in an editable
-tree view that shows the properties of the currently selected object.
+    \table
+    \row \i \bold{Property Editor}
 
-Certain resources, such as icons, can be configured in the property editor.
-Resources can be taken from any currently installed resource files, making
-it easier to design self-contained components.
-\i \inlineimage designer-property-editor.png
-\endtable
+    The property editor allows designers to edit most properties of widgets and
+    layout objects. The property names and values are presented in an editable
+    tree view that shows the properties of the currently selected object.
 
-\section2 Editing Features
+    Certain resources, such as icons, can be configured in the property editor.
+    Resources can be taken from any currently installed resource files, making
+    it easier to design self-contained components.
+    \i \inlineimage designer-property-editor.png
+    \endtable
 
-\table
-\row \i \inlineimage designer-choosing-form.png
-\i \bold{Form Templates}
+    \section2 Editing Features
 
-Form templates provide ready-to-use forms for various types of widgets,
-such as QWidget, QDialog, and QMainWindow. Custom templates based on
-these widgets can also be created.
+    \table
+    \row \i \inlineimage designer-choosing-form.png
+    \i \bold{Form Templates}
 
-Templates can contain child widgets and layouts. Designers can
-save time by creating templates for the most common user interface
-features for repeated use.
-\endtable
+    Form templates provide ready-to-use forms for various types of widgets,
+    such as QWidget, QDialog, and QMainWindow. Custom templates based on
+    these widgets can also be created.
 
-\table
-\row
-\i \bold{Form Editing Mode}
+    Templates can contain child widgets and layouts. Designers can
+    save time by creating templates for the most common user interface
+    features for repeated use.
+    \endtable
 
-The new form editor allows widgets to be dropped into existing layouts on
-the form. Previously, it was necessary to break layouts in order to add
-new widgets to them.
+    \table
+    \row
+    \i \bold{Form Editing Mode}
 
-\QD now supports more direct manipulation of widgets:
-You can clone a widget by dragging it with the \key CTRL key held down, and
-it is even possible to drag widgets between forms.
+    The new form editor allows widgets to be dropped into existing layouts on
+    the form. Previously, it was necessary to break layouts in order to add
+    new widgets to them.
 
-In-place widget editors provide specialized editing facilities for
-the most-used widget properties.
-\i \inlineimage designer-editing-mode.png
-\endtable
+    \QD now supports more direct manipulation of widgets:
+    You can clone a widget by dragging it with the \key CTRL key held down, and
+    it is even possible to drag widgets between forms.
 
-\table
-\row
-\i \inlineimage designer-connection-mode.png
-\i \bold{Signals and Slots Editing Mode}
+    In-place widget editors provide specialized editing facilities for
+    the most-used widget properties.
+    \i \inlineimage designer-editing-mode.png
+    \endtable
 
-\QD now employs a "wired" approach to the problem of representing and editing
-connections between objects on a form. This editing mode displays all the
-signal and slot connections on your form as arrows. These arrows can be
-manipulated visually, and provide the user with an overview of the form's
-connection logic.
+    \table
+    \row
+    \i \inlineimage designer-connection-mode.png
+    \i \bold{Signals and Slots Editing Mode}
 
-Connections can be made between objects on a form and the form itself.
-This is particularly useful when designing dialogs.
-\endtable
+    \QD now employs a "wired" approach to the problem of representing and editing
+    connections between objects on a form. This editing mode displays all the
+    signal and slot connections on your form as arrows. These arrows can be
+    manipulated visually, and provide the user with an overview of the form's
+    connection logic.
 
-\table
-\row
-\i \bold{Buddy Editing Mode}
+    Connections can be made between objects on a form and the form itself.
+    This is particularly useful when designing dialogs.
+    \endtable
 
-Widgets that cannot accept keyboard input are often given buddy widgets
-that will take the keyboard focus on their behalf. In Buddy Editing mode,
-\QD provides a similar to that used in Signals and Slots Editing mode to
-show the relationships between widgets and their buddies.
-\i \inlineimage designer-buddy-mode.png
-\endtable
+    \table
+    \row
+    \i \bold{Buddy Editing Mode}
 
-\table
-\row
-\i \inlineimage designer-tab-order-mode.png
-\i \bold{Tab Order Mode}
+    Widgets that cannot accept keyboard input are often given buddy widgets
+    that will take the keyboard focus on their behalf. In Buddy Editing mode,
+    \QD provides a similar to that used in Signals and Slots Editing mode to
+    show the relationships between widgets and their buddies.
+    \i \inlineimage designer-buddy-mode.png
+    \endtable
 
-In this mode, users can specify the order in which input widgets accept
-the keyboard focus.
+    \table
+    \row
+    \i \inlineimage designer-tab-order-mode.png
+    \i \bold{Tab Order Mode}
 
-The way that the tab order is defined follows the approach taken in Qt 3's
-version of \QD.
-\endtable
+    In this mode, users can specify the order in which input widgets accept
+    the keyboard focus.
 
-\table
-\row
-\i \bold{Resource Editor}
+    The way that the tab order is defined follows the approach taken in Qt 3's
+    version of \QD.
+    \endtable
 
-Resources can be associated with a given form, and these can be modified
-and extended using a file browser style interface.
+    \table
+    \row
+    \i \bold{Resource Editor}
 
-The Resource Editor uses files that are processed by various components of
-the \l{The Qt Resource System}{Qt Resource System} to ensure that all
-required resources are embedded in the application.
-\i \inlineimage designer-resources-editing.png
-\endtable
+    Resources can be associated with a given form, and these can be modified
+    and extended using a file browser style interface.
 
-\section2 Plugin Support
+    The Resource Editor uses files that are processed by various components of
+    the \l{The Qt Resource System}{Qt Resource System} to ensure that all
+    required resources are embedded in the application.
+    \i \inlineimage designer-resources-editing.png
+    \endtable
 
-\table
-\row
-\i \inlineimage worldtimeclockplugin-example.png
-\i \bold{Custom Widgets}
+    \section2 Plugin Support
 
-Plugins can be used to add new custom widgets, special editors, and
-support for widgets from the Qt 3 support library.
+    \table
+    \row
+    \i \inlineimage worldtimeclockplugin-example.png
+    \i \bold{Custom Widgets}
 
-Support for custom widget plugins allows user interface designers to
-use application-specific widgets in their designs as early as possible
-in the development process.
+    Plugins can be used to add new custom widgets, special editors, and
+    support for widgets from the Qt 3 support library.
 
-\QD handles custom widgets in the same way as standard Qt widgets,
-and allows custom signals and slots to be connected to other objects
-from within Signals and Slots Editing mode.
-\endtable
+    Support for custom widget plugins allows user interface designers to
+    use application-specific widgets in their designs as early as possible
+    in the development process.
 
-\table
-\row
-\i \bold{Qt Designer SDK}
+    \QD handles custom widgets in the same way as standard Qt widgets,
+    and allows custom signals and slots to be connected to other objects
+    from within Signals and Slots Editing mode.
+    \endtable
 
-The new modular \QD is designed to be integrated into other environments
-and extended with custom components.
+    \table
+    \row
+    \i \bold{Qt Designer SDK}
 
-The Software Development Toolkit is a library that developers can use to
-write extensions and plugins for \QD, and enables \QD components to be
-embedded into Integrated Development Environments (IDEs).
-\i \inlineimage designer-custom-widget-box.png
-\endtable
+    The new modular \QD is designed to be integrated into other environments
+    and extended with custom components.
 
-\section1 Future Improvements to Qt Designer
+    The Software Development Toolkit is a library that developers can use to
+    write extensions and plugins for \QD, and enables \QD components to be
+    embedded into Integrated Development Environments (IDEs).
+    \i \inlineimage designer-custom-widget-box.png
+    \endtable
 
-Each of the components provided with \QD is expected to improve significantly
-in the next release of the application. Here are some of the features that
-we hope to include in the future:
+    \omit
+    \section1 Future Improvements to Qt Designer
 
-\list
-\i Visual editing of custom widgets: A complex widget hierarchy may be dragged
-   from the form to the widget box, where it can be used just like a regular
-   widget.
-\i Drag and drop properties: Properties can be set by dragging them from the
-   property editor to a widget.
-\i More layout editing features:
-  \list
-  \i Create widgets that span multiple rows/columns in a layout.
-  \i Move widgets inside a layout.
-  \i Remove empty rows/columns from a layout.
-  \endlist
-\i An editor for custom properties, signals, and slots.
-\i Documentation for the SDK and \QD plugins.
-\i An action editor for setting up QActions.
-\endlist
+    Each of the components provided with \QD is expected to improve significantly
+    in the next release of the application. Here are some of the features that
+    we hope to include in the future:
 
-\section1 Known Issues
+    \list
+    \i Visual editing of custom widgets: A complex widget hierarchy may be dragged
+       from the form to the widget box, where it can be used just like a regular
+       widget.
+    \i Drag and drop properties: Properties can be set by dragging them from the
+       property editor to a widget.
+    \i More layout editing features:
+      \list
+      \i Create widgets that span multiple rows/columns in a layout.
+      \i Move widgets inside a layout.
+      \i Remove empty rows/columns from a layout.
+      \endlist
+    \i An editor for custom properties, signals, and slots.
+    \i Documentation for the SDK and \QD plugins.
+    \i An action editor for setting up QActions.
+    \endlist
 
-We appreciate any comments and feedback that you may have about \QD. However,
-please note that we have already been made aware of the following issues:
+    \section1 Known Issues
 
-\list
-\i The margin and spacing properties of a layout are not properly handled by
-   the form editor.
-\i The tab order cannot be defined across a form containing container
-   widgets with multiple pages, such as tab widgets and stacked widgets.
-\i \QD's resource editor can only load BMP, PNG, GIF, and JPEG images.
-\i The current version of \QD does not support adding items to item views.
-   What's more, if they are present in an old .ui file, they will be lost when
-   the new file is saved.
-\i "Fake" properties that existed in old versions of Designer (SQL connection
-   settings, etc.) are not currently supported.
-\endlist
+    We appreciate any comments and feedback that you may have about \QD. However,
+    please note that we have already been made aware of the following issues:
 
+    \list
+    \i The margin and spacing properties of a layout are not properly handled by
+       the form editor.
+    \i The tab order cannot be defined across a form containing container
+       widgets with multiple pages, such as tab widgets and stacked widgets.
+    \i \QD's resource editor can only load BMP, PNG, GIF, and JPEG images.
+    \i The current version of \QD does not support adding items to item views.
+       What's more, if they are present in an old .ui file, they will be lost when
+       the new file is saved.
+    \i "Fake" properties that existed in old versions of Designer (SQL connection
+       settings, etc.) are not currently supported.
+    \endlist
+    \endomit
 */

@@ -2,6 +2,10 @@
     \page qt4-accessibility.html
     \title Cross-Platform Accessibility Support in Qt 4
 
+    \contentspage {What's New in Qt 4}{Home}
+    \previouspage The New Qt Designer
+    \nextpage The Qt 4 Database GUI Layer
+
     Qt 4 allows developers to write cross-platform applications that
     are usable by visually impaired users as well as by users with
     other disabilities. Qt accessibility will make applications
@@ -25,15 +29,15 @@
     having to write any code.
 
     Qt's accessibility architecture is as follows. Qt offers one
-    generic interface, \l QAccessibleInterface, that can be used to
+    generic interface, QAccessibleInterface, that can be used to
     wrap all widgets and objects (e.g., QPushButton). This single
     interface provides all the metadata necessary for the assistive
     technologies. Qt provides implementations of this interface for
     its built-in widgets as plugins.
 
     When you develop custom widgets, you can create custom subclasses
-    of \l QAccessibleInterface and distribute them as plugins (using
-    \l QAccessiblePlugin) or compile them into the application.
+    of QAccessibleInterface and distribute them as plugins (using
+    QAccessiblePlugin) or compile them into the application.
     Likewise, Qt's predefined accessibility support can be built as
     plugin (the default) or directly into the Qt library. The main
     advantage of using plugins is that the accessibility classes are
@@ -42,7 +46,7 @@
     used.
 
     In addition to QAccessibleInterface, Qt includes two convenience
-    classes, \l QAccessibleObject and \l QAccessibleWidget, that
+    classes, QAccessibleObject and QAccessibleWidget, that
     provide the lowest common denominator of metadata (e.g., widget
     geometry, window title, basic help text). You can use them as
     base classes when wrapping your custom QObject or QWidget
@@ -50,7 +54,7 @@
 
     Another new feature in Qt 4 is that Qt can now support other
     backends in addition to the predefined ones. This is done by
-    subclassing \l QAccessibleBridge.
+    subclassing QAccessibleBridge.
 
     \omit
     \section1 Software Layering
@@ -149,13 +153,4 @@
 
         Q_EXPORT_PLUGIN(MyFactory)
     \endcode
-
-    \section1 Future Work
-
-    The architecture is in place and is not expected to change much
-    before the final Qt 4.0 release. The main missing features are
-    that not all widgets have been implemented yet, and not all
-    AT-SPI interfaces have been bridged yet.
-
-    \link qt4-intro.html [Back to the Beta page] \endlink
 */

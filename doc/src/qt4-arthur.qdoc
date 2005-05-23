@@ -1,7 +1,10 @@
 /*!
     \page qt4-arthur.html
-
     \title The Arthur Paint System
+
+    \contentspage {What's New in Qt 4}{Home}
+    \previouspage The Interview Framework
+    \nextpage The Scribe Classes
 
     This document describes Qt 4's painting system, providing a
     comparison between the approaches used by Qt when rendering
@@ -23,7 +26,7 @@
 
     In Qt 3, QPainter could be used to draw on widgets and pixmaps.
     (It could also be used to draw to printers on Windows and Mac OS
-    X). When other paint devices needed to be supported, such as
+    X.) When other paint devices needed to be supported, such as
     QPrinter on X11, this was done by deriving from QPaintDevice and
     reimplementing the virtual function QPaintDevice::cmd(). A
     reimplemented paint device was treated as an external device.
@@ -71,26 +74,6 @@
     same painting pipeline. This means that adding support for new features
     and providing default implementations for unsupported ones has
     become much simpler.
-
-    \section2 What's Changed Since Qt 4 Beta 1?
-
-    As a result of user feedback and internal discussion, we have
-    made some improvements to the Qt 4 Paint System:
-
-    \list
-
-    \o We extend our gradient support. It is now possible to specify
-    multiple colors at various positions in a gradient and different
-    spread methods. We have also added support for radial and conical
-    gradients
-
-    \o It is now possible specify a QBrush as the fill method for a
-    pen. This makes it possible to for instance, have textured text
-    quite easily.
-
-    \o QImage has become a paint device.
-
-    \endlist
 
     \section1 New Features in the Qt 4 Paint System
 
@@ -349,6 +332,4 @@
 
     painter.end();
     \endcode
-
-    \link qt4-intro.html [Back to the Beta page] \endlink
 */

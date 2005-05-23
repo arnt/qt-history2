@@ -2,6 +2,10 @@
     \page qt4-network.html
     \title The Network Module in Qt 4
 
+    \contentspage {What's New in Qt 4}{Home}
+    \previouspage The Qt 4 Database GUI Layer
+    \nextpage The Qt 4 Style API
+
     The network module in Qt 4 provides some new features, such as
     support for internationalized domain names, better IPv6 support,
     and better performance. And since Qt 4 allows us to break binary
@@ -211,6 +215,4 @@
     As an aid to porting to Qt 4, \l{The Qt 3 Support Classes}{Qt3Support}
     library includes Q3Dns, Q3ServerSocket, Q3Socket, and Q3SocketDevice
     classes.
-
-    \l{qt4-intro.html}{[Back to the Beta page]}
 */

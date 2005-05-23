@@ -2,6 +2,10 @@
     \page qt4-mainwindow.html
     \title The Qt 4 Main Window Classes
 
+    \contentspage {What's New in Qt 4}{Home}
+    \previouspage The Scribe Classes
+    \nextpage The New Qt Designer
+
     Qt 4 introduces a new set of main window classes that will replace the
     Qt 3 main window classes, providing a more efficient implementation
     while remaining easy to use.
@@ -238,23 +242,4 @@
     They allow more consistent behavior to be defined and implemented. In
     response to feedback from customers, we hope to improve these classes
     even further.
-
-    \section1 Future Work
-
-    The main window classes will continue to evolve and improve as part of
-    the push toward Qt 4. Below are some ideas that have been discussed by
-    the Trolltech development team, and put forward for implementation.
-    Feedback is welcome and encouraged.
-
-    \list
-
-    \o Dragging/dropping behavior may change such that dropped dock
-       widgets will always split a single dock widget.
-       (The current behavior when placing a dock widget between two other
-       dock widgets is to take equal space from each to make room for the
-       newly placed dock widget.)
-
-    \endlist
-
-    \link qt4-intro.html [Back to the Beta page] \endlink
 */

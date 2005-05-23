@@ -2,6 +2,9 @@
     \page qt4-threads.html
     \title Thread Support in Qt 4
 
+    \contentspage {What's New in Qt 4}{Home}
+    \previouspage The Qt 4 Style API
+
     Qt 4 makes it easier than ever to write multithreaded
     applications. More classes have been made usable from non-GUI
     threads, and the signals and slots mechanism can now be used to
@@ -54,6 +57,4 @@
     Qt 3 had a class called \c QDeepCopy that you could use to take a
     deep copy of an implicitly shared object. In Qt 4, the atomic
     reference counting makes this class superfluous.
-
-    \link qt4-intro.html [Back to the Technology Preview page] \endlink
 */

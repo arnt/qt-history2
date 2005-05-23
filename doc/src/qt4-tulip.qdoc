@@ -1,10 +1,13 @@
 /*!
     \page qt4-tulip.html
+    \title The Tulip Container Classes
 
-    \title The Qt 4 Tulip Container Classes
+    \contentspage {What's New in Qt 4}{Home}
+    \previouspage What's New in Qt 4
+    \nextpage The Interview Classes
 
     Qt 4 introduces a new set of containers that will replace both the old
-    QCollection pointer-based containers and the newer "QTL" value-based
+    QCollection pointer-based containers and the newer QTL value-based
     containers.
 
     \tableofcontents
@@ -222,6 +225,4 @@
 
     If you use QValueVector or QMap in Qt 3, the corresponding Qt 4
     classes (QVector, QMap) are very similar to use.
-
-    \link qt4-intro.html [Back to the Beta page] \endlink
 */

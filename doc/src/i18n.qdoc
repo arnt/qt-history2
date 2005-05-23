@@ -194,6 +194,7 @@
     The macros expand to just the text (without the context).
 
     Example of QT_TR_NOOP():
+
     \code
         QString FriendlyConversation::greeting(int type)
         {
@@ -206,6 +207,7 @@
     \endcode
 
     Example of QT_TRANSLATE_NOOP():
+
     \code
         static const char *greeting_strings[] = {
 	    QT_TRANSLATE_NOOP("FriendlyConversation", "Hello"),

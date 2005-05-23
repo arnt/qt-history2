@@ -2,6 +2,10 @@
     \page qt4-sql.html
     \title The Qt 4 Database GUI Layer
 
+    \contentspage {What's New in Qt 4}{Home}
+    \previouspage Cross-Platform Accessibility Support in Qt 4
+    \nextpage The Network Module in Qt 4
+
     The GUI layer of the SQL module in Qt 4 has been entirely
     redesigned to work with \l{qt4-interview.html}{Interview} (Qt's
     new model/view classes). It consists of three model classes
@@ -120,9 +124,9 @@
     \skipto ::setData
     \printuntil /^\}/
 
-    It relies on helper functions called setFirstName() and
-    setLastName(), which execute an \c{update}. Here's
-    setFirstName():
+    It relies on helper functions called \c setFirstName() and
+    \c setLastName(), which execute an \c{update}. Here's
+    \c setFirstName():
 
     \quotefromfile sql/querymodel/editablesqlmodel.cpp
     \skipto ::setFirstName
@@ -150,6 +154,4 @@
     QAbstractItemDelegate; QDataTable is replaced by QTableView. The
     old classes are part of \l{The Qt 3 Support Classes}{Qt3Support}
     library to aid porting to Qt 4.
-
-    \link qt4-intro.html [Back to the Beta page] \endlink
 */

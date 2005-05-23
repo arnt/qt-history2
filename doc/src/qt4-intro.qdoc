@@ -2,6 +2,9 @@
     \page qt4-intro.html
     \title What's New in Qt 4
 
+    \startpage index.html Qt Reference Documentation
+    \nextpage The Tulip Container Classes
+
     We are pleased to present our second beta release for Qt 4. The
     feedback we receive will help us to ensure that the final Qt 4.0
     release provides as much value and productivity as possible. We
@@ -337,10 +340,5 @@
     See
     \l{http://www.trolltech.com/products/qt/qt4-platforms.html}{Trolltech's
     web site} for more information on the planned supported platforms
-    for
-    Qt 4.0.
-
-    \section1 How to Provide Feedback
-
-    \input betafeedback.qdocinc
+    for Qt 4.0.
 */

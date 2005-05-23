@@ -1,6 +1,10 @@
 /*!
     \page qt4-interview.html
-    \title The Qt 4 Interview Classes
+    \title The Interview Framework
+
+    \contentspage {What's New in Qt 4}{Home}
+    \previouspage The Tulip Container Classes
+    \nextpage The Arthur Paint System
 
     The Interview classes provide a model/view framework for Qt
     applications based on the well known Model-View-Controller design
@@ -249,7 +253,4 @@
     and opportunities for developers. Although the approach may appear to
     be rather powerful for simple applications, it encourages greater
     reuse of components, both within the library and within applications.
-
-    \link qt4-intro.html [Back to the Beta page] \endlink
-
 */
