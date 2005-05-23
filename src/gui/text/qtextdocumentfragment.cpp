@@ -633,7 +633,7 @@ void QTextHTMLImporter::import()
                 if (!listReferences.isEmpty()) {
                     block.setObjectIndex(listReferences.last());
                 } else {
-                    qWarning("QTextDocumentFragment(html import): list item outside list found. bad html?");
+//                    qWarning("QTextDocumentFragment(html import): list item outside list found. bad html?");
                 }
             } else if (indent && block.objectIndex() != listReferences.last()) {
                 block.setIndent(indent);
