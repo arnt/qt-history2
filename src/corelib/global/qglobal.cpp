@@ -1485,7 +1485,7 @@ QByteArray qgetenv(const char *varName)
 #if defined(_MSC_VER) && _MSC_VER >= 1400
     size_t requiredSize;
     QByteArray buffer;
-    getenv_s(&requiredSize, buffer.data(), 0, varName);
+    getenv_s(&requiredSize, 0, 0, varName);
     if (requiredSize == 0)
         return buffer;
     buffer.resize(requiredSize);
