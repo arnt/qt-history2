@@ -23,18 +23,19 @@
 
     Type "./configure -help" to get a list of all available options.
 
-    To create the library and compile all the demos, examples, tools
-    and tutorials type:
+    To create the library and compile all the demos, examples, tools,
+    and tutorials, type:
 
         make
 
-    To install the library, demos, examples, tools and tutorials
-    become root on your system and type:
+    To install the library, demos, examples, tools, and tutorials,
+    type:
 
-        make install
+        su -c "make install"
 
-    Qt is by default installed into /usr/local/Trolltech/Qt-%VERSION%
-    but this can be changed by using the -prefix parameter.
+    and enter the root password. Qt is by default installed into
+    /usr/local/Trolltech/Qt-%VERSION% but this can be changed by using
+    the -prefix parameter.
 
 4.  Environment variables
 
@@ -54,8 +55,8 @@
 
         setenv PATH /usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
 
-    If you use a different shell, please modify your environment variables
-    accordingly.
+    If you use a different shell, please modify your environment
+    variables accordingly.
 
 5.  That's all. Qt is now installed.
 

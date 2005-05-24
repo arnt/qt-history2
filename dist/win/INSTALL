@@ -10,8 +10,9 @@
     For the open source version you do not need a license file.
 
 2.  Uncompress the files into the directory you want Qt installed,
-    e.g. C:\Qt\%VERSION%. Note that the install path cannot contain
-    any spaces.
+    e.g. C:\Qt\%VERSION%. 
+
+    NOTE: The install path must not contain any spaces.
 
 3.  Building
 
