@@ -27,6 +27,7 @@ class Q_GUI_EXPORT QAbstractButton : public QWidget
 
     Q_PROPERTY(QString text READ text WRITE setText)
     Q_PROPERTY(QIcon icon READ icon WRITE setIcon)
+    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(bool checkable READ isCheckable WRITE setCheckable)
     Q_PROPERTY(bool checked READ isChecked WRITE setChecked NOTIFY toggled)
@@ -43,6 +44,8 @@ public:
 
     void setIcon(const QIcon &icon);
     QIcon icon() const;
+
+    QSize iconSize() const;
 
     void setShortcut(const QKeySequence &key);
     QKeySequence shortcut() const;
@@ -64,6 +67,7 @@ public:
     QButtonGroup *group() const;
 
 public slots:
+    void setIconSize(const QSize &size);
     void animateClick(int msec = 100);
     void click();
     void toggle();

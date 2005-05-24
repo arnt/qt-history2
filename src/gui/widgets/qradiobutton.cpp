@@ -101,6 +101,7 @@ static QStyleOptionButton getStyleOption(const QRadioButton *btn)
     opt.init(btn);
     opt.text = btn->text();
     opt.icon = btn->icon();
+    opt.iconSize = btn->iconSize();
     if (btn->isDown())
         opt.state |= QStyle::State_Sunken;
     opt.state |= (btn->isChecked() ? QStyle::State_On : QStyle::State_Off);
@@ -113,9 +114,11 @@ static QStyleOptionButton getStyleOption(const QRadioButton *btn)
 QSize QRadioButton::sizeHint() const
 {
     ensurePolished();
+    QStyleOptionButton opt = getStyleOption(this);
     QSize sz = style()->itemTextRect(fontMetrics(), QRect(0, 0, 1, 1), Qt::TextShowMnemonic,
                                      false, text()).size();
-    QStyleOptionButton opt = getStyleOption(this);
+    if (!opt.icon.isNull())
+        sz = QSize(sz.width() + opt.iconSize.width() + 4, qMax(sz.height(), opt.iconSize.height()));
     return (style()->sizeFromContents(QStyle::CT_RadioButton, &opt, sz, this).
             expandedTo(QApplication::globalStrut()));
 }

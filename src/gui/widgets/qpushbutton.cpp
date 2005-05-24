@@ -278,6 +278,7 @@ QStyleOptionButton QPushButtonPrivate::getStyleOption() const
         opt.state |= QStyle::State_Raised;
     opt.text = text;
     opt.icon = icon;
+    opt.iconSize = q->iconSize();
     return opt;
 }
 
@@ -332,16 +333,17 @@ QSize QPushButton::sizeHint() const
 
     int w = 0, h = 0;
 
+    QStyleOptionButton opt = d->getStyleOption();
+
     // calculate contents size...
 #ifndef QT_NO_ICON
     if (!icon().isNull()) {
-        int ih = style()->pixelMetric(QStyle::PM_SmallIconSize);
-        int iw = ih + 4;
+        int ih = opt.iconSize.height();
+        int iw = opt.iconSize.width() + 4;
         w += iw;
         h = qMax(h, ih);
     }
 #endif
-    QStyleOptionButton opt = d->getStyleOption();
     if (menu())
         w += style()->pixelMetric(QStyle::PM_MenuButtonIndicator, &opt, this);
     QString s(text());

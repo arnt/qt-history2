@@ -476,6 +476,9 @@ QString QAbstractButton::text() const
 /*!
   \property QAbstractButton::icon
   \brief the icon shown on the button
+
+  The icon's default size is defined by the GUI style, but can be
+  adjusted by setting the \l iconSize property.
 */
 void QAbstractButton::setIcon(const QIcon &icon)
 {
@@ -1034,6 +1037,34 @@ or because setChecked() was called.
 \sa checked, clicked()
 */
 
+/*!
+    \property QAbstractButton::iconSize
+    \brief the icon size used for this button.
+
+    The default size is defined by the GUI style.
+*/
+
+QSize QAbstractButton::iconSize() const
+{
+    Q_D(const QAbstractButton);
+    if (d->iconSize.isValid())
+        return d->iconSize;
+    int e = style()->pixelMetric(QStyle::PM_SmallIconSize);
+    return QSize(e, e);
+}
+
+void QAbstractButton::setIconSize(const QSize &size)
+{
+    Q_D(QAbstractButton);
+    if (d->iconSize == size)
+        return;
+
+    d->iconSize = size;
+    updateGeometry();
+    if (isVisible()) {
+        update();
+    }
+}
 
 
 #ifdef QT3_SUPPORT

@@ -122,6 +122,7 @@ QStyleOptionButton QCheckBoxPrivate::getStyleOption() const
         opt.state |= checked ? QStyle::State_On : QStyle::State_Off;
     opt.text = text;
     opt.icon = icon;
+    opt.iconSize = q->iconSize();
     return opt;
 }
 
@@ -210,6 +211,8 @@ QSize QCheckBox::sizeHint() const
     QStyleOptionButton opt = d->getStyleOption();
     QSize sz = style()->itemTextRect(fm, QRect(0, 0, 1, 1), Qt::TextShowMnemonic, false,
                                      text()).size();
+    if (!opt.icon.isNull())
+        sz = QSize(sz.width() + opt.iconSize.width() + 4, qMax(sz.height(), opt.iconSize.height()));
     return (style()->sizeFromContents(QStyle::CT_CheckBox, &opt, sz, this)
             .expandedTo(QApplication::globalStrut()));
 }

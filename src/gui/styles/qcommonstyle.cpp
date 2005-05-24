@@ -686,7 +686,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                 QIcon::State state = QIcon::Off;
                 if (btn->state & State_On)
                     state = QIcon::On;
-                QPixmap pixmap = btn->icon.pixmap(pixelMetric(PM_SmallIconSize), mode, state);
+                QPixmap pixmap = btn->icon.pixmap(btn->iconSize, mode, state);
                 int pixw = pixmap.width();
                 int pixh = pixmap.height();
                 //Center the icon if there is no text
@@ -750,12 +750,17 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             if (!styleHint(SH_UnderlineShortcut, btn, widget))
                 alignment |= Qt::TextHideMnemonic;
             QPixmap pix;
+            QRect textRect = btn->rect;
             if (!btn->icon.isNull()) {
-                pix = btn->icon.pixmap(pixelMetric(PM_SmallIconSize),
-                                   btn->state & State_Enabled ? QIcon::Normal : QIcon::Disabled);
+                pix = btn->icon.pixmap(btn->iconSize, btn->state & State_Enabled ? QIcon::Normal : QIcon::Disabled);
                 drawItemPixmap(p, btn->rect, alignment, pix);
-            } else {
-                drawItemText(p, btn->rect, alignment | Qt::TextShowMnemonic,
+                if (btn->direction == Qt::RightToLeft)
+                    textRect.setRight(textRect.right() - btn->iconSize.width() - 4);
+                else
+                    textRect.setLeft(textRect.left() + btn->iconSize.width() + 4);
+            }
+            if (!btn->text.isEmpty()){
+                drawItemText(p, textRect, alignment | Qt::TextShowMnemonic,
                              btn->palette, btn->state & State_Enabled, btn->text);
             }
         }
@@ -1346,7 +1351,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
 
     case SE_CheckBoxFocusRect:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            if (btn->text.isEmpty()) {
+            if (btn->icon.isNull() && btn->text.isEmpty()) {
                 r = subElementRect(SE_CheckBoxIndicator, opt, widget);
                 r.adjust(1, 1, -1, -1);
                 break;
@@ -1355,15 +1360,20 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             QRect cr = visualRect(btn->direction, btn->rect,
                                   subElementRect(SE_CheckBoxContents, btn, widget));
 
-            if (!btn->icon.isNull()) {
-                r = itemPixmapRect(cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
-                                        | Qt::TextShowMnemonic,
-                                   btn->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal));
-            } else {
-                r = itemTextRect(opt->fontMetrics, cr, Qt::AlignAbsolute | Qt::AlignLeft
-                                 | Qt::AlignVCenter | Qt::TextShowMnemonic,
-                                 btn->state & State_Enabled, btn->text);
+            QRect iconRect, textRect;
+            if (!btn->text.isEmpty()) {
+                textRect = itemTextRect(opt->fontMetrics, cr, Qt::AlignAbsolute | Qt::AlignLeft
+                                        | Qt::AlignVCenter | Qt::TextShowMnemonic,
+                                        btn->state & State_Enabled, btn->text);
             }
+            if (!btn->icon.isNull()) {
+                iconRect = itemPixmapRect(cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
+                                        | Qt::TextShowMnemonic,
+                                   btn->icon.pixmap(btn->iconSize, QIcon::Normal));
+                if (!textRect.isEmpty())
+                    textRect.translate(iconRect.right() + 4, 0);
+            }
+            r = iconRect | textRect;
             r.adjust(-3, -2, 3, 2);
             r = r.intersect(btn->rect);
             r = visualRect(btn->direction, btn->rect, r);
@@ -1391,7 +1401,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
 
     case SE_RadioButtonFocusRect:
         if (const QStyleOptionButton *btn = qstyleoption_cast<const QStyleOptionButton *>(opt)) {
-            if (!btn->icon.isNull() && btn->text.isEmpty()) {
+            if (btn->icon.isNull() && btn->text.isEmpty()) {
                 r = subElementRect(SE_RadioButtonIndicator, opt, widget);
                 r.adjust(1, 1, -1, -1);
                 break;
@@ -1399,13 +1409,18 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
             QRect cr = visualRect(btn->direction, btn->rect,
                                   subElementRect(SE_RadioButtonContents, opt, widget));
 
-            if(!btn->icon.isNull()) {
-                r = itemPixmapRect(cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
-                                   btn->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal));
-            } else {
-                r = itemTextRect(opt->fontMetrics, cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
+            QRect iconRect, textRect;
+            if (!btn->text.isEmpty()){
+                textRect = itemTextRect(opt->fontMetrics, cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter
                                  | Qt::TextShowMnemonic, btn->state & State_Enabled, btn->text);
             }
+            if(!btn->icon.isNull()) {
+                iconRect = itemPixmapRect(cr, Qt::AlignAbsolute | Qt::AlignLeft | Qt::AlignVCenter | Qt::TextShowMnemonic,
+                                   btn->icon.pixmap(btn->iconSize, QIcon::Normal));
+                if (!textRect.isEmpty())
+                    textRect.translate(iconRect.right() + 4, 0);
+            }
+            r = iconRect | textRect;
             r.adjust(-3, -2, 3, 2);
             r = r.intersect(btn->rect);
             r = visualRect(btn->direction, btn->rect, r);

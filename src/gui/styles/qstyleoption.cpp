@@ -587,6 +587,13 @@ QStyleOptionButton::QStyleOptionButton(int version)
 /*!
     \variable QStyleOptionButton::icon
     \brief The icon of the button.
+
+    \sa iconSize
+*/
+
+/*!
+    \variable QStyleOptionButton::iconSize
+    \brief The size of the icon for the button
 */
 
 /*!
@@ -1629,7 +1636,7 @@ QStyleOptionToolButton::QStyleOptionToolButton(int version)
     \variable QStyleOptionToolButton::icon
     \brief The icon for the tool button.
 
-    \sa QToolButton::iconSize()
+    \sa iconSize
 */
 
 /*!

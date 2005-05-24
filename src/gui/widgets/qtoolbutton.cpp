@@ -42,7 +42,6 @@ public:
     QStyleOptionToolButton getStyleOption() const;
     QPointer<QMenu> menu; //the menu set by the user (setMenu)
     QBasicTimer popupTimer;
-    QSize iconSize;
     int delay;
     Qt::ArrowType arrowType;
     Qt::ToolButtonStyle toolButtonStyle;
@@ -210,8 +209,6 @@ void QToolButtonPrivate::init()
     menuButtonDown = false;
     popupMode = QToolButton::DelayedPopup;
 
-    int e = q->style()->pixelMetric(QStyle::PM_SmallIconSize);
-    iconSize = QSize(e, e);
 
     toolButtonStyle = Qt::ToolButtonIconOnly;
 
@@ -231,7 +228,7 @@ QStyleOptionToolButton QToolButtonPrivate::getStyleOption() const
     bool checked = q->isChecked();
     opt.text = text;
     opt.icon = icon;
-    opt.iconSize = iconSize;
+    opt.iconSize = q->iconSize();
     opt.arrowType = arrowType;
     if (down)
         opt.state |= QStyle::State_Sunken;
@@ -351,17 +348,6 @@ QSize QToolButton::minimumSizeHint() const
 */
 
 /*!
-    \property QToolButton::iconSize
-    \brief the icon size used for this button.
-
-    QToolButton automatically connects this property to the relevant
-    signal in the QMainWindow in which it resides. We strongly
-    recommend that you use QMainWindow::iconSize() instead.
-
-    The default size is defined by the GUI style.
-*/
-
-/*!
     \property QToolButton::toolButtonStyle
     \brief whether the tool button displays an icon only, text only,
     or text beside/below the icon.
@@ -379,12 +365,6 @@ QSize QToolButton::minimumSizeHint() const
     This displays an arrow as the icon for the QToolButton.
 */
 
-QSize QToolButton::iconSize() const
-{
-    Q_D(const QToolButton);
-    return d->iconSize;
-}
-
 Qt::ToolButtonStyle QToolButton::toolButtonStyle() const
 {
     Q_D(const QToolButton);
@@ -397,18 +377,6 @@ Qt::ArrowType QToolButton::arrowType() const
     return d->arrowType;
 }
 
-void QToolButton::setIconSize(const QSize &size)
-{
-    Q_D(QToolButton);
-    if (d->iconSize == size)
-        return;
-
-    d->iconSize = size;
-    updateGeometry();
-    if (isVisible()) {
-        update();
-    }
-}
 
 void QToolButton::setToolButtonStyle(Qt::ToolButtonStyle style)
 {

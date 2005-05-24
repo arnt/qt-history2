@@ -28,7 +28,6 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
 
     Q_PROPERTY(ToolButtonPopupMode popupMode READ popupMode WRITE setPopupMode)
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
-    Q_PROPERTY(QSize iconSize READ iconSize WRITE setIconSize)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
     Q_PROPERTY(Qt::ArrowType arrowType READ arrowType WRITE setArrowType)
 
@@ -45,7 +44,6 @@ public:
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
-    QSize iconSize() const;
     Qt::ToolButtonStyle toolButtonStyle() const;
 
     Qt::ArrowType arrowType() const;
@@ -64,7 +62,6 @@ public:
 
 public slots:
     void showMenu();
-    void setIconSize(const QSize &size);
     void setToolButtonStyle(Qt::ToolButtonStyle style);
     void setDefaultAction(QAction *);
 

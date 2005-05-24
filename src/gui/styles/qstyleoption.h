@@ -169,6 +169,7 @@ public:
     ButtonFeatures features;
     QString text;
     QIcon icon;
+    QSize iconSize;
 
     QStyleOptionButton();
     QStyleOptionButton(const QStyleOptionButton &other) : QStyleOption(Version, Type) { *this = other; }

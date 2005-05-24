@@ -36,6 +36,7 @@ public:
 
     QString text;
     QIcon icon;
+    QSize iconSize;
     QKeySequence shortcut;
     int shortcutId;
     uint checkable :1;
