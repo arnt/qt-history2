@@ -3119,7 +3119,14 @@ QCursor QWidget::cursor() const
     This property only makes sense for windows. If no
     caption has been set, the title is an empty string.
 
-    \sa windowIcon windowIconText
+    If you use the \l windowModified mechanism, the window title must
+    contain a "[*]" placeholder, which indicates where the '*' should
+    appear. Normally, it should appear right after the file name
+    (e.g., "document1.txt[*] - Text Editor"). If the \l
+    windowModified property is false (the default), the placeholder
+    is simply removed.
+
+    \sa windowIcon, windowIconText, windowModified
 */
 QString QWidget::windowTitle() const
 {
@@ -6474,17 +6481,22 @@ bool QWidget::testAttribute_helper(Qt::WidgetAttribute attribute) const
 */
 
 /*!
-  \property QWidget::windowModified
+    \property QWidget::windowModified
+    \brief whether the document shown in the window has unsaved changes
 
-  \brief If the window is in a modified state.
+    A modified window is a window whose content has changed but has
+    not been saved to disk. This flag will have different effects
+    varied by the platform. On Mac OS X the close button will have a
+    modified look; on other platforms, the window title will have an
+    '*' (asterisk).
 
-  A modified window is a window whose content has changed but has not
-  been saved to disk.  This flag will have different effects varied by
-  the platform. On Mac OS X the close button will have a modified
-  look, on Windows will have an '*' (asterisk) appended to its
-  titlebar text.
+    The window title must contain a "[*]" placeholder, which
+    indicates where the '*' should appear. Normally, it should appear
+    right after the file name (e.g., "document1.txt[*] - Text
+    Editor"). If the window isn't modified, the placeholder is simply
+    removed.
 
-  This feature is only present on Mac OS X and Windows.
+    \sa windowTitle
 */
 bool QWidget::isWindowModified() const
 {

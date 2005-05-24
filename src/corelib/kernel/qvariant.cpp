@@ -2719,8 +2719,8 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \endcode
 
     \warning This function is not available with MSVC 6. Use
-    qVariantValue() instead if you need to support that version of
-    the compiler.
+    qVariantValue() or qvariant_cast() instead if you need to support
+    that version of the compiler.
 
     \sa setValue(), fromValue(), canConvert()
 */
@@ -2797,6 +2797,17 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa QVariant::setValue()
 */
 
+/*!
+    \fn T qvariant_cast(const QVariant &value)
+    \relates QVariant
+
+    Returns the given \a value converted to the template type \c{T}.
+
+    This function is equivalent to qVariantValue().
+
+    \sa qVariantValue(), QVariant::value()
+*/
+
 /*! \fn T qVariantValue(const QVariant &value)
     \relates QVariant
 
@@ -2807,7 +2818,7 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     provided as a work-around for MSVC 6, which doesn't support
     member template functions.
 
-    \sa QVariant::value()
+    \sa QVariant::value(), qvariant_cast()
 */
 
 /*! \fn bool qVariantCanConvert(const QVariant &value)
