@@ -287,12 +287,12 @@ Qt::HANDLE QFont::handle() const
 /*!
     Returns the name of the font within the underlying window system.
 
-    On Windows, this is usually just the family name of a TrueType
+    On Windows and Mac OS X, this is usually just the family name of a TrueType
     font.
 
-    On X11, it is an XLFD (X Logical Font Description).  When Qt is
-    build with FontConfig support on X11, the return value can be an
-    FontConfig pattern or an XLFD.
+    On X11, depending on whether Qt was built with FontConfig support, it is an
+    XLFD (X Logical Font Description) or a FontConfig pattern. An XLFD may be
+    returned even if FontConfig support is enabled..
 
     Using the return value of this function is usually \e not \e
     portable.

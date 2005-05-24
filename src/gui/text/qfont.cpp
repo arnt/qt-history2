@@ -899,7 +899,7 @@ bool QFont::kerning() const
   for latin text. So the assumption that width('a')+width('b') is
   equal to width("ab") is not neccesairly true.
 
-  \sa kerning()
+  \sa kerning() QFontMetrics()
 */
 void QFont::setKerning(bool enable) { detach();
 
@@ -1040,7 +1040,8 @@ void QFont::setStyleStrategy(StyleStrategy s)
 /*!
     \enum QFont::Stretch
 
-    Predefined stretch values that follow the CSS naming convention.
+    Predefined stretch values that follow the CSS naming convention. The higher
+    the value, the more stretched the text is.
 
     \value UltraCondensed 50
     \value ExtraCondensed 62
@@ -1081,7 +1082,7 @@ int QFont::stretch() const
     X11, the stretch factor is matched against a predefined set of
     values for the SETWIDTH_NAME field of the XLFD.
 
-    \sa stretch() QFont::StyleStrategy
+    \sa stretch() QFont::Stretch
 */
 void QFont::setStretch(int factor)
 {
@@ -1397,8 +1398,8 @@ QStringList QFont::substitutes(const QString &familyName)
 
 
 /*!
-    Inserts the family name \a substituteName into the substitution
-    table for \a familyName.
+    Inserts \a substituteName into the substitution
+    table for the family \a familyName.
 
     \sa insertSubstitutions() removeSubstitution() substitutions() substitute() substitutes()
 */
