@@ -414,12 +414,12 @@ void Generator::generateModuleName(const ClassNode *classe, CodeMarker *marker)
     QString module = classe->moduleName();
     if (!module.isEmpty()) {
         Text text;
-        if (Tokenizer::isTrue("defined(core)") && module != "QtCore"
+        if (Tokenizer::isTrue("defined(console)") && module != "QtCore"
                 && module != "QtNetwork" && module != "QtSql"
                 && module != "QtXml") {
             text << Atom::ParaLeft
                  << Atom(Atom::FormattingLeft, ATOM_FORMATTING_BOLD)
-                 << "This class is not part of the Qt Core Edition."
+                 << "This class is not part of the Qt Console Edition."
                  << Atom(Atom::FormattingRight, ATOM_FORMATTING_BOLD)
                  << Atom::ParaRight;
         } else {
@@ -460,7 +460,7 @@ QString Generator::indent( int level, const QString& markedCode )
 			t += ' ';
 		}
 		column++;
-	    } 
+	    }
 	    t += markedCode[i++];
 	}
     }
