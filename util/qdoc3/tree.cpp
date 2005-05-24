@@ -82,7 +82,7 @@ const Node *Tree::findNode(const QStringList &path, const Node *relative, int fi
                 foreach (const Node *baseClass, baseClasses) {
                     next = static_cast<const InnerNode *>(baseClass)->findNode(path.at(i));
                     if (!next && (findFlags & SearchEnumValues) && i == path.size() - 1)
-                        next = static_cast<const InnerNode *>(node)
+                        next = static_cast<const InnerNode *>(baseClass)
                                         ->findEnumNodeForValue(path.at(i));
                     if (next)
                         break;
