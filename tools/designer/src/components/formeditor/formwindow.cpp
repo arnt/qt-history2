@@ -1877,8 +1877,12 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
             QWidget *widget = item->widget();
             Q_ASSERT(widget != 0);
             QDesignerFormWindowInterface *dest = findFormWindow(widget);
-            if (dest == this) {
-                parent = findContainer(parent, false);
+
+            QWidget *container = findContainer(parent, false);
+            QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core()->extensionManager(), container);
+
+            if (dest == this && deco == 0) {
+                parent = container;
 
                 if (parent != widget->parent()) {
                     ReparentWidgetCommand *cmd = new ReparentWidgetCommand(dest);
@@ -1893,6 +1897,7 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
             } else {
                 FormWindow *source = qobject_cast<FormWindow*>(item->source());
                 Q_ASSERT(source != 0);
+
                 source->deleteWidgets(QList<QWidget*>() << widget);
                 QWidget *new_widget = createWidget(dom_ui, geometry, parent);
                 selectWidget(new_widget, true);
