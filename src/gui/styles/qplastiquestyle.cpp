@@ -3574,6 +3574,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             painter->setPen(titleBar->palette.highlightedText().color());
             painter->drawText(textRect, titleBar->text, QTextOption(Qt::AlignHCenter | Qt::AlignVCenter));
 
+            // min button
             if ((titleBar->subControls & SC_TitleBarMinButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarMinButton) && (titleBar->state & State_MouseOver);
 		QRect minButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarMinButton, widget);
@@ -3597,6 +3598,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 				  minButtonIconRect.center().x() + 4, minButtonIconRect.center().y() + 4);
             }
 
+            // max button
             if ((titleBar->subControls & SC_TitleBarMaxButton) && (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint)) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarMaxButton) && (titleBar->state & State_MouseOver);
 		QRect maxButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarMaxButton, widget);
@@ -3619,6 +3621,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 		painter->drawPoint(maxButtonIconRect.bottomRight());
             }
 
+            // close button
             if (titleBar->subControls & SC_TitleBarCloseButton) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarCloseButton) && (titleBar->state & State_MouseOver);
 		QRect closeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarCloseButton, widget);
@@ -3651,6 +3654,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 				  closeIconRect.right() - 1, closeIconRect.top() + 1);
             }
 
+            // normalize button
             if ((titleBar->subControls & SC_TitleBarNormalButton) && (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
                 bool hover = (titleBar->activeSubControls & SC_TitleBarNormalButton) && (titleBar->state & State_MouseOver);
 		QRect normalButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarNormalButton, widget);
@@ -3690,6 +3694,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 painter->restore();
             }
 
+            // context help button
             if (titleBar->subControls & SC_TitleBarContextHelpButton) {
                 // ### add context help icon
                 bool hover = (titleBar->activeSubControls & SC_TitleBarContextHelpButton) && (titleBar->state & State_MouseOver);
@@ -3697,18 +3702,49 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 qt_plastique_draw_mdibutton(painter, titleBar, contextHelpButtonRect, hover);
             }
 
+            // shade button
             if (titleBar->subControls & SC_TitleBarShadeButton) {
-                // ### add shade icon
                 bool hover = (titleBar->activeSubControls & SC_TitleBarShadeButton) && (titleBar->state & State_MouseOver);
 		QRect shadeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarShadeButton, widget);
                 qt_plastique_draw_mdibutton(painter, titleBar, shadeButtonRect, hover);
+
+                int xoffset = shadeButtonRect.width() / 3;
+                int yoffset = shadeButtonRect.height() / 3;
+
+                QRect shadeButtonIconRect(shadeButtonRect.left() + xoffset, shadeButtonRect.top() + yoffset,
+                                          shadeButtonRect.width() - xoffset * 2, shadeButtonRect.height() - yoffset * 2);
+
+                QPainterPath path(shadeButtonIconRect.bottomLeft());
+                path.lineTo(shadeButtonIconRect.center().x(), shadeButtonIconRect.bottom() - shadeButtonIconRect.height() / 2);
+                path.lineTo(shadeButtonIconRect.bottomRight());
+                path.lineTo(shadeButtonIconRect.bottomLeft());
+
+                painter->setPen(textAlphaColor);
+                painter->setBrush(textColor);
+                painter->drawPath(path);
             }
 
+            // unshade button
             if (titleBar->subControls & SC_TitleBarUnshadeButton) {
-                // ### add unshade icon
                 bool hover = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_MouseOver);
-		QRect unshadeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarUnshadeButton, widget);
+                QRect unshadeButtonRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarUnshadeButton, widget);
                 qt_plastique_draw_mdibutton(painter, titleBar, unshadeButtonRect, hover);
+
+                int xoffset = unshadeButtonRect.width() / 3;
+                int yoffset = unshadeButtonRect.height() / 3;
+
+                QRect unshadeButtonIconRect(unshadeButtonRect.left() + xoffset, unshadeButtonRect.top() + yoffset,
+                                          unshadeButtonRect.width() - xoffset * 2, unshadeButtonRect.height() - yoffset * 2);
+
+                int midY = unshadeButtonIconRect.bottom() - unshadeButtonIconRect.height() / 2;
+                QPainterPath path(QPoint(unshadeButtonIconRect.left(), midY));
+                path.lineTo(unshadeButtonIconRect.right(), midY);
+                path.lineTo(unshadeButtonIconRect.center().x(), unshadeButtonIconRect.bottom());
+                path.lineTo(unshadeButtonIconRect.left(), midY);
+
+                painter->setPen(textAlphaColor);
+                painter->setBrush(textColor);
+                painter->drawPath(path);
             }
 
 	    // from qwindowsstyle.cpp
@@ -3716,7 +3752,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
                 bool hover = (titleBar->activeSubControls & SC_TitleBarUnshadeButton) && (titleBar->state & State_MouseOver);
 		QRect iconRect = subControlRect(CC_TitleBar, titleBar, SC_TitleBarSysMenu, widget);
-                qt_plastique_draw_mdibutton(painter, titleBar, iconRect, hover);
+                if (hover)
+                    qt_plastique_draw_mdibutton(painter, titleBar, iconRect, hover);
 
                 if (!titleBar->icon.isNull()) {
                     titleBar->icon.paint(painter, iconRect);
@@ -4015,91 +4052,81 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
         }
         break;
     case CC_TitleBar:
-        if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
+        if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
+            SubControl sc = subControl;
+            QRect &ret = rect;
+            const int indent = 3;
+            const int controlTopMargin = 4;
+            const int controlBottomMargin = 3;
+            const int controlWidthMargin = 1;
+            const int controlHeight = tb->rect.height() - controlTopMargin - controlBottomMargin;
+            const int delta = controlHeight + controlWidthMargin;
+            int offset = 0;
 
-            const bool isToolTitle = false; // widget->testWFlags(Qt::WA_WState_Tool)
-            const int height = titleBar->rect.height() - 2;
-            const int width = titleBar->rect.width() - 1;
-            const int controlTop = 4; //widget->testWFlags(Qt::WA_WState_Tool) ? 4 : 6;
-            const int controlHeight = height - controlTop - 1;
+            bool isMinimized = tb->titleBarState & Qt::WindowMinimized;
 
-            const bool sysmenuHint  = (titleBar->titleBarFlags & Qt::WindowSystemMenuHint) != 0;
-            const bool minimizeHint = (titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint) != 0;
-            const bool maximizeHint = (titleBar->titleBarFlags & Qt::WindowMaximizeButtonHint) != 0;
-            const bool contextHint = (titleBar->titleBarFlags & Qt::WindowContextHelpButtonHint) != 0;
-            const bool shadeHint = (titleBar->titleBarFlags & Qt::WindowShadeButtonHint) != 0;
-
-            switch (subControl) {
-            case SC_TitleBarLabel: {
-                QRect ir(0, 0, width, height);
-                if (isToolTitle) {
-                    if (sysmenuHint)
-                        ir.adjust(0, 0, -controlHeight-6, 0);
-                    if (minimizeHint || maximizeHint)
-                        ir.adjust(0, 0, -controlHeight-2, 0);
-                } else {
-                    if (sysmenuHint)
-                        ir.adjust(controlHeight+6, 0, -controlHeight-6, 0);
-                    if (minimizeHint)
-                        ir.adjust(0, 0, -controlHeight-2, 0);
-                    if (maximizeHint)
-                        ir.adjust(0, 0, -controlHeight-2, 0);
-                    if (contextHint)
-                        ir.adjust(0, 0, -controlHeight-2, 0);
-                    if (shadeHint)
-                        ir.adjust(0, 0, -controlHeight-2, 0);
+            switch (sc) {
+            case SC_TitleBarLabel:
+                if (tb->titleBarFlags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint)) {
+                    ret = tb->rect;
+                    if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
+                        ret.adjust(delta, 0, -delta, 0);
+                    if (tb->titleBarFlags & Qt::WindowMinimizeButtonHint)
+                        ret.adjust(0, 0, -delta, 0);
+                    if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                        ret.adjust(0, 0, -delta, 0);
+                    if (tb->titleBarFlags & Qt::WindowShadeButtonHint)
+                        ret.adjust(0, 0, -delta, 0);
+                    if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
+                        ret.adjust(0, 0, -delta, 0);
                 }
-                rect = ir;
                 break;
-            }
-            case SC_TitleBarCloseButton:
-                rect.setRect(width - (controlHeight + 1) - controlTop, controlTop, controlHeight, controlHeight);
-                break;
-            case SC_TitleBarShadeButton:
-                if (!(titleBar->titleBarFlags & Qt::WindowShadeButtonHint)) {
-                    rect = QRect();
+            case SC_TitleBarContextHelpButton:
+                if (tb->titleBarFlags & Qt::WindowContextHelpButtonHint)
+                    offset += delta;
+            case SC_TitleBarMinButton:
+                if (!isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
+                    offset += delta;
+                else if (sc == SC_TitleBarMinButton)
                     break;
-                }
-                rect.setRect(width - ((controlHeight + 1) * 2) - controlTop, controlTop, controlHeight, controlHeight);
-                break;
+            case SC_TitleBarNormalButton:
+                if (isMinimized && (tb->titleBarFlags & Qt::WindowMinimizeButtonHint))
+                    offset += delta;
+                else if (sc == SC_TitleBarNormalButton)
+                    break;
             case SC_TitleBarMaxButton:
-            case SC_TitleBarUnshadeButton:
-                rect.setRect(width - ((controlHeight + 1) * 2) - controlTop, controlTop, controlHeight, controlHeight);
-                break;
-            case SC_TitleBarMinButton: {
-                if (!(titleBar->titleBarFlags & Qt::WindowMinimizeButtonHint)) {
-                    rect = QRect();
+                if (tb->titleBarFlags & Qt::WindowMaximizeButtonHint)
+                    offset += delta;
+                else if (sc == SC_TitleBarMaxButton)
                     break;
+            case SC_TitleBarShadeButton:
+                if (!isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
+                    offset += delta;
+                else if (sc == SC_TitleBarShadeButton)
+                    break;
+            case SC_TitleBarUnshadeButton:
+                if (isMinimized && (tb->titleBarFlags & Qt::WindowShadeButtonHint))
+                    offset += delta;
+                else if (sc == SC_TitleBarUnshadeButton)
+                    break;
+            case SC_TitleBarCloseButton:
+                if (tb->titleBarFlags & Qt::WindowSystemMenuHint)
+                    offset += delta;
+                else if (sc == SC_TitleBarCloseButton)
+                    break;
+                ret.setRect(tb->rect.right() - indent - offset, tb->rect.top() + controlTopMargin,
+                            controlHeight, controlHeight);
+                break;
+            case SC_TitleBarSysMenu:
+                if (tb->titleBarFlags & Qt::WindowSystemMenuHint) {
+                    ret.setRect(tb->rect.left() + controlWidthMargin + indent, tb->rect.top() + controlTopMargin,
+                                controlHeight, controlHeight);
                 }
-                int offset = controlHeight + 1;
-                if (!maximizeHint)
-                    offset *= 2;
-                else
-                    offset *= 3;
-                rect.setRect(width - offset - controlTop, controlTop, controlHeight, controlHeight);
                 break;
-            }
-            case SC_TitleBarNormalButton: {
-                int offset = controlHeight + 1;
-                if (!maximizeHint)
-                    offset *= 2;
-                else
-                    offset *= 3;
-                rect.setRect(width - offset - controlTop, controlTop, controlHeight, controlHeight);
-                break;
-            }
-            case SC_TitleBarSysMenu: {
-                QSize iconSize = titleBar->icon.pixmap(pixelMetric(PM_SmallIconSize), QIcon::Normal).size();
-                if (titleBar->icon.isNull())
-                    iconSize = QSize(controlHeight, controlHeight);
-                int hPad = (controlHeight - iconSize.height())/2;
-                int vPad = (controlHeight - iconSize.width())/2;
-                rect.setRect(6 + vPad, controlTop + hPad, iconSize.width(), controlHeight - hPad);
-                break;
-            }
             default:
                 break;
             }
+            ret = visualRect(tb->direction, tb->rect, ret);
         }
         break;
     default:
