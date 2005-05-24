@@ -551,7 +551,7 @@ void QProcessPrivate::processDied()
     canReadStandardError();
 
     findExitCode();
-
+ 
     if (crashed) {
         processError = QProcess::Crashed;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, QLatin1String("Process crashed")));
@@ -588,6 +588,10 @@ bool QProcessPrivate::startupNotification()
     processState = QProcess::NotRunning;
     processError = QProcess::FailedToStart;
     emit q->error(processError);
+#ifdef Q_OS_UNIX
+    // make sure the process manager removes this entry
+    findExitCode();
+#endif
     cleanup();
     return false;
 }
@@ -629,6 +633,10 @@ QProcess::~QProcess()
         qWarning("QProcess object destroyed while process is still running.");
         terminate();
     }
+#ifdef Q_OS_UNIX
+    // make sure the process manager removes this entry
+    d->findExitCode();
+#endif
     d->cleanup();
 }
 

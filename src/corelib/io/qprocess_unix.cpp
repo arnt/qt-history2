@@ -192,7 +192,7 @@ void QProcessManager::catchDeadChildren()
             // result by calling takeExitResult().
 #if defined QPROCESS_DEBUG
             qDebug("QProcessManager(), caught child with pid %d, QProcess %p",
-                   it.key(), info.process);
+                   it.key(), info->process);
 #endif
 
             info->exitResult = result;
@@ -235,11 +235,14 @@ void QProcessManager::add(int pid, QProcess *process)
 int QProcessManager::takeExitResult(QProcess *process)
 {
     QMutexLocker locker(&mutex);
-    
+
     // get the exit result from this pid and sequence number, then remove the
     // entry from the manager's list and return the exit result.
     int serial = process->d_func()->serial;
     QProcessInfo *info = children.value(serial);
+    if (!info)
+        return 0;
+    
     int tmp = info->exitResult;
     children.remove(serial);
     delete info;
@@ -601,7 +604,11 @@ static int qt_native_select(fd_set *fdread, fd_set *fdwrite, int timeout)
     tv.tv_sec = timeout / 1000;
     tv.tv_usec = (timeout % 1000) * 1000;
 
-    return select(FD_SETSIZE, fdread, fdwrite, 0, timeout < 0 ? 0 : &tv);
+    int ret;
+    do {
+        ret = select(FD_SETSIZE, fdread, fdwrite, 0, timeout < 0 ? 0 : &tv);
+    } while (ret < 0 && (errno == EINTR));
+    return ret;
 }
 
 /*
