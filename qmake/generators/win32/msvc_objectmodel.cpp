@@ -183,14 +183,12 @@ const char _UseOfMfc[]                          = "UseOfMfc";
 const char _UsePrecompiledHeader[]              = "UsePrecompiledHeader";
 const char _ValidateParameters[]                = "ValidateParameters";
 const char _VCCLCompilerTool[]                  = "VCCLCompilerTool";
-const char _VCCustomBuildTool[]                 = "VCCustomBuildTool";
 const char _VCLibrarianTool[]                   = "VCLibrarianTool";
 const char _VCLinkerTool[]                      = "VCLinkerTool";
 const char _VCResourceCompilerTool[]            = "VCResourceCompilerTool";
 const char _VCMIDLTool[]                        = "VCMIDLTool";
 const char _Version[]                           = "Version";
 const char _WarnAsError[]                       = "WarnAsError";
-const char _WarnLevel[]                         = "WarnLevel";
 const char _WarningLevel[]                      = "WarningLevel";
 const char _WholeProgramOptimization[]          = "WholeProgramOptimization";
 
