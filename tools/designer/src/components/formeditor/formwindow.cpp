@@ -422,6 +422,8 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
     if (sel.count())
         core()->formWindowManager()->dragItems(item_list);
 
+    startPos = QPoint();
+
     return true;
 }
 
