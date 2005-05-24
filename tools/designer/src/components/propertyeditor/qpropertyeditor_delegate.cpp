@@ -139,14 +139,15 @@ void QPropertyEditorDelegate::paint(QPainter *painter, const QStyleOptionViewIte
         option.state &= ~QStyle::State_Selected;
     }
 
+    if (index.column() == 1) {
+        option.state &= ~QStyle::State_Selected;
+    }
 
     option.state &= ~QStyle::State_HasFocus;
 
     if (property->isSeparator()) {
         QBrush bg = option.palette.dark();
         painter->fillRect(option.rect, bg);
-    } else if (opt.state & QStyle::State_Selected) {
-        painter->fillRect(option.rect, option.palette.brush(QPalette::Highlight));
     }
 
 
