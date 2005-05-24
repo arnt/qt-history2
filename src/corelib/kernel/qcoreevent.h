@@ -51,6 +51,7 @@ public:
         Close = 19,                             // request to close widget
         Quit = 20,                              // request to quit application
         ParentChange = 21,                      // widget has been reparented
+        ParentAboutToChange = 131,              // sent just before the parent change is done
 #ifdef QT3_SUPPORT
         Reparent = ParentChange,
 #endif
@@ -165,6 +166,8 @@ public:
 
         AccessibilityHelp = 119,                // accessibility help text request
         AccessibilityDescription = 130,         // accessibility description text request
+
+        // last event id used = 131
 
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id

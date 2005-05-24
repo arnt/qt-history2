@@ -118,6 +118,8 @@
     \value Move                             Widget's position changed (QMoveEvent).
     \value Paint                            Screen update necessary (QPaintEvent).
     \value PaletteChange                    Palette of the widget changed.
+    \value ParentAboutToChange              The widget parent is about to change.
+    \value ParentChange                     The widget parent has changed.
     \value Polish                           The widget is polished.
     \value PolishRequest                    The widget should be polished.
     \value QueryWhatsThis                   The widget should accept the event if it has "What's This?" help.
@@ -169,7 +171,6 @@
     \omitvalue IconChange
     \omitvalue LayoutHint
     \omitvalue OkRequest
-    \omitvalue ParentChange
     \omitvalue QWSUpdate
     \omitvalue Quit
     \omitvalue Reparent

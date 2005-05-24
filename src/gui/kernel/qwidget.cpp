@@ -6170,6 +6170,12 @@ void QWidget::setParent(QWidget *parent, Qt::WFlags f)
     bool resized = testAttribute(Qt::WA_Resized);
     QWidget *oldtlw = window();
     bool newParent = (parent != parentWidget());
+
+    if (newParent) {
+        QEvent e(QEvent::ParentAboutToChange);
+        QApplication::sendEvent(this, &e);
+    }
+
     d->setParent_sys(parent, f);
     d->reparentFocusWidgets(oldtlw);
     setAttribute(Qt::WA_Resized, resized);
