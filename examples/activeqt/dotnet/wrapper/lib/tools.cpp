@@ -20,11 +20,11 @@ using namespace System;
 
 String *QStringToString(const QString &qstring)
 {
-    return new String(qstring.ucs2());
+    return new String(qstring.utf16());
 }
 
 QString StringToQString(String *string)
 {
     wchar_t __pin *chars = PtrToStringChars(string);
-    return QString::fromUcs2(chars);
+    return QString::fromUtf16(chars);
 }
