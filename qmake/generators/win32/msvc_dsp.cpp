@@ -871,6 +871,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
     }
     QString allDependencies = config->valGlue(dependencyList, "\"", "\"\t\"", "\"");
     t << "USERDEP_" << file << "=" << allDependencies << endl;
+    t << "# PROP Ignore_Default_Tool 1" << endl;
     t << "# Begin Custom Build - Running " << allSteps.buildName << " on " << file << endl;
     t << "InputPath=" << file << endl;
     t << "BuildCmds= " << allSteps.buildStep << endl;
