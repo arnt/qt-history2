@@ -1264,14 +1264,14 @@ void QTreeView::updateGeometries()
   model.
 
   If you need to set the width of a given column to a fixed value, call
-  QHeaderView::resizeSection() on the view's horizontal header.
+  QHeaderView::resizeSection() on the view's header.
 
   If you reimplement this function in a subclass, note that the value you
   return is only used when resizeColumnToContents() is called. In that case,
-  if a larger column width is required by either the horizontal header or
+  if a larger column width is required by either the view's header or
   the item delegate, that width will be used instead.
 
-  \sa QWidget::sizeHint, horizontalHeader()
+  \sa QWidget::sizeHint, header()
 */
 int QTreeView::sizeHintForColumn(int column) const
 {
