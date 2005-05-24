@@ -65,8 +65,8 @@ void TreeWidget::drawBranches(QPainter *painter, const QRect &rect, const QModel
 {
     QStyleOptionViewItem option = viewOptions();
 
-    painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());
-
+    if (selectionModel()->isSelected(index))
+        painter->fillRect(rect, option.palette.brush(QPalette::Highlight));
     if (model()->hasChildren(index)) {
         static const int size = 9;
         option.state |= QStyle::State_Children;
@@ -76,6 +76,8 @@ void TreeWidget::drawBranches(QPainter *painter, const QRect &rect, const QModel
         if (isExpanded(index))
             option.state |= QStyle::State_Open;
 
+        painter->fillRect(option.rect, Qt::white);
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &option, painter, this);
     }
+    painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());
 }

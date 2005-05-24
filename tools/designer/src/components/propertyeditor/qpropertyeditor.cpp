@@ -95,10 +95,8 @@ void QPropertyEditor::drawBranches(QPainter *painter, const QRect &rect, const Q
     if (property && property->isSeparator()) {
         painter->fillRect(rect, option.palette.dark());
     } else if (selectionModel()->isSelected(index)) {
-        painter->fillRect(rect, QColor(230, 230, 230));
+        painter->fillRect(rect, option.palette.brush(QPalette::Highlight));
     }
-
-    painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());
 
     if (model()->hasChildren(index)) {
         static const int size = 9;
@@ -107,8 +105,10 @@ void QPropertyEditor::drawBranches(QPainter *painter, const QRect &rect, const Q
                          rect.y() + (rect.height() - size) / 2, size, size);
         if (isExpanded(index))
             opt.state |= QStyle::State_Open;
+        painter->fillRect(opt.rect, Qt::white);
         style()->drawPrimitive(QStyle::PE_IndicatorBranch, &opt, painter, this);
     }
+    painter->drawLine(rect.x(), rect.bottom(), rect.right(), rect.bottom());
 }
 
 void QPropertyEditor::keyPressEvent(QKeyEvent *ev)
