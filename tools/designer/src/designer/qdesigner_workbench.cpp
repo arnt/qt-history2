@@ -25,7 +25,8 @@
 
 #include <QtDesigner/QtDesigner>
 #include <QtDesigner/QDesignerComponents>
-#include <qdesigner_integration_p.h>
+#include <QtDesigner/private/qdesigner_integration_p.h>
+#include <QtDesigner/private/pluginmanager_p.h>
 
 #include <QtGui/QDockWidget>
 #include <QtGui/QWorkspace>
@@ -614,8 +615,10 @@ void QDesignerWorkbench::removeFormWindow(QDesignerFormWindow *formWindow)
 
 void QDesignerWorkbench::initializeCorePlugins()
 {
-    QList<QObject*> builtinPlugins = QPluginLoader::staticInstances();
-    foreach (QObject *plugin, builtinPlugins) {
+    QList<QObject*> plugins = QPluginLoader::staticInstances();
+    plugins += core()->pluginManager()->instances();
+
+    foreach (QObject *plugin, plugins) {
         if (QDesignerFormEditorPluginInterface *formEditorPlugin = qobject_cast<QDesignerFormEditorPluginInterface*>(plugin)) {
             if (!formEditorPlugin->isInitialized())
                 formEditorPlugin->initialize(core());

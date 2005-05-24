@@ -194,3 +194,17 @@ QList<QDesignerCustomWidgetInterface*> PluginManager::registeredCustomWidgets() 
     const_cast<PluginManager*>(this)->ensureInitialized();
     return m_customWidgets;
 }
+
+QList<QObject*> PluginManager::instances() const
+{
+    QStringList plugins = registeredPlugins();
+
+    QList<QObject*> lst;
+    foreach (QString plugin, plugins) {
+        if (QObject *o = instance(plugin))
+            lst.append(o);
+    }
+
+    return lst;
+}
+

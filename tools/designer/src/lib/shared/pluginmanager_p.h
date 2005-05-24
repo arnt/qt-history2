@@ -54,6 +54,7 @@ public:
     QStringList disabledPlugins() const;
     void setDisabledPlugins(const QStringList &disabled_plugins);
 
+    QList<QObject*> instances() const;
     QList<QDesignerCustomWidgetInterface*> registeredCustomWidgets() const;
 
 public slots:
