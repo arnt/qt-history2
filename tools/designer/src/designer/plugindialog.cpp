@@ -25,30 +25,17 @@ PluginDialog::PluginDialog(QDesignerFormEditorInterface *core, QWidget *parent)
 #endif
             ), m_core(core)
 {
-    label = new QLabel;
-    label->setWordWrap(true);
+    ui.setupUi(this);
+
+    ui.message->hide();
 
     QStringList headerLabels;
     headerLabels << tr("Components");
 
-    treeWidget = new QTreeWidget;
-    treeWidget->setAlternatingRowColors(false);
-    treeWidget->setSelectionMode(QAbstractItemView::NoSelection);
-    treeWidget->setHeaderLabels(headerLabels);
-    treeWidget->header()->hide();
-
-    okButton = new QPushButton(tr("OK"));
-    okButton->setDefault(true);
-
-    connect(okButton, SIGNAL(clicked()), this, SLOT(close()));
-
-    QGridLayout *mainLayout = new QGridLayout;
-    mainLayout->setColumnStretch(0, 1);
-    mainLayout->setColumnStretch(2, 1);
-    mainLayout->addWidget(label, 0, 0, 1, 3);
-    mainLayout->addWidget(treeWidget, 1, 0, 1, 3);
-    mainLayout->addWidget(okButton, 2, 1);
-    setLayout(mainLayout);
+    ui.treeWidget->setAlternatingRowColors(false);
+    ui.treeWidget->setSelectionMode(QAbstractItemView::NoSelection);
+    ui.treeWidget->setHeaderLabels(headerLabels);
+    ui.treeWidget->header()->hide();
 
     interfaceIcon.addPixmap(style()->standardPixmap(QStyle::SP_DirOpenIcon),
                             QIcon::Normal, QIcon::On);
@@ -75,10 +62,10 @@ void PluginDialog::populateTreeWidget()
 
         QObject *plugin = loader.instance();
 
-        QTreeWidgetItem *pluginItem = new QTreeWidgetItem(treeWidget);
+        QTreeWidgetItem *pluginItem = new QTreeWidgetItem(ui.treeWidget);
         pluginItem->setText(0, fileInfo.fileName());
         pluginItem->setIcon(0, style()->standardPixmap(QStyle::SP_DirOpenIcon));
-        treeWidget->setItemExpanded(pluginItem, true);
+        ui.treeWidget->setItemExpanded(pluginItem, true);
 
         QFont boldFont = pluginItem->font(0);
         boldFont.setBold(true);
@@ -107,11 +94,11 @@ void PluginDialog::populateTreeWidget()
         }
     }
 
-    if (treeWidget->topLevelItemCount() == 0) {
-        label->setText(tr("Qt Designer couldn't find any plugins"));
-        treeWidget->hide();
+    if (ui.treeWidget->topLevelItemCount() == 0) {
+        ui.label->setText(tr("Qt Designer couldn't find any plugins"));
+        ui.treeWidget->hide();
     } else {
-        label->setText(tr("Qt Designer found the following plugins"));
+        ui.label->setText(tr("Qt Designer found the following plugins"));
     }
 }
 

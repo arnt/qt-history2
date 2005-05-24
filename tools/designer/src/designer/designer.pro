@@ -76,6 +76,7 @@ PRECOMPILED_HEADER=qdesigner_pch.h
 
 FORMS += \
     newform.ui \
+    plugindialog.ui \
     saveformastemplate.ui \
     formwindowsettings.ui
 

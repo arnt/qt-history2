@@ -14,21 +14,13 @@
 #ifndef PLUGINDIALOG_H
 #define PLUGINDIALOG_H
 
-#include <QtGui/QDialog>
-#include <QtGui/QIcon>
+#include "ui_plugindialog.h"
 
 class QDesignerFormEditorInterface;
-
-class QLabel;
-class QPushButton;
-class QStringList;
-class QTreeWidget;
-class QTreeWidgetItem;
 
 class PluginDialog : public QDialog
 {
     Q_OBJECT
-
 public:
     PluginDialog(QDesignerFormEditorInterface *core, QWidget *parent = 0);
 
@@ -40,9 +32,7 @@ private:
 
 private:
     QDesignerFormEditorInterface *m_core;
-    QLabel *label;
-    QTreeWidget *treeWidget;
-    QPushButton *okButton;
+    Ui::PluginDialog ui;
     QIcon interfaceIcon;
     QIcon featureIcon;
 };
