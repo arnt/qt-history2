@@ -26,6 +26,7 @@ struct Target
 {
     Node *node;
     Atom *atom;
+    int priority;
 };
 
 typedef QMap<PropertyNode::FunctionRole, QString> RoleMap;
@@ -201,15 +202,29 @@ const FakeNode *Tree::findFakeNodeByTitle(const QString &title) const
 
 const Node *Tree::findUnambiguousTarget(const QString &target, Atom *&atom) const
 {
+    Target bestTarget;
+    bestTarget.priority = INT_MAX;
+    int numBestTargets = 0;
+
     for (int pass = 0; pass < NumSuffixes; ++pass) {
         TargetHash::const_iterator i =
                 priv->targetHash.find(Doc::canonicalTitle(target + suffixes[pass]));
         if (i != priv->targetHash.constEnd()) {
             TargetHash::const_iterator j = i;
-            ++j;
-            if (j == priv->targetHash.constEnd() || j.key() != i.key()) {
-                atom = i.value().atom;
-                return i.value().node;
+            do {
+                const Target &candidate = j.value();
+                if (candidate.priority < bestTarget.priority) {
+                    bestTarget = candidate;
+                    numBestTargets = 1;
+                } else if (candidate.priority == bestTarget.priority) {
+                    ++numBestTargets;
+                }
+                ++j;
+            } while (j != priv->targetHash.constEnd() && j.key() == i.key());
+
+            if (numBestTargets == 1) {
+                atom = bestTarget.atom;
+                return bestTarget.node;
             }
         }
     }
@@ -376,6 +391,7 @@ void Tree::resolveTargets()
             const QList<Atom *> &toc = child->doc().tableOfContents();
             Target target;
             target.node = child;
+            target.priority = 3;
 
             for (int i = 0; i < toc.size(); ++i) {
                 target.atom = toc.at(i);
@@ -388,6 +404,7 @@ void Tree::resolveTargets()
             const QList<Atom *> &keywords = child->doc().keywords();
             Target target;
             target.node = child;
+            target.priority = 1;
 
             for (int i = 0; i < keywords.size(); ++i) {
                 target.atom = keywords.at(i);
@@ -398,6 +415,7 @@ void Tree::resolveTargets()
             const QList<Atom *> &toc = child->doc().targets();
             Target target;
             target.node = child;
+            target.priority = 2;
 
             for (int i = 0; i < toc.size(); ++i) {
                 target.atom = toc.at(i);

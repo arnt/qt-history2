@@ -1,6 +1,7 @@
 MUST HAVES:
 
-  * \macro
+
+
   * No links to Porting Guide sections (e.g. QStringList)
   * link toggled(bool)
   * autolink foo(1)
