@@ -11,6 +11,7 @@
 **
 ****************************************************************************/
 
+#include <math.h>
 #include <QtGui>
 
 #include "displayshape.h"
@@ -273,8 +274,8 @@ ImageShape::ImageShape(const QImage &original, const QPointF &position,
     source = original.convertToFormat(QImage::Format_ARGB32_Premultiplied);
     scale = qMin(qMin(maxSize.width()/source.width(),
                       maxSize.height()/source.height()), 1.0);
-    image = QImage(int(scale * source.width()),
-                   int(scale * source.height()),
+    image = QImage(int(ceil(scale * source.width())),
+                   int(ceil(scale * source.height())),
                    QImage::Format_ARGB32_Premultiplied);
 
     offset = QPointF(0.0, 0.0);

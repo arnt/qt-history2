@@ -64,10 +64,10 @@ private:
     void findDescriptionAndImages(const QString &exampleName,
                                   const QString &docName);
     QString findExecutable(const QDir &dir) const;
-    void loadExampleInfo();
     void newPage();
     void readCategoryDescription(const QDir &categoryDir,
                                  const QString &categoryName);
+    int readInfo(const QString &resource, const QDir &dir);
 
     bool inFullScreenResize;
     int maximumLabels;
@@ -78,6 +78,7 @@ private:
     QAssistantClient *assistant;
     QDir documentationDir;
     QDir imagesDir;
+    QDir demosDir;
     QDir examplesDir;
     QFont buttonFont;
     QFont textFont;

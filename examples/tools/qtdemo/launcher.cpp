@@ -105,17 +105,24 @@ bool Launcher::setup()
             QMessageBox::Cancel, QMessageBox::NoButton);
     }
 
-    examplesDir = QDir(QLibraryInfo::location(QLibraryInfo::PrefixPath));
+    maximumLabels = 0;
 
-    if (!examplesDir.cd("examples")) {
+    demosDir = QDir(QLibraryInfo::location(QLibraryInfo::DemosPath));
+    int demoCategories = readInfo(":/demos.xml", demosDir);
+
+    examplesDir = QDir(QLibraryInfo::location(QLibraryInfo::ExamplesPath));
+    int exampleCategories = readInfo(":/examples.xml", examplesDir);
+
+    if (demoCategories + exampleCategories <= 0) {
         // Failed to find the examples.
-        QMessageBox::warning(this, tr("No Examples Found"),
-            tr("I could not find any Qt examples."),
+        QMessageBox::warning(this, tr("No Examples or Demos found"),
+            tr("I could not find any Qt examples or demos.\n"
+               "Please ensure that Qt is installed correctly."),
             QMessageBox::Cancel, QMessageBox::NoButton);
         return false;
     }
 
-    loadExampleInfo();
+    maximumLabels = qMax(demoCategories + exampleCategories, maximumLabels);
 
     QString mainDescription = categoryDescriptions["[main]"];
     if (!mainDescription.isEmpty())
@@ -171,19 +178,17 @@ void Launcher::findDescriptionAndImages(const QString &exampleName,
     }
 }
 
-void Launcher::loadExampleInfo()
+int Launcher::readInfo(const QString &resource, const QDir &dir)
 {
-    QFile categoriesFile(":/information.xml");
+    QFile categoriesFile(resource);
     QDomDocument document;
     document.setContent(&categoriesFile);
     QDomElement documentElement = document.documentElement();
     QDomNodeList categoryNodes = documentElement.elementsByTagName("category");
 
-    readCategoryDescription(examplesDir, "[main]");
+    readCategoryDescription(dir, "[main]");
     qtLogo.load(imagesDir.absoluteFilePath(":/images/qt-logo.png"));
     trolltechLogo.load(imagesDir.absoluteFilePath(":/images/trolltech-logo.png"));
-
-    maximumLabels = int(categoryNodes.length()+1);
 
     for (int i = 0; i < int(categoryNodes.length()); ++i) {
 
@@ -194,7 +199,7 @@ void Launcher::loadExampleInfo()
         QString categoryDocName = element.attribute("docname");
         QString categoryColor = element.attribute("color", "#f0f0f0");
 
-        QDir categoryDir = examplesDir;
+        QDir categoryDir = dir;
         if (categoryDir.cd(categoryDirName)) {
 
             readCategoryDescription(categoryDir, categoryName);
@@ -240,6 +245,8 @@ void Launcher::loadExampleInfo()
             categoryColors[categoryName] = categoryColor;
         }
     }
+
+    return categories.size();
 }
 
 QString Launcher::findExecutable(const QDir &dir) const

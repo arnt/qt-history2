@@ -1,16 +1,5 @@
 <?xml version="1.0" encoding="iso-8859-1"?>
 <categories>
-  <category dirname="../demos" docname="demos" name="Demonstrations">
-    <example filename="deform" name="Vector Deformation" />
-    <example filename="gradients" name="Gradients" />
-    <example filename="pathstroke" name="Path Stroking" />
-    <example filename="affine" name="Affine Transformations" />
-    <example filename="books" name="Books" />
-    <example filename="mainwindow" name="Main Window" />
-    <example filename="spreadsheet" name="Spreadsheet" />
-    <example filename="sqlbrowser" name="SQL Browser" />
-    <example filename="textedit" name="Text Edit" />
-  </category>
   <category dirname="designer" name="Qt Designer">
     <example filename="calculatorbuilder" name="Calculator Builder" />
     <example filename="calculatorform" name="Calculator Form" />
