@@ -38,7 +38,6 @@
     \header \o Option \o Description
     \row \o \c{-o <file>} \o Write output to \c <file> instead of to standard output.
     \row \o \c{-tr <func>} \o Use \c <func> for translating strings instead of \c tr().
-    \row \o \c{-3 <path-to-uic3>} \o Specify the path to \c uic3.
     \row \o \c{-p} \o Don't generate guards against multiple inclusion (\c #ifndef FOO_H ...).
     \row \o \c{-h} \o Display the usage and the list of options.
     \row \o \c{-v} \o Display \c{uic}'s version number.
