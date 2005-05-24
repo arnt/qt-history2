@@ -2089,13 +2089,13 @@ Returns a pointer to the start of the framebuffer.
 */
 
 /*!
-    \fn QScreen::cache(int,int)
+    \fn uchar *QScreen::cache(int)
 
     \internal
 
     This function is used to store pixmaps in graphics memory for the
     use of the accelerated drivers. See QLinuxFbScreen (where the
-    cacheing is implemented) for more information.
+    caching is implemented) for more information.
 */
 
 /*!

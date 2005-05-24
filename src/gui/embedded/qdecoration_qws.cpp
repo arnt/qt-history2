@@ -99,19 +99,28 @@
 */
 
 /*!
-    \fn QRegion QDecoration::region(const QWidget *widget, const QRect &rect, int type)
+    \enum QDecoration::DecorationState
 
-    Returns the requested region \a type which will contain \a widget
-    with geometry \a rect.
+    \value Normal
+    \value Disabled
+    \value Hover
+    \value Pressed
+*/
+
+/*!
+    \fn QRegion QDecoration::region(const QWidget *widget, int decorationRegion)
+
+    Returns the requested region \a decorationRegion which will
+    contain \a widget.
 */
 
 /*!
     \fn void QDecoration::paint(QPainter *painter, const QWidget *widget, int decorationRegion,
                                 DecorationState state)
-)
 
-    Override to paint the border and title decoration around \a widget
-    using \a painter.
+    Override to paint the border and title decoration around \a
+    widget using \a painter. \a decorationRegion is the number of the
+    decoration region. \a state specifies how to render the region.
 */
 
 /*!

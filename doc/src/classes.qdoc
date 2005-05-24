@@ -36,6 +36,7 @@
     \row \i \l{QtOpenGL} \i OpenGL support classes.
     \row \i \l{QtSql} \i Classes for database integration using SQL.
     \row \i \l{QtXml} \i Classes for handling XML.
+    \row \i \l{Qt3Support} \i Classes for handling XML.
     \row \i \l{QAxContainer} \i Extension for accessing ActiveX controls.
     \row \i \l{QAxServer} \i Extension for writing ActiveX servers.
     \row \i \l{QtMotif} \i Extension for migrating Motif applications to Qt.

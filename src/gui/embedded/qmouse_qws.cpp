@@ -39,7 +39,7 @@
 
   Must be implemented in subclasses to suspend reading and handling of mouse events.
 
-  \sa resume
+  \sa resume()
 */
 
 /*!
@@ -47,7 +47,7 @@
 
   Must be implemented in subclasses to resume handling mouse events.
 
-  \sa suspend
+  \sa suspend()
 */
 
 /*!
