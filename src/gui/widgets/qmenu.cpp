@@ -1410,10 +1410,9 @@ QAction *QMenu::exec(const QPoint &p, QAction *action)
     d->eventLoop = &eventLoop;
     popup(p, action);
 
-    QObject *guard = this;
-    QMetaObject::addGuard(&guard);
+    QPointer<QObject> guard = this;
     (void) eventLoop.exec();
-    if (!guard)
+    if (guard.isNull())
         return 0;
 
     action = d->syncAction;
