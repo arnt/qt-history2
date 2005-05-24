@@ -2219,7 +2219,7 @@ QAction *QMenu::findActionForId(int id) const
 }
 
 /*!
-###
+    Use QAction and actions() instead.
 */
 QMenuItem *QMenu::findPopup( QMenu *popup, int *index )
 {
@@ -2238,7 +2238,7 @@ QMenuItem *QMenu::findPopup( QMenu *popup, int *index )
 
 
 /*!
-###
+    Use QAction::setData() instead.
 */
 bool QMenu::setItemParameter(int id, int param)
 {
@@ -2250,7 +2250,7 @@ bool QMenu::setItemParameter(int id, int param)
 }
 
 /*!
-###
+    Use QAction::data() instead.
 */
 int QMenu::itemParameter(int id) const
 {
@@ -2475,7 +2475,8 @@ int QMenu::findIdForAction(QAction *act) const
 
 /*!
     \fn int QMenu::idAt(int index) const
-###
+
+    Use actions instead.
 */
 
 /*!
@@ -2498,7 +2499,8 @@ int QMenu::findIdForAction(QAction *act) const
 
 /*!
     \fn QMenuItem *QMenu::findItem(int id) const
-###
+
+    Use actions instead.
 */
 
 /*!
@@ -2515,7 +2517,8 @@ int QMenu::findIdForAction(QAction *act) const
 
 /*!
     \fn int QMenu::itemAtPos(const QPoint &p, bool ignoreSeparator)
-###
+
+    Use actions instead.
 */
 
 /*!
@@ -2533,7 +2536,7 @@ int QMenu::findIdForAction(QAction *act) const
 /*!
     \fn int QMenu::itemHeight(QMenuItem *mi)
 
-###
+    Use actionGeometry() instead.
 */
 
 /*!

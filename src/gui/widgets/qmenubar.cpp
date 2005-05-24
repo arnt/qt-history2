@@ -1402,7 +1402,7 @@ int QMenuBar::insertSeparator(int index)
 }
 
 /*!
-###
+    Use QAction::setData() instead.
 */
 bool QMenuBar::setItemParameter(int id, int param)
 {
@@ -1414,7 +1414,7 @@ bool QMenuBar::setItemParameter(int id, int param)
 }
 
 /*!
-###
+    Use QAction::data() instead.
 */
 int QMenuBar::itemParameter(int id) const
 {
@@ -1636,7 +1636,8 @@ int QMenuBar::findIdForAction(QAction *act) const
 
 /*!
     \fn int QMenuBar::idAt(int index) const
-###
+
+    Use actions instead.
 */
 
 /*!
@@ -1660,18 +1661,19 @@ int QMenuBar::findIdForAction(QAction *act) const
 /*!
     \fn QMenuItem *QMenuBar::findItem(int id) const
 
-###
+    Use actions instead.
 */
 
 /*!
     \fn Separator QMenuBar::separator() const
 
-###
+    This function is provided only to make old code compile.
 */
 
 /*!
     \fn void QMenuBar::setSeparator(Separator sep)
-###
+
+    This function is provided only to make old code compile.
 */
 
 /*!
@@ -1682,7 +1684,8 @@ int QMenuBar::findIdForAction(QAction *act) const
 
 /*!
     \fn int QMenuBar::itemAtPos(const QPoint &p)
-###
+
+    Use actionAt() instead.
 */
 
 /*!

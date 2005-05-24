@@ -361,8 +361,6 @@ void QHostAddress::setAddress(quint8 *ip6Addr)
     \overload
 
     Set the IPv6 address specified by \a ip6Addr.
-
-    ### Add more docs later
 */
 void QHostAddress::setAddress(const Q_IPV6ADDR &ip6Addr)
 {

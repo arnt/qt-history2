@@ -327,7 +327,7 @@ QStringList QMimeData::formats() const
 /*!
     Returns a variant with the given \a type containing data for the MIME
     type specified by \a mimetype. If the object does not support the
-    MIME type or variant type given, a null variant is returned instead. ###
+    MIME type or variant type given, a null variant is returned instead.
 */
 QVariant QMimeData::retrieveData(const QString &mimetype, QVariant::Type type) const
 {

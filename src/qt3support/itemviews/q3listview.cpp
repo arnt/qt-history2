@@ -1420,9 +1420,9 @@ void Q3ListViewItem::invalidateHeight()
     Opens or closes an item, i.e. shows or hides an item's children.
 
     If \a o is true all child items are shown initially. The user can
-    hide them by clicking the <b>-</b> icon to the left of the item.
+    hide them by clicking the \bold{-} icon to the left of the item.
     If \a o is false, the children of this item are initially hidden.
-    The user can show them by clicking the <b>+</b> icon to the left
+    The user can show them by clicking the \bold{+} icon to the left
     of the item.
 
     \sa height() totalHeight() isOpen()
@@ -2465,8 +2465,8 @@ void Q3ListViewItem::ignoreDoubleClick()
     \l Q3ListView::SelectionMode for details.
 
     The list view can be navigated either using the mouse or the
-    keyboard. Clicking a <b>-</b> icon closes an item (hides its
-    children) and clicking a <b>+</b> icon opens an item (shows its
+    keyboard. Clicking a \bold{-} icon closes an item (hides its
+    children) and clicking a \bold{+} icon opens an item (shows its
     children). The keyboard controls are these:
     \table
     \header \i Keypress \i Action
@@ -2483,16 +2483,16 @@ void Q3ListViewItem::ignoreDoubleClick()
     \row \i Down Arrow
          \i Make the item below the current item current and visible.
     \row \i Left Arrow
-         \i If the current item is closed (<b>+</b> icon) or has no
+         \i If the current item is closed (\bold{+} icon) or has no
             children, make its parent item current and visible. If the
-            current item is open (<b>-</b> icon) close it, i.e. hide its
+            current item is open (\bold{-} icon) close it, i.e. hide its
             children. Exception: if the current item is the first item
             and is closed and the horizontal scrollbar is offset to
             the right the list view will be scrolled left.
     \row \i Right Arrow
-         \i If the current item is closed (<b>+</b> icon) and has
+         \i If the current item is closed (\bold{+} icon) and has
             children, the item is opened. If the current item is
-            opened (<b>-</b> icon) and has children the item's first
+            opened (\bold{-} icon) and has children the item's first
             child is made current and visible. If the current item has
             no children the list view is scrolled right.
     \endtable
@@ -6726,7 +6726,7 @@ bool Q3ListView::isOpen(const Q3ListViewItem * item) const
     \property Q3ListView::rootIsDecorated
     \brief whether the list view shows open/close signs on root items
 
-    Open/close signs are small <b>+</b> or <b>-</b> symbols in windows
+    Open/close signs are small \bold{+} or \bold{-} symbols in windows
     style, or arrows in Motif style. The default is false.
 */
 

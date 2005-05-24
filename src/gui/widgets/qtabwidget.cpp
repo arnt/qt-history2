@@ -995,12 +995,20 @@ void QTabWidget::paintEvent(QPaintEvent *)
 
 /*!
     \fn int QTabWidget::margin() const
-###
+
+    This function is kept only to make old code compile.
+    This functionality is no longer supported by QTabWidget.
+
+    \sa contentsRect(), setContentsMargins()
 */
 
 /*!
     \fn void QTabWidget::setMargin(int margin)
-###
+
+    This function is kept only to make old code compile.
+    This functionality is no longer supported by QTabWidget.
+
+    \sa contentsRect(), setContentsMargins()
 */
 
 /*!

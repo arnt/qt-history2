@@ -3026,7 +3026,7 @@ QString Q3FileDialog::dirPath() const
   Sets the filter used in the file dialog to \a newFilter.
 
   If \a newFilter contains a pair of parentheses containing one or more
-  of <em><b>anything*something</b></em> separated by spaces or by
+  of "anything*something" separated by spaces or by
   semi-colons then only the text contained in the parentheses is used as
   the filter. This means that these calls are all equivalent:
 

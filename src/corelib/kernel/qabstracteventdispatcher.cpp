@@ -190,7 +190,7 @@ QAbstractEventDispatcher *QAbstractEventDispatcher::instance(QThread *thread)
 
     Unregisters \a notifier from the event dispatcher. Subclasses must
     reimplement this method to tie a socket notifier into another
-    event loop. Reimplementations <b>must</b> call the base
+    event loop. Reimplementations must call the base
     implementation.
 */
 

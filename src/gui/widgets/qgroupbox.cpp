@@ -157,7 +157,7 @@ void QGroupBox::setTitle(const QString &title)
     \code
         g->setTitle("&User information");
     \endcode
-    This produces "<u>U</u>ser information"; Alt+U moves the keyboard
+    This produces "\underline{U}ser information"; \key Alt+U moves the keyboard
     focus to the group box.
 
     There is no default title text.

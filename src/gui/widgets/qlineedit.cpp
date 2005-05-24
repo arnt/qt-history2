@@ -893,7 +893,7 @@ bool QLineEdit::edited() const { return isModified(); }
 void QLineEdit::setEdited(bool on) { setModified(on); }
 
 /*!
-###
+    There exists no equivalent functionality in Qt 4.
 */
 int QLineEdit::characterAt(int xpos, QChar *chr) const
 {
@@ -904,7 +904,10 @@ int QLineEdit::characterAt(int xpos, QChar *chr) const
     return pos;
 
 }
-/*! \obsolete use selectedText(), selectionStart() */
+
+/*!
+    Use selectedText() and selectionStart() instead.
+*/
 bool QLineEdit::getSelection(int *start, int *end)
 {
     Q_D(QLineEdit);

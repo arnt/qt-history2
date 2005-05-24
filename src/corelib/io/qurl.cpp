@@ -2770,7 +2770,15 @@ bool QUrl::isParentOf(const QUrl &childUrl) const
 /*!
     \fn bool QUrl::cdUp()
 
-###
+    Use resolved("..") instead.
+
+    \oldcode
+        QUrl url("http://www.trolltech.com/Developer/");
+        url.cdUp();
+    \newcode
+        QUrl url("http://www.trolltech.com/Developer/");
+        url = url.resolved("..");
+    \endcode
 */
 
 /*!
