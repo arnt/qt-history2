@@ -1149,7 +1149,7 @@
     variable is typically handled by \c qmake or \l{#QMAKESPEC}{qmake.conf} and rarely needs to be
     modified.
 
-    \target QMAKE
+    \target QMAKE_systemvariable
     \section1 QMAKE
 
     This variable contains the name of the \c qmake program

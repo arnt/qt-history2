@@ -48,15 +48,15 @@ public:
     processEvents() functions.
 
     \value AllEvents All events are processed
-    \value ExcludeUserInput Do not process user input events, such
+    \value ExcludeUserInputEvents Do not process user input events, such
             as ButtonPress and KeyPress.
     \value ExcludeSocketNotifiers Do not process socket notifier
            events.
-    \value WaitForMore Wait for events if no pending events
+    \value WaitForMoreEvents Wait for events if no pending events
            are available.
 
-    \omitvalue ExcludeUserInputEvents
-    \omitvalue WaitForMoreEvents
+    \omitvalue ExcludeUserInput
+    \omitvalue WaitForMore
 
     \sa processEvents()
 */
@@ -86,7 +86,7 @@ QEventLoop::~QEventLoop()
 
     This function is especially useful if you have a long running
     operation and want to show its progress without allowing user
-    input, i.e. by using the QEventLoop::ExcludeUserInputEvents flag.
+    input, i.e. by using the \l ExcludeUserInputEvents flag.
 
     This function is simply a wrapper for
     QAbstractEventDispatcher::processEvents(). See the documentation
@@ -158,12 +158,12 @@ int QEventLoop::exec(ProcessEventsFlags flags)
 
     This function is especially useful if you have a long running
     operation and want to show its progress without allowing user
-    input, i.e. by using the \c ExcludeUserInput flag.
+    input, i.e. by using the \l ExcludeUserInputEvents flag.
 
     Note: This function does not process events continuously; it
     returns after all available events are processed.
 
-    Note: Specifying the \c WaitForMoreEvents flag makes no sense
+    Note: Specifying the \l WaitForMoreEvents flag makes no sense
     and will be ignored.
 */
 void QEventLoop::processEvents(ProcessEventsFlags flags, int maxTime)

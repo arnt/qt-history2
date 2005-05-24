@@ -37,8 +37,7 @@
     than being a tour of features.
 
     If you want to design your user interfaces using a design tool, then
-    read at least the first few chapters of the \link designer-manual.html
-    Qt Designer manual\endlink.
+    read at least the first few chapters of the \l{Qt Designer manual}.
 
     By now you'll have produced some small working applications and have a
     broad feel for Qt programming. You could start work on your own
@@ -54,8 +53,8 @@
     your projects. You can also read Qt's source code since this is
     supplied. 
 
-    If you run the demo applications (in Qt's \c demos directory),
-    you'll see many of Qt's widgets in action.
+    If you run the \c qtdemo application, you'll see many of Qt's
+    widgets in action.
 
     Qt comes with extensive documentation, with hypertext cross-references
     throughout, so you can easily click your way to whatever interests

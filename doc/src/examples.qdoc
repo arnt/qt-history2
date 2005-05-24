@@ -126,10 +126,10 @@
     \list
     \o \l{tools/codecs}{Codecs}
     \o \l{tools/i18n}{I18N}
-    \o \l{tools/launcher}{Launcher}
     \o \l{tools/plugandpaint}{Plug & Paint}\raisedaster
     \o Plug & Paint Plugins: \l{tools/plugandpaintplugins/basictools}{Basic Tools}\raisedaster
        and \l{tools/plugandpaintplugins/extrafilters}{Extra Filters}\raisedaster
+    \o \l{tools/qtdemo}{Qt Demo}
     \o \l{tools/regexp}{RegExp}
     \o \l{tools/settingseditor}{Settings Editor}
     \endlist
