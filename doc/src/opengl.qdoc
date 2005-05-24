@@ -37,14 +37,6 @@
     When you install Qt for Windows, the Qt OpenGL module is always
     included.
 
-    Note about using Mesa on X11: Mesa versions earlier than 3.1 would use
-    the name "MesaGL" and "MesaGLU" for the libraries, instead of "GL" and
-    "GLU". If you want to use a pre-3.1 version of Mesa, you must change
-    the Makefiles to use these library names instead. The easiest way to
-    do this is to edit the QMAKE_LIBS_OPENGL line in the config file you
-    are using, changing "-lGL -lGLU" to "-lMesaGL -lMesaGLU"; then run
-    "configure" again.
-
     \section1 The QGL Classes
 
     The OpenGL support classes in Qt are:
