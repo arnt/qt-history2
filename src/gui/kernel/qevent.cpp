@@ -601,8 +601,6 @@ QKeyEvent::QKeyEvent(Type type, int key, Qt::KeyboardModifiers modifiers, const 
                      bool autorep, ushort count)
     : QInputEvent(type, modifiers), txt(text), k(key), c(count), autor(autorep)
 {
-    if (key >= Qt::Key_Back && key <= Qt::Key_MediaLast)
-        ignore();
 }
 
 /*!
