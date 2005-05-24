@@ -5,25 +5,17 @@
     \startpage index.html Qt Reference Documentation
     \nextpage The Tulip Container Classes
 
-    We are pleased to present our second beta release for Qt 4. The
-    feedback we receive will help us to ensure that the final Qt 4.0
-    release provides as much value and productivity as possible. We
-    expect to release the final Qt 4.0 in late Q2, 2005.
+    This document covers the most important differences between Qt 3
+    and Qt 4. Although it is not intended to be a comprehensive
+    porting guide, it tells you about the most important portability
+    issues that you may encounter. It also explains how to turn on Qt
+    3 compatibility support.
 
-    This beta release is not meant to be used in production code, and
-    we strongly advise against doing so. However, you can start using
-    it for small, new projects where you can accept rough edges and
-    do not have schedule constraints. You can also start porting your
-    Qt 3 based projects over to Qt 4. The \l{porting4.html}{Porting
-    Guide} and the \l{qt3to4.html}{qt3to4 porting tool} will help you
-    with the process. See the \l{Installation} document for
-    instructions on compiling and installing this release.
+    \tableofcontents
 
-    We suggest that you write new small programs to experience what
-    the next generation of Qt programming will be like. In
-    particular, there are five new technologies that we hope you will
-    try out and give us feedback on. All are new to Qt, written
-    specifically for Qt 4:
+    \section1 New Technologies
+
+    Qt 4 introduces the following core technologies:
 
     \list
     \o \link qt4-tulip.html Tulip \endlink, a new set of template container classes.
@@ -39,9 +31,9 @@
     action-based mainwindow, toolbar, menu, and docking architecture.
     \endlist
 
-    This beta release also includes the new \e{Qt Designer} user
-    interface design tool. See the \l{qt4-designer.html}{Qt Designer
-    overview} to get started.
+    Qt 4 also includes the new \e{Qt Designer} user interface design
+    tool. See the \l{qt4-designer.html}{Qt Designer overview} to get
+    started.
 
     In addition, the following modules have been significantly improved
     since Qt 3:
@@ -63,31 +55,23 @@
     and other resource files into the application executable.
     \endlist
 
-    \section1 Getting Started with Qt 4
-
-    This section covers the most important differences between Qt 3 and
-    Qt 4. Although it is not intended to be a comprehensive porting
-    guide, it tells you about the most important portability issues that
-    you may encounter. It also explains how to turn on Qt 3 compatibility
-    support, and provides a brief overview of some Qt 4 features beyond
-    the five main technologies in this preview.
-
-    \tableofcontents
-
-    \section2 Build System
+    \section1 Build System
 
     Unlike previous Qt releases, Qt 4 is a collection of smaller
-    libraries.
+    libraries:
 
-    \list
-    \o \l{QtCore}: core non-GUI functionality
-    \o \l{QtGui}: core GUI functionality
-    \o \l{QtNetwork}: network module
-    \o \l{QtOpenGL}: OpenGL module
-    \o \l{QtSql}: SQL module
-    \o \l{QtXml}: XML module
-    \o \l{The Qt 3 Support Classes}{Qt3Support}: Qt 3 support classes (see
-       \l{Qt 3 Support Layer} below)
+    \table
+    \header \o Library          \o Description
+    \row    \o \l{QtCore}       \o Core non-GUI functionality
+    \row    \o \l{QtGui}        \o Core GUI functionality
+    \row    \o \l{QtNetwork}    \o Network module
+    \row    \o \l{QtOpenGL}     \o OpenGL module
+    \row    \o \l{QtSql}        \o SQL module
+    \row    \o \l{QtXml}        \o XML module
+    \row    \o \l{Qt3Support}   \o Qt 3 support classes
+    \row    \o \l{QAxContainer} \o ActiveQt client extension
+    \row    \o \l{QAxServer}    \o ActiveQt server extension
+    \row    \o \l{QtMotif}      \o Motif migration extension
     \endlist
 
     QtCore contains tool classes like QString, QList, and QFile, as
@@ -127,7 +111,7 @@
         CONFIG += uic3
     \endcode
 
-    \section2 Include Syntax
+    \section1 Include Syntax
 
     The syntax for including Qt class definitions has become
 
@@ -165,7 +149,7 @@
         #include <QtCore>
     \endcode
 
-    \section2 Namespaces
+    \section1 Namespaces
 
     Qt 2 introduced a class called Qt for global-like constants
     (e.g., \c{Qt::yellow}). The C++ namespace construct was not used
@@ -192,7 +176,7 @@
 
     The \l{qt3to4.html}{qt3to4 porting tool} automates this conversion.
 
-    \section2 QObject/QWidget Constructors
+    \section1 QObject/QWidget Constructors
 
     In Qt 4 we have tried to simplify the constructors of QObject/QWidget
     subclasses. This makes subclassing easier, at the same time as it
@@ -219,7 +203,7 @@
     inserted in a layout, at which point the layout automatically
     reparents them.
 
-    \section2 Dynamic Casts
+    \section1 Dynamic Casts
 
     Qt 4 provides a qobject_cast<>() function that performs a dynamic cast
     based on the meta-information generated by moc for QObject
@@ -247,7 +231,7 @@
         }
     \endcode
 
-    \section2 QPointer<T>
+    \section1 QPointer<T>
 
     The QPointer<T> class provides a pointer to type T (where T inherits
     from QObject) that is automatically set to 0 when the referenced
@@ -269,7 +253,7 @@
     than before. The cost of one QPointer<T> object is now approximately
     the same as that of a signal--slot connection.
 
-    \section2 Paint Events
+    \section1 Paint Events
 
     Qt 4 supports double buffering transparently on all platforms. This
     feature can be turned off on a per-widget basis by calling
@@ -286,7 +270,7 @@
     \l{QWidget::paintEvent()}{paintEvent()} on Windows, X11, and
     Qt/Embedded.
 
-    \section2 Qt 3 Support Layer
+    \section1 Qt 3 Support Layer
 
     Qt 4 provides an extension library that applications based on Qt 3
     can link against. This allows for more compatibility than ever

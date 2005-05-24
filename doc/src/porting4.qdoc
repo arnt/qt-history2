@@ -128,9 +128,7 @@
     If you get stuck, ask on the \link
     http://lists.trolltech.com/qt4-preview-feedback/
     qt4-preview-feedback \endlink mailing list. If you are a licensed
-    customer, be aware that Trolltech cannot provide technical
-    support for beta releases. See our \l{bughowto.html}{Feedback
-    Policy} for details.
+    customer, you can also contact Trolltech support.
 
 \omit
     ### what to do with slots that aren't slots anymore
