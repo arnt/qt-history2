@@ -36,7 +36,6 @@ QProxyModel::QProxyModel(QObject *parent)
 {
     Q_D(QProxyModel);
     setModel(&d->empty);
-    disconnect(this, SIGNAL(reset()), this, SLOT(resetPersistentIndexes()));
 }
 
 /*!
@@ -47,7 +46,6 @@ QProxyModel::QProxyModel(QProxyModelPrivate &dd, QObject *parent)
 {
     Q_D(QProxyModel);
     setModel(&d->empty);
-    disconnect(this, SIGNAL(reset()), this, SLOT(resetPersistentIndexes()));
 }
 
 /*!
@@ -84,7 +82,7 @@ void QProxyModel::setModel(QAbstractItemModel *model)
                    this, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
                    this, SIGNAL(columnsRemoved(QModelIndex,int,int)));
-        disconnect(d->model, SIGNAL(reset()), this, SIGNAL(reset()));
+        disconnect(d->model, SIGNAL(modelReset()), this, SIGNAL(modelReset()));
     }
 
     if (model) {
@@ -109,7 +107,7 @@ void QProxyModel::setModel(QAbstractItemModel *model)
                 this, SIGNAL(columnsAboutToBeRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
                 this, SIGNAL(columnsRemoved(QModelIndex,int,int)));
-        connect(d->model, SIGNAL(reset()), this, SIGNAL(reset()));
+        connect(d->model, SIGNAL(modelReset()), this, SIGNAL(modelReset()));
     } else {
         d->model = &d->empty;
     }
