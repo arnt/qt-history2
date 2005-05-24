@@ -11,7 +11,7 @@ const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
 const validLicenses = ["opensource", "commercial", "preview", "beta"];
-const validEditions = ["core", "client"];
+const validEditions = ["console", "desktop"];
 const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
@@ -140,6 +140,8 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 var licenseRemove = new Array();
 
 licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
+licenseRemove["preview"] = licenseRemove["commercial"];
+licenseRemove["beta"] = licenseRemove["commercial"];
 
 licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^src/plugins/sqldrivers/db2"),
@@ -161,13 +163,9 @@ licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^mkspecs/macx-xcode"),
 				new RegExp("^README-QT.TXT") ];
 
-licenseRemove["preview"] = [ new RegExp("GPL") ];
-
-licenseRemove["beta"] = [ new RegExp("GPL") ];
-
 var editionRemove = new Array();
-editionRemove["core"] = [ new RegExp("^tools/designer") ];
-editionRemove["client"] = [ ];
+editionRemove["console"] = [ new RegExp("^tools/designer") ];
+editionRemove["desktop"] = [ ];
 
 var finalRemove = [ new RegExp("^dist") ];
 
@@ -823,7 +821,7 @@ function qdoc(packageDir, license, edition)
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
     var qdocConfigFile = qdocDir + "/test/qt-" + license + ".qdocconf";
-    if (edition == "core")
+    if (edition == "console")
 	qdocConfigFile = qdocDir + "/test/qt-" + license + "-" + edition + ".qdocconf";
     if (!File.exists(qdocConfigFile))
 	throw "Missing qdoc configuratio file: %1".arg(qdocConfigFile);
@@ -885,12 +883,12 @@ function replaceTags(packageDir, fileList, platform, license, platName, addition
  */
 function packageExists(platform, license, edition)
 {
-    // core only exists for commercial and opensource license
-    if (edition == "core" && (license == "commercial" || license == "opensource"))
+    // console edition only exists for commercial and opensource license
+    if (edition == "console" && (license == "commercial" || license == "opensource"))
 	return true;
 
-    // client exists on all platforms for licenses
-    if (edition == "client")
+    // desktop edition exists on all platforms for licenses
+    if (edition == "desktop")
 	return true;
 
     return false;
