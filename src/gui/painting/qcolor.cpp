@@ -157,14 +157,8 @@ QColor::QColor(Qt::GlobalColor color)
     QRgb(((a & 0xff) << 24) | ((r & 0xff) << 16) | ((g & 0xff) << 8) | (b & 0xff))
 
     static const QRgb global_colors[] = {
-#if defined(Q_WS_QWS)
-        // ### this is wrong
-        QRGBA(  0,   0,   0, 255), // Qt::color0
-        QRGBA(255, 255, 255, 255), // Qt::color1
-#else
         QRGB(255, 255, 255), // Qt::color0
         QRGB(  0,   0,   0), // Qt::color1
-#endif
         QRGB(  0,   0,   0), // black
         QRGB(255, 255, 255), // white
         /*
