@@ -748,7 +748,15 @@ void QTableView::updateGeometries()
     Returns the size hint for the given \a row's height or -1 if there
     is no model.
 
-    \sa QWidget::sizeHint
+    If you need to set the height of a given row to a fixed value, call
+    QHeaderView::resizeSection() on the table's vertical header.
+
+    If you reimplement this function in a subclass, note that the value you
+    return is only used when resizeRowToContents() is called. In that case,
+    if a larger row height is required by either the vertical header or
+    the item delegate, that width will be used instead.
+
+    \sa QWidget::sizeHint, verticalHeader()
 */
 int QTableView::sizeHintForRow(int row) const
 {
@@ -778,7 +786,15 @@ int QTableView::sizeHintForRow(int row) const
     Returns the size hint for the given \a column's width or -1 if
     there is no model.
 
-    \sa QWidget::sizeHint
+    If you need to set the width of a given column to a fixed value, call
+    QHeaderView::resizeSection() on the table's horizontal header.
+
+    If you reimplement this function in a subclass, note that the value you
+    return is only used when resizeColumnToContents() is called. In that case,
+    if a larger column width is required by either the horizontal header or
+    the item delegate, that width will be used instead.
+
+    \sa QWidget::sizeHint, horizontalHeader()
 */
 int QTableView::sizeHintForColumn(int column) const
 {
