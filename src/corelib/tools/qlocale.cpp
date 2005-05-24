@@ -39,7 +39,17 @@
 
 #include <private/qnumeric_p.h>
 
-#if (defined(Q_CC_GNU) && defined(Q_OS_WIN)) || defined(QT_QLOCALE_NEEDS_VOLATILE)
+#if !defined(QT_QLOCALE_NEEDS_VOLATILE)
+#  if defined(Q_CC_GNU)
+#    if  __GNUC__ == 4 && __GNUC_MINOR__ == 0
+#      define QT_QLOCALE_NEEDS_VOLATILE
+#    elif defined(Q_OS_WIN)
+#      define QT_QLOCALE_NEEDS_VOLATILE
+#    endif
+#  endif
+#endif
+
+#if defined(QT_QLOCALE_NEEDS_VOLATILE)
 #   define NEEDS_VOLATILE volatile
 #else
 #   define NEEDS_VOLATILE
