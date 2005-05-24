@@ -279,6 +279,8 @@ SpreadSheet::SpreadSheet(int rows, int cols, QWidget *parent)
     connect(formulaInput, SIGNAL(returnPressed()), this, SLOT(returnPressed()));
     connect(table, SIGNAL(itemChanged(QTableWidgetItem*)),
             this, SLOT(updateLineEdit(QTableWidgetItem*)));
+
+    setWindowTitle(tr("Spreadsheet"));
 }
 
 void SpreadSheet::createActions()
