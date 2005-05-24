@@ -584,9 +584,10 @@ void Semantic::parseClassMemberAccess(ClassMemberAccessAST *node)
     if(!node)
         return;
     parseExpression(node->expression());
+    // Get a name use for the 'object' name.
     NameUse *nameUse = findNameUse(node->expression());
-    if(!nameUse)
-        return;
+    // Since the NameUse refers to an object, its decalaration must be
+    // a ClassType. Get the scope of this class type.
     if(    nameUse
         && nameUse->declaration()
         && nameUse->declaration()->toVariableMember()
@@ -596,9 +597,13 @@ void Semantic::parseClassMemberAccess(ClassMemberAccessAST *node)
 
         CodeModel::Scope *scope = nameUse->declaration()->toVariableMember()->type()->toClassType()->scope();
         QList<CodeModel::Member *> members = lookupNameInScope(scope, node->name());
-            if(members.count() != 0)
+            if(members.count() != 0) {
                 createNameUse(members.at(0), node->name());
+                return;
+            }
     }
+    // Create a NameUse that refers to the global shared unknown type.
+    createNameUse(m_sharedUnknownMember, node->name());
 }
 
 void Semantic::parseExpressionStatement(ExpressionStatementAST *node)
