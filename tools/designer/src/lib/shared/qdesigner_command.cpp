@@ -807,17 +807,20 @@ void BreakLayoutCommand::redo()
     if (!m_layout)
         return;
 
+    QDesignerFormEditorInterface *core = formWindow()->core();
+    QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_layoutBase);
+    QWidget *p = m_layout->parentWidget();
+    if (!deco && hasLayout(p))
+        deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), p);
+
+    delete deco; // release the extension
+
     formWindow()->clearSelection(false);
     m_layout->breakLayout();
 
     foreach (QWidget *widget, m_widgets) {
         widget->resize(widget->size().expandedTo(QSize(16, 16)));
     }
-
-    QDesignerFormEditorInterface *core = formWindow()->core();
-    QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_layoutBase);
-
-    delete deco; // release the extension
 }
 
 void BreakLayoutCommand::undo()
