@@ -14,12 +14,13 @@
     \printuntil };
     The first class \c Application represents the application object. It
     exposes read-only properties \c documents and \c id to get access to the
-    list of documents, and an identifiers. A read/write property \c visible
+    list of documents, and an identifier. A read/write property \c visible
     controls whether the QTabWidget-based user interface of the application 
     should be visible, and a slot \c quit() terminates the application.
 
     The \e RegisterObject attribute is set to make sure that instances of this
-    class are registered in COM's running object table (ROT).
+    class are registered in COM's running object table (ROT) - this allows COM
+    clients to connect to an already instantiated COM object.
 
     \quotefromfile activeqt/comapp/main.cpp
     \skipto class DocumentList :
@@ -69,11 +70,17 @@
     and the application object is registered with COM. It is now accessible to
     COM clients through the client-specific APIs.
 
+    Application exiting is controlled explicitly - if COM started the application, 
+    then the client code has to call quit(); if the user started the application,
+    then the application terminates when the last window has been closed.
+
     Finally, the user interface is made visible, and the event loop is started.
 
     A simple Visual Basic application could now access this Qt application. In VB,
-    create a form with a listbox "DocumentList", a static label "DocumentsCount" and
-    a command button "NewDocument". Then implement the code of the form like this:
+    start a new "Standard Exe" project and add a project reference to the comappLib
+    type library. Create a form with a listbox "DocumentList", a static label 
+    "DocumentsCount" and a command button "NewDocument". Finally, implement the code 
+    for the form like this:
 
     \code
         Private Application As comappLib.Application

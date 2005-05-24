@@ -211,6 +211,7 @@ QAXFACTORY_END()
 int main(int argc, char **argv)
 {
     QApplication app(argc, argv);
+    app.setQuitOnLastWindowClosed(false);
 
     // started by COM - don't do anything
     if (QAxFactory::isServer())
@@ -227,6 +228,5 @@ int main(int argc, char **argv)
 
     QObject::connect(qApp, SIGNAL(lastWindowClosed()), &appobject, SLOT(quit()));
 
-    app.setQuitOnLastWindowClosed(false);
     return app.exec();
 }
