@@ -60,6 +60,8 @@ public:
     virtual bool prepareLayout(bool &needMove, bool &needReparent);
     virtual void finishLayout(bool needMove, QLayout *layout);
 
+    QWidget *parentWidget() const { return m_parentWidget; }
+
 protected:
     QList<QWidget*> widgets;
     QWidget *m_parentWidget;

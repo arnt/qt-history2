@@ -349,9 +349,6 @@ void InsertWidgetCommand::init(QWidget *widget)
     QDesignerFormEditorInterface *core = formWindow()->core();
     QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
 
-    if (!deco && hasLayout(parentWidget))
-        deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
-
     m_insertMode = deco ? deco->currentInsertMode() : QDesignerLayoutDecorationExtension::InsertWidgetMode;
     m_cell = deco ? deco->currentCell() : qMakePair(0, 0);
 }
@@ -364,9 +361,6 @@ void InsertWidgetCommand::redo()
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
-
-    if (!deco && hasLayout(parentWidget))
-        deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
 
     if (deco != 0) {
         if (LayoutInfo::layoutType(core, parentWidget) == LayoutInfo::Grid) {
@@ -395,8 +389,6 @@ void InsertWidgetCommand::undo()
 
     QDesignerFormEditorInterface *core = formWindow()->core();
     QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
-    if (!deco && hasLayout(parentWidget))
-        deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), parentWidget);
 
     if (deco) {
         deco->removeWidget(m_widget);
@@ -499,8 +491,6 @@ void DeleteWidgetCommand::redo()
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
     QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_parentWidget);
-    if (!deco && hasLayout(m_parentWidget))
-        deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_parentWidget);
 
     if (deco)
         deco->removeWidget(m_widget);
@@ -762,12 +752,18 @@ void LayoutCommand::redo()
 
 void LayoutCommand::undo()
 {
-    m_layout->undoLayout();
-
     QDesignerFormEditorInterface *core = formWindow()->core();
+
     QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_layoutBase);
 
+    QWidget *p = m_layout->parentWidget();
+    if (!deco && hasLayout(p)) {
+        deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), p);
+    }
+
     delete deco; // release the extension
+
+    m_layout->undoLayout();
 
     checkSelection(m_parentWidget);
 }
