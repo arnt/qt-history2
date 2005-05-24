@@ -8,7 +8,7 @@ SOURCES       = dialog.cpp \
 QT           += network
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/network/threadedfortuneserver
+target.path = $$[QT_INSTALL_EXAMPLES]/network/threadedfortuneserver
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS threadedfortuneserver.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/network/threadedfortuneserver
+sources.path = $$[QT_INSTALL_EXAMPLES]/network/threadedfortuneserver
 INSTALLS += target sources

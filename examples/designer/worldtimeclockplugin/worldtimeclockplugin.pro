@@ -11,5 +11,5 @@ SOURCES     = worldtimeclock.cpp \
 # install
 target.path = $$[QT_INSTALL_PLUGINS]/designer
 sources.files = $$SOURCES $$HEADERS *.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/designer/worldtimeclockplugin
+sources.path = $$[QT_INSTALL_EXAMPLES]/designer/worldtimeclockplugin
 INSTALLS += target sources

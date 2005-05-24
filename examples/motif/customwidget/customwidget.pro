@@ -7,7 +7,7 @@ HEADERS = mainwindow.h
 SOURCES = main.cpp mainwindow.cpp
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/motif/customwidget
+target.path = $$[QT_INSTALL_EXAMPLES]/motif/customwidget
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS customwidget.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/motif/customwidget
+sources.path = $$[QT_INSTALL_EXAMPLES]/motif/customwidget
 INSTALLS += target sources

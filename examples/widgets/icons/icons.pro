@@ -9,7 +9,7 @@ SOURCES       = iconpreviewarea.cpp \
                 mainwindow.cpp
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/widgets/icons
+target.path = $$[QT_INSTALL_EXAMPLES]/widgets/icons
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS icons.pro images
-sources.path = $$[QT_INSTALL_DATA]/examples/widgets/icons
+sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/icons
 INSTALLS += target sources

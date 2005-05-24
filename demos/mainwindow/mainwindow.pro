@@ -4,7 +4,7 @@ SOURCES += colorswatch.cpp mainwindow.cpp toolbar.cpp main.cpp
 build_all:CONFIG += release
 
 # install
-target.path = $$[QT_INSTALL_DATA]/demos/mainwindow
+target.path = $$[QT_INSTALL_DEMOS]/mainwindow
 sources.files = $$SOURCES $$HEADERS *.pro
-sources.path = $$[QT_INSTALL_DATA]/demos/mainwindow
+sources.path = $$[QT_INSTALL_DEMOS]/mainwindow
 INSTALLS += target sources

@@ -7,7 +7,7 @@ SOURCES       = main.cpp \
                 tetrixwindow.cpp
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/widgets/tetrix
+target.path = $$[QT_INSTALL_EXAMPLES]/widgets/tetrix
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS tetrix.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/widgets/tetrix
+sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/tetrix
 INSTALLS += target sources

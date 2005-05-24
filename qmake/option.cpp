@@ -660,6 +660,16 @@ QString QLibraryInfo::location(QLibraryInfo::LibraryLocation loc)
         path = QT_CONFIGURE_SETTINGS_PATH;
         break;
 #endif
+#ifdef QT_CONFIGURE_EXAMPLES_PATH
+        case ExamplesPath:
+            path = QT_CONFIGURE_EXAMPLES_PATH;
+            break;
+#endif
+#ifdef QT_CONFIGURE_DEMOS_PATH
+        case DemosPath:
+            path = QT_CONFIGURE_DEMOS_PATH;
+            break;
+#endif
     default:
         break;
     }

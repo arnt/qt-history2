@@ -11,7 +11,7 @@ RESOURCES += textedit.qrc
 build_all:CONFIG += release
 
 # install
-target.path = $$[QT_INSTALL_DATA]/demos/textedit
+target.path = $$[QT_INSTALL_DEMOS]/textedit
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.html *.doc images
-sources.path = $$[QT_INSTALL_DATA]/demos/textedit
+sources.path = $$[QT_INSTALL_DEMOS]/textedit
 INSTALLS += target sources

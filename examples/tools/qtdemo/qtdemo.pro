@@ -16,7 +16,7 @@ win32 {
 }
 
 # install
-target.path = $$[QT_INSTALL_BIN]
-sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qtdemo.pro images *.xml
-sources.path = $$[QT_INSTALL_DATA]/examples/tools/qtdemo
+target.path = $$[QT_INSTALL_BINS]
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qtdemo.pro images *.xml *.ico *.rc
+sources.path = $$[QT_INSTALL_EXAMPLES]/tools/qtdemo
 INSTALLS += target sources

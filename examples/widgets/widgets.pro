@@ -18,7 +18,7 @@ SUBDIRS       = analogclock \
                 windowflags
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/widgets
+target.path = $$[QT_INSTALL_EXAMPLES]/widgets
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS widgets.pro README
-sources.path = $$[QT_INSTALL_DATA]/examples/widgets
+sources.path = $$[QT_INSTALL_EXAMPLES]/widgets
 INSTALLS += target sources

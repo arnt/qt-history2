@@ -6,7 +6,7 @@ TARGET		= t2
 QTDIR_build:REQUIRES="contains(QT_CONFIG, small-config)"
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/tutorial/t2
+target.path = $$[QT_INSTALL_EXAMPLES]/tutorial/t2
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS t2.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/tutorial/t2
+sources.path = $$[QT_INSTALL_EXAMPLES]/tutorial/t2
 INSTALLS += target sources

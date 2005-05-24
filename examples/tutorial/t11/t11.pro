@@ -11,7 +11,7 @@ unix:LIBS += -lm
 
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/tutorial/t11
+target.path = $$[QT_INSTALL_EXAMPLES]/tutorial/t11
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS t11.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/tutorial/t11
+sources.path = $$[QT_INSTALL_EXAMPLES]/tutorial/t11
 INSTALLS += target sources

@@ -5,7 +5,7 @@ SOURCES     = detailsdialog.cpp \
               mainwindow.cpp
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/richtext/orderform
+target.path = $$[QT_INSTALL_EXAMPLES]/richtext/orderform
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS orderform.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/richtext/orderform
+sources.path = $$[QT_INSTALL_EXAMPLES]/richtext/orderform
 INSTALLS += target sources

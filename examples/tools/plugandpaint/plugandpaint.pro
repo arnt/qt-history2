@@ -8,7 +8,7 @@ SOURCES        = main.cpp \
                  plugindialog.cpp
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/tools/plugandpaint
+target.path = $$[QT_INSTALL_EXAMPLES]/tools/plugandpaint
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS plugandpaint.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/tools/plugandpaint
+sources.path = $$[QT_INSTALL_EXAMPLES]/tools/plugandpaint
 INSTALLS += target sources

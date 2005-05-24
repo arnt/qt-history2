@@ -8,7 +8,7 @@ FORMS       = bookwindow.ui
 
 QT += sql
 
-target.path = $$[QT_INSTALL_DATA]/demos/books
+target.path = $$[QT_INSTALL_DEMOS]/books
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS *.pro images
-sources.path = $$[QT_INSTALL_DATA]/demos/books
+sources.path = $$[QT_INSTALL_DEMOS]/books
 INSTALLS += target sources

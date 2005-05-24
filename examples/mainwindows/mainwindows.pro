@@ -6,7 +6,7 @@ SUBDIRS       = application \
                 sdi
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/mainwindows
+target.path = $$[QT_INSTALL_EXAMPLES]/mainwindows
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS mainwindows.pro README
-sources.path = $$[QT_INSTALL_DATA]/examples/mainwindows
+sources.path = $$[QT_INSTALL_EXAMPLES]/mainwindows
 INSTALLS += target sources

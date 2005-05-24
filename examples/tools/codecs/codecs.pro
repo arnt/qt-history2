@@ -5,7 +5,7 @@ SOURCES      += main.cpp \
                 previewform.cpp
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/tools/codecs
+target.path = $$[QT_INSTALL_EXAMPLES]/tools/codecs
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS encodedfiles codecs.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/tools/codecs
+sources.path = $$[QT_INSTALL_EXAMPLES]/tools/codecs
 INSTALLS += target sources

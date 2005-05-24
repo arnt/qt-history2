@@ -10,7 +10,7 @@ FORMS           = browserwidget.ui qsqlconnectiondialog.ui
 build_all:CONFIG += release
 
 # install
-target.path = $$[QT_INSTALL_DATA]/demos/sqlbrowser
+target.path = $$[QT_INSTALL_DEMOS]/sqlbrowser
 sources.files = $$SOURCES $$HEADERS $$FORMS *.pro
-sources.path = $$[QT_INSTALL_DATA]/demos/sqlbrowser
+sources.path = $$[QT_INSTALL_DEMOS]/sqlbrowser
 INSTALLS += target sources

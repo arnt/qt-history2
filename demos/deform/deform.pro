@@ -8,7 +8,7 @@ include($$SHARED_FOLDER/shared.pri)
 RESOURCES += deform.qrc
 
 # install
-target.path = $$[QT_INSTALL_DATA]/demos/deform
+target.path = $$[QT_INSTALL_DEMOS]/deform
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.html
-sources.path = $$[QT_INSTALL_DATA]/demos/deform
+sources.path = $$[QT_INSTALL_DEMOS]/deform
 INSTALLS += target sources

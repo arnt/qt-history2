@@ -12,7 +12,7 @@ QTDIR_build:REQUIRES="contains(QT_CONFIG, full-config)"
 unix:LIBS += -lm
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/tutorial/t14
+target.path = $$[QT_INSTALL_EXAMPLES]/tutorial/t14
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS t14.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/tutorial/t14
+sources.path = $$[QT_INSTALL_EXAMPLES]/tutorial/t14
 INSTALLS += target sources

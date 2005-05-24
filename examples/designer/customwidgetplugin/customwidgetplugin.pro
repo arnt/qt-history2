@@ -10,5 +10,5 @@ SOURCES     = analogclock.cpp \
 # install
 target.path = $$[QT_INSTALL_PLUGINS]/designer
 sources.files = $$SOURCES $$HEADERS *.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/designer/customwidgetplugin
+sources.path = $$[QT_INSTALL_EXAMPLES]/designer/customwidgetplugin
 INSTALLS += target sources

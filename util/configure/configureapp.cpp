@@ -95,7 +95,7 @@ Configure::Configure( int& argc, char** argv )
         dictionary[ "QMAKESPEC_FROM" ] = "env";
     }
 
-    
+
     dictionary[ "ARCHITECTURE" ]    = "windows";
     dictionary[ "QCONFIG" ]	    = "full";
     dictionary[ "EMBEDDED" ]	    = "no";
@@ -579,6 +579,20 @@ void Configure::parseCmdLine()
 	    dictionary[ "QT_INSTALL_TRANSLATIONS" ] = configCmdLine.at(i);
 	}
 
+	else if( configCmdLine.at(i) == "-examplesdir" ) {
+	    ++i;
+	    if(i==argCount)
+		break;
+	    dictionary[ "QT_INSTALL_EXAMPLES" ] = configCmdLine.at(i);
+	}
+
+	else if( configCmdLine.at(i) == "-demosdir" ) {
+	    ++i;
+	    if(i==argCount)
+		break;
+	    dictionary[ "QT_INSTALL_DEMOS" ] = configCmdLine.at(i);
+	}
+
 	else if( configCmdLine.at(i).indexOf( QRegExp( "^-(en|dis)able-" ) ) != -1 ) {
 	    // Scan to see if any specific modules and drivers are enabled or disabled
 	    for( QStringList::Iterator module = modules.begin(); module != modules.end(); ++module ) {
@@ -724,7 +738,7 @@ void Configure::desc(const char *option, const char *description, bool skipInden
 {
     if (!skipIndent)
         printf("%*s", optionIndent, "");
-    
+
     int remaining  = descIndent - optionIndent - strlen(option);
     int wrapIndent = descIndent + qMax(0, 1 - remaining);
     printf("%s", option);
@@ -748,7 +762,7 @@ void Configure::desc(const char *mark_option, const char *mark, const char *opti
 {
     const QString markedAs = dictionary.value(mark_option);
     if (markedAs == "auto" && markedAs == mark) // both "auto", always => +
-        printf(" +  ");                         
+        printf(" +  ");
     else if (markedAs == "auto")                // setting marked as "auto" and option is default => +
         printf(" %c  " , (defaultTo(mark_option) == QLatin1String(mark))? '+' : ' ');
     else if (QLatin1String(mark) == "auto")     // description marked as "auto" and option is available => +
@@ -785,7 +799,8 @@ bool Configure::displayHelp()
     if( dictionary[ "HELP" ] == "yes" ) {
 	desc("Usage: configure [-prefix dir] [-bindir <dir>] [-libdir <dir>]\n"
 	            "[-docdir <dir>] [-headerdir <dir>] [-plugindir <dir>]\n"
-	            "[-datadir <dir>] [-translationdir <dir>] [-buildkey <key>]\n"
+	            "[-datadir <dir>] [-translationdir <dir>]\n"
+                    "[-examplesdir <dir>] [-demosdir <dir>][-buildkey <key>]\n"
 	            "[-release] [-debug] [-debug-and-release] [-shared] [-static]\n"
 	            "[-no-fast] [-fast] [-no-exception] [-exception]\n"
 	            "[-no-accessibility] [-accessibility] [-no-rtti] [-rtti]\n"
@@ -815,6 +830,8 @@ bool Configure::displayHelp()
 	desc(                   "-plugindir <dir>",     "Plugins will be installed to dir\n(default PREFIX/plugins)");
 	desc(                   "-datadir <dir>",       "Data used by Qt programs will be installed to dir\n(default PREFIX)");
 	desc(                   "-translationdir <dir>","Translations of Qt programs will be installed to dir\n(default PREFIX/translations)\n");
+	desc(                   "-examplesdir <dir>",       "Examples will be installed to dir\n(default PREFIX/examples)");
+	desc(                   "-demosdir <dir>",       "Demos will be installed to dir\n(default PREFIX/demos)");
 
         desc(" You may use these options to turn on strict plugin loading:\n\n", 0, 1);
 
@@ -1025,10 +1042,10 @@ bool Configure::checkAvailability(const QString &part)
     bool available = false;
     if (part == "STYLE_WINDOWSXP")
         available = (dictionary.value("QMAKESPEC") == "win32-g++" || findFile("uxtheme.h"));
-    
+
     else if (part == "ZLIB")
         available = findFile("zlib.h");
-    
+
     else if (part == "LIBJPEG")
         available = findFile("jpeglib.h");
     else if (part == "LIBPNG")
@@ -1268,6 +1285,10 @@ void Configure::generateOutputVars()
 	dictionary[ "QT_INSTALL_DATA" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] );
     if( !dictionary[ "QT_INSTALL_TRANSLATIONS" ].size() )
 	dictionary[ "QT_INSTALL_TRANSLATIONS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/translations" );
+    if( !dictionary[ "QT_INSTALL_EXAMPLES" ].size() )
+	dictionary[ "QT_INSTALL_EXAMPLES" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/examples");
+    if( !dictionary[ "QT_INSTALL_DEMOS" ].size() )
+	dictionary[ "QT_INSTALL_DEMOS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" + "/demos"] );
 
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
@@ -1330,6 +1351,8 @@ void Configure::generateCachefile()
 	cacheStream << "bins.path=" << dictionary[ "QT_INSTALL_BINS" ] << endl;
 	cacheStream << "data.path=" << dictionary[ "QT_INSTALL_DATA" ] << endl;
 	cacheStream << "translations.path=" << dictionary[ "QT_INSTALL_TRANSLATIONS" ] << endl;
+	cacheStream << "examples.path=" << dictionary[ "QT_INSTALL_EXAMPLES" ] << endl;
+	cacheStream << "demos.path=" << dictionary[ "QT_INSTALL_DEMOS" ] << endl;
         cacheStream.flush();
 	cacheFile.close();
     }
@@ -1530,6 +1553,8 @@ WCE({	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_P
                   << "static const char qt_configure_plugins_path_str      [512 + 12] = \"qt_plugpath=" << QString(dictionary["QT_INSTALL_PLUGINS"]).replace( "\\", "\\\\" ) << "\";"  << endl
                   << "static const char qt_configure_data_path_str         [512 + 12] = \"qt_datapath=" << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" ) << "\";"  << endl
                   << "static const char qt_configure_translations_path_str [512 + 12] = \"qt_trnspath=" << QString(dictionary["QT_INSTALL_TRANSLATIONS"]).replace( "\\", "\\\\" ) << "\";" << endl
+                  << "static const char qt_configure_examples_path_str         [512 + 12] = \"qt_examplespath=" << QString(dictionary["QT_INSTALL_EXAMPLES"]).replace( "\\", "\\\\" ) << "\";"  << endl
+                  << "static const char qt_configure_demos_path_str         [512 + 12] = \"qt_demospath=" << QString(dictionary["QT_INSTALL_DEMOS"]).replace( "\\", "\\\\" ) << "\";"  << endl
                   //<< "static const char qt_configure_settings_path_str [256] = \"qt_stngpath=" << QString(dictionary["QT_INSTALL_SETTINGS"]).replace( "\\", "\\\\" ) << "\";" << endl
                   << "/* strlen( \"qt_lcnsxxxx\" ) == 12 */" << endl
                   << "#define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;" << endl
@@ -1542,6 +1567,8 @@ WCE({	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_P
                   << "#define QT_CONFIGURE_PLUGINS_PATH qt_configure_plugins_path_str + 12;" << endl
                   << "#define QT_CONFIGURE_DATA_PATH qt_configure_data_path_str + 12;" << endl
                   << "#define QT_CONFIGURE_TRANSLATIONS_PATH qt_configure_translations_path_str + 12;" << endl
+                  << "#define QT_CONFIGURE_EXAMPLES_PATH qt_configure_examples_path_str + 12;" << endl
+                  << "#define QT_CONFIGURE_DEMOS_PATH qt_configure_demos_path_str + 12;" << endl
                   //<< "#define QT_CONFIGURE_SETTINGS_PATH qt_configure_settings_path_str + 12;" << endl
                   << endl;
 
@@ -1694,7 +1721,9 @@ WCE( { cout << "    PocketPC............." << dictionary[ "STYLE_POCKETPC" ] << 
     cout << "Binaries installed to......." << dictionary[ "QT_INSTALL_BINS" ] << endl;
     cout << "Docs installed to..........." << dictionary[ "QT_INSTALL_DOCS" ] << endl;
     cout << "Data installed to..........." << dictionary[ "QT_INSTALL_DATA" ] << endl;
-    cout << "Translations installed to..." << dictionary[ "QT_INSTALL_TRANSLATIONS" ] << endl << endl;
+    cout << "Translations installed to..." << dictionary[ "QT_INSTALL_TRANSLATIONS" ] << endl;
+    cout << "Examples installed to......." << dictionary[ "QT_INSTALL_EXAMPLES" ] << endl;
+    cout << "Demos installed to.........." << dictionary[ "QT_INSTALL_DEMOS" ] << endl << endl;
 
     cout << endl;
     if( !qmakeDefines.isEmpty() ) {
@@ -1856,16 +1885,16 @@ void Configure::generateMakefiles()
         if (dictionary["FAST"] != "yes") {
             QString dirName;
             bool generate = true;
-            bool doDsp = (dictionary["DSPFILES"] == "yes" || dictionary["VCPFILES"] == "yes" 
+            bool doDsp = (dictionary["DSPFILES"] == "yes" || dictionary["VCPFILES"] == "yes"
                           || dictionary["VCPROJFILES"] == "yes");
             while (generate) {
                 QString qtDir = QDir::convertSeparators(dictionary["QT_SOURCE_TREE"] + "/");
                 QString pwd = QDir::currentPath();
                 QString dirPath = QDir::convertSeparators(qtDir + dirName);
                 QStringList args;
-                
+
                 args << QDir::convertSeparators( qtDir + "/bin/qmake" );
-                
+
                 if (doDsp) {
                     if( dictionary[ "DEPENDENCIES" ] == "no" )
                         args << "-nodepend";
@@ -1879,7 +1908,7 @@ void Configure::generateMakefiles()
                 args << "-spec";
                 args << dictionary[ "QMAKESPEC" ];
                 args << "-r";
-                
+
                 QDir::setCurrent( QDir::convertSeparators( dirPath ) );
                 if( int exitCode = Environment::execute(args, QStringList(), QStringList()) ) {
                     cout << "Qmake failed, return code " << exitCode  << endl << endl;
@@ -1895,7 +1924,7 @@ void Configure::generateMakefiles()
                     QString projectName = dirPath + it->proFile;
                     QString makefileName = dirPath + it->target;
                     QStringList args;
-                    
+
                     args << QDir::convertSeparators( qtDir + "/bin/qmake" );
                     args << projectName;
                     args << dictionary[ "QMAKE_ALL_ARGS" ];
@@ -1905,9 +1934,9 @@ void Configure::generateMakefiles()
                     args << makefileName;
                     args << "-spec";
                     args << dictionary[ "QMAKESPEC" ];
-                    
+
                     QDir::setCurrent( QDir::convertSeparators( dirPath ) );
-                    
+
                     QFile file(makefileName);
                     if (!file.open(QFile::WriteOnly)) {
                         printf("failed on dirPath=%s, makefile=%s\n",

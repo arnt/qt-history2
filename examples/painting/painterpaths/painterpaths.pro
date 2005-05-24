@@ -6,7 +6,7 @@ SOURCES       = main.cpp \
 unix:!mac:LIBS += -lm
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/painting/painterpaths
+target.path = $$[QT_INSTALL_EXAMPLES]/painting/painterpaths
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS painterpaths.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/painting/painterpaths
+sources.path = $$[QT_INSTALL_EXAMPLES]/painting/painterpaths
 INSTALLS += target sources

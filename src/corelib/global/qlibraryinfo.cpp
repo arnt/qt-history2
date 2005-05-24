@@ -86,8 +86,6 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
                                      the configuration. This key is used to ensure
                                      that \l{plugins} link against the same version
                                      of Qt as the application.
-    \row    \o configuration()    \o A QSettings object containing Qt's
-                                     configuration.
     \row    \o location()         \o The path to a certain Qt
                                      component (e.g., documentation, header files).
     \row    \o licensee(),
@@ -204,6 +202,16 @@ QLibraryInfo::location(LibraryLocation loc)
             path = QT_CONFIGURE_SETTINGS_PATH;
             break;
 #endif
+#ifdef QT_CONFIGURE_EXAMPLES_PATH
+        case ExamplesPath:
+            path = QT_CONFIGURE_EXAMPLES_PATH;
+            break;
+#endif
+#ifdef QT_CONFIGURE_DEMOS_PATH
+        case DemosPath:
+            path = QT_CONFIGURE_DEMOS_PATH;
+            break;
+#endif
         default:
             break;
         }
@@ -246,6 +254,12 @@ QLibraryInfo::location(LibraryLocation loc)
             break;
         case SettingsPath:
             key = QLatin1String("Settings");
+            break;
+        case ExamplesPath:
+            key = QLatin1String("Examples");
+            break;
+        case DemosPath:
+            key = QLatin1String("Demos");
             break;
         default:
             break;
@@ -356,6 +370,8 @@ QLibraryInfo::location(LibraryLocation loc)
     \value DataPath The location of general Qt data.
     \value TranslationsPath The location of translation information for Qt strings.
     \value SettingsPath The location for Qt settings.
+    \value ExamplesPath The location for examples upon install.
+    \value DemosPath The location for demos upon install.
 
     \sa location()
 */

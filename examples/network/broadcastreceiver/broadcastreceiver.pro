@@ -4,7 +4,7 @@ SOURCES       = receiver.cpp \
 QT           += network
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/network/broadcastreceiver
+target.path = $$[QT_INSTALL_EXAMPLES]/network/broadcastreceiver
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS broadcastreceiver.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/network/broadcastreceiver
+sources.path = $$[QT_INSTALL_EXAMPLES]/network/broadcastreceiver
 INSTALLS += target sources

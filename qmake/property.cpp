@@ -68,6 +68,10 @@ QMakeProperty::value(QString v, bool just_check)
         return QLibraryInfo::location(QLibraryInfo::TranslationsPath);
     else if(v == "QT_INSTALL_CONFIGURATION")
         return QLibraryInfo::location(QLibraryInfo::SettingsPath);
+    else if(v == "QT_INSTALL_EXAMPLES")
+        return QLibraryInfo::location(QLibraryInfo::ExamplesPath);
+    else if(v == "QT_INSTALL_DEMOS")
+        return QLibraryInfo::location(QLibraryInfo::DemosPath);
     else if(v == "QMAKE_MKSPECS")
         return qmake_mkspec_paths().join(Option::target_mode == Option::TARG_WIN_MODE ? ";" : ":");
     else if(v == "QMAKE_VERSION")

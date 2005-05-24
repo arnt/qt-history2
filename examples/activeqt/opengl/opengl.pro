@@ -13,7 +13,7 @@ SOURCES	 = glbox.cpp \
 RC_FILE	 = ../../../extensions/activeqt/control/qaxserver.rc
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/activeqt/opengl
+target.path = $$[QT_INSTALL_EXAMPLES]/activeqt/opengl
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS opengl.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/activeqt/opengl
+sources.path = $$[QT_INSTALL_EXAMPLES]/activeqt/opengl
 INSTALLS += target sources

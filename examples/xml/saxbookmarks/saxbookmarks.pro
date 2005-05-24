@@ -8,7 +8,7 @@ SOURCES       = main.cpp \
 QT           += xml
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/xml/saxbookmarks
+target.path = $$[QT_INSTALL_EXAMPLES]/xml/saxbookmarks
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS saxbookmarks.pro *.xbel
-sources.path = $$[QT_INSTALL_DATA]/examples/xml/saxbookmarks
+sources.path = $$[QT_INSTALL_EXAMPLES]/xml/saxbookmarks
 INSTALLS += target sources

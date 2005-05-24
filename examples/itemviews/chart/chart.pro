@@ -7,7 +7,7 @@ SOURCES     = main.cpp \
 unix:!mac:LIBS+= -lm
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/itemviews/chart
+target.path = $$[QT_INSTALL_EXAMPLES]/itemviews/chart
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.cht
-sources.path = $$[QT_INSTALL_DATA]/examples/itemviews/chart
+sources.path = $$[QT_INSTALL_EXAMPLES]/itemviews/chart
 INSTALLS += target sources

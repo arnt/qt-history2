@@ -318,6 +318,8 @@ QT_INSTALL_PLUGINS=
 QT_INSTALL_DATA=
 QT_INSTALL_TRANSLATIONS=
 QT_INSTALL_SETTINGS=
+QT_INSTALL_EXAMPLES=
+QT_INSTALL_DEMOS=
 
 
 #-------------------------------------------------------------------------------
@@ -390,7 +392,7 @@ while [ "$#" -gt 0 ]; do
             UNKNOWN_ARG=yes
         fi
         ;;
-    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey)
+    -prefix|-docdir|-headerdir|-plugindir|-datadir|-libdir|-bindir|-translationdir|-sysconfdir|-examplesdir|-demosdir|-depths|-make|-nomake|-platform|-xplatform|-buildkey)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         shift
         VAL=$1
@@ -523,6 +525,12 @@ while [ "$#" -gt 0 ]; do
         ;;
     sysconfdir|settingsdir)
         QT_INSTALL_SETTINGS="$VAL"
+        ;;
+    examplesdir)
+        QT_INSTALL_EXAMPLES="$VAL"
+        ;;
+    demosdir)
+        QT_INSTALL_DEMOS="$VAL"
         ;;
     qconfig)
         CFG_QCONFIG="$VAL"
@@ -1075,6 +1083,14 @@ if mkdir -p "$QT_INSTALL_SETTINGS" >/dev/null 2>&1; then
   QT_INSTALL_SETTINGS=`(cd "$QT_INSTALL_SETTINGS"; /bin/pwd)` #absolute
 fi
 
+#examples
+[ -z "$QT_INSTALL_EXAMPLES" ] && QT_INSTALL_EXAMPLES=$QT_INSTALL_PREFIX/examples #default
+QT_INSTALL_EXAMPLES=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_EXAMPLES"`
+
+#demos
+[ -z "$QT_INSTALL_DEMOS" ] && QT_INSTALL_DEMOS=$QT_INSTALL_PREFIX/demos #default
+QT_INSTALL_DEMOS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DEMOS"`
+
 #-------------------------------------------------------------------------------
 # generate qconfig.cpp
 #-------------------------------------------------------------------------------
@@ -1091,6 +1107,9 @@ PLUGINS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_plugpath=$QT_INST
 DATA_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_datapath=$QT_INSTALL_DATA" "\\0"`
 TRANSLATIONS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_trnspath=$QT_INSTALL_TRANSLATIONS" "\\0"`
 SETTINGS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_stngpath=$QT_INSTALL_SETTINGS" "\\0"`
+EXAMPLES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_xmplpath=$QT_INSTALL_EXAMPLES" "\\0"`
+DEMOS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_demopath=$QT_INSTALL_DEMOS" "\\0"`
+
 cat > $outpath/src/corelib/global/qconfig.cpp.new <<EOF
 /* License Info */
 static const char qt_configure_licensee_str          [256 + 12] = "$LICENSE_USER_STR";
@@ -1105,6 +1124,8 @@ static const char qt_configure_plugins_path_str      [256 + 12] = "$PLUGINS_PATH
 static const char qt_configure_data_path_str         [256 + 12] = "$DATA_PATH_STR";
 static const char qt_configure_translations_path_str [256 + 12] = "$TRANSLATIONS_PATH_STR";
 static const char qt_configure_settings_path_str     [256 + 12] = "$SETTINGS_PATH_STR";
+static const char qt_configure_examples_path_str     [256 + 12] = "$EXAMPLES_PATH_STR";
+static const char qt_configure_demos_path_str        [256 + 12] = "$DEMOS_PATH_STR";
 /* strlen( "qt_lcnsxxxx" ) == 12 */
 #define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;
 #define QT_CONFIGURE_LICENSED_PRODUCTS qt_configure_licensed_products_str + 12;
@@ -1117,6 +1138,8 @@ static const char qt_configure_settings_path_str     [256 + 12] = "$SETTINGS_PAT
 #define QT_CONFIGURE_DATA_PATH qt_configure_data_path_str + 12;
 #define QT_CONFIGURE_TRANSLATIONS_PATH qt_configure_translations_path_str + 12;
 #define QT_CONFIGURE_SETTINGS_PATH qt_configure_settings_path_str + 12;
+#define QT_CONFIGURE_EXAMPLES_PATH qt_configure_examples_path_str + 12;
+#define QT_CONFIGURE_DEMOS_PATH qt_configure_demos_path_str + 12;
 EOF
 
 # avoid unecessary rebuilds by copying only if qconfig.cpp has changed
@@ -2038,9 +2061,9 @@ if [ "$OPT_HELP" = "yes" ]; then
     cat <<EOF
 Usage:  $relconf [-prefix dir] [-buildkey key] [-docdir dir] [-headerdir dir]
         [-libdir dir] [-bindir dir] [-plugindir dir ] [-datadir dir]
-        [-translationdir dir] [-sysconfdir dir] [-debug] [-release]
-        [-debug-and-release] [-no-gif] [-qt-gif] [-no-sm] [-sm] [-no-zlib]
-        [-qt-zlib] [-system-zlib] [-no-libjpeg] [-qt-libjpeg] [-system-libjpeg]
+        [-translationdir dir] [-sysconfdir dir] [-examplesdir dir] [-demosdir dir]
+        [-debug] [-release] [-debug-and-release] [-no-gif] [-qt-gif] [-no-sm] [-sm]
+        [-no-zlib] [-qt-zlib] [-system-zlib] [-no-libjpeg] [-qt-libjpeg] [-system-libjpeg]
         [-no-libpng] [-qt-libpng] [-system-libpng] [-no-nis] [-nis] [-no-cups]
         [-cups] [-no-largefile] [-largefile] [-no-stl] [-stl] [-no-pch] [-pch]
         [-Istring] [-lstring] [-Lstring] [-Rstring] [-disable-<module>]
@@ -2071,6 +2094,10 @@ Installation options:
                          (default PREFIX/translations)
     -sysconfdir dir ...  Settings used by Qt programs will be looked for in dir
                          (default PREFIX/etc/settings)
+    -examplesdir dir ... Examples will be installed to dir
+                         (default PREFIX/examples)
+    -demosdir dir ...... Demos will be installed to dir
+                         (default PREFIX/demos)
 
  You may use these options to turn on strict plugin loading.
 

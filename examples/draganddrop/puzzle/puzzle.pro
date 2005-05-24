@@ -8,7 +8,7 @@ SOURCES     = main.cpp \
               puzzlewidget.cpp
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/draganddrop/puzzle
+target.path = $$[QT_INSTALL_EXAMPLES]/draganddrop/puzzle
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.jpg
-sources.path = $$[QT_INSTALL_DATA]/examples/draganddrop/puzzle
+sources.path = $$[QT_INSTALL_EXAMPLES]/draganddrop/puzzle
 INSTALLS += target sources

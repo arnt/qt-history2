@@ -4,7 +4,7 @@ SOURCES       = client.cpp \
 QT           += network
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/network/fortuneclient
+target.path = $$[QT_INSTALL_EXAMPLES]/network/fortuneclient
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS fortuneclient.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/network/fortuneclient
+sources.path = $$[QT_INSTALL_EXAMPLES]/network/fortuneclient
 INSTALLS += target sources

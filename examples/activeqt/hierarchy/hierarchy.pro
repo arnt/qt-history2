@@ -9,7 +9,7 @@ RC_FILE	 = ../../../extensions/activeqt/control/qaxserver.rc
 DEF_FILE = ../../../extensions/activeqt/control/qaxserver.def
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/activeqt/hierarchy
+target.path = $$[QT_INSTALL_EXAMPLES]/activeqt/hierarchy
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS hierarchy.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/activeqt/hierarchy
+sources.path = $$[QT_INSTALL_EXAMPLES]/activeqt/hierarchy
 INSTALLS += target sources

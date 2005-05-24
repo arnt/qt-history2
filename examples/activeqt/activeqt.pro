@@ -14,7 +14,7 @@ contains(QT_CONFIG, opengl):SUBDIRS += opengl
 win32-g++:SUBDIRS = webbrowser
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/activeqt
+target.path = $$[QT_INSTALL_EXAMPLES]/activeqt
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS activeqt.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/activeqt
+sources.path = $$[QT_INSTALL_EXAMPLES]/activeqt
 INSTALLS += target sources

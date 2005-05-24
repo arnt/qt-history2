@@ -8,7 +8,7 @@ RESOURCES += interview.qrc
 build_all:CONFIG += release
 
 # install
-target.path = $$[QT_INSTALL_DATA]/demos/interview
+target.path = $$[QT_INSTALL_DEMOS]/interview
 sources.files = $$SOURCES $$HEADERS $$RESOURCES README *.pro images
-sources.path = $$[QT_INSTALL_DATA]/demos/interview
+sources.path = $$[QT_INSTALL_DEMOS]/interview
 INSTALLS += target sources

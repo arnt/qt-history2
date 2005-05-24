@@ -16,7 +16,7 @@ HEADERS += \
 RESOURCES += shared.qrc
 
 # install
-target.path = $$[QT_INSTALL_DATA]/demos/shared
+target.path = $$[QT_INSTALL_DEMOS]/shared
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.pri images
-sources.path = $$[QT_INSTALL_DATA]/demos/shared
+sources.path = $$[QT_INSTALL_DEMOS]/shared
 INSTALLS += target sources

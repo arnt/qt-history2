@@ -8,7 +8,7 @@ include($$SHARED_FOLDER/shared.pri)
 RESOURCES += gradients.qrc
 
 # install
-target.path = $$[QT_INSTALL_DATA]/demos/gradients
+target.path = $$[QT_INSTALL_DEMOS]/gradients
 sources.files = $$SOURCES $$HEADERS $$RESOURCES *.pro *.html
-sources.path = $$[QT_INSTALL_DATA]/demos/gradients
+sources.path = $$[QT_INSTALL_DEMOS]/gradients
 INSTALLS += target sources

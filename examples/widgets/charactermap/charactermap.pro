@@ -5,7 +5,7 @@ SOURCES     = characterwidget.cpp \
               main.cpp
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/widgets/charactermap
+target.path = $$[QT_INSTALL_EXAMPLES]/widgets/charactermap
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS charactermap.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/widgets/charactermap
+sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/charactermap
 INSTALLS += target sources

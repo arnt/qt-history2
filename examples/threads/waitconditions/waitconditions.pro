@@ -14,7 +14,7 @@ OBJECTS_DIR=.obj/debug-shared
 MOC_DIR=.moc/debug-shared
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/threads/waitconditions
+target.path = $$[QT_INSTALL_EXAMPLES]/threads/waitconditions
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS waitconditions.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/threads/waitconditions
+sources.path = $$[QT_INSTALL_EXAMPLES]/threads/waitconditions
 INSTALLS += target sources

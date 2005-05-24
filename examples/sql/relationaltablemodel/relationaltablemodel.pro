@@ -3,7 +3,7 @@ SOURCES       = relationaltablemodel.cpp
 QT           += sql
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/sql/relationaltablemodel
+target.path = $$[QT_INSTALL_EXAMPLES]/sql/relationaltablemodel
 sources.files = $$SOURCES *.h $$RESOURCES $$FORMS relationaltablemodel.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/sql/relationaltablemodel
+sources.path = $$[QT_INSTALL_EXAMPLES]/sql/relationaltablemodel
 INSTALLS += target sources

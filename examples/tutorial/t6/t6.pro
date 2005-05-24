@@ -6,7 +6,7 @@ TARGET		= t6
 QTDIR_build:REQUIRES="contains(QT_CONFIG, large-config)"
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/tutorial/t6
+target.path = $$[QT_INSTALL_EXAMPLES]/tutorial/t6
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS t6.pro
-sources.path = $$[QT_INSTALL_DATA]/examples/tutorial/t6
+sources.path = $$[QT_INSTALL_EXAMPLES]/tutorial/t6
 INSTALLS += target sources

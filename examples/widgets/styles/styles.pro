@@ -6,7 +6,7 @@ SOURCES       = main.cpp \
 RESOURCES     = styles.qrc
 
 # install
-target.path = $$[QT_INSTALL_DATA]/examples/widgets/styles
+target.path = $$[QT_INSTALL_EXAMPLES]/widgets/styles
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS styles.pro images
-sources.path = $$[QT_INSTALL_DATA]/examples/widgets/styles
+sources.path = $$[QT_INSTALL_EXAMPLES]/widgets/styles
 INSTALLS += target sources
