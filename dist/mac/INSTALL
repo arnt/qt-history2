@@ -28,8 +28,8 @@
 
         make
 
-    To install the library, demos, examples, tools
-    and tutorials type:
+    To install the library, demos, examples, tools and tutorials
+    become root on your system and type:
 
         make install
 
@@ -45,7 +45,7 @@
 
     This is done like this:
 
-    In .profile (if your shell is bash), add the following line:
+    In .profile (if your shell is bash), add the following lines:
 
         PATH=/usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
         export PATH
