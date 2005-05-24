@@ -1259,8 +1259,10 @@ QMakeProject::read(uchar cmd)
     if(cmd & ReadPostFiles) { // parse post files
         const QStringList l = vars["QMAKE_POST_INCLUDE_FILES"];
         for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-            if(read((*it), vars))
-                vars["QMAKE_INTERNAL_INCLUDED_FILES"].append((*it));
+            if(read((*it), vars)) {
+                if(vars["QMAKE_INTERNAL_INCLUDED_FILES"].indexOf((*it)) == -1)
+                    vars["QMAKE_INTERNAL_INCLUDED_FILES"].append((*it));
+            }
         }
     }
 
@@ -1549,11 +1551,13 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     } else {
         parsed = read(file, place);
     }
-    if(parsed)
-        place["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
-    else
+    if(parsed) {
+        if(place["QMAKE_INTERNAL_INCLUDED_FILES"].indexOf(orig_file) == -1)
+            place["QMAKE_INTERNAL_INCLUDED_FILES"].append(orig_file);
+    } else {
         warn_msg(WarnParser, "%s:%d: Failure to include file %s.",
                  pi.file.toLatin1().constData(), pi.line_no, orig_file.toLatin1().constData());
+    }
     iterator = it;
     function = fu;
     parser = pi;
