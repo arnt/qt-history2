@@ -1,15 +1,24 @@
+/****************************************************************************
+**
+** Copyright (C) 2005-$THISYEAR$ Trolltech AS. All rights reserved.
+** Copyright (C) 2002-$THISYEAR$ Björn Bergström
+**
+** This file is part of the $MODULE$ of the Qt Toolkit.
+**
+** $LICENSE$
+**
+** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
+** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
+**
+****************************************************************************/
+
 /*
- * RECURSIVE SHADOWCASTING
- * Author: Bjï¿½n Bergstrï¿½
- * e-mail: dungeondweller@swipnet.se
- *
- * fov.cpp part of rscfovdemo
  *
  * implementation of recursive shadowcasting
  *
- * 020125: Bjï¿½n Bergstrï¿½ - changed from float to double to remove compiler
+ * 020125: Björn Bergström - changed from float to double to remove compiler
  *         warnings
- * 020125: Bjï¿½n Bergstrï¿½ - included a check to avoid orthogonal edges to be
+ * 020125: Björn Bergström - included a check to avoid orthogonal edges to be
  *         scanned more than once
  * 020125: Greg McIntyre - declared the nwL, neL etc in FOV::start outside the
  *         for loops
@@ -51,7 +60,7 @@ double FOV::invSlope(double x1, double y1, double x2, double y2)
 
 
 /* scanNW2N
-	scans the octant covering the area from north west to north from left to
+	scans the octant covering the area from north west to north from left to 
 	right
 	the method ignores the octants starting and ending cells since they have
 	been applied in FOV::start
@@ -69,7 +78,7 @@ void FOV::scanNW2N(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	int yCheck=yCenter - distance;
 
 	// is the starting cell the leftmost cell in the octant?
-	// NO: call applyCell() to starting cell
+	// NO: call applyCell() to starting cell 
 	// YES: it has already been applied in FOV::start()
 	if(xStart != xCenter-(1*distance))
 	{
@@ -84,14 +93,14 @@ void FOV::scanNW2N(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	for(int xCheck=xStart+1; xCheck<=xEnd; xCheck++)
 	{
 		// is the current cell the rightmost cell in the octant?
-		// NO: call applyCell() to current cell
+		// NO: call applyCell() to current cell 
 		// YES: it has already been applied in FOV::start()
 		if(xCheck != xCenter)
 		{
 			// apply cell
 			this->applyCell(map,xCheck,yCheck);
 		}
-
+		
 		// cell blocks LOS
 		// if previous cell didn't block LOS (prevBlocked==false) we have
 		// hit a 'new' section of walls. a new scan will be started with an
@@ -153,7 +162,7 @@ void FOV::scanNW2N(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 
 
 /* scanNE2N
-	scans the octant covering the area from north east to north from right to
+	scans the octant covering the area from north east to north from right to 
 	left
 	the method ignores the octants starting and ending cells since they have
 	been applied in FOV::start
@@ -171,7 +180,7 @@ void FOV::scanNE2N(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	int yCheck=yCenter - distance;
 
 	// is starting cell the rightmost cell in the octant?
-	// NO: call applyCell() to starting cell
+	// NO: call applyCell() to starting cell 
 	// YES: it has already been applied in FOV::start()
 	if(xStart != xCenter-(-1*distance))
 	{
@@ -186,14 +195,14 @@ void FOV::scanNE2N(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	for(int xCheck=xStart-1; xCheck>=xEnd; xCheck--)
 	{
 		// is the current cell the leftmost cell in the octant?
-		// NO: call applyCell() to current cell
+		// NO: call applyCell() to current cell 
 		// YES: it has already been applied in FOV::start()
 		if(xCheck != xCenter)
 		{
 			// apply cell
 			this->applyCell(map,xCheck,yCheck);
 		}
-
+		
 		// cell blocks LOS
 		// if previous cell didn't block LOS (prevBlocked==false) we have
 		// hit a 'new' section of walls. a new scan will be started with an
@@ -255,7 +264,7 @@ void FOV::scanNE2N(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 
 
 /* scanNW2W
-	scans the octant covering the area from north west to west from top to
+	scans the octant covering the area from north west to west from top to 
 	bottom
 	the method ignores the octants starting and ending cells since they have
 	been applied in FOV::start
@@ -273,7 +282,7 @@ void FOV::scanNW2W(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	int xCheck=xCenter - distance;
 
 	// is starting cell the topmost cell in the octant?
-	// NO: call applyCell() to starting cell
+	// NO: call applyCell() to starting cell 
 	// YES: it has already been applied in FOV::start()
 	if(yStart != yCenter-(1*distance))
 	{
@@ -288,14 +297,14 @@ void FOV::scanNW2W(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	for(int yCheck=yStart+1; yCheck<=yEnd; yCheck++)
 	{
 		// is the current cell the bottommost cell in the octant?
-		// NO: call applyCell() to current cell
+		// NO: call applyCell() to current cell 
 		// YES: it has already been applied in FOV::start()
 		if(yCheck != yCenter)
 		{
 			// apply cell
 			this->applyCell(map,xCheck,yCheck);
 		}
-
+		
 		// cell blocks LOS
 		// if previous cell didn't block LOS (prevBlocked==false) we have
 		// hit a 'new' section of walls. a new scan will be started with an
@@ -366,7 +375,7 @@ void FOV::scanNW2W(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 }
 
 /* scanSW2W
-	scans the octant covering the area from southe west to west from bottom to
+	scans the octant covering the area from southe west to west from bottom to 
 	top
 	the method ignores the octants starting and ending cells since they have
 	been applied in FOV::start
@@ -384,7 +393,7 @@ void FOV::scanSW2W(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	int xCheck=xCenter - distance;
 
 	// is starting cell the bottommost cell in the octant?
-	// NO: call applyCell() to starting cell
+	// NO: call applyCell() to starting cell 
 	// YES: it has already been applied in FOV::start()
 	if(yStart != yCenter-(-1*distance))
 	{
@@ -399,14 +408,14 @@ void FOV::scanSW2W(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	for(int yCheck=yStart-1; yCheck>=yEnd; yCheck--)
 	{
 		// is the current cell the topmost cell in the octant?
-		// NO: call applyCell() to current cell
+		// NO: call applyCell() to current cell 
 		// YES: it has already been applied in FOV::start()
 		if(yCheck != yCenter)
 		{
 			// apply cell
 			this->applyCell(map,xCheck,yCheck);
 		}
-
+		
 		// cell blocks LOS
 		// if previous cell didn't block LOS (prevBlocked==false) we have
 		// hit a 'new' section of walls. a new scan will be started with an
@@ -478,7 +487,7 @@ void FOV::scanSW2W(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 
 
 /* scanSW2S
-	scans the octant covering the area from south west to south from left to
+	scans the octant covering the area from south west to south from left to 
 	right
 	the method ignores the octants starting and ending cells since they have
 	been applied in FOV::start
@@ -496,7 +505,7 @@ void FOV::scanSW2S(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	int yCheck=yCenter + distance;
 
 	// is the starting cell the leftmost cell in the octant?
-	// NO: call applyCell() to starting cell
+	// NO: call applyCell() to starting cell 
 	// YES: it has already been applied in FOV::start()
 	if(xStart != xCenter+(-1*distance))
 	{
@@ -511,14 +520,14 @@ void FOV::scanSW2S(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	for(int xCheck=xStart+1; xCheck<=xEnd; xCheck++)
 	{
 		// is the current cell the rightmost cell in the octant?
-		// NO: call applyCell() to current cell
+		// NO: call applyCell() to current cell 
 		// YES: it has already been applied in FOV::start()
 		if(xCheck != xCenter)
 		{
 			// apply cell
 			this->applyCell(map,xCheck,yCheck);
 		}
-
+		
 		// cell blocks LOS
 		// if previous cell didn't block LOS (prevBlocked==false) we have
 		// hit a 'new' section of walls. a new scan will be started with an
@@ -580,7 +589,7 @@ void FOV::scanSW2S(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 
 
 /* scanSE2S
-	scans the octant covering the area from south east to south from right to
+	scans the octant covering the area from south east to south from right to 
 	left
 	the method ignores the octants starting and ending cells since they have
 	been applied in FOV::start
@@ -598,7 +607,7 @@ void FOV::scanSE2S(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	int yCheck=yCenter + distance;
 
 	// is starting cell the rightmost cell in the octant?
-	// NO: call applyCell() to starting cell
+	// NO: call applyCell() to starting cell 
 	// YES: it has already been applied in FOV::start()
 	if(xStart != xCenter+(1*distance))
 	{
@@ -613,14 +622,14 @@ void FOV::scanSE2S(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	for(int xCheck=xStart-1; xCheck>=xEnd; xCheck--)
 	{
 		// is the current cell the leftmost cell in the octant?
-		// NO: call applyCell() to current cell
+		// NO: call applyCell() to current cell 
 		// YES: it has already been applied in FOV::start()
 		if(xCheck != xCenter)
 		{
 			// apply cell
 			this->applyCell(map,xCheck,yCheck);
 		}
-
+		
 		// cell blocks LOS
 		// if previous cell didn't block LOS (prevBlocked==false) we have
 		// hit a 'new' section of walls. a new scan will be started with an
@@ -682,7 +691,7 @@ void FOV::scanSE2S(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 
 
 /* scanNE2E
-	scans the octant covering the area from north east to east from top to
+	scans the octant covering the area from north east to east from top to 
 	bottom
 	the method ignores the octants starting and ending cells since they have
 	been applied in FOV::start
@@ -700,7 +709,7 @@ void FOV::scanNE2E(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	int xCheck=xCenter + distance;
 
 	// is starting cell the topmost cell in the octant?
-	// NO: call applyCell() to starting cell
+	// NO: call applyCell() to starting cell 
 	// YES: it has already been applied in FOV::start()
 	if(yStart != yCenter+(-1*distance))
 	{
@@ -715,14 +724,14 @@ void FOV::scanNE2E(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	for(int yCheck=yStart+1; yCheck<=yEnd; yCheck++)
 	{
 		// is the current cell the bottommost cell in the octant?
-		// NO: call applyCell() to current cell
+		// NO: call applyCell() to current cell 
 		// YES: it has already been applied in FOV::start()
 		if(yCheck != yCenter)
 		{
 			// apply cell
 			this->applyCell(map,xCheck,yCheck);
 		}
-
+		
 		// cell blocks LOS
 		// if previous cell didn't block LOS (prevBlocked==false) we have
 		// hit a 'new' section of walls. a new scan will be started with an
@@ -793,7 +802,7 @@ void FOV::scanNE2E(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 }
 
 /* scanSE2E
-	scans the octant covering the area from south east to east from bottom to
+	scans the octant covering the area from south east to east from bottom to 
 	top
 	the method ignores the octants starting and ending cells since they have
 	been applied in FOV::start
@@ -811,7 +820,7 @@ void FOV::scanSE2E(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	int xCheck=xCenter + distance;
 
 	// is starting cell the bottommost cell in the octant?
-	// NO: call applyCell() to starting cell
+	// NO: call applyCell() to starting cell 
 	// YES: it has already been applied in FOV::start()
 	if(yStart != yCenter+(1*distance))
 	{
@@ -826,14 +835,14 @@ void FOV::scanSE2E(OublietteLevel *map, int xCenter, int yCenter, int distance, 
 	for(int yCheck=yStart-1; yCheck>=yEnd; yCheck--)
 	{
 		// is the current cell the topmost cell in the octant?
-		// NO: call applyCell() to current cell
+		// NO: call applyCell() to current cell 
 		// YES: it has already been applied in FOV::start()
 		if(yCheck != yCenter)
 		{
 			// apply cell
 			this->applyCell(map,xCheck,yCheck);
 		}
-
+		
 		// cell blocks LOS
 		// if previous cell didn't block LOS (prevBlocked==false) we have
 		// hit a 'new' section of walls. a new scan will be started with an
