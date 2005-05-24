@@ -23,9 +23,8 @@
 
     \warning The Qt OpenGL Extension includes direct support for the
     use of OpenGL overlays. For many uses of overlays, this makes the
-    technique described below redundant. See the \c opengl/overlay
-    example program. The following is a discussion on how to use
-    non-QGL widgets in overlay planes.
+    technique described below redundant. The following is a discussion
+    on how to use non-QGL widgets in overlay planes.
 
     In the typical case, X11 overlays can easily be used together with the
     current version of Qt and the Qt OpenGL Extension. The following
@@ -68,21 +67,4 @@
     TrueColor \c ColorSpec for QApplication, because this will force the
     normal Qt widgets to use a \c TrueColor visual, which will typically
     be in the main plane, not in the overlay plane as desired.
-
-    \target x11visuals
-    \section1 About X11 Visuals
-
-    The utilities directory contains two small programs that can help you
-    determine the capabilities of your X server. These programs are from
-    the OpenGL book mentioned above, see \c utilities/NOTICE for copyright
-    information. The full set of example programs from this book is
-    available at \l{ftp://ftp.sgi.com/pub/opengl/opengl_for_x/}.
-
-    \c glxvisuals lists all the GL-capable visuals the X server provides,
-    together with the depth and other GL-specific information for each.
-    Note especially the column "lvl"; a number in this column means that
-    the visual is in an overlay plane.
-
-    \c sovinfo lists all available visuals, and provides special
-    transparency information for overlay visuals.
 */
