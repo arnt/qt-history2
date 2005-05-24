@@ -329,6 +329,14 @@ void Launcher::launchExample(const QString &example)
     connect(process, SIGNAL(finished(int)),
             this, SLOT(enableLaunching()));
 
+#ifdef Q_OS_WIN
+    //make sure it finds the dlls on windows
+    QString curpath = QString::fromLocal8Bit(qgetenv("PATH").constData());
+    QString newpath = QString("PATH=%1;%2").arg(
+        QLibraryInfo::location(QLibraryInfo::BinariesPath), curpath);
+    process->setEnvironment(QStringList(newpath));
+#endif
+
     runningExamples.append(example);
     runningProcesses[process] = example;
     process->setWorkingDirectory(examplePaths[example].first);
