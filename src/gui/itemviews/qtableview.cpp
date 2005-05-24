@@ -815,6 +815,8 @@ int QTableView::rowViewportPosition(int row) const
 
 /*!
     Returns the height of the given \a row.
+
+    \sa resizeRowToContents()
 */
 int QTableView::rowHeight(int row) const
 {
@@ -841,6 +843,8 @@ int QTableView::columnViewportPosition(int column) const
 
 /*!
     Returns the width of the given \a column.
+
+    \sa resizeColumnToContents()
 */
 int QTableView::columnWidth(int column) const
 {

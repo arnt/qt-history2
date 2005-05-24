@@ -287,6 +287,8 @@ int QTreeView::columnViewportPosition(int column) const
 
 /*!
   Returns the width of the \a column.
+
+  \sa resizeColumnToContents()
 */
 int QTreeView::columnWidth(int column) const
 {
