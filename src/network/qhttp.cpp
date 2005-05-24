@@ -2091,9 +2091,8 @@ void QHttpPrivate::sendRequest()
         if (port && port != 80) proxyUrl.setPort(port);
         QString request = proxyUrl.resolved(QUrl(header.path())).toEncoded();
 
-        header = QHttpRequestHeader(header.method(), request,
-                                    header.majorVersion(),
-                                    header.minorVersion());
+        header.setRequest(header.method(), request, header.majorVersion(), header.minorVersion());
+        
         if (!proxyUser.isEmpty()) {
             QByteArray pass = proxyUser.toAscii();
             if (!proxyPassword.isEmpty()) {
