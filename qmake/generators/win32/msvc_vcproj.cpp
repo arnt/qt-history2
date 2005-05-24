@@ -273,6 +273,8 @@ VcprojGenerator::VcprojGenerator() : Win32MakefileGenerator(), init_flag(false)
 }
 bool VcprojGenerator::writeMakefile(QTextStream &t)
 {
+    initProject(); // Fills the whole project with proper data
+
     // Generate solution file
     if(project->first("TEMPLATE") == "vcsubdirs") {
         debug_msg(1, "Generator: MSVC.NET: Writing solution file");
@@ -704,8 +706,6 @@ void VcprojGenerator::init()
     }
     qDebug("");
 #endif
-
-    initProject(); // Fills the whole project with proper data
 }
 
 bool VcprojGenerator::mergeBuildProject(MakefileGenerator *other)
@@ -1304,7 +1304,7 @@ void VcprojGenerator::initOld()
     if (!project->variables()["DEF_FILE"].isEmpty())
         project->variables()["MSVCPROJ_LFLAGS"].append("/DEF:"+project->first("DEF_FILE"));
 
-    project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCPROJ_LFLAGS" << "MSVCPROJ_LIBS";
+    project->variables()["QMAKE_INTERNAL_PRL_LIBS"] << "MSVCPROJ_LIBS";
 
     // Verbose output if "-d -d"...
     outputVariables();
