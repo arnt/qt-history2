@@ -24,7 +24,7 @@
 
 
 QDockWidgetSeparator::QDockWidgetSeparator(QDockWidgetLayout *l, QWidget *parent)
-    : QWidget(parent), layout(l), state(0)
+    : QWidget(parent), layout(l), state(0), hover(false)
 { setCursor(layout->orientation == Qt::Horizontal ? Qt::SplitHCursor : Qt::SplitVCursor); }
 
 /*!
@@ -40,6 +40,23 @@ QRect QDockWidgetSeparator::calcRect(const QPoint &point)
     return (layout->orientation == Qt::Horizontal ?
 	    QRect(pos - (ext/2), 0, ext, sz) :
 	    QRect(0, pos - (ext/2), sz, ext));
+}
+
+bool QDockWidgetSeparator::event(QEvent *event)
+{
+    switch(event->type()) {
+    case QEvent::HoverEnter:
+        hover = true;
+        update();
+        break;
+    case QEvent::HoverLeave:
+        hover = false;
+        update();
+        break;
+    default:
+        break;
+    }
+    return QWidget::event(event);
 }
 
 void QDockWidgetSeparator::mousePressEvent(QMouseEvent *event)
@@ -105,6 +122,8 @@ void QDockWidgetSeparator::paintEvent(QPaintEvent *)
 	opt.state |= QStyle::State_Enabled;
     if (layout->orientation != Qt::Horizontal)
 	opt.state |= QStyle::State_Horizontal;
+    if (hover)
+        opt.state |= QStyle::State_MouseOver;
     opt.rect = rect();
     opt.palette = palette();
     style()->drawPrimitive(QStyle::PE_IndicatorDockWidgetResizeHandle, &opt, &p, this);

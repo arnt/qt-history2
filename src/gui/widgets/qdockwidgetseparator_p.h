@@ -44,6 +44,7 @@ public:
     void mouseReleaseEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event);
+    bool event(QEvent *event);
 
     QDockWidgetLayout *layout;
 
@@ -51,6 +52,8 @@ public:
 	QPoint origin, last;
 	QWidget *prevFocus;
     } *state;
+
+    bool hover;
 };
 
 #endif // QDOCKWINDOWSEPARATOR_P_H

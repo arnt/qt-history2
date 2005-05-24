@@ -26,7 +26,7 @@
 
 
 QDockSeparator::QDockSeparator(QDockWidgetLayout *d, QWidget *parent)
-    : QWidget(parent), state(0)
+    : QWidget(parent), hover(0), state(0)
 { setDock(d); }
 
 void QDockSeparator::setDock(QDockWidgetLayout *d)
@@ -35,6 +35,23 @@ void QDockSeparator::setDock(QDockWidgetLayout *d)
     dock = d;
     orientation = dock->orientation;
     setCursor((orientation == Qt::Horizontal) ? Qt::SplitVCursor : Qt::SplitHCursor);
+}
+
+bool QDockSeparator::event(QEvent *event)
+{
+    switch(event->type()) {
+    case QEvent::HoverEnter:
+        hover = true;
+        update();
+        break;
+    case QEvent::HoverLeave:
+        hover = false;
+        update();
+        break;
+    default:
+        break;
+    }
+    return QWidget::event(event);
 }
 
 void QDockSeparator::mousePressEvent(QMouseEvent *event)
@@ -101,6 +118,8 @@ void QDockSeparator::paintEvent(QPaintEvent *)
 	opt.state |= QStyle::State_Enabled;
     if (orientation == Qt::Horizontal)
 	opt.state |= QStyle::State_Horizontal;
+    if (hover)
+	opt.state |= QStyle::State_MouseOver;
     opt.rect = rect();
     opt.palette = palette();
     style()->drawPrimitive(QStyle::PE_IndicatorDockWidgetResizeHandle, &opt, &p, this);

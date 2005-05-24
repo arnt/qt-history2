@@ -113,6 +113,7 @@ public:
     Qt::Orientation orient;
     bool opaq;
     QSplitter *s;
+    bool hover;
 };
 
 /*!
@@ -145,6 +146,7 @@ QSplitterHandle::QSplitterHandle(Qt::Orientation orientation, QSplitter *parent)
 {
     Q_D(QSplitterHandle);
     d->s = parent;
+    d->hover = false;
     setOrientation(orientation);
 }
 
@@ -253,6 +255,27 @@ QSize QSplitterHandle::sizeHint() const
 /*!
     \reimp
 */
+bool QSplitterHandle::event(QEvent *event)
+{
+    Q_D(QSplitterHandle);
+    switch(event->type()) {
+    case QEvent::HoverEnter:
+        d->hover = true;
+        update();
+        break;
+    case QEvent::HoverLeave:
+        d->hover = false;
+        update();
+        break;
+    default:
+        break;
+    }
+    return QWidget::event(event);
+}
+
+/*!
+    \reimp
+*/
 void QSplitterHandle::mouseMoveEvent(QMouseEvent *e)
 {
     Q_D(QSplitterHandle);
@@ -305,6 +328,10 @@ void QSplitterHandle::paintEvent(QPaintEvent *)
         opt.state = QStyle::State_Horizontal;
     else
         opt.state = QStyle::State_None;
+    if (d->hover)
+        opt.state |= QStyle::State_MouseOver;
+    if (isEnabled())
+        opt.state |= QStyle::State_Enabled;
     parentWidget()->style()->drawControl(QStyle::CE_Splitter, &opt, &p, d->s);
 }
 

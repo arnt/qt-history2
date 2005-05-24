@@ -41,9 +41,11 @@ public:
     void mouseMoveEvent(QMouseEvent *event);
     void mouseReleaseEvent(QMouseEvent *event);
     void paintEvent(QPaintEvent *event);
+    bool event(QEvent *event);
 
     QDockWidgetLayout *dock;
     Qt::Orientation orientation;
+    bool hover;
 
     struct DragState {
 	QPoint origin;

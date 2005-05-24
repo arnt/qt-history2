@@ -135,6 +135,7 @@ protected:
     void mouseMoveEvent(QMouseEvent *);
     void mousePressEvent(QMouseEvent *);
     void mouseReleaseEvent(QMouseEvent *);
+    bool event(QEvent *);
 
     void moveSplitter(int p);
     int closestLegalPosition(int p);

@@ -36,6 +36,7 @@ static const bool UsePixmapCache = true;
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qscrollbar.h>
+#include <qsplitter.h>
 #include <qstyleoption.h>
 #include <qtextedit.h>
 #include <qtoolbar.h>
@@ -1548,6 +1549,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         }
         break;
     case PE_IndicatorDockWidgetResizeHandle:
+        if ((option->state & State_Enabled) && (option->state & State_MouseOver))
+            painter->fillRect(option->rect, option->palette.base());
         if (option->state & State_Horizontal) {
             int width = option->rect.width() / 3;
             QRect rect(option->rect.center().x() - width / 2,
@@ -2646,6 +2649,8 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         }
         break;
     case CE_Splitter:
+        if ((option->state & State_Enabled) && (option->state & State_MouseOver))
+            painter->fillRect(option->rect, option->palette.base());
         if (option->state & State_Horizontal) {
             int height = option->rect.height() / 3;
             QRect rect(option->rect.left() + (option->rect.width() / 2 - 1),
@@ -4371,11 +4376,16 @@ void QPlastiqueStyle::polish(QWidget *widget)
         || qobject_cast<QComboBox *>(widget)
         || qobject_cast<QCheckBox *>(widget)
         || qobject_cast<QRadioButton *>(widget)
+        || qobject_cast<QSplitterHandle *>(widget)
         || qobject_cast<QTabBar *>(widget)) {
         widget->setAttribute(Qt::WA_Hover);
     }
 
     if (widget->inherits("QWorkspaceTitleBar"))
+        widget->setAttribute(Qt::WA_Hover);
+    else if (widget->inherits("QDockSeparator"))
+        widget->setAttribute(Qt::WA_Hover);
+   else if (widget->inherits("QDockWidgetSeparator"))
         widget->setAttribute(Qt::WA_Hover);
 
     if (qobject_cast<QToolBox *>(widget)
@@ -4397,6 +4407,7 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
     if (qobject_cast<QPushButton *>(widget)
         || qobject_cast<QComboBox *>(widget)
         || qobject_cast<QCheckBox *>(widget)
+        || qobject_cast<QSplitterHandle *>(widget)
         || qobject_cast<QRadioButton *>(widget)) {
         widget->setAttribute(Qt::WA_Hover, false);
     }
@@ -4404,6 +4415,10 @@ void QPlastiqueStyle::unpolish(QWidget *widget)
     if (widget->inherits("QWorkspaceTitleBar"))
         widget->setAttribute(Qt::WA_Hover, false);
     else if (qobject_cast<QTabBar *>(widget))
+        widget->setAttribute(Qt::WA_Hover, false);
+    else if (widget->inherits("QDockSeparator"))
+        widget->setAttribute(Qt::WA_Hover, false);
+    else if (widget->inherits("QDockWidgetSeparator"))
         widget->setAttribute(Qt::WA_Hover, false);
 
     if (qobject_cast<QToolBox *>(widget)
