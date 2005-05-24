@@ -268,6 +268,7 @@ RichTextEditorDialog::RichTextEditorDialog(QWidget *parent)
     layout->setMargin(1);
     m_editor = new RichTextEditor(this);
     QToolBar *tool_bar = m_editor->createToolBar(this);
+    tool_bar->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Minimum);
     layout->addWidget(tool_bar);
     layout->addWidget(m_editor);
 
