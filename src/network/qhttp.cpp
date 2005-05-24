@@ -2232,7 +2232,9 @@ void QHttpPrivate::slotError(QTcpSocket::SocketError err)
                 finishedWithError(QString(QT_TRANSLATE_NOOP("QHttp", "Host %1 not found"))
                                   .arg(socket->peerName()), QHttp::HostNotFound);
                 break;
-            default:
+        case QTcpSocket::RemoteHostClosedError:
+                break;
+        default:
                 finishedWithError(QT_TRANSLATE_NOOP("QHttp", "HTTP request failed"), QHttp::UnknownError);
                 break;
         }
