@@ -1,6 +1,9 @@
 INCLUDEPATH += $$SHARED_FOLDER
 
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 contains(CONFIG, debug_and_release_target) {    
     CONFIG(debug, debug|release) { 
 	LIBS+=-L$$SHARED_FOLDER/debug

@@ -1,7 +1,10 @@
 TARGET = rcc
 CONFIG += console
 mac:CONFIG -= app_bundle
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 
 DEFINES	       += QT_RCC QT_LITE_UNICODE QT_NO_DATASTREAM QT_NO_THREAD QT_NO_QOBJECT \
                   QT_NO_UNICODETABLES QT_NO_COMPONENT

@@ -1,7 +1,10 @@
 TEMPLATE        = app
 CONFIG          += qt warn_on console
 CONFIG          -= app_bundle
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 HEADERS         = ../shared/metatranslator.h \
                   ../shared/translator.h \
                   ../shared/proparser.h

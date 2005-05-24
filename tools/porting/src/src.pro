@@ -2,7 +2,10 @@ TEMPLATE = app
 CONFIG -= moc
 CONFIG += console
 CONFIG -= app_bundle
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 QT = xml core
 DEPENDPATH += .
 TARGET =qt3to4

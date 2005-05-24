@@ -3,7 +3,10 @@ LANGUAGE = C++
 QT += xml
 
 CONFIG        += qt warn_on assistant
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 
 SOURCES        += finddialog.cpp \
 	about.cpp \

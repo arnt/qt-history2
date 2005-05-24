@@ -1,6 +1,9 @@
 TEMPLATE = lib
 CONFIG += static
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 TARGET = demo_shared
 
 SOURCES += \

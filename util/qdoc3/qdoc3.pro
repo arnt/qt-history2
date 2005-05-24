@@ -1,7 +1,10 @@
 DEFINES += QDOC2_COMPAT
 QT = core
 CONFIG += console
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 mac:CONFIG -= app_bundle
 HEADERS += apigenerator.h \
            archiveextractor.h \

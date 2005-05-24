@@ -1,7 +1,10 @@
 TEMPLATE = app
 CONFIG += console qt_no_compat_warning
 CONFIG -= app_bundle
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 
 QT += xml qt3support
 

@@ -5,7 +5,10 @@ HEADERS += model.h
 SOURCES += model.cpp main.cpp
 RESOURCES += interview.qrc
 
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 
 # install
 target.path = $$[QT_INSTALL_DEMOS]/interview

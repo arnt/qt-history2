@@ -2,7 +2,10 @@ TEMPLATE = app
 QT = xml core
 CONFIG += warn_on console no_batch
 CONFIG -= app_bundle
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 
 unix:!contains(QT_CONFIG, zlib):LIBS        += -lz
 

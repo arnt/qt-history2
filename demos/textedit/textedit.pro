@@ -8,7 +8,10 @@ SOURCES         = textedit.cpp \
                   main.cpp
 
 RESOURCES += textedit.qrc
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 
 # install
 target.path = $$[QT_INSTALL_DEMOS]/textedit

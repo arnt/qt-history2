@@ -3,7 +3,10 @@ LANGUAGE = C++
 TARGET         = assistant
 
 CONFIG        += qt warn_on
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 QT            += xml network
 
 PROJECTNAME        = Assistant

@@ -2,7 +2,10 @@
 DESTDIR = ../../../../bin
 QT += xml network
 CONFIG += qt assistant
-build_all:CONFIG += release
+build_all:!build_pass {
+    CONFIG -= build_all
+    CONFIG += release
+}
 
 INCLUDEPATH += \
     ../lib/sdk \
