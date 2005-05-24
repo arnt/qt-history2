@@ -148,6 +148,11 @@ bool IncludeTokenReplacement::doReplace(const TokenContainer &tokenContainer,
         tokenText += newText;
         ++currentIndex;
     }
+
+    // Also match cases where the header name contains
+    // capital letters (ex. #include <QWidget.h>)
+    tokenText = tokenText.toLower();
+
     if(tokenText.startsWith("#") && tokenText.contains("include") ) {
         int pos = tokenText.indexOf(fromFile);
         if(pos!=-1) {
