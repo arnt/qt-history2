@@ -1288,7 +1288,7 @@ void Configure::generateOutputVars()
     if( !dictionary[ "QT_INSTALL_EXAMPLES" ].size() )
 	dictionary[ "QT_INSTALL_EXAMPLES" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/examples");
     if( !dictionary[ "QT_INSTALL_DEMOS" ].size() )
-	dictionary[ "QT_INSTALL_DEMOS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" + "/demos"] );
+	dictionary[ "QT_INSTALL_DEMOS" ] = QDir::convertSeparators( dictionary[ "QT_INSTALL_PREFIX" ] + "/demos" );
 
     qmakeVars += QString( "OBJECTS_DIR=" ) + QDir::convertSeparators( "tmp/obj/" + dictionary[ "QMAKE_OUTDIR" ] );
     qmakeVars += QString( "MOC_DIR=" ) + QDir::convertSeparators( "tmp/moc/" + dictionary[ "QMAKE_OUTDIR" ] );
