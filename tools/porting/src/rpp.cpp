@@ -389,7 +389,13 @@ bool Preprocessor::parseDefineDirective(Item *group)
         if (rListStart != -1) {
             const int skipNewLineToken = 1;
             for (int i = rListStart; i < noEscNewline.count() - skipNewLineToken; ++i) {
-                replacementList.append(noEscNewline.at(i));
+                const int tokenContainerIndex = noEscNewline.at(i);
+                const Type type = m_tokenTypeList.at(tokenContainerIndex);
+                // Don't append comment tokens.
+                if (type != Token_line_comment && type != Token_multiline_comment) {
+                   replacementList.append(tokenContainerIndex);
+
+                }
             }
         }
     }
