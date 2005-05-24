@@ -1808,8 +1808,7 @@ const QGLContext* QGLContext::currentContext()
     color) by calling overlayContext().
 
     On X servers in which the default visual is in an overlay plane,
-    non-GL Qt windows can also be used for overlays. See the
-    examples/opengl/overlay_x11 example program for details.
+    non-GL Qt windows can also be used for overlays.
 */
 
 /*!
