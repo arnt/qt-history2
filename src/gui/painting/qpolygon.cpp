@@ -23,8 +23,6 @@
 
 #include <stdarg.h>
 
-const qreal Q_PI = qreal(3.14159265358979323846);
-
 /*!
     \class QPolygon
     \brief The QPolygon class provides a vector of points.

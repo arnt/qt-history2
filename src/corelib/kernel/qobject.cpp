@@ -2014,10 +2014,14 @@ bool QObject::connect(const QObject *sender, const char *signal,
                       const QObject *receiver, const char *method,
                       Qt::ConnectionType type)
 {
+#ifndef QT_NO_DEBUG
     bool warnCompat = true;
+#endif
     if (type == Qt::AutoCompatConnection) {
         type = Qt::AutoConnection;
+#ifndef QT_NO_DEBUG
         warnCompat = false;
+#endif
     }
 
     if (sender == 0 || receiver == 0 || signal == 0 || method == 0) {
@@ -2236,7 +2240,9 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     }
 
     QByteArray signal_name;
+#ifndef QT_NO_DEBUG
     bool signal_found = false;
+#endif
     if (signal) {
         signal_name = QMetaObject::normalizedSignature(signal);
         signal = signal_name;
@@ -2248,13 +2254,15 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     }
 
     QByteArray method_name;
+#ifndef QT_NO_DEBUG
     int membcode = -1;
+#endif
     bool method_found = false;
     if (method) {
         method_name = QMetaObject::normalizedSignature(method);
         method = method_name;
-        membcode = method[0] - '0';
 #ifndef QT_NO_DEBUG
+        membcode = method[0] - '0';
         if (!check_method_code(membcode, receiver, method, "disconnect"))
             return false;
 #endif
@@ -2273,7 +2281,9 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
             signal_index = smeta->indexOfSignal(signal);
             if (signal_index < smeta->methodOffset())
                 continue;
+#ifndef QT_NO_DEBUG
             signal_found = true;
+#endif
         }
 
         if (!method) {

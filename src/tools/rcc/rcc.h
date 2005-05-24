@@ -101,7 +101,7 @@ struct RCCFileInfo
     {
         NoFlags = 0x00,
         Compressed = 0x01,
-        Directory = 0x02,
+        Directory = 0x02
     };
 
     inline RCCFileInfo(QString name = QString(), QFileInfo fileInfo = QFileInfo(),
