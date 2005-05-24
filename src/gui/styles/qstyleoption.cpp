@@ -1044,7 +1044,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
 */
 
 QStyleOptionSlider::QStyleOptionSlider()
-    : QStyleOptionComplex(Version, SO_Slider), minimum(0), maximum(0),
+    : QStyleOptionComplex(Version, SO_Slider), orientation(Qt::Horizontal), minimum(0), maximum(0),
       tickPosition(QSlider::NoTicks), tickInterval(0), upsideDown(false),
       sliderPosition(0), sliderValue(0), singleStep(0), pageStep(0), notchTarget(0.0),
       dialWrapping(false)
@@ -1055,7 +1055,7 @@ QStyleOptionSlider::QStyleOptionSlider()
     \internal
 */
 QStyleOptionSlider::QStyleOptionSlider(int version)
-    : QStyleOptionComplex(version, SO_Slider), minimum(0), maximum(0),
+    : QStyleOptionComplex(version, SO_Slider), orientation(Qt::Horizontal), minimum(0), maximum(0),
       tickPosition(QSlider::NoTicks), tickInterval(0), upsideDown(false),
       sliderPosition(0), sliderValue(0), singleStep(0), pageStep(0), notchTarget(0.0),
       dialWrapping(false)

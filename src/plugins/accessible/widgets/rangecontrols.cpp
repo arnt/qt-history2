@@ -388,6 +388,8 @@ QRect QAccessibleSlider::rect(int child) const
 {
     QRect rect;
     QStyleOptionSlider option;
+    option.init(slider());
+    option.orientation = slider()->orientation();
     QRect srect = slider()->style()->subControlRect(QStyle::CC_Slider, &option,
                                                     QStyle::SC_SliderHandle, slider());
     switch (child) {
