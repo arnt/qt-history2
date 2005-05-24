@@ -354,7 +354,7 @@ bool QWSManagerPrivate::doPaint(int decorationRegion, QDecoration::DecorationSta
     QTLWExtra *topextra = managed->d_func()->extra->topextra;
     QPixmap *buf = topextra->backingStore->pixmap();
     if (buf->isNull()) {
-        qDebug("QWSManager::doPaint empty buf");
+//        qDebug("QWSManager::doPaint empty buf");
         managed->setAttribute(Qt::WA_WState_InPaintEvent, false);
         return false;
     }
