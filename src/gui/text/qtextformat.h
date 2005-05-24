@@ -401,9 +401,9 @@ public:
     inline qreal textIndent() const
     { return doubleProperty(TextIndent); }
 
-    inline void setIndent(qreal indent);
-    inline qreal indent() const
-    { return doubleProperty(BlockIndent); }
+    inline void setIndent(int indent);
+    inline int indent() const
+    { return intProperty(BlockIndent); }
 
     inline void setNonBreakableLines(bool b)
     { setProperty(BlockNonBreakableLines, b); }
@@ -414,7 +414,7 @@ public:
 inline void QTextBlockFormat::setAlignment(Qt::Alignment aalignment)
 { setProperty(BlockAlignment, int(aalignment)); }
 
-inline void QTextBlockFormat::setIndent(qreal aindent)
+inline void QTextBlockFormat::setIndent(int aindent)
 { setProperty(BlockIndent, aindent); }
 
 class Q_GUI_EXPORT QTextListFormat : public QTextFormat
@@ -438,16 +438,16 @@ public:
     inline Style style() const
     { return static_cast<Style>(intProperty(ListStyle)); }
 
-    inline void setIndent(qreal indent);
-    inline qreal indent() const
-    { return doubleProperty(ListIndent); }
+    inline void setIndent(int indent);
+    inline int indent() const
+    { return intProperty(ListIndent); }
 
 };
 
 inline void QTextListFormat::setStyle(Style astyle)
 { setProperty(ListStyle, astyle); }
 
-inline void QTextListFormat::setIndent(qreal aindent)
+inline void QTextListFormat::setIndent(int aindent)
 { setProperty(ListIndent, aindent); }
 
 class Q_GUI_EXPORT QTextImageFormat : public QTextCharFormat
