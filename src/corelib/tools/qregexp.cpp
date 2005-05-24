@@ -377,6 +377,24 @@
 
     Both capturing and non-capturing parentheses may be nested.
 
+    \target cap_in_a_loop
+
+    When the number of matches cannot be determined in advance, a
+    common idiom is to use cap() in a loop. For example:
+
+    \code
+        QRegExp rx("(\\d+)");
+        QString str = "Offsets: 12 14 99 231 7";
+        QStringList list;
+        int pos = 0;
+
+        while ((pos = rx.indexIn(str, pos)) != -1) {
+            list << rx.cap(1);
+            pos += rx.matchedLength();
+        }
+        // list: ["12", "14", "99", "231", "7"]
+    \endcode
+
     \target assertions
     \section1 Assertions
 
@@ -523,10 +541,11 @@
     directives, e.g. (?i), or regexp comments, e.g. (?#comment). On
     the other hand, C++'s rules for literal strings can be used to
     achieve the same:
+
     \code
-    QRegExp mark("\\b" // word boundary
-                  "[Mm]ark" // the word we want to match
-               );
+        QRegExp mark("\\b"      // word boundary
+                      "[Mm]ark" // the word we want to match
+                    );
     \endcode
 
     Both zero-width positive and zero-width negative lookahead
@@ -547,19 +566,19 @@
     \section1 Code Examples
 
     \code
-    QRegExp rx("^\\d\\d?$");    // match integers 0 to 99
-    rx.indexIn("123");          // returns -1 (no match)
-    rx.indexIn("-6");           // returns -1 (no match)
-    rx.indexIn("6");            // returns 0 (matched as position 0)
+        QRegExp rx("^\\d\\d?$");    // match integers 0 to 99
+        rx.indexIn("123");          // returns -1 (no match)
+        rx.indexIn("-6");           // returns -1 (no match)
+        rx.indexIn("6");            // returns 0 (matched as position 0)
     \endcode
 
     The third string matches '\underline{6}'. This is a simple validation
     regexp for integers in the range 0 to 99.
 
     \code
-    QRegExp rx("^\\S+$");       // match strings without whitespace
-    rx.indexIn("Hello world");  // returns -1 (no match)
-    rx.indexIn("This_is-OK");   // returns 0 (matched at position 0)
+        QRegExp rx("^\\S+$");       // match strings without whitespace
+        rx.indexIn("Hello world");  // returns -1 (no match)
+        rx.indexIn("This_is-OK");   // returns 0 (matched at position 0)
     \endcode
 
     The second string matches '\underline{This_is-OK}'. We've used the
@@ -571,9 +590,9 @@
     'email'
 
     \code
-    QRegExp rx("\\b(mail|letter|correspondence)\\b");
-    rx.indexIn("I sent you an email");     // returns -1 (no match)
-    rx.indexIn("Please write the letter"); // returns 17
+        QRegExp rx("\\b(mail|letter|correspondence)\\b");
+        rx.indexIn("I sent you an email");     // returns -1 (no match)
+        rx.indexIn("Please write the letter"); // returns 17
     \endcode
 
     The second string matches "Please write the \underline{letter}". The
@@ -581,7 +600,7 @@
     can see what text we've captured like this:
 
     \code
-    QString captured = rx.cap(1); // captured == "letter"
+        QString captured = rx.cap(1); // captured == "letter"
     \endcode
 
     This will capture the text from the first set of capturing
@@ -590,31 +609,31 @@
     whole matched regexp (equivalent to '&' in most regexp engines).
 
     \code
-    QRegExp rx("&(?!amp;)");      // match ampersands but not &amp;
-    QString line1 = "This & that";
-    line1.replace(rx, "&amp;");
-    // line1 == "This &amp; that"
-    QString line2 = "His &amp; hers & theirs";
-    line2.replace(rx, "&amp;");
-    // line2 == "His &amp; hers &amp; theirs"
+        QRegExp rx("&(?!amp;)");      // match ampersands but not &amp;
+        QString line1 = "This & that";
+        line1.replace(rx, "&amp;");
+        // line1 == "This &amp; that"
+        QString line2 = "His &amp; hers & theirs";
+        line2.replace(rx, "&amp;");
+        // line2 == "His &amp; hers &amp; theirs"
     \endcode
 
     Here we've passed the QRegExp to QString's replace() function to
     replace the matched text with new text.
 
     \code
-    QString str = "One Eric another Eirik, and an Ericsson."
-                    " How many Eiriks, Eric?";
-    QRegExp rx("\\b(Eric|Eirik)\\b"); // match Eric or Eirik
-    int pos = 0;    // where we are in the string
-    int count = 0;  // how many Eric and Eirik's we've counted
-    while (pos >= 0) {
-        pos = rx.indexIn(str, pos);
-        if (pos >= 0) {
-            pos++;      // move along in str
-            count++;    // count our Eric or Eirik
+        QString str = "One Eric another Eirik, and an Ericsson. "
+                      "How many Eiriks, Eric?";
+        QRegExp rx("\\b(Eric|Eirik)\\b"); // match Eric or Eirik
+        int pos = 0;    // where we are in the string
+        int count = 0;  // how many Eric and Eirik's we've counted
+        while (pos >= 0) {
+            pos = rx.indexIn(str, pos);
+            if (pos >= 0) {
+                pos++;      // move along in str
+                count++;    // count our Eric or Eirik
+            }
         }
-    }
     \endcode
 
     We've used the indexIn() function to repeatedly match the regexp in
@@ -630,14 +649,14 @@
     their component fields.
 
     \code
-    str = "Trolltech AS\twww.trolltech.com\tNorway";
-    QString company, web, country;
-    rx.setPattern("^([^\t]+)\t([^\t]+)\t([^\t]+)$");
-    if (rx.indexIn(str) != -1) {
-        company = rx.cap(1);
-        web = rx.cap(2);
-        country = rx.cap(3);
-    }
+        str = "Trolltech AS\twww.trolltech.com\tNorway";
+        QString company, web, country;
+        rx.setPattern("^([^\t]+)\t([^\t]+)\t([^\t]+)$");
+        if (rx.indexIn(str) != -1) {
+            company = rx.cap(1);
+            web = rx.cap(2);
+            country = rx.cap(3);
+        }
     \endcode
 
     In this example our input lines have the format company name, web
@@ -3709,7 +3728,7 @@ int QRegExp::numCaptures() const
     \c{rx.indexIn(str)}, capturedTexts() will return the list ("12",
     "12"), i.e. the entire match was "12" and the first subexpression
     matched was "12". The correct approach is to use cap() in a
-    \l{#cap_in_a_loop}{loop}.
+    \l{QRegExp#cap_in_a_loop}{loop}.
 
     The order of elements in the string list is as follows. The first
     element is the entire matching string. Each subsequent element
@@ -3742,13 +3761,13 @@ QStringList QRegExp::capturedTexts()
     indexes starting from 1 (excluding non-capturing parentheses).
 
     \code
-    QRegExp rxlen("(\\d+)(?:\\s*)(cm|inch)");
-    int pos = rxlen.indexIn("Length: 189cm");
-    if (pos > -1) {
-        QString value = rxlen.cap(1); // "189"
-        QString unit = rxlen.cap(2);  // "cm"
-        // ...
-    }
+        QRegExp rxlen("(\\d+)(?:\\s*)(cm|inch)");
+        int pos = rxlen.indexIn("Length: 189cm");
+        if (pos > -1) {
+            QString value = rxlen.cap(1); // "189"
+            QString unit = rxlen.cap(2);  // "cm"
+            // ...
+        }
     \endcode
 
     The order of elements matched by cap() is as follows. The first
@@ -3756,26 +3775,6 @@ QStringList QRegExp::capturedTexts()
     element corresponds to the next capturing open left parentheses.
     Thus cap(1) is the text of the first capturing parentheses, cap(2)
     is the text of the second, and so on.
-
-    \target cap_in_a_loop
-
-    Some patterns may lead to a number of matches that cannot be
-    determined in advance, for example:
-
-    \code
-    QRegExp rx("(\\d+)");
-    str = "Offsets: 12 14 99 231 7";
-    QStringList list;
-    pos = 0;
-    while (pos >= 0) {
-        pos = rx.indexIn(str, pos);
-        if (pos > -1) {
-            list += rx.cap(1);
-            pos  += rx.matchedLength();
-        }
-    }
-    // list contains "12", "14", "99", "231", "7"
-    \endcode
 
     \sa capturedTexts() pos() exactMatch() indexIn() lastIndexIn()
 */
@@ -3791,11 +3790,11 @@ QString QRegExp::cap(int nth)
 
     Example:
     \code
-    QRegExp rx("/([a-z]+)/([a-z]+)");
-    rx.indexIn("Output /dev/null");   // returns 7 (position of /dev/null)
-    rx.pos(0);                        // returns 7 (position of /dev/null)
-    rx.pos(1);                        // returns 8 (position of dev)
-    rx.pos(2);                        // returns 12 (position of null)
+        QRegExp rx("/([a-z]+)/([a-z]+)");
+        rx.indexIn("Output /dev/null");   // returns 7 (position of /dev/null)
+        rx.pos(0);                        // returns 7 (position of /dev/null)
+        rx.pos(1);                        // returns 8 (position of dev)
+        rx.pos(2);                        // returns 12 (position of null)
     \endcode
 
     For zero-length matches, pos() always returns -1. (For example, if
@@ -3829,22 +3828,23 @@ QString QRegExp::errorString()
 #endif
 
 /*!
-  Returns the string \a str with every regexp special character
-  escaped with a backslash. The special characters are $, (,), *, +,
-  ., ?, [, \,], ^, {, | and }.
+    Returns the string \a str with every regexp special character
+    escaped with a backslash. The special characters are $, (,), *, +,
+    ., ?, [, \,], ^, {, | and }.
 
-  Example:
-  \code
-     s1 = QRegExp::escape("bingo");   // s1 == "bingo"
-     s2 = QRegExp::escape("f(x)");    // s2 == "f\\(x\\)"
-  \endcode
+    Example:
 
-  This function is useful to construct regexp patterns dynamically:
+    \code
+        s1 = QRegExp::escape("bingo");   // s1 == "bingo"
+        s2 = QRegExp::escape("f(x)");    // s2 == "f\\(x\\)"
+    \endcode
 
-  \code
-    QRegExp rx("(" + QRegExp::escape(name) +
-                "|" + QRegExp::escape(alias) + ")");
-  \endcode
+    This function is useful to construct regexp patterns dynamically:
+
+    \code
+        QRegExp rx("(" + QRegExp::escape(name) +
+                   "|" + QRegExp::escape(alias) + ")");
+    \endcode
 */
 QString QRegExp::escape(const QString &str)
 {

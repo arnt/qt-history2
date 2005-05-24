@@ -892,17 +892,19 @@ bool QFont::kerning() const
 }
 
 /*!
-  Enable kerning for this font if \a enable is true, otherwise
-  disable it. The default is enabled.
+    Enables kerning for this font if \a enable is true; otherwise
+    disables it. By default, kerning is enabled.
 
-  When kerning is enabled, glyph metrics do not add up anymore even
-  for latin text. So the assumption that width('a')+width('b') is
-  equal to width("ab") is not neccesairly true.
+    When kerning is enabled, glyph metrics do not add up anymore,
+    even for Latin text. In other words, the assumption that
+    width('a') + width('b') is equal to width("ab") is not
+    neccesairly true.
 
-  \sa kerning() QFontMetrics()
+    \sa kerning(), QFontMetrics
 */
-void QFont::setKerning(bool enable) { detach();
-
+void QFont::setKerning(bool enable)
+{
+    detach();
     d->kerning = enable;
     resolve_mask |= QFontPrivate::Kerning;
 }

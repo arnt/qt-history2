@@ -1477,7 +1477,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn void QTextBlockFormat::setIndent(qreal indentation)
+    \fn void QTextBlockFormat::setIndent(int indentation)
 
     Sets the paragraph's \a indentation. Margins are set independently of
     indentation with setLeftMargin() and setTextIdent().
@@ -1487,7 +1487,7 @@ QFont QTextCharFormat::font() const
 
 
 /*!
-    \fn qreal QTextBlockFormat::indent() const
+    \fn int QTextBlockFormat::indent() const
 
     Returns the paragraph's indent.
 
@@ -1589,7 +1589,7 @@ QTextListFormat::QTextListFormat()
 
 
 /*!
-    \fn void QTextListFormat::setIndent(qreal indentation)
+    \fn void QTextListFormat::setIndent(int indentation)
 
     Sets the list format's \a indentation.
 
@@ -1598,7 +1598,7 @@ QTextListFormat::QTextListFormat()
 
 
 /*!
-    \fn qreal QTextListFormat::indent() const
+    \fn int QTextListFormat::indent() const
 
     Returns the list format's indentation.
 

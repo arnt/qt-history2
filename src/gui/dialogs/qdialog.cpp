@@ -42,8 +42,8 @@
 
     A dialog window is a top-level window mostly used for short-term
     tasks and brief communications with the user. QDialogs may be
-    modal or modeless. QDialogs support \link #extensibility
-    extensibility\endlink and can provide a \link #return return
+    modal or modeless. QDialogs support \l extensibility and can
+    provide a \link #return return
     value\endlink. They can have \link #default default
     buttons\endlink. QDialogs can also have a QSizeGrip in their
     lower-right corner, using setSizeGripEnabled().
@@ -54,7 +54,6 @@
     parent's top-level widget (if it is not top-level itself). It will
     also share the parent's taskbar entry.
 
-    \target modal_dialogs
     \section1 Modal Dialogs
 
     A \bold{modal} dialog is a dialog that blocks input to other
@@ -80,10 +79,9 @@
     to cancel a long running operation. If you use show() and
     setModal(true) together you must call
     QApplication::processEvents() periodically during processing to
-    enable the user to interact with the dialog. (See \l
+    enable the user to interact with the dialog. (See
     QProgressDialog.)
 
-    \target modeless
     \section1 Modeless Dialogs
 
     A \bold{modeless} dialog is a dialog that operates
@@ -96,7 +94,7 @@
     to the caller immediately.
 
     \target default
-    \section1 Default button
+    \section1 Default Button
 
     A dialog's \e default button is the button that's pressed when the
     user presses Enter (Return). This button is used to signify that
@@ -109,11 +107,10 @@
     \section1 Escape Key
 
     If the user presses the Esc key in a dialog, QDialog::reject()
-    will be called. This will cause the window to close: the \link
+    will be called. This will cause the window to close: The \link
     QCloseEvent close event \endlink cannot be \link
     QCloseEvent::ignore() ignored \endlink.
 
-    \target extensibility
     \section1 Extensibility
 
     Extensibility is the ability to show the dialog in two ways: a
@@ -350,7 +347,7 @@ void QDialog::setResult(int r)
 
 
 /*!
-    Shows the dialog as a \link #modal_dialog modal \endlink dialog,
+    Shows the dialog as a \l{QDialog#Modal Dialogs}{modal dialog},
     blocking until the user closes it. The function returns a \l
     DialogCode result.
 

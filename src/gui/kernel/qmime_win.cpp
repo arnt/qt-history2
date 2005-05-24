@@ -113,43 +113,43 @@ Q_GLOBAL_STATIC(QWindowsMimeList, mimeList);
 
 
 /*!
-\class QWindowsMime qmime.h
-\brief The QWindowsMime class maps open-standard MIME to Window Clipboard formats.
-\ingroup io
-\ingroup draganddrop
-\ingroup misc
+    \class QWindowsMime
+    \brief The QWindowsMime class maps open-standard MIME to Window Clipboard formats.
+    \ingroup io
+    \ingroup draganddrop
+    \ingroup misc
 
-  Qt's drag-and-drop and clipboard facilities use the MIME standard.
-  On X11, this maps trivially to the Xdnd protocol, but on Windows
-  although some applications use MIME types to describe clipboard
-  formats, others use arbitrary non-standardized naming conventions,
-  or unnamed built-in formats of Windows.
+    Qt's drag-and-drop and clipboard facilities use the MIME standard.
+    On X11, this maps trivially to the Xdnd protocol, but on Windows
+    although some applications use MIME types to describe clipboard
+    formats, others use arbitrary non-standardized naming conventions,
+    or unnamed built-in formats of Windows.
 
-  By instantiating subclasses of QWindowsMime that provide conversions
-  between Windows Clipboard and MIME formats, you can convert
-  proprietary clipboard formats to MIME formats.
+    By instantiating subclasses of QWindowsMime that provide conversions
+    between Windows Clipboard and MIME formats, you can convert
+    proprietary clipboard formats to MIME formats.
 
-  Qt has predefined support for the following Windows Clipboard formats:
+    Qt has predefined support for the following Windows Clipboard formats:
 
-  \table
-  \header \o Windows Format \o Equivalent MIME type
-  \row \o \c CF_UNICODETEXT \o \c text/plain
-  \row \o \c CF_TEXT        \o \c text/plain
-  \row \o \c CF_DIB         \o \c{image/xyz}, where \c xyz is
-                               a \l{QImageWriter::supportedImageFormats()}{Qt image format}
-  \row \o \c CF_HDROP       \o \c text/uri-list
-  \row \o \c CF_INETURL     \o \c text/uri-list
-  \row \o \c CF_HTML        \o \c text/html
-  \endtable
+    \table
+    \header \o Windows Format \o Equivalent MIME type
+    \row \o \c CF_UNICODETEXT \o \c text/plain
+    \row \o \c CF_TEXT        \o \c text/plain
+    \row \o \c CF_DIB         \o \c{image/xyz}, where \c xyz is
+                                 a \l{QImageWriter::supportedImageFormats()}{Qt image format}
+    \row \o \c CF_HDROP       \o \c text/uri-list
+    \row \o \c CF_INETURL     \o \c text/uri-list
+    \row \o \c CF_HTML        \o \c text/html
+    \endtable
 
-  An example use of this class would be to map the Windows Metafile
-  clipboard format (\c CF_METAFILEPICT) to and from the MIME type
-  \c{image/x-wmf}. This conversion might simply be adding or removing
-  a header, or even just passing on the data. See \l{Drag & Drop}
-  for more information on choosing and definition MIME types.
+    An example use of this class would be to map the Windows Metafile
+    clipboard format (\c CF_METAFILEPICT) to and from the MIME type
+    \c{image/x-wmf}. This conversion might simply be adding or removing
+    a header, or even just passing on the data. See \l{Drag and Drop}
+    for more information on choosing and definition MIME types.
 
-  You can check if a MIME type is convertible using canConvertFromMime() and
-  can perform conversions with convertToMime() and convertFromMime().
+    You can check if a MIME type is convertible using canConvertFromMime() and
+    can perform conversions with convertToMime() and convertFromMime().
 */
 
 /*!
