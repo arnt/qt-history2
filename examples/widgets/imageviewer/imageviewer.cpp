@@ -85,6 +85,7 @@ void ImageViewer::zoomOut()
 void ImageViewer::normalSize()
 {
     imageLabel->adjustSize();
+    scaleFactor = 1.0;
 }
 
 void ImageViewer::fitToWindow()
