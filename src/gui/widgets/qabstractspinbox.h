@@ -113,5 +113,5 @@ private:
     Q_DECLARE_PRIVATE(QAbstractSpinBox)
     Q_DISABLE_COPY(QAbstractSpinBox)
 };
-
+Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractSpinBox::StepEnabled)
 #endif // QABSTRACTSPINBOX_H

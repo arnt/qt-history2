@@ -137,4 +137,7 @@ public:
     QDateEdit(const QDate &t, QWidget *parent = 0);
 };
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QDateTimeEdit::Sections)
+
+
 #endif // QDATETIMEEDIT_H
