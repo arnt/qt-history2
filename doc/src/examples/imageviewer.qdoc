@@ -199,7 +199,7 @@
     And since the \l {QLabel::adjustSize()}{adjustSize()} function
     use those size hint, the only thing we need to do to restore the
     normal size of the currently displayed image is to call \c
-    adjustSize().
+    adjustSize() and reset the scale factor to 1.0.
 
     \printline fitToWindow
     \printuntil /^\}/

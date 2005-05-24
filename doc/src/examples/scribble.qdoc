@@ -208,10 +208,10 @@
 
     So the trick is to create a brand new QImage with the right size,
     to fill it with white, and to draw the old image onto it using
-    QPainter. The new image is given the QImage::Format_ARGB32
-    format, which means that each pixel is stored as 0xAARRGGBB
-    (where AA, RR, GG, and BB are the alpha, red, green and blue
-    color channels).
+    QPainter. The new image is given the QImage::Format_RGB32
+    format, which means that each pixel is stored as 0xffRRGGBB
+    (where RR, GG, and BB are the red, green and blue
+    color channels, ff is the hexadecimal value 255).
 
     \section1 MainWindow Class Definition
 
