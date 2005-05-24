@@ -60,7 +60,7 @@ QDesignerWorkbench::~QDesignerWorkbench()
         Q_ASSERT(mw != 0);
 
         QDesignerSettings settings;
-        settings.setMainWindowState(mw->saveState());
+        settings.setMainWindowState(mw->saveState(2));
     }
 
     while (!m_toolWindows.isEmpty())
@@ -207,6 +207,7 @@ void QDesignerWorkbench::initialize()
 
     // create the toolbars
     m_editToolBar = new QToolBar;
+    m_editToolBar->setObjectName(QLatin1String("editToolBar"));
     m_editToolBar->setWindowTitle(tr("Edit"));
     foreach (QAction *action, m_actionManager->editActions()->actions()) {
         if (action->icon().isNull() == false)
@@ -214,6 +215,7 @@ void QDesignerWorkbench::initialize()
     }
 
     m_toolToolBar = new QToolBar;
+    m_toolToolBar->setObjectName(QLatin1String("toolsToolBar"));
     m_toolToolBar->setWindowTitle(tr("Tools"));
     foreach (QAction *action, m_actionManager->toolActions()->actions()) {
         if (action->icon().isNull() == false)
@@ -221,6 +223,7 @@ void QDesignerWorkbench::initialize()
     }
 
     m_formToolBar = new QToolBar;
+    m_formToolBar->setObjectName(QLatin1String("formToolBar"));
     m_formToolBar->setWindowTitle(tr("Form"));
     foreach (QAction *action, m_actionManager->formActions()->actions()) {
         if (action->icon().isNull() == false)
@@ -288,7 +291,7 @@ void QDesignerWorkbench::switchToNeutralMode()
         Q_ASSERT(m_workspace != 0);
         QMainWindow *mw = qobject_cast<QMainWindow*>(m_workspace->window());
         QDesignerSettings settings;
-        settings.setMainWindowState(mw->saveState());
+        settings.setMainWindowState(mw->saveState(2));
     }
 
     QPoint desktopOffset = QPoint(0, 0);
@@ -400,6 +403,7 @@ void QDesignerWorkbench::switchToDockedMode()
         QDockWidget *dockWidget = magicalDockWidget(tw);
         if (dockWidget == 0) {
             dockWidget = new QDockWidget(mw);
+            dockWidget->setObjectName(tw->objectName() + QLatin1String("_dock"));
             dockWidget->setWindowTitle(tw->windowTitle());
             mw->addDockWidget(tw->dockWidgetAreaHint(), dockWidget);
         }
@@ -408,7 +412,7 @@ void QDesignerWorkbench::switchToDockedMode()
         dockWidget->setVisible(m_visibilities.value(tw, true));
     }
 
-    mw->restoreState(settings.mainWindowState());
+    mw->restoreState(settings.mainWindowState(), 2);
 
     foreach (QDesignerFormWindow *fw, m_formWindows)
         m_workspace->addWindow(fw, magicalWindowFlags(fw))->hide();
@@ -759,15 +763,10 @@ void QDesignerWorkbench::setUseBigIcons(bool superSizeMe)
 
 void QDesignerWorkbench::changeToolBarIconSize(bool big)
 {
-    if (big) {
-        m_toolToolBar->setIconSize(QSize(32, 32));
-        m_formToolBar->setIconSize(QSize(32, 32));
-        m_editToolBar->setIconSize(QSize(32, 32));
-    } else {
-        m_toolToolBar->setIconSize(QSize(16, 16));
-        m_formToolBar->setIconSize(QSize(16, 16));
-        m_editToolBar->setIconSize(QSize(16, 16));
-    }
+    QSize sz = big ? QSize(32, 32) : QSize(16, 16);
+    m_toolToolBar->setIconSize(sz);
+    m_formToolBar->setIconSize(sz);
+    m_editToolBar->setIconSize(sz);
 }
 
 void QDesignerWorkbench::formWindowActionTriggered(QAction *a)
@@ -798,8 +797,6 @@ QDockWidget *QDesignerWorkbench::magicalDockWidget(QWidget *widget) const
     if (!m_workspace)
         return 0;
 
-    Q_ASSERT(widget->windowTitle().isEmpty() == false);
-
-    QDockWidget *dockWidget = qFindChild<QDockWidget*>(m_workspace->window(), widget->windowTitle());
+    QDockWidget *dockWidget = qFindChild<QDockWidget*>(m_workspace->window(), widget->objectName() + QLatin1String("_dock"));
     return dockWidget;
 }

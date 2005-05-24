@@ -30,7 +30,7 @@ QDesignerSignalSlotEditor::QDesignerSignalSlotEditor(QDesignerWorkbench *workben
 
     setCentralWidget(widget);
 
-    setWindowTitle(tr("Signal/slot editor"));
+    setWindowTitle(tr("Signal/Slot Editor"));
 }
 
 QDesignerSignalSlotEditor::~QDesignerSignalSlotEditor()
