@@ -37,6 +37,10 @@ void WriteDeclaration::acceptUI(DomUI *node)
     QString varName = driver->findOrInsertWidget(node->elementWidget());
     QString widgetClassName = node->elementWidget()->attributeClass();
 
+    QString exportMacro = node->elementExportMacro();
+    if (!exportMacro.isEmpty())
+        exportMacro.append(QLatin1Char(' '));
+
     QStringList nsList = qualifiedClassName.split(QLatin1String("::"));
     if (nsList.count()) {
         className = nsList.last();
@@ -55,7 +59,7 @@ void WriteDeclaration::acceptUI(DomUI *node)
     if (nsList.count())
         output << "\n";
 
-    output << "class " << option.prefix << className << "\n"
+    output << "class " << exportMacro << option.prefix << className << "\n"
            << "{\n"
            << "public:\n";
 
@@ -114,7 +118,7 @@ void WriteDeclaration::acceptUI(DomUI *node)
             output << "namespace " << ns << " {\n";
         }
 
-        output << option.indent << "class " << className << ": public " << option.prefix << className << " {};\n";
+        output << option.indent << "class " << exportMacro << className << ": public " << option.prefix << className << " {};\n";
 
         it.toBack();
         while (it.hasPrevious()) {
