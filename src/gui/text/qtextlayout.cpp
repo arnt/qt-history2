@@ -1676,6 +1676,9 @@ int QTextLine::xToCursor(qreal x, CursorPosition cpos) const
 {
     const QScriptLine &line = eng->lines[i];
 
+    if (!eng->layoutData)
+        eng->itemize();
+
     int line_length = line.length;
 
     if (line_length > 0 && eng->layoutData->string.at(line.from + line_length - 1) == QChar::LineSeparator)
