@@ -556,9 +556,6 @@ RCCResourceLibrary::writeInitializer(FILE *out)
             initName.replace(QRegExp("[^a-zA-Z0-9_]"), "_");
         }
         fprintf(out, "int qInitResources%s()\n{\n", initName.toLatin1().constData());
-        fprintf(out, "    static bool initialized = false;\n");
-        fprintf(out, "    if (initialized) return 0;\n");
-        fprintf(out, "    initialized = true;\n");
         fprintf(out, "    extern bool qRegisterResourceData(int, const unsigned char *, const unsigned char *, const unsigned char *);\n");
         fprintf(out, "    qRegisterResourceData(0x01, qt_resource_struct, "
                      "qt_resource_name, qt_resource_data);\n");

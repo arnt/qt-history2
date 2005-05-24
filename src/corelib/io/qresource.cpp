@@ -44,6 +44,10 @@ public:
     bool exists(const QString &path) const;
     QByteArray data(const QString &path) const;
     QStringList children(const QString &path) const;
+    inline bool operator==(const QResource &other) const
+    { return tree == other.tree && names == other.names && payloads == other.payloads; }
+    inline bool operator!=(const QResource &other) const
+    { return !operator==(other); }
 };
 
 Q_DECLARE_TYPEINFO(QResource, Q_MOVABLE_TYPE);
@@ -361,7 +365,9 @@ Q_CORE_EXPORT bool qRegisterResourceData(int version, const unsigned char *tree,
                                          const unsigned char *name, const unsigned char *data)
 {
     if(version == 0x01) {
-        resourceList()->append(QResource(tree, name, data));
+        QResource res(tree, name, data);
+        if (!resourceList()->contains(res))
+            resourceList()->append(res);
         return true;
     }
     return false;
