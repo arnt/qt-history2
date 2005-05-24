@@ -66,6 +66,9 @@ public:
     virtual QString pixmapFunction() const = 0;
     virtual void setPixmapFunction(const QString &pixmapFunction) = 0;
 
+    virtual QString exportMacro() const = 0;
+    virtual void setExportMacro(const QString &exportMacro) = 0;
+
     virtual QStringList includeHints() const = 0;
     virtual void setIncludeHints(const QStringList &includeHints) = 0;
 

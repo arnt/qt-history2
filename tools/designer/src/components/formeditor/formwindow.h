@@ -93,6 +93,9 @@ public:
     virtual QString pixmapFunction() const;
     virtual void setPixmapFunction(const QString &pixmapFunction);
 
+    virtual QString exportMacro() const;
+    virtual void setExportMacro(const QString &exportMacro);
+
     virtual QStringList includeHints() const;
     virtual void setIncludeHints(const QStringList &includeHints);
 
@@ -333,6 +336,7 @@ private:
     QString m_pixmapFunction;
     int m_defaultMargin, m_defaultSpacing;
     QString m_marginFunction, m_spacingFunction;
+    QString m_exportMacro;
     QStringList m_includeHints;
 
 private:

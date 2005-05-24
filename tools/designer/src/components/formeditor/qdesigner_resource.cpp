@@ -129,6 +129,11 @@ void QDesignerResource::saveDom(DomUI *ui, QWidget *widget)
         ui->setElementComment(comment);
     }
 
+    QString exportMacro = m_formWindow->exportMacro();
+    if (!exportMacro.isEmpty()) {
+        ui->setElementExportMacro(exportMacro);
+    }
+
     if (!m_formWindow->includeHints().isEmpty()) {
         QList<DomInclude*> ui_includes;
         foreach (QString includeHint, m_formWindow->includeHints()) {
@@ -232,6 +237,7 @@ QWidget *QDesignerResource::create(DomUI *ui, QWidget *parentWidget)
     if (m_formWindow) {
         m_formWindow->setAuthor(ui->elementAuthor());
         m_formWindow->setComment(ui->elementComment());
+        m_formWindow->setExportMacro(ui->elementExportMacro());
         m_formWindow->setPixmapFunction(ui->elementPixmapFunction());
 
         if (DomLayoutDefault *def = ui->elementLayoutDefault()) {

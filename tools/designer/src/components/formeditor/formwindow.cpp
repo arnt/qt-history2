@@ -1876,6 +1876,7 @@ void FormWindow::dropWidgets(QList<QDesignerDnDItemInterface*> &item_list, QWidg
             Q_ASSERT(widget != 0);
             QDesignerFormWindowInterface *dest = findFormWindow(widget);
             if (dest == this) {
+                parent = findContainer(parent, false);
 
                 if (parent != widget->parent()) {
                     ReparentWidgetCommand *cmd = new ReparentWidgetCommand(dest);
@@ -1950,6 +1951,16 @@ QStringList FormWindow::includeHints() const
 void FormWindow::setIncludeHints(const QStringList &includeHints)
 {
     m_includeHints = includeHints;
+}
+
+QString FormWindow::exportMacro() const
+{
+    return m_exportMacro;
+}
+
+void FormWindow::setExportMacro(const QString &exportMacro)
+{
+    m_exportMacro = exportMacro;
 }
 
 } // namespace
