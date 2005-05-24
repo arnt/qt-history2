@@ -359,7 +359,8 @@ QImageData::~QImageData()
     \value Format_ARGB32_Premultiplied  The image is stored using a premultiplied 32-bit
                             ARGB format (0xAARRGGBB), i.e. the red,
                             green, and blue channels are multiplied
-                            by the alpha component divided by 255.
+                            by the alpha component divided by 255. (If RR, GG, or BB
+                            has a higher value than the alpha channel, the results are undefined.)
 
     \sa format(), convertToFormat()
 */

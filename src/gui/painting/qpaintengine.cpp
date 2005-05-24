@@ -489,11 +489,10 @@ void QPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF 
 */
 
 /*!
-    \fn void QPaintEngine::updateState(QPaintEngineState *state)
+    \fn void QPaintEngine::updateState(const QPaintEngineState &state)
 
     \internal
 */
-
 
 /*!
   Creates a paint engine with the featureset specified by \a caps.

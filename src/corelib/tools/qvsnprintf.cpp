@@ -28,7 +28,7 @@
     fall back to an internal version.
 
     \a fmt is the \c printf() format string. The result is put into
-    \c str, which is a buffer of at least \a n bytes.
+    \a str, which is a buffer of at least \a n bytes.
 
     The caller is responsible to call \c va_end() on \a ap.
 
@@ -78,7 +78,7 @@ int qvsnprintf(char *str, size_t n, const char *fmt, va_list ap)
     A portable snprintf() function, calls qvsnprintf.
 
     \a fmt is the \c printf() format string. The result is put into
-    \c str, which is a buffer of at least \a n bytes.
+    \a str, which is a buffer of at least \a n bytes.
 
     \warning Call this function only when you know what you are doing
     since it shows different behavior on certain platforms.

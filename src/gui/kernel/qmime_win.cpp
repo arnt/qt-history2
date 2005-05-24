@@ -140,7 +140,7 @@ Q_GLOBAL_STATIC(QWindowsMimeList, mimeList);
   \row \o \c CF_HDROP       \o \c text/uri-list
   \row \o \c CF_INETURL     \o \c text/uri-list
   \row \o \c CF_HTML        \o \c text/html
-  \endlist
+  \endtable
 
   An example use of this class would be to map the Windows Metafile
   clipboard format (\c CF_METAFILEPICT) to and from the MIME type
@@ -230,7 +230,7 @@ int QWindowsMime::registerMimeType(const QString &mime)
     \fn QVariant QWindowsMime::convertToMime(const QString &mimeType, IDataObject *pDataObj,
                                              QVariant::Type preferredType) const
 
-    Returns a QVariant containing the converted data for \a mime from \a pDataObject.
+    Returns a QVariant containing the converted data for \a mimeType from \a pDataObj.
     If possible the QVariant should be of the \a preferredType to avoid needless conversions.
 
     All subclasses must reimplement this pure virtual function.

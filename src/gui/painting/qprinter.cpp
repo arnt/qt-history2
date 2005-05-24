@@ -1127,9 +1127,9 @@ void QPrinter::releaseDC(HDC hdc) const
 }
 #endif
 
-
-#ifndef Q_WS_WIN
 /*!
+    \fn QString QPrinter::printerSelectionOption() const
+
     Returns the printer options selection string. This is useful only
     if the print command has been explicitly set.
 
@@ -1141,13 +1141,9 @@ void QPrinter::releaseDC(HDC hdc) const
     \sa setPrinterSelectionOption()
 */
 
-QString QPrinter::printerSelectionOption() const
-{
-    Q_D(const QPrinter);
-    return d->printEngine->property(QPrintEngine::PPK_SelectionOption).toString();
-}
-
 /*!
+    \fn void QPrinter::setPrinterSelectionOption(const QString &option)
+
     Sets the printer to use \a option to select the printer. \a option
     is null by default (which implies that Qt should be smart enough
     to guess correctly), but it can be set to other values to use a
@@ -1159,14 +1155,19 @@ QString QPrinter::printerSelectionOption() const
     \sa printerSelectionOption()
 */
 
+#ifndef Q_WS_WIN
+QString QPrinter::printerSelectionOption() const
+{
+    Q_D(const QPrinter);
+    return d->printEngine->property(QPrintEngine::PPK_SelectionOption).toString();
+}
+
 void QPrinter::setPrinterSelectionOption(const QString &option)
 {
     Q_D(QPrinter);
     d->printEngine->setProperty(QPrintEngine::PPK_SelectionOption, option);
 }
-
 #endif
-
 
 #ifdef QT3_SUPPORT
 

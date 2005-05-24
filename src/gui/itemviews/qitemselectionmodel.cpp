@@ -146,10 +146,6 @@
 */
 
 /*!
-    \fn QModelIndex QItemSelectionRange::bottomRight() const
-*/
-
-/*!
     \fn QModelIndex QItemSelectionRange::parent() const
 
     Returns the parent model item index of the items in the selection range.

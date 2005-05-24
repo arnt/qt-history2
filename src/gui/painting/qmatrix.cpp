@@ -836,7 +836,7 @@ QMatrix &QMatrix::rotate(qreal a)
 */
 
 /*!
-    \fn QMatrix QMatrix::invert(bool *invertible)
+    \fn QMatrix QMatrix::invert(bool *invertible) const
 
     Call inverted(\a invertible) instead.
 */

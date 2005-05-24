@@ -754,7 +754,7 @@ QRectF QTextLayout::boundingRect() const
 
 /*!
     The minimum width the layout needs. This is the width of the
-    layout's smallest non-breakable sub-string.
+    layout's smallest non-breakable substring.
 
     \warning This function only returns a valid value after the layout
     has been done.
@@ -786,7 +786,7 @@ qreal QTextLayout::maximumWidth() const
     The rendered layout includes the given \a selections and is clipped within
     the rectangle specified by \a clip.
 */
-void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<QTextLayout::FormatRange> &selections, const QRectF &clip) const
+void QTextLayout::draw(QPainter *p, const QPointF &pos, const QVector<FormatRange> &selections, const QRectF &clip) const
 {
     Q_ASSERT(lineCount() != 0);
 

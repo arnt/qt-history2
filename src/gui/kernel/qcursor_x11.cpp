@@ -56,13 +56,6 @@ QCursorData::~QCursorData()
     delete bmm;
 }
 
-
-/*!
-    Constructs a cursor from the window system cursor \a cursor.
-
-    \warning Using this function is not portable. This function is only
-    available on X11 and Windows.
-*/
 QCursor::QCursor(Qt::HANDLE cursor)
 {
     if (!QCursorData::initialized)
@@ -70,8 +63,6 @@ QCursor::QCursor(Qt::HANDLE cursor)
     d = new QCursorData;
     d->hcurs = cursor;
 }
-
-
 
 QCursorData *QCursorData::setBitmap(const QBitmap &bitmap, const QBitmap &mask, int hotX, int hotY)
 {
@@ -110,15 +101,6 @@ Qt::HANDLE QCursor::handle() const
         d->update();
     return d->hcurs;
 }
-
-/*!
-    \fn QCursor::QCursor(HCURSOR handle)
-
-    Creates a cursor with the specified window system handle \a
-    handle.
-
-    This function is Windows-specific.
-*/
 
 /*!
     Returns the position of the cursor (hot spot) in global screen
