@@ -3287,7 +3287,7 @@ void Q3FileDialog::rereadDir()
 */
 
 extern bool qt_resolve_symlinks; // defined in q3url.cpp
-extern bool qt_use_native_dialogs; //qtgui
+extern Q_GUI_EXPORT bool qt_use_native_dialogs; //qtgui
 
 /*!
   This is a convenience static function that returns an existing file
