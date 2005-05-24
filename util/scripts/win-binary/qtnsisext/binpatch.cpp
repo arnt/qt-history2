@@ -165,7 +165,7 @@ bool BinPatch::patch(const char *oldstr, const char *newstr)
         if (fseek(input, offset, SEEK_SET) != 0)
             break;
         len = fread(data, sizeof(char), sizeof(data), input);
-    } while(!feof(input) && (len >= oldlen));
+    } while(!(feof(input) && (len <= oldlen)));
     
     fclose(input);
     

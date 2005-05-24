@@ -169,20 +169,8 @@ echo   * Demos (release)
 nmake sub-demos >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
-echo   * ActiveQt (release, no examples)
-cd %QTDIR%\extensions\activeqt\container
-nmake >> %1\log.txt 2>&1
-if not %errorlevel%==0 goto FAILED
-
-cd %QTDIR%\extensions\activeqt\control
-nmake >> %1\log.txt 2>&1
-if not %errorlevel%==0 goto FAILED
-
-cd %QTDIR%\extensions\activeqt\tools
-nmake >> %1\log.txt 2>&1
-if not %errorlevel%==0 goto FAILED
-
-cd %QTDIR%\extensions\activeqt\plugin
+echo   * ActiveQt (releases)
+cd %QTDIR%\extensions\activeqt
 nmake >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
