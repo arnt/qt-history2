@@ -207,7 +207,7 @@ static bool block_set_alignment = false;
          insert images for example (although you can read and
          correctly display files that have margins set and that
          include images). This mode is mostly useful for editing small
-         amounts of rich text. <sup>1.</sup>
+         amounts of rich text.
     \row \i Text Viewer \i setReadOnly(true)
          \i Set text with setText() or append() (which has no undo
          history so is faster and uses less memory); text() returns
@@ -219,9 +219,6 @@ static bool block_set_alignment = false;
          tags (for color, bold, italic and underline) may be used.
          (See \link #logtextmode Qt::LogText mode\endlink for details.)
     \endtable
-
-    <sup>1.</sup><small>A more complete API that supports setting
-    margins, images, etc., is planned for a later Qt release.</small>
 
     Q3TextEdit can be used as a syntax highlighting editor when used in
     conjunction with QSyntaxHighlighter.

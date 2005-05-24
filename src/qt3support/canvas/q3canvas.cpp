@@ -4485,8 +4485,7 @@ Q3CanvasEllipse::Q3CanvasEllipse(int width, int height, Q3Canvas* canvas) :
     starting at angle \a startangle, and extending for angle \a angle
     (the angle length).
 
-    Note that angles are specified in
-    <small><sup>1</sup>/<sub>16</sub></small>ths of a degree.
+    Note that angles are specified in sixteenths of a degree.
 */
 Q3CanvasEllipse::Q3CanvasEllipse(int width, int height,
     int startangle, int angle, Q3Canvas* canvas) :

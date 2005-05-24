@@ -48,8 +48,12 @@ extern int qt_defaultDpi();
     \list 1
     \i Calling the QFontMetrics constructor with a QFont creates a
     font metrics object for a screen-compatible font, i.e. the font
-    cannot be a printer font<sup>*</sup>. If the font is changed
+    cannot be a printer font. If the font is changed
     later, the font metrics object is \e not updated.
+
+    (Note: If you use a printer font the values returned may be
+    inaccurate. Printer fonts are not always accessible so the nearest
+    screen font is used if a printer font is supplied.)
 
     \i QWidget::fontMetrics() returns the font metrics for a widget's
     font. This is equivalent to QFontMetrics(widget->font()). If the
@@ -60,10 +64,6 @@ extern int qt_defaultDpi();
     painter's current font. If the painter's font is changed later, the
     font metrics object is \e not updated.
     \endlist
-
-    <sup>*</sup> If you use a printer font the values returned may be
-    inaccurate. Printer fonts are not always accessible so the nearest
-    screen font is used if a printer font is supplied.
 
     Once created, the object provides functions to access the
     individual metrics of the font, its characters, and for strings
@@ -754,8 +754,12 @@ int QFontMetrics::lineWidth() const
     \list 1
     \i Calling the QFontMetricsF constructor with a QFont creates a
     font metrics object for a screen-compatible font, i.e. the font
-    cannot be a printer font<sup>*</sup>. If the font is changed
+    cannot be a printer font. If the font is changed
     later, the font metrics object is \e not updated.
+
+    (Note: If you use a printer font the values returned may be
+    inaccurate. Printer fonts are not always accessible so the nearest
+    screen font is used if a printer font is supplied.)
 
     \i QWidget::fontMetrics() returns the font metrics for a widget's
     font. This is equivalent to QFontMetricsF(widget->font()). If the
@@ -766,10 +770,6 @@ int QFontMetrics::lineWidth() const
     painter's current font. If the painter's font is changed later, the
     font metrics object is \e not updated.
     \endlist
-
-    <sup>*</sup> If you use a printer font the values returned may be
-    inaccurate. Printer fonts are not always accessible so the nearest
-    screen font is used if a printer font is supplied.
 
     Once created, the object provides functions to access the
     individual metrics of the font, its characters, and for strings

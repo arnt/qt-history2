@@ -1772,8 +1772,12 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     \list 1
     \i Calling the QFontInfo constructor with a QFont creates a font
     info object for a screen-compatible font, i.e. the font cannot be
-    a printer font<sup>*</sup>. If the font is changed later, the font
+    a printer font. If the font is changed later, the font
     info object is \e not updated.
+
+    (Note: If you use a printer font the values returned may be
+    inaccurate. Printer fonts are not always accessible so the nearest
+    screen font is used if a printer font is supplied.)
 
     \i QWidget::fontInfo() returns the font info for a widget's font.
     This is equivalent to calling QFontInfo(widget->font()). If the
@@ -1784,10 +1788,6 @@ QDataStream &operator>>(QDataStream &s, QFont &font)
     current font. If the painter's font is changed later, the font
     info object is \e not updated.
     \endlist
-
-    <sup>*</sup> If you use a printer font the values returned may be
-    inaccurate. Printer fonts are not always accessible so the nearest
-    screen font is used if a printer font is supplied.
 
     \sa QFont QFontMetrics QFontDatabase
 */
