@@ -152,6 +152,6 @@
     The QSqlCursor abstraction has been replaced with QSqlQueryModel
     and QSqlTableModel; QSqlEditorFactory is replaced by
     QAbstractItemDelegate; QDataTable is replaced by QTableView. The
-    old classes are part of \l{The Qt 3 Support Classes}{Qt3Support}
-    library to aid porting to Qt 4.
+    old classes are part of the \l{Qt3Support} library to aid
+    porting to Qt 4.
 */

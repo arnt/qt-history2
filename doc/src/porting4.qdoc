@@ -103,11 +103,11 @@
     turned into \c Q3ListBox.
 
     At some point, you might want to stop linking against the Qt 3
-    support library (\l{The Qt 3 Support Classes}{Qt3Support}) and take
-    advantage of Qt 4's new features. The instructions below explain how
-    to do that for each compatibility class.
+    support library (\l{Qt3Support}) and take advantage of Qt 4's
+    new features. The instructions below explain how to do that for
+    each compatibility class.
 
-    In addition to the Qt 3 support classes (such as \c Q3Action, \c
+    In addition to the Qt3Support classes (such as \c Q3Action, \c
     Q3ListBox, and \c Q3ValueList), Qt 4 provides compatibility
     functions when it's possible for an old API to cohabit with the
     new one. For example, QString provides a
@@ -1419,8 +1419,7 @@
 
     fileInfoList(), entryInfoList(), and drives() now return a QList<QFileInfo>
     and not a QPtrList<QFileInfo> *. Code using these methods will not work with
-    the \l{The Qt 3 Support Classes}{Qt3Support} library and will have to be
-    adapted instead.
+    the Qt3Support library and will have to be adapted instead.
 
     See \l{#virtual.functions}{Virtual Functions} for a list of
     QDir virtual member functions in Qt 3 that are no longer
@@ -3763,9 +3762,8 @@
     \section1 QWizard
 
     The \c QWizard class is no longer part of the Qt public API. It
-    has been renamed Q3Wizard and moved to
-    \l{The Qt 3 Support Classes}{Qt3Support}. In Qt 4 applications, you
-    can easily obtain the same result by combining a QStackedBox with a
+    has been renamed Q3Wizard and moved to Qt3Support. In Qt 4 applications,
+    you can easily obtain the same result by combining a QStackedBox with a
     QDialog and provide \l{QPushButton}s yourself.
 
     The \l{dialogs/simplewizard}{Simple Wizard} and

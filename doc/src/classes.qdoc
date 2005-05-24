@@ -18,7 +18,7 @@
 
     For a shorter list that only includes the most frequently used
     classes, see \l{Qt's Main Classes}. For a list of Qt 3 support
-    classes, see \l{The Qt 3 Support Classes}.
+    classes, see \l{Qt3Support Classes}.
 
     \generatelist classes
 */
@@ -41,7 +41,7 @@
     \row \i \l{QtMotif} \i Extension for migrating Motif applications to Qt.
     \endtable
 
-    For a list of Qt 3 support classes, see \l{The Qt 3 Support Classes}.
+    For a list of Qt 3 support classes, see \l{Qt3Support Classes}.
 */
 
 /*!
@@ -125,10 +125,26 @@
 */
 
 /*!
+    \page qt3support.html
+    \title Qt3Support Classes
+    \contentspage Qt Classes by Module
+    \previouspage QtXml Classes
+    \nextpage QAxContainer Classes
+
+    \keyword Qt3Support
+
+    These classes are part of the Qt 3 support library. To use
+    any of these, you must add the line \c{QT += qt3support} to your
+    \c .pro file.
+
+    \generatelist compatclasses
+*/
+
+/*!
     \page qaxcontainer.html
     \title QAxContainer Classes
     \contentspage Qt Classes by Module
-    \previouspage QtXml Classes
+    \previouspage Qt3Support Classes
     \nextpage QAxServer Classes
 
     \keyword QAxContainer

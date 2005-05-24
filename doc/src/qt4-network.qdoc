@@ -212,7 +212,7 @@
     QSocketDevice class. We might make it public in a later release
     if users ask for it.
 
-    As an aid to porting to Qt 4, \l{The Qt 3 Support Classes}{Qt3Support}
+    As an aid to porting to Qt 4, the \l{Qt3Support}
     library includes Q3Dns, Q3ServerSocket, Q3Socket, and Q3SocketDevice
     classes.
 */

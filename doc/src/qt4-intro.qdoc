@@ -272,9 +272,9 @@
 
     \section1 Qt 3 Support Layer
 
-    Qt 4 provides an extension library that applications based on Qt 3
-    can link against. This allows for more compatibility than ever
-    before, without bloating Qt.
+    Qt 4 provides an extension library that applications based on Qt 3,
+    called Qt3Support, that Qt applications can link against. This allows
+    for more compatibility than ever before, without bloating Qt.
 
     \list
     \o  Classes that have been replaced by a different class with the

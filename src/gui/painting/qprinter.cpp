@@ -1138,6 +1138,8 @@ void QPrinter::releaseDC(HDC hdc) const
 
     Any other value implies that the given value should be used.
 
+    \warning This function is not available on Windows.
+
     \sa setPrinterSelectionOption()
 */
 
@@ -1151,6 +1153,8 @@ void QPrinter::releaseDC(HDC hdc) const
 
     If the printer selection option is changed while the printer is
     active, the current print job may or may not be affected.
+
+    \warning This function is not available on Windows.
 
     \sa printerSelectionOption()
 */
