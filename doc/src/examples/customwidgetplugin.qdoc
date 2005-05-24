@@ -146,14 +146,6 @@
     if we returned true, \QD would allow other widgets to be placed inside
     the analog clock and a layout to be defined.
 
-    \skipto AnalogClockPlugin::isForm(
-    \printuntil /^\}/
-
-    In this example, we return \c false for this function because we want
-    the analog clock widget to be used with other widgets on a form.
-    However, it is also possible to create custom widgets that can be used
-    as forms in their own right.
-
     The \c domXml() function provides a way to include default settings for
     the widget in the standard XML format used by \QD. In this case, we only
     specify the widget's geometry:

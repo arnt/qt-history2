@@ -1436,7 +1436,7 @@ QObjectList QObject::queryList(const char *inheritsClass,
     qFindChild() instead if you need to support that version of the
     compiler.
 
-    \sa findChildren(), qFindChild()
+    \sa findChildren(), QObject::findChild()
 */
 
 /*!

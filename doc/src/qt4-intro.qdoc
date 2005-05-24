@@ -72,7 +72,7 @@
     \row    \o \l{QAxContainer} \o ActiveQt client extension
     \row    \o \l{QAxServer}    \o ActiveQt server extension
     \row    \o \l{QtMotif}      \o Motif migration extension
-    \endlist
+    \endtable
 
     QtCore contains tool classes like QString, QList, and QFile, as
     well as kernel classes like QObject and QTimer. The QApplication

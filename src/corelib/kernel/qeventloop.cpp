@@ -62,7 +62,7 @@ public:
 */
 
 /*!
-    Constructs an event loop object.
+    Constructs an event loop object with the given \a parent.
 */
 QEventLoop::QEventLoop(QObject *parent)
     : QObject(*new QEventLoopPrivate, parent)
@@ -104,6 +104,9 @@ bool QEventLoop::processEvents(ProcessEventsFlags flags)
 /*!
     Enters the main event loop and waits until exit() is called.
     Returns the value that was passed to exit().
+
+    If \a flags are specified, only events of the types allowed by
+    the \a flags will be processed.
 
     It is necessary to call this function to start event handling. The
     main event loop receives events from the window system and

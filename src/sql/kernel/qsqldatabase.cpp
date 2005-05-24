@@ -597,7 +597,7 @@ QStringList QSqlDatabase::connectionNames()
     Additional third party drivers, including your own custom
     drivers, can be loaded dynamically.
 
-    \sa \l{sql-driver.html}{Qt SQL driver} documentation, registerSqlDriver(), drivers()
+    \sa {SQL Database Drivers}, registerSqlDriver(), drivers()
 */
 
 QSqlDatabase::QSqlDatabase(const QString &type)
