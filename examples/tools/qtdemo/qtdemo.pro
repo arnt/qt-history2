@@ -11,6 +11,10 @@ SOURCES       = displayshape.cpp \
                 main.cpp
 TARGET        = qtdemo
 
+win32 {
+   RC_FILE	= qtdemo.rc
+}
+
 # install
 target.path = $$[QT_INSTALL_BIN]
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qtdemo.pro images *.xml
