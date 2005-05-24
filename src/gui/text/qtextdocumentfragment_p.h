@@ -44,11 +44,11 @@ public:
 
     void appendFragments(int pos, int endPos);
     int appendFragment(int pos, int endPos, int objectIndex = -1);
-private:
     int convertFormatIndex(const QTextFormat &oldFormat, int objectIndexToSet = -1);
     inline int convertFormatIndex(int oldFormatIndex, int objectIndexToSet = -1)
     { return convertFormatIndex(priv->formatCollection()->format(oldFormatIndex), objectIndexToSet); }
 
+private:
     QTextDocumentFragmentPrivate *docFragment;
     QTextDocumentPrivate *priv;
     QTextFormatCollection &formatCollection;

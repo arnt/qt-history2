@@ -129,8 +129,24 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
                 }
 
                 // add the QTextBeginningOfFrame
+                QTextCharFormat cellFormat = cell.format();
+                if (r + rspan >= row_start + num_rows) {
+                    cellFormat.setTableCellRowSpan(row_start + num_rows - r);
+                }
+                if (c + cspan >= col_start + num_cols) {
+                    cellFormat.setTableCellColumnSpan(col_start + num_cols - c);
+                }
+                const int charFormatIndex = importHelper.convertFormatIndex(cellFormat, objectIndex);
+
+                int blockIdx = -2;
                 const int cellPos = cell.firstPosition();
-                importHelper.appendFragment(cellPos-1, cellPos, objectIndex);
+                QTextBlock block = priv->blocksFind(cellPos);
+                if (block.position() == cellPos) {
+                    blockIdx = importHelper.convertFormatIndex(block.blockFormat());
+                }
+
+                appendText(QString(QTextBeginningOfFrame), charFormatIndex, blockIdx);
+
                 // nothing to add for empty cells
                 if (cell.lastPosition() > cellPos) {
                     // add the contents
