@@ -24,4 +24,32 @@
     \o \l{demos/affine}{Affine Transformations} demonstrates the different
        affine transformations that can be used to influence painting operations.
     \endlist
+
+    \section1 Item Views
+
+    \list
+    \o \l{demos/interview}{Interview} shows the same model and selection being
+       shared between three different views.
+    \o \l{demos/spreadsheet}{Spreadsheet} demonstrates the use of a table view
+       as a spreadsheet, using custom delegates to render each item according to
+       the type of data it contains.
+    \endlist
+
+    \section1 SQL
+
+    \list
+    \o \l{demos/books} shows how Qt's SQL support and model/view integration
+       enables the user to modify the contents of a database without requiring
+       knowledge of SQL.
+    \o \l{demos/sqlbrowser} demonstrates a console for executing SQL statements
+       on a running database and provides a data browser for interactively
+       visualizing the results.
+    \endlist
+
+    \section1 Rich Text
+
+    \list
+    \o \l{demos/textedit} shows Qt's rich text editing features and provides an
+       environment for experimenting with them.
+    \endlist
 */
