@@ -59,6 +59,7 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
     QList<DomAction*> ui_action_list;
     QList<DomActionGroup*> ui_action_group_list;
     QList<DomCustomWidget*> ui_customwidget_list;
+    QString author, comment, exportMacro;
 
     for (QDomElement n = root.firstChild().toElement(); !n.isNull(); n = n.nextSibling().toElement()) {
         QString tagName = n.tagName().toLower();
@@ -74,6 +75,12 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
             }
         } else if (tagName == QLatin1String("pixmapfunction")) {
             pixmapFunction = n.firstChild().toText().data();
+        } else if (tagName == QLatin1String("author")) {
+            author = n.firstChild().toText().data();
+        } else if (tagName == QLatin1String("comment")) {
+            comment = n.firstChild().toText().data();
+        } else if (tagName == QLatin1String("exportMacro")) {
+            exportMacro = n.firstChild().toText().data();
         } else if (tagName == QLatin1String("includes")) {
             QDomElement n2 = n.firstChild().toElement();
             while (!n2.isNull()) {
@@ -257,6 +264,9 @@ DomUI *Ui3Reader::generateUi4(const QDomElement &widget)
 
     ui->setElementWidget(w);
     ui->setElementClass(w->attributeName());
+    ui->setElementAuthor(author);
+    ui->setElementComment(comment);
+    ui->setElementExportMacro(exportMacro);
 
     if (!ui->elementImages())
         ui->setElementPixmapFunction(pixmapFunction);
