@@ -517,6 +517,8 @@ public:
             qDeleteAll(mo_cache);
             mo_cache.clear();
         }
+
+        CoFreeUnusedLibraries();
     }
 
     inline IDispatch *dispatch() const
@@ -2746,26 +2748,28 @@ QMetaObject *MetaObjectGenerator::tryCache()
         d->metaobj = mo_cache.value(cacheKey);
         if (d->metaobj) {
             d->cachedMetaObject = true;
-            QList<QUuid>::ConstIterator it = d->metaobj->connectionInterfaces.begin();
-            while (it != d->metaobj->connectionInterfaces.end()) {
-                QUuid iid = *it;
-                ++it;
 
-                IConnectionPointContainer *cpoints = 0;
-                d->ptr->QueryInterface(IID_IConnectionPointContainer, (void**)&cpoints);
-                IConnectionPoint *cpoint = 0;
-                if (cpoints)
+            IConnectionPointContainer *cpoints = 0;
+            d->ptr->QueryInterface(IID_IConnectionPointContainer, (void**)&cpoints);
+            if (cpoints) {
+                QList<QUuid>::ConstIterator it = d->metaobj->connectionInterfaces.begin();
+                while (it != d->metaobj->connectionInterfaces.end()) {
+                    QUuid iid = *it;
+                    ++it;
+
+                    IConnectionPoint *cpoint = 0;
                     cpoints->FindConnectionPoint(iid, &cpoint);
-                if (cpoint) {
-                    QAxEventSink *sink = new QAxEventSink(that);
-                    sink->advise(cpoint, iid);
-                    d->eventSink.insert(iid, sink);
-                    sink->sigs = d->metaobj->sigs.value(iid);
-
-                    sink->props = d->metaobj->props.value(iid);
-                    sink->propsigs = d->metaobj->propsigs.value(iid);
-                    cpoints->Release();
+                    if (cpoint) {
+                        QAxEventSink *sink = new QAxEventSink(that);
+                        sink->advise(cpoint, iid);
+                        d->eventSink.insert(iid, sink);
+                        sink->sigs = d->metaobj->sigs.value(iid);
+                        sink->props = d->metaobj->props.value(iid);
+                        sink->propsigs = d->metaobj->propsigs.value(iid);
+                        cpoint->Release();
+                    }
                 }
+                cpoints->Release();
             }
 
             return d->metaobj;
