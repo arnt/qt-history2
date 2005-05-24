@@ -905,7 +905,6 @@ void QWidget::repaint(const QRegion& rgn)
     setAttribute(Qt::WA_WState_InPaintEvent);
 
     QRect br = rgn.boundingRect();
-    QRect brWS = d->mapToWS(br);
     bool do_clipping = (br != QRect(0, 0, data->crect.width(), data->crect.height()));
 
     QRasterPaintEngine *rasterEngine = 0;
@@ -933,7 +932,7 @@ void QWidget::repaint(const QRegion& rgn)
         if (tmp_dc)
             d->hd = GetDC(winId());
 
-	rasterEngine->flush(this);
+	rasterEngine->flush(this, -data->wrect.topLeft());
 
         if (tmp_dc) {
             ReleaseDC(winId(), (HDC)d->hd);

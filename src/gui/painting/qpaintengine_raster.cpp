@@ -548,7 +548,7 @@ bool QRasterPaintEngine::end()
     Q_D(QRasterPaintEngine);
 
     if (d->flushOnEnd)
-        flush(d->pdev);
+        flush(d->pdev, QPoint());
 
     d->clipEnabled = false;
 
@@ -569,7 +569,7 @@ void QRasterPaintEngine::setFlushOnEnd(bool flushOnEnd)
 /*!
   Force the contents of the buffer out on the underlying device.
 */
-void QRasterPaintEngine::flush(QPaintDevice *device)
+void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
 {
     Q_D(QRasterPaintEngine);
     Q_ASSERT(device);
@@ -581,7 +581,7 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
 
         QRegion sysClip = systemClip();
         if (sysClip.isEmpty()) {
-            BitBlt(hdc, d->deviceRect.x(), d->deviceRect.y(),
+            BitBlt(hdc, d->deviceRect.x() + offset.x(), d->deviceRect.y() + offset.y(),
                    d->deviceRect.width(), d->deviceRect.height(),
                    d->rasterBuffer->hdc(), 0, 0, SRCCOPY);
         } else {
@@ -589,7 +589,7 @@ void QRasterPaintEngine::flush(QPaintDevice *device)
             for (int i=0; i<rects.size(); ++i) {
                 QRect r = rects.at(i);
                 BitBlt(hdc,
-                       r.x(), r.y(), r.width(), r.height(),
+                       r.x() + offset.x(), r.y() + offset.y(), r.width(), r.height(),
                        d->rasterBuffer->hdc(), r.x() - d->deviceRect.x(), r.y() - d->deviceRect.y(),
                        SRCCOPY);
             }

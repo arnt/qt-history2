@@ -78,7 +78,7 @@ public:
     void drawPoints(const QPointF *points, int pointCount);
 
     void setFlushOnEnd(bool flush);
-    void flush(QPaintDevice *device);
+    void flush(QPaintDevice *device, const QPoint &offset);
 
 #ifdef Q_WS_WIN
     HDC getDC() const;
