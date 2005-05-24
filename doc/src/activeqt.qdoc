@@ -29,6 +29,16 @@
        QAxBindable and QAxFactory classes.
     \endlist
 
+    To build the static libraries, change into the \c activeqt directory 
+    (usually \c QTDIR/extensions/activeqt), and run \c qmake and your make
+    tool in both the \c container and the \c control subdirectory.
+    The libraries \c qaxcontainer.lib and \c qaxserver.lib will be linked 
+    into \c QTDIR/lib.
+
+    If you are using a shared configuration of Qt enter the \c plugin subdirectory
+    and run \c qmake and your make tool to build a plugin that integrates the
+    QAxContainer module into \l{Qt Designer}.
+
     Contents:
 
     \tableofcontents
@@ -41,7 +51,7 @@
     easily access non-visual COM objects. Scripting COM objects embedded
     using these classes is possible through the QAxScript, QAxScriptManager
     and QAxScriptEngine classes, and a set of \l{ActiveQt Tools}{tools}
-    make it easy to use embedded COM objects programmatically.
+    makes it easy to access COM objects programmatically.
 
     The module consists of six classes
     \list 1
@@ -57,17 +67,6 @@
     standard ActiveX controls to provide high level user interface
     functionality are provided.
 
-    \section2 Building the library
-
-    In the \c activeqt directory (usually \c QTDIR/extensions/activeqt)
-    enter the \c container subdirectory and run \c qmake to generate the
-    makefile, and use your make tool to build the library. 
-    The library \c qaxcontainer.lib will be linked into \c QTDIR/lib.
-
-    If you are using a shared configuration of Qt enter the \c plugin subdirectory
-    and run \c qmake and your make tool to build a plugin that integrates the
-    QAxWidget class into \l{Qt Designer}.
-
     \section2 Using the library
 
     To build Qt applications that can host COM objects and ActiveX controls
@@ -77,7 +76,7 @@
         CONFIG += qaxcontainer
     \endcode
 
-    to the application's \c .pro file.
+    to your application's \c .pro file.
 
     \section3 Distributing QAxContainer applications
 
@@ -99,38 +98,6 @@
     machine that the object should run on, and can include a license key
     for licensed controls.
 
-    \section2 Accessing the object API
-
-    ActiveQt provides a Qt API to the COM object, and replaces COM
-    datatypes with Qt equivalents. Use the \l dumpdoc tool to get the 
-    documentation of the Qt API for any COM object and it's subobjects.
-
-    See the QAxWidget and QAxObject API documentation about how to 
-    use this class to use ActiveX controls and COM objects in Qt 
-    applications via QAxBase::dynamicCall() and QAxBase::querySubObject() 
-    as well as the QObject::setProperty() and QObject::property() APIs. 
-    To access the COM object with scripting languages use the QAxScript class.
-
-    To generate a C++ namespace for the type library you want to access,
-    use the \l dumpcpp tool. Run this tool manually on the type library you
-    want to use, or integrate it into the build system by adding the following
-    to your application \c .pro file:
-
-    \code
-        CONFIG += dumpcpp
-        TYPELIBS = file.tlb
-    \endcode
-
-    Include the resulting header file in your code to access the
-    object APIs through the generated C++ classes. See the
-    \l{activeqt/qutlook}{Qutlook} example for more information.
-
-    To call functions of the COM object that can not be accessed via
-    ActiveQt it is possible to request the COM interface directly using
-    QAxBase::queryInterface(). To get a C++ definition of the respective
-    interface classes use the \c #import directive with the type library
-    provided with the control; see your compiler manual for details.
-
     \section3 Typical error messages
 
     ActiveQt prints error messages to the debug output when it
@@ -144,9 +111,83 @@
     on this system, or is not accessible for the current user.
 
     The control might require administrator rights, or a license key.
-    If the control is licensed, reimplement QAxBase::initialize() and
-    use the COM APIs to call the \c IClassFactory2 interface
-    functions.
+    If the control is licensed, pass the license key to QAxBase::setControl
+    as documented.
+
+    \section2 Accessing the object API
+
+    ActiveQt provides a Qt API to the COM object, and replaces COM
+    datatypes with Qt equivalents.
+
+    There are four ways to call APIs on the COM object:
+
+    \list
+    \i Generating a C++ namespace
+    \i Call-by-name
+    \i Through a script engine
+    \i Using the native COM interfaces
+    \endlist
+
+    \section3 Generating a C++ namespace
+
+    To generate a C++ namespace for the type library you want to access,
+    use the \l dumpcpp tool. Run this tool manually on the type library you
+    want to use, or integrate it into the build system by adding the type
+    libraries to the \c TYPELIBS variable in your application's \c .pro file:
+
+    \code
+        TYPELIBS = file.tlb
+    \endcode
+
+    Note that \l dumpcpp might not be able to expose all APIs in the type
+    library.
+
+    Include the resulting header file in your code to access the
+    object APIs through the generated C++ classes. See the
+    \l{activeqt/qutlook}{Qutlook} example for more information.
+
+    \section3 Call-by-name
+
+    Use QAxBase::dynamicCall() and QAxBase::querySubObject() as well as
+    the QObject::setProperty() and QObject::property() APIs to call the
+    methods and properties of the COM object through their name. Use the 
+    \l dumpdoc tool to get the documentation of the Qt API for any COM 
+    object and it's subobjects; note that not all of the COM object's APIs
+    might be avaiable.
+
+    See the \l{activeqt/webbrowser}{Webbrowser} example for more information.
+
+    \section3 Through a script engine
+
+    A Qt application can host any ActiveScript engine installed on the system.
+    The script engine can then run script code that accesses the COM objects.
+
+    To instantiate a script engine, use QAxScriptManager::addObject() to
+    register the COM objects you want to access from script, and 
+    QAxScriptManager::load() to load the script code into the engine. Then
+    call the script functions using QAxScriptManager::call() or 
+    QAxScript::call().
+
+    Which APIs of the COM object are available through scripting depends on 
+    the script language used.
+
+    The \l{testcon - An ActiveX Test Container (ActiveQt)}{ActiveX Test Container}
+    demonstrates loading of script files.
+
+    \section3 Using the native COM interfaces
+
+    To call functions of the COM object that can not be accessed via any
+    of the above methods it is possible to request the COM interface directly 
+    using QAxBase::queryInterface(). To get a C++ definition of the respective
+    interface classes use the \c #import directive with the type library
+    provided with the control; see your compiler manual for details.
+
+    \section3 Typical error messages
+
+    ActiveQt prints error messages to the debug output when it
+    encounters error situations at runtime. Usually you must run 
+    your program in the debugger to see these messages (e.g. in Visual
+    Studio's Debug output).
 
     \section4 QAxBase::internalInvoke: No such method
 
@@ -188,14 +229,6 @@
     Some \l{ActiveQt Examples}{example implementations} of ActiveX
     controls and COM objects are provided.
 
-    \section2 Building the library
-
-    In the \c activeqt directory (usually \c QTDIR/extensions/activeqt)
-    enter the \c control subdirectory and run \c qmake to generate the
-    makefile, and use the make tool (\c nmake for VC++, \c make for Borland)
-    to build the library. The library \c qaxserver.lib will be linked into 
-    \c QTDIR/lib.
-
     \section2 Using the library
 
     To turn a standard Qt application into an COM server using the
@@ -234,11 +267,18 @@
     required build steps to the build system:
 
     \list
-    \i link the binary against \c qaxserver.lib
-    \i generate an interface definition and link the type library into
-       the binary (see \l idc)
-    \i register the server
+    \i Link the binary against \c qaxserver.lib instead of \c qtmain.lib
+    \i Call the \l idc tool to generate an IDL file for the COM server
+    \i Compile the IDL into a type library using the MIDL tool (part of the
+    compiler installation)
+    \i Attach the resulting type library as a binary resource to the server
+    binary (again using the \l idc tool)
+    \i Register the server
     \endlist
+
+    Note that the QAxServer build system is not supported on Windows 95/98/ME
+    (attaching of resources to a binary is not possible there), but a server 
+    built on Windows NT/2000/XP will work on previous Windows versions as well.
 
     To skip the post-processing step, also set the \c qaxserver_no_postlink
     configuration.
@@ -259,7 +299,7 @@
 
     Whether your COM server should run as a stand-alone executable
     or as a shared library in the client process depends mainly on the
-    type of controls you want to provide in the server. 
+    type of COM objects you want to provide in the server. 
 
     An executable server has the advantage of being able to run as a
     stand-alone application, but adds considerable overhead to the
@@ -279,90 +319,10 @@
     Both server types can use Qt either as a shared library, or statically
     linked into the server binary.
 
-    \section2 The QAxServer build system
+    \section3 Typical errors during the post-build steps
 
-    To be able to build COM objects and ActiveX controls with Qt, the 
-    build system must be extended to include some additional build steps 
-    that are used when the \c .pro file includes \c qaxserver in the 
-    \c CONFIG settings. The resulting makefile will:
-
-    \list
-    \i Link the executable against \c qaxserver.lib instead of \c qtmain.lib
-    \i Call the \l idc tool to generate an IDL description for the COM server.
-    \i Compile the IDL into a type library using the MIDL tool (part of your 
-    compiler installation)
-    \i Attach the resulting type library as a binary resource to the server
-       executable
-    \endlist
-
-    Attaching resources to an executable is not supported by
-    Windows 95/98/ME, but a server built on
-    Windows NT/2000/XP will work on those versions.
-
-    \section3 Typical build problems
-
-    The compiler/linker errors listed are based on those issued by the 
-    Microsoft Visual C++ 6.0 compiler.
-
-    \section4 "No overloaded function takes 2 parameters"
-
-    When the error occurs in code that uses the \c QAXFACTORY_DEFAULT()
-    macro, the widget class had no constructor that can be used by the
-    default factory. Either add a standard widget constructor or
-    implement a custom factory that doesn't require one.
-
-    When the error occurs in code that uses the \c QAXFACTORY_EXPORT()
-    macro, the QAxFactory subclass had no appropriate constructor.
-    Provide a public class constructor like
-
-    \code
-        MyFactory(const QUuid &, const QUuid &);
-    \endcode
-
-    for your factory class.
-
-    \section4 "syntax error: bad suffix on number"
-
-    The unique identifiers have not been passed as strings into the 
-    \c QAXFACTORY_EXPORT() or \c QAXFACTORY_DEFAULT() macro.
-
-    \section4 "unresolved external symbol _ucm_instantiate"
-
-    The server does not export an implementation of a QAxFactory. Use
-    the \c QAXFACTORY_EXPORT() macro in one of the project's
-    implementation files to instantiate and export a factory, or use
-    the \c QAXFACTORY_DEFAULT() macro to use the default factory.
-
-    \section4 "_ucm_initialize already defined in ..."
-
-    The server exports more than one implementation of a QAxFactory,
-    or exports the same implementation twice. If you use the default
-    factory, the \c QAXFACTORY_DEFAULT() macro must only be used once in
-    the project. Use a custom QAxFactory implementation and the \c
-    QAXFACTORY_EXPORT() macro if the server provides multiple ActiveX
-    controls.
-
-    \section4 "cannot open file ... "
-
-    The ActiveX server could not shut down properly when the last
-    client stopped using it. It usually takes about two seconds for
-    the application to terminate, but you might have to use the task
-    manager to kill the process (e.g. when a client doesn't release
-    the controls properly).
-
-    \section4 Postprocessing and runtime errors
-
-    The ActiveQt build system performs four commands after the linking
-    of the binary to make it into an ActiveX server.
-
-    \list
-    \i Call the server to dump the IDL for the controls
-    \i Compile the IDL into a type library
-    \i Attach the type library as a binary resource to the server
-    \i Register the server
-    \endlist
-
-    For this to work the server has to meet some requirements:
+    For the ActiveQt specific post-processing steps to work the 
+    server has to meet some requirements:
 
     \list
     \i All controls exposed can be created with nothing but a QApplication
@@ -378,9 +338,7 @@
     If those requirements are not met one ore more of the following 
     errors are likely to occur:
 
-    \omit ### which errors? \endomit
-
-    \section4 The server executable crashes
+     \section4 The server executable crashes
 
     To generate the IDL the widgets exposed as ActiveX controls need to
     be instantiated (the constructor is called). At this point, nothing 
@@ -413,41 +371,13 @@
     directory that is listed in the path as printed in the error
     message box.
 
-    \section4 The Server does not respond
+    \section4 "cannot open file ... "
 
-    If the system is unable to start the server (check with the task
-    manager whether the server runs a process), make sure that no DLL
-    the server depends on is missing from the system path (e.g. the Qt 
-    DLL!). Use a dependency walker to view all dependencies of the server 
-    binary.
-
-    If the server runs (e.g. the task manager lists a process), see
-    the following section for information on debugging your server.
-
-    \section4 The Object cannot be created
-
-    If the server could be built and registered correctly during the build
-    process, but the object cannot be initiliazed e.g. by the OLE/COM Object 
-    Viewer application, make sure that no DLL the server depends on is
-    missing from the system path (e.g. the Qt DLL). Use a dependency walker
-    to view all dependencies of the server binary.
-
-    If the server runs, see the following section for information on
-    debugging your server.
-
-    \section3 Debugging runtime errors
-
-    To debug an in-process server in Visual Studio, set the server project 
-    as the active project, and specify a client "executable for debug
-    session" in the project settings (e.g. use the ActiveX Test Container). 
-    You can set breakpoints in your code, and also step into ActiveQt and 
-    Qt code if you installed the debug version.
-
-    To debug an executable server, run the application in a debugger
-    and start with the command line parameter \c -activex. Then start
-    your client and create an instance of your ActiveX control. COM 
-    will use the existing process for the next client trying to create 
-    an ActiveX control.
+    The ActiveX server could not shut down properly when the last
+    client stopped using it. It usually takes about two seconds for
+    the application to terminate, but you might have to use the task
+    manager to kill the process (e.g. when a client doesn't release
+    the controls properly).
 
     \section2 Implementing Controls
 
@@ -715,7 +645,7 @@
     return values.
 
     Properties and signals/slots that have parameters using any other
-    data types are ignored by the QActiveX framework.
+    data types are ignored by the ActiveQt framework.
 
     \section3 Sub-Objects
 
@@ -825,6 +755,49 @@
 
     In-process servers can be registered using the \c regsvr32 tool available
     on all Windows systems.
+
+    \section3 Typical compile problems
+
+    The compiler/linker errors listed are based on those issued by the 
+    Microsoft Visual C++ 6.0 compiler.
+
+    \section4 "No overloaded function takes 2 parameters"
+
+    When the error occurs in code that uses the \c QAXFACTORY_DEFAULT()
+    macro, the widget class had no constructor that can be used by the
+    default factory. Either add a standard widget constructor or
+    implement a custom factory that doesn't require one.
+
+    When the error occurs in code that uses the \c QAXFACTORY_EXPORT()
+    macro, the QAxFactory subclass had no appropriate constructor.
+    Provide a public class constructor like
+
+    \code
+        MyFactory(const QUuid &, const QUuid &);
+    \endcode
+
+    for your factory class.
+
+    \section4 "syntax error: bad suffix on number"
+
+    The unique identifiers have not been passed as strings into the 
+    \c QAXFACTORY_EXPORT() or \c QAXFACTORY_DEFAULT() macro.
+
+    \section4 "unresolved external symbol _ucm_instantiate"
+
+    The server does not export an implementation of a QAxFactory. Use
+    the \c QAXFACTORY_EXPORT() macro in one of the project's
+    implementation files to instantiate and export a factory, or use
+    the \c QAXFACTORY_DEFAULT() macro to use the default factory.
+
+    \section4 "_ucm_initialize already defined in ..."
+
+    The server exports more than one implementation of a QAxFactory,
+    or exports the same implementation twice. If you use the default
+    factory, the \c QAXFACTORY_DEFAULT() macro must only be used once in
+    the project. Use a custom QAxFactory implementation and the \c
+    QAXFACTORY_EXPORT() macro if the server provides multiple ActiveX
+    controls.
 
     \section3 Distributing QAxServer binaries
 
@@ -950,6 +923,44 @@
     \i Borland C++ Builder (Versions 5 and 6)
     \i Borland Delphi
     \endlist
+
+    \section3 Typical runtime errors
+
+    \section4 The Server does not respond
+
+    If the system is unable to start the server (check with the task
+    manager whether the server runs a process), make sure that no DLL
+    the server depends on is missing from the system path (e.g. the Qt 
+    DLL!). Use a dependency walker to view all dependencies of the server 
+    binary.
+
+    If the server runs (e.g. the task manager lists a process), see
+    the following section for information on debugging your server.
+
+    \section4 The Object cannot be created
+
+    If the server could be built and registered correctly during the build
+    process, but the object cannot be initiliazed e.g. by the OLE/COM Object 
+    Viewer application, make sure that no DLL the server depends on is
+    missing from the system path (e.g. the Qt DLL). Use a dependency walker
+    to view all dependencies of the server binary.
+
+    If the server runs, see the following section for information on
+    debugging your server.
+
+    \section3 Debugging runtime errors
+
+    To debug an in-process server in Visual Studio, set the server project 
+    as the active project, and specify a client "executable for debug
+    session" in the project settings (e.g. use the ActiveX Test Container). 
+    You can set breakpoints in your code, and also step into ActiveQt and 
+    Qt code if you installed the debug version.
+
+    To debug an executable server, run the application in a debugger
+    and start with the command line parameter \c -activex. Then start
+    your client and create an instance of your ActiveX control. COM 
+    will use the existing process for the next client trying to create 
+    an ActiveX control.
 
     \section2 Class Information and Tuning
 
