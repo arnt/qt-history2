@@ -1053,7 +1053,6 @@ void QGLWidget::updateOverlayGL()
         d->olw->updateGL();
 }
 
-// ### Is this true?
 /*!
     \internal
 
