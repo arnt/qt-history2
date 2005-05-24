@@ -100,7 +100,7 @@ void Screenshot::createOptionsGroupBox()
     delaySpinBox->setMaximum(60);
     connect(delaySpinBox, SIGNAL(valueChanged(int)), this, SLOT(updateCheckBox()));
 
-    delaySpinBoxLabel = new QLabel(tr("Screenshot delay:"));
+    delaySpinBoxLabel = new QLabel(tr("Screenshot Delay:"));
 
     hideThisWindowCheckBox = new QCheckBox(tr("Hide This Window"));
 
