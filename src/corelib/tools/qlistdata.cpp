@@ -568,9 +568,11 @@ void **QListData::erase(void **xi)
     \sa operator[](), removeAt()
 */
 
-/*! \fn int QList::removeAll(const T &value)
+/*!     
+    \fn int QList::removeAll(const T &value)
 
-    Removes all occurrences of \a value in the list.
+    Removes all occurrences of \a value in the list and returns the number of entries
+    removed.
 
     Example:
     \code
