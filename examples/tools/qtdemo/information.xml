@@ -32,19 +32,6 @@
     <example filename="fridgemagnets" name="Fridge Magnets" />
     <example filename="puzzle" name="Puzzle" />
   </category>
-  <category dirname="" name="Extensions">
-    <example dirname="activeqt" filename="comapp" name="COM Application" />
-    <example dirname="activeqt" filename="hierarchy" name="Hierarchy" />
-    <example dirname="activeqt" filename="menus" name="Menus" />
-    <example dirname="activeqt" filename="multiple" name="Multiple" />
-    <example dirname="activeqt" filename="opengl" name="OpenGL" />
-    <example dirname="activeqt" filename="qutlook" name="Qutlook" />
-    <example dirname="activeqt" filename="simple" name="Simple" />
-    <example dirname="activeqt" filename="webbrowser" name="Web Browser" />
-    <example dirname="activeqt" filename="wrapper" name="Wrapper" />
-    <example dirname="motif" filename="customwidget" name="Custom Widget" />
-    <example dirname="motif" filename="dialog" name="Dialog" />
-  </category>
   <category dirname="itemviews" name="Item Views">
     <example filename="chart" name="Chart" />
     <example filename="dirview" name="Directory View" />
@@ -149,5 +136,20 @@
     <example filename="t12" name="Hanging in the Air the Way Bricks Don't" />
     <example filename="t13" name="Game Over" />
     <example filename="t14" name="Facing the Wall" />
+  </category>
+  <category dirname="activeqt" name="ActiveQt">
+    <example filename="comapp" name="COM Application" />
+    <example filename="hierarchy" name="Hierarchy" />
+    <example filename="menus" name="Menus" />
+    <example filename="multiple" name="Multiple" />
+    <example filename="opengl" name="OpenGL" />
+    <example filename="qutlook" name="Qutlook" />
+    <example filename="simple" name="Simple" />
+    <example filename="webbrowser" name="Web Browser" />
+    <example filename="wrapper" name="Wrapper" />
+  </category>
+  <category dirname="motif" name="Motif">
+    <example filename="customwidget" name="Custom Widget" />
+    <example filename="dialog" name="Dialog" />
   </category> -->
 </categories>
