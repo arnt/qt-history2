@@ -33,10 +33,8 @@ protected:
     inline IUnknown *controllingUnknown() const
     { return controlling_unknown; }
     inline QWidget *widget() const 
-    { 
-        if (the_object && the_object->isWidgetType())
-            return (QWidget*)the_object;
-        return 0;
+    {
+        return qobject_cast<QWidget*>(the_object);
     }
     inline QObject *object() const { return the_object; }
 
