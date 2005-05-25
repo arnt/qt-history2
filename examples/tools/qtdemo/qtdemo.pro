@@ -15,6 +15,11 @@ win32 {
    RC_FILE	= qtdemo.rc
 }
 
+mac {
+    ICON = qtdemo.icns
+}
+
+
 # install
 target.path = $$[QT_INSTALL_BINS]
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qtdemo.pro images *.xml *.ico *.rc
