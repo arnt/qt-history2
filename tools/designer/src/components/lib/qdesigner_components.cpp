@@ -23,11 +23,8 @@
 
 void QDesignerComponents::initializeResources()
 {
-    extern int qInitResources_formeditor();
-    extern int qInitResources_widgetbox();
-
-    qInitResources_formeditor();
-    qInitResources_widgetbox();
+    Q_INIT_RESOURCE(formeditor);
+    Q_INIT_RESOURCE(widgetbox);
 }
 
 QDesignerFormEditorInterface *QDesignerComponents::createFormEditor(QObject *parent)

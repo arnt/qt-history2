@@ -549,6 +549,10 @@ typedef quint64 qulonglong;
 # define QT_POINTER_SIZE 4
 #endif
 
+#define Q_INIT_RESOURCE(name) \
+    extern int qInitResources_ ## name (); \
+    qInitResources_ ## name ()
+
 #if defined(__cplusplus)
 
 /*
