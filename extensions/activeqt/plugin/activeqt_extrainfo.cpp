@@ -17,7 +17,7 @@
 #include <QtDesigner/QDesignerFormEditorInterface>
 #include <QtDesigner/ui4.h>
 
-#include <Qt3Support/QAxWidget>
+#include <ActiveQt/QAxWidget>
 
 QAxWidgetExtraInfo::QAxWidgetExtraInfo(QAxWidget *widget, QDesignerFormEditorInterface *core, QObject *parent)
     : QObject(parent), m_widget(widget), m_core(core)
@@ -40,7 +40,7 @@ bool QAxWidgetExtraInfo::saveWidgetExtraInfo(DomWidget *ui_widget)
     Q_UNUSED(ui_widget);
 
     foreach (DomProperty *p, ui_widget->elementProperty())
-        p->setAttributeStdSet(false);
+        p->setAttributeStdset(false);
 
     return true;
 }

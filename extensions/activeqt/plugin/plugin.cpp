@@ -368,7 +368,7 @@ public:
         mgr->registerExtensions(axf, Q_TYPEID(QDesignerPropertySheetExtension));
         mgr->registerExtensions(axf, Q_TYPEID(QDesignerTaskMenuExtension));
 
-        QAxWidgetExtraInfoFactory *extraInfoFactory = new QAxWidgetExtraInfoFactory(mgr, core);
+        QAxWidgetExtraInfoFactory *extraInfoFactory = new QAxWidgetExtraInfoFactory(core, mgr);
         mgr->registerExtensions(extraInfoFactory, Q_TYPEID(QDesignerExtraInfoExtension));
     }
 
