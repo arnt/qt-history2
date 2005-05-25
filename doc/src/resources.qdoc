@@ -124,17 +124,14 @@
 
     If you have resources in a static library, you might need to
     force initialization of your resources by calling \c
-    qInitResources_xxx(), where \c xxx is the base name of the \c
-    .qrc file. This function is generated as part for the \c
-    qrc_xxx.cpp file. For example:
+    Q_INIT_RESOURCE(xxx), where \c xxx is the base name of the \c
+    .qrc file. For example:
 
     \code
-        extern int qInitResources_graphlib();
-
         int main(int argc, char *argv[])
         {
             QApplication app(argc, argv);
-            qInitResources_graphlib();
+            Q_INIT_RESOURCE(graphlib);
             ...
             return app.exec();
         }
