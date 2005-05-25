@@ -498,22 +498,21 @@ void FormWindowManager::slotUpdateActions()
         }
 
         if (simplifiedSelection.count() == 1) {
+            m_layoutChilds = false;
+
             QWidget *widget = core()->widgetFactory()->containerOfWidget(simplifiedSelection.first());
-
             QDesignerWidgetDataBaseInterface *db = m_core->widgetDataBase();
+            if (QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget))) {
+                QLayout *layout = LayoutInfo::managedLayout(m_core, widget);
+                layoutContainer = (item->isContainer() || m_activeFormWindow->isMainContainer(widget));
 
-            QDesignerWidgetDataBaseItemInterface *item = db->item(db->indexOfObject(widget));
-            Q_ASSERT(item != 0);
+                layoutAvailable = layoutContainer
+                                    && m_activeFormWindow->hasInsertedChildren(widget)
+                                    && layout == 0;
 
-            QLayout *layout = LayoutInfo::managedLayout(m_core, widget);
-            layoutContainer = (item->isContainer() || m_activeFormWindow->isMainContainer(widget));
-
-            layoutAvailable = layoutContainer
-                                && m_activeFormWindow->hasInsertedChildren(widget)
-                                && layout == 0;
-
-            m_layoutChilds = layoutAvailable;
-            breakAvailable = layout != 0 || LayoutInfo::isWidgetLaidout(m_core, widget);
+                m_layoutChilds = layoutAvailable;
+                breakAvailable = layout != 0 || LayoutInfo::isWidgetLaidout(m_core, widget);
+            }
         } else {
             layoutAvailable = unlaidoutWidgetCount > 1;
             breakAvailable = false;
