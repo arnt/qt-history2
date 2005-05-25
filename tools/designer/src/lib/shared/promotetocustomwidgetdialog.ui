@@ -291,24 +291,6 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="m_cancel_button" >
-       <property name="objectName" >
-        <string notr="true" >m_cancel_button</string>
-       </property>
-       <property name="geometry" >
-        <rect>
-         <x>223</x>
-         <y>2</y>
-         <width>75</width>
-         <height>23</height>
-        </rect>
-       </property>
-       <property name="text" >
-        <string>Cancel</string>
-       </property>
-      </widget>
-     </item>
-     <item>
       <widget class="QPushButton" name="m_ok_button" >
        <property name="objectName" >
         <string notr="true" >m_ok_button</string>
@@ -328,6 +310,24 @@
         <bool>true</bool>
        </property>
       </widget>
+     </item>
+     <item>
+         <widget class="QPushButton" name="m_cancel_button" >
+             <property name="objectName" >
+                 <string notr="true" >m_cancel_button</string>
+             </property>
+             <property name="geometry" >
+                 <rect>
+                     <x>223</x>
+                     <y>2</y>
+                     <width>75</width>
+                     <height>23</height>
+                 </rect>
+             </property>
+             <property name="text" >
+                 <string>Cancel</string>
+             </property>
+         </widget>
      </item>
     </layout>
    </item>
