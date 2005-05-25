@@ -2050,6 +2050,7 @@ void QWindowsXPStyle::drawComplexControl(ComplexControl cc, const QStyleOptionCo
                     stateId = ETS_NORMAL;
 
                 XPThemeData ftheme(widget, p, "EDIT", partId, stateId, r);
+                ftheme.noContent = true;
                 dd->drawBackground(ftheme);
             }
             if (sub & SC_SpinBoxUp) {
