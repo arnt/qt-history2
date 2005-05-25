@@ -3,7 +3,10 @@ TEMPLATE    = lib
 DESTDIR     = $$QT_BUILD_TREE/plugins/designer
 
 # Input
-SOURCES += plugin.cpp
+SOURCES += plugin.cpp \
+    activeqt_extrainfo.cpp
+
+HEADERS += activeqt_extrainfo.h
 
 CONFIG += qt warn_on qaxcontainer
 CONFIG += designer plugin

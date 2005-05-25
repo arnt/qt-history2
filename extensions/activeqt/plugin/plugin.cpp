@@ -28,6 +28,7 @@
 
 #include <olectl.h>
 #include "../container/qaxselect.h"
+#include "activeqt_extrainfo.h"
 
 /* XPM */
 static const char *widgetIcon[]={
@@ -366,11 +367,14 @@ public:
         QActiveXExtensionFactory *axf = new QActiveXExtensionFactory(mgr, core);
         mgr->registerExtensions(axf, Q_TYPEID(QDesignerPropertySheetExtension));
         mgr->registerExtensions(axf, Q_TYPEID(QDesignerTaskMenuExtension));
+
+        QAxWidgetExtraInfoFactory *extraInfoFactory = new QAxWidgetExtraInfoFactory(mgr, core);
+        mgr->registerExtensions(extraInfoFactory, Q_TYPEID(QDesignerExtraInfoExtension));
     }
 
     virtual QString domXml() const
     { return QLatin1String("\
-        <widget class=\"QAxWidget\" name=\"QAxWidget\">\
+        <widget class=\"QAxWidget\" name=\"axWidget\">\
             <property name=\"geometry\">\
                 <rect>\
                     <x>0</x>\
