@@ -155,6 +155,8 @@ QTextDocumentPrivate::QTextDocumentPrivate()
 
     modified = false;
     modifiedState = 0;
+
+    undoEnabled = true;
 }
 
 void QTextDocumentPrivate::init()
@@ -162,9 +164,10 @@ void QTextDocumentPrivate::init()
     frame = qobject_cast<QTextFrame *>(createObject(QTextFrameFormat()));
     framesDirty = false;
 
+    bool undoState = undoEnabled; 
     undoEnabled = false;
     insertBlock(0, formats.indexForFormat(QTextBlockFormat()), formats.indexForFormat(QTextCharFormat()));
-    undoEnabled = true;
+    undoEnabled = undoState;
     modified = false;
     modifiedState = 0;
 }
