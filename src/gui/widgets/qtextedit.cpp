@@ -2279,7 +2279,8 @@ void QTextEdit::setReadOnly(bool ro)
 
     d->readOnly = ro;
 
-    d->setBlinkingCursorEnabled(!ro);
+    if (hasFocus())
+        d->setBlinkingCursorEnabled(!ro);
 }
 
 /*!
