@@ -77,6 +77,7 @@ win32 {
 unix:x11 {
 	HEADERS += \
 		kernel/qeventdispatcher_x11_p.h \
+		kernel/qx11embed_x11.h \
 		kernel/qx11info_x11.h
 
 	SOURCES += \
@@ -90,6 +91,7 @@ unix:x11 {
 		kernel/qsound_x11.cpp \
 		kernel/qwidget_x11.cpp \
 		kernel/qwidgetcreate_x11.cpp \
+		kernel/qx11embed_x11.cpp \
 		kernel/qx11info_x11.cpp
 }
 
