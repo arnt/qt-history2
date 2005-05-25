@@ -95,7 +95,7 @@ public:
     bool dropMimeData(const QMimeData *data, Qt::DropAction action,
                       int row, int column, const QModelIndex &parent);
     Qt::DropActions supportedDropActions() const;
-    
+
     QMimeData *internalMimeData()  const;
 private:
     const QTableWidgetItem *prototype;
@@ -1778,7 +1778,7 @@ QStringList QTableWidget::mimeTypes() const
     If the list of items is empty, 0 is returned rather than a serialized
     empty list.
 */
-QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*> items) const
+QMimeData *QTableWidget::mimeData(const QList<QTableWidgetItem*>) const
 {
     return d_func()->model()->internalMimeData();
 }
@@ -1808,7 +1808,7 @@ Qt::DropActions QTableWidget::supportedDropActions() const
   Returns a list of pointers to the items contained in the \a data object.
   If the object was not created by a QTreeWidget in the same process, the list
   is empty.
-  
+
 */
 QList<QTableWidgetItem*> QTableWidget::items(const QMimeData *data) const
 {

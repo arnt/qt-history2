@@ -1290,7 +1290,7 @@ QStringList QListWidget::mimeTypes() const
     If the list of items is empty, 0 is returned rather than a serialized
     empty list.
 */
-QMimeData *QListWidget::mimeData(const QList<QListWidgetItem*> items) const
+QMimeData *QListWidget::mimeData(const QList<QListWidgetItem*>) const
 {
     return d_func()->model()->internalMimeData();
 }
@@ -1320,7 +1320,7 @@ Qt::DropActions QListWidget::supportedDropActions() const
   Returns a list of pointers to the items contained in the \a data object.
   If the object was not created by a QTreeWidget in the same process, the list
   is empty.
-  
+
 */
 QList<QListWidgetItem*> QListWidget::items(const QMimeData *data) const
 {
