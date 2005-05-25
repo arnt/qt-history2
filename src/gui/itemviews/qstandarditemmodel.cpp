@@ -247,7 +247,7 @@ Inserts \a count rows into the model, creating new items as children of
 the given \a parent. The new rows are inserted before the \a row specified.
 
 If \a row is 0, the rows are prepended to any existing rows in the parent.
-If \a row is columnCount(), the rows are appended to any existing rows in
+If \a row is rowCount(), the rows are appended to any existing rows in
 the parent.
 If \a parent has no children, a single column with \a count rows is inserted.
 
