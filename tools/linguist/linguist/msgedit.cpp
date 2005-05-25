@@ -318,6 +318,7 @@ EditorPage::EditorPage(MessageEditor *parent, const char *name)
 
     // Focus
     setFocusPolicy(Qt::StrongFocus);
+    parent->setFocusProxy(transText);
     transLbl->setFocusProxy(transText);
     srcTextLbl->setFocusProxy(transText);
     srcText->setFocusProxy(transText);

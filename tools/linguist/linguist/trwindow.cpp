@@ -266,6 +266,9 @@ TrWindow::TrWindow()
     srcWords = 0;
     srcChars = 0;
     srcCharsSpc = 0;
+
+    QWidget::setTabOrder(ptv, tv);
+    QWidget::setTabOrder(tv, stv);
 }
 
 TrWindow::~TrWindow()
