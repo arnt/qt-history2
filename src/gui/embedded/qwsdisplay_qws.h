@@ -73,6 +73,7 @@ public:
     bool getProperty(int winId, int property, char *&data, int &len);
 
     QList<QWSWindowInfo> windowList();
+    int windowAt(const QPoint &);
 
     void setIdentity(const QString &appName);
     void nameRegion(int winId, const QString& n, const QString &c);

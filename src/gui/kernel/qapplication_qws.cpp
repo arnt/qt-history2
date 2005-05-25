@@ -1353,6 +1353,20 @@ QList<QWSWindowInfo> QWSDisplay::windowList()
     return ret;
 }
 
+int QWSDisplay::windowAt(const QPoint &p)
+{
+    //### currently only implemented for the server process
+    int ret = 0;
+    if(d->directServerConnection()) {
+        QWSWindow *win = qwsServer->windowAt(p);
+        if (win)
+            return win->winId();
+    }
+    return ret;
+}
+
+
+
 void QWSDisplay::setRawMouseEventFilter(void (*filter)(QWSMouseEvent *))
 {
     if (qt_fbdpy)
@@ -2154,10 +2168,18 @@ QWidget *QApplicationPrivate::findChildWidget(const QWidget *p, const QPoint &po
 
 QWidget *QApplication::topLevelAt(const QPoint &pos)
 {
-//### does not take other processes into account
-#warning "allocatedRegion problem"
-    QWidgetList list = topLevelWidgets();
+    //### QWSDisplay::windowAt() is currently only implemented in the server process
+    int winId = QPaintDevice::qwsDisplay()->windowAt(pos);
+    QWidget *w = QWidget::find(winId);
+    if (w && winId !=0 && w->isWindow())
+        return w;
 
+#if 1
+    // fallback implementation for client processes
+//######### This is very wrong: we have no guarantee that the list is in stacking order.
+//### and, of course, it ignores windows from other applications.
+
+    QWidgetList list = topLevelWidgets();
     for (int i = list.size()-1; i >= 0; --i) {
         QWidget *w = list[i];
         if (w != QApplication::desktop() &&
@@ -2166,6 +2188,7 @@ QWidget *QApplication::topLevelAt(const QPoint &pos)
             )
             return w;
     }
+#endif
     return 0;
 }
 
