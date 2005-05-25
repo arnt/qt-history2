@@ -67,7 +67,6 @@ QWidget *Q3ButtonGroupPlugin::createWidget(QWidget *parent)
 {
     Q3ButtonGroup *g = new Q3ButtonGroup(parent);
     g->setColumnLayout(0, Qt::Vertical);
-    g->layout()->setMargin(0);
     return g;
 }
 

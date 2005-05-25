@@ -67,7 +67,6 @@ QWidget *Q3GroupBoxPlugin::createWidget(QWidget *parent)
 {
     Q3GroupBox *g = new Q3GroupBox(parent);
     g->setColumnLayout(0, Qt::Vertical);
-    g->layout()->setMargin(0);
     return g;
 }
 
