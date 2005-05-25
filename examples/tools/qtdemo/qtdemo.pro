@@ -22,6 +22,6 @@ mac {
 
 # install
 target.path = $$[QT_INSTALL_BINS]
-sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qtdemo.pro images *.xml *.ico *.rc
+sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS qtdemo.pro images *.xml *.ico *.icns *.rc
 sources.path = $$[QT_INSTALL_EXAMPLES]/tools/qtdemo
 INSTALLS += target sources
