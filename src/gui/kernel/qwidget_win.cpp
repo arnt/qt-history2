@@ -568,7 +568,6 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     bool enable = q->isEnabled();                // remember status
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize s = q->size();
-    QString capt = q->windowTitle();
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
 
     data.window_flags = f;
@@ -588,10 +587,8 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     q->setFocusPolicy(fp);
     if (extra && !extra->mask.isEmpty())
         q->setMask(extra->mask);
-    if (!capt.isNull()) {
-        extra->topextra->caption.clear();
-        q->setWindowTitle(capt);
-    }
+    if (extra && extra->topextra && !extra->topextra->caption.isEmpty())
+        setWindowTitle_helper(extra->topextra->caption);
     if (old_winid)
         DestroyWindow(old_winid);
 
