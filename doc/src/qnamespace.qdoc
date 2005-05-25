@@ -59,8 +59,8 @@
 
     \value AlignCenter Centers in both dimensions.
 
-    You can use at most one horizontal and one vertical flag at a time. \c
-    AlignCenter counts as both horizontal and vertical.
+    You can use at most one horizontal and one vertical flag at a
+    time. Qt::AlignCenter counts as both horizontal and vertical.
 
     Three enum values are useful in applications that can be run in
     right-to-left mode:
@@ -340,7 +340,7 @@
     \value TextWordWrap Breaks lines at appropriate points, e.g. at word
 	boundaries.
     \value TextWrapAnywhere Breaks lines anywhere, even within words.
-    \value TextHideMnemonic Same as \c TextShowMnemonic but doesn't draw the underlines.
+    \value TextHideMnemonic Same as Qt::TextShowMnemonic but doesn't draw the underlines.
     \value TextDontPrint Treat this text as "hidden" and don't print
     it.
     \value TextIncludeTrailingSpaces Don't automatically delete
@@ -356,8 +356,8 @@
     \omitvalue SingleLine
     \omitvalue WordBreak
 
-    You can use as many modifier flags as you want, except that \c
-    TextSingleLine and \c TextWordBreak cannot be combined.
+    You can use as many modifier flags as you want, except that
+    Qt::TextSingleLine and Qt::TextWordBreak cannot be combined.
 
     Flags that are inappropriate for a given use are generally
     ignored.
@@ -384,9 +384,9 @@
                              able to deliver it to the slot.
     \value AutoConnection    If the signal is emitted from an object in the
                              same thread as the receiving object, the slot is
-                             invoked directly, as with \c DirectConnection;
+                             invoked directly, as with Qt::DirectConnection;
                              otherwise the signal is queued, as with
-                             \c QueuedConnection.
+                             Qt::QueuedConnection.
     \omitvalue AutoCompatConnection
 
     \sa {Thread Support in Qt}, QObject::connect()
@@ -1411,48 +1411,61 @@
 
     The main types are
 
-    \value Widget
+    \value Widget  This is the default type for QWidget. Widgets of
+                   this type are child widgets if they have a parent,
+                   and independent windows if they have no parent.
+                   See also Qt::Window and Qt::SubWindow.
 
-    \value Window  indicates that this widget is a window,
-    usually with a window system frame and a title bar.
+    \value Window  Indicates that the widget is a window, usually
+                   with a window system frame and a title bar,
+                   irrespective of whether the widget has a parent or
+                   not.
 
-    \value Dialog  indicates that this widget is a top-level
-    window that should be decorated as a dialog (i.e. typically no
-    maximize or minimize buttons in the title bar). If you want to use
-    it as a modal dialog it should be launched from another window, or
-    have a parent and this flag should be combined with \c WShowModal.
-    If you make it modal, the dialog will prevent other top-level
-    windows in the application from getting any input. \c Dialog
-    implies \c Window. We refer to a top-level window that has
-    a parent as a \e secondary window. (See also \c Qt::WA_GroupLeader.)
+    \value Dialog  Indicates that the widget is a window that should
+                   be decorated as a dialog (i.e., typically no
+                   maximize or minimize buttons in the title bar).
+                   This is the default type for QDialog. If you want
+                   to use it as a modal dialog, it should be launched
+                   from another window, or have a parent and used
+                   with the Qt::WA_ShowModal attribute. If you make
+                   it modal, the dialog will prevent other top-level
+                   windows in the application from getting any input.
+                   We refer to a top-level window that has a parent
+                   as a \e secondary window. (See also
+                   Qt::WA_GroupLeader.)
 
-    \value Sheet indicates that this widget is a Macintosh sheet.
+    \value Sheet   Indicates that the widget is a Macintosh sheet.
 
-    \value Drawer indicates that this widget is a Macintosh drawer.
+    \value Drawer  Indicates that the widget is a Macintosh drawer.
 
-    \value Popup  indicates that this widget is a popup
-    top-level window, i.e. that it is modal, but has a window system
-    frame appropriate for popup menus. \c Popup implies
-    \c Window.
+    \value Popup   Indicates that the widget is a popup top-level
+                   window, i.e. that it is modal, but has a window
+                   system frame appropriate for popup menus.
 
-    \value Tool  Makes the window a tool window. A tool window
-    is often a small window with a smaller than usual title bar and
-    decoration, typically used for collections of tool buttons. It
-    there is a parent, the tool window will always be kept on top of
-    it. If there isn't a parent, you may consider using
-    Qt::WindowStaysOnTopHint as well. If the window system supports it, a
-    tool window can be decorated with a somewhat lighter frame. It can
-    also be combined with Qt::FramelessWindowHint.
+    \value Tool    Indicates that the widget is a tool window. A tool
+                   window is often a small window with a smaller than
+                   usual title bar and decoration, typically used for
+                   collections of tool buttons. It there is a parent,
+                   the tool window will always be kept on top of it.
+                   If there isn't a parent, you may consider using
+                   Qt::WindowStaysOnTopHint as well. If the window
+                   system supports it, a tool window can be decorated
+                   with a somewhat lighter frame. It can also be
+                   combined with Qt::FramelessWindowHint.
 
-    \value ToolTip
+    \value ToolTip Indicates that the widget is a tooltip. This is
+                   used internally to implement
+                   \l{QWidget::tooltip}{tooltips}.
 
-    \value SplashScreen  Indicates that the window is a splash screen.
+    \value SplashScreen Indicates that the window is a splash screen.
+                        This is the default type for QSplashScreen.
 
-    \value Desktop  indicates that this widget is the desktop.
-    See also \c WPaintDesktop below. \c Desktop implies \c
-    Window.
+    \value Desktop  Indicates that this widget is the desktop. This
+                    is the type for QDesktopWidget.
 
-    \value SubWindow
+    \value SubWindow  Indicates that this widget is a child widget,
+                      irrespective of whether the widget has a parent
+                      or not.
 
     There are also a number of flags which you can use to customize
     the appearance of top-level windows. These have no effect on other
@@ -1480,26 +1493,27 @@
     \value WindowSystemMenuHint  Adds a window system menu, and possibly a close button.
 
     \value WindowMinimizeButtonHint  Adds a minimize button. On
-           some platforms this implies \c Qt::WindowSystemMenuHint for it to work.
+           some platforms this implies Qt::WindowSystemMenuHint for it to work.
 
     \value WindowMaximizeButtonHint  Adds a maximize button. On
-           some platforms this implies \c Qt::WindowSystemMenuHint for it to work.
+           some platforms this implies Qt::WindowSystemMenuHint for it to work.
 
     \value WindowMinMaxButtonsHint  Adds a minimize and a maximize
-           button. On some platforms this implies \c Qt::WindowSystemMenuHint for it to work.
+           button. On some platforms this implies Qt::WindowSystemMenuHint for it to work.
 
     \value WindowContextHelpButtonHint  Adds a context help button to dialogs. 
-	On some platforms this implies \c Qt::WindowSystemMenuHint for it to work.
+	On some platforms this implies Qt::WindowSystemMenuHint for it to work.
 
     \value WindowShadeButtonHint
 
     \value WindowStaysOnTopHint  Informs the window system that the
            window should stay on top of all other windows. Note that
-           on some window managers on X11 you also have to pass \c
-           WX11BypassWindowManagerHint for this flag to work
+           on some window managers on X11 you also have to pass
+           Qt::X11BypassWindowManagerHint for this flag to work
            correctly.
 
-    \value WindowType_Mask
+    \value WindowType_Mask  A mask for extracting the window type
+                            part of the window flags.
 
     Obsolete flags:
 
@@ -1734,9 +1748,9 @@
     \value RichText The text string is interpreted as a rich text
         string using the current Q3StyleSheet::defaultSheet().
 
-    \value AutoText The text string is interpreted as for \c RichText
-        if Q3StyleSheet::mightBeRichText() returns true, otherwise as
-        \c PlainText.
+    \value AutoText The text string is interpreted as for
+        Qt::RichText if Qt::mightBeRichText() returns true, otherwise
+        as Qt::PlainText.
 
     \value LogText A special, limited text format which is only used
     by QTextEdit in an optimized mode.
@@ -1908,9 +1922,9 @@
     \value ElideRight   The ellipsis should appear at the end of the text.
     \value ElideMiddle  The ellipsis should appear in the middle of the text.
 
-    \c ElideMiddle is normally the most appropriate choice for URLs (e.g.,
+    Qt::ElideMiddle is normally the most appropriate choice for URLs (e.g.,
     "\l{http://www.trolltech.cn/newsroom/announcements/Beijing-Office-Opening.pdf}{http://www.trolltech.cn/news...s/Beijing-Office-Opening.pdf}"),
-    whereas \c ElideRight is appropriate
+    whereas Qt::ElideRight is appropriate
     for other strings (e.g.,
     "\l{http://doc.trolltech.com/qq/qq09-mac-deployment.html}{Deploying Applications on Ma...}").
 

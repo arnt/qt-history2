@@ -64,17 +64,22 @@
     structure. The main differences between the two classes are:
 
     \list
-    \i QVarLengthArray's API is much more low-level. It provides no
+    \o QVarLengthArray's API is much more low-level. It provides no
        iterators and lacks much of QVector's functionality.
 
-    \i QVarLengthArray doesn't initialize the memory if the value is
+    \o QVarLengthArray doesn't initialize the memory if the value is
        a basic type. (QVector always does.)
 
-    \i QVector uses \l{implicit sharing} as a memory optimization.
+    \o QVector uses \l{implicit sharing} as a memory optimization.
        QVarLengthArray doesn't provide that feature; however, it
        usually produces slightly better performance due to reduced
        overhead, especially in tight loops.
     \endlist
+
+    In summary, QVarLengthArray is a low-level optimization class
+    that only makes sense in very specific cases. It is used a few
+    places inside Qt and was added to Qt's public API for the
+    convenience of advanced users.
 
     \sa QVector, QList, QLinkedList
 */
