@@ -952,6 +952,7 @@ bool QTextFormat::operator==(const QTextFormat &rhs) const
 
     Constructs a new character format object.
 */
+QTextCharFormat::QTextCharFormat() : QTextFormat(CharFormat) {}
 
 
 /*!
@@ -1339,6 +1340,7 @@ QFont QTextCharFormat::font() const
 
     Constructs a new QTextBlockFormat.
 */
+QTextBlockFormat::QTextBlockFormat() : QTextFormat(BlockFormat) {}
 
 /*!
     \fn QTextBlockFormat::isValid() const
@@ -1651,6 +1653,7 @@ QTextListFormat::QTextListFormat()
 
     Constructs a text frame format object with the default properties.
 */
+QTextFrameFormat::QTextFrameFormat() : QTextFormat(FrameFormat) {}
 
 /*!
     \fn QTextFrameFormat::isValid() const
@@ -1802,6 +1805,7 @@ QTextTableFormat::QTextTableFormat()
 {
     setObjectType(TableObject);
     setCellSpacing(2);
+    setBorder(1);
 }
 
 
@@ -1945,6 +1949,7 @@ QTextTableFormat::QTextTableFormat()
 
     Creates a new image format object.
 */
+QTextImageFormat::QTextImageFormat() : QTextCharFormat() { setObjectType(ImageObject); }
 
 
 /*!

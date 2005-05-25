@@ -273,7 +273,7 @@ class Q_GUI_EXPORT QTextCharFormat : public QTextFormat
 public:
     enum VerticalAlignment { AlignNormal = 0, AlignSuperScript, AlignSubScript };
 
-    inline QTextCharFormat() : QTextFormat(CharFormat) {}
+    QTextCharFormat();
 
     bool isValid() const { return isCharFormat(); }
     void setFont(const QFont &font);
@@ -368,7 +368,7 @@ inline void QTextCharFormat::setTableCellColumnSpan(int atableCellColumnSpan)
 class Q_GUI_EXPORT QTextBlockFormat : public QTextFormat
 {
 public:
-    inline QTextBlockFormat() : QTextFormat(BlockFormat) {}
+    QTextBlockFormat();
 
     bool isValid() const { return isBlockFormat(); }
 
@@ -453,7 +453,7 @@ inline void QTextListFormat::setIndent(int aindent)
 class Q_GUI_EXPORT QTextImageFormat : public QTextCharFormat
 {
 public:
-    inline QTextImageFormat() : QTextCharFormat() { setObjectType(ImageObject); }
+    QTextImageFormat();
 
     bool isValid() const { return isImageFormat(); }
 
@@ -482,7 +482,7 @@ inline void QTextImageFormat::setHeight(qreal aheight)
 class Q_GUI_EXPORT QTextFrameFormat : public QTextFormat
 {
 public:
-    inline QTextFrameFormat() : QTextFormat(FrameFormat) {}
+    QTextFrameFormat();
 
     bool isValid() const { return isFrameFormat(); }
 
