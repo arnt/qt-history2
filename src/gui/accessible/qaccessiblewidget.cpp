@@ -510,29 +510,37 @@ int QAccessibleWidget::navigate(RelationFlag relation, int entry,
                 case QAccessible::Left:
                     startp = QPoint(startg.left(), startg.top() + startg.height() / 2);
                     sibp = QPoint(sibg.right(), sibg.top() + sibg.height() / 2);
-                    if (QPoint(sibc - startc).x() >= 0)
+                    if (QPoint(sibc - startc).x() >= 0) {
+                        delete sibling;
                         continue;
+                    }
                     distp = sibp - startp;
                     break;
                 case QAccessible::Right:
                     startp = QPoint(startg.right(), startg.top() + startg.height() / 2);
                     sibp = QPoint(sibg.left(), sibg.top() + sibg.height() / 2);
-                    if (QPoint(sibc - startc).x() <= 0)
+                    if (QPoint(sibc - startc).x() <= 0) {
+                        delete sibling;
                         continue;
+                    }
                     distp = sibp - startp;
                     break;
                 case QAccessible::Up:
                     startp = QPoint(startg.left() + startg.width() / 2, startg.top());
                     sibp = QPoint(sibg.left() + sibg.width() / 2, sibg.bottom());
-                    if (QPoint(sibc - startc).y() >= 0)
+                    if (QPoint(sibc - startc).y() >= 0) {
+                        delete sibling;
                         continue;
+                    }
                     distp = sibp - startp;
                     break;
                 case QAccessible::Down:
                     startp = QPoint(startg.left() + startg.width() / 2, startg.bottom());
                     sibp = QPoint(sibg.left() + sibg.width() / 2, sibg.top());
-                    if (QPoint(sibc - startc).y() <= 0)
+                    if (QPoint(sibc - startc).y() <= 0) {
+                        delete sibling;
                         continue;
+                    }
                     distp = sibp - startp;
                     break;
 		default:
