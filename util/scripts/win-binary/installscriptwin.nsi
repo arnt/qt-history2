@@ -42,7 +42,7 @@
 
 ; Finish page
 !define MUI_FINISHPAGE_SHOWREADME
-!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show Documentation"
+!define MUI_FINISHPAGE_SHOWREADME_TEXT "Show Documentation and Demos"
 !define MUI_FINISHPAGE_SHOWREADME_FUNCTION "ShowDocumentation"
 !insertmacro MUI_PAGE_FINISH
 
