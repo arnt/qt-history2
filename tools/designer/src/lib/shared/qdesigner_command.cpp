@@ -798,6 +798,8 @@ void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBas
 
     Q_ASSERT(m_layout != 0);
 
+    m_layout->sort();
+
     m_margin = m_layout->margin();
     m_spacing = m_layout->spacing();
 }

@@ -52,18 +52,20 @@ public:
     int margin() const;
     int spacing() const;
 
-    virtual void setup();
-
+    virtual void sort() = 0;
     virtual void doLayout() = 0;
+
+    virtual void setup();
     virtual void undoLayout();
     virtual void breakLayout();
     virtual bool prepareLayout(bool &needMove, bool &needReparent);
     virtual void finishLayout(bool needMove, QLayout *layout);
 
+    QList<QWidget*> widgets() const { return m_widgets; }
     QWidget *parentWidget() const { return m_parentWidget; }
 
 protected:
-    QList<QWidget*> widgets;
+    QList<QWidget*> m_widgets;
     QWidget *m_parentWidget;
     QPoint startPoint;
     QMap<QPointer<QWidget>, QRect> geometries;
@@ -84,10 +86,8 @@ class QT_SHARED_EXPORT HorizontalLayout : public Layout
 public:
     HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
 
-    void doLayout();
-
-protected:
-    void setup();
+    virtual void doLayout();
+    virtual void sort();
 };
 
 class QT_SHARED_EXPORT VerticalLayout : public Layout
@@ -95,10 +95,8 @@ class QT_SHARED_EXPORT VerticalLayout : public Layout
 public:
     VerticalLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
 
-    void doLayout();
-
-protected:
-    void setup();
+    virtual void doLayout();
+    virtual void sort();
 };
 
 class QT_SHARED_EXPORT StackedLayout : public Layout
@@ -106,10 +104,8 @@ class QT_SHARED_EXPORT StackedLayout : public Layout
 public:
     StackedLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter = false);
 
-    void doLayout();
-
-protected:
-    void setup();
+    virtual void doLayout();
+    virtual void sort();
 };
 
 
@@ -121,10 +117,10 @@ public:
     GridLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, const QSize &res);
     ~GridLayout();
 
-    void doLayout();
+    virtual void doLayout();
+    virtual void sort();
 
 protected:
-    void setup();
     QWidget *widgetAt(QGridLayout *layout, int row, int column) const;
 
 protected:

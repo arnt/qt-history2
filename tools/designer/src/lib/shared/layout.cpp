@@ -94,7 +94,7 @@ void add_to_grid_layout(QGridLayout *grid, QWidget *widget, int r, int c, int rs
  */
 
 Layout::Layout(const QList<QWidget*> &wl, QWidget *p, QDesignerFormWindowInterface *fw, QWidget *lb, bool splitter)
-    : widgets(wl), m_parentWidget(p), formWindow(fw), isBreak(false), useSplitter(splitter)
+    : m_widgets(wl), m_parentWidget(p), formWindow(fw), isBreak(false), useSplitter(splitter)
 {
     layoutBase = lb;
     if (layoutBase)
@@ -141,7 +141,7 @@ void Layout::setup()
     // Widgets which are already laid out are thrown away here too
 
     QMultiMap<QWidget*, QWidget*> lists;
-    foreach (QWidget *w, widgets) {
+    foreach (QWidget *w, m_widgets) {
         QWidget *p = w->parentWidget();
 
         if (p && LayoutInfo::layoutType(formWindow->core(), p) != LayoutInfo::NoLayout
@@ -170,24 +170,24 @@ void Layout::setup()
                           (!widgetDataBase->isContainer(layoutBase, false) &&
                             layoutBase != formWindow->mainContainer()))
                        ) {
-        widgets.clear();
+        m_widgets.clear();
         startPoint = QPoint(0, 0);
         return;
     }
 
     // Now we have a new and clean widget list, which makes sense
     // to layout
-    widgets = lastList;
+    m_widgets = lastList;
     // Also use the only correct parent later, so store it
 
-    Q_ASSERT(widgets.isEmpty() == false);
+    Q_ASSERT(m_widgets.isEmpty() == false);
 
-    m_parentWidget = formWindow->core()->widgetFactory()->widgetOfContainer(widgets.first()->parentWidget());
+    m_parentWidget = formWindow->core()->widgetFactory()->widgetOfContainer(m_widgets.first()->parentWidget());
     // Now calculate the position where the layout-meta-widget should
     // be placed and connect to widgetDestroyed() signals of the
     // widgets to get informed if one gets deleted to be able to
     // handle that and do not crash in this case
-    foreach (QWidget *w, widgets) {
+    foreach (QWidget *w, m_widgets) {
         connect(w, SIGNAL(destroyed()), this, SLOT(widgetDestroyed()));
         startPoint = QPoint(qMin(startPoint.x(), w->x()), qMin(startPoint.y(), w->y()));
         QRect rc(w->geometry());
@@ -197,22 +197,24 @@ void Layout::setup()
         // the layout. Else saving + loading will give different results
         w->raise();
     }
+
+    sort();
 }
 
 void Layout::widgetDestroyed()
 {
      if (sender() && sender()->isWidgetType()) {
          const QWidget *w = static_cast<const QWidget*>(sender());
-         widgets.removeAt(widgets.indexOf(const_cast<QWidget*>(w)));
+         m_widgets.removeAt(m_widgets.indexOf(const_cast<QWidget*>(w)));
      }
 }
 
 bool Layout::prepareLayout(bool &needMove, bool &needReparent)
 {
-    if (!widgets.count())
+    if (!m_widgets.count())
         return false;
 
-    foreach (QWidget *widget, widgets) {
+    foreach (QWidget *widget, m_widgets) {
         widget->raise();
     }
 
@@ -267,7 +269,7 @@ void Layout::finishLayout(bool needMove, QLayout *layout)
 
 void Layout::undoLayout()
 {
-    if (!widgets.count())
+    if (!m_widgets.count())
         return;
 
     formWindow->selectWidget(layoutBase, false);
@@ -310,14 +312,14 @@ void Layout::undoLayout()
         layoutBase->setGeometry(oldGeometry);
     }
 
-    QWidget *ww = widgets.size() ? widgets.front() : formWindow;
+    QWidget *ww = m_widgets.size() ? m_widgets.front() : formWindow;
     formWindow->selectWidget(ww);
 }
 
 void Layout::breakLayout()
 {
     QMap<QWidget*, QRect> rects;
-    foreach (QWidget *w, widgets) {
+    foreach (QWidget *w, m_widgets) {
         rects.insert(w, w->geometry());
     }
 
@@ -358,8 +360,8 @@ void Layout::breakLayout()
         m_parentWidget = layoutBase;
     }
 
-    if (widgets.first() && widgets.first()->isVisibleTo(formWindow))
-        formWindow->selectWidget(widgets.first());
+    if (m_widgets.first() && m_widgets.first()->isVisibleTo(formWindow))
+        formWindow->selectWidget(m_widgets.first());
     else
         formWindow->selectWidget(formWindow);
 }
@@ -369,13 +371,11 @@ HorizontalLayout::HorizontalLayout(const QList<QWidget*> &wl, QWidget *p, QDesig
 {
 }
 
-void HorizontalLayout::setup()
+void HorizontalLayout::sort()
 {
-    Layout::setup();
-
-    HorizontalLayoutList l(widgets);
+    HorizontalLayoutList l(m_widgets);
     l.sort();
-    widgets = l;
+    m_widgets = l;
 }
 
 void HorizontalLayout::doLayout()
@@ -387,7 +387,7 @@ void HorizontalLayout::doLayout()
     QDesignerWidgetFactoryInterface *widgetFactory = formWindow->core()->widgetFactory();
     QHBoxLayout *layout = (QHBoxLayout*) widgetFactory->createLayout(layoutBase, 0, LayoutInfo::HBox);
 
-    foreach (QWidget *w, widgets) {
+    foreach (QWidget *w, m_widgets) {
         if (needReparent && w->parent() != layoutBase) {
             w->setParent(layoutBase, 0);
             w->move(QPoint(0,0));
@@ -417,13 +417,11 @@ VerticalLayout::VerticalLayout(const QList<QWidget*> &wl, QWidget *p, QDesignerF
 {
 }
 
-void VerticalLayout::setup()
+void VerticalLayout::sort()
 {
-    Layout::setup();
-
-    VerticalLayoutList l(widgets);
+    VerticalLayoutList l(m_widgets);
     l.sort();
-    widgets = l;
+    m_widgets = l;
 }
 
 void VerticalLayout::doLayout()
@@ -437,7 +435,7 @@ void VerticalLayout::doLayout()
     QVBoxLayout *layout = (QVBoxLayout*) widgetFactory->createLayout(layoutBase, 0, LayoutInfo::VBox);
     Q_ASSERT(layout != 0);
 
-    foreach (QWidget *w, widgets) {
+    foreach (QWidget *w, m_widgets) {
         if (needReparent && w->parent() != layoutBase) {
             w->setParent(layoutBase, 0);
             w->move(QPoint(0,0));
@@ -830,7 +828,7 @@ void GridLayout::doLayout()
     if (!grid)
         buildGrid();
 
-    foreach (QWidget *w, widgets) {
+    foreach (QWidget *w, m_widgets) {
         int r = 0, c = 0, rs = 0, cs = 0;
 
         if (grid->locateWidget(w, r, c, rs, cs)) {
@@ -860,21 +858,20 @@ void GridLayout::doLayout()
     finishLayout(needMove, layout);
 }
 
-void GridLayout::setup()
+void GridLayout::sort()
 {
-    Layout::setup();
     buildGrid();
 }
 
 void GridLayout::buildGrid()
 {
-    if (!widgets.count())
+    if (!m_widgets.count())
         return;
 #if 0
     QMap<int, int> x_dict;
     QMap<int, int> y_dict;
 
-    foreach (QWidget *w, widgets) {
+    foreach (QWidget *w, m_widgets) {
         QRect g = w->geometry();
 
         x_dict.insert(g.left(), g.left());
@@ -897,14 +894,14 @@ void GridLayout::buildGrid()
     // -----------------------------------------------------------------
 
     // We need a list of both start and stop values for x- & y-axis
-    QVector<int> x( widgets.count()*2 );
-    QVector<int> y( widgets.count()*2 );
+    QVector<int> x( m_widgets.count()*2 );
+    QVector<int> y( m_widgets.count()*2 );
 
     // Using push_back would look nicer, but operator[] is much faster
     int index  = 0;
     QWidget* w = 0;
-    for (int i = 0; i < widgets.size(); ++i) {
-        w = widgets.at(i);
+    for (int i = 0; i < m_widgets.size(); ++i) {
+        w = m_widgets.at(i);
         QRect widgetPos = w->geometry();
         x[index]   = widgetPos.left();
         x[index+1] = widgetPos.right();
@@ -941,7 +938,7 @@ void GridLayout::buildGrid()
     grid = new Grid(y.size() - 1, x.size() - 1);
 
     // Mark the cells in the grid that contains a widget
-    foreach (QWidget *w, widgets) {
+    foreach (QWidget *w, m_widgets) {
         QRect widgetPos = w->geometry();
 
         QRect c(0, 0, 0, 0);
