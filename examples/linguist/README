@@ -5,25 +5,31 @@ access translation and localization facilities at run-time.
 The example launcher provided with Qt can be used to explore each of the
 examples in this directory.
 
-Documentation for these examples can be found via the "Tutorial and Examples"
+Documentation for these examples can be found via the Tutorial and Examples
 link in the main Qt documentation.
 
 
-Finding the launcher
-====================
+Finding the Qt Examples and Demos launcher
+==========================================
 
 On Windows:
 
+The launcher can be accessed via the Windows Start menu. Select the menu
+entry entitled "Qt Examples and Demos" entry in the submenu containing
+the Qt tools.
 
 On Mac OS X:
 
+Type "qtdemo" on the command line or use the "Qt Examples and Demos"
+entry on the Start menu to run the launcher.
 
 On Unix/Linux:
 
-
+The qtdemo executable is installed alongside the other Qt tools on the path
+specified when Qt is configured.
 
 On all platforms:
 
-The source code for the launcher can be found in the examples/tools/launcher
+The source code for the launcher can be found in the examples/tools/qtdemo
 directory in the Qt package. This example is built at the same time as the
 Qt libraries, tools, examples, and demonstrations.
