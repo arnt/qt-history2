@@ -888,6 +888,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     } else if(topLevel) {
         Rect r;
         SetRect(&r, data.crect.left(), data.crect.top(), data.crect.right(), data.crect.bottom());
+        data.fstrut_dirty = true;
         WindowClass wclass = kSheetWindowClass;
         if(qt_mac_is_macdrawer(q))
             wclass = kDrawerWindowClass;
@@ -943,7 +944,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
                     wattr |= kWindowFullZoomAttribute;
                 if(flags & Qt::WindowMinimizeButtonHint)
                     wattr |= kWindowCollapseBoxAttribute;
-                if(flags & (Qt::WindowTitleHint | Qt::WindowSystemMenuHint))
+                if(flags & Qt::WindowSystemMenuHint)
                    wattr |= kWindowCloseBoxAttribute;
             }
         }
