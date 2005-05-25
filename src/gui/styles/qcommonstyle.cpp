@@ -24,6 +24,7 @@
 #include <qmenu.h>
 #include <qpainter.h>
 #include <qpaintengine.h>
+#include <qpainterpath.h>
 #include <qslider.h>
 #include <qstyleoption.h>
 #include <qtabbar.h>
@@ -530,88 +531,22 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     }
     case PE_IndicatorTabTear:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
-            QPolygon a;
             bool rtl = tab->direction == Qt::RightToLeft;
-            int h = tab->rect.height();
-            int top = tab->rect.top();
-            int w = tab->rect.width();
-            int startJig;
-            int jag;
+            QRect rect = tab->rect;
+            QPainterPath path;
 
-            // Yup, do the swich twice, once to set up the variables, the second time to actually
-            // draw.
-            switch (tab->shape) {
-            case QTabBar::RoundedNorth:
-            case QTabBar::RoundedSouth:
-                if (!rtl) {
-                    startJig = tab->rect.left();
-                    jag = 3;
-                } else {
-                    startJig = tab->rect.right() - 1;
-                    jag = -3;
-                }
-                break;
-            case QTabBar::RoundedWest:
-                startJig = top;
-                if (tab->state & State_Selected) {
-                    top = opt->rect.left();
-                    w += 2;
-                } else {
-                    startJig = top - 1;
-                    top = opt->rect.left() + 2;
-                }
-                jag = 3;
-                break;
-            case QTabBar::RoundedEast:
-                startJig = top;
-                top = opt->rect.right() - 1;
-                jag = 3;
-                break;
-            default:
-                startJig = jag = 0;
-                break;
-            }
+            rect.setTop(rect.top() + ((tab->state & State_Selected) ? 1 : 3));
+            rect.setBottom(rect.bottom() - ((tab->state & State_Selected) ? 0 : 2));
 
-            switch (tab->shape) {
-            case QTabBar::RoundedNorth:
-                p->fillRect(opt->rect.left(), top + 3, w, h - 5,
-                            tab->palette.brush(QPalette::Background));
-                a.setPoints(5, startJig, top + 2, startJig + jag, h / 4,
-                            startJig, h / 2, startJig + jag, 3 * h / 4, startJig, h);
-                break;
-            case QTabBar::RoundedSouth:
-                p->fillRect(opt->rect.left(), top + 2, w, h - 5,
-                            tab->palette.brush(QPalette::Background));
-                a.setPoints(5, startJig, top, startJig + jag, h / 4, startJig, h / 2,
-                            startJig + jag, 3 * h / 4, startJig, h - 3);
-                break;
-            case QTabBar::RoundedWest:
-                p->fillRect(opt->rect.left() + 3, opt->rect.top(), w - 5, h,
-                            tab->palette.brush(QPalette::Background));
-                a.setPoints(5, top, startJig, w / 4, startJig + jag, w / 2,
-                            startJig, 3 * w / 4, startJig + jag, w - 3, startJig);
-                break;
-            case QTabBar::RoundedEast:
-                p->fillRect(opt->rect.left() + 2, opt->rect.top(), w - 5, h,
-                            tab->palette.brush(QPalette::Background));
-                a.setPoints(5, top, startJig, 3 * w / 4, startJig + jag, w / 2, startJig,
-                            w / 4, startJig + jag, 1, startJig);
-            default:
-                break;
-            }
+            path.moveTo(QPoint(rtl ? rect.right() : rect.left(), rect.top()));
+            int count = 4;
+            for(int jags = 1; jags <= count; ++jags, rtl = !rtl)
+                path.lineTo(QPoint(rtl ? rect.left() : rect.right(), rect.top() + jags * rect.height()/count));
 
-            if (!a.isEmpty()) {
-                QPen oldPen = p->pen();
-                QPen newPen;
-                newPen.setBrush(tab->palette.brush(QPalette::Light));
-                p->setPen(newPen);
-                p->drawPolyline(a);
-                a.translate(1, 0);
-                newPen.setBrush(tab->palette.brush(QPalette::Midlight));
-                p->setPen(newPen);
-                p->drawPolyline(a);
-                p->setPen(oldPen);
-            }
+            p->setPen(QPen(tab->palette.light(), .8));
+            p->setBrush(tab->palette.background());
+            p->setRenderHint(QPainter::Antialiasing);
+            p->drawPath(path);
         }
         break;
     case PE_PanelLineEdit:
