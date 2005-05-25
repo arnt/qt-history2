@@ -1406,7 +1406,7 @@ void QHeaderView::mouseDoubleClickEvent(QMouseEvent *e)
 void QHeaderView::paintSection(QPainter *painter, const QRect &rect, int logicalIndex) const
 {
     Q_D(const QHeaderView);
-    if (!d->model)
+    if (!d->model || !rect.isValid())
         return;
     // get the state of the section
     QStyleOptionHeader opt = d->getStyleOption();
