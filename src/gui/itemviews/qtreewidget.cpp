@@ -91,7 +91,7 @@ private:
     QList<QTreeWidgetItem*> tree;
     QTreeWidgetItem *header;
     Qt::SortOrder sorting;
-    
+
     // A cache must be mutable if get-functions should have const modifiers
     mutable QModelIndexList cachedIndexes;
 };
@@ -2020,7 +2020,7 @@ QStringList QTreeWidget::mimeTypes() const
     If the list of items is empty, 0 is returned rather than a serialized
     empty list.
 */
-QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*> items) const
+QMimeData *QTreeWidget::mimeData(const QList<QTreeWidgetItem*>) const
 {
     return d_func()->model()->internalMimeData();
 }
@@ -2053,7 +2053,7 @@ Qt::DropActions QTreeWidget::supportedDropActions() const
   Returns a list of pointers to the items contained in the \a data object.
   If the object was not created by a QTreeWidget in the same process, the list
   is empty.
-  
+
 */
 QList<QTreeWidgetItem*> QTreeWidget::items(const QMimeData *data) const
 {
