@@ -1553,8 +1553,8 @@ WCE({	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_P
                   << "static const char qt_configure_plugins_path_str      [512 + 12] = \"qt_plugpath=" << QString(dictionary["QT_INSTALL_PLUGINS"]).replace( "\\", "\\\\" ) << "\";"  << endl
                   << "static const char qt_configure_data_path_str         [512 + 12] = \"qt_datapath=" << QString(dictionary["QT_INSTALL_DATA"]).replace( "\\", "\\\\" ) << "\";"  << endl
                   << "static const char qt_configure_translations_path_str [512 + 12] = \"qt_trnspath=" << QString(dictionary["QT_INSTALL_TRANSLATIONS"]).replace( "\\", "\\\\" ) << "\";" << endl
-                  << "static const char qt_configure_examples_path_str         [512 + 12] = \"qt_examplespath=" << QString(dictionary["QT_INSTALL_EXAMPLES"]).replace( "\\", "\\\\" ) << "\";"  << endl
-                  << "static const char qt_configure_demos_path_str         [512 + 12] = \"qt_demospath=" << QString(dictionary["QT_INSTALL_DEMOS"]).replace( "\\", "\\\\" ) << "\";"  << endl
+                  << "static const char qt_configure_examples_path_str         [512 + 12] = \"qt_xmplpath=" << QString(dictionary["QT_INSTALL_EXAMPLES"]).replace( "\\", "\\\\" ) << "\";"  << endl
+                  << "static const char qt_configure_demos_path_str         [512 + 12] = \"qt_demopath=" << QString(dictionary["QT_INSTALL_DEMOS"]).replace( "\\", "\\\\" ) << "\";"  << endl
                   //<< "static const char qt_configure_settings_path_str [256] = \"qt_stngpath=" << QString(dictionary["QT_INSTALL_SETTINGS"]).replace( "\\", "\\\\" ) << "\";" << endl
                   << "/* strlen( \"qt_lcnsxxxx\" ) == 12 */" << endl
                   << "#define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;" << endl
