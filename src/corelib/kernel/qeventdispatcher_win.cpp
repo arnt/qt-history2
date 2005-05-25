@@ -109,8 +109,8 @@ QEventDispatcherWin32Private::QEventDispatcherWin32Private()
     resolveTimerAPI();
     InitializeCriticalSection(&fastTimerCriticalSection);
 
-    wakeUpNotifier.setHandle(QT_WA_INLINE(CreateEventW(0, false, false, L"Wakeup event"),
-                                          CreateEventA(0, false, false, "Wakeup event")));
+    wakeUpNotifier.setHandle(QT_WA_INLINE(CreateEventW(0, false, false, 0),
+                                          CreateEventA(0, false, false, 0)));
     if (!wakeUpNotifier.handle())
         qWarning("QEventDispatcherWin32Private::QEventDispatcherWin32Private(): Creating wakeup event failed");
 }
@@ -356,9 +356,6 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     bool retVal = false;
     do {
         QThreadData *data = QThreadData::get(thread());
-        if (data->postEventList.size() > 0)
-            retVal = true;
-
         QCoreApplication::sendPostedEvents();
 
         DWORD waitRet = 0;
