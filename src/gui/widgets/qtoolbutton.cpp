@@ -297,8 +297,9 @@ QSize QToolButton::sizeHint() const
 
     QFontMetrics fm = fontMetrics();
     if (opt.toolButtonStyle != Qt::ToolButtonTextOnly) {
-        w = d->iconSize.width();
-        h = d->iconSize.height();
+        QSize icon = iconSize();
+        w = icon.width();
+        h = icon.height();
     }
 
     if (opt.toolButtonStyle != Qt::ToolButtonIconOnly) {
