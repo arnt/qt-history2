@@ -31,8 +31,8 @@ SOURCE_PACKAGE=
 doStringReplace()
 {
     sed -e "s,\\\$VERSION_MAJOR\\\$,$QT_MAJOR_VERSION,g" -e "s,\\\$VERSION_MINOR\\\$,$QT_MINOR_VERSION,g" \
-	-e "s,\\\$VERSION_PATCH\\\$,$QT_PATCH_VERSION,g" "$1" >tmp.out
-    mv -f tmp.out "$2"
+	-e "s,\\\$VERSION_PATCH\\\$,$QT_PATCH_VERSION,g" "$1" >/tmp/tmp.out
+    mv -f /tmp/tmp.out "$2"
 }
 
 while [ -n "$1" ]; do
@@ -118,7 +118,7 @@ elif [ ! -z "$SOURCE_PACKAGE" ]; then
     export DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
     export DYLD_FRAMEWORK_PATH=$QTDIR/lib:$DYLD_FRAMEWORK_PATH
     export PATH=$QTDIR/bin:$PATH
-    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xvf - && cd "$PACKAGE_DEST" && ./configure -qt-libpng -qt-libjpeg -qt-sql-sqlite -release -framework -confirm-license && make); then
+    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure -qt-libpng -qt-libjpeg -qt-sql-sqlite -release -framework -confirm-license && make); then
           SOURCE_DIR="$QTDIR"
           BINARY_DIR="$SOURCE_DIR"
     else
@@ -131,13 +131,25 @@ else
 fi
 
 #find the license
-if [ -z "$LICENSE" ] && [ -e "$SOURCE_DIR/dist/commercial/LICENSE" ]; then
-   LICENSE="$SOURCE_DIR/dist/commercial/LICENSE"
+if [ -z "$LICENSE" ]; then
+    DEPOT_LICENSE="$SOURCE_DIR/dist/commercial/LICENSE" 
+    PACKAGE_LICENSE="$SOURCE_DIR/LICENSE" 
+    if [ -e "$DEPOT_LICENSE" ]; then
+        LICENSE=$DEPOT_LICENSE
+    elif [ -e "$PACKAGE_LICENSE" ]; then
+        LICENSE="$PACKAGE_LICENSE"
+    fi
 fi
 
 #find the README
-if [ -z "$README" ] && [ -e "$SOURCE_DIR/dist/README" ]; then
-    README="$SOURCE_DIR/dist/README"
+if [ -z "$README" ]; then
+    DEPOT_README="$SOURCE_DIR/dist/README"
+    PACKAGE_README="$SOURCE_DIR/README"
+    if [ -e "$DEPOT_README" ]; then
+        README="$DEPOT_README"
+    elif [ -e "$PACKAGE_README" ]; then 
+        README="$PACKAGE_README"
+    fi
 fi
 
 #find the version from the source package
