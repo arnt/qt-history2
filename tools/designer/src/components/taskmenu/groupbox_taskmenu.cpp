@@ -80,7 +80,6 @@ void GroupBoxTaskMenu::editTitle()
 
 void GroupBoxTaskMenu::editIcon()
 {
-    qDebug() << "edit icon";
 }
 
 GroupBoxTaskMenuFactory::GroupBoxTaskMenuFactory(QExtensionManager *extensionManager)

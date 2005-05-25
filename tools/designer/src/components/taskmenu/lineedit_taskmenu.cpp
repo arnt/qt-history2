@@ -83,7 +83,6 @@ void LineEditTaskMenu::editText()
 
 void LineEditTaskMenu::editIcon()
 {
-    qDebug() << "edit icon";
 }
 
 LineEditTaskMenuFactory::LineEditTaskMenuFactory(QExtensionManager *extensionManager)

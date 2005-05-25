@@ -78,7 +78,6 @@ void TextEditTaskMenu::editText()
 
 void TextEditTaskMenu::editIcon()
 {
-    qDebug() << "edit icon";
 }
 
 TextEditTaskMenuFactory::TextEditTaskMenuFactory(QExtensionManager *extensionManager)

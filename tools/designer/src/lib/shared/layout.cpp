@@ -883,9 +883,6 @@ void GridLayout::buildGrid()
 
     QList<int> x = x_dict.keys();
     QList<int> y = y_dict.keys();
-
-    qDebug() << "x:" << x;
-    qDebug() << "y:" << y;
 #else
     // Pixel to cell conversion:
     // By keeping a list of start'n'stop values (x & y) for each widget,

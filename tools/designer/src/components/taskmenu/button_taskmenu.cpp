@@ -83,7 +83,6 @@ void ButtonTaskMenu::editText()
 
 void ButtonTaskMenu::editIcon()
 {
-    qDebug() << "edit icon";
 }
 
 ButtonTaskMenuFactory::ButtonTaskMenuFactory(QExtensionManager *extensionManager)

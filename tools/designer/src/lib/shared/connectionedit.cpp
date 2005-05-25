@@ -299,7 +299,6 @@ void Connection::updateVisibility()
     w = target;
     while (w && w->parentWidget()) {
         if (!w->isVisibleTo(w->parentWidget())) {
-            // qDebug() << target << "is not visible to:" << w->parentWidget();
             setVisible(false);
             return;
         }

@@ -587,7 +587,7 @@ QVariant QAbstractFormBuilder::toVariant(const QMetaObject *meta, DomProperty *p
     } break;
 
     default:
-        qDebug() << "QAbstractFormBuilder::toVariant:" << p->kind() << " not implemented yet!";
+        qWarning() << "QAbstractFormBuilder::toVariant:" << p->kind() << " not implemented yet!";
         break;
     }
 

@@ -283,26 +283,21 @@ WidgetDataBaseItem *WidgetDataBase::createCustomWidgetItem(QDesignerCustomWidget
 
 QList<QVariant> WidgetDataBase::defaultPropertyValues(const QString &name)
 {
-//    qDebug() << "WidgetDataBase::defaultPropertyValues()" << name << "======================";
-
     QList<QVariant> result;
 
     WidgetFactory factory(m_core);
     QWidget *w = factory.createWidget(name, 0);
     if (w == 0) {
-        //### qWarning("WidgetDataBase::defaultPropertyValues(): failed to create \"%s\"", name.toUtf8().constData());
         return result;
     }
 
     QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(m_core->extensionManager(), w);
     if (sheet == 0) {
-        // ### qWarning("WidgetDataBase::defaultPropertyValues(): failed to create property sheet for \"%s\"", name.toUtf8().constData());
         delete w;
         return result;
     }
 
     for (int i = 0; i < sheet->count(); ++i) {
-//        qDebug() << i << sheet->propertyName(i) << sheet->property(i);
         result.append(sheet->property(i));
     }
 
@@ -318,6 +313,5 @@ void WidgetDataBase::grabDefaultPropertyValues()
         QList<QVariant> default_prop_values = defaultPropertyValues(item->name());
         item->setDefaultPropertyValues(default_prop_values);
 
-//        qDebug() << "WidgetDataBase::grabDefaultPropertyValues():" << item->name() << default_prop_values;
     }
 }

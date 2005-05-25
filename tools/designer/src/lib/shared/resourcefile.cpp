@@ -384,8 +384,6 @@ QModelIndex ResourceModel::index(int row, int column,
         result = createIndex(row, 0, parent.row());
     }
 
-//    qDebug() << "ResourceModel::index(" << row << column << parent << "):" << result;
-
     return result;
 }
 
@@ -397,8 +395,6 @@ QModelIndex ResourceModel::parent(const QModelIndex &index) const
 
     if (index.isValid() && d != -1)
         result = createIndex(d, 0, -1);
-
-//    qDebug() << "ResourceModel::parent(" << index << "):" << result;
 
     return result;
 }
@@ -413,8 +409,6 @@ int ResourceModel::rowCount(const QModelIndex &parent) const
         result = m_resource_file.prefixCount();
     else if (d == -1)
         result = m_resource_file.fileCount(parent.row());
-
-//    qDebug() << "ResourceModel::rowCount(" << parent << "):" << result;
 
     return result;
 }
@@ -434,8 +428,6 @@ bool ResourceModel::hasChildren(const QModelIndex &parent) const
         result = m_resource_file.prefixCount() > 0;
     else if (d == -1)
         result = m_resource_file.fileCount(parent.row()) > 0;
-
-//    qDebug() << "ResourceModel::hasChildren(" << parent << "):" << result;
 
     return result;
 }

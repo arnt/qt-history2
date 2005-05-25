@@ -77,7 +77,6 @@ void LabelTaskMenu::editText()
 
 void LabelTaskMenu::editIcon()
 {
-    qDebug() << "edit icon";
 }
 
 LabelTaskMenuFactory::LabelTaskMenuFactory(QExtensionManager *extensionManager)

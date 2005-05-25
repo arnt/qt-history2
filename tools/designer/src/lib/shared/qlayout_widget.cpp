@@ -845,18 +845,6 @@ void QLayoutWidget::paintEvent(QPaintEvent*)
 
 void QLayoutWidget::updateMargin()
 {
-    if (!layout())
-        return;
-
-#if 0 // ### fix me
-    if (qobject_cast<QLayoutWidget*>(parentWidget())) {
-        layout()->setMargin(style()->pixelMetric(QStyle::PM_DefaultChildMargin, 0, 0));
-        qDebug() << "use default-child margin";
-    } else {
-        layout()->setMargin(style()->pixelMetric(QStyle::PM_DefaultTopLevelMargin, 0, 0));
-        qDebug() << "use default-toplevel margin";
-    }
-#endif
 }
 
 bool QLayoutWidget::event(QEvent *e)
