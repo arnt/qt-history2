@@ -672,7 +672,7 @@ void QTextHtmlParser::eatSpace()
 
 void QTextHtmlParser::parse() {
     QTextHtmlParserNode::WhiteSpaceMode wsm = QTextHtmlParserNode::WhiteSpaceNormal;
-    while (pos < len) {
+    while (pos < len) {        
         QChar c = txt.at(pos++);
         if (c == QLatin1Char('<')) {
             parseTag();
@@ -759,14 +759,21 @@ void QTextHtmlParser::parseTag()
     }
 
     // finish tag
-    while (pos < len && txt.at(pos++) != QLatin1Char('>'))
-        ;
+    bool tagClosed = false;
+    while (pos < len && txt.at(pos) != QLatin1Char('>')) {
+        if (txt.at(pos) == QLatin1Char('/')) 
+            tagClosed = true;
+        
+
+        pos++;
+    }
+    pos++;
 
     if (node->wsm != QTextHtmlParserNode::WhiteSpacePre
         && node->wsm != QTextHtmlParserNode::WhiteSpacePreWrap)
         eatSpace();
 
-    if (node->mayNotHaveChildren()) {
+    if (node->mayNotHaveChildren() || tagClosed) {
         newNode(node->parent);
         resolveNode();
     }
