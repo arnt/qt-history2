@@ -429,7 +429,7 @@ void GradientRenderer::setGradientStops(const QGradientStops &stops)
 }
 
 
-void GradientRenderer::mousePressEvent(QMouseEvent *e)
+void GradientRenderer::mousePressEvent(QMouseEvent *)
 {
     setDescriptionEnabled(false);
 }
