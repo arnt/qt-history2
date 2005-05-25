@@ -172,7 +172,7 @@ void QWindowsPipeWriter::run()
             if (!WriteFile(writePipe, ptrData + totalWritten, qMin<int>(8192, maxlen - totalWritten), &written, 0)) {
                 if (GetLastError() == 0xE8 /*NT_STATUS_INVALID_USER_BUFFER*/) {
                     // give the os a rest
-                    sleep(100);
+                    msleep(100);
                     continue;
                 }
                 return;
