@@ -1132,7 +1132,7 @@ QCoreGraphicsPaintEngine::updatePen(const QPen &pen)
     CGContextSetLineCap(d->hd, cglinecap);
 
     //penwidth
-    const float cglinewidth = pen.width() <= 0 ? 1 : pen.width();
+    const float cglinewidth = pen.widthF() <= 0.0f ? 1.0f : float(pen.widthF());
     CGContextSetLineWidth(d->hd, cglinewidth);
 
     //join
