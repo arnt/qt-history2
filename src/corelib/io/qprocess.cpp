@@ -939,7 +939,7 @@ bool QProcess::waitForStarted(int msecs)
         d->processState = QProcess::Running;
         emit started();
     }
-    return true;
+    return d->processState == QProcess::Running;
 }
 
 /*! \reimp

@@ -425,7 +425,6 @@ void QProcessPrivate::startProcess()
 #endif // Q_OS_TEMP
     }
 #ifndef Q_OS_TEMP
-
     CloseHandle(writePipe[0]);
     writePipe[0] = INVALID_Q_PIPE;
     CloseHandle(standardReadPipe[1]);
@@ -433,6 +432,16 @@ void QProcessPrivate::startProcess()
     CloseHandle(errorReadPipe[1]);
     errorReadPipe[1] = INVALID_Q_PIPE;
 #endif
+
+    if (!success) {
+        cleanup();
+        processError = QProcess::FailedToStart;
+        q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process failed to start"));
+        emit q->error(processError);
+        processState = QProcess::NotRunning;
+        emit q->stateChanged(processState);
+        return;
+    }
 
     processState = QProcess::Running;
 
@@ -519,6 +528,9 @@ bool QProcessPrivate::waitForStarted(int)
 
     if (processStarted())
         return true;
+
+    if (processError == QProcess::FailedToStart)
+        return false;
 
     processError = QProcess::Timedout;
     q->setErrorString(QT_TRANSLATE_NOOP(QProcess, "Process opeation timed out"));
