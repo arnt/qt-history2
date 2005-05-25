@@ -18,7 +18,7 @@
 
 #include "qsqlquerymodel_p.h"
 
-#define QSQL_PREFETCH 15 // ### make this configurable
+#define QSQL_PREFETCH 255
 
 void QSqlQueryModelPrivate::prefetch(int limit)
 {
