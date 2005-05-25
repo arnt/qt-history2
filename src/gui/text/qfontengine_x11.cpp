@@ -551,6 +551,10 @@ QFontEngineFT::QFontEngineFT(FcPattern *pattern, const QFontDef &fd, int screen)
         freetype->lock = 0;
         freetype->xsize = 0;
         freetype->ysize = 0;
+        FcCharSet *cs;
+        FcPatternGetCharSet (pattern, FC_CHARSET, 0, &cs);
+        freetype->charset = FcCharSetCopy(cs);
+
         memset(freetype->cmapCache, 0, sizeof(freetype->cmapCache));
         FT_New_Face(library, face_id.filename, face_id.index, &freetype->face);
         freetypeFaces->insert(face_id, freetype);
@@ -607,6 +611,7 @@ QFontEngineFT::~QFontEngineFT()
 {
     if (!freetype->ref.deref()) {
         FT_Done_Face(freetype->face);
+        FcCharSetDestroy(freetype->charset);
         delete freetype;
         freetypeFaces->take(::face_id(_pattern));
     }
@@ -866,7 +871,7 @@ QFontEngineFT::Glyph *QFontEngineFT::loadGlyph(uint glyph, GlyphFormat format) c
                         || ((signed char)(info.xOff) != info.xOff));
 
     if (large_glyph) {
-        qDebug("got a large glyph!");
+//         qDebug("got a large glyph!");
         return 0;
     }
 
@@ -947,7 +952,7 @@ bool QFontEngineFT::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs
             if (mirrored)
                 uc = QUnicodeTables::mirroredChar(uc);
             glyphs[glyph_pos].glyph = uc < QFreetypeFace::cmapCacheSize ? freetype->cmapCache[uc] : 0;
-            if (!glyphs[glyph_pos].glyph) {
+            if (!glyphs[glyph_pos].glyph && FcCharSetHasChar(freetype->charset, uc)) {
             redo:
                 glyph_t glyph = FT_Get_Char_Index(face, uc);
                 if (!glyph && (uc == 0xa0 || uc == 0x9)) {

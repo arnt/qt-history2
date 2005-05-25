@@ -107,6 +107,7 @@ struct QFreetypeFace {
     QAtomic ref;
     QAtomic lock;
     FT_Face face;
+    FcCharSet *charset;
     int xsize; // 26.6
     int ysize; // 26.6
 
