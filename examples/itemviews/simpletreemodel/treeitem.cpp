@@ -21,7 +21,7 @@
 
 #include "treeitem.h"
 
-TreeItem::TreeItem(QList<QVariant> data, TreeItem *parent)
+TreeItem::TreeItem(const QList<QVariant> &data, TreeItem *parent)
 {
     parentItem = parent;
     itemData = data;
