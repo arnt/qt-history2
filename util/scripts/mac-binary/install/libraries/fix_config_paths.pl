@@ -9,7 +9,9 @@ my %VARS = (
     "plug" => "/Developer/Applications/Qt/plugins", 
     "trns" => "/Developer/Applications/Qt/translations",
 #   "data" => "/usr/local/Qt$VERSION_MAJOR.$VERSION_MINOR",
-    "bins" => "/Developer/Tools/Qt"
+    "bins" => "/Developer/Tools/Qt",
+    "demo" => "/Developer/Examples/Qt/Demos",
+    "xmpl" => "/Developer/Examples/Qt/Examples"
 );
 my $file_in = 0;
 my $file_out = 0;
