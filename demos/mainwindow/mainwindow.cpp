@@ -88,7 +88,7 @@ void MainWindow::setupDockWidgets()
         uint flags;
         Qt::DockWidgetArea area;
     } sets [] = {
-        { "Black", Qt::Drawer, Qt::LeftDockWidgetArea },
+        { "Black", 0, Qt::LeftDockWidgetArea },
         { "White", 0, Qt::RightDockWidgetArea },
         { "Red", 0, Qt::TopDockWidgetArea },
         { "Green", 0, Qt::TopDockWidgetArea },
