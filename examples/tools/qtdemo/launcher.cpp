@@ -996,6 +996,8 @@ void Launcher::toggleFullScreen()
     if (inFullScreenResize)
         return;
 
+    inFullScreenResize = true;
+
     connect(display, SIGNAL(displayEmpty()), this, SLOT(resizeWindow()),
             Qt::QueuedConnection);
     display->reset();
@@ -1004,8 +1006,6 @@ void Launcher::toggleFullScreen()
 void Launcher::resizeWindow()
 {
     disconnect(display, SIGNAL(displayEmpty()), this, 0);
-
-    inFullScreenResize = true;
 
     if (isFullScreen())
         showNormal();
