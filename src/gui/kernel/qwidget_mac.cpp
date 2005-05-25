@@ -1196,7 +1196,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         if(obj->isWidgetType()) {
             QWidget *w = (QWidget *)obj;
             if(!w->isWindow()) {
-                if (!extra->topextra->caption.isEmpty())
+                if (!topData()->caption.isEmpty())
                     setWindowTitle_sys(extra->topextra->caption);
                 HIViewAddSubview((HIViewRef)q->winId(), (HIViewRef)w->winId());
             }
