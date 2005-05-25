@@ -1067,7 +1067,10 @@ QFont QTextEngine::font(const QScriptItem &si) const
 
         return fnt;
     }
-    return QFont(fnt);
+
+    if (fnt)
+        return QFont(fnt);    
+    return QFont();
 }
 
 QFont QTextEngine::font() const
