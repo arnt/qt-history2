@@ -1176,7 +1176,6 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     Qt::FocusPolicy fp = q->focusPolicy();
     QPoint   pt = q->pos();
     QSize    s = q->size();
-    QString capt = q->windowTitle();
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
 
     data.window_flags = f;
@@ -1196,8 +1195,11 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
         QObject *obj = chlist.at(i);
         if(obj->isWidgetType()) {
             QWidget *w = (QWidget *)obj;
-            if(!w->isWindow())
+            if(!w->isWindow()) {
+                if (!extra->topextra->caption.isEmpty())
+                    setWindowTitle_sys(extra->topextra->caption);
                 HIViewAddSubview((HIViewRef)q->winId(), (HIViewRef)w->winId());
+            }
         }
     }
 
@@ -1210,10 +1212,6 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     if (extra && !extra->mask.isEmpty())
         q->setMask(extra->mask);
     q->setAcceptDrops(dropable);
-    if(!capt.isNull()) {
-        topData()->caption.clear();
-        q->setWindowTitle(capt);
-    }
     if(setcurs)
         q->setCursor(oldcurs);
 
