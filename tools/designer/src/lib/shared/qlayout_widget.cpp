@@ -533,7 +533,11 @@ void QLayoutSupport::insertWidget(int index, QWidget *widget)
 {
     QGridLayout *gridLayout = qobject_cast<QGridLayout*>(layout());
     QLayoutItem *item = gridLayout->itemAt(index);
-    Q_ASSERT(item && isEmptyItem(item));
+
+    if (!item || !isEmptyItem(item)) {
+        qWarning() << "the cell is not empty";
+        return;
+    }
 
     int row, column, rowspan, colspan;
     gridLayout->getItemPosition(index, &row, &column, &rowspan, &colspan);

@@ -348,7 +348,7 @@ bool QDesignerPropertySheet::isAttribute(int index) const
         return m_info.value(index).attribute;
 
     if (isFakeProperty(index))
-        return true;
+        return false;
 
     return m_info.value(index).attribute;
 }

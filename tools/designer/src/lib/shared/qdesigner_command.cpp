@@ -15,6 +15,7 @@
 
 #include "qdesigner_command_p.h"
 #include "layout_p.h"
+#include "qlayout_widget_p.h"
 #include "qdesigner_widget_p.h"
 #include "qdesigner_promotedwidget_p.h"
 
@@ -1332,6 +1333,8 @@ void ChangeLayoutItemGeometry::changeItemPosition(const QRect &g)
 
     grid->invalidate();
     grid->activate();
+
+    QLayoutSupport::createEmptyCells(grid);
 
     formWindow()->clearSelection(false);
     formWindow()->selectWidget(m_widget, true);

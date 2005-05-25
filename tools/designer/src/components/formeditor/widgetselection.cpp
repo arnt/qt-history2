@@ -523,12 +523,13 @@ void WidgetSelection::setWidget(QWidget *w, bool updateDict)
         }
     }
 
-    QLayout *layout = LayoutInfo::managedLayout(formWindow->core(), wid->parentWidget());
+    QLayout *layout = LayoutInfo::managedLayout(formWindow->core(), formWindow->designerWidget(wid->parentWidget()));
     if (QGridLayout *grid = qobject_cast<QGridLayout*>(layout)) {
         int index = grid->indexOf(wid);
         if (index == -1) {
-            qWarning("unexpected call to WidgetSelection::setWidget()");
-            // Q_ASSERT(0);
+#if defined(QD_DEBUG)
+            qWarning() << "unexpected call to WidgetSelection::setWidget()" << "widget:" << wid << "grid:"<< grid;
+#endif
             return;
         }
 
