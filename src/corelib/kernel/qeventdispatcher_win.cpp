@@ -22,7 +22,6 @@
 
 #include "qabstracteventdispatcher_p.h"
 #include <private/qthread_p.h>
-
 class QEventDispatcherWin32Private;
 
 struct QSockNot {
@@ -356,10 +355,13 @@ bool QEventDispatcherWin32::processEvents(QEventLoop::ProcessEventsFlags flags)
     bool canWait;
     bool retVal = false;
     do {
+        QThreadData *data = QThreadData::get(thread());
+        if (data->postEventList.size() > 0)
+            retVal = true;
+
         QCoreApplication::sendPostedEvents();
 
         DWORD waitRet = 0;
-        QThreadData *data = QThreadData::get(thread());
         HANDLE pHandles[MAXIMUM_WAIT_OBJECTS - 1];
         while (!d->interrupt) {
             DWORD nCount = d->winEventNotifierList.count();
