@@ -38,7 +38,7 @@
 #endif
 
 
-#define qreal_to_fixed(f) (int(f * 64))
+#define qreal_to_fixed_26_6(f) (int(f * 64))
 #define qt_swap(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
 
 static QT_FT_Raster qt_gray_raster;
@@ -139,43 +139,6 @@ struct ClipData
 void qt_scanconvert(QT_FT_Outline *outline, qt_span_func callback, void *userData, QT_FT_BBox *bounds, QRasterPaintEnginePrivate *d);
 
 
-/*******************************************************************************
- * Path iterators
- */
-struct PathItData
-{
-    const QPainterPath *path;
-    qreal m11, m12, m21, m22, dx, dy;
-};
-
-typedef const QPainterPath::Element &(*qt_path_iterator)(int index, PathItData *iteratorData);
-
-const QPainterPath::Element &qt_path_iterator_xform(int index, PathItData *d)
-{
-    static QPainterPath::Element static_element;
-    const QPainterPath::Element &e = d->path->elementAt(index);
-    static_element.x = d->m11*e.x + d->m21*e.y + d->dx;
-    static_element.y = d->m12*e.x + d->m22*e.y + d->dy;
-    static_element.type = e.type;
-    return static_element;
-}
-
-const QPainterPath::Element &qt_path_iterator_translate(int index, PathItData *d)
-{
-    static QPainterPath::Element static_element;
-    const QPainterPath::Element &e = d->path->elementAt(index);
-    static_element.x = e.x + d->dx;
-    static_element.y = e.y + d->dy;
-    static_element.type = e.type;
-    return static_element;
-}
-
-const QPainterPath::Element &qt_path_iterator_noop(int index, PathItData *d)
-{
-    return d->path->elementAt(index);
-}
-
-
 /********************************************************************************
  * class QFTOutlineMapper
  *
@@ -192,148 +155,42 @@ class QFTOutlineMapper
 public:
 
     /*!
-      Resets the current outline.
-    */
-    void reset()
-    {
-        m_points.reset();
-        m_tags.reset();
-        m_contours.reset();
-    }
-
-    /*!
       Sets up the matrix to be used for conversion. This also
       sets up the qt_path_iterator function that is used as a callback
       to get points.
     */
-    void setMatrix(const QMatrix &m, uint txop)
+    void setMatrix(const QMatrix &m, uint /* txop */)
     {
-        switch (txop) {
-        case QPainterPrivate::TxNone:
-            m_iterator = qt_path_iterator_noop;
-            break;
-        case QPainterPrivate::TxTranslate:
-            m_iterator = qt_path_iterator_translate;
-            break;
-        default:
-            m_iterator = qt_path_iterator_xform;
-            break;
-        }
-
-        m_iterator_data.m11 = m.m11();
-        m_iterator_data.m12 = m.m12();
-        m_iterator_data.m21 = m.m21();
-        m_iterator_data.m22 = m.m22();
-        m_iterator_data.dx = m.dx();
-        m_iterator_data.dy = m.dy();
+        m_m11 = m.m11();
+        m_m12 = m.m12();
+        m_m21 = m.m21();
+        m_m22 = m.m22();
+        m_dx = m.dx();
+        m_dy = m.dy();
     }
 
-    QT_FT_Outline *convert(const QPainterPath &path)
+    inline qreal map_x(qreal x, qreal y) { return m_m11*x + m_m21*y + m_dx; }
+
+    inline qreal map_y(qreal x, qreal y) { return m_m12*x + m_m22*y + m_dy; }
+
+    void beginOutline(Qt::FillRule fillRule)
     {
-        QT_FT_Vector pt;
-        QT_FT_Vector last = {0, 0};
-
-        Q_ASSERT(!path.isEmpty());
-        reset();
-
-        m_iterator_data.path = &path;
-
-        const QPainterPath::Element &startPt = m_iterator(0, &m_iterator_data);
-        pt.x = qreal_to_fixed(startPt.x);
-        pt.y = qreal_to_fixed(startPt.y);
-
-        QT_FT_Vector start = { pt.x, pt.y };
-
 #ifdef QT_DEBUG_CONVERT
-        printf("moveto: %.2f, %.2f\n",
-               start.x / 64.0, start.y / 64.0);
+        printf("QFTOutlineMapper::beginOutline rule=%d\n", fillRule);
 #endif
 
-        m_points.add(pt);
-        m_tags.add(QT_FT_CURVE_TAG_ON);
+        m_points.reset();
+        m_tags.reset();
+        m_contours.reset();
+        m_outline.flags = fillRule == Qt::WindingFill
+                          ? QT_FT_OUTLINE_NONE
+                          : QT_FT_OUTLINE_EVEN_ODD_FILL;
+        m_subpath_start.x = m_subpath_start.y = 0;
+    }
 
-        int elmCount = path.elementCount();
-
-        for (int index=1; index<elmCount; ++index) {
-            const QPainterPath::Element &elm = m_iterator(index, &m_iterator_data);
-
-            switch (elm.type) {
-
-            case QPainterPath::MoveToElement:
-
-                // If the path ends with a move to we can skip it...
-                if (index == elmCount - 1)
-                    continue;
-
-                pt.x = qreal_to_fixed(elm.x);
-                pt.y = qreal_to_fixed(elm.y);
-
-#ifdef QT_DEBUG_CONVERT
-                printf("moveto: %.2f, %.2f --  %.2f, %.2f\n",
-                       pt.x / 64.0, pt.y / 64.0, start.x / 64.0, start.y / 64.0);
-#endif
-
-                // implicitly close the path
-                if (start.x != last.x || start.y != last.y) {
-                    m_points.add(start);
-                    m_tags.add(QT_FT_CURVE_TAG_ON);
-                }
-
-                m_contours.add(m_points.size() - 1);
-                m_points.add(pt);
-                m_tags.add(QT_FT_CURVE_TAG_ON);
-                start = pt;
-                break;
-
-            case QPainterPath::LineToElement:
-                pt.x = qreal_to_fixed(elm.x);
-                pt.y = qreal_to_fixed(elm.y);
-
-#ifdef QT_DEBUG_CONVERT
-                printf("lineto: %.2f, %.2f\n", pt.x  / 64.0, pt.y / 64.0);
-#endif
-
-                m_points.add(pt);
-                m_tags.add(QT_FT_CURVE_TAG_ON);
-                break;
-
-            case QPainterPath::CurveToElement:
-                pt.x = qreal_to_fixed(elm.x);
-                pt.y = qreal_to_fixed(elm.y);
-                m_points.add(pt);
-
-                ++index;
-                pt.x = qreal_to_fixed(m_iterator(index, &m_iterator_data).x);
-                pt.y = qreal_to_fixed(m_iterator(index, &m_iterator_data).y);
-                m_points.add(pt);
-
-                ++index;
-                pt.x = qreal_to_fixed(m_iterator(index, &m_iterator_data).x);
-                pt.y = qreal_to_fixed(m_iterator(index, &m_iterator_data).y);
-                m_points.add(pt);
-
-#ifdef QT_DEBUG_CONVERT
-                printf("curveto (end): %.2f, %.2f\n", pt.x / 64.0, pt.y / 64.0);
-#endif
-
-                m_tags.add(QT_FT_CURVE_TAG_CUBIC);         // Control point 1
-                m_tags.add(QT_FT_CURVE_TAG_CUBIC);         // Control point 2
-                m_tags.add(QT_FT_CURVE_TAG_ON);            // End point
-                break;
-
-            default:
-                break; // This will never hit..
-            }
-            last = pt;
-        }
-
-        // close last element
-        if (start.x != last.x || start.y != last.y) {
-            m_points.add(start);
-            m_tags.add(QT_FT_CURVE_TAG_ON);
-        }
-        // There will always be that last contour...
-        m_contours.add(m_points.size() - 1);
+    void endOutline()
+    {
+        closeSubpath();
 
         m_outline.n_contours = m_contours.size();
         m_outline.n_points = m_points.size();
@@ -342,27 +199,147 @@ public:
         m_outline.tags = m_tags.data();
         m_outline.contours = m_contours.data();
 
-        m_outline.flags = path.fillRule() == Qt::WindingFill
-                          ? QT_FT_OUTLINE_NONE
-                          : QT_FT_OUTLINE_EVEN_ODD_FILL;
-
 
 #ifdef QT_DEBUG_CONVERT
-        printf("path has: %d\n", path.elementCount());
+        printf("QFTOutlineMapper::endOutline\n");
 
-        printf("contours: %d\n", m_outline.n_contours);
+        printf(" - contours: %d\n", m_outline.n_contours);
         for (int i=0; i<m_outline.n_contours; ++i) {
-            printf(" - %d\n", m_outline.contours[i]);
+            printf("   - %d\n", m_outline.contours[i]);
         }
 
-        printf("points: %d\n", m_outline.n_points);
+        printf(" - points: %d\n", m_outline.n_points);
         for (int i=0; i<m_outline.n_points; ++i) {
-            printf(" - %d -- %.2f, %.2f, (%d, %d)\n", i,
+            printf("   - %d -- %.2f, %.2f, (%d, %d)\n", i,
                    m_outline.points[i].x / 64.0,
                    m_outline.points[i].y / 64.0,
                    m_outline.points[i], m_outline.points[i]);
         }
 #endif
+    }
+
+    inline void closeSubpath()
+    {
+#ifdef QT_DEBUG_CONVERT
+        printf("QFTOutlineMapper::closeSubpath()\n");
+#endif
+        int pointCount = m_points.size();
+        if (pointCount>0) {
+#ifdef QT_DEBUG_CONVERT
+            printf(" - implicitly closed\n");
+#endif
+
+            QT_FT_Vector last = m_points.at(pointCount-1);
+
+            // implicitly close last if not already closed.
+            if (m_subpath_start.x != last.x || m_subpath_start.y != last.y) {
+                m_points.add(m_subpath_start);
+                m_tags.add(QT_FT_CURVE_TAG_ON);
+            }
+
+            // for close only (not first point)
+            m_contours.add(m_points.size() - 1);
+        }
+    }
+
+
+    void moveTo(const QPointF &pt)
+    {
+        QT_FT_Vector pt_fixed = { qreal_to_fixed_26_6(map_x(pt.x(), pt.y())),
+                                  qreal_to_fixed_26_6(map_y(pt.x(), pt.y())) };
+#ifdef QT_DEBUG_CONVERT
+        printf("QFTOutlineMapper::moveTo(%.2f, %.2f): subpath started=(%.2f,%.2f)\n",
+               pt_fixed.x / 64.0, pt_fixed.y / 64.0,
+               m_subpath_start.x / 64.0, m_subpath_start.y / 64.0);
+#endif
+        closeSubpath();
+        m_points.add(pt_fixed);
+        m_tags.add(QT_FT_CURVE_TAG_ON);
+        m_subpath_start = pt_fixed;
+    }
+
+
+    void lineTo(const QPointF &pt)
+    {
+        QT_FT_Vector pt_fixed = { qreal_to_fixed_26_6(map_x(pt.x(), pt.y())),
+                                  qreal_to_fixed_26_6(map_y(pt.x(), pt.y())) };
+#ifdef QT_DEBUG_CONVERT
+        printf("QFTOutlineMapper::lineTo(%.2f, %.2f)\n",
+               pt_fixed.x / 64.0, pt_fixed.y / 64.0);
+#endif
+        m_points.add(pt_fixed);
+        m_tags.add(QT_FT_CURVE_TAG_ON);
+    }
+
+
+    void curveTo(const QPointF &cp1, const QPointF &cp2, const QPointF &ep)
+    {
+        QT_FT_Vector cp1_fixed = { qreal_to_fixed_26_6(map_x(cp1.x(), cp1.y())),
+                                   qreal_to_fixed_26_6(map_y(cp1.x(), cp1.y())) };
+        QT_FT_Vector cp2_fixed = { qreal_to_fixed_26_6(map_x(cp2.x(), cp2.y())),
+                                   qreal_to_fixed_26_6(map_y(cp2.x(), cp2.y())) };
+        QT_FT_Vector ep_fixed = { qreal_to_fixed_26_6(map_x(ep.x(), ep.y())),
+                                  qreal_to_fixed_26_6(map_y(ep.x(), ep.y())) };
+
+        m_points.add(cp1_fixed);
+        m_points.add(cp2_fixed);
+        m_points.add(ep_fixed);
+
+#ifdef QT_DEBUG_CONVERT
+        printf("QFTOutlineMapper::curveTo((%.2f,%.2f) ,(%.2f,%.2f), (%.2f,%.2f))\n",
+               cp1_fixed.x / 64.0, cp1_fixed.y / 64.0,
+               cp2_fixed.x / 64.0, cp2_fixed.y / 64.0,
+               ep_fixed.x / 64.0, ep_fixed.y / 64.0);
+#endif
+
+        m_tags.add(QT_FT_CURVE_TAG_CUBIC);         // Control point 1
+        m_tags.add(QT_FT_CURVE_TAG_CUBIC);         // Control point 2
+        m_tags.add(QT_FT_CURVE_TAG_ON);            // End point
+    }
+
+
+
+    QT_FT_Outline *convertPath(const QPainterPath &path)
+    {
+        Q_ASSERT(!path.isEmpty());
+
+        int elmCount = path.elementCount();
+
+
+#ifdef QT_DEBUG_CONVERT
+        printf("QFTOutlineMapper::convertPath(), size=%d\n", elmCount);
+#endif
+
+
+        beginOutline(path.fillRule());
+
+        for (int index=0; index<elmCount; ++index) {
+            const QPainterPath::Element &elm = path.elementAt(index);
+
+            switch (elm.type) {
+
+            case QPainterPath::MoveToElement:
+                if (index == elmCount - 1)
+                    continue;
+                moveTo(elm);
+                break;
+
+            case QPainterPath::LineToElement:
+                lineTo(elm);
+                break;
+
+            case QPainterPath::CurveToElement:
+                curveTo(elm, path.elementAt(index + 1), path.elementAt(index + 2));
+                index += 2;
+                break;
+
+            default:
+                break; // This will never hit..
+            }
+        }
+
+        endOutline();
+
         return &m_outline;
     }
 public:
@@ -370,8 +347,16 @@ public:
     QDataBuffer<char> m_tags;
     QDataBuffer<short> m_contours;
     QT_FT_Outline m_outline;
-    PathItData m_iterator_data;
-    qt_path_iterator m_iterator;
+
+    QT_FT_Vector m_subpath_start;
+
+    // Matrix
+    qreal m_m11;
+    qreal m_m12;
+    qreal m_m21;
+    qreal m_m22;
+    qreal m_dx;
+    qreal m_dy;
 };
 
 
@@ -763,7 +748,7 @@ void QRasterPaintEngine::fillPath(const QPainterPath &path, FillData *fillData)
     Q_ASSERT(d->deviceRect.width() <= d->rasterBuffer->width());
     Q_ASSERT(d->deviceRect.height() <= d->rasterBuffer->height());
 
-    qt_scanconvert(d->outlineMapper->convert(path), fillData->callback, fillData->data, &clipBox, d);
+    qt_scanconvert(d->outlineMapper->convertPath(path), fillData->callback, fillData->data, &clipBox, d);
 }
 
 
@@ -1907,7 +1892,7 @@ void QRasterPaintEnginePrivate::updateClip_helper(const QPainterPath &path, Qt::
         return;
 
     QT_FT_BBox clipBox = { 0, 0, rasterBuffer->width(), rasterBuffer->height() };
-    qt_scanconvert(outlineMapper->convert(path), qt_span_clip, &clipData, &clipBox, this);
+    qt_scanconvert(outlineMapper->convertPath(path), qt_span_clip, &clipData, &clipBox, this);
 
     // Need to reset the clipspans that where not touched during scan conversion.
     if (op == Qt::IntersectClip) {
