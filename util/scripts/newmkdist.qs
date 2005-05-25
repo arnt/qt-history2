@@ -956,7 +956,6 @@ function binaryFile(fileName)
     return false;
 }
 
-
 /************************************************************
  * runs the command and prints out stderror if not empty
  */
