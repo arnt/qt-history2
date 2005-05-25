@@ -269,7 +269,9 @@ Function PatchBinaryPaths
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_binspath=" "qt_binspath=$INSTDIR\bin"
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_plugpath=" "qt_plugpath=$INSTDIR\plugins"
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_datapath=" "qt_datapath=$INSTDIR"
-  qtnsisext::PatchBinary $0 "qt_trnspath=" "qt_trnspath=$INSTDIR\translations"
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_trnspath=" "qt_trnspath=$INSTDIR\translations"
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_xmplpath=" "qt_xmplpath=$INSTDIR\examples"
+  qtnsisext::PatchBinary $0 "qt_demopath=" "qt_demopath=$INSTDIR\demos"
   
   pop $1
   pop $0
