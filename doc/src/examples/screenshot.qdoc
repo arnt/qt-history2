@@ -6,7 +6,7 @@
     desktop using QApplication and QDesktopWidget. It also shows how
     to use QTimer to provide a single-shot timer, and how to
     reimplement the QWidget::resizeEvent() event handler to make sure
-    that the application resizes smoothly and without data loss.
+    that an application resizes smoothly and without data loss.
 
     \image screenshot-example.png
 
@@ -29,8 +29,8 @@
     \printuntil /^\};/
 
     The \c Screenshot class inherits QWidget and is the application's
-    main widget. It displays a preview of the screenshot and the
-    application options.
+    main widget. It displays the application options and a preview of
+    the screenshot.
 
     We reimplement the QWidget::resizeEvent() function to make sure
     that the preview of the screenshot scales properly when the user
@@ -49,7 +49,8 @@
     createOptionsGroupBox(), \c createButtonsLayout() and \c
     createButton() functions when we construct the widget. And we call
     the private \c updateScreenshotLabel() function whenever a new
-    screenshot is taken or the widget is resized.
+    screenshot is taken or when a resize event changes the size of the
+    screenshot preview label.
 
     In addition we need to store the screenshot's original pixmap. The
     reason is that when we display the preview of the screenshot, we
@@ -75,7 +76,7 @@
 
     We create the applications's buttons and the group box containing
     the application's options, and put it all into a main
-    layout. Finally we take the initial screenshot, set the inital
+    layout. Finally we take the initial screenshot, and set the inital
     delay and the window title, before we resize the widget to a
     suitable size.
 
@@ -95,7 +96,7 @@
     screenshot keeps the same size.
 
     To reach our second goal, we make sure that the preview screenshot
-    only is updated (using the private \c updateScreenshotLabel()
+    only is repainted (using the private \c updateScreenshotLabel()
     function) when it actually changes its size.
 
     \skipto newScreenshot
@@ -161,8 +162,8 @@
     function which returns the window system identifier. Here it
     returns the identifier of the current QDesktopWidget retrieved by
     the QApplication::desktop() function. The QDesktopWidget class
-    provides access to screen information, and inherits the
-    QWidget::winID() function.
+    provides access to screen information, and inherits
+    QWidget::winID().
 
     We update the screenshot preview label using the private \c
     updateScreenshotLabel() function. Then we enable the \gui {New
@@ -195,7 +196,7 @@
 
     Note that we don't have to specify any parents for the widgets
     when we create them. The reason is that when we add a widget to a
-    layout, and install that layout on another widget, the layout's
+    layout and install the layout on another widget, the layout's
     widgets are automatically reparented to the widget the layout is
     installed on.
 

@@ -34,7 +34,7 @@
     \endlist
 
     We will start by reviewing the \c ScribbleArea class, which
-    contains the interesting then we will take a look at the \c
+    contains the interesting, then we will take a look at the \c
     MainWindow class that uses it.
 
     \section1 ScribbleArea Class Definition
