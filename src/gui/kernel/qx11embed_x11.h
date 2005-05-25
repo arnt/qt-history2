@@ -1,5 +1,6 @@
 #ifndef QX11EMBED_H
 #define QX11EMBED_H
+
 #include <qwidget.h>
 
 class QX11EmbedWidgetPrivate;

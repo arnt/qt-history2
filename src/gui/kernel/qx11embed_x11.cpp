@@ -27,35 +27,34 @@
 
 #include "qx11embed_x11.h"
 
-/*! \class QX11EmbedWidget qtxembed.h
+/*! \class QX11EmbedWidget
 
     \brief The QX11EmbedWidget class provides an XEmbed client widget.
 
     XEmbed is an X11 protocol that supports the embedding of a widget
     from one application into another application.
 
-    An XEmbed \e client is a window that is embedded into a \e
-    container. A container is the graphical location that embeds (or
-    \e swallows) an external client.
+    An XEmbed \e{client widget} is a window that is embedded into a
+    \e container. A container is the graphical location that embeds
+    (or \e swallows) an external application.
 
     QX11EmbedWidget is a widget used for writing XEmbed applets or
     plugins. When it has been embedded and the container receives tab
-    focus, focus is passed on to the client. When the client reaches
+    focus, focus is passed on to the widget. When the widget reaches
     the end of its focus chain, focus is passed back to the
     container. Window activation, accelerator support, modality and
     drag and drop (XDND) are also handled.
 
-    The client and container can both initiate the embedding. If the
-    client is the initiator, the X11 window ID of the container that
-    it wants to embed itself into must be known. If the client calls
-    embedInto() passing this window ID, it will be embedded.
+    The widget and container can both initiate the embedding. If the
+    widget is the initiator, the X11 window ID of the container that
+    it wants to embed itself into must be passed to embedInto().
 
     If the container initiates the embedding, the window ID of the
-    client must be known. The container calls embed(), passing the
-    window ID, to embed the client.
+    embedded widget must be known. The container calls embed(),
+    passing the window ID.
 
-    This example shows an application where the client calls
-    embedInto() with the window ID passed as a command line argument:
+    This example shows an application that embeds a widget into the
+    window whose ID is passed as a command-line argument:
 
     \code
         int main(int argc, char *argv[])
@@ -63,41 +62,41 @@
             QApplication app(argc, argv);
 
             if (app.argc() != 2) {
-              // Error - expected window id as argument.
-              return 1;
+                // Error - expected window id as argument
+                return 1;
             }
 
-            QX11EmbedWidget client(0);
-            app.setMainWindow(&client);
-
-            client.embedInto(app.argv()[1]);
-            client.show();
+            QX11EmbedWidget widget;
+            widget.embedInto(app.argv()[1]);
+            widget.show();
 
             return app.exec();
         }
     \endcode
 
     The problem of obtaining the window IDs is often solved by the
-    container invoking the client (as a panel invokes a docked applet)
-    as a seperate process, passing its window ID to the client as a
-    command line argument. The client can then call embedInto() with
-    the container's window ID, as shown in the example code above.
-    Similarily, the client can report its window ID to the container
-    through IPC, in which case the container can embed the client.
+    container invoking the application that provides the widget as a
+    seperate process (as a panel invokes a docked applet), passing
+    its window ID to the new process as a command-line argument. The
+    new process can then call embedInto() with the container's window
+    ID, as shown in the example code above. Similarily, the new
+    process can report its window ID to the container through IPC, in
+    which case the container can embed the widget.
 
-    When the client has been embedded, it emits the signal
-    embedded(). If it is closed by the container, the client emits
+    When the widget has been embedded, it emits the signal
+    embedded(). If it is closed by the container, the widget emits
     containerClosed(). If an error occurs when embedding, error() is
     emitted.
 
     There are XEmbed widgets available for KDE and GTK+. The GTK+
     equivalent of QX11EmbedWidget is GtkPlug. The KDE widget is called
-    QX11Embed.
+    QXEmbed.
 
-    \sa QX11EmbedContainer, http://www.freedesktop.org/standards/xembed-spec/
+    \sa QX11EmbedContainer,
+        {http://www.freedesktop.org/standards/xembed-spec/}{XEmbed Specification}
 */
 
-/*! \class QX11EmbedContainer qtxembed.h
+/*! \class QX11EmbedContainer
 
     \brief The QX11EmbedContainer class provides an XEmbed container
     widget.
@@ -108,29 +107,30 @@
     from one application into another application.
 
     An XEmbed \e container is the graphical location that embeds an
-    external \e client. A client is a window that is embedded into a
-    container.
+    external \e {client widget}. A client widget is a window that is
+    embedded into a container.
 
-    When a client has been embedded and the container receives tab
-    focus, focus is passed on to the client. When the client reaches
+    When a widget has been embedded and the container receives tab
+    focus, focus is passed on to the widget. When the widget reaches
     the end of his focus chain, focus is passed back to the
     container. Window activation, accelerator support, modality and
     drag and drop (XDND) are also handled.
 
-    QX11EmbedContainer is commonly used for writing panels or toolbars
-    that hold applets, or for \e swallowing X11 applications. When
-    writing a panel application, one container widget is created on
-    the toolbar, and it can then either swallow another widget using
-    embed(), or allow an XEmbed client to be embedded into itself. The
-    container's X11 window ID, which is retrieved with winId(), must
-    then be known to the client. After embedding, the client's window
-    ID can be retrieved with clientWinId().
+    QX11EmbedContainer is commonly used for writing panels or
+    toolbars that hold applets, or for \e swallowing X11
+    applications. When writing a panel application, one container
+    widget is created on the toolbar, and it can then either swallow
+    another widget using embed(), or allow an XEmbed widget to be
+    embedded into itself. The container's X11 window ID, which is
+    retrieved with winId(), must then be known to the client widget.
+    After embedding, the client's window ID can be retrieved with
+    clientWinId().
 
     In the following example, a container widget is created as the
     main widget. It then invokes an application called "playmovie",
     passing its window ID as a command line argument. The "playmovie"
-    program is an XEmbed client. The client embeds itself into the
-    container using the container's window ID.
+    program is an XEmbed client widget. The widget embeds itself into
+    the container using the container's window ID.
 
     \code
         int main(int argc, char *argv[])
@@ -153,47 +153,50 @@
         }
     \endcode
 
-    When the client is embedded, the container emits the signal
-    clientIsEmbedded(). The signal clientClosed() is emitted when a
-    client closes.
+    When the client widget is embedded, the container emits the
+    signal clientIsEmbedded(). The signal clientClosed() is emitted
+    when a widget is closed.
 
-    It is possible for QX11EmbedContainer to embed XEmbed clients from
-    toolkits other than Qt, such as GTK+. Non-XEmbed clients can also
-    be embedded, but the XEmbed specific features such as window
-    activation and focus handling are then lost.
+    It is possible for QX11EmbedContainer to embed XEmbed widgets
+    from toolkits other than Qt, such as GTK+. Arbitrary (non-XEmbed)
+    X11 widgets can also be embedded, but the XEmbed-specific
+    features such as window activation and focus handling are then
+    lost.
 
     The GTK+ equivalent of QX11EmbedContainer is GtkSocket. The KDE
-    widget is called QX11Embed.
+    widget is called QXEmbed.
 
-    \sa QX11EmbedWidget, http://www.freedesktop.org/standards/xembed-spec/
+    \sa QX11EmbedWidget,
+        {http://www.freedesktop.org/standards/xembed-spec/}{XEmbed Specification}
 */
 
 /*! \fn QX11EmbedWidget::embedded()
 
-    This signal is emitted by the client that has been embedded by an
+    This signal is emitted by the widget that has been embedded by an
     XEmbed container.
 */
 
 /*! \fn QX11EmbedWidget::containerClosed()
 
-    This signal is emitted by the client when the container closes the
-    client. This can happen if the container itself closes, or if the
-    client is rejected.
+    This signal is emitted by the client widget when the container
+    closes the widget. This can happen if the container itself
+    closes, or if the widget is rejected.
 
-    The container can reject a client for any reason, but the most
-    common cause of a rejection is when an attempt is made to  embed a
-    client into a container that already has an embedded client.
+    The container can reject a widget for any reason, but the most
+    common cause of a rejection is when an attempt is made to embed a
+    widget into a container that already has an embedded widget.
 */
 
 /*! \fn QX11EmbedContainer::clientIsEmbedded()
 
-    This signal is emitted by the container when a client has been
-    embedded.
+    This signal is emitted by the container when a client widget has
+    been embedded.
 */
 
 /*! \fn QX11EmbedContainer::clientClosed()
 
-    This signal is emitted by the container when the client closes.
+    This signal is emitted by the container when the client widget
+    closes.
 */
 
 /*! \fn QX11EmbedWidget::error(int)
@@ -207,7 +210,7 @@
 /*! \fn QX11EmbedContainer::error(int)
 
     This signal is emitted if an error occurred when embedding or
-    communicating with a client.
+    communicating with a widget.
 
     \sa QX11EmbedContainer::Errors
 */
@@ -450,9 +453,9 @@ QX11EmbedWidget::QX11EmbedWidget(QWidget *parent)
 }
 
 /*!
-    Destructs the QX11EmbedWidget object. If the client is embedded
+    Destructs the QX11EmbedWidget object. If the widget is embedded
     when deleted, it is hidden and then detached from its container,
-    so that the container is free to embed a new client.
+    so that the container is free to embed a new widget.
 */
 QX11EmbedWidget::~QX11EmbedWidget()
 {
@@ -464,7 +467,7 @@ QX11EmbedWidget::~QX11EmbedWidget()
 }
 
 /*!
-    When this function is called, the client embeds itself into the
+    When this function is called, the widget embeds itself into the
     container whose window ID is \a id.
 
     If \a id is \e not the window ID of a container this function will
@@ -896,8 +899,8 @@ void QX11EmbedWidget::resizeEvent(QResizeEvent *event)
 }
 
 /*!
-    If the client is embedded, returns the window ID of the container;
-    otherwize returns 0.
+    If the widget is embedded, returns the window ID of the
+    container; otherwize returns 0.
 */
 WId QX11EmbedWidget::containerWinId() const
 {
@@ -1042,8 +1045,8 @@ WId QX11EmbedContainerPrivate::topLevelParentWinId() const
 }
 
 /*!
-    If the container has a client, this function returns the X11 window
-    ID of the client; otherwise it returns 0.
+    If the container has an embedded widget, this function returns
+    the X11 window ID of the client; otherwise it returns 0.
 */
 WId QX11EmbedContainer::clientWinId() const
 {
@@ -1053,13 +1056,14 @@ WId QX11EmbedContainer::clientWinId() const
 
 /*!
     Instructs the container to embed the X11 window with window ID \a
-    id. The client window will then move on top of the container
+    id. The client widget will then move on top of the container
     window and be resized to fit into the container.
 
     The \a id should be the ID of a window controlled by an XEmbed
     enabled application, but this is not mandatory. If \a id does not
-    belong to an XEmbed client, then focus handling, activation,
-    accelerators and other features will not work properly.
+    belong to an XEmbed client widget, then focus handling,
+    activation, accelerators and other features will not work
+    properly.
 */
 void QX11EmbedContainer::embedClient(WId id)
 {
