@@ -26,8 +26,8 @@ static QPixmap genIcon(const QSize &iconSize, const QString &, const QColor &col
     int w = iconSize.width();
     int h = iconSize.height();
 
-    QImage image(w, h, QImage::Format_RGB32);
-    image.fill(bg.rgb());
+    QImage image(w, h, QImage::Format_ARGB32_Premultiplied);
+    image.fill(0);
 
     QPainter p(&image);
 
@@ -63,7 +63,7 @@ ToolBar::ToolBar(QWidget *parent)
     addAction(genIcon(iconSize(), 3, Qt::red, bg), "Three");
     addAction(genIcon(iconSize(), 4, Qt::green, bg), "Four");
     addAction(genIcon(iconSize(), 5, Qt::blue, bg), "Five");
-    QAction *six = addAction(genIcon(iconSize(), 6, Qt::yellow, bg), "Six");
+    addAction(genIcon(iconSize(), 6, Qt::yellow, bg), "Six");
     orderAction = new QAction(this);
     orderAction->setText(tr("Order Items in Tool Bar"));
     connect(orderAction, SIGNAL(triggered()), SLOT(order()));

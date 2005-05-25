@@ -88,7 +88,11 @@ void MainWindow::setupDockWidgets()
         uint flags;
         Qt::DockWidgetArea area;
     } sets [] = {
+#ifndef Q_WS_MAC
         { "Black", 0, Qt::LeftDockWidgetArea },
+#else
+        { "Black", Qt::Drawer, Qt::LeftDockWidgetArea },
+#endif
         { "White", 0, Qt::RightDockWidgetArea },
         { "Red", 0, Qt::TopDockWidgetArea },
         { "Green", 0, Qt::TopDockWidgetArea },
