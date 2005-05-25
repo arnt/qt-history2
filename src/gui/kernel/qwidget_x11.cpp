@@ -1029,8 +1029,6 @@ void QWidgetPrivate::setWindowIcon_sys()
         h->flags |= IconPixmapHint;
 
         QBitmap mask = topData->iconPixmap->mask();
-        if (mask.isNull())
-            mask = topData->iconPixmap->createHeuristicMask();
         if (!mask.isNull()) {
             if (!extra->topextra->iconMask)
                 extra->topextra->iconMask = new QBitmap;
