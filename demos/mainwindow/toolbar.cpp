@@ -21,7 +21,7 @@
 
 #include <stdlib.h>
 
-static QPixmap genIcon(const QSize &iconSize, const QString &, const QColor &color, const QColor &bg)
+static QPixmap genIcon(const QSize &iconSize, const QString &, const QColor &color)
 {
     int w = iconSize.width();
     int h = iconSize.height();
@@ -37,8 +37,8 @@ static QPixmap genIcon(const QSize &iconSize, const QString &, const QColor &col
     return QPixmap::fromImage(image, Qt::DiffuseDither | Qt::DiffuseAlphaDither);
 }
 
-static QPixmap genIcon(const QSize &iconSize, int number, const QColor &color, const QColor &bg)
-{ return genIcon(iconSize, QString::number(number), color, bg); }
+static QPixmap genIcon(const QSize &iconSize, int number, const QColor &color)
+{ return genIcon(iconSize, QString::number(number), color); }
 
 ToolBar::ToolBar(QWidget *parent)
     : QToolBar(parent), spinbox(0), spinboxAction(0)
@@ -49,21 +49,21 @@ ToolBar::ToolBar(QWidget *parent)
 
     QColor bg(palette().background().color());
     menu = new QMenu("One", this);
-    menu->setIcon(genIcon(iconSize(), 1, Qt::black, bg));
-    menu->addAction(genIcon(iconSize(), "A", Qt::blue, bg), "A");
-    menu->addAction(genIcon(iconSize(), "B", Qt::blue, bg), "B");
-    menu->addAction(genIcon(iconSize(), "C", Qt::blue, bg), "C");
+    menu->setIcon(genIcon(iconSize(), 1, Qt::black));
+    menu->addAction(genIcon(iconSize(), "A", Qt::blue), "A");
+    menu->addAction(genIcon(iconSize(), "B", Qt::blue), "B");
+    menu->addAction(genIcon(iconSize(), "C", Qt::blue), "C");
     addAction(menu->menuAction());
 
-    QAction *two = addAction(genIcon(iconSize(), 2, Qt::white, bg), "Two");
+    QAction *two = addAction(genIcon(iconSize(), 2, Qt::white), "Two");
     QFont boldFont;
     boldFont.setBold(true);
     two->setFont(boldFont);
 
-    addAction(genIcon(iconSize(), 3, Qt::red, bg), "Three");
-    addAction(genIcon(iconSize(), 4, Qt::green, bg), "Four");
-    addAction(genIcon(iconSize(), 5, Qt::blue, bg), "Five");
-    addAction(genIcon(iconSize(), 6, Qt::yellow, bg), "Six");
+    addAction(genIcon(iconSize(), 3, Qt::red), "Three");
+    addAction(genIcon(iconSize(), 4, Qt::green), "Four");
+    addAction(genIcon(iconSize(), 5, Qt::blue), "Five");
+    addAction(genIcon(iconSize(), 6, Qt::yellow), "Six");
     orderAction = new QAction(this);
     orderAction->setText(tr("Order Items in Tool Bar"));
     connect(orderAction, SIGNAL(triggered()), SLOT(order()));
