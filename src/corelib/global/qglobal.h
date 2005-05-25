@@ -550,8 +550,8 @@ typedef quint64 qulonglong;
 #endif
 
 #define Q_INIT_RESOURCE(name) \
-    extern int qInitResources_ ## name (); \
-    qInitResources_ ## name ()
+    do { extern int qInitResources_ ## name (); \
+    qInitResources_ ## name (); } while (0)
 
 #if defined(__cplusplus)
 
