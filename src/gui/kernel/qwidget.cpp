@@ -6441,6 +6441,12 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
     case Qt::WA_ContentsPropagated:
         if (isVisible())
             d->updatePropagatedBackground();
+        break;
+#ifdef Q_WS_WIN
+    case Qt::WA_InputMethodEnabled:
+        QWinInputContext::enable(this, on);
+        break;
+#endif
     default:
         break;
     }
