@@ -26,6 +26,7 @@ struct IAxServerBase : public IUnknown
     virtual void emitPropertyChanged(const char*) = 0;
     virtual bool emitRequestPropertyChange(const char*) = 0;
     virtual QObject *qObject() const = 0;
+    virtual void reportError(int code, const QString &src, const QString &desc, const QString &context) = 0;
 };
 
 #define HIMETRIC_PER_INCH   2540

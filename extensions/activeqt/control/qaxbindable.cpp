@@ -157,8 +157,6 @@ QAxAggregated *QAxBindable::createAggregate()
 }
 
 /*!
-    \fn void QAxBindable::reportError(int code, const QString &src, const QString &desc, const QString &context)
-
     Reports an error to the client application. \a code is a
     control-defined error code. \a desc is a human-readable description
     of the error intended for the application user. \a src is the name
@@ -168,6 +166,13 @@ QAxAggregated *QAxBindable::createAggregate()
     e.g. [12], this number will be interpreted as the context ID in
     the help file.
 */
+void QAxBindable::reportError(int code, const QString &src, const QString &desc, const QString &context)
+{
+    if (!activex)
+        return;
+
+    activex->reportError(code, src, desc, context);
+}
 
 /*!
     \class QAxAggregated

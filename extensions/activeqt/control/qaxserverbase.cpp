@@ -70,16 +70,6 @@ struct QAxExceptInfo
     QString desc;
     QString context;
 };
-static QAxExceptInfo *qAxException = 0;
-
-// documentation in qaxbindable.cpp
-void QAxBindable::reportError(int code, const QString &src, const QString &desc, const QString &context)
-{
-    if (qAxException)
-	delete qAxException;
-    qAxException = new QAxExceptInfo(code, src, desc, context);
-}
-
 
 /*
     \class QAxServerBase qaxserverbase.cpp
@@ -178,6 +168,13 @@ public:
     }
     void ensureMetaData();
     bool isPropertyExposed(int index);
+
+    void reportError(int code, const QString &src, const QString &desc, const QString &context)
+    {
+        if (exception)
+            delete exception;
+        exception = new QAxExceptInfo(code, src, desc, context);
+    }
 
 // IDispatch
     STDMETHOD(GetTypeInfoCount)(UINT* pctinfo);
@@ -342,6 +339,7 @@ private:
     QPointer<QMenuBar> menuBar;
     QPointer<QStatusBar> statusBar;
     QPointer<QMenu> currentPopup;
+    QAxExceptInfo *exception;
 
     SIZE sizeExtent;
     RECT rcPos;
@@ -1023,6 +1021,7 @@ void QAxServerBase::init()
     inDesignMode	= false;
     canTakeFocus	= false;
     freezeEvents = 0;
+    exception = 0;
 
     sizeExtent.cx = 2500;
     sizeExtent.cy = 2500;
@@ -2576,17 +2575,17 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
     if (index != -1)
 	indexCache.insert(dispidMember, index);
 
-    if (qAxException) {
+    if (exception) {
 	if (pexcepinfo) {
 	    memset(pexcepinfo, 0, sizeof(EXCEPINFO));
 
-	    pexcepinfo->wCode = qAxException->code;
-	    if (!qAxException->src.isNull())
-		pexcepinfo->bstrSource = QStringToBSTR(qAxException->src);
-	    if (!qAxException->desc.isNull())
-		pexcepinfo->bstrDescription = QStringToBSTR(qAxException->desc);
-	    if (!qAxException->context.isNull()) {
-		QString context = qAxException->context;
+	    pexcepinfo->wCode = exception->code;
+	    if (!exception->src.isNull())
+		pexcepinfo->bstrSource = QStringToBSTR(exception->src);
+	    if (!exception->desc.isNull())
+		pexcepinfo->bstrDescription = QStringToBSTR(exception->desc);
+	    if (!exception->context.isNull()) {
+		QString context = exception->context;
 		int contextID = 0;
 		int br = context.indexOf('[');
 		if (br != -1) {
@@ -2594,15 +2593,15 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
 		    context = context.left(context.length() - 1);
 		    contextID = context.toInt();
 
-		    context = qAxException->context;
+		    context = exception->context;
 		    context = context.left(br-1);
 		}
 		pexcepinfo->bstrHelpFile = QStringToBSTR(context);
 		pexcepinfo->dwHelpContext = contextID;
 	    }
 	}
-	delete qAxException;
-	qAxException = 0;
+	delete exception;
+	exception = 0;
 	return DISP_E_EXCEPTION;
     } else if (isWidget) {
 	QSize sizeHint = qt.widget->sizeHint();
