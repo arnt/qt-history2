@@ -337,17 +337,30 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
 
     bool blocked = blockSelectionChanged(true);
 
-    if (selected == true && inLayout == true) {
-        // select the direct parent
-        selectWidget(managedWidget->parentWidget());
-    }
+    QWidget *current = managedWidget;
 
-    if (selected == false) {
+    if (!selected)
         clearSelection(false);
+
+    bool curLaidOut = false;
+    bool curSelected = false;
+    for (;;) {
+        curLaidOut = current ? LayoutInfo::isWidgetLaidout(core(), current) : false;
+        curSelected = current ? isWidgetSelected(current) : false;
+
+        if (!current || !curLaidOut || !curSelected)
+            break;
+
+        current = designerWidget(current->parentWidget());
     }
 
-    raiseChildSelections(managedWidget);
-    selectWidget(managedWidget);
+    if (current == 0 || !curLaidOut && curSelected) {
+        clearSelection(false);
+        selectWidget(managedWidget);
+    } else {
+        selectWidget(current);
+        raiseChildSelections(current);
+    }
 
     blockSelectionChanged(blocked);
 
@@ -1237,6 +1250,9 @@ void FormWindow::lowerWidgets()
 bool FormWindow::handleMouseButtonDblClickEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
 {
     e->accept();
+
+    clearSelection(false);
+    selectWidget(managedWidget);
 
     emit activated(managedWidget);
     return true;
