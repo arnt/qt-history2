@@ -7,4 +7,4 @@ SUBDIRS       = cachedtable \
 # install
 sources.files = connection.h sql.pro README
 sources.path = $$[QT_INSTALL_EXAMPLES]/sql
-INSTALLS += target sources
+INSTALLS += sources

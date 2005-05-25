@@ -5,4 +5,4 @@ SUBDIRS	     += customwidget \
 # install
 sources.files = $$SOURCES $$HEADERS $$RESOURCES $$FORMS motif.pro
 sources.path = $$[QT_INSTALL_EXAMPLES]/motif
-INSTALLS += target sources
+INSTALLS += sources
