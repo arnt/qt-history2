@@ -1645,8 +1645,10 @@ void QWindowsXPStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt
     }
 
     XPThemeData theme(0, p, name, partId, stateId, rect);
-    if (!theme.isValid())
+    if (!theme.isValid()) {
         QWindowsStyle::drawPrimitive(pe, option, p, widget);
+        return;
+    }
     theme.mirrorHorizontally = hMirrored;
     theme.mirrorVertically = vMirrored;
     theme.noBorder = noBorder;
