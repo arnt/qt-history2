@@ -1009,7 +1009,8 @@ void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
 void QWidgetPrivate::setWindowIcon_sys()
 {
     Q_Q(QWidget);
-    if (extra->topextra->iconPixmap)
+    QTLWExtra *topData = extra->topextra;
+    if (topData->iconPixmap)
         // already been set
         return;
 
@@ -1023,18 +1024,18 @@ void QWidgetPrivate::setWindowIcon_sys()
     QIcon icon = q->windowIcon();
     if (!icon.isNull()) {
         QSize size = icon.actualSize(QSize(64, 64));
-        QPixmap* pm = new QPixmap(icon.pixmap(size));
-
-        QBitmap mask = pm->mask();
-        if (mask.isNull())
-            mask = pm->createHeuristicMask();
-
-        extra->topextra->iconPixmap = pm;
-
-        h->icon_pixmap = pm->data->x11ConvertToDefaultDepth();
+        topData->iconPixmap = new QPixmap(icon.pixmap(size));
+        h->icon_pixmap = topData->iconPixmap->data->x11ConvertToDefaultDepth();
         h->flags |= IconPixmapHint;
+
+        QBitmap mask = topData->iconPixmap->mask();
+        if (mask.isNull())
+            mask = topData->iconPixmap->createHeuristicMask();
         if (!mask.isNull()) {
-            h->icon_mask = mask.handle();
+            if (!extra->topextra->iconMask)
+                extra->topextra->iconMask = new QBitmap;
+            *extra->topextra->iconMask = mask;
+            h->icon_mask = extra->topextra->iconMask->handle();
             h->flags |= IconMaskHint;
         }
     } else {
@@ -2310,12 +2311,15 @@ void QWidgetPrivate::deleteSysExtra()
 
 void QWidgetPrivate::createTLSysExtra()
 {
+    extra->topextra->iconMask = 0;
 }
 
 void QWidgetPrivate::deleteTLSysExtra()
 {
     // don't destroy input context here. it will be destroyed in
     // QWidget::destroy() destroyInputContext();
+    delete extra->topextra->iconMask;
+    extra->topextra->iconMask = 0;
 }
 
 /*

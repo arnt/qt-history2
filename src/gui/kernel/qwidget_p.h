@@ -92,6 +92,7 @@ struct QTLWExtra {
     uint uspos : 1; // User defined position
     uint ussize : 1; // User defined size
     QPoint fullScreenOffset;
+    QBitmap *iconMask;
 #endif
 #if defined(Q_WS_MAC)
     WindowGroupRef group;
