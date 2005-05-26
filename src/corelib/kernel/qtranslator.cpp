@@ -253,14 +253,15 @@ bool QTranslator::load(const QString & filename, const QString & directory,
 
     QString prefix;
 
-    if (filename[0] == QLatin1Char('/')
+    const int l = filename.size();
+    if (!((l > 0 && filename[0] == QLatin1Char('/'))
 #ifdef Q_WS_WIN
-         || (filename[0].isLetter() && filename[1] == QLatin1Char(':')) || filename[0] == QLatin1Char('\\')
+          || (l >= 2 && filename[0].isLetter() && filename[1] == QLatin1Char(':'))
+          || (l >= 1 && filename[0] == QLatin1Char('\\'))
 #endif
-        )
-        prefix = QLatin1String("");
-    else
+            )) {
         prefix = directory;
+    }
 
     if (prefix.length()) {
         if (prefix[int(prefix.length()-1)] != QLatin1Char('/'))
@@ -316,20 +317,20 @@ bool QTranslator::load(const QString & filename, const QString & directory,
     if (!realname.startsWith(QLatin1String(":")))
         fd = QT_OPEN(QFile::encodeName(realname), O_RDONLY,
 #if defined(Q_OS_WIN)
-                 _S_IREAD | _S_IWRITE
+                     _S_IREAD | _S_IWRITE
 #else
-                 0666
+                     0666
 #endif
-                );
+            );
     if (fd >= 0) {
         struct stat st;
         if (!fstat(fd, &st)) {
             char *ptr;
             ptr = reinterpret_cast<char *>(
-                        mmap(0, st.st_size,             // any address, whole file
-                             PROT_READ,                 // read-only memory
-                             MAP_FILE | MAP_PRIVATE,    // swap-backed map from file
-                             fd, 0));                   // from offset 0 of fd
+                mmap(0, st.st_size,             // any address, whole file
+                     PROT_READ,                 // read-only memory
+                     MAP_FILE | MAP_PRIVATE,    // swap-backed map from file
+                     fd, 0));                   // from offset 0 of fd
             if (ptr && ptr != reinterpret_cast<char *>(MAP_FAILED)) {
                 d->used_mmap = true;
                 d->unmapPointer = ptr;
