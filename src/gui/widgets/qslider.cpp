@@ -54,7 +54,7 @@ void QSliderPrivate::init()
     tickInterval = 0;
     tickPosition = QSlider::NoTicks;
     hoverControl = QStyle::SC_None;
-    q->setFocusPolicy(Qt::WheelFocus);
+    q->setFocusPolicy(Qt::FocusPolicy(q->style()->styleHint(QStyle::SH_Button_FocusPolicy)));
     QSizePolicy sp(QSizePolicy::Expanding, QSizePolicy::Fixed);
     if (orientation == Qt::Vertical)
         sp.transpose();
