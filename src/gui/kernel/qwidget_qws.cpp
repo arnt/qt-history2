@@ -296,9 +296,6 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
     Qt::FocusPolicy fp = q->focusPolicy();
     QSize    s            = q->size();
     //QBrush   bgc    = background();                        // save colors
-#ifndef QT_NO_WIDGET_TOPEXTRA
-    QString capt = q->windowTitle();
-#endif
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
 
     data.window_flags = f;
@@ -310,14 +307,16 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
     q->setGeometry(0, 0, s.width(), s.height());
-    setEnabled_helper(enable); //preserving WA_ForceDisabled
-    q->setFocusPolicy(fp);
 #ifndef QT_NO_WIDGET_TOPEXTRA
-    if (!capt.isNull()) {
-        extra->topextra->caption.clear();
-        q->setWindowTitle(capt);
+    if (q->isWindow()) {
+        if (!extra->topextra->caption.isEmpty())
+            setWindowTitle_helper(extra->topextra->caption);
     }
 #endif
+
+
+    setEnabled_helper(enable); //preserving WA_ForceDisabled
+    q->setFocusPolicy(fp);
     if ((int)old_winid > 0)
         q->qwsDisplay()->destroyRegion(old_winid);
 #ifndef QT_NO_CURSOR
