@@ -39,7 +39,7 @@
 
 
 #define qreal_to_fixed_26_6(f) (int(f * 64))
-#define qt_swap(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
+#define qt_swap_int(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
 
 static QT_FT_Raster qt_gray_raster;
 static QT_FT_Raster qt_black_raster;
@@ -1399,10 +1399,18 @@ static inline void clipped_to_device(const QRect &deviceRect,
 }
 
 #if 0
-static void drawLine_midpoint(const QLineF &line, qt_span_func span_func, void *data, LineDrawMode style)
+
+static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void *data, LineDrawMode style, const QRect &devRect)
 {
-    qDebug("funky, x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f",
+    qDebug("   - drawLine_midpoint_f, x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f",
            line.x1(), line.y1(), line.x2(), line.y2());
+    return;
+    Q_UNUSED(line);
+    Q_UNUSED(span_func);
+    Q_UNUSED(data);
+    Q_UNUSED(style);
+    Q_UNUSED(devRect);
+#if 0
     int x, y, dx, dy, d, incrE, incrNE;
 
     qreal x1 = line.x1();
@@ -1411,30 +1419,26 @@ static void drawLine_midpoint(const QLineF &line, qt_span_func span_func, void *
     qreal y2 = line.y2();
     qreal temp;
     QRasterBuffer *rb = ((FillData *)data)->rasterBuffer;
-    QT_FT_Span span;
-    span.coverage = 255;
-    span.len = 1;
-    span.x = x;
+    QT_FT_Span span = { 0, 1, 255 };
 
     dx = qRound(x2 - x1);
     dy = qRound(y2 - y1);
 
-    /*i'd like to optimize vertical and horizontal drawing at
-      some point
-
-      if (dx == 0) {
-        qDebug("vertical");
-        span.len = dy;
-        span.x = x;
-        clipped_to_device(deviceRect, y, &span, span_func, data);
+    if (dx == 0) {
+//         qDebug("vertical");
+//         y1 = qMax(0, y1);
+//         y2 = qMin(rb->height(), y2);
+//         span.x = x1;
+//         for (y=y1; y<y2; ++y)
+//         clipped_to_device(deviceRect, y, &span, span_func, data);
         return;
     } else if (dy == 0) {
-        qDebug("horizontal");
-        span.len = dx;
-        span.x = x;
-        clipped_to_device(deviceRect, y, &span, span_func, data);
+//         qDebug("horizontal");
+//         span.len = dx;
+//         span.x = x;
+//         clipped_to_device(deviceRect, y, &span, span_func, data);
         return;
-        }*/
+    }
 
     if (qAbs(dx) >= qAbs(dy)) {       /* if x is the major axis: */
         if (x2 < x1) {  /* if coordinates are out of order */
@@ -1449,55 +1453,96 @@ static void drawLine_midpoint(const QLineF &line, qt_span_func span_func, void *
             dy = -dy;
         }
 
+        if (y2 < 0 || x2 < 0 || x1 >= devRect.width() || y1 >= devRect.height()) {
+            qDebug(" - I don't want to draw that line...");
+            return;
+        }
+
         if (x1 < 0) {
-            y = dy/dx * -x1;
+            qDebug(" - hitting case 1");
+            y = int((dy * -x1 ) / dx + y1);
             x1 = 0;
         } else {
             y = qRound(y1);
         }
-        if (style == LineDrawNormal) {
-            if (x2 >= rb->width())
-                x2 = rb->width() - 1;
-            else
-                --x2;
+
+
+        if (y < 0) {
+            qDebug(" - hitting case 2");
+            x = int(( - (line.y1() - line.x1() * dy / dx)) * dx / dy);
+            y = 0;
+        } else {
+            x = qRound(x1);
         }
 
+        qDebug(" - x=%d, dx=%d, dy=%d\n", x, dx, dy);
+
+        if (style == LineDrawNormal)
+            --x2;
 
         if (y2 > y1) {  /* when it is decided to change y, y should be incremented */
             incrE = dy << 1;
             d = incrE - dx;
             incrNE = (dy - dx) << 1;
 
-            for (x = x1; x <= x2; x++) {
+            span.x = x;
+            span_func(y, 1, &span, data);
+
+            x2 = qMin(x2, qreal(devRect.width()));
+
+            // below we increment before calling the span function so we need to
+            // abort one earlier, hence -1 here.
+            --x2;
+
+            qDebug(" - drawing from %f, %f", qreal(x), x2);
+
+            while (x < x2) {
                 if (d > 0) {
-                    y++;
+                    ++y;
                     d += incrNE;
-                }
-                else
+                } else {
                     d += incrE;
+                }
+                ++x;
+
+                if (y >= devRect.height())
+                    return;
+
+                Q_ASSERT(x>=0);
+                Q_ASSERT(x<devRect.width());
+                Q_ASSERT(y>=0);
+                Q_ASSERT(y<devRect.height());
                 span.x = x;
                 span_func(y, 1, &span, data);
             }
         }
         else {       /* when it is decided to change y, y
                         should be decremented */
+            return;
             incrE = dy << 1;
             d = incrE + dx;
             incrNE = (dy + dx) << 1;
 
-            for (x = x1; x <= x2; x++) {
+            for (; x <= x2; x++) {
                 if (d < 0) {
                     y--;
                     d += incrNE;
                 }
                 else
                     d += incrE;
+                Q_ASSERT(x>=0);
+                Q_ASSERT(x<rb->width());
+                Q_ASSERT(y>=0);
+                Q_ASSERT(y<rb->height());
                 span.x = x;
                 span_func(y, 1, &span, data);
             }
         }
     }
     else {   /* if y is the major axis: */
+
+        return;
+
         if (y2 < y1) {      /* if coordinates are out of order */
             temp = y2;
             y2 = y1;
@@ -1523,6 +1568,8 @@ static void drawLine_midpoint(const QLineF &line, qt_span_func span_func, void *
             else
                 --y2;
         }
+
+        qDebug(" - x=%d, dx=%d, dy=%d\n", x, dx, dy);
 
         if (x2 > x1) {      /* when it is decided to change x, x
                                should be incremented */
@@ -1559,7 +1606,194 @@ static void drawLine_midpoint(const QLineF &line, qt_span_func span_func, void *
             }
         }
     }
+#endif
 }
+
+
+static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void *data, LineDrawMode style, const QRect &devRect)
+{
+#ifdef QT_DEBUG_DRAW
+    qDebug("   - drawLine_midpoint_i, x1=%d, y1=%d, x2=%d, y2=%d",
+           line.x1(), line.y1(), line.x2(), line.y2());
+#endif
+
+    int x, y, dx, dy, d, incrE, incrNE;
+
+    int x1 = line.x1();
+    int x2 = line.x2();
+    int y1 = line.y1();
+    int y2 = line.y2();
+
+    // Decide if we need to clip and therefore call the float version...
+    {
+        enum { Left, Right, Top, Bottom };
+
+        // clip the lines, after cohen-sutherland, see
+        // e.g. http://www.nondot.org/~sabre/graphpro/line6.html
+
+        int p1 = ((x1 < devRect.left()) << Left)
+                 | ((x1 > devRect.right()) << Right)
+                 | ((y1 < devRect.top()) << Top)
+                 | ((y1 > devRect.bottom()) << Bottom);
+        int p2 = ((x2 < devRect.left()) << Left)
+                 | ((x2 > devRect.right()) << Right)
+                 | ((y2 < devRect.top()) << Top)
+                 | ((y2 > devRect.bottom()) << Bottom);
+
+        if (p1 & p2) {
+            // completely outside
+            return;
+
+        } else if (p1 | p2) {
+            // needs clipping
+            drawLine_midpoint_f(line, span_func, data, style, devRect);
+            return;
+        }
+    }
+
+    QT_FT_Span span = { 0, 1, 255 };
+
+    dx = x2 - x1;
+    dy = y2 - y1;
+
+    if (qAbs(dx) >= qAbs(dy)) {       /* if x is the major axis: */
+
+        if (x2 < x1) {  /* if coordinates are out of order */
+            qt_swap_int(x1, x2);
+            dx = -dx;
+
+            qt_swap_int(y1, y2);
+            dy = -dy;
+        }
+
+        if (style == LineDrawNormal)
+            --x2;
+
+        x = x1;
+        y = y1;
+
+        Q_ASSERT(x>=0);
+        Q_ASSERT(x<devRect.width());
+        Q_ASSERT(y>=0);
+        Q_ASSERT(y<devRect.height());
+        span.x = x;
+        span_func(y, 1, &span, data);
+
+        if (y2 > y1) {  /* when it is decided to change y, y should be incremented */
+            incrE = dy << 1;
+            d = incrE - dx;
+            incrNE = (dy - dx) << 1;
+
+            while (x < x2) {
+                if (d > 0) {
+                    ++y;
+                    d += incrNE;
+                } else {
+                    d += incrE;
+                }
+                ++x;
+
+                Q_ASSERT(x>=0);
+                Q_ASSERT(x<devRect.width());
+                Q_ASSERT(y>=0);
+                Q_ASSERT(y<devRect.height());
+                span.x = x;
+                span_func(y, 1, &span, data);
+            }
+        }
+        else {       /* when it is decided to change y, y
+                        should be decremented */
+            incrE = dy << 1;
+            d = incrE + dx;
+            incrNE = (dy + dx) << 1;
+            while (x < x2) {
+                if (d < 0) {
+                    --y;
+                    d += incrNE;
+                } else {
+                    d += incrE;
+                }
+                ++x;
+
+                Q_ASSERT(x>=0);
+                Q_ASSERT(x<devRect.width());
+                Q_ASSERT(y>=0);
+                Q_ASSERT(y<devRect.height());
+
+                span.x = x;
+                span_func(y, 1, &span, data);
+            }
+        }
+    }
+    else {   /* if y is the major axis: */
+
+        if (y2 < y1) {      /* if coordinates are out of order */
+            qt_swap_int(y1, y2);
+            dy = -dy;
+
+            qt_swap_int(x1, x2);
+            dx = -dx;
+        }
+
+        if (style == LineDrawNormal)
+            --y2;
+
+        x = x1;
+        y = y1;
+
+        Q_ASSERT(x>=0);
+        Q_ASSERT(x<devRect.width());
+        Q_ASSERT(y>=0);
+        Q_ASSERT(y<devRect.height());
+        span.x = x;
+        span_func(y, 1, &span, data);
+
+        if (x2 > x1) {      /* when it is decided to change x, x
+                               should be incremented */
+            incrE = dx << 1;
+            d = incrE - dy;
+            incrNE = (dx - dy) << 1;
+            while (y < y2) {
+                if (d > 0) {
+                    ++x;
+                    d += incrNE;
+                } else {
+                    d += incrE;
+                }
+                ++y;
+                Q_ASSERT(x>=0);
+                Q_ASSERT(x<devRect.width());
+                Q_ASSERT(y>=0);
+                Q_ASSERT(y<devRect.height());
+                span.x = x;
+                span_func(y, 1, &span, data);
+            }
+        }
+        else {        /* when it is decided to change x, x
+                         should be decremented */
+            incrE = dx << 1;
+            d = incrE + dy;
+            incrNE = (dx + dy) << 1;
+
+            while (y < y2) {
+                if (d < 0) {
+                    --x;
+                    d += incrNE;
+                } else {
+                    d += incrE;
+                }
+                ++y;
+                Q_ASSERT(x>=0);
+                Q_ASSERT(x<devRect.width());
+                Q_ASSERT(y>=0);
+                Q_ASSERT(y<devRect.height());
+                span.x = x;
+                span_func(y, 1, &span, data);
+            }
+        }
+    }
+}
+
 #endif
 
 // Bresenham algorithm from Graphics Gems
@@ -1718,8 +1952,7 @@ void QRasterPaintEngine::drawPoints(const QPointF *points, int pointCount)
 void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
 #ifdef QT_DEBUG_DRAW
-    qDebug("\n - QRasterPaintEngine::drawLine(), x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f",
-           l.x1(), l.y1(), l.x2(), l.y2());
+    qDebug() << " - QRasterPaintEngine::drawLine()";
 #endif
 
     Q_D(QRasterPaintEngine);
@@ -1728,7 +1961,11 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
         && (d->pen.widthF() == 0
             || (d->pen.widthF() <= 1 && d->txop <= QPainterPrivate::TxTranslate))) {
 
+//         QRect bounds(0, 0, d->deviceRect.width(), d->deviceRect.height());
+
         for (int i=0; i<lineCount; ++i) {
+//             qDebug() << "   - " << lines[i] << endl << "   - " << d->deviceRect;
+
             QLineF line = lines[i] * d->matrix;
             LineDrawMode mode = LineDrawNormal;
 
@@ -1737,7 +1974,7 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 
             FillData fillData = d->fillForBrush(QBrush(d->pen.brush()));
             drawLine_bresenham(line, fillData.callback, fillData.data, mode);
-            //drawLine_midpoint(line, fillData.callback, fillData.data, mode);
+//             drawLine_midpoint_i(line.toLine(), fillData.callback, fillData.data, mode, bounds);
         }
         return;
     }
