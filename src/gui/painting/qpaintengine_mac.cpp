@@ -1032,6 +1032,8 @@ QCoreGraphicsPaintEngine::begin(QPaintDevice *pdev)
         return false;
     }
 
+    d->complexXForm = false;
+
     //initialization
     d->has_clipping = false;
     d->offx = d->offy = 0; // (quickdraw compat!!)
@@ -1300,6 +1302,9 @@ QCoreGraphicsPaintEngine::updateMatrix(const QMatrix &matrix)
     Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     d->setTransform(matrix.isIdentity() ? 0 : &matrix);
+
+    d->complexXForm = (matrix.m11() != 1 || matrix.m22() != 1
+                       || matrix.m12() != 0 || matrix.m21() != 0);
 }
 
 void
@@ -1418,12 +1423,6 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &r)
     Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
 
-    //setup a clip
-    CGContextSaveGState(d->hd);
-    CGContextBeginPath(d->hd);
-    CGContextAddRect(d->hd, qt_mac_compose_rect(QRectF(r.x(), r.y(), r.width()+1, r.height()+1)));
-    CGContextClip(d->hd);
-
     CGMutablePathRef path = CGPathCreateMutable();
     CGAffineTransform transform = CGAffineTransformMakeScale(r.width() / r.height(), 1);
     CGPathAddArc(path, &transform,((r.x()+d->penOffset()) + (r.width() / 2)) / (r.width() / r.height()),
@@ -1431,9 +1430,6 @@ QCoreGraphicsPaintEngine::drawEllipse(const QRectF &r)
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill | QCoreGraphicsPaintEnginePrivate::CGStroke,
                 path);
     CGPathRelease(path);
-
-    //restore
-    CGContextRestoreGState(d->hd);
 }
 
 void
@@ -1455,8 +1451,9 @@ QCoreGraphicsPaintEngine::drawPolygon(const QPointF *points, int pointCount, Pol
         if (points[0] != points[pointCount-1])
             CGPathAddLineToPoint(path, 0, points[0].x(), points[0].y()+1);
         CGContextBeginPath(d->hd);
-        d->drawPath(QCoreGraphicsPaintEnginePrivate::CGFill
-                    | QCoreGraphicsPaintEnginePrivate::CGStroke, path);
+        uint fillType = mode == OddEvenMode ? QCoreGraphicsPaintEnginePrivate::CGEOFill
+                                            : QCoreGraphicsPaintEnginePrivate::CGFill;
+        d->drawPath(fillType | QCoreGraphicsPaintEnginePrivate::CGStroke, path);
     }
 }
 
@@ -1574,12 +1571,15 @@ QCoreGraphicsPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 float
 QCoreGraphicsPaintEnginePrivate::penOffset()
 {
+    // ### This function does not deserve to exist, remove!
+    if (complexXForm)
+        return 0;
     float ret = 0;
     if(current.pen.style() != Qt::NoPen) {
-        if(current.pen.width() <= 0)
+        if(current.pen.widthF() <= 1.0)
             ret = 0.5;
         else
-            ret = float(current.pen.width()) / 2;
+            ret = 0.0f;
     }
     return ret;
 }

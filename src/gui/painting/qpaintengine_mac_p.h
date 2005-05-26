@@ -196,6 +196,7 @@ public:
     {
         hd = 0;
         shading = 0;
+        complexXForm = false;
     }
 
     //state info (shared with QD)
@@ -204,6 +205,7 @@ public:
     //cg structures
     CGContextRef hd;
     CGShadingRef shading;
+    bool complexXForm;
 
     //internal functions
     enum { CGStroke=0x01, CGEOFill=0x02, CGFill=0x04 };
