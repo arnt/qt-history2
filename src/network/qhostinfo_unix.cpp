@@ -46,7 +46,7 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
     memset(&hints, 0, sizeof(hints));
     hints.ai_family = PF_UNSPEC;
 
-    int result = getaddrinfo(hostName.toLatin1().constData(), 0, &hints, &res);
+    int result = getaddrinfo(qPrintable(hostName), 0, &hints, &res);
     if (result == 0) {
         addrinfo *node = res;
         QList<QHostAddress> addresses;
@@ -71,6 +71,8 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
         results.setAddresses(addresses);
         freeaddrinfo(res);
     } else if (result == EAI_NONAME 
+               || result ==  EAI_FAIL
+    } else if (result == EAI_NONAME
                || result ==  EAI_FAIL
 #ifdef EAI_NODATA
 	       // EAI_NODATA is deprecated in RFC 3493
