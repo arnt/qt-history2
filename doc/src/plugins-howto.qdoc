@@ -84,15 +84,15 @@
         class MyStylePlugin : public QStylePlugin
         {
         public:
-	    QStringList keys() const {
-	        return QStringList() << "mystyle"; 
-	    }
+            QStringList keys() const {
+                return QStringList() << "mystyle"; 
+            }
 
-	    QStyle *create(const QString &key) { 
-	        if (key == "mystyle")
-		    return new MyStyle;
-	        return 0;
-	    }
+            QStyle *create(const QString &key) { 
+                if (key == "mystyle")
+                    return new MyStyle;
+                return 0;
+            }
         };
 
         Q_EXPORT_PLUGIN(MyStylePlugin)
@@ -190,7 +190,9 @@
     \printuntil };
 
     The \l{tools/plugandpaint}{Plug & Paint} example documentation
-    explains this process in detail.
+    explains this process in detail. See also
+    \l{Creating Custom Widgets for Qt Designer} for information about issues
+    that are specific to \QD.
 
     \section1 Loading and Verifying Plugins
 
@@ -221,7 +223,30 @@
        See the Rationale for the build key below.
     \endlist
 
+    When building plugins to extend an application, it is important to ensure
+    that the plugin is configured in the same way as the application. This means
+    that if the application was built in release mode, plugins should be built
+    in release mode, too. 
+
+    If you configure Qt to be built in both debug and release modes,
+    but only build applications in release mode, you need to ensure that your
+    plugins are also built in release mode. By default, if a debug build of Qt is
+    available, plugins will \e only be built in debug mode. To force the
+    plugins to be built in release mode, add the following line to the plugin's
+    project file:
+
+    \code
+    CONFIG += release
+    \endcode
+
+    This will ensure that the plugin is compatible with the version of the library
+    used in the application.
+
     \section1 The Build Key
+
+    When loading plugins, Qt checks the build key of each plugin against its
+    own configuration to ensure that only compatible plugins are loaded; any
+    plugins that are configured differently are not loaded.
 
     The build key contains the following information:
     \list

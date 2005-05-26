@@ -1406,7 +1406,99 @@ without having to write code themselves.
 
     \image worldtimeclockplugin-example.png
 
-    The documentation for this chapter is currently being revised. Please see
-    the \l{designer/customwidgetplugin}{Custom Widget Plugin} example for more
+    \tableofcontents
+
+    \section1 Getting Started
+
+    The process of integrating an existing custom widget with \QD usually
+    just requires a suitable description for the widget and an appropriate project
+    file.
+
+    \section1 Providing an Interface Description
+
+    To inform \QD about the type of widget we want to provide, we must create
+    a subclass of QDesignerCustomWidgetInterface that describes the various
+    properties it exposes. Most of these are supplied by functions that are
+    pure virtual in the base class because it only makes sense for the author
+    of the plugin to provide this information.
+
+    \table
+    \header \o Function          \o Description of the return value
+    \row    \o \c name()         \o The name of the class that provides the widget.
+    \row    \o \c group()        \o The group in \QD's widget box that the widget
+                                    belongs to.
+    \row    \o \c toolTip()      \o A short description to help users identify the
+                                    widget in \QD.
+    \row    \o \c whatsThis()    \o A longer description of the widget for users of \QD.
+    \row    \o \c includeFile()  \o The header file that must be included in
+                                    applications that use this widget. This information
+                                    is stored in .ui files and will be used by \c uic to
+                                    create a suitable \c{#includes} statement in the code
+                                    it generates for the form containing the custom widget.
+    \row    \o \c icon()         \o An icon that can be used to represent the widget in
+                                    \QD's widget box.
+    \row    \o \c isContainer()  \o True if the widget will be used to hold child widgets;
+                                    otherwise false.
+    \row    \o \c createWidget() \o A QWidget pointer to an instance of the custom
+                                    widget, constructed with the parent supplied.
+    \row    \o \c domXml()       \o A description of the widget's properties, such as its
+                                    object name, size hint, and other standard QWidget
+                                    properties.
+    \row    \o \c codeTemplate() \o The default code to be used to construct and set up
+                                    the widget in \c{uic}-generated files.
+    \endtable
+
+    If the custom widget does not provide a reasonable size hint, it is necessary
+    to specify a default geometry in the string returned by the \c domXml() function
+    in your subclass. For example, the \c AnalogClockPlugin provided by the
+    \l{example/customwidgetplugin}{Custom Widget} example, defines a default widget
+    geometry in the following way:
+
+    \quotefromfile designer/customwidgetplugin/customwidgetplugin.cpp
+    \dots
+    \skipto property name=\\"geometry\\"
+    \printuntil </property>
+    \dots
+
+    An additional feature of the \c domXml() function is that, if it returns an
+    empty string, the widget will not be installed in \QD's widget box, but it
+    can still be used by other widgets in the form. This feature is used to hide
+    widgets that should not be explicitly created by the user, but which are
+    required by other widgets.
+
+    \section1 Building The Plugin
+
+    The project file for a plugin must specify the headers and sources for both
+    the custom widget and the plugin interface. Typically, the project file only
+    needs to specify that the plugin's project is to be built as a library, but
+    with specific plugin support for \QD. This is done with the following
+    declarations:
+
+    \quotefromfile designer/customwidgetplugin/customwidgetplugin.pro
+    \skipto CONFIG
+    \printuntil TEMPLATE
+
+    It is also useful for testing purposes to ensure that the plugin is installed
+    alongside the other \QD widget plugins:
+
+    \printuntil DESTDIR
+
+    When Qt is configured to build in both debug and release modes, \QD will be
+    built in release mode. When this occurs, it is necessary to ensure that
+    plugins are also built in release mode. To do this, include the following
+    declaration in the plugin's project file:
+
+    \code
+    CONFIG += release
+    \endcode
+
+    If plugins are built in a mode that is incompatible with \QD, they won't be
+    loaded and installed. For more information about plugins, see the
+    \l{plugins-howto.html}{Plugins HOWTO} document.
+
+    \section1 Related Examples
+
+    Please see the \l{designer/customwidgetplugin}{Custom Widget Plugin} and
+    \l{designer/worldtimeclockplugin}{World Time Clock Plugin} examples for more
     information about using custom widgets in \QD.
 */

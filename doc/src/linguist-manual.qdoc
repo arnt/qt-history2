@@ -2,7 +2,7 @@
     \page linguist-manual.html
     \title Qt Linguist Manual
 
-    \startpage Qt Reference Documentation
+    \startpage {index.html}{Qt Reference Documentation}
     \nextpage Qt Linguist Manual: Release Manager
 
     \keyword Qt Linguist
