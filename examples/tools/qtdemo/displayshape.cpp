@@ -295,7 +295,7 @@ ImageShape::ImageShape(const QImage &original, const QPointF &position,
 
 void ImageShape::redraw()
 {
-    image.fill(qRgba(255, 255, 255, alpha));
+    image.fill(qRgba(alpha, alpha, alpha, alpha));
 
     QPainter painter;
     painter.begin(&image);
@@ -350,9 +350,10 @@ DocumentShape::DocumentShape(const QString &text, const QFont &f,
     qreal scale = qMax(maxSize.height()/(fm.lineSpacing()*20), 1.0);
     font.setPointSizeF(font.pointSizeF() * scale);
 
+    qreal oldHeight = maxSize.height();
     qreal height = formatText();
-    if (height > maxSize.height()) {
-        font.setPointSizeF(font.pointSizeF() * maxSize.height()/height);
+    if (height > oldHeight) {
+        font.setPointSizeF(font.pointSizeF() * oldHeight/height);
         formatText();
     }
 }
@@ -423,6 +424,7 @@ qreal DocumentShape::formatText()
         y += lineHeight;
     }
 
+    maxSize.setHeight(y);
     return y;
 }
 

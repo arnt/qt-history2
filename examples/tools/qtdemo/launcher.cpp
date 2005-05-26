@@ -94,7 +94,7 @@ bool Launcher::setup()
     if (!documentationDir.cd("html")) {
         // Failed to find the HTML documentation.
         // We can continue without it.
-        QMessageBox::warning(this, tr("No Examples Found"),
+        QMessageBox::warning(this, tr("No Documentation Found"),
             tr("I could not find the Qt documentation."),
             QMessageBox::Cancel, QMessageBox::NoButton);
     }
@@ -103,7 +103,7 @@ bool Launcher::setup()
     if (!imagesDir.cd("images")) {
         // Failed to find the accompanying images for the documentation.
         // We can continue without them.
-        QMessageBox::warning(this, tr("No Examples Found"),
+        QMessageBox::warning(this, tr("No Images Found"),
             tr("I could not find any images for the Qt documentation."),
             QMessageBox::Cancel, QMessageBox::NoButton);
     }

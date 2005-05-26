@@ -51,7 +51,8 @@
     <example filename="broadcastsender" name="Broadcast Sender" />
     <example filename="fortuneclient" name="Fortune Client" />
     <example filename="fortuneserver" name="Fortune Server" />
-    <example filename="http" name="HTTP" />
+    <example filename="ftp" name="FTP" name="FTP Client" />
+    <example filename="http" name="HTTP" name="HTTP Client" />
     <example filename="loopback" name="Loopback" />
     <example filename="threadedfortuneserver" name="Threaded Fortune Server" />
   </category>
