@@ -344,13 +344,17 @@ DocumentShape::DocumentShape(const QString &text, const QFont &f,
                        const QSizeF &maxSize)
     : DisplayShape(position, maxSize), font(f), pen(pen)
 {
+    paragraphs = text.split("\n", QString::SkipEmptyParts);
+
     QFontMetrics fm(font);
     qreal scale = qMax(maxSize.height()/(fm.lineSpacing()*20), 1.0);
-
     font.setPointSizeF(font.pointSizeF() * scale);
 
-    paragraphs = text.split("\n", QString::SkipEmptyParts);
-    formatText();
+    qreal height = formatText();
+    if (height > maxSize.height()) {
+        font.setPointSizeF(font.pointSizeF() * maxSize.height()/height);
+        formatText();
+    }
 }
 
 DocumentShape::~DocumentShape()
@@ -387,7 +391,7 @@ bool DocumentShape::animate()
     return DisplayShape::animate() || updated;
 }
 
-void DocumentShape::formatText()
+qreal DocumentShape::formatText()
 {
     qDeleteAll(layouts);
     layouts.clear();
@@ -397,14 +401,13 @@ void DocumentShape::formatText()
     qreal y = 0.0;
     qreal leftMargin = 0.0;
     qreal rightMargin = maxSize.width();
-    qreal bottomMargin = maxSize.height() - lineHeight;
 
     foreach (QString paragraph, paragraphs) {
 
         QTextLayout *textLayout = new QTextLayout(paragraph, font);
         textLayout->beginLayout();
 
-        while (y < bottomMargin) {
+        while (true) {
             QTextLine line = textLayout->createLine();
             if (!line.isValid())
                 break;
@@ -418,12 +421,9 @@ void DocumentShape::formatText()
         layouts.append(textLayout);
 
         y += lineHeight;
-
-        if (y >= bottomMargin)
-            break;
     }
 
-    maxSize.setHeight(y);
+    return y;
 }
 
 void DocumentShape::paint(QPainter *painter) const

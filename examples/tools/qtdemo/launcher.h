@@ -98,6 +98,7 @@ private:
     QString currentExample;
     QStringList runningExamples;
     QStringList categories;
+    QTimer *resizeTimer;
     QTimer *slideshowTimer;
 };
 

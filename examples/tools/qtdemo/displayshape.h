@@ -124,7 +124,7 @@ public:
     QRectF rect() const;
 
 private:
-    void formatText();
+    qreal formatText();
 
     QFont font;
     QStringList paragraphs;

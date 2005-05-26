@@ -58,6 +58,9 @@ Launcher::Launcher(QWidget *parent)
     addAction(exitAction);
 
     slideshowTimer = new QTimer(this);
+    resizeTimer = new QTimer(this);
+    resizeTimer->setSingleShot(true);
+    connect(resizeTimer, SIGNAL(timeout()), this, SLOT(redisplayWindow()));
 
     assistant = new QAssistantClient("assistant", this);
 
@@ -79,7 +82,7 @@ Launcher::Launcher(QWidget *parent)
             Qt::QueuedConnection);
 
     setCentralWidget(display);
-    layout()->setSizeConstraint(QLayout::SetFixedSize);
+    setMaximumSize(QApplication::desktop()->screenGeometry().size());
     setWindowTitle(tr("Qt Examples and Demos"));
 }
 
@@ -129,9 +132,12 @@ bool Launcher::setup()
         mainDescription += tr("\n");
 
     categoryDescriptions["[main]"] = mainDescription + tr(
-        "Press Escape, Backspace, or Alt+Left to return to a previous menu.\n"
-        "Press Ctrl+F to switch between normal and full screen modes.\n"
-        "Use Ctrl+Q to exit the launcher.");
+        "Press Escape, Backspace, or %1 to return to a previous menu.\n"
+        "Press %2 to switch between normal and full screen modes.\n"
+        "Use %3 to exit the launcher.").arg(QString(
+            QKeySequence(tr("Alt+Left")))).arg(QString(
+            QKeySequence(tr("Ctrl+F")))).arg(QString(
+            QKeySequence(tr("Ctrl+Q"))));
 
     emit showPage();
     return true;
@@ -396,6 +402,10 @@ void Launcher::closeEvent(QCloseEvent *event)
     }
 
     qDeleteAll(runningProcesses.keys());
+    resizeTimer->stop();
+    resizeTimer->deleteLater();
+    slideshowTimer->stop();
+    slideshowTimer->deleteLater();
 }
 
 void Launcher::showParentPage()
@@ -1019,6 +1029,8 @@ void Launcher::resizeEvent(QResizeEvent *event)
     if (inFullScreenResize) {
         emit windowResized();
         inFullScreenResize = false;
+    } else if (currentCategory != "[starting]") {
+        resizeTimer->start(500);
     }
 }
 
