@@ -1451,12 +1451,12 @@ without having to write code themselves.
     If the custom widget does not provide a reasonable size hint, it is necessary
     to specify a default geometry in the string returned by the \c domXml() function
     in your subclass. For example, the \c AnalogClockPlugin provided by the
-    \l{example/customwidgetplugin}{Custom Widget} example, defines a default widget
+    \l{designer/customwidgetplugin}{Custom Widget} example, defines a default widget
     geometry in the following way:
 
     \quotefromfile designer/customwidgetplugin/customwidgetplugin.cpp
     \dots
-    \skipto property name=\\"geometry\\"
+    \skipto property name=
     \printuntil </property>
     \dots
 
