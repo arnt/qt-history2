@@ -1039,7 +1039,7 @@ if [ -z "$QT_INSTALL_PREFIX" ]; then
 	QT_INSTALL_PREFIX=$outpath
     else
         # the default install prefix is /usr/local/Trolltech/Qt-$QT_VERSION
-        QT_VERSION=`grep ^VERSION= $relpath/src/qbase.pri | sed -e 's,^VERSION=,,'`
+        QT_VERSION=`grep \^VERSION= $relpath/src/qbase.pri | sed -e 's,^VERSION=,,'`
         QT_INSTALL_PREFIX=/usr/local/Trolltech/Qt-${QT_VERSION}
     fi
 fi
