@@ -1402,211 +1402,200 @@ static inline void clipped_to_device(const QRect &deviceRect,
 
 static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void *data, LineDrawMode style, const QRect &devRect)
 {
+#if QT_DEBUG_DRAW
     qDebug("   - drawLine_midpoint_f, x1=%.2f, y1=%.2f, x2=%.2f, y2=%.2f",
            line.x1(), line.y1(), line.x2(), line.y2());
-    return;
-    Q_UNUSED(line);
-    Q_UNUSED(span_func);
-    Q_UNUSED(data);
-    Q_UNUSED(style);
-    Q_UNUSED(devRect);
-#if 0
-    int x, y, dx, dy, d, incrE, incrNE;
+#endif
+
+    int x, y;
+    qreal dx, dy, d, incrE, incrNE;
 
     qreal x1 = line.x1();
     qreal x2 = line.x2();
     qreal y1 = line.y1();
     qreal y2 = line.y2();
-    qreal temp;
-    QRasterBuffer *rb = ((FillData *)data)->rasterBuffer;
+
     QT_FT_Span span = { 0, 1, 255 };
 
-    dx = qRound(x2 - x1);
-    dy = qRound(y2 - y1);
-
-    if (dx == 0) {
-//         qDebug("vertical");
-//         y1 = qMax(0, y1);
-//         y2 = qMin(rb->height(), y2);
-//         span.x = x1;
-//         for (y=y1; y<y2; ++y)
-//         clipped_to_device(deviceRect, y, &span, span_func, data);
-        return;
-    } else if (dy == 0) {
-//         qDebug("horizontal");
-//         span.len = dx;
-//         span.x = x;
-//         clipped_to_device(deviceRect, y, &span, span_func, data);
-        return;
-    }
+    dx = x2 - x1;
+    dy = y2 - y1;
 
     if (qAbs(dx) >= qAbs(dy)) {       /* if x is the major axis: */
+
         if (x2 < x1) {  /* if coordinates are out of order */
-            temp = x2;
-            x2 = x1;
-            x1 = temp;
+            qt_swap_int(x1, x2);
             dx = -dx;
 
-            temp = y2;
-            y2 = y1;
-            y1 = temp;
+            qt_swap_int(y1, y2);
             dy = -dy;
         }
-
-        if (y2 < 0 || x2 < 0 || x1 >= devRect.width() || y1 >= devRect.height()) {
-            qDebug(" - I don't want to draw that line...");
-            return;
-        }
-
-        if (x1 < 0) {
-            qDebug(" - hitting case 1");
-            y = int((dy * -x1 ) / dx + y1);
-            x1 = 0;
-        } else {
-            y = qRound(y1);
-        }
-
-
-        if (y < 0) {
-            qDebug(" - hitting case 2");
-            x = int(( - (line.y1() - line.x1() * dy / dx)) * dx / dy);
-            y = 0;
-        } else {
-            x = qRound(x1);
-        }
-
-        qDebug(" - x=%d, dx=%d, dy=%d\n", x, dx, dy);
 
         if (style == LineDrawNormal)
             --x2;
 
-        if (y2 > y1) {  /* when it is decided to change y, y should be incremented */
-            incrE = dy << 1;
-            d = incrE - dx;
-            incrNE = (dy - dx) << 1;
+        // In the loops below we increment before call the span function so
+        // we need to stop one pixel before
+        x2 = qMin(x2, qreal(devRect.width() - 1));
 
+        // completly clipped, so abort
+        if (x2 <= x1) {
+            return;
+        }
+
+        x = qRound(x1);
+        y = qRound(y1);
+
+        if (x>=0 && y>=0 && y < devRect.height()) {
+            Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
             span.x = x;
             span_func(y, 1, &span, data);
+        }
 
-            x2 = qMin(x2, qreal(devRect.width()));
+        if (y2 > y1) { // 315 -> 360 and 135 -> 180 (unit circle degrees)
+            y2 = qMin(y2, qreal(devRect.height()) - 1);
 
-            // below we increment before calling the span function so we need to
-            // abort one earlier, hence -1 here.
-            --x2;
+            incrE = dy * 2;
+            d = incrE - dx;
+            incrNE = (dy - dx) * 2;
 
-            qDebug(" - drawing from %f, %f", qreal(x), x2);
+            if (y > y2)
+                return;
 
             while (x < x2) {
                 if (d > 0) {
                     ++y;
                     d += incrNE;
+                    if (y > y2)
+                        return;
                 } else {
                     d += incrE;
                 }
                 ++x;
 
-                if (y >= devRect.height())
-                    return;
+                if (x < 0 || y < 0)
+                    continue;
 
-                Q_ASSERT(x>=0);
                 Q_ASSERT(x<devRect.width());
-                Q_ASSERT(y>=0);
                 Q_ASSERT(y<devRect.height());
                 span.x = x;
                 span_func(y, 1, &span, data);
             }
-        }
-        else {       /* when it is decided to change y, y
-                        should be decremented */
-            return;
-            incrE = dy << 1;
-            d = incrE + dx;
-            incrNE = (dy + dx) << 1;
+        } else {  // 0-45 and 180->225 (unit circle degrees)
 
-            for (; x <= x2; x++) {
+            y1 = qMin(y1, qreal(devRect.height()) - 1);
+
+            incrE = dy * 2;
+            d = incrE + dx;
+            incrNE = (dy + dx) * 2;
+
+            if (y < 0)
+                return;
+
+            while (x < x2) {
                 if (d < 0) {
-                    y--;
+                    --y;
                     d += incrNE;
-                }
-                else
+                    if (y < 0)
+                        return;
+                } else {
                     d += incrE;
-                Q_ASSERT(x>=0);
-                Q_ASSERT(x<rb->width());
-                Q_ASSERT(y>=0);
-                Q_ASSERT(y<rb->height());
+                }
+                ++x;
+
+                if (x < 0 || y > y1)
+                    continue;
+
+                Q_ASSERT(x<devRect.width() && y<devRect.height());
                 span.x = x;
                 span_func(y, 1, &span, data);
             }
         }
-    }
-    else {   /* if y is the major axis: */
 
-        return;
+    } else {
+
+        // if y is the major axis:
 
         if (y2 < y1) {      /* if coordinates are out of order */
-            temp = y2;
-            y2 = y1;
-            y1 = temp;
+            qt_swap_int(y1, y2);
             dy = -dy;
 
-            temp = x2;
-            x2 = x1;
-            x1 = temp;
+            qt_swap_int(x1, x2);
             dx = -dx;
         }
 
+        if (style == LineDrawNormal)
+            --y2;
 
-        if (y1 < 0) {
-            x = ((y1-.5)/dy)*dx + (x1);
-            y1 = 0;
-        } else {
-            x = qRound(x1);
-        }
-        if (style == LineDrawNormal) {
-            if (y2 >= rb->height())
-                y2 = rb->height() - 1;
-            else
-                --y2;
+        // In the loops below we increment before call the span function so
+        // we need to stop one pixel before
+        y2 = qMin(y2, qreal(devRect.height()) - 1);
+
+        // completly clipped, so abort
+        if (y2 <= y1) {
+            return;
         }
 
-        qDebug(" - x=%d, dx=%d, dy=%d\n", x, dx, dy);
+        x = qRound(x1);
+        y = qRound(y1);
 
-        if (x2 > x1) {      /* when it is decided to change x, x
-                               should be incremented */
-            incrE = dx << 1;
+        if (x>=0 && y>=0 && x < devRect.width()) {
+            Q_ASSERT(x >= 0 && y >= 0 && x < devRect.width() && y < devRect.height());
+            span.x = x;
+            span_func(y, 1, &span, data);
+        }
+
+        if (x2 > x1) { // 90 -> 135 and 270 -> 315 (unit circle degrees)
+            x2 = qMin(x2, qreal(devRect.width() - 1));
+            incrE = dx * 2;
             d = incrE - dy;
-            incrNE = (dx - dy) << 1;
+            incrNE = (dx - dy) * 2;
 
-            for (y = y1; y <= y2; y++) {
+            if (x > x2)
+                return;
+
+            while (y < y2) {
                 if (d > 0) {
-                    x++;
+                    ++x;
                     d += incrNE;
-                }
-                else
+                    if (x > x2)
+                        return;
+                } else {
                     d += incrE;
+                }
+                ++y;
+                if (x < 0 || y < 0)
+                    continue;
+                Q_ASSERT(x<devRect.width() && y<devRect.height());
                 span.x = x;
                 span_func(y, 1, &span, data);
             }
-        }
-        else {        /* when it is decided to change x, x
-                         should be decremented */
-            incrE = dx << 1;
+        } else { // 45 -> 90 and 225 -> 270 (unit circle degrees)
+            x1 = qMin(x1, qreal(devRect.width() - 1));
+            incrE = dx * 2;
             d = incrE + dy;
-            incrNE = (dx + dy) << 1;
+            incrNE = (dx + dy) * 2;
 
-            for (y = y1; y <= y2; y++) {
+            if (x < 0)
+                return;
+
+            while (y < y2) {
                 if (d < 0) {
-                    x--;
+                    --x;
                     d += incrNE;
-                }
-                else
+                    if (x < 0)
+                        return;;
+                } else {
                     d += incrE;
+                }
+                ++y;
+                if (y < 0 || x > x1)
+                    continue;
+                Q_ASSERT(x>=0 && x<devRect.width() && y>=0 && y<devRect.height());
                 span.x = x;
                 span_func(y, 1, &span, data);
             }
         }
     }
-#endif
 }
 
 
@@ -1672,10 +1661,6 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
         x = x1;
         y = y1;
 
-        Q_ASSERT(x>=0);
-        Q_ASSERT(x<devRect.width());
-        Q_ASSERT(y>=0);
-        Q_ASSERT(y<devRect.height());
         span.x = x;
         span_func(y, 1, &span, data);
 
@@ -1692,11 +1677,7 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
                     d += incrE;
                 }
                 ++x;
-
-                Q_ASSERT(x>=0);
-                Q_ASSERT(x<devRect.width());
-                Q_ASSERT(y>=0);
-                Q_ASSERT(y<devRect.height());
+                Q_ASSERT(x>=0 && x<devRect.width() && y>=0 && y<devRect.height());
                 span.x = x;
                 span_func(y, 1, &span, data);
             }
@@ -1714,12 +1695,7 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
                     d += incrE;
                 }
                 ++x;
-
-                Q_ASSERT(x>=0);
-                Q_ASSERT(x<devRect.width());
-                Q_ASSERT(y>=0);
-                Q_ASSERT(y<devRect.height());
-
+                Q_ASSERT(x>=0 && x<devRect.width() && y>=0 && y<devRect.height());
                 span.x = x;
                 span_func(y, 1, &span, data);
             }
@@ -1741,10 +1717,6 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
         x = x1;
         y = y1;
 
-        Q_ASSERT(x>=0);
-        Q_ASSERT(x<devRect.width());
-        Q_ASSERT(y>=0);
-        Q_ASSERT(y<devRect.height());
         span.x = x;
         span_func(y, 1, &span, data);
 
@@ -1761,10 +1733,7 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
                     d += incrE;
                 }
                 ++y;
-                Q_ASSERT(x>=0);
-                Q_ASSERT(x<devRect.width());
-                Q_ASSERT(y>=0);
-                Q_ASSERT(y<devRect.height());
+                Q_ASSERT(x>=0 && x<devRect.width() && y>=0 && y<devRect.height());
                 span.x = x;
                 span_func(y, 1, &span, data);
             }
@@ -1783,10 +1752,7 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
                     d += incrE;
                 }
                 ++y;
-                Q_ASSERT(x>=0);
-                Q_ASSERT(x<devRect.width());
-                Q_ASSERT(y>=0);
-                Q_ASSERT(y<devRect.height());
+                Q_ASSERT(x>=0 && x<devRect.width() && y>=0 && y<devRect.height());
                 span.x = x;
                 span_func(y, 1, &span, data);
             }
