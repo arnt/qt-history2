@@ -201,13 +201,49 @@ extern Q_GUI_EXPORT HDC qt_win_display_dc();
 
 
 // Declarations -----------------------------------------------------------------------------------
+class XPThemeData
+{
+public:
+    XPThemeData(const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString(),
+                int part = 0, int state = 0, const QRect &r = QRect())
+        : widget(w), painter(p), name(theme), htheme(0), partId(part), stateId(state), 
+          mirrorHorizontally(false), mirrorVertically(false), noBorder(false),
+          noContent(false), rotate(0), rect(r)
+    {}
+
+    HRGN mask();
+    HTHEME handle();
+
+    RECT toRECT(const QRect &qr);
+    bool isValid();
+
+    const QWidget *widget;
+    QPainter *painter;
+    QString name;
+    HTHEME htheme;
+    int partId;
+    int stateId;
+
+    uint mirrorHorizontally : 1;
+    uint mirrorVertically : 1;
+    uint noBorder : 1;
+    uint noContent : 1;
+    uint rotate;
+    QRect rect;
+};
+
 struct ThemeMapKey {
     QString name;
     int partId;
     int stateId;
+    bool noBorder;
+    bool noContent;
 
     ThemeMapKey() : partId(-1), stateId(-1) {}
-    ThemeMapKey(const QString &n, int p, int s) : name(n), partId(p), stateId(s) {}
+    ThemeMapKey(const XPThemeData &data)
+        : name(data.name), partId(data.partId), stateId(data.stateId),
+        noBorder(data.noBorder), noContent(data.noContent) {}
+
 };
 
 inline uint qHash(const ThemeMapKey &key)
@@ -240,39 +276,6 @@ struct ThemeMapData {
     ThemeMapData() : dataValid(false), partIsTransparent(false), hasAnyData(false),
                      hasAlphaChannel(false), wasAlphaSwapped(false), hadInvalidAlpha(false) {}
 };
-
-
-class XPThemeData
-{
-public:
-    XPThemeData(const QWidget *w = 0, QPainter *p = 0, const QString &theme = QString(),
-                int part = 0, int state = 0, const QRect &r = QRect())
-        : widget(w), painter(p), name(theme), htheme(0), partId(part), stateId(state), 
-          mirrorHorizontally(false), mirrorVertically(false), noBorder(false),
-          noContent(false), rotate(0), rect(r)
-    {}
-
-    HRGN mask();
-    HTHEME handle();
-
-    RECT toRECT(const QRect &qr);
-    bool isValid();
-
-    const QWidget *widget;
-    QPainter *painter;
-    QString name;
-    HTHEME htheme;
-    int partId;
-    int stateId;
-
-    uint mirrorHorizontally : 1;
-    uint mirrorVertically : 1;
-    uint noBorder : 1;
-    uint noContent : 1;
-    uint rotate;
-    QRect rect;
-};
-
 
 class QWindowsXPStylePrivate : public QObjectPrivate
 {
@@ -911,10 +914,10 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
     bool potentialInvalidAlpha;
 
     QString pixmapCacheKey = QString("$qt_xp_%1p%2s%3s%4b%5c%6w%7h").arg(themeData.name)
-                             .arg(partId).arg(stateId).arg(themeData.noBorder).arg(themeData.noContent)
+                             .arg(partId).arg(stateId).arg(!themeData.noBorder).arg(!themeData.noContent)
                              .arg(w).arg(h);
     QPixmap cachedPixmap;
-    ThemeMapKey key(themeData.name, themeData.partId, themeData.stateId);
+    ThemeMapKey key(themeData);
     ThemeMapData data = alphaCache.value(key);
 
     bool haveCachedPixmap = false;
@@ -975,7 +978,7 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
     bool addBorderContentClipping = false;
     QRegion extraClip;
     QRect area = rect;
-    if (pDrawThemeBackgroundEx == 0 && (themeData.noBorder || themeData.noContent)) {
+    if (themeData.noBorder || themeData.noContent) {
 	extraClip = area;
 	// We are running on a system where the uxtheme.dll does not have
 	// the DrawThemeBackgroundEx function, so we need to clip away
@@ -1020,7 +1023,8 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
 	int db = area.bottom() - rect.bottom();
 
 	// Adjust so painting rect starts from Origo
-	rect = QRect(QPoint(0, 0), rect.size());
+	rect.moveTo(0,0);
+        area.moveTo(dx,dy);
 	DTBGOPTS drawOptions;
         drawOptions.dwSize = sizeof(drawOptions);
         drawOptions.rcClip = themeData.toRECT(rect);
@@ -1028,9 +1032,9 @@ void QWindowsXPStylePrivate::drawBackgroundThruNativeBuffer(XPThemeData &themeDa
                             | (themeData.noBorder ? DTBG_OMITBORDER : 0)
                             | (themeData.noContent ? DTBG_OMITCONTENT : 0);
 
-	// Drawing the part into the backing store
+        // Drawing the part into the backing store
 	if (pDrawThemeBackgroundEx != 0) {
-	    pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(drawOptions.rcClip), &drawOptions);
+            pDrawThemeBackgroundEx(themeData.handle(), dc, themeData.partId, themeData.stateId, &(themeData.toRECT(area)), &drawOptions);
 	} else {
 	    // Set the clip region, if used..
 	    if (addBorderContentClipping) {
