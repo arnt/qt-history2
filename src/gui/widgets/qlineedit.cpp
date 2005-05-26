@@ -467,7 +467,7 @@ void QLineEdit::setEchoMode(EchoMode mode)
     d->updateTextLayout();
     update();
 #ifdef Q_WS_MAC
-    if(hasFocus())
+    if (hasFocus())
         qt_mac_secure_keyboard(d->echoMode == Password || d->echoMode == NoEcho);
 #endif
 }
@@ -1250,7 +1250,7 @@ void QLineEditPrivate::copy(bool clipboard) const
         q->disconnect(QApplication::clipboard(), SIGNAL(selectionChanged()), q, 0);
         QApplication::clipboard()->setText(t, clipboard ? QClipboard::Clipboard : QClipboard::Selection);
         q->connect(QApplication::clipboard(), SIGNAL(selectionChanged()),
-                 q, SLOT(clipboardChanged()));
+                   q, SLOT(clipboardChanged()));
     }
 }
 
@@ -1528,17 +1528,18 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             break;
         case Qt::Key_K:
             if (!d->readOnly) {
-                int priorState = d->undoState;
-                d->deselect();
-                while (d->cursor < (int) d->text.length())
-                    d->del();
-                d->finishChange(priorState);
+                setSelection(d->cursor, d->text.size());
+                copy();
+                del();
             }
             break;
 #if defined(Q_WS_X11)
         case Qt::Key_U:
-            if (!d->readOnly)
-                clear();
+            if (!d->readOnly) {
+                setSelection(0, d->text.size());
+                copy();
+                del();
+            }
             break;
 #endif
 #ifndef QT_NO_CLIPBOARD
@@ -1547,7 +1548,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
                 paste();
             break;
         case Qt::Key_X:
-            if (!d->readOnly && d->hasSelectedText() && echoMode() == Normal) {
+            if (!d->readOnly) {
                 copy();
                 del();
             }
@@ -1679,7 +1680,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
                 paste();
             break;
         case Qt::Key_F20: // Cut key on Sun keyboards
-            if (!d->readOnly && hasSelectedText() && echoMode() == Normal) {
+            if (!d->readOnly) {
                 copy();
                 del();
             }
@@ -1836,7 +1837,7 @@ void QLineEdit::focusInEvent(QFocusEvent *e)
        || style()->styleHint(QStyle::SH_BlinkCursorWhenTextSelected, &opt, this))
         d->setCursorVisible(true);
 #ifdef Q_WS_MAC
-    if(d->echoMode == Password || d->echoMode == NoEcho)
+    if (d->echoMode == Password || d->echoMode == NoEcho)
         qt_mac_secure_keyboard(true);
 #endif
     update();
@@ -1862,7 +1863,7 @@ void QLineEdit::focusOutEvent(QFocusEvent *e)
 #endif
     }
 #ifdef Q_WS_MAC
-    if(d->echoMode == Password || d->echoMode == NoEcho)
+    if (d->echoMode == Password || d->echoMode == NoEcho)
         qt_mac_secure_keyboard(false);
 #endif
     update();
