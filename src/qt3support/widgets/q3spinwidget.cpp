@@ -149,6 +149,7 @@ static QStyleOptionSpinBox getStyleOption(const Q3SpinWidget *spin)
 {
     QStyleOptionSpinBox opt;
     opt.init(spin);
+    opt.frame = true;
     opt.subControls = 0;
     opt.buttonSymbols = (QAbstractSpinBox::ButtonSymbols)spin->buttonSymbols();
     opt.stepEnabled = 0;
