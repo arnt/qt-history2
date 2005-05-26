@@ -558,6 +558,8 @@ void QPaintEngine::drawPath(const QPainterPath &)
 void QPaintEngine::drawTextItem(const QPointF &p, const QTextItem &textItem)
 {
     const QTextItemInt &ti = static_cast<const QTextItemInt &>(textItem);
+    if (!ti.num_glyphs)
+        return;
 
     QPainterPath path;
     path.setFillRule(Qt::WindingFill);
