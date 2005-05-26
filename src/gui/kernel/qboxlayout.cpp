@@ -577,6 +577,7 @@ void QBoxLayout::setGeometry(const QRect &r)
 {
     Q_D(QBoxLayout);
     if (d->dirty || r != geometry()) {
+        QRect rect = geometry();
         QLayout::setGeometry(r);
         if (d->dirty)
             d->setupGeom();
@@ -608,7 +609,12 @@ void QBoxLayout::setGeometry(const QRect &r)
         }
 
         qGeomCalc(a, 0, n, pos, space, spacing());
-        for (int i = 0; i < n; i++) {
+
+        bool reverse = (horz(visualDir)
+                        ? ((r.right() > rect.right()) ^ (visualDir == RightToLeft))
+                        : r.bottom() > rect.bottom());
+        for (int j = 0; j < n; j++) {
+            int i = reverse ? n-j-1 : j;
             QBoxLayoutItem *box = d->list.at(i);
 
             switch (visualDir) {
