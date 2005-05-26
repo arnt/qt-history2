@@ -1,4 +1,9 @@
 /*!
     \example network/ftp
     \title FTP Example
+
+    The FTP example demonstrates a simple FTP client that can be used to list the
+    available files on an FTP server and download them.
+
+    \image examples/ftp-example.png
 */

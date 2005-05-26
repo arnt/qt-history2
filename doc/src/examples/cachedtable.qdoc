@@ -1,4 +1,10 @@
 /*!
     \example sql/cachedtable
     \title Cached Table Example
+
+    The Cached Table example shows how a table view can be used to access a database,
+    caching any changes to the data until the user explicitly submits them using a
+    push button.
+
+    \image examples/cachedtable-example.png
 */

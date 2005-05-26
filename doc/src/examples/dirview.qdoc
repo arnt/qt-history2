@@ -1,4 +1,9 @@
 /*!
     \example itemviews/dirview
     \title Dir View Example
+
+    The Dir View example shows a tree view onto the local filing system. It uses the
+    QDirModel class to provide supply file and directory information.
+
+    \image examples/dirview-example.png
 */

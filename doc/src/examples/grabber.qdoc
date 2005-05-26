@@ -1,4 +1,8 @@
 /*!
     \example opengl/grabber
     \title Grabber Example
+
+    The Grabber examples shows how to retrieve the contents of an OpenGL framebuffer.
+
+    \image examples/grabber-example.png
 */

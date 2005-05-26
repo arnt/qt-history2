@@ -2,4 +2,7 @@
     \example widgets/tetrix
     \title Tetrix Example
 
+    The Tetrix example is a Qt version of the classic Tetrix game.
+
+    \image examples/tetrix-example.png
 */

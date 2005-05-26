@@ -15,6 +15,7 @@
     QTableView, or QTreeView with a custom QItemDelegate subclass if you need to
     represent data in a special way.
 
+    \omit
     \section1 PieView Class Definition
 
     The \c PieView class is a subclass of QAbstractItemView. The base class provides
@@ -52,5 +53,5 @@
 
     We use logical coordinates to draw the chart and key, and position them
     on the view using viewports.
-
+    \endomit
 */

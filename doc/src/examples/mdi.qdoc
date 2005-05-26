@@ -2,4 +2,8 @@
     \example mainwindows/mdi
     \title MDI Example
 
+    The MDI example shows how to implement a Multiple Document Interface using Qt's
+    QWorkspace class.
+
+    \image examples/mdi-example.png
 */

@@ -1,4 +1,9 @@
 /*!
     \example network/blockingfortuneclient
     \title Blocking Fortune Client Example
+
+    The Blocking Fortune Client example shows how to create a non-threaded client for a
+    network service.
+
+    \image examples/blockingfortuneclient-example.png
 */

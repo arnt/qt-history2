@@ -1,4 +1,10 @@
 /*!
     \example network/fortuneclient
     \title Fortune Client Example
+
+    The Fortune Client example shows how to create a client for a simple network
+    service. It is intended to be run alongside the Fortune Server or Threaded
+    Fortune Server examples.
+
+    \image examples/fortuneclient-example.png
 */

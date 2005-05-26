@@ -134,8 +134,9 @@
     \skipto AnalogClockPlugin::whatsThis(
     \printuntil /^\}/
 
-    The \c isContainer() and \c isForm() functions provide important
-    information about the way that the widget is to be handled by \QD.
+    The \c isContainer() function tells \QD whether the widget is supposed to
+    be used as a container for other widgets. If not, \QD will not allow the
+    user to place widgets inside it.
 
     \skipto AnalogClockPlugin::isContainer(
     \printuntil /^\}/
