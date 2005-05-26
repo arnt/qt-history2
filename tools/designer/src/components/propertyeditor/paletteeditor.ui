@@ -413,7 +413,7 @@
         <string>Close the dialog and apply all the changes.</string>
        </property>
        <property name="text" >
-        <string>&amp;OK</string>
+        <string>OK</string>
        </property>
        <property name="autoDefault" >
         <bool>true</bool>
@@ -437,7 +437,7 @@
         <string>Close the dialog and discard any changes.</string>
        </property>
        <property name="text" >
-        <string>&amp;Cancel</string>
+        <string>Cancel</string>
        </property>
        <property name="autoDefault" >
         <bool>true</bool>

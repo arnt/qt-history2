@@ -236,7 +236,7 @@
      <item>
       <widget class="QPushButton" name="okButton" >
        <property name="text" >
-        <string>&amp;OK</string>
+        <string>OK</string>
        </property>
        <property name="default" >
         <bool>true</bool>
@@ -246,7 +246,7 @@
      <item>
       <widget class="QPushButton" name="cancelButton" >
        <property name="text" >
-        <string>&amp;Cancel</string>
+        <string>Cancel</string>
        </property>
       </widget>
      </item>
