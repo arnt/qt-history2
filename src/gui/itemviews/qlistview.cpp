@@ -977,13 +977,19 @@ QModelIndex QListView::moveCursor(CursorAction cursorAction, Qt::KeyboardModifie
     Q_UNUSED(modifiers);
 
     QModelIndex current = currentIndex();
-    if (!current.isValid())
+    if (!current.isValid()) {
         if (model())
             return model()->index(0, 0, rootIndex());
-        else
-            return current;
+        return QModelIndex();
+    }
 
     QRect rect = rectForIndex(current);
+    if (rect.isEmpty()) {
+        if (model())
+            return model()->index(0, 0, rootIndex());
+        return QModelIndex();
+    }
+    
     QSize contents = d->contentsSize;
     QPoint pos = rect.center();
     d->intersectVector.clear();
