@@ -97,7 +97,9 @@ void NewForm::on_createButton_clicked()
         // This will cause some problems with i18n, but for now I need the string to be "static"
         QRegExp rx(QLatin1String("Untitled( (\\d+))*"));
         for (int i = 0; i < totalWindows; ++i) {
-            if (rx.exactMatch(m_workbench->formWindow(i)->windowTitle())) {
+            QString title = m_workbench->formWindow(i)->windowTitle();
+            title = title.replace(QLatin1String("[*]"), QLatin1String(""));
+            if (rx.exactMatch(title)) {
                 if (maxUntitled == 0)
                     ++maxUntitled;
                 if (rx.numCaptures() > 1)

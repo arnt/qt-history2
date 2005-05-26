@@ -75,7 +75,7 @@ void QDesignerFormWindow::changeEvent(QEvent *e)
             }
         } break;
         case QEvent::WindowTitleChange:
-            m_action->setText(windowTitle());
+            m_action->setText(windowTitle().replace(QLatin1String("[*]"), ""));
             break;
         case QEvent::WindowIconChange:
             m_action->setIcon(windowIcon());
@@ -119,7 +119,7 @@ void QDesignerFormWindow::closeEvent(QCloseEvent *ev)
         raise();
         QMessageBox box(tr("Save Form?"),
                 tr("Do you want to save the changes you made to \"%1\" before closing?")
-                .arg(m_editor->fileName().isEmpty() ? windowTitle() : m_editor->fileName()),
+                .arg(m_editor->fileName().isEmpty() ? action()->text() : m_editor->fileName()),
                 QMessageBox::Information,
                 QMessageBox::Yes | QMessageBox::Default, QMessageBox::No,
                 QMessageBox::Cancel | QMessageBox::Escape, m_editor, Qt::Sheet);
