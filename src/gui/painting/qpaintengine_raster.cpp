@@ -1420,6 +1420,36 @@ static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void
     dx = x2 - x1;
     dy = y2 - y1;
 
+    // specialcase horizontal lines
+    if (dy == 0) {
+        if (y1 >= 0 && y1 < devRect.height()) {
+            qreal start = qMax(qreal(0), qMin(x1, x2));
+            qreal stop = qMin(qreal(devRect.width()), qMax(x1, x2) + 1);
+            qreal len = stop - start;
+            if (len > 0) {
+                if (style == LineDrawNormal)
+                    len--;
+                span.x = start;
+                span.len = len;
+                span_func(y1, 1, &span, data);
+            }
+        }
+        return;
+    } else if (dx == 0) {
+        if (x1 >= 0 && x1 < devRect.width()) {
+            qreal start = qMax(qreal(0), qMin(y1, y2));
+            qreal stop = qMin(qreal(devRect.height()), qMax(y1, y2) + 1);
+            if (style == LineDrawNormal)
+                --stop;
+            span.x = x1;
+            span.len = 1;
+            for (int i=start; i<stop; ++i)
+                span_func(i, 1, &span, data);
+        }
+        return;
+    }
+
+
     if (qAbs(dx) >= qAbs(dy)) {       /* if x is the major axis: */
 
         if (x2 < x1) {  /* if coordinates are out of order */
@@ -1644,6 +1674,39 @@ static void drawLine_midpoint_i(const QLine &line, qt_span_func span_func, void 
 
     dx = x2 - x1;
     dy = y2 - y1;
+
+    if (dy == 0) {
+        // Horizontal lines
+        if (y1 >= 0 && y1 < devRect.height()) {
+            int start = qMax(0, qMin(x1, x2));
+            int stop = qMin(devRect.width(), qMax(x1, x2) + 1);
+            int len = stop - start;
+
+            printf("horizontal line: start=%d, stop=%d, len=%d\n", start, stop, len);
+            if (len > 0) {
+                if (style == LineDrawNormal)
+                    len--;
+                span.x = start;
+                span.len = len;
+                span_func(y1, 1, &span, data);
+            }
+        }
+        return;
+    } else if (dx == 0) {
+        // Vertical lines
+        if (x1 >= 0 && x1 < devRect.width()) {
+            int start = qMax(0, qMin(y1, y2));
+            int stop = qMin(devRect.height(), qMax(y1, y2) + 1);
+            if (style == LineDrawNormal)
+                --stop;
+            span.x = x1;
+            span.len = 1;
+            for (int i=start; i<stop; ++i)
+                span_func(i, 1, &span, data);
+        }
+        return;
+    }
+
 
     if (qAbs(dx) >= qAbs(dy)) {       /* if x is the major axis: */
 
@@ -1940,7 +2003,7 @@ void QRasterPaintEngine::drawLines(const QLineF *lines, int lineCount)
 
             FillData fillData = d->fillForBrush(QBrush(d->pen.brush()));
             drawLine_bresenham(line, fillData.callback, fillData.data, mode);
-//             drawLine_midpoint_i(line.toLine(), fillData.callback, fillData.data, mode, bounds);
+//             drawLine_midpoint_f(line.toLine(), fillData.callback, fillData.data, mode, bounds);
         }
         return;
     }
