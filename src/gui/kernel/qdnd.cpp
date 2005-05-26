@@ -29,6 +29,7 @@
 #include "qdnd_p.h"
 #include "qimagereader.h"
 #include "qimagewriter.h"
+#include "qdebug.h"
 #include <ctype.h>
 
 // These pixmaps approximate the images in the Windows User Interface Guidelines.
@@ -432,15 +433,21 @@ QVariant QInternalMimeData::retrieveData(const QString &mimeType, QVariant::Type
 {
     QVariant data = retrieveData_sys(mimeType, type);
     if (mimeType == QLatin1String("application/x-qt-image")) {
-        if (data.isNull()) {
+        if (data.isNull() || (data.type() == QVariant::ByteArray && data.toByteArray().isEmpty())) {
             // try to find an image
             QStringList imageFormats = imageReadMimeFormats();
             for (int i = 0; i < imageFormats.size(); ++i) {
-                data = retrieveData_sys(imageFormats.at(i), QVariant::ByteArray);
-                if (!data.isNull())
-                    break; 
+                data = retrieveData_sys(imageFormats.at(i), type);
+                if (data.isNull() || (data.type() == QVariant::ByteArray && data.toByteArray().isEmpty()))
+                    continue;
+                break;
             }
         }
+        // we wanted some image type, but all we got was a byte array. Convert it to an image.
+        if (data.type() == QVariant::ByteArray
+            && (type == QVariant::Image || type == QVariant::Pixmap || type == QVariant::Bitmap))
+            data = QImage::fromData(data.toByteArray());
+
     } else if (mimeType == QLatin1String("application/x-color") && data.type() == QVariant::ByteArray) {
         QColor c;
         QByteArray ba = data.toByteArray();
@@ -455,7 +462,7 @@ QVariant QInternalMimeData::retrieveData(const QString &mimeType, QVariant::Type
             qWarning("Invalid color format");
         }
     } else if (data.type() != type && data.type() == QVariant::ByteArray) {
-        // try to use mime data's internal conversion stuf. 
+        // try to use mime data's internal conversion stuf.
         QInternalMimeData *that = const_cast<QInternalMimeData *>(this);
         that->setData(mimeType, data.toByteArray());
         data = QMimeData::retrieveData(mimeType, type);
@@ -464,7 +471,7 @@ QVariant QInternalMimeData::retrieveData(const QString &mimeType, QVariant::Type
     return data;
 }
 
-bool QInternalMimeData::canReadData(const QString &mimeType) 
+bool QInternalMimeData::canReadData(const QString &mimeType)
 {
     return imageReadMimeFormats().contains(mimeType);
 }
@@ -509,7 +516,7 @@ QByteArray QInternalMimeData::renderDataHelper(const QString &mimeType, const QM
     if (mimeType == QLatin1String("application/x-color")) {
         /* QMimeData can only provide colors as QColor or the name
            of a color as a QByteArray or a QString. So we need to do
-           the conversion to application/x-color here. 
+           the conversion to application/x-color here.
            The application/x-color format is :
            type: application/x-color
            format: 16
