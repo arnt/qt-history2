@@ -42,7 +42,7 @@
        enables the user to modify the contents of a database without requiring
        knowledge of SQL.
     \o \l{demos/sqlbrowser} demonstrates a console for executing SQL statements
-       on a running database and provides a data browser for interactively
+       on a live database and provides a data browser for interactively
        visualizing the results.
     \endlist
 
@@ -51,5 +51,12 @@
     \list
     \o \l{demos/textedit} shows Qt's rich text editing features and provides an
        environment for experimenting with them.
+    \endlist
+
+    \section1 Main Window
+
+    \list
+    \o \l{demos/mainwindow} shows Qt's extensive support for main window features,
+       such as tool bars, dock windows, and menus.
     \endlist
 */

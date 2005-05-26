@@ -1,0 +1,7 @@
+/*!
+    \example tools/qtdemo
+    \title Qt Demo Example
+
+    The Qt Demo example shows how an interactive launcher can be created to
+    demonstrate a selection of examples and demonstration programs.
+*/
