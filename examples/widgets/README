@@ -27,8 +27,10 @@ the Qt tools.
 
 On Mac OS X:
 
-Type "qtdemo" on the command line or use the "Qt Examples and Demos"
-entry on the Start menu to run the launcher.
+For the binary distribution, the qtdemo executable is installed in the
+/Developer/Applications/Qt directory. For the source distribution, it is
+installed alongside the other Qt tools on the path specified when Qt is
+configured.
 
 On Unix/Linux:
 
