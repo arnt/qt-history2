@@ -69,7 +69,7 @@ TextEdit::TextEdit(QWidget *parent)
             load(qApp->argv()[i]);
     }
 
-    setWindowTitle(tr("Rich Text"));
+    setWindowTitle(tr("Rich Text [*]"));
 }
 
 void TextEdit::setupFileActions()
