@@ -5,5 +5,5 @@
     The SDI example shows how to create a Single Document Interface. It uses a number of
     top-level windows to display the contents of different text files.
 
-    \image examples/sdi-example.png
+    \image sdi-example.png
 */

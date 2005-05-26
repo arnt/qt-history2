@@ -6,5 +6,5 @@
     from a SQL query, using a model that encapsulates the query and table views to
     display the results.
 
-    \image examples/querymodel-example.png
+    \image querymodel-example.png
 */

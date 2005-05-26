@@ -5,5 +5,5 @@
     The Fortune Server example shows how to create a server for a simple network
     service. It is intended to be run alongside the Fortune Client example.
 
-    \image examples/fortuneserver-example.png
+    \image fortuneserver-example.png
 */

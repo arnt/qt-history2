@@ -5,5 +5,5 @@
     The Line Edits example demonstrates the many ways that QLineEdit can be used, and
     shows the effects of validators on the input and output supplied by the user.
 
-    \image examples/lineedits-example.png
+    \image lineedits-example.png
 */

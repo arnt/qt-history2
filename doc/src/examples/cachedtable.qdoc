@@ -6,5 +6,5 @@
     caching any changes to the data until the user explicitly submits them using a
     push button.
 
-    \image examples/cachedtable-example.png
+    \image cachedtable-example.png
 */

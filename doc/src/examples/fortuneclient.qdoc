@@ -6,5 +6,5 @@
     service. It is intended to be run alongside the Fortune Server or Threaded
     Fortune Server examples.
 
-    \image examples/fortuneclient-example.png
+    \image fortuneclient-example.png
 */

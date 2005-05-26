@@ -6,5 +6,5 @@
     application by providing an editor that enables the user to view the settings for
     installed applications, and modify those that can be edited.
 
-    \image examples/settingseditor-example.png
+    \image settingseditor-example.png
 */

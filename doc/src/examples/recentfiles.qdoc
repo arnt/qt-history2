@@ -5,5 +5,5 @@
     The Recent Files example shows how a standard File menu can be extended to show
     the most recent files loaded by a main window application.
 
-    \image examples/recentfiles-example.png
+    \image recentfiles-example.png
 */

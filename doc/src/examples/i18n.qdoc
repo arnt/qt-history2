@@ -6,5 +6,5 @@
     text. Developers can write the initial application text in one language, and
     translations can be provided later without any modifications to the code.
 
-    \image examples/i18n-example.png
+    \image i18n-example.png
 */

@@ -5,5 +5,5 @@
     The Relational Table Model example shows how to use table views with a relational
     model to visualize the relations between items in a database.
 
-    \image examples/relationaltablemodel-example.png
+    \image relationaltablemodel-example.png
 */

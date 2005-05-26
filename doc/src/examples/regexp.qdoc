@@ -6,5 +6,5 @@
     applied to text by providing an environment in which new regular expressions can be
     created and tested on custom text strings.
 
-    \image examples/regexp-example.png
+    \image regexp-example.png
 */

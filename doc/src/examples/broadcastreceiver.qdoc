@@ -5,5 +5,5 @@
     The Broadcast Receiever example shows how to receive information that is broadcasted
     over a local network.
 
-    \image examples/broadcastreceiver-example.png
+    \image broadcastreceiver-example.png
 */

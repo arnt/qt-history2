@@ -6,5 +6,5 @@
     service that uses threads to handle requests from different clients. It is intended
     to be run alongside the Fortune Client example.
 
-    \image examples/threadedfortuneserver-example.png
+    \image threadedfortuneserver-example.png
 */

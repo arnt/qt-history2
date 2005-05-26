@@ -5,5 +5,5 @@
     The Blocking Fortune Client example shows how to create a non-threaded client for a
     network service.
 
-    \image examples/blockingfortuneclient-example.png
+    \image blockingfortuneclient-example.png
 */

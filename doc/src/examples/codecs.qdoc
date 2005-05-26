@@ -6,5 +6,5 @@
     using codecs to ensure that characters are encoded properly, avoiding loss of data
     and retaining the correct symbols used in various scripts.
 
-    \image examples/codecs-example.png
+    \image codecs-example.png
 */

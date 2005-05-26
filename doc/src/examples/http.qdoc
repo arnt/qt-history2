@@ -5,5 +5,5 @@
     The HTTP example demonstrates a simple HTTP client that shows how to fetch files
     specified by URLs from remote hosts.
 
-    \image examples/http-example.png
+    \image http-example.png
 */

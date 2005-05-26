@@ -5,5 +5,5 @@
     The Broadcast Sender example shows how to broadcast information to multiple clients
     on a local network.
 
-    \image examples/broadcastsender-example.png
+    \image broadcastsender-example.png
 */
