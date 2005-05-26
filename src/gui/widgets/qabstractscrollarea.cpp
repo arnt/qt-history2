@@ -157,7 +157,7 @@ void QAbstractScrollAreaPrivate::layoutChildren()
     }
     hbar->setVisible(needh);
     vbar->setVisible(needv);
-    vr.adjust(left, top, -right, -bottom);
+    vr.adjust(left + leftmargin, top + topmargin, -(right + rightmargin), -(bottom + bottommargin));
     viewport->setGeometry(vr); // resize the viewport last
 }
 
