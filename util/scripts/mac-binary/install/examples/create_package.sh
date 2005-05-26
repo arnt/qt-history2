@@ -23,7 +23,6 @@ mkdir -p "$OUTDIR/Developer/Examples/Qt"
 get_sources()
 {
   DIR="$1"
-  IN="$2"
   for file in `find $DIR -type f`; do
     case $file in #only need sources
     *.app|*.app/*|*/.obj/*|*/.ui/*|*/.rcc/*|*/.moc/*|*/Makefile|*.build*|*.xcode*|*/build|*/build/*|*.doc|*~|*.gch|*.gch/*|*/.DS_Store|*/.gdb_history)  continue ;;
@@ -31,13 +30,18 @@ get_sources()
     esac
     [ -x "$file" ] && continue
     FILE=`echo "$file" | sed "s,^$DIR,,"`
-    mkdir -p "$OUTDIR/Developer/Examples/Qt/$IN/`dirname $FILE`"
-    cp "$file" "$OUTDIR/Developer/Examples/Qt/$IN/$FILE"
+    mkdir -p "$OUTDIR/Developer/Examples/Qt/`dirname $FILE`"
+    cp "$file" "$OUTDIR/Developer/Examples/Qt/$FILE"
   done
 }
 
 #examples
 get_sources "$SRCDIR/examples"
+if [ -d "$BINDIR/bin/qtdemo.app" ]; then
+   mkdir -p "$OUTDIR/Applications/Qt/"
+   cp -r "$BINDIR/bin/qtdemo.app" "$OUTDIR/Applications/Qt/"
+fi
+rm -rf "$OUTDIR/Developer/Examples/Qt/activeqt"
 
 #demos
 get_sources "$SRCDIR/demos" "Demos"

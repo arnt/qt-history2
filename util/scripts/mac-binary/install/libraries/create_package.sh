@@ -4,12 +4,14 @@
 BINDIR=
 SRCDIR=
 OUTDIR=
+DO_DEBUG=yes
 while [ -n "$1" ]; do
    echo "$1" | grep '^--*=*' >/dev/null 2>&1 || break
    OPTION=`echo $1 | sed 's,^--\([^=]*\)=\(.*\),\1,'`
    ARG=`echo $1 | sed 's,^--\([^=]*\)=\(.*\),\2,'`
    shift
    case "$OPTION" in
+   debug) DO_DEBUG="$ARG" ;;
    qtsrc) SRCDIR="$ARG" ;;
    qtbin) BINDIR="$ARG" ;;
    outdir) OUTDIR="$ARG" ;;

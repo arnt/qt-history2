@@ -6,8 +6,11 @@ EOF
 
 for pro in `find "$2/Developer/Examples/Qt" -name '*.pro'`; do
     cd `dirname $pro`
-    /usr/bin/qmake -spec macx-g++
-    /usr/bin/qmake -spec macx-xcode
+    base=`basename $pro`
+    #echo "/usr/bin/qmake -spec macx-g++ "$base" [$pro]"
+    #/usr/bin/qmake -spec macx-g++ "$base"
+    echo "/usr/bin/qmake -spec macx-xcode "$base" [$pro]" >&2
+    /usr/bin/qmake -spec macx-xcode "$base"
     for file in `find .`; do
          chgrp admin "$file"
          if [ -d "$file" ] || [ -x "$file" ]; then

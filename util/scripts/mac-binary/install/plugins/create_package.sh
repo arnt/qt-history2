@@ -22,7 +22,7 @@ done
 
 #copy plugins
 for plugin in `find $BINDIR/plugins/ -name 'lib*.dylib'`; do
-    [ "$DO_DEBUG" = "no" ] && `basename $plugin` | grep "_debug" >/dev/null 2>&1 && continue
+    [ "$DO_DEBUG" = "no" ] && echo `basename $plugin` | grep "_debug" >/dev/null 2>&1 && continue
     out_plugin=`echo $plugin | sed "s,^$BINDIR,$OUTDIR/Developer/Applications/Qt,g"`
     mkdir -p `dirname $out_plugin`
     [ -e "$plugin" ] && ../libraries/fix_config_paths.pl "$plugin" "$out_plugin"

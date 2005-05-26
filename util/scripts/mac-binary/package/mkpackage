@@ -1,8 +1,5 @@
 #!/bin/sh 
 
-#bugs:
-#examples .xcodes do not work for non-admin types
-
 #options
 OUTPUT_DIR=`pwd`/outputs
 cd `dirname $0` #now we live in the mkpackage location
@@ -64,6 +61,23 @@ while [ -n "$1" ]; do
    esac
    shift
    case "$OPTION" in
+   help)
+        if [ "$VAL" = "yes" ]; then
+	   echo "$1 <options>"
+	   echo
+	   echo "-output <directory>      Where to write the generate files to"
+	   echo "-packages <directory>    Where to find packages to create"
+	   echo "-qtbins <directory>      Where your Qt binaries live"
+           echo "-qtsrcs <directory>      Where to find our Qt sources (if -qtbins not set defaults to same)"
+	   echo "-qtpackage <package>     Given a package it will be untar'd configured and built and used."
+	   echo "-version <version>       What version the package is creating for (falls back to qglobal.h)"
+	   echo "-license <license>       Where your license file lives"
+	   echo "-readme <readme>         Where your readme file lives"
+	   echo "-image                   Create a disk image of the outputs"
+	   echo "-meta                    Create a meta package for all the outputs"
+	   exit 1
+        fi
+	;;
    readme) README="$VAL" ;;
    license) LICENSE="$VAL" ;;
    all) USE_SEPARATE="$VAL" ;;
@@ -138,6 +152,8 @@ if [ -z "$LICENSE" ]; then
         LICENSE=$DEPOT_LICENSE
     elif [ -e "$PACKAGE_LICENSE" ]; then
         LICENSE="$PACKAGE_LICENSE"
+    elif [ -e "../../../../dist/commercial/LICENSE" ]; then
+	LICENSE="../../../../dist/commercial/LICENSE"
     fi
 fi
 
@@ -149,6 +165,8 @@ if [ -z "$README" ]; then
         README="$DEPOT_README"
     elif [ -e "$PACKAGE_README" ]; then 
         README="$PACKAGE_README"
+    elif [ -e "../../../../dist/README" ]; then
+	LICENSE="../../../../dist/README"
     fi
 fi
 
@@ -186,6 +204,7 @@ fi
 [ -z "$SOURCE_PACKAGE" ] || PACKAGE_OPTIONS="$PACKAGE_OPTIONS --qtpackage=${SOURCE_PACKAGE}"
 [ -z "$SOURCE_DIR" ] || PACKAGE_OPTIONS="$PACKAGE_OPTIONS --qtsrc=${SOURCE_DIR}"
 [ -z "$BINARY_DIR" ] || PACKAGE_OPTIONS="$PACKAGE_OPTIONS --qtbin=${BINARY_DIR}"
+PACKAGE_OPTIONS="$PACKAGE_OPTIONS --debug=no"
 
 mkdir -p "$TMP_DIR"
 find .. -name '*~' -exec rm {} \; #just get rid of these before they end up in my package
@@ -331,6 +350,7 @@ for package in $PACKAGES; do
 		    mkdir -p "$package_dir/Contents/Resources/${lang}.lproj"
 		    cp "${a}.strings" "$package_dir/Contents/Resources/${lang}.lproj"
                 done
+		rm -f "${a}.strings"
             fi
         fi
     done
@@ -354,6 +374,18 @@ if [ "$MAKE_META" = "yes" ]; then
     cp "$TMP_DIR/licenses/License.rtf" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     for a in $OUTPUT_DIR/Qt.mpkg/Contents/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.info $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.rtf; do
 	doStringReplace "$a" "$a"
+    done
+    for a in $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*Check; do
+        if [ -e "$a" ]; then
+	    chmod a+x "$a"
+	    if [ -e "${a}.strings" ]; then
+		for lang in English Norwegian French; do
+		    mkdir -p "$OUTPUT_DIR/Qt.mpkg/Contents/Resources/${lang}.lproj"
+		    cp "${a}.strings" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources/${lang}.lproj"
+                done
+		rm -f "${a}.strings"
+            fi
+        fi
     done
 
     PACKAGE_DICT="$TMP_DIR/pkg.dict"
@@ -411,22 +443,22 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     echo " done!"
 
     #do evilness
-    #echo -n "  Setting up..."
-    #osascript -e "tell application \"Finder\"" \
-    #          -e "    set mountedDiskImage to disk \"${IMAGE_NAME}\"" \
-    #          -e "    open mountedDiskImage" \
-    #          -e "    tell container window of mountedDiskImage" \
-    #          -e "        set toolbar visible to false" \
-    #          -e "        set current view to icon view" \
-    #          -e "        set position of file \"Qt.mpkg\" to {10, 5}" \
-    #          -e "        set position of folder \"packages\" to {220, 5}" \
-    #          -e "        set bounds to {220, 180, 380, 400 }" \
-    #          -e "    end tell" \
-    #          -e "    set icon size of icon view options of container window of mountedDiskImage to 128" \
-    #          -e "end tell" \
-    #          > /dev/null
-    #set background color of icon view options of container window of mountedDiskImage to { 155*65545, 196*65565, 40*65535 } 
-    #echo " done!"
+   #echo -n "  Setting up..."
+   #osascript -e "tell application \"Finder\"" \
+   #          -e "    set mountedDiskImage to disk \"${IMAGE_NAME}\"" \
+   #          -e "    open mountedDiskImage" \
+   #          -e "    tell container window of mountedDiskImage" \
+   #          -e "        set toolbar visible to false" \
+   #          -e "        set current view to icon view" \
+   #          -e "        set position of item \"Qt.mpkg\" to {10, 5}" \
+   #          -e "        set position of item \"packages\" to {220, 5}" \
+   #          -e "        set bounds to {220, 180, 380, 400 }" \
+   #          -e "    end tell" \
+   #          -e "    set icon size of icon view options of container window of mountedDiskImage to 128" \
+   #          -e "end tell" \
+   #          -e "set background color of icon view options of container window of mountedDiskImage to { 39994, 50485, 10490 }" \
+   #          > /dev/null
+   #echo " done!"
 
     #license
     echo -n "  Licensing..."

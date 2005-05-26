@@ -52,7 +52,7 @@ for package in $PACKAGES; do
      receipt="/Library/Receipts/Qt_${package}.pkg"
      if [ -d "$receipt" ]; then
          echo "Removing $package..."
-         for file in `lsbom -f "$receipt/Contents/Resources/Archive.bom"`; do
+         for file in `lsbom -f "$receipt/Contents/Resources/Qt_${package}.bom"`; do
              file=`echo $file | sed 's,^\\.,,'`
              [ -z "$file" ] && continue
              [ -e "$file" ] && sudo rm -f "$file"

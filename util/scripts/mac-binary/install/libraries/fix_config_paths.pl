@@ -11,7 +11,7 @@ my %VARS = (
 #   "data" => "/usr/local/Qt$VERSION_MAJOR.$VERSION_MINOR",
     "bins" => "/Developer/Tools/Qt",
     "demo" => "/Developer/Examples/Qt/Demos",
-    "xmpl" => "/Developer/Examples/Qt/Examples"
+    "xmpl" => "/Developer/Examples/Qt/"
 );
 my $file_in = 0;
 my $file_out = 0;
