@@ -20,77 +20,16 @@
 #include <qwidget.h>
 #include <qt_windows.h>
 
-
-/*
-    \class QAxFactoryInterface
-    \brief The QAxFactoryInterface class is an interface for the creation of COM components.
-
-    \internal
-
-    Implement this interface once in your ActiveX server to provide
-    information about the components the server can create. The
-    interface inherits the QFeatureListInterface and is key-based.
-    A key in this interface is the class name of the ActiveX object.
-
-    To instantiate and export your implementation of the factory
-    interface, use the \c Q_EXPORT_COMPONENT() and \c
-    Q_CREATE_INSTANCE() macros:
-
-    \code
-        class MyFactory : public QAxFactoryInterface
-        {
-            ...
-        };
-
-        Q_EXPORT_COMPONENT()
-        {
-            Q_CREATE_INSTANCE(MyFactory)
-        }
-    \endcode
-
-    The QAxFactory class provides a convenient implementation of this
-    interface.
-*/
-
 /*!
     \class QAxFactory
     \brief The QAxFactory class defines a factory for the creation of COM components.
 
     \inmodule QAxServer
-    \keyword QAXFACTORY_DEFAULT
-    \keyword QAXFACTORY_EXPORT
-    \keyword QAXFACTORY_BEGIN
-    \keyword QAXFACTORY_END
-    \keyword QAXCLASS
 
-    Implement this factory once in your ActiveX server to provide
-    information about the components the server can create. If your
-    server supports just a single ActiveX control, you can use the
-    default factory implementation instead of implementing the factory
-    yourself. Use the \c QAXFACTORY_DEFAULT() macro in any
-    implementation file (e.g. main.cpp) to instantiate and export the
-    default factory:
-
-    \code
-        #include <qapplication.h>
-        #include <qaxfactory.h>
-
-        #include "theactivex.h"
-
-        QAXFACTORY_DEFAULT(
-            TheActiveX,				  // widget class
-            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // class ID
-            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // interface ID
-            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // event interface ID
-            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
-            "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
-        )
-    \endcode
-
-    If you implement your own factory reimplement the pure virtual
-    functions, provide the unique identifiers for the ActiveX
-    controls, and use the \c QAXFACTORY_EXPORT() macro to instantiate
-    and export it:
+    Implement this factory once in your COM server to provide information 
+    about the components the server can create. Subclass QAxFactory and implement
+    the pure virtual functions in any implementation file (e.g. main.cpp), and export 
+    the factory using the \c QAXFACTORY_EXPORT() macro.
 
     \code
         QStringList ActiveQtFactory::featureList() const
@@ -98,18 +37,24 @@
             QStringList list;
             list << "ActiveX1";
             list << "ActiveX2";
-            ...
             return list;
         }
 
-        QWidget *ActiveQtFactory::create(const QString &key, QWidget *parent, const char *name)
+        QObject *ActiveQtFactory::createObject(const QString &key)
         {
             if (key == "ActiveX1")
-                return new ActiveX1(parent, name);
+                return new ActiveX1(parent);
             if (key == "ActiveX2")
-                return new ActiveX2(parent, name);
-            ...
+                return new ActiveX2(parent);
             return 0;
+        }
+
+        const QMetaObject *ActiveQtFactory::metaObject(const QString &key) const
+        {
+            if (key == "ActiveX1")
+                return &ActiveX1::staticMetaObject;
+            if (key == "ActiveX2")
+                return &ActiveX2::staticMetaObject;
         }
 
         QUuid ActiveQtFactory::classID(const QString &key) const
@@ -137,7 +82,7 @@
         }
 
         QAXFACTORY_EXPORT(
-            MyFactory,			              // factory class
+            ActiveQtFactory,			      // factory class
             "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
             "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
         )
@@ -156,6 +101,26 @@
             QAXCLASS(Class1)
             QAXCLASS(Class2)
         QAXFACTORY_END()
+    \endcode
+
+
+    If your server supports just a single COM object, you can use 
+    a default factory implementation through the \c QAXFACTORY_DEFAULT() macro.
+
+    \code
+        #include <qapplication.h>
+        #include <qaxfactory.h>
+
+        #include "theactivex.h"
+
+        QAXFACTORY_DEFAULT(
+            TheActiveX,				  // widget class
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // class ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // interface ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // event interface ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+        )
     \endcode
 
     Only one QAxFactory implementation may be instantiated and
@@ -218,7 +183,7 @@ QUuid QAxFactory::appID() const
 */
 
 /*!
-    \fn QObject *QAxFactory::createObject(const QString &key);
+    \fn QObject *QAxFactory::createObject(const QString &key)
 
     Reimplement this function to return a new object for \a key, or 0 if 
     this factory doesn't support the value of \a key.
@@ -595,3 +560,114 @@ bool QAxFactory::registerActiveObject(QObject *object)
     }
     return true;
 }
+
+/*!
+    \macro QAXFACTORY_DEFAULT(Class, ClassID, InterfaceID, EventID, LibID, AppID)
+    \relates QAxFactory
+
+    This macro can be used to export a single QObject subclass \a Class a this
+    COM server through an implicitly declared QAxFactory implementation.
+
+    This macro exports the class \a Class as a COM coclass with the CLSID \a ClassID. 
+    The properties and slots will be declared through a COM interface with the IID 
+    \a InterfaceID, and signals will be declared through a COM event interface with 
+    the IID \a EventID. All declarations will be in a type library with the id \a LibID,
+    and if the server is an executable server then it will have the application id 
+    \a AppID.
+
+    \code
+        #include <qaxfactory.h>
+
+        #include "theactivex.h"
+
+        QAXFACTORY_DEFAULT(
+            TheActiveX,				  // widget class
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // class ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // interface ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // event interface ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+        )
+    \endcode
+
+    \sa QAXFACTORY_EXPORT(), QAXFACTORY_BEGIN()
+*/
+
+/*!
+    \macro QAXFACTORY_EXPORT(Class, LibID, AppID)
+    \relates QAxFactory
+
+    This macro can be used to export a QAxFactory implementation \a Class from 
+    a COM server. All declarations will be in a type library with the id \a LibID,
+    and if the server is an executable server then it will have the application id 
+    \a AppID.
+
+    \code
+        QAXFACTORY_EXPORT(
+            MyFactory,			              // factory class
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+        )
+    \endcode
+
+    \sa QAXFACTORY_BEGIN()
+*/
+
+/*!
+    \macro QAXFACTORY_BEGIN(IDTypeLib, IDApp)
+    \relates QAxFactory
+
+    This macro can be used to export multiple QObject classes through an
+    implicitly declared QAxFactory implementation. All QObject classes have to
+    declare the ClassID, InterfaceID and EventsID (if applicable) through the
+    Q_CLASSINFO() macro. All declarations will be in a type library with the id 
+    \a LibID, and if the server is an executable server then it will have the
+    application id \a AppID.
+
+    This macro needs to be used together with the QAXCLASS(), QAXTYPE()
+    and QAXFACTORY_END() macros.
+
+    \code
+        QAXFACTORY_BEGIN(
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}", // type library ID
+            "{01234567-89AB-CDEF-0123-456789ABCDEF}"  // application ID
+        )
+            QAXCLASS(Class1)
+            QAXCLASS(Class2)
+        QAXFACTORY_END()
+    \endcode
+*/
+
+/*!
+    \macro QAXCLASS(Class)
+    \relates QAxFactory
+
+    This macro adds a creatable COM class \a Class to the QAxFactory declared 
+    with the QAXFACTORY_BEGIN() macro.
+
+    \sa QAXFACTORY_BEGIN(), QAXTYPE(), QAXFACTORY_END(), Q_CLASSINFO()
+*/
+
+/*!
+    \macro QAXTYPE(Class)
+    \relates QAxFactory
+
+    This macro adds a non-creatable COM class \a Class to the QAxFactory 
+    declared with the QAXFACTORY_BEGIN(). The class \a Class can be used 
+    in APIs of other COM classes exported through QAXTYPE() or QAXCLASS().
+
+    Instances of type \a Class can only be retrieved using APIs of already
+    instantiated objects.
+
+    \sa QAXFACTORY_BEGIN(), QAXCLASS(), QAXFACTORY_END(), Q_CLASSINFO()
+*/
+
+/*!
+    \macro QAXFACTORY_END()
+    \relates QAxFactory
+
+    Completes the QAxFactory declaration started with the QAXFACTORY_BEGIN()
+    macro.
+
+    \sa QAXFACTORY_BEGIN(), QAXCLASS(), QAXTYPE()
+*/
