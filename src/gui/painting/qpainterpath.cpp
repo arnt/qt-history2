@@ -745,6 +745,20 @@ void QPainterPath::addText(const QPointF &point, const QFont &f, const QString &
                                  si.analysis.bidiLevel % 2
                                  ? QTextItem::RenderFlags(QTextItem::RightToLeft)
                                  : QTextItem::RenderFlags(0));
+
+            const qreal lw = fe->lineThickness();
+            if (f.d->underline) {
+                qreal pos = fe->underlinePosition();
+                addRect(x, y + pos, si.width, lw);
+            }
+            if (f.d->overline) {
+                qreal pos = fe->ascent() + 1;
+                addRect(x, y - pos, si.width, lw);
+            }
+            if (f.d->strikeOut) {
+                qreal pos = fe->ascent() / 3;
+                addRect(x, y - pos, si.width, lw);
+            }
         }
         x += si.width;
     }
