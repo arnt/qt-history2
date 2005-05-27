@@ -746,6 +746,9 @@ QFontEngineMultiWin::QFontEngineMultiWin(QFontEngineWin *first, const QStringLis
     ttf = false;
     engines[0] = first;
     first->ref.ref();
+
+    // ### initialize so that the handle() function returns something sensible...
+    hfont = (HFONT) GetStockObject(ANSI_VAR_FONT);
 }
 
 void QFontEngineMultiWin::loadEngine(int at)
