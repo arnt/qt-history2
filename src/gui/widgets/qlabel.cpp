@@ -325,7 +325,6 @@ void QLabel::setText(const QString &text)
     Q_D(QLabel);
     if (d->ltext == text)
         return;
-    const bool hadRichText = d->doc;
     d->clearContents();
     d->ltext = text;
 #ifndef QT_NO_RICHTEXT
@@ -336,8 +335,6 @@ void QLabel::setText(const QString &text)
         d->doc->setUndoRedoEnabled(false);
         d->doc->setDefaultFont(font());
         d->doc->setHtml(d->ltext);
-        if (!hadRichText)
-            d->align |= Qt::TextWordWrap;
     }
 #endif
 
