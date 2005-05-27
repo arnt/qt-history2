@@ -640,7 +640,7 @@ static HRESULT classIDL(QObject *o, const QMetaObject *mo, const QString &classN
     
     if (o && o->isWidgetType()) {
         qtProps = QWidget::staticMetaObject.propertyCount();
-        qtSlots = QWidget::staticMetaObject.propertyCount();
+        qtSlots = QWidget::staticMetaObject.slotCount();
         control = true;
     }
     
