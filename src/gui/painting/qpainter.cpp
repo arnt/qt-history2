@@ -826,17 +826,17 @@ bool QPainter::begin(QPaintDevice *pd)
                          "result of a paintEvent");
                 return false;
             }
-            d->state->ww = d->state->vw = widget->width();
-            d->state->wh = d->state->vh = widget->height();
             break;
         }
         case QInternal::Pixmap:
         {
             const QPixmap *pm = static_cast<const QPixmap *>(pd);
             Q_ASSERT(pm);
+            if (pm->isNull()) {
+                qWarning("QPainter::begin: Cannot paint on a null pixmap");
+                return false;
+            }
             const_cast<QPixmap *>(pm)->detach();
-            d->state->ww = d->state->vw = pm->width();
-            d->state->wh = d->state->vh = pm->height();
             if (pm->depth() == 1) {
                 d->state->pen = QPen(Qt::color1);
                 d->state->brush = QBrush(Qt::color0);
@@ -844,10 +844,7 @@ bool QPainter::begin(QPaintDevice *pd)
             break;
         }
         default:
-        {
-            d->state->ww = d->state->vw = pd->metric(QPaintDevice::PdmWidth);
-            d->state->wh = d->state->vh = pd->metric(QPaintDevice::PdmHeight);
-        }
+            break;
     }
 
     // Copy painter properties from original paint device,
@@ -882,6 +879,9 @@ bool QPainter::begin(QPaintDevice *pd)
     } else {
         d->engine->setActive(begun);
     }
+
+    d->state->ww = d->state->vw = pd->metric(QPaintDevice::PdmWidth);
+    d->state->wh = d->state->vh = pd->metric(QPaintDevice::PdmHeight);
 
     d->redirection_offset += d->engine->coordinateOffset();
 

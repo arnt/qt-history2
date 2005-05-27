@@ -751,13 +751,6 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
 	attrs.subwindow_mode = IncludeInferiors;
 	XRenderChangePicture(d->dpy, d->picture, CPSubwindowMode, &attrs);
 #endif
-    } else if (d->pdev->devType() == QInternal::Pixmap) {             // device is a pixmap
-        QPixmap *pm = (QPixmap *)(pdev);
-        if (!pm || pm->isNull()) {
-            qWarning("QPainter::begin: Cannot paint null pixmap");
-            end();
-            return false;
-        }
     }
 
     setDirty(QPaintEngine::DirtyPen);
