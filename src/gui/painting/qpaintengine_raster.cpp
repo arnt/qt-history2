@@ -894,7 +894,8 @@ void QRasterPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, cons
     if (pixmap.depth() == 1) {
         if (d->txop <= QPainterPrivate::TxTranslate
             && !d->opaqueBackground
-            && r.size() == sr.size()) {
+            && r.size() == sr.size()
+            && r.size() == pixmap.size()) {
             FillData fill = d->fillForBrush(QBrush(d->pen.color()));
             d->drawBitmap(r.topLeft() + QPointF(d->matrix.dx(), d->matrix.dy()), pixmap, &fill);
             return;
