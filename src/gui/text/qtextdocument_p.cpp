@@ -157,6 +157,7 @@ QTextDocumentPrivate::QTextDocumentPrivate()
     modifiedState = 0;
 
     undoEnabled = true;
+    inContentsChange = false;
 }
 
 void QTextDocumentPrivate::init()
@@ -868,9 +869,11 @@ void QTextDocumentPrivate::endEditBlock()
     if (framesDirty)
         scan_frames(docChangeFrom, docChangeOldLength, docChangeLength);
 
-    if (lout && docChangeFrom >= 0) {
+    if (lout && docChangeFrom >= 0 && !inContentsChange) {
+        inContentsChange = true;
         emit q->contentsChange(docChangeFrom, docChangeOldLength, docChangeLength);
         lout->documentChanged(docChangeFrom, docChangeOldLength, docChangeLength);
+        inContentsChange = false;
     }
 
     docChangeFrom = -1;

@@ -274,6 +274,8 @@ private:
 
     QTextDocumentConfig docConfig;
 
+    bool inContentsChange;
+
 public:
     QSizeF pageSize;
     QFont defaultFont;
