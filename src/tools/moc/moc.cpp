@@ -17,6 +17,7 @@
 #include "utils.h"
 #include "outputrevision.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 // WARNING: a copy of this function is in qmetaobject.cpp
 static QByteArray normalizeTypeInternal(const char *t, const char *e, bool fixScope = true, bool adjustConst = true)
@@ -148,11 +149,12 @@ void Moc::error(int rollback) {
 }
 void Moc::error(const char *msg) {
     if (msg || error_msg)
-        qFatal(ErrorFormatString "Error: %s",
+        qWarning(ErrorFormatString "Error: %s",
                filename.constData(), symbol().lineNum, msg?msg:error_msg);
     else
-        qFatal(ErrorFormatString "Parse error at \"%s\"",
+        qWarning(ErrorFormatString "Parse error at \"%s\"",
                filename.constData(), symbol().lineNum, symbol().lexem().data());
+    exit(EXIT_FAILURE);
 }
 
 void Moc::warning(const char *msg) {
