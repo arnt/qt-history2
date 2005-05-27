@@ -234,6 +234,8 @@ int main( int argc, char ** argv )
                                   " -removeContentFile file    removes the content file 'file' from the\n"
                                   "                            documentation available by default\n"
                                   " -hideSidebar               assistant will hide the sidebar.\n"
+                                  " -resourceDir               assistant will load translations from\n"
+                                  "                            this directory.\n"
                                   " -help                      shows this help.");
 #ifdef Q_WS_WIN
                 QMessageBox::information( 0, QLatin1String("Qt Assistant"),
