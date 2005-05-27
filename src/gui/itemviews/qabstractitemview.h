@@ -209,6 +209,8 @@ protected:
     State state() const;
     void setState(State state);
 
+    void scrollDirtyRegion(int dx, int dy);
+    
     void startAutoScroll();
     void stopAutoScroll();
     void doAutoScroll();
