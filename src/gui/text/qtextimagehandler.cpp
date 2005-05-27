@@ -60,9 +60,8 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
 
     qreal scale = 1.0;
     QPaintDevice *pdev = doc->documentLayout()->paintDevice();
-    if (pdev && !pm.isNull()) 
-        scale = pdev->logicalDpiY() / pm.logicalDpiY();
-
+    if (pdev && !pm.isNull())
+        scale = qreal(pdev->logicalDpiY()) / qreal(pm.logicalDpiY());
 
     QSize size = pm.size();
     if (hasWidth)
