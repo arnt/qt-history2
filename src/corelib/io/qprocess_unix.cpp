@@ -270,13 +270,13 @@ static void qt_create_pipe(int *pipe)
 
 void QProcessPrivate::destroyPipe(int *pipe)
 {
-    if (pipe[0] != -1) {
-        ::close(pipe[0]);
-        pipe[0] = -1;
-    }
     if (pipe[1] != -1) {
         ::close(pipe[1]);
         pipe[1] = -1;
+    }
+    if (pipe[0] != -1) {
+        ::close(pipe[0]);
+        pipe[0] = -1;
     }
 }
 
