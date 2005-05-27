@@ -461,7 +461,7 @@ static QSize qt_aqua_get_known_size(QStyle::ContentsType ct, const QWidget *widg
             ThemeGrowDirection dir = kThemeGrowRight | kThemeGrowDown;
             if (QApplication::isRightToLeft())
                 dir = kThemeGrowLeft | kThemeGrowDown;
-            if (GetThemeStandaloneGrowBoxBounds(p, dir, sz != QAquaSizeSmall, &r) == noErr)
+            if (GetThemeStandaloneGrowBoxBounds(p, dir, sz == QAquaSizeSmall, &r) == noErr)
                 ret = QSize(r.right - r.left, r.bottom - r.top);
         }
     } else if (ct == QStyle::CT_ComboBox) {
