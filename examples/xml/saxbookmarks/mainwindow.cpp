@@ -61,7 +61,8 @@ void MainWindow::open()
         return;
     }
 
-    if (reader.parse(&file))
+    QXmlInputSource xmlInputSource(&file);
+    if (reader.parse(xmlInputSource))
         statusBar()->showMessage(tr("File loaded"), 2000);
 }
 
