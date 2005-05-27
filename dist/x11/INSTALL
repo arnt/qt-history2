@@ -12,7 +12,8 @@
         tar xvf %DISTNAME%.tar          # unpack it
 
     This creates the directory /tmp/%DISTNAME% containing the files
-    from the archive.
+    from the archive. We only support the GNU version of the tar
+    archiving utility. Note that on some systems it is called gtar.
 
 3.  Building
 
