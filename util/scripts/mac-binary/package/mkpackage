@@ -28,8 +28,9 @@ SOURCE_PACKAGE=
 doStringReplace()
 {
     sed -e "s,\\\$VERSION_MAJOR\\\$,$QT_MAJOR_VERSION,g" -e "s,\\\$VERSION_MINOR\\\$,$QT_MINOR_VERSION,g" \
-	-e "s,\\\$VERSION_PATCH\\\$,$QT_PATCH_VERSION,g" "$1" >/tmp/tmp.out
-    mv -f /tmp/tmp.out "$2"
+	-e "s,\\\$VERSION_PATCH\\\$,$QT_PATCH_VERSION,g" "$1" >tmp.out
+
+    mv -f tmp.out "$2"
 }
 
 while [ -n "$1" ]; do
@@ -65,7 +66,7 @@ while [ -n "$1" ]; do
         if [ "$VAL" = "yes" ]; then
 	   echo "$1 <options>"
 	   echo
-	   echo "-output <directory>      Where to write the generate files to"
+	   echo "-output <directory>      Where to write the generated files to"
 	   echo "-packages <directory>    Where to find packages to create"
 	   echo "-qtbins <directory>      Where your Qt binaries live"
            echo "-qtsrcs <directory>      Where to find our Qt sources (if -qtbins not set defaults to same)"
@@ -132,7 +133,7 @@ elif [ ! -z "$SOURCE_PACKAGE" ]; then
     export DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
     export DYLD_FRAMEWORK_PATH=$QTDIR/lib:$DYLD_FRAMEWORK_PATH
     export PATH=$QTDIR/bin:$PATH
-    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure -qt-libpng -qt-libjpeg -qt-sql-sqlite -release -framework -confirm-license && make); then
+    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure -qt-libpng -qt-libjpeg -qt-sql-sqlite -release -framework -confirm-license -pch && make); then
           SOURCE_DIR="$QTDIR"
           BINARY_DIR="$SOURCE_DIR"
     else
@@ -298,7 +299,7 @@ for package in $PACKAGES; do
     rm -rf "$TMP_DIR/package" #cleanup
 
     #create files
-    echo "Creating package [$package].."
+    echo "Creating package [$package]..."
     mkdir -p "$TMP_DIR/package"
     if [ -x "$PACKAGE_DIR/$package/create_package.sh" ]; then
 	if (cd $PACKAGE_DIR/$package/ && VERSION_MAJOR="$QT_MAJOR_VERSION" VERSION_MINOR="$QT_MINOR_VERSION" VERSION_PATCH="$QT_PATCH_VERSION" "$PACKAGE_DIR/$package/create_package.sh" $PACKAGE_OPTIONS --outdir="$TMP_DIR/package"); then
@@ -325,6 +326,7 @@ for package in $PACKAGES; do
 	ln -sf "../Archive.bom" "$package_dir/Contents/Resources"
 	ln -sf "../Archive.pax.gz" "$package_dir/Contents/Resources"
     else
+        mkdir -p $package_dir/Contents
 	(cd "$TMP_DIR/package" && /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -p "$package_dir" -ds >/dev/null 2>&1)
     fi
     #Info.plist
@@ -337,7 +339,7 @@ for package in $PACKAGES; do
 	[ -e "$a" ] && doStringReplace "$a" "$a"
     done
     if [ -e "$package_dir/Contents/Resources/$package.info" ]; then
-         mv "$package_dir/Contents/Resources/$package.info" "$package_dir/Contents/Resources/Qt_${package}.info"
+         cp "$package_dir/Contents/Resources/$package.info" "$package_dir/Contents/Resources/Qt_${package}.info"
     fi
     for a in $package_dir/Contents/Resources/*flight; do
         [ -e "$a" ] && chmod a+x $a #exe
@@ -415,7 +417,8 @@ EOF
     sed "/PACKAGE_DICT/r $PACKAGE_DICT" "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist" >"${TMP_DIR}/Info.plist"
     chflags nouchg "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist"
     rm -f "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist"
-    mv "${TMP_DIR}/Info.plist" "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist"
+    cp "${TMP_DIR}/Info.plist" "$OUTPUT_DIR/Qt.mpkg/Contents/Info.plist"
+    rm -f "${TMP_DIR}/Info.plist"
 
     PKG_CREATED="$PKG_CREATED $OUTPUT_DIR/Qt.mpkg"
 fi

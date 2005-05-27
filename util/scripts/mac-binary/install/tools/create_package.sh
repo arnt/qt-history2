@@ -56,11 +56,13 @@ EOF
 	mkdir -p "$OUTDIR/usr/lib/"
 	[ -e "${BINDIR}/lib/libQtDesigner.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesigner.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesigner.${VERSION_MAJOR}.dylib"
 	[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtDesigner_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesigner_debug.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesigner_debug.${VERSION_MAJOR}.dylib"
-	../libraries/fix_config_paths.pl "$EXE" "tmp.exe"
-	mv "tmp.exe" "$EXE"
+	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
+	cp "/tmp/tmp.exe" "$EXE"
+        rm -f /tmp/tmp.exe
     else
-	../libraries/fix_config_paths.pl "$EXE" "tmp.exe"
-	mv "tmp.exe" "$EXE"
+	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
+	cp "tmp.exe" "$EXE"
+	rm -f /tmp/tmp.exe
     fi
 
     #perms

@@ -59,8 +59,9 @@ for demo_dir in $BINDIR/demos/*; do
         EXE="${OUTDIR}/Developer/Examples/Qt/Demos/${demo}/${demo}.app/Contents/MacOS/$demo"
     fi
     if [ -x "$EXE" ]; then
-	../libraries/fix_config_paths.pl "$EXE" "tmp.exe"
-	mv "tmp.exe" "$EXE"
+	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
+	cp "/tmp/tmp.exe" "$EXE"
+	rm -f "/tmp/tmp.exe"
 	chmod a+x "$EXE" 
     fi
 done
