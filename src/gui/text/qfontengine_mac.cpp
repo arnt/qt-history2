@@ -169,9 +169,21 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
         }
     } else {
         QVarLengthArray<ushort> g(si.num_glyphs);
-        for(int i = 0; i < si.num_glyphs; ++i)
+        bool oneByOne = false;
+        for(int i = 0; i < si.num_glyphs; ++i) {
+            if (si.glyphs[i].space_18d6 != 0)
+                oneByOne = true;
             g[i] = si.glyphs[i].glyph;
-        doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, DRAW, x, y, p) + 1;
+        }
+        if (!oneByOne) {
+            doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, DRAW, x, y, p) + 1;
+        } else {
+            for(int i = 0; i < si.num_glyphs; ++i) {
+                const QChar glyph((ushort)si.glyphs[i].glyph);
+                doTextTask(&glyph, 0, 1, 1, DRAW, x, y, p);
+                x += si.glyphs[i].advance.x() + qreal(si.glyphs[i].space_18d6) / qreal(64);
+            }
+        }
     }
     if(si.width && si.flags != 0) {
         QPen oldPen = pState->pen();
@@ -455,10 +467,9 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
 
     tags[arr] = kATSULineLayoutOptionsTag;
     ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading
-                                   | kATSLineFractDisable;
-    if(task & WIDTH)
-        layopts |= kATSLineDisableAutoAdjustDisplayPos | kATSLineDisableAllLayoutOperations |
-                   kATSLineUseDeviceMetrics;
+                                   | kATSLineFractDisable | kATSLineUseDeviceMetrics
+                                   | kATSLineDisableAutoAdjustDisplayPos
+                                   | kATSLineDisableAllLayoutOperations;
     if(fontDef.styleStrategy & QFont::NoAntialias)
         layopts |= kATSLineNoAntiAliasing;
     valueSizes[arr] = sizeof(layopts);
