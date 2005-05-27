@@ -4759,33 +4759,10 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
     case PM_ToolBarIconSize:
         ret = pixelMetric(PM_LargeIconSize);
         break;
-
     case PM_FocusFrameVMargin:
     case PM_FocusFrameHMargin:
         GetThemeMetric(kThemeMetricFocusRectOutset, &ret);
         break;
-
-    case PM_CheckListControllerSize:
-        ret = 0;
-        break;
-    case PM_CheckListButtonSize: {
-        switch (qt_aqua_size_constrain(widget)) {
-        case QAquaSizeUnknown:
-        case QAquaSizeLarge:
-            GetThemeMetric(kThemeMetricCheckBoxWidth, &ret);
-            break;
-        case QAquaSizeMini:
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
-            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
-                GetThemeMetric(kThemeMetricMiniCheckBoxWidth, &ret);
-                break;
-            }
-#endif
-        case QAquaSizeSmall:
-            GetThemeMetric(kThemeMetricSmallCheckBoxWidth, &ret);
-            break;
-        }
-        break; }
     case PM_DialogButtonsSeparator:
         ret = -5;
         break;
