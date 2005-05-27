@@ -242,19 +242,24 @@ void QHashData::rehash(int hint)
         numBits = hint;
         numBuckets = primeForNumBits(hint);
         buckets = new Node *[numBuckets];
-        for (int i = 0; i < numBuckets; i++)
+        for (int i = 0; i < numBuckets; ++i)
             buckets[i] = e;
 
-        for (int i = 0; i < oldNumBuckets; i++) {
-            Node *node = oldBuckets[i];
-            while (node != e) {
-                Node *oldNext = node->next;
-                Node **nextNode = &buckets[node->h % numBuckets];
-                while (*nextNode != e)
-                    nextNode = &(*nextNode)->next;
-                node->next = *nextNode;
-                *nextNode = node;
-                node = oldNext;
+        for (int i = 0; i < oldNumBuckets; ++i) {
+            Node *firstNode = oldBuckets[i];
+            while (firstNode != e) {
+                uint h = firstNode->h;
+                Node *lastNode = firstNode;
+                while (lastNode->next != e && lastNode->next->h == h)
+                    lastNode = lastNode->next;
+
+                Node *afterLastNode = lastNode->next;
+                Node **beforeFirstNode = &buckets[h % numBuckets];
+                while (*beforeFirstNode != e)
+                    beforeFirstNode = &(*beforeFirstNode)->next;
+                lastNode->next = *beforeFirstNode;
+                *beforeFirstNode = firstNode;
+                firstNode = afterLastNode;
             }
         }
         delete [] oldBuckets;
