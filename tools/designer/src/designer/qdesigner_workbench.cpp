@@ -47,9 +47,11 @@
 QDesignerWorkbench::QDesignerWorkbench()
     : m_mode(QDesignerWorkbench::NeutralMode), m_workspace(0)
 {
+    m_initializing = true;
     initialize();
 
     setUIMode(UIMode(QDesignerSettings().uiMode()));
+    m_initializing = false;
 }
 
 QDesignerWorkbench::~QDesignerWorkbench()
@@ -422,7 +424,8 @@ void QDesignerWorkbench::switchToDockedMode()
 
     mw->show();
 
-    QMetaObject::invokeMethod(this, "adjustFormPositions", Qt::QueuedConnection);
+    if (!m_initializing)
+        QMetaObject::invokeMethod(this, "adjustFormPositions", Qt::QueuedConnection);
 }
 
 void QDesignerWorkbench::adjustFormPositions()

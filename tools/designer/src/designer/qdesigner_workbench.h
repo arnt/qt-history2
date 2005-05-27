@@ -156,6 +156,7 @@ private:
 
     QHash<QDesignerToolWindow*, ToolWindowExtra> m_toolWindowExtras;
     QHash<QDesignerFormWindow*, FormWindowExtra> m_formWindowExtras;
+    bool m_initializing;
 };
 
 #endif // QDESIGNER_WORKBENCH_H
