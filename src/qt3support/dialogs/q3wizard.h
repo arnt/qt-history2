@@ -28,7 +28,7 @@ public:
     Q3Wizard( QWidget* parent=0, const char* name=0, bool modal=false, Qt::WFlags f=0 );
     ~Q3Wizard();
 
-    void show();
+    void setVisible(bool);
 
     void setFont( const QFont & font );
 

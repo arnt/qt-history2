@@ -186,9 +186,9 @@ Q3Wizard::~Q3Wizard()
     \internal
 */
 
-void Q3Wizard::show()
+void Q3Wizard::setVisible(bool show)
 {
-    if ( !d->current ) {
+    if ( show && !d->current ) {
 	// No page yet
 	if ( pageCount() > 0 )
 	    showPage( d->pages.at( 0 )->w );
@@ -196,7 +196,7 @@ void Q3Wizard::show()
 	    showPage( 0 );
     }
 
-    QDialog::show();
+    QDialog::setVisible(show);
 }
 
 
