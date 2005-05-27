@@ -7,11 +7,13 @@
     a C++ namespace for the type library describing the Outlook
     Object Model.
 
+    The project file for the example looks like this:
+
     \quotefromfile activeqt/qutlook/qutlook.pro
     \printuntil else
     \printuntil }
 
-    The project file uses the \c dumpcpp tool to add MS Outlook type library to the project.
+    The project file uses the \c dumpcpp tool to add an MS Outlook type library to the project.
     If this fails, then the generated makefile will just print an error message, otherwise
     the build step will now run the \e dumpcpp tool on the type library, and 
     generate a header and a cpp file (in this case, \c msoutl.h and \c msoutl.cpp) that 

@@ -116,7 +116,7 @@
     \image findfiles_progress_dialog.png Screenshot of the Progress Dialog
 
     \skipto findFiles(
-    \printuntil setWindowTitle
+    \printto foundFiles
 
     In the private \c findFiles() function we search through a list of
     files, looking for the ones that contain a specified text. This

@@ -69,8 +69,8 @@
     \list
     \o \l{dialogs/complexwizard}{Complex Wizard}\raisedaster
     \o \l{dialogs/configdialog}{Configuration Dialog}
-    \o \l{dialogs/extension}{Extension}
-    \o \l{dialogs/findfiles}{Find Files}
+    \o \l{dialogs/extension}{Extension}\raisedaster
+    \o \l{dialogs/findfiles}{Find Files}\raisedaster
     \o \l{dialogs/simplewizard}{Simple Wizard}\raisedaster
     \o \l{dialogs/standarddialogs}{Standard Dialogs}
     \o \l{dialogs/tabdialog}{Tab Dialog}\raisedaster

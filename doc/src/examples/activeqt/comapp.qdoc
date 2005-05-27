@@ -4,10 +4,10 @@
 
     The COM App example shows how to use ActiveQt to develop a Qt
     application that can be automated via COM. Different QObject
-    based classes are exposed as COM object that communicate with the
-    GUI of the running Qt  application. The APIs of those COM objects
+    based classes are exposed as COM objects that communicate with the
+    GUI of the running Qt application. The APIs of those COM objects
     has been designed to resemble the APIs of standard COM
-    applications, i.e. those from Microsoft Office.
+    applications; i.e. those from Microsoft Office.
 
     \quotefromfile activeqt/comapp/main.cpp
     \skipto class Application :
@@ -32,7 +32,7 @@
     \quotefromfile activeqt/comapp/main.cpp
     \skipto class Document :
     \printuntil };
-    
+
     The \c Document class finally represents a document in the application.
     Each document is represented by a page in the application's tab widget, and
     has a title that is readable and writable through the document's API.
