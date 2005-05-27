@@ -575,6 +575,7 @@ QModelIndex ResourceModel::addFiles(const QModelIndex &model_idx, const QStringL
         m_resource_file.addFile(prefix_idx, file);
 
     endInsertRows();
+    setDirty(true);
 
     return index(cnt + unique_list.count() - 1, 0, prefix_model_idx);
 }
