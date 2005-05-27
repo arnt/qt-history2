@@ -40,6 +40,7 @@
 
 #define qreal_to_fixed_26_6(f) (int(f * 64))
 #define qt_swap_int(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
+#define qt_swap_qreal(x, y) { qreal tmp = (x); (x) = (y); (y) = tmp; }
 
 static QT_FT_Raster qt_gray_raster;
 static QT_FT_Raster qt_black_raster;
@@ -566,7 +567,7 @@ void QRasterPaintEngine::setFlushOnEnd(bool flushOnEnd)
 /*!
   Force the contents of the buffer out on the underlying device.
 */
-void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
+void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &)
 {
     Q_D(QRasterPaintEngine);
     Q_ASSERT(device);
@@ -2909,25 +2910,25 @@ static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void
     // specialcase horizontal lines
     if (dy == 0) {
         if (y1 >= 0 && y1 < devRect.height()) {
-            qreal start = qMax(qreal(0), qMin(x1, x2));
-            qreal stop = qMin(qreal(devRect.width()), qMax(x1, x2) + 1);
-            qreal len = stop - start;
+            int start = qMax(0, qRound(qMin(x1, x2)));
+            int stop = qMin(devRect.width(), qRound(qMax(x1, x2)) + 1);
+            int len = stop - start;
             if (len > 0) {
                 if (style == LineDrawNormal)
                     len--;
-                span.x = start;
-                span.len = len;
-                span_func(y1, 1, &span, data);
+                span.x = ushort(start);
+                span.len = ushort(len);
+                span_func(ushort(y1), 1, &span, data);
             }
         }
         return;
     } else if (dx == 0) {
         if (x1 >= 0 && x1 < devRect.width()) {
-            qreal start = qMax(qreal(0), qMin(y1, y2));
-            qreal stop = qMin(qreal(devRect.height()), qMax(y1, y2) + 1);
+            int start = qMax(0, qRound(qMin(y1, y2)));
+            int stop = qMin(devRect.height(), qRound(qMax(y1, y2)) + 1);
             if (style == LineDrawNormal)
                 --stop;
-            span.x = x1;
+            span.x = ushort(x1);
             span.len = 1;
             for (int i=start; i<stop; ++i)
                 span_func(i, 1, &span, data);
@@ -2939,10 +2940,10 @@ static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void
     if (qAbs(dx) >= qAbs(dy)) {       /* if x is the major axis: */
 
         if (x2 < x1) {  /* if coordinates are out of order */
-            qt_swap_int(x1, x2);
+            qt_swap_qreal(x1, x2);
             dx = -dx;
 
-            qt_swap_int(y1, y2);
+            qt_swap_qreal(y1, y2);
             dy = -dy;
         }
 
@@ -3032,10 +3033,10 @@ static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void
         // if y is the major axis:
 
         if (y2 < y1) {      /* if coordinates are out of order */
-            qt_swap_int(y1, y2);
+            qt_swap_qreal(y1, y2);
             dy = -dy;
 
-            qt_swap_int(x1, x2);
+            qt_swap_qreal(x1, x2);
             dx = -dx;
         }
 
