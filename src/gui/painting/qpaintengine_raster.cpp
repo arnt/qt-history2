@@ -567,7 +567,7 @@ void QRasterPaintEngine::setFlushOnEnd(bool flushOnEnd)
 /*!
   Force the contents of the buffer out on the underlying device.
 */
-void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &)
+void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &offset)
 {
     Q_D(QRasterPaintEngine);
     Q_ASSERT(device);
@@ -633,7 +633,8 @@ void QRasterPaintEngine::flush(QPaintDevice *device, const QPoint &)
         HIViewDrawCGImage(ctx, &rect, d->rasterBuffer->m_data); //top left
         CGContextRelease(ctx);
     }
-#endif
+#  endif
+    Q_UNUSED(offset);
 #else
     Q_UNUSED(d);
     Q_UNUSED(offset);
