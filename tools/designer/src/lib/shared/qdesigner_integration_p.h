@@ -56,6 +56,9 @@ public slots:
     virtual void updateGeometry();
     virtual void activateWidget(QWidget *widget);
 
+protected:
+    virtual QWidget *containerWindow(QWidget *widget);
+
 private:
     void initialize();
 

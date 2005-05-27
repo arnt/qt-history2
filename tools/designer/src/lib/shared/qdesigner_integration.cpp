@@ -64,10 +64,13 @@ void QDesignerIntegration::updateProperty(const QString &name, const QVariant &v
                                            .arg(filename));
 
             } else if (name == QLatin1String("geometry")) {
-                QRect r = formWindow->topLevelWidget()->geometry();
-                r.setSize(value.toRect().size());
-                formWindow->topLevelWidget()->setGeometry(r);
-                emit propertyChanged(formWindow, name, value);
+                if (QWidget *container = containerWindow(formWindow)) {
+                    QRect r = containerWindow(formWindow)->geometry();
+                    r.setSize(value.toRect().size());
+                    container->setGeometry(r);
+                    emit propertyChanged(formWindow, name, value);
+                }
+
                 return;
             }
         }
@@ -100,16 +103,10 @@ void QDesignerIntegration::setupFormWindow(QDesignerFormWindowInterface *formWin
 {
     connect(formWindow, SIGNAL(selectionChanged()), this, SLOT(updateSelection()));
     connect(formWindow, SIGNAL(activated(QWidget*)), this, SLOT(activateWidget(QWidget*)));
-    // ### connect(formWindow, SIGNAL(geometryChanged()), this, SLOT(updateGeometry()));
 }
 
 void QDesignerIntegration::updateGeometry()
 {
-    if (QDesignerFormWindowInterface *formWindow = core()->formWindowManager()->activeFormWindow()) {
-        bool blocked = formWindow->blockSignals(true);
-        formWindow->topLevelWidget()->resize(formWindow->mainContainer()->size());
-        formWindow->blockSignals(blocked);
-    }
 }
 
 void QDesignerIntegration::updateSelection()
@@ -131,6 +128,20 @@ void QDesignerIntegration::updateSelection()
 
 void QDesignerIntegration::activateWidget(QWidget *widget)
 {
-    // ### in-place editing here!!
     Q_UNUSED(widget);
 }
+
+QWidget *QDesignerIntegration::containerWindow(QWidget *widget)
+{
+    while (widget) {
+        if (widget->isWindow())
+            break;
+        if (widget->parentWidget() && !qstrcmp(widget->parentWidget()->metaObject()->className(), "QWorkspaceChild"))
+            break;
+
+        widget = widget->parentWidget();
+    }
+
+    return widget;
+}
+
