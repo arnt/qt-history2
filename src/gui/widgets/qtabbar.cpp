@@ -668,8 +668,12 @@ void QTabBar::setTabIcon(int index, const QIcon & icon)
 {
     Q_D(QTabBar);
     if (QTabBarPrivate::Tab *tab = d->at(index)) {
+        bool simpleIconChange = (!icon.isNull() && !tab->icon.isNull());
         tab->icon = icon;
-        d->refresh();
+        if (simpleIconChange)
+            update(tabRect(index));
+        else
+            d->refresh();
     }
 }
 

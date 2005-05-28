@@ -1072,9 +1072,10 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
             if (!styleHint(SH_UnderlineShortcut, opt, widget))
                 alignment |= Qt::TextHideMnemonic;
             if (!tab->icon.isNull()) {
-                QPixmap tabIcon = tab->icon.pixmap(pixelMetric(PM_SmallIconSize), (tab->state & State_Enabled) ? QIcon::Normal : QIcon::Disabled);
+                int iconSize = pixelMetric(PM_SmallIconSize);
+                QPixmap tabIcon = tab->icon.pixmap(iconSize, (tab->state & State_Enabled) ? QIcon::Normal : QIcon::Disabled);
                 p->drawPixmap(tr.left() + 6, tr.center().y() - tabIcon.height() / 2, tabIcon);
-                tr.setLeft(tr.left() + tabIcon.width() + 4);
+                tr.setLeft(tr.left() + iconSize + 4);
             }
             drawItemText(p, tr, alignment, tab->palette, tab->state & State_Enabled, tab->text, QPalette::Foreground);
 
