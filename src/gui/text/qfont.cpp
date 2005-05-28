@@ -435,6 +435,7 @@ QFont::QFont(const QFont &font, QPaintDevice *pd)
   \internal
 */
 QFont::QFont(QFontPrivate *data)
+    : resolve_mask(QFontPrivate::Complete)
 {
     d = data;
     d->ref.ref();
