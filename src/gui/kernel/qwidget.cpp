@@ -6438,6 +6438,12 @@ void QWidget::setAttribute(Qt::WidgetAttribute attribute, bool on)
     case Qt::WA_UpdatesDisabled:
         d->updateSystemBackground();
         break;
+    case Qt::WA_TransparentForMouseEvents:
+#ifdef Q_WS_MAC
+        extern void qt_mac_update_ignore_mouseevents(QWidget*); //qwidget_mac.cpp
+        qt_mac_update_ignore_mouseevents(this);
+#endif
+        break;
     case Qt::WA_ContentsPropagated:
         if (isVisible())
             d->updatePropagatedBackground();

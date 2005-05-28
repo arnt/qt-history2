@@ -199,6 +199,19 @@ static WindowGroupRef qt_mac_get_stays_on_top_group()
     return qt_mac_stays_on_top_group;
 }
 
+void qt_mac_update_ignore_mouseevents(QWidget *w)
+{
+    if(w->isWindow()) {
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_2)
+        if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2) {
+            if(w->testAttribute(Qt::WA_TransparentForMouseEvents))
+                ChangeWindowAttributes(qt_mac_window_for(w), kWindowIgnoreClicksAttribute, 0);
+            else
+                ChangeWindowAttributes(qt_mac_window_for(w), 0, kWindowIgnoreClicksAttribute);
+        }
+#endif
+    }
+}
 
 void qt_mac_update_metal_style(QWidget *w)
 {
