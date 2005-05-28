@@ -535,6 +535,7 @@ void QSettingsPrivate::iniEscapedString(const QString &str, QByteArray &result)
         switch (ch) {
         case '\0':
             result += "\\0";
+            escapeNextIfDigit = true;
             break;
         case '\a':
             result += "\\a";
