@@ -553,7 +553,7 @@ void Generator::generateEnums(int index)
             const QByteArray &val = e.values.at(j);
             fprintf(out, "    %4d, %s::%s,\n",
                     strreg(val),
-                    cdef->classname.constData(),
+                    cdef->qualified.constData(),
                     val.constData());
         }
     }
