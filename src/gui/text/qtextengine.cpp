@@ -836,8 +836,12 @@ void QTextEngine::reallocate(int totalGlyphs)
     m += space_charAttributes;
     logClustersPtr = (unsigned short *) m;
     m += space_logClusters;
-    if (long(m)%8)
-        m = (void **) (((long(m) + 7) >> 3) << 3);
+
+#if defined (Q_WS_WIN) || defined (__i386__)
+    m = (void **) (((long(m) + 3) >> 2) << 2);
+#else
+    m = (void **) (((long(m) + 7) >> 3) << 3);
+#endif
     glyphPtr = (QGlyphLayout *) m;
 
     memset(((char *)layoutData->memory) + layoutData->allocated*sizeof(void *), 0,
@@ -1069,7 +1073,7 @@ QFont QTextEngine::font(const QScriptItem &si) const
     }
 
     if (fnt)
-        return QFont(fnt);    
+        return QFont(fnt);
     return QFont();
 }
 
