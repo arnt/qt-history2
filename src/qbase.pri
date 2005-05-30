@@ -84,6 +84,7 @@ win32-borland {
 win32 {
     CONFIG += zlib
     INCLUDEPATH += tmp
+    !static: DEFINES+=QT_MAKEDLL
 }
 win32-borland:INCLUDEPATH += kernel
 
