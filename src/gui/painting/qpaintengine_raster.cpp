@@ -37,6 +37,14 @@
 #  include <malloc.h>
 #endif
 
+/* 
+    Used to prevent division by zero in LinearGradientData::init. 
+    This number does not have to be the smallest possible positive qreal.
+    The size of the result of QPaintDevice::width() is more interesting, since the error
+    is accumulated for each pixel in the interpolation. Thus, interpolating over a large number of pixels
+    will make the error larger.
+*/
+#define GRADIENT_EPSILON  0.000000001  
 
 #define qreal_to_fixed_26_6(f) (int(f * 64))
 #define qt_swap_int(x, y) { int tmp = (x); (x) = (y); (y) = tmp; }
@@ -2553,15 +2561,16 @@ void GradientData::initColorTable()
  * line that covers the whole gradient (from 0 to 1.0).
  * Given that the gradient line is d, the transformed normal vector is n, we use this formula to
  * find the length of the side in the triangle is supposed to interpolate over the gradient:
- * _     _                _             _
- * d + a*n = [l,0],       where d = [dx, dy], n = [nx, ny], l is the length of the line
+ * _     _                      _             _
+ * d + a*n = [l,0],       where d = [dx, dy], n = [ndx, ndy], l is the length of the line.
+ * since we have a zero in our equation, *a* can be found and is used to find *l*.
  *
  * rearranging, we get the length of line like this:
  *
- * l = dx - dy*nx/ny;  =>  xincr = 1.0/l
+ * l = dx - dy*ndx/ndy;  =>  xincr = 1.0/l
  *
  * We calculate yincr similarly:
- * l = dy - dx*ny/nx;  =>  yincr = 1.0/l
+ * l = dy - dx*ndy/ndx;  =>  yincr = 1.0/l
  *
  *
  * We then find the length of that line, and divides the length of the gradient (1.0) by the length
@@ -2601,22 +2610,29 @@ void LinearGradientData::init()
     // qDebug() << "(" << x1 << "," << y1 << ")";
     // qDebug() << "(" << x2 << "," << y2 << ")";
 
-    qreal nx = n.dx();
-    qreal ny = n.dy();
+    qreal ndx = n.dx();
+    qreal ndy = n.dy();
 
+    // qDebug() << "dx: " << dx << "dy: " << dy << "nx: " << nx << "nx: " << nx;;
     // Find the length of the projection
-    qreal l = dx - dy*nx/ny;
+    
+    if (qAbs(ndy) > GRADIENT_EPSILON) {
+        qreal l = dx - dy*ndx/ndy;
+        xincr = 1.0/l;
+    } else {
+        xincr = 0;
+    }
 
-    // qDebug() << "b: " << b << "dx: " << dx << "dy: " << dy << "nx: " << nx;
-    xincr = 1.0/l;
-
-    l = dy - dx*ny/nx;
-    yincr = 1.0/l;
+    if (qAbs(ndx) > GRADIENT_EPSILON) {
+        qreal l = dy - dx*ndy/ndx;
+        yincr = 1.0/l;
+    } else {
+        yincr = 0;
+    }
 
     // qDebug() << "inc: " << xincr << "," << yincr;
 
 }
-
 
 void ConicalGradientData::init(const QPointF &pt, qreal a, const QMatrix &matrix)
 {
