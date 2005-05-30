@@ -42,18 +42,18 @@ public:
         qFree(buffer);
     }
 
-    void reset() { siz = 0; }
+    inline void reset() { siz = 0; }
 
-    bool isEmpty() const { return siz==0; }
+    inline bool isEmpty() const { return siz==0; }
 
-    int size() const { return siz; }
-    Type *data() const { return buffer; }
+    inline int size() const { return siz; }
+    inline Type *data() const { return buffer; }
 
-    const Type &at(int i) const { Q_ASSERT(i >= 0 && i < siz); return buffer[i]; }
-    const Type &last() const { Q_ASSERT(!isEmpty()); return buffer[siz-1]; }
-    const Type &first() const { Q_ASSERT(!isEmpty()); return buffer[0]; }
+    inline const Type &at(int i) const { Q_ASSERT(i >= 0 && i < siz); return buffer[i]; }
+    inline const Type &last() const { Q_ASSERT(!isEmpty()); return buffer[siz-1]; }
+    inline const Type &first() const { Q_ASSERT(!isEmpty()); return buffer[0]; }
 
-    void add(const Type &t) {
+    inline void add(const Type &t) {
         if (siz >= capacity) {
             capacity *= 2;
             buffer = (Type*) qRealloc(buffer, capacity * sizeof(Type));
