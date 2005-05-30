@@ -1,5 +1,5 @@
 /*
- *  dungeonplan.cpp
+ *  oublietteplan.cpp
  *  qthack
  *
  *  Created by Trenton Schulz on 3/24/05.
@@ -222,40 +222,9 @@ void OublietteLevel::digRoom(const QRect &rect, Tile::TileFlags flags)
     fillRect(interiorRect, Tile(Tile::Floor, flags));
 }
 
-void OublietteLevel::dig(LevelFeature feature, const QRect &rect)
+void OublietteLevel::dig(LevelFeature /*feature*/, const QRect &rect)
 {
-    switch (feature) {
-    default:
-        digRoom(rect);
-        break;
-        /*
-    case HorizontalCorridor: {
-        int y = rect.top();
-        for (int x = rect.left(); x < rect.right(); ++x)
-            setTile(y, x, Wall);
-        ++y;
-        for (int x = rect.left(); x < rect.right(); ++x)
-            setTile(y, x, Floor);
-        ++y;
-        for (int x = rect.left(); x < rect.right(); ++x)
-            setTile(y, x, Wall);
-        break;
-    }
-    case VerticalCorridor: {
-        int x = rect.left();
-        for (int y = rect.top(); y < rect.bottom(); ++y)
-            setTile(y, x, Wall);
-        ++x;
-        for (int y = rect.top(); y < rect.bottom(); ++y)
-            setTile(y, x, Floor);
-        ++x;
-        for (int y = rect.top(); y < rect.bottom(); ++y)
-            setTile(y, x, Wall);
-        ++x;
-        break;
-    }
-        */
-    }
+    digRoom(rect);
 }
 
 void OublietteLevel::printOubliette() const
@@ -305,7 +274,7 @@ void OublietteLevel::fillRect(int x, int y, int width, int height, Tile le)
 QPoint OublietteLevel::findWall() const
 {
     QPoint ret;
-    // randly walk through the dungeon and find a point,
+    // randly walk through the oubliette and find a point,
     // if it is a wall that isn't a corner we are in good shape.
     // Technically we could get in here forever, but there is a very big chance that we will
     // break out.

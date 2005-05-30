@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef DUNGEONVIEW_H
-#define DUNGEONVIEW_H
+#ifndef OUBLIETTEVIEW_H
+#define OUBLIETTEVIEW_H
 
 #include <QtGui/QScrollArea>
 class Oubliette;
@@ -28,7 +28,7 @@ public slots:
     void scrollToCharacter(const QPoint &pt);
 
 private:
-    Oubliette *m_dungeon;
+    Oubliette *m_oubliette;
 };
 
 #endif

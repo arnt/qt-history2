@@ -18,15 +18,15 @@
 
 OublietteView::OublietteView()
 {
-    m_dungeon = new Oubliette;
-    setWidget(m_dungeon);
+    m_oubliette = new Oubliette;
+    setWidget(m_oubliette);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    connect(m_dungeon, SIGNAL(characterMoved(const QPoint &)),
+    connect(m_oubliette, SIGNAL(characterMoved(const QPoint &)),
             this, SLOT(scrollToCharacter(const QPoint &)));
     setFocusPolicy(Qt::NoFocus);
-    m_dungeon->setFocus();
-    scrollToCharacter(m_dungeon->visualCursorPos());
+    m_oubliette->setFocus();
+    scrollToCharacter(m_oubliette->visualCursorPos());
 }
 
 OublietteView::~OublietteView()

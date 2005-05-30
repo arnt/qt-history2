@@ -1,5 +1,5 @@
 /*
- *  dungeonplan.h
+ *  oublietteplan.h
  *  qthack
  *
  *  Created by Trenton Schulz on 3/24/05.
@@ -7,8 +7,8 @@
  *
  */
 
-#ifndef DUNGEONLEVEL_H
-#define DUNGEONLEVEL_H
+#ifndef OUBLIETTELEVEL_H
+#define OUBLIETTELEVEL_H
 
 #include <QtCore/QtCore>
 #include "tile.h"
@@ -85,4 +85,4 @@ private:
     int m_totalLevels;
 };
 
-#endif // DUNGEONLEVEL_H
+#endif // OUBLIETTELEVEL_H

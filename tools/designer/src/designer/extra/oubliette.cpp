@@ -1,5 +1,5 @@
 /*
- *  dungeon.cpp
+ *  oubliette.cpp
  *  qthack
  *
  *  Created by Trenton Schulz on 3/24/05.
@@ -50,9 +50,9 @@ const int ItemEffect::TotalSteps = 15;
 Oubliette::Oubliette()
     : m_timerID(-1)
 {
-    // set a fixed size, pased on the dungeon size
+    // set a fixed size, pased on the oubliette size
     m_currentLevel = 1;
-    QSize sz = m_dungeonPlan.level(m_currentLevel)->size();
+    QSize sz = m_oubliettePlan.level(m_currentLevel)->size();
     setFixedSize(sz.width() * TileWidth, sz.height() * TileHeight);
     m_character.setPosition(QRect(QPoint(0, 0), sz).center(), false);
     m_oldCursorPosition = m_character.position();
@@ -109,7 +109,7 @@ void Oubliette::paintOubliette(QPainter *p, const QRect &paintRect)
 {
     QRect rect(paintRect.x() / TileWidth, paintRect.y() / TileHeight,
                paintRect.width() / TileWidth, paintRect.height() / TileHeight);
-    OublietteLevel *level = m_dungeonPlan.level(m_currentLevel);
+    OublietteLevel *level = m_oubliettePlan.level(m_currentLevel);
     for (int y = rect.y(); y <= rect.y() + rect.height(); ++y) {
         for (int x = rect.x(); x <= rect.x() + rect.width(); ++x) {
             fillTile(p, x, y, level->tile(x, y));
@@ -216,7 +216,7 @@ void Oubliette::showInventory()
     }
     label = new QLabel(tr("You have %1 of %2 items")
                       .arg(items.size())
-                      .arg(m_dungeonPlan.level(m_currentLevel)->totalItems()), d);
+                      .arg(m_oubliettePlan.level(m_currentLevel)->totalItems()), d);
     gl->addWidget(label, 1, 1, 1, 1);
     QPushButton *btn = new QPushButton(tr("OK"), d);
     btn->setDefault(true);
@@ -234,7 +234,7 @@ void Oubliette::showInventory()
 */
 bool Oubliette::tryMove(const QPoint &newPos)
 {
-    OublietteLevel *level = m_dungeonPlan.level(m_currentLevel);
+    OublietteLevel *level = m_oubliettePlan.level(m_currentLevel);
     Tile le = level->tile(newPos);
     if (le.type == Tile::Floor || le.type == Tile::ClosedDoor || le.type == Tile::OpenDoor) {
         m_oldCursorPosition = m_character.position();
@@ -247,7 +247,7 @@ bool Oubliette::tryMove(const QPoint &newPos)
             foreach (const Item *item, le.items) {
                 m_character.addItem(item);
                 animateItem(item, newPos);
-                if (m_character.items().size() == m_dungeonPlan.level(m_currentLevel)->totalItems())
+                if (m_character.items().size() == m_oubliettePlan.level(m_currentLevel)->totalItems())
                     QTimer::singleShot(0, this, SLOT(showVictory()));
 
             }
@@ -264,7 +264,7 @@ void Oubliette::updateExplored()
 {
     static SIMPLEFOV fov;
     QPoint exploredPoint = m_character.position();
-    OublietteLevel *level = m_dungeonPlan.level(m_currentLevel);
+    OublietteLevel *level = m_oubliettePlan.level(m_currentLevel);
     fov.start(level, exploredPoint.x(), exploredPoint.y(), 8);
 }
 

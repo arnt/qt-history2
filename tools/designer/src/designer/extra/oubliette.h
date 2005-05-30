@@ -1,11 +1,14 @@
 /*
- *  dungeon.h
+ *  oubliette.h
  *  qthack
  *
  *  Created by Trenton Schulz on 3/24/05.
  *  Copyright 2005 Trolltech AS. All rights reserved.
  *
  */
+
+#ifndef OUBLIETTE_H
+#define OUBLIETTE_H
 
 #include <QtGui/QWidget>
 #include <oublietteplan.h>
@@ -50,10 +53,12 @@ signals:
     void characterMoved(const QPoint &pt);
 
 private:
-    OubliettePlan m_dungeonPlan;
+    OubliettePlan m_oubliettePlan;
     Cursor m_character;
     QPoint m_oldCursorPosition;
     int m_currentLevel;
     QList<ItemEffect *> m_effects;
     int m_timerID;
 };
+
+#endif
