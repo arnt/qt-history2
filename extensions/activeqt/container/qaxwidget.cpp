@@ -44,7 +44,6 @@
 
 // #define QAX_SUPPORT_WINDOWLESS
 // #define QAX_SUPPORT_BORDERSPACE
-// #define QAX_SUPPORT_DOCUMENTSITE
 
 // missing interface from win32api
 #if defined(Q_CC_GNU)
@@ -392,6 +391,7 @@ private:
 
     bool inPlaceObjectWindowless :1;
     bool inPlaceModelessEnabled :1;
+    bool canHostDocument : 1;
 
     DWORD m_dwOleObject;
     HWND m_menuOwner;
@@ -469,6 +469,8 @@ QAxClientSite::QAxClientSite(QAxWidget *c)
 
     inPlaceObjectWindowless = false;
     inPlaceModelessEnabled = true;
+    canHostDocument = false;
+
     m_dwOleObject = 0;
     m_menuOwner = 0;
     memset(&control_info, 0, sizeof(control_info));
@@ -492,27 +494,28 @@ bool QAxClientSite::activateObject(bool initialized)
         IOleDocument *document = 0;
         m_spOleObject->QueryInterface(IID_IOleDocument, (void**)&document);
         if (document) {
-            // activate as document server
-            IStorage *storage = 0;
-            ILockBytes * bytes = 0;
-            HRESULT hres = ::CreateILockBytesOnHGlobal(0, TRUE, &bytes);
-            hres = ::StgCreateDocfileOnILockBytes(bytes, STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &storage);
-
             IPersistStorage *persistStorage = 0;
             document->QueryInterface(IID_IPersistStorage, (void**)&persistStorage);
             if (persistStorage) {
+            // try to activate as document server
+                IStorage *storage = 0;
+                ILockBytes * bytes = 0;
+                HRESULT hres = ::CreateILockBytesOnHGlobal(0, TRUE, &bytes);
+                hres = ::StgCreateDocfileOnILockBytes(bytes, STGM_SHARE_EXCLUSIVE|STGM_CREATE|STGM_READWRITE, 0, &storage);
+
                 persistStorage->InitNew(storage);
                 persistStorage->Release();
+                canHostDocument = true;
+                storage->Release();
+                bytes->Release();
+
+                m_spOleObject->SetClientSite(this);
+                OleRun(m_spOleObject);
             }
-
-            storage->Release();
-            bytes->Release();
-
-            m_spOleObject->SetClientSite(this);
-            OleRun(m_spOleObject);
-
             document->Release();
-        } else {
+        }
+
+        if (!canHostDocument) {
             // activate as control
             if(dwMiscStatus & OLEMISC_SETCLIENTSITEFIRST)
                 m_spOleObject->SetClientSite(this);
@@ -695,10 +698,8 @@ HRESULT WINAPI QAxClientSite::QueryInterface(REFIID iid, void **iface)
             *iface = (IOleInPlaceFrame*)this;
         else if (iid == IID_IOleInPlaceUIWindow)
             *iface = (IOleInPlaceUIWindow*)this;
-#ifdef QAX_SUPPORT_DOCUMENTSITE
-        else if (iid == IID_IOleDocumentSite)
+        else if (iid == IID_IOleDocumentSite && canHostDocument)
             *iface = (IOleDocumentSite*)this;
-#endif
         else if (iid == IID_IAdviseSink)
             *iface = (IAdviseSink*)this;
     }
@@ -971,6 +972,7 @@ HRESULT WINAPI QAxClientSite::OnInPlaceDeactivate()
         m_spInPlaceObject->Release();
     m_spInPlaceObject = 0;
     inPlaceObjectWindowless = false;
+    OleLockRunning(m_spOleObject, false, false);
 
     return S_OK;
 }
