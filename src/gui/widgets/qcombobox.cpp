@@ -355,7 +355,8 @@ void QComboBoxPrivateContainer::mousePressEvent(QMouseEvent *e)
     opt.subControls = QStyle::SC_All;
     opt.activeSubControls = QStyle::SC_ComboBoxArrow;
     QStyle::SubControl sc = style()->hitTestComplexControl(QStyle::CC_ComboBox, &opt,
-                                                           e->pos(), combo);
+                                                           combo->mapFromGlobal(e->globalPos()),
+                                                           combo);
     if ((combo->isEditable() && sc == QStyle::SC_ComboBoxArrow)
         || (!combo->isEditable() && sc != QStyle::SC_None))
         setAttribute(Qt::WA_NoMouseReplay);
