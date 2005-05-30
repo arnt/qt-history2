@@ -3002,10 +3002,11 @@ static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void
     if (dy == 0) {
         if (y1 >= 0 && y1 < devRect.height()) {
             int start = qMax(0, qRound(qMin(x1, x2)));
-            int stop = qMin(devRect.width(), qRound(qMax(x1, x2)) + 1);
-            int len = stop - start;
+            int stop = qRound(qMax(x1, x2)) + 1;
+            int stop_clipped = qMin(devRect.width(), stop);
+            int len = stop_clipped - start;
             if (len > 0) {
-                if (style == LineDrawNormal)
+                if (style == LineDrawNormal && stop == stop_clipped)
                     len--;
                 span.x = ushort(start);
                 span.len = ushort(len);
@@ -3016,12 +3017,13 @@ static void drawLine_midpoint_f(const QLineF &line, qt_span_func span_func, void
     } else if (dx == 0) {
         if (x1 >= 0 && x1 < devRect.width()) {
             int start = qMax(0, qRound(qMin(y1, y2)));
-            int stop = qMin(devRect.height(), qRound(qMax(y1, y2)) + 1);
-            if (style == LineDrawNormal)
+            int stop = qRound(qMax(y1, y2)) + 1;
+            int stop_clipped = qMin(devRect.height(), stop);
+            if (style == LineDrawNormal && stop == stop_clipped)
                 --stop;
             span.x = ushort(x1);
             span.len = 1;
-            for (int i=start; i<stop; ++i)
+            for (int i=start; i<stop_clipped; ++i)
                 span_func(i, 1, &span, data);
         }
         return;
