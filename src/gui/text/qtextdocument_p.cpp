@@ -869,11 +869,13 @@ void QTextDocumentPrivate::endEditBlock()
     if (framesDirty)
         scan_frames(docChangeFrom, docChangeOldLength, docChangeLength);
 
-    if (lout && docChangeFrom >= 0 && !inContentsChange) {
-        inContentsChange = true;
-        emit q->contentsChange(docChangeFrom, docChangeOldLength, docChangeLength);
+    if (lout && docChangeFrom >= 0) {
+        if (!inContentsChange) {
+            inContentsChange = true;
+            emit q->contentsChange(docChangeFrom, docChangeOldLength, docChangeLength);
+            inContentsChange = false;
+        }
         lout->documentChanged(docChangeFrom, docChangeOldLength, docChangeLength);
-        inContentsChange = false;
     }
 
     docChangeFrom = -1;
