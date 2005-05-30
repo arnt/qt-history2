@@ -128,7 +128,7 @@
 
     \code
         cd $QTDIR/src/plugins/sqldrivers/mysql
-        qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib" mysql.pro
+        qmake -o Makefile "INCLUDEPATH+=/usr/local/include" "LIBS+=-L/usr/local/lib -lmysqlclient" mysql.pro
         make
     \endcode
 
