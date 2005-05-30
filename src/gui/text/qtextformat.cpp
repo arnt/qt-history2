@@ -1285,6 +1285,7 @@ QTextCharFormat::QTextCharFormat() : QTextFormat(CharFormat) {}
 void QTextCharFormat::setFont(const QFont &font)
 {
     setFontFamily(font.family());
+    setFontPointSize(font.pointSizeF());
     setFontWeight(font.weight());
     setFontItalic(font.italic());
     setFontUnderline(font.underline());
