@@ -56,7 +56,7 @@ static struct {
     { "abstract", CMD_ABSTRACT, 0 },
     { "also", CMD_ALSO, 0 },
     { "badcode", CMD_BADCODE, 0 },
-    { "basename", CMD_BASENAME, 0 },
+    { "basename", CMD_BASENAME, 0 }, // ### don't document for now
     { "bold", CMD_BOLD, 0 },
     { "brief", CMD_BRIEF, 0 },
     { "c", CMD_C, 0 },
@@ -76,23 +76,23 @@ static struct {
     { "endpart", CMD_ENDPART, 0 },
     { "endquotation", CMD_ENDQUOTATION, 0 },
     { "endraw", CMD_ENDRAW, 0 },
-    { "endsection1", CMD_ENDSECTION1, 0 },
-    { "endsection2", CMD_ENDSECTION2, 0 },
-    { "endsection3", CMD_ENDSECTION3, 0 },
-    { "endsection4", CMD_ENDSECTION4, 0 },
+    { "endsection1", CMD_ENDSECTION1, 0 },  // ### don't document for now
+    { "endsection2", CMD_ENDSECTION2, 0 },  // ### don't document for now
+    { "endsection3", CMD_ENDSECTION3, 0 },  // ### don't document for now
+    { "endsection4", CMD_ENDSECTION4, 0 },  // ### don't document for now
     { "endsidebar", CMD_ENDSIDEBAR, 0 },
     { "endtable", CMD_ENDTABLE, 0 },
     { "expire", CMD_EXPIRE, 0 },
     { "footnote", CMD_FOOTNOTE, 0 },
     { "generatelist", CMD_GENERATELIST, 0 },
-    { "granularity", CMD_GRANULARITY, 0 },
+    { "granularity", CMD_GRANULARITY, 0 }, // ### don't document for now
     { "header", CMD_HEADER, 0 },
     { "i", CMD_I, 0 },
     { "if", CMD_IF, 0 },
     { "image", CMD_IMAGE, 0 },
     { "include", CMD_INCLUDE, 0 },
     { "inlineimage", CMD_INLINEIMAGE, 0 },
-    { "index", CMD_INDEX, 0 },
+    { "index", CMD_INDEX, 0 }, // ### don't document for now
     { "keyword", CMD_KEYWORD, 0 },
     { "l", CMD_L, 0 },
     { "legalese", CMD_LEGALESE, 0 },
@@ -111,14 +111,14 @@ static struct {
     { "quotation", CMD_QUOTATION, 0 },
     { "quotefile", CMD_QUOTEFILE, 0 },
     { "quotefromfile", CMD_QUOTEFROMFILE, 0 },
-    { "quotefunction", CMD_QUOTEFUNCTION, 0 },
+    { "quotefunction", CMD_QUOTEFUNCTION, 0 }, // ### don't document for now
     { "raw", CMD_RAW, 0 },
     { "row", CMD_ROW, 0 },
     { "section1", CMD_SECTION1, 0 },
     { "section2", CMD_SECTION2, 0 },
     { "section3", CMD_SECTION3, 0 },
     { "section4", CMD_SECTION4, 0 },
-    { "sidebar", CMD_SIDEBAR, 0 },
+    { "sidebar", CMD_SIDEBAR, 0 }, // ### don't document for now
     { "skipline", CMD_SKIPLINE, 0 },
     { "skipto", CMD_SKIPTO, 0 },
     { "skipuntil", CMD_SKIPUNTIL, 0 },
@@ -1716,7 +1716,6 @@ QString DocParser::getArgument( bool verbatim )
 		pos++;
 	    }
 	}
-
 	if ( arg.length() > 1 && QString(".,:;!?").indexOf(in[pos - 1]) != -1 &&
 	     !arg.endsWith("...") ) {
 	    arg.truncate( arg.length() - 1 );

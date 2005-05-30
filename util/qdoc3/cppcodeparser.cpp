@@ -19,14 +19,14 @@
 #define COMMAND_CONTENTSPAGE            Doc::alias("contentspage")
 #define COMMAND_ENUM                    Doc::alias("enum")
 #define COMMAND_EXAMPLE                 Doc::alias("example")
-#define COMMAND_FILE                    Doc::alias("file")
+#define COMMAND_FILE                    Doc::alias("file") // ### don't document
 #define COMMAND_FN                      Doc::alias("fn")
 #define COMMAND_GROUP                   Doc::alias("group")
 #define COMMAND_HEADERFILE              Doc::alias("headerfile")
 #define COMMAND_INDEXPAGE               Doc::alias("indexpage")
-#define COMMAND_INHEADERFILE            Doc::alias("inheaderfile")
+#define COMMAND_INHEADERFILE            Doc::alias("inheaderfile") // ### don't document
 #define COMMAND_MACRO                   Doc::alias("macro")
-#define COMMAND_MODULE                  Doc::alias("module")
+#define COMMAND_MODULE                  Doc::alias("module") // ### don't document
 #define COMMAND_NAMESPACE               Doc::alias("namespace")
 #define COMMAND_OVERLOAD                Doc::alias("overload")
 #define COMMAND_NEXTPAGE                Doc::alias("nextpage")

@@ -7,9 +7,9 @@
 #include "tree.h"
 
 #define COMMAND_COMPAT                  Doc::alias("compat")
-#define COMMAND_DEPRECATED              Doc::alias("deprecated")
+#define COMMAND_DEPRECATED              Doc::alias("deprecated") // ### don't document
 #define COMMAND_INGROUP                 Doc::alias("ingroup")
-#define COMMAND_INMODULE                Doc::alias("inmodule")
+#define COMMAND_INMODULE                Doc::alias("inmodule")  // ### don't document
 #define COMMAND_INTERNAL                Doc::alias("internal")
 #define COMMAND_MAINCLASS		Doc::alias("mainclass")
 #define COMMAND_NONREENTRANT            Doc::alias("nonreentrant")

@@ -68,10 +68,8 @@ private:
 };
 
 #define CONFIG_ALIAS                    "alias"
-#define CONFIG_BASE                     "base"
+#define CONFIG_BASE                     "base"      // ### don't document for now
 #define CONFIG_DEFINES                  "defines"
-#define CONFIG_DOCDIRS                  "docdirs"
-#define CONFIG_DOCS                     "docs"
 #define CONFIG_EXAMPLEDIRS              "exampledirs"
 #define CONFIG_EXAMPLES                 "examples"
 #define CONFIG_EXTRAIMAGES              "extraimages"
@@ -91,7 +89,7 @@ private:
 #define CONFIG_SOURCES                  "sources"
 #define CONFIG_SPURIOUS                 "spurious"
 #define CONFIG_TABSIZE                  "tabsize"
-#define CONFIG_TRANSLATORS              "translators"
+#define CONFIG_TRANSLATORS              "translators" // ### don't document for now
 #define CONFIG_VERSION                  "version"
 #define CONFIG_VERSIONSYM               "versionsym"
 
