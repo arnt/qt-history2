@@ -5926,9 +5926,11 @@ void QWidget::setLayout(QLayout *l)
         return;
     }
     if (layout()) {
-        qFatal("QWidget::setLayout() : QLayout \"%s\" added to %s \"%s\", which already has a"
-                 " layout", l->objectName().toLocal8Bit().data(), metaObject()->className(),
-                 objectName().toLocal8Bit().data());
+        if (layout() != l)
+            qWarning("QWidget::setLayout() : QLayout \"%s\" added to %s \"%s\", which already has a"
+                     " layout", l->objectName().toLocal8Bit().data(), metaObject()->className(),
+                     objectName().toLocal8Bit().data());
+        return;
     }
     l->d_func()->topLevel = true;
     d_func()->layout = l;
