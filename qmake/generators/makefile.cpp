@@ -2556,7 +2556,8 @@ MakefileGenerator::fileInfo(QString file) const
         return value;
 
     QFileInfo fi(file);
-    cache->insert(cacheKey, fi);
+    if (fi.exists())
+        cache->insert(cacheKey, fi);
     return fi;
 }
 
