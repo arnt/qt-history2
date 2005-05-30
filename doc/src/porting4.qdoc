@@ -312,8 +312,6 @@
 
     \table
     \header \o Qt 3 property \o Qt 4 read function \o Qt 4 write function
-    \row \o QGrid::margin \o QGridWidget::margin() \o QGridWidget::setMargin()
-    \row \o QHBox::margin \o QHBoxWidget::margin() \o QHBoxWidget::setMargin()
     \row \o QSqlDatabase::connectOptions \o QSqlDatabase::connectOptions() \o QSqlDatabase::setConnectOptions()
     \row \o QSqlDatabase::databaseName \o QSqlDatabase::databaseName() \o QSqlDatabase::setDatabaseName()
     \row \o QSqlDatabase::hostName \o QSqlDatabase::hostName() \o QSqlDatabase::setHostName()
@@ -1665,16 +1663,29 @@
 
     \section1 QGrid
 
-    The \c QGrid class is now only available as Q3Grid in Qt 4. You can
-    achieve the same result as QGrid by creating a QWidget with a
-    grid layout:
+    The \c QGrid class is now only available as Q3Grid in Qt 4. You
+    can achieve the same result as \c QGrid by creating a QWidget
+    with a grid layout:
 
     \oldcode
-    QGrid *grid = new QGrid;
+    QGrid *grid = new QGrid(2, Qt::Horizontal);
+    QPushButton *child1 = new QPushButton(grid);
+    QPushButton *child2 = new QPushButton(grid);
+    QPushButton *child3 = new QPushButton(grid);
+    QPushButton *child4 = new QPushButton(grid);
     \newcode
     QWidget *grid = new QWidget;
-    QGridLayout *gridLayout = new QGridLayout(grid);
-    grid->setLayout(gridLayout);
+    QPushButton *child1 = new QPushButton(grid);
+    QPushButton *child2 = new QPushButton(grid);
+    QPushButton *child3 = new QPushButton(grid);
+    QPushButton *child4 = new QPushButton(grid);
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(child1, 0, 0);
+    layout->addWidget(child2, 0, 1);
+    layout->addWidget(child3, 1, 0);
+    layout->addWidget(child4, 1, 1);
+    grid->setLayout(layout);
     \endcode
 
     \section1 QGridLayout
@@ -1724,16 +1735,23 @@
 
     \section1 QHBox
 
-    The \c QHBox class is now only available as Q3HBox in Qt 4. You can
-    achieve the same result as QHBox by creating a QWidget with an
-    horizontal layout:
+    The \c QHBox class is now only available as Q3HBox in Qt 4. You
+    can achieve the same result as \c QHBox by creating a QWidget
+    with an horizontal layout:
 
     \oldcode
     QHBox *hbox = new QHBox;
+    QPushButton *child1 = new QPushButton(hbox);
+    QPushButton *child2 = new QPushButton(hbox);
     \newcode
     QWidget *hbox = new QWidget;
-    QHBoxLayout *hboxLayout = new QHBoxLayout(hbox);
-    hbox->setLayout(hboxLayout);
+    QPushButton *child1 = new QPushButton;
+    QPushButton *child2 = new QPushButton;
+
+    QHBoxLayout *layout = new QHBoxLayout;
+    layout->addWidget(child1);
+    layout->addWidget(child2);
+    hbox->setLayout(layout);
     \endcode
 
     \section1 QHeader
@@ -3599,16 +3617,23 @@
 
     \section1 QVBox
 
-    The \c QVBox class is now only available as Q3VBox in Qt 4. You can
-    achieve the same result as QVBox by creating a QWidget with a
-    vertical layout:
+    The \c QVBox class is now only available as Q3VBox in Qt 4. You
+    can achieve the same result as \c QVBox by creating a QWidget
+    with a vertical layout:
 
     \oldcode
     QVBox *vbox = new QVBox;
+    QPushButton *child1 = new QPushButton(vbox);
+    QPushButton *child2 = new QPushButton(vbox);
     \newcode
     QWidget *vbox = new QWidget;
-    QVBoxLayout *vboxLayout = new QVBoxLayout(vbox);
-    vbox->setLayout(vboxLayout);
+    QPushButton *child1 = new QPushButton;
+    QPushButton *child2 = new QPushButton;
+
+    QVBoxLayout *layout = new QVBoxLayout;
+    layout->addWidget(child1);
+    layout->addWidget(child2);
+    vbox->setLayout(layout);
     \endcode
 
     \section1 QWhatsThis
