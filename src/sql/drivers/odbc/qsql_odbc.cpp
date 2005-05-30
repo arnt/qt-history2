@@ -39,6 +39,19 @@
 # define SQL_C_WCHAR SQL_C_CHAR
 #endif
 
+// newer platform SDKs use SQLLEN instead of SQLINTEGER
+#ifdef SQLLEN
+# define QSQLLEN SQLLEN
+#else
+# define QSQLLEN SQLINTEGER
+#endif
+
+#ifdef SQLULEN
+# define QSQLULEN SQLULEN
+#else
+# define QSQLULEN SQLUINTEGER
+#endif
+
 static const int COLNAMESIZE = 255;
 //Map Qt parameter types to ODBC types
 static const SQLSMALLINT qParamType[4] = { SQL_PARAM_INPUT, SQL_PARAM_INPUT, SQL_PARAM_OUTPUT, SQL_PARAM_INPUT_OUTPUT };
@@ -229,7 +242,7 @@ static QString qGetStringData(SQLHANDLE hStmt, int column, int colSize, bool uni
 {
     QString fieldVal;
     SQLRETURN r = SQL_ERROR;
-    SQLINTEGER lengthIndicator = 0;
+    QSQLLEN lengthIndicator = 0;
 
     if (colSize <= 0) {
         colSize = 255;
@@ -287,22 +300,22 @@ static QVariant qGetBinaryData(SQLHANDLE hStmt, int column)
     QByteArray fieldVal;
     SQLSMALLINT colNameLen;
     SQLSMALLINT colType;
-    SQLUINTEGER colSize;
+    QSQLULEN colSize;
     SQLSMALLINT colScale;
     SQLSMALLINT nullable;
-    SQLINTEGER lengthIndicator = 0;
+    QSQLLEN lengthIndicator = 0;
     SQLRETURN r = SQL_ERROR;
 
     SQLTCHAR colName[COLNAMESIZE];
     r = SQLDescribeCol(hStmt,
-                        column+1,
-                        colName,
-                        COLNAMESIZE,
-                        &colNameLen,
-                        &colType,
-                        &colSize,
-                        &colScale,
-                        &nullable);
+                       column + 1,
+                       colName,
+                       COLNAMESIZE,
+                       &colNameLen,
+                       &colType,
+                       &colSize,
+                       &colScale,
+                       &nullable);
     if (r != SQL_SUCCESS)
         qWarning("qGetBinaryData: Unable to describe column %d", column);
     // SQLDescribeCol may return 0 if size cannot be determined
@@ -341,7 +354,7 @@ static QVariant qGetBinaryData(SQLHANDLE hStmt, int column)
 static QVariant qGetIntData(SQLHANDLE hStmt, int column)
 {
     SQLINTEGER intbuf = 0;
-    SQLINTEGER lengthIndicator = 0;
+    QSQLLEN lengthIndicator = 0;
     SQLRETURN r = SQLGetData(hStmt,
                               column+1,
                               SQL_C_SLONG,
@@ -357,7 +370,7 @@ static QVariant qGetIntData(SQLHANDLE hStmt, int column)
 static QVariant qGetDoubleData(SQLHANDLE hStmt, int column)
 {
     SQLDOUBLE dblbuf;
-    SQLINTEGER lengthIndicator = 0;
+    QSQLLEN lengthIndicator = 0;
     SQLRETURN r = SQLGetData(hStmt,
                               column+1,
                               SQL_C_DOUBLE,
@@ -373,7 +386,7 @@ static QVariant qGetDoubleData(SQLHANDLE hStmt, int column)
 static QVariant qGetBigIntData(SQLHANDLE hStmt, int column)
 {
     SQLBIGINT lngbuf = qint64(0);
-    SQLINTEGER lengthIndicator = 0;
+    QSQLLEN lengthIndicator = 0;
     SQLRETURN r = SQLGetData(hStmt,
                               column+1,
                               SQL_C_SBIGINT,
@@ -412,7 +425,7 @@ static QSqlField qMakeFieldInfo(const QODBCPrivate* p, int i )
 {
     SQLSMALLINT colNameLen;
     SQLSMALLINT colType;
-    SQLUINTEGER colSize;
+    QSQLULEN colSize;
     SQLSMALLINT colScale;
     SQLSMALLINT nullable;
     SQLRETURN r = SQL_ERROR;
@@ -835,7 +848,7 @@ QVariant QODBCResult::data(int field)
         return d->fieldCache.at(field);
 
     SQLRETURN r(0);
-    SQLINTEGER lengthIndicator = 0;
+    QSQLLEN lengthIndicator = 0;
 
     for (int i = d->fieldCacheIdx; i <= field; ++i) {
         // some servers do not support fetching column n after we already
@@ -932,7 +945,7 @@ int QODBCResult::size()
 
 int QODBCResult::numRowsAffected()
 {
-    SQLINTEGER affectedRowCount(0);
+    QSQLLEN affectedRowCount = 0;
     SQLRETURN r = SQLRowCount(d->hStmt, &affectedRowCount);
     if (r == SQL_SUCCESS)
         return affectedRowCount;
@@ -1002,7 +1015,7 @@ bool QODBCResult::exec()
 {
     SQLRETURN r;
     QList<QByteArray> tmpStorage; // holds temporary buffers
-    QVarLengthArray<SQLINTEGER, 32> indicators(boundValues().count());
+    QVarLengthArray<QSQLLEN, 32> indicators(boundValues().count());
 
     memset(indicators.data(), 0, indicators.size());
     setActive(false);
@@ -1024,7 +1037,7 @@ bool QODBCResult::exec()
         if (bindValueType(i) & QSql::Out)
             values[i].detach();
         const QVariant &val = values.at(i);
-        SQLINTEGER * ind = &indicators[i];
+        QSQLLEN *ind = &indicators[i];
         if (val.isNull())
             *ind = SQL_NULL_DATA;
         switch (val.type()) {
