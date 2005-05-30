@@ -117,7 +117,7 @@ Configure::Configure( int& argc, char** argv )
 	QString line;
 	while (!read.atEnd()) {
 	    line = read.readLine();
-	    if (line.contains("VERSION")) {
+	    if (line.contains("VERSION") && !line.startsWith("#")) {
 		version = line.mid(line.indexOf('=') + 1);
 		version = version.trimmed();
 		if (!version.isEmpty())
@@ -1244,8 +1244,8 @@ void Configure::generateOutputVars()
 
     if ( dictionary[ "SHARED" ] == "yes" ) {
 	QString version = dictionary[ "VERSION" ];
+	qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + version.left(version.indexOf("."));
 	version.remove(QLatin1Char('.'));
-	qmakeVars += "QMAKE_QT_VERSION_OVERRIDE=" + version;
 	dictionary[ "QMAKE_OUTDIR" ] += "_shared";
     } else {
 	dictionary[ "QMAKE_OUTDIR" ] += "_static";
@@ -1574,67 +1574,6 @@ WCE({	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_P
 
         outStream.flush();
         outFile.close();
-    }
-
-    outDir = dictionary[ "QT_SOURCE_TREE" ];
-    outName = outDir + "/src/qt.rc";
-    ::SetFileAttributesA( outName.toLocal8Bit(), FILE_ATTRIBUTE_NORMAL );
-    QFile::remove( outName );
-    outFile.setFileName( outName );
-
-    if( outFile.open( QFile::WriteOnly | QFile::Text ) ) {
-	outStream.setDevice(&outFile);
-
-	QString version = dictionary["VERSION"];
-	QString prodFile = "qt";
-	if ( dictionary["SHARED"] == "yes" ) {
-	    prodFile += version;
-	    prodFile.remove('.');
-	}
-	prodFile += ".dll";
-	QString prodVer = version;
-	prodVer.replace('.', ',');
-
-	QString internalName = licenseInfo["PRODUCTS"];
-
-	outStream << "#ifndef Q_CC_BOR" << endl;
-	outStream << "# if defined(UNDER_CE) && UNDER_CE >= 400" << endl;
-	outStream << "#  include <winbase.h>" << endl;
-	outStream << "# else" << endl;
-	outStream << "#  include <winver.h>" << endl;
-	outStream << "# endif" << endl;
-	outStream << "#endif" << endl << endl;
-	outStream << "VS_VERSION_INFO VERSIONINFO" << endl;
-	outStream << "\tFILEVERSION " << prodVer << ",1" << endl;
-	outStream << "\tPRODUCTVERSION " << prodVer << ",0" << endl;
-	outStream << "\tFILEFLAGSMASK 0x3fL" << endl;
-	outStream << "#ifdef _DEBUG" << endl;
-	outStream << "\tFILEFLAGS VS_FF_DEBUG" << endl;
-	outStream << "#else" << endl;
-	outStream << "\tFILEFLAGS 0x0L" << endl;
-	outStream << "#endif" << endl;
-	outStream << "\tFILEOS VOS__WINDOWS32" << endl;
-	outStream << "\tFILETYPE VFT_DLL" << endl;
-	outStream << "\tFILESUBTYPE 0x0L" << endl;
-	outStream << "\tBEGIN" << endl;
-	outStream << "\t\tBLOCK \"StringFileInfo\"" << endl;
-	outStream << "\t\tBEGIN" << endl;
-	outStream << "\t\t\tBLOCK \"040904B0\"" << endl;
-	outStream << "\t\t\tBEGIN" << endl;
-	outStream << "\t\t\t\tVALUE \"CompanyName\", \"Trolltech AS\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"FileDescription\", \"Qt\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"FileVersion\", \"" << prodVer << ",1\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"InternalName\", \"" << internalName << "\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"LegalCopyright\", \"Copyright (C) 2003-$THISYEAR$ Trolltech AS\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"LegalTrademarks\", \"\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"OriginalFilename\", \"" << prodFile << "\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"ProductName\", \"Qt\\0\"" << endl;
-	outStream << "\t\t\t\tVALUE \"ProductVersion\", \"" << version << "\\0\"" << endl;
-	outStream << "\t\t\tEND" << endl;
-	outStream << "\t\tEND" << endl;
-	outStream << "\tEND" << endl;
-	outStream << "/* End of Version info */" << endl << endl;
-        outStream.flush();
     }
 }
 #endif
