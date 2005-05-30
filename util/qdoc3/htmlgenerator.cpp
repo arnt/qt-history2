@@ -1548,7 +1548,7 @@ void HtmlGenerator::generateOverviewList(const Node *relative, CodeMarker * /* m
             if (title.startsWith("The "))
                 title.remove(0, 4);
             out() << "<li><a href=\"" << linkForNode(fakeNode, relative) << "\">"
-                  << protect(title) << "</li>\n";
+                  << protect(title) << "</a></li>\n";
         }
         out() << "</ul>\n";
     }
