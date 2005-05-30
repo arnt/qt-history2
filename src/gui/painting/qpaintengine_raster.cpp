@@ -932,7 +932,7 @@ void QRasterPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
             FillData fillData = d->fillForBrush(d->pen.brush());
             QRect devRect(0, 0, d->deviceRect.width(), d->deviceRect.height());
 
-            LineDrawMode mode_for_last = (d->pen.style() != Qt::FlatCap
+            LineDrawMode mode_for_last = (d->pen.capStyle() != Qt::FlatCap
                                           ? LineDrawIncludeLastPixel
                                           : LineDrawNormal);
 
