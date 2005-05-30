@@ -158,6 +158,9 @@ public:
 
     uint txop;
 
+    uint has_pen : 1;
+    uint has_brush : 1;
+    uint fast_pen : 1;
     uint opaqueBackground : 1;
     uint clipEnabled : 1;
     uint antialiased : 1;
