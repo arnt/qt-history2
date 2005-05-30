@@ -307,7 +307,7 @@ QSize QHeaderView::sizeHint() const
     Q_D(const QHeaderView);
 
     if (d->model == 0 || count() < 1)
-        return QSize();
+        return QSize(0, 0);
     // FIXME: we should check all sections (slow)
     QSize firstHint = sectionSizeFromContents(logicalIndex(0));
     QSize lastHint = sectionSizeFromContents(logicalIndex(count() - 1));
