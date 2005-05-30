@@ -286,8 +286,8 @@ bool QSizeGrip::eventFilter(QObject *o, QEvent *e)
 /*! \reimp */
 bool QSizeGrip::event(QEvent *e)
 {
-    switch(e->type()) {
 #if defined(Q_WS_MAC)
+    switch(e->type()) {
     case QEvent::Hide:
     case QEvent::Show:
         if(!QApplication::closingDown() && parentWidget() && !qt_sizegrip_workspace(this)) {
@@ -297,10 +297,10 @@ bool QSizeGrip::event(QEvent *e)
             }
         }
         break;
-#endif
     default:
         break;
     }
+#endif
     return QWidget::event(e);
 }
 
