@@ -1367,8 +1367,10 @@ LRESULT CALLBACK QAxServerBase::ActiveXProc(HWND hWnd, UINT uMsg, WPARAM wParam,
     case WM_QUERYENDSESSION:
     case WM_DESTROY:
         // save the window handle
-	if (that->qt.widget)
+        if (that->qt.widget) {
+            that->qt.widget->hide();
             ::SetParent(that->qt.widget->winId(), 0);
+        }
 	break;
 
     case WM_SHOWWINDOW:
@@ -2551,19 +2553,19 @@ HRESULT WINAPI QAxServerBase::Invoke(DISPID dispidMember, REFIID riid,
          case DISPATCH_PROPERTYPUT|DISPATCH_PROPERTYPUTREF:
              {
                  m_spAdviseSink->OnViewChange( DVASPECT_CONTENT, -1 );
-                 
+
                  FORMATETC fmt;
                  fmt.cfFormat = 0;
                  fmt.ptd = 0;
                  fmt.dwAspect = DVASPECT_CONTENT;
                  fmt.lindex = -1;
                  fmt.tymed = TYMED_NULL;
-                 
+
                  STGMEDIUM stg;
                  stg.tymed = TYMED_NULL;
                  stg.pUnkForRelease = 0;
                  stg.hBitmap = 0; // initializes the whole union
-                 
+
                  m_spAdviseSink->OnDataChange( &fmt, &stg );
              }
              dirtyflag = true;
