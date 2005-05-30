@@ -1488,7 +1488,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 //    qDebug() << "layoutBlock; width" << layoutStruct->x_right - layoutStruct->x_left << "(maxWidth is btw" << tl->maximumWidth() << ")";
 
     if (!firstBlockInFlow)
-    layoutStruct->y += blockFormat.topMargin();
+        layoutStruct->y += blockFormat.topMargin();
 
     //QTextFrameData *fd = data(layoutStruct->frame);
 
@@ -1500,15 +1500,9 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
 //         qDebug() << "    layouting block at" << bl.position();
         const qreal cy = layoutStruct->y;
-        qreal l = layoutStruct->x_left + blockFormat.leftMargin();
-        qreal r = layoutStruct->x_right - blockFormat.rightMargin();
-        if (dir == Qt::RightToLeft)
-            r -= indent;
-        else
-            l += indent;
+        const qreal l = layoutStruct->x_left  + blockFormat.leftMargin()  + (dir == Qt::RightToLeft ? 0 : indent);
+        const qreal r = layoutStruct->x_right - blockFormat.rightMargin() - (dir == Qt::RightToLeft ? indent : 0);
 
-//    tl->useDesignMetrics(true);
-//     tl->enableKerning(true);
         tl->beginLayout();
         bool firstLine = true;
         while (1) {
@@ -1560,6 +1554,8 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
                     // lines min width more than what we have
                     layoutStruct->y = findY(layoutStruct->y, layoutStruct, line.naturalTextWidth());
                     floatMargins(layoutStruct->y, layoutStruct, &left, &right);
+                    left = qMax(left, l);
+                    right = qMin(right, r);
                     if (dir == Qt::LeftToRight)
                         left += text_indent;
                     else
@@ -1591,7 +1587,7 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
     }
 
     if (!lastBlockInFlow)
-    layoutStruct->y += blockFormat.bottomMargin();
+        layoutStruct->y += blockFormat.bottomMargin();
 
     // ### doesn't take floats into account. would need to do it per line. but how to retrieve then? (Simon)
     layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, tl->minimumWidth() + blockFormat.leftMargin() + indent);
