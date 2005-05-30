@@ -1282,10 +1282,10 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         fd->border = fformat.border();
         fd->padding = fformat.padding();
 
-        fd->contentsWidth = frameWidth - 2*(fd->margin + fd->border);
+        fd->contentsWidth = frameWidth - 2*(fd->margin + fd->border + fd->padding);
 
         if (frameHeight != -1) {
-            fd->contentsHeight = frameHeight - 2*(fd->margin + fd->border);
+            fd->contentsHeight = frameHeight - 2*(fd->margin + fd->border + fd->padding);
         } else {
             fd->contentsHeight = frameHeight;
         }
