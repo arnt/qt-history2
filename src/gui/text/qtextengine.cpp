@@ -801,24 +801,19 @@ static void init(QTextEngine *e)
 }
 
 QTextEngine::QTextEngine()
-    : fnt(0)
 {
     init(this);
 }
 
-QTextEngine::QTextEngine(const QString &str, QFontPrivate *f)
+QTextEngine::QTextEngine(const QString &str, const QFont &f)
     : fnt(f)
 {
     init(this);
     text = str;
-    if (fnt)
-        fnt->ref.ref();
 }
 
 QTextEngine::~QTextEngine()
 {
-    if (fnt && !fnt->ref.deref())
-        delete fnt;
     delete layoutData;
     delete specialData;
 }
@@ -1054,43 +1049,27 @@ glyph_metrics_t QTextEngine::boundingBox(int from,  int len) const
 
 QFont QTextEngine::font(const QScriptItem &si) const
 {
-    if (block.docHandle()) {
-        QTextFormat f = format(&si);
-        Q_ASSERT(f.isCharFormat());
-        QTextCharFormat chf = f.toCharFormat();
-        QFont fnt = chf.font();
-        fnt = fnt.resolve(block.docHandle()->defaultFont);
+    QTextCharFormat f = format(&si);
+    QFont font = f.font().resolve(fnt);
 
+    if (block.docHandle()) {
+        font = font.resolve(block.docHandle()->defaultFont);
         // Make sure we get the right dpi on printers
         QPaintDevice *pdev = block.docHandle()->layout()->paintDevice();
         if (pdev)
-            fnt = QFont(fnt, pdev);
-
-        if (chf.verticalAlignment() != QTextCharFormat::AlignNormal)
-            fnt.setPointSize((fnt.pointSize() * 2) / 3);
-
-        return fnt;
+            font = QFont(font, pdev);
     }
 
-    if (fnt)
-        return QFont(fnt);
-    return QFont();
-}
+    if (f.verticalAlignment() != QTextCharFormat::AlignNormal)
+        font.setPointSize((font.pointSize() * 2) / 3);
 
-QFont QTextEngine::font() const
-{
-    if (fnt)
-        return QFont(fnt);
-    return QFont();
+    return font;
 }
 
 QFontEngine *QTextEngine::fontEngine(const QScriptItem &si) const
 {
-    if (!fnt) {
-        QFont font = this->font(si);
-        return font.d->engineForScript(si.analysis.script);
-    }
-    return fnt->engineForScript(si.analysis.script);
+    QFont font = this->font(si);
+    return font.d->engineForScript(si.analysis.script);
 }
 
 struct JustificationPoint {
@@ -1301,12 +1280,12 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
     QFont f;
     QFontEngine *e;
 
-    if (eng->fnt) {
-        e = eng->fnt->engineForScript(QUnicodeTables::Common);
-    } else {
+    if (eng->block.docHandle()) {
         f = eng->block.charFormat().font();
         f = f.resolve(eng->block.docHandle()->defaultFont);
         e = f.d->engineForScript(QUnicodeTables::Common);
+    } else {
+        e = eng->fnt.d->engineForScript(QUnicodeTables::Common);
     }
 
     ascent = e->ascent();
@@ -1359,9 +1338,11 @@ int QTextEngine::formatIndex(const QScriptItem *si) const
 }
 
 
-QTextFormat QTextEngine::format(const QScriptItem *si) const
+QTextCharFormat QTextEngine::format(const QScriptItem *si) const
 {
-    QTextFormat format = formats()->format(formatIndex(si));
+    QTextCharFormat format;
+    if (block.docHandle())
+        format = formats()->charFormat(formatIndex(si));
     if (specialData) {
         int end = si->position + length(si);
         for (int i = 0; i < specialData->addFormats.size(); ++i) {

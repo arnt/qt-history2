@@ -267,7 +267,7 @@ class QTextFormatCollection;
 class Q_GUI_EXPORT QTextEngine {
 public:
     QTextEngine();
-    QTextEngine(const QString &str, QFontPrivate *f);
+    QTextEngine(const QString &str, const QFont &f);
     ~QTextEngine();
 
     enum Mode {
@@ -314,7 +314,7 @@ public:
 
     QFontEngine *fontEngine(const QScriptItem &si) const;
     QFont font(const QScriptItem &si) const;
-    QFont font() const;
+    inline QFont font() const { return fnt; }
 
     unsigned short *logClustersPtr;
     QGlyphLayout *glyphPtr;
@@ -336,7 +336,7 @@ public:
     inline QTextFormatCollection *formats() const {
         return block.docHandle()->formatCollection();
     }
-    QTextFormat format(const QScriptItem *si) const;
+    QTextCharFormat format(const QScriptItem *si) const;
     inline QAbstractTextDocumentLayout *docLayout() const {
         return block.docHandle()->document()->documentLayout();
     }
@@ -347,7 +347,7 @@ public:
     mutable QScriptLineArray lines;
 
     QString text;
-    QFontPrivate *fnt;
+    QFont fnt;
     QTextBlock block;
 
     QTextOption option;

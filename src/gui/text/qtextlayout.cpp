@@ -335,10 +335,7 @@ QTextLayout::~QTextLayout()
 */
 void QTextLayout::setFont(const QFont &font)
 {
-    if (d->fnt && !d->fnt->ref.deref())
-        delete d->fnt;
-    d->fnt = font.d;
-    d->fnt->ref.ref();
+    d->fnt = font;
 }
 
 /*!
@@ -347,7 +344,7 @@ void QTextLayout::setFont(const QFont &font)
 */
 QFont QTextLayout::font() const
 {
-    return d->fnt ? QFont(d->fnt) : QFont();
+    return d->font();
 }
 
 /*!
@@ -1369,7 +1366,6 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
             outlinePen = qVariantValue<QPen>(outline);
     }
 
-    QFont f = eng->font();
     for (int i = 0; i < nItems; ++i) {
         int item = visualOrder[i]+firstItem;
         QScriptItem &si = eng->layoutData->items[item];
@@ -1382,7 +1378,7 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
                 (!selection || (si.position < selection->start + selection->length
                                 && si.position + si_len > selection->start))) {
                 p->save();
-                QTextCharFormat format = eng->format(&si).toCharFormat();
+                QTextCharFormat format = eng->format(&si);
                 if (selection)
                     format.merge(selection->format);
                 qreal width = si.width;
@@ -1479,24 +1475,19 @@ void QTextLine::draw(QPainter *p, const QPointF &pos, const QTextLayout::FormatR
         }
 
 
-        if (eng->block.docHandle() || selection) {
-            QTextCharFormat chf;
-            if (eng->block.docHandle())
-                chf = eng->format(&si).toCharFormat();
-            if (selection)
-                chf.merge(selection->format);
+        QTextCharFormat chf = eng->format(&si);
+        if (selection)
+            chf.merge(selection->format);
 
-            setPenAndDrawBackground(p, pen, chf, QRectF(x, y - line.ascent, gf.width, line.height()));
+        setPenAndDrawBackground(p, pen, chf, QRectF(x, y - line.ascent, gf.width, line.height()));
 
-            QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
-            if (valign == QTextCharFormat::AlignSubScript)
-                itemBaseLine += (si.ascent + si.descent + 1) / 6;
-            else if (valign == QTextCharFormat::AlignSuperScript)
-                itemBaseLine -= (si.ascent + si.descent + 1) / 2;
+        QTextCharFormat::VerticalAlignment valign = chf.verticalAlignment();
+        if (valign == QTextCharFormat::AlignSubScript)
+            itemBaseLine += (si.ascent + si.descent + 1) / 6;
+        else if (valign == QTextCharFormat::AlignSuperScript)
+            itemBaseLine -= (si.ascent + si.descent + 1) / 2;
 
-            f = eng->font(si);
-        }
-
+        QFont f = eng->font(si);
         gf.fontEngine = f.d->engineForScript(si.analysis.script);
         gf.f = &f;
         if (f.d->underline)
