@@ -37,7 +37,7 @@ public:
     void setPhrase(const QModelIndex &indx, Phrase ph);
     QModelIndex index(const Phrase phr) const;
 
-    static bool compare(const Phrase left, const Phrase right);
+    static bool compare(const Phrase &left, const Phrase &right);
     bool sortParameters(Qt::SortOrder &so, int &sc) const;
     void resort();
 

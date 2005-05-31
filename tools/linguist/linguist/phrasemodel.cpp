@@ -155,7 +155,7 @@ void PhraseModel::sort(int column, Qt::SortOrder order)
         QAbstractTableModel::index(plist.count()-1, 2));
 }
 
-bool PhraseModel::compare(const Phrase left, const Phrase right)
+bool PhraseModel::compare(const Phrase &left, const Phrase &right)
 {
     int res;
     switch (sSortColumn) {
