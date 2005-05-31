@@ -11,6 +11,7 @@ PACKAGES=
 COMMAND_PAX="/System/Library/PrivateFrameworks/Installation.framework/Resources/pax" #yes that pax, don't ask!
 README=
 LICENSE=
+LICENSE_US=
 MAKE_META=
 MAKE_IMAGE=no
 
@@ -42,7 +43,7 @@ while [ -n "$1" ]; do
      OPTION=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\1,'`
      ARG=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\2,'`
      ;;
-   -output|-packages|-qtbins|-qtsrcs|-qtdir|-qtpackage|-version|-license|-readme) #second arg style
+   -output|-packages|-qtbins|-qtsrcs|-qtdir|-qtpackage|-version|-license|-license_us|-readme) #second arg style
      OPTION=`echo $1 | sed 's,-\([^=]*\),\1,'`
      shift
      ARG=$1
@@ -73,6 +74,7 @@ while [ -n "$1" ]; do
 	   echo "-qtpackage <package>     Given a package it will be untar'd configured and built and used."
 	   echo "-version <version>       What version the package is creating for (falls back to qglobal.h)"
 	   echo "-license <license>       Where your license file lives"
+	   echo "-license_us <license>    Where your U.S. license file lives"
 	   echo "-readme <readme>         Where your readme file lives"
 	   echo "-image                   Create a disk image of the outputs"
 	   echo "-meta                    Create a meta package for all the outputs"
@@ -133,7 +135,7 @@ elif [ ! -z "$SOURCE_PACKAGE" ]; then
     export DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
     export DYLD_FRAMEWORK_PATH=$QTDIR/lib:$DYLD_FRAMEWORK_PATH
     export PATH=$QTDIR/bin:$PATH
-    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure -qt-libpng -qt-libjpeg -qt-sql-sqlite -release -framework -confirm-license -pch && make); then
+    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure -qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -release -framework -confirm-license -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib && make); then
           SOURCE_DIR="$QTDIR"
           BINARY_DIR="$SOURCE_DIR"
     else
@@ -148,13 +150,25 @@ fi
 #find the license
 if [ -z "$LICENSE" ]; then
     DEPOT_LICENSE="$SOURCE_DIR/dist/commercial/LICENSE" 
-    PACKAGE_LICENSE="$SOURCE_DIR/LICENSE" 
+    PACKAGE_LICENSE="$SOURCE_DIR/.LICENSE" 
     if [ -e "$DEPOT_LICENSE" ]; then
         LICENSE=$DEPOT_LICENSE
     elif [ -e "$PACKAGE_LICENSE" ]; then
         LICENSE="$PACKAGE_LICENSE"
     elif [ -e "../../../../dist/commercial/LICENSE" ]; then
 	LICENSE="../../../../dist/commercial/LICENSE"
+    fi
+fi
+
+if [ -z "$LICENSE_US" ]; then
+    DEPOT_LICENSE_US="$SOURCE_DIR/dist/commercial/LICENSE-US" 
+    PACKAGE_LICENSE_US="$SOURCE_DIR/.LICENSE-US" 
+    if [ -e "$DEPOT_LICENSE_US" ]; then
+        LICENSE_US=$DEPOT_LICENSE_US
+    elif [ -e "$PACKAGE_LICENSE_US" ]; then
+        LICENSE_US="$PACKAGE_LICENSE_US"
+    elif [ -e "../../../../dist/commercial/LICENSE-US" ]; then
+	LICENSE_US="../../../../dist/commercial/LICENSE-US"
     fi
 fi
 
@@ -167,7 +181,7 @@ if [ -z "$README" ]; then
     elif [ -e "$PACKAGE_README" ]; then 
         README="$PACKAGE_README"
     elif [ -e "../../../../dist/README" ]; then
-	LICENSE="../../../../dist/README"
+	README="../../../../dist/README"
     fi
 fi
 
@@ -265,7 +279,7 @@ resource 'STR#' (5002, "English") {
 EOF
    fi
 
-   echo "Creating license richtext"
+   echo "Creating license richtext for rest of the world"
    rm -f "$TMP_DIR/licenses/License.rtf"
    cat >>"$TMP_DIR/licenses/License.rtf" <<EOF
 {\rtf1\mac\ansicpg10000\cocoartf102
@@ -285,6 +299,81 @@ EOF
 
 else
    echo "No license file found!"
+   exit 1
+fi
+
+if [ -e "$LICENSE_US" ]; then
+   if [ "$MAKE_IMAGE" = "yes" ]; then
+       echo "Creating disk image license for U.S."
+       rm -f "$TMP_DIR/licenses/dmg_license-us.r"
+       cat >>"$TMP_DIR/licenses/dmg_license-us.r" <<EOF
+data 'LPic' (5000) {
+    $"0002 0011 0003 0001 0000 0000 0002 0000"
+    $"0008 0003 0000 0001 0004 0000 0004 0005"
+    $"0000 000E 0006 0001 0005 0007 0000 0007"
+    $"0008 0000 0047 0009 0000 0034 000A 0001"
+    $"0035 000B 0001 0020 000C 0000 0011 000D"
+    $"0000 005B 0004 0000 0033 000F 0001 000C"
+    $"0010 0000 000B 000E 0000"
+};
+data 'TEXT' (5002, "English") {
+EOF
+       exec 3<"$LICENSE_US"
+       while read line <&3; do
+            echo $line | sed -e "s,\",',g" -e 's,^\(.*\)$,"\1\\n",g' >>"$TMP_DIR/licenses/dmg_license-us.r"
+       done
+       exec 3>&-
+       cat >>"$TMP_DIR/licenses/dmg_license-us.r" <<EOF
+};
+
+resource 'STR#' (5002, "English") {
+    {   /* array StringArray: 9 elements */
+        /* [1] */
+        "English",
+        /* [2] */
+        "Agree",
+        /* [3] */
+        "Disagree",
+        /* [4] */
+        "Print",
+        /* [5] */
+        "Save...",
+        /* [6] */
+        "IMPORTANT - Read this License Agreement carefully before clicking on "
+        "the \"Agree\" button.  By clicking on the \"Agree\" button, you agree "
+        "to be bound by the terms of the License Agreement.",
+        /* [7] */
+        "Software License Agreement",
+        /* [8] */
+        "This text cannot be saved. This disk may be full or locked, or the file "
+        "may be locked.",
+        /* [9] */
+        "Unable to print. Make sure you<D5>ve selected a printer."
+    }
+};
+EOF
+   fi
+
+   echo "Creating license richtext for U.S."
+   rm -f "$TMP_DIR/licenses/License-US.rtf"
+   cat >>"$TMP_DIR/licenses/License-US.rtf" <<EOF
+{\rtf1\mac\ansicpg10000\cocoartf102
+{\fonttbl\f0\fswiss\fcharset77 Helvetica;\f1\fswiss\fcharset77 Helvetica-Oblique;\f2\fswiss\fcharset77 Helvetica-Bold;
+}
+{\colortbl;\red255\green255\blue255;}
+\margl1440\margr1440\vieww9000\viewh9000\viewkind0
+\pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
+EOF
+   sed -e 's,^\(Qt COMMERCIAL\) \(LICENSE AGREEMENT\)$,\\f0\\fs24 \\cf0 \\ul \\ulc0 \1 \\ulnone \2 \\f0\\i0,g' \
+       -e 's,^\([0-9]*\)\. ,\\f2\\b \1 \\f0\\b0. ,g' \
+       -e 's,\(^[A-Z][A-Z :]*$\),\\f2\\b \1 \\f0\\b0,g' \
+       -e 's,\(^Agreement version [0-9].[0-9]$\),\\f1\\i \1 \\f0\\i0,g' \
+       -e 's,^\(.*\)$,\1\\,g' \
+       "$LICENSE_US" >>"$TMP_DIR/licenses/License-US.rtf"
+   echo "}" >>"$TMP_DIR/licenses/License-US.rtf"
+
+else
+   echo "No U.S. license file found!"
    exit 1
 fi
 
@@ -334,7 +423,16 @@ for package in $PACKAGES; do
     #merge resources
     cp -R Resources/* "$package_dir/Contents/Resources"
     cp -R $PACKAGE_DIR/$package/Resources/* "$package_dir/Contents/Resources"
-    cp "$TMP_DIR/licenses/License.rtf" "$package_dir/Contents/Resources"
+    for lang in "US and Canada" "Rest of the world"; do
+        LOCALDIR="$package_dir/Contents/Resources/${lang}.lproj"
+        if [ "$lang" == "US and Canada" ]; then
+            mv "$package_dir/Contents/Resources/English.lproj" "$LOCALDIR"
+            cp "$TMP_DIR/licenses/License-US.rtf" "$LOCALDIR/License.rtf"
+        else
+            mkdir -p "$LOCALDIR"
+            cp "$TMP_DIR/licenses/License.rtf" "$LOCALDIR"
+        fi
+    done
     for a in $package_dir/Contents/Resources/*.plist $package_dir/Contents/Resources/*.info $package_dir/Contents/Resources/*flight $package_dir/Contents/Resources/*.rtf; do
 	[ -e "$a" ] && doStringReplace "$a" "$a"
     done
@@ -348,8 +446,7 @@ for package in $PACKAGES; do
         if [ -e "$a" ]; then
 	    chmod a+x "$a"
 	    if [ -e "${a}.strings" ]; then
-		for lang in English Norwegian French; do
-		    mkdir -p "$package_dir/Contents/Resources/${lang}.lproj"
+		for lang in "US and Canada" "Rest of the world"; do
 		    cp "${a}.strings" "$package_dir/Contents/Resources/${lang}.lproj"
                 done
 		rm -f "${a}.strings"
@@ -373,7 +470,15 @@ if [ "$MAKE_META" = "yes" ]; then
     cp -R "MetaPackage" "$OUTPUT_DIR/Qt.mpkg/Contents"
     mkdir -p "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     cp -R Resources/* "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
-    cp "$TMP_DIR/licenses/License.rtf" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
+    for lang in "US and Canada" "Rest of the world"; do
+        LOCALDIR="$OUTPUT_DIR/Qt.mpkg/Contents/Resources/${lang}.lproj"
+        mkdir -p "$LOCALDIR"
+        if [ "$lang" == "US and Canada" ]; then
+            cp "$TMP_DIR/licenses/License-US.rtf" "$LOCALDIR/License.rtf"
+        else
+            cp "$TMP_DIR/licenses/License.rtf" "$LOCALDIR"
+        fi
+    done
     for a in $OUTPUT_DIR/Qt.mpkg/Contents/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.info $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.plist $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*.rtf; do
 	doStringReplace "$a" "$a"
     done
@@ -381,8 +486,7 @@ if [ "$MAKE_META" = "yes" ]; then
         if [ -e "$a" ]; then
 	    chmod a+x "$a"
 	    if [ -e "${a}.strings" ]; then
-		for lang in English Norwegian French; do
-		    mkdir -p "$OUTPUT_DIR/Qt.mpkg/Contents/Resources/${lang}.lproj"
+                for lang in "US and Canada" "Rest of the world"; do
 		    cp "${a}.strings" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources/${lang}.lproj"
                 done
 		rm -f "${a}.strings"
@@ -426,42 +530,29 @@ fi
 #create disk image
 if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     echo "Creating disk image.."
-    IMAGE_NAME="Qt Packages"
-    IMAGE="$OUTPUT_DIR/QtPackages.dmg"
+    IMAGE_NAME="Qt 4.0.0-RC1"
+    IMAGE="$OUTPUT_DIR/qt-commercial-desktop-4.0.0-rc1.dmg"
     rm -f "$IMAGE" #remove old
 
     #copy
     echo "  Copying..."
-    mkdir -p "$TMP_DIR/diskimage"
+    DISKIMAGE="$TMP_DIR/diskimage"
+    mkdir -p "$DISKIMAGE/.images"
+    cp finderbackground.png "$DISKIMAGE/.images"
+    cp model-DS_Store "$DISKIMAGE/.DS_Store"
+    chmod 600 "$DISKIMAGE/.DS_Store"
+
     for package in $PKG_CREATED; do 
 	[ -z "$package" ] && continue
-	OUT_PACKAGE=`echo $package | sed "s,^$OUTPUT_DIR,$TMP_DIR/diskimage/,"`
+	OUT_PACKAGE=`echo $package | sed "s,^$OUTPUT_DIR,$DISKIMAGE/,"`
 	mkdir -p "`dirname "$OUT_PACKAGE"`"
 	cp -R "$package" "$OUT_PACKAGE"
     done
-    [ -e "$README" ] && cp "$README" "$TMP_DIR/diskimage/ReadMe.txt"
+    [ -e "$README" ] && cp "$README" "$DISKIMAGE/ReadMe.txt"
 
     echo -n "  Creating Image..."
-    hdiutil create -volname "$IMAGE_NAME" -srcfolder "$TMP_DIR/diskimage" "$IMAGE" | grep -v ^created:
+    hdiutil create -volname "$IMAGE_NAME" -srcfolder "$DISKIMAGE" "$IMAGE" | grep -v ^created:
     echo " done!"
-
-    #do evilness
-   #echo -n "  Setting up..."
-   #osascript -e "tell application \"Finder\"" \
-   #          -e "    set mountedDiskImage to disk \"${IMAGE_NAME}\"" \
-   #          -e "    open mountedDiskImage" \
-   #          -e "    tell container window of mountedDiskImage" \
-   #          -e "        set toolbar visible to false" \
-   #          -e "        set current view to icon view" \
-   #          -e "        set position of item \"Qt.mpkg\" to {10, 5}" \
-   #          -e "        set position of item \"packages\" to {220, 5}" \
-   #          -e "        set bounds to {220, 180, 380, 400 }" \
-   #          -e "    end tell" \
-   #          -e "    set icon size of icon view options of container window of mountedDiskImage to 128" \
-   #          -e "end tell" \
-   #          -e "set background color of icon view options of container window of mountedDiskImage to { 39994, 50485, 10490 }" \
-   #          > /dev/null
-   #echo " done!"
 
     #license
     echo -n "  Licensing..."
