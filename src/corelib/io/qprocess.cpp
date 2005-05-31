@@ -1028,9 +1028,35 @@ void QProcess::setProcessState(ProcessState state)
 }
 
 /*!
-    This function is called in the child process context just before
-    the program is executed on Unix or Mac OS X. Reimplement this
-    function to do last minute initialization of the child process.
+  This function is called in the child process context just before the
+    program is executed on Unix or Mac OS X (i.e., after \e fork(), but before
+    \e execve()). Reimplement this function to do last minute initialization
+    of the child process. Example:
+
+    \code
+        class SandboxProcess : public QProcess
+        {
+            ...
+         protected:
+             void setupChildProcess();
+            ...
+        };
+
+        void SandboxProcess::setupChildProcess()
+        {
+            // Drop all privileges in the child process, and enter
+            // a chroot jail.
+        #if defined Q_OS_UNIX
+            ::setgroups(0, 0);
+            ::chroot("/etc/safe");
+            ::chdir("/");
+            ::setgid(safeGid);
+            ::setuid(safeUid);
+            ::umask(0);
+        #endif
+        }
+
+    \endcode
 
     \warning This function is called by QProcess on Unix and Mac OS X
     only. On Windows, it is not called.
