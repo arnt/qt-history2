@@ -28,6 +28,7 @@
 #include <qdesigner_widget_p.h>
 #include <qdesigner_utils_p.h>
 #include <qlayout_widget_p.h>
+#include <qdesigner_promotedwidget_p.h>
 
 #define BG_ALPHA                32
 #define VBOX_MARGIN             1
@@ -163,6 +164,9 @@ bool TabOrderEditor::skipWidget(QWidget *w) const
         return true;
     }
 
+    if (qobject_cast<QDesignerPromotedWidget*>(w) != 0)
+        return true;
+
     QExtensionManager *ext = formWindow()->core()->extensionManager();
     if (QDesignerPropertySheetExtension *sheet = qt_extension<QDesignerPropertySheetExtension*>(ext, w)) {
         int index = sheet->indexOf(QLatin1String("focusPolicy"));
@@ -189,7 +193,7 @@ void TabOrderEditor::initTabOrder()
     // Remove any widgets that have been removed form the form
     for (int i = 0; i < m_tab_order_list.size(); ) {
         QWidget *w = m_tab_order_list.at(i);
-        if (!formWindow()->mainContainer()->isAncestorOf(w))
+        if (!formWindow()->mainContainer()->isAncestorOf(w) || skipWidget(w))
             m_tab_order_list.removeAt(i);
         else
             ++i;
