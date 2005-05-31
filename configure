@@ -3103,8 +3103,10 @@ fi
 [ '!' -z "$L_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_FLAGS+=$L_FLAGS\""
 [ '!' -z "$l_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"LIBS+=$l_FLAGS\""
 
-if [ "$CFG_RPATH" = "yes" ] && [ "$PLATFORM_MAC" = "yes" ]; then  
-    QMAKE_CONFIG="$QMAKE_CONFIG absolute_library_soname"
+if [ "$PLATFORM_MAC" = "yes" ]; then  
+    if [ "$CFG_RPATH" = "yes" ]; then  
+       QMAKE_CONFIG="$QMAKE_CONFIG absolute_library_soname"
+    fi
 elif [ -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
     if [ -n "$RPATH_FLAGS" ]; then
         echo
