@@ -53,6 +53,7 @@ void QToolBarPrivate::init()
     Q_Q(QToolBar);
     movable = true;
     q->setSizePolicy(QSizePolicy(QSizePolicy::Minimum, QSizePolicy::Expanding));
+    q->setBackgroundRole(QPalette::Button);
 
 
     QStyleOptionFrame opt = getStyleOption(q);

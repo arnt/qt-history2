@@ -174,7 +174,7 @@ void QCommonStyle::drawPrimitive(PrimitiveElement pe, const QStyleOption *opt, Q
     case PE_Frame:
     case PE_FrameMenu:
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(opt)) {
-            if ((frame->state & State_Sunken) || (frame->state & State_Raised)) {
+            if (pe == PE_FrameMenu || (frame->state & State_Sunken) || (frame->state & State_Raised)) {
                 qDrawShadePanel(p, frame->rect, frame->palette, frame->state & State_Sunken,
                                 frame->lineWidth);
             } else {
@@ -898,7 +898,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                     rect.translate(shiftX, shiftY);
                     drawItemText(p, rect, alignment, toolbutton->palette,
                                  opt->state & State_Enabled, toolbutton->text,
-                                 QPalette::Foreground);
+                                 QPalette::ButtonText);
                 } else {
                     QPixmap pm;
                     QIcon::State state = toolbutton->state & State_On ? QIcon::On : QIcon::Off;
@@ -936,7 +936,7 @@ void QCommonStyle::drawControl(ControlElement element, const QStyleOption *opt,
                         tr.translate(shiftX, shiftY);
                         drawItemText(p, tr, alignment, toolbutton->palette,
                                      toolbutton->state & State_Enabled, toolbutton->text,
-                                     QPalette::Foreground);
+                                     QPalette::ButtonText);
                     } else {
                         rect.translate(shiftX, shiftY);
                         drawItemPixmap(p, rect, Qt::AlignCenter, pm);
