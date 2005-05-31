@@ -225,7 +225,7 @@ const QString::Null QString::null = QString::Null();
     \code
         for (int i = 0; i < str.size(); ++i) {
             if (str.at(i) >= QChar('a') && str.at(i) <= QChar('f'))
-                cout << "Found character in range [a-f]" << endl;
+                qDebug() << "Found character in range [a-f]";
         }
     \endcode
 
@@ -293,7 +293,7 @@ const QString::Null QString::null = QString::Null();
         QString str = "We must be <b>bold</b>, very <b>bold</b>";
         int j = 0;
         while ((j = str.indexOf("<b>", j)) != -1) {
-            cout << "Found <b> tag at index position " << j << endl;
+            qDebug() << "Found <b> tag at index position" << j;
             ++j;
         }
     \endcode
@@ -5929,9 +5929,9 @@ void QString::updateProperties() const
     Example:
     \code
         QString str = "Hello world";
-        QChar *data = ba.data();
+        QChar *data = str.data();
         while (*data) {
-            cout << "[" + data->unicode() + "]" << endl;
+            qDebug() << data->unicode();
             ++data;
         }
     \endcode

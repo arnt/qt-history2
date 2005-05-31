@@ -1163,13 +1163,13 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     toT() functions (e.g., toSize()) and check whether the type can
     be converted to a particular type using canConvert().
 
-    The methods named toT() (for any supported T, see the \l Type
-    documentation for a list) are const. If you ask for the stored
-    type, they return a copy of the stored object. If you ask for a
-    type that can be generated from the stored type, toT() copies and
-    converts and leaves the object itself unchanged. If you ask for a
-    type that cannot be generated from the stored type, the result
-    depends on the type; see the function documentation for details.
+    The methods named toT() (e.g., toInt(), toString()) are const. If
+    you ask for the stored type, they return a copy of the stored
+    object. If you ask for a type that can be generated from the
+    stored type, toT() copies and converts and leaves the object
+    itself unchanged. If you ask for a type that cannot be generated
+    from the stored type, the result depends on the type; see the
+    function documentation for details.
 
     Here is some example code to demonstrate the use of QVariant:
 
@@ -1213,6 +1213,33 @@ const QVariant::Handler *QVariant::handler = &qt_kernel_variant_handler;
     QVariant can be extended to support other types than those
     mentioned in the \l Type enum. See the \l QMetaType documentation
     for details.
+
+    \section1 A Note on GUI Types
+
+    Because QVariant is part of the QtCore library, it cannot provide
+    conversion functions to data types such as QColor, QImage, and
+    QPixmap, which are part of QtGui. In other words, there is no
+    \c toColor() function.
+
+    Instead, you can use the QVariant::value() or the qVariantValue()
+    template function. For example:
+
+    \code
+        QVariant variant;
+        ...
+        QColor color = variant.value<QColor>();
+    \endcode
+
+    The inverse conversion (e.g., from QColor to QVariant) is
+    automatic for all data types supported by QVariant, including
+    GUI-related types:
+
+    \code
+        QColor color = palette().background().color();
+        QVariant variant = color;
+    \endcode
+
+    \sa QMetaType
 */
 
 /*!

@@ -102,13 +102,12 @@ static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* d
     there are in this date's month and year, respectively. The
     isLeapYear() function indicates whether this date is in a leap year.
 
-    Note that QDate should not be used for date calculations for dates
-    prior to the introduction of the Gregorian calendar. This calendar
-    was adopted by England from the 14 September 1752 (hence this is
-    the earliest valid QDate), and subsequently by most other Western
-    countries, by 1923.
-
-    The latest valid year within this scheme is the year 8000.
+    Note that QDate should not be used for date calculations for
+    dates prior to the introduction of the Gregorian calendar. This
+    calendar was adopted by England from the 14 September 1752 (hence
+    this is the earliest valid QDate), and subsequently by most other
+    Western countries, by 1923. The latest valid year within this
+    scheme is the year 8000.
 
     \sa QTime QDateTime QDateEdit QDateTimeEdit
 */
