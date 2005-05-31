@@ -25,7 +25,7 @@ get_sources()
   DIR="$1"
   for file in `find $DIR -type f`; do
     case $file in #only need sources
-    *.app|*.app/*|*/.obj/*|*/.ui/*|*/.rcc/*|*/.moc/*|*/Makefile|*.build*|*.xcode*|*/build|*/build/*|*.doc|*~|*.gch|*.gch/*|*/.DS_Store|*/.gdb_history)  continue ;;
+    ui_*.h|moc_*.cpp|qrc_*.cpp|*.app|*.app/*|*/.obj/*|*/.ui/*|*/.rcc/*|*/.moc/*|*/Makefile|*.build*|*.xcode*|*/build|*/build/*|*.doc|*~|*.gch|*.gch/*|*/.DS_Store|*/.gdb_history)  continue ;;
     *) ;;
     esac
     [ -x "$file" ] && continue
@@ -38,8 +38,8 @@ get_sources()
 #examples
 get_sources "$SRCDIR/examples"
 if [ -d "$BINDIR/bin/qtdemo.app" ]; then
-   mkdir -p "$OUTDIR/Applications/Qt/"
-   cp -r "$BINDIR/bin/qtdemo.app" "$OUTDIR/Applications/Qt/"
+   mkdir -p "$OUTDIR/Developer/Applications/Qt/"
+   cp -r "$BINDIR/bin/qtdemo.app" "$OUTDIR/Develper/Applications/Qt/"
 fi
 rm -rf "$OUTDIR/Developer/Examples/Qt/activeqt"
 
