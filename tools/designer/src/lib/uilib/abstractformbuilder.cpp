@@ -864,6 +864,14 @@ DomProperty *QAbstractFormBuilder::createProperty(QObject *obj, const QString &p
 
     DomProperty *dom_prop = new DomProperty();
 
+    const QMetaObject *meta = obj->metaObject();
+    int pindex = meta->indexOfProperty(pname.toLatin1());
+    if (pindex != -1) {
+        QMetaProperty meta_property = meta->property(pindex);
+        if (!meta_property.hasStdCppSet())
+            dom_prop->setAttributeStdset(0);
+    }
+
     switch (v.type()) {
         case QVariant::String: {
             DomString *str = new DomString();
