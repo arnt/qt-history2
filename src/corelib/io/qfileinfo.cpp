@@ -168,7 +168,7 @@ QDateTime
     (path) in the file system, its access rights and whether it is a
     directory or symbolic link, etc. The file's size and last
     modified/read times are also available. QFileInfo can also be
-    used to optain information about a Qt \l{resource
+    used to obtain information about a Qt \l{resource
     system}{resource}.
 
     A QFileInfo can point to a file with either a relative or an

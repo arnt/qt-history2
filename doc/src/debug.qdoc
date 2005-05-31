@@ -71,7 +71,7 @@
 
     If the \c QT_FATAL_WARNINGS environment variable is set,
     qWarning() exits after printing the warning message. This makes
-    it easy to optain a backtrace in the debugger.
+    it easy to obtain a backtrace in the debugger.
 
     Both qDebug() and qWarning() are debugging tools. They can be
     compiled away by defining \c QT_NO_DEBUG_OUTPUT and \c
