@@ -3,14 +3,38 @@
 [ -f $HOME/.qt-license ] || exit $((96+16));
 
 . $HOME/.qt-license >/dev/null 2>&1
-[ -z "$LicenseKey" ] && exit $((96+17))
-echo $LicenseKey | grep "....-....-...." >/dev/null 2>&1 || exit $((96+17))
+[ -z "$LicenseKeyExt" -o -z "$Licensee" ] && exit $((96+17))
 
-keyTest=`echo $LicenseKey | cut -b1`
-case $keyTest in
-  *) ###
-     ;;
-  *) exit $((96+18)) ;;
+# License key format is incorrect.
+echo $LicenseKeyExt | grep -E "....+-...+-...+-...+-....+-....-...." >/dev/null 2>&1 || exit $((96+17))
+
+#Test the key is correct.
+productTest=`echo $LicenseKeyExt | cut -f 1 -d - | cut -b 1`
+platformTest=`echo $LicenseKeyExt | cut -f 2 -d - | cut -b 1`
+licenseFeatureTest=`echo $LicenseKeyExt | cut -f 4 -d - | cut -b 1`
+case $productTest in
+F)
+# Universal
+ProductType="Universal"
+;;
+B)
+# Desktop
+ProductType="Desktop"
+;;
+*)
+exit $((96+18)) ;;
 esac
+
+#check the palatform.
+case $platformTest in
+4|L|5G|Y|2|F|B)
+# Qt/Mac
+;;
+*)
+exit $((96+18)) ;;
+esac
+
+# Perhaps some check for the correct license "feature"? For example US vs. Non-US.
+# Left for another day.
 
 exit 0
