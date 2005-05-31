@@ -354,10 +354,7 @@ bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouse
         current = designerWidget(current->parentWidget());
     }
 
-    if (current == 0 || !curLaidOut && curSelected) {
-        clearSelection(false);
-        selectWidget(managedWidget);
-    } else {
+    if (!(current == 0 || !curLaidOut && curSelected)) {
         selectWidget(current);
         raiseChildSelections(current);
     }
