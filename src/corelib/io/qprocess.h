@@ -133,7 +133,7 @@ private:
     Q_PRIVATE_SLOT(d_func(), bool canReadStandardError())
     Q_PRIVATE_SLOT(d_func(), bool canWrite())
     Q_PRIVATE_SLOT(d_func(), bool startupNotification())
-    Q_PRIVATE_SLOT(d_func(), void processDied())
+    Q_PRIVATE_SLOT(d_func(), bool processDied())
     Q_PRIVATE_SLOT(d_func(), void notified())
     friend class QProcessManager;
 };

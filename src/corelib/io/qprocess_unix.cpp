@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 //#define QPROCESS_DEBUG
+#include <qdebug.h>
 
 #if defined QPROCESS_DEBUG
 #include <qstring.h>
@@ -99,7 +100,7 @@ public:
     void run();
     void catchDeadChildren();
     void add(int pid, QProcess *process);
-    int takeExitResult(QProcess *process);
+    void remove(QProcess *process);
 
 private:
     QMutex mutex;
@@ -182,24 +183,13 @@ void QProcessManager::catchDeadChildren()
 
     // try to catch all children whose pid we have registered, and whose
     // deathPipe is still valid (i.e, we have not already notified it).
-    int result;
     QMap<int, QProcessInfo *>::Iterator it = children.begin();
     while (it != children.end()) {
+        // notify all children that they may have died. they need to run
+        // waitpid() in their own thread.
         QProcessInfo *info = it.value();
-        if (info->deathPipe != -1 && waitpid(info->pid, &result, WNOHANG) != 0) {
-            // store the exit result, and notify the QProcess through the
-            // death pipe. The assigned QProcess will later get the exit
-            // result by calling takeExitResult().
-#if defined QPROCESS_DEBUG
-            qDebug("QProcessManager(), caught child with pid %d, QProcess %p",
-                   it.key(), info->process);
-#endif
-
-            info->exitResult = result;
-            ::write(info->deathPipe, "", 1);
-            info->deathPipe = -1;
-        }
-
+        ::write(info->deathPipe, "", 1);
+        
         ++it;
     }
 }
@@ -232,21 +222,17 @@ void QProcessManager::add(int pid, QProcess *process)
     children.insert(serial, info);
 }
 
-int QProcessManager::takeExitResult(QProcess *process)
+void QProcessManager::remove(QProcess *process)
 {
     QMutexLocker locker(&mutex);
 
-    // get the exit result from this pid and sequence number, then remove the
-    // entry from the manager's list and return the exit result.
     int serial = process->d_func()->serial;
     QProcessInfo *info = children.value(serial);
     if (!info)
-        return 0;
+        return;
     
-    int tmp = info->exitResult;
     children.remove(serial);
     delete info;
-    return tmp;
 }
 
 static void qt_create_pipe(int *pipe)
@@ -722,8 +708,8 @@ bool QProcessPrivate::waitForReadyRead(int msecs)
 	    canWrite();
 
 	if (FD_ISSET(deathPipe[0], &fdread)) {
-            processDied();
-            return false;
+            if (processDied())
+                return false;
         }
     }
     return false;
@@ -787,8 +773,8 @@ bool QProcessPrivate::waitForBytesWritten(int msecs)
 	    canReadStandardError();
 
 	if (FD_ISSET(deathPipe[0], &fdread)) {
-            processDied();
-            return false;
+            if (processDied())
+                return false;
         }
     }
 
@@ -853,8 +839,8 @@ bool QProcessPrivate::waitForFinished(int msecs)
 	    canReadStandardError();
 
 	if (FD_ISSET(deathPipe[0], &fdread)) {
-            processDied();
-            return true;
+            if (processDied())
+                return true;
 	}
     }
     return false;
@@ -876,10 +862,27 @@ bool QProcessPrivate::waitForWrite(int msecs)
 void QProcessPrivate::findExitCode()
 {
     Q_Q(QProcess);
-    int result = processManager()->takeExitResult(q);
+    processManager()->remove(q);
+}
 
-    crashed = !WIFEXITED(result);
-    exitCode = WEXITSTATUS(result);
+bool QProcessPrivate::waitForDeadChild()
+{
+    Q_Q(QProcess);
+    
+    // read a byte from the death pipe
+    char c;
+    ::read(deathPipe[0], &c, 1);
+    
+    // check if our process is dead
+    int exitStatus;
+    pid_t waitResult = waitpid(pid, &exitStatus, WNOHANG);
+    if (waitResult > 0) {
+        processManager()->remove(q);
+        crashed = !WIFEXITED(exitStatus);
+        exitCode = WEXITSTATUS(exitStatus);
+        return true;
+    }
+    return false;
 }
 
 void QProcessPrivate::notified()

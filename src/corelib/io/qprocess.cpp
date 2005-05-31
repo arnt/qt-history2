@@ -537,11 +537,15 @@ bool QProcessPrivate::canWrite()
 
 /*! \internal
 */
-void QProcessPrivate::processDied()
+bool QProcessPrivate::processDied()
 {
     Q_Q(QProcess);
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::processDied()");
+#endif
+#ifdef Q_OS_UNIX
+    if (!waitForDeadChild())
+        return false;
 #endif
 
     // in case there is data in the pipe line and this slot by chance
@@ -551,7 +555,7 @@ void QProcessPrivate::processDied()
     canReadStandardError();
 
     findExitCode();
- 
+
     if (crashed) {
         processError = QProcess::Crashed;
         q->setErrorString(QT_TRANSLATE_NOOP(QProcess, QLatin1String("Process crashed")));
@@ -566,6 +570,7 @@ void QProcessPrivate::processDied()
 #if defined QPROCESS_DEBUG
     qDebug("QProcessPrivate::processDied() process is dead");
 #endif
+    return true;
 }
 
 /*! \internal
@@ -631,7 +636,8 @@ QProcess::~QProcess()
     Q_D(QProcess);
     if (d->processState != NotRunning) {
         qWarning("QProcess object destroyed while process is still running.");
-        terminate();
+        kill();
+        waitForFinished();
     }
 #ifdef Q_OS_UNIX
     // make sure the process manager removes this entry
@@ -1182,7 +1188,7 @@ static QStringList parseCombinedArgString(const QString &program)
     QString tmp;
     int quoteCount = 0;
     bool inQuote = false;
- 
+
     // handle quoting. tokens can be surrounded by double quotes
     // "hello world". three consecutive double quotes represent
     // the quote character itself.
@@ -1212,7 +1218,7 @@ static QStringList parseCombinedArgString(const QString &program)
     }
     if (!tmp.isEmpty())
         args += tmp;
-    
+
     return args;
 }
 
@@ -1244,10 +1250,10 @@ static QStringList parseCombinedArgString(const QString &program)
 void QProcess::start(const QString &program, OpenMode mode)
 {
     QStringList args = parseCombinedArgString(program);
-        
+
     QString prog = args.first();
     args.removeFirst();
-    
+
     start(prog, args, mode);
 }
 
@@ -1353,7 +1359,7 @@ bool QProcess::startDetached(const QString &program, const QStringList &argument
 bool QProcess::startDetached(const QString &program)
 {
     QStringList args = parseCombinedArgString(program);
-        
+
     QString prog = args.first();
     args.removeFirst();
 

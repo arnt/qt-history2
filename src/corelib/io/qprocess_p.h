@@ -58,7 +58,7 @@ public:
     bool canReadStandardError();
     bool canWrite();
     bool startupNotification();
-    void processDied();
+    bool processDied();
     void notified();
 
     QProcess::ProcessChannel processChannel;
@@ -110,6 +110,9 @@ public:
     void terminateProcess();
     void killProcess();
     void findExitCode();
+#ifdef Q_OS_UNIX
+    bool waitForDeadChild();
+#endif
 
     static bool startDetached(const QString &program, const QStringList &arguments);
 
