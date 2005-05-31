@@ -117,8 +117,8 @@
         <addaction name="actionHelpWhatsThis" />
       </widget>
       <addaction name="fileMenu" />
-      <addaction name="viewMenu" />
       <addaction name="editMenu" />
+      <addaction name="viewMenu" />      
       <addaction name="goMenu" />
       <addaction name="bookmarkMenu" />
       <addaction name="helpMenu" />
