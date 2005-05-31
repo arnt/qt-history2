@@ -104,7 +104,7 @@ void MainWindow::printImage()
             return;
     }
 
-    QPrinter printer(QPrinter::PrinterResolution);
+    QPrinter printer(QPrinter::HighResolution);
 
     QPrintDialog *dlg = new QPrintDialog(&printer, this);
     dlg->setWindowTitle(tr("Print Image"));
