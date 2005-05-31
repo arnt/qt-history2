@@ -1289,6 +1289,7 @@ void QListViewPrivate::prepareItemsLayout()
         tree.destroy();
     } else {
         flowPositions.clear();
+        tree.destroy(); // clear out all items and leaves
         tree.create(qMax(rowCount - hiddenRows.count(), 0));
     }
     segmentPositions.clear();
