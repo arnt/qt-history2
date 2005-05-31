@@ -191,9 +191,11 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
             break;
 #endif
         case Qt::Key_PageDown:
-            return pageDown(mode);
+            pageDown(mode);
+            break;
         case Qt::Key_PageUp:
-            return pageUp(mode);
+            pageUp(mode);
+            break;
     default:
         return false;
     }
@@ -469,7 +471,7 @@ void QTextEditPrivate::selectionChanged()
     q->updateMicroFocus();
 }
 
-bool QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
+void QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextEdit);
     int targetY = vbar->value() - viewport->height();
@@ -483,10 +485,9 @@ bool QTextEditPrivate::pageUp(QTextCursor::MoveMode moveMode)
         emit q->cursorPositionChanged();
         q->updateMicroFocus();
     }
-    return moved;
 }
 
-bool QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
+void QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
 {
     Q_Q(QTextEdit);
     int targetY = vbar->value() + viewport->height();
@@ -500,7 +501,6 @@ bool QTextEditPrivate::pageDown(QTextCursor::MoveMode moveMode)
         emit q->cursorPositionChanged();
         q->updateMicroFocus();
     }
-    return moved;
 }
 
 void QTextEditPrivate::updateCurrentCharFormatAndSelection()

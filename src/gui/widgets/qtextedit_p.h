@@ -83,8 +83,8 @@ public:
     inline int contentsWidth() const { return hbar->maximum() + viewport->width(); }
     inline int contentsHeight() const { return vbar->maximum() + viewport->height(); }
 
-    bool pageUp(QTextCursor::MoveMode moveMode);
-    bool pageDown(QTextCursor::MoveMode moveMode);
+    void pageUp(QTextCursor::MoveMode moveMode);
+    void pageDown(QTextCursor::MoveMode moveMode);
 
     void updateCurrentCharFormatAndSelection();
 
