@@ -405,7 +405,7 @@ QPixmapData::macSetAlphaChannel(const QPixmap *pix)
         drow = dptr + (yy * dbpr);
         srow = sptr + (yy * sbpr);
         for(int xx=0; xx < w*4; xx+=4)
-            *(drow+xx) = 255 - qGray(*(srow+xx+1), *(srow+xx+2), *(srow+xx+3));
+            *(drow+xx) = qGray(*(srow+xx+1), *(srow+xx+2), *(srow+xx+3));
     }
     macSetHasAlpha(true);
 }
