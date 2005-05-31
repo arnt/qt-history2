@@ -430,7 +430,9 @@ QIcon QAction::icon() const
 }
 
 /*!
-  Returns the menu this action appears in.
+  Returns the menu contained by this action. Actions that contain
+  menus can be used to create menu items with submenus, or inserted
+  into toolbars to create buttons with popup menus.
 
   \sa QMenu::addAction()
 */
@@ -438,6 +440,16 @@ QMenu *QAction::menu() const
 {
     Q_D(const QAction);
     return d->menu;
+}
+
+/*!
+    Sets the menu contained by this action.
+*/
+void QAction::setMenu(QMenu *menu)
+{
+    Q_D(QAction);
+    d->menu = menu;
+    d->sendDataChanged();
 }
 
 /*!

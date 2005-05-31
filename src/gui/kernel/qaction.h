@@ -79,6 +79,7 @@ public:
     QString whatsThis() const;
 
     QMenu *menu() const;
+    void setMenu(QMenu *menu);
 
     void setSeparator(bool b);
     bool isSeparator() const;
