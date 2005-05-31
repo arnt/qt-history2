@@ -127,6 +127,7 @@ public:
     static QWhatsThat *instance;
 
 protected:
+    void showEvent(QShowEvent *e);
     void mousePressEvent(QMouseEvent*);
     void mouseReleaseEvent(QMouseEvent*);
     void mouseMoveEvent(QMouseEvent*);
@@ -141,6 +142,7 @@ private:
     QTextDocument* doc;
 #endif
     QString anchor;
+    QPixmap background;
 };
 
 QWhatsThat *QWhatsThat::instance = 0;
@@ -210,6 +212,12 @@ QWhatsThat::~QWhatsThat()
     if (doc)
         delete doc;
 #endif
+}
+
+void QWhatsThat::showEvent(QShowEvent *)
+{
+    background = QPixmap::grabWindow(QApplication::desktop()->winId(),
+                                     x(), y(), width(), height());
 }
 
 void QWhatsThat::mousePressEvent(QMouseEvent* e)
@@ -283,6 +291,7 @@ void QWhatsThat::paintEvent(QPaintEvent*)
     if (drawShadow)
         r.adjust(0, 0, -shadowWidth, -shadowWidth);
     QPainter p(this);
+    p.drawPixmap(0, 0, background);
     p.setPen(palette().foreground().color());
     p.drawRect(r);
     p.setPen(palette().mid().color());
