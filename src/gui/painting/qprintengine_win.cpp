@@ -843,6 +843,7 @@ void QWin32PrintEnginePrivate::initialize()
         stretch_x = dpi_x / double(dpi_display);
         stretch_y = dpi_y / double(dpi_display);
 	break;
+    case QPrinter::PrinterResolution:
     case QPrinter::HighResolution:
         resolution = dpi_y;
         stretch_x = 1;
