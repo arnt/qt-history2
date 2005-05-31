@@ -72,8 +72,9 @@ void QPSQLDriverPrivate::appendTables(QStringList &tl, QSqlQuery &t, QChar type)
         query = QString::fromLatin1("select pg_class.relname, pg_namespace.nspname from pg_class "
                   "left join pg_namespace on (pg_class.relnamespace = pg_namespace.oid) "
                   "where (pg_class.relkind = '%1') and (pg_class.relname !~ '^Inv') "
+                  "and (pg_class.relname !~ '^pg_') "
                   "and (pg_namespace.nspname != 'information_schema') "
-                  "and pg_table_is_visible(pg_class.iod)").arg(type);
+                  "and pg_table_is_visible(pg_class.oid)").arg(type);
     } else {
         query = QString::fromLatin1("select relname, null from pg_class where (relkind = 'r') "
                   "and (relname !~ '^Inv') "
