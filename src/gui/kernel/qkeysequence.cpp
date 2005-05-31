@@ -63,7 +63,7 @@ void Q_GUI_EXPORT qt_set_sequence_auto_mnemonic(bool b) { qt_sequence_no_mnemoni
 
     In code that does not inherit the Qt namespace class, you must
     include the namespace when writing keycodes; for example,
-    instead of Qt::ALT+Qt::Key_Q you would write Qt::ALT+Qt::Key_Q.
+    instead of ALT+Key_Q you would write Qt::ALT+Qt::Key_Q.
 
     \sa QShortcut
 */
