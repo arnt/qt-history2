@@ -145,6 +145,7 @@ public:
 
     Display *dpy;
     int scrn;
+    int pdev_depth;
     Qt::HANDLE hd;
 #if !defined (QT_NO_XRENDER)
     Qt::HANDLE picture;
@@ -166,6 +167,12 @@ public:
     uint has_clipping : 1;
     uint adapted_brush_origin : 1;
     uint adapted_pen_origin : 1;
+    uint has_pen : 1;
+    uint has_brush : 1;
+    uint has_texture : 1;
+    uint has_pattern : 1;
+    uint alpha_pen : 1;
+    uint alpha_brush : 1;
     uint render_hints;
 
     const QX11Info *xinfo;
