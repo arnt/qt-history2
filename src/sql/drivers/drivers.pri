@@ -8,7 +8,7 @@ contains(sql-drivers, psql) {
         unix:!contains(LIBS, .*pq.*):LIBS *= -lpq
 
         win32 {
-                !contains( LIBS, .*libpq.* ):LIBS *= libpqdll.lib
+                !contains( LIBS, .*pq.* ):LIBS *= libpq.lib
 #               win32-msvc: {
 #                       LIBS *= delayimp.lib
 #                       QMAKE_LFLAGS += /DELAYLOAD:libpqdll.dll

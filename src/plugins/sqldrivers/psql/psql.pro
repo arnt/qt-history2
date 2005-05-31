@@ -10,8 +10,10 @@ unix {
 }
 
 win32 {
-	LIBS	*= libpq.lib
-        LIBS    *= ws2_32.lib advapi32.lib
+        !contains(LIBS, .*pq.* ) {
+            LIBS *= libpq.lib
+        }
+        LIBS    *= -lws2_32 -ladvapi32
 #	win32-msvc: {
 #		LIBS *= delayimp.lib
 #		QMAKE_LFLAGS += /DELAYLOAD:libpq.dll
