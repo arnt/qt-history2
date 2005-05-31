@@ -7,6 +7,9 @@ VERBOSE=$2
 
 cat >>fvisibility.c << EOF
 __attribute__((visibility("default"))) void blah();
+#if defined(__GNUC__) && __GNUC__ < 4
+#error GCC3 with backported visibility patch is known to miscompile Qt
+#endif
 EOF
 
 COMPILER=`grep QMAKE_CC $XCONFIG | sed "s,.*= *,,"`
