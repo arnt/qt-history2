@@ -308,9 +308,9 @@ void Configure::parseCmdLine()
 	}
 
         // Image formats --------------------------------------------
-	else if( configCmdLine.at(i) == "-no-imgfmt-gif" )
+	else if( configCmdLine.at(i) == "-no-gif" )
 	    dictionary[ "GIF" ] = "no";
-	else if( configCmdLine.at(i) == "-plugin-imgfmt-gif" )
+	else if( configCmdLine.at(i) == "-qt-gif" )
 	    dictionary[ "GIF" ] = "plugin";
 
         else if( configCmdLine.at(i) == "-no-libjpeg" ) {
@@ -900,14 +900,14 @@ bool Configure::displayHelp()
         desc("ZLIB", "qt",      "-qt-zlib",             "Use the zlib bundled with Qt.");
         desc("ZLIB", "system",  "-system-zlib",         "Use zlib from the operating system.\nSee http://www.gzip.org/zlib\n");
 
-        desc("GIF", "no",       "-no-gif",              "Do not compile in GIF reading support.");
-        desc("GIF", "yes",      "-qt-gif",              "Compile in GIF reading support.\nSee src/gui/image/qgif.h\n");
+        desc("GIF", "no",       "-no-gif",              "Do not compile the plugin for GIF reading support.");
+        desc("GIF", "plugin",   "-qt-gif",              "Compile the plugin for GIF reading support.\nSee also src/plugins/imageformats/gif/qgifhandler.h\n");
 
         desc("LIBPNG", "no",    "-no-libpng",           "Do not compile in PNG support.");
         desc("LIBPNG", "qt",    "-qt-libpng",           "Use the libpng bundled with Qt.");
         desc("LIBPNG", "system","-system-libpng",       "Use libpng from the operating system.\nSee http://www.libpng.org/pub/png\n");
 
-        desc("LIBJPEG", "no",    "-no-libjpeg",         "Do not compile in JPEG support.");
+        desc("LIBJPEG", "no",    "-no-libjpeg",         "Do not compile the plugin for JPEG support.");
         desc("LIBJPEG", "qt",    "-qt-libjpeg",         "Use the libjpeg bundled with Qt.");
         desc("LIBJPEG", "system","-system-libjpeg",     "Use libjpeg from the operating system.\nSee http://www.ijg.org\n");
 
