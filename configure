@@ -227,7 +227,6 @@ QMAKE_VARS="$QMAKE_VARS \"kbd-drivers += tty\" \"mouse-drivers += pc\"" # adjust
 unset QTDIR
 
 # initalize internal variables
-CFG_LIBRARY_PATH=LD_LIBRARY_PATH
 CFG_CONFIGURE_EXIT_ON_ERROR=yes
 CFG_PROFILE=no
 CFG_EXCEPTION_SUPPORT=unspecified
@@ -285,12 +284,11 @@ CFG_ACCESSIBILITY=auto
 CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
+CFG_RPATH=yes
 if [ "$PLATFORM_MAC" = "yes" ]; then
     CFG_FRAMEWORK=yes
-    CFG_RPATH=no
 else
     CFG_FRAMEWORK=no
-    CFG_RPATH=yes
 fi
 D_FLAGS=
 I_FLAGS=
@@ -1378,7 +1376,6 @@ if [ -z "$PLATFORM" ]; then
     PLATFORM_NOTES=
     case "$UNAME_SYSTEM:$UNAME_RELEASE" in
      Darwin:*)
-	CFG_LIBRARY_PATH=DYLD_LIBRARY_PATH
         if [ "$PLATFORM_MAC" = "yes" ]; then
           PLATFORM=macx-g++
         # PLATFORM=macx-pbuilder
@@ -3106,7 +3103,9 @@ fi
 [ '!' -z "$L_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"QMAKE_LIBDIR_FLAGS+=$L_FLAGS\""
 [ '!' -z "$l_FLAGS" ] && QMAKE_VARS="$QMAKE_VARS \"LIBS+=$l_FLAGS\""
 
-if [ -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
+if [ "$CFG_RPATH" = "yes" ] && [ "$PLATFORM_MAC" = "yes" ]; then  
+    QMAKE_CONFIG="$QMAKE_CONFIG absolute_library_soname"
+elif [ -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
     if [ -n "$RPATH_FLAGS" ]; then
         echo
         echo "ERROR: -R cannot be used on this platform as \$QMAKE_RPATH is"
@@ -3114,8 +3113,7 @@ if [ -z "`grep QMAKE_RPATH $XQMAKESPEC/qmake.conf | awk '{print $3;}'`" ]; then
         echo
         exit 1
     elif [ "$CFG_RPATH" = "yes" ]; then
-        RPATH_MESSAGE="        NOTE: This platform does not support runtime library paths,
-        using -no-rpath."
+        RPATH_MESSAGE="        NOTE: This platform does not support runtime library paths, using -no-rpath."
         CFG_RPATH=no
     fi
 else
