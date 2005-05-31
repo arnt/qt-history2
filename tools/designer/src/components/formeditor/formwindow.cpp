@@ -394,9 +394,23 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
     foreach (QWidget *child, sel) {
         QWidget *current = child;
 
-        while (LayoutInfo::isWidgetLaidout(core(), current) == true
-                || qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), current->parentWidget()) != 0) {
-            current = current->parentWidget();
+        bool done = false;
+        while (!isMainContainer(current) && !done) {
+            if (LayoutInfo::isWidgetLaidout(core(), current)) {
+                current = current->parentWidget();
+                continue;
+            } else if (qt_extension<QDesignerContainerExtension*>(core()->extensionManager(), current->parentWidget())) {
+                current = current->parentWidget();
+                continue;
+            } else if (current->parentWidget()) {
+                QScrollArea *area = qobject_cast<QScrollArea*>(current->parentWidget()->parentWidget());
+                if (area && area->widget() == current) {
+                    current = area;
+                    continue;
+                }
+            }
+
+            done = true;
         }
 
         if (current == mainContainer())
@@ -418,11 +432,11 @@ bool FormWindow::handleMouseMoveEvent(QWidget *, QWidget *, QMouseEvent *e)
         & Qt::AltModifier
 #endif
         ) {
-            item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::CopyDrop, this,
-                                                    widget, e->globalPos()));
+            item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::CopyDrop,
+                this, widget, e->globalPos()));
         } else {
-            item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::MoveDrop, this,
-                                                    widget, e->globalPos()));
+            item_list.append(new FormWindowDnDItem(QDesignerDnDItemInterface::MoveDrop,
+                this, widget, e->globalPos()));
             widget->hide();
         }
     }

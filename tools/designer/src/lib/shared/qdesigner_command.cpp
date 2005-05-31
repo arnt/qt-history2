@@ -755,7 +755,8 @@ void LayoutCommand::undo()
 {
     QDesignerFormEditorInterface *core = formWindow()->core();
 
-    QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_layoutBase);
+    QWidget *lb = m_layout->layoutBaseWidget();
+    QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), lb);
 
     QWidget *p = m_layout->parentWidget();
     if (!deco && hasLayout(p)) {
@@ -765,6 +766,11 @@ void LayoutCommand::undo()
     delete deco; // release the extension
 
     m_layout->undoLayout();
+
+    if (!m_layoutBase && lb != 0 && !qobject_cast<QLayoutWidget*>(lb)) {
+        core->metaDataBase()->add(lb);
+        lb->show();
+    }
 
     checkSelection(m_parentWidget);
 }
@@ -781,11 +787,12 @@ BreakLayoutCommand::~BreakLayoutCommand()
 
 void BreakLayoutCommand::init(const QList<QWidget*> &widgets, QWidget *layoutBase)
 {
+    QDesignerFormEditorInterface *core = formWindow()->core();
+
     m_widgets = widgets;
-    m_layoutBase = layoutBase;
+    m_layoutBase = core->widgetFactory()->containerOfWidget(layoutBase);
     m_layout = 0;
 
-    QDesignerFormEditorInterface *core = formWindow()->core();
     QPoint grid = formWindow()->grid();
 
     LayoutInfo::Type lay = LayoutInfo::layoutType(core, m_layoutBase);
@@ -811,7 +818,8 @@ void BreakLayoutCommand::redo()
         return;
 
     QDesignerFormEditorInterface *core = formWindow()->core();
-    QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), m_layoutBase);
+    QWidget *lb = m_layout->layoutBaseWidget();
+    QDesignerLayoutDecorationExtension *deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), lb);
     QWidget *p = m_layout->parentWidget();
     if (!deco && hasLayout(p))
         deco = qt_extension<QDesignerLayoutDecorationExtension*>(core->extensionManager(), p);
@@ -820,6 +828,8 @@ void BreakLayoutCommand::redo()
 
     formWindow()->clearSelection(false);
     m_layout->breakLayout();
+
+    core->metaDataBase()->add(lb);
 
     foreach (QWidget *widget, m_widgets) {
         widget->resize(widget->size().expandedTo(QSize(16, 16)));

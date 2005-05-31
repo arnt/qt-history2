@@ -63,6 +63,7 @@ public:
 
     QList<QWidget*> widgets() const { return m_widgets; }
     QWidget *parentWidget() const { return m_parentWidget; }
+    QWidget *layoutBaseWidget() const { return layoutBase; }
 
 protected:
     QList<QWidget*> m_widgets;

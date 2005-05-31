@@ -327,6 +327,7 @@ void Layout::breakLayout()
     QDesignerWidgetDataBaseInterface *widgetDataBase = formWindow->core()->widgetDataBase();
 
     LayoutInfo::deleteLayout(formWindow->core(), layoutBase);
+
     bool needReparent = qobject_cast<QLayoutWidget*>(layoutBase) ||
                         qobject_cast<QSplitter*>(layoutBase)     ||
                         (!widgetDataBase->isContainer(layoutBase, false) &&

@@ -420,8 +420,10 @@ void QLayoutSupport::insertWidget(QWidget *widget, const QPair<int, int> &cell)
         } break;
 
         default: {
+#ifdef QD_DEBUG
             qWarning() << "expected a layout here!";
-            //Q_ASSERT(0);
+            Q_ASSERT(0);
+#endif
         }
     } // end switch
 }
