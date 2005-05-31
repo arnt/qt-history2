@@ -78,33 +78,68 @@ QFontEngineMac::~QFontEngineMac()
 }
 
 bool QFontEngineMac::stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs,
-                                  QTextEngine::ShaperFlags /*flags*/) const
+                                  QTextEngine::ShaperFlags flags) const
 {
     if(*nglyphs < len) {
         *nglyphs = len;
         return false;
     }
     *nglyphs = len;
-    for (int i = 0; i < len; ++i) {
-        bool surrogate = (str[i].unicode() >= 0xd800 && str[i].unicode() < 0xdc00 && i < len-1
-                          && str[i+1].unicode() >= 0xdc00 && str[i+1].unicode() < 0xe000);
+    for (int i = 0; i < len; ++i)
         glyphs[i].glyph = str[i].unicode();
-        if (!surrogate && str[i].unicode() < widthCacheSize && widthCache[str[i].unicode()]) {
-            int c = widthCache[str[i].unicode()];
-            if(c == -777)
-                c = 0;
-            glyphs[i].advance.rx() = c;
-            glyphs[i].advance.ry() = 0;
-        } else {
-            glyphs[i].advance.rx() = doTextTask(str+i, 0, surrogate ? 2 : 1, 1, WIDTH);
+    recalcAdvances(*nglyphs, glyphs, flags);
+    return true;
+}
+
+void
+QFontEngineMac::recalcAdvances(int numGlyphs, QGlyphLayout *glyphs,
+                               QTextEngine::ShaperFlags /*flags*/) const
+{
+    if(numGlyphs < 1)
+        return;
+
+    QChar str[numGlyphs];
+    for(int i = 0; i < numGlyphs; ++i)
+        str[i] = (short)glyphs[i].glyph;
+    float *advances = 0;
+    doTextTask(str, 0, numGlyphs, numGlyphs, ADVANCES, 0, 0, 0, (void**)&advances);
+    if(advances) { //try using "correct" advances
+        for(int i = 0; i < numGlyphs; ++i) {
+            glyphs[i].advance.rx() = advances[i];
             glyphs[i].advance.ry() = 0;
         }
-        if (surrogate) {
-            ++i;
-            glyphs[i].glyph = str[i].unicode();
+        free(advances);
+    } else { //fall back to something (widths)
+        for (int i = 0; i < numGlyphs; ++i) {
+            bool surrogate = false;
+            if(i < numGlyphs -1) {
+                surrogate = (glyphs[i].glyph >= 0xd800 && glyphs[i].glyph < 0xdc00 &&
+                             glyphs[i+1].glyph >= 0xdc00 && glyphs[i+1].glyph < 0xe000);
+            }
+            if (!surrogate && glyphs[i].glyph < widthCacheSize && widthCache[glyphs[i].glyph]) {
+                int c = widthCache[glyphs[i].glyph];
+                if(c == -777)
+                    c = 0;
+                glyphs[i].advance.rx() = c;
+                glyphs[i].advance.ry() = 0;
+            } else {
+                QChar qc[2];
+                qc[0] = glyphs[i].glyph;
+                if(surrogate)
+                    qc[1] = glyphs[i+1].glyph;
+                glyphs[i].advance.rx() = doTextTask(qc, 0, surrogate ? 2 : 1, 1, WIDTH);
+                glyphs[i].advance.ry() = 0;
+            }
+            if (surrogate)
+                ++i;
         }
     }
-    return true;
+}
+
+void
+QFontEngineMac::doKerning(int, QGlyphLayout *, QTextEngine::ShaperFlags) const
+{
+    //we do nothing here because kerning is taken into account in the recalcAdvances
 }
 
 void
@@ -169,21 +204,9 @@ QFontEngineMac::draw(QPaintEngine *p, qreal req_x, qreal req_y, const QTextItemI
         }
     } else {
         QVarLengthArray<ushort> g(si.num_glyphs);
-        bool oneByOne = false;
-        for(int i = 0; i < si.num_glyphs; ++i) {
-            if (si.glyphs[i].space_18d6 != 0)
-                oneByOne = true;
+        for(int i = 0; i < si.num_glyphs; ++i)
             g[i] = si.glyphs[i].glyph;
-        }
-        if (!oneByOne) {
-            doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, DRAW, x, y, p) + 1;
-        } else {
-            for(int i = 0; i < si.num_glyphs; ++i) {
-                const QChar glyph((ushort)si.glyphs[i].glyph);
-                doTextTask(&glyph, 0, 1, 1, DRAW, x, y, p);
-                x += si.glyphs[i].advance.x() + qreal(si.glyphs[i].space_18d6) / qreal(64);
-            }
-        }
+        doTextTask((QChar*)g.data(), 0, si.num_glyphs, si.num_glyphs, DRAW, x, y, p) + 1;
     }
     if(si.width && si.flags != 0) {
         QPen oldPen = pState->pen();
@@ -217,7 +240,8 @@ QFontEngineMac::boundingBox(const QGlyphLayout *glyphs, int numGlyphs)
 glyph_metrics_t
 QFontEngineMac::boundingBox(glyph_t glyph)
 {
-    int w = doTextTask((QChar*)&glyph, 0, 1, 1, WIDTH);
+    const QChar c(glyph);
+    int w = doTextTask(&c, 0, 1, 1, WIDTH);
     return glyph_metrics_t(0, -(ascent()), w, ascent()+descent(), w, 0);
 }
 
@@ -258,8 +282,8 @@ QATSUStyle *QFontEngineMac::getFontStyle() const
     values[arr] = &fontID;
     arr++;
     tags[arr] = kATSUQDBoldfaceTag;
-    valueSizes[arr] = sizeof(Boolean);
     Boolean boldBool = ((fontDef.weight == QFont::Bold) ? true : false);
+    valueSizes[arr] = sizeof(boldBool);
     values[arr] = &boldBool;
     arr++;
     if(arr > arr_guess) //this won't really happen, just so I will not miss the case
@@ -351,7 +375,7 @@ qreal QFontEngineMac::maxCharWidth() const
 }
 #define DoubleToFixed(x) int(x * (1 << 16))
 int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uchar task,
-                               qreal x, qreal y, QPaintEngine *p) const
+                               qreal x, qreal y, QPaintEngine *p, void **data) const
 {
     QATSUStyle *st = getFontStyle();
     QPaintEngineState *pState = 0;
@@ -418,7 +442,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         }
     }
 
-    if((task & WIDTH)) {
+    if(task & WIDTH) {
         bool use_cached_width = true;
         for(int i = 0; i < use_len; i++) {
             int c;
@@ -466,12 +490,13 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
     ATSUAttributeValuePtr values[arr_guess];
 
     tags[arr] = kATSULineLayoutOptionsTag;
-    ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading
-                                   | kATSLineFractDisable | kATSLineUseDeviceMetrics
-                                   | kATSLineDisableAutoAdjustDisplayPos
-                                   | kATSLineDisableAllLayoutOperations;
+    ATSLineLayoutOptions layopts = kATSLineHasNoOpticalAlignment | kATSLineIgnoreFontLeading |
+                                   kATSLineFractDisable | kATSLineDisableAutoAdjustDisplayPos |
+                                   kATSLineUseDeviceMetrics;
     if(fontDef.styleStrategy & QFont::NoAntialias)
         layopts |= kATSLineNoAntiAliasing;
+    if(!kerning)
+        layopts |= kATSLineDisableAllKerningAdjustments;
     valueSizes[arr] = sizeof(layopts);
     values[arr] = &layopts;
     arr++;
@@ -565,6 +590,41 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         ret = FixRound(right-left);
         if(use_len == 1 && s->unicode() < widthCacheSize && ret < 0x100)
             widthCache[s->unicode()] = ret ? ret : -777; //mark so that 0 is cached..
+    }
+    if(task & ADVANCES) {
+        Q_ASSERT(data);
+        ATSUGlyphInfoArray info[use_len];
+        ByteCount size = sizeof(ATSUGlyphInfoArray) * use_len;
+        OSStatus err = ATSUGetGlyphInfo(mTextLayout, kATSUFromTextBeginning, kATSUToTextEnd, &size, info);
+        if(err == noErr) {
+            //sanity
+            Q_ASSERT(info[0].numGlyphs == (uint)use_len);
+            float *advances = (float*)malloc(sizeof(float)*use_len);
+
+            //calculate the positions
+            int last = 0;
+            for(int i = 0; i < use_len-1; ++i) {
+                advances[i] = info[0].glyphs[i+1].screenX - last;
+                last = info[0].glyphs[i+1].screenX;
+            }
+
+            //calculate the final width
+            ATSUTextMeasurement left=0, right=0, bottom=0, top=0;
+            if(use_len > 1 && !last)
+                ATSUGetUnjustifiedBounds(mTextLayout, use_len-2, 2, &left, &right, &bottom, &top);
+            else
+                ATSUGetUnjustifiedBounds(mTextLayout, use_len-1, 1, &left, &right, &bottom, &top);
+            advances[use_len-1] = FixRound(right-left);
+
+            //finally make sure surrogates are in Qt order..
+            for(int i = 0; i < use_len-1; ++i) {
+                if(!advances[i]) {
+                    advances[i] = advances[i+1];
+                    advances[++i] = 0;
+                }
+            }
+            (*data) = advances;
+        }
     }
     if(task & DRAW) {
         bool transform = false;

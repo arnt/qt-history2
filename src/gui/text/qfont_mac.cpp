@@ -112,6 +112,7 @@ void QFontPrivate::load(int script)
         QFontEngine *e = new QTestFontEngine(request.pixelSize);
         engineData->engine = e;
         e->fontDef = req;
+        e->kerning = kerning;
         QFontCache::instance->insertEngine(key, e);
         return;
     }
@@ -166,6 +167,7 @@ void QFontPrivate::load(int script)
         }
     }
     { //fill in the engine's font definition
+        engine->kerning = kerning;
         engine->fontDef = request; //copy..
         if(engine->fontDef.pointSize < 0)
             engine->fontDef.pointSize = qt_mac_pointsize(engine->fontDef, dpi);

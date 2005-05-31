@@ -156,6 +156,8 @@ public:
     QVector<KernPair> kerning_pairs;
     float designToDevice;
     int unitsPerEm;
+#elif defined(Q_WS_MAC)
+    uint kerning : 1;
 #endif // Q_WS_WIN
 };
 
@@ -308,6 +310,9 @@ public:
     ~QFontEngineMac();
 
     bool stringToCMap(const QChar *str, int len, QGlyphLayout *glyphs, int *nglyphs, QTextEngine::ShaperFlags flags) const;
+    void recalcAdvances(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
+    void doKerning(int , QGlyphLayout *, QTextEngine::ShaperFlags) const;
+
 
     void draw(QPaintEngine *p, qreal x, qreal y, const QTextItemInt &si);
     void addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyphs, int numGlyphs, QPainterPath *path, QTextItem::RenderFlags flags);
@@ -330,9 +335,9 @@ public:
 
     FECaps capabilites() const { return FullTransformations; }
 
-    enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04 };
+    enum { WIDTH=0x01, DRAW=0x02, EXISTS=0x04, ADVANCES=0x08 };
     int doTextTask(const QChar *s, int pos, int use_len, int len, uchar task, qreal =-1, qreal y=-1,
-                   QPaintEngine *p=NULL) const;
+                   QPaintEngine *p=0, void **data=0) const;
 };
 
 #endif

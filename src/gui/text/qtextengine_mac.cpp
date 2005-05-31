@@ -57,6 +57,9 @@ void QTextEngine::shapeText(int item) const
     layoutData->used += si.num_glyphs;
 
     QGlyphLayout *g = shaper_item.glyphs;
+    if (this->font(si).d->kerning)
+        font->doKerning(si.num_glyphs, g, option.useDesignMetrics() ?
+                        QFlag(QTextEngine::DesignMetrics) : QFlag(0));
 
     si.width = 0;
     QGlyphLayout *end = g + si.num_glyphs;
