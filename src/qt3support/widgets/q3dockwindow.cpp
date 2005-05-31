@@ -520,7 +520,7 @@ QSize Q3DockWindowHandle::minimumSizeHint() const
 {
     if (!dockWindow->dockArea)
         return QSize(0, 0);
-    int wh = dockWindow->isCloseEnabled() ? 17 : style()->pixelMetric(QStyle::PM_DockWidgetHandleExtent, 0, this);
+    int wh = dockWindow->isCloseEnabled() ? 17 : style()->pixelMetric(QStyle::PM_ToolBarHandleExtent, 0, this);
     if (dockWindow->orientation() == Qt::Horizontal)
         return QSize(wh, 0);
     return QSize(0, wh);
@@ -1995,7 +1995,7 @@ bool Q3DockWindow::event(QEvent *e)
         if (place() == OutsideDock && isWindow() && parentWidget()
              && parentWidget()->isActiveWindow())
             return true;
-        break;        
+        break;
     case QEvent::HideToParent:
         emit visibilityChanged(false);
         break;
