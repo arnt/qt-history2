@@ -548,6 +548,12 @@ bool QProcessPrivate::processDied()
         return false;
 #endif
 
+    // the process may have died before it got a chance to report that it was
+    // either running or stopped, so we will call startupNotification() and
+    // give it a chance to emit started() or error(FailedToStart).
+    if (processState == QProcess::Starting)
+        startupNotification();
+
     // in case there is data in the pipe line and this slot by chance
     // got called before the read notifications, call these two slots
     // so the data is made available before the process dies.
