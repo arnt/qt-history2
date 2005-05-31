@@ -187,8 +187,9 @@ void MainWindow::createMenus()
 void MainWindow::loadPlugins()
 {
     pluginsDir = QDir(qApp->applicationDirPath());
+
 #if defined(Q_OS_WIN)
-    if (pluginsDir.dirName() == "debug" || pluginsDir.dirName() == "release")
+    if (pluginsDir.dirName().toLower() == "debug" || pluginsDir.dirName().toLower() == "release")
         pluginsDir.cdUp();
 #elif defined(Q_OS_MAC)
     if (pluginsDir.dirName() == "MacOS") {
