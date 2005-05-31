@@ -19,10 +19,16 @@ ADDCLEAN    =
 
 
 #qmake code
-OBJS=project.o main.o makefile.o unixmake.o unixmake2.o borland_bmake.o mingw_make.o \
-	msvc_nmake.o msvc_dsp.o msvc_vcproj.o option.o winmakefile.o projectgenerator.o \
-	metrowerks_xml.o pbuilder_pbx.o msvc_objectmodel.o property.o meta.o qtmd5.o \
-	makefiledeps.o metamakefile.o xmloutput.o
+OBJS        = project.o main.o makefile.o unixmake.o unixmake2.o mingw_make.o \
+              option.o winmakefile.o projectgenerator.o property.o meta.o qtmd5.o \
+              makefiledeps.o metamakefile.o xmloutput.o
+
+ifndef QMAKE_OPENSOURCE_EDITION
+OBJS        += borland_bmake.o msvc_nmake.o msvc_dsp.o msvc_vcproj.o \
+              msvc_objectmodel.o metrowerks_xml.o pbuilder_pbx.o
+else
+CFLAGS      += -DQMAKE_OPENSOURCE_EDITION
+endif
 
 #qt code
 QTOBJS= \
