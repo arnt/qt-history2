@@ -3,16 +3,16 @@
 
 
 enum Compiler {
-    Unknown = 0,
-    BORLAND = 0x01,
-    MINGW   = 0x02,
-    INTEL   = 0x03,
-    MSVC4   = 0x40,
-    MSVC5   = 0x50,
-    MSVC6   = 0x60,
-    NET2002 = 0x70,
-    NET2003 = 0x71,
-    NET2005 = 0x80
+    CC_UNKNOWN = 0,
+    CC_BORLAND = 0x01,
+    CC_MINGW   = 0x02,
+    CC_INTEL   = 0x03,
+    CC_MSVC4   = 0x40,
+    CC_MSVC5   = 0x50,
+    CC_MSVC6   = 0x60,
+    CC_NET2002 = 0x70,
+    CC_NET2003 = 0x71,
+    CC_NET2005 = 0x80
 };
 
 struct CompilerInfo;

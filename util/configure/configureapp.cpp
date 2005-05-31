@@ -882,7 +882,7 @@ bool Configure::displayHelp()
 
 #endif
         desc(                   "-platform <spec>",     "The operating system and compiler you are building on.\n(default %QMAKESPEC%)\n");
-        desc(                   "",                     "See the PLATFORMS file for a list of supported operating systems and compilers.\n", false, ' ');
+        desc(                   "",                     "See the README file for a list of supported operating systems and compilers.\n", false, ' ');
 
 #if !defined(EVAL)
         desc(                   "-D <define>",          "Add an explicit define to the preprocessor.");

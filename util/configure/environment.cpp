@@ -2,6 +2,8 @@
 
 #include <process.h>
 #include <iostream>
+#include <QStringList>
+#include <QMap>
 
 using namespace std;
 
@@ -17,19 +19,19 @@ struct CompilerInfo{
     const char *executable;
 } compiler_info[] = {
     // The compilers here are sorted in a reversed-preferred order
-    {BORLAND, "Borland C++",                                                    0, "bcc32.exe"},
-    {MINGW,   "MinGW (Minimalist GNU for Windows)",                             0, "mingw32-gcc.exe"},
-    {INTEL,   "Intel(R) C++ Compiler for 32-bit applications",                  0, "icl.exe"}, // xilink.exe, xilink5.exe, xilink6.exe, xilib.exe
-    {MSVC6,   "Microsoft (R) 32-bit C/C++ Optimizing CompilerMSVC 6.x",         "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++\\ProductDir", "cl.exe"}, // link.exe, lib.exe
-    {NET2002, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2002 (7.0)",  "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
-    {NET2003, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2003 (7.1)",  "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
-    {NET2005, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2005 (8.0)",  "Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
-    {Unknown, "Unknown", 0, 0},
+    {CC_BORLAND, "Borland C++",                                                    0, "bcc32.exe"},
+    {CC_MINGW,   "MinGW (Minimalist GNU for Windows)",                             0, "mingw32-gcc.exe"},
+    {CC_INTEL,   "Intel(R) C++ Compiler for 32-bit applications",                  0, "icl.exe"}, // xilink.exe, xilink5.exe, xilink6.exe, xilib.exe
+    {CC_MSVC6,   "Microsoft (R) 32-bit C/C++ Optimizing CompilerMSVC 6.x",         "Software\\Microsoft\\VisualStudio\\6.0\\Setup\\Microsoft Visual C++\\ProductDir", "cl.exe"}, // link.exe, lib.exe
+    {CC_NET2002, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2002 (7.0)",  "Software\\Microsoft\\VisualStudio\\7.0\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
+    {CC_NET2003, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2003 (7.1)",  "Software\\Microsoft\\VisualStudio\\7.1\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
+    {CC_NET2005, "Microsoft (R) 32-bit C/C++ Optimizing Compiler.NET 2005 (8.0)",  "Software\\Microsoft\\VisualStudio\\8.0\\Setup\\VC\\ProductDir", "cl.exe"}, // link.exe, lib.exe
+    {CC_UNKNOWN, "Unknown", 0, 0},
 };
 
 
 // Initialize static variables
-Compiler Environment::detectedCompiler = Unknown;
+Compiler Environment::detectedCompiler = CC_UNKNOWN;
 
 /*!
     Returns the pointer to the CompilerInfo for a \a compiler.
@@ -37,7 +39,7 @@ Compiler Environment::detectedCompiler = Unknown;
 CompilerInfo *Environment::compilerInfo(Compiler compiler)
 {
     int i = 0;
-    while(compiler_info[i].compiler != compiler && compiler_info[i].compiler != Unknown)
+    while(compiler_info[i].compiler != compiler && compiler_info[i].compiler != CC_UNKNOWN)
         ++i;
     return &(compiler_info[i]);
 }
@@ -199,25 +201,25 @@ QString Environment::detectQMakeSpec()
 {
     QString spec;
     switch (detectCompiler()) {
-    case NET2005:
+    case CC_NET2005:
         spec = "win32-msvc2005";
         break;
-    case NET2002:
-    case NET2003:
+    case CC_NET2002:
+    case CC_NET2003:
         spec = "win32-msvc.net";
         break;
-    case MSVC4:
-    case MSVC5:
-    case MSVC6:
+    case CC_MSVC4:
+    case CC_MSVC5:
+    case CC_MSVC6:
         spec = "win32-msvc";
         break;
-    case INTEL:
+    case CC_INTEL:
         spec = "win32-icc";
         break;
-    case MINGW:
+    case CC_MINGW:
         spec = "win32-g++";
         break;
-    case BORLAND:
+    case CC_BORLAND:
         spec = "win32-borland";
         break;
     default:
@@ -232,14 +234,14 @@ QString Environment::detectQMakeSpec()
     The compilers are detected in the order as entered into the
     compiler_info list.
 
-    If more than one compiler is found, Unknown is returned.
+    If more than one compiler is found, CC_UNKNOWN is returned.
 */
 Compiler Environment::detectCompiler()
 {
 #ifndef Q_OS_WIN32
     return MSVC6; // Always generate MSVC 6.0 versions on other platforms
 #else
-    if(detectedCompiler != Unknown)
+    if(detectedCompiler != CC_UNKNOWN)
         return detectedCompiler;
 
     int installed = 0;
@@ -275,7 +277,7 @@ Compiler Environment::detectCompiler()
 
     if (installed > 1) {
         cout << "Found more than one known compiler! Using \"" << compilerInfo(detectedCompiler)->compilerStr << "\"" << endl;
-        detectedCompiler = Unknown;
+        detectedCompiler = CC_UNKNOWN;
     }
     return detectedCompiler;
 #endif
