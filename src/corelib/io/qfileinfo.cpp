@@ -833,8 +833,7 @@ QFileInfo::isHidden() const
 
 /*!
     Returns true if this object points to a file. Returns false if the
-    object points to something which isn't a file, e.g. a directory or
-    a symlink.
+    object points to something which isn't a file, such as a directory.
 
     \sa isDir(), isSymLink()
 */

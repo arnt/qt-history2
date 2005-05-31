@@ -841,8 +841,8 @@ void Q3AccelPrivate::activateAmbiguously(Q3AccelItem* item)
     Returns the shortcut key sequence for \a str, or an invalid key
     sequence (0) if \a str has no shortcut sequence.
 
-    For example, shortcutKey("E&amp;xit") returns ALT+Key_X,
-    shortcutKey("&amp;Quit") returns ALT+Key_Q and shortcutKey("Quit")
+    For example, shortcutKey("E&xit") returns ALT+Key_X,
+    shortcutKey("&Quit") returns ALT+Key_Q and shortcutKey("Quit")
     returns 0. (In code that does not inherit the Qt namespace class,
     you must write e.g. Qt::ALT+Qt::Key_Q.)
 

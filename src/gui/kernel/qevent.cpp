@@ -104,7 +104,7 @@ QInputEvent::~QInputEvent()
     The \a position is the mouse cursor's position relative to the
     receiving widget.
     The \a button that caused the event is given as a value from
-    the \l Qt::ButtonState enum. If the event \a type is
+    the \l Qt::MouseButton enum. If the event \a type is
     \l MouseMove, the appropriate button for this event is Qt::NoButton.
     The mouse and keyboard states at the time of the event are specified by
     \a buttons and \a modifiers.

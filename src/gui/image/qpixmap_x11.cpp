@@ -1950,9 +1950,9 @@ void QPixmap::x11SetScreen(int screen)
 }
 
 /*!
-    Returns true this pixmap has an alpha channel or a mask.
+    Returns true if this pixmap has an alpha channel or a mask.
 
-    \sa hasAlphaChannel() mask()
+    \sa hasAlphaChannel(), mask()
 */
 bool QPixmap::hasAlpha() const
 {

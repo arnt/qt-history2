@@ -21,7 +21,20 @@
     \brief The QProxyModel class provides support for filtering and sorting data
     that is passed between another model and a view.
 
-    Proxy models provide a standard model interface 
+    Proxy models provide a standard model interface that can be used to
+    manipulate the data retrieved through an underlying model. They can be used to
+    perform operations such as sorting and filtering on the data obtained without
+    changing the contents of the model.
+
+    Just as with subclasses of QAbstractItemView, QProxyModel provides the setModel()
+    function that is used to specify the model to be acted on by the proxy.
+    Views can be connected to either the underlying model or the proxy model with
+    \l QAbstractItemView::setModel().
+
+    Since views rely on the information provided in model indexes to identify
+    items of data from models, and to position these items in some visual
+    representation, proxy models must create their own model indexes instead of
+    supplying model indexes from their underlying models. 
 
     \sa \link model-view-programming.html Model/View Programming\endlink QAbstractItemModel
 

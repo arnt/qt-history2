@@ -3349,7 +3349,7 @@ QString& QString::setUnicode(const QChar *unicode, int size)
     Example:
     \code
         QString str = "  lots\t of\nwhitespace\r\n ";
-        str = str.trimmed();
+        str = str.simplified();
         // str == "lots of whitespace";
     \endcode
 

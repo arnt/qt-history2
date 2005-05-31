@@ -245,12 +245,10 @@ Qt::LayoutDirection QTextInlineObject::textDirection() const
         textLayout.endLayout();
     \endcode
 
-    And here's some pseudo code that presents the painting phase:
+    The text can be drawn by calling the layout's draw() function:
     \code
-        for (int i = 0; i < textLayout.lineCount(); ++i) {
-            QTextLine line = textLayout.lineAt(i);
-            line.draw(painter, rect.x() + xoffset + line.x(), rect.y() + yoffset);
-        }
+        QPainter painter(this);
+        textLayout.draw(&painter, QPoint(0, 0));
     \endcode
 
     The text layout's text is set in the constructor or with
