@@ -157,7 +157,6 @@ void WINAPI CALLBACK qt_fast_timer_proc(uint timerId, uint /*reserved*/, DWORD_P
         return;
 
     QCoreApplication *app = QCoreApplication::instance();
-    Q_ASSERT_X(app, "qt_fast_timer_proc", "Timer fired, but no QCoreApplication");
     if (!app) {
         qtimeKillEvent(timerId);
         return;
