@@ -502,7 +502,7 @@ QVariant QIBaseResultPrivate::fetchArray(int pos, ISC_QUAD *arr)
         arraySize = subArraySize * arraySize;
     }
 
-    long bufLen;
+    ISC_LONG bufLen;
     QByteArray ba;
     /* varying arrayelements are stored with 2 trailing null bytes
        indicating the length of the string
@@ -678,7 +678,7 @@ bool QIBaseResultPrivate::writeArray(int column, const QList<QVariant> &list)
         return false;
 
     short arraySize = 1;
-    long bufLen;
+    ISC_LONG bufLen;
     QList<QVariant> subList = list;
 
     short dimensions = desc.array_desc_dimensions;
