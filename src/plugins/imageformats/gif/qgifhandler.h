@@ -6,6 +6,11 @@
 **
 ** $LICENSE$
 **
+** WARNING:
+**      A separate license from Unisys may be required to use the gif
+**      reader. See http://www.unisys.com/about__unisys/lzw/
+**      for information from Unisys
+**
 ** This file is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE
 ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
 **

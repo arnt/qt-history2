@@ -2178,16 +2178,16 @@ Third Party Libraries:
  +  -system-zlib ....... Use zlib from the operating system.
                          See http://www.gzip.org/zlib
 
- *  -no-gif ............ Do not compile in GIF reading support.
-    -qt-gif ............ Compile in GIF reading support.
-                         See src/gui/image/qgif.h
+ *  -no-gif ............ Do not compile the plugin for GIF reading support.
+    -qt-gif ............ Compile the plugin for GIF reading support.
+                         See also src/plugins/imageformats/gif/qgifhandler.h
 
     -no-libpng ......... Do not compile in PNG support.
     -qt-libpng ......... Use the libpng bundled with Qt.
  +  -system-libpng ..... Use libpng from the operating system.
                          See http://www.libpng.org/pub/png
 
-    -no-libjpeg ........ Do not compile in JPEG support.
+    -no-libjpeg ........ Do not compile the plugin for JPEG support.
     -qt-libjpeg ........ Use the libjpeg bundled with Qt.
  +  -system-libjpeg .... Use jpeglib from the operating system.
                          See http://www.ijg.org
