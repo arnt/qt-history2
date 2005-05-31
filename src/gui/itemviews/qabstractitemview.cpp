@@ -409,6 +409,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         disconnect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                    this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
+        disconnect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
     }
 
     d->model = model;
@@ -421,6 +422,7 @@ void QAbstractItemView::setModel(QAbstractItemModel *model)
         connect(d->model, SIGNAL(rowsAboutToBeRemoved(QModelIndex,int,int)),
                 this, SLOT(rowsAboutToBeRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(modelReset()), this, SLOT(reset()));
+        connect(d->model, SIGNAL(layoutChanged()), this, SLOT(doItemsLayout()));
     }
 
     setSelectionModel(new QItemSelectionModel(d->model));

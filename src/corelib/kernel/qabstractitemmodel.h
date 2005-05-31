@@ -165,6 +165,7 @@ public:
 signals:
     void dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight);
     void headerDataChanged(Qt::Orientation orientation, int first, int last);
+    void layoutChanged();
 
 #ifndef Q_MOC_RUN
 private: // can only be emitted by QAbstractItemModel
