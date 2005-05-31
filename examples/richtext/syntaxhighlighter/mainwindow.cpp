@@ -47,32 +47,32 @@ void MainWindow::openFile(const QString &path)
 
 void MainWindow::setupEditor()
 {
-    QTextCharFormat defaultFormat;
-    defaultFormat.setFontFamily("Courier");
-    defaultFormat.setFontPointSize(10);
-
-    QTextCharFormat variableFormat = defaultFormat;
+    QTextCharFormat variableFormat;
     variableFormat.setFontWeight(QFont::Bold);
     variableFormat.setForeground(Qt::blue);
     highlighter.addMapping("\\b[A-Z_]+\\b", variableFormat);
 
-    QTextCharFormat singleLineCommentFormat = defaultFormat;
+    QTextCharFormat singleLineCommentFormat;
     singleLineCommentFormat.setBackground(QColor("#77ff77"));
     highlighter.addMapping("#[^\n]*", singleLineCommentFormat);
 
-    QTextCharFormat quotationFormat = defaultFormat;
+    QTextCharFormat quotationFormat;
     quotationFormat.setBackground(Qt::cyan);
     quotationFormat.setForeground(Qt::blue);
     highlighter.addMapping("\".*\"", quotationFormat);
 
-    QTextCharFormat functionFormat = defaultFormat;
+    QTextCharFormat functionFormat;
     functionFormat.setFontItalic(true);
     functionFormat.setForeground(Qt::blue);
     highlighter.addMapping("\\b[a-z0-9_]+\\(.*\\)", functionFormat);
 
+    QFont font;
+    font.setFamily("Courier");
+    font.setFixedPitch(true);
+    font.setPointSize(10);
+
     editor = new QTextEdit;
-    editor->setFont(defaultFormat.font());
-    editor->document()->setDefaultFont(defaultFormat.font());
+    editor->setFont(font);
     highlighter.addToDocument(editor->document());
 }
 
