@@ -245,6 +245,8 @@ public:
         { return (x > -1) && (y > -1) && (w > 0) && (h > 0) && (indexHint > -1); }
     inline void invalidate()
         { x = -1; y = -1; w = 0; h = 0; }
+    inline void resize(const QSize &size)
+        { w = size.width(); h = size.height(); }
 private:
     inline QRect rect() const
         { return QRect(x, y, w, h); }

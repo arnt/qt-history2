@@ -889,14 +889,17 @@ QTableWidgetItem *QTableWidgetItem::clone() const
 */
 void QTableWidgetItem::setData(int role, const QVariant &value)
 {
+    bool found = false;
     role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     for (int i = 0; i < values.count(); ++i) {
         if (values.at(i).role == role) {
             values[i].value = value;
+            found = true;
             break;
         }
     }
-    values.append(QWidgetItemData(role, value));
+    if (!found)
+        values.append(QWidgetItemData(role, value));
     if (model)
         model->itemChanged(this);
 }

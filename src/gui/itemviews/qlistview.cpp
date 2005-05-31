@@ -627,6 +627,25 @@ QSize QListView::contentsSize() const
 /*!
   \reimp
 */
+void QListView::dataChanged(const QModelIndex &topLeft, const QModelIndex &bottomRight)
+{
+    Q_D(QListView);
+    if (d->movement != QListView::Static
+        && d->column >= topLeft.column()
+        && d->column <= bottomRight.column()) {
+        QStyleOptionViewItem option = viewOptions();
+        int bottom = qMin(d->tree.itemCount(), bottomRight.row() + 1);
+        for (int row = topLeft.row(); row < bottom; ++row) {
+            QModelIndex idx = d->model->index(row, d->column, d->root);
+            d->tree.item(row).resize(d->delegate->sizeHint(option, idx));
+        }
+    }
+    QAbstractItemView::dataChanged(topLeft, bottomRight);
+}
+
+/*!
+  \reimp
+*/
 void QListView::rowsInserted(const QModelIndex &parent, int start, int end)
 {
     Q_D(QListView);

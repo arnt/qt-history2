@@ -1087,14 +1087,17 @@ void QTreeWidgetItem::setData(int column, int role, const QVariant &value)
     role = (role == Qt::EditRole ? Qt::DisplayRole : role);
     if (column >= values.count())
         values.resize(column + 1);
+    bool found = false;
     QVector<QWidgetItemData> column_values = values.at(column);
     for (int i = 0; i < column_values.count(); ++i) {
         if (column_values.at(i).role == role) {
             values[column][i].value = value;
+            found = true;
             break;
         }
     }
-    values[column].append(QWidgetItemData(role, value));
+    if (!found)
+        values[column].append(QWidgetItemData(role, value));
     if (model)
         model->emitDataChanged(this, column);
 }
