@@ -77,7 +77,7 @@ bool QGLFormat::hasOpenGLOverlays()
 bool QGLContext::chooseContext(const QGLContext* shareContext)
 {
     Q_D(QGLContext);
-    d->cx = NULL;
+    d->cx = 0;
     d->vi = chooseMacVisual(GetMainDevice());
     if(!d->vi)
         return false;
@@ -126,15 +126,15 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
     // sharing between rgba and color-index will give wrong colors
     if(shareContext && (format().rgba() != shareContext->format().rgba()))
         shareContext = 0;
-    AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->d_func()->cx : NULL));
+    AGLContext ctx = aglCreateContext(fmt, (AGLContext) (shareContext ? shareContext->d_func()->cx : 0));
     if(!ctx) {
         GLenum err = aglGetError();
         if(err == AGL_BAD_MATCH || err == AGL_BAD_CONTEXT) {
             if(shareContext && shareContext->d_func()->cx) {
                 qWarning("QOpenGL: context sharing mismatch!");
-                if(!(ctx = aglCreateContext(fmt, NULL)))
+                if(!(ctx = aglCreateContext(fmt, 0)))
                     return false;
-                shareContext = NULL;
+                shareContext = 0;
             }
         }
         if(!ctx) {
@@ -147,6 +147,8 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
         d->sharing = true;
         const_cast<QGLContext *>(shareContext)->d_func()->sharing = true;
     }
+    if(deviceIsPixmap())
+        updatePaintDevice();
     return true;
 }
 
@@ -163,7 +165,7 @@ bool QGLContext::chooseContext(const QGLContext* shareContext)
   \sa chooseContext()
 */
 
-void *QGLContext::chooseMacVisual(GDHandle device)
+void *QGLContext::chooseMacVisual(GDHandle)
 {
     Q_D(QGLContext);
     GLint attribs[40], cnt=0;
@@ -224,11 +226,7 @@ void *QGLContext::chooseMacVisual(GDHandle device)
 
     Q_ASSERT(cnt < 40); // resize buffer above if too small
 
-    AGLPixelFormat fmt;
-    if(deviceIsPixmap() || !device)
-        fmt = aglChoosePixelFormat(NULL, 0, attribs);
-    else
-        fmt = aglChoosePixelFormat(NULL, 0, attribs);
+    AGLPixelFormat fmt = aglChoosePixelFormat(0, 0, attribs);
     if(!fmt) {
         GLenum err = aglGetError();
         qWarning("got an error tex: %d", (int)err);
@@ -370,9 +368,6 @@ void QGLContext::updatePaintDevice()
         PixMapHandle mac_pm = GetGWorldPixMap((GWorldPtr)pm->macQDHandle());
         aglSetOffScreen((AGLContext)d->cx, pm->width(), pm->height(),
                         GetPixRowBytes(mac_pm), GetPixBaseAddr(mac_pm));
-        GLint offs[4] = { 0, pm->height(), pm->width(), pm->height() };
-        aglSetInteger((AGLContext)d->cx, AGL_BUFFER_RECT, offs);
-        aglDisable((AGLContext)d->cx, AGL_CLIP_REGION);
     } else {
         qWarning("not sure how to render opengl on this device!!");
     }
@@ -385,7 +380,7 @@ void QGLContext::doneCurrent()
 
         return;
     currentCtx = 0;
-    aglSetCurrentContext(NULL);
+    aglSetCurrentContext(0);
 }
 
 
@@ -691,18 +686,18 @@ void QGLExtensions::init()
     init_done = true;
 
     GLint attribs[] = { AGL_RGBA, AGL_NONE };
-    AGLPixelFormat fmt = aglChoosePixelFormat(NULL, 0, attribs);
+    AGLPixelFormat fmt = aglChoosePixelFormat(0, 0, attribs);
     if (!fmt) {
         qDebug("QGLExtensions: couldn't find any RGB visuals.");
         return;
     }
-    AGLContext ctx = aglCreateContext(fmt, NULL);
+    AGLContext ctx = aglCreateContext(fmt, 0);
     if (!ctx) {
         qDebug("QGLExtensions: unable to create context.");
     } else {
         aglSetCurrentContext(ctx);
         init_extensions();
-        aglSetCurrentContext(NULL);
+        aglSetCurrentContext(0);
         aglDestroyContext(ctx);
     }
     aglDestroyPixelFormat(fmt);
