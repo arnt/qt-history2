@@ -37,6 +37,7 @@ public:
     virtual QString textFromValue(const QVariant &n) const;
     QVariant validateAndInterpret(QString &input, int &pos,
                                   QValidator::State &state) const;
+    bool isIntermediateValue(const QString &str) const;
     QChar thousand;
 };
 
@@ -53,7 +54,6 @@ public:
     virtual QString textFromValue(const QVariant &n) const;
     QVariant validateAndInterpret(QString &input, int &pos,
                                   QValidator::State &state) const;
-
     // variables
     int decimals;
     QChar delimiter, thousand;
@@ -948,6 +948,50 @@ QVariant QSpinBoxPrivate::valueFromText(const QString &f) const
     return QVariant(q->valueFromText(f));
 }
 
+
+/*!
+  \internal Return true if str can become a number which is between min
+  and max or false if this is not possible.
+  */
+
+bool QSpinBoxPrivate::isIntermediateValue(const QString &str) const
+{
+    const int num = QLocale().toInt(str, 0, 10);
+    const int min = minimum.toInt();
+    const int max = maximum.toInt();
+
+    int numDigits = 0;
+    int digits[10];
+    int tmp = num;
+    if (tmp == 0) {
+        numDigits = 1;
+        digits[0] = 0;
+    } else {
+        tmp = qAbs(num);
+        for (int i=0; tmp > 0; ++i) {
+            digits[numDigits++] = tmp % 10;
+            tmp /= 10;
+        }
+    }
+
+    int failures = 0;
+    for (int number=min; /*number<=max*/; ++number) {
+        tmp = qAbs(number);
+        for (int i=0; tmp > 0;) {
+            if (digits[i] == (tmp % 10)) {
+                if (++i == numDigits)
+                    return true;
+            }
+            tmp /= 10;
+        }
+        if (failures++ == 500000) //upper bound
+            return true;
+        if (number == max) // needed for INT_MAX
+            break;
+    }
+    return false;
+}
+
 /*!
     \internal Multi purpose function that parses input, sets state to
     the appropriate state and returns the value it will be interpreted
@@ -958,63 +1002,69 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
                                                QValidator::State &state) const
 {
     if (cachedText == input) {
-	state = cachedState;
-	QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
-		   << state << " and value was " << cachedValue;
+        state = cachedState;
+        QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
+                   << state << " and value was " << cachedValue;
 
-	return cachedValue;
+        return cachedValue;
     }
-    const int t = maximum.toInt();
-    const int b = minimum.toInt();
+    const int max = maximum.toInt();
+    const int min = minimum.toInt();
 
     QString copy = stripped(input);
     QSBDEBUG() << "input" << input << "copy" << copy;
     state = QValidator::Acceptable;
     int num;
 
-    if (copy.isEmpty() || (b < 0 && copy == QLatin1String("-"))
-	|| (t >= 0 && copy == QLatin1String("+"))) {
-	state = QValidator::Intermediate;
-	num = b;
+    if (max != min && (copy.isEmpty() || (min < 0 && copy == QLatin1String("-"))
+                       || (min >= 0 && copy == QLatin1String("+")))) {
+        state = QValidator::Intermediate;
+        num = min;
         QSBDEBUG() << __FILE__ << __LINE__<< "num is set to" << num;
     } else {
-	bool ok = false;
+        bool ok = false;
         bool removedThousand = false;
         num = QLocale().toInt(copy, &ok, 10);
-        if (!ok && copy.contains(thousand) && (t >= 1000 || b <= -1000)) {
+        if (!ok && copy.contains(thousand) && (max >= 1000 || min <= -1000)) {
             copy.remove(thousand);
             removedThousand = true;
             num = QLocale().toInt(copy, &ok, 10);
         }
         QSBDEBUG() << __FILE__ << __LINE__<< "num is set to" << num;
-	if (!ok || (num < 0 && b >= 0)) {
-	    state = QValidator::Invalid;
-        } else if (num >= b && num <= t) {
-	    state = removedThousand ? QValidator::Intermediate : QValidator::Acceptable;
+        if (!ok || (num < 0 && min >= 0)) {
+            state = QValidator::Invalid;
+        } else if (num >= max && num <= max) {
+            state = removedThousand ? QValidator::Intermediate : QValidator::Acceptable;
+        } else if (max == min) {
+            state = QValidator::Invalid;
+            num = min;
+        } else if (num >= 0) {
+            if (num > max) {
+                state = QValidator::Invalid;
+                num = max;
+            } else {
+                state = isIntermediateValue(copy) ? QValidator::Intermediate : QValidator::Invalid;
+                num = min;
+            }
         } else {
-	    if (num >= 0) {
-		if (num > b) {
-                    state = QValidator::Invalid;
-		} else {
-                    state = QValidator::Intermediate;
-		    num = b;
-		}
-	    } else {
-		if (num < b) {
-                    state = QValidator::Invalid;
-		} else {
-                    state = QValidator::Intermediate;
-		    num = b;
-		}
-	    }
-	}
+            if (num < min) {
+                state = QValidator::Invalid;
+                num = min;
+            } else if (!isIntermediateValue(copy)) {
+                state = QValidator::Invalid;
+                num = min;
+            } else {
+                state = QValidator::Intermediate;
+                num = max;
+            }
+        }
     }
     cachedText = input;
     cachedState = state;
     cachedValue = QVariant((int)num);
 
     QSBDEBUG() << "cachedText is set to '" << cachedText << "' state is set to "
-	       << state << " and value is set to " << cachedValue;
+               << state << " and value is set to " << cachedValue;
     return cachedValue;
 }
 
@@ -1241,7 +1291,7 @@ end:
     return QVariant(num);
 }
 
-/*!
+/*
     \internal
     \reimp
 */
