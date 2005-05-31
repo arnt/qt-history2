@@ -56,13 +56,32 @@ public:
         : bgmode(Qt::TransparentMode)
         , txop(QPainterPrivate::TxNone) {}
 
+    void setGLPen(const QColor &c) {
+        pen_color[0] = c.red();
+        pen_color[1] = c.green();
+        pen_color[2] = c.blue();
+        pen_color[3] = c.alpha();
+    }
+
+    void setGLBrush(const QColor &c) {
+        brush_color[0] = c.red();
+        brush_color[1] = c.green();
+        brush_color[2] = c.blue();
+        brush_color[3] = c.alpha();
+    }
+
     QPen cpen;
     QBrush cbrush;
     QBrush bgbrush;
     Qt::BGMode bgmode;
     QRegion crgn;
-    bool has_clipping : 1;
+    uint has_clipping : 1;
+    uint has_pen : 1;
+    uint has_brush : 1;
+
     QMatrix matrix;
+    GLubyte pen_color[4];
+    GLubyte brush_color[4];
     QPainterPrivate::TransformationCodes txop;
 };
 
@@ -138,8 +157,10 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
 {
     Q_D(QOpenGLPaintEngine);
     dgl->makeCurrent();
-    dgl->qglColor(pen.color());
     d->cpen = pen;
+    d->has_pen = (pen.style() != Qt::NoPen);
+    d->setGLPen(pen.color());
+    glColor4ubv(d->pen_color);
     if (pen.color().alpha() != 255) {
  	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
@@ -155,6 +176,9 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     Q_D(QOpenGLPaintEngine);
     dgl->makeCurrent();
     d->cbrush = brush;
+    d->has_brush = (brush.style() != Qt::NoBrush);
+    d->setGLBrush(brush.color());
+    glColor4ubv(d->brush_color);
     if (!brush.isOpaque()) {
  	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
@@ -557,17 +581,17 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
         double y = qToDouble(r.y());
         double w = qToDouble(r.width());
         double h = qToDouble(r.height());
-        if (d->cbrush.style() != Qt::NoBrush) {
-            dgl->qglColor(d->cbrush.color());
-            glRectf(x, y, x+w, y+h);
-            if (d->cpen.style() == Qt::NoPen)
+        if (d->has_brush) {
+            glColor4ubv(d->brush_color);
+            glRectd(x, y, x+w, y+h);
+            if (!d->has_pen)
                 return;
         }
 
-        if (d->cpen.style() != Qt::NoPen) {
+        if (d->has_pen) {
             // Specify the outline as 4 separate lines since a quad or a
             // polygon won't give us exactly what we want
-            dgl->qglColor(d->cpen.color());
+            glColor4ubv(d->pen_color);
             glBegin(GL_LINES);
             {
                 glVertex2d(x, y);
@@ -597,7 +621,9 @@ void QOpenGLPaintEngine::drawPoints(const QPointF *p, int pointCount)
 
 void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
+    Q_D(QOpenGLPaintEngine);
     dgl->makeCurrent();
+    glColor4ubv(d->pen_color);
     glBegin(GL_LINES);
     {
         for (int i = 0; i < lineCount; ++i) {
@@ -698,11 +724,11 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
     if(!pointCount)
         return;
     dgl->makeCurrent();
-    dgl->qglColor(d->cbrush.color());
-    if (d->cbrush.style() != Qt::NoBrush && mode != PolylineMode)
+    glColor4ubv(d->brush_color);
+    if (d->has_brush && mode != PolylineMode)
         qgl_draw_poly(points, pointCount, mode == QPaintEngine::WindingMode);
-    if (d->cpen.style() != Qt::NoPen) {
-        dgl->qglColor(d->cpen.color());
+    if (d->has_pen) {
+        glColor4ubv(d->pen_color);
         double x1 = qToDouble(points[0].x());
         double y1 = qToDouble(points[0].y());
         double x2 = qToDouble(points[pointCount - 1].x());
@@ -725,16 +751,19 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
     if (path.isEmpty())
         return;
 
-    if (d->cbrush.style() != Qt::NoBrush) {
+    if (d->has_brush) {
         QPolygonF poly = path.toFillPolygon();
-        QPen oldPen = d->cpen;
+        bool had_pen = d->has_pen;
+        QPen old_pen = d->cpen;
+        d->has_pen = false;
         d->cpen.setStyle(Qt::NoPen);
         drawPolygon(poly.data(), poly.size(),
                     path.fillRule() == Qt::OddEvenFill ? OddEvenMode : WindingMode);
-        d->cpen = oldPen;
+        d->has_pen = had_pen;
+        d->cpen = old_pen;
     }
 
-    if (d->cpen.style() != Qt::NoPen) {
+    if (d->has_pen) {
         QPainterPathStroker stroker;
         stroker.setDashPattern(d->cpen.style());
         stroker.setCapStyle(d->cpen.capStyle());
@@ -756,10 +785,13 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
                 return;
             poly = stroke.toFillPolygon(d->matrix);
         }
-        QPen oldPen = d->cpen;
-        QBrush oldBrush = d->cbrush;
-        d->cpen.setStyle(Qt::NoPen);
-        d->cbrush = d->cpen.brush();
+
+        bool had_pen = d->has_pen;
+        bool had_brush = d->has_brush;
+        QBrush old_brush = d->cbrush;
+        d->has_pen = false;
+        d->has_brush = true;
+        d->setGLBrush(d->cpen.brush().color());
 
         glMatrixMode(GL_MODELVIEW);
         glPushMatrix();
@@ -767,8 +799,10 @@ void QOpenGLPaintEngine::drawPath(const QPainterPath &path)
         drawPolygon(poly.data(), poly.size(), WindingMode);
         glPopMatrix();
 
-        d->cpen = oldPen;
-        d->cbrush = oldBrush;
+        d->has_pen = had_pen;
+        d->has_brush = had_brush;
+        d->cbrush = old_brush;
+        d->setGLBrush(d->cbrush.color());
     }
 }
 
