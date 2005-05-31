@@ -554,10 +554,10 @@ void QTextEngine::shapeText(int item) const
             }
         } while(res != S_OK);
 
-        for(int i = 0; i < si.num_glyphs; ++i) {
-            if(glyphs[i] == 0) {
-                glyphAttributes[i].clusterStart = true;
-                glyphAttributes[i].zeroWidth = false;
+        for(int i = 0; i < len; ++i) {
+            if(glyphs[logClusters[i]] == 0) {
+                glyphAttributes[logClusters[i]].clusterStart = true;
+                glyphAttributes[logClusters[i]].zeroWidth = false;
             }
         }
         {

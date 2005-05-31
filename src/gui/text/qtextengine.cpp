@@ -865,6 +865,8 @@ const QCharAttributes *QTextEngine::attributes()
             script = QUnicodeTables::script(layoutData->string.at(si.position));
         }
 #endif
+        if(script == QUnicodeTables::Inherited)
+            script = QUnicodeTables::Common;
         Q_ASSERT(script < QUnicodeTables::ScriptCount);
         qt_scriptEngines[script].charAttributes(script, layoutData->string, from, len, (QCharAttributes *) layoutData->memory);
     }
