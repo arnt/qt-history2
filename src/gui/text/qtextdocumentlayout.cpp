@@ -902,6 +902,7 @@ LayoutStruct QTextDocumentLayoutPrivate::layoutCell(QTextTable *t, const QTextTa
             cd->sizeDirty = true;
                 layoutFrame(frame, frame->firstPosition(), frame->lastPosition(), width, -1);
             layoutStruct.minimumWidth = qMax(layoutStruct.minimumWidth, cd->minimumWidth);
+            layoutStruct.maximumWidth = qMin(layoutStruct.maximumWidth, cd->maximumWidth);
 
             if (cd->flow_position != QTextFrameFormat::InFlow)
                 floats.append(frame);
@@ -1057,15 +1058,11 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
 
     // for variable columns distribute the remaining space
     if (variableCols > 0 && totalWidth > 0) {
-        QVarLengthArray<int> anySizeColumns;
         QVarLengthArray<int> columnsWithProperMaxSize;
         for (int i = 0; i < columns; ++i)
-            if (columnWidthConstraints.at(i).type() == QTextLength::VariableLength) {
-                if (td->maxWidths.at(i) == INT_MAX)
-                    anySizeColumns.append(i);
-                else
-                    columnsWithProperMaxSize.append(i);
-            }
+            if (columnWidthConstraints.at(i).type() == QTextLength::VariableLength
+                && td->maxWidths.at(i) != INT_MAX)
+                columnsWithProperMaxSize.append(i);
 
         qreal lastTotalWidth = totalWidth;
         while (totalWidth > 0) {
@@ -1198,6 +1195,19 @@ void QTextDocumentLayoutPrivate::layoutTable(QTextTable *table, int layoutFrom, 
 //    td->contentsWidth = qMax(td->contentsWidth,
 //                             td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin);
     td->contentsWidth = td->columnPositions.last() + td->widths.last() + td->padding + td->border + cellSpacing - margin;
+
+    td->minimumWidth = td->columnPositions.at(0);
+    for (int i = 0; i < columns; ++i) {
+        td->minimumWidth += td->minWidths.at(i) + td->border + cellSpacing + td->border;
+    }
+    td->minimumWidth += margin - td->border;
+
+    td->maximumWidth = td->columnPositions.at(0);
+    for (int i = 0; i < columns; ++i)
+        if (td->maxWidths.at(i) != INT_MAX)
+            td->maximumWidth += td->maxWidths.at(i) + td->border + cellSpacing + td->border;
+    td->maximumWidth += margin - td->border;
+
     qreal height = td->contentsHeight == -1
                    ? td->rowPositions.last() + td->heights.last() + td->padding + td->border + cellSpacing + margin
                    : td->contentsHeight + 2*margin;
