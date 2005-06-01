@@ -1183,7 +1183,12 @@ void QTextLine::layout_helper(int maxGlyphs)
 //            line.descent, line.textWidth, spacew);
 //     qDebug("        : '%s'", eng->layoutData->string.mid(line.from, line.length).toUtf8().data());
 
-    eng->minWidth = qMax(eng->minWidth, minw);
+    if (eng->option.wrapMode() == QTextOption::ManualWrap
+        || eng->option.wrapMode() == QTextOption::NoWrap)
+        eng->minWidth = line.textWidth;
+    else
+        eng->minWidth = qMax(eng->minWidth, minw);
+
     eng->maxWidth += line.textWidth;
     if (line.textWidth > 0 && item < eng->layoutData->items.size())
         eng->maxWidth += spacew;
