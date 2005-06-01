@@ -920,7 +920,7 @@ void QSpinBoxPrivate::emitSignals(EmitPolicy ep, const QVariant &old)
     if (ep != NeverEmit) {
 	pendingEmit = false;
 	if (ep == AlwaysEmit || value != old) {
-	    emit q->valueChanged(edit->displayText());
+            emit q->valueChanged(edit->displayText());
 	    emit q->valueChanged(value.toInt());
 	}
     }
@@ -1031,9 +1031,9 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
             num = QLocale().toInt(copy, &ok, 10);
         }
         QSBDEBUG() << __FILE__ << __LINE__<< "num is set to" << num;
-        if (!ok || (num < 0 && min >= 0)) {
+        if (!ok) {
             state = QValidator::Invalid;
-        } else if (num >= max && num <= max) {
+        } else if (num >= min && num <= max) {
             state = removedThousand ? QValidator::Intermediate : QValidator::Acceptable;
         } else if (max == min) {
             state = QValidator::Invalid;
