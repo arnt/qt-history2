@@ -492,7 +492,7 @@ QValidator::State QDoubleValidator::validate(QString & input, int &) const
     QRegExp empty(QString::fromLatin1("-?\\.?"));
     if (input.contains(' '))
         return Invalid;
-    if (b >= 0 && input.startsWith(QString::fromLatin1("-")))
+    if (b >= 0 && input.startsWith(QLatin1Char('-')))
         return Invalid;
     if (empty.exactMatch(input))
         return Intermediate;
