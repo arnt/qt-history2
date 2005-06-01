@@ -314,7 +314,7 @@ bool QTranslator::load(const QString & filename, const QString & directory,
 #endif
 
     int fd = -1;
-    if (!realname.startsWith(QLatin1String(":")))
+    if (!realname.startsWith(QLatin1Char(':')))
         fd = QT_OPEN(QFile::encodeName(realname), O_RDONLY,
 #if defined(Q_OS_WIN)
                      _S_IREAD | _S_IWRITE

@@ -107,7 +107,7 @@ private:
     {
         detach(false);
         QString path = p;
-        if ((path.endsWith(QLatin1String("/")) || path.endsWith(QLatin1String("\\")))
+        if ((path.endsWith(QLatin1Char('/')) || path.endsWith(QLatin1Char('\\')))
                 && path.length() > 1) {
 #ifdef Q_OS_WIN
             if (!(path.length() == 3 && path.at(1) == ':'))
@@ -231,7 +231,7 @@ inline void QDirPrivate::sortFileList(QDir::SortFlags sort, QStringList &l,
         int i;
         for (i = 0; i < l.size(); ++i) {
 	    QString path = data->path;
-	    if (!path.isEmpty() && path.right(1) != QLatin1String("/"))
+	    if (!path.endsWith(QLatin1Char('/')))
 		path += QLatin1Char('/');
             si[i].item = QFileInfo(path + l.at(i));
 	}
@@ -631,12 +631,12 @@ QString QDir::absoluteFilePath(const QString &fileName) const
     if (isRelativePath(d->data->path)) //get pwd
         ret = QFSFileEngine::currentPath(fileName);
     if(!d->data->path.isEmpty() && d->data->path != QLatin1String(".")) {
-        if (!ret.isEmpty() && ret.right(1) != QLatin1String("/"))
+        if (!ret.endsWith(QLatin1Char('/')))
             ret += QLatin1Char('/');
         ret += d->data->path;
     }
     if (!fileName.isEmpty()) {
-        if (!ret.isEmpty() && ret.right(1) != QLatin1String("/"))
+        if (!ret.endsWith(QLatin1Char('/')))
             ret += QLatin1Char('/');
         ret += fileName;
     }
@@ -1827,7 +1827,7 @@ QString QDir::cleanPath(const QString &path)
 	ret = QString(out.data(), used);
 
     // Strip away last slash except for root directories
-    if (ret.endsWith(QLatin1String("/"))
+    if (ret.endsWith(QLatin1Char('/'))
         && !(ret.size() == 1 || (ret.size() == 3 && ret.at(1) == QLatin1Char(':'))))
         ret = ret.left(ret.length() - 1);
 

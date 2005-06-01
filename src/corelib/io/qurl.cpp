@@ -2126,7 +2126,7 @@ QUrl QUrl::resolved(const QUrl &relative) const
                 else
                     t.setEncodedQuery(d->query);
             } else {
-                if (r.path().startsWith(QLatin1String("/"))) {
+                if (r.path().startsWith(QLatin1Char('/'))) {
                     t.setPath(r.path());
                     t.d->path = QUrlPrivate::removeDotsFromPath(t.d->path);
                 } else {
@@ -2678,8 +2678,8 @@ bool QUrl::isParentOf(const QUrl &childUrl) const
     return ((childUrl.scheme().isEmpty() || d->scheme == childUrl.scheme())
             && (childUrl.authority().isEmpty() || d->authority() == childUrl.authority())
             &&  childPath.startsWith(d->path)
-            && ((d->path.endsWith(QLatin1String("/")) && childPath.length() > d->path.length())
-                || (!d->path.endsWith(QLatin1String("/"))
+            && ((d->path.endsWith(QLatin1Char('/')) && childPath.length() > d->path.length())
+                || (!d->path.endsWith(QLatin1Char('/'))
                     && childPath.length() > d->path.length() && childPath.at(d->path.length()) == QLatin1Char('/'))));
 }
 

@@ -300,22 +300,22 @@ QResourceInfo::setFileName(const QString &f)
     clear();
     file = f;
     if(file == QLatin1String(":"))
-        file += "/";
+        file += QLatin1Char('/');
     searchFile = file;
 
     QString path = file;
-    if(path.startsWith(QLatin1String(":")))
+    if(path.startsWith(QLatin1Char(':')))
         path = path.mid(1);
-    if(path[0] == QLatin1Char('/')) {
+    if(path.startsWith(QLatin1Char('/'))) {
         loadResource(path);
         return;
     } else {
         QStringList searchPaths = *qt_resource_search_paths();
         searchPaths << QLatin1String("");
         for(int i = 0; i < searchPaths.size(); ++i) {
-            const QString searchPath(searchPaths.at(i) + "/" + path);
+            const QString searchPath(searchPaths.at(i) + QLatin1Char('/') + path);
             if(loadResource(searchPath)) {
-                searchFile = ":" + searchPath;
+                searchFile = QLatin1Char(':') + searchPath;
                 break;
             }
         }
@@ -329,7 +329,7 @@ QByteArray QResourceInfo::data() const
     if(!hasData) {
         hasData = true;
         QString path = searchFile;
-        if(path.startsWith(":"))
+        if(path.startsWith(QLatin1Char(':')))
             path = path.mid(1);
         mData = related.at(0).data(path);
     }
@@ -344,7 +344,7 @@ QStringList QResourceInfo::children() const
     if(!hasChildren) {
         hasChildren = true;
         QString path = searchFile;
-        if(path.startsWith(":"))
+        if(path.startsWith(QLatin1Char(':')))
             path = path.mid(1);
         QSet<QString> kids;
         for(int i = 0; i < related.size(); ++i) {
@@ -383,7 +383,7 @@ public:
 };
 QFileEngine *QResourceFileEngineHandler::createFileEngine(const QString &path)
 {
-    if (path.size() > 0 && path.startsWith(QLatin1String(":")))
+    if (path.size() > 0 && path.startsWith(QLatin1Char(':')))
         return new QResourceFileEngine(path);
     return 0;
 }

@@ -493,7 +493,7 @@ bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
     if (textModeEnabled) {
         device->setTextModeEnabled(true);
         readBuffer.replace(QLatin1String("\r\n"), QLatin1String("\n"));
-        if (readBuffer.endsWith(QLatin1String("\r")) && !device->atEnd()) {
+        if (readBuffer.endsWith(QLatin1Char('\r')) && !device->atEnd()) {
             endOfBufferState = QLatin1String("\r");
             readBuffer.chop(1);
         } else {

@@ -1310,7 +1310,7 @@ bool
 QFSFileEngine::isRelativePath() const
 {
     Q_D(const QFSFileEngine);
-    return !(d->file.startsWith("/")
+    return !(d->file.startsWith(QLatin1Char('/'))
         || (d->file.length() >= 2
         && ((d->file.at(0).isLetter() && d->file.at(1) == ':')
         || (d->file.at(0) == '/' && d->file.at(1) == '/'))));                // drive, e.g. a:
