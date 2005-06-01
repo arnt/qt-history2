@@ -18,6 +18,7 @@
 QToolBarExtension::QToolBarExtension(QWidget *parent)
     : QToolButton(parent)
 {
+    setObjectName("qt_toolbar_ext_button");
     setAutoRaise(true);
     setPopupMode(QToolButton::InstantPopup);
     setOrientation(Qt::Horizontal);
