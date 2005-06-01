@@ -58,8 +58,11 @@ QHostInfo QHostInfoAgent::fromName(const QString &hostName)
 {
     QWindowsSockInit winSock;
 
-    if (!local_getaddrinfo)
+
+    static QBasicAtomic tried_to_resolve = Q_ATOMIC_INIT(0);
+    if (!local_getaddrinfo && tried_to_resolve.testAndSet(0, 1)) {
         resolveLibrary();
+    }
 
     QHostInfo results;
     results.setHostName(hostName);
