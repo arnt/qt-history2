@@ -1388,7 +1388,7 @@ void QAbstractItemView::updateEditorGeometries()
     Q_D(QAbstractItemView);
     QStyleOptionViewItem option = viewOptions();
     QMap<QPersistentModelIndex, QWidget*>::iterator it = d->editors.begin();
-    for (; it != d->editors.end(); ++it) {
+    while (it != d->editors.end()) {
         option.rect = visualRect(it.key());
         if (option.rect.isValid())
             it.value()->show();
@@ -1396,10 +1396,11 @@ void QAbstractItemView::updateEditorGeometries()
             it.value()->hide();
         if (it.key().isValid()) {
             itemDelegate()->updateEditorGeometry(it.value(), option, it.key());
+            ++it;
         } else {
             // remove editors in deleted indexes
             d->releaseEditor(it.value());
-            d->editors.erase(it);
+            it = d->editors.erase(it);
         }
     }
 }
