@@ -18,6 +18,21 @@ while [ -n "$1" ]; do
    *) ;;
    esac
 done
+
+copyHeader()
+{
+   HEADER_FILE=$1
+   HEADER_DIR=$2 
+   mkdir -p $HEADER_DIR
+    if [ `wc -l $HEADER_FILE | awk '{print $1;}'` = "1" ]; then
+       LINE=`head -1 $HEADER_FILE`
+       if echo "$LINE" | grep "^#include" >/dev/null 2>&1; then
+           HEADER_FILE=`dirname $HEADER_FILE`/`echo $LINE | sed "s,^#include \"\([^\"]*\)\"\$,\1,"`
+       fi
+    fi
+    cp "$HEADER_FILE" "$HEADER_DIR"
+}
+
 [ -z "$OUTDIR" ] && exit 1
 
 #copy tools
@@ -53,6 +68,21 @@ EOF
 	../libraries/fix_config_paths.pl -data "/usr/local/Qt${VERSION_MAJOR}.${VERSION_MINOR}" "$EXE" "/tmp/tmp.exe"
 	cp "/tmp/tmp.exe" "$EXE"
 	rm -f "/tmp/tmp.exe"
+    elif [ "$a" = "assistant" ]; then
+        mkdir -p "$OUTDIR/usr/lib"
+
+        #copy assistant library
+	[ -e "${BINDIR}/lib/libQtAssistantClient.a" ] && cp "${BINDIR}/lib/libQtAssistantClient.a" "$OUTDIR/usr/lib/libQtAssistantClient.a"
+	[ "$DO_DEBUG" = "yes" ] && [ -e "${BINDIR}/lib/libQtAssistantClient_debug.a" ] && cp "${BINDIR}/lib/libQtAssistantClient_debug.a" "$OUTDIR/usr/lib/libQtAssistantClient_debug.a"
+
+        #copy assistant headers
+        mkdir -p "$OUTDIR/usr/include/QtAssistant"
+        for header in `find "${BINDIR}/include/QtAssistant" -type f`; do
+            if [ `basename "$header"` == "headers.pri" ]; then
+                continue
+            fi
+            copyHeader "$header" "$OUTDIR/usr/include/QtAssistant"
+        done
     elif [ "$a" = "Designer" ]; then
 	mkdir -p "$OUTDIR/usr/lib/"
 	[ -e "${BINDIR}/lib/libQtDesigner.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" ] && ../libraries/fix_config_paths.pl "${BINDIR}/lib/libQtDesigner.${VERSION_MAJOR}.${VERSION_MINOR}.${VERSION_PATCH}.dylib" "$OUTDIR/usr/lib/libQtDesigner.${VERSION_MAJOR}.dylib"
@@ -62,6 +92,22 @@ EOF
 	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
 	cp "/tmp/tmp.exe" "$EXE"
         rm -f /tmp/tmp.exe
+
+        #copy designer headers
+        mkdir -p "$OUTDIR/usr/include/QtDesigner/private"
+        for header in `find "${BINDIR}/include/QtDesigner" -type f`; do
+            case $header in
+            *_p.h)
+                copyHeader "$header" "$OUTDIR/usr/include/QtDesigner/private"
+                ;;
+            *)
+                copyHeader "$header" "$OUTDIR/usr/include/QtDesigner"
+                ;;
+            headers.pri)
+                continue
+                ;;
+            esac
+        done
     else
 	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
 	cp "/tmp/tmp.exe" "$EXE"
