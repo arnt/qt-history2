@@ -615,7 +615,6 @@ QIcon QToolButton::iconSet(bool /* on */) const
     Associates the given \a menu with this tool button.
 
     The menu will be shown according to the button's \l popupMode.
-.
 
     Ownership of the menu is not transferred to the tool button.
 

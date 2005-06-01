@@ -1285,7 +1285,7 @@ void qt_message_output(QtMsgType msgType, const char *buf)
 
     Example:
     \code
-        qDebug("my window handle = %x", myWidget->id());
+        qDebug("items in list: %d", myList.size());
     \endcode
 
     A more convenient syntax is also available:
@@ -1377,7 +1377,7 @@ void qWarning(const char *msg, ...)
         {
             QFile file(filename);
             if (!file.exists())
-                qCritical("file '%s' does not exist!", filename.local8bit());
+                qCritical("file '%s' does not exist!", filename.toLocal8Bit());
         }
     \endcode
 

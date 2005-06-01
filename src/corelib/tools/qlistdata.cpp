@@ -420,7 +420,8 @@ void **QListData::erase(void **xi)
     \sa operator==()
 */
 
-/*! \fn int QList::size() const
+/*! 
+    \fn int QList::size() const
 
     Returns the number of items in the list.
 
