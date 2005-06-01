@@ -1225,7 +1225,6 @@ inline bool operator!=(QBool b1, QBool b2) { return !b1 != !b2; }
 
 /*
   QTypeInfo     - type trait functionality
-  qInit         - type initialization
   qIsDetached   - data sharing functionality
 */
 
@@ -1234,7 +1233,6 @@ inline bool operator!=(QBool b1, QBool b2) { return !b1 != !b2; }
 /*
   The catch-all template.
 */
-template <typename T> inline void qInit(T &) { }
 template <typename T> inline bool qIsDetached(T &) { return true; }
 
 template <typename T>
@@ -1249,14 +1247,6 @@ public:
         isDummy = false
     };
 };
-
-/*
-  The partial specialization to catch all pointers.
-*/
-template <typename T> inline void qInit(T *&t) { t = 0; }
-#ifndef Q_CC_SUN // Sun CC sees an ambiguity here
-template <typename T> inline void qInit(const T *&t) { t = 0; }
-#endif
 
 template <typename T>
 class QTypeInfo<T*>
@@ -1273,17 +1263,9 @@ public:
 
 #else
 
-/*
-  Lack of partial template specialization mostly on MSVC compilers
-  makes it hard to distinguish between pointers and non-pointer types.
- */
-template <typename T> inline void qInitHelper(T*(*)(), void* ptr) { *(void**)ptr = 0; }
-inline void qInitHelper(...) { }
-
 template <typename T> char QTypeInfoHelper(T*(*)());
 void* QTypeInfoHelper(...);
 
-template <typename T> inline void qInit(T &t){ qInitHelper((T(*)())0, (void*)&t); }
 template <typename T> inline bool qIsDetached(T &) { return true; }
 
 template <typename T>
@@ -1364,24 +1346,6 @@ Q_DECLARE_TYPEINFO(float, Q_PRIMITIVE_TYPE);
 Q_DECLARE_TYPEINFO(double, Q_PRIMITIVE_TYPE);
 #ifndef Q_OS_DARWIN
 Q_DECLARE_TYPEINFO(long double, Q_PRIMITIVE_TYPE);
-#endif
-
-template <> inline void qInit<bool>(bool &t) { t = false; }
-template <> inline void qInit<char>(char &t) { t = 0; }
-template <> inline void qInit<signed char>(signed char &t) { t = 0; }
-template <> inline void qInit<uchar>(uchar &t) { t = 0; }
-template <> inline void qInit<short>(short &t) { t = 0; }
-template <> inline void qInit<ushort>(ushort &t) { t = 0; }
-template <> inline void qInit<int>(int &t) { t = 0; }
-template <> inline void qInit<uint>(uint &t) { t = 0; }
-template <> inline void qInit<long>(long &t) { t = 0; }
-template <> inline void qInit<ulong>(ulong &t) { t = 0; }
-template <> inline void qInit<qint64>(qint64 &t) { t = 0; }
-template <> inline void qInit<quint64>(quint64 &t) { t = 0; }
-template <> inline void qInit<float>(float &t) { t = 0.0f; }
-template <> inline void qInit<double>(double &t) { t = 0.0; }
-#ifndef Q_OS_DARWIN
-template <> inline void qInit<long double>(long double &t) { t = 0.0; }
 #endif
 
 /*

@@ -458,9 +458,7 @@ template<typename T>
 Q_OUTOFLINE_TEMPLATE T QList<T>::value(int i) const
 {
     if (i < 0 || i >= p.size()) {
-        T t;
-        qInit(t);
-        return t;
+        return T();
     }
     return reinterpret_cast<Node *>(p.at(i))->t();
 }

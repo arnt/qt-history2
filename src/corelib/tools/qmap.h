@@ -378,9 +378,7 @@ Q_INLINE_TEMPLATE const T QMap<Key, T>::value(const Key &akey) const
 {
     QMapData::Node *node = findNode(akey);
     if (node == e) {
-        T t;
-        qInit(t);
-        return t;
+        return T();
     } else {
         return concrete(node)->value;
     }
@@ -570,16 +568,14 @@ Q_OUTOFLINE_TEMPLATE T QMap<Key, T>::take(const Key &akey)
         update[i] = cur;
     }
 
-    T t;
     if (next != e && !qMapLessThanKey<Key>(akey, concrete(next)->key)) {
-        t = concrete(next)->value;
+        T t = concrete(next)->value;
         concrete(next)->key.~Key();
         concrete(next)->value.~T();
         d->node_delete(update, Payload, next);
-    } else {
-        qInit(t);
+        return t;
     }
-    return t;
+    return T();
 }
 
 template <class Key, class T>
@@ -693,9 +689,7 @@ Q_OUTOFLINE_TEMPLATE const Key QMap<Key, T>::key(const T &avalue) const
         ++i;
     }
 
-    Key k;
-    qInit(k);
-    return k;
+    return Key();
 }
 
 template <class Key, class T>

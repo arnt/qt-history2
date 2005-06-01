@@ -373,9 +373,7 @@ template<typename T>
 Q_OUTOFLINE_TEMPLATE T QVector<T>::value(int i) const
 {
     if (i < 0 || i >= p->size) {
-        T t;
-        qInit(t);
-        return t;
+        return T();
     }
     return d->array[i];
 }

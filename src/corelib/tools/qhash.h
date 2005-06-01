@@ -465,9 +465,7 @@ Q_INLINE_TEMPLATE const T QHash<Key, T>::value(const Key &akey) const
 {
     Node *node = *findNode(akey);
     if (node == e) {
-        T t;
-        qInit(t);
-        return t;
+        return T();
     } else {
         return node->value;
     }
@@ -519,9 +517,7 @@ Q_OUTOFLINE_TEMPLATE const Key QHash<Key, T>::key(const T &avalue) const
         ++i;
     }
 
-    Key k;
-    qInit(k);
-    return k;
+    return Key();
 }
 
 template <class Key, class T>
@@ -637,18 +633,16 @@ Q_OUTOFLINE_TEMPLATE T QHash<Key, T>::take(const Key &akey)
     detach();
 
     Node **node = findNode(akey);
-    T t;
     if (*node != e) {
-        t = (*node)->value;
+        T t = (*node)->value;
         Node *next = (*node)->next;
         deleteNode(*node);
         *node = next;
         --d->size;
         d->hasShrunk();
-    } else {
-        qInit(t);
+        return t;
     }
-    return t;
+    return T();
 }
 
 template <class Key, class T>

@@ -22,7 +22,7 @@ struct QPair
     typedef T1 first_type;
     typedef T2 second_type;
 
-    QPair() : first(T1()), second(T2()) { qInit(first); qInit(second); }
+    QPair() : first(T1()), second(T2()) {}
     QPair(const T1 &t1, const T2 &t2) : first(t1), second(t2) {}
 
     QPair &operator=(const QPair &other)
