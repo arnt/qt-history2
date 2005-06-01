@@ -1548,12 +1548,9 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
             if (useItemSize) {
                 if (flow == QListView::LeftToRight) {
                     deltaFlowPosition = item->w + gap;
-                    deltaSegHint = item->h + gap;
                 } else {
                     deltaFlowPosition = item->h + gap;
-                    deltaSegHint = item->w + gap;
                 }
-                deltaSegPosition = qMax(deltaSegPosition, deltaSegHint);
             }
             // create new segment
             if (wrap
@@ -1564,6 +1561,16 @@ void QListViewPrivate::doDynamicLayout(const QRect &bounds, int first, int last)
                 if (useItemSize)
                     deltaSegPosition = 0;
             }
+            // We must delay calculation of the seg adjustment, as this item
+            // may have caused a wrap to occur
+            if (useItemSize) {
+                if (flow == QListView::LeftToRight) {
+                    deltaSegHint = item->h + gap;
+                } else {
+                    deltaSegHint = item->w + gap;
+                }
+                deltaSegPosition = qMax(deltaSegPosition, deltaSegHint);
+            }            
             // set the position of the item
             if (flow == QListView::LeftToRight) {
                 item->x = flowPosition;
