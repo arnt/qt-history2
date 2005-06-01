@@ -72,6 +72,7 @@ QFontListView::QFontListView(QWidget *parent)
     : QListView(parent)
 {
     setModel(new QStringListModel(parent));
+    setEditTriggers(NoEditTriggers);
 }
 
 /*!
