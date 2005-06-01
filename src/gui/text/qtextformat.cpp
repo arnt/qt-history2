@@ -159,6 +159,8 @@ public:
         props.remove(key);
     }
 
+    void resolveFont(const QFont &defaultFont);
+
     const PropertyMap &properties() const { return props; }
 
     inline const QFont &font() const {
@@ -207,6 +209,14 @@ uint QTextFormatPrivate::recalcHash() const
     return hashValue;
 }
 
+void QTextFormatPrivate::resolveFont(const QFont &defaultFont)
+{
+    recalcFont();
+    const uint oldMask = fnt.resolve();
+    fnt = fnt.resolve(defaultFont);
+    fnt.resolve(oldMask);
+}
+
 void QTextFormatPrivate::recalcFont() const
 {
     // update cached font as well
@@ -216,7 +226,7 @@ void QTextFormatPrivate::recalcFont() const
         f.setFamily(props.value(QTextFormat::FontFamily).toString());
 
     if (props.contains(QTextFormat::FontPointSize))
-	f.setPointSizeF(props.value(QTextFormat::FontPointSize).toDouble());
+        f.setPointSizeF(props.value(QTextFormat::FontPointSize).toDouble());
 
     if (props.contains(QTextFormat::FontWeight))
         f.setWeight(props.value(QTextFormat::FontWeight).toInt());
@@ -2047,6 +2057,11 @@ int QTextFormatCollection::indexForFormat(const QTextFormat &format)
     }
     int idx = formats.size();
     formats.append(format);
+
+    QTextFormat &f = formats.last();
+    if (f.d)
+        f.d->resolveFont(defaultFnt);
+
     hashes.insert(hash);
     return idx;
 }
@@ -2100,5 +2115,13 @@ QTextFormat QTextFormatCollection::format(int idx) const
         return QTextFormat();
 
     return formats.at(idx);
+}
+
+void QTextFormatCollection::setDefaultFont(const QFont &f)
+{
+    defaultFnt = f;
+    for (int i = 0; i < formats.count(); ++i)
+        if (formats[i].d)
+            formats[i].d->resolveFont(defaultFnt);
 }
 

@@ -1052,14 +1052,15 @@ glyph_metrics_t QTextEngine::boundingBox(int from,  int len) const
 QFont QTextEngine::font(const QScriptItem &si) const
 {
     QTextCharFormat f = format(&si);
-    QFont font = f.font().resolve(fnt);
+    QFont font = f.font();
 
     if (block.docHandle()) {
-        font = font.resolve(block.docHandle()->defaultFont);
         // Make sure we get the right dpi on printers
         QPaintDevice *pdev = block.docHandle()->layout()->paintDevice();
         if (pdev)
             font = QFont(font, pdev);
+    } else {
+        font = font.resolve(fnt);
     }
 
     if (f.verticalAlignment() != QTextCharFormat::AlignNormal)
@@ -1284,7 +1285,6 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
 
     if (eng->block.docHandle()) {
         f = eng->block.charFormat().font();
-        f = f.resolve(eng->block.docHandle()->defaultFont);
         e = f.d->engineForScript(QUnicodeTables::Common);
     } else {
         e = eng->fnt.d->engineForScript(QUnicodeTables::Common);

@@ -203,6 +203,9 @@ public:
     void setModified(bool m);
     inline bool isModified() const { return modified; }
 
+    inline QFont defaultFont() const { return formats.defaultFont(); }
+    inline void setDefaultFont(const QFont &f) { formats.setDefaultFont(f); }
+
 private:
     bool split(int pos);
     bool unite(uint f);
@@ -278,7 +281,6 @@ private:
 
 public:
     QSizeF pageSize;
-    QFont defaultFont;
 };
 
 #endif // QTEXTDOCUMENT_P_H

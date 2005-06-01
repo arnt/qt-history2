@@ -822,7 +822,7 @@ int QTextDocument::pageCount() const
 void QTextDocument::setDefaultFont(const QFont &font)
 {
     Q_D(QTextDocument);
-    d->defaultFont = font;
+    d->setDefaultFont(font);
     documentLayout()->documentChanged(0, 0, d->length());
 }
 
@@ -832,7 +832,7 @@ void QTextDocument::setDefaultFont(const QFont &font)
 QFont QTextDocument::defaultFont() const
 {
     Q_D(const QTextDocument);
-    return d->defaultFont;
+    return d->defaultFont();
 }
 
 /*!

@@ -68,6 +68,12 @@ public:
     FormatVector formats;
     QVector<qint32> objFormats;
     QSet<uint> hashes;
+
+    inline QFont defaultFont() const { return defaultFnt; }
+    void setDefaultFont(const QFont &f);
+
+private:
+    QFont defaultFnt;
 };
 
 #endif // QTEXTFORMAT_P_H
