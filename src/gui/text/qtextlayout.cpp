@@ -1185,7 +1185,7 @@ void QTextLine::layout_helper(int maxGlyphs)
 
     if (eng->option.wrapMode() == QTextOption::ManualWrap
         || eng->option.wrapMode() == QTextOption::NoWrap)
-        eng->minWidth = line.textWidth;
+        eng->minWidth = qMax(eng->minWidth, line.textWidth);
     else
         eng->minWidth = qMax(eng->minWidth, minw);
 
