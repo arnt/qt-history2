@@ -96,6 +96,7 @@ void QProxyModel::setModel(QAbstractItemModel *model)
         disconnect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
                    this, SIGNAL(columnsRemoved(QModelIndex,int,int)));
         disconnect(d->model, SIGNAL(modelReset()), this, SIGNAL(modelReset()));
+        disconnect(d->model, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
     }
 
     if (model) {
@@ -121,6 +122,7 @@ void QProxyModel::setModel(QAbstractItemModel *model)
         connect(d->model, SIGNAL(columnsRemoved(QModelIndex,int,int)),
                 this, SIGNAL(columnsRemoved(QModelIndex,int,int)));
         connect(d->model, SIGNAL(modelReset()), this, SIGNAL(modelReset()));
+        connect(d->model, SIGNAL(layoutChanged()), this, SIGNAL(layoutChanged()));
     } else {
         d->model = &d->empty;
     }
