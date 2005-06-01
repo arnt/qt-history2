@@ -2772,6 +2772,17 @@ bool QString::startsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
 }
 
 /*!
+  \overload
+ */
+bool QString::startsWith(const QChar &c, Qt::CaseSensitivity cs) const
+{
+    return d->size
+           && cs == Qt::CaseSensitive
+              ? d->data[0] == c
+              : QUnicodeTables::lower(d->data[0]) == QUnicodeTables::lower(c.unicode());
+}
+
+/*!
     Returns true if the string ends with \a s; otherwise returns
     false.
 
@@ -2829,6 +2840,17 @@ bool QString::endsWith(const QLatin1String& s, Qt::CaseSensitivity cs) const
                 return false;
     }
     return true;
+}
+
+/*!
+  \overload
+ */
+bool QString::endsWith(const QChar &c, Qt::CaseSensitivity cs) const
+{
+    return d->size
+           && cs == Qt::CaseSensitive
+              ? d->data[d->size - 1] == c
+              : QUnicodeTables::lower(d->data[d->size - 1]) == QUnicodeTables::lower(c.unicode());
 }
 
 /*! \fn const char *QString::ascii() const
