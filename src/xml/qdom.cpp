@@ -2105,7 +2105,7 @@ QDomNode QDomNode::insertAfter(const QDomNode& newChild, const QDomNode& refChil
 */
 QDomNode QDomNode::replaceChild(const QDomNode& newChild, const QDomNode& oldChild)
 {
-    if (!impl)
+    if (!impl || !newChild.impl || !oldChild.impl)
         return QDomNode();
     return QDomNode(IMPL->replaceChild(newChild.impl, oldChild.impl));
 }

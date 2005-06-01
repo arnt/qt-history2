@@ -138,7 +138,7 @@ void XbelTree::parseFolderElement(const QDomElement &element,
             childItem->setText(1, child.attribute("href"));
         } else if (child.tagName() == "separator") {
             QTreeWidgetItem *childItem = createItem(child, item);
-            childItem->setFlags(item->flags() & ~Qt::ItemIsSelectable);
+            childItem->setFlags(item->flags() & ~(Qt::ItemIsSelectable | Qt::ItemIsEditable));
             childItem->setText(0, QString(30, 0xB7));
         }
         child = child.nextSiblingElement();
