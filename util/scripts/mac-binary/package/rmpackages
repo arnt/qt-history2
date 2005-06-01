@@ -57,11 +57,11 @@ for package in $PACKAGES; do
              if [ ! \( -z "$file" \) -a \( -e "$file" \) ]; then
                 echo $file;
              fi
-         done | xargs -L 512 sudo rm -f
+         done | xargs -L 1024 rm -f
 	 rm -rf "$receipt"
-         [ "$package" = "libraries" ] && sudo rm -rf /Library/Frameworks/Qt*.framework >/dev/null
-	 [ "$package" = "tools" ] && sudo rm -f /bin/moc /bin/rcc /bin/uic /bin/uic3 /bin/qmake >/dev/null #links
-	 [ "$package" = "headers" ] && sudo rm -f /Library/Frameworks/Qt*.framework/Headers /Library/Frameworks/Qt*.framework/PrivateHeaders >/dev/null #links
+         [ "$package" = "libraries" ] && rm -rf /Library/Frameworks/Qt*.framework >/dev/null
+	 [ "$package" = "tools" ] && rm -f /bin/moc /bin/rcc /bin/uic /bin/uic3 /bin/qmake >/dev/null #links
+	 [ "$package" = "headers" ] && rm -f /Library/Frameworks/Qt*.framework/Headers /Library/Frameworks/Qt*.framework/PrivateHeaders >/dev/null #links
      else
         echo "$package not installed!"
      fi
