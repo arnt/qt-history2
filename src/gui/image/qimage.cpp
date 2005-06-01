@@ -1929,13 +1929,13 @@ struct QRgbMap {
 
 static void convert_RGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::ImageConversionFlags flags)
 {
-    Q_ASSERT(src->format == QImage::Format_RGB32 || src->format == QImage::Format_ARGB32
-             || src->format == QImage::Format_ARGB32_Premultiplied);
+    Q_ASSERT(src->format == QImage::Format_RGB32 || src->format == QImage::Format_ARGB32);
     Q_ASSERT(dst->format == QImage::Format_Indexed8);
     Q_ASSERT(src->width == dst->width);
     Q_ASSERT(src->height == dst->height);
 
-    bool    do_quant = (flags & Qt::DitherMode_Mask) == Qt::PreferDither;
+    bool    do_quant = (flags & Qt::DitherMode_Mask) == Qt::PreferDither
+                       || src->format == QImage::Format_ARGB32;
     uint alpha_mask = src->format == QImage::Format_RGB32 ? 0xff000000 : 0;
 
     const int tablesize = 997; // prime
@@ -2168,7 +2168,7 @@ static void convert_RGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
             const int trans = 216;
             Q_ASSERT(dst->colortable.size() > trans);
             dst->colortable[trans] = 0;
-            QImageData *mask = QImageData::create(QSize(src->width, src->height), QImage::Format_MonoLSB);
+            QImageData *mask = QImageData::create(QSize(src->width, src->height), QImage::Format_Mono);
             dither_to_Mono(mask, src, flags, true);
             uchar *dst_data = dst->data;
             const uchar *mask_data = mask->data;
@@ -2180,6 +2180,7 @@ static void convert_RGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
                 mask_data += mask->bytes_per_line;
                 dst_data += dst->bytes_per_line;
             }
+            dst->has_alpha_clut = true;
         }
 #endif
 
@@ -2193,18 +2194,15 @@ static void convert_RGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
 
 static void convert_ARGB_PM_to_Indexed8(QImageData *dst, const QImageData *src, Qt::ImageConversionFlags flags)
 {
-    QImageData *tmp = QImageData::create(QSize(src->width, src->height), QImage::Format_RGB32);
-    convert_ARGB_PM_to_RGB(tmp, src, flags);
+    QImageData *tmp = QImageData::create(QSize(src->width, src->height), QImage::Format_ARGB32);
+    convert_ARGB_PM_to_ARGB(tmp, src, flags);
     convert_RGB_to_Indexed8(dst, tmp, flags);
     delete tmp;
 }
 
 static void convert_ARGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::ImageConversionFlags flags)
 {
-    QImageData *tmp = QImageData::create(QSize(src->width, src->height), QImage::Format_RGB32);
-    mask_alpha_converter(tmp, src, flags);
-    convert_RGB_to_Indexed8(dst, tmp, flags);
-    delete tmp;
+    convert_RGB_to_Indexed8(dst, src, flags);
 }
 
 static void convert_Indexed8_to_X32(QImageData *dest, const QImageData *src, Qt::ImageConversionFlags)
@@ -2893,6 +2891,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
 
     QImage dImage(wd, hd, d->format);
     dImage.d->colortable = d->colortable;
+    dImage.d->has_alpha_clut = d->has_alpha_clut;
     if (dImage.d->format == Format_RGB32 && complex_xform)
         dImage.d->format = Format_ARGB32_Premultiplied;
     dImage.d->dpmx = dotsPerMeterX();
