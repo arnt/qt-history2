@@ -37,6 +37,8 @@
 #  define QLIBRARY_AS_DEBUG true
 #endif
 
+Q_GLOBAL_STATIC(QMutex, qt_library_mutex)
+
 /*!
     \class QLibrary
     \reentrant
@@ -354,6 +356,7 @@ QLibraryPrivate::QLibraryPrivate(const QString &canonicalFileName)
 
 QLibraryPrivate *QLibraryPrivate::findOrCreate(const QString &fileName)
 {
+    QMutexLocker locker(qt_library_mutex());
     if (QLibraryPrivate *lib = libraryMap()->value(fileName)) {
         lib->libraryUnloadCount.ref();
         lib->libraryRefCount.ref();
@@ -401,6 +404,7 @@ bool QLibraryPrivate::unload()
 
 void QLibraryPrivate::release()
 {
+    QMutexLocker locker(qt_library_mutex());
     if (!libraryRefCount.deref())
         delete this;
 }
