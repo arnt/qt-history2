@@ -165,6 +165,8 @@ bool QPersistentModelIndex::operator<(const QPersistentModelIndex &other) const
 
 QPersistentModelIndex &QPersistentModelIndex::operator=(const QPersistentModelIndex &other)
 {
+    if (d == other.d)
+        return *this;
     if (d && !d->ref.deref())
         QPersistentModelIndexData::destroy(d);
     d = other.d;
@@ -769,7 +771,7 @@ void QAbstractItemModelPrivate::reset()
     \o An insertColumns() implementation must call beginInsertColumns()
        \e before inserting new columns into the data structure, and it must
        call endInsertColumns() \e{immediately afterwards}.
-    \o A removeRows() implementation must call beginRemoveRows() 
+    \o A removeRows() implementation must call beginRemoveRows()
        \e before the rows are removed from the data structure, and it must
        call endRemoveRows() \e{immediately afterwards}.
     \o A removeColumns() implementation must call beginRemoveColumns()
