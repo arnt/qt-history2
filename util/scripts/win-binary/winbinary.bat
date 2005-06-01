@@ -110,6 +110,8 @@ xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.lib %1\clean\lib >> %1\log.txt
 echo - Copying plugins
 cd %1\%TMP_BUILDDIR%\plugins
 xcopy /Q /I /S *.dll %1\clean\plugins\ >> %1\log.txt
+cd %1\%TMP_BUILDDIR%\examples\tools
+xcopy /Q /I /S *.dll %1\clean\examples\tools\ >> %1\log.txt
 
 echo - Copying .prl files
 cd %1\%TMP_BUILDDIR%\lib
