@@ -454,4 +454,4 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
 fi
 
 #cleanup
-#rm -rf "$TMP_DIR"
+rm -rf "$TMP_DIR"
