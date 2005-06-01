@@ -629,7 +629,10 @@ void QFontEngineWin::addOutlineToPath(qreal x, qreal y, const QGlyphLayout *glyp
     SelectObject(hdc, hfont);
     Q_ASSERT(hdc);
     GLYPHMETRICS gMetric;
-    uint glyphFormat = GGO_NATIVE | GGO_GLYPH_INDEX | GGO_UNHINTED;
+    uint glyphFormat = GGO_NATIVE | GGO_GLYPH_INDEX;
+
+    if (flags & QTextEngine::DesignMetrics)
+        glyphFormat |= GGO_UNHINTED;
 
     bool useFallback = false;
 

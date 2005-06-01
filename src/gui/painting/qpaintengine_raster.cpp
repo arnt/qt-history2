@@ -2743,6 +2743,8 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
     double scale = 1.;
     int angle = 0;
     bool transform = false;
+    bool has_kerning = ti.f->kerning();
+
     qreal x = p.x();
     qreal y = p.y();
 
@@ -2810,7 +2812,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
                 w += glyphs[i].advance.x();
             }
 
-            if (haveOffsets || transform) {
+            if (haveOffsets || transform || has_kerning) {
                 for(int i = 0; i < ti.num_glyphs; i++) {
                     wchar_t chr = glyphs->glyph;
                     qreal xp = x + glyphs->offset.x();
