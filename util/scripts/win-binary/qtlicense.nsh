@@ -1,10 +1,9 @@
 !define TT_QTKEY_INI_FILE "checkqtlicense.ini"
 
-var KEY1
-var KEY2
-var KEY3
+var LICENSE_KEY
 var LICENSEE
 var DISPLAY_US_LICENSE
+var LICENSE_PRODUCT
 
 LangString LicenseTitle ${LANG_ENGLISH} "Qt License"
 LangString LicenseTitleDescription ${LANG_ENGLISH} "Enter your Qt License key."
@@ -14,18 +13,11 @@ LangString LicenseTitleDescription ${LANG_ENGLISH} "Enter your Qt License key."
   
   push $0
   push $1
-  push $2
-  push $3
   qtnsisext::GetLicenseInfo
-  pop $3 ; Licensee
-  pop $0
-  pop $1
-  pop $2
-  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 2" "State" "$3"
+  pop $1 ; Licensee
+  pop $0 ; License Key
+  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 2" "State" "$1"
   !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 3" "State" "$0"
-  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 4" "State" "$1"
-  !insertmacro MUI_INSTALLOPTIONS_WRITE "${TT_QTKEY_INI_FILE}" "Field 5" "State" "$2"
-  pop $2
   pop $1
   pop $0
 
@@ -51,16 +43,14 @@ FunctionEnd
 
 Function ValidateKey
   !insertmacro MUI_INSTALLOPTIONS_READ $LICENSEE "${TT_QTKEY_INI_FILE}" "Field 2" "State"
-  !insertmacro MUI_INSTALLOPTIONS_READ $KEY1 "${TT_QTKEY_INI_FILE}" "Field 3" "State"
-  !insertmacro MUI_INSTALLOPTIONS_READ $KEY2 "${TT_QTKEY_INI_FILE}" "Field 4" "State"
-  !insertmacro MUI_INSTALLOPTIONS_READ $KEY3 "${TT_QTKEY_INI_FILE}" "Field 5" "State"
+  !insertmacro MUI_INSTALLOPTIONS_READ $LICENSE_KEY "${TT_QTKEY_INI_FILE}" "Field 3" "State"
   push $1
   
   StrLen $1 $LICENSEE
-  IntCmp $1 0 wrongKey
+  IntCmp $1 0 wrongLicensee
   
   ClearErrors
-  qtnsisext::IsValidLicense $KEY1 $KEY2 $KEY3
+  qtnsisext::IsValidLicense $LICENSE_KEY
   IfErrors wrongKey
   pop $1
   strcmp $1 "1" checkForUS
@@ -68,7 +58,7 @@ Function ValidateKey
 
   checkForUS:
     push $1
-    qtnsisext::UsesUsLicense $KEY1 $KEY2 $KEY3
+    qtnsisext::UsesUsLicense $LICENSE_KEY
     pop $1
     strcmp $1 "1" 0 nonUS
       strcpy $DISPLAY_US_LICENSE "1"
@@ -76,13 +66,19 @@ Function ValidateKey
   nonUS:
     strcpy $DISPLAY_US_LICENSE "0"
   goto end
+  wrongLicensee:
+    MessageBox MB_ICONEXCLAMATION|MB_RETRYCANCEL "The licencee name is not valid. Do you want to try again?" IDRETRY tryAgain 0
+    Quit
   wrongKey:
-    MessageBox MB_ICONEXCLAMATION|MB_RETRYCANCEL "The license key you entered is not valid, or you did not enter a licencee name. Do you want to try again?" IDRETRY tryAgain 0
+    MessageBox MB_ICONEXCLAMATION|MB_RETRYCANCEL "The license key you entered is not valid. Do you want to try again?" IDRETRY tryAgain 0
     Quit
   tryAgain:
     pop $1
     Abort
   end:
+    ; get license product string
+    qtnsisext::GetLicenseProduct $LICENSE_KEY
+    pop $LICENSE_PRODUCT
     pop $1
 FunctionEnd
 

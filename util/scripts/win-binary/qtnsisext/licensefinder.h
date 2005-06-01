@@ -1,13 +1,16 @@
 #ifndef LICENSEFINDER_H
 #define LICENSEFINDER_H
 
+#define MAX_KEY_LENGTH 512
+#define MAX_LICENSEE_LENGTH 512
+
 typedef unsigned long ulong;
 
 class LicenseFinder
 {
 public:
     LicenseFinder();
-    char *getLicenseKey(int part);
+    char *getLicenseKey();
     char *getLicensee();
 
 private:
@@ -15,10 +18,8 @@ private:
     bool lookInDirectory(const char* dir);
     char *findPattern(char *h, const char *n, ulong hlen);
     bool searched;
-    char key1[5];
-    char key2[5];
-    char key3[5];
-    char licensee[256];
+    char m_key[MAX_KEY_LENGTH];
+    char licensee[MAX_LICENSEE_LENGTH];
 };
 
 #endif

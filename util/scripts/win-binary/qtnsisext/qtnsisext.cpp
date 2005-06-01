@@ -1,6 +1,6 @@
 #include <windows.h>
 #include "exdll.h"
-#include "keycheck.h"
+#include "keydec.h"
 #include "licensefinder.h"
 #include "binpatch.h"
 
@@ -33,23 +33,55 @@ EXPORT_NSIS_FUNCTION(IsValidLicense)
     g_hwndParent = hwndParent;
     EXDLL_INIT();
 
-    char key1[5];
-    char key2[5];
-    char key3[5];
     char isValid[2];
+    char *key = (char *)LocalAlloc(LPTR, g_stringsize+1);
+    popstring(key);
 
-    popstring(key1);
-    popstring(key2);
-    popstring(key3);
-
-    KeyCheck c(key1, key2, key3);
-    if (c.isValidWindowsLicense())
-        isValid[0] = '1';
+    KeyDecoder kdec(key);
+    if (kdec.IsValid() && (kdec.getPlatforms() & KeyDecoder::PlatformWindows)
+        && ((kdec.getProducts() & KeyDecoder::QtUniversal) || (kdec.getProducts() & KeyDecoder::QtDesktop)))
+        strcpy(isValid, "1");
     else
-        isValid[0] = '0';
-    isValid[1] = '\0';
+        strcpy(isValid, "0");
 
+    LocalFree(key);
     pushstring(isValid);
+}
+
+EXPORT_NSIS_FUNCTION(GetLicenseProduct)
+{
+    g_hwndParent = hwndParent;
+    EXDLL_INIT();
+
+    char *key = (char *)LocalAlloc(LPTR, g_stringsize+1);
+    popstring(key);
+
+    char lcnsprod[512];
+    lcnsprod[0] = '\0';
+
+    KeyDecoder kdec(key);
+    if (kdec.IsValid()) {
+        switch(kdec.getLicenseSchema()) {
+        case KeyDecoder::SupportedEvaluation:
+            strcpy(lcnsprod, "Evaluation"); break;
+        case KeyDecoder::UnsupportedEvaluation:
+            strcpy(lcnsprod, "Evaluation"); break;
+        case KeyDecoder::FullSourceEvaluation:
+            strcpy(lcnsprod, "Evaluation"); break;
+        case KeyDecoder::FullCommercial:
+            strcpy(lcnsprod, "Commercial"); break;
+        }
+
+        switch(kdec.getProducts()) {
+        case KeyDecoder::QtUniversal:
+            strcat(lcnsprod, "Universal"); break;
+        case KeyDecoder::QtDesktop:
+            strcat(lcnsprod, "Desktop"); break;
+        }
+    }
+
+    LocalFree(key);
+    pushstring(lcnsprod);
 }
 
 EXPORT_NSIS_FUNCTION(UsesUSLicense)
@@ -57,23 +89,19 @@ EXPORT_NSIS_FUNCTION(UsesUSLicense)
     g_hwndParent = hwndParent;
     EXDLL_INIT();
 
-    char key1[5];
-    char key2[5];
-    char key3[5];
-    char isValid[2];
+    char isUSCustomer[2];
+    char *key = (char *)LocalAlloc(LPTR, g_stringsize+1);
+    popstring(key);
 
-    popstring(key1);
-    popstring(key2);
-    popstring(key3);
-
-    KeyCheck c(key1, key2, key3);
-    if (c.usesUSLicense())
-        isValid[0] = '1';
+    KeyDecoder kdec(key);
+    if (kdec.IsValid() 
+        && (kdec.getLicenseFeatures() & KeyDecoder::USCustomer))
+        strcpy(isUSCustomer, "1");
     else
-        isValid[0] = '0';
-    isValid[1] = '\0';
+        strcpy(isUSCustomer, "0");
 
-    pushstring(isValid);
+    LocalFree(key);
+    pushstring(isUSCustomer);
 }
 
 EXPORT_NSIS_FUNCTION(GetLicenseInfo)
@@ -82,9 +110,7 @@ EXPORT_NSIS_FUNCTION(GetLicenseInfo)
     EXDLL_INIT();
 
     LicenseFinder f;
-    pushstring(f.getLicenseKey(3));
-    pushstring(f.getLicenseKey(2));
-    pushstring(f.getLicenseKey(1));
+    pushstring(f.getLicenseKey());
     pushstring(f.getLicensee());
 }
 

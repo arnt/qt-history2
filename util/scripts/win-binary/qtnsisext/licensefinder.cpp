@@ -7,13 +7,8 @@
 LicenseFinder::LicenseFinder()
 {
     searched = false;
-    for (int i = 0; i < 5; ++i) {
-        key1[i] = '\0';
-        key2[i] = '\0';
-        key3[i] = '\0';
-    }
-
     memset(licensee, '\0', sizeof(licensee)*sizeof(char));
+    memset(m_key, '\0', sizeof(m_key)*sizeof(char));
 }
 
 char *LicenseFinder::getLicensee()
@@ -24,19 +19,12 @@ char *LicenseFinder::getLicensee()
     return licensee;
 }
 
-char *LicenseFinder::getLicenseKey(int part)
+char *LicenseFinder::getLicenseKey()
 {
     if (!searched)
         searchLicense();
 
-    if (part == 1)
-        return key1;
-    else if (part == 2)
-        return key2;
-    else if (part == 3)
-        return key3;
-    else
-        return 0;
+    return m_key;
 }
 
 void LicenseFinder::searchLicense()
@@ -79,20 +67,18 @@ bool LicenseFinder::lookInDirectory(const char *dir)
         char *pat = "Licensee=\"";
         char *tmp = findPattern(buf, pat, ulong(r));
 
-        if (tmp && (strlen(tmp) > strlen(pat)+1)) {
+        if (tmp && (strlen(tmp) > 1)) {
             char *end = strchr(tmp, '\"');
             if (end)
                 strncpy(licensee, tmp, end-tmp);
         }
 
         /* LicenseKey */
-        char *n = "LicenseKey=";        
+        char *n = "LicenseKeyExt=";        
         char *key = findPattern(buf, n, ulong(r));
 
-        if (key && (strlen(key) > 14)) {
-            strncpy(key1, key, 4);
-            strncpy(key2, key+5, 4);
-            strncpy(key3, key+10, 4);
+        if (key) {
+            strcpy(m_key, key);
             delete file;
             return true;
         }

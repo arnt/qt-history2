@@ -54,7 +54,20 @@ echo release_shared > %1\moc_exclude
 cd %1\%TMP_BUILDDIR%\src
 xcopy /Q /S /I /EXCLUDE:%1\moc_exclude moc_*.cpp %1\clean\src\ >> %1\log.txt
 xcopy /Q /S /I /EXCLUDE:%1\moc_exclude *.moc %1\clean\src\ >> %1\log.txt
+
+cd %1\%TMP_BUILDDIR%
+echo - Copying additional files
+echo   * qconfig.h
+xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\src\corelib\global\ >> %1\log.txt
+xcopy /Q %1\%TMP_BUILDDIR%\include\QtCore\qconfig.h %1\clean\include\QtCore\ >> %1\log.txt
+xcopy /Q %1\%TMP_BUILDDIR%\include\Qt\qconfig.h %1\clean\include\Qt\ >> %1\log.txt
+echo   * qatomic.h
+xcopy /Q %1\%TMP_BUILDDIR%\include\Qt\arch\qatomic.h %1\clean\include\Qt\arch\ >> %1\log.txt
+xcopy /Q %1\%TMP_BUILDDIR%\include\QtCore\arch\qatomic.h %1\clean\include\QtCore\arch\ >> %1\log.txt
+echo   * qconfig.pri
+xcopy /Q %1\%TMP_BUILDDIR%\mkspecs\qconfig.pri %1\clean\mkspecs\ >> %1\log.txt
 cd %1\clean
+
 goto CopyFiles
 
 :ReleaseConfig
@@ -67,6 +80,20 @@ set QTDIR=%TMP_QTDIR%
 set TMP_QTDIR=
 echo - Removing source dir in clean
 rd /S /Q src
+
+cd %1\%TMP_BUILDDIR%
+echo - Copying additional files
+echo   * qconfig.h
+xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\include\QtCore\ >> %1\log.txt
+xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\include\Qt\ >> %1\log.txt
+mkdir %1\clean\include\QtCore\arch
+mkdir %1\clean\include\Qt\arch
+echo   * qatomic.h
+xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\arch\windows\arch\qatomic.h %1\clean\include\Qt\arch\ >> %1\log.txt
+xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\arch\windows\arch\qatomic.h %1\clean\include\QtCore\arch\ >> %1\log.txt
+echo   * qconfig.pri
+xcopy /Q %1\%TMP_BUILDDIR%\mkspecs\qconfig.pri %1\clean\mkspecs\ >> %1\log.txt
+cd %1\clean
 
 :CopyFiles
 echo - Copying all .exe files
@@ -89,16 +116,6 @@ cd %1\%TMP_BUILDDIR%\lib
 xcopy /Q /I *.prl %1\clean\lib\ >> %1\log.txt
 
 cd %1\%TMP_BUILDDIR%
-
-echo - Copying additional files
-echo   * qconfig.h
-xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\include\QtCore\ >> %1\log.txt
-mkdir %1\clean\include\QtCore\arch
-echo   * qatomic.h
-xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\arch\windows\arch\qatomic.h %1\clean\include\QtCore\arch\ >> %1\log.txt
-echo   * qconfig.pri
-xcopy /Q %1\%TMP_BUILDDIR%\mkspecs\qconfig.pri %1\clean\mkspecs\ >> %1\log.txt
-
 goto :EOF
 
 

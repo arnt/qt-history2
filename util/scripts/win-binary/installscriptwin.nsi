@@ -2,7 +2,6 @@
 !define PRODUCT_PUBLISHER "Trolltech"
 !define PRODUCT_WEB_SITE "http://www.trolltech.com"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${PRODUCT_VERSION}"
-!define LICENSEE_REPLACENAME "Beta Tester"
 
 !include "MUI.nsh"
 !include "qtlicense.nsh"
@@ -135,26 +134,15 @@ Section -Post
   #patch the licencee information
   DetailPrint "Patching license information..."
 
-  #### LICENSEE_REPLACENAME must reflect license used when compiling
-  push "$INSTDIR\include\QtCore\qconfig.h"
-  push "${LICENSEE_REPLACENAME}"
-  push "$LICENSEE"
-  call PatchPath
+  push "$INSTDIR\src\corelib\global\qconfig.h"
+  push '#define QT_PRODUCT_LICENSEE "'
+  push '#define QT_PRODUCT_LICENSEE "$LICENSEE"$\r$\n'
+  call PatchLine
   
-  push $0
-  push $1
-  FindFirst $0 $1 "$INSTDIR\bin\QtCore*.dll"
-  StrCmp $1 "" ErrorPatching
-  qtnsisext::PatchBinary /NOUNLOAD "$INSTDIR\bin\$1" "qt_lcnsuser=" "qt_lcnsuser=$LICENSEE"
-  
-  FindNext $0 $1
-  StrCmp $1 "" ErrorPatching
-  qtnsisext::PatchBinary "$INSTDIR\bin\$1" "qt_lcnsuser=" "qt_lcnsuser=$LICENSEE"
-
-  ErrorPatching:
-  pop $1
-  pop $0
-  ####
+  push "$INSTDIR\src\corelib\global\qconfig.h"
+  push '#define QT_PRODUCT_LICENSE "'
+  push '#define QT_PRODUCT_LICENSE "$LICENSE_PRODUCT"$\r$\n'
+  call PatchLine
 
   DetailPrint "Please wait while creating project files for examples..."
   nsExec::Exec "$INSTDIR\bin\qtvars.bat setup"
@@ -271,6 +259,8 @@ Function PatchBinaryPaths
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_datapath=" "qt_datapath=$INSTDIR"
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_trnspath=" "qt_trnspath=$INSTDIR\translations"
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_xmplpath=" "qt_xmplpath=$INSTDIR\examples"
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_lcnsuser=" "qt_lcnsuser=$LICENSEE"
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_lcnsprod=" "qt_lcnsprod=$LICENSE_PRODUCT"
   qtnsisext::PatchBinary $0 "qt_demopath=" "qt_demopath=$INSTDIR\demos"
   
   pop $1

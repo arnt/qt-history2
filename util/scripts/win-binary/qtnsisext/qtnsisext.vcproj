@@ -120,7 +120,7 @@
 				RelativePath=".\binpatch.cpp">
 			</File>
 			<File
-				RelativePath=".\keycheck.cpp">
+				RelativePath=".\keydec.cpp">
 			</File>
 			<File
 				RelativePath=".\licensefinder.cpp">
@@ -140,7 +140,7 @@
 				RelativePath=".\exdll.h">
 			</File>
 			<File
-				RelativePath=".\keycheck.h">
+				RelativePath=".\keydec.h">
 			</File>
 			<File
 				RelativePath=".\licensefinder.h">

@@ -3,36 +3,133 @@
 # push "c:\qt"  #QTDIR
 # call MakeQtConfFile
 #
-Function MakeQtConfFile
-  exch $1 ; QTDIR
-  push $0 ; file handle
-  push $2 ; converted qtdir
+;Function MakeQtConfFile
+;  exch $1 ; QTDIR
+;  push $0 ; file handle
+;  push $2 ; converted qtdir
+;
+;  push $1
+;  push "\"
+;  push "\\"
+;  call ReplaceString
+;  pop $2
+;
+;  ClearErrors
+;  FileOpen $0 "$1\qt.conf" w
+;  IfErrors done
+;
+;  FileWrite $0 "[Paths]$\r$\n"
+;  FileWrite $0 "Prefix = $2$\r$\n"
+;  FileWrite $0 "Binaries = $2\\bin$\r$\n"
+;  FileWrite $0 "Documentation = $2\\doc$\r$\n"
+;  FileWrite $0 "Headers = $2\\include$\r$\n"
+;  FileWrite $0 "Libraries = $2\\lib$\r$\n"
+;  FileWrite $0 "Plugins = $2\\plugins$\r$\n"
+;  FileWrite $0 "Data = $2$\r$\n"
+;  FileWrite $0 "Translations = $2\\translations$\r$\n"
+;  FileClose $0
+;
+;  done:
+;  pop $2
+;  pop $0
+;  pop $1
+;FunctionEnd
+
+#
+# patch line in text files
+# push "qtcore4.prl"  #Filename
+# push "#define ..." #START WITH
+# push "c:\qt"  #REPLACE WITH
+# call PatchLine
+#
+Function PatchLine
+  exch $2 ;replacement line
+  exch 2
+  exch $1 ;Filename
+  exch
+  exch $0 ;start with
+  push $3 ; tmp filename
+  push $4 ; handle (tmp)
+  push $5 ; handle (org)
+  push $6 ; string
   
-  push $1
-  push "\"
-  push "\\"
-  call ReplaceString
-  pop $2
-
   ClearErrors
-  FileOpen $0 "$1\qt.conf" w
+  GetTempFileName $3
   IfErrors done
+  FileOpen $4 $3 w
+  IfErrors done
+  FileOpen $5 $1 r
+  IfErrors done
+  
+nextline:
+  FileRead $5 $6
+  IfErrors renameFile
+  push $6
+  push $0
+  push $2
+  call ReplaceLine
+  pop $6
+  FileWrite $4 $6
+  goto nextline
 
-  FileWrite $0 "[Paths]$\r$\n"
-  FileWrite $0 "Prefix = $2$\r$\n"
-  FileWrite $0 "Binaries = $2\\bin$\r$\n"
-  FileWrite $0 "Documentation = $2\\doc$\r$\n"
-  FileWrite $0 "Headers = $2\\include$\r$\n"
-  FileWrite $0 "Libraries = $2\\lib$\r$\n"
-  FileWrite $0 "Plugins = $2\\plugins$\r$\n"
-  FileWrite $0 "Data = $2$\r$\n"
-  FileWrite $0 "Translations = $2\\translations$\r$\n"
-  FileClose $0
-
+renameFile:
+  FileClose $4
+  FileClose $5
+  SetDetailsPrint none
+  Delete $1
+  Rename $3 $1
+  SetDetailsPrint both
+  
   done:
-  pop $2
+  pop $6
+  pop $5
+  pop $4
+  pop $3
   pop $0
   pop $1
+  pop $2
+FunctionEnd
+
+#
+# replaces a string that starts with something, with another string
+# push string
+# push "#define ..." #START WITH
+# push "c:\qt"  #REPLACE WITH
+# call ReplaceLine
+# pop $0 #new string
+#
+Function ReplaceLine
+  exch $2 ;new line
+  exch 2
+  exch $1 ;string
+  exch
+  exch $0 ;start with
+
+  push $3 ; tmp string
+  push $4 ; counter
+  push $5 ; strlen
+
+  StrCpy $4 "-1"
+  StrLen $5 $1
+
+  loop:
+  IntOp $4 $4 + 1 ;increase counter
+  StrCpy $3 $1 $4 ;get substring
+  IntCmp $4 $5 copystring ; check for end
+  StrCmp $3 $0 done ;start with found
+  goto loop
+
+  copystring:
+  StrCpy $2 $1
+  goto done
+
+  done:
+  pop $5
+  pop $4
+  pop $3
+  pop $0
+  pop $1
+  exch $2
 FunctionEnd
 
 #
