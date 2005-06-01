@@ -1,5 +1,4 @@
 TEMPLATE = subdirs
 CONFIG += ordered
 
-SUBDIRS = \
-    widgets
+contains(QT_CONFIG, qt3support): SUBDIRS += widgets
