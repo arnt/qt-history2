@@ -555,7 +555,10 @@ qreal QLineF::angle(const QLineF &l) const
 {
     if (isNull() || l.isNull())
         return 0;
-    qreal rad = acos( (dx()*l.dx() + dy()*l.dy()) / (length()*l.length()) );
+    qreal cos_line = (dx()*l.dx() + dy()*l.dy()) / (length()*l.length());
+    qreal rad = 0;
+    // only accept cos_line in the range [-1,1], if it is outside, use 0 (we return 0 rather than PI for those cases)
+    if (cos_line >= -1.0 && cos_line <= 1.0) rad = acos( cos_line );
     return rad * 360 / M_2PI;
 }
 
