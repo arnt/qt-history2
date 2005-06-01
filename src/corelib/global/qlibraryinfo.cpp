@@ -18,6 +18,9 @@
 #include "qlibraryinfo.h"
 #include "qpointer.h"
 #include "qcoreapplication.h"
+#ifdef Q_OS_MAC
+#  include "private/qcore_mac_p.h"
+#endif
 
 #include "qconfig.cpp"
 
@@ -60,8 +63,24 @@ QSettings *QLibraryInfoPrivate::findConfiguration()
 {
     QString qtconfig = QLatin1String(":/qt/etc/qt.conf");
     if (!QFile::exists(qtconfig) && QCoreApplication::instance()) {
-        QDir pwd(QCoreApplication::instance()->applicationDirPath());
-        qtconfig = pwd.filePath(QLatin1String("qt.conf"));
+#ifdef Q_OS_MAC
+	CFBundleRef bundleRef = CFBundleGetMainBundle();
+        if (bundleRef) {
+	    QCFType<CFURLRef> urlRef = CFBundleCopyResourceURL(bundleRef,
+							       QCFString(QLatin1String("qt.conf")),
+							       0,
+							       0);
+	    if (urlRef) {
+	        QCFString path = CFURLCopyFileSystemPath(urlRef, kCFURLPOSIXPathStyle);
+		qtconfig = QDir::cleanPath(path);
+	    }
+	}
+	if (qtconfig.isEmpty())
+#endif
+            {
+                QDir pwd(QCoreApplication::instance()->applicationDirPath());
+                qtconfig = pwd.filePath(QLatin1String("qt.conf"));
+	    }
     }
     if (QFile::exists(qtconfig))
         return new QSettings(qtconfig, QSettings::IniFormat);
@@ -341,10 +360,21 @@ QLibraryInfo::location(LibraryLocation loc)
     if (QDir::isRelativePath(ret)) {
         if (loc == PrefixPath) {
             // we make the prefix path absolute to the executable's directory
-            if (QCoreApplication *app = QCoreApplication::instance())
+            if (QCoreApplication *app = QCoreApplication::instance()) {
+#ifdef Q_OS_MAC
+	        CFBundleRef bundleRef = CFBundleGetMainBundle();
+		if (bundleRef) {
+		    QCFType<CFURLRef> urlRef = CFBundleCopyBundleURL(bundleRef);
+		    if (urlRef) {
+		        QCFString path = CFURLCopyFileSystemPath(urlRef, kCFURLPOSIXPathStyle);
+		        return QDir::cleanPath(path + QLatin1String("/Contents"));
+		    }
+		}
+#endif
                 return QDir(app->applicationDirPath()).absoluteFilePath(ret);
-            else
+            } else {
                 return QDir::current().absoluteFilePath(ret);
+            }
         } else {
             // we make any other path absolute to the prefix directory
             return QDir(location(PrefixPath)).absoluteFilePath(ret);
