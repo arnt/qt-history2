@@ -39,7 +39,7 @@ get_sources()
 get_sources "$SRCDIR/examples"
 if [ -d "$BINDIR/bin/qtdemo.app" ]; then
    mkdir -p "$OUTDIR/Developer/Applications/Qt/"
-   cp -r "$BINDIR/bin/qtdemo.app" "$OUTDIR/Develper/Applications/Qt/"
+   cp -r "$BINDIR/bin/qtdemo.app" "$OUTDIR/Developer/Applications/Qt/"
 fi
 rm -rf "$OUTDIR/Developer/Examples/Qt/activeqt"
 
