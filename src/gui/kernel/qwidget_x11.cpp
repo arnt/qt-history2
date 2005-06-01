@@ -1322,6 +1322,17 @@ struct QX11DoubleBuffer
 
 static QX11DoubleBuffer *qt_x11_global_double_buffer = 0;
 static bool qt_x11_global_double_buffer_active = false;
+static bool qt_x11_enable_global_db = true;
+
+/*!
+    This function can be used to enable/disable the global double
+    buffering under X11.
+*/
+
+Q_GUI_EXPORT void qt_x11_set_global_double_buffer(bool enable)
+{
+    qt_x11_enable_global_db = enable;
+}
 
 static void qt_discard_double_buffer(QX11DoubleBuffer **db)
 {
@@ -1426,7 +1437,8 @@ void QWidget::repaint(const QRegion& rgn)
                           && !testAttribute(Qt::WA_NoSystemBackground)
                           && br.width()  <= QX11DoubleBuffer::MaxWidth
                           && br.height() <= QX11DoubleBuffer::MaxHeight
-                          && !QPainter::redirected(this));
+                          && !QPainter::redirected(this)
+                          && qt_x11_enable_global_db);
 
     bool do_system_clip = !double_buffer && (rects.size() > 1 || (br != QRect(0,0,data->crect.width(),data->crect.height())));
 

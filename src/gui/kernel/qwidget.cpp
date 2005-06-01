@@ -5473,6 +5473,16 @@ void QWidget::leaveEvent(QEvent *)
     there's no need to write double-buffering code in paintEvent() to
     avoid flicker.
 
+    Note: Under X11 it is possible to toggle the global double
+    buffering by calling \c qt_x11_set_global_double_buffer().
+    Example usage:
+    \code
+    ...
+    extern void qt_x11_set_global_double_buffer(bool);
+    qt_x11_set_global_double_buffer(false);
+    ...
+    \endcode
+
     \sa event(), repaint(), update(), QPainter, QPixmap, QPaintEvent
 */
 
