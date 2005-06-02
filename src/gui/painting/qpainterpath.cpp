@@ -1656,10 +1656,28 @@ QPainterPath QPainterPathStroker::createStroke(const QPainterPath &path) const
 
     // Create the dashed version to use.
     if (!d->dashPattern.isEmpty()) {
+#ifdef Q_CC_HPACC
+        // This is a workaround for a compiler bug with aCC. Whatever
+        // we do with QVarLengthArray at this point, we get a segmentation
+        // fault. It may be an alignment problem in QVarLengthArray.
+        qreal stackArray[16];
+        qreal *heapArray = 0;
+        qreal *pattern = stackArray;
+        int patternSize = d->dashPattern.size();
+        if (patternSize > 16)
+            pattern = heapArray = new qreal[patternSize];
+
+        for (int i=0; i<patternSize; ++i)
+            pattern[i] = d->dashPattern.at(i) * d->width;
+        input = qt_stroke_dash(path, pattern, patternSize);
+
+        delete [] heapArray;
+#else
         QVarLengthArray<qreal, 16> pattern(d->dashPattern.size());
         for (int i=0; i<d->dashPattern.size(); ++i)
             pattern[i] = d->dashPattern.at(i) * d->width;
         input = qt_stroke_dash(path, pattern.data(), pattern.size());
+#endif
     }
 
     QSubpathIterator fwit(&input);
