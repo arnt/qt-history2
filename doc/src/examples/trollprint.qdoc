@@ -195,12 +195,12 @@
         /*
             TRANSLATOR ZClientErrorDialog
 
-	    Choose Client|Edit to reach the Client Edit dialog, then choose
-	    Client Specification from the drop down list at the top and pick
-	    client Bartel Leendert van der Waerden. Now check the Profile
-	    checkbox and then click the Start Processing button. You should
-	    now see a pop up window with the text "Error: Name too long!".
-	    This window is a ZClientErrorDialog.
+     Choose Client|Edit to reach the Client Edit dialog, then choose
+     Client Specification from the drop down list at the top and pick
+     client Bartel Leendert van der Waerden. Now check the Profile
+     checkbox and then click the Start Processing button. You should
+     now see a pop up window with the text "Error: Name too long!".
+     This window is a ZClientErrorDialog.
     \endcode
 
     \section1 Troll Print 1.1
@@ -228,14 +228,14 @@
          \o Troll Print 1.0 - marked "(obs.)", obsolete
          \o About Troll Print 1.0 - marked "(obs.)", obsolete
          \o Troll Print 1.0. Copyright 1999 Software, Inc. -
-	      marked obsolete
+       marked obsolete
          \o Troll Print 1.1 - automatically translated as
-	      "Troll Imprimir 1.1"
+       "Troll Imprimir 1.1"
          \o About Troll Print 1.1 - automatically translated as
-	      "Troll Imprimir 1.1"
+       "Troll Imprimir 1.1"
          \o Troll Print 1.1. Copyright 1999-2000 Software,
-	      Inc. - automatically translated as "Troll Imprimir 1.1.
-	      Copyright 1999-2000 Software, Inc."
+       Inc. - automatically translated as "Troll Imprimir 1.1.
+       Copyright 1999-2000 Software, Inc."
          \endlist
     \o \c PrintPanel
          \list
@@ -259,8 +259,6 @@
     \image linguist-trollprint_11_pt.png
 
     Choose \gui{Ajuda|Sobre} (\gui{Help|About}) to see the about box.
-
-    \image linguist-trollprint_11_about_pt.png
 
     If you choose \gui {Ajuda|Sobre Qt} (\gui {Help|About Qt}), you'll get
     an English dialog. Oops! Qt itself needs to be translated. See
