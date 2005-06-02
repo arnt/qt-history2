@@ -2,6 +2,7 @@ TEMPLATE = app
 CONFIG -= moc
 CONFIG += console
 CONFIG -= app_bundle
+CONIFG -= debug_and_release
 build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release

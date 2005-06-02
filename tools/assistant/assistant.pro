@@ -3,6 +3,7 @@ LANGUAGE = C++
 TARGET         = assistant
 
 CONFIG        += qt warn_on
+CONFIG        -= debug_and_release
 build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release
