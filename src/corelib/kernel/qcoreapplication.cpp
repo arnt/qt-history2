@@ -827,6 +827,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
     // optimize sendPostedEvents(w, QEvent::ChildInserted) calls away
     if (receiver && event_type == QEvent::ChildInserted
         && !receiver->d_func()->postedChildInsertedEvents) {
+        --data->postEventList.recursion;
         return;
     }
     // Make sure the object hierarchy is stable before processing events
@@ -837,8 +838,10 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
     QMutexLocker locker(&data->postEventList.mutex);
 
-    if (data->postEventList.size() == 0 || (receiver && !receiver->d_func()->postedEvents))
+    if (data->postEventList.size() == 0 || (receiver && !receiver->d_func()->postedEvents)) {
+        --data->postEventList.recursion;
         return;
+    }
 
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
