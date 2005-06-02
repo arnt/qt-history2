@@ -1083,7 +1083,8 @@ void QTextEdit::setTextCursor(const QTextCursor &cursor)
 }
 
 /*!
-    Returns a QTextCursor that represents the currently visible cursor.
+    Returns a copy of the QTextCursor that represents the currently visible cursor.
+    Note that changes on the returned cursor do not affect QTextEdit's cursor.
  */
 QTextCursor QTextEdit::textCursor() const
 {
