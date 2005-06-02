@@ -394,6 +394,7 @@ void Launcher::closeEvent(QCloseEvent *event)
                 tr("There are examples running. Do you really want to exit?"),
                 QMessageBox::Yes, QMessageBox::No) == QMessageBox::No)
             event->ignore();
+            return;
     }
 
     foreach (QProcess *example, runningProcesses.keys()) {
