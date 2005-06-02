@@ -25,7 +25,7 @@ get_sources()
   DIR="$1"
   for file in `find $DIR -type f`; do
     case $file in #only need sources
-    ui_*.h|moc_*.cpp|qrc_*.cpp|*.app|*.app/*|*/.obj/*|*/.ui/*|*/.rcc/*|*/.moc/*|*/Makefile|*.build*|*.xcode*|*/build|*/build/*|*.doc|*~|*.gch|*.gch/*|*/.DS_Store|*/.gdb_history)  continue ;;
+    */ui_*.h|*/moc_*.cpp|*/qrc_*.cpp|*.app|*.app/*|*/.obj/*|*/.ui/*|*/.rcc/*|*/.moc/*|*/Makefile|*.build*|*.xcode*|*/build|*/build/*|*.doc|*~|*.gch|*.gch/*|*/.DS_Store|*/.gdb_history)  continue ;;
     *) ;;
     esac
     [ -x "$file" ] && continue
