@@ -1657,10 +1657,12 @@ QVariant& QVariant::operator=(const QVariant &variant)
     if (variant.d.is_shared) {
         variant.d.data.shared->ref.ref();
         d = variant.d;
-    } else {
+    } else if (variant.d.type > Char) {
         d.type = variant.d.type;
         handler->construct(&d, variant.constData());
         d.is_null = variant.d.is_null;
+    } else {
+        d = variant.d;
     }
 
     return *this;
