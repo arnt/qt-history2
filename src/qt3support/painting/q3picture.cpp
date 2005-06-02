@@ -76,6 +76,8 @@ int Q3SvgDevice::metric(PaintDeviceMetric m) const
     \brief The Q3Picture class is a paint device that records and
     replays Q3Painter commands.
 
+    \compat
+
     Q3Picture can also read and write SVG (Scalable Vector Graphics)
     files; these files are in an XML format specified by \link
     http://www.w3.org/Graphics/SVG/ W3C\endlink. (See the load() and
