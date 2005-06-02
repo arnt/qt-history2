@@ -36,15 +36,40 @@ get_sources()
 }
 
 #examples
-get_sources "$SRCDIR/examples"
-if [ -d "$BINDIR/bin/qtdemo.app" ]; then
-   mkdir -p "$OUTDIR/Developer/Applications/Qt/"
-   cp -r "$BINDIR/bin/qtdemo.app" "$OUTDIR/Developer/Applications/Qt/"
-fi
-rm -rf "$OUTDIR/Developer/Examples/Qt/activeqt"
+get_sources "$SRCDIR/examples/"
+rm -rf "$OUTDIR/Developer/Examples/Qt/activeqt" #we don't need it
+for category_dir in $BINDIR/examples/*; do
+    for example_dir in $category_dir/*; do
+	[ -d "$example_dir" ] || continue
+	example_cat=`echo $example_dir | sed "s,^$BINDIR/examples/,,"`
+	[ -d "${OUTDIR}/Developer/Examples/Qt/${example_cat}" ] || continue
+	example=`basename $example_dir`
+	EXE=
+	if [ "$example" = "qtdemo" ]; then
+            mkdir -p "${OUTDIR}/Developer/Applications/Qt/"
+            cp -R "$BINDIR/bin/${example}.app" "${OUTDIR}/Developer/Applications/Qt/"
+	    EXE="${OUTDIR}/Developer/Applications/Qt/${example}.app/Contents/MacOS/${example}"
+	elif [ -x "${example_dir}/${example}" ]; then
+            mkdir -p "${OUTDIR}/Developer/Examples/Qt/${example_cat}/"
+	    EXE="${OUTDIR}/Developer/Examples/Qt/${example_cat}/${example}"
+            cp "${example_dir}/${example}" "$EXE"
+	elif [ -d "${example_dir}/${example}.app" ]; then #in a bundle
+            mkdir -p "${OUTDIR}/Developer/Examples/Qt/${example_cat}/"
+            cp -R "${example_dir}/${example}.app" "${OUTDIR}/Developer/Examples/Qt/${example_cat}/"
+            EXE="${OUTDIR}/Developer/Examples/Qt/${example_cat}/${example}.app/Contents/MacOS/${example}"
+	fi
+	if [ -x "$EXE" ]; then
+	    ../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
+	    strip "/tmp/tmp.exe"
+	    cp "/tmp/tmp.exe" "$EXE"
+	    rm -f "/tmp/tmp.exe"
+	    chmod a+x "$EXE" 
+	fi
+    done
+done
 
 #demos
-get_sources "$SRCDIR/demos" "Demos"
+get_sources "$SRCDIR/demos"
 for demo_dir in $BINDIR/demos/*; do
     [ -d "$demo_dir" ] || continue
     demo=`basename $demo_dir`
@@ -60,6 +85,7 @@ for demo_dir in $BINDIR/demos/*; do
     fi
     if [ -x "$EXE" ]; then
 	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
+	strip "/tmp/tmp.exe"
 	cp "/tmp/tmp.exe" "$EXE"
 	rm -f "/tmp/tmp.exe"
 	chmod a+x "$EXE" 
