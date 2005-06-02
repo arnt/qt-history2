@@ -135,7 +135,7 @@ elif [ ! -z "$SOURCE_PACKAGE" ]; then
     export DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
     export DYLD_FRAMEWORK_PATH=$QTDIR/lib:$DYLD_FRAMEWORK_PATH
     export PATH=$QTDIR/bin:$PATH
-    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure -qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -release -framework -confirm-license -no-rpath -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib -plugindir /Developer/Applications/Qt/plugins -libdir /Library/Frameworks -bindir /Developer/Applications/Qt -docdir /Developer/Documentation/Qt -demosdir /Developer/Examples/Qt/Demos -examplesdir /Developer/Examples/Qt && make); then
+    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure -qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -release -framework -confirm-license -no-rpath -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib && make); then
           SOURCE_DIR="$QTDIR"
           BINARY_DIR="$SOURCE_DIR"
     else
