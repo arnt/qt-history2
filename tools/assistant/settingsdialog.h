@@ -25,18 +25,6 @@ class SettingsDialog : public QDialog
 public:
     SettingsDialog(QWidget *parent);
 
-    inline QComboBox *fontCombo() const
-    { return ui.fontCombo; }
-
-    inline QComboBox *fixedFontCombo() const
-    { return ui.fixedfontCombo; }
-
-    inline QCheckBox *linkUnderlineCB() const
-    { return ui.linkUnderlineCB; }
-
-    inline QToolButton *colorButton() const
-    { return ui.colorButton; }
-
     inline QTabWidget *settingsTab() const
     { return ui.settingsTab; }
 
@@ -44,7 +32,6 @@ public:
 private slots:
     void on_buttonOk_clicked();
     void on_buttonCancel_clicked();
-    void on_colorButton_clicked();
     void on_buttonBrowse_clicked();
     void on_buttonHome_clicked();
     void on_buttonPDF_clicked();

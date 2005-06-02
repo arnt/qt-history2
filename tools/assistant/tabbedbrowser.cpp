@@ -114,7 +114,6 @@ HelpWindow *TabbedBrowser::createHelpWindow(const QString &title)
     MainWindow *mainWin = mainWindow();
     HelpWindow *win = new HelpWindow(mainWin, 0);
     win->setFrameStyle(QFrame::NoFrame);
-    win->setFont(browserFont());
     win->setPalette(palette());
     win->setSearchPaths(Config::configuration()->mimePaths());
     ui.tab->addTab(win, reduceLabelLength(title));
@@ -232,44 +231,9 @@ void TabbedBrowser::initHelpWindow(HelpWindow * /*win*/)
 {
 }
 
-void TabbedBrowser::applySettings()
-{
-    Config *config = Config::configuration();
-    fixedFontFam = config->fontFixedFamily();
-    lnkColor = QColor(config->linkColor());
-    underlineLnk = config->isLinkUnderline();
-
-    QFont fnt(font());
-    QFontInfo fntInfo(fnt);
-    fnt.setFamily(config->fontFamily());
-    if (config->fontSize() > 0)
-        fnt.setPointSize(config->fontSize());
-    setBrowserFont(fnt);
-
-    int cnt = ui.tab->count();
-    for(int i=0; i<cnt; i++)
-        ((HelpWindow*) ui.tab->widget(i))->updateFormat();
-}
-
 void TabbedBrowser::setup()
 {
-    applySettings();
     newTab(QString());
-}
-
-QFont TabbedBrowser::browserFont() const
-{
-    return tabFont;
-}
-
-void TabbedBrowser::setBrowserFont(const QFont &fnt)
-{
-    if(tabFont == fnt)
-        return;
-    tabFont = fnt;
-    int cnt = ui.tab->count();
-    for(int i=0; i<cnt; i++)
-        ((QTextBrowser*) ui.tab->widget(i))->setFont(fnt);
 }
 
 void TabbedBrowser::copy()

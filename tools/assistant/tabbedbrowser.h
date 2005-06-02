@@ -31,26 +31,12 @@ public:
     MainWindow *mainWindow() const;
     HelpWindow *currentBrowser() const;
     QStringList sources() const;
-    QFont browserFont() const;
     QList<HelpWindow*> browsers() const;
 
     HelpWindow* newBackgroundTab(const QString &url);
     HelpWindow* createHelpWindow(const QString &);
 
-    void setBrowserFont(const QFont &fnt);
     void setTitle(HelpWindow*, const QString &);
-    void applySettings();
-
-    
-    void setFixedFontFamily(const QString &family) { fixedFontFam = family; }
-    QString fixedFontFamily() const { return fixedFontFam; }
-
-    void setLinkColor(const QColor &col) { lnkColor = col; }
-    QColor linkColor() const { return lnkColor; }
-
-    void setUnderlineLink(bool udrline) { underlineLnk = udrline; }
-    bool underlineLink() const { return underlineLnk; }
-
 
 public slots:
     void init();

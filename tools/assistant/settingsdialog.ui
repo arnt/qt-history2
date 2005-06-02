@@ -48,123 +48,6 @@
      </property>
      <widget class="QWidget" name="tab" >
       <attribute name="title" >
-       <string>&amp;General</string>
-      </attribute>
-      <layout class="QGridLayout" >
-       <property name="margin" >
-        <number>8</number>
-       </property>
-       <property name="spacing" >
-        <number>6</number>
-       </property>
-       <item row="2" column="1" >
-        <widget class="QToolButton" name="colorButton" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>0</hsizetype>
-           <vsizetype>0</vsizetype>
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="minimumSize" >
-          <size>
-           <width>40</width>
-           <height>20</height>
-          </size>
-         </property>
-         <property name="focusPolicy" >
-          <enum>Qt::TabFocus</enum>
-         </property>
-         <property name="text" >
-          <string/>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="0" >
-        <widget class="QLabel" name="TextLabel1" >
-         <property name="text" >
-          <string>Fix&amp;ed font:</string>
-         </property>
-         <property name="buddy" >
-          <cstring>fixedfontCombo</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="1" >
-        <widget class="QComboBox" name="fontCombo" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>7</hsizetype>
-           <vsizetype>0</vsizetype>
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="editable" >
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="3" column="0" >
-        <widget class="QCheckBox" name="linkUnderlineCB" >
-         <property name="text" >
-          <string>&amp;Underline links</string>
-         </property>
-         <property name="checked" >
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="0" column="0" >
-        <widget class="QLabel" name="fontLabel" >
-         <property name="text" >
-          <string>&amp;Font:</string>
-         </property>
-         <property name="buddy" >
-          <cstring>fontCombo</cstring>
-         </property>
-        </widget>
-       </item>
-       <item row="2" column="0" >
-        <widget class="QLabel" name="TextLabel2" >
-         <property name="text" >
-          <string>Link color:</string>
-         </property>
-        </widget>
-       </item>
-       <item row="1" column="1" >
-        <widget class="QComboBox" name="fixedfontCombo" >
-         <property name="sizePolicy" >
-          <sizepolicy>
-           <hsizetype>7</hsizetype>
-           <vsizetype>0</vsizetype>
-           <horstretch>0</horstretch>
-           <verstretch>0</verstretch>
-          </sizepolicy>
-         </property>
-         <property name="editable" >
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item row="4" column="0" colspan="2" >
-        <spacer>
-         <property name="orientation" >
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" >
-          <size>
-           <width>10</width>
-           <height>10</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
-     </widget>
-     <widget class="QWidget" name="tab" >
-      <attribute name="title" >
        <string>&amp;Web</string>
       </attribute>
       <layout class="QVBoxLayout" >
@@ -409,10 +292,6 @@
  <pixmapfunction></pixmapfunction>
  <tabstops>
   <tabstop>settingsTab</tabstop>
-  <tabstop>fontCombo</tabstop>
-  <tabstop>fixedfontCombo</tabstop>
-  <tabstop>colorButton</tabstop>
-  <tabstop>linkUnderlineCB</tabstop>
   <tabstop>browserApp</tabstop>
   <tabstop>buttonBrowse</tabstop>
   <tabstop>homePage</tabstop>

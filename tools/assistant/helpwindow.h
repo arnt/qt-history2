@@ -38,7 +38,6 @@ public:
 
     bool isBackwardAvailable() const { return backAvail; }
     bool isForwardAvailable() const { return fwdAvail; }
-    void updateFormat();
 
 signals:
     void chooseWebBrowser();

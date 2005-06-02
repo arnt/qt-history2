@@ -528,14 +528,6 @@ void MainWindow::showSettingsDialog(int page)
         settingsDia = new SettingsDialog(this);
     }
 
-    settingsDia->fontCombo()->lineEdit()->setText(tabs->browserFont().family());
-    settingsDia->fixedFontCombo()->lineEdit()->setText(tabs->fixedFontFamily());
-
-    QPalette pal = settingsDia->colorButton()->palette();
-	pal.setColor(QPalette::Active, QPalette::Button, tabs->linkColor());
-    settingsDia->colorButton()->setPalette(pal);
-
-
     if (page != -1)
         settingsDia->settingsTab()->setCurrentIndex(page);
 
@@ -552,8 +544,6 @@ void MainWindow::showSettingsDialog(int page)
         }
     }
     setupGoActions();
-
-    tabs->applySettings();
 
     tabs->currentBrowser()->reload();
     //showLink(tabs->currentBrowser()->source().toString());
@@ -575,12 +565,6 @@ MainWindow* MainWindow::newWindow()
 void MainWindow::saveSettings()
 {
     Config *config = Config::configuration();
-    config->setFontFamily(tabs->browserFont().family());
-    config->setFontSize(tabs->currentBrowser()->font().pointSize());
-
-    config->setFontFixedFamily(tabs->fixedFontFamily());
-    config->setLinkUnderline(tabs->underlineLink());
-    config->setLinkColor(tabs->linkColor().name());
 
     config->setSideBarPage(helpDock->tabWidget()->currentIndex());
     config->setGeometry(QRect(x(), y(), width(), height()));

@@ -43,31 +43,9 @@ void SettingsDialog::init()
 {
     Config *config = Config::configuration();
 
-    QFontDatabase fonts;
-    ui.fontCombo->addItems(fonts.families());
-    ui.fontCombo->lineEdit()->setText(config->fontFamily());
-    
-    ui.fixedfontCombo->addItems(fonts.families());
-    ui.fixedfontCombo->lineEdit()->setText(config->fontFixedFamily());
-
-    QPalette pal = ui.colorButton->palette();
-    pal.setColor(QPalette::Active, QPalette::Button, QColor(config->linkColor()));
-    ui.colorButton->setPalette(pal);
-
-    ui.linkUnderlineCB->setChecked(config->isLinkUnderline());
-
     ui.browserApp->setText(config->webBrowser());
     ui.homePage->setText(config->homePage());
     ui.pdfApp->setText(config->pdfReader());
-}
-
-
-void SettingsDialog::on_colorButton_clicked()
-{
-    QPalette pal = ui.colorButton->palette();
-	QColor c = QColorDialog::getColor(pal.color(QPalette::Button), this);
-	pal.setColor(QPalette::Button, c);
-    ui.colorButton->setPalette(pal);
 }
 
 void SettingsDialog::on_buttonBrowse_clicked()
@@ -95,11 +73,6 @@ void SettingsDialog::setFile(QLineEdit *le, const QString &caption)
 void SettingsDialog::accept()
 {
     Config *config = Config::configuration();
-
-    config->setFontFamily(ui.fontCombo->currentText());
-    config->setFontFixedFamily(ui.fixedfontCombo->currentText());
-    config->setLinkColor(ui.colorButton->palette().color(QPalette::Button).name());
-    config->setLinkUnderline(ui.linkUnderlineCB->isChecked());
 
     config->setWebBrowser(ui.browserApp->text());
     config->setHomePage(ui.homePage->text());

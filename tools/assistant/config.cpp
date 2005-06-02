@@ -36,7 +36,7 @@ inline QString getVersionString()
 }
 
 Config::Config()
-    : profil( 0 ), fontSiz(-1), maximized(false), hideSidebar( false ), rebuildDocs(true)
+    : profil( 0 ), maximized(false), hideSidebar( false ), rebuildDocs(true)
 {
     if( !static_configuration ) {
         static_configuration = this;
@@ -99,19 +99,9 @@ void Config::load()
     webBrows = settings.value( key + QLatin1String("Webbrowser") ).toString();
     home = settings.value( profkey + QLatin1String("Homepage") ).toString();
     pdfApp = settings.value( key + QLatin1String("PDFApplication") ).toString();
-    linkUnder = settings.value( key + QLatin1String("LinkUnderline"), true ).toBool();
-    linkCol = settings.value( key + QLatin1String("LinkColor"), "#0000FF" ).toString();
     src = settings.value( profkey + QLatin1String("Source") ).toStringList();
     sideBar = settings.value( key + QLatin1String("SideBarPage") ).toInt();
     if (qApp->type() != QApplication::Tty) {
-        fontFam = settings.value( key + QLatin1String("Family"), qApp->font().family() ).toString();
-
-        fontFix = settings.value( key + QLatin1String("FixedFamily"), "courier" ).toString();
-        fontSiz = settings.value( key + QLatin1String("Size"), -1 ).toInt();
-        if ( fontSiz < 6 ) {
-            QFontInfo fi( qApp->font() );
-            fontSiz = fi.pointSize();
-        }
         geom.setRect( settings.value( key + QLatin1String("GeometryX"), QApplication::desktop()->availableGeometry().x() ).toInt(),
                       settings.value( key + QLatin1String("GeometryY"), QApplication::desktop()->availableGeometry().y() ).toInt(),
                       settings.value( key + QLatin1String("GeometryWidth"), 800 ).toInt(),
@@ -140,8 +130,6 @@ void Config::saveSettings()
     settings.setValue( key + QLatin1String("Webbrowser"), webBrows );
     settings.setValue( profkey + QLatin1String("Homepage"), home );
     settings.setValue( key + QLatin1String("PDFApplication"), pdfApp );
-    settings.setValue( key + QLatin1String("LinkUnderline"), linkUnder );
-    settings.setValue( key + QLatin1String("LinkColor"), linkCol );
     settings.setValue( profkey + QLatin1String("Source"), src );
     settings.setValue( key + QLatin1String("SideBarPage"), sideBarPage() );
     if (qApp->type() != QApplication::Tty) {
@@ -150,9 +138,6 @@ void Config::saveSettings()
         settings.setValue( key + QLatin1String("GeometryWidth"), geom.width() );
         settings.setValue( key + QLatin1String("GeometryHeight"), geom.height() );
         settings.setValue( key + QLatin1String("GeometryMaximized"), maximized );
-        settings.setValue( key + QLatin1String("Family"),  fontFam );
-        settings.setValue( key + QLatin1String("Size"),  fontSiz );
-        settings.setValue( key + QLatin1String("FixedFamily"), fontFix );
     }
     settings.setValue( key + QLatin1String("MainWindowState"), mainWinState );
     settings.setValue( key + QLatin1String("RebuildDocDB"), rebuildDocs );

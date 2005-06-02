@@ -198,7 +198,6 @@ void HelpWindow::setSource(const QUrl &name)
             */
 
         QTextBrowser::setSource(name);
-        updateFormat();
 
         return;
     }
@@ -206,45 +205,6 @@ void HelpWindow::setSource(const QUrl &name)
     setHtml(tr("<div align=\"center\"><h1>The page could not be found</h1><br>"
         "<h3>'%1'</h3></div>").arg(name.toString()));
     mw->browsers()->updateTitle(tr("Error..."));
-}
-
-void HelpWindow::updateFormat()
-{
-    QString fixedFontFamily = mw->browsers()->fixedFontFamily();
-    QColor linkColor = mw->browsers()->linkColor();
-    bool underlineLinks = mw->browsers()->underlineLink();
-
-    QTextDocument *doc = QTextBrowser::document();
-    for (QTextBlock block = doc->begin(); block != doc->end(); block = block.next()) {
-        QTextLayout *layout = block.layout();
-        QString txt = block.text();
-        QList<QTextLayout::FormatRange> overrides;
-
-        for (QTextBlock::Iterator it = block.begin(); !it.atEnd(); ++it) {
-            const QTextFragment fragment = it.fragment();
-            QTextCharFormat fmt = fragment.charFormat();
-            if (fmt.isAnchor() && !fmt.anchorHref().isEmpty()) {
-                QTextLayout::FormatRange range;
-                range.start = fragment.position() - block.position();
-                range.length = fragment.length();
-                fmt.setForeground(linkColor);
-                fmt.setFontUnderline(underlineLinks);
-                range.format = fmt;
-                overrides.append(range);
-                continue;
-            }
-            if (fmt.fontFixedPitch()) {
-                QTextLayout::FormatRange range;
-                range.start = fragment.position() - block.position();
-                range.length = fragment.length();
-                fmt.setFontFamily(fixedFontFamily);
-                range.format = fmt;
-                overrides.append(range);
-            }
-        }
-        layout->setAdditionalFormats(overrides);
-        doc->markContentsDirty(block.position(), block.length());
-    }
 }
 
 void HelpWindow::openLinkInNewWindow()
