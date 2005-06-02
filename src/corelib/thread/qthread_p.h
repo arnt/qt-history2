@@ -52,11 +52,11 @@ public:
 class QPostEventList : public QList<QPostEvent>
 {
 public:
-    int offset;
+    int recursion;
     QMutex mutex;
 
     inline QPostEventList()
-        : QList<QPostEvent>(), offset(0)
+        : QList<QPostEvent>(), recursion(0)
     { }
 };
 

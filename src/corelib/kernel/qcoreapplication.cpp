@@ -182,7 +182,7 @@ QCoreApplicationPrivate::~QCoreApplicationPrivate()
         }
     }
     data->postEventList.clear();
-    data->postEventList.offset = 0;
+    data->postEventList.recursion = 0;
     data->quitNow = false;
 }
 
@@ -815,6 +815,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
     QThreadData *data = QThreadData::get(currentThread);
 
+    ++data->postEventList.recursion;
     // the allowDeferredDelete flag is set to true in
     // QEventLoop::exec(), just before each call to processEvents()
     //
@@ -841,7 +842,7 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
     // okay. here is the tricky loop. be careful about optimizing
     // this, it looks the way it does for good reasons.
-    int i = data->postEventList.offset;
+    int i = 0;
     const int s = data->postEventList.size();
     while (i < data->postEventList.size()) {
         // avoid live-lock
@@ -850,11 +851,6 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
 
         const QPostEvent &pe = data->postEventList.at(i);
         ++i;
-
-        // optimize for recursive calls. In the no-receiver
-        // no-event-type case we know that we process all events.
-        if (!receiver && !event_type)
-            data->postEventList.offset = i;
 
         if (!pe.event)
             continue;
@@ -902,24 +898,18 @@ void QCoreApplication::sendPostedEvents(QObject *receiver, int event_type)
         QCoreApplication::sendEvent(r, e);
         locker.relock();
 
-        // update the offset, in case events have been added ore
-        // removed
-        i = data->postEventList.offset;
-
         delete e;
         // careful when adding anything below this point - the
         // sendEvent() call might invalidate any invariants this
         // function depends on.
     }
 
+    --data->postEventList.recursion;
     // clear the global list, i.e. remove everything that was
     // delivered.
-    if (!event_type) {
-        if (!receiver) {
-            const QPostEventList::iterator it = data->postEventList.begin();
-            data->postEventList.erase(it, it + i);
-            data->postEventList.offset = 0;
-        }
+    if (!data->postEventList.recursion && !event_type && !receiver) {
+        const QPostEventList::iterator it = data->postEventList.begin();
+        data->postEventList.erase(it, it + i);
     }
 }
 
@@ -953,17 +943,10 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
     // for this object.
     if (!receiver->d_func()->postedEvents) return;
 
-    // iterate over the posted event list and delete the events.
-    // leave the QPostEvent objects; they'll be deleted by
-    // sendPostedEvents().
-
     int n = data->postEventList.size();
     int j = 0;
 
     for (int i = 0; i < n; ++i) {
-        if (data->postEventList.offset == i)
-            data->postEventList.offset = j;
-
         const QPostEvent &pe = data->postEventList.at(i);
         if (pe.receiver == receiver) {
             if (pe.event) {
@@ -974,8 +957,9 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
 #endif
                 pe.event->posted = false;
                 delete pe.event;
+                const_cast<QPostEvent &>(pe).event = 0;
             }
-        } else {
+        } else if (!data->postEventList.recursion) {
             if (i != j)
                 data->postEventList.swap(i, j);
             ++j;
@@ -986,12 +970,10 @@ void QCoreApplication::removePostedEvents(QObject *receiver)
 #ifdef QT3_SUPPORT
     Q_ASSERT(!receiver->d_func()->postedChildInsertedEvents);
 #endif
-
-    if (data->postEventList.offset == n)
-        data->postEventList.offset = j;
-
-    while (j++ < n)
-        data->postEventList.removeLast();
+    if (!data->postEventList.recursion) {
+        while (j++ < n)
+            data->postEventList.removeLast();
+    }
 }
 
 
