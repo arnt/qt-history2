@@ -6,3 +6,7 @@ contains(TEMPLATE,lib) {
       else:TARGET = $$member(TARGET, 0)d
    }
 }
+
+# install
+target.path = $$[QT_INSTALL_PLUGINS]/designer
+INSTALLS += target
