@@ -1527,7 +1527,11 @@ void QMacStylePrivate::HIThemeDrawPrimitive(QStyle::PrimitiveElement pe, const Q
             bdi.value = kThemeButtonOn;
         else
             bdi.value = kThemeButtonOff;
-        HIRect macRect = qt_hirectForQRect(opt->rect, p);
+        HIRect macRect;
+        if (pe == QStyle::PE_Q3CheckListExclusiveIndicator || pe == QStyle::PE_Q3CheckListIndicator)
+            macRect = qt_hirectForQRect(opt->rect);
+        else
+            macRect = qt_hirectForQRect(opt->rect, p);
         if (!drawColorless)
             HIThemeDrawButton(&macRect, &bdi, cg, kHIThemeOrientationNormal, 0);
         else
@@ -4773,6 +4777,24 @@ int QMacStyle::pixelMetric(PixelMetric metric, const QStyleOption *opt, const QW
             ret = 32;
         else
             ret = sz.height();
+        break; }
+    case PM_CheckListButtonSize: {
+        switch (qt_aqua_size_constrain(widget)) {
+        case QAquaSizeUnknown:
+        case QAquaSizeLarge:
+            GetThemeMetric(kThemeMetricCheckBoxWidth, &ret);
+            break;
+        case QAquaSizeMini:
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+            if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_3) {
+                GetThemeMetric(kThemeMetricMiniCheckBoxWidth, &ret);
+                break;
+            }
+#endif
+        case QAquaSizeSmall:
+            GetThemeMetric(kThemeMetricSmallCheckBoxWidth, &ret);
+            break;
+        }
         break; }
     case PM_DialogButtonsButtonWidth: {
         QSize sz;
