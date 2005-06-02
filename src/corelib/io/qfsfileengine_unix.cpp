@@ -356,10 +356,10 @@ QString QFSFileEngine::fileName(FileName file) const
         return d->file.left(slash);
     } else if(file == AbsoluteName || file == AbsolutePathName) {
         QString ret;
-        if(!d->file.length() || d->file[0] != QLatin1Char('/'))
+        if(d->file.isEmpty() || d->file.startsWith(QLatin1Char('/')))
             ret = QDir::currentPath();
         if(!d->file.isEmpty() && d->file != QLatin1String(".")) {
-            if(!ret.endsWith(QLatin1Char('/')))
+            if(!ret.isEmpty() && !ret.endsWith(QLatin1Char('/')))
                 ret += QLatin1Char('/');
             ret += d->file;
         }
@@ -413,7 +413,7 @@ QString QFSFileEngine::fileName(FileName file) const
                     QDir parent(d->file);
                     parent.cdUp();
                     ret = parent.path();
-                    if (!ret.endsWith(QLatin1Char('/')))
+                    if (!ret.isEmpty() && !ret.endsWith(QLatin1Char('/')))
                         ret += QLatin1Char('/');
                 }
                 s[len] = '\0';

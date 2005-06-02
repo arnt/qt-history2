@@ -230,11 +230,11 @@ inline void QDirPrivate::sortFileList(QDir::SortFlags sort, QStringList &l,
         QDirSortItem *si= new QDirSortItem[l.count()];
         int i;
         for (i = 0; i < l.size(); ++i) {
-	    QString path = data->path;
-	    if (!path.endsWith(QLatin1Char('/')))
-		path += QLatin1Char('/');
+            QString path = data->path;
+            if (!path.isEmpty() && !path.endsWith(QLatin1Char('/')))
+                path += QLatin1Char('/');
             si[i].item = QFileInfo(path + l.at(i));
-	}
+        }
         qt_cmp_si_sort_flags = sort;
         qsort(si, i, sizeof(si[0]), qt_cmp_si);
         // put them back in the list(s)
@@ -631,12 +631,12 @@ QString QDir::absoluteFilePath(const QString &fileName) const
     if (isRelativePath(d->data->path)) //get pwd
         ret = QFSFileEngine::currentPath(fileName);
     if(!d->data->path.isEmpty() && d->data->path != QLatin1String(".")) {
-        if (!ret.endsWith(QLatin1Char('/')))
+        if (!ret.isEmpty() && !ret.endsWith(QLatin1Char('/')))
             ret += QLatin1Char('/');
         ret += d->data->path;
     }
     if (!fileName.isEmpty()) {
-        if (!ret.endsWith(QLatin1Char('/')))
+        if (!ret.isEmpty() && !ret.endsWith(QLatin1Char('/')))
             ret += QLatin1Char('/');
         ret += fileName;
     }
