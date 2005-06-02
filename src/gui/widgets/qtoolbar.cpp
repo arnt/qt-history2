@@ -441,6 +441,7 @@ void QToolBar::setIconSize(const QSize &iconSize)
     }
     if (d->iconSize != sz) {
         d->iconSize = sz;
+        setMinimumSize(0, 0);
         emit iconSizeChanged(d->iconSize);
     }
     d->explicitIconSize = iconSize.isValid();
