@@ -1092,15 +1092,15 @@ QString QUrlPrivate::removeDotsFromPath(const QString &dottedPath)
     QString path;
     path.reserve(origPath.length());
 
-    const QString Dot = QLatin1String(".");
-    const QString Slash = QLatin1String("/");
-    const QString DotDot = QLatin1String("..");
-    const QString DotSlash = QLatin1String("./");
-    const QString SlashDot = QLatin1String("/.");
-    const QString DotDotSlash = QLatin1String("../");
-    const QString SlashDotSlash = QLatin1String("/./");
-    const QString SlashDotDotSlash = QLatin1String("/../");
-    const QString SlashDotDot = QLatin1String("/..");
+    const QLatin1String Dot(".");
+    const QLatin1Char Slash('/');
+    const QLatin1String DotDot("..");
+    const QLatin1String DotSlash("./");
+    const QLatin1String SlashDot("/.");
+    const QLatin1String DotDotSlash("../");
+    const QLatin1String SlashDotSlash("/./");
+    const QLatin1String SlashDotDotSlash("/../");
+    const QLatin1String SlashDotDot("/..");
 
     // While the input buffer is not empty, loop:
     while (!origPath.isEmpty()) {
