@@ -2,6 +2,7 @@
 DESTDIR = ../../../../bin
 QT += xml network
 CONFIG += qt assistant
+CONFIG -= debug_and_release
 build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release
