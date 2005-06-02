@@ -24,7 +24,7 @@
 
     \section1 dlopen() Compatibility Library for Darwin (\c dlcompat)
 
-    \e{Dlcompat is] a small library that emulates the dlopen()
+    \e{Dlcompat [is] a small library that emulates the dlopen()
     interface on top of Darwin's dyld API.} -- quoted from \c
     src/3rdparty/dlcompat/README.
 
