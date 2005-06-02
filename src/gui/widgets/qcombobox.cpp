@@ -910,7 +910,7 @@ void QComboBox::setAutoCompletion(bool enable)
 
 /*!
     \property QComboBox::duplicatesEnabled
-    \brief whether the combobox can contain duplicate items
+    \brief whether the user can enter duplicate items into the combobox
 */
 
 bool QComboBox::duplicatesEnabled() const
