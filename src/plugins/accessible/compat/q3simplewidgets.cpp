@@ -30,14 +30,10 @@ QAccessible::Role Q3AccessibleDisplay::role(int child) const
     if (l) {
         if (l->pixmap() || l->picture())
             return Graphic;
-#ifndef QT_NO_PICTURE
         if (l->picture())
             return Graphic;
-#endif
-#ifndef QT_NO_MOVIE
         if (l->movie())
             return Animation;
-#endif
     }
     return QAccessibleWidget::role(child);
 }

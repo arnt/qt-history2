@@ -179,6 +179,7 @@ static bool read_jpeg_image(QIODevice *device, QImage *outImage, const QByteArra
 
     struct my_jpeg_source_mgr *iod_src = new my_jpeg_source_mgr(device);
     struct my_error_mgr jerr;
+    memset(&jerr, 0, sizeof(jerr));
 
     jpeg_create_decompress(&cinfo);
 

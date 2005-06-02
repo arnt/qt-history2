@@ -54,7 +54,6 @@ protected:
     Q3ListView *listView() const;
 };
 
-#ifndef QT_NO_ICONVIEW
 class QAccessibleIconView : public Q3AccessibleScrollView
 {
 public:
@@ -75,7 +74,6 @@ public:
 protected:
     Q3IconView *iconView() const;
 };
-#endif
 
 class QAccessibleTextEdit : public Q3AccessibleScrollView
 {

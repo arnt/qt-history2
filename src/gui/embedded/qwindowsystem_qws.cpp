@@ -499,7 +499,9 @@ void QWSClient::closeHandler()
 
 void QWSClient::errorHandler()
 {
+#ifdef QWS_SOCKET_DEBUG
     qDebug("Client %p error %s", this, csocket ? csocket->errorString().toLatin1().constData() : "(no socket)");
+#endif
     isClosed = true;
 //####Do we need to clean out the pipes?
 

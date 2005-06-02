@@ -282,7 +282,6 @@ QVector<int> QAccessibleListView::selection() const
     return array;
 }
 
-#ifndef QT_NO_ICONVIEW
 /*!
   \class QAccessibleIconView qaccessiblewidget.h
   \brief The QAccessibleIconView class implements the QAccessibleInterface for icon views.
@@ -483,7 +482,6 @@ QVector<int> QAccessibleIconView::selection() const
     array.resize(size);
     return array;
 }
-#endif
 
 
 /*!

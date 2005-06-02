@@ -37,11 +37,9 @@ QStringList CompatAccessibleFactory::keys() const
 {
     QStringList list;
     list << "Q3TextEdit";
-#ifndef QT_NO_ICONVIEW
-    list << "QIconView";
-#endif
+    list << "Q3IconView";
     list << "Q3ListView";
-    list << "QWidgetStack";
+    list << "Q3WidgetStack";
     list << "Q3GroupBox";
     list << "Q3ToolBar";
     list << "Q3ToolBarSeparator";
@@ -49,8 +47,8 @@ QStringList CompatAccessibleFactory::keys() const
     list << "Q3DockWindowResizeHandle";
     list << "Q3MainWindow";
     list << "Q3Header";
-    list << "QListBox";
-    list << "QTable";
+    list << "Q3ListBox";
+    list << "Q3Table";
     list << "Q3TitleBar";
 
     return list;
@@ -65,17 +63,15 @@ QAccessibleInterface *CompatAccessibleFactory::create(const QString &classname, 
 
     if (classname == "Q3TextEdit") {
         iface = new QAccessibleTextEdit(widget);
-#ifndef QT_NO_ICONVIEW
-    } else if (classname == "QIconView") {
+    } else if (classname == "Q3IconView") {
         iface = new QAccessibleIconView(widget);
-#endif
     } else if (classname == "Q3ListView") {
         iface = new QAccessibleListView(widget);
     } else if (classname == "Q3WidgetStack") {
         iface = new QAccessibleWidgetStack(widget);
-    } else if (classname == "QListBox") {
+    } else if (classname == "Q3ListBox") {
         iface = new QAccessibleListBox(widget);
-    } else if (classname == "QTable") {
+    } else if (classname == "Q3Table") {
         iface = new Q3AccessibleScrollView(widget, Table);
     } else if (classname == "Q3GroupBox") {
         iface = new Q3AccessibleDisplay(widget, Grouping);
