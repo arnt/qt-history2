@@ -1,4 +1,9 @@
 /*!
     \example dialogs/configdialog
     \title Config Dialog Example
+
+    The Config Dialog examples shows how a configuration dialog can be created by
+    using an icon view with a stacked widget.
+
+    \image configdialog-example.png
 */
