@@ -1316,7 +1316,6 @@ void Q3DockWindow::updatePosition(const QPoint &globalPos)
     if (state != curPlace && state == InDock) {
         doUpdate = false;
         curPlace = state;
-        lastPos = pos();
         updateGui();
         QApplication::sendPostedEvents();
     }
