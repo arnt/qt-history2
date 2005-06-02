@@ -12,8 +12,9 @@
     Qt 4 introduces a new set of item view classes that use a model/view
     architecture to manage the relationship between data and the way it
     is presented to the user. The separation of functionality introduced by
-    this architecture gives developers greater flexibility and access to
-    more features than was previously possible.
+    this architecture gives developers greater flexibility to customize the
+    presentation of items, and provides a standard model interface to allow
+    a wide range of data sources to be used with existing item views.
     In this document, we give a brief introduction to the model/view paradigm,
     outline the concepts involved, and describe the architecture of the item
     view system. Each of the components in the architecture is explained,
@@ -98,8 +99,22 @@
     of common functions. Each of these classes can be subclassed to provide
     models that support specialized kinds of lists and tables.
 
-    The QStandardItemModel class provides a ready-made model that can be
-    used to handle arbitrary pieces of data which it stores internally.
+    Qt provides some ready-made models that can be used to handle items of
+    data:
+
+    \list
+    \o QStringListModel is used to store a simple list of QString items.
+    \o QStandardItemModel manages more complex tree structures of items, each
+       of which can contain arbitrary data.
+    \o QDirModel provides information about files and directories in the local
+       filing system.
+    \o QSqlQueryModel, QSqlTableModel, and QSqlRelationalTableModel are used
+       to access databases using model/view conventions.
+    \endlist
+
+    If these standard models do not meet your requirements, you can subclass
+    QAbstractItemModel, QAbstractListModel, or QAbstractTableModel to create
+    your own custom models.
 
     \section2 Views
 
