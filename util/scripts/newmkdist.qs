@@ -107,7 +107,7 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("^qmake/Makefile$"),
 			  new RegExp("^qmake/Makefile.win32-g++"),
-			  new RegExp("^extensions/activeqt"),
+			  new RegExp("^extensions"),
 			  new RegExp("^examples/activeqt"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
@@ -126,7 +126,7 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("^src/plugins/decorations"),
 			  new RegExp("^qmake/Makefile$"),
 			  new RegExp("^qmake/Makefile.win32-g++"),
-			  new RegExp("^extensions/activeqt"),
+			  new RegExp("^extensions"),
 			  new RegExp("^examples/activeqt"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
@@ -147,7 +147,7 @@ platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("_wce"),
 			       new RegExp("_mac"),
 			       new RegExp("^src/plugins/styles/mac"),
-			       new RegExp("^extensions/activeqt"),
+			       new RegExp("^extensions"),
 			       new RegExp("^examples/activeqt"),
 			       new RegExp("_qnx4"),
 			       new RegExp("_qnx6"),
@@ -184,7 +184,9 @@ licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^README-QT.TXT") ];
 
 var editionRemove = new Array();
-editionRemove["console"] = [ new RegExp("^tools/designer") ];
+editionRemove["console"] = [ new RegExp("^tools/designer"),
+			     new RegExp("^extensions"),
+			     new RegExp("^examples/activeqt") ];
 editionRemove["desktop"] = [ ];
 
 var finalRemove = [ new RegExp("^dist") ];
