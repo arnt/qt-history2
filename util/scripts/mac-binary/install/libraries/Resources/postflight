@@ -15,7 +15,7 @@ t()
 
 for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Compat; do
    [ -d "${3}/Library/Frameworks/${lib}.framework" ] || continue
-   cd "${3}/Library/Frameworks/${lib}.framework" 
+   cd "${3}/Library/Frameworks/${lib}.framework/Versions/4.0" 
    (Products="no-license"; Licensee="not-licensed"; . $HOME/.qt-license >/dev/null 2>&1
    t "$lib" "$Licensee" "$Products"
    [ -e "${lib}_debug" ] && t "${lib}_debug" "$Licensee" "$Products")
