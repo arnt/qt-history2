@@ -47,8 +47,6 @@
 
 //#define QT_GL_NO_CONCAVE_POLYGONS
 
-#define qToDouble(x) x
-
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
 public:
@@ -165,10 +163,6 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
  	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	glEnable(GL_BLEND);
     }
-    if (pen.widthF() < 0.000001)
-        glLineWidth(1);
-    else
-        glLineWidth(pen.widthF());
 }
 
 void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
@@ -457,13 +451,13 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     d->matrix = mtx;
     GLdouble mat[4][4];
 
-    mat[0][0] = qToDouble(mtx.m11());
-    mat[0][1] = qToDouble(mtx.m12());
+    mat[0][0] = mtx.m11();
+    mat[0][1] = mtx.m12();
     mat[0][2] = 0;
     mat[0][3] = 0;
 
-    mat[1][0] = qToDouble(mtx.m21());
-    mat[1][1] = qToDouble(mtx.m22());
+    mat[1][0] = mtx.m21();
+    mat[1][1] = mtx.m22();
     mat[1][2] = 0;
     mat[1][3] = 0;
 
@@ -472,8 +466,8 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     mat[2][2] = 1;
     mat[2][3] = 0;
 
-    mat[3][0] = qToDouble(mtx.dx());
-    mat[3][1] = qToDouble(mtx.dy());
+    mat[3][0] = mtx.dx();
+    mat[3][1] = mtx.dy();
     mat[3][2] = 0;
     mat[3][3] = 1;
 
@@ -577,10 +571,10 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
     // ### this could be done faster I'm sure...
     for (int i=0; i<rectCount; ++i) {
         QRectF r = rects[i];
-        double x = qToDouble(r.x());
-        double y = qToDouble(r.y());
-        double w = qToDouble(r.width());
-        double h = qToDouble(r.height());
+        double x = r.x();
+        double y = r.y();
+        double w = r.width();
+        double h = r.height();
         if (d->has_brush) {
             glColor4ubv(d->brush_color);
             glRectd(x, y, x+w, y+h);
@@ -608,13 +602,26 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
     }
 }
 
-void QOpenGLPaintEngine::drawPoints(const QPointF *p, int pointCount)
+void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
+    Q_D(QOpenGLPaintEngine);
     dgl->makeCurrent();
+    GLfloat pen_width = d->cpen.widthF();
+    if (pen_width > 1 || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
+        const QPointF *end = points + pointCount;
+        while (points < end) {
+            QPainterPath path;
+            path.moveTo(*points);
+            path.lineTo(points->x() + 0.001, points->y());
+            drawPath(path);
+            ++points;
+        }
+        return;
+    }
     glBegin(GL_POINTS);
     {
         for (int i=0; i<pointCount; ++i)
-            glVertex2d(qToDouble(p[i].x()), qToDouble(p[i].y()));
+            glVertex2d(points[i].x(), points[i].y());
     }
     glEnd();
 }
@@ -623,12 +630,23 @@ void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     Q_D(QOpenGLPaintEngine);
     dgl->makeCurrent();
+    GLfloat pen_width = d->cpen.widthF();
+    if (pen_width > 1 || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
+        QPainterPath path(lines[0].p1());
+        path.lineTo(lines[0].p2());
+        for (int i = 1; i < lineCount; ++lines) {
+            path.lineTo(lines[i].p1());
+            path.lineTo(lines[i].p2());
+        }
+        drawPath(path);
+        return;
+    }
     glColor4ubv(d->pen_color);
     glBegin(GL_LINES);
     {
         for (int i = 0; i < lineCount; ++i) {
-            glVertex2d(qToDouble(lines[i].x1()), qToDouble(lines[i].y1()));
-            glVertex2d(qToDouble(lines[i].x2()), qToDouble(lines[i].y2()));
+            glVertex2d(lines[i].x1(), lines[i].y1());
+            glVertex2d(lines[i].x2(), lines[i].y2());
         }
     }
     glEnd();
@@ -695,8 +713,8 @@ static void qgl_draw_poly(const QPointF *points, int pointCount, bool winding = 
 	gluTessBeginContour(qgl_tess);
 	{
 	    for (int i = 0; i < pointCount; ++i) {
-		v[i*3] = qToDouble(points[i].x());
-		v[i*3+1] = qToDouble(points[i].y());
+		v[i*3] = points[i].x();
+		v[i*3+1] = points[i].y();
 		v[i*3+2] = 0.0;
 		gluTessVertex(qgl_tess, &v[i*3], &v[i*3]);
 	    }
@@ -729,15 +747,15 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
         qgl_draw_poly(points, pointCount, mode == QPaintEngine::WindingMode);
     if (d->has_pen) {
         glColor4ubv(d->pen_color);
-        double x1 = qToDouble(points[0].x());
-        double y1 = qToDouble(points[0].y());
-        double x2 = qToDouble(points[pointCount - 1].x());
-        double y2 = qToDouble(points[pointCount - 1].y());
+        double x1 = points[0].x();
+        double y1 = points[0].y();
+        double x2 = points[pointCount - 1].x();
+        double y2 = points[pointCount - 1].y();
 
         glBegin(GL_LINE_STRIP);
         {
             for (int i = 0; i < pointCount; ++i)
-                glVertex2d(qToDouble(points[i].x()), qToDouble(points[i].y()));
+                glVertex2d(points[i].x(), points[i].y());
             if (mode != PolylineMode && !(x1 == x2 && y1 == y2))
                 glVertex2d(x1, y1);
         }
@@ -844,8 +862,8 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glEnable(GL_TEXTURE_2D);
     glEnable(GL_BLEND);
 
-    GLdouble tc_w = qToDouble(qreal(r.width())/pm.width());
-    GLdouble tc_h = qToDouble(qreal(r.height())/pm.height());
+    GLdouble tc_w = r.width()/pm.width();
+    GLdouble tc_h = r.height()/pm.height();
 
     // Rotate the texture so that it is aligned correctly and the
     // wrapping is done correctly
@@ -856,16 +874,16 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
     glBegin(GL_QUADS);
     {
 	glTexCoord2d(0.0, 0.0);
-	glVertex2d(qToDouble(r.x()), qToDouble(r.y()));
+	glVertex2d(r.x(), r.y());
 
 	glTexCoord2d(tc_w, 0.0);
-	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()));
+	glVertex2d(r.x()+r.width(), r.y());
 
 	glTexCoord2d(tc_w, tc_h);
-	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
+	glVertex2d(r.x()+r.width(), r.y()+r.height());
 
 	glTexCoord2d(0.0, tc_h);
-	glVertex2d(qToDouble(r.x()), qToDouble(r.y()+r.height()));
+	glVertex2d(r.x(), r.y()+r.height());
     }
     glEnd();
     glPopMatrix();
@@ -912,17 +930,17 @@ void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRec
 	    y2 = sr.height();
 	}
 
-        glTexCoord2d(qToDouble(x1), qToDouble(y2));
-	glVertex2d(qToDouble(r.x()), qToDouble(r.y()));
+        glTexCoord2d(x1, y2);
+	glVertex2d(r.x(), r.y());
 
-        glTexCoord2d(qToDouble(x2), qToDouble(y2));
-	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()));
+        glTexCoord2d(x2, y2);
+	glVertex2d(r.x()+r.width(), r.y());
 
-        glTexCoord2d(qToDouble(x2), qToDouble(y1));
-	glVertex2d(qToDouble(r.x()+r.width()), qToDouble(r.y()+r.height()));
+        glTexCoord2d(x2, y1);
+	glVertex2d(r.x()+r.width(), r.y()+r.height());
 
-        glTexCoord2d(qToDouble(x1), qToDouble(y1));
-	glVertex2d(qToDouble(r.x()), qToDouble(r.y()+r.height()));
+        glTexCoord2d(x1, y1);
+	glVertex2d(r.x(), r.y()+r.height());
     }
     glEnd();
 
