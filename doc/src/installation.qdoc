@@ -33,115 +33,107 @@ The installation procedure is different for the different Qt platforms:
 
 \title Installing Qt/X11
 
-You may need to be root, depending on the permissions of the directories
-where you choose to install Qt.
-
 \list 1
+\i  If you have the commercial edition of Qt, install your license
+    file as \c{$HOME/.qt-license}.
+
+    For the open source version you do not need a license file.
+
 \i  Unpack the archive if you have not done so already:
 
 \code
-    cd /usr/local
-    gunzip qt-x11-version.tar.gz    # uncompress the archive
-    tar xf qt-x11-version.tar       # unpack it
+        cd /tmp
+        gunzip %DISTNAME%.tar.gz        # uncompress the archive
+        tar xvf %DISTNAME%.tar          # unpack it
 \endcode
 
-    This creates the directory /usr/local/qt-\e version containing the
-    files from the main archive.
+    This creates the directory \c{/tmp/%DISTNAME%} containing the files
+    from the archive. We only support the GNU version of the tar
+    archiving utility. Note that on some systems it is called gtar.
 
-    Rename qt-\e version to qt (or make a symlink):
+\i  Building
+
+    To configure the Qt library for your machine type:
 
 \code
-    mv qt-version qt
+        cd /tmp/%DISTNAME%
+        ./configure
 \endcode
 
-    The rest of this file assumes that Qt is installed in \c /usr/local/qt.
+    Type \c{./configure -help} to get a list of all available options.
 
-\i  Set some environment variables in the file \c .profile (or \c .login,
-    depending on your shell) in your home directory. Create the
-    file if it is not there already.
+    To create the library and compile all the demos, examples, tools,
+    and tutorials, type:
 
-    \list
-    \i QTDIR -- the directory in which you're building Qt
-    \i PATH -- to locate the moc program and other Qt tools
-    \i MANPATH -- to access the Qt man pages
-    \i LD_LIBRARY_PATH -- for the shared Qt library
-    \endlist
+\code
+        make
+\endcode
+
+    To install the library, demos, examples, tools, and tutorials,
+    type:
+
+\code
+        su -c "make install"
+\endcode
+
+    and enter the root password. Qt is by default installed into
+    \c{/usr/local/Trolltech/Qt-%VERSION%} but this can be changed by using
+    the \c{-prefix} parameter.
+
+    Note that on some systems the make utility is called differently,
+    e.g. gmake. The configure script tells you which make utility to
+    use.
+
+\i  Environment variables
+
+    In order to use Qt, some environment variables needs to be
+    extended.
+
+\code
+        PATH               - to locate qmake, moc and other Qt tools
+\endcode
 
     This is done like this:
 
-    In \c .profile (if your shell is bash, ksh, zsh or sh), add the
+    In \c{.profile} (if your shell is bash, ksh, zsh or sh), add the
     following lines:
 
 \code
-    QTDIR=/usr/local/qt
-    PATH=$QTDIR/bin:$PATH
-    MANPATH=$QTDIR/man:$MANPATH
-    LD_LIBRARY_PATH=$QTDIR/lib:$LD_LIBRARY_PATH
-
-    export QTDIR PATH MANPATH LD_LIBRARY_PATH
+        PATH=/usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
+        export PATH
 \endcode
 
-    In \c .login (in case your shell is csh or tcsh), add the following lines:
+    In \c{.login} (in case your shell is csh or tcsh), add the following line:
 
 \code
-    setenv QTDIR /usr/local/qt
-    setenv PATH $QTDIR/bin:$PATH
-    setenv MANPATH $QTDIR/man:$MANPATH
-    setenv LD_LIBRARY_PATH $QTDIR/lib:$LD_LIBRARY_PATH
+        setenv PATH /usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
 \endcode
 
-    After you have done this, you will need to login again, or
-    re-source the profile before continuing, so that at least \c $QTDIR
-    is set.  The installation will give an error message and not
-    proceed otherwise.
+    If you use a different shell, please modify your environment
+    variables accordingly.
 
-    On AIX set LIBPATH and on HP-UX set SHLIB_PATH instead of LD_LIBRARY_PATH.
+    For compilers that do not support rpath you must also extended the
+    \c LD_LIBRARY_PATH environment variable to include
+    \c{/usr/local/Trolltech/Qt-%VERSION%/lib}. On Linux with GCC this step
+    is not needed.
 
-    If you use SGI MIPSpro o32 or Sun WorkShop 5.0 you need to run the
-    \c qt32castcompat script found in \c $QTDIR/bin before compiling Qt.
+\i  That's all. Qt is now installed.
 
-\i  Install your license file as \c $HOME/.qt-license.
-    For the Open Source Edition and the evaluation version, you do not need
-    a license file.
+    If you are new to Qt, we suggest that you take a look at the demos
+    and examples to see Qt in action. Run the Qt Examples and Demos
+    either by typing \c qtdemo on the command line or through the
+    desktop's Start menu.
 
-\i  Compile the Qt library, and build the example programs,
-    the tutorial and the tools (e.g. \l{Qt Designer}) as follows.
+    You might also want to try the following links:
 
-    Type:
-\code
-    ./configure
-\endcode
-
-    This will configure the Qt library for your machine. Note that
-    GIF support is turned off by default. Run \c{./configure -help}
-    to get a list of configuration options. Read \c PLATFORMS for a
-    list of supported platforms.
-
-    To create the library and compile all examples and the tutorial:
-\code
-    make
-\endcode
-    If you have problems, see
-    \l{http://www.trolltech.com/platforms/}.
-
-\i  In very few cases you may need to run \c /sbin/ldconfig or something
-    similar at this point if you are using shared libraries.
-
-    If you have problems running the example programs, e.g. messages like
-\code
-    can't load library 'libqt.so.2'
-\endcode
-    you probably need to put a reference to the qt library in a
-    configuration file and run \c /sbin/ldconfig as root on your system.
-    And don't forget to \c set LD_LIBRARY_PATH as explained in 2) above.
-
-\i  The online HTML documentation is installed in \c /usr/local/qt/doc/html/
-    The main page is \c{/usr/local/qt/doc/html/index.html}.
-    The man pages are installed in \c{/usr/local/qt/doc/man/}.
-    The documentation is also accessible using \l{Qt Assistant}.
+    \list
+    \o \l http://doc.trolltech.com/4.0/how-to-learn-qt.html
+    \o \l http://doc.trolltech.com/4.0/tutorial.html
+    \o \l http://www.trolltech.com/developer
+    \endlist
 \endlist
 
-You're done.  Qt is now installed.
+    We hope you will enjoy using Qt. Good luck!
 
 */
 
@@ -149,8 +141,74 @@ You're done.  Qt is now installed.
 
 \title Installing Qt/Windows
 
-The Qt/Windows distribution is distributed as a self-extracting archive
-with a built-in installer. Just follow the installation wizard.
+\list 1
+\o  If you have the commercial edition of Qt, copy the license file
+    from your account on dist.trolltech.com into your home directory
+    (this may be known as the \c userprofile environment variable) and
+    rename it to \c{.qt-license}. For example on Windows 2000,
+    \c{%USERPROFILE%} should be something like \c{C:\Documents and
+    Settings\username}
+
+    For the open source version you do not need a license file.
+
+\o  Uncompress the files into the directory you want Qt installed,
+    e.g. \c{C:\Qt\%VERSION%}.
+
+    NOTE: The install path must not contain any spaces.
+
+\o  Building
+
+    To configure the Qt library for your machine type:
+
+\code
+    C:
+    cd \Qt\%VERSION%
+    configure
+\endcode
+
+    Type \c{configure -help} to get a list of all available options.
+
+    The actual commands needed to build Qt depends on your development
+    system. For Microsoft Visual Studio to create the library and
+    compile all the demos, examples, tools and tutorials type:
+
+\code
+        nmake
+\endcode
+
+\o Environment variables
+
+   In order to use Qt, some environment variables needs to be
+   extended.
+
+\code
+        PATH               - to locate qmake, moc and other Qt tools
+\endcode
+
+   This is done by adding \c{c:\Qt\%VERSION%\bin} to the \c PATH variable.
+
+   For newer versions of Windows, \c PATH can be extended through
+   "Control Panel->System->Advanced->Environment variables" and for
+   older versions by editing \c{c:\autoexec.bat}.
+
+\o  That's all. Qt is now installed.
+
+    If you are new to Qt, we suggest that you take a look at the demos
+    and examples to see Qt in action. Run the Qt Examples and Demos
+    either by typing \c qtdemo on the command line or through the
+    desktop's Start menu.
+
+    You might also want to try the following links:
+
+    \list
+    \o \l http://doc.trolltech.com/4.0/how-to-learn-qt.html
+    \o \l http://doc.trolltech.com/4.0/tutorial.html
+    \o \l http://www.trolltech.com/developer
+    \endlist
+
+\endlist
+
+    We hope you will enjoy using Qt. Good luck!
 
 */
 
@@ -158,116 +216,95 @@ with a built-in installer. Just follow the installation wizard.
 
 \title Installing Qt/Mac
 
-You may need to be logged in as root, depending on the permissions of
-the directories where you choose to install Qt.
-
 \list 1
-\i  Unpack the archive if you have not done so already:
+\o  If you have the commercial edition of Qt, install your license
+    file as \c{$HOME/.qt-license}.
+
+    For the open source version you do not need a license file.
+
+\o  Unpack the archive if you have not done so already:
 
 \code
-    cd /Developer
-    gnutar xzf qt-mac-version.tar.gz
+    cd /tmp
+    gunzip %DISTNAME%.tar.gz        # uncompress the archive
+    tar xvf %DISTNAME%.tar          # unpack it
 \endcode
 
-    This creates the directory /Developer/qt-\e version containing the
-    files from the main archive.
+    This creates the directory \c{/tmp/%DISTNAME%} containing the files
+    from the archive.
 
-    Rename qt-\e version to qt (or make a symlink):
+\o  Building
 
-\code
-    mv qt-version qt
-\endcode
-
-    The rest of this file assumes that Qt is unpacked in \c /Developer/qt.
-
-\i  Set some environment variables in the file \c .profile (or \c .login,
-    depending on your shell) in your home directory. Create the
-    file if it is not there already.
-
-    \list
-    \i QTDIR -- the directory in which you're building Qt
-    \i PATH -- to locate the moc program and other Qt tools
-    \i MANPATH -- to access the Qt man pages
-    \i LD_LIBRARY_PATH -- for the shared Qt library
-    \endlist
-
-    This is done like this:
-
-    In \c .profile (if your shell is bash, ksh, zsh or sh), add the
-    following lines:
+    To configure the Qt library for your machine type:
 
 \code
-    QTDIR=/Developer/qt
-    PATH=$QTDIR/bin:$PATH
-    MANPATH=$QTDIR/man:$MANPATH
-    DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
-
-    export QTDIR PATH MANPATH DYLD_LIBRARY_PATH
-\endcode
-
-    In \c .login (in case your shell is csh or tcsh), add the following lines:
-
-\code
-    setenv QTDIR /Developer/qt
-    setenv PATH $QTDIR/bin:$PATH
-    setenv MANPATH $QTDIR/man:$MANPATH
-    setenv DYLD_LIBRARY_PATH $QTDIR/lib:$DYLD_LIBRARY_PATH
-\endcode
-
-    After you have done this, you will need to login again, or
-    re-source the profile before continuing.
-
-\i  If you have the commercial edition of Qt, install your license
-    file as \c $HOME/.qt-license.
-
-\i  Compile the Qt library, and build the example programs,
-    the tutorial and the tools (e.g. \l{Qt Designer}) as
-    follows.
-
-    Type:
-\code
-    cd $QTDIR
+    cd /tmp/%DISTNAME%
     ./configure
 \endcode
 
-    This will configure the Qt library for your machine. Note that
-    GIF support is turned off by default. Run \c{./configure -help}
-    to get a list of configuration options. 
+    Type \c{./configure -help} to get a list of all available options.
 
-    To create the library and compile all examples and the tutorial:
-\code
-    make
-\endcode
-    If you have problems, see
-    \l{http://www.trolltech.com/platforms/}.
-
-\i  Once you have built Qt, it is ready to use. If Qt has not been 
-    configured with the -static option, then in order to be able to 
-    launch Qt applications from the Finder you must place the relevant
-    libraries in a directory where they can be found. We recommend
-    making these symbolic links:
+    To create the library and compile all the demos, examples, tools,
+    and tutorials, type:
 
 \code
-    ln -sf $QTDIR/lib/libqt.3.dylib /usr/lib
-    ln -sf $QTDIR/lib/libqui.1.dylib /usr/lib
+        make
 \endcode
 
-    You may need to have 'administrator' access to do this, (in which
-    case, precede each command with \c sudo', e.g. \c{sudo ln -s ...}). If
-    you use sudo you'll be prompted for the administrator password.
-
-    If you do not have administrator access, or you would prefer to do
-    a user install (rather than system install) of the libraries you 
-    can:
+    To install the library, demos, examples, tools, and tutorials,
+    type:
 
 \code
-    ln -sf $QTDIR/lib/libqt.3.dylib $HOME/lib
-    ln -sf $QTDIR/lib/libqui.1.dylib $HOME/lib
+        su -c "make install"
 \endcode
+
+    and enter the root password. Qt is by default installed into
+    \c{/usr/local/Trolltech/Qt-%VERSION%} but this can be changed by using
+    the \c{-prefix} parameter.
+
+\o  Environment variables
+
+    In order to use Qt, some environment variables need to be
+    extended.
+
+\code
+        PATH               - to locate qmake, moc and other Qt tools
+\endcode
+
+    This is done like this:
+
+    In \c{.profile} (if your shell is bash), add the following lines:
+
+\code
+        PATH=/usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
+        export PATH
+\endcode
+
+    In \c{.login} (in case your shell is csh or tcsh), add the following line:
+
+\code
+        setenv PATH /usr/local/Trolltech/Qt-%VERSION%/bin:$PATH
+\endcode
+
+    If you use a different shell, please modify your environment
+    variables accordingly.
+
+\o  That's all. Qt is now installed.
+
+    If you are new to Qt, we suggest that you take a look at the demos
+    and examples to see Qt in action. Run the Qt Examples and Demos
+    either by typing \c qtdemo on the command line or through the
+    desktop's Start menu.
+
+    You might also want to try the following links:
+
+    \list
+    \o \l http://doc.trolltech.com/4.0/how-to-learn-qt.html
+    \o \l http://doc.trolltech.com/4.0/tutorial.html
+    \o \l http://www.trolltech.com/developer
+    \endlist
 \endlist
 
-That's all! Qt is now installed. Qt's documentation can be read with
-Qt Assistant or by any web browser; the contents page is
-\c $QTDIR/doc/html/index.html.
+    We hope you will enjoy using Qt. Good luck!
 
 */
