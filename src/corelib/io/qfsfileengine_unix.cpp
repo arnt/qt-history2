@@ -356,7 +356,7 @@ QString QFSFileEngine::fileName(FileName file) const
         return d->file.left(slash);
     } else if(file == AbsoluteName || file == AbsolutePathName) {
         QString ret;
-        if(d->file.isEmpty() || d->file.startsWith(QLatin1Char('/')))
+        if(d->file.isEmpty() || !d->file.startsWith(QLatin1Char('/')))
             ret = QDir::currentPath();
         if(!d->file.isEmpty() && d->file != QLatin1String(".")) {
             if(!ret.isEmpty() && !ret.endsWith(QLatin1Char('/')))
