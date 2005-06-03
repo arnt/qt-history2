@@ -33,10 +33,7 @@ class QPolygonF;
 class Q_GUI_EXPORT QBezier
 {
 public:
-    QBezier();
-    QBezier(qreal p1x, qreal p1y, qreal p2x, qreal p2y,
-            qreal p3x, qreal p3y, qreal p4x, qreal p4y);
-    QBezier(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4);
+    static QBezier fromPoints(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4);
 
     inline QPointF pointAt(qreal t) const;
     QPolygonF toPolygon() const;
@@ -73,6 +70,7 @@ inline QPointF QBezier::pointAt(qreal t) const
 {
     Q_ASSERT(t >= 0);
     Q_ASSERT(t <= 1);
+#if 1
     qreal a, b, c, d;
     qreal m_t = 1. - t;
     b = m_t * m_t;
@@ -83,6 +81,23 @@ inline QPointF QBezier::pointAt(qreal t) const
     c *= 3. * m_t;
 
     return QPointF(a*x1 + b*x2 + c*x3 + d*x4, a*y1 + b*y2 + c*y3 + d*y4);
+#else
+    // numerically more stable:
+    qreal m_t = 1. - t;
+    qreal a = x1*m_t + x2*t;
+    qreal b = x2*m_t + x3*t;
+    qreal c = x3*m_t + x4*t;
+    a = a*m_t + b*t;
+    b = b*m_t + c*t;
+    qreal x = a*m_t + b*t;
+    qreal a = y1*m_t + y2*t;
+    qreal b = y2*m_t + y3*t;
+    qreal c = y3*m_t + y4*t;
+    a = a*m_t + b*t;
+    b = b*m_t + c*t;
+    qreal y = a*m_t + b*t;
+    return QPointF(x, y);
+#endif
 }
 
 #endif // QBEZIER_P_H

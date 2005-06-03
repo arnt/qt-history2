@@ -981,7 +981,7 @@ QList<QPolygonF> QPainterPath::toSubpathPolygons(const QMatrix &matrix) const
         case QPainterPath::CurveToElement: {
             Q_ASSERT(d->elements.at(i+1).type == QPainterPath::CurveToDataElement);
             Q_ASSERT(d->elements.at(i+2).type == QPainterPath::CurveToDataElement);
-            QPolygonF bezier = QBezier(QPointF(d->elements.at(i-1).x, d->elements.at(i-1).y) * matrix,
+            QPolygonF bezier = QBezier::fromPoints(QPointF(d->elements.at(i-1).x, d->elements.at(i-1).y) * matrix,
                                        QPointF(e.x, e.y) * matrix,
                                        QPointF(d->elements.at(i+1).x, d->elements.at(i+1).y) * matrix,
                                        QPointF(d->elements.at(i+2).x, d->elements.at(i+2).y) * matrix).toPolygon();
@@ -1336,7 +1336,7 @@ QPainterPath::Element QSubpathFlatIterator::next()
     if (e.isCurveTo()) {
         Q_ASSERT(m_pos > 0);
         Q_ASSERT(m_pos < m_path->elementCount());
-        m_curve = QBezier(m_path->elementAt(m_pos-1),
+        m_curve = QBezier::fromPoints(m_path->elementAt(m_pos-1),
                           e,
                           m_path->elementAt(m_pos+1),
                           m_path->elementAt(m_pos+2)).toPolygon();
@@ -1589,7 +1589,7 @@ template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath
             QPainterPath::Element cp2 = it->next(); // control point 2
             QPainterPath::Element ep = it->next();  // end point
 
-            QBezier bezier(prev, e, cp2, ep);
+            QBezier bezier = QBezier::fromPoints(prev, e, cp2, ep);
             int count = bezier.shifted(offsetCurves,
                                        MAX_OFFSET,
                                        data->offset,

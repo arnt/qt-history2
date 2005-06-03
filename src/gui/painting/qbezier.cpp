@@ -18,92 +18,73 @@
 
 #include <private/qnumeric_p.h>
 
-// Manhattan length between two QPointF's
-#define mlen(a, b) (qAbs(a.x() - b.x()) + qAbs(a.y() - b.y()))
-
-
-QBezier::QBezier()
-    : x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), x4(0), y4(0)
-{
-}
-
 /*!
   \internal
 */
-QBezier::QBezier(qreal p1x_, qreal p1y_, qreal p2x_, qreal p2y_,
-                 qreal p3x_, qreal p3y_, qreal p4x_, qreal p4y_)
-    : x1(p1x_), y1(p1y_), x2(p2x_), y2(p2y_), x3(p3x_), y3(p3y_), x4(p4x_), y4(p4y_)
+QBezier QBezier::fromPoints(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4)
 {
+    QBezier b;
+    b.x1 = p1.x();
+    b.y1 = p1.y();
+    b.x2 = p2.x();
+    b.y2 = p2.y();
+    b.x3 = p3.x();
+    b.y3 = p3.y();
+    b.x4 = p4.x();
+    b.y4 = p4.y();
+    return b;
 }
-
-/*!
-  \internal
-*/
-QBezier::QBezier(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4)
-    : x1(p1.x()), y1(p1.y()),
-      x2(p2.x()), y2(p2.y()),
-      x3(p3.x()), y3(p3.y()),
-      x4(p4.x()), y4(p4.y())
-{
-}
-
-struct QBezierLineSegment
-{
-    QBezierLineSegment() { }
-    QBezierLineSegment(qreal st, qreal en, const QLineF &line) : t_start(st), t_end(en), l(line) { }
-    qreal t_start;
-    qreal t_end;
-    QLineF l;
-};
-
-Q_DECLARE_TYPEINFO(QBezierLineSegment, Q_PRIMITIVE_TYPE); // actually MOVABLE, but we don't care here...
 
 /*!
   \internal
 */
 QPolygonF QBezier::toPolygon() const
 {
-    QBezierLineSegment *lines = (QBezierLineSegment *) qMalloc(32 * sizeof(QBezierLineSegment));
-    int pos = 0;
-    int alloc = 32;
+    // flattening is done by splitting the bezier until we can replace the segment by a straight
+    // line. We split further until the control points are close enough to the line connecting the
+    // boundary points.
+    //
+    // the Distance of a point p from a line given by the points (a,b) is given by:
+    //
+    // d = abs( (bx - ax)(ay - py) - (by - ay)(ax - px) ) / line_length
+    //
+    // We can stop splitting if both control points are close enough to the line.
+    // To make the algorithm faster we use the manhattan length of the line.
+
     QPolygonF polygon;
-    polygon.reserve(32);
-
-    polygon << QPointF(x1, y1);
-
-    const qreal distance = 0.5;
-
-    QPointF at13 = pointAt(1.f/3.f);
-    QPointF at23 = pointAt(2.f/3.f);
-
-    lines[pos++] = QBezierLineSegment(2.f/3.f, 1.f, QLineF(at23, QPointF(x4, y4))); //push
-    lines[pos++] = QBezierLineSegment(1.f/3.f, 2.f/3.f, QLineF(at13, at23)); // push
-    lines[pos++] = QBezierLineSegment(0.f, 1.f/3.f, QLineF(QPointF(x1, y1), at13)); // push
-
-    while (pos > 0) {
-        QBezierLineSegment s = lines[--pos]; // pop
-        qreal t_half = (s.t_start + s.t_end) / 2.0f;
-        QPointF curvePt = pointAt(t_half);
-        QPointF linePt = s.l.pointAt(0.5);
-        if (mlen(curvePt, linePt) < distance) {
-            polygon.append(s.l.p2());
+    polygon.append(QPointF(x1, y1));
+    QBezier beziers[32];
+    beziers[0] = *this;
+    QBezier *b = beziers;
+    while (b >= beziers) {
+        // check if we can pop the top bezier curve from the stack
+        qreal l = qAbs(b->x4 - b->x1) + qAbs(b->y4 - b->y1);
+        qreal d;
+        if (l > 1.) {
+            d = qAbs( (b->x4 - b->x1)*(b->y1 - b->y2) - (b->y4 - b->y1)*(b->x1 - b->x2) )
+                + qAbs( (b->x4 - b->x1)*(b->y1 - b->y3) - (b->y4 - b->y1)*(b->x1 - b->x3) );
+            d /= l;
         } else {
-            if (pos >= alloc - 2) {
-                alloc *= 2;
-                lines = (QBezierLineSegment *) qRealloc(lines, alloc*sizeof(QBezierLineSegment));
-            }
-            lines[pos++] = QBezierLineSegment(t_half, s.t_end, QLineF(curvePt, s.l.p2())); // push
-            lines[pos++] = QBezierLineSegment(s.t_start, t_half, QLineF(s.l.p1(), curvePt)); // push
+            d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
+                qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
+        }
+        if (d < 1. || b == beziers + 31) {
+            // good enough, we pop it off and add the endpoint
+            polygon.append(QPointF(b->x4, b->y4));
+            --b;
+        } else {
+            // split, second half of the polygon goes lower into the stack
+            b->split(b+1, b);
+            ++b;
         }
     }
-    qFree(lines);
     return polygon;
 }
 
 void QBezier::split(QBezier *firstHalf, QBezier *secondHalf) const
 {
     Q_ASSERT(firstHalf);
-    Q_ASSERT(secondHalf && secondHalf != this);
+    Q_ASSERT(secondHalf);
 
     qreal c = (x2 + x3)/2;
     firstHalf->x2 = (x1 + x2)/2;
@@ -146,7 +127,7 @@ int QBezier::shifted(QBezier *curveSegments, int maxSegments, float offset, floa
     QLineF l2n = l2.normalVector().unitVector();
     l2.translate(l2n.dx() * offset, l2n.dy() * offset);
 
-    QBezier shifted(l1.p1(), l1.p2(), l2.p1(), l2.p2());
+    QBezier shifted = QBezier::fromPoints(l1.p1(), l1.p2(), l2.p1(), l2.p2());
 
     // Locate the center off the offsetted curve.
     QPointF offsetCenter = shifted.midPoint();
