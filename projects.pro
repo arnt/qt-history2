@@ -50,7 +50,7 @@ INSTALLS += qmake
 #mkspecs
 mkspecs.path=$$[QT_INSTALL_DATA]/mkspecs
 mkspecs.files=$$QT_BUILD_TREE/mkspecs/qconfig.pri $$QT_SOURCE_TREE/mkspecs/*
-mkspecs.commands = $(SYMLINK) $$QMAKESPEC $(INSTALL_ROOT)$$mkspecs.path/default
+mkspecs.commands = $(SYMLINK) $$basename(QMAKESPEC) $(INSTALL_ROOT)$$mkspecs.path/default
 INSTALLS += mkspecs
 
 false:macx { #mac install location
