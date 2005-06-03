@@ -33,7 +33,6 @@
 #include <ctype.h>
 #include <limits.h>
 
-static const int GUARDED_SIGNAL = INT_MIN;
 static int DIRECT_CONNECTION_ONLY = 0;
 
 Q_GLOBAL_STATIC(QReadWriteLock, qt_object_read_write_lock)
@@ -78,10 +77,7 @@ static int *queuedConnectionTypes(const char *signal)
 struct QConnection {
     QObject *sender;
     int signal;
-    union {
-        QObject *receiver;
-        QObject **guarded;
-    };
+    QObject *receiver;
     int method;
     int type; // 0 == auto, 1 == direct, 2 == queued
     int *types;
@@ -134,8 +130,6 @@ void QConnectionList::remove(QObject *object)
             const int at = it.value();
             QConnection &c = connections[at];
             if (c.sender) {
-                if (c.signal == GUARDED_SIGNAL)
-                    *c.guarded = 0;
                 if (c.types && c.types != &DIRECT_CONNECTION_ONLY) {
                     qFree(c.types);
                     c.types = 0;
@@ -171,7 +165,7 @@ void QConnectionList::addConnection(QObject *sender, int signal,
                                     QObject *receiver, int method,
                                     int type, int *types)
 {
-    QConnection c = { sender, signal, {receiver}, method, type, types };
+    QConnection c = { sender, signal, receiver, method, type, types };
     int at;
     if (unusedConnections.isEmpty() || invariant != 0) {
         // append new connection
@@ -200,12 +194,9 @@ bool QConnectionList::removeConnection(QObject *sender, int signal,
         const int at = it.value();
         QConnection &c = connections[at];
         if (c.receiver
-            && ((signal == GUARDED_SIGNAL && c.signal == signal)
-                || (signal < 0 || signal == c.signal))
+            && (signal < 0 || signal == c.signal)
             && (receiver == 0
                 || (c.receiver == receiver && (method < 0 || method == c.method)))) {
-            if (c.signal == GUARDED_SIGNAL)
-                *c.guarded = 0;
             if (c.types) {
                 if (c.types != &DIRECT_CONNECTION_ONLY)
                     qFree(c.types);
@@ -348,6 +339,9 @@ QObjectList QObjectPrivate::senderList() const
     return senders;
 }
 
+typedef QMultiHash<QObject *, QObject **> GuardHash;
+Q_GLOBAL_STATIC(GuardHash, guardHash)
+Q_GLOBAL_STATIC(QReadWriteLock, guardHashLock)
 
 /*!\internal
  */
@@ -355,13 +349,13 @@ void QMetaObject::addGuard(QObject **ptr)
 {
     if (!*ptr)
         return;
-    QConnectionList *list = ::connectionList();
-    if (!list) {
+    GuardHash *hash = guardHash();
+    if (!hash) {
         *ptr = 0;
         return;
     }
-    QWriteLocker locker(&list->lock);
-    list->addConnection(*ptr, GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
+    QWriteLocker locker(guardHashLock());
+    hash->insert(*ptr, ptr);
 }
 
 /*!\internal
@@ -370,28 +364,43 @@ void QMetaObject::removeGuard(QObject **ptr)
 {
     if (!*ptr)
         return;
-    QConnectionList *list = ::connectionList();
-    if (!list)
+    GuardHash *hash = guardHash();
+    if (!hash)
         return;
-    QWriteLocker locker(&list->lock);
-    list->removeConnection(*ptr, GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
+    QWriteLocker locker(guardHashLock());
+    GuardHash::iterator it = hash->find(*ptr);
+    const GuardHash::iterator end = hash->end();
+    for (; it.key() == *ptr && it != end; ++it) {
+        if (it.value() == ptr) {
+            (void) hash->erase(it);
+            break;
+        }
+    }
 }
 
 /*!\internal
  */
 void QMetaObject::changeGuard(QObject **ptr, QObject *o)
 {
-    QConnectionList *list = ::connectionList();
-    if (!list) {
+    GuardHash *hash = guardHash();
+    if (!hash) {
         *ptr = 0;
         return;
     }
-    QWriteLocker locker(&list->lock);
-    if (*ptr)
-        list->removeConnection(*ptr, GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
+    QWriteLocker locker(guardHashLock());
+    if (*ptr) {
+        GuardHash::iterator it = hash->find(*ptr);
+        const GuardHash::iterator end = hash->end();
+        for (; it.key() == *ptr && it != end; ++it) {
+            if (it.value() == ptr) {
+                (void) hash->erase(it);
+                break;
+            }
+        }
+    }
     *ptr = o;
     if (*ptr)
-        list->addConnection(*ptr, GUARDED_SIGNAL, reinterpret_cast<QObject*>(ptr), 0);
+        hash->insert(*ptr, ptr);
 }
 
 /*! \internal
@@ -625,6 +634,18 @@ QObject::~QObject()
     if (list) {
         QWriteLocker locker(&list->lock);
         list->remove(this);
+    }
+
+    // set all QPointers for this object to zero
+    GuardHash *hash = ::guardHash();
+    if (hash) {
+        QWriteLocker locker(guardHashLock());
+        GuardHash::iterator it = hash->find(this);
+        const GuardHash::iterator end = hash->end();
+        while (it.key() == this && it != end) {
+            *it.value() = 0;
+            it = hash->erase(it);
+        }
     }
 
     if (d->pendTimer) {
@@ -2899,7 +2920,7 @@ QDebug operator<<(QDebug dbg, const QObject *o) {
                    READ getFunction
                    [WRITE setFunction]
                    [RESET resetFunction]
-                   [DESIGNABLE bool] 
+                   [DESIGNABLE bool]
                    [SCRIPTABLE bool]
                    [STORED bool])
     \endcode
