@@ -126,7 +126,6 @@ QVariant SpreadSheetItem::display() const
         }
         result = sum;
     } else if (op == "+") {
-        printf("+, %s, %s\n", qPrintable(start->text()), qPrintable(end->text()));
         result = (start->text().toInt() + end->text().toInt());
     } else if (op == "-") {
         result = (start->text().toInt() - end->text().toInt());
