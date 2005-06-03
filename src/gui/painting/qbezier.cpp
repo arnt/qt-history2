@@ -23,7 +23,7 @@
 
 
 QBezier::QBezier()
-    : valid(false)
+    : x1(0), y1(0), x2(0), y2(0), x3(0), y3(0), x4(0), y4(0)
 {
 }
 
@@ -34,7 +34,6 @@ QBezier::QBezier(qreal p1x_, qreal p1y_, qreal p2x_, qreal p2y_,
                  qreal p3x_, qreal p3y_, qreal p4x_, qreal p4y_)
     : x1(p1x_), y1(p1y_), x2(p2x_), y2(p2y_), x3(p3x_), y3(p3y_), x4(p4x_), y4(p4y_)
 {
-    init();
 }
 
 /*!
@@ -46,31 +45,6 @@ QBezier::QBezier(const QPointF &p1, const QPointF &p2, const QPointF &p3, const 
       x3(p3.x()), y3(p3.y()),
       x4(p4.x()), y4(p4.y())
 {
-    init();
-}
-
-/*!
-  \internal
-*/
-void QBezier::init()
-{
-    valid = true;
-
-    ax = -x1 + 3*x2 - 3*x3 + x4;
-    bx = 3*x1 - 6*x2 + 3*x3;
-    cx = -3*x1 + 3*x2;
-    dx = x1;
-
-    ay = -y1 + 3*y2 - 3*y3 + y4;
-    by = 3*y1 - 6*y2 + 3*y3;
-    cy = -3*y1 + 3*y2;
-    dy = y1;
-
-#ifndef QT_NO_DEBUG
-    if (qIsNan(x1) || qIsNan(x2) || qIsNan(x3) || qIsNan(x4)
-        || qIsNan(y1) || qIsNan(y2) || qIsNan(y3) || qIsNan(y4))
-        qWarning("QBezier::init(): one or more of the bezier parameters is nan, results are undefined.");
-#endif
 }
 
 struct QBezierLineSegment
@@ -89,8 +63,6 @@ Q_DECLARE_TYPEINFO(QBezierLineSegment, Q_PRIMITIVE_TYPE); // actually MOVABLE, b
 */
 QPolygonF QBezier::toPolygon() const
 {
-    Q_ASSERT(valid);
-
     QBezierLineSegment *lines = (QBezierLineSegment *) qMalloc(32 * sizeof(QBezierLineSegment));
     int pos = 0;
     int alloc = 32;
@@ -130,59 +102,26 @@ QPolygonF QBezier::toPolygon() const
 
 void QBezier::split(QBezier *firstHalf, QBezier *secondHalf) const
 {
-    Q_ASSERT(valid);
     Q_ASSERT(firstHalf);
-    Q_ASSERT(secondHalf);
+    Q_ASSERT(secondHalf && secondHalf != this);
 
-    qreal ax8 = ax/8;
-    qreal ay8 = ay/8;
-    qreal bx4 = bx/4;
-    qreal by4 = by/4;
-    qreal cx2 = cx/2;
-    qreal cy2 = cy/2;
+    qreal c = (x2 + x3)/2;
+    firstHalf->x2 = (x1 + x2)/2;
+    secondHalf->x3 = (x3 + x4)/2;
+    firstHalf->x1 = x1;
+    secondHalf->x4 = x4;
+    firstHalf->x3 = (firstHalf->x2 + c)/2;
+    secondHalf->x2 = (secondHalf->x3 + c)/2;
+    firstHalf->x4 = secondHalf->x1 = (firstHalf->x3 + secondHalf->x2)/2;
 
-    // Calculate the a, b, c, d values based on f(t/2)
-    firstHalf->ax = ax8;
-    firstHalf->ay = ay8;
-    firstHalf->bx = bx4;
-    firstHalf->by = by4;
-    firstHalf->cx = cx2;
-    firstHalf->cy = cy2;
-    firstHalf->dx = dx;
-    firstHalf->dy = dy;
-
-    // Get the control points by solving M^-1 * [a b c d], where M is
-    // the matrix mapping control points to a, b, c, d, as used in init().
-    firstHalf->x1 = firstHalf->dx;
-    firstHalf->x2 = firstHalf->cx / 3 + firstHalf->dx;
-    firstHalf->x3 = firstHalf->bx / 3 + firstHalf->cx * 2 / 3 + firstHalf->dx;
-    firstHalf->x4 = firstHalf->ax + firstHalf->bx + firstHalf->cx + firstHalf->dx;
-    firstHalf->y1 = firstHalf->dy;
-    firstHalf->y2 = firstHalf->cy / 3 + firstHalf->dy;
-    firstHalf->y3 = firstHalf->by / 3 + firstHalf->cy * 2 / 3 + firstHalf->dy;
-    firstHalf->y4 = firstHalf->ay + firstHalf->by + firstHalf->cy + firstHalf->dy;
-
-    // Repeat for second half, calculated throught f(1/2 + t/2)
-    secondHalf->ax = ax8;
-    secondHalf->bx = 3*ax8 + bx4;
-    secondHalf->cx = 3*ax8 + 2*bx4 + cx2;
-    secondHalf->dx = ax8 + bx4 + cx2 + dx;
-    secondHalf->ay = ay8;
-    secondHalf->by = 3*ay8 + by4;
-    secondHalf->cy = 3*ay8 + 2*by4 + cy2;
-    secondHalf->dy = ay8 + by4 + cy2 + dy;
-
-    secondHalf->x1 = secondHalf->dx;
-    secondHalf->x2 = secondHalf->cx / 3 + secondHalf->dx;
-    secondHalf->x3 = secondHalf->bx / 3 + secondHalf->cx * 2 / 3 + secondHalf->dx;
-    secondHalf->x4 = secondHalf->ax + secondHalf->bx + secondHalf->cx + secondHalf->dx;
-    secondHalf->y1 = secondHalf->dy;
-    secondHalf->y2 = secondHalf->cy / 3 + secondHalf->dy;
-    secondHalf->y3 = secondHalf->by / 3 + secondHalf->cy * 2 / 3 + secondHalf->dy;
-    secondHalf->y4 = secondHalf->ay + secondHalf->by + secondHalf->cy + secondHalf->dy;
-
-    firstHalf->valid = true;
-    secondHalf->valid = true;
+    c = (y2 + y3)/2;
+    firstHalf->y2 = (y1 + y2)/2;
+    secondHalf->y3 = (y3 + y4)/2;
+    firstHalf->y1 = y1;
+    secondHalf->y4 = y4;
+    firstHalf->y3 = (firstHalf->y2 + c)/2;
+    secondHalf->y2 = (secondHalf->y3 + c)/2;
+    firstHalf->y4 = secondHalf->y1 = (firstHalf->y3 + secondHalf->y2)/2;
 }
 
 int QBezier::shifted(QBezier *curveSegments, int maxSegments, float offset, float threshold) const

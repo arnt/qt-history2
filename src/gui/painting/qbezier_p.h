@@ -41,10 +41,10 @@ public:
     inline QPointF pointAt(qreal t) const;
     QPolygonF toPolygon() const;
 
-    QPointF pt1() const { Q_ASSERT(valid); return QPointF(x1, y1); }
-    QPointF pt2() const { Q_ASSERT(valid); return QPointF(x2, y2); }
-    QPointF pt3() const { Q_ASSERT(valid); return QPointF(x3, y3); }
-    QPointF pt4() const { Q_ASSERT(valid); return QPointF(x4, y4); }
+    QPointF pt1() const { return QPointF(x1, y1); }
+    QPointF pt2() const { return QPointF(x2, y2); }
+    QPointF pt3() const { return QPointF(x3, y3); }
+    QPointF pt4() const { return QPointF(x4, y4); }
 
     inline QPointF midPoint() const;
     inline QLineF midTangent() const;
@@ -53,16 +53,12 @@ public:
     int shifted(QBezier *curveSegments, int maxSegmets, float offset, float threshold) const;
 
 private:
-    void init();
-
-    bool valid;
     qreal x1, y1, x2, y2, x3, y3, x4, y4;
-    qreal ax, bx, cx, dx, ay, by, cy, dy;
 };
 
 inline QPointF QBezier::midPoint() const
 {
-    return QPointF(ax/8 + bx/4 + cx/2 + dx, ay/8 + by/4 + cy/2 + dy);
+    return QPointF((x1 + x4 + 3*(x2 + x3))/8., (y1 + y4 + 3*(y2 + y3))/8.);
 }
 
 inline QLineF QBezier::midTangent() const
@@ -75,11 +71,18 @@ inline QLineF QBezier::midTangent() const
 
 inline QPointF QBezier::pointAt(qreal t) const
 {
-    Q_ASSERT(valid);
     Q_ASSERT(t >= 0);
     Q_ASSERT(t <= 1);
-    return QPointF(ax*t*t*t + bx*t*t + cx*t + dx,
-                   ay*t*t*t + by*t*t + cy*t + dy);
+    qreal a, b, c, d;
+    qreal m_t = 1. - t;
+    b = m_t * m_t;
+    c = t * t;
+    d = c * t;
+    a = b * m_t;
+    b *= 3. * t;
+    c *= 3. * m_t;
+
+    return QPointF(a*x1 + b*x2 + c*x3 + d*x4, a*y1 + b*y2 + c*y3 + d*y4);
 }
 
 #endif // QBEZIER_P_H
