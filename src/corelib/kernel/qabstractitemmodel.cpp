@@ -853,6 +853,21 @@ void QAbstractItemModelPrivate::reset()
 */
 
 /*!
+    \fn void QAbstractItemModel::layoutChanged()
+
+    This signal is emitted whenever the layout of items exposed by the model
+    changes; for example, when the model is sorted. When this signal is
+    received by a view, it should update the layout of items to reflect this
+    change.
+
+    When subclassing QAbstractItemModel or QProxyModel, ensure that you emit
+    this signal if you change the order of items or alter the structure of
+    the data you expose to views.
+
+    \sa dataChanged(), headerDataChanged(), reset()
+*/
+
+/*!
     Constructs an abstract item model with the given \a parent.
 */
 QAbstractItemModel::QAbstractItemModel(QObject *parent)

@@ -1886,7 +1886,7 @@ void QAbstractItemView::setState(State state)
 }
 
 /*!
-  Prepares the view for scrolling by (\a dx,\a dy) pixels by moving the dirty regions in the
+  Prepares the view for scrolling by (\a{dx},\a{dy}) pixels by moving the dirty regions in the
   opposite direction. You only need to call this function if you are implementing a scrolling
   viewport in your view subclass.
 
