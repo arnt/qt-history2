@@ -911,6 +911,9 @@ void QComboBox::setAutoCompletion(bool enable)
 /*!
     \property QComboBox::duplicatesEnabled
     \brief whether the user can enter duplicate items into the combobox
+
+    Note that it is always possible to programatically insert duplicate items into the
+    combobox.
 */
 
 bool QComboBox::duplicatesEnabled() const
