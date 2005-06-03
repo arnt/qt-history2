@@ -136,10 +136,13 @@ public:
     };
 
     void init();
-    void fillPolygon(const QPointF *points, int pointCount, GCMode gcMode,
-                     QPaintEngine::PolygonDrawMode mode);
+    void fillPolygon_translated(const QPointF *points, int pointCount, GCMode gcMode,
+                                QPaintEngine::PolygonDrawMode mode);
+    void fillPolygon_dev(const QPointF *points, int pointCount, GCMode gcMode,
+                         QPaintEngine::PolygonDrawMode mode);
     void fillPath(const QPainterPath &path, GCMode gcmode, bool transform);
-    void strokePolygon(const QPointF *points, int pointCount, bool close);
+    void strokePolygon_dev(const QPointF *points, int pointCount, bool close);
+    void strokePolygon_translated(const QPointF *points, int pointCount, bool close);
     void setupAdaptedOrigin(const QPoint &p);
     void resetAdaptedOrigin();
 
