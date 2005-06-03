@@ -1,6 +1,7 @@
 TARGET = rcc
 CONFIG += console
 mac:CONFIG -= app_bundle
+CONFIG -= debug_and_release
 build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release
