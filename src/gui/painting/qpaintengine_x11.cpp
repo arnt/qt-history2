@@ -997,6 +997,20 @@ void QX11PaintEngine::drawPoints(const QPointF *points, int pointCount)
 
     if (!d->has_pen)
         return;
+
+    float pen_width = d->cpen.widthF();
+    if (d->alpha_pen || pen_width > 1
+        || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
+        const QPointF *end = points + pointCount;
+        while (points < end) {
+            QPainterPath path;
+            path.moveTo(*points);
+            path.lineTo(points->x() + 0.005, points->y());
+            drawPath(path);
+            ++points;
+        }
+    }
+
     for (int i = 0; i < pointCount; ++i) {
         QPointF xformed = d->matrix.map(points[i]);
         int x = qRound(xformed.x());
