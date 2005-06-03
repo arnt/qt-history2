@@ -4902,6 +4902,7 @@ void Q3ListView::keyPressEvent(QKeyEvent * e)
                 QString keyItemKey;
                 QString prefix;
                 while(keyItem) {
+                    keyItemKey = QString::null;
                     // Look first in the sort column, then left to right
 		    if (d->sortcolumn != Unsorted)
 			keyItemKey = keyItem->text(d->sortcolumn);
