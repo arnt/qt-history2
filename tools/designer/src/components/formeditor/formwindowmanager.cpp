@@ -37,6 +37,7 @@
 #include <QtGui/QMainWindow>
 #include <QtGui/QMenuBar>
 #include <QtGui/QClipboard>
+#include <QtGui/QWorkspace>
 
 #include <QtCore/qdebug.h>
 
@@ -205,6 +206,16 @@ void FormWindowManager::setActiveFormWindow(QDesignerFormWindowInterface *w)
     if (m_activeFormWindow) {
         m_activeFormWindow->emitSelectionChanged();
         m_activeFormWindow->commandHistory()->setCurrent();
+
+        QWidget *parent = m_activeFormWindow->parentWidget();
+        QWorkspace *workspace = 0;
+        while (parent != 0) {
+            if ((workspace = qobject_cast<QWorkspace*>(parent)))
+                break;
+            parent = parent->parentWidget();
+        }
+        if (workspace != 0)
+            workspace->setActiveWindow(m_activeFormWindow->parentWidget());
     }
 }
 

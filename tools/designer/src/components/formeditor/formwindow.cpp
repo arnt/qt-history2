@@ -303,6 +303,8 @@ QWidget *FormWindow::findTargetContainer(QWidget *widget) const
 
 bool FormWindow::handleMousePressEvent(QWidget *, QWidget *managedWidget, QMouseEvent *e)
 {
+    core()->formWindowManager()->setActiveFormWindow(this);
+
     e->accept();
 
     startPos = QPoint();
