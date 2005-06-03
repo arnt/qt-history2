@@ -21,21 +21,26 @@ The Qt Commercial Edition is the commercial version of
 
 You may write commercial, proprietary, or otherwise non-free software
 \e only if you have purchased the Qt Commercial Edition. The purchase of
-the Qt Commercial Edition includes technical support and upgrades. Qt
-for Microsoft Windows is only available in the Qt Commercial Edition.
+the Qt Commercial Edition includes technical support and upgrades.
 
 If you want to develop Free or Open Source software for release
 using a recognized Open Source license, you can use the \link
 opensourceedition.html Open Source Edition\endlink.
 
+Please see the \l{http://www.trolltech.com/developer/platforms/supported.html}
+{list of supported platforms} for up-to-date information about the various
+platforms and compilers that Qt supports.
+
+\omit
 Qt is supported on the following platforms:
 \list
  \i \bold{Microsoft Windows} -- 95, 98, NT 4.0, ME, 2000, and XP
  \i \bold{Unix/X11} -- Linux, Sun Solaris, HP-UX, HP Tru64 UNIX,
-	    IBM AIX, SGI IRIX and many others
+     IBM AIX, SGI IRIX and many others
  \i \bold{Mac OS X} -- Mac OS X 10.2+
  \i \bold{\l{http://www.trolltech.com/products/embedded/index.html}{Qt/Embedded}} -- Linux platforms with framebuffer support.
 \endlist
+\endomit
 
 On Trolltech's web site, you can find \link
 http://www.trolltech.com/products/qt/licensing.html licensing

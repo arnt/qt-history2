@@ -39,6 +39,8 @@
          \o Generate meta-object information for QObject subclasses.
     \row \o \l{uic.html}{uic}
          \o Generate C++ code from user interface files.
+    \row \o \l{rcc.html}{rcc}
+         \o Embed resources into Qt applications during the build process.
     \row \o \c qtconfig
          \o Unix-based Qt configuration tool with online help.
     \endtable

@@ -91,8 +91,10 @@
     self-contained, embeddable, zero-configuration SQL database engine.}
     -- quoted from \l{http://www.sqlite.org/}{www.sqlite.org}.
 
-    According to the comments in the source files, the code is in the
-    public domain.
+    According to the comments in the source files, the code is in the public
+    domain. See the
+    \l{http://www.sqlite.org/copyright.html}{SQLite Copyright} page on the
+    SQLite web site for further information.
 
     \section1 Wintab API (\c wintab)
 
