@@ -834,12 +834,7 @@ void Generator::generateSignal(FunctionDef *def,int index)
     for (i = 1; i < offset; ++i)
         fprintf(out, ", (void*)&_t%d", i);
     fprintf(out, " };\n");
-    int n = 1;
-    for (i = 0; i < def->arguments.count(); ++i)
-        if (def->arguments.at(i).isDefault)
-            ++n;
-    for (i = 0; i < n; ++i)
-        fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _a);\n", index + i);
+    fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _a);\n", index);
     if (def->normalizedType.size())
         fprintf(out, "    return _t0;\n");
     fprintf(out, "}\n");
