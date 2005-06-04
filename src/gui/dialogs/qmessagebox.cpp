@@ -298,7 +298,7 @@ static const char * const qtlogo_xpm[] = {
 
     The \l{dialogs/standarddialogs}{Standard Dialogs} example shows
     how to use QMessageBox as well as other built-in Qt dialogs.
-    
+
     \inlineimage qmsgbox-m.png Screenshot in Motif style
     \inlineimage qmsgbox-w.png Screenshot in Windows style
 
@@ -322,18 +322,18 @@ static const char * const qtlogo_xpm[] = {
     \value NoAll A "No to all" button.
 
     The following values are flags that can be OR'ed with the button values.
-    
+
     \value Default The button is default (i.e., QPushButton::default).
     \value Escape The button is activated by pressing the Escape key.
 
     The following values are masks that can be used to separate buttons from
     flags.
-    
+
     \value ButtonMask A bitmask that covers all button types.
     \value FlagMask A bitmask that covers all button flags.
 
     Finally, the last value is often used as a default value.
-    
+
     \value NoButton
 */
 
@@ -516,6 +516,8 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
 
     }
     label = new QLabel(q);
+    label->setObjectName("qt_msgbox_label");
+
     label->setAlignment(Qt::AlignTop|Qt::AlignLeft);
 
     if ((button2 && !button1) || (button1 && !button0)) {
@@ -524,6 +526,8 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
     }
     icon = QMessageBox::NoIcon;
     iconLabel = new QLabel(q);
+    iconLabel->setObjectName("qt_msgbox_icon_label");
+
     iconLabel->setPixmap(QPixmap());
     numButtons = 0;
     button[0] = button0;
@@ -572,6 +576,7 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
             pb[i] = 0;
         } else {
             pb[i] = new QPushButton(q->tr(mb_texts[button[i]]), q);
+            pb[i]->setObjectName(mb_texts[button[i]]);
             if (defButton == i) {
                 pb[i]->setDefault(true);
                 pb[i]->setFocus();
