@@ -82,7 +82,6 @@ enum Token {
     LPAREN,
     RPAREN,
     ELIPSIS,
-    COMMMMA,
     LBRACK,
     RBRACK,
     LBRACE,
