@@ -17,22 +17,42 @@
 
 \title Qt Editions
 
-The \l{commercialedition.html}{Qt Commercial Edition} is the commercial
-version of \link aboutqt.html Qt\endlink.
+Qt can be used to create both commercial and non-commercial software for a
+wide range of different deployment environments, and is supplied in a number
+of different forms to suit the needs of different kinds of developers.
 
-The \link opensourceedition.html Qt Open Source Edition\endlink is
-the non-commercial version of Qt. It is freely available for
-download.
+In terms of license conditions, there are two main forms of Qt:
+
+\list
+\o The \l{commercialedition.html}{Qt Commercial Edition} is the commercial
+   version of \link aboutqt.html Qt\endlink.
+\o The \link opensourceedition.html Qt Open Source Edition\endlink is
+   the non-commercial version of Qt. It is freely available for
+   download.
+\endlist
 
 You may write commercial, proprietary, or otherwise non-free software only if you
 have purchased the \link commercialedition.html Commercial
-Edition\endlink. The Commercial Edition also
-entitles you to technical support and upgrades. Qt for Microsoft Windows
-is only available in the Commercial Edition.
+Edition\endlink. The Commercial Edition also entitles you to technical support
+and upgrades on any supported platform.
 
-The two editions are functionally equivalent, with the exception of
-three database drivers (Oracle, IBM DB2, and Sybase), which are not
-included in the Open Source Edition because of license restrictions
-in the closed-source client libraries used to implement the drivers.
+Each Edition is available in a variety of different forms:
 
+\table
+\header \o Feature         \o Console      \o Desktop Light    \o Desktop
+\row    \o Qt Core classes \o X            \o X                \o X
+\row    \o Qt GUI classes  \o              \o X                \o X
+\row    \o Networking      \o X            \o                  \o X
+\row    \o OpenGL          \o              \o                  \o X
+\row    \o Database/SQL    \o X            \o                  \o X
+\row    \o XML             \o X            \o                  \o X
+\endtable
+
+The Commercial Desktop Edition also contains three database drivers (Oracle,
+IBM DB2, and Sybase), which are not included in any of the Open Source
+Editions because of license restrictions in the closed-source client
+libraries used to implement the drivers.
+
+Users of the Commercial Edition can also take advantage of \QD's support for
+commercial Integrated Development Environments.
 */
