@@ -953,6 +953,19 @@ QPointF QLinearGradient::finalStop() const
     \sa QBrush
 */
 
+static QPointF qt_radial_gradient_adapt_focal_point(const QPointF &center,
+                                                    qreal radius,
+                                                    const QPointF &focalPoint)
+{
+    // We have a one pixel buffer zone to avoid numerical instability on the
+    // circle border
+    const int compensated_radius = radius - 1;
+    QLineF line(center, focalPoint);
+    if (line.length() >= (compensated_radius))
+        line.setLength(compensated_radius);
+    return line.p2();
+}
+
 /*!
     Constructs a radial gradient centered at \a center with radius \a
     radius.  The \a focalPoint can be used to define the focal point
@@ -967,9 +980,11 @@ QRadialGradient::QRadialGradient(const QPointF &center, qreal radius, const QPoi
     m_spread = PadSpread;
     m_data.radial.cx = center.x();
     m_data.radial.cy = center.y();
-    m_data.radial.fx = focalPoint.x();
-    m_data.radial.fy = focalPoint.y();
     m_data.radial.radius = radius;
+
+    QPointF adapted_focal = qt_radial_gradient_adapt_focal_point(center, radius, focalPoint);
+    m_data.radial.fx = adapted_focal.x();
+    m_data.radial.fy = adapted_focal.y();
 }
 
 
@@ -988,9 +1003,14 @@ QRadialGradient::QRadialGradient(qreal cx, qreal cy, qreal radius, qreal fx, qre
     m_spread = PadSpread;
     m_data.radial.cx = cx;
     m_data.radial.cy = cy;
-    m_data.radial.fx = fx;
-    m_data.radial.fy = fy;
     m_data.radial.radius = radius;
+
+    QPointF adapted_focal = qt_radial_gradient_adapt_focal_point(QPointF(cx, cy),
+                                                                 radius,
+                                                                 QPointF(fx, fy));
+
+    m_data.radial.fx = adapted_focal.x();
+    m_data.radial.fy = adapted_focal.y();
 }
 
 
