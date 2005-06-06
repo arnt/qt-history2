@@ -1748,7 +1748,8 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
 */
 void QAbstractItemView::rowsInserted(const QModelIndex &, int, int)
 {
-    d_func()->fetchMore();
+    if (!isVisible())
+        d_func()->fetchMore();
 }
 
 /*!
