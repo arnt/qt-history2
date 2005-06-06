@@ -597,6 +597,14 @@ void QTextHTMLImporter::import()
             QTextImageFormat fmt;
             fmt.setName(node->imageName);
 
+            QTextCharFormat nodeFmt = node->charFormat();
+            if (nodeFmt.hasProperty(QTextFormat::IsAnchor))
+                fmt.setAnchor(nodeFmt.isAnchor());
+            if (nodeFmt.hasProperty(QTextFormat::AnchorHref))
+                fmt.setAnchorHref(nodeFmt.anchorHref());
+            if (nodeFmt.hasProperty(QTextFormat::AnchorName))
+                fmt.setAnchorName(nodeFmt.anchorName());
+
             if (node->imageWidth >= 0)
                 fmt.setWidth(node->imageWidth);
             if (node->imageHeight >= 0)

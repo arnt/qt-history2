@@ -1249,7 +1249,7 @@ void QTextHtmlParser::parseAttributes()
                         node->listStyle = QTextListFormat::ListCircle;
                 }
             }
-        } else if (node->isAnchor) {
+        } else if (node->id == Html_a) {
             if (key == QLatin1String("href"))
                 node->anchorHref = value;
             else if (key == QLatin1String("name"))
