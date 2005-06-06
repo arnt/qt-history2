@@ -79,7 +79,8 @@ struct Q_GUI_EXPORT QImageIOHandlerFactoryInterface : public QFactoryInterface
     virtual QImageIOHandler *create(QIODevice *device, const QByteArray &format = QByteArray()) const = 0;
 };
 
-Q_DECLARE_INTERFACE(QImageIOHandlerFactoryInterface, "com.trolltech.Qt.QImageIOHandlerFactoryInterface")
+#define QImageIOHandlerFactoryInterface_iid "com.trolltech.Qt.QImageIOHandlerFactoryInterface"
+Q_DECLARE_INTERFACE(QImageIOHandlerFactoryInterface, QImageIOHandlerFactoryInterface_iid)
 
 class Q_GUI_EXPORT QImageIOPlugin : public QObject, public QImageIOHandlerFactoryInterface
 {

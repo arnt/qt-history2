@@ -24,7 +24,8 @@ struct QDecorationFactoryInterface : public QFactoryInterface
     virtual QDecoration *create(const QString &key) = 0;
 };
 
-Q_DECLARE_INTERFACE(QDecorationFactoryInterface, "com.trolltech.Qt.QDecorationFactoryInterface")
+#define QDecorationFactoryInterface_iid "com.trolltech.Qt.QDecorationFactoryInterface"
+Q_DECLARE_INTERFACE(QDecorationFactoryInterface, QDecorationFactoryInterface_iid)
 
 class QDecorationPlugin : public QObject, public QDecorationFactoryInterface
 {

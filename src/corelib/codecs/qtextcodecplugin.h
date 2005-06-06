@@ -27,7 +27,9 @@ struct Q_CORE_EXPORT QTextCodecFactoryInterface : public QFactoryInterface
     virtual QTextCodec *create(const QString &key) = 0;
 };
 
-Q_DECLARE_INTERFACE(QTextCodecFactoryInterface, "com.trolltech.Qt.QTextCodecFactoryInterface")
+#define QTextCodecFactoryInterface_iid "com.trolltech.Qt.QTextCodecFactoryInterface"
+
+Q_DECLARE_INTERFACE(QTextCodecFactoryInterface, QTextCodecFactoryInterface_iid)
 
 class Q_CORE_EXPORT QTextCodecPlugin : public QObject, public QTextCodecFactoryInterface
 {

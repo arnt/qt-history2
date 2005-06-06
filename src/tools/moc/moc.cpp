@@ -150,10 +150,10 @@ void Moc::error(int rollback) {
 void Moc::error(const char *msg) {
     if (msg || error_msg)
         qWarning(ErrorFormatString "Error: %s",
-               filename.constData(), symbol().lineNum, msg?msg:error_msg);
+               currentFilenames.top().constData(), symbol().lineNum, msg?msg:error_msg);
     else
         qWarning(ErrorFormatString "Parse error at \"%s\"",
-               filename.constData(), symbol().lineNum, symbol().lexem().data());
+               currentFilenames.top().constData(), symbol().lineNum, symbol().lexem().data());
     exit(EXIT_FAILURE);
 }
 
@@ -468,6 +468,8 @@ bool Moc::parseMaybeFunction(FunctionDef *def)
 
 void Moc::parse()
 {
+    currentFilenames.push(filename);
+
     QList<NamespaceDef> namespaceList;
     bool templateClass = false;
     while (hasNext()) {
@@ -489,8 +491,15 @@ void Moc::parse()
             templateClass = false;
         } else if (t == TEMPLATE) {
             templateClass = true;
+        } else if (t == MOC_INCLUDE_BEGIN) {
+            next(STRING_LITERAL);
+            currentFilenames.push(symbol().unquotedLexem());
+        } else if (t == MOC_INCLUDE_END) {
+            currentFilenames.pop();
+        } else if (t == Q_DECLARE_INTERFACE_TOKEN) {
+            parseDeclareInterface();
         }
-        if (t != CLASS)
+        if (t != CLASS || currentFilenames.size() > 1)
             continue;
         ClassDef def;
         FunctionDef::Access access = FunctionDef::Private;
@@ -855,12 +864,10 @@ void Moc::parseClassInfo(ClassDef *def)
     next(LPAREN);
     ClassInfoDef infoDef;
     next(STRING_LITERAL);
-    const Symbol *sym = &symbol();
-    infoDef.name = sym->lexem_data.mid(sym->from+1, sym->len-2); // cut away quotes
+    infoDef.name = symbol().unquotedLexem();
     next(COMMA);
     next(STRING_LITERAL);
-    sym = &symbol();
-    infoDef.value = sym->lexem_data.mid(sym->from+1, sym->len-2);  // cut away quotes
+    infoDef.value = symbol().unquotedLexem();
     def->classInfoList += infoDef;
 }
 
@@ -868,24 +875,55 @@ void Moc::parseInterfaces(ClassDef *def)
 {
     next(LPAREN);
     while (test(IDENTIFIER)) {
-        QList<QByteArray> iface;
-        iface += lexem();
+        QList<ClassDef::Interface> iface;
+        iface += ClassDef::Interface(lexem());
         while (test(SCOPE)) {
-            iface.last() += lexem();
+            iface.last().className += lexem();
             next(IDENTIFIER);
-            iface.last() += lexem();
+            iface.last().className += lexem();
         }
         while (test(COLON)) {
             next(IDENTIFIER);
-            iface += lexem();
+            iface += ClassDef::Interface(lexem());
             while (test(SCOPE)) {
-                iface.last() += lexem();
+                iface.last().className += lexem();
                 next(IDENTIFIER);
-                iface.last() += lexem();
+                iface.last().className += lexem();
             }
+        }
+        // resolve from classnames to interface ids
+        for (int i = 0; i < iface.count(); ++i) {
+            const QByteArray iid = interface2IdMap.value(iface.at(i).className);
+            if (iid.isEmpty())
+                error("Undefined interface");
+
+            iface[i].interfaceId = iid;
         }
         def->interfaceList += iface;
     }
+    next(RPAREN);
+}
+
+void Moc::parseDeclareInterface()
+{
+    next(LPAREN);
+    QByteArray interface;
+    next(IDENTIFIER);
+    interface += lexem();
+    while (test(SCOPE)) {
+        interface += lexem();
+        next(IDENTIFIER);
+        interface += lexem();
+    }
+    next(COMMA);
+    QByteArray iid;
+    if (test(STRING_LITERAL)) {
+        iid = symbol().unquotedLexem();
+    } else {
+        next(IDENTIFIER);
+        iid += lexem();
+    }
+    interface2IdMap.insert(interface, iid);
     next(RPAREN);
 }
 

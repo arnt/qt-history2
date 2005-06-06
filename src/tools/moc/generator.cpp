@@ -346,11 +346,11 @@ void Generator::generateCode()
                 cname, cname, cdef->classname.constData());
     }
     for (int i = 0; i < cdef->interfaceList.size(); ++i) {
-        const QList<QByteArray> &iface = cdef->interfaceList.at(i);
+        const QList<ClassDef::Interface> &iface = cdef->interfaceList.at(i);
         for (int j = 0; j < iface.size(); ++j) {
-            fprintf(out, "    if (!strcmp(_clname, %s_iid))\n\treturn ", iface.at(j).constData());
+            fprintf(out, "    if (!strcmp(_clname, \"%s\"))\n\treturn ", iface.at(j).interfaceId.constData());
             for (int k = j; k >= 0; --k)
-                fprintf(out, "static_cast<%s*>(", iface.at(k).constData());
+                fprintf(out, "static_cast<%s*>(", iface.at(k).className.constData());
             fprintf(out, "const_cast<%s*>(this)%s;\n",
                     cdef->classname.constData(), QByteArray(j+1, ')').constData());
         }

@@ -189,6 +189,8 @@ static const Keyword keywords[] = {
     { "Q_ENUMS", "Q_ENUMS_TOKEN" },
     { "Q_FLAGS", "Q_FLAGS_TOKEN" },
     { "Q_DECLARE_FLAGS", "Q_DECLARE_FLAGS_TOKEN" },
+    { "Q_DECLARE_INTERFACE", "Q_DECLARE_INTERFACE_TOKEN" },
+    { "Q_DECLARE_EXTENSION_INTERFACE", "Q_DECLARE_INTERFACE_TOKEN" },
     { "Q_SETS", "Q_FLAGS_TOKEN" },
     { "Q_CLASSINFO", "Q_CLASSINFO_TOKEN" },
     { "Q_INTERFACES", "Q_INTERFACES_TOKEN" },
@@ -202,6 +204,8 @@ static const Keyword keywords[] = {
     { " ", "WHITESPACE" },
     { "\t", "WHITESPACE" },
     { "#", "HASH" },
+    { "#moc_include_begin", "MOC_INCLUDE_BEGIN" },
+    { "#moc_include_end", "MOC_INCLUDE_END" },
     { 0, "NOTOKEN"}
 };
 

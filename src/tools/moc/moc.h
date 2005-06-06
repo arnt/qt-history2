@@ -18,6 +18,7 @@
 #include <qstringlist.h>
 #include <qmap.h>
 #include <qpair.h>
+#include <qstack.h>
 #include <ctype.h>
 #include <stdio.h>
 
@@ -83,7 +84,15 @@ struct ClassDef {
     QByteArray classname;
     QByteArray qualified;
     QList<QPair<QByteArray, FunctionDef::Access> > superclassList;
-    QList<QList<QByteArray> >interfaceList;
+
+    struct Interface
+    {
+        inline explicit Interface(const QByteArray &_className)
+            : className(_className) {}
+        QByteArray className;
+        QByteArray interfaceId;
+    };
+    QList<QList<Interface> >interfaceList;
 
     bool hasQObject;
     bool hasQGadget;
@@ -116,6 +125,7 @@ public:
         {}
 
     QByteArray filename;
+    QStack<QByteArray> currentFilenames;
     Symbols symbols;
 
     int index;
@@ -126,6 +136,7 @@ public:
     QByteArray includePath;
     QList<QByteArray> includeFiles;
     QList<ClassDef> classList;
+    QMap<QByteArray, QByteArray> interface2IdMap;
 
     inline bool hasNext() const { return (index < symbols.size()); }
     inline Token next() { return symbols.at(index++).token; }
@@ -171,6 +182,7 @@ public:
     void parseFlag(ClassDef *def);
     void parseClassInfo(ClassDef *def);
     void parseInterfaces(ClassDef *def);
+    void parseDeclareInterface();
     void parseSlotInPrivate(ClassDef *def, FunctionDef::Access access);
 
     void parseFunctionArguments(FunctionDef *def);

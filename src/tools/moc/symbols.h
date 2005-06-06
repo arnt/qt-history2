@@ -28,6 +28,7 @@ struct Symbol
     int lineNum;
     union {Token token; PP_Token pp_token;};
     inline QByteArray lexem() const { return lexem_data.mid(from, len); }
+    inline QByteArray unquotedLexem() const { return lexem_data.mid(from+1, len-2); }
     QByteArray lexem_data;
     int from, len;
 };

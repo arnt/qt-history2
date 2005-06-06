@@ -111,6 +111,18 @@ Symbols Scanner::scan(const QByteArray &input)
                 // not sure about this one, can only happen through
                 // macro substitution. Ignore until next line?
                 break;
+            case MOC_INCLUDE_BEGIN:
+                lineNum = 0;
+                break;
+            case MOC_INCLUDE_END:
+                symbols += Symbol(lineNum, token, input, lexem-begin, data-lexem);
+                ++data;
+                lineNum = 0;
+                while (is_digit_char(*data)) {
+                    lineNum = lineNum * 10 + *data - '0';
+                    ++data;
+                }
+                continue;
             case NEWLINE:
                 ++lineNum;
                 continue;

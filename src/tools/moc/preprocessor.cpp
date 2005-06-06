@@ -71,9 +71,10 @@ static bool skipBranch(const Symbols &symbols, int &i)
 
 static QByteArray cleaned(const QByteArray &input)
 {
-    QByteArray output;
-    output.reserve(input.size());
+    QByteArray result;
+    result.reserve(input.size());
     const char *data = input;
+    char *output = result.data();
 
     int newlines = 0;
     while (*data) {
@@ -85,7 +86,8 @@ static QByteArray cleaned(const QByteArray &input)
             ++data;
         }
         if (takeLine) {
-            output += '#';
+            *output = '#';
+            ++output;
             do ++data; while (*data && is_space(*data));
         }
         while (*data) {
@@ -94,10 +96,12 @@ static QByteArray cleaned(const QByteArray &input)
                 data += 2;
                 continue;
             }
-            output += *data;
+            *output = *data;
+            ++output;
             if (*data == '\n') {
                 while (newlines) {
-                    output += '\n';
+                    *output = '\n';
+                    ++output;
                     --newlines;
                 }
                 ++data;
@@ -106,50 +110,9 @@ static QByteArray cleaned(const QByteArray &input)
             ++data;
         }
     }
-    return output;
+    result.resize(output - result.constData());
+    return result;
 }
-
-static QByteArray cleanedAndFiltered(const QByteArray &input)
-{
-    QByteArray output;
-    output.reserve(input.size());
-    const char *data = input;
-
-    while (*data) {
-        while (*data && is_space(*data))
-            ++data;
-        bool takeLine = (*data == '#');
-        if (*data == '%' && *(data+1) == ':') {
-            takeLine = true;
-            ++data;
-        }
-        if (takeLine){
-            output += '#';
-            do ++data; while (*data && is_space(*data));
-            while (*data && *data != '\n') {
-                if (*data == '\\' && *(data+1) == '\n') {
-                    data += 2;
-                    continue;
-                }
-                output += *data;
-                ++data;
-            }
-            output += '\n';
-        } else { // skip line
-            while (*data) {
-                if (*data == '\n') {
-                    ++data;
-                    break;
-                }
-                if (*data == '\\' && *(data+1) == '\n')
-                    ++data;
-                ++data;
-            }
-        }
-    }
-    return output;
-}
-
 
 enum TokenizeMode { TokenizeFile, TokenizeLine };
 static Symbols tokenize(const QByteArray &input, int lineNum = 1, TokenizeMode mode = TokenizeFile)
@@ -634,14 +597,28 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
             file.close();
             if (input.isEmpty())
                 continue;
-            // phase 1: get rid of backslash-newlines and everything
-            // not preprocessor related
-            QByteArray phase1 = cleanedAndFiltered(input);
+            // phase 1: get rid of backslash-newlines
+            QByteArray phase1 = cleaned(input);
             // phase 2: tokenize for the preprocessor
             Symbols symbols = tokenize(phase1);
             // phase 3: preprocess conditions and substitute macros
             ++depth;
             symbols = preprocess(include, symbols, macros);
+
+            Symbol includeSym;
+            includeSym.lexem_data = "\n#moc_include_begin \"";
+            includeSym.lexem_data += include;
+            includeSym.lexem_data += "\"\n";
+            preprocessed += includeSym;
+
+            preprocessed += symbols;
+
+            includeSym.lexem_data = "\n#moc_include_end ";
+            includeSym.lexem_data += QByteArray::number(sym.lineNum);
+            includeSym.lineNum = sym.lineNum;
+            includeSym.pp_token = PP_MOC_INCLUDE_END;
+            preprocessed += includeSym;
+
             --depth;
             continue;
         }
@@ -757,6 +734,9 @@ QByteArray Preprocessor::preprocessed(const QByteArray &filename, FILE *file)
             secondlast = last;
             last = PP_STRING_LITERAL;
             continue;
+        case PP_MOC_INCLUDE_END:
+            lineNum = sym.lineNum;
+            break;
         default:
             break;
         }

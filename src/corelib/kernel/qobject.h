@@ -339,11 +339,10 @@ inline T qobject_cast(const QObject *object)
 { return qobject_cast_helper<T>(object, T(0)); }
 
 #define Q_DECLARE_INTERFACE(IFace, IId) \
-const char * const IFace##_iid = IId; \
 template <> inline IFace *qobject_cast_helper<IFace *>(QObject *object, IFace *) \
-{ return (IFace *)(object ? object->qt_metacast(IFace##_iid) : 0); } \
+{ return (IFace *)(object ? object->qt_metacast(IId) : 0); } \
 template <> inline IFace *qobject_cast_helper<IFace *>(const QObject *object, IFace *) \
-{ return (IFace *)(object ? const_cast<QObject *>(object)->qt_metacast(IFace##_iid) : 0); }
+{ return (IFace *)(object ? const_cast<QObject *>(object)->qt_metacast(IId) : 0); }
 
 #else
 
@@ -381,11 +380,10 @@ inline T qobject_cast(const QObject *object)
 
 
 #define Q_DECLARE_INTERFACE(IFace, IId) \
-const char * const IFace##_iid = IId; \
 template <> inline IFace *qobject_cast<IFace *>(QObject *object) \
-{ return reinterpret_cast<IFace *>((object ? object->qt_metacast(IFace##_iid) : 0)); } \
+{ return reinterpret_cast<IFace *>((object ? object->qt_metacast(IId) : 0)); } \
 template <> inline IFace *qobject_cast<IFace *>(const QObject *object) \
-{ return reinterpret_cast<IFace *>((object ? const_cast<QObject *>(object)->qt_metacast(IFace##_iid) : 0)); }
+{ return reinterpret_cast<IFace *>((object ? const_cast<QObject *>(object)->qt_metacast(IId) : 0)); }
 
 #endif
 

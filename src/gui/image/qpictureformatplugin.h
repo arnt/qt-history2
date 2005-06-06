@@ -30,7 +30,8 @@ struct Q_GUI_EXPORT QPictureFormatInterface : public QFactoryInterface
     virtual bool installIOHandler(const QString &) = 0;
 };
 
-Q_DECLARE_INTERFACE(QPictureFormatInterface, "com.trolltech.Qt.QPictureFormatInterface")
+#define QPictureFormatInterface_iid "com.trolltech.Qt.QPictureFormatInterface"
+Q_DECLARE_INTERFACE(QPictureFormatInterface, QPictureFormatInterface_iid)
 
 
 #ifndef QT_NO_PICTUREFORMATPLUGIN
