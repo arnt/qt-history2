@@ -110,6 +110,9 @@ QWidget *VariantDelegate::createEditor(QWidget *parent,
     case QVariant::UInt:
     case QVariant::ULongLong:
         regExp = unsignedIntegerExp;
+        break;
+    default:
+        ;
     }
 
     if (!regExp.isEmpty()) {
