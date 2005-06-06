@@ -80,8 +80,8 @@ private:
 
     int a;
     int s;
-    unsigned char array[Prealloc * sizeof(T)];
     T *ptr;
+    qint64 array[((Prealloc * sizeof(T)) / sizeof(qint64)) + 1];
 };
 
 template <class T, int Prealloc>
