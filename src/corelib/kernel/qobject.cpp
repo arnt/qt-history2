@@ -2469,17 +2469,15 @@ void QMetaObject::connectSlotsByName(QObject *o)
             if (!len || qstrncmp(slot + 3, objName.data(), len) || slot[len+3] != '_')
                 continue;
             const QMetaObject *smo = co->metaObject();
-            int sigIndex = smo->indexOfMethod(slot + len + 4);
-            if (sigIndex < 0) { // search for compatible signals
-                int slotlen = qstrlen(slot + len + 4) - 1;
-                for (int k = 0; k < co->metaObject()->methodCount(); ++k) {
-                    if (smo->method(k).methodType() != QMetaMethod::Signal)
-                        continue;
+            int sigIndex = -1;
+            int slotlen = qstrlen(slot + len + 4) - 1;
+            for (int k = 0; k < co->metaObject()->methodCount(); ++k) {
+                if (smo->method(k).methodType() != QMetaMethod::Signal)
+                    continue;
 
-                    if (!qstrncmp(smo->method(k).signature(), slot + len + 4, slotlen)) {
-                        sigIndex = k;
-                        break;
-                    }
+                if (!qstrncmp(smo->method(k).signature(), slot + len + 4, slotlen)) {
+                    sigIndex = k;
+                    break;
                 }
             }
             if (sigIndex < 0)
@@ -2489,8 +2487,12 @@ void QMetaObject::connectSlotsByName(QObject *o)
                 break;
             }
         }
-        if (!foundIt)
+        // take clones into account as long as we did not find a connection
+        if (!foundIt && !(mo->method(i + 1).attributes() & QMetaMethod::Cloned))
             qWarning("QMetaObject::connectSlotsByName(): No matching signal for %s", slot);
+        // skip all remaining clones if we already found a connection
+        while (foundIt && (mo->method(i + 1).attributes() & QMetaMethod::Cloned))
+            ++i;
     }
 }
 
