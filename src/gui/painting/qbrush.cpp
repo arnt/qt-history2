@@ -17,6 +17,7 @@
 #include "qpixmapcache.h"
 #include "qdatastream.h"
 #include "qvariant.h"
+#include "qline.h"
 #include "qdebug.h"
 
 const uchar *qt_patternForBrush(int brushStyle, bool invert)
@@ -959,7 +960,7 @@ static QPointF qt_radial_gradient_adapt_focal_point(const QPointF &center,
 {
     // We have a one pixel buffer zone to avoid numerical instability on the
     // circle border
-    const int compensated_radius = radius - 1;
+    const qreal compensated_radius = radius - 1;
     QLineF line(center, focalPoint);
     if (line.length() >= (compensated_radius))
         line.setLength(compensated_radius);
