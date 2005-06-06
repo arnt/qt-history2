@@ -1263,7 +1263,7 @@ bool DocParser::openCommand( int command )
         } else if (outer == CMD_QUOTATION) {
 	    ok = (command == CMD_LIST);
         } else if (outer == CMD_TABLE) {
-	    ok = (command == CMD_LIST || command == CMD_FOOTNOTE);
+	    ok = (command == CMD_LIST || command == CMD_FOOTNOTE || command == CMD_QUOTATION);
         } else if (outer == CMD_FOOTNOTE || outer == CMD_LINK) {
 	    ok = false;
         }
