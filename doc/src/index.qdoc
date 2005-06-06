@@ -162,7 +162,6 @@
         <td valign="top">
         <ul>
         <li><a href="gpl.html">GNU General Public License</a></li>
-        <li><a href="qpl.html">Q Public License</a></li>
         <li><a href="3rdparty.html">Third-Party Licenses Used in Qt</a></li>
         <li><a href="licenses.html">Other Licenses Used in Qt</a></li>
         <li><a href="credits.html">Credits</a></li>

@@ -3,9 +3,9 @@
 
  The Qt GUI Toolkit is Copyright (C) 1994-$THISYEAR$ Trolltech AS.
 
- The Qt Open Source Editions (X11 and Mac) and the Qt/Embedded Open Source
- Edition are available under the GPL. The Qt Open Source Edition (X11) is
- also available under the \l{qpl.html}{QPL}.
+ The Qt Open Source Edition is available under the GPL. For historical
+ reasons, the X11 version of the Qt Open Source Edition is also available
+ under the \l{qpl.html}{Q Public License}.
 
 \code
  You may use, distribute and copy the Qt GUI Toolkit under the terms of
