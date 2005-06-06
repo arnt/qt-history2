@@ -109,7 +109,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     setActive(true);
     dgl->makeCurrent();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-    dgl->qglClearColor(dgl->palette().brush(QPalette::Background).color());
+    const QColor &c = d->bgbrush.color();
+    glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glShadeModel(GL_FLAT);
     glViewport(0, 0, dgl->width(), dgl->height());
@@ -439,7 +440,8 @@ void QOpenGLPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBru
 {
     Q_D(QOpenGLPaintEngine);
     dgl->makeCurrent();
-    dgl->qglClearColor(bgBrush.color());
+    const QColor &c = bgBrush.color();
+    glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
     d->bgmode = bgMode;
     d->bgbrush = bgBrush;
 }
