@@ -25,7 +25,7 @@
   QAccessible debug facilities
  *****************************************************************************/
 //#define DEBUG_DROPPED_ACCESSIBILITY
-#define DEBUG_ACCESSIBILITY
+//#define DEBUG_ACCESSIBILITY
 
 /*****************************************************************************
   QAccessible globals
