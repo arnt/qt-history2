@@ -291,6 +291,7 @@ void QPen::setWidth(int width)
 {
     if (width < 0)
         qWarning("QPen::setWidth(): Setting a pen width with a negative value is not defined.");
+    detach();
     d->width = width;
 }
 
