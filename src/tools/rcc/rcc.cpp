@@ -408,7 +408,7 @@ RCCResourceLibrary::writeHeader(FILE *out)
         fprintf(out, "**\n");
         fprintf(out, "** WARNING! All changes made in this file will be lost!\n");
         fprintf(out,  "*****************************************************************************/\n");
-        fprintf(out, "#include <qglobal.h>\n\n");
+        fprintf(out, "#include <QtCore/qglobal.h>\n\n");
     } else if(mFormat == Binary) {
         fprintf(out,"qres");
         qt_rcc_write_number(out, 0, 4, mFormat);
