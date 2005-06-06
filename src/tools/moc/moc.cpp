@@ -918,7 +918,9 @@ void Moc::parseDeclareInterface()
     next(COMMA);
     QByteArray iid;
     if (test(STRING_LITERAL)) {
-        iid = symbol().unquotedLexem();
+        iid += '\"';
+        iid += symbol().unquotedLexem();
+        iid += '\"';
     } else {
         next(IDENTIFIER);
         iid += lexem();

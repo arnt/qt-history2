@@ -348,7 +348,7 @@ void Generator::generateCode()
     for (int i = 0; i < cdef->interfaceList.size(); ++i) {
         const QList<ClassDef::Interface> &iface = cdef->interfaceList.at(i);
         for (int j = 0; j < iface.size(); ++j) {
-            fprintf(out, "    if (!strcmp(_clname, \"%s\"))\n\treturn ", iface.at(j).interfaceId.constData());
+            fprintf(out, "    if (!strcmp(_clname, %s))\n\treturn ", iface.at(j).interfaceId.constData());
             for (int k = j; k >= 0; --k)
                 fprintf(out, "static_cast<%s*>(", iface.at(k).className.constData());
             fprintf(out, "const_cast<%s*>(this)%s;\n",
