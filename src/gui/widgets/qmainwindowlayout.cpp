@@ -1871,7 +1871,7 @@ void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
 
     // if there is a window dock layout already here, forward the drop
     const int pos = positionForArea(area);
-    if (layout_info[pos].item) {
+    if (layout_info[pos].item && !layout_info[pos].item->isEmpty()) {
         DEBUG() << "  forwarding...";
         QDockWidgetLayout *l = qobject_cast<QDockWidgetLayout *>(layout_info[pos].item->layout());
         Q_ASSERT(l);
@@ -1884,16 +1884,16 @@ void QMainWindowLayout::dropDockWidget(QDockWidget *dockwidget,
     // remove dockwidget from current position in the layout
     removeRecursive(dockwidget);
 
-    QWidget *parent = qobject_cast<QMainWindow *>(parentWidget());
-    dockwidget->setParent(parent);
     QDockWidgetLayout *dwl = layoutForArea(static_cast<Qt::DockWidgetArea>(areaForPosition(pos)));
     dwl->addWidget(dockwidget);
-
     layout_info[pos].size = r.size();
-
     relayout();
 
-    dockwidget->show();
+    if (dockwidget->isFloating()) {
+        // reparent the dock window into the main window
+        dockwidget->setFloating(false);
+        dockwidget->show();
+    }
     layout_info[pos].sep->widget()->show();
 
     DEBUG() << "END of QMainWindowLayout::dropDockWidget";
