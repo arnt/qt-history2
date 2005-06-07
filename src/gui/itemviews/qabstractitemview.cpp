@@ -1892,7 +1892,7 @@ void QAbstractItemView::setState(State state)
 
   Even if scheduleDelayedItemsLayout() is called multiple times before
   events are processed, the view will only do the layout once.
-  
+
   \sa executeDelayedItemsLayout()
 */
 void QAbstractItemView::scheduleDelayedItemsLayout()
@@ -1908,7 +1908,7 @@ void QAbstractItemView::scheduleDelayedItemsLayout()
 */
 void QAbstractItemView::executeDelayedItemsLayout()
 {
-    d_func()->executeDelayedItemsLayout();
+//    d_func()->executeDelayedItemsLayout();
 }
 
 /*!
