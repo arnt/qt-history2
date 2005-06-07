@@ -209,7 +209,11 @@ protected:
     State state() const;
     void setState(State state);
 
+    void scheduleDelayedItemsLayout();
+    void executeDelayedItemsLayout();
+
     void scrollDirtyRegion(int dx, int dy);
+    QPoint dirtyRegionOffset() const;
     
     void startAutoScroll();
     void stopAutoScroll();
