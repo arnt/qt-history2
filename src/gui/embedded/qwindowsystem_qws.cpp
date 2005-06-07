@@ -1045,18 +1045,8 @@ void QWSServer::doClient(QWSClient *client)
     QWSCommand* command=client->readMoreCommand();
 
     while (command) {
-//         if (command->type == QWSCommand::WindowAt) {
-//             QWSWindowAtCommand *c = static_cast<QWSWindowAtCommand*>(command);
-//             QPoint p(c->simpleData.x,c->simpleData.y);
-//             QWSWindow *win = windowAt(p);
-//             QWSWindowAtEvent e;
-//             e.simpleData.window = win ? win->winId() : 0;
-//             client->sendEvent(&e);
-//             delete command;
-//         } else {
         QWSCommandStruct *cs = new QWSCommandStruct(command, client);
         commandQueue.append(cs);
-//        }
         // Try for some more...
         command=client->readMoreCommand();
     }

@@ -65,9 +65,6 @@ QWSEvent *QWSEvent::factory(int type)
     case QWSEvent::WindowOperation:
         event = new QWSWindowOperationEvent;
         break;
-//     case QWSEvent::WindowAtReply:
-//         event = new QWSWindowAtEvent;
-//         break;
 
 #ifndef QT_NO_QWS_IM
     case QWSEvent::IMEvent:

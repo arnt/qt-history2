@@ -42,7 +42,6 @@ struct QWSEvent : QWSProtocolItem {
         MaxWindowRect,
         QCopMessage,
         WindowOperation,
-//        WindowAtReply,
         IMEvent,
         IMQuery,
         IMInit,
@@ -265,16 +264,6 @@ struct QWSWindowOperationEvent : QWSEvent {
         Operation op;
     } simpleData;
 };
-
-// struct QWSWindowAtEvent : QWSEvent {
-//     QWSWindowAtEvent()
-//         : QWSEvent(WindowAtReply, sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) { }
-
-//     struct SimpleData {
-//         int window;
-//     } simpleData;
-// };
-
 
 #ifndef QT_NO_QWS_IM
 

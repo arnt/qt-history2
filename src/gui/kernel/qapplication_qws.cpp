@@ -350,7 +350,6 @@ private:
     }
 #endif
 
-    int windowAt_winId;
     QWSConnectedEvent* connected_event;
     QWSMouseEvent* mouse_event;
 //    QWSRegionModifiedEvent *region_event;
@@ -401,9 +400,6 @@ public:
     void waitForConnection();
 //    void waitForRegionAck();
     void waitForCreation();
-#if 0//ndef QT_NO_QWS_MULTIPROCESS
-    int waitForWidgetAtReply();
-#endif
 #ifndef QT_NO_COP
     void waitForQCopResponse();
 #endif
@@ -468,7 +464,6 @@ void QWSDisplay::Data::init()
     mouse_event = 0;
 //    region_event = 0;
     region_offset_window = 0;
-    windowAt_winId = -1;
 #ifndef QT_NO_COP
     qcop_response = 0;
 #endif
@@ -719,13 +714,6 @@ void QWSDisplay::Data::fillQueue()
                 }
             }
 #endif // 0 (RegionModified)
-#if 0
-        } else if (e->type==QWSEvent::WindowAtReply) {
-            QWSWindowAtEvent *reply = static_cast<QWSWindowAtEvent*>(e);
-            windowAt_winId = reply->simpleData.window;
-            Q_ASSERT(windowAt_winId != -1);
-            delete e;
-#endif
         } else if (e->type==QWSEvent::MaxWindowRect && !servermaxrect && qt_screen) {
             // Process this ASAP, in case new widgets are created (startup)
             servermaxrect=true;
@@ -851,24 +839,6 @@ void QWSDisplay::Data::waitForQCopResponse()
     }
     queue.prepend(qcop_response);
     qcop_response = 0;
-}
-#endif
-
-
-#if 0//ndef QT_NO_QWS_MULTIPROCESS
-int QWSDisplay::Data::waitForWidgetAtReply()
-{
-    windowAt_winId = -1;
-    for (;;) {
-        fillQueue();
-        if (windowAt_winId != -1)
-            return windowAt_winId;
-        csocket->flush();
-        csocket->waitForReadyRead(1000);
-
-        if (csocket->state() != QAbstractSocket::ConnectedState)
-                return 0;
-    }
 }
 #endif
 
@@ -1399,17 +1369,6 @@ int QWSDisplay::windowAt(const QPoint &p)
         if (win)
             return win->winId();
     }
-#if 0//ndef QT_NO_QWS_MULTIPROCESS
-    else {
-        QWSWindowAtCommand cmd;
-        cmd.simpleData.x = p.x();
-        cmd.simpleData.y = p.y();
-        d->sendCommand(cmd);
-        d->flush();
-
-        ret = d->waitForWidgetAtReply();
-    }
-#endif
     return ret;
 }
 
