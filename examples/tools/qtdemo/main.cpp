@@ -17,6 +17,8 @@
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(qtdemo);
+
     QApplication app(argc, argv);
     Launcher launcher;
     if (!launcher.setup())

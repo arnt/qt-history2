@@ -765,6 +765,7 @@ void SpreadSheet::showAbout()
 
 
 int main(int argc, char** argv) {
+    Q_INIT_RESOURCE(spreadsheet);
     QApplication app(argc, argv);
     SpreadSheet sheet(10, 5);
     sheet.setWindowIcon(QPixmap(":/images/interview.png"));

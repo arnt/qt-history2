@@ -18,6 +18,8 @@
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(i18n);
+
     QApplication app(argc, argv);
     LanguageChooser chooser;
     chooser.show();

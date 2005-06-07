@@ -4,6 +4,8 @@
 
 int main(int argc, char **argv)
 {
+    Q_INIT_RESOURCE(pathstroke);
+
     QApplication app(argc, argv);
 
     PathStrokeWidget pathStrokeWidget;

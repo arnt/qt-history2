@@ -610,6 +610,8 @@ QApplication::QApplication(int &argc, char **argv, Type type)
 */
 void QApplicationPrivate::construct()
 {
+    Q_INIT_RESOURCE(qstyle);
+
     qt_is_gui_used = (qt_appType != QApplication::Tty);
     process_cmdline();
     qt_init(this, qt_appType);   // Must be called before initialize()

@@ -125,6 +125,8 @@ void AssistantServer::incomingConnection( int socket )
 
 int main( int argc, char ** argv )
 {
+    Q_INIT_RESOURCE(assistant);
+
     bool withGUI = true;
     if ( argc > 1 ) {
         QString arg = QString::fromAscii(argv[1]);

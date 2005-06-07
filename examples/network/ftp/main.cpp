@@ -17,6 +17,8 @@
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(ftp);
+
     QApplication app(argc, argv);
     FtpWindow ftpWin;
     ftpWin.show();

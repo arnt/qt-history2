@@ -17,6 +17,8 @@
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(simpletreemodel);
+
     QApplication app(argc, argv);
 
     QFile file(":/default.txt");

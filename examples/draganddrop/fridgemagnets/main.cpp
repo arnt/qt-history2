@@ -16,6 +16,8 @@
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(fridgemagnets);
+
     QApplication app(argc, argv);
     DragWidget window;
     window.show();

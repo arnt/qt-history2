@@ -21,6 +21,8 @@
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(interview);
+
     QApplication app(argc, argv);
     QSplitter page;
 

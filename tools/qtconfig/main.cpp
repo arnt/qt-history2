@@ -18,6 +18,8 @@
 
 int main(int argc, char **argv)
 {
+    Q_INIT_RESOURCE(qtconfig);
+
     QApplication app(argc, argv);
     MainWindow mw;
     app.setMainWidget(&mw);

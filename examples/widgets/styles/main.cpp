@@ -17,6 +17,8 @@
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(styles);
+
     QApplication app(argc, argv);
     WidgetGallery gallery;
     return gallery.exec();

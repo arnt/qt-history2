@@ -17,6 +17,8 @@
 
 int main(int argc, char *argv[])
 {
+    Q_INIT_RESOURCE(syntaxhighlighter);
+
     QApplication app(argc, argv);
     MainWindow window;
     window.resize(640, 512);

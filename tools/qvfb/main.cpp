@@ -29,6 +29,8 @@ void usage( const char *app )
 
 int main( int argc, char *argv[] )
 {
+    Q_INIT_RESOURCE(qvfb);
+
     QApplication app( argc, argv );
 
     int width = 240;
