@@ -51,7 +51,6 @@ static pfn_glCompressedTexImage2DARB qt_glCompressedTexImage2DARB = 0;
 #undef INT32
 #undef INT8
 #include "qx11info_x11.h"
-static void *gl_pixmap_visual = 0;
 #elif defined(Q_WS_MAC)
 # include <private/qt_mac_p.h>
 #endif
@@ -2357,61 +2356,23 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
     qt_x11_preferred_pixmap_depth = x11Info().depth();
     QPixmap pm(sz);
     qt_x11_preferred_pixmap_depth = old_depth;
+    Visual *gl_visual = (Visual *) d->glcx->d_func()->vi;
+    Visual *gl_pixmap_visual = 0;
 
-    if (!gl_pixmap_visual) {
-        int nvis;
-        Visual *vis = (Visual *) QX11Info::appVisual();
-        int screen = QX11Info::appScreen();
-        Display *appDpy = QX11Info::display();
-        XVisualInfo * vi;
-        XVisualInfo visInfo;
-        memset(&visInfo, 0, sizeof(XVisualInfo));
-        visInfo.visualid = XVisualIDFromVisual(vis);
-        visInfo.screen = screen;
-        vi = XGetVisualInfo(appDpy, VisualIDMask | VisualScreenMask, &visInfo, &nvis);
-        if (vi) {
-            int useGL;
-            int ret = glXGetConfig(appDpy, vi, GLX_USE_GL, &useGL);
-            if (ret != 0 || !useGL) {
-                // We have to find another visual that is GL capable
-                int i;
-                XVisualInfo * visuals;
-                memset(&visInfo, 0, sizeof(XVisualInfo));
-                visInfo.screen = screen;
-                visInfo.c_class = vi->c_class;
-                visInfo.depth = vi->depth;
-                visuals = XGetVisualInfo(appDpy, VisualClassMask |
-                                          VisualDepthMask |
-                                          VisualScreenMask, &visInfo,
-                                          &nvis);
-                if (visuals) {
-                    for (i = 0; i < nvis; i++) {
-                        int ret = glXGetConfig(appDpy, &visuals[i], GLX_USE_GL, &useGL);
-                        if (ret == 0 && useGL) {
-                            vis = visuals[i].visual;
-                            break;
-                        }
-                    }
-                    XFree(visuals);
-                }
-            }
-            XFree(vi);
-        }
-        gl_pixmap_visual = vis;
-    }
-
-    if (gl_pixmap_visual != QX11Info::appVisual()) {
+    if (gl_visual != QX11Info::appVisual()) {
         int nvis = 0;
         XVisualInfo visInfo;
         memset(&visInfo, 0, sizeof(XVisualInfo));
-        visInfo.visualid = XVisualIDFromVisual((Visual *) gl_pixmap_visual);
+        visInfo.visualid = XVisualIDFromVisual(gl_visual);
         visInfo.screen = QX11Info::appScreen();
-        XVisualInfo *vi = XGetVisualInfo(QX11Info::display(), VisualIDMask | VisualScreenMask,
-                                          &visInfo, &nvis);
+        XVisualInfo *vi = XGetVisualInfo(QX11Info::display(),
+                                         VisualIDMask | VisualScreenMask,
+                                         &visInfo, &nvis);
+        gl_pixmap_visual = vi->visual;
         if (vi) {
             QX11InfoData* xd = pm.x11Info().getX11Data(true);
             xd->depth = vi->depth;
-            xd->visual = (Visual *) gl_pixmap_visual;
+            xd->visual = (Visual *) vi->visual;
             const_cast<QX11Info &>(pm.x11Info()).setX11Data(xd);
             XFree(vi);
         }
@@ -2455,7 +2416,7 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
 
     if (success) {
 #if defined(Q_WS_X11)
-        if (gl_pixmap_visual != QX11Info::appVisual()) {
+        if (gl_pixmap_visual) {
             QImage image = pm.toImage();
             QPixmap p = QPixmap::fromImage(image);
             return p;
@@ -2466,8 +2427,8 @@ QPixmap QGLWidget::renderPixmap(int w, int h, bool useContext)
         pm.setAlphaChannel(alpha);
 #endif
         return pm;
-    }
-    return QPixmap();
+    } else
+        return QPixmap();
 }
 
 
