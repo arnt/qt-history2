@@ -343,7 +343,7 @@ static const QTextHtmlElement elements[Html_NumElements+1]= {
     { "ol", Html_ol, QTextHtmlElement::DisplayBlock },
     { "p", Html_p, QTextHtmlElement::DisplayBlock },
     { "pre", Html_pre, QTextHtmlElement::DisplayBlock },
-    { "qt", Html_qt, QTextHtmlElement::DisplayBlock },
+    { "qt", Html_body /*deliberate mapping*/, QTextHtmlElement::DisplayBlock },
     { "s", Html_s, QTextHtmlElement::DisplayInline },
     { "small", Html_small, QTextHtmlElement::DisplayInline },
     { "span", Html_span, QTextHtmlElement::DisplayInline },
