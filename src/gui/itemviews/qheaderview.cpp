@@ -1298,8 +1298,7 @@ void QHeaderView::mousePressEvent(QMouseEvent *e)
         d->state = QHeaderViewPrivate::ResizeSection;
         d->section = handle;
     }
-    d->lastPos = pos;
-    d->viewport->grabMouse();
+    d->lastPos = pos;    
 }
 
 /*!
