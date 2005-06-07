@@ -97,11 +97,7 @@ static bool isMouseMoveOrRelease(QEvent *e)
 
 bool FormWindowManager::eventFilter(QObject *o, QEvent *e)
 {
-    if (
-#ifndef Q_OS_WIN
-        o == m_core->topLevel() &&
-#endif
-        !m_drag_item_list.isEmpty() && isMouseMoveOrRelease(e)) {
+    if (!m_drag_item_list.isEmpty() && isMouseMoveOrRelease(e)) {
         // We're dragging
         QMouseEvent *me = static_cast<QMouseEvent*>(e);
         me->accept();
@@ -637,10 +633,6 @@ void FormWindowManager::beginDrag(const QList<QDesignerDnDItemInterface*> &item_
         deco->show();
         deco->setWindowOpacity(0.8);
     }
-
-#ifndef Q_OS_WIN
-    m_core->topLevel()->grabMouse();
-#endif
 }
 
 static QDesignerWidgetBoxInterface *widgetBoxAt(const QPoint &global_pos)
@@ -706,10 +698,6 @@ void FormWindowManager::setItemsPos(const QPoint &globalPos)
 
 void FormWindowManager::endDrag(const QPoint &pos)
 {
-#ifndef Q_OS_WIN
-    m_core->topLevel()->releaseMouse();
-#endif
-
     Q_ASSERT(!m_drag_item_list.isEmpty());
 
     foreach (QDesignerDnDItemInterface *item, m_drag_item_list)
