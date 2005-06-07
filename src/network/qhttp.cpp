@@ -2099,7 +2099,7 @@ void QHttpPrivate::sendRequest()
                 pass += ":";
                 pass += proxyPassword.toAscii();
             }
-            header.setValue("Proxy-Authorization", pass.toBase64());
+            header.setValue("Proxy-Authorization", "Basic " + pass.toBase64());
         }
 
         hostName = proxyHost;
