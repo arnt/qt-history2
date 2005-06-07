@@ -918,12 +918,10 @@ void Moc::parseDeclareInterface()
     next(COMMA);
     QByteArray iid;
     if (test(STRING_LITERAL)) {
-        iid += '\"';
-        iid += symbol().unquotedLexem();
-        iid += '\"';
+        iid = symbol().lexem();
     } else {
         next(IDENTIFIER);
-        iid += lexem();
+        iid = lexem();
     }
     interface2IdMap.insert(interface, iid);
     next(RPAREN);
