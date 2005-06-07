@@ -390,7 +390,6 @@
 
     \list
     \o QImage
-    \o QMovie
     \o QBitArray
     \o QByteArray
     \o Q3PointArray

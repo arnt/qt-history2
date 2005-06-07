@@ -85,11 +85,17 @@ how to examine their contents. Document editing is described in
 QTextDocument objects contain all the information required to construct
 rich text documents for use with a QTextEdit widget or in a custom editor.
 Although QTextEdit makes it easy to display and edit rich text, documents
-can also be used independently of any editor widget. Documents can be
-created directly or extracted from an existing editor:
+can also be used independently of any editor widget.
+
+Documents can be created and used independently of any editor widgets:
 
 \code
 QTextDocument *newDocument = new QTextDocument;
+\endcode
+
+Alternatively, they can be extracted from an existing editor:
+
+\code
 QTextEdit *editor = new QTextEdit;
 QTextDocument *editorDocument = editor->document();
 \endcode
@@ -121,11 +127,13 @@ Rich text documents usually consist of common elements such as paragraphs,
 frames, tables, and lists. These are represented in a QTextDocument
 by the QTextBlock, QTextFrame, QTextTable, and QTextList classes.
 Unlike the other elements in a document, images are represented by
-specially formatted text fragments.
+specially formatted text fragments. This enables them to be placed
+formatted inline with the surrounding text.
 
-The basic structural building blocks are QTextBlock and QTextFrame.
-Blocks themselves contain fragments of rich text (QTextFragment), but
-these do not directly influence the high level structure of a document.
+The basic structural building blocks in documents are QTextBlock and
+QTextFrame. Blocks themselves contain fragments of rich text
+(QTextFragment), but these do not directly influence the high level
+structure of a document.
 
 Elements which can group together other document elements are typically
 subclasses of QTextObject, and fall into two categories: Elements that

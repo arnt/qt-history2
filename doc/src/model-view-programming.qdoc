@@ -1214,11 +1214,12 @@
     \section1 A Read-Only Example Model
 
     The model implemented here is a simple, non-hierarchical, read-only data
-    model. It has a \l QStringList as its internal data source, and
-    implements only what is needed to make a functioning model. To make the
-    implementation easier, we subclass \l QAbstractListModel because it
-    defines sensible default behavior for list models, and it exposes a
-    simpler interface than the \l QAbstractItemModel class.
+    model based on the standard QStringListModel class. It has a \l QStringList
+    as its internal data source, and implements only what is needed to make a
+    functioning model. To make the implementation easier, we subclass
+    \l QAbstractListModel because it defines sensible default behavior for list
+    models, and it exposes a simpler interface than the \l QAbstractItemModel
+    class.
 
     When implementing a model it is important to remember that
     \l QAbstractItemModel does not store any data itself, it merely
@@ -1321,6 +1322,7 @@
     \quotefromfile snippets/stringlistmodel/model.h
     \skipto ItemFlags flags
     \printuntil setData
+    \printuntil role
 
     \section2 Making the Model Editable
 

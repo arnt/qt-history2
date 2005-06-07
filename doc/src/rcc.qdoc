@@ -24,4 +24,7 @@
     \row    \o \c{-version}   \o          \o Display version
     \row    \o \c{-help}      \o          \o Display usage information
     \endtable
+
+    See also \l{The Qt Resource System} for more information about embedding resources
+    in Qt applications.
 */
