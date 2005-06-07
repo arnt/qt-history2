@@ -16,12 +16,16 @@
     \page aboutqt.html
     \title About Qt
 
-    Qt is a cross-platform C++ GUI toolkit created and maintained by
-    \l{trolltech.html}{Trolltech}. It provides application developers
-    with all the functionality needed to build applications with
-    state-of-the-art graphical user interfaces. Qt is fully
-    object-oriented, easily extensible, and allows true component
-    programming. Read the \link
+    Qt by \l{About Trolltech}{Trolltech} is a C++ toolkit for
+    cross-platform GUI application development. Qt provides
+    single-source portability across Microsoft Windows, Mac OS X,
+    Linux, and all major commercial Unix variants. It is also
+    available for embedded devices.
+
+    Qt provides application developers with all the functionality
+    needed to build applications with state-of-the-art graphical user
+    interfaces. Qt is fully object-oriented, easily extensible, and
+    allows true component programming. Read the \link
     http://www.trolltech.com/products/qt/whitepaper.html
     Whitepaper\endlink for a comprehensive technical overview.
 
@@ -33,7 +37,6 @@
     Customer Success Stories\endlink for some examples of commercial Qt
     development.
 
-
     Qt is supported on the following platforms:
     \list
      \i \bold{Microsoft Windows} -- 95, 98, NT 4.0, ME, 2000, and XP
@@ -42,6 +45,11 @@
      \i \bold{Mac OS X} -- Mac OS X 10.2+
      \i \bold{Embedded} -- Linux platforms with framebuffer support
     \endlist
+
+    See
+    \l{http://www.trolltech.com/developer/platforms/supported.html}{Trolltech's
+    web site} for the complete list of supported platform and
+    compilers.
 
     Qt is released in different editions:
     \list
@@ -55,12 +63,11 @@
     \endlist
 
     \list
-    \i The \bold{\l{opensourceedition.html}{Qt Open Source Edition}} is
-    available for Unix/X11, Mac OS X and Embedded Linux. The Open Source
-    Edition is for the development of Free and Open
-    Source software only. It is provided free of charge under the terms
-    of both the \l{qpl.html}{Q Public License} and the \link
-    gpl.html GNU General Public License\endlink.
+    \i The \bold{\l{opensourceedition.html}{Qt Open Source Edition}}
+    is for the development of Free and Open Source software only. It
+    is provided free of charge under the terms of both the
+    \l{qpl.html}{Q Public License} and the \link gpl.html GNU General
+    Public License\endlink.
     \endlist
 
     Trolltech also provides \link

@@ -3262,12 +3262,6 @@
         been renamed \c QT_NO_CAST_TO_ASCII and \c
         QT_NO_CAST_FROM_ASCII, respectively.
 
-    \o  QString::utf8() and QString::local8Bit() used to return a
-        QByteArray. They now return a \c{const char *}, to be
-        consistent with QString::ascii() and QString::latin1(). Call
-        QString::toUtf8() or QString::toLocal8Bit() if you want a
-        QByteArray.
-
     \o  The QString::data() used to return the same as
         QString::ascii(). It now returns a pointer to the Unicode
         data stored in the QString object. Call QString::ascii() if
