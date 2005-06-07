@@ -1375,7 +1375,6 @@ void QHeaderView::mouseReleaseEvent(QMouseEvent *e)
     case QHeaderViewPrivate::ResizeSection:
         break;
     }
-    d->viewport->releaseMouse();
     d->state = QHeaderViewPrivate::NoState;
     d->pressed = -1;
 }
