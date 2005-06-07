@@ -362,6 +362,9 @@ void CppCodeParser::processOtherMetaCommand( const Doc& doc,
 	    pseudoParent = static_cast<InnerNode *>(tre->findNode(QStringList(arg), Node::Fake));
 	} else {
 	    pseudoParent = static_cast<InnerNode *>(tre->findNode(QStringList(arg), Node::Class));
+            if (!pseudoParent)
+                pseudoParent = static_cast<InnerNode *>(tre->findNode(QStringList(arg),
+                                                        Node::Namespace));
         }
 	if (!pseudoParent) {
 	    doc.location().warning(tr("Cannot find '%1' in '\\%2'")
