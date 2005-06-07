@@ -207,20 +207,20 @@ QVFbScreenCursor::QVFbScreenCursor(QVFbScreen * s) : QScreenCursor()
 
 void QVFbScreenCursor::set(const QImage &image, int hotx, int hoty)
 {
-    QWSDisplay::grab(true);
+//    QWSDisplay::grab(true);
     QRect r(data->x - hotx, data->y - hoty, image.width(), image.height());
     cursor_screen->setDirty(data->bound | r);
     QScreenCursor::set(image, hotx, hoty);
-    QWSDisplay::ungrab();
+//    QWSDisplay::ungrab();
 }
 
 void QVFbScreenCursor::move(int x, int y)
 {
-    QWSDisplay::grab(true);
+//    QWSDisplay::grab(true);
     QRect r(x - data->hotx, y - data->hoty, data->width, data->height);
     cursor_screen->setDirty(r | data->bound);
     QScreenCursor::move(x, y);
-    QWSDisplay::ungrab();
+//    QWSDisplay::ungrab();
 }
 #endif
 
@@ -253,30 +253,30 @@ QGfxVFb<depth,type>::~QGfxVFb()
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::fillRect(int x,int y,int w,int h)
 {
-    QWSDisplay::grab(true);
+//    QWSDisplay::grab(true);
     ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x, y, w, h));
     QGfxRaster<depth,type>::fillRect(x, y, w, h);
-    QWSDisplay::ungrab();
+//    QWSDisplay::ungrab();
 }
 
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::blt(int x,int y,int w,int h, int sx, int sy)
 {
-    QWSDisplay::grab(true);
+//    QWSDisplay::grab(true);
     ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x, y, w, h));
     QGfxRaster<depth,type>::blt(x, y, w, h, sx, sy);
-    QWSDisplay::ungrab();
+//    QWSDisplay::ungrab();
 }
 
 
 template <const int depth, const int type>
 void QGfxVFb<depth,type>::tiledBlt(int x,int y,int w,int h)
 {
-    QWSDisplay::grab(true);
+//    QWSDisplay::grab(true);
     ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x, y, w, h));
     QGfxRaster<depth,type>::tiledBlt(x, y, w, h);
-    QWSDisplay::ungrab();
+//    QWSDisplay::ungrab();
 }
 
 

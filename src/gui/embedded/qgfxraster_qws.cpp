@@ -242,8 +242,9 @@ bool QScreenCursor::supportsAlphaCursor()
 void QScreenCursor::hide()
 {
     if (data->enable) {
-        if (restoreUnder(data->bound))
-            QWSDisplay::ungrab();
+         if (restoreUnder(data->bound))
+//             QWSDisplay::ungrab();
+             ;
         delete gfx;
         gfx = 0;
         data->enable = false;
@@ -260,8 +261,8 @@ void QScreenCursor::hide()
 void QScreenCursor::show()
 {
     if (!data->enable) {
-        if (qws_sw_cursor)
-            QWSDisplay::grab(true);
+//         if (qws_sw_cursor)
+//             QWSDisplay::grab(true);
         data->enable = true;
         gfx = (QGfxRasterBase*)qt_screen->screenGfx();
         gfx->setClipDeviceRegion(QRegion(0, 0, qt_screen->width(), qt_screen->height()));
@@ -285,7 +286,7 @@ void QScreenCursor::show()
 void QScreenCursor::set(const QImage &image, int hotx, int hoty)
 {
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::grab(true);
+//    QWSDisplay::grab(true);
 #endif
     bool save = restoreUnder(data->bound);
     data->hotx = hotx;
@@ -311,7 +312,7 @@ void QScreenCursor::set(const QImage &image, int hotx, int hoty)
                    data->width+1, data->height+1);
     if (save) saveUnder();
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::ungrab();
+//    QWSDisplay::ungrab();
 #endif
 }
 
@@ -327,9 +328,9 @@ void QScreenCursor::move(int x, int y)
 {
     bool save = false;
     if (qws_sw_cursor) {
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-        QWSDisplay::grab(true);
-#endif
+// #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
+//         QWSDisplay::grab(true);
+// #endif
         save = restoreUnder(data->bound);
     }
     data->x = x;
@@ -339,9 +340,9 @@ void QScreenCursor::move(int x, int y)
     if (qws_sw_cursor) {
         if (save)
             saveUnder();
-#if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-        QWSDisplay::ungrab();
-#endif
+// #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
+//         QWSDisplay::ungrab();
+// #endif
     }
 }
 
@@ -368,7 +369,7 @@ bool QScreenCursor::restoreUnder(const QRect &r)
 
     if (!save_under) {
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-        QWSDisplay::grab(true);
+//        QWSDisplay::grab(true);
 #endif
         int depth = gfx->bitDepth();
 
@@ -485,7 +486,7 @@ void QScreenCursor::saveUnder()
     save_under = false;
 
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
-    QWSDisplay::ungrab();
+//    QWSDisplay::ungrab();
 #endif
 }
 

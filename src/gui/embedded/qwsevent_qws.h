@@ -32,7 +32,7 @@ struct QWSEvent : QWSProtocolItem {
         Mouse,
         Focus,
         Key,
-        RegionModified,
+        Unused_RegionModified,
         Creation,
         PropertyNotify,
         PropertyReply,
@@ -42,6 +42,7 @@ struct QWSEvent : QWSProtocolItem {
         MaxWindowRect,
         QCopMessage,
         WindowOperation,
+//        WindowAtReply,
         IMEvent,
         IMQuery,
         IMInit,
@@ -182,7 +183,7 @@ struct QWSSelectionNotifyEvent : QWSEvent {
 };
 
 //complex events:
-
+#if 0
 struct QWSRegionModifiedEvent : QWSEvent {
     QWSRegionModifiedEvent()
         : QWSEvent(QWSEvent::RegionModified, sizeof(simpleData),
@@ -202,6 +203,7 @@ struct QWSRegionModifiedEvent : QWSEvent {
 
     QRect *rectangles;
 };
+#endif
 #ifndef QT_NO_QWS_PROPERTIES
 struct QWSPropertyReplyEvent : QWSEvent {
     QWSPropertyReplyEvent()
@@ -263,6 +265,16 @@ struct QWSWindowOperationEvent : QWSEvent {
         Operation op;
     } simpleData;
 };
+
+// struct QWSWindowAtEvent : QWSEvent {
+//     QWSWindowAtEvent()
+//         : QWSEvent(WindowAtReply, sizeof(simpleData), reinterpret_cast<char*>(&simpleData)) { }
+
+//     struct SimpleData {
+//         int window;
+//     } simpleData;
+// };
+
 
 #ifndef QT_NO_QWS_IM
 

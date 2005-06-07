@@ -213,6 +213,9 @@ QDebug &operator<<(QDebug &dbg, QWSCommand::Type tp)
         case QWSCommand::RequestFocus:
             typeStr = "RequestFocus";
             break;
+//         case QWSCommand::WindowAt:
+//             typeStr = "WindowAt";
+//             break;
         case QWSCommand::ChangeAltitude:
             typeStr = "ChangeAltitude";
             break;
@@ -285,6 +288,7 @@ const char * eventNames[N_EVENTS] =  {
         "MaxWindowRect",
         "QCopMessage",
         "WindowOperation",
+//        "WindowAtReply",
         "IMEvent",
         "IMQuery",
         "IMInit"
@@ -471,6 +475,9 @@ QWSCommand *QWSCommand::factory(int type)
     case QWSCommand::RequestFocus:
         command = new QWSRequestFocusCommand;
         break;
+//     case QWSCommand::WindowAt:
+//         command = new QWSWindowAtCommand;
+//         break;
     case QWSCommand::ChangeAltitude:
         command = new QWSChangeAltitudeCommand;
         break;

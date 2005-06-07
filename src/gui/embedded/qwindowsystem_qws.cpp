@@ -1045,8 +1045,18 @@ void QWSServer::doClient(QWSClient *client)
     QWSCommand* command=client->readMoreCommand();
 
     while (command) {
+//         if (command->type == QWSCommand::WindowAt) {
+//             QWSWindowAtCommand *c = static_cast<QWSWindowAtCommand*>(command);
+//             QPoint p(c->simpleData.x,c->simpleData.y);
+//             QWSWindow *win = windowAt(p);
+//             QWSWindowAtEvent e;
+//             e.simpleData.window = win ? win->winId() : 0;
+//             client->sendEvent(&e);
+//             delete command;
+//         } else {
         QWSCommandStruct *cs = new QWSCommandStruct(command, client);
         commandQueue.append(cs);
+//        }
         // Try for some more...
         command=client->readMoreCommand();
     }
@@ -1263,6 +1273,10 @@ void QWSServer::setDefaultKeyboard(const char *k)
 
 static bool prevWin;
 
+
+extern int *qt_last_x,*qt_last_y;
+
+
 /*!
   \internal
 
@@ -1278,7 +1292,11 @@ void QWSServer::sendMouseEvent(const QPoint& pos, int state, int wheel)
     if (state)
         qwsServer->screenSaverWake();
 
-    mousePosition = pos;
+    if (qt_last_x) {
+         *qt_last_x = pos.x();
+         *qt_last_y = pos.y();
+    }
+     mousePosition = pos;
     qwsServer->d->mouseState = state;
 
     QWSMouseEvent event;

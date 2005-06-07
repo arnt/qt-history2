@@ -91,6 +91,7 @@ struct QWSCommand : QWSProtocolItem
         SetSelectionOwner,
         ConvertSelection,
         RequestFocus,
+//        WindowAt,
         ChangeAltitude,
         SetOpacity,
         DefineCursor,
@@ -221,6 +222,17 @@ struct QWSSetOpacityCommand : public QWSCommand
     } simpleData;
 };
 
+// struct QWSWindowAtCommand : public QWSCommand
+// {
+//     QWSWindowAtCommand() :
+//         QWSCommand(QWSCommand::WindowAt, sizeof(simpleData),
+//                     reinterpret_cast<char*>(&simpleData)) {}
+
+//     struct SimpleData {
+//         int x;
+//         int y;
+//     } simpleData;
+// };
 
 struct QWSRegionMoveCommand : public QWSCommand
 {

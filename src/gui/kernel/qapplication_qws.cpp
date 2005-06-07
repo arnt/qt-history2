@@ -232,7 +232,7 @@ class QETWidget : public QWidget                 // event translator widget
 public:
     bool translateMouseEvent(const QWSMouseEvent *, int oldstate);
     bool translateKeyEvent(const QWSKeyEvent *, bool grab);
-    bool translateRegionModifiedEvent(const QWSRegionModifiedEvent *);
+//    bool translateRegionModifiedEvent(const QWSRegionModifiedEvent *);
     bool translateWheelEvent(const QWSMouseEvent *me);
     void repaintDecoration(QRegion r, bool post);
     void updateRegion();
@@ -350,10 +350,11 @@ private:
     }
 #endif
 
+    int windowAt_winId;
     QWSConnectedEvent* connected_event;
     QWSMouseEvent* mouse_event;
-    QWSRegionModifiedEvent *region_event;
-    QWSRegionModifiedEvent *region_ack;
+//    QWSRegionModifiedEvent *region_event;
+//    QWSRegionModifiedEvent *region_ack;
     QPoint region_offset;
     int region_offset_window;
 #ifndef QT_NO_COP
@@ -368,7 +369,7 @@ private:
 public:
     bool queueNotEmpty()
     {
-        return mouse_event||region_event||queue.count() > 0;
+        return mouse_event/*||region_event*/||queue.count() > 0;
     }
     QWSEvent *dequeue()
     {
@@ -379,9 +380,11 @@ public:
             r = mouse_event;
             mouse_event = 0;
             mouse_event_count = 0;
+#if 0
         } else {
             r = region_event;
             region_event = 0;
+#endif
         }
         return r;
     }
@@ -398,15 +401,20 @@ public:
     void waitForConnection();
 //    void waitForRegionAck();
     void waitForCreation();
+#if 0//ndef QT_NO_QWS_MULTIPROCESS
+    int waitForWidgetAtReply();
+#endif
 #ifndef QT_NO_COP
     void waitForQCopResponse();
 #endif
+#if 0
     void offsetPendingExpose(int, const QPoint &);
     void translateExpose(QWSRegionModifiedEvent *re, const QPoint &p)
     {
         for (int i = 0; i < re->simpleData.nrectangles; i++)
             re->rectangles[i].translate(p.x(), p.y());
     }
+#endif
     void init();
     void create()
     {
@@ -456,10 +464,11 @@ public:
 void QWSDisplay::Data::init()
 {
     connected_event = 0;
-    region_ack = 0;
+//    region_ack = 0;
     mouse_event = 0;
-    region_event = 0;
+//    region_event = 0;
     region_offset_window = 0;
+    windowAt_winId = -1;
 #ifndef QT_NO_COP
     qcop_response = 0;
 #endif
@@ -678,6 +687,7 @@ void QWSDisplay::Data::fillQueue()
 
                 mouse_event_count++;
             }
+#if 0
         } else if (e->type == QWSEvent::RegionModified) {
             QWSRegionModifiedEvent *re = static_cast<QWSRegionModifiedEvent *>(e);
             if (re->simpleData.is_ack) {
@@ -708,6 +718,14 @@ void QWSDisplay::Data::fillQueue()
                     queue.append(e);
                 }
             }
+#endif // 0 (RegionModified)
+#if 0
+        } else if (e->type==QWSEvent::WindowAtReply) {
+            QWSWindowAtEvent *reply = static_cast<QWSWindowAtEvent*>(e);
+            windowAt_winId = reply->simpleData.window;
+            Q_ASSERT(windowAt_winId != -1);
+            delete e;
+#endif
         } else if (e->type==QWSEvent::MaxWindowRect && !servermaxrect && qt_screen) {
             // Process this ASAP, in case new widgets are created (startup)
             servermaxrect=true;
@@ -729,7 +747,7 @@ void QWSDisplay::Data::fillQueue()
         e = readMore();
     }
 }
-
+#if 0
 void QWSDisplay::Data::offsetPendingExpose(int window, const QPoint &offset)
 {
     if (offset.isNull())
@@ -753,7 +771,7 @@ void QWSDisplay::Data::offsetPendingExpose(int window, const QPoint &offset)
         translateExpose(region_event, region_offset);
     }
 }
-
+#endif
 
 void QWSDisplay::Data::waitForConnection()
 {
@@ -835,6 +853,25 @@ void QWSDisplay::Data::waitForQCopResponse()
     qcop_response = 0;
 }
 #endif
+
+
+#if 0//ndef QT_NO_QWS_MULTIPROCESS
+int QWSDisplay::Data::waitForWidgetAtReply()
+{
+    windowAt_winId = -1;
+    for (;;) {
+        fillQueue();
+        if (windowAt_winId != -1)
+            return windowAt_winId;
+        csocket->flush();
+        csocket->waitForReadyRead(1000);
+
+        if (csocket->state() != QAbstractSocket::ConnectedState)
+                return 0;
+    }
+}
+#endif
+
 
 /*!
     \class QWSDisplay qwsdisplay_qws.h
@@ -1103,7 +1140,7 @@ void QWSDisplay::moveRegion(int winId, int dx, int dy)
     } else {
         d->sendCommand(cmd);
     }
-    d->offsetPendingExpose(winId, QPoint(cmd.simpleData.dx, cmd.simpleData.dy));
+//    d->offsetPendingExpose(winId, QPoint(cmd.simpleData.dx, cmd.simpleData.dy));
 //    d->waitForRegionAck();
 }
 
@@ -1362,6 +1399,17 @@ int QWSDisplay::windowAt(const QPoint &p)
         if (win)
             return win->winId();
     }
+#if 0//ndef QT_NO_QWS_MULTIPROCESS
+    else {
+        QWSWindowAtCommand cmd;
+        cmd.simpleData.x = p.x();
+        cmd.simpleData.y = p.y();
+        d->sendCommand(cmd);
+        d->flush();
+
+        ret = d->waitForWidgetAtReply();
+    }
+#endif
     return ret;
 }
 
@@ -2467,11 +2515,11 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
         QWSInputContext::translateIMInitEvent(static_cast<QWSIMInitEvent*>(event));
         break;
 #endif
-
+#if 0
     case QWSEvent::RegionModified:
         widget->translateRegionModifiedEvent(static_cast<QWSRegionModifiedEvent*>(event));
         break;
-
+#endif
     case QWSEvent::Focus:
         if ((static_cast<QWSFocusEvent*>(event))->simpleData.get_focus) {
             if (widget == static_cast<QWidget *>(desktop()))
@@ -2719,9 +2767,11 @@ static bool qt_try_modal(QWidget *widget, QWSEvent *event)
         case QWSEvent::Key:
             block_event         = true;
             break;
-        case QWSEvent::RegionModified:
+#if 0
+    case QWSEvent::RegionModified:
             paint_event = true;
             break;
+#endif
     }
 
     if (top->parentWidget() == 0 && (block_event || paint_event))
@@ -2867,10 +2917,10 @@ bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
         return true;
     const QWSMouseEvent::SimpleData &mouse = event->simpleData;
     pos = mapFromGlobal(QPoint(mouse.x_root, mouse.y_root));
-    if (qt_last_x) {
-        *qt_last_x=mouse.x_root;
-        *qt_last_y=mouse.y_root;
-    }
+//     if (qt_last_x) {
+//         *qt_last_x=mouse.x_root;
+//         *qt_last_y=mouse.y_root;
+//     }
     globalPos.rx() = mouse.x_root;
     globalPos.ry() = mouse.y_root;
 
@@ -3158,7 +3208,7 @@ void QETWidget::updateRegion()
 #endif
 }
 
-
+#if 0
 bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event)
 {
     qDebug("QETWidget::translateRegionModifiedEvent");
@@ -3201,7 +3251,7 @@ bool QETWidget::translateRegionModifiedEvent(const QWSRegionModifiedEvent *event
 #endif
     return true;
 }
-
+#endif
 
 void  QApplication::setCursorFlashTime(int msecs)
 {
