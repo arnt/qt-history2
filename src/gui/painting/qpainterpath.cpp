@@ -1507,6 +1507,7 @@ void QPainterPathStrokerPrivate::joinPoints(const QPointF &point, const QLineF &
 }
 
 /*!
+  \class QPainterPathStroker
   \brief The QPainterPathStroker class is used to process the stroke
   of a QPainterPath into a path that can be used for filling.
 
