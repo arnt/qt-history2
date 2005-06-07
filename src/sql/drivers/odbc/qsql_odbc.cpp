@@ -385,7 +385,7 @@ static QVariant qGetDoubleData(SQLHANDLE hStmt, int column)
 
 static QVariant qGetBigIntData(SQLHANDLE hStmt, int column)
 {
-    SQLBIGINT lngbuf = qint64(0);
+    SQLBIGINT lngbuf = 0;
     QSQLLEN lengthIndicator = 0;
     SQLRETURN r = SQLGetData(hStmt,
                               column+1,
@@ -396,7 +396,7 @@ static QVariant qGetBigIntData(SQLHANDLE hStmt, int column)
     if ((r != SQL_SUCCESS && r != SQL_SUCCESS_WITH_INFO) || lengthIndicator == SQL_NULL_DATA)
         return QVariant(QVariant::LongLong);
 
-    return QVariant(lngbuf);
+    return QVariant(qint64(lngbuf));
 }
 
 // creates a QSqlField from a valid hStmt generated
