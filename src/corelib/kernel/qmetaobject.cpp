@@ -1944,3 +1944,18 @@ const char* QMetaClassInfo::value() const
 
     \sa Q_ARG()
 */
+
+/*!
+    \class QGenericArgument
+
+    This class should never be used directly. Instead, use the
+    Q_ARG() macro to create objects to use with QMetaObject::invokeMethod().
+*/
+
+/*!
+    \class QGenericReturnArgument
+
+    This class should never be used directly. Instead, use the
+    Q_RETURN_ARG() macro to create objects to use with
+    QMetaObject::invokeMethod().
+*/
