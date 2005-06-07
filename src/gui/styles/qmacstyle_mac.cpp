@@ -2655,9 +2655,9 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                     bdi.value = kThemeButtonOff;
                     if (tb->state & QStyle::State_HasFocus && QMacStyle::focusRectPolicy(widget)
                             != QMacStyle::FocusDisabled)
-                        bdi.adornment |= kThemeAdornmentFocus;
+                        bdi.adornment = kThemeAdornmentFocus;
                     if (tb->state & (QStyle::State_On | QStyle::State_Sunken))
-                        bdi.value |= kThemeStatePressed;
+                        bdi.value = kThemeStatePressed;
 
                     QRect off_rct(0, 0, 0, 0);
                     HIRect myRect, macRect;
@@ -4106,9 +4106,9 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                     ThemeButtonDrawInfo info = { tds, kThemeButtonOff, kThemeAdornmentNone };
                     if (tb->state & QStyle::State_HasFocus && QMacStyle::focusRectPolicy(widget)
                             != QMacStyle::FocusDisabled)
-                        info.adornment |= kThemeAdornmentFocus;
+                        info.adornment = kThemeAdornmentFocus;
                     if (tb->state & (QStyle::State_On | QStyle::State_Sunken))
-                        info.value |= kThemeStatePressed;
+                        info.value = kThemeStateActive;
 
                     QRect off_rct(0, 0, 0, 0);
                     { //The AppManager draws outside my rectangle, so account for that difference..
