@@ -180,7 +180,7 @@
 	    \o highlight (QBrush)
 	    \o highlightedText (QBrush)
             \o link (QBrush)
-            \o linkVisited (QBursh)
+            \o linkVisited (QBrush)
 	    \endlist
     \row \o QPen
          \o \list
