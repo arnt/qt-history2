@@ -679,7 +679,9 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
             qt_mac_append_cf_uniq(attrs, kAXFocusedAttribute);
             qt_mac_append_cf_uniq(attrs, kAXSelectedChildrenAttribute);
             qt_mac_append_cf_uniq(attrs, kAXWindowAttribute);
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
             qt_mac_append_cf_uniq(attrs, kAXTopLevelUIElementAttribute);
+#endif
             if(!req_child && req_iface->role(0) == QAccessible::Window) {
                 qt_mac_append_cf_uniq(attrs, kAXMainAttribute);
                 qt_mac_append_cf_uniq(attrs, kAXMinimizedAttribute);
@@ -712,6 +714,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                 CFArrayRef arr = CFArrayCreate(0, (const void **)children, children_count, 0);
                 SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFMutableArrayRef,
                                   sizeof(arr), &arr);
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
             } else if(CFStringCompare(var, kAXTopLevelUIElementAttribute, 0) == kCFCompareEqualTo) {
                 AXUIElementRef element = 0;
                 QAccessibleInterface *iface = req_iface;
@@ -726,6 +729,7 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                 if(element)
                     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFTypeRef,
                                       sizeof(element), &element);
+#endif
             } else if(CFStringCompare(var, kAXWindowAttribute, 0) == kCFCompareEqualTo) {
                 AXUIElementRef element = 0;
                 QAccessibleInterface *iface = req_iface;
@@ -881,10 +885,12 @@ QAccessible::globalEventProcessor(EventHandlerCallRef next_ref, EventRef event, 
                                 const QString qstr = req_iface->text((QAccessible::Text)text_bindings[r][a].qt,
                                                                      req_child);
                                 CFStringRef cfstr = 0;
+#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_4)
                                 if(qstr.isEmpty() &&
                                    CFStringCompare(var, kAXRoleDescriptionAttribute, 0) == kCFCompareEqualTo)
                                     cfstr = HICopyAccessibilityRoleDescription(text_bindings[r][0].mac, 0);
                                 else
+#endif
                                     cfstr = QCFString::toCFStringRef(qstr);
                                 if(cfstr) {
                                     SetEventParameter(event, kEventParamAccessibleAttributeValue, typeCFStringRef,
