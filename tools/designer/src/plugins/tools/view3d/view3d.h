@@ -18,7 +18,7 @@
 
 class QScrollBar;
 class QGLWidget;
-class FormWindow;
+class QDesignerFormWindowInterface;
 
 class View3DWidget;
 
@@ -27,14 +27,14 @@ class View3D : public QWidget
     Q_OBJECT
 
 public:
-    View3D(FormWindow *form_window, QWidget *parent);
+    View3D(QDesignerFormWindowInterface *form_window, QWidget *parent);
 
 public slots:
     void updateForm();
 
 private:
     View3DWidget *m_3d_widget;
-    FormWindow *m_form_window;
+    QDesignerFormWindowInterface *m_form_window;
 
     void addWidget(int depth, QWidget *w);
     void addTexture(QWidget *w);
