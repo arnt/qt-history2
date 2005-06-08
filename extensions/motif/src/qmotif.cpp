@@ -574,13 +574,15 @@ void QMotif::unregisterSocketNotifier(QSocketNotifier *notifier)
 
 /*! \internal
  */
-void qmotif_timer_handler(XtPointer pointer, XtIntervalId *)
+void qmotif_timer_handler(XtPointer, XtIntervalId *id)
 {
-    QObject *object = reinterpret_cast<QObject *>(pointer);
-    if (!object)
+    if (!id)
         return; // shouldn't happen
-    QEvent event(QEvent::Timer);
-    QApplication::sendEvent(object, &event);
+    TimerHash::const_iterator it = static_d->timerHash.find(*id);
+    if (it == static_d->timerHash.constEnd())
+        return;
+    QTimerEvent event(it->timerId);
+    QApplication::sendEvent(it->object, &event);
 }
 
 /*! \reimp
@@ -588,7 +590,7 @@ void qmotif_timer_handler(XtPointer pointer, XtIntervalId *)
 void QMotif::registerTimer(int timerId, int interval, QObject *object)
 {
     Q_D(QMotif);
-    XtIntervalId id = XtAppAddTimeOut(d->appContext, interval, qmotif_timer_handler, object);
+    XtIntervalId id = XtAppAddTimeOut(d->appContext, interval, qmotif_timer_handler, 0);
     QMotifTimerInfo timerInfo = { timerId, interval, object };
     d->timerHash.insert(id, timerInfo);
 }
