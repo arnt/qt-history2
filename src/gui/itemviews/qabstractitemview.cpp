@@ -1908,7 +1908,7 @@ void QAbstractItemView::scheduleDelayedItemsLayout()
 */
 void QAbstractItemView::executeDelayedItemsLayout()
 {
-//    d_func()->executeDelayedItemsLayout();
+    d_func()->executePostedLayout();
 }
 
 /*!
