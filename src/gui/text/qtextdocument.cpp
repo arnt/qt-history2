@@ -916,6 +916,7 @@ void QTextDocument::print(QPrinter *printer) const
         printer->newPage();
         page++;
     } while (true);
+    Q_ASSERT(page == doc->pageCount());
 
     delete doc;
 }

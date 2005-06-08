@@ -594,8 +594,7 @@ void QTextEditPrivate::extendWordwiseSelection(int suggestedNewPosition, qreal m
     const int wordStartPos = curs.position();
 
     const int blockPos = curs.block().position();
-    const QPointF blockCoordinates = curs.block().layout()->position()
-                                     + doc->documentLayout()->frameBoundingRect(curs.currentFrame()).topLeft();
+    const QPointF blockCoordinates = doc->documentLayout()->blockBoundingRect(curs.block()).topLeft();
 
     QTextLine line = currentTextLine(curs);
     if (!line.isValid())
@@ -2147,11 +2146,10 @@ QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
     Q_D(const QTextEdit);
     if (cursor.isNull())
         return QRect();
-    QTextFrame *frame = cursor.currentFrame();
     const QAbstractTextDocumentLayout *docLayout = d->doc->documentLayout();
-    QTextBlock block = cursor.block();
-    QTextLayout *layout = block.layout();
-    QPointF layoutPos = layout->position() + docLayout->frameBoundingRect(frame).topLeft();
+    const QTextBlock block = cursor.block();
+    const QTextLayout *layout = block.layout();
+    const QPointF layoutPos = docLayout->blockBoundingRect(block).topLeft();
     const int relativePos = cursor.position() - block.position();
     QTextLine line = layout->lineForTextPosition(relativePos);
 
