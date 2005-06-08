@@ -2578,10 +2578,9 @@ void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
             c.receiver->qt_metacall(QMetaObject::InvokeMetaMethod, method, argv ? argv : empty_argv);
         } catch (...) {
             list->lock.lockForRead();
-            if (c.receiver) {
+            if (c.receiver)
                 c.receiver->d_func()->currentSender = previousSender;
-                throw;
-            }
+            throw;
         }
 #endif
 
