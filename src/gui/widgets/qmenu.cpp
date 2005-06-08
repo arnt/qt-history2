@@ -1225,6 +1225,7 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
     d->doChildEffects = true;
 
     ensurePolished(); // Get the right font
+    emit aboutToShow();
     d->updateActions();
     QPoint pos = p;
     QSize size = sizeHint();
@@ -1301,7 +1302,6 @@ void QMenu::popup(const QPoint &p, QAction *atAction)
        (qobject_cast<QMenuBar*>(d->causedPopup) && pos.y() + size.width()/2 < d->causedPopup->mapToGlobal(d->causedPopup->pos()).y()))
        vGuess = QEffects::UpScroll;
 #endif
-    emit aboutToShow();
     if (QApplication::isEffectEnabled(Qt::UI_AnimateMenu)) {
         bool doChildEffects = true;
         if (QMenuBar *mb = qobject_cast<QMenuBar*>(d->causedPopup)) {
