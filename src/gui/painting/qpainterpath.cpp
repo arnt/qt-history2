@@ -1620,7 +1620,8 @@ template <class Iterator> bool qt_stroke_subpath_side(Iterator *it, QPainterPath
         }
     }
 
-    if (prev == start) { // closed subpath, join first and last point
+    if (qFuzzyCompare(prev.x(), start.x()) && qFuzzyCompare(prev.y(), start.y())) {
+        // closed subpath, join first and last point
 #ifdef QPP_STROKE_DEBUG
         qDebug(" ---> closed subpath");
 #endif
