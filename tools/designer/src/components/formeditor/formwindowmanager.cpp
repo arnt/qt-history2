@@ -38,6 +38,7 @@
 #include <QtGui/QMenuBar>
 #include <QtGui/QClipboard>
 #include <QtGui/QWorkspace>
+#include <QtGui/QDesktopWidget>
 
 #include <QtCore/qdebug.h>
 
@@ -634,7 +635,11 @@ void FormWindowManager::beginDrag(const QList<QDesignerDnDItemInterface*> &item_
         p.drawPoint(deco->mapFromGlobal(globalPos));
         p.end();
         deco->setMask(bitmap);
+        QPoint pos = deco->pos();
+        QRect ag = qApp->desktop()->availableGeometry(deco);
+        deco->move(qMin(qMax(pos.x(), ag.left()), ag.right()), qMin(qMax(pos.y(), ag.top()), ag.bottom()));
         deco->show();
+        deco->move(pos);
         deco->setWindowOpacity(0.8);
     }
 
