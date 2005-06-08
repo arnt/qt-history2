@@ -437,8 +437,7 @@ public:
 };
 
 /*!
-    Constructs a QX11EmbedWidget object. The \a parent and \a name
-    arguments are passed on to QWidget's constructor.
+    Constructs a QX11EmbedWidget object with the given \a parent.
 */
 QX11EmbedWidget::QX11EmbedWidget(QWidget *parent)
     : QWidget(*new QX11EmbedWidgetPrivate, parent, 0)
@@ -889,6 +888,9 @@ bool QX11EmbedWidget::x11Event(XEvent *event)
     return QWidget::x11Event(event);
 }
 
+/*!
+    \reimp
+*/
 bool QX11EmbedWidget::event(QEvent *event)
 {
     if (event->type() == QEvent::ParentChange) {
@@ -903,6 +905,9 @@ bool QX11EmbedWidget::event(QEvent *event)
     return QWidget::event(event);
 }
 
+/*!
+    \reimp
+*/
 void QX11EmbedWidget::resizeEvent(QResizeEvent *event)
 {
     if (layout())
@@ -949,8 +954,7 @@ public:
 };
 
 /*!
-    Creates a QX11EmbedContainer object. The \a parent and \a name
-    arguments are passed on to QWidget.
+    Creates a QX11EmbedContainer object with the given \a parent.
 */
 QX11EmbedContainer::QX11EmbedContainer(QWidget *parent)
     : QWidget(*new QX11EmbedContainerPrivate, parent, 0)
