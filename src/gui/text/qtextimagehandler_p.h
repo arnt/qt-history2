@@ -40,8 +40,8 @@ class Q_GUI_EXPORT QTextImageHandler : public QObject,
 public:
     explicit QTextImageHandler(QObject *parent = 0);
 
-    virtual QSizeF intrinsicSize(QTextDocument *doc, const QTextFormat &format);
-    virtual void drawObject(QPainter *p, const QRectF &rect, QTextDocument *doc, const QTextFormat &format);
+    virtual QSizeF intrinsicSize(QTextDocument *doc, int posInDocument, const QTextFormat &format);
+    virtual void drawObject(QPainter *p, const QRectF &rect, QTextDocument *doc, int posInDocument, const QTextFormat &format);
 
     typedef QImage (*ExternalImageLoaderFunction)(const QString &name, const QString &context);
     static ExternalImageLoaderFunction externalLoader;

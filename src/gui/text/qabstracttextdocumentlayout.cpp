@@ -24,8 +24,6 @@
     \brief The QAbstractTextDocumentLayout class is an abstract base
     class used to implement custom layouts for QTextDocuments.
 
-    \preliminary
-
     \ingroup text
 
     The standard layout provided by Qt can handle simple word
@@ -192,7 +190,7 @@ QTextObjectInterface *QAbstractTextDocumentLayout::handlerForObject(int objectTy
     Sets the size of the inline object \a item in accordance with the
     text \a format.
 */
-void QAbstractTextDocumentLayout::resizeInlineObject(QTextInlineObject item, const QTextFormat &format)
+void QAbstractTextDocumentLayout::resizeInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format)
 {
     Q_D(QAbstractTextDocumentLayout);
 
@@ -202,7 +200,7 @@ void QAbstractTextDocumentLayout::resizeInlineObject(QTextInlineObject item, con
     if (!handler.component)
         return;
 
-    QSizeF s = handler.iface->intrinsicSize(document(), format);
+    QSizeF s = handler.iface->intrinsicSize(document(), posInDocument, format);
     item.setWidth(s.width());
     item.setAscent(s.height());
     item.setDescent(0);
@@ -214,9 +212,10 @@ void QAbstractTextDocumentLayout::resizeInlineObject(QTextInlineObject item, con
 
     \sa drawInlineObject()
 */
-void QAbstractTextDocumentLayout::positionInlineObject(QTextInlineObject item, const QTextFormat &format)
+void QAbstractTextDocumentLayout::positionInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format)
 {
     Q_UNUSED(item);
+    Q_UNUSED(posInDocument);
     Q_UNUSED(format);
 }
 
@@ -230,7 +229,7 @@ void QAbstractTextDocumentLayout::positionInlineObject(QTextInlineObject item, c
     \sa draw()
 */
 void QAbstractTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
-                                                   const QTextFormat &format)
+                                                   int posInDocument, const QTextFormat &format)
 {
     Q_UNUSED(item);
     Q_D(QAbstractTextDocumentLayout);
@@ -241,7 +240,7 @@ void QAbstractTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &re
     if (!handler.component)
         return;
 
-    handler.iface->drawObject(p, rect, document(), format);
+    handler.iface->drawObject(p, rect, document(), posInDocument, format);
 
 #if 0
     if (selType == QTextLayout::Highlight && item.engine()->pal) {
@@ -332,12 +331,14 @@ QString QAbstractTextDocumentLayout::anchorAt(const QPointF& pos) const
 
 /*!
     Returns the bounding rectacle of \a frame.
+    \fn QRectF QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
+    Returns the bounding rectangle of \a frame.
 */
-QRectF QAbstractTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
-{
-    Q_UNUSED(frame)
-    return QRectF();
-}
+
+/*!
+    \fn QRectF QAbstractTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
+    Returns the bounding rectangle of \a block.
+*/
 
 /*!
     Sets the paint device used for rendering the document's layout to the

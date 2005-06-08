@@ -1310,7 +1310,7 @@ void QTextDocumentLayoutPrivate::layoutFrame(QTextFrame *f, int layoutFrom, int 
         QTextCharFormat format = q->format(startPos - 1);
         QTextObjectInterface *iface = q->handlerForObject(format.objectType());
         if (iface)
-            fd->size = iface->intrinsicSize(q->document(), format).toSize();
+            fd->size = iface->intrinsicSize(q->document(), startPos - 1, format).toSize();
         fd->sizeDirty = false;
         return;
     }
@@ -1755,7 +1755,7 @@ int QTextDocumentLayout::hitTest(const QPointF &point, Qt::HitTestAccuracy accur
     return position;
 }
 
-void QTextDocumentLayout::resizeInlineObject(QTextInlineObject item, const QTextFormat &format)
+void QTextDocumentLayout::resizeInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format)
 {
     Q_D(QTextDocumentLayout);
     QTextCharFormat f = format.toCharFormat();
@@ -1764,7 +1764,7 @@ void QTextDocumentLayout::resizeInlineObject(QTextInlineObject item, const QText
     if (!handler.component)
         return;
 
-    QSizeF intrinsic = handler.iface->intrinsicSize(document(), format);
+    QSizeF intrinsic = handler.iface->intrinsicSize(document(), posInDocument, format);
 
     QTextFrameFormat::Position pos = QTextFrameFormat::InFlow;
     QTextFrame *frame = qobject_cast<QTextFrame *>(document()->objectForFormat(f));
@@ -1780,9 +1780,10 @@ void QTextDocumentLayout::resizeInlineObject(QTextInlineObject item, const QText
     item.setAscent(inlineSize.height());
 }
 
-void QTextDocumentLayout::positionInlineObject(QTextInlineObject item, const QTextFormat &format)
+void QTextDocumentLayout::positionInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format)
 {
     Q_D(QTextDocumentLayout);
+    Q_UNUSED(posInDocument);
     if (item.width() != 0)
         // inline
         return;
@@ -1807,7 +1808,7 @@ void QTextDocumentLayout::positionInlineObject(QTextInlineObject item, const QTe
 }
 
 void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
-                                           const QTextFormat &format)
+                                           int posInDocument, const QTextFormat &format)
 {
     QTextCharFormat f = format.toCharFormat();
     Q_ASSERT(f.isValid());
@@ -1821,7 +1822,7 @@ void QTextDocumentLayout::drawInlineObject(QPainter *p, const QRectF &rect, QTex
         }
     }
 //    qDebug() << "drawObject at" << r;
-    QAbstractTextDocumentLayout::drawInlineObject(p, r, item, format);
+    QAbstractTextDocumentLayout::drawInlineObject(p, r, item, posInDocument, format);
 }
 
 
@@ -1900,3 +1901,15 @@ QRectF QTextDocumentLayout::frameBoundingRect(QTextFrame *frame) const
     }
     return QRectF(pos, data(frame)->size);
 }
+
+QRectF QTextDocumentLayout::blockBoundingRect(const QTextBlock &block) const
+{
+    QTextLayout *layout = block.layout();
+    QRectF rect = layout->boundingRect();
+    rect.translate(layout->position());
+
+    QTextFrame *frame = document()->frameAt(block.position());
+    rect.translate(frameBoundingRect(frame).topLeft());
+    return rect;
+}
+

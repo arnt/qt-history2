@@ -61,13 +61,14 @@ public:
     void setFixedColumnWidth(int width);
 
     virtual QRectF frameBoundingRect(QTextFrame *frame) const;
+    virtual QRectF blockBoundingRect(const QTextBlock &block) const;
 
 protected:
     void documentChanged(int from, int oldLength, int length);
-    void resizeInlineObject(QTextInlineObject item, const QTextFormat &format);
-    void positionInlineObject(QTextInlineObject item, const QTextFormat &format);
+    void resizeInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format);
+    void positionInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format);
     void drawInlineObject(QPainter *p, const QRectF &rect, QTextInlineObject item,
-                          const QTextFormat &format);
+                          int posInDocument, const QTextFormat &format);
 };
 
 #endif // QTEXTDOCUMENTLAYOUT_P_H

@@ -882,7 +882,8 @@ void QTextEngine::shape(int item) const
         if (block.docHandle()) {
             QTextFormat format = formats()->format(formatIndex(&layoutData->items[item]));
             ensureSpace(1);
-            docLayout()->resizeInlineObject(QTextInlineObject(item, const_cast<QTextEngine *>(this)), format);
+            docLayout()->resizeInlineObject(QTextInlineObject(item, const_cast<QTextEngine *>(this)),
+                                            layoutData->items[item].position + block.position(), format);
         }
     } else {
         shapeText(item);

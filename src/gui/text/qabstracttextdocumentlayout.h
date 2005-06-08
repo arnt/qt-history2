@@ -58,12 +58,16 @@ public:
     virtual int pageCount() const = 0;
     virtual QSizeF documentSize() const = 0;
 
-    virtual QRectF frameBoundingRect(QTextFrame *frame) const;
+    virtual QRectF frameBoundingRect(QTextFrame *frame) const = 0;
+    virtual QRectF blockBoundingRect(const QTextBlock &block) const = 0;
 
     void setPaintDevice(QPaintDevice *device);
     QPaintDevice *paintDevice() const;
 
     QTextDocument *document() const;
+
+    void registerHandler(int objectType, QObject *component);
+    QTextObjectInterface *handlerForObject(int objectType) const;
 
 signals:
     void update(const QRectF & = QRectF(0., 0., 1000000000., 1000000000.));
@@ -75,12 +79,9 @@ protected:
 
     virtual void documentChanged(int from, int charsRemoved, int charsAdded) = 0;
 
-    virtual void resizeInlineObject(QTextInlineObject item, const QTextFormat &format);
-    virtual void positionInlineObject(QTextInlineObject item, const QTextFormat &format);
-    virtual void drawInlineObject(QPainter *painter, const QRectF &rect, QTextInlineObject object, const QTextFormat &format);
-
-    void registerHandler(int objectType, QObject *component);
-    QTextObjectInterface *handlerForObject(int objectType) const;
+    virtual void resizeInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format);
+    virtual void positionInlineObject(QTextInlineObject item, int posInDocument, const QTextFormat &format);
+    virtual void drawInlineObject(QPainter *painter, const QRectF &rect, QTextInlineObject object, int posInDocument, const QTextFormat &format);
 
     int formatIndex(int pos);
     QTextCharFormat format(int pos);
@@ -98,8 +99,8 @@ class QTextObjectInterface
 {
 public:
     virtual ~QTextObjectInterface() {}
-    virtual QSizeF intrinsicSize(QTextDocument *doc, const QTextFormat &format) = 0;
-    virtual void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc, const QTextFormat &format) = 0;
+    virtual QSizeF intrinsicSize(QTextDocument *doc, int posInDocument, const QTextFormat &format) = 0;
+    virtual void drawObject(QPainter *painter, const QRectF &rect, QTextDocument *doc, int posInDocument, const QTextFormat &format) = 0;
 };
 Q_DECLARE_INTERFACE(QTextObjectInterface, "com.trolltech.Qt.QTextObjectInterface")
 

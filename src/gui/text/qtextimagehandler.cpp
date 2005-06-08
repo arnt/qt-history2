@@ -82,15 +82,17 @@ QTextImageHandler::QTextImageHandler(QObject *parent)
 {
 }
 
-QSizeF QTextImageHandler::intrinsicSize(QTextDocument *doc, const QTextFormat &format)
+QSizeF QTextImageHandler::intrinsicSize(QTextDocument *doc, int posInDocument, const QTextFormat &format)
 {
+    Q_UNUSED(posInDocument)
     const QTextImageFormat imageFormat = format.toImageFormat();
 
     return getPixmap(doc, imageFormat).size();
 }
 
-void QTextImageHandler::drawObject(QPainter *p, const QRectF &rect, QTextDocument *doc, const QTextFormat &format)
+void QTextImageHandler::drawObject(QPainter *p, const QRectF &rect, QTextDocument *doc, int posInDocument, const QTextFormat &format)
 {
+    Q_UNUSED(posInDocument)
     const QTextImageFormat imageFormat = format.toImageFormat();
     const QPixmap pixmap = getPixmap(doc, imageFormat);
 
