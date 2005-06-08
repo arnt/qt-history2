@@ -6,7 +6,7 @@
 
     \keyword qmake
 
-    \c qmake is an tool from Trolltech that helps simplify the build
+    \c qmake is a tool from Trolltech that helps simplify the build
     process for development project across different platforms.  \c qmake
     automates the generation of Makefiles so that only a few lines of
     information are needed to create each Makefile. \c qmake can be used for
