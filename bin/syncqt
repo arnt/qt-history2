@@ -31,7 +31,6 @@ my %modules = ( # path to module name map
 	    "ActiveQt" => "$basedir/extensions/activeqt/container;$basedir/extensions/activeqt/control",
 	    "QtAssistant" => "$basedir/tools/assistant/lib",
 	    "QtDesigner" => "$basedir/tools/designer/src/lib/sdk;$basedir/tools/designer/src/lib/uilib;$basedir/tools/designer/src/lib/extension;$basedir/tools/designer/src/lib/shared;$basedir/tools/designer/src/components/lib;",
-	    "QtMotif" => "$basedir/extensions/motif/src",
 	    "QtNsPlugin" => "$basedir/extensions/nsplugin/src",
 );
 #$modules{"QtCore"} .= ";$basedir/mkspecs/" . $ENV{"MKSPEC"} if defined $ENV{"MKSPEC"};
