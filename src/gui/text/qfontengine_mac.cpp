@@ -25,6 +25,12 @@
 
 #include <ApplicationServices/ApplicationServices.h>
 
+/*****************************************************************************
+  QFontEngine debug facilities
+ *****************************************************************************/
+//#define DEBUG_ADVANCES
+
+
 //Generic engine
 QFontEngine::~QFontEngine()
 {
@@ -298,8 +304,8 @@ QATSUStyle *QFontEngineMac::getFontStyle() const
         delete ret;
         ret = 0;
     } else {
-        const int feat_guess=5;
-        int feats=0;
+        const ItemCount feat_guess=5;
+        ItemCount feats=0;
         ATSUFontFeatureType feat_types[feat_guess];
         ATSUFontFeatureSelector feat_values[feat_guess];
         feat_types[feats] = kLigaturesType;
@@ -308,8 +314,30 @@ QATSUStyle *QFontEngineMac::getFontStyle() const
         feat_types[feats] = kLigaturesType;
         feat_values[feats] = kCommonLigaturesOffSelector;
         feats++;
+        feat_types[feats] = kLigaturesType;
+        feat_values[feats] = kRequiredLigaturesOffSelector;
+        feats++;
         if(feats > feat_guess) //this won't really happen, just so I will not miss the case
-            qWarning("Qt: internal: %d: WH0A feat_guess underflow %d", __LINE__, feats);
+            qWarning("Qt: internal: %d: WH0A feat_guess underflow %d", __LINE__, (int)feats);
+#if 0
+        for(ItemCount i = 0; i < feats; ++i) {
+            ATSUFontFeatureSelector tmp_values[feat_guess];
+            Boolean byDefault, isExclusive;
+            ItemCount selectors;
+            ATSUGetFontFeatureSelectors(fontID, feat_types[i], feat_guess,
+                                        tmp_values, &byDefault, &selectors, &isExclusive);
+            bool found = false;
+            for(uint j = 0; j < selectors; ++j) {
+                if(tmp_values[j] == feat_values[i]) {
+                    found = true;
+                    break;
+                }
+            }
+            if(!found)
+                qDebug("%d) %d/%d not found in [%s]", (int)i, feat_types[i], feat_values[i],
+                       qPrintable(fontDef.family));
+        }
+#endif
         if(OSStatus e = ATSUSetFontFeatures(ret->style, feats, feat_types, feat_values))
             qWarning("Qt: internal: %ld: unexpected condition reached %s:%d", e, __FILE__, __LINE__);
 
@@ -497,6 +525,7 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
         layopts |= kATSLineNoAntiAliasing;
     if(!kerning)
         layopts |= kATSLineDisableAllKerningAdjustments;
+//    layopts |=  kATSLineDisableAllLayoutOperations;
     valueSizes[arr] = sizeof(layopts);
     values[arr] = &layopts;
     arr++;
@@ -605,6 +634,11 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
             int last = 0;
             for(int i = 0; i < use_len-1; ++i) {
                 advances[i] = info[0].glyphs[i+1].screenX - last;
+#ifdef DEBUG_ADVANCES
+                qDebug("%d [%d]) %d(%d)::%f::%d::%d -- %f", i, (s+pos+i)->latin1(), info[0].glyphs[i+1].screenX, last,
+                       info[0].glyphs[i+1].idealX, (int)info[0].glyphs[i+1].charIndex,
+                       (int)info[0].glyphs[i+1].layoutFlags, advances[i]);
+#endif
                 last = info[0].glyphs[i+1].screenX;
             }
 
@@ -614,7 +648,10 @@ int QFontEngineMac::doTextTask(const QChar *s, int pos, int use_len, int len, uc
                 ATSUGetUnjustifiedBounds(mTextLayout, use_len-2, 2, &left, &right, &bottom, &top);
             else
                 ATSUGetUnjustifiedBounds(mTextLayout, use_len-1, 1, &left, &right, &bottom, &top);
-            advances[use_len-1] = FixRound(right-left);
+#ifdef DEBUG_ADVANCES
+            qDebug("Last %d) %f-%f == %f", use_len-1, FixedToFloat(right), FixedToFloat(left), FixedToFloat(right-left));
+#endif
+            advances[use_len-1] = FixedToFloat(right-left);
 
             //finally make sure surrogates are in Qt order..
             for(int i = 0; i < use_len-1; ++i) {
