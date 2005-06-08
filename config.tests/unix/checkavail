@@ -5,7 +5,7 @@
 # or filenames like "mysql.h" and (optional) extra include paths like '-I/usr/local/include'
 # returns 0 on success
 
-SUCCESS=
+SUCCESS=yes
 MODULE_NAME=$1
 VERBOSE=$2
 shift 2
@@ -87,7 +87,7 @@ then
 	    then
 		if [ "$MODULE_NAME" = "libpng" ]
 		then
-		     # version check for png lib
+		     # version check for libpng
 		    PNG_VERSION=`grep "#define PNG_LIBPNG_VER " $FOUND_INC | awk '{print $3}'`
 		    if [ "$PNG_VERSION" -ge "10017" ]
 		    then
@@ -100,7 +100,7 @@ then
 		    fi
 		elif [ "$MODULE_NAME" = "libzlib" ]
 		then
-		    # version check for z lib
+		    # version check for zlib
 		    ZLIB_VERSION=`grep "#define ZLIB_VERSION " $FOUND_INC | awk '{print $3}' | sed -e 's/["|.]//g'`
 		    if [ "$ZLIB_VERSION" -ge "108" ]
 		    then
@@ -156,4 +156,3 @@ else
     exit 0 
 fi
 exit 1
-
