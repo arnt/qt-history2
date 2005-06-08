@@ -110,8 +110,6 @@ void QAbstractScrollAreaPrivate::init()
     viewport = new QAbstractScrollAreaHelper(q);
     viewport->setBackgroundRole(QPalette::Base);
     viewport->setFocusProxy(q);
-    QEvent userEvent(QEvent::User);
-    QApplication::sendEvent(viewport, &userEvent);
 }
 
 void QAbstractScrollAreaPrivate::layoutChildren()
