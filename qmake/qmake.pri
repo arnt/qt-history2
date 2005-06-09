@@ -16,7 +16,7 @@ HEADERS += project.h property.h generators/makefile.h \
            generators/win32/winmakefile.h generators/projectgenerator.h \
            qtmd5.h generators/makefiledeps.h generators/metamakefile.h \
            generators/xmloutput.h
-!contains(QT_PRODUCT, qt-free) {
+!contains(QT_PRODUCT, .*OpenSource.*) {
    SOURCES +=  generators/win32/borland_bmake.cpp generators/win32/msvc_nmake.cpp \
                generators/projectgenerator.cpp generators/mac/metrowerks_xml.cpp \
                generators/win32/msvc_dsp.cpp generators/win32/msvc_vcproj.cpp \

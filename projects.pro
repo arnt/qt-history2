@@ -8,7 +8,7 @@ isEmpty(QT_PROJECTS) {
 #  QT_PROJECTS = qmake
    QT_PROJECTS += src
    !cross_compile:QT_PROJECTS += tools
-   win32:QT_PROJECTS += extensions
+   win32:!contains(QT_PRODUCT, .*OpenSource.*|.*Console.*):QT_PROJECTS += extensions
    QT_PROJECTS += demos examples
 }
 SUBDIRS += $$QT_PROJECTS

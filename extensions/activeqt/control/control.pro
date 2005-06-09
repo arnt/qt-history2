@@ -16,10 +16,9 @@ win32-borland:DEFINES += QT_NEEDS_QMAIN
 LIBS    += -luser32 -lole32 -loleaut32 -lgdi32
 win32-g++:LIBS += -luuid
 
-!contains( QT_PRODUCT, qt-(enterprise|internal) ) {
-    message( "ActiveQt requires a Qt/Enterprise license." )
-}
-contains( QT_PRODUCT, qt-(enterprise|internal) ) {
+contains(QT_PRODUCT, .*OpenSource.*|.*Console.*) {
+    message( "You are not licensed to use ActiveQt." )
+} else {
     HEADERS     = qaxaggregated.h \
                   qaxbindable.h \
 		  qaxfactory.h \

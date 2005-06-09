@@ -2,8 +2,8 @@ TEMPLATE = subdirs
 
 CONFIG	+= ordered
 
-!contains(QT_PRODUCT, qt-(enterprise|internal)) {
-    message("ActiveQt requires a Qt/Enterprise license.")
+contains(QT_PRODUCT, .*OpenSource.*|.*Console.*) {
+    message("You are not licensed to use ActiveQt.")
 } else {
     SUBDIRS = idc \
               dumpdoc \

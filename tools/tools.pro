@@ -5,8 +5,8 @@ no-png {
     SUBDIRS		= assistant/lib \
 			assistant \
 			linguist \
-			porting \
-			designer
+			porting
+    !contains(QT_PRODUCT, .*Console.*):SUBDIRS += designer
     unix:SUBDIRS        += qtconfig
 }
 

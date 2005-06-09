@@ -13,10 +13,9 @@ DESTDIR  = $$QT_BUILD_TREE/lib
 LIBS    += -lole32 -loleaut32 -luser32 -lgdi32 -ladvapi32
 win32-g++:LIBS += -luuid
 
-!contains( QT_PRODUCT, qt-(enterprise|internal) ) {
-    message( "ActiveQt requires a Qt/Enterprise license." )
-}
-contains( QT_PRODUCT, qt-(enterprise|internal) ) {
+contains(QT_PRODUCT, .*OpenSource.*|.*Console.*) {
+    message( "You are not licensed to use ActiveQt." )
+} else {
     HEADERS         = ../control/qaxaggregated.h \
                       qaxbase.h \
 		      qaxwidget.h \

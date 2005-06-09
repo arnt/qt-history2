@@ -18,7 +18,7 @@ SUBDIRS       = dialogs \
 
 contains(QT_CONFIG, opengl): SUBDIRS += opengl
 #!cross_compiler:SUBDIRS: += designer
-win32:SUBDIRS += activeqt
+win32:!contains(QT_PRODUCT, .*OpenSource.*|.*Console.*):SUBDIRS += activeqt
 
 # install
 sources.files = README *.pro
