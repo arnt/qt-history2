@@ -1228,7 +1228,7 @@ fi
 
 #detect zlib
 if [ "$CFG_ZLIB" = "auto" ]; then
-    if $unixtests/checkavail "libzlib" $OPT_VERBOSE -lz zlib.h; then
+    if $unixtests/checkavail "zlib" $OPT_VERBOSE -lz zlib.h; then
        CFG_ZLIB=system
     else
        CFG_ZLIB=yes

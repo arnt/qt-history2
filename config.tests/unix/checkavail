@@ -98,7 +98,7 @@ then
 			fi
 			break
 		    fi
-		elif [ "$MODULE_NAME" = "libzlib" ]
+		elif [ "$MODULE_NAME" = "zlib" ]
 		then
 		    # version check for zlib
 		    ZLIB_VERSION=`grep "#define ZLIB_VERSION " $FOUND_INC | awk '{print $3}' | sed -e 's/["|.]//g'`
@@ -129,7 +129,7 @@ then
 		if [ "$MODULE_NAME" = "libpng" ]
 		then 
 		    echo "  Could not find png.h >= v1.0.17 anywhere in $INCLUDEDIRS"
-		elif [ "$MODULE_NAME" = "libzlib" ]
+		elif [ "$MODULE_NAME" = "zlib" ]
 		then
 		    echo "  Could not find zlib.h >= v1.0.8 anywhere in $INCLUDEDIRS"
 		else
