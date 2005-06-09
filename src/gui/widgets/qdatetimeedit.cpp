@@ -2342,7 +2342,7 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
         return cachedValue;
     }
     QVariant tmp;
-    SectionNode sn;
+    SectionNode sn = {NoSection, 0};
     int index = 0;
 
     QDTEDEBUG << "validateAndInterpret" << input;
