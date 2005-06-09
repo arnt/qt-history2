@@ -100,10 +100,33 @@ MakefileGenerator::MakefileGenerator() :
 
 
 void
+MakefileGenerator::verifyCompilers()
+{
+    QMap<QString, QStringList> &v = project->variables();
+    QStringList &quc = v["QMAKE_EXTRA_COMPILERS"];
+    for(int i = 0; i < quc.size(); ) {
+        bool error = false;
+        QString comp = quc.at(i);
+        if(v[comp + ".output"].isEmpty()) {
+            error = true;
+            warn_msg(WarnLogic, "Compiler: %s: No output file specified", comp.toLatin1().constData());
+        } else if(v[comp + ".input"].isEmpty()) {
+            error = true;
+            warn_msg(WarnLogic, "Compiler: %s: No input variable specified", comp.toLatin1().constData());
+        }
+        if(error)
+            quc.removeAt(i);
+        else
+            ++i;
+    }
+}
+
+void
 MakefileGenerator::initOutPaths()
 {
     if(init_opath_already)
         return;
+    verifyCompilers();
     init_opath_already = true;
     QMap<QString, QStringList> &v = project->variables();
     //for shadow builds
@@ -329,6 +352,7 @@ MakefileGenerator::init()
     initOutPaths();
     if(init_already)
         return;
+    verifyCompilers();
     init_already = true;
 
     QMap<QString, QStringList> &v = project->variables();

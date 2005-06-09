@@ -36,6 +36,7 @@ class MakefileGenerator : protected QMakeSourceFileInfo
     QStringList createObjectList(const QStringList &sources);
     QString build_args();
     void checkMultipleDefinition(const QString &, const QString &);
+    void verifyCompilers();
 
     //internal caches
     mutable QHash<QString, QMakeLocalFileName> depHeuristicsCache;
