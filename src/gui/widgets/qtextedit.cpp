@@ -2772,12 +2772,13 @@ void QTextEdit::append(const QString &text)
     // preserve the char format
     QTextCharFormat oldCharFormat = d->cursor.charFormat();
     cursor.insertFragment(fragment);
-    d->cursor.setCharFormat(oldCharFormat);
+    if (!d->cursor.hasSelection())
+        d->cursor.setCharFormat(oldCharFormat);
 
     cursor.endEditBlock();
 
     if (atBottom && d->vbar->isVisible())
-        d->vbar->setValue(d->vbar->maximum() - d->viewport->height());
+        d->vbar->setValue(d->vbar->maximum());
 }
 
 /*!
