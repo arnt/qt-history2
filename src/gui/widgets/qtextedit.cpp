@@ -2777,7 +2777,7 @@ void QTextEdit::append(const QString &text)
 
     cursor.endEditBlock();
 
-    if (atBottom && d->vbar->isVisible())
+    if (atBottom)
         d->vbar->setValue(d->vbar->maximum());
 }
 
@@ -2795,19 +2795,16 @@ void QTextEdit::ensureCursorVisible()
     const int visibleWidth = d->viewport->width();
     const int visibleHeight = d->viewport->height();
 
-    if (d->hbar->isVisible()) {
-        if (crect.x() < d->contentsX())
-            d->hbar->setValue(crect.x() - crect.width());
-        else if (crect.x() + crect.width() > d->contentsX() + visibleWidth)
-            d->hbar->setValue(crect.x() + crect.width() - visibleWidth);
-    }
+    if (crect.x() < d->contentsX())
+        d->hbar->setValue(crect.x() - crect.width());
+    else if (crect.x() + crect.width() > d->contentsX() + visibleWidth)
+        d->hbar->setValue(crect.x() + crect.width() - visibleWidth);
 
-    if (d->vbar->isVisible()) {
-        if (crect.y() < d->contentsY())
-            d->vbar->setValue(crect.y() - crect.height());
-        else if (crect.y() + crect.height() > d->contentsY() + visibleHeight)
-            d->vbar->setValue(crect.y() + crect.height() - visibleHeight);
-    }
+    if (crect.y() < d->contentsY())
+        d->vbar->setValue(crect.y() - crect.height());
+    else if (crect.y() + crect.height() > d->contentsY() + visibleHeight)
+        d->vbar->setValue(crect.y() + crect.height() - visibleHeight);
+
     updateMicroFocus();
 }
 
