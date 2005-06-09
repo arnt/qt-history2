@@ -744,12 +744,27 @@ void generateManualRules()
     addNeedHeaderRule("QImageIO");
     addNeedHeaderRule("QListBoxItem");
     addNeedHeaderRule("Q3Action");
+    addNeedHeaderRule("Q3ActionGroup");
     addNeedHeaderRule("qPixmapFromMimeSource", "q3mimefactory.h");
-
+    addNeedHeaderRule("Q3SqlFiledInfo");
+    addNeedHeaderRule("Q3SqlFiledInfoList");
+    addNeedHeaderRule("Q3SqlCursor");
+    addNeedHeaderRule("Q3SqlEditorFactory");
+    addNeedHeaderRule("Q3SqlForm");
+    addNeedHeaderRule("Q3SqlPropertyMap");
+    addNeedHeaderRule("Q3SqlRecordInfo");
+    addNeedHeaderRule("Q3SqlSelectCursor");
+    addNeedHeaderRule("QSqlError");
+    addNeedHeaderRule("QSqlQuery");
+    addNeedHeaderRule("Q3PointArray");
+    addNeedHeaderRule("Q3PopupMenu");
+    addNeedHeaderRule("Q3button");
+    
     // some old obsolete headers
     addRenamedHeaderRule("qkeycode.h", "qnamespace.h");
     addRenamedHeaderRule("qobjectlist.h", "qobject.h");
     addRenamedHeaderRule("qwidgetlist.h", "qwidget.h");
+    addRenamedHeaderRule("qapp.h", "qapplication.h");
 
     // corresponds to the renamed classes
     addRenamedHeaderRule("qiconset.h", "qicon.h");
