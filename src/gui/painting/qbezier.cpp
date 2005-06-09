@@ -333,9 +333,7 @@ redo:
     QBezier *b = beziers;
     QBezier *o = curveSegments;
 
-    long maxb = 0;
     while (b >= beziers) {
-        maxb = qMax(maxb, b - beziers);
         if (b - beziers == 9 || o - curveSegments == maxSegments) {
             threshold *= 1.5;
             if (threshold > 2.)
