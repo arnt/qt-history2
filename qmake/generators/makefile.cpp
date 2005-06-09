@@ -2155,10 +2155,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             }
         }
     }
-    if(project->isActiveConfig("build_all"))
-        t << "first: all" << endl;
-    else
-        t << "first: make_first" << endl;
+    t << "first: make_default" << endl;
     int flags = SubTargetInstalls;
     if(project->isActiveConfig("ordered"))
         flags |= SubTargetOrdered;
@@ -2199,7 +2196,7 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
     t << endl << endl;
 
     QStringList targetSuffixes;
-    targetSuffixes << "make_first" << "all" << "clean" << "distclean"
+    targetSuffixes << "make_default" << "make_first" << "all" << "clean" << "distclean"
                    << QString((flags & SubTargetInstalls) ? "install_subtargets" : "install")
                    << QString((flags & SubTargetInstalls) ? "uninstall_subtargets" : "uninstall");
 
@@ -2309,6 +2306,9 @@ MakefileGenerator::writeSubTargets(QTextStream &t, QList<MakefileGenerator::SubT
                 s = "uninstall";
             else if(s == "make_first")
                 s = "first";
+            else if(s == "make_default")
+                s = QString();
+
             if(flags & SubTargetOrdered) {
                 t << subtarget->target << "-" << targetSuffixes.at(suffix) << "-ordered: " << mkfile;
                 if(target)
