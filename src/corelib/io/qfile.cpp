@@ -503,7 +503,7 @@ QFile::exists(const QString &fileName)
     a an empty string if the object isn't a symbolic link.
 
     This name may not represent an existing file; it is only a string.
-    QFie::exists() returns true if the symlink points to an
+    QFile::exists() returns true if the symlink points to an
     existing file.
 
     \sa fileName() setFileName()
