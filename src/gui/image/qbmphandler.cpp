@@ -371,14 +371,14 @@ static bool read_dib(QDataStream &s, int offset, int startpos, QImage &image)
     else if (nbits == 8) {                        // 8 bit BMP image
         if (comp == BMP_RLE8) {                // run length compression
             int x=0, y=0;
-            char b;
+            quint8 b;
             register uchar *p = data + (h-1)*bpl;
             const uchar *endp = p + w;
             while (y < h) {
-                if (!d->getChar(&b))
+                if (!d->getChar((char *)&b))
                     break;
                 if (b == 0) {                        // escape code
-                    if (!d->getChar(&b) || b == 1) {
+                    if (!d->getChar((char *)&b) || b == 1) {
                             y = h;                // exit loop
                     } else switch (b) {
                         case 0:                        // end of line
