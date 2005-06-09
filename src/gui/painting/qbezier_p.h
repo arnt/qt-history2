@@ -27,6 +27,7 @@
 
 #include <qpoint.h>
 #include <qline.h>
+#include <qrect.h>
 
 class QPolygonF;
 
