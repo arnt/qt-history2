@@ -186,13 +186,13 @@ static OPENFILENAMEA *qt_win_make_OFNA(QWidget *parent,
     ofn->nMaxFile = maxLen;
     ofn->lpstrInitialDir = aInitDir.data();
     ofn->lpstrTitle = aTitle.data();
-    ofn->Flags = (OFN_NOCHANGEDIR | OFN_HIDEREADONLY);
+    ofn->Flags = (OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_EXPLORER);
 
     if (mode == QFileDialog::ExistingFile ||
          mode == QFileDialog::ExistingFiles)
         ofn->Flags |= (OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST);
     if (mode == QFileDialog::ExistingFiles)
-        ofn->Flags |= (OFN_ALLOWMULTISELECT | OFN_EXPLORER);
+        ofn->Flags |= (OFN_ALLOWMULTISELECT);
     if (!(options & QFileDialog::DontConfirmOverwrite))
         ofn->Flags |= OFN_OVERWRITEPROMPT;
 
@@ -261,13 +261,13 @@ static OPENFILENAME* qt_win_make_OFN(QWidget *parent,
     ofn->nMaxFile = maxLen;
     ofn->lpstrInitialDir = (TCHAR *)tInitDir.utf16();
     ofn->lpstrTitle = (TCHAR *)tTitle.utf16();
-    ofn->Flags = (OFN_NOCHANGEDIR | OFN_HIDEREADONLY);
+    ofn->Flags = (OFN_NOCHANGEDIR | OFN_HIDEREADONLY | OFN_EXPLORER);
 
     if (mode == QFileDialog::ExistingFile ||
          mode == QFileDialog::ExistingFiles)
         ofn->Flags |= (OFN_FILEMUSTEXIST | OFN_PATHMUSTEXIST);
     if (mode == QFileDialog::ExistingFiles)
-        ofn->Flags |= (OFN_ALLOWMULTISELECT | OFN_EXPLORER);
+        ofn->Flags |= (OFN_ALLOWMULTISELECT);
     if (!(options & QFileDialog::DontConfirmOverwrite))
         ofn->Flags |= OFN_OVERWRITEPROMPT;
 
