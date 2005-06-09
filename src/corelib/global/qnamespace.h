@@ -865,11 +865,11 @@ public:
         MV_10_DOT_4 = QSysInfo::MV_10_4,
 
         //Code names
-        MV_CHEETAH = MV_10_DOT_0,
-        MV_PUMA = MV_10_DOT_1,
-        MV_JAGUAR = MV_10_DOT_2,
-        MV_PANTHER = MV_10_DOT_3,
-        MV_TIGER = MV_10_DOT_4
+        MV_CHEETAH = QSysInfo::MV_CHEETAH,
+        MV_PUMA = QSysInfo::MV_PUMA,
+        MV_JAGUAR = QSysInfo::MV_JAGUAR,
+        MV_PANTHER = QSysInfo::MV_PANTHER,
+        MV_TIGER = QSysInfo::MV_TIGER
     };
 #endif // Q_OS_MAC
 

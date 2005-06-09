@@ -948,12 +948,21 @@ public:
 #ifdef Q_WS_MAC
     enum MacVersion {
         MV_Unknown = 0x0000,
+
+        //version
         MV_9 = 0x0001,
         MV_10_0 = 0x0002,
         MV_10_1 = 0x0003,
         MV_10_2 = 0x0004,
         MV_10_3 = 0x0005,
-        MV_10_4 = 0x0006
+        MV_10_4 = 0x0006,
+
+        //codenames
+        MV_CHEETAH = MV_10_0,
+        MV_PUMA = MV_10_1,
+        MV_JAGUAR = MV_10_2,
+        MV_PANTHER = MV_10_3,
+        MV_TIGER = MV_10_4
     };
     static const MacVersion MacintoshVersion;
 #endif
