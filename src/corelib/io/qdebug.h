@@ -112,13 +112,20 @@ public:
     inline QNoDebug &space() { return *this; }
     inline QNoDebug &nospace() { return *this; }
     inline QNoDebug &maybeSpace() { return *this; }
+
+#ifndef QT_NO_MEMBER_TEMPLATES
+    template<typename T>
+    inline QNoDebug &operator<<(const T &) { return *this; }
+#endif
 };
 #undef qDebug
 inline QNoDebug qDebug() { return QNoDebug(); }
 #define qDebug if(1) ; else qDebug
 
+#ifdef QT_NO_MEMBER_TEMPLATES
 template<typename T>
 inline QNoDebug operator<<(QNoDebug debug, const T &) { return debug; }
+#endif
 
 #endif
 
