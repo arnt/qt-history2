@@ -32,9 +32,6 @@ class ProjectBuilderMakefileGenerator : public UnixMakefileGenerator
     int     reftypeForFile(const QString &where);
     QString projectSuffix() const;
 
-    enum IDE_TYPE { MAC_XCODE, MAC_PBUILDER };
-    IDE_TYPE ideType() const;
-
 public:
     ProjectBuilderMakefileGenerator();
     ~ProjectBuilderMakefileGenerator();

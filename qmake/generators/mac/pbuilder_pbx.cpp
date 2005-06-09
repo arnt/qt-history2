@@ -67,11 +67,12 @@ ProjectBuilderMakefileGenerator::writeSubDirs(QTextStream &t)
     }
 
     //HEADER
+    const int pbVersion = pbuilderVersion();
     t << "// !$*UTF8*$!" << "\n"
       << "{" << "\n"
       << "\t" << "archiveVersion = 1;" << "\n"
       << "\t" << "classes = {" << "\n" << "\t" << "};" << "\n"
-      << "\t" << "objectVersion = " << pbuilderVersion() << ";" << "\n"
+      << "\t" << "objectVersion = " << pbVersion << ";" << "\n"
       << "\t" << "objects = {" << endl;
 
     //SUBDIRS
@@ -229,26 +230,57 @@ nextfile:
     //DUMP EVERYTHING THAT TIES THE ABOVE TOGETHER
     //BUILDSTYLE
     QString active_buildstyle;
-#if 0
     for(int as_release = 0; as_release < 2; as_release++)
-#else
-        bool as_release = !project->isActiveConfig("debug");
-#endif
     {
-        QString key = keyFor("QMAKE_SUBDIR_PBX_" + QString(as_release ? "RELEASE" : "DEBUG"));
-        if(project->isActiveConfig("debug") != as_release)
-            active_buildstyle = key;
-        project->variables()["QMAKE_SUBDIR_PBX_BUILDSTYLES"].append(key);
+        QMap<QString, QString> settings;
+        settings.insert("COPY_PHASE_STRIP", (as_release ? "YES" : "NO"));
+        if(as_release)
+            settings.insert("GCC_GENERATE_DEBUGGING_SYMBOLS", "NO");
+        QString name;
+        if(pbVersion >= 42)
+            name = (as_release ? "Release" : "Debug");
+        else
+            name = (as_release ? "Deployment" : "Development");
+
+        if(pbVersion >= 42) {
+            QString key = keyFor("QMAKE_SUBDIR_PBX_BUILDCONFIG_" + name);
+            project->variables()["QMAKE_SUBDIR_PBX_BUILDCONFIGS"].append(key);
+            t << "\t\t" << key << " = {" << "\n"
+              << "\t\t\t" << "isa = XCBuildConfiguration;" << "\n"
+              << "\t\t\t" << "buildSettings = {" << "\n";
+            for(QMap<QString, QString>::Iterator set_it = settings.begin(); set_it != settings.end(); ++set_it)
+                t << "\t\t\t\t" << set_it.key() << " = \"" << set_it.value() << "\";\n";
+            t << "\t\t\t" << "};" << "\n"
+              << "\t\t\t" << "name = " << name << ";" << "\n"
+              << "\t\t" << "};" << "\n";
+        }
+
+        QString key = keyFor("QMAKE_SUBDIR_PBX_BUILDSTYLE_" + name);
+        if(project->isActiveConfig("debug") != as_release) {
+            project->variables()["QMAKE_SUBDIR_PBX_BUILDSTYLES"].append(key);
+            active_buildstyle = name;
+        } else if(pbVersion >= 42) {
+            project->variables()["QMAKE_SUBDIR_PBX_BUILDSTYLES"].append(key);
+        }
         t << "\t\t" << key << " = {" << "\n"
           << "\t\t\t" << "buildRules = (" << "\n"
           << "\t\t\t" << ");" << "\n"
-          << "\t\t\t" << "buildSettings = {" << "\n"
-          << "\t\t\t\t" << "COPY_PHASE_STRIP = " << (as_release ? "YES" : "NO") << ";" << "\n";
-        if(as_release)
-            t << "\t\t\t\t" << "GCC_GENERATE_DEBUGGING_SYMBOLS = NO;" << "\n";
+          << "\t\t\t" << "buildSettings = {" << "\n";
+        for(QMap<QString, QString>::Iterator set_it = settings.begin(); set_it != settings.end(); ++set_it)
+            t << "\t\t\t\t" << set_it.key() << " = \"" << set_it.value() << "\";\n";
         t << "\t\t\t" << "};" << "\n"
           << "\t\t\t" << "isa = PBXBuildStyle;" << "\n"
-          << "\t\t\t" << "name = " << (as_release ? "Deployment" : "Development") << ";" << "\n"
+          << "\t\t\t" << "name = " << name << ";" << "\n"
+          << "\t\t" << "};" << "\n";
+    }
+    if(pbVersion >= 42) {
+        t << "\t\t" << keyFor("QMAKE_SUBDIR_PBX_BUILDCONFIG_LIST") << " = {" << "\n"
+          << "\t\t\t" << "isa = XCConfigurationList;" << "\n"
+          << "\t\t\t" << "buildConfigurations = (" << "\n"
+          << varGlue("QMAKE_SUBDIR_PBX_BUILDCONFIGS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+          << "\t\t\t" << ");" << "\n"
+          << "\t\t\t" << "defaultConfigurationIsVisible = 0;" << "\n"
+          << "\t\t\t" << "defaultConfigurationIsName = " << active_buildstyle << ";" << "\n"
           << "\t\t" << "};" << "\n";
     }
 
@@ -292,8 +324,10 @@ nextfile:
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "isa = PBXProject;" << "\n"
       << "\t\t\t" << "mainGroup = " << keyFor("QMAKE_SUBDIR_PBX_ROOT_GROUP") << ";" << "\n"
-      << "\t\t\t" << "projectDirPath = \"\";" << "\n"
-      << "\t\t\t" << "projectReferences = (" << "\n";
+      << "\t\t\t" << "projectDirPath = \"\";" << "\n";
+    if(pbVersion >= 42)
+        t << "\t\t\t" << "buildConfigurationList = " << keyFor("QMAKE_SUBDIR_PBX_BUILDCONFIG_LIST") << ";" << "\n";
+    t << "\t\t\t" << "projectReferences = (" << "\n";
     {
         QStringList &qmake_subdirs = project->variables()["QMAKE_PBX_SUBDIRS"];
         for(int i = 0; i < qmake_subdirs.count(); i++) {
@@ -376,11 +410,12 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     bool did_preprocess = false;
 
     //HEADER
+    const int pbVersion = pbuilderVersion();
     t << "// !$*UTF8*$!" << "\n"
       << "{" << "\n"
       << "\t" << "archiveVersion = 1;" << "\n"
       << "\t" << "classes = {" << "\n" << "\t" << "};" << "\n"
-      << "\t" << "objectVersion = " << pbuilderVersion() << ";" << "\n"
+      << "\t" << "objectVersion = " << pbVersion << ";" << "\n"
       << "\t" << "objects = {" << endl;
 
     //MAKE QMAKE equivelant
@@ -509,7 +544,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
               << "\t\t\t" << "name = \"" << name << "\";" << "\n"
               << "\t\t\t" << "path = \"" << file << "\";" << "\n"
               << "\t\t\t" << "refType = " << reftypeForFile(file) << ";" << "\n";
-            if (ideType() == MAC_XCODE) {
+            if(pbVersion >= 38) {
                 QString filetype;
                 for(QStringList::Iterator cppit = Option::cpp_ext.begin(); cppit != Option::cpp_ext.end(); ++cppit) {
                     if(file.endsWith((*cppit))) {
@@ -961,7 +996,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
           << "\t\t" << "};" << "\n";
     }
 
-    if(/*ideType() == MAC_XCODE &&*/ !project->isEmpty("QMAKE_PBX_PRESCRIPT_BUILDPHASES") && 0) {
+    if(/*pbVersion >= 38 &&*/ !project->isEmpty("QMAKE_PBX_PRESCRIPT_BUILDPHASES") && 0) {
         // build reference
         t << "\t\t" << keyFor("QMAKE_PBX_PRESCRIPT_BUILDREFERENCE") << " = {" << "\n"
           << "\t\t\t" << "includeInIndex = 0;" << "\n"
@@ -1084,7 +1119,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t\t" << "WARNING_CFLAGS = \"\";" << "\n"
       << "\t\t\t\t" << "PREBINDING = " << (project->isEmpty("QMAKE_DO_PREBINDING") ? "NO" : "YES") << ";" << "\n";
     if(!project->isEmpty("PRECOMPILED_HEADER")) {
-        if (ideType() == MAC_XCODE) {
+        if(pbVersion >= 38) {
             t << "\t\t\t\t" << "GCC_PRECOMPILE_PREFIX_HEADER = \"YES\";" << "\n"
                 << "\t\t\t\t" << "GCC_PREFIX_HEADER = \"" <<  project->first("PRECOMPILED_HEADER") << "\";" << "\n";
         } else {
@@ -1143,7 +1178,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     if(!project->isEmpty("QMAKE_MACOSX_DEPLOYMENT_TARGET"))
         t << "\t\t\t\t" << "MACOSX_DEPLOYMENT_TARGET = \""
           << project->first("QMAKE_MACOSX_DEPLOYMENT_TARGET") << "\";" << "\n";
-    if(ideType() == MAC_XCODE) {
+    if(pbVersion >= 38) {
         if(!project->isEmpty("OBJECTS_DIR"))
             t << "\t\t\t\t" << "OBJROOT = \"" << project->first("OBJECTS_DIR") << "\";" << "\n";
     }
@@ -1154,7 +1189,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         t << "\t\t\t\t" << "SYMROOT = \"" << qmake_getpwd() << "\";" << "\n";
 #endif
     if(project->first("TEMPLATE") == "app") {
-        if(ideType() == MAC_PBUILDER && !project->isActiveConfig("console"))
+        if(pbVersion < 38 && !project->isActiveConfig("console"))
             t << "\t\t\t\t" << "WRAPPER_SUFFIX = app;" << "\n";
         t << "\t\t\t\t" << "PRODUCT_NAME = " << project->first("QMAKE_ORIG_TARGET") << ";" << "\n";
     } else {
@@ -1183,16 +1218,16 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "productReference = " << keyFor(pbx_dir + "QMAKE_PBX_REFERENCE") << ";" << "\n"
       << "\t\t\t" << "shouldUseHeadermap = 1;" << "\n";
-    if(ideType() == MAC_XCODE)
+    if(pbVersion >= 38)
         t << "\t\t\t" << "isa = PBXNativeTarget;" << "\n";
     if(project->first("TEMPLATE") == "app") {
         if(project->isActiveConfig("console")) {
-            if(ideType() == MAC_XCODE)
+            if(pbVersion >= 38)
                 t << "\t\t\t" << "productType = \"com.apple.product-type.tool\";" << "\n";
             else
                 t << "\t\t\t" << "isa = PBXToolTarget;" << "\n";
         } else {
-            if(ideType() == MAC_XCODE)
+            if(pbVersion >= 38)
                 t << "\t\t\t" << "productType = \"com.apple.product-type.application\";" << "\n";
             else
                 t << "\t\t\t" << "isa = PBXApplicationTarget;" << "\n";
@@ -1245,7 +1280,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
            lib.prepend("lib");
         t << "\t\t\t" << "name = \"" << lib << "\";" << "\n"
           << "\t\t\t" << "productName = " << lib << ";" << "\n";
-        if(ideType() == MAC_XCODE) {
+        if(pbVersion >= 38) {
             if(project->isActiveConfig("staticlib"))
                 t << "\t\t\t" << "productType = \"com.apple.product-type.library.static\";" << "\n";
             else
@@ -1260,34 +1295,57 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
     t << "\t\t" << "};" << "\n";
     //DEBUG/RELEASE
     QString active_buildstyle;
-#if 0
     for(int as_release = 0; as_release < 2; as_release++)
-#else
-        bool as_release = !project->isActiveConfig("debug");
-#endif
     {
-        QString key = keyFor("QMAKE_PBX_" + QString(as_release ? "RELEASE" : "DEBUG"));
-        if(project->isActiveConfig("debug") != as_release)
-            active_buildstyle = key;
-        project->variables()["QMAKE_PBX_BUILDSTYLES"].append(key);
+        QMap<QString, QString> settings;
+        settings.insert("COPY_PHASE_STRIP", (as_release ? "YES" : "NO"));
+        if(as_release)
+            settings.insert("GCC_GENERATE_DEBUGGING_SYMBOLS", "NO");
+        QString name;
+        if(pbVersion >= 42)
+            name = (as_release ? "Release" : "Debug");
+        else
+            name = (as_release ? "Deployment" : "Development");
+
+        if(pbVersion >= 42) {
+            QString key = keyFor("QMAKE_PBX_BUILDCONFIG_" + name);
+            project->variables()["QMAKE_PBX_BUILDCONFIGS"].append(key);
+            t << "\t\t" << key << " = {" << "\n"
+              << "\t\t\t" << "isa = XCBuildConfiguration;" << "\n"
+              << "\t\t\t" << "buildSettings = {" << "\n";
+            for(QMap<QString, QString>::Iterator set_it = settings.begin(); set_it != settings.end(); ++set_it)
+                t << "\t\t\t\t" << set_it.key() << " = \"" << set_it.value() << "\";\n";
+            t << "\t\t\t" << "};" << "\n"
+              << "\t\t\t" << "name = " << name << ";" << "\n"
+              << "\t\t" << "};" << "\n";
+        }
+
+        QString key = keyFor("QMAKE_PBX_BUILDSTYLE_" + name);
+        if(project->isActiveConfig("debug") != as_release) {
+            project->variables()["QMAKE_PBX_BUILDSTYLES"].append(key);
+            active_buildstyle = name;
+        } else if(pbVersion >= 42) {
+            project->variables()["QMAKE_PBX_BUILDSTYLES"].append(key);
+        }
         t << "\t\t" << key << " = {" << "\n"
           << "\t\t\t" << "buildRules = (" << "\n"
           << "\t\t\t" << ");" << "\n"
-          << "\t\t\t" << "buildSettings = {" << "\n"
-          << "\t\t\t\t" << "COPY_PHASE_STRIP = " << (as_release ? "YES" : "NO") << ";" << "\n";
-        if(as_release) {
-            t << "\t\t\t\t" << "GCC_GENERATE_DEBUGGING_SYMBOLS = NO;" << "\n";
-        } else {
-            t << "\t\t\t\t" << "GCC_ENABLE_FIX_AND_CONTINUE = "
-              << (project->isActiveConfig("no_fix_and_continue") ? "NO" : "YES") << ";" << "\n"
-              << "\t\t\t\t" << "GCC_GENERATE_DEBUGGING_SYMBOLS = YES;" << "\n"
-              << "\t\t\t\t" << "GCC_OPTIMIZATION_LEVEL = 0;" << "\n"
-              << "\t\t\t\t" << "ZERO_LINK ="
-              << (project->isActiveConfig("no_zero_link") ? "NO" : "YES") << ";" << "\n";
-        }
+          << "\t\t\t" << "buildSettings = {" << "\n";
+        for(QMap<QString, QString>::Iterator set_it = settings.begin(); set_it != settings.end(); ++set_it)
+            t << "\t\t\t\t" << set_it.key() << " = \"" << set_it.value() << "\";\n";
         t << "\t\t\t" << "};" << "\n"
           << "\t\t\t" << "isa = PBXBuildStyle;" << "\n"
-          << "\t\t\t" << "name = " << (as_release ? "Deployment" : "Development") << ";" << "\n"
+          << "\t\t\t" << "name = " << name << ";" << "\n"
+          << "\t\t" << "};" << "\n";
+    }
+    if(pbVersion >= 42) {
+        t << "\t\t" << keyFor("QMAKE_PBX_BUILDCONFIG_LIST") << " = {" << "\n"
+          << "\t\t\t" << "isa = XCConfigurationList;" << "\n"
+          << "\t\t\t" << "buildConfigurations = (" << "\n"
+          << varGlue("QMAKE_PBX_BUILDCONFIGS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
+          << "\t\t\t" << ");" << "\n"
+          << "\t\t\t" << "defaultConfigurationIsVisible = 0;" << "\n"
+          << "\t\t\t" << "defaultConfigurationIsName = " << active_buildstyle << ";" << "\n"
           << "\t\t" << "};" << "\n";
     }
     //ROOT
@@ -1297,8 +1355,10 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
       << "\t\t\t" << ");" << "\n"
       << "\t\t\t" << "hasScannedForEncodings = 1;" << "\n"
       << "\t\t\t" << "isa = PBXProject;" << "\n"
-      << "\t\t\t" << "mainGroup = " << keyFor("QMAKE_PBX_ROOT_GROUP") << ";" << "\n"
-      << "\t\t\t" << "projectDirPath = \"\";" << "\n"
+      << "\t\t\t" << "mainGroup = " << keyFor("QMAKE_PBX_ROOT_GROUP") << ";" << "\n";
+    if(pbVersion >= 42)
+        t << "\t\t\t" << "buildConfigurationList = " << keyFor("QMAKE_PBX_BUILDCONFIG_LIST") << ";" << "\n";
+    t << "\t\t\t" << "projectDirPath = \"\";" << "\n"
       << "\t\t\t" << "targets = (" << "\n"
       << varGlue("QMAKE_PBX_TARGETS", "\t\t\t\t", ",\n\t\t\t\t", "\n")
       << "\t\t\t" << ");" << "\n"
@@ -1420,7 +1480,7 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
     if(project->isEmpty("QMAKE_PBUILDER_VERSION")) {
         QString version, version_plist = project->first("QMAKE_PBUILDER_VERSION_PLIST");
         if(version_plist.isEmpty()) {
-            if(ideType() == MAC_XCODE && exists("/Developer/Applications/Xcode.app/Contents/version.plist"))
+            if(exists("/Developer/Applications/Xcode.app/Contents/version.plist"))
                 version_plist = "/Developer/Applications/Xcode.app/Contents/version.plist";
             else
                 version_plist = "/Developer/Applications/Project Builder.app/Contents/version.plist";
@@ -1451,10 +1511,12 @@ ProjectBuilderMakefileGenerator::pbuilderVersion() const
             plist.flush();
             version_file.close();
         } else { debug_msg(1, "pbuilder: version.plist: Failure to open %s", version_plist.toLatin1().constData()); }
-        if(version_plist.contains("Xcode")) {
+        if(version.isEmpty() && version_plist.contains("Xcode")) {
             ret = "39";
         } else {
-            if(version.startsWith("2."))
+            if(version == "2.1")
+                ret = "42";
+            else if(version.startsWith("2."))
                 ret = "38";
             else if(version == "1.1")
                 ret = "34";
@@ -1483,19 +1545,13 @@ ProjectBuilderMakefileGenerator::reftypeForFile(const QString &where)
     return ret;
 }
 
-ProjectBuilderMakefileGenerator::IDE_TYPE
-ProjectBuilderMakefileGenerator::ideType() const
-{
-    if(!project->isActiveConfig("no_pbx_xcode") &&
-       (exists("/Developer/Applications/Xcode.app") || project->isActiveConfig("pbx_xcode")))
-        return ProjectBuilderMakefileGenerator::MAC_XCODE;
-    return ProjectBuilderMakefileGenerator::MAC_PBUILDER;
-}
-
 QString
 ProjectBuilderMakefileGenerator::projectSuffix() const
 {
-    if(ideType() == MAC_XCODE)
+    const int pbVersion = pbuilderVersion();
+    if(pbVersion >= 42)
+        return ".xcodeproj";
+    else if(pbVersion >= 38)
         return ".xcode";
     return ".pbproj";
 }
@@ -1507,5 +1563,5 @@ ProjectBuilderMakefileGenerator::pbxbuild()
         return "pbbuild";
     if(exists("/usr/bin/xcodebuild"))
        return "xcodebuild";
-    return (ideType() == MAC_XCODE ? "xcodebuild" : "pbxbuild");
+    return (pbuilderVersion() >= 38 ? "xcodebuild" : "pbxbuild");
 }
