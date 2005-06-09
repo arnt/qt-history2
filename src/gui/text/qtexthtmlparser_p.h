@@ -45,6 +45,10 @@ enum QTextHTMLElements {
     Html_small,
     Html_strong,
     Html_b,
+    Html_cite,
+    Html_address,
+    Html_var,
+    Html_dfn,
 
     Html_h1,
     Html_h2,
@@ -63,6 +67,8 @@ enum QTextHTMLElements {
 
     Html_code,
     Html_tt,
+    Html_kbd,
+    Html_samp,
 
     Html_img,
     Html_br,

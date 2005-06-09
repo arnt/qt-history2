@@ -313,14 +313,17 @@ static QChar resolveEntity(const QString &entity)
 // what the w3c defines.
 static const QTextHtmlElement elements[Html_NumElements+1]= {
     { "a", Html_a, QTextHtmlElement::DisplayInline },
+    { "address", Html_address, QTextHtmlElement::DisplayInline },
     { "b", Html_b, QTextHtmlElement::DisplayInline },
     { "big", Html_big, QTextHtmlElement::DisplayInline },
     { "blockquote", Html_blockquote, QTextHtmlElement::DisplayBlock },
     { "body", Html_body, QTextHtmlElement::DisplayBlock },
     { "br", Html_br, QTextHtmlElement::DisplayInline },
     { "center", Html_center, QTextHtmlElement::DisplayBlock },
+    { "cite", Html_cite, QTextHtmlElement::DisplayInline },
     { "code", Html_code, QTextHtmlElement::DisplayInline },
     { "dd", Html_dd, QTextHtmlElement::DisplayBlock },
+    { "dfn", Html_dfn, QTextHtmlElement::DisplayInline },
     { "div", Html_div, QTextHtmlElement::DisplayBlock },
     { "dl", Html_dl, QTextHtmlElement::DisplayBlock },
     { "dt", Html_dt, QTextHtmlElement::DisplayBlock },
@@ -337,6 +340,7 @@ static const QTextHtmlElement elements[Html_NumElements+1]= {
     { "html", Html_html, QTextHtmlElement::DisplayInline },
     { "i", Html_i, QTextHtmlElement::DisplayInline },
     { "img", Html_img, QTextHtmlElement::DisplayInline },
+    { "kbd", Html_kbd, QTextHtmlElement::DisplayInline },
     { "li", Html_li, QTextHtmlElement::DisplayBlock },
     { "meta", Html_meta, QTextHtmlElement::DisplayNone },
     { "nobr", Html_nobr, QTextHtmlElement::DisplayInline },
@@ -345,6 +349,7 @@ static const QTextHtmlElement elements[Html_NumElements+1]= {
     { "pre", Html_pre, QTextHtmlElement::DisplayBlock },
     { "qt", Html_body /*deliberate mapping*/, QTextHtmlElement::DisplayBlock },
     { "s", Html_s, QTextHtmlElement::DisplayInline },
+    { "samp", Html_samp, QTextHtmlElement::DisplayInline },
     { "small", Html_small, QTextHtmlElement::DisplayInline },
     { "span", Html_span, QTextHtmlElement::DisplayInline },
     { "strong", Html_strong, QTextHtmlElement::DisplayInline },
@@ -359,6 +364,7 @@ static const QTextHtmlElement elements[Html_NumElements+1]= {
     { "tt", Html_tt, QTextHtmlElement::DisplayInline },
     { "u", Html_u, QTextHtmlElement::DisplayInline },
     { "ul", Html_ul, QTextHtmlElement::DisplayBlock },
+    { "var", Html_var, QTextHtmlElement::DisplayInline },
     { 0, 0, QTextHtmlElement::DisplayNone }
 };
 
@@ -1027,6 +1033,10 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             break;
         case Html_em:
         case Html_i:
+        case Html_cite:
+        case Html_address:
+        case Html_var:
+        case Html_dfn:
             fontItalic = true;
             break;
         case Html_big:
@@ -1096,6 +1106,8 @@ void QTextHtmlParserNode::initializeProperties(const QTextHtmlParserNode *parent
             break;
         case Html_code:
         case Html_tt:
+        case Html_kbd:
+        case Html_samp:
             fontFamily = QString::fromLatin1("Courier New,courier");
             // <tt> uses a fixed font, so set the property
             fontFixedPitch = true;
