@@ -686,7 +686,6 @@ void QWin32PrintEnginePrivate::strokePath(const QPainterPath &path, const QColor
         stroke = stroker.createStroke(path * matrix);
     } else {
         stroker.setWidth(width);
-        stroker.setCurveThreshold(1 / (10 * matrix.m11() * matrix.m22()));
         stroke = stroker.createStroke(path) * matrix;
     }
 

@@ -1507,7 +1507,6 @@ void QX11PaintEngine::drawPath(const QPainterPath &path)
             d->fillPath(stroke, QX11PaintEnginePrivate::PenGC, false);
         } else {
             stroker.setWidth(width);
-            stroker.setCurveThreshold(width / (2 * 10 * d->matrix.m11() * d->matrix.m22()));
             stroke = stroker.createStroke(path);
             if (stroke.isEmpty())
                 return;

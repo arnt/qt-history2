@@ -17,7 +17,7 @@
 #include <qpolygon.h>
 
 #include <private/qnumeric_p.h>
-
+#include <private/qmath_p.h>
 /*!
   \internal
 */
@@ -68,7 +68,7 @@ QPolygonF QBezier::toPolygon() const
             d = qAbs(b->x1 - b->x2) + qAbs(b->y1 - b->y2) +
                 qAbs(b->x1 - b->x3) + qAbs(b->y1 - b->y3);
         }
-        if (d < 1. || b == beziers + 31) {
+        if (d < .5 || b == beziers + 31) {
             // good enough, we pop it off and add the endpoint
             polygon.append(QPointF(b->x4, b->y4));
             --b;
@@ -105,48 +105,268 @@ void QBezier::split(QBezier *firstHalf, QBezier *secondHalf) const
     firstHalf->y4 = secondHalf->y1 = (firstHalf->y3 + secondHalf->y2)/2;
 }
 
-int QBezier::shifted(QBezier *curveSegments, int maxSegments, float offset, float threshold) const
+
+QRectF QBezier::bounds() const
+{
+    qreal xmin = x1;
+    qreal xmax = x1;
+    if (x2 < xmin)
+        xmin = x2;
+    else if (x2 > xmax)
+        xmax = x2;
+    if (x3 < xmin)
+        xmin = x3;
+    else if (x3 > xmax)
+        xmax = x3;
+    if (x4 < xmin)
+        xmin = x4;
+    else if (x4 > xmax)
+        xmax = x4;
+
+    qreal ymin = y1;
+    qreal ymax = y1;
+    if (y2 < ymin)
+        ymin = y2;
+    else if (y2 > ymax)
+        ymax = y2;
+    if (y3 < ymin)
+        ymin = y3;
+    else if (y3 > ymax)
+        ymax = y3;
+    if (y4 < ymin)
+        ymin = y4;
+    else if (y4 > ymax)
+        ymax = y4;
+    return QRectF(xmin, ymin, xmax-xmin, ymax-ymin);
+}
+
+
+enum ShiftResult {
+    Ok,
+    Discard,
+    Split,
+    Circle
+};
+
+static ShiftResult good_offset(const QBezier *b1, const QBezier *b2, qreal offset, qreal threshold)
+{
+    const qreal o2 = offset*offset;
+    const qreal max_dist_line = threshold*offset*offset;
+    const qreal max_dist_normal = threshold*offset;
+    const qreal spacing = 0.25;
+    for (qreal i = spacing; i < 0.99; i += spacing) {
+        QPointF p1 = b1->pointAt(i);
+        QPointF p2 = b2->pointAt(i);
+        qreal d = (p1.x() - p2.x())*(p1.x() - p2.x()) + (p1.y() - p2.y())*(p1.y() - p2.y());
+        if (qAbs(d - o2) > max_dist_line)
+            return Split;
+
+        QPointF normalPoint = b1->normalVector(i);
+        qreal l = qAbs(normalPoint.x()) + qAbs(normalPoint.y());
+        if (l != 0.) {
+            d = qAbs( normalPoint.x()*(p1.y() - p2.y()) - normalPoint.y()*(p1.x() - p2.x()) ) / l;
+            if (d > max_dist_normal)
+                return Split;
+        }
+    }
+    return Ok;
+}
+
+
+static ShiftResult shift(const QBezier *orig, QBezier *shifted, qreal offset, qreal threshold)
+{
+    int map[4];
+    bool p1_p2_equal = (orig->x1 == orig->x2 && orig->y1 == orig->y2);
+    bool p2_p3_equal = (orig->x2 == orig->x3 && orig->y2 == orig->y3);
+    bool p3_p4_equal = (orig->x3 == orig->x4 && orig->y3 == orig->y4);
+
+    QPointF points[4];
+    int np = 0;
+    points[np] = QPointF(orig->x1, orig->y1);
+    map[0] = 0;
+    ++np;
+    if (!p1_p2_equal) {
+        points[np] = QPointF(orig->x2, orig->y2);
+        ++np;
+    }
+    map[1] = np - 1;
+    if (!p2_p3_equal) {
+        points[np] = QPointF(orig->x3, orig->y3);
+        ++np;
+    }
+    map[2] = np - 1;
+    if (!p3_p4_equal) {
+        points[np] = QPointF(orig->x4, orig->y4);
+        ++np;
+    }
+    map[3] = np - 1;
+    if (np == 1)
+        return Discard;
+
+    QRectF b = orig->bounds();
+    if (np == 4 && b.width() < .1*offset && b.height() < .1*offset) {
+        qreal l = (orig->x1 - orig->x2)*(orig->x1 - orig->x2) +
+                  (orig->y1 - orig->y2)*(orig->y1 - orig->y1) *
+                  (orig->x3 - orig->x4)*(orig->x3 - orig->x4) +
+                  (orig->y3 - orig->y4)*(orig->y3 - orig->y4);
+        qreal dot = (orig->x1 - orig->x2)*(orig->x3 - orig->x4) +
+                    (orig->y1 - orig->y2)*(orig->y3 - orig->y4);
+        if (dot < 0 && dot*dot < 0.8*l)
+            // the points are close and reverse dirction. Approximate the whole
+            // thing by a semi circle
+            return Circle;
+    }
+
+    QLineF l(points[0], points[1]);
+    QLineF ln = l.normalVector().unitVector();
+    l.translate(ln.dx() * offset, ln.dy() * offset);
+    points[0] = l.p1();
+
+    if (np > 2) {
+        QLineF l2(points[1], points[2]);
+        QLineF l2n = l2.normalVector().unitVector();
+        l2.translate(l2n.dx() * offset, l2n.dy() * offset);
+
+        QPointF intersection;
+        QLineF::IntersectType type = l.intersect(l2, &intersection);
+        if (type == QLineF::NoIntersection) {
+            points[1] = l.p2();
+        } else {
+            points[1] = intersection;
+        }
+
+        l = l2;
+    }
+    if (np > 3) {
+        QLineF l2(points[2], points[3]);
+        QLineF l2n = l2.normalVector().unitVector();
+        l2.translate(l2n.dx() * offset, l2n.dy() * offset);
+
+        QPointF intersection;
+        QLineF::IntersectType type = l.intersect(l2, &intersection);
+        if (type == QLineF::NoIntersection) {
+            points[2] = l2.p1();
+        } else {
+            points[2] = intersection;
+        }
+        l = l2;
+    }
+    points[np - 1] = l.p2();
+
+    *shifted = QBezier::fromPoints(points[map[0]], points[map[1]], points[map[2]], points[map[3]]);
+
+    return good_offset(orig, shifted, offset, threshold);
+}
+
+// This value is used to determine the length of control point vectors
+// when approximating arc segments as curves. The factor is multiplied
+// with the radius of the circle.
+#define KAPPA 0.5522847498
+
+
+static void addCircle(const QBezier *b, qreal offset, QBezier *o)
+{
+    QPointF normals[3];
+
+    normals[0] = QPointF(b->y2 - b->y1, b->x1 - b->x2);
+    normals[0] /= sqrt(normals[0].x()*normals[0].x() + normals[0].y()*normals[0].y());
+    normals[2] = QPointF(b->y4 - b->y3, b->x3 - b->x4);
+    normals[2] /= sqrt(normals[2].x()*normals[2].x() + normals[2].y()*normals[2].y());
+
+    normals[1] = QPointF(b->x1 - b->x2 - b->x3 + b->x4, b->y1 - b->y2 - b->y3 + b->y4);
+    normals[1] /= -1*sqrt(normals[1].x()*normals[1].x() + normals[1].y()*normals[1].y());
+
+    qreal angles[2];
+    qreal sign = 1.;
+    for (int i = 0; i < 2; ++i) {
+        qreal cos_a = normals[i].x()*normals[i+1].x() + normals[i].y()*normals[i+1].y();
+        if (cos_a > 1.)
+            cos_a = 1.;
+        if (cos_a < -1.)
+            cos_a = -1;
+        angles[i] = acos(cos_a)/Q_PI;
+    }
+
+    if (angles[0] + angles[1] > 1.) {
+        // more than 180 degrees
+        normals[1] = -normals[1];
+        angles[0] = 1. - angles[0];
+        angles[1] = 1. - angles[1];
+        sign = -1.;
+
+    }
+
+    QPointF circle[3];
+    circle[0] = QPointF(b->x1, b->y1) + normals[0]*offset;
+    circle[1] = QPointF(0.5*(b->x1 + b->x4), 0.5*(b->y1 + b->y4)) + normals[1]*offset;
+    circle[2] = QPointF(b->x4, b->y4) + normals[2]*offset;
+
+    for (int i = 0; i < 2; ++i) {
+        qreal kappa = 2.*KAPPA * sign * offset * angles[i];
+
+        o->x1 = circle[i].x();
+        o->y1 = circle[i].y();
+        o->x2 = circle[i].x() - normals[i].y()*kappa;
+        o->y2 = circle[i].y() + normals[i].x()*kappa;
+        o->x3 = circle[i+1].x() + normals[i+1].y()*kappa;
+        o->y3 = circle[i+1].y() - normals[i+1].x()*kappa;
+        o->x4 = circle[i+1].x();
+        o->y4 = circle[i+1].y();
+
+        ++o;
+    }
+}
+
+int QBezier::shifted(QBezier *curveSegments, int maxSegments, qreal offset, float threshold) const
 {
     Q_ASSERT(curveSegments);
     Q_ASSERT(maxSegments > 0);
 
-    // We offset the control vectors to have a basis for the offset.
-    QLineF l1(x1, y1, x2, y2);
-    if (l1.isNull()) l1 = QLineF(x1, y1, x3, y3);
-    if (l1.isNull()) l1 = QLineF(x1, y1, x4, y4);
-    if (l1.isNull()) return 0;
+    if (x1 == x2 && x1 == x3 && x1 == x4 &&
+        y1 == y2 && y1 == y3 && y1 == y4)
+        return 0;
 
-    QLineF l2(x3, y3, x4, y4);
-    if (l2.isNull()) l2 = QLineF(x2, y2, x4, y4);
-    if (l2.isNull()) l2 = QLineF(x1, y1, x4, y4);
-    if (l2.isNull()) return 0;
+    --maxSegments;
+    QBezier beziers[10];
+redo:
+    beziers[0] = *this;
+    QBezier *b = beziers;
+    QBezier *o = curveSegments;
 
-    QLineF l1n = l1.normalVector().unitVector();
-    l1.translate(l1n.dx() * offset, l1n.dy() * offset);
-
-    QLineF l2n = l2.normalVector().unitVector();
-    l2.translate(l2n.dx() * offset, l2n.dy() * offset);
-
-    QBezier shifted = QBezier::fromPoints(l1.p1(), l1.p2(), l2.p1(), l2.p2());
-
-    // Locate the center off the offsetted curve.
-    QPointF offsetCenter = shifted.midPoint();
-
-    // Calculate where the center of the offsetted curve should be
-    QPointF center = midPoint();
-    QLineF centerTangent = midTangent();
-    QLineF ctn = centerTangent.normalVector().unitVector();
-    center += QPointF(ctn.dx() * offset, ctn.dy() * offset);
-
-    // Recurse if the distance between actual and expected is greater than threshold
-    if (QLineF(center, offsetCenter).length() > qAbs(threshold) && maxSegments > 1) {
-        QBezier firstHalf, secondHalf;
-        split(&firstHalf, &secondHalf);
-        int num = firstHalf.shifted(curveSegments, maxSegments / 2, offset, threshold);
-        num += secondHalf.shifted(curveSegments + num, maxSegments - num, offset, threshold);
-        return num;
-    } else {
-        *curveSegments = shifted;
-        return 1;
+    long maxb = 0;
+    while (b >= beziers) {
+        maxb = qMax(maxb, b - beziers);
+        if (b - beziers == 9 || o - curveSegments == maxSegments) {
+            threshold *= 1.5;
+            if (threshold > 2.)
+                goto give_up;
+            goto redo;
+        }
+        ShiftResult res = shift(b, o, offset, threshold);
+        if (res == Discard) {
+            --b;
+        } else if (res == Ok) {
+            ++o;
+            --b;
+            continue;
+        } else if (res == Circle && maxSegments - (o - curveSegments) >= 2) {
+            // add semi circle
+            addCircle(b, offset, o);
+            --b;
+            o += 2;
+        } else {
+            b->split(b+1, b);
+            ++b;
+        }
     }
+
+give_up:
+    while (b >= beziers) {
+        shift(b, o, offset, threshold);
+        ++o;
+        --b;
+    }
+
+    Q_ASSERT(o - curveSegments <= maxSegments);
+    return o - curveSegments;
 }

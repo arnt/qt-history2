@@ -36,7 +36,10 @@ public:
     static QBezier fromPoints(const QPointF &p1, const QPointF &p2, const QPointF &p3, const QPointF &p4);
 
     inline QPointF pointAt(qreal t) const;
+    inline QPointF normalVector(qreal t) const;
+
     QPolygonF toPolygon() const;
+    QRectF bounds() const;
 
     QPointF pt1() const { return QPointF(x1, y1); }
     QPointF pt2() const { return QPointF(x2, y2); }
@@ -47,9 +50,8 @@ public:
     inline QLineF midTangent() const;
 
     void split(QBezier *firstHalf, QBezier *secondHalf) const;
-    int shifted(QBezier *curveSegments, int maxSegmets, float offset, float threshold) const;
+    int shifted(QBezier *curveSegments, int maxSegmets, qreal offset, float threshold) const;
 
-private:
     qreal x1, y1, x2, y2, x3, y3, x4, y4;
 };
 
@@ -98,6 +100,16 @@ inline QPointF QBezier::pointAt(qreal t) const
     qreal y = a*m_t + b*t;
     return QPointF(x, y);
 #endif
+}
+
+inline QPointF QBezier::normalVector(qreal t) const
+{
+    qreal m_t = 1. - t;
+    qreal a = m_t * m_t;
+    qreal b = t * m_t;
+    qreal c = t * t;
+
+    return QPointF((y2-y1) * a + (y3-y2) * b + (y4-y3) * c,  -(x2-x1) * a - (x3-x2) * b - (x4-x3) * c);
 }
 
 #endif // QBEZIER_P_H
