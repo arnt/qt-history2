@@ -2,7 +2,6 @@ TEMPLATE = app
 QT = xml core
 CONFIG += warn_on console no_batch
 CONFIG -= app_bundle
-CONFIG -= debug_and_release
 build_all:!build_pass {
     CONFIG -= build_all
     CONFIG += release
