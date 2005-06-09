@@ -39,6 +39,7 @@ embedded {
 		    embedded/qgfxrasterbase_qws.cpp \
 		    embedded/qgfxraster_qws.cpp \
 		    embedded/qlock.cpp \
+		    embedded/qscreen_qws.cpp \
 		    embedded/qwindowsystem_qws.cpp \
 		    embedded/qwscommand_qws.cpp \
 		    embedded/qwscursor_qws.cpp \

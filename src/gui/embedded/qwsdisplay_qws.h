@@ -53,7 +53,6 @@ public:
 
     bool eventPending() const;
     QWSEvent *getEvent();
-    QGfx * screenGfx();
 //    QWSRegionManager *regionManager() const;
 
     uchar* frameBuffer() const;
