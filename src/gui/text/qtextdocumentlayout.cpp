@@ -1820,6 +1820,7 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     markFrames(document()->rootFrame(), from, oldLength, length);
 
     const QSizeF oldSize = documentSize();
+    const int oldPageCount = pageCount();
 
     QTextFrame *root = document()->rootFrame();
     if(data(root)->sizeDirty)
@@ -1829,6 +1830,9 @@ void QTextDocumentLayout::documentChanged(int from, int oldLength, int length)
     const QSizeF newSize = documentSize();
     if (newSize != oldSize)
         emit documentSizeChanged(newSize);
+    const int newPageCount = pageCount();
+    if (oldPageCount != newPageCount)
+        emit pageCountChanged(newPageCount);
 
     emit update();
 }
