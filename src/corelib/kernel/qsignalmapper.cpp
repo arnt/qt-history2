@@ -27,6 +27,7 @@ public:
     QHash<QObject *, int> intHash;
     QHash<QObject *, QString> stringHash;
     QHash<QObject *, QWidget*> widgetHash;
+    QHash<QObject *, QObject*> objectHash;
 
 };
 
@@ -117,7 +118,7 @@ QSignalMapper::~QSignalMapper()
     Adds a mapping so that when map() is signalled from the given \a
     sender, the signal mapped(\a id) is emitted.
 
-    There may be at most one integer ID for each object.
+    There may be at most one integer ID for each sender.
 
     \sa mapping()
 */
@@ -134,7 +135,7 @@ void QSignalMapper::setMapping(QObject *sender, int id)
     Adds a mapping so that when map() is signalled from the given \a
     sender, the signal mapped(\a text ) is emitted.
 
-    There may be at most one text for each object.
+    There may be at most one text for each sender.
 */
 void QSignalMapper::setMapping(QObject *sender, const QString &text)
 {
@@ -149,7 +150,7 @@ void QSignalMapper::setMapping(QObject *sender, const QString &text)
     Adds a mapping so that when map() is signalled from the given \a
     sender, the signal mapped(\a widget ) is emitted.
 
-    There may be at most one widget for each object.
+    There may be at most one widget for each sender.
 */
 void QSignalMapper::setMapping(QObject *sender, QWidget *widget)
 {
@@ -158,6 +159,20 @@ void QSignalMapper::setMapping(QObject *sender, QWidget *widget)
     connect(sender, SIGNAL(destroyed()), this, SLOT(senderDestroyed()));
 }
 
+/*!
+    \overload
+
+    Adds a mapping so that when map() is signalled from the given \a
+    sender, the signal mapped(\a object ) is emitted.
+
+    There may be at most one object for each sender.
+*/
+void QSignalMapper::setMapping(QObject *sender, QObject *object)
+{
+    Q_D(QSignalMapper);
+    d->objectHash.insert(sender, object);
+    connect(sender, SIGNAL(destroyed()), this, SLOT(senderDestroyed()));
+}
 
 /*!
     Returns the sender QObject that is associated with the given \a
@@ -193,6 +208,18 @@ QObject *QSignalMapper::mapping(QWidget *widget) const
 }
 
 /*!
+    \overload
+
+    Returns the sender QObject that is associated with the given \a
+    object.
+*/
+QObject *QSignalMapper::mapping(QObject *object) const
+{
+    Q_D(const QSignalMapper);
+    return d->objectHash.key(object);
+}
+
+/*!
     Removes all mappings for \a sender.
 
     This is done automatically when mapped objects are destroyed.
@@ -204,6 +231,7 @@ void QSignalMapper::removeMappings(QObject *sender)
     d->intHash.remove(sender);
     d->stringHash.remove(sender);
     d->widgetHash.remove(sender);
+    d->objectHash.remove(sender);
 }
 
 /*!
@@ -223,6 +251,8 @@ void QSignalMapper::map(QObject *sender)
         emit mapped(d->stringHash.value(sender));
     if (d->widgetHash.contains(sender))
         emit mapped(d->widgetHash.value(sender));
+    if (d->objectHash.contains(sender))
+        emit mapped(d->objectHash.value(sender));
 }
 
 
