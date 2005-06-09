@@ -132,15 +132,44 @@ bool DspMakefileGenerator::writeDspParts(QTextStream &t)
 
     if (project->isActiveConfig("flat")) {
 
-        writeFileGroup(t, QString("SOURCES|DEF_FILE").split("|"), "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
+        QStringList listNames = QString("SOURCES|DEF_FILE").split("|");
+        QStringList allListNames = listNames;
+        writeFileGroup(t, listNames, "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
+        listNames = QStringList("HEADERS");
+        allListNames += listNames;
         writeFileGroup(t, QStringList("HEADERS"), "Header Files", "h;hpp;hxx;hm;inl");
-        writeFileGroup(t, QString("FORMS|INTERFACES").split("|"), "Form Files", "ui");
+        listNames = QString("FORMS|INTERFACES").split("|");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Form Files", "ui");
+        listNames = QStringList("IMAGES");
+        allListNames += listNames;
         writeFileGroup(t, QStringList("IMAGES"), "Image Files", "");
-        writeFileGroup(t, QString("RC_FILE|RESOURCES").split("|"), "Resources", "rc;qrc");
-        writeFileGroup(t, QStringList("TRANSLATIONS"), "Translations", "ts");
-        writeFileGroup(t, QStringList("LEXSOURCES"), "Lexables", "l");
-        writeFileGroup(t, QStringList("YACCSOURCES"), "Yaccables", "y");
-        writeFileGroup(t, QStringList("TYPELIBS"), "Type Libraries", "tlb;olb");
+        listNames = QString("RC_FILE|RESOURCES").split("|");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Resources", "rc;qrc");
+        listNames = QStringList("TRANSLATIONS");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Translations", "ts");
+        listNames = QStringList("LEXSOURCES");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Lexables", "l");
+        listNames = QStringList("YACCSOURCES");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Yaccables", "y");
+        listNames = QStringList("TYPELIBS");
+        allListNames += listNames;
+        writeFileGroup(t, listNames, "Type Libraries", "tlb;olb");
+
+        if (!project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+             const QStringList &quc = project->variables()["QMAKE_EXTRA_COMPILERS"];
+             for (QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+                const QStringList &inputs = project->values((*it)+".input");
+                for (QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
+                    if (!allListNames.contains((*input)))
+                        writeFileGroup(t, QStringList((*input)), (*input) + " Files", "");
+                }
+            }
+        }
 
         project->variables()["SWAPPED_BUILD_STEPS"] = swappedBuildSteps.keys();
 
@@ -549,30 +578,55 @@ bool DspMakefileGenerator::writeProjectMakefile()
                 files["LEXSOURCES"] += config->project->variables()["LEXSOURCES"].toSet();
                 files["YACCSOURCES"] += config->project->variables()["YACCSOURCES"].toSet();
                 files["TYPELIBS"] += config->project->variables()["TYPELIBS"].toSet();
+
+                if (!config->project->isEmpty("QMAKE_EXTRA_COMPILERS")) {
+                    const QStringList &quc = config->project->variables()["QMAKE_EXTRA_COMPILERS"];
+                    for (QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
+                        const QStringList &inputs = project->values((*it)+".input");
+                        for (QStringList::ConstIterator input = inputs.begin(); input != inputs.end(); ++input) {
+                            files[(*input)] += config->project->variables()[(*input)].toSet();
+                        }
+                    }
+                }
             }
 
-            project->variables()["DEF_FILE"] = QList<QString>::fromSet(files["DEF_FILE"]);
-            project->variables()["SOURCES"] = QList<QString>::fromSet(files["SOURCES"]);
-            project->variables()["HEADERS"] = QList<QString>::fromSet(files["HEADERS"]);
-            project->variables()["INTERFACES"] = QList<QString>::fromSet(files["INTERFACES"]);
-            project->variables()["FORMS"] = QList<QString>::fromSet(files["FORMS"]);
-            project->variables()["IMAGES"] = QList<QString>::fromSet(files["IMAGES"]);
-            project->variables()["RC_FILE"] = QList<QString>::fromSet(files["RC_FILE"]);
-            project->variables()["RESOURCES"] = QList<QString>::fromSet(files["RESOURCES"]);
-            project->variables()["TRANSLATIONS"] = QList<QString>::fromSet(files["TRANSLATIONS"]);
-            project->variables()["LEXSOURCES"] = QList<QString>::fromSet(files["LEXSOURCES"]);
-            project->variables()["YACCSOURCES"] = QList<QString>::fromSet(files["YACCSOURCES"]);
-            project->variables()["TYPELIBS"] = QList<QString>::fromSet(files["TYPELIBS"]);
+            QStringList keys = files.keys();
+            for (int k = 0; k < keys.size(); ++k) 
+                project->variables()[keys.at(k)] = QList<QString>::fromSet(files[keys.at(k)]);
 
-            writeFileGroup(t, QString("SOURCES|DEF_FILE").split("|"), "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
-            writeFileGroup(t, QStringList("HEADERS"), "Header Files", "h;hpp;hxx;hm;inl");
-            writeFileGroup(t, QString("FORMS|INTERFACES").split("|"), "Form Files", "ui");
-            writeFileGroup(t, QStringList("IMAGES"), "Image Files", "");
-            writeFileGroup(t, QString("RC_FILE|RESOURCES").split("|"), "Resources", "rc;qrc");
-            writeFileGroup(t, QStringList("TRANSLATIONS"), "Translations", "ts");
-            writeFileGroup(t, QStringList("LEXSOURCES"), "Lexables", "l");
-            writeFileGroup(t, QStringList("YACCSOURCES"), "Yaccables", "y");
-            writeFileGroup(t, QStringList("TYPELIBS"), "Type Libraries", "tlb;olb");
+            QStringList listNames = QString("SOURCES|DEF_FILE").split("|");
+            QStringList allListNames = listNames;
+            writeFileGroup(t, listNames, "Source Files", "cpp;c;cxx;rc;def;r;odl;idl;hpj;bat");
+            listNames = QStringList("HEADERS");
+            allListNames += listNames;
+            writeFileGroup(t, listNames, "Header Files", "h;hpp;hxx;hm;inl");
+            listNames = QString("FORMS|INTERFACES").split("|");
+            allListNames += listNames;
+            writeFileGroup(t, listNames, "Form Files", "ui");
+            listNames = QStringList("IMAGES");
+            allListNames += listNames;
+            writeFileGroup(t, listNames, "Image Files", "");
+            listNames = QString("RC_FILE|RESOURCES").split("|");
+            allListNames += listNames;
+            writeFileGroup(t, listNames, "Resources", "rc;qrc");
+            listNames = QStringList("TRANSLATIONS");
+            allListNames += listNames;
+            writeFileGroup(t, listNames, "Translations", "ts");
+            listNames = QStringList("LEXSOURCES");
+            allListNames += listNames;
+            writeFileGroup(t, listNames, "Lexables", "l");
+            listNames = QStringList("YACCSOURCES");
+            allListNames += listNames;
+            writeFileGroup(t, listNames, "Yaccables", "y");
+            listNames = QStringList("TYPELIBS");
+            allListNames += listNames;
+            writeFileGroup(t, listNames, "Type Libraries", "tlb;olb");
+
+            for (int l = 0; l < allListNames.size(); ++l)
+                keys.removeAll(allListNames.at(l));
+
+            for (int k = 0; k < keys.size(); ++k)
+                writeFileGroup(t, QStringList(keys.at(k)), keys.at(k) + " Files", "");
 
             // done last as generated may have changed when creating build rules for the above
             for (i = 0; i < mergedProjects.count(); ++i) {
