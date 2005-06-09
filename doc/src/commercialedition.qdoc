@@ -14,14 +14,15 @@
 
 /*! \page commercialedition.html
 
-\title Qt Commercial Edition
+\title Qt Commercial Editions
 
-The Qt Commercial Edition is the commercial version of
-\link aboutqt.html Qt\endlink.
+Several \link aboutqt.html Editions of Qt \endlink are available under a commercial
+license: Qt Console, Qt Desktop Light, and Qt Desktop. See the \l{Qt Editions} page
+for more information.
 
 You may write commercial, proprietary, or otherwise non-free software
-\e only if you have purchased the Qt Commercial Edition. The purchase of
-the Qt Commercial Edition includes technical support and upgrades.
+\e only if you have purchased a Commercial Edition of Qt. If you purchase a
+Commercial Edition, you are entitled to technical support and upgrades.
 
 If you want to develop Free or Open Source software for release
 using a recognized Open Source license, you can use the \link
@@ -31,27 +32,18 @@ Please see the \l{http://www.trolltech.com/developer/platforms/supported.html}
 {list of supported platforms} for up-to-date information about the various
 platforms and compilers that Qt supports.
 
-\omit
-Qt is supported on the following platforms:
-\list
- \i \bold{Microsoft Windows} -- 95, 98, NT 4.0, ME, 2000, and XP
- \i \bold{Unix/X11} -- Linux, Sun Solaris, HP-UX, HP Tru64 UNIX,
-     IBM AIX, SGI IRIX and many others
- \i \bold{Mac OS X} -- Mac OS X 10.2+
- \i \bold{\l{http://www.trolltech.com/products/embedded/index.html}{Qt/Embedded}} -- Linux platforms with framebuffer support.
-\endlist
-\endomit
-
 On Trolltech's web site, you can find \link
 http://www.trolltech.com/products/qt/licensing.html licensing
 information\endlink and \link
 http://www.trolltech.com/products/qt/pricing.html price lists\endlink for
-Qt Commercial Edition and other Trolltech products.
+Qt Commercial Editions and other Trolltech products.
 
 To purchase, please visit the
-\l{https://webshop.trolltech.com/cgi-bin/index.cgi}{Trolltech webshop}.
-In the webshop, you can generate a Purchase Order, order
+\l{http://www.trolltech.com/purchase/alternative.html}{online order form}.
+\omit
+On the order form, you can generate a Purchase Order, order
 a quote, or buy directly using a credit card.
+\endomit
 
 For further information and assistance, please contact Trolltech sales:
 

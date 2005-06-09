@@ -24,17 +24,17 @@ of different forms to suit the needs of different kinds of developers.
 In terms of license conditions, there are two main forms of Qt:
 
 \list
-\o The \l{commercialedition.html}{Qt Commercial Edition} is the commercial
-   version of \link aboutqt.html Qt\endlink.
+\o The \l{commercialedition.html}{Qt Commercial Editions} are the commercial
+   versions of \link aboutqt.html Qt\endlink.
 \o The \link opensourceedition.html Qt Open Source Edition\endlink is
    the non-commercial version of Qt. It is freely available for
    download.
 \endlist
 
 You may write commercial, proprietary, or otherwise non-free software only if you
-have purchased the \link commercialedition.html Commercial
-Edition\endlink. The Commercial Edition also entitles you to technical support
-and upgrades on any supported platform.
+have purchased one of the \link commercialedition.html Commercial
+Editions\endlink. If you purchase a Commercial Edition, you are entitled to
+technical support and upgrades on any supported platform.
 
 Each Edition is available in a variety of different forms:
 
@@ -49,10 +49,10 @@ Each Edition is available in a variety of different forms:
 \endtable
 
 The Commercial Desktop Edition also contains three database drivers (Oracle,
-IBM DB2, and Sybase), which are not included in any of the Open Source
-Editions because of license restrictions in the closed-source client
+IBM DB2, and Sybase), which are not included in the Open Source Edition
+because of license restrictions in the closed-source client
 libraries used to implement the drivers.
 
-Users of the Commercial Edition can also take advantage of \QD's support for
+Users of Commercial Editions can also take advantage of \QD's support for
 commercial Integrated Development Environments.
 */
