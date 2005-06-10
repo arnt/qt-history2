@@ -156,6 +156,7 @@ public:
     void setView(QAbstractItemView *itemView);
 
     QSize sizeHint() const;
+    QSize minimumSizeHint() const;
 
     virtual void showPopup();
     virtual void hidePopup();

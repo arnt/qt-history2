@@ -1486,6 +1486,14 @@ void QComboBox::setView(QAbstractItemView *itemView)
 
 /*!
     \reimp
+*/
+QSize QComboBox::minimumSizeHint() const
+{
+    return sizeHint();
+}
+
+/*!
+    \reimp
 
     This implementation caches the size hint to avoid resizing when
     the contents change dynamically. To invalidate the cached value
@@ -2133,3 +2141,5 @@ void QComboBox::setModelColumn(int visibleColumn)
 
 
 #include "moc_qcombobox.cpp"
+
+
