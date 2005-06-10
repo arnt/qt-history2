@@ -54,7 +54,7 @@ contains(sql-drivers, odbc) {
 contains(sql-drivers, oci) {
         HEADERS += drivers/oci/qsql_oci.h
         SOURCES += drivers/oci/qsql_oci.cpp
-        unix:!contains( LIBS, .*clnts.* ):LIBS += -lclntsh -lwtc8
+        unix:!contains( LIBS, .*clnts.* ):LIBS += -lclntsh
 
         win32 {
                 LIBS += oci.lib
