@@ -109,7 +109,7 @@ public:
     int findAmPm(QString &str1, Section s) const;
     int maxChange(QDateTimeEditPrivate::Section s) const;
     int potentialValue(const QString &str, int min, int max, Section s) const;
-    int potentialValueHelper(const QString &str, int min, int max, int length) const;
+    int potentialValueHelper(const QString &str, int min, int max, int size) const;
     int multiplier(Section s) const;
     QString sectionName(int s) const;
     QString stateName(int s) const;
@@ -367,14 +367,14 @@ void QDateTimeEdit::setMinimumDate(const QDate &min)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid()) {
-        d->setBoundary(Minimum, QVariant(QDateTime(min, d->minimum.toTime())));
+        const QVariant m(QDateTime(min, d->minimum.toTime()));
+        d->setRange(m, qMax(d->maximum, m));
     }
 }
 
 void QDateTimeEdit::clearMinimumDate()
 {
-    Q_D(QDateTimeEdit);
-    d->setBoundary(Minimum, QVariant(QDateTime(DATE_MIN, d->minimum.toTime())));
+    setMinimumDate(DATE_MIN);
 }
 
 /*!
@@ -398,14 +398,15 @@ QDate QDateTimeEdit::maximumDate() const
 void QDateTimeEdit::setMaximumDate(const QDate &max)
 {
     Q_D(QDateTimeEdit);
-    if (max.isValid())
-        d->setBoundary(Maximum, QVariant(QDateTime(max, d->maximum.toTime())));
+    if (max.isValid()) {
+        const QVariant m(QDateTime(max, d->maximum.toTime()));
+        d->setRange(qMin(d->minimum, m), m);
+    }
 }
 
 void QDateTimeEdit::clearMaximumDate()
 {
-    Q_D(QDateTimeEdit);
-    d->setBoundary(Maximum, QVariant(QDateTime(DATE_MAX, d->maximum.toTime())));
+    setMaximumDate(DATE_MAX);
 }
 
 /*!
@@ -429,14 +430,15 @@ QTime QDateTimeEdit::minimumTime() const
 void QDateTimeEdit::setMinimumTime(const QTime &min)
 {
     Q_D(QDateTimeEdit);
-    if (min.isValid())
-        d->setBoundary(Minimum, QVariant(QDateTime(d->minimum.toDate(), min)));
+    if (min.isValid()) {
+        const QVariant m(QDateTime(d->minimum.toDate(), min));
+        d->setRange(m, qMax(d->maximum, m));
+    }
 }
 
 void QDateTimeEdit::clearMinimumTime()
 {
-    Q_D(QDateTimeEdit);
-    d->setBoundary(Minimum, QVariant(QDateTime(d->minimum.toDate(), TIME_MIN)));
+    setMinimumTime(TIME_MIN);
 }
 
 /*!
@@ -459,14 +461,15 @@ QTime QDateTimeEdit::maximumTime() const
 void QDateTimeEdit::setMaximumTime(const QTime &max)
 {
     Q_D(QDateTimeEdit);
-    if (max.isValid())
-        d->setBoundary(Maximum, QVariant(QDateTime(d->maximum.toDate(), max)));
+    if (max.isValid()) {
+        const QVariant m(QDateTime(d->maximum.toDate(), max));
+        d->setRange(qMin(d->minimum, m), m);
+    }
 }
 
 void QDateTimeEdit::clearMaximumTime()
 {
-    Q_D(QDateTimeEdit);
-    d->setBoundary(Maximum, QVariant(QDateTime(d->maximum.toDate(), TIME_MAX)));
+    setMaximumTime(TIME_MAX);
 }
 
 /*!
@@ -496,8 +499,8 @@ void QDateTimeEdit::setDateRange(const QDate &min, const QDate &max)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid() && max.isValid()) {
-        d->setBoundary(Minimum, QVariant(QDateTime(min, d->minimum.toTime())));
-        d->setBoundary(Maximum, QVariant(QDateTime(max, d->maximum.toTime())));
+        d->setRange(QVariant(QDateTime(min, d->minimum.toTime())),
+                    QVariant(QDateTime(max, d->maximum.toTime())));
     }
 }
 
@@ -528,8 +531,8 @@ void QDateTimeEdit::setTimeRange(const QTime &min, const QTime &max)
 {
     Q_D(QDateTimeEdit);
     if (min.isValid() && max.isValid()) {
-        d->setBoundary(Minimum, QVariant(QDateTime(d->minimum.toDate(), min)));
-        d->setBoundary(Maximum, QVariant(QDateTime(d->maximum.toDate(), max)));
+        d->setRange(QVariant(QDateTime(d->minimum.toDate(), min)),
+                    QVariant(QDateTime(d->maximum.toDate(), max)));
     }
 }
 
@@ -669,13 +672,13 @@ void QDateTimeEdit::setDisplayFormat(const QString &format)
         d->cachedText.clear();
         const bool timeShown = (d->display & QDateTimeEditPrivate::TimeSectionMask);
         const bool dateShown = (d->display & QDateTimeEditPrivate::DateSectionMask);
-	Q_ASSERT(dateShown || timeShown);
-	if (timeShown && !dateShown) {
-	    setDateRange(d->value.toDate(), d->value.toDate());
-	} else if (dateShown && !timeShown) {
-	    setTimeRange(TIME_MIN, TIME_MAX);
-	    d->value = QVariant(QDateTime(d->value.toDate(), QTime()));
-	}
+        Q_ASSERT(dateShown || timeShown);
+        if (timeShown && !dateShown) {
+            setDateRange(d->value.toDate(), d->value.toDate());
+        } else if (dateShown && !timeShown) {
+            setTimeRange(TIME_MIN, TIME_MAX);
+            d->value = QVariant(QDateTime(d->value.toDate(), QTime()));
+        }
         d->update();
         d->edit->setCursorPosition(0);
         d->editorCursorPositionChanged(-1, 0);
@@ -806,14 +809,15 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
             break;
         }
 #endif
+
         // fallthroughs intended
     case Qt::Key_Backtab:
     case Qt::Key_Tab: {
         e->accept();
-	if (d->specialValue()) {
+        if (d->specialValue()) {
             d->edit->setSelection(d->edit->cursorPosition(), 0);
-	    return;
-	}
+            return;
+        }
         if (e->key() == Qt::Key_Backtab || (e->key() == Qt::Key_Tab && e->modifiers() & Qt::ShiftModifier)) {
             forward = false;
         }
@@ -837,7 +841,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
         d->setSelected(d->currentSection);
     }
     if (d->specialValue()) {
-	d->edit->setSelection(d->edit->cursorPosition(), 0);
+        d->edit->setSelection(d->edit->cursorPosition(), 0);
     }
 }
 
@@ -1047,11 +1051,11 @@ QDateTimeEdit::StepEnabled QDateTimeEdit::stepEnabled() const
     if (d->readOnly)
         return StepEnabled(0);
     if (d->specialValue()) {
-	if (d->minimum == d->maximum)
-	    return StepEnabled(0);
-	return d->wrapping
-	    ? StepEnabled(StepDownEnabled|StepUpEnabled)
-	    : StepEnabled(StepUpEnabled);
+        if (d->minimum == d->maximum)
+            return StepEnabled(0);
+        return d->wrapping
+            ? StepEnabled(StepDownEnabled|StepUpEnabled)
+            : StepEnabled(StepUpEnabled);
     }
     switch (d->currentSection) {
     case QDateTimeEditPrivate::NoSection:
@@ -1573,14 +1577,14 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
         val = getDigit(v, s);
     } else {
         QValidator::State state;
-	if (!specVal) {
+        if (!specVal) {
         val = sectionValue(s, str, state);
         if (state == QValidator::Invalid) {
             return value;
         }
-	} else {
-	    val = getDigit(v, s);
-	}
+        } else {
+            val = getDigit(v, s);
+        }
     }
 
     val += steps;
@@ -1609,11 +1613,11 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
             // doesn't mean that we hit the floor in the other
             if (steps > 0) {
                 setDigit(v, s, min);
-		if (s != DaySection) {
-		    int daysInMonth = v.toDate().daysInMonth();
-		    if (v.toDate().day() < tmp && v.toDate().day() < daysInMonth)
-			setDigit(v, DaySection, qMin(tmp, daysInMonth));
-		}
+                if (s != DaySection) {
+                    int daysInMonth = v.toDate().daysInMonth();
+                    if (v.toDate().day() < tmp && v.toDate().day() < daysInMonth)
+                        setDigit(v, DaySection, qMin(tmp, daysInMonth));
+                }
 
                 if (v < minimum) {
                     setDigit(v, s, localmin);
@@ -1622,11 +1626,11 @@ QVariant QDateTimeEditPrivate::stepBy(Section s, int steps, bool test) const
                 }
             } else {
                 setDigit(v, s, max);
-		if (s != DaySection) {
-		    int daysInMonth = v.toDate().daysInMonth();
-		    if (v.toDate().day() < tmp && v.toDate().day() < daysInMonth)
-			setDigit(v, DaySection, qMin(tmp, daysInMonth));
-		}
+                if (s != DaySection) {
+                    int daysInMonth = v.toDate().daysInMonth();
+                    if (v.toDate().day() < tmp && v.toDate().day() < daysInMonth)
+                        setDigit(v, DaySection, qMin(tmp, daysInMonth));
+                }
 
                 if (v > maximum) {
                     setDigit(v, s, localmax);
@@ -1808,7 +1812,7 @@ void QDateTimeEditPrivate::setSelected(Section s, bool forward)
     if (s == NoSection)
         return;
     if (specialValue())
-	edit->selectAll();
+        edit->selectAll();
     if (forward) {
         edit->setSelection(sectionPos(s), sectionSize(s));
     } else {
@@ -2003,12 +2007,12 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
     }
     escapedFormat.clear();
     status = zero;
-    int ampmlength = sectionSize(AmPmSection);
-    for (int i = 0; i < displayFormat.length(); ++i) {
+    int ampmsize = sectionSize(AmPmSection);
+    for (int i = 0; i < displayFormat.size(); ++i) {
         if (displayFormat.at(i) == quote){
             if (status == quote) {
                 if (!escapedFormat.isEmpty() && displayFormat.at(i - 1) == slash) {
-                    escapedFormat[escapedFormat.length() - 1] = quote;
+                    escapedFormat[escapedFormat.size() - 1] = quote;
                 } else {
                     status = zero;
                 }
@@ -2017,12 +2021,12 @@ bool QDateTimeEditPrivate::parseFormat(const QString &newFormat)
             }
         } else {
             escapedFormat += displayFormat.at(i);
-            if (i > 1 && ampmlength != 2
+            if (i > 1 && ampmsize != 2
                 && ((displayFormat.at(i - 1) == QLatin1Char('a') && displayFormat.at(i) == 'p')
                     || (displayFormat.at(i - 1) == QLatin1Char('A') && displayFormat.at(i) == 'P'))) {
-                if (ampmlength > 2) {
-                    escapedFormat.append(QString().leftJustified(ampmlength - 2, space));
-                } else if (ampmlength == 1) {
+                if (ampmsize > 2) {
+                    escapedFormat.append(QString().leftJustified(ampmsize - 2, space));
+                } else if (ampmsize == 1) {
                     escapedFormat.remove(i, 1);
                 } else {
                     qWarning("Translating am/pm to an empty string will "
@@ -2349,10 +2353,10 @@ QVariant QDateTimeEditPrivate::validateAndInterpret(QString &input,
     int diff = input.size() - escapedFormat.size();
     bool specval = false;
     if (!specialValueText.isEmpty() && input == specialValueText) {
-	specval = true;
-	state = QValidator::Acceptable;
-	tmp = minimum;
-	goto end;
+        specval = true;
+        state = QValidator::Acceptable;
+        tmp = minimum;
+        goto end;
     }
     if (diff > 0) {
         const Section s = closestSection(pos - 1, false);
@@ -2687,7 +2691,7 @@ QString QDateTimeEditPrivate::sectionFormat(int s) const
 
 int QDateTimeEditPrivate::potentialValue(const QString &str, int min, int max, Section s) const
 {
-    int length = sectionSize(s);
+    int size = sectionSize(s);
     if (s == YearTwoDigitsSection) {
         min -= 2000;
         max -= 2000; // doesn't matter if max is -1 checking for < 0
@@ -2700,7 +2704,7 @@ int QDateTimeEditPrivate::potentialValue(const QString &str, int min, int max, S
         return -1;
     } else {
         QString temp = simplified;
-        while (temp.size() < length)
+        while (temp.size() < size)
             temp.prepend(QLatin1Char('9'));
         int t = temp.toInt();
         if (t < min) {
@@ -2710,7 +2714,7 @@ int QDateTimeEditPrivate::potentialValue(const QString &str, int min, int max, S
         }
     }
 
-    int ret = potentialValueHelper(simplified, min, max, length);
+    int ret = potentialValueHelper(simplified, min, max, size);
     if (ret == -1)
         return -1;
     return ret + (s == YearTwoDigitsSection ? 2000 : 0);
@@ -2720,9 +2724,9 @@ int QDateTimeEditPrivate::potentialValue(const QString &str, int min, int max, S
   \internal internal helper function called by potentialValue
 */
 
-int QDateTimeEditPrivate::potentialValueHelper(const QString &str, int min, int max, int length) const
+int QDateTimeEditPrivate::potentialValueHelper(const QString &str, int min, int max, int size) const
 {
-    if (str.size() == length) {
+    if (str.size() == size) {
         const int val = str.toInt();
         if (val < min || val > max)
             return -1;
@@ -2738,7 +2742,7 @@ int QDateTimeEditPrivate::potentialValueHelper(const QString &str, int min, int 
             } else {
                 tmp.insert(i, QChar('0' + j));
             }
-            int ret = potentialValueHelper(tmp, min, max, length);
+            int ret = potentialValueHelper(tmp, min, max, size);
             if (ret != -1)
                 return ret;
         }

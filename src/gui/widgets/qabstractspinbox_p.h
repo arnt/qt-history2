@@ -56,10 +56,6 @@ enum EmitPolicy {
     NeverEmit
 };
 
-enum Boundary {
-    Minimum,
-    Maximum
-};
 enum Button {
     None = 0x000,
     Keyboard = 0x001,
@@ -84,7 +80,7 @@ public:
     QString stripped(const QString &text) const;
     bool specialValue() const;
     QVariant getZeroVariant() const;
-    void setBoundary(Boundary b, const QVariant &val);
+    void setRange(const QVariant &min, const QVariant &max);
     void setValue(const QVariant &val, EmitPolicy ep, bool updateEdit = true);
     virtual QVariant bound(const QVariant &val, const QVariant &old = QVariant(), int steps = 0) const;
     QLineEdit *lineEdit();

@@ -352,8 +352,8 @@ void QAbstractSpinBox::selectAll()
         d->updateEdit();
 
     if (!d->specialValue()) {
-        d->edit->setSelection(d->prefix.length(), d->edit->displayText().length()
-                              - d->prefix.length() - d->suffix.length());
+        const int tmp = d->edit->displayText().size() - d->suffix.size();
+        d->edit->setSelection(tmp, -(tmp - d->prefix.size()));
     } else {
         d->edit->selectAll();
     }
@@ -1117,19 +1117,19 @@ QString QAbstractSpinBoxPrivate::stripped(const QString &t) const
     QString text = t;
     if (specialValueText.size() == 0 || text != specialValueText) {
         int from = 0;
-        int length = text.length();
+        int size = text.size();
         bool changed = false;
         if (prefix.size() && text.startsWith(prefix)) {
-            from += prefix.length();
-            length -= from;
+            from += prefix.size();
+            size -= from;
             changed = true;
         }
         if (suffix.size() && text.endsWith(suffix)) {
-            length -= suffix.length();
+            size -= suffix.size();
             changed = true;
         }
         if (changed)
-            text = text.mid(from, length);
+            text = text.mid(from, size);
     }
     return text;
 }
@@ -1215,14 +1215,14 @@ void QAbstractSpinBoxPrivate::editorCursorPositionChanged(int oldpos, int newpos
             }
         }
         if (pos != -1) {
-            const int selLength = edit->selectionStart() >= 0 && allowSelection
-                                  ? (edit->selectedText().length()
+            const int selSize = edit->selectionStart() >= 0 && allowSelection
+                                  ? (edit->selectedText().size()
                                      * (newpos < pos ? -1 : 1)) - newpos + pos
                                   : 0;
 
             const bool wasBlocked = edit->blockSignals(true);
-            if (selLength != 0) {
-                edit->setSelection(pos - selLength, selLength);
+            if (selSize != 0) {
+                edit->setSelection(pos - selSize, selSize);
             } else {
                 edit->setCursorPosition(pos);
             }
@@ -1413,17 +1413,17 @@ void QAbstractSpinBoxPrivate::updateEdit() const
     QLineEdit *e = const_cast<QLineEdit*>(edit);
     const bool empty = e->text().isEmpty();
     int cursor = e->cursorPosition();
-    int sellength = e->selectedText().length();
+    int selsize = e->selectedText().size();
     const QString newText = specialValue() ? specialValueText : prefix + textFromValue(value) + suffix;
     const bool sb = e->blockSignals(true);
     e->setText(newText);
 
     if (!specialValue()) {
-        cursor = qMin<int>(qMax<int>(cursor, prefix.length()), edit->displayText().length() - suffix.length());
-        if (sellength > 0) {
-            e->setSelection(cursor, sellength);
+        cursor = qMin<int>(qMax<int>(cursor, prefix.size()), edit->displayText().size() - suffix.size());
+        if (selsize > 0) {
+            e->setSelection(cursor, selsize);
         } else {
-            e->setCursorPosition(empty ? prefix.length() : cursor);
+            e->setCursorPosition(empty ? prefix.size() : cursor);
         }
     }
     e->blockSignals(sb);
@@ -1457,17 +1457,13 @@ void QAbstractSpinBoxPrivate::update()
     Convenience function to set min/max values.
 */
 
-void QAbstractSpinBoxPrivate::setBoundary(Boundary b, const QVariant &val)
+void QAbstractSpinBoxPrivate::setRange(const QVariant &min, const QVariant &max)
 {
-    if (b == Minimum) {
-        minimum = val;
-        if (maximum < minimum)
-            maximum = minimum;
-    } else {
-        maximum = val;
-        if (minimum > maximum)
-            minimum = maximum;
-    }
+    cachedText.clear();
+    cachedValue.clear();
+    minimum = min;
+    maximum = qMax(min, max);
+
     resetState();
     setValue(bound(value), EmitIfChanged);
 }
