@@ -14,7 +14,11 @@
 #ifndef QMETATYPE_H
 #define QMETATYPE_H
 
+#include "QtCore/qglobal.h"
+
+#ifndef QT_NO_DATASTREAM
 #include "QtCore/qdatastream.h"
+#endif
 
 #ifdef Bool
 #error qmetatype.h must be included before any header file that define Bool
@@ -34,8 +38,11 @@ public:
 
     typedef void (*Destructor)(void *);
     typedef void *(*Constructor)(const void *);
+
+#ifndef QT_NO_DATASTREAM
     typedef void (*SaveOperator)(QDataStream &, const void *);
     typedef void (*LoadOperator)(QDataStream &, void *);
+#endif
 
     static int registerType(const char *typeName, Destructor destructor,
                             Constructor constructor);
@@ -46,8 +53,11 @@ public:
     static bool isRegistered(int type);
     static void *construct(int type, const void *copy);
     static void destroy(int type, void *data);
+
+#ifndef QT_NO_DATASTREAM
     static bool save(QDataStream &stream, int type, const void *data);
     static bool load(QDataStream &stream, int type, void *data);
+#endif
 };
 
 template <typename T>
@@ -64,6 +74,7 @@ void *qMetaTypeConstructHelper(const T *t)
     return new T(*static_cast<const T*>(t));
 }
 
+#ifndef QT_NO_DATASTREAM
 template <typename T>
 void qMetaTypeSaveHelper(QDataStream &stream, const T *t)
 {
@@ -77,18 +88,6 @@ void qMetaTypeLoadHelper(QDataStream &stream, T *t)
 }
 
 template <typename T>
-int qRegisterMetaType(const char *typeName, T * = 0)
-{
-    typedef void*(*ConstructPtr)(const T*);
-    ConstructPtr cptr = qMetaTypeConstructHelper<T>;
-    typedef void(*DeletePtr)(T*);
-    DeletePtr dptr = qMetaTypeDeleteHelper<T>;
-
-    return QMetaType::registerType(typeName, reinterpret_cast<QMetaType::Destructor>(dptr),
-                                   reinterpret_cast<QMetaType::Constructor>(cptr));
-}
-
-template <typename T>
 void qRegisterMetaTypeStreamOperators(const char *typeName, T * = 0)
 {
     typedef void(*SavePtr)(QDataStream &, const T *);
@@ -98,6 +97,19 @@ void qRegisterMetaTypeStreamOperators(const char *typeName, T * = 0)
 
     QMetaType::registerStreamOperators(typeName, reinterpret_cast<QMetaType::SaveOperator>(sptr),
                                        reinterpret_cast<QMetaType::LoadOperator>(lptr));
+}
+
+#endif
+template <typename T>
+int qRegisterMetaType(const char *typeName, T * = 0)
+{
+    typedef void*(*ConstructPtr)(const T*);
+    ConstructPtr cptr = qMetaTypeConstructHelper<T>;
+    typedef void(*DeletePtr)(T*);
+    DeletePtr dptr = qMetaTypeDeleteHelper<T>;
+
+    return QMetaType::registerType(typeName, reinterpret_cast<QMetaType::Destructor>(dptr),
+                                   reinterpret_cast<QMetaType::Constructor>(cptr));
 }
 
 template <typename T>

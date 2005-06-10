@@ -283,6 +283,7 @@ int QMetaType::type(const char *typeName)
     return types[i].type;
 }
 
+#ifndef QT_NO_DATASTREAM
 /*! \internal
 */
 bool QMetaType::save(QDataStream &stream, int type, const void *data)
@@ -316,6 +317,7 @@ bool QMetaType::load(QDataStream &stream, int type, void *data)
     loadOp(stream, data);
     return true;
 }
+#endif
 
 /*!
     Returns a copy of \a copy, assuming it is of type \a type. If \a
