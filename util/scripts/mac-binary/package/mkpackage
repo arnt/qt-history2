@@ -85,26 +85,26 @@ while [ -n "$1" ]; do
    shift
    case "$OPTION" in
    help)
-        if [ "$VAL" = "yes" ]; then
-	   echo "$1 <options>"
+        if [ "$ARG" = "yes" ]; then
+	   echo "$0 <options> <packages>"
 	   echo
-	   echo "-output <directory>      Where to write the generated files to"
-	   echo "-packages <directory>    Where to find packages to create"
-	   echo "-qtbins <directory>      Where your Qt binaries live"
-           echo "-qtsrcs <directory>      Where to find our Qt sources (if -qtbins not set defaults to same)"
-	   echo "-qtpackage <package>     Given a package it will be untar'd configured and built and used."
-	   echo "-version <version>       What version the package is creating for (falls back to qglobal.h)"
-	   echo "-license <license>       Where your license file lives"
-	   echo "-license_us <license>    Where your U.S. license file lives"
-	   echo "-readme <readme>         Where your readme file lives"
-	   echo "-image                   Create a disk image of the outputs"
-	   echo "-meta                    Create a meta package for all the outputs"
+	   echo "  -output <directory>      Where to write the generated files to"
+	   echo "  -packages <directory>    Where to find packages to create"
+	   echo "  -qtbins <directory>      Where your Qt binaries live"
+           echo "  -qtsrcs <directory>      Where to find our Qt sources (if -qtbins not set defaults to same)"
+	   echo "  -qtpackage <package>     Given a package it will be untar'd configured and built and used."
+	   echo "  -version <version>       What version the package is creating for (falls back to qglobal.h)"
+	   echo "  -license <license>       Where your license file lives"
+	   echo "  -license_us <license>    Where your U.S. license file lives"
+	   echo "  -readme <readme>         Where your readme file lives"
+	   echo "  -image                   Create a disk image of the outputs"
+	   echo "  -meta                    Create a meta package for all the outputs"
 	   exit 1
         fi
 	;;
-   readme) README="$VAL" ;;
-   license) LICENSE="$VAL" ;;
-   all) USE_SEPARATE="$VAL" ;;
+   readme) README="$ARG" ;;
+   license) LICENSE="$ARG" ;;
+   all) USE_SEPARATE="$ARG" ;;
    qtpackage) SOURCE_PACKAGE="$ARG" ;;
    qtsrcs) SOURCE_DIR="$ARG" ;;
    qtbins|qtdir) BINARY_DIR="$ARG" ;;
