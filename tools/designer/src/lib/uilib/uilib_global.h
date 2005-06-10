@@ -16,14 +16,13 @@
 
 #include <QtCore/qglobal.h>
 
-#ifdef Q_OS_WIN
+#define QT_UILIB_EXTERN Q_DECL_EXPORT
+#define QT_UILIB_IMPORT Q_DECL_IMPORT
+
 #ifdef QT_UILIB_LIBRARY
-# define QT_UILIB_EXPORT __declspec(dllexport)
+#  define QT_UILIB_EXPORT QT_UILIB_EXTERN
 #else
-# define QT_UILIB_EXPORT __declspec(dllimport)
-#endif
-#else
-#define QT_UILIB_EXPORT
+#  define QT_UILIB_EXPORT QT_UILIB_IMPORT
 #endif
 
 #endif // UILIB_GLOBAL_H

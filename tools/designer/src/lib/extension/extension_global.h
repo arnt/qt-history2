@@ -16,14 +16,13 @@
 
 #include <QtCore/qglobal.h>
 
-#ifdef Q_OS_WIN
+#define QT_EXTENSION_EXTERN Q_DECL_EXPORT
+#define QT_EXTENSION_IMPORT Q_DECL_IMPORT
+
 #ifdef QT_EXTENSION_LIBRARY
-# define QT_EXTENSION_EXPORT __declspec(dllexport)
+#  define QT_EXTENSION_EXPORT QT_EXTENSION_EXTERN
 #else
-# define QT_EXTENSION_EXPORT __declspec(dllimport)
-#endif
-#else
-#define QT_EXTENSION_EXPORT
+#  define QT_EXTENSION_EXPORT QT_EXTENSION_IMPORT
 #endif
 
 #endif // EXTENSION_GLOBAL_H

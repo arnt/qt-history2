@@ -27,14 +27,13 @@
 
 #include <QtCore/qglobal.h>
 
-#ifdef Q_OS_WIN
-#  ifdef QT_SHARED_LIBRARY
-#    define QT_SHARED_EXPORT __declspec(dllexport)
-#  else
-#    define QT_SHARED_EXPORT __declspec(dllimport)
-#  endif
+#define QT_SHARED_EXTERN Q_DECL_EXPORT
+#define QT_SHARED_IMPORT Q_DECL_IMPORT
+
+#ifdef QT_SHARED_LIBRARY
+#  define QT_SHARED_EXPORT QT_SHARED_EXTERN
 #else
-#  define QT_SHARED_EXPORT
+#  define QT_SHARED_EXPORT QT_SHARED_IMPORT
 #endif
 
 #endif // SHARED_GLOBAL_H

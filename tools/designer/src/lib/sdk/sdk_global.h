@@ -16,14 +16,13 @@
 
 #include <QtCore/qglobal.h>
 
-#ifdef Q_OS_WIN
+#define QT_SDK_EXTERN Q_DECL_EXPORT
+#define QT_SDK_IMPORT Q_DECL_IMPORT
+
 #ifdef QT_SDK_LIBRARY
-# define QT_SDK_EXPORT __declspec(dllexport)
+#  define QT_SDK_EXPORT QT_SDK_EXTERN
 #else
-# define QT_SDK_EXPORT __declspec(dllimport)
-#endif
-#else
-#define QT_SDK_EXPORT
+#  define QT_SDK_EXPORT QT_SDK_IMPORT
 #endif
 
 #endif // SDK_GLOBAL_H
