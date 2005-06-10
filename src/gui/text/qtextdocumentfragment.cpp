@@ -804,9 +804,7 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
                     }
 
                     if (inFirstRow || colsInRow > columnWidths.count()) {
-                        Q_ASSERT(colsInRow == columnWidths.count() + c.tableCellColSpan);
-
-                        for (int i = 0; i < c.tableCellColSpan; ++i)
+                        while (columnWidths.count() < colsInRow)
                             columnWidths << c.width;
                     }
                 }
