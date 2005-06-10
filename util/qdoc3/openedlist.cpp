@@ -68,6 +68,8 @@ QString OpenedList::styleString() const
 
 QString OpenedList::numberString() const
 {
+    return QString::number( number() );
+/*
     switch ( style() ) {
     case Numeric:
 	return QString::number( number() );
@@ -82,7 +84,7 @@ QString OpenedList::numberString() const
     case Bullet:
     default:
 	return "*";
-    }
+    }*/
 }
 
 QString OpenedList::toAlpha( int n )
