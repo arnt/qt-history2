@@ -75,7 +75,7 @@ public:
     ~QAbstractSpinBoxPrivate();
 
     void init();
-    void resetState();
+    void reset();
     void updateState(bool up);
     QString stripped(const QString &text) const;
     bool specialValue() const;
@@ -105,7 +105,7 @@ public:
     QString prefix, suffix, specialValueText;
     QVariant value, minimum, maximum, singleStep;
     QVariant::Type type;
-    int spinClickTimerId, spinClickTimerInterval;
+    int spinClickTimerId, spinClickTimerInterval, spinClickThresholdTimerId, spinClickThresholdTimerInterval;
     uint buttonState;
     mutable uint dirty : 1;
     mutable QString cachedText;

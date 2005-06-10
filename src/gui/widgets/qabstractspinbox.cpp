@@ -28,6 +28,7 @@
 #if defined(Q_WS_X11)
 #include <limits.h>
 #endif
+static const int thresholdTime = 500; // ### make this a stylehint in 4.1
 
 //#define QABSTRACTSPINBOX_QSBDEBUG
 #ifdef QABSTRACTSPINBOX_QSBDEBUG
@@ -598,7 +599,7 @@ void QAbstractSpinBox::showEvent(QShowEvent *)
     Q_D(QAbstractSpinBox);
 
     if (d->dirty) {
-        d->resetState();
+        d->reset();
         d->updateEdit();
     }
     d->updateSpinBox();
@@ -615,16 +616,17 @@ void QAbstractSpinBox::changeEvent(QEvent *e)
     switch(e->type()) {
         case QEvent::StyleChange:
             d->spinClickTimerInterval = style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, this);
-            d->resetState();
+            d->spinClickThresholdTimerInterval = thresholdTime;
+            d->reset();
             break;
         case QEvent::EnabledChange:
             if (!isEnabled()) {
-                d->resetState();
+                d->reset();
             }
             break;
         case QEvent::ActivationChange:
             if (!isActiveWindow()){
-                d->resetState();
+                d->reset();
                 if (d->pendingEmit) // pendingEmit can be true even if it hasn't changed.
                     d->interpret(EmitIfChanged); // E.g. 10 to 10.0
             }
@@ -859,7 +861,7 @@ void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *e)
 
     if (d->buttonState & Keyboard && !e->isAutoRepeat()
         && style()->styleHint(QStyle::SH_SpinBox_AnimateButton, 0, this)) {
-        d->resetState();
+        d->reset();
     } else {
         d->edit->event(e);
     }
@@ -902,7 +904,7 @@ void QAbstractSpinBox::focusOutEvent(QFocusEvent *e)
 
     if (d->pendingEmit)
         d->interpret(EmitIfChanged);
-    d->resetState();
+    d->reset();
     d->edit->event(e);
     QWidget::focusOutEvent(e);
     emit editingFinished();
@@ -916,7 +918,7 @@ void QAbstractSpinBox::closeEvent(QCloseEvent *e)
 {
     Q_D(QAbstractSpinBox);
 
-    d->resetState();
+    d->reset();
     if (d->pendingEmit)
         d->interpret(EmitIfChanged);
     QWidget::closeEvent(e);
@@ -929,7 +931,7 @@ void QAbstractSpinBox::closeEvent(QCloseEvent *e)
 void QAbstractSpinBox::hideEvent(QHideEvent *e)
 {
     Q_D(QAbstractSpinBox);
-    d->resetState();
+    d->reset();
     QWidget::hideEvent(e);
 }
 
@@ -941,17 +943,34 @@ void QAbstractSpinBox::timerEvent(QTimerEvent *e)
 {
     Q_D(QAbstractSpinBox);
 
-    if (e->timerId() == d->spinClickTimerId) {
+    bool doStep = false;
+    if (e->timerId() == d->spinClickThresholdTimerId) {
+        killTimer(d->spinClickThresholdTimerId);
+        d->spinClickThresholdTimerId = -1;
+        d->spinClickTimerId = startTimer(d->spinClickTimerInterval);
+        doStep = true;
+    } else if (e->timerId() == d->spinClickTimerId) {
+        doStep = true;
+    }
+
+    if (doStep) {
+        const StepEnabled st = stepEnabled();
         if (d->buttonState & Up) {
-            stepBy(1);
-            if (!(stepEnabled() & StepUpEnabled))
-                d->resetState();
+            if (!(st & StepUpEnabled)) {
+                d->reset();
+            } else {
+                stepBy(1);
+            }
         } else if (d->buttonState & Down) {
-            stepBy(-1);
-            if (!(stepEnabled() & StepDownEnabled))
-                d->resetState();
+            if (!(st & StepDownEnabled)) {
+                d->reset();
+            } else {
+                stepBy(-1);
+            }
         }
     }
+    QWidget::timerEvent(e);
+    return;
 }
 
 /*!
@@ -963,7 +982,7 @@ void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 #ifndef QT_NO_POPUPMENU
     Q_D(QAbstractSpinBox);
 
-    d->resetState();
+    d->reset();
     QMenu *menu = d->edit->createStandardContextMenu();
     menu->addSeparator();
     const uint se = stepEnabled();
@@ -1006,7 +1025,7 @@ void QAbstractSpinBox::mouseMoveEvent(QMouseEvent *e)
         else if ((se & StepDownEnabled) && d->hoverControl == QStyle::SC_SpinBoxDown)
             d->updateState(false);
         else
-            d->resetState();
+            d->reset();
         e->accept();
     }
 }
@@ -1044,7 +1063,7 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QAbstractSpinBox);
 
     if ((d->buttonState & Mouse) != 0)
-        d->resetState();
+        d->reset();
     e->accept();
 }
 
@@ -1057,8 +1076,8 @@ void QAbstractSpinBox::mouseReleaseEvent(QMouseEvent *e)
 
 QAbstractSpinBoxPrivate::QAbstractSpinBoxPrivate()
     : edit(0), type(QVariant::Invalid), spinClickTimerId(-1),
-      spinClickTimerInterval(100), buttonState(None),
-      dirty(true), cachedText("\x01"), cachedState(QValidator::Invalid),
+      spinClickTimerInterval(100), spinClickThresholdTimerId(-1), spinClickThresholdTimerInterval(thresholdTime),
+      buttonState(None), dirty(true), cachedText("\x01"), cachedState(QValidator::Invalid),
       pendingEmit(false), readOnly(false), wrapping(false),
       ignoreCursorPositionChanged(false), frame(true),
       hoverControl(QStyle::SC_None), buttonSymbols(QAbstractSpinBox::UpDownArrows), validator(0)
@@ -1243,6 +1262,7 @@ void QAbstractSpinBoxPrivate::init()
     Q_Q(QAbstractSpinBox);
 
     spinClickTimerInterval = q->style()->styleHint(QStyle::SH_SpinBox_ClickAutoRepeatRate, 0, q);
+    spinClickThresholdTimerInterval = thresholdTime;
     q->setFocusPolicy(Qt::WheelFocus);
     q->setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     q->setAttribute(Qt::WA_InputMethodEnabled);
@@ -1279,7 +1299,7 @@ void QAbstractSpinBoxPrivate::updateSpinBox()
     (Keyboard|Up) if Key up is currently pressed.
 */
 
-void QAbstractSpinBoxPrivate::resetState()
+void QAbstractSpinBoxPrivate::reset()
 {
     Q_Q(QAbstractSpinBox);
 
@@ -1287,7 +1307,9 @@ void QAbstractSpinBoxPrivate::resetState()
     if (q) {
         if (spinClickTimerId != -1)
             q->killTimer(spinClickTimerId);
-        spinClickTimerId = -1;
+        if (spinClickThresholdTimerId != -1)
+            q->killTimer(spinClickThresholdTimerId);
+        spinClickTimerId = spinClickThresholdTimerId = -1;
         updateSpinBox();
     }
 }
@@ -1303,10 +1325,10 @@ void QAbstractSpinBoxPrivate::updateState(bool up)
     Q_Q(QAbstractSpinBox);
     if ((up && (buttonState & Up)) || (!up && (buttonState & Down)))
         return;
-    resetState();
+    reset();
     if (q && (q->stepEnabled() & (up ? QAbstractSpinBox::StepUpEnabled
                                   : QAbstractSpinBox::StepDownEnabled))) {
-        spinClickTimerId = q->startTimer(spinClickTimerInterval);
+        spinClickThresholdTimerId = q->startTimer(spinClickThresholdTimerInterval);
         buttonState = (up ? (Mouse | Up) : (Mouse | Down));
         q->stepBy(up ? 1 : -1);
     }
@@ -1464,7 +1486,7 @@ void QAbstractSpinBoxPrivate::setRange(const QVariant &min, const QVariant &max)
     minimum = min;
     maximum = qMax(min, max);
 
-    resetState();
+    reset();
     setValue(bound(value), EmitIfChanged);
 }
 
