@@ -20,6 +20,7 @@ QT_SET_VERSION=no
 QT_MAJOR_VERSION=4
 QT_MINOR_VERSION=0
 QT_PATCH_VERSION=0
+QT_VERSION_STRING=${QT_MAJOR_VERSION}.${QT_MINOR_VERSION}.${QT_PATCH_VERSION}
 
 #QTDIR stuff
 BINARY_DIR=
@@ -45,9 +46,9 @@ createLicenseRTF()
 \margl1440\margr1440\vieww9000\viewh9000\viewkind0
 \pard\tx720\tx1440\tx2160\tx2880\tx3600\tx4320\tx5040\tx5760\tx6480\tx7200\tx7920\tx8640\ql\qnatural
 EOF
-   sed -e 's,^\(Qt COMMERCIAL\) \(LICENSE AGREEMENT\)$,\\f0\\fs24 \\cf0 \\ul \\ulc0 \1 \\ulnone \2 \\f0\\i0,g' \
+   sed -e 's,\(^[A-Z][A-Z :-]*$\),\\f2\\b \1 \\f0\\b0,g' \
+       -e 's,^\(Qt COMMERCIAL\) \(LICENSE AGREEMENT\)$,\\f0\\fs24 \\cf0 \\ul \\ulc0 \1 \\ulnone \2 \\f0\\i0,g' \
        -e 's,^\([0-9]*\)\. ,\\f2\\b \1 \\f0\\b0. ,g' \
-       -e 's,\(^[A-Z][A-Z :]*$\),\\f2\\b \1 \\f0\\b0,g' \
        -e 's,\(^Agreement version [0-9].[0-9]$\),\\f1\\i \1 \\f0\\i0,g' \
        -e 's,^\(.*\)$,\1\\,g' \
        "$1" >>"$2"
@@ -114,18 +115,20 @@ while [ -n "$1" ]; do
    package) PACKAGES="$PACKAGES $ARG" ;;
    image) MAKE_IMAGE="$ARG" ;;
    version) 
-       MAJOR=`echo $ARG | cut -d. -f1`
-       if [ -z "$MAJOR" ]; then
-           echo "Invalid version: $ARG"
-       else
-	   MINOR=`echo $ARG | cut -d. -f2`
+       VERSION="$ARG"
+       MAJOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\1,'`
+       if [ -n "$MAJOR" ]; then
+	   MINOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\2,'`
 	   [ -z "$MINOR" ] && MINOR=0
-	   PATCH=`echo $ARG | cut -d. -f3`
+	   PATCH=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\3,'`
 	   [ -z "$PATCH" ] && PATCH=0
-	   QT_MAJOR_VERSION=$MAJOR
-	   QT_MINOR_VERSION=$MINOR
-	   QT_PATCH_VERSION=$PATCH
 	   QT_SET_VERSION=yes
+	   QT_VERSION_STRING="$VERSION"
+	   QT_MAJOR_VERSION="$MAJOR"
+	   QT_MINOR_VERSION="$MINOR"
+	   QT_PATCH_VERSION="$PATCH"
+       else
+           echo "Invalid version: $VERSION"
        fi
        ;;
    help|*)
@@ -208,18 +211,21 @@ fi
 
 #find the version from the source package
 if [ "$QT_SET_VERSION" = "no" ] && [ ! -z "$SOURCE_DIR" ]; then
-     QT_VERSION_STR=`grep ^VERSION= $SOURCE_DIR/src/qbase.pri`
-     if [ -n "$QT_VERSION_STR" ]; then
-        QT_VERSION_STR=`echo $QT_VERSION_STR | cut -d= -f2`
-	MAJOR=`echo $QT_VERSION_STR | cut -d. -f1`
+     VERSION=`grep '^# *define *QT_VERSION_STR' $SOURCE_DIR/src/corelib/global/qglobal.h`
+     if [ -n "$VERSION" ]; then
+        VERSION=`echo $VERSION | sed 's,^# *define *QT_VERSION_STR "*\([^ ]*\)"$,\1,'`
+	MAJOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\1,'`
 	if [ -n "$MAJOR" ]; then
-	    MINOR=`echo $QT_VERSION_STR | cut -d. -f2`
+	    MINOR=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\2,'`
 	    [ -z "$MINOR" ] && MINOR=0
-	    PATCH=`echo $QT_VERSION_STR | cut -d. -f3`
+	    PATCH=`echo $VERSION | sed 's,^\([0-9]*\)\.\([0-9]*\)\.\([0-9]*\).*,\3,'`
 	    [ -z "$PATCH" ] && PATCH=0
-	    QT_MAJOR_VERSION=$MAJOR
-	    QT_MINOR_VERSION=$MINOR
-	    QT_PATCH_VERSION=$PATCH
+	    QT_VERSION_STRING="$VERSION"
+	    QT_MAJOR_VERSION="$MAJOR"
+	    QT_MINOR_VERSION="$MINOR"
+	    QT_PATCH_VERSION="$PATCH"
+        else
+	    echo "Cannot process version from qglobal.h: $VERSION"
 	fi
     fi
 fi
@@ -278,7 +284,7 @@ for package in $PACKAGES; do
     echo "Creating package [$package]..."
     mkdir -p "$TMP_DIR/package"
     if [ -x "$PACKAGE_DIR/$package/create_package.sh" ]; then
-	if (cd $PACKAGE_DIR/$package/ && VERSION_MAJOR="$QT_MAJOR_VERSION" VERSION_MINOR="$QT_MINOR_VERSION" VERSION_PATCH="$QT_PATCH_VERSION" "$PACKAGE_DIR/$package/create_package.sh" $PACKAGE_OPTIONS --outdir="$TMP_DIR/package"); then
+	if (cd $PACKAGE_DIR/$package/ && VERSION_MAJOR="$QT_MAJOR_VERSION" VERSION_MINOR="$QT_MINOR_VERSION" VERSION_STRING="$QT_VERSION_STRING" VERSION_PATCH="$QT_PATCH_VERSION" "$PACKAGE_DIR/$package/create_package.sh" $PACKAGE_OPTIONS --outdir="$TMP_DIR/package"); then
               true
          else
               echo "  Package failed"
@@ -304,6 +310,7 @@ for package in $PACKAGES; do
     else
         mkdir -p $package_dir/Contents
 	(cd "$TMP_DIR/package" && /Developer/Applications/Utilities/PackageMaker.app/Contents/MacOS/PackageMaker -build -p "$package_dir" -ds >/dev/null 2>&1)
+	rm -rf $package_dir/Contents/Resources/*.lproj
     fi
     #Info.plist
     doStringReplace "$PACKAGE_DIR/$package/Info.plist" "$package_dir/Contents/Info.plist"
@@ -312,11 +319,10 @@ for package in $PACKAGES; do
     cp -R $PACKAGE_DIR/$package/Resources/* "$package_dir/Contents/Resources"
     for lang in "North and South America" "Rest of the world"; do
         LOCALDIR="$package_dir/Contents/Resources/${lang}.lproj"
+        mkdir -p "$LOCALDIR"
         if [ "$lang" == "North and South America" ]; then
-            mv "$package_dir/Contents/Resources/English.lproj" "$LOCALDIR"
             cp "$TMP_DIR/licenses/License-US.rtf" "$LOCALDIR/License.rtf"
         else
-            mkdir -p "$LOCALDIR"
             cp "$TMP_DIR/licenses/License.rtf" "$LOCALDIR"
         fi
     done
@@ -332,11 +338,13 @@ for package in $PACKAGES; do
     for a in $package_dir/Contents/Resources/*Check; do
         if [ -e "$a" ]; then
 	    chmod a+x "$a"
-	    if [ -e "${a}.strings" ]; then
-		for lang in "North and South America" "Rest of the world"; do
-		    cp "${a}.strings" "$package_dir/Contents/Resources/${lang}.lproj"
+	    if false && [ -e "${a}.strings" ]; then
+		for lang in English Norwegian French German Spanish; do
+		    LOCALDIR="$package_dir/Contents/Resources/${lang}.lproj"
+		    mkdir -p "$LOCALDIR"
+		    cp "${a}.strings" "$LOCALDIR"
                 done
-		rm -f "${a}.strings"
+		#rm -f "${a}.strings"
             fi
         fi
     done
@@ -372,11 +380,13 @@ if [ "$MAKE_META" = "yes" ]; then
     for a in $OUTPUT_DIR/Qt.mpkg/Contents/Resources/*Check; do
         if [ -e "$a" ]; then
 	    chmod a+x "$a"
-	    if [ -e "${a}.strings" ]; then
-                for lang in "North and South America" "Rest of the world"; do
-		    cp "${a}.strings" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources/${lang}.lproj"
+	    if false && [ -e "${a}.strings" ]; then
+		for lang in English Norwegian French German Spanish; do
+		    LOCALDIR="$OUTPUT_DIR/Qt.mpkg/Contents/Resources/${lang}.lproj"
+		    mkdir -p "$LOCALDIR"
+		    cp "${a}.strings" "$LOCALDIR"
                 done
-		rm -f "${a}.strings"
+		#rm -f "${a}.strings"
             fi
         fi
     done
@@ -417,8 +427,8 @@ fi
 #create disk image
 if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     echo "Creating disk image.."
-    IMAGE_NAME="Qt 4.0.0-RC1"
-    IMAGE="$OUTPUT_DIR/qt-mac-commercial-desktop-4.0.0-rc1.dmg"
+    IMAGE_NAME="Qt ${QT_VERSION_STRING}"
+    IMAGE="$OUTPUT_DIR/qt-mac-commercial-desktop-${QT_VERSION_STRING}.dmg"
     rm -f "$IMAGE" #remove old
 
     #copy
@@ -444,3 +454,4 @@ fi
 
 #cleanup
 rm -rf "$TMP_DIR"
+echo "Done!"
