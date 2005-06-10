@@ -83,6 +83,7 @@ void QThreadPrivate::finish(void *arg, bool lockAnyway)
 
     if (lockAnyway)
         d->mutex.lock();
+    d->priority = QThread::InheritPriority;
     d->running = false;
     d->finished = true;
     if (d->terminated)
@@ -177,7 +178,8 @@ void QThread::start(Priority priority)
     // Since Win 9x will have problems if the priority is idle or time critical
     // we have to use the closest one instead
     int prio;
-    switch (priority) {
+    d->priority = priority;
+    switch (d->priority) {
     case IdlePriority:
 	if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
 	    prio = THREAD_PRIORITY_LOWEST;
@@ -303,5 +305,68 @@ void QThread::setTerminationEnabled(bool enabled)
         QThreadPrivate::finish(thr, false);
         locker.unlock(); // don't leave the mutex locked!
         _endthreadex(0);
+    }
+}
+
+void QThread::setPriority(Priority priority)
+{
+    Q_D(QThread);
+    QMutexLocker locker(&d->mutex);
+    if (!d->running) {
+        qWarning("QThread::setPriority(): cannot set priority, thread is not running");
+        return;
+    }
+
+    // copied from start() with a few modifications:
+
+    // Since Win 9x will have problems if the priority is idle or time critical
+    // we have to use the closest one instead
+    int prio;
+    d->priority = priority;
+    switch (d->priority) {
+    case IdlePriority:
+	if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
+	    prio = THREAD_PRIORITY_LOWEST;
+	} else {
+	    prio = THREAD_PRIORITY_IDLE;
+	}
+        break;
+
+    case LowestPriority:
+        prio = THREAD_PRIORITY_LOWEST;
+        break;
+
+    case LowPriority:
+        prio = THREAD_PRIORITY_BELOW_NORMAL;
+        break;
+
+    case NormalPriority:
+        prio = THREAD_PRIORITY_NORMAL;
+        break;
+
+    case HighPriority:
+        prio = THREAD_PRIORITY_ABOVE_NORMAL;
+        break;
+
+    case HighestPriority:
+        prio = THREAD_PRIORITY_HIGHEST;
+        break;
+
+    case TimeCriticalPriority:
+	if (QSysInfo::WindowsVersion & QSysInfo::WV_DOS_based) {
+	    prio = THREAD_PRIORITY_HIGHEST;
+	} else {
+	    prio = THREAD_PRIORITY_TIME_CRITICAL;
+	}
+        break;
+
+    case InheritPriority:
+    default:
+        qWarning("QThread::setPriority(): argument cannot be InheritPriority");
+        return;
+    }
+
+    if (!SetThreadPriority(d->handle, prio)) {
+        qErrnoWarning("QThread::start: Failed to set thread priority");
     }
 }

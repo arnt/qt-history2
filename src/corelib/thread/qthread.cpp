@@ -61,7 +61,7 @@ QThreadData *QThreadData::get(QThread *thread)
 
 QThreadPrivate::QThreadPrivate()
     : QObjectPrivate(), running(false), finished(false), terminated(false),
-      stackSize(0)
+      stackSize(0), priority(QThread::InheritPriority)
 {
 #if defined (Q_OS_UNIX)
     thread_id = 0;
@@ -426,3 +426,29 @@ void QThread::cleanup()
 
     Use isRunning() instead.
 */
+
+/*! \fn void QThread::setPriority(Priority priority)
+
+    This function sets the \a priority for a running thread. If the
+    thread is not running, this function does nothing and returns
+    immediately.  Use start() to start a thread with a specific
+    priority.
+
+    The \a priority argument can be any value in the \c
+    QThread::Priority enum except for \c InheritPriorty.
+
+    \sa Priority priority() start()
+*/
+
+/*!
+    Returns the priority for a running thread.  If the thread is not
+    running, this function returns \c InheritPriority.
+
+    \sa Priority setPriority() start()
+*/
+QThread::Priority QThread::priority() const
+{
+    Q_D(const QThread);
+    QMutexLocker locker(&d->mutex);
+    return d->priority;
+}

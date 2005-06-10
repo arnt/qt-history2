@@ -44,6 +44,9 @@ public:
         InheritPriority
     };
 
+    void setPriority(Priority priority);
+    Priority priority() const;
+
     bool isFinished() const;
     bool isRunning() const;
 

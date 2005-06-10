@@ -90,6 +90,7 @@ public:
     bool terminated;
 
     uint stackSize;
+    QThread::Priority priority;
 
     static void setCurrentThread(QThread *thread);
 
