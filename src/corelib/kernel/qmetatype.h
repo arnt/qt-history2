@@ -15,6 +15,7 @@
 #define QMETATYPE_H
 
 #include "QtCore/qglobal.h"
+#include "QtCore/qstring.h"
 
 #ifndef QT_NO_DATASTREAM
 #include "QtCore/qdatastream.h"
@@ -42,12 +43,11 @@ public:
 #ifndef QT_NO_DATASTREAM
     typedef void (*SaveOperator)(QDataStream &, const void *);
     typedef void (*LoadOperator)(QDataStream &, void *);
-#endif
-
-    static int registerType(const char *typeName, Destructor destructor,
-                            Constructor constructor);
     static void registerStreamOperators(const char *typeName, SaveOperator saveOp,
                                         LoadOperator loadOp);
+#endif
+    static int registerType(const char *typeName, Destructor destructor,
+                            Constructor constructor);
     static int type(const char *typeName);
     static const char *typeName(int type);
     static bool isRegistered(int type);
