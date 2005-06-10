@@ -256,7 +256,7 @@ nextfile:
         }
 
         QString key = keyFor("QMAKE_SUBDIR_PBX_BUILDSTYLE_" + name);
-        if(project->isActiveConfig("debug") != as_release) {
+        if(project->isActiveConfig("debug") != (bool)as_release) {
             project->variables()["QMAKE_SUBDIR_PBX_BUILDSTYLES"].append(key);
             active_buildstyle = name;
         } else if(pbVersion >= 42) {
@@ -1321,7 +1321,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
         }
 
         QString key = keyFor("QMAKE_PBX_BUILDSTYLE_" + name);
-        if(project->isActiveConfig("debug") != as_release) {
+        if(project->isActiveConfig("debug") != (bool)as_release) {
             project->variables()["QMAKE_PBX_BUILDSTYLES"].append(key);
             active_buildstyle = name;
         } else if(pbVersion >= 42) {
