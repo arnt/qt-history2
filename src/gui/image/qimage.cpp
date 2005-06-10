@@ -33,6 +33,10 @@
 #include <qpaintengine.h>
 #endif
 
+#ifdef Q_WS_QWS
+#include <qscreen_qws.h> //### for qt_conv...
+#endif
+
 #if defined(Q_CC_DEC) && defined(__alpha) && (__DECCXX_VER-0 >= 50190001)
 #pragma message disable narrowptr
 #endif
@@ -138,6 +142,27 @@ static int depthForFormat(QImage::Format format)
     case QImage::Format_ARGB32_Premultiplied:
         depth = 32;
         break;
+#ifdef Q_WS_QWS
+    case QImage::Format_RGB16:
+    case QImage::Format_RGB15:
+    case QImage::Format_Grayscale16:
+        depth = 16;
+        break;
+    case QImage::Format_Grayscale8:
+        depth = 8;
+        break;
+
+    case QImage::Format_Grayscale4:
+    case QImage::Format_Grayscale4LSB:
+        depth = 4;
+        break;
+
+    case QImage::Format_Grayscale2:
+    case QImage::Format_Grayscale2LSB:
+        depth = 2;
+        break;
+
+#endif
     }
     return depth;
 }
@@ -169,6 +194,12 @@ QImageData * QImageData::create(const QSize &size, QImage::Format format, int nu
         depth = 32;
         numColors = 0;
         break;
+#ifdef Q_WS_QWS
+    default:
+        depth = depthForFormat(format);
+        numColors = 0;
+        break;
+#endif
     }
 
     QImageData *d = new QImageData;
@@ -414,6 +445,14 @@ static QImage::Format formatFor(int depth, QImage::Endian bitOrder)
         format = QImage::Format_Indexed8;
     } else if (depth == 32) {
         format = QImage::Format_RGB32;
+#ifdef Q_WS_QWS
+    } else if (depth == 16) {
+        format = QImage::Format_RGB16;
+    } else if (depth == 4) {
+        format = bitOrder == QImage::BigEndian ? QImage::Format_Grayscale4 : QImage::Format_Grayscale4LSB;
+    } else if (depth == 2) {
+        format = bitOrder == QImage::BigEndian ? QImage::Format_Grayscale2 : QImage::Format_Grayscale2LSB;
+#endif
     } else {
         qWarning("QImage: depth %d not supported", depth);
         format = QImage::Format_Invalid;
@@ -2313,15 +2352,111 @@ static void convert_Mono_to_Indexed8(QImageData *dest, const QImageData *src, Qt
     }
 }
 
+
+#ifdef Q_WS_QWS
+#ifndef QT_NO_IMAGE_16_BIT
+
+static inline bool is16BitGray( ushort c )
+{
+    int r=(c & 0xf800) >> 11;
+    int g=(c & 0x07e0) >> 6; //green/2
+    int b=(c & 0x001f);
+    return r == g && g == b;
+}
+
+
+static void convert_16_to_32(QImageData *dest,   const QImageData *src, Qt::ImageConversionFlags flags)
+{
+    Q_ASSERT(src->format == QImage::Format_RGB16);
+    Q_ASSERT(dest->format == QImage::Format_RGB32
+             || dest->format == QImage::Format_ARGB32_Premultiplied
+             || dest->format == QImage::Format_ARGB32);
+    Q_ASSERT(src->width == dest->width);
+    Q_ASSERT(src->height == dest->height);
+
+    int w = src->width;
+    const uchar *src_data = src->data;
+    uchar *dest_data = dest->data;
+    for (int y = 0; y < src->height; y++) {
+        uint *p = (uint *)dest_data;
+        const ushort *b = (ushort*)src_data;
+        uint *end = p + w;
+
+        while (p < end)
+            *p++ = qt_conv16ToRgb(*b++);
+
+        src_data += src->bytes_per_line;
+        dest_data += dest->bytes_per_line;
+    }
+}
+
+
+static void convert_32_to_16(QImageData *dest,   const QImageData *src, Qt::ImageConversionFlags flags)
+{
+    Q_ASSERT(dest->format == QImage::Format_RGB16);
+    Q_ASSERT(src->format == QImage::Format_RGB32
+             || src->format == QImage::Format_ARGB32_Premultiplied
+             || src->format == QImage::Format_ARGB32);
+    Q_ASSERT(src->width == dest->width);
+    Q_ASSERT(src->height == dest->height);
+
+    int w = src->width;
+    const uchar *src_data = src->data;
+    uchar *dest_data = dest->data;
+    for (int y = 0; y < src->height; y++) {
+        ushort *p = (ushort *)dest_data;
+        const uint *b = (const uint*)src_data;
+        ushort *end = p + w;
+
+        while (p < end)
+            *p++ = qt_convRgbTo16(*b++);
+
+        src_data += src->bytes_per_line;
+        dest_data += dest->bytes_per_line;
+    }
+}
+#endif
+#endif //Q_WS_QWS
+enum {Num_Image_Formats=14};
+/*
+        Format_Invalid,
+        Format_Mono,
+        Format_MonoLSB,
+        Format_Indexed8,
+        Format_RGB32,
+        Format_ARGB32,
+        Format_ARGB32_Premultiplied,
+
+        Format_RGB16, //only on QWS for this release
+
+        //the following are unsupported in this release:
+        Format_RGB15,
+        Format_Grayscale16,
+        Format_Grayscale8,
+        Format_Grayscale4,
+        Format_Grayscale4LSB,
+        Format_Grayscale2,
+        Format_Grayscale2LSB
+*/
+
+
 // first index source, second dest
-static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][QImage::Format_ARGB32_Premultiplied] =
+static const Image_Converter converter_map[Num_Image_Formats][Num_Image_Formats] =
 {
     { 0,
       swap_bit_order,
       convert_Mono_to_Indexed8,
       convert_Mono_to_X32,
       convert_Mono_to_X32,
-      convert_Mono_to_X32
+      convert_Mono_to_X32,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
     }, // Format_Mono
 
     { swap_bit_order,
@@ -2329,7 +2464,16 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
       convert_Mono_to_Indexed8,
       convert_Mono_to_X32,
       convert_Mono_to_X32,
-      convert_Mono_to_X32
+      convert_Mono_to_X32,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0,
+      0
+
     }, // Format_MonoLSB
 
     {
@@ -2338,7 +2482,16 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
         0,
         convert_Indexed8_to_X32,
         convert_Indexed8_to_X32,
-        convert_Indexed8_to_X32
+        convert_Indexed8_to_X32,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+
     }, // Format_Indexed8
 
     {
@@ -2347,7 +2500,16 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
         convert_RGB_to_Indexed8,
         0,
         mask_alpha_converter,
-        mask_alpha_converter
+        mask_alpha_converter,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+
     }, // Format_RGB32
 
     {
@@ -2356,7 +2518,16 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
         convert_ARGB_to_Indexed8,
         mask_alpha_converter,
         0,
-        convert_ARGB_to_ARGB_PM
+        convert_ARGB_to_ARGB_PM,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+
     }, // Format_ARGB32
 
     {
@@ -2365,8 +2536,154 @@ static const Image_Converter converter_map[QImage::Format_ARGB32_Premultiplied][
         convert_ARGB_PM_to_Indexed8,
         convert_ARGB_PM_to_RGB,
         convert_ARGB_PM_to_ARGB,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
         0
-    }  // Format_ARGB32_Premultiplied
+
+    },  // Format_ARGB32_Premultiplied
+
+    {
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    }, // Format_RGB16
+
+    {
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    }, // Format_RGB15
+
+    {
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    }, // Format_Grayscale16
+
+    {
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    }, // Format_Grayscale8
+
+    {
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    }, // Format_Grayscale4
+
+    {
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    }, // Format_Grayscale4LSB
+
+    {
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    }, // Format_Grayscale2
+
+    {
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0,
+        0
+    }, // Format_Grayscale2LSB
+
 };
 
 /*!
@@ -2381,12 +2698,34 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
         return *this;
 
     Image_Converter converter = converter_map[d->format - 1][format - 1];
-    if (!converter)
-        return QImage();
+    if (converter) {
+        QImage image(d->width, d->height, format);
+        converter(image.d, d, flags);
+        return image;
+    }
 
-    QImage image(d->width, d->height, format);
-    converter(image.d, d, flags);
-    return image;
+#ifdef Q_WS_QWS
+    if (format == Format_RGB16) {
+        QImage tmp;
+        if (d->format == Format_RGB32 || d->format == Format_ARGB32)
+            tmp = *this;
+        else
+            tmp = convertToFormat(Format_RGB32, flags);
+        QImage image(d->width, d->height, format);
+        convert_32_to_16(image.d, tmp.d, flags);
+        return image;
+    } else if (d->format == Format_RGB16) {
+        int targetDepth = depthForFormat(format) == 32;
+        QImage image(d->width, d->height, targetDepth == 32 ? format : Format_RGB32);
+        convert_16_to_32(image.d, d, flags);
+        if (targetDepth == 32)
+            return image;
+        else
+            return image.convertToFormat(format);
+    }
+#endif
+
+    return QImage();
 }
 
 /*!
@@ -2508,6 +2847,10 @@ QRgb QImage::pixel(int x, int y) const
         return d->colortable.at((*(s + (x >> 3)) >> (x & 7)) & 1);
     case Format_Indexed8:
         return d->colortable.at((int)s[x]);
+#ifdef Q_WS_QWS
+    case Format_RGB16:
+        return qt_conv16ToRgb(reinterpret_cast<const ushort*>(s)[x]);
+#endif
     default:
         return ((QRgb*)s)[x];
     }

@@ -57,6 +57,16 @@ public:
         Format_RGB32,
         Format_ARGB32,
         Format_ARGB32_Premultiplied
+#ifdef Q_WS_QWS
+        , Format_RGB16,
+        Format_RGB15,
+        Format_Grayscale16,
+        Format_Grayscale8,
+        Format_Grayscale4,
+        Format_Grayscale4LSB,
+        Format_Grayscale2,
+        Format_Grayscale2LSB
+#endif
     };
 
     QImage();
