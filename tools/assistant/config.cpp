@@ -161,10 +161,9 @@ void Config::loadDefaultProfile()
     const QString key = QLatin1String(QT_VERSION_STR) + QLatin1String("/Profile");
     const QString profKey = key + QLatin1String("/default/");
 
-    if( settings.value( key + QLatin1String("/default")).toStringList().count() == 0 ) {
+    if( settings.contains( key + QLatin1String("/default")))
         return;
-    }
-
+    
     // Override the defaults with settings in registry.
     profil->icons.clear();
     profil->indexPages.clear();
