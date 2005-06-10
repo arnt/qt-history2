@@ -1890,7 +1890,7 @@
     \row \o IO_ReadWrite \o QIODevice::ReadWrite
     \row \o IO_Append \o QIODevice::Append
     \row \o IO_Truncate \o QIODevice::Truncate
-    \row \o IO_Translate \o QIODevice::Translate
+    \row \o IO_Translate \o QIODevice::Text
     \row \o IO_ModeMask \o N/A
     \row \o IO_Open \o Use QIODevice::isOpen() instead.
     \row \o IO_StateMask \o N/A
@@ -3444,6 +3444,28 @@
     from the Qt library. If you need it in your application, feel
     free to copy the source code from the Qt 3 \c <qtl.h> header
     file.
+
+    \section1 QTextStream
+
+    QTextStream has undergone a number of API and implementation enhancements,
+    and some of the changes affect QTextStream's behavior:
+
+    \list
+    \o QTextStream now uses buffered writing, which means that you need to
+       call QTextStream::flush(), or use the streaming manipulators endl or
+       flush if you need QTextStream to flush its write buffer. The stream is
+       flushed automatically if QTextStream is deleted or when the device is
+       closed.
+    \o QTextStream now uses buffered reading, so if you read a line from the
+       stream, QTextStream will read as much as it can from the device, to
+       fill up its internal read buffer. This speeds up reading significantly,
+       but Qt 3 code that mixed QTextStream access and direct device access
+       may need to be updated.
+    \o While QTextStream in Qt 3 always translated end-of-line characters from
+       Windows style ("\r\n") to Unix style ("\n") on Windows, QTextStream in
+       Qt 4 only does this on devices opened with the mode QIODevice::Text
+       (formerly IO_Translate).
+    \endlist
 
     \section1 QTextView
 
