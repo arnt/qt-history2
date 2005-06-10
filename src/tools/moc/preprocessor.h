@@ -17,6 +17,7 @@
 #include "symbols.h"
 #include <qlist.h>
 #include <qmap.h>
+#include <qset.h>
 #include <stdio.h>
 
 typedef QMap<QByteArray,QByteArray> Macros;
@@ -27,6 +28,7 @@ public:
     static bool onlyPreprocess;
     static QByteArray protocol;
     static QList<QByteArray> includes;
+    static QSet<QByteArray> preprocessedIncludes;
     static Macros macros;
     static QByteArray preprocessed(const QByteArray &filename, FILE *file);
 };

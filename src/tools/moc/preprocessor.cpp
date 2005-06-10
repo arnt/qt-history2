@@ -23,6 +23,7 @@ QList<QByteArray> Preprocessor::includes;
 Macros Preprocessor::macros;
 bool Preprocessor::onlyPreprocess = false;
 QByteArray Preprocessor::protocol;
+QSet<QByteArray> Preprocessor::preprocessedIncludes;
 
 
 static inline bool hasNext(const Symbols &symbols, int i)
@@ -581,6 +582,11 @@ static Symbols preprocess(const QByteArray &filename, const Symbols &symbols, Ma
             if (!fi.exists())
                 continue;
             include = fi.filePath().toLocal8Bit();
+
+            if (Preprocessor::preprocessedIncludes.contains(include))
+                continue;
+            Preprocessor::preprocessedIncludes.insert(include);
+
             QFile file(QString::fromLocal8Bit(include));
             if (!file.open(QFile::ReadOnly))
                 continue;
