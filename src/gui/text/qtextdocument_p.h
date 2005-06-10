@@ -277,9 +277,8 @@ private:
 
     QTextDocumentConfig docConfig;
 
-    bool inContentsChange;
-
 public:
+    bool inContentsChange;
     QSizeF pageSize;
 };
 

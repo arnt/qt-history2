@@ -393,7 +393,11 @@ bool QTextDocument::isUndoRedoEnabled() const
 void QTextDocument::markContentsDirty(int from, int length)
 {
     Q_D(QTextDocument);
+    if (!d->inContentsChange)
+        d->beginEditBlock();
     d->documentChange(from, length);
+    if (!d->inContentsChange)
+        d->endEditBlock();
 }
 
 /*!
