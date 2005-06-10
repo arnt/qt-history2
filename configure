@@ -1197,7 +1197,7 @@ fi
 # build tree initialization
 #-------------------------------------------------------------------------------
 
-#where to find which..
+# where to find which..
 unixtests=$relpath/config.tests/unix
 WHICH=$unixtests/which.test
 
@@ -1219,23 +1219,24 @@ if [ "$OPT_VERBOSE" = "yes" -a "$OPT_SHADOW" = "yes" ]; then
     echo "Performing shadow build..."
 fi
 
-#detect build style
+# detect build style
 if [ "$CFG_DEBUG" = "auto" ]; then
     CFG_DEBUG_RELEASE=yes
     CFG_DEBUG=yes
     QMAKE_CONFIG="$QMAKE_CONFIG build_all"
 fi
 
-#detect zlib
+# detect zlib
+ZLIB_REQ="-lz zlib.h"
 if [ "$CFG_ZLIB" = "auto" ]; then
-    if $unixtests/checkavail "zlib" $OPT_VERBOSE -lz zlib.h; then
+    if $unixtests/checkavail "zlib" $OPT_VERBOSE $ZLIB_REQ $L_FLAGS $I_FLAGS; then
        CFG_ZLIB=system
     else
        CFG_ZLIB=yes
     fi
 fi
 
-#detect how jpeg should be built
+# detect how jpeg should be built
 if [ "$CFG_JPEG" = "auto" ]; then
     if [ "$CFG_SHARED" = "yes" ]; then
         CFG_JPEG=plugin
@@ -1243,25 +1244,27 @@ if [ "$CFG_JPEG" = "auto" ]; then
         CFG_JPEG=yes
     fi
 fi
-#detect jpeg
+# detect jpeg
+LIBJPEG_REQ="-ljpeg jpeglib.h"
 if [ "$CFG_LIBJPEG" = "auto" ]; then
-    if $unixtests/checkavail "libjpeg" $OPT_VERBOSE -ljpeg jpeglib.h; then
+    if $unixtests/checkavail "libjpeg" $OPT_VERBOSE $LIBJPEG_REQ $L_FLAGS $I_FLAGS; then
        CFG_LIBJPEG=system
     else
        CFG_LIBJPEG=qt
     fi
 fi
 
-#detect png
+# detect png
+LIBPNG_REQ="-lpng png.h"
 if [ "$CFG_LIBPNG" = "auto" ]; then
-    if $unixtests/checkavail "libpng" $OPT_VERBOSE -lpng png.h; then
+    if $unixtests/checkavail "libpng" $OPT_VERBOSE $LIBPNG_REQ $L_FLAGS $I_FLAGS; then
        CFG_LIBPNG=system
     else
        CFG_LIBPNG=qt
     fi
 fi
 
-#detect accessibility
+# detect accessibility
 if [ "$CFG_ACCESSIBILITY" = "auto" ]; then
     CFG_ACCESSIBILITY=yes
 fi
