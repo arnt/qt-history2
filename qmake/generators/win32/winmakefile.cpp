@@ -394,7 +394,7 @@ void Win32MakefileGenerator::processRcFileVar()
         if (!project->variables()["RES_FILE"].isEmpty()) {
             fprintf(stderr, "Both rc and res file specified.\n");
             fprintf(stderr, "Please specify one of them, not both.");
-            exit(666);
+            exit(1);
         }
         QString resFile = project->variables()["RC_FILE"].first();
         resFile.replace(".rc", Option::res_ext);

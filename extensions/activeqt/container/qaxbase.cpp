@@ -442,7 +442,7 @@ public:
             return S_OK;
 
         index = meta->indexOfSignal(signame);
-        if (index == -1) // damn, bindable but not marked as bindable in typelib
+        if (index == -1) // bindable but not marked as bindable in typelib
             return S_OK;
 
         // get the signal information from the metaobject

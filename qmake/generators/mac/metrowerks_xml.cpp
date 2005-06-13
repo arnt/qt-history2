@@ -316,9 +316,9 @@ MetrowerksMakefileGenerator::writeMakeParts(QTextStream &t)
                     for(QStringList::Iterator val_it = l.begin(); val_it != l.end(); ++val_it)
                     {
                         //apparently tmake used colon separation...
-                        QStringList damn = (*val_it).split(':');
-                        if(!damn.isEmpty())
-                            list += damn;
+                        QStringList sep = (*val_it).split(':');
+                        if(!sep.isEmpty())
+                            list += sep;
                         else
                             list.append((*val_it));
                     }
