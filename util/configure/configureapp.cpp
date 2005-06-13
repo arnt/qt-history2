@@ -1961,7 +1961,7 @@ void Configure::readLicense()
         dictionary["QT_PRODUCT"] = "OpenSource" + packageType;
         // Ensure that the right QMAKESPEC is used for the Open Source version
         if (!dictionary["QMAKESPEC"].endsWith("-g++")) {
-            cout << "The Qt/Windows Open Source " << packageType << " edition can only be used with the MinGW compiler." << endl;
+            cout << "The Qt/Windows Open Source " << packageType << " edition only supports the MinGW compiler." << endl;
             dictionary["DONE"] = "error";
         }
         cout << endl;
