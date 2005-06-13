@@ -461,6 +461,12 @@ void QDesignerWorkbench::switchToTopLevelMode()
     if (m_mode == TopLevelMode)
         return;
 
+    // make sure that the widgetbox is visible
+    if (QDesignerToolWindow *widgetbox_tool = findToolWindow(core()->widgetBox())) {
+        if (!widgetbox_tool->action()->isChecked())
+            widgetbox_tool->action()->trigger();
+    }
+
     switchToNeutralMode();
     QPoint desktopOffset = QApplication::desktop()->availableGeometry().topLeft();
     m_mode = TopLevelMode;
