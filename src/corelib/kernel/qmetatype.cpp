@@ -165,7 +165,12 @@ static const struct { const char * typeName; int type; } types[] = {
 class QCustomTypeInfo
 {
 public:
-    QCustomTypeInfo() : typeName(0, '\0'), constr(0), destr(0), saveOp(0), loadOp(0) {}
+#ifndef QT_NO_DATASTREAM
+    QCustomTypeInfo() : typeName(0, '\0'), constr(0), destr(0), saveOp(0), loadOp(0)
+#else
+    QCustomTypeInfo() : typeName(0, '\0'), constr(0), destr(0)
+#endif
+    {}
     inline void setData(const char *tname, QMetaType::Constructor cp, QMetaType::Destructor de)
     { typeName = tname; constr = cp; destr = de; }
     inline void setData(QMetaType::Constructor cp, QMetaType::Destructor de)
