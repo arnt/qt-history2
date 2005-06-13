@@ -170,18 +170,23 @@ public:
     { typeName = tname; constr = cp; destr = de; }
     inline void setData(QMetaType::Constructor cp, QMetaType::Destructor de)
     { constr = cp; destr = de; }
+#ifndef QT_NO_DATASTREAM
     inline void setOperators(QMetaType::SaveOperator sOp, QMetaType::LoadOperator lOp)
     { saveOp = sOp; loadOp = lOp; }
+#endif
 
     QByteArray typeName;
     QMetaType::Constructor constr;
     QMetaType::Destructor destr;
+#ifndef QT_NO_DATASTREAM
     QMetaType::SaveOperator saveOp;
     QMetaType::LoadOperator loadOp;
+#endif
 };
 
 Q_GLOBAL_STATIC(QVector<QCustomTypeInfo>, customTypes)
 
+#ifndef QT_NO_DATASTREAM
 /*! \internal
  */
 void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveOp,
@@ -195,6 +200,7 @@ void QMetaType::registerStreamOperators(const char *typeName, SaveOperator saveO
         return;
     (*ct)[idx - User].setOperators(saveOp, loadOp);
 }
+#endif
 
 /*!
     Returns the type name associated with the given \a type, or 0 if no
