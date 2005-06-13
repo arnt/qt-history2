@@ -108,6 +108,10 @@ public:
     void insertChild(int index, QTreeWidgetItem *child);
     QTreeWidgetItem *takeChild(int index);
 
+    void addChildren(const QList<QTreeWidgetItem*> &children);
+    void insertChildren(int index, const QList<QTreeWidgetItem*> &children);
+    QList<QTreeWidgetItem*> takeChildren();
+
     inline int type() const { return rtti; }
 
 private:
@@ -176,6 +180,9 @@ public:
     void addTopLevelItem(QTreeWidgetItem *item);
     QTreeWidgetItem *takeTopLevelItem(int index);
     int indexOfTopLevelItem(QTreeWidgetItem *item);
+
+    void insertTopLevelItems(int index, const QList<QTreeWidgetItem*> &items);
+    void addTopLevelItems(const QList<QTreeWidgetItem*> &items);
 
     QTreeWidgetItem *headerItem() const;
     void setHeaderItem(QTreeWidgetItem *item);

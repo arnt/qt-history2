@@ -73,6 +73,8 @@ public:
     void removeFromTopLevel(QTreeWidgetItem *item);
     QTreeWidgetItem *takeFromTopLevel(int row);
 
+    void insertListInTopLevel(int row, const QList<QTreeWidgetItem*> &items);
+
     // dnd
     QStringList mimeTypes() const;
     QMimeData *mimeData(const QModelIndexList &indexes) const;
@@ -84,8 +86,8 @@ public:
 
 protected:
     void emitDataChanged(QTreeWidgetItem *item, int column);
-    void beginInsertItem(QTreeWidgetItem *parent, int row);
-    void beginRemoveItem(QTreeWidgetItem *parent, int row);
+    void beginInsertItems(QTreeWidgetItem *parent, int row, int count);
+    void beginRemoveItems(QTreeWidgetItem *parent, int row, int count);
 
 private:
     QList<QTreeWidgetItem*> tree;
@@ -582,6 +584,20 @@ QTreeWidgetItem *QTreeModel::takeFromTopLevel(int row)
     return item;
 }
 
+/*!
+  \internal
+ 
+  Inserts the list of tree view \a items to the tree model as a  toplevel item.
+*/
+
+void QTreeModel::insertListInTopLevel(int row, const QList<QTreeWidgetItem*> &items)
+{
+    beginInsertRows(QModelIndex(), row, row + items.count() - 1);
+    for (int n = 0; n < items.count(); ++n)
+        tree.insert(row, items.at(n));
+    endInsertRows();
+}
+
 QStringList QTreeModel::mimeTypes() const
 {
     const QTreeWidget *view = ::qobject_cast<const QTreeWidget*>(QObject::parent());
@@ -636,14 +652,14 @@ void QTreeModel::emitDataChanged(QTreeWidgetItem *item, int column)
     emit dataChanged(tl, br);
 }
 
-void QTreeModel::beginInsertItem(QTreeWidgetItem *parent, int row)
+void QTreeModel::beginInsertItems(QTreeWidgetItem *parent, int row, int count)
 {
-    beginInsertRows(index(parent, 0), row, row);
+    beginInsertRows(index(parent, 0), row, row + count - 1);
 }
 
-void QTreeModel::beginRemoveItem(QTreeWidgetItem *parent, int row)
+void QTreeModel::beginRemoveItems(QTreeWidgetItem *parent, int row, int count)
 {
-    beginRemoveRows(index(parent, 0), row, row);
+    beginRemoveRows(index(parent, 0), row, row + count - 1);
 }
 
 /*!
@@ -1189,7 +1205,7 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
     // FIXME: here we have a problem;
     // the user could build up a tree and then insert the root in the view
     Q_ASSERT(!child->view || !child->model || !child->par);
-    if (model) model->beginInsertItem(this, index);
+    if (model) model->beginInsertItems(this, index, 1);
     if (view && model) {
         QStack<QTreeWidgetItem*> stack;
         stack.push(child);
@@ -1212,7 +1228,7 @@ void QTreeWidgetItem::insertChild(int index, QTreeWidgetItem *child)
 QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
 {
     if (index >= 0 && index < children.count()) {
-        if (model) model->beginRemoveItem(this, index);
+        if (model) model->beginRemoveItems(this, index, 1);
         QTreeWidgetItem *item = children.takeAt(index);
         item->par = 0;
         QStack<QTreeWidgetItem*> stack;
@@ -1228,6 +1244,72 @@ QTreeWidgetItem *QTreeWidgetItem::takeChild(int index)
         return item;
     }
     return 0;
+}
+
+/*!
+  Appends the given list of \a children to the item.
+
+  \sa insertChildren() takeChildren()
+*/
+void QTreeWidgetItem::addChildren(const QList<QTreeWidgetItem*> &children)
+{
+    insertChildren(this->children.count(), children);
+}
+
+/*!
+  Inserts the given list of \a children into the list of the item children at \a index .
+*/
+void QTreeWidgetItem::insertChildren(int index, const QList<QTreeWidgetItem*> &children)
+{
+    // FIXME: here we have a problem;
+    // the user could build up a tree and then insert the root in the view
+    if (model) model->beginInsertItems(this, index, children.count());
+    for (int n = 0; n < children.count(); ++n) {
+        QTreeWidgetItem *child = children.at(n);
+        Q_ASSERT(!child->view || !child->model || !child->par);
+        if (view && model) {
+            QStack<QTreeWidgetItem*> stack;
+            stack.push(child);
+            children.at(n)->par = this;
+            while (!stack.isEmpty()) {
+                QTreeWidgetItem *i = stack.pop();
+                i->view = view;
+                i->model = model;
+                for (int c = 0; c < i->children.count(); ++c)
+                    stack.push(i->children.at(c));
+            }
+        }
+        this->children.insert(index + n, child);
+    }
+    if (model) model->endInsertRows();
+}
+
+/*!
+  Removes the list of children and returns it, otherwise return an empty list.
+*/
+QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
+{
+    QList<QTreeWidgetItem*> removed;
+    if (children.count() > 0) {
+        if (model) model->beginRemoveItems(this, 0, children.count());
+        for (int n = 0; n < children.count(); ++n) {
+            QTreeWidgetItem *item = children.at(n);
+            item->par = 0;
+            QStack<QTreeWidgetItem*> stack;
+            stack.push(item);
+            while (!stack.isEmpty()) {
+                QTreeWidgetItem *i = stack.pop();
+                i->view = 0;
+                i->model = 0;
+                for (int c = 0; c < i->children.count(); ++c)
+                    stack.push(i->children.at(c));
+            }
+        }
+        removed = children;
+        children.clear(); // detach
+        if (model) model->endRemoveRows();   
+    }
+    return removed;
 }
 
 /*!
@@ -1658,6 +1740,40 @@ int QTreeWidget::indexOfTopLevelItem(QTreeWidgetItem *item)
 {
     Q_D(QTreeWidget);
     return d->model()->tree.indexOf(item);
+}
+
+/*!
+  Inserts the list of \a items at \a index in the top level in the view.
+
+  \sa addTopLevelItems()
+*/
+void QTreeWidget::insertTopLevelItems(int index, const QList<QTreeWidgetItem*> &items)
+{
+    Q_D(QTreeWidget);
+    for (int n = 0; n < items.count(); ++n) {
+        QTreeWidgetItem *item = items.at(n);
+        Q_ASSERT(!item->view || !item->model || !item->par);
+        QStack<QTreeWidgetItem*> stack;
+        stack.push(item);
+        while (!stack.isEmpty()) {
+            QTreeWidgetItem *i = stack.pop();
+            i->view = this;
+            i->model = d->model();
+            for (int c = 0; c < i->children.count(); ++c)
+                stack.push(i->children.at(c));
+        }
+    }
+    d->model()->insertListInTopLevel(index, items);
+}
+
+/*!
+  Appends the list of \a items as a top-level items in the widget.
+
+  \sa insertTopLevelItems()
+*/
+void QTreeWidget::addTopLevelItems(const QList<QTreeWidgetItem*> &items)
+{
+    insertTopLevelItems(topLevelItemCount(), items);
 }
 
 /*!
