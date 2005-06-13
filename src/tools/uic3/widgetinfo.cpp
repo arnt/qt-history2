@@ -66,9 +66,11 @@ const QMetaObject *WidgetInfo::metaObject(const QString &widgetName)
         return &QCheckBox::staticMetaObject;
     else if (widgetName == QLatin1String("QRadioButton"))
         return &QRadioButton::staticMetaObject;
-    else if (widgetName == QLatin1String("QGroupBox"))
+    else if (widgetName == QLatin1String("QGroupBox")
+            || widgetName == QLatin1String("Q3GroupBox"))
         return &Q3GroupBox::staticMetaObject;
-    else if (widgetName == QLatin1String("QButtonGroup"))
+    else if (widgetName == QLatin1String("QButtonGroup")
+            || widgetName == QLatin1String("Q3ButtonGroup"))
         return &Q3ButtonGroup::staticMetaObject;
     else if (widgetName == QLatin1String("QDateEdit"))
         return &Q3DateEdit::staticMetaObject;

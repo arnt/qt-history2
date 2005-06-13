@@ -188,5 +188,5 @@ QString Porting::renameClass(const QString &className) const
 QString Porting::renameEnumerator(const QString &enumName) const
 {
     int index = findRule(m_renamedEnums, enumName);
-    return index == -1 ? enumName : m_renamedEnums.at(index).second;
+    return index == -1 ? QString() : m_renamedEnums.at(index).second;
 }
