@@ -219,11 +219,4 @@
     \o \l{activeqt/webbrowser}{Web Browser}\raisedaster
     \o \l{activeqt/wrapper}{Wrapper}\raisedaster
     \endlist
-
-    \section1 Motif Examples
-
-    \list
-    \o \l{motif/customwidget}{Custom Widget}
-    \o \l{motif/dialog}{Dialog}
-    \endlist
 */
