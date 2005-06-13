@@ -70,16 +70,27 @@ public:
     QPalette::ColorRole fakeColorRole() const   { Q_ASSERT(0); return static_cast<QPalette::ColorRole>(0); }
 };
 
+/*!
+    \class QAbstractFormBuilder
+    \inmodule QtDesigner
+*/
+
+/*!
+*/
 QAbstractFormBuilder::QAbstractFormBuilder()
 {
     m_defaultMargin = INT_MIN;
     m_defaultSpacing = INT_MIN;
 }
 
+/*!
+*/
 QAbstractFormBuilder::~QAbstractFormBuilder()
 {
 }
 
+/*!
+*/
 QWidget *QAbstractFormBuilder::load(QIODevice *dev, QWidget *parentWidget)
 {
     QDomDocument doc;
@@ -659,6 +670,8 @@ QActionGroup *QAbstractFormBuilder::createActionGroup(QObject *parent, const QSt
     return g;
 }
 
+/*!
+*/
 void QAbstractFormBuilder::save(QIODevice *dev, QWidget *widget)
 {
     DomWidget *ui_widget = createDom(widget, 0);
@@ -1452,11 +1465,15 @@ QString QAbstractFormBuilder::pixmapToQrcPath(const QPixmap &pm) const
     return QString();
 }
 
+/*!
+*/
 QDir QAbstractFormBuilder::workingDirectory() const
 {
     return m_workingDirectory;
 }
 
+/*!
+*/
 void QAbstractFormBuilder::setWorkingDirectory(const QDir &directory)
 {
     m_workingDirectory = directory;

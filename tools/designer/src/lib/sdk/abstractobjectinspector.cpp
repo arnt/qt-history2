@@ -13,16 +13,31 @@
 
 #include "abstractobjectinspector.h"
 
+/*!
+    \class QDesignerObjectInspectorInterface
+    \inmodule QtDesigner
+*/
+
+/*!
+*/
 QDesignerObjectInspectorInterface::QDesignerObjectInspectorInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
 }
 
+/*!
+*/
 QDesignerObjectInspectorInterface::~QDesignerObjectInspectorInterface()
 {
 }
 
+/*!
+*/
 QDesignerFormEditorInterface *QDesignerObjectInspectorInterface::core() const
 {
     return 0;
 }
+
+/*!
+    \fn virtual void QDesignerObjectInspectorInterface::setFormWindow(QDesignerFormWindowInterface *formWindow) = 0
+*/

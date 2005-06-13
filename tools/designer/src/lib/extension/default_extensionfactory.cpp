@@ -16,10 +16,23 @@
 #include <qpointer.h>
 #include <QtCore/qdebug.h>
 
+/*!
+    \class QExtensionFactory
+    \inmodule QtDesigner
+*/
+
+/*!
+    Constructs an extension factory with the given \a parent.
+*/
 QExtensionFactory::QExtensionFactory(QExtensionManager *parent)
     : QObject(parent)
 {
 }
+
+/*!
+    Returns the extension of the given \a object with the internal ID
+    specified by \a iid.
+*/
 
 QObject *QExtensionFactory::extension(QObject *object, const QString &iid) const
 {
@@ -57,6 +70,9 @@ void QExtensionFactory::objectDestroyed(QObject *object)
     m_extended.remove(object);
 }
 
+/*!
+    \internal
+*/
 QObject *QExtensionFactory::createExtension(QObject *object, const QString &iid, QObject *parent) const
 {
     Q_UNUSED(object);
@@ -66,6 +82,9 @@ QObject *QExtensionFactory::createExtension(QObject *object, const QString &iid,
     return 0;
 }
 
+/*!
+    Returns the extension manager for the extension factory.
+*/
 QExtensionManager *QExtensionFactory::extensionManager() const
 {
     return static_cast<QExtensionManager *>(parent());

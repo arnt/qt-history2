@@ -13,11 +13,40 @@
 
 #include <QtDesigner/QtDesigner>
 
+/*!
+    \class QDesignerImageCollectionInterface
+    \inmodule QtDesigner
+*/
+
+/*!
+*/
 QDesignerImageCollectionInterface::QDesignerImageCollectionInterface(QObject *parent)
     : QObject(parent)
 {
 }
 
+/*!
+*/
 QDesignerImageCollectionInterface::~QDesignerImageCollectionInterface()
 {
 }
+
+/*!
+    \fn virtual QDesignerFormEditorInterface *QDesignerImageCollectionInterface::core() const = 0
+*/
+
+/*!
+    \fn virtual QString QDesignerImageCollectionInterface::fileName() const = 0
+*/
+
+/*!
+    \fn virtual QString QDesignerImageCollectionInterface::prefix() const = 0
+*/
+
+/*!
+    \fn virtual int QDesignerImageCollectionInterface::count() const = 0
+*/
+
+/*!
+    \fn virtual QString QDesignerImageCollectionInterface::item(int index) const = 0
+*/

@@ -36,10 +36,10 @@
     \row \i \l{QtOpenGL} \i OpenGL support classes.
     \row \i \l{QtSql} \i Classes for database integration using SQL.
     \row \i \l{QtXml} \i Classes for handling XML.
-    \row \i \l{Qt3Support} \i Classes for handling XML.
+    \row \i \l{Qt3Support} \i Qt 3 compatibility classes.
     \row \i \l{QAxContainer} \i Extension for accessing ActiveX controls.
     \row \i \l{QAxServer} \i Extension for writing ActiveX servers.
-    \row \i \l{QtMotif} \i Extension for migrating Motif applications to Qt.
+    \row \i \l{QtDesigner} \i Classes for extending and embedding \QD.
     \endtable
 
     For a list of Qt 3 support classes, see \l{Qt3Support Classes}.
@@ -160,7 +160,7 @@
     \title QAxServer Classes
     \contentspage Qt Classes by Module
     \previouspage QAxContainer Classes
-    \nextpage QtMotif Classes
+    \nextpage QtDesigner Classes
 
     \keyword QAxServer
 
@@ -170,14 +170,14 @@
 */
 
 /*!
-    \page qtmotif.html
-    \title QtMotif Classes
+    \page qtdesigner.html
+    \title QtDesigner Classes
     \contentspage Qt Classes by Module
     \previouspage QAxServer Classes
 
-    \keyword QtMotif
+    \keyword QtDesigner
 
-    \generatelist {classesbymodule QtMotif}
+    \generatelist {classesbymodule QtDesigner}
 
-    \sa {Qt Motif Extension}
+    \sa {Qt Designer Manual}
 */

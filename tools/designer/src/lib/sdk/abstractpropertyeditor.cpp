@@ -13,16 +13,59 @@
 
 #include "abstractpropertyeditor.h"
 
+/*!
+    \class QDesignerPropertyEditorInterface
+    \inmodule QtDesigner
+*/
+
+/*!
+*/
 QDesignerPropertyEditorInterface::QDesignerPropertyEditorInterface(QWidget *parent, Qt::WindowFlags flags)
     : QWidget(parent, flags)
 {
 }
 
+/*!
+*/
 QDesignerPropertyEditorInterface::~QDesignerPropertyEditorInterface()
 {
 }
 
+/*!
+*/
 QDesignerFormEditorInterface *QDesignerPropertyEditorInterface::core() const
 {
     return 0;
 }
+
+/*!
+    \fn virtual bool QDesignerPropertyEditorInterface::isReadOnly() const = 0
+*/
+
+/*!
+    \fn virtual QObject *QDesignerPropertyEditorInterface::object() const = 0
+*/
+
+/*!
+    \fn virtual QString QDesignerPropertyEditorInterface::currentPropertyName() const = 0
+*/
+
+/*!
+    \fn void QDesignerPropertyEditorInterface::propertyChanged(const QString &name, const QVariant &value)
+
+    This signal is emitted whenever a property changes in the editor.
+    The property changed and its new value are specified by \a name and \a value
+    respectively.
+*/
+
+/*!
+    \fn virtual void QDesignerPropertyEditorInterface::setObject(QObject *object) = 0
+*/
+
+/*!
+    \fn virtual void QDesignerPropertyEditorInterface::setPropertyValue(const QString &name, const QVariant &value, bool changed = true) = 0
+*/
+
+/*!
+    \fn virtual void QDesignerPropertyEditorInterface::setReadOnly(bool readOnly) = 0
+*/

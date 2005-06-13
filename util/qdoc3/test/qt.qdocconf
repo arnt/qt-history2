@@ -4,11 +4,17 @@ project                 = Qt
 language                = Cpp
 headerdirs              = $QTDIR/src \
                           $QTDIR/extensions/activeqt \
-                          $QTDIR/extensions/motif
+                          $QTDIR/extensions/motif \
+                          $QTDIR/tools/designer/src/lib/extension \
+                          $QTDIR/tools/designer/src/lib/sdk \
+                          $QTDIR/tools/designer/src/lib/uilib
 sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
                           $QTDIR/extensions/activeqt \
-                          $QTDIR/extensions/motif
+                          $QTDIR/extensions/motif \
+                          $QTDIR/tools/designer/src/lib/extension \
+                          $QTDIR/tools/designer/src/lib/sdk \
+                          $QTDIR/tools/designer/src/lib/uilib
 sources.fileextensions  = "*.cpp *.qdoc"
 exampledirs             = $QTDIR/doc/src \
                           $QTDIR/examples \

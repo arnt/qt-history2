@@ -13,11 +13,21 @@
 
 #include "qextensionmanager.h"
 
+/*!
+    \class QExtensionManager
+    \brief The QExtensionManager class provides extension management facilities for \QD.
+    \inmodule QtDesigner
+*/
+
+/*!
+    Constructs an extenstion manager with the given \a parent.*/
 QExtensionManager::QExtensionManager(QObject *parent)
     : QObject(parent)
 {
 }
 
+/*!
+    Register \a factory as an extension factory with an identifier specified by \a iid.*/
 void QExtensionManager::registerExtensions(QAbstractExtensionFactory *factory, const QString &iid)
 {
     if (iid.isEmpty()) {
@@ -31,6 +41,8 @@ void QExtensionManager::registerExtensions(QAbstractExtensionFactory *factory, c
     m_extensions[iid].prepend(factory);
 }
 
+/*!
+    Unregister the \a factory with the identifier specified by \a iid.*/
 void QExtensionManager::unregisterExtensions(QAbstractExtensionFactory *factory, const QString &iid)
 {
     if (iid.isEmpty()) {
@@ -44,6 +56,8 @@ void QExtensionManager::unregisterExtensions(QAbstractExtensionFactory *factory,
     }
 }
 
+/*!
+    Returns the extension for the given \a object with the identifier specified by \a iid.*/
 QObject *QExtensionManager::extension(QObject *object, const QString &iid) const
 {
     QList<QAbstractExtensionFactory*> l = m_extensions.value(iid);

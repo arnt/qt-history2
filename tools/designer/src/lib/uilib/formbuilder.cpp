@@ -14,6 +14,15 @@
 #include <QtDesigner/QtDesigner>
 #include <QtGui/QtGui>
 
+/*!
+    \class QFormBuilder
+    \inmodule QtDesigner
+*/
+
+/*!
+    \fn QFormBuilder::QFormBuilder()
+*/
+
 QFormBuilder::QFormBuilder()
 {
 }
@@ -166,23 +175,31 @@ QActionGroup *QFormBuilder::create(DomActionGroup *ui_action_group, QObject *par
     return QAbstractFormBuilder::create(ui_action_group, parent);
 }
 
+/*!
+*/
 QStringList QFormBuilder::pluginPaths() const
 {
     return m_pluginPaths;
 }
 
+/*!
+*/
 void QFormBuilder::clearPluginPaths()
 {
     m_pluginPaths.clear();
     updateCustomWidgets();
 }
 
+/*!
+*/
 void QFormBuilder::addPluginPath(const QString &pluginPath)
 {
     m_pluginPaths.append(pluginPath);
     updateCustomWidgets();
 }
 
+/*!
+*/
 void QFormBuilder::setPluginPath(const QStringList &pluginPaths)
 {
     m_pluginPaths = pluginPaths;
@@ -224,6 +241,9 @@ void QFormBuilder::updateCustomWidgets()
     }
 }
 
+/*!
+    \fn QList<QDesignerCustomWidgetInterface*> QFormBuilder::customWidgets() const
+*/
 QList<QDesignerCustomWidgetInterface*> QFormBuilder::customWidgets() const
 {
     return m_customWidgets.values();
