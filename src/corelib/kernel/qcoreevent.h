@@ -72,7 +72,7 @@ public:
         Speech = 42,                            // reserved for speech input
         MetaCall =  43,                         // meta call event
         SockAct = 50,                           // socket activation
-        WinEventAct = 123,                      // win event activation
+        WinEventAct = 132,                      // win event activation
         DeferredDelete = 52,                    // deferred delete event
         DragEnter = 60,                         // drag moves into widget
         DragMove = 61,                          // drag moves in widget
@@ -167,7 +167,7 @@ public:
         AccessibilityHelp = 119,                // accessibility help text request
         AccessibilityDescription = 130,         // accessibility description text request
 
-        // last event id used = 131
+        // last event id used = 132
 
         User = 1000,                            // first user event id
         MaxUser = 65535                         // last user event id
