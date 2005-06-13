@@ -815,7 +815,7 @@ QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *painter,
     Q_Q(const QTextDocumentLayout);
     const QTextLayout *tl = bl.layout();
     QRectF r = tl->boundingRect();
-    r.translate((offset + tl->position()).toPoint());
+    r.translate(offset + tl->position());
     if (context.clip.isValid() && !r.intersects(context.clip))
         return OutsideClipRect;
 //      LDEBUG << debug_indent << "drawBlock" << bl.position() << "at" << offset << "br" << tl->boundingRect();
@@ -830,11 +830,8 @@ QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *painter,
         cursor = -1;
 
     QBrush bg = blockFormat.background();
-    if (bg != Qt::NoBrush) {
-        QRectF r = bl.layout()->boundingRect();
-        r.translate(bl.layout()->position() + offset);
+    if (bg != Qt::NoBrush)
         painter->fillRect(r, bg);
-    }
 
     QVector<QTextLayout::FormatRange> selections;
     int blpos = bl.position();
@@ -865,6 +862,17 @@ QTextDocumentLayoutPrivate::drawBlock(const QPointF &offset, QPainter *painter,
     tl->draw(painter, offset, selections, context.clip);
     if (cursor >= 0 && tl->preeditAreaText().isEmpty())
         tl->drawCursor(painter, offset, cursor);
+
+    if (blockFormat.hasProperty(QTextFormat::BlockTrailingHorizontalRulerWidth)) {
+        const qreal width = blockFormat.lengthProperty(QTextFormat::BlockTrailingHorizontalRulerWidth).value(r.width());
+        painter->setPen(context.palette.color(QPalette::Dark));
+        qreal y = r.bottom();
+        if (bl.length() == 1)
+            y = r.top() + r.height() / 2;
+
+        const qreal middleX = r.left() + r.width() / 2;
+        painter->drawLine(QLineF(middleX - width / 2, y, middleX + width / 2, y));
+    }
 
     painter->setPen(oldPen);
 

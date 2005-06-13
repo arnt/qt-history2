@@ -118,6 +118,7 @@ public:
         TextIndent = 0x1034,
         BlockIndent = 0x1040,
         BlockNonBreakableLines = 0x1050,
+        BlockTrailingHorizontalRulerWidth = 0x1060,
 
         // character properties
         FontFamily = 0x2000,

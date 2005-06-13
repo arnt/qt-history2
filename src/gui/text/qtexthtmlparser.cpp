@@ -336,7 +336,7 @@ static const QTextHtmlElement elements[Html_NumElements+1]= {
     { "h5", Html_h5, QTextHtmlElement::DisplayBlock },
     { "h6", Html_h6, QTextHtmlElement::DisplayBlock },
     { "head", Html_head, QTextHtmlElement::DisplayNone },
-    { "hr", Html_hr, QTextHtmlElement::DisplayInline },
+    { "hr", Html_hr, QTextHtmlElement::DisplayBlock },
     { "html", Html_html, QTextHtmlElement::DisplayInline },
     { "i", Html_i, QTextHtmlElement::DisplayInline },
     { "img", Html_img, QTextHtmlElement::DisplayInline },
@@ -950,9 +950,7 @@ void QTextHtmlParser::resolveParent()
     // some elements are not allowed in certain contexts
     while (p && !node->allowedInContext(at(p).id)
            // ### make new styles aware of empty tags
-           || at(p).id == Html_hr
-           || at(p).id == Html_br
-           || at(p).id == Html_img
+           || at(p).mayNotHaveChildren()
        ) {
         p = at(p).parent;
     }
@@ -1311,6 +1309,9 @@ void QTextHtmlParser::parseAttributes()
 
                 textEditMode = true;
             }
+        } else if (node->id == Html_hr) {
+            if (key == QLatin1String("width"))
+                setWidthAttribute(&node->width, value);
         }
 
         if (key == QLatin1String("style")) {

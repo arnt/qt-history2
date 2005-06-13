@@ -1430,7 +1430,21 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
         }
     }
 
-    const bool pre = block.blockFormat().nonBreakableLines();
+    const QTextBlockFormat blockFormat = block.blockFormat();
+    if (blockFormat.hasProperty(QTextFormat::BlockTrailingHorizontalRulerWidth)) {
+        html += QLatin1String("<hr");
+
+        QTextLength width = blockFormat.lengthProperty(QTextFormat::BlockTrailingHorizontalRulerWidth);
+        if (width.type() != QTextLength::VariableLength)
+            emitTextLength("width", width);
+        else
+            html += QLatin1Char(' ');
+
+        html += QLatin1String("/>");
+        return;
+    }
+
+    const bool pre = blockFormat.nonBreakableLines();
     if (pre) {
         if (list)
             html += QLatin1Char('>');

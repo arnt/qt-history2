@@ -618,6 +618,12 @@ void QTextHTMLImporter::import()
             appendImage(fmt);
             hasBlock = false;
             continue;
+        } else if (node->id == Html_hr) {
+            QTextBlockFormat blockFormat;
+            blockFormat.setProperty(QTextFormat::BlockTrailingHorizontalRulerWidth, node->width);
+            appendBlock(blockFormat);
+            hasBlock = false;
+            continue;
         }
 
         if (node->isBlock) {
@@ -707,7 +713,7 @@ void QTextHTMLImporter::import()
                 continue;
 
             hasBlock = true;
-        } 
+        }
 
         if (node->isAnchor && !node->anchorName.isEmpty()) {
             setNamedAnchorInNextOutput = true;
@@ -766,6 +772,8 @@ bool QTextHTMLImporter::closeTag(int i)
 
             listReferences.resize(listReferences.size() - 1);
             --indent;
+            blockTagClosed = true;
+        } else if (closedNode->id == Html_hr) {
             blockTagClosed = true;
         }
 
