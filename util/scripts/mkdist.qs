@@ -11,6 +11,7 @@ const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
 const validLicenses = ["opensource", "commercial", "preview", "beta"];
+const validEditions = ["console", "desktop"];
 const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
 
@@ -52,9 +53,10 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^translations"),
 		       new RegExp("^pics"),
 		       new RegExp("^bin/syncqt.bat"),
-		       new RegExp("^extensions/motif/examples/walkthrough"),
+		       new RegExp("^extensions/motif"),
 		       new RegExp("^extensions/nsplugin"),
 		       new RegExp("^extensions/xt"),
+		       new RegExp("^examples/motif"),
 		       new RegExp("^src/gui/styles/qsgi"),
 		       new RegExp("^src/gui/styles/qplatinum"),
 		       new RegExp("^src/gui/styles/qmotifplus"),
@@ -69,7 +71,7 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^tools/qev"),
 		       new RegExp("^tools/designer/data"),
 		       new RegExp("^tools/designer/tests"),
-		       new RegExp("^src/gui/itemviews/qheaderwidget"),
+ 		       new RegExp("^tools/linguist/.*\\.1"),
 		       new RegExp("^src/gui/painting/makepsheader.pl"),
 		       new RegExp("^src/gui/painting/qpsprinter"),
 		       new RegExp("^LICENSE.TROLL") ];
@@ -81,9 +83,10 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("^config.tests"),
 			  new RegExp("^src/plugins/gfxdrivers"),
 			  new RegExp("^src/plugins/decorations"),
+			  new RegExp("^qmake/Makefile.unix"),
+			  new RegExp("^qmake/Makefile.commercial"),
 			  new RegExp("^tools/qtconfig"),
 			  new RegExp("^tools/qvfb"),
-			  new RegExp("^extensions/motif"),
 			  new RegExp("_x11"),
 			  new RegExp("_unix"),
 			  new RegExp("_qws"),
@@ -94,13 +97,18 @@ platformRemove["win"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^configure$"),
 			  new RegExp("^LICENSE.PREVIEW"),
-			  new RegExp("^README.qws") ];
+			  new RegExp("^LICENSE.QPL"),
+			  new RegExp("\\.qws") ];
 
 platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("^doc/src"),
+			  new RegExp("^src/winmain"),
 			  new RegExp("^src/plugins/gfxdrivers"),
 			  new RegExp("^src/plugins/decorations"),
-			  new RegExp("^extensions/activeqt"),
+			  new RegExp("^qmake/Makefile$"),
+			  new RegExp("^qmake/Makefile.win32-g++"),
+			  new RegExp("^extensions"),
+			  new RegExp("^examples/activeqt"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
 			  new RegExp("_wce"),
@@ -109,13 +117,17 @@ platformRemove["x11"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^configure.exe"),
-			  new RegExp("^README.qws") ];
+			  new RegExp("\\.qws") ];
 
 platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("^doc/src"),
+			  new RegExp("^src/winmain"),
 			  new RegExp("^src/plugins/gfxdrivers"),
 			  new RegExp("^src/plugins/decorations"),
-			  new RegExp("^extensions/activeqt"),
+			  new RegExp("^qmake/Makefile$"),
+			  new RegExp("^qmake/Makefile.win32-g++"),
+			  new RegExp("^extensions"),
+			  new RegExp("^examples/activeqt"),
 			  new RegExp("_win"),
 			  new RegExp("_qws"),
 			  new RegExp("_wce"),
@@ -123,30 +135,41 @@ platformRemove["mac"] = [ new RegExp("^gif"),
 			  new RegExp("_qnx4"),
 			  new RegExp("_qnx6"),
 			  new RegExp("^configure.exe"),
-			  new RegExp("^README.qws") ];
+			  new RegExp("^LICENSE.QPL"),
+			  new RegExp("\\.qws") ];
 
 platformRemove["embedded"] = [ new RegExp("^gif"),
 			       new RegExp("^doc/src"),
+			       new RegExp("^src/winmain"),
+			       new RegExp("^qmake/Makefile$"),
+			       new RegExp("^qmake/Makefile.win32-g++"),
 			       new RegExp("_win"),
 			       new RegExp("_wce"),
 			       new RegExp("_mac"),
 			       new RegExp("^src/plugins/styles/mac"),
-			       new RegExp("^extensions/activeqt"),
+			       new RegExp("^extensions"),
+			       new RegExp("^examples/activeqt"),
 			       new RegExp("_qnx4"),
 			       new RegExp("_qnx6"),
+			       new RegExp("^LICENSE.QPL"),
 			       new RegExp("^configure.exe") ];
 
 var licenseRemove = new Array();
 
-licenseRemove["commercial"] = [ new RegExp("GPL") ];
+licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
+licenseRemove["preview"] = licenseRemove["commercial"];
+licenseRemove["beta"] = licenseRemove["commercial"];
 
 licenseRemove["opensource"] = [ new RegExp("^extensions"),
+				new RegExp("^examples/activeqt"),
 				new RegExp("^src/plugins/sqldrivers/db2"),
 				new RegExp("^src/plugins/sqldrivers/oci"),
 				new RegExp("^src/plugins/sqldrivers/tds"),
 				new RegExp("^src/sql/drivers/db2"),
 				new RegExp("^src/sql/drivers/oci"),
 				new RegExp("^src/sql/drivers/tds"),
+				new RegExp("^qmake/Makefile$"),
+				new RegExp("^qmake/Makefile.commercial"),
 				new RegExp("^qmake/generators/win32/borland"),
 				new RegExp("^qmake/generators/win32/msvc"),
 				new RegExp("^mkspecs/win32-borland"),
@@ -160,12 +183,13 @@ licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^mkspecs/macx-xcode"),
 				new RegExp("^README-QT.TXT") ];
 
-licenseRemove["preview"] = [ new RegExp("GPL") ];
-
-licenseRemove["beta"] = [ new RegExp("GPL") ];
+var editionRemove = new Array();
+editionRemove["console"] = [ new RegExp("^tools/designer"),
+			     new RegExp("^extensions"),
+			     new RegExp("^examples/activeqt") ];
+editionRemove["desktop"] = [ ];
 
 var finalRemove = [ new RegExp("^dist") ];
-
 
 /************************************************************
  * Mapping from directories to module names
@@ -176,7 +200,6 @@ moduleMap["documentation"]               = new RegExp("^doc");
 moduleMap["example classes"]             = new RegExp("^examples");
 moduleMap["qmake application"]           = new RegExp("^qmake");
 moduleMap["activeqt module"]             = new RegExp("^extensions/activeqt");
-moduleMap["motif module"]                = new RegExp("^extensions/motif");
 moduleMap["Qt 3 compatibility classes"]  = new RegExp("^src/qt3support");
 moduleMap["core module"]                 = new RegExp("^src/core");
 moduleMap["accessibility module"]        = new RegExp("(^src/gui/accessible|^src/plugins/accessible)");
@@ -216,62 +239,70 @@ checkTools();
 print("Building qdoc...");
 buildQdoc();
 print("Checkout from P4...");
-checkout();
+preparePerforce();
+checkoutDir = checkout("...", distDir + "/qt");
 print("Purging checkout...");
 purgeFiles(checkoutDir, getFileList(checkoutDir), checkoutRemove);
 indentation+=tabSize;
 for (var p in validPlatforms) {
     for (var l in validLicenses) {
-  	var platform = validPlatforms[p];
-  	var license = validLicenses[l];
-  	if (options[platform] && options[license]) {
-	    if (license == "opensource" && platform == "win")
-		continue;
-  	    print("Packaging %1-%2...".arg(platform).arg(license));
-  	    indentation+=tabSize;
+	for (var e in validEditions) {
+	    var platform = validPlatforms[p];
+	    var license = validLicenses[l];
+	    var edition = validEditions[e];
+	    if (options[platform] && options[license] && options[edition] &&
+		packageExists(platform, license, edition)) {
+		print("Packaging %1-%2-%3...".arg(platform).arg(license).arg(edition));
+		indentation+=tabSize;
 
-  	    // copy checkoutDir to platDir and set permissions
-  	    print("Copying checkout...");
-  	    var platName = "qt-%1-%2-%3".arg(platform).arg(license).arg(options["version"]);
-  	    var platDir = distDir + "/" + platName;
-  	    execute(["cp", "-r", checkoutDir, platDir]);
-	    execute(["chmod", "-R", "ug+w", platDir]);
+		// copy checkoutDir to platDir and set permissions
+		print("Copying checkout...");
+		var platName = "qt-%1-%2-%3-%4"
+		    .arg(platform)
+		    .arg(license)
+		    .arg(edition)
+		    .arg(options["version"]);
+		var platDir = distDir + "/" + platName;
+		execute(["cp", "-r", checkoutDir, platDir]);
+		execute(["chmod", "-R", "ug+w", platDir]);
 
-	    //copying dist files
-	    print("Copying dist files...");
-	    copyDist(platDir, platform, license);
+		//copying dist files
+		print("Copying dist files...");
+		copyDist(platDir, platform, license);
 
-	    // run qdoc
-  	    print("Running qdoc...");
-  	    qdoc(platDir, license);
+		// run qdoc
+		print("Running qdoc...");
+		qdoc(platDir, license, edition);
 
-  	    // purge platform and license files
-  	    print("Purging platform and license specific files...");
-  	    purgeFiles(platDir,
-		       getFileList(platDir),
-  		       [].concat(platformRemove[platform]).concat(licenseRemove[license]));
+		// purge platform and license files
+		print("Purging platform and license specific files...");
+		purgeFiles(platDir, getFileList(platDir),[]
+			   .concat(platformRemove[platform])
+			   .concat(licenseRemove[license])
+			   .concat(editionRemove[edition]));
 
-	    // run syncqt
-  	    print("Running syncqt...");
-  	    syncqt(platDir, platform);
+		// run syncqt
+		print("Running syncqt...");
+		syncqt(platDir, platform);
 
-  	    // final package purge
-  	    print("Final package purge...");
-  	    purgeFiles(platDir, getFileList(platDir), finalRemove);
+		// final package purge
+		print("Final package purge...");
+		purgeFiles(platDir, getFileList(platDir), finalRemove);
 
-	    // replace tags (like THISYEAR etc.)
-	    print("Traversing all txt files and replacing tags...");
-	    replaceTags(platDir, getFileList(platDir), platform, license, platName);
+		// replace tags (like THISYEAR etc.)
+		print("Traversing all txt files and replacing tags...");
+		replaceTags(platDir, getFileList(platDir), platform, license, platName);
 
-  	    // package directory
-	    print("Compressing and packaging file(s)...")
-	    compress(platform, license, platDir);
+		// package directory
+		print("Compressing and packaging file(s)...");
+		compress(platform, license, platDir);
 
-	    // create binaries
-	    compile(platform, license, platName);
-	    
-  	    indentation-=tabSize;
-  	}
+		// create binaries
+ 		createBinary(platform, platName);
+         
+		indentation-=tabSize;
+	    }
+	}
     }
 }
 indentation-=tabSize;
@@ -286,6 +317,7 @@ function parseArgc()
     var validOptions = []
 	.concat(validPlatforms)
 	.concat(validLicenses)
+	.concat(validEditions)
 	.concat(validSwitches)
 	.concat(validVars);
     for (var i=0; i<argc.length; ++i) {
@@ -344,6 +376,11 @@ function initialize()
 	if (!(validLicenses[i] in options))
 	    options[validLicenses[i]] = false;
 
+    // by default turn off all valid editions that were not defined
+    for (var i in validEditions)
+	if (!(validEditions[i] in options))
+	    options[validEditions[i]] = false;
+
     // make sure platform and license filters are defined
     for (var i in validPlatforms) {
 	if (!(validPlatforms[i] in platformRemove))
@@ -353,6 +390,11 @@ function initialize()
 	if (!(validLicenses[i] in licenseRemove))
 	    licenseRemove[validLicenses[i]] = new Array();
     }
+    for (var i in validEditions) {
+	if (!(validEditions[i] in editionRemove))
+	    editionRemove[validEditions[i]] = new Array();
+    }
+
 
     // finds a tmpDir
     if (tmpDir == undefined || !File.exists(tmpDir)) {
@@ -369,7 +411,6 @@ function initialize()
     if (dir.exists)
 	dir.rmdirs();
     dir.mkdir();
-    checkoutDir = distDir + "/qt";
 
     // setting up p4
     if (p4Port == undefined)
@@ -409,7 +450,7 @@ function checkTools()
 	for (var p in binaryHosts) {
 	    if (options["binaries"] && options[p]) {
 		var host = binaryHosts[p];
-		execute(["ssh", "period@" + host, "true"]);
+		execute(["ssh", binaryUser + "@" + host, "true"]);
 	    }
 	}
 	execute(p4Command);
@@ -433,9 +474,9 @@ function buildQdoc()
 
 
 /************************************************************
- * checkouts from P4 and puts everything in checkoutDir
+ * checks that branch and version exists and sets the p4Label etc.
  */
-function checkout()
+function preparePerforce()
 {
     // check that the branch exist
     p4BranchPath = "//depot/qt/" + options["branch"];
@@ -452,14 +493,23 @@ function checkout()
 	if (Process.stdout.find("Label " + p4Label + " ") == -1)
 	    throw "Label: " + p4Label + " does not exist, or not in this branch.";
     }
+}
 
+
+/************************************************************
+ * checks out p4Path (for example "...") from P4 and puts it into the absolute
+ * directory localDir, returns the localDir on success or throws an exception
+ */
+function checkout(p4Path, localDir)
+{
     // generate clientSpec
     var tmpClient="qt-release-tmp-" + user;
     execute([p4Command, "client", "-t", "qt-release-3x", "-o", tmpClient]);
     var clientSpec = Process.stdout.split("\n");
     for (var i in clientSpec) {
-	clientSpec[i] = clientSpec[i].replace(/^Root:.*/, "Root: " + distDir);
-	clientSpec[i] = clientSpec[i].replace(/X.Y/, options["branch"]);
+	clientSpec[i] = clientSpec[i].replace(/^Root:.*/, "Root: " + localDir);
+	clientSpec[i] = clientSpec[i].replace(/X.Y.*/, options["branch"] + "/" + p4Path + " " +
+					      "//" + tmpClient + "/...");
 	clientSpec[i] = clientSpec[i].replace(/\bnomodtime\b/, "modtime");
     }
     // save clientSpec
@@ -467,11 +517,12 @@ function checkout()
     execute([p4Command, "client", "-i"], clientSpec);
 
     // checkout
-    execute([p4Command, "-c", tmpClient, "-d", distDir, "sync", "-f", "...@" + p4Label]);
+    execute([p4Command, "-c", tmpClient, "-d", localDir, "sync", "-f", "...@" + p4Label]);
 
-    // test for checkoutDir
-    if (!File.exists(checkoutDir))
+    // test that checkout worked
+    if (!File.exists(localDir))
 	throw "Checkout failed, checkout dir %1 does not exist.".arg(checkoutDir);
+    return localDir;
 }
 
 /************************************************************
@@ -571,141 +622,69 @@ function compress(platform, license, packageDir)
  * copies a qt-package to binary host, compiles qt, and collects the
  * resulting dlls etc.
  */
-function compile(platform, license, platformName)
+function createBinary(platform, packageName)
 {
     if (!options["binaries"] || !(platform in binaryHosts))
-	return;
-
-    print("Compiling binaries...")
+ 	return;
 
     var login = binaryUser + "@" + binaryHosts[platform];
-
-    // remove any previous packages/dirs/scripts for this platform
-    execute(["ssh", login, "rm -rf", platformName + "*"]);
-    execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
-    execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
-    execute(["ssh", login, "rm -rf", "write*.nsh"]);
-    execute(["ssh", login, "rm -rf", "checkqtlicense.ini"]);
-    execute(["ssh", login, "rm -rf", "setenvpage.ini"]);
-
-    if (platform == "win" && options["zip"]) {
-	// copy zip package to host
-	var packageName = platformName + ".zip";
-	execute(["scp", outputDir + "/" + packageName, login + ":."]);
-	
-	// unzip package (overwrite)
-	execute(["ssh", login, "unzip", "-q", "-o", packageName]);
-	
-	// duplicate directory where we copy the compiled results over
-	execute(["ssh", login, "cp", "-r", platformName, platformName+"clean"]);
-	// regenerate include/ with syncqt -copy
-	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + platformName + "clean"]);
-	var windowsPath = Process.stdout.split("\n")[0];
-	execute(["ssh", login, "rm -rf", platformName+"clean/include"]);
-	execute(["ssh", login, "QTDIR='" + windowsPath + "'", "cmd", "/c",
-		 "perl", platformName+"clean/bin/syncqt", "-copy"]);
-	// remove src/
-	execute(["ssh", login, "rm -rf", platformName+"clean/src"]);
-
-	// copy build script
-	var buildScript = p4Copy(p4BranchPath + "/util/scripts" ,"buildbinarywin.bat", p4Label);
-	execute(["scp", buildScript, login + ":."]);
-
-	// run it
-	execute(["ssh", login, "cmd", "/c", "buildbinarywin.bat win32-msvc.net " + platformName]);
-
-	// copy files from bin
-	execute(["ssh", login, "cp", platformName + "/bin/*.exe", platformName+"clean/bin/."]);
-	execute(["ssh", login, "cp", platformName + "/bin/*.dll", platformName+"clean/bin/."]);
-	// copy files from lib
-	execute(["ssh", login, "cp", platformName + "/lib/*.dll", platformName+"clean/lib/."]);
-	execute(["ssh", login, "cp", platformName + "/lib/*.lib", platformName+"clean/lib/."]);
-	execute(["ssh", login, "cp", platformName + "/lib/*.pdb", platformName+"clean/lib/."]);
-	// copy the plugin directory
-	execute(["ssh", login, "cp", "-r", platformName + "/plugins", platformName+"clean/."]);
-	// copy generated qconfig.h
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/global/qconfig.h",
-		 platformName + "clean/include/Qt/qconfig.h"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/global/qconfig.h",
-		 platformName + "clean/include/QtCore/qconfig.h"]);
-	// copy arch/qatomic.h
-	execute(["ssh", login, "mkdir", "-p", platformName + "clean/include/Qt/arch"]);
-	execute(["ssh", login, "mkdir", "-p", platformName + "clean/include/QtCore/arch"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/arch/windows/arch/qatomic.h",
-		 platformName + "clean/include/Qt/arch/."]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/arch/windows/arch/qatomic.h",
-		 platformName + "clean/include/QtCore/arch/."]);
-	// copy qatomic.h
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/Qt/."]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/QtCore/."]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/QtCore/QAtomic"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/QtCore/QBasicAtomic"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/QtCore/QAtomicPointer"]);
-	execute(["ssh", login, "cp",
-		 platformName + "/src/corelib/thread/qatomic.h",
-		 platformName + "clean/include/QtCore/QBasicAtomicPointer"]);
-
-	// replace tags in installscript.nsi
-	var installScript = p4Copy(p4BranchPath + "/util/scripts", "installscriptwin.nsi",
-				   p4Label);
-	var extraTags = new Array();
-	extraTags[windowsPath] = /\%PACKAGEDIR\%/g;
-	var scriptFile = new File(installScript);
-	replaceTags(scriptFile.path, ["installscriptwin.nsi"], platform, license, platformName,
-		    extraTags);
-
-	// copy over the install scipt files
-	var installWriteEnv = p4Copy(p4BranchPath + "/util/scripts", "writeEnvStr.nsh", p4Label);
-	var installWritePath = p4Copy(p4BranchPath + "/util/scripts", "writePathStr.nsh", p4Label);
-	var installLicensePage = p4Copy(p4BranchPath + "/util/scripts", "checkqtlicense.ini",
-					p4Label);
-	var installEnvPage = p4Copy(p4BranchPath + "/util/scripts", "setenvpage.ini", p4Label);
-	execute(["scp", installScript, login + ":."]);
-	execute(["scp", installWriteEnv, login + ":."]);
-	execute(["scp", installWritePath, login + ":."]);
-	execute(["scp", installLicensePage, login + ":."]);
-	execute(["scp", installEnvPage, login + ":."]);
-
-	// copy over the latest version of the install dll to the nsis plugins dir
-	var installDll = p4Copy(p4BranchPath + "/util/scripts/qtnsisext", "qtnsisext.dll",
-				p4Label);
-	execute(["ssh", login, "which", "makensis.exe"]);
-	var nsisPluginsPath = Process.stdout.split("\n")[0];
-	nsisPluginsPath = nsisPluginsPath.left(nsisPluginsPath.lastIndexOf("/")) + "/plugins";
-	execute(["scp", installDll, login + ":'" + nsisPluginsPath + "'"]);
-
-	// run the install script and create compiler
-	execute(["ssh", login, "cmd", "/c", "makensis.exe", "installscriptwin.nsi"]);
-
-	//copy the result back
-	execute(["scp", login + ":" + platformName + ".exe", outputDir + "/."]);
-
-
-    } else if (platform == "mac") {
-
+    var hostDir = platform + "-binary";
+    
+    // check that package exists
+    var packageFile = packageName;
+    if (platform == "win")
+	packageFile += ".zip";
+    else
+	packageFile += ".tar.gz";
+    if (!File.exists(outputDir + "/" + packageFile)) {
+ 	warning("Package: " + outputDir + "/" + packageFile + " not found.");
+ 	return;
     }
 
-    // clean up on host after building binaries
-//     execute(["ssh", login, "rm -rf", platformName + "*"]);
-//     execute(["ssh", login, "rm -rf", "buildbinary" + platform + "*"]);
-//     execute(["ssh", login, "rm -rf", "installscript" + platform + "*"]);
-//     execute(["ssh", login, "rm -rf", "write*.nsh"]);
-//     execute(["ssh", login, "rm -rf", "checkqtlicense.ini"]);
-//     execute(["ssh", login, "rm -rf", "setenvpage.ini"]);
+    // clean up host
+    execute(["ssh", login, "rm -rf", hostDir]);
+
+    // copy script over
+    var binaryScriptsDir = checkout("util/scripts/" + platform + "-binary/...", hostDir);
+    execute(["scp", "-r", binaryScriptsDir, login + ":."]);
+    
+    // copy src package over
+    execute(["scp", outputDir + "/" + packageFile, login + ":" + hostDir]);
+
+    if (platform == "win") {
+	// get absolute windows path to hostDir
+	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + hostDir]);
+	var windowsPath = Process.stdout.split("\n")[0];
+
+	// run script
+	execute(["ssh", login, "cmd", "/c", "'" + hostDir + "\\winbinary.bat",
+		 windowsPath,
+		 packageName,
+		 options["version"],
+		 "full",
+		 "vs2003" + "'"]);
+	
+	// collect binary
+	execute(["scp", login + ":" + hostDir + "/" + packageName + "*.exe", outputDir + "/."]);
+
+    } else if (platform == "mac") {
+	// get absolute path to hostDir
+	execute(["ssh", login, "cd", hostDir, "&&", "pwd"]);
+	var macPath = Process.stdout.split("\n")[0];
+
+	// run script
+	execute(["ssh", login,
+		 "cd",
+		 hostDir,
+		 "&&",
+		 "MAKEFLAGS=-j10",
+		 "package/mkpackage",
+		 "-qtpackage",
+		 macPath + "/" + packageFile]);
+
+	// collect binary
+	execute(["scp", login + ":" + hostDir + "/outputs/*.dmg", outputDir + "/."]);
+    }
 }
 
 /************************************************************
@@ -823,9 +802,7 @@ function copyDist(packageDir, platform, license)
     }
 
     //check that key files are present
-    var keyFiles = ["README",
-		    "INSTALL",
-		    "PLATFORMS"];
+    var keyFiles = ["README", "INSTALL"];
     if (!options["snapshots"] && (license != "preview" || license != "beta"))
 	keyFiles.push("changes-" + options["version"]);
     if (license == "opensource") {
@@ -859,12 +836,14 @@ function syncqt(packageDir, platform)
 /************************************************************
  * runs qdoc on packageDir
  */
-function qdoc(packageDir, license)
+function qdoc(packageDir, license, edition)
 {
     var dir = new Dir(packageDir);
     dir.setCurrent();
     System.setenv("QTDIR", packageDir);
     var qdocConfigFile = qdocDir + "/test/qt-" + license + ".qdocconf";
+    if (edition == "console")
+	qdocConfigFile = qdocDir + "/test/qt-" + license + "-" + edition + ".qdocconf";
     if (!File.exists(qdocConfigFile))
 	throw "Missing qdoc configuratio file: %1".arg(qdocConfigFile);
     execute([qdocCommand, qdocConfigFile]);
@@ -917,6 +896,23 @@ function replaceTags(packageDir, fileList, platform, license, platName, addition
 	    File.write(absFileName, content);
 	}
     }
+}
+
+/************************************************************
+ * returns true if the combinations of platform, license and edition
+ * is a valid package
+ */
+function packageExists(platform, license, edition)
+{
+    // console edition only exists for commercial and opensource license
+    if (edition == "console" && (license == "commercial" || license == "opensource"))
+	return true;
+
+    // desktop edition exists on all platforms for licenses
+    if (edition == "desktop")
+	return true;
+
+    return false;
 }
 
 /************************************************************
@@ -980,7 +976,6 @@ function binaryFile(fileName)
     }
     return false;
 }
-
 
 /************************************************************
  * runs the command and prints out stderror if not empty
