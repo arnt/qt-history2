@@ -5743,7 +5743,7 @@ QString QString::arg(QChar a, int fieldWidth, const QChar &fillChar) const
 /*!
     \overload
 
-    \a a is interpreded as a Latin-1 character.
+    \a a is interpreted as a Latin-1 character.
 */
 QString QString::arg(char a, int fieldWidth, const QChar &fillChar) const
 {
