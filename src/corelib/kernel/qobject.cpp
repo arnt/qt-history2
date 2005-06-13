@@ -2275,15 +2275,13 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     }
 
     QByteArray method_name;
-#ifndef QT_NO_DEBUG
     int membcode = -1;
-#endif
     bool method_found = false;
     if (method) {
         method_name = QMetaObject::normalizedSignature(method);
         method = method_name;
-#ifndef QT_NO_DEBUG
         membcode = method[0] - '0';
+#ifndef QT_NO_DEBUG
         if (!check_method_code(membcode, receiver, method, "disconnect"))
             return false;
 #endif
@@ -2312,7 +2310,15 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
         } else {
             const QMetaObject *rmeta = receiver->metaObject();
             do {
-                int method_index = rmeta->indexOfMethod(method);
+                int method_index = -1;
+                switch (membcode) {
+                case QSLOT_CODE:
+                    method_index = rmeta->indexOfSlot(method);
+                    break;
+                case QSIGNAL_CODE:
+                    method_index = rmeta->indexOfSignal(method);
+                    break;
+                }
                 if (method_index >= 0)
                     while (method_index < rmeta->methodOffset())
                             rmeta = rmeta->superClass();
