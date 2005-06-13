@@ -194,7 +194,7 @@ else
             esac
         elif [ "$PLATFORM_MAC" = "yes" ]; then
             case $platformTest in
-	    4|L|5G|Y|2|F|B)
+	    4|L|5|G|Y|2|F|B)
                 # Qt/Mac
                 ;;
             *)
