@@ -144,10 +144,11 @@ processing. (See also \l{XML Classes}.)
 \row
 \o \l{XML Classes}
 \o Classes that support XML, via, for example DOM and SAX.
-
+\omit
 \row
 \o \l{Qt/Embedded Classes}
 \o Classes that are specific to Qt/Embedded.
+\endomit
 
 \endtable
 
@@ -413,11 +414,14 @@ These classes are relevant to threaded applications.
 These classes are relevant to XML users.
 */
 
-/*! \defgroup qws
+/*!
+\omit
+\defgroup qws
 
 \title Qt/Embedded Classes
 
 These classes are relevant to Qt/Embedded users.
+\endomit
 */
 
 /*! \defgroup text

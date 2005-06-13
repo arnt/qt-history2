@@ -47,11 +47,11 @@
     mean time use GCC \i Fix scheduled for Release Candidate.
 
     \endtable
-
+\omit
     \section2 Embedded
 
     No current issues.
-
+\endomit
     \omit
     \table 100%
     \header \i Description \i Resolution
@@ -105,11 +105,11 @@
     \row \i \bold{AIX xlC}: \c foreach is broken in release mode.
     \i Fix scheduled for Release Candidate.
     \endtable
-
+\omit
     \section2 Embedded
 
     No current issues.
-
+\endomit
     \omit
     \table 100%
     \header \i Description \i Resolution

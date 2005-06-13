@@ -48,10 +48,13 @@
     \section1 void qt_set_sequence_auto_mnemonic(bool \e{enable})
 
     Specifies whether mnemonics for menu items, labels, etc., should
-    be honored or not. On Windows, X11, and embedded, this feature is
+    be honored or not. On Windows and X11, this feature is
     on by default; on Mac OS X, it is off. When this feature is off,
     the QKeySequence::mnemonic() function always returns an empty
     string.
+    \omit
+    This feature is also enabled on Qt/Embedded.
+    \endomit
 
     \section1 void qt_x11_wait_for_window_manager(QWidget *\e{widget})
 

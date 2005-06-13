@@ -1,4 +1,5 @@
 /*!
+    \omit
     \page emb-performance.html
     \title Qt/Embedded Performance Tuning
 
@@ -102,4 +103,5 @@
 	    free(ptr);
         }
     \endcode
+    \endomit
 */

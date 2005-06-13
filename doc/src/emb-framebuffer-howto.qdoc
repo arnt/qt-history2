@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 /*!
+    \omit
     \page emb-framebuffer-howto.html
 
     \title Enabling the Linux Framebuffer
@@ -220,4 +221,5 @@
     }
     \endcode
     \endlist
+    \endomit
 */

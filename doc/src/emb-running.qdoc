@@ -1,4 +1,5 @@
 /*!
+    \omit
     \page emb-running.html
 
     \title Running Qt/Embedded Applications
@@ -114,4 +115,5 @@
     \endcode
 
     \sa \link emb-pointer.html Qt/Embedded Pointer Handling \endlink
+    \endomit
 */

@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 /*!
+    \omit
     \page emb-charinput.html
 
     \title Character Input in Qt/Embedded
@@ -91,4 +92,5 @@
     The \link http://www.trolltech.com/products/qtopia/ Qtopia\endlink
     environment contains various input widgets such as
     Handwriting Recognition and Virtual Keyboard.
+    \endomit
 */

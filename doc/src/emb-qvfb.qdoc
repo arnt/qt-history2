@@ -10,7 +10,9 @@
 **
 ****************************************************************************/
  
-/*! \page emb-qvfb.html
+/*!
+    \omit
+    \page emb-qvfb.html
 
     \title Qt/Embedded Virtual Framebuffer
 
@@ -90,4 +92,5 @@
     security issues have been considered in the virtual framebuffer
     design. It should be avoided in a production environment; do not
     configure production libraries with \c -qvfb.
+    \endomit
 */

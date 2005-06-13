@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 /*!
+    \omit
     \page emb-classes.html
 
     \title The Qt/Embedded-Specific Classes
@@ -23,7 +24,7 @@
     indicates inheritance.
 
     \tableofcontents
-
+\endomit
     \omit ### Font system is completely changed
     \section1 QFontManager
 
@@ -97,7 +98,7 @@
     modifying Qt/Embedded to support textured fonts, in which case you
     would also need to modify \c QGfxRaster.
     \endomit
-
+\omit
     \section1 QScreen > QLinuxFbScreen > accelerated screens, QTransformedScreen > QVfbScreen
 
     These encapsulate the framebuffer Qt/Embedded is drawing to, provide
@@ -112,7 +113,7 @@
 
     Subclassing \c QScreenCursor is optional in an accelerated driver (you
     would only want to do so if the hardware supports a hardware cursor).
-
+\endomit
     \omit ### QGfx has changed a lot
     \section1 QGfx > RasterBase > Raster > accelerated driver > QGfxVfb > QGfxTransformedRaster
 
@@ -126,7 +127,7 @@
     If you're brave, modifying \c QGfxRaster would allow you to customise how
     drawing is done or add support for a new bit depth/pixel format.
     \endomit
-
+\omit
     \section1 QLock, QLockHolder
 
     This encapsulates a System V semaphore, used for synchronising access
@@ -135,7 +136,7 @@
 
     There should be no need to modify this class unless porting
     Qt/Embedded to an operating system without System V IPC.
-
+\endomit
     \omit ### Not implemented in 4.0
     \section1 QDirectPainter
 
@@ -146,7 +147,7 @@
 
     There should be no reason to modify this class.
     \endomit
-
+\omit
     \section1 QWSSoundServer, Client
 
     The Qt/Embedded server contains a simple sound player and mixer. Clients
@@ -276,4 +277,5 @@
     analogous to Unix-domain sockets (a byte-oriented, reliable, ordered
     transmission mechanism, although you can probably implement it with
     something like a message queue as well).
+    \endomit
 */

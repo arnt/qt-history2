@@ -31,10 +31,12 @@
          \o Translate applications to reach international markets.
     \row \o \l{qmake-manual.html}{qmake}
          \o Create makefiles from simple platform-independent project files (\c .pro files).
+    \omit
     \row \o \l{emb-qvfb.html}{qvfb}
          \o Run and test embedded applications on the desktop.
     \row \o \l{emb-makeqpf.html}{makeqpf}
          \o Create pre-rendered fonts for embedded devices.
+    \endomit
     \row \o \l{moc.html}{moc}
          \o Generate meta-object information for QObject subclasses.
     \row \o \l{uic.html}{uic}

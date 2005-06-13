@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 /*!
+    \omit
     \page emb-porting.html
 
     \title Issues to be Aware of When Porting Qt/Embedded
@@ -72,4 +73,5 @@
     Qt/Embedded makes use of the standard C library and some POSIX functions.
     Mostly the latter are concentrated in platform dependent code anyway
     (e.g. \c mmap() to map in the Linux framebuffer).
+    \endomit
 */

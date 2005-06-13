@@ -183,7 +183,7 @@
     write extensions and plugins for \QD, and enables \QD components to be
     embedded into Integrated Development Environments (IDEs). Documentation of
     this API is currently underway and more should appear during the
-    maintenacne releases of Qt 4.
+    maintenance releases of Qt 4.
     \i \inlineimage designer-custom-widget-box.png
     \endtable
 */

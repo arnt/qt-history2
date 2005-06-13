@@ -1,4 +1,5 @@
 /*!
+    \omit
     \page emb-pointer.html
     \title Qt/Embedded Pointer Handling
 
@@ -45,4 +46,5 @@
     emerging linux touch panel standard used by the iPAQ and Zaurus. These
     are subclasses of QWSCalibratedMouseHandler which is in turn a subclass
     of QWSMouseHandler in \c src/gui/kernel/qmouse_qws.cpp.
+    \endomit
 */

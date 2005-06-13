@@ -1,4 +1,5 @@
 /*!
+    \omit
     \page emb-differences.html
     \title Porting Your Applications to Qt/Embedded
 
@@ -27,4 +28,5 @@
 
     Exceptions and RTTI are disabled in Qt/Embedded because they incur a large
     overhead in terms of both size and speed.
+    \endomit
 */

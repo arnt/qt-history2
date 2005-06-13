@@ -11,6 +11,7 @@
 ****************************************************************************/
 
 /*!
+    \omit
     \page emb-envvars.html
 
     \title Qt/Embedded Environment Variables
@@ -72,4 +73,5 @@
     is defined)
 
     \endtable
+    \endomit
 */

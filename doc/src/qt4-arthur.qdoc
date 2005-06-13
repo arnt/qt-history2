@@ -61,7 +61,9 @@
     \o PostScript on Linux, Unix, and Mac OS X
     \o QuickDraw and CoreGraphics on Mac OS X
     \o X11 and the X Render Extension on Linux and Unix systems
+    \omit
     \o QVFb, VNC, and LinuxFb on Qt/Embedded
+    \endomit
     \endlist
 
     To implement support for a new backend, you must derive from

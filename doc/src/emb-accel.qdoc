@@ -11,9 +11,11 @@
 ****************************************************************************/
 
 /*!
+    \omit
     \page emb-accel.html
 
     \title Adding an Accelerated Graphics Driver to Qt/Embedded
 
     This is still work in progress.
+    \endomit
 */

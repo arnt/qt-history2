@@ -71,7 +71,7 @@
     \row    \o \l{Qt3Support}   \o Qt 3 support classes
     \row    \o \l{QAxContainer} \o ActiveQt client extension
     \row    \o \l{QAxServer}    \o ActiveQt server extension
-    \row    \o \l{QtMotif}      \o Motif migration extension
+    \row    \o \l{QtDesigner}   \o Classes for extending and embedding Qt Designer
     \endtable
 
     QtCore contains tool classes like QString, QList, and QFile, as
@@ -267,8 +267,7 @@
 
     To help porting, QWidget supports a Qt::WA_PaintOutsidePaintEvent
     attribute that can be set to make it possible to paint outside
-    \l{QWidget::paintEvent()}{paintEvent()} on Windows, X11, and
-    Qt/Embedded.
+    \l{QWidget::paintEvent()}{paintEvent()} on Windows and X11.
 
     \section1 Qt 3 Support Layer
 

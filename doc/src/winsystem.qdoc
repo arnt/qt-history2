@@ -64,6 +64,7 @@
     \i \link qtmac-as-native.html Qt/Mac is Mac OS X Native\endlink
     \endlist
 
+    \omit
     \target qws
     \section1 Qt/Embedded
 
@@ -87,4 +88,5 @@
     \o \l{emb-accel.html}{Adding an Accelerated Graphics Driver to Qt/Embedded}
     \o \l{emb-porting.html}{Issues to be Aware of when Porting Qt/Embedded}
     \endlist
+    \endomit
 */

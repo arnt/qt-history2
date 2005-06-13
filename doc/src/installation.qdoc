@@ -24,7 +24,9 @@ The installation procedure is different for the different Qt platforms:
  \i \link install-x11.html Qt/X11 \endlink
  \i \link install-win.html Qt/Windows \endlink
  \i \link install-mac.html Qt/Mac \endlink
+\omit
  \i \link emb-install.html Qt/Embedded \endlink
+\endomit
 \endlist
 
 */

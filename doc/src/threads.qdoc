@@ -23,9 +23,7 @@
     freezing the user interface of an application.
 
     Earlier versions of Qt offered an option to build the library
-    without thread support. Since Qt 4.0, threads are always enabled,
-    except on Qt/Embedded, where they can be disabled by defining
-    \c{QT_NO_THREAD}.
+    without thread support. Since Qt 4.0, threads are always enabled.
 
     This document is intended for an audience that has knowledge of,
     and experience with, multithreaded applications. If you are new

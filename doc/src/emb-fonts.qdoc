@@ -1,7 +1,8 @@
 /*!
+    \omit
     \page emb-fonts.html
     \title Fonts in Qt/Embedded
-
+\endomit
     \omit ###
 
     \section1 Supported Formats

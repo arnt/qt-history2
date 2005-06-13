@@ -13,6 +13,7 @@
 ****************************************************************************/
 
 /*!
+    \omit
     \page emb-features.html
 
     \title The Feature Definition File
@@ -27,7 +28,7 @@
     important and the application set is often fixed.
 
     \bold{Note: Qt/Embedded 4.0 does not support the \c -qconfig option.}
-
+\endomit
     \omit ### the set of features will change
     The \c qconfig.h definition file simply defines macros to disable
     features. Some features are dependent on other features and these

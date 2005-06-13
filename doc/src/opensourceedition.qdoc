@@ -29,8 +29,11 @@
     open source license. Trolltech's support of open source with the Qt Open
     Source Edition has enabled large successful software projects like KDE to
     thrive, with thousands of developers around the world using Qt Open Source
-    Edition at no cost to themselves. Qt Open Source Edition is available
-    for Unix/X11, Mac OS X, and embedded Linux.
+    Edition at no cost to themselves. With the release of Qt 4, Qt Open Source
+    Edition is available for Unix/X11, Mac OS X, and Windows.
+    \omit
+    A separate Edition of Qt is also available for embedded Linux.
+    \endomit
 
     The Open Source Edition can be downloaded from here: \l
     http://www.trolltech.com/download/.
