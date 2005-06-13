@@ -35,14 +35,16 @@ public:
 
     QString renameHeader(const QString &headerName) const;
     QString renameClass(const QString &className) const;
+    QString renameEnumerator(const QString &enumName) const;
 
 protected:
-    static void readXML(RuleList *renamedHeaders = 0, RuleList *renamedClasses = 0);
+    static void readXML(RuleList *renamedHeaders, RuleList *renamedClasses, RuleList *renamedEnums);
     static int findRule(const RuleList &rules, const QString &q3);
 
 private:
     RuleList m_renamedHeaders;
     RuleList m_renamedClasses;
+    RuleList m_renamedEnums;
 };
 
 #endif // QT3TO4_H

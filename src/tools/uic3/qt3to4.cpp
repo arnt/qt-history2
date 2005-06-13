@@ -38,6 +38,9 @@ public:
     inline RuleList renamedClasses() const
     { return rules(QString::fromLatin1("RenamedClass")); }
 
+    inline RuleList renamedEnums() const
+    { return rules(QString::fromLatin1("RenamedEnumvalue")); }
+
     inline RuleList rules(const QString &kind) const
     { return m_rules.value(kind); }
 
@@ -78,7 +81,9 @@ public:
         } else if (qName == QLatin1String("Qt4")) {
             m_state.q4 = m_state.current.trimmed();
         } else if (qName == QLatin1String("item")
-                   && (m_state.kind == QLatin1String("RenamedHeader") || m_state.kind == QLatin1String("RenamedClass"))) {
+                   && (m_state.kind == QLatin1String("RenamedHeader")
+                       || m_state.kind == QLatin1String("RenamedEnumvalue")
+                       || m_state.kind == QLatin1String("RenamedClass"))) {
             Rule r(m_state.q3, m_state.q4);
             m_rules[m_state.kind].append(r);
         }
@@ -111,7 +116,7 @@ private:
     } m_state;
 };
 
-void Porting::readXML(RuleList *renamedHeaders, RuleList *renamedClasses)
+void Porting::readXML(RuleList *renamedHeaders, RuleList *renamedClasses, RuleList *renamedEnums)
 {
     QString fileName = "q3porting.xml";
     QString filePath;
@@ -150,11 +155,14 @@ void Porting::readXML(RuleList *renamedHeaders, RuleList *renamedClasses)
         *renamedHeaders = handler.renamedHeaders();
     if (renamedClasses)
         *renamedClasses = handler.renamedClasses();
+    if (renamedEnums)
+        *renamedEnums = handler.renamedEnums();
+
 }
 
 Porting::Porting()
 {
-    readXML(&m_renamedHeaders, &m_renamedClasses);
+    readXML(&m_renamedHeaders, &m_renamedClasses, &m_renamedEnums);
 }
 
 int Porting::findRule(const RuleList &rules, const QString &q3)
@@ -175,4 +183,10 @@ QString Porting::renameClass(const QString &className) const
 {
     int index = findRule(m_renamedClasses, className);
     return index == -1 ? className : m_renamedClasses.at(index).second;
+}
+
+QString Porting::renameEnumerator(const QString &enumName) const
+{
+    int index = findRule(m_renamedEnums, enumName);
+    return index == -1 ? enumName : m_renamedEnums.at(index).second;
 }

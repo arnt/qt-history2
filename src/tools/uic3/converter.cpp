@@ -779,6 +779,7 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
 
             if (className.endsWith("ComboBox")) {
                 CONVERT_PROPERTY(QLatin1String("currentItem"), QLatin1String("currentIndex"));
+                CONVERT_PROPERTY(QLatin1String("insertionPolicy"), QLatin1String("insertPolicy"));
             }
 
             if (className == QLatin1String("QToolBar")) {
@@ -819,6 +820,9 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 QStringList v;
                 foreach (QString fl, flags) {
                     QString e = WidgetInfo::resolveEnumerator(className, fl);
+                    if (e.isEmpty()) {
+                        e = m_porting->renameEnumerator(className + QLatin1String("::") + fl);
+                    }
 
                     if (e.isEmpty()) {
                         fprintf(stderr, "uic3: flag '%s' for widget '%s' is not supported\n", fl.latin1(), className.latin1());
@@ -836,6 +840,9 @@ void Ui3Reader::createProperties(const QDomElement &n, QList<DomProperty*> *prop
                 prop->setElementSet(v.join(QLatin1String("|")));
             } else if (prop->kind() == DomProperty::Enum) {
                 QString e = WidgetInfo::resolveEnumerator(className, prop->elementEnum());
+                if (e.isEmpty()) {
+                    e = m_porting->renameEnumerator(className + QLatin1String("::") + prop->elementEnum());
+                }
 
                 if (e.isEmpty()) {
                     fprintf(stderr, "uic3: enumerator '%s' for widget '%s' is not supported\n",
