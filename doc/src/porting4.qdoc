@@ -3452,19 +3452,19 @@
 
     \list
     \o QTextStream now uses buffered writing, which means that you need to
-       call QTextStream::flush(), or use the streaming manipulators endl or
-       flush if you need QTextStream to flush its write buffer. The stream is
+       call QTextStream::flush(), or use the streaming manipulators \c endl or
+       \c flush if you need QTextStream to flush its write buffer. The stream is
        flushed automatically if QTextStream is deleted or when the device is
        closed.
     \o QTextStream now uses buffered reading, so if you read a line from the
-       stream, QTextStream will read as much as it can from the device, to
+       stream, QTextStream will read as much as it can from the device to
        fill up its internal read buffer. This speeds up reading significantly,
        but Qt 3 code that mixed QTextStream access and direct device access
        may need to be updated.
     \o While QTextStream in Qt 3 always translated end-of-line characters from
-       Windows style ("\r\n") to Unix style ("\n") on Windows, QTextStream in
-       Qt 4 only does this on devices opened with the mode QIODevice::Text
-       (formerly IO_Translate).
+       Windows style ("\\r\\n") to Unix style ("\\n") on Windows, QTextStream in
+       Qt 4 only does this on devices opened with the \c{QIODevice::Text} mode
+       (formerly \c{IO_Translate}).
     \endlist
 
     \section1 QTextView
