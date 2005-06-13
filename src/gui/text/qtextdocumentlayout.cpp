@@ -164,6 +164,32 @@ QRectF QTextTableData::cellRect(int row, int rowSpan, int column, int colSpan) c
     return r;
 }
 
+static inline bool isEmptyBlockBeforeTable(const QTextBlock &block, const QTextFrame::Iterator &nextIt)
+{
+    return !nextIt.atEnd()
+           && qobject_cast<QTextTable *>(nextIt.currentFrame())
+           && block.isValid()
+           && block.length() == 1
+           && nextIt.currentFrame()->firstPosition() == block.position() + 1
+           ;
+}
+
+static inline bool isEmptyBlockBeforeTable(QTextFrame::Iterator it)
+{
+    QTextFrame::Iterator next = it; ++next;
+    return it.currentFrame() == 0
+           && isEmptyBlockBeforeTable(it.currentBlock(), next);
+}
+
+static inline bool isEmptyBlockAfterTable(const QTextBlock &block, const QTextFrame *lastFrame)
+{
+    return qobject_cast<const QTextTable *>(lastFrame)
+           && block.isValid()
+           && block.length() == 1
+           && lastFrame->lastPosition() == block.position() - 1
+           ;
+}
+
 /*
 
 Optimisation strategies:
@@ -268,6 +294,8 @@ public:
 
     DrawResult drawFrame(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                          QTextFrame *f) const;
+    void drawFlow(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
+                  QTextFrame::Iterator it, QTextBlock *cursorBlockNeedingRepaint) const;
     DrawResult drawBlock(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
                          QTextBlock bl) const;
     void drawListItem(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
@@ -430,6 +458,8 @@ QTextDocumentLayoutPrivate::hitTest(QTextFrame *frame, const QPointF &point, int
                 hp = hitTest(it.currentBlock(), p, &pos);
             }
             if (hp >= PointInside) {
+                if (isEmptyBlockBeforeTable(it))
+                    continue;
                 hit = hp;
                 *position = pos;
                 table = 0; // be sure to exit from the while loop, too
@@ -584,6 +614,11 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
 //     LDEBUG << debug_indent << "drawFrame" << frame->firstPosition() << "--" << frame->lastPosition() << "at" << offset;
 //     INC_INDENT;
 
+    // if the cursor is /on/ a table border we may need to repaint it
+    // afterwards, as we usually draw the decoration first
+    QTextBlock cursorBlockNeedingRepaint;
+    QPointF offsetOfRepaintedCursorBlock = off;
+
     QTextTable *table = qobject_cast<QTextTable *>(frame);
     const QRectF frameRect(off, fd->size);
 
@@ -693,12 +728,12 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
                     }
                 }
                 const QPointF cellPos = off + td->cellPosition(r, c);
-                for (QTextFrame::Iterator it = cell.begin(); !it.atEnd(); ++it) {
-                    QTextFrame *c = it.currentFrame();
-                    if (c)
-                        drawFrame(cellPos, painter, cell_context, c);
-                    else
-                        drawBlock(cellPos, painter, cell_context, it.currentBlock());
+
+                QTextBlock repaintBlock;
+                drawFlow(cellPos, painter, cell_context, cell.begin(), &repaintBlock);
+                if (repaintBlock.isValid()) {
+                    cursorBlockNeedingRepaint = repaintBlock;
+                    offsetOfRepaintedCursorBlock = cellPos;
                 }
             }
         }
@@ -706,37 +741,70 @@ QTextDocumentLayoutPrivate::drawFrame(const QPointF &offset, QPainter *painter,
     } else {
         drawFrameDecoration(painter, frame, fd, context.clip, frameRect);
 
-        DrawResult previousDrawResult = OutsideClipRect;
-
         QTextFrame::Iterator it = frame->begin();
 
         if (frame == q->document()->rootFrame())
             it = iteratorForYPosition(context.clip.top());
 
-        for (; !it.atEnd(); ++it) {
-            QTextFrame *c = it.currentFrame();
-            DrawResult r;
-            if (c)
-                r = drawFrame(off, painter, context, c);
-            else
-                r = drawBlock(off, painter, context, it.currentBlock());
-
-            // floats do not necessarily follow vertical ordering, so don't
-            // let them influence the optimization below
-            if (c && c->frameFormat().position() != QTextFrameFormat::InFlow)
-                continue;
-
-            // assume vertical ordering and thus stop when we reached
-            // unreachable parts
-            if (previousDrawResult == Drawn && r == OutsideClipRect)
-                break;
-
-            previousDrawResult = r;
-        }
+        drawFlow(off, painter, context, it, &cursorBlockNeedingRepaint);
     }
+
+    if (cursorBlockNeedingRepaint.isValid()) {
+        const QPen oldPen = painter->pen();
+        painter->setPen(context.palette.color(QPalette::Text));
+        const int cursorPos = context.cursorPosition - cursorBlockNeedingRepaint.position();
+        cursorBlockNeedingRepaint.layout()->drawCursor(painter, offsetOfRepaintedCursorBlock,
+                                                       cursorPos);
+        painter->setPen(oldPen);
+    }
+
 //     DEC_INDENT;
 
     return Drawn;
+}
+
+void QTextDocumentLayoutPrivate::drawFlow(const QPointF &offset, QPainter *painter, const QAbstractTextDocumentLayout::PaintContext &context,
+                                          QTextFrame::Iterator it, QTextBlock *cursorBlockNeedingRepaint) const
+{
+    const bool inRootFrame = (!it.atEnd() && it.parentFrame() && it.parentFrame()->parentFrame() == 0);
+    DrawResult previousDrawResult = OutsideClipRect;
+
+    QTextBlock lastBlock;
+
+    for (; !it.atEnd(); ++it) {
+        QTextFrame *c = it.currentFrame();
+        DrawResult r;
+        if (c)
+            r = drawFrame(offset, painter, context, c);
+        else
+            r = drawBlock(offset, painter, context, it.currentBlock());
+
+        if (inRootFrame
+            // floats do not necessarily follow vertical ordering, so don't
+            // let them influence the optimization below
+            && c && c->frameFormat().position() != QTextFrameFormat::InFlow
+            // assume vertical ordering and thus stop when we reached
+            // unreachable parts
+            && previousDrawResult == Drawn && r == OutsideClipRect
+           )
+            break;
+
+        previousDrawResult = r;
+
+        // when entering a table and the previous block is empty
+        // then layoutFlow 'hides' the block that just causes a
+        // new line by positioning it /on/ the table border. as we
+        // draw that block before the table itself the decoration
+        // 'overpaints' the cursor and we need to paint it afterwards
+        // again
+        if (isEmptyBlockBeforeTable(lastBlock, it)
+            && lastBlock.contains(context.cursorPosition)
+           ) {
+            *cursorBlockNeedingRepaint = lastBlock;
+        }
+
+        lastBlock = it.currentBlock();
+    }
 }
 
 QTextDocumentLayoutPrivate::DrawResult
@@ -1408,6 +1476,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
     }
 
     bool firstIteration = true;
+    QTextFrame *lastFrame = 0;
 
     while (!it.atEnd()) {
         QTextFrame *c = it.currentFrame();
@@ -1474,14 +1543,36 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
             } else {
                 positionFloat(c);
             }
+            lastFrame = c;
             ++it;
         } else {
             QTextBlock block = it.currentBlock();
             ++it;
             bool lastBlockInFlow = (it.atEnd());
 
+            const qreal origY = layoutStruct->y;
+
             // layout and position child block
             layoutBlock(block, layoutStruct, layoutFrom, layoutTo, firstIteration, lastBlockInFlow);
+
+            // if the block right before a table is empty 'hide' it by
+            // positioning it into the table border
+            if (isEmptyBlockBeforeTable(block, it)) {
+                layoutStruct->y = origY;
+                continue;
+            }
+
+            // if the block right after a table is empty then 'hide' it, too
+            if (isEmptyBlockAfterTable(block, lastFrame)) {
+                QTextTableData *td = static_cast<QTextTableData *>(data(lastFrame));
+                QTextLayout *layout = block.layout();
+
+                QPointF pos(td->position.x() + td->size.width(),
+                            td->position.y() + td->size.height() - layout->boundingRect().height());
+
+                layout->setPosition(pos);
+                layoutStruct->y = origY;
+            }
         }
 
         firstIteration = false;
