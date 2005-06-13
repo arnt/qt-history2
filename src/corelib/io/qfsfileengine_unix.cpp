@@ -521,3 +521,18 @@ bool QFSFileEngine::setSize(qint64 size)
     return !QT_TRUNCATE(file.data(), size);
 }
 
+QDateTime
+QFSFileEngine::fileTime(FileTime time) const
+{
+    Q_D(const QFSFileEngine);
+    QDateTime ret;
+    if(d->doStat()) {
+        if(time == CreationTime)
+            ret.setTime_t(d->st.st_ctime ? d->st.st_ctime : d->st.st_mtime);
+        else if(time == ModificationTime)
+            ret.setTime_t(d->st.st_mtime);
+        else if(time == AccessTime)
+            ret.setTime_t(d->st.st_atime);
+    }
+    return ret;
+}

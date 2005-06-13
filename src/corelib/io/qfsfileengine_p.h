@@ -96,6 +96,7 @@ public:
 #ifdef Q_WS_WIN
     static QString fixToQtSlashes(const QString &path);
     static QByteArray win95Name(const QString &path);
+    static QString longFileName(const QString &path);
 #else
     static inline QString fixToQtSlashes(const QString &path) { return path; }
 #endif
@@ -127,7 +128,11 @@ public:
 #ifdef Q_OS_UNIX
     mutable uint isSymLink : 1;
 #endif
+#ifdef Q_WS_WIN
+    mutable DWORD fileAttrib;
+#else
     mutable QT_STATBUF st;
+#endif
     bool doStat() const;
     int sysOpen(const QString &, int flags);
 
