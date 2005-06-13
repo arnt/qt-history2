@@ -21,6 +21,7 @@
 #include <qfile.h>
 #include <qdir.h>
 #include <qdebug.h>
+#include <qdatetime.h>
 
 #include <stdlib.h>
 #include <limits.h>
@@ -521,8 +522,7 @@ bool QFSFileEngine::setSize(qint64 size)
     return !QT_TRUNCATE(file.data(), size);
 }
 
-QDateTime
-QFSFileEngine::fileTime(FileTime time) const
+QDateTime QFSFileEngine::fileTime(FileTime time) const
 {
     Q_D(const QFSFileEngine);
     QDateTime ret;
