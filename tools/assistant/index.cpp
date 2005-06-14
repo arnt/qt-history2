@@ -450,9 +450,8 @@ void Index::buildMiniDict( const QString &str )
 
 bool Index::searchForPattern( const QStringList &patterns, const QStringList &words, const QString &fileName )
 {
-    QString fName = fileName;
-    if (fileName.startsWith("file:"))
-        fName = fileName.mid(5);
+    QUrl url(fileName);
+    QString fName = url.toLocalFile();
     QFile file( fName );
     if ( !file.open( QFile::ReadOnly ) ) {
         qWarning( (QLatin1String("cannot open file ") + fName).toAscii().constData() );
