@@ -22,7 +22,7 @@ Window::Window(QWidget *parent)
     findButton = createButton(tr("&Find"), SLOT(find()));
     quitButton = createButton(tr("&Quit"), SLOT(close()));
 
-    fileComboBox = createComboBox(tr("*.txt"));
+    fileComboBox = createComboBox(tr("*"));
     textComboBox = createComboBox();
     directoryComboBox = createComboBox(QDir::currentPath());
 
@@ -75,7 +75,8 @@ void Window::find()
     QStringList files;
     if (fileName.isEmpty())
         fileName = "*";
-    files = directory.entryList(QStringList(fileName), QDir::Files);
+    files = directory.entryList(QStringList(fileName),
+                                QDir::Files | QDir::NoSymLinks);
 
     if (!text.isEmpty())
         files = findFiles(directory, files, text);
@@ -123,9 +124,11 @@ void Window::showFiles(const QDir &directory, const QStringList &files)
         qint64 size = QFileInfo(file).size();
 
         QTableWidgetItem *fileNameItem = new QTableWidgetItem(files[i]);
+        fileNameItem->setFlags(Qt::ItemIsEnabled);
         QTableWidgetItem *sizeItem = new QTableWidgetItem(QString("%1 KB")
                                              .arg(int((size + 1023) / 1024)));
-        sizeItem->setTextAlignment(Qt::AlignRight);
+        sizeItem->setTextAlignment(Qt::AlignVCenter | Qt::AlignRight);
+        sizeItem->setFlags(Qt::ItemIsEnabled);
 
         int row = filesTable->rowCount();
         filesTable->insertRow(row);
