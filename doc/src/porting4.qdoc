@@ -85,10 +85,7 @@
        details.)
 
     \o Run the \l{qt3to4.html}{qt3to4 porting tool}. The tool will go
-       through your source code and adapt it to Qt 4. It will also
-       attempt to convert \c .ui file. Be aware, though, that the \c
-       .ui file convertor is still at an experimental stage,
-       requiring you to put in some manual work.
+       through your source code and adapt it to Qt 4.
 
     \o Recompile with Qt 4. For each error, search below for related
        identifiers (e.g., function names, class names). This document
