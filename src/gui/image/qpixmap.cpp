@@ -920,7 +920,7 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Color
 #endif
 
 /*!
-    Use fromImage() instead.
+    Use the static function QPixmap::fromImage() instead.
 */
 bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
 {
@@ -1017,7 +1017,7 @@ void QPixmap::deref()
 /*!
     \fn bool QPixmap::convertFromImage(const QImage &image, Qt::ImageConversionFlags flags)
 
-    Use fromImage() instead.
+    Use the static function QPixmap::fromImage() instead.
 */
 
 /*!
@@ -1142,9 +1142,11 @@ QPixmap QPixmap::scaledToHeight(int h, Qt::TransformationMode mode) const
     images, the others being QImage and QPicture. QPixmap is designed
     and optimized for drawing on screen; QImage is designed for I/O
     and for direct pixel access; QPicture provides a scalable,
-    vectorial picture. There are (slow) functions to convert between
-    QImage and QPixmap: toImage() and fromImage(). There's also a
-    QIcon class that stores various versions of an icon.
+    vectorial picture. There are static functions in QPixmap to
+    convert between QImage and QPixmap: QPixmap::toImage() and
+    QPixmap::fromImage(). These function can be slow on some
+    platforms. There's also a QIcon class that stores various versions
+    of an icon.
 
     A common way to create a pixmap is to use the constructor that
     takes a file name. For example:
