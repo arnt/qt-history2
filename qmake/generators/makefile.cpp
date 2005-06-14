@@ -2103,7 +2103,7 @@ MakefileGenerator::writeSubDirs(QTextStream &t)
             targets.append(st);
 
             bool fromFile = false;
-            QString file = Option::fixPathToLocalOS(subdirs[subdir]);
+            QString file = Option::fixPathToTargetOS(subdirs[subdir]);
             if(!project->isEmpty(fixedSubdir + ".file")) {
                 if(!project->isEmpty(fixedSubdir + ".subdir"))
                     warn_msg(WarnLogic, "Cannot assign both file and subdir for subdir %s",

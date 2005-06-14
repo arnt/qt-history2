@@ -1529,10 +1529,10 @@ QMakeProject::doProjectInclude(QString file, uchar flags, QMap<QString, QStringL
     debug_msg(1, "Project Parser: %s'ing file %s.", (flags & IncludeFlagFeature) ? "load" : "include",
               file.toLatin1().constData());
     QString orig_file = file;
-    int di = file.lastIndexOf(Option::dir_sep);
+    int di = file.lastIndexOf(QDir::separator());
     QString oldpwd = qmake_getpwd();
     if(di != -1) {
-        if(!qmake_setpwd(file.left(file.lastIndexOf(Option::dir_sep)))) {
+        if(!qmake_setpwd(file.left(file.lastIndexOf(QDir::separator())))) {
             fprintf(stderr, "Cannot find directory: %s\n", file.left(di).toLatin1().constData());
             return IncludeFailure;
         }
