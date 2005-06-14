@@ -22,6 +22,7 @@
 #include <QtCore/qdebug.h>
 #include <QtGui/QFileDialog>
 #include <QtGui/QHeaderView>
+#include <QtGui/QImageReader>
 
 
 FindIconDialog::FindIconDialog(QDesignerFormWindowInterface *form, QWidget *parent)
@@ -115,10 +116,11 @@ void FindIconDialog::updateBoxes()
         }
         QDir dir(dir_path);
         if (dir.exists()) {
-            QStringList file_list = dir.entryList(QStringList()
-                    << QString::fromUtf8("*.jpg")
-                    << QString::fromUtf8("*.gif")
-                    << QString::fromUtf8("*.png"));
+            QList<QByteArray> _extension_list = QImageReader::supportedImageFormats();
+            QStringList extension_list;
+            foreach (const QByteArray &ext, _extension_list)
+                extension_list.append(QLatin1String("*.") + QString::fromAscii(ext));
+            QStringList file_list = dir.entryList(extension_list);
 
             foreach (QString file, file_list) {
                 QListWidgetItem *item = new QListWidgetItem(ui->m_file_image_list);

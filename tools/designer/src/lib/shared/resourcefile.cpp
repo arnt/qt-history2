@@ -18,6 +18,7 @@
 
 #include <QtGui/QIcon>
 #include <QtGui/QApplication>
+#include <QtGui/QImageReader>
 
 #include <QtXml/QDomDocument>
 
@@ -436,11 +437,9 @@ bool ResourceModel::iconFileExtension(const QString &path)
 {
     static QStringList ext_list;
     if (ext_list.isEmpty()) {
-        ext_list << QLatin1String(".jpg")
-                    <<  QLatin1String(".jpeg")
-                    <<  QLatin1String(".gif")
-                    <<  QLatin1String(".png")
-                    <<  QLatin1String(".bmp");
+        QList<QByteArray> _ext_list = QImageReader::supportedImageFormats();
+        foreach (const QByteArray &ext, _ext_list)
+            ext_list.append(QLatin1String(".") + QString::fromAscii(ext));
     }
 
     foreach (QString ext, ext_list) {
