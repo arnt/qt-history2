@@ -10,7 +10,7 @@ const qdocCommand = qdocDir + "/qdoc3";
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
-const validLicenses = ["opensource", "commercial", "preview", "beta"];
+const validLicenses = ["opensource", "commercial", "preview", "beta", "eval"];
 const validEditions = ["console", "desktop"];
 const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
@@ -159,6 +159,7 @@ var licenseRemove = new Array();
 licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
 licenseRemove["preview"] = licenseRemove["commercial"];
 licenseRemove["beta"] = licenseRemove["commercial"];
+licenseRemove["eval"] = licenseRemove["commercial"];
 
 licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^examples/activeqt"),
@@ -779,8 +780,12 @@ function copyDist(packageDir, platform, license)
     for (var i in licenseFiles) {
 	var fileName = licenseFiles[i];
 	var absFileName = packageDir + "/dist/" + license + "/" + fileName;
-	if (File.exists(absFileName) && File.isFile(absFileName))
+	if (File.exists(absFileName) && File.isFile(absFileName)) {
+	    var dir = new Dir(new File(packageDir + "/" + fileName).path);
+	    if (!dir.exists)
+		dir.mkdirs();
 	    execute(["cp", absFileName, packageDir + "/" + fileName]);
+	}
     }
 
     // rename any LICENSE and LICENSE-US to hidden . files
