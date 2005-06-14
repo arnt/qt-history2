@@ -409,6 +409,12 @@ void QPainterPath::cubicTo(const QPointF &c1, const QPointF &c2, const QPointF &
 
     QPainterPathData *d = d_func();
     Q_ASSERT(!d->elements.isEmpty());
+
+    // Abort on empty curve as a stroker cannot handle this and the
+    // curve is irrelevant anyway.
+    if (d->elements.last() == c1 && c1 == c2 && c2 == e)
+        return;
+
     Element ce1 = { c1.x(), c1.y(), CurveToElement };
     Element ce2 = { c2.x(), c2.y(), CurveToDataElement };
     Element ee = { e.x(), e.y(), CurveToDataElement };
@@ -454,6 +460,12 @@ void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
     Q_ASSERT(!d->elements.isEmpty());
     const QPainterPath::Element &elm = d->elements.at(elementCount()-1);
     QPointF prev(elm.x, elm.y);
+
+    // Abort on empty curve as a stroker cannot handle this and the
+    // curve is irrelevant anyway.
+    if (prev == c && c == e)
+        return;
+
     QPointF c1((prev.x() + 2*c.x()) / 3, (prev.y() + 2*c.y()) / 3);
     QPointF c2((e.x() + 2*c.x()) / 3, (e.y() + 2*c.y()) / 3);
     cubicTo(c1, c2, e);
