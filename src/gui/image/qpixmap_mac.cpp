@@ -293,10 +293,10 @@ void QPixmap::setAlphaChannel(const QPixmap &alpha)
         data->has_mask = false;
         QPixmap opaque(width(), height());
         opaque.fill(QColor(255, 255, 255, 255));
-        data->macSetAlphaChannel(&opaque);
+        data->macSetAlphaChannel(&opaque, false);
     } else {
         data->has_mask = true;
-        data->macSetAlphaChannel(&alpha);
+        data->macSetAlphaChannel(&alpha, false);
     }
 }
 
@@ -325,10 +325,10 @@ void QPixmap::setMask(const QBitmap &newmask)
         data->has_mask = false;
         QPixmap opaque(width(), height());
         opaque.fill(QColor(255, 255, 255, 255));
-        data->macSetAlphaChannel(&opaque);
+        data->macSetAlphaChannel(&opaque, true);
     } else {
         data->has_mask = true;
-        data->macSetAlphaChannel(&newmask);
+        data->macSetAlphaChannel(&newmask, true);
     }
 }
 
@@ -395,17 +395,27 @@ QPixmapData::~QPixmapData()
 }
 
 void
-QPixmapData::macSetAlphaChannel(const QPixmap *pix)
+QPixmapData::macSetAlphaChannel(const QPixmap *pix, bool asMask)
 {
     uchar *dptr = (uchar*)pixels, *drow;
     const uint dbpr = nbytes / h;
     const unsigned short sbpr = pix->data->nbytes / pix->data->h;
     uchar *sptr = (uchar*)pix->data->pixels, *srow;
-    for(int yy=0; yy < h; ++yy) {
-        drow = dptr + (yy * dbpr);
-        srow = sptr + (yy * sbpr);
-        for(int xx=0; xx < w*4; xx+=4)
-            *(drow+xx) = qGray(*(srow+xx+1), *(srow+xx+2), *(srow+xx+3));
+    for (int y=0; y < h; ++y) {
+        drow = dptr + (y * dbpr);
+        srow = sptr + (y * sbpr);
+        for (int x=0; x < w*4; x += 4) {
+            if(asMask) {
+                *(drow+x) = 255 - qGray(*(srow+x+1), *(srow+x+2), *(srow+x+3));
+            } else {
+                int alpha = qGray(*(srow+x+1), *(srow+x+2), *(srow+x+3));
+                int destAlpha = qt_div_255(alpha * *(drow+x));
+                *((int*)(drow+x)) = ((destAlpha << 24)
+                                     | (qt_div_255(*(drow+x+1) * alpha) << 16)
+                                     | (qt_div_255(*(drow+x+2) * alpha) << 8)
+                                     | (qt_div_255(*(drow+x+3) * alpha)));
+            }
+        }
     }
     macSetHasAlpha(true);
 }
