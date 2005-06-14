@@ -12,13 +12,12 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-//#include "qgfxraster_qws.h"
 
 #if !defined(QT_NO_QWS_VNC)
 
 #include "qtimer.h"
 #include "qwindowsystem_qws.h"
-#include "qgfxvnc_qws.h"
+#include "qscreenvnc_qws.h"
 #include <private/qsharedmemory_p.h>
 #include <stdlib.h>
 #include <qdebug.h>
@@ -1266,48 +1265,8 @@ void QVNCScreen::restore()
     if (!virtualBuffer)
         VNCSCREEN_BASE::restore();
 }
-#if 0
-QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
-{
-    QGfx* ret = 0;
-    if(d==1) {
-        ret = new QGfxRaster<1,0>(bytes,w,h);
-#ifndef QT_NO_QWS_DEPTH_16
-    } else if(d==16) {
-        if (bytes == qt_screen->base())
-            ret = new QGfxVNC<16,0>(bytes,w,h);
-        else
-            ret = new QGfxRaster<16,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_8
-    } else if (d==8) {
-        if (bytes == qt_screen->base())
-            ret = new QGfxVNC<8,0>(bytes,w,h);
-        else
-            ret = new QGfxRaster<8,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_32
-    } else if (d==32) {
-        if (bytes == qt_screen->base())
-            ret = new QGfxVNC<32,0>(bytes,w,h);
-        else
-            ret = new QGfxRaster<32,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_4
-    } else if (d==4) {
-        if (bytes == qt_screen->base())
-            ret = new QGfxVNC<4,0>(bytes,w,h);
-        else
-            ret = new QGfxRaster<4,0>(bytes,w,h);
-#endif
-    } else {
-        qFatal("Can't drive depth %d",d);
-    }
-    ret->setLineStep(linestep);
-    return ret;
-}
-#endif
-#include "qgfxvnc_qws.moc"
+
+#include "qscreenvnc_qws.moc"
 
 #endif // QT_NO_QWS_VNC
 

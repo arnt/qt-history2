@@ -29,7 +29,6 @@ class QWSMouseEvent;
 class QWSQCopMessageEvent;
 
 class QVariant;
-class QGfx;
 class QWSWindowInfo
 {
 

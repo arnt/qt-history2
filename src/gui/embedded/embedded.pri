@@ -101,8 +101,8 @@ embedded {
 #
 # Qt/Embedded Drivers
 #
-	HEADERS += embedded/qgfxdriverplugin_qws.h \
-		    embedded/qgfxdriverfactory_qws.h \
+	HEADERS += embedded/qscreendriverplugin_qws.h \
+		    embedded/qscreendriverfactory_qws.h \
 		    embedded/qkbd_qws.h \
 		    embedded/qkbddriverplugin_qws.h \
 		    embedded/qkbddriverfactory_qws.h \
@@ -110,8 +110,8 @@ embedded {
 		    embedded/qmousedriverplugin_qws.h \
 		    embedded/qmousedriverfactory_qws.h
 
-	SOURCES += embedded/qgfxdriverplugin_qws.cpp \
-		    embedded/qgfxdriverfactory_qws.cpp \
+	SOURCES += embedded/qscreendriverplugin_qws.cpp \
+		    embedded/qscreendriverfactory_qws.cpp \
 		    embedded/qkbd_qws.cpp \
 		    embedded/qkbddriverplugin_qws.cpp \
 		    embedded/qkbddriverfactory_qws.cpp \
@@ -123,40 +123,40 @@ embedded {
 # Graphics drivers
 #
         linux-* {
-	        HEADERS += embedded/qgfxlinuxfb_qws.h
-		SOURCES += embedded/qgfxlinuxfb_qws.cpp
+	        HEADERS += embedded/qscreenlinuxfb_qws.h
+		SOURCES += embedded/qscreenlinuxfb_qws.cpp
 	}
 
 	contains( gfx-drivers, qvfb ) {
-		HEADERS += embedded/qgfxvfb_qws.h
-		SOURCES += embedded/qgfxvfb_qws.cpp
+		HEADERS += embedded/qscreenvfb_qws.h
+		SOURCES += embedded/qscreenvfb_qws.cpp
 	}
 
 	contains( gfx-drivers, vnc ) {
-		HEADERS += embedded/qgfxvnc_qws.h
-		SOURCES += embedded/qgfxvnc_qws.cpp
+		HEADERS += embedded/qscreenvnc_qws.h
+		SOURCES += embedded/qscreenvnc_qws.cpp
 	}
 
 #	!contains( DEFINES, QT_NO_QWS_LINUXFB):contains( gfx-drivers, vga16 ) {
-#		HEADERS += embedded/qgfxvga16_qws.h
-#		SOURCES += embedded/qgfxvga16_qws.cpp
+#		HEADERS += embedded/qscreenvga16_qws.h
+#		SOURCES += embedded/qscreenvga16_qws.cpp
 #	}
 #
 #	contains( gfx-drivers, transformed ) {
-#		HEADERS += embedded/qgfxtransformed_qws.h
-#		SOURCES += embedded/qgfxtransformed_qws.cpp
+#		HEADERS += embedded/qscreentransformed_qws.h
+#		SOURCES += embedded/qscreentransformed_qws.cpp
 #	}
 #
 #	contains( gfx-drivers, mach64 ) {
-#		HEADERS += embedded/qgfxmach64_qws.h \
-#			   embedded/qgfxmach64defs_qws.h
-#		SOURCES += embedded/qgfxmach64_qws.cpp
+#		HEADERS += embedded/qscreenmach64_qws.h \
+#			   embedded/qscreenmach64defs_qws.h
+#		SOURCES += embedded/qscreenmach64_qws.cpp
 #	}
 #
 #	contains( gfx-drivers, snap ) {
 #		exists( $(SCITECH)/include/snap/graphics.h) {
-#			HEADERS += embedded/qgfxsnap_qws.h
-#			SOURCES += embedded/qgfxsnap_qws.cpp
+#			HEADERS += embedded/qscreensnap_qws.h
+#			SOURCES += embedded/qscreensnap_qws.cpp
 #			INCLUDEPATH += $(SCITECH)/include
 #			debug:LIBS	+= -L$(SCITECH)/lib/debug/linux/gcc/x86/so -lpm
 #			else:LIBS	+= -L$(SCITECH)/lib/release/linux/gcc/x86/so -lpm
@@ -169,25 +169,25 @@ embedded {
 #	}
 #
 #	contains( gfx-drivers, voodoo ) {
-#		HEADERS += embedded/qgfxvoodoo_qws.h \
-#			   embedded/qgfxvoodoodefs_qws.h
-#		SOURCES += embedded/qgfxvoodoo_qws.cpp
+#		HEADERS += embedded/qscreenvoodoo_qws.h \
+#			   embedded/qscreenvoodoodefs_qws.h
+#		SOURCES += embedded/qscreenvoodoo_qws.cpp
 #	}
 #
 #	contains( gfx-drivers, matrox ) {
-#		HEADERS += embedded/qgfxmatrox_qws.h \
-#			   embedded/qgfxmatroxdefs_qws.h
-#		SOURCES += embedded/qgfxmatrox_qws.cpp
+#		HEADERS += embedded/qscreenmatrox_qws.h \
+#			   embedded/qscreenmatroxdefs_qws.h
+#		SOURCES += embedded/qscreenmatrox_qws.cpp
 #	}
 #
 #	contains( gfx-drivers, shadowfb ) {
-#		HEADERS += embedded/qgfxshadow_qws.h
-#		SOURCES += embedded/qgfxshadow_qws.cpp
+#		HEADERS += embedded/qscreenshadow_qws.h
+#		SOURCES += embedded/qscreenshadow_qws.cpp
 #	}
 #
 #	contains( gfx-drivers, repeater ) {
-#		HEADERS += embedded/qgfxrepeater_qws.h
-#		SOURCES += embedded/qgfxrepeater_qws.cpp
+#		HEADERS += embedded/qscreenrepeater_qws.h
+#		SOURCES += embedded/qscreenrepeater_qws.cpp
 #	}
 
 #

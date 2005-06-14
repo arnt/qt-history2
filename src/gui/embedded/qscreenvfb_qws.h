@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXVFB_QWS_H
-#define QGFXVFB_QWS_H
+#ifndef QSCREENVFB_QWS_H
+#define QSCREENVFB_QWS_H
 
 #include "QtGui/qscreen_qws.h"
 
@@ -33,7 +33,6 @@ public:
     virtual void disconnect();
     virtual int initCursor(void*, bool);
     virtual void shutdownDevice();
-//    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
     virtual void save();
     virtual void restore();
     virtual void setMode(int nw,int nh,int nd);
@@ -50,4 +49,4 @@ public:
 
 #endif // QT_NO_QWS_QVFB
 
-#endif // QGFXVFB_QWS_H
+#endif // QSCREENVFB_QWS_H

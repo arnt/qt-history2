@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qgfxlinuxfb_qws.h"
+#include "qscreenlinuxfb_qws.h"
 
 #ifndef QT_NO_QWS_LINUXFB
 //#include "qmemorymanager_qws.h"
@@ -60,7 +60,7 @@ extern int qws_client_id;
   the color palette, managing offscreen graphics memory and mapping the
   framebuffer interface itself, removing the need for drivers to do this.
   It also acts as a factory for the unaccelerated screen cursor and
-  unaccelerated QGfxes. QLinuxFbScreen is a descendant of QScreen;
+  unaccelerated QRasterPaintEngine. QLinuxFbScreen is a descendant of QScreen;
   there is precisely one per Qt/Embedded application.
 */
 
@@ -812,7 +812,7 @@ void QLinuxFbScreen::set(unsigned int i,unsigned int r,unsigned int g,unsigned i
 /*!
     Sets the framebuffer to a new resolution and bit depth. The width is
     in \a nw, the height is in \a nh, and the depth is in \a nd. After
-    doing this any currently-existing gfx's will be invalid and the
+    doing this any currently-existing paint engines will be invalid and the
     screen should be completely redrawn. In a multiple-process
     Embedded Qt situation you must signal all other applications to
     call setMode() to the same mode and redraw.

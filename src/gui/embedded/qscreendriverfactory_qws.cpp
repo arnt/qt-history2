@@ -11,47 +11,47 @@
 **
 ****************************************************************************/
 
-#include "qgfxdriverfactory_qws.h"
+#include "qscreendriverfactory_qws.h"
 
 #include "qscreen_qws.h"
 #include "qapplication.h"
-#include "qgfxlinuxfb_qws.h"
-#include "qgfxtransformed_qws.h"
-#include "qgfxsnap_qws.h"
-#include "qgfxmach64_qws.h"
-#include "qgfxvoodoo_qws.h"
-#include "qgfxmatrox_qws.h"
-#include "qgfxvfb_qws.h"
-#include "qgfxvnc_qws.h"
-#include "qgfxvga16_qws.h"
-#include "qgfxshadowfb_qws.h"
-#include "qgfxrepeater_qws.h"
+#include "qscreenlinuxfb_qws.h"
+#include "qscreentransformed_qws.h"
+#include "qscreensnap_qws.h"
+#include "qscreenmach64_qws.h"
+#include "qscreenvoodoo_qws.h"
+#include "qscreenmatrox_qws.h"
+#include "qscreenvfb_qws.h"
+#include "qscreenvnc_qws.h"
+#include "qscreenvga16_qws.h"
+#include "qscreenshadowfb_qws.h"
+#include "qscreenrepeater_qws.h"
 #include <stdlib.h>
 #include "private/qfactoryloader_p.h"
-#include "qgfxdriverplugin_qws.h"
+#include "qscreendriverplugin_qws.h"
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
 
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QGfxDriverFactoryInterface_iid, QCoreApplication::libraryPaths(), "/gfxdrivers"))
+    (QScreenDriverFactoryInterface_iid, QCoreApplication::libraryPaths(), "/gfxdrivers"))
 
 #endif //QT_NO_COMPONENT
 #endif //QT_MAKEDLL
 
 /*!
-    \class QGfxDriverFactory qgfxdriverfactory.h
-    \brief The QGfxDriverFactory class creates QScreen objects for Qt/Embedded.
+    \class QScreenDriverFactory qscreendriverfactory.h
+    \brief The QScreenDriverFactory class creates QScreen objects for Qt/Embedded.
 
     \ingroup qws
 
     The graphics driver factory creates a QScreen object for a given
-    key with QGfxDriverFactory::create(key).
+    key with QScreenDriverFactory::create(key).
 
     The drivers are either built-in or dynamically loaded from a
-    driver plugin (see \l QGfxDriverPlugin).
+    driver plugin (see \l QScreenDriverPlugin).
 
-    QGfxDriverFactory::keys() returns a list of valid keys. Qt
+    QScreenDriverFactory::keys() returns a list of valid keys. Qt
     currently ships with "LinuxFb".
 
     This class is only available in Qt/Embedded.
@@ -64,7 +64,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 
     \sa keys()
 */
-QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
+QScreen *QScreenDriverFactory::create(const QString& key, int displayId)
 {
     QString driver = key.toLower();
 #ifndef QT_NO_QWS_QVFB
@@ -115,7 +115,7 @@ QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
 #ifndef QT_NO_COMPONENT
 
-    if (QGfxDriverFactoryInterface *factory = qobject_cast<QGfxDriverFactoryInterface*>(loader()->instance(key)))
+    if (QScreenDriverFactoryInterface *factory = qobject_cast<QScreenDriverFactoryInterface*>(loader()->instance(key)))
         return factory->create(driver, displayId);
 
 #endif
@@ -128,7 +128,7 @@ QScreen *QGfxDriverFactory::create(const QString& key, int displayId)
 
     \sa create()
 */
-QStringList QGfxDriverFactory::keys()
+QStringList QScreenDriverFactory::keys()
 {
     QStringList list;
 

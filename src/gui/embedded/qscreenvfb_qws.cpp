@@ -11,8 +11,6 @@
 **
 ****************************************************************************/
 
-//#include "qgfxraster_qws.h"
-
 #ifndef QT_NO_QWS_QVFB
 
 #include <stdlib.h>
@@ -25,7 +23,7 @@
 #include <errno.h>
 
 #include <qvfbhdr.h>
-#include <qgfxvfb_qws.h>
+#include <qscreenvfb_qws.h>
 #include <qwindowsystem_qws.h>
 #include <qsocketnotifier.h>
 #include <qapplication.h>
@@ -390,58 +388,7 @@ void QVFbScreen::save()
 void QVFbScreen::restore()
 {
 }
-#if 0
-QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
-{
-    QGfx* ret = 0;
-    if(d==1) {
-        if (bytes == qt_screen->base())
-            ret = new QGfxVFb<1,0>(bytes,w,h);
-        else
-            ret = new QGfxRaster<1,0>(bytes,w,h);
-#ifndef QT_NO_QWS_DEPTH_4
-    } else if (d==4) {
-        if (bytes == qt_screen->base())
-            ret = new QGfxVFb<4,0>(bytes,w,h);
-        else
-            ret = new QGfxRaster<4,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_16
-    } else if(d==16) {
-        if (bytes == qt_screen->base())
-            ret = new QGfxVFb<16,0>(bytes,w,h);
-        else
-            ret = new QGfxRaster<16,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_8
-    } else if (d==8) {
-        if (bytes == qt_screen->base())
-            ret = new QGfxVFb<8,0>(bytes,w,h);
-        else
-            ret = new QGfxRaster<8,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_24
-    } else if (d==24) {
-        if (bytes == qt_screen->base())
-            ret = new QGfxVFb<24,0>(bytes,w,h);
-        else
-            ret = new QGfxRaster<24,0>(bytes,w,h);
-#endif
-#ifndef QT_NO_QWS_DEPTH_32
-    } else if (d==32) {
-        if (bytes == qt_screen->base())
-            ret = new QGfxVFb<32,0>(bytes,w,h);
-        else
-            ret = new QGfxRaster<32,0>(bytes,w,h);
-#endif
-    } else {
-        qFatal("Can't drive depth %d",d);
-    }
-    ret->setLineStep(linestep);
-    return ret;
-}
-#endif
-#include "qgfxvfb_qws.moc"
+#include "qscreenvfb_qws.moc"
 
 #endif // QT_NO_QWS_QVFB
 

@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXLINUXFB_QWS_H
-#define QGFXLINUXFB_QWS_H
+#ifndef QSCREENLINUXFB_QWS_H
+#define QSCREENLINUXFB_QWS_H
 
 #include "QtGui/qscreen_qws.h"
 
@@ -88,4 +88,4 @@ private:
 
 #endif
 
-#endif // QGFXLINUXFB_QWS_H
+#endif // QSCREENLINUXFB_QWS_H

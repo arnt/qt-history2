@@ -1,8 +1,7 @@
 #include "qscreen_qws.h"
 
 #include "qcolormap.h"
-//#include "qgfxraster_qws.h"
-#include "qgfxdriverfactory_qws.h"
+#include "qscreendriverfactory_qws.h"
 
 #include <private/qpaintengine_raster_p.h>
 
@@ -50,8 +49,7 @@ QScreenCursor::QScreenCursor() : imgunder(0), cursor(0)
 /*!
     \internal
 
-    Initialises a screen cursor - creates a Gfx to draw it with
-    and an image to store the part of the screen stored under the cursor.
+    Initialises a screen cursor - creates an image to store the part of the screen stored under the cursor.
     Should not be called by hardware cursor descendants. \a da points
     to the location in framebuffer memory where the cursor saves information
     stored under it, \a init is true if the cursor is being initialized
@@ -60,10 +58,6 @@ QScreenCursor::QScreenCursor() : imgunder(0), cursor(0)
 */
 void QScreenCursor::init(SWCursorData *da, bool init)
 {
-    // initialise our gfx
-//    gfx = (QGfxRasterBase*)qt_screen->screenGfx();
-//    gfx->setClipDeviceRegion(QRect(0, 0, qt_screen->width(), qt_screen->height()));
-
     data = da;
     save_under = false;
     fb_start = qt_screen->base();
@@ -103,7 +97,7 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 /*!
     \internal
 
-    Destroys a screen cursor, deleting its gfxes, cursor image and
+    Destroys a screen cursor, deleting its cursor image and
     under-cursor storage
 */
 QScreenCursor::~QScreenCursor()
@@ -271,15 +265,15 @@ bool QScreenCursor::restoreUnder(const QRect &r)
         qWarning("QScreenCursor doesn't support depth %d", depth);
 
 #if 0
-            if (data->width && data->height) {
-                gfx->gfx_swcursor = false;   // prevent recursive call from blt
-                QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-                QRect r(x,y,data->width,data->height);
-                r = qt_screen->mapFromDevice(r, s);
-                gfx->setSource(imgunder);
-                gfx->blt(r.x(), r.y(), r.width(), r.height(),0,0);
-                gfx->gfx_swcursor = true;
-            }
+//             if (data->width && data->height) {
+//                 gfx->gfx_swcursor = false;   // prevent recursive call from blt
+//                 QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
+//                 QRect r(x,y,data->width,data->height);
+//                 r = qt_screen->mapFromDevice(r, s);
+//                 gfx->setSource(imgunder);
+//                 gfx->blt(r.x(), r.y(), r.width(), r.height(),0,0);
+//                 gfx->gfx_swcursor = true;
+//            }
 #endif
         } else {
             // This is faster than the above - at least until blt is
@@ -335,19 +329,19 @@ void QScreenCursor::saveUnder()
     if (depth < 8) {
         qWarning("QScreenCursor doesn't support depth %d", depth);
 #if 0
-        gfxunder->gfx_swcursor = false;   // prevent recursive call from blt
-        gfxunder->srclinestep = gfx->linestep();
-        gfxunder->srcdepth = gfx->bitDepth();
-        gfxunder->srcbits = gfx->buffer;
-        gfxunder->srcpixeltype = QScreen::NormalPixel;
-        gfxunder->srcwidth = qt_screen->width();
-        gfxunder->srcheight = qt_screen->height();
-        gfxunder->src_normal_palette = true;
-        QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-        QRect r(x, y, data->width, data->height);
-        r = qt_screen->mapFromDevice(r, s);
-        gfxunder->blt(0,0,data->width,data->height,r.x(), r.y());
-        gfxunder->gfx_swcursor = true;
+//         gfxunder->gfx_swcursor = false;   // prevent recursive call from blt
+//         gfxunder->srclinestep = gfx->linestep();
+//         gfxunder->srcdepth = gfx->bitDepth();
+//         gfxunder->srcbits = gfx->buffer;
+//         gfxunder->srcpixeltype = QScreen::NormalPixel;
+//         gfxunder->srcwidth = qt_screen->width();
+//         gfxunder->srcheight = qt_screen->height();
+//         gfxunder->src_normal_palette = true;
+//         QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
+//         QRect r(x, y, data->width, data->height);
+//         r = qt_screen->mapFromDevice(r, s);
+//         gfxunder->blt(0,0,data->width,data->height,r.x(), r.y());
+//         gfxunder->gfx_swcursor = true;
 #endif
     } else {
         // This is faster than the above - at least until blt is
@@ -402,22 +396,22 @@ void QScreenCursor::drawCursor()
     int x = data->x - data->hotx;
     int y = data->y - data->hoty;
 
-    /* ### experimental
-    if (data->width != cursor->width() || data->height != cursor->height()) {
-        delete cursor;
-        cursor = new QImage(data->cursor, data->width, data->height, 8,
-                         data->clut, data->colors, QImage::IgnoreEndian);
-    }
-    if (data->width && data->height) {
-        qt_sw_cursor = false;   // prevent recursive call from blt
-        gfx->setSource(cursor);
-        gfx->setAlphaType(QGfx::InlineAlpha);
-        gfx->blt(x,y,data->width,data->height,0,0);
-        qt_sw_cursor = true;
-    }
+//      ### experimental
+//     if (data->width != cursor->width() || data->height != cursor->height()) {
+//         delete cursor;
+//         cursor = new QImage(data->cursor, data->width, data->height, 8,
+//                          data->clut, data->colors, QImage::IgnoreEndian);
+//     }
+//     if (data->width && data->height) {
+//         qt_sw_cursor = false;   // prevent recursive call from blt
+//         gfx->setSource(cursor);
+//         gfx->setAlphaType(QGfx::InlineAlpha);
+//         gfx->blt(x,y,data->width,data->height,0,0);
+//         qt_sw_cursor = true;
+//     }
 
-    return;
-    */
+//     return;
+
 
     int linestep = qt_screen->linestep();
     int depth = qt_screen->depth();
@@ -694,7 +688,7 @@ void QScreenCursor::drawCursor()
 
   \ingroup qws
 
-  QScreens act as factories for the screen cursor and QGfx's. QLinuxFbScreen
+  QScreens act as factories for the screen cursor and QPaintEngine. QLinuxFbScreen
   manages a Linux framebuffer; accelerated drivers subclass QLinuxFbScreen.
   There can only be one screen in a Qt/Embedded application.
 */
@@ -718,7 +712,7 @@ This function is called by every Qt/Embedded application on startup.
 It maps in the framebuffer and in the accelerated drivers the graphics
 card control registers. \a displaySpec has the following syntax:
 <p>
-<tt>[gfx driver][:driver specific options][:display number]</tt>
+<tt>[screen driver][:driver specific options][:display number]</tt>
 <p>
 for example if you want to use the mach64 driver on fb1 as display 2:
 <p>
@@ -896,20 +890,6 @@ void QScreen::shutdownDevice()
 
 extern bool qws_accel; //in qapplication_qws.cpp
 
-/*!
-  Returns a QGfx (normally a QGfxRaster) initialized to point to the screen,
-  with an origin at 0,0 and a clip region covering the whole screen.
-*/
-#if 0
-QGfx * QScreen::screenGfx()
-{
-    QGfx * ret=createGfx(data,w,h,d,lstep);
-    if(d<=8) {
-        ret->setClut(clut(),numCols());
-    }
-    return ret;
-}
-#endif
 /*!
   \fn PixelType QScreen::pixelType() const
   Returns  the pixel storage format of the screen.
@@ -1109,10 +1089,10 @@ bool QScreen::onCard(const unsigned char * p, ulong& offset) const
 /*
 Given a display_id (number of the Qt/Embedded server to connect to)
 and a spec (e.g. Mach64:/dev/fb0) return a QScreen-descendant.
-The QGfxDriverFactory is queried for a suitable driver and, if found,
+The QScreenDriverFactory is queried for a suitable driver and, if found,
 asked to create a driver.
 People writing new graphics drivers should either hook their own
-QScreen-descendant into QGfxDriverFactory or use the QGfxDriverPlugin
+QScreen-descendant into QScreenDriverFactory or use the QScreenDriverPlugin
 to make a dynamically loadable driver.
 */
 
@@ -1127,12 +1107,12 @@ QScreen *qt_get_screen(int display_id, const char *spec)
     bool foundDriver = false;
     QString driverName = driver;
 
-    QStringList driverList = QGfxDriverFactory::keys();
+    QStringList driverList = QScreenDriverFactory::keys();
     QStringList::Iterator it;
     for (it = driverList.begin(); it != driverList.end(); ++it) {
         if (driver.isEmpty() || QString(*it) == driver) {
             driverName = *it;
-            qt_screen = QGfxDriverFactory::create(driverName, display_id);
+            qt_screen = QScreenDriverFactory::create(driverName, display_id);
             if (qt_screen) {
                 foundDriver = true;
                 if (qt_screen->connect(spec)) {

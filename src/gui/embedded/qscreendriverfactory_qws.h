@@ -11,19 +11,19 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXDRIVERFACTORY_QWS_H
-#define QGFXDRIVERFACTORY_QWS_H
+#ifndef QSCREENDRIVERFACTORY_QWS_H
+#define QSCREENDRIVERFACTORY_QWS_H
 
 #include "QtCore/qstringlist.h"
 
 class QString;
 class QScreen;
 
-class Q_GUI_EXPORT QGfxDriverFactory
+class Q_GUI_EXPORT QScreenDriverFactory
 {
 public:
     static QStringList keys();
     static QScreen *create(const QString&, int);
 };
 
-#endif //QGFXDRIVERFACTORY_QWS_H
+#endif //QSCREENDRIVERFACTORY_QWS_H

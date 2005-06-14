@@ -11,8 +11,8 @@
 **
 ****************************************************************************/
 
-#ifndef QGFXDRIVERPLUGIN_QWS_H
-#define QGFXDRIVERPLUGIN_QWS_H
+#ifndef QSCREENDRIVERPLUGIN_QWS_H
+#define QSCREENDRIVERPLUGIN_QWS_H
 
 #include "QtCore/qplugin.h"
 #include "QtCore/qfactoryinterface.h"
@@ -21,21 +21,21 @@
 
 class QScreen;
 
-struct Q_GUI_EXPORT QGfxDriverFactoryInterface : public QFactoryInterface
+struct Q_GUI_EXPORT QScreenDriverFactoryInterface : public QFactoryInterface
 {
     virtual QScreen* create(const QString& driver, int displayId) = 0;
 };
 
-#define QGfxDriverFactoryInterface_iid "com.trolltech.Qt.QGfxDriverFactoryInterface"
-Q_DECLARE_INTERFACE(QGfxDriverFactoryInterface, QGfxDriverFactoryInterface_iid)
+#define QScreenDriverFactoryInterface_iid "com.trolltech.Qt.QScreenDriverFactoryInterface"
+Q_DECLARE_INTERFACE(QScreenDriverFactoryInterface, QScreenDriverFactoryInterface_iid)
 
-class Q_GUI_EXPORT QGfxDriverPlugin : public QObject, public QGfxDriverFactoryInterface
+class Q_GUI_EXPORT QScreenDriverPlugin : public QObject, public QScreenDriverFactoryInterface
 {
     Q_OBJECT
-    Q_INTERFACES(QGfxDriverFactoryInterface:QFactoryInterface)
+    Q_INTERFACES(QScreenDriverFactoryInterface:QFactoryInterface)
 public:
-    explicit QGfxDriverPlugin(QObject *parent = 0);
-    ~QGfxDriverPlugin();
+    explicit QScreenDriverPlugin(QObject *parent = 0);
+    ~QScreenDriverPlugin();
 
     virtual QStringList keys() const = 0;
     virtual QScreen *create(const QString& driver, int displayId) = 0;
@@ -43,4 +43,4 @@ public:
 
 #endif // QT_NO_COMPONENT
 
-#endif // QGFXDRIVERPLUGIN_QWS_H
+#endif // QSCREENDRIVERPLUGIN_QWS_H

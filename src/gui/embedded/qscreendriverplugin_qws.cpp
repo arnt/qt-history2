@@ -11,13 +11,13 @@
 **
 ****************************************************************************/
 
-#include "qgfxdriverplugin_qws.h"
+#include "qscreendriverplugin_qws.h"
 
 #ifndef QT_NO_COMPONENT
 
 /*!
-    \class QGfxDriverPlugin
-    \brief The QGfxDriverPlugin class provides an abstract base for
+    \class QScreenDriverPlugin
+    \brief The QScreenDriverPlugin class provides an abstract base for
     Qt/Embedded graphics driver plugins.
 
     \ingroup plugins
@@ -35,7 +35,7 @@
 */
 
 /*!
-    \fn QStringList QGfxDriverPlugin::keys() const
+    \fn QStringList QScreenDriverPlugin::keys() const
 
     Returns the list of graphics drivers this plugin supports.
 
@@ -46,7 +46,7 @@
     Constructs a graphics driver plugin with the given \a parent. This
     is invoked automatically by the Q_EXPORT_PLUGIN() macro.
 */
-QGfxDriverPlugin::QGfxDriverPlugin(QObject *parent)
+QScreenDriverPlugin::QScreenDriverPlugin(QObject *parent)
     : QObject(parent)
 {
 }
@@ -57,13 +57,13 @@ QGfxDriverPlugin::QGfxDriverPlugin(QObject *parent)
     You never have to call this explicitly. Qt destroys a plugin
     automatically when it is no longer used.
 */
-QGfxDriverPlugin::~QGfxDriverPlugin()
+QScreenDriverPlugin::~QScreenDriverPlugin()
 {
 }
 
 
 /*!
-    \fn QScreen* QGfxDriverPlugin::create(const QString &driver, int displayId)
+    \fn QScreen* QScreenDriverPlugin::create(const QString &driver, int displayId)
 
     Creates a driver matching the type specified by \a driver, that
     will use display \a displayId.
