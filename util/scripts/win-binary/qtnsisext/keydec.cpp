@@ -33,6 +33,11 @@ CDate::CDate(CDate *d)
     m_jd = d->m_jd;
 }
 
+CDate::CDate(uint julianDays)
+{
+    m_jd = julianDays;
+}
+
 int CDate::year() const
 {
     int y, m, d;
@@ -51,18 +56,6 @@ int CDate::day() const
 {
     int y, m, d;
     julianToGregorian(m_jd, y, m, d);
-    return d;
-}
-
-int CDate::daysTo(CDate d) const
-{
-    return d.m_jd - m_jd;
-}
-
-CDate CDate::addDays(int ndays) const
-{
-    CDate d;
-    d.m_jd = m_jd + ndays;
     return d;
 }
 
@@ -132,23 +125,16 @@ uint KeyDecoder::decodeBaseX(const char *str)
 }
 
 void KeyDecoder::encodedExpiryDate(const CDate &date, char *str)
-{
-    uint days = StartDate.daysTo(date);
-    if (days >= MaxDays)
-	days = MaxDays - 1;
-    uint x = (days << 7) ^ days;
-    return encodeBaseX(x ^ 0x0000beef, str);
+{    
+    return encodeBaseX(date.julianDate() ^ 0x5B7EC4, str);
 }
 
 CDate KeyDecoder::decodedExpiryDate(const char *encodedDate)
 {
-    CDate date;
     uint y = decodeBaseX(encodedDate);
-    uint x = y ^ 0x0000beef;
-    uint days = ( (x >> 7) ^ x ) >> 7;
-    if (days >= MaxDays)
-        return CDate();
-    date = StartDate.addDays(days);
+    uint x = y ^ 0x5B7EC4;
+    
+    CDate date(x); 
 
     char str[MAX_STRSIZE];
     encodedExpiryDate(date, str);
@@ -221,6 +207,6 @@ KeyDecoder::KeyDecoder(const char *clicenseKey)
     licenseFeatures = decodeBaseX(licenseParts[3]) ^ FeatureMagic;
     licenseID = decodeBaseX(licenseParts[4]) ^ LicenseIDMagic;
     expiryDate = decodedExpiryDate(licenseParts[5]);
-
+    
     m_valid = true;
 }

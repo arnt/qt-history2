@@ -11,13 +11,13 @@ public:
     CDate();
     CDate(int y, int m, int d);
     CDate(CDate *d);
+    CDate(uint julianDays);
 
     int year() const;
     int month() const;
     int day() const;
-    int daysTo(CDate d) const;
-    CDate addDays(int ndays) const;
-
+    uint julianDate() const { return m_jd; }
+    
 private:
     uint gregorianToJulian(int y, int m, int d) const;
     void julianToGregorian(uint jd, int &y, int &m, int &d) const;
