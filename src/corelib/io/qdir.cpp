@@ -771,7 +771,6 @@ bool QDir::cd(const QString &dirName)
             */
             if (newPath.startsWith(QLatin1String(".."))) {
                 newPath = QFileInfo(newPath).absoluteFilePath();
-                return false;
             }
         }
     }
