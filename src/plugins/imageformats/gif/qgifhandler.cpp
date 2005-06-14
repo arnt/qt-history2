@@ -721,6 +721,7 @@ QGifHandler::QGifHandler()
     gifFormat = new QGIFFormat;
     nextDelay = 0;
     loopCnt = 0;
+    frameNumber = 0;
 }
 
 QGifHandler::~QGifHandler()
