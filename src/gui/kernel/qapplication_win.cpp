@@ -464,7 +464,8 @@ static void qt_set_windows_resources()
     QColor menuText(qt_colorref2qrgb(GetSysColor(COLOR_MENUTEXT)));
     {
         BOOL isFlat = 0;
-        if (QSysInfo::WindowsVersion == QSysInfo::WV_XP)
+        if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
+            && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based))
             SystemParametersInfo(0x1022 /*SPI_GETFLATMENU*/, 0, &isFlat, 0);
         QPalette menu(pal);
         // we might need a special color group for the menu.
@@ -478,7 +479,8 @@ static void qt_set_windows_resources()
         menu.setColor(QPalette::Disabled, QPalette::Text, disabled);
         menu.setColor(QPalette::Disabled, QPalette::Highlight,
                        QColor(qt_colorref2qrgb(GetSysColor(
-                                               QSysInfo::WindowsVersion == QSysInfo::WV_XP
+                                               (QSysInfo::WindowsVersion >= QSysInfo::WV_XP
+                                               && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based)
                                                && isFlat ? COLOR_MENUHILIGHT
                                                          : COLOR_HIGHLIGHT))));
         menu.setColor(QPalette::Disabled, QPalette::HighlightedText, disabled);
@@ -497,7 +499,8 @@ static void qt_set_windows_resources()
                           pal.color(QPalette::Inactive, QPalette::Dark));
         QApplication::setPalette(menu, "QMenu");
 
-        if (QSysInfo::WindowsVersion == QSysInfo::WV_XP && isFlat) {
+        if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
+            && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based) && isFlat) {
             QColor menubar(qt_colorref2qrgb(GetSysColor(COLOR_MENUBAR)));
             menu.setColor(QPalette::Active, QPalette::Button, menubar);
             menu.setColor(QPalette::Disabled, QPalette::Button, menubar);
@@ -713,7 +716,8 @@ const QString qt_reg_winclass(Qt::WFlags flags)        // register window class
 #ifndef Q_OS_TEMP
         style |= CS_SAVEBITS;
 #endif
-        if (QSysInfo::WindowsVersion == QSysInfo::WV_XP)
+        if ((QSysInfo::WindowsVersion >= QSysInfo::WV_XP
+            && QSysInfo::WindowsVersion < QSysInfo::WV_NT_based))
             style |= 0x00020000;                // CS_DROPSHADOW
         icon = false;
     } else {

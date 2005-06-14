@@ -5675,8 +5675,12 @@ static char *qdtoa ( double d, int mode, int ndigits, int *decpt, int *sign, cha
 
 #ifdef Q_OS_WIN
     _clear87();
+#ifndef _M_X64
     _control87(oldbits, 0xFFFFF);
-#endif
+#else
+    _control87(oldbits, _MCW_EM|_MCW_DN|_MCW_RC);
+#endif //_M_X64
+#endif //Q_OS_WIN
 
 #if defined(Q_OS_LINUX) && !defined(__UCLIBC__)
     fesetenv(&envp);

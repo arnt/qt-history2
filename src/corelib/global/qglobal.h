@@ -202,7 +202,7 @@
 /* Visual C++.Net issues for _MSC_VER >= 1300 */
 #  if _MSC_VER >= 1300
 #    define Q_CC_MSVC_NET
-#    if _MSC_VER < 1310 || defined(Q_OS_WIN64)
+#    if _MSC_VER < 1310 || (defined(Q_OS_WIN64) && defined(_M_IA64))
 #      define Q_TYPENAME
 #    else
 #      undef QT_NO_PARTIAL_TEMPLATE_SPECIALIZATION
