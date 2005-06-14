@@ -308,8 +308,10 @@ QTextDocument::~QTextDocument()
 */
 QTextDocument *QTextDocument::clone(QObject *parent) const
 {
+    Q_D(const QTextDocument);
     QTextDocument *doc = new QTextDocument(parent);
     QTextCursor(doc).insertFragment(QTextDocumentFragment(this));
+    doc->d_func()->config()->title = d->config()->title;
     return doc;
 }
 
