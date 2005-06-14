@@ -364,6 +364,8 @@ QString QFSFileEngine::fileName(FileName file) const
                 ret += QLatin1Char('/');
             ret += d->file;
         }
+        if (ret == QLatin1String("/"))
+            return ret;
         bool isDir = ret.endsWith(QLatin1Char('/'));
         ret = QDir::cleanPath(ret);
         if (isDir)
