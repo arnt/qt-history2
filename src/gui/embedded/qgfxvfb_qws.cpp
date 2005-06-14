@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qgfxraster_qws.h"
+//#include "qgfxraster_qws.h"
 
 #ifndef QT_NO_QWS_QVFB
 
@@ -224,61 +224,6 @@ void QVFbScreenCursor::move(int x, int y)
 }
 #endif
 
-//===========================================================================
-
-template <const int depth, const int type>
-class QGfxVFb : public QGfxRaster<depth,type>
-{
-public:
-    QGfxVFb(unsigned char *b,int w,int h);
-    virtual ~QGfxVFb();
-
-    virtual void fillRect(int,int,int,int);
-    virtual void blt(int,int,int,int,int,int);
-    virtual void tiledBlt(int,int,int,int);
-};
-
-template <const int depth, const int type>
-QGfxVFb<depth,type>::QGfxVFb(unsigned char *b,int w,int h)
-    : QGfxRaster<depth,type>(b, w, h)
-{
-}
-
-template <const int depth, const int type>
-QGfxVFb<depth,type>::~QGfxVFb()
-{
-}
-
-
-template <const int depth, const int type>
-void QGfxVFb<depth,type>::fillRect(int x,int y,int w,int h)
-{
-//    QWSDisplay::grab(true);
-    ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x, y, w, h));
-    QGfxRaster<depth,type>::fillRect(x, y, w, h);
-//    QWSDisplay::ungrab();
-}
-
-
-template <const int depth, const int type>
-void QGfxVFb<depth,type>::blt(int x,int y,int w,int h, int sx, int sy)
-{
-//    QWSDisplay::grab(true);
-    ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x, y, w, h));
-    QGfxRaster<depth,type>::blt(x, y, w, h, sx, sy);
-//    QWSDisplay::ungrab();
-}
-
-
-template <const int depth, const int type>
-void QGfxVFb<depth,type>::tiledBlt(int x,int y,int w,int h)
-{
-//    QWSDisplay::grab(true);
-    ((QVFbScreen *)this->gfx_screen)->setDirty(QRect(x, y, w, h));
-    QGfxRaster<depth,type>::tiledBlt(x, y, w, h);
-//    QWSDisplay::ungrab();
-}
-
 
 //===========================================================================
 
@@ -445,7 +390,7 @@ void QVFbScreen::save()
 void QVFbScreen::restore()
 {
 }
-
+#if 0
 QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 {
     QGfx* ret = 0;
@@ -495,7 +440,7 @@ QGfx * QVFbScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
     ret->setLineStep(linestep);
     return ret;
 }
-
+#endif
 #include "qgfxvfb_qws.moc"
 
 #endif // QT_NO_QWS_QVFB

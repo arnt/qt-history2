@@ -12,9 +12,6 @@ embedded {
 		    embedded/qdecorationfactory_qws.h \
 		    embedded/qdecorationplugin_qws.h \
 		    embedded/qdirectpainter_qws.h \
-		    embedded/qgfx_qws.h \
-		    embedded/qgfxrasterbase_qws.h \
-		    embedded/qgfxraster_qws.h \
 		    embedded/qlock_p.h \
 		    embedded/qscreen_qws.h \
 		    embedded/qwindowsystem_qws.h \
@@ -35,9 +32,6 @@ embedded {
 		    embedded/qdecorationfactory_qws.cpp \
 		    embedded/qdecorationplugin_qws.cpp \
 		    embedded/qdirectpainter_qws.cpp \
-		    embedded/qgfx_qws.cpp \
-		    embedded/qgfxrasterbase_qws.cpp \
-		    embedded/qgfxraster_qws.cpp \
 		    embedded/qlock.cpp \
 		    embedded/qscreen_qws.cpp \
 		    embedded/qwindowsystem_qws.cpp \
@@ -143,58 +137,58 @@ embedded {
 		SOURCES += embedded/qgfxvnc_qws.cpp
 	}
 
-	!contains( DEFINES, QT_NO_QWS_LINUXFB):contains( gfx-drivers, vga16 ) {
-		HEADERS += embedded/qgfxvga16_qws.h
-		SOURCES += embedded/qgfxvga16_qws.cpp
-	}
-
-	contains( gfx-drivers, transformed ) {
-		HEADERS += embedded/qgfxtransformed_qws.h
-		SOURCES += embedded/qgfxtransformed_qws.cpp
-	}
-
-	contains( gfx-drivers, mach64 ) {
-		HEADERS += embedded/qgfxmach64_qws.h \
-			   embedded/qgfxmach64defs_qws.h
-		SOURCES += embedded/qgfxmach64_qws.cpp
-	}
-
-	contains( gfx-drivers, snap ) {
-		exists( $(SCITECH)/include/snap/graphics.h) {
-			HEADERS += embedded/qgfxsnap_qws.h
-			SOURCES += embedded/qgfxsnap_qws.cpp
-			INCLUDEPATH += $(SCITECH)/include
-			debug:LIBS	+= -L$(SCITECH)/lib/debug/linux/gcc/x86/so -lpm
-			else:LIBS	+= -L$(SCITECH)/lib/release/linux/gcc/x86/so -lpm
-		}
-		else {
-			message("SciTech SNAP SDK is not properly set up! Please make sure the SCITECH")
-			message("environment variable is pointing to the SciTech SNAP SDK.")
-			error("Please fix and re-build the makefiles.")
-		}
-	}
-
-	contains( gfx-drivers, voodoo ) {
-		HEADERS += embedded/qgfxvoodoo_qws.h \
-			   embedded/qgfxvoodoodefs_qws.h
-		SOURCES += embedded/qgfxvoodoo_qws.cpp
-	}
-
-	contains( gfx-drivers, matrox ) {
-		HEADERS += embedded/qgfxmatrox_qws.h \
-			   embedded/qgfxmatroxdefs_qws.h
-		SOURCES += embedded/qgfxmatrox_qws.cpp
-	}
-
-	contains( gfx-drivers, shadowfb ) {
-		HEADERS += embedded/qgfxshadow_qws.h
-		SOURCES += embedded/qgfxshadow_qws.cpp
-	}
-
-	contains( gfx-drivers, repeater ) {
-		HEADERS += embedded/qgfxrepeater_qws.h
-		SOURCES += embedded/qgfxrepeater_qws.cpp
-	}
+#	!contains( DEFINES, QT_NO_QWS_LINUXFB):contains( gfx-drivers, vga16 ) {
+#		HEADERS += embedded/qgfxvga16_qws.h
+#		SOURCES += embedded/qgfxvga16_qws.cpp
+#	}
+#
+#	contains( gfx-drivers, transformed ) {
+#		HEADERS += embedded/qgfxtransformed_qws.h
+#		SOURCES += embedded/qgfxtransformed_qws.cpp
+#	}
+#
+#	contains( gfx-drivers, mach64 ) {
+#		HEADERS += embedded/qgfxmach64_qws.h \
+#			   embedded/qgfxmach64defs_qws.h
+#		SOURCES += embedded/qgfxmach64_qws.cpp
+#	}
+#
+#	contains( gfx-drivers, snap ) {
+#		exists( $(SCITECH)/include/snap/graphics.h) {
+#			HEADERS += embedded/qgfxsnap_qws.h
+#			SOURCES += embedded/qgfxsnap_qws.cpp
+#			INCLUDEPATH += $(SCITECH)/include
+#			debug:LIBS	+= -L$(SCITECH)/lib/debug/linux/gcc/x86/so -lpm
+#			else:LIBS	+= -L$(SCITECH)/lib/release/linux/gcc/x86/so -lpm
+#		}
+#		else {
+#			message("SciTech SNAP SDK is not properly set up! Please make sure the SCITECH")
+#			message("environment variable is pointing to the SciTech SNAP SDK.")
+#			error("Please fix and re-build the makefiles.")
+#		}
+#	}
+#
+#	contains( gfx-drivers, voodoo ) {
+#		HEADERS += embedded/qgfxvoodoo_qws.h \
+#			   embedded/qgfxvoodoodefs_qws.h
+#		SOURCES += embedded/qgfxvoodoo_qws.cpp
+#	}
+#
+#	contains( gfx-drivers, matrox ) {
+#		HEADERS += embedded/qgfxmatrox_qws.h \
+#			   embedded/qgfxmatroxdefs_qws.h
+#		SOURCES += embedded/qgfxmatrox_qws.cpp
+#	}
+#
+#	contains( gfx-drivers, shadowfb ) {
+#		HEADERS += embedded/qgfxshadow_qws.h
+#		SOURCES += embedded/qgfxshadow_qws.cpp
+#	}
+#
+#	contains( gfx-drivers, repeater ) {
+#		HEADERS += embedded/qgfxrepeater_qws.h
+#		SOURCES += embedded/qgfxrepeater_qws.cpp
+#	}
 
 #
 # Keyboard drivers

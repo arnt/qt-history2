@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-#include "qgfxraster_qws.h"
+//#include "qgfxraster_qws.h"
 
 #if !defined(QT_NO_QWS_VNC)
 
@@ -23,6 +23,7 @@
 #include <stdlib.h>
 #include <qdebug.h>
 #include <qpolygon.h>
+#include "qwsdisplay_qws.h"
 
 extern QString qws_qtePipeFilename();
 
@@ -1120,60 +1121,6 @@ void QVNCScreenCursor::move(int x, int y)
 
 //===========================================================================
 
-template <const int depth, const int type>
-class QGfxVNC : public QGfxRaster<depth,type>
-{
-public:
-    QGfxVNC(unsigned char *b,int w,int h);
-    virtual ~QGfxVNC();
-
-    virtual void fillRect(int,int,int,int);
-    virtual void blt(int,int,int,int,int,int);
-    virtual void tiledBlt(int,int,int,int);
-};
-
-template <const int depth, const int type>
-QGfxVNC<depth,type>::QGfxVNC(unsigned char *b,int w,int h)
-    : QGfxRaster<depth, type>(b, w, h)
-{
-}
-
-template <const int depth, const int type>
-QGfxVNC<depth,type>::~QGfxVNC()
-{
-}
-
-template <const int depth, const int type>
-void QGfxVNC<depth,type>::fillRect(int x,int y,int w,int h)
-{
-    QWSDisplay::grab(true);
-    qvnc_screen->setDirty(QRect(x, y, w, h) & this->clipbounds);
-    QGfxRaster<depth,type>::fillRect(x, y, w, h);
-    QWSDisplay::ungrab();
-}
-
-
-template <const int depth, const int type>
-void QGfxVNC<depth,type>::blt(int x,int y,int w,int h, int sx, int sy)
-{
-    QWSDisplay::grab(true);
-    qvnc_screen->setDirty(QRect(x, y, w, h) & this->clipbounds);
-    QGfxRaster<depth,type>::blt(x, y, w, h, sx, sy);
-    QWSDisplay::ungrab();
-}
-
-
-template <const int depth, const int type>
-void QGfxVNC<depth,type>::tiledBlt(int x,int y,int w,int h)
-{
-    QWSDisplay::grab(true);
-    qvnc_screen->setDirty(QRect(x, y, w, h) & this->clipbounds);
-    QGfxRaster<depth,type>::tiledBlt(x, y, w, h);
-    QWSDisplay::ungrab();
-}
-
-//===========================================================================
-
 /*
 */
 
@@ -1319,7 +1266,7 @@ void QVNCScreen::restore()
     if (!virtualBuffer)
         VNCSCREEN_BASE::restore();
 }
-
+#if 0
 QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linestep)
 {
     QGfx* ret = 0;
@@ -1359,7 +1306,7 @@ QGfx * QVNCScreen::createGfx(unsigned char * bytes,int w,int h,int d, int linest
     ret->setLineStep(linestep);
     return ret;
 }
-
+#endif
 #include "qgfxvnc_qws.moc"
 
 #endif // QT_NO_QWS_VNC

@@ -22,7 +22,7 @@
 #include "QtGui/qregion.h"
 
 class QScreenCursor;
-class QGfx;
+class QPaintEngine;
 
 #if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
 # ifndef QT_QWS_DEPTH16_RGB
@@ -37,6 +37,11 @@ static const int qt_neg_blue_shift = 8-qt_bbits;
 static const int qt_blue_mask = (1<<qt_bbits)-1;
 static const int qt_green_mask = (1<<(qt_gbits+qt_bbits))-(1<<qt_bbits);
 static const int qt_red_mask = (1<<(qt_rbits+qt_gbits+qt_bbits))-(1<<(qt_gbits+qt_bbits));
+
+static const int qt_red_rounding_shift = qt_red_shift + qt_rbits;
+static const int qt_green_rounding_shift = qt_green_shift + qt_gbits;
+static const int qt_blue_rounding_shift = qt_bbits - qt_neg_blue_shift;
+
 
 inline ushort qt_convRgbTo16(const int r, const int g, const int b)
 {
@@ -61,9 +66,9 @@ inline QRgb qt_conv16ToRgb(ushort c)
     const int r=(c & qt_red_mask);
     const int g=(c & qt_green_mask);
     const int b=(c & qt_blue_mask);
-    const int tr = r >> qt_red_shift;
-    const int tg = g >> qt_green_shift;
-    const int tb = b << qt_neg_blue_shift;
+    const int tr = r >> qt_red_shift | r >> qt_red_rounding_shift;
+    const int tg = g >> qt_green_shift | g >> qt_green_rounding_shift;
+    const int tb = b << qt_neg_blue_shift | b >> qt_blue_rounding_shift;
 
     return qRgb(tr,tg,tb);
 }
@@ -73,9 +78,9 @@ inline void qt_conv16ToRgb(ushort c, int& r, int& g, int& b)
     const int tr=(c & qt_red_mask);
     const int tg=(c & qt_green_mask);
     const int tb=(c & qt_blue_mask);
-    r = tr >> qt_red_shift;
-    g = tg >> qt_green_shift;
-    b = tb << qt_neg_blue_shift;
+    r = tr >> qt_red_shift | tr >> qt_red_rounding_shift;
+    g = tg >> qt_green_shift | tg >> qt_green_rounding_shift;
+    b = tb << qt_neg_blue_shift | tb >> qt_blue_rounding_shift;
 }
 #endif
 
@@ -86,8 +91,6 @@ const int SourcePixmap=1;
 #ifndef QT_NO_QWS_CURSOR
 
 extern bool qt_sw_cursor;
-
-class QGfxRasterBase;
 
 #define SW_CURSOR_DATA_SIZE        4096  // 64x64 8-bit cursor
 
@@ -130,9 +133,6 @@ public:
     static bool enabled() { return qt_sw_cursor; }
 
 protected:
-    QGfxRasterBase *gfx;
-    QGfxRasterBase *gfxunder;
-
     QImage *imgunder;
     QImage *cursor;
 
@@ -179,8 +179,10 @@ public:
     virtual void shutdownDevice();
     virtual void setMode(int,int,int) = 0;
     virtual bool supportsDepth(int) const;
-    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
-    virtual QGfx * screenGfx();
+
+    virtual QPaintEngine * createPaintEngine(unsigned char *addr,int w, int h, int d, int linestep);
+    QPaintEngine *createScreenEngine();
+
     virtual void save();
     virtual void restore();
     virtual void blank(bool on);

@@ -1,12 +1,24 @@
 #include "qscreen_qws.h"
 
 #include "qcolormap.h"
-#include "qgfxraster_qws.h"
+//#include "qgfxraster_qws.h"
 #include "qgfxdriverfactory_qws.h"
+
+#include <private/qpaintengine_raster_p.h>
+
+static const bool simple_8bpp_alloc = true; //### 8bpp support not done
+
+#ifndef QT_NO_QWS_CURSOR
+bool qt_sw_cursor=false;
+QScreenCursor * qt_screencursor=0;
+#endif
+QScreen * qt_screen=0;
+
+ClearCacheFunc QScreen::clearCacheFunc = 0;
 
 #ifndef QT_NO_QWS_CURSOR
 /*!
-    \class QScreenCursor qgfx_qws.h
+    \class QScreenCursor qscreen_qws.h
     \brief The QScreenCursor class manages the onscreen mouse cursor in
     Qt/Embedded.
 
@@ -25,41 +37,13 @@
 */
 
 extern bool qws_sw_cursor;
-static QGfx * graphicsContext(QImage *img)
-{
-//####    qWarning("graphicsContext(QImage*) should not be called");
-    QGfx * ret=0;
-#if 1
-
-    if(img->depth()) {
-        int w = qt_screen->mapToDevice(QSize(img->width(),img->height())).width();
-        int h = qt_screen->mapToDevice(QSize(img->width(),img->height())).height();
-        ret=QGfx::createGfx(img->depth(),img->bits(),w,h,img->bytesPerLine());
-    } else {
-        qDebug("Trying to create image for null depth");
-        return 0;
-    }
-    if(img->depth()<=8) {
-        QRgb * tmp=const_cast<QRgb*>(img->colorTable().constData());
-        int nc=img->numColors();
-        if(tmp==0) {
-            static QRgb table[2] = { qRgb(255,255,255), qRgb(0,0,0) };
-            tmp=table;
-            nc=2;
-        }
-        ret->setClut(tmp,nc);
-    }
-#endif
-    return ret;
-
-}
 
 /*!
     \internal
 
     Constructs a screen cursor
 */
-QScreenCursor::QScreenCursor() : gfx(0), gfxunder(0), imgunder(0), cursor(0)
+QScreenCursor::QScreenCursor() : imgunder(0), cursor(0)
 {
 }
 
@@ -77,17 +61,17 @@ QScreenCursor::QScreenCursor() : gfx(0), gfxunder(0), imgunder(0), cursor(0)
 void QScreenCursor::init(SWCursorData *da, bool init)
 {
     // initialise our gfx
-    gfx = (QGfxRasterBase*)qt_screen->screenGfx();
-    gfx->setClipDeviceRegion(QRect(0, 0, qt_screen->width(), qt_screen->height()));
+//    gfx = (QGfxRasterBase*)qt_screen->screenGfx();
+//    gfx->setClipDeviceRegion(QRect(0, 0, qt_screen->width(), qt_screen->height()));
 
     data = da;
     save_under = false;
     fb_start = qt_screen->base();
-    fb_end = fb_start + gfx->pixelHeight() * gfx->linestep();
+    fb_end = fb_start + qt_screen->deviceHeight() * qt_screen->linestep();
 
     if (init) {
-        data->x = gfx->pixelWidth()/2;
-        data->y = gfx->pixelHeight()/2;
+        data->x = qt_screen->deviceWidth()/2;
+        data->y = qt_screen->deviceHeight()/2;
         data->width = 0;
         data->height = 0;
         data->enable = true;
@@ -97,8 +81,8 @@ void QScreenCursor::init(SWCursorData *da, bool init)
     clipWidth = qt_screen->deviceWidth();
     clipHeight = qt_screen->deviceHeight();
 
-    int d = gfx->bitDepth();
-    int cols = gfx->bitDepth() == 1 ? 0 : 256;
+    int d = qt_screen->depth();
+    int cols = d == 1 ? 0 : 256;
     if (d == 4) {
         d = 8;
         cols = 16;
@@ -114,7 +98,6 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 #else
     imgunder = new QImage(data->under, 64, 64, QImage::Format_RGB32); //############
 #endif
-    gfxunder = (QGfxRasterBase*)graphicsContext(imgunder);
 }
 
 /*!
@@ -125,8 +108,6 @@ void QScreenCursor::init(SWCursorData *da, bool init)
 */
 QScreenCursor::~QScreenCursor()
 {
-    delete gfx;
-    delete gfxunder;
     delete imgunder;
 }
 
@@ -142,7 +123,7 @@ QScreenCursor::~QScreenCursor()
 bool QScreenCursor::supportsAlphaCursor()
 {
 #ifndef QT_NO_QWS_ALPHA_CURSOR
-    return gfx->bitDepth() >= 8;
+    return qt_screen->depth() >= 8;
 #else
     return false;
 #endif
@@ -159,8 +140,6 @@ void QScreenCursor::hide()
          if (restoreUnder(data->bound))
 //             QWSDisplay::ungrab();
              ;
-        delete gfx;
-        gfx = 0;
         data->enable = false;
     }
 }
@@ -178,10 +157,8 @@ void QScreenCursor::show()
 //         if (qws_sw_cursor)
 //             QWSDisplay::grab(true);
         data->enable = true;
-        gfx = (QGfxRasterBase*)qt_screen->screenGfx();
-        gfx->setClipDeviceRegion(QRegion(0, 0, qt_screen->width(), qt_screen->height()));
         fb_start = qt_screen->base();
-        fb_end = fb_start + qt_screen->deviceHeight() * gfx->linestep();
+        fb_end = fb_start + qt_screen->deviceHeight() * qt_screen->linestep();
         clipWidth = qt_screen->deviceWidth();
         clipHeight = qt_screen->deviceHeight();
         saveUnder();
@@ -285,12 +262,15 @@ bool QScreenCursor::restoreUnder(const QRect &r)
 #if !defined(QT_NO_QWS_MULTIPROCESS) && !defined(QT_PAINTER_LOCKING)
 //        QWSDisplay::grab(true);
 #endif
-        int depth = gfx->bitDepth();
+        int depth = qt_screen->depth();
 
         int x = data->x - data->hotx;
         int y = data->y - data->hoty;
 
         if (depth < 8) {
+        qWarning("QScreenCursor doesn't support depth %d", depth);
+
+#if 0
             if (data->width && data->height) {
                 gfx->gfx_swcursor = false;   // prevent recursive call from blt
                 QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
@@ -300,10 +280,11 @@ bool QScreenCursor::restoreUnder(const QRect &r)
                 gfx->blt(r.x(), r.y(), r.width(), r.height(),0,0);
                 gfx->gfx_swcursor = true;
             }
+#endif
         } else {
             // This is faster than the above - at least until blt is
             // better optimized.
-            int linestep = gfx->linestep();
+            int linestep = qt_screen->linestep();
             int startCol = x < 0 ? qAbs(x) : 0;
             int startRow = y < 0 ? qAbs(y) : 0;
             int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
@@ -347,11 +328,13 @@ void QScreenCursor::saveUnder()
     if (!qws_sw_cursor)
         return;
 
-    int depth = gfx->bitDepth();
+    int depth = qt_screen->depth();
     int x = data->x - data->hotx;
     int y = data->y - data->hoty;
 
     if (depth < 8) {
+        qWarning("QScreenCursor doesn't support depth %d", depth);
+#if 0
         gfxunder->gfx_swcursor = false;   // prevent recursive call from blt
         gfxunder->srclinestep = gfx->linestep();
         gfxunder->srcdepth = gfx->bitDepth();
@@ -365,10 +348,11 @@ void QScreenCursor::saveUnder()
         r = qt_screen->mapFromDevice(r, s);
         gfxunder->blt(0,0,data->width,data->height,r.x(), r.y());
         gfxunder->gfx_swcursor = true;
+#endif
     } else {
         // This is faster than the above - at least until blt is
         // better optimized.
-        int linestep = gfx->linestep();
+        int linestep = qt_screen->linestep();
         int startRow = y < 0 ? qAbs(y) : 0;
         int startCol = x < 0 ? qAbs(x) : 0;
         int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
@@ -435,8 +419,8 @@ void QScreenCursor::drawCursor()
     return;
     */
 
-    int linestep = gfx->linestep();
-    int depth = gfx->bitDepth();
+    int linestep = qt_screen->linestep();
+    int depth = qt_screen->depth();
 
     // clipping
     int startRow = y < 0 ? qAbs(y) : 0;
@@ -574,7 +558,7 @@ void QScreenCursor::drawCursor()
         unsigned int srcval;
         int av,r,g,b;
         QRgb * screenclut=qt_screen->clut();
-        simple_8bpp_alloc=true;
+//        simple_8bpp_alloc=true;
         for (int row = startRow; row < endRow; row++)
         {
             for (int col = startCol; col < endCol; col++)
@@ -584,7 +568,7 @@ void QScreenCursor::drawCursor()
                 if (av == 0xff) {
                     *(dptr+col) = data->translut[*(srcptr+col)];
                 }
-# ifndef QT_NO_QWS_ALPHA_CURSOR
+# if 0////ndef QT_NO_QWS_ALPHA_CURSOR
                 else if (av != 0) {
                     // This is absolutely silly - but we can so we do.
                     r = (srcval & 0xff0000) >> 16;
@@ -608,7 +592,7 @@ void QScreenCursor::drawCursor()
             srcptr += data->width;
             dptr += linestep;
         }
-        simple_8bpp_alloc=false;
+//        simple_8bpp_alloc=false;
     }
 #endif
 #ifndef QT_NO_QWS_DEPTH_4
@@ -916,7 +900,7 @@ extern bool qws_accel; //in qapplication_qws.cpp
   Returns a QGfx (normally a QGfxRaster) initialized to point to the screen,
   with an origin at 0,0 and a clip region covering the whole screen.
 */
-
+#if 0
 QGfx * QScreen::screenGfx()
 {
     QGfx * ret=createGfx(data,w,h,d,lstep);
@@ -925,7 +909,7 @@ QGfx * QScreen::screenGfx()
     }
     return ret;
 }
-
+#endif
 /*!
   \fn PixelType QScreen::pixelType() const
   Returns  the pixel storage format of the screen.
@@ -1170,3 +1154,447 @@ QScreen *qt_get_screen(int display_id, const char *spec)
 
     return 0;
 }
+
+
+
+QPaintEngine * QScreen::createPaintEngine(unsigned char * bytes,int w,int h,int d, int linestep)
+{
+    QRasterPaintEngine *pe = 0;
+    //create screen QImage [pixmap?] somewhere ???
+    QImage::Format format;
+
+    //##### endianness #####
+    switch (d) {
+    case 1:
+        format = QImage::Format_MonoLSB;
+        break;
+    case 8:
+        format = QImage::Format_Indexed8;
+        break;
+    case 16:
+        format = QImage::Format_RGB16;
+        break;
+    case 32:
+        format = QImage::Format_RGB32;
+        break;
+    default:
+        qWarning("QScreen::createPaintEngine does not support depth %d", d);
+        return 0;
+    }
+    QImage screenimage(bytes, w, h, format); //### linestep???
+
+    pe = new QRasterPaintEngine;
+
+    pe->begin(&screenimage); //?????
+
+    return pe;
+}
+
+
+QPaintEngine *QScreen::createScreenEngine()
+{
+    return createPaintEngine(data,w,h,d,lstep);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/*!
+    \fn virtual int QScreen::sharedRamSize(void *)
+
+    \internal
+*/
+
+/*!
+    \fn int * QScreen::opType()
+
+    Returns the screen's operation type.
+*/
+
+/*!
+    \fn int * QScreen::lastOp()
+
+    Returns the screens last operation.
+*/
+
+/*!
+    \fn QScreen::setDirty(const QRect& rect)
+
+    Indicates the rectangle, \a rect, of the screen that has been
+    altered. Used by the VNC and VFB displays; the QScreen version
+    does nothing.
+*/
+
+void QScreen::setDirty(const QRect&)
+{
+}
+
+/*!
+    \fn QScreen::isTransformed() const
+
+    Returns true if the screen is transformed (for instance, rotated
+    90 degrees); otherwise returns false. QScreen's version always
+    returns false.
+*/
+
+bool QScreen::isTransformed() const
+{
+    return false;
+}
+
+/*!
+    \fn QScreen::isInterlaced() const
+
+    Returns true if the display is interlaced (for instance a
+    television screen); otherwise returns false. If true, drawing is
+    altered to look better on such displays.
+*/
+
+bool QScreen::isInterlaced() const
+{
+    return false;//qws_screen_is_interlaced;;
+}
+
+/*!
+    \fn QScreen::mapToDevice(const QSize &s) const
+
+    Map a user coordinate to the one to actually draw. Used by the
+    rotated driver; the QScreen implementation simply returns \a s.
+*/
+
+QSize QScreen::mapToDevice(const QSize &s) const
+{
+    return s;
+}
+
+/*!
+    \fn QScreen::mapFromDevice(const QSize &s) const
+
+    Map a framebuffer coordinate to the coordinate space used by the
+    application. Used by the rotated driver; the QScreen
+    implementation simply returns \a s.
+*/
+
+QSize QScreen::mapFromDevice(const QSize &s) const
+{
+    return s;
+}
+
+/*!
+    \fn QScreen::mapToDevice(const QPoint &point, const QSize &size) const
+
+    \overload
+
+    Map a user coordinate to the one to actually draw. Used by the
+    rotated driver; the QScreen implementation simply returns the
+    given \a point and ignores the \a size argument.
+*/
+
+QPoint QScreen::mapToDevice(const QPoint &p, const QSize &) const
+{
+    return p;
+}
+
+/*!
+    \fn QScreen::mapFromDevice(const QPoint &point, const QSize &size) const
+
+    \overload
+
+    Map a framebuffer coordinate to the coordinate space used by the
+    application. Used by the rotated driver; the QScreen
+    implementation simply returns the given \a point and ignores the
+    \a size argument.
+*/
+
+QPoint QScreen::mapFromDevice(const QPoint &p, const QSize &) const
+{
+    return p;
+}
+
+/*!
+    \fn QScreen::mapToDevice(const QRect &rect, const QSize &size) const
+
+    \overload
+
+    Map a user coordinate to the one to actually draw. Used by the
+    rotated driver; the QScreen implementation simply returns the
+    given \a rect and ignores the \a size argument.
+*/
+
+QRect QScreen::mapToDevice(const QRect &r, const QSize &) const
+{
+    return r;
+}
+
+/*!
+    \fn QScreen::mapFromDevice(const QRect &rect, const QSize &size) const
+
+    \overload
+
+    Map a framebuffer coordinate to the coordinate space used by the
+    application. Used by the rotated driver; the QScreen
+    implementation simply returns the given \a rect and ignores the
+    \a size argument.
+*/
+
+QRect QScreen::mapFromDevice(const QRect &r, const QSize &) const
+{
+    return r;
+}
+
+/*!
+    \fn QScreen::mapToDevice(const QImage &i) const
+    \overload
+
+    Transforms an image so that it fits the device coordinate space
+    (e.g. rotating it 90 degrees clockwise). The QScreen
+    implementation simply returns \a i.
+*/
+
+QImage QScreen::mapToDevice(const QImage &i) const
+{
+    return i;
+}
+
+/*!
+    \fn QScreen::mapFromDevice(const QImage &i) const
+    \overload
+
+    Transforms an image so that it matches the application coordinate
+    space (e.g. rotating it 90 degrees counter-clockwise). The QScreen
+    implementation simply returns \a i.
+*/
+
+QImage QScreen::mapFromDevice(const QImage &i) const
+{
+    return i;
+}
+
+/*!
+    \fn QScreen::mapToDevice(const QRegion &region, const QSize &size) const
+
+    \overload
+
+    Transforms a region so that it fits the device coordinate space
+    (e.g. rotating it 90 degrees clockwise). The QScreen
+    implementation simply returns the given \a region and ignores the
+    \a size argument.
+*/
+
+QRegion QScreen::mapToDevice(const QRegion &r, const QSize &) const
+{
+    return r;
+}
+
+/*!
+    \fn QScreen::mapFromDevice(const QRegion &region, const QSize &size) const
+
+    \overload
+
+    Transforms a region so that it matches the application coordinate
+    space (e.g. rotating it 90 degrees counter-clockwise). The QScreen
+    implementation simply returns the given \a region and ignores the
+    \a size argument.
+*/
+
+QRegion QScreen::mapFromDevice(const QRegion &r, const QSize &) const
+{
+    return r;
+}
+
+/*!
+    \fn QScreen::transformOrientation() const
+
+    Used by the rotated server. The QScreeen implementation returns 0.
+*/
+
+int QScreen::transformOrientation() const
+{
+    return 0;
+}
+
+int QScreen::pixmapDepth() const
+{
+    return depth();
+}
+
+/*!
+    \internal
+*/
+int QScreen::memoryNeeded(const QString&)
+{
+    return 0;
+}
+
+/*!
+    \internal
+*/
+void QScreen::haltUpdates()
+{
+}
+
+/*!
+    \internal
+*/
+void QScreen::resumeUpdates()
+{
+}
+
+
+
+
+#if 0
+#ifdef QT_LOADABLE_MODULES
+
+// ### needs update after driver init changes
+
+static QScreen * qt_dodriver(char * driver,char * a,unsigned char * b)
+
+{
+    char buf[200];
+    strcpy(buf,"/etc/qws/drivers/");
+    qstrcpy(buf+17,driver);
+    qDebug("Attempting driver %s",driver);
+
+    void * handle;
+    handle=dlopen(buf,RTLD_LAZY);
+    if(handle==0) {
+        qFatal("Module load error");
+    }
+    QScreen *(*qt_get_screen_func)(char *,unsigned char *);
+    qt_get_screen_func=dlsym(handle,"qt_get_screen");
+    if(qt_get_screen_func==0) {
+        qFatal("Couldn't get symbol");
+    }
+    QScreen * ret=qt_get_screen_func(a,b);
+    return ret;
+}
+
+static QScreen * qt_do_entry(char * entry)
+{
+    unsigned char config[256];
+
+    FILE * f=fopen(entry,"r");
+    if(!f) {
+        return 0;
+    }
+
+    int r=fread(config,256,1,f);
+    if(r<1)
+        return 0;
+
+    fclose(f);
+
+    unsigned short vendorid=*((unsigned short int *)config);
+    unsigned short deviceid=*(((unsigned short int *)config)+1);
+    if(config[0xb]!=3)
+        return 0;
+
+    if(vendorid==0x1002) {
+        if(deviceid==0x4c4d) {
+            qDebug("Compaq Armada/IBM Thinkpad's Mach64 card");
+            return qt_dodriver("mach64.so",entry,config);
+        } else if(deviceid==0x4742) {
+            qDebug("Desktop Rage Pro Mach64 card");
+            return qt_dodriver("mach64.so",entry,config);
+        } else {
+            qDebug("Unrecognised ATI card id %x",deviceid);
+            return 0;
+        }
+    } else {
+        qDebug("Unrecognised vendor");
+    }
+    return 0;
+}
+
+extern bool qws_accel;
+
+/// ** NOT SUPPPORTED **
+
+QScreen * qt_probe_bus()
+{
+    if(!qws_accel) {
+        return qt_dodriver("unaccel.so",0,0);
+    }
+
+    DIR * dirptr=opendir("/proc/bus/pci");
+    if(!dirptr)
+        return qt_dodriver("unaccel.so",0,0);
+    DIR * dirptr2;
+    dirent * cards;
+
+    dirent * busses=readdir(dirptr);
+
+    while(busses) {
+        if(busses->d_name[0]!='.') {
+            char buf[100];
+            strcpy(buf,"/proc/bus/pci/");
+            qstrcpy(buf+14,busses->d_name);
+            int p=strlen(buf);
+            dirptr2=opendir(buf);
+            if(dirptr2) {
+                cards=readdir(dirptr2);
+                while(cards) {
+                    if(cards->d_name[0]!='.') {
+                        buf[p]='/';
+                        qstrcpy(buf+p+1,cards->d_name);
+                        QScreen * ret=qt_do_entry(buf);
+                        if(ret)
+                            return ret;
+                    }
+                    cards=readdir(dirptr2);
+                }
+                closedir(dirptr2);
+            }
+        }
+        busses=readdir(dirptr);
+    }
+    closedir(dirptr);
+
+    return qt_dodriver("unaccel.so",0,0);
+}
+
+#else
+
+char *qt_qws_hardcoded_slot = "/proc/bus/pci/01/00.0";
+
+const unsigned char* qt_probe_bus()
+{
+    const char * slot;
+    slot=::getenv("QWS_CARD_SLOT");
+    if(!slot)
+        slot=qt_qws_hardcoded_slot;
+    if (slot) {
+        static unsigned char config[256];
+        FILE * f=fopen(slot,"r");
+        if(!f) {
+            qDebug("Open failure for %s",slot);
+            slot=0;
+        } else {
+            int r=fread((char*)config,256,1,f);
+            fclose(f);
+            if(r<1) {
+                qDebug("Read failure");
+                return 0;
+            } else {
+                return config;
+            }
+        }
+    }
+    return 0;
+}
+
+#endif
+#endif // 0

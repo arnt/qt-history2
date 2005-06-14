@@ -33,7 +33,7 @@ public:
     virtual void disconnect();
     virtual int initCursor(void*, bool);
     virtual void shutdownDevice();
-    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
+//    virtual QGfx * createGfx(unsigned char *,int,int,int,int);
     virtual void save();
     virtual void restore();
     virtual void setMode(int nw,int nh,int nd);

@@ -25,7 +25,7 @@
 #include "qpolygon.h"
 #include "qimage.h"
 #include "qcursor.h"
-#include "qgfx_qws.h"
+#include <private/qpaintengine_raster_p.h>
 #include "qscreen_qws.h"
 #include "qwindowdefs.h"
 #include "private/qlock_p.h"
@@ -148,15 +148,11 @@ static QWSInputMethod *current_IM = 0;
 static bool current_IM_ComposeMode = false;
 static QWSWindow* current_IM_win=0;
 static int current_IM_winId=-1;
-
 #endif
-
-
-
 
 void QWSWindow::bltToScreen(const QRegion &globalrgn)
 {
-    QGfx *gfx = qwsServer->gfx;
+    QRasterPaintEngine *pe = qwsServer->paintEngine;
 
     QPixmap *buf = backingStore->pixmap();
 
@@ -170,21 +166,13 @@ void QWSWindow::bltToScreen(const QRegion &globalrgn)
 
     QPoint topLeft = requested_region.boundingRect().topLeft();
 
-    gfx->setClipDeviceRegion(bltRegion);
-
+    pe->updateClipRegion(bltRegion, Qt::ReplaceClip);
 
     backingStore->lock();
-    gfx->setSource(buf);
-
-    gfx->blt(topLeft.x(),topLeft.y(), buf->width(), buf->height(), 0, 0);
+    QRectF destR(topLeft.x(),topLeft.y(), buf->width(), buf->height());
+    QRectF sourceR(0, 0, buf->width(), buf->height());
+    pe->drawPixmap(destR, *buf, sourceR);
     backingStore->unlock();
-#if 0
-    static int i=0;
-    QString fn = QString("screen_%1.png").arg(i);
-    buf->save(fn, "PNG");
-    qDebug() << "bltToScreen" << i << fn << globalrgn;
-    ++i;
-#endif
 }
 
 void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing_level)
@@ -249,7 +237,7 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
             } else {
                 QPixmap yuck(blendRegion.boundingRect().size());
                 yuck.fill(QColor(0,0,0,opacity));
-                //### Use the gfx instead ???
+
                 QPainter pp;
                 pp.begin(&yuck);
                 pp.setCompositionMode(QPainter::CompositionMode_SourceIn);
@@ -802,8 +790,7 @@ void QWSServer::initServer(int flags)
 #endif
     if (!bgColor)
         bgColor = new QColor(0x20, 0xb0, 0x50);
-    screenRegion = QRegion(0, 0, swidth, sheight);
-    paintBackground(screenRegion);
+    refreshBackground();
 
 #if !defined(QT_NO_SOUND) && !defined(Q_OS_DARWIN)
     soundserver = new QWSSoundServer(this);
@@ -1545,12 +1532,12 @@ void QWSServer::beginDisplayReconfigure()
 */
 void QWSServer::endDisplayReconfigure()
 {
-    delete qwsServer->gfx;
+    delete qwsServer->paintEngine;
     qt_screen->connect(QString());
     qwsServer->swidth = qt_screen->deviceWidth();
     qwsServer->sheight = qt_screen->deviceHeight();
-    qwsServer->screenRegion = QRegion(0, 0, qwsServer->swidth, qwsServer->sheight);
-    qwsServer->gfx = qt_screen->screenGfx();
+
+    qwsServer->paintEngine = static_cast<QRasterPaintEngine*>(qt_screen->createScreenEngine());
     QWSDisplay::ungrab();
 #ifndef QT_NO_QWS_CURSOR
     qt_screencursor->show();
@@ -1570,8 +1557,8 @@ void QWSServer::resetEngine()
     qt_screencursor->hide();
     qt_screencursor->show();
 #endif
-    delete qwsServer->gfx;
-    qwsServer->gfx = qt_screen->screenGfx();
+    delete qwsServer->paintEngine;
+    qwsServer->paintEngine = static_cast<QRasterPaintEngine*>(qt_screen->createScreenEngine());
 }
 
 
@@ -2313,6 +2300,21 @@ void QWSServer::setWindowRegion(QWSWindow* changingw, QRegion r)
     exposeRegion(oldRegion + changingw->requested_region, idx);
 }
 
+
+
+
+
+#if !defined(QT_NO_QWS_CURSOR) && !defined(QT_QWS_ACCEL_CURSOR)
+# define SCREEN_PAINT_START(r) bool swc_do_save=FALSE; \
+                    if(qt_sw_cursor) \
+                        swc_do_save = qt_screencursor->restoreUnder(r);
+# define SCREEN_PAINT_END if(qt_sw_cursor && swc_do_save) \
+                        qt_screencursor->saveUnder();
+#else //QT_NO_QWS_CURSOR
+# define SCREEN_PAINT_START(r)
+# define SCREEN_PAINT_END
+#endif //QT_NO_QWS_CURSOR
+
 void QWSServer::exposeRegion(QRegion r, int changing)
 {
     if (r.isEmpty())
@@ -2320,15 +2322,21 @@ void QWSServer::exposeRegion(QRegion r, int changing)
 
     QRegion blendRegion;
     QPixmap blendBuffer;
+
+    SCREEN_PAINT_START(r.boundingRect());
+
     compose(0, r, blendRegion, blendBuffer, changing);
     if (!blendBuffer.isNull()) {
         //bltToScreen
         QPoint topLeft = blendRegion.boundingRect().topLeft();
 
-        gfx->setClipDeviceRegion(blendRegion);
-        gfx->setSource(&blendBuffer);
-        gfx->blt(topLeft.x(),topLeft.y(), blendBuffer.width(), blendBuffer.height(), 0, 0);
+        QRectF destR(topLeft.x(),topLeft.y(), blendBuffer.width(), blendBuffer.height());
+        QRectF sourceR(0,0, blendBuffer.width(), blendBuffer.height());
+        paintEngine->updateClipRegion(blendRegion, Qt::ReplaceClip);
+        paintEngine->drawPixmap(destR, blendBuffer, sourceR);
     }
+    SCREEN_PAINT_END;
+    qt_screen->setDirty(r.boundingRect());
 }
 
 /*!
@@ -2582,17 +2590,13 @@ void QWSServer::openDisplay()
 //    rgnMan = qt_fbdpy->regionManager();
     swidth = qt_screen->deviceWidth();
     sheight = qt_screen->deviceHeight();
-    gfx = qt_screen->screenGfx();
+    paintEngine = static_cast<QRasterPaintEngine*>(qt_screen->createScreenEngine());
 }
 
 void QWSServer::closeDisplay()
 {
-    delete gfx;
+    delete paintEngine;
     qt_screen->shutdownDevice();
-}
-
-void QWSServer::paintServerRegion()
-{
 }
 
 void QWSServer::paintBackground(const QRegion &rr)
@@ -2605,17 +2609,17 @@ void QWSServer::paintBackground(const QRegion &rr)
 
         r = qt_screen->mapFromDevice(r, QSize(swidth, sheight));
 
-        gfx->setClipDeviceRegion(r);
+        paintEngine->updateClipRegion(r, Qt::ReplaceClip);
         QRect br(r.boundingRect());
+
+// TODO: Use a QBrush instead in the API, where NoBrush means the same as null image today....
+
         if (!bgImage) {
-            gfx->setBrush(QBrush(*bgColor));
-            gfx->fillRect(br.x(), br.y(), br.width(), br.height());
-        } else {
-            gfx->setSource(bgImage);
-//            gfx->setBrushOrigin(0, 0);
-            gfx->tiledBlt(br.x(), br.y(), br.width(), br.height());
-        }
-//        gfx->setClipDeviceRegion(screenRegion);
+            paintEngine->qwsFillRect(br.x(), br.y(), br.width(), br.height(), *bgColor);
+        } else if (!bgImage->isNull()){
+            QRectF destR(br.x(), br.y(), br.width(), br.height());
+            paintEngine->drawTiledPixmap(destR, QPixmap::fromImage(*bgImage), destR.topLeft());
+       }
     }
 }
 
@@ -2623,13 +2627,17 @@ void QWSServer::paintBackground(const QRegion &rr)
 void QWSServer::refreshBackground()
 {
     QRegion r(0, 0, swidth, sheight);
+
     for (int i=0; i<windows.size(); ++i) {
         if (r.isEmpty())
             return; // Nothing left for deeper windows
         QWSWindow* w = windows.at(i);
         r -= w->requestedRegion();
     }
+    SCREEN_PAINT_START(r.boundingRect());
     paintBackground(r);
+    SCREEN_PAINT_END;
+    qt_screen->setDirty(r.boundingRect());
 }
 
 /*!

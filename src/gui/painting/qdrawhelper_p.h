@@ -66,6 +66,11 @@ struct DrawHelper {
         Layout_RGB32,
         Layout_Mono,
         Layout_MonoLSB,
+#ifdef Q_WS_QWS
+        Layout_RGB565,
+        //Layout_4,
+        //Layout_4LSB,
+#endif
         Layout_Count
     };
     BlendColor blendColor;

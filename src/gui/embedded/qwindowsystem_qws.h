@@ -146,7 +146,7 @@ private:
 
 class QWSMouseHandler;
 struct QWSCommandStruct;
-class QGfx;
+class QRasterPaintEngine;
 class QWSServer : public QObject
 {
     friend class QCopChannel;
@@ -373,8 +373,6 @@ private:
     void showCursor();
     void hideCursor();
     void initializeCursor();
-    void paintServerRegion();
-    void paintBackground(const QRegion &);
 
     void refreshBackground();
     void resetEngine();
@@ -407,7 +405,7 @@ private:
     uchar* sharedram;
     int ramlen;
 
-    QGfx *gfx;
+    QRasterPaintEngine *paintEngine;
 
     ClientMap clientMap;
 #ifndef QT_NO_QWS_PROPERTIES
@@ -435,9 +433,9 @@ private:
     QWSCursor *cursor;      // cursor currently shown
     QWSCursor *nextCursor;  // cursor to show once grabbing is off
 #endif
-    QRegion screenRegion;   // the entire display region
-    QRegion serverRegion;
-    QRegion dirtyBackground;
+//    QRegion screenRegion;   // the entire display region
+//    QRegion serverRegion;
+//    QRegion dirtyBackground;
     bool disablePainting;
     QList<QWSMouseHandler*> mousehandlers;
 #ifndef QT_NO_QWS_KEYBOARD
@@ -457,6 +455,7 @@ private:
     void exposeRegion(QRegion , int index = 0);
 
     void compose(int index, QRegion exposed, QRegion &blend, QPixmap &blendbuffer, int changing);
+    void paintBackground(const QRegion &);
 
     void setCursor(QWSCursor *curs);
 

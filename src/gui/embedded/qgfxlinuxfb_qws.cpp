@@ -44,8 +44,8 @@ extern int qws_client_id;
 
 //#define DEBUG_CACHE
 
-extern volatile int * optype;
-extern volatile int * lastop;
+// extern volatile int * optype;
+// extern volatile int * lastop;
 
 /*!
   \class QLinuxFbScreen
@@ -501,8 +501,8 @@ bool QLinuxFbScreen::initDevice()
     shared->clipbottom=0xffffffff;
     shared->rop=0xffffffff;
 
-    *optype=0;
-    *lastop=0;
+//     *optype=0;
+//     *lastop=0;
 
     initted=true;
 
@@ -911,10 +911,10 @@ int QLinuxFbScreen::sharedRamSize(void * end)
 {
     shared=(QLinuxFb_Shared *)end;
     shared--;
-    optype = &shared->optype;
-    lastop = &shared->lastop;
-    screen_optype = (int *)&shared->optype;
-    screen_lastop = (int *)&shared->optype;
+//     optype = &shared->optype;
+//     lastop = &shared->lastop;
+//     screen_optype = (int *)&shared->optype;
+//     screen_lastop = (int *)&shared->optype;
     return sizeof(QLinuxFb_Shared);
 }
 

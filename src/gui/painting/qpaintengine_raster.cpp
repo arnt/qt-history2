@@ -518,6 +518,10 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
         } else if (format == QImage::Format_ARGB32_Premultiplied) {
             layout = DrawHelper::Layout_ARGB;
             gccaps |= PorterDuff;
+#ifdef Q_WS_QWS
+        } else if (format == QImage::Format_RGB16) {
+            layout = DrawHelper::Layout_RGB565;
+#endif
         } else {
             qWarning("QRasterPaintEngine::begin(), unsupported image format (%d)\n"
                      "Supported image formats: Format_RGB32 and Format_ARGB32_Premultiplied",
@@ -1953,20 +1957,12 @@ void QRasterBuffer::prepare(int w, int h)
 
 void QRasterBuffer::prepare(QImage *image)
 {
-
     int depth = image->depth();
-    if (depth == 32) {
-        prepareClip(image->width(), image->height());
-        m_buffer = (uchar *)image->bits();
-    } else if (depth == 1) {
-        prepareClip(image->width(), image->height());
-        m_buffer = (uchar *)image->bits();
-    } else {
-        qWarning("QRasterBuffer::prepare() cannot prepare from image of depth=%d", depth);
-    }
+    prepareClip(image->width(), image->height());
+    m_buffer = (uchar *)image->bits();
     m_width = image->width();
     m_height = image->height();
-    bytes_per_line = 4*(depth == 32 ? m_width : (m_width + 31)/32);
+    bytes_per_line = 4*(depth == 32 ? m_width : (m_width*depth + 31)/32);
 }
 
 void QRasterBuffer::prepareClip(int /*width*/, int height)
