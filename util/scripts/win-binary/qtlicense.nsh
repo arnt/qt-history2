@@ -67,7 +67,7 @@ Function ValidateKey
     strcpy $DISPLAY_US_LICENSE "0"
   goto end
   wrongLicensee:
-    MessageBox MB_ICONEXCLAMATION|MB_RETRYCANCEL "The licencee name is not valid. Do you want to try again?" IDRETRY tryAgain 0
+    MessageBox MB_ICONEXCLAMATION|MB_RETRYCANCEL "The licensee name is not valid. Do you want to try again?" IDRETRY tryAgain 0
     Quit
   wrongKey:
     MessageBox MB_ICONEXCLAMATION|MB_RETRYCANCEL "The license key you entered is not valid. Do you want to try again?" IDRETRY tryAgain 0

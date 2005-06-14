@@ -4,7 +4,15 @@
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${PRODUCT_VERSION}"
 
 !include "MUI.nsh"
-!include "qtlicense.nsh"
+
+!ifndef QTOPENSOURCE
+  !include "qtlicense.nsh"
+!endif
+
+!ifdef USEMINGW
+  !include "gwdownload.nsh"
+!endif
+
 !include "qtenv.nsh"
 !include "writeQtConf.nsh"
 
@@ -26,8 +34,11 @@
 
 !insertmacro MUI_PAGE_WELCOME
 
-; License check
-!insertmacro TT_LICENSE_PAGE_SHOW
+!ifndef QTOPENSOURCE
+  !insertmacro TT_LICENSE_PAGE_SHOW
+!else
+  !insertmacro MUI_PAGE_LICENSE "${PACKAGEDIR}\License.gpl"
+!endif
 
 ; Directory page
 !define MUI_PAGE_CUSTOMFUNCTION_LEAVE "CheckDirectory"
@@ -35,6 +46,10 @@
 
 ; Environment setting page
 !insertmacro TT_QTENV_PAGE_SHOW
+
+!ifdef USEMINGW
+  !insertmacro GW_PAGE_INSERT
+!endif
 
 ; Instfiles page
 !insertmacro MUI_PAGE_INSTFILES
@@ -55,7 +70,16 @@
 !insertmacro MUI_LANGUAGE "English"
 ; MUI end ------
 
-Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+!ifdef QTOPENSOURCE
+  Name "${PRODUCT_NAME} ${PRODUCT_VERSION} (OpenSource)"
+!else
+  !ifdef QTEVALUATION
+    Name "${PRODUCT_NAME} ${PRODUCT_VERSION} (Evaluation)"
+  !else
+    Name "${PRODUCT_NAME} ${PRODUCT_VERSION}"
+  !endif
+!endif
+
 OutFile "${DISTNAME}.exe"
 
 InstallDir "C:\${PRODUCT_NAME}\${PRODUCT_VERSION}\"
@@ -66,22 +90,9 @@ Section "MainSection" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File /r "${PACKAGEDIR}\*.*"
-  
-  ;clean up license files
-  SetDetailsPrint none
-  strcmp $DISPLAY_US_LICENSE "1" 0 NonUS
-    Delete "$INSTDIR\.LICENSE"
-    Rename "$INSTDIR\.LICENSE-US" "$INSTDIR\.LICENSE"
-    Goto End
-
-  NonUS:
-    Delete "$INSTDIR\.LICENSE-US"
-
-  End:
-  SetDetailsPrint both
 SectionEnd
 
-Section -AdditionalIcons
+Section -CommonSection
   WriteIniStr "$INSTDIR\${PRODUCT_NAME}.url" "InternetShortcut" "URL" "${PRODUCT_WEB_SITE}"
   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}"
 
@@ -90,16 +101,13 @@ Section -AdditionalIcons
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Designer.lnk" "$INSTDIR\bin\designer.exe"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Linguist.lnk" "$INSTDIR\bin\linguist.exe"
   
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk" "%COMSPEC%" '/k "$INSTDIR\bin\qtvars.bat vsvars"'
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Examples and Demos.lnk" "$INSTDIR\bin\qtdemo.exe"
   
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Trolltech.com.lnk" "$INSTDIR\${PRODUCT_NAME}.url"
   CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Uninstall Qt ${PRODUCT_VERSION}.lnk" "$INSTDIR\uninst.exe"
-SectionEnd
-
-Section -Post
-  WriteUninstaller "$INSTDIR\uninst.exe"
   
+  WriteUninstaller "$INSTDIR\uninst.exe"
+
   StrCmp $RUNNING_AS_ADMIN "false" NoAdmin
   WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "DisplayName" "$(^Name)"
   WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "UninstallString" "$INSTDIR\uninst.exe"
@@ -116,67 +124,121 @@ Section -Post
   WriteRegStr HKCU "${PRODUCT_UNINST_KEY}" "Publisher" "${PRODUCT_PUBLISHER}"
   WriteRegStr HKCU "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\" "InstallDir" "$INSTDIR"
   DoneWriteReg:
-  
+
   #setting the environment variables
   !insertmacro TT_QTENV_REGISTER
-
-  #creating the qt.conf file
-  #push "$INSTDIR"
-  #call MakeQtConfFile
-
-  #creating the qtvars.bat file
-  push "$INSTDIR"
-  call MakeQtVarsFile
-
-  call PatchPrlFiles
-  call PatchBinaryFiles
   
+  #patch the prl files
+  call PatchPrlFiles
+
+  #patch .qmake.cache
+  push "$INSTDIR\.qmake.cache"
+  push ${QTBUILDDIR}
+  push $INSTDIR
+  call PatchPath
+  
+  #patch core and qmake
+  call PatchCommonBinaryFiles
+SectionEnd
+
+!ifndef QTOPENSOURCE
+Section -LicenseSection
   #patch the licencee information
   DetailPrint "Patching license information..."
 
+!ifdef QTEVALUATION
+  push "$INSTDIR\include\Qt\qconfig.h"
+!else
   push "$INSTDIR\src\corelib\global\qconfig.h"
+!endif
   push '#define QT_PRODUCT_LICENSEE "'
   push '#define QT_PRODUCT_LICENSEE "$LICENSEE"$\r$\n'
   call PatchLine
-  
+
+!ifdef QTEVALUATION
+  push "$INSTDIR\include\Qt\qconfig.h"
+!else
   push "$INSTDIR\src\corelib\global\qconfig.h"
+!endif
   push '#define QT_PRODUCT_LICENSE "'
   push '#define QT_PRODUCT_LICENSE "$LICENSE_PRODUCT"$\r$\n'
   call PatchLine
+  
+!ifdef QTEVALUATION
+  CopyFiles /FILESONLY "$INSTDIR\include\Qt\qconfig.h" "$INSTDIR\include\QtCore\qconfig.h"
+!endif
+  
+  ;clean up license files
+  SetDetailsPrint none
+  strcmp $DISPLAY_US_LICENSE "1" 0 NonUS
+    Delete "$INSTDIR\.LICENSE"
+    Rename "$INSTDIR\.LICENSE-US" "$INSTDIR\.LICENSE"
+    Goto End
+
+  NonUS:
+    Delete "$INSTDIR\.LICENSE-US"
+
+  End:
+  SetDetailsPrint both
+SectionEnd
+!endif
+
+!ifdef USEMINGW
+Section -MinGWSection
+  strcmp $GW_DO_DOWNLOAD "no" DoneMinGWInstall
+    DetailPrint "Installing MinGW into $GW_INSTALL_DIR"
+    StrCmp $RUNNING_AS_ADMIN "false" +3
+    WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "MinGWInstDir" "$GW_INSTALL_DIR"
+    goto +2
+    WriteRegStr HKCU "${PRODUCT_UNINST_KEY}" "MinGWInstDir" "$GW_INSTALL_DIR"
+    nsExec::ExecToLog '"$INSTDIR\downloads\${GW_DOWNLOAD_FILE}.exe" /S /D="$GW_INSTALL_DIR"'
+  strcmp $GW_DO_DOWNLOAD_SOURCE "no" DoneMinGWInstall
+    DetailPrint "Installing MinGW sources into $GW_INSTALL_DIR\src"
+    StrCmp $RUNNING_AS_ADMIN "false" +3
+    WriteRegDWORD HKLM "${PRODUCT_UNINST_KEY}" "MinGWSources" 1
+    goto +2
+    WriteRegDWORD HKCU "${PRODUCT_UNINST_KEY}" "MinGWSources" 1
+    nsExec::ExecToLog '"$INSTDIR\downloads\${GW_DOWNLOAD_FILE}-src.exe" /S /D="$GW_INSTALL_DIR\src"'
+DoneMinGWInstall:
+
+
+DetailPrint "Copying MinGW runtime..."
+
+SetDetailsPrint none
+CopyFiles /SILENT "$GW_INSTALL_DIR\bin\${GW_RUNTIME_LIB}" "$INSTDIR\bin"
+SetDetailsPrint both
+
+call MakeMinGWEnvFile
+CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} (Build Debug Libraries).lnk" "%COMSPEC%" '/k "$INSTDIR\bin\qtvars.bat compile_debug"'
+CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk" "%COMSPEC%" '/k "$INSTDIR\bin\qtvars.bat"'
+
+SectionEnd
+!else
+Section -MSVCSection
+  push "$INSTDIR"
+  call MakeQtVarsFile
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk" "%COMSPEC%" '/k "$INSTDIR\bin\qtvars.bat vsvars"'
+
+  call PatchMSVCBinaryFiles
 
   DetailPrint "Please wait while creating project files for examples..."
   nsExec::Exec "$INSTDIR\bin\qtvars.bat setup"
 SectionEnd
+!endif ;OpenSource
 
 Function .onInit
   call SetAdminVar
+
+!ifdef USEMINGW
+  !insertmacro GW_PAGE_INIT
+!endif
+
+!ifndef QTOPENSOURCE
   !insertmacro TT_LICENSE_PAGE_INIT
+!endif
+
   !insertmacro TT_QTENV_PAGE_INIT
 FunctionEnd
-
-# Function AddDemoShortCuts
-#   push $0
-#   push $1
-#
-#   SetOutPath "$INSTDIR\bin" ;this becomes the Start In path (where the qt libs are)
-#   CreateDirectory "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos"
-#
-#   FindFirst $0 $1 "$INSTDIR\demos\*.*"
-#   loop:
-#     StrCmp $1 "" done
-#     IfFileExists "$INSTDIR\demos\$1\$1.exe" 0 +2
-#     CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos\$1.lnk" "$INSTDIR\demos\$1\$1.exe"
-#     IfFileExists "$INSTDIR\demos\$1\release\$1.exe" 0 +2
-#     CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} ${PRODUCT_VERSION}\Demos\$1.lnk" "$INSTDIR\demos\$1\release\$1.exe"
-#     FindNext $0 $1
-#     Goto loop
-#
-#   done:
-#
-#   SetOutPath "$INSTDIR"
-#   pop $1
-#   pop $0
-# FunctionEnd
 
 Function PatchPrlFiles
   #patching the prl files
@@ -200,7 +262,7 @@ Function PatchPrlFiles
   pop $0
 FunctionEnd
 
-Function PatchBinaryFiles
+Function PatchMSVCBinaryFiles
   #patching the pdb files
   push $0
   push $1
@@ -223,11 +285,19 @@ Function PatchBinaryFiles
   qtnsisext::PatchVC7Binary "$INSTDIR\lib\qtmaind.lib" "${QTBUILDDIR}" "$INSTDIR"
   Goto +2
   qtnsisext::PatchVC6Binary "$INSTDIR\lib\qtmaind.lib" "${QTBUILDDIR}" "$INSTDIR"
+  
+  pop $1
+  pop $0
+FunctionEnd
+
+Function PatchCommonBinaryFiles
+  push $0
+  push $1
 
   DetailPrint "Patching paths in qmake..."
   push "$INSTDIR\bin\qmake.exe"
   call PatchBinaryPaths
-  
+
   DetailPrint "Patching paths in core..."
   FindFirst $0 $1 "$INSTDIR\bin\QtCore*.dll"
   StrCmp $1 "" ErrorPatching
@@ -240,12 +310,11 @@ Function PatchBinaryFiles
   call PatchBinaryPaths
 
   ErrorPatching:
-  
+
   pop $1
   pop $0
 FunctionEnd
 
-### check if right
 Function PatchBinaryPaths
   exch $0
   push $1
@@ -259,8 +328,13 @@ Function PatchBinaryPaths
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_datapath=" "qt_datapath=$INSTDIR"
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_trnspath=" "qt_trnspath=$INSTDIR\translations"
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_xmplpath=" "qt_xmplpath=$INSTDIR\examples"
+!ifdef QTEVALUATION
+  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_qevalkey=" "qt_qevalkey=$LICENSE_KEY"
+!endif
+!ifndef QTOPENSOURCE
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_lcnsuser=" "qt_lcnsuser=$LICENSEE"
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_lcnsprod=" "qt_lcnsprod=$LICENSE_PRODUCT"
+!endif
   qtnsisext::PatchBinary $0 "qt_demopath=" "qt_demopath=$INSTDIR\demos"
   
   pop $1
@@ -375,10 +449,30 @@ Section Uninstall
   DetailPrint "Removing registry entries"
   DeleteRegKey HKCU "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\"
   DeleteRegKey HKLM "SOFTWARE\trolltech\Versions\${PRODUCT_VERSION}\"
+
+!ifdef USEMINGW
+  push $0
+
+  ReadRegDWORD $0 HKCU "${PRODUCT_UNINST_KEY}" "MinGWSources"
+  strcmp $0 "" 0 +3 ;try next
+  ReadRegDWORD $0 HKLM "${PRODUCT_UNINST_KEY}" "MinGWSources"
+  strcmp $0 "" +2 ;not installed
+  nsExec::ExecToLog '"$0\src\uninst.exe"'
+
+  ReadRegStr $0 HKCU "${PRODUCT_UNINST_KEY}" "MinGWInstDir"
+  strcmp $0 "" 0 +3 ;try next
+  ReadRegStr $0 HKLM "${PRODUCT_UNINST_KEY}" "MinGWInstDir"
+  strcmp $0 "" +2 ;not installed
+  nsExec::ExecToLog '"$0\uninst.exe"'
+  
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} (Build Debug Libraries).lnk"
+  
+  pop $0
+!endif
   
   DeleteRegKey HKCU "${PRODUCT_UNINST_KEY}"
   DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
-  
+
   SetAutoClose true
 SectionEnd
 

@@ -11,17 +11,6 @@ HWND g_hwndParent;
 extern "C" void __declspec(dllexport) funcName(HWND hwndParent, int string_size, \
                                                char *variables, stack_t **stacktop)
 
-EXPORT_NSIS_FUNCTION(testMessage)
-{
-    char buf[1024];
-
-    g_hwndParent = hwndParent;
-    EXDLL_INIT();
-
-    popstring(buf);
-    MessageBox(g_hwndParent,buf,0,MB_OK);
-}
-
 BOOL WINAPI DllMain(HANDLE hInst, ULONG ul_reason_for_call, LPVOID lpReserved)
 {
     g_hInstance=static_cast<HINSTANCE>(hInst);
@@ -39,7 +28,9 @@ EXPORT_NSIS_FUNCTION(IsValidLicense)
 
     KeyDecoder kdec(key);
     if (kdec.IsValid() && (kdec.getPlatforms() & KeyDecoder::PlatformWindows)
-        && ((kdec.getProducts() & KeyDecoder::QtUniversal) || (kdec.getProducts() & KeyDecoder::QtDesktop)))
+        && ((kdec.getProducts() & KeyDecoder::QtUniversal)
+        || (kdec.getProducts() & KeyDecoder::QtDesktop)
+        || (kdec.getProducts() & KeyDecoder::QtDesktopLight)))
         strcpy(isValid, "1");
     else
         strcpy(isValid, "0");
@@ -77,6 +68,8 @@ EXPORT_NSIS_FUNCTION(GetLicenseProduct)
             strcat(lcnsprod, "Universal"); break;
         case KeyDecoder::QtDesktop:
             strcat(lcnsprod, "Desktop"); break;
+        case KeyDecoder::QtDesktopLight:
+            strcat(lcnsprod, "DesktopLight"); break;
         }
     }
 

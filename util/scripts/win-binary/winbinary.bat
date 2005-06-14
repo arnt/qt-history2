@@ -5,7 +5,7 @@ rem requires that perl and unzip are in your path
 rem %1 = working directory
 rem %2 = package name (without extension)
 rem %3 = version
-rem %4 = options (release|full, default release)
+rem %4 = options (opensource|full, default full)
 rem %5 = compiler (vs2003, optional, default vs2003)
 rem %6 = NSIS directory (optional)
 rem ***********************************************
@@ -19,16 +19,28 @@ set QT_WINBINARY_STATUS=ok
 rem We need to compile qt in a long directory, since we want to patch the pdb files.
 set TMP_BUILDDIR=__________________________________________________PADDING__________________________________________________
 
-if "%4"=="" set TMP_QTCONFIG=release
+if "%4"=="" set TMP_QTCONFIG=full
 if "%5"=="" set TMP_COMPILER=vs2003
-if "%6"=="" set TMP_NSISDIR=C:\Program Files\NSIS
+if "%6"=="" set TMP_NSISDIR=%ProgramFiles%\NSIS
 
 call :ExtractAndCopy %1 %2
 if "%QT_WINBINARY_STATUS%"=="failed" goto End
 call :Compile %1
 if "%QT_WINBINARY_STATUS%"=="failed" goto End
+
+
+if "%TMP_QTCONFIG%"=="eval" goto OrganizeEvaluation
 call :OrganizeClean %1
+goto OrganizeDone
+
+:OrganizeEvaluation
+call :OrganizeEvalClean %1
+goto OrganizeDone
+
+:OrganizeDone
 if "%QT_WINBINARY_STATUS%"=="failed" goto End
+
+
 call :CreateNSISPackage %1 %2
 if "%QT_WINBINARY_STATUS%"=="failed" goto End
 
@@ -45,7 +57,7 @@ rem ***********************************************
 echo Organizing the binary package...
 cd %1\clean
 
-if "%TMP_QTCONFIG%"=="release" goto ReleaseConfig
+if "%TMP_COMPILER%"=="mingw" goto MinGWConfig
 echo - Copying symbols
 xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.pdb %1\clean\bin >> %1\log.txt
 xcopy /Q /I %1\%TMP_BUILDDIR%\src\winmain\*.pdb %1\clean\src\winmain\ >> %1\log.txt
@@ -68,9 +80,68 @@ echo   * qconfig.pri
 xcopy /Q %1\%TMP_BUILDDIR%\mkspecs\qconfig.pri %1\clean\mkspecs\ >> %1\log.txt
 cd %1\clean
 
+echo - Copying all .lib files
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\*.lib %1\clean\ >> %1\log.txt
+rem Delete activeqt
+del /S /Q %1\clean\examples\activeqt\*.lib >> %1\log.txt
+cd %1\clean
+
 goto CopyFiles
 
-:ReleaseConfig
+:MinGWConfig
+cd %1\%TMP_BUILDDIR%
+echo - Copying configuration files
+echo   * qconfig.h
+xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\src\corelib\global\ >> %1\log.txt
+xcopy /Q %1\%TMP_BUILDDIR%\include\QtCore\qconfig.h %1\clean\include\QtCore\ >> %1\log.txt
+xcopy /Q %1\%TMP_BUILDDIR%\include\Qt\qconfig.h %1\clean\include\Qt\ >> %1\log.txt
+echo   * qatomic.h
+xcopy /Q %1\%TMP_BUILDDIR%\include\Qt\arch\qatomic.h %1\clean\include\Qt\arch\ >> %1\log.txt
+xcopy /Q %1\%TMP_BUILDDIR%\include\QtCore\arch\qatomic.h %1\clean\include\QtCore\arch\ >> %1\log.txt
+echo   * qconfig.pri
+xcopy /Q %1\%TMP_BUILDDIR%\mkspecs\qconfig.pri %1\clean\mkspecs\ >> %1\log.txt
+cd %1\clean
+
+echo - Copying all .a files
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\*.a %1\clean\ >> %1\log.txt
+rem Delete activeqt
+del /S /Q %1\clean\examples\activeqt\*.a >> %1\log.txt
+cd %1\clean
+
+
+:CopyFiles
+echo - Copying all .exe files
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\*.exe %1\clean\ >> %1\log.txt
+rem Delete activeqt examples!
+del /S /Q %1\clean\examples\activeqt\*.exe >> %1\log.txt
+
+echo - Copying all .dll files
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\*.dll %1\clean\ >> %1\log.txt
+rem Delete activeqt and dlls in /lib
+del /S /Q %1\clean\examples\activeqt\*.dll >> %1\log.txt
+del /S /Q %1\clean\lib\*.dll >> %1\log.txt
+
+echo - Copying .prl files
+cd %1\%TMP_BUILDDIR%\lib
+xcopy /Q /I *.prl %1\clean\lib\ >> %1\log.txt
+
+echo - Copying .qmake.cache
+cd %1\%TMP_BUILDDIR%\
+xcopy /Q /I .qmake.cache %1\clean\ >> %1\log.txt
+
+cd %1\%TMP_BUILDDIR%
+goto :EOF
+
+
+
+rem ***********************************************
+rem Organize the binary package (Evaluation)
+rem %1 = working directory
+rem ***********************************************
+:OrganizeEvalClean
+echo Organizing the binary package (Evaluation)...
+cd %1\clean
+
 echo - Regenerate include directory
 rd /S /Q include
 set TMP_QTDIR=%QTDIR%
@@ -78,13 +149,35 @@ set QTDIR=%1\clean
 perl %1\clean\bin\syncqt -copy >> %1\log.txt 2>&1
 set QTDIR=%TMP_QTDIR%
 set TMP_QTDIR=
-echo - Removing source dir in clean
-rd /S /Q src
 
+echo - Removing source dir in clean
+cd %1\clean
+rd /S /Q src
 cd %1\%TMP_BUILDDIR%
+
+echo - Removing tools
+cd %1\clean
+rd /S /Q tools
+cd %1\%TMP_BUILDDIR%
+
+echo - Copying required files into tools
+echo - * Phrase Books
+mkdir %1\clean\tools\linguist\phrasebooks
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\tools\linguist\phrasebooks\*.qph %1\clean\tools\linguist\phrasebooks\ >> %1\log.txt
+echo - * Porting tool .xml files
+mkdir %1\clean\tools\porting\src
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\tools\porting\src\*.xml %1\clean\tools\porting\src\ >> %1\log.txt
+
+echo - Removing qmake src
+cd %1\clean
+rd /S /Q qmake
+
+echo - Removing extensions directory
+cd %1\clean
+rd /S /Q extensions
+
 echo - Copying additional files
 echo   * qconfig.h
-xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\include\QtCore\ >> %1\log.txt
 xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\include\Qt\ >> %1\log.txt
 mkdir %1\clean\include\QtCore\arch
 mkdir %1\clean\include\Qt\arch
@@ -95,27 +188,35 @@ echo   * qconfig.pri
 xcopy /Q %1\%TMP_BUILDDIR%\mkspecs\qconfig.pri %1\clean\mkspecs\ >> %1\log.txt
 cd %1\clean
 
-:CopyFiles
+echo - Copying symbols
+mkdir %1\clean\src\winmain
+xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.pdb %1\clean\bin >> %1\log.txt
+xcopy /Q /I %1\%TMP_BUILDDIR%\src\winmain\*.pdb %1\clean\src\winmain\ >> %1\log.txt
+
+echo - Copying all .lib files
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\*.lib %1\clean\ >> %1\log.txt
+rem Delete activeqt
+del /S /Q %1\clean\examples\activeqt\*.lib >> %1\log.txt
+cd %1\clean
+
 echo - Copying all .exe files
 xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\*.exe %1\clean\ >> %1\log.txt
 rem Delete activeqt examples!
 del /S /Q %1\clean\examples\activeqt\*.exe >> %1\log.txt
 
-echo - Copying dlls
-xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.dll %1\clean\bin >> %1\log.txt
-
-echo - Copying libs
-xcopy /Q /I %1\%TMP_BUILDDIR%\lib\*.lib %1\clean\lib >> %1\log.txt
-
-echo - Copying plugins
-cd %1\%TMP_BUILDDIR%\plugins
-xcopy /Q /I /S *.dll %1\clean\plugins\ >> %1\log.txt
-cd %1\%TMP_BUILDDIR%\examples\tools
-xcopy /Q /I /S *.dll %1\clean\examples\tools\ >> %1\log.txt
+echo - Copying all .dll files
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\*.dll %1\clean\ >> %1\log.txt
+rem Delete activeqt and dlls in /lib
+del /S /Q %1\clean\examples\activeqt\*.dll >> %1\log.txt
+del /S /Q %1\clean\lib\*.dll >> %1\log.txt
 
 echo - Copying .prl files
 cd %1\%TMP_BUILDDIR%\lib
 xcopy /Q /I *.prl %1\clean\lib\ >> %1\log.txt
+
+echo - Copying .qmake.cache
+cd %1\%TMP_BUILDDIR%\
+xcopy /Q /I .qmake.cache %1\clean\ >> %1\log.txt
 
 cd %1\%TMP_BUILDDIR%
 goto :EOF
@@ -136,18 +237,28 @@ if exist "%TMP_NSISDIR%\Plugins\qtnsisext.dll" del /Q "%TMP_NSISDIR%\Plugins\qtn
 xcopy /Q "%1\qtnsisext\qtnsisext.dll" "%TMP_NSISDIR%\Plugins\" >> %1\log.txt
 if not %errorlevel%==0 goto FAILED
 
-if "%TMP_QTCONFIG%"=="release" goto ReleaseNSIS
-echo - Running makensis (full)
+echo - Running makensis (%TMP_QTCONFIG%)
+
+if "%TMP_QTCONFIG%"=="opensource" goto OpenSourceNSIS
+if "%TMP_COMPILER%"=="mingw" goto MinGWNSIS
+if "%TMP_QTCONFIG%"=="eval" goto QtEvaluation
 "%TMP_NSISDIR%\makensis.exe" /DQTBUILDDIR="%1\%TMP_BUILDDIR%" /DFORCE_MAKESPEC="%TMP_COMPILER%" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2-%TMP_COMPILER%" installscriptwin.nsi >> %1\log.txt
-if not %errorlevel%==0 goto FAILED
 goto EndNSIS
 
-:ReleaseNSIS
-echo - Running makensis (release)
-"%TMP_NSISDIR%\makensis.exe" /DQTBUILDDIR="%1\%TMP_BUILDDIR%" /DFORCE_MAKESPEC="" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2" installscriptwin.nsi >> %1\log.txt
-if not %errorlevel%==0 goto FAILED
+:MinGWNSIS
+"%TMP_NSISDIR%\makensis.exe" /DUSEMINGW /DQTBUILDDIR="%1\%TMP_BUILDDIR%" /DFORCE_MAKESPEC="%TMP_COMPILER%" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2-%TMP_COMPILER%" installscriptwin.nsi >> %1\log.txt
+goto EndNSIS
+
+:OpenSourceNSIS
+"%TMP_NSISDIR%\makensis.exe" /DQTOPENSOURCE /DUSEMINGW /DQTBUILDDIR="%1\%TMP_BUILDDIR%" /DFORCE_MAKESPEC="%TMP_COMPILER%" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2-%TMP_COMPILER%" installscriptwin.nsi >> %1\log.txt
+goto EndNSIS
+
+:QtEvaluation
+"%TMP_NSISDIR%\makensis.exe" /DQTEVALUATION /DQTBUILDDIR="%1\%TMP_BUILDDIR%" /DFORCE_MAKESPEC="%TMP_COMPILER%" /DPRODUCT_VERSION="%TMP_QTVERSION%" /DPACKAGEDIR="%1\clean" /DDISTNAME="%2-%TMP_COMPILER%" installscriptwin.nsi >> %1\log.txt
+goto EndNSIS
 
 :EndNSIS
+if not %errorlevel%==0 goto FAILED
 goto :EOF
 
 
@@ -161,6 +272,8 @@ echo Compiling (%TMP_COMPILER%)...
 call :SetEnv %1
 cd %QTDIR%
 
+if "%TMP_COMPILER%"=="mingw" goto MinGWBuild
+
 echo - Creating license file
 type LICENSE.TROLL > LICENSE.TROLL
 
@@ -168,39 +281,53 @@ echo - Running configure...
 configure -release -plugin-sql-sqlite -plugin-sql-odbc -qt-style-windowsxp -qt-libpng -qt-libjpeg 1>>log.txt >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
-echo - Building...
-echo   * Qt (%TMP_QTCONFIG%)
-
-if "%TMP_QTCONFIG%"=="release" goto ReleaseBuild
-
-nmake sub-src-all >> %1\log.txt 2>&1
-goto BuildAdditional
-
-:ReleaseBuild
-nmake sub-src >> %1\log.txt 2>&1
-
-:BuildAdditional
-echo   * Tools (release)
-nmake sub-tools >> %1\log.txt 2>&1
+echo - Building (%TMP_QTCONFIG%)
+nmake sub-src-all
+if not %errorlevel%==0 goto FAILED
+nmake sub-tools-all
+if not %errorlevel%==0 goto FAILED
+nmake sub-extensions-all
+if not %errorlevel%==0 goto FAILED
+nmake sub-demos-make_first
+if not %errorlevel%==0 goto FAILED
+nmake sub-examples-make_first
 if not %errorlevel%==0 goto FAILED
 
-echo   * Demos (release)
-nmake sub-demos >> %1\log.txt 2>&1
+cd %QTDIR%\src\plugins\sqldrivers\mysql
+qmake "LIBS+=libmysqld.lib ws2_32.lib advapi32.lib"
+if not %errorlevel%==0 goto FAILED
+nmake debug
+if not %errorlevel%==0 goto FAILED
+qmake "LIBS+=libmysql.lib ws2_32.lib advapi32.lib"
+if not %errorlevel%==0 goto FAILED
+nmake release
 if not %errorlevel%==0 goto FAILED
 
-echo   * ActiveQt (releases)
-cd %QTDIR%\extensions\activeqt
-nmake >> %1\log.txt 2>&1
+cd %QTDIR%\src\plugins\sqldrivers\psql
+qmake "LIBS+=libpqd.lib shell32.lib"
+if not %errorlevel%==0 goto FAILED
+nmake debug
+if not %errorlevel%==0 goto FAILED
+qmake "LIBS+=libpq.lib shell32.lib"
+if not %errorlevel%==0 goto FAILED
+nmake release
 if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%
 
-echo   * Examples (release)
-nmake sub-examples >> %1\log.txt 2>&1
+goto DoneBuilding
+:MinGWBuild
+
+echo - Running configure...
+configure -release -plugin-sql-sqlite -plugin-sql-odbc -qt-style-windowsxp -qt-libpng -qt-libjpeg 1>>log.txt >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
+echo - Building (%TMP_QTCONFIG%)
+mingw32-make
+if not %errorlevel%==0 goto FAILED
 cd %QTDIR%
 
+:DoneBuilding
 call :ResetEnv
 goto :EOF
 
@@ -223,24 +350,44 @@ set QTDIR=%1\%TMP_BUILDDIR%
 
 if "%TMP_COMPILER%"=="vs2003" goto VS2003Env
 if "%TMP_COMPILER%"=="vs2002" goto VS2002Env
+if "%TMP_COMPILER%"=="vs2005" goto VS2005Env
 if "%TMP_COMPILER%"=="vc60" goto VC60Env
+if "%TMP_COMPILER%"=="mingw" goto MinGWEnv
 goto :EOF
 
 :VS2003Env
 set QMAKESPEC=win32-msvc.net
 call "%VS71COMNTOOLS%vsvars32.bat" >> %1\log.txt
+set TMP_MAKE=nmake
 goto :EOF
 
 :VS2002Env
 set QMAKESPEC=win32-msvc.net
-call %VSCOMNTOOLS%vsvars32.bat >> %1\log.txt
+call "%VSCOMNTOOLS%vsvars32.bat" >> %1\log.txt
+set TMP_MAKE=nmake
+goto :EOF
+
+:VS2005Env
+set QMAKESPEC=win32-msvc2005
+call "%VS80COMNTOOLS%vsvars32.bat" >> %1\log.txt
+set TMP_MAKE=nmake
 goto :EOF
 
 :VC60Env
 set QMAKESPEC=win32-msvc
 rem Hardcoded :(
 call "%ProgramFiles%\Microsoft Visual Studio\VC98\Bin\vcvars32.bat" >> %1\log.txt
+set TMP_MAKE=nmake
 goto :EOF
+
+:MinGWEnv
+set QMAKESPEC=win32-g++
+rem Hardcoded :(
+set PATH=C:\MinGW\bin;%PATH%
+set TMP_MAKE=mingw32-make
+goto :EOF
+
+
 
 rem ***********************************************
 rem Reset environment after compiling
@@ -305,5 +452,3 @@ set TMP_QTCONFIG=
 set TMP_COMPILER=
 set TMP_BUILDDIR=
 set TMP_NSISDIR=
-
-
