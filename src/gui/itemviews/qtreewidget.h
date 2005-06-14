@@ -30,8 +30,10 @@ public:
     enum { Type = 0, UserType = 1000 };
     QTreeWidgetItem(int type = Type);
     explicit QTreeWidgetItem(QTreeWidget *view, int type = Type);
+    QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, int type = Type);
     QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int type = Type);
     explicit QTreeWidgetItem(QTreeWidgetItem *parent, int type = Type);
+    QTreeWidgetItem(QTreeWidgetItem *parent, const QStringList &strings, int type = Type);
     QTreeWidgetItem(QTreeWidgetItem *parent, QTreeWidgetItem *after, int type = Type);
     virtual ~QTreeWidgetItem();
 

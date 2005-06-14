@@ -989,6 +989,30 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
 }
 
 /*!
+  \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, const QStringList &texts, int type)
+
+  Constructs a tree widget item of the specified \a type and appends it
+  to the items in the given \a parent. The given list of \a strings will be set as
+  the item text for each column in the item.
+
+  \sa type()
+*/
+
+QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, int type)
+    : rtti(type), view(view), model(0), par(0),
+      itemFlags(Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
+{
+    for (int i = 0; i < strings.count(); ++i)
+        setText(i, strings.at(i));
+    if (view)
+        view->addTopLevelItem(this);
+}
+
+/*!
     \fn QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *parent, QTreeWidgetItem *preceding, int type)
 
     Constructs a tree widget item of the specified \a type and inserts it into
@@ -1028,6 +1052,27 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, int type)
 {
     if (parent)
         parent->addChild(this);
+}
+
+/*!
+    Constructs a tree widget item and append it to the given \a parent.
+    The given list of \a strings will be set as the item text for each column in the item.
+
+    \sa type()
+*/
+QTreeWidgetItem::QTreeWidgetItem(QTreeWidgetItem *parent, const QStringList &strings, int type)
+    : rtti(type), view(0), model(0), par(parent),
+      itemFlags(Qt::ItemIsSelectable
+                |Qt::ItemIsUserCheckable
+                |Qt::ItemIsEnabled
+                |Qt::ItemIsDragEnabled
+                |Qt::ItemIsDropEnabled)
+{
+    for (int i = 0; i < strings.count(); ++i)
+        setText(i, strings.at(i));
+    if (parent)
+        parent->addChild(this);
+
 }
 
 /*!
