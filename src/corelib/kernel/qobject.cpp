@@ -628,13 +628,6 @@ QObject::~QObject()
     d->wasDeleted = true;
 
     d->blockSig = 0; // unblock signals so we always emit destroyed()
-    emit destroyed(this);
-
-    QConnectionList *list = ::connectionList();
-    if (list) {
-        QWriteLocker locker(&list->lock);
-        list->remove(this);
-    }
 
     // set all QPointers for this object to zero
     GuardHash *hash = ::guardHash();
@@ -646,6 +639,14 @@ QObject::~QObject()
             *it.value() = 0;
             it = hash->erase(it);
         }
+    }
+
+    emit destroyed(this);
+
+    QConnectionList *list = ::connectionList();
+    if (list) {
+        QWriteLocker locker(&list->lock);
+        list->remove(this);
     }
 
     if (d->pendTimer) {
