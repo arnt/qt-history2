@@ -984,8 +984,10 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, int type)
                 |Qt::ItemIsDragEnabled
                 |Qt::ItemIsDropEnabled)
 {
-    if (view)
-        view->addTopLevelItem(this);
+    if (view && view->model()) {
+        model = ::qobject_cast<QTreeModel*>(view->model());
+        model->insertInTopLevel(model->rowCount(QModelIndex()), this);
+    }
 }
 
 /*!
@@ -1008,8 +1010,10 @@ QTreeWidgetItem::QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, 
 {
     for (int i = 0; i < strings.count(); ++i)
         setText(i, strings.at(i));
-    if (view)
-        view->addTopLevelItem(this);
+    if (view && view->model()) {
+        model = ::qobject_cast<QTreeModel*>(view->model());
+        model->insertInTopLevel(model->rowCount(QModelIndex()), this);
+    }
 }
 
 /*!
