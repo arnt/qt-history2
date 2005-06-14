@@ -172,7 +172,7 @@ EXPORT_NSIS_FUNCTION(ShInPath)
     EXDLL_INIT();
     char res[2];
 
-    if (shInEnvironment)
+    if (shInEnvironment())
         res[0] = '1';
     else
         res[0] = '0';

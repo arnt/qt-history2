@@ -150,31 +150,12 @@ perl %1\clean\bin\syncqt -copy >> %1\log.txt 2>&1
 set QTDIR=%TMP_QTDIR%
 set TMP_QTDIR=
 
-echo - Removing source dir in clean
-cd %1\clean
-rd /S /Q src
-cd %1\%TMP_BUILDDIR%
-
-echo - Removing tools
-cd %1\clean
-rd /S /Q tools
-cd %1\%TMP_BUILDDIR%
-
-echo - Copying required files into tools
+echo - Copying required files
 echo - * Phrase Books
-mkdir %1\clean\tools\linguist\phrasebooks
-xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\tools\linguist\phrasebooks\*.qph %1\clean\tools\linguist\phrasebooks\ >> %1\log.txt
-echo - * Porting tool .xml files
-mkdir %1\clean\tools\porting\src
-xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\tools\porting\src\*.xml %1\clean\tools\porting\src\ >> %1\log.txt
-
-echo - Removing qmake src
-cd %1\clean
-rd /S /Q qmake
-
-echo - Removing extensions directory
-cd %1\clean
-rd /S /Q extensions
+mkdir %1\clean\phrasebooks
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\tools\linguist\phrasebooks\*.qph %1\clean\phrasebooks\ >> %1\log.txt
+echo - * Porting tool .xml file
+xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\tools\porting\src\*.xml %1\clean\ >> %1\log.txt
 
 echo - Copying additional files
 echo   * qconfig.h
@@ -218,6 +199,24 @@ echo - Copying .qmake.cache
 cd %1\%TMP_BUILDDIR%\
 xcopy /Q /I .qmake.cache %1\clean\ >> %1\log.txt
 
+echo - Removing source directory
+cd %1\clean
+rd /S /Q src
+cd %1\%TMP_BUILDDIR%
+
+echo - Removing tools directory
+cd %1\clean
+rd /S /Q tools
+cd %1\%TMP_BUILDDIR%
+
+echo - Removing qmake directory
+cd %1\clean
+rd /S /Q qmake
+
+echo - Removing extensions directory
+cd %1\clean
+rd /S /Q extensions
+
 cd %1\%TMP_BUILDDIR%
 goto :EOF
 
@@ -235,6 +234,11 @@ cd %1
 echo - Updating the NSIS Qt Plugin
 if exist "%TMP_NSISDIR%\Plugins\qtnsisext.dll" del /Q "%TMP_NSISDIR%\Plugins\qtnsisext.dll"
 xcopy /Q "%1\qtnsisext\qtnsisext.dll" "%TMP_NSISDIR%\Plugins\" >> %1\log.txt
+if not %errorlevel%==0 goto FAILED
+
+echo - Updating the NSIS MinGW Plugin
+if exist "%TMP_NSISDIR%\Plugins\gwnsisext.dll" del /Q "%TMP_NSISDIR%\Plugins\gwnsisext.dll"
+xcopy /Q "%1\gwnsisext\gwnsisext.dll" "%TMP_NSISDIR%\Plugins\" >> %1\log.txt
 if not %errorlevel%==0 goto FAILED
 
 echo - Running makensis (%TMP_QTCONFIG%)
@@ -282,35 +286,35 @@ configure -release -plugin-sql-sqlite -plugin-sql-odbc -qt-style-windowsxp -qt-l
 if not %errorlevel%==0 goto FAILED
 
 echo - Building (%TMP_QTCONFIG%)
-nmake sub-src-all
+nmake sub-src-all >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-nmake sub-tools-all
+nmake sub-tools-all >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-nmake sub-extensions-all
+nmake sub-extensions-all >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-nmake sub-demos-make_first
+nmake sub-demos-make_first >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-nmake sub-examples-make_first
+nmake sub-examples-make_first >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%\src\plugins\sqldrivers\mysql
-qmake "LIBS+=libmysqld.lib ws2_32.lib advapi32.lib"
+qmake "LIBS+=libmysqld.lib ws2_32.lib advapi32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-nmake debug
+nmake debug >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-qmake "LIBS+=libmysql.lib ws2_32.lib advapi32.lib"
+qmake "LIBS+=libmysql.lib ws2_32.lib advapi32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-nmake release
+nmake release >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%\src\plugins\sqldrivers\psql
-qmake "LIBS+=libpqd.lib shell32.lib"
+qmake "LIBS+=libpqd.lib shell32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-nmake debug
+nmake debug >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-qmake "LIBS+=libpq.lib shell32.lib"
+qmake "LIBS+=libpq.lib shell32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-nmake release
+nmake release >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%

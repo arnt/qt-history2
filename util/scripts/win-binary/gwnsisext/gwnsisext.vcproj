@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="Windows-1252"?>
 <VisualStudioProject
 	ProjectType="Visual C++"
-	Version="8,00"
+	Version="7,10"
 	Name="gwnsisext"
 	ProjectGUID="{DC56C66A-5D15-46C8-91E6-AB36FC26F8DA}"
 	RootNamespace="gwnsisext"
