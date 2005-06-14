@@ -1718,12 +1718,12 @@ void QAbstractItemView::dataChanged(const QModelIndex &topLeft, const QModelInde
     if (topLeft == bottomRight && topLeft.isValid()) {
         if (d->editors.contains(topLeft))
             itemDelegate()->setEditorData(d->editors.value(topLeft), topLeft);
-        else if (isVisible())
+        else if (isVisible() && !d->layoutPosted) // otherwise the items will be update later anyway
             d->viewport->update(visualRect(topLeft));
         return;
     }
     updateEditorData(); // we are counting on having relatively few editors
-    if (!isVisible())
+    if (!isVisible() || d->layoutPosted)
         return; // no need to update
     // single row or column changed
     bool sameRow = topLeft.row() == bottomRight.row() && topLeft.isValid();
