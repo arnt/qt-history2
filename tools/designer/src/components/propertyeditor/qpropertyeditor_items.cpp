@@ -310,6 +310,11 @@ void ListProperty::setValue(const QVariant &value)
 
 QString ListProperty::toString() const
 {
+    if (m_items.isEmpty())
+        return QString();
+    else if (m_value < 0 || m_value >= m_items.count())
+        return m_items.first();
+
     return m_items.at(m_value);
 }
 
