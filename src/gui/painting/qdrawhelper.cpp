@@ -1531,9 +1531,7 @@ static void blend_tiled_rgb565(void *t, const QSpan *span,
                               const qreal dx, const qreal dy,
                               const void *ibits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
-    qDebug("not implemented blend_tiled_rgb565");
-#if 0
-    uint *target = ((uint *)t) + span->x;
+    ushort *target = ((ushort *)t) + span->x;
     uint *image_bits = (uint *)ibits;
     // #### take care of non integer dx/dy
     int x = qRound(dx);
@@ -1551,7 +1549,6 @@ static void blend_tiled_rgb565(void *t, const QSpan *span,
         *target = qt_blend_pixel_rgb565(*target, src[i%image_width], span->coverage);
         ++target;
     }
-#endif
 }
 
 static void blend_transformed_bilinear_rgb565(void *t, const QSpan *span,
