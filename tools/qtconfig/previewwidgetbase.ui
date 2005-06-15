@@ -157,11 +157,11 @@
                 </widget>
               </item>
               <item>
-                <widget class="Q3ProgressBar" name="ProgressBar1" >
+                <widget class="QProgressBar" name="ProgressBar1" >
                   <property name="objectName" >
                     <string notr="true" >ProgressBar1</string>
                   </property>
-                  <property name="progress" >
+                  <property name="value" >
                     <number>50</number>
                   </property>
                 </widget>
