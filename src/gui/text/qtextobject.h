@@ -156,6 +156,11 @@ Q_DECLARE_TYPEINFO(QTextFrame::iterator, Q_MOVABLE_TYPE);
 inline void QTextFrame::setFrameFormat(const QTextFrameFormat &aformat)
 { QTextObject::setFormat(aformat); }
 
+class Q_GUI_EXPORT QTextBlockUserData {
+public:
+    virtual ~QTextBlockUserData();
+};
+
 class Q_GUI_EXPORT QTextBlock
 {
 public:
@@ -185,6 +190,12 @@ public:
     const QTextDocument *document() const;
 
     QTextList *textList() const;
+
+    QTextBlockUserData *userData() const;
+    void setUserData(QTextBlockUserData *data);
+
+    int userState() const;
+    void setUserState(int state);
 
     class Q_GUI_EXPORT iterator {
         const QTextDocumentPrivate *p;

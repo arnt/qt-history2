@@ -748,6 +748,10 @@ QTextFrame::iterator QTextFrame::iterator::operator--()
     return *this;
 }
 
+QTextBlockUserData::~QTextBlockUserData()
+{
+}
+
 /*!
     \class QTextBlock qtextblock.h
     \brief The QTextBlock class provides a container for text fragments in a
@@ -1082,6 +1086,41 @@ QTextList *QTextBlock::textList() const
     return qobject_cast<QTextList *>(obj);
 }
 
+QTextBlockUserData *QTextBlock::userData() const
+{
+    if (!p || !n)
+        return 0;
+
+    const QTextBlockData *b = p->blockMap().fragment(n);
+    return b->userData;
+}
+
+void QTextBlock::setUserData(QTextBlockUserData *data)
+{
+    if (!p || !n)
+        return;
+
+    const QTextBlockData *b = p->blockMap().fragment(n);
+    b->userData = data;
+}
+
+int QTextBlock::userState() const
+{
+    if (!p || !n)
+        return -1;
+
+    const QTextBlockData *b = p->blockMap().fragment(n);
+    return b->userState;
+}
+
+void QTextBlock::setUserState(int state)
+{
+    if (!p || !n)
+        return;
+
+    const QTextBlockData *b = p->blockMap().fragment(n);
+    b->userState = state;
+}
 
 /*!
     Returns a text block iterator pointing to the beginning of the
