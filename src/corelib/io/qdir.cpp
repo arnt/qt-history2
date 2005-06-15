@@ -1673,7 +1673,8 @@ QString QDir::rootPath()
     \overload
 
     Returns true if the \a fileName matches any of the wildcard (glob)
-    patterns in the list of \a filters; otherwise returns false.
+    patterns in the list of \a filters; otherwise returns false. The
+    matching is case insensitive.
 
     \sa {QRegExp wildcard matching}, QRegExp::exactMatch() entryList() entryInfoList()
 */
@@ -1681,11 +1682,8 @@ QString QDir::rootPath()
 
 bool QDir::match(const QStringList &filters, const QString &fileName)
 {
-    Q_D(QDir);
-
     for(QStringList::ConstIterator sit = filters.begin(); sit != filters.end(); ++sit) {
-        QRegExp rx(*sit, d->data->fileEngine->caseSensitive() ?
-                   Qt::CaseSensitive : Qt::CaseInsensitive, QRegExp::Wildcard);
+        QRegExp rx(*sit, Qt::CaseInsensitive, QRegExp::Wildcard);
         if (rx.exactMatch(fileName))
             return true;
     }
@@ -1696,6 +1694,7 @@ bool QDir::match(const QStringList &filters, const QString &fileName)
     Returns true if the \a fileName matches the wildcard (glob)
     pattern \a filter; otherwise returns false. The \a filter may
     contain multiple patterns separated by spaces or semicolons.
+    The matching is case insensitive.
 
     \sa {QRegExp wildcard matching}, QRegExp::exactMatch() entryList() entryInfoList()
 */

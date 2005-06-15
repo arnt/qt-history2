@@ -164,8 +164,8 @@ public:
     static QString tempPath();
 
 #ifndef QT_NO_REGEXP
-    bool match(const QStringList &filters, const QString &fileName);
-    bool match(const QString &filter, const QString &fileName);
+    static bool match(const QStringList &filters, const QString &fileName);
+    static bool match(const QString &filter, const QString &fileName);
 #endif
     static QString cleanPath(const QString &path);
     void refresh() const;
