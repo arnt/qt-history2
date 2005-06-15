@@ -3210,7 +3210,8 @@ void Q3TextDocument::drawParagraph(QPainter *painter, Q3TextParagraph *parag, in
 
     painter->translate(ir.x(), ir.y());
 
-    painter->fillRect(QRect(0, 0, ir.width(), ir.height()), parag->backgroundBrush(pal));
+    if (!parag->document()->parent())
+        painter->fillRect(QRect(0, 0, ir.width(), ir.height()), parag->backgroundBrush(pal));
 
     painter->translate(-(ir.x() - parag->rect().x()),
                        -(ir.y() - parag->rect().y()));
@@ -4694,7 +4695,7 @@ void Q3TextParagraph::setColorForSelection(QColor &color, QPainter &painter,
     color = (hasdoc && selection != Q3TextDocument::Standard) ?
             document()->selectionColor(selection) :
             pal.color(QPalette::Highlight);
-    QColor text = hasdoc ? document()->selectionTextColor(selection) : pal.color(QPalette::HighlightedText);
+    QColor text = (hasdoc && document()->hasSelectionTextColor(selection)) ? document()->selectionTextColor(selection) : pal.color(QPalette::HighlightedText);
     if (text.isValid())
         painter.setPen(text);
 }

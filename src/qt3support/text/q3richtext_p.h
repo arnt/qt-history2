@@ -762,6 +762,7 @@ public:
 
     QColor selectionColor(int id) const;
     QColor selectionTextColor(int id) const;
+    bool hasSelectionTextColor(int id) const;
     void setSelectionColor(int id, const QColor &c);
     void setSelectionTextColor(int id, const QColor &b);
     bool hasSelection(int id, bool visible = false) const;
@@ -818,7 +819,6 @@ public:
 
     void doLayout(QPainter *p, int w);
     void draw(QPainter *p, const QRect& rect, const QPalette &pal, const QBrush *paper = 0);
-    bool useDoubleBuffer(Q3TextParagraph *parag, QPainter *p);
 
     void drawParagraph(QPainter *p, Q3TextParagraph *parag, int cx, int cy, int cw, int ch,
                     QPixmap *&doubleBuffer, const QPalette &pal,
@@ -1700,6 +1700,14 @@ inline QColor Q3TextDocument::selectionTextColor(int id) const
     return p->selectionColors[id].text;
 }
 
+inline bool Q3TextDocument::hasSelectionTextColor(int id) const
+{
+    const Q3TextDocument *p = this;
+    while (p->par)
+        p = par;
+    return p->selectionColors.contains(id);
+}
+
 inline void Q3TextDocument::setSelectionColor(int id, const QColor &c)
 {
     Q3TextDocument *p = this;
@@ -1768,12 +1776,6 @@ inline void Q3TextDocument::setFlow(Q3TextFlow *f)
 inline void Q3TextDocument::takeFlow()
 {
     flow_ = 0;
-}
-
-inline bool Q3TextDocument::useDoubleBuffer(Q3TextParagraph *parag, QPainter *p)
-{
-    return (!parag->document()->parent() || parag->document()->nextDoubleBuffered) &&
-        (!p || !p->device() || p->device()->devType() != QInternal::Printer);
 }
 
 // +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
