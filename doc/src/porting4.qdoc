@@ -1419,6 +1419,8 @@
     QDir virtual member functions in Qt 3 that are no longer
     virtual in Qt 4.
 
+    QDir::match() now always matches case insensitive.
+
     \section1 QDns
 
     Qt 3 used its own implementation of the DNS protocol and provided
