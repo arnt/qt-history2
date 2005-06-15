@@ -135,7 +135,7 @@ else
             read LicenseKeyExt
         fi
     fi
-    if echo $LicenseKeyExt | grep ".....*-....*-....*-....*-.....*-....-...." >/dev/null 2>&1; then
+    if echo $LicenseKeyExt | grep ".....*-....*-....*-....*-.....*-.....*-...." >/dev/null 2>&1; then
 	# Key verification
 	productTest=`echo $LicenseKeyExt | cut -f 1 -d - | cut -b 1`
 	platformTest=`echo $LicenseKeyExt | cut -f 2 -d - | cut -b 1`
