@@ -2126,7 +2126,9 @@ void QHttpPrivate::sendRequest()
     // existing one?
     if (socket->peerName() != hostName || socket->peerPort() != port
         || socket->state() != QTcpSocket::ConnectedState) {
+        socket->blockSignals(true);
         socket->abort();
+        socket->blockSignals(false);
 
         setState(QHttp::Connecting);
         if (proxyHost.isEmpty())
