@@ -31,22 +31,14 @@ static const char * const dont_mess_with_you_huh2 =
     "timeout and will shut down.\n"
     "Contact sales@trolltech.com for pricing and purchasing information.\n";
 
-
-
-// 2005-07-01 BGKX-RM5-R4M-5CX-EGYX-25M87-7FF6
-// 2005-06-01 BGKX-RM5-R4M-5CX-EGYX-5LM87-8565
-
-
-static const char qt_eval_key_data[512 + 12]     = "qt_qevalkey=BGKX-RM5-R4M-5CX-EGYX-25M87-7FF6";
-static const char qt_eval_company_data[512 + 12] = "qt_qevalcom=abcd";
+static const char qt_eval_key_data[512 + 12]     = "qt_qevalkey=";
+static const char qt_eval_company_data[512 + 12] = "qt_qevalcom=";
 
 
 static QString qt_eval_company()
 {
     return QString::fromUtf8(qt_eval_company_data + 12);
 }
-
-
 
 
 // expiration date really
@@ -138,7 +130,7 @@ void qt_core_eval_init(uint type)
 
         if (type == 0) {
             // if we're a console app only.
-            QCoreApplication::exit(0);
+            exit(0);
         }
     } else {
         fprintf(stderr, "%s\n", qPrintable(qt_eval_string()));
@@ -236,47 +228,55 @@ class EvalMessageBox : public QDialog
 public:
     EvalMessageBox(bool expired)
     {
-        setWindowTitle("Qt Evaluation Edition");
+        setWindowTitle(" ");
 
         QString str = expired
                       ? QString(QLatin1String(dont_mess_with_me_either))
                       : qt_eval_string();
         str = str.trimmed();
 
-        QHBoxLayout *pm_and_text_layout = new QHBoxLayout();
-        QHBoxLayout *button_layout = new QHBoxLayout();
-        QVBoxLayout *master_layout = new QVBoxLayout(this);
+        QFrame *border = new QFrame(this);
 
-        QLabel *pixmap_label = new QLabel(this);
+        QLabel *pixmap_label = new QLabel(border);
         pixmap_label->setPixmap(qtlogo_eval_xpm);
         pixmap_label->setAlignment(Qt::AlignTop);
 
-        QLabel *text_label = new QLabel(str, this);
+        QLabel *text_label = new QLabel(str, border);
 
-        master_layout->addLayout(pm_and_text_layout);
+        QHBoxLayout *pm_and_text_layout = new QHBoxLayout();
         pm_and_text_layout->addWidget(pixmap_label);
         pm_and_text_layout->addWidget(text_label);
 
+        QVBoxLayout *master_layout = new QVBoxLayout(border);
+        master_layout->addLayout(pm_and_text_layout);
+
+        QVBoxLayout *border_layout = new QVBoxLayout(this);
+        border_layout->setMargin(0);
+        border_layout->addWidget(border);
 
         if (expired) {
             int code = qt_eval_figure_out();
             if (code <= -100000) {
                 QString text = QString(QLatin1String("Error code: %1")).arg(code);
-                QLabel *extra_text = new QLabel(text, this);
+                QLabel *extra_text = new QLabel(text, border);
                 extra_text->setAlignment(Qt::AlignHCenter);
                 master_layout->addWidget(extra_text);
             }
 
-            QPushButton *cmd = new QPushButton("OK", this);
+            QPushButton *cmd = new QPushButton("OK", border);
             cmd->setSizePolicy(QSizePolicy::Fixed, QSizePolicy::Fixed);
             cmd->setDefault(true);
+
+            QHBoxLayout *button_layout = new QHBoxLayout();
             master_layout->addLayout(button_layout);
             button_layout->addWidget(cmd);
 
             connect(cmd, SIGNAL(clicked()), this, SLOT(close()));
 
         } else {
-
+            border->setFrameShape(QFrame::WinPanel);
+            border->setFrameShadow(QFrame::Raised);
+            setParent(parentWidget(), Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
             QTimer::singleShot(7000, this, SLOT(close()));
             setAttribute(Qt::WA_DeleteOnClose);
         }
@@ -291,11 +291,11 @@ public:
     void timerEvent(QTimerEvent *e) {
         if (e->timerId() == warn) {
             killTimer(warn);
-            QMessageBox::information(0, "Qt Evaluation Version", dont_mess_with_you_huh);
+            QMessageBox::information(0, "Automatic Timeout", dont_mess_with_you_huh);
             kill = startTimer(KILL_DELAY);
         } else if (e->timerId() == kill) {
             killTimer(kill);
-            QMessageBox::information(0, "Qt Evaluation Version", dont_mess_with_you_huh2);
+            QMessageBox::information(0, "Automatic Timeout", dont_mess_with_you_huh2);
             qApp->quit();
         }
     }
@@ -317,5 +317,16 @@ void qt_gui_eval_init(uint type)
 
         Q_UNUSED(new QGuiFuriCuri());
     }
+}
+
+QString qt_eval_adapt_window_title(const QString &title)
+{
+    return QLatin1String("[Qt Evaluation] ") + title;
+}
+
+void qt_eval_init_widget(QWidget *w)
+{
+    if (w->isTopLevel())
+        w->setWindowTitle(" ");
 }
 #endif

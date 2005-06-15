@@ -820,6 +820,11 @@ void QWidget::create(WId window, bool initializeWindow, bool destroyOldWindow)
         setAttribute(Qt::WA_QuitOnClose, false);
 
     d->create_sys(window, initializeWindow, destroyOldWindow);
+
+#ifdef QT_EVAL
+    extern void qt_eval_init_widget(QWidget *w);
+    qt_eval_init_widget(this);
+#endif
 }
 
 /*!
@@ -3140,7 +3145,12 @@ QString qt_setWindowTitle_helperHelper(const QString &title, QWidget *widget)
 {
     Q_ASSERT(widget);
 
+#ifdef QT_EVAL
+    extern QString qt_eval_adapt_window_title(const QString &title);
+    QString cap = qt_eval_adapt_window_title(title);
+#else
     QString cap = title;
+#endif
 
     QString placeHolder(QLatin1String("[*]"));
 
