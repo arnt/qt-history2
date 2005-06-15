@@ -2,6 +2,7 @@
 !define PRODUCT_PUBLISHER "Trolltech"
 !define PRODUCT_WEB_SITE "http://www.trolltech.com"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${PRODUCT_VERSION}"
+!define VSINTEGRATION_VERSION "1.0"
 
 !include "MUI.nsh"
 
@@ -90,6 +91,12 @@ Section "MainSection" SEC01
   SetOutPath "$INSTDIR"
   SetOverwrite ifnewer
   File /r "${PACKAGEDIR}\*.*"
+  
+!ifdef QTEVALUATION
+  StrCmp ${FORCE_MAKESPEC} "vs2003" 0 +3
+    SetOutPath "$INSTDIR"
+    File /nonfatal "Setup_vs2003_${VSINTEGRATION_VERSION}.exe"
+!endif
 SectionEnd
 
 Section -CommonSection
@@ -422,6 +429,15 @@ Function un.onInit
   Done:
   pop $0
 FunctionEnd
+
+!ifdef QTEVALUATION
+Function .onInstSuccess
+  StrCmp ${FORCE_MAKESPEC} "vs2003" 0 NoIntegration
+    MessageBox MB_YESNO "Do you want to install the Qt Visual Studio Integration?" IDNO NoIntegration
+      nsExec::Exec '"$INSTDIR\Setup_vs2003_${VSINTEGRATION_VERSION}.exe" "$LICENSE_KEY"'
+    NoIntegration:
+FunctionEnd
+!endif
 
 Section Uninstall
   AddSize 150000
