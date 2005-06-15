@@ -211,7 +211,4 @@
     and Qt::Drawer in the window flags respectiviely. Brushed metal
     windows are also possible using Qt::WA_MacMetalStyle window
     attribute.
-
-    This beta does not support the chooser (Panther-style tabs). There may be
-    support for these in a future version of Qt.
 */
