@@ -54,11 +54,11 @@ static int qt_eval_figure_out()
         if ((products & QtDesktop) == 0)
             return -100000;
 
-#ifdef Q_WS_WIN
+#if defined(Q_WS_WIN)
         if ((platform & Windows) == 0)
-#elif Q_WS_MAC
+#elif defined(Q_WS_MAC)
         if ((platform & Mac) == 0)
-#elif Q_WS_X11
+#elif defined(Q_WS_X11)
         if ((platform & X11) == 0)
 #else
         if ((platform & Embedded) == 0)
