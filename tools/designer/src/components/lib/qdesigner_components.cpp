@@ -11,7 +11,7 @@
 **
 ****************************************************************************/
 
-#include "qdesigner_components.h"
+#include <QtDesigner/QDesignerComponents>
 
 #include <formeditor/formeditor.h>
 #include <widgetbox/widgetbox.h>

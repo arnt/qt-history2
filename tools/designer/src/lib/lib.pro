@@ -26,7 +26,13 @@ PRECOMPILED_HEADER=lib_pch.h
 
 ### include(propertyeditor/propertyeditor.pri)
 
-target.path=$$[QT_INSTALL_LIBS]
-INSTALLS        += target
 include(../components/component.pri)
 include(../sharedcomponents.pri)
+
+target.path=$$[QT_INSTALL_LIBS]
+INSTALLS        += target
+
+include($$QT_SOURCE_TREE/include/QtDesigner/headers.pri)
+designer_headers.files = $$SYNCQT.HEADER_FILES $$SYNCQT.HEADER_CLASSES
+designer_headers.path = $$[QT_INSTALL_HEADERS]/QtDesigner
+INSTALLS        += designer_headers

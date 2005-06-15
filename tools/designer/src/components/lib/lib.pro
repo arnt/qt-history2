@@ -13,15 +13,13 @@ QMAKE_TARGET_COPYRIGHT = Copyright (c) 2003-2005 Trolltech
 target.path=$$[QT_INSTALL_LIBS]
 INSTALLS        += target
 
-HEADERS += qdesigner_components.h \
-	   qdesigner_components_global.h
-
 SOURCES += qdesigner_components.cpp \
     qdesigner_plugins.cpp
 
 DEFINES += QDESIGNER_COMPONENTS_LIBRARY
 
 INCLUDEPATH += . .. \
+    $$QT_SOURCE_TREE/tools/designer/src/lib/components \
     $$QT_SOURCE_TREE/tools/designer/src/lib/sdk \
     $$QT_SOURCE_TREE/tools/designer/src/lib/extension \
     $$QT_SOURCE_TREE/tools/designer/src/lib/uilib \
