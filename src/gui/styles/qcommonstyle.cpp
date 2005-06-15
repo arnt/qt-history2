@@ -1593,7 +1593,7 @@ QRect QCommonStyle::subElementRect(SubElement sr, const QStyleOption *opt, const
            case QTabBar::RoundedNorth:
            case QTabBar::TriangularNorth:
                 r = QRect(QPoint(paneRect.width() - twf->rightCornerWidgetSize.width(),
-                                 paneRect.y() - twf->leftCornerWidgetSize.height()),
+                                 paneRect.y() - twf->rightCornerWidgetSize.height()),
                           twf->rightCornerWidgetSize);
                break;
            case QTabBar::RoundedSouth:
