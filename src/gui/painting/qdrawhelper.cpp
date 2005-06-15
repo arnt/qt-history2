@@ -956,7 +956,7 @@ static void blend_mono(void *t, const QSpan *span,
     if (y < 0 || y >= image_height)
         return;
 
-    const uint *src = image_bits + y*image_width + x;
+    const uint *src = image_bits + y*image_width;
     for (int i = 0; i < span->len; ++i) {
         int sx = x + i;
         int dx = span->x + i;
@@ -1213,7 +1213,7 @@ static void blend_mono_lsb(void *t, const QSpan *span,
     if (y < 0 || y >= image_height)
         return;
 
-    const uint *src = image_bits + y*image_width + x;
+    const uint *src = image_bits + y*image_width;
     for (int i = 0; i < span->len; ++i) {
         int sx = x + i;
         int dx = span->x + i;
