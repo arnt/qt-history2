@@ -396,7 +396,7 @@ void Ui3Reader::createColorGroupImpl(const QString& name, const QDomElement& e)
     white.init(255, 255, 255);
 
     Color black;
-    white.init(0, 0, 0);
+    black.init(0, 0, 0);
 
     while (!n.isNull()) {
         if (n.tagName() == QLatin1String("color")) {
