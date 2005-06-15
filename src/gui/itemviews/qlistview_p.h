@@ -159,23 +159,23 @@ template <class T>
 void QBinTree<T>::insertItem(T &item, const QRect &rect, int idx)
 {
     itemVector.insert(idx + 1, 1, item); // insert after idx
-    climbTree(rect, &insert, reinterpret_cast<void *>(idx), 0);
+    climbTree(rect, &insert, Data(idx), 0);
 }
 
 template <class T>
 void QBinTree<T>::removeItem(const QRect &rect, int idx)
 {
-    climbTree(rect, &remove, reinterpret_cast<void *>(idx), 0);
+    climbTree(rect, &remove, Data(idx), 0);
     itemVector.remove(idx, 1);
 }
 
 template <class T>
 void QBinTree<T>::moveItem(const QPoint &dest, const QRect &rect, int idx)
 {
-    climbTree(rect, &remove, reinterpret_cast<void *>(idx), 0);
-    item(idx).x = dest.x();
-    item(idx).y = dest.y();
-    climbTree(QRect(dest, rect.size()), &insert, reinterpret_cast<void *>(idx), 0);
+    climbTree(rect, &remove, Data(idx), 0);
+    itemVector[idx].x = dest.x();
+    itemVector[idx].y = dest.y();
+    climbTree(QRect(dest, rect.size()), &insert, Data(idx), 0);
 }
 
 template <class T>
