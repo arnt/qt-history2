@@ -29,6 +29,7 @@ class Q_GUI_EXPORT QTreeWidgetItem
 public:
     enum { Type = 0, UserType = 1000 };
     QTreeWidgetItem(int type = Type);
+    QTreeWidgetItem(const QStringList &strings, int type = Type);
     explicit QTreeWidgetItem(QTreeWidget *view, int type = Type);
     QTreeWidgetItem(QTreeWidget *view, const QStringList &strings, int type = Type);
     QTreeWidgetItem(QTreeWidget *view, QTreeWidgetItem *after, int type = Type);
