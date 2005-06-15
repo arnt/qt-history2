@@ -161,7 +161,7 @@ void Config::loadDefaultProfile()
     const QString key = QLatin1String(QT_VERSION_STR) + QLatin1String("/Profile");
     const QString profKey = key + QLatin1String("/default/");
 
-    if( settings.contains( key + QLatin1String("/default")))
+    if (!settings.contains(profKey + QLatin1String("DocFiles")))
         return;
     
     // Override the defaults with settings in registry.
