@@ -217,13 +217,9 @@ void QWSServer::compose(int level, QRegion exposed, QRegion &blend, QPixmap &ble
         clipRgn.translate(-blendOffset);
         p.setClipRegion(clipRgn); //or should we translate the painter instead???
         if (!win) { //background
-            if (!bgImage) {
-                p.fillRect(clipRgn.boundingRect(), *bgColor);
-            }  else if (!bgImage->isNull()) {
-                QPixmap pix = QPixmap::fromImage(*bgImage);
-                QBrush brush(pix);
+            if (bgBrush->style() != Qt::NoBrush) {
                 p.setBrushOrigin(-blendOffset);
-                p.fillRect(clipRgn.boundingRect(), brush);
+                p.fillRect(clipRgn.boundingRect(), *bgBrush);
             }
         } else {
             uchar opacity = win->opacity;
@@ -788,8 +784,8 @@ void QWSServer::initServer(int flags)
         openKeyboard();
     }
 #endif
-    if (!bgColor)
-        bgColor = new QColor(0x20, 0xb0, 0x50);
+    if (!bgBrush)
+        bgBrush = new QBrush(QColor(0x20, 0xb0, 0x50));
     refreshBackground();
 
 #if !defined(QT_NO_SOUND) && !defined(Q_OS_DARWIN)
@@ -809,8 +805,8 @@ QWSServer::~QWSServer()
     qDeleteAll(windows);
     windows.clear();
 
-    delete bgColor;
-    bgColor = 0;
+    delete bgBrush;
+    bgBrush = 0;
     closeDisplay();
     closeMouse();
 #ifndef QT_NO_QWS_KEYBOARD
@@ -2490,8 +2486,7 @@ void QWSServer::openKeyboard()
 #endif //QT_NO_QWS_KEYBOARD
 
 QPoint QWSServer::mousePosition;
-QColor *QWSServer::bgColor = 0;
-QImage *QWSServer::bgImage = 0;
+QBrush *QWSServer::bgBrush = 0;
 
 void QWSServer::move_region(const QWSRegionMoveCommand *cmd)
 {
@@ -2601,7 +2596,7 @@ void QWSServer::closeDisplay()
 
 void QWSServer::paintBackground(const QRegion &rr)
 {
-    if (bgImage && bgImage->isNull())
+    if (bgBrush->style() == Qt::NoBrush)
         return;
     QRegion r = rr;
     if (!r.isEmpty()) {
@@ -2612,13 +2607,15 @@ void QWSServer::paintBackground(const QRegion &rr)
         paintEngine->updateClipRegion(r, Qt::ReplaceClip);
         QRect br(r.boundingRect());
 
-// TODO: Use a QBrush instead in the API, where NoBrush means the same as null image today....
-
-        if (!bgImage) {
-            paintEngine->qwsFillRect(br.x(), br.y(), br.width(), br.height(), *bgColor);
-        } else if (!bgImage->isNull()){
+        // background also handled in compose
+        if (bgBrush->style() == Qt::SolidPattern) {
+            paintEngine->qwsFillRect(br.x(), br.y(), br.width(), br.height(), bgBrush->color());
+        } else {
+            QPixmap texture = bgBrush->texture();
+            if (texture.isNull())
+                return;
             QRectF destR(br.x(), br.y(), br.width(), br.height());
-            paintEngine->drawTiledPixmap(destR, QPixmap::fromImage(*bgImage), destR.topLeft());
+            paintEngine->drawTiledPixmap(destR, texture, destR.topLeft());
        }
     }
 }
@@ -2640,20 +2637,31 @@ void QWSServer::refreshBackground()
     qt_screen->setDirty(r.boundingRect());
 }
 
+
+/*!
+    Sets the brush \a brush to be used as the background in the absence of
+    obscuring windows. Only \c Qt::SolidPattern and pixmap brushes are supported in this version.
+*/
+void QWSServer::setBackground(const QBrush &brush)
+{
+    *bgBrush = brush;
+
+    if (qwsServer)
+        qwsServer->refreshBackground();
+}
+
+
+#ifdef QT3_SUPPORT
 /*!
     Sets the image \a img to be used as the background in the absence
     of obscuring windows.
 */
 void QWSServer::setDesktopBackground(const QImage &img)
 {
-
-    if (!bgImage)
-        bgImage = new QImage(img);
+    if (img.isNull())
+        setBackground(Qt::NoBrush);
     else
-        *bgImage = img;
-
-    if (qwsServer)
-        qwsServer->refreshBackground();
+        setBackground(QBrush(QPixmap::fromImage(img)));
 }
 
 /*!
@@ -2664,19 +2672,9 @@ void QWSServer::setDesktopBackground(const QImage &img)
 */
 void QWSServer::setDesktopBackground(const QColor &c)
 {
-    if (!bgColor)
-        bgColor = new QColor(c);
-    else
-        *bgColor = c;
-
-    if (bgImage) {
-        delete bgImage;
-        bgImage = 0;
-    }
-
-    if (qwsServer)
-        qwsServer->refreshBackground();
+    setDesktopBackground(QBrush(c));
 }
+#endif
 
 /*!
   \internal

@@ -18,7 +18,6 @@
 #include "QtCore/qmap.h"
 #include "QtCore/qdatetime.h"
 #include "QtCore/qlist.h"
-#include "QtGui/qimage.h"
 
 #include "QtGui/qwsproperty_qws.h"
 #include "QtGui/qwsevent_qws.h"
@@ -35,10 +34,16 @@ class QWSSocket;
 class QWSServerSocket;
 class QTcpSocket;
 class QTcpServer;
-
+class QBrush;
 class QVariant;
 
 class QWSBackingStore;
+
+
+#ifdef QT3_SUPPORT
+class QImage;
+class QColor;
+#endif
 
 class QWSInternalWindowInfo
 {
@@ -220,8 +225,11 @@ public:
     static void setMaxWindowRect(const QRect&);
     static void sendMouseEvent(const QPoint& pos, int state, int wheel = 0);
 
-    static void setDesktopBackground(const QImage &img);
-    static void setDesktopBackground(const QColor &);
+    static void setBackground(const QBrush &);
+#ifdef QT3_SUPPORT
+    static QT3_SUPPORT void setDesktopBackground(const QImage &img);
+    static QT3_SUPPORT void setDesktopBackground(const QColor &);
+#endif
     static QWSMouseHandler *mouseHandler();
     static void setMouseHandler(QWSMouseHandler*);
 #ifndef QT_NO_QWS_KEYBOARD
@@ -318,8 +326,7 @@ private:
 #endif
     static void emergency_cleanup();
 
-    static QColor *bgColor;
-    static QImage *bgImage;
+    static QBrush *bgBrush;
 
     void sendMaxWindowRectEvents();
     void invokeIdentify(const QWSIdentifyCommand *cmd, QWSClient *client);
@@ -433,9 +440,7 @@ private:
     QWSCursor *cursor;      // cursor currently shown
     QWSCursor *nextCursor;  // cursor to show once grabbing is off
 #endif
-//    QRegion screenRegion;   // the entire display region
-//    QRegion serverRegion;
-//    QRegion dirtyBackground;
+
     bool disablePainting;
     QList<QWSMouseHandler*> mousehandlers;
 #ifndef QT_NO_QWS_KEYBOARD
