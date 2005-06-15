@@ -298,21 +298,21 @@ nmake sub-examples-make_first >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%\src\plugins\sqldrivers\mysql
-qmake "LIBS+=libmysqld.lib ws2_32.lib advapi32.lib" >> %1\log.txt 2>&1
+qmake "INCLUDEPATH+=/sql/include/mysql" "LIBS+=libmysqld.lib ws2_32.lib advapi32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 nmake debug >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-qmake "LIBS+=libmysql.lib ws2_32.lib advapi32.lib" >> %1\log.txt 2>&1
+qmake "INCLUDEPATH+=/sql/include/mysql" "LIBS+=libmysql.lib ws2_32.lib advapi32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 nmake release >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%\src\plugins\sqldrivers\psql
-qmake "LIBS+=libpqd.lib shell32.lib" >> %1\log.txt 2>&1
+qmake "INCLUDEPATH+=/sql/include/psql" "LIBS+=libpqd.lib shell32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 nmake debug >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-qmake "LIBS+=libpq.lib shell32.lib" >> %1\log.txt 2>&1
+qmake "INCLUDEPATH+=/sql/include/psql" "LIBS+=libpq.lib shell32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 nmake release >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
