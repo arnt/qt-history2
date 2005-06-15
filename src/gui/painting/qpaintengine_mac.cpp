@@ -1314,9 +1314,11 @@ QCoreGraphicsPaintEngine::updateClipPath(const QPainterPath &p, Qt::ClipOperatio
     Q_D(QCoreGraphicsPaintEngine);
     Q_ASSERT(isActive());
     if(op == Qt::NoClip) {
-        d->has_clipping = false;
-        d->current.clip = QRegion();
-        d->setClip(0);
+        if(d->has_clipping) {
+            d->has_clipping = false;
+            d->current.clip = QRegion();
+            d->setClip(0);
+        }
     } else {
         if(!d->has_clipping)
             op = Qt::ReplaceClip;
@@ -1492,9 +1494,7 @@ QCoreGraphicsPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const Q
     const float sx = ((float)r.width())/sr.width(), sy = ((float)r.height())/sr.height();
     CGRect rect = CGRectMake(r.x()-(sr.x()*sx), r.y()-(sr.y()*sy), pm.width()*sx, pm.height()*sy);
     CGImageRef image = (CGImageRef)pm.macCGHandle();
-#if 1
     HIViewDrawCGImage(d->hd, &rect, image); //top left
-#endif
 
     //restore
     CGContextRestoreGState(d->hd);
