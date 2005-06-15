@@ -10,8 +10,7 @@ static const char * const dont_mess_with_me =
     "This trial version may only be used for evaluation purposes\n"
     "and will shut down after 30 minuttes.\n"
     "Registered to:\n"
-    "   Licensee: %2\n"
-    "   Company: %3\n\n"
+    "   Licensee: %2\n\n"
     "The evaluation expires in %4 days\n\n"
     "Contact sales@trolltech.com for pricing and purchasing information.\n";
 
@@ -32,14 +31,6 @@ static const char * const dont_mess_with_you_huh2 =
     "Contact sales@trolltech.com for pricing and purchasing information.\n";
 
 static const char qt_eval_key_data[512 + 12]     = "qt_qevalkey=";
-static const char qt_eval_company_data[512 + 12] = "qt_qevalcom=";
-
-
-static QString qt_eval_company()
-{
-    return QString::fromUtf8(qt_eval_company_data + 12);
-}
-
 
 // expiration date really
 static int qt_eval_figure_out()
@@ -84,7 +75,6 @@ QString qt_eval_string() {
     QString str = QString(QLatin1String(dont_mess_with_me))
                   .arg(QT_VERSION_STR)
                   .arg(QLibraryInfo::licensee())
-                  .arg(qt_eval_company())
                   .arg(qt_eval_figure_out());
     return str;
 }
