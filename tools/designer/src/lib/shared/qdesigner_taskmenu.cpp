@@ -95,7 +95,6 @@ QList<QAction*> QDesignerTaskMenu::taskActions() const
     actions.append(m_changeObjectNameAction);
     actions.append(m_separator);
     actions.append(m_changeToolTip);
-    actions.append(m_changeStatusTip);
     actions.append(m_changeWhatsThis);
 
 #if 0
