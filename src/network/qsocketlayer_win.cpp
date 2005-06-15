@@ -938,6 +938,11 @@ qint64 QSocketLayerPrivate::nativeRead(char *data, qint64 maxLength)
         case WSAEINVAL:
             setError(QAbstractSocket::NetworkError, ReadErrorString);
             break;
+        case WSAECONNRESET:
+        case WSAECONNABORTED:
+            // for tcp sockets this will be handled in QSocketLayer::read
+            ret = 0;
+            break;
         default:
             break;
         }
