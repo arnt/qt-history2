@@ -117,15 +117,17 @@ static QString qWarnODBCHandle(int handleType, SQLHANDLE handle, int *nativeCode
     SQLSMALLINT msgLen;
     SQLRETURN r = SQL_ERROR;
     SQLTCHAR state_[SQL_SQLSTATE_SIZE+1];
-    SQLTCHAR description_[SQL_MAX_MESSAGE_LENGTH];
+    // robustness: always 0 terminate
+    SQLTCHAR description_[SQL_MAX_MESSAGE_LENGTH + 1];
     r = SQLGetDiagRec(handleType,
                          handle,
                          1,
                          (SQLTCHAR*)state_,
                          &nativeCode_,
                          (SQLTCHAR*)description_,
-                         SQL_MAX_MESSAGE_LENGTH-1, /* in bytes, not in characters */
+                         SQL_MAX_MESSAGE_LENGTH, /* in bytes, not in characters */
                          &msgLen);
+    description_[SQL_MAX_MESSAGE_LENGTH] = 0;
     if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
         if (nativeCode)
             *nativeCode = nativeCode_;
