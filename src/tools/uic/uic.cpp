@@ -201,9 +201,7 @@ bool Uic::isContainer(const QString &className) const
 {
     return customWidgetsInfo()->extends(className, QLatin1String("QStackedWidget"))
         || customWidgetsInfo()->extends(className, QLatin1String("QToolBox"))
-        || customWidgetsInfo()->extends(className, QLatin1String("QTabWidget"))
-        || customWidgetsInfo()->extends(className, QLatin1String("QWidgetStack"))
-        || customWidgetsInfo()->extends(className, QLatin1String("QWizard"));
+        || customWidgetsInfo()->extends(className, QLatin1String("QTabWidget"));
 }
 
 bool Uic::isStatusBar(const QString &className) const
