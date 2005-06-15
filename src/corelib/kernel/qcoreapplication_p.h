@@ -63,6 +63,7 @@ public:
 #ifndef QT_NO_COMPONENT
     QStringList *app_libpaths;
 #endif
+    uint application_type;
 
     QCoreApplication::EventFilter eventFilter;
 

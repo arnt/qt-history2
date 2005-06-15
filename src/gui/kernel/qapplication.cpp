@@ -64,6 +64,7 @@ bool QApplicationPrivate::quitOnLastWindowClosed = true;
 QApplicationPrivate::QApplicationPrivate(int &argc, char **argv, QApplication::Type type)
     : QCoreApplicationPrivate(argc, argv)
 {
+    application_type = type;
     qt_appType = type;
 
 #ifndef QT_NO_SESSIONMANAGER
@@ -619,6 +620,11 @@ void QApplicationPrivate::construct()
     if (qt_is_gui_used)
         qt_maxWindowRect = QApplication::desktop()->rect();
     eventDispatcher->startingUp();
+
+#ifdef QT_EVAL
+    extern void qt_gui_eval_init(uint);
+    qt_gui_eval_init(application_type);
+#endif
 }
 
 #if defined(Q_WS_X11)

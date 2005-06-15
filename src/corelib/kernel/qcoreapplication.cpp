@@ -143,7 +143,7 @@ private:
 Q_GLOBAL_STATIC(QCoreApplicationThread, mainThread)
 
 QCoreApplicationPrivate::QCoreApplicationPrivate(int &aargc, char **aargv)
-    : QObjectPrivate(), argc(aargc), argv(aargv), eventFilter(0)
+    : QObjectPrivate(), argc(aargc), argv(aargv), application_type(0), eventFilter(0)
 {
     static const char *const empty = "";
     if (argc == 0 || argv == 0) {
@@ -356,7 +356,7 @@ void QCoreApplication::flush()
     argv().
 */
 QCoreApplication::QCoreApplication(int &argc, char **argv)
-    : QObject(*new QCoreApplicationPrivate(argc, argv), 0)
+    : QObject(*new QCoreApplicationPrivate(argc, argv))
 {
     init();
     QCoreApplicationPrivate::eventDispatcher->startingUp();
@@ -394,6 +394,11 @@ void QCoreApplication::init()
     // Make sure the process manager thread object is created in the main
     // thread.
     QProcessPrivate::initializeProcessManager();
+#endif
+
+#ifdef QT_EVAL
+    extern void qt_core_eval_init(uint);
+    qt_core_eval_init(d->application_type);
 #endif
 
     qt_startup_hook();
