@@ -1123,7 +1123,7 @@ opening the \key Edit menu and selecting \key{Edit Resources}.
 
     For specialized widgets that do not share a common API with standard Qt
     widgets, it is worth considering adapting a custom widget for use in \QD.
-    If this is not possible then QWidget is the obvious choice for a placeholder
+    If this is not possible then QFrame is the obvious choice for a placeholder
     widget since it is the lowest common denominator for all widgets.
 
     \section2 User Defined Custom Widgets
@@ -1405,6 +1405,9 @@ without having to write code themselves.
     design process, custom widgets will appear the same as they do when previewed.
 
     \image worldtimeclockplugin-example.png
+
+    The ability to create custom widgets in \QD is one of the features provided by
+    the \l QtDesigner module.
 
     \tableofcontents
 
