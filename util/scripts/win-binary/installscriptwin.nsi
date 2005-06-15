@@ -146,6 +146,10 @@ Section -CommonSection
   
   #patch core and qmake
   call PatchCommonBinaryFiles
+
+!ifdef QTEVALUATION
+  call PatchKeyInBinary
+!endif
 SectionEnd
 
 !ifndef QTOPENSOURCE
@@ -322,6 +326,38 @@ Function PatchCommonBinaryFiles
   pop $0
 FunctionEnd
 
+!ifdef QTEVALUATION
+Function PatchKeyInBinary
+  push $0
+  push $1
+
+  DetailPrint "Patching key in core..."
+  FindFirst $0 $1 "$INSTDIR\bin\QtCore*.dll"
+  StrCmp $1 "" ErrorPatchingCore
+  qtnsisext::PatchBinary "$INSTDIR\bin\$1" "qt_qevalkey=" "qt_qevalkey=$LICENSE_KEY"
+
+  FindNext $0 $1
+  StrCmp $1 "" ErrorPatchingCore
+  qtnsisext::PatchBinary "$INSTDIR\bin\$1" "qt_qevalkey=" "qt_qevalkey=$LICENSE_KEY"
+
+  ErrorPatchingCore:
+
+  DetailPrint "Patching key in gui..."
+  FindFirst $0 $1 "$INSTDIR\bin\QtGui*.dll"
+  StrCmp $1 "" ErrorPatchingGUI
+  qtnsisext::PatchBinary "$INSTDIR\bin\$1" "qt_qevalkey=" "qt_qevalkey=$LICENSE_KEY"
+
+  FindNext $0 $1
+  StrCmp $1 "" ErrorPatchingGUI
+  qtnsisext::PatchBinary "$INSTDIR\bin\$1" "qt_qevalkey=" "qt_qevalkey=$LICENSE_KEY"
+
+  ErrorPatchingGUI:
+
+  pop $1
+  pop $0
+FunctionEnd
+!endif
+
 Function PatchBinaryPaths
   exch $0
   push $1
@@ -335,9 +371,6 @@ Function PatchBinaryPaths
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_datapath=" "qt_datapath=$INSTDIR"
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_trnspath=" "qt_trnspath=$INSTDIR\translations"
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_xmplpath=" "qt_xmplpath=$INSTDIR\examples"
-!ifdef QTEVALUATION
-  qtnsisext::PatchBinary /NOUNLOAD $0 "qt_qevalkey=" "qt_qevalkey=$LICENSE_KEY"
-!endif
 !ifndef QTOPENSOURCE
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_lcnsuser=" "qt_lcnsuser=$LICENSEE"
   qtnsisext::PatchBinary /NOUNLOAD $0 "qt_lcnsprod=" "qt_lcnsprod=$LICENSE_PRODUCT"
