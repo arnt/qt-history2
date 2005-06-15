@@ -21,6 +21,10 @@ B)
 # Desktop
 ProductType="Desktop"
 ;;
+L)
+# Desktop Lite
+ProductType="Desktop Light"
+;;
 *)
 exit $((96+18)) ;;
 esac
