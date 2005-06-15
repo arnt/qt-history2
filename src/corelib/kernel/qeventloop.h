@@ -46,6 +46,7 @@ public:
 
     int exec(ProcessEventsFlags flags = AllEvents);
     void exit(int returnCode = 0);
+    bool isRunning() const;
 
     void wakeUp();
 

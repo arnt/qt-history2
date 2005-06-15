@@ -733,9 +733,16 @@ void QCoreApplication::postEvent(QObject *receiver, QEvent *event)
             ++receiver->d_func()->postedChildInsertedEvents;
 #endif
         if (event->type() == QEvent::DeferredDelete) {
-            // remember the current eventloop
-            if (!data->eventLoops.isEmpty())
-                event->d = reinterpret_cast<QEventPrivate *>(data->eventLoops.top());
+            if (!data->eventLoops.isEmpty()) {
+                // remember the current running eventloop
+                for (int i = data->eventLoops.size() - 1; i >= 0; --i) {
+                    QEventLoop *eventLoop = data->eventLoops.at(i);
+                    if (eventLoop->isRunning()) {
+                        event->d = reinterpret_cast<QEventPrivate *>(eventLoop);
+                        break;
+                    }
+                }
+            }
         }
         data->postEventList.append(QPostEvent(receiver, event));
     }

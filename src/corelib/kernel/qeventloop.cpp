@@ -25,7 +25,7 @@ class QEventLoopPrivate : public QObjectPrivate
     Q_DECLARE_PUBLIC(QEventLoop)
 public:
     inline QEventLoopPrivate()
-        : exit(false), returnCode(0)
+        : exit(true), returnCode(-1)
     { }
     bool exit;
     int returnCode;
@@ -129,14 +129,15 @@ int QEventLoop::exec(ProcessEventsFlags flags)
     QThread *thr = thread();
     if (!thr)
         return -1;
+    QThreadData *data = QThreadData::get(thr);
+    if (data->quitNow)
+        return -1;
 
     Q_D(QEventLoop);
     d->exit = false;
-
-    QThreadData *data = QThreadData::get(thr);
     data->eventLoops.push(this);
 
-    while (!d->exit && !data->quitNow) {
+    while (!d->exit) {
         // allow DeferredDelete events to be delivered... this flag is
         // set to false by QCoreApplication::sendPostedEvents(), which
         // is called by the event dispatcher's processEvents()
@@ -207,6 +208,19 @@ void QEventLoop::exit(int returnCode)
     QAbstractEventDispatcher *eventDispatcher = QAbstractEventDispatcher::instance(thr);
     if (eventDispatcher)
         eventDispatcher->interrupt();
+}
+
+/*!
+    Returns true if the event loop is running; otherwise returns
+    false. The event loop is considered running from the time when
+    exec() is called until exit() is called.
+
+    \sa exec() exit()
+ */
+bool QEventLoop::isRunning() const
+{
+    Q_D(const QEventLoop);
+    return !d->exit;
 }
 
 /*!
