@@ -498,6 +498,10 @@ void Moc::parse()
             currentFilenames.pop();
         } else if (t == Q_DECLARE_INTERFACE_TOKEN) {
             parseDeclareInterface();
+        } else if (t == USING && test(NAMESPACE)) {
+            while (test(SCOPE) || test(IDENTIFIER))
+                ;
+            next(SEMIC);
         }
         if (t != CLASS || currentFilenames.size() > 1)
             continue;
