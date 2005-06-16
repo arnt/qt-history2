@@ -245,7 +245,7 @@ void HelpDialog::lastWinClosed()
     lwClosed = true;
 }
 
-void HelpDialog::removeOldCacheFiles()
+void HelpDialog::removeOldCacheFiles(bool onlyFulltextSearchIndex)
 {
     if (!verifyDirectory(cacheFilesPath)) {
         qWarning("Failed to created assistant directory");
@@ -254,10 +254,11 @@ void HelpDialog::removeOldCacheFiles()
     QString pname = QLatin1String(".") + Config::configuration()->profileName();
 
     QStringList fileList;
-    fileList << QLatin1String("indexdb40")
-        << QLatin1String("indexdb40.dict")
-        << QLatin1String("indexdb40.doc")
-        << QLatin1String("contentdb40");
+    fileList << QLatin1String("indexdb40.dict")
+        << QLatin1String("indexdb40.doc");
+
+    if (!onlyFulltextSearchIndex)
+        fileList << QLatin1String("indexdb40") << QLatin1String("contentdb40");
 
     QStringList::iterator it = fileList.begin();
     for (; it != fileList.end(); ++it) {
@@ -466,6 +467,7 @@ void HelpDialog::getAllContents()
     ds >> fileAges;
     if (fileAges != getFileAges()) {
         contentFile.close();
+        removeOldCacheFiles(true);        
         buildContentDict();
         return;
     }

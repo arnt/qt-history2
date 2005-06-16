@@ -111,7 +111,7 @@ private slots:
 
 private:
     typedef QList<ContentItem> ContentList;
-    void removeOldCacheFiles();
+    void removeOldCacheFiles(bool onlyFulltextSearchIndex = false);
     void buildKeywordDB();
     quint32 getFileAges();
     void showIndexTopic();
