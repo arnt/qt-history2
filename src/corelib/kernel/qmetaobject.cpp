@@ -385,11 +385,8 @@ int QMetaObject::indexOfMethod(const char *method) const
 /*!
     Finds \a signal and returns its index; otherwise returns -1.
 
-    This is the similar as indexOfMethod(), with two important
-    differences: indexOfSignal() returns -1 if the method exists but
-    isn't a signal; and it for signals with default arguments it
-    returns the index of the main signal with no default argument
-    specified.
+    This is the same as indexOfMethod(), except that it will return
+    -1 if the method exists but isn't a signal.
 
     \sa indexOfMethod(), method(), methodCount(), methodOffset()
 */
@@ -398,18 +395,13 @@ int QMetaObject::indexOfSignal(const char *signal) const
     int i = -1;
     const QMetaObject *m = this;
     while (m && i < 0) {
-        for (i = priv(m->d.data)->methodCount-1; i >= 0; --i) {
-            int handle = priv(m->d.data)->methodData + 5*i;
-            if ((m->d.data[handle + 4] & MethodTypeMask) == MethodSignal
-                && strcmp(signal, m->d.stringdata + m->d.data[handle]) == 0) {
-                while (i > 0 && ((m->d.data[handle + 4] >>4) & QMetaMethod::Cloned)) {
-                    handle -=5;
-                    --i;
-                }
+        for (i = priv(m->d.data)->methodCount-1; i >= 0; --i)
+            if ((m->d.data[priv(m->d.data)->methodData + 5*i + 4] & MethodTypeMask) == MethodSignal
+                && strcmp(signal, m->d.stringdata
+                          + m->d.data[priv(m->d.data)->methodData + 5*i]) == 0) {
                 i += m->methodOffset();
                 break;
             }
-                    }
         m = m->d.superdata;
     }
 #ifndef QT_NO_DEBUG

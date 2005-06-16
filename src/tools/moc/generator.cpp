@@ -566,8 +566,6 @@ void Generator::generateMetacall()
     fprintf(out, "\nint %s::qt_metacall(QMetaObject::Call _c, int _id, void **_a)\n{\n",
              cdef->qualified.constData());
 
-    if (cdef->signalList.size())
-        fprintf(out, "    int _id_global = _id;\n");
     if (purestSuperClass.size() && !isQObject)
         fprintf(out, "    _id = %s::qt_metacall(_c, _id, _a);\n", purestSuperClass.constData());
 
@@ -580,20 +578,11 @@ void Generator::generateMetacall()
     methodList += cdef->slotList;
     methodList += cdef->methodList;
 
-    int signalCount = cdef->signalList.size();
     if (methodList.size()) {
         needElse = true;
         fprintf(out, "if (_c == QMetaObject::InvokeMetaMethod) {\n        ");
-        if (signalCount) {
-            fprintf(out, "if (_id < %d)\n", signalCount);
-            fprintf(out, "            QMetaObject::activate(this, _id_global, _a);\n");
-        }
-    }
-    if (methodList.size() > signalCount) {
-        if (signalCount)
-            fprintf(out, "        else ");
         fprintf(out, "switch (_id) {\n");
-        for (int methodindex = signalCount; methodindex < methodList.size(); ++methodindex) {
+        for (int methodindex = 0; methodindex < methodList.size(); ++methodindex) {
             const FunctionDef &f = methodList.at(methodindex);
             fprintf(out, "        case %d: ", methodindex);
             if (f.normalizedType.size())
@@ -834,7 +823,14 @@ void Generator::generateSignal(FunctionDef *def,int index)
     for (i = 1; i < offset; ++i)
         fprintf(out, ", (void*)&_t%d", i);
     fprintf(out, " };\n");
-    fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _a);\n", index);
+    int n = 0;
+    for (i = 0; i < def->arguments.count(); ++i)
+        if (def->arguments.at(i).isDefault)
+            ++n;
+    if (n)
+        fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, %d, _a);\n", index, index + n);
+    else
+        fprintf(out, "    QMetaObject::activate(this, &staticMetaObject, %d, _a);\n", index);
     if (def->normalizedType.size())
         fprintf(out, "    return _t0;\n");
     fprintf(out, "}\n");

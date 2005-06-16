@@ -2276,13 +2276,15 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
     }
 
     QByteArray method_name;
+#ifndef QT_NO_DEBUG
     int membcode = -1;
+#endif
     bool method_found = false;
     if (method) {
         method_name = QMetaObject::normalizedSignature(method);
         method = method_name;
-        membcode = method[0] - '0';
 #ifndef QT_NO_DEBUG
+        membcode = method[0] - '0';
         if (!check_method_code(membcode, receiver, method, "disconnect"))
             return false;
 #endif
@@ -2311,15 +2313,7 @@ bool QObject::disconnect(const QObject *sender, const char *signal,
         } else {
             const QMetaObject *rmeta = receiver->metaObject();
             do {
-                int method_index = -1;
-                switch (membcode) {
-                case QSLOT_CODE:
-                    method_index = rmeta->indexOfSlot(method);
-                    break;
-                case QSIGNAL_CODE:
-                    method_index = rmeta->indexOfSignal(method);
-                    break;
-                }
+                int method_index = rmeta->indexOfMethod(method);
                 if (method_index >= 0)
                     while (method_index < rmeta->methodOffset())
                             rmeta = rmeta->superClass();
@@ -2476,15 +2470,17 @@ void QMetaObject::connectSlotsByName(QObject *o)
             if (!len || qstrncmp(slot + 3, objName.data(), len) || slot[len+3] != '_')
                 continue;
             const QMetaObject *smo = co->metaObject();
-            int sigIndex = -1;
-            int slotlen = qstrlen(slot + len + 4) - 1;
-            for (int k = 0; k < co->metaObject()->methodCount(); ++k) {
-                if (smo->method(k).methodType() != QMetaMethod::Signal)
-                    continue;
+            int sigIndex = smo->indexOfMethod(slot + len + 4);
+            if (sigIndex < 0) { // search for compatible signals
+                int slotlen = qstrlen(slot + len + 4) - 1;
+                for (int k = 0; k < co->metaObject()->methodCount(); ++k) {
+                    if (smo->method(k).methodType() != QMetaMethod::Signal)
+                        continue;
 
-                if (!qstrncmp(smo->method(k).signature(), slot + len + 4, slotlen)) {
-                    sigIndex = k;
-                    break;
+                    if (!qstrncmp(smo->method(k).signature(), slot + len + 4, slotlen)) {
+                        sigIndex = k;
+                        break;
+                    }
                 }
             }
             if (sigIndex < 0)
@@ -2494,12 +2490,8 @@ void QMetaObject::connectSlotsByName(QObject *o)
                 break;
             }
         }
-        // take clones into account as long as we did not find a connection
-        if (!foundIt && !(mo->method(i + 1).attributes() & QMetaMethod::Cloned))
+        if (!foundIt)
             qWarning("QMetaObject::connectSlotsByName(): No matching signal for %s", slot);
-        // skip all remaining clones if we already found a connection
-        while (foundIt && (mo->method(i + 1).attributes() & QMetaMethod::Cloned))
-            ++i;
     }
 }
 
@@ -2527,7 +2519,7 @@ static void queued_activate(QObject *obj, const QConnection &c, void **argv)
 
 /*!\internal
  */
-void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
+void QMetaObject::activate(QObject *sender, int from_signal_index, int to_signal_index, void **argv)
 {
     if (sender->d_func()->blockSig)
         return;
@@ -2547,7 +2539,7 @@ void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
     const int currentQThreadId = currentThread ? QThreadData::get(currentThread)->id : -1;
 
     if (qt_signal_spy_callback_set.signal_begin_callback != 0)
-        qt_signal_spy_callback_set.signal_begin_callback(sender, signal_index,
+        qt_signal_spy_callback_set.signal_begin_callback(sender, from_signal_index,
                                                          argv ? argv : empty_argv);
 
     QVarLengthArray<int> connections;
@@ -2557,7 +2549,7 @@ void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
         const int at = connections.constData()[connections.size() - (i + 1)];
         QConnectionList * const list = ::connectionList();
         const QConnection &c = list->connections.at(at);
-        if (!c.receiver || c.signal != signal_index)
+        if (!c.receiver || (c.signal < from_signal_index || c.signal > to_signal_index))
             continue;
 
         // determine if this connection should be sent immediately or
@@ -2600,9 +2592,17 @@ void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
     }
 
     if (qt_signal_spy_callback_set.signal_end_callback != 0)
-        qt_signal_spy_callback_set.signal_end_callback(sender, signal_index);
+        qt_signal_spy_callback_set.signal_end_callback(sender, from_signal_index);
 
     list->invariant.deref();
+}
+
+
+/*!\internal
+ */
+void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
+{
+    activate(sender, signal_index, signal_index, argv);
 }
 
 /*!\internal
@@ -2610,8 +2610,19 @@ void QMetaObject::activate(QObject *sender, int signal_index, void **argv)
 void QMetaObject::activate(QObject *sender, const QMetaObject *m, int local_signal_index,
                            void **argv)
 {
-    activate(sender, m->methodOffset() + local_signal_index, argv);
+    int offset = m->methodOffset();
+    activate(sender, offset + local_signal_index, offset + local_signal_index, argv);
 }
+
+/*!\internal
+ */
+void QMetaObject::activate(QObject *sender, const QMetaObject *m,
+                           int from_local_signal_index, int to_local_signal_index, void **argv)
+{
+    int offset = m->methodOffset();
+    activate(sender, offset + from_local_signal_index, offset + to_local_signal_index, argv);
+}
+
 
 /*****************************************************************************
   Properties
