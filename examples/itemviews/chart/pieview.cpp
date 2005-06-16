@@ -236,25 +236,26 @@ QModelIndex PieView::moveCursor(QAbstractItemView::CursorAction cursorAction,
         case MoveLeft:
         case MoveUp:
             if (current.row() > 0)
-                return model()->index(current.row() - 1, current.column(),
-                                      rootIndex());
+                current = model()->index(current.row() - 1, current.column(),
+                                         rootIndex());
             else
-                return model()->index(0, current.column(), rootIndex());
+                current = model()->index(0, current.column(), rootIndex());
             break;
         case MoveRight:
         case MoveDown:
             if (current.row() < rows(current) - 1)
-                return model()->index(current.row() + 1, current.column(),
-                                      rootIndex());
+                current = model()->index(current.row() + 1, current.column(),
+                                         rootIndex());
             else
-                return model()->index(rows(current) - 1, current.column(),
-                                      rootIndex());
+                current = model()->index(rows(current) - 1, current.column(),
+                                         rootIndex());
             break;
         default:
-            return current;
+            break;
     }
 
     viewport()->update();
+    return current;
 }
 
 void PieView::paintEvent(QPaintEvent *event)
