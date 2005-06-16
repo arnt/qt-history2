@@ -215,7 +215,34 @@ void ArthurFrame::showSource()
     contents.replace('<', "&lt;");
     contents.replace('>', "&gt;");
 
-    QString html = "<html><pre>" + contents + "</pre></html>";
+    QStringList keywords;
+    keywords << "for " << "if " << "switch " << " int " << "#include " << "const"
+             << "void " << "uint " << "case " << "double " << "#define " << "static"
+             << "new" << "this";
+
+    foreach (QString keyword, keywords)
+        contents.replace(keyword, QLatin1String("<font color=olive>") + keyword + QLatin1String("</font>"));
+    contents.replace("(int ", "(<font color=olive><b>int </b></font>");
+
+    QStringList ppKeywords;
+    ppKeywords << "#ifdef" << "#ifndef" << "#if" << "#endif" << "#else";
+
+    foreach (QString keyword, ppKeywords)
+        contents.replace(keyword, QLatin1String("<font color=navy>") + keyword + QLatin1String("</font>"));
+
+    contents.replace(QRegExp("(\\d\\d?)"), QLatin1String("<font color=navy>\\1</font>"));
+
+    QRegExp commentRe("(//.+)\\n");
+    commentRe.setMinimal(true);
+    contents.replace(commentRe, QLatin1String("<font color=red>\\1</font>\n"));
+
+    QRegExp stringLiteralRe("(\".+\")");
+    stringLiteralRe.setMinimal(true);
+    contents.replace(stringLiteralRe, QLatin1String("<font color=green>\\1</font>"));
+
+    QString html = contents;
+    html.prepend("<html><pre>");
+    html.append("</pre></html>");
 
     QTextBrowser *sourceViewer = new QTextBrowser(0);
     sourceViewer->setWindowTitle("Source: " + m_sourceFileName.mid(5));
