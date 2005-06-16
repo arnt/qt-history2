@@ -149,9 +149,9 @@ QLayout::QLayout(QWidget *parent, int margin, int spacing, const char *name)
         d->insideSpacing = spacing;
     if (parent) {
         if (parent->layout()) {
-            qWarning("QLayout \"%s\" added to %s \"%s\", which already has a"
-                      " layout", QObject::objectName().toLocal8Bit().data(), parent->metaObject()->className(),
-                      parent->objectName().toLocal8Bit().data());
+            qWarning("QLayout \"%s\" added to %s \"%s\", which already has a layout",
+                     QObject::objectName().toLocal8Bit().data(), parent->metaObject()->className(),
+                     parent->objectName().toLocal8Bit().data());
             parent->layout()->setParent(0);
         } else {
             d->topLevel = true;
@@ -691,7 +691,8 @@ void QLayout::deleteAllItems()
 void QLayout::addChildLayout(QLayout *l)
 {
     if (l->parent()) {
-        qWarning("QLayout::addChildLayout: layout already has a parent");
+        qWarning("QLayout::addChildLayout: layout \"%s\" already has a parent",
+                 l->objectName().toLocal8Bit().data());
         return;
     }
     l->setParent(this);
@@ -718,7 +719,8 @@ void QLayoutPrivate::reparentChildWidgets(QWidget *mw)
             QWidget *pw = w->parentWidget();
 #ifdef QT_DEBUG
             if (pw && pw != mw) {
-                qWarning("QLayout::addChildLayout: widget %s in wrong parent; moved to correct parent", w->metaObject()->className());
+                qWarning("QLayout::addChildLayout: widget %s \"%s\" in wrong parent; moved to correct parent",
+                         w->metaObject()->className(), w->objectName().toLocal8Bit().data());
             }
 #endif
             if (pw != mw)
@@ -747,10 +749,12 @@ void QLayout::addChildWidget(QWidget *w)
     if (pw && w->testAttribute(Qt::WA_LaidOut)) {
         QLayout *l = pw->layout();
         if (l && removeWidgetRecursively(l, w))
-            qWarning("QLayout::addChildWidget: %s is already in a layout; moved to new layout", w->metaObject()->className());
+            qWarning("QLayout::addChildWidget: %s \"%s\" is already in a layout; moved to new layout",
+                     w->metaObject()->className(), w->objectName().toLocal8Bit().data());
     }
     if (pw && mw && pw != mw) {
-        qWarning("QLayout::addChildWidget: %s in wrong parent; moved to correct parent", w->metaObject()->className());
+        qWarning("QLayout::addChildWidget: %s \"%s\" in wrong parent; moved to correct parent",
+                 w->metaObject()->className(), w->objectName().toLocal8Bit().data());
         pw = 0;
     }
     bool needShow = mw && mw->isVisible() && !(w->isHidden() && w->testAttribute(Qt::WA_WState_ExplicitShowHide));
