@@ -113,12 +113,12 @@ public:
 
 static QString qWarnODBCHandle(int handleType, SQLHANDLE handle, int *nativeCode = 0)
 {
-    SQLINTEGER nativeCode_;
-    SQLSMALLINT msgLen;
+    SQLINTEGER nativeCode_ = 0;
+    SQLSMALLINT msgLen = 0;
     SQLRETURN r = SQL_ERROR;
     SQLTCHAR state_[SQL_SQLSTATE_SIZE+1];
-    // robustness: always 0 terminate
     SQLTCHAR description_[SQL_MAX_MESSAGE_LENGTH + 1];
+    description_[0] = 0;
     r = SQLGetDiagRec(handleType,
                          handle,
                          1,
@@ -128,7 +128,7 @@ static QString qWarnODBCHandle(int handleType, SQLHANDLE handle, int *nativeCode
                          SQL_MAX_MESSAGE_LENGTH, /* in bytes, not in characters */
                          &msgLen);
     description_[SQL_MAX_MESSAGE_LENGTH] = 0;
-    if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO)
+    if (r == SQL_SUCCESS || r == SQL_SUCCESS_WITH_INFO) {
         if (nativeCode)
             *nativeCode = nativeCode_;
 #ifdef UNICODE
@@ -136,6 +136,7 @@ static QString qWarnODBCHandle(int handleType, SQLHANDLE handle, int *nativeCode
 #else
         return QString::fromLocal8Bit((const char*)description_);
 #endif
+    }
     return QString();
 }
 
