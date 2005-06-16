@@ -919,7 +919,10 @@ void Q3TextEdit::init()
     wPolicy = AtWhiteSpace;
     inDnD = false;
     doc->setFormatter(new Q3TextFormatterBreakWords);
-    doc->formatCollection()->defaultFormat()->setFont(Q3ScrollView::font());
+    QFont f = Q3ScrollView::font();
+    if (f.kerning())
+        f.setKerning(false);
+    doc->formatCollection()->defaultFormat()->setFont(f);
     doc->formatCollection()->defaultFormat()->setColor(palette().color(QPalette::Text));
     currentFormat = doc->formatCollection()->defaultFormat();
     currentAlignment = Qt::AlignAuto;
@@ -2882,15 +2885,15 @@ void Q3TextEdit::insert(const QString &text, uint insertionFlags)
         // If we are inserting at the end of the previous insertion, we keep this in
         // the same undo/redo command. Otherwise, we separate them in two different commands.
         if (undoRedoInfo.valid() && undoRedoInfo.index + undoRedoInfo.d->text.length() != cursor->index()) {
-            clearUndoRedo();        
+            clearUndoRedo();
             undoRedoInfo.type = UndoRedoInfo::Insert;
         }
-               
-        if (!undoRedoInfo.valid()) {            
+
+        if (!undoRedoInfo.valid()) {
             undoRedoInfo.id = cursor->paragraph()->paragId();
             undoRedoInfo.index = cursor->index();
             undoRedoInfo.d->text.clear();
-        } 
+        }
         oldLen = undoRedoInfo.d->text.length();
     }
 
@@ -3580,8 +3583,11 @@ void Q3TextEdit::setVerticalAlignment(VerticalAlignment a)
 
 void Q3TextEdit::setFontInternal(const QFont &f_)
 {
+    QFont font = f_;
+    if (font.kerning())
+        font.setKerning(false);
     Q3TextFormat f(*currentFormat);
-    f.setFont(f_);
+    f.setFont(font);
     Q3TextFormat *f2 = doc->formatCollection()->format(&f);
     setFormat(f2, Q3TextFormat::Font);
 }
@@ -4294,7 +4300,7 @@ void Q3TextEdit::selectAll(bool select)
 void Q3TextEdit::UndoRedoInfo::clear()
 {
     if (valid()) {
-        if (type == Insert || type == Return) 
+        if (type == Insert || type == Return)
             doc->addCommand(new Q3TextInsertCommand(doc, id, index, d->text.rawData(), styleInformation));
         else if (type == Format)
             doc->addCommand(new Q3TextFormatCommand(doc, id, index, eid, eindex, d->text.rawData(), format, flags));
@@ -5513,10 +5519,16 @@ void Q3TextEdit::changeEvent(QEvent *ev)
 #ifdef QT_TEXTEDIT_OPTIMIZATION
     if (d->optimMode && (ev->type() == QEvent::ApplicationFontChange
                          || ev->type() == QEvent::FontChange)) {
-        Q3ScrollView::setFont(font());
-        doc->setDefaultFormat(font(), doc->formatCollection()->defaultFormat()->color());
+        QFont f = font();
+        if (f.kerning())
+            f.setKerning(false);
+
+        setFont(f);
+
+        Q3ScrollView::setFont(f);
+        doc->setDefaultFormat(f, doc->formatCollection()->defaultFormat()->color());
         // recalculate the max string width
-        QFontMetrics fm(font());
+        QFontMetrics fm(f);
         int i, sw;
         d->od->maxLineWidth = 0;
         for (i = 0; i < d->od->numLines; i++) {
@@ -5541,8 +5553,11 @@ void Q3TextEdit::changeEvent(QEvent *ev)
     }
 
     if (ev->type() == QEvent::ApplicationFontChange || ev->type() == QEvent::FontChange) {
+        QFont f = font();
+        if (f.kerning())
+            f.setKerning(false);
         doc->setMinimumWidth(-1);
-        doc->setDefaultFormat(font(), doc->formatCollection()->defaultFormat()->color());
+        doc->setDefaultFormat(f, doc->formatCollection()->defaultFormat()->color());
         lastFormatted = doc->firstParagraph();
         formatMore();
         repaintChanged();
