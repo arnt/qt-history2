@@ -896,6 +896,8 @@ void QTextEngine::invalidate()
     lines.clear();
     minWidth = 0;
     maxWidth = 0;
+    if (specialData)
+        specialData->resolvedFormatIndices.clear();
 }
 
 void QTextEngine::validate() const
@@ -931,6 +933,7 @@ void QTextEngine::itemize() const
     }
 
     addRequiredBoundaries();
+    resolveAdditionalFormats();
 }
 
 int QTextEngine::findItem(int strPos) const
@@ -1326,6 +1329,8 @@ void QTextEngine::freeMemory()
 
 int QTextEngine::formatIndex(const QScriptItem *si) const
 {
+    if (specialData && !specialData->resolvedFormatIndices.isEmpty())
+        return specialData->resolvedFormatIndices.at(si - &layoutData->items[0]);
     QTextDocumentPrivate *p = block.docHandle();
     if (!p)
         return -1;
@@ -1349,7 +1354,7 @@ QTextCharFormat QTextEngine::format(const QScriptItem *si) const
         formats = this->formats();
         format = formats->charFormat(formatIndex(si));
     }
-    if (specialData) {
+    if (specialData && specialData->resolvedFormatIndices.isEmpty()) {
         int end = si->position + length(si);
         for (int i = 0; i < specialData->addFormats.size(); ++i) {
             const QTextLayout::FormatRange &r = specialData->addFormats.at(i);
@@ -1497,3 +1502,21 @@ qreal QTextEngine::nextTab(const QScriptItem *si, qreal x)
         tab = 80; // default
     return ((int)(x/tab) + 1)*tab;
 }
+
+void QTextEngine::resolveAdditionalFormats() const
+{
+    if (!specialData || specialData->addFormats.isEmpty()
+        || !block.docHandle())
+        return;
+
+    QTextFormatCollection *collection = this->formats();
+
+    specialData->resolvedFormatIndices.clear();
+    QVector<int> indices(layoutData->items.count());
+    for (int i = 0; i < layoutData->items.count(); ++i) {
+        QTextCharFormat f = format(&layoutData->items.at(i));
+        indices[i] = collection->indexForFormat(f);
+    }
+    specialData->resolvedFormatIndices = indices;
+}
+

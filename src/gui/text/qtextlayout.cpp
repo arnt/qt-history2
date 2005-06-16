@@ -449,7 +449,7 @@ void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
             d->specialData = 0;
         } else {
             d->specialData->addFormats = formatList;
-            d->indexAdditionalFormats();
+            d->specialData->addFormatIndices.clear();
         }
         return;
     }

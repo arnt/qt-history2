@@ -380,6 +380,7 @@ public:
         QString preeditText;
         QList<QTextLayout::FormatRange> addFormats;
         QVector<int> addFormatIndices;
+        QVector<int> resolvedFormatIndices;
     };
     SpecialData *specialData;
 
@@ -392,6 +393,7 @@ private:
     void shapeText(int item) const;
     void splitItem(int item, int pos) const;
 
+    void resolveAdditionalFormats() const;
 };
 
 #endif // QTEXTENGINE_P_H
