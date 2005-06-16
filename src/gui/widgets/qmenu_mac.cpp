@@ -467,7 +467,8 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 
     //text
     data.whichData |= kMenuItemDataCFString;
-    data.cfText = QCFString::toCFStringRef(qt_mac_no_ampersands(text));
+    QCFString cfstr(qt_mac_no_ampersands(text));
+    data.cfText = cfstr;
 
     //enabled
     data.whichData |= kMenuItemDataEnabled;

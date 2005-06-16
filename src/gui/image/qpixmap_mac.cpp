@@ -716,6 +716,7 @@ IconRef qt_mac_create_iconref(const QPixmap &px)
             OSStatus set = SetIconFamilyData(iconFamily, images[i].mac_type, hdl);
             if(set != noErr)
                 qWarning("%s: %d -- Something went very wrong!! %ld", __FILE__, __LINE__, set);
+            DisposeHandle(hdl);
         }
     }
 
