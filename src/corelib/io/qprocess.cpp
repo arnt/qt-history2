@@ -1184,6 +1184,8 @@ QByteArray QProcess::readAllStandardError()
     process starts successfully, QProcess will emit started();
     otherwise, error() will be emitted.
 
+    On Windows, arguments that contain spaces are wrapped in quotes.
+
     \sa pid(), started()
 */
 void QProcess::start(const QString &program, const QStringList &arguments, OpenMode mode)
@@ -1337,6 +1339,8 @@ int QProcess::exitCode() const
 
     The environment and working directory are inherited by the calling
     process.
+
+    On Windows, arguments that contain spaces are wrapped in quotes.
 */
 int QProcess::execute(const QString &program, const QStringList &arguments)
 {
@@ -1372,6 +1376,8 @@ int QProcess::execute(const QString &program)
     On Unix, the started process will run in its own session and act
     like a daemon. On Windows, it will run as a regular standalone
     process.
+
+    On Windows, arguments that contain spaces are wrapped in quotes.
 */
 bool QProcess::startDetached(const QString &program, const QStringList &arguments)
 {
