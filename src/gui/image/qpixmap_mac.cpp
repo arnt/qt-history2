@@ -279,25 +279,17 @@ QPixmap QPixmap::alphaChannel() const
 
 void QPixmap::setAlphaChannel(const QPixmap &alpha)
 {
-    if (data == alpha.data) // trying to alpha
+    if (data == alpha.data) // trying to selfalpha
         return;
 
     if (alpha.width() != width() || alpha.height() != height()) {
-        qWarning("QPixmap::setAlphaChannel: The pixmap and the mask must have the same size");
+        qWarning("QPixmap::setAlphaChannel: The pixmap and the alpha must have the same size");
         return;
     }
-    detach();
 
-    data->has_mask = false;
-    if(alpha.isNull()) {
-        data->has_mask = false;
-        QPixmap opaque(width(), height());
-        opaque.fill(QColor(255, 255, 255, 255));
-        data->macSetAlphaChannel(&opaque, false);
-    } else {
-        data->has_mask = true;
-        data->macSetAlphaChannel(&alpha, false);
-    }
+    detach();
+    data->has_mask = true;
+    data->macSetAlphaChannel(&alpha, false);
 }
 
 QBitmap QPixmap::mask() const
@@ -314,22 +306,23 @@ void QPixmap::setMask(const QBitmap &newmask)
     if (data == newmask.data) // trying to selfmask
         return;
 
+    if(newmask.isNull()) {
+        detach();
+        data->has_alpha = data->has_mask = false;
+        QPixmap opaque(width(), height());
+        opaque.fill(QColor(255, 255, 255, 255));
+        data->macSetAlphaChannel(&opaque, true);
+        return;
+    }
+
     if (newmask.width() != width() || newmask.height() != height()) {
         qWarning("QPixmap::setMask: The pixmap and the mask must have the same size");
         return;
     }
     detach();
-
     data->has_alpha = false;
-    if(newmask.isNull()) {
-        data->has_mask = false;
-        QPixmap opaque(width(), height());
-        opaque.fill(QColor(255, 255, 255, 255));
-        data->macSetAlphaChannel(&opaque, true);
-    } else {
-        data->has_mask = true;
-        data->macSetAlphaChannel(&newmask, true);
-    }
+    data->has_mask = true;
+    data->macSetAlphaChannel(&newmask, true);
 }
 
 void QPixmap::detach()
