@@ -56,8 +56,8 @@ static bool createDir(QString path)
         return true;
 
     QDir d;
-    if(path.startsWith(Option::dir_sep)) {
-        d.cd(Option::dir_sep);
+    if(path.startsWith(QDir::separator())) {
+        d.cd(QString(QDir::separator()));
         path = path.right(path.length() - 1);
     }
     bool ret = true;
@@ -76,7 +76,7 @@ static bool createDir(QString path)
     if(driveExists)
 #endif
     {
-        QStringList subs = path.split(Option::dir_sep);
+        QStringList subs = path.split(QDir::separator());
         for(QStringList::Iterator subit = subs.begin(); subit != subs.end(); ++subit) {
             if(!d.cd(*subit)) {
                 d.mkdir((*subit));
@@ -204,7 +204,7 @@ MakefileGenerator::initOutPaths()
             for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                 (*input) = fileFixify((*input), Option::output_dir, Option::output_dir);
                 QString path = replaceExtraCompilerVariables(tmp_out, (*input), QString());
-                path = Option::fixPathToLocalOS(path);
+                path = Option::fixPathToTargetOS(path);
                 int slash = path.lastIndexOf(Option::dir_sep);
                 if(slash != -1) {
                     path = path.left(slash);
