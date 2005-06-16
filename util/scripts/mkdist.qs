@@ -306,8 +306,12 @@ for (var p in validPlatforms) {
 		compress(platform, license, platDir);
 
 		// create binaries
- 		createBinary(platform, platName);
-         
+		if (platform == "win") {
+		    createBinary(platform, license, platName, "vs2003");
+		} else {
+		    createBinary(platform, license, platName, "");
+		}
+
 		indentation-=tabSize;
 	    }
 	}
@@ -630,10 +634,9 @@ function compress(platform, license, packageDir)
 
 
 /************************************************************
- * copies a qt-package to binary host, compiles qt, and collects the
- * resulting dlls etc.
+ * creates binaries on remote hosts and collects the results back
  */
-function createBinary(platform, packageName)
+function createBinary(platform, license, packageName, compiler)
 {
     if (!options["binaries"] || !(platform in binaryHosts))
  	return;
@@ -672,8 +675,8 @@ function createBinary(platform, packageName)
 		 windowsPath,
 		 packageName,
 		 options["version"],
-		 "commercial",
-		 "vs2003" + "'"]);
+		 license,
+		 compiler + "'"]);
 	
 	// collect binary
 	execute(["scp", login + ":" + hostDir + "/" + packageName + "*.exe", outputDir + "/."]);
