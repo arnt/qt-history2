@@ -201,7 +201,7 @@
 
     When the user enters a new string in an editable combobox, the
     widget may or may not insert it, and it can insert it in several
-    locations, depending on the QComboBox::InsertPolicy(). The default
+    locations, depending on the QComboBox::InsertPolicy. The default
     policy is is QComboBox::InsertAtBottom.
 
     Then we add the provided text to the combobox, and specify the
@@ -218,7 +218,7 @@
 
     QTableWidget inherits QTableView which provides a default
     model/view implementation of a table view. The
-    QTableView::horizontalHeaders() function returns the table view's
+    QTableView::horizontalHeader() function returns the table view's
     horizontal header as a QHeaderView. The QHeaderView class provides
     a header row or header column for item views, and the
     QHeaderView::setResizeMode() function sets the constraints on how

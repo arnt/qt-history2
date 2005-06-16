@@ -38,18 +38,19 @@
 
     In addition to a constructor, we declare the several child
     widgets: We need a QLineEdit with an associated QLabel to let the
-    user type a word to search for, we need several QCheckBoxes to
-    facilitate the search options, and we need three QPushButtons: the
-    \gui Find button to start a search, the \gui More button to enable
-    an advanced search, and the \gui Close button to exit the
-    application. Finally, we need a QWidget representing the
-    application's extension part.
+    user type a word to search for, we need several  \l
+    {QCheckBox}{QCheckBox}es to facilitate the search options, and we
+    need three \l {QPushButton}{QPushButton}s: the \gui Find button to
+    start a search, the \gui More button to enable an advanced search,
+    and the \gui Close button to exit the application. Finally, we
+    need a QWidget representing the application's extension part.
 
     \section1 FindDialog Class Implementation
 
     In the constructor we first create the standard child widgets for
     the simple search: the QLineEdit with the associated QLabel, two
-    of the QCheckBoxes and all the QPushButtons.
+    of the \l {QCheckBox}{QCheckBox}es and all the \l
+    {QPushButton}{QPushButton}s.
 
     \quotefromfile dialogs/extension/finddialog.cpp
     \skipto FindDialog
@@ -70,15 +71,16 @@
     \skipto extension
     \printuntil search SelectionCheckBox
 
-    Then we create the extension widget, and the QCheckBoxes
-    associated with the advanced search options.
+    Then we create the extension widget, and the \l
+    {QCheckBox}{QCheckBox}es associated with the advanced search
+    options.
 
     \skipto connect
     \printuntil extension->setLayout(
 
     Now that the extension widget is created, we can connect the \gui
-    More button's \c toggled() signal to the extension widget's \c
-    setVisible() slot.
+    More button's \l{QAbstractButton::toggled()}{toggled()} signal to
+    the extension widget's \l{QWidget::setVisible()}{setVisible()} slot.
 
     The QAbstractButton::toggled() signal is emitted whenever a
     checkable button changes its state. The signal's argument is true

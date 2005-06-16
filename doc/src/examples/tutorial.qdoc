@@ -449,7 +449,7 @@
     hand, there is no harm in deleting a child when you choose to.
     The child will automatically tell Qt about its imminent death.)
 
-    The QObject::setGeometry() call sets both the widget's screen
+    The QWidget::setGeometry() call sets both the widget's screen
     position and the size. It is equivalent to calling
     QWidget::move() followed by QWidget::resize().
 
@@ -1772,7 +1772,7 @@
     except that it now emits the \c missed() signal to tell the
     outside world about the failure.
 
-    \printuntil }
+    \printuntil /^\}/
 
     And the rest of the function is as before.
 
@@ -2068,7 +2068,6 @@
 
     \skipto newGame
     \printline newGame
-    \printline }
 
     We're all done constructing the \c GameBoard, so we start it all
     using \c newGame(). Although \c newGame() is a slot, it can also

@@ -11,7 +11,7 @@
     simple constraints.
 
     Group boxes are usually used to organize check boxes and radio
-    buttons into exclusive groups. 
+    buttons into exclusive groups.
 
     \image groupbox-example.png
 
@@ -45,7 +45,7 @@
     \printuntil /^\}/
 
     The functions used to create each group box each return a
-    \c QGroupBox to be inserted into the grid layout.
+    QGroupBox to be inserted into the grid layout.
 
     \skipto createFirstExclusiveGroup
     \printuntil radio1->setChecked

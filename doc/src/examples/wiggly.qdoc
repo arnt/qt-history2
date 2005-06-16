@@ -38,7 +38,7 @@
     \printuntil };
 
     The \c Dialog class provides a dialog widget that allows the user
-    to enter a text. The text is then rendeded by \c WigglyWidget.
+    to enter a text. The text is then rendered by \c WigglyWidget.
 
     \section1 Dialog Class Implementation
 
