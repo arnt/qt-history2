@@ -261,49 +261,35 @@ bool QScreenCursor::restoreUnder(const QRect &r)
         int x = data->x - data->hotx;
         int y = data->y - data->hoty;
 
-        if (depth < 8) {
-        qWarning("QScreenCursor doesn't support depth %d", depth);
+        {
+        //duplicated logic
+        int screenlinestep = qt_screen->linestep();
+        int startRow = y < 0 ? qAbs(y) : 0;
+        int startCol = x < 0 ? qAbs(x) : 0;
+        int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
+        int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
 
-#if 0
-//             if (data->width && data->height) {
-//                 gfx->gfx_swcursor = false;   // prevent recursive call from blt
-//                 QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-//                 QRect r(x,y,data->width,data->height);
-//                 r = qt_screen->mapFromDevice(r, s);
-//                 gfx->setSource(imgunder);
-//                 gfx->blt(r.x(), r.y(), r.width(), r.height(),0,0);
-//                 gfx->gfx_swcursor = true;
-//            }
-#endif
-        } else {
-            // This is faster than the above - at least until blt is
-            // better optimized.
-            int linestep = qt_screen->linestep();
-            int startCol = x < 0 ? qAbs(x) : 0;
-            int startRow = y < 0 ? qAbs(y) : 0;
-            int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
-            int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
+        unsigned char *screen = fb_start + (y + startRow) * screenlinestep
+                                + (x + startCol) * depth/8;
+        unsigned char *buf = data->under;
 
-            int srcLineStep = data->width * depth/8;
-            unsigned char *dest = fb_start + (y + startRow) * linestep
-                                    + (x + startCol) * depth/8;
-            unsigned char *src = data->under;
 
-            if (endCol > startCol) {
-                int bytes;
-                if (depth < 8)
-                    bytes = (x + endCol - 1)*depth/8 - (x + startCol)*depth/8 + 1;
-                else
-                    bytes = (endCol - startCol) * depth / 8;
-                if (depth == 1) bytes++;
+        if (endCol > startCol) {
+            int bytes;
+            if (depth < 8)
+                bytes = (x + endCol)*depth/8 - (x + startCol)*depth/8 + 1;
+            else
+                bytes = (endCol - startCol) * depth / 8;
+
                 for (int row = startRow; row < endRow; row++)
                 {
-                    memcpy(dest, src, bytes);
-                    src += srcLineStep;
-                    dest += linestep;
+                    memcpy(screen, buf, bytes);
+                    screen += screenlinestep;
+                    buf += bytes;
                 }
             }
         }
+
         save_under = true;
         return true;
     }
@@ -326,49 +312,31 @@ void QScreenCursor::saveUnder()
     int x = data->x - data->hotx;
     int y = data->y - data->hoty;
 
-    if (depth < 8) {
-        qWarning("QScreenCursor doesn't support depth %d", depth);
-#if 0
-//         gfxunder->gfx_swcursor = false;   // prevent recursive call from blt
-//         gfxunder->srclinestep = gfx->linestep();
-//         gfxunder->srcdepth = gfx->bitDepth();
-//         gfxunder->srcbits = gfx->buffer;
-//         gfxunder->srcpixeltype = QScreen::NormalPixel;
-//         gfxunder->srcwidth = qt_screen->width();
-//         gfxunder->srcheight = qt_screen->height();
-//         gfxunder->src_normal_palette = true;
-//         QSize s(qt_screen->deviceWidth(), qt_screen->deviceHeight());
-//         QRect r(x, y, data->width, data->height);
-//         r = qt_screen->mapFromDevice(r, s);
-//         gfxunder->blt(0,0,data->width,data->height,r.x(), r.y());
-//         gfxunder->gfx_swcursor = true;
-#endif
-    } else {
-        // This is faster than the above - at least until blt is
-        // better optimized.
-        int linestep = qt_screen->linestep();
+    {
+        //duplicated logic
+        int screenlinestep = qt_screen->linestep();
         int startRow = y < 0 ? qAbs(y) : 0;
         int startCol = x < 0 ? qAbs(x) : 0;
         int endRow = y + data->height > clipHeight ? clipHeight - y : data->height;
         int endCol = x + data->width > clipWidth ? clipWidth - x : data->width;
 
-        int destLineStep = data->width * depth / 8;
-
-        unsigned char *src = fb_start + (y + startRow) * linestep
+        unsigned char *screen = fb_start + (y + startRow) * screenlinestep
                                 + (x + startCol) * depth/8;
-        unsigned char *dest = data->under;
+        unsigned char *buf = data->under;
+
 
         if (endCol > startCol) {
             int bytes;
             if (depth < 8)
-                bytes = (x + endCol - 1)*depth/8 - (x + startCol)*depth/8 + 1;
+                bytes = (x + endCol)*depth/8 - (x + startCol)*depth/8 + 1;
             else
                 bytes = (endCol - startCol) * depth / 8;
+
             for (int row = startRow; row < endRow; row++)
             {
-                memcpy(dest, src, bytes);
-                src += linestep;
-                dest += destLineStep;
+                memcpy(buf, screen, bytes);
+                screen += screenlinestep;
+                buf += bytes;
             }
         }
     }
