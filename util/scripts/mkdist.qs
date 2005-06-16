@@ -23,7 +23,7 @@ const binaryExtensions = ["msi", "dll", "gif", "png", "mng",
 
 var binaryHosts = new Array();
 binaryHosts["win"] = "innsikt";
-binaryHosts["mac"] = "zoidberg";
+binaryHosts["mac"] = "tick";
 const binaryUser = "period";
 		     
 const user = System.getenv("USER");
@@ -57,6 +57,8 @@ var checkoutRemove = [ new RegExp("^tests"),
 		       new RegExp("^extensions/nsplugin"),
 		       new RegExp("^extensions/xt"),
 		       new RegExp("^examples/motif"),
+		       new RegExp("^src/corelib/eval.pri"),
+		       new RegExp("^src/corelib/kernel/qtcore_eval.cpp"),
 		       new RegExp("^src/gui/styles/qsgi"),
 		       new RegExp("^src/gui/styles/qplatinum"),
 		       new RegExp("^src/gui/styles/qmotifplus"),
@@ -265,11 +267,16 @@ for (var p in validPlatforms) {
 		    .arg(options["version"]);
 		var platDir = distDir + "/" + platName;
 		execute(["cp", "-r", checkoutDir, platDir]);
-		execute(["chmod", "-R", "ug+w", platDir]);
 
 		//copying dist files
 		print("Copying dist files...");
 		copyDist(platDir, platform, license);
+
+		//copy in eval files
+		if ((license == "eval") && (platform == "win" || platform == "mac")) {
+		    print("Copying eval files...");
+		    copyEval(platDir);
+		}
 
 		// run qdoc
 		print("Running qdoc...");
@@ -500,6 +507,8 @@ function preparePerforce()
 /************************************************************
  * checks out p4Path (for example "...") from P4 and puts it into the absolute
  * directory localDir, returns the localDir on success or throws an exception
+ *
+ * Note: localDir is made writable
  */
 function checkout(p4Path, localDir)
 {
@@ -523,6 +532,7 @@ function checkout(p4Path, localDir)
     // test that checkout worked
     if (!File.exists(localDir))
 	throw "Checkout failed, checkout dir %1 does not exist.".arg(checkoutDir);
+    execute(["chmod", "-R", "ug+w", localDir]);
     return localDir;
 }
 
@@ -681,7 +691,8 @@ function createBinary(platform, packageName)
 		 "MAKEFLAGS=-j10",
 		 "package/mkpackage",
 		 "-qtpackage",
-		 macPath + "/" + packageFile]);
+		 macPath + "/" + packageFile,
+		 "-image"]);
 
 	// collect binary
 	execute(["scp", login + ":" + hostDir + "/outputs/*.dmg", outputDir + "/."]);
@@ -824,6 +835,18 @@ function copyDist(packageDir, platform, license)
 }
 
 /************************************************************
+ * copies the directory and files needed to make eval binares from src package
+ */
+function copyEval(packageDir)
+{
+    p4Copy(p4BranchPath + "/src/corelib/eval.pri",
+	   packageDir + "/src/corelib/eval.pri", p4Label);
+    p4Copy(p4BranchPath + "/src/corelib/kernel/qtcore_eval.cpp",
+	   packageDir + "/src/corelib/kernel/qtcore_eval.cpp", p4Label);
+    checkout("util/licensekeys/shared/...", packageDir + "/util/licensekeys/shared");
+}
+
+/************************************************************
  * runs syncqt in packageDir with the specified platform
  */
 function syncqt(packageDir, platform)
@@ -921,22 +944,20 @@ function packageExists(platform, license, edition)
 }
 
 /************************************************************
- * returns a local writable copy of fileName specified in the
- * depotPath
+ * checks out depotFile to localFile using the specified label
  * 
  * typically used when files are needed from the depot that can have
  * been purged from the package (like qdoc configurations and scripts
  * etc.)
  */
-function p4Copy(depotPath, fileName, label)
+function p4Copy(depotFile, localFile, label)
 {
-    var depotFileName = depotPath + "/" + fileName + "@" + label;
-    var newFile = distDir + "/" + fileName;
-    execute([p4Command, "print", "-o", newFile, "-q", depotFileName]);
-    if (!File.exists(newFile))
-	throw "Failed copying file: %1 to: %2".arg(depotFileName).arg(newFile);
-    execute(["chmod", "ug+w", newFile]);
-    return newFile;
+    var depotFileName = depotFile + "@" + label;
+    execute([p4Command, "print", "-o", localFile, "-q", depotFileName]);
+    if (!File.exists(localFile))
+	throw "Failed copying file: %1 to: %2".arg(depotFileName).arg(localFile);
+    execute(["chmod", "ug+w", localFile]);
+    return localFile;
 }
 
 /************************************************************

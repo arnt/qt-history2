@@ -21,4 +21,4 @@ win32:DEFINES-=QT_NO_CAST_TO_ASCII
 
 QMAKE_LIBS += $$QMAKE_LIBS_CORE
 
-EVAL_PACKAGE:include(eval.pri)
+contains(DEFINES,QT_EVAL):include(eval.pri)

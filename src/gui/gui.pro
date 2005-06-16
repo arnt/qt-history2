@@ -31,4 +31,4 @@ embedded: INCLUDEPATH *= $$QMAKE_INCDIR_QT/QtNetwork
 
 QMAKE_LIBS += $$QMAKE_LIBS_GUI
 
-EVAL_PACKAGE:include($$QT_BUILD_TREE/src/corelib/eval.pri)
+contains(DEFINES,QT_EVAL):include($$QT_BUILD_TREE/src/corelib/eval.pri)
