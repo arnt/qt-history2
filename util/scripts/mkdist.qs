@@ -307,7 +307,11 @@ for (var p in validPlatforms) {
 
 		// create binaries
 		if (platform == "win") {
-		    createBinary(platform, license, platName, "vs2003");
+		    if (license == "opensource") {
+			createBinary(platform, license, platName, "mingw");
+		    } else {
+			createBinary(platform, license, platName, "vs2003");
+		    }
 		} else {
 		    createBinary(platform, license, platName, "");
 		}
