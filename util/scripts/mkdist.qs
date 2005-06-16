@@ -662,7 +662,7 @@ function createBinary(platform, packageName)
 		 windowsPath,
 		 packageName,
 		 options["version"],
-		 "full",
+		 "commercial",
 		 "vs2003" + "'"]);
 	
 	// collect binary

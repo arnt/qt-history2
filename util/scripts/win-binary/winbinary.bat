@@ -5,7 +5,7 @@ rem requires that perl and unzip are in your path
 rem %1 = working directory
 rem %2 = package name (without extension)
 rem %3 = version
-rem %4 = options (opensource|full, default full)
+rem %4 = options (opensource|commercial, default commercial)
 rem %5 = compiler (vs2003, optional, default vs2003)
 rem %6 = NSIS directory (optional)
 rem ***********************************************
@@ -19,7 +19,7 @@ set QT_WINBINARY_STATUS=ok
 rem We need to compile qt in a long directory, since we want to patch the pdb files.
 set TMP_BUILDDIR=__________________________________________________PADDING__________________________________________________
 
-if "%4"=="" set TMP_QTCONFIG=full
+if "%4"=="" set TMP_QTCONFIG=commercial
 if "%5"=="" set TMP_COMPILER=vs2003
 if "%6"=="" set TMP_NSISDIR=%ProgramFiles%\NSIS
 

@@ -1,10 +1,10 @@
 !define GW_DOWNLOAD_INI_FILE "gwdownload.ini"
 !define GW_MIRROR_INI_FILE "gwmirror.ini"
-!define GW_MIRROR_LIST_URL "http://80.232.37.131"
+!define GW_MIRROR_LIST_URL "ftp://ftp.trolltech.com/misc"
 !define GW_MINGW_VERSION "3.4.2"
 !define GW_DOWNLOAD_FILE "MinGW-${GW_MINGW_VERSION}"
 !define GW_RUNTIME_LIB "mingw*.dll"
-!define GW_LICENSE_FILE "C:\utils\Package\MinGW\COPYING"
+!define GW_LICENSE_FILE "C:\MinGW\COPYING"
 
 var GW_DO_DOWNLOAD
 var GW_DO_DOWNLOAD_SOURCE
