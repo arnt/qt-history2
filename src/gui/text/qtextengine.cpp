@@ -1344,14 +1344,20 @@ int QTextEngine::formatIndex(const QScriptItem *si) const
 QTextCharFormat QTextEngine::format(const QScriptItem *si) const
 {
     QTextCharFormat format;
-    if (block.docHandle())
-        format = formats()->charFormat(formatIndex(si));
+    const QTextFormatCollection *formats = 0;
+    if (block.docHandle()) {
+        formats = this->formats();
+        format = formats->charFormat(formatIndex(si));
+    }
     if (specialData) {
         int end = si->position + length(si);
         for (int i = 0; i < specialData->addFormats.size(); ++i) {
             const QTextLayout::FormatRange &r = specialData->addFormats.at(i);
             if (r.start <= si->position && r.start + r.length >= end) {
-                format.merge(r.format);
+                if (!specialData->addFormatIndices.isEmpty())
+                    format.merge(formats->format(specialData->addFormatIndices.at(i)));
+                else
+                    format.merge(r.format);
             }
         }
     }
@@ -1407,6 +1413,20 @@ bool QTextEngine::atWordSeparator(int position) const
         || c == ')'
         || c == '{'
         || c == '}';
+}
+
+void QTextEngine::indexAdditionalFormats()
+{
+    if (!block.docHandle())
+        return;
+
+    specialData->addFormatIndices.resize(specialData->addFormats.count());
+    QTextFormatCollection * const formats = this->formats();
+
+    for (int i = 0; i < specialData->addFormats.count(); ++i) {
+        specialData->addFormatIndices[i] = formats->indexForFormat(specialData->addFormats.at(i).format);
+        specialData->addFormats[i].format = QTextCharFormat();
+    }
 }
 
 void QTextEngine::setBoundary(int strPos) const

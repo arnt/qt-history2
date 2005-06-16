@@ -449,6 +449,7 @@ void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
             d->specialData = 0;
         } else {
             d->specialData->addFormats = formatList;
+            d->indexAdditionalFormats();
         }
         return;
     }
@@ -457,6 +458,7 @@ void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
         d->specialData->preeditPosition = -1;
     }
     d->specialData->addFormats = formatList;
+    d->indexAdditionalFormats();
     if (d->block.docHandle())
         d->block.docHandle()->documentChange(d->block.position(), d->block.length());
 }
@@ -468,7 +470,21 @@ void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
 */
 QList<QTextLayout::FormatRange> QTextLayout::additionalFormats() const
 {
-    return d->specialData ? d->specialData->addFormats : QList<FormatRange>();
+    QList<FormatRange> formats;
+    if (!d->specialData)
+        return formats;
+
+    formats = d->specialData->addFormats;
+
+    if (d->specialData->addFormatIndices.isEmpty())
+        return formats;
+
+    const QTextFormatCollection *collection = d->formats();
+
+    for (int i = 0; i < d->specialData->addFormatIndices.count(); ++i)
+        formats[i].format = collection->charFormat(d->specialData->addFormatIndices.at(i));
+
+    return formats;
 }
 
 /*!

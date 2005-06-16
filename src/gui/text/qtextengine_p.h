@@ -379,10 +379,12 @@ public:
         int preeditPosition;
         QString preeditText;
         QList<QTextLayout::FormatRange> addFormats;
+        QVector<int> addFormatIndices;
     };
     SpecialData *specialData;
 
     bool atWordSeparator(int position) const;
+    void indexAdditionalFormats();
 
 private:
     void setBoundary(int strPos) const;
