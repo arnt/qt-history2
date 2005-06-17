@@ -1839,7 +1839,7 @@ static void blend_color_gray4_lsb(void *t, const QSpan *span, QPainter::Composit
 
 
 
-static void blend_gray4_lsb(void *t, const QSpan *span,
+static void blend_tiled_gray4_lsb(void *t, const QSpan *span,
                         const qreal dx, const qreal dy,
                         const void *ibits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
@@ -1886,7 +1886,7 @@ static void blend_gray4_lsb(void *t, const QSpan *span,
 
 }
 
-static void blend_tiled_gray4_lsb(void *t, const QSpan *span,
+static void blend_gray4_lsb(void *t, const QSpan *span,
                               const qreal dx, const qreal dy,
                               const void *ibits, const int image_width, const int image_height, QPainter::CompositionMode)
 {
