@@ -260,6 +260,14 @@ QString Launcher::findExecutable(const QDir &dir) const
     QDir parentDir = dir;
     parentDir.cdUp();
 
+    QFileInfo releaseDir(dir, "release");
+    if (releaseDir.isDir()) {
+        QDir currentDir(releaseDir.absoluteFilePath());
+        QString path = findExecutable(currentDir);
+        if (!path.isEmpty())
+            return path;
+    }
+
     foreach (QFileInfo info, dir.entryInfoList(QDir::Dirs | QDir::Files)) {
         if (info.isFile() && info.isExecutable())
             return info.absoluteFilePath();
