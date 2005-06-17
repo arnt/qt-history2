@@ -989,9 +989,10 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
             QPainter pixPainter(&tabPix);
             qt_mac_draw_tab(&pixPainter, 0, QRect(0, 0, 20, 20), kThemeTabFront, kThemeTabNorth);
             pixPainter.end();
-            const QRgb GraphiteColor = 0xffa7b1b9;
-            QImage img = tabPix.toImage();
-            if (img.pixel(10, 10) == GraphiteColor)
+            const QRgb GraphiteColor = 0xffa7b0ba;
+            QRgb pmColor = tabPix.toImage().pixel(10, 10);
+            if (qAbs(qRed(pmColor) - qRed(GraphiteColor)) < 3 && qAbs(qGreen(pmColor) - qGreen(GraphiteColor)) < 3
+                    && qAbs(qBlue(pmColor) - qBlue(GraphiteColor) < 3))
                 pantherTabStart = TabSelectedActiveGraphiteLeft;
             else
                 pantherTabStart = TabSelectedActiveLeft;
@@ -2014,8 +2015,7 @@ void QMacStylePrivate::HIThemeDrawControl(QStyle::ControlElement ce, const QStyl
                 tdi.style = kThemeTabNonFrontUnavailable;
             } else if (!(tabOpt->state & QStyle::State_Enabled)) {
                 tdi.style = kThemeTabNonFrontInactive;
-            } else if ((tabOpt->state & (QStyle::State_Sunken | QStyle::State_MouseOver))
-                       == (QStyle::State_Sunken | QStyle::State_MouseOver)) {
+            } else if (tabOpt->state & QStyle::State_Sunken) {
                 tdi.style = kThemeTabNonFrontPressed;
             }
             tdi.direction = getTabDirection(tabOpt->shape);
@@ -3722,8 +3722,7 @@ void QMacStylePrivate::AppManDrawControl(QStyle::ControlElement ce, const QStyle
                 tts = kThemeTabNonFrontUnavailable;
             } else if (!(tab->state & QStyle::State_Enabled)) {
                 tts = kThemeTabNonFrontInactive;
-            } else if ((tab->state & (QStyle::State_Sunken | QStyle::State_MouseOver))
-                       == (QStyle::State_Sunken | QStyle::State_MouseOver)) {
+            } else if (tab->state & QStyle::State_Sunken) {
                 tts = kThemeTabNonFrontPressed;
             }
             ThemeTabDirection ttd = getTabDirection(tab->shape);
