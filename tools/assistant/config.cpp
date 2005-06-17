@@ -92,7 +92,12 @@ Config *Config::configuration()
 void Config::load()
 {
     const QString key = getVersionString() + QLatin1String("/");
-    const QString profkey = key + QLatin1String("Profile/") + profil->props[QLatin1String("name")] + QLatin1String("/");
+
+    const QString pKey = (profil->props[QLatin1String("name")] == QLatin1String("default"))
+        ? QLatin1String(QT_VERSION_STR)
+        : getVersionString();
+
+    const QString profkey = pKey + QLatin1String("/Profile/") + profil->props[QLatin1String("name")] + QLatin1String("/");
 
     QSettings settings;
 
@@ -123,7 +128,12 @@ void Config::save()
 void Config::saveSettings()
 {
     const QString key = getVersionString() + QLatin1String("/");
-    const QString profkey = key + QLatin1String("Profile/") + profil->props[QLatin1String("name")] + QLatin1String("/");
+
+    const QString pKey = (profil->props[QLatin1String("name")] == QLatin1String("default"))
+        ? QLatin1String(QT_VERSION_STR)
+        : getVersionString();
+
+    const QString profkey = pKey + QLatin1String("/Profile/") + profil->props[QLatin1String("name")] + QLatin1String("/");
 
     QSettings settings;
 
@@ -158,9 +168,8 @@ static void dumpmap( const QMap<QString,QString> &m, const QString &header )
 void Config::loadDefaultProfile()
 {
     QSettings settings;
-    const QString key = getVersionString() + QLatin1String("/Profile");
-    const QString profKey = key + QLatin1String("/default/");
-
+    const QString profKey = QLatin1String(QT_VERSION_STR) + QLatin1String("/Profile/default/");
+    
     if (!settings.contains(profKey + QLatin1String("DocFiles")))
         return;
     
@@ -205,8 +214,11 @@ void Config::saveProfile( Profile *profile )
         return;
     QSettings settings;
     
-    const QString key = getVersionString() + QLatin1String("/");
-    const QString profKey = key + QLatin1String("Profile/") + profile->props[QLatin1String("name")] + QLatin1String("/");
+    const QString key = (profile->props[QLatin1String("name")] == QLatin1String("default"))
+        ? QLatin1String(QT_VERSION_STR)
+        : getVersionString();
+
+    const QString profKey = key + QLatin1String("/Profile/") + profile->props[QLatin1String("name")] + QLatin1String("/");
 
     QStringList indexes, icons, imgDirs, dcfs;
     QStringList titles = profile->dcfTitles.keys();
