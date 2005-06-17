@@ -827,14 +827,28 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     if (cellCount == 0)
         return false;
 
+    QTextFrameFormat fmt;
     const QTextHtmlParserNode &node = at(tableNodeIdx);
-    QTextTableFormat fmt;
+    if (node.isTableFrame) {
+        // for plain text frames we set the frame margin
+        // for all of top/bottom/left/right, so in the import 
+        // here it doesn't matter which one we pick
+        fmt.setMargin(node.uncollapsedMargin(QTextHtmlParser::MarginTop));
+    } else {
+        QTextTableFormat tableFmt;
+        tableFmt.setCellSpacing(node.tableCellSpacing);
+        tableFmt.setCellPadding(node.tableCellPadding);
+        if (node.alignment)
+            tableFmt.setAlignment(node.alignment);
+        tableFmt.setColumns(table->columns);
+        tableFmt.setColumnWidthConstraints(columnWidths);
+        fmt = tableFmt;
+    }
+
     fmt.setBorder(node.tableBorder);
     fmt.setWidth(node.width);
-    fmt.setCellSpacing(node.tableCellSpacing);
-    fmt.setCellPadding(node.tableCellPadding);
-    if (node.alignment)
-        fmt.setAlignment(node.alignment);
+    fmt.setHeight(node.height);
+
     if (node.direction < 2)
         fmt.setLayoutDirection(Qt::LayoutDirection(node.direction));
     if (node.bgColor.isValid())
@@ -843,8 +857,6 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
         fmt.clearBackground();
     fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
 
-    fmt.setColumns(table->columns);
-    fmt.setColumnWidthConstraints(columnWidths);
     table->tableIndex = d->formatCollection.createObjectIndex(fmt);
     return true;
 }

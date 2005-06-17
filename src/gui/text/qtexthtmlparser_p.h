@@ -164,6 +164,7 @@ struct QTextHtmlParserNode {
     uint hasCssBlockIndent : 1;
     uint hasCssListIndent : 1;
     uint isEmptyParagraph : 1;
+    uint isTableFrame : 1;
     uint direction : 2; // 3 means unset
     uint displayMode : 3; // QTextHtmlElement::DisplayMode
     QString fontFamily;
@@ -180,6 +181,7 @@ struct QTextHtmlParserNode {
     qreal imageWidth;
     qreal imageHeight;
     QTextLength width;
+    QTextLength height;
     qreal tableBorder;
     int tableCellRowSpan;
     int tableCellColSpan;
@@ -215,6 +217,8 @@ struct QTextHtmlParserNode {
     { return id == Html_img || id == Html_hr || id == Html_br; }
 
     void initializeProperties(const QTextHtmlParserNode *parent, const QTextHtmlParser *parser);
+
+    inline int uncollapsedMargin(int mar) const { return margin[mar]; }
 
 private:
     bool isNestedList(const QTextHtmlParser *parser) const;

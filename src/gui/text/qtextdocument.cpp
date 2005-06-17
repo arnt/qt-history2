@@ -1024,6 +1024,8 @@ public:
     QString toHtml(const QByteArray &encoding);
 
 private:
+    enum StyleMode { EmitStyleTag, OmitStyleTag };
+
     void emitFrame(QTextFrame::Iterator frameIt);
     void emitBlock(const QTextBlock &block);
     void emitTable(const QTextTable *table);
@@ -1033,7 +1035,8 @@ private:
     bool emitCharFormatStyle(const QTextCharFormat &format);
     void emitTextLength(const char *attribute, const QTextLength &length);
     void emitAlignment(Qt::Alignment alignment);
-    void emitFloatStyle(QTextFrameFormat::Position pos);
+    void emitFloatStyle(QTextFrameFormat::Position pos, StyleMode mode = EmitStyleTag);
+    void emitMargins(const QString &top, const QString &bottom, const QString &left, const QString &right);
     void emitAttribute(const char *attribute, const QString &value);
 
     QString html;
@@ -1212,18 +1215,44 @@ void QTextHtmlExporter::emitAlignment(Qt::Alignment alignment)
     }
 }
 
-void QTextHtmlExporter::emitFloatStyle(QTextFrameFormat::Position pos)
+void QTextHtmlExporter::emitFloatStyle(QTextFrameFormat::Position pos, StyleMode mode)
 {
     if (pos == QTextFrameFormat::InFlow)
         return;
 
-    html += QLatin1String(" style=\"float:");
+    if (mode == EmitStyleTag)
+        html += QLatin1String(" style=\"float:");
+    else
+        html += QLatin1String(" float:");
+
     if (pos == QTextFrameFormat::FloatLeft)
-        html += QLatin1String(" left;\"");
+        html += QLatin1String(" left;");
     else if (pos == QTextFrameFormat::FloatRight)
-        html += QLatin1String(" right;\"");
+        html += QLatin1String(" right;");
     else
         Q_ASSERT_X(0, "QTextHtmlExporter::emitFloatStyle()", "pos should be a valid enum type");
+
+    if (mode == EmitStyleTag)
+        html += QLatin1Char('\"');
+}
+
+void QTextHtmlExporter::emitMargins(const QString &top, const QString &bottom, const QString &left, const QString &right)
+{
+    html += QLatin1String(" margin-top:");
+    html += top;
+    html += QLatin1String("px;");
+
+    html += QLatin1String(" margin-bottom:");
+    html += bottom;
+    html += QLatin1String("px;");
+
+    html += QLatin1String(" margin-left:");
+    html += left;
+    html += QLatin1String("px;");
+
+    html += QLatin1String(" margin-right:");
+    html += right;
+    html += QLatin1String("px;");
 }
 
 void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
@@ -1336,21 +1365,10 @@ void QTextHtmlExporter::emitBlockAttributes(const QTextBlock &block)
         html += "-qt-paragraph-type:empty;";
     }
 
-    html += QLatin1String(" margin-top:");
-    html += QString::number(format.topMargin());
-    html += QLatin1String("px;");
-
-    html += QLatin1String(" margin-bottom:");
-    html += QString::number(format.bottomMargin());
-    html += QLatin1String("px;");
-
-    html += QLatin1String(" margin-left:");
-    html += QString::number(format.leftMargin());
-    html += QLatin1String("px;");
-
-    html += QLatin1String(" margin-right:");
-    html += QString::number(format.rightMargin());
-    html += QLatin1String("px;");
+    emitMargins(QString::number(format.topMargin()),
+                QString::number(format.bottomMargin()),
+                QString::number(format.leftMargin()),
+                QString::number(format.rightMargin()));
 
     html += QLatin1String(" -qt-block-indent:");
     html += QString::number(format.indent());
@@ -1585,10 +1603,41 @@ void QTextHtmlExporter::emitFrame(QTextFrame::Iterator frameIt)
 
     for (QTextFrame::Iterator it = frameIt;
          !it.atEnd(); ++it) {
-        if (QTextTable *table = qobject_cast<QTextTable *>(it.currentFrame()))
-            emitTable(table);
-        else if (it.currentBlock().isValid())
+        if (QTextFrame *f = it.currentFrame()) {
+            if (QTextTable *table = qobject_cast<QTextTable *>(f)) {
+                emitTable(table);
+            } else {
+                html += QLatin1String("<table");
+                QTextFrameFormat format = f->frameFormat();
+
+                if (format.hasProperty(QTextFormat::FrameBorder))
+                    emitAttribute("border", QString::number(format.border()));
+
+                html += QLatin1String(" style=\"-qt-table-type: frame;");
+                emitFloatStyle(format.position(), OmitStyleTag);
+
+                if (format.hasProperty(QTextFormat::FrameMargin)) {
+                    const QString margin = QString::number(format.margin());
+                    emitMargins(margin, margin, margin, margin);
+                }
+
+                html += QLatin1Char('\"');
+
+                emitTextLength("width", format.width());
+                emitTextLength("height", format.height());
+
+                QBrush bg = format.background();
+                if (bg != Qt::NoBrush)
+                    emitAttribute("bgcolor", bg.color().name());
+
+                html += QLatin1Char('>');
+                html += QLatin1String("<tr><td style=\"border: none;\">");
+                emitFrame(f->begin());
+                html += QLatin1String("</td></tr></table>");
+            }
+        } else if (it.currentBlock().isValid()) {
             emitBlock(it.currentBlock());
+        }
     }
 }
 

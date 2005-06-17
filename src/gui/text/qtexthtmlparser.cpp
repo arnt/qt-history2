@@ -443,7 +443,7 @@ QTextHtmlParserNode::QTextHtmlParserNode()
     : parent(0), id(-1), isBlock(false), isListItem(false), isListStart(false), isTableCell(false), isAnchor(false),
       fontItalic(false), fontUnderline(false), fontOverline(false), fontStrikeOut(false), fontFixedPitch(false),
       cssFloat(QTextFrameFormat::InFlow), hasOwnListStyle(false), hasFontPointSize(false),
-      hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), direction(3),
+      hasCssBlockIndent(false), hasCssListIndent(false), isEmptyParagraph(false), isTableFrame(false), direction(3),
       displayMode(QTextHtmlElement::DisplayInline), fontPointSize(DefaultFontSize),
       fontWeight(QFont::Normal), alignment(0), verticalAlignment(QTextCharFormat::AlignNormal),
       listStyle(QTextListFormat::ListStyleUndefined), imageWidth(-1), imageHeight(-1), tableBorder(0),
@@ -593,6 +593,8 @@ int QTextHtmlParser::margin(int i, int mar) const {
             node = &at(i);
             if (!node->isBlock)
                 return 0;
+            if (node->isTableCell)
+                break;
             m += node->margin[mar];
             i = node->parent;
         }
@@ -1306,6 +1308,8 @@ void QTextHtmlParser::parseAttributes()
                 setFloatAttribute(&node->tableCellPadding, value);
             } else if (key == QLatin1String("width")) {
                 setWidthAttribute(&node->width, value);
+            } else if (key == QLatin1String("height")) {
+                setWidthAttribute(&node->height, value);
             }
         } else if (node->id == Html_meta) {
             if (key == QLatin1String("name")
@@ -1400,6 +1404,10 @@ void QTextHtmlParser::parseAttributes()
                     const QString s = style.mid(19).trimmed().toLower();
                     if (s == QLatin1String("empty"))
                         node->isEmptyParagraph = true;
+                } else if (style.startsWith(QLatin1String("-qt-table-type:"))) {
+                    const QString s = style.mid(15).trimmed().toLower();
+                    if (s == QLatin1String("frame"))
+                        node->isTableFrame = true;
                 } else if (style.startsWith(QLatin1String("white-space:"))) {
                     const QString s = style.mid(12).trimmed().toLower();
                     QTextHtmlParserNode::WhiteSpaceMode ws = stringToWhiteSpaceMode(s);
