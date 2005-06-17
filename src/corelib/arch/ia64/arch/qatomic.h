@@ -73,7 +73,7 @@ inline int q_atomic_test_and_set_ptr(volatile void *ptr, void *expected, void *n
     asm volatile("mov ar.ccv=%2\n"
                  ";;\n"
                  "cmpxchg8.acq %0=%1,%3,ar.ccv\n"
-                 : "=r" (ret), "+m" (*ptr)
+                 : "=r" (ret), "+m" (*reinterpret_cast<unsigned long *>(ptr))
                  : "r" (expected), "r" (newval)
                  : "memory");
     return ret == expected;
