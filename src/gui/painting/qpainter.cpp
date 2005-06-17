@@ -113,7 +113,7 @@ void QPainterPrivate::draw_helper(const QPainterPath &originalPath, DrawOperatio
         absPathRect = absPathRect.intersect(QRect(0, 0, device->width(), device->height()));
     } else {
         QRegion r = q->clipRegion() * q->deviceMatrix();
-        absPathRect = absPathRect.intersect(r.boundingRect());
+        absPathRect = absPathRect.intersect(r.boundingRect()).intersect(QRect(0, 0, device->width(), device->height()));
     }
 
 
