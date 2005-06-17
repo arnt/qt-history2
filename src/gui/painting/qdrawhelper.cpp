@@ -686,7 +686,8 @@ static void blend_rgb32(void *t, const QSpan *span,
             *target++ = *src++;
         }
     } else {
-        while (target < end) {
+        uint *src_end = image_bits + (image_width * image_height);
+        while (target < end && src < src_end) {
             *target = qt_blend_pixel_rgb32(*target, *src, span->coverage);
             ++target;
             ++src;
