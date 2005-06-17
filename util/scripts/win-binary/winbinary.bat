@@ -157,6 +157,9 @@ xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\tools\linguist\phrasebooks\*.qph %1\clean\ph
 echo - * Porting tool .xml file
 xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\tools\porting\src\*.xml %1\clean\ >> %1\log.txt
 
+echo - Copying integration setup
+copy /Y \\Lupinella\tmp\thomas\setup_vs2003_*.exe %1\
+
 echo - Copying additional files
 echo   * qconfig.h
 xcopy /Q %1\%TMP_BUILDDIR%\src\corelib\global\qconfig.h %1\clean\include\Qt\ >> %1\log.txt
