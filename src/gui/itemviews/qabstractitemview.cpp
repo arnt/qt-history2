@@ -1687,8 +1687,10 @@ void QAbstractItemView::openPersistentEditor(const QModelIndex &index)
     options.state |= (index == currentIndex() ? QStyle::State_HasFocus : QStyle::State_None);
 
     QWidget *editor = d->editor(index, options);
-    if (editor)
+    if (editor) {
+        editor->show();
         d->persistent.append(editor);
+    }
 }
 
 /*!
