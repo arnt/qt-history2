@@ -1935,6 +1935,44 @@ Configure::ProjectType Configure::projectType( const QString& proFileName )
 }
 
 #if !defined(EVAL)
+
+bool showLicense(const QString &licenseFile)
+{
+    QFile file(licenseFile);
+    if (!file.open(QFile::ReadOnly)) {
+        cout << "Failed to load LICENSE file";
+        return false;
+    }
+
+    // Get console line height, to fill the screen properly
+    int i = 0, screenHeight = 25; // default
+    CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
+    HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
+    if (GetConsoleScreenBufferInfo(stdOut, &consoleInfo))
+        screenHeight = consoleInfo.srWindow.Bottom
+                     - consoleInfo.srWindow.Top
+                     - 1; // Some overlap for context
+
+    // Prompt the license content to the user
+    QStringList licenseContent = QString(file.readAll()).split('\n');
+    while(i < licenseContent.size()) {
+        cout << licenseContent.at(i) << endl;
+        if (++i % screenHeight == 0) {
+            cout << "(Press any key for more..)";
+            if(_getch() == 3) // _Any_ keypress w/no echo(eat <Enter> for stdout)
+                exit(0);      // Exit cleanly for Ctrl+C
+            cout << "\r";     // Overwrite text above
+        }
+    }
+
+    char accept = 'n';
+    cout << endl << "Do you accept the license? (y/n)" << endl;
+    cin >> accept;
+    if (tolower(accept) == 'y')
+        return true;
+    return false;
+}
+
 void Configure::readLicense()
 {
     // detect the package type
@@ -1965,6 +2003,11 @@ void Configure::readLicense()
             dictionary["DONE"] = "error";
         }
         cout << endl;
+        if (!showLicense(dictionary["QT_SOURCE_TREE"] + "/LICENSE.GPL")) {
+            cout << "Configuration aborted since license was not accepted";
+            dictionary["DONE"] = "error";
+            return;
+        }
         return;
     }
 
@@ -2100,38 +2143,7 @@ void Configure::readLicense()
         if (QFileInfo(norLicenseFile).exists())
             DeleteFileA(norLicenseFile.toLocal8Bit());
 
-        QFile file(toLicenseFile);
-        if (!file.open(QFile::ReadOnly)) {
-            cout << "Failed to load LICENSE file";
-            dictionary["DONE"] = "error";
-            return;
-        }
-
-        // Get console line height, to fill the screen properly
-        int i = 0, screenHeight = 25; // default
-        CONSOLE_SCREEN_BUFFER_INFO consoleInfo;
-        HANDLE stdOut = GetStdHandle(STD_OUTPUT_HANDLE);
-        if (GetConsoleScreenBufferInfo(stdOut, &consoleInfo))
-            screenHeight = consoleInfo.srWindow.Bottom
-                         - consoleInfo.srWindow.Top
-                         - 1; // Some overlap for context
-
-        // Prompt the license content to the user
-        QStringList licenseContent = QString(file.readAll()).split('\n');
-        while(i < licenseContent.size()) {
-            cout << licenseContent.at(i) << endl;
-            if (++i % screenHeight == 0) {
-                cout << "(Press any key for more..)";
-                if(_getch() == 3) // _Any_ keypress w/no echo(eat <Enter> for stdout)
-                    exit(0);      // Exit cleanly for Ctrl+C
-                cout << "\r";     // Overwrite text above
-            }
-        }
-
-        char accept = 'n';
-        cout << endl << "Do you accept the license? (y/n)" << endl;
-        cin >> accept;
-        if (tolower(accept) != 'y') {
+        if (!showLicense(toLicenseFile)) {
             cout << "Configuration aborted since license was not accepted";
             dictionary["DONE"] = "error";
             return;
