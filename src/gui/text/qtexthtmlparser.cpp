@@ -1172,20 +1172,30 @@ static bool setIntAttribute(int *destination, const QString &value)
     return ok;
 }
 
+static bool setFloatAttribute(qreal *destination, const QString &value)
+{
+    bool ok = false;
+    qreal val = value.toDouble(&ok);
+    if (ok)
+        *destination = val;
+
+    return ok;
+}
+
 static void setWidthAttribute(QTextLength *width, QString value)
 {
-    int intVal;
+    qreal realVal;
     bool ok = false;
-    intVal = value.toInt(&ok);
+    realVal = value.toDouble(&ok);
     if (ok) {
-        *width = QTextLength(QTextLength::FixedLength, intVal);
+        *width = QTextLength(QTextLength::FixedLength, realVal);
     } else {
         value = value.trimmed();
         if (!value.isEmpty() && value.at(value.length() - 1) == QLatin1Char('%')) {
             value.chop(1);
-            intVal = value.toInt(&ok);
+            realVal = value.toDouble(&ok);
             if (ok)
-                *width = QTextLength(QTextLength::PercentageLength, intVal);
+                *width = QTextLength(QTextLength::PercentageLength, realVal);
         }
     }
 }
@@ -1268,9 +1278,9 @@ void QTextHtmlParser::parseAttributes()
             if (key == QLatin1String("src") || key == QLatin1String("source")) {
                 node->imageName = value;
             } else if (key == QLatin1String("width")) {
-                setIntAttribute(&node->imageWidth, value);
+                setFloatAttribute(&node->imageWidth, value);
             } else if (key == QLatin1String("height")) {
-                setIntAttribute(&node->imageHeight, value);
+                setFloatAttribute(&node->imageHeight, value);
             }
         } else if (node->id == Html_tr || node->id == Html_body) {
             if (key == QLatin1String("bgcolor"))
@@ -1287,13 +1297,13 @@ void QTextHtmlParser::parseAttributes()
             }
         } else if (node->id == Html_table) {
             if (key == QLatin1String("border")) {
-                setIntAttribute(&node->tableBorder, value);
+                setFloatAttribute(&node->tableBorder, value);
             } else if (key == QLatin1String("bgcolor")) {
                 node->bgColor.setNamedColor(value);
             } else if (key == QLatin1String("cellspacing")) {
-                setIntAttribute(&node->tableCellSpacing, value);
+                setFloatAttribute(&node->tableCellSpacing, value);
             } else if (key == QLatin1String("cellpadding")) {
-                setIntAttribute(&node->tableCellPadding, value);
+                setFloatAttribute(&node->tableCellPadding, value);
             } else if (key == QLatin1String("width")) {
                 setWidthAttribute(&node->width, value);
             }

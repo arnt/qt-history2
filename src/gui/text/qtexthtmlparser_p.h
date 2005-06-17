@@ -177,14 +177,14 @@ struct QTextHtmlParserNode {
     QString anchorHref;
     QString anchorName;
     QString imageName;
-    int imageWidth;
-    int imageHeight;
+    qreal imageWidth;
+    qreal imageHeight;
     QTextLength width;
-    int tableBorder;
+    qreal tableBorder;
     int tableCellRowSpan;
     int tableCellColSpan;
-    int tableCellSpacing;
-    int tableCellPadding;
+    qreal tableCellSpacing;
+    qreal tableCellPadding;
 
     int cssBlockIndent;
     int cssListIndent;
