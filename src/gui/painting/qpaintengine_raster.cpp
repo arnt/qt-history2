@@ -509,7 +509,9 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
                          && !isBitmap);
 
         d->rasterBuffer->prepare(image);
-
+#ifdef Q_WS_QWS
+        isBitmap = image->depth() == 1; //### temporary until we have QScreenPaintDevice
+#endif
         if (format == QImage::Format_MonoLSB && isBitmap) {
             d->mono_surface = true;
             layout = DrawHelper::Layout_MonoLSB;
@@ -520,7 +522,9 @@ bool QRasterPaintEngine::begin(QPaintDevice *device)
             gccaps |= PorterDuff;
 #ifdef Q_WS_QWS
         } else if (format == QImage::Format_RGB16) {
-            layout = DrawHelper::Layout_RGB565;
+            layout = DrawHelper::Layout_RGB16;
+        } else if (format == QImage::Format_Grayscale4LSB) {
+            layout = DrawHelper::Layout_Gray4LSB;
 #endif
         } else {
             qWarning("QRasterPaintEngine::begin(), unsupported image format (%d)\n"

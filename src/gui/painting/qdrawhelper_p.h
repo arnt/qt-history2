@@ -67,9 +67,11 @@ struct DrawHelper {
         Layout_Mono,
         Layout_MonoLSB,
 #ifdef Q_WS_QWS
-        Layout_RGB565,
-        //Layout_4,
-        //Layout_4LSB,
+        Layout_RGB16,
+        //Layout_Gray4,
+        Layout_Gray4LSB,
+        //Layout_Gray2,
+        //Layout_Gray2LSB,
 #endif
         Layout_Count
     };

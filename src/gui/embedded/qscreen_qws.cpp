@@ -577,7 +577,7 @@ void QScreenCursor::drawCursor()
 #else
                     int s = (tx & 1) << 2;
 #endif
-                    *dptr = (*dptr & MASK4BPP(s)) | (val << s);
+                    *dptr = (*dptr & (0xf0>>s)) | (val << s);
                 }
             }
             srcptr += data->width;
@@ -1115,6 +1115,14 @@ QPaintEngine * QScreen::createPaintEngine(unsigned char * bytes,int w,int h,int 
     switch (d) {
     case 1:
         format = QImage::Format_MonoLSB;
+        break;
+#if 0
+    case 2:
+        format = QImage::Format_Grayscale2LSB;
+        break;
+#endif
+    case 4:
+        format = QImage::Format_Grayscale4LSB;
         break;
     case 8:
         format = QImage::Format_Indexed8;
