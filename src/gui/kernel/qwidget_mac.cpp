@@ -411,8 +411,9 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
 
                 //update qd port
                 GrafPtr old_qdref = 0;
+                GDHandle old_device = 0;
                 if(GetEventParameter(event, kEventParamGrafPort, typeGrafPtr, NULL, sizeof(old_qdref), NULL, &old_qdref) != noErr)
-                    GetGWorld(&old_qdref, 0); //just use the global port..
+                    GetGWorld(&old_qdref, &old_device); //just use the global port..
                 if(old_qdref)
                     widget->d_func()->hd = old_qdref;
 
@@ -495,7 +496,7 @@ OSStatus QWidgetPrivate::qt_widget_event(EventHandlerCallRef, EventRef event, vo
                     if(!widget->testAttribute(Qt::WA_PaintOutsidePaintEvent) && widget->paintingActive())
                         qWarning("It is dangerous to leave painters active on a widget outside of the PaintEvent");
                 }
-                SetPort(old_qdref); //restore the state..
+                SetGWorld(old_qdref, old_device); //restore the state..
 
                 //remove the old pointers, not necessary long-term, but short term it simplifies things --Sam
                 widget->d_func()->clp_serial++;
@@ -1461,7 +1462,7 @@ void QWidget::update(const QRegion &rgn)
 void QWidget::repaint(const QRegion &rgn)
 {
     HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
-#if (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
+#if 0 && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     OSStatus (*HIViewRender_ptr)(HIViewRef) = HIViewRender; // workaround for gcc warning
     if(HIViewRender_ptr)
         (*HIViewRender_ptr)((HIViewRef)window()->winId()); //yes the top level!!
@@ -2077,9 +2078,7 @@ void QWidget::setMask(const QRegion &region)
         return;
 
     d->extra->mask = region;
-    if(isWindow())
-        ReshapeCustomWindow(qt_mac_window_for(this));
-    else
+    if(!isWindow())
         HIViewReshapeStructure((HIViewRef)winId());
 }
 
