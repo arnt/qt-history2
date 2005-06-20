@@ -484,8 +484,8 @@ public:
     inline void setTop(qreal pos);
     inline void setRight(qreal pos);
     inline void setBottom(qreal pos);
-    inline void setX(qreal x) { setLeft(x); }
-    inline void setY(qreal y) { setTop(y); }
+    inline void setX(qreal pos) { setLeft(pos); }
+    inline void setY(qreal pos) { setTop(pos); }
 
     inline QPointF topLeft() const { return QPointF(xp, yp); }
     inline QPointF bottomRight() const { return QPointF(xp+w, yp+h); }
