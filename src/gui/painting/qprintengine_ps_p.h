@@ -57,6 +57,13 @@ public:
 
     virtual void drawLine(const QLineF &line);
     virtual void drawLines(const QLineF *lines, int lineCount);
+#ifdef Q_NO_USING_KEYWORD
+    inline  void drawLines(const QLine *lines, int lineCount) { QPaintEngine::drawLines(lines, lineCount); }
+    inline  void drawEllipse(const QRect &r) { QPaintEngine::drawEllipse(r); }
+#else
+    using QPaintEngine::drawLines;
+    using QPaintEngine::drawEllipse;
+#endif
     virtual void drawRect(const QRectF &r);
     virtual void drawPoint(const QPointF &p);
     virtual void drawEllipse(const QRectF &r);
