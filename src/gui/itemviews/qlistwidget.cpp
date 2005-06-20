@@ -1196,6 +1196,32 @@ void QListWidget::closePersistentEditor(QListWidgetItem *item)
 }
 
 /*!
+  Returns the widget displayed in the given \a item.
+
+  \sa setItemWidget()
+*/
+QWidget *QListWidget::itemWidget(QListWidgetItem *item) const
+{
+    Q_ASSERT(item);
+    Q_D(const QListWidget);
+    QModelIndex index = d->model()->index(item);
+    return QAbstractItemView::indexWidget(index);
+}
+
+/*!
+  Sets the \a widget to be displayed in the give \a item.
+
+  \sa itemWidget()
+*/
+void QListWidget::setItemWidget(QListWidgetItem *item, QWidget *widget)
+{
+    Q_ASSERT(item);
+    Q_D(QListWidget);
+    QModelIndex index = d->model()->index(item);
+    QAbstractItemView::setIndexWidget(index, widget);
+}
+
+/*!
   Returns true if \a item is selected and not hidden; otherwise returns false.
 */
 bool QListWidget::isItemSelected(const QListWidgetItem *item) const

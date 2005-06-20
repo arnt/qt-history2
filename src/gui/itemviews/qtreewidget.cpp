@@ -2035,6 +2035,33 @@ void QTreeWidget::closePersistentEditor(QTreeWidgetItem *item, int column)
 }
 
 /*!
+  Returns the widget displayed in the cell specified by \a item and the given \a column.
+
+  \sa setItemWidget()
+*/
+QWidget *QTreeWidget::itemWidget(QTreeWidgetItem *item, int column) const
+{
+    Q_ASSERT(item);
+    Q_D(const QTreeWidget);
+    QModelIndex index = d->model()->index(item, column);
+    return QAbstractItemView::indexWidget(index);
+}
+
+/*!
+  Sets the \a widget to be displayed in the cell specified by \a item and the given \a column.
+
+  \sa itemWidget()
+*/
+void QTreeWidget::setItemWidget(QTreeWidgetItem *item, int column, QWidget *widget)
+{
+    Q_ASSERT(item);
+    Q_ASSERT(widget);
+    Q_D(QTreeWidget);
+    QModelIndex index = d->model()->index(item, column);
+    QAbstractItemView::setIndexWidget(index, widget);
+}
+
+/*!
   Returns true if the \a item is selected and not-hidden and does not
   have hidden parents; otherwise returns false.
 */

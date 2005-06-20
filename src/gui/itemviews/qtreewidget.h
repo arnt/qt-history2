@@ -211,6 +211,9 @@ public:
     void openPersistentEditor(QTreeWidgetItem *item, int column = 0);
     void closePersistentEditor(QTreeWidgetItem *item, int column = 0);
 
+    QWidget *itemWidget(QTreeWidgetItem *item, int column) const;
+    void setItemWidget(QTreeWidgetItem *item, int column, QWidget *widget);
+
     bool isItemSelected(const QTreeWidgetItem *item) const;
     void setItemSelected(const QTreeWidgetItem *item, bool select);
     QList<QTreeWidgetItem*> selectedItems() const;

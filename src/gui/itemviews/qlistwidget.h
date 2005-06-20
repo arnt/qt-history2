@@ -175,6 +175,9 @@ public:
     void openPersistentEditor(QListWidgetItem *item);
     void closePersistentEditor(QListWidgetItem *item);
 
+    QWidget *itemWidget(QListWidgetItem *item) const;
+    void setItemWidget(QListWidgetItem *item, QWidget *widget);
+
     bool isItemSelected(const QListWidgetItem *item) const;
     void setItemSelected(const QListWidgetItem *item, bool select);
     QList<QListWidgetItem*> selectedItems() const;
