@@ -95,10 +95,12 @@ elif [ -f $relpath/LICENSE.TROLL ]; then
 else
     [ "$PLATFORM_MAC" = "maybe" ] && PLATFORM_MAC=yes
     [ "$PLATFORM_QWS" = "maybe" ] && PLATFORM_QWS=yes
-    if [ -f $relpath/LICENSE.EVAL ]; then
-	LicenseType="Evaluation"
-    elif [ -f $relpath/.LICENSE ]; then
-	LicenseType="Commercial"
+    if [ -f $relpath/.LICENSE ]; then
+        if grep "Qt EVALUATION VERSION LICENSE AGREEMENT" .LICENSE 2>&1 >/dev/null; then
+            LicenseType="Evaluation"
+        else
+            LicenseType="Commercial"
+        fi
     else
 	echo "The LICENSE, LICENSE.QPL, or LICENSE.GPL file shipped with"
 	echo "this software has disappeared."
@@ -139,6 +141,7 @@ else
 	# Key verification
 	productTest=`echo $LicenseKeyExt | cut -f 1 -d - | cut -b 1`
 	platformTest=`echo $LicenseKeyExt | cut -f 2 -d - | cut -b 1`
+        licenseTypeTest=`echo $LicenseKeyExt | cut -f 3 -d - | cut -b 1`
 	licenseFeatureTest=`echo $LicenseKeyExt | cut -f 4 -d - | cut -b 1`
 	packageTest=
         case $productTest in
@@ -168,11 +171,25 @@ else
 	    exit 1
 	    ;;
         esac	
-        if [ "$PACKAGE_TYPE" != "$packageTest" ]; then
+        licenseTest=
+        case $licenseTypeTest in
+        F)
+            licenseTest=Commercial
+            ;;
+        Z|R|Q)
+            licenseTest=Evaluation
+            ;;
+        *)
+            echo
+            echo "Invalid license key. Please check the license key."
+            exit 1
+            ;;
+        esac
+        if [ "$PACKAGE_TYPE" != "$packageTest" -o "$licenseTest" != "$LicenseType" ]; then
 	    echo
 	    echo "You are not licensed for the $LicenseType $PACKAGE_TYPE edition."
 	    echo
-	    echo "Your license is for the $LicenseType $ProductType edition.  Please"
+	    echo "Your license is for the $licenseTest $ProductType edition.  Please"
 	    echo "download the correct package."
 	    exit 1
         fi
