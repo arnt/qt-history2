@@ -176,8 +176,10 @@ template<> struct QMetaTypeId<float>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::Float; } };
 template<> struct QMetaTypeId<QObject *>
-{ static inline int qt_metatype_id() { return QMetaType::QObjectStar; } };
+{ enum { Defined = 1 };
+  static inline int qt_metatype_id() { return QMetaType::QObjectStar; } };
 template<> struct QMetaTypeId<QWidget *>
-{ static inline int qt_metatype_id() { return QMetaType::QWidgetStar; } };
+{ enum { Defined = 1 };
+  static inline int qt_metatype_id() { return QMetaType::QWidgetStar; } };
 
 #endif // QMETATYPE_H
