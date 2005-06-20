@@ -335,7 +335,7 @@ QString QLineEdit::text() const
 void QLineEdit::setText(const QString& text)
 {
     Q_D(QLineEdit);
-    d->setText(text, -1);
+    d->setText(text, -1, false);
 }
 
 
