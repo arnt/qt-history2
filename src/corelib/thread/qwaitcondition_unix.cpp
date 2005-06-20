@@ -59,8 +59,10 @@ struct QWaitConditionPrivate {
 
     \code
         forever {
-            keyPressed.wait();
+            mutex.lock();
+            keyPressed.wait(&mutex);
             do_something();
+            mutex.unlock();
         }
     \endcode
 
@@ -87,9 +89,8 @@ struct QWaitConditionPrivate {
 
     \code
         forever {
-            keyPressed.wait();
-
             mutex.lock();
+            keyPressed.wait(&mutex);
             ++count;
             mutex.unlock();
 
