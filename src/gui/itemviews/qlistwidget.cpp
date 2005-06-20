@@ -623,6 +623,20 @@ QDataStream &operator>>(QDataStream &in, QListWidgetItem &item)
 */
 
 /*!
+  \fn QSize QListWidgetItem::sizeHint() const
+
+  Returns the size hint set for the list item (see \l{QSize}).
+*/
+
+/*!
+  \fn void QListWidgetItem::setSizeHint(const QSize &size)
+
+  Sets the size hint for the list item to be \a size.
+  If no size hint is set, the item delegate will compute the
+  size hint based on the item data.
+*/
+
+/*!
   \fn void QListWidgetItem::setFlags(Qt::ItemFlags flags)
 
   Sets the item flags for the list item to \a flags (see

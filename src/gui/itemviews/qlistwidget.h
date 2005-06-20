@@ -82,6 +82,11 @@ public:
     inline void setCheckState(Qt::CheckState state)
         { setData(Qt::CheckStateRole, state); }
 
+    inline QSize sizeHint() const
+        { return qvariant_cast<QSize>(data(Qt::SizeHintRole)); }
+    inline void setSizeHint(const QSize &size)
+        { setData(Qt::SizeHintRole, size); }
+    
     virtual QVariant data(int role) const;
     virtual void setData(int role, const QVariant &value);
 

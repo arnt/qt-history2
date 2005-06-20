@@ -1201,6 +1201,8 @@ public:
         // Accessibility
         AccessibleTextRole = 11,
         AccessibleDescriptionRole = 12,
+        // More Metadata
+        SizeHintRole = 13,
         // Reserved
         UserRole = 32
     };

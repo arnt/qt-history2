@@ -19,6 +19,7 @@
 #include <qpalette.h>
 #include <qpoint.h>
 #include <qrect.h>
+#include <qsize.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qevent.h>
@@ -179,7 +180,11 @@ QSize QItemDelegate::sizeHint(const QStyleOptionViewItem &option,
     const QAbstractItemModel *model = index.model();
     Q_ASSERT(model);
 
-    QVariant value = model->data(index, Qt::FontRole);
+    QVariant value = model->data(index, Qt::SizeHintRole);
+    if (value.isValid())
+        return qvariant_cast<QSize>(value);
+
+    value = model->data(index, Qt::FontRole);
     QFont fnt = value.isValid() ? qvariant_cast<QFont>(value) : option.font;
     QString text = model->data(index, Qt::DisplayRole).toString();
     QRect pixmapRect;

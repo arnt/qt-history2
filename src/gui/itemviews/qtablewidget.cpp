@@ -653,9 +653,23 @@ QTableWidgetSelectionRange::~QTableWidgetSelectionRange()
 */
 
 /*!
+  \fn QSize QTableWidgetItem::sizeHint() const
+
+  Returns the size hint set for the table item (see \l{QSize}).
+*/
+
+/*!
+  \fn void QTableWidgetItem::setSizeHint(const QSize &size)
+
+  Sets the size hint for the table item to be \a size.
+  If no size hint is set, the item delegate will compute the
+  size hint based on the item data.
+*/
+
+/*!
     \fn Qt::CheckState QTableWidgetItem::checkState() const
 
-    Returns the checked state of the list item (see \l{Qt::CheckState}).
+    Returns the checked state of the table item (see \l{Qt::CheckState}).
 
     \sa flags()
 */

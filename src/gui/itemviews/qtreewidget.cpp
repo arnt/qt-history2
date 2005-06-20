@@ -905,6 +905,21 @@ void QTreeModel::beginRemoveItems(QTreeWidgetItem *parent, int row, int count)
 */
 
 /*!
+  \fn QSize QTreeWidgetItem::sizeHint(int column) const
+
+  Returns the size hint set for the tree item in the given
+  \a column (see \l{QSize}).
+*/
+
+/*!
+  \fn void QTreeWidgetItem::setSizeHint(int column, const QSize &size)
+
+  Sets the size hint for the tree item in the given \a column to be \a size.
+  If no size hint is set, the item delegate will compute the size hint based
+  on the item data.
+*/
+
+/*!
     \fn QTreeWidgetItem *QTreeWidgetItem::parent() const
 
     Returns the item's parent.
