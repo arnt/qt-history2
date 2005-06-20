@@ -179,11 +179,6 @@ licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^mkspecs/win32-icc"),
 				new RegExp("^mkspecs/win32-msvc"),
 				new RegExp("^mkspecs/win32-msvc.net"),
-				new RegExp("^qmake/generators/mac/metrowerks"),
-				new RegExp("^qmake/generators/mac/pbuilder"),
-				new RegExp("^mkspecs/macx-mwerks"),
-				new RegExp("^mkspecs/macx-pbuilder"),
-				new RegExp("^mkspecs/macx-xcode"),
 				new RegExp("^README-QT.TXT") ];
 
 var editionRemove = new Array();
