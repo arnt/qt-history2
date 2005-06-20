@@ -3,9 +3,9 @@ SUBDIRS       = codecs \
                 i18n \
                 plugandpaint \
                 plugandpaintplugins \
-                qtdemo \
                 regexp \
                 settingseditor
+!cross_compile:SUBDIRS += qtdemo 
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/tools

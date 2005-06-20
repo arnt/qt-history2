@@ -587,6 +587,8 @@ while [ "$#" -gt 0 ]; do
         CFG_EMBEDDED="$VAL"
         if [ "$PLATFORM_QWS" != "no" ]; then
             if [ "$PLATFORM_QWS" = "maybe" ]; then
+                PLATFORM_X11=no
+                PLATFORM_MAC=no
                 PLATFORM_QWS=yes
             fi
         else
@@ -3831,7 +3833,7 @@ for file in .projects .projects.3; do
         case $a in
         *winmain/winmain.pro) continue ;;
         */qmake/qmake.pro) continue ;;
-        *moc*|*rcc*) SPEC=$QMAKESPEC ;;
+        *moc*|*rcc*|*uic*) SPEC=$QMAKESPEC ;;
         *) SPEC=$XQMAKESPEC ;;
         esac
         dir=`dirname $a | sed -e "s;$sepath;.;g"`
