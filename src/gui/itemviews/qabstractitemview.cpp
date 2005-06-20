@@ -1710,7 +1710,7 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
 /*!
     Sets the given \a widget on the item at the given \a index.
 */
-void QAbstractItemView::setIndexWidget(QWidget *widget, const QModelIndex &index)
+void QAbstractItemView::setIndexWidget(const QModelIndex &index, QWidget *widget)
 {
     Q_D(QAbstractItemView);
     Q_ASSERT(widget);

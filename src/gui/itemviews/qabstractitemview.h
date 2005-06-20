@@ -130,7 +130,7 @@ public:
     void openPersistentEditor(const QModelIndex &index);
     void closePersistentEditor(const QModelIndex &index);
 
-    void setIndexWidget(QWidget *widget, const QModelIndex &index);
+    void setIndexWidget(const QModelIndex &index, QWidget *widget);
     QWidget* indexWidget(const QModelIndex &index) const;
 
 public slots:

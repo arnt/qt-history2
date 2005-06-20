@@ -1560,6 +1560,29 @@ void QTableWidget::closePersistentEditor(QTableWidgetItem *item)
 }
 
 /*!
+  Returns the widget displayed in the cell in the given \a row and \a column.
+
+  \sa setItemWidget()
+*/
+QWidget *QTableWidget::cellWidget(int row, int column) const
+{
+    QModelIndex index = model()->index(row, column, QModelIndex());
+    return QAbstractItemView::indexWidget(index);
+}
+
+/*!
+  Sets the \a widget to be displayed in the cell in the given \a row and \a column.
+
+  \sa itemWidget()
+*/
+void QTableWidget::setCellWidget(int row, int column, QWidget *widget)
+{
+    Q_ASSERT(widget);
+    QModelIndex index = model()->index(row, column, QModelIndex());
+    QAbstractItemView::setIndexWidget(index, widget);
+}
+
+/*!
   Returns true if the \a item is selected, otherwise returns false.
 */
 

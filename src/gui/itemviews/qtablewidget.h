@@ -199,6 +199,9 @@ public:
     void openPersistentEditor(QTableWidgetItem *item);
     void closePersistentEditor(QTableWidgetItem *item);
 
+    QWidget *cellWidget(int row, int column) const;
+    void setCellWidget(int row, int column, QWidget *widget);
+
     bool isItemSelected(const QTableWidgetItem *item) const;
     void setItemSelected(const QTableWidgetItem *item, bool select);
     void setRangeSelected(const QTableWidgetSelectionRange &range, bool select);
