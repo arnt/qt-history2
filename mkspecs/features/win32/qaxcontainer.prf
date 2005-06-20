@@ -9,7 +9,7 @@
 }
 
 isEmpty(QMAKE_DUMPCPP) {
-    win32:QMAKE_DUMPCPP = $(QTDIR)\bin\dumpcpp.exe
+    win32:QMAKE_DUMPCPP = $$[QT_INSTALL_BINS]\dumpcpp.exe
 }
 
 dumpcpp_decl.commands = $$QMAKE_DUMPCPP ${QMAKE_FILE_IN} -o ${QMAKE_FILE_BASE}
