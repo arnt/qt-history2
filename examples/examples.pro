@@ -13,9 +13,9 @@ SUBDIRS       = dialogs \
                 tools \
                 tutorial \
                 widgets \
-                xml \
-		designer
+                xml
 
+!contains(QT_PRODUCT, .*Console.*):SUBDIRS += designer
 contains(QT_CONFIG, opengl): SUBDIRS += opengl
 #!cross_compiler:SUBDIRS: += designer
 win32:!contains(QT_PRODUCT, .*OpenSource.*|.*Console.*):SUBDIRS += activeqt
