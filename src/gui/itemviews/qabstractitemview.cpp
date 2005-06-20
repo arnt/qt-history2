@@ -1708,6 +1708,29 @@ void QAbstractItemView::closePersistentEditor(const QModelIndex &index)
 }
 
 /*!
+    Sets the given \a widget on the item at the given \a index.
+*/
+void QAbstractItemView::setIndexWidget(QWidget *widget, const QModelIndex &index)
+{
+    Q_D(QAbstractItemView);
+    Q_ASSERT(widget);
+    Q_ASSERT(index.isValid());
+    widget->setParent(viewport());
+    widget->setGeometry(visualRect(index));
+    d->persistent.append(widget);
+    d->editors.insert(index, widget);
+    widget->show();
+}
+
+/*!
+  returns the widget for the item at the given \a index.
+*/
+QWidget* QAbstractItemView::indexWidget(const QModelIndex &index) const
+{
+    return d_func()->editors.value(index);
+}
+
+/*!
     This slot is called when items are changed in the model. The
     changed items are those from \a topLeft to \a bottomRight
     inclusive. If just one item is changed \a topLeft == \a
@@ -2192,7 +2215,6 @@ QWidget *QAbstractItemViewPrivate::editor(const QModelIndex &index,
                                           const QStyleOptionViewItem &options)
 {
     Q_Q(QAbstractItemView);
-
     QWidget *w = editors.value(index);
     if (!w) {
         w = q->itemDelegate()->createEditor(viewport, options, index);

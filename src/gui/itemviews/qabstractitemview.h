@@ -130,6 +130,9 @@ public:
     void openPersistentEditor(const QModelIndex &index);
     void closePersistentEditor(const QModelIndex &index);
 
+    void setIndexWidget(QWidget *widget, const QModelIndex &index);
+    QWidget* indexWidget(const QModelIndex &index) const;
+
 public slots:
     virtual void reset();
     virtual void setRootIndex(const QModelIndex &index);
