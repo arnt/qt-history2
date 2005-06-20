@@ -4,7 +4,7 @@ Agreement version 2.2
 IMPORTANT-READ CAREFULLY:
 1. This Trolltech End-User License Agreement ("Agreement") is a legal
 agreement between you (either an individual or a legal entity) and
-Trolltech AS ("Trolltech"), and pertains to the Trolltech software
+Trolltech Inc.("Trolltech"), and pertains to the Trolltech software
 product(s) accompanying this Agreement, which include(s) computer
 software and may include "online" or electronic documentation,
 associated media, and printed materials, including the source code,
@@ -42,9 +42,9 @@ distribute the Licensed Software. Licensee may not distribute any
 software statically or dynamically linked with the Licensed Software.
 
 7. This Licensed Software is time-limited. All rights granted to
-Licensee in this Agreement will be void after the end of the
-evaluation period, which is no later than 31 days after Licensee
-received the Licensed Software.
+Licensee in this Agreement will be void after the end of the evaluation
+period, which is no later than 31 days after Licensee received the
+Licensed Software. 
 
 8. The Licensed Software may provide links to third party libraries or
 code (collectively "Third Party Libraries") to implement various
@@ -96,5 +96,12 @@ limitations of liability and exclusions of damages set forth in this
 Agreement shall remain in effect.
 
 12. This Agreement shall be construed, interpreted and governed by the
-laws of Norway, the legal venue to be Oslo City Court. Trolltech
-reserves all rights not specifically granted in this Agreement.
+laws of the State of California, USA. Any action or proceeding arising
+from or relating to this Agreement shall be brought in a federal court
+in the Northern District of California or in the State Court in Santa
+Clara County, California, and each party irrevocably submits to the
+personal jurisdiction of any such court in any such action or
+proceeding. The Agreement gives Licensee specific legal rights;
+Licensee may have others, which vary from state to state and from
+country to country. Trolltech reserves all rights not specifically
+granted in this Agreement.
