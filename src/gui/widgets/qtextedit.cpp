@@ -330,6 +330,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 {
     Q_Q(QTextEdit);
 
+
     bool clearDocument = true;
     if (!doc) {
         if (document) {
@@ -360,6 +361,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
         viewport->setBackgroundRole(QPalette::Base);
         viewport->setAcceptDrops(true);
         q->setFocusPolicy(Qt::WheelFocus);
+        q->setAttribute(Qt::WA_KeyCompression);
     }
 
     doc->setUndoRedoEnabled(false);
