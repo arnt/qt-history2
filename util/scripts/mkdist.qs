@@ -275,7 +275,7 @@ for (var p in validPlatforms) {
 
 		// run qdoc
 		print("Running qdoc...");
-// 		qdoc(platDir, license, edition);
+ 		qdoc(platDir, license, edition);
 
 		// purge platform and license files
 		print("Purging platform and license specific files...");
