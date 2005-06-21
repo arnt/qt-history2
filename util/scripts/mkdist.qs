@@ -249,7 +249,7 @@ for (var p in validPlatforms) {
 	    var license = validLicenses[l];
 	    var edition = validEditions[e];
 	    if (options[platform] && options[license] && options[edition] &&
-		packageExists(platform, license, edition)) {
+		packageExists(platform, license, edition, false)) {
 		print("Packaging %1-%2-%3...".arg(platform).arg(license).arg(edition));
 		indentation+=tabSize;
 
@@ -275,7 +275,7 @@ for (var p in validPlatforms) {
 
 		// run qdoc
 		print("Running qdoc...");
-		qdoc(platDir, license, edition);
+// 		qdoc(platDir, license, edition);
 
 		// purge platform and license files
 		print("Purging platform and license specific files...");
@@ -301,14 +301,19 @@ for (var p in validPlatforms) {
 		compress(platform, license, platDir);
 
 		// create binaries
-		if (platform == "win") {
-		    if (license == "opensource") {
-			createBinary(platform, license, platName, "mingw");
+		if (options["binaries"] && (platform in binaryHosts) &&
+		    packageExists(platform, license, edition, true)) {
+		    print("Creating binaries...");
+		    if (platform == "win") {
+			if (license == "opensource") {
+			    createBinary(platform, license, edition, platName, "mingw");
+			} else {
+			    createBinary(platform, license, edition, platName, "vs2003");
+			    createBinary(platform, license, edition, platName, "vs6");
+			}
 		    } else {
-			createBinary(platform, license, platName, "vs2003");
+			createBinary(platform, license, edition, platName, "");
 		    }
-		} else {
-		    createBinary(platform, license, platName, "");
 		}
 
 		indentation-=tabSize;
@@ -635,11 +640,8 @@ function compress(platform, license, packageDir)
 /************************************************************
  * creates binaries on remote hosts and collects the results back
  */
-function createBinary(platform, license, packageName, compiler)
+function createBinary(platform, license, edition, packageName, compiler)
 {
-    if (!options["binaries"] || !(platform in binaryHosts))
- 	return;
-
     var login = binaryUser + "@" + binaryHosts[platform];
     var hostDir = platform + "-binary";
     
@@ -656,6 +658,17 @@ function createBinary(platform, license, packageName, compiler)
 
     // clean up host
     execute(["ssh", login, "rm -rf", hostDir]);
+
+    // copy a valid license file
+    if (license != "opensource") {
+	p4Copy("//depot/infra/main/licensekeys/qt-license" + 
+	       "-" + platform + "-" + license + "-" + edition,
+	       distDir + "/tmp-qt-license");
+	if (platform == "win")
+	    execute(["scp", distDir + "/tmp-qt-license", login + ":" + "'C:\\Documents\ and\ Settings\\" + binaryUser + "\\.qt-license'"]);
+	else
+    	    execute(["scp", distDir + "/tmp-qt-license", login + ":.qt-license"]);
+    }
 
     // copy script over
     var binaryScriptsDir = checkout("util/scripts/" + platform + "-binary/...", hostDir);
@@ -694,6 +707,8 @@ function createBinary(platform, license, packageName, compiler)
 		 "package/mkpackage",
 		 "-qtpackage",
 		 macPath + "/" + packageFile,
+		 "-licensetype",
+		 license,
 		 "-image"]);
 
 	// collect binary
@@ -841,10 +856,10 @@ function copyDist(packageDir, platform, license)
  */
 function copyEval(packageDir)
 {
-    p4Copy(p4BranchPath + "/src/corelib/eval.pri",
-	   packageDir + "/src/corelib/eval.pri", p4Label);
-    p4Copy(p4BranchPath + "/src/corelib/kernel/qtcore_eval.cpp",
-	   packageDir + "/src/corelib/kernel/qtcore_eval.cpp", p4Label);
+    p4Copy(p4BranchPath + "/src/corelib/eval.pri" + "@" + p4Label,
+	   packageDir + "/src/corelib/eval.pri");
+    p4Copy(p4BranchPath + "/src/corelib/kernel/qtcore_eval.cpp" + "@" + p4Label,
+	   packageDir + "/src/corelib/kernel/qtcore_eval.cpp");
     checkout("util/licensekeys/shared/...", packageDir + "/util/licensekeys/shared");
 }
 
@@ -930,34 +945,40 @@ function replaceTags(packageDir, fileList, platform, license, platName, addition
 
 /************************************************************
  * returns true if the combinations of platform, license and edition
- * is a valid package
+ * is a valid package that should exist for Qt
  */
-function packageExists(platform, license, edition)
+function packageExists(platform, license, edition, binary)
 {
-    // console edition only exists for commercial and opensource license
-    if (edition == "console" && (license == "commercial" || license == "opensource"))
+    // binaries for mac and win for commercial,desktop
+    // binaries for win for opensource, desktop
+    if (binary == true && edition == "desktop" &&
+	((license == "commercial" || license =="eval") && (platform == "win" || platform == "mac")) ||
+	(license == "opensource" && platform == "win"))
 	return true;
 
-    // desktop edition exists on all platforms for licenses
-    if (edition == "desktop")
+    // console edition only exists for commercial packages
+    if (binary == false && edition == "console" && license == "commercial")
+	return true;
+
+    // desktop edition exists on all platforms for all licenses
+    if (binary == false && edition == "desktop")
 	return true;
 
     return false;
 }
 
 /************************************************************
- * checks out depotFile to localFile using the specified label
+ * checks out depotFile to localFile
  * 
  * typically used when files are needed from the depot that can have
  * been purged from the package (like qdoc configurations and scripts
  * etc.)
  */
-function p4Copy(depotFile, localFile, label)
+function p4Copy(depotFile, localFile)
 {
-    var depotFileName = depotFile + "@" + label;
-    execute([p4Command, "print", "-o", localFile, "-q", depotFileName]);
+    execute([p4Command, "print", "-o", localFile, "-q", depotFile]);
     if (!File.exists(localFile))
-	throw "Failed copying file: %1 to: %2".arg(depotFileName).arg(localFile);
+	throw "Failed copying file: %1 to: %2".arg(depotFile).arg(localFile);
     execute(["chmod", "ug+w", localFile]);
     return localFile;
 }
@@ -1015,6 +1036,8 @@ function execute(command, stdin) {
     if (runTime > 0)
 	print("%1\n   ->took %1 second(s)".arg(command).arg(runTime));
     if (error != 0) {
+	if (Process.stderr.length > 0)	
+	    File.write(outputDir + "/error.log", Process.stderr);
 	throw "Error runnning: %1 stderr: %2".arg(command).arg(Process.stderr.left(200));
     } else if (Process.stderr.length > 0
 	       && Process.stderr.left(200).lower().find(/warning|error/) != -1) {
