@@ -36,6 +36,7 @@ class QTreeModel : public QAbstractItemModel
     Q_OBJECT
     friend class QTreeWidget;
     friend class QTreeWidgetItem;
+    friend class QTreeWidgetItemIterator;
 
 public:
     QTreeModel(int columns = 0, QObject *parent = 0);
@@ -84,6 +85,10 @@ public:
 
     QMimeData *internalMimeData()  const;
 
+    // used by the iterator
+    static QTreeWidgetItem* nextSibling(const QTreeWidgetItem* item);
+    static QTreeWidgetItem* previousSibling(const QTreeWidgetItem* item);
+
 protected:
     void emitDataChanged(QTreeWidgetItem *item, int column);
     void beginInsertItems(QTreeWidgetItem *parent, int row, int count);
@@ -96,6 +101,7 @@ private:
 
     // A cache must be mutable if get-functions should have const modifiers
     mutable QModelIndexList cachedIndexes;
+    QList<QTreeWidgetItemIterator*> iterators;
 };
 
 #include "qtreewidget.moc"
@@ -660,6 +666,46 @@ void QTreeModel::beginInsertItems(QTreeWidgetItem *parent, int row, int count)
 void QTreeModel::beginRemoveItems(QTreeWidgetItem *parent, int row, int count)
 {
     beginRemoveRows(index(parent, 0), row, row + count - 1);
+    // now update the iterators
+    QList<QTreeWidgetItem*> items;
+    if (parent)
+        items = parent->children;
+    else
+        items = tree;
+    for (int i = 0; i < iterators.count(); ++i)
+        for (int j = 0; j < items.count(); ++j)
+            if (*(*iterators.at(i)) == items.at(j))
+                ++(*iterators[i]);
+}
+
+QTreeWidgetItem* QTreeModel::nextSibling(const QTreeWidgetItem* item)
+{
+    Q_ASSERT(item);
+    Q_ASSERT(item->model);
+    QList<QTreeWidgetItem*> siblings;
+    if (item->parent())
+        siblings = item->parent()->children;
+    else
+        siblings = item->model->tree;
+    int i = siblings.indexOf(const_cast<QTreeWidgetItem*>(item)) + 1;
+    if (i > 0 && i < siblings.count())
+        return siblings.at(i);
+    return 0;
+}
+
+QTreeWidgetItem* QTreeModel::previousSibling(const QTreeWidgetItem* item)
+{
+    Q_ASSERT(item);
+    Q_ASSERT(item->model);
+    QList<QTreeWidgetItem*> siblings;
+    if (item->parent())
+        siblings = item->parent()->children;
+    else
+        siblings = item->model->tree;
+    int i = siblings.indexOf(const_cast<QTreeWidgetItem*>(item)) - 1;
+    if (i >= 0 && i < siblings.count())
+        return siblings.at(i);
+    return 0;
 }
 
 /*!
@@ -2323,5 +2369,261 @@ void QTreeWidget::setModel(QAbstractItemModel *model)
 {
     QTreeView::setModel(model);
 }
+
+
+/*!
+    Constructs an iterator for the same QTreeWidget as \a it. The
+    current iterator item is set to point on the current item of \a it.
+*/
+
+QTreeWidgetItemIterator::QTreeWidgetItemIterator(const QTreeWidgetItemIterator &it)
+    : model(it.model), current(it.current), flags(it.flags)
+{
+    Q_ASSERT(model);
+    model->iterators.append(this);
+}
+
+/*!
+    Constructs an iterator for the QTreeWidget \a widget. The current
+    iterator item is set to point on the first toplevel item (QTreeWidgetItem)
+    of \a widget.
+*/
+
+QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidget *widget, IteratorFlags flags)
+    : model(0), current(0), flags(flags)
+{
+    Q_ASSERT(widget);
+    model = qobject_cast<QTreeModel*>(widget->model());
+    Q_ASSERT(model);
+    model->iterators.append(this);
+    current = model->tree.first();
+    if (current && !matchesFlags(current))
+        ++(*this);
+}
+
+/*!
+    Constructs an iterator for the QTreeWidget that contains the \a item
+    using the flags \a flags. The current iterator item is set
+    to point to \a item or the next matching item if \a item doesn't
+    match the flags.
+
+    \sa QTreeWidgetItemIterator::IteratorFlag
+*/
+
+QTreeWidgetItemIterator::QTreeWidgetItemIterator(QTreeWidgetItem *item, IteratorFlags flags)
+    : model(0), current(item), flags(flags)
+{
+    Q_ASSERT(item);
+    model = item->model;
+    Q_ASSERT(model);
+    model->iterators.append(this);
+    if (current && !matchesFlags(current))
+        ++(*this);
+}
+
+/*!
+    Destroys the iterator.
+*/
+
+QTreeWidgetItemIterator::~QTreeWidgetItemIterator()
+{
+    model->iterators.remove(this);
+}
+
+/*!
+    Assignment. Makes a copy of \a it and returns a reference to its
+    iterator.
+*/
+
+QTreeWidgetItemIterator &QTreeWidgetItemIterator::QTreeWidgetItemIterator::operator=(
+    const QTreeWidgetItemIterator &it)
+{
+    if (model != it.model) {
+        model->iterators.remove(this);
+        it.model->iterators.append(this);
+    }
+    current = it.current;
+    flags = it.flags;
+    model = it.model;
+    return *this;
+}
+
+/*!
+    Preincrement. Makes the next item the new current item and returns
+    a reference to the iterator.
+    Sets the current pointer to 0 if the current item is the last item.
+*/
+
+QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator++()
+{
+    if (current)
+        do {
+            QTreeWidgetItem *item = 0;
+            if (current->children.isEmpty()) {
+                while (!(item = QTreeModel::nextSibling(current)))
+                    if (!(current = current->parent()))
+                        break;
+            } else {
+                item = current->children.first();
+            }
+            current = item;
+        } while (current && !matchesFlags(current));
+    return *this;
+}
+
+/*!
+    Predecrement. Makes the previous item the new current item and
+    returns a reference to the iterator.
+    Sets the current pointer to 0 if the current item is the first item.
+*/
+
+QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator--()
+{
+    if (current)
+        do {
+            QTreeWidgetItem *item = QTreeModel::previousSibling(current);
+            if (item) {
+                while (!item->children.isEmpty()) 
+                    item = item->children.last();
+                current = item;
+            } else {
+                current = current->parent();
+            }
+        } while (current && !matchesFlags(current));
+    return *this;
+}
+
+/*!
+  \internal
+*/
+bool QTreeWidgetItemIterator::matchesFlags(const QTreeWidgetItem *item) const
+{
+    if (!item)
+        return false;
+
+    if (flags == All)
+        return true;
+
+    {
+        Qt::ItemFlags itemFlags = item->flags();
+        if ((flags & Selectable) && !(itemFlags & Qt::ItemIsSelectable))
+            return false;
+        if ((flags & NotSelectable) && (itemFlags & Qt::ItemIsSelectable))
+            return false;
+        if ((flags & DragEnabled) && !(itemFlags & Qt::ItemIsDragEnabled))
+            return false;
+        if ((flags & DragDisabled) && (itemFlags & Qt::ItemIsDragEnabled))
+            return false;
+        if ((flags & DropEnabled) && !(itemFlags & Qt::ItemIsDropEnabled))
+            return false;
+        if ((flags & DropDisabled) && (itemFlags & Qt::ItemIsDropEnabled))
+            return false;
+        if ((flags & Enabled) && !(itemFlags & Qt::ItemIsEnabled))
+            return false;
+        if ((flags & Disabled) && (itemFlags & Qt::ItemIsEnabled))
+            return false;
+        if ((flags & Editable) && !(itemFlags & Qt::ItemIsEditable))
+            return false;
+        if ((flags & NotEditable) && (itemFlags & Qt::ItemIsEditable))
+            return false;
+    }
+
+    {
+        Qt::CheckState check = item->checkState(0); // FIXME
+        if ((flags & Checked) && (check != Qt::Checked))
+            return false;
+        if ((flags & NotChecked) && (check != Qt::Unchecked))
+            return false;
+    }
+
+    if ((flags & HasChildren) && !item->childCount())
+        return false;
+    if ((flags & NoChildren) && item->childCount())
+        return false;
+
+    {
+        QTreeWidget *widget = item->view;
+        Q_ASSERT(widget);
+
+        bool hidden = widget->isItemHidden(item);
+        if ((flags & Hidden) && !hidden)
+            return false;
+        if ((flags & NotHidden) && hidden)
+            return false;
+        
+        bool selected = widget->isItemSelected(item);
+        if ((flags & Selected) && !selected)
+            return false;
+        if ((flags & Unselected) && selected)
+            return false;
+    }
+    
+    return true;
+}
+
+/*!
+  \fn const QTreeWidgetItemIterator operator++(int)
+
+  Postincrement. Makes the next item the new current item and returns
+  the iterator for the item that \e was the current item.
+*/
+
+/*!
+  \fn QTreeWidgetItemIterator &operator+=(int n)
+
+  Sets the current item to the item \a n positions after the current
+  item. If that item is beyond the last item, the current item pointer is
+  set to 0. Returns the iterator for the current item.
+*/
+
+/*!
+  \fn const QTreeWidgetItemIterator operator--(int)
+
+  Postdecrement. Makes the previous item the new current item and
+  returns the iterator for the item that \e was the current item.
+*/
+
+/*!
+  \fn QTreeWidgetItemIterator &operator-=(int n)
+
+  Sets the current item to the item \a n positions before the
+  current item. If that item is before the first item, the current
+  item is set to 0. Returns the a reference to the iterator.
+*/
+
+/*!
+  \fn QTreeWidgetItem *operator*() const
+
+  Dereference operator. Returns a pointer to the current item.
+*/
+
+
+/*!
+    \enum QTreeWidgetItemIterator::IteratorFlag
+
+    These flags can be passed to a QTreeWidgetItemIterator constructor
+    (OR-ed together if more than one is used), so that the iterator
+    will only iterate over items that match the given flags.
+
+    \value All
+    \value Hidden
+    \value NotHidden
+    \value Selected
+    \value Unselected
+    \value Selectable
+    \value NotSelectable
+    \value DragEnabled
+    \value DragDisabled
+    \value DropEnabled
+    \value DropDisabled
+    \value HasChildren
+    \value NoChildren
+    \value Checked
+    \value NotChecked
+    \value Enabled
+    \value Disabled
+    \value Editable
+    \value NotEditable
+*/
 
 #include "moc_qtreewidget.cpp"
