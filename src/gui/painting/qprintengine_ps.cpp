@@ -2664,7 +2664,7 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
       bkMode(Qt::TransparentMode),
       collate(false), copies(1), orientation(QPrinter::Portrait),
       pageSize(QPrinter::A4), pageOrder(QPrinter::FirstPageFirst), colorMode(QPrinter::GrayScale),
-      printerState(QPrinter::Idle)
+      fullPage(false), printerState(QPrinter::Idle)
 {
     currentFont = 0;
     currentPSFont = 0;
