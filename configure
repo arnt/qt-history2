@@ -1696,12 +1696,22 @@ else
         fi
         ARCH=sparc
         ;;
-    Darwin:*:Power?Macintosh)
-        if [ "$OPT_VERBOSE" = "yes" ]; then
-            echo "    32-bit Apple PowerPC (powerpc)"
-        fi
-        ARCH=powerpc
-        ;;
+    Darwin:*:*)
+        case "$UNAME_MACHINE" in
+            Power?Macintosh)
+                if [ "$OPT_VERBOSE" = "yes" ]; then
+                    echo "    32-bit Apple PowerPC (powerpc)"
+                fi
+                ARCH=powerpc
+                ;;
+            x86)
+                if [ "$OPT_VERBOSE" = "yes" ]; then
+                    echo "    32-bit Intel 80x86 (i386)"
+                fi
+                ARCH=i386
+                ;;
+        esac
+        ;; 
     AIX:*:00????????00)
         if [ "$OPT_VERBOSE" = "yes" ]; then
         echo "    64-bit IBM PowerPC (powerpc)"
