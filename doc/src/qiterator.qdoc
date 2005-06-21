@@ -517,10 +517,10 @@
     \sa operator=()
 */
 
-/*! \fn void QMutableListIterator::operator=(QList<T> &list)
-    \fn void QMutableLinkedListIterator::operator=(QLinkedList<T> &list)
-    \fn void QListIterator::operator=(const QList<T> &list)
-    \fn void QLinkedListIterator::operator=(const QLinkedList<T> &list)
+/*! \fn QMutableListIterator &QMutableListIterator::operator=(QList<T> &list)
+    \fn QMutableLinkedListIterator &QMutableLinkedListIterator::operator=(QLinkedList<T> &list)
+    \fn QListIterator &QListIterator::operator=(const QList<T> &list)
+    \fn QLinkedListIterator &QLinkedListIterator::operator=(const QLinkedList<T> &list)
 
     Makes the iterator operate on \a list. The iterator is set to be
     at the front of the list (before the first item).
@@ -528,8 +528,8 @@
     \sa toFront(), toBack()
 */
 
-/*! \fn void QVectorIterator::operator=(const QVector<T> &vector)
-    \fn void QMutableVectorIterator::operator=(QVector<T> &vector)
+/*! \fn QVectorIterator &QVectorIterator::operator=(const QVector<T> &vector)
+    \fn QMutableVectorIterator &QMutableVectorIterator::operator=(QVector<T> &vector)
 
     Makes the iterator operate on \a vector. The iterator is set to be
     at the front of the vector (before the first item).
@@ -537,7 +537,7 @@
     \sa toFront(), toBack()
 */
 
-/*! \fn void QSetIterator::operator=(const QSet<T> &set)
+/*! \fn QSetIterator &QSetIterator::operator=(const QSet<T> &set)
 
     Makes the iterator operate on \a set. The iterator is set to be
     at the front of the set (before the first item).
@@ -1230,8 +1230,8 @@
     \sa operator=()
 */
 
-/*! \fn void QMapIterator::operator=(const QMap<Key, T> &map)
-    \fn void QMutableMapIterator::operator=(QMap<Key, T> &map)
+/*! \fn QMapIterator &QMapIterator::operator=(const QMap<Key, T> &map)
+    \fn QMutableMapIterator &QMutableMapIterator::operator=(QMap<Key, T> &map)
 
     Makes the iterator operate on \a map. The iterator is set to be
     at the front of the map (before the first item).
@@ -1239,8 +1239,8 @@
     \sa toFront(), toBack()
 */
 
-/*! \fn void QHashIterator::operator=(const QHash<Key, T> &hash)
-    \fn void QMutableHashIterator::operator=(QHash<Key, T> &hash)
+/*! \fn QHashIterator &QHashIterator::operator=(const QHash<Key, T> &hash)
+    \fn QMutableHashIterator &QMutableHashIterator::operator=(QHash<Key, T> &hash)
 
     Makes the iterator operate on \a hash. The iterator is set to be
     at the front of the hash (before the first item).

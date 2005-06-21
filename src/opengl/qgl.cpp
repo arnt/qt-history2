@@ -271,7 +271,7 @@ QGLFormat::QGLFormat(const QGLFormat &other)
     Assigns \a other to this object.
 */
 
-QGLFormat QGLFormat::operator=(const QGLFormat &other)
+QGLFormat &QGLFormat::operator=(const QGLFormat &other)
 {
     *d = *other.d;
     return *this;

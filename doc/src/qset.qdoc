@@ -563,7 +563,7 @@
     \sa operator==()
 */
 
-/*! \fn QSet::const_iterator QSet::const_iterator::operator++()
+/*! \fn QSet::const_iterator &QSet::const_iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the set and returns an iterator to the new current
@@ -584,7 +584,7 @@
     current item.
 */
 
-/*! \fn QSet::const_iterator QSet::const_iterator::operator--()
+/*! \fn QSet::const_iterator &QSet::const_iterator::operator--()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator to the new current item.

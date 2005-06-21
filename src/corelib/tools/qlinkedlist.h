@@ -90,9 +90,9 @@ public:
             { return i == reinterpret_cast<const iterator &>(o).i; }
         inline bool operator!=(const const_iterator &o) const
             { return i != reinterpret_cast<const iterator &>(o).i; }
-        inline iterator operator++() { i = i->n; return *this; }
+        inline iterator &operator++() { i = i->n; return *this; }
         inline iterator operator++(int) { Node *n = i; i = i->n; return n; }
-        inline iterator operator--() { i = i->p; return *this; }
+        inline iterator &operator--() { i = i->p; return *this; }
         inline iterator operator--(int) { Node *n = i; i = i->p; return n; }
         inline iterator operator+(int j) const
         { Node *n = i; if (j > 0) while (j--) n = n->n; else while (j++) n = n->p; return n; }
@@ -120,9 +120,9 @@ public:
         inline const T *operator->() const { return &i->t; }
         inline bool operator==(const const_iterator &o) const { return i == o.i; }
         inline bool operator!=(const const_iterator &o) const { return i != o.i; }
-        inline const_iterator operator++() { i = i->n; return *this; }
+        inline const_iterator &operator++() { i = i->n; return *this; }
         inline const_iterator operator++(int) { Node *n = i; i = i->n; return n; }
-        inline const_iterator operator--() { i = i->p; return *this; }
+        inline const_iterator &operator--() { i = i->p; return *this; }
         inline const_iterator operator--(int) { Node *n = i; i = i->p; return n; }
         inline const_iterator operator+(int j) const
         { Node *n = i; if (j > 0) while (j--) n = n->n; else while (j++) n = n->p; return n; }

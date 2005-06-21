@@ -70,9 +70,9 @@ public:
         inline const T *operator->() const { return &i.key(); }
         inline bool operator==(const const_iterator &o) const { return i == o.i; }
         inline bool operator!=(const const_iterator &o) const { return i != o.i; }
-        inline const_iterator operator++() { ++i; return *this; }
+        inline const_iterator &operator++() { ++i; return *this; }
         inline const_iterator operator++(int) { const_iterator r = *this; ++i; return r; }
-        inline const_iterator operator--() { --i; return *this; }
+        inline const_iterator &operator--() { --i; return *this; }
         inline const_iterator operator--(int) { const_iterator r = *this; --i; return r; }
         inline const_iterator operator+(int j) const { return i + j; }
         inline const_iterator operator-(int j) const { return i - j; }

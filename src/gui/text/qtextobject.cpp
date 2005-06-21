@@ -677,7 +677,7 @@ QTextBlock QTextFrame::iterator::currentBlock() const
 
     \sa currentBlock() currentFrame()
 */
-QTextFrame::iterator QTextFrame::iterator::operator++()
+QTextFrame::iterator &QTextFrame::iterator::operator++()
 {
     const QTextDocumentPrivate *priv = f->docHandle();
     const QTextDocumentPrivate::BlockMap &map = priv->blockMap();
@@ -713,7 +713,7 @@ QTextFrame::iterator QTextFrame::iterator::operator++()
 
     \sa currentBlock() currentFrame()
 */
-QTextFrame::iterator QTextFrame::iterator::operator--()
+QTextFrame::iterator &QTextFrame::iterator::operator--()
 {
     const QTextDocumentPrivate *priv = f->docHandle();
     const QTextDocumentPrivate::BlockMap &map = priv->blockMap();
@@ -1211,7 +1211,7 @@ QTextFragment QTextBlock::iterator::fragment() const
     item.
 */
 
-QTextBlock::iterator QTextBlock::iterator::operator++()
+QTextBlock::iterator &QTextBlock::iterator::operator++()
 {
     int ne = n;
     int formatIndex = p->fragmentMap().fragment(n)->format;
@@ -1227,7 +1227,7 @@ QTextBlock::iterator QTextBlock::iterator::operator++()
     current and returns an iterator pointing to the new current item.
 */
 
-QTextBlock::iterator QTextBlock::iterator::operator--()
+QTextBlock::iterator &QTextBlock::iterator::operator--()
 {
     n = p->fragmentMap().previous(n);
 

@@ -1181,7 +1181,7 @@ void QHashData::destroyAndFree()
 */
 
 /*!
-    \fn QHash::iterator QHash::iterator::operator++()
+    \fn QHash::iterator &QHash::iterator::operator++()
 
     The prefix ++ operator (\c{++i}) advances the iterator to the
     next item in the hash and returns an iterator to the new current
@@ -1202,7 +1202,7 @@ void QHashData::destroyAndFree()
 */
 
 /*!
-    \fn QHash::iterator QHash::iterator::operator--()
+    \fn QHash::iterator &QHash::iterator::operator--()
 
     The prefix -- operator (\c{--i}) makes the preceding item
     current and returns an iterator pointing to the new current item.
@@ -1384,7 +1384,7 @@ void QHashData::destroyAndFree()
 */
 
 /*!
-    \fn QHash::const_iterator QHash::const_iterator::operator++()
+    \fn QHash::const_iterator &QHash::const_iterator::operator++()
 
     The prefix ++ operator (\c{++i}) advances the iterator to the
     next item in the hash and returns an iterator to the new current

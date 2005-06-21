@@ -89,7 +89,7 @@ public:
     QGLFormat();
     QGLFormat(QGL::FormatOptions options, int plane = 0);
     QGLFormat(const QGLFormat &other);
-    QGLFormat operator=(const QGLFormat &other);
+    QGLFormat &operator=(const QGLFormat &other);
     ~QGLFormat();
 
     void setDepthBufferSize(int size);

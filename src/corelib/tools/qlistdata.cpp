@@ -1210,7 +1210,7 @@ void **QListData::erase(void **xi)
     than or equal to the item pointed to by the \a other iterator.
 */
 
-/*! \fn QList::iterator QList::iterator::operator++()
+/*! \fn QList::iterator &QList::iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the list and returns an iterator to the new current
@@ -1230,7 +1230,7 @@ void **QListData::erase(void **xi)
     current item.
 */
 
-/*! \fn QList::iterator QList::iterator::operator--()
+/*! \fn QList::iterator &QList::iterator::operator--()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator to the new current item.
@@ -1463,7 +1463,7 @@ void **QListData::erase(void **xi)
     than or equal to the item pointed to by the \a other iterator.
 */
 
-/*! \fn QList::const_iterator QList::const_iterator::operator++()
+/*! \fn QList::const_iterator &QList::const_iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the list and returns an iterator to the new current
@@ -1483,7 +1483,7 @@ void **QListData::erase(void **xi)
     current item.
 */
 
-/*! \fn QList::const_iterator QList::const_iterator::operator--()
+/*! \fn QList::const_iterator &QList::const_iterator::operator--()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator to the new current item.

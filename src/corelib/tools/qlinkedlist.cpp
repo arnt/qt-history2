@@ -741,7 +741,7 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa operator==()
 */
 
-/*! \fn QLinkedList::iterator QLinkedList::iterator::operator++()
+/*! \fn QLinkedList::iterator &QLinkedList::iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the list and returns an iterator to the new current
@@ -762,7 +762,7 @@ QLinkedListData QLinkedListData::shared_null = {
     current item.
 */
 
-/*! \fn QLinkedList::iterator QLinkedList::iterator::operator--()
+/*! \fn QLinkedList::iterator &QLinkedList::iterator::operator--()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator to the new current item.
@@ -961,7 +961,7 @@ QLinkedListData QLinkedListData::shared_null = {
     \sa operator==()
 */
 
-/*! \fn QLinkedList::const_iterator QLinkedList::const_iterator::operator++()
+/*! \fn QLinkedList::const_iterator &QLinkedList::const_iterator::operator++()
 
     The prefix ++ operator (\c{++it}) advances the iterator to the
     next item in the list and returns an iterator to the new current
@@ -982,7 +982,7 @@ QLinkedListData QLinkedListData::shared_null = {
     current item.
 */
 
-/*! \fn QLinkedList::const_iterator QLinkedList::const_iterator::operator--()
+/*! \fn QLinkedList::const_iterator &QLinkedList::const_iterator::operator--()
 
     The prefix -- operator (\c{--it}) makes the preceding item
     current and returns an iterator to the new current item.

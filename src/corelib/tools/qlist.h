@@ -142,9 +142,9 @@ public:
             { return i > reinterpret_cast<const iterator &>(other).i; }
         inline bool operator>=(const const_iterator& other) const
             { return i >= reinterpret_cast<const iterator &>(other).i; }
-        inline iterator operator++() { ++i; return *this; }
+        inline iterator &operator++() { ++i; return *this; }
         inline iterator operator++(int) { Node *n = i; ++i; return n; }
-        inline iterator operator--() { i--; return *this; }
+        inline iterator &operator--() { i--; return *this; }
         inline iterator operator--(int) { Node *n = i; i--; return n; }
         inline iterator &operator+=(int j) { i+=j; return *this; }
         inline iterator &operator-=(int j) { i-=j; return *this; }
@@ -176,9 +176,9 @@ public:
         inline bool operator<=(const const_iterator& other) const { return i <= other.i; }
         inline bool operator>(const const_iterator& other) const { return i > other.i; }
         inline bool operator>=(const const_iterator& other) const { return i >= other.i; }
-        inline const_iterator operator++() { ++i; return *this; }
+        inline const_iterator &operator++() { ++i; return *this; }
         inline const_iterator operator++(int) { Node *n = i; ++i; return n; }
-        inline const_iterator operator--() { i--; return *this; }
+        inline const_iterator &operator--() { i--; return *this; }
         inline const_iterator operator--(int) { Node *n = i; i--; return n; }
         inline const_iterator &operator+=(int j) { i+=j; return *this; }
         inline const_iterator &operator-=(int j) { i+=j; return *this; }

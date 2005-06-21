@@ -242,7 +242,7 @@ public:
         inline bool operator!=(const const_iterator &o) const
             { return i != reinterpret_cast<const iterator &>(o).i; }
 
-        inline iterator operator++() {
+        inline iterator &operator++() {
             i = QHashData::nextNode(i);
             return *this;
         }
@@ -251,7 +251,7 @@ public:
             i = QHashData::nextNode(i);
             return r;
         }
-        inline iterator operator--() {
+        inline iterator &operator--() {
             i = QHashData::previousNode(i);
             return *this;
         }
@@ -292,7 +292,7 @@ public:
         inline bool operator==(const const_iterator &o) const { return i == o.i; }
         inline bool operator!=(const const_iterator &o) const { return i != o.i; }
 
-        inline const_iterator operator++() {
+        inline const_iterator &operator++() {
             i = QHashData::nextNode(i);
             return *this;
         }
@@ -301,7 +301,7 @@ public:
             i = QHashData::nextNode(i);
             return r;
         }
-        inline const_iterator operator--() {
+        inline const_iterator &operator--() {
             i = QHashData::previousNode(i);
             return *this;
         }

@@ -610,14 +610,14 @@ public:
 
     // An operator= for each QChar cast constructors
 #ifndef QT_NO_CAST_FROM_ASCII
-    inline QCharRef operator=(char c) { return operator=(QChar(c)); }
-    inline QCharRef operator=(uchar c) { return operator=(QChar(c)); }
+    inline QCharRef &operator=(char c) { return operator=(QChar(c)); }
+    inline QCharRef &operator=(uchar c) { return operator=(QChar(c)); }
 #endif
-    inline QCharRef operator=(const QCharRef &c) { return operator=(QChar(c)); }
-    inline QCharRef operator=(ushort rc) { return operator=(QChar(rc)); }
-    inline QCharRef operator=(short rc) { return operator=(QChar(rc)); }
-    inline QCharRef operator=(uint rc) { return operator=(QChar(rc)); }
-    inline QCharRef operator=(int rc) { return operator=(QChar(rc)); }
+    inline QCharRef &operator=(const QCharRef &c) { return operator=(QChar(c)); }
+    inline QCharRef &operator=(ushort rc) { return operator=(QChar(rc)); }
+    inline QCharRef &operator=(short rc) { return operator=(QChar(rc)); }
+    inline QCharRef &operator=(uint rc) { return operator=(QChar(rc)); }
+    inline QCharRef &operator=(int rc) { return operator=(QChar(rc)); }
 
     // each function...
     inline bool isNull() const { return QChar(*this).isNull(); }

@@ -132,9 +132,9 @@ public:
 
         inline bool operator==(const iterator &o) const { return f == o.f && cf == o.cf && cb == o.cb; }
         inline bool operator!=(const iterator &o) const { return f != o.f || cf != o.cf || cb != o.cb; }
-        iterator operator++();
+        iterator &operator++();
         inline iterator operator++(int) { iterator tmp = *this; operator++(); return tmp; }
-        iterator operator--();
+        iterator &operator--();
         inline iterator operator--(int) { iterator tmp = *this; operator--(); return tmp; }
     };
 
@@ -214,9 +214,9 @@ public:
 
         inline bool operator==(const iterator &o) const { return p == o.p && n == o.n; }
         inline bool operator!=(const iterator &o) const { return p != o.p || n != o.n; }
-        iterator operator++();
+        iterator &operator++();
         inline iterator operator++(int) { iterator tmp = *this; operator++(); return tmp; }
-        iterator operator--();
+        iterator &operator--();
         inline iterator operator--(int) { iterator tmp = *this; operator--(); return tmp; }
     };
 
