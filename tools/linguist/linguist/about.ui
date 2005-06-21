@@ -1,5 +1,5 @@
 <ui version="4.0" >
- <class>AboutDialog</class>
+ <author></author>
  <comment>*********************************************************************
  **
  ** Copyright (C) 1992-$THISYEAR$ Trolltech AS. All rights reserved.
@@ -12,38 +12,34 @@
  ** WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  **
  *********************************************************************</comment>
- <widget class="QDialog" >
-  <property name="windowTitle" >
-   <string>Qt Linguist</string>
-  </property>
+ <exportmacro></exportmacro>
+ <class>AboutDialog</class>
+ <widget class="QDialog" name="AboutDialog" >
   <property name="geometry" >
    <rect>
     <x>0</x>
     <y>0</y>
     <width>400</width>
-    <height>300</height>
+    <height>311</height>
    </rect>
   </property>
-  <property name="objectName" >
-   <string notr="true" >AboutDialog</string>
+  <property name="windowTitle" >
+   <string>Qt Linguist</string>
   </property>
   <layout class="QVBoxLayout" >
-   <property name="objectName" >
-    <string notr="true" >unnamed</string>
-   </property>
-   <property name="sizeConstraint" >
-    <enum>QLayout::SetMinimumSize</enum>
+   <property name="margin" >
+    <number>11</number>
    </property>
    <property name="spacing" >
     <number>6</number>
    </property>
-   <property name="margin" >
-    <number>11</number>
+   <property name="sizeConstraint" >
+    <enum>QLayout::SetMinimumSize</enum>
    </property>
    <item>
     <widget class="QLabel" name="PixmapLabel1" >
-     <property name="alignment" >
-      <enum>Qt::AlignCenter</enum>
+     <property name="frameShape" >
+      <enum>QFrame::NoFrame</enum>
      </property>
      <property name="frameShadow" >
       <enum>QFrame::Plain</enum>
@@ -51,82 +47,25 @@
      <property name="scaledContents" >
       <bool>false</bool>
      </property>
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>11</y>
-       <width>0</width>
-       <height>14</height>
-      </rect>
-     </property>
-     <property name="frameShape" >
-      <enum>QFrame::NoFrame</enum>
-     </property>
-     <property name="objectName" >
-      <string notr="true" >PixmapLabel1</string>
+     <property name="alignment" >
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
    <item>
     <widget class="QLabel" name="versionLabel" >
      <property name="alignment" >
-      <enum>Qt::AlignCenter</enum>
-     </property>
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>30</y>
-       <width>378</width>
-       <height>14</height>
-      </rect>
-     </property>
-     <property name="objectName" >
-      <string notr="true" >versionLabel</string>
+      <set>Qt::AlignCenter</set>
      </property>
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="TextLabel1_2" >
-     <property name="alignment" >
-      <enum>Qt::AlignCenter</enum>
-     </property>
-     <property name="wordWrap" >
-      <bool>false</bool>
-     </property>
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>49</y>
-       <width>378</width>
-       <height>13</height>
-      </rect>
-     </property>
-     <property name="objectName" >
-      <string notr="true" >TextLabel1_2</string>
-     </property>
+    <widget class="QLabel" name="infoText" >
      <property name="text" >
-      <string>Copyright (C) 2000-$THISYEAR$ Trolltech AS. All Rights Reserved.</string>
+      <string/>
      </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="TextLabel1_3" >
      <property name="wordWrap" >
       <bool>true</bool>
-     </property>
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>67</y>
-       <width>378</width>
-       <height>188</height>
-      </rect>
-     </property>
-     <property name="objectName" >
-      <string notr="true" >TextLabel1_3</string>
-     </property>
-     <property name="text" >
-      <string>&lt;p>Qt Commercial Edition license holders: This program is licensed to you under the terms of the Qt Commercial License Agreement. For details, see the file LICENSE that came with this software distribution.&lt;/p>&lt;p>&lt;/p>&lt;p>Qt Open Source Edition users: This program is licensed to you under the terms of the GNU General Public License Version 2. For details, see the file LICENSE.GPL that came with this software distribution.&lt;/p>&lt;p>The program is provided AS IS with NO WARRANTY OF ANY KIND, INCLUDING THE WARRANTY OF DESIGN, MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.&lt;/p></string>
      </property>
     </widget>
    </item>
@@ -135,69 +74,45 @@
      <property name="orientation" >
       <enum>Qt::Vertical</enum>
      </property>
-     <property name="geometry" >
-      <rect>
-       <x>11</x>
-       <y>260</y>
-       <width>378</width>
-       <height>0</height>
-      </rect>
-     </property>
-     <property name="objectName" >
-      <string notr="true" />
+     <property name="sizeHint" >
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
      </property>
     </spacer>
    </item>
    <item>
     <layout class="QHBoxLayout" >
-     <property name="objectName" >
-      <string notr="true" >unnamed_2_2_2_2_2_2_2</string>
+     <property name="margin" >
+      <number>0</number>
      </property>
      <property name="spacing" >
       <number>6</number>
-     </property>
-     <property name="margin" >
-      <number>0</number>
      </property>
      <item>
       <spacer>
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="geometry" >
-        <rect>
-         <x>0</x>
-         <y>0</y>
-         <width>142</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="objectName" >
-        <string notr="true" />
+       <property name="sizeHint" >
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
        </property>
       </spacer>
      </item>
      <item>
       <widget class="QPushButton" name="PushButton1" >
-       <property name="default" >
-        <bool>true</bool>
+       <property name="text" >
+        <string>OK</string>
        </property>
        <property name="autoDefault" >
         <bool>true</bool>
        </property>
-       <property name="geometry" >
-        <rect>
-         <x>148</x>
-         <y>0</y>
-         <width>82</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="objectName" >
-        <string notr="true" >PushButton1</string>
-       </property>
-       <property name="text" >
-        <string>OK</string>
+       <property name="default" >
+        <bool>true</bool>
        </property>
       </widget>
      </item>
@@ -206,16 +121,11 @@
        <property name="orientation" >
         <enum>Qt::Horizontal</enum>
        </property>
-       <property name="geometry" >
-        <rect>
-         <x>236</x>
-         <y>0</y>
-         <width>142</width>
-         <height>25</height>
-        </rect>
-       </property>
-       <property name="objectName" >
-        <string notr="true" />
+       <property name="sizeHint" >
+        <size>
+         <width>20</width>
+         <height>40</height>
+        </size>
        </property>
       </spacer>
      </item>
@@ -224,5 +134,6 @@
   </layout>
  </widget>
  <pixmapfunction></pixmapfunction>
+ <resources/>
  <connections/>
 </ui>

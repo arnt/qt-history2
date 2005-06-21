@@ -501,16 +501,25 @@ void QMessageBoxPrivate::init(int button0, int button1, int button2)
 #else
         *translatedTextAboutQt = q->tr(
             "<h3>About Qt</h3>"
+#if !defined(QT_OPENSOURCE)
             "<p>This program uses Qt version %1.</p>"
-            "<p>Qt is a C++ toolkit for cross-platform GUI "
+#else
+            "<p>This program uses Qt Open Source Edition version %1.</p>"
+            "<p>Qt Open Source Edition is intended for the development "
+            "of Open Source applications. You need a commercial Qt "
+            "license for development of proprietary (closed source) "
+            "applications.</p>"
+            "<p>Please see <tt>http://www.trolltech.com/company/model.html</tt> "
+            "for an overview of Qt licensing.</p>"
+#endif
+            "<p>Qt is a C++ toolkit for cross-platform "
             "application development.</p>"
             "<p>Qt provides single-source "
             "portability across MS&nbsp;Windows, Mac&nbsp;OS&nbsp;X, "
-            "Linux, and all major commercial Unix variants."
-            "<br>Qt is also available for embedded devices.</p>"
-            "<p>Qt is a Trolltech product. "
-            "See <tt>http://www.trolltech.com/qt/</tt> "
-            "for more information.</p>"
+            "Linux, and all major commercial Unix variants. Qt is also"
+            " available for embedded devices.</p>"
+            "<p>Qt is a Trolltech product. See "
+            "<tt>http://www.trolltech.com/qt/</tt> for more information.</p>"
            ).arg(QT_VERSION_STR);
 #endif
 

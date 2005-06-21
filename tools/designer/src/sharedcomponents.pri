@@ -1,3 +1,4 @@
+contains(QT_PRODUCT, OpenSource.*):DEFINES *= QT_OPENSOURCE
 
 for(QTSHAREDLIB, $$list($$unique(LIBS))) {
     sharedlib =

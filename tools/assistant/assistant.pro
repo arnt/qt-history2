@@ -46,6 +46,7 @@ HEADERS        += helpwindow.h \
 
 RESOURCES += assistant.qrc
 
+contains(QT_PRODUCT, OpenSource.*):DEFINES *= QT_OPENSOURCE
 DEFINES += QT_KEYWORDS
 #DEFINES +=  QT_PALMTOPCENTER_DOCS
 

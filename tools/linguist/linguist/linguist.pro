@@ -38,6 +38,7 @@ HEADERS        += finddialog.h \
         ../shared/metatranslator.h \
 	../shared/translator.h
 
+contains(QT_PRODUCT, OpenSource.*):DEFINES *= QT_OPENSOURCE
 DEFINES        += QT_KEYWORDS
 
 DESTDIR                = ../../../bin
