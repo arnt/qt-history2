@@ -62,7 +62,7 @@
         number /= 4;        // number is now 7
 
         // method2()
-        number *= 3;        // nubmer is now 21
+        number *= 3;        // number is now 21
         number /= 2;        // number is now 10
     \endcode
 
