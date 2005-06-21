@@ -436,8 +436,8 @@ if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     DISKIMAGE="$TMP_DIR/diskimage"
     mkdir -p "$DISKIMAGE/.images"
     cp finderbackground.png "$DISKIMAGE/.images"
-    cp model-DS_Store "$DISKIMAGE/.DS_Store"
-    chmod 600 "$DISKIMAGE/.DS_Store"
+    cp model-DS_Store-${QT_VERSION_STRING} "$DISKIMAGE/.DS_Store"
+    chmod 755 "$DISKIMAGE/.DS_Store"
 
     for package in $PKG_CREATED; do 
 	[ -z "$package" ] && continue
