@@ -281,14 +281,11 @@ cd %QTDIR%
 
 if "%TMP_COMPILER%"=="mingw" goto MinGWBuild
 
-echo - Creating license file
-type LICENSE.TROLL > LICENSE.TROLL
-
 set EVALDEFINE= 
 if "%TMP_QTCONFIG%"=="eval" set EVALDEFINE=-D QT_EVAL
 
 echo - Running configure...
-configure -release -plugin-sql-sqlite -plugin-sql-odbc -qt-style-windowsxp -qt-libpng -qt-libjpeg %EVALDEFINE% 1>>log.txt >> %1\log.txt 2>&1
+configure -confirm-license -release -plugin-sql-sqlite -plugin-sql-odbc -qt-style-windowsxp -qt-libpng -qt-libjpeg %EVALDEFINE% 1>>log.txt >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 echo - Building (%TMP_QTCONFIG%)
@@ -329,7 +326,7 @@ goto DoneBuilding
 :MinGWBuild
 
 echo - Running configure...
-configure -release -plugin-sql-sqlite -plugin-sql-odbc -qt-style-windowsxp -qt-libpng -qt-libjpeg 1>>log.txt >> %1\log.txt 2>&1
+configure -confirm-license -release -plugin-sql-sqlite -plugin-sql-odbc -qt-style-windowsxp -qt-libpng -qt-libjpeg 1>>log.txt >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 echo - Building (%TMP_QTCONFIG%)
