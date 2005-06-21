@@ -263,8 +263,7 @@ QModelIndexList QItemSelectionRange::indexes() const
   beginning at the \c topLeft, and ending at the \c bottomRight.
 
   \code
-    QItemSelection *selection = new QItemSelection(topLeft,
-            bottomRight, model);
+    QItemSelection *selection = new QItemSelection(topLeft, bottomRight);
   \endcode
 
   An empty item selection can be constructed, and later populated as
@@ -274,7 +273,7 @@ QModelIndexList QItemSelectionRange::indexes() const
   \code
     QItemSelection *selection = new QItemSelection();
     ...
-    selection->select(topLeft, bottomRight, model);
+    selection->select(topLeft, bottomRight);
   \endcode
 
   QItemSelection saves memory, and avoids unnecessary work, by working with
