@@ -3103,16 +3103,28 @@ static QByteArray compress(const QImage &img, bool gray) {
                         r.width() << ' ' << r.height() << ' '
 #define INT_ARG(x)  x << ' '
 
-static QByteArray color(const QColor &c)
+QByteArray QPSPrintEngine::color(const QColor &c) const
 {
+    Q_D(const QPSPrintEngine);
     QByteArray retval;
-    retval += '[';
-    retval += QByteArray::number(c.red()/255.);
-    retval += ' ';
-    retval += QByteArray::number(c.green()/255.);
-    retval += ' ';
-    retval += QByteArray::number(c.blue()/255.);
-    retval += ']';
+    if (d->colorMode == QPrinter::GrayScale) {
+        const QByteArray gray = QByteArray::number(qGray(c.rgb())/255.);
+        retval += '[';
+        retval += gray;
+        retval += ' ';
+        retval += gray;
+        retval += ' ';
+        retval += gray;
+        retval += ']';
+    } else {
+        retval += '[';
+        retval += QByteArray::number(c.red()/255.);
+        retval += ' ';
+        retval += QByteArray::number(c.green()/255.);
+        retval += ' ';
+        retval += QByteArray::number(c.blue()/255.);
+        retval += ']';
+    }
     return retval;
 }
 

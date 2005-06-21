@@ -92,6 +92,8 @@ public:
     virtual Qt::HANDLE handle() const { return 0; };
 
 private:
+    QByteArray color(const QColor &c) const;
+
     Q_DISABLE_COPY(QPSPrintEngine)
 };
 
