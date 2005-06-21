@@ -43,6 +43,7 @@
 #include "qabstractitemmodel.h"
 #include "qtreeview.h"
 #include "qheaderview.h"
+#include "qdebug.h"
 
 #if !defined(QT_NO_CUPS) || !defined(QT_NO_NIS)
 #include "qlibrary.h"
@@ -1454,8 +1455,11 @@ void QPrintDialogPrivate::setPrinter(QPrinter *p, bool pickUpSettings)
 
         // color mode
         colorMode2 = p->colorMode();
-        if (colorMode2 == QPrinter::Color)
+        if (colorMode2 == QPrinter::Color) {
             printColor->setChecked(true);
+        } else {
+            printGray->setChecked(true);
+        }
 
         // number of copies
         copies->setValue(p->numCopies());
