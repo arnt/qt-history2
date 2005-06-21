@@ -341,5 +341,6 @@ inline QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator-=(int n)
 inline QTreeWidgetItem *QTreeWidgetItemIterator::operator*() const
 { return current; }
 
+Q_DECLARE_OPERATORS_FOR_FLAGS(QTreeWidgetItemIterator::IteratorFlags)
 
 #endif // QTREEWIDGET_H
