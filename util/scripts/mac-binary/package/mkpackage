@@ -27,7 +27,7 @@ QT_VERSION_STRING=${QT_MAJOR_VERSION}.${QT_MINOR_VERSION}.${QT_PATCH_VERSION}
 BINARY_DIR=
 SOURCE_DIR=
 SOURCE_PACKAGE=
-CONFIGURE_ARGS=-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -release -framework -confirm-license -no-rpath -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib
+CONFIGURE_ARGS="-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -release -framework -confirm-license -no-rpath -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib"
 
 doStringReplace()
 {
@@ -160,13 +160,13 @@ elif [ ! -z "$SOURCE_PACKAGE" ]; then
     EXTENSION=`echo $PACKAGE_NAME | sed -e 's,.*\.tar\.\(.*\),\1,'`
     PACKAGE_DEST=`echo $PACKAGE_NAME | sed -e 's,\(.*\)\.tar.*,\1,'`
     if [ "$LICENSETYPE" = "eval" ]; then
-	CONFIGURE_ARGS="$CONFIGURE_ARGS" -DQT_EVAL
+	CONFIGURE_ARGS="$CONFIGURE_ARGS -DQT_EVAL"
     fi
     export QTDIR=$TMP_DIR/source/$PACKAGE_DEST
     export DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
     export DYLD_FRAMEWORK_PATH=$QTDIR/lib:$DYLD_FRAMEWORK_PATH
     export PATH=$QTDIR/bin:$PATH
-    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure "$CONFIGURE_ARGS" && make); then
+    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure $CONFIGURE_ARGS && make); then
           SOURCE_DIR="$QTDIR"
           BINARY_DIR="$SOURCE_DIR"
     else
