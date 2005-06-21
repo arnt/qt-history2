@@ -38,6 +38,7 @@ public:
     QString firstLicensePath();
 
 #if !defined(EVAL)
+    bool showLicense(const QString &licenseFile);
     void readLicense();
 #endif
 

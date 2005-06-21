@@ -520,6 +520,10 @@ void Configure::parseCmdLine()
 	    dictionary[ "CUSTOMCONFIG" ] = "_" + configCmdLine.at(i);
 	}
 
+        else if (configCmdLine.at(i) == "-confirm-license") {
+            dictionary["LICENSE_CONFIRMED"] = "yes";
+        }
+
         // Directories ----------------------------------------------
 	else if( configCmdLine.at(i) == "-prefix" ) {
 	    ++i;
@@ -1936,8 +1940,13 @@ Configure::ProjectType Configure::projectType( const QString& proFileName )
 
 #if !defined(EVAL)
 
-bool showLicense(const QString &licenseFile)
+bool Configure::showLicense(const QString &licenseFile)
 {
+    if (dictionary["LICENSE_CONFIRMED"] == "yes") {
+        cout << "You have already accepted the terms of the license." << endl << endl;
+        return true;
+    }
+
     QFile file(licenseFile);
     if (!file.open(QFile::ReadOnly)) {
         cout << "Failed to load LICENSE file";
