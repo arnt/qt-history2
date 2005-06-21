@@ -34,8 +34,6 @@
 
 using namespace qdesigner_internal;
 
-Q_DECLARE_METATYPE(QObject *)
-
 ObjectInspector::ObjectInspector(QDesignerFormEditorInterface *core, QWidget *parent)
     : QDesignerObjectInspectorInterface(parent),
       m_core(core),
