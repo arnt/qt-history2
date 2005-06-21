@@ -763,6 +763,14 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
                 tdi->attributes &= ~kThemeTrackRightToLeft;
         }
     }
+
+    // HIThemes broke reverse scrollbars so put them back and "fake it"
+    if (isScrollbar && (tdi->attributes & kThemeTrackRightToLeft)
+        && QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        tdi->attributes &= ~kThemeTrackRightToLeft;
+        tdi->value = tdi->max - slider->sliderPosition;
+    }
+
     tdi->enableState = slider->state & QStyle::State_Enabled ? kThemeTrackActive
                                                              : kThemeTrackDisabled;
     if (!(slider->state & QStyle::State_Active))
@@ -836,6 +844,15 @@ static void getSliderInfo(QStyle::ComplexControl cc, const QStyleOptionSlider *s
                 tdi->attributes &= ~kThemeTrackRightToLeft;
         }
     }
+
+    // HIThemes (and indirectly appearance manager) broke reverse scrollbars so
+    // put them back and "fake it"
+    if (isScrollbar && (tdi->attributes & kThemeTrackRightToLeft)
+        && QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4) {
+        tdi->attributes &= ~kThemeTrackRightToLeft;
+        tdi->value = tdi->max - slider->sliderPosition;
+    }
+
     tdi->enableState = slider->state & QStyle::State_Enabled ? kThemeTrackActive
                                                              : kThemeTrackDisabled;
     if (!(slider->state & QStyle::State_Active))
@@ -2296,9 +2313,20 @@ void QMacStylePrivate::HIThemeDrawComplexControl(QStyle::ComplexControl cc,
                 } else {
                     if (slider->activeSubControls == QStyle::SC_ScrollBarSubLine
                         || slider->activeSubControls == QStyle::SC_ScrollBarAddLine) {
+                        // This test looks complex but it basically boils down
+                        // to the following: The "RTL look" on the mac also
+                        // changed the directions of the controls, that's not
+                        // what people expect (an arrow is an arrow), so we
+                        // kind of fake and say the opposite button is hit.
+                        // This works great, up until 10.4 which broke the
+                        // scrollbars, so I also have actually do something
+                        // similar when I have an upside down scroll bar
+                        // because on Tiger I only "fake" the reverse stuff.
                         bool reverseHorizontal = (slider->direction == Qt::RightToLeft
                                                   && slider->orientation == Qt::Horizontal
-                                                  && !slider->upsideDown);
+                                                  && (!slider->upsideDown
+                                                      || (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4
+                                                          && slider->upsideDown)));
                         if ((reverseHorizontal
                              && slider->activeSubControls == QStyle::SC_ScrollBarAddLine)
                             || (!reverseHorizontal
@@ -2744,10 +2772,13 @@ QStyle::SubControl QMacStylePrivate::HIThemeHitTestComplexControl(QStyle::Comple
             HIPoint pos = CGPointMake(pt.x(), pt.y());
             HIRect macSBRect = qt_hirectForQRect(sb->rect);
             ControlPartCode part;
+            bool reverseHorizontal = (sb->direction == Qt::RightToLeft
+                                      && sb->orientation == Qt::Horizontal
+                                      && (!sb->upsideDown ||
+                                          (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4
+                                                      && sb->upsideDown)));
             if (HIThemeHitTestScrollBarArrows(&macSBRect, &sbi, sb->orientation == Qt::Horizontal,
                         &pos, 0, &part)) {
-                bool reverseHorizontal = (sb->direction == Qt::RightToLeft
-                                          && sb->orientation == Qt::Horizontal && !sb->upsideDown);
                 if (part == kControlUpButtonPart)
                     sc = reverseHorizontal ? QStyle::SC_ScrollBarAddLine : QStyle::SC_ScrollBarSubLine;
                 else if (part == kControlDownButtonPart)
@@ -2757,9 +2788,11 @@ QStyle::SubControl QMacStylePrivate::HIThemeHitTestComplexControl(QStyle::Comple
                 getSliderInfo(cc, sb, &tdi, widget);
                 if (HIThemeHitTestTrack(&tdi, &pos, &part)) {
                     if (part == kControlPageUpPart)
-                        sc = QStyle::SC_ScrollBarSubPage;
+                        sc = reverseHorizontal ? QStyle::SC_ScrollBarAddPage
+                                               : QStyle::SC_ScrollBarSubPage;
                     else if (part == kControlPageDownPart)
-                        sc = QStyle::SC_ScrollBarAddPage;
+                        sc = reverseHorizontal ? QStyle::SC_ScrollBarSubPage
+                                               : QStyle::SC_ScrollBarAddPage;
                     else
                         sc = QStyle::SC_ScrollBarSlider;
                 }
@@ -2852,8 +2885,12 @@ QRect QMacStylePrivate::HIThemeSubControlRect(QStyle::ComplexControl cc,
                 } else {
                     cpc = sc == QStyle::SC_ScrollBarSubLine ? kControlUpButtonPart
                                                             : kControlDownButtonPart;
-                    if (slider->direction == Qt::RightToLeft && !slider->upsideDown
-                        && slider->orientation == Qt::Horizontal) {
+                    if (slider->direction == Qt::RightToLeft
+                        && slider->orientation == Qt::Horizontal
+                        && (!slider->upsideDown
+                            || (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4
+                                && slider->upsideDown))
+                        ) {
                         if (cpc == kControlDownButtonPart)
                             cpc = kControlUpButtonPart;
                         else if (cpc == kControlUpButtonPart)
@@ -3908,7 +3945,9 @@ void QMacStylePrivate::AppManDrawComplexControl(QStyle::ComplexControl cc,
                         || slider->activeSubControls == QStyle::SC_ScrollBarAddLine) {
                         bool reverseHorizontal = (slider->direction == Qt::RightToLeft
                                 && slider->orientation == Qt::Horizontal
-                                && !slider->upsideDown);
+                                && (!slider->upsideDown
+                                    || (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4
+                                        && slider->upsideDown)));
                         if ((reverseHorizontal
                              && slider->activeSubControls == QStyle::SC_ScrollBarAddLine)
                             || (!reverseHorizontal
@@ -4318,21 +4357,27 @@ QStyle::SubControl QMacStylePrivate::AppManHitTestComplexControl(QStyle::Complex
             Rect mrect;
             GetThemeTrackBounds(&tdi, &mrect);
             ControlPartCode cpc;
+            bool reverseHorizontal = (scrollbar->direction == Qt::RightToLeft
+                                      && scrollbar->orientation == Qt::Horizontal
+                                      && (!scrollbar->upsideDown
+                                          || (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_4
+                                              && scrollbar->upsideDown)));
             if (HitTestThemeScrollBarArrows(&tdi.bounds, tdi.enableState,
                                             0, scrollbar->orientation == Qt::Horizontal,
                                             pos, &mrect, &cpc)) {
-                bool reverseHorizontal = (scrollbar->direction == Qt::RightToLeft
-                                          && scrollbar->orientation == Qt::Horizontal
-                                          && !scrollbar->upsideDown);
                 if (cpc == kControlUpButtonPart)
-                    sc = reverseHorizontal ? QStyle::SC_ScrollBarAddLine : QStyle::SC_ScrollBarSubLine;
+                    sc = reverseHorizontal ? QStyle::SC_ScrollBarAddLine
+                                           : QStyle::SC_ScrollBarSubLine;
                 else if (cpc == kControlDownButtonPart)
-                    sc = reverseHorizontal ? QStyle::SC_ScrollBarSubLine : QStyle::SC_ScrollBarAddLine;
+                    sc = reverseHorizontal ? QStyle::SC_ScrollBarSubLine
+                                           : QStyle::SC_ScrollBarAddLine;
             } else if (HitTestThemeTrack(&tdi, pos, &cpc)) {
                 if (cpc == kControlPageUpPart)
-                    sc = QStyle::SC_ScrollBarSubPage;
+                    sc = reverseHorizontal ? QStyle::SC_ScrollBarAddPage
+                                           : QStyle::SC_ScrollBarSubPage;
                 else if (cpc == kControlPageDownPart)
-                    sc = QStyle::SC_ScrollBarAddPage;
+                    sc = reverseHorizontal ? QStyle::SC_ScrollBarSubPage
+                                           : QStyle::SC_ScrollBarAddPage;
                 else
                     sc = QStyle::SC_ScrollBarSlider;
             }
