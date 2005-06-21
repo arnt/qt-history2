@@ -101,6 +101,8 @@ public:
     void extendWordwiseSelection(int suggestedNewPosition, qreal mouseXPosition);
     void extendLinewiseSelection(int suggestedNewPosition);
 
+    QRect rectForPosition(int position) const;
+
     QTextDocument *doc;
     bool cursorOn;
     QTextCursor cursor;

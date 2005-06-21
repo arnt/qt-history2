@@ -210,7 +210,7 @@ bool QTextEditPrivate::cursorMoveKeyEvent(QKeyEvent *e)
 
     selectionChanged();
 
-    viewport->update();
+    repaintCursor();
 
     return true;
 }
@@ -2139,20 +2139,15 @@ QTextCursor QTextEdit::cursorForPosition(const QPoint &pos) const
     return c;
 }
 
-/*!
-  returns a rectangle (in viewport coordinates) that includes the
-  \a cursor.
- */
-QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
+QRect QTextEditPrivate::rectForPosition(int position) const
 {
-    Q_D(const QTextEdit);
-    if (cursor.isNull())
+    const QTextBlock block = doc->findBlock(position);
+    if (!block.isValid())
         return QRect();
-    const QAbstractTextDocumentLayout *docLayout = d->doc->documentLayout();
-    const QTextBlock block = cursor.block();
+    const QAbstractTextDocumentLayout *docLayout = doc->documentLayout();
     const QTextLayout *layout = block.layout();
     const QPointF layoutPos = docLayout->blockBoundingRect(block).topLeft();
-    const int relativePos = cursor.position() - block.position();
+    const int relativePos = position - block.position();
     QTextLine line = layout->lineForTextPosition(relativePos);
 
     QRect r;
@@ -2162,6 +2157,43 @@ QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
                   10, qRound(line.ascent() + line.descent()+1.));
     else
         r = QRect(qRound(layoutPos.x()-5), qRound(layoutPos.y()), 10, 10); // #### correct height
+
+    return r;
+}
+
+/*!
+  returns a rectangle (in viewport coordinates) that includes the
+  \a cursor.
+ */
+QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
+{
+    Q_D(const QTextEdit);
+    if (cursor.isNull())
+        return QRect();
+
+    QRect r = d->rectForPosition(cursor.position());
+    if (cursor.hasSelection()) {
+        const int position = cursor.position();
+        const int anchor = cursor.anchor();
+        const QTextBlock posBlock = d->doc->findBlock(position);
+        const QTextBlock anchorBlock = d->doc->findBlock(anchor);
+        if (posBlock == anchorBlock) {
+            const QTextLine posLine = posBlock.layout()->lineForTextPosition(position - posBlock.position());
+            const QTextLine anchorLine = anchorBlock.layout()->lineForTextPosition(position - anchorBlock.position());
+            if (posLine.lineNumber() == anchorLine.lineNumber()) {
+                r = posLine.rect().translated(posLine.x(), posLine.y()).toRect();
+            } else {
+                r = posBlock.layout()->boundingRect().toRect();
+            }
+            r.translate(d->doc->documentLayout()->blockBoundingRect(posBlock).topLeft().toPoint());
+        } else {
+            QRect anchorRect = d->rectForPosition(cursor.anchor());
+            r |= anchorRect;
+            QRect frameRect(d->doc->documentLayout()->frameBoundingRect(cursor.currentFrame()).toRect());
+            r.setLeft(frameRect.left());
+            r.setRight(frameRect.right());
+        }
+    }
 
     r.translate(-d->hbar->value(),-d->vbar->value());
     return r;
