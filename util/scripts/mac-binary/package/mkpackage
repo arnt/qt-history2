@@ -12,6 +12,7 @@ COMMAND_PAX="/System/Library/PrivateFrameworks/Installation.framework/Resources/
 README=
 LICENSE=
 LICENSE_US=
+LICENSETYPE=commercial
 MAKE_META=
 MAKE_IMAGE=no
 
@@ -26,6 +27,7 @@ QT_VERSION_STRING=${QT_MAJOR_VERSION}.${QT_MINOR_VERSION}.${QT_PATCH_VERSION}
 BINARY_DIR=
 SOURCE_DIR=
 SOURCE_PACKAGE=
+CONFIGURE_ARGS=-qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -release -framework -confirm-license -no-rpath -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib
 
 doStringReplace()
 {
@@ -89,22 +91,24 @@ while [ -n "$1" ]; do
         if [ "$ARG" = "yes" ]; then
 	   echo "$0 <options> <packages>"
 	   echo
-	   echo "  -output <directory>      Where to write the generated files to"
-	   echo "  -packages <directory>    Where to find packages to create"
-	   echo "  -qtbins <directory>      Where your Qt binaries live"
-           echo "  -qtsrcs <directory>      Where to find our Qt sources (if -qtbins not set defaults to same)"
-	   echo "  -qtpackage <package>     Given a package it will be untar'd configured and built and used."
-	   echo "  -version <version>       What version the package is creating for (falls back to qglobal.h)"
-	   echo "  -license <license>       Where your license file lives"
-	   echo "  -license_us <license>    Where your U.S. license file lives"
-	   echo "  -readme <readme>         Where your readme file lives"
-	   echo "  -image                   Create a disk image of the outputs"
-	   echo "  -meta                    Create a meta package for all the outputs"
+	   echo "  -output <directory>            Where to write the generated files to"
+	   echo "  -packages <directory>          Where to find packages to create"
+	   echo "  -qtbins <directory>            Where your Qt binaries live"
+           echo "  -qtsrcs <directory>            Where to find our Qt sources (if -qtbins not set defaults to same)"
+	   echo "  -qtpackage <package>           Given a package it will be untar'd configured and built and used."
+	   echo "  -version <version>             What version the package is creating for (falls back to qglobal.h)"
+	   echo "  -license <license>             Where your license file lives"
+	   echo "  -license_us <license>          Where your U.S. license file lives"
+	   echo "  -licensetype <commercial|eval> The license for the package you are building"
+	   echo "  -readme <readme>               Where your readme file lives"
+	   echo "  -image                         Create a disk image of the outputs"
+	   echo "  -meta                          Create a meta package for all the outputs"
 	   exit 1
         fi
 	;;
    readme) README="$ARG" ;;
    license) LICENSE="$ARG" ;;
+   licensetype) LICENSETYPE="$ARG" ;;
    all) USE_SEPARATE="$ARG" ;;
    qtpackage) SOURCE_PACKAGE="$ARG" ;;
    qtsrcs) SOURCE_DIR="$ARG" ;;
@@ -155,11 +159,14 @@ elif [ ! -z "$SOURCE_PACKAGE" ]; then
     PACKAGE_NAME=`echo $SOURCE_PACKAGE | sed -e 's,.*\(qt-mac.*\),\1,'`
     EXTENSION=`echo $PACKAGE_NAME | sed -e 's,.*\.tar\.\(.*\),\1,'`
     PACKAGE_DEST=`echo $PACKAGE_NAME | sed -e 's,\(.*\)\.tar.*,\1,'`
+    if [ "$LICENSETYPE" = "eval" ]; then
+	CONFIGURE_ARGS="$CONFIGURE_ARGS" -DQT_EVAL
+    fi
     export QTDIR=$TMP_DIR/source/$PACKAGE_DEST
     export DYLD_LIBRARY_PATH=$QTDIR/lib:$DYLD_LIBRARY_PATH
     export DYLD_FRAMEWORK_PATH=$QTDIR/lib:$DYLD_FRAMEWORK_PATH
     export PATH=$QTDIR/bin:$PATH
-    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure -qt-libpng -qt-libjpeg -plugin-sql-sqlite -plugin-sql-odbc -plugin-sql-psql -plugin-sql-mysql -release -framework -confirm-license -no-rpath -pch -I/usr/local/pgsql/include -I/usr/local/mysql/include -L/usr/local/pgsql/lib -L/usr/local/mysql/lib && make); then
+    if (cd "$TMP_DIR/source" && gunzip -c "$SOURCE_PACKAGE" | tar xf - && cd "$PACKAGE_DEST" && ./configure "$CONFIGURE_ARGS" && make); then
           SOURCE_DIR="$QTDIR"
           BINARY_DIR="$SOURCE_DIR"
     else
