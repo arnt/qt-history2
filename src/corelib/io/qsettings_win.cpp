@@ -301,6 +301,8 @@ static QStringList childKeysOrGroups(HKEY parentHandle, QSettingsPrivate::ChildS
             qWarning("QSettings: RegEnumValue failed: %s", errorCodeToString(res).toLatin1().data());
             continue;
         }
+        if (item.isEmpty())
+            item = QLatin1String(".");
         result.append(item);
     }
     return result;
