@@ -7,11 +7,11 @@ int main(int argc, char **argv)
         return 2;
     }
 
-    uint products;
-    uint platforms;
-    uint licenseSchema;
-    uint licenseFeatures;
-    uint licenseID;
+    uint products = 0;
+    uint platforms = 0;
+    uint licenseSchema = 0;
+    uint licenseFeatures = 0;
+    uint licenseID = 0;
     QDate expiryDate;
     if (!decodeLicenseKey(argv[1],
                           &products,
@@ -24,32 +24,38 @@ int main(int argc, char **argv)
         return 1;
     }
 
-    printf("Products:        ");
     for (int i = 0; i < NumberOfProducts; ++i) {
-        if ((products & (1 << i)) && Products[i])
-            printf(" %s", Products[i]);
+        if ((products & (1 << i)) && Products[i]) {
+            printf("%s", Products[i]);
+            if ((products ^= (1 << i)) != 0)
+                printf(",");
+        }
     }
-    printf("\n"
-           "Platforms:       ");
+    printf("\n");
     for (int i = 0; i < NumberOfPlatforms; ++i) {
-        if ((platforms & (1 << i)) && Platforms[i])
-            printf(" %s", Platforms[i]);
+        if ((platforms & (1 << i)) && Platforms[i]) {
+            printf("%s", Platforms[i]);
+            if ((platforms ^= (1 << i)) != 0)
+                printf(",");
+        }
     }
-    printf("\n"
-           "License Schema:  ");
+    printf("\n");
     for (int i = 0; i < NumberOfLicenseSchemas; ++i) {
         if ((licenseSchema & (1 << i)) && LicenseSchemas[i])
-            printf(" %s", LicenseSchemas[i]);
+            printf("%s", LicenseSchemas[i]);
+    }
+    printf("\n");
+    if (licenseFeatures) {
+        for (int i = 0; i < NumberOfLicenseFeatures; ++i) {
+            if ((licenseFeatures & (1 << i)) && LicenseFeatures[i])
+                printf(" %s", LicenseFeatures[i]);
+        }
+    } else {
+        printf("none");
     }
     printf("\n"
-           "License Features:");
-    for (int i = 0; i < NumberOfLicenseFeatures; ++i) {
-        if ((licenseFeatures & (1 << i)) && LicenseFeatures[i])
-            printf(" %s", LicenseFeatures[i]);
-    }
-    printf("\n"
-           "License ID:       %d\n"
-           "Expiry Date:      %s\n",
+           "%d\n"
+           "%s\n",
            licenseID,
            expiryDate.toString("yyyy-MM-dd").toLocal8Bit().constData());
     return 0;
