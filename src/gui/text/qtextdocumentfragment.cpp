@@ -773,7 +773,7 @@ bool QTextHTMLImporter::closeTag(int i)
             listReferences.resize(listReferences.size() - 1);
             --indent;
             blockTagClosed = true;
-        } else if (closedNode->id == Html_hr) {
+        } else if (closedNode->id == Html_hr || closedNode->id == Html_center) {
             blockTagClosed = true;
         }
 
