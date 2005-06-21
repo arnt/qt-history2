@@ -1434,6 +1434,9 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
             d->cursor.deleteChar();
             break;
         }
+        case Qt::Key_A:
+            selectAll();
+            break;
         default:
             e->ignore();
             return;
