@@ -1540,7 +1540,7 @@ QFileInfoList QDir::drives()
 
 /*!
     Returns the native directory separator: "/" under Unix (including
-    Mac OS X) and "\" under Windows.
+    Mac OS X) and "\\" under Windows.
 
     You do not need to use this function to build file paths. If you
     always use "/", Qt will translate your paths to conform to the
