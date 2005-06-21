@@ -175,11 +175,13 @@ template<> struct QMetaTypeId<uchar>
 template<> struct QMetaTypeId<float>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::Float; } };
+#ifndef QT_NO_QOBJECT
 template<> struct QMetaTypeId<QObject *>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::QObjectStar; } };
 template<> struct QMetaTypeId<QWidget *>
 { enum { Defined = 1 };
   static inline int qt_metatype_id() { return QMetaType::QWidgetStar; } };
+#endif
 
 #endif // QMETATYPE_H
