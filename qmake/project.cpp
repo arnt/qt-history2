@@ -2191,16 +2191,28 @@ QMakeProject::doProjectTest(QString func, QStringList args, QMap<QString, QStrin
         }
         return false;
     } else if(func == "contains") {
-        if(args.count() != 2) {
-            fprintf(stderr, "%s:%d: contains(var, val) requires two arguments.\n", parser.file.toLatin1().constData(),
-                    parser.line_no);
+        if(args.count() < 2 || args.count() > 3) {
+            fprintf(stderr, "%s:%d: contains(var, val) requires at lesat 2 arguments.\n",
+                    parser.file.toLatin1().constData(), parser.line_no);
             return false;
         }
         QRegExp regx(args[1]);
         const QStringList &l = place[args[0]];
-        for(QStringList::ConstIterator it = l.begin(); it != l.end(); ++it) {
-            if(regx.exactMatch((*it)) || (*it) == args[1])
-                return true;
+        if(args.count() == 2) {
+            for(int i = 0; i < l.size(); ++i) {
+                const QString val = l[i];
+                if(regx.exactMatch(val) || val == args[1])
+                    return true;
+            }
+        } else {
+            const QStringList mutuals = args[2].split('|');
+            for(int i = l.size()-1; i >= 0; i--) {
+                const QString val = l[i];
+                for(int mut = 0; mut < mutuals.count(); mut++) {
+                    if(val == mutuals[mut].trimmed())
+                        return (regx.exactMatch(val) || val == args[1]);
+                }
+            }
         }
         return false;
     } else if(func == "infile") {
