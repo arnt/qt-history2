@@ -1046,7 +1046,7 @@ bool QFSFileEngine::link(const QString &newName)
         HRESULT hres;
         IShellLinkA *psl;
         bool neededCoInit = false;
-        
+
         hres = CoCreateInstance(CLSID_ShellLink, NULL, CLSCTX_INPROC_SERVER, IID_IShellLink, (void **)&psl);
         if(hres == CO_E_NOTINITIALIZED) { // COM was not initalized
             neededCoInit = true;
@@ -1236,16 +1236,16 @@ QString QFSFileEngine::fileName(FileName file) const
     } else if(file == PathName) {
         if(!d->file.size())
             return d->file;
-        
+
         int slash = d->file.lastIndexOf('/');
         if(slash == -1) {
-            if(d->file.at(1) == ':')
+            if(d->file.length() >= 2 && d->file.at(1) == ':')
                 return d->file.left(2);
             return QString::fromLatin1(".");
         } else {
             if(!slash)
                 return QString::fromLatin1("/");
-            if(slash == 2 && d->file.at(1) == ':')
+            if(slash == 2 && d->file.length() >= 2 && d->file.at(1) == ':')
                 slash++;
             return d->file.left(slash);
         }
