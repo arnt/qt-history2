@@ -2608,15 +2608,7 @@ void QWSServer::paintBackground(const QRegion &rr)
         QRect br(r.boundingRect());
 
         // background also handled in compose
-        if (bgBrush->style() == Qt::SolidPattern) {
-            paintEngine->qwsFillRect(br.x(), br.y(), br.width(), br.height(), bgBrush->color());
-        } else {
-            QPixmap texture = bgBrush->texture();
-            if (texture.isNull())
-                return;
-            QRectF destR(br.x(), br.y(), br.width(), br.height());
-            paintEngine->drawTiledPixmap(destR, texture, destR.topLeft());
-       }
+        paintEngine->qwsFillRect(br.x(), br.y(), br.width(), br.height(), *bgBrush);
     }
 }
 
@@ -2640,7 +2632,7 @@ void QWSServer::refreshBackground()
 
 /*!
     Sets the brush \a brush to be used as the background in the absence of
-    obscuring windows. Only \c Qt::SolidPattern and pixmap brushes are supported in this version.
+    obscuring windows.
 */
 void QWSServer::setBackground(const QBrush &brush)
 {
