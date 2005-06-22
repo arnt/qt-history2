@@ -417,7 +417,7 @@ void Moc::parseFunction(FunctionDef *def, bool inMacro)
             ;
         else if ((def->inlineCode = test(LBRACE)))
             until(RBRACE);
-        else if (test(EQ))
+        else if (test(EQ) || test(THROW))
             until(SEMIC);
         else
             error();
