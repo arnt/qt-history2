@@ -3475,6 +3475,9 @@ if [ "$CFG_DEBUG" = "yes" ]; then
     QT_CONFIG="$QT_CONFIG debug"
 elif [ "$CFG_DEBUG" = "no" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG release"
+    if [ "$CFG_DEBUG_RELEASE" = "yes" ]; then
+        QT_CONFIG="$QT_CONFIG debug"
+    fi
     QT_CONFIG="$QT_CONFIG release"
 fi
 if [ "$CFG_STL" = "yes" ]; then
