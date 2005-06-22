@@ -679,8 +679,19 @@ function createBinary(platform, license, edition, packageName, compiler)
 	execute(["ssh", login, "cygpath", "-w", "`pwd`/" + hostDir]);
 	var windowsPath = Process.stdout.split("\n")[0];
 
+	//strip away sh.exe paths
+	execute(["ssh", login, "echo", "$PATH"]);
+	var pathVariable = Process.stdout.split("\n")[0].split(":");
+	for (var i in pathVariable) {
+	    pathVariable[i] = pathVariable[i].replace(/^\/usr\/bin$/, "");
+	    pathVariable[i] = pathVariable[i].replace(/^\/bin$/, "");
+	}
+	pathVariable = pathVariable.join(":");
+	
 	// run script
-	execute(["ssh", login, "cmd", "/c", "'" + hostDir + "\\winbinary.bat",
+	execute(["ssh", login, 
+		 "PATH='" + pathVariable + "'",
+		 "cmd", "/c", "'" + hostDir + "\\winbinary.bat",
 		 windowsPath,
 		 packageName,
 		 options["version"],
@@ -949,8 +960,9 @@ function packageExists(platform, license, edition, binary)
     // binaries for mac and win for commercial,desktop
     // binaries for win for opensource, desktop
     if (binary == true && edition == "desktop" &&
-	((license == "commercial" || license =="eval") && (platform == "win" || platform == "mac")) ||
-	(license == "opensource" && platform == "win"))
+	(((license == "commercial" || license =="eval") &&
+	  (platform == "win" || platform == "mac")) ||
+	 (license == "opensource" && platform == "win")))
 	return true;
 
     // console edition only exists for commercial packages
