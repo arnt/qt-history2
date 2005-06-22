@@ -978,8 +978,24 @@ void QTextStream::flush()
 bool QTextStream::seek(qint64 pos)
 {
     Q_D(QTextStream);
-    if (d->device)
-        return d->device->seek(pos);
+    d->lastTokenSize = 0;
+
+    if (d->device) {
+        // Empty the write buffer
+        d->flushWriteBuffer();
+        if (!d->device->seek(pos))
+           return false;
+        d->readBuffer.clear();
+        d->readBufferOffset = 0;
+        d->endOfBufferState.clear();
+        return true;
+    }
+
+    // string
+    if (d->string && pos < d->string->size()) {
+        d->stringOffset = int(pos);
+        return true;
+    }
     return false;
 }
 
