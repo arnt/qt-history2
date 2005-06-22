@@ -119,6 +119,8 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     glOrtho(0, dgl->width(), dgl->height(), 0, -999999, 999999);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glEnable(GL_BLEND);
     setDirty(QPaintEngine::DirtyPen);
     setDirty(QPaintEngine::DirtyBrush);
 
@@ -158,10 +160,6 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
     d->has_pen = (pen.style() != Qt::NoPen);
     d->setGLPen(pen.color());
     glColor4ubv(d->pen_color);
-    if (pen.color().alpha() != 255) {
- 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-    }
 }
 
 void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
@@ -171,10 +169,6 @@ void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
     d->has_brush = (brush.style() != Qt::NoBrush);
     d->setGLBrush(brush.color());
     glColor4ubv(d->brush_color);
-    if (!brush.isOpaque()) {
- 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glEnable(GL_BLEND);
-    }
 
 #if 0 // doesnt work very well yet - use fallback for now
     // all GL polygon stipple patterns needs to be specified as a
@@ -844,12 +838,10 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glPushAttrib(GL_CURRENT_BIT);
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glEnable(GL_TEXTURE_2D);
-    glEnable(GL_BLEND);
 
     GLdouble tc_w = r.width()/pm.width();
     GLdouble tc_h = r.height()/pm.height();
@@ -896,12 +888,9 @@ void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const Q
 void QOpenGLPaintEngine::drawTextureRect(int tx_width, int tx_height, const QRectF &r,
 					 const QRectF &sr, GLenum target)
 {
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
     glPushAttrib(GL_CURRENT_BIT);
     glColor4f(1.0, 1.0, 1.0, 1.0);
     glEnable(target);
-    glEnable(GL_BLEND);
 
     glBegin(GL_QUADS);
     {
