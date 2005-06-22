@@ -451,14 +451,14 @@ void QTextLayout::setAdditionalFormats(const QList<FormatRange> &formatList)
             d->specialData->addFormats = formatList;
             d->specialData->addFormatIndices.clear();
         }
-        return;
+    } else {
+        if (!d->specialData) {
+            d->specialData = new QTextEngine::SpecialData;
+            d->specialData->preeditPosition = -1;
+        }
+        d->specialData->addFormats = formatList;
+        d->indexAdditionalFormats();
     }
-    if (!d->specialData) {
-        d->specialData = new QTextEngine::SpecialData;
-        d->specialData->preeditPosition = -1;
-    }
-    d->specialData->addFormats = formatList;
-    d->indexAdditionalFormats();
     if (d->block.docHandle())
         d->block.docHandle()->documentChange(d->block.position(), d->block.length());
 }
