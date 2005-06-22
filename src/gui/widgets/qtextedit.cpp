@@ -570,7 +570,7 @@ void QTextEditPrivate::emitCursorPosChanged(const QTextCursor &someCursor)
 void QTextEditPrivate::setBlinkingCursorEnabled(bool enable)
 {
     Q_Q(QTextEdit);
-    if (enable)
+    if (enable && QApplication::cursorFlashTime() > 0)
         cursorBlinkTimer.start(QApplication::cursorFlashTime() / 2, q);
     else
         cursorBlinkTimer.stop();
@@ -2013,8 +2013,10 @@ QVariant QTextEdit::inputMethodQuery(Qt::InputMethodQuery property) const
 void QTextEdit::focusInEvent(QFocusEvent *e)
 {
     Q_D(QTextEdit);
-    if (!d->readOnly)
+    if (!d->readOnly) {
+        d->cursorOn = true;
         d->setBlinkingCursorEnabled(true);
+    }
 
     QAbstractScrollArea::focusInEvent(e);
 }
@@ -2024,8 +2026,7 @@ void QTextEdit::focusInEvent(QFocusEvent *e)
 void QTextEdit::focusOutEvent(QFocusEvent *e)
 {
     Q_D(QTextEdit);
-    if (d->cursorBlinkTimer.isActive())
-        d->setBlinkingCursorEnabled(false);
+    d->setBlinkingCursorEnabled(false);
     if (e->reason() != Qt::PopupFocusReason)
         d->cursorOn = false;
     QAbstractScrollArea::focusOutEvent(e);
@@ -2317,6 +2318,7 @@ void QTextEdit::setReadOnly(bool ro)
         return;
 
     d->readOnly = ro;
+    d->cursorOn = !ro;
 
     if (hasFocus())
         d->setBlinkingCursorEnabled(!ro);

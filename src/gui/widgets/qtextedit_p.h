@@ -39,7 +39,7 @@ class QTextEditPrivate : public QAbstractScrollAreaPrivate
     Q_DECLARE_PUBLIC(QTextEdit)
 public:
     inline QTextEditPrivate()
-        : doc(0), cursorOn(false),
+        : doc(0), cursorOn(true),
 	  readOnly(false),
           autoFormatting(QTextEdit::AutoNone), tabChangesFocus(false),
           mousePressed(false), mightStartDrag(false), lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
