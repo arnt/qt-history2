@@ -6,7 +6,7 @@
 [ -z "$LicenseKeyExt" -o -z "$Licensee" ] && exit $((96+17))
 
 # License key format is incorrect.
-echo $LicenseKeyExt | grep -E "....+-...+-...+-...+-....+-....-...." >/dev/null 2>&1 || exit $((96+17))
+echo $LicenseKeyExt | grep -E ".....+-...+-...+-...+-.....+-.....-...." >/dev/null 2>&1 || exit $((96+17))
 
 #Test the key is correct.
 productTest=`echo $LicenseKeyExt | cut -f 1 -d - | cut -b 1`
