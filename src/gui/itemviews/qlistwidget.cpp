@@ -151,7 +151,7 @@ int QListModel::rowCount(const QModelIndex &) const
 QModelIndex QListModel::index(QListWidgetItem *item) const
 {
     Q_ASSERT(item);
-    int row = lst.indexOf(item);
+    int row = lst.lastIndexOf(item);
     Q_ASSERT(row != -1);
     return createIndex(row, 0, item);
 }
