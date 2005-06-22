@@ -344,11 +344,7 @@ CFG_QT3SUPPORT=yes
 CFG_ENDIAN=auto
 CFG_GETADDRINFO=auto
 CFG_RPATH=yes
-if [ "$PLATFORM_MAC" = "yes" ]; then
-    CFG_FRAMEWORK=yes
-else
-    CFG_FRAMEWORK=no
-fi
+CFG_FRAMEWORK=auto
 D_FLAGS=
 I_FLAGS=
 L_FLAGS=
@@ -2800,6 +2796,21 @@ if [ "$CFG_STL" = "auto" ]; then
         CFG_STL=yes
     fi
 fi
+
+# find the default framework value
+if [ "$PLATFORM_MAC" = "yes" ]; then
+    if [ "$CFG_FRAMEWORK" = "auto" ]; then
+        CFG_FRAMEWORK="$CFG_SHARED"
+    elif [ "$CFG_FRAMEWORK" = "yes" ] && [ "$CFG_SHARED" = "no" ]; then
+	echo
+	echo "WARNING: Using static linking will disable the use of Mac frameworks."
+	echo
+        CFG_FRAMEWORK="no"
+    fi
+else
+    CFG_FRAMEWORK=no
+fi
+
 
 # find if the platform supports IPv6
 if [ "$CFG_IPV6" = "auto" ]; then
