@@ -392,6 +392,7 @@ set QMAKESPEC=win32-g++
 rem Hardcoded :(
 set PATH=C:\MinGW\bin;%PATH%
 set TMP_MAKE=mingw32-make
+set MINGW_IN_SHELL=1
 goto :EOF
 
 
