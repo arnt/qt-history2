@@ -2435,8 +2435,7 @@ QTreeWidgetItemIterator::~QTreeWidgetItemIterator()
     iterator.
 */
 
-QTreeWidgetItemIterator &QTreeWidgetItemIterator::QTreeWidgetItemIterator::operator=(
-    const QTreeWidgetItemIterator &it)
+QTreeWidgetItemIterator &QTreeWidgetItemIterator::operator=(const QTreeWidgetItemIterator &it)
 {
     if (model != it.model) {
         model->iterators.remove(this);
