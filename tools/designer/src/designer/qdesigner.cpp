@@ -34,7 +34,6 @@ QDesigner::QDesigner(int &argc, char **argv)
       m_server(0),
       m_client(0)
 {
-    QApplication::setDoubleClickInterval(200);
     setOrganizationName(QLatin1String("Trolltech"));
     setApplicationName(QLatin1String("Designer"));
     QDesignerComponents::initializeResources();
