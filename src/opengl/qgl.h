@@ -330,6 +330,7 @@ private:
 #ifdef Q_WS_MAC
     friend class QMacGLWindowChangeEvent;
 #endif
+    friend class QGLDrawable;
     friend class QGLPbuffer;
     friend class QGLContext;
     friend class QGLOverlayWidget;

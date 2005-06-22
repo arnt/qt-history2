@@ -43,9 +43,66 @@
 #endif
 
 // define QT_GL_NO_CONCAVE_POLYGONS to remove support for drawing
-// concave polygons (for speedup purposes)
+// concave polygons (much faster)
 
 //#define QT_GL_NO_CONCAVE_POLYGONS
+
+class QGLDrawable {
+public:
+    QGLDrawable() : widget(0) {}
+    inline void setDevice(QPaintDevice *pdev);
+    inline void setAutoBufferSwap(bool);
+    inline void swapBuffers();
+    inline void makeCurrent();
+    inline QSize size() const;
+    inline QGLFormat format() const;
+    inline GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA8);
+    inline GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA8);
+
+private:
+    QGLWidget *widget;
+};
+
+void QGLDrawable::setDevice(QPaintDevice *pdev)
+{
+    widget = static_cast<QGLWidget *>(pdev);
+}
+
+inline void QGLDrawable::setAutoBufferSwap(bool enable)
+{
+    widget->setAutoBufferSwap(enable);
+}
+
+inline void QGLDrawable::swapBuffers()
+{
+    widget->swapBuffers();
+}
+
+inline void QGLDrawable::makeCurrent()
+{
+    widget->makeCurrent();
+}
+
+inline QSize QGLDrawable::size() const
+{
+    return widget->size();
+}
+
+inline QGLFormat QGLDrawable::format() const
+{
+    return widget->format();
+}
+
+inline GLuint QGLDrawable::bindTexture(const QImage &image, GLenum target, GLint format)
+{
+    return widget->bindTexture(image, target, format);
+}
+
+inline GLuint QGLDrawable::bindTexture(const QPixmap &pixmap, GLenum target, GLint format)
+{
+    return widget->bindTexture(pixmap, target, format);
+}
+
 
 class QOpenGLPaintEnginePrivate : public QPaintEnginePrivate {
     Q_DECLARE_PUBLIC(QOpenGLPaintEngine)
@@ -81,9 +138,8 @@ public:
     GLubyte pen_color[4];
     GLubyte brush_color[4];
     QPainterPrivate::TransformationCodes txop;
+    QGLDrawable drawable;
 };
-
-#define dgl ((QGLWidget *)(d_func()->pdev))
 
 QOpenGLPaintEngine::QOpenGLPaintEngine()
     : QPaintEngine(*(new QOpenGLPaintEnginePrivate),
@@ -103,20 +159,22 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QOpenGLPaintEngine);
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
-    d->pdev = pdev;
+//     d->pdev = pdev;
+    d->drawable.setDevice(pdev);
     d->has_clipping = false;
-    dgl->setAutoBufferSwap(false);
+    d->drawable.setAutoBufferSwap(false);
     setActive(true);
-    dgl->makeCurrent();
+    d->drawable.makeCurrent();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
     const QColor &c = d->bgbrush.color();
     glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glShadeModel(GL_FLAT);
-    glViewport(0, 0, dgl->width(), dgl->height());
+    QSize sz(d->drawable.size());
+    glViewport(0, 0, sz.width(), sz.height());
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    glOrtho(0, dgl->width(), dgl->height(), 0, -999999, 999999);
+    glOrtho(0, sz.width(), sz.height(), 0, -999999, 999999);
     glMatrixMode(GL_MODELVIEW);
     glLoadIdentity();
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -129,9 +187,10 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
 bool QOpenGLPaintEngine::end()
 {
+    Q_D(QOpenGLPaintEngine);
     glPopAttrib();
     glFlush();
-    dgl->swapBuffers();
+    d->drawable.swapBuffers();
     setActive(false);
     return true;
 }
@@ -479,8 +538,9 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
 void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOperation op)
 {
     Q_D(QOpenGLPaintEngine);
-    bool useStencilBuffer = dgl->format().stencil();
-    bool useDepthBuffer = dgl->format().depth() && !useStencilBuffer;
+    QGLFormat f = d->drawable.format();
+    bool useStencilBuffer = f.stencil();
+    bool useDepthBuffer = f.depth() && !useStencilBuffer;
 
     // clipping is only supported when a stencil or depth buffer is
     // available
@@ -526,7 +586,7 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
     const QVector<QRect> rects = d->crgn.rects();
     glEnable(GL_SCISSOR_TEST);
     for (int i = 0; i < rects.size(); ++i) {
-        glScissor(rects.at(i).left(), dgl->height() - rects.at(i).bottom(),
+        glScissor(rects.at(i).left(), d->drawable.size().height() - rects.at(i).bottom(),
                   rects.at(i).width(), rects.at(i).height());
         glClear(useStencilBuffer ? GL_STENCIL_BUFFER_BIT : GL_DEPTH_BUFFER_BIT);
     }
@@ -827,14 +887,15 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
 		    : GL_TEXTURE_2D;
     if (r.size() != pm.size())
         target = GL_TEXTURE_2D;
-    dgl->bindTexture(pm, target);
+    d->drawable.bindTexture(pm, target);
 
     drawTextureRect(pm.width(), pm.height(), r, sr, target);
 }
 
 void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &)
 {
-    dgl->bindTexture(pm);
+    Q_D(QOpenGLPaintEngine);
+    d->drawable.bindTexture(pm);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
@@ -876,12 +937,13 @@ void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, con
 void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const QRectF &sr,
                                    Qt::ImageConversionFlags)
 {
+    Q_D(QOpenGLPaintEngine);
     GLenum target = QGLExtensions::glExtensions & QGLExtensions::TextureRectangle
 		    ? GL_TEXTURE_RECTANGLE_NV
 		    : GL_TEXTURE_2D;
     if (r.size() != image.size())
         target = GL_TEXTURE_2D;
-    dgl->bindTexture(image, target);
+    d->drawable.bindTexture(image, target);
     drawTextureRect(image.width(), image.height(), r, sr, target);
 }
 
