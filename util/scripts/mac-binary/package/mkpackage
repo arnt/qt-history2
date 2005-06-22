@@ -67,7 +67,7 @@ while [ -n "$1" ]; do
      OPTION=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\1,'`
      ARG=`echo $1 | sed 's,-\([^=]*\)=\(.*\),\2,'`
      ;;
-   -output|-packages|-qtbins|-qtsrcs|-qtdir|-qtpackage|-version|-license|-license_us|-readme) #second arg style
+   -output|-packages|-qtbins|-qtsrcs|-qtdir|-qtpackage|-version|-license|-licensetype|-license_us|-readme) #second arg style
      OPTION=`echo $1 | sed 's,-\([^=]*\),\1,'`
      shift
      ARG=$1
