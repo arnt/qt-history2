@@ -218,8 +218,9 @@ QModelIndex QTreeModel::index(QTreeWidgetItem *item, int column) const
     if (!item)
         return QModelIndex();
     const QTreeWidgetItem *par = item->parent();
-    int row = par ? par->children.indexOf(item) : tree.indexOf(item);
-    return createIndex(row, column, item);
+    if (par)
+        return createIndex(par->children.lastIndexOf(item), column, item);
+    return createIndex(tree.lastIndexOf(item), column, item);
 }
 
 /*!
@@ -653,8 +654,14 @@ Qt::DropActions QTreeModel::supportedDropActions() const
 
 void QTreeModel::emitDataChanged(QTreeWidgetItem *item, int column)
 {
-    QModelIndex tl = index(item, (column != -1 ? column : 0));
-    QModelIndex br = (column != -1 ? tl : index(item, columnCount() - 1));
+    QModelIndex br, tl;
+    if (column == -1) { // the whole row
+        tl = index(item, 0);
+        br = createIndex(tl.row(), columnCount() - 1, item);
+    } else { // single cell
+        tl = index(item, column);
+        br = tl;
+    }
     emit dataChanged(tl, br);
 }
 
