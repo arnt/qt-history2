@@ -57,7 +57,7 @@ extern IconRef qt_mac_create_iconref(const QPixmap &px); //qpixmap_mac.cpp
  *****************************************************************************/
 inline static QString qt_mac_no_ampersands(QString str) {
     for(int w = -1; (w=str.indexOf('&', w+1)) != -1;) {
-        if(w < (int)str.length()-1)
+        if(w < (int)str.length())
             str.remove(w, 1);
     }
     return str;
