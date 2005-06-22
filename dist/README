@@ -1,7 +1,7 @@
 This is Qt version %VERSION%.
 
-Qt is a cross-platform C++ GUI toolkit. Qt 4.0 introduces new features
-and many improvements over the 3.x series. See
+Qt is a comprehensive cross-platform C++ application framework. Qt 4.0
+introduces new features and many improvements over the 3.x series. See
 http://doc.trolltech.com/4.0/qt4-intro.html for details.
 
 The Qt 4.x series is not binary compatible or source compatible with
@@ -65,6 +65,21 @@ For this release, the following platforms have been tested:
 
 For a complete list of supported platforms, see
 http://www.trolltech.com/products/qt/qt4-platforms.html.
+
+
+COMMERCIAL EDITIONS
+
+Desktop Edition licensees can use all the modules provided with their
+Qt package.
+
+Desktop Light Edition licensees may only use the classes contained in
+the QtCore, QtGui and Q3Support modules.
+
+Console Edition licensees may use the classes contained in the QtCore,
+QtNetwork, QtSql and QtXml modules.
+
+For a full listing of the contents of each module, please refer to 
+http://doc.trolltech.com/4.0/modules.html.
 
 
 HOW TO REPORT A BUG
