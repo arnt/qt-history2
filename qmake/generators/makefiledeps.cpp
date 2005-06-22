@@ -399,7 +399,6 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     }
                 } else if(buffer_len >= x + 8 && !strncmp(buffer + x, "include", 7) &&
                           (*(buffer + x + 7) == ' ' || *(buffer + x + 7) == '>')) {
-                    bool inImpl = false;
                     for(x += 8; *(buffer + x) != '>'; ++x) {
                         if(buffer_len >= x + 9 && *(buffer + x) == 'i' &&
                            !strncmp(buffer + x, "impldecl", 8)) {
@@ -425,7 +424,6 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
 //?                            char saved = *(buffer + x + val_len);
                             *(buffer + x + val_len) = '\0';
                             if(!strcmp(buffer+x, "in implementation")) {
-                                inImpl = true;
                                 //### do this
                             }
                         }
@@ -433,8 +431,7 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                     int inc_len = 0;
                     for(x += 1 ; *(buffer + x + inc_len) != '<'; ++inc_len);
                     *(buffer + x + inc_len) = '\0';
-                    if (!inImpl)
-                        inc = buffer + x;
+                    inc = buffer + x;
                 }
             }
             //read past new line now..
