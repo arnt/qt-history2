@@ -3468,8 +3468,13 @@ QTCONFIG=$outpath/mkspecs/qconfig.pri
 QTCONFIG_CONFIG=
 if [ "$CFG_DEBUG" = "yes" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG debug"
+    if [ "$CFG_DEBUG_RELEASE" = "yes" ]; then
+        QT_CONFIG="$QT_CONFIG release"
+    fi
+    QT_CONFIG="$QT_CONFIG debug"
 elif [ "$CFG_DEBUG" = "no" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG release"
+    QT_CONFIG="$QT_CONFIG release"
 fi
 if [ "$CFG_STL" = "yes" ]; then
     QTCONFIG_CONFIG="$QTCONFIG_CONFIG stl"
