@@ -711,7 +711,7 @@ function createBinary(platform, license, edition, packageName, compiler)
 		 "cd",
 		 hostDir,
 		 "&&",
-		 "MAKEFLAGS=-j10",
+		 "MAKEFLAGS=-j2",
 		 "package/mkpackage",
 		 "-qtpackage",
 		 macPath + "/" + packageFile,
