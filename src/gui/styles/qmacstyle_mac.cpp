@@ -5587,8 +5587,10 @@ void QMacStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPainter
                 QPoint btl = br.isEmpty() ? QPoint(btn->rect.center().x() + pixw / 2 + 2, btn->rect.center().y())
                                           : QPoint(br.x(), br.y() + br.height() / 2);
                 QPoint pixTL(btl.x() - pixw - 2, btl.y() - pixh / 2);
-                p->drawPixmap(pixTL, pixmap);
-                p->drawText(br, btn->text);
+                int alignmentFlags = Qt::AlignHCenter | Qt::AlignVCenter | Qt::TextShowMnemonic;
+                drawItemPixmap(p, QRect(pixTL, pixmap.size()), alignmentFlags, pixmap);
+                drawItemText(p, br, alignmentFlags, btn->palette,
+                             (btn->state & QStyle::State_Enabled), btn->text, QPalette::ButtonText);
             }
         }
         break;
