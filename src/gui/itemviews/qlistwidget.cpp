@@ -270,7 +270,6 @@ QMimeData *QListModel::mimeData(const QModelIndexList &indexes) const
         items << at(indexes.at(i).row());
     const QListWidget *view = ::qobject_cast<const QListWidget*>(QObject::parent());
 
-    // cachedIndexes is a little hack to avoid copying from QModelIndexList to QList<QTreeWidgetItem*> and back again in the view
     cachedIndexes = indexes;
     QMimeData *mimeData = view->mimeData(items);
     cachedIndexes.clear();
@@ -1361,7 +1360,7 @@ Qt::DropActions QListWidget::supportedDropActions() const
 
 /*!
   Returns a list of pointers to the items contained in the \a data object.
-  If the object was not created by a QTreeWidget in the same process, the list
+  If the object was not created by a QListWidget in the same process, the list
   is empty.
 
 */
