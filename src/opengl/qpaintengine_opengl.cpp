@@ -127,7 +127,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 
 bool QOpenGLPaintEngine::end()
 {
-    dgl->makeCurrent();
     glPopAttrib();
     glFlush();
     dgl->swapBuffers();
@@ -155,7 +154,6 @@ void QOpenGLPaintEngine::updateState(const QPaintEngineState &state)
 void QOpenGLPaintEngine::updatePen(const QPen &pen)
 {
     Q_D(QOpenGLPaintEngine);
-    dgl->makeCurrent();
     d->cpen = pen;
     d->has_pen = (pen.style() != Qt::NoPen);
     d->setGLPen(pen.color());
@@ -169,7 +167,6 @@ void QOpenGLPaintEngine::updatePen(const QPen &pen)
 void QOpenGLPaintEngine::updateBrush(const QBrush &brush, const QPointF &)
 {
     Q_D(QOpenGLPaintEngine);
-    dgl->makeCurrent();
     d->cbrush = brush;
     d->has_brush = (brush.style() != Qt::NoBrush);
     d->setGLBrush(brush.color());
@@ -439,7 +436,6 @@ void QOpenGLPaintEngine::updateFont(const QFont &)
 void QOpenGLPaintEngine::updateBackground(Qt::BGMode bgMode, const QBrush &bgBrush)
 {
     Q_D(QOpenGLPaintEngine);
-    dgl->makeCurrent();
     const QColor &c = bgBrush.color();
     glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
     d->bgmode = bgMode;
@@ -482,7 +478,6 @@ void QOpenGLPaintEngine::updateMatrix(const QMatrix &mtx)
     else
         d->txop = QPainterPrivate::TxNone;
 
-    dgl->makeCurrent();
     glMatrixMode(GL_MODELVIEW);
     glLoadMatrixd(&mat[0][0]);
 }
@@ -498,7 +493,6 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
     if (!useStencilBuffer && !useDepthBuffer)
 	return;
 
-    dgl->makeCurrent();
     if (op == Qt::NoClip) {
         d->has_clipping = false;
         d->crgn = QRegion();
@@ -556,7 +550,6 @@ void QOpenGLPaintEngine::updateClipRegion(const QRegion &clipRegion, Qt::ClipOpe
 
 void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 {
-    dgl->makeCurrent();
     if (hints & QPainter::Antialiasing) {
         glHint(GL_MULTISAMPLE_FILTER_HINT_NV, GL_NICEST);
         glEnable(GL_MULTISAMPLE);
@@ -568,7 +561,6 @@ void QOpenGLPaintEngine::updateRenderHints(QPainter::RenderHints hints)
 void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 {
     Q_D(QOpenGLPaintEngine);
-    dgl->makeCurrent();
 
     // ### this could be done faster I'm sure...
     for (int i=0; i<rectCount; ++i) {
@@ -607,7 +599,6 @@ void QOpenGLPaintEngine::drawRects(const QRectF *rects, int rectCount)
 void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
 {
     Q_D(QOpenGLPaintEngine);
-    dgl->makeCurrent();
     GLfloat pen_width = d->cpen.widthF();
     if (pen_width > 1 || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
         const QPointF *end = points + pointCount;
@@ -631,7 +622,6 @@ void QOpenGLPaintEngine::drawPoints(const QPointF *points, int pointCount)
 void QOpenGLPaintEngine::drawLines(const QLineF *lines, int lineCount)
 {
     Q_D(QOpenGLPaintEngine);
-    dgl->makeCurrent();
     GLfloat pen_width = d->cpen.widthF();
     if (pen_width > 1 || (pen_width > 0 && d->txop > QPainterPrivate::TxTranslate)) {
         QPainterPath path(lines[0].p1());
@@ -743,7 +733,6 @@ void QOpenGLPaintEngine::drawPolygon(const QPointF *points, int pointCount, Poly
     Q_D(QOpenGLPaintEngine);
     if(!pointCount)
         return;
-    dgl->makeCurrent();
     glColor4ubv(d->brush_color);
     if (d->has_brush && mode != PolylineMode)
         qgl_draw_poly(points, pointCount, mode == QPaintEngine::WindingMode);
@@ -844,7 +833,6 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
 		    : GL_TEXTURE_2D;
     if (r.size() != pm.size())
         target = GL_TEXTURE_2D;
-    dgl->makeCurrent();
     dgl->bindTexture(pm, target);
 
     drawTextureRect(pm.width(), pm.height(), r, sr, target);
@@ -852,7 +840,6 @@ void QOpenGLPaintEngine::drawPixmap(const QRectF &r, const QPixmap &pm, const QR
 
 void QOpenGLPaintEngine::drawTiledPixmap(const QRectF &r, const QPixmap &pm, const QPointF &)
 {
-    dgl->makeCurrent();
     dgl->bindTexture(pm);
 
     glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
@@ -902,7 +889,6 @@ void QOpenGLPaintEngine::drawImage(const QRectF &r, const QImage &image, const Q
 		    : GL_TEXTURE_2D;
     if (r.size() != image.size())
         target = GL_TEXTURE_2D;
-    dgl->makeCurrent();
     dgl->bindTexture(image, target);
     drawTextureRect(image.width(), image.height(), r, sr, target);
 }
