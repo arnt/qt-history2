@@ -664,10 +664,7 @@ function createBinary(platform, license, edition, packageName, compiler)
 	p4Copy("//depot/infra/main/licensekeys/qt-license" + 
 	       "-" + platform + "-" + license + "-" + edition,
 	       distDir + "/tmp-qt-license");
-	if (platform == "win")
-	    execute(["scp", distDir + "/tmp-qt-license", login + ":" + "'C:\\Documents\ and\ Settings\\" + binaryUser + "\\.qt-license'"]);
-	else
-    	    execute(["scp", distDir + "/tmp-qt-license", login + ":.qt-license"]);
+	execute(["scp", distDir + "/tmp-qt-license", login + ":.qt-license"]);
     }
 
     // copy script over
