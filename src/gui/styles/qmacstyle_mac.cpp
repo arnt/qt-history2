@@ -1008,8 +1008,9 @@ void QMacStylePrivate::drawPantherTab(const QStyleOptionTab *tabOpt, QPainter *p
             pixPainter.end();
             const QRgb GraphiteColor = 0xffa7b0ba;
             QRgb pmColor = tabPix.toImage().pixel(10, 10);
-            if (qAbs(qRed(pmColor) - qRed(GraphiteColor)) < 3 && qAbs(qGreen(pmColor) - qGreen(GraphiteColor)) < 3
-                    && qAbs(qBlue(pmColor) - qBlue(GraphiteColor) < 3))
+            if (qAbs(qRed(pmColor) - qRed(GraphiteColor)) < 3 &&
+                qAbs(qGreen(pmColor) - qGreen(GraphiteColor)) < 3
+                && qAbs(qBlue(pmColor) - qBlue(GraphiteColor)) < 3)
                 pantherTabStart = TabSelectedActiveGraphiteLeft;
             else
                 pantherTabStart = TabSelectedActiveLeft;
