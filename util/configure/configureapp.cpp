@@ -1135,6 +1135,12 @@ void Configure::generateOutputVars()
         qmakeVars += "#define QT_BUILD_KEY \"" + buildKey + "\"";
     }
 
+    QString debugBuild = dictionary[ "DEBUG" ];
+    if ( debugBuild == "yes" || debugBuild == "all" )
+        qtConfig += "debug";
+    if ( debugBuild == "no" || debugBuild == "all" )
+        qtConfig += "release";
+
     // Compression --------------------------------------------------
     if ( dictionary[ "ZLIB" ] == "no" )
 	qtConfig += "no-zlib";
