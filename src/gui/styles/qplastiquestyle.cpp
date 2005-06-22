@@ -2793,6 +2793,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 QString handlePixmapName = uniqueName("slider_handle", option, handle.size());
                 if (ticksAbove && !ticksBelow)
                     handlePixmapName += QLatin1String("-flipped");
+                if ((option->activeSubControls & SC_SliderHandle) && (option->state & State_Sunken))
+                    handlePixmapName += QLatin1String("-sunken");
 
                 if (!UsePixmapCache || !QPixmapCache::find(handlePixmapName, cache)) {
                     cache = QPixmap(handle.size());
@@ -2821,8 +2823,13 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                         if (slider->state & State_Enabled) {
                             QLinearGradient gradient(pixmapRect.center().x(), pixmapRect.top(),
                                                      pixmapRect.center().x(), pixmapRect.bottom());
-                            gradient.setColorAt(0, gradientStartColor);
-                            gradient.setColorAt(1, gradientStopColor);
+                            if ((option->activeSubControls & SC_SliderHandle) && (option->state & State_Sunken)) {
+                                gradient.setColorAt(0, gradientStartColor.light(110));
+                                gradient.setColorAt(1, gradientStopColor.light(110));
+                            } else {
+                                gradient.setColorAt(0, gradientStartColor);
+                                gradient.setColorAt(1, gradientStopColor);
+                            }
                             handlePainter.fillPath(path, gradient);
                         } else {
                             handlePainter.fillPath(path, slider->palette.background());
@@ -2958,6 +2965,30 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 painter->drawPixmap(QPoint(rect.left(), rect.top()), cache);
             }
 
+            // Draw a darkened sunken addpage/subpage
+            if (sunken && ((scrollBar->activeSubControls & SC_ScrollBarSubPage) || (scrollBar->activeSubControls & SC_ScrollBarAddPage))) {
+                // Draw a copy of the groove in a darker color
+                QString groovePixmapName = uniqueName("scrollbar_groove_dark", option, rect.size());
+                if (!UsePixmapCache || !QPixmapCache::find(groovePixmapName, cache)) {
+                    QPainter groovePainter(&cache);
+                    QRect pixmapRect = QRect(0, 0, rect.width(), rect.height());
+                    groovePainter.fillRect(pixmapRect, QBrush(scrollBar->palette.base().color().dark(125), Qt::Dense4Pattern));
+                    if (UsePixmapCache)
+                        QPixmapCache::insert(groovePixmapName, cache);
+                }
+
+                // Clip the addpage/subpage rect, and paint
+                QRect clipRect;
+                if (scrollBar->activeSubControls & SC_ScrollBarSubPage)
+                    clipRect = subControlRect(control, scrollBar, SC_ScrollBarSubPage, widget);
+                else
+                    clipRect = subControlRect(control, scrollBar, SC_ScrollBarAddPage, widget);
+                painter->save();
+                painter->setClipRect(clipRect);
+                painter->drawPixmap(QPoint(rect.left(), rect.top()), cache);
+                painter->restore();
+            }
+            
             // The SubLine (up/left) buttons
             if (scrollBar->subControls & SC_ScrollBarSubLine) {
                 int scrollBarExtent = pixelMetric(PM_ScrollBarExtent, option, widget);
