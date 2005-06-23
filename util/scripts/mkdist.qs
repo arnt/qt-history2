@@ -309,7 +309,7 @@ for (var p in validPlatforms) {
 			    createBinary(platform, license, edition, platName, "mingw");
 			} else {
 			    createBinary(platform, license, edition, platName, "vs2003");
-			    createBinary(platform, license, edition, platName, "vs6");
+			    createBinary(platform, license, edition, platName, "vc60");
 			}
 		    } else {
 			createBinary(platform, license, edition, platName, "");
