@@ -559,8 +559,8 @@ QWidgetMapper *QWidgetPrivate::mapper = 0;                // app global widget m
 
 static QFont qt_naturalWidgetFont(QWidget* w) {
     QFont naturalfont = QApplication::font(w);
-    if (! w->isWindow()) {
-        if (! naturalfont.isCopyOf(QApplication::font()))
+    if (!w->isWindow() && w->parentWidget()) {
+        if (!naturalfont.isCopyOf(QApplication::font()))
             naturalfont = naturalfont.resolve(w->parentWidget()->font());
         else
             naturalfont = w->parentWidget()->font();
@@ -571,8 +571,8 @@ static QFont qt_naturalWidgetFont(QWidget* w) {
 
 static QPalette qt_naturalWidgetPalette(QWidget* w) {
     QPalette naturalpalette = QApplication::palette(w);
-    if (! w->isWindow()) {
-        if (! naturalpalette.isCopyOf(QApplication::palette()))
+    if (!w->isWindow() && w->parentWidget()) {
+        if (!naturalpalette.isCopyOf(QApplication::palette()))
             naturalpalette = naturalpalette.resolve(w->parentWidget()->palette());
         else
             naturalpalette = w->parentWidget()->palette();
