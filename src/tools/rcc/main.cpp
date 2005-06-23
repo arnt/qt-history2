@@ -1,15 +1,12 @@
-#include <QString>
-#include <QStringList>
-#include <QFile>
-#include <QFileInfo>
-#include <QLocale>
-#include <QIODevice>
-#include <QTextStream>
-#include <QLatin1String>
-#include <QByteArray>
-#include <QHash>
-#include <QChar>
-#include <QDir>
+#include <qstring.h>
+#include <qstringlist.h>
+#include <qfile.h>
+#include <qfileinfo.h>
+#include <qlocale.h>
+#include <qtextstream.h>
+#include <qbytearray.h>
+#include <qhash.h>
+#include <qdir.h>
 #include "rcc.h"
 
 // Some static globals
