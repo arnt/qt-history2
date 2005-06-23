@@ -1977,7 +1977,7 @@
     has the added advantage a second paramter can be passed to test for
     the active config. As CONFIG's are order dependent (ie the last one
     set will be considered the active config for mutual exclusive sets
-    like debug and release) a second paramter can be used to specify a set
+    like debug and release) a second parameter can be used to specify a set
     of values to consider for example:
 
     \code
@@ -1989,7 +1989,7 @@
 
     Because release is considered the active setting (for feature parsing)
     it will be the CONFIG used to generate the build file. In the common
-    case a second paramter is not needed, but for specific mutual
+    case a second parameter is not needed, but for specific mutual
     exclusive tests it is invaluable.
 
     \section1 contains(variablename, value)
