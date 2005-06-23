@@ -695,14 +695,20 @@ function createBinary(platform, license, edition, packageName, compiler)
 	pathVariable = pathVariable.join(":");
 	
 	// run script
-	execute(["ssh", login, 
-		 "PATH='" + pathVariable + "'",
-		 "cmd", "/c", "'" + hostDir + "\\winbinary.bat",
-		 windowsPath,
-		 packageName,
-		 options["version"],
-		 license,
-		 compiler + "'"]);
+	try {
+	    execute(["ssh", login, 
+		     "PATH='" + pathVariable + "'",
+		     "cmd", "/c", "'" + hostDir + "\\winbinary.bat",
+		     windowsPath,
+		     packageName,
+		     options["version"],
+		     license,
+		     compiler + "'"]);
+	} catch (e) {
+	    warning("Package: " + pacakgeFile + " did not compile!.");
+	    File.write(outputDir + "/compilefailed-" + packageName + ".log", Process.stderr);
+	    return;
+	}
 	
 	// collect binary
 	execute(["scp", login + ":" + hostDir + "/" + packageName + "*.exe", outputDir + "/."]);
@@ -713,17 +719,23 @@ function createBinary(platform, license, edition, packageName, compiler)
 	var macPath = Process.stdout.split("\n")[0];
 
 	// run script
-	execute(["ssh", login,
-		 "cd",
-		 hostDir,
-		 "&&",
-		 "MAKEFLAGS=-j2",
-		 "package/mkpackage",
-		 "-qtpackage",
-		 macPath + "/" + packageFile,
-		 "-licensetype",
-		 license,
-		 "-image"]);
+	try {
+	    execute(["ssh", login,
+		     "cd",
+		     hostDir,
+		     "&&",
+		     "MAKEFLAGS=-j2",
+		     "package/mkpackage",
+		     "-qtpackage",
+		     macPath + "/" + packageFile,
+		     "-licensetype",
+		     license,
+		     "-image"]);
+	} catch (e) {
+	    warning("Package: " + pacakgeFile + " did not compile!.");
+	    File.write(outputDir + "/compilefailed-" + packageName + ".log", Process.stderr);
+	    return;
+	}
 
 	// collect binary
 	execute(["scp", login + ":" + hostDir + "/outputs/*.dmg", outputDir + "/."]);
@@ -1053,7 +1065,7 @@ function execute(command, stdin) {
     if (error != 0) {
 	if (Process.stderr.length > 0)	
 	    File.write(outputDir + "/error.log", Process.stderr);
-	throw "Error runnning: %1 stderr: %2".arg(command).arg(Process.stderr.left(200));
+	throw "Error runnning: %1 stderr: %2".arg(command).arg(Process.stderr.left(1000));
     } else if (Process.stderr.length > 0
 	       && Process.stderr.left(200).lower().find(/warning|error/) != -1) {
 	warning("Running %1 stderr: %2".arg(command).arg(Process.stderr.left(200)));
