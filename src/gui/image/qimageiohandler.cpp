@@ -383,10 +383,13 @@ QRect QImageIOHandler::currentImageRect() const
     the number of images in the animation. If the image format does
     not support animation, or if it is unable to determine the number
     of images, 0 is returned.
+
+    The default implementation returns 1 if canRead() returns true;
+    otherwise 0 is returned.
 */
 int QImageIOHandler::imageCount() const
 {
-    return 0;
+    return canRead() ? 1 : 0;
 }
 
 /*!
