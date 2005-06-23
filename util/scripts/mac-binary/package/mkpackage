@@ -324,6 +324,7 @@ for package in $PACKAGES; do
     #merge resources
     cp -R Resources/* "$package_dir/Contents/Resources"
     cp -R $PACKAGE_DIR/$package/Resources/* "$package_dir/Contents/Resources"
+    cp "Welcome-$LICENSETYPE.rtf" "$package_dir/Contents/Resources/Welcome.rtf"
     for lang in "North and South America" "Rest of the world"; do
         LOCALDIR="$package_dir/Contents/Resources/${lang}.lproj"
         mkdir -p "$LOCALDIR"
@@ -372,6 +373,7 @@ if [ "$MAKE_META" = "yes" ]; then
     cp -R "MetaPackage" "$OUTPUT_DIR/Qt.mpkg/Contents"
     mkdir -p "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
     cp -R Resources/* "$OUTPUT_DIR/Qt.mpkg/Contents/Resources"
+    cp "Welcome-${LICENSETYPE}.rtf" "$OUTPUT_DIR/Qt.mpkg/Contents/Resources/Welcome.rtf"
     for lang in "North and South America" "Rest of the world"; do
         LOCALDIR="$OUTPUT_DIR/Qt.mpkg/Contents/Resources/${lang}.lproj"
         mkdir -p "$LOCALDIR"

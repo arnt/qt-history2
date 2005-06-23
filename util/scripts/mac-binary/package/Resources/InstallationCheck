@@ -5,13 +5,17 @@
 . $HOME/.qt-license >/dev/null 2>&1
 [ -z "$LicenseKeyExt" -o -z "$Licensee" ] && exit $((96+17))
 
+grep "Evaluation" "$1/Contents/Resources/Welcome.rtf" 2>&1 >/dev/null && LicenseType="Evaluation" || LicenseType="Commercial"
+
 # License key format is incorrect.
-echo $LicenseKeyExt | grep -E ".....+-...+-...+-...+-.....+-.....-...." >/dev/null 2>&1 || exit $((96+17))
+echo $LicenseKeyExt | grep ".....*-....*-....*-....*-.....*-.....*-...." 2>&1 >/dev/null  || exit $((96+17)) 
 
 #Test the key is correct.
 productTest=`echo $LicenseKeyExt | cut -f 1 -d - | cut -b 1`
 platformTest=`echo $LicenseKeyExt | cut -f 2 -d - | cut -b 1`
 licenseFeatureTest=`echo $LicenseKeyExt | cut -f 4 -d - | cut -b 1`
+licenseTypeTest=`echo $LicenseKeyExt | cut -f 3 -d - | cut -b 1`
+
 case $productTest in
 F)
 # Universal
@@ -31,14 +35,27 @@ esac
 
 #check the palatform.
 case $platformTest in
-4|L|5G|Y|2|F|B)
+4|L|5|G|Y|2|F|B)
 # Qt/Mac
 ;;
 *)
 exit $((96+18)) ;;
 esac
 
-# Perhaps some check for the correct license "feature"? For example US vs. Non-US.
+case $licenseTypeTest in
+F)
+    licenseTest=Commercial
+    ;;
+Z|R|Q)
+    licenseTest=Evaluation
+    ;;
+*)
+    ;;
+esac
+
+[ "$licenseTest" != "$LicenseType" ] && exit $((96+18))
+
+# Perhaps some check for the correct license "feature"? For example Commercial vs. Eval
 # Left for another day.
 
 exit 0

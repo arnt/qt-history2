@@ -10,14 +10,32 @@ t()
     i="$INSTALLER_TEMP/`basename $o`_t"
     rm -f "$i"
     mv "$o" "$i"
-    perl -e "open(SIN, \"<\" . \"$i\"); open(SOUT, \">\" . \"$o\"); local $/; binmode SIN; binmode SOUT; \$ulen = length(\"$2\")+1; \$plen = length(\"$3\")+1; while(\$C = <SIN>) { \$C =~ s,(qt_lcnsuser=).{\$ulen},\\1$2\\0,; \$C =~ s,(qt_lcnsprod=).{\$plen},\1$3\0,; print SOUT \$C; } close SIN; close SOUT"
+    perl -e "open(SIN, \"<\" . \"$i\");
+             open(SOUT, \">\" . \"$o\");
+             local $/;
+             binmode SIN;
+             binmode SOUT;
+             \$ulen = length(\"$2\")+1;
+             \$plen = length(\"$3\")+1;
+             \$klen = length(\"$4\")+1;
+             while(\$C = <SIN>) {
+                 \$C =~ s,(qt_lcnsuser=).{\$ulen},\\1$2\\0,;
+                 \$C =~ s,(qt_lcnsprod=).{\$plen},\1$3\0,;
+                 \$C =~ s,(qt_qevalkey=).{\$klen},\1$4\0,;
+                 print SOUT \$C;
+                 if ( \$C =~ m/qt_qevalkey/ ) {
+                    print \"Found it here: \$C\n\";
+                 }
+             }
+             close SIN;
+             close SOUT"
 }
 
 for lib in QtCore QtGui QtNetwork QtXml QtOpenGL QtSql Qt3Compat; do
    [ -d "${3}/Library/Frameworks/${lib}.framework" ] || continue
    cd "${3}/Library/Frameworks/${lib}.framework/Versions/$VERSION_MAJOR$.$VERSION_MINOR$" 
-   (Products="no-license"; Licensee="not-licensed"; . $HOME/.qt-license >/dev/null 2>&1
-   t "$lib" "$Licensee" "$Products"
-   [ -e "${lib}_debug" ] && t "${lib}_debug" "$Licensee" "$Products")
+   (Products="no-license"; Licensee="not-licensed"; LicenseKeyExt="bad-license"; . $HOME/.qt-license >/dev/null 2>&1
+   t "$lib" "$Licensee" "$Products" "$LicenseKeyExt"
+   [ -e "${lib}_debug" ] && t "${lib}_debug" "$Licensee" "$Products" "$LicenseKeyExt")
 done
 
