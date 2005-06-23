@@ -134,7 +134,9 @@ Configure::Configure( int& argc, char** argv )
     dictionary[ "REDO" ]	    = "no";
     dictionary[ "DEPENDENCIES" ]    = "no";
 
-    dictionary[ "DEBUG" ]	    = "all";
+    dictionary[ "BUILD" ]	    = "debug";
+    dictionary[ "BUILDALL" ]	    = "auto"; // Means yes, but not explicitly
+    
     dictionary[ "SHARED" ]	    = "yes";
 
     dictionary[ "ZLIB" ]	    = "auto";
@@ -267,12 +269,16 @@ void Configure::parseCmdLine()
 	    dictionary[ "BUILD_KEY" ] = configCmdLine.at(i);
         }
 
-	else if( configCmdLine.at(i) == "-release" )
-	    dictionary[ "DEBUG" ] = "no";
-	else if( configCmdLine.at(i) == "-debug" )
-	    dictionary[ "DEBUG" ] = "yes";
-	else if( configCmdLine.at(i) == "-debug-and-release" )
-	    dictionary[ "DEBUG" ] = "all";
+	else if( configCmdLine.at(i) == "-release" ) {
+	    dictionary[ "BUILD" ] = "release";
+	    if (dictionary[ "BUILDALL" ] == "auto")
+	        dictionary[ "BUILDALL" ] = "no";
+	} else if( configCmdLine.at(i) == "-debug" ) {
+            dictionary[ "BUILD" ] = "debug";
+	    if (dictionary[ "BUILDALL" ] == "auto")
+	        dictionary[ "BUILDALL" ] = "no";
+	} else if( configCmdLine.at(i) == "-debug-and-release" )
+	    dictionary[ "BUILDALL" ] = "yes";
 
 	else if( configCmdLine.at(i) == "-shared" )
 	    dictionary[ "SHARED" ] = "yes";
@@ -846,9 +852,9 @@ bool Configure::displayHelp()
              " feature has not been done yet, but will be evaluated later, the plus simply denotes"
              " the default value. Here is a short explanation of each option:\n\n", 0, 1);
 
-        desc("DEBUG", "no",     "-release",             "Compile and link Qt with debugging turned off.");
-        desc("DEBUG", "yes",    "-debug",               "Compile and link Qt with debugging turned on.");
-        desc("DEBUG", "all",    "-debug-and-release",   "Compile and link two Qt libraries, with and without debugging turned on.\n");
+        desc("BUILD", "release","-release",             "Compile and link Qt with debugging turned off.");
+        desc("BUILD", "debug",  "-debug",               "Compile and link Qt with debugging turned on.");
+        desc("BUILDALL", "yes", "-debug-and-release",   "Compile and link two Qt libraries, with and without debugging turned on.\n");
 
         desc("SHARED", "yes",   "-shared",              "Create and use shared Qt libraries.");
         desc("SHARED", "no",    "-static",              "Create and use static Qt libraries.\n");
@@ -1135,11 +1141,17 @@ void Configure::generateOutputVars()
         qmakeVars += "#define QT_BUILD_KEY \"" + buildKey + "\"";
     }
 
-    QString debugBuild = dictionary[ "DEBUG" ];
-    if ( debugBuild == "yes" || debugBuild == "all" )
+    QString build = dictionary[ "BUILD" ];
+    bool buildAll = (dictionary[ "BUILDALL" ] == "yes");
+    if ( build == "debug") {
+        if (buildAll)
+            qtConfig += "release";
         qtConfig += "debug";
-    if ( debugBuild == "no" || debugBuild == "all" )
+    } else if (build == "release") {
+        if (buildAll)
+            qtConfig += "debug";
         qtConfig += "release";
+    }
 
     // Compression --------------------------------------------------
     if ( dictionary[ "ZLIB" ] == "no" )
@@ -1238,17 +1250,11 @@ void Configure::generateOutputVars()
         qmakeSqlPlugins += "ibase";
 
     // Other options ------------------------------------------------
-    if( dictionary[ "DEBUG" ] == "all" ) {
-        dictionary[ "DEBUG" ] = "yes";
+    if( dictionary[ "BUILDALL" ] == "yes" ) {
         qmakeConfig += "build_all";
     }
-    if( dictionary[ "DEBUG" ] == "yes" ) {
-	qmakeConfig += "debug";
-	dictionary[ "QMAKE_OUTDIR" ] = "debug";
-    } else {
-	qmakeConfig += "release";
-	dictionary[ "QMAKE_OUTDIR" ] = "release";
-    }
+    qmakeConfig += dictionary[ "BUILD" ];
+    dictionary[ "QMAKE_OUTDIR" ] = dictionary[ "BUILD" ];
 
     if ( dictionary[ "SHARED" ] == "yes" ) {
 	QString version = dictionary[ "VERSION" ];
@@ -1367,15 +1373,13 @@ void Configure::generateCachefile()
     QFile configFile( dictionary[ "QT_SOURCE_TREE" ] + "\\mkspecs\\qconfig.pri" );
     if( configFile.open( QFile::WriteOnly | QFile::Text ) ) { // Truncates any existing file.
 	QTextStream configStream( &configFile );
-	configStream << "CONFIG+=";
+	configStream << "CONFIG+= ";
+	configStream << dictionary[ "BUILD" ];
 	if( dictionary[ "SHARED" ] == "yes" )
 	    configStream << " shared";
         else
 	    configStream << " static";
-	if ( dictionary[ "DEBUG" ] == "yes" )
-	    configStream << " debug";
-	else
-	    configStream << " release";
+        
 	if( dictionary[ "STL" ] == "yes" )
 	    configStream << " stl";
 	if ( dictionary[ "EXCEPTIONS" ] == "yes" )
@@ -1628,7 +1632,7 @@ void Configure::displayConfig()
     cout << "QMAKESPEC..................." << dictionary[ "QMAKESPEC" ] << " (" << dictionary["QMAKESPEC_FROM"] << ")" << endl;
     cout << "Architecture................" << dictionary[ "ARCHITECTURE" ] << endl;
     cout << "Maketool...................." << dictionary[ "MAKE" ] << endl;
-    cout << "Debug symbols..............." << dictionary[ "DEBUG" ] << endl;
+    cout << "Debug symbols..............." << (dictionary[ "BUILD" ] == "debug" ? "yes" : "no") << endl;
     cout << "Accessibility support......." << dictionary[ "ACCESSIBILITY" ] << endl;
     cout << "STL support................." << dictionary[ "STL" ] << endl;
     cout << "Exception support..........." << dictionary[ "EXCEPTIONS" ] << endl;
