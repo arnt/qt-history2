@@ -352,10 +352,11 @@
     on all platforms supported by Qt.
 */
 
-/*! \typedef quint8
+/*! 
+    \typedef quint8
     \relates <QtGlobal>
 
-    Typedef for \c{unsigned signed char}. This type is guaranteed to
+    Typedef for \c{unsigned char}. This type is guaranteed to
     be 8-bit on all platforms supported by Qt.
 */
 
@@ -366,10 +367,11 @@
     16-bit on all platforms supported by Qt.
 */
 
-/*! \typedef quint16
+/*! 
+    \typedef quint16
     \relates <QtGlobal>
 
-    Typedef for \c{unsigned signed short}. This type is guaranteed to
+    Typedef for \c{unsigned short}. This type is guaranteed to
     be 16-bit on all platforms supported by Qt.
 */
 
@@ -380,10 +382,11 @@
     on all platforms supported by Qt.
 */
 
-/*! \typedef quint32
+/*! 
+    \typedef quint32
     \relates <QtGlobal>
 
-    Typedef for \c{unsigned signed int}. This type is guaranteed to
+    Typedef for \c{unsigned int}. This type is guaranteed to
     be 32-bit on all platforms supported by Qt.
 */
 
@@ -402,7 +405,8 @@
     \sa Q_INT64_C(), quint64
 */
 
-/*! \typedef quint64
+/*! 
+    \typedef quint64
     \relates <QtGlobal>
 
     Typedef for \c{unsigned long long int} (\c{unsigned __int64} on
@@ -454,7 +458,8 @@
     \sa Q_INT64_C(), qulonglong
 */
 
-/*! \typedef qulonglong
+/*! 
+    \typedef qulonglong
     \relates <QtGlobal>
 
     Typedef for \c{unsigned long long int} (\c{unsigned __int64} on
