@@ -159,7 +159,6 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
 {
     Q_D(QOpenGLPaintEngine);
     Q_ASSERT(static_cast<const QGLWidget *>(pdev));
-//     d->pdev = pdev;
     d->drawable.setDevice(pdev);
     d->has_clipping = false;
     d->drawable.setAutoBufferSwap(false);
