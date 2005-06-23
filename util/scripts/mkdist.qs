@@ -644,6 +644,14 @@ function createBinary(platform, license, edition, packageName, compiler)
 {
     var login = binaryUser + "@" + binaryHosts[platform];
     var hostDir = platform + "-binary";
+
+    // clean up hostDir or create new one
+    try {
+	execute(["ssh", login, "rm -rf", hostDir]);
+    } catch (e) {
+	hostDir += startDate.getTime();
+	execute(["ssh", login, "mkdir", hostDir]);
+    }
     
     // check that package exists
     var packageFile = packageName;
@@ -656,8 +664,6 @@ function createBinary(platform, license, edition, packageName, compiler)
  	return;
     }
 
-    // clean up host
-    execute(["ssh", login, "rm -rf", hostDir]);
 
     // copy a valid license file
     if (license != "opensource") {
