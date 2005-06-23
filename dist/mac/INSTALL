@@ -31,11 +31,12 @@
     To install the library, demos, examples, tools, and tutorials,
     type:
 
-        su -c "make install"
+        sudo make install
 
-    and enter the root password. Qt is by default installed into
-    /usr/local/Trolltech/Qt-%VERSION% but this can be changed by using
-    the -prefix parameter.
+    and enter your password, this requires that you have administrator access
+    to your machine. Qt is by default installed into
+    /usr/local/Trolltech/Qt-%VERSION% but this can be changed by using the
+    -prefix parameter.
 
 4.  Environment variables
 
