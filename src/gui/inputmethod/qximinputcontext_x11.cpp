@@ -535,6 +535,8 @@ bool QXIMInputContext::isComposing() const
 
 void QXIMInputContext::setFocusWidget(QWidget *w)
 {
+    if (!xim)
+        return;
     QWidget *oldFocus = focusWidget();
     if (oldFocus == w)
         return;
