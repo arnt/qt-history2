@@ -6,9 +6,10 @@
     about it so that we can fix it.
 
     Before reporting a bug, please check the
-    \l{http://www.trolltech.com/developer/faqs/}{FAQs} and the
-    \l{http://www.trolltech.com/platforms/}{Platform Notes} on our
-    web site to see if the issue is already known.
+    \l{http://www.trolltech.com/developer/faqs/}{FAQs},
+    \l{http://www.trolltech.com/platforms/}{Platform Notes}, and the
+    \l{http://www.trolltech.com/developers/tasktracker.html}{Task Tracking System}
+    on our web site to see if the issue is already known.
 
     Always include the following information in your bug report:
 
