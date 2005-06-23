@@ -435,7 +435,7 @@ fi
 if [ "$MAKE_IMAGE" = "yes" ] && [ ! -z "$PKG_CREATED" ]; then
     echo "Creating disk image.."
     IMAGE_NAME="Qt ${QT_VERSION_STRING}"
-    IMAGE="$OUTPUT_DIR/qt-mac-commercial-desktop-${QT_VERSION_STRING}.dmg"
+    IMAGE="$OUTPUT_DIR/qt-mac-${LICENSETYPE}-desktop-${QT_VERSION_STRING}.dmg"
     rm -f "$IMAGE" #remove old
 
     #copy
