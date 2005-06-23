@@ -631,7 +631,7 @@ static const unsigned char indicPosition[0xe00-0x900] = {
 
     Below, None, None, None,
     None, Below, None, None,
-    None, None, None, None,
+    None, Below, None, None,
     Below, None, Post, Pre,
 
     Post, Below, Below, None,
