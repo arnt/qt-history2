@@ -305,7 +305,7 @@ nmake sub-examples-make_first >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%\src\plugins\sqldrivers\mysql
-qmake "INCLUDEPATH+=/sql/include/mysql" "LIBS+=libmysqld.lib ws2_32.lib advapi32.lib" >> %1\log.txt 2>&1
+qmake "INCLUDEPATH+=/sql/include/mysql" "LIBS+=libmysqld.lib ws2_32.lib advapi32.lib user32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 nmake debug >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
