@@ -274,8 +274,7 @@ QObjectPrivate::QObjectPrivate(int version)
 QObjectPrivate::~QObjectPrivate()
 {
 #ifndef QT_NO_USERDATA
-    while (!userData.isEmpty())
-        delete userData.takeFirst();
+    qDeleteAll(userData);
 #endif
 }
 
@@ -2783,7 +2782,10 @@ QObjectUserData::~QObjectUserData()
 void QObject::setUserData(uint id, QObjectUserData* data)
 {
     Q_D(QObject);
-    d->userData.insert(id, data);
+
+    if (d->userData.size() <= (int) id)
+        d->userData.resize((int) id + 1);
+    d->userData[id] = data;
 }
 
 /*!\internal

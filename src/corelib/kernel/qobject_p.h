@@ -29,6 +29,7 @@
 #include "qpointer.h"
 #include "qcoreevent.h"
 #include "qlist.h"
+#include "qvector.h"
 #include "qreadwritelock.h"
 
 class QThreadData;
@@ -81,7 +82,7 @@ public:
     void setParent_helper(QObject *);
 
 #ifndef QT_NO_USERDATA
-    QList<QObjectUserData *> userData;
+    QVector<QObjectUserData *> userData;
 #endif
 
     QString objectName;
