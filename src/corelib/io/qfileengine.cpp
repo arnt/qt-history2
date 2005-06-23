@@ -67,7 +67,7 @@ QFileEngineHandler::QFileEngineHandler()
 {
     if(!fileHandlers)
         fileHandlers = new QList<QFileEngineHandler*>;
-    fileHandlers->append(this);
+    fileHandlers->prepend(this);
 }
 
 /*!
