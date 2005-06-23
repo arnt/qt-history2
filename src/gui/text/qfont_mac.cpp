@@ -212,5 +212,5 @@ QString QFont::lastResortFamily() const
 
 QString QFont::lastResortFont() const
 {
-    return QString::fromLatin1("Arial");
+    return QString::fromLatin1("Geneva");
 }
