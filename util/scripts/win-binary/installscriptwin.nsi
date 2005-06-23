@@ -3,6 +3,7 @@
 !define PRODUCT_WEB_SITE "http://www.trolltech.com"
 !define PRODUCT_UNINST_KEY "Software\Microsoft\Windows\CurrentVersion\Uninstall\${PRODUCT_NAME} ${PRODUCT_VERSION}"
 !define VSINTEGRATION_VERSION "1.0"
+!define OPENSOURCEPAGE "opensource.ini"
 
 !include "MUI.nsh"
 
@@ -38,6 +39,7 @@
 !ifndef QTOPENSOURCE
   !insertmacro TT_LICENSE_PAGE_SHOW
 !else
+  page custom ShowOpenSourcePage
   !insertmacro MUI_PAGE_LICENSE "${PACKAGEDIR}\License.gpl"
 !endif
 
@@ -246,6 +248,8 @@ Function .onInit
 
 !ifndef QTOPENSOURCE
   !insertmacro TT_LICENSE_PAGE_INIT
+!else
+  !insertmacro MUI_INSTALLOPTIONS_EXTRACT "${OPENSOURCEPAGE}"
 !endif
 
   !insertmacro TT_QTENV_PAGE_INIT
@@ -441,6 +445,11 @@ directoryOk:
   pop $0
   
 done:
+FunctionEnd
+
+Function ShowOpenSourcePage
+  !insertmacro MUI_HEADER_TEXT "Open Source Edition" " "
+  !insertmacro MUI_INSTALLOPTIONS_DISPLAY "${OPENSOURCEPAGE}"
 FunctionEnd
 
 Function ShowDocumentation

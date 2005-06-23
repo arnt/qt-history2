@@ -89,7 +89,7 @@ noDownload:
   strcpy $GW_DO_DOWNLOAD_SOURCE "no"
   call DoMinGWChecking
   strcmp $GW_INSTALLATION_OK "yes" done
-  MessageBox MB_ICONEXCLAMATION|MB_YESNO "It is a problem with your MinGW installation:$\r$\n$GW_INSTALLATION_OK$\r$\nDo you still want to continue? (Your installation may not work)" IDNO tryAgain
+  MessageBox MB_ICONEXCLAMATION|MB_YESNO "There is a problem with your MinGW installation:$\r$\n$GW_INSTALLATION_OK$\r$\nDo you still want to continue? (Your installation may not work)" IDNO tryAgain
   goto done
   
 tryAgain:
