@@ -2697,7 +2697,8 @@ QImage QImage::convertToFormat(Format format, Qt::ImageConversionFlags flags) co
     if (!d || d->format == format)
         return *this;
 
-    Image_Converter converter = converter_map[d->format - 1][format - 1];
+    const Image_Converter *converterPtr = &converter_map[d->format - 1][format - 1];
+    Image_Converter converter = *converterPtr;
     if (converter) {
         QImage image(d->width, d->height, format);
         converter(image.d, d, flags);
@@ -2740,7 +2741,8 @@ QImage QImage::convertToFormat(Format format, const QVector<QRgb> &colorTable, Q
     if (d->format == format)
         return *this;
 
-    Image_Converter converter = converter_map[d->format - 1][format - 1];
+    const Image_Converter *converterPtr = &converter_map[d->format - 1][format - 1];
+    Image_Converter converter = *converterPtr;
     if (!converter)
         return QImage();
 
