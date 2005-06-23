@@ -62,10 +62,26 @@ Function ValidateKey
     pop $1
     strcmp $1 "1" 0 nonUS
       strcpy $DISPLAY_US_LICENSE "1"
-      goto end
+      goto checkProduct
   nonUS:
     strcpy $DISPLAY_US_LICENSE "0"
-  goto end
+
+  checkProduct:
+    qtnsisext::GetLicenseProduct $LICENSE_KEY
+    pop $LICENSE_PRODUCT
+    
+!ifdef QTEVALUATION
+    strcmp "$LICENSE_PRODUCT" "EvaluationUniversal" end
+    strcmp "$LICENSE_PRODUCT" "EvaluationDesktop" end
+    strcmp "$LICENSE_PRODUCT" "EvaluationDesktopLight" end
+    goto wrongKey
+!else
+    strcmp "$LICENSE_PRODUCT" "CommercialUniversal" end
+    strcmp "$LICENSE_PRODUCT" "CommercialDesktop" end
+    strcmp "$LICENSE_PRODUCT" "CommercialDesktopLight" end
+    goto wrongKey
+!endif
+  
   wrongLicensee:
     MessageBox MB_ICONEXCLAMATION|MB_RETRYCANCEL "The licensee name is not valid. Do you want to try again?" IDRETRY tryAgain 0
     Quit
@@ -76,9 +92,6 @@ Function ValidateKey
     pop $1
     Abort
   end:
-    ; get license product string
-    qtnsisext::GetLicenseProduct $LICENSE_KEY
-    pop $LICENSE_PRODUCT
     pop $1
 FunctionEnd
 
