@@ -2383,7 +2383,7 @@ void Q3Dns::doResInit()
 	} else if ( getDnsParamsFromRegistry(
 	    QString( "System\\CurrentControlSet\\Services\\VxD\\MSTCP" ),
 		    &domainName, &nameServer, &searchList )) {
-	    // for 95/98
+	    // for Windows 98
 	    separator = ',';
 	} else {
 	    // Could not access the TCP/IP parameters

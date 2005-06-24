@@ -70,8 +70,8 @@
     QTimers will gradually be replaced by \l{QThread}s.
 
     Note that QTimer's accuracy depends on the underlying operating
-    system and hardware. Most platforms support an accuracy of 1
-    milliseconds, but Windows 95 and 98 support only 55. If Qt is
+    system and hardware. Most platforms support an accuracy of
+    1 milliseconds, but Windows 98 supports only 55. If Qt is
     unable to deliver the requested number of timer clicks, it will
     silently discard some.
 

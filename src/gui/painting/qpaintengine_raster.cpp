@@ -2749,7 +2749,7 @@ static void draw_text_item_win(const QPointF &pos, const QTextItemInt &ti, HDC h
 
     if (d->txop >= QPainterPrivate::TxScale
         && !(QSysInfo::WindowsVersion & QSysInfo::WV_NT_based)) {
-        // Draw rotated and sheared text on Windows 95, 98
+        // Draw rotated and sheared text on Windows 98
 
         // All versions can draw rotated text natively. Scaling can be done with window/viewport transformations.
         // Shearing transformations are done by QPainter.
