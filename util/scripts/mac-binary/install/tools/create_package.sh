@@ -41,10 +41,10 @@ for a in qmake uic uic3 rcc moc assistant Linguist Designer rccdump lrelease qm2
     if [ -d "${BINDIR}/bin/${a}.app" ]; then
 	mkdir -p "$OUTDIR/Developer/Applications/Qt/"
 	cp -R "${BINDIR}/bin/${a}.app" "$OUTDIR/Developer/Applications/Qt"
-	EXE="$OUTDIR/Developer/Applications/Qt/${a}.app/Contents/MacOS/${a}.app" #in the bundle
+	EXE="$OUTDIR/Developer/Applications/Qt/${a}.app/Contents/MacOS/$a" #in the bundle
 	#place it into the tools dir
 	mkdir -p "$OUTDIR/Developer/Tools/Qt/"
-	ln -s "/Developer/Applications/Qt/${a}.app" "$OUTDIR/Developer/Tools/Qt/$a"
+	ln -s "/Developer/Applications/Qt/${a}.app" "$OUTDIR/Developer/Tools/Qt/${a}.app"
     elif [ -x "${BINDIR}/bin/${a}" ]; then
 	EXE="$OUTDIR/usr/bin/$a-${VERSION_MAJOR}.${VERSION_MINOR}"
 	mkdir -p `dirname $EXE`
