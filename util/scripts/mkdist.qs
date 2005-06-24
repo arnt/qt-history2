@@ -705,7 +705,7 @@ function createBinary(platform, license, edition, packageName, compiler)
 		     license,
 		     compiler + "'"]);
 	} catch (e) {
-	    warning("Package: " + pacakgeFile + " did not compile!.");
+	    warning("Package: " + packageFile + " did not compile!.");
 	    File.write(outputDir + "/compilefailed-" + packageName + ".log", Process.stderr);
 	    return;
 	}
@@ -732,7 +732,7 @@ function createBinary(platform, license, edition, packageName, compiler)
 		     license,
 		     "-image"]);
 	} catch (e) {
-	    warning("Package: " + pacakgeFile + " did not compile!.");
+	    warning("Package: " + packageFile + " did not compile!.");
 	    File.write(outputDir + "/compilefailed-" + packageName + ".log", Process.stderr);
 	    return;
 	}
