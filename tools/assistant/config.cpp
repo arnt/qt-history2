@@ -130,7 +130,7 @@ void Config::saveSettings()
     const QString key = getVersionString() + QLatin1String("/");
 
     const QString pKey = (profil->props[QLatin1String("name")] == QLatin1String("default"))
-        ? QLatin1String(QT_VERSION_STR)
+        ? QString::fromLatin1(QT_VERSION_STR)
         : getVersionString();
 
     const QString profkey = pKey + QLatin1String("/Profile/") + profil->props[QLatin1String("name")] + QLatin1String("/");
@@ -169,10 +169,10 @@ void Config::loadDefaultProfile()
 {
     QSettings settings;
     const QString profKey = QLatin1String(QT_VERSION_STR) + QLatin1String("/Profile/default/");
-    
+
     if (!settings.contains(profKey + QLatin1String("DocFiles")))
         return;
-    
+
     // Override the defaults with settings in registry.
     profil->icons.clear();
     profil->indexPages.clear();
@@ -213,9 +213,9 @@ void Config::saveProfile( Profile *profile )
     if (profil->profileType() == Profile::UserProfile)
         return;
     QSettings settings;
-    
+
     const QString key = (profile->props[QLatin1String("name")] == QLatin1String("default"))
-        ? QLatin1String(QT_VERSION_STR)
+        ? QString::fromLatin1(QT_VERSION_STR)
         : getVersionString();
 
     const QString profKey = key + QLatin1String("/Profile/") + profile->props[QLatin1String("name")] + QLatin1String("/");
