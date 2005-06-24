@@ -7,7 +7,7 @@
 
 !include "MUI.nsh"
 
-!ifndef QTOPENSOURCE
+!ifndef
   !include "qtlicense.nsh"
 !endif
 
@@ -225,6 +225,10 @@ call MakeMinGWEnvFile
 CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} (Build Debug Libraries).lnk" "%COMSPEC%" '/k "$INSTDIR\bin\qtvars.bat compile_debug"'
 CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk" "%COMSPEC%" '/k "$INSTDIR\bin\qtvars.bat"'
 
+!ifdef QTOPENSOURCE
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\OpenSource Notice.lnk" "OPENSOURCE-NOTICE.TXT"
+!endif
+
 SectionEnd
 !else
 Section -MSVCSection
@@ -249,6 +253,12 @@ Function .onInit
 !ifndef QTOPENSOURCE
   !insertmacro TT_LICENSE_PAGE_INIT
 !else
+  push $0
+  Call IsNT
+  pop $0
+  strcmp $0 1 +2
+  MessageBox MB_OK|MB_ICONEXCLAMATION "You are using an unsupported version of Windows for MinGW. Behavior is undefined."
+  pop $0
   !insertmacro MUI_INSTALLOPTIONS_EXTRACT "${OPENSOURCEPAGE}"
 !endif
 
@@ -495,8 +505,6 @@ Section Uninstall
   Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Trolltech.com.lnk"
   Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\Uninstall Qt ${PRODUCT_VERSION}.lnk"
 
-  RMDir "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}"
-  
   DetailPrint "Removing installation directory..."
   RMDir /r "$INSTDIR"
 
@@ -525,9 +533,15 @@ Section Uninstall
   
   Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} (Build Debug Libraries).lnk"
   
-  pop $0
+!ifdef QTOPENSOURCE
+  Delete "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\OpenSource Notice.lnk"
 !endif
   
+  pop $0
+!endif
+
+  RMDir "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}"
+
   DeleteRegKey HKCU "${PRODUCT_UNINST_KEY}"
   DeleteRegKey HKLM "${PRODUCT_UNINST_KEY}"
 

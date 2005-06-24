@@ -31,6 +31,8 @@ LangString GWMirrorTitleDescription ${LANG_ENGLISH} "Select a download mirror."
 !macro GW_PAGE_INSERT
   Page custom ShowGWDownloadPage ExitGWDownloadPage
   !define MUI_PAGE_CUSTOMFUNCTION_PRE ShowMinGWLicense
+  !define MUI_PAGE_HEADER_TEXT "MinGW License Agreement"
+  !define MUI_PAGE_HEADER_SUBTEXT "Please review the license terms before installing MinGW."
   !define MUI_LICENSEPAGE_TEXT_TOP "MinGW License Information"
   !insertmacro MUI_PAGE_LICENSE "${GW_LICENSE_FILE}"
   Page custom ShowGWMirrorPage ExitGWMirrorPage
@@ -298,56 +300,67 @@ FunctionEnd
 #
 Function MakeMinGWEnvFile
   push $0 ; file handle
-  push $1 ; SHELL
-  strcpy $1 "rem "
+;  push $1 ; SHELL
+;  strcpy $1 "rem "
 
-  IfFileExists "$GW_INSTALL_DIR\bin\sh.exe" 0 +3
-    strcpy $1 ""
-    goto WriteMinGWEnv
+;  IfFileExists "$GW_INSTALL_DIR\bin\sh.exe" 0 +3
+;    strcpy $1 ""
+;    goto WriteMinGWEnv
     
-  gwnsisext::ShInPath
-  pop $0
-  strcmp $0 "1" 0 +3
-    strcpy $1 ""
-    goto WriteMinGWEnv
+;  gwnsisext::ShInPath
+;  pop $0
+;  strcmp $0 "1" 0 +3
+;    strcpy $1 ""
+;    goto WriteMinGWEnv
 
 WriteMinGWEnv:
   ClearErrors
   FileOpen $0 "$INSTDIR\bin\qtvars.bat" w
-  IfErrors done
+  IfErrors WriteMakeFile
   FileWrite $0 "@echo off$\r$\n"
   FileWrite $0 "rem$\r$\n"
   FileWrite $0 "rem This file is generated$\r$\n"
   FileWrite $0 "rem$\r$\n"
   FileWrite $0 "$\r$\n"
-  FileWrite $0 "echo Setting up a Qt environment...$\r$\n"
+  FileWrite $0 "echo Setting up a MinGW/Qt only environment...$\r$\n"
   FileWrite $0 "echo -- QTDIR set to $INSTDIR$\r$\n"
-  FileWrite $0 "echo -- Added $GW_INSTALL_DIR\bin to PATH$\r$\n"
-  FileWrite $0 "echo -- Added $INSTDIR\bin to PATH$\r$\n"
+  FileWrite $0 "echo -- PATH set to $INSTDIR\bin\r$\n"
+  FileWrite $0 "echo -- Adding $GW_INSTALL_DIR\bin to PATH$\r$\n"
+  FileWrite $0 "echo -- Adding %SystemRoot%\System32 to PATH$\r$\n"
   FileWrite $0 "echo -- QMAKESPEC set to win32-g++$\r$\n"
   FileWrite $0 "$\r$\n"
   FileWrite $0 "set QTDIR=$INSTDIR$\r$\n"
-  FileWrite $0 "set PATH=$GW_INSTALL_DIR\bin;%PATH%$\r$\n"
-  FileWrite $0 "set PATH=$INSTDIR\bin;%PATH%$\r$\n"
+  FileWrite $0 "set PATH=$INSTDIR\bin$\r$\n"
+  FileWrite $0 "set PATH=%PATH%;$GW_INSTALL_DIR\bin$\r$\n"
+  FileWrite $0 "set PATH=%PATH%;%SystemRoot%\System32$\r$\n"
   FileWrite $0 "set QMAKESPEC=win32-g++$\r$\n"
   FileWrite $0 "$\r$\n"
-  FileWrite $0 "rem If sh.exe is in the path, then comment out this:$\r$\n"
-  FileWrite $0 "$1set MINGW_IN_SHELL=1$\r$\n"
-  FileWrite $0 "$1echo -- Using MinGW in shell$\r$\n"
-  FileWrite $0 "$\r$\n"
+;  FileWrite $0 "rem If sh.exe is in the path, then comment out this:$\r$\n"
+;  FileWrite $0 "$1set MINGW_IN_SHELL=1$\r$\n"
+;  FileWrite $0 "$1echo -- Using MinGW in shell$\r$\n"
+;  FileWrite $0 "$\r$\n"
   FileWrite $0 "cd %QTDIR%$\r$\n"
 
   FileWrite $0 "$\r$\n"
   FileWrite $0 'if not "%1"=="compile_debug" goto END$\r$\n'
-  FileWrite $0 "echo This will configure and compile qt in debug. The release libraries will not be recompiled.$\r$\n"
+  FileWrite $0 "echo This will configure and compile qt in debug.$\r$\n"
+  FileWrite $0 "echo The release libraries will not be recompiled.$\r$\n"
   FileWrite $0 "pause$\r$\n"
-  FileWrite $0 "configure -plugin-sql-sqlite -plugin-sql-odbc -qt-style-windowsxp -qt-libpng -qt-libjpeg$\r$\n"
+  FileWrite $0 "configure -plugin-sql-sqlite -plugin-sql-odbc -qt-libpng -qt-libjpeg$\r$\n"
   FileWrite $0 "cd %QTDIR%\src$\r$\n"
   FileWrite $0 "mingw32-make debug$\r$\n"
   FileWrite $0 ":END$\r$\n"
   FileClose $0
 
+WriteMakeFile:
+  ClearErrors
+  FileOpen $0 "$INSTDIR\bin\make.bat" w
+  IfErrors done
+  FileWrite $0 "@echo off$\r$\n"
+  FileWrite $0 "mingw32-make %*$\r$\n"
+  FileClose $0
+
 done:
-  pop $1
+;  pop $1
   pop $0
 FunctionEnd
