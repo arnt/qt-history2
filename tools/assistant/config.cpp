@@ -94,7 +94,7 @@ void Config::load()
     const QString key = getVersionString() + QLatin1String("/");
 
     const QString pKey = (profil->props[QLatin1String("name")] == QLatin1String("default"))
-        ? QLatin1String(QT_VERSION_STR)
+        ? QString::fromLatin1(QT_VERSION_STR)
         : getVersionString();
 
     const QString profkey = pKey + QLatin1String("/Profile/") + profil->props[QLatin1String("name")] + QLatin1String("/");
