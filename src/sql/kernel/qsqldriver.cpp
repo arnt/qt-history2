@@ -196,7 +196,7 @@ bool QSqlDriver::isOpenError() const
     Derived classes can use this function to report the status of
     open().
 
-    \sa open(), setOpen()
+    \sa open(), setOpenError()
 */
 
 void QSqlDriver::setOpen(bool open)

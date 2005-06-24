@@ -52,7 +52,6 @@ protected:
     inline void setQuery(const QString&) {}
     inline void setSelect(bool) {}
     inline void setForwardOnly(bool) {}
-    inline void setServerCursor(bool) {}
 
     inline bool exec() { return false; }
     inline bool prepare(const QString&) { return false; }
@@ -73,7 +72,6 @@ public:
     { return false; }
     inline void close() {}
     inline QSqlResult *createResult() const { return new QSqlNullResult(this); }
-    inline QSqlResult *createCursorResult() const { return new QSqlNullResult(this); }
 
 protected:
     inline void setOpen(bool) {}

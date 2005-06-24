@@ -40,7 +40,7 @@ class Q_SQL_EXPORT QSqlDriver : public QObject
 
 public:
     enum DriverFeature { Transactions, QuerySize, BLOB, Unicode, PreparedQueries,
-                         NamedPlaceholders, PositionalPlaceholders, LastInsertId, ServerCursors };
+                         NamedPlaceholders, PositionalPlaceholders, LastInsertId };
 
     enum StatementType { WhereStatement, SelectStatement, UpdateStatement,
                          InsertStatement, DeleteStatement };
@@ -81,7 +81,6 @@ public:
     virtual bool hasFeature(DriverFeature f) const = 0;
     virtual void close() = 0;
     virtual QSqlResult *createResult() const = 0;
-    virtual QSqlResult *createCursorResult() const = 0;
 
     virtual bool open(const QString& db,
                       const QString& user = QString(),
