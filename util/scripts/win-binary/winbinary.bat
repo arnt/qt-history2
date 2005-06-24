@@ -315,11 +315,11 @@ nmake release >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 
 cd %QTDIR%\src\plugins\sqldrivers\psql
-qmake "INCLUDEPATH+=/sql/include/psql" "LIBS+=libpqd.lib shell32.lib" >> %1\log.txt 2>&1
+qmake "INCLUDEPATH+=/sql/include/psql" "LIBS+=libpqd.lib shfolder.lib shell32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 nmake debug >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
-qmake "INCLUDEPATH+=/sql/include/psql" "LIBS+=libpq.lib shell32.lib" >> %1\log.txt 2>&1
+qmake "INCLUDEPATH+=/sql/include/psql" "LIBS+=libpq.lib shfolder.lib shell32.lib" >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
 nmake release >> %1\log.txt 2>&1
 if not %errorlevel%==0 goto FAILED
