@@ -23,9 +23,6 @@ t()
                  \$C =~ s,(qt_lcnsprod=).{\$plen},\1$3\0,;
                  \$C =~ s,(qt_qevalkey=).{\$klen},\1$4\0,;
                  print SOUT \$C;
-                 if ( \$C =~ m/qt_qevalkey/ ) {
-                    print \"Found it here: \$C\n\";
-                 }
              }
              close SIN;
              close SOUT"
