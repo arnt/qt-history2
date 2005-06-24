@@ -165,7 +165,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     setActive(true);
     d->drawable.makeCurrent();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-    const QColor &c = d->bgbrush.color();
+    const QColor &c = dgl->palette().brush(QPalette::Background).color();
     glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glShadeModel(GL_FLAT);
