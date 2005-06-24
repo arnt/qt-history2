@@ -324,7 +324,7 @@ WriteMinGWEnv:
   FileWrite $0 "$\r$\n"
   FileWrite $0 "echo Setting up a MinGW/Qt only environment...$\r$\n"
   FileWrite $0 "echo -- QTDIR set to $INSTDIR$\r$\n"
-  FileWrite $0 "echo -- PATH set to $INSTDIR\bin\r$\n"
+  FileWrite $0 "echo -- PATH set to $INSTDIR\bin$\r$\n"
   FileWrite $0 "echo -- Adding $GW_INSTALL_DIR\bin to PATH$\r$\n"
   FileWrite $0 "echo -- Adding %SystemRoot%\System32 to PATH$\r$\n"
   FileWrite $0 "echo -- QMAKESPEC set to win32-g++$\r$\n"

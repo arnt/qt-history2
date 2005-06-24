@@ -65,6 +65,7 @@
 
 ; Uninstaller pages
 !insertmacro MUI_UNPAGE_WELCOME
+!define MUI_UNCONFIRMPAGE_TEXT_TOP "Warning: All the files in the installation directory will be deleted."
 !insertmacro MUI_UNPAGE_CONFIRM
 !insertmacro MUI_UNPAGE_INSTFILES
 !insertmacro MUI_UNPAGE_FINISH
@@ -204,14 +205,14 @@ Section -MinGWSection
     WriteRegStr HKLM "${PRODUCT_UNINST_KEY}" "MinGWInstDir" "$GW_INSTALL_DIR"
     goto +2
     WriteRegStr HKCU "${PRODUCT_UNINST_KEY}" "MinGWInstDir" "$GW_INSTALL_DIR"
-    nsExec::ExecToLog '"$INSTDIR\downloads\${GW_DOWNLOAD_FILE}.exe" /S /D="$GW_INSTALL_DIR"'
+    nsExec::ExecToLog '"$INSTDIR\downloads\${GW_DOWNLOAD_FILE}.exe" /S /D=$GW_INSTALL_DIR'
   strcmp $GW_DO_DOWNLOAD_SOURCE "no" DoneMinGWInstall
     DetailPrint "Installing MinGW sources into $GW_INSTALL_DIR\src"
     StrCmp $RUNNING_AS_ADMIN "false" +3
     WriteRegDWORD HKLM "${PRODUCT_UNINST_KEY}" "MinGWSources" 1
     goto +2
     WriteRegDWORD HKCU "${PRODUCT_UNINST_KEY}" "MinGWSources" 1
-    nsExec::ExecToLog '"$INSTDIR\downloads\${GW_DOWNLOAD_FILE}-src.exe" /S /D="$GW_INSTALL_DIR\src"'
+    nsExec::ExecToLog '"$INSTDIR\downloads\${GW_DOWNLOAD_FILE}-src.exe" /S /D=$GW_INSTALL_DIR\src'
 DoneMinGWInstall:
 
 
@@ -226,7 +227,7 @@ CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${P
 CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\${PRODUCT_NAME} ${PRODUCT_VERSION} Command Prompt.lnk" "%COMSPEC%" '/k "$INSTDIR\bin\qtvars.bat"'
 
 !ifdef QTOPENSOURCE
-  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\OpenSource Notice.lnk" "OPENSOURCE-NOTICE.TXT"
+  CreateShortCut "$SMPROGRAMS\${PRODUCT_NAME} by Trolltech v${PRODUCT_VERSION}\OpenSource Notice.lnk" "$INSTDIR\OPENSOURCE-NOTICE.TXT"
 !endif
 
 SectionEnd
