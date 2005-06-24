@@ -58,6 +58,7 @@ public:
     inline QGLFormat format() const;
     inline GLuint bindTexture(const QImage &image, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA8);
     inline GLuint bindTexture(const QPixmap &pixmap, GLenum target = GL_TEXTURE_2D, GLint format = GL_RGBA8);
+    inline QColor backgroundColor() const;
 
 private:
     QGLWidget *widget;
@@ -101,6 +102,11 @@ inline GLuint QGLDrawable::bindTexture(const QImage &image, GLenum target, GLint
 inline GLuint QGLDrawable::bindTexture(const QPixmap &pixmap, GLenum target, GLint format)
 {
     return widget->bindTexture(pixmap, target, format);
+}
+
+inline QColor QGLDrawable::backgroundColor() const
+{
+   return widget->palette().brush(QPalette::Background).color();
 }
 
 
@@ -165,7 +171,7 @@ bool QOpenGLPaintEngine::begin(QPaintDevice *pdev)
     setActive(true);
     d->drawable.makeCurrent();
     glPushAttrib(GL_ALL_ATTRIB_BITS);
-    const QColor &c = dgl->palette().brush(QPalette::Background).color();
+    const QColor &c = d->drawable.backgroundColor();
     glClearColor(c.redF(), c.greenF(), c.blueF(), 1.0);
     glClear(GL_COLOR_BUFFER_BIT | GL_STENCIL_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glShadeModel(GL_FLAT);
