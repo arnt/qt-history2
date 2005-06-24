@@ -510,7 +510,7 @@
         Unicode text files even though that is the order prescribed by
         the Unicode Standard in the absence of higher-level protocols.
     \o  Unlike programs written with MFC or plain winlib, Qt programs
-        are portable between Windows 95/98 and Windows NT.
+        are portable between Windows 98 and Windows NT.
         \e {You do not need different binaries to support Unicode.}
     \endlist
 

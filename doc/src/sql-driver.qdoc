@@ -257,8 +257,8 @@
     driver manager that is installed on your system. The QODBC plugin
     then allows you to use these data sources in your Qt applications.
 
-    On Windows 95 and later an ODBC driver manager should be installed by
-    default. For Unix systems there are some implementations which must be
+    On Windows an ODBC driver manager should be installed by default.
+    For Unix systems there are some implementations which must be
     installed first. Note that every client that uses your application is
     required to have an ODBC driver manager installed, otherwise the
     QODBC plugin will not work.
