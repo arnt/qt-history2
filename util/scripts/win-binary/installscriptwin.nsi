@@ -7,7 +7,7 @@
 
 !include "MUI.nsh"
 
-!ifndef
+!ifndef QTOPENSOURCE
   !include "qtlicense.nsh"
 !endif
 
