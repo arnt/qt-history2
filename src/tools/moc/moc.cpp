@@ -474,10 +474,13 @@ void Moc::parse()
     bool templateClass = false;
     while (hasNext()) {
         Token t = next();
-        switch (t) {
-            case NAMESPACE: {
-                int rewind = index;
-                if (test(IDENTIFIER) && !test(SEMIC)) {
+        if (t == NAMESPACE) {
+            int rewind = index;
+            if (test(IDENTIFIER)) {
+                if (test(EQ)) {
+                    // namespace Foo = Bar::Baz;
+                    until(SEMIC);
+                } else if (!test(SEMIC)) {
                     NamespaceDef def;
                     def.name = lexem();
                     next(LBRACE);
@@ -486,35 +489,24 @@ void Moc::parse()
                     def.end = index;
                     index = def.begin + 1;
                     namespaceList += def;
+                    index = rewind;
                 }
-                index = rewind;
-                break;
             }
-            case SEMIC:
-            case RBRACE:
-                templateClass = false;
-                break;
-            case TEMPLATE:
-                templateClass = true;
-                break;
-            case MOC_INCLUDE_BEGIN:
-                next(STRING_LITERAL);
-                currentFilenames.push(symbol().unquotedLexem());
-                break;
-            case MOC_INCLUDE_END:
-                currentFilenames.pop();
-                break;
-            case Q_DECLARE_INTERFACE_TOKEN:
-                parseDeclareInterface();
-                break;
-            case USING:
-                if (test(NAMESPACE)) {
-                    while (test(SCOPE) || test(IDENTIFIER))
-                        ;
-                    next(SEMIC);
-                }
-                break;
-            default: break;
+        } else if (t == SEMIC || t == RBRACE) {
+            templateClass = false;
+        } else if (t == TEMPLATE) {
+            templateClass = true;
+        } else if (t == MOC_INCLUDE_BEGIN) {
+            next(STRING_LITERAL);
+            currentFilenames.push(symbol().unquotedLexem());
+        } else if (t == MOC_INCLUDE_END) {
+            currentFilenames.pop();
+        } else if (t == Q_DECLARE_INTERFACE_TOKEN) {
+            parseDeclareInterface();
+        } else if (t == USING && test(NAMESPACE)) {
+            while (test(SCOPE) || test(IDENTIFIER))
+                ;
+            next(SEMIC);
         }
         if (t != CLASS || currentFilenames.size() > 1)
             continue;
