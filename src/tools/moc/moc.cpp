@@ -282,14 +282,33 @@ bool Moc::parseClassHead(ClassDef *def)
 QByteArray Moc::parseType()
 {
     QByteArray s;
-    while (test(CONST) || test(VOLATILE) || test(SIGNED) || test(UNSIGNED)) {
-        s += lexem();
-        s += ' ';
+    bool hasSignedOrUnsigned = false;
+    for (;;) {
+        switch (next()) {
+            case SIGNED:
+            case UNSIGNED:
+                hasSignedOrUnsigned = true;
+                // fall through
+            case CONST:
+            case VOLATILE:
+                s += lexem();
+                s += ' ';
+                continue;
+            default:
+                prev();
+                break;
+        }
+        break;
     }
     test(ENUM) || test(CLASS) || test(STRUCT);
     for(;;) {
         switch (next()) {
         case IDENTIFIER:
+            // void mySlot(unsigned myArg)
+            if (hasSignedOrUnsigned) {
+                prev();
+                break;
+            }
         case CHAR:
         case SHORT:
         case INT:
