@@ -120,7 +120,7 @@ QByteArray PreprocessorCache::readFile(const QString &filename) const
 {
     // If anybody is connected to the readFile signal we tell them to
     // read the file for us.
-    if (receivers(SIGNAL(readFile(QByteArray &, QString))) > 0) {
+    if (receivers(SIGNAL(readFile(QByteArray&,QString))) > 0) {
         QByteArray array;
         // Workaround for "not beeing able to emit from const function"
         PreprocessorCache *cache = const_cast<PreprocessorCache *>(this);
@@ -252,8 +252,8 @@ PreprocessorController::PreprocessorController(IncludeFiles includeFiles,
         const QString &, RppTreeEvaluator::IncludeType)));
 
     // connect readFile callback
-    connect(&m_preprocessorCache, SIGNAL(readFile(QByteArray &, QString)),
-        SLOT(readFile(QByteArray &, QString)));
+    connect(&m_preprocessorCache, SIGNAL(readFile(QByteArray&,QString)),
+        SLOT(readFile(QByteArray&,QString)));
 
     //connect error handlers
     connect(&m_preprocessorCache , SIGNAL(error(QString,QString)),
@@ -380,7 +380,7 @@ RppPreprocessor::RppPreprocessor(QString basePath, QStringList includePaths, QSt
 ,m_activeDefinitions(defaultMacros(m_cache))
 ,m_controller(m_includeFiles, m_cache, preLoadFilesFilenames)
 {
-    QObject::connect(&m_controller, SIGNAL(error(QString, QString)), &m_errorHandler, SLOT(error(QString, QString)));
+    QObject::connect(&m_controller, SIGNAL(error(QString,QString)), &m_errorHandler, SLOT(error(QString,QString)));
 }
 
 RppPreprocessor::~RppPreprocessor()

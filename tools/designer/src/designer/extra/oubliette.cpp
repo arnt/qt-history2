@@ -211,8 +211,8 @@ void Oubliette::showInventory()
             lwi->setData(99, i);
             ++i;
         }
-        connect(lw, SIGNAL(itemActivated(QListWidgetItem *)),
-                this, SLOT(showInventoryItem(QListWidgetItem *)));
+        connect(lw, SIGNAL(itemActivated(QListWidgetItem*)),
+                this, SLOT(showInventoryItem(QListWidgetItem*)));
     }
     label = new QLabel(tr("You have %1 of %2 items")
                       .arg(items.size())

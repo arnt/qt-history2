@@ -403,8 +403,8 @@ ResourceEditor::ResourceEditor(QDesignerFormEditorInterface *core, QWidget *pare
     setEnabled(false);
 
     connect(core->formWindowManager(),
-            SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface *)),
-            this, SLOT(setActiveForm(QDesignerFormWindowInterface *)));
+            SIGNAL(activeFormWindowChanged(QDesignerFormWindowInterface*)),
+            this, SLOT(setActiveForm(QDesignerFormWindowInterface*)));
     connect(m_qrc_combo, SIGNAL(activated(int)),
             this, SLOT(setCurrentIndex(int)));
 

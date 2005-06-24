@@ -503,7 +503,7 @@ SignalSlotEditorWindow::SignalSlotEditorWindow(QDesignerFormEditorInterface *cor
     m_view->setEditTriggers(QAbstractItemView::SelectedClicked
                                 | QAbstractItemView::EditKeyPressed);
     m_view->setRootIsDecorated(false);
-    connect(m_view, SIGNAL(activated(const QModelIndex&)), this, SLOT(updateUi()));
+    connect(m_view, SIGNAL(activated(QModelIndex)), this, SLOT(updateUi()));
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
@@ -537,8 +537,8 @@ void SignalSlotEditorWindow::setActiveFormWindow(QDesignerFormWindowInterface *f
 
     if (!m_editor.isNull()) {
         disconnect(m_view->selectionModel(),
-                    SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-                    this, SLOT(updateEditorSelection(const QModelIndex&)));
+                    SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                    this, SLOT(updateEditorSelection(QModelIndex)));
         disconnect(m_editor, SIGNAL(connectionSelected(Connection*)),
                     this, SLOT(updateDialogSelection(Connection*)));
     }
@@ -553,8 +553,8 @@ void SignalSlotEditorWindow::setActiveFormWindow(QDesignerFormWindowInterface *f
             delegate->setForm(form);
 
         connect(m_view->selectionModel(),
-                SIGNAL(currentChanged(const QModelIndex&, const QModelIndex&)),
-                this, SLOT(updateEditorSelection(const QModelIndex&)));
+                SIGNAL(currentChanged(QModelIndex,QModelIndex)),
+                this, SLOT(updateEditorSelection(QModelIndex)));
         connect(m_editor, SIGNAL(connectionSelected(Connection*)),
                 this, SLOT(updateDialogSelection(Connection*)));
     }

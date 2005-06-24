@@ -62,7 +62,7 @@ void ProjectPorter::portFile(QString fileName)
         IncludeFiles includeFiles(basePath, includeDirectories);
 
         PreprocessorController preprocessor(includeFiles, preprocessorCache, qt3HeadersFilenames);
-        connect(&preprocessor, SIGNAL(error(QString, QString)), SLOT(error(QString, QString)));
+        connect(&preprocessor, SIGNAL(error(QString,QString)), SLOT(error(QString,QString)));
 
         Rpp::DefineMap definitionsCopy = *defaultDefinitions;
         // Preprocess
@@ -132,7 +132,7 @@ void ProjectPorter::portProject(QString basePath, QString proFileName)
         IncludeFiles includeFiles(basePath, includeDirectories + includeProPaths + dependProPaths);
 
         PreprocessorController preprocessorController(includeFiles, preprocessorCache, qt3HeadersFilenames);
-        connect(&preprocessorController, SIGNAL(error(QString, QString)), SLOT(error(QString, QString)));
+        connect(&preprocessorController, SIGNAL(error(QString,QString)), SLOT(error(QString,QString)));
 
         TranslationUnitAnalyzer translationUnitAnalyzer;
         CodeModelAttributes codeModelAttributes;

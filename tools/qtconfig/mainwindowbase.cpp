@@ -27,7 +27,7 @@ MainWindowBase::MainWindowBase(QWidget* parent, const char* name, Qt::WFlags fl)
     connect(psizecombo, SIGNAL(activated(int)), this, SLOT(buildFont()));
     connect(PushButton12, SIGNAL(clicked()), this, SLOT(downFontpath()));
     connect(PushButton3, SIGNAL(clicked()), this, SLOT(downSubstitute()));
-    connect(familycombo, SIGNAL(activated(const QString&)), this, SLOT(familySelected(const QString&)));
+    connect(familycombo, SIGNAL(activated(QString)), this, SLOT(familySelected(QString)));
     connect(fileExitAction, SIGNAL(activated()), this, SLOT(fileExit()));
     connect(fileSaveAction, SIGNAL(activated()), this, SLOT(fileSave()));
     connect(helpAboutAction, SIGNAL(activated()), this, SLOT(helpAbout()));
@@ -52,8 +52,8 @@ MainWindowBase::MainWindowBase(QWidget* parent, const char* name, Qt::WFlags fl)
     connect(fontembeddingcheckbox, SIGNAL(clicked()), this, SLOT(somethingModified()));
     connect(rtlExtensions, SIGNAL(toggled(bool)), this, SLOT(somethingModified()));
     connect(inputStyle, SIGNAL(activated(int)), this, SLOT(somethingModified()));
-    connect(gstylecombo, SIGNAL(activated(const QString&)), this, SLOT(styleSelected(const QString&)));
-    connect(familysubcombo, SIGNAL(activated(const QString&)), this, SLOT(substituteSelected(const QString&)));
+    connect(gstylecombo, SIGNAL(activated(QString)), this, SLOT(styleSelected(QString)));
+    connect(familysubcombo, SIGNAL(activated(QString)), this, SLOT(substituteSelected(QString)));
     connect(btnAdvanced, SIGNAL(clicked()), this, SLOT(tunePalette()));
     connect(PushButton11, SIGNAL(clicked()), this, SLOT(upFontpath()));
     connect(PushButton2, SIGNAL(clicked()), this, SLOT(upSubstitute()));

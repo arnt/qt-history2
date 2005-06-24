@@ -22,8 +22,8 @@ OublietteView::OublietteView()
     setWidget(m_oubliette);
     setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
     setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
-    connect(m_oubliette, SIGNAL(characterMoved(const QPoint &)),
-            this, SLOT(scrollToCharacter(const QPoint &)));
+    connect(m_oubliette, SIGNAL(characterMoved(QPoint)),
+            this, SLOT(scrollToCharacter(QPoint)));
     setFocusPolicy(Qt::NoFocus);
     m_oubliette->setFocus();
     scrollToCharacter(m_oubliette->visualCursorPos());
