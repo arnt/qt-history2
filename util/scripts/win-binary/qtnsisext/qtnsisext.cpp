@@ -52,25 +52,23 @@ EXPORT_NSIS_FUNCTION(GetLicenseProduct)
 
     KeyDecoder kdec(key);
     if (kdec.IsValid()) {
-        switch(kdec.getLicenseSchema()) {
-        case KeyDecoder::SupportedEvaluation:
-            strcpy(lcnsprod, "Evaluation"); break;
-        case KeyDecoder::UnsupportedEvaluation:
-            strcpy(lcnsprod, "Evaluation"); break;
-        case KeyDecoder::FullSourceEvaluation:
-            strcpy(lcnsprod, "Evaluation"); break;
-        case KeyDecoder::FullCommercial:
-            strcpy(lcnsprod, "Commercial"); break;
-        }
+        uint qtschema = kdec.getLicenseSchema();
+        if(qtschema & KeyDecoder::SupportedEvaluation)
+            strcpy(lcnsprod, "Evaluation");
+        else if(qtschema & KeyDecoder::UnsupportedEvaluation)
+            strcpy(lcnsprod, "Evaluation");
+        else if(qtschema & KeyDecoder::FullSourceEvaluation)
+            strcpy(lcnsprod, "Evaluation");
+        else if(qtschema & KeyDecoder::FullCommercial)
+            strcpy(lcnsprod, "Commercial");
 
-        switch(kdec.getProducts()) {
-        case KeyDecoder::QtUniversal:
-            strcat(lcnsprod, "Universal"); break;
-        case KeyDecoder::QtDesktop:
-            strcat(lcnsprod, "Desktop"); break;
-        case KeyDecoder::QtDesktopLight:
-            strcat(lcnsprod, "DesktopLight"); break;
-        }
+        uint qtproduct = kdec.getProducts();
+        if (qtproduct & KeyDecoder::QtUniversal)
+            strcat(lcnsprod, "Universal");
+        else if(qtproduct & KeyDecoder::QtDesktop)
+            strcat(lcnsprod, "Desktop");
+        else if(qtproduct & KeyDecoder::QtDesktopLight)
+            strcat(lcnsprod, "DesktopLight");
     }
 
     LocalFree(key);
