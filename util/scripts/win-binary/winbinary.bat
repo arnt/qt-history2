@@ -220,9 +220,9 @@ echo - Removing extensions directory
 cd %1\clean
 rd /S /Q extensions
 
-xcopy /Q /Y %1\%TMP_BUILDDIR%\extensions\activeqt\control\*.rc %1\clean\extensions\activeqt\control >> %1\log.txt
-xcopy /Q /Y %1\%TMP_BUILDDIR%\extensions\activeqt\control\*.ico %1\clean\extensions\activeqt\control >> %1\log.txt
-xcopy /Q /Y %1\%TMP_BUILDDIR%\extensions\activeqt\control\*.def %1\clean\extensions\activeqt\control >> %1\log.txt
+xcopy /Q /Y %1\%TMP_BUILDDIR%\extensions\activeqt\control\*.rc %1\clean\extensions\activeqt\control\ >> %1\log.txt
+xcopy /Q /Y %1\%TMP_BUILDDIR%\extensions\activeqt\control\*.ico %1\clean\extensions\activeqt\control\ >> %1\log.txt
+xcopy /Q /Y %1\%TMP_BUILDDIR%\extensions\activeqt\control\*.def %1\clean\extensions\activeqt\control\ >> %1\log.txt
 
 cd %1\%TMP_BUILDDIR%
 goto :EOF
