@@ -134,6 +134,7 @@ bool BinPatch::patchHelper(char *inbuffer, const char *oldstr, const char *newst
 bool BinPatch::patch(const char *oldstr, const char *newstr)
 {
     size_t oldlen = strlen(oldstr);
+    size_t newlen = strlen(newstr);
 
     if ((!fileName || strlen(fileName) < 1)
         || (!oldstr || oldlen < 1)
@@ -165,7 +166,7 @@ bool BinPatch::patch(const char *oldstr, const char *newstr)
         if (fseek(input, offset, SEEK_SET) != 0)
             break;
         len = fread(data, sizeof(char), sizeof(data), input);
-    } while(!(feof(input) && (len <= oldlen)));
+    } while(!(feof(input) && (len <= oldlen || len <= newlen)));
     
     fclose(input);
     

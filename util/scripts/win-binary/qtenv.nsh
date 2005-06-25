@@ -201,6 +201,11 @@ FunctionEnd
 # the result is placed on top of the stack
 #
 Function GetMkSpec
+!ifdef USEMINGW
+    push "win32-g++"
+    Goto getmkspec_done
+!endif
+
   push $0
   
   StrCmp ${FORCE_MAKESPEC} "vs2003" win32-msvc.net
