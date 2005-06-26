@@ -118,11 +118,31 @@ EXPORT_NSIS_FUNCTION(PatchVC6Binary)
     popstring(oldStr);
     popstring(newStr);
 
+    // remove last separator...
+    int oldLen = (int)strlen(oldStr);
+    int newLen = (int)strlen(newStr);
+    if (oldStr[oldLen-1] == '\\')
+        oldStr[oldLen-1] = '\0';
+    if (newStr[newLen-1] == '\\')
+        newStr[newLen-1] = '\0';
+
     BinPatch binFile(fileName);
     binFile.enableInsertReplace(true);
     binFile.enableUseLength(true);
     binFile.setEndTokens(".cpp;.h;.moc;.pdb");
     binFile.patch(oldStr, newStr);
+
+    //patch also with path sep. the other way since
+    //vc60 in some cases uses different path separators :|
+    char *reverse = (char *)malloc(sizeof(char)*(oldLen+1));
+    for (int i=0; i<oldLen; ++i) {
+        if (oldStr[i] == '\\')
+            reverse[i] = '/';
+        else
+            reverse[i] = oldStr[i];
+    }
+    reverse[oldLen] = '\0';
+    binFile.patch(reverse, newStr);
 
     LocalFree(newStr);
     LocalFree(oldStr);

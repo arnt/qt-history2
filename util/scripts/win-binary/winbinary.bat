@@ -158,7 +158,9 @@ echo - * Porting tool .xml file
 xcopy /Q /Y /I /S %1\%TMP_BUILDDIR%\tools\porting\src\*.xml %1\clean\ >> %1\log.txt
 
 echo - Copying integration setup
+if not "%TMP_COMPILER%"=="vs2003" goto NoIntegrationSetup
 copy /Y \\Lupinella\tmp\thomas\setup_vs2003_*.exe %1\
+:NoIntegrationSetup
 
 echo - Copying additional files
 echo   * qconfig.h
@@ -223,6 +225,10 @@ rd /S /Q extensions
 xcopy /Q /Y %1\%TMP_BUILDDIR%\extensions\activeqt\control\*.rc %1\clean\extensions\activeqt\control\ >> %1\log.txt
 xcopy /Q /Y %1\%TMP_BUILDDIR%\extensions\activeqt\control\*.ico %1\clean\extensions\activeqt\control\ >> %1\log.txt
 xcopy /Q /Y %1\%TMP_BUILDDIR%\extensions\activeqt\control\*.def %1\clean\extensions\activeqt\control\ >> %1\log.txt
+
+echo - Removing util directory
+cd %1\clean
+rd /S /Q util
 
 cd %1\%TMP_BUILDDIR%
 goto :EOF
