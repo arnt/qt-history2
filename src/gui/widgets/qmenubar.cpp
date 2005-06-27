@@ -114,8 +114,12 @@ void QMenuBarPrivate::setKeyboardMode(bool b)
         QWidget *fw = qApp->focusWidget();
         if (fw != q)
             keyboardFocusWidget = qApp->focusWidget();
+        if(!currentAction && !actionList.isEmpty())
+            setCurrentAction(actionList.first());
         q->setFocus();
     } else {
+        if(!popupState)
+            setCurrentAction(0);
         if(keyboardFocusWidget) {
             keyboardFocusWidget->setFocus();
             keyboardFocusWidget = 0;
@@ -906,7 +910,7 @@ void QMenuBar::actionEvent(QActionEvent *e)
 void QMenuBar::focusInEvent(QFocusEvent *)
 {
     Q_D(QMenuBar);
-    if(!d->currentAction && !d->actionList.isEmpty())
+    if(d->keyboardState && !d->currentAction && !d->actionList.isEmpty())
         d->setCurrentAction(d->actionList.first());
 }
 
@@ -1077,7 +1081,6 @@ bool QMenuBar::eventFilter(QObject *object, QEvent *event)
     }
 
     if (style()->styleHint(QStyle::SH_MenuBar_AltKeyNavigation, 0, this)) {
-
         if (d->altPressed) {
             switch (event->type()) {
             case QEvent::KeyPress:
