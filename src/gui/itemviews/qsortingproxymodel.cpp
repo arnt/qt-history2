@@ -239,8 +239,10 @@ bool QSortingProxyModel::dropMimeData(const QMimeData *data, Qt::DropAction acti
 */
 bool QSortingProxyModel::insertRows(int row, int count, const QModelIndex &parent)
 {
-    QModelIndex source_index = sourceIndex(row, 0, parent);
-    return model()->insertRows(source_index.row(), count, source_index.parent());
+    QModelIndex source_parent;
+    if (parent.isValid())
+        source_parent = id_to_source_index_map.value(parent.internalPointer());
+    return model()->insertRows(row, count, source_parent);
 }
 
 /*!
@@ -478,9 +480,21 @@ void QSortingProxyModel::sourceRowsAboutToBeInserted(const QModelIndex &source_p
     QModelIndex proxy_parent = proxyIndex(source_parent);
     QModelIndex source_index = model()->index(start, 0, source_parent);
     QModelIndex proxy_index = proxyIndex(source_index);
-    int proxy_start = proxy_index.row();
+    int proxy_start = proxy_index.row() > 0 ? proxy_index.row() : start;
     int proxy_end = proxy_start + (end - start);
     beginInsertRows(proxy_parent, proxy_start, proxy_end); // emits signal
+
+    // update the row mappig
+    int count = end - start + 1;
+    for (int row = start; row <= model()->rowCount(source_parent); ++row) {
+        int column_count = row_iid ? 1 : model()->columnCount(source_parent);
+        for (int column = 0; column < column_count; ++column) {
+            source_index = model()->index(row, column, source_parent);
+            int proxy_row = id_to_proxy_row_map.value(source_index.internalPointer(), -1);
+            if (proxy_row != -1)
+                id_to_proxy_row_map.insert(source_index.internalPointer(), proxy_row + count);
+        }
+    }
 }
 
 /*!
