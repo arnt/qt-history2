@@ -2725,7 +2725,7 @@ int QApplication::doubleClickInterval()
     if(!qt_mac_dblclick.use_qt_time_limit) { //get it from the system
         QSettings appleSettings(QLatin1String("apple.com"));
         /* First worked as of 10.3.3 */
-        double dci = appleSettings.value(QLatin1String("com.apple.mouse.doubleClickThreshold"), 0.5).toDouble();
+        double dci = appleSettings.value(QLatin1String("com/apple/mouse/doubleClickThreshold"), 0.5).toDouble();
         return int(dci * 1000);
     }
     return QApplicationPrivate::mouse_double_click_time;
@@ -2753,9 +2753,9 @@ int QApplication::wheelScrollLines()
     if(!qt_mac_use_qt_scroller_lines) {
         /* First worked as of 10.3.3 */
         QSettings appleSettings(QLatin1String("apple.com"));
-        double scroll = appleSettings.value(QLatin1String("com.apple.scrollwheel.scaling"),
+        double scroll = appleSettings.value(QLatin1String("com/apple/scrollwheel/scaling"),
                                            (QApplicationPrivate::wheel_scroll_lines)).toDouble();
-        return scroll ? int(3 * scroll) : 1;
+        return scroll ? int(scroll) : 1;
     }
     return QApplicationPrivate::wheel_scroll_lines;
 }
