@@ -2224,6 +2224,10 @@ QByteArray MetaObjectGenerator::createPrototype(FUNCDESC *funcdesc, ITypeInfo *t
     QByteArray function(names.at(0));
     // get function prototype
     type = guessTypes(funcdesc->elemdescFunc.tdesc, typeinfo, function);
+    if (type.isEmpty() && funcdesc->invkind == INVOKE_PROPERTYPUT && funcdesc->lprgelemdescParam) {
+        type = guessTypes(funcdesc->lprgelemdescParam->tdesc, typeinfo, function);
+    }
+
     prototype = function + "(";
     if (funcdesc->invkind == INVOKE_FUNC && type == "HRESULT")
         type = 0;
