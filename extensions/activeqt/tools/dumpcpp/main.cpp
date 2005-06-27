@@ -203,7 +203,11 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
             QByteArray iface_class = info.value();
 
             out << "    " << className << "(" << iface_class << " *iface)" << endl;
-            out << "    : QAxObject()" << endl;
+
+            if (category & ActiveX)
+                out << "    : QAxWidget()" << endl;
+            else
+                out << "    : QAxObject()" << endl;
             out << "    {" << endl;
             out << "        initializeFrom(iface);" << endl;
             out << "        delete iface;" << endl;
@@ -282,7 +286,7 @@ void generateClassDecl(QTextStream &out, const QString &controlID, const QMetaOb
                     out << "#endif" << endl;
             }
             out << indent << "    QVariant qax_result = property(\"" << propertyName << "\");" << endl;
-            if (propertyType.at(propertyType.length()-1) == '*')
+            if (propertyType.length() && propertyType.at(propertyType.length()-1) == '*')
                 out << indent << "    if (!qax_result.constData()) return 0;" << endl;
             out << indent << "    Q_ASSERT(qax_result.isValid());" << endl;
             if (qax_qualified_usertypes.contains(simplePropType)) {
@@ -974,6 +978,14 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
         QMetaObject *metaObject = 0;
         QUuid guid(typeattr->guid);
+
+        if (!(object_category & ActiveX)) {
+            QSettings settings(QLatin1String("HKEY_LOCAL_MACHINE\\Software\\Classes\\CLSID\\") + guid.toString(), QSettings::NativeFormat);
+            if (settings.childGroups().contains("Control")) {
+                object_category |= ActiveX;
+                object_category &= ~SubObject;
+            }
+        }
 
         switch (typekind) {
         case TKIND_COCLASS:
