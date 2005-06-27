@@ -432,7 +432,7 @@ while [ "$#" -gt 0 ]; do
         VAL=no
         ;;
     #Qt style yes options
-    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support)
+    -incremental|-qvfb|-profile|-shared|-static|-sm|-xinerama|-xshape|-tablet|-reduce-exports|-pch|-stl|-freetype|-xcursor|-xrandr|-xrender|-fontconfig|-xkb|-nis|-cups|-largefile|-h|-help|-v|-verbose|-debug|-release|-fast|-opengl|-accessibility|-confirm-license|-gnumake|-framework|-qt3support|-debug-and-release)
         VAR=`echo $1 | sed "s,^-\(.*\),\1,"`
         VAL=yes
         ;;
@@ -739,7 +739,11 @@ while [ "$#" -gt 0 ]; do
         XPLATFORM="$VAL"
         ;;
     debug-and-release)
-        CFG_DEBUG="auto"
+        if [ "$VAL" = "yes" ] || [ "$VAL" = "no" ]; then
+            CFG_DEBUG_RELEASE="$VAL"
+        else
+            UNKNOWN_OPT=yes
+        fi
         ;;
     release)
         if [ "$VAL" = "yes" ]; then
@@ -1235,7 +1239,9 @@ if [ "$OPT_VERBOSE" = "yes" -a "$OPT_SHADOW" = "yes" ]; then
 fi
 
 # detect build style
-if [ "$CFG_DEBUG" = "auto" ]; then
+if [ "$CFG_DEBUG_RELEASE" = "yes" ]; then
+    QMAKE_CONFIG="$QMAKE_CONFIG build_all"
+elif [ "$CFG_DEBUG" = "auto" ]; then
     CFG_DEBUG_RELEASE=yes
     CFG_DEBUG=yes
     QMAKE_CONFIG="$QMAKE_CONFIG build_all"
