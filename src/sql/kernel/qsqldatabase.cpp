@@ -375,7 +375,9 @@ void QSqlDatabasePrivate::disable()
     \threadsafe
 
     Adds a database to the list of database connections using the
-    driver \a type and the connection name \a connectionName.
+    driver \a type and the connection name \a connectionName. If
+    there already exists a database connection called \a
+    connectionName, that connection is removed.
 
     The database connection is referred to by \a connectionName. The
     newly added database connection is returned.
