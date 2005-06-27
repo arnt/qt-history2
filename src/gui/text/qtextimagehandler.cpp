@@ -29,11 +29,6 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
 {
     QPixmap pm;
 
-    const bool hasWidth = format.hasProperty(QTextFormat::ImageWidth);
-    const int width = qRound(format.width());
-    const bool hasHeight = format.hasProperty(QTextFormat::ImageHeight);
-    const int height = qRound(format.height());
-
     QString name = format.name();
     const QVariant data = doc->resource(QTextDocument::ImageResource, name);
     if (data.type() == QVariant::Pixmap || data.type() == QVariant::Image) {
@@ -58,23 +53,38 @@ static QPixmap getPixmap(QTextDocument *doc, const QTextImageFormat &format)
         doc->addResource(QTextDocument::ImageResource, name, pm);
     }
 
+    return pm;
+}
+
+static QSize getPixmapSize(QTextDocument *doc, const QTextImageFormat &format)
+{
+    QPixmap pm;
+
+    const bool hasWidth = format.hasProperty(QTextFormat::ImageWidth);
+    const int width = qRound(format.width());
+    const bool hasHeight = format.hasProperty(QTextFormat::ImageHeight);
+    const int height = qRound(format.height());
+
+    QSize size(width, height);
+    if (!hasWidth || !hasHeight) {
+        pm = getPixmap(doc, format);
+        if (!hasWidth)
+            size.setWidth(pm.width());
+        if (!hasHeight)
+            size.setHeight(pm.height());
+    }
+
     qreal scale = 1.0;
     QPaintDevice *pdev = doc->documentLayout()->paintDevice();
-    if (pdev && !pm.isNull())
-        scale = qreal(pdev->logicalDpiY()) / qreal(pm.logicalDpiY());
-
-    QSize size = pm.size();
-    if (hasWidth)
-        size.setWidth(width);
-    if (hasHeight)
-        size.setHeight(height);
-
+    if (pdev) {
+        if (pm.isNull())
+            pm = getPixmap(doc, format);
+        if (!pm.isNull())
+            scale = qreal(pdev->logicalDpiY()) / qreal(pm.logicalDpiY());
+    }
     size *= scale;
 
-    if (size.isValid() && pm.size() != size)
-        pm = pm.scaled(size);
-
-    return pm;
+    return size;
 }
 
 QTextImageHandler::QTextImageHandler(QObject *parent)
@@ -87,7 +97,7 @@ QSizeF QTextImageHandler::intrinsicSize(QTextDocument *doc, int posInDocument, c
     Q_UNUSED(posInDocument)
     const QTextImageFormat imageFormat = format.toImageFormat();
 
-    return getPixmap(doc, imageFormat).size();
+    return getPixmapSize(doc, imageFormat);
 }
 
 void QTextImageHandler::drawObject(QPainter *p, const QRectF &rect, QTextDocument *doc, int posInDocument, const QTextFormat &format)
