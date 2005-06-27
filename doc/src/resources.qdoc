@@ -123,9 +123,9 @@
     add paths to it.
 
     If you have resources in a static library, you might need to
-    force initialization of your resources by calling \c
-    Q_INIT_RESOURCE(xxx), where \c xxx is the base name of the \c
-    .qrc file. For example:
+    force initialization of your resources by calling \l
+    Q_INIT_RESOURCE() with the base name of the \c .qrc file. For
+    example:
 
     \code
         int main(int argc, char *argv[])

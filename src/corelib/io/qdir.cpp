@@ -1868,6 +1868,28 @@ QStringList QDir::nameFiltersFromString(const QString &nameFilter)
     return QDirPrivate::splitFilters(nameFilter);
 }
 
+/*!
+    \macro void Q_INIT_RESOURCE(name)
+    \relates QDir
+
+    Initializes the resources specified by the \c .qrc file with the
+    base name \a name. Normally, Qt resources are loaded
+    automatically at startup. The Q_INIT_RESOURCE() macro is
+    necessary on some platforms for resources stored in a static
+    library.
+
+    For example, if your application's resources are listed in a file
+    called \c myapp.qrc, you can ensure that the resources are
+    initialized at startup by adding this line to your \c main()
+    function:
+
+    \code
+        Q_INIT_RESOURCE(myapp);
+    \endcode
+
+    \sa {The Qt Resource System}
+*/
+
 #ifdef QT3_SUPPORT
 /*!
     Use nameFilters() instead.
