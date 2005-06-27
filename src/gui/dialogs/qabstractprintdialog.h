@@ -16,6 +16,8 @@
 
 #include <QtGui/qdialog.h>
 
+#ifndef QT_NO_PRINTDIALOG
+
 class QAbstractPrintDialogPrivate;
 class QPrinter;
 
@@ -68,5 +70,7 @@ protected:
 private:
     Q_DISABLE_COPY(QAbstractPrintDialog)
 };
+
+#endif // QT_NO_PRINTDIALOG
 
 #endif // QABSTRACTPRINTDIALOG_H

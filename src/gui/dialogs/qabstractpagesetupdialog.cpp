@@ -14,6 +14,8 @@
 #include "qabstractpagesetupdialog.h"
 #include "qabstractpagesetupdialog_p.h"
 
+#ifndef QT_NO_PRINTDIALOG
+
 /*!
     \class QAbstractPageSetupDialog
 
@@ -58,3 +60,5 @@ QPrinter *QAbstractPageSetupDialog::printer()
     This virtual function is called to pop up the dialog. It must be
     reimplemented in subclasses.
 */
+
+#endif // QT_NO_PRINTDIALOG

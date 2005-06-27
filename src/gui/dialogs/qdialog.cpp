@@ -13,7 +13,6 @@
 
 #include "qdialog.h"
 
-#ifndef QT_NO_DIALOG
 
 #include "qevent.h"
 #include "qdesktopwidget.h"
@@ -820,10 +819,8 @@ void QDialog::showExtension(bool showIt)
         d->size = size();
         d->min = minimumSize();
         d->max = maximumSize();
-#ifndef QT_NO_LAYOUT
         if (layout())
             layout()->setEnabled(false);
-#endif
         QSize s(d->extension->sizeHint()
                  .expandedTo(d->extension->minimumSize())
                  .boundedTo(d->extension->maximumSize()));
@@ -843,10 +840,8 @@ void QDialog::showExtension(bool showIt)
         setMinimumSize(d->min.expandedTo(QSize(1, 1)));
         setMaximumSize(d->max);
         resize(d->size);
-#ifndef QT_NO_LAYOUT
         if (layout())
             layout()->setEnabled(true);
-#endif
     }
 }
 
@@ -952,4 +947,3 @@ void QDialog::resizeEvent(QResizeEvent *)
 #endif
 }
 
-#endif // QT_NO_DIALOG

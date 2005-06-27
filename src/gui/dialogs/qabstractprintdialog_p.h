@@ -14,6 +14,8 @@
 #ifndef QABSTRACTPRINTDIALOG_P_H
 #define QABSTRACTPRINTDIALOG_P_H
 
+#ifndef QT_NO_PRINTDIALOG
+
 //
 //  W A R N I N G
 //  -------------
@@ -51,5 +53,7 @@ public:
     QAbstractPrintDialog::PrintRange printRange;
     int minPage, maxPage, fromPage, toPage;
 };
+
+#endif // QT_NO_PRINTDIALOG
 
 #endif // QABSTRACTPRINTDIALOG_P_H

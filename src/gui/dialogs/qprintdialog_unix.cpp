@@ -11,9 +11,9 @@
 **
 ****************************************************************************/
 
-#ifndef QT_NO_PRINTDIALOG
-
 #include "qplatformdefs.h"
+
+#ifndef QT_NO_PRINTDIALOG
 
 #include <private/qabstractprintdialog_p.h>
 #include "qprintdialog.h"
@@ -1581,4 +1581,5 @@ void QPrintDialogPrivate::init()
 }
 
 #include "moc_qprintdialog.cpp"
-#endif
+
+#endif // QT_NO_PRINTDIALOG

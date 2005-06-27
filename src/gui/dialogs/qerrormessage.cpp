@@ -222,9 +222,7 @@ QErrorMessage * QErrorMessage::qtHandler()
     if (!qtMessageHandler) {
         qtMessageHandler = new QErrorMessage(0);
         qAddPostRoutine(deleteStaticcQErrorMessage); // clean up
-#ifndef QT_NO_WIDGET_TOPEXTRA
         qtMessageHandler->setWindowTitle(qApp->applicationName());
-#endif
         qInstallMsgHandler(jump);
     }
     return qtMessageHandler;

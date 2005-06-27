@@ -15,7 +15,6 @@
 #define QDIALOG_H
 
 #include "QtGui/qwidget.h"
-#ifndef QT_NO_DIALOG
 #if 0
 Q_OBJECT
 #endif
@@ -88,6 +87,5 @@ private:
     Q_DISABLE_COPY(QDialog)
 };
 
-#endif // QT_NO_DIALOG
 
 #endif // QDIALOG_H

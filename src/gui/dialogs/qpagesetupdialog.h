@@ -16,6 +16,8 @@
 
 #include "QtGui/qabstractpagesetupdialog.h"
 
+#ifndef QT_NO_PRINTDIALOG
+
 class QPageSetupDialogPrivate;
 
 class Q_GUI_EXPORT QPageSetupDialog : public QAbstractPageSetupDialog
@@ -27,4 +29,5 @@ public:
     virtual int exec();
 };
 
+#endif // QT_NO_PRINTDIALOG
 #endif // QPAGESETUPDIALOG_H

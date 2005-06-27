@@ -16,6 +16,8 @@
 
 #include "QtGui/qdialog.h"
 
+#ifndef QT_NO_PRINTDIALOG
+
 class QAbstractPageSetupDialogPrivate;
 class QPrinter;
 
@@ -33,4 +35,5 @@ public:
     QPrinter *printer();
 };
 
+#endif // QT_NO_PRINTDIALOG
 #endif // QABSTRACTPAGESETUPDIALOG_H

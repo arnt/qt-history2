@@ -470,9 +470,7 @@ QMessageBox::QMessageBox(const QString& caption,
 #ifdef Q_WS_MAC
     setText("<p><b>" + caption + "</b></p><p>" + text + "</p>");
 #else
-#ifndef QT_NO_WIDGET_TOPEXTRA
     setWindowTitle(caption);
-#endif
     setText(text);
 #endif
     setIcon(icon);
@@ -703,9 +701,7 @@ QMessageBox::QMessageBox(const QString& caption,
 #ifdef Q_WS_MAC
     setText("<p><b>" + caption + "</b></p><p>" + text + "</p>");
 #else
-#ifndef QT_NO_WIDGET_TOPEXTRA
     setWindowTitle(caption);
-#endif
     setText(text);
 #endif
     setIcon(icon);
@@ -1255,11 +1251,9 @@ void QMessageBox::about(QWidget *parent, const QString &caption,
                          const QString& text)
 {
     QMessageBox mb(caption, text, Information, Ok + Default, 0, 0, parent);
-#ifndef QT_NO_WIDGET_TOPEXTRA
     QIcon icon = mb.windowIcon();
     QSize size = icon.actualSize(QSize(64, 64));
     mb.setIconPixmap(icon.pixmap(size));
-#endif
     mb.exec();
 }
 
@@ -1489,7 +1483,7 @@ int QMessageBox::critical(QWidget *parent, const QString &caption,
                     defaultButtonNumber, escapeButtonNumber);
 }
 
-#ifndef QT_NO_IMAGEIO_XPM
+#ifndef QT_NO_IMAGEFORMAT_XPM
 // helper
 extern void qt_read_xpm_image_or_array(QImageReader *, const char * const *, QImage &);
 #endif
@@ -1511,14 +1505,11 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
 {
     QMessageBox mb(parent);
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
     QString c = caption;
     if (c.isEmpty())
         c = tr("About Qt");
     mb.setWindowTitle(c);
-#endif
     mb.setText(*translatedTextAboutQt);
-#ifndef QT_NO_IMAGEIO
     QImage logo(qtlogo_xpm);
 
     if (qGray(mb.palette().color(QPalette::Active, QPalette::Text).rgb()) >
@@ -1538,7 +1529,6 @@ void QMessageBox::aboutQt(QWidget *parent, const QString &caption)
     QPixmap pm = QPixmap::fromImage(logo);
     if (!pm.isNull())
         mb.setIconPixmap(pm);
-#endif
     mb.setButtonText(0, tr("OK"));
     if (mb.d_func()->pb[0]) {
         mb.d_func()->pb[0]->setAutoDefault(true);

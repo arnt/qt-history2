@@ -210,9 +210,7 @@ QString QInputDialog::getText(QWidget *parent, const QString &title, const QStri
     QInputDialog dlg(label, parent, LineEdit, f);
     dlg.setObjectName("qt_inputdlg_gettext");
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setWindowTitle(title);
-#endif
     QLineEdit *le = qobject_cast<QLineEdit *>(dlg.d_func()->input);
     le->setText(text);
     le->setEchoMode(mode);
@@ -261,9 +259,7 @@ int QInputDialog::getInteger(QWidget *parent, const QString &title, const QStrin
     QInputDialog dlg(label, parent, SpinBox, f);
     dlg.setObjectName("qt_inputdlg_getint");
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setWindowTitle(title);
-#endif
     QSpinBox *sb = qobject_cast<QSpinBox *>(dlg.d_func()->input);
     sb->setRange(minValue, maxValue);
     sb->setSingleStep(step);
@@ -309,9 +305,7 @@ double QInputDialog::getDouble( QWidget *parent, const QString &title, const QSt
 {
     QInputDialog dlg(label, parent, DoubleSpinBox, f);
     dlg.setObjectName("qt_inputdlg_getdbl");
-#ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setWindowTitle(title);
-#endif
     QDoubleSpinBox *sb = qobject_cast<QDoubleSpinBox *>(dlg.d_func()->input);
     sb->setRange(minValue, maxValue);
     sb->setDecimals(decimals);
@@ -356,9 +350,7 @@ QString QInputDialog::getItem(QWidget *parent, const QString &title, const QStri
 {
     QInputDialog dlg(label, parent, editable ? EditableComboBox : ComboBox, f);
     dlg.setObjectName("qt_inputdlg_getitem");
-#ifndef QT_NO_WIDGET_TOPEXTRA
     dlg.setWindowTitle(title);
-#endif
 
     QComboBox *combo = qobject_cast<QComboBox *>(dlg.d_func()->input);
     combo->addItems(list);

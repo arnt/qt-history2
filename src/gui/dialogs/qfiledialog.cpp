@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "qfiledialog.h"
+
+#ifndef QT_NO_FILEDIALOG
+
 #include <qcombobox.h>
 #include <qdirmodel.h>
 #include <qheaderview.h>
@@ -1492,8 +1495,10 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
     listView->setResizeMode(QListView::Adjust);
     listView->setEditTriggers(QAbstractItemView::EditKeyPressed);
     listView->setContextMenuPolicy(Qt::CustomContextMenu);
+#ifndef QT_NO_DRAGANDDROP
     listView->setDragEnabled(true);
-
+#endif
+    
     grid->addWidget(listView, 1, 0, 1, 6);
 
     QObject::connect(listView, SIGNAL(activated(QModelIndex)), q, SLOT(enterDirectory(QModelIndex)));
@@ -2295,3 +2300,5 @@ QString QFileDialog::selectedFile() const
 #endif
 
 #include "moc_qfiledialog.cpp"
+
+#endif // QT_NO_FILEDIALOG

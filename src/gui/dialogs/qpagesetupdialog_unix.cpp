@@ -21,6 +21,8 @@
 
 #include <private/qabstractpagesetupdialog_p.h>
 
+#ifndef QT_NO_PRINTDIALOG
+
 // Disabled untill we have support for papersources on unix
 // #define PSD_ENABLE_PAPERSOURCE
 
@@ -210,3 +212,5 @@ int QPageSetupDialog::exec()
     }
     return ret;
 }
+
+#endif // QT_NO_PRINTDIALOG

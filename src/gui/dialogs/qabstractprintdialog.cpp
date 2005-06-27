@@ -14,6 +14,8 @@
 #include "qabstractprintdialog.h"
 #include "qabstractprintdialog_p.h"
 
+#ifndef QT_NO_PRINTDIALOG
+
 /*!
     \class QAbstractPrintDialog
     \brief The QAbstractPrintDialog class provides a base implementation for
@@ -243,3 +245,5 @@ QPrinter *QAbstractPrintDialog::printer() const
 
     \sa QDialog::DialogCode, accept(), reject()
 */
+
+#endif // QT_NO_PRINTDIALOG

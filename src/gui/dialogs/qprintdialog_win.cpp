@@ -11,6 +11,8 @@
 **
 ****************************************************************************/
 
+#ifndef QT_NO_PRINTDIALOG
+
 #include "qprintdialog.h"
 
 #include <qwidget.h>
@@ -165,3 +167,5 @@ int QPrintDialog::exec()
 }
 
 #include "moc_qprintdialog.cpp"
+
+#endif // QT_NO_PRINTDIALOG
