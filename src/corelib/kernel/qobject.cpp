@@ -1078,11 +1078,21 @@ QThread *QObject::thread() const
 { return QThreadPrivate::threadForId(d_func()->thread); }
 
 /*!
-    Changes this object's thread affinity.  Event processing for this
-    object will continue in the \a targetThread.  If \a targetThread
-    is zero, only \l{QCoreApplication::postEvent()}{posted events} are
-    processed by the main thread; all other event processing for this
-    object stops.
+    Changes the thread affinity for this object and its children. The
+    object cannot be moved if it has a parent. Event processing will
+    continue in the \a targetThread. To move an object to the main
+    thread, pass QCoreApplication::thread() as the \a targetThread.
+
+    If \a targetThread is zero, only
+    \l{QCoreApplication::postEvent()}{posted events} are processed by
+    the main thread; all other event processing for this object and
+    its children stops.
+
+    Note that all active timers for the object will be reset. The
+    timers are first stopped in the current thread and restarted (with
+    the same interval) in the \a targetThread. As a result, constantly
+    moving an object between threads can postpone timer events
+    indefinitely.
 
     \warning This function is \e not thread-safe; the current thread
     must be same as the current thread affinity. In other words, this
