@@ -522,9 +522,10 @@ QString QDir::path() const
 QString QDir::absolutePath() const
 {
     Q_D(const QDir);
-    if (QDir::isRelativePath(d->data->path))
-        return absoluteFilePath(QString::fromLatin1(""));
-    return cleanPath(d->data->path);
+    QString ret = d->data->path;
+    if (QDir::isRelativePath(ret))
+        ret = absoluteFilePath(QString::fromLatin1(""));
+    return cleanPath(ret);
 }
 
 
