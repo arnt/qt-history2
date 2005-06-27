@@ -25,7 +25,7 @@
         ...
 	QListIterator<float> i(list);
         while (i.hasNext())
-	    cout << i.next() << endl;
+	    qDebug() << i.next();
     \endcode
 
     The next() function returns the next item in the list and
@@ -45,7 +45,7 @@
 	QListIterator<float> i(list);
         i.toBack();
         while (i.hasPrevious())
-	    cout << i.previous() << endl;
+	    qDebug() << i.previous();
     \endcode
 
     If you want to find all occurrences of a particular value, use
@@ -81,7 +81,7 @@
         ...
 	QLinkedListIterator<float> i(list);
         while (i.hasNext())
-	    cout << i.next() << endl;
+	    qDebug() << i.next();
     \endcode
 
     The next() function returns the next item in the list and
@@ -101,7 +101,7 @@
 	QLinkedListIterator<float> i(list);
         i.toBack();
         while (i.hasPrevious())
-	    cout << i.previous() << endl;
+	    qDebug() << i.previous();
     \endcode
 
     If you want to find all occurrences of a particular value, use
@@ -142,7 +142,7 @@
         ...
 	QVectorIterator<float> i(vector);
         while (i.hasNext())
-	    cout << i.next() << endl;
+	    qDebug() << i.next();
     \endcode
 
     The next() function returns the next item in the vector and
@@ -162,7 +162,7 @@
 	QVectorIterator<float> i(vector);
         i.toBack();
         while (i.hasPrevious())
-	    cout << i.previous() << endl;
+	    qDebug() << i.previous();
     \endcode
 
     If you want to find all occurrences of a particular value, use
@@ -257,7 +257,7 @@
         ...
 	QMutableListIterator<float> i(list);
         while (i.hasNext())
-	    cout << i.next() << endl;
+	    qDebug() << i.next();
     \endcode
 
     The next() function returns the next item in the list and
@@ -277,7 +277,7 @@
 	QMutableListIterator<float> i(list);
         i.toBack();
         while (i.hasPrevious())
-	    cout << i.previous() << endl;
+	    qDebug() << i.previous();
     \endcode
 
     If you want to find all occurrences of a particular value, use
@@ -336,7 +336,7 @@
         ...
 	QMutableLinkedListIterator<float> i(list);
         while (i.hasNext())
-	    cout << i.next() << endl;
+	    qDebug() << i.next();
     \endcode
 
     The next() function returns the next item in the list and
@@ -356,7 +356,7 @@
 	QMutableLinkedListIterator<float> i(list);
         i.toBack();
         while (i.hasPrevious())
-	    cout << i.previous() << endl;
+	    qDebug() << i.previous();
     \endcode
 
     If you want to find all occurrences of a particular value, use
@@ -420,7 +420,7 @@
         ...
 	QMutableVectorIterator<float> i(vector);
         while (i.hasNext())
-	    cout << i.next() << endl;
+	    qDebug() << i.next();
     \endcode
 
     The next() function returns the next item in the vector and
@@ -440,7 +440,7 @@
 	QMutableVectorIterator<float> i(vector);
         i.toBack();
         while (i.hasPrevious())
-	    cout << i.previous() << endl;
+	    qDebug() << i.previous();
     \endcode
 
     If you want to find all occurrences of a particular value, use
@@ -872,6 +872,16 @@
     \sa setValue()
 */
 
+/*!
+    \fn T &QMutableListIterator::value()
+    \fn T &QMutableLinkedListIterator::value()
+    \fn T &QMutableVectorIterator::value()
+    \overload
+
+    Returns a non-const reference to the value of the last item that
+    was jumped over using one of the traversal functions.
+*/
+
 /*! \fn void QMutableListIterator::insert(const T &value)
     \fn void QMutableLinkedListIterator::insert(const T &value)
     \fn void QMutableVectorIterator::insert(const T &value)
@@ -905,7 +915,7 @@
 	QMapIterator<QString, QWidget *> i(map);
         while (i.hasNext()) {
 	    i.next();
-	    cout << i.key() << ": " << i.value() << endl;
+	    qDebug() << i.key() << ": " << i.value();
 	}
     \endcode
 
@@ -929,7 +939,7 @@
         i.toBack();
         while (i.hasPrevious()) {
 	    i.previous();
-	    cout << i.key() << ": " << i.value() << endl;
+	    qDebug() << i.key() << ": " << i.value();
 	}
     \endcode
 
@@ -939,8 +949,8 @@
     \code
 	QMapIterator<int, QWidget *> i(map);
         while (i.findNext(widget)) {
-	    cout << "Found widget " << widget << " under key "
-		 << i.key() << endl;
+	    qDebug() << "Found widget " << widget << " under key "
+		     << i.key();
         }
     \endcode
 
@@ -976,7 +986,7 @@
 	QHashIterator<QString, QWidget *> i(hash);
         while (i.hasNext()) {
 	    i.next();
-	    cout << i.key() << ": " << i.value() << endl;
+	    qDebug() << i.key() << ": " << i.value();
 	}
     \endcode
 
@@ -1000,7 +1010,7 @@
         i.toBack();
         while (i.hasPrevious()) {
 	    i.previous();
-	    cout << i.key() << ": " << i.value() << endl;
+	    qDebug() << i.key() << ": " << i.value();
 	}
     \endcode
 
@@ -1010,8 +1020,8 @@
     \code
 	QHashIterator<int, QWidget *> i(hash);
         while (i.findNext(widget)) {
-	    cout << "Found widget " << widget << " under key "
-		 << i.key() << endl;
+	    qDebug() << "Found widget " << widget << " under key "
+		     << i.key();
         }
     \endcode
 
@@ -1047,7 +1057,7 @@
 	QMutableMapIterator<QString, QWidget *> i(map);
         while (i.hasNext()) {
 	    i.next();
-	    cout << i.key() << ": " << i.value() << endl;
+	    qDebug() << i.key() << ": " << i.value();
 	}
     \endcode
 
@@ -1071,7 +1081,7 @@
         i.toBack();
         while (i.hasPrevious()) {
 	    i.previous();
-	    cout << i.key() << ": " << i.value() << endl;
+	    qDebug() << i.key() << ": " << i.value();
 	}
     \endcode
 
@@ -1081,8 +1091,8 @@
     \code
 	QMutableMapIterator<int, QWidget *> i(map);
         while (i.findNext(widget)) {
-	    cout << "Found widget " << widget << " under key "
-		 << i.key() << endl;
+	    qDebug() << "Found widget " << widget << " under key "
+		     << i.key();
         }
     \endcode
 
@@ -1137,7 +1147,7 @@
 	QMutableHashIterator<QString, QWidget *> i(hash);
         while (i.hasNext()) {
 	    i.next();
-	    cout << i.key() << ": " << i.value() << endl;
+	    qDebug() << i.key() << ": " << i.value();
 	}
     \endcode
 
@@ -1161,7 +1171,7 @@
         i.toBack();
         while (i.hasPrevious()) {
 	    i.previous();
-	    cout << i.key() << ": " << i.value() << endl;
+	    qDebug() << i.key() << ": " << i.value();
 	}
     \endcode
 
@@ -1171,8 +1181,8 @@
     \code
 	QMutableHashIterator<int, QWidget *> i(hash);
         while (i.findNext(widget)) {
-	    cout << "Found widget " << widget << " under key "
-		 << i.key() << endl;
+	    qDebug() << "Found widget " << widget << " under key "
+		     << i.key();
         }
     \endcode
 
@@ -1435,6 +1445,16 @@
     or findPrevious(), value() is equivalent to peekNext().value().
 
     \sa key(), setValue()
+*/
+
+/*!
+    \fn T &QMutableMapIterator::value()
+    \fn T &QMutableHashIterator::value()
+    \overload
+
+    Returns a non-const reference to the value of
+    the last item that was jumped over using one
+    of the traversal functions.
 */
 
 /*! \fn const Key &QMapIterator::key() const

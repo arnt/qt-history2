@@ -75,6 +75,7 @@ public: \
     inline void remove() \
     { if (c->constEnd() != n) { i = c->erase(n); n = c->end(); } } \
     inline void setValue(const T &t) const { if (c->constEnd() != n) *n = t; } \
+    inline T &value() { Q_ASSERT(item_exists()); return *n; } \
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline void insert(const T &t) { n = i = c->insert(i, t); ++i; } \
     inline bool findNext(const T &t) \
@@ -145,6 +146,7 @@ public: \
     inline void remove() \
     { if (n != c->constEnd()) { i = c->erase(n); n = c->end(); } } \
     inline void setValue(const T &t) { if (n != c->constEnd()) *n = t; } \
+    inline T &value() { Q_ASSERT(item_exists()); return *n; } \
     inline const T &value() const { Q_ASSERT(item_exists()); return *n; } \
     inline const Key &key() const { Q_ASSERT(item_exists()); return n.key(); } \
     inline bool findNext(const T &t) \
