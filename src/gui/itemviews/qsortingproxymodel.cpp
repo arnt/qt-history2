@@ -484,10 +484,10 @@ void QSortingProxyModel::sourceRowsAboutToBeInserted(const QModelIndex &source_p
     int proxy_end = proxy_start + (end - start);
     beginInsertRows(proxy_parent, proxy_start, proxy_end); // emits signal
 
-    // update the row mappig
+    // update the row mapping
     int count = end - start + 1;
     for (int row = start; row <= model()->rowCount(source_parent); ++row) {
-        int column_count = row_iid ? 1 : model()->columnCount(source_parent);
+        int column_count = row_iid ? 1 : model()->columnCount(source_parent); // FIXME
         for (int column = 0; column < column_count; ++column) {
             source_index = model()->index(row, column, source_parent);
             int proxy_row = id_to_proxy_row_map.value(source_index.internalPointer(), -1);
