@@ -14,9 +14,9 @@ $OUTDIR/bin/qmake -nocache -spec "$QMKSPEC" $SRCDIR/config.tests/unix/ptrsize/pt
 cd $OUTDIR/config.tests/unix/ptrsize
 
 if [ "$VERBOSE" = "yes" ]; then
-  (make clean && make && ./ptrsizetest)
+  (make clean && make)
 else
-  (make clean && make && ./ptrsizetest) >/dev/null 2>&1
+  (make clean && make) >/dev/null 2>&1
 fi
 RETVAL=$?
 
