@@ -2,8 +2,19 @@
 platforms.
 */
 
+template<int>
+struct QPointerSizeTest
+{
+};
+
+template<>
+struct QPointerSizeTest<8>
+{
+    enum { PointerSize = 8 };
+};
+
 int main( int, char ** )
 {
-    return sizeof(void *);
+    return QPointerSizeTest<sizeof(void*)>::PointerSize;
 }
 

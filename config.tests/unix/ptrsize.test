@@ -18,7 +18,14 @@ if [ "$VERBOSE" = "yes" ]; then
 else
   (make clean && make && ./ptrsizetest) >/dev/null 2>&1
 fi
-PTRSIZE=$?
+RETVAL=$?
+
+if [ "$RETVAL" -ne 0 ]; then
+    PTRSIZE=4
+else
+    PTRSIZE=8
+fi
+
 
 # done
 [ "$VERBOSE" = "yes" ] && echo "Pointersize: $PTRSIZE"
