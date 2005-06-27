@@ -10,7 +10,7 @@ const qdocCommand = qdocDir + "/qdoc3";
 const outputDir = System.getenv("PWD");
 
 const validPlatforms = ["win", "x11", "mac", "embedded"];
-const validLicenses = ["opensource", "commercial", "preview", "beta", "eval"];
+const validLicenses = ["opensource", "commercial", "preview", "beta", "eval", "academic"];
 const validEditions = ["console", "desktop"];
 const validSwitches = ["gzip", "bzip", "zip", "binaries", "snapshots"]; // these are either true or false, set by -do-foo/-no-foo
 const validVars = ["branch", "version"];       // variables with arbitrary values, set by -foo value
@@ -162,6 +162,7 @@ licenseRemove["commercial"] = [ new RegExp("LICENSE.GPL") ];
 licenseRemove["preview"] = licenseRemove["commercial"];
 licenseRemove["beta"] = licenseRemove["commercial"];
 licenseRemove["eval"] = licenseRemove["commercial"];
+licenseRemove["academic"] = licenseRemove["commercial"];
 
 licenseRemove["opensource"] = [ new RegExp("^extensions"),
 				new RegExp("^examples/activeqt"),
