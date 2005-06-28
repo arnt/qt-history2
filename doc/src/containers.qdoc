@@ -785,15 +785,15 @@
     \table
     \header \o                \o Index lookup \o Insertion \o Prepending         \o Appending
     \row    \o QLinkedList<T> \o O(\e n)      \o O(1)      \o O(1)               \o O(1)
-    \row    \o QList<T>       \o O(1)         \o O(n)      \o Amort. O(log \e n) \o Amort. O(log \e n)
-    \row    \o QVector<T>     \o O(1)         \o O(n)      \o O(n)               \o Amort. O(log \e n)
+    \row    \o QList<T>       \o O(1)         \o O(n)      \o Amort. O(1)        \o Amort. O(1)
+    \row    \o QVector<T>     \o O(1)         \o O(n)      \o O(n)               \o Amort. O(1)
     \endtable
 
     In the table, "Amort." stands for "amortized behavior". For
-    example, "Amort. O(log \e n)" means that if you call the function
+    example, "Amort. O(1)" means that if you call the function
     only once, you might get O(\e n) behavior, but if you call it
     multiple times (e.g., \e n times), the average behavior will be
-    O(log \e n).
+    O(1).
 
     The following table summarizes the algorithmic complexity of Qt's
     associative containers and sets:
@@ -802,8 +802,8 @@
     \header \o{1,2}          \o{2,1} Key lookup            \o{2,1} Insertion
     \header                  \o Average     \o Worst case  \o Average            \o Worst case
     \row    \o QMap<Key, T>  \o O(log \e n) \o O(log \e n) \o O(log \e n)        \o O(log \e n)
-    \row    \o QHash<Key, T> \o Amort. O(1) \o O(\e n)     \o Amort. O(log \e n) \o O(\e n)
-    \row    \o QSet<Key>     \o Amort. O(1) \o O(\e n)     \o Amort. O(log \e n) \o O(\e n)
+    \row    \o QHash<Key, T> \o Amort. O(1) \o O(\e n)     \o Amort. O(1)        \o O(\e n)
+    \row    \o QSet<Key>     \o Amort. O(1) \o O(\e n)     \o Amort. O(1)        \o O(\e n)
     \endtable
 
     With QVector, QHash, and QSet, the performance of appending items
