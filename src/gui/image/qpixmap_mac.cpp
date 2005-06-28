@@ -401,12 +401,16 @@ QPixmapData::macSetAlphaChannel(const QPixmap *pix, bool asMask)
             if(asMask) {
                 *(drow+x) = 255 - qGray(*(srow+x+1), *(srow+x+2), *(srow+x+3));
             } else {
-                int alpha = qGray(*(srow+x+1), *(srow+x+2), *(srow+x+3));
-                int destAlpha = qt_div_255(alpha * *(drow+x));
+#if 1
+                *(drow+x) = qGray(*(srow+x+1), *(srow+x+2), *(srow+x+3));
+#else
+                char alpha = qGray(*(srow+x+1), *(srow+x+2), *(srow+x+3));
+                char destAlpha = qt_div_255(alpha * *(drow+x));
                 *((int*)(drow+x)) = ((destAlpha << 24)
                                      | (qt_div_255(*(drow+x+1) * alpha) << 16)
                                      | (qt_div_255(*(drow+x+2) * alpha) << 8)
                                      | (qt_div_255(*(drow+x+3) * alpha)));
+#endif
             }
         }
     }
