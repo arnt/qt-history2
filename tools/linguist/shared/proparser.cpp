@@ -51,8 +51,7 @@ QMap<QString, QString> proFileTagMap( const QString& text )
     QMap<QString, QString> tagMap;
     bool stillProcess = true; // If include() has a $$tag then we need to reprocess
 
-    while(stillProcess) {
-
+    while (stillProcess) {
         /*
             Strip any commments before we try to include.  We
             still need to do it after we include to make sure the
@@ -109,10 +108,10 @@ QMap<QString, QString> proFileTagMap( const QString& text )
         /*
             Populate tagMap with 'key = value' entries.
         */
-        QStringList lines = t.split(';');
+        QStringList lines = t.split(';', QString::SkipEmptyParts);
         QStringList::Iterator line;
         for ( line = lines.begin(); line != lines.end(); ++line ) {
-            QStringList toks = (*line).split(' ');
+            QStringList toks = (*line).split(' ', QString::SkipEmptyParts);
 
             if ( toks.count() >= 3 &&
                 (toks[1] == QString("=") || toks[1] == QString("+=") ||
