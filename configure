@@ -2567,7 +2567,7 @@ elif [ "$LicenseType" = "Evaluation" ]; then
             echo
             exit 0
         elif [ "$acceptance" = "?" ]; then
-            more $relpath/LICENSE.EVAL
+            more $relpath/LICENSE
         fi
     done
 elif [ "$LicenseType" != "Trolltech" ]; then
