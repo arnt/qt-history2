@@ -806,6 +806,8 @@ QPixmap QPixmap::copy(const QRect &rect) const
             for (int i = 0; i < rect.height(); ++i)
                 memcpy(pm.data->pixels + i*pm.data->w, data->pixels + rect.y()*data->w + rect.x(), rect.width());
         }
+        pm.data->has_alpha = data->has_alpha;
+        pm.data->has_mask = data->has_mask;
     }
     return pm;
 }
