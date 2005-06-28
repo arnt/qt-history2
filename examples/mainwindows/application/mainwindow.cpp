@@ -30,7 +30,7 @@ MainWindow::MainWindow()
     connect(textEdit->document(), SIGNAL(contentsChanged()),
             this, SLOT(documentWasModified()));
 
-    setWindowTitle(tr("Application"));
+    setCurrentFile("");
 }
 
 void MainWindow::closeEvent(QCloseEvent *event)
@@ -264,11 +264,13 @@ void MainWindow::setCurrentFile(const QString &fileName)
     textEdit->document()->setModified(false);
     setWindowModified(false);
 
+    QString shownName;
     if (curFile.isEmpty())
-        setWindowTitle(tr("Application"));
+        shownName = "untitled.txt";
     else
-        setWindowTitle(tr("%1[*] - %2").arg(strippedName(curFile))
-                                       .arg(tr("Application")));
+        shownName = strippedName(curFile);
+
+    setWindowTitle(tr("%1[*] - %2").arg(shownName).arg(tr("Application")));
 }
 
 QString MainWindow::strippedName(const QString &fullFileName)

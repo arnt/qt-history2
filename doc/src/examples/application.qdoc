@@ -82,13 +82,8 @@
     the user modifies the text in the QTextEdit, we want to update
     the title bar to show that the file was modified.
 
-    At the end, we set the window title to "Application", the name of
-    our program. The \l{QObject::tr()}{tr()} call around the literal
-    string marks the string for translation. It is a good habit to
-    call \l{QObject::tr()}{tr()} on all user-visible strings, in case
-    you later decide to translate your application to other
-    languages. The \l{Internationalization with Qt} overview
-    convers \l{QObject::tr()}{tr()} in more detail.
+    At the end, we set the window title using the private
+    \c setCurrentFile() function. We'll come back to this later.
 
     \target close event handler
     \printline ::closeEvent(
@@ -143,6 +138,13 @@
     The application's About box is done using one statement, using
     the QMessageBox::about() static function and relying on its
     support for an HTML subset.
+
+    The \l{QObject::tr()}{tr()} call around the literal string marks
+    the string for translation. It is a good habit to call
+    \l{QObject::tr()}{tr()} on all user-visible strings, in case you
+    later decide to translate your application to other languages.
+    The \l{Internationalization with Qt} overview convers
+    \l{QObject::tr()}{tr()} in more detail.
 
     \printline ::documentWasModified(
     \printuntil /^\}/
@@ -320,7 +322,7 @@
     We update the \c curFile variable, clear the
     QTextDocument::modified flag and the associated \c
     QWidget:windowModified flag, and update the window title to
-    contain the new file name.
+    contain the new file name (or \c untitled.txt).
 
     The \c strippedName() function call around \c curFile in the
     QWidget::setWindowTitle() call shortens the file name to exclude
