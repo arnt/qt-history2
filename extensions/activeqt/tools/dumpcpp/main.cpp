@@ -18,6 +18,7 @@
 #include <qsettings.h>
 #include <qstringlist.h>
 #include <quuid.h>
+#include <qwidget.h>
 
 #include <qt_windows.h>
 #include <ocidl.h>
@@ -873,10 +874,16 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
                 // trigger meta object to collect references to other type libraries
                 switch (typekind) {
                 case TKIND_COCLASS:
-                    metaObject = qax_readClassInfo(typelib, typeinfo, &QObject::staticMetaObject);
+                    if (category & ActiveX)
+                        metaObject = qax_readClassInfo(typelib, typeinfo, &QWidget::staticMetaObject);
+                    else
+                        metaObject = qax_readClassInfo(typelib, typeinfo, &QObject::staticMetaObject);
                     break;
                 case TKIND_DISPATCH:
-                    metaObject = qax_readInterfaceInfo(typelib, typeinfo, &QObject::staticMetaObject);
+                    if (category & ActiveX)
+                        metaObject = qax_readInterfaceInfo(typelib, typeinfo, &QWidget::staticMetaObject);
+                    else
+                        metaObject = qax_readInterfaceInfo(typelib, typeinfo, &QObject::staticMetaObject);
                     break;
                 case TKIND_RECORD:
                 case TKIND_INTERFACE: // only for forward declarations
@@ -989,10 +996,16 @@ bool generateTypeLibrary(const QByteArray &typeLib, const QByteArray &outname, O
 
         switch (typekind) {
         case TKIND_COCLASS:
-            metaObject = qax_readClassInfo(typelib, typeinfo, &QObject::staticMetaObject);
+            if (object_category & ActiveX)
+                metaObject = qax_readClassInfo(typelib, typeinfo, &QWidget::staticMetaObject);
+            else
+                metaObject = qax_readClassInfo(typelib, typeinfo, &QObject::staticMetaObject);
             break;
         case TKIND_DISPATCH:
-            metaObject = qax_readInterfaceInfo(typelib, typeinfo, &QObject::staticMetaObject);
+            if (object_category & ActiveX)
+                metaObject = qax_readInterfaceInfo(typelib, typeinfo, &QWidget::staticMetaObject);
+            else
+                metaObject = qax_readInterfaceInfo(typelib, typeinfo, &QObject::staticMetaObject);
             break;
         case TKIND_INTERFACE: // only stub
             {
