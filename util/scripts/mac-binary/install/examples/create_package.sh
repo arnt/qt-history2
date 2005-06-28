@@ -58,7 +58,38 @@ for category_dir in $BINDIR/examples/*; do
             mkdir -p "${OUTDIR}/Developer/Examples/Qt/${example_cat}/"
             cp -R "${example_dir}/${example}.app" "${OUTDIR}/Developer/Examples/Qt/${example_cat}/"
             EXE="${OUTDIR}/Developer/Examples/Qt/${example_cat}/${example}.app/Contents/MacOS/${example}"
+        else
+	    FOUND=no
+	    for f in ${example_dir}/*; do
+               if [ '!' -d "$f" ] && [ -x "$f" ]; then
+		   FOUND=yes
+		   mkdir -p "${OUTDIR}/Developer/Examples/Qt/${example_cat}/"
+		   EXE="${OUTDIR}/Developer/Examples/Qt/${example_cat}/`basename $f`"
+		   cp "$f" "$EXE"
+               elif echo "$f" | grep ".dylib$" >/dev/null 2>&1; then
+		   FOUND=yes
+		   mkdir -p "${OUTDIR}/Developer/Examples/Qt/${example_cat}/"
+		   EXE="${OUTDIR}/Developer/Examples/Qt/${example_cat}/`basename $f`"
+		   cp "$f" "$EXE"
+               elif [ -d "$f" ] && echo "$f" | grep ".app$" >/dev/null 2>&1; then
+		   FOUND=yes
+		   mkdir -p "${OUTDIR}/Developer/Examples/Qt/${example_cat}/"
+		   cp -R "$f" "${OUTDIR}/Developer/Examples/Qt/${example_cat}/"
+		   APP_NAME=`basename $f | sed "s,\.app$,,"`
+		   EXE="${OUTDIR}/Developer/Examples/Qt/${example_cat}/${APP_NAME}.app/Contents/MacOS/$APP_NAME"
+               fi
+            done
+            #[ "$FOUND" = "no" ] && echo "Unable to find binary for Example [$example]"
 	fi
+	if [ "$example" = "plugandpaint" ]; then
+	    PLG="${OUTDIR}/Developer/Examples/Qt/${example_cat}/plugins/"
+            mkdir -p "$PLG"
+	    for plugin in ${example_dir}/plugins/*.dylib; do
+		../libraries/fix_config_paths.pl "$plugin" "/tmp/tmp.plg"
+		cp "/tmp/tmp.plg" "$PLG/`basename $plugin`"
+		rm -f "/tmp/tmp.plg"
+            done
+        fi
 	if [ -x "$EXE" ]; then
 	    ../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
 	    strip "/tmp/tmp.exe"
@@ -83,6 +114,27 @@ for demo_dir in $BINDIR/demos/*; do
         mkdir -p "${OUTDIR}/Developer/Examples/Qt/Demos/${demo}"
         cp -R "${demo_dir}/${demo}.app" "${OUTDIR}/Developer/Examples/Qt/Demos/${demo}"
         EXE="${OUTDIR}/Developer/Examples/Qt/Demos/${demo}/${demo}.app/Contents/MacOS/$demo"
+    else
+	FOUND=no
+	for f in ${demo_dir}/*; do
+            if [ '!' -d "$f" ] && [ -x "$f" ]; then
+		FOUND=yes
+		mkdir -p "${OUTDIR}/Developer/Examples/Qt/Demos/${demo}/"
+		EXE="${OUTDIR}/Developer/Examples/Qt/Demos/${demo_dir}/`basename $f`"
+		cp "$f" "$EXE"
+            elif echo "$f" | grep ".dylib$" >/dev/null 2>&1; then
+		FOUND=yes
+		mkdir -p "${OUTDIR}/Developer/Examples/Qt/Demos/${demo}/"
+		EXE="${OUTDIR}/Developer/Examples/Qt/Demos/${demo_dir}/`basename $f`"
+		cp "$f" "$EXE"
+            elif [ -d "$f" ] && echo "$f" | grep ".app$" >/dev/null 2>&1; then
+		FOUND=yes
+		mkdir -p "${OUTDIR}/Developer/Examples/Qt/Demos/${demo}/"
+		cp -R "$f" "${OUTDIR}/Developer/Examples/Qt/Demos/${demo}/"
+		APP_NAME=`basename $f | sed "s,\.app$,,"`
+		EXE="${OUTDIR}/Developer/Examples/Qt/Demos/${demo}/${APP_NAME}.app/Contents/MacOS/$APP_NAME}"
+            fi
+        done
     fi
     if [ -x "$EXE" ]; then
 	../libraries/fix_config_paths.pl "$EXE" "/tmp/tmp.exe"
