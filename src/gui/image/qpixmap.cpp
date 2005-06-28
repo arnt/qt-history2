@@ -215,6 +215,8 @@ int QPixmap::devType() const
 */
 
 /*!
+    \fn QPixmap QPixmap::copy(const QRect &rect) const
+
     Returns a \link shclass.html deep copy\endlink of the subpart of
     the pixmap that is specified by \a rect.
 
@@ -223,9 +225,9 @@ int QPixmap::devType() const
     \sa operator=()
 */
 
+#if defined(Q_WS_WIN) || defined(Q_WS_QWS)
 QPixmap QPixmap::copy(const QRect &rect) const
 {
-    // ### This could be sped up by platform specific implementation.
     QPixmap pm;
     if (data->type == BitmapType)
         pm = QBitmap::fromImage(toImage().copy(rect));
@@ -233,7 +235,7 @@ QPixmap QPixmap::copy(const QRect &rect) const
         pm = fromImage(toImage().copy(rect));
     return pm;
 }
-
+#endif
 
 /*!
     Assigns the pixmap \a pixmap to this pixmap and returns a

@@ -787,3 +787,21 @@ QPaintEngine *QPixmap::paintEngine() const
     }
     return data->paintEngine;
 }
+
+QPixmap QPixmap::copy(const QRect &rect) const
+{
+    QPixmap pm;
+    if (data->type == BitmapType)
+        pm = QBitmap::fromImage(toImage().copy(rect));
+    else {
+        if (rect.isNull()) {
+            pm = QPixmap(size());
+            memcpy(pm.data->pixels, data->pixels, data->nbytes);
+        } else {
+            pm = QPixmap(rect.size());
+            for (int i = 0; i < rect.height(); ++i)
+                memcpy(pm.data->pixels + i*pm.data->w, data->pixels + rect.y()*data->w + rect.x(), rect.width());
+        }
+    }
+    return pm;
+}

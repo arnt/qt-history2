@@ -1077,6 +1077,11 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     d->has_pen = (ps != Qt::NoPen);
     d->alpha_pen = (pen.color().alpha() != 255);
 
+    if (d->alpha_pen && d->pdev->devType() == QInternal::Pixmap) {
+        QPixmap *p = static_cast<QPixmap *>(d->pdev);
+        p->data->has_alpha = true;
+    }
+
     switch (pen.capStyle()) {
     case Qt::SquareCap:
         cp = CapProjecting;
@@ -1208,6 +1213,12 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     d->has_pattern = bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern;
     d->has_texture = bs == Qt::TexturePattern;
     d->alpha_brush = brush.color().alpha() != 255;
+
+    if (d->alpha_brush && d->pdev->devType() == QInternal::Pixmap) {
+        QPixmap *p = static_cast<QPixmap *>(d->pdev);
+        p->data->has_alpha = true;
+    }
+
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures
                  | GCLineStyle | GCCapStyle | GCJoinStyle | GCFillStyle;
     XGCValues vals;
@@ -1561,7 +1572,10 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
                              sx, sy, x, y, sw, sh, d->cpen, d->bg_brush,
                              d->bg_mode == Qt::OpaqueMode);
         } else {
-            XRenderComposite(d->dpy, PictOpOver,
+            int op = PictOpSrc;
+            if (pixmap.data->has_alpha)
+                op = PictOpOver;
+            XRenderComposite(d->dpy, op,
                              src_pict, 0, d->picture, sx, sy, 0, 0, x, y, sw, sh);
         }
         return;

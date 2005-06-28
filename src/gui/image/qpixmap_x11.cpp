@@ -301,6 +301,7 @@ void QPixmap::init(int w, int h, Type type)
             qWarning("QPixmap: Invalid pixmap parameters");
         return;
     }
+    data->has_alpha = false;
     data->w = w;
     data->h = h;
     data->hd = (Qt::HANDLE)XCreatePixmap(data->xinfo.display(),
@@ -1042,6 +1043,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
                     ++xidata;
                 }
             }
+
         }
             break;
         case QImage::Format_ARGB32_Premultiplied: {
@@ -1056,6 +1058,7 @@ QPixmap QPixmap::fromImage(const QImage &img, Qt::ImageConversionFlags flags)
         default:
             Q_ASSERT(false);
         }
+	pixmap.data->has_alpha = img.hasAlphaChannel();
 
         if ((xi->byte_order == MSBFirst) != (QSysInfo::ByteOrder == QSysInfo::BigEndian)) {
             uint *xidata = (uint *)xi->data;
@@ -2023,3 +2026,34 @@ Qt::HANDLE QPixmapData::x11ConvertToDefaultDepth()
 #endif
 }
 
+QPixmap QPixmap::copy(const QRect &rect) const
+{
+    QPixmap pm;
+    if (data->type == BitmapType)
+        pm = QBitmap::fromImage(toImage().copy(rect));
+    else {
+        if (rect.isNull())
+            pm = QPixmap(size());
+        else
+            pm = QPixmap(rect.size());
+
+        pm.data->has_alpha = data->has_alpha;
+#if !defined(QT_NO_XRENDER)
+        if (X11->use_xrender && data->picture) {
+            XRenderComposite(X11->display, PictOpSrc,
+                             data->picture, 0, pm.data->picture,
+                             rect.x(), rect.y(), 0, 0, 0, 0,
+                             pm.width(), pm.height());
+        } else
+#endif
+        {
+            GC gc = XCreateGC(X11->display, pm.data->hd, 0, 0);
+            XCopyArea(X11->display, data->hd, pm.data->hd, gc,
+                      rect.x(), rect.y(), pm.width(), pm.height(),
+                      0, 0);
+            XFreeGC(X11->display, gc);
+        }
+    }
+
+    return pm;
+}
