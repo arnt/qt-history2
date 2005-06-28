@@ -159,7 +159,7 @@
     \printuntil SLOT(open())
     \dots
     \skipto aboutQtAct
-    \printuntil }
+    \printuntil aboutQt()
 
     The \c createActions() private function, which is called from the
     \c MainWindow constructor, creates \l{QAction}s. The code is very
@@ -180,13 +180,22 @@
     the actual action.
 
     The code above contains one more idiom that must be explained.
-    For some of the actions, we specify an icon as a QPixmap to the
-    QAction constructor. The QPixmap constructor takes the file name
+    For some of the actions, we specify an icon as a QIcon to the
+    QAction constructor. The QIcon constructor takes the file name
     of an image that it tries to load. Here, the file name starts
     with \c{:}. Such file names aren't ordinary file names, but
     rather path in the executable's stored resources. We'll come back
     to this when we review the \c application.qrc file that's part of
     the project.
+
+    \printline cutAct->setEnabled
+    \printuntil }
+
+    The \gui{Edit|Cut} and \gui{Edit|Copy} actions must be available
+    only when the QTextEdit contains selected text. We disable them
+    by default and connect the QTextEdit::copyAvailable() signal to
+    the QAction::setEnabled() slot, ensuring that the actions are
+    disabled when the text editor has no selection.
 
     \printline ::createMenus(
     \printuntil /^\}/

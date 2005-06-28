@@ -142,6 +142,13 @@ void MainWindow::createActions()
     aboutQtAct = new QAction(tr("About &Qt"), this);
     aboutQtAct->setStatusTip(tr("Show the Qt library's About box"));
     connect(aboutQtAct, SIGNAL(triggered()), qApp, SLOT(aboutQt()));
+
+    cutAct->setEnabled(false);
+    copyAct->setEnabled(false);
+    connect(textEdit, SIGNAL(copyAvailable(bool)),
+            cutAct, SLOT(setEnabled(bool)));
+    connect(textEdit, SIGNAL(copyAvailable(bool)),
+            copyAct, SLOT(setEnabled(bool)));
 }
 
 void MainWindow::createMenus()
