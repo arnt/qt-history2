@@ -1415,7 +1415,7 @@ QCoreGraphicsPaintEngine::drawPoints(const QPointF *points, int pointCount)
     for(int i=0; i < pointCount; i++) {
         float x = points[i].x(), y = points[i].y();
         CGContextMoveToPoint(d->hd, x, y+1);
-        CGContextAddLineToPoint(d->hd, x, y+1);
+        CGContextAddLineToPoint(d->hd, x + 0.01, y+1);
     }
     d->drawPath(QCoreGraphicsPaintEnginePrivate::CGStroke);
 }
