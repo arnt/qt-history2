@@ -374,7 +374,7 @@ void QPixmap::detach()
 {
     if (data->count != 1)
         *this = copy();
-    data->uninit = FALSE;
+    data->uninit = false;
 
     // reset the cache data
     if (data->hd2) {
@@ -1897,6 +1897,7 @@ QPixmap QPixmap::transformed(const QMatrix &matrix, Qt::TransformationMode mode)
                 pm.setMask(mask.transformed(matrix));
             }
         }
+        pm.data->has_alpha = true;
         return pm;
     }
 }
@@ -1959,7 +1960,7 @@ void QPixmap::x11SetScreen(int screen)
 */
 bool QPixmap::hasAlpha() const
 {
-    return X11->use_xrender || data->x11_mask;
+    return X11->use_xrender && data->has_alpha || data->x11_mask;
 }
 
 /*!
@@ -1970,7 +1971,7 @@ bool QPixmap::hasAlpha() const
 */
 bool QPixmap::hasAlphaChannel() const
 {
-    return X11->use_xrender || data->x11_mask;
+    return X11->use_xrender && data->has_alpha;
 }
 
 /*!
