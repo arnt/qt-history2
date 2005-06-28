@@ -72,7 +72,7 @@ static CFArrayRef macList(const QList<QVariant> &list)
 
 static QCFType<CFPropertyListRef> macValue(const QVariant &value)
 {
-    CFPropertyListRef result;
+    CFPropertyListRef result = 0;
 
     switch (value.type()) {
     case QVariant::ByteArray:
@@ -374,6 +374,7 @@ QMacSettingsPrivate::QMacSettingsPrivate(QSettings::Scope scope, const QString &
     }
 
     hostName = (scope == QSettings::SystemScope) ? kCFPreferencesCurrentHost : kCFPreferencesAnyHost;
+    sync();
 }
 
 QMacSettingsPrivate::~QMacSettingsPrivate()
