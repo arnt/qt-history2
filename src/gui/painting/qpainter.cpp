@@ -2379,6 +2379,13 @@ void QPainter::drawRoundRect(const QRectF &r, int xRnd, int yRnd)
 
     A filled ellipse has a size of r.size(). An stroked ellipse
     has a size of r.size() plus the pen width.
+
+    \code
+        QPainter painter(this);
+        painter.drawEllipse(10, 10, 70, 100);
+    \endcode
+
+    \image draw_ellipse.png An ellipse
 */
 void QPainter::drawEllipse(const QRectF &r)
 {
@@ -2475,9 +2482,11 @@ void QPainter::drawEllipse(const QRect &r)
 
     Example:
     \code
-        QPainter p(myWidget);
-        p.drawArc(QRect(10,10, 70,100), 100*16, 160*16); // draws a "(" arc
+        QPainter painter(this);
+        painter.drawArc(10, 10, 70, 100, 100 * 16, 160 * 16); // draws a "(" arc
     \endcode
+
+    \image draw_arc.png An arc
 
     \sa drawPie(), drawChord()
 */
@@ -2536,6 +2545,13 @@ void QPainter::drawArc(const QRectF &r, int a, int alen)
     circle equals 5760 (16*360). Positive values of \a a and \a alen
     mean counter-clockwise while negative values mean the clockwise
     direction. Zero degrees is at the 3 o'clock position.
+
+    \code
+        QPainter painter(this);
+        painter.drawPie(10, 10, 70, 100, 50 * 16, 100 * 16);
+    \endcode
+
+    \image draw_pie.png A pie
 
     \sa drawArc(), drawChord()
 */
@@ -2599,6 +2615,13 @@ void QPainter::drawPie(const QRectF &r, int a, int alen)
     circle equals 5760 (16*360). Positive values of \a a and \a alen
     mean counter-clockwise while negative values mean the clockwise
     direction. Zero degrees is at the 3 o'clock position.
+
+    \code
+        QPainter painter(this);
+        painter.drawChord(10, 10, 70, 100, 50 * 16, 150 * 16);
+    \endcode
+
+    \image draw_chord.png A chord
 
     \sa drawArc(), drawPie()
 */

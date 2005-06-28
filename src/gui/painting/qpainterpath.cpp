@@ -500,7 +500,18 @@ void QPainterPath::quadTo(const QPointF &c, const QPointF &e)
     This function connects the current point to the starting point of
     the arc if they are not already connected.
 
-    \sa QPainter::drawArc()
+    Example:
+    \code
+        QPainterPath path;
+        QRect boundingRect(10, 10, 70, 100);
+        path.moveTo(boundingRect.center());
+        path.arcTo(boundingRect, 50, 100);
+        path.closeSubpath();
+    \endcode
+
+    \image draw_pie.png An pie-shaped path
+
+    \sa addEllipse(), QPainter::drawArc(), QPainter::drawPie()
 */
 void QPainterPath::arcTo(const QRectF &rect, qreal startAngle, qreal sweepLength)
 {
@@ -650,6 +661,17 @@ void QPainterPath::addPolygon(const QPolygonF &polygon)
     If the current subpath is closed, a new subpath is started. The ellipse
     is composed of a clockwise curve, starting and finishing at zero degrees
     (the 3 o'clock position).
+
+    Example:
+
+    \code
+        QPainterPath path;
+        path.addEllipse(10, 10, 70, 100);
+    \endcode
+
+    \image draw_ellipse.png An elliptic path
+
+    \sa arcTo(), QPainter::drawEllipse()
 */
 void QPainterPath::addEllipse(const QRectF &boundingRect)
 {
