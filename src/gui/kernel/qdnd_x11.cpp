@@ -570,6 +570,9 @@ void QX11Data::xdndHandlePosition(QWidget * w, const XEvent * xe, bool passive)
 static void handle_xdnd_status(QWidget *, const XEvent * xe, bool)
 {
     const unsigned long *l = (const unsigned long *)xe->xclient.data.l;
+    // ignore late status messages
+    if (l[0] && l[0] != qt_xdnd_current_proxy_target)
+        return;
     Qt::DropAction newAction = (l[1] & 0x1) ? xdndaction_to_qtaction(l[4]) : Qt::IgnoreAction;
 
     if ((int)(l[1] & 2) == 0) {
@@ -668,6 +671,13 @@ void qt_xdnd_send_leave()
     else
         XSendEvent(X11->display, qt_xdnd_current_proxy_target, False,
                     NoEventMask, (XEvent*)&leave);
+    // reset the drag manager state
+    QDragManager *manager = QDragManager::self();
+    manager->willDrop = false;
+    if (global_accepted_action != Qt::IgnoreAction)
+        manager->emitActionChanged(Qt::IgnoreAction);
+    global_accepted_action = Qt::IgnoreAction;
+    manager->updateCursor();
     qt_xdnd_current_target = 0;
     qt_xdnd_current_proxy_target = 0;
     waiting_for_status = false;
