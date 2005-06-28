@@ -128,7 +128,7 @@
 		          options-dlg.h
         SOURCES         = main-dlg.cpp \
 		          options-dlg.cpp \
-		          main.cpp 
+		          main.cpp
         FORMS           = search-dlg.ui
         TRANSLATIONS    = superapp_dk.ts \
 		          superapp_fi.ts \
@@ -426,7 +426,7 @@
     \c %2 with the name of the next file to be processed. In the translated
     version the variables must still appear. For example a German
     translation might reverse the phrases, e.g. \e {Datei %2 wird
-    bearbeitet, wenn. Datei %1 fertig ist}. Note that both variables
+    bearbeitet, wenn Datei %1 fertig ist}. Note that both variables
     are still used but their order has changed. The order in which variables
     appear does not matter; \c %1 will always be replaced by the same text
     at runtime no matter where it appears in the source text or translation
@@ -921,7 +921,7 @@
     Ctrl key accelerators are also translatable:
 
     \quotefromfile linguist/trollprint/mainwindow.cpp
-    \skipto exitAct = 
+    \skipto exitAct =
     \printuntil Ctrl+Q
 
     It is strongly recommended that the two argument form of \c tr() is used
@@ -962,7 +962,7 @@
     \code
         /*
             TRANSLATOR MyNamespace::MyClass
-        
+
             Necessary for lupdate.
 
             ...
@@ -977,7 +977,7 @@
 
     If the quoted text is not in a member function of a QObject subclass,
     use either the tr() function of an appropriate class, or the
-    QCoreApplication::translate() function directly: 
+    QCoreApplication::translate() function directly:
 
     \code
         void some_global_function(LoginWidget *logwid)
@@ -999,9 +999,9 @@
     If you need to have translatable text completely outside a function,
     there are two macros to help: QT_TR_NOOP() and QT_TRANSLATE_NOOP().
     These macros merely mark the text for extraction by \l{lupdate}.
-    The macros expand to just the text (without the context). 
+    The macros expand to just the text (without the context).
 
-    Example of QT_TR_NOOP(): 
+    Example of QT_TR_NOOP():
     \code
         QString FriendlyConversation::greeting(int greet_type)
         {
@@ -1013,7 +1013,7 @@
         }
     \endcode
 
-    Example of QT_TRANSLATE_NOOP(): 
+    Example of QT_TRANSLATE_NOOP():
     \code
         static const char* greeting_strings[] = {
             QT_TRANSLATE_NOOP("FriendlyConversation", "Hello"),
@@ -1035,7 +1035,7 @@
     \section1 Tutorials
 
     Three tutorials are presented:
-    
+
     \list 1
     \o \l{linguist/hellotr}{Hello tr()} demonstrates the creation of
         a \l QTranslator object. It also shows the simplest use of
@@ -1046,7 +1046,7 @@
        translation file applicable to the current locale. It also shows the
        use of the two-argument form of \c tr() which provides additional
        information to the translator.
-       
+
     \o \l{linguist/trollprint}{Troll Print} explains how
         identical source texts can be distinguished even when they occur in
         the same context. This tutorial also discusses how the translation

@@ -6,4 +6,157 @@
     in a variety of styles.
 
     \image basicdrawing-example.png
+
+    The Basic Drawing example consists of two classes:
+
+    \list
+    \o \c RenderArea
+    \o \c Window
+    \endlist
+
+    First we will review the \c RenderArea class, then we will take a
+    look at the \c Window class.
+
+    \section1 RenderArea Class Definition
+
+    The \c RenderArea class inherits QWidget, and displays multiple
+    copies of the \c RenderArea's current shape according to the
+    widget's pen, brush, and antialiased and transformed properties.
+
+    \quotefromfile painting/basicdrawing/renderarea.h
+    \skipto class RenderArea
+    \printuntil /^\};/
+
+    First we define a public \c Shape enum to be able to distinguish
+    the different shapes that can be rendered by the widget. Then we
+    reimplement the constructor as well as two of QWidget's public
+    functions: \c minimumSizeHint() and \c sizeHint().
+
+    We also reimplement the QWidget::paintEvent() function to be able
+    to draw the current shape according to the widget's pen, brush,
+    and antialiased and transformed properties
+
+    We declare several private slots: The \c setShape() slot change
+    the \c RenderArea's current shape, the \c setPen() and \c
+    setBrush() slots modify the widget's pen and brush, and the \c
+    setAntialiased() and \c setTransformed() slots modify the widget's
+    respective properties.
+
+    \section1 RenderArea Class Implementation
+
+    In the constructor we initialize the \c RenderArea widget.
+
+    \quotefromfile painting/basicdrawing/renderarea.cpp
+    \skipto RenderArea
+    \printuntil /^\}/
+
+    We set its current shape to be a polygon, its antialiased property
+    to be false and we load an image into the widget's pixmap. In the
+    end we set the widget's background role which defines the brush
+    from the widget's \l {QWidget::palette}{palette} that is used to
+    render the background. QPalette::Base is typically white.
+
+    \skipto sizeHint
+    \printuntil /^\}/
+
+    The \l{QWidget::sizeHint()}{size hint} property holds the
+    recommended size for the widget. If the value of this property is
+    an invalid size, no size is recommended.
+
+    The default implementation of QWidget::sizeHint() returns an
+    invalid size if there is no layout for the widget, and returns
+    the layout's preferred size otherwise.
+
+    Our reimplementation of the function returns a QSize with a 400
+    pixels width and a 200 pixels height.
+
+    \quotefromfile painting/basicdrawing/renderarea.cpp
+    \skipto minimumSizeHint
+    \printuntil /^\}/
+
+    The \l{QWidget::minimumSizeHint()}{minimum size hint} property
+    holds the recommended minimum size for the widget. Again, if the
+    value of this property is an invalid size, no size is recommended.
+
+    Most built-in widgets reimplement QWidget::minimumSizeHint(). The
+    default implementation of QWidget::minimumSizeHint() returns an
+    invalid size if there is no layout for the widget, and returns the
+    layout's minimum size otherwise. Our reimplementation of the
+    function returns a QSize with a 100 pixels width and a 100 pixels
+    height.
+
+    \skipto setShape
+    \printuntil /^\}/
+
+    \skipto setPen
+    \printuntil /^\}/
+
+    \skipto setBrush
+    \printuntil /^\}/
+
+    The public \c setShape(), \c setPen() and \c setBrush() slots can
+    be called whenever we want to modify the\c {RenderArea}'s
+    currently set shape, pen or brush. In the slots we set the shape,
+    pen or brush value according to the function parameter, and call
+    QWidget::update() to make the changes active.
+
+    The QWidget::update() function does not cause an immediate
+    repaint; instead it schedules a paint event for processing when Qt
+    returns to the main event loop.
+
+    \skipto setAntialiased
+    \printuntil /^\}/
+
+    \skipto setTransformed
+    \printuntil /^\}/
+
+    In the \c setAntialiased() and \c setTransformed() slots we change
+    the state of the properites according to the function parameter,
+    and call the QWidget::update() function.
+
+    \skipto paintEvent
+    \printuntil arcLength
+
+    (...)
+
+    \skipto QPainter
+    \printuntil setRenderHint
+
+    (...)
+
+    \skipto for
+    \printuntil /^\}/
+
+    (...)
+
+    \section1 Window Class Definition
+
+    \quotefromfile painting/basicdrawing/window.h
+    \skipto class Window
+    \printuntil /^\};/
+
+    (...)
+
+    \section1 Window Class Implementation
+
+    \quotefromfile painting/basicdrawing/window.cpp
+    \skipto Window
+    \printuntil /^\}/
+
+    (...)
+
+    \skipto shapeChanged
+    \printuntil /^\}/
+
+    (...)
+
+    \skipto penChanged
+    \printuntil /^\}/
+
+    (...)
+
+    \skipto brushChanged
+    \printuntil /^\}/
+
+    (...)
 */
