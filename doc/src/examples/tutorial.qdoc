@@ -2339,13 +2339,7 @@
 
     \section1 Exercises
 
-    Write a space invaders game.
-
-    (This exercise was first done by
-    \l{mailto:igorr@ifi.uio.no}{Igor Rafienko}. You can
-    \l{http://www.stud.ifi.uio.no/~igorr/download.html}{download his game}.)
-
-    The new exercise is: Write a Breakout game.
+    Write a Breakout game.
 
     Final exhortation: Go forth now and create masterpieces of the
     programming art!
