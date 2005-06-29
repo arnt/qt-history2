@@ -1156,7 +1156,7 @@ void QWidget::destroy(bool destroyWindow, bool destroySubWindows)
                 WindowPtr window = isWindow() ? qt_mac_window_for(hiview) : 0;
                 CFRelease(hiview);
                 if(window) {
-                    RemoveWindowProperty(qt_mac_window_for(this), kWidgetCreatorQt, kWidgetPropertyQWidget);
+                    RemoveWindowProperty(window, kWidgetCreatorQt, kWidgetPropertyQWidget);
                     ReleaseWindow(window);
                 }
             }
@@ -1183,8 +1183,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     }
     QWidget* oldtlw = q->window();
 
-    //recreate and seutp flags
-    setWinId(0);
+    //recreate and setup flags
     QObjectPrivate::setParent_helper(parent);
     bool     dropable = q->acceptDrops();
     bool     enable = q->isEnabled();
@@ -1192,6 +1191,7 @@ void QWidgetPrivate::setParent_sys(QWidget *parent, Qt::WFlags f)
     QPoint   pt = q->pos();
     QSize    s = q->size();
     bool explicitlyHidden = q->testAttribute(Qt::WA_WState_Hidden) && q->testAttribute(Qt::WA_WState_ExplicitShowHide);
+    setWinId(0); //do after the above because they may want the id
 
     data.window_flags = f;
     q->setAttribute(Qt::WA_WState_Created, false);
@@ -1461,6 +1461,9 @@ void QWidget::update(const QRegion &rgn)
 
 void QWidget::repaint(const QRegion &rgn)
 {
+    if(rgn.isEmpty())
+        return;
+
     HIViewSetNeedsDisplayInRegion((HIViewRef)winId(), rgn.handle(true), true);
 #if 0 && (MAC_OS_X_VERSION_MAX_ALLOWED >= MAC_OS_X_VERSION_10_3)
     OSStatus (*HIViewRender_ptr)(HIViewRef) = HIViewRender; // workaround for gcc warning
@@ -2078,7 +2081,9 @@ void QWidget::setMask(const QRegion &region)
         return;
 
     d->extra->mask = region;
-    if(!isWindow())
+    if(isWindow())
+        ReshapeCustomWindow(qt_mac_window_for(this));
+    else
         HIViewReshapeStructure((HIViewRef)winId());
 }
 
