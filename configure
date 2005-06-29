@@ -1775,23 +1775,6 @@ if [ "$OPT_VERBOSE" = "yes" ]; then
         echo "System architecture: '$ARCH'"
 fi
 
-# symlink the arch/$ARCH/arch/ include directory to include/QtCore/arch/
-if [ -d "$outpath/src/corelib/global/arch" ]; then
-    rm -f "$outpath/src/corelib/global/arch"
-else
-    mkdir -p "$outpath/src/corelib/global/"
-fi
-ln -s "$relpath/src/corelib/arch/$ARCH/arch" "$outpath/src/corelib/global/arch"
-for arch in "$outpath/include/QtCore/arch" "$outpath/include/Qt/arch"; do
-   if [ -d "$arch" ]; then
-       rm -f "$arch"
-   else
-       mkdir -p `dirname $arch`
-   fi
-   rm -f "$arch"
-   ln -s "$relpath/src/corelib/arch/$ARCH/arch" "$arch"
-done
-
 #-------------------------------------------------------------------------------
 # tests that don't need qmake (must be run before displaying help)
 #-------------------------------------------------------------------------------
@@ -2635,6 +2618,23 @@ aix-*)
 *)
     ;;
 esac
+
+# symlink the arch/$ARCH/arch/ include directory to include/QtCore/arch/
+if [ -d "$outpath/src/corelib/global/arch" ]; then
+    rm -f "$outpath/src/corelib/global/arch"
+else
+    mkdir -p "$outpath/src/corelib/global/"
+fi
+ln -s "$relpath/src/corelib/arch/$ARCH/arch" "$outpath/src/corelib/global/arch"
+for arch in "$outpath/include/QtCore/arch" "$outpath/include/Qt/arch"; do
+   if [ -d "$arch" ]; then
+       rm -f "$arch"
+   else
+       mkdir -p `dirname $arch`
+   fi
+   rm -f "$arch"
+   ln -s "$relpath/src/corelib/arch/$ARCH/arch" "$arch"
+done
 
 # -----------------------------------------------------------------------------
 # build qmake
