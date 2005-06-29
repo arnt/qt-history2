@@ -42,7 +42,7 @@
     \row \o \link #QPSQL QPSQL\endlink \o PostgreSQL (versions 7 and 8)
     \row \o \link #QSQLITE2 QSQLITE2\endlink \o SQLite version 2
     \row \o \link #QSQLITE QSQLITE\endlink \o SQLite version 3
-    \row \o \link #QTDS QTDS\endlink \o Sybase Adaptive Server and Microsoft SQL Server
+    \row \o \link #QTDS QTDS\endlink \o Sybase Adaptive Server
     \endtable
 
     To build a driver plugin, you need the client API that is shipped
@@ -377,7 +377,7 @@
     \endcode
 
     \target QTDS
-    \section2 QTDS for Sybase Adaptive Server and Microsoft SQL Server
+    \section2 QTDS for Sybase Adaptive Server
 
     \section3 How to Build the Plugin on Unix and Mac OS X
 
