@@ -69,17 +69,17 @@ bool watchingAboutToShow(QMenu *menu)
 }
 
 //lookup a QMacMenuAction in a menu
-static short qt_mac_menu_find_action(MenuRef menu, MenuCommand cmd)
+static int qt_mac_menu_find_action(MenuRef menu, MenuCommand cmd)
 {
     MenuItemIndex ret_idx;
     MenuRef ret_menu;
     if(GetIndMenuItemWithCommandID(menu, cmd, 1, &ret_menu, &ret_idx) == noErr) {
         if (ret_menu == menu)
-            return (short)ret_idx;
+            return (int)ret_idx;
     }
     return -1;
 }
-static short qt_mac_menu_find_action(MenuRef menu, QMacMenuAction *action)
+static int qt_mac_menu_find_action(MenuRef menu, QMacMenuAction *action)
 {
     return qt_mac_menu_find_action(menu, action->command);
 }
@@ -393,7 +393,7 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
     int before_index = actionItems.indexOf(before);
     actionItems.insert(before_index, action);
 
-    short index = qt_mac_menu_find_action(menu, action);
+    int index = qt_mac_menu_find_action(menu, action);
     action->menu = menu;
     /* I don't know if this is a bug or a feature, but when the action is considered a mergable action it
        will stay that way, until removed.. */
@@ -413,7 +413,8 @@ QMenuPrivate::QMacMenuPrivate::addAction(QMacMenuAction *action, QMacMenuAction 
             InsertMenuItemTextWithCFString(action->menu, 0, before_index-1, attr, action->command);
         else
             AppendMenuItemTextWithCFString(action->menu, 0, attr, action->command, (MenuItemIndex*)&index);
-        SetMenuItemProperty(action->menu, index, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
+        SetMenuCommandProperty(action->menu, action->command, kMenuCreatorQt, kMenuPropertyQAction,
+                               sizeof(action), &action);
     } else {
         qt_mac_command_set_enabled(action->menu, action->command, !QApplicationPrivate::modalState());
         SetMenuCommandProperty(0, action->command, kMenuCreatorQt, kMenuPropertyQAction, sizeof(action), &action);
@@ -426,7 +427,9 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
 {
     if(!action)
         return;
-    short index = qt_mac_menu_find_action(action->menu, action);
+    const int index = qt_mac_menu_find_action(action->menu, action);
+    if(index == -1)
+        return;
 
     if(!action->action->isVisible()) {
         ChangeMenuItemAttributes(action->menu, index, kMenuItemAttrHidden, 0);
@@ -498,8 +501,8 @@ QMenuPrivate::QMacMenuPrivate::syncAction(QMacMenuAction *action)
                          0, (ATSUFontID*)&data.fontID);
     }
 
-    data.whichData |= kMenuItemDataSubmenuHandle;
     if(action->action->menu()) { //submenu
+        data.whichData |= kMenuItemDataSubmenuHandle;
         data.submenuHandle = action->action->menu()->macMenu();
         QWidget *caused = 0;
         GetMenuItemProperty(action->menu, 0, kMenuCreatorQt, kMenuPropertyQWidget, sizeof(caused), 0, &caused);
@@ -688,7 +691,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::addAction(QMacMenuAction *action, QMacMenuA
         }
     }
 
-    int before_index = actionItems.indexOf(before);
+    const int before_index = actionItems.indexOf(before);
     actionItems.insert(before_index, action);
 
     action->menu = menu;
@@ -707,7 +710,7 @@ QMenuBarPrivate::QMacMenuBarPrivate::syncAction(QMacMenuAction *action)
 {
     if(!action || !menu)
         return;
-    const short index = qt_mac_menu_find_action(action->menu, action);
+    const int index = qt_mac_menu_find_action(action->menu, action);
 
     MenuRef submenu = 0;
     bool release_submenu = false;
