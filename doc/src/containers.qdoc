@@ -587,22 +587,21 @@
     Thanks to \l{implicit sharing}, it is very inexpensive for a
     function to return a container per value. The Qt API contains
     dozens of functions that return a QList or QStringList per value
-    (e.g. QSplitter::sizes() and QTranslator::messages()). If you
-    want to iterate over these using an STL iterator, you should
-    always take a copy of the container and iterate over the copy.
-    For example:
+    (e.g., QSplitter::sizes()). If you want to iterate over these
+    using an STL iterator, you should always take a copy of the
+    container and iterate over the copy. For example:
 
     \code
         // RIGHT
-        QList<QTranslatorMessage> messages = translator->messages();
-        QList<QTranlatorMessage>::const_iterator i;
-        for (i = messages.begin(); i != messages.end(); ++i) 
+        const QList<int> sizes = splitter->sizes();
+        QList<int>::const_iterator i;
+        for (i = sizes.begin(); i != sizes.end(); ++i)
             ...
 
         // WRONG
-        QList<QTranlatorMessage>::const_iterator i;
-        for (i = translator->messages().begin();
-             i != translator->messages().end(); ++i)
+        QList<int>::const_iterator i;
+        for (i = splitter->sizes().begin();
+                i != splitter->sizes().end(); ++i)
             ...
     \endcode
 
