@@ -1,37 +1,40 @@
 \raw HTML
-<script language="javascript">
-function setColor( form )
+<script language=javascript>
+function createSubWidget( form )
 {
-    Ax1.fillColor = form.colorEdit.value;
+    ParentWidget.createSubWidget( form.nameEdit.value );
 }
 
-function setWidth( form )
+function renameSubWidget( form )
 {
-    Ax2.lineWidth = form.widthEdit.value;
+    var SubWidget = ParentWidget.subWidget( form.nameEdit.value );
+    if ( !SubWidget ) {
+        alert( "No such widget " + form.nameEdit.value + "!" );
+        return;
+    }
+    SubWidget.label = form.labelEdit.value;
+    form.nameEdit.value = SubWidget.label;
+}
+
+function setFont( form )
+{
+    ParentWidget.font = form.fontEdit.value;
 }
 </script>
 
-<p />
-This is one QWidget subclass:<br />
-<object ID="Ax1" CLASSID="CLSID:1D9928BD-4453-4bdd-903D-E525ED17FDE5"
-CODEBASE="http://www.trolltech.com/demos/multipleax.cab">
+<p>
+This widget can have many children!<br>
+<object ID="ParentWidget" CLASSID="CLSID:d574a747-8016-46db-a07c-b2b4854ee75c"
+CODEBASE=http://www.trolltech.com/demos/hierarchy.cab>
 [Object not available! Did you forget to build and register the server?]
-</object><br />
+</object><br>
 <form>
-Fill Color: <input type="edit" ID="colorEdit" value = "red" />
-<input type="button" value = "Set" onClick="setColor(this.form)" />
-<input type="button" value = "Hide" onClick="Ax1.hide()" />
-<input type="button" value = "Show" onClick="Ax1.show()" />
-</form>
-
-<p />
-This is another QWidget subclass:<br />
-<object ID="Ax2" CLASSID="CLSID:58139D56-6BE9-4b17-937D-1B1EDEDD5B71"
-CODEBASE="http://www.trolltech.com/demos/multipleax.cab">
-[Object not available! Did you forget to build and register the server?]
-</object><br />
-<form>
-Line width: <input type="edit" ID="widthEdit" value = "1" />
-<input type="button" value = "Set" onClick="setWidth(this.form)" />
+<input type="edit" ID="nameEdit" value = "<enter object name>">
+<input type="button" value = "Create" onClick="createSubWidget(this.form)">
+<input type="edit" ID="labelEdit">
+<input type="button" value = "Rename" onClick="renameSubWidget(this.form)">
+<br>
+<input type="edit" ID="fontEdit" value = "MS Sans Serif">
+<input type="button" value = "Set Font" onClick="setFont(this.form)">
 </form>
 \endraw

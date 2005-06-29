@@ -1,4 +1,4 @@
-\raw html
+\raw HTML
 <object ID="QSimpleAX" CLASSID="CLSID:DF16845C-92CD-4AAB-A982-EB9840E74669"
 CODEBASE="http://www.trolltech.com/demos/simpleax.cab">
     <PARAM NAME="text" VALUE="A simple control" />
