@@ -1775,15 +1775,7 @@
     \section1 QIconFactory
 
     The QIconFactory is no longer part of Qt. It has been replaced by
-    a lighter mechanism based on function pointers and a QVariant
-    arbitrary parameter.
-
-    To port old code that uses QIconFactory to Qt 4, you generally
-    need to turn your QIconFactory::createPixmap() reimplementation
-    into a regular function and call QIcon::setPixmapGeneratorFn()
-    or QIcon::setDefaultPixmapGeneratorFn() on it.
-
-    \omit ### These functions will be renamed in beta 2 ### \endomit
+    the QIconEngine class.
 
     \section1 QIconView
 
@@ -1811,6 +1803,36 @@
     The \c QImageDrag class has been renamed Q3ImageDrag and moved to
     the Qt3Support library. In Qt 4, use QMimeData
     instead and call QMimeData::setImage() to set the image.
+
+    \section1 QImageIO
+
+    The \c QImageIO class has been split into two classes:
+    QImageReader and QImageWriter. The table below shows the
+    correspondance between the two APIs:
+
+    \table
+    \header \o Qt 3 function              \o Qt 4 equivalents
+    \row    \o QImageIO::description()    \o QImageWriter::description()
+    \row    \o QImageIO::fileName()       \o QImageReader::fileName() and QImageWriter::fileName()
+    \row    \o QImageIO::format()         \o QImageReader::format() and QImageWriter::format()
+    \row    \o QImageIO::gamma()          \o QImageWriter::gamma()
+    \row    \o QImageIO::image()          \o Return value of QImageReader::read()
+    \row    \o QImageIO::ioDevice()       \o QImageReader::device() and QImageWriter::device()
+    \row    \o QImageIO::parameters()     \o N/A
+    \row    \o QImageIO::quality()        \o QImageWriter::quality()
+    \row    \o QImageIO::read()           \o QImageReader::read()
+    \row    \o QImageIO::setDescription() \o QImageWriter::setDescription()
+    \row    \o QImageIO::setFileName()    \o QImageReader::setFileName() and QImageWriter::setFileName()
+    \row    \o QImageIO::setFormat()      \o QImageReader::setFormat() and QImageWriter::setFormat()
+    \row    \o QImageIO::setGamma()       \o QImageWriter::setGamma()
+    \row    \o QImageIO::setIODevice()    \o QImageReader::setDevice() and QImageWriter::setDevice()
+    \row    \o QImageIO::setImage()       \o Argument to QImageWriter::write()
+    \row    \o QImageIO::setParameters()  \o N/A
+    \row    \o QImageIO::setQuality()     \o QImageWriter::setQuality()
+    \row    \o QImageIO::setStatus()      \o N/A
+    \row    \o QImageIO::status()         \o QImageReader::error() and QImageWriter::error()
+    \row    \o QImageIO::write()          \o QImageWriter::write()
+    \endtable
 
     \section1 QIntCache<T>
 
@@ -1854,8 +1876,8 @@
     \row \o QIODevice::at() const \o Renamed QIODevice::pos().
     \row \o QIODevice::at(Offset) \o Renamed QIODevice::seek().
     \row \o QIODevice::open(int) \o The parameter is now of type QIODevice::OpenMode.
-    \row \o QIODevice::readBlock(char *, Q_ULONG) \o QIODevice::readData(char *, Q_LONGLONG)
-    \row \o QIODevice::writeBlock(const char *, Q_ULONG) \o QIODevice::writeData(const char *, Q_LONGLONG)
+    \row \o QIODevice::readBlock(char *, Q_ULONG) \o QIODevice::read(char *, qint64)
+    \row \o QIODevice::writeBlock(const char *, Q_ULONG) \o QIODevice::write(const char *, qint64)
     \endtable
 
     The following functions are no longer virtual or don't exist anymore:
@@ -1926,6 +1948,11 @@
     QLabel::setWordWrap() or by setting the
     \l{QLabel::wordWrap}{wordWrap} property. The reason for this
     change is that the old behavior was confusing to many users.
+
+    Also, QLabel no longer offers an \c autoResize property. Instead,
+    you can call QWidget::setFixedSize() on the label, with
+    QLabel::sizeHint() as the argument, whenever you change the
+    contents of the QLabel.
 
     See also \l{#virtual.functions}{Virtual Functions} for a list of
     QLabel virtual member functions in Qt 3 that are no longer
@@ -2085,6 +2112,38 @@
     and moved to the Qt3Support library. New Qt
     applications should use Qt 4's \l{resources.html}{Resource
     System} instead.
+
+    \section1 QMovie
+
+    The QMovie API has been revised in Qt 4 to make it more
+    consistent with the other Qt classes (notably QImageReader). The
+    table below summarizes the changes.
+
+    \table
+    \header \o Qt 3 function \o Qt 4 equivalent
+    \row \o QMovie::connectResize() \o Connect to QMovie::resized()
+    \row \o QMovie::connectStatus() \o Connect to QMovie::stateChanged()
+    \row \o QMovie::connectUpdate() \o Connect to QMovie::updated()
+    \row \o QMovie::disconnectResize() \o Disconnect from QMovie::resized()
+    \row \o QMovie::disconnectStatus() \o Disconnect from QMovie::stateChanged()
+    \row \o QMovie::disconnectUpdate() \o Disconnect from QMovie::updated()
+    \row \o QMovie::finished() \o Use QMovie::state() instead
+    \row \o QMovie::frameImage() \o Use QMovie::currentImage() instead
+    \row \o QMovie::frameNumber() \o Use QMovie::currentFrameNumber() instead
+    \row \o QMovie::framePixmap() \o Use QMovie::currentPixmap() instead
+    \row \o QMovie::getValidRect() \o Use frameRect() instead
+    \row \o QMovie::isNull() \o Use QMovie::isValid() instead
+    \row \o QMovie::pause() \o Use QMovie::setPaused(true) instead
+    \row \o QMovie::paused() \o Use QMovie::state() instead
+    \row \o QMovie::pushData() \o N/A
+    \row \o QMovie::pushSpace() \o N/A
+    \row \o QMovie::restart() \o Use QMovie::jumpToFrame(0) instead
+    \row \o QMovie::running() \o Use QMovie::state() instead
+    \row \o QMovie::step() \o Use QMovie::jumpToFrame() and QMovie::setPaused() instead
+    \row \o QMovie::step() \o Use QMovie::jumpToNextFrame() instead
+    \row \o QMovie::steps() \o Use QMovie::currentFrameNumber() and QMovie::frameCount() instead
+    \row \o QMovie::unpause() \o Use QMovie::setPaused(false) instead
+    \endtable
 
     \section1 QMultiLineEdit
 
