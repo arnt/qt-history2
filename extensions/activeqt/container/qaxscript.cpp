@@ -1185,6 +1185,9 @@ QString QAxScriptManager::scriptFileFilter()
 
     \a code, \a description, \a sourcePosition and \a sourceText
     contain information about the execution error.
+
+    \warning Do not delete \a script in a slot connected to this signal. Use deleteLater()
+    instead.
 */
 
 /*!
