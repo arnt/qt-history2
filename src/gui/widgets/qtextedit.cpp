@@ -2181,7 +2181,7 @@ QRect QTextEdit::cursorRect(const QTextCursor &cursor) const
         const int anchor = cursor.anchor();
         const QTextBlock posBlock = d->doc->findBlock(position);
         const QTextBlock anchorBlock = d->doc->findBlock(anchor);
-        if (posBlock == anchorBlock) {
+        if (posBlock == anchorBlock && posBlock.layout()->lineCount()) {
             const QTextLine posLine = posBlock.layout()->lineForTextPosition(position - posBlock.position());
             const QTextLine anchorLine = anchorBlock.layout()->lineForTextPosition(position - anchorBlock.position());
             if (posLine.lineNumber() == anchorLine.lineNumber()) {
