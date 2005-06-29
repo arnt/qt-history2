@@ -367,6 +367,30 @@ static bool toBool(const QString& s)
     return s == QLatin1String("true") || s.toInt() != 0;
 }
 
+static double versionToDouble(QString version)
+{
+    version = version.trimmed();
+
+    if (version.isEmpty())
+        return 0.0;
+
+    bool decpt = false;
+    QString num_str;
+    for (int i = 0; i < version.size(); ++i) {
+        char c = version.at(i).toAscii();
+        if (c < '0' && c > '9' && c != '.')
+            break;
+        if (c == '.') {
+            if (decpt)
+                break;
+            decpt = true;
+        }
+        num_str.append(QLatin1Char(c));
+    }
+
+    return num_str.toDouble();
+}
+
 /*
     \internal
 
@@ -384,15 +408,13 @@ void DomTool::fixDocument(QDomDocument& doc)
         return;
 
     // rename classes and properties
-    double version = e.hasAttribute(QLatin1String("version")) 
-        ? e.attribute(QLatin1String("version")).toDouble() : 0.0;
-        
+    double version = versionToDouble(e.attribute(QLatin1String("version")));
+
     nl = e.childNodes();
     fixAttributes(nl, version);
 
     // 3.x don't do anything more
-    if (e.hasAttribute(QLatin1String("version")) 
-            && e.attribute(QLatin1String("version")).toDouble() >= 3.0)
+    if (version >= 3.0)
         return;
 
     // in versions smaller than 3.0 we need to change more
