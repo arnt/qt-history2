@@ -709,6 +709,10 @@ void Q3ToolBar::actionEvent(QActionEvent *e)
         if (w) {
             w->setShown(a->isVisible());
             w->setEnabled(a->isEnabled());
+
+            QToolButton *tb = qobject_cast<QToolButton *>(w);
+            if (tb)
+                tb->setIconSet(a->icon());
         }
     }
 }
