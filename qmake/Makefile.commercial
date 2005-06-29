@@ -1,4 +1,4 @@
-COMMERCIAL_SOURCE_OBJS = metrowerks_xml.o  pbuilder_pbx.o borland_bmake.o msvc_dsp.o msvc_vcproj.o \
+COMMERCIAL_OBJS = metrowerks_xml.o  borland_bmake.o msvc_dsp.o msvc_vcproj.o \
                   msvc_nmake.o msvc_objectmodel.o 
 
 COMMERCIAL_DEPEND_SRC = generators/win32/msvc_objectmodel.cpp \
