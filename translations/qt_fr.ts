@@ -54,7 +54,7 @@
     </message>
     <message>
         <source>Print</source>
-        <translation>Imprim</translation>
+        <translation>Impr écran</translation>
     </message>
     <message>
         <source>SysReq</source>
@@ -163,24 +163,23 @@
     </message>
     <message>
         <source>Bass Boost</source>
-        <translation>Bass boost</translation>
+        <translation>Graves fort</translation>
     </message>
     <message>
         <source>Bass Up</source>
-        <translation>Bass haut
-</translation>
+        <translation>Graves haut</translation>
     </message>
     <message>
         <source>Bass Down</source>
-        <translation>Bass bas</translation>
+        <translation>Graves bas</translation>
     </message>
     <message>
         <source>Treble Up</source>
-        <translation>Tremble haut</translation>
+        <translation>Aigus haut</translation>
     </message>
     <message>
         <source>Treble Down</source>
-        <translation>Tremble bas</translation>
+        <translation>Aigus bas</translation>
     </message>
     <message>
         <source>Media Play</source>
@@ -764,7 +763,7 @@ Vérifier le chemin et le nom du fichier.</translation>
     </message>
     <message>
         <source>Syriac</source>
-        <translation>Syriac</translation>
+        <translation>Syriaque</translation>
     </message>
     <message>
         <source>Thaana</source>
@@ -792,7 +791,7 @@ Vérifier le chemin et le nom du fichier.</translation>
     </message>
     <message>
         <source>Tamil</source>
-        <translation>Tamil</translation>
+        <translation>Tamoul</translation>
     </message>
     <message>
         <source>Telugu</source>
@@ -856,7 +855,7 @@ Vérifier le chemin et le nom du fichier.</translation>
     </message>
     <message>
         <source>Ethiopic</source>
-        <translation>Éthiopique</translation>
+        <translation>Éthiopien</translation>
     </message>
     <message>
         <source>Cherokee</source>
@@ -1832,35 +1831,35 @@ en
     <name>QUrlOperator</name>
     <message>
         <source>The protocol `%1&apos; is not supported</source>
-        <translation>Le protocole &apos;%1&apos; n&apos;est pas supporté</translation>
+        <translation>Le protocole &apos;%1&apos; n&apos;est pas géré</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support listing directories</source>
-        <translation>Le protocole `%1&apos; ne supporte pas le listage des fichiers d&apos;un dossier</translation>
+        <translation>Le protocole `%1&apos; ne permet pas de lister les fichiers d&apos;un dossier</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support creating new directories</source>
-        <translation>Le protocole `%1&apos; ne supporte pas la création de nouveaux dossiers</translation>
+        <translation>Le protocole `%1&apos; ne permet pas de créer de nouveaux dossiers</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support removing files or directories</source>
-        <translation>Le protocole `%1&apos; ne supporte pas la suppression de fichiers ou de dossiers</translation>
+        <translation>Le protocole `%1&apos; ne permet pas de supprimer des fichiers ou des dossiers</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support renaming files or directories</source>
-        <translation>Le protocole `%1&apos; ne supporte pas le renommage de fichiers ou de dossiers</translation>
+        <translation>Le protocole `%1&apos; ne permet pas de renommer des fichiers ou des dossiers</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support getting files</source>
-        <translation>Le protocole `%1&apos; ne supporte pas l&apos;envoi de fichiers</translation>
+        <translation>Le protocole `%1&apos; ne permet pas de recevoir des fichiers</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support putting files</source>
-        <translation>Le protocole `%1&apos; ne supporte pas la réception de fichiers</translation>
+        <translation>Le protocole `%1&apos; ne permet pas d'envoyer des fichiers</translation>
     </message>
     <message>
         <source>The protocol `%1&apos; does not support copying or moving files or directories</source>
-        <translation>Le protocole `%1&apos; ne supporte pas la copie ou le déplacement de fichiers ou de dossiers</translation>
+        <translation>Le protocole `%1&apos; ne permet pas de copier ou de déplacer des fichiers</translation>
     </message>
     <message>
         <source>(unknown)</source>
