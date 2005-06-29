@@ -442,7 +442,17 @@ QDir::QDir(const QString &path, const QString &nameFilter,
     Q_D(QDir);
     d->setPath(path.isEmpty() ? QString::fromLatin1(".") : path);
     d->data->nameFilters = QDir::nameFiltersFromString(nameFilter);
-    if (d->data->nameFilters.isEmpty())
+    bool empty = d->data->nameFilters.isEmpty();
+    if(!empty) {
+        empty = true;
+        for(int i = 0; i < d->data->nameFilters.size(); ++i) {
+            if(!d->data->nameFilters.at(i).isEmpty()) {
+                empty = false;
+                break;
+            }
+        }
+    }
+    if (empty)
         d->data->nameFilters = QStringList(QString::fromLatin1("*"));
     d->data->sort = sort;
     d->data->filters = filters;
