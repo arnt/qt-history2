@@ -1,8 +1,8 @@
 #qmake code
 OBJS=project.o property.o main.o makefile.o unixmake2.o unixmake.o  \
      mingw_make.o option.o winmakefile.o projectgenerator.o \
-     meta.o qtmd5.o makefiledeps.o metamakefile.o xmloutput.o \
-     $(OPENSOURCE_OBJS)
+     meta.o qtmd5.o makefiledeps.o metamakefile.o xmloutput.o pbuilder_pbx.o \
+     $(COMMERCIAL_OBJS)
 
 #qt code
 QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
@@ -15,6 +15,7 @@ QOBJS=qchar.o qstring.o qstringmatcher.o qtextstream.o qiodevice.o qglobal.o \
 #all sources, used for the depend target
 DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makefile.cpp generators/unix/unixmake2.cpp \
            generators/unix/unixmake.cpp generators/win32/winmakefile.cpp generators/projectgenerator.cpp \
+	   generators/mac/pbuilder_pbx.cpp \
 	   @SOURCE_PATH@/src/corelib/tools/qchar.cpp @SOURCE_PATH@/src/corelib/tools/qstring.cpp \
 	   @SOURCE_PATH@/src/corelib/io/qfile.cpp @SOURCE_PATH@/src/corelib/tools/qstringmatcher.cpp \
 	   @SOURCE_PATH@/src/corelib/io/qtextstream.cpp @SOURCE_PATH@/src/corelib/io/qiodevice.cpp \
@@ -33,7 +34,7 @@ DEPEND_SRC=project.cpp property.cpp meta.cpp main.cpp qtmd5.cpp generators/makef
 	   @SOURCE_PATH@/src/corelib/tools/qhash.cpp @SOURCE_PATH@/src/corelib/kernel/qcore_mac.cpp \
 	   @SOURCE_PATH@/src/corelib/io/qtemporaryfile.cpp @SOURCE_PATH@/src/corelib/kernel/qmetatype.cpp \
 	   @SOURCE_PATH@/src/corelib/tools/qvsnprintf.cpp \
-	   $(OPENSOURCE_DEPEND_SRC)
+	   $(COMMERCIAL_DEPEND_SRC)
 
 CXXFLAGS = @QMAKE_CXXFLAGS@ \
 	   -I. -Igenerators -Igenerators/unix -Igenerators/win32 -Igenerators/mac \

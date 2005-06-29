@@ -375,6 +375,8 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj, bool noIO)
         mkfile = new UnixMakefileGenerator;
     } else if(gen == "MINGW") {
         mkfile = new MingwMakefileGenerator;
+    } else if(gen == "PROJECTBUILDER" || gen == "XCODE") {
+        mkfile = new ProjectBuilderMakefileGenerator;
 #ifndef QMAKE_OPENSOURCE_EDITION
     } else if(gen == "MSVC") {
         // Visual Studio =< v6.0
@@ -392,8 +394,6 @@ MetaMakefileGenerator::createMakefileGenerator(QMakeProject *proj, bool noIO)
         mkfile = new BorlandMakefileGenerator;
     } else if(gen == "METROWERKS") {
         mkfile = new MetrowerksMakefileGenerator;
-    } else if(gen == "PROJECTBUILDER" || gen == "XCODE") {
-        mkfile = new ProjectBuilderMakefileGenerator;
 #endif
     } else {
         fprintf(stderr, "Unknown generator specified: %s\n", gen.toLatin1().constData());

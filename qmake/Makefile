@@ -53,11 +53,11 @@ ADDCLEAN    = qmake.tds
 #qmake code
 OBJS        = project.obj main.obj makefile.obj unixmake.obj unixmake2.obj mingw_make.obj \
               option.obj winmakefile.obj projectgenerator.obj property.obj meta.obj qtmd5.obj \
-              makefiledeps.obj metamakefile.obj xmloutput.obj
+              makefiledeps.obj metamakefile.obj xmloutput.obj pbuilder_pbx.obj
 
 !IFNDEF QMAKE_OPENSOURCE_EDITION
 OBJS        = $(OBJS) borland_bmake.obj msvc_nmake.obj msvc_dsp.obj msvc_vcproj.obj \
-              msvc_objectmodel.obj metrowerks_xml.obj pbuilder_pbx.obj
+              msvc_objectmodel.obj metrowerks_xml.obj
 !ELSE
 CFLAGS      = $(CFLAGS) -DQMAKE_OPENSOURCE_EDITION
 !ENDIF
