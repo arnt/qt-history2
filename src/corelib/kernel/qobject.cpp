@@ -2499,8 +2499,13 @@ void QMetaObject::connectSlotsByName(QObject *o)
                 break;
             }
         }
-        if (!foundIt)
+        if (foundIt) {
+            // we found our slot, now skip all overloads
+            while (mo->method(i + 1).attributes() & QMetaMethod::Cloned)
+                  ++i;
+        } else if (!(mo->method(i).attributes() & QMetaMethod::Cloned)) {
             qWarning("QMetaObject::connectSlotsByName(): No matching signal for %s", slot);
+        }
     }
 }
 
