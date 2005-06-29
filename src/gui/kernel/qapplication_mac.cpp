@@ -646,6 +646,9 @@ void qt_event_request_activate(QWidget *w)
 /* timers */
 void qt_event_request_timer(MacTimerInfo *tmr)
 {
+    if(tmr->mac_timer)
+        SetEventLoopTimerNextFireTime(tmr->mac_timer, kEventDurationForever);
+
     EventRef tmr_ev = 0;
     CreateEvent(0, kEventClassQt, kEventQtRequestTimer, GetCurrentEventTime(),
                 kEventAttributeUserEvent, &tmr_ev);
@@ -1813,6 +1816,10 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
             MacTimerInfo *t = 0;
             GetEventParameter(event, kEventParamMacTimer, typeMacTimerInfo, 0, sizeof(t), 0, &t);
             if(t && t->pending) {
+                if(t->mac_timer) {
+                    EventTimerInterval mint = (((EventTimerInterval)t->interval) / 1000);
+                    SetEventLoopTimerNextFireTime(t->mac_timer, mint);
+                }
                 t->pending = false;
                 QTimerEvent e(t->id);
                 QApplication::sendEvent(t->obj, &e);        // send event
