@@ -1780,7 +1780,7 @@ QApplicationPrivate::globalEventProcessor(EventHandlerCallRef er, EventRef event
                 QWidget *tlw = request_activate_pending.widget->window();
                 request_activate_pending.widget = 0;
                 tlw->activateWindow();
-                SelectWindow((WindowPtr)tlw->handle());
+                SelectWindow(qt_mac_window_for(tlw));
             }
         } else if(ekind == kEventQtRequestContext) {
             bool send = false;
