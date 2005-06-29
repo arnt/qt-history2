@@ -132,7 +132,9 @@ void QRubberBandPrivate::updateMask()
 void QRubberBand::paintEvent(QPaintEvent *)
 {
     Q_D(QRubberBand);
+#ifndef Q_WS_MAC
     d->updateMask();
+#endif
     QStylePainter painter(this);
     painter.drawControl(QStyle::CE_RubberBand, d->getStyleOption());
 }
@@ -143,6 +145,10 @@ void QRubberBand::paintEvent(QPaintEvent *)
 void QRubberBand::changeEvent(QEvent *e)
 {
     QWidget::changeEvent(e);
+#ifdef Q_WS_MAC
+    Q_D(QRubberBand);
+    d->updateMask();
+#endif
 }
 
 /*!
@@ -204,7 +210,6 @@ void QRubberBand::changeEvent(QEvent *e)
 void QRubberBand::setGeometry(const QRect &geom)
 {
     Q_D(QRubberBand);
-#if 1
     QRect mygeom = geom;
     d->rect = QRect(0, 0, mygeom.width(), mygeom.height());
     if(QWidget *p = parentWidget()) {
@@ -237,8 +242,8 @@ void QRubberBand::setGeometry(const QRect &geom)
         }
     }
     QWidget::setGeometry(mygeom);
-    update();
-#else
-    QWidget::setMygeometry(geom);
+#ifdef Q_WS_MAC
+    d->updateMask();
 #endif
+    update();
 }
