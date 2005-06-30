@@ -210,9 +210,9 @@
          \i Open Group CDE style (\l QCDEStyle)
          \i \c QT_NO_STYLE_MOTIF
     \row \i \c QT_NO_STYLE_MAC
-         \i MacOS X style (\l QMacStyle)
+         \i Mac OS X style (\l QMacStyle)
     \row \i \c QT_NO_STYLE_PLATINUM
-         \i MacOS 9 style (\l QPlatinumStyle)
+         \i Mac OS 9 style (\l QPlatinumStyle)
          \i \c QT_NO_WIDGETS
     \row \i \c QT_NO_STYLE_SGI
          \i SGI style (\l QSGIStyle)
