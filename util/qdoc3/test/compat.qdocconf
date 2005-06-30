@@ -1,11 +1,8 @@
-alias.also			= sa
 alias.group			= defgroup
 alias.i				= e
 alias.include			= input
-alias.inheaderfile		= headerfile
 alias.quotefile			= include
 alias.quotefromfile		= quotefile
-alias.related			= relates
 
 macro.0                         = "\\\\0"
 macro.b                         = "\\\\b"

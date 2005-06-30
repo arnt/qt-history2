@@ -33,18 +33,18 @@ struct Macro
 };
 
 enum {
-    CMD_A, CMD_ABSTRACT, CMD_ALSO, CMD_BADCODE, CMD_BASENAME, CMD_BOLD, CMD_BRIEF, CMD_C,
-    CMD_CAPTION, CMD_CHAPTER, CMD_CODE, CMD_DOTS, CMD_ELSE, CMD_ENDABSTRACT, CMD_ENDCHAPTER,
-    CMD_ENDCODE, CMD_ENDFOOTNOTE, CMD_ENDIF, CMD_ENDLINK, CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART,
+    CMD_A, CMD_ABSTRACT, CMD_BADCODE, CMD_BASENAME, CMD_BOLD, CMD_BRIEF, CMD_C, CMD_CAPTION,
+    CMD_CHAPTER, CMD_CODE, CMD_DOTS, CMD_ELSE, CMD_ENDABSTRACT, CMD_ENDCHAPTER, CMD_ENDCODE,
+    CMD_ENDFOOTNOTE, CMD_ENDIF, CMD_ENDLINK, CMD_ENDLIST, CMD_ENDOMIT, CMD_ENDPART,
     CMD_ENDQUOTATION, CMD_ENDRAW, CMD_ENDSECTION1, CMD_ENDSECTION2, CMD_ENDSECTION3,
     CMD_ENDSECTION4, CMD_ENDSIDEBAR, CMD_ENDTABLE, CMD_EXPIRE, CMD_FOOTNOTE, CMD_GENERATELIST,
     CMD_GRANULARITY, CMD_HEADER, CMD_I, CMD_IF, CMD_IMAGE, CMD_INCLUDE, CMD_INLINEIMAGE, CMD_INDEX,
-    CMD_KEYWORD, CMD_L, CMD_LEGALESE, CMD_LINK, CMD_LIST, CMD_META, CMD_NEWCODE, CMD_O, CMD_OLDCODE,
-    CMD_OMIT, CMD_OMITVALUE, CMD_PART, CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL, CMD_QUOTATION,
-    CMD_QUOTEFILE, CMD_QUOTEFROMFILE, CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SECTION1,
-    CMD_SECTION2, CMD_SECTION3, CMD_SECTION4, CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO, CMD_SKIPUNTIL,
-    CMD_SUB, CMD_SUP, CMD_TABLE, CMD_TABLEOFCONTENTS, CMD_TARGET, CMD_TT, CMD_UNDERLINE, CMD_VALUE,
-    CMD_WARNING, UNKNOWN_COMMAND
+    CMD_KEYWORD, CMD_L, CMD_LEGALESE, CMD_LINK, CMD_LIST, CMD_META, CMD_NEWCODE, CMD_O,
+    CMD_OLDCODE, CMD_OMIT, CMD_OMITVALUE, CMD_PART, CMD_PRINTLINE, CMD_PRINTTO, CMD_PRINTUNTIL,
+    CMD_QUOTATION, CMD_QUOTEFILE, CMD_QUOTEFROMFILE, CMD_QUOTEFUNCTION, CMD_RAW, CMD_ROW, CMD_SA,
+    CMD_SECTION1, CMD_SECTION2, CMD_SECTION3, CMD_SECTION4, CMD_SIDEBAR, CMD_SKIPLINE, CMD_SKIPTO,
+    CMD_SKIPUNTIL, CMD_SUB, CMD_SUP, CMD_TABLE, CMD_TABLEOFCONTENTS, CMD_TARGET, CMD_TT,
+    CMD_UNDERLINE, CMD_VALUE, CMD_WARNING, UNKNOWN_COMMAND
 };
 
 static struct {
@@ -54,7 +54,6 @@ static struct {
 } cmds[] = {
     { "a", CMD_A, 0 },
     { "abstract", CMD_ABSTRACT, 0 },
-    { "also", CMD_ALSO, 0 },
     { "badcode", CMD_BADCODE, 0 },
     { "basename", CMD_BASENAME, 0 }, // ### don't document for now
     { "bold", CMD_BOLD, 0 },
@@ -114,6 +113,7 @@ static struct {
     { "quotefunction", CMD_QUOTEFUNCTION, 0 }, // ### don't document for now
     { "raw", CMD_RAW, 0 },
     { "row", CMD_ROW, 0 },
+    { "sa", CMD_SA, 0 },
     { "section1", CMD_SECTION1, 0 },
     { "section2", CMD_SECTION2, 0 },
     { "section3", CMD_SECTION3, 0 },
@@ -393,9 +393,6 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
 			    leavePara();
 			    append( Atom::AbstractLeft );
 		        }
-		        break;
-		    case CMD_ALSO:
-		        parseAlso();
 		        break;
                     case CMD_BADCODE:
                         leavePara();
@@ -803,6 +800,9 @@ void DocParser::parse( const QString& source, DocPrivate *docPrivate,
                                                    .arg(commandName(CMD_TABLE)));
 			    }
                         }
+		        break;
+		    case CMD_SA:
+		        parseAlso();
 		        break;
 		    case CMD_SECTION1:
 		        startSection( Doc::Section1, command );
@@ -1405,8 +1405,7 @@ void DocParser::parseAlso()
 	    pos++;
 	    skipSpacesOrOneEndl();
 	} else if ( in[pos] != '\n' ) {
-	    location().warning( tr("Missing comma in '\\%1'")
-				.arg(commandName(CMD_ALSO)) );
+	    location().warning(tr("Missing comma in '\\%1'").arg(commandName(CMD_SA)) );
 	}
     }
 }
