@@ -1013,11 +1013,7 @@ QTextCharFormat QTextBlock::charFormat() const
     if (!p || !n)
         return QTextFormat().toCharFormat();
 
-    const QTextDocumentPrivate::FragmentMap &fm = p->fragmentMap();
-    int pos = p->blockMap().position(n);
-    if (pos > 0)
-        --pos;
-    return p->formatCollection()->charFormat(fm.find(pos)->format);
+    return p->formatCollection()->charFormat(charFormatIndex());
 }
 
 /*!
@@ -1031,11 +1027,7 @@ int QTextBlock::charFormatIndex() const
     if (!p || !n)
         return -1;
 
-    const QTextDocumentPrivate::FragmentMap &fm = p->fragmentMap();
-    int pos = p->blockMap().position(n);
-    if (pos > 0)
-        --pos;
-    return fm.find(pos)->format;
+    return p->blockCharFormatIndex(n);
 }
 
 /*!

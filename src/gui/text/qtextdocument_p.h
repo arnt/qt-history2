@@ -187,6 +187,8 @@ public:
     inline QTextBlock blocksBegin() const { return QTextBlock(const_cast<QTextDocumentPrivate *>(this), blocks.firstNode()); }
     inline QTextBlock blocksEnd() const { return QTextBlock(const_cast<QTextDocumentPrivate *>(this), 0); }
     inline QTextBlock blocksFind(int pos) const { return QTextBlock(const_cast<QTextDocumentPrivate *>(this), blocks.findNode(pos)); }
+    int blockCharFormatIndex(int node) const;
+
     inline int numBlocks() const { return blocks.numNodes(); }
 
     const BlockMap &blockMap() const { return blocks; }
@@ -271,6 +273,7 @@ private:
     QAbstractTextDocumentLayout *lout;
     FragmentMap fragments;
     BlockMap blocks;
+    int initialBlockCharFormatIndex;
 
     QList<QTextCursorPrivate*> cursors;
     QList<QTextCursorPrivate*> changedCursors;

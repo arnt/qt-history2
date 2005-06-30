@@ -167,6 +167,7 @@ void QTextDocumentPrivate::init()
 
     bool undoState = undoEnabled; 
     undoEnabled = false;
+    initialBlockCharFormatIndex = formats.indexForFormat(QTextCharFormat());
     insertBlock(0, formats.indexForFormat(QTextBlockFormat()), formats.indexForFormat(QTextCharFormat()));
     undoEnabled = undoState;
     modified = false;
@@ -515,6 +516,19 @@ void QTextDocumentPrivate::setCharFormat(int pos, int length, const QTextCharFor
     int newFormatIdx = -1;
     if (mode == SetFormat)
         newFormatIdx = formats.indexForFormat(newFormat);
+
+    if (pos == -1) {
+        if (mode == MergeFormat) {
+            QTextFormat format = formats.format(initialBlockCharFormatIndex);
+            format.merge(newFormat);
+            initialBlockCharFormatIndex = formats.indexForFormat(format);
+        } else {
+            initialBlockCharFormatIndex = newFormatIdx;
+        }
+
+        ++pos;
+        --length;
+    }
 
     const int startPos = pos;
     const int endPos = pos + length;
@@ -971,7 +985,14 @@ QString QTextDocumentPrivate::plainText() const
     return result;
 }
 
+int QTextDocumentPrivate::blockCharFormatIndex(int node) const
+{
+    int pos = blocks.position(node);
+    if (pos == 0)
+        return initialBlockCharFormatIndex;
 
+    return fragments.find(pos - 1)->format;
+}
 
 int QTextDocumentPrivate::nextCursorPosition(int position, QTextLayout::CursorMode mode) const
 {

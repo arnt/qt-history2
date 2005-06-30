@@ -226,7 +226,11 @@ void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
         QTextCursor c = cursor;
         c.clearSelection();
         c.movePosition(QTextCursor::Start);
-        c.deleteChar();
+        QTextCharFormat charFmt = formats->charFormat(destPieceTable->find(0)->format);
+        if (charFmt.objectIndex() == -1) {
+            c.setBlockCharFormat(charFmt);
+            c.deleteChar();
+        }
     }
 
     if (containsCompleteDocument)

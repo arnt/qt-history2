@@ -526,8 +526,7 @@ static void setBlockCharFormat(QTextDocumentPrivate *priv, int pos1, int pos2,
         end = end.next();
 
     for (; it != end; it = it.next()) {
-        const int charFmtPos = qMax(it.position() - 1, 0);
-        priv->setCharFormat(charFmtPos, 1, format, changeMode);
+        priv->setCharFormat(it.position() - 1, 1, format, changeMode);
     }
 }
 
@@ -1399,14 +1398,16 @@ QTextCharFormat QTextCursor::charFormat() const
     int idx = d->currentCharFormat;
     if (idx == -1) {
         int pos = d->position - 1;
-        if (pos < 0)
-            pos = 0;
-        Q_ASSERT(pos >= 0 && pos < d->priv->length());
+        if (pos == -1) {
+            idx = d->priv->blockCharFormatIndex(d->priv->blockMap().firstNode());
+        } else {
+            Q_ASSERT(pos >= 0 && pos < d->priv->length());
 
 
-        QTextDocumentPrivate::FragmentIterator it = d->priv->find(pos);
-        Q_ASSERT(!it.atEnd());
-        idx = it.value()->format;
+            QTextDocumentPrivate::FragmentIterator it = d->priv->find(pos);
+            Q_ASSERT(!it.atEnd());
+            idx = it.value()->format;
+        }
     }
 
     QTextCharFormat cfmt = d->priv->formatCollection()->charFormat(idx);
