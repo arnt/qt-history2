@@ -763,7 +763,7 @@ bool qSharedBuild()
     QSysInfo::MacintoshVersion variable gives the version of the
     system on which the application is run.
 
-    \value MV_9        MacOS 9 (unsupported)
+    \value MV_9        Mac OS 9 (unsupported)
     \value MV_10_0     Mac OS X 10.0
     \value MV_10_1     Mac OS X 10.1
     \value MV_10_2     Mac OS X 10.2
