@@ -62,8 +62,8 @@ inline void check() {}
 #define TAG(a,b,c,d) (((quint32)a) << 24) | (((quint32)b) << 16) | (((quint32)c) << 8) | d;
 
 QFragmentMapData::QFragmentMapData(uint fs)
+    : fragmentSize(qMax<uint>(fs, sizeof(Header)))
 {
-    fragmentSize = qMax<uint>(fs, sizeof(Header));
     init();
 }
 

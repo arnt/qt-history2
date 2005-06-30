@@ -175,7 +175,7 @@ public:
         Header *head;
         char *fragments;
     };
-    int fragmentSize;
+    const int fragmentSize;
 };
 
 template <class T>
