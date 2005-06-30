@@ -3242,15 +3242,12 @@ bool QETWidget::translateTabletEvent(const MSG &msg, PACKET *localPacketBuf,
         if (!tCursorInfo()->contains(localPacketBuf[i].pkCursor))
             tabletInit(localPacketBuf[i].pkCursor, qt_tablet_context);
         TabletDeviceData tdd = tCursorInfo()->value(localPacketBuf[i].pkCursor);
-        QSize desktopSize = qt_desktopWidget->screenGeometry().size();
-        QPointF hiResGlobal = tdd.scaleCoord(ptNew.x, ptNew.y, 0, desktopSize.width(),
-                                             0, desktopSize.height());
+        QRect desktopArea = qt_desktopWidget->geometry();
+        QPointF hiResGlobal = tdd.scaleCoord(ptNew.x, ptNew.y, desktopArea.left(), desktopArea.width(),
+                                             desktopArea.top(), desktopArea.height());
         if (btnNew) {
-            // I'm not sure what is going on here. It could be the driver or it could be something else
-            // But as near as I can figure, the pressure is being reported in the Z_AXIS now instead of in
-            // the normal pressure area. So that that into account...
             if (pointerType == QTabletEvent::Pen || pointerType == QTabletEvent::Eraser)
-                prsNew = localPacketBuf[i].pkZ / qreal(tdd.maxPressure - tdd.minPressure);
+                prsNew = localPacketBuf[i].pkNormalPressure / qreal(tdd.maxPressure - tdd.minPressure);
             else
                 prsNew = 0;
         } else if (button_pressed) {

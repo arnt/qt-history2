@@ -54,7 +54,8 @@ static PtrSetLayeredWindowAttributes ptrSetLayeredWindowAttributes = 0;
 #endif
 
 //#define TABLET_DEBUG
-#define PACKETDATA  (PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | PK_ORIENTATION | PK_CURSOR)
+#define PACKETDATA  (PK_X | PK_Y | PK_BUTTONS | PK_NORMAL_PRESSURE | PK_TANGENT_PRESSURE \
+                     | PK_ORIENTATION | PK_CURSOR | PK_Z)
 #define PACKETMODE  0
 #include <wintab.h>
 #include <pktdef.h>
@@ -489,7 +490,7 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
     }
 
     QWinInputContext::enable(q, q->testAttribute(Qt::WA_InputMethodEnabled) & q->isEnabled());
-    if (q != qt_tablet_widget)
+    if (q != qt_tablet_widget && QWidgetPrivate::mapper)
         qt_tablet_init();
 }
 
