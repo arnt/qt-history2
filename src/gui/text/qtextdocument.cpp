@@ -312,6 +312,7 @@ QTextDocument *QTextDocument::clone(QObject *parent) const
     QTextDocument *doc = new QTextDocument(parent);
     QTextCursor(doc).insertFragment(QTextDocumentFragment(this));
     doc->d_func()->config()->title = d->config()->title;
+    doc->d_func()->pageSize = d->pageSize;
     return doc;
 }
 
