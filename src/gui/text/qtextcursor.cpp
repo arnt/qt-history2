@@ -1108,7 +1108,7 @@ void QTextCursor::select(SelectionType selection)
         const QTextBlock b = d->block();
         const int relativePos = d->position - b.position();
 
-        if (relativePos == 0 || relativePos == b.length() - 1)
+        if (relativePos == b.length() - 1)
             return;
 
         movePosition(StartOfWord);
