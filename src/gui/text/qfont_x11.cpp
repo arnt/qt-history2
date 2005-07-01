@@ -279,6 +279,8 @@ Qt::HANDLE QFont::handle() const
 {
     QFontEngine *engine = d->engineForScript(QUnicodeTables::Common);
     Q_ASSERT(engine != 0);
+    if (engine->type() == QFontEngine::Multi)
+        engine = static_cast<QFontEngineMulti *>(engine)->engine(0);
     if (engine->type() == QFontEngine::XLFD)
         return static_cast<QFontEngineXLFD *>(engine)->fontStruct()->fid;
     return 0;
