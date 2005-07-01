@@ -57,7 +57,7 @@ class QHttpPrivate : public QObjectPrivate
 public:
     Q_DECLARE_PUBLIC(QHttp)
 
-    inline QHttpPrivate() : socket(0), state(QHttp::Unconnected),
+    inline QHttpPrivate() : socket(0), deleteSocket(0), state(QHttp::Unconnected),
           error(QHttp::NoError), port(0), toDevice(0),
           postDevice(0), bytesDone(0), chunkedSize(-1)
     {
@@ -68,7 +68,8 @@ public:
         while (!pending.isEmpty())
             delete pending.takeFirst();
 
-        delete socket;
+        if (deleteSocket)
+            delete socket;
     }
 
     // private slots
@@ -91,6 +92,7 @@ public:
     void setSock(QTcpSocket *sock);
 
     QTcpSocket *socket;
+    bool deleteSocket;
     QList<QHttpRequest *> pending;
 
     QHttp::State state;
@@ -1808,9 +1810,11 @@ int QHttp::setHost(const QString &hostName, quint16 port)
 }
 
 /*!
-    Replaces the internal QSocket that QHttp uses with the given \a
-    socket. This is useful if you want to use your own custom QSocket
-    subclass instead of the plain QSocket that QHttp uses by default.
+    Replaces the internal QTcpSocket that QHttp uses with \a
+    socket. This is useful if you want to use your own custom QTcpSocket
+    subclass instead of the plain QTcpSocket that QHttp uses by default.
+    QHttp does not take ownership of the socket, and will not delete \a
+    socket when destroyed.
 
     The function does not block and returns immediately. The request
     is scheduled, and its execution is performed asynchronously. The
@@ -1820,6 +1824,11 @@ int QHttp::setHost(const QString &hostName, quint16 port)
     When the request is started the requestStarted() signal is
     emitted. When it is finished the requestFinished() signal is
     emitted.
+
+    Note: If QHttp is used in a different thread (i.e., running its own event
+    loop), you must move \a socket to this thread before calling setSocket().
+
+    \sa QObject::moveToThread()
 */
 int QHttp::setSocket(QTcpSocket *socket)
 {
@@ -2554,7 +2563,8 @@ void QHttpPrivate::setSock(QTcpSocket *sock)
     // disconnect all existing signals
     if (socket) socket->disconnect();
 
-    // use the new QSocket socket, or create one if socket is 0.
+    // use the new QTcpSocket socket, or create one if socket is 0.
+    deleteSocket = (sock == 0);
     socket = sock ? sock : new QTcpSocket();
 
     // connect all signals
