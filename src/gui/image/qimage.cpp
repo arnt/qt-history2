@@ -3236,7 +3236,7 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
 
     QImage dImage(wd, hd, d->format);
     dImage.d->colortable = d->colortable;
-    dImage.d->has_alpha_clut = d->has_alpha_clut;
+    dImage.d->has_alpha_clut = d->has_alpha_clut | complex_xform;
     if (dImage.d->format == Format_RGB32 && complex_xform)
         dImage.d->format = Format_ARGB32_Premultiplied;
     dImage.d->dpmx = dotsPerMeterX();
