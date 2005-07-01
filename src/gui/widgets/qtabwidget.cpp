@@ -483,7 +483,7 @@ QWidget * QTabWidget::currentWidget() const
 void QTabWidget::setCurrentWidget(QWidget *widget)
 {
     Q_D(const QTabWidget);
-    d->stack->setCurrentWidget(widget);
+    d->tabs->setCurrentIndex(indexOf(widget));
 }
 
 
