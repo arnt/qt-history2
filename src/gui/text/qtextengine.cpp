@@ -1289,6 +1289,10 @@ void QScriptLine::setDefaultHeight(QTextEngine *eng)
 
     if (eng->block.docHandle()) {
         f = eng->block.charFormat().font();
+        // Make sure we get the right dpi on printers
+        QPaintDevice *pdev = eng->block.docHandle()->layout()->paintDevice();
+        if (pdev)
+            f = QFont(f, pdev);
         e = f.d->engineForScript(QUnicodeTables::Common);
     } else {
         e = eng->fnt.d->engineForScript(QUnicodeTables::Common);
