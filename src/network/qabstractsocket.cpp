@@ -830,7 +830,8 @@ void QAbstractSocketPrivate::abortConnectionAttempt()
     if (writeSocketNotifier)
         writeSocketNotifier->setEnabled(false);
 
-    testConnection();
+    if (socketLayer.isValid())
+        testConnection();
 }
 
 /*! \internal
@@ -1475,6 +1476,11 @@ void QAbstractSocket::abort()
 #endif
     if (d->state == UnconnectedState)
         return;
+    if (d->connectTimer) {
+        d->connectTimer->stop();
+        d->connectTimer->deleteLater();
+        d->connectTimer = 0;
+    }
 
     d->writeBuffer.clear();
     close();
