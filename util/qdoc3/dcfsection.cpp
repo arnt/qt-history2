@@ -1,6 +1,7 @@
 #include <qfile.h>
 #include <qfileinfo.h>
 #include <qtextstream.h>
+#include <QtXml>
 
 #include "dcfsection.h"
 #include "htmlgenerator.h"
@@ -21,6 +22,9 @@ void generateDcfSubSections( QString indent, QTextStream& out, const DcfSection&
     while ( ss != sect.subsections.constEnd() ) {
 	out << indent << "<section ref=\"" << HtmlGenerator::protect((*ss).ref)
             << "\" title=\"" << HtmlGenerator::protect((*ss).title) << "\"";
+        if (!(*ss).bases.isNull())
+            out << " bases=\"" << HtmlGenerator::protect((*ss).bases) << "\"";
+
 	if ((*ss).keywords.isEmpty() && (*ss).subsections.isEmpty()) {
 	    out << "/>\n";
 	} else {
@@ -63,4 +67,51 @@ void generateDcfSections( const DcfSection& rootSect, const QString& fileName,
 
     out << "</DCF>\n";
     out.flush();
+}
+
+DcfSection readDcfFile(const QString &path)
+{
+    DcfSection section;
+
+    QFile file(path);
+    if (file.open(QFile::ReadOnly)) {
+        QDomDocument document;
+        document.setContent(&file);
+        file.close();
+
+        section = readDcfSection(document.documentElement());
+    }
+    return section;
+}
+
+DcfSection readDcfSection(const QDomElement &element)
+{
+    DcfSection section;
+    section.title = element.attribute("title");
+    section.ref = element.attribute("ref");
+
+    QDomElement child = element.firstChildElement();
+    while (!child.isNull()) {
+        if (child.nodeName() == "keyword") {
+            QString text = readDcfText(child);
+            if (!text.isEmpty())
+                section.keywords.append(qMakePair(text, child.attribute("ref")));
+        } else if (child.nodeName() == "section")
+            section.subsections.append(readDcfSection(child));
+
+        child = child.nextSiblingElement();
+    }
+    return section;
+}
+
+QString readDcfText(const QDomElement &element)
+{
+    QString text;
+    QDomNode child = element.firstChild();
+    while (!child.isNull()) {
+        if (child.isText())
+            text += child.toText().nodeValue();
+        child = child.nextSibling();
+    }
+    return text;
 }

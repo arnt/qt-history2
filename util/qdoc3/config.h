@@ -70,8 +70,10 @@ private:
 #define CONFIG_ALIAS                    "alias"
 #define CONFIG_BASE                     "base"      // ### don't document for now
 #define CONFIG_DEFINES                  "defines"
+#define CONFIG_DESCRIPTION              "description"
 #define CONFIG_EXAMPLEDIRS              "exampledirs"
 #define CONFIG_EXAMPLES                 "examples"
+#define CONFIG_EXTERNALBASE             "externalbase"
 #define CONFIG_EXTRAIMAGES              "extraimages"
 #define CONFIG_FALSEHOODS               "falsehoods"
 #define CONFIG_FORMATTING               "formatting"
@@ -81,6 +83,7 @@ private:
 #define CONFIG_IGNORETOKENS             "ignoretokens"
 #define CONFIG_IMAGEDIRS                "imagedirs"
 #define CONFIG_IMAGES                   "images"
+#define CONFIG_INDEXES                  "indexes"
 #define CONFIG_LANGUAGE                 "language"
 #define CONFIG_MACRO                    "macro"
 #define CONFIG_OUTPUTDIR                "outputdir"

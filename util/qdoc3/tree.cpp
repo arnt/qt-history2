@@ -4,6 +4,8 @@
 
 #include <QtCore>
 
+#include "dcfsection.h"
+#include "location.h"
 #include "node.h"
 #include "text.h"
 #include "tree.h"
@@ -155,8 +157,23 @@ const FunctionNode *Tree::findFunctionNode(const QStringList &path, const Node *
 
             node = next;
         }
-        if (node && i == path.size())
-            return static_cast<const FunctionNode *>(node);
+        if (node && i == path.size() && node->type() == Node::Function) {
+            // CppCodeParser::processOtherMetaCommand ensures that reimplemented
+            // functions are private.
+            const FunctionNode *func = static_cast<const FunctionNode*>(node);
+
+            while (func->access() == Node::Private) {
+                const FunctionNode *from = func->reimplementedFrom();
+                if (from != 0) {
+                    if (from->access() != Node::Private)
+                        return from;
+                    else
+                        func = from;
+                } else
+                    break;
+            }
+            return func;
+        }
         relative = relative->parent();
     } while (relative);
 
@@ -440,10 +457,18 @@ FunctionNode *Tree::findVirtualFunctionInBaseClasses(ClassNode *classe, Function
     QList<RelatedClass>::ConstIterator r = classe->baseClasses().begin();
     while ( r != classe->baseClasses().end() ) {
 	FunctionNode *func;
-	if ( ((func = findVirtualFunctionInBaseClasses((*r).node, clone)) != 0 ||
-	      (func = (*r).node->findFunctionNode(clone)) != 0) &&
-	     func->virtualness() != FunctionNode::NonVirtual )
-	    return func;
+        if ((*r).node->isExternal()) {
+            // Use a simpler form of matching when dealing with externally
+            // defined classes.
+            if ((func = (*r).node->findFunctionNode(clone->name())) != 0)
+                return func;
+            else if ((func = findVirtualFunctionInBaseClasses((*r).node, clone)) != 0)
+                return func;
+        } else if ( ((func = findVirtualFunctionInBaseClasses((*r).node, clone)) != 0 ||
+	      (func = (*r).node->findFunctionNode(clone)) != 0) ) {
+	    if (func->virtualness() != FunctionNode::NonVirtual )
+	        return func;
+        }
  	++r;
     }
     return 0;
@@ -472,4 +497,139 @@ NodeList Tree::allBaseClasses(const ClassNode *classe) const
         result += allBaseClasses(r.node);
     }
     return result;
+}
+
+void Tree::readIndexes(const QStringList &dcfFiles)
+{
+    foreach (QString dcfFile, dcfFiles)
+        readDcfFile(dcfFile);
+}
+
+void Tree::readDcfFile(const QString &path)
+{
+    QFile file(path);
+    if (file.open(QFile::ReadOnly)) {
+        QDomDocument document;
+        document.setContent(&file);
+        file.close();
+
+        QList<QPair<ClassNode*,QString> > basesList;
+        basesList = readDcfSection(document.documentElement(), root());
+        resolveDcfBases(basesList);
+    }
+}
+
+QList<QPair<ClassNode*,QString> > Tree::readDcfSection(const QDomElement &element, InnerNode *parent)
+{
+    QList<QPair<ClassNode*,QString> > basesList;
+
+    QString title = element.attribute("title");
+    QString baseRef = element.attribute("ref");
+
+    QDomElement child = element.firstChildElement();
+    bool inClass;
+
+    InnerNode *section;
+    if (element.hasAttribute("bases")) {
+        QString text = readDcfText(child);
+        inClass = true;
+
+        if (!text.isEmpty()) {
+            section = new ClassNode(parent, text);
+            section->setExternal(true);
+            section->setLink(Node::ContentsLink, baseRef, title);
+            section->setAccess(Node::Public);
+            QSet<QString> emptySet;
+            Location location(baseRef);
+            Doc doc(location, QString("placeholder"), emptySet);
+            section->setDoc(doc);
+
+            basesList.append(QPair<ClassNode*,QString>(
+                static_cast<ClassNode*>(section), element.attribute("bases")));
+
+            // Move to the child element after the class keyword element.
+            child = child.nextSiblingElement();
+        } else
+            return basesList;
+    } else {
+        inClass = false;
+        parent = root();
+        section = new FakeNode(parent, baseRef, FakeNode::Page);
+        QSet<QString> emptySet;
+        Location location(baseRef);
+        Doc doc(location, QString("placeholder"), emptySet);
+        section->setDoc(doc);
+        section->setExternal(true);
+        section->setLink(Node::ContentsLink, baseRef, title);
+    }
+
+    while (!child.isNull()) {
+
+        if (child.nodeName() == "keyword") {
+            QString text = readDcfText(child);
+            if (!text.isEmpty()) {
+                if (inClass) {
+                    if (baseRef.contains("-prop")) {
+                        PropertyNode *propertyNode = new PropertyNode(section,
+                            text);
+                        propertyNode->setLink(Node::ContentsLink,
+                            child.attribute("ref"), text);
+                        propertyNode->setExternal(true);
+                    } else if (baseRef.contains("-enum")) {
+                        EnumNode *enumNode = new EnumNode(section, text);
+                        enumNode->setLink(Node::ContentsLink,
+                            child.attribute("ref"), text);
+                        enumNode->setExternal(true);
+                    } else {
+                        FunctionNode *functionNode = new FunctionNode(section,
+                            text);
+                        functionNode->setLink(Node::ContentsLink,
+                            child.attribute("ref"), text);
+                        functionNode->setExternal(true);
+                    }
+                } else {
+                    TargetNode *target = new TargetNode(section, text);
+                    target->setLink(Node::ContentsLink, child.attribute("ref"),
+                                    text);
+                    target->setExternal(true);
+                }
+            }
+
+        } else if (child.nodeName() == "section") {
+            if (inClass)
+                basesList += readDcfSection(child, section);
+            else
+                basesList += readDcfSection(child, parent); // Only create one level of items.
+        }
+
+        child = child.nextSiblingElement();
+    }
+    return basesList;
+}
+
+QString Tree::readDcfText(const QDomElement &element)
+{
+    QString text;
+    QDomNode child = element.firstChild();
+    while (!child.isNull()) {
+        if (child.isText())
+            text += child.toText().nodeValue();
+        child = child.nextSibling();
+    }
+    return text;
+}
+
+void Tree::resolveDcfBases(QList<QPair<ClassNode*,QString> > basesList)
+{
+    QPair<ClassNode*,QString> pair;
+
+    foreach (pair, basesList) {
+        foreach (QString base, pair.second.split(",")) {
+            Node *baseClass = root()->findNode(base, Node::Class);
+            if (baseClass) {
+                pair.first->addBaseClass(Node::Public,
+                                         static_cast<ClassNode*>(baseClass));
+            }
+        }
+    }
 }

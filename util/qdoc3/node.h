@@ -38,7 +38,9 @@ public:
     void setRelates(InnerNode *pseudoParent);
     void setModuleName(const QString &module) { mod = module; }
     void setLink(LinkType linkType, const QString &link, const QString &desc);
+    void setExternal(bool enable);
 
+    bool isExternal() const;
     virtual bool isInnerNode() const = 0;
     Type type() const { return typ; }
     InnerNode *parent() const { return par; }
@@ -79,6 +81,7 @@ private:
     Doc d;
     QMap<LinkType, QPair<QString, QString> > linkMap;
     QString mod;
+    bool external;
 };
 
 class FunctionNode;

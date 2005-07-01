@@ -2,6 +2,7 @@
   pagegenerator.cpp
 */
 
+#include <qdebug.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 
@@ -92,6 +93,9 @@ QTextStream &PageGenerator::out()
 void PageGenerator::generateInnerNode( const InnerNode *node,
 				       CodeMarker *marker )
 {
+    if (node->isExternal())
+        return;
+
     if ( node->parent() != 0 ) {
 	beginSubPage( node->location(), fileName(node) );
 	if ( node->type() == Node::Namespace || node->type() == Node::Class) {

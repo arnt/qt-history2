@@ -6,6 +6,7 @@
 #define TREE_H
 
 #include "node.h"
+#include <QDomElement>
 
 class QStringList;
 class TreePrivate;
@@ -50,12 +51,17 @@ public:
     const Node *findUnambiguousTarget(const QString &target, Atom *&atom) const;
     Atom *findTarget(const QString &target, const Node *node) const;
     const NamespaceNode *root() const { return &roo; }
+    void readIndexes(const QStringList &dcfFiles);
 
 private:
     void resolveInheritance(int pass, ClassNode *classe);
     FunctionNode *findVirtualFunctionInBaseClasses(ClassNode *classe, FunctionNode *clone);
     void fixPropertyUsingBaseClasses(ClassNode *classe, PropertyNode *property);
     NodeList allBaseClasses(const ClassNode *classe) const;
+    void readDcfFile(const QString &path);
+    QList<QPair<ClassNode*,QString> > readDcfSection(const QDomElement &element, InnerNode *parent);
+    QString readDcfText(const QDomElement &element);
+    void resolveDcfBases(QList<QPair<ClassNode*,QString> > basesList);
 
     NamespaceNode roo;
     QString vers;

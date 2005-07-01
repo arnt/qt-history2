@@ -1,17 +1,16 @@
 include(compat.qdocconf)
 
 project                 = Qt
+description             = Qt Reference Documentation
 language                = Cpp
 headerdirs              = $QTDIR/src \
                           $QTDIR/extensions/activeqt \
-                          $QTDIR/extensions/motif \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib
 sourcedirs              = $QTDIR/src \
                           $QTDIR/doc/src \
                           $QTDIR/extensions/activeqt \
-                          $QTDIR/extensions/motif \
                           $QTDIR/tools/designer/src/lib/extension \
                           $QTDIR/tools/designer/src/lib/sdk \
                           $QTDIR/tools/designer/src/lib/uilib

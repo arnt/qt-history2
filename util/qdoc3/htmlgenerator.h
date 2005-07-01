@@ -91,6 +91,7 @@ private:
 #if 0
     QString fileBase( const Node *node, const SectionIterator& section );
 #endif
+    QString fileName( const Node *node );
     QString refForNode( const Node *node );
     QString linkForNode( const Node *node, const Node *relative );
     QString refForAtom(Atom *atom, const Node *node);
@@ -128,6 +129,8 @@ private:
     QString footer;
     QString address;
     QString project;
+    QString projectDescription;
+    QString externalBase;
     QString navigationLinks;
     const Tree *tre;
     QMap<QString, QMap<QString, const Node *> > moduleClassMap;

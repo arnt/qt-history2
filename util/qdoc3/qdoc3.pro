@@ -1,5 +1,5 @@
 DEFINES += QDOC2_COMPAT
-QT = core
+QT = core xml
 CONFIG += console
 build_all:!build_pass {
     CONFIG -= build_all
