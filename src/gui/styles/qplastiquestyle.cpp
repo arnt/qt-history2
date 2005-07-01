@@ -2114,7 +2114,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             QRect rect = subElementRect(SE_ProgressBarLabel, option, widget);
             QRect leftRect;
 
-            QFont font = widget->font();
+            QFont font;
             font.setBold(true);
             painter->setFont(font);
             painter->setPen(bar->palette.text().color());
@@ -3883,14 +3883,8 @@ QRect QPlastiqueStyle::subElementRect(SubElement element, const QStyleOption *op
     case SE_RadioButtonIndicator:
         rect = rect.adjusted(0, 0, 1, 1);
         break;
-    case SE_ProgressBarGroove:
-        rect = widget->rect();
-        break;
-    case SE_ProgressBarContents:
-        rect = widget->rect();
-        break;
     case SE_ProgressBarLabel:
-        rect.moveLeft(widget->rect().center().x() - rect.width() / 2);
+        rect.moveLeft(option->rect.center().x() - rect.width() / 2);
         break;
     default:
         break;
