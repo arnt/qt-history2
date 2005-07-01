@@ -67,9 +67,12 @@ struct QPixmapData { // internal pixmap data
     QX11Info xinfo;
     Qt::HANDLE x11_mask;
     Qt::HANDLE picture;
+    Qt::HANDLE mask_picture;
     Qt::HANDLE hd2; // sorted in the default display depth
     Qt::HANDLE x11ConvertToDefaultDepth();
-    uint has_alpha : 1;
+#ifndef QT_NO_XRENDER
+    void convertToARGB32();
+#endif
 #elif defined(Q_WS_MAC)
     uint has_alpha : 1, has_mask : 1;
     void macSetHasAlpha(bool b);

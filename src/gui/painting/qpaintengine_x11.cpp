@@ -696,6 +696,9 @@ bool QX11PaintEngine::begin(QPaintDevice *pdev)
     if (pdev->devType() == QInternal::Widget) {
         d->picture = (::Picture)static_cast<const QWidget *>(pdev)->x11PictureHandle();
     } else if (pdev->devType() == QInternal::Pixmap) {
+        const QPixmap *pm = static_cast<const QPixmap *>(pdev);
+        if (X11->use_xrender && pm->data->d != 32 && pm->data->x11_mask)
+            pm->data->convertToARGB32();
         d->picture = (::Picture)static_cast<const QPixmap *>(pdev)->x11PictureHandle();
     }
 #else
@@ -1077,11 +1080,6 @@ void QX11PaintEngine::updatePen(const QPen &pen)
     d->has_pen = (ps != Qt::NoPen);
     d->alpha_pen = (pen.color().alpha() != 255);
 
-    if (d->alpha_pen && d->pdev->devType() == QInternal::Pixmap) {
-        QPixmap *p = static_cast<QPixmap *>(d->pdev);
-        p->data->has_alpha = true;
-    }
-
     switch (pen.capStyle()) {
     case Qt::SquareCap:
         cp = CapProjecting;
@@ -1213,11 +1211,6 @@ void QX11PaintEngine::updateBrush(const QBrush &brush, const QPointF &origin)
     d->has_pattern = bs >= Qt::Dense1Pattern && bs <= Qt::DiagCrossPattern;
     d->has_texture = bs == Qt::TexturePattern;
     d->alpha_brush = brush.color().alpha() != 255;
-
-    if (d->alpha_brush && d->pdev->devType() == QInternal::Pixmap) {
-        QPixmap *p = static_cast<QPixmap *>(d->pdev);
-        p->data->has_alpha = true;
-    }
 
     ulong mask = GCForeground | GCBackground | GCGraphicsExposures
                  | GCLineStyle | GCCapStyle | GCJoinStyle | GCFillStyle;
@@ -1565,24 +1558,22 @@ void QX11PaintEngine::drawPixmap(const QRectF &r, const QPixmap &pixmap, const Q
     QPixmap::x11SetDefaultScreen(pixmap.x11Info().screen());
 
 #if !defined(QT_NO_XRENDER)
-    ::Picture src_pict = pixmap.x11PictureHandle();
-    if (X11->use_xrender && src_pict && d->picture) {
-        if (pixmap.depth() == 1) {
+    ::Picture src_pict = pixmap.data->picture;
+    if (src_pict && d->picture) {
+        if (pixmap.data->d == 1 && (d->alpha_pen || d->bg_brush != Qt::NoBrush)) {
             qt_render_bitmap(d->dpy, d->scrn, src_pict, d->picture,
                              sx, sy, x, y, sw, sh, d->cpen, d->bg_brush,
                              d->bg_mode == Qt::OpaqueMode);
-        } else {
-            int op = PictOpSrc;
-            if (pixmap.data->has_alpha)
-                op = PictOpOver;
-            XRenderComposite(d->dpy, op,
+            return;
+        } else if (pixmap.data->d != 1 && (pixmap.data->d == 32 || pixmap.data->d != d->pdev_depth)) {
+            XRenderComposite(d->dpy, PictOpOver,
                              src_pict, 0, d->picture, sx, sy, 0, 0, x, y, sw, sh);
+            return;
         }
-        return;
     }
 #endif
 
-    bool mono_src = pixmap.depth() == 1;
+    bool mono_src = pixmap.data->d == 1;
     bool mono_dst = d->pdev_depth == 1;
     bool restore_clip = false;
 
