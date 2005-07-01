@@ -1,12 +1,13 @@
 /*!
-    \omit
     \example painting/basicdrawing
     \title Basic Drawing Example
 
-    The Basic Drawing examples shows how to display basic graphics primitives
+    The Basic Drawing example shows how to display basic graphics primitives
     in a variety of styles.
 
     \image basicdrawing-example.png
+
+    \omit
 
     The Basic Drawing example consists of two classes:
 
