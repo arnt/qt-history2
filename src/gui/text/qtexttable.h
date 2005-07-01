@@ -76,6 +76,9 @@ public:
     void removeRows(int pos, int num);
     void removeColumns(int pos, int num);
 
+    void setColumnSpan(int row, int col, int span);
+    void setRowSpan(int row, int col, int span);
+
     int rows() const;
     int columns() const;
 

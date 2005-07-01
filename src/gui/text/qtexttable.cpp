@@ -16,6 +16,7 @@
 #include "qtextformat.h"
 #include <qdebug.h>
 #include "qtexttable_p.h"
+#include "qvarlengtharray.h"
 
 #include <stdlib.h>
 
@@ -719,6 +720,144 @@ void QTextTable::removeColumns(int pos, int num)
 
     p->endEditBlock();
 //     qDebug() << "-------- end removeCols" << pos << num;
+}
+
+/*!
+*/
+void QTextTable::setColumnSpan(int row, int col, int span)
+{
+    Q_D(QTextTable);
+
+    if (d->dirty)
+        d->update();
+
+    if (span < 1 || row < 0 || col < 0 || col >= d->nCols || row >= d->nRows)
+        return;
+
+    QTextDocumentPrivate *p = d->pieceTable;
+    QTextFormatCollection *c = p->formatCollection();
+
+    const QTextTableCell cell = cellAt(row, col);
+    col = cell.column();
+    row = cell.row();
+
+    span = qMin(span, d->nCols - col);
+
+    QTextCharFormat fmt = cell.format();
+    const int rowSpan = fmt.tableCellRowSpan();
+    int oldSpan = fmt.tableCellColumnSpan();
+    if (oldSpan == span)
+        return;
+
+    p->beginEditBlock();
+
+    if (span > oldSpan) {
+        // merge cells
+        int origCellPosition = cell.firstPosition() - 1;
+        QVarLengthArray<int> cellPositionsToDelete;
+        for (int r = row; r < row + rowSpan; ++r ) {
+            for (int c = col + oldSpan; c < col + span; ++c) {
+                const int cell = d->grid[r * d->nCols + c];
+                QTextDocumentPrivate::FragmentIterator it(&p->fragmentMap(), cell);
+                cellPositionsToDelete.append(it.position());
+            }
+        }
+
+        int offset = 0;
+        for (int i = 0; i < cellPositionsToDelete.size(); ++i) {
+            p->remove(cellPositionsToDelete[i] - offset, 1);
+            ++offset;
+        }
+
+        fmt.setTableCellColumnSpan(span);
+        p->setCharFormat(origCellPosition, 1, fmt);
+    } else {
+        // split cell
+        int origCellPosition = cell.firstPosition() - 1;
+        int pos = cell.lastPosition();
+        fmt.setTableCellColumnSpan(1);
+        const int fmtIndex = c->indexForFormat(fmt);
+        const int blockIndex = p->blockMap().find(pos)->format;
+
+        for (int i = 0; i < oldSpan - span; ++i)
+            p->insertBlock(QTextBeginningOfFrame, pos, blockIndex, fmtIndex);
+
+        fmt.setTableCellColumnSpan(span);
+        p->setCharFormat(origCellPosition, 1, fmt);
+    }
+
+    d->dirty = true;
+
+    p->endEditBlock();
+}
+
+/*!
+*/
+void QTextTable::setRowSpan(int row, int col, int span)
+{
+    Q_D(QTextTable);
+
+    if (d->dirty)
+        d->update();
+
+    if (span < 1 || row < 0 || col < 0 || col >= d->nCols || row >= d->nRows)
+        return;
+
+    QTextDocumentPrivate *p = d->pieceTable;
+    QTextFormatCollection *c = p->formatCollection();
+
+    const QTextTableCell cell = cellAt(row, col);
+    col = cell.column();
+    row = cell.row();
+
+    span = qMin(span, d->nRows - row);
+
+    QTextCharFormat fmt = cell.format();
+    const int colSpan = fmt.tableCellColumnSpan();
+    int oldSpan = fmt.tableCellRowSpan();
+    if (oldSpan == span)
+        return;
+
+    p->beginEditBlock();
+
+    if (span > oldSpan) {
+        // merge cells
+        int origCellPosition = cell.firstPosition() - 1;
+        QVarLengthArray<int> cellPositionsToDelete;
+        for (int c = col; c < col + colSpan; ++c) {
+            for (int r = row + oldSpan; r < row + span; ++r) {
+                const int cell = d->grid[r * d->nCols + c];
+                QTextDocumentPrivate::FragmentIterator it(&p->fragmentMap(), cell);
+                cellPositionsToDelete.append(it.position());
+            }
+        }
+
+        int offset = 0;
+        for (int i = 0; i < cellPositionsToDelete.size(); ++i) {
+            p->remove(cellPositionsToDelete[i] - offset, 1);
+            ++offset;
+        }
+
+        fmt.setTableCellRowSpan(span);
+        p->setCharFormat(origCellPosition, 1, fmt);
+    } else {
+        // split cell
+        int origCellPosition = cell.firstPosition() - 1;
+        int pos = cell.lastPosition();
+        fmt.setTableCellRowSpan(1);
+        const int fmtIndex = c->indexForFormat(fmt);
+        const int blockIndex = p->blockMap().find(pos)->format;
+
+        for (int i = 0; i < oldSpan - span; ++i)
+            p->insertBlock(QTextBeginningOfFrame, pos, blockIndex, fmtIndex);
+
+        fmt.setTableCellRowSpan(span);
+        p->setCharFormat(origCellPosition, 1, fmt);
+    }
+
+    d->dirty = true;
+
+    p->endEditBlock();
 }
 
 /*!
