@@ -56,7 +56,7 @@ public:
         // MS Windows types
         Win,
 
-        // Apple MacOS types
+        // Apple Mac OS types
         Mac,
 
         // Trolltech QWS types
