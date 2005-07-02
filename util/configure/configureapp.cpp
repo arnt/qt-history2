@@ -1663,7 +1663,7 @@ WCE( { cout << "    PocketPC............." << dictionary[ "STYLE_POCKETPC" ] << 
     cout << "    DB2....................." << dictionary[ "SQL_DB2" ] << endl;
     cout << "    SQLite.................." << dictionary[ "SQL_SQLITE" ] << endl;
     cout << "    SQLite2................." << dictionary[ "SQL_SQLITE2" ] << endl;
-    cout << "    Interbase..............." << dictionary[ "SQL_IBASE" ] << endl << endl;
+    cout << "    InterBase..............." << dictionary[ "SQL_IBASE" ] << endl << endl;
 
     cout << "Sources are in.............." << dictionary[ "QT_SOURCE_TREE" ] << endl;
     cout << "Build is done in............" << dictionary[ "QT_BUILD_TREE" ] << endl;
