@@ -42,12 +42,12 @@ simply add PRECOMPILED_HEADER and then specify the header file to
 precompile in your .pro file. To learn more about precompiled headers
 see the "Using Precompiled Headers" chapter in the qmake User Guide.
 
-Two new database drivers have been added to the SQL module, Interbase
+Two new database drivers have been added to the SQL module, InterBase
 and SQLite. This makes it possible to write database applications that
 do not require a database server. SQLite is provided in the Qt 3.3
 distribution and can be enabled with either -qt-sql-sqlite or
--plugin-sql-sqlite. The Interbase plugin also works with Firebird, the
-open source version of Interbase.
+-plugin-sql-sqlite. The InterBase plugin also works with Firebird, the
+open source version of InterBase.
 
 QWidget has a new function setWindowState() which is used to make a
 widget maximized, minimized, etc. This allows individual settings for
@@ -265,7 +265,7 @@ SGI MIPSpro o32 mode.
 	Less intrusive stay-on-top policy.
 
 - QSql
-	Support for Interbase and SQLite.
+	Support for InterBase and SQLite.
 
 - QStatusBar
 	Draw messages with the foreground() color of the palette,
