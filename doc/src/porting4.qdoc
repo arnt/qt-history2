@@ -878,6 +878,14 @@
     Qt 4.1 is expected to provide a replacement module for these
     classes, based on Qt 4's powerful new 2D paint system.
 
+    \section1 QColor
+
+    In Qt 4, QColor is a value type like QPoint or QRect. Graphics
+    system-specific code has been implemented in QColorMap.
+
+    The numBitPlanes() function has been replaced by
+    QColorMap::depth().
+
     \section1 QColorGroup
 
     In Qt 3, a QPalette consisted of three QColorGroup objects. In Qt

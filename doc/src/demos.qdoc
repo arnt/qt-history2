@@ -38,25 +38,25 @@
     \section1 SQL
 
     \list
-    \o \l{demos/books} shows how Qt's SQL support and model/view integration
+    \o \l{demos/books}{Books} shows how Qt's SQL support and model/view integration
        enables the user to modify the contents of a database without requiring
        knowledge of SQL.
-    \o \l{demos/sqlbrowser} demonstrates a console for executing SQL statements
-       on a live database and provides a data browser for interactively
+    \o \l{demos/sqlbrowser}{SQL Browser} demonstrates a console for executing SQL
+       statements on a live database and provides a data browser for interactively
        visualizing the results.
     \endlist
 
     \section1 Rich Text
 
     \list
-    \o \l{demos/textedit} shows Qt's rich text editing features and provides an
-       environment for experimenting with them.
+    \o \l{demos/textedit}{Text Edit} shows Qt's rich text editing features and provides
+       an environment for experimenting with them.
     \endlist
 
     \section1 Main Window
 
     \list
-    \o \l{demos/mainwindow} shows Qt's extensive support for main window features,
-       such as tool bars, dock windows, and menus.
+    \o \l{demos/mainwindow}{Main Window} shows Qt's extensive support for main window
+       features, such as tool bars, dock windows, and menus.
     \endlist
 */

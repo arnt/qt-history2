@@ -67,8 +67,8 @@
     \target qws
     \section1 Qt/Embedded
 
-    \bold{Note:} \e{(A version of Qt 4 for embedded Linux will be available in
-       August/September 2005.)}
+    \bold{Note:} \e{A version of Qt 4 for embedded Linux will be available in
+       August/September 2005.}
 
     When compiling for this platform, the macro \c{Q_WS_QWS} is defined
     (the window system is literally the Qt Window System).

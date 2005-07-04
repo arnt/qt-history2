@@ -648,6 +648,7 @@
     \o \l{qmake Variable Reference#SUBDIRS}{SUBDIRS}
     \o \l{qmake Variable Reference#TARGET}{TARGET}
     \o \l{qmake Variable Reference#TEMPLATE}{TEMPLATE}
+    \o \l{qmake Variable Reference#TRANSLATIONS}{TRANSLATIONS}
     \o \l{qmake Variable Reference#UI_DIR}{UI_DIR}
     \o \l{qmake Variable Reference#UI_HEADERS_DIR}{UI_HEADERS_DIR}
     \o \l{qmake Variable Reference#UI_SOURCES_DIR}{UI_SOURCES_DIR}
@@ -1929,6 +1930,14 @@
 
     See also \l{Configuring qmake's Environment#Extensions}{File Extensions}.
 
+    \section1 TRANSLATIONS
+
+    This variable contains a list of translation (.ts) files that contain
+    translations of the user interface text into non-native languages.
+
+    See the \l{Qt Linguist Manual} for more information about
+    internationalization (i18n) and localization (l10n) with Qt.
+
     \section1 YACCIMPLS
 
     This variable contains a list of yacc source files. The value of
@@ -1972,13 +1981,13 @@
     \section1 CONFIG(config)
     [Conditional]
 
-    This function can be used to test for variables placed into the CONFIG
-    variable. This is the same as regular old style (tmake) scopes, but
-    has the added advantage a second paramter can be passed to test for
-    the active config. As CONFIG's are order dependent (ie the last one
-    set will be considered the active config for mutual exclusive sets
-    like debug and release) a second parameter can be used to specify a set
-    of values to consider for example:
+    This function can be used to test for variables placed into the
+    \c CONFIG variable. This is the same as regular old style (tmake) scopes,
+    but has the added advantage a second parameter can be passed to test for
+    the active config. As the order of values is important in \c CONFIG
+    variables (i.e. the last one set will be considered the active config for
+    mutually exclusive values) a second parameter can be used to specify a set
+    of values to consider. For example:
 
     \code
         CONFIG = debug
@@ -2152,10 +2161,12 @@
 
     \section1 member(variablename, position)
 
-    Places the value in \e variablename in position \e position of the
-    list. If the value of \e variablename is not long, an empty string is
+    Returns the value at the given \e position in the list of items in
+    \e variablename.
+    If an item cannot be found at the position specified, an empty string is
     returned. \e variablename is the only required field. If not specified,
-    \c position defaults to the first value in the list (0).
+    \c position defaults to 0, causing the first value in the list to be
+    returned.
 
     \section1 message(string)
 
@@ -2819,7 +2830,7 @@
 
     \quotefromfile snippets/qmake/replacefunction.pro
     \skipto defineReplace
-    \printuntil
+    \printuntil /^\}/
 
     \target ConditionalFunctions
     \section1 Conditional Functions

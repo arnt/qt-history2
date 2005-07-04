@@ -38,14 +38,14 @@ technical support and upgrades on any supported platform.
 
 Each Edition is available in a variety of different forms:
 
-\table
+\table 60%
 \header \o Feature         \o Console      \o Desktop Light    \o Desktop
-\row    \o Qt Core classes \o X            \o X                \o X
-\row    \o Qt GUI classes  \o              \o X                \o X
-\row    \o Networking      \o X            \o                  \o X
-\row    \o OpenGL          \o              \o                  \o X
-\row    \o Database/SQL    \o X            \o                  \o X
-\row    \o XML             \o X            \o                  \o X
+\row    \o Qt Core classes \o \e{Included} \o \e{Included}     \o \e{Included}
+\row    \o Qt GUI classes  \o              \o \e{Included}     \o \e{Included}
+\row    \o Networking      \o \e{Included} \o                  \o \e{Included}
+\row    \o OpenGL          \o              \o                  \o \e{Included}
+\row    \o Database/SQL    \o \e{Included} \o                  \o \e{Included}
+\row    \o XML             \o \e{Included} \o                  \o \e{Included}
 \endtable
 
 The Commercial Desktop Edition also contains three database drivers (Oracle,

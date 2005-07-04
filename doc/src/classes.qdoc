@@ -29,20 +29,24 @@
     \startpage index.html Qt Reference Documentation
     \nextpage QtCore Classes
 
-    \table
-    \row \i \l{QtCore} \i Core classes used by other modules.
+    \table 80%
+    \row \i \l{QtCore} \i Core classes used by other modules
     \row \i \l{QtGui} \i Graphical User Interface components
-    \row \i \l{QtNetwork} \i Classes for network programming.
-    \row \i \l{QtOpenGL} \i OpenGL support classes.
-    \row \i \l{QtSql} \i Classes for database integration using SQL.
-    \row \i \l{QtXml} \i Classes for handling XML.
-    \row \i \l{Qt3Support} \i Qt 3 compatibility classes.
-    \row \i \l{QAxContainer} \i Extension for accessing ActiveX controls.
-    \row \i \l{QAxServer} \i Extension for writing ActiveX servers.
-    \row \i \l{QtDesigner} \i Classes for extending and embedding \QD.
+    \row \i \l{QtNetwork} \i Classes for network programming
+    \row \i \l{QtOpenGL} \i OpenGL support classes
+    \row \i \l{QtSql} \i Classes for database integration using SQL
+    \row \i \l{QtXml} \i Classes for handling XML
+    \row \i \l{QtDesigner} \i Classes for extending and embedding \QD
+    \row \i \l{Qt3Support} \i Qt 3 compatibility classes
     \endtable
 
-    For a list of Qt 3 support classes, see \l{Qt3Support Classes}.
+    The following extension modules are also available in the
+    \l{Qt Commercial Editions} on Windows:
+
+    \table 80%
+    \row \i \l{QAxContainer} \i Extension for accessing ActiveX controls.
+    \row \i \l{QAxServer} \i Extension for writing ActiveX servers.
+    \endtable
 */
 
 /*!

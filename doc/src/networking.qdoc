@@ -15,6 +15,20 @@
 
     \tableofcontents
 
+    \section1 Configuring the Build Process
+
+    Applications that use Qt's networking classes need to
+    be configured to be built against the QtNetwork module.
+    The following declaration in a \c qmake project file ensures that
+    an application is compiled and linked appropriately:
+
+    \code
+        QT += network
+    \endcode
+
+    This line is necessary because only the QtCore and QtGui modules
+    are used in the default build process.
+
     \section1 Writing HTTP and FTP Clients with QHttp and QFtp
 
     HTTP (Hypertext Transfer Protocol) is an application-level
