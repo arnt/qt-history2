@@ -43,7 +43,7 @@
 
     Qt is supported on the following platforms:
     \list
-     \i \bold{Microsoft Windows} -- 95, 98, NT 4.0, ME, 2000, and XP
+     \i \bold{Microsoft Windows} -- 98, NT 4.0, ME, 2000, and XP
      \i \bold{Unix/X11} -- Linux, Sun Solaris, HP-UX, HP Tru64 UNIX,
          IBM AIX, SGI IRIX and many others
      \i \bold{Mac OS X} -- Mac OS X 10.2+

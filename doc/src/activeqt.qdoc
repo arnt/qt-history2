@@ -276,7 +276,7 @@
     \i Register the server
     \endlist
 
-    Note that the QAxServer build system is not supported on Windows 95/98/ME
+    Note that the QAxServer build system is not supported on Windows 98/ME
     (attaching of resources to a binary is not possible there), but a server 
     built on Windows NT/2000/XP will work on previous Windows versions as well.
 
