@@ -33,6 +33,7 @@ static const bool UsePixmapCache = true;
 #include <qpen.h>
 #include <qpixmap.h>
 #include <qpixmapcache.h>
+#include <qprogressbar.h>
 #include <qpushbutton.h>
 #include <qradiobutton.h>
 #include <qscrollbar.h>
@@ -2110,8 +2111,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
         if (const QStyleOptionProgressBar *bar = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
             painter->save();
 
-            int grooveWidth = subElementRect(SE_ProgressBarGroove, option, widget).width();
-            QRect rect = subElementRect(SE_ProgressBarLabel, option, widget);
+            QRect rect = bar->rect;
             QRect leftRect;
 
             QFont font;
@@ -2119,26 +2119,25 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->setFont(font);
             painter->setPen(bar->palette.text().color());
 
-            int progressIndicatorPos = int(((bar->progress - bar->minimum) / double(bar->maximum - bar->minimum)) * grooveWidth);
+            int progressIndicatorPos = int(((bar->progress - bar->minimum) / double(bar->maximum - bar->minimum)) * rect.width());
+
             if (bar->direction == Qt::RightToLeft) {
-                int indicatorPos = grooveWidth - progressIndicatorPos;
-                if (indicatorPos >= rect.left() && indicatorPos <= rect.right()) {
-                    int leftWidth = indicatorPos - rect.left();
+                int indicatorPos = rect.width() - progressIndicatorPos;
+                if (indicatorPos >= 0 && indicatorPos <= rect.width()) {
                     painter->setPen(bar->palette.base().color());
-                    leftRect = QRect(rect.left(), rect.top(), leftWidth, rect.height());
-                } else if (indicatorPos > rect.right()) {
+                    leftRect = QRect(rect.left(), rect.top(), indicatorPos, rect.height());
+                } else if (indicatorPos > rect.width()) {
                     painter->setPen(bar->palette.text().color());
                 } else {
                     painter->setPen(bar->palette.base().color());
                 }
             } else {
-                if (progressIndicatorPos >= rect.left() && progressIndicatorPos <= rect.right()) {
-                    int leftWidth = progressIndicatorPos - rect.left();
-                    leftRect = QRect(rect.left(), rect.top(), leftWidth, rect.height());
-                } else if (progressIndicatorPos > rect.right()) {
-                    painter->setPen(bar->palette.base().color());
+                if (progressIndicatorPos >= 0 && progressIndicatorPos <= rect.width()) {
+		    leftRect = QRect(rect.left(), rect.top(), progressIndicatorPos, rect.height());
+                } else if (progressIndicatorPos > rect.width()) {
+		    painter->setPen(bar->palette.base().color());
                 } else {
-                    painter->setPen(bar->palette.text().color());
+  		    painter->setPen(bar->palette.text().color());
                 }
             }
 
@@ -2988,7 +2987,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
                 painter->drawPixmap(QPoint(rect.left(), rect.top()), cache);
                 painter->restore();
             }
-            
+
             // The SubLine (up/left) buttons
             if (scrollBar->subControls & SC_ScrollBarSubLine) {
                 int scrollBarExtent = pixelMetric(PM_ScrollBarExtent, option, widget);
@@ -3884,7 +3883,9 @@ QRect QPlastiqueStyle::subElementRect(SubElement element, const QStyleOption *op
         rect = rect.adjusted(0, 0, 1, 1);
         break;
     case SE_ProgressBarLabel:
-        rect.moveLeft(option->rect.center().x() - rect.width() / 2);
+    case SE_ProgressBarContents:
+    case SE_ProgressBarGroove:
+        rect = option->rect;
         break;
     default:
         break;
