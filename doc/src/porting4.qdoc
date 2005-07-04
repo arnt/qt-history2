@@ -354,12 +354,12 @@
     \table
     \header \o Qt 3 property \o Qt 4 equivalent
     \row \o QButton::autoRepeat \o N/A
-    \row \o QButton::autoResize \o N/A
+    \row \o QButton::autoResize \o Call QWidget:setFixedSize(QWidget::sizeHint()) whenever you change the contents.
     \row \o QButton::exclusiveToggle \o See \l QAbstractButton::autoExclusive.
     \row \o QButton::pixmap \o Use QAbstractButton::icon instead.
     \row \o QButton::toggleState \o Use QCheckBox::setState() and QCheckBox::state() instead.
     \row \o QButton::toggleType \o Use QCheckBox::setTristate() instead.
-    \row \o QComboBox::autoResize \o N/A
+    \row \o QComboBox::autoResize \o Call QWidget:setFixedSize(QWidget::sizeHint()) whenever you change the contents.
     \row \o QFrame::contentsRect \o Use Q3Frame::contentsRect() instead.
     \row \o QFrame::contentsRect \o Use Q3Frame::margin instead.
     \row \o QTabBar::keyboardFocusTab \o N/A
@@ -626,7 +626,7 @@
 
     \table
     \header \o Q3Button function \o QAbstractButton equivalent
-    \row \o Q3Button::autoResize() \o N/A
+    \row \o Q3Button::autoResize() \o Call QWidget:setFixedSize(QWidget::sizeHint()) whenever you change the contents.
     \row \o Q3Button::isExclusiveToggle() \o Use QAbstractButton::group() or QAbstractButton::autoExclusive() instead.
     \row \o Q3Button::pixmap() const \o QAbstractButton::icon()
     \row \o Q3Button::setAutoResize() \o N/A
