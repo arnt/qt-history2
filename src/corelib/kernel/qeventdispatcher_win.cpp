@@ -22,6 +22,8 @@
 
 #include "qabstracteventdispatcher_p.h"
 #include <private/qthread_p.h>
+#include <private/qmutexpool_p.h>
+
 class QEventDispatcherWin32Private;
 
 struct QSockNot {
@@ -61,7 +63,15 @@ static ptimeKillEvent qtimeKillEvent = 0;
 
 static void resolveTimerAPI()
 {
-    if (!qtimeSetEvent) {
+    static bool triedResolve = false;
+    if (!triedResolve) {
+#ifdef QT_THREAD_SUPPORT
+        QMutexLocker locker(qt_global_mutexpool ?
+                            qt_global_mutexpool->get(&triedResolve) : 0);
+        if (triedResolve)
+            return;
+#endif
+        triedResolve = true;
         qtimeSetEvent = (ptimeSetEvent)QLibrary::resolve(QLatin1String("winmm"), "timeSetEvent");
         qtimeKillEvent = (ptimeKillEvent)QLibrary::resolve(QLatin1String("winmm"), "timeKillEvent");
     }
