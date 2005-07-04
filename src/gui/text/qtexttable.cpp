@@ -755,13 +755,23 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
 
     const int origCellPosition = cell.firstPosition() - 1;
 
-    QVarLengthArray<int> cellMarkersToDelete((numRows - rowSpan) * (numCols - colSpan));
+    QVarLengthArray<int> cellMarkersToDelete((numCols - colSpan) * rowSpan
+                                             + (numRows - rowSpan) * numCols);
 
-    for (int r = row + rowSpan, idx = 0; r < row + numRows; ++r, ++idx)
-        for (int c = column + colSpan; c < column + numCols; ++c, ++idx) {
+    int idx = 0;
+
+    for (int r = row; r < row + rowSpan; ++r)
+        for (int c = column + colSpan; c < column + numCols; ++c) {
             const int cell = d->grid[r * d->nCols + c];
             QTextDocumentPrivate::FragmentIterator it(&p->fragmentMap(), cell);
-            cellMarkersToDelete[idx] = it.position();
+            cellMarkersToDelete[idx++] = it.position();
+        }
+
+    for (int r = row + rowSpan; r < row + numRows; ++r)
+        for (int c = column; c < column + numCols; ++c) {
+            const int cell = d->grid[r * d->nCols + c];
+            QTextDocumentPrivate::FragmentIterator it(&p->fragmentMap(), cell);
+            cellMarkersToDelete[idx++] = it.position();
         }
 
     for (int i = 0; i < cellMarkersToDelete.size(); ++i) {
