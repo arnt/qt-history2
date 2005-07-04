@@ -1617,8 +1617,6 @@ void QComboBox::hidePopup()
 }
 
 /*!
-    \internal
-
     Clears the combobox, removing all items.
 
     Note: If you have set an external model on the combobox this model
