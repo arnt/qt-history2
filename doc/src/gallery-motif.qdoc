@@ -57,14 +57,14 @@
     \i QGroupBox
 
     The QGroupBox widget provides a group box frame with a title.
-    \row \i \inlineimage motif-frame.png
-    \i QFrame
-
-    The QFrame widget provides a simple decorated container for other widgets.
     \row \i \inlineimage motif-tabwidget.png
     \i QTabWidget
 
     The QTabWidget class provides a stack of tabbed widgets.
+    \row \i \inlineimage motif-frame.png
+    \i QFrame
+
+    The QFrame widget provides a simple decorated container for other widgets.
   \endtable
 
   \section1 Item Views
