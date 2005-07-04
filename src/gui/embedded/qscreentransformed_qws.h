@@ -24,7 +24,7 @@
 //#define QT_TRANS_SCREEN_BASE  QVFbScreen
 //#define QT_TRANS_CURSOR_BASE   QVFbScreenCursor
 //#define QT_TRANS_GFX_BASE      QGfxVFb
-#include "QtGui/qgfxlinuxfb_qws.h"
+#include "QtGui/qscreenlinuxfb_qws.h"
 
 class QTransformedScreen : public QT_TRANS_SCREEN_BASE
 {

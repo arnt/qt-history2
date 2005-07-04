@@ -14,7 +14,7 @@
 #ifndef QGFXVOODOO_QWS_H
 #define QGFXVOODOO_QWS_H
 
-#include "QtGui/qgfxlinuxfb_qws.h"
+#include "QtGui/qscreenlinuxfb_qws.h"
 
 #ifndef QT_NO_QWS_VOODOO
 
