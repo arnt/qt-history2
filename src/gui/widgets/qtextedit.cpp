@@ -1058,6 +1058,7 @@ void QTextEdit::setDocument(QTextDocument *document)
 
     d->doc = 0;
     d->init(QTextDocumentFragment(), document);
+    d->relayoutDocument();
 }
 
 /*!
@@ -1559,34 +1560,39 @@ QVariant QTextEdit::loadResource(int type, const QUrl &name)
 void QTextEdit::resizeEvent(QResizeEvent *)
 {
     Q_D(QTextEdit);
-    QAbstractTextDocumentLayout *layout = d->doc->documentLayout();
+    d->relayoutDocument();
+}
+
+void QTextEditPrivate::relayoutDocument()
+{
+    QAbstractTextDocumentLayout *layout = doc->documentLayout();
 
     if (QTextDocumentLayout *tlayout = qobject_cast<QTextDocumentLayout *>(layout)) {
-        if (d->lineWrap == NoWrap)
+        if (lineWrap == QTextEdit::NoWrap)
             tlayout->setBlockTextFlags(tlayout->blockTextFlags() | Qt::TextSingleLine);
         else
             tlayout->setBlockTextFlags(tlayout->blockTextFlags() & ~Qt::TextSingleLine);
 
-        if (d->lineWrap == FixedColumnWidth)
-            tlayout->setFixedColumnWidth(d->lineWrapColumnOrWidth);
+        if (lineWrap == QTextEdit::FixedColumnWidth)
+            tlayout->setFixedColumnWidth(lineWrapColumnOrWidth);
         else
             tlayout->setFixedColumnWidth(-1);
     }
 
-    int width = d->viewport->width();
-    if (d->lineWrap == FixedPixelWidth)
-        width = d->lineWrapColumnOrWidth;
+    int width = viewport->width();
+    if (lineWrap == QTextEdit::FixedPixelWidth)
+        width = lineWrapColumnOrWidth;
 
     const QSize lastUsedSize = layout->documentSize().toSize();
 
     // ignore calls to adjustScrollbars caused by an emission of the
     // usedSizeChanged() signal in the layout, as we're calling it
     // later on our own anyway (or deliberately not) .
-    d->ignoreAutomaticScrollbarAdjustement = true;
+    ignoreAutomaticScrollbarAdjustement = true;
 
-    d->doc->setPageSize(QSize(width, INT_MAX));
+    doc->setPageSize(QSize(width, INT_MAX));
 
-    d->ignoreAutomaticScrollbarAdjustement = false;
+    ignoreAutomaticScrollbarAdjustement = false;
 
     QSize usedSize = layout->documentSize().toSize();
 
@@ -1607,13 +1613,13 @@ void QTextEdit::resizeEvent(QResizeEvent *)
     // (if you change this please also check the layoutingLoop() testcase in
     // QTextEdit's autotests)
     if (lastUsedSize.isValid()
-        && !d->vbar->isHidden()
-        && d->viewport->width() < lastUsedSize.width()
+        && !vbar->isHidden()
+        && viewport->width() < lastUsedSize.width()
         && usedSize.height() < lastUsedSize.height()
-        && usedSize.height() <= d->viewport->height())
+        && usedSize.height() <= viewport->height())
         return;
 
-    d->adjustScrollbars();
+    adjustScrollbars();
 }
 
 
@@ -2056,7 +2062,7 @@ void QTextEdit::changeEvent(QEvent *e)
         for (QFragmentMap<QTextBlockData>::ConstIterator it = d->doc->docHandle()->blockMap().begin();
              !it.atEnd(); ++it)
             it.value()->invalidate();
-        resizeEvent(0);
+        d->relayoutDocument();
     }  else if(e->type() == QEvent::ActivationChange) {
         if (!palette().isEqual(QPalette::Active, QPalette::Inactive))
             update();
@@ -2547,7 +2553,7 @@ void QTextEdit::setLineWrapMode(LineWrapMode wrap)
     if (d->lineWrap == wrap)
         return;
     d->lineWrap = wrap;
-    resizeEvent(0);
+    d->relayoutDocument();
 }
 
 /*!
@@ -2573,7 +2579,7 @@ void QTextEdit::setLineWrapColumnOrWidth(int w)
 {
     Q_D(QTextEdit);
     d->lineWrapColumnOrWidth = w;
-    resizeEvent(0);
+    d->relayoutDocument();
 }
 
 /*!
