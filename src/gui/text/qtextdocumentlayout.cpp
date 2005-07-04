@@ -323,8 +323,8 @@ public:
     void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo);
     void layoutFrame(QTextFrame *f, int layoutFrom, int layoutTo, qreal frameWidth, qreal frameHeight);
 
-    void layoutBlock(const QTextBlock &block, LayoutStruct *layoutStruct, int layoutFrom, int layoutTo,
-                     bool isFirstBlockInFlow, bool isLastBlockInFlow);
+    void layoutBlock(const QTextBlock &bl, LayoutStruct *layoutStruct, int layoutFrom, int layoutTo,
+                     const QTextBlock &previousBlock);
     void layoutFlow(QTextFrame::Iterator it, LayoutStruct *layoutStruct, int layoutFrom, int layoutTo);
     void pageBreakInsideTable(QTextTable *table, LayoutStruct *layoutStruct);
 
@@ -1483,8 +1483,8 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
         checkPoints << cp;
     }
 
-    bool firstIteration = true;
     QTextFrame *lastFrame = 0;
+    QTextBlock lastBlock;
 
     while (!it.atEnd()) {
         QTextFrame *c = it.currentFrame();
@@ -1552,16 +1552,18 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
                 positionFloat(c);
             }
             lastFrame = c;
+            lastBlock = QTextBlock();
             ++it;
         } else {
             QTextBlock block = it.currentBlock();
             ++it;
-            bool lastBlockInFlow = (it.atEnd());
 
             const qreal origY = layoutStruct->y;
 
             // layout and position child block
-            layoutBlock(block, layoutStruct, layoutFrom, layoutTo, firstIteration, lastBlockInFlow);
+            layoutBlock(block, layoutStruct, layoutFrom, layoutTo, lastBlock);
+
+            lastBlock = block;
 
             // if the block right before a table is empty 'hide' it by
             // positioning it into the table border
@@ -1582,8 +1584,6 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
                 layoutStruct->y = origY;
             }
         }
-
-        firstIteration = false;
     }
 
     if (inRootFrame) {
@@ -1598,7 +1598,7 @@ void QTextDocumentLayoutPrivate::layoutFlow(QTextFrame::Iterator it, LayoutStruc
 }
 
 void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct *layoutStruct,
-                                             int layoutFrom, int layoutTo, bool firstBlockInFlow, bool lastBlockInFlow)
+                                             int layoutFrom, int layoutTo, const QTextBlock &previousBlock)
 {
     QTextBlockFormat blockFormat = bl.blockFormat();
     QTextLayout *tl = bl.layout();
@@ -1627,8 +1627,9 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
 
 //    qDebug() << "layoutBlock; width" << layoutStruct->x_right - layoutStruct->x_left << "(maxWidth is btw" << tl->maximumWidth() << ")";
 
-    if (!firstBlockInFlow)
-        layoutStruct->y += blockFormat.topMargin();
+    if (previousBlock.isValid()) {
+        layoutStruct->y += qMax(blockFormat.topMargin(), previousBlock.blockFormat().bottomMargin());
+    }
 
     //QTextFrameData *fd = data(layoutStruct->frame);
 
@@ -1742,9 +1743,6 @@ void QTextDocumentLayoutPrivate::layoutBlock(const QTextBlock &bl, LayoutStruct 
     } else {
         layoutStruct->y += tlBoundingRect.height();
     }
-
-    if (!lastBlockInFlow)
-        layoutStruct->y += blockFormat.bottomMargin();
 
     // ### doesn't take floats into account. would need to do it per line. but how to retrieve then? (Simon)
     layoutStruct->minimumWidth = qMax(layoutStruct->minimumWidth, tl->minimumWidth() + blockFormat.leftMargin() + indent);
