@@ -15,6 +15,8 @@
 
 /*!
     \class QDesignerImageCollectionInterface
+    \brief The QDesignerImageCollectionInterface provides an interface that is used to access
+    collections of images in Qt Designer.
     \inmodule QtDesigner
 */
 

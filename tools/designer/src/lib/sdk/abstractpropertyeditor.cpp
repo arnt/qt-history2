@@ -15,6 +15,8 @@
 
 /*!
     \class QDesignerPropertyEditorInterface
+    \brief The QDesignerPropertyEditorInterface class provides an interface that is used to
+    control Qt Designer's property editor component.
     \inmodule QtDesigner
 */
 

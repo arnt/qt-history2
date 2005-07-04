@@ -30,7 +30,7 @@ class PluginManager;
 /*!
     \class QDesignerFormEditorInterface
     \brief The QDesignerFormEditorInterface class provides an interface that is used to
-    control \QD's form editor component.
+    control Qt Designer's form editor component.
     \inmodule QtDesigner
 */
 

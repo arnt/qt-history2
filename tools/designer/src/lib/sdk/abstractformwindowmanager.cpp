@@ -15,6 +15,8 @@
 
 /*!
     \class QDesignerFormWindowManagerInterface
+    \brief The QDesignerFormWindowManagerInterface class provides an interface that is used
+    to control form windows in Qt Designer.
     \inmodule QtDesigner
 */
 

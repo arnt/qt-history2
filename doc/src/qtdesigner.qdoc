@@ -2,8 +2,8 @@
 
 /*!
     \class QDesignerMemberSheetExtension
-    \brief The QDesignerMemberSheetExtension class provides extensions to objects member sheets
-    in \QD. 
+    \brief The QDesignerMemberSheetExtension class provides an extension to an object's member
+    sheet in \QD. 
     \inmodule QtDesigner
 */
 
@@ -72,7 +72,7 @@
 
 /*!
     \class QDesignerLayoutDecorationExtension
-    \brief The QDesignerLayoutDecorationExtension class provides extensions for layouts in \QD.
+    \brief The QDesignerLayoutDecorationExtension class provides an extension to a layout in \QD.
     \inmodule QtDesigner
 */
 
@@ -286,8 +286,8 @@
 
 /*!
     \class QDesignerCustomWidgetCollectionInterface
-    \brief The QDesignerCustomWidgetCollectionInterface provides an interface that is used to
-    manage collections of custom widgets in \QD.
+    \brief The QDesignerCustomWidgetCollectionInterface class provides an interface that is used
+    to manage collections of custom widgets in \QD.
     \inmodule QtDesigner
 */
 
@@ -308,10 +308,11 @@
 
 /*!
     \class QDesignerCustomWidgetInterface
-    \brief The QDesignerCustomWidgetInterface provides an interface to a custom widget in \QD.
+    \brief The QDesignerCustomWidgetInterface class provides an interface to a custom widget in
+    \QD. 
     \inmodule QtDesigner
 
-    \sa \link Creating Custom Widgets for Qt Designer \endlink
+    \sa \l{Creating Custom Widgets for Qt Designer}
 */
 
 /*!
@@ -485,7 +486,7 @@
 
 /*!
     \class QDesignerIconCacheInterface
-    \brief The QDesignerIconCacheInterface provides an interface to \QD's icon cache.
+    \brief The QDesignerIconCacheInterface class provides an interface to \QD's icon cache.
     \inmodule QtDesigner
 */
 
@@ -576,7 +577,8 @@
 
 /*!
     \class QDesignerPropertySheetExtension
-    The QDesignerPropertySheetExtension class provides extensions to widget property sheets in \QD.
+    The QDesignerPropertySheetExtension class provides an extension to a widget's property sheet
+    in \QD.
     \inmodule QtDesigner
 */
 

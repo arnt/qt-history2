@@ -24,8 +24,8 @@
 
 /*!
     \class QDesignerMetaDataBaseInterface
-    \brief The QDesignerMetaDataBaseInterface class provides an interface to \QD's object meta
-    database.
+    \brief The QDesignerMetaDataBaseInterface class provides an interface to Qt Designer's
+    object meta database.
     \inmodule QtDesigner
 */
 
@@ -79,8 +79,8 @@ QDesignerMetaDataBaseInterface::~QDesignerMetaDataBaseInterface()
 
 /*!
     \class QDesignerMetaDataBaseItemInterface
-    \brief The QDesignerMetaDataBaseItemInterface class provides an interface to individual items
-    in \QD's meta database.
+    \brief The QDesignerMetaDataBaseItemInterface class provides an interface to individual
+    items in Qt Designer's meta database.
     \inmodule QtDesigner
 
     This class allows individual items in \QD's meta-data database to be accessed and modified.

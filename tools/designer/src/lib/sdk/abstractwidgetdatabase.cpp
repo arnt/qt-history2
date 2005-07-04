@@ -17,6 +17,8 @@
 
 /*!
     \class QDesignerWidgetDataBaseInterface
+    \brief The QDesignerWidgetDataBaseInterface class provides an interface that is used to
+    access and modify Qt Designer's widget database.
     \inmodule QtDesigner
 */
 
@@ -133,7 +135,7 @@ bool QDesignerWidgetDataBaseInterface::isCustom(QObject *object, bool resolveNam
 /*!
     \class QDesignerWidgetDataBaseItemInterface
     \brief The QDesignerWidgetDataBaseItemInterface class provides an interface that is used to
-    access individual items in \QD's widget database.
+    access individual items in Qt Designer's widget database.
     \inmodule QtDesigner
 
     This class enables individual items in the widget database to be accessed and modified.

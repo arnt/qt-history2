@@ -16,7 +16,7 @@
 /*!
     \class QDesignerFormEditorPluginInterface
     \brief The QDesignerFormEditorPluginInterface class provides an interface that is used to
-    manage plugins for \QD's form editor component.
+    manage plugins for Qt Designer's form editor component.
     \inmodule QtDesigner
 
     \sa QDesignerFormEditorInterface

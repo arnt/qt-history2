@@ -15,6 +15,8 @@
 
 /*!
     \class QDesignerObjectInspectorInterface
+    \brief The QDesignerObjectInspectorInterface class provides an interface that is used to
+    control Qt Designer's object inspector component.
     \inmodule QtDesigner
 */
 

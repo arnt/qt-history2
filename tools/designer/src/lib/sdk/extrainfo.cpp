@@ -15,7 +15,8 @@
 
 /*!
     \class QDesignerExtraInfoExtension
-    \brief The QDesignerExtraInfoExtension class provides extra information about a widget in \QD.
+    \brief The QDesignerExtraInfoExtension class provides extra information about a widget in
+    Qt Designer.
     \inmodule QtDesigner
 */
 

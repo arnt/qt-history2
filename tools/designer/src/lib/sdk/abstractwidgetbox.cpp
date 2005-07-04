@@ -15,6 +15,8 @@
 
 /*!
     \class QDesignerWidgetBoxInterface
+    \brief The QDesignerWidgetBoxInterface class provides an interface that is used to
+    control Qt Designer's widget box component.
     \inmodule QtDesigner
 */
 
@@ -113,6 +115,7 @@ int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryNam
 
 /*!
     \class QDesignerWidgetBoxInterface::Widget
+    \brief The Widget class specified a widget in Qt Designer's widget box component.
 */
 
 /*!
@@ -165,6 +168,7 @@ int QDesignerWidgetBoxInterface::findOrInsertCategory(const QString &categoryNam
 
 /*!
     \class QDesignerWidgetBoxInterface::Category
+    \brief The Category class specifies a category in Qt Designer's widget box component.
 */
 
 /*!

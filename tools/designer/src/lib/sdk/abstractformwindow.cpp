@@ -25,7 +25,7 @@
 /*!
     \class QDesignerFormWindowInterface
     \brief The QDesignerFormWindowInterface class provides an interface that is used to control
-    form windows provided by \QD's form editing component.
+    form windows provided by Qt Designer's form editing component.
     \inmodule QtDesigner
 
     \sa QDesignerFormEditorInterface
@@ -180,7 +180,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 /*!
     \fn virtual void QDesignerFormWindowInterface::setLayoutFunction(const QString &margin, const QString &spacing) = 0
 
-    Sets the \a margin and \a layout for the form's layout.
+    Sets the \a margin and \a spacing for the form's layout.
 
     \sa layoutFunction()
 */
@@ -212,7 +212,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
     Returns the export macro associated with the form currently being displayed in the window.
     The export macro is used when the form is compiled to create a widget plugin.
 
-    \sa \link Creating Custom Widgets for Qt Designer \endlink
+    \sa \link{Creating Custom Widgets for Qt Designer}\endlink
 */
 
 /*!
@@ -277,7 +277,7 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 /*!
     \fn virtual QDesignerFormWindowToolInterface *QDesignerFormWindowInterface::tool(int index) const = 0
 
-    Returns the tool interface used by the form window.
+    Returns an interface to the tool with the given \a index.
 */
 
 /*!
@@ -315,8 +315,6 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 
     Returns true if the specified \a widget is managed by the form window; otherwise returns
     false.
-
-    \sa setManaged()
 */
 
 /*!
@@ -338,8 +336,9 @@ QDesignerFormWindowInterface *QDesignerFormWindowInterface::findFormWindow(QWidg
 /*!
     \fn virtual void QDesignerFormWindowInterface::beginCommand(const QString &description) = 0
 
-    Begins execution of a command. Commands are executed between beginCommand() and endCommand()
-    function calls to ensure that the undo stack records them.
+    Begins execution of a command with the given \a description. Commands are
+    executed between beginCommand() and endCommand() function calls to ensure
+    that they are recorded on the undo stack.
 
     \sa endCommand()
 */
