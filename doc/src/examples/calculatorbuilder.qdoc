@@ -5,6 +5,8 @@
     The Calculator Builder example shows how to create a user interface from
     a \QD form at runtime, using the \c FormBuilder class.
 
+    \image calculatorbuilder-example.png
+
     We use the form created in the \l{designer/calculatorform}{Calculator Form}
     example to show that the same user interface can be generated when the
     application is executed or defined when the application is built.
