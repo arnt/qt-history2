@@ -86,9 +86,13 @@ protected slots:
     void sourceLayoutChanged();
 
 protected:
+    void clearAndSort();
+    void *p_id(const QModelIndex &source_index) const;
     mutable QMap<void*, QModelIndex> id_to_source_index_map; // maps the internal ids to source model indexes (not sorted)
     mutable QMap<void*, int> id_to_proxy_row_map; // maps the internal ids to row numbers (sorted)
     bool row_iid; // used when the source has the same internal id for each row
+    int sort_column;
+    Qt::SortOrder sort_order;
 };
 
 #endif // QSORTINGPROXYMODEL_H

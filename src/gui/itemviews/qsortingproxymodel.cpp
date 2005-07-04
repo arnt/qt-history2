@@ -31,7 +31,7 @@ typedef bool(*LessThan)(const QModelIndex &left, const QModelIndex &right);
 */
 
 QSortingProxyModel::QSortingProxyModel(QObject *parent)
-    : QProxyModel(parent)
+    : QProxyModel(parent),  row_iid(false), sort_column(-1), sort_order(Qt::Ascending)
 {
 }
 
@@ -139,7 +139,7 @@ void QSortingProxyModel::setModel(QAbstractItemModel *model)
 QModelIndex QSortingProxyModel::index(int row, int column, const QModelIndex &parent) const
 {
     QModelIndex source_index = sourceIndex(row, column, parent);
-    return createIndex(row, column, source_index.internalPointer());
+    return createIndex(row, column, p_id(source_index));
 }
 
 /*!
@@ -312,6 +312,8 @@ Qt::ItemFlags QSortingProxyModel::flags(const QModelIndex &index) const
 */
 void QSortingProxyModel::sort(int column, Qt::SortOrder order)
 {
+    sort_column = column;
+    sort_order = order;
     QStack<QModelIndex> source_parent_stack;
     source_parent_stack.push(QModelIndex());
     QList<QModelIndex> source_children;
@@ -328,15 +330,15 @@ void QSortingProxyModel::sort(int column, Qt::SortOrder order)
         for (int proxy_row = 0; proxy_row < source_children.count(); ++proxy_row) {
             int source_row = source_children.at(proxy_row).row();
             QModelIndex source_index = model()->index(source_row, 0, source_parent);
-            void* source_iid = source_index.internalPointer();
+            void* source_iid = p_id(source_index);
             int old_proxy_row = id_to_proxy_row_map.value(source_iid, -1);
             for (int source_column = 0; source_column < source_column_count; ++source_column) {
                 source_index = model()->index(source_row, source_column, source_parent);
                 // some models have the same id for all items in a row
-                row_iid = (source_iid == source_index.internalPointer());
-                source_iid = source_index.internalPointer();
+                row_iid = (source_iid == p_id(source_index));
+                source_iid = p_id(source_index);
                 // we need the old row to change the persistent index (if it exists)
-                id_to_proxy_row_map.insert(source_index.internalPointer(), proxy_row);
+                id_to_proxy_row_map.insert(p_id(source_index), proxy_row);
                 QModelIndex from = createIndex(old_proxy_row, source_column, source_iid);
                 QModelIndex to = createIndex(proxy_row, source_column, source_iid);
                 changePersistentIndex(from, to);
@@ -390,6 +392,9 @@ void QSortingProxyModel::clear()
 {
     id_to_source_index_map.clear();
     id_to_proxy_row_map.clear();
+    row_iid = false;
+    sort_column = -1;
+    sort_order = Qt::Ascending;
     reset();
 }
 
@@ -423,9 +428,9 @@ QModelIndex QSortingProxyModel::proxyIndex(const QModelIndex &source_index) cons
 {
     if (!source_index.isValid())
         return QModelIndex();
-    int proxy_row = id_to_proxy_row_map.value(source_index.internalPointer(), source_index.row());
+    int proxy_row = id_to_proxy_row_map.value(p_id(source_index), source_index.row());
     int proxy_column = source_index.column();
-    void* proxy_id = source_index.internalPointer();
+    void* proxy_id = p_id(source_index);
     QModelIndex proxy_index = createIndex(proxy_row, proxy_column, proxy_id);
     if (proxy_row == source_index.row()) // was not found in the map
         id_to_proxy_row_map.insert(proxy_id, proxy_row);
@@ -445,7 +450,8 @@ QModelIndex QSortingProxyModel::sourceIndex(int row, int column, const QModelInd
     QModelIndex source_index;
     QList<void*> proxy_ids = id_to_proxy_row_map.keys(row);
     for (int i = 0; i < proxy_ids.count(); ++i) {
-        QModelIndex candidate_index = id_to_source_index_map.value(proxy_ids.at(i));
+        void *proxy_id = proxy_ids.at(i); // ### uses ids directly
+        QModelIndex candidate_index = id_to_source_index_map.value(proxy_id);
         if (candidate_index.isValid()
             && candidate_index.parent() == source_parent
             && (candidate_index.column() == column || row_iid)) {
@@ -455,7 +461,7 @@ QModelIndex QSortingProxyModel::sourceIndex(int row, int column, const QModelInd
     }
     if (!source_index.isValid()) {
         source_index = model()->index(row, column, source_parent);
-        id_to_source_index_map.insert(source_index.internalPointer(), source_index);
+        id_to_source_index_map.insert(p_id(source_index), source_index); // ###
     }
     return source_index;
 }
@@ -483,18 +489,6 @@ void QSortingProxyModel::sourceRowsAboutToBeInserted(const QModelIndex &source_p
     int proxy_start = proxy_index.row() > 0 ? proxy_index.row() : start;
     int proxy_end = proxy_start + (end - start);
     beginInsertRows(proxy_parent, proxy_start, proxy_end); // emits signal
-
-    // update the row mapping
-    int count = end - start + 1;
-    for (int row = start; row <= model()->rowCount(source_parent); ++row) {
-        int column_count = row_iid ? 1 : model()->columnCount(source_parent); // FIXME
-        for (int column = 0; column < column_count; ++column) {
-            source_index = model()->index(row, column, source_parent);
-            int proxy_row = id_to_proxy_row_map.value(source_index.internalPointer(), -1);
-            if (proxy_row != -1)
-                id_to_proxy_row_map.insert(source_index.internalPointer(), proxy_row + count);
-        }
-    }
 }
 
 /*!
@@ -502,6 +496,7 @@ void QSortingProxyModel::sourceRowsAboutToBeInserted(const QModelIndex &source_p
 */
 void QSortingProxyModel::sourceRowsInserted()
 {
+    clearAndSort();
     endInsertRows(); // emits signal
 }
 
@@ -512,11 +507,7 @@ void QSortingProxyModel::sourceColumnsAboutToBeInserted(const QModelIndex &sourc
                                                         int start, int end)
 {
     QModelIndex proxy_parent = proxyIndex(source_parent);
-    QModelIndex source_index = model()->index(0, start, source_parent);
-    QModelIndex proxy_index = proxyIndex(source_index);
-    int proxy_start = proxy_index.column();
-    int proxy_end = proxy_start + (end - start);
-    beginInsertColumns(proxy_parent, proxy_start, proxy_end); // emits signal
+    beginInsertColumns(proxy_parent, start, end); // emits signal
 }   
 
 /*!
@@ -539,6 +530,8 @@ void QSortingProxyModel::sourceRowsAboutToBeRemoved(const QModelIndex &source_pa
     int proxy_start = proxy_index.row();
     int proxy_end = proxy_start + (end - start);
     beginRemoveRows(proxy_parent, proxy_start, proxy_end); // emits signal
+    id_to_proxy_row_map.remove(proxy_index.internalPointer());
+    id_to_source_index_map.remove(proxy_index.internalPointer());
 }
 
 /*!
@@ -546,6 +539,7 @@ void QSortingProxyModel::sourceRowsAboutToBeRemoved(const QModelIndex &source_pa
 */
 void QSortingProxyModel::sourceRowsRemoved()
 {
+    clearAndSort();
     endRemoveRows(); // emits signal
 }
 
@@ -556,11 +550,7 @@ void QSortingProxyModel::sourceColumnsAboutToBeRemoved(const QModelIndex &source
                                                        int start, int end)
 {
     QModelIndex proxy_parent = proxyIndex(source_parent);
-    QModelIndex source_index = model()->index(0, start, source_parent);
-    QModelIndex proxy_index = proxyIndex(source_index);
-    int proxy_start = proxy_index.column();
-    int proxy_end = proxy_start + (end - start);
-    beginRemoveColumns(proxy_parent, proxy_start, proxy_end); // emits signal
+    beginRemoveColumns(proxy_parent, start, end); // emits signal
 }
 
 /*!
@@ -586,4 +576,25 @@ void QSortingProxyModel::sourceLayoutChanged()
 {
     // we have no other way of handling this
     clear();
+}
+
+/*!
+  \internal
+*/
+void QSortingProxyModel::clearAndSort()
+{
+    id_to_source_index_map.clear();
+    id_to_proxy_row_map.clear();
+    if (sort_column != -1)
+        sort(sort_column, sort_order);
+}
+
+/*!
+  \internal
+*/
+void *QSortingProxyModel::p_id(const QModelIndex &source_index) const
+{
+    if (source_index.internalPointer())
+        return source_index.internalPointer();
+    return reinterpret_cast<void*>(source_index.row());
 }
