@@ -831,9 +831,14 @@ void QTextTable::splitCell(int row, int column, int numRows, int numCols)
 
     const int origCellPosition = cell.firstPosition() - 1;
 
-    QVarLengthArray<int> rowPositions(rowSpan - numRows);
+    QVarLengthArray<int> rowPositions(rowSpan);
 
-    for (int r = row; r < row + rowSpan - numRows; ++r) {
+    for (int r = row; r < row + numRows; ++r) {
+        const QTextTableCell cell = cellAt(r, column + numCols);
+        rowPositions[r - row] = cell.lastPosition();
+    }
+
+    for (int r = row + numRows; r < row + rowSpan; ++r) {
         const QTextTableCell cell = cellAt(r, column);
         rowPositions[r - row] = cell.lastPosition();
     }
@@ -843,12 +848,17 @@ void QTextTable::splitCell(int row, int column, int numRows, int numCols)
     const int fmtIndex = c->indexForFormat(fmt);
     const int blockIndex = p->blockMap().find(cell.lastPosition())->format;
 
-    for (int i = 0; i < rowPositions.size(); ++i) {
-        const int startPos = rowPositions[i]
-                             + i * (colSpan - numCols); // adjustement from previous insertions
-        for (int c = 0; c < colSpan - numCols; ++c) {
-            p->insertBlock(QTextBeginningOfFrame, startPos + c, blockIndex, fmtIndex);
-        }
+    int insertAdjustement = 0;
+    for (int i = 0; i < numRows; ++i) {
+        for (int c = 0; c < colSpan - numCols; ++c) 
+            p->insertBlock(QTextBeginningOfFrame, rowPositions[i] + insertAdjustement + c, blockIndex, fmtIndex);
+        insertAdjustement += colSpan - numCols;
+    }
+
+    for (int i = numRows; i < rowSpan; ++i) {
+        for (int c = 0; c < colSpan; ++c)
+            p->insertBlock(QTextBeginningOfFrame, rowPositions[i] + insertAdjustement + c, blockIndex, fmtIndex);
+        insertAdjustement += colSpan;
     }
 
     fmt.setTableCellRowSpan(numRows);
