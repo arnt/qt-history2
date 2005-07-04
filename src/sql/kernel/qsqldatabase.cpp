@@ -586,7 +586,7 @@ QStringList QSqlDatabase::connectionNames()
     \table
     \header \i Driver Type \i Description
     \row \i QDB2     \i IBM DB2, v7.1 and higher
-    \row \i QIBASE   \i Borland Interbase Driver
+    \row \i QIBASE   \i Borland InterBase Driver
     \row \i QMYSQL   \i MySQL Driver
     \row \i QOCI     \i Oracle Call Interface Driver
     \row \i QODBC    \i ODBC Driver (includes Microsoft SQL Server)

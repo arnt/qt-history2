@@ -35,7 +35,7 @@
     \table
     \header \o Driver name \o DBMS
     \row \o \link #QDB2 QDB2\endlink \o IBM DB2 (version 7.1 and higher)
-    \row \o \link #QIBASE QIBASE\endlink \o Borland Interbase
+    \row \o \link #QIBASE QIBASE\endlink \o Borland InterBase
     \row \o \link #QMYSQL QMYSQL\endlink \o MySQL
     \row \o \link #QOCI QOCI\endlink \o Oracle Call Interface Driver (versions 8, 9, and 10)
     \row \o \link #QODBC QODBC\endlink \o Open Database Connectivity
@@ -513,16 +513,16 @@
     \endcode
 
     \target QIBASE
-    \section2 QIBASE for Borland Interbase
+    \section2 QIBASE for Borland InterBase
 
     \section3 General Information
 
-    The Qt Interbase plugin makes it possible to access the Interbase and
-    Firebird databases. Interbase can either be used as a client/server or
+    The Qt InterBase plugin makes it possible to access the InterBase and
+    Firebird databases. InterBase can either be used as a client/server or
     without a server in which case it operates on local files. The
     database file must exist before a connection can be established.
 
-    Note that Interbase requires you to specify the full path to the
+    Note that InterBase requires you to specify the full path to the
     database file, no matter whether it is stored locally or on another
     server. 
 
@@ -531,16 +531,16 @@
         db.setDatabaseName("C:\\test.gdb");
     \endcode
 
-    You need the Interbase/Firebird development headers and libraries
+    You need the InterBase/Firebird development headers and libraries
     to build this plugin.
 
     Due to license incompatibilities with the GPL, users of the Qt Open Source
     Edition are not allowed to link this plugin to the commercial editions of
-    Interbase. Please use Firebird or the free edition of Interbase.
+    InterBase. Please use Firebird or the free edition of InterBase.
 
     \section3 How to Build the Plugin on Unix and Mac OS X
 
-    The following assumes Interbase or Firebird is installed in
+    The following assumes InterBase or Firebird is installed in
     \c{/opt/interbase}:
 
     \code
@@ -551,7 +551,7 @@
 
     \section3 How to Build the Plugin on Windows
 
-    The following assumes Interbase or Firebird is installed in
+    The following assumes InterBase or Firebird is installed in
     \c{C:\interbase}:
 
     \code
