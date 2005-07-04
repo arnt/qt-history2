@@ -541,6 +541,9 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
 
 bool QPixmap::load(const QString &fileName, const char *format, Qt::ImageConversionFlags flags)
 {
+    if (fileName.isEmpty())
+        return false;
+
     QFileInfo info(fileName);
     QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString()
                   + QString::number(data->type);

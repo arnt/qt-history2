@@ -3604,6 +3604,9 @@ QImage QImage::rgbSwapped() const
 
 bool QImage::load(const QString &fileName, const char* format)
 {
+    if (fileName.isEmpty())
+        return false;
+
     QImage image = QImageReader(fileName, format).read();
     if (!image.isNull()) {
         operator=(image);

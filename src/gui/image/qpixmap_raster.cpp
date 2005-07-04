@@ -444,6 +444,9 @@ QPixmap QPixmap::fromImage(const QImage &image, Qt::ImageConversionFlags flags )
 
 bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConversionFlags flags )
 {
+    if (fileName.isEmpty())
+        return false;
+
     QFileInfo info(fileName);
     QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString() + QLatin1Char('_') + QString::number(data->type);
 
