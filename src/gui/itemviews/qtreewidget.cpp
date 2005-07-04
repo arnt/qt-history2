@@ -93,6 +93,7 @@ protected:
     void emitDataChanged(QTreeWidgetItem *item, int column);
     void beginInsertItems(QTreeWidgetItem *parent, int row, int count);
     void beginRemoveItems(QTreeWidgetItem *parent, int row, int count);
+    void sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortOrder order);
 
 private:
     QList<QTreeWidgetItem*> tree;
@@ -505,16 +506,14 @@ Qt::ItemFlags QTreeModel::flags(const QModelIndex &index) const
 void QTreeModel::sort(int column, Qt::SortOrder order)
 {
     // sort top level
-    LessThan compare = order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan;
-    qSort(tree.begin(), tree.end(), compare);
-
+    sortItems(&tree, column, order);
+ 
     // sort the children
     QList<QTreeWidgetItem*>::iterator it = tree.begin();
     for (; it != tree.end(); ++it)
         (*it)->sortChildren(column, order, true);
 
-    // everything has changed
-    reset();
+    emit layoutChanged();
 }
 
 /*!
@@ -713,6 +712,32 @@ QTreeWidgetItem* QTreeModel::previousSibling(const QTreeWidgetItem* item)
     if (i >= 0 && i < siblings.count())
         return siblings.at(i);
     return 0;
+}
+
+void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortOrder order)
+{
+    // FIXME: we may want to implement the sorting ourselves, so we can change the persistent index when sorting
+
+    // store the original order of indexes
+    QMap<QTreeWidgetItem*, int> positions;
+    for (int i = 0; i < items->count(); ++i)
+        positions.insert(items->at(i), i);
+
+    // do the sorting
+    LessThan compare = (order == Qt::AscendingOrder
+                        ? &QTreeModel::itemLessThan
+                        : &QTreeModel::itemGreaterThan);
+    qSort(items->begin(), items->end(), compare);
+
+    // update the persistent indexes for the top level
+    for (int k = 0; k < items->count(); ++k) {
+        for (int l = 0; l < items->at(k)->columnCount(); ++l) {
+            int row = positions.value(items->at(k), -1);
+            QModelIndex from = createIndex(row, l, items->at(k));
+            QModelIndex to = createIndex(k, l, items->at(k));
+            changePersistentIndex(from, to);
+        }
+    }
 }
 
 /*!
@@ -1456,14 +1481,14 @@ QList<QTreeWidgetItem*> QTreeWidgetItem::takeChildren()
 */
 void QTreeWidgetItem::sortChildren(int column, Qt::SortOrder order, bool climb)
 {
-    LessThan compare = (order == Qt::AscendingOrder
-                        ? &QTreeModel::itemLessThan : &QTreeModel::itemGreaterThan);
-    qSort(children.begin(), children.end(), compare);
-    if (!climb)
+    if (!model)
         return;
-    QList<QTreeWidgetItem*>::iterator it = children.begin();
-    for (; it != children.end(); ++it)
-        (*it)->sortChildren(column, order, climb);
+    model->sortItems(&children, column, order);
+    if (climb) {
+        QList<QTreeWidgetItem*>::iterator it = children.begin();
+        for (; it != children.end(); ++it)
+            (*it)->sortChildren(column, order, climb);
+    }
 }
 
 /*!
