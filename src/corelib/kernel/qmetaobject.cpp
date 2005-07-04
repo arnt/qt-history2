@@ -242,8 +242,11 @@ int QMetaObject::methodOffset() const
 int QMetaObject::enumeratorOffset() const
 {
     int offset = 0;
-    if (const QMetaObject *m = d.superdata)
-        offset = m->enumeratorCount();
+    const QMetaObject *m = d.superdata;
+    while (m) {
+        offset += priv(m->d.data)->enumeratorCount;
+        m = m->d.superdata;
+    }
     return offset;
 }
 
@@ -313,17 +316,10 @@ int QMetaObject::methodCount() const
 */
 int QMetaObject::enumeratorCount() const
 {
-    int n = 0;
-    const QMetaObject *m = this;
+    int n = priv(d.data)->enumeratorCount;
+    const QMetaObject *m = d.superdata;
     while (m) {
         n += priv(m->d.data)->enumeratorCount;
-        if (m->d.extradata) {
-            const QMetaObject **e = m->d.extradata;
-            while (*e) {
-                n += (*e)->enumeratorCount();
-                ++e;
-            }
-        }
         m = m->d.superdata;
     }
     return n;
@@ -467,28 +463,15 @@ static const QMetaObject *QMetaObject_findMetaObject(const QMetaObject *self, co
 int QMetaObject::indexOfEnumerator(const char *name) const
 {
     int i = -1;
-    QByteArray enum_name = name;
-    QByteArray scope_name = d.stringdata;
-    int s = enum_name.indexOf("::");
-    if (s > 0) {
-        scope_name = enum_name.left(s);
-        enum_name = enum_name.mid(s + 2);
-    }
-
-    const QMetaObject *scope = QMetaObject_findMetaObject(this, scope_name);
-    if (!scope)
-        return i;
-
-    for (i = enumeratorCount() - 1; i >=0; --i) {
-        QMetaEnum en = enumerator(i);
-        if (enum_name != en.name())
-            continue;
-        const QMetaObject *m = scope;
-        while (m) {
-            if (m == en.mobj)
-                return i;
-            m = m->d.superdata;
-        }
+    const QMetaObject *m = this;
+    while (m && i < 0) {
+        for (i = priv(m->d.data)->enumeratorCount-1; i >= 0; --i)
+            if (strcmp(name, m->d.stringdata
+                       + m->d.data[priv(m->d.data)->enumeratorData + 4*i]) == 0) {
+                i += m->enumeratorOffset();
+                break;
+            }
+        m = m->d.superdata;
     }
     return i;
 }
@@ -550,7 +533,7 @@ QMetaMethod QMetaObject::method(int index) const
         return d.superdata->method(index);
 
     QMetaMethod result;
-    if (i >= 0 && i <= priv(d.data)->methodCount) {
+    if (i >= 0 && i < priv(d.data)->methodCount) {
         result.mobj = this;
         result.handle = priv(d.data)->methodData + 5*i;
     }
@@ -573,16 +556,6 @@ QMetaEnum QMetaObject::enumerator(int index) const
     if (i >= 0 && i < priv(d.data)->enumeratorCount) {
         result.mobj = this;
         result.handle = priv(d.data)->enumeratorData + 4*i;
-    } else if (d.extradata) {
-        i -= priv(d.data)->enumeratorCount;
-        const QMetaObject **e = d.extradata;
-        while (i >= 0 && *e) {
-            int c = (*e)->enumeratorCount();
-            if (i < c)
-                return (*e)->enumerator(i);
-            i -= c;
-            ++e;
-        }
     }
     return result;
 }
@@ -600,7 +573,7 @@ QMetaProperty QMetaObject::property(int index) const
         return d.superdata->property(index);
 
     QMetaProperty result;
-    if (i >= 0 && i <= priv(d.data)->propertyCount) {
+    if (i >= 0 && i < priv(d.data)->propertyCount) {
         int handle = priv(d.data)->propertyData + 3*i;
         int flags = d.data[handle + 2];
         const char *type = d.stringdata + d.data[handle + 1];
@@ -610,6 +583,17 @@ QMetaProperty QMetaObject::property(int index) const
 
         if (flags & EnumOrFlag) {
             result.menum = enumerator(indexOfEnumerator(type));
+            if (!result.menum.isValid()) {
+                QByteArray enum_name = type;
+                QByteArray scope_name = d.stringdata;
+                int s = enum_name.indexOf("::");
+                if (s > 0) {
+                    scope_name = enum_name.left(s);
+                    enum_name = enum_name.mid(s + 2);
+                }
+                if (const QMetaObject *scope = QMetaObject_findMetaObject(this, scope_name))
+                    result.menum = scope->enumerator(scope->indexOfEnumerator(enum_name));
+            }
         }
     }
     return result;
@@ -643,7 +627,7 @@ QMetaClassInfo QMetaObject::classInfo(int index) const
         return d.superdata->classInfo(index);
 
     QMetaClassInfo result;
-    if (i >= 0 && i <= priv(d.data)->classInfoCount) {
+    if (i >= 0 && i < priv(d.data)->classInfoCount) {
         result.mobj = this;
         result.handle = priv(d.data)->classInfoData + 2*i;
     }
