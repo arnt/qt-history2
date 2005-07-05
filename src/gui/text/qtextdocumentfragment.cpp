@@ -88,22 +88,184 @@ void QTextImportHelper::appendFragments(int pos, int endPos)
         pos += appendFragment(pos, endPos);
 }
 
-QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cursor)
+// #######################################################################################
+
+QTextImportHelper2::QTextImportHelper2(QTextDocument *_doc, QTextDocumentPrivate *_priv)
+    : doc(_doc), formatCollection(*_doc->docHandle()->formatCollection()), originalText(_priv->buffer())
+{
+    dst = doc->docHandle();
+    insertPos = 0;
+    priv = _priv;
+}
+
+int QTextImportHelper2::convertFormatIndex(const QTextFormat &oldFormat, int objectIndexToSet)
+{
+    QTextFormat fmt = oldFormat;
+    if (objectIndexToSet != -1) {
+        fmt.setObjectIndex(objectIndexToSet);
+    } else if (fmt.objectIndex() != -1) {
+        int newObjectIndex = objectIndexMap.value(fmt.objectIndex(), -1);
+        if (newObjectIndex == -1) {
+            QTextFormat objFormat = priv->formatCollection()->objectFormat(fmt.objectIndex());
+            Q_ASSERT(objFormat.objectIndex() == -1);
+            newObjectIndex = formatCollection.createObjectIndex(objFormat);
+            objectIndexMap.insert(fmt.objectIndex(), newObjectIndex);
+        }
+        fmt.setObjectIndex(newObjectIndex);
+    }
+    int idx = formatCollection.indexForFormat(fmt);
+    Q_ASSERT(formatCollection.format(idx).type() == oldFormat.type());
+    return idx;
+}
+
+int QTextImportHelper2::appendFragment(int pos, int endPos, int objectIndex)
+{
+    QTextDocumentPrivate::FragmentIterator fragIt = priv->find(pos);
+    const QTextFragmentData * const frag = fragIt.value();
+
+    Q_ASSERT(objectIndex == -1
+             || (frag->size == 1 && priv->formatCollection()->format(frag->format).objectIndex() != -1));
+
+    const int charFormatIndex = convertFormatIndex(frag->format, objectIndex);
+
+    const int inFragmentOffset = qMax(0, pos - fragIt.position());
+    int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
+
+    QTextBlock nextBlock = priv->blocksFind(pos + 1);
+
+    int blockIdx = -2;
+    if (nextBlock.position() == pos + 1) {
+        blockIdx = convertFormatIndex(nextBlock.blockFormat());
+    } else if (pos == 0 && containsCompleteDocument) {
+        dst->insertBlock(insertPos,
+                         convertFormatIndex(priv->blocksBegin().blockFormat()),
+                         convertFormatIndex(priv->blocksBegin().charFormat()));
+        ++insertPos;
+    }
+
+    QString txtToInsert(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy);
+    if (txtToInsert.length() == 1
+        && (txtToInsert.at(0) == QChar::ParagraphSeparator
+            || txtToInsert.at(0) == QTextBeginningOfFrame
+            || txtToInsert.at(0) == QTextEndOfFrame
+           )
+       ) {
+        dst->insertBlock(txtToInsert.at(0), insertPos, blockIdx, charFormatIndex);
+        ++insertPos;
+    } else {
+        dst->insert(insertPos, txtToInsert, charFormatIndex);
+        insertPos += txtToInsert.length();
+    }
+
+    return charsToCopy;
+}
+
+void QTextImportHelper2::appendFragments(int pos, int endPos)
+{
+    Q_ASSERT(pos < endPos);
+
+    while (pos < endPos)
+        pos += appendFragment(pos, endPos);
+}
+
+static QTextDocument *cloneSelection(QTextCursor cursor, QTextDocumentPrivate *priv, bool wholeDoc)
+{
+    QTextDocument *doc = new QTextDocument;
+
+    doc->docHandle()->beginEditBlock();
+
+    QTextImportHelper2 importHelper(doc, priv);
+    importHelper.containsCompleteDocument = wholeDoc;
+
+    if (cursor.hasComplexSelection()) {
+        QTextTable *table = cursor.currentTable();
+        int row_start, col_start, num_rows, num_cols;
+        cursor.selectedTableCells(&row_start, &num_rows, &col_start, &num_cols);
+
+        QTextTableFormat tableFormat = table->format();
+        tableFormat.setColumns(num_cols);
+        tableFormat.clearColumnWidthConstraints();
+        const int objectIndex = doc->docHandle()->formatCollection()->createObjectIndex(tableFormat);
+
+        Q_ASSERT(row_start != -1);
+        for (int r = row_start; r < row_start + num_rows; ++r) {
+            for (int c = col_start; c < col_start + num_cols; ++c) {
+                QTextTableCell cell = table->cellAt(r, c);
+                const int rspan = cell.rowSpan();
+                const int cspan = cell.columnSpan();
+                if (rspan != 1) {
+                    int cr = cell.row();
+                    if (cr != r)
+                        continue;
+                }
+                if (cspan != 1) {
+                    int cc = cell.column();
+                    if (cc != c)
+                        continue;
+                }
+
+                // add the QTextBeginningOfFrame
+                QTextCharFormat cellFormat = cell.format();
+                if (r + rspan >= row_start + num_rows) {
+                    cellFormat.setTableCellRowSpan(row_start + num_rows - r);
+                }
+                if (c + cspan >= col_start + num_cols) {
+                    cellFormat.setTableCellColumnSpan(col_start + num_cols - c);
+                }
+                const int charFormatIndex = importHelper.convertFormatIndex(cellFormat, objectIndex);
+
+                int blockIdx = -2;
+                const int cellPos = cell.firstPosition();
+                QTextBlock block = priv->blocksFind(cellPos);
+                if (block.position() == cellPos) {
+                    blockIdx = importHelper.convertFormatIndex(block.blockFormat());
+                }
+
+                //appendText(QString(QTextBeginningOfFrame), charFormatIndex, blockIdx);
+                doc->docHandle()->insertBlock(QTextBeginningOfFrame, importHelper.insertPos, blockIdx, charFormatIndex);
+                ++importHelper.insertPos;
+
+                // nothing to add for empty cells
+                if (cell.lastPosition() > cellPos) {
+                    // add the contents
+                    importHelper.appendFragments(cellPos, cell.lastPosition());
+                }
+            }
+        }
+
+        // add end of table
+        int end = table->lastPosition();
+        importHelper.appendFragment(end, end+1, objectIndex);
+    } else {
+        importHelper.appendFragments(cursor.selectionStart(), cursor.selectionEnd());
+    }
+
+    doc->docHandle()->endEditBlock();
+
+    return doc;
+}
+
+QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &_cursor)
     : hasTitle(false), containsCompleteDocument(false), setMarkerForHtmlExport(false)
 {
-    if (!cursor.hasSelection())
+    if (!_cursor.hasSelection())
         return;
 
-    QTextDocumentPrivate *priv = cursor.d->priv;
-    QTextImportHelper importHelper(this, priv);
-
-    if (cursor.selectionStart() == 0 && cursor.selectionEnd() == priv->length() - 1) {
+    if (_cursor.selectionStart() == 0 && _cursor.selectionEnd() == _cursor.d->priv->length() - 1) {
         containsCompleteDocument = true;
-        rootFrameFormat = priv->rootFrame()->frameFormat();
+        rootFrameFormat = _cursor.d->priv->rootFrame()->frameFormat();
     }
 
     if (useUglyContainsCompleteDocumentHack)
         containsCompleteDocument = uglyContainsCompleteDocumentHack;
+
+    // ####
+    QTextDocument *tmpDoc = cloneSelection(_cursor, _cursor.d->priv, containsCompleteDocument);
+    QTextCursor cursor(tmpDoc);
+    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+
+    QTextDocumentPrivate *priv = cursor.d->priv;
+    QTextImportHelper importHelper(this, priv);
 
     if (cursor.hasComplexSelection()) {
         QTextTable *table = cursor.currentTable();
@@ -165,6 +327,8 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
     } else {
         importHelper.appendFragments(cursor.selectionStart(), cursor.selectionEnd());
     }
+
+    delete tmpDoc;
 }
 
 void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const

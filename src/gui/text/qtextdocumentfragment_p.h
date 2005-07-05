@@ -57,6 +57,28 @@ private:
     QMap<int, int> objectIndexMap;
 };
 
+class QTextImportHelper2
+{
+public:
+    QTextImportHelper2(QTextDocument *_doc, QTextDocumentPrivate *priv);
+
+    void appendFragments(int pos, int endPos);
+    int appendFragment(int pos, int endPos, int objectIndex = -1);
+    int convertFormatIndex(const QTextFormat &oldFormat, int objectIndexToSet = -1);
+    inline int convertFormatIndex(int oldFormatIndex, int objectIndexToSet = -1)
+    { return convertFormatIndex(priv->formatCollection()->format(oldFormatIndex), objectIndexToSet); }
+
+    int insertPos;
+    bool containsCompleteDocument;
+private:
+    QTextDocument *doc;
+    QTextDocumentPrivate *dst;
+    QTextDocumentPrivate *priv;
+    QTextFormatCollection &formatCollection;
+    const QString originalText;
+    QMap<int, int> objectIndexMap;
+};
+
 class QTextDocumentFragmentPrivate
 {
 public:
