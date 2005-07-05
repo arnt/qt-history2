@@ -542,32 +542,16 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
     } else if(project->first("TEMPLATE") == "lib") {
         if(project->isActiveConfig("create_prl") && !project->isActiveConfig("no_install_prl") &&
            !project->isEmpty("QMAKE_INTERNAL_PRL_FILE")) {
-            QString dst_prl = project->first("QMAKE_INTERNAL_PRL_FILE");
-            int slsh = dst_prl.lastIndexOf('/');
-            if(slsh != -1)
-                dst_prl = dst_prl.right(dst_prl.length() - slsh - 1);
-            dst_prl = filePrefixRoot(root, targetdir + dst_prl);
-            ret += "-$(INSTALL_FILE) \"" + project->first("QMAKE_INTERNAL_PRL_FILE") + "\" \"" + dst_prl + "\"";
+            const QString src_prl = project->first("QMAKE_INTERNAL_PRL_FILE"),
+                          dst_prl = filePrefixRoot(root, targetdir + src_prl.section('/', -1));
+            ret += "-$(INSTALL_FILE) \"" + src_prl + "\" \"" + dst_prl + "\"";
             if(!uninst.isEmpty())
                 uninst.append("\n\t");
             uninst.append("-$(DEL_FILE) \"" + dst_prl + "\"");
         }
         if(project->isActiveConfig("create_libtool") && !project->isActiveConfig("compile_libtool")) {
-            QString src_lt = var("QMAKE_ORIG_TARGET");
-            int slsh = src_lt.lastIndexOf(Option::dir_sep);
-            if(slsh != -1)
-                src_lt = src_lt.right(src_lt.length() - slsh);
-            int dot = src_lt.indexOf('.');
-            if(dot != -1)
-                src_lt = src_lt.left(dot);
-            src_lt += Option::libtool_ext;
-            src_lt.prepend("lib");
-            QString dst_lt = filePrefixRoot(root, targetdir + src_lt);
-            if(!project->isEmpty("DESTDIR")) {
-                src_lt.prepend(var("DESTDIR"));
-                src_lt = Option::fixPathToLocalOS(fileFixify(src_lt,
-                                                             qmake_getpwd(), Option::output_dir, FileFixifyAbsolute));
-            }
+            const QString src_lt = pkgConfigFileName(),
+                          dst_lt = filePrefixRoot(root, targetdir + src_lt.section('/', -1));
             if(!ret.isEmpty())
                 ret += "\n\t";
             ret += "-$(INSTALL_FILE) \"" + src_lt + "\" \"" + dst_lt + "\"";
@@ -576,24 +560,10 @@ UnixMakefileGenerator::defaultInstall(const QString &t)
             uninst.append("-$(DEL_FILE) \"" + dst_lt + "\"");
         }
         if(project->isActiveConfig("create_pc")) {
-            QString src_pc = var("QMAKE_ORIG_TARGET");
-            int slsh = src_pc.lastIndexOf(Option::dir_sep);
-            if(slsh != -1)
-                src_pc = src_pc.right(src_pc.length() - slsh);
-            int dot = src_pc.indexOf('.');
-            if(dot != -1)
-                src_pc = src_pc.left(dot);
-            src_pc += ".pc";
-            QString d = filePrefixRoot(root, targetdir + "pkgconfig" + Option::dir_sep);
-            QString dst_pc = d + src_pc;
-            if(!project->isEmpty("DESTDIR")) {
-                src_pc.prepend(var("DESTDIR"));
-                src_pc = Option::fixPathToLocalOS(fileFixify(src_pc,
-                                                             qmake_getpwd(), Option::output_dir, FileFixifyAbsolute));
-            }
+            const QString src_pc = libtoolFileName(),
+                          dst_pc = filePrefixRoot(root, targetdir + src_pc.section('/', -1));
             if(!ret.isEmpty())
                 ret += "\n\t";
-            ret += mkdir_p_asstring(d) + "\n\t";
             ret += "-$(INSTALL_FILE) \"" + src_pc + "\" \"" + dst_pc + "\"";
             if(!uninst.isEmpty())
                 uninst.append("\n\t");
