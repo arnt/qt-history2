@@ -56,6 +56,7 @@ public:
     enum Type {
         File,
         Resource,
+        BufferedFile,
 
         User = 50, // first user type id
         MaxUser = 100 // last user type id

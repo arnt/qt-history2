@@ -12,11 +12,14 @@
 ****************************************************************************/
 
 #include "qbytearray.h"
+#include "qdebug.h"
 #include "qiodevice_p.h"
 #include "qfile.h"
+#include "qstringlist.h"
 
 #define Q_VOID
 
+#ifdef QT_DEBUG
 #define CHECK_OPEN(function, returnType) \
     do { \
         if (!isOpen()) { \
@@ -47,6 +50,12 @@
            return returnType; \
        } \
    } while (0)
+#else
+#define CHECK_OPEN(a, b)
+#define CHECK_MAXLEN(a, b)
+#define CHECK_WRITABLE(a, b)
+#define CHECK_READABLE(a, b)
+#endif
 
 /*! \internal
  */
@@ -658,17 +667,30 @@ QByteArray QIODevice::read(qint64 maxSize)
 */
 QByteArray QIODevice::readAll()
 {
-    const int chunkSize = 4096;
-    qint64 totalRead = 0;
     QByteArray tmp;
-    forever {
-        tmp.resize(tmp.size() + chunkSize);
-        qint64 readBytes = read(tmp.data() + totalRead, chunkSize);
-        if (readBytes < chunkSize) {
-            tmp.chop(chunkSize - (readBytes < 0 ? qint64(0) : readBytes));
-            return tmp;
+    if (isSequential()) {
+        // Read it in chunks, bytesAvailable() is unreliable for sequential
+        // devices.
+        const int chunkSize = 4096;
+        qint64 totalRead = 0;
+        forever {
+            tmp.resize(tmp.size() + chunkSize);
+            qint64 readBytes = read(tmp.data() + totalRead, chunkSize);
+            if (readBytes < chunkSize) {
+                tmp.chop(chunkSize - (readBytes < 0 ? qint64(0) : readBytes));
+                return tmp;
+            }
+            totalRead += readBytes;
         }
-        totalRead += readBytes;
+    } else {
+        // Read it all in one go.
+        tmp.resize(int(bytesAvailable()));
+        qint64 readBytes = read(tmp.data(), tmp.size());
+        if (readBytes < tmp.size()) {
+            if (readBytes == -1)
+                return QByteArray();
+            tmp.resize(int(readBytes));
+        }
     }
     return tmp;
 }
@@ -771,7 +793,7 @@ QByteArray QIODevice::readLine(qint64 maxSize)
             tmp.resize(readSoFar + qMin(int(maxSize), int(sizeof(buffer))));
         else
             tmp.resize(readSoFar + int(sizeof(buffer)));
-        readBytes = readLineData(tmp.data() + readSoFar, tmp.size());
+        readBytes = readLine(tmp.data() + readSoFar, tmp.size());
         readSoFar += readBytes;
     } while (readSoFar < maxSize && readBytes > 0
              && readBytes == tmp.size() && tmp.at(readBytes - 1) != '\n');
@@ -894,7 +916,8 @@ qint64 QIODevice::write(const char *data, qint64 maxSize)
     }
 #endif
     qint64 written = writeData(data, maxSize);
-    d->ungetBuffer.chop(written);
+    if (written > 0 && !d->ungetBuffer.isEmpty())
+        d->ungetBuffer.chop(written);
     return written;
 }
 
@@ -1187,5 +1210,33 @@ void QIODevice::resetStatus()
     QFile *f = qobject_cast<QFile *>(this);
     if (f) f->unsetError();
 #endif
+}
+#endif
+
+#if !defined(QT_NO_DEBUG_STREAM)
+QDebug operator<<(QDebug debug, QIODevice::OpenMode modes)
+{
+    debug << "OpenMode(";
+    QStringList modeList;
+    if (modes == QIODevice::NotOpen) {
+        modeList << "NotOpen";
+    } else {
+        if (modes & QIODevice::ReadOnly)
+            modeList << "ReadOnly";
+        if (modes & QIODevice::WriteOnly)
+            modeList << "WriteOnly";
+        if (modes & QIODevice::Append)
+            modeList << "Append";
+        if (modes & QIODevice::Truncate)
+            modeList << "Truncate";
+        if (modes & QIODevice::Text)
+            modeList << "Text";
+        if (modes & QIODevice::Unbuffered)
+            modeList << "Unbuffered";
+    }
+    qSort(modeList);
+    debug << modeList.join("|");
+    debug << ")";
+    return debug;
 }
 #endif

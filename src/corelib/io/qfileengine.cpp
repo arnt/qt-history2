@@ -16,7 +16,7 @@
 #include "qfileengine_p.h"
 #include <qdatetime.h>
 
-#include <private/qfsfileengine_p.h>
+#include <private/qbufferedfsfileengine_p.h>
 
 #include <errno.h>
 
@@ -175,7 +175,11 @@ QFileEngine *QFileEngine::createFileEngine(const QString &file)
                 return ret;
         }
     }
+#ifdef Q_OS_WIN
     return new QFSFileEngine(file);
+#else
+    return new QBufferedFSFileEngine(file);
+#endif
 }
 
 

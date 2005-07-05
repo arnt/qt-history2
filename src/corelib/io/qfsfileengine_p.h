@@ -103,20 +103,20 @@ public:
 
     QString file;
 
-    inline void resetErrors() {
+    inline void resetErrors() const {
         error = QFile::UnspecifiedError;
         errorString.clear();
     }
-    inline void setError(QFile::FileError err, int errorCode) {
+    inline void setError(QFile::FileError err, int errorCode) const {
         error = err;
         errorString = qt_error_string(errorCode);
     }
-    inline void setError(QFile::FileError err, QString errStr = QString()) {
+    inline void setError(QFile::FileError err, QString errStr = QString()) const {
         error = err;
         errorString = errStr;
     }
-    QFile::FileError error;
-    QString errorString;
+    mutable QFile::FileError error;
+    mutable QString errorString;
 
     int fd;
     mutable uint sequential : 1;

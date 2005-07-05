@@ -100,15 +100,8 @@ QFSFileEngine::open(int flags)
         d->sequential = 0;
         struct stat st;
         ::fstat(d->fd, &st);
-        if ((st.st_mode & S_IFMT) != S_IFREG) {
+        if ((st.st_mode & S_IFMT) != S_IFREG)
             d->sequential = 1;
-        } else {
-            char char_read;
-            if(!st.st_size && read(&char_read, 1) == 1) {
-                d->ungetchBuffer += char_read;
-                d->sequential = 1;
-            }
-        }
         return true;
     }
     d->setError(errno == EMFILE ? QFile::ResourceError : QFile::OpenError, errno);

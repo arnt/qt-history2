@@ -36,11 +36,8 @@ class QBufferedFSFileEngine : public QFSFileEngine
 {
     Q_DECLARE_PRIVATE(QBufferedFSFileEngine)
 public:
-    QBufferedFSFileEngine();
-
-    enum BufferedFSFileEngineType {
-        BufferedFSFileEngine = MaxUser + 1
-    };
+    QBufferedFSFileEngine(const QString &fileName = QString());
+    ~QBufferedFSFileEngine();
 
     Type type() const;
     bool open(int flags);
@@ -50,6 +47,7 @@ public:
     qint64 at() const;
     bool seek(qint64);
     qint64 read(char *data, qint64 maxlen);
+    qint64 readLine(char *data, qint64 maxlen);
     qint64 write(const char *data, qint64 len);
 };
 
@@ -62,9 +60,11 @@ public:
     {
         fh = 0;
         lastIOCommand = IOFlushCommand;
+        closeFileHandle = false;
     }
 
     FILE *fh;
+    bool closeFileHandle;
     
     enum LastIOCommand
     {

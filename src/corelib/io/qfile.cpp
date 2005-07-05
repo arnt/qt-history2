@@ -793,6 +793,8 @@ bool QFile::open(OpenMode mode)
     }
     if (mode & Append)
         mode |= WriteOnly;
+    mode |= Unbuffered;
+
     unsetError();
     if ((mode & (ReadOnly | WriteOnly)) == 0) {
         qWarning("QIODevice::open: File access not specified");
@@ -932,7 +934,7 @@ QFile::handle() const
     if (!isOpen())
         return -1;
     QFileEngine *engine = fileEngine();
-    if(engine->type() == QFileEngine::File)
+    if(engine->type() == QFileEngine::File || engine->type() == QFileEngine::BufferedFile)
         return static_cast<QFSFileEngine*>(engine)->handle();
     return -1;
 }
@@ -1149,6 +1151,9 @@ qint64 QFile::readLineData(char *data, qint64 maxlen)
     Q_D(QFile);
 #ifndef QT_NO_FILE_BUFFER
     if (openMode() & Unbuffered)
+        if (fileEngine()->type() == QFileEngine::BufferedFile) {
+            return static_cast<QBufferedFSFileEngine *>(fileEngine())->readLine(data, maxlen);
+        } else
 #endif
         return QIODevice::readLineData(data, maxlen);
 

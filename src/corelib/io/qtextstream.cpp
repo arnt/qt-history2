@@ -249,7 +249,7 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 static bool isBufferedFSFileEngine(QIODevice *device)
 {
     QFile *file = qobject_cast<QFile *>(device);
-    return file && file->fileEngine()->type() == QFileEngine::Type(QBufferedFSFileEngine::BufferedFSFileEngine);
+    return file && file->fileEngine()->type() == QFileEngine::BufferedFile;
 }
 #else
 static bool isBufferedFSFileEngine(QIODevice *)
@@ -440,12 +440,13 @@ bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
     // read raw data into a temporary buffer
     char buf[QTEXTSTREAM_BUFFERSIZE];
     qint64 bytesRead = 0;
-    if (toEndOfLine && isBufferedFSFileEngine(device)) {
+    if (toEndOfLine && isBufferedFSFileEngine(device) && device->isSequential()) {
         while (bytesRead < QTEXTSTREAM_BUFFERSIZE) {
             char c;
             qint64 ret = device->read(&c, 1);
-            if (ret <= 0 && bytesRead == 0) {
-                bytesRead = -1;
+            if (ret <= 0) {
+                if (bytesRead == 0)
+                    bytesRead = -1;
                 break;
             }
             buf[bytesRead++] = c;
@@ -984,7 +985,7 @@ bool QTextStream::seek(qint64 pos)
         // Empty the write buffer
         d->flushWriteBuffer();
         if (!d->device->seek(pos))
-           return false;
+            return false;
         d->readBuffer.clear();
         d->readBufferOffset = 0;
         d->endOfBufferState.clear();
@@ -1006,7 +1007,7 @@ bool QTextStream::seek(qint64 pos)
     character.
 
     Whitespace characters are all characters for which
-    QChar::isSpace() returns true.
+    QChar::isSpace() returns true. 
 
     \sa operator>>(QChar &), operator>>(char &)
 */
