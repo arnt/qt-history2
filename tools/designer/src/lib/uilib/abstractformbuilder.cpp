@@ -360,15 +360,15 @@ QLayoutItem *QAbstractFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout 
 
         DomSpacer *ui_spacer = ui_layoutItem->elementSpacer();
 
-        int e_index = QSizePolicy::staticMetaObject.indexOfEnumerator("Policy");
+        int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("sizeType");
         Q_ASSERT(e_index != -1);
 
-        QMetaEnum sizePolicy_enum = QSizePolicy::staticMetaObject.enumerator(e_index);
+        QMetaEnum sizePolicy_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
 
-        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfEnumerator("Orientation");
+        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfProperty("orientation");
         Q_ASSERT(e_index != -1);
 
-        QMetaEnum orientation_enum = QAbstractFormBuilderGadget::staticMetaObject.enumerator(e_index);
+        QMetaEnum orientation_enum = QAbstractFormBuilderGadget::staticMetaObject.property(e_index).enumerator();
 
         foreach (DomProperty *p, ui_spacer->elementProperty()) {
             QVariant v = toVariant(&QAbstractFormBuilderGadget::staticMetaObject, p); // ### remove me
