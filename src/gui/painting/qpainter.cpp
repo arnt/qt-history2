@@ -3435,6 +3435,7 @@ void QPainter::drawText(const QPointF &p, const QString &str)
     d->updateState(d->state);
 
     QTextLayout layout(str, d->state->font);
+    layout.setCacheEnabled(true);
     QTextEngine *engine = layout.d;
     QTextOption option(Qt::AlignLeft|Qt::AlignAbsolute);
     option.setTextDirection(d->state->layoutDirection);
@@ -4607,6 +4608,7 @@ void qt_format_text(const QFont &font, const QRectF &_r,
     qreal width = 0;
 
     QTextLayout textLayout(text, fnt);
+    textLayout.setCacheEnabled(true);
     textLayout.engine()->underlinePositions = underlinePositions;
 
     if (text.isEmpty()) {
