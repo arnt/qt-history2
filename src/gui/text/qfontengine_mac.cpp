@@ -31,6 +31,11 @@
 //#define DEBUG_ADVANCES
 
 
+#ifndef FixedToFloat
+#define FixedToFloat(a) ((float)(a) / fixed1)
+#endif
+
+
 //Generic engine
 QFontEngine::~QFontEngine()
 {

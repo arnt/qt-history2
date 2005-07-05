@@ -80,6 +80,10 @@
 #include "qregexp.h"
 #endif
 
+#ifndef kThemeBrushAlternatePrimaryHighlightColor
+#define kThemeBrushAlternatePrimaryHighlightColor -5
+#endif
+
 //for qt_mac.h
 QPaintDevice *qt_mac_safe_pdev = 0;
 QList<QMacWindowChangeEvent*> *QMacWindowChangeEvent::change_events = 0;
