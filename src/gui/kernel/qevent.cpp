@@ -2675,7 +2675,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     // More useful event output could be added here
     if (!e)
         return dbg << "QEvent(this = 0x0)";
-    const char *n;
+    const char *n = 0;
     switch (e->type()) {
     case QEvent::Timer:
         n = "Timer";
@@ -2708,6 +2708,8 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
                       << ")";
     }
     return dbg.space();
+
+
     case QEvent::ToolTip:
         n = "ToolTip";
         break;
@@ -2744,11 +2746,11 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
             }
             dbg.nospace() << "QKeyEvent("  << n
                           << ", " << hex << ke->key()
-                        << ", " << hex << (int)ke->modifiers()
-                        << ", \"" << ke->text()
-                        << "\", " << ke->isAutoRepeat()
-                        << ", " << ke->count()
-                        << ")";
+                          << ", " << hex << (int)ke->modifiers()
+                          << ", \"" << ke->text()
+                          << "\", " << ke->isAutoRepeat()
+                          << ", " << ke->count()
+                          << ")";
         }
         return dbg.space();
     case QEvent::FocusIn:
@@ -2787,6 +2789,14 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
     case QEvent::FileOpen:
         n = "FileOpen";
         break;
+#ifdef QT3_SUPPORT
+    case QEvent::ChildInserted: n = "ChildInserted";
+#endif
+    case QEvent::ChildAdded: n = n ? n : "ChildAdded";
+    case QEvent::ChildPolished: n = n ? n : "ChildPolished";
+    case QEvent::ChildRemoved: n = n ? n : "ChildRemoved";
+        dbg.nospace() << "QChildEvent(" << n << ", " << (static_cast<const QChildEvent*>(e))->child();
+        return dbg.space();
     default:
         dbg.nospace() << "QEvent(" << (const void *)e << ", type = " << e->type() << ')';
         return dbg.space();
@@ -2801,6 +2811,7 @@ QDebug operator<<(QDebug dbg, const QEvent *e) {
 #endif
 }
 #endif
+
 
 /*!
     \internal
