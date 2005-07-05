@@ -747,6 +747,9 @@ void QTextTable::mergeCells(int row, int column, int numRows, int numCols)
     const int rowSpan = fmt.tableCellRowSpan();
     const int colSpan = fmt.tableCellColumnSpan();
 
+    numRows = qMin(numRows, rows() - cell.row());
+    numCols = qMin(numCols, columns() - cell.column());
+
     // nothing to merge?
     if (numRows < rowSpan || numCols < colSpan)
         return;
