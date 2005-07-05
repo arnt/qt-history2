@@ -366,8 +366,8 @@ QModelIndex QSortingProxyModel::buddy(const QModelIndex &index) const
   \reimpl
 */
 QModelIndexList QSortingProxyModel::match(const QModelIndex &start, int role,
-                                     const QVariant &value, int hits,
-                                     Qt::MatchFlags flags) const
+                                          const QVariant &value, int hits,
+                                          Qt::MatchFlags flags) const
 {
     QModelIndex source_start = id_to_source_index_map.value(start.internalPointer());
     QModelIndexList result = model()->match(source_start, role, value, hits, flags);
