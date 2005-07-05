@@ -99,6 +99,7 @@ protected:
 
     void timerEvent(QTimerEvent *e);
     void resizeEvent(QResizeEvent *e);
+#ifndef QT_NO_DRAGANDDROP
     void dragMoveEvent(QDragMoveEvent *e);
     void dragLeaveEvent(QDragLeaveEvent *e);
     void dropEvent(QDropEvent *e);
@@ -106,6 +107,7 @@ protected:
 
     void internalDrop(QDropEvent *e);
     void internalDrag(Qt::DropActions supportedActions);
+#endif // QT_NO_DRAGANDDROP
 
     QStyleOptionViewItem viewOptions() const;
     void paintEvent(QPaintEvent *e);

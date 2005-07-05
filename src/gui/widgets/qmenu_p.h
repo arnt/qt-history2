@@ -32,6 +32,8 @@
 #include <qstyleoption.h>
 #include <qmap.h>
 
+#ifndef QT_NO_MENU
+
 class QTornOffMenu;
 
 #ifdef Q_WS_MAC
@@ -165,4 +167,5 @@ public:
     QPointer<QWidget> noReplayFor;
 };
 
+#endif // QT_NO_MENU
 #endif // QMENU_P_H

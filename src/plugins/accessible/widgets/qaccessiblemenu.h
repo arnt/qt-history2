@@ -16,6 +16,7 @@
 
 #include <qaccessiblewidget.h>
 
+#ifndef QT_NO_MENU
 class QMenu;
 class QMenuBar;
 
@@ -37,7 +38,9 @@ public:
 protected:
     QMenu *menu() const;
 };
+#endif // QT_NO_MENU
 
+#ifndef QT_NO_MENUBAR
 class QAccessibleMenuBar : public QAccessibleWidget
 {
 public:
@@ -56,5 +59,5 @@ public:
 protected:
     QMenuBar *menuBar() const;
 };
-
+#endif // QT_NO_MENUBAR
 #endif // QACCESSIBLEMENU_H

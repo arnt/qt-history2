@@ -20,6 +20,8 @@
 #include "QtGui/qwidget.h"
 #include "QtCore/qvariant.h"
 
+#ifndef QT_NO_ACTION
+
 class QMenu;
 class QActionGroup;
 class QActionPrivate;
@@ -38,9 +40,11 @@ class Q_GUI_EXPORT QAction : public QObject
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
     Q_PROPERTY(QString statusTip READ statusTip WRITE setStatusTip)
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
-    Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(QFont font READ font WRITE setFont)
+#ifndef QT_NO_SHORTCUT
+    Q_PROPERTY(QKeySequence shortcut READ shortcut WRITE setShortcut)
     Q_PROPERTY(Qt::ShortcutContext shortcutContext READ shortcutContext WRITE setShortcutContext)
+#endif
     Q_PROPERTY(bool visible READ isVisible WRITE setVisible)
 
 public:
@@ -78,18 +82,22 @@ public:
     void setWhatsThis(const QString &what);
     QString whatsThis() const;
 
+#ifndef QT_NO_MENU
     QMenu *menu() const;
     void setMenu(QMenu *menu);
-
+#endif
+    
     void setSeparator(bool b);
     bool isSeparator() const;
 
+#ifndef QT_NO_SHORTCUT
     void setShortcut(const QKeySequence &shortcut);
     QKeySequence shortcut() const;
-
+    
     void setShortcutContext(Qt::ShortcutContext context);
     Qt::ShortcutContext shortcutContext() const;
-
+#endif
+    
     void setFont(const QFont &font);
     QFont font() const;
 
@@ -164,4 +172,5 @@ private:
 
 #include "QtGui/qactiongroup.h" // ### remove after tech-preview 1
 
+#endif // QT_NO_ACTION
 #endif // QACTION_H

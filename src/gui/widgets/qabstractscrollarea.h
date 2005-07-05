@@ -16,6 +16,8 @@
 
 #include "QtGui/qframe.h"
 
+#ifndef QT_NO_SCROLLAREA
+
 class QScrollBar;
 class QAbstractScrollAreaPrivate;
 
@@ -81,4 +83,5 @@ private:
 
 };
 
+#endif // QT_NO_SCROLLAREA
 #endif // QVIEWPORT_H

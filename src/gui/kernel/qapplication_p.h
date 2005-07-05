@@ -133,7 +133,9 @@ public:
     ~QApplicationPrivate();
 
 #if defined(Q_WS_X11)
+#ifndef QT_NO_SETTINGS
     static bool x11_apply_settings();
+#endif
     static void reset_instance_pointer();
 #elif defined(Q_WS_QWS)
     static bool qws_apply_settings();
@@ -161,7 +163,7 @@ public:
     void initialize();
     void process_cmdline();
 
-#if defined(Q_WS_X11) && !defined (QT_NO_STYLE)
+#if defined(Q_WS_X11)
     static void x11_initialize_style();
 #endif
 
@@ -184,8 +186,10 @@ public:
     QBasicTimer toolTipWakeUp, toolTipFallAsleep;
     QPoint toolTipPos, toolTipGlobalPos, hoverGlobalPos;
     QPointer<QWidget> toolTipWidget;
+#ifndef QT_NO_SHORTCUT
     QShortcutMap shortcutMap;
-
+#endif
+    
 #ifdef QT3_SUPPORT
     bool qt_compat_used;
     bool qt_compat_resolved;

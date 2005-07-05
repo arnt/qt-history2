@@ -27,6 +27,8 @@
 
 #include "qpaintengine.h"
 
+#ifndef QT_NO_PICTURE
+
 class QPicturePaintEnginePrivate;
 class QBuffer;
 
@@ -75,4 +77,5 @@ private:
     void writeCmdLength(int pos, const QRectF &r, bool corr);
 };
 
+#endif // QT_NO_PICTURE
 #endif // QPAINTENGINE_PIC_P_H

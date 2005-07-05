@@ -18,7 +18,7 @@
 #include "QtCore/qstringlist.h"
 #include "QtCore/qmap.h"
 
-#ifndef QT_NO_NETWORKPROTOCOL_HTTP
+#ifndef QT_NO_HTTP
 
 class QTcpSocket;
 class QTimerEvent;

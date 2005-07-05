@@ -19,6 +19,8 @@
 #include <qevent.h>
 #include <math.h>
 
+#ifndef QT_NO_DATETIMEEDIT
+
 enum {
     Neither = -1,
     AM = 0,
@@ -849,6 +851,7 @@ void QDateTimeEdit::keyPressEvent(QKeyEvent *e)
   \reimp
 */
 
+#ifndef QT_NO_WHEELEVENT
 void QDateTimeEdit::wheelEvent(QWheelEvent *e)
 {
     Q_D(QDateTimeEdit);
@@ -869,6 +872,8 @@ void QDateTimeEdit::wheelEvent(QWheelEvent *e)
         break;
     }
 }
+#endif
+
 /*!
   \reimp
 */
@@ -1356,10 +1361,10 @@ void QDateTimeEditPrivate::readLocaleSettings()
 
 #ifdef Q_WS_MAC
     str = macParseDateLocale(QVariant::Date);
-#else
+#else 
     str = date.toString(Qt::LocalDate);
 #endif
-
+    
     index = str.indexOf(QLatin1String("22"));
     if (index != -1)
         str.replace(index, 2, QLatin1String("dd"));
@@ -2911,3 +2916,5 @@ QString QDateTimeEditPrivate::stateName(int s) const
 }
 
 #include "moc_qdatetimeedit.cpp"
+
+#endif // QT_NO_DATETIMEEDIT

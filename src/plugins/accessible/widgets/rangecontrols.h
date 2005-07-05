@@ -20,6 +20,7 @@ class QScrollBar;
 class QSlider;
 class QSpinBox;
 
+#ifndef QT_NO_SPINBOX
 class QAccessibleSpinBox : public QAccessibleWidget
 {
 public:
@@ -46,6 +47,7 @@ public:
 protected:
     QSpinBox *spinBox() const;
 };
+#endif // QT_NO_SPINBOX
 
 class QAccessibleScrollBar : public QAccessibleWidget
 {

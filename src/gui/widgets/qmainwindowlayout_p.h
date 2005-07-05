@@ -27,6 +27,8 @@
 
 #include "qmainwindow.h"
 
+#ifndef QT_NO_MAINWINDOW
+
 #include <qlayout.h>
 #include <qvector.h>
 
@@ -43,18 +45,22 @@ public:
     ~QMainWindowLayout();
 
     QLayoutItem *statusbar;
+#ifndef QT_NO_STATUSBAR
     QStatusBar *statusBar() const;
     void setStatusBar(QStatusBar *sb);
-
+#endif
+    
     QWidget *centralWidget() const;
     void setCentralWidget(QWidget *cw);
 
+#ifndef QT_NO_TOOLBAR
     void addToolBarBreak(Qt::ToolBarArea area);
     void insertToolBarBreak(QToolBar *before);
     void addToolBar(Qt::ToolBarArea area, QToolBar *toolbar, bool needAddChildWidget = true);
     void insertToolBar(QToolBar *before, QToolBar *toolbar);
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
-
+#endif
+    
     QDockWidgetLayout *layoutForArea(Qt::DockWidgetArea area);
     void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
                        Qt::Orientation orientation);
@@ -104,11 +110,13 @@ public:
     QRect placeDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
     void dropDockWidget(QDockWidget *dockwidget, const QRect &r, const QPoint &mouse);
 
+#ifndef QT_NO_TOOLBAR
     int locateToolBar(QToolBar *toolbar, const QPoint &mouse) const;
     void dropToolBar(QToolBar *toolbar, const QPoint &mouse, const QPoint &offset);
 
     void removeToolBarInfo(QToolBar *toolbar);
-
+#endif
+    
     // dock/center-widget layout data
     Qt::DockWidgetArea corners[4];
     struct QMainWindowLayoutInfo
@@ -120,6 +128,7 @@ public:
     };
     QVector<QMainWindowLayoutInfo> layout_info, *save_layout_info;
 
+#ifndef QT_NO_TOOLBAR
     // toolbar layout data
     struct ToolBarLayoutInfo
     {
@@ -143,6 +152,8 @@ public:
     static int prevVisible(int index, const ToolBarLineInfo &lineInfo);
 
     QList<ToolBarLineInfo> tb_layout_info, *save_tb_layout_info;
+#endif
 };
 
+#endif // QT_NO_MAINWINDOW
 #endif // QMAINWINDOWLAYOUT_P_H

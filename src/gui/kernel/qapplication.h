@@ -54,7 +54,9 @@ class Q_GUI_EXPORT QApplication : public QCoreApplication
     Q_PROPERTY(int cursorFlashTime READ cursorFlashTime WRITE setCursorFlashTime)
     Q_PROPERTY(int doubleClickInterval  READ doubleClickInterval WRITE setDoubleClickInterval)
     Q_PROPERTY(int keyboardInputInterval READ keyboardInputInterval WRITE setKeyboardInputInterval)
+#ifndef QT_NO_WHEELEVENT
     Q_PROPERTY(int wheelScrollLines  READ wheelScrollLines WRITE setWheelScrollLines)
+#endif
     Q_PROPERTY(QSize globalStrut READ globalStrut WRITE setGlobalStrut)
     Q_PROPERTY(int startDragTime  READ startDragTime WRITE setStartDragTime)
     Q_PROPERTY(int startDragDistance  READ startDragDistance WRITE setStartDragDistance)
@@ -73,11 +75,9 @@ public:
 
     static Type type();
 
-#ifndef QT_NO_STYLE
     static QStyle *style();
     static void setStyle(QStyle*);
     static QStyle *setStyle(const QString&);
-#endif
     enum ColorSpec { NormalColor=0, CustomColor=1, ManyColor=2 };
     static int colorSpec();
     static void setColorSpec(int);
@@ -268,7 +268,9 @@ private:
     friend class QETWidget;
     friend class Q3AccelManager;
     friend class QTranslator;
+#ifndef QT_NO_SHORTCUT
     friend class QShortcut;
+#endif
     friend class QAction;
 
 #if defined(Q_WS_QWS)

@@ -46,7 +46,7 @@
 #endif
 #endif
 
-#ifndef QT_NO_ACCEL
+#ifndef QT_NO_SHORTCUT
 #include "qkeysequence.h"
 #define ACCEL_KEY(k) "\t" + QString(QKeySequence(Qt::CTRL | Qt::Key_ ## k))
 #else
@@ -473,7 +473,7 @@ void QLineEdit::setEchoMode(EchoMode mode)
 }
 
 
-
+#ifndef QT_NO_VALIDATOR
 /*!
     Returns a pointer to the current input validator, or 0 if no
     validator has been set.
@@ -504,7 +504,7 @@ void QLineEdit::setValidator(const QValidator *v)
     Q_D(QLineEdit);
     d->validator = const_cast<QValidator*>(v);
 }
-
+#endif // QT_NO_VALIDATOR
 
 
 /*!
@@ -1470,13 +1470,13 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
     Q_D(QLineEdit);
     d->setCursorVisible(true);
     if (event->key() == Qt::Key_Enter || event->key() == Qt::Key_Return) {
-        const QValidator * v = d->validator;
         if (hasAcceptableInput()) {
             emit returnPressed();
             emit editingFinished();
         }
 #ifndef QT_NO_VALIDATOR
         else {
+            const QValidator * v = d->validator;
             QString textCopy = d->text;
             int cursorCopy = d->cursor;
             if (v && v->validate(textCopy, cursorCopy) != QValidator::Acceptable)
@@ -1529,7 +1529,9 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
         case Qt::Key_K:
             if (!d->readOnly) {
                 setSelection(d->cursor, d->text.size());
+#ifndef QT_NO_CLIPBOARD
                 copy();
+#endif
                 del();
             }
             break;
@@ -1537,7 +1539,9 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
         case Qt::Key_U:
             if (!d->readOnly) {
                 setSelection(0, d->text.size());
+#ifndef QT_NO_CLIPBOARD
                 copy();
+#endif
                 del();
             }
             break;
@@ -1547,17 +1551,19 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             if (!d->readOnly)
                 paste();
             break;
+#endif            
         case Qt::Key_X:
             if (!d->readOnly) {
+#ifndef QT_NO_CLIPBOARD
                 copy();
+#endif
                 del();
             }
             break;
-#if !defined(Q_WS_MAC)
+#if !defined(Q_WS_MAC) && !defined(QT_NO_CLIPBOARD)
         case Qt::Key_Insert:
             copy();
             break;
-#endif
 #endif
         case Qt::Key_Delete:
             if (!d->readOnly) {
@@ -1649,6 +1655,7 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
             end(event->modifiers() & Qt::ShiftModifier);
             break;
         case Qt::Key_Delete:
+#if !defined(QT_NO_CLIPBOARD)
             if (!d->readOnly) {
 #if !defined(Q_WS_MAC)
                 if (event->modifiers() & Qt::ShiftModifier) {
@@ -1658,8 +1665,9 @@ void QLineEdit::keyPressEvent(QKeyEvent *event)
 #endif
                 del();
             }
+#endif
             break;
-#if !defined(Q_WS_MAC)
+#if !defined(Q_WS_MAC) && !defined(QT_NO_CLIPBOARD)
         case Qt::Key_Insert:
             if (!d->readOnly && event->modifiers() & Qt::ShiftModifier)
                 paste();
@@ -2053,6 +2061,7 @@ void QLineEditPrivate::drag()
 
 #endif // QT_NO_DRAGANDDROP
 
+#ifndef QT_NO_MENU
 /*!
     Shows the standard context menu created with
     createStandardContextMenu().
@@ -2095,7 +2104,6 @@ void QLineEdit::contextMenuEvent(QContextMenuEvent *event)
 QMenu *QLineEdit::createStandardContextMenu()
 {
     Q_D(QLineEdit);
-#ifndef QT_NO_POPUPMENU
     d->actions[QLineEditPrivate::UndoAct]->setEnabled(d->isUndoAvailable());
     d->actions[QLineEditPrivate::RedoAct]->setEnabled(d->isRedoAvailable());
 #ifndef QT_NO_CLIPBOARD
@@ -2130,10 +2138,8 @@ QMenu *QLineEdit::createStandardContextMenu()
     }
 #endif
     return popup;
-#else
-    return 0;
-#endif
 }
+#endif // QT_NO_MENU
 
 /*! \reimp */
 void QLineEdit::changeEvent(QEvent *ev)
@@ -2171,6 +2177,7 @@ void QLineEditPrivate::init(const QString& txt)
     updateTextLayout();
     cursor = text.length();
 
+#ifndef QT_NO_MENU    
     actions[UndoAct] = new QAction(q->tr("&Undo") + ACCEL_KEY(Z), q);
     QObject::connect(actions[UndoAct], SIGNAL(triggered()), q, SLOT(undo()));
     actions[RedoAct] = new QAction(q->tr("&Redo") + ACCEL_KEY(Y), q);
@@ -2191,6 +2198,7 @@ void QLineEditPrivate::init(const QString& txt)
 #endif
                                         , q);
     QObject::connect(actions[SelectAllAct], SIGNAL(triggered()), q, SLOT(selectAll()));
+#endif // QT_NO_MENU
 }
 
 void QLineEditPrivate::updateTextLayout()

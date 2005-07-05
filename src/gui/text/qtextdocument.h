@@ -50,7 +50,9 @@ namespace Qt
     Q_GUI_EXPORT QString escape(const QString& plain);
     Q_GUI_EXPORT QString convertFromPlainText(const QString &plain, WhiteSpaceMode mode = WhiteSpacePre);
 
+#ifndef QT_NO_TEXTCODEC
     Q_GUI_EXPORT QTextCodec *codecForHtml(const QByteArray &ba);
+#endif
 }
 
 class Q_GUI_EXPORT QAbstractUndoItem
@@ -138,8 +140,10 @@ public:
 
     bool isModified() const;
 
+#ifndef QT_NO_PRINTER
     void print(QPrinter *printer) const;
-
+#endif
+    
     enum ResourceType {
         HtmlResource  = 1,
         ImageResource = 2,

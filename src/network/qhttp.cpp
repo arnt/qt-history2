@@ -16,7 +16,7 @@
 #include <qplatformdefs.h>
 #include "qhttp.h"
 
-#ifndef QT_NO_NETWORKPROTOCOL_HTTP
+#ifndef QT_NO_HTTP
 
 #include "private/qobject_p.h"
 #include "qtcpsocket.h"

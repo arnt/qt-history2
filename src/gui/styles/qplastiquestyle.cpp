@@ -15,6 +15,8 @@ static const bool UsePixmapCache = true;
 
 #include "qplastiquestyle.h"
 
+#if !defined(QT_NO_STYLE_PLASTIQUE) || defined(QT_PLUGIN)
+
 #include <qdebug.h>
 
 #include <qapplication.h>
@@ -790,6 +792,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         // Draws the frame around a default button (drawn in
         // PE_PanelButtonCommand).
         break;
+#ifndef QT_NO_TABWIDGET        
     case PE_FrameTabWidget:
         if (const QStyleOptionTabWidgetFrame *twf = qstyleoption_cast<const QStyleOptionTabWidgetFrame *>(option)) {
             if (twf->shape != QTabBar::RoundedNorth && twf->shape != QTabBar::RoundedWest &&
@@ -893,6 +896,8 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->restore();
         }
         break ;
+#endif // QT_NO_TABWIDGET
+#ifndef QT_NO_TABBAR
     case PE_FrameTabBarBase:
         if (const QStyleOptionTabBarBase *tbb = qstyleoption_cast<const QStyleOptionTabBarBase *>(option)) {
             if (tbb->shape != QTabBar::RoundedNorth && tbb->shape != QTabBar::RoundedWest &&
@@ -925,6 +930,7 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
             painter->restore();
         }
         break ;
+#endif // QT_NO_TABBAR
     case PE_FrameLineEdit:
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
             int lw = 1; int mlw = 1;
@@ -950,7 +956,10 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
         if (const QStyleOptionFrame *frame = qstyleoption_cast<const QStyleOptionFrame *>(option)) {
             painter->save();
 
-            bool isTextEdit = qobject_cast<const QTextEdit *>(widget);
+            bool isTextEdit = false;
+#ifndef QT_NO_TEXTEDIT
+            isTextEdit = qobject_cast<const QTextEdit *>(widget);
+#endif
 #ifdef QT3_SUPPORT
             if (widget->inherits("Q3TextEdit"))
                 isTextEdit = true;
@@ -1179,7 +1188,10 @@ void QPlastiqueStyle::drawPrimitive(PrimitiveElement element, const QStyleOption
     case PE_PanelButtonCommand:
         if (const QStyleOptionButton *button = qstyleoption_cast<const QStyleOptionButton *>(option)) {
             const QPushButton *pushButton = qobject_cast<const QPushButton *>(widget);
-            bool hoverable = (pushButton || qobject_cast<const QComboBox *>(widget));
+            bool hoverable = pushButton;
+#ifndef QT_NO_COMBOBOX
+            hoverable = hoverable || qobject_cast<const QComboBox *>(widget);
+#endif
             bool down = (button->state & State_Sunken) || (button->state & State_On);
             bool hover = hoverable && (button->state & State_Enabled) && (button->state & State_MouseOver);
             bool isDefault = (button->features & QStyleOptionButton::DefaultButton);
@@ -1680,6 +1692,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
     QColor shadow = shadowGradientStartColor;
 
     switch (element) {
+#ifndef QT_NO_TABBAR
     case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
 
@@ -2066,6 +2079,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->restore();
         }
         break;
+#endif // QT_NO_TABBAR
     case CE_ProgressBarGroove:
         if (const QStyleOptionProgressBar *bar = qstyleoption_cast<const QStyleOptionProgressBar *>(option)) {
             QRect rect = bar->rect;
@@ -2647,6 +2661,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             painter->restore();
         }
         break;
+#ifndef QT_NO_SPLITTER
     case CE_Splitter:
         if ((option->state & State_Enabled) && (option->state & State_MouseOver))
             painter->fillRect(option->rect, option->palette.base());
@@ -2662,6 +2677,7 @@ void QPlastiqueStyle::drawControl(ControlElement element, const QStyleOption *op
             qt_plastique_draw_handle(painter, option, rect, Qt::Vertical);
         }
         break;
+#endif // QT_NO_SPLITTER
     case CE_DockWidgetTitle:
         if (const QStyleOptionDockWidget *dockWidget = qstyleoption_cast<const QStyleOptionDockWidget *>(option)) {
             painter->save();
@@ -2731,6 +2747,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
     QColor highlightedLightInnerBorderColor = mergedColors(option->palette.button().color(), option->palette.highlight().color(), 58);
 
     switch (control) {
+#ifndef QT_NO_SLIDER
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             QRect groove = subControlRect(CC_Slider, option, SC_SliderGroove, widget);
@@ -2921,6 +2938,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             }
         }
         break;
+#endif // QT_NO_SLIDER
+#ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             QRect rect = scrollBar->rect;
@@ -3215,6 +3234,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             }
         }
         break;
+#endif // QT_NO_SCROLLBAR
+#ifndef QT_NO_SPINBOX
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             QPixmap cache;
@@ -3378,6 +3399,8 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
             painter->drawPixmap(spinBox->rect.topLeft(), cache);
         }
         break;
+#endif // QT_NO_SPINBOX
+#ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         if (const QStyleOptionComboBox *comboBox = qstyleoption_cast<const QStyleOptionComboBox *>(option)) {
 
@@ -3525,6 +3548,7 @@ void QPlastiqueStyle::drawComplexControl(ComplexControl control, const QStyleOpt
 
         }
         break;
+#endif // QT_NO_COMBOBOX
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *titleBar = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
             painter->save();
@@ -3825,6 +3849,7 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
     case CT_LineEdit:
         newSize.rheight() += 4;
         break;
+#ifndef QT_NO_SLIDER
     case CT_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             int tickSize = pixelMetric(PM_SliderTickmarkOffset, option, widget);
@@ -3842,6 +3867,8 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
             }
         }
         break;
+#endif // QT_NO_SLIDER
+#ifndef QT_NO_SCROLLBAR
     case CT_ScrollBar:
         if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             int scrollBarExtent = pixelMetric(PM_ScrollBarExtent, option, widget);
@@ -3853,13 +3880,18 @@ QSize QPlastiqueStyle::sizeFromContents(ContentsType type, const QStyleOption *o
             }
         }
         break;
+#endif // QT_NO_SCROLLBAR
+#ifndef QT_NO_SPINBOX
     case CT_SpinBox:
         newSize.rheight() -= 2;
         break;
+#endif
+#ifndef QT_NO_TOOLBUTTON
     case CT_ToolButton:
         newSize.rwidth() += 3;
         newSize.rheight() += 3;
         break;
+#endif
     case CT_ComboBox:
         ++newSize.rheight();
         break;
@@ -3903,6 +3935,7 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
     QRect rect = QWindowsStyle::subControlRect(control, option, subControl, widget);
 
     switch (control) {
+#ifndef QT_NO_SLIDER
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             int tickSize = pixelMetric(PM_SliderTickmarkOffset, option, widget);
@@ -3954,6 +3987,8 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             }
         }
         break;
+#endif // QT_NO_SLIDER
+#ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             int scrollBarExtent = pixelMetric(PM_ScrollBarExtent, scrollBar, widget);
@@ -4035,6 +4070,8 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             rect = visualRect(scrollBar->direction, scrollBarRect, rect);
         }
         break;
+#endif // QT_NO_SCROLLBAR
+#ifndef QT_NO_SPINBOX
     case CC_SpinBox:
         if (const QStyleOptionSpinBox *spinBox = qstyleoption_cast<const QStyleOptionSpinBox *>(option)) {
             int center = spinBox->rect.height() / 2;
@@ -4059,6 +4096,8 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             }
         }
         break;
+#endif // QT_NO_SPINBOX
+#ifndef QT_NO_COMBOBOX
     case CC_ComboBox:
         switch (subControl) {
         case SC_ComboBoxArrow:
@@ -4077,6 +4116,7 @@ QRect QPlastiqueStyle::subControlRect(ComplexControl control, const QStyleOption
             break;
         }
         break;
+#endif // QT_NO_COMBOBOX
     case CC_TitleBar:
         if (const QStyleOptionTitleBar *tb = qstyleoption_cast<const QStyleOptionTitleBar *>(option)) {
             SubControl sc = subControl;
@@ -4218,6 +4258,7 @@ QStyle::SubControl QPlastiqueStyle::hitTestComplexControl(ComplexControl control
     case CC_ComboBox:
         ret = SC_ComboBoxArrow;
         break;
+#ifndef QT_NO_SCROLLBAR
     case CC_ScrollBar:
         if (const QStyleOptionSlider *scrollBar = qstyleoption_cast<const QStyleOptionSlider *>(option)) {
             QRect slider = subControlRect(control, scrollBar, SC_ScrollBarSlider, widget);
@@ -4251,6 +4292,7 @@ QStyle::SubControl QPlastiqueStyle::hitTestComplexControl(ComplexControl control
             }
         }
         break;
+#endif // QT_NO_SCROLLBAR
     default:
         break;
     }
@@ -4275,6 +4317,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
     case PM_ButtonDefaultIndicator:
         ret = 0;
         break;
+#ifndef QT_NO_SLIDER
     case PM_SliderThickness:
         ret = 15;
         break;
@@ -4295,6 +4338,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
             ret = size;
             break;
         }
+#endif // QT_NO_SLIDER
     case PM_ScrollBarExtent:
         ret = 16;
         break;
@@ -4335,12 +4379,15 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
         ret = 20;
         break;
     case PM_DefaultFrameWidth:
+#ifndef QT_NO_MENU
         if (qobject_cast<const QMenu *>(widget)) {
             ret = 1;
             break;
         }
+#endif
         ret = 2;
         break;
+#ifndef QT_NO_TABBAR
     case PM_TabBarTabVSpace:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(option)) {
             if (!tab->icon.isNull()) {
@@ -4349,6 +4396,7 @@ int QPlastiqueStyle::pixelMetric(PixelMetric metric, const QStyleOption *option,
             }
         }
         break;
+#endif // QT_NO_TABBAR
     case PM_MDIFrameWidth:
         ret = 4;
         break;
@@ -4426,11 +4474,18 @@ QPalette QPlastiqueStyle::standardPalette() const
 void QPlastiqueStyle::polish(QWidget *widget)
 {
     if (qobject_cast<QPushButton *>(widget)
+#ifndef QT_NO_COMBOBOX
         || qobject_cast<QComboBox *>(widget)
+#endif
         || qobject_cast<QCheckBox *>(widget)
         || qobject_cast<QRadioButton *>(widget)
+#ifndef QT_NO_SPLITTER
         || qobject_cast<QSplitterHandle *>(widget)
-        || qobject_cast<QTabBar *>(widget)) {
+#endif
+#ifndef QT_NO_TABBAR
+        || qobject_cast<QTabBar *>(widget)
+#endif
+        ) {
         widget->setAttribute(Qt::WA_Hover);
     }
 
@@ -4441,13 +4496,23 @@ void QPlastiqueStyle::polish(QWidget *widget)
    else if (widget->inherits("QDockWidgetSeparator"))
         widget->setAttribute(Qt::WA_Hover);
 
-    if (qobject_cast<QToolBox *>(widget)
+    if (false // to simplify the #ifdefs
+#ifndef QT_NO_MENUBAR
+        || qobject_cast<QMenuBar *>(widget)
+#endif
+#ifndef QT_NO_TOOLBOX
+        || qobject_cast<QToolBox *>(widget)
+#endif
 #ifdef QT3_SUPPORT
         || widget->inherits("Q3ToolBar")
 #endif
-        || qobject_cast<QMenuBar *>(widget)
+#ifndef QT_NO_TOOLBAR
         || qobject_cast<QToolBar *>(widget)
-        || qobject_cast<QToolButton *>(widget)) {
+#endif
+#ifndef QT_NO_TOOLBUTTON
+        || qobject_cast<QToolButton *>(widget)
+#endif        
+        ) {
         widget->setBackgroundRole(QPalette::Background);
     }
 }
@@ -4458,29 +4523,45 @@ void QPlastiqueStyle::polish(QWidget *widget)
 void QPlastiqueStyle::unpolish(QWidget *widget)
 {
     if (qobject_cast<QPushButton *>(widget)
+#ifndef QT_NO_COMBOBOX
         || qobject_cast<QComboBox *>(widget)
+#endif
         || qobject_cast<QCheckBox *>(widget)
+#ifndef QT_NO_SPLITTER
         || qobject_cast<QSplitterHandle *>(widget)
+#endif
         || qobject_cast<QRadioButton *>(widget)) {
         widget->setAttribute(Qt::WA_Hover, false);
     }
 
     if (widget->inherits("QWorkspaceTitleBar"))
         widget->setAttribute(Qt::WA_Hover, false);
+#ifndef QT_NO_TABBAR
     else if (qobject_cast<QTabBar *>(widget))
         widget->setAttribute(Qt::WA_Hover, false);
+#endif
     else if (widget->inherits("QDockSeparator"))
         widget->setAttribute(Qt::WA_Hover, false);
     else if (widget->inherits("QDockWidgetSeparator"))
         widget->setAttribute(Qt::WA_Hover, false);
 
-    if (qobject_cast<QToolBox *>(widget)
+    if (false // to simplify the #ifdefs
+#ifndef QT_NO_MENUBAR
+        || qobject_cast<QMenuBar *>(widget)
+#endif
+#ifndef QT_NO_TOOLBOX
+        || qobject_cast<QToolBox *>(widget)
+#endif
 #ifdef QT3_SUPPORT
         || widget->inherits("Q3ToolBar")
 #endif
-        || qobject_cast<QMenuBar *>(widget)
+#ifndef QT_NO_TOOLBAR
         || qobject_cast<QToolBar *>(widget)
-        || qobject_cast<QToolButton *>(widget)) {
+#endif
+#ifndef QT_NO_TOOLBUTTON
+        || qobject_cast<QToolButton *>(widget)
+#endif
+        ) {
         widget->setBackgroundRole(QPalette::Button);
     }
 }
@@ -4509,3 +4590,5 @@ void QPlastiqueStyle::unpolish(QApplication *app)
 {
     QWindowsStyle::unpolish(app);
 }
+
+#endif // QT_NO_STYLE_PLASTIQUE

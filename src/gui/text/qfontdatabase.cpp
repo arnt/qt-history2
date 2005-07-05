@@ -13,7 +13,6 @@
 
 #include "qfontdatabase.h"
 
-#ifndef QT_NO_FONTDATABASE
 
 #include <qalgorithms.h>
 #include <qapplication.h>
@@ -2069,4 +2068,3 @@ void QFontDatabase::parseFontName(const QString &name, QString &foundry, QString
 void QFontDatabase::createDatabase()
 { initializeDb(); }
 
-#endif // QT_NO_FONTDATABASE

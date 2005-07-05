@@ -13,7 +13,6 @@
 
 #include "qmime.h"
 
-#ifndef QT_NO_MIME
 
 //#define USE_INTERNET_CONFIG
 
@@ -938,4 +937,3 @@ QList<QMacMime*> QMacMime::all(QMacMimeType t)
   All subclasses must reimplement this pure virtual function.
 */
 
-#endif // QT_NO_MIME

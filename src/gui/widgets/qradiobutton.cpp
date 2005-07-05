@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qradiobutton.h"
-#ifndef QT_NO_RADIOBUTTON
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qbuttongroup.h"
@@ -165,5 +164,4 @@ QRadioButton::QRadioButton(const QString &text, QWidget *parent, const char* nam
     setText(text);
 }
 
-#endif
 #endif

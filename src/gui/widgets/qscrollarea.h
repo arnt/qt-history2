@@ -16,6 +16,8 @@
 
 #include "QtGui/qabstractscrollarea.h"
 
+#ifndef QT_NO_SCROLLAREA
+
 class QScrollAreaPrivate;
 
 class Q_GUI_EXPORT QScrollArea : public QAbstractScrollArea
@@ -47,4 +49,5 @@ private:
     Q_DISABLE_COPY(QScrollArea)
 };
 
+#endif // QT_NO_SCROLLAREA
 #endif // QWIDGETVIEW_H

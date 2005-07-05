@@ -27,7 +27,6 @@
 
 #include "qwidget.h"
 
-#ifndef QT_NO_DIALOGBUTTONS
 struct QDialogButtonsPrivate;
 
 class
@@ -36,11 +35,9 @@ QDialogButtons : public QWidget
     Q_OBJECT
 public:
     enum Button { None=0, Accept=0x01, Reject=0x02, Help=0x04, Apply=0x08, All=0x10, Abort=0x20, Retry=0x40, Ignore=0x80 };
-#ifndef QT_NO_DIALOG
     explicit QDialogButtons(QDialog *parent, bool autoConnect = true,
                             quint32 buttons = Accept | Reject,
                             Qt::Orientation orient = Qt::Horizontal);
-#endif // QT_NO_DIALOG
     explicit QDialogButtons(QWidget *parent,
                             quint32 buttons = Accept | Reject,
                             Qt::Orientation orient = Qt::Horizontal);
@@ -99,6 +96,5 @@ private:
     void init(quint32, Qt::Orientation);
 };
 
-#endif //QT_NO_DIALOGBUTTONS
 
 #endif //QDIALOGBUTTONS_P_H

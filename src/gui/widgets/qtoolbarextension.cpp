@@ -15,12 +15,16 @@
 #include <qpixmap.h>
 #include <qstyle.h>
 
+#ifndef QT_NO_TOOLBUTTON
+
 QToolBarExtension::QToolBarExtension(QWidget *parent)
     : QToolButton(parent)
 {
     setObjectName("qt_toolbar_ext_button");
     setAutoRaise(true);
+#ifndef QT_NO_MENU
     setPopupMode(QToolButton::InstantPopup);
+#endif
     setOrientation(Qt::Horizontal);
     setSizePolicy(QSizePolicy::Minimum, QSizePolicy::Minimum);
 }
@@ -39,3 +43,5 @@ QSize QToolBarExtension::sizeHint() const
     int ext = style()->pixelMetric(QStyle::PM_ToolBarExtensionExtent);
     return QSize(ext, ext);
 }
+
+#endif // QT_NO_TOOLBUTTON

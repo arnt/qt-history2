@@ -17,6 +17,9 @@
 #include "QtCore/qobject.h"
 #include "QtCore/qvariant.h"
 #include "QtCore/qstring.h"
+
+#ifndef QT_NO_SETTINGS
+
 #ifdef QT3_SUPPORT
 #include "QtCore/qstringlist.h"
 #endif
@@ -225,4 +228,6 @@ private:
     Q_DISABLE_COPY(QSettings)
 };
 
+
+#endif // QT_NO_SETTINGS
 #endif // QSETTINGS_H

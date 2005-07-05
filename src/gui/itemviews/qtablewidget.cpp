@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qtablewidget.h"
+
+#ifndef QT_NO_TABLEWIDGET
 #include <qheaderview.h>
 #include <qitemdelegate.h>
 #include <qpainter.h>
@@ -1889,3 +1891,4 @@ void QTableWidget::setModel(QAbstractItemModel *model)
 }
 
 #include "moc_qtablewidget.cpp"
+#endif // QT_NO_TABLEWIDGET

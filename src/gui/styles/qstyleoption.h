@@ -90,6 +90,7 @@ protected:
     QStyleOptionFrame(int version);
 };
 
+#ifndef QT_NO_TABWIDGET
 class Q_GUI_EXPORT QStyleOptionTabWidgetFrame : public QStyleOption
 {
 public:
@@ -110,7 +111,9 @@ public:
 protected:
     QStyleOptionTabWidgetFrame(int version);
 };
+#endif
 
+#ifndef QT_NO_TABBAR
 class Q_GUI_EXPORT QStyleOptionTabBarBase : public QStyleOption
 {
 public:
@@ -127,6 +130,7 @@ public:
 protected:
     QStyleOptionTabBarBase(int version);
 };
+#endif
 
 class Q_GUI_EXPORT QStyleOptionHeader : public QStyleOption
 {
@@ -180,6 +184,7 @@ protected:
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionButton::ButtonFeatures)
 
+#ifndef QT_NO_TABBAR
 class Q_GUI_EXPORT QStyleOptionTab : public QStyleOption
 {
 public:
@@ -208,6 +213,7 @@ protected:
 };
 
 Q_DECLARE_OPERATORS_FOR_FLAGS(QStyleOptionTab::CornerWidgets)
+#endif
 
 class Q_GUI_EXPORT QStyleOptionProgressBar : public QStyleOption
 {
@@ -385,6 +391,7 @@ public:
     QStyleOptionComplex(const QStyleOptionComplex &other) : QStyleOption(Version, Type) { *this = other; }
 };
 
+#ifndef QT_NO_SLIDER
 class Q_GUI_EXPORT QStyleOptionSlider : public QStyleOptionComplex
 {
 public:
@@ -410,7 +417,9 @@ public:
 protected:
     QStyleOptionSlider(int version);
 };
+#endif // QT_NO_SLIDER
 
+#ifndef QT_NO_SPINBOX
 class Q_GUI_EXPORT QStyleOptionSpinBox : public QStyleOptionComplex
 {
 public:
@@ -427,6 +436,7 @@ public:
 protected:
     QStyleOptionSpinBox(int version);
 };
+#endif // QT_NO_SPINBOX
 
 class Q_GUI_EXPORT QStyleOptionQ3ListView : public QStyleOptionComplex
 {

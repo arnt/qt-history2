@@ -64,8 +64,10 @@ public:
     void setAutoExclusive(bool);
     bool autoExclusive() const;
 
+#ifndef QT_NO_BUTTONGROUP
     QButtonGroup *group() const;
-
+#endif
+    
 public slots:
     void setIconSize(const QSize &size);
     void animateClick(int msec = 100);

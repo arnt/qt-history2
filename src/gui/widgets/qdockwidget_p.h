@@ -56,8 +56,9 @@ public:
     QDockWidgetTitle *title;
 
     QWidgetResizeHandler *resizer;
-
+#ifndef QT_NO_ACTION
     QAction *toggleViewAction;
+#endif
 };
 
 #endif // QDOCKWIDGET_P_H

@@ -17,6 +17,8 @@
 #include "qlibrary_p.h"
 #include <qfileinfo.h>
 
+#ifndef QT_NO_LIBRARY
+
 #ifdef Q_OS_MAC
 #  include <private/qcore_mac_p.h>
 #endif
@@ -180,3 +182,4 @@ void* QLibraryPrivate::resolve_sys(const char* symbol)
 
 #endif // POSIX
 
+#endif // QT_NO_LIBRARY

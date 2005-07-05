@@ -170,7 +170,7 @@ public:
             } else {
                 QPoint delta((buffer[0] & 0x10) ? buffer[1]-256 : buffer[1],
                        (buffer[0] & 0x20) ? 256-buffer[2] : -buffer[2]);
-#ifndef QT_NO_QWS_TRANSFORMED
+#ifdef QT_QWS_TRANSFORMED
                 delta = qt_screen->mapToDevice(delta, QSize(1,1));
 #endif // QT_NO_QWS_TRANSFORMED
                 motion += delta;

@@ -46,6 +46,7 @@ enum {
 
 static const short monthDays[] = { 0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
+#ifndef QT_NO_TEXTDATE
 static const char * const qt_shortMonthNames[] = {
     "Jan", "Feb", "Mar", "Apr", "May", "Jun",
     "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
@@ -58,6 +59,7 @@ static const char * const qt_longDayNames[] = {
     "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 
 static QString fmtDateTime(const QString& f, const QTime* dt = 0, const QDate* dd = 0);
+#endif
 
 /*****************************************************************************
   QDate member functions
@@ -3234,7 +3236,7 @@ void QDateTimePrivate::getUTC(QDate &outDate, QTime &outTime) const
         localToUtc(outDate, outTime, (int)spec);
 }
 
-#ifndef QT_NO_DEBUG_STREAM
+#if !defined(QT_NO_DEBUG_STREAM) && !defined(QT_NO_DATESTRING)
 QDebug operator<<(QDebug dbg, const QDate &date)
 {
     dbg.nospace() << "QDate(" << date.toString() << ")";
@@ -3547,11 +3549,18 @@ bool QDateTimeParser::fromString(const QString &string, QDate *dateIn, QTime *ti
             index += 2;
             break; }
 
+#ifndef QT_NO_TEXTDATE
         case QDateTimeParser::Day3: num = &day; nameFunction = &QDate::shortDayName; nameArray = qt_shortDayNames; max = 7; break;
         case QDateTimeParser::Day4: num = &day; nameFunction = &QDate::longDayName; nameArray = qt_longDayNames; max = 7; break;
         case QDateTimeParser::Month3: num = &month; nameFunction = &QDate::shortMonthName; nameArray = qt_shortMonthNames; max = 12; break;
         case QDateTimeParser::Month4: num = &month; nameFunction = &QDate::longMonthName; nameArray = qt_longMonthNames; max = 12; break;
-
+#else
+        case QDateTimeParser::Day3: num = &day; max = 7; break;
+        case QDateTimeParser::Day4: num = &day; max = 7; break;
+        case QDateTimeParser::Month3: num = &month; max = 12; break;
+        case QDateTimeParser::Month4: num = &month; max = 12; break;
+#endif
+            
         case QDateTimeParser::Day1: num = &day; max = 2; break;
         case QDateTimeParser::Month1: num = &month; max = 2; break;
         case QDateTimeParser::Hour1: num = &hour; max = 2; break;

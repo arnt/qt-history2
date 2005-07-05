@@ -73,9 +73,11 @@ public:
     bool isReadOnly() const;
     void setReadOnly(bool);
 
+#ifndef QT_NO_VALIDATOR
     void setValidator(const QValidator *);
     const QValidator * validator() const;
-
+#endif
+    
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
 
@@ -128,8 +130,10 @@ public slots:
 public:
     void deselect();
     void insert(const QString &);
+#ifndef QT_NO_MENU
     QMenu *createStandardContextMenu();
-
+#endif
+    
 signals:
     void textChanged(const QString &);
     void textEdited(const QString &);
@@ -154,7 +158,9 @@ protected:
     void dropEvent(QDropEvent *);
 #endif
     void changeEvent(QEvent *);
+#ifndef QT_NO_MENU
     void contextMenuEvent(QContextMenuEvent *);
+#endif
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT void repaintArea(int, int) { update(); }
 #endif
@@ -172,7 +178,9 @@ public:
     inline QT3_SUPPORT void cursorRight(bool mark, int steps = 1) { cursorForward(mark, steps); }
     QT3_SUPPORT bool validateAndSet(const QString &, int, int, int);
     inline QT3_SUPPORT bool frame() const { return hasFrame(); }
+#ifndef QT_NO_VALIDATOR
     inline QT3_SUPPORT void clearValidator() { setValidator(0); }
+#endif
     inline QT3_SUPPORT bool hasMarkedText() const { return hasSelectedText(); }
     inline QT3_SUPPORT QString markedText() const { return selectedText(); }
     QT3_SUPPORT bool edited() const;

@@ -24,6 +24,8 @@ typedef PROCESS_INFORMATION* Q_PID;
 typedef qint64 Q_PID;
 #endif
 
+#ifndef QT_NO_PROCESS
+
 class QProcessPrivate;
 
 class Q_CORE_EXPORT QProcess : public QIODevice
@@ -138,4 +140,5 @@ private:
     friend class QProcessManager;
 };
 
+#endif // QT_NO_PROCESS
 #endif // QPROCESS_H

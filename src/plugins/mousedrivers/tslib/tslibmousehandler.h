@@ -38,6 +38,8 @@
 
 #include <QWSCalibratedMouseHandler>
 
+#ifdef QT_QWS_TSLIB
+
 class QSocketNotifier;
 class TSLibMouseHandler : public QObject, public QWSCalibratedMouseHandler
 {
@@ -61,12 +63,11 @@ private:
 private:
     bool m_raw : 1;
     QSocketNotifier *m_notify;
-#ifdef QT_QWS_TSLIB
     struct tsdev *m_ts;
-#endif
 
 private slots:
     void readMouseData();
 };
 
-#endif
+#endif // QT_QWS_TSLIB
+#endif // TSLIB_MOUSE_HANDLER_H

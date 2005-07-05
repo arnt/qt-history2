@@ -25,9 +25,7 @@ public:
     QBitmap(const QPixmap &);
     QBitmap(int w, int h);
     explicit QBitmap(const QSize &);
-#ifndef QT_NO_IMAGEIO
     explicit QBitmap(const QString &fileName, const char *format=0);
-#endif
     ~QBitmap();
 
     QBitmap &operator=(const QPixmap &);
@@ -39,7 +37,6 @@ public:
     static QBitmap fromData(const QSize &size, const uchar *bits,
                             QImage::Format monoFormat = QImage::Format_MonoLSB);
 
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
     QBitmap transformed(const QMatrix &) const;
 #ifdef QT3_SUPPORT
     inline QT3_SUPPORT_CONSTRUCTOR QBitmap(int w, int h, bool clear);
@@ -49,7 +46,6 @@ public:
     inline QT3_SUPPORT QBitmap xForm(const QMatrix &matrix) const { return transformed(matrix); }
     QT3_SUPPORT_CONSTRUCTOR QBitmap(const QImage &image) { *this = fromImage(image); }
     QT3_SUPPORT QBitmap &operator=(const QImage &image) { *this = fromImage(image); return *this; }
-#endif
 #endif
 };
 Q_DECLARE_SHARED(QBitmap)

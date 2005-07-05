@@ -28,7 +28,7 @@
 #include "qinputcontextplugin.h"
 
 #ifndef QT_NO_IM
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 
 /*!
     \class QInputContextPlugin
@@ -141,5 +141,5 @@ QInputContextPlugin::~QInputContextPlugin()
 {
 }
 
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
 #endif // QT_NO_IM

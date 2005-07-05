@@ -43,17 +43,21 @@ static QString buddyString(const QWidget *widget)
     QWidget *parent = widget->parentWidget();
     if (!parent)
         return QString();
+#ifndef QT_NO_SHORTCUT
     QObjectList ol = parent->children();
     for (int i = 0; i < ol.size(); ++i) {
         QLabel *label = qobject_cast<QLabel*>(ol.at(i));
         if (label && label->buddy() == widget)
             return label->text();
     }
+#endif
 
+#ifndef QT_NO_GROUPBOX
     QGroupBox *groupbox = qobject_cast<QGroupBox*>(parent);
     if (groupbox)
         return groupbox->title();
-
+#endif
+    
     return QString();
 }
 
@@ -81,6 +85,7 @@ QString Q_GUI_EXPORT qt_accStripAmp(const QString &text)
 
 QString Q_GUI_EXPORT qt_accHotKey(const QString &text)
 {
+#ifndef QT_NO_SHORTCUT
     if (text.isEmpty())
         return text;
 
@@ -95,6 +100,9 @@ QString Q_GUI_EXPORT qt_accHotKey(const QString &text)
     if (ac.isNull())
         return QString();
     return (QString)QKeySequence(Qt::ALT) + ac.toUpper();
+#else
+    return QString();
+#endif
 }
 
 class QAccessibleWidgetPrivate : public QAccessible
@@ -759,8 +767,10 @@ QString QAccessibleWidget::text(Text t, int child) const
             str = d->description;
         else if (!widget()->accessibleDescription().isEmpty())
             str = widget()->accessibleDescription();
+#ifndef QT_NO_TOOLTIP
         else
             str = widget()->toolTip();
+#endif
         break;
     case Help:
         if (!d->help.isEmpty())

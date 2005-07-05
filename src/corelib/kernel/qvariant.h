@@ -20,7 +20,6 @@
 #include "QtCore/qmetatype.h"
 #include "QtCore/qmap.h"
 
-#ifndef QT_NO_VARIANT
 class QBitArray;
 class QDataStream;
 class QDate;
@@ -148,10 +147,8 @@ class Q_CORE_EXPORT QVariant
     QVariant(const QDate &date);
     QVariant(const QTime &time);
     QVariant(const QDateTime &datetime);
-#ifndef QT_NO_TEMPLATE_VARIANT
     QVariant(const QList<QVariant> &list);
     QVariant(const QMap<QString,QVariant> &map);
-#endif
 #ifndef QT_NO_GEOM_VARIANT
     QVariant(const QSize &size);
     QVariant(const QSizeF &size);
@@ -203,10 +200,8 @@ class Q_CORE_EXPORT QVariant
     QDate toDate() const;
     QTime toTime() const;
     QDateTime toDateTime() const;
-#ifndef QT_NO_TEMPLATE_VARIANT
     QList<QVariant> toList() const;
     QMap<QString,QVariant> toMap() const;
-#endif
 
 #ifndef QT_NO_GEOM_VARIANT
     QPoint toPoint() const;
@@ -235,10 +230,8 @@ class Q_CORE_EXPORT QVariant
     inline QT3_SUPPORT QDate &asDate();
     inline QT3_SUPPORT QTime &asTime();
     inline QT3_SUPPORT QDateTime &asDateTime();
-#ifndef QT_NO_TEMPLATE_VARIANT
     inline QT3_SUPPORT QList<QVariant> &asList();
     inline QT3_SUPPORT QMap<QString,QVariant> &asMap();
-#endif
     inline QT3_SUPPORT QPoint &asPoint();
     inline QT3_SUPPORT QRect &asRect();
     inline QT3_SUPPORT QSize &asSize();
@@ -513,12 +506,10 @@ inline QTime& QVariant::asTime()
 { return *reinterpret_cast<QTime *>(castOrDetach(Time)); }
 inline QDateTime& QVariant::asDateTime()
 { return *reinterpret_cast<QDateTime *>(castOrDetach(DateTime)); }
-#ifndef QT_NO_TEMPLATE_VARIANT
 inline QList<QVariant>& QVariant::asList()
 { return *reinterpret_cast<QList<QVariant> *>(castOrDetach(List)); }
 inline QMap<QString, QVariant>& QVariant::asMap()
 { return *reinterpret_cast<QMap<QString, QVariant> *>(castOrDetach(Map)); }
-#endif
 inline QPoint &QVariant::asPoint()
 { return *reinterpret_cast<QPoint *>(castOrDetach(Point)); }
 inline QRect &QVariant::asRect()
@@ -634,6 +625,5 @@ Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant &);
 Q_CORE_EXPORT QDebug operator<<(QDebug, const QVariant::Type);
 #endif
 
-#endif //QT_NO_VARIANT
 
 #endif // QVARIANT_H

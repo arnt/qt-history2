@@ -19,6 +19,8 @@
 #include <QtGui/qicon.h>
 #include <QtGui/qaction.h>
 
+#ifndef QT_NO_MENU
+
 class QMenuPrivate;
 #ifdef QT3_SUPPORT
 class QMenuItem;
@@ -49,7 +51,7 @@ public:
     QAction *addAction(const QIcon &icon, const QString &text);
     QAction *addAction(const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut = 0);
     QAction *addAction(const QIcon &icon, const QString &text, const QObject *receiver, const char* member, const QKeySequence &shortcut = 0);
-
+    
     QAction *addMenu(QMenu *menu);
     QMenu *addMenu(const QString &title);
     QMenu *addMenu(const QIcon &icon, const QString &title);
@@ -171,7 +173,7 @@ public:
     inline QT3_SUPPORT void removeItemAt(int index) {
         if(QAction *act = actions().value(index))
             removeAction(act); }
-#ifndef QT_NO_ACCEL
+#ifndef QT_NO_SHORTCUT
     inline QT3_SUPPORT QKeySequence accel(int id) const {
         if(QAction *act = findActionForId(id))
             return act->shortcut();
@@ -347,4 +349,5 @@ private:
 #endif
 };
 
+#endif // QT_NO_MENU
 #endif // QMENU_H

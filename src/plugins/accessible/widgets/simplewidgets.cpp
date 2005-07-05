@@ -100,9 +100,11 @@ bool QAccessibleButton::doAction(int action, int child, const QVariantList &para
     case Press:
         {
             QPushButton *pb = qobject_cast<QPushButton*>(object());
+#ifndef QT_NO_MENU
             if (pb && pb->menu())
                 pb->showMenu();
             else
+#endif
                 button()->animateClick();
         }
         return true;
@@ -119,8 +121,10 @@ QString QAccessibleButton::text(Text t, int child) const
     case Accelerator:
         {
             QPushButton *pb = qobject_cast<QPushButton*>(object());
+#ifndef QT_NO_SHORTCUT
             if (pb && pb->isDefault())
                 str = (QString)QKeySequence(Qt::Key_Enter);
+#endif
             if (str.isEmpty())
                 str = qt_accHotKey(button()->text());
         }
@@ -153,14 +157,16 @@ QAccessible::State QAccessibleButton::state(int child) const
     if (pb) {
         if (pb->isDefault())
             state |= DefaultButton;
+#ifndef QT_NO_MENU
         if (pb->menu())
             state |= HasPopup;
+#endif
     }
 
     return state;
 }
 
-
+#ifndef QT_NO_TOOLBUTTON
 /*!
   \class QAccessibleToolButton qaccessible.h
   \brief The QAccessibleToolButton class implements the QAccessibleInterface for tool buttons.
@@ -200,7 +206,11 @@ QToolButton *QAccessibleToolButton::toolButton() const
 */
 bool QAccessibleToolButton::isSplitButton() const
 {
+#ifndef QT_NO_MENU
     return toolButton()->menu() && toolButton()->popupMode() == QToolButton::MenuButtonPopup;
+#else
+    return false;
+#endif
 }
 
 /*! \reimp */
@@ -221,8 +231,10 @@ QAccessible::State QAccessibleToolButton::state(int child) const
     QAccessible::State st = QAccessibleButton::state(child);
     if (toolButton()->autoRaise())
         st |= HotTracked;
+#ifndef QT_NO_MENU
     if (toolButton()->menu() && child != ButtonExecute)
         st |= HasPopup;
+#endif
     return st;
 }
 
@@ -293,7 +305,11 @@ int QAccessibleToolButton::actionCount(int child) const
         return isSplitButton() ? 1 : 0;
     int ac = widget()->focusPolicy() != Qt::NoFocus ? 1 : 0;
     // button itself has two actions if a menu button
+#ifndef QT_NO_MENU
     return ac + (toolButton()->menu() ? 2 : 1);
+#else
+    return ac + 1;
+#endif
 }
 
 /*!
@@ -316,8 +332,10 @@ QString QAccessibleToolButton::actionText(int action, Text text, int child) cons
         case 0:
             return QToolButton::tr("Press");
         case 1:
+#ifndef QT_NO_MENU
             if (toolButton()->menu())
                 return QToolButton::tr("Open");
+#endif
             //fall through
         case 2:
             return "Set Focus";
@@ -336,12 +354,15 @@ bool QAccessibleToolButton::doAction(int action, int child, const QVariantList &
     if (action == 1 || child == ButtonDropMenu) {
         if(!child)
             toolButton()->setDown(true);
+#ifndef QT_NO_MENU
         toolButton()->showMenu();
+#endif
         return true;
     }
     return QAccessibleButton::doAction(action, 0, params);
 }
 
+#endif // QT_NO_TOOLBUTTON
 
 /*!
   \class QAccessibleDisplay qaccessiblewidget.h
@@ -365,7 +386,7 @@ QAccessible::Role QAccessibleDisplay::role(int child) const
 {
     QLabel *l = qobject_cast<QLabel*>(object());
     if (l) {
-        if (l->pixmap() || l->picture())
+        if (l->pixmap())
             return Graphic;
 #ifndef QT_NO_PICTURE
         if (l->picture())
@@ -375,8 +396,10 @@ QAccessible::Role QAccessibleDisplay::role(int child) const
         if (l->movie())
             return Animation;
 #endif
+#ifndef QT_NO_PROGRESSBAR
     } else if (qobject_cast<QProgressBar*>(object())) {
         return ProgressBar;
+#endif
     }
     return QAccessibleWidget::role(child);
 }
@@ -389,19 +412,25 @@ QString QAccessibleDisplay::text(Text t, int child) const
     case Name:
         if (qobject_cast<QLabel*>(object())) {
             str = qobject_cast<QLabel*>(object())->text();
+#ifndef QT_NO_GROUPBOX
         } else if (qobject_cast<QGroupBox*>(object())) {
             str = qobject_cast<QGroupBox*>(object())->title();
+#endif
+#ifndef QT_NO_LCDNUMBER	    
         } else if (qobject_cast<QLCDNumber*>(object())) {
             QLCDNumber *l = qobject_cast<QLCDNumber*>(object());
             if (l->numDigits())
                 str = QString::number(l->value());
             else
                 str = QString::number(l->intValue());
+#endif
         }
         break;
     case Value:
+#ifndef QT_NO_PROGRESSBAR
         if (qobject_cast<QProgressBar*>(object()))
             str = QString::number(qobject_cast<QProgressBar*>(object())->value());
+#endif
         break;
     default:
         break;
@@ -421,13 +450,18 @@ QAccessible::Relation QAccessibleDisplay::relationTo(int child, const QAccessibl
 
     QObject *o = other->object();
     QLabel *label = qobject_cast<QLabel*>(object());
-    QGroupBox *groupbox = qobject_cast<QGroupBox*>(object());
     if (label) {
+#ifndef QT_NO_SHORTCUT
         if (o == label->buddy())
             relation |= Label;
-    } else if (groupbox && !groupbox->title().isEmpty()) {
-        if (groupbox->children().contains(o))
-            relation |= Label;
+#endif
+#ifndef QT_NO_GROUPBOX
+    } else {
+	QGroupBox *groupbox = qobject_cast<QGroupBox*>(object());
+	if (groupbox && !groupbox->title().isEmpty()) 
+	    if (groupbox->children().contains(o))
+		relation |= Label;
+#endif
     }
     return relation;
 }
@@ -439,12 +473,17 @@ int QAccessibleDisplay::navigate(RelationFlag rel, int entry, QAccessibleInterfa
     if (rel == Labelled) {
         QObject *targetObject = 0;
         QLabel *label = qobject_cast<QLabel*>(object());
-        QGroupBox *groupbox = qobject_cast<QGroupBox*>(object());
         if (label) {
+#ifndef QT_NO_SHORTCUT
             if (entry == 1)
                 targetObject = label->buddy();
-        } else if (groupbox && !groupbox->title().isEmpty()) {
-            rel = Child;
+#endif
+#ifndef QT_NO_GROUPBOX
+        } else {
+	    QGroupBox *groupbox = qobject_cast<QGroupBox*>(object());
+	    if (groupbox && !groupbox->title().isEmpty()) 
+		rel = Child;
+#endif
         }
         *target = QAccessible::queryAccessibleInterface(targetObject);
         if (*target)
@@ -453,6 +492,7 @@ int QAccessibleDisplay::navigate(RelationFlag rel, int entry, QAccessibleInterfa
     return QAccessibleWidget::navigate(rel, entry, target);
 }
 
+#ifndef QT_NO_LINEEDIT
 /*!
   \class QAccessibleLineEdit qaccessiblewidget.h
   \brief The QAccessibleLineEdit class implements the QAccessibleInterface for widgets with editable text
@@ -520,3 +560,4 @@ QAccessible::State QAccessibleLineEdit::state(int child) const
 
     return state;
 }
+#endif // QT_NO_LINEEDIT

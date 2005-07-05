@@ -138,9 +138,7 @@ private:
     QPointer<QWidget>widget;
     bool pressed;
     QString text;
-#ifndef QT_NO_RICHTEXT
     QTextDocument* doc;
-#endif
     QString anchor;
     QPixmap background;
 };
@@ -168,7 +166,6 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
 #endif
 
     QRect r;
-#ifndef QT_NO_RICHTEXT
     doc = 0;
     if (Qt::mightBeRichText(text)) {
         doc = new QTextDocument();
@@ -182,7 +179,6 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
         r.setSize(layout->documentSize().toSize());
     }
     else
-#endif
     {
         int sw = QApplication::desktop()->width() / 3;
         if (sw < 200)
@@ -208,10 +204,8 @@ QWhatsThat::QWhatsThat(const QString& txt, QWidget* parent, QWidget *showTextFor
 QWhatsThat::~QWhatsThat()
 {
     instance = 0;
-#ifndef QT_NO_RICHTEXT
     if (doc)
         delete doc;
-#endif
 }
 
 void QWhatsThat::showEvent(QShowEvent *)
@@ -224,10 +218,8 @@ void QWhatsThat::mousePressEvent(QMouseEvent* e)
 {
     pressed = true;
     if (e->button() == Qt::LeftButton && rect().contains(e->pos())) {
-#ifndef QT_NO_RICHTEXT
         if (doc)
             anchor = doc->documentLayout()->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
-#endif
         return;
     }
     close();
@@ -237,7 +229,6 @@ void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
 {
     if (!pressed)
         return;
-#ifndef QT_NO_RICHTEXT
     if (widget && e->button() == Qt::LeftButton && doc && rect().contains(e->pos())) {
         QString a = doc->documentLayout()->anchorAt(e->pos() -  QPoint(hMargin, vMargin));
         QString href;
@@ -250,13 +241,11 @@ void QWhatsThat::mouseReleaseEvent(QMouseEvent* e)
                 return;
         }
     }
-#endif
     close();
 }
 
 void QWhatsThat::mouseMoveEvent(QMouseEvent* e)
 {
-#ifndef QT_NO_RICHTEXT
 #ifndef QT_NO_CURSOR
     if (!doc)
         return;
@@ -265,7 +254,6 @@ void QWhatsThat::mouseMoveEvent(QMouseEvent* e)
         setCursor(Qt::PointingHandCursor);
     else
         setCursor(Qt::ArrowCursor);
-#endif
 #endif
 }
 
@@ -315,7 +303,6 @@ void QWhatsThat::paintEvent(QPaintEvent*)
     p.setPen(palette().foreground().color());
     r.adjust(hMargin, vMargin, -hMargin, -vMargin);
 
-#ifndef QT_NO_RICHTEXT
     if (doc) {
         p.translate(r.x(), r.y());
         QRect rect = r;
@@ -325,7 +312,6 @@ void QWhatsThat::paintEvent(QPaintEvent*)
         doc->documentLayout()->draw(&p, context);
     }
     else
-#endif
     {
         p.drawText(r, Qt::AlignLeft + Qt::AlignTop + Qt::TextWordWrap + Qt::TextExpandTabs, text);
     }
@@ -485,7 +471,9 @@ QWhatsThisAction::QWhatsThisAction(QObject *parent) : QAction(tr("What's This?")
     setIcon(p);
     setCheckable(true);
     connect(this, SIGNAL(triggered()), this, SLOT(actionTriggered()));
+#ifndef QT_NO_SHORTCUT
     setShortcut(Qt::ShiftModifier + Qt::Key_F1);
+#endif
 }
 
 void QWhatsThisAction::actionTriggered()

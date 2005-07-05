@@ -13,7 +13,7 @@
 
 #include "qmousedriverplugin_qws.h"
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 
 #include "qmouse_qws.h"
 
@@ -71,4 +71,4 @@ QMouseDriverPlugin::~QMouseDriverPlugin()
     \sa keys()
 */
 
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY

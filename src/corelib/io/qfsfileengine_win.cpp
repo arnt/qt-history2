@@ -44,7 +44,7 @@
 
 Q_CORE_EXPORT int qt_ntfs_permission_lookup = 0;
 
-#if !defined(QT_NO_COMPONENT)
+#if !defined(QT_NO_LIBRARY)
 typedef DWORD (WINAPI *PtrGetNamedSecurityInfoW)(LPWSTR, SE_OBJECT_TYPE, SECURITY_INFORMATION, PSID*, PSID*, PACL*, PACL*, PSECURITY_DESCRIPTOR*);
 static PtrGetNamedSecurityInfoW ptrGetNamedSecurityInfoW = 0;
 typedef DECLSPEC_IMPORT BOOL (WINAPI *PtrLookupAccountSidW)(LPCWSTR, PSID, LPWSTR, LPDWORD, LPWSTR, LPDWORD, PSID_NAME_USE);
@@ -134,7 +134,7 @@ static void resolveLibs()
         }
     }
 }
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
 
 // UNC functions NT
 typedef DWORD (WINAPI *PtrNetShareEnum_NT)(LPWSTR, DWORD, LPBYTE*, DWORD, LPDWORD, LPDWORD, LPDWORD);
@@ -918,7 +918,7 @@ bool QFSFileEnginePrivate::doStat() const
 QString
 QFSFileEnginePrivate::getLink() const
 {
-#if !defined(QT_NO_COMPONENT)
+#if !defined(QT_NO_LIBRARY)
     QString ret;
     QT_WA({
         bool neededCoInit = false;
@@ -1001,12 +1001,12 @@ QFSFileEnginePrivate::getLink() const
     return ret;
 #else
     return QString();
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
 }
 
 bool QFSFileEngine::link(const QString &newName)
 {
-#if !defined(QT_NO_COMPONENT)
+#if !defined(QT_NO_LIBRARY)
     bool ret = false;
 
     QString linkName = newName;
@@ -1079,7 +1079,7 @@ bool QFSFileEngine::link(const QString &newName)
 #else
     Q_UNUSED(newName);
     return false;
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
 }
 
 QFileEngine::FileFlags
@@ -1087,7 +1087,7 @@ QFSFileEnginePrivate::getPermissions() const
 {
     QFileEngine::FileFlags ret = 0;
 
-#if !defined(QT_NO_COMPONENT)
+#if !defined(QT_NO_LIBRARY)
     if((qt_ntfs_permission_lookup > 0) && ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_NT)) {
 	PSID pOwner = 0;
 	PSID pGroup = 0;
@@ -1338,7 +1338,7 @@ uint QFSFileEngine::ownerId(FileOwner /*own*/) const
 
 QString QFSFileEngine::owner(FileOwner own) const
 {
-#if !defined(QT_NO_COMPONENT)
+#if !defined(QT_NO_LIBRARY)
     Q_D(const QFSFileEngine);
     if((qt_ntfs_permission_lookup > 0) && ((QSysInfo::WindowsVersion&QSysInfo::WV_NT_based) > QSysInfo::WV_NT)) {
 	PSID pOwner = 0;

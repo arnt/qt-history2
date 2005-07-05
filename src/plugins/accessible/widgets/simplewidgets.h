@@ -35,6 +35,7 @@ protected:
     QAbstractButton *button() const;
 };
 
+#ifndef QT_NO_TOOLBUTTON
 class QAccessibleToolButton : public QAccessibleButton
 {
 public:
@@ -63,6 +64,7 @@ protected:
 
     bool isSplitButton() const;
 };
+#endif // QT_NO_TOOLBUTTON
 
 class QAccessibleDisplay : public QAccessibleWidget
 {
@@ -76,6 +78,7 @@ public:
     int navigate(RelationFlag, int entry, QAccessibleInterface **target) const;
 };
 
+#ifndef QT_NO_LINEEDIT
 class QAccessibleLineEdit : public QAccessibleWidget
 {
 public:
@@ -88,5 +91,6 @@ public:
 protected:
     QLineEdit *lineEdit() const;
 };
+#endif // QT_NO_LINEEDIT
 
 #endif // SIMPLEWIDGETS_H

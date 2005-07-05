@@ -23,7 +23,7 @@
 
 #include <stdlib.h>
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QAccessibleBridgeFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessiblebridge"))
 #endif
@@ -38,7 +38,7 @@ void QAccessible::initialize()
 
     if (qgetenv("QT_ACCESSIBILITY") != "1")
         return;
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     const QStringList l = loader()->keys();
     for (int i = 0; i < l.count(); ++i) {
         if (QAccessibleBridgeFactoryInterface *factory =

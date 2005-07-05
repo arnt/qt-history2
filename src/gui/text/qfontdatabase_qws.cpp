@@ -48,7 +48,10 @@ static void initializeDb()
     Q_ASSERT(!err);
 
     // Load in font definition file
-    QString fn = QLibraryInfo::location(QLibraryInfo::PrefixPath);
+    QString fn;
+#ifndef QT_NO_LIBRARY
+    fn = QLibraryInfo::location(QLibraryInfo::PrefixPath);
+#endif    
     fn += "/lib/fonts/fontdir";
     FILE* fontdef=fopen(fn.toLocal8Bit().constData(),"r");
     if(!fontdef) {
@@ -70,7 +73,9 @@ static void initializeDb()
             sscanf(buf,"%s %s %s %s %d %d",name,file,render,isitalic,&weight,&size);
             QString filename;
             if (file[0] != '/') {
+#ifndef QT_NO_LIBRARY
                 filename = QLibraryInfo::location(QLibraryInfo::PrefixPath);
+#endif
                 filename += "/lib/fonts/";
             }
             filename += file;
@@ -81,9 +86,13 @@ static void initializeDb()
     } while (!feof(fontdef));
     fclose(fontdef);
 
-#ifndef QT_NO_DIR
 
-    QDir dir(QLibraryInfo::location(QLibraryInfo::PrefixPath)+"/lib/fonts/","*.qpf");
+    QString fontpath;
+#ifndef QT_NO_LIBRARY
+    fontpath = QLibraryInfo::location(QLibraryInfo::PrefixPath);
+#endif
+    fontpath += "/lib/fonts";
+    QDir dir(fontpath,"*.qpf");
     for (int i=0; i<(int)dir.count(); i++) {
         int u0 = dir[i].indexOf('_');
         int u1 = dir[i].indexOf('_',u0+1);
@@ -131,7 +140,6 @@ static void initializeDb()
         style->smoothScalable = false;
         style->pixelSize(pointSize, true);
     }
-#endif
 
 #ifdef QFONTDATABASE_DEBUG
     // print the database
@@ -200,7 +208,10 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
 
     FT_Face face;
 
-    QString file = QLibraryInfo::location(QLibraryInfo::PrefixPath);
+    QString file;
+#ifndef QT_NO_LIBRARY
+    QLibraryInfo::location(QLibraryInfo::PrefixPath);
+#endif
     file += "/lib/fonts/";
     file += size->fileName;
     FT_Error err = FT_New_Face(QFontEngineFT::ft_library, file.toLocal8Bit().constData(), 0, &face);
@@ -214,12 +225,15 @@ QFontEngine *loadEngine(int script, const QFontPrivate *fp,
     QFontEngine *fe = new QFontEngineFT(request, face);
     return fe;
     } else {
-        QString fn = QLibraryInfo::location(QLibraryInfo::PrefixPath)
-                     + QLatin1String("/lib/fonts/")
-                     + family->name.toLower()
-                     + "_" + QString::number(pixelSize*10)
-                     + "_" + QString::number(style->key.weight)
-                     + (style->key.style == QFont::StyleItalic ? "i.qpf" : ".qpf");
+        QString fn;
+#ifndef QT_NO_LIBRARY
+	fn = QLibraryInfo::location(QLibraryInfo::PrefixPath);
+#endif
+        fn += QLatin1String("/lib/fonts/")
+	    + family->name.toLower()
+	    + "_" + QString::number(pixelSize*10)
+	    + "_" + QString::number(style->key.weight)
+	    + (style->key.style == QFont::StyleItalic ? "i.qpf" : ".qpf");
         //###rotation ###
 
         QFontEngine *fe = new QFontEngineQPF(request, fn);

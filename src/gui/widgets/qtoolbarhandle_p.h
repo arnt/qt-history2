@@ -27,6 +27,8 @@
 
 #include <qwidget.h>
 
+#ifndef QT_NO_TOOLBAR
+
 class QToolBar;
 
 class QToolBarHandle : public QWidget
@@ -55,4 +57,5 @@ public slots:
     void setOrientation(Qt::Orientation orientation);
 };
 
+#endif // QT_NO_TOOLBAR
 #endif // QTOOLBARHANDLE_P_H

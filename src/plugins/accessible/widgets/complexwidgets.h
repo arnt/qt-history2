@@ -38,6 +38,7 @@ protected:
     QHeaderView *header() const;
 };
 
+#ifndef QT_NO_TABBAR
 class QAccessibleTabBar : public QAccessibleWidget
 {
 public:
@@ -60,6 +61,7 @@ protected:
 private:
     QAbstractButton *button(int child) const;
 };
+#endif // QT_NO_TABBAR
 
 class QAccessibleComboBox : public QAccessibleWidget
 {

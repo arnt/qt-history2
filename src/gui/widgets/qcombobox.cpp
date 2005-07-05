@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qcombobox.h"
+
+#ifndef QT_NO_COMBOBOX
 #include <qstylepainter.h>
 #include <qlineedit.h>
 #include <qapplication.h>
@@ -173,8 +175,10 @@ QComboBoxPrivateContainer::QComboBoxPrivateContainer(QAbstractItemView *itemView
 
 void QComboBoxPrivateContainer::scrollItemView(int action)
 {
+#ifndef QT_NO_SCROLLBAR
     if (view->verticalScrollBar())
         view->verticalScrollBar()->triggerAction(static_cast<QAbstractSlider::SliderAction>(action));
+#endif
 }
 
 /*
@@ -184,6 +188,7 @@ void QComboBoxPrivateContainer::scrollItemView(int action)
 */
 void QComboBoxPrivateContainer::updateScrollers()
 {
+#ifndef QT_NO_SCROLLBAR
     if (!top || !bottom)
         return;
 
@@ -207,6 +212,7 @@ void QComboBoxPrivateContainer::updateScrollers()
         top->hide();
         bottom->hide();
     }
+#endif // QT_NO_SCROLLBAR
 }
 
 /*
@@ -244,10 +250,12 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
     if (view) {
         view->removeEventFilter(this);
         view->viewport()->removeEventFilter(this);
+#ifndef QT_NO_SCROLLBAR
         disconnect(view->verticalScrollBar(), SIGNAL(valueChanged(int)),
                    this, SLOT(updateScrollers()));
         disconnect(view->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
                    this, SLOT(updateScrollers()));
+#endif
         disconnect(view, SIGNAL(entered(QModelIndex)),
                    this, SLOT(setCurrentIndex(QModelIndex)));
         delete view;
@@ -262,10 +270,12 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
     view->installEventFilter(this);
     view->viewport()->installEventFilter(this);
     QStyleOptionComboBox opt = comboStyleOption();
+#ifndef QT_NO_SCROLLBAR
     view->setHorizontalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
     if (style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo)
         && !combo->isEditable())
         view->setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOff);
+#endif
     if (style()->styleHint(QStyle::SH_ComboBox_ListMouseTracking, &opt, combo) ||
         style()->styleHint(QStyle::SH_ComboBox_Popup, &opt, combo)) {
         view->setMouseTracking(true);
@@ -274,10 +284,12 @@ void QComboBoxPrivateContainer::setItemView(QAbstractItemView *itemView)
     view->setFrameStyle(QFrame::NoFrame);
     view->setLineWidth(0);
     view->setEditTriggers(QAbstractItemView::NoEditTriggers);
+#ifndef QT_NO_SCROLLBAR
     connect(view->verticalScrollBar(), SIGNAL(valueChanged(int)),
             this, SLOT(updateScrollers()));
     connect(view->verticalScrollBar(), SIGNAL(rangeChanged(int,int)),
             this, SLOT(updateScrollers()));
+#endif
     connect(view, SIGNAL(entered(QModelIndex)),
             this, SLOT(setCurrentIndex(QModelIndex)));
 }
@@ -1157,6 +1169,7 @@ QLineEdit *QComboBox::lineEdit() const
     return d->lineEdit;
 }
 
+#ifndef QT_NO_VALIDATOR
 /*!
     \fn void QComboBox::setValidator(const QValidator *validator)
 
@@ -1182,6 +1195,7 @@ const QValidator *QComboBox::validator() const
     Q_D(const QComboBox);
     return d->lineEdit ? d->lineEdit->validator() : 0;
 }
+#endif // QT_NO_VALIDATOR
 
 /*!
     Returns the item delegate used by the popup list view.
@@ -1897,6 +1911,7 @@ void QComboBox::keyReleaseEvent(QKeyEvent *e)
 /*!
     \reimp
 */
+#ifndef QT_NO_WHEELEVENT
 void QComboBox::wheelEvent(QWheelEvent *e)
 {
     Q_D(QComboBox);
@@ -1915,6 +1930,7 @@ void QComboBox::wheelEvent(QWheelEvent *e)
         e->accept();
     }
 }
+#endif
 
 /*!
     \reimp
@@ -2139,5 +2155,4 @@ void QComboBox::setModelColumn(int visibleColumn)
 
 
 #include "moc_qcombobox.cpp"
-
-
+#endif // QT_NO_COMBOBOX

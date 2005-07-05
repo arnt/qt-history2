@@ -15,6 +15,8 @@
 #define QTABLEWIDGET_H
 
 #include <QtGui/qtableview.h>
+
+#ifndef QT_NO_TABLEWIDGET
 #include <QtCore/qvariant.h>
 #include <QtCore/qvector.h>
 
@@ -268,4 +270,5 @@ private:
 inline QTableWidgetItem *QTableWidget::itemAt(int ax, int ay) const
 { return itemAt(QPoint(ax, ay)); }
 
+#endif // QT_NO_TABLEWIDGET
 #endif // QTABLEWIDGET_H

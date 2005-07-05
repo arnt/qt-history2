@@ -29,6 +29,8 @@
 #include <private/qobject_p.h>
 #include "qmenu.h"
 
+#ifndef QT_NO_ACTION
+
 #ifdef QT3_SUPPORT
 class QMenuItemEmitter;
 #endif
@@ -49,10 +51,14 @@ public:
     QString tooltip;
     QString statustip;
     QString whatsthis;
+#ifndef QT_NO_SHORTCUT
     QKeySequence shortcut;
+#endif
     QVariant userData;
+#ifndef QT_NO_SHORTCUT
     int shortcutId;
     Qt::ShortcutContext shortcutContext;
+#endif
     QFont font;
     QPointer<QMenu> menu;
     uint enabled : 1, forceDisabled : 1;
@@ -62,12 +68,13 @@ public:
     uint separator : 1;
 
     QList<QWidget *> widgets;
-
+#ifndef QT_NO_SHORTCUT
     void redoGrab(QShortcutMap &map);
     void setShortcutEnabled(bool enable, QShortcutMap &map);
 
     static QShortcutMap *globalMap;
-
+#endif // QT_NO_SHORTCUT
+    
 #ifdef QT3_SUPPORT //for menubar/menu compat
     QMenuItemEmitter *act_signal;
     int id, param;
@@ -75,4 +82,5 @@ public:
     void sendDataChanged();
 };
 
+#endif // QT_NO_ACTION
 #endif // QACTION_P_H

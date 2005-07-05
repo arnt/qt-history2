@@ -80,7 +80,7 @@ bool QFontDef::exactMatch(const QFontDef &other) const
     QString this_family, this_foundry, other_family, other_foundry;
     QFontDatabase::parseFontName(family, this_foundry, this_family);
     QFontDatabase::parseFontName(other.family, other_foundry, other_family);
-
+    
     return (styleHint     == other.styleHint
             && styleStrategy == other.styleStrategy
             && weight        == other.weight
@@ -1316,8 +1316,6 @@ void QFont::setDefaultFont(const QFont &f)
 
 
 
-#ifndef QT_NO_STRINGLIST
-
 /*****************************************************************************
   QFont substitution management
  *****************************************************************************/
@@ -1480,8 +1478,6 @@ QStringList QFont::substitutions()
     ret.sort();
     return ret;
 }
-
-#endif // QT_NO_STRINGLIST
 
 
 /*  \internal

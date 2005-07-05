@@ -434,9 +434,7 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
     QPen        pen;
     QBrush      brush;
     QRegion     rgn;
-#ifndef QT_NO_TRANSFORMATIONS
     QMatrix     matrix;
-#endif
 
     QMatrix worldMatrix = painter->matrix();
 
@@ -629,36 +627,25 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 // #endif
         case QPicturePrivate::PdcSetVXform:
             s >> i_8;
-#ifndef QT_NO_TRANSFORMATIONS
             painter->setViewTransformEnabled(i_8);
-#endif
             break;
         case QPicturePrivate::PdcSetWindow:
             s >> r;
-#ifndef QT_NO_TRANSFORMATIONS
             painter->setWindow(r.toRect());
-#endif
             break;
         case QPicturePrivate::PdcSetViewport:
             s >> r;
-#ifndef QT_NO_TRANSFORMATIONS
             painter->setViewport(r.toRect());
-#endif
             break;
         case QPicturePrivate::PdcSetWXform:
             s >> i_8;
-#ifndef QT_NO_TRANSFORMATIONS
             painter->setMatrixEnabled(i_8);
-#endif
             break;
         case QPicturePrivate::PdcSetWMatrix:
-#ifndef QT_NO_TRANSFORMATIONS
             s >> matrix >> i_8;
             // i_8 is always false due to updateXForm() in qpaintengine_pic.cpp
             painter->setMatrix(worldMatrix * matrix, false);
-#endif
             break;
-#ifndef QT_NO_TRANSFORMATIONS
 // #ifdef Q_Q3PAINTER
 //             case QPicturePrivate::PdcSaveWMatrix:
 //                 painter->saveWorldMatrix();
@@ -667,7 +654,6 @@ bool QPicture::exec(QPainter *painter, QDataStream &s, int nrecords)
 //                 painter->restoreWorldMatrix();
 //                 break;
 // #endif
-#endif
         case QPicturePrivate::PdcSetClip:
             s >> i_8;
             painter->setClipping(i_8);
@@ -1157,7 +1143,7 @@ QPictureHandler::QPictureHandler(const char *f, const char *h, const QByteArray&
 typedef QList<QPictureHandler *> QPHList;
 static QPHList pictureHandlers;
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC(QMutex, mutex)
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
                           (QPictureFormatInterface_iid,
@@ -1166,7 +1152,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 #endif
 void qt_init_picture_plugins()
 {
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     QMutexLocker locker(mutex());
     QFactoryLoader *loader = ::loader();
     QStringList keys = loader->keys();

@@ -20,7 +20,6 @@
 #include "QtCore/qrect.h"
 #include "QtGui/qregion.h"
 #include "QtGui/qwindowdefs.h"
-#ifndef QT_NO_MATRIX
 
 class QPainterPath;
 
@@ -124,7 +123,6 @@ Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QMatrix &);
 Q_GUI_EXPORT QDebug operator<<(QDebug, const QMatrix &);
 #endif
 
-#endif // QT_NO_MATRIX
 
 #ifdef QT3_SUPPORT
 #include "QtGui/qwmatrix.h"

@@ -34,9 +34,7 @@ public:
     QPixmap();
     QPixmap(int w, int h);
     QPixmap(const QSize &);
-#ifndef QT_NO_IMAGEIO
     QPixmap(const QString& fileName, const char *format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
-#endif
     QPixmap(const char * const xpm[]);
     QPixmap(const QPixmap &);
     ~QPixmap();
@@ -79,7 +77,6 @@ public:
     { return grabWidget(widget, QRect(x, y, w, h)); }
 
 
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
     inline QPixmap scaled(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
                           Qt::TransformationMode mode = Qt::FastTransformation) const
         { return scaled(QSize(w, h), aspectMode, mode); }
@@ -89,18 +86,15 @@ public:
     QPixmap scaledToHeight(int h, Qt::TransformationMode mode = Qt::FastTransformation) const;
     QPixmap transformed(const QMatrix &, Qt::TransformationMode mode = Qt::FastTransformation) const;
     static QMatrix trueMatrix(const QMatrix &m, int w, int h);
-#endif
 
     QImage toImage() const;
     static QPixmap fromImage(const QImage &image, Qt::ImageConversionFlags flags = Qt::AutoColor);
 
-#ifndef QT_NO_IMAGEIO
     bool load(const QString& fileName, const char *format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
     bool loadFromData(const uchar *buf, uint len, const char* format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
     inline bool loadFromData(const QByteArray &data, const char* format = 0, Qt::ImageConversionFlags flags = Qt::AutoColor);
     bool save(const QString& fileName, const char* format, int quality = -1) const;
     bool save(QIODevice* device, const char* format, int quality = -1) const;
-#endif
 
 #if defined(Q_WS_WIN)
     enum HBitmapFormat {
@@ -151,12 +145,10 @@ protected:
 
 #ifdef QT3_SUPPORT
 public:
-#ifndef QT_NO_IMAGEIO
     enum ColorMode { Auto, Color, Mono };
     QT3_SUPPORT_CONSTRUCTOR QPixmap(const QString& fileName, const char *format, ColorMode mode);
     QT3_SUPPORT bool load(const QString& fileName, const char *format, ColorMode mode);
     QT3_SUPPORT bool loadFromData(const uchar *buf, uint len, const char* format, ColorMode mode);
-#endif
     QT3_SUPPORT_CONSTRUCTOR QPixmap(const QImage& image);
     QT3_SUPPORT QPixmap &operator=(const QImage &);
     inline QT3_SUPPORT QImage convertToImage() const { return toImage(); }
@@ -176,9 +168,7 @@ public:
 private:
     QPixmapData *data;
 
-#ifndef QT_NO_IMAGEIO
     bool doImageIO(QImageWriter *io, int quality) const;
-#endif
     enum Type { PixmapType, BitmapType };
     QPixmap(const QSize &s, Type);
 
@@ -202,7 +192,7 @@ private:
     friend class QCoreGraphicsPaintEngine;
     friend class QWidgetPrivate;
     friend class QRasterPaintEngine;
-#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
+#if !defined(QT_NO_DATASTREAM)
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 #endif
 };
@@ -225,7 +215,7 @@ inline bool QPixmap::loadFromData(const QByteArray &buf, const char *format,
  QPixmap stream functions
 *****************************************************************************/
 
-#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
+#if !defined(QT_NO_DATASTREAM)
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QPixmap &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QPixmap &);
 #endif

@@ -113,14 +113,12 @@ public:
     QString arg(const QString &a1, const QString &a2, const QString &a3) const;
     QString arg(const QString &a1, const QString &a2, const QString &a3, const QString &a4) const;
 
-#ifndef QT_NO_SPRINTF
     QString    &vsprintf(const char *format, va_list ap);
     QString    &sprintf(const char *format, ...)
 #if defined(Q_CC_GNU) && !defined(__INSURE__)
         __attribute__ ((format (printf, 2, 3)))
 #endif
         ;
-#endif
 
     int indexOf(QChar c, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;
     int indexOf(const QString &s, int from = 0, Qt::CaseSensitivity cs = Qt::CaseSensitive) const;

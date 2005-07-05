@@ -37,8 +37,10 @@ public:
     QString text;
     QIcon icon;
     QSize iconSize;
+#ifndef QT_NO_SHORTCUT
     QKeySequence shortcut;
     int shortcutId;
+#endif
     uint checkable :1;
     uint checked :1;
     uint autoRepeat :1;
@@ -46,7 +48,9 @@ public:
     uint down :1;
     uint blockRefresh :1;
 
+#ifndef QT_NO_BUTTONGROUP    
     QButtonGroup* group;
+#endif
     QBasicTimer repeatTimer;
     QBasicTimer animateTimer;
 

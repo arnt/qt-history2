@@ -40,6 +40,8 @@ typedef int Q_PIPE;
 #define INVALID_Q_PIPE -1
 #endif
 
+#ifndef QT_NO_PROCESS
+
 class QSocketNotifier;
 class QWindowsPipeWriter;
 class QWinEventNotifier;
@@ -140,4 +142,5 @@ public:
 #endif
 };
 
+#endif // QT_NO_PROCESS
 #endif // QPROCESS_P_H

@@ -31,6 +31,8 @@
 
 #include <private/qwidget_p.h>
 
+#ifndef QT_NO_TOOLBAR
+
 /*
     internal class to associate a widget with an action
 */
@@ -106,4 +108,5 @@ static inline int pick(Qt::Orientation o, const QPoint &p)
 static inline int pick(Qt::Orientation o, const QSize &s)
 { return o == Qt::Horizontal ? s.width() : s.height(); }
 
+#endif // QT_NO_TOOLBAR
 #endif // QTOOLBAR_P_H

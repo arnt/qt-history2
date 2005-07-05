@@ -964,7 +964,7 @@ void QMessageBox::keyPressEvent(QKeyEvent *e)
             return;
         }
     }
-#ifndef QT_NO_ACCEL
+#ifndef QT_NO_SHORTCUT
     if (!(e->modifiers() & Qt::AltModifier)) {
         int key = e->key() & ~((int)Qt::MODIFIER_MASK|(int)Qt::UNICODE_ACCEL);
         if (key) {

@@ -27,7 +27,6 @@
 
 #include <qlayoutitem.h> //for QLAYOUTSIZE_MAX
 
-#ifndef QT_NO_LAYOUT
 
 template <typename T> class QVector;
 
@@ -91,6 +90,5 @@ static inline void qMaxExpCalc(int & max, bool &exp,
     exp = exp || boxexp;
 }
 
-#endif // QT_NO_LAYOUT
 
 #endif // QLAYOUTENGINE_P_H

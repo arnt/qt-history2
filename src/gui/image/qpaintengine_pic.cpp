@@ -15,6 +15,8 @@
 #include "private/qpainter_p.h"
 #include "private/qpicture_p.h"
 
+#ifndef QT_NO_PICTURE
+
 #include "qbuffer.h"
 #include "qbytearray.h"
 #include "qdatastream.h"
@@ -259,9 +261,7 @@ void QPicturePaintEngine::writeCmdLength(int pos, const QRectF &r, bool corr)
             br.setCoords(br.left() - w2, br.top() - w2,
                           br.right() + w2, br.bottom() + w2);
         }
-#ifndef QT_NO_TRANSFORMATIONS
         br = painter()->matrix().mapRect(br);
-#endif
         if (painter()->hasClipping()) {
             QRect cr = painter()->clipRegion().boundingRect();
             br &= cr;
@@ -355,3 +355,5 @@ void QPicturePaintEngine::updateState(const QPaintEngineState &state)
     if (flags & DirtyClipRegion) updateClipRegion(state.clipRegion(), state.clipOperation());
     if (flags & DirtyHints) updateRenderHints(state.renderHints());
 }
+
+#endif // QT_NO_PICTURE

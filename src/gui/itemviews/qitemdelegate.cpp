@@ -618,11 +618,13 @@ bool QItemDelegate::eventFilter(QObject *object, QEvent *event)
             break;
         }
     } else if (event->type() == QEvent::FocusOut && !editor->isActiveWindow()) {
+#ifndef QT_NO_DRAGANDDROP
         // The window may loose focus during an drag operation.
         // i.e when dragging involves the task bar on Windows.
         if (QDragManager::self() && QDragManager::self()->object != 0)
             return false;
-
+#endif
+        
         emit commitData(editor);
         emit closeEditor(editor, NoHint);
         return true;

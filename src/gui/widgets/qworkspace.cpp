@@ -99,14 +99,20 @@ class QWorkspaceTitleBarPrivate : public QWidgetPrivate
     Q_DECLARE_PUBLIC(QWorkspaceTitleBar)
 public:
     QWorkspaceTitleBarPrivate()
-        : toolTip(0), act(0), window(0), movable(1), pressed(0), autoraise(0), inevent(0)
+        :
+#ifndef QT_NO_TOOLTIP
+        toolTip(0),
+#endif
+        act(0), window(0), movable(1), pressed(0), autoraise(0), inevent(0)
     {
     }
 
     Qt::WFlags flags;
     QStyle::SubControl buttonDown;
     QPoint moveOffset;
+#ifndef QT_NO_TOOLTIP
     QToolTip *toolTip;
+#endif
     bool act                    :1;
     QWidget* window;
     bool movable            :1;
@@ -904,7 +910,9 @@ QWorkspacePrivate::init()
                                                           q->tr("Ma&ximize"), q);
     actions[QWorkspacePrivate::CloseAct] = new QAction(QIcon(q->style()->standardPixmap(QStyle::SP_TitleBarCloseButton)),
                                                           q->tr("&Close")
+#ifndef QT_NO_SHORTCUT
                                                           +"\t"+(QString)QKeySequence(Qt::CTRL+Qt::Key_F4)
+#endif
                                                           ,q);
     QObject::connect(actions[QWorkspacePrivate::CloseAct], SIGNAL(triggered()), q, SLOT(closeActiveWindow()));
     actions[QWorkspacePrivate::StaysOnTopAct] = new QAction(q->tr("Stay on &Top"), q);
@@ -931,6 +939,7 @@ QWorkspacePrivate::init()
     toolPopup->addAction(actions[QWorkspacePrivate::ShadeAct]);
     toolPopup->addAction(actions[QWorkspacePrivate::CloseAct]);
 
+#ifndef QT_NO_SHORTCUT    
     // Set up shortcut bindings (id -> slot), most used first
     shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::Key_Tab), "activateNextWindow");
     shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_Tab), "activatePreviousWindow");
@@ -940,7 +949,8 @@ QWorkspacePrivate::init()
     shortcutMap.insert(q->grabShortcut(Qt::CTRL + Qt::SHIFT + Qt::Key_F6), "activatePreviousWindow");
     shortcutMap.insert(q->grabShortcut(Qt::Key_Forward), "activateNextWindow");
     shortcutMap.insert(q->grabShortcut(Qt::Key_Back), "activatePreviousWindow");
-
+#endif // QT_NO_SHORTCUT
+    
     q->setAttribute(Qt::WA_NoBackground, true);
     q->setSizePolicy(QSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding));
 
@@ -1763,7 +1773,9 @@ void QWorkspacePrivate::showMaximizeControls()
                 (maxWindow->windowWidget()->windowFlags() & Qt::WindowMinimizeButtonHint)) {
                 QToolButton* iconB = new QToolButton(maxcontrols);
                 iconB->setObjectName("iconify");
+#ifndef QT_NO_TOOLTIP
                 iconB->setToolTip(q->tr("Minimize"));
+#endif
                 l->addWidget(iconB);
                 iconB->setFocusPolicy(Qt::NoFocus);
                 QPixmap pm = q->style()->standardPixmap(QStyle::SP_TitleBarMinButton);
@@ -1775,7 +1787,9 @@ void QWorkspacePrivate::showMaximizeControls()
 
             QToolButton* restoreB = new QToolButton(maxcontrols);
             restoreB->setObjectName("restore");
+#ifndef QT_NO_TOOLTIP
             restoreB->setToolTip(q->tr("Restore Down"));
+#endif
             l->addWidget(restoreB);
             restoreB->setFocusPolicy(Qt::NoFocus);
             QPixmap pm = q->style()->standardPixmap(QStyle::SP_TitleBarNormalButton);
@@ -1787,7 +1801,9 @@ void QWorkspacePrivate::showMaximizeControls()
             l->addSpacing(2);
             QToolButton* closeB = new QToolButton(maxcontrols);
             closeB->setObjectName("close");
+#ifndef QT_NO_TOOLTIP
             closeB->setToolTip(q->tr("Close"));
+#endif
             l->addWidget(closeB);
             closeB->setFocusPolicy(Qt::NoFocus);
             pm = q->style()->standardPixmap(QStyle::SP_TitleBarCloseButton);

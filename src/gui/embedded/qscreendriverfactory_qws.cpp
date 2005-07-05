@@ -31,12 +31,12 @@
 #include "qscreendriverplugin_qws.h"
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QScreenDriverFactoryInterface_iid, QCoreApplication::libraryPaths(), "/gfxdrivers"))
 
-#endif //QT_NO_COMPONENT
+#endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
 
 /*!
@@ -113,7 +113,7 @@ QScreen *QScreenDriverFactory::create(const QString& key, int displayId)
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 
     if (QScreenDriverFactoryInterface *factory = qobject_cast<QScreenDriverFactoryInterface*>(loader()->instance(key)))
         return factory->create(driver, displayId);
@@ -178,9 +178,9 @@ QStringList QScreenDriverFactory::keys()
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
      list += loader()->keys();
-#endif //QT_NO_COMPONENT
+#endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
 
     return list;

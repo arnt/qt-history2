@@ -75,11 +75,9 @@ public:
     QImage(uchar *data, int width, int height, Format format);
 
     explicit QImage(const char * const xpm[]);
-#ifndef QT_NO_IMAGEIO
     explicit QImage(const QString &fileName, const char *format = 0);
 #ifndef QT_NO_CAST_FROM_ASCII
     explicit QImage(const char *fileName, const char *format = 0);
-#endif
 #endif
 
     QImage(const QImage &);
@@ -141,14 +139,11 @@ public:
     bool hasAlphaChannel() const;
     void setAlphaChannel(const QImage &alphaChannel);
     QImage alphaChannel() const;
-#ifndef QT_NO_IMAGE_DITHER_TO_1
     QImage createAlphaMask(Qt::ImageConversionFlags flags = Qt::AutoColor) const;
-#endif
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
     QImage createHeuristicMask(bool clipTight = true) const;
 #endif
 
-#ifndef QT_NO_IMAGE_TRANSFORMATION
     inline QImage scaled(int w, int h, Qt::AspectRatioMode aspectMode = Qt::IgnoreAspectRatio,
                         Qt::TransformationMode mode = Qt::FastTransformation) const
         { return scaled(QSize(w, h), aspectMode, mode); }
@@ -158,15 +153,11 @@ public:
     QImage scaledToHeight(int h, Qt::TransformationMode mode = Qt::FastTransformation) const;
     QImage transformed(const QMatrix &matrix, Qt::TransformationMode mode = Qt::FastTransformation) const;
     static QMatrix trueMatrix(const QMatrix &, int w, int h);
-#endif
-#ifndef QT_NO_IMAGE_MIRROR
     QImage mirrored(bool horizontally = false, bool vertically = true) const;
-#endif
     QImage rgbSwapped() const;
     void invertPixels(InvertMode = InvertRgb);
 
 
-#ifndef QT_NO_IMAGEIO
     bool load(const QString &fileName, const char* format=0);
     bool loadFromData(const uchar *buf, int len, const char *format = 0);
     inline bool loadFromData(const QByteArray &data, const char* aformat=0)
@@ -178,7 +169,6 @@ public:
     static QImage fromData(const uchar *data, int size, const char *format = 0);
     inline static QImage fromData(const QByteArray &data, const char *format = 0)
         { return fromData(reinterpret_cast<const uchar *>(data.constData()), data.size(), format); }
-#endif //QT_NO_IMAGEIO
 
     int serialNumber() const;
 
@@ -244,10 +234,8 @@ public:
     inline QT3_SUPPORT QImage copy(const QRect &rect, Qt::ImageConversionFlags) const
         { return copy(rect); }
     static QT3_SUPPORT Endian systemBitOrder();
-#ifndef QT_NO_IMAGEIO
     inline QT3_SUPPORT_CONSTRUCTOR QImage(const QByteArray &data)
         { d = 0; *this = QImage::fromData(data); }
-#endif
 #endif
 
 protected:
@@ -264,7 +252,7 @@ Q_DECLARE_TYPEINFO(QImage, Q_MOVABLE_TYPE);
 
 // QImage stream functions
 
-#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
+#if !defined(QT_NO_DATASTREAM)
 Q_GUI_EXPORT QDataStream &operator<<(QDataStream &, const QImage &);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &, QImage &);
 #endif

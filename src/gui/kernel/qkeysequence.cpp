@@ -13,6 +13,8 @@
 
 #include "qkeysequence.h"
 
+#ifndef QT_NO_SHORTCUT
+
 #include "qshortcut.h"
 #include "qdebug.h"
 #ifndef QT_NO_REGEXP
@@ -728,7 +730,7 @@ bool QKeySequence::isDetached() const
 /*****************************************************************************
   QKeySequence stream functions
  *****************************************************************************/
-#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
+#if !defined(QT_NO_DATASTREAM)
 /*!
     \fn QDataStream &operator<<(QDataStream &stream, const QKeySequence &sequence)
     \relates QKeySequence
@@ -784,3 +786,5 @@ QDebug operator<<(QDebug dbg, const QKeySequence &p)
 #endif
 }
 #endif
+
+#endif // QT_NO_SHORTCUT

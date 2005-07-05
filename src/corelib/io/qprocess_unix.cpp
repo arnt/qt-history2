@@ -14,6 +14,8 @@
 //#define QPROCESS_DEBUG
 #include <qdebug.h>
 
+#ifndef QT_NO_PROCESS
+
 #if defined QPROCESS_DEBUG
 #include <qstring.h>
 #include <ctype.h>
@@ -976,3 +978,4 @@ void QProcessPrivate::initializeProcessManager()
 
 #include "qprocess_unix.moc"
 
+#endif // QT_NO_PROCESS

@@ -17,6 +17,8 @@
 #include <QtCore/qdatetime.h>
 #include <QtGui/qabstractspinbox.h>
 
+#ifndef QT_NO_DATETIMEEDIT
+
 class QDateTimeEditPrivate;
 class Q_GUI_EXPORT QDateTimeEdit : public QAbstractSpinBox
 {
@@ -140,4 +142,5 @@ public:
 Q_DECLARE_OPERATORS_FOR_FLAGS(QDateTimeEdit::Sections)
 
 
+#endif // QT_NO_DATETIMEEDIT
 #endif // QDATETIMEEDIT_H

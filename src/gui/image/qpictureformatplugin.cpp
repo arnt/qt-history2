@@ -12,7 +12,7 @@
 ****************************************************************************/
 
 #include "qpictureformatplugin.h"
-#ifndef QT_NO_PICTUREFORMATPLUGIN
+#if !defined(QT_NO_LIBRARY) && !defined(QT_NO_PICTURE)
 #include "qpicture.h"
 
 /*!
@@ -91,4 +91,4 @@ bool QPictureFormatPlugin::savePicture(const QString &format, const QString &fil
     return false;
 }
 
-#endif // QT_NO_PICTUREFORMATPLUGIN
+#endif // QT_NO_LIBRARY || QT_NO_PICTURE

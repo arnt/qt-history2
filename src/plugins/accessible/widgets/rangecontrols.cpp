@@ -22,6 +22,7 @@
 
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 
+#ifndef QT_NO_SPINBOX
 /*!
   \class QAccessibleSpinBox qaccessiblewidget.h
   \brief The QAccessibleSpinBox class implements the QAccessibleInterface for spinbox widgets.
@@ -195,6 +196,7 @@ bool QAccessibleSpinBox::doAction(int action, int /*child*/, const QVariantList 
     */
     return QAccessibleWidget::doAction(action, 0, params);
 }
+#endif // QT_NO_SPINBOX
 
 /*!
   \class QAccessibleScrollBar qaccessiblewidget.h

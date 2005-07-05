@@ -14,7 +14,9 @@
 #ifndef QMENUBAR_H
 #define QMENUBAR_H
 
-#include "QtGui/qmenu.h"
+#include <QMenu>
+
+#ifndef QT_NO_MENUBAR
 
 class QMenuBarPrivate;
 #ifdef QT3_SUPPORT
@@ -133,7 +135,7 @@ public:
     inline QT3_SUPPORT void removeItemAt(int index) {
         if(QAction *act = actions().value(index))
             removeAction(act); }
-#ifndef QT_NO_ACCEL
+#ifndef QT_NO_SHORTCUT
     inline QT3_SUPPORT QKeySequence accel(int id) const {
         if(QAction *act = findActionForId(id))
             return act->shortcut();
@@ -277,4 +279,5 @@ private:
 #endif
 };
 
+#endif // QT_NO_MENUBAR
 #endif // QMENUBAR_H

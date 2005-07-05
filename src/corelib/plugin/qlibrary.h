@@ -16,6 +16,8 @@
 
 #include "QtCore/qobject.h"
 
+#ifndef QT_NO_LIBRARY
+
 class QLibraryPrivate;
 
 class Q_CORE_EXPORT QLibrary : public QObject
@@ -48,4 +50,5 @@ private:
     bool did_load;
 };
 
+#endif //QT_NO_LIBRARY
 #endif //QLIBRARY_H

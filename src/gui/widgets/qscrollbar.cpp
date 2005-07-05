@@ -19,6 +19,8 @@
 #include "qstyle.h"
 #include "qstyleoption.h"
 
+#ifndef QT_NO_SCROLLBAR
+
 #ifndef QT_NO_ACCESSIBILITY
 #include "qaccessible.h"
 #endif
@@ -591,3 +593,5 @@ void QScrollBar::hideEvent(QHideEvent *)
 
     Use isSliderDown() instead.
 */
+
+#endif // QT_NO_SCROLLBAR

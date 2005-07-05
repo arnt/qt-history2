@@ -25,6 +25,7 @@
 #include <qabstracteventdispatcher.h>
 #include <qdebug.h>
 
+#ifndef QT_NO_PROCESS
 //#define QPROCESS_DEBUG
 
 #define SLEEPMIN 10
@@ -750,4 +751,6 @@ bool QProcessPrivate::startDetached(const QString &program, const QStringList &a
 
 
 #include "qprocess_win.moc"
+
+#endif // QT_NO_PROCESS
 

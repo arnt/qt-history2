@@ -75,14 +75,9 @@ public:
     Qt::ClipOperation clipOperation;
     QPainter::RenderHints renderHints;
     QList<QPainterClipInfo> clipInfo;
-#ifndef QT_NO_TRANSFORMATIONS
     QMatrix worldMatrix;       // World transformation matrix, not window and viewport
     QMatrix matrix;            // Complete transformation matrix, including win and view.
     int txop;
-#else
-    int xlatex;
-    int xlatey;
-#endif
     int wx, wy, ww, wh;         // window rectangle
     int vx, vy, vw, vh;         // viewport rectangle
 
@@ -122,10 +117,8 @@ public:
     QPainterState *state;
     QVector<QPainterState*> states;
 
-#ifndef QT_NO_TRANSFORMATIONS
     QMatrix invMatrix;
     uint txinv:1;
-#endif
 
     enum TransformationCodes {
         TxNone = 0,

@@ -19,6 +19,8 @@
 #include "qtextcodec.h"
 #include "qlist.h"
 
+#ifndef QT_NO_TEXTCODECPLUGIN
+
 class QGb18030Codec : public QTextCodec {
 public:
     QGb18030Codec();
@@ -121,4 +123,5 @@ public:
 
 #endif // Q_WS_X11
 
+#endif // QT_NO_TEXTCODECPLUGIN
 #endif // QGB18030CODEC_H

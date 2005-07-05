@@ -17,6 +17,8 @@
 #include <qmenubar.h>
 #include <qstyle.h>
 
+#ifndef QT_NO_MENU
+
 QString Q_GUI_EXPORT qt_accStripAmp(const QString &text);
 QString Q_GUI_EXPORT qt_accHotKey(const QString &text);
 
@@ -90,8 +92,10 @@ QString QAccessibleMenu::text(Text t, int child) const
         return qt_accStripAmp(menu()->actions().at(child-1)->text());
     case Help:
         return child ? menu()->actions().at(child-1)->whatsThis() : tx;
+#ifndef QT_NO_SHORTCUT
     case Accelerator:
         return child ? static_cast<QString>(menu()->actions().at(child-1)->shortcut()) : tx;
+#endif
     default:
         break;
     }
@@ -157,7 +161,9 @@ bool QAccessibleMenu::doAction(int /*act*/, int child, const QVariantList &)
     return true;
 }
 */
+#endif // QT_NO_MENU
 
+#ifndef QT_NO_MENUBAR
 QAccessibleMenuBar::QAccessibleMenuBar(QWidget *w)
 : QAccessibleWidget(w)
 {
@@ -294,3 +300,4 @@ bool QAccessibleMenuBar::setFocus(int child)
     return true;
 }
 */
+#endif // QT_NO_MENUBAR

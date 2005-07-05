@@ -99,7 +99,6 @@ QPixmap::QPixmap(const QSize &s, Type type)
     init(s.width(), s.height(), type);
 }
 
-#ifndef QT_NO_IMAGEIO
 /*!
     Constructs a pixmap from the file with the given \a fileName. If the
     file does not exist or is of an unknown format, the pixmap becomes a
@@ -131,7 +130,6 @@ QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversio
     init(0, 0);
     load(fileName, format, flags);
 }
-#endif //QT_NO_IMAGEIO
 
 /*!
     Constructs a pixmap that is a copy of \a pixmap.
@@ -297,12 +295,10 @@ QPixmap::operator QVariant() const
 
     \sa transformed(), QMatrix
 */
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
 QMatrix QPixmap::trueMatrix(const QMatrix &m, int w, int h)
 {
     return QImage::trueMatrix(m, w, h);
 }
-#endif
 
 /*!
     \fn bool QPixmap::isQBitmap() const
@@ -512,7 +508,6 @@ QBitmap QPixmap::createMaskFromColor(const QColor &maskColor) const
     return m;
 }
 
-#ifndef QT_NO_IMAGEIO
 /*!
     Loads a pixmap from the file \a fileName at runtime. Returns true
     if successful; otherwise returns false.
@@ -679,8 +674,6 @@ bool QPixmap::doImageIO(QImageWriter *writer, int quality) const
     return writer->write(toImage());
 }
 
-#endif //QT_NO_IMAGEIO
-
 
 // The implementation of QPixmap::fill(const QWidget *, const QPoint &)
 // is in qwidget.cpp
@@ -837,7 +830,6 @@ Qt::HANDLE QPixmap::handle() const
 
 
 #ifdef QT3_SUPPORT
-#ifndef QT_NO_IMAGEIO
 static Qt::ImageConversionFlags colorModeToFlags(QPixmap::ColorMode mode)
 {
     Qt::ImageConversionFlags flags = Qt::AutoColor;
@@ -922,7 +914,6 @@ bool QPixmap::loadFromData(const uchar *buf, uint len, const char *format, Color
 {
     return loadFromData(buf, len, format, colorModeToFlags(mode));
 }
-#endif
 
 /*!
     Use the static function QPixmap::fromImage() instead.
@@ -941,7 +932,7 @@ bool QPixmap::convertFromImage(const QImage &image, ColorMode mode)
 /*****************************************************************************
   QPixmap stream functions
  *****************************************************************************/
-#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
+#if !defined(QT_NO_DATASTREAM)
 /*!
     \relates QPixmap
 

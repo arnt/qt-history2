@@ -283,9 +283,7 @@ class QGfxVga16 : public QGfxRasterBase , private QWSPolygonScanner
         virtual void drawPolygon(const QPolygon &,bool,int,int);
         virtual void blt(int,int,int,int,int,int);
         virtual void scroll(int,int,int,int,int,int);
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
         virtual void stretchBlt(int,int,int,int,int,int);
-#endif
         virtual void tiledBlt(int,int,int,int);
         virtual int bitDepth() { return 4; }
         virtual void setSource(const QImage *);
@@ -1757,7 +1755,6 @@ void QGfxVga16::blt(int rx,int ry,int w,int h,int sx,int sy)
 }
 
 
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
 void QGfxVga16::stretchBlt(int rx,int ry,int w,int h,int sw,int sh)
 {
     BEGIN_PROFILING
@@ -1770,7 +1767,6 @@ void QGfxVga16::stretchBlt(int rx,int ry,int w,int h,int sw,int sh)
     Q_UNUSED(sh);
     qDebug("Can't cope with stretchblt in VGA16");
 }
-#endif
 
 
 void QGfxVga16::tiledBlt(int rx,int ry,int w,int h)

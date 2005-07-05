@@ -18,7 +18,6 @@
 #include "QtGui/qcolor.h"
 #include "QtGui/qbrush.h" // QColor->QBrush conversion
 
-#ifndef QT_NO_PALETTE
 
 #ifdef QT3_SUPPORT
 class QColorGroup;
@@ -202,6 +201,5 @@ Q_GUI_EXPORT QDataStream &operator<<(QDataStream &ds, const QPalette &p);
 Q_GUI_EXPORT QDataStream &operator>>(QDataStream &ds, QPalette &p);
 #endif // QT_NO_DATASTREAM
 
-#endif // QT_NO_PALETTE
 
 #endif // QPALETTE_H

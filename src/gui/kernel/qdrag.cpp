@@ -17,6 +17,7 @@
 #include <qpoint.h>
 #include "qdnd_p.h"
 
+#ifndef QT_NO_DRAGANDDROP
 
 /*!
     \class QDrag
@@ -230,3 +231,5 @@ void QDrag::setDragCursor(const QPixmap &cursor, Qt::DropAction action)
 
     \sa target(), actionChanged()
 */
+
+#endif // QT_NO_DRAGANDDROP

@@ -18,6 +18,8 @@
 #include <QtGui/qtextdocument.h>
 #include <QtGui/qtextoption.h>
 
+#ifndef QT_NO_TEXTEDIT
+
 #ifdef QT3_SUPPORT
 #include <QtGui/qtextcursor.h>
 #include <QtGui/qtextformat.h>
@@ -149,9 +151,10 @@ public:
     void ensureCursorVisible();
 
     virtual QVariant loadResource(int type, const QUrl &name);
-
+#ifndef QT_NO_MENU
     QMenu *createStandardContextMenu();
-
+#endif
+    
     QTextCursor cursorForPosition(const QPoint &pos) const;
     QRect cursorRect(const QTextCursor &cursor) const;
     QRect cursorRect() const;
@@ -171,10 +174,12 @@ public slots:
     void setPlainText(const QString &text);
     void setHtml(const QString &text);
 
+#ifndef QT_NO_CLIPBOARD
     void cut();
     void copy();
     void paste();
-
+#endif
+    
     void clear();
     void selectAll();
 
@@ -206,10 +211,12 @@ protected:
     virtual void mouseDoubleClickEvent(QMouseEvent *e);
     virtual bool focusNextPrevChild(bool next);
     virtual void contextMenuEvent(QContextMenuEvent *e);
+#ifndef QT_NO_DRAGANDDROP
     virtual void dragEnterEvent(QDragEnterEvent *e);
     virtual void dragLeaveEvent(QDragLeaveEvent *e);
     virtual void dragMoveEvent(QDragMoveEvent *e);
     virtual void dropEvent(QDropEvent *e);
+#endif
     virtual void focusInEvent(QFocusEvent *e);
     virtual void focusOutEvent(QFocusEvent *e);
     virtual void showEvent(QShowEvent *);
@@ -314,4 +321,5 @@ private:
     Q_PRIVATE_SLOT(d_func(), void emitCursorPosChanged(const QTextCursor &))
 };
 
+#endif // QT_NO_TEXTEDIT
 #endif // QTEXTEDIT_H

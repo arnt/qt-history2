@@ -13,6 +13,8 @@
 
 #include "private/qxpmhandler_p.h"
 
+#ifndef QT_NO_IMAGEFORMAT_XPM
+
 #include <private/qcolor_p.h>
 #include <qimage.h>
 #include <qmap.h>
@@ -754,7 +756,6 @@ static bool qt_get_named_xpm_rgb(const char *name, QRgb *rgb)
 /*****************************************************************************
   Misc. utility functions
  *****************************************************************************/
-#if !defined(QT_NO_IMAGEIO_XPM) || !defined(QT_NO_IMAGEIO_XBM)
 static QString fbname(const QString &fileName) // get file basename (sort of)
 {
     QString s = fileName;
@@ -775,7 +776,6 @@ static QString fbname(const QString &fileName) // get file basename (sort of)
         s = QString::fromLatin1("dummy");
     return s;
 }
-#endif
 
 // Skip until ", read until the next ", return the rest in *buf
 // Returns false on error, true on success
@@ -1146,3 +1146,5 @@ QByteArray QXpmHandler::name() const
 {
     return "xpm";
 }
+
+#endif // QT_NO_IMAGEFORMAT_XPM

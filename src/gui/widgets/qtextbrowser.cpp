@@ -14,6 +14,8 @@
 #include "qtextbrowser.h"
 #include "qtextedit_p.h"
 
+#ifndef QT_NO_TEXTBROWSER
+
 #include <qstack.h>
 #include <qapplication.h>
 #include <qevent.h>
@@ -151,9 +153,13 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
         if (data.type() == QVariant::String) {
             txt = data.toString();
         } else if (data.type() == QVariant::ByteArray) {
+#ifndef QT_NO_TEXTCODEC
             QByteArray ba = data.toByteArray();
             QTextCodec *codec = Qt::codecForHtml(ba);
             txt = codec->toUnicode(ba);
+#else
+	    txt = data.toString();
+#endif
         }
         if (txt.isEmpty())
             qWarning("QTextBrowser: no document for %s", url.toString().toLatin1().constData());
@@ -162,7 +168,9 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
             QString firstTag = txt.left(txt.indexOf('>') + 1);
             if (firstTag.left(3) == "<qt" && firstTag.contains("type") && firstTag.contains("detail")) {
                 qApp->restoreOverrideCursor();
+#ifndef QT_NO_WHATSTHIS
                 QWhatsThis::showText(QCursor::pos(), txt, q);
+#endif
                 return;
             }
         }
@@ -820,3 +828,4 @@ QVariant QTextBrowser::loadResource(int /*type*/, const QUrl &name)
 }
 
 #include "moc_qtextbrowser.cpp"
+#endif // QT_NO_TEXTBROWSER

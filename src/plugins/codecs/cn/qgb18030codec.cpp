@@ -93,6 +93,7 @@
 
 #include "qgb18030codec.h"
 
+#ifndef QT_NO_TEXTCODECPLUGIN
 #define InRange(c, lower, upper)  (((c) >= (lower)) && ((c) <= (upper)))
 #define IsLatin(c)        ((c) <= 0x7F)
 #define IsByteInGb2312(c)        (InRange((c), 0xA1, 0xFE))
@@ -9270,3 +9271,4 @@ int qt_UnicodeToGbk(uint uni, uchar *gbchar) {
     gbchar[1] = (uchar)(gb & 0xFF);
     return 2;
 }
+#endif // QT_NO_TEXTCODECPLUGIN

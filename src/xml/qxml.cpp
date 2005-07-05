@@ -18,7 +18,6 @@
 #include "qmap.h"
 #include "qstack.h"
 
-#ifndef QT_NO_XML
 
 #ifdef Q_CC_BOR // borland 6 finds bogus warnings when building this file in uic3
 #    pragma warn -8080
@@ -186,8 +185,9 @@ public:
     int pos;
     int length;
     bool nextReturnedEndOfData;
+#ifndef QT_NO_TEXTCODEC
     QTextDecoder *encMapper;
-
+#endif
 };
 
 class QXmlParseExceptionPrivate
@@ -1158,7 +1158,9 @@ void QXmlInputSource::init()
     d->inputStream = 0;
 
     setData(QString());
+#ifndef QT_NO_TEXTCODEC
     d->encMapper = 0;
+#endif
     d->nextReturnedEndOfData = true; // first call to next() will call fetchData()
 }
 
@@ -1214,7 +1216,9 @@ QXmlInputSource::QXmlInputSource(QFile& file)
 */
 QXmlInputSource::~QXmlInputSource()
 {
+#ifndef QT_NO_TEXTCODEC
     delete d->encMapper;
+#endif
     delete d;
 }
 
@@ -1355,6 +1359,9 @@ void QXmlInputSource::fetchData()
 */
 QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
 {
+#ifdef QT_NO_TEXTCODEC
+    return QString(data);    
+#else
     if (data.size() == 0)
         return QString();
     if (beginning) {
@@ -1407,6 +1414,7 @@ QString QXmlInputSource::fromRawData(const QByteArray &data, bool beginning)
         return input;
     }
     return d->encMapper->toUnicode(data, data.size());
+#endif
 }
 
 
@@ -7887,4 +7895,3 @@ void QXmlSimpleReaderPrivate::refAddC(QChar ch)
     refArray[refArrayPos++] = ch;
 }
 
-#endif // QT_NO_XML

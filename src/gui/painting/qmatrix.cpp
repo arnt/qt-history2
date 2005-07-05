@@ -20,8 +20,6 @@
 
 #include <limits.h>
 
-#ifndef QT_NO_MATRIX
-
 /*!
     \class QMatrix qmatrix.h
     \brief The QMatrix class specifies 2D transformations of a
@@ -1043,4 +1041,3 @@ QDebug operator<<(QDebug dbg, const QMatrix &m)
     Use mapRect() instead.
 */
 
-#endif // QT_NO_WMATRIX

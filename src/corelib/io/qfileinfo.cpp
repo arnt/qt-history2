@@ -256,12 +256,10 @@ QFileInfo::QFileInfo(const QFile &file) : d_ptr(new QFileInfoPrivate())
     \sa isRelative()
 */
 
-#ifndef QT_NO_DIR
 QFileInfo::QFileInfo(const QDir &dir, const QString &file) : d_ptr(new QFileInfoPrivate())
 {
     d_ptr->initFileEngine(dir.filePath(file));
 }
-#endif
 
 /*!
     Constructs a new QFileInfo that is a copy of the given \a fileinfo.
@@ -395,7 +393,6 @@ QFileInfo::setFile(const QFile &file)
     d->initFileEngine(file.fileName());
 }
 
-#ifndef QT_NO_DIR
 /*!
     \overload
 
@@ -414,7 +411,6 @@ QFileInfo::setFile(const QDir &dir, const QString &file)
     Q_D(QFileInfo);
     d->initFileEngine(dir.filePath(file));
 }
-#endif
 
 /*!
     Returns the absolute path including the file name.
@@ -733,7 +729,6 @@ QFileInfo::suffix() const
     return fileName.mid(lastDot + 1);
 }
 
-#ifndef QT_NO_DIR
 
 /*!
     Returns the file's path as a QDir object.
@@ -771,7 +766,6 @@ QDir QFileInfo::dir(bool absPath) const
     return dir();
 }
 #endif //QT3_SUPPORT
-#endif //QT_NO_DIR
 
 /*!
     Returns true if the user can read the file; otherwise returns false.

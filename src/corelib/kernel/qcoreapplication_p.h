@@ -60,7 +60,7 @@ public:
 #ifndef QT_NO_TRANSLATION
     QTranslatorList translators;
 #endif
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     QStringList *app_libpaths;
 #endif
     uint application_type;

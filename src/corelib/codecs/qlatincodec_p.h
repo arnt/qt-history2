@@ -27,6 +27,8 @@
 
 #include "qtextcodec.h"
 
+#ifndef QT_NO_TEXTCODEC
+
 class QLatin1Codec : public QTextCodec
 {
 public:
@@ -55,4 +57,5 @@ public:
     int mibEnum() const;
 };
 
+#endif // QT_NO_TEXTCODEC
 #endif // QLATINCODEC_P_H

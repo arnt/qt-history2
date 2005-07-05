@@ -91,9 +91,7 @@ struct QImageData {        // internal image data
         return r;
     }
 #endif
-#ifndef QT_NO_IMAGEIO
     bool doImageIO(const QImage *image, QImageWriter* io, int quality) const;
-#endif
 
     QPaintEngine *paintEngine;
 };
@@ -522,7 +520,6 @@ QImage::QImage(uchar* data, int width, int height, Format format)
     d->nbytes = d->bytes_per_line * height;
 }
 
-#ifndef QT_NO_IMAGEIO
 /*!
     Constructs an image and tries to load the image from the file \a
     fileName.
@@ -641,7 +638,6 @@ QImage::QImage(const char * const xpm[])
         QImage image = QImage::fromData(data);
     \endcode
 */
-#endif //QT_NO_IMAGEIO
 
 
 /*!
@@ -1661,7 +1657,6 @@ static QVector<QRgb> fix_color_table(const QVector<QRgb> &ctbl, QImage::Format f
     return colorTable;
 }
 
-#ifndef QT_NO_IMAGE_DITHER_TO_1
 //
 // dither_to_1:  Uses selected dithering algorithm.
 //
@@ -1936,7 +1931,6 @@ static void dither_to_Mono(QImageData *dst, const QImageData *src,
         }
     }
 }
-#endif
 
 static void convert_X_to_Mono(QImageData *dst, const QImageData *src, Qt::ImageConversionFlags flags)
 {
@@ -2202,7 +2196,6 @@ static void convert_RGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
             }
         }
 
-#ifndef QT_NO_IMAGE_DITHER_TO_1
         if (src->format != QImage::Format_RGB32) {
             const int trans = 216;
             Q_ASSERT(dst->colortable.size() > trans);
@@ -2221,7 +2214,6 @@ static void convert_RGB_to_Indexed8(QImageData *dst, const QImageData *src, Qt::
             }
             dst->has_alpha_clut = true;
         }
-#endif
 
 #undef MAX_R
 #undef MAX_G
@@ -2354,7 +2346,7 @@ static void convert_Mono_to_Indexed8(QImageData *dest, const QImageData *src, Qt
 
 
 #ifdef Q_WS_QWS
-#ifndef QT_NO_IMAGE_16_BIT
+#ifdef QT_QWS_DEPTH_16
 
 static inline bool is16BitGray( ushort c )
 {
@@ -3046,7 +3038,6 @@ bool QImage::isGrayscale() const
     Scales the image to the given \a size, using the aspect ratio and
     transformation modes specified by \a aspectMode and \a transformMode.
 */
-#ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::TransformationMode mode) const
 {
     if (!d) {
@@ -3067,7 +3058,6 @@ QImage QImage::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transf
     img = transformed(wm, mode);
     return img;
 }
-#endif
 
 /*!
     Returns a scaled copy of the image with a width of \a w pixels using
@@ -3079,7 +3069,6 @@ QImage QImage::scaled(const QSize& s, Qt::AspectRatioMode aspectMode, Qt::Transf
 
     \sa scaled(), scaledToHeight(), transformed()
 */
-#ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
 {
     if (!d) {
@@ -3094,7 +3083,6 @@ QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
     wm.scale(factor, factor);
     return transformed(wm, mode);
 }
-#endif
 
 /*!
     Returns a scaled copy of the image with a height of \a h pixels
@@ -3107,7 +3095,6 @@ QImage QImage::scaledToWidth(int w, Qt::TransformationMode mode) const
 
     \sa scaled(), scaledToWidth(), transformed()
 */
-#ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
 {
     if (!d) {
@@ -3122,7 +3109,6 @@ QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
     wm.scale(factor, factor);
     return transformed(wm, mode);
 }
-#endif
 
 
 /*!
@@ -3139,7 +3125,6 @@ QImage QImage::scaledToHeight(int h, Qt::TransformationMode mode) const
 
     \sa transformed(), QMatrix
 */
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
 QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 {
     const qreal dt = qreal(0.);
@@ -3180,7 +3165,6 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
     mat.setMatrix(matrix.m11(), matrix.m12(), matrix.m21(), matrix.m22(), -xmin, -ymin);
     return mat;
 }
-#endif // QT_NO_WMATRIX
 
 /*!
     Returns a copy of the image that is transformed with the transformation
@@ -3193,7 +3177,6 @@ QMatrix QImage::trueMatrix(const QMatrix &matrix, int w, int h)
 
     \sa scaled(), QPixmap::transformed(), QPixmap::trueMatrix(), QMatrix
 */
-#ifndef QT_NO_IMAGE_TRANSFORMATION
 QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) const
 {
     if (!d)
@@ -3282,7 +3265,6 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
     }
     return dImage;
 }
-#endif
 
 /*!
     Builds and returns a 1-bpp mask from the alpha buffer in this
@@ -3297,7 +3279,6 @@ QImage QImage::transformed(const QMatrix &matrix, Qt::TransformationMode mode) c
 
     \sa createHeuristicMask()
 */
-#ifndef QT_NO_IMAGE_DITHER_TO_1
 QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
 {
     if (!d || d->format == QImage::Format_RGB32)
@@ -3313,7 +3294,6 @@ QImage QImage::createAlphaMask(Qt::ImageConversionFlags flags) const
     dither_to_Mono(mask.d, d, flags, true);
     return mask;
 }
-#endif
 
 #ifndef QT_NO_IMAGE_HEURISTIC_MASK
 /*!
@@ -3428,7 +3408,6 @@ QImage QImage::createHeuristicMask(bool clipTight) const
 }
 #endif //QT_NO_IMAGE_HEURISTIC_MASK
 
-#ifndef QT_NO_IMAGE_MIRROR
 /*
   This code is contributed by Philipp Lang,
   GeneriCom Software Germany (www.generi.com)
@@ -3536,7 +3515,6 @@ QImage QImage::mirrored(bool horizontal, bool vertical) const
 
     return result;
 }
-#endif //QT_NO_IMAGE_MIRROR
 
 /*!
   \fn QImage QImage::swapRGB() const
@@ -3579,7 +3557,6 @@ QImage QImage::rgbSwapped() const
     return res;
 }
 
-#ifndef QT_NO_IMAGEIO
 /*!
     Loads an image from the file \a fileName. Returns true if the
     image was successfully loaded; otherwise returns false.
@@ -3738,12 +3715,11 @@ bool QImageData::doImageIO(const QImage *image, QImageWriter *writer, int qualit
         writer->setQuality(qMin(quality,100));
     return writer->write(*image);
 }
-#endif //QT_NO_IMAGEIO
 
 /*****************************************************************************
   QImage stream functions
  *****************************************************************************/
-#if !defined(QT_NO_DATASTREAM) && !defined(QT_NO_IMAGEIO)
+#if !defined(QT_NO_DATASTREAM)
 /*!
     \relates QImage
 
@@ -4207,7 +4183,6 @@ int QImage::metric(PaintDeviceMetric metric) const
   the source data.
 */
 
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
 #undef IWX_MSB
 #define IWX_MSB(b)        if (trigx < maxws && trigy < maxhs) {                              \
                             if (*(sptr+sbpl*(trigy>>12)+(trigx>>15)) &                      \
@@ -4364,7 +4339,6 @@ bool qt_xForm_helper(const QMatrix &trueMat, int xoffset, int type, int depth,
 #undef IWX_MSB
 #undef IWX_LSB
 #undef IWX_PIX
-#endif // QT_NO_PIXMAP_TRANSFORMATION
 
 /*!
     \fn QImage QImage::xForm(const QMatrix &matrix) const

@@ -120,7 +120,7 @@ static void uspAppendItems(QTextEngine *engine, int &start, int &stop, BidiContr
 
 static void resolveUsp10()
 {
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     if (!resolvedUsp10) {
         // need to resolve the security info functions
 

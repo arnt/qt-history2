@@ -16,6 +16,8 @@
 
 #include "qimageiohandler.h"
 
+#ifndef QT_NO_IMAGEFORMAT_PPM
+
 class QByteArray;
 class Q_GUI_EXPORT QPpmHandler : public QImageIOHandler
 {
@@ -36,4 +38,5 @@ private:
     mutable QByteArray subType;
 };
 
+#endif // QT_NO_IMAGEFORMAT_PPM
 #endif

@@ -16,6 +16,8 @@
 
 #include "QtGui/qwidget.h"
 
+#ifndef QT_NO_TOOLTIP
+
 class Q_GUI_EXPORT QToolTip
 {
     QToolTip();
@@ -31,4 +33,5 @@ public:
 #endif
 };
 
+#endif // QT_NO_TOOLTIP
 #endif // QTOOLTIP_H

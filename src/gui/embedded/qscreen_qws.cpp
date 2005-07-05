@@ -396,7 +396,7 @@ void QScreenCursor::drawCursor()
 
     QRgb *clut = data->clut;
 
-#ifndef QT_NO_QWS_DEPTH_32
+#ifdef QT_QWS_DEPTH_32
     if (depth == 32)
     {
         unsigned int *dptr = (unsigned int *)dest;
@@ -435,7 +435,7 @@ void QScreenCursor::drawCursor()
         return;
     }
 #endif
-#ifndef QT_NO_QWS_DEPTH_24
+#ifdef QT_QWS_DEPTH_24
     if (depth == 24)
     {
         unsigned int srcval;
@@ -473,7 +473,7 @@ void QScreenCursor::drawCursor()
         return;
     }
 #endif
-#ifndef QT_NO_QWS_DEPTH_16
+#ifdef QT_QWS_DEPTH_16
     if (depth == 16)
     {
         unsigned short *dptr = (unsigned short *)dest;
@@ -557,7 +557,7 @@ void QScreenCursor::drawCursor()
 //        simple_8bpp_alloc=false;
     }
 #endif
-#ifndef QT_NO_QWS_DEPTH_4
+#ifdef QT_QWS_DEPTH_4
     if (depth == 4) {
         unsigned int srcval;
         int av;
@@ -584,7 +584,7 @@ void QScreenCursor::drawCursor()
         }
     }
 #endif
-#ifndef QT_NO_QWS_DEPTH_1
+#ifdef QT_QWS_DEPTH_1
     if (depth == 1) {
         unsigned int srcval;
         int av;
@@ -978,27 +978,27 @@ bool QScreen::supportsDepth(int d) const
 {
     if (false) {
         //Just to simplify the ifdeffery
-#ifndef QT_NO_QWS_DEPTH_1
+#ifdef QT_QWS_DEPTH_1
     } else if(d==1) {
         return true;
 #endif
-#ifndef QT_NO_QWS_DEPTH_4
+#ifdef QT_QWS_DEPTH_4
     } else if(d==4) {
         return true;
 #endif
-#ifndef QT_NO_QWS_DEPTH_8
+#ifdef QT_QWS_DEPTH_8
     } else if(d==8) {
         return true;
 #endif
-#ifndef QT_NO_QWS_DEPTH_16
+#ifdef QT_QWS_DEPTH_16
     } else if(d==16) {
         return true;
 #endif
-#ifndef QT_NO_QWS_DEPTH_24
+#ifdef QT_QWS_DEPTH_24
     } else if(d==24) {
         return true;
 #endif
-#ifndef QT_NO_QWS_DEPTH_32
+#ifdef QT_QWS_DEPTH_32
     } else if(d==32) {
         return true;
 #endif

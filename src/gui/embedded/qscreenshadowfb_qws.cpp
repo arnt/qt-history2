@@ -147,7 +147,6 @@ void QGfxShadow<depth,type>::scroll(int x,int y,int w,int h,int sx,int sy)
     QWSDisplay::ungrab();
 }
 
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
 template <const int depth, const int type>
 void QGfxShadow<depth,type>::stretchBlt(int x,int y,int w,int h,int sx,int sy)
 {
@@ -156,7 +155,6 @@ void QGfxShadow<depth,type>::stretchBlt(int x,int y,int w,int h,int sx,int sy)
     SHADOWFB_RASTER_PARENT ::stretchBlt(x, y, w, h, sx, sy);
     QWSDisplay::ungrab();
 }
-#endif
 
 template <const int depth, const int type>
 void QGfxShadow<depth,type>::tiledBlt(int x,int y,int w,int h)

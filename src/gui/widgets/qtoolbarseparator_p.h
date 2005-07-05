@@ -27,6 +27,8 @@
 
 #include <qwidget.h>
 
+#ifndef QT_NO_TOOLBAR
+
 class QToolBar;
 
 class QToolBarSeparator : public QWidget
@@ -47,4 +49,5 @@ public slots:
     void setOrientation(Qt::Orientation orientation);
 };
 
+#endif // QT_NO_TOOLBAR
 #endif // QTOOLBARSEPARATOR_P_H

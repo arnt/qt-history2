@@ -159,6 +159,7 @@ int QDecoration::regionAt(const QWidget *w, const QPoint &point)
     return None;
 }
 
+#ifndef QT_NO_MENU
 /*!
     Builds the system \a menu for the TLW \a widget.
 */
@@ -187,6 +188,7 @@ void QDecoration::menuTriggered(QWidget *widget, QAction *action)
     QDecorationAction *decAction = static_cast<QDecorationAction *>(action);
     regionClicked(widget, decAction->reg);
 }
+#endif // QT_NO_MENU
 
 /*!
     This function is called whenever a region in a top level widget is
@@ -206,10 +208,12 @@ void QDecoration::regionClicked(QWidget *widget, int reg)
             startResize(widget);
             break;
         case Help:
+#ifndef QT_NO_WHATSTHIS
             if (QWhatsThis::inWhatsThisMode())
                 QWhatsThis::leaveWhatsThisMode();
             else
                 QWhatsThis::enterWhatsThisMode();
+#endif
             break;
         case Close:
             widget->close();

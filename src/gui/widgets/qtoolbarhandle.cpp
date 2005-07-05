@@ -13,6 +13,8 @@
 
 #include "qtoolbarhandle_p.h"
 
+#ifndef QT_NO_TOOLBAR
+
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qtoolbar.h>
@@ -122,3 +124,5 @@ void QToolBarHandle::mouseMoveEvent(QMouseEvent *event)
     // re-position toolbar
     layout->dropToolBar(toolBar, event->globalPos(), p);
 }
+
+#endif // QT_NO_TOOLBAR

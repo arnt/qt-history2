@@ -613,6 +613,7 @@ void QAbstractSlider::sliderChange(SliderChange)
 /*!
     \reimp
 */
+#ifndef QT_NO_WHEELEVENT
 void QAbstractSlider::wheelEvent(QWheelEvent * e)
 {
     Q_D(QAbstractSlider);
@@ -638,7 +639,7 @@ void QAbstractSlider::wheelEvent(QWheelEvent * e)
     offset -= int(offset);
     e->accept();
 }
-
+#endif
 
 /*!
     \reimp

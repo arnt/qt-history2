@@ -61,8 +61,13 @@
 #include <stdlib.h>
 
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QSqlDriverFactoryInterface_iid, QCoreApplication::libraryPaths(),
-     QLatin1String("/sqldrivers")))
+                          (QSqlDriverFactoryInterface_iid,
+#ifndef QT_NO_LIBRARY
+                           QCoreApplication::libraryPaths(),
+#else
+                           QStringList(),                           
+#endif
+                           QLatin1String("/sqldrivers")))
 
 QT_STATIC_CONST_IMPL char *QSqlDatabase::defaultConnection = "qt_sql_default_connection";
 

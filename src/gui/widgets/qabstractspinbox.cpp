@@ -14,6 +14,9 @@
 #include <qplatformdefs.h>
 #include <private/qabstractspinbox_p.h>
 #include <qabstractspinbox.h>
+
+#ifndef QT_NO_SPINBOX
+
 #include <qapplication.h>
 #include <qclipboard.h>
 #include <qdatetime.h>
@@ -871,6 +874,7 @@ void QAbstractSpinBox::keyReleaseEvent(QKeyEvent *e)
     \reimp
 */
 
+#ifndef QT_NO_WHEELEVENT
 void QAbstractSpinBox::wheelEvent(QWheelEvent *e)
 {
     const int steps = (e->delta() > 0 ? 1 : -1);
@@ -878,6 +882,7 @@ void QAbstractSpinBox::wheelEvent(QWheelEvent *e)
         stepBy(e->modifiers() & Qt::ControlModifier ? steps * 10 : steps);
     e->accept();
 }
+#endif
 
 
 /*!
@@ -979,7 +984,7 @@ void QAbstractSpinBox::timerEvent(QTimerEvent *e)
 
 void QAbstractSpinBox::contextMenuEvent(QContextMenuEvent *e)
 {
-#ifndef QT_NO_POPUPMENU
+#ifndef QT_NO_MENU
     Q_D(QAbstractSpinBox);
 
     d->reset();
@@ -1826,4 +1831,5 @@ double operator/(const QVariant &arg1, const QVariant &arg2)
 }
 
 #include "moc_qabstractspinbox.cpp"
+#endif // QT_NO_SPINBOX
 

@@ -281,15 +281,9 @@ QColor::QColor(QRgb color)
 
 QString QColor::name() const
 {
-#ifndef QT_NO_SPRINTF
     QString s;
     s.sprintf("#%02x%02x%02x", red(), green(), blue());
     return s;
-#else
-    char s[20];
-    sprintf(s, "#%02x%02x%02x", red(), green(), blue());
-    return QString(s);
-#endif
 }
 
 /*!

@@ -333,12 +333,15 @@ void QStatusBar::reformat()
         delete d->box;
 
     QBoxLayout *vbox;
+#ifndef QT_NO_SIZEGRIP
     if (d->resizer) {
         d->box = new QHBoxLayout(this);
         d->box->setMargin(0);
         vbox = new QVBoxLayout;
         d->box->addLayout(vbox);
-    } else {
+    } else
+#endif
+    {
         vbox = d->box = new QVBoxLayout(this);
         d->box->setMargin(0);
     }

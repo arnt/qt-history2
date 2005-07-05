@@ -1211,6 +1211,7 @@ void QFileDialogPrivate::autoCompleteDirectory(const QString &text)
 
 void QFileDialogPrivate::showContextMenu(const QPoint &pos)
 {
+#ifndef QT_NO_MENU
     Q_Q(QFileDialog);
     QAbstractItemView *view = 0;
     if (q->viewMode() == QFileDialog::Detail)
@@ -1243,6 +1244,7 @@ void QFileDialogPrivate::showContextMenu(const QPoint &pos)
     }
 
     menu.exec(view->mapToGlobal(pos));
+#endif
 }
 
 /*!
@@ -1505,10 +1507,11 @@ void QFileDialogPrivate::setupListView(const QModelIndex &current, QGridLayout *
     QObject::connect(listView, SIGNAL(customContextMenuRequested(QPoint)),
                      q, SLOT(showContextMenu(QPoint)));
 
+#ifndef QT_NO_SHORTCUT
     QShortcut *shortcut = new QShortcut(listView);
     shortcut->setKey(QKeySequence("Delete"));
-
     QObject::connect(shortcut, SIGNAL(activated()), q, SLOT(deleteCurrent()));
+#endif
 }
 
 void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *grid)
@@ -1539,10 +1542,11 @@ void QFileDialogPrivate::setupTreeView(const QModelIndex &current, QGridLayout *
     QObject::connect(treeView, SIGNAL(customContextMenuRequested(QPoint)),
                      q, SLOT(showContextMenu(QPoint)));
 
+#ifndef QT_NO_SHORTCUT
     QShortcut *shortcut = new QShortcut(treeView);
     shortcut->setKey(QKeySequence("Delete"));
-
     QObject::connect(shortcut, SIGNAL(activated()), q, SLOT(deleteCurrent()));
+#endif
 }
 
 void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayout *grid)
@@ -1555,7 +1559,9 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
 
     backButton = new QToolButton(q);
     backButton->setIcon(q->style()->standardPixmap(QStyle::SP_FileDialogBack));
+#ifndef QT_NO_TOOLTIP
     backButton->setToolTip(tr("Back"));
+#endif
     backButton->setAutoRaise(true);
     backButton->setEnabled(false);
     backButton->setFixedSize(tools);
@@ -1564,7 +1570,9 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
 
     toParentButton = new QToolButton(q);
     toParentButton->setIcon(q->style()->standardPixmap(QStyle::SP_FileDialogToParent));
+#ifndef QT_NO_TOOLTIP
     toParentButton->setToolTip(tr("Parent Directory"));
+#endif
     toParentButton->setAutoRaise(true);
     toParentButton->setEnabled(model->parent(current).isValid());
     toParentButton->setFixedSize(tools);
@@ -1573,7 +1581,9 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
 
     newFolderButton = new QToolButton(q);
     newFolderButton->setIcon(q->style()->standardPixmap(QStyle::SP_FileDialogNewFolder));
+#ifndef QT_NO_TOOLTIP
     newFolderButton->setToolTip(tr("Create New Folder"));
+#endif
     newFolderButton->setAutoRaise(true);
     newFolderButton->setFixedSize(tools);
     QObject::connect(newFolderButton, SIGNAL(clicked()), q, SLOT(createDirectory()));
@@ -1581,7 +1591,9 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
 
     listModeButton = new QToolButton(q);
     listModeButton->setIcon(q->style()->standardPixmap(QStyle::SP_FileDialogListView));
+#ifndef QT_NO_TOOLTIP
     listModeButton->setToolTip(tr("List View"));
+#endif
     listModeButton->setAutoRaise(true);
     listModeButton->setDown(true);
     listModeButton->setFixedSize(tools);
@@ -1590,7 +1602,9 @@ void QFileDialogPrivate::setupToolButtons(const QModelIndex &current, QGridLayou
 
     detailModeButton = new QToolButton(q);
     detailModeButton->setIcon(q->style()->standardPixmap(QStyle::SP_FileDialogDetailedView));
+#ifndef QT_NO_TOOLTIP
     detailModeButton->setToolTip(tr("Detail View"));
+#endif
     detailModeButton->setAutoRaise(true);
     detailModeButton->setFixedSize(tools);
     QObject::connect(detailModeButton, SIGNAL(clicked()), q, SLOT(showDetails()));

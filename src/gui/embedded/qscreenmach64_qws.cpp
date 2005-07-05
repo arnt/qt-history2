@@ -73,9 +73,7 @@ public:
     virtual void drawLine(int,int,int,int);
     virtual void fillRect(int,int,int,int);
     virtual void blt(int,int,int,int,int,int);
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt(int,int,int,int,int,int);
-#endif
     virtual void tiledBlt(int,int,int,int);
 
     virtual void drawAlpha(int,int,int,int,int,int,int,int);
@@ -799,7 +797,6 @@ inline void QGfxMach64<depth,type>::blt(int rx,int ry,int w,int h,int sx, int sy
 // size - the image is stretched or shrunk to fit
 // Overlapping is forbidden, so are clever alpha blending modes
 
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
 template<const int depth,const int type>
 void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
                                         int sw,int sh)
@@ -932,7 +929,6 @@ void QGfxMach64<depth,type>::stretchBlt(int rx,int ry,int w,int h,
     }
     GFX_END
 }
-#endif
 
 
 // This is called by the software renderer when it's about to draw

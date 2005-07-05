@@ -12,16 +12,13 @@
 ****************************************************************************/
 
 #include "qdialogbuttons_p.h"
-#ifndef QT_NO_DIALOGBUTTONS
 
 #include <qapplication.h>
 #include <qpushbutton.h>
 #include <qpointer.h>
 #include <qmap.h>
 #include <qvariant.h>
-#ifndef QT_NO_DIALOG
 #include <qdialog.h>
-#endif // QT_NO_DIALOG
 #include <qlayout.h>
 #include <qstyle.h>
 #include <qstyleoption.h>
@@ -37,7 +34,6 @@ struct QDialogButtonsPrivate
     bool questionMode;
 };
 
-#ifndef QT_NO_DIALOG
 QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, quint32 buttons,
                                Qt::Orientation orient) : QWidget(parent)
 {
@@ -47,7 +43,6 @@ QDialogButtons::QDialogButtons(QDialog *parent, bool autoConnect, quint32 button
         QObject::connect(this, SIGNAL(rejectClicked()), parent, SLOT(reject()));
     }
 }
-#endif // QT_NO_DIALOG
 
 QDialogButtons::QDialogButtons(QWidget *parent, quint32 buttons,
                                Qt::Orientation orient) : QWidget(parent)
@@ -438,4 +433,3 @@ QDialogButtons::minimumSizeHint() const
 {
     return sizeHint();
 }
-#endif

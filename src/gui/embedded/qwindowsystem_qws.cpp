@@ -714,14 +714,14 @@ static void ignoreSignal(int) {} // Used to eat SIGPIPE signals below
 
 void QWSServer::initServer(int flags)
 {
-    ssocket = new QWSServerSocket(qws_qtePipeFilename(), this);
-    connect(ssocket, SIGNAL(newConnection()), this, SLOT(newConnection()));
-
     d = new QWSServerData;
     Q_ASSERT(!qwsServer);
     qwsServer = this;
 
 #ifndef QT_NO_QWS_MULTIPROCESS
+    ssocket = new QWSServerSocket(qws_qtePipeFilename(), this);
+    connect(ssocket, SIGNAL(newConnection()), this, SLOT(newConnection()));
+
     if ( !ssocket->isListening()) {
         perror("Error");
         qFatal("Failed to bind to %s", qws_qtePipeFilename().toLatin1().constData());

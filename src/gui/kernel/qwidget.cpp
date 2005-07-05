@@ -62,9 +62,7 @@
 
 QWidgetPrivate::QWidgetPrivate(int version) :
         QObjectPrivate(version), extra(0), focus_child(0)
-#ifndef QT_NO_LAYOUT
         ,layout(0)
-#endif
         ,leftmargin(0), topmargin(0), rightmargin(0), bottommargin(0)
         ,fg_role(QPalette::NoRole)
         ,bg_role(QPalette::NoRole)
@@ -842,22 +840,24 @@ QWidget::~QWidget()
         qWarning("%s (%s): deleted while being painted", className(), name());
 #endif
 
+#ifndef QT_NO_ACTION
     // remove all actions from this widget
     for (int i = 0; i < d->actions.size(); ++i) {
         QActionPrivate *apriv = d->actions.at(i)->d_func();
         apriv->widgets.removeAll(this);
     }
     d->actions.clear();
-
+#endif
+    
+#ifndef QT_NO_SHORTCUT
     // Remove all shortcuts grabbed by this
     // widget, unless application is closing
     if (!QApplicationPrivate::is_app_closing && testAttribute(Qt::WA_GrabbedShortcut))
         qApp->d_func()->shortcutMap.removeShortcut(0, this, QKeySequence());
-
-    // delete layout while we still are a valid widget
-#ifndef QT_NO_LAYOUT
-    delete d->layout;
 #endif
+    
+    // delete layout while we still are a valid widget
+    delete d->layout;
     // Remove myself focus list
     // ### Focus: maybe remove children aswell?
     QWidget *w = this;
@@ -920,10 +920,8 @@ void QWidgetPrivate::createTLExtra()
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined (Q_WS_QWS)
         x->opacity = 255;
 #endif
-#ifndef QT_NO_WIDGET_TOPEXTRA
         x->icon = 0;
         x->iconPixmap = 0;
-#endif
         x->fleft = x->fright = x->ftop = x->fbottom = 0;
         x->incw = x->inch = 0;
         x->basew = x->baseh = 0;
@@ -986,10 +984,8 @@ void QWidgetPrivate::deleteExtra()
         deleteSysExtra();
         if (extra->topextra) {
             deleteTLSysExtra();
-#ifndef QT_NO_WIDGET_TOPEXTRA
             delete extra->topextra->icon;
             delete extra->topextra->iconPixmap;
-#endif
 #if defined(Q_WS_QWS) && !defined(QT_NO_QWS_MANAGER)
             delete extra->topextra->qwsManager;
 #endif
@@ -1684,6 +1680,7 @@ bool QWidget::isEnabledTo(QWidget* ancestor) const
     return !w->testAttribute(Qt::WA_ForceDisabled);
 }
 
+#ifndef QT_NO_ACTION
 /*!
     Appends the action \a action to this widget's list of actions.
 
@@ -1781,6 +1778,7 @@ QList<QAction*> QWidget::actions() const
     Q_D(const QWidget);
     return d->actions;
 }
+#endif // QT_NO_ACTION
 
 /*!
   \fn bool QWidget::isEnabledToTLW() const
@@ -3181,13 +3179,11 @@ QString qt_setWindowTitle_helperHelper(const QString &title, QWidget *widget)
     return cap;
 }
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
 void QWidgetPrivate::setWindowTitle_helper(const QString &title)
 {
     Q_Q(QWidget);
     setWindowTitle_sys(qt_setWindowTitle_helperHelper(title, q));
 }
-#endif
 
 void QWidgetPrivate::setWindowIconText_helper(const QString &title)
 {
@@ -3214,10 +3210,8 @@ void QWidget::setWindowTitle(const QString &title)
         return;
 
     Q_D(QWidget);
-#ifndef QT_NO_WIDGET_TOPEXTRA
     d->topData()->caption = title;
     d->setWindowTitle_helper(title);
-#endif
 
     QEvent e(QEvent::WindowTitleChange);
     QApplication::sendEvent(this, &e);
@@ -4110,15 +4104,11 @@ void QWidgetPrivate::show_recursive()
     if(sendChildEvents)
         QApplication::sendPostedEvents(q, QEvent::ChildInserted);
 #endif
-#ifndef QT_NO_LAYOUT
     if (!q->isWindow() && q->parentWidget()->d_func()->layout)
         q->parentWidget()->d_func()->layout->activate();
-#endif
-#ifndef QT_NO_LAYOUT
     // activate our layout before we and our children become visible
     if (layout)
         layout->activate();
-#endif
 
     show_helper();
 }
@@ -4259,7 +4249,6 @@ void QWidgetPrivate::hide_helper()
     if (wasVisible)
         QAccessible::updateAccessibility(q, 0, QAccessible::ObjectHide);
 #endif
-#ifndef QT_NO_LAYOUT
     // invalidate layout similar to updateGeometry()
     if (!q->isWindow() && q->parentWidget()) {
         if (q->parentWidget()->d_func()->layout)
@@ -4267,7 +4256,6 @@ void QWidgetPrivate::hide_helper()
         if (wasVisible)
             QApplication::postEvent(q->parentWidget(), new QEvent(QEvent::LayoutRequest));
     }
-#endif
 }
 
 /*!
@@ -4325,15 +4313,11 @@ void QWidget::setVisible(bool visible)
 #ifdef QT3_SUPPORT
         QApplication::sendPostedEvents(this, QEvent::ChildInserted);
 #endif
-#ifndef QT_NO_LAYOUT
         if (!isWindow() && parentWidget()->d_func()->layout)
             parentWidget()->d_func()->layout->activate();
-#endif
-#ifndef QT_NO_LAYOUT
         // activate our layout before we and our children become visible
         if (d->layout)
             d->layout->activate();
-#endif
 
         // adjust size if necessary
         if (!wasResized
@@ -4626,13 +4610,11 @@ void QWidget::adjustSize()
 
     if (isWindow()) {
         Qt::Orientations exp;
-#ifndef QT_NO_LAYOUT
         if (QLayout *l = layout()) {
             if (l->hasHeightForWidth())
                 s.setHeight(l->totalHeightForWidth(s.width()));
             exp = l->expandingDirections();
         } else
-#endif
         {
             if (sizePolicy().hasHeightForWidth())
                 s.setHeight(heightForWidth(s.width()));
@@ -4680,10 +4662,8 @@ void QWidget::adjustSize()
 QSize QWidget::sizeHint() const
 {
     Q_D(const QWidget);
-#ifndef QT_NO_LAYOUT
     if (d->layout)
         return d->layout->totalSizeHint();
-#endif
     return QSize(-1, -1);
 }
 
@@ -4709,10 +4689,8 @@ QSize QWidget::sizeHint() const
 QSize QWidget::minimumSizeHint() const
 {
     Q_D(const QWidget);
-#ifndef QT_NO_LAYOUT
     if (d->layout)
         return d->layout->totalMinimumSize();
-#endif
     return QSize(-1, -1);
 }
 
@@ -4851,12 +4829,14 @@ bool QWidget::event(QEvent *e)
                 break;
         }
         keyPressEvent(k);
+#ifndef QT_NO_WHATSTHIS
         if (!k->isAccepted()
             && k->modifiers() & Qt::ShiftModifier && k->key() == Qt::Key_F1
             && d->whatsThis.size()) {
             QWhatsThis::showText(mapToGlobal(inputMethodQuery(Qt::ImMicroFocus).toRect().center()), d->whatsThis, this);
             k->accept();
         }
+#endif
     }
         break;
 
@@ -4950,12 +4930,14 @@ bool QWidget::event(QEvent *e)
         case Qt::CustomContextMenu:
             emit customContextMenuRequested(static_cast<QContextMenuEvent *>(e)->pos());
             break;
+#ifndef QT_NO_MENU
         case Qt::ActionsContextMenu:
             if (d->actions.count()) {
                 QMenu::exec(d->actions, static_cast<QContextMenuEvent *>(e)->globalPos());
                 break;
             }
             // fall through
+#endif
         default:
             e->ignore();
             break;
@@ -5096,14 +5078,14 @@ bool QWidget::event(QEvent *e)
             }
         }
         break;
-
+#ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip:
         if (d->toolTip.size() && isActiveWindow())
             QToolTip::showText(static_cast<QHelpEvent*>(e)->globalPos(), d->toolTip, this);
         else
             e->ignore();
         break;
-
+#endif
 #ifndef QT_NO_WHATSTHIS
     case QEvent::WhatsThis:
         if (d->whatsThis.size())
@@ -5916,7 +5898,6 @@ QRegion QWidget::mask() const
     return d->extra ? d->extra->mask : QRegion();
 }
 
-#ifndef QT_NO_LAYOUT
 /*!
     Returns the layout engine that manages the geometry of this
     widget's children.
@@ -5961,7 +5942,6 @@ void QWidget::setLayout(QLayout *l)
     }
 }
 
-#endif
 
 
 /*!
@@ -6031,10 +6011,8 @@ void QWidget::setSizePolicy(QSizePolicy policy)
 
 int QWidget::heightForWidth(int w) const
 {
-#ifndef QT_NO_LAYOUT
     if (layout() && layout()->hasHeightForWidth())
         return layout()->totalHeightForWidth(w);
-#endif
     return -1;
 }
 
@@ -6090,14 +6068,12 @@ QWidget *QWidget::childAt(const QPoint &p) const
 
 void QWidget::updateGeometry()
 {
-#ifndef QT_NO_LAYOUT
     if (!isWindow() && !isHidden() && parentWidget()) {
         if (parentWidget()->d_func()->layout)
             parentWidget()->d_func()->layout->invalidate();
         else if (parentWidget()->isVisible())
             QApplication::postEvent(parentWidget(), new QEvent(QEvent::LayoutRequest));
     }
-#endif
 }
 
 /*! \property QWidget::windowFlags
@@ -6554,6 +6530,7 @@ void QWidget::setWindowModified(bool mod)
     QApplication::sendEvent(this, &e);
 }
 
+#ifndef QT_NO_TOOLTIP
 /*!
   \property QWidget::toolTip
 
@@ -6572,6 +6549,7 @@ QString QWidget::toolTip() const
     Q_D(const QWidget);
     return d->toolTip;
 }
+#endif // QT_NO_TOOLTIP
 
 /*!
   \property QWidget::statusTip
@@ -6649,8 +6627,9 @@ QString QWidget::accessibleDescription() const
     Q_D(const QWidget);
     return d->accessibleDescription;
 }
-#endif
+#endif // QT_NO_ACCESSIBILITY
 
+#ifndef QT_NO_SHORTCUT
 /*!
     Adds a shortcut to Qt's shortcut system that watches for the given
     \a key sequence in the given \a context. If the \a context is not
@@ -6723,7 +6702,7 @@ void QWidget::setShortcutEnabled(int id, bool enable)
     if (id)
         qApp->d_func()->shortcutMap.setShortcutEnabled(enable, id, this, 0);
 }
-
+#endif // QT_NO_SHORTCUT
 
 /*!
     Updates the widget's micro focus.

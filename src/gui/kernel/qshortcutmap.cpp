@@ -24,6 +24,8 @@
 #include "qapplication_p.h"
 #include <private/qaction_p.h>
 
+#ifndef QT_NO_SHORTCUT
+
 // To enable verbose output uncomment below
 //#define Debug_QShortcutMap
 
@@ -453,10 +455,10 @@ bool QShortcutMap::correctContext(const QShortcutEntry &item) {
     
     if (!active_window)
         return false;
- 
+#ifndef QT_NO_ACTION 
     if (QAction *a = qobject_cast<QAction *>(item.owner))
         return correctContext(item.context, a, active_window);
-
+#endif
     QWidget *w = qobject_cast<QWidget *>(item.owner);
     if (!w) {
         QShortcut *s = qobject_cast<QShortcut *>(item.owner);
@@ -505,24 +507,25 @@ bool QShortcutMap::correctContext(Qt::ShortcutContext context, QWidget *w, QWidg
     return true;
 }
 
-
+#ifndef QT_NO_ACTION
 bool QShortcutMap::correctContext(Qt::ShortcutContext context, QAction *a, QWidget *active_window)
 {
     const QList<QWidget *> &widgets = a->d_func()->widgets;
     for (int i = 0; i < widgets.size(); ++i) {
         QWidget *w = widgets.at(i);
+#ifndef QT_NO_MENU
         if (QMenu *menu = qobject_cast<QMenu *>(w)) {
             QAction *a = menu->menuAction();
             if (correctContext(context, a, active_window))
                 return true;
-        } else {
+        } else
+#endif
             if (correctContext(context, w, active_window))
                 return true;
-        }
     }
     return false;
 }
-
+#endif // QT_NO_ACTION
 
 /*! \internal
     Converts keyboard button states into modifier states
@@ -603,3 +606,5 @@ void QShortcutMap::dumpMap() const
         qDebug().nospace() << &(d->sequences.at(i));
 }
 #endif
+
+#endif // QT_NO_SHORTCUT

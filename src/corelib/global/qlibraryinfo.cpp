@@ -24,6 +24,7 @@
 
 #include "qconfig.cpp"
 
+#ifndef QT_NO_SETTINGS
 
 struct QLibrarySettings
 {
@@ -405,3 +406,5 @@ QLibraryInfo::location(LibraryLocation loc)
 
     \sa location()
 */
+
+#endif // QT_NO_SETTINGS

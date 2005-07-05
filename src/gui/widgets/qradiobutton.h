@@ -16,7 +16,6 @@
 
 #include "QtGui/qabstractbutton.h"
 
-#ifndef QT_NO_RADIOBUTTON
 
 class Q_GUI_EXPORT QRadioButton : public QAbstractButton
 {
@@ -42,6 +41,5 @@ private:
     Q_DISABLE_COPY(QRadioButton)
 };
 
-#endif // QT_NO_RADIOBUTTON
 
 #endif // QRADIOBUTTON_H

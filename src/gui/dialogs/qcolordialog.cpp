@@ -328,8 +328,10 @@ void QWellArray::setSelected(int row, int col)
     if (row >= 0)
         emit selected(row, col);
 
+#ifndef QT_NO_MENU
     if (isVisible() && qobject_cast<QMenu*>(parentWidget()))
         parentWidget()->close();
+#endif
 }
 
 
@@ -1029,49 +1031,63 @@ QColorShower::QColorShower(QWidget *parent)
     hEd = new QColSpinBox(this);
     hEd->setRange(0, 359);
     QLabel *l = new QLabel(QColorDialog::tr("Hu&e:"), this);
+#ifndef QT_NO_SHORTCUT
     l->setBuddy(hEd);
+#endif
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 0, 1);
     gl->addWidget(hEd, 0, 2);
 
     sEd = new QColSpinBox(this);
     l = new QLabel(QColorDialog::tr("&Sat:"), this);
+#ifndef QT_NO_SHORTCUT
     l->setBuddy(sEd);
+#endif
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 1, 1);
     gl->addWidget(sEd, 1, 2);
 
     vEd = new QColSpinBox(this);
     l = new QLabel(QColorDialog::tr("&Val:"), this);
+#ifndef QT_NO_SHORTCUT
     l->setBuddy(vEd);
+#endif
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 2, 1);
     gl->addWidget(vEd, 2, 2);
 
     rEd = new QColSpinBox(this);
     l = new QLabel(QColorDialog::tr("&Red:"), this);
+#ifndef QT_NO_SHORTCUT
     l->setBuddy(rEd);
+#endif
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 0, 3);
     gl->addWidget(rEd, 0, 4);
 
     gEd = new QColSpinBox(this);
     l = new QLabel(QColorDialog::tr("&Green:"), this);
+#ifndef QT_NO_SHORTCUT
     l->setBuddy(gEd);
+#endif
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 1, 3);
     gl->addWidget(gEd, 1, 4);
 
     bEd = new QColSpinBox(this);
     l = new QLabel(QColorDialog::tr("Bl&ue:"), this);
+#ifndef QT_NO_SHORTCUT
     l->setBuddy(bEd);
+#endif
     l->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(l, 2, 3);
     gl->addWidget(bEd, 2, 4);
 
     alphaEd = new QColSpinBox(this);
     alphaLab = new QLabel(QColorDialog::tr("A&lpha channel:"), this);
+#ifndef QT_NO_SHORTCUT
     l->setBuddy(alphaEd);
+#endif
     alphaLab->setAlignment(Qt::AlignRight|Qt::AlignVCenter);
     gl->addWidget(alphaLab, 3, 1, 1, 3);
     gl->addWidget(alphaEd, 3, 4);
@@ -1269,7 +1285,9 @@ void QColorDialogPrivate::init()
     if (!compact) {
         standard = new QColorWell(q, 6, 8, stdrgb);
         QLabel *lab = new QLabel(QColorDialog::tr("&Basic colors"), q);
+#ifndef QT_NO_SHORTCUT
         lab->setBuddy(standard);
+#endif
         q->connect(standard, SIGNAL(selected(int,int)), SLOT(newStandard(int,int)));
         leftLay->addWidget(lab);
         leftLay->addWidget(standard);
@@ -1282,7 +1300,9 @@ void QColorDialogPrivate::init()
 
         q->connect(custom, SIGNAL(selected(int,int)), SLOT(newCustom(int,int)));
         lab = new QLabel(QColorDialog::tr("&Custom colors") , q);
+#ifndef QT_NO_SHORTCUT
         lab->setBuddy(custom);
+#endif
         leftLay->addWidget(lab);
         leftLay->addWidget(custom);
 

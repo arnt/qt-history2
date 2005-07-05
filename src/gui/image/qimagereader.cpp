@@ -90,6 +90,8 @@
 #include <qsize.h>
 #include <qvariant.h>
 
+#ifndef QT_NO_LIBRARY
+
 // factory loader
 #include <qcoreapplication.h>
 #include <private/qfactoryloader_p.h>
@@ -99,13 +101,13 @@
 #include <private/qppmhandler_p.h>
 #include <private/qxbmhandler_p.h>
 #include <private/qxpmhandler_p.h>
-#ifndef QT_NO_IMAGEIO_PNG
+#ifndef QT_NO_IMAGEFORMAT_PNG
 #include <private/qpnghandler_p.h>
 #endif
 
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
-    (QImageIOHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/imageformats")))
-
+                          (QImageIOHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/imageformats")))
+    
 static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &format)
 {
     QByteArray form = format.toLower();
@@ -126,42 +128,54 @@ static QImageIOHandler *createReadHandler(QIODevice *device, const QByteArray &f
 
     // check if we have built-in support for the format name
     if (!format.isEmpty()) {
-#ifndef QT_NO_IMAGEIO_PNG
+#ifndef QT_NO_IMAGEFORMAT_PNG
         if (form == "png") {
             handler = new QPngHandler;
         } else
 #endif
         if (form == "bmp") {
             handler = new QBmpHandler;
+#ifndef QT_NO_IMAGEFORMAT_XPM
         } else if (form == "xpm") {
             handler = new QXpmHandler;
+#endif
+#ifndef QT_NO_IMAGEFORMAT_XBM
         } else if (form == "xbm") {
             handler = new QXbmHandler;
             handler->setOption(QImageIOHandler::SubType, form);
+#endif
+#ifndef QT_NO_IMAGEFORMAT_PPM
         } else if (form == "pbm" || form == "pbmraw" || form == "pgm"
                  || form == "pgmraw" || form == "ppm" || form == "ppmraw") {
             handler = new QPpmHandler;
             handler->setOption(QImageIOHandler::SubType, form);
+#endif
         }
     }
 
     // check if any of our built-in formats can read images from the device
     if (!handler) {
         QByteArray subType;
-#ifndef QT_NO_IMAGEIO_PNG
+#ifndef QT_NO_IMAGEFORMAT_PNG
         if (QPngHandler::canRead(device)) {
             handler = new QPngHandler;
         } else
 #endif
-        if (QBmpHandler::canRead(device)) {
+	if (QBmpHandler::canRead(device)) {
             handler = new QBmpHandler;
+#ifndef QT_NO_IMAGEFORMAT_XPM
         } else if (QXpmHandler::canRead(device)) {
             handler = new QXpmHandler;
+#endif
+#ifndef QT_NO_IMAGEFORMAT_PPM
         } else if (QPpmHandler::canRead(device, &subType)) {
             handler = new QPpmHandler;
             handler->setOption(QImageIOHandler::SubType, subType);
+#endif
+#ifndef QT_NO_IMAGEFORMAT_XBM
         } else if (QXbmHandler::canRead(device)) {
             handler = new QXbmHandler;
+#endif
         }
     }
 
@@ -254,13 +268,15 @@ bool QImageReaderPrivate::initHandler()
         }
     }
 
+#ifndef QT_NO_LIBRARY
     // assign a handler
     if (!handler && (handler = ::createReadHandler(device, format)) == 0) {
         imageReaderError = QImageReader::UnsupportedFormatError;
         errorString = QT_TRANSLATE_NOOP(QImageReader, "Unsupported image format");
         return false;
     }
-
+#endif
+    
     return true;
 }
 
@@ -751,8 +767,17 @@ QByteArray QImageReader::imageFormat(QIODevice *device)
 QList<QByteArray> QImageReader::supportedImageFormats()
 {
     QSet<QByteArray> formats;
-    formats << "bmp" << "pbm" << "pgm" << "ppm" << "xbm" << "xpm";
-#ifndef QT_NO_IMAGEIO_PNG
+    formats << "bmp";
+#ifndef QT_NO_IMAGEFORMAT_PPM
+    formats << "ppm" << "pgm" << "pbm";
+#endif
+#ifndef QT_NO_IMAGEFORMAT_XBM
+    formats << "xbm";
+#endif
+#ifndef QT_NO_IMAGEFORMAT_XPM
+    formats << "xpm";
+#endif
+#ifndef QT_NO_IMAGEFORMAT_PNG
     formats << "png";
 #endif
 
@@ -772,3 +797,5 @@ QList<QByteArray> QImageReader::supportedImageFormats()
     qSort(sortedFormats);
     return sortedFormats;
 }
+
+#endif // QT_NO_LIBRARY

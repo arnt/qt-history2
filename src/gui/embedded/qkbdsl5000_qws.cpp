@@ -13,7 +13,7 @@
 
 #include "qkbdsl5000_qws.h"
 
-#ifndef QT_NO_QWS_KBD_SL5000
+#ifdef QT_QWS_KBD_SL5000
 
 #include "qwindowsystem_qws.h"
 #include "qwsutils_qws.h"

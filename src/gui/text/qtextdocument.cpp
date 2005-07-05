@@ -174,6 +174,7 @@ QString Qt::convertFromPlainText(const QString &plain, Qt::WhiteSpaceMode mode)
     return rich;
 }
 
+#ifndef QT_NO_TEXTCODEC
 /*!
   \internal
 */
@@ -209,6 +210,7 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
 
     return c;
 }
+#endif
 
 // internal, do not Q_EXPORT
 // can go away when QTextDocumentFragment uses QTextDocument
@@ -879,6 +881,7 @@ void QTextDocument::setModified(bool m)
 
     This is only a convenience method to print the whole document to the printer.
 */
+#ifndef QT_NO_PRINTER
 void QTextDocument::print(QPrinter *printer) const
 {
     QPainter p(printer);
@@ -927,6 +930,7 @@ void QTextDocument::print(QPrinter *printer) const
 
     delete doc;
 }
+#endif
 
 /*!
     \enum QTextDocument::ResourceType
@@ -997,8 +1001,10 @@ QVariant QTextDocument::loadResource(int type, const QUrl &name)
     QVariant r;
     if (QTextDocument *doc = qobject_cast<QTextDocument *>(parent()))
         r = doc->loadResource(type, name);
+#ifndef QT_NO_TEXTEDIT
     else if (QTextEdit *edit = qobject_cast<QTextEdit *>(parent()))
         r = edit->loadResource(type, name);
+#endif
     if (!r.isNull())
         addResource(type, name, r);
     return r;

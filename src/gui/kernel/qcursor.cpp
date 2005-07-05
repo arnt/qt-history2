@@ -142,7 +142,6 @@ QDataStream &operator<<(QDataStream &s, const QCursor &c)
 {
     s << (qint16)c.shape();                        // write shape id to stream
     if (c.shape() == Qt::BitmapCursor) {                // bitmap cursor
-#if !defined(QT_NO_IMAGEIO)
         bool isPixmap = false;
         if (s.version() >= 7) {
             isPixmap = !c.pixmap().isNull();
@@ -153,9 +152,6 @@ QDataStream &operator<<(QDataStream &s, const QCursor &c)
         else
             s << *c.bitmap() << *c.mask();
         s << c.hotSpot();
-#else
-        qWarning("No Image Cursor I/O");
-#endif
     }
     return s;
 }
@@ -174,7 +170,6 @@ QDataStream &operator>>(QDataStream &s, QCursor &c)
     qint16 shape;
     s >> shape;                                        // read shape id from stream
     if (shape == Qt::BitmapCursor) {                // read bitmap cursor
-#if !defined(QT_NO_IMAGEIO)
         bool isPixmap = false;
         if (s.version() >= 7)
             s >> isPixmap;
@@ -189,9 +184,6 @@ QDataStream &operator>>(QDataStream &s, QCursor &c)
             s >> bm >> bmm >> hot;
             c = QCursor(bm, bmm, hot.x(), hot.y());
         }
-#else
-        qWarning("No Image Cursor I/O");
-#endif
     } else {
         c.setShape((Qt::CursorShape)shape);                // create cursor with shape
     }

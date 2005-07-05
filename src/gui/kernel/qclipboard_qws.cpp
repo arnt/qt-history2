@@ -44,7 +44,7 @@ static inline void qwsInitClipboard()
     }
 }
 
-#ifdef QT_NO_MIMECLIPBOARD
+#ifdef QT_NO_CLIPBOARD
 static QString qwsClipboardText()
 {
     char * data;
@@ -162,7 +162,7 @@ static QClipboardData *clipboardData()
   QClipboard member functions for FB.
  *****************************************************************************/
 
-#ifdef QT_NO_MIMECLIPBOARD
+#ifdef QT_NO_CLIPBOARD
 
 QString QClipboard::text() const
 {
@@ -213,7 +213,6 @@ bool QClipboard::event(QEvent *e)
     return true;
 }
 
-#ifndef QT_NO_MIMECLIPBOARD
 const QMimeData* QClipboard::mimeData(Mode mode) const
 {
     if (mode != Clipboard) return 0;
@@ -232,7 +231,6 @@ void QClipboard::setMimeData(QMimeData* src, Mode mode)
     d->setSource(src);
     emit dataChanged();
 }
-#endif
 
 bool QClipboard::supportsSelection() const
 {

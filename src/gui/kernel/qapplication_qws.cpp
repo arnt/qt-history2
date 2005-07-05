@@ -594,7 +594,7 @@ void QWSDisplay::Data::init()
 QWSEvent* QWSDisplay::Data::readMore()
 {
 #ifdef QT_NO_QWS_MULTIPROCESS
-    return incoming ? incoming.takeFirst() : 0;
+    return incoming.isEmpty() ? 0 : incoming.takeFirst();
 #else
     if (!csocket)
         return incoming.isEmpty() ? 0 : incoming.takeFirst();
@@ -932,7 +932,7 @@ void QWSDisplay::setProperty(int winId, int property, int mode,
     d->sendCommand(cmd);
 }
 
-#ifndef QT_NO_QWS_REPEATER
+#ifdef QT_QWS_REPEATER
 void QWSDisplay::repaintRegion(QRegion & r)
 {
     QWSRepaintRegionCommand cmd;
@@ -1381,14 +1381,14 @@ void QWSDisplay::setRawMouseEventFilter(void (*filter)(QWSMouseEvent *))
 }
 
 #ifdef QT_QWS_DYNAMIC_TRANSFORMATION
-#ifndef QT_NO_QWS_TRANSFORMED
+#ifdef QT_QWS_TRANSFORMED
 extern void qws_setScreenTransformation(int);
 extern void qws_mapPixmaps(bool from);
 #endif
 
 void QWSDisplay::setTransformation(int t)
 {
-#ifndef QT_NO_QWS_TRANSFORMED
+#ifdef QT_QWS_TRANSFORMED
 
     bool isFullScreen = qt_maxWindowRect == QRect(0, 0, qt_screen->width(), qt_screen->height());
 
@@ -1505,7 +1505,7 @@ static void qt_set_qws_resources()
 
 
 
-
+#ifndef QT_NO_SETTINGS
 /*! \internal
     apply the settings to the application
 */
@@ -1561,12 +1561,14 @@ bool QApplicationPrivate::qws_apply_settings()
         .arg(QT_VERSION >> 16)
         .arg((QT_VERSION & 0xff00) >> 8);
     QStringList pathlist = settings.value(libpathkey).toString().split(QLatin1Char(':'));
+#ifndef QT_NO_LIBRARY    
     if (! pathlist.isEmpty()) {
         QStringList::ConstIterator it = pathlist.begin();
         while (it != pathlist.end())
             QApplication::addLibraryPath(*it++);
     }
-
+#endif
+    
     // read new QStyle
     QString stylename = settings.value(QLatin1String("style")).toString();
     if (QCoreApplication::startingUp()) {
@@ -1586,11 +1588,13 @@ bool QApplicationPrivate::qws_apply_settings()
                        QApplication::cursorFlashTime()).toInt();
     QApplication::setCursorFlashTime(num);
 
+#ifndef QT_NO_WHEELEVENT
     num =
         settings.value(QLatin1String("wheelScrollLines"),
                        QApplication::wheelScrollLines()).toInt();
     QApplication::setWheelScrollLines(num);
-
+#endif
+    
     QString colorspec = settings.value(QLatin1String("colorSpec"),
                                        QVariant(QLatin1String("default"))).toString();
     if (colorspec == QLatin1String("normal"))
@@ -1602,6 +1606,7 @@ bool QApplicationPrivate::qws_apply_settings()
     else if (colorspec != QLatin1String("default"))
         colorspec = QLatin1String("default");
 
+#ifndef QT_NO_TEXTCODEC
     QString defaultcodec = settings.value(QLatin1String("defaultCodec"),
                                           QVariant(QLatin1String("none"))).toString();
     if (defaultcodec != QLatin1String("none")) {
@@ -1609,6 +1614,7 @@ bool QApplicationPrivate::qws_apply_settings()
         if (codec)
             QTextCodec::setCodecForTr(codec);
     }
+#endif
 
     int w = settings.value(QLatin1String("globalStrut/width")).toInt();
     int h = settings.value(QLatin1String("globalStrut/height")).toInt();
@@ -1648,7 +1654,7 @@ bool QApplicationPrivate::qws_apply_settings()
 
     return true;
 }
-
+#endif // QT_NO_SETTINGS
 
 
 
@@ -1835,12 +1841,10 @@ void qt_init(QApplicationPrivate *priv, int type)
 #endif
     }
 
-#ifndef QT_NO_STYLE_INTERLACE
 /*### convert interlace style
     if (qws_screen_is_interlaced)
         QApplication::setStyle(new QInterlaceStyle);
 */
-#endif
 }
 
 bool qt_sendSpontaneousEvent(QObject *obj, QEvent *event)
@@ -2272,6 +2276,7 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
 #endif
 
     QETWidget *widget = static_cast<QETWidget*>(QWidget::find(WId(event->window())));
+#ifndef QT_NO_QWS_MANAGER
     if (d->last_manager && event->type == QWSEvent::Mouse) {
         QPoint pos(event->asMouse()->simpleData.x_root, event->asMouse()->simpleData.y_root);
         if (!d->last_manager->cachedRegion().contains(pos)) {
@@ -2281,7 +2286,8 @@ int QApplication::qwsProcessEvent(QWSEvent* event)
             d->last_manager = 0;
         }
     }
-
+#endif // QT_NO_QWS_MANAGER
+    
     QETWidget *keywidget=0;
     bool grabbed=false;
     if (event->type==QWSEvent::Key || event->type == QWSEvent::IMEvent || event->type == QWSEvent::IMQuery) {
@@ -2830,6 +2836,10 @@ static const int AnyButton = (Qt::LeftButton | Qt::MidButton | Qt::RightButton);
 //
 bool QETWidget::translateWheelEvent(const QWSMouseEvent *me)
 {
+#ifdef QT_NO_WHEELEVENT
+    Q_UNUSED(me);
+    return false;
+#else
     const QWSMouseEvent::SimpleData &mouse = me->simpleData;
 
     // Figure out wheeling direction:
@@ -2863,6 +2873,7 @@ bool QETWidget::translateWheelEvent(const QWSMouseEvent *me)
             return true;
     }
     return false;
+#endif
 }
 
 bool QETWidget::translateMouseEvent(const QWSMouseEvent *event, int prevstate)
@@ -3094,7 +3105,7 @@ bool QETWidget::translateKeyEvent(const QWSKeyEvent *event, bool grab) /* grab i
     }
     code = event->simpleData.keycode;
 
-#if defined QT3_SUPPORT && !defined(QT_NO_ACCEL)
+#if defined QT3_SUPPORT && !defined(QT_NO_SHORTCUT)
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed

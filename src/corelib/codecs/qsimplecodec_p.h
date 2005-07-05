@@ -27,6 +27,8 @@
 
 #include "qtextcodec.h"
 
+#ifndef QT_NO_TEXTCODEC
+
 class QSimpleTextCodec: public QTextCodec
 {
 public:
@@ -50,4 +52,5 @@ private:
 #endif
 };
 
+#endif // QT_NO_TEXTCODEC
 #endif // QSIMPLECODEC_P_H

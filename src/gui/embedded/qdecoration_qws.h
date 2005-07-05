@@ -21,6 +21,7 @@
 class QPopupMenu;
 class QMenu;
 
+#ifndef QT_NO_ACTION
 class QDecorationAction : public QAction
 {
 public:
@@ -28,6 +29,7 @@ public:
         : QAction(text, parent), reg(region) {}
     int reg;
 };
+#endif // QT_NO_ACTION
 
 /*
  Implements decoration styles
@@ -68,9 +70,11 @@ public:
 
     virtual void regionClicked(QWidget *widget, int region);
     virtual void regionDoubleClicked(QWidget *widget, int region);
+#ifndef QT_NO_MENU
     virtual void buildSysMenu(QWidget *widget, QMenu *menu);
     void menuTriggered(QWidget *widget, QAction *action);
-
+#endif
+    
     static void startMove(QWidget *widget);
     static void startResize(QWidget *widget);
 

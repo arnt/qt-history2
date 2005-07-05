@@ -381,12 +381,14 @@ bool QAbstractScrollArea::viewportEvent(QEvent *e)
     case QEvent::DragLeave:
 #endif
         return QFrame::event(e);
+#ifndef QT_NO_WHEELEVENT
     case QEvent::Wheel:
         if (!QFrame::event(e) || !e->isAccepted()) {
             if (static_cast<QWheelEvent*>(e)->orientation() == Qt::Horizontal)
                 return QApplication::sendEvent(d->hbar, e);
             return QApplication::sendEvent(d->vbar, e);
         }
+#endif
     default:
         break;
     }

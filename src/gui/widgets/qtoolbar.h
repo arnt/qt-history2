@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+#ifndef QT_NO_TOOLBAR
+
 class QToolBarPrivate;
 
 class QAction;
@@ -128,4 +130,5 @@ private:
 inline QAction *QToolBar::actionAt(int ax, int ay) const
 { return actionAt(QPoint(ax, ay)); }
 
+#endif // QT_NO_TOOLBAR
 #endif // QTOOLBAR_H

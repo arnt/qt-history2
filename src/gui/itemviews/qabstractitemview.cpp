@@ -742,6 +742,7 @@ bool QAbstractItemView::showDropIndicator() const
     return d_func()->showDropIndicator;
 }
 
+#ifndef QT_NO_DRAGANDDROP
 /*!
   \property QAbstractItemView::dragEnabled
   \brief whether the view supports dragging of its own items
@@ -756,6 +757,7 @@ bool QAbstractItemView::dragEnabled() const
 {
     return d_func()->dragEnabled;
 }
+#endif // QT_NO_DRAGANDDROP
 
 /*!
   \property QAbstractItemView::alternatingRowColors
@@ -821,6 +823,7 @@ bool QAbstractItemView::viewportEvent(QEvent *e)
 {
     Q_D(QAbstractItemView);
     switch (e->type()) {
+#ifndef QT_NO_TOOLTIP
     case QEvent::ToolTip: {
         if (!isActiveWindow())
             break;
@@ -833,6 +836,8 @@ bool QAbstractItemView::viewportEvent(QEvent *e)
             QToolTip::showText(he->globalPos(), tooltip, this);
         }
         return true; }
+#endif
+#ifndef QT_NO_WHATSTHIS
     case QEvent::WhatsThis: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         QModelIndex index = indexAt(he->pos());
@@ -841,6 +846,7 @@ bool QAbstractItemView::viewportEvent(QEvent *e)
             QWhatsThis::showText(he->globalPos(), whatsthis, this);
         }
         return true; }
+#endif
     case QEvent::StatusTip: {
         QHelpEvent *he = static_cast<QHelpEvent*>(e);
         QModelIndex index = indexAt(he->pos());
@@ -916,6 +922,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
 
     if (state() == ExpandingState || state() == CollapsingState)
         return;
+#ifndef QT_NO_DRAGANDDROP
     if (state() == DraggingState) {
         topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
         if ((topLeft - bottomRight).manhattanLength() > QApplication::startDragDistance()) {
@@ -925,6 +932,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
         }
         return;
     }
+#endif // QT_NO_DRAGANDDROP
 
     if (d->selectionMode != SingleSelection)
         topLeft = d->pressedPosition - QPoint(horizontalOffset(), verticalOffset());
@@ -947,6 +955,7 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     if (!(e->buttons() & Qt::LeftButton))
         return; // if the left button is not pressed there is nothing more to do
 
+#ifndef QT_NO_DRAGANDDROP
     if (index.isValid() && d->dragEnabled && state() != DragSelectingState) {
         bool dragging = model()->flags(index) & Qt::ItemIsDragEnabled;
         bool selected = selectionModel()->isSelected(index);
@@ -957,6 +966,8 @@ void QAbstractItemView::mouseMoveEvent(QMouseEvent *e)
     }
 
     setState(DragSelectingState);
+#endif
+
     if (selectionModel())
         selectionModel()->setCurrentIndex(index, QItemSelectionModel::NoUpdate);
     QRect selectionRect = QRect(topLeft, bottomRight).normalized();
@@ -1003,6 +1014,8 @@ void QAbstractItemView::mouseDoubleClickEvent(QMouseEvent *e)
         && !style()->styleHint(QStyle::SH_ItemView_ActivateItemOnSingleClick))
         emit activated(index);
 }
+
+#ifndef QT_NO_DRAGANDDROP
 
 /*!
     This function is called when drag enter event \a e occurs. If the
@@ -1138,6 +1151,8 @@ void QAbstractItemView::dropEvent(QDropEvent *e)
     stopAutoScroll();
     d->dropIndicator->hide();
 }
+
+#endif // QT_NO_DRAGANDDROP
 
 /*!
     This function is called when focus event \a e occurs and is a
@@ -1828,6 +1843,7 @@ void QAbstractItemView::currentChanged(const QModelIndex &current, const QModelI
     }
 }
 
+#ifndef QT_NO_DRAGANDDROP
 /*!
     Starts a drag by calling drag->start() using the given \a supportedActions.
 */
@@ -1864,6 +1880,7 @@ void QAbstractItemView::startDrag(Qt::DropActions supportedActions)
             d->removeSelectedRows();
     }
 }
+#endif // QT_NO_DRAGANDDROP
 
 /*!
     Returns QStyleOptionViewItem structure populated with the view's

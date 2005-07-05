@@ -17,6 +17,8 @@
 #include "QtGui/qtextedit.h"
 #include <QtCore/qurl.h>
 
+#ifndef QT_NO_TEXTBROWSER
+
 class QTextBrowserPrivate;
 
 class Q_GUI_EXPORT QTextBrowser : public QTextEdit
@@ -75,4 +77,5 @@ private:
     Q_PRIVATE_SLOT(d_func(), void documentModified())
 };
 
+#endif // QT_NO_TEXTBROWSER
 #endif // QTEXTBROWSER_H

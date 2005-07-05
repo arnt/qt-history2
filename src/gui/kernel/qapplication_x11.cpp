@@ -1879,7 +1879,6 @@ void qt_init(QApplicationPrivate *priv, int,
 }
 
 
-#ifndef QT_NO_STYLE
     // run-time search for default style
 /*!
     \internal
@@ -1925,7 +1924,6 @@ void QApplicationPrivate::x11_initialize_style()
         QApplicationPrivate::app_style = QStyleFactory::create("plastique");
     }
 }
-#endif
 
 
 /*****************************************************************************
@@ -4680,7 +4678,7 @@ bool QETWidget::translateKeyEvent(const XEvent *event, bool grab)
         curr_autorep = autor ? event->xkey.keycode : 0;
     }
 
-#if defined QT3_SUPPORT && !defined(QT_NO_ACCEL)
+#if defined QT3_SUPPORT && !defined(QT_NO_SHORTCUT)
     // process accelerators before doing key compression
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {

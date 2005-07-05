@@ -19,8 +19,8 @@
 
 #ifndef QT_NO_IMAGEFORMATPLUGIN
 
-#ifdef QT_NO_IMAGEIO_GIF
-#undef QT_NO_IMAGEIO_GIF
+#ifdef QT_NO_IMAGEFORMAT_GIF
+#undef QT_NO_IMAGEFORMAT_GIF
 #endif
 #include "qgifhandler.h"
 

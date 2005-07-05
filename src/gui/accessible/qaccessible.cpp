@@ -350,7 +350,7 @@
     avoid unnecessary computations.
 */
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QAccessibleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/accessible"))
 #endif
@@ -487,7 +487,7 @@ QAccessibleInterface *QAccessible::queryAccessibleInterface(QObject *object)
             if (iface)
                 return iface;
         }
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
         QAccessibleFactoryInterface *factory = qobject_cast<QAccessibleFactoryInterface*>(loader()->instance(cn));
         if (factory) {
             iface = factory->create(cn, object);

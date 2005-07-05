@@ -52,13 +52,11 @@ public:
     friend Q_GUI_EXPORT QDataStream &operator<<(QDataStream &in, const QPicture &p);
     friend Q_GUI_EXPORT QDataStream &operator>>(QDataStream &in, QPicture &p);
 
-#ifndef QT_NO_IMAGEIO
     static const char* pictureFormat(const QString &fileName);
     static QList<QByteArray> inputFormats();
     static QList<QByteArray> outputFormats();
     static QStringList inputFormatList();
     static QStringList outputFormatList();
-#endif
 
     QPaintEngine *paintEngine() const;
 

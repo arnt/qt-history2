@@ -13,6 +13,8 @@
 
 #include <private/qprintengine_mac_p.h>
 
+#ifndef QT_NO_PRINTER
+
 QMacPrintEngine::QMacPrintEngine(QPrinter::PrinterMode mode) : QPaintEngine(*(new QMacPrintEnginePrivate))
 {
     Q_D(QMacPrintEngine);
@@ -626,3 +628,5 @@ QVariant QMacPrintEngine::property(PrintEnginePropertyKey key) const
     }
     return ret;
 }
+
+#endif // QT_NO_PRINTER

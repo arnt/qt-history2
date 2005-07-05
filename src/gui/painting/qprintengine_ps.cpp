@@ -41,7 +41,6 @@
 #include "qtextcodec.h"
 #include "qsettings.h"
 #include "qmap.h"
-#include "qfontdatabase.h"
 #include "qbitmap.h"
 #include "qregion.h"
 #include <private/qunicodetables_p.h>
@@ -2682,9 +2681,13 @@ QPSPrintEnginePrivate::QPSPrintEnginePrivate(QPrinter::PrinterMode m)
 
     scale = 1.;
 
+#ifndef QT_NO_SETTINGS
     QSettings settings(QSettings::UserScope, QLatin1String("Trolltech"));
     settings.beginGroup(QLatin1String("Qt"));
     embedFonts = settings.value(QLatin1String("embedFonts"), true).toBool();
+#else
+    embedFonts = true;
+#endif
 #if defined(Q_WS_X11) && defined(QT_NO_FONTCONFIG)
     if (embedFonts && !X11->use_xrender)
         fontpath = ::fontPath();
@@ -3276,7 +3279,9 @@ void QPSPrintEnginePrivate::emitHeader(bool finished)
     outStream << "\n" << wrapDSC("%%Creator: " + creator);
     if (title.count() == 0)
         outStream << wrapDSC("%%Title: " + title);
+#ifndef QT_NO_DATESTRING
     outStream << "%%CreationDate: " << QDateTime::currentDateTime().toString();
+#endif
     outStream << "\n%%Orientation: ";
     if (orientation == QPrinter::Landscape)
         outStream << "Landscape";
@@ -3598,11 +3603,15 @@ bool QPSPrintEngine::begin(QPaintDevice *pdev)
     d->pagesInBuffer = 0;
     d->buffer = new QBuffer();
     d->buffer->open(QIODevice::WriteOnly);
+#ifndef QT_NO_TEXTCODEC
     d->outStream.setCodec(QTextCodec::codecForName("ISO-8895-1"));
+#endif
     d->outStream.setDevice(d->buffer);
     d->fontBuffer = new QBuffer();
     d->fontBuffer->open(QIODevice::WriteOnly);
+#ifndef QT_NO_TEXTCODEC
     d->fontStream.setCodec(QTextCodec::codecForName("ISO-8895-1"));
+#endif
     d->fontStream.setDevice(d->fontBuffer);
     d->headerFontNumber = 0;
     d->pageCount           = 1;                // initialize state
@@ -3999,7 +4008,9 @@ bool QPSPrintEngine::newPage()
         delete d->pageBuffer;
     d->pageBuffer = new QBuffer();
     d->pageBuffer->open(QIODevice::WriteOnly);
+#ifndef QT_NO_TEXTCODEC
     d->pageStream.setCodec(QTextCodec::codecForName("ISO-8859-1"));
+#endif
     d->pageStream.setDevice(d->pageBuffer);
 
     d->currentFont = 0; // reset current font

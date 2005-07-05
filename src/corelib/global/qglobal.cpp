@@ -1586,7 +1586,7 @@ QByteArray qgetenv(const char *varName)
     \sa QT_TR_NOOP(), {Internationalization with Qt}
 */
 
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !defined(QT_NO_SETTINGS)
 #include <qlibraryinfo.h>
 static const char *qInstallLocation(QLibraryInfo::LibraryLocation loc)
 {

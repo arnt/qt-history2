@@ -24,11 +24,11 @@
 #include "qkbddriverplugin_qws.h"
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QWSKeyboardHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), "/kbddrivers"))
 
-#endif //QT_NO_COMPONENT
+#endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
 
 /*!
@@ -59,7 +59,7 @@ Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
 QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString& device)
 {
     QString driver = key.toLower();
-#ifndef QT_NO_QWS_KBD_SL5000
+#ifdef QT_QWS_KBD_SL5000
     if (driver == "sl5000" || driver.isEmpty())
         return new QWSSL5000KeyboardHandler(device);
 #endif
@@ -83,7 +83,7 @@ QWSKeyboardHandler *QKbdDriverFactory::create(const QString& key, const QString&
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
         if (QWSKeyboardHandlerFactoryInterface *factory = qobject_cast<QWSKeyboardHandlerFactoryInterface*>(loader()->instance(driver)))
             return factory->create(driver);
 #endif
@@ -100,7 +100,7 @@ QStringList QKbdDriverFactory::keys()
 {
     QStringList list;
 
-#ifndef QT_NO_QWS_KBD_SL5000
+#ifdef QT_QWS_KBD_SL5000
     if (!list.contains("SL5000"))
         list << "SL5000";
 #endif
@@ -122,9 +122,9 @@ QStringList QKbdDriverFactory::keys()
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     list += loader()->keys();
-#endif //QT_NO_COMPONENT
+#endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
 
     return list;

@@ -42,10 +42,18 @@ QStringList AccessibleFactory::keys() const
     QStringList list;
     list << "QLineEdit";
     list << "QComboBox";
+#ifndef QT_NO_SPINBOX
     list << "QSpinBox";
+#endif
+#ifndef QT_NO_SCROLLBAR
     list << "QScrollBar";
+#endif
+#ifndef QT_NO_SLIDER
     list << "QSlider";
+#endif
+#ifndef QT_NO_TOOLBUTTON
     list << "QToolButton";
+#endif
     list << "QCheckBox";
     list << "QRadioButton";
     list << "QPushButton";
@@ -68,7 +76,9 @@ QStringList AccessibleFactory::keys() const
     list << "QToolBar";
     list << "QWorkspaceChild";
     list << "QSizeGrip";
+#ifndef QT_NO_SPLITTER
     list << "QSplitter";
+#endif
     list << "QSplitterHandle";
     list << "QTipLabel";
     list << "QFrame";
@@ -88,22 +98,28 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleLineEdit(widget);
     } else if (classname == "QComboBox") {
         iface = new QAccessibleComboBox(widget);
+#ifndef QT_NO_SPINBOX
     } else if (classname == "QSpinBox") {
         iface = new QAccessibleSpinBox(widget);
+#endif
     } else if (classname == "QScrollBar") {
         iface = new QAccessibleScrollBar(widget);
     } else if (classname == "QSlider") {
         iface = new QAccessibleSlider(widget);
+#ifndef QT_NO_TOOLBUTTON
     } else if (classname == "QToolButton") {
         Role role = NoRole;
         QToolButton *tb = qobject_cast<QToolButton*>(widget);
+#ifndef QT_NO_MENU
         if (!tb->menu())
             role = tb->isCheckable() ? CheckBox : PushButton;
         else if (!tb->popupMode() != QToolButton::DelayedPopup)
             role = ButtonDropDown;
         else
+#endif
             role = ButtonMenu;
         iface = new QAccessibleToolButton(widget, role);
+#endif // QT_NO_TOOLBUTTON
     } else if (classname == "QCheckBox") {
         iface = new QAccessibleButton(widget, CheckBox);
     } else if (classname == "QRadioButton") {
@@ -111,9 +127,12 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
     } else if (classname == "QPushButton") {
         Role role = NoRole;
         QPushButton *pb = qobject_cast<QPushButton*>(widget);
+#ifndef QT_NO_MENU
         if (pb->menu())
             role = ButtonMenu;
-        else if (pb->isCheckable())
+        else
+#endif
+        if (pb->isCheckable())
             role = CheckBox;
         else
             role = PushButton;
@@ -140,16 +159,22 @@ QAccessibleInterface *AccessibleFactory::create(const QString &classname, QObjec
         iface = new QAccessibleDisplay(widget);
     } else if (classname == "QToolBar") {
         iface = new QAccessibleWidget(widget, ToolBar, widget->windowTitle());
+#ifndef QT_NO_MENUBAR
     } else if (classname == "QMenuBar") {
         iface = new QAccessibleMenuBar(widget);
+#endif
+#ifndef QT_NO_MENU
     } else if (classname == "QMenu") {
         iface = new QAccessibleMenu(widget);
     } else if (classname == "Q3PopupMenu") {
         iface = new QAccessibleMenu(widget);
+#endif
     } else if (classname == "QHeaderView") {
         iface = new QAccessibleHeader(widget);
+#ifndef QT_NO_TABBAR
     } else if (classname == "QTabBar") {
         iface = new QAccessibleTabBar(widget);
+#endif
     } else if (classname == "QWorkspaceChild") {
         iface = new QAccessibleWidget(widget, Window);
     } else if (classname == "QSizeGrip") {

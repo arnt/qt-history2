@@ -172,17 +172,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool /*destro
             //XXX XDefineCursor(dpy, winid, oc ? oc->handle() : cursor().handle());
         }
         q->setAttribute(Qt::WA_SetCursor);
-#ifndef QT_NO_WIDGET_TOPEXTRA
         q->qwsDisplay()->nameRegion(q->winId(), q->objectName(), q->windowTitle());
-#else
-        q->qwsDisplay()->nameRegion(q->winId(), q->objectName(), QString());
-#endif
     }
 
     if (topLevel) {
-#ifndef QT_NO_WIDGET_TOPEXTRA
         createTLExtra();
-#endif
 #ifndef QT_NO_QWS_MANAGER
         if (hasFrame) {
             // get size of wm decoration and make the old crect the new frect
@@ -307,13 +301,10 @@ void QWidgetPrivate::setParent_sys(QWidget *newparent, Qt::WFlags f)
         q->setAttribute(Qt::WA_WState_Hidden);
     q->setAttribute(Qt::WA_WState_ExplicitShowHide, explicitlyHidden);
     q->setGeometry(0, 0, s.width(), s.height());
-#ifndef QT_NO_WIDGET_TOPEXTRA
     if (q->isWindow()) {
         if (!extra->topextra->caption.isEmpty())
             setWindowTitle_helper(extra->topextra->caption);
     }
-#endif
-
 
     setEnabled_helper(enable); //preserving WA_ForceDisabled
     q->setFocusPolicy(fp);
@@ -414,15 +405,12 @@ void QWidget::unsetCursor()
 }
 #endif //QT_NO_CURSOR
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
 void QWidgetPrivate::setWindowTitle_sys(const QString &caption)
 {
     Q_Q(QWidget);
     q->qwsDisplay()->setWindowCaption(q, caption);
 }
-#endif
 
-#ifndef QT_NO_WIDGET_TOPEXTRA
 void QWidgetPrivate::setWindowIcon_sys()
 {
 #if 0
@@ -434,23 +422,17 @@ void QWidgetPrivate::setWindowIcon_sys()
     } else {
         QImage unscaledIcon = unscaledPixmap.toImage();
         QPixmap pixmap =
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
             QPixmap::fromImage(unscaledIcon.scale(16, 16, Qt::IgnoreAspectRatio, Qt::SmoothTransformation));
-#else
-            QPixmap::fromImage(unscaledIcon);
-#endif
         x->icon = new QPixmap(pixmap);
         mask = pixmap.mask() ? *pixmap.mask() : pixmap.createHeuristicMask();
     }
 #endif
 }
 
-
 void QWidgetPrivate::setWindowIconText_sys(const QString &iconText)
 {
     Q_UNUSED(iconText);
 }
-#endif
 
 void QWidget::grabMouse()
 {

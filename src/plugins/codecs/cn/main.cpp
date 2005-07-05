@@ -17,6 +17,7 @@
 
 #include "qgb18030codec.h"
 
+#ifndef QT_NO_TEXTCODECPLUGIN
 
 class CNTextCodecs : public QTextCodecPlugin
 {
@@ -107,3 +108,5 @@ QTextCodec *CNTextCodecs::createForName(const QByteArray &name)
 
 
 Q_EXPORT_PLUGIN(CNTextCodecs);
+
+#endif // QT_NO_TEXTCODECPLUGIN

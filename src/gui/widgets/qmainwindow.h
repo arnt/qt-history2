@@ -16,6 +16,8 @@
 
 #include <QtGui/qwidget.h>
 
+#ifndef QT_NO_MAINWINDOW
+
 class QDockWidget;
 class QMainWindowPrivate;
 class QMenuBar;
@@ -40,11 +42,15 @@ public:
     Qt::ToolButtonStyle toolButtonStyle() const;
     void setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle);
 
+#ifndef QT_NO_MENUBAR
     QMenuBar *menuBar() const;
     void setMenuBar(QMenuBar *menubar);
+#endif
 
+#ifndef QT_NO_STATUSBAR
     QStatusBar *statusBar() const;
     void setStatusBar(QStatusBar *statusbar);
+#endif
 
     QWidget *centralWidget() const;
     void setCentralWidget(QWidget *widget);
@@ -52,6 +58,7 @@ public:
     void setCorner(Qt::Corner corner, Qt::DockWidgetArea area);
     Qt::DockWidgetArea corner(Qt::Corner corner) const;
 
+#ifndef QT_NO_TOOLBAR
     void addToolBarBreak(Qt::ToolBarArea area = Qt::TopToolBarArea);
     void insertToolBarBreak(QToolBar *before);
 
@@ -62,7 +69,8 @@ public:
     void removeToolBar(QToolBar *toolbar);
 
     Qt::ToolBarArea toolBarArea(QToolBar *toolbar) const;
-
+#endif
+    
     void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget);
     void addDockWidget(Qt::DockWidgetArea area, QDockWidget *dockwidget,
                        Qt::Orientation orientation);
@@ -75,7 +83,9 @@ public:
     QByteArray saveState(int version = 0) const;
     bool restoreState(const QByteArray &state, int version = 0);
 
+#ifndef QT_NO_MENU
     virtual QMenu *createPopupMenu();
+#endif
 
 #ifdef QT3_SUPPORT
     QT3_SUPPORT_CONSTRUCTOR QMainWindow(QWidget *parent, const char *name, Qt::WFlags flags = 0);
@@ -94,4 +104,5 @@ private:
     Q_DISABLE_COPY(QMainWindow)
 };
 
+#endif // QT_NO_MAINWINDOW
 #endif // QMAINWINDOW_H

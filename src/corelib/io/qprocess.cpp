@@ -60,6 +60,8 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
 #include <private/qwineventnotifier_p.h>
 #endif
 
+#ifndef QT_NO_PROCESS
+
 /*!
     \class QProcess
 
@@ -1405,3 +1407,5 @@ bool QProcess::startDetached(const QString &program)
 }
 
 #include "moc_qprocess.cpp"
+
+#endif // QT_NO_PROCESS

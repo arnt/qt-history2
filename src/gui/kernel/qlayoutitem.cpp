@@ -13,7 +13,6 @@
 
 #include "qlayout.h"
 
-#ifndef QT_NO_LAYOUT
 #include "qapplication.h"
 #include "qlayoutengine_p.h"
 #include "qmenubar.h"
@@ -567,4 +566,3 @@ bool QWidgetItem::isEmpty() const
     return wid->isHidden() || wid->isWindow();
 }
 
-#endif // QT_NO_LAYOUT

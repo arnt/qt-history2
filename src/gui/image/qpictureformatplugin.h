@@ -17,6 +17,8 @@
 #include "QtCore/qplugin.h"
 #include "QtCore/qfactoryinterface.h"
 
+#if !defined(QT_NO_LIBRARY) && !defined(QT_NO_PICTURE)
+
 class QPicture;
 class QImage;
 class QString;
@@ -34,7 +36,6 @@ struct Q_GUI_EXPORT QPictureFormatInterface : public QFactoryInterface
 Q_DECLARE_INTERFACE(QPictureFormatInterface, QPictureFormatInterface_iid)
 
 
-#ifndef QT_NO_PICTUREFORMATPLUGIN
 class Q_GUI_EXPORT QPictureFormatPlugin : public QObject, public QPictureFormatInterface
 {
     Q_OBJECT
@@ -49,6 +50,6 @@ public:
     virtual bool installIOHandler(const QString &format) = 0;
 
 };
-#endif // QT_NO_PICTUREFORMATPLUGIN
 
+#endif // QT_NO_LIBRARY || QT_NO_PICTURE
 #endif // QPICTUREFORMATPLUGIN_H

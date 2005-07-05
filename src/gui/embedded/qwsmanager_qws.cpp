@@ -66,7 +66,7 @@ QWSManager::QWSManager(QWidget *w)
 QWSManager::~QWSManager()
 {
     Q_D(QWSManager);
-#ifndef QT_NO_POPUPMENU
+#ifndef QT_NO_MENU
     if (d->popup)
         delete d->popup;
 #endif
@@ -394,7 +394,7 @@ bool QWSManager::repaintRegion(int decorationRegion, QDecoration::DecorationStat
 
 void QWSManager::menu(const QPoint &pos)
 {
-#ifndef QT_NO_POPUPMENU
+#ifndef QT_NO_MENU
     Q_D(QWSManager);
     if (d->popup)
         delete d->popup;
@@ -410,10 +410,12 @@ void QWSManager::menu(const QPoint &pos)
 
 void QWSManager::menuTriggered(QAction *action)
 {
+#ifndef QT_NO_MENU
     Q_D(QWSManager);
     QApplication::qwsDecoration().menuTriggered(d->managed, action);
     d->popup->deleteLater();
     d->popup = 0;
+#endif
 }
 
 void QWSManager::startMove()

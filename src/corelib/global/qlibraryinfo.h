@@ -16,6 +16,8 @@
 
 #include <QtCore/qstring.h>
 
+#ifndef QT_NO_SETTINGS
+
 class Q_CORE_EXPORT QLibraryInfo
 {
 public:
@@ -45,4 +47,5 @@ private:
 };
 
 
+#endif /* QT_NO_SETTINGS */
 #endif /* __QLIBRARYINFO_H__ */

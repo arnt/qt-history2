@@ -27,6 +27,8 @@
 
 #include <qtoolbutton.h>
 
+#ifndef QT_NO_TOOLBUTTON
+
 class QToolBarExtension : public QToolButton
 {
     Q_OBJECT
@@ -41,4 +43,5 @@ public slots:
     void setOrientation(Qt::Orientation o);
 };
 
+#endif // QT_NO_TOOLBUTTON
 #endif // QTOOLBAREXTENSION_P_H

@@ -596,6 +596,7 @@ QStyleOptionButton::QStyleOptionButton(int version)
     \brief The size of the icon for the button
 */
 
+#ifndef QT_NO_TABBAR
 /*!
     \class QStyleOptionTab
     \brief The QStyleOptionTab class is used to describe the
@@ -726,6 +727,8 @@ QStyleOptionTab::QStyleOptionTab(int version)
     \variable QStyleOptionTab::position
     \brief the position of the tab in the tab bar
 */
+
+#endif // QT_NO_TABBAR
 
 /*!
     \class QStyleOptionProgressBar
@@ -1036,6 +1039,7 @@ QStyleOptionComplex::QStyleOptionComplex(int version, int type)
     \sa QStyle::SubControl
 */
 
+#ifndef QT_NO_SLIDER
 /*!
     \class QStyleOptionSlider
     \brief The QStyleOptionSlider class is used to describe the
@@ -1179,7 +1183,9 @@ QStyleOptionSlider::QStyleOptionSlider(int version)
 
     \sa QAbstractSlider::pageStep
 */
+#endif // QT_NO_SLIDER
 
+#ifndef QT_NO_SPINBOX
 /*!
     \class QStyleOptionSpinBox
     \brief The QStyleOptionSpinBox class is used to describe the
@@ -1245,6 +1251,7 @@ QStyleOptionSpinBox::QStyleOptionSpinBox(int version)
     \brief Indicates whether whether the spin box has a frame.
 
 */
+#endif // QT_NO_SPINBOX
 
 /*!
     \class QStyleOptionQ3ListViewItem
@@ -2092,6 +2099,7 @@ QStyleOptionViewItem::QStyleOptionViewItem(int version)
     Returns a T or 0 depending on the type of \a option.
 */
 
+#ifndef QT_NO_TABWIDGET
 /*!
     \class QStyleOptionTabWidgetFrame
     \brief The QStyleOptionTabWidgetFrame class is used to describe the
@@ -2164,6 +2172,9 @@ QStyleOptionTabWidgetFrame::QStyleOptionTabWidgetFrame(int version)
 /*! \variable QStyleOptionTabWidgetFrame::leftCornerWidgetSize
     \brief The size of the left-corner widget.
 */
+#endif // QT_NO_TABWIDGET
+
+#ifndef QT_NO_TABBAR
 
 QStyleOptionTabBarBase::QStyleOptionTabBarBase()
     : QStyleOption(Version, SO_TabBarBase), shape(QTabBar::RoundedNorth)
@@ -2187,6 +2198,8 @@ QStyleOptionTabBarBase::QStyleOptionTabBarBase(int version)
 
     Equals 1.
 */
+
+#endif // QT_NO_TABBAR
 
 /*!
     \class QStyleHintReturn

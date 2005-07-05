@@ -23,7 +23,6 @@
 #endif
 
 
-#ifndef QT_NO_FONTDATABASE
 
 class QStringList;
 template <class T> class QList;
@@ -112,6 +111,5 @@ private:
     QFontDatabasePrivate *d;
 };
 
-#endif // QT_NO_FONTDATABASE
 
 #endif // QFONTDATABASE_H

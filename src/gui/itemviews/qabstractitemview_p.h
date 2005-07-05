@@ -68,6 +68,7 @@ public:
         }
     }
 
+#ifndef QT_NO_DRAGANDDROP
     inline bool canDecode(QDropEvent *e) const {
         if (!model)
             return false;
@@ -79,7 +80,8 @@ public:
                 return true;
         return false;
     }
-
+#endif
+    
     enum Position { Above, Below, On };
 
     inline Position position(const QPoint &pos, const QRect &rect, int margin) const {

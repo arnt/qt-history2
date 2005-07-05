@@ -17,7 +17,7 @@
 #include "QtCore/qplugin.h"
 #include "QtCore/qfactoryinterface.h"
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 
 class QScreen;
 
@@ -41,6 +41,6 @@ public:
     virtual QScreen *create(const QString& driver, int displayId) = 0;
 };
 
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
 
 #endif // QSCREENDRIVERPLUGIN_QWS_H

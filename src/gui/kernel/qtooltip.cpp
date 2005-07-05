@@ -25,6 +25,8 @@
 #include <private/qeffects_p.h>
 #include <qdebug.h>
 
+#ifndef QT_NO_TOOLTIP
+
 /*!
     \class QToolTip
 
@@ -276,4 +278,5 @@ QPalette QToolTip::palette()
 
 
 #include "qtooltip.moc"
+#endif // QT_NO_TOOLTIP
 

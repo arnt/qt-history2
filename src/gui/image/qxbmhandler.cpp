@@ -13,6 +13,8 @@
 
 #include "private/qxbmhandler_p.h"
 
+#ifndef QT_NO_IMAGEFORMAT_XBM
+
 #include <qimage.h>
 #include <qiodevice.h>
 #include <qvariant.h>
@@ -243,3 +245,5 @@ QByteArray QXbmHandler::name() const
 {
     return "xbm";
 }
+
+#endif // QT_NO_IMAGEFORMAT_XBM

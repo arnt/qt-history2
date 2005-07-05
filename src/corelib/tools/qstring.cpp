@@ -4145,7 +4145,6 @@ QString QString::toUpper() const
 }
 
 
-#ifndef QT_NO_SPRINTF
 /*!
     Safely builds a formatted string from the format string \a cformat
     and an arbitrary list of arguments.
@@ -4530,7 +4529,6 @@ QString &QString::vsprintf(const char* cformat, va_list ap)
 
     return *this;
 }
-#endif
 
 /*!
     Returns the string converted to a \c{long long} using base \a

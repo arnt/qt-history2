@@ -185,9 +185,11 @@ public:
         floatfield = scientific | fixed
     };
 
+#ifndef QT_NO_TEXTCODEC
     enum Encoding { Locale, Latin1, Unicode, UnicodeNetworkOrder,
                     UnicodeReverse, RawUnicode, UnicodeUTF8 };
     QT3_SUPPORT void setEncoding(Encoding encoding);
+#endif    
     inline QT3_SUPPORT QString read() { return readAll(); }
     inline QT3_SUPPORT void unsetDevice() { setDevice(0); }
 #endif

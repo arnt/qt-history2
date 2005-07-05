@@ -21,7 +21,6 @@
 
 #include <limits.h>
 
-#ifndef QT_NO_LAYOUT
 
 class QBoxLayoutPrivate;
 
@@ -126,6 +125,5 @@ private:
     Q_DISABLE_COPY(QVBoxLayout)
 };
 
-#endif // QT_NO_LAYOUT
 
 #endif // QBOXLAYOUT_H

@@ -32,6 +32,8 @@
 #include <qtextformat.h>
 #include <qbasictimer.h>
 
+#ifndef QT_NO_TEXTEDIT
+
 class QMimeData;
 
 class QTextEditPrivate : public QAbstractScrollAreaPrivate
@@ -42,7 +44,10 @@ public:
         : doc(0), cursorOn(true),
 	  readOnly(false),
           autoFormatting(QTextEdit::AutoNone), tabChangesFocus(false),
-          mousePressed(false), mightStartDrag(false), lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
+#ifndef QT_NO_DRAGANDDROP
+          mousePressed(false), mightStartDrag(false),
+#endif
+          lineWrap(QTextEdit::WidgetWidth), lineWrapColumnOrWidth(0),
           lastSelectionState(false), ignoreAutomaticScrollbarAdjustement(false), textFormat(Qt::AutoText),
           preferRichText(false)
     {}
@@ -61,8 +66,9 @@ public:
 
     void init(const QTextDocumentFragment &fragment = QTextDocumentFragment(),
               QTextDocument *document = 0);
-
+#ifndef QT_NO_DRAGANDDROP
     void startDrag();
+#endif
 
     void paste(const QMimeData *source);
     void paint(QPainter *p, QPaintEvent *e);
@@ -89,9 +95,9 @@ public:
     void updateCurrentCharFormatAndSelection();
 
     void adjustScrollbars();
-
+#ifndef QT_NO_CLIPBOARD
     void setClipboardSelection();
-
+#endif
     void ensureVisible(int documentPosition);
 
     void emitCursorPosChanged(const QTextCursor &someCursor);
@@ -124,10 +130,12 @@ public:
 
     bool mousePressed;
 
+#ifndef QT_NO_DRAGANDDROP
     bool mightStartDrag;
     QPoint dragStartPos;
     QBasicTimer dragStartTimer;
-
+#endif
+    
     QTextEdit::LineWrapMode lineWrap;
     int lineWrapColumnOrWidth;
 
@@ -149,4 +157,5 @@ public:
     QTextCursor focusIndicator;
 };
 
+#endif // QT_NO_TEXTEDIT
 #endif // QTEXTEDIT_P_H

@@ -458,13 +458,11 @@ void QApplicationPrivate::process_cmdline()
         } else {
             argv[j++] = argv[i];
         }
-#ifndef QT_NO_STYLE
         if (!s.isEmpty()) {
             if (!styleOverride)
                 styleOverride = new QString;
             *styleOverride = s;
         }
-#endif
     }
 
     if(j < argc) {
@@ -709,11 +707,9 @@ void QApplicationPrivate::initialize()
     QWidgetPrivate::mapper = new QWidgetMapper;
     if (qt_appType != QApplication::Tty)
         (void) QApplication::style();  // trigger creation of application style
-#ifndef QT_NO_VARIANT
     // trigger registering of QVariant's GUI types
     extern int qRegisterGuiVariant();
     qRegisterGuiVariant();
-#endif
 
     is_app_running = true; // no longer starting up
 
@@ -840,10 +836,8 @@ QApplication::~QApplication()
     delete QApplicationPrivate::app_font;
     QApplicationPrivate::app_font = 0;
     app_fonts()->clear();
-#ifndef QT_NO_STYLE
     delete QApplicationPrivate::app_style;
     QApplicationPrivate::app_style = 0;
-#endif
     delete QApplicationPrivate::app_icon;
     QApplicationPrivate::app_icon = 0;
 #ifndef QT_NO_CURSOR
@@ -980,8 +974,6 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
     return QCoreApplication::compressEvent(event, receiver, postedEvents);
 }
 
-#ifndef QT_NO_STYLE
-
 /*!
   Returns the application's style object.
 
@@ -989,7 +981,6 @@ bool QApplication::compressEvent(QEvent *event, QObject *receiver, QPostEventLis
 */
 QStyle *QApplication::style()
 {
-#ifndef QT_NO_STYLE
     if (QApplicationPrivate::app_style)
         return QApplicationPrivate::app_style;
     if (!qt_is_gui_used)
@@ -1049,7 +1040,6 @@ QStyle *QApplication::style()
 
 
     QApplicationPrivate::app_style->polish(qApp);
-#endif
     return QApplicationPrivate::app_style;
 }
 
@@ -1148,9 +1138,6 @@ QStyle* QApplication::setStyle(const QString& style)
     setStyle(s);
     return s;
 }
-
-#endif
-
 
 /*!
   Returns the color specification.
@@ -1819,7 +1806,6 @@ void QApplication::setActiveWindow(QWidget* act)
     QEvent ae(QEvent::ActivationChange);
     if (QApplicationPrivate::active_window) {
         QWidgetList deacts;
-#ifndef QT_NO_STYLE
         if (style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, QApplicationPrivate::active_window)) {
             QWidgetList list = topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
@@ -1828,7 +1814,6 @@ void QApplication::setActiveWindow(QWidget* act)
                     deacts.append(w);
             }
         } else
-#endif
             deacts.append(QApplicationPrivate::active_window);
         QApplicationPrivate::active_window = 0;
         QEvent e(QEvent::WindowDeactivate);
@@ -1843,7 +1828,6 @@ void QApplication::setActiveWindow(QWidget* act)
     if (QApplicationPrivate::active_window) {
         QEvent e(QEvent::WindowActivate);
         QWidgetList acts;
-#ifndef QT_NO_STYLE
         if (style()->styleHint(QStyle::SH_Widget_ShareActivation, 0, QApplicationPrivate::active_window)) {
             QWidgetList list = topLevelWidgets();
             for (int i = 0; i < list.size(); ++i) {
@@ -1852,7 +1836,6 @@ void QApplication::setActiveWindow(QWidget* act)
                     acts.append(w);
             }
         } else
-#endif
             acts.append(QApplicationPrivate::active_window);
         for (int i = 0; i < acts.size(); ++i) {
             QWidget *w = acts.at(i);
@@ -2594,7 +2577,7 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
     if (!receiver->isWidgetType()) {
         res = d->notify_helper(receiver, e);
     } else switch (e->type()) {
-#if defined QT3_SUPPORT && !defined(QT_NO_ACCEL)
+#if defined QT3_SUPPORT && !defined(QT_NO_SHORTCUT)
     case QEvent::Accel:
         {
             if (d->use_compat()) {
@@ -2611,21 +2594,23 @@ bool QApplication::notify(QObject *receiver, QEvent *e)
             }
             break;
         }
-#endif //QT3_SUPPORT && !QT_NO_ACCEL
+#endif //QT3_SUPPORT && !QT_NO_SHORTCUT
     case QEvent::ShortcutOverride:
     case QEvent::KeyPress:
     case QEvent::KeyRelease:
         {
             QWidget* w = static_cast<QWidget*>(receiver);
             QKeyEvent* key = static_cast<QKeyEvent*>(e);
-#if defined QT3_SUPPORT && !defined(QT_NO_ACCEL)
+#if defined QT3_SUPPORT && !defined(QT_NO_SHORTCUT)
             if (d->use_compat() && d->qt_tryComposeUnicode(w, key))
                 break;
 #endif
             if (key->type()==QEvent::KeyPress) {
+#ifndef QT_NO_SHORTCUT
                 // Try looking for a Shortcut before sending key events
                 if (res = qApp->d_func()->shortcutMap.tryShortcutEvent(w, key))
                     return res;
+#endif
                 qt_in_tab_key_event = (key->key() == Qt::Key_Backtab
                                        || key->key() == Qt::Key_Tab
                                        || key->key() == Qt::Key_Left

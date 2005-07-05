@@ -17,6 +17,8 @@
 #include <QtGui/qwidget.h>
 #include <QtGui/qvalidator.h>
 
+#ifndef QT_NO_SPINBOX
+
 class QLineEdit;
 
 class QAbstractSpinBoxPrivate;
@@ -114,4 +116,5 @@ private:
     Q_DISABLE_COPY(QAbstractSpinBox)
 };
 Q_DECLARE_OPERATORS_FOR_FLAGS(QAbstractSpinBox::StepEnabled)
+#endif // QT_NO_SPINBOX
 #endif // QABSTRACTSPINBOX_H

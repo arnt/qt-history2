@@ -1536,14 +1536,9 @@ void QPainter::setMatrixEnabled(bool enable)
 bool QPainter::matrixEnabled() const
 {
     Q_D(const QPainter);
-#ifndef QT_NO_TRANSFORMATIONS
     return d->state->WxF;
-#else
-    return d->state->xlatex || d->state->xlatey;
-#endif
 }
 
-#ifndef QT_NO_TRANSFORMATIONS
 /*!
     Scales the coordinate system by (\a{sx}, \a{sy}).
 
@@ -1598,7 +1593,6 @@ void QPainter::rotate(qreal a)
     m.rotate(a);
     setMatrix(m, true);
 }
-#endif
 
 
 /*!
@@ -1646,15 +1640,9 @@ void QPainter::translate(const QPointF &offset)
         printf("QPainter::translate(), dx=%f, dy=%f\n", dx, dy);
 #endif
 
-#ifndef QT_NO_TRANSFORMATIONS
     QMatrix m;
     m.translate(dx, dy);
     setMatrix(m, true);
-#else
-    xlatex += (int)dx;
-    xlatey += (int)dy;
-    d->state->VxF = (bool)xlatex || xlatey;
-#endif
 }
 
 /*!
@@ -1928,12 +1916,14 @@ void QPainter::drawRects(const QRect *rects, int rectCount)
                      rects[i].y() + d->state->matrix.dy(),
                      rects[i].width(),
                      rects[i].height());
+
             d->engine->drawRects(&r, 1);
         }
     } else {
         QPainterPath rectPath;
         for (int i=0; i<rectCount; ++i)
             rectPath.addRect(rects[i]);
+
         d->draw_helper(rectPath, QPainterPrivate::StrokeAndFillDraw);
     }
 }
@@ -3800,6 +3790,7 @@ void QPainter::drawTiledPixmap(const QRectF &r, const QPixmap &pixmap, const QPo
     d->engine->drawTiledPixmap(QRectF(x, y, r.width(), r.height()), pixmap, QPointF(sx, sy));
 }
 
+#ifndef QT_NO_PICTURE
 
 /*!
     \fn void QPainter::drawPicture(int x, int y, const QPicture &picture)
@@ -3833,6 +3824,8 @@ void QPainter::drawPicture(const QPointF &p, const QPicture &picture)
     const_cast<QPicture *>(&picture)->play(this);
     restore();
 }
+
+#endif // QT_NO_PICTURE
 
 /*! \fn void QPainter::eraseRect(const QRect &rect)
 
@@ -3984,11 +3977,7 @@ QPainter::RenderHints QPainter::renderHints() const
 bool QPainter::viewTransformEnabled() const
 {
     Q_D(const QPainter);
-#ifndef QT_NO_TRANSFORMATIONS
     return d->state->VxF;
-#else
-    return d->state->xlatex || d->state->xlatey;
-#endif
 }
 
 /*!
@@ -4191,21 +4180,13 @@ void QPainter::setViewTransformEnabled(bool enable)
 qreal QPainter::translationX() const
 {
     Q_D(const QPainter);
-#ifndef QT_NO_TRANSFORMATIONS
     return d->state->worldMatrix.dx();
-#else
-    return d->state->xlatex;
-#endif
 }
 
 qreal QPainter::translationY() const
 {
     Q_D(const QPainter);
-#ifndef QT_NO_TRANSFORMATIONS
     return d->state->worldMatrix.dy();
-#else
-    return d->state->xlatey;
-#endif
 }
 
 /*!
@@ -4235,13 +4216,9 @@ void QPainter::map(int x, int y, int *rx, int *ry) const
 QPoint QPainter::xForm(const QPoint &p) const
 {
     Q_D(const QPainter);
-#ifndef QT_NO_TRANSFORMATIONS
     if (d->state->txop == QPainterPrivate::TxNone)
         return p;
     return p * d->state->matrix;
-#else
-    return QPoint(p.x() + d->state->xlatex, p.y() + d->state->xlatey);
-#endif
 }
 
 
@@ -4260,13 +4237,9 @@ QPoint QPainter::xForm(const QPoint &p) const
 QRect QPainter::xForm(const QRect &r) const
 {
     Q_D(const QPainter);
-#ifndef QT_NO_TRANSFORMATIONS
     if (d->state->txop == QPainterPrivate::TxNone)
         return r;
     return d->state->matrix.mapRect(r);
-#else
-    return QRect(r.x()+d->state->xlatex, r.y()+d->state->xlatey, r.width(), r.height());
-#endif
 }
 
 /*!
@@ -4281,15 +4254,9 @@ QRect QPainter::xForm(const QRect &r) const
 QPolygon QPainter::xForm(const QPolygon &a) const
 {
     Q_D(const QPainter);
-#ifndef QT_NO_TRANSFORMATIONS
     if (d->state->txop == QPainterPrivate::TxNone)
         return a;
     return a * d->state->matrix;
-#else
-    QPolygon p(a);
-    p.translate(d->state->xlatex, d->state->xlatey);
-    return p;
-#endif
 }
 
 /*!
@@ -4321,12 +4288,7 @@ QPolygon QPainter::xForm(const QPolygon &av, int index, int npoints) const
     int lastPoint = npoints < 0 ? av.size() : index+npoints;
     QPolygon a(lastPoint-index);
     memcpy(a.data(), av.data()+index, (lastPoint-index)*sizeof(QPoint));
-#ifndef QT_NO_TRANSFORMATIONS
     return a * d->state->matrix;
-#else
-    a.translate(d->state->xlatex, d->state->xlatey);
-    return a;
-#endif
 }
 
 /*!
@@ -4341,7 +4303,6 @@ QPolygon QPainter::xForm(const QPolygon &av, int index, int npoints) const
 QPoint QPainter::xFormDev(const QPoint &p) const
 {
     Q_D(const QPainter);
-#ifndef QT_NO_TRANSFORMATIONS
     if(d->state->txop == QPainterPrivate::TxNone)
         return p;
     if (!d->txinv) {
@@ -4349,9 +4310,6 @@ QPoint QPainter::xFormDev(const QPoint &p) const
         that->d_ptr->updateInvMatrix();
     }
     return p * d->invMatrix;
-#else
-    return QPoint(p.x() - xlatex, p.y() - xlatey);
-#endif
 }
 
 /*!
@@ -4367,7 +4325,6 @@ QPoint QPainter::xFormDev(const QPoint &p) const
 QRect QPainter::xFormDev(const QRect &r)  const
 {
     Q_D(const QPainter);
-#ifndef QT_NO_TRANSFORMATIONS
     if (d->state->txop == QPainterPrivate::TxNone)
         return r;
     if (!d->txinv) {
@@ -4375,9 +4332,6 @@ QRect QPainter::xFormDev(const QRect &r)  const
         that->d_ptr->updateInvMatrix();
     }
     return d->invMatrix.mapRect(r);
-#else
-    return QRect(r.x()-d->state->xlatex, r.y()-d->state->xlatey, r.width(), r.height());
-#endif
 }
 
 /*!
@@ -4392,7 +4346,6 @@ QRect QPainter::xFormDev(const QRect &r)  const
 QPolygon QPainter::xFormDev(const QPolygon &a) const
 {
     Q_D(const QPainter);
-#ifndef QT_NO_TRANSFORMATIONS
     if (d->state->txop == QPainterPrivate::TxNone)
         return a;
     if (!d->txinv) {
@@ -4400,12 +4353,6 @@ QPolygon QPainter::xFormDev(const QPolygon &a) const
         that->d_ptr->updateInvMatrix();
     }
     return a * d->invMatrix;
-#else
-    QPolygon p(a);
-    p.translate(-d->state->xlatex, -d->state->xlatey);
-    return p;
-#endif
-
 }
 
 /*!
@@ -4437,7 +4384,6 @@ QPolygon QPainter::xFormDev(const QPolygon &ad, int index, int npoints) const
     int lastPoint = npoints < 0 ? ad.size() : index+npoints;
     QPolygon a(lastPoint-index);
     memcpy(a.data(), ad.data()+index, (lastPoint-index)*sizeof(QPoint));
-#ifndef QT_NO_TRANSFORMATIONS
     if (d->state->txop == QPainterPrivate::TxNone)
         return a;
     if (!d->txinv) {
@@ -4445,10 +4391,6 @@ QPolygon QPainter::xFormDev(const QPolygon &ad, int index, int npoints) const
         that->d_ptr->updateInvMatrix();
     }
     return a * d->invMatrix;
-#else
-    a.translate(-d->state->xlatex, -d->state->xlatey);
-    return a;
-#endif
 }
 
 /*!
@@ -4768,14 +4710,9 @@ QPainterState::QPainterState(const QPainterState *s)
     bgMode = s->bgMode;
     VxF = s->VxF;
     WxF = s->WxF;
-#ifndef QT_NO_TRANSFORMATIONS
     worldMatrix = s->worldMatrix;
     matrix = s->matrix;
     txop = s->txop;
-#else
-    xlatex = s->xlatex;
-    xlatey = s->xlatey;
-#endif
     wx = s->wx;
     wy = s->wy;
     ww = s->ww;
@@ -4818,13 +4755,9 @@ void QPainterState::init(QPainter *p) {
     clipRegion = QRegion();
     clipPath = QPainterPath();
     clipOperation = Qt::NoClip;
-#ifndef QT_NO_TRANSFORMATIONS
     worldMatrix.reset();
     matrix.reset();
     txop = 0;
-#else
-    xlatex = xlatey = 0;
-#endif
     layoutDirection = QApplication::layoutDirection();
     composition_mode = QPainter::CompositionMode_SourceOver;
     emulationSpecifier = 0;

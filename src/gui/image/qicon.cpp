@@ -274,7 +274,7 @@ void QPixmapIconEngine::addFile(const QString &fileName, const QSize &size, QIco
 
 
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QIconEngineFactoryInterface_iid, QCoreApplication::libraryPaths(), "/iconengines", Qt::CaseInsensitive))
 #endif
@@ -396,6 +396,7 @@ QIcon::QIcon(const QString &fileName)
 {
     QFileInfo info(fileName);
     QString suffix = info.suffix();
+#ifndef QT_NO_LIBRARY
     if (!suffix.isEmpty())
         if (QIconEngineFactoryInterface *factory = qobject_cast<QIconEngineFactoryInterface*>(loader()->instance(suffix)))
             if (QIconEngine *engine = factory->create(fileName)) {
@@ -403,6 +404,7 @@ QIcon::QIcon(const QString &fileName)
                 d->engine = engine;
                 return;
             }
+#endif
     addFile(fileName);
 }
 

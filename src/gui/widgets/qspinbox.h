@@ -16,6 +16,8 @@
 
 #include <QtGui/qabstractspinbox.h>
 
+#ifndef QT_NO_SPINBOX
+
 class QSpinBoxPrivate;
 class Q_GUI_EXPORT QSpinBox : public QAbstractSpinBox
 {
@@ -142,4 +144,5 @@ private:
     Q_DECLARE_PRIVATE(QDoubleSpinBox)
 };
 
+#endif // QT_NO_SPINBOX
 #endif // QSPINBOX_H

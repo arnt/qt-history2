@@ -13,7 +13,6 @@
 
 #include "qgridlayout.h"
 
-#ifndef QT_NO_LAYOUT
 
 #include "qapplication.h"
 #include "qwidget.h"
@@ -1518,4 +1517,3 @@ void QGridLayout::invalidate()
     Use originCorner() instead.
 */
 
-#endif // QT_NO_LAYOUT

@@ -13,7 +13,6 @@
 
 #include "qlayout.h"
 
-#ifndef QT_NO_LAYOUT
 #include "qapplication.h"
 #include "qlayoutengine_p.h"
 #include "qmenubar.h"
@@ -1309,4 +1308,3 @@ QSize QLayout::closestAcceptableSize(const QWidget *widget, const QSize &size)
     Use sizeConstraint() instead.
 */
 
-#endif // QT_NO_LAYOUT

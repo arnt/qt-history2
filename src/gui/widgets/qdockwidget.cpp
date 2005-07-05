@@ -215,6 +215,9 @@ void QDockWidgetTitle::mousePressEvent(QMouseEvent *event)
     if (!::hasFeature(dockwidget, QDockWidget::DockWidgetMovable))
         return;
 
+#ifdef QT_NO_MAINWINDOW
+    return;
+#else
     QMainWindowLayout *layout =
         qobject_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
     if (!layout)
@@ -261,6 +264,7 @@ void QDockWidgetTitle::mousePressEvent(QMouseEvent *event)
     for (int i=0; i<children.size(); ++i)
         children.at(i)->update();
 #endif
+#endif // QT_NO_MAINWINDOW
 }
 
 void QDockWidgetTitle::mouseMoveEvent(QMouseEvent *event)
@@ -274,7 +278,11 @@ void QDockWidgetTitle::mouseMoveEvent(QMouseEvent *event)
         // see if there is a main window under us, and ask it to place the tool window
         QWidget *widget = QApplication::widgetAt(event->globalPos());
         if (widget) {
-            while (widget && !qobject_cast<QMainWindow *>(widget)) {
+            while (widget
+#ifndef QT_NO_MAINWINDOW
+		   && !qobject_cast<QMainWindow *>(widget)
+#endif
+		) {
                 if (widget->isWindow()) {
                     widget = 0;
                     break;
@@ -282,6 +290,7 @@ void QDockWidgetTitle::mouseMoveEvent(QMouseEvent *event)
                 widget = widget->parentWidget();
             }
 
+#ifndef QT_NO_MAINWINDOW
             if (widget) {
                 QMainWindow *mainwindow = qobject_cast<QMainWindow *>(widget);
                 if (mainwindow && mainwindow == dockwidget->parentWidget()) {
@@ -294,6 +303,7 @@ void QDockWidgetTitle::mouseMoveEvent(QMouseEvent *event)
                     layout->resetLayoutInfo();
                 }
             }
+#endif
         }
     }
 
@@ -330,6 +340,7 @@ void QDockWidgetTitle::mouseReleaseEvent(QMouseEvent *event)
     if (!state)
         return;
 
+#ifndef QT_NO_MAINWINDOW
     QMainWindowLayout *layout =
         qobject_cast<QMainWindowLayout *>(dockwidget->parentWidget()->layout());
     if (!layout)
@@ -392,6 +403,7 @@ void QDockWidgetTitle::mouseReleaseEvent(QMouseEvent *event)
 
     delete state;
     state = 0;
+#endif // QT_NO_MAINWINDOW
 }
 
 void QDockWidgetTitle::contextMenuEvent(QContextMenuEvent *event)
@@ -504,10 +516,12 @@ void QDockWidgetPrivate::init() {
     resizer->setMovingEnabled(false);
     resizer->setActive(false);
 
+#ifndef QT_NO_ACTION
     toggleViewAction = new QAction(q);
     toggleViewAction->setCheckable(true);
     toggleViewAction->setText(q->windowTitle());
     QObject::connect(toggleViewAction, SIGNAL(triggered(bool)), q, SLOT(toggleView(bool)));
+#endif
 }
 
 void QDockWidgetPrivate::toggleView(bool b)
@@ -688,11 +702,13 @@ void QDockWidget::setFloating(bool floating)
 
     setWindowFlags(Qt::FramelessWindowHint | (floating ? Qt::Tool : Qt::Widget));
 
+#ifndef QT_NO_MAINWINDOW
     if (floating) {
         if (QMainWindowLayout *layout = qobject_cast<QMainWindowLayout *>(parentWidget()->layout()))
             layout->invalidate();
     }
-
+#endif
+    
     d->resizer->setActive(floating);
 
     if (visible)
@@ -740,7 +756,9 @@ void QDockWidget::changeEvent(QEvent *event)
     switch (event->type()) {
     case QEvent::WindowTitleChange:
         d->title->updateWindowTitle();
+#ifndef QT_NO_ACTION
         d->toggleViewAction->setText(windowTitle());
+#endif
         break;
     default:
         break;
@@ -775,9 +793,11 @@ bool QDockWidget::event(QEvent *event)
         if (!isHidden())
             break;
         // fallthrough intended
+#ifndef QT_NO_ACTION
     case QEvent::Show:
         d->toggleViewAction->setChecked(event->type() == QEvent::Show);
         break;
+#endif
     case QEvent::StyleChange: {
         int fw = style()->pixelMetric(QStyle::PM_DockWidgetFrameWidth);
         d->top->setSpacing(fw);
@@ -789,6 +809,7 @@ bool QDockWidget::event(QEvent *event)
     return QWidget::event(event);
 }
 
+#ifndef QT_NO_ACTION
 /*!
   Returns a checkable action that can be used to show or close this
   dock widget.
@@ -802,6 +823,7 @@ QAction * QDockWidget::toggleViewAction() const
     Q_D(const QDockWidget);
     return d->toggleViewAction;
 }
+#endif // QT_NO_ACTION
 
 /*!
     \fn void QDockWidget::featuresChanged(DockWidgetFeatures features)

@@ -13,7 +13,6 @@
 
 #include "qboxlayout.h"
 
-#ifndef QT_NO_LAYOUT
 
 #include "qapplication.h"
 #include "qwidget.h"
@@ -1240,4 +1239,3 @@ QVBoxLayout::~QVBoxLayout()
     Use spacing() instead.
 */
 
-#endif // QT_NO_LAYOUT

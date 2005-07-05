@@ -19,7 +19,7 @@
 
 #include "qlist.h"
 #include "qfile.h"
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 # include "qcoreapplication.h"
 # include "qtextcodecplugin.h"
 # include "private/qfactoryloader_p.h"
@@ -49,7 +49,7 @@
 #endif
 
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_TEXTCODECPLUGIN
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QTextCodecFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/codecs")))
 #endif
@@ -88,7 +88,7 @@ static bool nameMatch(const QByteArray &name, const QByteArray &test)
 
 static QTextCodec *createForName(const QByteArray &name)
 {
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_TEXTCODECPLUGIN
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {
@@ -108,7 +108,7 @@ static QTextCodec *createForName(const QByteArray &name)
 
 static QTextCodec *createForMib(int mib)
 {
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_TEXTCODECPLUGIN
     QString name = QLatin1String("MIB: ") + QString::number(mib);
     if (QTextCodecFactoryInterface *factory
         = qobject_cast<QTextCodecFactoryInterface*>(loader()->instance(name)))
@@ -741,7 +741,7 @@ QList<QByteArray> QTextCodec::availableCodecs()
         codecs += all->at(i)->name();
         codecs += all->at(i)->aliases();
     }
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_TEXTCODECPLUGIN
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {
@@ -769,7 +769,7 @@ QList<int> QTextCodec::availableMibs()
     QList<int> codecs;
     for (int i = 0; i < all->size(); ++i)
         codecs += all->at(i)->mibEnum();
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_TEXTCODECPLUGIN
     QFactoryLoader *l = loader();
     QStringList keys = l->keys();
     for (int i = 0; i < keys.size(); ++i) {

@@ -82,5 +82,5 @@ SOURCES += \
     	  ../3rdparty/libpng/pngwutil.c
     }
 } else {
-    DEFINES *= QT_NO_IMAGEIO_PNG
+    DEFINES *= QT_NO_IMAGEFORMAT_PNG
 }

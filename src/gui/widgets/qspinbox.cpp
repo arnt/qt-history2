@@ -13,6 +13,9 @@
 
 #include <private/qabstractspinbox_p.h>
 #include <qspinbox.h>
+
+#ifndef QT_NO_SPINBOX
+
 #include <qlineedit.h>
 #include <qlocale.h>
 #include <qvalidator.h>
@@ -1474,3 +1477,5 @@ static bool isIntermediateValueHelper(qint64 num, qint64 min, qint64 max, qint64
     QSBDEBUG("returns false");
     return false;
 }
+
+#endif // QT_NO_SPINBOX

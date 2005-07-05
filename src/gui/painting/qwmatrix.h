@@ -16,7 +16,7 @@
 
 #include "QtGui/qmatrix.h"
 
-#if defined(QT3_SUPPORT) && !defined(QT_NO_MATRIX)
+#if defined(QT3_SUPPORT)
 typedef QMatrix QWMatrix;
 #endif
 

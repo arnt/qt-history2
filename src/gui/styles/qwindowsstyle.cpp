@@ -116,9 +116,11 @@ bool QWindowsStyle::Private::eventFilter(QObject *o, QEvent *e)
 
 	    // Update state and repaint the menubars.
 	    alt_down = false;
+#ifndef QT_NO_MENUBAR
             QList<QMenuBar *> l = qFindChildren<QMenuBar *>(widget);
             for (int i = 0; i < l.size(); ++i)
                 l.at(i)->repaint();
+#endif
 	}
 	break;
     case QEvent::Close:
@@ -320,7 +322,7 @@ int QWindowsStyle::pixelMetric(PixelMetric pm, const QStyleOption *opt, const QW
     return ret;
 }
 
-#ifndef QT_NO_IMAGEIO_XPM
+#ifndef QT_NO_IMAGEFORMAT_XPM
 
 static const char * const qt_menu_xpm[] = {
 "16 16 11 1",
@@ -765,7 +767,7 @@ static const char * const file_link_xpm[]={
 
 
 
-#endif //QT_NO_IMAGEIO_XPM
+#endif //QT_NO_IMAGEFORMAT_XPM
 
 /*!
  \reimp
@@ -773,7 +775,7 @@ static const char * const file_link_xpm[]={
 QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyleOption *opt,
                                       const QWidget *widget) const
 {
-#ifndef QT_NO_IMAGEIO_XPM
+#ifndef QT_NO_IMAGEFORMAT_XPM
     switch (standardPixmap) {
     case SP_TitleBarMenuButton:
         return QPixmap((const char **)qt_menu_xpm);
@@ -804,7 +806,7 @@ QPixmap QWindowsStyle::standardPixmap(StandardPixmap standardPixmap, const QStyl
     default:
         break;
     }
-#endif //QT_NO_IMAGEIO_XPM
+#endif //QT_NO_IMAGEFORMAT_XPM
     return QCommonStyle::standardPixmap(standardPixmap, opt, widget);
 }
 
@@ -851,6 +853,7 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
             ret = int(cues);
             // Do nothing if we always paint underlines
             if (!ret && widget && d) {
+#ifndef QT_NO_MENUBAR                
                 const QMenuBar *menuBar = ::qobject_cast<const QMenuBar*>(widget);
                 if (!menuBar && ::qobject_cast<const QMenu *>(widget)) {
                     QWidget *w = QApplication::activeWindow();
@@ -863,7 +866,9 @@ int QWindowsStyle::styleHint(StyleHint hint, const QStyleOption *opt, const QWid
                     if (menuBar->hasFocus() || d->altDown())
                         ret = 1;
                     // Otherwise draw underlines if the toplevel widget has seen an alt-press
-                } else if (d->hasSeenAlt(widget)) {
+                } else
+#endif // QT_NO_MENUBAR
+                if (d->hasSeenAlt(widget)) {
                     ret = 1;
                 }
             }
@@ -1436,6 +1441,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             QCommonStyle::drawControl(ce, &newMbi, p, widget);
         }
         break;
+#ifndef QT_NO_TABBAR
     case CE_TabBarTabShape:
         if (const QStyleOptionTab *tab = qstyleoption_cast<const QStyleOptionTab *>(opt)) {
             bool rtlHorTabs = (tab->direction == Qt::RightToLeft
@@ -1645,6 +1651,7 @@ void QWindowsStyle::drawControl(ControlElement ce, const QStyleOption *opt, QPai
             }
         }
         break;
+#endif // QT_NO_TABBAR
     case CE_ToolBoxTab:
         qDrawShadePanel(p, opt->rect, opt->palette,
                         opt->state & (State_Sunken | State_On), 1,
@@ -1775,6 +1782,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
                                        QPainter *p, const QWidget *widget) const
 {
     switch (cc) {
+#ifndef QT_NO_SLIDER
     case CC_Slider:
         if (const QStyleOptionSlider *slider = qstyleoption_cast<const QStyleOptionSlider *>(opt)) {
             int thickness  = pixelMetric(PM_SliderControlThickness, slider, widget);
@@ -1978,6 +1986,7 @@ void QWindowsStyle::drawComplexControl(ComplexControl cc, const QStyleOptionComp
             }
         }
         break;
+#endif // QT_NO_SLIDER
     case CC_Q3ListView:
         if (const QStyleOptionQ3ListView *lv = qstyleoption_cast<const QStyleOptionQ3ListView *>(opt)) {
             int i;

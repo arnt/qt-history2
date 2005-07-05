@@ -27,7 +27,7 @@ QPixmap *QDecorationDefault::staticMinimizePixmap = 0;
 QPixmap *QDecorationDefault::staticMaximizePixmap = 0;
 QPixmap *QDecorationDefault::staticNormalizePixmap = 0;
 
-#ifndef QT_NO_IMAGEIO_XPM
+#ifndef QT_NO_IMAGEFORMAT_XPM
 
 /* XPM */
 static const char * const default_menu_xpm[] = {
@@ -174,7 +174,7 @@ static const char * const default_normalize_xpm[] = {
 "                ",
 "                "};
 
-#endif // QT_NO_IMAGEIO_XPM
+#endif // QT_NO_IMAGEFORMAT_XPM
 
 QDecorationDefault::QDecorationDefault()
     : QDecoration()
@@ -205,7 +205,7 @@ QDecorationDefault::~QDecorationDefault()
 
 const char **QDecorationDefault::xpmForRegion(int reg)
 {
-#ifndef QT_NO_IMAGEIO_XPM
+#ifndef QT_NO_IMAGEFORMAT_XPM
     switch(reg)
     {
     case Help:
@@ -228,7 +228,7 @@ const char **QDecorationDefault::xpmForRegion(int reg)
 QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegion,
                                       int &xoff, int &/*yoff*/)
 {
-#ifndef QT_NO_IMAGEIO_XPM
+#ifndef QT_NO_IMAGEFORMAT_XPM
     static const char **staticHelpPixmapXPM = 0;
     static const char **staticMenuPixmapXPM = 0;
     static const char **staticClosePixmapXPM = 0;
@@ -271,11 +271,9 @@ QPixmap QDecorationDefault::pixmapFor(const QWidget *widget, int decorationRegio
             pm = staticHelpPixmap;
             break;
         case Menu:
-#ifndef QT_NO_WIDGET_TOPEXTRA
             if (!widget->windowIcon().isNull())
                 return widget->windowIcon().pixmap(16,16); //#############
 #warning "QIcon::pixmap() needs a size !!!!!!"
-#endif
             if (!pm) {
                 xoff = 1;
                 pm = staticMenuPixmap;

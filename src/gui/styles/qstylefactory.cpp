@@ -33,7 +33,7 @@
 QString qt_mac_from_pascal_string(const Str255); //qglobal.cpp
 #endif
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QStyleFactoryInterface_iid, QCoreApplication::libraryPaths(), "/styles", Qt::CaseInsensitive))
 #endif
@@ -99,7 +99,7 @@ QStyle *QStyleFactory::create(const QString& key)
     else
 #endif
     { } // Keep these here - they make the #ifdefery above work
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     if(!ret) {
         if (QStyleFactoryInterface *factory = qobject_cast<QStyleFactoryInterface*>(loader()->instance(style)))
             ret = factory->create(style);
@@ -117,7 +117,7 @@ QStyle *QStyleFactory::create(const QString& key)
 */
 QStringList QStyleFactory::keys()
 {
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     QStringList list = loader()->keys();
 #else
     QStringList list;

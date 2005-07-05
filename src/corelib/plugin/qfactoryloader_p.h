@@ -29,6 +29,8 @@
 #include <qstringlist.h>
 #include "qlibrary_p.h"
 
+#ifndef QT_NO_LIBRARY
+
 class QFactoryLoaderPrivate;
 
 class Q_CORE_EXPORT QFactoryLoader : public QObject
@@ -48,4 +50,5 @@ public:
 
 };
 
+#endif // QT_NO_LIBRARY
 #endif // QFACTORYLOADER_P_H

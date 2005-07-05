@@ -14,6 +14,7 @@
 #include "qaction.h"
 #include "qactiongroup.h"
 
+#ifndef QT_NO_ACTION
 #include "qaction_p.h"
 #include "qapplication.h"
 #include "qevent.h"
@@ -49,8 +50,10 @@ QActionPrivate::QActionPrivate() : group(0), enabled(1), forceDisabled(0),
     param = id = --qt_static_action_id;
     act_signal = 0;
 #endif
+#ifndef QT_NO_SHORTCUT
     shortcutId = 0;
     shortcutContext = Qt::WindowShortcut;
+#endif
 }
 
 QActionPrivate::~QActionPrivate()
@@ -70,6 +73,7 @@ void QActionPrivate::sendDataChanged()
     emit q->changed();
 }
 
+#ifndef QT_NO_SHORTCUT
 void QActionPrivate::redoGrab(QShortcutMap &map)
 {
     Q_Q(QAction);
@@ -88,7 +92,7 @@ void QActionPrivate::setShortcutEnabled(bool enable, QShortcutMap &map)
     if (shortcutId)
         map.setShortcutEnabled(enable, shortcutId, q);
 }
-
+#endif // QT_NO_SHORTCUT
 
 /*!
     \class QAction
@@ -229,6 +233,7 @@ QWidget *QAction::parentWidget() const
     return (QWidget*)ret;
 }
 
+#ifndef QT_NO_SHORTCUT
 /*!
     \property QAction::shortcut
     \brief the action's shortcut key
@@ -276,6 +281,7 @@ Qt::ShortcutContext QAction::shortcutContext() const
     Q_D(const QAction);
     return d->shortcutContext;
 }
+#endif // QT_NO_SHORTCUT
 
 /*!
     \property QAction::font
@@ -366,9 +372,10 @@ QAction::~QAction()
     }
     if (d->group)
         d->group->removeAction(this);
-
+#ifndef QT_NO_SHORTCUT
     if (d->shortcutId && qApp)
         qApp->d_func()->shortcutMap.removeShortcut(d->shortcutId, this);
+#endif
 }
 
 /*!
@@ -429,6 +436,7 @@ QIcon QAction::icon() const
     return d->icon;
 }
 
+#ifndef QT_NO_MENU
 /*!
   Returns the menu contained by this action. Actions that contain
   menus can be used to create menu items with submenus, or inserted
@@ -451,6 +459,7 @@ void QAction::setMenu(QMenu *menu)
     d->menu = menu;
     d->sendDataChanged();
 }
+#endif // QT_NO_MENU
 
 /*!
   If \a b is true then this action will be considered a separator.
@@ -746,7 +755,9 @@ void QAction::setEnabled(bool b)
     if (b && d->group && !d->group->isEnabled())
         return;
     d->enabled = b;
+#ifndef QT_NO_SHORTCUT
     d->setShortcutEnabled(b, qApp->d_func()->shortcutMap);
+#endif
     d->sendDataChanged();
 }
 
@@ -790,6 +801,7 @@ bool QAction::isVisible() const
 bool
 QAction::event(QEvent *e)
 {
+#ifndef QT_NO_SHORTCUT
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         Q_ASSERT_X(se->key() == d_func()->shortcut,
@@ -801,6 +813,7 @@ QAction::event(QEvent *e)
             activate(Trigger);
         return true;
     }
+#endif
     return false;
 }
 
@@ -1034,4 +1047,5 @@ void QAction::activate(ActionEvent event)
 
 
 #include "moc_qaction.cpp"
+#endif // QT_NO_ACTION
 

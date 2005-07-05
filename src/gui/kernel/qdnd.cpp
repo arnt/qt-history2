@@ -13,6 +13,7 @@
 
 #include "qplatformdefs.h"
 
+#ifndef QT_NO_DRAGANDDROP
 #include "qbitmap.h"
 #include "qdrag.h"
 #include "qpixmap.h"
@@ -560,3 +561,4 @@ QDropData::QDropData()
 QDropData::~QDropData()
 {
 }
+#endif // QT_NO_DRAGANDDROP

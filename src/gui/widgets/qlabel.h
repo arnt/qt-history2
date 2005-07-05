@@ -16,7 +16,6 @@
 
 #include "QtGui/qframe.h"
 
-#ifndef QT_NO_LABEL
 
 class QLabelPrivate;
 
@@ -61,13 +60,11 @@ public:
     int margin() const;
     void setMargin(int);
 
-#ifndef QT_NO_IMAGE_SMOOTHSCALE
     bool hasScaledContents() const;
     void setScaledContents(bool);
-#endif
     QSize sizeHint() const;
     QSize minimumSizeHint() const;
-#ifndef QT_NO_ACCEL
+#ifndef QT_NO_SHORTCUT
     void setBuddy(QWidget *);
     QWidget *buddy() const;
 #endif
@@ -115,6 +112,5 @@ private:
     friend class QTipLabel;
 };
 
-#endif // QT_NO_LABEL
 
 #endif // QLABEL_H

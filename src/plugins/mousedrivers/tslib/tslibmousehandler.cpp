@@ -35,14 +35,13 @@
 
 #include "tslibmousehandler.h"
 
+#ifdef QT_QWS_TSLIB
 #include <QFile>
 #include <QTextStream>
 #include <QScreen>
 #include <QSocketNotifier>
 
-#ifdef QT_QWS_TSLIB
 #include <tslib.h>
-#endif
 
 #include <string.h>
 #include <errno.h>
@@ -50,9 +49,7 @@
 
 TSLibMouseHandler::TSLibMouseHandler()
     : m_raw(false), m_notify(0 )
-#ifdef QT_QWS_TSLIB
     , m_ts( 0 )
-#endif
 {
     setObjectName( "TSLib Mouse Handler" );
     openTs();
@@ -65,7 +62,6 @@ TSLibMouseHandler::~TSLibMouseHandler()
 
 void TSLibMouseHandler::openTs()
 {
-#ifdef QT_QWS_TSLIB
     char *tsdevice;
 
     if( ( tsdevice = getenv( "TSLIB_TSDEVICE" ) ) != NULL ) {
@@ -87,16 +83,13 @@ void TSLibMouseHandler::openTs()
 
     m_notify = new QSocketNotifier( ts_fd(m_ts), QSocketNotifier::Read, this );
     connect( m_notify, SIGNAL(activated(int)), this, SLOT(readMouseData()));
-#endif
 }
 
 void TSLibMouseHandler::closeTs()
 {
-#ifdef QT_QWS_TSLIB
     if (m_ts)
         ts_close(m_ts);
     m_ts = 0;
-#endif
 
     delete m_notify;
     m_notify = 0;
@@ -139,7 +132,7 @@ void TSLibMouseHandler::calibrate( QWSPointerCalibrationData *cd )
     } else
 #endif
     {
-        qDebug( "Could not save calibration: %s", calFile.latin1() );
+        qCritical() << "Could not save calibration:" << calFile;
     }
 }
 
@@ -155,7 +148,6 @@ void TSLibMouseHandler::resume()
 
 void TSLibMouseHandler::readMouseData()
 {
-#ifdef QT_QWS_TSLIB
     if(!qt_screen)
         return;
 
@@ -182,7 +174,6 @@ void TSLibMouseHandler::readMouseData()
         QPoint pos( sample.x, sample.y );
         mouseChanged( pos, sample.pressure != 0 ? 1 : 0 );
     }
-#endif
 }
 
 
@@ -192,8 +183,8 @@ void TSLibMouseHandler::readMouseData()
  *
  * inspired by testutils.c
  */
-void TSLibMouseHandler::interpolateSample() {
-#ifdef QT_QWS_TSLIB
+void TSLibMouseHandler::interpolateSample()
+{
     static struct ts_sample samples[25];
     int index = 0;
     int ret;
@@ -236,7 +227,6 @@ void TSLibMouseHandler::interpolateSample() {
 
     emit mouseChanged( QPoint(x, y), 1 );
     emit mouseChanged( QPoint(0, 0), 0 );
-#endif
 }
 
 int TSLibMouseHandler::sortByX( const void* one, const void* two) {
@@ -249,5 +239,4 @@ int TSLibMouseHandler::sortByY( const void* one, const void* two) {
         reinterpret_cast<const struct ts_sample*>(two)->y;
 }
 
-
-
+#endif // QT_QWS_TSLIB

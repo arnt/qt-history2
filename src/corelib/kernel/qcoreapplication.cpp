@@ -373,7 +373,7 @@ void QCoreApplication::init()
     set_winapp_name();
 #endif
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     d->app_libpaths = 0;
 #endif
 
@@ -390,7 +390,7 @@ void QCoreApplication::init()
     QThreadData *data = QThreadData::get(mainThread());
     data->eventDispatcher = QCoreApplicationPrivate::eventDispatcher;
 
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX) && !(defined(QT_NO_PROCESS))
     // Make sure the process manager thread object is created in the main
     // thread.
     QProcessPrivate::initializeProcessManager();
@@ -412,7 +412,7 @@ QCoreApplication::~QCoreApplication()
     Q_D(QCoreApplication);
     qt_call_post_routines();
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     delete d->app_libpaths;
     d->app_libpaths = 0;
 #endif
@@ -1252,7 +1252,6 @@ QString QCoreApplication::applicationDirPath()
     return QFileInfo(applicationFilePath()).path();
 }
 
-#ifndef QT_NO_DIR
 /*!
     Returns the file path of the application executable.
 
@@ -1329,7 +1328,6 @@ QString QCoreApplication::applicationFilePath()
     return fi.exists() ? fi.canonicalFilePath() : QString();
 #endif
 }
-#endif // QT_NO_DIR
 
 /*!
     Returns the number of command line arguments.
@@ -1450,7 +1448,7 @@ QString QCoreApplication::applicationName()
 
 
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 
 /*!
     Returns a list of paths that the application will search when
@@ -1556,7 +1554,7 @@ void QCoreApplication::removeLibraryPath(const QString &path)
     self->d_func()->app_libpaths->removeAll(path);
 }
 
-#endif //QT_NO_COMPONENT
+#endif //QT_NO_LIBRARY
 
 /*!
     \typedef QCoreApplication::EventFilter

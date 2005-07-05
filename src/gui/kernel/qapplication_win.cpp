@@ -3333,7 +3333,7 @@ bool QETWidget::sendKeyEvent(QEvent::Type type, int code,
                               int state, bool grab, const QString& text,
                               bool autor)
 {
-#if defined QT3_SUPPORT && !defined(QT_NO_ACCEL)
+#if defined QT3_SUPPORT && !defined(QT_NO_SHORTCUT)
     if (type == QEvent::KeyPress && !grab
         && static_cast<QApplicationPrivate*>(qApp->d_ptr)->use_compat()) {
         // send accel events if the keyboard is not grabbed

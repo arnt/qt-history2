@@ -16,7 +16,6 @@
 
 #include "QtGui/qabstractbutton.h"
 
-#ifndef QT_NO_CHECKBOX
 
 class QCheckBoxPrivate;
 
@@ -70,6 +69,5 @@ private:
     Q_DISABLE_COPY(QCheckBox)
 };
 
-#endif // QT_NO_CHECKBOX
 
 #endif // QCHECKBOX_H

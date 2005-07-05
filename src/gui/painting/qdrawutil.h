@@ -28,7 +28,6 @@ class QBrush;
 class QRect;
 class QPixmap;
 
-#ifndef QT_NO_DRAWUTIL
 //
 // Standard shade drawing
 //
@@ -101,6 +100,5 @@ Q_GUI_EXPORT QT3_SUPPORT void qDrawArrow(QPainter *p, Qt::ArrowType type, Qt::GU
                           const QPalette &pal, bool enabled);
 #endif
 
-#endif // QT_NO_DRAWUTIL
 
 #endif // QDRAWUTIL_H

@@ -28,6 +28,7 @@
 #ifndef QMAC_Q3MENUBAR_CPP_FILE
 #include "qstyleoption.h"
 
+#ifndef QT_NO_MENUBAR
 class QMenuBarPrivate : public QWidgetPrivate
 {
     Q_DECLARE_PUBLIC(QMenuBar)
@@ -126,4 +127,5 @@ public:
 };
 #endif
 
+#endif // QT_NO_MENUBAR
 #endif // QMENUBAR_P_H

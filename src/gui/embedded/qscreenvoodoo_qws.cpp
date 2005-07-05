@@ -64,9 +64,7 @@ public:
 
     virtual void fillRect(int,int,int,int);
     virtual void blt(int,int,int,int,int,int);
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt(int,int,int,int,int,int);
-#endif
     virtual void drawLine(int,int,int,int);
     virtual void sync();
 
@@ -496,7 +494,6 @@ inline void QGfxVoodoo<depth,type>::blt(int rx,int ry,int w,int h, int sx, int s
     }
 }
 
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
 template<const int depth,const int type>
 inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
                                                int sw,int sh)
@@ -562,7 +559,6 @@ inline void QGfxVoodoo<depth,type>::stretchBlt(int rx,int ry,int w,int h,
         QGfxRaster<depth,type>::stretchBlt(rx,ry,w,h,sw,sh);
     }
 }
-#endif
 
 template<const int depth,const int type>
 void QGfxVoodoo<depth,type>::drawLine(int x1,int y1,int x2,int y2)

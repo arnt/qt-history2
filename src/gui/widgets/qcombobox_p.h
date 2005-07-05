@@ -26,6 +26,8 @@
 //
 
 #include <private/qwidget_p.h>
+
+#ifndef QT_NO_COMBOBOX
 #include <qabstractslider.h>
 #include <qapplication.h>
 #include <qbasictimer.h>
@@ -206,4 +208,5 @@ public:
     QPersistentModelIndex root;
 };
 
+#endif // QT_NO_COMBOBOX
 #endif // QCOMBOBOX_P_H

@@ -121,7 +121,6 @@ QBitmap::QBitmap(const QPixmap &pixmap)
     greater than 1.
 */
 
-#ifndef QT_NO_IMAGEIO
 /*!
     Constructs a bitmap from the file referred to by \a fileName. If the
     file does not exist, or is of an unknown format, the bitmap becomes a
@@ -140,7 +139,6 @@ QBitmap::QBitmap(const QString& fileName, const char *format)
 {
     load(fileName, format, Qt::MonoOnly);
 }
-#endif
 
 /*!
     \overload
@@ -312,7 +310,6 @@ QBitmap QBitmap::fromData(const QSize &size, const uchar *bits, QImage::Format m
 }
 
 
-#ifndef QT_NO_PIXMAP_TRANSFORMATION
 /*!
     Returns a transformed copy of this bitmap using the \a matrix given.
 
@@ -327,7 +324,6 @@ QBitmap QBitmap::transformed(const QMatrix &matrix) const
     QBitmap bm = QPixmap::transformed(matrix);
     return bm;
 }
-#endif // QT_NO_TRANSFORMATIONS
 
 #ifdef QT3_SUPPORT
 /*!

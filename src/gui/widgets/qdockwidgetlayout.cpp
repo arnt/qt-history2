@@ -1207,6 +1207,7 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
             allowedAreas &= ~(Qt::TopDockWidgetArea | Qt::BottomDockWidgetArea);
     }
 
+#ifndef QT_NO_MAINWINDOW
     DEBUG() << "  trySplit:" << orientation << location.area
             << info.item->geometry() << p << sz1 << sz2 << separatorExtent;
     QRect target = ::trySplit(orientation, location.area, allowedAreas,
@@ -1270,6 +1271,7 @@ void QDockWidgetLayout::drop(QDockWidget *dockwidget, const QRect &r, const QPoi
     }
 
     DEBUG("END of drop");
+#endif // QT_NO_MAINWINDOW
 }
 
 void QDockWidgetLayout::extend(QDockWidget *dockwidget, Qt::Orientation direction)

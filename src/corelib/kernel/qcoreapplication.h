@@ -73,17 +73,15 @@ public:
     static bool startingUp();
     static bool closingDown();
 
-#ifndef QT_NO_DIR
     static QString applicationDirPath();
     static QString applicationFilePath();
-#endif
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     static void setLibraryPaths(const QStringList &);
     static QStringList libraryPaths();
     static void addLibraryPath(const QString &);
     static void removeLibraryPath(const QString &);
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
 
 #ifndef QT_NO_TRANSLATION
     static void installTranslator(QTranslator *);

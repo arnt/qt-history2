@@ -15,6 +15,8 @@
 #define QACTIONGROUP_H
 #include "QtGui/qaction.h"
 
+#ifndef QT_NO_ACTION
+
 class QActionGroupPrivate;
 
 class Q_GUI_EXPORT QActionGroup : public QObject
@@ -66,4 +68,5 @@ private:
     Q_PRIVATE_SLOT(d_func(), void actionHovered())
 };
 
+#endif // QT_NO_ACTION
 #endif

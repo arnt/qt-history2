@@ -12,6 +12,8 @@
 ****************************************************************************/
 #include "qactiongroup.h"
 
+#ifndef QT_NO_ACTION
+
 #include "qaction_p.h"
 #include "qapplication.h"
 #include "qevent.h"
@@ -369,3 +371,4 @@ bool QActionGroup::isVisible() const
 */
 
 #include "moc_qactiongroup.cpp"
+#endif // QT_NO_ACTION

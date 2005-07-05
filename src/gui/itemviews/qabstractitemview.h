@@ -33,7 +33,9 @@ class Q_GUI_EXPORT QAbstractItemView : public QAbstractScrollArea
     Q_PROPERTY(EditTriggers editTriggers READ editTriggers WRITE setEditTriggers)
     Q_PROPERTY(bool tabKeyNavigation READ tabKeyNavigation WRITE setTabKeyNavigation)
     Q_PROPERTY(bool showDropIndicator READ showDropIndicator WRITE setDropIndicatorShown)
+#ifndef QT_NO_DRAGANDDROP
     Q_PROPERTY(bool dragEnabled READ dragEnabled WRITE setDragEnabled)
+#endif
     Q_PROPERTY(bool alternatingRowColors READ alternatingRowColors WRITE setAlternatingRowColors)
     Q_PROPERTY(SelectionMode selectionMode READ selectionMode WRITE setSelectionMode)
     Q_PROPERTY(SelectionBehavior selectionBehavior READ selectionBehavior WRITE setSelectionBehavior)
@@ -105,9 +107,10 @@ public:
     void setDropIndicatorShown(bool enable);
     bool showDropIndicator() const;
 
+#ifndef QT_NO_DRAGANDDROP
     void setDragEnabled(bool enable);
     bool dragEnabled() const;
-
+#endif
     void setAlternatingRowColors(bool enable);
     bool alternatingRowColors() const;
     
@@ -196,8 +199,10 @@ protected:
     virtual QItemSelectionModel::SelectionFlags selectionCommand(const QModelIndex &index,
                                                                  const QEvent *event = 0) const;
 
+#ifndef QT_NO_DRAGANDDROP
     virtual void startDrag(Qt::DropActions supportedActions);
-
+#endif
+    
     virtual QStyleOptionViewItem viewOptions() const;
 
     enum State {
@@ -227,10 +232,12 @@ protected:
     void mouseMoveEvent(QMouseEvent *e);
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseDoubleClickEvent(QMouseEvent *e);
+#ifndef QT_NO_DRAGANDDROP  
     void dragEnterEvent(QDragEnterEvent *e);
     void dragMoveEvent(QDragMoveEvent *e);
     void dragLeaveEvent(QDragLeaveEvent *e);
     void dropEvent(QDropEvent *e);
+#endif
     void focusInEvent(QFocusEvent *e);
     void focusOutEvent(QFocusEvent *e);
     void keyPressEvent(QKeyEvent *e);

@@ -17,7 +17,7 @@
 #include "qftp.h"
 #include "qabstractsocket.h"
 
-#ifndef QT_NO_NETWORKPROTOCOL_FTP
+#ifndef QT_NO_FTP
 
 #include "qcoreapplication.h"
 #include "qtcpsocket.h"
@@ -523,9 +523,11 @@ bool QFtpDTP::parseDir(const QString &buffer, const QString &userName, QUrlInfo 
         dateStr += lst[7];
     }
 
+#ifndef QT_NO_DATESTRING
     QDate date = QDate::fromString(dateStr);
     info->setLastModified(QDateTime(date, time));
-
+#endif
+    
     if (lst[7].contains(":")) {
         // if the year-field is missing, check the modification date/time of
         // the file and compare to "now". If the file was changed in the
@@ -2346,4 +2348,4 @@ QFtp::~QFtp()
 
 #include "moc_qftp.cpp"
 
-#endif // QT_NO_NETWORKPROTOCOL_FTP
+#endif // QT_NO_FTP

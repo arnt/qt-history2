@@ -60,18 +60,14 @@ class QCoreGraphicsPaintEnginePrivate;
 class QPaintEngine;
 class QPixmap;
 
-#ifndef QT_NO_STYLE
 class QStyle;
-#endif
 
 struct QTLWExtra {
-#ifndef QT_NO_WIDGET_TOPEXTRA
     QString caption; // widget caption
     QString iconText; // widget icon text
     QString role; // widget role
     QIcon *icon; // widget icon
     QPixmap *iconPixmap;
-#endif
     short incw, inch; // size increments
     ulong fleft, fright, ftop, fbottom; // frame strut
 #if defined(Q_WS_WIN) || defined(Q_WS_MAC) || defined(Q_WS_QWS)
@@ -132,9 +128,7 @@ struct QWExtra {
     WId xDndProxy; // XDND forwarding to embedded windows
 #endif
     QRegion mask; // widget mask
-#ifndef QT_NO_STYLE
     QStyle* style;
-#endif
     QSizePolicy size_policy;
 
 //bit flags at the end to improve packing
@@ -172,10 +166,8 @@ public:
     void updateSystemBackground();
     void propagatePaletteChange();
 
-#ifndef QT_NO_PALETTE
     void setPalette_helper(const QPalette &);
     void resolvePalette();
-#endif
 
     void raise_sys();
     void lower_sys();
@@ -278,10 +270,10 @@ public:
     QWExtra *extra;
     QWidget *focus_next;
     QWidget *focus_child;
+#ifndef QT_NO_ACTION
     QList<QAction*> actions;
-#ifndef QT_NO_LAYOUT
-    QLayout *layout;
 #endif
+    QLayout *layout;
 #if !defined(QT_NO_IM)
     QPointer<QInputContext> ic;
 #endif
@@ -293,10 +285,8 @@ public:
     QString toolTip, statusTip, whatsThis;
     QString accessibleName, accessibleDescription;
 
-#ifndef QT_NO_PALETTE
     QPalette::ColorRole fg_role : 8;
     QPalette::ColorRole bg_role : 8;
-#endif
     uint high_attributes[2]; // the low ones are in QWidget::widget_attributes
     Qt::HANDLE hd;
 #if defined(Q_WS_X11)

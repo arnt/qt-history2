@@ -17,6 +17,8 @@
 #include "QtGui/qwidget.h"
 #include "QtGui/qabstractslider.h"
 
+#ifndef QT_NO_SCROLLBAR
+
 class QScrollBarPrivate;
 
 class Q_GUI_EXPORT QScrollBar : public QAbstractSlider
@@ -52,4 +54,5 @@ private:
     Q_DECLARE_PRIVATE(QScrollBar)
 };
 
+#endif // QT_NO_SCROLLBAR
 #endif // QSCROLLBAR_H

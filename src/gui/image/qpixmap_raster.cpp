@@ -63,14 +63,12 @@ QPixmap::QPixmap(const QSize &size, enum QPixmap::Type type)
     init(size.width(), size.height(), type);
 }
 
-#ifndef QT_NO_IMAGEIO
 QPixmap::QPixmap(const QString& fileName, const char *format, Qt::ImageConversionFlags flags)
     : QPaintDevice()
 {
     init(0, 0);
     load(fileName, format, flags);
 }
-#endif //QT_NO_IMAGEIO
 
 QPixmap::QPixmap(const QPixmap &pixmap)
     : QPaintDevice()
@@ -448,7 +446,9 @@ bool QPixmap::load(const QString& fileName, const char *format, Qt::ImageConvers
         return false;
 
     QFileInfo info(fileName);
-    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath() + QLatin1Char('_') + info.lastModified().toString() + QLatin1Char('_') + QString::number(data->type);
+    QString key = QLatin1String("qt_pixmap_") + info.absoluteFilePath()
+                  + QLatin1Char('_') + info.lastModified().toTime_t()
+                  + QLatin1Char('_') + QString::number(data->type);
 
     detach();
     if (QPixmapCache::find(key, *this))

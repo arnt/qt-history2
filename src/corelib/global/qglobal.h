@@ -245,7 +245,6 @@
 /* these are not useful to our customers */
 #    define QT_QWS_NO_SHM
 #    define QT_NO_QWS_MULTIPROCESS
-#    define QT_NO_SQL
 #    define QT_NO_QWS_CURSOR
 #  endif
 

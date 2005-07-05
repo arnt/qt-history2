@@ -21,7 +21,7 @@
 #include "qdecorationwindows_qws.h"
 #include "qdecorationstyled_qws.h"
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QDecorationFactoryInterface_iid, QCoreApplication::libraryPaths(), "/decorations", Qt::CaseInsensitive))
 #endif
@@ -71,7 +71,7 @@ QDecoration *QDecorationFactory::create(const QString& key)
     else
 #endif
     { } // Keep these here - they make the #ifdefery above work
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     if (!ret) {
         if (QDecorationFactoryInterface *factory = qobject_cast<QDecorationFactoryInterface*>(loader()->instance(decoration))) {
             ret = factory->create(decoration);
@@ -88,7 +88,7 @@ QDecoration *QDecorationFactory::create(const QString& key)
 */
 QStringList QDecorationFactory::keys()
 {
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     QStringList list = loader()->keys();
 #else
     QStringList list;

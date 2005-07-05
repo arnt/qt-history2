@@ -362,7 +362,9 @@ void QProgressDialog::setCancelButton(QPushButton *cancelButton)
             cancelButton->setParent(this, 0);
         }
         connect(d->cancel, SIGNAL(clicked()), this, SIGNAL(canceled()));
+#ifndef QT_NO_SHORTCUT
         new QShortcut(Qt::Key_Escape, this, SIGNAL(canceled()));
+#endif
     }
     int w = qMax(isVisible() ? width() : 0, sizeHint().width());
     int h = qMax(isVisible() ? height() : 0, sizeHint().height());

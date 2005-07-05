@@ -25,12 +25,12 @@
 #include "qdebug.h"
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QWSMouseHandlerFactoryInterface_iid, QCoreApplication::libraryPaths(), "/mousedrivers"))
 
-#endif //QT_NO_COMPONENT
+#endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
 
 /*!
@@ -87,9 +87,9 @@ QWSMouseHandler *QMouseDriverFactory::create(const QString& key, const QString &
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
-#ifndef QT_NO_COMPONENT
-        if (QWSMouseHandlerFactoryInterface *factory = qobject_cast<QWSMouseHandlerFactoryInterface*>(loader()->instance(driver)))
-            return factory->create(driver);
+#ifndef QT_NO_LIBRARY
+    if (QWSMouseHandlerFactoryInterface *factory = qobject_cast<QWSMouseHandlerFactoryInterface*>(loader()->instance(driver)))
+        return factory->create(driver);
 #endif
 #endif
     return 0;
@@ -134,9 +134,9 @@ QStringList QMouseDriverFactory::keys()
 #endif
 
 #if !defined(Q_OS_WIN32) || defined(QT_MAKEDLL)
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     list += loader()->keys();
-#endif //QT_NO_COMPONENT
+#endif //QT_NO_LIBRARY
 #endif //QT_MAKEDLL
 
     return list;

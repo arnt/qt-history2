@@ -20,6 +20,8 @@
 #include <QtCore/qlist.h>
 #include <QtCore/qbytearray.h>
 
+#ifndef QT_NO_TEXTCODECPLUGIN
+
 class QTextCodec;
 
 struct Q_CORE_EXPORT QTextCodecFactoryInterface : public QFactoryInterface
@@ -51,4 +53,5 @@ private:
     QTextCodec *create(const QString &name);
 };
 
+#endif // QT_NO_TEXTCODECPLUGIN
 #endif // QTEXTCODECPLUGIN_H

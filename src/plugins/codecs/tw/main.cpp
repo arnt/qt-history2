@@ -15,6 +15,8 @@
 #include <qtextcodec.h>
 #include <qstringlist.h>
 
+#ifndef QT_NO_TEXTCODECPLUGIN
+
 #include "qbig5codec.h"
 
 class TWTextCodecs : public QTextCodecPlugin
@@ -100,3 +102,4 @@ QTextCodec *TWTextCodecs::createForName(const QByteArray &name)
 
 Q_EXPORT_PLUGIN(TWTextCodecs);
 
+#endif // QT_NO_TEXTCODECPLUGIN

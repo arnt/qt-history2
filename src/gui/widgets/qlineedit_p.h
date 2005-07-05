@@ -27,6 +27,7 @@
 
 #include <private/qwidget_p.h>
 
+#ifndef QT_NO_LINEEDIT
 #include <qtextlayout.h>
 #include <qbasictimer.h>
 #include <qstyleoption.h>
@@ -73,8 +74,10 @@ public:
     int lastCursorPos;
 
     enum { UndoAct, RedoAct, CutAct, CopyAct, PasteAct, ClearAct, SelectAllAct, NCountActs };
+#ifndef QT_NO_MENU
     QAction *actions[NCountActs];
-
+#endif
+    
     inline void emitCursorPositionChanged();
     bool sendMouseEventToInputContext(QMouseEvent *e);
 
@@ -172,4 +175,5 @@ public:
     bool userInput;
 };
 
+#endif // QT_NO_LINEEDIT
 #endif // QLINEEDIT_P_H

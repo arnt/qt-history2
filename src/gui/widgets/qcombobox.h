@@ -19,6 +19,8 @@
 #include <QtGui/qabstractitemdelegate.h>
 #include <QtCore/qvariant.h>
 
+#ifndef QT_NO_COMBOBOX
+
 class QAbstractItemView;
 class QLineEdit;
 class QComboBoxPrivate;
@@ -111,9 +113,11 @@ public:
     void setEditable(bool editable);
     void setLineEdit(QLineEdit *edit);
     QLineEdit *lineEdit() const;
+#ifndef QT_NO_VALIDATOR
     void setValidator(const QValidator *v);
     const QValidator *validator() const;
-
+#endif
+    
     QAbstractItemDelegate *itemDelegate() const;
     void setItemDelegate(QAbstractItemDelegate *delegate);
 
@@ -257,4 +261,5 @@ inline void QComboBox::insertItem(int aindex, const QString &atext,
                                   const QVariant &auserData)
 { insertItem(aindex, QIcon(), atext, auserData); }
 
+#endif // QT_NO_COMBOBOX
 #endif // QCOMBOBOX_H

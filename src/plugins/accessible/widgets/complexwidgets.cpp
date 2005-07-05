@@ -122,6 +122,7 @@ QAccessible::State QAccessibleHeader::state(int child) const
     return state;
 }
 
+#ifndef QT_NO_TABBAR
 /*!
   \class QAccessibleTabBar qaccessiblewidget.h
   \brief The QAccessibleTabBar class implements the QAccessibleInterface for tab bars.
@@ -300,6 +301,9 @@ QVector<int> QAccessibleTabBar::selection() const
     return array;
 }
 
+#endif // QT_NO_TABBAR
+
+#ifndef QT_NO_COMBOBOX
 /*!
   \class QAccessibleComboBox qaccessiblewidget.h
   \brief The QAccessibleComboBox class implements the QAccessibleInterface for editable and read-only combo boxes.
@@ -435,9 +439,12 @@ QString QAccessibleComboBox::text(Text t, int child) const
         else
             str = QAccessibleWidget::text(t, 0);
         break;
+#ifndef QT_NO_SHORTCUT
     case Accelerator:
         if (child == OpenList)
             str = (QString)QKeySequence(Qt::Key_Down);
+        // missing break?
+#endif
     case Value:
         if (comboBox()->isEditable())
             str = comboBox()->lineEdit()->text();
@@ -483,4 +490,5 @@ bool QAccessibleComboBox::doAction(int, int child, const QVariantList &)
     comboBox()->showPopup();
     return true;
 }
+#endif // QT_NO_COMBOBOX
 

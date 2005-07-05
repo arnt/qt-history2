@@ -129,7 +129,6 @@ public:
     void restore();
 
     // XForm functions
-#ifndef QT_NO_TRANSFORMATIONS
     void setMatrix(const QMatrix &matrix, bool combine = false);
     const QMatrix &matrix() const;
     const QMatrix &deviceMatrix() const;
@@ -141,7 +140,6 @@ public:
     void scale(qreal sx, qreal sy);
     void shear(qreal sh, qreal sv);
     void rotate(qreal a);
-#endif
 
     void translate(const QPointF &offset);
     inline void translate(const QPoint &offset);

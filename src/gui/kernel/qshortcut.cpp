@@ -14,6 +14,7 @@
 #include "qshortcut.h"
 #include "private/qwidget_p.h"
 
+#ifndef QT_NO_SHORTCUT
 #include <qevent.h>
 #include <qwhatsthis.h>
 #include <qmenu.h>
@@ -317,3 +318,4 @@ bool QShortcut::event(QEvent *e)
     }
     return handled;
 }
+#endif // QT_NO_SHORTCUT

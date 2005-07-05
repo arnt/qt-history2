@@ -32,6 +32,7 @@
 #include "qdebug.h"
 #include "private/qwidget_p.h"
 
+#ifndef QT_NO_TABBAR
 
 class QTabBarPrivate  : public QWidgetPrivate
 {
@@ -129,12 +130,14 @@ QStyleOptionTab QTabBarPrivate::getStyleOption(int tab) const
     } else {
         opt.position = QStyleOptionTab::Middle;
     }
+#ifndef QT_NO_TABWIDGET
     if (const QTabWidget *tw = qobject_cast<const QTabWidget *>(q->parentWidget())) {
         if (tw->cornerWidget(Qt::TopLeftCorner) || tw->cornerWidget(Qt::BottomLeftCorner))
             opt.cornerWidgets |= QStyleOptionTab::LeftCornerWidget;
         if (tw->cornerWidget(Qt::TopRightCorner) || tw->cornerWidget(Qt::BottomRightCorner))
             opt.cornerWidgets |= QStyleOptionTab::RightCornerWidget;
     }
+#endif
     return opt;
 }
 
@@ -568,7 +571,9 @@ int QTabBar::insertTab(int index, const QIcon& icon, const QString &text)
     } else {
         d->tabList.insert(index, QTabBarPrivate::Tab(icon, text));
     }
+#ifndef QT_NO_SHORTCUT
     d->tabList[index].shortcutId = grabShortcut(QKeySequence::mnemonic(text));
+#endif
     d->refresh();
     tabInserted(index);
     return index;
@@ -582,7 +587,9 @@ void QTabBar::removeTab(int index)
 {
     Q_D(QTabBar);
     if (d->validIndex(index)) {
+#ifndef QT_NO_SHORTCUT
         releaseShortcut(d->tabList.at(index).shortcutId);
+#endif
         d->tabList.removeAt(index);
         if (index == d->currentIndex)
             setCurrentIndex(d->validIndex(index+1)?index+1:0);
@@ -642,8 +649,10 @@ void QTabBar::setTabText(int index, const QString &text)
     Q_D(QTabBar);
     if (QTabBarPrivate::Tab *tab = d->at(index)) {
         tab->text = text;
+#ifndef QT_NO_SHORTCUT
         releaseShortcut(tab->shortcutId);
         tab->shortcutId = grabShortcut(QKeySequence::mnemonic(text));
+#endif
         d->refresh();
     }
 }
@@ -903,6 +912,7 @@ bool QTabBar::event(QEvent *e)
         QRect oldHoverRect = d->hoverRect;
         d->hoverRect = QRect();
         update(oldHoverRect);
+#ifndef QT_NO_TOOLTIP
     } else if (e->type() == QEvent::ToolTip) {
         if (const QTabBarPrivate::Tab *tab = d->at(d->indexAtPos(static_cast<QHelpEvent*>(e)->pos()))) {
             if (!tab->toolTip.isEmpty()) {
@@ -910,6 +920,8 @@ bool QTabBar::event(QEvent *e)
                 return true;
             }
         }
+#endif // QT_NO_TOOLTIP
+#ifndef QT_NO_SHORTCUT
     } else if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         for (int i = 0; i < d->tabList.count(); ++i) {
@@ -919,6 +931,7 @@ bool QTabBar::event(QEvent *e)
                 return true;
             }
         }
+#endif
     }
     return QWidget::event(e);
 }
@@ -1117,3 +1130,4 @@ void QTabBar::changeEvent(QEvent *e)
 
 #include "moc_qtabbar.cpp"
 
+#endif // QT_NO_TABBAR

@@ -18,7 +18,7 @@
 #include "QtNetwork/qurlinfo.h"
 #include "QtCore/qobject.h"
 
-#ifndef QT_NO_NETWORKPROTOCOL_FTP
+#ifndef QT_NO_FTP
 
 class QFtpPrivate;
 
@@ -137,6 +137,6 @@ private:
     Q_PRIVATE_SLOT(d_func(), void piFtpReply(int, const QString&))
 };
 
-#endif // QT_NO_NETWORKPROTOCOL_FTP
+#endif // QT_NO_FTP
 
 #endif // QFTP_H

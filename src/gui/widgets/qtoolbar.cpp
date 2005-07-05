@@ -13,6 +13,8 @@
 
 #include "qtoolbar.h"
 
+#ifndef QT_NO_TOOLBAR
+
 #include <qapplication.h>
 #include <qevent.h>
 #include <qlayout.h>
@@ -151,8 +153,10 @@ QToolBarItem QToolBarPrivate::createItem(QAction *action)
                          button, SLOT(setToolButtonStyle(ToolButtonStyle)));
         button->setDefaultAction(action);
         QObject::connect(button, SIGNAL(triggered(QAction*)), q, SIGNAL(actionTriggered(QAction*)));
+#ifndef QT_NO_MENU
         if (action->menu())
             button->setPopupMode(QToolButton::MenuButtonPopup);
+#endif
         item.widget = button;
     }
 
@@ -853,6 +857,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
 				      d->extension->sizeHint().height());
         }
 
+#ifndef QT_NO_MENU
 	QMenu *pop = d->extension->menu();
 	if (!pop) {
 	    pop = new QMenu(this);
@@ -881,6 +886,7 @@ void QToolBar::resizeEvent(QResizeEvent *event)
             d->extension->show();
             d->extension->setEnabled(false);
         }
+#endif // QT_NO_MENU
     } else if (!d->extension->isHidden()) {
 	if (d->extension->menu())
 	    d->extension->menu()->clear();
@@ -939,3 +945,4 @@ QAction *QToolBar::toggleViewAction() const
 
 
 #include "moc_qtoolbar.cpp"
+#endif // QT_NO_TOOLBAR

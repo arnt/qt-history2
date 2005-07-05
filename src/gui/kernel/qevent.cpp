@@ -1813,6 +1813,7 @@ QTabletEvent::~QTabletEvent()
     The high precision y position of the tablet device.
 */
 
+#ifndef QT_NO_DRAGANDDROP
 /*!
     Creates a QDragMoveEvent of the required \a type indicating
     that the mouse is at position \a pos given within a widget.
@@ -2296,6 +2297,7 @@ QDragLeaveEvent::QDragLeaveEvent()
 QDragLeaveEvent::~QDragLeaveEvent()
 {
 }
+#endif // QT_NO_DRAGANDDROP
 
 /*!
     \class QHelpEvent

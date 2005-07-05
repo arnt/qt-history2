@@ -19,7 +19,7 @@
 
 #if !defined(QT_NO_QWS_DECORATION_WINDOWS) || defined(QT_PLUGIN)
 
-#ifndef QT_NO_IMAGEIO_XPM
+#ifndef QT_NO_IMAGEFORMAT_XPM
 
 /* XPM */
 static const char * const win_close_xpm[] = {
@@ -136,7 +136,7 @@ static const char * const win_normalize_xpm[] = {
 "                ",
 "                "};
 
-#endif // QT_NO_IMAGEIO_XPM
+#endif // QT_NO_IMAGEFORMAT_XPM
 
 
 QDecorationWindows::QDecorationWindows()
@@ -155,7 +155,7 @@ QDecorationWindows::~QDecorationWindows()
 
 const char **QDecorationWindows::xpmForRegion(int reg)
 {
-#ifndef QT_NO_IMAGEIO_XPM
+#ifndef QT_NO_IMAGEFORMAT_XPM
     switch(reg)
     {
     case Close:

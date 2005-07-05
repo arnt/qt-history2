@@ -27,9 +27,7 @@ public:
     QFileInfo();
     QFileInfo(const QString &file);
     QFileInfo(const QFile &file);
-#ifndef QT_NO_DIR
     QFileInfo(const QDir &dir, const QString &file);
-#endif
     QFileInfo(const QFileInfo &fileinfo);
     ~QFileInfo();
 
@@ -39,9 +37,7 @@ public:
 
     void setFile(const QString &file);
     void setFile(const QFile &file);
-#ifndef QT_NO_DIR
     void setFile(const QDir &dir, const QString &file);
-#endif
     bool exists() const;
     void refresh();
 
@@ -57,10 +53,8 @@ public:
     QString path() const;
     QString absolutePath() const;
     QString canonicalPath() const;
-#ifndef QT_NO_DIR
     QDir dir() const;
     QDir absoluteDir() const;
-#endif
 
     bool isReadable() const;
     bool isWritable() const;

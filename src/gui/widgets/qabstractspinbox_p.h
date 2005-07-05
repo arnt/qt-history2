@@ -33,6 +33,8 @@
 #include <qvalidator.h>
 #include <private/qwidget_p.h>
 
+#ifndef QT_NO_SPINBOX
+
 bool operator<(const QVariant &arg1, const QVariant &arg2);
 bool operator>(const QVariant &arg1, const QVariant &arg2);
 bool operator<=(const QVariant &arg1, const QVariant &arg2);
@@ -135,4 +137,5 @@ private:
     QAbstractSpinBoxPrivate *dptr;
 };
 
+#endif // QT_NO_SPINBOX
 #endif // QABSTRACTSPINBOX_P_H

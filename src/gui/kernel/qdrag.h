@@ -16,6 +16,7 @@
 
 #include "QtCore/qobject.h"
 
+#ifndef QT_NO_DRAGANDDROP
 class QMimeData;
 class QDragPrivate;
 class QWidget;
@@ -59,4 +60,5 @@ private:
     Q_DISABLE_COPY(QDrag)
 };
 
+#endif // QT_NO_DRAGANDDROP
 #endif // QDRAG_H

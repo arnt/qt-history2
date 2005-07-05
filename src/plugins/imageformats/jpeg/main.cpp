@@ -19,8 +19,8 @@
 
 #ifndef QT_NO_IMAGEFORMATPLUGIN
 
-#ifdef QT_NO_IMAGEIO_JPEG
-#undef QT_NO_IMAGEIO_JPEG
+#ifdef QT_NO_IMAGEFORMAT_JPEG
+#undef QT_NO_IMAGEFORMAT_JPEG
 #endif
 #include "qjpeghandler.h"
 

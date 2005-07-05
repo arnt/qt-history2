@@ -18,6 +18,8 @@
 #include "QtGui/qwidget.h"
 #include "QtGui/qkeysequence.h"
 
+#ifndef QT_NO_SHORTCUT
+
 class QShortcutPrivate;
 class Q_GUI_EXPORT QShortcut : public QObject
 {
@@ -59,4 +61,5 @@ protected:
     bool event(QEvent *e);
 };
 
+#endif // QT_NO_SHORTCUT
 #endif // QSHORTCUT_H

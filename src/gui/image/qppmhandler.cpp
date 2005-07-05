@@ -12,6 +12,9 @@
 ****************************************************************************/
 
 #include "private/qppmhandler_p.h"
+
+#ifndef QT_NO_IMAGEFORMAT_PPM
+
 #include <qimage.h>
 #include <qvariant.h>
 #include <qvector.h>
@@ -400,3 +403,5 @@ QByteArray QPpmHandler::name() const
 {
     return subType.isEmpty() ? QByteArray("ppm") : subType;
 }
+
+#endif // QT_NO_IMAGEFORMAT_PPM

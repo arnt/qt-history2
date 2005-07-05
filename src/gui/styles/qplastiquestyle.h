@@ -16,6 +16,7 @@
 
 #include <QtGui/qwindowsstyle.h>
 
+#if !defined(QT_NO_STYLE_PLASTIQUE) || defined(QT_PLUGIN)
 
 #if defined(QT_PLUGIN)
 #define Q_GUI_EXPORT_STYLE_PLASTIQUE
@@ -64,4 +65,5 @@ private:
     QPlastiqueStylePrivate *d;
 };
 
+#endif // QT_NO_STYLE_PLASTIQUE
 #endif

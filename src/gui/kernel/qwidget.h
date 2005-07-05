@@ -148,7 +148,9 @@ class Q_GUI_EXPORT QWidget : public QObject, public QPaintDevice
     Q_PROPERTY(QString windowIconText READ windowIconText WRITE setWindowIconText DESIGNABLE isWindow)
     Q_PROPERTY(double windowOpacity READ windowOpacity WRITE setWindowOpacity DESIGNABLE false)
     Q_PROPERTY(bool windowModified READ isWindowModified WRITE setWindowModified DESIGNABLE isWindow)
+#ifndef QT_NO_TOOLTIP
     Q_PROPERTY(QString toolTip READ toolTip WRITE setToolTip)
+#endif
     Q_PROPERTY(QString statusTip READ statusTip WRITE setStatusTip)
     Q_PROPERTY(QString whatsThis READ whatsThis WRITE setWhatsThis)
 #ifndef QT_NO_ACCESSIBILITY
@@ -169,11 +171,9 @@ public:
     int devType() const;
 
     WId winId() const;
-#ifndef QT_NO_STYLE
     // GUI style setting
     QStyle *style() const;
     void setStyle(QStyle *);
-#endif
     // Widget types and states
 
     bool isTopLevel() const;
@@ -290,10 +290,10 @@ public:
     qreal windowOpacity() const;
 
     bool isWindowModified() const;
-
+#ifndef QT_NO_TOOLTIP
     void setToolTip(const QString &);
     QString toolTip() const;
-
+#endif
     void setStatusTip(const QString &);
     QString statusTip() const;
 
@@ -340,9 +340,11 @@ public:
     void releaseMouse();
     void grabKeyboard();
     void releaseKeyboard();
+#ifndef QT_NO_SHORTCUT
     int grabShortcut(const QKeySequence &key, Qt::ShortcutContext context = Qt::WindowShortcut);
     void releaseShortcut(int id);
     void setShortcutEnabled(int id, bool enable = true);
+#endif
     static QWidget *mouseGrabber();
     static QWidget *keyboardGrabber();
 
@@ -421,10 +423,8 @@ public:
     QRect contentsRect() const;
 
 public:
-#ifndef QT_NO_LAYOUT
     QLayout *layout() const;
     void setLayout(QLayout *);
-#endif
     void updateGeometry();
 
     void setParent(QWidget *parent);
@@ -442,6 +442,7 @@ public:
     bool acceptDrops() const;
     void setAcceptDrops(bool on);
 
+#ifndef QT_NO_ACTION
     //actions
     void addAction(QAction *action);
     void addActions(QList<QAction*> actions);
@@ -449,7 +450,8 @@ public:
     void insertActions(QAction *before, QList<QAction*> actions);
     void removeAction(QAction *action);
     QList<QAction*> actions() const;
-
+#endif
+    
     QWidget *parentWidget() const;
 
     void setWindowFlags(Qt::WindowFlags type);

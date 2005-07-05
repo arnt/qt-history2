@@ -24,7 +24,7 @@
 class QScreenCursor;
 class QPaintEngine;
 
-#if !defined(QT_NO_IMAGE_16_BIT) || !defined(QT_NO_QWS_DEPTH_16)
+#if !defined(QT_NO_QWS_DEPTH_16) || !defined(QT_NO_QWS_DEPTH_16)
 # ifndef QT_QWS_DEPTH16_RGB
 #  define QT_QWS_DEPTH16_RGB 565
 # endif

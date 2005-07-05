@@ -17,7 +17,7 @@
 #include "QtCore/qnamespace.h"
 #include "QtCore/qstring.h"
 
-#ifndef QT_NO_ACCEL
+#ifndef QT_NO_SHORTCUT
 
 /*****************************************************************************
   QKeySequence stream functions
@@ -102,6 +102,6 @@ public:
     QKeySequence(int) {}
 };
 
-#endif // QT_NO_ACCEL
+#endif // QT_NO_SHORTCUT
 
 #endif // QKEYSEQUENCE_H

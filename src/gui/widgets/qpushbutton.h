@@ -40,14 +40,18 @@ public:
     bool isDefault() const;
     void setDefault(bool);
 
+#ifndef QT_NO_MENU
     void setMenu(QMenu* menu);
     QMenu* menu() const;
+#endif
 
     void setFlat(bool);
     bool isFlat() const;
 
 public slots:
+#ifndef QT_NO_MENU
     void showMenu();
+#endif
 
 protected:
     void paintEvent(QPaintEvent *);
@@ -69,7 +73,9 @@ public:
 private:
     Q_DISABLE_COPY(QPushButton)
     Q_DECLARE_PRIVATE(QPushButton)
+#ifndef QT_NO_MENU        
     Q_PRIVATE_SLOT(d_func(), void popupPressed())
+#endif
 };
 
 #endif // QPUSHBUTTON_H

@@ -12,6 +12,7 @@
 ****************************************************************************/
 
 #include <qmenubar.h>
+
 #include <qstyle.h>
 #include <qlayout.h>
 #include <qapplication.h>
@@ -24,6 +25,8 @@
 #include <qmainwindow.h>
 #include <qtoolbar.h>
 #include <qwhatsthis.h>
+
+#ifndef QT_NO_MENUBAR
 
 #ifdef QT3_SUPPORT
 #include <private/qaction_p.h>
@@ -79,6 +82,7 @@ void QMenuBarPrivate::updateGeometries()
     itemsWidth = q_width;
     itemsStart = q_start;
     currentAction = 0;
+#ifndef QT_NO_SHORTCUT
     if(itemsDirty) {
         for(int j = 0; j < shortcutIndexMap.size(); ++j)
             q->releaseShortcut(shortcutIndexMap.value(j));
@@ -86,11 +90,10 @@ void QMenuBarPrivate::updateGeometries()
         for(int i = 0; i < actionList.count(); i++)
             shortcutIndexMap.append(q->grabShortcut(QKeySequence::mnemonic(actionList.at(i)->text())));
     }
+#endif
     itemsDirty = false;
 
-#ifndef QT_NO_LAYOUT
     q->updateGeometry();
-#endif
 }
 
 QRect QMenuBarPrivate::actionRect(QAction *act) const
@@ -701,8 +704,10 @@ void QMenuBar::mousePressEvent(QMouseEvent *e)
     QAction *action = d->actionAt(e->pos());
     if (!action) {
         d->setCurrentAction(0);
+#ifndef QT_NO_WHATSTHIS
         if (QWhatsThis::inWhatsThisMode())
             QWhatsThis::showText(e->globalPos(), d->whatsThis, this);
+#endif
         return;
     }
 
@@ -1027,6 +1032,7 @@ bool QMenuBar::event(QEvent *e)
         }
 
     } break;
+#ifndef QT_NO_SHORTCUT
     case QEvent::Shortcut: {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
         int shortcutId = se->shortcutId();
@@ -1035,9 +1041,11 @@ bool QMenuBar::event(QEvent *e)
                 d->internalShortcutActivated(j);
         }
     } break;
+#endif
     case QEvent::Show:
         d->updateGeometries();
         break;
+#ifndef QT_NO_WHATSTHIS
     case QEvent::QueryWhatsThis:
         e->setAccepted(d->whatsThis.size());
         if (QAction *action = d->actionAt(static_cast<QHelpEvent*>(e)->pos())) {
@@ -1045,6 +1053,7 @@ bool QMenuBar::event(QEvent *e)
                 e->accept();
         }
         return true;
+#endif
     default:
         break;
     }
@@ -1706,4 +1715,4 @@ int QMenuBar::findIdForAction(QAction *act) const
 // for private slots
 
 #include <moc_qmenubar.cpp>
-
+#endif // QT_NO_MENUBAR

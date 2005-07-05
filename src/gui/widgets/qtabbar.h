@@ -16,6 +16,8 @@
 
 #include "QtGui/qwidget.h"
 
+#ifndef QT_NO_TABBAR
+
 class QIcon;
 class QTabBarPrivate;
 
@@ -113,4 +115,5 @@ private:
     Q_PRIVATE_SLOT(d_func(), void scrollTabs())
 };
 
+#endif // QT_NO_TABBAR
 #endif // QTABBAR_H

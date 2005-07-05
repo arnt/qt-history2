@@ -170,7 +170,6 @@ QClipboard::~QClipboard()
   QApplication member functions related to QClipboard.
  *****************************************************************************/
 
-#ifndef QT_NO_MIMECLIPBOARD
 // text handling is done directly in qclipboard_qws, for now
 
 /*!
@@ -468,5 +467,4 @@ QStringList QMimeSourceWrapper::formats() const
     return fmts;
 }
 
-#endif // QT_NO_MIMECLIPBOARD
 #endif // QT_NO_CLIPBOARD

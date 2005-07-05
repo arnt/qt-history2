@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qstyle.h"
-#ifndef QT_NO_STYLE
 #include "qapplication.h"
 #include "qpainter.h"
 #include "qwidget.h"
@@ -1802,7 +1801,6 @@ QPalette QStyle::standardPalette() const
     return palette;
 }
 
-#endif // QT_NO_STYLE
 
 #ifndef QT_NO_DEBUG
 QDebug operator<<(QDebug debug, QStyle::State state)

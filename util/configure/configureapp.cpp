@@ -1484,8 +1484,8 @@ void Configure::generateConfigfiles()
 WCE({	if(dictionary["STYLE_POCKETPC"] != "yes")    qconfigList += "QT_NO_STYLE_POCKETPC"; })
 
         if(dictionary["GIF"] == "yes")              qconfigList += "QT_BUILTIN_GIF_READER=1";
-        if(dictionary["PNG"] == "no")               qconfigList += "QT_NO_IMAGEIO_PNG";
-        if(dictionary["JPEG"] == "no")              qconfigList += "QT_NO_IMAGEIO_JPEG";
+        if(dictionary["PNG"] == "no")               qconfigList += "QT_NO_IMAGEFORMAT_PNG";
+        if(dictionary["JPEG"] == "no")              qconfigList += "QT_NO_IMAGEFORMAT_JPEG";
         if(dictionary["ZLIB"] == "no") {
             qconfigList += "QT_NO_ZLIB";
             qconfigList += "QT_NO_COMPRESS";

@@ -91,12 +91,15 @@ public:
 QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *parent) const
 {
     switch (type) {
+#ifndef QT_NO_COMBOBOX
     case QVariant::Bool: {
         QComboBox *cb = new QComboBox(parent);
         cb->setFrame(false);
         cb->addItem("False");
         cb->addItem("True");
         return cb; }
+#endif
+#ifndef QT_NO_SPINBOX
     case QVariant::UInt: {
         QSpinBox *sb = new QSpinBox(parent);
         sb->setFrame(false);
@@ -108,6 +111,8 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
         sb->setMinimum(INT_MIN);
         sb->setMaximum(INT_MAX);
         return sb; }
+#endif
+#ifndef QT_NO_DATETIMEEDIT
     case QVariant::Date: {
         QDateTimeEdit *ed = new QDateEdit(parent);
         ed->setFrame(false);
@@ -120,23 +125,31 @@ QWidget *QDefaultItemEditorFactory::createEditor(QVariant::Type type, QWidget *p
         QDateTimeEdit *ed = new QDateTimeEdit(parent);
         ed->setFrame(false);
         return ed; }
+#endif
     case QVariant::Pixmap:
         return new QLabel(parent);
+#ifndef QT_NO_SPINBOX
     case QVariant::Double: {
         QDoubleSpinBox *sb = new QDoubleSpinBox(parent);
         sb->setFrame(false);
         return sb; }
+#endif
+#ifndef QT_NO_COMBOBOX
     case QVariant::StringList: {
         QComboBox *cb = new QComboBox(parent);
         cb->setFrame(false);
         return cb; }
+#endif
+#ifndef QT_NO_LINEEDIT
     case QVariant::String:
     default: {
         // the default editor is a lineedit
         QLineEdit *le = new QLineEdit(parent);
         le->setFrame(false);
         return le; }
+#endif
     }
+    return 0;    
 }
 
 QByteArray QDefaultItemEditorFactory::valuePropertyName(QVariant::Type type) const

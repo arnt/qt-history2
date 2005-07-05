@@ -11,14 +11,13 @@
 **
 ****************************************************************************/
 
-#ifndef QT_NO_PRINTER
-
 #include "qprinter_p.h"
 #include "qprinter.h"
 #include "qprintengine.h"
 #include "qlist.h"
-#include <qprintdialog.h>
 #include <qpagesetupdialog.h>
+
+#ifndef QT_NO_PRINTER
 
 #if defined (Q_WS_WIN)
 #include <private/qprintengine_win_p.h>
@@ -28,7 +27,7 @@
 #include <private/qprintengine_ps_p.h>
 #endif
 
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT)
 #  include "qprintdialog.h"
 #endif // QT3_SUPPORT
 
@@ -342,7 +341,7 @@ QPrinter::QPrinter(PrinterMode mode)
 QPrinter::~QPrinter()
 {
     Q_D(QPrinter);
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
     delete d->printDialog;
 #endif
     delete d->printEngine;
@@ -962,8 +961,6 @@ bool QPrinter::abort()
     return d->printEngine->abort();
 }
 
-#endif // QT_NO_PRINTER
-
 #if 0
 /*!
   \fn int QPrinter::minPage() const
@@ -1173,7 +1170,7 @@ void QPrinter::setPrinterSelectionOption(const QString &option)
 }
 #endif
 
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
 
 void QPrinter::setOutputToFile(bool f)
 {
@@ -1673,3 +1670,6 @@ bool QPrinter::isOptionEnabled( PrinterOption option ) const
     \fn void QPrintEngine::releasePrinterDC(HDC) const
     \internal
 */
+
+#endif // QT_NO_PRINTER
+

@@ -47,7 +47,7 @@
 #include "private/qfactoryloader_p.h"
 #include "qmutex.h"
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 Q_GLOBAL_STATIC_WITH_ARGS(QFactoryLoader, loader,
     (QInputContextFactoryInterface_iid, QCoreApplication::libraryPaths(), QLatin1String("/inputmethods")))
 #endif
@@ -76,7 +76,7 @@ QInputContext *QInputContextFactory::create( const QString& key, QObject *parent
         result = new QMacInputContext;
     }
 #endif
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     if (QInputContextFactoryInterface *factory =
         qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key))) {
         result = factory->create(key);
@@ -105,9 +105,9 @@ QStringList QInputContextFactory::keys()
 #if defined(Q_WS_MAC)
     result << QLatin1String("mac");
 #endif
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     result += loader()->keys();
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
     return result;
 }
 
@@ -127,11 +127,11 @@ QStringList QInputContextFactory::languages( const QString &key )
     if (key == QLatin1String("mac"))
         return QStringList(QString());
 #endif
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     if (QInputContextFactoryInterface *factory =
         qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
         result = factory->languages(key);
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
     return result;
 }
 
@@ -143,11 +143,11 @@ QString QInputContextFactory::displayName( const QString &key )
     if (key == QLatin1String("xim"))
         return QInputContext::tr( "XIM" );
 #endif
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     if (QInputContextFactoryInterface *factory =
         qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
         return factory->displayName(key);
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
     return QString();
 }
 
@@ -166,11 +166,11 @@ QString QInputContextFactory::description( const QString &key )
     if (key == QLatin1String("mac"))
         return QInputContext::tr( "Mac OS X input method" );
 #endif
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
     if (QInputContextFactoryInterface *factory =
         qobject_cast<QInputContextFactoryInterface*>(loader()->instance(key)))
         return factory->description(key);
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
     return QString();
 }
 

@@ -25,13 +25,13 @@
 // We mean it.
 //
 
-#ifndef QT_NO_PRINTER
-
 #include <qglobal.h>
 #ifdef QT3_SUPPORT
 #include <qpointer.h>
 #include <qprintdialog.h>
 #endif
+
+#ifndef QT_NO_PRINTER
 
 class QPrintEngine;
 
@@ -40,7 +40,7 @@ class QPrinterPrivate
 public:
     QPrinterPrivate()
         : printEngine(0)
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
         , printDialog(0)
 #endif
     {
@@ -48,7 +48,7 @@ public:
 
     QPrintEngine *printEngine;
 
-#ifdef QT3_SUPPORT
+#if defined(QT3_SUPPORT) && !(defined(QT_NO_PRINTDIALOG))
     QPointer<QPrintDialog> printDialog;
 #endif
 };

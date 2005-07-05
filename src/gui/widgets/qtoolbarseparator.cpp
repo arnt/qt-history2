@@ -13,6 +13,8 @@
 
 #include "qtoolbarseparator_p.h"
 
+#ifndef QT_NO_TOOLBAR
+
 #include <qstyle.h>
 #include <qstyleoption.h>
 #include <qtoolbar.h>
@@ -53,3 +55,5 @@ void QToolBarSeparator::paintEvent(QPaintEvent *)
     QStyleOption opt = getStyleOption(this);
     style()->drawPrimitive(QStyle::PE_IndicatorToolBarSeparator, &opt, &p, this);
 }
+
+#endif // QT_NO_TOOLBAR

@@ -5738,6 +5738,7 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
     bool doc = false;
 
     QDomNodePrivate* n = first;
+#ifndef QT_NO_TEXTCODEC
     if (n && n->isProcessingInstruction() && n->nodeName()=="xml") {
         // we have an XML declaration
         QString data = n->nodeValue();
@@ -5755,7 +5756,7 @@ void QDomDocumentPrivate::save(QTextStream& s, int, int indent) const
         s.setCodec(QTextCodec::codecForName("UTF-8"));
     }
     s.setAutoDetectUnicode(true);
-
+#endif
     while (n) {
         if (!doc && !(n->isProcessingInstruction()&&n->nodeName()=="xml")) {
             // save doctype after XML declaration

@@ -42,8 +42,10 @@ public:
     void updateCheckBoxGeometry();
     QString title;
     int align;
+#ifndef QT_NO_SHORTCUT
     int shortcutId;
-
+#endif
+    
     void fixFocus();
     void setChildrenEnabled(bool b);
     uint bFlat : 1;
@@ -118,7 +120,9 @@ QGroupBox::~QGroupBox()
 void QGroupBoxPrivate::init()
 {
     align = Qt::AlignLeft;
+#ifndef QT_NO_SHORTCUT
     shortcutId = 0;
+#endif
     bFlat = false;
     calculateFrame();
 }
@@ -130,12 +134,16 @@ void QGroupBox::setTitle(const QString &title)
     if (d->title == title)                                // no change
         return;
     d->title = title;
+#ifndef QT_NO_SHORTCUT
     releaseShortcut(d->shortcutId);
+#endif
     if (d->checkbox) {
         d->checkbox->setText(d->title);
+#ifndef QT_NO_SHORTCUT
         d->shortcutId = 0; // the checkbox does the shortcut for us
     } else {
         d->shortcutId = grabShortcut(QKeySequence::mnemonic(title));
+#endif
     }
     d->calculateFrame();
     d->updateCheckBoxGeometry();
@@ -266,6 +274,7 @@ void QGroupBox::paintEvent(QPaintEvent *event)
 /*! \reimp  */
 bool QGroupBox::event(QEvent *e)
 {
+#ifndef QT_NO_SHORTCUT
     Q_D(QGroupBox);
     if (e->type() == QEvent::Shortcut) {
         QShortcutEvent *se = static_cast<QShortcutEvent *>(e);
@@ -274,6 +283,7 @@ bool QGroupBox::event(QEvent *e)
             return true;
         }
     }
+#endif
     return QWidget::event(e);
 }
 
@@ -312,30 +322,24 @@ void QGroupBoxPrivate::fixFocus()
     Q_Q(QGroupBox);
     QWidget *fw = q->focusWidget();
     if (!fw) {
-#ifndef QT_NO_RADIOBUTTON
         QWidget * best = 0;
-#endif
         QWidget * candidate = 0;
         QWidget * w = q;
         while ((w = w->nextInFocusChain()) != q) {
             if (q->isAncestorOf(w) && (w->focusPolicy() & Qt::TabFocus) == Qt::TabFocus && w->isVisibleTo(q)) {
-#ifndef QT_NO_RADIOBUTTON
                 if (!best && qobject_cast<QRadioButton*>(w) && ((QRadioButton*)w)->isChecked())
                     // we prefer a checked radio button or a widget that
                     // already has focus, if there is one
                     best = w;
                 else
-#endif
                     if (!candidate)
                         // but we'll accept anything that takes focus
                         candidate = w;
             }
         }
-#ifndef QT_NO_RADIOBUTTON
         if (best)
             fw = best;
         else
-#endif
             if (candidate)
                 fw = candidate;
     }

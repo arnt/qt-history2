@@ -12,6 +12,8 @@
 ****************************************************************************/
 
 #include "qfactoryloader_p.h"
+
+#ifndef QT_NO_LIBRARY
 #include "qfactoryinterface.h"
 #include "qmap.h"
 #include <qdir.h>
@@ -149,3 +151,4 @@ QObject *QFactoryLoader::instance(const QString &key) const
     }
     return 0;
 }
+#endif // QT_NO_LIBRARY

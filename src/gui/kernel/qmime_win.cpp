@@ -13,7 +13,6 @@
 
 #include "qmime.h"
 
-#ifndef QT_NO_MIME
 
 #include "qimagereader.h"
 #include "qimagewriter.h"
@@ -32,7 +31,7 @@
 #include "qtextdocument.h"
 #include "qdir.h"
 
-#ifndef QT_NO_IMAGEIO_BMP
+#ifndef QT_NO_IMAGEFORMAT_BMP
 extern bool qt_read_dib(QDataStream&, QImage&); // qimage.cpp
 extern bool qt_write_dib(QDataStream&, QImage);   // qimage.cpp
 #endif
@@ -775,7 +774,7 @@ bool QWindowsMimeHtml::convertFromMime(const FORMATETC &formatetc, const QMimeDa
 }
 
 
-#ifndef QT_NO_IMAGEIO_BMP
+#ifndef QT_NO_IMAGEFORMAT_BMP
 class QWindowsMimeImage : public QWindowsMime
 {
 public:
@@ -1092,7 +1091,7 @@ void QWindowsMimeList::init()
 {
     if (!initialized) {
         initialized = true;
-#ifndef QT_NO_IMAGEIO_BMP
+#ifndef QT_NO_IMAGEFORMAT_BMP
         new QWindowsMimeImage;
 #endif
         new QLastResortMimes;
@@ -1122,4 +1121,3 @@ QList<QWindowsMime*> QWindowsMimeList::windowsMimes()
     return mimes;
 }
 
-#endif // QT_NO_MIME

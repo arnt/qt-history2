@@ -21,7 +21,6 @@
 
 #include <limits.h>
 
-#ifndef QT_NO_LAYOUT
 
 class QGridLayoutPrivate;
 
@@ -125,6 +124,5 @@ public:
     inline QT3_SUPPORT int rowSpacing(int row) const {return rowMinimumHeight(row); }
 #endif
 };
-#endif // QT_NO_LAYOUT
 
 #endif // QGRIDLAYOUT_H

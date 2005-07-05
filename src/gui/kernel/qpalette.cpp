@@ -13,7 +13,6 @@
 
 #include "qpalette.h"
 #include "qapplication.h"
-#ifndef QT_NO_PALETTE
 #include "qdatastream.h"
 #include "qvariant.h"
 
@@ -1201,4 +1200,3 @@ QPalette::setColorGroup(ColorGroup cg, const QBrush &foreground, const QBrush &b
     otherwise returns false.
 */
 
-#endif // QT_NO_PALETTE

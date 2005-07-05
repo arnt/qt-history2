@@ -17,6 +17,8 @@
 #include <QtCore/qvariant.h>
 #include <QtGui/qprinter.h>
 
+#ifndef QT_NO_PRINTER
+
 class Q_GUI_EXPORT QPrintEngine
 {
 public:
@@ -62,5 +64,7 @@ public:
 #endif
 
 };
+
+#endif // QT_NO_PRINTER
 
 #endif // QPRINTENGINE_H

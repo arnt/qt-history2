@@ -14,6 +14,8 @@
 #include "qmainwindow.h"
 #include "qmainwindowlayout_p.h"
 
+#ifndef QT_NO_MAINWINDOW
+
 #include "qdockwidget.h"
 #include "qtoolbar.h"
 
@@ -314,6 +316,7 @@ void QMainWindow::setToolButtonStyle(Qt::ToolButtonStyle toolButtonStyle)
     emit toolButtonStyleChanged(d->toolButtonStyle);
 }
 
+#ifndef QT_NO_MENUBAR
 /*!
     Returns the menu bar for the main window. This function creates
     and returns an empty menu bar if the menu bar does not exist.
@@ -346,7 +349,9 @@ void QMainWindow::setMenuBar(QMenuBar *menuBar)
         delete d->layout->menuBar();
     d->layout->setMenuBar(menuBar);
 }
+#endif // QT_NO_MENUBAR
 
+#ifndef QT_NO_STATUSBAR
 /*!
     Returns the status bar for the main window. This function creates
     and returns an empty status bar if the status bar does not exist.
@@ -379,6 +384,7 @@ void QMainWindow::setStatusBar(QStatusBar *statusbar)
         delete d->layout->statusBar();
     d->layout->setStatusBar(statusbar);
 }
+#endif // QT_NO_STATUSBAR
 
 /*!
     Returns the central widget for the main window. This function
@@ -440,6 +446,7 @@ void QMainWindow::setCorner(Qt::Corner corner, Qt::DockWidgetArea area)
 Qt::DockWidgetArea QMainWindow::corner(Qt::Corner corner) const
 { return d_func()->layout->corners[corner]; }
 
+#ifndef QT_NO_TOOLBAR
 /*!
     Adds a toolbar break to the given \a area after all the other
     objects that are present.
@@ -548,6 +555,8 @@ void QMainWindow::removeToolBar(QToolBar *toolbar)
 */
 Qt::ToolBarArea QMainWindow::toolBarArea(QToolBar *toolbar) const
 { return d_func()->layout->toolBarArea(toolbar); }
+
+#endif // QT_NO_TOOLBAR
 
 /*!
     Adds the given \a dockwidget to the specified \a area.
@@ -688,6 +697,7 @@ bool QMainWindow::restoreState(const QByteArray &state, int version)
 bool QMainWindow::event(QEvent *event)
 {
     Q_D(QMainWindow);
+#ifndef QT_NO_TOOLBAR
     if (event->type() == QEvent::ToolBarChange) {
         QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
         QSize minimumSize = d->layout->minimumSize();
@@ -700,10 +710,14 @@ bool QMainWindow::event(QEvent *event)
         QSize delta = newMinimumSize - minimumSize;
         resize(size() + delta);
         return true;
-    } else if (event->type() == QEvent::StatusTip) {
+    } else
+#endif
+    if (event->type() == QEvent::StatusTip) {
+#ifndef QT_NO_STATUSBAR
         if (QStatusBar *sb = d->layout->statusBar())
             sb->showMessage(static_cast<QStatusTipEvent*>(event)->tip());
         else
+#endif
             static_cast<QStatusTipEvent*>(event)->ignore();
         return true;
     } else if (event->type() == QEvent::StyleChange) {
@@ -732,24 +746,29 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
             }
             break;
         }
+#ifndef QT_NO_TOOLBAR
         if (QToolBar *tb = qobject_cast<QToolBar *>(child)) {
             if (tb->parentWidget() != this)
                 return;
             break;
         }
+#endif
         child = child->parentWidget();
     }
     if (child == this)
         return;
 
+#ifndef QT_NO_MENU
     QMenu *popup = createPopupMenu();
     if (!popup)
 	return;
     popup->exec(event->globalPos());
     delete popup;
     event->accept();
+#endif
 }
 
+#ifndef QT_NO_MENU
 /*!
     This function is called to create a popup menu when the user
     right-clicks on the menu bar, a toolbar or a dock widget. If you
@@ -760,21 +779,26 @@ void QMainWindow::contextMenuEvent(QContextMenuEvent *event)
 QMenu *QMainWindow::createPopupMenu()
 {
     QMenu *menu = 0;
-    QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
     QList<QDockWidget *> dockwidgets = qFindChildren<QDockWidget *>(this);
-    if (toolbars.size() || dockwidgets.size()) {
+    if (dockwidgets.size()) {
         menu = new QMenu(this);
-        if (!dockwidgets.isEmpty()) {
-            for (int i = 0; i < dockwidgets.size(); ++i)
-                if (dockwidgets.at(i)->parentWidget() == this)
-                    menu->addAction(dockwidgets.at(i)->toggleViewAction());
-            menu->addSeparator();
-        }
-        if (!toolbars.isEmpty()) {
-            for (int i = 0; i < toolbars.size(); ++i)
-                if (toolbars.at(i)->parentWidget() == this)
-                    menu->addAction(toolbars.at(i)->toggleViewAction());
-        }
+        for (int i = 0; i < dockwidgets.size(); ++i)
+            if (dockwidgets.at(i)->parentWidget() == this)
+                menu->addAction(dockwidgets.at(i)->toggleViewAction());
+        menu->addSeparator();
     }
+#ifndef QT_NO_TOOLBAR
+    QList<QToolBar *> toolbars = qFindChildren<QToolBar *>(this);
+    if (toolbars.size()) {
+        if (!menu)
+            menu = new QMenu(this);
+        for (int i = 0; i < toolbars.size(); ++i)
+            if (toolbars.at(i)->parentWidget() == this)
+                menu->addAction(toolbars.at(i)->toggleViewAction());
+    }
+#endif
     return menu;
 }
+#endif // QT_NO_MENU
+
+#endif // QT_NO_MAINWINDOW

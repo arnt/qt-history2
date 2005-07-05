@@ -17,7 +17,7 @@
 #include "QtCore/qplugin.h"
 #include "QtCore/qfactoryinterface.h"
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 
 class QWSMouseHandler;
 
@@ -41,6 +41,6 @@ public:
     virtual QWSMouseHandler* create(const QString& driver, const QString &device) = 0;
 };
 
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY
 
 #endif // QMOUSEDRIVERPLUGIN_QWS_H

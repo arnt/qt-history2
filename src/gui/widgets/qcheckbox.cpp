@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qcheckbox.h"
-#ifndef QT_NO_CHECKBOX
 #include "qapplication.h"
 #include "qbitmap.h"
 #include "qicon.h"
@@ -284,7 +283,6 @@ QCheckBox::QCheckBox(const QString &text, QWidget *parent, const char* name)
 
 #endif
 
-#endif
 
 /*!
     \fn void QCheckBox::setNoChange()

@@ -608,11 +608,7 @@ QDataStream &operator<<(QDataStream &s, const QBrush &b)
 {
     s << (quint8)b.style() << b.color();
     if (b.style() == Qt::TexturePattern) {
-#ifndef QT_NO_IMAGEIO
         s << b.texture();
-#else
-        qWarning("No Image Brush I/O");
-#endif
     } else if (b.style() == Qt::LinearGradientPattern
                || b.style() == Qt::RadialGradientPattern
                || b.style() == Qt::ConicalGradientPattern) {
@@ -651,13 +647,9 @@ QDataStream &operator>>(QDataStream &s, QBrush &b)
     s >> style;
     s >> color;
     if (style == Qt::TexturePattern) {
-#ifndef QT_NO_IMAGEIO
         QPixmap pm;
         s >> pm;
         b = QBrush(color, pm);
-#else
-        qWarning("No Image Brush I/O");
-#endif
     } else if (style == Qt::LinearGradientPattern
                || style == Qt::RadialGradientPattern
                || style == Qt::ConicalGradientPattern) {

@@ -20,7 +20,6 @@
 #include <qlist.h>
 #include <qalgorithms.h>
 
-#ifndef QT_NO_LAYOUT
 
 typedef qint64 Fixed;
 static inline Fixed toFixed(int i) { return (Fixed)i * 256; }
@@ -327,4 +326,3 @@ Q_GUI_EXPORT QSize qSmartMaxSize(const QWidget *w, Qt::Alignment align)
     return qSmartMaxSize(&item, align);
 }
 
-#endif // QT_NO_LAYOUT

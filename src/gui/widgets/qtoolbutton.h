@@ -25,8 +25,9 @@ class Q_GUI_EXPORT QToolButton : public QAbstractButton
 {
     Q_OBJECT
     Q_ENUMS(Qt::ToolButtonStyle Qt::ArrowType)
-
+#ifndef QT_NO_MENU
     Q_PROPERTY(ToolButtonPopupMode popupMode READ popupMode WRITE setPopupMode)
+#endif
     Q_PROPERTY(Qt::ToolButtonStyle toolButtonStyle READ toolButtonStyle WRITE setToolButtonStyle)
     Q_PROPERTY(bool autoRaise READ autoRaise WRITE setAutoRaise)
     Q_PROPERTY(Qt::ArrowType arrowType READ arrowType WRITE setArrowType)
@@ -49,11 +50,13 @@ public:
     Qt::ArrowType arrowType() const;
     void setArrowType(Qt::ArrowType type);
 
+#ifndef QT_NO_MENU    
     void setMenu(QMenu* menu);
     QMenu* menu() const;
-
+    
     void setPopupMode(ToolButtonPopupMode mode);
     ToolButtonPopupMode popupMode() const;
+#endif
 
     QAction *defaultAction() const;
 
@@ -61,7 +64,9 @@ public:
     bool autoRaise() const;
 
 public slots:
+#ifndef QT_NO_MENU
     void showMenu();
+#endif
     void setToolButtonStyle(Qt::ToolButtonStyle style);
     void setDefaultAction(QAction *);
 
@@ -84,7 +89,9 @@ protected:
 private:
     Q_DISABLE_COPY(QToolButton)
     Q_DECLARE_PRIVATE(QToolButton)
+#ifndef QT_NO_MENU
     Q_PRIVATE_SLOT(d_func(), void buttonPressed())
+#endif
     Q_PRIVATE_SLOT(d_func(), void actionTriggered())
 
 #ifdef QT3_SUPPORT

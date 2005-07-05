@@ -63,7 +63,9 @@ public:
     inline bool isAreaAllowed(Qt::DockWidgetArea area) const
     { return (allowedAreas() & area) == area; }
 
+#ifndef QT_NO_ACTION
     QAction *toggleViewAction() const;
+#endif
 
 signals:
     void featuresChanged(DockWidgetFeatures features);

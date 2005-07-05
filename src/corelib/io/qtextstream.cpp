@@ -2733,6 +2733,7 @@ int QTextStream::flagsInternal(int newFlags)
     return oldFlags;
 }
 
+#ifndef QT_NO_TEXTCODEC
 /*!
     Use setCodec() and setAutoDetectUnicode() instead.
 */
@@ -2783,6 +2784,7 @@ void QTextStream::setEncoding(Encoding encoding)
         break;
     }
 }
+#endif
 
 /*!
     \enum QTextStream::Encoding

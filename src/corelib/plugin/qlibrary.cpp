@@ -12,8 +12,10 @@
 ****************************************************************************/
 
 #include "qplatformdefs.h"
-
 #include "qlibrary.h"
+
+#ifndef QT_NO_LIBRARY
+
 #include "qlibrary_p.h"
 #include <qstringlist.h>
 #include <qfile.h>
@@ -476,7 +478,9 @@ bool QLibraryPrivate::isPlugin()
 
     QFileInfo fileinfo(fileName);
 
+#ifndef QT_NO_DATESTRING
     lastModified  = fileinfo.lastModified().toString(Qt::ISODate);
+#endif
     QString regkey = QString::fromLatin1("Qt Plugin Cache %1.%2.%3/%4")
                      .arg((QT_VERSION & 0xff0000) >> 16)
                      .arg((QT_VERSION & 0xff00) >> 8)
@@ -828,3 +832,4 @@ void *QLibrary::resolve(const QString &fileName, const char *symbol)
     Use load(), isLoaded(), and unload() as necessary instead.
 */
 
+#endif // QT_NO_LIBRARY

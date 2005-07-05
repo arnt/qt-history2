@@ -113,7 +113,9 @@ protected:
 
     void keyPressEvent(QKeyEvent *ev);
     void timerEvent(QTimerEvent *);
+#ifndef QT_NO_WHEELEVENT
     void wheelEvent(QWheelEvent *e);
+#endif
     void changeEvent(QEvent *e);
 
 #ifdef QT3_SUPPORT

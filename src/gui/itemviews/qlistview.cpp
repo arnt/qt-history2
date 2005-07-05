@@ -254,10 +254,12 @@ void QListView::setMovement(Movement movement)
     d->modeProperties |= uint(QListViewPrivate::Movement);
     d->movement = movement;
 
+#ifndef QT_NO_DRAGANDDROP
     bool movable = (movement != QListView::Static);
     setDragEnabled(movable);
     d->viewport->setAcceptDrops(movable);
-
+#endif
+    
     d->doDelayedItemsLayout();
 }
 
@@ -455,9 +457,11 @@ void QListView::setViewMode(ViewMode mode)
             d->resizeMode = Fixed;
     }
 
+#ifndef QT_NO_DRAGANDDROP
     bool movable = (d->movement != QListView::Static);
     setDragEnabled(movable);
     setAcceptDrops(movable);
+#endif
     d->doDelayedItemsLayout();
 }
 
@@ -734,6 +738,8 @@ void QListView::resizeEvent(QResizeEvent *e)
     }
 }
 
+#ifndef QT_NO_DRAGANDDROP
+
 /*!
   \reimp
 */
@@ -861,6 +867,8 @@ void QListView::internalDrag(Qt::DropActions supportedActions)
             d->removeSelectedRows();
     }
 }
+
+#endif // QT_NO_DRAGANDDROP
 
 /*!
   \reimp

@@ -192,7 +192,9 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->familyEdit->setFocusProxy(d->familyList);
 
     d->familyAccel = new QLabel(tr("&Font"), this);
+#ifndef QT_NO_SHORTCUT
     d->familyAccel->setBuddy(d->familyList);
+#endif
     d->familyAccel->setIndent(2);
 
     d->styleEdit = new QLineEdit(this);
@@ -201,7 +203,9 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->styleEdit->setFocusProxy(d->styleList);
 
     d->styleAccel = new QLabel(tr("Font st&yle"), this);
+#ifndef QT_NO_SHORTCUT
     d->styleAccel->setBuddy(d->styleList);
+#endif
     d->styleAccel->setIndent(2);
 
     d->sizeEdit = new QLineEdit(this);
@@ -211,7 +215,9 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->sizeList = new QFontListView(this);
 
     d->sizeAccel = new QLabel(tr("&Size"), this);
+#ifndef QT_NO_SHORTCUT
     d->sizeAccel->setBuddy(d->sizeEdit);
+#endif
     d->sizeAccel->setIndent(2);
 
     // effects box
@@ -237,7 +243,9 @@ QFontDialog::QFontDialog(QWidget *parent, bool modal, Qt::WFlags f)
     d->writingSystemCombo = new QComboBox(this);
 
     d->writingSystemAccel = new QLabel(tr("Wr&iting System"), this);
+#ifndef QT_NO_SHORTCUT
     d->writingSystemAccel->setBuddy(d->writingSystemCombo);
+#endif
     d->writingSystemAccel->setIndent(2);
 
     d->size = 0;

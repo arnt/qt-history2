@@ -13,7 +13,7 @@
 
 #include "qkbddriverplugin_qws.h"
 
-#ifndef QT_NO_COMPONENT
+#ifndef QT_NO_LIBRARY
 
 #include "qkbd_qws.h"
 
@@ -70,4 +70,4 @@ QKbdDriverPlugin::~QKbdDriverPlugin()
     \sa keys()
 */
 
-#endif // QT_NO_COMPONENT
+#endif // QT_NO_LIBRARY

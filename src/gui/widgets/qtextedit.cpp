@@ -14,6 +14,8 @@
 #include "qtextedit.h"
 #include "qtextedit_p.h"
 
+#ifndef QT_NO_TEXTEDIT
+
 #include <qfont.h>
 #include <qpainter.h>
 #include <qevent.h>
@@ -41,7 +43,7 @@
 #include <qinputcontext.h>
 #endif
 
-#ifndef QT_NO_ACCEL
+#ifndef QT_NO_SHORTCUT
 #include <qkeysequence.h>
 #define ACCEL_KEY(k) "\t" + QString(QKeySequence( Qt::CTRL | Qt::Key_ ## k ))
 #else
@@ -402,6 +404,7 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
     anchorToScrollToWhenVisible.clear();
 }
 
+#ifndef QT_NO_DRAGANDDROP
 void QTextEditPrivate::startDrag()
 {
     Q_Q(QTextEdit);
@@ -419,6 +422,7 @@ void QTextEditPrivate::startDrag()
     if (action == Qt::MoveAction && drag->target() != q)
         cursor.removeSelectedText();
 }
+#endif // QT_NO_DRAGANDDROP
 
 void QTextEditPrivate::setCursorPosition(const QPoint &pos)
 {
@@ -511,6 +515,7 @@ void QTextEditPrivate::updateCurrentCharFormatAndSelection()
     selectionChanged();
 }
 
+#ifndef QT_NO_SCROLLBAR
 void QTextEditPrivate::adjustScrollbars()
 {
     if (ignoreAutomaticScrollbarAdjustement)
@@ -527,7 +532,9 @@ void QTextEditPrivate::adjustScrollbars()
     vbar->setRange(0, docSize.height() - viewportSize.height());
     vbar->setPageStep(viewportSize.height());
 }
+#endif
 
+#ifndef QT_NO_CLIPBOARD
 void QTextEditPrivate::setClipboardSelection()
 {
     if (!cursor.hasSelection())
@@ -536,6 +543,7 @@ void QTextEditPrivate::setClipboardSelection()
     QMimeData *data = q->createMimeDataFromSelection();
     QApplication::clipboard()->setMimeData(data, QClipboard::Selection);
 }
+#endif
 
 void QTextEditPrivate::ensureVisible(int documentPosition)
 {
@@ -1205,6 +1213,7 @@ void QTextEdit::setCurrentFont(const QFont &f)
     \sa undo()
 */
 
+#ifndef QT_NO_CLIPBOARD
 /*!
     Copies the selected text to the clipboard and deletes it from
     the text edit.
@@ -1251,6 +1260,7 @@ void QTextEdit::paste()
 {
     insertFromMimeData(QApplication::clipboard()->mimeData());
 }
+#endif
 
 /*!
     Deletes all the text in the text edit.
@@ -1276,7 +1286,9 @@ void QTextEdit::selectAll()
     d->cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     d->selectionChanged();
     d->viewport->update();
+#ifndef QT_NO_CLIPBOARD
     d->setClipboardSelection();
+#endif
 }
 
 /*! \internal
@@ -1293,9 +1305,11 @@ void QTextEdit::timerEvent(QTimerEvent *e)
                             != 0);
 
         d->repaintCursor();
+#ifndef QT_NO_DRAGANDDROP
     } else if (e->timerId() == d->dragStartTimer.timerId()) {
         d->dragStartTimer.stop();
         d->startDrag();
+#endif
     } else if (e->timerId() == d->trippleClickTimer.timerId()) {
         d->trippleClickTimer.stop();
     } else if (e->timerId() == d->autoScrollTimer.timerId()) {
@@ -1407,6 +1421,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
         case Qt::Key_Y:
             d->doc->redo();
             break;
+#ifndef QT_NO_CLIPBOARD
         case Qt::Key_X:
         case Qt::Key_F20:  // Cut key on Sun keyboards
             cut();
@@ -1420,6 +1435,7 @@ void QTextEdit::keyPressEvent(QKeyEvent *e)
         case Qt::Key_F18:  // Paste key on Sun keyboards
             paste();
             break;
+#endif // QT_NO_CLIPBOARD
         case Qt::Key_Backspace:
             d->cursor.movePosition(QTextCursor::PreviousWord, QTextCursor::KeepAnchor);
             goto process;
@@ -1462,15 +1478,19 @@ process:
         break;
     }
     case Qt::Key_Delete:
+#ifndef QT_NO_CLIPBOARD
         if (e->modifiers() & Qt::ShiftModifier)
             cut();
 	else
+#endif
             d->cursor.deleteChar();
         break;
+#ifndef QT_NO_CLIPBOARD
     case Qt::Key_Insert:
         if (e->modifiers() & Qt::ShiftModifier)
             paste();
         break;
+#endif
     case Qt::Key_Return:
     case Qt::Key_Enter:
         d->cursor.insertBlock();
@@ -1679,7 +1699,9 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
     const QPoint pos = d->mapToContents(e->pos());
 
     d->mousePressed = true;
+#ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
+#endif
 
     if (d->trippleClickTimer.isActive()
         && ((e->globalPos() - d->trippleClickPoint).manhattanLength() < QApplication::startDragDistance())) {
@@ -1719,9 +1741,11 @@ void QTextEdit::mousePressEvent(QMouseEvent *e)
             if (d->cursor.hasSelection()
                 && cursorPos >= d->cursor.selectionStart()
                 && cursorPos <= d->cursor.selectionEnd()) {
+#ifndef QT_NO_DRAGANDDROP
                 d->mightStartDrag = true;
                 d->dragStartPos = e->globalPos();
                 d->dragStartTimer.start(QApplication::startDragTime(), this);
+#endif
                 return;
             }
 
@@ -1746,7 +1770,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
           || d->selectedWordOnDoubleClick.hasSelection()
           || d->selectedLineOnDoubleClick.hasSelection()))
         return;
-
+#ifndef QT_NO_DRAGANDDROP
     if (d->mightStartDrag) {
         d->dragStartTimer.stop();
 
@@ -1755,7 +1779,7 @@ void QTextEdit::mouseMoveEvent(QMouseEvent *e)
 
         return;
     }
-
+#endif
     const QPoint mousePos = d->mapToContents(e->pos());
     const qreal mouseX = qreal(mousePos.x());
 
@@ -1790,28 +1814,31 @@ void QTextEdit::mouseReleaseEvent(QMouseEvent *e)
     Q_D(QTextEdit);
 
     d->autoScrollTimer.stop();
-
+#ifndef QT_NO_DRAGANDDROP
     if (d->mightStartDrag) {
         d->mousePressed = false;
         d->setCursorPosition(e->pos());
         d->cursor.clearSelection();
         d->selectionChanged();
     }
-
+#endif
     if (d->mousePressed) {
         d->mousePressed = false;
+#ifndef QT_NO_CLIPBOARD
         d->setClipboardSelection();
     } else if (e->button() == Qt::MidButton
                && !d->readOnly
                && QApplication::clipboard()->supportsSelection()) {
         d->setCursorPosition(e->pos());
         insertFromMimeData(QApplication::clipboard()->mimeData(QClipboard::Selection));
+#endif
     }
 
     d->viewport->update();
-
+#ifndef QT_NO_DRAGANDDROP
     if (d->dragStartTimer.isActive())
         d->dragStartTimer.stop();
+#endif
 }
 
 /*! \reimp
@@ -1823,14 +1850,17 @@ void QTextEdit::mouseDoubleClickEvent(QMouseEvent *e)
         e->ignore();
         return;
     }
-
+#ifndef QT_NO_DRAGANDDROP
     d->mightStartDrag = false;
+#endif
     d->setCursorPosition(e->pos());
     QTextLine line = currentTextLine(d->cursor);
     if (line.isValid() && line.textLength()) {
         d->cursor.select(QTextCursor::WordUnderCursor);
         d->selectionChanged();
+#ifndef QT_NO_CLIPBOARD
         d->setClipboardSelection();
+#endif
         d->viewport->update();
     }
 
@@ -1871,11 +1901,14 @@ bool QTextEdit::focusNextPrevChild(bool)
 */
 void QTextEdit::contextMenuEvent(QContextMenuEvent *e)
 {
+#ifndef QT_NO_MENU
     QMenu *menu = createStandardContextMenu();
     menu->exec(e->globalPos());
     delete menu;
+#endif
 }
 
+#ifndef QT_NO_DRAGANDDROP
 /*! \reimp
 */
 void QTextEdit::dragEnterEvent(QDragEnterEvent *e)
@@ -1949,6 +1982,8 @@ void QTextEdit::dropEvent(QDropEvent *e)
     d->setCursorPosition(e->pos());
     insertFromMimeData(e->mimeData());
 }
+
+#endif // QT_NO_DRAGANDDROP
 
 /*! \reimp
  */
@@ -2074,6 +2109,7 @@ void QTextEdit::changeEvent(QEvent *e)
 
 /*! \reimp
 */
+#ifndef QT_NO_WHEELEVENT
 void QTextEdit::wheelEvent(QWheelEvent *e)
 {
     Q_D(QTextEdit);
@@ -2090,7 +2126,9 @@ void QTextEdit::wheelEvent(QWheelEvent *e)
     QAbstractScrollArea::wheelEvent(e);
     updateMicroFocus();
 }
+#endif
 
+#ifndef QT_NO_MENU
 /*!  This function creates the standard context menu which is shown
   when the user clicks on the line edit with the right mouse
   button. It is called from the default contextMenuEvent() handler.
@@ -2118,10 +2156,12 @@ QMenu *QTextEdit::createStandardContextMenu()
     a = menu->addAction(tr("&Copy") + ACCEL_KEY(C), this, SLOT(copy()));
     a->setEnabled(d->cursor.hasSelection());
 
+#if !defined(QT_NO_CLIPBOARD)
     if (!d->readOnly) {
         a = menu->addAction(tr("&Paste") + ACCEL_KEY(V), this, SLOT(paste()));
         a->setEnabled(canInsertFromMimeData(QApplication::clipboard()->mimeData()));
     }
+#endif
 
     menu->addSeparator();
     a = menu->addAction(tr("Select All")
@@ -2134,6 +2174,7 @@ QMenu *QTextEdit::createStandardContextMenu()
 
     return menu;
 }
+#endif // QT_NO_MENU
 
 /*!
   returns a QTextCursor at position \a pos (in viewport coordinates).
@@ -3028,3 +3069,4 @@ void QTextEdit::ensureCursorVisible()
 */
 
 #include "moc_qtextedit.cpp"
+#endif // QT_NO_TEXTEDIT

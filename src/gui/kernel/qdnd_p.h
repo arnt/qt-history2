@@ -36,6 +36,8 @@
 # include "private/qt_mac_p.h"
 #endif
 
+#ifndef QT_NO_DRAGANDDROP
+
 class QEventLoop;
 
 class QDragPrivate : public QObjectPrivate
@@ -193,4 +195,5 @@ private:
 
 #endif
 
+#endif // QT_NO_DRAGANDDROP
 #endif // QDND_P_H

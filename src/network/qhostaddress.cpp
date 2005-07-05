@@ -429,7 +429,6 @@ Q_IPV6ADDR QHostAddress::toIPv6Address() const
     return d->a6;
 }
 
-#ifndef QT_NO_SPRINTF
 /*!
     Returns the address as a string.
 
@@ -462,7 +461,6 @@ QString QHostAddress::toString() const
 
     return QString();
 }
-#endif
 
 /*!
     Returns true if this host address is the same as the \a other address

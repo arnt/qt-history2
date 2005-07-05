@@ -559,9 +559,7 @@ public:
     virtual void drawPolygon(const QPolygon &,bool,int,int);
     virtual void drawPolyline(const QPolygon &,int,int);
     virtual void blt(int,int,int,int,int,int);
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
     virtual void stretchBlt(int rx,int ry,int w,int h, int sw,int sh);
-#endif
     virtual void tiledBlt(int rx,int ry,int w,int h);
 
     inline int tx(int x, int y) {
@@ -811,7 +809,6 @@ void QGfxTransformedRaster<depth,type>::blt(int x, int y, int w, int h, int sx, 
     QT_TRANS_GFX_BASE<depth,type>::blt(r.x(), r.y(), r.width(), r.height(), rsx, rsy);
 }
 
-#if !defined(QT_NO_MOVIE) || !defined(QT_NO_TRANSFORMATIONS)
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::stretchBlt(int x, int y, int w, int h,
                                                     int sw, int sh)
@@ -825,7 +822,6 @@ void QGfxTransformedRaster<depth,type>::stretchBlt(int x, int y, int w, int h,
     QT_TRANS_GFX_BASE<depth,type>::stretchBlt(r.x(), r.y(), r.width(), r.height(),
                                         rs.width(), rs.height());
 }
-#endif
 
 template <const int depth, const int type>
 void QGfxTransformedRaster<depth,type>::tiledBlt(int rx,int ry,int w,int h)

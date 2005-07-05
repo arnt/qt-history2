@@ -16,6 +16,8 @@
 
 #include "QtCore/qobject.h"
 
+#ifndef QT_NO_BUTTONGROUP
+
 class QAbstractButton;
 class QAbstractButtonPrivate;
 class QButtonGroupPrivate;
@@ -56,4 +58,5 @@ private:
     friend class QAbstractButtonPrivate;
 };
 
+#endif // QT_NO_BUTTONGROUP
 #endif // QBUTTONGROUP_H

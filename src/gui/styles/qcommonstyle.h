@@ -16,7 +16,6 @@
 
 #include "QtGui/qstyle.h"
 
-#ifndef QT_NO_STYLE
 
 class Q_GUI_EXPORT QCommonStyle: public QStyle
 {
@@ -55,6 +54,5 @@ private:
     Q_DISABLE_COPY(QCommonStyle)
 };
 
-#endif // QT_NO_STYLE
 
 #endif // QCOMMONSTYLE_H

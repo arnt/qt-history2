@@ -95,7 +95,7 @@ public:
     void registerChannel(const QString &channel);
     void sendMessage(const QString &channel, const QString &msg,
                        const QByteArray &data);
-#ifndef QT_NO_QWS_REPEATER
+#ifdef QT_QWS_REPEATER
     void repaintRegion(QRegion &);
 #endif
 #ifndef QT_NO_QWS_IM

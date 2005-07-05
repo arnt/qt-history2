@@ -14,6 +14,8 @@
 #include "qsimplecodec_p.h"
 #include "qlist.h"
 
+#ifndef QT_NO_TEXTCODEC
+
 #ifdef Q_WS_QWS
 static const QSimpleTextCodec * reverseOwner = 0;
 static QByteArray reverseMap;
@@ -731,3 +733,5 @@ int QSimpleTextCodec::mibEnum() const
 {
     return unicodevalues[forwardIndex].mib;
 }
+
+#endif // QT_NO_TEXTCODEC

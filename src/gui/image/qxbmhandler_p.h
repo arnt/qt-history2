@@ -16,6 +16,8 @@
 
 #include "qimageiohandler.h"
 
+#ifndef QT_NO_IMAGEFORMAT_XBM
+
 class Q_GUI_EXPORT QXbmHandler : public QImageIOHandler
 {
 public:
@@ -35,4 +37,5 @@ private:
     QString fileName;
 };
 
-#endif
+#endif // QT_NO_IMAGEFORMAT_XBM
+#endif // QXBMHANDLER_H

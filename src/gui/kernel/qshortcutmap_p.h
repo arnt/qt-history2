@@ -28,6 +28,8 @@
 #include "qkeysequence.h"
 #include <qvector.h>
 
+#ifndef QT_NO_SHORTCUT
+
 // To enable dump output uncomment below
 //#define Dump_QShortcutMap
 
@@ -61,7 +63,9 @@ public:
 
 private:
     bool correctContext(Qt::ShortcutContext context, QWidget *w, QWidget *active_window);
+#ifndef QT_NO_ACTION
     bool correctContext(Qt::ShortcutContext context,QAction *a, QWidget *active_window);
+#endif
     QShortcutMapPrivate *d_ptr;
 
     QKeySequence::SequenceMatch find(QKeyEvent *e);
@@ -72,4 +76,5 @@ private:
     int translateModifiers(Qt::KeyboardModifiers modifiers);
 };
 
+#endif // QT_NO_SHORTCUT
 #endif // QSHORTCUTMAP_P_H

@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qdrawutil.h"
-#ifndef QT_NO_DRAWUTIL
 #include "qbitmap.h"
 #include "qpixmapcache.h"
 #include "qapplication.h"
@@ -676,9 +675,7 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     QPolygon bTop;                                // top shadow.
     QPolygon bBot;                                // bottom shadow.
     QPolygon bLeft;                                // left shadow.
-#ifndef QT_NO_TRANSFORMATIONS
     QMatrix        matrix;                                // xform matrix
-#endif
     bool vertical = type == Qt::UpArrow || type == Qt::DownArrow;
     bool horizontal = !vertical;
     int         dim = w < h ? w : h;
@@ -727,7 +724,6 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     }
 
     if (type == Qt::UpArrow || type == Qt::LeftArrow) {
-#ifndef QT_NO_TRANSFORMATIONS        // #### fix me!
         matrix.translate(x, y);
         if (vertical) {
             matrix.translate(0, h - 1);
@@ -736,20 +732,17 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
             matrix.translate(w - 1, h - 1);
             matrix.rotate(180);
         }
-#endif
         if (down)
             colspec = horizontal ? 0x2334 : 0x2343;
         else
             colspec = horizontal ? 0x1443 : 0x1434;
     }
     else if (type == Qt::DownArrow || type == Qt::RightArrow) {
-#ifndef QT_NO_TRANSFORMATIONS        // #### fix me!
         matrix.translate(x, y);
         if (vertical) {
             matrix.translate(w-1, 0);
             matrix.rotate(90);
         }
-#endif
         if (down)
             colspec = horizontal ? 0x2443 : 0x2434;
         else
@@ -769,17 +762,13 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
 
     QPen     savePen   = p->pen();                // save current pen
     QBrush   saveBrush = p->brush();                // save current brush
-#ifndef QT_NO_TRANSFORMATIONS
     QMatrix wxm = p->matrix();
-#endif
     QPen     pen(Qt::NoPen);
     const QBrush &brush = pal.brush(QPalette::Button);
 
     p->setPen(pen);
     p->setBrush(brush);
-#ifndef QT_NO_TRANSFORMATIONS
     p->setMatrix(matrix, true);                // set transformation matrix
-#endif
     p->drawPolygon(bFill);                        // fill arrow
     p->setBrush(Qt::NoBrush);                        // don't fill
 
@@ -790,9 +779,7 @@ static void qDrawMotifArrow(QPainter *p, Qt::ArrowType type, bool down,
     p->setPen(CBOT);
     p->drawLines(bBot);
 
-#ifndef QT_NO_TRANSFORMATIONS
     p->setMatrix(wxm);
-#endif
     p->setBrush(saveBrush);                        // restore brush
     p->setPen(savePen);                        // restore pen
 
@@ -920,4 +907,3 @@ void qDrawItem(QPainter *p, Qt::GUIStyle gs,
 }
 #endif
 
-#endif //QT_NO_DRAWUTIL

@@ -12,7 +12,6 @@
 ****************************************************************************/
 
 #include "qvariant.h"
-#ifndef QT_NO_VARIANT
 #include "qbitarray.h"
 #include "qbytearray.h"
 #include "qdatastream.h"
@@ -53,14 +52,12 @@ static void construct(QVariant::Private *x, const void *copy)
     case QVariant::StringList:
         v_construct<QStringList>(x, copy);
         break;
-#ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::Map:
         v_construct<QVariantMap>(x, copy);
         break;
     case QVariant::List:
         v_construct<QVariantList>(x, copy);
         break;
-#endif
     case QVariant::Date:
         v_construct<QDate>(x, copy);
         break;
@@ -150,14 +147,12 @@ static void clear(QVariant::Private *d)
     case QVariant::StringList:
         v_clear<QStringList>(d);
         break;
-#ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::Map:
         v_clear<QVariantMap>(d);
         break;
     case QVariant::List:
         v_clear<QVariantList>(d);
         break;
-#endif
     case QVariant::Date:
         v_clear<QDate>(d);
         break;
@@ -264,10 +259,8 @@ static bool isNull(const QVariant::Private *d)
     case QVariant::Url:
     case QVariant::Locale:
     case QVariant::StringList:
-#ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::Map:
     case QVariant::List:
-#endif
     case QVariant::Invalid:
     case QVariant::UserType:
     case QVariant::Int:
@@ -292,14 +285,12 @@ static void load(QVariant::Private *d, QDataStream &s)
         d->is_null = true;
         break;
     }
-#ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::Map:
         s >> *v_cast<QVariantMap>(d);
         break;
     case QVariant::List:
         s >> *v_cast<QVariantList>(d);
         break;
-#endif
     case QVariant::String:
         s >> *v_cast<QString>(d);
         break;
@@ -391,14 +382,12 @@ static void load(QVariant::Private *d, QDataStream &s)
 static void save(const QVariant::Private *d, QDataStream &s)
 {
     switch (d->type) {
-#ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::List:
         s << *v_cast<QVariantList>(d);
         break;
     case QVariant::Map:
         s << *v_cast<QVariantMap>(d);
         break;
-#endif
     case QVariant::String:
         s << *v_cast<QString>(d);
         break;
@@ -491,7 +480,6 @@ static void save(const QVariant::Private *d, QDataStream &s)
 static bool compare(const QVariant::Private *a, const QVariant::Private *b)
 {
     switch(a->type) {
-#ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::List:
         return *v_cast<QVariantList>(a) == *v_cast<QVariantList>(b);
     case QVariant::Map: {
@@ -509,7 +497,6 @@ static bool compare(const QVariant::Private *a, const QVariant::Private *b)
         }
         return true;
     }
-#endif
     case QVariant::String:
         return *v_cast<QString>(a) == *v_cast<QString>(b);
     case QVariant::Char:
@@ -595,7 +582,7 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         case QVariant::Double:
             *str = QString::number(d->data.d, 'g', DBL_DIG);
             break;
-#if !defined(QT_NO_SPRINTF) && !defined(QT_NO_DATESTRING)
+#if !defined(QT_NO_DATESTRING)
         case QVariant::Date:
             *str = v_cast<QDate>(d)->toString(Qt::ISODate);
             break;
@@ -636,7 +623,6 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         break;
     }
 
-#ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::StringList:
         if (d->type == QVariant::List) {
             QStringList *slst = static_cast<QStringList *>(result);
@@ -649,7 +635,6 @@ static bool convert(const QVariant::Private *d, QVariant::Type t, void *result, 
         } else {
             return false;
         }
-#endif
         break;
     case QVariant::Date: {
         QDate *dt = static_cast<QDate *>(result);
@@ -1005,7 +990,6 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
         return d->type == QVariant::String || d->type == QVariant::Date;
     case QVariant::List:
         return d->type == QVariant::StringList;
-#ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::StringList:
         if (d->type == QVariant::List) {
             const QVariantList &varlist = *v_cast<QVariantList >(d);
@@ -1018,7 +1002,6 @@ static bool canConvert(const QVariant::Private *d, QVariant::Type t)
             return true;
         }
         return false;
-#endif
     case QVariant::RectF:
         return d->type == QVariant::Rect;
     case QVariant::PointF:
@@ -1059,14 +1042,12 @@ void streamDebug(QDebug dbg, const QVariant &v)
     case QVariant::StringList:
         dbg.nospace() << v.toStringList();
         break;
-#ifndef QT_NO_TEMPLATE_VARIANT
     case QVariant::Map:
         dbg.nospace() << v.toMap();
         break;
     case QVariant::List:
         dbg.nospace() << v.toList();
         break;
-#endif
     case QVariant::Date:
         dbg.nospace() << v.toDate();
         break;
@@ -1603,12 +1584,10 @@ QVariant::QVariant(const QTime &val)
 { create(Time, &val); }
 QVariant::QVariant(const QDateTime &val)
 { create(DateTime, &val); }
-#ifndef QT_NO_TEMPLATE_VARIANT
 QVariant::QVariant(const QList<QVariant> &list)
 { create(List, &list); }
 QVariant::QVariant(const QMap<QString, QVariant> &map)
 { create(Map, &map); }
-#endif
 #ifndef QT_NO_GEOM_VARIANT
 QVariant::QVariant(const QPoint &pt) { create(Point, &pt); }
 QVariant::QVariant(const QPointF &pt) { create (PointF, &pt); }
@@ -2038,7 +2017,6 @@ QString QVariant::toString() const
     handler->convert(&d, String, &ret, 0);
     return ret;
 }
-#ifndef QT_NO_TEMPLATE_VARIANT
 /*!
     Returns the variant as a QMap<QString, QVariant> if the variant has
     type() Map; otherwise returns an empty map.
@@ -2061,7 +2039,6 @@ QVariantMap QVariant::toMap() const
 
     return *v_cast<QVariantMap>(&d);
 }
-#endif
 
 /*!
   \fn QDate QVariant::toDate() const
@@ -2345,7 +2322,6 @@ double QVariant::toDouble(bool *ok) const
     return res;
 }
 
-#ifndef QT_NO_TEMPLATE_VARIANT
 /*!
   \fn QVariantList QVariant::toList() const
 
@@ -2371,7 +2347,6 @@ QVariantList QVariant::toList() const
     handler->convert(&d, List, &res, 0);
     return res;
 }
-#endif
 
 /*! \fn QVariant::canCast(Type t) const
     Use canConvert() instead.
@@ -2863,4 +2838,3 @@ QDebug operator<<(QDebug dbg, const QVariant::Type p)
     \sa QVariant::canConvert()
 */
 
-#endif //QT_NO_VARIANT
