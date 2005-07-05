@@ -360,12 +360,12 @@ QLayoutItem *QAbstractFormBuilder::create(DomLayoutItem *ui_layoutItem, QLayout 
 
         DomSpacer *ui_spacer = ui_layoutItem->elementSpacer();
 
-        int e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfEnumerator("QSizePolicy::Policy");
+        int e_index = QSizePolicy::staticMetaObject.indexOfEnumerator("Policy");
         Q_ASSERT(e_index != -1);
 
-        QMetaEnum sizePolicy_enum = QAbstractFormBuilderGadget::staticMetaObject.enumerator(e_index);
+        QMetaEnum sizePolicy_enum = QSizePolicy::staticMetaObject.enumerator(e_index);
 
-        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfEnumerator("Qt::Orientation");
+        e_index = QAbstractFormBuilderGadget::staticMetaObject.indexOfEnumerator("Orientation");
         Q_ASSERT(e_index != -1);
 
         QMetaEnum orientation_enum = QAbstractFormBuilderGadget::staticMetaObject.enumerator(e_index);
