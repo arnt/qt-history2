@@ -443,6 +443,8 @@ void QTableModel::sort(int column, Qt::SortOrder order)
         }
     }
     table = sorted_table;
+
+    emit layoutChanged();
 }
 
 bool QTableModel::itemLessThan(const QPair<QTableWidgetItem*,int> &left,
