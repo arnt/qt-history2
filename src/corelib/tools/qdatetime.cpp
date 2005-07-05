@@ -3161,7 +3161,7 @@ static QDateTimePrivate::Spec utcToLocal(QDate &date, QTime &time)
     } else {
         int deltaDays = fakeDate.daysTo(date);
         date = QDate(brokenDown->tm_year + 1900, brokenDown->tm_mon + 1, brokenDown->tm_mday);
-        time = QTime(brokenDown->tm_hour, brokenDown->tm_min, brokenDown->tm_sec);
+        time = QTime(brokenDown->tm_hour, brokenDown->tm_min, brokenDown->tm_sec, time.msec());
         date = date.addDays(deltaDays);
         if (brokenDown->tm_isdst > 0)
             return QDateTimePrivate::LocalDST;
@@ -3175,7 +3175,7 @@ static QDateTimePrivate::Spec utcToLocal(QDate &date, QTime &time)
 static void localToUtc(QDate &date, QTime &time, int isdst)
 {
     if (!date.isValid())
-	return;
+	    return;
 
     QDate lowerLimit(LowerYear, 1, 2);
     QDate upperLimit(2037, 12, 30);
@@ -3214,7 +3214,7 @@ static void localToUtc(QDate &date, QTime &time, int isdst)
     } else {
         int deltaDays = fakeDate.daysTo(date);
         date = QDate(brokenDown->tm_year + 1900, brokenDown->tm_mon + 1, brokenDown->tm_mday);
-        time = QTime(brokenDown->tm_hour, brokenDown->tm_min, brokenDown->tm_sec);
+        time = QTime(brokenDown->tm_hour, brokenDown->tm_min, brokenDown->tm_sec, time.msec());
         date = date.addDays(deltaDays);
     }
 }
