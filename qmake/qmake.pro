@@ -5,7 +5,7 @@
 
 CONFIG += console bootstrap
 CONFIG -= qt shared app_bundle uic
-DEFINES += QT_BUILD_QMAKE
+DEFINES += QT_BUILD_QMAKE QT_BOOTSTRAPPED
 DESTDIR = ../bin/
 
 OBJECTS_DIR = .

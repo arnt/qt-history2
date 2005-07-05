@@ -3284,8 +3284,11 @@ full)
     ;;
 *)
     QCONFIGFILE=qconfig-$CFG_QCONFIG.h
-    echo "/* Copied from $QCONFIGFILE */" >$outpath/src/corelib/global/qconfig.h.new
-    cat $relpath/src/tools/$QCONFIGFILE >>$outpath/src/corelib/global/qconfig.h.new
+    tmpconfig=$outpath/src/corelib/global/qconfig.h.new
+    echo "#ifndef QT_BOOTSTRAPPED" >$tmpconfig
+    echo "/* Copied from $QCONFIGFILE */" >>$tmpconfig
+    cat $relpath/src/tools/$QCONFIGFILE >>$tmpconfig
+    echo "#endif" >>$tmpconfig
     ;;
 esac
 cat >> $outpath/src/corelib/global/qconfig.h.new <<EOF
