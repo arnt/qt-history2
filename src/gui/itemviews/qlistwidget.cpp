@@ -231,9 +231,18 @@ void QListModel::sort(int column, Qt::SortOrder order)
 {
     if (column != 0)
         return;
+    QMap<QListWidgetItem*, int> positions;
+    for (int i = 0; i < lst.count(); ++i)
+        positions.insert(lst.at(i), i);
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qSort(lst.begin(), lst.end(), compare);
-    emit dataChanged(index(0, 0), index(lst.count() - 1, 0));
+    for (int j = 0; j < lst.count(); ++j) {
+        int row = positions.value(lst.at(j));
+        QModelIndex from = createIndex(row, 0, lst.at(j));
+        QModelIndex to = createIndex(j, 0, lst.at(j));
+        changePersistentIndex(from, to);
+    }
+    emit layoutChanged();
 }
 
 bool QListModel::itemLessThan(const QListWidgetItem *left, const QListWidgetItem *right)
