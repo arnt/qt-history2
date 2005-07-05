@@ -22,7 +22,7 @@
 #include <private/qwidgetitemdata_p.h>
 
 // workaround for VC++ 6.0 linker bug (?)
-typedef bool(*LessThan)(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
+typedef bool(*LessThan)(const QPair<QTreeWidgetItem*,int>&,const QPair<QTreeWidgetItem*,int>&);
 
 class QTreeWidgetMimeData : public QMimeData
 {
@@ -67,8 +67,10 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
-    static bool itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
-    static bool itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right);
+    static bool itemLessThan(const QPair<QTreeWidgetItem*,int> &left,
+                             const QPair<QTreeWidgetItem*,int> &right);
+    static bool itemGreaterThan(const QPair<QTreeWidgetItem*,int> &left,
+                                const QPair<QTreeWidgetItem*,int> &right);
 
     void insertInTopLevel(int row, QTreeWidgetItem *item);
     void removeFromTopLevel(QTreeWidgetItem *item);
@@ -525,9 +527,10 @@ void QTreeModel::sort(int column, Qt::SortOrder order)
   Used by the sorting functions.
 */
 
-bool QTreeModel::itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
+bool QTreeModel::itemLessThan(const QPair<QTreeWidgetItem*,int> &left,
+                              const QPair<QTreeWidgetItem*,int> &right)
 {
-    return *left < *right;
+    return *(left.first) < *(right.first);
 }
 
 /*!
@@ -539,9 +542,10 @@ bool QTreeModel::itemLessThan(const QTreeWidgetItem *left, const QTreeWidgetItem
   Used by the sorting functions.
 */
 
-bool QTreeModel::itemGreaterThan(const QTreeWidgetItem *left, const QTreeWidgetItem *right)
+bool QTreeModel::itemGreaterThan(const QPair<QTreeWidgetItem*,int> &left,
+                                 const QPair<QTreeWidgetItem*,int> &right)
 {
-    return !(*left < *right);
+    return !(*(left .first) < *(right.first));
 }
 
 /*!
@@ -716,25 +720,24 @@ QTreeWidgetItem* QTreeModel::previousSibling(const QTreeWidgetItem* item)
 
 void QTreeModel::sortItems(QList<QTreeWidgetItem*> *items, int column, Qt::SortOrder order)
 {
-    // FIXME: we may want to implement the sorting ourselves, so we can change the persistent index when sorting
-
     // store the original order of indexes
-    QMap<QTreeWidgetItem*, int> positions;
-    for (int i = 0; i < items->count(); ++i)
-        positions.insert(items->at(i), i);
+    QVector< QPair<QTreeWidgetItem*,int> > sorting(items->count());
+    for (int i = 0; i < sorting.count(); ++i) {
+        sorting[i].first = items->at(i);
+        sorting[i].second = i;
+    }
 
     // do the sorting
-    LessThan compare = (order == Qt::AscendingOrder
-                        ? &QTreeModel::itemLessThan
-                        : &QTreeModel::itemGreaterThan);
-    qSort(items->begin(), items->end(), compare);
+    LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
+    qSort(sorting.begin(), sorting.end(), compare);
 
     // update the persistent indexes for the top level
-    for (int k = 0; k < items->count(); ++k) {
-        for (int l = 0; l < items->at(k)->columnCount(); ++l) {
-            int row = positions.value(items->at(k), -1);
-            QModelIndex from = createIndex(row, l, items->at(k));
-            QModelIndex to = createIndex(k, l, items->at(k));
+    for (int r = 0; r < sorting.count(); ++r) {
+        for (int c = 0; c < sorting.at(r).first->columnCount(); ++c) {
+            QTreeWidgetItem *item = sorting.at(r).first;
+            items->replace(r, item);
+            QModelIndex from = createIndex(sorting.at(r).second, c, item);
+            QModelIndex to = createIndex(r, c, item);
             changePersistentIndex(from, to);
         }
     }

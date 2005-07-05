@@ -18,7 +18,7 @@
 #include <private/qwidgetitemdata_p.h>
 
 // workaround for VC++ 6.0 linker bug (?)
-typedef bool(*LessThan)(const QListWidgetItem *left, const QListWidgetItem *right);
+typedef bool(*LessThan)(const QPair<QListWidgetItem*,int>&,const QPair<QListWidgetItem*,int>&);
 
 class QListWidgetMimeData : public QMimeData
 {
@@ -54,8 +54,10 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
-    static bool itemLessThan(const QListWidgetItem *left, const QListWidgetItem *right);
-    static bool itemGreaterThan(const QListWidgetItem *left, const QListWidgetItem *right);
+    static bool itemLessThan(const QPair<QListWidgetItem*,int> &left,
+                             const QPair<QListWidgetItem*,int> &right);
+    static bool itemGreaterThan(const QPair<QListWidgetItem*,int> &left,
+                                const QPair<QListWidgetItem*,int> &right);
 
     void itemChanged(QListWidgetItem *item);
 
@@ -231,28 +233,36 @@ void QListModel::sort(int column, Qt::SortOrder order)
 {
     if (column != 0)
         return;
-    QMap<QListWidgetItem*, int> positions;
-    for (int i = 0; i < lst.count(); ++i)
-        positions.insert(lst.at(i), i);
+    QVector < QPair<QListWidgetItem*,int> > sorting(lst.count());
+    for (int i = 0; i < lst.count(); ++i) {
+        sorting[i].first = lst.at(i);
+        sorting[i].second = i;
+    }
+    
     LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
-    qSort(lst.begin(), lst.end(), compare);
-    for (int j = 0; j < lst.count(); ++j) {
-        int row = positions.value(lst.at(j));
-        QModelIndex from = createIndex(row, 0, lst.at(j));
-        QModelIndex to = createIndex(j, 0, lst.at(j));
+    qSort(sorting.begin(), sorting.end(), compare);
+    
+    for (int r = 0; r < sorting.count(); ++r) {
+        QListWidgetItem *item = sorting.at(r).first;
+        lst[r] = item;
+        QModelIndex from = createIndex(sorting.at(r).second, 0, item);
+        QModelIndex to = createIndex(r, 0, item);
         changePersistentIndex(from, to);
     }
+
     emit layoutChanged();
 }
 
-bool QListModel::itemLessThan(const QListWidgetItem *left, const QListWidgetItem *right)
+bool QListModel::itemLessThan(const QPair<QListWidgetItem*,int> &left,
+                              const QPair<QListWidgetItem*,int> &right)
 {
-    return *left < *right;
+    return (*left.first) < (*right.first);
 }
 
-bool QListModel::itemGreaterThan(const QListWidgetItem *left, const QListWidgetItem *right)
+bool QListModel::itemGreaterThan(const QPair<QListWidgetItem*,int> &left,
+                                 const QPair<QListWidgetItem*,int> &right)
 {
-    return !(*left < *right);
+    return !((*left.first) < (*right.first));
 }
 
 void QListModel::itemChanged(QListWidgetItem *item)
