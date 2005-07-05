@@ -27,7 +27,6 @@
 #  define QSBDEBUG if (false) qDebug
 #endif
 
-static const char dot = '.';
 static bool isIntermediateValueHelper(qint64 num, qint64 min, qint64 max, qint64 *match = 0);
 
 class QSpinBoxPrivate : public QAbstractSpinBoxPrivate
@@ -52,7 +51,6 @@ public:
     QDoubleSpinBoxPrivate();
     void emitSignals(EmitPolicy ep, const QVariant &);
     bool isIntermediateValue(const QString &str) const;
-    int findDelimiter(const QString &str, int index = 0) const;
 
     virtual QVariant valueFromText(const QString &n) const;
     virtual QString textFromValue(const QVariant &n) const;
@@ -880,9 +878,6 @@ void QDoubleSpinBox::fixup(QString &input) const
 {
     Q_D(const QDoubleSpinBox);
 
-    if (d->thousand != dot && d->delimiter != dot && input.count(dot) == 1)
-        input.replace(dot, d->delimiter);
-
     input.remove(d->thousand);
 }
 
@@ -1003,8 +998,8 @@ QVariant QSpinBoxPrivate::validateAndInterpret(QString &input, int &,
 {
     if (cachedText == input && !input.isEmpty()) {
         state = cachedState;
-        QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
-                   << state << " and value was " << cachedValue;
+//         QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
+//                    << state << " and value was " << cachedValue;
 
         return cachedValue;
     }
@@ -1112,6 +1107,8 @@ bool QDoubleSpinBoxPrivate::isIntermediateValue(const QString &str) const
     for (int i=0; i<decimals; ++i)
         dec *= 10;
 
+    const char dot = '.';
+
     // I know QString::number() uses CLocale so I use dot
     const QString minstr = QString::number(minimum.toDouble(), 'f', decimals);
     qint64 min_left = minstr.left(minstr.indexOf(dot)).toLongLong();
@@ -1121,34 +1118,34 @@ bool QDoubleSpinBoxPrivate::isIntermediateValue(const QString &str) const
     qint64 max_left = maxstr.left(maxstr.indexOf(dot)).toLongLong();
     qint64 max_right = maxstr.mid(maxstr.indexOf(dot) + 1).toLongLong();
 
-    const int dot = str.indexOf(delimiter);
+    const int dotindex = str.indexOf(delimiter);
     const bool negative = maximum.toDouble() < 0;
     qint64 left = 0, right = 0;
     bool doleft = true;
     bool doright = true;
-    if (dot == -1) {
+    if (dotindex == -1) {
         left = str.toLongLong();
         doright = false;
-    } else if (dot == 0 || (dot == 1 && str.at(0) == '+')) {
+    } else if (dotindex == 0 || (dotindex == 1 && str.at(0) == '+')) {
         if (negative) {
             QSBDEBUG() << __FILE__ << __LINE__ << "returns false";
             return false;
         }
         doleft = false;
-        right = str.mid(dot + 1).toLongLong();
-    } else if (dot == 1 && str.at(0) == '-') {
+        right = str.mid(dotindex + 1).toLongLong();
+    } else if (dotindex == 1 && str.at(0) == '-') {
         if (!negative) {
             QSBDEBUG() << __FILE__ << __LINE__ << "returns false";
             return false;
         }
         doleft = false;
-        right = str.mid(dot + 1).toLongLong();
+        right = str.mid(dotindex + 1).toLongLong();
     } else {
-        left = str.left(dot).toLongLong();
-        if (dot == str.size() - 1) {
+        left = str.left(dotindex).toLongLong();
+        if (dotindex == str.size() - 1) {
             doright = false;
         } else {
-            right = str.mid(dot + 1).toLongLong();
+            right = str.mid(dotindex + 1).toLongLong();
         }
     }
     if ((left >= 0 && max_left < 0 && !str.startsWith('-')) || (left < 0 && min_left >= 0)) {
@@ -1197,20 +1194,6 @@ bool QDoubleSpinBoxPrivate::isIntermediateValue(const QString &str) const
     return true;
 }
 
-
-/*
-  \internal Tries to find the decimal separator. If it can't find it
-  and the thousand delimiter is != '.' it will try to find a '.';
-*/
-
-int QDoubleSpinBoxPrivate::findDelimiter(const QString &str, int index) const
-{
-    int dotindex = str.indexOf(delimiter, index);
-    if (dotindex == -1 && thousand != dot && delimiter != dot)
-        dotindex = str.indexOf(dot, index);
-    return dotindex;
-}
-
 /*!
     \internal
     \reimp
@@ -1232,8 +1215,8 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
 {
     if (cachedText == input && !input.isEmpty()) {
         state = cachedState;
-        QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
-                   << state << " and value was " << cachedValue;
+//         QSBDEBUG() << "cachedText was" << "'" + cachedText + "'" << "state was "
+//                    << state << " and value was " << cachedValue;
         return cachedValue;
     }
     const double max = maximum.toDouble();
@@ -1251,7 +1234,6 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
         goto end;
     case 1:
         if (copy.at(0) == delimiter
-            || (thousand != dot && copy.at(0) == dot)
             || (plus && copy.at(0) == QLatin1Char('+'))
             || (minus && copy.at(0) == QLatin1Char('-'))) {
             state = QValidator::Intermediate;
@@ -1259,7 +1241,7 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
         }
         break;
     case 2:
-        if ((copy.at(1) == delimiter || (thousand != dot && copy.at(1) == dot))
+        if (copy.at(1) == delimiter
             && ((plus && copy.at(0) == QLatin1Char('+')) || (minus && copy.at(0) == QLatin1Char('-')))) {
             state = QValidator::Intermediate;
             goto end;
@@ -1273,7 +1255,7 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
         state = QValidator::Invalid;
         goto end;
     } else if (len > 1) {
-        const int dec = findDelimiter(copy);
+        const int dec = copy.indexOf(delimiter);
         if (dec != -1) {
             if (copy.size() - dec > decimals + 1) {
                 QSBDEBUG() << __FILE__ << __LINE__<< "state is set to Invalid";
@@ -1307,15 +1289,10 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
         bool ok = false;
         QLocale loc;
         num = loc.toDouble(copy, &ok);
+        QSBDEBUG() << __FILE__ << __FILE__ << loc << copy << num << ok;
         bool notAcceptable = false;
 
         if (!ok) {
-            bool tryAgain = false;
-            if (thousand != dot && delimiter != dot && copy.count(dot) == 1) {
-                copy.replace(dot, delimiter);
-                tryAgain = true;
-            }
-
             if (thousand.isPrint()) {
                 if (max < 1000 && min > -1000 && copy.contains(thousand)) {
                     state = QValidator::Invalid;
@@ -1333,11 +1310,9 @@ QVariant QDoubleSpinBoxPrivate::validateAndInterpret(QString &input, int &,
                 }
 
                 copy.remove(thousand);
-                tryAgain = tryAgain || len != copy.size();
-            }
-
-            if (tryAgain) {
                 num = loc.toDouble(copy, &ok);
+                QSBDEBUG() << thousand << num << copy << ok;
+
                 if (!ok) {
                     state = QValidator::Invalid;
                     QSBDEBUG() << __FILE__ << __LINE__<< "state is set to Invalid";
