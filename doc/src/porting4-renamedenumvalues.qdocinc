@@ -97,8 +97,7 @@
 \row \o QStyle::Style_Bottom \o QStyle::State_Bottom 
 \row \o QStyle::Style_Children \o QStyle::State_Children 
 \row \o QStyle::Style_Default \o QStyle::State_None 
-\row \o QStyle::Style_Default \o QStyle::Style_None
-\row \o QStyle::Style_Down \o QStyle::State_Down 
+\row \o QStyle::Style_Down \o QStyle::State_DownArrow 
 \row \o QStyle::Style_Editing \o QStyle::State_Editing 
 \row \o QStyle::Style_Enabled \o QStyle::State_Enabled 
 \row \o QStyle::Style_FocusAtBorder \o QStyle::State_FocusAtBorder 
