@@ -265,7 +265,7 @@ void QCursorData::update()
 
     switch(cshape) {                        // map Q cursor to MAC cursor
     case Qt::BitmapCursor: {
-        if(bm->width() == 16 && bm->height() == 16) {
+        if(bm->width() == 16 && bm->height() == 16 && pixmap.isNull()) {
             type = QCursorData::TYPE_CursPtr;
             curs.cp.my_cursor = true;
             curs.cp.hcurs = (CursPtr)malloc(sizeof(Cursor));
@@ -291,7 +291,7 @@ void QCursorData::update()
                 }
             }
 #ifdef QMAC_USE_BIG_CURSOR_API
-        } else if(QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2 && bm->width() < 64
+        } else if (QSysInfo::MacintoshVersion >= QSysInfo::MV_10_2 && bm->width() < 64
                   && bm->height() < 64) {
             curs.big_cursor_name = (char *)malloc(128);
             static int big_cursor_cnt = 0;
@@ -301,10 +301,17 @@ void QCursorData::update()
                 hotspot.h = 0;
             if((hotspot.v = hy) < 0)
                 hotspot.v = 0;
-            OSStatus ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap(qt_mac_qd_context(bm)),
-                                                       GetGWorldPixMap(qt_mac_qd_context(bmm)),
-                                                       hotspot, curs.big_cursor_name);
-            if(ret == noErr)
+            OSStatus ret;
+
+            if (pixmap.isNull()) {
+                ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap(qt_mac_qd_context(bm)),
+                                                  GetGWorldPixMap(qt_mac_qd_context(bmm)),
+                                                  hotspot, curs.big_cursor_name);
+            } else {
+                ret = QDRegisterNamedPixMapCursor(GetGWorldPixMap(qt_mac_qd_context(&pixmap)),
+                                                  0, hotspot, curs.big_cursor_name);
+            }
+            if (ret == noErr)
                 type = QCursorData::TYPE_BigCursor;
             else
                 free(curs.big_cursor_name);
@@ -318,7 +325,7 @@ void QCursorData::update()
                 curs.fc.empty_curs = (CursPtr)malloc(sizeof(Cursor));
                 memset(curs.fc.empty_curs->data, 0x00, sizeof(curs.fc.empty_curs->data));
                 memset(curs.fc.empty_curs->mask, 0x00, sizeof(curs.fc.empty_curs->mask));
-                int hx = hx, hy = hy;
+                int hx = this->hx, hy = this->hy;
                 if(hx < 0)
                     hx = 8;
                 else if(hx > 15)
