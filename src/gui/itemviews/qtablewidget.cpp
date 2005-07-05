@@ -23,7 +23,7 @@
 #include <private/qwidgetitemdata_p.h>
 
 // workaround for VC++ 6.0 linker bug (?)
-typedef bool(*LessThan)(const QTableWidgetItem *left, const QTableWidgetItem *right);
+typedef bool(*LessThan)(const QPair<QTableWidgetItem*,int>&,const QPair<QTableWidgetItem*,int>&);
 
 class QTableWidgetMimeData : public QMimeData
 {
@@ -74,8 +74,10 @@ public:
     Qt::ItemFlags flags(const QModelIndex &index) const;
 
     void sort(int column, Qt::SortOrder order);
-    static bool itemLessThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
-    static bool itemGreaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right);
+    static bool itemLessThan(const QPair<QTableWidgetItem*,int> &left,
+                             const QPair<QTableWidgetItem*,int> &right);
+    static bool itemGreaterThan(const QPair<QTableWidgetItem*,int> &left,
+                                const QPair<QTableWidgetItem*,int> &right);
 
     bool isValid(const QModelIndex &index) const;
     inline long tableIndex(int row, int column) const
@@ -99,16 +101,15 @@ public:
     Qt::DropActions supportedDropActions() const;
 
     QMimeData *internalMimeData()  const;
+
 private:
     const QTableWidgetItem *prototype;
     QVector<QTableWidgetItem*> table;
     QVector<QTableWidgetItem*> vertical;
     QVector<QTableWidgetItem*> horizontal;
-    mutable QChar strbuf[65];
 
     // A cache must be mutable if get-functions should have const modifiers
     mutable QModelIndexList cachedIndexes;
-
 };
 
 #include "qtablewidget.moc"
@@ -421,23 +422,39 @@ Qt::ItemFlags QTableModel::flags(const QModelIndex &index) const
 
 void QTableModel::sort(int column, Qt::SortOrder order)
 {
-    QVector<QTableWidgetItem*> sorting(rowCount());
-    for (int i = 0; i < sorting.count(); ++i)
-        sorting[i] = item(i, column);
-    LessThan compare = order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan;
+    QVector< QPair<QTableWidgetItem*,int> > sorting(rowCount());
+    for (int i = 0; i < sorting.count(); ++i) {
+        sorting[i].first = item(i, column);
+        sorting[i].second = i;
+    }
+    
+    LessThan compare = (order == Qt::AscendingOrder ? &itemLessThan : &itemGreaterThan);
     qSort(sorting.begin(), sorting.end(), compare);
-    for (int j = 0; j < sorting.count(); ++j)
-        table[tableIndex(j, column)] = sorting.at(j);
+
+    QVector<QTableWidgetItem*> sorted_table(table.count());
+    for (int j = 0; j < rowCount(); ++j) {
+        int r = sorting.at(j).second;
+        for (int c = 0; c < columnCount(); ++c) {
+            QTableWidgetItem *itm = item(r, c);
+            sorted_table[tableIndex(j, c)] = itm;
+            QModelIndex from = createIndex(r, c, itm);
+            QModelIndex to = createIndex(j, c, itm);
+            changePersistentIndex(from, to);
+        }
+    }
+    table = sorted_table;
 }
 
-bool QTableModel::itemLessThan(const QTableWidgetItem *left, const QTableWidgetItem *right)
+bool QTableModel::itemLessThan(const QPair<QTableWidgetItem*,int> &left,
+                               const QPair<QTableWidgetItem*,int> &right)
 {
-    return *left < *right;
+    return *(left.first) < *(right.first);
 }
 
-bool QTableModel::itemGreaterThan(const QTableWidgetItem *left, const QTableWidgetItem *right)
+bool QTableModel::itemGreaterThan(const QPair<QTableWidgetItem*,int> &left,
+                                  const QPair<QTableWidgetItem*,int> &right)
 {
-    return !(*left < *right);
+    return !(*(left .first) < *(right.first));
 }
 
 QVariant QTableModel::headerData(int section, Qt::Orientation orientation, int role) const
