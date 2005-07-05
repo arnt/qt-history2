@@ -1153,66 +1153,6 @@ QT_INSTALL_EXAMPLES=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_EXAMPLES"`
 QT_INSTALL_DEMOS=`$relpath/config.tests/unix/makeabs "$QT_INSTALL_DEMOS"`
 
 #-------------------------------------------------------------------------------
-# generate qconfig.cpp
-#-------------------------------------------------------------------------------
-[ -d $outpath/src/corelib/global ] || mkdir -p $outpath/src/corelib/global
-
-LICENSE_USER_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsuser=$Licensee" "\\0"`
-LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsprod=$QT_PRODUCT" "\\0"`
-PREFIX_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_prfxpath=$QT_INSTALL_PREFIX" "\\0"`
-DOCUMENTATION_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_docspath=$QT_INSTALL_DOCS" "\\0"`
-HEADERS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_hdrspath=$QT_INSTALL_HEADERS" "\\0"`
-LIBRARIES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_libspath=$QT_INSTALL_LIBS" "\\0"`
-BINARIES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_binspath=$QT_INSTALL_BINS" "\\0"`
-PLUGINS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_plugpath=$QT_INSTALL_PLUGINS" "\\0"`
-DATA_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_datapath=$QT_INSTALL_DATA" "\\0"`
-TRANSLATIONS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_trnspath=$QT_INSTALL_TRANSLATIONS" "\\0"`
-SETTINGS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_stngpath=$QT_INSTALL_SETTINGS" "\\0"`
-EXAMPLES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_xmplpath=$QT_INSTALL_EXAMPLES" "\\0"`
-DEMOS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_demopath=$QT_INSTALL_DEMOS" "\\0"`
-
-cat > $outpath/src/corelib/global/qconfig.cpp.new <<EOF
-/* License Info */
-static const char qt_configure_licensee_str          [256 + 12] = "$LICENSE_USER_STR";
-static const char qt_configure_licensed_products_str [256 + 12] = "$LICENSE_PRODUCTS_STR";
-/* Installation Info */
-static const char qt_configure_prefix_path_str       [256 + 12] = "$PREFIX_PATH_STR";
-static const char qt_configure_documentation_path_str[256 + 12] = "$DOCUMENTATION_PATH_STR";
-static const char qt_configure_headers_path_str      [256 + 12] = "$HEADERS_PATH_STR";
-static const char qt_configure_libraries_path_str    [256 + 12] = "$LIBRARIES_PATH_STR";
-static const char qt_configure_binaries_path_str     [256 + 12] = "$BINARIES_PATH_STR";
-static const char qt_configure_plugins_path_str      [256 + 12] = "$PLUGINS_PATH_STR";
-static const char qt_configure_data_path_str         [256 + 12] = "$DATA_PATH_STR";
-static const char qt_configure_translations_path_str [256 + 12] = "$TRANSLATIONS_PATH_STR";
-static const char qt_configure_settings_path_str     [256 + 12] = "$SETTINGS_PATH_STR";
-static const char qt_configure_examples_path_str     [256 + 12] = "$EXAMPLES_PATH_STR";
-static const char qt_configure_demos_path_str        [256 + 12] = "$DEMOS_PATH_STR";
-/* strlen( "qt_lcnsxxxx" ) == 12 */
-#define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;
-#define QT_CONFIGURE_LICENSED_PRODUCTS qt_configure_licensed_products_str + 12;
-#define QT_CONFIGURE_PREFIX_PATH qt_configure_prefix_path_str + 12;
-#define QT_CONFIGURE_DOCUMENTATION_PATH qt_configure_documentation_path_str + 12;
-#define QT_CONFIGURE_HEADERS_PATH qt_configure_headers_path_str + 12;
-#define QT_CONFIGURE_LIBRARIES_PATH qt_configure_libraries_path_str + 12;
-#define QT_CONFIGURE_BINARIES_PATH qt_configure_binaries_path_str + 12;
-#define QT_CONFIGURE_PLUGINS_PATH qt_configure_plugins_path_str + 12;
-#define QT_CONFIGURE_DATA_PATH qt_configure_data_path_str + 12;
-#define QT_CONFIGURE_TRANSLATIONS_PATH qt_configure_translations_path_str + 12;
-#define QT_CONFIGURE_SETTINGS_PATH qt_configure_settings_path_str + 12;
-#define QT_CONFIGURE_EXAMPLES_PATH qt_configure_examples_path_str + 12;
-#define QT_CONFIGURE_DEMOS_PATH qt_configure_demos_path_str + 12;
-EOF
-
-# avoid unecessary rebuilds by copying only if qconfig.cpp has changed
-if cmp -s $outpath/src/corelib/global/qconfig.cpp $outpath/src/corelib/global/qconfig.cpp.new; then
-    rm -f $outpath/src/corelib/global/qconfig.cpp.new
-else
-    [ -f $outpath/src/corelib/global/qconfig.cpp ] && chmod +w $outpath/src/corelib/global/qconfig.cpp
-    mv $outpath/src/corelib/global/qconfig.cpp.new $outpath/src/corelib/global/qconfig.cpp
-    chmod -w $outpath/src/corelib/global/qconfig.cpp
-fi
-
-#-------------------------------------------------------------------------------
 # build tree initialization
 #-------------------------------------------------------------------------------
 
@@ -2618,6 +2558,66 @@ aix-*)
 *)
     ;;
 esac
+
+#-------------------------------------------------------------------------------
+# generate qconfig.cpp
+#-------------------------------------------------------------------------------
+[ -d $outpath/src/corelib/global ] || mkdir -p $outpath/src/corelib/global
+
+LICENSE_USER_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsuser=$Licensee" "\\0"`
+LICENSE_PRODUCTS_STR=`$relpath/config.tests/unix/padstring 268 "qt_lcnsprod=$QT_PRODUCT" "\\0"`
+PREFIX_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_prfxpath=$QT_INSTALL_PREFIX" "\\0"`
+DOCUMENTATION_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_docspath=$QT_INSTALL_DOCS" "\\0"`
+HEADERS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_hdrspath=$QT_INSTALL_HEADERS" "\\0"`
+LIBRARIES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_libspath=$QT_INSTALL_LIBS" "\\0"`
+BINARIES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_binspath=$QT_INSTALL_BINS" "\\0"`
+PLUGINS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_plugpath=$QT_INSTALL_PLUGINS" "\\0"`
+DATA_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_datapath=$QT_INSTALL_DATA" "\\0"`
+TRANSLATIONS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_trnspath=$QT_INSTALL_TRANSLATIONS" "\\0"`
+SETTINGS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_stngpath=$QT_INSTALL_SETTINGS" "\\0"`
+EXAMPLES_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_xmplpath=$QT_INSTALL_EXAMPLES" "\\0"`
+DEMOS_PATH_STR=`$relpath/config.tests/unix/padstring 268 "qt_demopath=$QT_INSTALL_DEMOS" "\\0"`
+
+cat > $outpath/src/corelib/global/qconfig.cpp.new <<EOF
+/* License Info */
+static const char qt_configure_licensee_str          [256 + 12] = "$LICENSE_USER_STR";
+static const char qt_configure_licensed_products_str [256 + 12] = "$LICENSE_PRODUCTS_STR";
+/* Installation Info */
+static const char qt_configure_prefix_path_str       [256 + 12] = "$PREFIX_PATH_STR";
+static const char qt_configure_documentation_path_str[256 + 12] = "$DOCUMENTATION_PATH_STR";
+static const char qt_configure_headers_path_str      [256 + 12] = "$HEADERS_PATH_STR";
+static const char qt_configure_libraries_path_str    [256 + 12] = "$LIBRARIES_PATH_STR";
+static const char qt_configure_binaries_path_str     [256 + 12] = "$BINARIES_PATH_STR";
+static const char qt_configure_plugins_path_str      [256 + 12] = "$PLUGINS_PATH_STR";
+static const char qt_configure_data_path_str         [256 + 12] = "$DATA_PATH_STR";
+static const char qt_configure_translations_path_str [256 + 12] = "$TRANSLATIONS_PATH_STR";
+static const char qt_configure_settings_path_str     [256 + 12] = "$SETTINGS_PATH_STR";
+static const char qt_configure_examples_path_str     [256 + 12] = "$EXAMPLES_PATH_STR";
+static const char qt_configure_demos_path_str        [256 + 12] = "$DEMOS_PATH_STR";
+/* strlen( "qt_lcnsxxxx" ) == 12 */
+#define QT_CONFIGURE_LICENSEE qt_configure_licensee_str + 12;
+#define QT_CONFIGURE_LICENSED_PRODUCTS qt_configure_licensed_products_str + 12;
+#define QT_CONFIGURE_PREFIX_PATH qt_configure_prefix_path_str + 12;
+#define QT_CONFIGURE_DOCUMENTATION_PATH qt_configure_documentation_path_str + 12;
+#define QT_CONFIGURE_HEADERS_PATH qt_configure_headers_path_str + 12;
+#define QT_CONFIGURE_LIBRARIES_PATH qt_configure_libraries_path_str + 12;
+#define QT_CONFIGURE_BINARIES_PATH qt_configure_binaries_path_str + 12;
+#define QT_CONFIGURE_PLUGINS_PATH qt_configure_plugins_path_str + 12;
+#define QT_CONFIGURE_DATA_PATH qt_configure_data_path_str + 12;
+#define QT_CONFIGURE_TRANSLATIONS_PATH qt_configure_translations_path_str + 12;
+#define QT_CONFIGURE_SETTINGS_PATH qt_configure_settings_path_str + 12;
+#define QT_CONFIGURE_EXAMPLES_PATH qt_configure_examples_path_str + 12;
+#define QT_CONFIGURE_DEMOS_PATH qt_configure_demos_path_str + 12;
+EOF
+
+# avoid unecessary rebuilds by copying only if qconfig.cpp has changed
+if cmp -s $outpath/src/corelib/global/qconfig.cpp $outpath/src/corelib/global/qconfig.cpp.new; then
+    rm -f $outpath/src/corelib/global/qconfig.cpp.new
+else
+    [ -f $outpath/src/corelib/global/qconfig.cpp ] && chmod +w $outpath/src/corelib/global/qconfig.cpp
+    mv $outpath/src/corelib/global/qconfig.cpp.new $outpath/src/corelib/global/qconfig.cpp
+    chmod -w $outpath/src/corelib/global/qconfig.cpp
+fi
 
 # symlink the arch/$ARCH/arch/ include directory to include/QtCore/arch/
 if [ -d "$outpath/src/corelib/global/arch" ]; then
