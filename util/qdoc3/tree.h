@@ -51,17 +51,21 @@ public:
     const Node *findUnambiguousTarget(const QString &target, Atom *&atom) const;
     Atom *findTarget(const QString &target, const Node *node) const;
     const NamespaceNode *root() const { return &roo; }
-    void readIndexes(const QStringList &dcfFiles);
-
+    void readIndexes(const QStringList &indexFiles);
+    void generateIndexSubSections(QString indent, QTextStream& out,
+                                  const Node *node) const;
+    void generateIndexSections(const QString &fileName, const QString &url,
+                               const QString &title) const;
 private:
     void resolveInheritance(int pass, ClassNode *classe);
     FunctionNode *findVirtualFunctionInBaseClasses(ClassNode *classe, FunctionNode *clone);
     void fixPropertyUsingBaseClasses(ClassNode *classe, PropertyNode *property);
     NodeList allBaseClasses(const ClassNode *classe) const;
-    void readDcfFile(const QString &path);
-    QList<QPair<ClassNode*,QString> > readDcfSection(const QDomElement &element, InnerNode *parent);
-    QString readDcfText(const QDomElement &element);
-    void resolveDcfBases(QList<QPair<ClassNode*,QString> > basesList);
+    void readIndexFile(const QString &path);
+    QList<QPair<ClassNode*,QString> > readIndexSection(const QDomElement &element,
+        InnerNode *parent, const QString &indexUrl);
+    QString readIndexText(const QDomElement &element);
+    void resolveIndexBases(QList<QPair<ClassNode*,QString> > basesList);
 
     NamespaceNode roo;
     QString vers;

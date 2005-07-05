@@ -103,6 +103,8 @@ private:
     QString getLink(const Atom *atom, const Node *relative, CodeMarker *marker);
     void generateDcf(const QString &fileBase, const QString &startPage, const QString &title,
                      DcfSection &dcfRoot);
+    void generateIndex(const QString &fileBase, const QString &url,
+                       const QString &title);
 
 #if 0
     NavigationBar currentNavigationBar;
@@ -130,7 +132,7 @@ private:
     QString address;
     QString project;
     QString projectDescription;
-    QString externalBase;
+    QString projectUrl;
     QString navigationLinks;
     const Tree *tre;
     QMap<QString, QMap<QString, const Node *> > moduleClassMap;

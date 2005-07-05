@@ -3,8 +3,10 @@
 */
 
 #include <QtCore>
+#include <QDomDocument>
 
 #include "dcfsection.h"
+#include "htmlgenerator.h"
 #include "location.h"
 #include "node.h"
 #include "text.h"
@@ -457,14 +459,7 @@ FunctionNode *Tree::findVirtualFunctionInBaseClasses(ClassNode *classe, Function
     QList<RelatedClass>::ConstIterator r = classe->baseClasses().begin();
     while ( r != classe->baseClasses().end() ) {
 	FunctionNode *func;
-        if ((*r).node->isExternal()) {
-            // Use a simpler form of matching when dealing with externally
-            // defined classes.
-            if ((func = (*r).node->findFunctionNode(clone->name())) != 0)
-                return func;
-            else if ((func = findVirtualFunctionInBaseClasses((*r).node, clone)) != 0)
-                return func;
-        } else if ( ((func = findVirtualFunctionInBaseClasses((*r).node, clone)) != 0 ||
+        if ( ((func = findVirtualFunctionInBaseClasses((*r).node, clone)) != 0 ||
 	      (func = (*r).node->findFunctionNode(clone)) != 0) ) {
 	    if (func->virtualness() != FunctionNode::NonVirtual )
 	        return func;
@@ -499,13 +494,13 @@ NodeList Tree::allBaseClasses(const ClassNode *classe) const
     return result;
 }
 
-void Tree::readIndexes(const QStringList &dcfFiles)
+void Tree::readIndexes(const QStringList &indexFiles)
 {
-    foreach (QString dcfFile, dcfFiles)
-        readDcfFile(dcfFile);
+    foreach (QString indexFile, indexFiles)
+        readIndexFile(indexFile);
 }
 
-void Tree::readDcfFile(const QString &path)
+void Tree::readIndexFile(const QString &path)
 {
     QFile file(path);
     if (file.open(QFile::ReadOnly)) {
@@ -514,100 +509,145 @@ void Tree::readDcfFile(const QString &path)
         file.close();
 
         QList<QPair<ClassNode*,QString> > basesList;
-        basesList = readDcfSection(document.documentElement(), root());
-        resolveDcfBases(basesList);
+        QDomElement indexElement = document.documentElement();
+        QString indexUrl = indexElement.attribute("url");
+
+        QDomElement child = indexElement.firstChildElement();
+        while (!child.isNull()) {
+            basesList += readIndexSection(child, root(), indexUrl);
+            child = child.nextSiblingElement();
+        }
+        resolveIndexBases(basesList);
     }
 }
 
-QList<QPair<ClassNode*,QString> > Tree::readDcfSection(const QDomElement &element, InnerNode *parent)
+QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &element,
+    InnerNode *parent, const QString &indexUrl)
 {
     QList<QPair<ClassNode*,QString> > basesList;
+    bool inClass = false;
 
-    QString title = element.attribute("title");
-    QString baseRef = element.attribute("ref");
+    QString name = element.attribute("name");
 
-    QDomElement child = element.firstChildElement();
-    bool inClass;
-
-    InnerNode *section;
-    if (element.hasAttribute("bases")) {
-        QString text = readDcfText(child);
+    Node *section;
+    if (element.nodeName() == "namespace") {
+        section = new NamespaceNode(parent, name);
+    } else if (element.nodeName() == "class") {
         inClass = true;
+        section = new ClassNode(parent, name);
+        basesList.append(QPair<ClassNode*,QString>(
+            static_cast<ClassNode*>(section), element.attribute("bases")));
 
-        if (!text.isEmpty()) {
-            section = new ClassNode(parent, text);
-            section->setExternal(true);
-            section->setLink(Node::ContentsLink, baseRef, title);
-            section->setAccess(Node::Public);
-            QSet<QString> emptySet;
-            Location location(baseRef);
-            Doc doc(location, QString("placeholder"), emptySet);
-            section->setDoc(doc);
-
-            basesList.append(QPair<ClassNode*,QString>(
-                static_cast<ClassNode*>(section), element.attribute("bases")));
-
-            // Move to the child element after the class keyword element.
-            child = child.nextSiblingElement();
-        } else
+    } else if (element.nodeName() == "page") {
+        FakeNode::SubType subtype;
+        if (element.attribute("subtype") == "example")
+            subtype = FakeNode::Example;
+        else if (element.attribute("subtype") == "header")
+            subtype = FakeNode::HeaderFile;
+        else if (element.attribute("subtype") == "file")
+            subtype = FakeNode::File;
+        else if (element.attribute("subtype") == "group")
+            subtype = FakeNode::Group;
+        else if (element.attribute("subtype") == "module")
+            subtype = FakeNode::Module;
+        else if (element.attribute("subtype") == "page")
+            subtype = FakeNode::Page;
+        else
             return basesList;
-    } else {
-        inClass = false;
-        parent = root();
-        section = new FakeNode(parent, baseRef, FakeNode::Page);
-        QSet<QString> emptySet;
-        Location location(baseRef);
-        Doc doc(location, QString("placeholder"), emptySet);
-        section->setDoc(doc);
-        section->setExternal(true);
-        section->setLink(Node::ContentsLink, baseRef, title);
-    }
 
-    while (!child.isNull()) {
+        FakeNode *fakeNode = new FakeNode(parent, name, subtype);
+        fakeNode->setTitle(element.attribute("title"));
+        section = fakeNode;
+    } else if (element.nodeName() == "enum") {
+        section = new EnumNode(parent, name);
+    } else if (element.nodeName() == "typedef") {
+        section = new TypedefNode(parent, name);
+    } else if (element.nodeName() == "property") {
+        section = new PropertyNode(parent, name);
+    } else if (element.nodeName() == "function") {
+        FunctionNode::Virtualness virt;
+        if (element.attribute("virtual") == "non")
+            virt = FunctionNode::NonVirtual;
+        else if (element.attribute("virtual") == "impure")
+            virt = FunctionNode::ImpureVirtual;
+        else if (element.attribute("virtual") == "pure")
+            virt = FunctionNode::PureVirtual;
+        else
+            return basesList;
 
-        if (child.nodeName() == "keyword") {
-            QString text = readDcfText(child);
-            if (!text.isEmpty()) {
-                if (inClass) {
-                    if (baseRef.contains("-prop")) {
-                        PropertyNode *propertyNode = new PropertyNode(section,
-                            text);
-                        propertyNode->setLink(Node::ContentsLink,
-                            child.attribute("ref"), text);
-                        propertyNode->setExternal(true);
-                    } else if (baseRef.contains("-enum")) {
-                        EnumNode *enumNode = new EnumNode(section, text);
-                        enumNode->setLink(Node::ContentsLink,
-                            child.attribute("ref"), text);
-                        enumNode->setExternal(true);
-                    } else {
-                        FunctionNode *functionNode = new FunctionNode(section,
-                            text);
-                        functionNode->setLink(Node::ContentsLink,
-                            child.attribute("ref"), text);
-                        functionNode->setExternal(true);
-                    }
-                } else {
-                    TargetNode *target = new TargetNode(section, text);
-                    target->setLink(Node::ContentsLink, child.attribute("ref"),
-                                    text);
-                    target->setExternal(true);
-                }
-            }
+        FunctionNode::Metaness meta;
+        if (element.attribute("meta") == "plain")
+            meta = FunctionNode::Plain;
+        else if (element.attribute("meta") == "signal")
+            meta = FunctionNode::Signal;
+        else if (element.attribute("meta") == "slot")
+            meta = FunctionNode::Slot;
+        else if (element.attribute("meta") == "constructor")
+            meta = FunctionNode::Ctor;
+        else if (element.attribute("meta") == "destructor")
+            meta = FunctionNode::Dtor;
+        else if (element.attribute("meta") == "macro")
+            meta = FunctionNode::Macro;
+        else
+            return basesList;
 
-        } else if (child.nodeName() == "section") {
-            if (inClass)
-                basesList += readDcfSection(child, section);
-            else
-                basesList += readDcfSection(child, parent); // Only create one level of items.
+        FunctionNode *functionNode = new FunctionNode(parent, name);
+        functionNode->setReturnType(element.attribute("return"));
+        functionNode->setVirtualness(virt);
+        functionNode->setMetaness(meta);
+        functionNode->setConst(element.attribute("const") == "true");
+        functionNode->setStatic(element.attribute("static") == "true");
+        functionNode->setOverload(element.attribute("overload") == "true");
+
+        QDomElement child = element.firstChildElement("parameter");
+        while (!child.isNull()) {
+            Parameter parameter(child.attribute("left"),
+                                child.attribute("right"),
+                                child.attribute("name"),
+                                child.attribute("default"));
+            functionNode->addParameter(parameter);
+            child = child.nextSiblingElement("parameter");
         }
 
-        child = child.nextSiblingElement();
+        section = functionNode;
+
+    } else if (element.nodeName() == "variable") {
+        section = new VariableNode(parent, name);
+    } else if (element.nodeName() == "target") {
+        section = new TargetNode(parent, name);
+    } else
+        return basesList;
+
+    QString access = element.attribute("access");
+    if (access == "public")
+        section->setAccess(Node::Public);
+    else if (access == "protected")
+        section->setAccess(Node::Protected);
+    else
+        section->setAccess(Node::Private);
+
+    section->setUrl(indexUrl);
+
+    QSet<QString> emptySet;
+    Location location(indexUrl + "/" + name.toLower() + ".html");
+    Doc doc(location, QString("placeholder"), emptySet);
+    section->setDoc(doc);
+
+    InnerNode *inner = dynamic_cast<InnerNode*>(section);
+    if (inner) {
+        QDomElement child = element.firstChildElement();
+        while (!child.isNull()) {
+            if (inClass)
+                basesList += readIndexSection(child, inner, indexUrl);
+            else
+                basesList += readIndexSection(child, parent, indexUrl);
+            child = child.nextSiblingElement();
+        }
     }
     return basesList;
 }
 
-QString Tree::readDcfText(const QDomElement &element)
+QString Tree::readIndexText(const QDomElement &element)
 {
     QString text;
     QDomNode child = element.firstChild();
@@ -619,7 +659,7 @@ QString Tree::readDcfText(const QDomElement &element)
     return text;
 }
 
-void Tree::resolveDcfBases(QList<QPair<ClassNode*,QString> > basesList)
+void Tree::resolveIndexBases(QList<QPair<ClassNode*,QString> > basesList)
 {
     QPair<ClassNode*,QString> pair;
 
@@ -632,4 +672,194 @@ void Tree::resolveDcfBases(QList<QPair<ClassNode*,QString> > basesList)
             }
         }
     }
+}
+
+void Tree::generateIndexSubSections(QString indent, QTextStream& out,
+                                    const Node *node) const
+{
+    if (!node->url().isEmpty())
+        return;
+
+    QString nodeName;
+    switch (node->type()) {
+        case Node::Namespace:
+            nodeName = "namespace";
+            break;
+        case Node::Class:
+            nodeName = "class";
+            break;
+        case Node::Fake:
+            nodeName = "page";
+            break;
+        case Node::Enum:
+            nodeName = "enum";
+            break;
+        case Node::Typedef:
+            nodeName = "typedef";
+            break;
+        case Node::Property:
+            nodeName = "property";
+            break;
+        case Node::Function:
+            nodeName = "function";
+            break;
+        case Node::Variable:
+            nodeName = "variable";
+            break;
+        case Node::Target:
+            nodeName = "target";
+            break;
+        default:
+            return;
+    }
+
+    QString access;
+    switch (node->access()) {
+        case Node::Public:
+            access = "public";
+            break;
+        case Node::Protected:
+            access = "protected";
+            break;
+        case Node::Private:
+            //access = "private";
+            //break;
+        default:
+            //break;
+            return;
+    }
+
+    out << indent << "<" << nodeName
+        << " access=\"" << access << "\""
+        << " name=\"" << HtmlGenerator::protect(node->name()) << "\"";
+    
+    if (node->type() == Node::Class) {
+        const ClassNode *classNode = static_cast<const ClassNode*>(node);
+        QList<RelatedClass> bases = classNode->baseClasses();
+        QStringList baseStrings;
+        foreach (RelatedClass related, bases) {
+            ClassNode *baseClassNode = related.node;
+            baseStrings.append(baseClassNode->name());
+        }
+        out << " bases=\"" << HtmlGenerator::protect(baseStrings.join(","))
+            << "\"";
+    }
+
+    if (node->type() == Node::Fake) {
+        const FakeNode *fakeNode = static_cast<const FakeNode*>(node);
+        switch (fakeNode->subType()) {
+            case FakeNode::Example:
+                out << " subtype=\"example\"";
+                break;
+            case FakeNode::HeaderFile:
+                out << " subtype=\"header\"";
+                break;
+            case FakeNode::File:
+                out << " subtype=\"file\"";
+                break;
+            case FakeNode::Group:
+                out << " subtype=\"group\"";
+                break;
+            case FakeNode::Module:
+                out << " subtype=\"module\"";
+                break;
+            case FakeNode::Page:
+                out << " subtype=\"page\"";
+                break;
+            default:
+                break;
+        }
+        out << " title=\"" << HtmlGenerator::protect(fakeNode->title()) << "\"";
+        out << " fulltitle=\"" << HtmlGenerator::protect(fakeNode->fullTitle()) << "\"";
+        out << " subtitle=\"" << HtmlGenerator::protect(fakeNode->subTitle()) << "\"";
+    }
+
+    if (node->type() == Node::Function) {
+        const FunctionNode *functionNode = static_cast<const FunctionNode*>(node);
+        switch (functionNode->virtualness()) {
+            case FunctionNode::NonVirtual:
+                out << " virtual=\"non\"";
+                break;
+            case FunctionNode::ImpureVirtual:
+                out << " virtual=\"impure\"";
+                break;
+            case FunctionNode::PureVirtual:
+                out << " virtual=\"pure\"";
+                break;
+            default:
+                break;
+        }
+        switch (functionNode->metaness()) {
+            case FunctionNode::Plain:
+                out << " meta=\"plain\"";
+                break;
+            case FunctionNode::Signal:
+                out << " meta=\"signal\"";
+                break;
+            case FunctionNode::Slot:
+                out << " meta=\"slot\"";
+                break;
+            case FunctionNode::Ctor:
+                out << " meta=\"constructor\"";
+                break;
+            case FunctionNode::Dtor:
+                out << " meta=\"destructor\"";
+                break;
+            case FunctionNode::Macro:
+                out << " meta=\"macro\"";
+                break;
+            default:
+                break;
+        }
+        out << " const=\"" << (functionNode->isConst()?"true":"false") << "\"";
+        out << " static=\"" << (functionNode->isStatic()?"true":"false") << "\"";
+        out << " overload=\"" << (functionNode->isOverload()?"true":"false") << "\"";
+    }
+
+    const InnerNode *inner = dynamic_cast<const InnerNode*>(node);
+    if (inner) {
+        out << ">\n";
+
+        foreach (Node *child, inner->childNodes())
+            generateIndexSubSections(indent + " ", out, child);
+
+        out << indent << "</" << nodeName << ">\n";
+    } else if (node->type() == Node::Function) {
+        out << ">\n";
+
+        const FunctionNode *functionNode = static_cast<const FunctionNode*>(node);
+        foreach (Parameter parameter, functionNode->parameters()) {
+            // Do not supply a default value for the parameter; it will only
+            // cause disagreement when it is read from an index file later on.
+            out << indent << " <parameter"
+                << " left=\"" << HtmlGenerator::protect(parameter.leftType()) << "\""
+                << " right=\"" << HtmlGenerator::protect(parameter.rightType()) << "\""
+                << " name=\"" << HtmlGenerator::protect(parameter.name()) << "\""
+//                << " default=\"" << HtmlGenerator::protect(parameter.defaultValue())
+                << " />";
+        }
+        out << indent << "</" << nodeName << ">\n";
+    } else
+        out << " />\n";
+
+    out.flush();
+}
+
+void Tree::generateIndexSections(const QString &fileName, const QString &url,
+                                 const QString &title) const
+{
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly | QFile::Text))
+        return ;
+
+    QTextStream out(&file);
+
+    out << "<!DOCTYPE QDOCINDEX>\n";
+    out << "<INDEX url=\"" << HtmlGenerator::protect(url)
+        << "\" title=\"" << HtmlGenerator::protect(title) + "\">\n";
+
+    generateIndexSubSections("", out, root());
+
+    out << "</INDEX>\n";
+    out.flush();
 }

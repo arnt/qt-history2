@@ -125,8 +125,8 @@ static void processQdocconfFile(const QString &fileName)
 	langLocation.fatal(tr("Cannot output documentation for programming language '%1'")
 			   .arg(lang));
 
-    QStringList dcfFiles = config.getStringList(CONFIG_INDEXES);
-    tree->readIndexes(dcfFiles);
+    QStringList indexFiles = config.getStringList(CONFIG_INDEXES);
+    tree->readIndexes(indexFiles);
 
     QStringList headers =
 	    config.getAllFiles( CONFIG_HEADERS, CONFIG_HEADERDIRS,

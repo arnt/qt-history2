@@ -73,7 +73,6 @@ private:
 #define CONFIG_DESCRIPTION              "description"
 #define CONFIG_EXAMPLEDIRS              "exampledirs"
 #define CONFIG_EXAMPLES                 "examples"
-#define CONFIG_EXTERNALBASE             "externalbase"
 #define CONFIG_EXTRAIMAGES              "extraimages"
 #define CONFIG_FALSEHOODS               "falsehoods"
 #define CONFIG_FORMATTING               "formatting"
@@ -93,6 +92,7 @@ private:
 #define CONFIG_SPURIOUS                 "spurious"
 #define CONFIG_TABSIZE                  "tabsize"
 #define CONFIG_TRANSLATORS              "translators" // ### don't document for now
+#define CONFIG_URL                      "url"
 #define CONFIG_VERSION                  "version"
 #define CONFIG_VERSIONSYM               "versionsym"
 

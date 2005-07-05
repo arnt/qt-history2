@@ -15,7 +15,7 @@
 #define COMMAND_PROJECT                 Doc::alias("project")
 #define COMMAND_VERSION                 Doc::alias("version")
 #define COMMAND_DESCRIPTION             Doc::alias("description")
-#define COMMAND_EXTERNALBASE            Doc::alias("externalbase")
+#define COMMAND_URL                     Doc::alias("url")
 
 static bool showBrokenLinks = false;
 
@@ -69,7 +69,9 @@ void HtmlGenerator::initializeGenerator(const Config &config)
     if (projectDescription.isEmpty())
         projectDescription = project + " Reference Documentation";
 
-    externalBase = config.getString(COMMAND_EXTERNALBASE);
+    projectUrl = config.getString(COMMAND_URL);
+    if (projectUrl.isEmpty())
+        projectUrl = "http://www.trolltech.com/products/" + project.toLower();
 }
 
 void HtmlGenerator::terminateGenerator()
@@ -96,6 +98,8 @@ void HtmlGenerator::terminateGenerator()
     generateDcf("linguist", "linguist-manual.html", "Qt Linguist Manual", dcfLinguistRoot);
     generateDcf("assistant", "assistant-manual.html", "Qt Assistant Manual", dcfAssistantRoot);
     generateDcf("qmake", "qmake-manual.html", "qmake Manual", dcfQmakeRoot);
+
+    generateIndex(project.toLower(), projectUrl, projectDescription);
 
     Generator::terminateGenerator();
 }
@@ -619,34 +623,20 @@ void HtmlGenerator::generateClassLikeNode(const InnerNode *inner, CodeMarker *ma
     const FakeNode *fake = 0;
 
     QString title;
-    QString bases;
     if (inner->type() == Node::Namespace) {
         namespasse = static_cast<const NamespaceNode *>(inner);
         title = marker->plainFullName(inner) + " Namespace Reference";
-        bases = QString();
     } else if (inner->type() == Node::Class) {
         classe = static_cast<const ClassNode *>(inner);
         title = marker->plainFullName(inner) + " Class Reference";
-        QStringList baseClasses;
-        QList<RelatedClass>::ConstIterator r = classe->baseClasses().begin();
-        while ( r != classe->baseClasses().end() ) {
-            baseClasses.append((*r).node->name());
-            ++r;
-        }
-        if (baseClasses.size() > 0)
-            bases = baseClasses.join(",");
-        else
-            bases = "";
     } else if (inner->type() == Node::Fake) {
         fake = static_cast<const FakeNode *>(inner);
         title = static_cast<const FakeNode *>(inner)->fullTitle();
-        bases = QString();
     }
 
     DcfSection classSection;
     classSection.title = title;
     classSection.ref = linkForNode(inner, 0);
-    classSection.bases = bases;
     classSection.keywords += qMakePair(inner->name(), classSection.ref);
 
     generateHeader(title, inner);
@@ -1814,10 +1804,10 @@ QString HtmlGenerator::fileBase(const Node *node)
 {
     QString result;
 
-    if (node->isExternal())
-        result = externalBase + "/" + node->links()[Node::ContentsLink].first;
-    else
-        result = PageGenerator::fileBase(node);
+    if (!node->url().isEmpty())
+        result = node->url() + "/";
+
+    result += PageGenerator::fileBase(node);
 
     if (!node->isInnerNode()) {
         switch (node->status()) {
@@ -1859,10 +1849,7 @@ QString HtmlGenerator::fileBase( const Node *node,
 
 QString HtmlGenerator::fileName( const Node *node )
 {
-    if (node->isExternal())
-        return externalBase + "/" + node->links()[Node::ContentsLink].first;
-    else
-        return PageGenerator::fileName(node);
+    return PageGenerator::fileName(node);
 }
 
 QString HtmlGenerator::refForNode(const Node *node)
@@ -1921,8 +1908,8 @@ QString HtmlGenerator::linkForNode(const Node *node, const Node *relative)
         return QString();
 
     fn = fileName(node);
-    if (node->isExternal())
-        return fn;
+/*    if (!node->url().isEmpty())
+        return fn;*/
 #if 0
     // ### reintroduce this test, without breaking .dcf files
     if (fn != outFileName())
@@ -2017,7 +2004,7 @@ void HtmlGenerator::findAllClasses(const InnerNode *node)
 {
     NodeList::const_iterator c = node->childNodes().constBegin();
     while (c != node->childNodes().constEnd()) {
-	if ((*c)->access() != Node::Private && !(*c)->isExternal()) {
+	if ((*c)->access() != Node::Private && (*c)->url().isEmpty()) {
 	    if ((*c)->type() == Node::Class && !(*c)->doc().isEmpty()) {
                 if ((*c)->status() == Node::Compat) {
                     compatClasses.insert((*c)->name(), *c);
@@ -2202,4 +2189,11 @@ void HtmlGenerator::generateDcf(const QString &fileBase, const QString &startPag
     dcfRoot.ref = startPage;
     dcfRoot.title = title;
     generateDcfSections(dcfRoot, outputDir() + "/" + fileBase + ".dcf", fileBase + "/reference");
+}
+
+void HtmlGenerator::generateIndex(const QString &fileBase, const QString &url,
+                                  const QString &title)
+{
+    tre->generateIndexSections(outputDir() + "/" + fileBase + ".index", url,
+                               title);
 }

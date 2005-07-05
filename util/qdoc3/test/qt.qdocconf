@@ -2,6 +2,7 @@ include(compat.qdocconf)
 
 project                 = Qt
 description             = Qt Reference Documentation
+url                     = http://doc.trolltech.com/4.0
 language                = Cpp
 headerdirs              = $QTDIR/src \
                           $QTDIR/extensions/activeqt \

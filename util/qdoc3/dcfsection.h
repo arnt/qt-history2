@@ -4,7 +4,6 @@
 #include <qlist.h>
 #include <qpair.h>
 #include <qstring.h>
-#include <QDomElement>
 
 class QTextStream;
 
@@ -12,7 +11,6 @@ struct DcfSection
 {
     QString title;
     QString ref;
-    QString bases;
     QList<QPair<QString, QString> > keywords;
     QList<DcfSection> subsections;
 };
@@ -47,9 +45,5 @@ void appendDcfSubSections(DcfSection *dcfSect, const QList<DcfSection> &subs);
 void generateDcfSubSections(QString indent, QTextStream &out, const DcfSection &sect);
 void generateDcfSections(const DcfSection &rootSect, const QString& fileName,
                          const QString& category );
-
-DcfSection readDcfFile(const QString &path);
-DcfSection readDcfSection(const QDomElement &element);
-QString readDcfText(const QDomElement &element);
 
 #endif

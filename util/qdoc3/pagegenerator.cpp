@@ -2,7 +2,6 @@
   pagegenerator.cpp
 */
 
-#include <qdebug.h>
 #include <qfile.h>
 #include <qfileinfo.h>
 
@@ -93,7 +92,7 @@ QTextStream &PageGenerator::out()
 void PageGenerator::generateInnerNode( const InnerNode *node,
 				       CodeMarker *marker )
 {
-    if (node->isExternal())
+    if (!node->url().isEmpty())
         return;
 
     if ( node->parent() != 0 ) {

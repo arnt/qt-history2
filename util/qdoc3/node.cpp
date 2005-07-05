@@ -23,20 +23,20 @@ void Node::setDoc( const Doc& doc, bool replace )
 
 Node::Node( Type type, InnerNode *parent, const QString& name )
     : typ(type), acc(Public), sta(Commendable), saf(UnspecifiedSafeness), par(parent), rel(0),
-      nam(name), external(false)
+      nam(name)
 {
     if (par)
 	par->addChild(this);
 }
 
-bool Node::isExternal() const
+QString Node::url() const
 {
-    return external;
+    return u;
 }
 
-void Node::setExternal(bool enable)
+void Node::setUrl(const QString &url)
 {
-    external = enable;
+    u = url;
 }
 
 void Node::setRelates(InnerNode *pseudoParent)

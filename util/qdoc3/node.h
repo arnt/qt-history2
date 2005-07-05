@@ -40,7 +40,6 @@ public:
     void setLink(LinkType linkType, const QString &link, const QString &desc);
     void setExternal(bool enable);
 
-    bool isExternal() const;
     virtual bool isInnerNode() const = 0;
     Type type() const { return typ; }
     InnerNode *parent() const { return par; }
@@ -48,6 +47,8 @@ public:
     const QString& name() const { return nam; }
     QMap<LinkType, QPair<QString,QString> > links() const { return linkMap; }
     QString moduleName() const;
+    QString url() const;
+    void setUrl(const QString &url);
 
     Access access() const { return acc; }
     const Location& location() const { return loc; }
@@ -81,7 +82,7 @@ private:
     Doc d;
     QMap<LinkType, QPair<QString, QString> > linkMap;
     QString mod;
-    bool external;
+    QString u;
 };
 
 class FunctionNode;
