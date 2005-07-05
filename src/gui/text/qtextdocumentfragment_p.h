@@ -28,6 +28,7 @@
 #include "qtextdocument.h"
 #include "qtexthtmlparser_p.h"
 #include "qtextdocument_p.h"
+#include "qtexttable.h"
 
 #include <qlist.h>
 #include <qmap.h>
@@ -103,22 +104,29 @@ class QTextHTMLImporter : public QTextHtmlParser
 {
     struct Table;
 public:
-    QTextHTMLImporter(QTextDocumentFragmentPrivate *d, const QString &html);
+    QTextHTMLImporter(QTextDocument *_doc, const QString &html);
 
     void import();
+
+    bool hasTitle;
+    QString title;
+    bool containsCompleteDocument;
+    QTextFrameFormat rootFrameFormat;
 
 private:
     bool closeTag(int i);
 
     bool scanTable(int tableNodeIdx, Table *table);
 
-    void appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt = QTextCharFormat(), const QChar &separator = QChar::ParagraphSeparator);
+    void appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt = QTextCharFormat());
     void appendText(QString text, QTextCharFormat format);
-    inline void appendImage(const QTextImageFormat &format)
-    { appendText(QString(QChar::ObjectReplacementCharacter), format); }
 
-    QTextDocumentFragmentPrivate *d;
-    QVector<int> listReferences;
+    struct List
+    {
+        QTextListFormat format;
+        QPointer<QTextList> list;
+    };
+    QVector<List> lists;
     int indent;
 
     // insert a named anchor the next time we emit a char format,
@@ -126,16 +134,43 @@ private:
     bool setNamedAnchorInNextOutput;
     QString namedAnchor;
 
+    struct TableIterator
+    {
+        inline TableIterator(QTextTable *t = 0) : table(t), row(0), column(0) {}
+
+        inline TableIterator &operator++() {
+            do {
+                column += table->cellAt(row, column).columnSpan();
+                if (column >= table->columns()) {
+                    column = 0;
+                    ++row;
+                }
+            } while (row < table->rows() && table->cellAt(row, column).row() != row);
+
+            return *this;
+        }
+
+        QTextTableCell cell() const { return table->cellAt(row, column); }
+
+        QTextTable *table;
+        int row;
+        int column;
+    };
+
     struct Table
     {
-        Table() : tableIndex(-1), currentColumnCount(0), currentRow(-1) {}
-        int tableIndex; // objectIndex
-        int currentColumnCount;
+        Table() : rows(0), columns(0), lastRow(-1), lastColumn(-1) {}
+        QPointer<QTextTable> table;
+        int rows;
         int columns;
-        QVector<int> rowSpanCellsPerRow;
-        int currentRow;
+        QPointer<QTextFrame> lastFrame;
+        int lastRow, lastColumn;
+        TableIterator currentPosition;
     };
     QVector<Table> tables;
+
+    QTextDocument *doc;
+    QTextCursor cursor;
 };
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H

@@ -15,12 +15,16 @@
 #include "qtextdocumentfragment.h"
 #include "qtextdocumentfragment_p.h"
 #include "qtextcursor_p.h"
-#include "qtexttable.h"
+#include "qtextlist.h"
 
 #include <qdebug.h>
 #include <qtextcodec.h>
 #include <qbytearray.h>
 #include <qdatastream.h>
+
+// ##################### TEMPORARY, UNTIL ALL OF DOCFRAG USES QTextDocument
+static bool useUglyContainsCompleteDocumentHack = false;
+static bool uglyContainsCompleteDocumentHack = false;
 
 QTextImportHelper::QTextImportHelper(QTextDocumentFragmentPrivate *docFragment, QTextDocumentPrivate *priv)
     : formatCollection(docFragment->formatCollection), originalText(priv->buffer())
@@ -97,6 +101,9 @@ QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &cu
         containsCompleteDocument = true;
         rootFrameFormat = priv->rootFrame()->frameFormat();
     }
+
+    if (useUglyContainsCompleteDocumentHack)
+        containsCompleteDocument = uglyContainsCompleteDocumentHack;
 
     if (cursor.hasComplexSelection()) {
         QTextTable *table = cursor.currentTable();
@@ -478,9 +485,10 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     return res;
 }
 
-QTextHTMLImporter::QTextHTMLImporter(QTextDocumentFragmentPrivate *_d, const QString &html)
-    : d(_d), indent(0), setNamedAnchorInNextOutput(false)
+QTextHTMLImporter::QTextHTMLImporter(QTextDocument *_doc, const QString &html)
+    : hasTitle(false), indent(0), setNamedAnchorInNextOutput(false), doc(_doc)
 {
+    cursor = QTextCursor(doc);
     parse(html);
 //    dumpHtml();
 }
@@ -496,7 +504,7 @@ static QTextListFormat::Style nextListStyle(QTextListFormat::Style style)
 
 void QTextHTMLImporter::import()
 {
-    bool hasBlock = false;
+    bool hasBlock = true;
     bool forceBlockMerging = false;
     for (int i = 0; i < count(); ++i) {
         const QTextHtmlParserNode *node = &at(i);
@@ -543,15 +551,17 @@ void QTextHTMLImporter::import()
 
         if (node->displayMode == QTextHtmlElement::DisplayNone) {
             if (node->id == Html_title) {
-                d->hasTitle = true;
-                d->title = node->text;
+                hasTitle = true;
+                title = node->text;
             }
             // ignore explicitly 'invisible' elements
             continue;
         } else if (node->id == Html_body) {
-            d->containsCompleteDocument = true;
+            containsCompleteDocument = true;
             if (node->bgColor.isValid()) {
-                d->rootFrameFormat.setBackground(QBrush(node->bgColor));
+                QTextFrameFormat fmt;
+                fmt.setBackground(node->bgColor);
+                doc->rootFrame()->setFrameFormat(fmt);
                 const_cast<QTextHtmlParserNode *>(node)->bgColor = QColor();
             }
         } else if (node->isListStart) {
@@ -580,7 +590,9 @@ void QTextHTMLImporter::import()
             else
                 listFmt.setIndent(indent);
 
-            listReferences.append(d->formatCollection.createObjectIndex(listFmt));
+            List l;
+            l.format = listFmt;
+            lists.append(l);
 
             if (node->text.isEmpty())
                 continue;
@@ -592,7 +604,6 @@ void QTextHTMLImporter::import()
             }
             continue;
         } else if (node->id == Html_tr && !tables.isEmpty()) {
-            tables[tables.size() - 1].currentRow++;
             continue;
         } else if (node->id == Html_img) {
             QTextImageFormat fmt;
@@ -610,13 +621,14 @@ void QTextHTMLImporter::import()
                 fmt.setWidth(node->imageWidth);
             if (node->imageHeight >= 0)
                 fmt.setHeight(node->imageHeight);
+
             QTextFrameFormat::Position f = QTextFrameFormat::Position(node->cssFloat);
             QTextFrameFormat ffmt;
             ffmt.setPosition(f);
-            int objIndex = d->formatCollection.createObjectIndex(ffmt);
-            fmt.setObjectIndex(objIndex);
+            QTextObject *obj = doc->docHandle()->createObject(ffmt);
+            fmt.setObjectIndex(obj->objectIndex());
 
-            appendImage(fmt);
+            cursor.insertImage(fmt);
             hasBlock = false;
             continue;
         } else if (node->id == Html_hr) {
@@ -631,12 +643,20 @@ void QTextHTMLImporter::import()
             QTextBlockFormat block;
             QTextCharFormat charFmt;
 
-            QChar separator = QChar::ParagraphSeparator;
+            if (node->isTableCell && !tables.isEmpty()) {
+                Table &t = tables.last();
+                if (t.table) {
+                    cursor = t.currentPosition.cell().firstCursorPosition();
+                }
+                hasBlock = true;
+
+                if (node->bgColor.isValid())
+                    charFmt.setBackground(QBrush(node->bgColor));
+            }
 
             if (hasBlock) {
-                Q_ASSERT(d->fragments.last().blockFormat >= 0);
-                block = d->formatCollection.blockFormat(d->fragments.last().blockFormat);
-                charFmt = d->formatCollection.charFormat(d->fragments.last().charFormat);
+                block = cursor.blockFormat();
+                charFmt = cursor.blockCharFormat();
             }
 
             // collapse
@@ -660,35 +680,18 @@ void QTextHTMLImporter::import()
             block.setLeftMargin(leftMargin(i));
             block.setRightMargin(rightMargin(i));
 
-            if (node->isListItem) {
-                if (!listReferences.isEmpty()) {
-                    block.setObjectIndex(listReferences.last());
-                } else {
-//                    qWarning("QTextDocumentFragment(html import): list item outside list found. bad html?");
-                }
-            } else if (indent && block.objectIndex() != listReferences.last()) {
-                block.setIndent(indent);
-            }
+            if (!node->isListItem
+                && indent != 0
+                && (lists.isEmpty()
+                    || !hasBlock
+                    || !lists.last().list
+                    || lists.last().list->itemNumber(cursor.block()) == -1
+                   )
+               )
+               block.setIndent(indent);
 
             block.merge(node->blockFormat());
             charFmt.merge(node->charFormat());
-
-            if (node->isTableCell && !tables.isEmpty()) {
-
-                charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
-
-                if (node->bgColor.isValid())
-                    charFmt.setBackground(QBrush(node->bgColor));
-
-                charFmt.setTableCellColumnSpan(node->tableCellColSpan);
-                charFmt.setTableCellRowSpan(node->tableCellRowSpan);
-
-                separator = QTextBeginningOfFrame;
-
-                tables[tables.size() - 1].currentColumnCount += node->tableCellColSpan;
-
-                hasBlock = false;
-            }
 
             // ####################
 //                block.setFloatPosition(node->cssFloat);
@@ -700,18 +703,31 @@ void QTextHTMLImporter::import()
                 block.setBackground(QBrush(node->bgColor));
 
             if (hasBlock && (!node->isEmptyParagraph || forceBlockMerging)) {
-                d->fragments.last().blockFormat = d->formatCollection.indexForFormat(block);
-                d->fragments.last().charFormat = d->formatCollection.indexForFormat(charFmt);
+                if (cursor.position() == 0)
+                    containsCompleteDocument = true;
+                cursor.setBlockFormat(block);
+                cursor.setBlockCharFormat(charFmt);
             } else {
-                appendBlock(block, charFmt, separator);
+                appendBlock(block, charFmt);
+            }
+
+            if (node->isListItem && !lists.isEmpty()) {
+                List &l = lists.last();
+                if (l.list) {
+                    l.list->add(cursor.block());
+                } else {
+                    l.list = cursor.createList(l.format);
+                }
             }
 
             forceBlockMerging = false;
             if (node->id == Html_body || node->id == Html_html)
                 forceBlockMerging = true;
 
-            if (node->isEmptyParagraph)
+            if (node->isEmptyParagraph) {
+                hasBlock = false;
                 continue;
+            }
 
             hasBlock = true;
         }
@@ -727,7 +743,7 @@ void QTextHTMLImporter::import()
         appendText(node->text, node->charFormat());
     }
 
-    if (listReferences.size() || tables.size())
+    if (lists.size() || tables.size())
         closeTag(count() - 1);
 
 }
@@ -743,35 +759,30 @@ bool QTextHTMLImporter::closeTag(int i)
 
     while (depth > endDepth) {
         if (closedNode->id == Html_tr && !tables.isEmpty()) {
-            Table &t = tables[tables.size() -1];
-
-            QTextCharFormat charFmt;
-            charFmt.setObjectIndex(t.tableIndex);
-
-            const int rowSpanCells = t.rowSpanCellsPerRow.value(t.currentRow, 0);
-
-            while (t.currentColumnCount < t.columns - rowSpanCells) {
-                appendBlock(QTextBlockFormat(), charFmt, QTextBeginningOfFrame);
-                ++t.currentColumnCount;
-            }
-
-            t.currentColumnCount = 0;
             blockTagClosed = true;
         } else if (closedNode->id == Html_table && !tables.isEmpty()) {
-            QTextCharFormat charFmt;
-            charFmt.setObjectIndex(tables[tables.size() - 1].tableIndex);
-            QTextBlockFormat fmt;
-            appendBlock(fmt, charFmt, QTextEndOfFrame);
+            Table &t = tables.last();
+            if (QTextTable *parentTable = qobject_cast<QTextTable *>(t.lastFrame)) {
+                cursor = parentTable->cellAt(t.lastRow, t.lastColumn).lastCursorPosition();
+            } else {
+                cursor = t.lastFrame->lastCursorPosition();
+            }
+
             tables.resize(tables.size() - 1);
             // we don't need an extra block after tables, so we don't
             // claim to have closed one for the creation of a new one
             // in import()
             blockTagClosed = false;
+        } else if (closedNode->isTableCell && !tables.isEmpty()) {
+            Table &t = tables.last();
+            if (t.table)
+                ++tables.last().currentPosition;
+            blockTagClosed = true;
         } else if (closedNode->isListStart) {
 
-            Q_ASSERT(!listReferences.isEmpty());
+            Q_ASSERT(!lists.isEmpty());
 
-            listReferences.resize(listReferences.size() - 1);
+            lists.resize(lists.size() - 1);
             --indent;
             blockTagClosed = true;
         } else if (closedNode->id == Html_hr || closedNode->id == Html_center) {
@@ -790,9 +801,8 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
     table->columns = 0;
 
     QVector<QTextLength> columnWidths;
+    QVector<int> rowSpanCellsPerRow;
 
-    int cellCount = 0;
-    bool inFirstRow = true;
     int effectiveRow = 0;
     foreach (int row, at(tableNodeIdx).children) {
         if (at(row).id == Html_tr) {
@@ -800,32 +810,30 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
 
             foreach (int cell, at(row).children)
                 if (at(cell).isTableCell) {
-                    ++cellCount;
 
                     const QTextHtmlParserNode &c = at(cell);
                     colsInRow += c.tableCellColSpan;
 
                     if (c.tableCellRowSpan > 1) {
-                        table->rowSpanCellsPerRow.resize(effectiveRow + c.tableCellRowSpan + 1);
+                        rowSpanCellsPerRow.resize(effectiveRow + c.tableCellRowSpan + 1);
 
                         for (int r = effectiveRow + 1; r < effectiveRow + c.tableCellRowSpan; ++r)
-                            table->rowSpanCellsPerRow[r]++;
+                            rowSpanCellsPerRow[r]++;
                     }
 
-                    if (inFirstRow || colsInRow > columnWidths.count()) {
-                        while (columnWidths.count() < colsInRow)
-                            columnWidths << c.width;
-                    }
+                    while (columnWidths.count() < colsInRow)
+                        columnWidths << c.width;
                 }
 
-            table->columns = qMax(table->columns, colsInRow);
-            inFirstRow = false;
+            table->columns = qMax(table->columns, colsInRow + rowSpanCellsPerRow.value(effectiveRow, 0));
 
             ++effectiveRow;
+            rowSpanCellsPerRow.append(0);
         }
     }
+    table->rows = effectiveRow;
 
-    if (cellCount == 0)
+    if (table->rows == 0 || table->columns == 0)
         return false;
 
     QTextFrameFormat fmt;
@@ -858,11 +866,37 @@ bool QTextHTMLImporter::scanTable(int tableNodeIdx, Table *table)
         fmt.clearBackground();
     fmt.setPosition(QTextFrameFormat::Position(node.cssFloat));
 
-    table->tableIndex = d->formatCollection.createObjectIndex(fmt);
+    table->lastFrame = cursor.currentFrame();
+    if (QTextTable *parentTable = qobject_cast<QTextTable *>(table->lastFrame)) {
+        QTextTableCell cell = parentTable->cellAt(cursor);
+        table->lastRow = cell.row();
+        table->lastColumn = cell.column();
+    }
+
+    if (node.isTableFrame) {
+        cursor.insertFrame(fmt);
+    } else {
+        table->table = cursor.insertTable(table->rows, table->columns, fmt.toTableFormat());
+
+        TableIterator it(table->table);
+        foreach (int row, at(tableNodeIdx).children)
+            if (at(row).id == Html_tr)
+                foreach (int cell, at(row).children)
+                    if (at(cell).isTableCell) {
+                        const QTextHtmlParserNode &c = at(cell);
+
+                        if (c.tableCellColSpan > 1 || c.tableCellRowSpan > 1)
+                            table->table->mergeCells(it.row, it.column, c.tableCellRowSpan, c.tableCellColSpan);
+
+                        ++it;
+                    }
+
+        table->currentPosition = TableIterator(table->table);
+    }
     return true;
 }
 
-void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt, const QChar &separator)
+void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt)
 {
     if (setNamedAnchorInNextOutput) {
         charFmt.setAnchor(true);
@@ -870,7 +904,7 @@ void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, QTextCharFor
         setNamedAnchorInNextOutput = false;
     }
 
-    d->appendText(QString(separator), d->formatCollection.indexForFormat(charFmt), d->formatCollection.indexForFormat(format));
+    cursor.insertBlock(format, charFmt);
 }
 
 void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
@@ -879,7 +913,7 @@ void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
         QTextCharFormat fmt = format;
         fmt.setAnchor(true);
         fmt.setAnchorName(namedAnchor);
-        d->appendText(QString(text.at(0)), d->formatCollection.indexForFormat(fmt));
+        cursor.insertText(QString(text.at(0)), fmt);
 
         text.remove(0, 1);
         format.setAnchor(false);
@@ -888,9 +922,8 @@ void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
         setNamedAnchorInNextOutput = false;
     }
 
-    if (!text.isEmpty()) {
-        d->appendText(text, d->formatCollection.indexForFormat(format));
-    }
+    if (!text.isEmpty())
+        cursor.insertText(text, format);
 }
 
 /*!
@@ -903,8 +936,7 @@ void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
 */
 QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &_html)
 {
-    QTextDocumentFragment res;
-    res.d = new QTextDocumentFragmentPrivate;
+    QTextDocument doc;
 
     QString html = _html;
 
@@ -917,12 +949,15 @@ QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &_html)
             html = html.mid(startFragmentPos);
 
         html.prepend(QLatin1String("<meta name=\"qrichtext\" content=\"1\" />"));
-
-        res.d->containsCompleteDocument = false;
-    } else {
-        res.d->containsCompleteDocument = true;
     }
 
-    QTextHTMLImporter(res.d, html).import();
+    QTextHTMLImporter importer(&doc, html);
+    importer.import();
+    useUglyContainsCompleteDocumentHack = true;
+    uglyContainsCompleteDocumentHack = importer.containsCompleteDocument;
+    QTextDocumentFragment res = QTextDocumentFragment(&doc);
+    useUglyContainsCompleteDocumentHack = false;
+    res.d->hasTitle = importer.hasTitle;
+    res.d->title = importer.title;
     return res;
 }
