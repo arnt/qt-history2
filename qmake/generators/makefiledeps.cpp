@@ -604,9 +604,8 @@ bool QMakeSourceFileInfo::findDeps(SourceFile *file)
                         dep->type = QMakeSourceFileInfo::TYPE_C;
                         files->addFile(dep);
                         includes->addFile(dep, inc);
-                    } else {
-                        dep->exists = exists;
                     }
+                    dep->exists = exists;
                 }
             }
             if(dep) {
