@@ -179,10 +179,8 @@ public:
             return act->shortcut();
         return QKeySequence(); }
     inline QT3_SUPPORT void setAccel(const QKeySequence& key, int id) {
-        if(QAction *act = findActionForId(id)) {
-            qDebug("act= %p", act);
+        if(QAction *act = findActionForId(id))
             act->setShortcut(key);
-        }
     }
 #endif
     inline QT3_SUPPORT QIcon iconSet(int id) const {
