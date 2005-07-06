@@ -198,7 +198,8 @@ void QTextDocumentPrivate::clear()
     blocks.clear();
     resources.clear();
     q->contentsChange(0, len, 0);
-    lout->documentChanged(0, len, 0);
+    if (lout)
+        lout->documentChanged(0, len, 0);
     delete frame;
     init();
     cursors = oldCursors;
