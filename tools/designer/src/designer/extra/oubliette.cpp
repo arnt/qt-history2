@@ -325,8 +325,8 @@ void Oubliette::showInstructions()
 void Oubliette::showVictory()
 {
     int value = QMessageBox::information(window(), tr("You Did It!"),
-            tr("You've collected all the Trolltech Cards it took %2 steps.\n"
-               "There's nothing more here. Now you should get back to work.").arg(m_character.totalSteps()),
+            tr("You've collected all the Trolltech cards. It took you %1 steps.\n"
+               "There's nothing more here. You should get back to work.").arg(m_character.totalSteps()),
             tr("That's rather anti-climatic"), tr("Quit"));
     if (value == 1)
         QApplication::instance()->quit();
