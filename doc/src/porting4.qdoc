@@ -2294,11 +2294,11 @@
     End of X11 Specific
 \endomit
 
-\omit
     \section1 QPopupMenu
 
-    ###
-\endomit
+    For most purposes, QPopupMenu has been replaced by QMenu in Qt 4. For
+    compatibility with older applications, Q3PopupMenu provides the old API
+    and features that are specific to popup menus.
 
     \section1 QPrinter
 
