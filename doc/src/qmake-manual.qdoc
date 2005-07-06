@@ -2475,8 +2475,7 @@
     \c qmake often tries to be all things to all build tools, this is often less
     than ideal when you really need to run special platform dependent
     commands. This can be achieved with specific instructions to the different
-    \c qmake backends (currently this is only supported by the Unix
-    \l{qmake Variable Reference#MAKEFILE_GENERATOR}{generator}).
+    \c qmake backends.
 
     The interfaces to customizing the Makefile are done through "objects" as in
     other places in qmake. The notation for this is quite simple, first you
@@ -2500,7 +2499,7 @@
     actually an object used by the target building parts of qmake by:
 
     \code
-        QMAKE_EXTRA_UNIX_TARGETS += mytarget mytarget2
+        QMAKE_EXTRA_TARGETS += mytarget mytarget2
     \endcode
 
     This is all you need to do to actually build custom targets in qmake, of
@@ -2509,7 +2508,7 @@
     include your Makefile target in the list of
     \l{qmake Variable Reference#PRE_TARGETDEPS}{PRE_TARGETDEPS}.
 
-    For convenience there is also a method of customizing (Unix) projects
+    For convenience there is also a method of customizing projects
     for generic new compilers (or even preprocessors).
 
     \code
@@ -2517,7 +2516,7 @@
         new_moc.commands = moc ${QMAKE_FILE_NAME} -o ${QMAKE_FILE_OUT}
         new_moc.depend_command = g++ -E -M ${QMAKE_FILE_NAME} | sed "s,^.*: ,,"
         new_moc.input = NEW_HEADERS
-        QMAKE_EXTRA_UNIX_COMPILERS += new_moc
+        QMAKE_EXTRA_COMPILERS += new_moc
     \endcode
 
     With this you can create a new moc for qmake, the commands will be
