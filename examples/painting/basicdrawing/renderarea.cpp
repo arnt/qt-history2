@@ -67,8 +67,12 @@ void RenderArea::setTransformed(bool transformed)
 
 void RenderArea::paintEvent(QPaintEvent *)
 {
-    static const int polygonPoints[8] = { 10, 80, 20, 10, 80, 30, 90, 70 };
-    QPolygon polygon(4, polygonPoints);
+    static const QPoint points[4] = {
+        QPoint(10, 80),
+        QPoint(20, 10),
+        QPoint(80, 30),
+        QPoint(90, 70)
+    };
 
     QRect rect(10, 20, 80, 60);
 
@@ -102,13 +106,13 @@ void RenderArea::paintEvent(QPaintEvent *)
                 painter.drawLine(rect.bottomLeft(), rect.topRight());
                 break;
             case Points:
-                painter.drawPoints(polygon);
+                painter.drawPoints(points, 4);
                 break;
             case Polyline:
-                painter.drawPolyline(polygon);
+                painter.drawPolyline(points, 4);
                 break;
             case Polygon:
-                painter.drawPolygon(polygon);
+                painter.drawPolygon(points, 4);
                 break;
             case Rect:
                 painter.drawRect(rect);
