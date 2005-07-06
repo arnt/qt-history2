@@ -7,7 +7,8 @@ SUBDIRS       = blockingfortuneclient \
                 ftp \
                 http \
                 loopback \
-                threadedfortuneserver
+                threadedfortuneserver \
+		torrent
 
 # install
 target.path = $$[QT_INSTALL_EXAMPLES]/network
