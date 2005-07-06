@@ -16,10 +16,10 @@
 #    define S_ISCHR(x)   (((x) & S_IFMT) == S_IFCHR)
 #  endif
 #  ifndef S_ISFIFO
-#    define S_ISFIFO false
+#    define S_ISFIFO(x) false
 #  endif
 #  ifndef S_ISSOCK
-#    define S_ISSOCK false
+#    define S_ISSOCK(x) false
 #  endif
 #  ifndef fseeko
 #    define fseeko fseek
@@ -162,7 +162,7 @@ qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
         flush();
         d->lastIOCommand = QBufferedFSFileEnginePrivate::IOReadCommand;
     }
-    
+
     if (feof(d->fh))
         return 0;
     size_t readBytes = fread(data, 1, size_t(maxlen), d->fh);
