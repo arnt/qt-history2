@@ -194,6 +194,17 @@
     on strings and lists of values. These are described in the chapter on
     \l{qmake Advanced Usage}.
 
+    Normally, variables are used to contain whitespace-separated lists
+    of values. However, it is sometimes necessary to specify values containing
+    spaces. These must be quoted in the following way:
+
+    \quotefromfile snippets/qmake/quoting.pro
+    \skipto DEST
+    \printuntil DEST
+
+    The quoted text is treated as a single item in the list of values held by
+    the variable.
+
     \section2 Comments
 
     You can add comments to project files. Comments begin with the \c
