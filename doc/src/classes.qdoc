@@ -37,6 +37,7 @@
     \row \i \l{QtSql} \i Classes for database integration using SQL
     \row \i \l{QtXml} \i Classes for handling XML
     \row \i \l{QtDesigner} \i Classes for extending and embedding \QD
+    \row \i \l{QtAssistant} \i Classes that provide support for online help
     \row \i \l{Qt3Support} \i Qt 3 compatibility classes
     \endtable
 
@@ -44,8 +45,8 @@
     \l{Qt Commercial Editions} on Windows:
 
     \table 80%
-    \row \i \l{QAxContainer} \i Extension for accessing ActiveX controls.
-    \row \i \l{QAxServer} \i Extension for writing ActiveX servers.
+    \row \i \l{QAxContainer} \i Extension for accessing ActiveX controls
+    \row \i \l{QAxServer} \i Extension for writing ActiveX servers
     \endtable
 */
 
@@ -120,7 +121,7 @@
     \title QtXml Classes
     \contentspage Qt Classes by Module
     \previouspage QtSql Classes
-    \nextpage QAxContainer Classes
+    \nextpage QtDesigner Classes
 
     \keyword QtXml
 
@@ -177,11 +178,26 @@
     \page qtdesigner.html
     \title QtDesigner Classes
     \contentspage Qt Classes by Module
-    \previouspage QAxServer Classes
+    \previouspage QtXml Classes
+    \nextpage QtAssistant Classes
 
     \keyword QtDesigner
 
     \generatelist {classesbymodule QtDesigner}
+
+    \sa {Qt Designer Manual}
+*/
+
+/*!
+    \page qtassistant.html
+    \title QtAssistant Classes
+    \contentspage Qt Classes by Module
+    \previouspage QAxServer Classes
+    \nextpage Qt3Support Classes
+
+    \keyword QtAssistant
+
+    \generatelist {classesbymodule QtAssistant}
 
     \sa {Qt Designer Manual}
 */
