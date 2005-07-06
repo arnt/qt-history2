@@ -1313,7 +1313,7 @@ bool QConfFileSettingsPrivate::readIniLine(QIODevice &device, QByteArray &line, 
         switch (ch) {
         case '"':
             data[pos++] = '"';
-            while (!device.getChar(&ch) || ch != '"') {
+            while (device.getChar(&ch) && ch != '"') {
                 MAYBE_GROW();
 
                 if (static_cast<signed char>(ch) == -1)
