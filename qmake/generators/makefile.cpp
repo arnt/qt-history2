@@ -1481,18 +1481,21 @@ MakefileGenerator::createObjectList(const QStringList &sources)
 struct ReplaceExtraCompilerCacheKey
 {
     mutable uint hash;
+    bool local;
     QString var, in, out, pwd;
-    ReplaceExtraCompilerCacheKey(const QString &v, const QString &i, const QString &o)
+    ReplaceExtraCompilerCacheKey(const QString &v, const QString &i, const QString &o, bool l)
     {
         hash = 0;
         pwd = qmake_getpwd();
         var = v;
         in = i;
         out = o;
+        local = l;
     }
     bool operator==(const ReplaceExtraCompilerCacheKey &f) const
     {
         return (hashCode() == f.hashCode() &&
+                f.local == local &&
                 f.in == in &&
                 f.out == out &&
                 f.var == var &&
@@ -1507,13 +1510,14 @@ struct ReplaceExtraCompilerCacheKey
 uint qHash(const ReplaceExtraCompilerCacheKey &f) { return f.hashCode(); }
 
 QString
-MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out, bool local)
+MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in,
+                                                 const QString &out, bool local)
 {
     //lazy cache
     static QHash<ReplaceExtraCompilerCacheKey, QString> *cache = 0;
     if(!cache)
         cache = new QHash<ReplaceExtraCompilerCacheKey, QString>;
-    ReplaceExtraCompilerCacheKey cacheKey(var, in, out);
+    ReplaceExtraCompilerCacheKey cacheKey(var, in, out, local);
     QString cacheVal = cache->value(cacheKey);
     if(!cacheVal.isNull())
         return cacheVal;
@@ -1530,7 +1534,8 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
         if(val.isNull() && var.startsWith(QLatin1String("QMAKE_VAR_FIRST_")))
             val = project->first(var.mid(12));
         if(val.isNull() && !in.isNull()) {
-            if(var == QLatin1String("QMAKE_FILE_BASE") || var == QLatin1String("QMAKE_FILE_IN_BASE")) {
+            if(var == QLatin1String("QMAKE_FILE_BASE") ||
+               var == QLatin1String("QMAKE_FILE_IN_BASE")) {
                 QFileInfo fi(fileInfo(Option::fixPathToLocalOS(in)));
                 val = fi.completeBaseName();
                 if(val.isNull())
@@ -1543,10 +1548,6 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
             if(var == QLatin1String("QMAKE_FILE_OUT"))
                 val = out;
         }
-        if(local)
-            val = Option::fixPathToLocalOS(val, false);
-        else
-            val = Option::fixPathToTargetOS(val, false);
         if(!val.isNull()) {
             ret.replace(rep, reg_var.matchedLength(), val);
             rep += val.length();
@@ -1554,6 +1555,11 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
             rep += reg_var.matchedLength();
         }
     }
+
+    if(local)
+        ret = Option::fixPathToLocalOS(ret, false, false);
+    else
+        ret = Option::fixPathToTargetOS(ret, false, false);
 
     //cache the value
     cache->insert(cacheKey, ret);
@@ -1808,7 +1814,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             QStringList deps, inputs;
             if(!tmp_dep.isEmpty())
                 deps += fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
-            for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
+            for(QStringList::ConstIterator input = tmp_inputs.begin();
+                input != tmp_inputs.end(); ++input) {
                 deps += findDependencies((*input)).join(" ");
                 inputs += Option::fixPathToTargetOS((*input), false);
                 if(!tmp_dep_cmd.isEmpty() && doDepends()) {
