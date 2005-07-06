@@ -278,6 +278,10 @@ void TabbedBrowser::sourceChanged()
     QString docTitle(win->documentTitle());
     if (docTitle.isEmpty())
         docTitle = QLatin1String("...");
+    // Make the classname in the title a bit more visible (otherwise
+    // we just see the "Qt 4.0 : Q..." which isn't really helpful ;-)
+    if (docTitle.startsWith("Qt 4.0: "))
+        docTitle = docTitle.mid(8);
     setTitle(win, docTitle);
 }
 
