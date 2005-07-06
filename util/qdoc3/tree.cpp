@@ -5,6 +5,7 @@
 #include <QtCore>
 #include <QDomDocument>
 
+#include "atom.h"
 #include "dcfsection.h"
 #include "htmlgenerator.h"
 #include "location.h"
@@ -512,11 +513,18 @@ void Tree::readIndexFile(const QString &path)
         QDomElement indexElement = document.documentElement();
         QString indexUrl = indexElement.attribute("url");
 
+        // Scan all elements in the XML file, constructing a map that contains
+        // base classes for each class found.
+
         QDomElement child = indexElement.firstChildElement();
         while (!child.isNull()) {
             basesList += readIndexSection(child, root(), indexUrl);
             child = child.nextSiblingElement();
         }
+
+        // Now that all the base classes have been found for this index,
+        // arrange them into an inheritance hierarchy.
+
         resolveIndexBases(basesList);
     }
 }
@@ -525,7 +533,6 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
     InnerNode *parent, const QString &indexUrl)
 {
     QList<QPair<ClassNode*,QString> > basesList;
-    bool inClass = false;
 
     QString name = element.attribute("name");
 
@@ -533,7 +540,6 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
     if (element.nodeName() == "namespace") {
         section = new NamespaceNode(parent, name);
     } else if (element.nodeName() == "class") {
-        inClass = true;
         section = new ClassNode(parent, name);
         basesList.append(QPair<ClassNode*,QString>(
             static_cast<ClassNode*>(section), element.attribute("bases")));
@@ -558,12 +564,16 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
         FakeNode *fakeNode = new FakeNode(parent, name, subtype);
         fakeNode->setTitle(element.attribute("title"));
         section = fakeNode;
+
     } else if (element.nodeName() == "enum") {
         section = new EnumNode(parent, name);
+
     } else if (element.nodeName() == "typedef") {
         section = new TypedefNode(parent, name);
+
     } else if (element.nodeName() == "property") {
         section = new PropertyNode(parent, name);
+
     } else if (element.nodeName() == "function") {
         FunctionNode::Virtualness virt;
         if (element.attribute("virtual") == "non")
@@ -613,8 +623,23 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
 
     } else if (element.nodeName() == "variable") {
         section = new VariableNode(parent, name);
+
     } else if (element.nodeName() == "target") {
-        section = new TargetNode(parent, name);
+        Target target;
+        target.node = parent;
+        target.priority = 2;
+        target.atom = new Atom(Atom::Target, name);
+        priv->targetHash.insert(name, target);
+        return basesList;
+
+    } else if (element.nodeName() == "keyword") {
+        Target target;
+        target.node = parent;
+        target.priority = 1;
+        target.atom = new Atom(Atom::Target, name);
+        priv->targetHash.insert(name, target);
+        return basesList;
+
     } else
         return basesList;
 
@@ -628,19 +653,24 @@ QList<QPair<ClassNode*,QString> > Tree::readIndexSection(const QDomElement &elem
 
     section->setUrl(indexUrl);
 
+    // Create some content for the node.
     QSet<QString> emptySet;
     Location location(indexUrl + "/" + name.toLower() + ".html");
-    Doc doc(location, QString("placeholder"), emptySet);
+    Doc doc(location, " ", emptySet); // placeholder
     section->setDoc(doc);
 
     InnerNode *inner = dynamic_cast<InnerNode*>(section);
     if (inner) {
         QDomElement child = element.firstChildElement();
+
         while (!child.isNull()) {
-            if (inClass)
+            if (element.nodeName() == "class")
+                basesList += readIndexSection(child, inner, indexUrl);
+            else if (element.nodeName() == "page")
                 basesList += readIndexSection(child, inner, indexUrl);
             else
                 basesList += readIndexSection(child, parent, indexUrl);
+
             child = child.nextSiblingElement();
         }
     }
@@ -721,18 +751,19 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
         case Node::Protected:
             access = "protected";
             break;
-        case Node::Private:
-            //access = "private";
-            //break;
+        case Node::Private:     // Do not include private nodes in the index.
         default:
-            //break;
             return;
     }
+
+    // Construct the opening tag for the node.
 
     out << indent << "<" << nodeName
         << " access=\"" << access << "\""
         << " name=\"" << HtmlGenerator::protect(node->name()) << "\"";
-    
+
+    // Class contain information about their base classes.
+
     if (node->type() == Node::Class) {
         const ClassNode *classNode = static_cast<const ClassNode*>(node);
         QList<RelatedClass> bases = classNode->baseClasses();
@@ -744,6 +775,9 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
         out << " bases=\"" << HtmlGenerator::protect(baseStrings.join(","))
             << "\"";
     }
+
+    // Fake nodes (such as manual pages) contain subtypes, titles and other
+    // attributes.
 
     if (node->type() == Node::Fake) {
         const FakeNode *fakeNode = static_cast<const FakeNode*>(node);
@@ -773,6 +807,9 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
         out << " fulltitle=\"" << HtmlGenerator::protect(fakeNode->fullTitle()) << "\"";
         out << " subtitle=\"" << HtmlGenerator::protect(fakeNode->subTitle()) << "\"";
     }
+
+    // Function nodes contain information about the type of function being
+    // described.
 
     if (node->type() == Node::Function) {
         const FunctionNode *functionNode = static_cast<const FunctionNode*>(node);
@@ -816,9 +853,27 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
         out << " overload=\"" << (functionNode->isOverload()?"true":"false") << "\"";
     }
 
+    // Inner nodes and function nodes contain child nodes of some sort, either
+    // actual child nodes or function parameters. For these, we close the
+    // opening tag, create child elements, then add a closing tag for the
+    // element. Elements for all other nodes are closed in the opening tag.
+
     const InnerNode *inner = dynamic_cast<const InnerNode*>(node);
     if (inner) {
         out << ">\n";
+
+        if (inner->doc().hasTargets()) {
+            foreach (Atom *target, inner->doc().targets()) {
+                out << indent << " <target name=\""
+                    << HtmlGenerator::protect(target->string()) << "\" />\n";
+            }
+        }
+        if (inner->doc().hasKeywords()) {
+            foreach (Atom *keyword, inner->doc().keywords()) {
+                out << indent << " <keyword name=\""
+                    << HtmlGenerator::protect(keyword->string()) << "\" />\n";
+            }
+        }
 
         foreach (Node *child, inner->childNodes())
             generateIndexSubSections(indent + " ", out, child);
@@ -836,7 +891,7 @@ void Tree::generateIndexSubSections(QString indent, QTextStream& out,
                 << " right=\"" << HtmlGenerator::protect(parameter.rightType()) << "\""
                 << " name=\"" << HtmlGenerator::protect(parameter.name()) << "\""
 //                << " default=\"" << HtmlGenerator::protect(parameter.defaultValue())
-                << " />";
+                << " />\n";
         }
         out << indent << "</" << nodeName << ">\n";
     } else

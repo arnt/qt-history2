@@ -38,7 +38,6 @@ public:
     void setRelates(InnerNode *pseudoParent);
     void setModuleName(const QString &module) { mod = module; }
     void setLink(LinkType linkType, const QString &link, const QString &desc);
-    void setExternal(bool enable);
 
     virtual bool isInnerNode() const = 0;
     Type type() const { return typ; }
