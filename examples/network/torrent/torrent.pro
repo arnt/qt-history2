@@ -26,4 +26,3 @@ FORMS += forms/addtorrentform.ui
 RESOURCES += icons.qrc
 
 QT += network
-CONFIG += release
