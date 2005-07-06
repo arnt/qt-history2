@@ -14,7 +14,7 @@
 #ifndef QMENUBAR_H
 #define QMENUBAR_H
 
-#include <QMenu>
+#include <QtGui/qmenu.h>
 
 #ifndef QT_NO_MENUBAR
 
