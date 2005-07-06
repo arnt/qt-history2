@@ -528,11 +528,15 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
 
     t << "DIST          = " << varList("DISTFILES") << endl;
     t << "QMAKE_TARGET  = " << var("QMAKE_ORIG_TARGET") << endl;
+    QString orgDestDir = var("DESTDIR");
+    QString destDir = Option::fixPathToTargetOS(orgDestDir, false);
+    if (orgDestDir.endsWith('/') || orgDestDir.endsWith('/') || orgDestDir.endsWith(Option::dir_sep))
+        destDir += Option::dir_sep;
     // The comment is important to maintain variable compatability with Unix
     // Makefiles, while not interpreting a trailing-slash as a linebreak
-    t << "DESTDIR       = " << var("DESTDIR") << " #avoid trailing-slash linebreak" << endl;
+    t << "DESTDIR       = " << destDir << " #avoid trailing-slash linebreak" << endl;
     t << "TARGET        = ";
-    QString target = var("DESTDIR") + project->first("TARGET") + project->first("TARGET_EXT");
+    QString target = destDir + project->first("TARGET") + project->first("TARGET_EXT");
     target.remove('"');
     t << target;
     t << endl << endl;
@@ -549,7 +553,7 @@ void Win32MakefileGenerator::writeStandardParts(QTextStream &t)
     if(project->isActiveConfig("dll") && !project->variables()["DLLDESTDIR"].isEmpty()) {
         QStringList dlldirs = project->variables()["DLLDESTDIR"];
         for (QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir) {
-            t << "\n\t" << "-$(COPY_FILE) \"$(TARGET)\" " << *dlldir;
+            t << "\n\t" << "-$(COPY_FILE) \"$(TARGET)\" " << Option::fixPathToTargetOS(*dlldir, false);
         }
     }
     t << endl << endl;
