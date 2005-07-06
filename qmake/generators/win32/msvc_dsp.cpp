@@ -123,9 +123,9 @@ bool DspMakefileGenerator::writeDspHeader(QTextStream &t)
     t << "# PROP AllowPerConfigDependencies 0" << endl;
     t << "# PROP Scc_ProjName \"\"" << endl;
     t << "# PROP Scc_LocalPath \"\"" << endl;
-    t << "CPP=cl.exe" << endl;
-    t << "MTL=midl.exe" << endl;
-    t << "RSC=rc.exe" << endl;
+    t << "CPP=" << config->var("QMAKE_CC") << endl;
+    t << "MTL=" << config->var("QMAKE_IDL") << endl;
+    t << "RSC=" << config->var("QMAKE_RC") << endl;
     t << "BSC32=bscmake.exe" << endl;
 
     return true;
@@ -362,7 +362,7 @@ DspMakefileGenerator::init()
         if(dlldirs.count())
             copyDllStep += "\t";
         for(QStringList::Iterator dlldir = dlldirs.begin(); dlldir != dlldirs.end(); ++dlldir) {
-            copyDllStep += "copy \"$(TargetPath)\" \"" + *dlldir + "\"\t";
+            copyDllStep += "copy \"$(TargetPath)\" \"" + Option::fixPathToTargetOS(*dlldir) + "\"\t";
         }
     }
 
@@ -743,7 +743,7 @@ bool DspMakefileGenerator::writeDspConfig(QTextStream &t, DspMakefileGenerator *
     bool isDebug = config->project->isActiveConfig("debug");
     bool staticLibTarget = config->var("MSVCDSP_DSPTYPE") == "0x0104";
 
-    QString outDir = config->project->first("DESTDIR");
+    QString outDir = Option::fixPathToTargetOS(config->project->first("DESTDIR"));
     while (outDir.endsWith(Option::dir_sep))
         outDir.chop(1);
 
@@ -769,10 +769,10 @@ bool DspMakefileGenerator::writeDspConfig(QTextStream &t, DspMakefileGenerator *
     t << "# ADD RSC /l 0x409 /d " << (isDebug ? "\"_DEBUG\"" : "\"NDEBUG\"") << endl;
     t << "# ADD BSC32 /nologo" << endl;
     if (staticLibTarget) {
-        t << "LIB32=link.exe -lib" << endl;
-        t << "# ADD LIB32 -nologo " << config->var("MSVCDSP_TARGET") << " " << config->var("PRECOMPILED_OBJECT") << endl;
+        t << "LIB32=" << config->var("QMAKE_LIB") << endl;
+        t << "# ADD LIB32 " << config->var("MSVCDSP_TARGET") << " " << config->var("PRECOMPILED_OBJECT") << endl;
     } else {
-        t << "LINK32=link.exe" << endl;
+        t << "LINK32=" << config->var("QMAKE_LINK") << endl;
         t << "# ADD LINK32 " << config->var("MSVCDSP_LFLAGS") << " " << config->var("MSVCDSP_LIBS") << " " << config->var("MSVCDSP_TARGET") << " " << config->var("PRECOMPILED_OBJECT") << endl;
     }
 
@@ -804,7 +804,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
             t << "# Begin Custom Build - Creating precompiled header from " << file << "..." << endl;
             t << "InputPath=.\\" << file << endl << endl;
             t << config->precompPch + ": $(SOURCE) \"$(IntDir)\" \"$(OUTDIR)\"" << endl;
-            t << "\tcl.exe /TP /W3 /FD /c /Yc /Fp" << config->precompPch << " /Fo" << config->precompObj << " /Fd\"$(IntDir)\\\\\" " << file << " ";
+            t << "\t" << config->var("QMAKE_CC") << " /TP /W3 /FD /c /Yc /Fp" << config->precompPch << " /Fo" << config->precompObj << " /Fd\"$(IntDir)\\\\\" " << file << " ";
             t << config->var("MSVCDSP_INCPATH") << " " << config->var("MSVCDSP_DEFINES") << " " << config->var("QMAKE_CXXFLAGS") << endl;
             t << "# End Custom Build" << endl << endl;
             return ret;
