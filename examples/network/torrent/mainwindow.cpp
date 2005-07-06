@@ -456,7 +456,7 @@ void MainWindow::setActionsEnabled()
 
     int row = torrentView->indexOfTopLevelItem(item);
     upActionTool->setEnabled(row > 0);
-    downActionTool->setEnabled(jobs.size() > 0 && row != jobs.size() - 1);
+    downActionTool->setEnabled(jobs.size() > 0 && row >= 0 && row != jobs.size() - 1);
 }
 
 void MainWindow::updateDownloadRate(int bytesPerSecond)
