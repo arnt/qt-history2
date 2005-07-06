@@ -35,15 +35,10 @@ OublietteView::~OublietteView()
 
 void OublietteView::scrollToCharacter(const QPoint &pt)
 {
-    bool needUpdate = false;
-    if (qAbs(pt.x() - horizontalScrollBar()->value()) >= 10 * 32) {
+    if (qAbs(pt.x() - horizontalScrollBar()->value()) >= 10 * 32)
         horizontalScrollBar()->setValue(pt.x() - width() / 2);
-        needUpdate = true;
-    }
-    if (qAbs(pt.y() - (verticalScrollBar()->value())) >= 6 * 32) {
+
+    if (qAbs(pt.y() - (verticalScrollBar()->value())) >= 6 * 32)
         verticalScrollBar()->setValue(pt.y() - height() / 2);
-        needUpdate = true;
-    }
-    if (needUpdate)
-        scrollContentsBy(0, 0);
+
 }

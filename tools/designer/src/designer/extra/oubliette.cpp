@@ -107,11 +107,17 @@ void Oubliette::paintEvent(QPaintEvent *pe)
 
 void Oubliette::paintOubliette(QPainter *p, const QRect &paintRect)
 {
-    QRect rect(paintRect.x() / TileWidth, paintRect.y() / TileHeight,
-               paintRect.width() / TileWidth, paintRect.height() / TileHeight);
+   // snap down
+    int tile_x1 = paintRect.x() / TileWidth;
+    int tile_y1 = paintRect.y() / TileHeight;
+
+    // snap up
+    int tile_x2 = (paintRect.x() + paintRect.width()) / TileWidth + TileWidth;
+    int tile_y2 = (paintRect.y() + paintRect.height()) / TileHeight + TileHeight;
+
     OublietteLevel *level = m_oubliettePlan.level(m_currentLevel);
-    for (int y = rect.y(); y <= rect.y() + rect.height(); ++y) {
-        for (int x = rect.x(); x <= rect.x() + rect.width(); ++x) {
+    for (int y = tile_y1; y <= tile_y2; ++y) {
+        for (int x = tile_x1; x <= tile_x2; ++x) {
             fillTile(p, x, y, level->tile(x, y));
         }
     }
