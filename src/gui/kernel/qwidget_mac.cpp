@@ -1056,9 +1056,11 @@ void QWidgetPrivate::create_sys(WId window, bool initializeWindow, bool destroyO
             SetDrawerParent(window, qt_mac_window_for(parentWidget));
         if(dialog && !parentWidget && !q->testAttribute(Qt::WA_ShowModal))
             grp = GetWindowGroupOfClass(kDocumentWindowClass);
+        if(topData()->group) {
+            qt_mac_release_window_group(topData()->group);
+            topData()->group = 0;
+        }
         if(flags & Qt::WindowStaysOnTopHint) {
-            if(topData()->group)
-                qt_mac_release_window_group(topData()->group);
             topData()->group = qt_mac_get_stays_on_top_group();
             SetWindowGroup(window, topData()->group);
         } else if(grp) {
@@ -2031,8 +2033,10 @@ void QWidgetPrivate::createTLSysExtra()
 
 void QWidgetPrivate::deleteTLSysExtra()
 {
-    if(extra->topextra->group)
+    if(extra->topextra->group) {
         qt_mac_release_window_group(extra->topextra->group);
+        extra->topextra->group = 0;
+    }
 }
 
 void QWidgetPrivate::updateFrameStrut() const
