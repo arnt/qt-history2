@@ -3169,7 +3169,7 @@ esac
 #   Options:
 #     minimal-config small-config medium-config large-config full-config
 #
-#   Enterprise/Open Source edition modules:
+#   Different edition modules:
 #     network canvas table xml opengl sql
 #
 #   Options:
@@ -3185,7 +3185,6 @@ esac
 #
 #     internal
 #     nocrosscompiler
-#     enterprise
 #     GNUmake
 #     largefile
 #     nis
