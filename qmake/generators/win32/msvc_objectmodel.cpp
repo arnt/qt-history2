@@ -1842,9 +1842,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
         QString cmd, cmd_name, out;
         QStringList deps, inputs;
         // Variabel replacement of output name
-        out = Option::fixPathToTargetOS(
-                    Project->replaceExtraCompilerVariables(tmp_out, inFile, QString()),
-                    false);
+        out = Project->replaceExtraCompilerVariables(tmp_out, inFile, QString(), true);
 
         // If file has built-in compiler, we've swapped the input and output of
         // the command, as we in Visual Studio cannot have a Custom Buildstep on
@@ -1866,9 +1864,7 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
             // Execute dependency command, and add every line as a dep
 	    char buff[256];
 	    QString dep_cmd = Project->replaceExtraCompilerVariables(tmp_dep_cmd,
-							             inFile,
-                                                                     out);
-            dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+							             inFile, out, true);
             if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
 	        QString indeps;
                 while(!feof(proc)) {
@@ -1883,15 +1879,11 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
             }
         }
         for (int i = 0; i < deps.count(); ++i)
-	    deps[i] = Option::fixPathToTargetOS(
-                        Project->replaceExtraCompilerVariables(deps.at(i), inFile, out),
-                        false).trimmed();
+	    deps[i] = Project->replaceExtraCompilerVariables(deps.at(i), inFile, out, false).trimmed();
         // Command for file
         if (combined) {
             // Replace variables for command w/o intput files
-            cmd = Project->replaceExtraCompilerVariables(tmp_cmd,
-                                                         QString(),
-                                                         out);
+            cmd = Project->replaceExtraCompilerVariables(tmp_cmd, QString(), out, false);
             // Add dependencies for each file
             QStringList tmp_in = Project->project->variables()[extraCompilerName + ".input"];
             for (int a = 0; a < tmp_in.count(); ++a) {
@@ -1901,17 +1893,15 @@ bool VCFilter::addExtraCompiler(const VCFilterFile &info)
                     inputs += Option::fixPathToTargetOS(files.at(b), false);
                 }
             }
-            deps += inputs; // input files themselvs too..
+            deps += inputs; // input files themselves too..
             // Add input files to command line
             cmd = cmd.replace("${QMAKE_FILE_IN}", inputs.join(" "));
         } else {
-            cmd = Project->replaceExtraCompilerVariables(tmp_cmd,
-                                                         inFile,
-                                                         out);
+            cmd = Project->replaceExtraCompilerVariables(tmp_cmd, inFile, out, false);
         }
         // Name for command
 	if(!tmp_cmd_name.isEmpty()) {
-	    cmd_name = Project->replaceExtraCompilerVariables(tmp_cmd_name, inFile, out);
+	    cmd_name = Project->replaceExtraCompilerVariables(tmp_cmd_name, inFile, out, false);
 	} else {
 	    int space = cmd.indexOf(' ');
 	    if(space != -1)

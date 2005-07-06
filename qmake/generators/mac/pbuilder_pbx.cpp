@@ -676,7 +676,7 @@ ProjectBuilderMakefileGenerator::writeMakeParts(QTextStream &t)
                             if(added && !(added % 3))
                                 mkt << "\\\n\t";
                             ++added;
-                            mkt << " " << replaceExtraCompilerVariables(tmp_out, files.at(file), QString());
+                            mkt << " " << replaceExtraCompilerVariables(tmp_out, files.at(file), QString(), false);
                         }
                     }
                 }

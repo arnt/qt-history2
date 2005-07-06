@@ -72,7 +72,7 @@ protected:
 
     //extra compiler interface
     bool verifyExtraCompiler(const QString &c, const QString &f);
-    virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &);
+    virtual QString replaceExtraCompilerVariables(const QString &, const QString &, const QString &, bool local);
 
     //interface to the source file info
     QMakeLocalFileName fixPathForFile(const QMakeLocalFileName &, bool);

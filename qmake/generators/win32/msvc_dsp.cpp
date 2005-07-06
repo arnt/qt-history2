@@ -51,14 +51,28 @@ bool DspMakefileGenerator::hasBuiltinCompiler(const QString &filename) const
     return filename.endsWith(".c");
 }
 
-QString DspMakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
+QString DspMakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out,
+                                                            bool local)
 {
-    QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out);
+    QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out, local);
     ret.replace("$(DEFINES)",  varGlue("PRL_EXPORT_DEFINES"," -D"," -D","") +
                 varGlue("DEFINES"," -D"," -D",""));
 
-    QString incpath = this->var("MSVCDSP_INCPATH");
-    incpath.replace("/I", "-I");
+    QString incpath;
+    const QStringList &incpaths = project->values("MSVCDSP_INCPATH");
+    for(int i = 0; i < incpaths.size(); ++i) {
+        QString inc = incpaths[i];
+        if(inc.startsWith(QLatin1String("-I")) || inc.startsWith(QLatin1String("/I"))) {
+            inc = inc.mid(2);
+            if(local)
+                inc = Option::fixPathToLocalOS(inc, false);
+            else
+                inc = Option::fixPathToTargetOS(inc, false);
+            if(!incpath.isEmpty())
+                incpath += " ";
+            incpath += "/I" + inc;
+        }
+    }
     ret.replace("$(INCPATH)", incpath);
     return ret;
 }
@@ -591,7 +605,7 @@ bool DspMakefileGenerator::writeProjectMakefile()
             }
 
             QStringList keys = files.keys();
-            for (int k = 0; k < keys.size(); ++k) 
+            for (int k = 0; k < keys.size(); ++k)
                 project->variables()[keys.at(k)] = QList<QString>::fromSet(files[keys.at(k)]);
 
             QStringList listNames = QString("SOURCES|DEF_FILE").split("|");
@@ -860,7 +874,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
             if (!compilerDependsCommand.isEmpty() && config->doDepends()) {
                 char buff[256];
                 QString dep_cmd = config->replaceExtraCompilerVariables(compilerDependsCommand, file,
-                    fileOut);
+                                                                        fileOut, true);
                 dep_cmd = Option::fixPathToLocalOS(dep_cmd);
                 if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
                     QString indeps;
@@ -891,7 +905,7 @@ QString DspMakefileGenerator::writeBuildstepForFileForConfig(const QString &file
             command.replace("${QMAKE_FILE_BASE}", fileBase);
             command.replace("${QMAKE_FILE_OUT}", fileOut);
 
-            command = config->replaceExtraCompilerVariables(command, fileIn, fileOut);
+            command = config->replaceExtraCompilerVariables(command, fileIn, fileOut, false);
 
             step.buildName = compilerName.first();
             step.buildStep += command;

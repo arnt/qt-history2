@@ -203,8 +203,7 @@ MakefileGenerator::initOutPaths()
             QStringList &inputs = project->variables()[(*it2)];
             for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
                 (*input) = fileFixify((*input), Option::output_dir, Option::output_dir);
-                QString path = replaceExtraCompilerVariables(tmp_out, (*input), QString());
-                path = Option::fixPathToTargetOS(path);
+                QString path = replaceExtraCompilerVariables(tmp_out, (*input), QString(), false);
                 int slash = path.lastIndexOf(Option::dir_sep);
                 if(slash != -1) {
                     path = path.left(slash);
@@ -619,8 +618,7 @@ MakefileGenerator::init()
                     QString in = Option::fixPathToTargetOS((*input), false);
                     if(!verifyExtraCompiler((*it), in)) //verify
                         continue;
-                    QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString());
-                    out = Option::fixPathToTargetOS(out, false);
+                    QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString(), false);
                     if(project->variables().contains((*it) + ".variable_out")) {
                         const QStringList &var_out = project->variables().value((*it) + ".variable_out");
                         for(int i = 0; i < var_out.size(); ++i) {
@@ -1509,7 +1507,7 @@ struct ReplaceExtraCompilerCacheKey
 uint qHash(const ReplaceExtraCompilerCacheKey &f) { return f.hashCode(); }
 
 QString
-MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
+MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out, bool local)
 {
     //lazy cache
     static QHash<ReplaceExtraCompilerCacheKey, QString> *cache = 0;
@@ -1545,6 +1543,10 @@ MakefileGenerator::replaceExtraCompilerVariables(const QString &var, const QStri
             if(var == QLatin1String("QMAKE_FILE_OUT"))
                 val = out;
         }
+        if(local)
+            val = Option::fixPathToLocalOS(val, false);
+        else
+            val = Option::fixPathToTargetOS(val, false);
         if(!val.isNull()) {
             ret.replace(rep, reg_var.matchedLength(), val);
             rep += val.length();
@@ -1605,7 +1607,7 @@ MakefileGenerator::verifyExtraCompiler(const QString &comp, const QString &file_
                         QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
                         if(in == file) {
                             QStringList args;
-                            args << replaceExtraCompilerVariables(tmp_out, (*input), QString()) << file;
+                            args << replaceExtraCompilerVariables(tmp_out, (*input), QString(), true) << file;
                             bool pass = project->test(verify, args);
                             if(invert)
                                 pass = !pass;
@@ -1624,7 +1626,7 @@ MakefileGenerator::verifyExtraCompiler(const QString &comp, const QString &file_
         QString tmp_cmd = project->variables()[comp + ".commands"].join(" ");
 
         if(project->values(comp + ".CONFIG").indexOf("combine") != -1) {
-            QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString(), tmp_out);
+            QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString(), tmp_out, true);
             if(system(cmd.toLatin1().constData()))
                 return false;
         } else {
@@ -1636,8 +1638,8 @@ MakefileGenerator::verifyExtraCompiler(const QString &comp, const QString &file_
                         continue;
                     QString in = fileFixify(Option::fixPathToTargetOS((*input), false));
                     if(in == file) {
-                        QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString());
-                        QString cmd = replaceExtraCompilerVariables(tmp_cmd, in, out);
+                        QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString(), true);
+                        QString cmd = replaceExtraCompilerVariables(tmp_cmd, in, out, true);
                         if(system(cmd.toLatin1().constData()))
                             return false;
                         break;
@@ -1685,20 +1687,39 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
     for(QStringList::ConstIterator it = quc.begin(); it != quc.end(); ++it) {
         QString tmp_out = fileFixify(project->variables()[(*it) + ".output"].first(),
                                      Option::output_dir, Option::output_dir);
-        QString tmp_cmd = project->variables()[(*it) + ".commands"].join(" ");
-        QStringList tmp_dep = project->variables()[(*it) + ".depends"];
-        QString tmp_dep_cmd = project->variables()[(*it) + ".depend_command"].join(" ");
-        if(!tmp_dep_cmd.isEmpty()) {
-	    QString argv0;
-	    QStringList cmdline = tmp_dep_cmd.split(' ');
+        QString tmp_cmd;
+        if(!project->isEmpty((*it) + ".commands")) {
+	    int argv0 = -1;
+	    QStringList cmdline = project->values((*it) + ".commands");
 	    for(int i = 0; i < cmdline.count(); ++i) {
 	    	if(!cmdline.at(i).contains('=')) {
-		   argv0 = cmdline.at(i);
-		   break;
+                    argv0 = i;
+                    break;
 	        }
 	    }
-            if(!exists(Option::fixPathToLocalOS(argv0, true)))
-                tmp_dep_cmd = QString();
+            if(argv0 != -1) {
+                cmdline[argv0] = Option::fixPathToTargetOS(cmdline.at(argv0), false);
+                tmp_cmd = cmdline.join(" ");
+            }
+        }
+        QStringList tmp_dep = project->variables()[(*it) + ".depends"];
+        QString tmp_dep_cmd;
+        if(!project->isEmpty((*it) + ".depend_command")) {
+	    int argv0 = -1;
+	    QStringList cmdline = project->values((*it) + ".depend_command");
+	    for(int i = 0; i < cmdline.count(); ++i) {
+	    	if(!cmdline.at(i).contains('=')) {
+                    argv0 = i;
+                    break;
+	        }
+	    }
+            if(argv0 != -1) {
+                const QString c = Option::fixPathToLocalOS(cmdline.at(argv0), true);
+                if(exists(c)) {
+                    cmdline[argv0] = Option::fixPathToLocalOS(cmdline.at(argv0), false);
+                    tmp_dep_cmd = cmdline.join(" ");
+                }
+            }
         }
         QStringList &vars = project->variables()[(*it) + ".variables"];
         if(tmp_out.isEmpty() || tmp_cmd.isEmpty())
@@ -1719,7 +1740,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
         t << "compiler_" << (*it) << "_make_all:";
         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
             QString in = Option::fixPathToTargetOS((*input), false);
-            t << " " << replaceExtraCompilerVariables(tmp_out, (*input), QString());
+            t << " " << replaceExtraCompilerVariables(tmp_out, (*input), QString(), false);
         }
         t << endl;
 
@@ -1749,13 +1770,13 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                     if(project->isActiveConfig("no_delete_multiple_files")) {
                         for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input)
                             cleans.append(" " + replaceExtraCompilerVariables(tmp_clean, (*input),
-                                                replaceExtraCompilerVariables(tmp_out, (*input), QString())));
+                                                replaceExtraCompilerVariables(tmp_out, (*input), QString(), false), false));
                     } else {
                         QString files, file;
                         const int commandlineLimit = 2047; // NT limit, expanded
                         for(int input = 0; input < tmp_inputs.size(); ++input) {
                             file = " " + replaceExtraCompilerVariables(tmp_clean, tmp_inputs.at(input),
-                                           replaceExtraCompilerVariables(tmp_out, tmp_inputs.at(input), QString()));
+                                   replaceExtraCompilerVariables(tmp_out, tmp_inputs.at(input), QString(), false), false);
                             if(del_statement.length() + files.length() +
                                qMax(fixEnvVariables(file).length(), file.length()) > commandlineLimit) {
                                 cleans.append(files);
@@ -1772,7 +1793,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 if(!wrote_clean_cmds) {
                     for(QStringList::ConstIterator input = tmp_inputs.begin(); input != tmp_inputs.end(); ++input) {
                         t << "\n\t" << replaceExtraCompilerVariables(tmp_clean_cmds, (*input),
-                                         replaceExtraCompilerVariables(tmp_out, (*input), QString()));
+                                          replaceExtraCompilerVariables(tmp_out, (*input), QString(), false), false);
                     }
                 }
             }
@@ -1793,8 +1814,8 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
                 if(!tmp_dep_cmd.isEmpty() && doDepends()) {
                     char buff[256];
                     QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input),
-                                                                    tmp_out);
-                    dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                                                                    tmp_out, true);
+                    dep_cmd = fixEnvVariables(dep_cmd);
                     if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
                         QString indeps;
                         while(!feof(proc)) {
@@ -1843,7 +1864,7 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             if (inputs.isEmpty())
                 continue;
 
-            QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString(), tmp_out);
+            QString cmd = replaceExtraCompilerVariables(tmp_cmd, QString(), tmp_out, false);
             t << tmp_out << ": " << valList(inputs) << " " << valList(deps) << "\n\t"
               << cmd.replace("${QMAKE_FILE_IN}", inputs.join(" ")) << endl << endl;
             continue;
@@ -1852,19 +1873,19 @@ MakefileGenerator::writeExtraCompilerTargets(QTextStream &t)
             QString in = Option::fixPathToTargetOS((*input), false);
             QStringList deps = findDependencies((*input));
             deps += in;
-            QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString());
+            QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString(), false);
             if(!tmp_dep.isEmpty()) {
                 QStringList pre_deps = fileFixify(tmp_dep, Option::output_dir, Option::output_dir);
                 for(int i = 0; i < pre_deps.size(); ++i)
-                   deps += replaceExtraCompilerVariables(pre_deps.at(i), (*input), out);
+                    deps += replaceExtraCompilerVariables(pre_deps.at(i), (*input), out, false);
             }
-            QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out);
+            QString cmd = replaceExtraCompilerVariables(tmp_cmd, (*input), out, false);
             for(QStringList::ConstIterator it3 = vars.constBegin(); it3 != vars.constEnd(); ++it3)
-                cmd.replace("$(" + (*it3) + ")", "$(QMAKE_COMP_" + (*it3)+")");
+                cmd.replace("$(" + (*it3) + ")", "$(QMAKE_COMP_" + (*it3) + ")");
             if(!tmp_dep_cmd.isEmpty() && doDepends()) {
                 char buff[256];
-                QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input), out);
-                dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                QString dep_cmd = replaceExtraCompilerVariables(tmp_dep_cmd, (*input), out, true);
+                dep_cmd = fixEnvVariables(dep_cmd);
                 if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
                     QString indeps;
                     while(!feof(proc)) {
@@ -2873,8 +2894,7 @@ MakefileGenerator::findFileForDep(const QMakeLocalFileName &dep, const QMakeLoca
                 for(QStringList::Iterator it2 = tmp.begin(); it2 != tmp.end(); ++it2) {
                     QStringList &inputs = project->variables()[(*it2)];
                     for(QStringList::Iterator input = inputs.begin(); input != inputs.end(); ++input) {
-                        QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString());
-
+                        QString out = replaceExtraCompilerVariables(tmp_out, (*input), QString(), true);
                         if(out == dep.real() || out.endsWith("/" + dep.real())) {
                             ret = QMakeLocalFileName(fileFixify(out, qmake_getpwd(), Option::output_dir));
                             goto found_dep_from_heuristic;

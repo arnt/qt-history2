@@ -686,8 +686,7 @@ void VcprojGenerator::init()
                         if (!hasBuiltinCompiler(file)) {
                             extraCompilerSources[file] += *it;
                         } else {
-                            QString out = Option::fixPathToTargetOS(replaceExtraCompilerVariables(
-                                            compiler_out, file, QString()), false);
+                            QString out = replaceExtraCompilerVariables(compiler_out, file, QString(), false);
                             extraCompilerSources[out] += *it;
                             extraCompilerOutputs[out] = QStringList(file); // Can only have one
                         }
@@ -1116,9 +1115,7 @@ void VcprojGenerator::initResourceFiles()
             if(!qrc_files.isEmpty()) {
                 for (int i = 0; i < qrc_files.count(); ++i) {
         	    char buff[256];
-                    QString dep_cmd = replaceExtraCompilerVariables(rcc_dep_cmd, qrc_files.at(i),"");
-
-                    dep_cmd = Option::fixPathToLocalOS(dep_cmd);
+                    QString dep_cmd = replaceExtraCompilerVariables(rcc_dep_cmd, qrc_files.at(i), "", true);
                     if(FILE *proc = QT_POPEN(dep_cmd.toLatin1().constData(), "r")) {
         	        QString indeps;
                         while(!feof(proc)) {
@@ -1166,16 +1163,14 @@ void VcprojGenerator::initExtraCompilerOutputs()
         QString tmp_out = project->first((*it) + ".output");
         if (project->variables()[(*it) + ".CONFIG"].indexOf("combine") != -1) {
             // Combined output, only one file result
-            extraCompile.addFile(
-                Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, QString(), QString()), false));
+            extraCompile.addFile(replaceExtraCompilerVariables(tmp_out, QString(), QString(), false));
         } else {
             // One output file per input
             QStringList tmp_in = project->variables()[project->first((*it) + ".input")];
             for (int i = 0; i < tmp_in.count(); ++i) {
                 const QString &filename = tmp_in.at(i);
                 if (extraCompilerSources.contains(filename))
-                    extraCompile.addFile(
-                        Option::fixPathToTargetOS(replaceExtraCompilerVariables(tmp_out, filename, QString()), false));
+                    extraCompile.addFile(replaceExtraCompilerVariables(tmp_out, filename, QString(), false));
             }
         }
         extraCompile.Project = this;
@@ -1313,9 +1308,10 @@ void VcprojGenerator::initOld()
 // ------------------------------------------------------------------------------------------------
 // ------------------------------------------------------------------------------------------------
 
-QString VcprojGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out)
+QString VcprojGenerator::replaceExtraCompilerVariables(const QString &var, const QString &in, const QString &out,
+                                                       bool local)
 {
-    QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out);
+    QString ret = MakefileGenerator::replaceExtraCompilerVariables(var, in, out, local);
 
     QStringList &defines = project->variables()["VCPROJ_MAKEFILE_DEFINES"];
     if(defines.isEmpty())
@@ -1323,11 +1319,24 @@ QString VcprojGenerator::replaceExtraCompilerVariables(const QString &var, const
                        varGlue("DEFINES"," -D"," -D",""));
     ret.replace("$(DEFINES)", defines.first());
 
-    QStringList &incpath = project->variables()["VCPROJ_MAKEFILE_INCPATH"];
-    if(incpath.isEmpty() && !this->var("MSVCPROJ_INCPATH").isEmpty())
-        incpath.append(this->var("MSVCPROJ_INCPATH"));
-    ret.replace("$(INCPATH)", incpath.join(" "));
-
+    QString incpath;
+    QStringList incpaths = project->values("VCPROJ_MAKEFILE_INCPATH");
+    if(incpaths.isEmpty() && !project->values("MSVCPROJ_INCPATH").isEmpty())
+        incpaths = project->values("MSVCPROJ_INCPATH");
+    for(int i = 0; i < incpaths.size(); ++i) {
+        QString inc = incpaths[i];
+        if(inc.startsWith(QLatin1String("-I")) || inc.startsWith(QLatin1String("/I"))) {
+            inc = inc.mid(2);
+            if(local)
+                inc = Option::fixPathToLocalOS(inc, false);
+            else
+                inc = Option::fixPathToTargetOS(inc, false);
+            if(!incpath.isEmpty())
+                incpath += " ";
+            incpath += "/I" + inc;
+        }
+    }
+    ret.replace("$(INCPATH)", incpaths.join(" "));
     return ret;
 }
 
