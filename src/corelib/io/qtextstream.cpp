@@ -198,9 +198,6 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
 #include <locale.h>
 #endif
 
-#include <qfileengine.h>
-#include <private/qbufferedfsfileengine_p.h>
-
 // for strtod()
 #include <stdlib.h>
 
@@ -232,29 +229,6 @@ static QByteArray qt_prettyDebug(const char *data, int len, int maxSize)
         out += "...";
 
     return out;
-}
-#endif
-
-// This function returns true if the device is a QFile based on a
-// FILE* handle.  QTextStream uses a codec buffer on top of QFile's
-// buffer. When using a FILE* handle, QFile is set to Unbuffered mode
-// because FILE* has its own buffer. But QTextStream is often used
-// with stdin for reading lines, and when it fills its input buffer
-// with a call to fread(), this call will block unless EOF is
-// encountered. So we have to make an exception for this very special
-// case. If a FILE* is used with QTextStream when reading lines, we
-// have to use repeated calls to QIODevice::read(data, 1) instead of
-// reading it all in one chunk.
-#ifndef QT_NO_QOBJECT
-static bool isBufferedFSFileEngine(QIODevice *device)
-{
-    QFile *file = qobject_cast<QFile *>(device);
-    return file && file->fileEngine()->type() == QFileEngine::BufferedFile;
-}
-#else
-static bool isBufferedFSFileEngine(QIODevice *)
-{
-    return false;
 }
 #endif
 
@@ -357,7 +331,7 @@ public:
     inline bool putString(const QString &ch);
 
     // buffers
-    bool fillReadBuffer(bool toEndOfLine);
+    bool fillReadBuffer();
     bool flushWriteBuffer();
     QString writeBuffer;
     QString readBuffer;
@@ -425,7 +399,7 @@ void QTextStreamPrivate::reset()
 
 /*! \internal
 */
-bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
+bool QTextStreamPrivate::fillReadBuffer()
 {
     // no buffer next to the QString itself; this function should only
     // be called internally, for devices.
@@ -440,22 +414,18 @@ bool QTextStreamPrivate::fillReadBuffer(bool toEndOfLine)
     // read raw data into a temporary buffer
     char buf[QTEXTSTREAM_BUFFERSIZE];
     qint64 bytesRead = 0;
-    if (toEndOfLine && isBufferedFSFileEngine(device) && device->isSequential()) {
-        while (bytesRead < QTEXTSTREAM_BUFFERSIZE) {
-            char c;
-            qint64 ret = device->read(&c, 1);
-            if (ret <= 0) {
-                if (bytesRead == 0)
-                    bytesRead = -1;
-                break;
-            }
-            buf[bytesRead++] = c;
-            if (c == '\n')
-                break;
-        }
-    } else {
+#ifdef Q_OS_WIN
+    // On Windows, there is no non-blocking stdin - so we fall back to reading
+    // lines instead.
+    QFile *file = qobject_cast<QFile *>(device);
+    if (file && file->isSequential() && file->type() == QFileEngine::BufferedFile && file->handle() == 0) {
+        bytesRead = device->readLine(buf, sizeof(buf));
+    } else
+#endif
+    {
         bytesRead = device->read(buf, sizeof(buf));
     }
+
 #if defined (QTEXTSTREAM_DEBUG)
     qDebug("QTextStreamPrivate::fillReadBuffer(), device->read(\"%s\", %d) == %d",
            qt_prettyDebug(buf, qMin(32,int(bytesRead)) , int(bytesRead)).constData(), sizeof(buf), int(bytesRead));
@@ -620,7 +590,7 @@ bool QTextStreamPrivate::scan(const QChar **ptr, int *length, int maxlen, TokenD
         }
     } while (!foundToken
              && (!maxlen || totalSize < maxlen)
-             && (device && fillReadBuffer(delimiter == EndOfLine)));
+             && (device && fillReadBuffer()));
 
     // if the token was not found, but we reached the end of input,
     // then we accept what we got. if we are not at the end of input,
@@ -722,7 +692,7 @@ inline bool QTextStreamPrivate::write(const QString &data)
 inline bool QTextStreamPrivate::getChar(QChar *ch)
 {
     if ((string && stringOffset == string->size())
-        || (device && readBuffer.isEmpty() && !fillReadBuffer(false))) {
+        || (device && readBuffer.isEmpty() && !fillReadBuffer())) {
         if (ch)
             *ch = 0;
         return false;

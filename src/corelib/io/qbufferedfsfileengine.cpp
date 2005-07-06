@@ -165,7 +165,51 @@ qint64 QBufferedFSFileEngine::read(char *data, qint64 maxlen)
 
     if (feof(d->fh))
         return 0;
+
+#ifdef Q_OS_UNIX
+    size_t readBytes = 0;
+    int oldFlags = fcntl(fileno(d->fh), F_GETFL);
+    
+    for (int i = 0; i < 2; ++i) {
+	// Make the underlying file descriptor non-blocking
+	if (d->sequential) {
+	    int v = 1;
+	    if ((oldFlags & O_NONBLOCK) == 0)
+		fcntl(fileno(d->fh), F_SETFL, oldFlags | O_NONBLOCK, &v, sizeof(v));
+	}
+
+	size_t read = fread(data + readBytes, 1, size_t(maxlen - readBytes), d->fh);
+	if (read > 0) {
+	    readBytes += read;
+	    break;
+	} else {
+	    if (readBytes)
+		break;
+	    readBytes = read;
+	}
+
+	// Restore the blocking state of the underlying socket
+	if (d->sequential) {
+	    if ((oldFlags & O_NONBLOCK) == 0) {
+		int v = 1;
+		fcntl(fileno(d->fh), F_SETFL, oldFlags, &v, sizeof(v));
+		if (readBytes == 0) {
+		    int readByte = fgetc(d->fh);
+		    if (readByte != -1) {
+			*data = uchar(readByte);
+			readBytes += 1;
+		    }
+		}
+	    }
+	}
+    }
+    if ((oldFlags & O_NONBLOCK) == 0) {
+	int v = 1;
+	fcntl(fileno(d->fh), F_SETFL, oldFlags, &v, sizeof(v));
+    }
+#else
     size_t readBytes = fread(data, 1, size_t(maxlen), d->fh);
+#endif
     if (readBytes == 0)
         d->setError(QFile::ReadError, qt_error_string(int(errno)));
     return readBytes;
