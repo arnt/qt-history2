@@ -14,7 +14,7 @@
     \section1 AnalogClock Class Definition
 
     The \c AnalogClock class provides a clock widget with hour and minute
-    hands that is automatically updated every few seconds. 
+    hands that is automatically updated every few seconds.
     We subclass \l QWidget and reimplement the standard
     \l{QWidget::paintEvent()}{paintEvent()} function to draw the clock face:
 
@@ -49,7 +49,7 @@
     called at least once every five seconds.
 
     Before we set up the painter and draw the clock, we first define
-    two lists of coordinates and two \l{QColor}s that will be used
+    two lists of \l {QPoint}s and two \l{QColor}s that will be used
     for the hour and minute hands. The minute hand's color has an
     alpha component of 191, meaning that it's 75% opaque.
 
