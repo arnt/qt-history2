@@ -50,8 +50,8 @@ that they will look and feel exactly as you intended.
 \section1 Figures and Hints
 
 \list
-\i \l{Getting Started with Qt Designer#MainWindow}{\e{Qt Designer}'s main window}
-\i \l{Getting Started with Qt Designer#WidgetBox}{\e{Qt Designer}'s widget box}
+\i \l{Getting Started with Qt Designer#MainWindow}{\QD's main window}
+\i \l{Getting Started with Qt Designer#WidgetBox}{\QD's widget box}
 \i \l{Designing a Component with Qt Designer#ChoosingAForm}{Choosing a form}
 \i \l{Designing a Component with Qt Designer#EditingModes}{Editing modes}
 \i \l{Designing a Component with Qt Designer#AddingWidgetsToAForm}{Adding widgets to a form}
@@ -60,14 +60,16 @@ that they will look and feel exactly as you intended.
 \i \l{Designing a Component with Qt Designer#ConnectingWidgets}{Connecting widgets}
 \i \l{Designing a Component with Qt Designer#PreviewingAForm}{Previewing a form}
 \i \l{Qt Designer's Form Editing Mode#SelectingObjects}{Selecting objects}
-\i \l{Qt Designer's Form Editing Mode#ShortcutsForEditing}{Shortcuts for editing}
 \i \l{Qt Designer's Form Editing Mode#DragAndDrop}{Drag and drop}
 \i \l{Qt Designer's Form Editing Mode#EditingProperties}{Editing properties}
+\i \l{Qt Designer's Form Editing Mode#TheObjectInspector}{The Object Inspector}
 \i \l{Qt Designer's Form Editing Mode#InsertingObjectsIntoALayout}{Inserting objects into a layout}
 \i \l{Editing Signals and Slots#HighlightedObjects}{Highlighted objects}
 \i \l{Editing Signals and Slots#MakingAConnection}{Making a connection}
 \i \l{Editing Signals and Slots#ChoosingSignalsAndSlots}{Choosing signals and slots}
+\i \l{Editing Signals and Slots#ConnectingToTheForm}{Connecting to a form}
 \i \l{Editing Signals and Slots#DeletingConnections}{Deleting connections}
+\i \l{Qt Designer's Buddy Editing Mode#MakingBuddies}{Making Buddies}
 \endlist
 
 */
@@ -590,7 +592,7 @@ being edited.
 \table
 \row \i 
 \inlineimage designer-object-inspector.png
-\i \bold{Editing properties}
+\i \bold{The Object Inspector}
 
 The Object Inspector displays a hierarchical list of all the objects on the
 form that is currently being edited. To show the child objects of a container
