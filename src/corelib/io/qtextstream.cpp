@@ -415,7 +415,7 @@ bool QTextStreamPrivate::fillReadBuffer()
     // read raw data into a temporary buffer
     char buf[QTEXTSTREAM_BUFFERSIZE];
     qint64 bytesRead = 0;
-#ifdef Q_OS_WIN
+#if defined(Q_OS_WIN) && !defined(QT_NO_QOBJECT)
     // On Windows, there is no non-blocking stdin - so we fall back to reading
     // lines instead.
     QFile *file = qobject_cast<QFile *>(device);
