@@ -287,4 +287,36 @@ public:
     QSizeF pageSize;
 };
 
+class QTextTable;
+class QTextHtmlExporter
+{
+public:
+    QTextHtmlExporter(const QTextDocument *_doc);
+
+    QString toHtml(const QByteArray &encoding);
+
+    void setFragmentMarkers(bool enable) { fragmentMarkers = enable; }
+
+private:
+    enum StyleMode { EmitStyleTag, OmitStyleTag };
+
+    void emitFrame(QTextFrame::Iterator frameIt);
+    void emitBlock(const QTextBlock &block);
+    void emitTable(const QTextTable *table);
+    void emitFragment(const QTextFragment &fragment);
+
+    void emitBlockAttributes(const QTextBlock &block);
+    bool emitCharFormatStyle(const QTextCharFormat &format);
+    void emitTextLength(const char *attribute, const QTextLength &length);
+    void emitAlignment(Qt::Alignment alignment);
+    void emitFloatStyle(QTextFrameFormat::Position pos, StyleMode mode = EmitStyleTag);
+    void emitMargins(const QString &top, const QString &bottom, const QString &left, const QString &right);
+    void emitAttribute(const char *attribute, const QString &value);
+
+    QString html;
+    QTextCharFormat defaultCharFormat;
+    const QTextDocument *doc;
+    bool fragmentMarkers;
+};
+
 #endif // QTEXTDOCUMENT_P_H

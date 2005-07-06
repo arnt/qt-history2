@@ -29,6 +29,7 @@
 #include "qtexthtmlparser_p.h"
 #include "qtextdocument_p.h"
 #include "qtexttable.h"
+#include "qatomic.h"
 
 #include <qlist.h>
 #include <qmap.h>
@@ -38,42 +39,30 @@
 
 class QTextDocumentFragmentPrivate;
 
-class QTextImportHelper
+class QTextCopyHelper
 {
 public:
-    QTextImportHelper(QTextDocumentFragmentPrivate *docFragment, QTextDocumentPrivate *priv);
+    QTextCopyHelper(const QTextCursor &_source, const QTextCursor &_destination, bool forceCharFormat = false, const QTextCharFormat &fmt = QTextCharFormat());
 
-    void appendFragments(int pos, int endPos);
-    int appendFragment(int pos, int endPos, int objectIndex = -1);
-    int convertFormatIndex(const QTextFormat &oldFormat, int objectIndexToSet = -1);
-    inline int convertFormatIndex(int oldFormatIndex, int objectIndexToSet = -1)
-    { return convertFormatIndex(priv->formatCollection()->format(oldFormatIndex), objectIndexToSet); }
+    void copy();
 
 private:
-    QTextDocumentFragmentPrivate *docFragment;
-    QTextDocumentPrivate *priv;
-    QTextFormatCollection &formatCollection;
-    const QString originalText;
-    QMap<int, int> objectIndexMap;
-};
-
-class QTextImportHelper2
-{
-public:
-    QTextImportHelper2(QTextDocument *_doc, QTextDocumentPrivate *priv);
-
     void appendFragments(int pos, int endPos);
     int appendFragment(int pos, int endPos, int objectIndex = -1);
     int convertFormatIndex(const QTextFormat &oldFormat, int objectIndexToSet = -1);
     inline int convertFormatIndex(int oldFormatIndex, int objectIndexToSet = -1)
-    { return convertFormatIndex(priv->formatCollection()->format(oldFormatIndex), objectIndexToSet); }
+    { return convertFormatIndex(src->formatCollection()->format(oldFormatIndex), objectIndexToSet); }
+    inline QTextFormat convertFormat(const QTextFormat &fmt)
+    { return dst->formatCollection()->format(convertFormatIndex(fmt)); }
 
     int insertPos;
-    bool containsCompleteDocument;
-private:
-    QTextDocument *doc;
+
+    bool forceCharFormat;
+    int primaryCharFormatIndex;
+
+    QTextCursor cursor;
     QTextDocumentPrivate *dst;
-    QTextDocumentPrivate *priv;
+    QTextDocumentPrivate *src;
     QTextFormatCollection &formatCollection;
     const QString originalText;
     QMap<int, int> objectIndexMap;
@@ -82,44 +71,19 @@ private:
 class QTextDocumentFragmentPrivate
 {
 public:
-    enum MarkerValues { FragmentStart = 1, FragmentEnd = 2 };
-
-    QTextDocumentFragmentPrivate() : hasTitle(false), containsCompleteDocument(false), setMarkerForHtmlExport(false) {}
+    QTextDocumentFragmentPrivate() : ref(1), doc(0), containsCompleteDocument(false), importedFromPlainText(false) {}
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
+    inline ~QTextDocumentFragmentPrivate() { delete doc; }
 
     void insert(QTextCursor &cursor) const;
 
-    void appendText(const QString &text, int formatIdx, int blockIdx = -2);
-
-    QMap<int, int> fillFormatCollection(QTextFormatCollection *collection) const;
-
-    // ### TODO: merge back into one big vector.
-
-    struct TextFragment
-    {
-        TextFragment()
-            : position(0), size(0),
-              charFormat(-1), blockFormat(-2) {}
-        qint32 position;
-        quint32 size;
-        qint32 charFormat;
-        qint32 blockFormat;
-    };
-    typedef QVector<TextFragment> FragmentVector;
-
-    FragmentVector fragments;
-
-    QString localBuffer;
-
-    QTextFormatCollection formatCollection;
-
-    qint8 hasTitle;
-    QString title;
-
-    QTextFrameFormat rootFrameFormat;
+    QAtomic ref;
+    QTextDocument *doc;
 
     uint containsCompleteDocument : 1;
-    uint setMarkerForHtmlExport : 1;
+    uint importedFromPlainText : 1;
+private:
+    Q_DISABLE_COPY(QTextDocumentFragmentPrivate);
 };
 
 class QTextHTMLImporter : public QTextHtmlParser
@@ -130,10 +94,7 @@ public:
 
     void import();
 
-    bool hasTitle;
-    QString title;
-    bool containsCompleteDocument;
-    QTextFrameFormat rootFrameFormat;
+    bool containsCompleteDocument() const { return containsCompleteDoc; }
 
 private:
     bool closeTag(int i);
@@ -141,7 +102,6 @@ private:
     bool scanTable(int tableNodeIdx, Table *table);
 
     void appendBlock(const QTextBlockFormat &format, QTextCharFormat charFmt = QTextCharFormat());
-    void appendText(QString text, QTextCharFormat format);
 
     struct List
     {
@@ -193,6 +153,7 @@ private:
 
     QTextDocument *doc;
     QTextCursor cursor;
+    bool containsCompleteDoc;
 };
 
 #endif // QTEXTDOCUMENTFRAGMENT_P_H

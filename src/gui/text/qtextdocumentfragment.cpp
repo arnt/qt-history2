@@ -22,18 +22,18 @@
 #include <qbytearray.h>
 #include <qdatastream.h>
 
-// ##################### TEMPORARY, UNTIL ALL OF DOCFRAG USES QTextDocument
-static bool useUglyContainsCompleteDocumentHack = false;
-static bool uglyContainsCompleteDocumentHack = false;
-
-QTextImportHelper::QTextImportHelper(QTextDocumentFragmentPrivate *docFragment, QTextDocumentPrivate *priv)
-    : formatCollection(docFragment->formatCollection), originalText(priv->buffer())
+QTextCopyHelper::QTextCopyHelper(const QTextCursor &_source, const QTextCursor &_destination, bool forceCharFormat, const QTextCharFormat &fmt)
+    : formatCollection(*_destination.d->priv->formatCollection()), originalText(_source.d->priv->buffer())
 {
-    this->docFragment = docFragment;
-    this->priv = priv;
+    src = _source.d->priv;
+    dst = _destination.d->priv;
+    insertPos = _destination.position();
+    this->forceCharFormat = forceCharFormat;
+    primaryCharFormatIndex = convertFormatIndex(fmt);
+    cursor = _source;
 }
 
-int QTextImportHelper::convertFormatIndex(const QTextFormat &oldFormat, int objectIndexToSet)
+int QTextCopyHelper::convertFormatIndex(const QTextFormat &oldFormat, int objectIndexToSet)
 {
     QTextFormat fmt = oldFormat;
     if (objectIndexToSet != -1) {
@@ -41,72 +41,7 @@ int QTextImportHelper::convertFormatIndex(const QTextFormat &oldFormat, int obje
     } else if (fmt.objectIndex() != -1) {
         int newObjectIndex = objectIndexMap.value(fmt.objectIndex(), -1);
         if (newObjectIndex == -1) {
-            QTextFormat objFormat = priv->formatCollection()->objectFormat(fmt.objectIndex());
-            Q_ASSERT(objFormat.objectIndex() == -1);
-            newObjectIndex = formatCollection.createObjectIndex(objFormat);
-            objectIndexMap.insert(fmt.objectIndex(), newObjectIndex);
-        }
-        fmt.setObjectIndex(newObjectIndex);
-    }
-    return formatCollection.indexForFormat(fmt);
-}
-
-int QTextImportHelper::appendFragment(int pos, int endPos, int objectIndex)
-{
-    QTextDocumentPrivate::FragmentIterator fragIt = priv->find(pos);
-    const QTextFragmentData * const frag = fragIt.value();
-
-    Q_ASSERT(objectIndex == -1
-             || (frag->size == 1 && priv->formatCollection()->format(frag->format).objectIndex() != -1));
-
-    const int charFormatIndex = convertFormatIndex(frag->format, objectIndex);
-
-    const int inFragmentOffset = qMax(0, pos - fragIt.position());
-    int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
-
-    QTextBlock nextBlock = priv->blocksFind(pos + 1);
-
-    int blockIdx = -2;
-    if (nextBlock.position() == pos + 1) {
-        blockIdx = convertFormatIndex(nextBlock.blockFormat());
-    } else if (pos == 0 && docFragment->containsCompleteDocument) {
-        docFragment->appendText(QString(QChar::ParagraphSeparator),
-                                convertFormatIndex(priv->blocksBegin().charFormat()),
-                                convertFormatIndex(priv->blocksBegin().blockFormat()));
-    }
-
-    docFragment->appendText(QString(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy),
-                            charFormatIndex, blockIdx);
-    return charsToCopy;
-}
-
-void QTextImportHelper::appendFragments(int pos, int endPos)
-{
-    Q_ASSERT(pos < endPos);
-
-    while (pos < endPos)
-        pos += appendFragment(pos, endPos);
-}
-
-// #######################################################################################
-
-QTextImportHelper2::QTextImportHelper2(QTextDocument *_doc, QTextDocumentPrivate *_priv)
-    : doc(_doc), formatCollection(*_doc->docHandle()->formatCollection()), originalText(_priv->buffer())
-{
-    dst = doc->docHandle();
-    insertPos = 0;
-    priv = _priv;
-}
-
-int QTextImportHelper2::convertFormatIndex(const QTextFormat &oldFormat, int objectIndexToSet)
-{
-    QTextFormat fmt = oldFormat;
-    if (objectIndexToSet != -1) {
-        fmt.setObjectIndex(objectIndexToSet);
-    } else if (fmt.objectIndex() != -1) {
-        int newObjectIndex = objectIndexMap.value(fmt.objectIndex(), -1);
-        if (newObjectIndex == -1) {
-            QTextFormat objFormat = priv->formatCollection()->objectFormat(fmt.objectIndex());
+            QTextFormat objFormat = src->formatCollection()->objectFormat(fmt.objectIndex());
             Q_ASSERT(objFormat.objectIndex() == -1);
             newObjectIndex = formatCollection.createObjectIndex(objFormat);
             objectIndexMap.insert(fmt.objectIndex(), newObjectIndex);
@@ -118,29 +53,31 @@ int QTextImportHelper2::convertFormatIndex(const QTextFormat &oldFormat, int obj
     return idx;
 }
 
-int QTextImportHelper2::appendFragment(int pos, int endPos, int objectIndex)
+int QTextCopyHelper::appendFragment(int pos, int endPos, int objectIndex)
 {
-    QTextDocumentPrivate::FragmentIterator fragIt = priv->find(pos);
+    QTextDocumentPrivate::FragmentIterator fragIt = src->find(pos);
     const QTextFragmentData * const frag = fragIt.value();
 
     Q_ASSERT(objectIndex == -1
-             || (frag->size == 1 && priv->formatCollection()->format(frag->format).objectIndex() != -1));
+             || (frag->size == 1 && src->formatCollection()->format(frag->format).objectIndex() != -1));
 
-    const int charFormatIndex = convertFormatIndex(frag->format, objectIndex);
+    int charFormatIndex;
+    if (forceCharFormat)
+       charFormatIndex = primaryCharFormatIndex;
+    else
+       charFormatIndex = convertFormatIndex(frag->format, objectIndex);
 
     const int inFragmentOffset = qMax(0, pos - fragIt.position());
     int charsToCopy = qMin(int(frag->size - inFragmentOffset), endPos - pos);
 
-    QTextBlock nextBlock = priv->blocksFind(pos + 1);
+    QTextBlock nextBlock = src->blocksFind(pos + 1);
 
     int blockIdx = -2;
     if (nextBlock.position() == pos + 1) {
         blockIdx = convertFormatIndex(nextBlock.blockFormat());
-    } else if (pos == 0 && containsCompleteDocument) {
-        dst->insertBlock(insertPos,
-                         convertFormatIndex(priv->blocksBegin().blockFormat()),
-                         convertFormatIndex(priv->blocksBegin().charFormat()));
-        ++insertPos;
+    } else if (pos == 0 && insertPos == 0) {
+        dst->setBlockFormat(dst->blocksBegin(), dst->blocksBegin(), convertFormat(src->blocksBegin().blockFormat()).toBlockFormat());
+        dst->setCharFormat(-1, 1, convertFormat(src->blocksBegin().charFormat()).toCharFormat());
     }
 
     QString txtToInsert(originalText.constData() + frag->stringPosition + inFragmentOffset, charsToCopy);
@@ -160,7 +97,7 @@ int QTextImportHelper2::appendFragment(int pos, int endPos, int objectIndex)
     return charsToCopy;
 }
 
-void QTextImportHelper2::appendFragments(int pos, int endPos)
+void QTextCopyHelper::appendFragments(int pos, int endPos)
 {
     Q_ASSERT(pos < endPos);
 
@@ -168,15 +105,8 @@ void QTextImportHelper2::appendFragments(int pos, int endPos)
         pos += appendFragment(pos, endPos);
 }
 
-static QTextDocument *cloneSelection(QTextCursor cursor, QTextDocumentPrivate *priv, bool wholeDoc)
+void QTextCopyHelper::copy()
 {
-    QTextDocument *doc = new QTextDocument;
-
-    doc->docHandle()->beginEditBlock();
-
-    QTextImportHelper2 importHelper(doc, priv);
-    importHelper.containsCompleteDocument = wholeDoc;
-
     if (cursor.hasComplexSelection()) {
         QTextTable *table = cursor.currentTable();
         int row_start, col_start, num_rows, num_cols;
@@ -185,7 +115,7 @@ static QTextDocument *cloneSelection(QTextCursor cursor, QTextDocumentPrivate *p
         QTextTableFormat tableFormat = table->format();
         tableFormat.setColumns(num_cols);
         tableFormat.clearColumnWidthConstraints();
-        const int objectIndex = doc->docHandle()->formatCollection()->createObjectIndex(tableFormat);
+        const int objectIndex = dst->formatCollection()->createObjectIndex(tableFormat);
 
         Q_ASSERT(row_start != -1);
         for (int r = row_start; r < row_start + num_rows; ++r) {
@@ -212,243 +142,73 @@ static QTextDocument *cloneSelection(QTextCursor cursor, QTextDocumentPrivate *p
                 if (c + cspan >= col_start + num_cols) {
                     cellFormat.setTableCellColumnSpan(col_start + num_cols - c);
                 }
-                const int charFormatIndex = importHelper.convertFormatIndex(cellFormat, objectIndex);
+                const int charFormatIndex = convertFormatIndex(cellFormat, objectIndex);
 
                 int blockIdx = -2;
                 const int cellPos = cell.firstPosition();
-                QTextBlock block = priv->blocksFind(cellPos);
+                QTextBlock block = src->blocksFind(cellPos);
                 if (block.position() == cellPos) {
-                    blockIdx = importHelper.convertFormatIndex(block.blockFormat());
+                    blockIdx = convertFormatIndex(block.blockFormat());
                 }
 
-                //appendText(QString(QTextBeginningOfFrame), charFormatIndex, blockIdx);
-                doc->docHandle()->insertBlock(QTextBeginningOfFrame, importHelper.insertPos, blockIdx, charFormatIndex);
-                ++importHelper.insertPos;
+                dst->insertBlock(QTextBeginningOfFrame, insertPos, blockIdx, charFormatIndex);
+                ++insertPos;
 
                 // nothing to add for empty cells
                 if (cell.lastPosition() > cellPos) {
                     // add the contents
-                    importHelper.appendFragments(cellPos, cell.lastPosition());
+                    appendFragments(cellPos, cell.lastPosition());
                 }
             }
         }
 
         // add end of table
         int end = table->lastPosition();
-        importHelper.appendFragment(end, end+1, objectIndex);
+        appendFragment(end, end+1, objectIndex);
     } else {
-        importHelper.appendFragments(cursor.selectionStart(), cursor.selectionEnd());
+        appendFragments(cursor.selectionStart(), cursor.selectionEnd());
     }
-
-    doc->docHandle()->endEditBlock();
-
-    return doc;
 }
 
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &_cursor)
-    : hasTitle(false), containsCompleteDocument(false), setMarkerForHtmlExport(false)
+    : ref(1), doc(0), containsCompleteDocument(false), importedFromPlainText(false)
 {
     if (!_cursor.hasSelection())
         return;
 
+    doc = new QTextDocument;
+    doc->setUndoRedoEnabled(false);
+    doc->docHandle()->beginEditBlock();
+
     if (_cursor.selectionStart() == 0 && _cursor.selectionEnd() == _cursor.d->priv->length() - 1) {
         containsCompleteDocument = true;
-        rootFrameFormat = _cursor.d->priv->rootFrame()->frameFormat();
+        doc->rootFrame()->setFrameFormat(_cursor.d->priv->rootFrame()->frameFormat());
+        doc->setMetaInformation(QTextDocument::DocumentTitle, _cursor.d->priv->document()->metaInformation(QTextDocument::DocumentTitle));
     }
 
-    if (useUglyContainsCompleteDocumentHack)
-        containsCompleteDocument = uglyContainsCompleteDocumentHack;
-
-    // ####
-    QTextDocument *tmpDoc = cloneSelection(_cursor, _cursor.d->priv, containsCompleteDocument);
-    QTextCursor cursor(tmpDoc);
-    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
-
-    QTextDocumentPrivate *priv = cursor.d->priv;
-    QTextImportHelper importHelper(this, priv);
-
-    if (cursor.hasComplexSelection()) {
-        QTextTable *table = cursor.currentTable();
-        int row_start, col_start, num_rows, num_cols;
-        cursor.selectedTableCells(&row_start, &num_rows, &col_start, &num_cols);
-
-        QTextTableFormat tableFormat = table->format();
-        tableFormat.setColumns(num_cols);
-        tableFormat.clearColumnWidthConstraints();
-        const int objectIndex = formatCollection.createObjectIndex(tableFormat);
-
-        Q_ASSERT(row_start != -1);
-        for (int r = row_start; r < row_start + num_rows; ++r) {
-            for (int c = col_start; c < col_start + num_cols; ++c) {
-                QTextTableCell cell = table->cellAt(r, c);
-                const int rspan = cell.rowSpan();
-                const int cspan = cell.columnSpan();
-                if (rspan != 1) {
-                    int cr = cell.row();
-                    if (cr != r)
-                        continue;
-                }
-                if (cspan != 1) {
-                    int cc = cell.column();
-                    if (cc != c)
-                        continue;
-                }
-
-                // add the QTextBeginningOfFrame
-                QTextCharFormat cellFormat = cell.format();
-                if (r + rspan >= row_start + num_rows) {
-                    cellFormat.setTableCellRowSpan(row_start + num_rows - r);
-                }
-                if (c + cspan >= col_start + num_cols) {
-                    cellFormat.setTableCellColumnSpan(col_start + num_cols - c);
-                }
-                const int charFormatIndex = importHelper.convertFormatIndex(cellFormat, objectIndex);
-
-                int blockIdx = -2;
-                const int cellPos = cell.firstPosition();
-                QTextBlock block = priv->blocksFind(cellPos);
-                if (block.position() == cellPos) {
-                    blockIdx = importHelper.convertFormatIndex(block.blockFormat());
-                }
-
-                appendText(QString(QTextBeginningOfFrame), charFormatIndex, blockIdx);
-
-                // nothing to add for empty cells
-                if (cell.lastPosition() > cellPos) {
-                    // add the contents
-                    importHelper.appendFragments(cellPos, cell.lastPosition());
-                }
-            }
-        }
-
-        // add end of table
-        int end = table->lastPosition();
-        importHelper.appendFragment(end, end+1, objectIndex);
-    } else {
-        importHelper.appendFragments(cursor.selectionStart(), cursor.selectionEnd());
-    }
-
-    delete tmpDoc;
+    QTextCursor destCursor(doc);
+    QTextCopyHelper(_cursor, destCursor).copy();
+    doc->docHandle()->endEditBlock();
 }
 
-void QTextDocumentFragmentPrivate::insert(QTextCursor &cursor) const
+void QTextDocumentFragmentPrivate::insert(QTextCursor &_cursor) const
 {
-    if (cursor.isNull())
+    if (_cursor.isNull())
         return;
 
-    QTextFormatCollection *formats = cursor.d->priv->formatCollection();
-    QMap<int, int> formatIndexMap = fillFormatCollection(formats);
-
-    QTextDocumentPrivate *destPieceTable = cursor.d->priv;
+    QTextDocumentPrivate *destPieceTable = _cursor.d->priv;
     destPieceTable->beginEditBlock();
 
-    int defaultBlockFormat = formats->indexForFormat(cursor.blockFormat());
-    int defaultCharFormat = formats->indexForFormat(cursor.charFormat());
+    QTextCursor sourceCursor(doc);
+    sourceCursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    QTextCopyHelper(sourceCursor, _cursor, importedFromPlainText, _cursor.charFormat()).copy();
 
-    const bool documentWasEmpty = (destPieceTable->length() <= 1);
-    bool firstFragmentWasBlock = false;
-
-    for (int i = 0; i < fragments.count(); ++i) {
-        const TextFragment &f = fragments.at(i);
-        int blockFormatIdx = -2;
-        if (f.blockFormat >= 0)
-            blockFormatIdx = formatIndexMap.value(f.blockFormat, -1);
-        else if (f.blockFormat == -1)
-            blockFormatIdx = defaultBlockFormat;
-        int formatIdx;
-        if (f.charFormat != -1)
-            formatIdx = formatIndexMap.value(f.charFormat, -1);
-        else
-            formatIdx = defaultCharFormat;
-
-        if (setMarkerForHtmlExport
-            && (i == 0 || i == fragments.count() - 1)) {
-
-            QTextCharFormat fmt = formats->charFormat(formatIdx);
-
-            int flag = 0;
-            if (i == 0)
-                flag |= FragmentStart;
-            if (i == fragments.count() - 1)
-                flag |= FragmentEnd;
-
-            fmt.setProperty(QTextFormat::DocumentFragmentMark, flag);
-            formatIdx = formats->indexForFormat(fmt);
-        }
-
-        QString text(localBuffer.constData() + f.position, f.size);
-
-        if (blockFormatIdx == -2) {
-            destPieceTable->insert(cursor.position(), text, formatIdx);
-        } else {
-            destPieceTable->insertBlock(text.at(0), cursor.position(), blockFormatIdx, formatIdx);
-            if (i == 0)
-                firstFragmentWasBlock = true;
-        }
+    if (containsCompleteDocument) {
+        destPieceTable->document()->rootFrame()->setFrameFormat(doc->rootFrame()->frameFormat());
+        destPieceTable->document()->setMetaInformation(QTextDocument::DocumentTitle, doc->metaInformation(QTextDocument::DocumentTitle));
     }
-
-    // if before the insertion the document was empty then we consider the
-    // insertion as a replacement and must now also remove the initial block
-    // that existed before, in case our fragment started with a block
-    if (documentWasEmpty && firstFragmentWasBlock) {
-        QTextCursor c = cursor;
-        c.clearSelection();
-        c.movePosition(QTextCursor::Start);
-        QTextCharFormat charFmt = formats->charFormat(destPieceTable->find(0)->format);
-        if (charFmt.objectIndex() == -1) {
-            c.setBlockCharFormat(charFmt);
-            c.deleteChar();
-        }
-    }
-
-    if (containsCompleteDocument)
-        destPieceTable->rootFrame()->setFrameFormat(rootFrameFormat);
-
-    // ### UNDO
-    if (hasTitle)
-        destPieceTable->document()->setMetaInformation(QTextDocument::DocumentTitle, title);
 
     destPieceTable->endEditBlock();
-}
-
-void QTextDocumentFragmentPrivate::appendText(const QString &text, int formatIdx, int blockIdx)
-{
-    TextFragment f;
-    f.position = localBuffer.length();
-    localBuffer.append(text);
-    f.size = text.length();
-    f.charFormat = formatIdx;
-    f.blockFormat = blockIdx;
-    fragments.append(f);
-}
-
-QMap<int, int> QTextDocumentFragmentPrivate::fillFormatCollection(QTextFormatCollection *collection) const
-{
-    QMap<int, int> formatIndexMap;
-
-    // maps from object index used in formats to real object index
-    QMap<int, int> insertedGroups;
-
-    const QVector<int> &objFormats = formatCollection.objFormats;
-    for (int i = 0; i < objFormats.size(); ++i) {
-        int objFormat = objFormats.at(i);
-        insertedGroups[i] = collection->createObjectIndex(formatCollection.format(objFormat));
-    }
-
-    const QVector<QTextFormat> &formats = formatCollection.formats;
-    for (int i = 0; i < formats.size(); ++i) {
-        QTextFormat format = formats.at(i);
-
-        int objectIndex = format.objectIndex();
-        if (objectIndex != -1) {
-            objectIndex = insertedGroups.value(objectIndex, -1);
-            format.setObjectIndex(objectIndex);
-        }
-
-        formatIndexMap[i] = collection->indexForFormat(format);
-    }
-
-    return formatIndexMap;
 }
 
 /*!
@@ -515,9 +275,10 @@ QTextDocumentFragment::QTextDocumentFragment(const QTextCursor &cursor)
     Copy constructor. Creates a copy of the \a other fragment.
 */
 QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
-    : d(0)
+    : d(rhs.d)
 {
-    (*this) = rhs;
+    if (d)
+        d->ref.ref();
 }
 
 /*!
@@ -527,20 +288,12 @@ QTextDocumentFragment::QTextDocumentFragment(const QTextDocumentFragment &rhs)
 */
 QTextDocumentFragment &QTextDocumentFragment::operator=(const QTextDocumentFragment &rhs)
 {
-    if (&rhs == this || (!d && !rhs.d))
-        return *this;
-
-    if (d && !rhs.d) {
-        delete d;
-        d = 0;
-        return *this;
-    }
-
-    if (!d)
-        d = new QTextDocumentFragmentPrivate;
-
-    *d = *rhs.d;
-
+    QTextDocumentFragmentPrivate *x = rhs.d;
+    if (x)
+        x->ref.ref();
+    x = qAtomicSetPtr(&d, x);
+    if (x && !x->ref.deref())
+        delete x;
     return *this;
 }
 
@@ -549,7 +302,8 @@ QTextDocumentFragment &QTextDocumentFragment::operator=(const QTextDocumentFragm
 */
 QTextDocumentFragment::~QTextDocumentFragment()
 {
-    delete d;
+    if (d && !d->ref.deref())
+        delete d;
 }
 
 /*!
@@ -557,11 +311,9 @@ QTextDocumentFragment::~QTextDocumentFragment()
 */
 bool QTextDocumentFragment::isEmpty() const
 {
-    return !d || d->fragments.isEmpty();
+    return !d || !d->doc || d->doc->docHandle()->length() <= 1;
+//    return !d || d->fragments.isEmpty();
 }
-
-// pull in from qtextdocument.cpp
-void qt_replace_special_text_characters(QString *text);
 
 /*!
     Returns the document fragment's text as plain text (i.e. with no
@@ -574,18 +326,13 @@ QString QTextDocumentFragment::toPlainText() const
     if (!d)
         return QString();
 
-    QString result = d->localBuffer;
+    QString result = d->doc->toPlainText();
 
-    // if we have a complete document that contains the initial paragraph
-    // at the beginning then we don't want to see that one in the plaintext
-    // output, as otherwise all plaintext output would always start with a
-    // newline
     if (d->containsCompleteDocument
         && !result.isEmpty()
-        && result.at(0) == QChar::ParagraphSeparator)
+        && result.at(0) == QLatin1Char('\n'))
         result.remove(0, 1);
 
-    qt_replace_special_text_characters(&result);
     return result;
 }
 
@@ -599,13 +346,44 @@ QString QTextDocumentFragment::toHtml() const
     if (!d)
         return QString();
 
-    QTextDocument doc;
-    QTextCursor cursor(&doc);
+    QTextHtmlExporter exporter(d->doc);
+    if (!d->containsCompleteDocument)
+        exporter.setFragmentMarkers(true);
+    return exporter.toHtml(QByteArray());
+}
 
-    d->setMarkerForHtmlExport = (d->containsCompleteDocument == false);
-    cursor.insertFragment(*this);
-    d->setMarkerForHtmlExport = false;
-    return doc.toHtml();
+// also used in QTextDocument, no need to export though
+void qrichtext_import_plaintext(QTextCursor cursor, const QString &plainText)
+{
+    cursor.beginEditBlock();
+
+    bool seenCRLF = false;
+
+    int textStart = 0;
+    for (int i = 0; i < plainText.length(); ++i) {
+        QChar ch = plainText.at(i);
+        if (ch == QLatin1Char('\n')
+            || ch == QChar::ParagraphSeparator) {
+
+            const int textEnd = (seenCRLF ? i - 1 : i);
+
+            if (textEnd > textStart)
+                cursor.insertText(QString::fromRawData(plainText.unicode() + textStart, textEnd - textStart));
+
+            textStart = i + 1;
+            cursor.insertBlock();
+
+            seenCRLF = false;
+        } else if (ch == QLatin1Char('\r')
+                   && (i + 1) < plainText.length()
+                   && plainText.at(i + 1) == QLatin1Char('\n')) {
+            seenCRLF = true;
+        }
+    }
+    if (textStart < plainText.length())
+        cursor.insertText(QString::fromRawData(plainText.unicode() + textStart, plainText.length() - textStart));
+
+    cursor.endEditBlock();
 }
 
 /*!
@@ -619,40 +397,32 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     QTextDocumentFragment res;
 
     res.d = new QTextDocumentFragmentPrivate;
-
-    bool seenCRLF = false;
-
-    int textStart = 0;
-    for (int i = 0; i < plainText.length(); ++i) {
-        QChar ch = plainText.at(i);
-        if (ch == QLatin1Char('\n')
-            || ch == QChar::ParagraphSeparator) {
-
-            const int textEnd = (seenCRLF ? i - 1 : i);
-
-            if (textEnd > textStart)
-                res.d->appendText(QString::fromRawData(plainText.unicode() + textStart, textEnd - textStart), -1);
-
-            textStart = i + 1;
-            res.d->appendText(QString(QChar::ParagraphSeparator), -1, -1);
-
-            seenCRLF = false;
-        } else if (ch == QLatin1Char('\r')
-                   && (i + 1) < plainText.length()
-                   && plainText.at(i + 1) == QLatin1Char('\n')) {
-            seenCRLF = true;
-        }
-    }
-    if (textStart < plainText.length())
-        res.d->appendText(QString::fromRawData(plainText.unicode() + textStart, plainText.length() - textStart), -1);
-
+    res.d->doc = new QTextDocument;
+    res.d->doc->setUndoRedoEnabled(false);
+    res.d->importedFromPlainText = true;
+    QTextCursor cursor(res.d->doc);
+    qrichtext_import_plaintext(cursor, plainText);
     return res;
 }
 
-QTextHTMLImporter::QTextHTMLImporter(QTextDocument *_doc, const QString &html)
-    : hasTitle(false), indent(0), setNamedAnchorInNextOutput(false), doc(_doc)
+QTextHTMLImporter::QTextHTMLImporter(QTextDocument *_doc, const QString &_html)
+    : indent(0), setNamedAnchorInNextOutput(false), doc(_doc), containsCompleteDoc(false)
 {
     cursor = QTextCursor(doc);
+
+    QString html = _html;
+    // ######## can go into HtmlImporter
+    const int startFragmentPos = html.indexOf(QLatin1String("<!--StartFragment-->"));
+    if (startFragmentPos != -1) {
+        const int endFragmentPos = html.indexOf(QLatin1String("<!--EndFragment-->"));
+        if (startFragmentPos < endFragmentPos)
+            html = html.mid(startFragmentPos, endFragmentPos - startFragmentPos);
+        else
+            html = html.mid(startFragmentPos);
+
+        html.prepend(QLatin1String("<meta name=\"qrichtext\" content=\"1\" />"));
+    }
+
     parse(html);
 //    dumpHtml();
 }
@@ -668,6 +438,7 @@ static QTextListFormat::Style nextListStyle(QTextListFormat::Style style)
 
 void QTextHTMLImporter::import()
 {
+    cursor.beginEditBlock();
     bool hasBlock = true;
     bool forceBlockMerging = false;
     for (int i = 0; i < count(); ++i) {
@@ -714,14 +485,12 @@ void QTextHTMLImporter::import()
         }
 
         if (node->displayMode == QTextHtmlElement::DisplayNone) {
-            if (node->id == Html_title) {
-                hasTitle = true;
-                title = node->text;
-            }
+            if (node->id == Html_title)
+                doc->setMetaInformation(QTextDocument::DocumentTitle, node->text);
             // ignore explicitly 'invisible' elements
             continue;
         } else if (node->id == Html_body) {
-            containsCompleteDocument = true;
+            containsCompleteDoc = true;
             if (node->bgColor.isValid()) {
                 QTextFrameFormat fmt;
                 fmt.setBackground(node->bgColor);
@@ -867,12 +636,19 @@ void QTextHTMLImporter::import()
                 block.setBackground(QBrush(node->bgColor));
 
             if (hasBlock && (!node->isEmptyParagraph || forceBlockMerging)) {
-                if (cursor.position() == 0)
-                    containsCompleteDocument = true;
+                if (cursor.position() == 0) {
+                    containsCompleteDoc = true;
+                }
                 cursor.setBlockFormat(block);
                 cursor.setBlockCharFormat(charFmt);
             } else {
-                appendBlock(block, charFmt);
+                if (i == 1 && cursor.position() == 0 && node->isEmptyParagraph) {
+                    containsCompleteDoc = true;
+                    cursor.setBlockFormat(block);
+                    cursor.setBlockCharFormat(charFmt);
+                } else {
+                    appendBlock(block, charFmt);
+                }
             }
 
             if (node->isListItem && !lists.isEmpty()) {
@@ -900,16 +676,33 @@ void QTextHTMLImporter::import()
             setNamedAnchorInNextOutput = true;
             namedAnchor = node->anchorName;
         }
-        if (node->text.size() == 0)
+        if (node->text.isEmpty())
             continue;
         hasBlock = false;
 
-        appendText(node->text, node->charFormat());
+        QTextCharFormat format = node->charFormat();
+        QString text = node->text;
+        if (setNamedAnchorInNextOutput) {
+            QTextCharFormat fmt = format;
+            fmt.setAnchor(true);
+            fmt.setAnchorName(namedAnchor);
+            cursor.insertText(QString(text.at(0)), fmt);
+
+            text.remove(0, 1);
+            format.setAnchor(false);
+            format.setAnchorName(QString());
+
+            setNamedAnchorInNextOutput = false;
+        }
+
+        if (!text.isEmpty())
+            cursor.insertText(text, format);
     }
 
     if (lists.size() || tables.size())
         closeTag(count() - 1);
 
+    cursor.endEditBlock();
 }
 
 // returns true if a block tag was closed
@@ -1071,25 +864,6 @@ void QTextHTMLImporter::appendBlock(const QTextBlockFormat &format, QTextCharFor
     cursor.insertBlock(format, charFmt);
 }
 
-void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
-{
-    if (setNamedAnchorInNextOutput && !text.isEmpty()) {
-        QTextCharFormat fmt = format;
-        fmt.setAnchor(true);
-        fmt.setAnchorName(namedAnchor);
-        cursor.insertText(QString(text.at(0)), fmt);
-
-        text.remove(0, 1);
-        format.setAnchor(false);
-        format.setAnchorName(QString());
-
-        setNamedAnchorInNextOutput = false;
-    }
-
-    if (!text.isEmpty())
-        cursor.insertText(text, format);
-}
-
 /*!
     \fn QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &text)
 
@@ -1098,30 +872,15 @@ void QTextHTMLImporter::appendText(QString text, QTextCharFormat format)
     possible; for example, "<b>bold</b>" will become a document
     fragment with the text "bold" with a bold character format.
 */
-QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &_html)
+QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html)
 {
-    QTextDocument doc;
+    QTextDocumentFragment res;
+    res.d = new QTextDocumentFragmentPrivate;
+    res.d->doc = new QTextDocument;
+    res.d->doc->setUndoRedoEnabled(false);
 
-    QString html = _html;
-
-    const int startFragmentPos = html.indexOf(QLatin1String("<!--StartFragment-->"));
-    if (startFragmentPos != -1) {
-        const int endFragmentPos = html.indexOf(QLatin1String("<!--EndFragment-->"));
-        if (startFragmentPos < endFragmentPos)
-            html = html.mid(startFragmentPos, endFragmentPos - startFragmentPos);
-        else
-            html = html.mid(startFragmentPos);
-
-        html.prepend(QLatin1String("<meta name=\"qrichtext\" content=\"1\" />"));
-    }
-
-    QTextHTMLImporter importer(&doc, html);
+    QTextHTMLImporter importer(res.d->doc, html);
     importer.import();
-    useUglyContainsCompleteDocumentHack = true;
-    uglyContainsCompleteDocumentHack = importer.containsCompleteDocument;
-    QTextDocumentFragment res = QTextDocumentFragment(&doc);
-    useUglyContainsCompleteDocumentHack = false;
-    res.d->hasTitle = importer.hasTitle;
-    res.d->title = importer.title;
+    res.d->containsCompleteDocument = importer.containsCompleteDocument();
     return res;
 }

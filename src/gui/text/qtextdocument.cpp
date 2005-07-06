@@ -212,17 +212,6 @@ QTextCodec *Qt::codecForHtml(const QByteArray &ba)
 }
 #endif
 
-// internal, do not Q_EXPORT
-// can go away when QTextDocumentFragment uses QTextDocument
-void qt_replace_special_text_characters(QString *text)
-{
-    text->replace(QTextBeginningOfFrame, '\n');
-    text->replace(QTextEndOfFrame, '\n');
-    text->replace(QChar::ParagraphSeparator, '\n');
-    text->replace(QChar::LineSeparator, '\n');
-    text->replace(QChar::Nbsp, ' ');
-}
-
 /*!
     \class QTextDocument qtextdocument.h
     \brief The QTextDocument class holds formatted text that can be
@@ -534,7 +523,11 @@ QString QTextDocument::toPlainText() const
 {
     Q_D(const QTextDocument);
     QString txt = d->plainText();
-    qt_replace_special_text_characters(&txt);
+    txt.replace(QTextBeginningOfFrame, '\n');
+    txt.replace(QTextEndOfFrame, '\n');
+    txt.replace(QChar::ParagraphSeparator, '\n');
+    txt.replace(QChar::LineSeparator, '\n');
+    txt.replace(QChar::Nbsp, ' ');
     return txt;
 }
 
@@ -546,11 +539,11 @@ QString QTextDocument::toPlainText() const
 */
 void QTextDocument::setPlainText(const QString &text)
 {
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromPlainText(text);
-    QTextCursor cursor(this);
-    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
+    // pull in from qtextdocumentfragment.cpp
+    extern void qrichtext_import_plaintext(QTextCursor cursor, const QString &plainText);
     setUndoRedoEnabled(false);
-    cursor.insertFragment(fragment);
+    clear();
+    qrichtext_import_plaintext(QTextCursor(this), text);
     setUndoRedoEnabled(true);
 }
 
@@ -566,11 +559,9 @@ void QTextDocument::setPlainText(const QString &text)
 */
 void QTextDocument::setHtml(const QString &html)
 {
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(html);
-    QTextCursor cursor(this);
-    cursor.movePosition(QTextCursor::End, QTextCursor::KeepAnchor);
     setUndoRedoEnabled(false);
-    cursor.insertFragment(fragment);
+    clear();
+    QTextHTMLImporter(this, html).import();
     setUndoRedoEnabled(true);
 }
 
@@ -1023,36 +1014,8 @@ static QTextFormat formatDifference(const QTextFormat &from, const QTextFormat &
     return diff;
 }
 
-class QTextHtmlExporter
-{
-public:
-    QTextHtmlExporter(const QTextDocument *_doc);
-
-    QString toHtml(const QByteArray &encoding);
-
-private:
-    enum StyleMode { EmitStyleTag, OmitStyleTag };
-
-    void emitFrame(QTextFrame::Iterator frameIt);
-    void emitBlock(const QTextBlock &block);
-    void emitTable(const QTextTable *table);
-    void emitFragment(const QTextFragment &fragment);
-
-    void emitBlockAttributes(const QTextBlock &block);
-    bool emitCharFormatStyle(const QTextCharFormat &format);
-    void emitTextLength(const char *attribute, const QTextLength &length);
-    void emitAlignment(Qt::Alignment alignment);
-    void emitFloatStyle(QTextFrameFormat::Position pos, StyleMode mode = EmitStyleTag);
-    void emitMargins(const QString &top, const QString &bottom, const QString &left, const QString &right);
-    void emitAttribute(const char *attribute, const QString &value);
-
-    QString html;
-    QTextCharFormat defaultCharFormat;
-    const QTextDocument *doc;
-};
-
 QTextHtmlExporter::QTextHtmlExporter(const QTextDocument *_doc)
-    : doc(_doc)
+    : doc(_doc), fragmentMarkers(false)
 {
     const QFont defaultFont = doc->defaultFont();
     defaultCharFormat.setFont(defaultFont);
@@ -1266,10 +1229,6 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 {
     const QTextCharFormat format = fragment.charFormat();
 
-    if (format.hasProperty(QTextFormat::DocumentFragmentMark)
-        && (format.intProperty(QTextFormat::DocumentFragmentMark) & QTextDocumentFragmentPrivate::FragmentStart))
-        html += QLatin1String("<!--StartFragment-->");
-
     bool closeAnchor = false;
 
     if (format.isAnchor()) {
@@ -1340,10 +1299,6 @@ void QTextHtmlExporter::emitFragment(const QTextFragment &fragment)
 
     if (closeAnchor)
         html += QLatin1String("</a>");
-
-    if (format.hasProperty(QTextFormat::DocumentFragmentMark)
-        && (format.intProperty(QTextFormat::DocumentFragmentMark) & QTextDocumentFragmentPrivate::FragmentEnd))
-        html += QLatin1String("<!--EndFragment-->");
 }
 
 static bool isOrderedList(int style)
@@ -1493,9 +1448,15 @@ void QTextHtmlExporter::emitBlock(const QTextBlock &block)
         defaultCharFormat.merge(block.charFormat());
     }
 
-    for (QTextBlock::Iterator it = block.begin();
-         !it.atEnd(); ++it)
+    QTextBlock::Iterator it = block.begin();
+    if (fragmentMarkers && !it.atEnd() && block == doc->begin())
+        html += QLatin1String("<!--StartFragment-->");
+
+    for (; !it.atEnd(); ++it)
         emitFragment(it.fragment());
+
+    if (fragmentMarkers && block.position() + block.length() == doc->docHandle()->length())
+        html += QLatin1String("<!--EndFragment-->");
 
     if (pre)
         html += QLatin1String("</pre>");

@@ -167,6 +167,7 @@ public:
 private:
     QSharedDataPointer<QTextCursorPrivate> d;
     friend class QTextDocumentFragmentPrivate;
+    friend class QTextCopyHelper;
 };
 
 #endif // QTEXTCURSOR_H

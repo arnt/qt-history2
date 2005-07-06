@@ -328,7 +328,7 @@ void QTextEditPrivate::createAutoBulletList()
     cursor.endEditBlock();
 }
 
-void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument *document)
+void QTextEditPrivate::init(Qt::TextFormat format, const QString &text, QTextDocument *document)
 {
     Q_Q(QTextEdit);
 
@@ -385,9 +385,12 @@ void QTextEditPrivate::init(const QTextDocumentFragment &fragment, QTextDocument
 
     viewport->setCursor(Qt::IBeamCursor);
 
-    if (!fragment.isEmpty()) {
+    if (!text.isEmpty()) {
+        if (format == Qt::PlainText)
+            doc->setPlainText(text);
+        else
+            doc->setHtml(text);
         cursor.movePosition(QTextCursor::Start);
-        cursor.insertFragment(fragment);
     }
 
     QTextFrame *rootFrame = doc->rootFrame();
@@ -914,8 +917,7 @@ QTextEdit::QTextEdit(const QString &text, QWidget *parent)
     : QAbstractScrollArea(*new QTextEditPrivate, parent)
 {
     Q_D(QTextEdit);
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
-    d->init(fragment);
+    d->init(Qt::RichText, text);
 }
 
 #ifdef QT3_SUPPORT
@@ -1065,7 +1067,7 @@ void QTextEdit::setDocument(QTextDocument *document)
         delete d->doc;
 
     d->doc = 0;
-    d->init(QTextDocumentFragment(), document);
+    d->init(Qt::RichText, QString(), document);
     d->relayoutDocument();
 }
 
@@ -1334,8 +1336,7 @@ void QTextEdit::timerEvent(QTimerEvent *e)
 void QTextEdit::setPlainText(const QString &text)
 {
     Q_D(QTextEdit);
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromPlainText(text);
-    d->init(fragment);
+    d->init(Qt::PlainText, text);
     d->preferRichText = false;
 }
 
@@ -1364,8 +1365,7 @@ void QTextEdit::setPlainText(const QString &text)
 void QTextEdit::setHtml(const QString &text)
 {
     Q_D(QTextEdit);
-    QTextDocumentFragment fragment = QTextDocumentFragment::fromHtml(text);
-    d->init(fragment);
+    d->init(Qt::RichText, text);
     d->preferRichText = true;
 }
 
