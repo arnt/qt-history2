@@ -35,7 +35,14 @@
 #include <QTimer>
 #include <QUrl>
 
-#include "qnetwork.h"
+static inline quint32 qntoh(quint32 source)
+{
+    return 0
+        | ((source & 0x000000ff) << 24)
+        | ((source & 0x0000ff00) << 8)
+        | ((source & 0x00ff0000) >> 8)
+        | ((source & 0xff000000) >> 24);
+}
 
 TrackerClient::TrackerClient(TorrentClient *downloader, QObject *parent)
     : QObject(parent), torrentDownloader(downloader)
@@ -126,7 +133,7 @@ void TrackerClient::fetchPeerList()
     unsigned char chars[4];
 
     for (int i = 0; i < 5; ++i) {
-	unsigned int digest = Qt::qntoh<quint32>(messageDigest[i]);
+	unsigned int digest = qntoh(messageDigest[i]);
 	chars[0] = (digest & 0xff000000) >> 24;
 	chars[1] = (digest & 0x00ff0000) >> 16;
 	chars[2] = (digest & 0x0000ff00) >> 8;
