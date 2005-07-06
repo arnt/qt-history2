@@ -191,6 +191,7 @@ static const int QTEXTSTREAM_BUFFERSIZE = 16384;
 
 #include <qbuffer.h>
 #include <qfile.h>
+#include <qfileengine.h>
 #ifndef QT_NO_TEXTCODEC
 #include <qtextcodec.h>
 #endif
@@ -418,7 +419,7 @@ bool QTextStreamPrivate::fillReadBuffer()
     // On Windows, there is no non-blocking stdin - so we fall back to reading
     // lines instead.
     QFile *file = qobject_cast<QFile *>(device);
-    if (file && file->isSequential() && file->type() == QFileEngine::BufferedFile && file->handle() == 0) {
+    if (file && file->isSequential() && file->fileEngine()->type() == QFileEngine::BufferedFile && file->handle() == 0) {
         bytesRead = device->readLine(buf, sizeof(buf));
     } else
 #endif
