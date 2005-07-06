@@ -89,6 +89,7 @@ QStringList Window::findFiles(const QDir &directory, const QStringList &files,
     QProgressDialog progressDialog(this);
     progressDialog.setCancelButtonText(tr("&Cancel"));
     progressDialog.setRange(0, files.count());
+    progressDialog.setWindowTitle(tr("Find Files"));
 
     QStringList foundFiles;
 
@@ -97,6 +98,7 @@ QStringList Window::findFiles(const QDir &directory, const QStringList &files,
         progressDialog.setLabelText(tr("Searching file number %1 of %2...")
                               .arg(i).arg(files.count()));
         qApp->processEvents();
+
         if (progressDialog.wasCanceled())
             break;
 
@@ -106,6 +108,8 @@ QStringList Window::findFiles(const QDir &directory, const QStringList &files,
             QString line;
             QTextStream in(&file);
             while (!in.atEnd()) {
+                if (progressDialog.wasCanceled())
+                    break;
                 line = in.readLine();
                 if (line.contains(text)) {
                     foundFiles << files[i];

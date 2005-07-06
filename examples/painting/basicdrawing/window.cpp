@@ -197,6 +197,6 @@ void Window::brushChanged()
     } else if (style == Qt::TexturePattern) {
         renderArea->setBrush(QBrush(QPixmap(":/images/brick.png")));
     } else {
-        renderArea->setBrush(QBrush(Qt::red, style));
+        renderArea->setBrush(QBrush(Qt::green, style));
     }
 }
