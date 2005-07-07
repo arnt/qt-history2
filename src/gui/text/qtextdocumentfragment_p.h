@@ -132,6 +132,8 @@ private:
             return *this;
         }
 
+        inline bool atEnd() const { return table == 0 || row >= table->rows(); }
+
         QTextTableCell cell() const { return table->cellAt(row, column); }
 
         QTextTable *table;
@@ -141,12 +143,13 @@ private:
 
     struct Table
     {
-        Table() : rows(0), columns(0), lastRow(-1), lastColumn(-1) {}
+        Table() : rows(0), columns(0), lastRow(-1), lastColumn(-1), currentRow(0) {}
         QPointer<QTextTable> table;
         int rows;
         int columns;
         QPointer<QTextFrame> lastFrame;
         int lastRow, lastColumn;
+        int currentRow;
         TableIterator currentPosition;
     };
     QVector<Table> tables;

@@ -716,6 +716,16 @@ bool QTextHtmlImporter::closeTag(int i)
 
     while (depth > endDepth) {
         if (closedNode->id == Html_tr && !tables.isEmpty()) {
+            Table &t = tables.last();
+
+            if (t.table) {
+                ++t.currentRow;
+                while (!t.currentPosition.atEnd() && t.currentPosition.row < t.currentRow)
+                    ++t.currentPosition;
+
+                t.currentRow = t.currentPosition.row;
+            }
+
             blockTagClosed = true;
         } else if (closedNode->id == Html_table && !tables.isEmpty()) {
             Table &t = tables.last();
