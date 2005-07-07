@@ -632,7 +632,7 @@ void QTextHtmlImporter::import()
             if (node->wsm == QTextHtmlParserNode::WhiteSpacePre)
                 block.setNonBreakableLines(true);
 
-            if (node->bgColor.isValid())
+            if (node->bgColor.isValid() && !node->isTableCell)
                 block.setBackground(QBrush(node->bgColor));
 
             if (hasBlock && (!node->isEmptyParagraph || forceBlockMerging)) {
