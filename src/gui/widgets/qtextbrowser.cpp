@@ -229,6 +229,11 @@ void QTextBrowserPrivate::setSource(const QUrl &url)
     use QTextEdit, and use QTextEdit::setReadOnly() to disable
     editing. If you just need to display a small piece of rich text
     use QLabel.
+
+    If you want to load documents stored in the Qt resource system use
+    qrc as the scheme in the URL to load. For example, for the document
+    resource path \c{:/docs/index.html} use \c{qrc:/docs/index.html} as
+    the URL with setSource().
 */
 
 /*!
