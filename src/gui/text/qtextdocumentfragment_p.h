@@ -71,7 +71,7 @@ private:
 class QTextDocumentFragmentPrivate
 {
 public:
-    QTextDocumentFragmentPrivate() : ref(1), doc(0), containsCompleteDocument(false), importedFromPlainText(false) {}
+    QTextDocumentFragmentPrivate();
     QTextDocumentFragmentPrivate(const QTextCursor &cursor);
     inline ~QTextDocumentFragmentPrivate() { delete doc; }
 

@@ -170,6 +170,12 @@ void QTextCopyHelper::copy()
     }
 }
 
+QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate() 
+    : ref(1), doc(new QTextDocument), containsCompleteDocument(false), importedFromPlainText(false)
+{
+    doc->setUndoRedoEnabled(false);
+}
+
 QTextDocumentFragmentPrivate::QTextDocumentFragmentPrivate(const QTextCursor &_cursor)
     : ref(1), doc(0), containsCompleteDocument(false), importedFromPlainText(false)
 {
@@ -396,8 +402,6 @@ QTextDocumentFragment QTextDocumentFragment::fromPlainText(const QString &plainT
     QTextDocumentFragment res;
 
     res.d = new QTextDocumentFragmentPrivate;
-    res.d->doc = new QTextDocument;
-    res.d->doc->setUndoRedoEnabled(false);
     res.d->importedFromPlainText = true;
     QTextCursor cursor(res.d->doc);
     qrichtext_import_plaintext(cursor, plainText);
@@ -886,8 +890,6 @@ QTextDocumentFragment QTextDocumentFragment::fromHtml(const QString &html)
 {
     QTextDocumentFragment res;
     res.d = new QTextDocumentFragmentPrivate;
-    res.d->doc = new QTextDocument;
-    res.d->doc->setUndoRedoEnabled(false);
 
     QTextHtmlImporter importer(res.d->doc, html);
     importer.import();
